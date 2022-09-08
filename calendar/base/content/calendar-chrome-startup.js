@@ -59,9 +59,6 @@ async function loadCalendarComponent() {
   // Set up the command controller from calendar-command-controller.js
   injectCalendarCommandController();
 
-  // Set up calendar appmenu buttons.
-  setUpCalendarAppMenuButtons();
-
   // Set up calendar menu items in the appmenu.
   setUpCalendarAppMenuItems();
 
@@ -174,15 +171,6 @@ async function uninstallLightningAddon() {
 }
 
 /**
- * Set up calendar appmenu buttons by adding event listeners to the buttons.
- */
-function setUpCalendarAppMenuButtons() {
-  PanelUI.initAppMenuButton("calendar-appmenu-button", "calendar-toolbox");
-  PanelUI.initAppMenuButton("task-appmenu-button", "task-toolbox");
-  PanelUI.initAppMenuButton("calendar-item-appmenu-button", "event-toolbox");
-}
-
-/**
  * Event listener used to refresh the "Events and Tasks" menu/view in the appmenu.
  */
 function refreshEventsAndTasksMenu() {
@@ -234,12 +222,6 @@ function migrateCalendarUI() {
   }
 
   try {
-    if (currentUIVersion < 1) {
-      let calbar = document.getElementById("calendar-toolbar2");
-      calbar.insertItem("calendar-appmenu-button");
-      let taskbar = document.getElementById("task-toolbar2");
-      taskbar.insertItem("task-appmenu-button");
-    }
     if (currentUIVersion < 2) {
       // If the user has customized the event/task window dialog toolbar,
       // we copy that custom set of toolbar items to the event/task tab
@@ -249,9 +231,9 @@ function migrateCalendarUI() {
 
       if (xulStore.hasValue(uri, "event-toolbar", "currentset")) {
         let windowSet = xulStore.getValue(uri, "event-toolbar", "currentset");
-        let items = "calendar-item-appmenu-button";
+        let items = "";
         if (!windowSet.includes("spring")) {
-          items = "spring," + items;
+          items = "spring";
         }
         let previousSet = windowSet == "__empty" ? "" : windowSet + ",";
         let tabSet = previousSet + items;

@@ -110,12 +110,6 @@
                  defaultlabelalign="end">
           <toolbarpalette id="event-toolbarpalette">
 #include calendar-item-toolbar.inc.xhtml
-            <toolbarbutton id="calendar-item-appmenu-button"
-                           type="menu"
-                           badged="true"
-                           class="toolbarbutton-1 button-appmenu"
-                           label="&lightning.toolbar.appmenuButton.label;"
-                           tooltiptext="&lightning.toolbar.appmenuButton1.tooltip;"/>
           </toolbarpalette>
           <!-- toolboxid is set here since we move the toolbar around for tabs -->
           <toolbar is="customizable-toolbar" id="event-tab-toolbar"
@@ -127,7 +121,7 @@
                    labelalign="end"
                    defaultlabelalign="end"
                    context="event-dialog-toolbar-context-menu"
-                   defaultset="button-saveandclose,button-attendees,button-privacy,button-url,button-priority,button-status,button-freebusy,button-delete,spring,calendar-item-appmenu-button"/>
+                   defaultset="button-saveandclose,button-attendees,button-privacy,button-url,button-priority,button-status,button-freebusy,button-delete,spring"/>
         </toolbox>
 
         <iframe id="calendar-item-panel-iframe" flex="1"/>

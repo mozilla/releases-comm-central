@@ -24,8 +24,6 @@
   }
 }
 
-#unifiedToolbarPlaceholder {
-  height: 3rem;
-  text-align: center;
-  line-height: 3rem;
+#unifiedToolbarContent {
+  flex: 1 1 auto;
 }

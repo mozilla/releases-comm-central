@@ -7,7 +7,13 @@
 <html:div id="unifiedToolbarContainer">
   <html:div id="unifiedToolbar" role="toolbar">
 #include ../../../base/content/spacesToolbarPin.inc.xhtml
-    <html:div id="unifiedToolbarPlaceholder">This space is reserved for exciting features</html:div>
+    <html:div id="unifiedToolbarContent"></html:div>
+    <toolbarbutton id="button-appmenu"
+                   type="menu"
+                   badged="true"
+                   class="toolbarbutton-1 button-appmenu"
+                   label="&appmenuButton.label;"
+                   tooltiptext="&appmenuButton1.tooltip;"/>
   </html:div>
 #include ../../../base/content/messenger-titlebar-items.inc.xhtml
 </html:div>
