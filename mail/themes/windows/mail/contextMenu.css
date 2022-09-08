@@ -21,10 +21,6 @@ menupopup:not([type="arrow"])::part(content) {
   box-shadow: var(--windows-panel-box-shadow);
 }
 
-menulist > menupopup:not([type="arrow"]) {
-  margin-inline: 0;
-}
-
 @media (prefers-contrast) {
   menupopup > :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
     color: SelectedItemText;

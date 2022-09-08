@@ -2,7 +2,110 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+## New Account
+
+appmenu-new-account-panel-title =
+  .title = New Account
+
+appmenu-new-account-panel =
+  .label = New Account
+  .accesskey = N
+
+appmenu-create-new-mail-account =
+  .label = Get a New Email
+  .accesskey = G
+
+appmenu-new-mail-account =
+  .label = Existing Email
+  .accesskey = E
+
+appmenu-new-calendar =
+  .label = Calendar
+  .accesskey = C
+
+appmenu-new-chat-account =
+  .label = Chat
+  .accesskey = h
+
+appmenu-new-feed =
+  .label = Feed
+  .accesskey = F
+
+appmenu-new-newsgroup =
+  .label = Newsgroup
+  .accesskey = N
+
+## New Account / Address Book
+
+appmenu-newab-panel-title =
+  .title = New Address Book
+
+appmenu-newab-panel =
+  .label = New Address Book
+  .accesskey = A
+
+appmenu-new-addressbook =
+  .label = Local Address Book
+  .accesskey = A
+
+appmenu-new-carddav =
+  .label = CardDav Address Book
+  .accesskey = C
+
+appmenu-new-ldap =
+  .label = LDAP Address Book
+  .accesskey = L
+
+## Create
+
+appmenu-create-panel-title =
+  .title = Create
+
+appmenu-create-panel =
+  .label = Create
+  .accesskey = C
+
+appmenu-create-message =
+  .label = Message
+  .accesskey = M
+
+appmenu-create-event =
+  .label = Event
+  .accesskey = E
+
+appmenu-create-task =
+  .label = Task
+  .accesskey = T
+
+appmenu-create-contact =
+  .label = Contact
+  .accesskey = C
+
+## Open
+
+appmenu-open-panel =
+  .label = Open
+  .accesskey = O
+
+appmenu-open-panel-title =
+  .title = Open
+
+appmenu-open-message =
+  .label = Message…
+  .accesskey = M
+
+appmenu-open-calendar =
+  .label = Calendar…
+  .accesskey = C
+
 ## View / Layout
+
+appmenu-view-panel-title =
+  .title = View
+
+appmenu-view-panel =
+  .label = View
+  .accesskey = V
 
 appmenu-font-size-value = Font Size
 

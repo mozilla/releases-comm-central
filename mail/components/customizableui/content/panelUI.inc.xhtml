@@ -8,7 +8,7 @@
        type="arrow"
        hidden="true"
        flip="slide"
-       position="bottomcenter topright"
+       position="bottomright topright"
        noautofocus="true">
   <panelmultiview id="appMenu-multiView"
                   mainViewId="appMenu-mainView"
@@ -29,10 +29,66 @@
                        wrap="true"
                        hidden="true"/>
         <toolbarbutton id="appmenu_new"
+                       data-l10n-id="appmenu-new-account-panel"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
-                       label="&newMenu.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-newView', this)"/>
+        <toolbarbutton id="appmenu_create"
+                       data-l10n-id="appmenu-create-panel"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
+                       closemenu="none"
+                       oncommand="PanelUI.showSubView('appMenu-createView', this)"/>
+        <toolbarseparator id="appmenu_createPopupMenuSeparator"/>
+        <toolbarbutton id="appmenu_open"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
+                       data-l10n-id="appmenu-open-panel"
+                       closemenu="none"
+                       oncommand="PanelUI.showSubView('appMenu-openView', this)"/>
+        <toolbarseparator/>
+        <toolbarbutton id="appmenu_View"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
+                       data-l10n-id="appmenu-view-panel"
+                       closemenu="none"
+                       oncommand="PanelUI.showSubView('appMenu-viewView', this)"/>
+        <toolbaritem id="appMenu-uiDensity-controls"
+                     class="subviewbutton subviewbutton-iconic toolbaritem-combined-buttons"
+                     closemenu="none">
+          <image class="toolbarbutton-icon"/>
+          <label class="toolbarbutton-text" data-l10n-id="appmenu-mail-uidensity-value"/>
+          <toolbarbutton id="appmenu_uiDensityCompact"
+                         class="subviewbutton subviewbutton"
+                         data-l10n-id="mail-uidensity-compact"
+                         type="radio"
+                         oncommand="PanelUI.setUIDensity(event);"/>
+          <toolbarbutton id="appmenu_uiDensityNormal"
+                         class="subviewbutton subviewbutton"
+                         data-l10n-id="mail-uidensity-normal"
+                         type="radio"
+                         oncommand="PanelUI.setUIDensity(event);"/>
+          <toolbarbutton id="appmenu_uiDensityTouch"
+                         class="subviewbutton subviewbutton"
+                         data-l10n-id="mail-uidensity-touch"
+                         type="radio"
+                         oncommand="PanelUI.setUIDensity(event);"/>
+        </toolbaritem>
+        <toolbaritem id="appMenu-fontSize-controls"
+                     class="subviewbutton subviewbutton-iconic toolbaritem-combined-buttons"
+                     closemenu="none">
+          <image class="toolbarbutton-icon"/>
+          <label class="toolbarbutton-text" data-l10n-id="appmenu-font-size-value"/>
+          <toolbarbutton id="appMenu-fontSizeReduce-button"
+                         class="subviewbutton subviewbutton-iconic"
+                         command="cmd_fontSizeReduce"
+                         data-l10n-id="appmenuitem-font-size-reduce"/>
+          <toolbarbutton id="appMenu-fontSizeReset-button"
+                         class="subviewbutton"
+                         command="cmd_fontSizeReset"
+                         tooltip="fontSizeReset"/>
+          <toolbarbutton id="appMenu-fontSizeEnlarge-button"
+                         class="subviewbutton subviewbutton-iconic"
+                         command="cmd_fontSizeEnlarge"
+                         data-l10n-id="appmenuitem-font-size-enlarge"/>
+        </toolbaritem>
         <toolbarseparator/>
         <toolbarbutton id="appmenu_addons"
                        class="subviewbutton subviewbutton-iconic"
@@ -54,49 +110,6 @@
                        label="&fileMenu.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-fileView', this)"/>
-        <toolbarseparator/>
-        <toolbarbutton id="appmenu_View"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&viewMenu.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-viewView', this)"/>
-        <toolbaritem id="appMenu-uiDensity-controls"
-                     class="subviewbutton toolbaritem-combined-buttons"
-                     closemenu="none">
-          <label class="toolbarbutton-text" data-l10n-id="appmenu-mail-uidensity-value"/>
-          <toolbarbutton id="appmenu_uiDensityCompact"
-                         class="subviewbutton subviewbutton"
-                         data-l10n-id="mail-uidensity-compact"
-                         type="radio"
-                         oncommand="PanelUI.setUIDensity(event);"/>
-          <toolbarbutton id="appmenu_uiDensityNormal"
-                         class="subviewbutton subviewbutton"
-                         data-l10n-id="mail-uidensity-normal"
-                         type="radio"
-                         oncommand="PanelUI.setUIDensity(event);"/>
-          <toolbarbutton id="appmenu_uiDensityTouch"
-                         class="subviewbutton subviewbutton"
-                         data-l10n-id="mail-uidensity-touch"
-                         type="radio"
-                         oncommand="PanelUI.setUIDensity(event);"/>
-        </toolbaritem>
-        <toolbaritem id="appMenu-fontSize-controls"
-                     class="subviewbutton toolbaritem-combined-buttons"
-                     closemenu="none">
-          <label class="toolbarbutton-text" data-l10n-id="appmenu-font-size-value"/>
-          <toolbarbutton id="appMenu-fontSizeReduce-button"
-                         class="subviewbutton subviewbutton-iconic"
-                         command="cmd_fontSizeReduce"
-                         data-l10n-id="appmenuitem-font-size-reduce"/>
-          <toolbarbutton id="appMenu-fontSizeReset-button"
-                         class="subviewbutton"
-                         command="cmd_fontSizeReset"
-                         tooltip="fontSizeReset"/>
-          <toolbarbutton id="appMenu-fontSizeEnlarge-button"
-                         class="subviewbutton subviewbutton-iconic"
-                         command="cmd_fontSizeEnlarge"
-                         data-l10n-id="appmenuitem-font-size-enlarge"/>
-        </toolbaritem>
         <toolbarseparator/>
         <toolbarbutton id="appmenu_Go"
                        class="subviewbutton subviewbutton-nav"
@@ -130,73 +143,107 @@
 
     <!-- New -->
     <panelview id="appMenu-newView"
-               title="&newMenu.label;"
+               data-l10n-id="appmenu-new-account-panel-title"
                class="PanelUI-subView">
       <vbox id="appMenu-newViewItems"
             class="panel-subview-body">
+        <toolbarbutton id="appmenu_newCreateEmailAccountMenuItem"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-create-new-mail-account"
+                       oncommand="openAccountProvisionerTab();"/>
+        <toolbarbutton id="appmenu_newMailAccountMenuItem"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-new-mail-account"
+                       oncommand="openAccountSetupTab();"/>
+#ifdef MAIN_WINDOW
+        <toolbarbutton id="appmenu_calendar-new-calendar-menu-item"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-new-calendar"
+                       command="calendar_new_calendar_command"/>
+#endif
+        <toolbarbutton id="appmenu_newAB"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
+                       data-l10n-id="appmenu-newab-panel"
+                       closemenu="none"
+                       oncommand="PanelUI.showSubView('appMenu-newabView', this)"/>
+        <toolbarbutton id="appmenu_newIMAccountMenuItem"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-new-chat-account"
+                       oncommand="openIMAccountWizard();"/>
+        <toolbarbutton id="appmenu_newFeedAccountMenuItem"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-new-feed"
+                       oncommand="AddFeedAccount();"/>
+        <toolbarbutton id="appmenu_newNewsgroupAccountMenuItem"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-new-newsgroup"
+                       oncommand="openNewsgroupAccountWizard();"/>
+      </vbox>
+    </panelview>
+
+    <!-- New AB -->
+    <panelview id="appMenu-newabView"
+               data-l10n-id="appmenu-newab-panel-title"
+               class="PanelUI-subView">
+      <vbox id="appMenu-newABItems"
+            class="panel-subview-body">
+        <toolbarbutton id="appmenu_newABMenuItem"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-new-addressbook"
+                       oncommand="openNewABDialog();"/>
+        <toolbarbutton id="appmenu_newCardDAVMenuItem"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-new-carddav"
+                       oncommand="openNewABDialog('CARDDAV');"/>
+        <toolbarbutton id="appmenu_newLdapMenuItem"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-new-ldap"
+                       oncommand="openNewABDialog('LDAP');"/>
+      </vbox>
+    </panelview>
+
+    <!-- Create -->
+    <panelview id="appMenu-createView"
+               data-l10n-id="appmenu-create-panel-title"
+               class="PanelUI-subView">
+      <vbox id="appMenu-createViewItems"
+            class="panel-subview-body">
         <toolbarbutton id="appmenu_newNewMsgCmd"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&newNewMsgCmd.label;"
-                       key="key_newMessage2"
+                       data-l10n-id="appmenu-create-message"
+                       key = "key_newMessage2"
                        command="cmd_newMessage"/>
 #ifdef MAIN_WINDOW
         <toolbarbutton id="appmenu_calendar-new-event-menu-item"
                        class="subviewbutton subviewbutton-iconic hide-when-calendar-deactivated"
-                       label="&lightning.menupopup.new.event.label;"
+                       data-l10n-id="appmenu-create-event"
                        command="calendar_new_event_command"/>
         <toolbarbutton id="appmenu_calendar-new-task-menu-item"
                        class="subviewbutton subviewbutton-iconic hide-when-calendar-deactivated"
-                       label="&lightning.menupopup.new.task.label;"
+                       data-l10n-id="appmenu-create-task"
                        command="calendar_new_todo_command"/>
-        <toolbarseparator id="appmenu_calendar-after-new-task-separator"
-                          class="hide-when-calendar-deactivated"
-                          observes="appmenu_newFolder"/>
 #endif
-        <toolbarbutton id="appmenu_newFolder"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&newFolderCmd.label;"
-                       command="cmd_newFolder"/>
-        <toolbarbutton id="appmenu_newVirtualFolder"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&newVirtualFolderCmd.label;"
-                       command="cmd_newVirtualFolder"/>
-        <toolbarseparator id="appmenu_newAccountPopupMenuSeparator"/>
-        <toolbarbutton id="appmenu_newCreateEmailAccountMenuItem"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&newCreateEmailAccountCmd.label;"
-                       oncommand="openAccountProvisionerTab();"/>
-        <toolbarbutton id="appmenu_newMailAccountMenuItem"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&newExistingEmailAccountCmd.label;"
-                       oncommand="openAccountSetupTab();"/>
-        <toolbarbutton id="appmenu_newIMAccountMenuItem"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&newIMAccountCmd.label;"
-                       oncommand="openIMAccountWizard();"/>
-        <toolbarbutton id="appmenu_newFeedAccountMenuItem"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&newFeedAccountCmd.label;"
-                       accesskey="&newFeedAccountCmd.accesskey;"
-                       oncommand="AddFeedAccount();"/>
-        <toolbarbutton id="appmenu_newNewsgroupAccountMenuItem"
-                       class="subviewbutton subviewbutton-iconic"
-                       data-l10n-id="file-new-newsgroup-account"
-                       oncommand="openNewsgroupAccountWizard();"/>
-#ifdef MAIN_WINDOW
-        <toolbarbutton id="appmenu_calendar-new-calendar-menu-item"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&lightning.menupopup.new.calendar.label;"
-                       command="calendar_new_calendar_command"/>
-#endif
-        <toolbarseparator id="appmenu_newPopupMenuSeparator"/>
         <toolbarbutton id="appmenu_newCard"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&appmenuNewContactCmd.label;"
+                       data-l10n-id="appmenu-create-contact"
                        command="cmd_newCard"/>
-        <toolbarbutton id="appmenu_newIMContactMenuItem"
+      </vbox>
+    </panelview>
+
+    <!-- Open -->
+    <panelview id="appMenu-openView"
+               data-l10n-id="appmenu-open-panel-title"
+               class="PanelUI-subView">
+      <vbox id="appMenu-openViewItems"
+            class="panel-subview-body">
+        <toolbarbutton id="appmenu_OpenMessageFileMenuitem"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&newIMContactCmd.label;"
-                       command="cmd_addChatBuddy"/>
+                       data-l10n-id="appmenu-open-message"
+                       oncommand="MsgOpenFromFile();"/>
+        <toolbarbutton id="appmenu_OpenCalendarFileMenuitem"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-open-calendar"
+                       oncommand="openLocalCalendar();"/>
       </vbox>
     </panelview>
 
@@ -284,13 +331,6 @@
                class="PanelUI-subView">
       <vbox id="appMenu-fileViewItems"
             class="panel-subview-body">
-        <toolbarbutton id="appmenu_Open"
-                       class="subviewbutton subviewbutton-nav"
-                       mode="calendar"
-                       label="&openMenuCmd.label;"
-                       closemenu="none"
-                       accesskey="&openMenuCmd.accesskey;"
-                       oncommand="PanelUI.showSubView('appMenu-fileOpenView', this)"/>
         <toolbarbutton id="appmenu_close"
                        class="subviewbutton subviewbutton-iconic"
                        label="&closeCmd.label;"
@@ -337,23 +377,6 @@
                        label="&offlineMenu.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-fileOfflineView', this)"/>
-      </vbox>
-    </panelview>
-
-    <!-- File / Open -->
-    <panelview id="appMenu-fileOpenView"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_OpenMessageFileMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&openMessageFileCmd.label;"
-                       accesskey="&openMessageFileCmd.accesskey;"
-                       oncommand="MsgOpenFromFile();"/>
-        <toolbarbutton id="appmenu_OpenCalendarFileMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&lightning.menupopup.open.calendar.label;"
-                       accesskey="&lightning.menupopup.open.calendar.accesskey;"
-                       oncommand="openLocalCalendar();"/>
       </vbox>
     </panelview>
 
@@ -413,8 +436,8 @@
 
     <!-- View -->
     <panelview id="appMenu-viewView"
-               title="&viewMenu.label;"
-               class="PanelUI-subView">
+               class="PanelUI-subView"
+               data-l10n-id="appmenu-view-panel-title">
       <vbox id="appMenu-viewViewItems"
             class="panel-subview-body">
         <toolbarbutton id="appmenu_Toolbars"

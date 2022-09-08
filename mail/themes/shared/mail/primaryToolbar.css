@@ -213,71 +213,8 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
-#appmenu_new {
-  list-style-image: var(--icon-add);
-}
-
-#appmenu_msgAttachmentMenu {
-  list-style-image: var(--icon-attachment);
-}
-
-#appmenu-cut,
-#appmenu-editmenu-cut {
-  list-style-image: var(--icon-cut);
-}
-
-#appmenu-copy,
-#appmenu-editmenu-copy {
-  list-style-image: var(--icon-copy);
-}
-
-#appmenu-paste,
-#appmenu-editmenu-paste {
-  list-style-image: var(--icon-paste);
-}
-
-#appmenu_find {
-  list-style-image: var(--icon-search);
-}
-
-#appmenu_print,
-#appmenu_print_popup {
-  list-style-image: var(--icon-print);
-}
-
-#appmenu_saveAs {
-  list-style-image: var(--icon-folder-save);
-}
-
-#appmenu_emptyTrash {
-  list-style-image: var(--icon-trash);
-}
-
-#appmenu_accountmgr {
-  list-style-image: var(--icon-account-settings);
-}
-
-#appmenu_customize {
-  list-style-image: var(--icon-paint-brush);
-}
-
-#appmenu_preferences {
-  list-style-image: var(--icon-settings);
-}
-
-#appmenu_addons,
-#appmenu_Add-Ons {
-  list-style-image: var(--icon-extension);
-}
-
-#appmenu_help,
-#appmenu_openHelp {
-  list-style-image: var(--icon-question);
-}
-
 #button-getAllNewMsg,
-#menu_getnewmsgs_all_accounts,
-#appmenu_getnewmsgs_all_accounts {
+#menu_getnewmsgs_all_accounts {
   list-style-image: var(--icon-download);
 }
 

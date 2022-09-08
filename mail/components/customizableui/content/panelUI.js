@@ -597,7 +597,7 @@ const PanelUI = {
 
       try {
         viewShown = await PanelMultiView.openPopup(tempPanel, anchor, {
-          position: "bottomcenter topright",
+          position: "bottomright topright",
           triggerEvent: domEvent,
         });
       } catch (ex) {

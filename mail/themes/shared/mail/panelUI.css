@@ -109,17 +109,6 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
   overflow-y: hidden;
 }
 
-/* This section is to anchor all the drop down panels at the same height, shift the
-  panel`s top margin according to its positioning and the uidensity of the window. */
-#widget-overflow,
-#appMenu-popup {
-  margin-top: -4px;
-}
-
-#appMenu-popup {
-  margin-inline-start: 0;
-}
-
 .panel-subview-body {
   overflow-y: auto;
   overflow-x: hidden;
@@ -433,13 +422,13 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
   outline-offset: var(--focus-outline-offset);
 }
 
-.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"]:nth-child(2) {
+.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"]:first-of-type {
   border-inline-end: none;
   border-start-start-radius: var(--arrowpanel-menuitem-border-radius);
   border-end-start-radius: var(--arrowpanel-menuitem-border-radius);
 }
 
-.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"]:last-child {
+.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"]:last-of-type {
   border-inline-start: none;
   border-start-end-radius: var(--arrowpanel-menuitem-border-radius);
   border-end-end-radius: var(--arrowpanel-menuitem-border-radius);
@@ -813,37 +802,101 @@ menulist[open="true"]:not([disabled="true"]) {
   border-color: var(--button-border-color);
 }
 
-#appmenu_import {
-  list-style-image: var(--icon-import);
+/* App Menu items icons */
+
+/* New Account and Create */
+
+#appmenu_new {
+  list-style-image: var(--icon-new-contact);
 }
 
-#appmenu_export {
-  list-style-image: var(--icon-export);
+#appmenu_create {
+  list-style-image: var(--icon-add);
 }
 
-#appmenu_searchCmd {
-  list-style-image: var(--icon-search);
+#appmenu_newNewMsgCmd,
+#appmenu_newCreateEmailAccountMenuItem {
+  list-style-image: var(--icon-new-mail);
 }
 
-#appmenu_filtersCmd {
-  list-style-image: var(--icon-filter);
+#appmenu_newMailAccountMenuItem {
+  list-style-image: var(--icon-mail);
 }
 
-#appmenu_openSavedFilesWnd {
-  list-style-image: var(--icon-download);
+#appmenu_calendar-new-calendar-menu-item {
+  list-style-image: var(--icon-calendar);
 }
 
-#appmenu_manageKeysOpenPGP {
-  list-style-image: var(--icon-key);
+#appmenu_newAB {
+  list-style-image: var(--icon-address-book);
 }
 
-#appmenu_activityManager {
-  list-style-image: var(--icon-paste);
+#appmenu_newABMenuItem,
+#appmenu_newCardDAVMenuItem,
+#appmenu_newLdapMenuItem {
+  list-style-image: var(--icon-new-address-book);
 }
 
-#appmenu_toolsMenu,
-#appmenu_devtoolsToolbox {
-  list-style-image: var(--icon-tools);
+#appmenu_newIMAccountMenuItem {
+  list-style-image: var(--icon-chat);
+}
+
+#appmenu_newFeedAccountMenuItem {
+  list-style-image: var(--icon-rss);
+}
+
+#appmenu_newNewsgroupAccountMenuItem {
+  list-style-image: var(--icon-newsletter);
+}
+
+#appmenu_calendar-new-event-menu-item {
+  list-style-image: var(--icon-new-event);
+}
+
+#appmenu_calendar-new-task-menu-item {
+  list-style-image: var(--icon-new-task);
+}
+
+#appmenu_open {
+  list-style-image: var(--icon-draft);
+}
+
+#appmenu_OpenMessageFileMenuitem {
+  list-style-image: var(--icon-mail);
+}
+
+#appmenu_OpenCalendarFileMenuitem {
+  list-style-image: var(--icon-calendar);
+}
+
+#appmenu_View {
+  list-style-image: var(--icon-eye);
+}
+
+#appMenu-uiDensity-controls {
+  list-style-image: var(--icon-spaces-menu);
+}
+
+#appMenu-fontSize-controls {
+  list-style-image: var(--icon-font);
+}
+
+#appmenu_newCard {
+  list-style-image: var(--icon-new-contact);
+}
+
+/* Settings */
+
+#appmenu_addons {
+  list-style-image: var(--icon-extension);
+}
+
+#appmenu_accountmgr {
+  list-style-image: var(--icon-account-settings);
+}
+
+#appmenu_preferences {
+  list-style-image: var(--icon-settings);
 }
 
 /* Font scaling */
@@ -940,7 +993,47 @@ menulist[open="true"]:not([disabled="true"]) {
   margin-block: -5px 6px;
 }
 
-/* App Menu items icons */
+/* Tools */
+
+#appmenu_import {
+  list-style-image: var(--icon-import);
+}
+
+#appmenu_export {
+  list-style-image: var(--icon-export);
+}
+
+#appmenu_searchCmd {
+  list-style-image: var(--icon-search);
+}
+
+#appmenu_filtersCmd {
+  list-style-image: var(--icon-filter);
+}
+
+#appmenu_openSavedFilesWnd {
+  list-style-image: var(--icon-download);
+}
+
+#appmenu_manageKeysOpenPGP {
+  list-style-image: var(--icon-key);
+}
+
+#appmenu_activityManager {
+  list-style-image: var(--icon-paste);
+}
+
+#appmenu_toolsMenu,
+#appmenu_devtoolsToolbox {
+  list-style-image: var(--icon-tools);
+}
+
+/* Help */
+
+#appmenu_help,
+#appmenu_openHelp {
+  list-style-image: var(--icon-question);
+}
 
 #appmenu_openTour {
   list-style-image: var(--icon-features);

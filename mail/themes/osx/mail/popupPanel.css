@@ -35,3 +35,8 @@
 html|input.editContactTextbox {
   padding: 3px 8px;
 }
+
+#messageHeaderCustomizationPanel {
+  margin-top: -6px;
+  margin-inline-end: 6px;
+}

@@ -41,6 +41,7 @@
   --icon-folder-rss: url("chrome://messenger/skin/icons/new/compact/folder-rss.svg");
   --icon-folder-save: url("chrome://messenger/skin/icons/new/compact/folder-save.svg");
   --icon-folder: url("chrome://messenger/skin/icons/new/compact/folder.svg");
+  --icon-font: url("chrome://messenger/skin/icons/new/compact/font.svg");
   --icon-forward: url("chrome://messenger/skin/icons/new/compact/forward.svg");
   --icon-get-mail: url("chrome://messenger/skin/icons/new/compact/get-mail.svg");
   --icon-globe-secure: url("chrome://messenger/skin/icons/new/compact/globe-secure.svg");
@@ -124,6 +125,9 @@
   --icon-user: url("chrome://messenger/skin/icons/new/compact/user.svg");
   --icon-user-list: url("chrome://messenger/skin/icons/new/compact/user-list.svg");
   --icon-warning: url("chrome://messenger/skin/icons/new/compact/warning.svg");
+
+  --icon-import-lg : url("chrome://messenger/skin/icons/new/touch/import.svg");
+  --icon-export-lg : url("chrome://messenger/skin/icons/new/touch/export.svg");
 
   --icon-calendar-empty: url("chrome://messenger/skin/icons/new/calendar-empty.svg");
   --icon-circle-small: url("chrome://messenger/skin/icons/new/circle-sm.svg");

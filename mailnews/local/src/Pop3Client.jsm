@@ -987,7 +987,11 @@ class Pop3Client {
    * Handle `UIDL` response.
    * @param {Pop3Response} res - UIDL response received from the server.
    */
-  _actionUidlResponse = ({ data }) => {
+  _actionUidlResponse = ({ status, success, data }) => {
+    if (status && !success) {
+      this._actionNoUidl();
+      return;
+    }
     this._lineReader.read(
       data,
       line => {
@@ -1024,9 +1028,8 @@ class Pop3Client {
           // Fetch the full message or only headers depending on server settings
           // and message size.
           let status =
-            this._capabilities.includes("TOP") &&
-            (this._server.headersOnly ||
-              this._messageSizeMap.get(messageNumber) > this._maxMessageSize)
+            this._server.headersOnly ||
+            this._messageSizeMap.get(messageNumber) > this._maxMessageSize
               ? UIDL_TOO_BIG
               : UIDL_FETCH_BODY;
           this._messagesToHandle.push({
@@ -1100,6 +1103,32 @@ class Pop3Client {
   };
 
   /**
+   * If the server doesn't support UIDL, leaveMessagesOnServer and headersOnly
+   * feature can't be used.
+   */
+  _actionNoUidl = () => {
+    if (
+      this._server.leaveMessagesOnServer ||
+      this._server.headersOnly ||
+      this._server.limitOfflineMessageSize ||
+      this._singleUidlToDownload
+    ) {
+      this._actionError("pop3ServerDoesNotSupportUidlEtc", [
+        this._server.hostName,
+      ]);
+      return;
+    }
+    for (let [messageNumber] of this._messageSizeMap) {
+      // Send RETR for each message.
+      this._messagesToHandle.push({
+        status: UIDL_FETCH_BODY,
+        messageNumber,
+      });
+    }
+    this._actionHandleMessage();
+  };
+
+  /**
    * Consume a message from this._messagesToHandle, decide to send TOP, RETR or
    * DELE request.
    */
@@ -1117,7 +1146,11 @@ class Pop3Client {
     if (this._currentMessage) {
       switch (this._currentMessage.status) {
         case UIDL_TOO_BIG:
-          this._actionTop();
+          if (this._topFailed) {
+            this._actionRetr();
+          } else {
+            this._actionTop();
+          }
           break;
         case UIDL_FETCH_BODY:
           this._actionRetr();
@@ -1155,14 +1188,21 @@ class Pop3Client {
    */
   _actionTopResponse = res => {
     if (res.status) {
-      try {
-        // Call incorporateBegin only once for each message.
-        this._sink.incorporateBegin(
-          this._currentMessage.uidl,
-          Ci.nsMsgMessageFlags.Partial
-        );
-      } catch (e) {
-        this._actionError("pop3MessageWriteError");
+      if (res.success) {
+        try {
+          // Call incorporateBegin only once for each message.
+          this._sink.incorporateBegin(
+            this._currentMessage.uidl,
+            Ci.nsMsgMessageFlags.Partial
+          );
+        } catch (e) {
+          this._actionError("pop3MessageWriteError");
+          return;
+        }
+      } else {
+        // TOP is not supported.
+        this._topFailed = true;
+        this._actionRetr();
         return;
       }
     }

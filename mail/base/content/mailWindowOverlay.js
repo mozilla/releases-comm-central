@@ -4249,3 +4249,13 @@ async function initAddonPrefsMenu(
 function openNewCardDialog() {
   toAddressBook({ action: "create" });
 }
+
+/**
+ * Opens Address Book tab and triggers address book creation dialog defined
+ * type.
+ *
+ * @param {?string}[type = "JS"] type - The address book type needing creation.
+ */
+function openNewABDialog(type = "JS") {
+  toAddressBook({ action: `create_ab_${type}` });
+}

@@ -55,6 +55,8 @@
 	<true/>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.productivity</string>
+	<key>LSFileQuarantineEnabled</key>
+	<true/>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.12.0</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
@@ -80,7 +82,7 @@
 			<key>UTTypeIdentifier</key>
 			<string>com.mozilla.thunderbird.mozeml</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://www.mozilla.com/Thunderbird</string>
+			<string>https://thunderbird.net</string>
 			<key>UTTypeDescription</key>
 			<string>Thunderbird Mail Message</string>
 			<key>UTTypeConformsTo</key>

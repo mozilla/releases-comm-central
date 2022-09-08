@@ -500,7 +500,7 @@ var gFolderTreeView = {
   folderPaneOptionsButtonOnCommand(event) {
     document
       .getElementById("folderPaneOptionsPopup")
-      .openPopup(event.target, "bottomcenter topright", 0, 0, false);
+      .openPopup(event.target, "bottomright topright", 0, 0, false);
   },
 
   initFolderPaneOptionsPopup() {

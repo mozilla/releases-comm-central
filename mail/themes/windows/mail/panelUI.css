@@ -4,6 +4,14 @@
 
 @import url("chrome://messenger/skin/shared/panelUI.css");
 
+#appMenu-popup {
+  margin-top: -1px;
+}
+
+#appMenu-popup {
+  margin-inline: 0 -14px;
+}
+
 /* Disabled empty item looks too small otherwise, because it has no icon. */
 menuitem.subviewbutton[disabled]:not(.menuitem-iconic) {
   /* This is 16px for an icon + 3px for its margins + 1px for its padding +
