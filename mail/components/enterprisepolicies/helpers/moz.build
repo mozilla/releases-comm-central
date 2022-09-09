@@ -8,5 +8,5 @@ with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "OS Integration")
 
 EXTRA_JS_MODULES.policies += [
-    "ProxyPolicies.jsm",
+    "ProxyPolicies.sys.mjs",
 ]
