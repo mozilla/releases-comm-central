@@ -26,6 +26,9 @@
   --icon-conversation: url("chrome://messenger/skin/icons/new/compact/conversation.svg");
   --icon-copy: url("chrome://messenger/skin/icons/new/compact/copy.svg");
   --icon-cut: url("chrome://messenger/skin/icons/new/compact/cut.svg");
+  --icon-density-compact: url("chrome://messenger/skin/icons/new/compact/density-compact.svg");
+  --icon-density-default: url("chrome://messenger/skin/icons/new/compact/density-default.svg");
+  --icon-density-relaxed: url("chrome://messenger/skin/icons/new/compact/density-relaxed.svg");
   --icon-download: url("chrome://messenger/skin/icons/new/compact/download.svg");
   --icon-draft: url("chrome://messenger/skin/icons/new/compact/draft.svg");
   --icon-error-circle: url("chrome://messenger/skin/icons/new/compact/error-circle.svg");

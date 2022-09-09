@@ -109,13 +109,13 @@ mail-uidensity-compact =
     .label = Compact
     .accesskey = C
 
-mail-uidensity-normal =
-    .label = Normal
-    .accesskey = N
+mail-uidensity-default =
+    .label = Default
+    .accesskey = D
 
-mail-uidensity-touch =
-    .label = Touch
-    .accesskey = T
+mail-uidensity-relaxed =
+    .label = Relaxed
+    .accesskey = R
 
 menu-spaces-toolbar-button =
     .label = Spaces Toolbar
