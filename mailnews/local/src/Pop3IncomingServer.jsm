@@ -238,7 +238,7 @@ class Pop3IncomingServer extends MsgIncomingServer {
       return;
     }
 
-    let client = new lazy.Pop3Client(this);
+    let client = this.runningClient || new lazy.Pop3Client(this);
     // Pass a clone of this._uidlsToMark to client.markMessages, because
     // this._uidlsToMark may be changed before markMessages finishes.
     client.markMessages(new Map(this._uidlsToMark));
