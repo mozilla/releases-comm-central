@@ -35,6 +35,21 @@ const SORT_ORDER_MAP = new Map(
 );
 
 /**
+ * Sets the displayed folder in the given tab.
+ *
+ * @param {Tab} tab - The tab where the displayed folder should be set.
+ * @param {nsIMsgFolder} folder - The folder to be displayed.
+ */
+function setDisplayedFolder(tab, folder) {
+  if (tab.active) {
+    let treeView = Cu.getGlobalForObject(tab.nativeTab).gFolderTreeView;
+    treeView.selectFolder(folder);
+  } else {
+    tab.nativeTab.folderDisplay.showFolderUri(folder.URI);
+  }
+}
+
+/**
  * Converts a mail tab to a simle object for use in messages.
  * @return {Object}
  */
@@ -215,25 +230,24 @@ this.mailTabs = class extends ExtensionAPI {
             viewType,
           } = args;
 
-          if (displayedFolder && extension.hasPermission("accountsRead")) {
+          if (displayedFolder) {
+            if (!extension.hasPermission("accountsRead")) {
+              throw new ExtensionError(
+                'Updating the displayed folder requires the "accountsRead" permission'
+              );
+            }
             let uri = folderPathToURI(
               displayedFolder.accountId,
               displayedFolder.path
             );
-            if (tab.active) {
-              let treeView = Cu.getGlobalForObject(nativeTab).gFolderTreeView;
-              let folder = MailServices.folderLookup.getFolderForURL(uri);
-              if (folder) {
-                treeView.selectFolder(folder);
-              } else {
-                throw new ExtensionError(
-                  `Folder "${displayedFolder.path}" for account ` +
-                    `"${displayedFolder.accountId}" not found.`
-                );
-              }
-            } else {
-              nativeTab.folderDisplay.showFolderUri(uri);
+            let folder = MailServices.folderLookup.getFolderForURL(uri);
+            if (!folder) {
+              throw new ExtensionError(
+                `Folder "${displayedFolder.path}" for account ` +
+                  `"${displayedFolder.accountId}" not found.`
+              );
             }
+            setDisplayedFolder(tab, folder);
           }
 
           if (sortType) {
@@ -309,11 +323,42 @@ this.mailTabs = class extends ExtensionAPI {
 
         async getSelectedMessages(tabId) {
           let tab = getTabOrActive(tabId);
-          let { folderDisplay } = tab.nativeTab;
-          let messageList = folderDisplay.view.dbView
-            ? folderDisplay.view.dbView.getSelectedMsgHdrs()
-            : [];
+          let messageList = tab.nativeTab.folderDisplay.selectedMessages;
           return messageListTracker.startList(messageList, extension);
+        },
+
+        async setSelectedMessages(tabId, messageIds) {
+          if (
+            !extension.hasPermission("messagesRead") ||
+            !extension.hasPermission("accountsRead")
+          ) {
+            throw new ExtensionError(
+              'Using mailTabs.setSelectedMessages() requires the "accountsRead" and the "messagesRead" permission'
+            );
+          }
+
+          let tab = getTabOrActive(tabId);
+          let refFolder, refMsgId;
+          let msgHdrs = [];
+          for (let messageId of messageIds) {
+            let msgHdr = messageTracker.getMessage(messageId);
+            if (!refFolder) {
+              refFolder = msgHdr.folder;
+              refMsgId = messageId;
+            }
+            if (msgHdr.folder == refFolder) {
+              msgHdrs.push(msgHdr);
+            } else {
+              throw new ExtensionError(
+                `Message ${refMsgId} and message ${messageId} are not in the same folder, cannot select them both.`
+              );
+            }
+          }
+
+          if (refFolder) {
+            setDisplayedFolder(tab, refFolder);
+          }
+          tab.nativeTab.folderDisplay.selectMessages(msgHdrs, true);
         },
 
         async setQuickFilter(tabId, state) {
