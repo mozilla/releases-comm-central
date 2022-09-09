@@ -141,16 +141,16 @@ function close_privacy_warning_notification(aController) {
 
 add_task(function test_no_notification_for_small_file() {
   let cwc = open_compose_new_mail(mc);
-  add_attachments(cwc, "http://www.example.com/1", 0);
+  add_attachments(cwc, "https://www.example.com/1", 0);
   assert_cloudfile_notification_displayed(cwc, false);
 
-  add_attachments(cwc, "http://www.example.com/2", 1);
+  add_attachments(cwc, "https://www.example.com/2", 1);
   assert_cloudfile_notification_displayed(cwc, false);
 
-  add_attachments(cwc, "http://www.example.com/3", 100);
+  add_attachments(cwc, "https://www.example.com/3", 100);
   assert_cloudfile_notification_displayed(cwc, false);
 
-  add_attachments(cwc, "http://www.example.com/4", 500);
+  add_attachments(cwc, "https://www.example.com/4", 500);
   assert_cloudfile_notification_displayed(cwc, false);
 
   close_compose_window(cwc);
@@ -158,16 +158,16 @@ add_task(function test_no_notification_for_small_file() {
 
 add_task(function test_notification_for_big_files() {
   let cwc = open_compose_new_mail(mc);
-  add_attachments(cwc, "http://www.example.com/1", maxSize);
+  add_attachments(cwc, "https://www.example.com/1", maxSize);
   assert_cloudfile_notification_displayed(cwc, true);
 
-  add_attachments(cwc, "http://www.example.com/2", maxSize + 1000);
+  add_attachments(cwc, "https://www.example.com/2", maxSize + 1000);
   assert_cloudfile_notification_displayed(cwc, true);
 
-  add_attachments(cwc, "http://www.example.com/3", maxSize + 10000);
+  add_attachments(cwc, "https://www.example.com/3", maxSize + 10000);
   assert_cloudfile_notification_displayed(cwc, true);
 
-  add_attachments(cwc, "http://www.example.com/4", maxSize + 100000);
+  add_attachments(cwc, "https://www.example.com/4", maxSize + 100000);
   assert_cloudfile_notification_displayed(cwc, true);
 
   close_compose_window(cwc);
@@ -175,13 +175,13 @@ add_task(function test_notification_for_big_files() {
 
 add_task(function test_graduate_to_notification() {
   let cwc = open_compose_new_mail(mc);
-  add_attachments(cwc, "http://www.example.com/1", maxSize - 100);
+  add_attachments(cwc, "https://www.example.com/1", maxSize - 100);
   assert_cloudfile_notification_displayed(cwc, false);
 
-  add_attachments(cwc, "http://www.example.com/2", maxSize - 25);
+  add_attachments(cwc, "https://www.example.com/2", maxSize - 25);
   assert_cloudfile_notification_displayed(cwc, false);
 
-  add_attachments(cwc, "http://www.example.com/3", maxSize);
+  add_attachments(cwc, "https://www.example.com/3", maxSize);
   assert_cloudfile_notification_displayed(cwc, true);
 
   close_compose_window(cwc);
@@ -191,16 +191,16 @@ add_task(function test_no_notification_if_disabled() {
   Services.prefs.setBoolPref("mail.cloud_files.enabled", false);
   let cwc = open_compose_new_mail(mc);
 
-  add_attachments(cwc, "http://www.example.com/1", maxSize);
+  add_attachments(cwc, "https://www.example.com/1", maxSize);
   assert_cloudfile_notification_displayed(cwc, false);
 
-  add_attachments(cwc, "http://www.example.com/2", maxSize + 1000);
+  add_attachments(cwc, "https://www.example.com/2", maxSize + 1000);
   assert_cloudfile_notification_displayed(cwc, false);
 
-  add_attachments(cwc, "http://www.example.com/3", maxSize + 10000);
+  add_attachments(cwc, "https://www.example.com/3", maxSize + 10000);
   assert_cloudfile_notification_displayed(cwc, false);
 
-  add_attachments(cwc, "http://www.example.com/4", maxSize + 100000);
+  add_attachments(cwc, "https://www.example.com/4", maxSize + 100000);
   assert_cloudfile_notification_displayed(cwc, false);
 
   close_compose_window(cwc);

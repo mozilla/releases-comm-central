@@ -14,26 +14,6 @@ const { CalTimezone } = ChromeUtils.import("resource:///modules/CalTimezone.jsm"
 
 const TIMEZONE_CHANGED_TOPIC = "default-timezone-changed";
 
-function calStringEnumerator(stringArray) {
-  this.mIndex = 0;
-  this.mStringArray = stringArray;
-}
-calStringEnumerator.prototype = {
-  // nsIUTF8StringEnumerator:
-  [Symbol.iterator]() {
-    return this.mStringArray.values();
-  },
-  hasMore() {
-    return this.mIndex < this.mStringArray.length;
-  },
-  getNext() {
-    if (!this.hasMore()) {
-      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
-    }
-    return this.mStringArray[this.mIndex++];
-  },
-};
-
 function CalTimezoneService() {
   this.wrappedJSObject = this;
 
@@ -42,22 +22,14 @@ function CalTimezoneService() {
   ICAL.TimezoneService = this.wrappedJSObject;
 }
 var calTimezoneServiceClassID = Components.ID("{e736f2bd-7640-4715-ab35-887dc866c587}");
-var calTimezoneServiceInterfaces = [
-  Ci.calITimezoneService,
-  Ci.calITimezoneProvider,
-  Ci.calIStartupService,
-];
+var calTimezoneServiceInterfaces = [Ci.calITimezoneService, Ci.calIStartupService];
 CalTimezoneService.prototype = {
   mDefaultTimezone: null,
   mVersion: null,
   mZones: null,
 
   classID: calTimezoneServiceClassID,
-  QueryInterface: cal.generateQI([
-    "calITimezoneService",
-    "calITimezoneProvider",
-    "calIStartupService",
-  ]),
+  QueryInterface: cal.generateQI(["calITimezoneService", "calIStartupService"]),
   classInfo: cal.generateCI({
     classID: calTimezoneServiceClassID,
     contractID: "@mozilla.org/calendar/timezone-service;1",
@@ -179,7 +151,6 @@ CalTimezoneService.prototype = {
     return this.mZones.get("floating").zone;
   },
 
-  // calITimezoneProvider:
   getTimezone(tzid) {
     if (!tzid) {
       cal.ERROR("Unknown timezone requested\n" + cal.STACK(10));
@@ -229,17 +200,7 @@ CalTimezoneService.prototype = {
         zones.push(k);
       }
     }
-    return new calStringEnumerator(zones);
-  },
-
-  get aliasIds() {
-    let zones = [];
-    for (let [key, value] of this.mZones.entries()) {
-      if (value.aliasTo && key != "UTC" && key != "floating") {
-        zones.push(key);
-      }
-    }
-    return new calStringEnumerator(zones);
+    return zones;
   },
 
   get version() {

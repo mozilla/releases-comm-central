@@ -2259,6 +2259,11 @@ FolderDisplayWidget.prototype = {
    *     If there are no selected messages, the result is an empty list.
    */
   get selectedMessages() {
+    if (!this._active && this._savedSelection?.messages) {
+      return this._savedSelection.messages
+        .map(savedInfo => this.view.getMsgHdrForMessageID(savedInfo.messageId))
+        .filter(msgHdr => !!msgHdr);
+    }
     if (!this.view.dbView) {
       return [];
     }

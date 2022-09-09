@@ -274,7 +274,7 @@ CalICSCalendar.prototype = {
         self.unlock();
       },
     };
-    parser.parseString(str, null, listener);
+    parser.parseString(str, listener);
   },
 
   writeICS() {

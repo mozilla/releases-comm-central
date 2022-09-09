@@ -83,6 +83,7 @@ SOURCES += [
     "nsStatusBarBiffManager.cpp",
     "nsStopwatch.cpp",
     "nsSubscribableServer.cpp",
+    "UrlListener.cpp",
 ]
 
 if CONFIG["OS_ARCH"] == "WINNT":

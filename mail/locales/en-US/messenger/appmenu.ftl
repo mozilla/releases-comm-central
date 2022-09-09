@@ -111,6 +111,15 @@ appmenu-font-size-value = Font Size
 
 appmenu-mail-uidensity-value = Density
 
+appmenu-uidensity-compact =
+  .tooltiptext = Compact
+
+appmenu-uidensity-default =
+  .tooltiptext = Default
+
+appmenu-uidensity-relaxed =
+  .tooltiptext = Relaxed
+
 appmenuitem-font-size-enlarge =
   .tooltiptext = Increase Font Size
 

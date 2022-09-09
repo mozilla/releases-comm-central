@@ -123,7 +123,7 @@ add_task(async function testAttachWebPage() {
  * Tests selecting a provider from the attach menu works.
  */
 add_task(async function testAttachProvider() {
-  let fileUrl = "http://path/to/mock/file.pdf";
+  let fileUrl = "https://path/to/mock/file.pdf";
   let iconURL = "chrome://messenger/content/extension.svg";
   let provider = {
     type: "Mochitest",

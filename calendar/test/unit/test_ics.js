@@ -135,7 +135,7 @@ function test_roundtrip() {
     // foreach loop iterations.
     do_test_pending();
     let thisdata = data;
-    cal.icsService.parseICSAsync(data.ics, null, {
+    cal.icsService.parseICSAsync(data.ics, {
       onParsingComplete(rc, rootComp) {
         try {
           ok(Components.isSuccessCode(rc));

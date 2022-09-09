@@ -435,6 +435,8 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
 }
 
 .PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"][checked="true"] {
+  --appmenu-icons-fill: color-mix(in srgb, currentColor 20%, transparent);
+  --appmenu-icons-stroke: currentColor;
   background-color: var(--select-focus-background-color);
   color: var(--select-focus-text-color);
 }
@@ -897,6 +899,20 @@ menulist[open="true"]:not([disabled="true"]) {
 
 #appmenu_preferences {
   list-style-image: var(--icon-settings);
+}
+
+/* Density Settings */
+
+#appmenu_uiDensityCompact {
+  list-style-image: var(--icon-density-compact);
+}
+
+#appmenu_uiDensityNormal {
+  list-style-image: var(--icon-density-default);
+}
+
+#appmenu_uiDensityTouch {
+  list-style-image: var(--icon-density-relaxed);
 }
 
 /* Font scaling */

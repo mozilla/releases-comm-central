@@ -20,37 +20,68 @@ class VCardIMPPComponent extends HTMLElement {
 
   /** @type {HTMLInputElement} */
   imppEl;
+  /** @type {HTMLSelectElement} */
+  protocolEl;
 
   static newVCardPropertyEntry() {
     return new VCardPropertyEntry("impp", {}, "uri", "");
   }
 
-  constructor() {
-    super();
-    let template = document.getElementById("template-vcard-edit-text");
-    let clonedTemplate = template.content.cloneNode(true);
-    this.appendChild(clonedTemplate);
-  }
-
   connectedCallback() {
-    if (this.isConnected) {
-      this.imppEl = this.querySelector('input[type="text"]');
-      let imppId = vCardIdGen.next().value;
-      this.imppEl.id = imppId;
-      let imppLabel = this.querySelector('label[for="text"]');
-      imppLabel.htmlFor = imppId;
-      document.l10n.setAttributes(imppLabel, "vcard-impp-label");
-      this.imppEl.type = "url";
-
-      this.fromVCardPropertyEntryToUI();
+    if (this.hasConnected) {
+      return;
     }
-  }
+    this.hasConnected = true;
 
-  disconnectedCallback() {
-    if (!this.isConnected) {
-      this.imppEl = null;
-      this.vCardPropertyEntry = null;
-    }
+    let template = document.getElementById("template-vcard-edit-impp");
+    this.appendChild(template.content.cloneNode(true));
+
+    this.imppEl = this.querySelector('input[name="impp"]');
+    document.l10n
+      .formatValue("vcard-impp-input-title")
+      .then(t => (this.imppEl.title = t));
+
+    this.protocolEl = this.querySelector('select[name="protocol"]');
+    this.protocolEl.id = vCardIdGen.next().value;
+
+    let protocolLabel = this.querySelector('label[for="protocol"]');
+    protocolLabel.htmlFor = this.protocolEl.id;
+
+    this.protocolEl.addEventListener("change", event => {
+      let entered = this.imppEl.value.split(":", 1)[0]?.toLowerCase();
+      if (entered) {
+        // Setup selection. Prevent changing to non-matching type.
+        for (let p of this.protocolEl.options) {
+          if (p.value.startsWith(entered)) {
+            this.protocolEl.value = p.value;
+            break;
+          }
+        }
+      }
+      this.imppEl.placeholder = this.protocolEl.value;
+      this.imppEl.pattern = this.protocolEl.selectedOptions[0].dataset.pattern;
+    });
+
+    this.imppEl.id = vCardIdGen.next().value;
+    let imppLabel = this.querySelector('label[for="impp"]');
+    imppLabel.htmlFor = this.imppEl.id;
+    document.l10n.setAttributes(imppLabel, "vcard-impp-label");
+    this.imppEl.addEventListener("change", event => {
+      let entered = event.target.value.split(":", 1)[0]?.toLowerCase();
+      if (!entered) {
+        return;
+      }
+      for (let p of this.protocolEl.options) {
+        if (p.value.startsWith(entered)) {
+          this.protocolEl.value = p.value;
+          return;
+        }
+      }
+      this.protocolEl.value = "";
+    });
+
+    this.fromVCardPropertyEntryToUI();
+    this.protocolEl.dispatchEvent(new CustomEvent("change"));
   }
 
   fromVCardPropertyEntryToUI() {

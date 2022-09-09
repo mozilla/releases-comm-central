@@ -2,6 +2,8 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 "use strict";
 
+/* eslint-disable @microsoft/sdl/no-insecure-url */
+
 const BASE_URL =
   "http://mochi.test:8888/browser/comm/mail/components/enterprisepolicies/tests/browser/";
 

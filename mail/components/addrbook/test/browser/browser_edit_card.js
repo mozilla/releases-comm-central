@@ -2327,7 +2327,7 @@ add_task(async function test_vCard_fields() {
 
   await setVCardInputValues({
     impp: [{ value: "matrix:u/contact1:example.com" }],
-    url: [{ value: "http://www.example.com" }],
+    url: [{ value: "https://www.example.com" }],
     tel: [{ value: "+123456 789" }],
     note: [{ value: "A note to this contact" }],
     specialDate: [
@@ -2350,7 +2350,7 @@ add_task(async function test_vCard_fields() {
 
   checkVCardValues(book.childCards[0], {
     impp: [{ value: "matrix:u/contact1:example.com" }],
-    url: [{ value: "http://www.example.com" }],
+    url: [{ value: "https://www.example.com" }],
     tel: [{ value: "+123456 789" }],
     note: [{ value: "A note to this contact" }],
     bday: [{ value: "2000-03-31" }],
@@ -2394,7 +2394,7 @@ add_task(async function test_vCard_fields() {
 
   checkVCardInputValues({
     impp: [{ value: "matrix:u/contact1:example.com" }],
-    url: [{ value: "http://www.example.com" }],
+    url: [{ value: "https://www.example.com" }],
     tel: [{ value: "+123456 789" }],
     note: [{ value: "A note to this contact" }],
     specialDate: [
@@ -2419,7 +2419,7 @@ add_task(async function test_vCard_fields() {
       { value: "xmpp:test@example.com" },
     ],
     url: [
-      { value: "http://example.com" },
+      { value: "https://example.com" },
       { value: "https://hello", type: "home" },
       { value: "https://www.example.invalid", type: "work" },
     ],
@@ -2456,7 +2456,7 @@ add_task(async function test_vCard_fields() {
       { value: "xmpp:test@example.com" },
     ],
     url: [
-      { value: "http://example.com" },
+      { value: "https://example.com" },
       { value: "https://hello", type: "home" },
       { value: "https://www.example.invalid", type: "work" },
     ],
@@ -2516,7 +2516,7 @@ add_task(async function test_vCard_fields() {
 
   await setVCardInputValues({
     impp: [{ value: "invalid:example.com" }],
-    url: [{ value: "http://www.thunderbird.net" }],
+    url: [{ value: "https://www.thunderbird.net" }],
     tel: [{ value: "650-903-0800" }],
     note: [{ value: "Another note\nfor contact 2" }],
     specialDate: [
@@ -2540,7 +2540,7 @@ add_task(async function test_vCard_fields() {
       { value: "xmpp:test@example.com" },
     ],
     url: [
-      { value: "http://example.com" },
+      { value: "https://example.com" },
       { value: "https://hello", type: "home" },
       { value: "https://www.example.invalid", type: "work" },
     ],
@@ -2569,7 +2569,7 @@ add_task(async function test_vCard_fields() {
 
   checkVCardValues(book.childCards[1], {
     impp: [{ value: "invalid:example.com" }],
-    url: [{ value: "http://www.thunderbird.net" }],
+    url: [{ value: "https://www.thunderbird.net" }],
     tel: [{ value: "650-903-0800" }],
     note: [{ value: "Another note\nfor contact 2" }],
     bday: [{ value: "1966-12-15" }],
@@ -2592,7 +2592,7 @@ add_task(async function test_vCard_fields() {
       { value: "xmpp:test@example.com" },
     ],
     url: [
-      { value: "http://example.com" },
+      { value: "https://example.com" },
       { value: "https://hello", type: "home" },
       { value: "https://www.example.invalid", type: "work" },
     ],
@@ -2651,7 +2651,7 @@ add_task(async function test_vCard_fields() {
 
   checkVCardValues(book.childCards[1], {
     impp: [{ value: "invalid:example.com" }],
-    url: [{ value: "http://www.thunderbird.net" }],
+    url: [{ value: "https://www.thunderbird.net" }],
     tel: [{ value: "650-903-0800" }],
     note: [{ value: "Another note\nfor contact 2" }],
     bday: [{ value: "1966-12-15" }],
@@ -2668,7 +2668,7 @@ add_task(async function test_vCard_fields() {
 
   checkVCardInputValues({
     impp: [{ value: "invalid:example.com" }],
-    url: [{ value: "http://www.thunderbird.net" }],
+    url: [{ value: "https://www.thunderbird.net" }],
     tel: [{ value: "650-903-0800" }],
     note: [{ value: "Another note\nfor contact 2" }],
     specialDate: [
@@ -2685,7 +2685,7 @@ add_task(async function test_vCard_fields() {
   await setVCardInputValues({
     impp: [{ value: "" }],
     url: [
-      { value: "http://www.thunderbird.net" },
+      { value: "https://www.thunderbird.net" },
       { value: "www.another.url", type: "work" },
     ],
     tel: [{ value: "650-903-0800" }, { value: "+123 456 789", type: "home" }],
@@ -2720,7 +2720,7 @@ add_task(async function test_vCard_fields() {
 
   checkVCardValues(book.childCards[1], {
     impp: [{ value: "invalid:example.com" }],
-    url: [{ value: "http://www.thunderbird.net" }],
+    url: [{ value: "https://www.thunderbird.net" }],
     tel: [{ value: "650-903-0800" }],
     note: [{ value: "Another note\nfor contact 2" }],
     bday: [{ value: "1966-12-15" }],
@@ -2737,7 +2737,7 @@ add_task(async function test_vCard_fields() {
 
   checkVCardInputValues({
     impp: [{ value: "invalid:example.com" }],
-    url: [{ value: "http://www.thunderbird.net" }],
+    url: [{ value: "https://www.thunderbird.net" }],
     tel: [{ value: "650-903-0800" }],
     note: [{ value: "Another note\nfor contact 2" }],
     specialDate: [
@@ -2770,7 +2770,7 @@ add_task(async function test_vCard_fields() {
 
   checkVCardValues(book.childCards[1], {
     impp: [{ value: "invalid:example.com" }],
-    url: [{ value: "http://www.thunderbird.net" }],
+    url: [{ value: "https://www.thunderbird.net" }],
     tel: [{ value: "650-903-0800" }],
     note: [{ value: "Another note\nfor contact 2" }],
     bday: [{ value: "1966-12-15" }],
@@ -2878,7 +2878,7 @@ add_task(async function test_type_selection() {
       { value: "work.contact1@invalid", type: "work" },
     ],
     url: [
-      { value: "http://none.example.com" },
+      { value: "https://none.example.com" },
       { value: "https://home.example.com", type: "home" },
       { value: "https://work.example.com", type: "work" },
     ],
@@ -2902,7 +2902,7 @@ add_task(async function test_type_selection() {
       { value: "work.contact1@invalid", type: "work" },
     ],
     url: [
-      { value: "http://none.example.com" },
+      { value: "https://none.example.com" },
       { value: "https://home.example.com", type: "home" },
       { value: "https://work.example.com", type: "work" },
     ],
@@ -2926,7 +2926,7 @@ add_task(async function test_type_selection() {
       { value: "work.contact1@invalid", type: "work" },
     ],
     url: [
-      { value: "http://none.example.com" },
+      { value: "https://none.example.com" },
       { value: "https://home.example.com", type: "home" },
       { value: "https://work.example.com", type: "work" },
     ],
@@ -2947,7 +2947,7 @@ add_task(async function test_type_selection() {
       { value: "work.contact1@invalid", type: "home" },
     ],
     url: [
-      { value: "http://none.example.com", type: "work" },
+      { value: "https://none.example.com", type: "work" },
       { value: "https://home.example.com" },
       { value: "https://work.example.com", type: "home" },
     ],
@@ -2971,7 +2971,7 @@ add_task(async function test_type_selection() {
       { value: "work.contact1@invalid", type: "home" },
     ],
     url: [
-      { value: "http://none.example.com", type: "work" },
+      { value: "https://none.example.com", type: "work" },
       { value: "https://home.example.com" },
       { value: "https://work.example.com", type: "home" },
     ],
@@ -3271,7 +3271,7 @@ add_task(async function testGoogleEscaping() {
       TEL:tel\\:0123\\\\4567
       EMAIL:test\\\\test@invalid
       NOTE:notes\\:\\nnotes\\;\\nnotes\\,\\nnotes\\\\
-      URL:http\\://host/url\\:url\\;url\\,url\\\\url
+      URL:https\\://host/url\\:url\\;url\\,url\\\\url
       END:VCARD
     `)
   );
@@ -3300,7 +3300,7 @@ add_task(async function testGoogleEscaping() {
     tel: [{ value: "tel:0123\\4567" }],
     email: [{ value: "test\\test@invalid" }],
     note: [{ value: "notes:\nnotes;\nnotes,\nnotes\\" }],
-    url: [{ value: "http://host/url:url;url,url\\url" }],
+    url: [{ value: "https://host/url:url;url,url\\url" }],
   });
 
   await closeAddressBookWindow();

@@ -148,7 +148,7 @@ add_task(async function() {
   // Open a content tab.
 
   eventPromise = BrowserTestUtils.waitForEvent(tabmail.tabContainer, "TabOpen");
-  contentTab = window.openContentTab("http://example.org/");
+  contentTab = window.openContentTab("https://example.org/");
   contentTabPanel = contentTab.browser.closest(".contentTabInstance")
     .parentNode;
   event = await eventPromise;

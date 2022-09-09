@@ -65,7 +65,7 @@ async function checkFocusCycling(controller, options) {
     );
 
   if (options.attachment) {
-    add_attachments(controller, "http://www.mozilla.org/");
+    add_attachments(controller, "https://www.mozilla.org/");
   }
 
   if (options.contacts) {

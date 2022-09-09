@@ -17,9 +17,6 @@ function onLoad() {
   window.time = args.time;
   window.onAcceptCallback = args.onOk;
 
-  let tzProvider = args.calendar.getProperty("timezones.provider") || cal.timezoneService;
-  window.tzProvider = tzProvider;
-
   let menulist = document.getElementById("timezone-menulist");
   let tzMenuPopup = document.getElementById("timezone-menupopup");
 
@@ -33,8 +30,8 @@ function onLoad() {
 
   let tzids = {};
   let displayNames = [];
-  for (let timezoneId of tzProvider.timezoneIds) {
-    let timezone = tzProvider.getTimezone(timezoneId);
+  for (let timezoneId of cal.timezoneService.timezoneIds) {
+    let timezone = cal.timezoneService.getTimezone(timezoneId);
     if (timezone && !timezone.isFloating && !timezone.isUTC) {
       let displayName = timezone.displayName;
       displayNames.push(displayName);
@@ -90,7 +87,7 @@ function findTimezone(timezone) {
 function updateTimezone() {
   let menulist = document.getElementById("timezone-menulist");
   let menuitem = menulist.selectedItem;
-  let timezone = window.tzProvider.getTimezone(menuitem.getAttribute("value"));
+  let timezone = cal.timezoneService.getTimezone(menuitem.getAttribute("value"));
 
   // convert the date/time to the currently selected timezone
   // and display the result in the appropriate control.
@@ -123,7 +120,7 @@ document.addEventListener("dialogaccept", () => {
   let menulist = document.getElementById("timezone-menulist");
   let menuitem = menulist.selectedItem;
   let timezoneString = menuitem.getAttribute("value");
-  let timezone = window.tzProvider.getTimezone(timezoneString);
+  let timezone = cal.timezoneService.getTimezone(timezoneString);
   let datetime = window.time.getInTimezone(timezone);
   window.onAcceptCallback(datetime);
 });

@@ -59,6 +59,7 @@ class Pop3Client {
    */
   constructor(server) {
     this._server = server.QueryInterface(Ci.nsIMsgIncomingServer);
+    this._server.wrappedJSObject.runningClient = this;
     this._authenticator = new Pop3Authenticator(server);
     this._lineReader = new LineReader();
 
@@ -228,12 +229,12 @@ class Pop3Client {
    * @param {Map<string, UidlStatus>} uidlsToMark - A Map from uidl to status.
    */
   async markMessages(uidlsToMark) {
-    await this._loadUidlState();
+    this._logger.debug("markMessages", uidlsToMark);
+    if (!this._uidlMap) {
+      await this._loadUidlState();
+    }
     for (let [uidl, status] of uidlsToMark) {
       let uidlState = this._uidlMap.get(uidl);
-      if (!uidlState) {
-        continue;
-      }
       this._uidlMap.set(uidl, {
         ...uidlState,
         status,
@@ -1230,6 +1231,15 @@ class Pop3Client {
           return;
         }
 
+        let state = this._uidlMap.get(this._currentMessage.uidl);
+        if (state?.status == UIDL_KEEP) {
+          this._actionRetr();
+          return;
+        }
+        if (state?.status == UIDL_DELETE) {
+          this._actionDelete();
+          return;
+        }
         this._uidlMap.set(this._currentMessage.uidl, {
           status: UIDL_TOO_BIG,
           uidl: this._currentMessage.uidl,
@@ -1294,12 +1304,17 @@ class Pop3Client {
           return;
         }
         if (this._server.leaveMessagesOnServer) {
-          this._uidlMap.set(this._currentMessage.uidl, {
-            status: UIDL_KEEP,
-            uidl: this._currentMessage.uidl,
-            receivedAt: Math.floor(Date.now() / 1000),
-          });
-          this._actionHandleMessage();
+          let state = this._uidlMap.get(this._currentMessage.uidl);
+          if (state?.status == UIDL_DELETE) {
+            this._actionDelete();
+          } else {
+            this._uidlMap.set(this._currentMessage.uidl, {
+              status: UIDL_KEEP,
+              uidl: this._currentMessage.uidl,
+              receivedAt: Math.floor(Date.now() / 1000),
+            });
+            this._actionHandleMessage();
+          }
         } else {
           this._actionDelete();
         }
@@ -1395,6 +1410,7 @@ class Pop3Client {
       this._folderLocked = false;
       this._logger.debug("Folder lock released.");
     }
+    this._server.wrappedJSObject.runningClient = null;
   };
 
   /**

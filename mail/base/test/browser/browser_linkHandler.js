@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* eslint-disable @microsoft/sdl/no-insecure-url */
+
 let { MockRegistrar } = ChromeUtils.import(
   "resource://testing-common/MockRegistrar.jsm"
 );

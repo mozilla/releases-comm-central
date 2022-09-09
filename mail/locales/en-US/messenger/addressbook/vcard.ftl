@@ -84,11 +84,17 @@ vcard-tz-add = Add time zone
 
 # IMPP vCard field
 
-vcard-impp-header = Chat Accounts
+vcard-impp2-header = Instant Messaging
 
 vcard-impp-add = Add chat account
 
 vcard-impp-label = Chat account
+
+vcard-impp-select = Protocol
+vcard-impp-option-other = Other
+
+vcard-impp-input-label = URI
+vcard-impp-input-title = URI for instant messaging
 
 # BDAY and ANNIVERSARY vCard field
 

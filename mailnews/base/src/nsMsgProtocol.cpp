@@ -760,6 +760,19 @@ NS_IMETHODIMP nsMsgProtocol::GetStatus(nsresult* status) {
   return *status;
 }
 
+NS_IMETHODIMP nsMsgProtocol::SetCanceledReason(const nsACString& aReason) {
+  return SetCanceledReasonImpl(aReason);
+}
+
+NS_IMETHODIMP nsMsgProtocol::GetCanceledReason(nsACString& aReason) {
+  return GetCanceledReasonImpl(aReason);
+}
+
+NS_IMETHODIMP nsMsgProtocol::CancelWithReason(nsresult aStatus,
+                                              const nsACString& aReason) {
+  return CancelWithReasonImpl(aStatus, aReason);
+}
+
 NS_IMETHODIMP nsMsgProtocol::Cancel(nsresult status) {
   if (m_proxyRequest) m_proxyRequest->Cancel(status);
 

@@ -17,12 +17,6 @@ repository to checkout. All parameters are required.
    The repository from which to do an initial clone, utilizing any available
    caching. In practice this is always set to ``https://hg.mozilla.org/comm-central``.
 
-``comm_base_rev``
-  The previous revision before ``comm_head_rev`` got merged into.
-
-``comm_base_ref``
-   Reference where ``comm_head_rev`` got merged into. It is usually a branch or a tag.
-
 ``comm_head_repository``
    The repository containing the changeset to be built.  This may differ from
    ``comm_base_repository``.

@@ -137,6 +137,11 @@ add_task(async function test_update() {
     let intValue = ["standard", "wide", "vertical"].indexOf(expected.layout);
     is(Services.prefs.getIntPref("mail.pane_config.dynamic"), intValue);
     check3PaneState(expected.folderPaneVisible, expected.messagePaneVisible);
+    Assert.equal(
+      "/" + (window.gFolderDisplay.displayedFolder?.URI || "").split("/").pop(),
+      expected.displayedFolder.path,
+      "Should display the correct folder"
+    );
     extension.sendMessage();
   });
 
@@ -462,6 +467,11 @@ add_task(async function test_background_tab() {
 
   extension.onMessage("checkRealLayout", async expected => {
     check3PaneState(expected.folderPaneVisible, expected.messagePaneVisible);
+    Assert.equal(
+      "/" + (window.gFolderDisplay.displayedFolder?.URI || "").split("/").pop(),
+      expected.displayedFolder,
+      "Should display the correct folder"
+    );
     extension.sendMessage();
   });
 
@@ -692,4 +702,216 @@ add_task(async function test_get_and_query() {
   window.gFolderTreeView.selectFolder(rootFolder);
   let tabmail = window.document.getElementById("tabmail");
   tabmail.closeOtherTabs(tabmail.tabModes.folder.tabs[0]);
+});
+
+add_task(async function test_setSelectedMessages() {
+  async function background() {
+    let [accountId] = await window.waitForMessage();
+    let { folders } = await browser.accounts.get(accountId);
+    let allTabs = await browser.tabs.query({});
+    let queryTabs = await browser.tabs.query({ mailTab: true });
+    let allMailTabs = await browser.mailTabs.query({});
+
+    let { messages: messages1 } = await browser.messages.list(
+      folders.find(f => f.path == "/test1")
+    );
+    browser.test.assertTrue(
+      messages1.length > 7,
+      "There should be more than 7 messages in /test1"
+    );
+
+    let { messages: messages2 } = await browser.messages.list(
+      folders.find(f => f.path == "/test2")
+    );
+    browser.test.assertTrue(
+      messages2.length > 4,
+      "There should be more than 4 messages in /test2"
+    );
+
+    browser.test.assertEq(2, allMailTabs.length);
+    browser.test.assertEq(4, allTabs.length);
+    browser.test.assertEq(2, queryTabs.length);
+
+    browser.test.assertEq(accountId, allMailTabs[0].displayedFolder.accountId);
+    browser.test.assertEq("/", allMailTabs[0].displayedFolder.path);
+
+    // Set the second mailTab active.
+    browser.test.assertEq(accountId, allMailTabs[1].displayedFolder.accountId);
+    browser.test.assertEq("/test1", allMailTabs[1].displayedFolder.path);
+    browser.test.assertTrue(allMailTabs[1].active);
+
+    let backgroundTab = allMailTabs[0].id;
+    let foregroundTab = allMailTabs[1].id;
+
+    // Check the initial real state.
+    await window.sendMessage("checkRealLayout", {
+      messagePaneVisible: true,
+      folderPaneVisible: true,
+      displayedFolder: "/test1",
+    });
+
+    // Change the selection in the foreground tab.
+    await browser.mailTabs.setSelectedMessages(foregroundTab, [
+      messages1[6].id,
+      messages1[7].id,
+    ]);
+    // Check the current real state.
+    await window.sendMessage("checkRealLayout", {
+      messagePaneVisible: true,
+      folderPaneVisible: true,
+      displayedFolder: "/test1",
+    });
+    // Check API return value of the foreground tab.
+    let {
+      messages: readMessagesA,
+    } = await browser.mailTabs.getSelectedMessages(foregroundTab);
+    window.assertDeepEqual(
+      [messages1[6].id, messages1[7].id],
+      readMessagesA.map(m => m.id)
+    );
+
+    // Change the selection in the background tab.
+    await browser.mailTabs.setSelectedMessages(backgroundTab, [
+      messages2[0].id,
+      messages2[3].id,
+    ]);
+    // Real state should be the same, since we're updating a background tab.
+    await window.sendMessage("checkRealLayout", {
+      messagePaneVisible: true,
+      folderPaneVisible: true,
+      displayedFolder: "/test1",
+    });
+    // Check unchanged API return value of the foreground tab.
+    let {
+      messages: readMessagesB,
+    } = await browser.mailTabs.getSelectedMessages(foregroundTab);
+    window.assertDeepEqual(
+      [messages1[6].id, messages1[7].id],
+      readMessagesB.map(m => m.id)
+    );
+    // Check API return value of the inactive background tab.
+    let {
+      messages: readMessagesC,
+    } = await browser.mailTabs.getSelectedMessages(backgroundTab);
+    window.assertDeepEqual(
+      [messages2[0].id, messages2[3].id],
+      readMessagesC.map(m => m.id)
+    );
+    // Switch to the background tab.
+    await browser.tabs.update(backgroundTab, { active: true });
+    // Check API return value of the background tab (now active).
+    let {
+      messages: readMessagesD,
+    } = await browser.mailTabs.getSelectedMessages(backgroundTab);
+    window.assertDeepEqual(
+      [messages2[0].id, messages2[3].id],
+      readMessagesD.map(m => m.id)
+    );
+    // Check real state, should now match the active background tab.
+    await window.sendMessage("checkRealLayout", {
+      messagePaneVisible: true,
+      folderPaneVisible: true,
+      displayedFolder: "/test2",
+    });
+    // Check unchanged API return value of the foreground tab (now inactive).
+    let {
+      messages: readMessagesE,
+    } = await browser.mailTabs.getSelectedMessages(foregroundTab);
+    window.assertDeepEqual(
+      [messages1[6].id, messages1[7].id],
+      readMessagesE.map(m => m.id)
+    );
+    // Switch back to the foreground tab.
+    await browser.tabs.update(foregroundTab, { active: true });
+
+    // Change the selection in the foreground tab.
+    await browser.mailTabs.setSelectedMessages(foregroundTab, [
+      messages2[2].id,
+      messages2[4].id,
+    ]);
+    // Check API return value of the foreground tab.
+    let {
+      messages: readMessagesF,
+    } = await browser.mailTabs.getSelectedMessages(foregroundTab);
+    window.assertDeepEqual(
+      [messages2[2].id, messages2[4].id],
+      readMessagesF.map(m => m.id)
+    );
+    // Check real state.
+    await window.sendMessage("checkRealLayout", {
+      messagePaneVisible: true,
+      folderPaneVisible: true,
+      displayedFolder: "/test2",
+    });
+    // Check API return value of the inactive background tab.
+    let {
+      messages: readMessagesG,
+    } = await browser.mailTabs.getSelectedMessages(backgroundTab);
+    window.assertDeepEqual(
+      [messages2[0].id, messages2[3].id],
+      readMessagesG.map(m => m.id)
+    );
+
+    // Clear selection in background tab.
+    await browser.mailTabs.setSelectedMessages(backgroundTab, []);
+    // Check API return value of the inactive background tab.
+    let {
+      messages: readMessagesH,
+    } = await browser.mailTabs.getSelectedMessages(backgroundTab);
+    browser.test.assertEq(0, readMessagesH.length);
+
+    // Clear selection in foreground tab.
+    await browser.mailTabs.setSelectedMessages(foregroundTab, []);
+    // Check API return value of the foreground tab.
+    let {
+      messages: readMessagesI,
+    } = await browser.mailTabs.getSelectedMessages(foregroundTab);
+    browser.test.assertEq(0, readMessagesI.length);
+
+    // Should throw if messages belong to different folders.
+    await browser.test.assertRejects(
+      browser.mailTabs.setSelectedMessages(foregroundTab, [
+        messages2[2].id,
+        messages1[4].id,
+      ]),
+      `Message ${messages2[2].id} and message ${messages1[4].id} are not in the same folder, cannot select them both.`,
+      "browser.mailTabs.setSelectedMessages() should reject, if the requested message do not belong to the same folder."
+    );
+
+    browser.test.notifyPass("mailTabs");
+  }
+
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
+  });
+
+  extension.onMessage("checkRealLayout", async expected => {
+    check3PaneState(expected.folderPaneVisible, expected.messagePaneVisible);
+    Assert.equal(
+      "/" + (window.gFolderDisplay.displayedFolder?.URI || "").split("/").pop(),
+      expected.displayedFolder,
+      "Should display the correct folder"
+    );
+    extension.sendMessage();
+  });
+
+  let tabmail = document.getElementById("tabmail");
+  window.openContentTab("about:buildconfig");
+  window.openContentTab("about:mozilla");
+  tabmail.openTab("folder", { folder: subFolders.test1 });
+
+  await extension.startup();
+  extension.sendMessage(account.key);
+  await extension.awaitFinish("mailTabs");
+  await extension.unload();
+
+  tabmail.closeOtherTabs(tabmail.tabModes.folder.tabs[0]);
+  window.gFolderTreeView.selectFolder(rootFolder);
 });

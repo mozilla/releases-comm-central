@@ -33,14 +33,19 @@ add_setup(function() {
   nntpAccount = MailServices.accounts.FindAccountForServer(server);
 });
 
-add_task(function test_virtual_folder_selection_tree() {
+add_task(async function test_virtual_folder_selection_tree() {
   plan_for_modal_dialog(
     "mailnews:virtualFolderProperties",
     subtest_create_virtual_folder
   );
-  mc.click_through_appmenu([{ id: "appmenu_new" }], {
-    id: "appmenu_newVirtualFolder",
-  });
+
+  document.getElementById("toolbar-menubar").removeAttribute("autohide");
+
+  mc.click(mc.e("menu_File"));
+  await mc.click_menus_in_sequence(mc.e("menu_FilePopup"), [
+    { id: "menu_New" },
+    { id: "menu_newVirtualFolder" },
+  ]);
 
   wait_for_modal_dialog("mailnews:virtualFolderProperties");
 });
@@ -71,13 +76,16 @@ function subtest_check_virtual_folder_list(listc) {
   listc.window.document.documentElement.querySelector("dialog").cancelDialog();
 }
 
-add_task(function test_offline_sync_folder_selection_tree() {
+add_task(async function test_offline_sync_folder_selection_tree() {
   plan_for_modal_dialog("mailnews:synchronizeOffline", subtest_offline_sync);
 
-  mc.click_through_appmenu(
-    [{ id: "appmenu_File" }, { id: "appmenu_offline" }],
-    { id: "appmenu_synchronizeOffline" }
-  );
+  document.getElementById("toolbar-menubar").removeAttribute("autohide");
+
+  mc.click(mc.e("menu_File"));
+  await mc.click_menus_in_sequence(mc.e("menu_FilePopup"), [
+    { id: "offlineMenuItem" },
+    { id: "menu_synchronizeOffline" },
+  ]);
 
   wait_for_modal_dialog("mailnews:synchronizeOffline");
 });
@@ -111,5 +119,6 @@ function subtest_check_offline_folder_list(listc) {
 registerCleanupFunction(function() {
   MailServices.accounts.removeAccount(nntpAccount);
 
+  document.getElementById("toolbar-menubar").autohide = true;
   document.getElementById("folderTree").focus();
 });

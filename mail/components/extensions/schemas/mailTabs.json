@@ -327,6 +327,33 @@
         ]
       },
       {
+        "name": "setSelectedMessages",
+        "type": "function",
+        "description": "Selects one or multiple messages.",
+        "permissions": [
+          "messagesRead",
+          "accountsRead"
+        ],
+        "async": true,
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer",
+            "description": "Defaults to the active tab of the current window.",
+            "optional": true,
+            "minimum": 1
+          },
+          {
+            "name": "messageIds",
+            "type": "array",
+            "description": "The IDs of the messages, which should be selected. The mailTab will switch to the folder of the selected messages. Throws if they belong to different folders. Array can be empty to deselect any currently selected message.",
+            "items": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      {
         "name": "setQuickFilter",
         "type": "function",
         "description": "Sets the Quick Filter user interface based on the options specified.",

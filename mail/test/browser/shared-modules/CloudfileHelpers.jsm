@@ -97,7 +97,7 @@ MockCloudfileAccount.prototype = {
     }
 
     let upload = this._uploads.get(uploadId);
-    upload.url = `http://www.example.com/${this.accountKey}/${newName}`;
+    upload.url = `https://www.example.com/${this.accountKey}/${newName}`;
     upload.name = newName;
     return upload;
   },
@@ -142,7 +142,7 @@ MockCloudfileAccount.prototype = {
   },
 
   urlForFile(aFile) {
-    return `http://www.example.com/${this.accountKey}/${aFile.leafName}`;
+    return `https://www.example.com/${this.accountKey}/${aFile.leafName}`;
   },
 
   cancelFileUpload(window, aUploadId) {

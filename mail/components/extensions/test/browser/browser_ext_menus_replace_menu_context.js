@@ -23,7 +23,7 @@ function checkIsDefaultMenuItemVisible(visibleMenuItemIds) {
 add_task(async function overrideContext_with_context() {
   // Background script of the main test extension and the auxiliary other extension.
   function background() {
-    const HTTP_URL = "http://example.com/?SomeTab";
+    const HTTP_URL = "https://example.com/?SomeTab";
     browser.test.onMessage.addListener(async (msg, tabId) => {
       browser.test.assertEq(
         "testTabAccess",
@@ -164,7 +164,7 @@ add_task(async function overrideContext_with_context() {
       `,
       "tab.js": async () => {
         let [tab] = await browser.tabs.query({
-          url: "http://example.com/?SomeTab",
+          url: "https://example.com/?SomeTab",
         });
         let testCases = [
           {
@@ -197,7 +197,7 @@ add_task(async function overrideContext_with_context() {
     background,
   });
 
-  let { browser } = window.openContentTab("http://example.com/?SomeTab");
+  let { browser } = window.openContentTab("https://example.com/?SomeTab");
   await BrowserTestUtils.browserLoaded(browser);
 
   let otherExtension = ExtensionTestUtils.loadExtension({

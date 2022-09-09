@@ -53,6 +53,7 @@ vcard-edit input[type="date"] {
   height: calc(var(--in-content-button-height) - 2px);
 }
 
+vcard-edit input[type="text"],
 vcard-edit input[type="email"] {
   width: -moz-available;
 }
@@ -273,7 +274,6 @@ vcard-url,
 vcard-tel,
 vcard-impp,
 vcard-special-date {
-  /* @TODO check the whitespace after the select element */
   display: flex;
 }
 

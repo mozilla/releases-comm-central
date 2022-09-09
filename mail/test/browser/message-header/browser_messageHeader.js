@@ -80,7 +80,7 @@ add_setup(async function() {
     clobberHeaders: {
       Newsgroups: "alt.test",
       "Reply-To": "J. Doe <j.doe@momo.invalid>",
-      "Content-Base": "http://example.com/",
+      "Content-Base": "https://example.com/",
       Bcc: "Richard Roe <richard.roe@momo.invalid>",
     },
   });

@@ -3357,10 +3357,9 @@ editEndTimezone.complete = function(datetime) {
 function chooseRecentTimezone(event) {
   let tzid = event.target.value;
   let timezonePopup = document.getElementById("timezone-popup");
-  let tzProvider = getCurrentCalendar().getProperty("timezones.provider") || cal.timezoneService;
 
   if (tzid != "custom") {
-    let zone = tzProvider.getTimezone(tzid);
+    let zone = cal.timezoneService.getTimezone(tzid);
     let datetime = timezonePopup.dateTime.getInTimezone(zone);
     timezonePopup.editTimezone.complete(datetime);
   }

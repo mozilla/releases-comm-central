@@ -4,9 +4,8 @@
 
 "use strict";
 
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+
 const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
@@ -26,10 +25,13 @@ XPCOMUtils.defineLazyServiceGetters(lazy, {
   gMIMEService: ["@mozilla.org/mime;1", "nsIMIMEService"],
 });
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  ProxyPolicies: "resource:///modules/policies/ProxyPolicies.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   FileUtils: "resource://gre/modules/FileUtils.jsm",
-  ProxyPolicies: "resource:///modules/policies/ProxyPolicies.jsm",
 });
 
 const PREF_LOGLEVEL = "browser.policies.loglevel";
@@ -50,13 +52,6 @@ XPCOMUtils.defineLazyGetter(lazy, "log", () => {
     maxLogLevelPref: PREF_LOGLEVEL,
   });
 });
-
-var EXPORTED_SYMBOLS = [
-  "Policies",
-  "setAndLockPref",
-  "PoliciesUtils",
-  "runOnce",
-];
 
 /*
  * ============================
@@ -84,7 +79,7 @@ var EXPORTED_SYMBOLS = [
  *
  * The callbacks will be bound to their parent policy object.
  */
-var Policies = {
+export var Policies = {
   // Used for cleaning up policies.
   // Use the same timing that you used for setting up the policy.
   _cleanup: {
@@ -1242,7 +1237,7 @@ var Policies = {
  * @param {boolean,number,string} prefValue
  *        The value to set and lock
  */
-function setAndLockPref(prefName, prefValue) {
+export function setAndLockPref(prefName, prefValue) {
   PoliciesUtils.setDefaultPref(prefName, prefValue, true);
 }
 
@@ -1259,7 +1254,7 @@ function setAndLockPref(prefName, prefValue) {
  * @param {boolean} locked
  *        Optionally lock the pref
  */
-var PoliciesUtils = {
+export var PoliciesUtils = {
   setDefaultPref(prefName, prefValue, locked = false) {
     if (Services.prefs.prefIsLocked(prefName)) {
       Services.prefs.unlockPref(prefName);
@@ -1356,8 +1351,7 @@ function addAllowDenyPermissions(permissionName, allowList, blockList) {
  * @param {Function} callback
  *        The callback to run only once.
  */
-// eslint-disable-next-line no-unused-vars
-function runOnce(actionName, callback) {
+export function runOnce(actionName, callback) {
   let prefName = `browser.policies.runonce.${actionName}`;
   if (Services.prefs.getBoolPref(prefName, false)) {
     lazy.log.debug(

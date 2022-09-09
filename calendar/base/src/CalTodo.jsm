@@ -135,7 +135,7 @@ CalTodo.prototype = {
   ],
 
   set icalString(value) {
-    this.icalComponent = cal.icsService.parseICS(value, null);
+    this.icalComponent = cal.icsService.parseICS(value);
   },
 
   get icalString() {

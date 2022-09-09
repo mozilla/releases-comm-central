@@ -8,7 +8,7 @@
  * If you would like to change anything in ical.js, it is required to do so
  * upstream first.
  *
- * Current ical.js git revision: 3f09e48be94c5026229e858b84545b9aea79e1a7
+ * Current ical.js git revision: 7fb7b51f1b36d49b576a359ee178d85e6d4b192a
  */
 
 var EXPORTED_SYMBOLS = ["ICAL", "unwrap", "unwrapSetter", "unwrapSingle", "wrapGetter"];
@@ -7146,7 +7146,7 @@ ICAL.RecurIterator = (function() {
       this.last.second = this.setup_defaults("BYSECOND", "SECONDLY", this.dtstart.second);
       this.last.minute = this.setup_defaults("BYMINUTE", "MINUTELY", this.dtstart.minute);
       this.last.hour = this.setup_defaults("BYHOUR", "HOURLY", this.dtstart.hour);
-      this.last.day = this.setup_defaults("BYMONTHDAY", "DAILY", this.dtstart.day);
+      var dayOffset = this.last.day = this.setup_defaults("BYMONTHDAY", "DAILY", this.dtstart.day);
       this.last.month = this.setup_defaults("BYMONTH", "MONTHLY", this.dtstart.month);
 
       if (this.rule.freq == "WEEKLY") {
@@ -7233,13 +7233,15 @@ ICAL.RecurIterator = (function() {
           throw new Error("Malformed values in BYDAY part");
         }
 
-      } else if (this.has_by_data("BYMONTHDAY")) {
-        if (this.last.day < 0) {
-          var daysInMonth = ICAL.Time.daysInMonth(this.last.month, this.last.year);
-          this.last.day = daysInMonth + this.last.day + 1;
-        }
-      }
+      } else if (this.has_by_data("BYMONTHDAY") && dayOffset < 0) {
+        // Attempting to access `this.last.day` will cause the date to be normalised and
+        // not return a negative value. We keep the value in a separate variable instead.
 
+        // Now change the day value so that normalisation won't change the month.
+        this.last.day = 1;
+        var daysInMonth = ICAL.Time.daysInMonth(this.last.month, this.last.year);
+        this.last.day = daysInMonth + dayOffset + 1;
+      }
     },
 
     /**

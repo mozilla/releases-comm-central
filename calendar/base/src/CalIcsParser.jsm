@@ -130,7 +130,7 @@ CalIcsParser.prototype = {
     });
   },
 
-  parseString(aICSString, aTzProvider, aAsyncParsing) {
+  parseString(aICSString, aAsyncParsing) {
     if (aAsyncParsing) {
       let self = this;
 
@@ -139,7 +139,7 @@ CalIcsParser.prototype = {
       //   parser containing the processed items.
       // The listener passed to parseICSAsync is a calICsComponentParsingListener
       //   required by the ics service, that receives the parsed root component.
-      cal.icsService.parseICSAsync(aICSString, aTzProvider, {
+      cal.icsService.parseICSAsync(aICSString, {
         onParsingComplete(rc, rootComp) {
           if (Components.isSuccessCode(rc)) {
             self.processIcalComponent(rootComp, aAsyncParsing);
@@ -151,7 +151,7 @@ CalIcsParser.prototype = {
       });
     } else {
       try {
-        let icalComp = cal.icsService.parseICS(aICSString, aTzProvider);
+        let icalComp = cal.icsService.parseICS(aICSString);
         this.processIcalComponent(icalComp);
       } catch (exc) {
         cal.ERROR(exc.message + " when parsing\n" + aICSString);
@@ -159,7 +159,7 @@ CalIcsParser.prototype = {
     }
   },
 
-  parseFromStream(aStream, aTzProvider, aAsyncParsing) {
+  parseFromStream(aStream, aAsyncParsing) {
     // Read in the string. Note that it isn't a real string at this point,
     // because likely, the file is utf8. The multibyte chars show up as multiple
     // 'chars' in this string. So call it an array of octets for now.
@@ -167,7 +167,7 @@ CalIcsParser.prototype = {
     let stringData = NetUtil.readInputStreamToString(aStream, aStream.available(), {
       charset: "utf-8",
     });
-    this.parseString(stringData, aTzProvider, aAsyncParsing);
+    this.parseString(stringData, aAsyncParsing);
   },
 
   getItems() {

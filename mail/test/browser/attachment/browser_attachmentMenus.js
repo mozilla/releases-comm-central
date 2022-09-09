@@ -234,7 +234,7 @@ add_setup(async function() {
     create_enclosure_attachment(
       "purr.mp3",
       "audio/mpeg",
-      "http://example.com",
+      "https://example.com",
       12345678
     ),
   ]);
@@ -244,7 +244,7 @@ add_setup(async function() {
       create_enclosure_attachment(
         "meow.mp3",
         "audio/mpeg",
-        "http://example.com/invalid"
+        "https://example.com/invalid"
       ),
     ]
   );
@@ -254,13 +254,13 @@ add_setup(async function() {
       create_enclosure_attachment(
         "purr.mp3",
         "audio/mpeg",
-        "http://example.com",
+        "https://example.com",
         1234567
       ),
       create_enclosure_attachment(
         "meow.mp3",
         "audio/mpeg",
-        "http://example.com",
+        "https://example.com",
         987654321
       ),
     ]
@@ -271,13 +271,13 @@ add_setup(async function() {
       create_enclosure_attachment(
         "purr.mp3",
         "audio/mpeg",
-        "http://example.com",
+        "https://example.com",
         1234567
       ),
       create_enclosure_attachment(
         "meow.mp3",
         "audio/mpeg",
-        "http://example.com/invalid"
+        "https://example.com/invalid"
       ),
     ]
   );
@@ -287,12 +287,12 @@ add_setup(async function() {
       create_enclosure_attachment(
         "purr.mp3",
         "audio/mpeg",
-        "http://example.com/invalid"
+        "https://example.com/invalid"
       ),
       create_enclosure_attachment(
         "meow.mp3",
         "audio/mpeg",
-        "http://example.com/invalid"
+        "https://example.com/invalid"
       ),
     ]
   );

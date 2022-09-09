@@ -5,16 +5,10 @@
 #include "nsISupports.idl"
 
 interface calIIcalComponent;
-interface calITimezoneProvider;
 
 [scriptable, uuid(D79161E7-0DB9-427d-A0C3-27E0DB3B030F)]
 interface calITimezone : nsISupports
 {
-    /**
-     * The timezone provider this timezone belongs to, if any.
-     */
-    readonly attribute calITimezoneProvider provider;
-
     /**
      * VTIMEZONE ical component, null if floating or UTC.
      */

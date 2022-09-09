@@ -457,6 +457,19 @@ nsPgpMimeProxy::GetStatus(nsresult* status) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsPgpMimeProxy::SetCanceledReason(const nsACString& aReason) {
+  return SetCanceledReasonImpl(aReason);
+}
+
+NS_IMETHODIMP nsPgpMimeProxy::GetCanceledReason(nsACString& aReason) {
+  return GetCanceledReasonImpl(aReason);
+}
+
+NS_IMETHODIMP nsPgpMimeProxy::CancelWithReason(nsresult aStatus,
+                                               const nsACString& aReason) {
+  return CancelWithReasonImpl(aStatus, aReason);
+}
+
 // NOTE: We assume that OnStopRequest should not be called if
 // request is canceled. This may be wrong!
 NS_IMETHODIMP

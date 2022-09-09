@@ -12,7 +12,6 @@ interface calIItemBase;
 interface calIDateTime;
 interface calIDuration;
 interface calITimezone;
-interface calITimezoneProvider;
 
 interface calIIcalProperty;
 interface nsIInputStream;
@@ -222,30 +221,19 @@ interface calIIcsComponentParsingListener : nsISupports
 interface calIICSService : nsISupports
 {
     /**
-     * Parses an ICS string and uses the passed tzProvider instance to
-     * resolve timezones not contained within the VCALENDAR.
+     * Parse an ICS string into components.
      *
      * @param serialized     an ICS string
-     * @param tzProvider     timezone provider used to resolve TZIDs
-     *                       not contained within the VCALENDAR;
-     *                       if null is passed, parsing falls back to
-     *                       using the timezone service
      */
-    calIIcalComponent parseICS(in AUTF8String serialized,
-                               in calITimezoneProvider tzProvider);
+    calIIcalComponent parseICS(in AUTF8String serialized);
 
     /**
-     * Asynchronously parse an ICS string
+     * Asynchronously parse an ICS string into components.
      *
      * @param serialized     an ICS string
-     * @param tzProvider     timezone provider used to resolve TZIDs
-     *                       not contained within the VCALENDAR;
-     *                       if null is passed, parsing falls back to
-     *                       using the timezone service
      * @param listener       The listener that notifies the root component
      */
     void parseICSAsync(in AUTF8String serialized,
-                       in calITimezoneProvider tzProvider,
                        in calIIcsComponentParsingListener listener);
 
     calIIcalComponent createIcalComponent(in AUTF8String kind);

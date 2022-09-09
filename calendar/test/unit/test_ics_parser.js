@@ -45,7 +45,7 @@ function test_failures() {
   let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
 
   do_test_pending();
-  parser.parseString("BOGUS", null, {
+  parser.parseString("BOGUS", {
     onParsingComplete(rc, opparser) {
       dump("Note: The previous error message is expected ^^\n");
       equal(rc, Cr.NS_ERROR_FAILURE);
@@ -116,7 +116,7 @@ function test_async() {
   ].join("\r\n");
 
   do_test_pending();
-  parser.parseString(str, null, {
+  parser.parseString(str, {
     onParsingComplete(rc, opparser) {
       let items = parser.getItems();
       equal(items.length, 2);

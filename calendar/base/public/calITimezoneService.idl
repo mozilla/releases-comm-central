@@ -1,0 +1,49 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface nsIUTF8StringEnumerator;
+interface calITimezone;
+
+/**
+ * Provides access to timezone definitions from the IANA Time Zone Database.
+ */
+[scriptable, uuid(ab1bfe6a-ee95-4038-b594-34aeeda9911a)]
+interface calITimezoneService : nsISupports
+{
+    /**
+     * All timezone IDs provided by the current IANA Time Zone Database.
+     */
+    readonly attribute Array<AUTF8String> timezoneIds;
+
+    /**
+     * The version of the IANA Time Zone Database provided.
+     */
+    readonly attribute AUTF8String version;
+
+    /**
+     * Get a timezone definition by timezone ID.
+     *
+     * @param tzid       timezone ID for which to return definition
+     * @return           a timezone object, or null if ID is not recognized
+     */
+    calITimezone getTimezone(in AUTF8String tzid);
+
+    /**
+     * The definition for the "floating" timezone, in which times are relative
+     * to local time.
+     */
+    readonly attribute calITimezone floating;
+
+    /**
+     * The timezone definition for Coordinated Universal Time.
+     */
+    readonly attribute calITimezone UTC;
+
+    /**
+     * Returns the current default timezone for calendars/events.
+     */
+    readonly attribute calITimezone defaultTimezone;
+};
