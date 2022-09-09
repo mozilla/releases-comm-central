@@ -22,7 +22,7 @@ async function getDisplayedMessages(tab, extension) {
 
   let result = [];
   for (let msg of displayedMessages) {
-    let hdr = await convertMessageOrAttachedMessage(msg, extension);
+    let hdr = convertMessage(msg, extension);
     if (hdr) {
       result.push(hdr);
     }
@@ -92,11 +92,8 @@ this.messageDisplay = class extends ExtensionAPI {
               handleEvent(event) {
                 let win = windowManager.wrapWindow(event.target);
                 let tab = tabManager.convert(win.activeTab.nativeTab);
-                convertMessageOrAttachedMessage(event.detail, extension).then(
-                  msg => {
-                    fire.async(tab, msg);
-                  }
-                );
+                let msg = convertMessage(event.detail, extension);
+                fire.async(tab, msg);
               },
             };
 
@@ -142,7 +139,7 @@ this.messageDisplay = class extends ExtensionAPI {
             displayedMessage = tab.nativeTab.gMessageDisplay.displayedMessage;
           }
 
-          return convertMessageOrAttachedMessage(displayedMessage, extension);
+          return convertMessage(displayedMessage, extension);
         },
         async getDisplayedMessages(tabId) {
           return getDisplayedMessages(tabManager.get(tabId), extension);
@@ -150,15 +147,14 @@ this.messageDisplay = class extends ExtensionAPI {
         async open(properties) {
           let msgHdr = getMsgHdr(properties);
           if (!msgHdr.folder) {
-            // If this is a temporary file of an attached message, open the original
-            // url instead.
-            let msgUrl = msgHdr.getStringProperty("dummyMsgUrl");
-            let attachedMessage = Array.from(
-              messageTracker._attachedMessageUrls.entries()
-            ).find(e => e[1] == msgUrl);
-            if (attachedMessage) {
-              msgUrl = attachedMessage[0];
-            }
+            // Add the application/x-message-display type to the url, if missing.
+            // The slash is escaped when setting the type via searchParams, but
+            // core code needs it unescaped.
+            let url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
+            url.searchParams.delete("type");
+            let msgUrl = `${url.href}${
+              url.searchParams.toString() ? "&" : "?"
+            }type=application/x-message-display`;
 
             let window = await getNormalWindowReady(context);
             let msgWindow = window.openDialog(
