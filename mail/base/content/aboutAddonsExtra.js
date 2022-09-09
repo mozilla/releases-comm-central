@@ -112,32 +112,23 @@ XPCOMUtils.defineLazyPreferenceGetter(
     }
 
     let addonOptionsButton = this.querySelector(".extension-options-button");
-    if (addon.isActive) {
-      if (!addon.optionsType) {
-        // Upon fresh install the manifest has not been parsed and optionsType
-        // is not known, manually trigger parsing.
-        let data = new ExtensionData(addon.getResourceURI());
-        await data.loadManifest();
-      }
-
-      if (addon.optionsType) {
-        if (!addonOptionsButton) {
-          addonOptionsButton = document.createElement("button");
-          addonOptionsButton.classList.add("extension-options-button");
-          addonOptionsButton.setAttribute("action", "preferences");
-          addonOptionsButton.setAttribute(
-            "data-l10n-id",
-            "add-on-options-button"
-          );
-          optionsButton.parentNode.insertBefore(
-            addonOptionsButton,
-            optionsButton
-          );
-        }
-      }
-    } else if (addonOptionsButton) {
-      addonOptionsButton.remove();
+    if (!addonOptionsButton) {
+      addonOptionsButton = document.createElement("button");
+      addonOptionsButton.classList.add("extension-options-button");
+      addonOptionsButton.setAttribute("action", "preferences");
+      document.l10n.setAttributes(addonOptionsButton, "add-on-options-button");
+      addonOptionsButton.disabled = true;
+      optionsButton.parentNode.insertBefore(addonOptionsButton, optionsButton);
     }
+
+    // Upon fresh install the manifest has not been parsed and optionsType
+    // is not known, manually trigger parsing.
+    if (addon.isActive && !addon.optionsType) {
+      let data = new ExtensionData(addon.getResourceURI());
+      await data.loadManifest();
+    }
+
+    addonOptionsButton.disabled = !(addon.isActive && addon.optionsType);
   };
   AddonCard.prototype._update = AddonCard.prototype.update;
   AddonCard.prototype.update = function() {
