@@ -490,7 +490,7 @@
       {
         "name": "listAttachments",
         "type": "function",
-        "description": "Lists all of the attachments of a message.",
+        "description": "Lists the attachments of a message.",
         "async": "callback",
         "parameters": [
           {
