@@ -155,7 +155,7 @@ function getFields(entryName, addIfNeeded = false, count) {
     case "impp":
       fieldsSelector = "vcard-impp";
       addButtonId = "vcard-add-impp";
-      expectFocusSelector = "vcard-impp:last-of-type input";
+      expectFocusSelector = "vcard-impp:last-of-type select";
       break;
     case "url":
       fieldsSelector = "vcard-url";

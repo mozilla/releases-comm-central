@@ -49,15 +49,9 @@ class VCardIMPPComponent extends HTMLElement {
 
     this.protocolEl.addEventListener("change", event => {
       let entered = this.imppEl.value.split(":", 1)[0]?.toLowerCase();
-      if (entered) {
-        // Setup selection. Prevent changing to non-matching type.
-        for (let p of this.protocolEl.options) {
-          if (p.value.startsWith(entered)) {
-            this.protocolEl.value = p.value;
-            break;
-          }
-        }
-      }
+      this.protocolEl.value =
+        [...this.protocolEl.options].find(o => o.value.startsWith(entered))
+          ?.value || "";
       this.imppEl.placeholder = this.protocolEl.value;
       this.imppEl.pattern = this.protocolEl.selectedOptions[0].dataset.pattern;
     });
@@ -67,21 +61,13 @@ class VCardIMPPComponent extends HTMLElement {
     imppLabel.htmlFor = this.imppEl.id;
     document.l10n.setAttributes(imppLabel, "vcard-impp-label");
     this.imppEl.addEventListener("change", event => {
-      let entered = event.target.value.split(":", 1)[0]?.toLowerCase();
-      if (!entered) {
-        return;
+      if (event.target.value) {
+        this.protocolEl.dispatchEvent(new CustomEvent("change"));
       }
-      for (let p of this.protocolEl.options) {
-        if (p.value.startsWith(entered)) {
-          this.protocolEl.value = p.value;
-          return;
-        }
-      }
-      this.protocolEl.value = "";
     });
 
     this.fromVCardPropertyEntryToUI();
-    this.protocolEl.dispatchEvent(new CustomEvent("change"));
+    this.imppEl.dispatchEvent(new CustomEvent("change"));
   }
 
   fromVCardPropertyEntryToUI() {
