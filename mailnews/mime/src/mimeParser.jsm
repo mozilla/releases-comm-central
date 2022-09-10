@@ -76,6 +76,7 @@ var ExtractMimeMsgEmitter = {
       parts: [],
       size: 0,
       headers: {},
+      rawHeaderText: "",
       attachments: [],
       // No support for encryption.
       isEncrypted: false,
@@ -97,11 +98,13 @@ var ExtractMimeMsgEmitter = {
     if (this.options.getMimePart) {
       if (this.mimeTree.parts[0].partName == this.options.getMimePart) {
         this.mimeMsg = this.mimeTree.parts[0];
+        this.mimeMsg.bodyAsTypedArray = jsmime.mimeutils.stringToTypedArray(
+          this.mimeMsg.body
+        );
       }
       return;
     }
 
-    this.mimeTree.attachments.sort((a, b) => a.partName > b.partName);
     this.mimeMsg = this.mimeTree;
   },
 
@@ -111,6 +114,8 @@ var ExtractMimeMsgEmitter = {
     let contentType = headerMap.contentType?.type
       ? headerMap.contentType.type
       : "text/plain";
+
+    let rawHeaderText = headerMap.rawHeaderText;
 
     let headers = {};
     for (let [headerName, headerValue] of headerMap._rawHeaders) {
@@ -125,21 +130,28 @@ var ExtractMimeMsgEmitter = {
 
     // Get the most recent part from the hierarchical parts stack, which is the
     // parent of the new part to by added.
-    let parentPart = this.partsPath[this.partsPath.length - 1];
+    let currentPart = this.partsPath[this.partsPath.length - 1];
 
-    // Add a leading 1 to the partNum and convert the "$" sub-message deliminator.
-    let partName = "1" + (partNum ? "." : "") + partNum.replaceAll("$", ".1");
+    // Add a leading 1 to the partNum and convert the "$." sub-message deliminator.
+    let partName =
+      "1" + (partNum !== "" ? "." : "") + partNum.replaceAll("$.", ".1.");
+    if (partName == "1") {
+      // MsgHdrToMimeMessage differentiates between the message headers and the
+      // headers of the first part. jsmime.js however returns all headers of
+      // the message in the first part.
 
-    // MsgHdrToMimeMessage differentiates between the message headers and the
-    // headers of the first part. jsmime.js however returns all headers of
-    // the message in the first multipart/* part: Merge all headers into the
-    // parent part and only keep content-* headers.
-    if (parentPart.contentType.startsWith("message/")) {
-      for (let [k, v] of Object.entries(headers)) {
-        if (!parentPart.headers[k]) {
-          parentPart.headers[k] = v;
-        }
-      }
+      // Move rawHeaderText and add the content-* headers back to the new/first
+      // part.
+      currentPart.rawHeaderText = rawHeaderText;
+      rawHeaderText = rawHeaderText
+        .split(/\n(?![ \t])/)
+        .filter(h => h.toLowerCase().startsWith("content-"))
+        .join("\n")
+        .trim();
+
+      // Move all headers and add the content-* headers back to the new/first
+      // part.
+      currentPart.headers = headers;
       headers = Object.fromEntries(
         Object.entries(headers).filter(h => h[0].startsWith("content-"))
       );
@@ -154,6 +166,7 @@ var ExtractMimeMsgEmitter = {
       partName,
       body: "",
       headers,
+      rawHeaderText,
       contentType,
       size: 0,
       parts: [],
@@ -162,8 +175,8 @@ var ExtractMimeMsgEmitter = {
     };
 
     // Add nested new part.
-    parentPart.parts.push(newPart);
-    // Push the newly added part into the hierarchical parts stack.
+    currentPart.parts.push(newPart);
+    // Update the newly added part to be current part.
     this.partsPath.push(newPart);
   },
 
@@ -175,12 +188,14 @@ var ExtractMimeMsgEmitter = {
     // Add size.
     let size = currentPart.body.length;
     currentPart.size += size;
-    let partSize = currentPart.size;
 
     if (this.isAttachment(currentPart)) {
       currentPart.name = this.getAttachmentName(currentPart);
-      this.mimeTree.attachments.push({ ...currentPart });
-      deleteBody = !this.options.getMimePart;
+      if (this.options.includeAttachments) {
+        this.mimeTree.attachments.push(currentPart);
+      } else {
+        deleteBody = true;
+      }
     }
 
     if (deleteBody || currentPart.body == "") {
@@ -200,7 +215,7 @@ var ExtractMimeMsgEmitter = {
 
     // Add the size of this part to its parent as well.
     currentPart = this.partsPath[this.partsPath.length - 1];
-    currentPart.size += partSize;
+    currentPart.size += size;
   },
 
   /**
@@ -390,7 +405,8 @@ var MimeParser = {
    * Returns a mimeMsg object for the given input. The returned object tries to
    * be compatible with the return value of MsgHdrToMimeMessage. Differences:
    *  - no support for encryption
-   *  - returned attachments include the body and not the URL
+   *  - calculated sizes differ slightly
+   *  - returned attachments includes the content and not a URL
    *  - returned attachments match either allInlineAttachments or
    *    allUserAttachments (decodeSubMessages = false)
    *  - does not eat TABs in headers, if they follow a CRLF
@@ -403,6 +419,7 @@ var MimeParser = {
     var emitter = Object.create(ExtractMimeMsgEmitter);
     // Set default options.
     emitter.options = {
+      includeAttachments: true,
       getMimePart: "",
       decodeSubMessages: true,
     };

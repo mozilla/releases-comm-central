@@ -167,8 +167,7 @@
           },
           "partName": {
             "type": "string",
-            "optional": true,
-            "description": "The identifier of this part, used in :ref:`messages.getAttachmentFile"
+            "optional": true
           },
           "parts": {
             "type": "array",
@@ -180,8 +179,7 @@
           },
           "size": {
             "type": "integer",
-            "optional": true,
-            "description": "The size of this part. The size of ``message/*`` parts is not the actual message size (on disc), but the total size of its decoded body parts, excluding headers."
+            "optional": true
           }
         }
       },
@@ -286,11 +284,6 @@
           "size": {
             "type": "integer",
             "description": "The size in bytes of this attachment."
-          },
-          "message": {
-            "$ref": "messages.MessageHeader",
-            "optional": true,
-            "description": "A MessageHeader, if this attachment is a message."
           }
         }
       }
