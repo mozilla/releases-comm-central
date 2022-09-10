@@ -77,7 +77,7 @@ var ExtractMimeMsgEmitter = {
       size: 0,
       headers: {},
       rawHeaderText: "",
-      attachments: [],
+      allAttachments: [],
       // No support for encryption.
       isEncrypted: false,
     };
@@ -132,9 +132,8 @@ var ExtractMimeMsgEmitter = {
     // parent of the new part to by added.
     let currentPart = this.partsPath[this.partsPath.length - 1];
 
-    // Add a leading 1 to the partNum and convert the "$." sub-message deliminator.
-    let partName =
-      "1" + (partNum !== "" ? "." : "") + partNum.replaceAll("$.", ".1.");
+    // Add a leading 1 to the partNum.
+    let partName = "1" + (partNum !== "" ? "." : "") + partNum;
     if (partName == "1") {
       // MsgHdrToMimeMessage differentiates between the message headers and the
       // headers of the first part. jsmime.js however returns all headers of
@@ -192,7 +191,7 @@ var ExtractMimeMsgEmitter = {
     if (this.isAttachment(currentPart)) {
       currentPart.name = this.getAttachmentName(currentPart);
       if (this.options.includeAttachments) {
-        this.mimeTree.attachments.push(currentPart);
+        this.mimeTree.allAttachments.push(currentPart);
       } else {
         deleteBody = true;
       }
@@ -406,9 +405,7 @@ var MimeParser = {
    * be compatible with the return value of MsgHdrToMimeMessage. Differences:
    *  - no support for encryption
    *  - calculated sizes differ slightly
-   *  - returned attachments includes the content and not a URL
-   *  - returned attachments match either allInlineAttachments or
-   *    allUserAttachments (decodeSubMessages = false)
+   *  - allAttachments includes the content and not a URL
    *  - does not eat TABs in headers, if they follow a CRLF
    *
    * The input is any type of input that would be accepted by parseSync.
@@ -421,7 +418,6 @@ var MimeParser = {
     emitter.options = {
       includeAttachments: true,
       getMimePart: "",
-      decodeSubMessages: true,
     };
     // Override default options.
     for (let option of Object.keys(options)) {
@@ -430,13 +426,10 @@ var MimeParser = {
 
     MimeParser.parseSync(input, emitter, {
       // jsmime does not use the "1." prefix for the partName.
-      // jsmime uses "$." as sub-message deliminator.
       pruneat: emitter.options.getMimePart
         .split(".")
         .slice(1)
-        .join(".")
-        .replaceAll(".1.", "$."),
-      decodeSubMessages: emitter.options.decodeSubMessages,
+        .join("."),
       bodyformat: "decode",
       stripcontinuations: true,
       strformat: "unicode",

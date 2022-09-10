@@ -391,20 +391,6 @@ MimeMessage.prototype = {
   },
 
   /**
-   * @return a list of all attachments contained in this message and all its
-   *     sub-messages, including the sub-messages.
-   */
-  get allInlineAttachments() {
-    // Do not include the top message, but only sub-messages.
-    let results = this.partName ? [this] : [];
-    for (let iChild = 0; iChild < this.parts.length; iChild++) {
-      let child = this.parts[iChild];
-      results = results.concat(child.allInlineAttachments);
-    }
-    return results;
-  },
-
-  /**
    * @return a list of all attachments contained in this message, with
    *    included/forwarded messages treated as real attachments. Attachments
    *    contained in inner messages won't be shown.
@@ -532,14 +518,6 @@ MimeContainer.prototype = {
     }
     return results;
   },
-  get allInlineAttachments() {
-    let results = [];
-    for (let iChild = 0; iChild < this.parts.length; iChild++) {
-      let child = this.parts[iChild];
-      results = results.concat(child.allInlineAttachments);
-    }
-    return results;
-  },
   get allUserAttachments() {
     return this.parts
       .map(child => child.allUserAttachments)
@@ -630,9 +608,6 @@ MimeBody.prototype = {
   get allAttachments() {
     return []; // we are a leaf
   },
-  get allInlineAttachments() {
-    return []; // we are a leaf
-  },
   get allUserAttachments() {
     return []; // we are a leaf
   },
@@ -710,11 +685,6 @@ MimeUnknown.prototype = {
   get allAttachments() {
     return this.parts
       .map(child => child.allAttachments)
-      .reduce((a, b) => a.concat(b), []);
-  },
-  get allInlineAttachments() {
-    return this.parts
-      .map(child => child.allInlineAttachments)
       .reduce((a, b) => a.concat(b), []);
   },
   get allUserAttachments() {
@@ -798,9 +768,6 @@ function MimeMessageAttachment(
 MimeMessageAttachment.prototype = {
   __proto__: HeaderHandlerBase,
   get allAttachments() {
-    return [this]; // we are a leaf, so just us.
-  },
-  get allInlineAttachments() {
     return [this]; // we are a leaf, so just us.
   },
   get allUserAttachments() {
