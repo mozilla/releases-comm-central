@@ -84,6 +84,7 @@ nsAutoSyncState::nsAutoSyncState(nsImapMailFolder* aOwnerFolder,
       mRetryCounter(0U) {
   mOwnerFolder =
       do_GetWeakReference(static_cast<nsIMsgImapMailFolder*>(aOwnerFolder));
+  mHaveAStatusResponse = false;
 }
 
 nsAutoSyncState::~nsAutoSyncState() {}
@@ -294,7 +295,10 @@ NS_IMETHODIMP nsAutoSyncState::GetNextGroupOfMessages(
 }
 
 /**
- * Usually called by nsAutoSyncManager when the last sync time is expired.
+ * Called by nsAutoSyncManager::TimerCallback to process message headers for a
+ * folder in the discovery queue. The queue is created on the kAutoSyncFreq
+ * time base (1 hour). Headers lacking offline store are placed in download
+ * queue.
  */
 NS_IMETHODIMP nsAutoSyncState::ProcessExistingHeaders(
     uint32_t aNumOfHdrsToProcess, uint32_t* aLeftToProcess) {
@@ -334,9 +338,10 @@ NS_IMETHODIMP nsAutoSyncState::ProcessExistingHeaders(
   if (!msgKeys.IsEmpty()) {
     nsCString folderName;
     folder->GetURI(folderName);
-    MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-            ("%zu messages will be added into the download q of folder %s\n",
-             msgKeys.Length(), folderName.get()));
+    MOZ_LOG(
+        gAutoSyncLog, LogLevel::Debug,
+        ("%s: %zu messages will be added into the download q of folder %s\n",
+         __func__, msgKeys.Length(), folderName.get()));
 
     rv = PlaceIntoDownloadQ(msgKeys);
     if (NS_FAILED(rv)) mProcessPointer = lastIdx;
@@ -350,8 +355,27 @@ NS_IMETHODIMP nsAutoSyncState::ProcessExistingHeaders(
     mExistingHeadersQ.Clear();
     mProcessPointer = 0;
     folder->SetMsgDatabase(nullptr);
-  }
 
+    // Handle the case where imap STATUS triggered an update but nothing found
+    // to download when folder SELECTed.
+    if ((mSyncState != stCompletedIdle) && mDownloadQ.IsEmpty()) {
+      nsCString folderName;
+      folder->GetURI(folderName);
+      MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+              ("%s: nothing to download for folder %s, "
+               "set state to stCompletedIdle",
+               __func__, folderName.get()));
+      SetState(stCompletedIdle);
+      // Set autosync manager back to completed state.
+      nsCOMPtr<nsIAutoSyncManager> autoSyncMgr =
+          do_GetService(NS_AUTOSYNCMANAGER_CONTRACTID, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsCOMPtr<nsIUrlListener> autoSyncMgrListener =
+          do_QueryInterface(autoSyncMgr, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
+      autoSyncMgrListener->OnStopRunningUrl(nullptr, NS_OK);
+    }
+  }
   return rv;
 }
 
@@ -414,37 +438,96 @@ NS_IMETHODIMP nsAutoSyncState::OnStopRunningUrl(nsIURI* aUrl,
     imapFolder->GetServerUnseen(&serverUnseen);
     imapFolder->GetServerRecent(&serverRecent);
     imapFolder->GetServerNextUID(&serverNextUID);
+    MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+            ("%s: serverUnseen=%d lastServerUnseen=%d", __func__, serverUnseen,
+             mLastServerUnseen));
     if (serverNextUID != mLastNextUID || serverTotal != mLastServerTotal ||
-        serverUnseen != mLastServerUnseen ||
-        serverRecent != mLastServerRecent) {
+        serverRecent != mLastServerRecent ||
+        ((serverUnseen != mLastServerUnseen) && mLastServerUnseen > -1)) {
+      if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
+        nsCString folderName;
+        ownerFolder->GetURI(folderName);
+        MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+                ("%s: folder %s status changed serverNextUID=%d lastNextUID=%d",
+                 __func__, folderName.get(), serverNextUID, mLastNextUID));
+        MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+                ("%s: serverTotal = %d lastServerTotal = %d serverRecent = %d "
+                 "lastServerRecent = %d\n",
+                 __func__, serverTotal, mLastServerTotal, serverRecent,
+                 mLastServerRecent));
+      }
+      SetServerCounts(serverTotal, serverRecent, serverUnseen, serverNextUID);
+      SetState(nsAutoSyncState::stUpdateIssued);
+      rv = imapFolder->UpdateFolderWithListener(nullptr, autoSyncMgrListener);
+    } else  // folderstatus detected no change
+    {
+      if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
+        nsCString folderName;
+        ownerFolder->GetURI(folderName);
+        MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+                ("%s: folder %s status or noop issued, no change", __func__,
+                 folderName.get()));
+      }
+      // Status detected no change. This may be due to an previously deleted and
+      // now empty database so changes above are compared to folder cache. If
+      // so, force an update which will re-populate the database (.msf) and
+      // download all the message to mbox/maildir store. This check is only
+      // needed after the first imap STATUS response after start-up. Note: A
+      // restart is required when .msf (the folder database) and mbox/maildir
+      // storage are manually deleted in filesystem by the user.
+      if (!mHaveAStatusResponse) {
+        nsCOMPtr<nsIMsgDatabase> database;
+        ownerFolder->GetMsgDatabase(getter_AddRefs(database));
+        bool hasHeader = false;
+        if (database) {
+          nsCOMPtr<nsIMsgEnumerator> hdrs;
+          database->EnumerateMessages(getter_AddRefs(hdrs));
+          if (hdrs) hdrs->HasMoreElements(&hasHeader);
+        }
+        if (!hasHeader) {
+          if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
+            nsCString folderName;
+            ownerFolder->GetURI(folderName);
+            MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+                    ("%s: folder %s has empty DB, force an update", __func__,
+                     folderName.get()));
+          }
+          SetServerCounts(serverTotal, serverRecent, serverUnseen,
+                          serverNextUID);
+          SetState(nsAutoSyncState::stUpdateIssued);
+          rv = imapFolder->UpdateFolderWithListener(nullptr,
+                                                    autoSyncMgrListener);
+        }
+      }
+      if (mSyncState == stStatusIssued) {
+        // Didn't force an update above so transition back to stCompletedIdle
+        ownerFolder->SetMsgDatabase(nullptr);
+        // nothing more to do.
+        SetState(nsAutoSyncState::stCompletedIdle);
+        // autoSyncMgr needs this notification, so manufacture it.
+        rv = autoSyncMgrListener->OnStopRunningUrl(nullptr, NS_OK);
+      }
+    }  // end no change detected
+    mHaveAStatusResponse = true;
+  } else  // URL not folderstatus but FETCH of message body
+  {
+    // XXXemre how we recover from this error?
+    rv = ownerFolder->ReleaseSemaphore(ownerFolder);
+    NS_ASSERTION(NS_SUCCEEDED(rv), "*** Cannot release folder semaphore");
+
+    nsCOMPtr<nsIMsgMailNewsUrl> mailUrl = do_QueryInterface(aUrl);
+    if (mailUrl) rv = mailUrl->UnRegisterListener(this);
+
+    if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
       nsCString folderName;
       ownerFolder->GetURI(folderName);
       MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-              ("folder %s status changed serverNextUID = %x lastNextUID = %x\n",
-               folderName.get(), serverNextUID, mLastNextUID));
-      MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-              ("serverTotal = %x lastServerTotal = %x serverRecent = %x "
-               "lastServerRecent = %x\n",
-               serverTotal, mLastServerTotal, serverRecent, mLastServerRecent));
-      SetServerCounts(serverTotal, serverRecent, serverUnseen, serverNextUID);
-      SetState(nsAutoSyncState::stUpdateIssued);
-      return imapFolder->UpdateFolderWithListener(nullptr, autoSyncMgrListener);
+              ("%s: URL for FETCH of msg body/bodies complete, folder %s",
+               __func__, folderName.get()));
     }
-
-    ownerFolder->SetMsgDatabase(nullptr);
-    // nothing more to do.
-    SetState(nsAutoSyncState::stCompletedIdle);
-    // autoSyncMgr needs this notification, so manufacture it.
-    return autoSyncMgrListener->OnStopRunningUrl(nullptr, NS_OK);
+    rv = autoSyncMgr->OnDownloadCompleted(this, aExitCode);
   }
-  // XXXemre how we recover from this error?
-  rv = ownerFolder->ReleaseSemaphore(ownerFolder);
-  NS_ASSERTION(NS_SUCCEEDED(rv), "*** Cannot release folder semaphore");
-
-  nsCOMPtr<nsIMsgMailNewsUrl> mailUrl = do_QueryInterface(aUrl);
-  if (mailUrl) rv = mailUrl->UnRegisterListener(this);
-
-  return autoSyncMgr->OnDownloadCompleted(this, aExitCode);
+  return rv;
 }
 
 NS_IMETHODIMP nsAutoSyncState::GetState(int32_t* aState) {
@@ -453,9 +536,16 @@ NS_IMETHODIMP nsAutoSyncState::GetState(int32_t* aState) {
   return NS_OK;
 }
 
-const char* stateStrings[] = {"idle",          "status issued",
-                              "update needed", "update issued",
-                              "downloading",   "ready to download"};
+// clang-format off
+const char* stateStrings[] = {
+  "stCompletedIdle:0",       // Initial state
+  "stStatusIssued:1",        // Imap STATUS or NOOP to occur to detect new msgs
+  "stUpdateNeeded:2",        // Imap SELECT to occur due to "pending" msgs
+  "stUpdateIssued:3",        // Imap SELECT to occur then fetch new headers
+  "stReadyToDownload:4",     // Ready to download a group of new messages
+  "stDownloadInProgress:5"   // Download, go to 4 if more msgs then 0 when all done
+};
+// clang-format on
 
 NS_IMETHODIMP nsAutoSyncState::SetState(int32_t aState) {
   mSyncState = aState;
@@ -477,9 +567,9 @@ NS_IMETHODIMP nsAutoSyncState::SetState(int32_t aState) {
         ownerFolder->SetMsgDatabase(nullptr);
     }
   }
-  nsCString logStr("Sync State set to ");
+  nsCString logStr("Sync State set to |");
   logStr.Append(stateStrings[aState]);
-  logStr.AppendLiteral(" for ");
+  logStr.AppendLiteral("| for ");
   LogOwnerFolderName(logStr.get());
   return NS_OK;
 }
@@ -571,6 +661,15 @@ NS_IMETHODIMP nsAutoSyncState::IsSibling(nsIAutoSyncState* aAnotherStateObj,
   return rv;
 }
 
+/**
+ * Test whether the download queue is empty.
+ */
+NS_IMETHODIMP nsAutoSyncState::IsDownloadQEmpty(bool* aResult) {
+  NS_ENSURE_ARG_POINTER(aResult);
+  *aResult = mDownloadQ.IsEmpty();
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
     nsTArray<RefPtr<nsIMsgDBHdr>> const& messages) {
   nsresult rv;
@@ -591,10 +690,13 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
   rv = folder->AcquireSemaphore(folder);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCString folderName;
-  folder->GetURI(folderName);
-  MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-          ("downloading %s for %s", messageIds.get(), folderName.get()));
+  if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
+    nsCString folderName;
+    folder->GetURI(folderName);
+    MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+            ("%s: downloading UIDs %s for folder %s", __func__,
+             messageIds.get(), folderName.get()));
+  }
   // start downloading
   rv = imapService->DownloadMessagesForOffline(messageIds, folder, this,
                                                nullptr);

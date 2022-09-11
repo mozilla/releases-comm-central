@@ -100,6 +100,7 @@ class nsAutoSyncState final : public nsIAutoSyncState, public nsIUrlListener {
   nsTHashtable<nsUint32HashKey> mDownloadSet;
   nsTArray<nsMsgKey> mDownloadQ;
   nsTArray<nsMsgKey> mExistingHeadersQ;
+  bool mHaveAStatusResponse;
 };
 
 #endif
