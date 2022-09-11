@@ -5,7 +5,7 @@
 /* globals CanDetachAttachments
   currentAttachments FullScreen
   getIconForAttachment goUpdateAttachmentCommands initAddonPrefsMenu
-  initAppMenuPopup InitAppmenuViewBodyMenu InitAppMessageMenu
+  initAppMenuPopup InitAppmenuViewBodyMenu
   InitAppmenuViewMessagesMenu InitAppFolderViewsMenu InitAppViewSortByMenu
   InitMessageTags InitRecentlyClosedTabsPopup InitViewFolderViewsMenu
   InitViewHeadersMenu InitViewLayoutStyleMenu initSearchMessagesMenu
@@ -423,13 +423,6 @@ const PanelUI = {
       // Go
       case "appMenu-goRecentlyClosedTabsView":
         PanelUI._refreshDynamicView(event, InitRecentlyClosedTabsPopup);
-        break;
-      // Message
-      case "appMenu-messageView":
-        InitAppMessageMenu();
-        break;
-      case "appMenu-messageTagView":
-        PanelUI._refreshDynamicView(event, InitMessageTags);
         break;
     }
   },
