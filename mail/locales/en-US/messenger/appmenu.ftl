@@ -172,44 +172,44 @@ appmenu-tools-dev-tools =
 ## Help
 
 appmenu-help-panel-title =
-    .title = Help
+  .title = Help
 
 appmenu-help-get-help =
-    .label = Get Help
-    .accesskey = H
+  .label = Get Help
+  .accesskey = H
 
 appmenu-help-explore-features =
-    .label = Explore Features
-    .accesskey = F
+  .label = Explore Features
+  .accesskey = F
 
 appmenu-help-shortcuts =
-    .label = Keyboard Shortcuts
-    .accesskey = K
+  .label = Keyboard Shortcuts
+  .accesskey = K
 
 appmenu-help-get-involved =
-    .label = Get Involved
-    .accesskey = G
+  .label = Get Involved
+  .accesskey = G
 
 appmenu-help-donation =
-    .label = Make a Donation
-    .accesskey = D
+  .label = Make a Donation
+  .accesskey = D
 
 appmenu-help-share-feedback =
-    .label = Share Ideas and Feedback
-    .accesskey = S
+  .label = Share Ideas and Feedback
+  .accesskey = S
 
 appmenu-help-enter-troubleshoot-mode2 =
-    .label = Troubleshoot Mode…
-    .accesskey = M
+  .label = Troubleshoot Mode…
+  .accesskey = M
 
 appmenu-help-exit-troubleshoot-mode2 =
-    .label = Turn Troubleshoot Mode Off
-    .accesskey = O
+  .label = Turn Troubleshoot Mode Off
+  .accesskey = M
 
 appmenu-help-troubleshooting-info =
-    .label = Troubleshooting Information
-    .accesskey = T
+  .label = Troubleshooting Information
+  .accesskey = T
 
 appmenu-help-about-product =
-    .label = About { -brand-short-name }
-    .accesskey = A
+  .label = About { -brand-short-name }
+  .accesskey = A

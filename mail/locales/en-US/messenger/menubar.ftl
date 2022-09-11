@@ -48,15 +48,15 @@ menu-help-share-feedback =
 
 menu-help-enter-troubleshoot-mode =
     .label = Troubleshoot Mode…
-    .accesskey = T
+    .accesskey = M
 
 menu-help-exit-troubleshoot-mode =
     .label = Turn Troubleshoot Mode Off
-    .accesskey = O
+    .accesskey = M
 
 menu-help-troubleshooting-info =
     .label = Troubleshooting Information
-    .accesskey = I
+    .accesskey = T
 
 menu-help-about-product =
     .label = About { -brand-short-name }
