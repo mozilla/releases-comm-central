@@ -9,7 +9,7 @@
   border: 1px solid var(--splitter-color);
 }
 
-.calendar-invitation-panel-body {
+:host(calendar-invitation-panel-wrapper) {
   display: flex;
   padding: 10px 20px;
 }
