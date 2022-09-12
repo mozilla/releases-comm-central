@@ -12,6 +12,7 @@
 #unifiedToolbar {
   flex: 1 1 auto;
   display: flex;
+  padding-block: 6px;
 }
 
 #unifiedToolbarContainer .titlebar-buttonbox-container {
@@ -26,4 +27,13 @@
 
 #unifiedToolbarContent {
   flex: 1 1 auto;
+  display: flex;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.searchBar {
+  flex: 1 0 33%;
 }

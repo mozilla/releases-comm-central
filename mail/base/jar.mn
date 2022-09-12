@@ -82,7 +82,6 @@ messenger.jar:
 *   content/messenger/SearchDialog.xhtml            (content/SearchDialog.xhtml)
     content/messenger/selectionsummaries.js         (content/selectionsummaries.js)
     content/messenger/shortcutsOverlay.js           (content/shortcutsOverlay.js)
-    content/messenger/spacesToolbar.inc.xhtml       (content/spacesToolbar.inc.xhtml)
     content/messenger/spacesToolbar.js              (content/spacesToolbar.js)
     content/messenger/specialTabs.js                (content/specialTabs.js)
     content/messenger/systemIntegrationDialog.js    (content/systemIntegrationDialog.js)

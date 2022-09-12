@@ -24,6 +24,7 @@ DIRS += [
     "prompts",
     "search",
     "shell",
+    "unifiedToolbar",
 ]
 
 EXTRA_COMPONENTS += [
