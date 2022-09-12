@@ -27,14 +27,6 @@ registerCleanupFunction(() => {
   let searchInput = document.getElementById("searchInput");
   searchInput.focus();
   searchInput.blur();
-
-  // Put the 3-pane back how we found it.
-  document
-    .getElementById("folderpane_splitter")
-    .setAttribute("state", "collapsed");
-  if (window.IsMessagePaneCollapsed()) {
-    window.MsgToggleMessagePane();
-  }
 });
 
 function createAccount(type = "none") {

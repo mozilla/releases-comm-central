@@ -10,7 +10,6 @@
 /* import-globals-from mail-offline.js */
 /* import-globals-from mailCore.js */
 /* import-globals-from mailWindowOverlay.js */
-/* import-globals-from msgHdrView.js */
 /* import-globals-from msgMail3PaneWindow.js */
 /* import-globals-from utilityOverlay.js */
 
@@ -206,6 +205,7 @@ function CreateMailWindowGlobals() {
 
   window.browserDOMWindow = new nsBrowserAccess();
 
+  // eslint-disable-next-line no-global-assign
   statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"].createInstance(
     Ci.nsIMsgStatusFeedback
   );
@@ -290,19 +290,7 @@ function InitMsgWindow() {
   // set the domWindow before setting the status feedback and header sink objects
   msgWindow.domWindow = window;
   msgWindow.statusFeedback = statusFeedback;
-  msgWindow.msgHeaderSink = messageHeaderSink;
   MailServices.mailSession.AddMsgWindow(msgWindow);
-  let messagepane = getMessagePaneBrowser();
-  if (messagepane.docShell) {
-    messagepane.docShell.allowAuth = false;
-    messagepane.docShell.allowDNSPrefetch = false;
-  }
-  let multimessagepane = document.getElementById("multimessage");
-  // The multimessage pane is not available in the standalone message window.
-  if (multimessagepane?.docShell) {
-    multimessagepane.docShell.allowAuth = false;
-    multimessagepane.docShell.allowDNSPrefetch = false;
-  }
   msgWindow.rootDocShell.allowAuth = true;
   msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
   // Ensure we don't load xul error pages into the main window
@@ -310,19 +298,6 @@ function InitMsgWindow() {
 
   document.addEventListener("copy", onCopyOrDragStart, true);
   document.addEventListener("dragstart", onCopyOrDragStart, true);
-  // Override Retry button to prevent unwanted url loads, see bug 1411748.
-  messagepane.addEventListener("DOMContentLoaded", event => {
-    if (!event.target.documentURI.startsWith("about:neterror?")) {
-      return;
-    }
-    let button = event.target.getElementById("errorTryAgain");
-    button.removeEventListener("click", function() {
-      retryThis(this);
-    });
-    button.addEventListener("click", function() {
-      ReloadMessage();
-    });
-  });
 
   let keypressListener = {
     handleEvent: event => {
@@ -719,13 +694,6 @@ function loadStartPage(aForce) {
 function getBrowser() {
   let tabmail = document.getElementById("tabmail");
   return tabmail ? tabmail.getBrowserForSelectedTab() : getMessagePaneBrowser();
-}
-
-/**
- * Returns the browser element of the message pane.
- */
-function getMessagePaneBrowser() {
-  return document.getElementById("messagepane");
 }
 
 /**

@@ -13,7 +13,7 @@
 /* global ReloadMessage: false, gDBView: false, gSignatureStatus: false, gEncryptionStatus: false, showMessageReadSecurityInfo: false */
 /* global gFolderDisplay: false, messenger: false, currentAttachments: false, msgWindow: false, PanelUI: false */
 /* global currentHeaderData: false, gViewAllHeaders: false, gExpandedHeaderList: false, goDoCommand: false, HandleSelectedAttachments: false */
-/* global statusFeedback: false, displayAttachmentsForExpandedView: false, gMessageListeners: false, gExpandedHeaderView */
+/* global statusFeedback: false, displayAttachmentsForExpandedView: false, gExpandedHeaderView */
 /* global gSigKeyId:true, gEncKeyId:true */
 /* globals gMessageNotificationBar, gMessageDisplay */
 
@@ -123,14 +123,6 @@ Enigmail.msg = {
       EnigmailKeyRing.getAllKeys();
     }, 3600 * 1000); // 1 hour
 
-    // Need to add event listener to Enigmail.msg.messagePane to make it work
-    // Adding to msgFrame doesn't seem to work
-    Enigmail.msg.messagePane.addEventListener(
-      "unload",
-      Enigmail.msg.messageFrameUnload.bind(Enigmail.msg),
-      true
-    );
-
     this.treeController = {
       supportsCommand(command) {
         // EnigmailLog.DEBUG("enigmailMessengerOverlay.js: treeCtrl: supportsCommand: "+command+"\n");
@@ -166,7 +158,6 @@ Enigmail.msg = {
     top.controllers.appendController(this.treeController);
 
     EnigmailMsgRead.ensureExtraAddonHeaders();
-    gMessageListeners.push(Enigmail.msg.messageListener);
     Enigmail.msg.messageListener.onEndHeaders();
   },
 
@@ -2775,12 +2766,6 @@ Enigmail.msg = {
       top.controllers.removeController(this.treeController);
     }
 
-    for (let i = 0; i < gMessageListeners.length; i++) {
-      if (gMessageListeners[i] === Enigmail.msg.messageListener) {
-        gMessageListeners.splice(i, 1);
-        break;
-      }
-    }
     this.messengerClose();
 
     if (Enigmail.columnHandler) {

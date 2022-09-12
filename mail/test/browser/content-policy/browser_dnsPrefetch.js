@@ -23,6 +23,8 @@ var {
   be_in_folder,
   close_message_window,
   create_folder,
+  get_about_3pane,
+  get_about_message,
   mc,
   open_selected_message_in_new_window,
   select_click_row,
@@ -138,13 +140,16 @@ function checkComposeWindow(replyType) {
 
 add_task(async function test_dnsPrefetch_message() {
   // Now we have started up, simply check that DNS prefetch is disabled
+  let aboutMessage = get_about_message();
   Assert.ok(
-    !mc.e("messagepane").docShell.allowDNSPrefetch,
-    "Should disable DNS Prefetch on messagepane at startup"
+    !aboutMessage.document.getElementById("messagepane").docShell,
+    "messagepane has no docShell at startup"
   );
+  let about3Pane = get_about_3pane();
   Assert.ok(
-    !mc.e("multimessage").docShell.allowDNSPrefetch,
-    "Should disable DNS Prefetch on multimessage at startup"
+    !about3Pane.document.getElementById("multiMessageBrowser").docShell
+      .allowDNSPrefetch,
+    "multimessage has no docShell at startup"
   );
 
   await be_in_folder(folder);
@@ -155,18 +160,18 @@ add_task(async function test_dnsPrefetch_message() {
 
   // Now we've got a message selected, check again.
   Assert.ok(
-    !mc.e("messagepane").docShell.allowDNSPrefetch,
+    !aboutMessage.document.getElementById("messagepane").docShell
+      .allowDNSPrefetch,
     "Should keep DNS Prefetch disabled on messagepane after selecting message"
   );
 
   let secondMsg = addMsgToFolder(folder);
   select_shift_click_row(firstMsg);
-
-  console.log(firstMsg, secondMsg);
   assert_selected_and_displayed(firstMsg, secondMsg);
 
   Assert.ok(
-    !mc.e("multimessage").docShell.allowDNSPrefetch,
+    !about3Pane.document.getElementById("multiMessageBrowser").docShell
+      .allowDNSPrefetch,
     "Should keep DNS Prefetch disabled on multimessage after selecting message"
   );
 
@@ -178,8 +183,10 @@ add_task(async function test_dnsPrefetch_standaloneMessage() {
   assert_selected_and_displayed(msgc, gMsgHdr);
 
   // Check the docshell.
+  let aboutMessage = get_about_message(msgc.window);
   Assert.ok(
-    !mc.e("messagepane").docShell.allowDNSPrefetch,
+    !aboutMessage.document.getElementById("messagepane").docShell
+      .allowDNSPrefetch,
     "Should disable DNS Prefetch on messagepane in standalone message window."
   );
 

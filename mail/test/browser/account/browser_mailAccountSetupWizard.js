@@ -300,7 +300,9 @@ add_task(async function test_mail_account_setup() {
   Assert.ok(mc.tabmail.currentTabInfo.folderPaneVisible);
 
   // Confirm that the folder pane is visible.
-  Assert.ok(!mc.e("folderPaneBox").collapsed);
+  Assert.ok(
+    BrowserTestUtils.is_visible(mc.tabmail.currentAbout3Pane.folderTree)
+  );
 
   let promptState = gMockPromptService.promptState;
   Assert.equal("confirm", promptState.method);

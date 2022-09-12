@@ -32,7 +32,7 @@ PromiseTestUtils.allowMatchingRejectionsGlobally(
   /Receiving end does not exist/
 );
 
-add_setup(check3PaneInInitialState);
+add_setup(() => check3PaneState(true, true));
 registerCleanupFunction(() => {
   let tabmail = document.getElementById("tabmail");
   is(tabmail.tabInfo.length, 1);
@@ -51,21 +51,8 @@ registerCleanupFunction(() => {
   searchInput.blur();
 
   MailServices.accounts.accounts.forEach(cleanUpAccount);
-
-  // Put the 3-pane back how we found it.
-  document
-    .getElementById("folderpane_splitter")
-    .setAttribute("state", "collapsed");
-  if (window.IsMessagePaneCollapsed()) {
-    window.MsgToggleMessagePane();
-  }
-
-  check3PaneInInitialState();
+  check3PaneState(true, true);
 });
-
-async function check3PaneInInitialState() {
-  await check3PaneState(true, true);
-}
 
 async function check3PaneState(folderPaneOpen = null, messagePaneOpen = null) {
   let tab = document.getElementById("tabmail").currentTabInfo;
@@ -82,6 +69,7 @@ async function check3PaneState(folderPaneOpen = null, messagePaneOpen = null) {
       folderPaneOpen,
       "State of folder pane splitter is correct"
     );
+    tab.folderPaneVisible = folderPaneOpen;
   }
 
   if (messagePaneOpen !== null) {
@@ -90,6 +78,7 @@ async function check3PaneState(folderPaneOpen = null, messagePaneOpen = null) {
       messagePaneOpen,
       "State of message pane splitter is correct"
     );
+    tab.messagePaneVisible = messagePaneOpen;
   }
 }
 

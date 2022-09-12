@@ -117,13 +117,10 @@ var DefaultController = {
       case "button_goBack":
       case "cmd_goForward":
       case "cmd_goBack":
-      case "cmd_goStartPage":
       case "cmd_undoCloseTab":
       case "cmd_viewClassicMailLayout":
       case "cmd_viewWideMailLayout":
       case "cmd_viewVerticalMailLayout":
-      case "cmd_toggleFolderPane":
-      case "cmd_toggleMessagePane":
       case "cmd_viewAllMsgs":
       case "cmd_viewUnreadMsgs":
       case "cmd_viewThreadsWithUnread":
@@ -147,9 +144,6 @@ var DefaultController = {
       case "cmd_getNewMessages":
       case "cmd_getMsgsForAuthAccounts":
       case "cmd_getNextNMessages":
-      case "cmd_find":
-      case "cmd_findAgain":
-      case "cmd_findPrevious":
       case "button_mark":
       case "cmd_tag":
       case "cmd_addTag":
@@ -181,13 +175,8 @@ var DefaultController = {
       case "cmd_deleteJunk":
       case "button_file":
       case "cmd_settingsOffline":
-      case "cmd_selectAll":
       case "cmd_selectThread":
       case "cmd_selectFlagged":
-      case "cmd_fullZoomReduce":
-      case "cmd_fullZoomEnlarge":
-      case "cmd_fullZoomReset":
-      case "cmd_fullZoomToggle":
       case "cmd_fontSizeReset":
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
@@ -421,11 +410,6 @@ var DefaultController = {
           );
         }
         return false;
-      case "cmd_goStartPage":
-        return (
-          document.getElementById("tabmail").selectedTab.mode.name ==
-            "folder" && !IsMessagePaneCollapsed()
-        );
       case "cmd_undoCloseTab":
         return document.getElementById("tabmail").recentlyClosedTabs.length > 0;
       case "cmd_markAllRead":
@@ -437,20 +421,6 @@ var DefaultController = {
         );
       case "cmd_markReadByDate":
         return IsFolderSelected();
-      case "cmd_find":
-      case "cmd_findAgain":
-      case "cmd_findPrevious":
-        // If we are a message tab, then we've got a message displayed, so
-        // always allow searching in the message
-        if (
-          document.getElementById("tabmail").selectedTab.mode.name == "message"
-        ) {
-          return true;
-        }
-
-        // Otherwise, only allow searching if we're showing the message pane.
-        return !IsMessagePaneCollapsed();
-      case "cmd_selectAll":
       case "cmd_selectFlagged":
         return !!gDBView;
       // these are enabled on when we are in threaded mode
@@ -471,10 +441,6 @@ var DefaultController = {
       case "cmd_viewClassicMailLayout":
       case "cmd_viewWideMailLayout":
       case "cmd_viewVerticalMailLayout":
-      case "cmd_toggleFolderPane":
-      case "cmd_toggleMessagePane":
-        // this is overridden per-mail tab
-        return true;
       case "cmd_viewAllMsgs":
       case "cmd_viewIgnoredThreads":
         return gDBView;
@@ -509,18 +475,6 @@ var DefaultController = {
         return MailOfflineMgr.isOnline();
       case "cmd_settingsOffline":
         return IsAccountOfflineEnabled();
-      case "cmd_fullZoomReduce":
-      case "cmd_fullZoomEnlarge":
-      case "cmd_fullZoomReset":
-      case "cmd_fullZoomToggle":
-        // If we are a message tab, then we've got a message displayed, so
-        // always allow zooming in the message
-        if (
-          document.getElementById("tabmail").selectedTab.mode.name == "message"
-        ) {
-          return true;
-        }
-        return IsFolderSelected() && !IsMessagePaneCollapsed();
       case "cmd_fontSizeReduce":
         return UIFontSize.size > UIFontSize.MIN_VALUE;
       case "cmd_fontSizeEnlarge":
@@ -695,10 +649,6 @@ var DefaultController = {
       case "cmd_goBack":
         GoNextMessage(Ci.nsMsgNavigationType.back, true);
         break;
-      case "cmd_goStartPage":
-        HideMessageHeaderPane();
-        loadStartPage(true);
-        break;
       case "cmd_undoCloseTab":
         document.getElementById("tabmail").undoCloseTab();
         break;
@@ -706,12 +656,6 @@ var DefaultController = {
       case "cmd_viewWideMailLayout":
       case "cmd_viewVerticalMailLayout":
         ChangeMailLayoutForCommand(command);
-        break;
-      case "cmd_toggleFolderPane":
-        MsgToggleFolderPane();
-        break;
-      case "cmd_toggleMessagePane":
-        MsgToggleMessagePane();
         break;
       case "cmd_viewAllMsgs":
       case "cmd_viewThreadsWithUnread":
@@ -769,24 +713,6 @@ var DefaultController = {
         return;
       case "cmd_reload":
         ReloadMessage();
-        return;
-      case "cmd_find":
-        // Make sure the message pane has focus before we start a find since we
-        // only support searching within the message body.
-        SetFocusMessagePane();
-        document.getElementById("FindToolbar").onFindCommand();
-        return;
-      case "cmd_findAgain":
-        // Make sure the message pane has focus before we start a find since we
-        // only support searching within the message body.
-        SetFocusMessagePane();
-        document.getElementById("FindToolbar").onFindAgainCommand(false);
-        return;
-      case "cmd_findPrevious":
-        // Make sure the message pane has focus before we start a find since we
-        // only support searching within the message body.
-        SetFocusMessagePane();
-        document.getElementById("FindToolbar").onFindAgainCommand(true);
         return;
       case "cmd_markReadByDate":
         MsgMarkReadByDate();
@@ -886,35 +812,11 @@ var DefaultController = {
       case "cmd_settingsOffline":
         MailOfflineMgr.openOfflineAccountSettings();
         break;
-      case "cmd_selectAll":
-        // XXX If the message pane is selected but the tab focused, this ends
-        // closing the message tab. See bug 502834.
-        if (aTab.mode.name == "message") {
-          break;
-        }
-
-        // move the focus so the user can delete the newly selected messages, not the folder
-        SetFocusThreadPane();
-        // if in threaded mode, the view will expand all before selecting all
-        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectAll);
-        break;
       case "cmd_selectThread":
         gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectThread);
         break;
       case "cmd_selectFlagged":
         gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectFlagged);
-        break;
-      case "cmd_fullZoomReduce":
-        ZoomManager.reduce();
-        break;
-      case "cmd_fullZoomEnlarge":
-        ZoomManager.enlarge();
-        break;
-      case "cmd_fullZoomReset":
-        ZoomManager.reset();
-        break;
-      case "cmd_fullZoomToggle":
-        ZoomManager.toggleZoom();
         break;
       case "cmd_fontSizeReduce":
         UIFontSize.reduceSize();
@@ -1086,22 +988,6 @@ function FocusRingUpdate_Mail() {
   }
 }
 
-function RestoreFocusAfterHdrButton() {
-  // Note: Some callers call this function *after* asynchronous functions like
-  // save-as which will trigger a save dialog. As those dialogs are typically
-  // slower to load, in reality this function may set focus on thread pane
-  // *before* the dialog is shown on screen. This does not seem to cause
-  // problems like dialogs being hidden behind the main window, probably because
-  // they're application-modal OS dialogs and will ensure having focus anyway.
-  //
-  // I would love to really restore the focus to the pane that had
-  // focus before the user clicked on the hdr button, and gLastFocusedElement
-  // would almost do that, except that clicking on the hdr button sets
-  // gLastFocusedElement to the message pane. What I need is
-  // gPenultimateFocusedElement.
-  SetFocusThreadPane();
-}
-
 function IsSendUnsentMsgsEnabled(unsentMsgsFolder) {
   // If no account has been configured, there are no messages for sending.
   if (MailServices.accounts.accounts.length == 0) {
@@ -1204,22 +1090,16 @@ function IsFolderSelected() {
   return folders.length == 1 && !folders[0].isServer;
 }
 
-function SetFocusThreadPaneIfNotOnMessagePane() {
-  var focusedElement = gFolderDisplay.focusedPane;
-
-  if (focusedElement != GetThreadTree() && focusedElement != GetMessagePane()) {
-    SetFocusThreadPane();
-  }
-}
-
-// 3pane related commands.  Need to go in own file.  Putting here for the moment.
-
 /**
  * Cycle through the various panes in the 3pane window.
  *
  * @param {Event} event - The keypress DOMEvent.
  */
 function SwitchPaneFocus(event) {
+  // TODO: If we're going to keep this it should account for other tab types,
+  // and somehow get the tabs to do focus cycling themselves. (Address Book
+  // already does this.)
+
   // First, build an array of panes to cycle through based on our current state.
   // This will usually be something like [threadPane, messagePane, folderPane].
   let panes = [];
@@ -1262,20 +1142,6 @@ function SwitchPaneFocus(event) {
     }
 
     focusedElement = contentDocument.activeElement;
-  } else if (currentTabInfo.mode.tabType.name == "mail") {
-    panes.push(spacesElement);
-
-    if (gFolderDisplay.folderPaneVisible) {
-      panes.push(document.getElementById("folderTree"));
-    }
-
-    panes.push(GetThreadTree());
-
-    if (!IsMessagePaneCollapsed()) {
-      panes.push(GetMessagePane());
-    }
-
-    focusedElement = gFolderDisplay.focusedPane;
   } else {
     return;
   }
@@ -1300,36 +1166,7 @@ function SwitchPaneFocus(event) {
     }
   }
 
-  let newElem = panes[focusedElementIndex];
-
-  // We need to handle the message pane specially, since focusing it isn't as
-  // simple as just calling focus(). See SetFocusMessagePane below for more
-  // details.
-  if (newElem == GetMessagePane()) {
-    SetFocusMessagePane();
-  } else {
-    newElem.focus();
-  }
-}
-
-function SetFocusThreadPane() {
-  GetThreadTree()?.focus();
-}
-
-/**
- * Set the focus to the currently-active message pane (either the single- or
- * multi-message).
- */
-function SetFocusMessagePane() {
-  // Calling .focus() on content doesn't blur the previously focused chrome
-  // element, so we shift focus to the XUL pane first, to not leave another
-  // pane looking like it has focus.
-  GetMessagePane().focus();
-  if (gMessageDisplay.singleMessageDisplay) {
-    getMessagePaneBrowser().focus();
-  } else {
-    document.getElementById("multimessage").focus();
-  }
+  panes[focusedElementIndex].focus();
 }
 
 /** Check if this is a folder the user is allowed to delete. */

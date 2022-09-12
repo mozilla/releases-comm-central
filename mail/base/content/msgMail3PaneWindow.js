@@ -8,6 +8,7 @@
 /* import-globals-from ../../components/newmailaccount/content/provisionerCheckout.js */
 /* import-globals-from ../../components/addrbook/content/addressBookTab.js */
 /* import-globals-from ../../components/preferences/preferencesTab.js */
+/* import-globals-from ../../extensions/openpgp/content/ui/enigmailMessengerOverlay.js */
 /* import-globals-from commandglue.js */
 /* import-globals-from folderDisplay.js */
 /* import-globals-from folderPane.js */
@@ -261,10 +262,6 @@ function verifyOpenAccountHubTab() {
     return;
   }
 
-  // Collapse the Folder Pane since no account is currently present.
-  document.getElementById("folderPaneBox").collapsed = true;
-  document.getElementById("folderpane_splitter").collapsed = true;
-
   openAccountSetupTab();
 }
 
@@ -274,8 +271,6 @@ function initOpenPGPIfEnabled() {
   try {
     Enigmail.msg.messengerStartup.bind(Enigmail.msg);
     Enigmail.msg.messengerStartup();
-    Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView);
-    Enigmail.hdrView.hdrViewLoad();
   } catch (ex) {
     console.log(ex);
   }
@@ -346,7 +341,6 @@ var gMailInit = {
     TagUtils.loadTagsIntoCSS(document);
 
     CreateMailWindowGlobals();
-    GetMessagePaneWrapper().collapsed = true;
 
     if (!Services.policies.isAllowed("devtools")) {
       let devtoolsMenu = document.getElementById("devtoolsMenu");
@@ -367,7 +361,6 @@ var gMailInit = {
       tabmail.registerTabType(newMailTabType);
       // glodaFacetTab* in glodaFacetTab.js
       tabmail.registerTabType(glodaFacetTabType);
-      QuickFilterBarMuxer._init();
       tabmail.registerTabMonitor(GlodaSearchBoxTabMonitor);
       tabmail.registerTabMonitor(statusMessageCountsMonitor);
       tabmail.openFirstTab();
@@ -379,12 +372,6 @@ var gMailInit = {
     tabmail.registerTabType(preferencesTabType);
     // provisionerCheckoutTabType is defined in provisionerCheckout.js
     tabmail.registerTabType(provisionerCheckoutTabType);
-
-    // Set up the summary frame manager to handle loading pages in the
-    // multi-message pane
-    gSummaryFrameManager = new SummaryFrameManager(
-      document.getElementById("multimessage")
-    );
 
     // Depending on the pref, hide/show the gloda toolbar search widgets.
     XPCOMUtils.defineLazyPreferenceGetter(
@@ -558,10 +545,6 @@ var gMailInit = {
     document.getElementById("tabmail")._teardown();
     MailServices.mailSession.RemoveFolderListener(folderListener);
 
-    // FIX ME - later we will be able to use onload from the overlay
-    OnUnloadMsgHeaderPane();
-
-    UnloadPanes();
     OnMailWindowUnload();
   },
 };
@@ -657,7 +640,6 @@ function switchToTasksTab() {
  */
 async function loadPostAccountWizard() {
   InitMsgWindow();
-  messenger.setWindow(window, msgWindow);
 
   MigrateJunkMailSettings();
   MigrateFolderViews();
@@ -670,12 +652,6 @@ async function loadPostAccountWizard() {
   } catch (e) {
     Cu.reportError(e);
   }
-
-  // Load the message header pane.
-  OnLoadMsgHeaderPane();
-
-  // Set focus to the Thread Pane the first time the window is opened.
-  SetFocusThreadPane();
 
   // Restore the previous folder selection before shutdown, or select the first
   // inbox folder of a newly created account.
@@ -1012,10 +988,6 @@ async function loadStartFolder(initialUri) {
   } catch (ex) {
     // this is the case where we're trying to auto-subscribe to a folder.
     if (initialUri && !startFolder.parent) {
-      // hack to force display of thread pane.
-      if (IsMessagePaneCollapsed) {
-        MsgToggleMessagePane();
-      }
       messenger.loadURL(window, initialUri);
       return;
     }
@@ -1048,44 +1020,6 @@ async function loadStartFolder(initialUri) {
   }
 }
 
-function UnloadPanes() {
-  var threadTree = document.getElementById("threadTree");
-  threadTree.removeEventListener("click", ThreadTreeOnClick, true);
-  gSpacesToolbar.onUnload();
-}
-
-function OnLoadThreadPane() {
-  // Use an observer to watch the columns element so that we get a notification
-  // whenever attributes on the columns change.
-  let observer = new MutationObserver(function(mutations) {
-    gFolderDisplay.hintColumnsChanged();
-  });
-  observer.observe(document.getElementById("threadCols"), {
-    attributes: true,
-    subtree: true,
-    attributeFilter: ["hidden", "ordinal"],
-  });
-}
-
-/* Functions for accessing particular parts of the window*/
-function GetMessagePane() {
-  if (!gMessagePane) {
-    gMessagePane = document.getElementById("messagepanebox");
-  }
-  return gMessagePane;
-}
-
-function GetMessagePaneWrapper() {
-  if (!gMessagePaneWrapper) {
-    gMessagePaneWrapper = document.getElementById("messagepaneboxwrapper");
-  }
-  return gMessagePaneWrapper;
-}
-
-function getMailToolbox() {
-  return document.getElementById("mail-toolbox");
-}
-
 function FindInSidebar(currentWindow, id) {
   var item = currentWindow.document.getElementById(id);
   if (item) {
@@ -1100,52 +1034,6 @@ function FindInSidebar(currentWindow, id) {
   }
 
   return null;
-}
-
-function GetThreadAndMessagePaneSplitter() {
-  if (!gThreadAndMessagePaneSplitter) {
-    gThreadAndMessagePaneSplitter = document.getElementById(
-      "threadpane-splitter"
-    );
-  }
-  return gThreadAndMessagePaneSplitter;
-}
-
-function IsMessagePaneCollapsed() {
-  return (
-    document.getElementById("threadpane-splitter").getAttribute("state") ==
-    "collapsed"
-  );
-}
-
-function ClearThreadPaneSelection() {
-  gFolderDisplay.clearSelection();
-}
-
-function ClearMessagePane() {
-  // hide the message header view AND the message pane...
-  HideMessageHeaderPane();
-  gMessageNotificationBar.clearMsgNotifications();
-  ClearPendingReadTimer();
-
-  try {
-    // Tell messenger to stop loading a message, if it is doing so.
-    messenger.abortPendingOpenURL();
-    // This can fail because cloning imap URI's can fail if the username
-    // has been cleared by docshell/base/nsDefaultURIFixup.cpp.
-    let messagePane = getMessagePaneBrowser();
-    // If we don't do this check, no one else does and we do a non-trivial
-    // amount of work.  So do the check.
-    if (messagePane.currentURI?.spec != "about:blank") {
-      // Don't use MailE10SUtils.loadURI here. about:blank can load in
-      // remote and non-remote browsers.
-      messagePane.loadURI("about:blank", {
-        triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
-      });
-    }
-  } catch (ex) {
-    Cu.reportError(ex); // error clearing message pane
-  }
 }
 
 /**

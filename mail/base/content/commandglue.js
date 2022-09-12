@@ -299,12 +299,6 @@ function ChangeMessagePaneVisibility(now_hidden) {
   document.getElementById("messengerWindow").dispatchEvent(event);
 }
 
-function OnMouseUpThreadAndMessagePaneSplitter() {
-  // The collapsed state is the state after we released the mouse,
-  // so we take it as it is.
-  ChangeMessagePaneVisibility(IsMessagePaneCollapsed());
-}
-
 /**
  * Our multiplexed tabbing model ends up sending synthetic folder pane
  *  selection change notifications.  We want to ignore these because the

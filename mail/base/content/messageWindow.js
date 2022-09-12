@@ -16,7 +16,6 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from mailWindowOverlay.js */
 /* import-globals-from messenger-customization.js */
-/* import-globals-from msgHdrView.js */
 /* import-globals-from msgViewNavigation.js */
 /* import-globals-from toolbarIconColor.js */
 
@@ -121,6 +120,8 @@ function delayedOnLoadMessageWindow() {
   if (AppConstants.platform != "macosx") {
     AutoHideMenubar.init();
   }
+
+  InitMsgWindow();
 
   msgWindow.msgHeaderSink = messageBrowser.contentWindow.messageHeaderSink;
   messenger.setWindow(window, msgWindow);

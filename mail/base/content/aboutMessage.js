@@ -138,6 +138,16 @@ window.addEventListener("DOMContentLoaded", event => {
   }
 
   preferenceObserver.init();
+
+  // TODO: I really don't understand what's going on here. The messenger.xhtml
+  // sink needs to be set or images in messageWindow.xhtml don't display.
+  if (
+    window.browsingContext.topChromeWindow.location.href ==
+    "chrome://messenger/content/messenger.xhtml"
+  ) {
+    window.browsingContext.topChromeWindow.msgWindow.msgHeaderSink =
+      window.messageHeaderSink;
+  }
 });
 
 window.addEventListener("unload", () => {
@@ -148,6 +158,7 @@ window.addEventListener("unload", () => {
   msgWindow.closeWindow();
   msgWindow = null;
   gViewWrapper?.close();
+  window.browsingContext.topChromeWindow.msgWindow.msgHeaderSink = null;
 });
 
 window.addEventListener("keypress", event => {

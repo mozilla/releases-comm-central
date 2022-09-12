@@ -478,6 +478,7 @@ var messageHeaderSink = {
     // pref...
     let showAllHeadersPref = Services.prefs.getIntPref("mail.show_headers");
     if (showAllHeadersPref == 2) {
+      // eslint-disable-next-line no-global-assign
       gViewAllHeaders = true;
     } else {
       if (gViewAllHeaders) {
@@ -486,10 +487,12 @@ var messageHeaderSink = {
         hideHeaderView(gExpandedHeaderView);
         RemoveNewHeaderViews(gExpandedHeaderView);
         gDummyHeaderIdIndex = 0;
+        // eslint-disable-next-line no-global-assign
         gExpandedHeaderView = {};
         initializeHeaderViewTables();
       }
 
+      // eslint-disable-next-line no-global-assign
       gViewAllHeaders = false;
     }
 
@@ -1266,6 +1269,7 @@ function UpdateExpandedMessageHeaders() {
 }
 
 function ClearCurrentHeaders() {
+  // eslint-disable-next-line no-global-assign
   currentHeaderData = {};
   // eslint-disable-next-line no-global-assign
   currentAttachments = [];
@@ -2631,7 +2635,7 @@ function toggleAttachmentList(expanded, updateFocus) {
     attachmentView.removeAttribute("height");
 
     if (updateFocus && document.activeElement == attachmentList) {
-      SetFocusMessagePane();
+      // TODO
     }
   }
 }
@@ -2824,7 +2828,6 @@ function OpenAttachmentFromBar(event) {
     if (event.detail == 1) {
       TryHandleAllAttachments("open");
     }
-    RestoreFocusAfterHdrButton();
     event.stopPropagation();
   }
 }

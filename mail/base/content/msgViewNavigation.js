@@ -219,6 +219,4 @@ function GoNextMessage(type, startFromBeginning) {
   if (!gFolderDisplay.navigate(type)) {
     CrossFolderNavigation(type);
   }
-
-  SetFocusThreadPaneIfNotOnMessagePane();
 }

@@ -243,6 +243,7 @@ function searchOnLoad() {
     gSearchBundle.GetStringFromName("labelForSearchButton.accesskey")
   );
 
+  // eslint-disable-next-line no-global-assign
   gMessageDisplay = new NeverVisibleMessageDisplayWidget();
   // eslint-disable-next-line no-global-assign
   gFolderDisplay = new SearchFolderDisplayWidget(gMessageDisplay);

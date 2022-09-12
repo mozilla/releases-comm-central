@@ -29,9 +29,6 @@ var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
  */
 async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
   let win = get_about_3pane();
-  // Make the folder pane visible as it starts collapsed when no accounts are
-  // available on startup.
-  mc.e("folderPaneBox").collapsed = false;
 
   await right_click_on_folder(aFolder);
   let callback = function(controller) {

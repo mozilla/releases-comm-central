@@ -230,9 +230,10 @@ async function help_test_attachment_icon(index) {
   info(`Testing message ${index}: ${messages[index].name}`);
   let attachments = messages[index].attachments;
 
-  mc.window.toggleAttachmentList(true);
+  let win = get_about_message();
+  win.toggleAttachmentList(true);
 
-  let attachmentList = mc.window.document.getElementById("attachmentList");
+  let attachmentList = win.document.getElementById("attachmentList");
   await TestUtils.waitForCondition(
     () => !attachmentList.collapsed,
     "Attachment list is shown"

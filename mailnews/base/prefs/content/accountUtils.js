@@ -363,9 +363,6 @@ function updateMailPaneUI() {
   }
 
   let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
-  // Show the folder pane.
-  mail3Pane.document.getElementById("folderPaneBox").collapsed = false;
-  mail3Pane.document.getElementById("folderpane_splitter").collapsed = false;
   // Set the folderPaneVisible to true in the tabmail to prevent collapsing
   // on tab switch.
   let tabmail = mail3Pane.document.getElementById("tabmail");

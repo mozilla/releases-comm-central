@@ -130,7 +130,9 @@ async function addMsgToFolderAndCheckContent(loadAllowed) {
 
   // Now check that the content hasn't been loaded
   if (
-    (await isPluginLoaded(mc.window.getMessagePaneBrowser())) != loadAllowed
+    (await isPluginLoaded(
+      get_about_message().document.getElementById("messagepane")
+    )) != loadAllowed
   ) {
     throw new Error(
       loadAllowed
@@ -184,7 +186,7 @@ add_task(async function test_checkPluginsInNonMessageContent() {
   select_none();
 
   // load something non-message-like in the message pane
-  let browser = mc.window.getMessagePaneBrowser();
+  let browser = get_about_message().document.getElementById("messagepane");
   MailE10SUtils.loadURI(browser, url + "plugin.html");
   await BrowserTestUtils.browserLoaded(browser);
 
@@ -200,7 +202,7 @@ add_task(async function test_3paneWindowDeniedAgain() {
 
   assert_selected_and_displayed(0);
 
-  let browser = mc.window.getMessagePaneBrowser();
+  let browser = get_about_message().document.getElementById("messagepane");
   // Now check that the content hasn't been loaded
   if (await isPluginLoaded(browser)) {
     throw new Error("Plugin has not been blocked in message as expected");

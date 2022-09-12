@@ -1725,7 +1725,7 @@ FolderDisplayWidget.prototype = {
     // -- globals
     // update per-tab globals that we own
     gFolderDisplay = this; // eslint-disable-line no-global-assign
-    gMessageDisplay = this.messageDisplay;
+    gMessageDisplay = this.messageDisplay; // eslint-disable-line no-global-assign
     gDBView = this.view.dbView; // eslint-disable-line no-global-assign
     messenger = this.messenger; // eslint-disable-line no-global-assign
 

@@ -315,6 +315,8 @@ window.addEventListener("DOMContentLoaded", event => {
   messageBrowser = document.getElementById("messageBrowser");
   multiMessageBrowser = document.getElementById("multiMessageBrowser");
   accountCentralBrowser = document.getElementById("accountCentralBrowser");
+
+  multiMessageBrowser.docShell.allowDNSPrefetch = false;
 });
 
 window.addEventListener("unload", () => {

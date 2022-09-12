@@ -8,6 +8,8 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
 
+/* globals currentHeaderData */ // TODO: this isn't real.
+
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -259,7 +261,10 @@ async function ComposeMessage(type, format, folder, messageArray) {
             null
           );
           let email = fromAddrs[0]?.email;
-          if (type == Ci.nsIMsgCompType.ReplyToList) {
+          if (
+            type == Ci.nsIMsgCompType.ReplyToList &&
+            window.currentHeaderData
+          ) {
             // ReplyToList is only enabled for current message (if at all), so
             // using currentHeaderData is ok.
             // List-Post value is of the format <mailto:list@example.com>

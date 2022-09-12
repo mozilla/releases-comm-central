@@ -195,7 +195,7 @@ add_task(async function test_update() {
     extension.sendMessage();
   });
 
-  check3PaneInInitialState();
+  check3PaneState(true, true);
 
   await extension.startup();
   extension.sendMessage(account.key);

@@ -17,6 +17,8 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
 
+/* globals OnTagsChange, currentHeaderData */ // TODO: these aren't real.
+
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -1112,34 +1114,6 @@ function InitAppmenuViewBodyMenu() {
       "appmenu_viewFeedSummarySeparator"
     ).hidden = !gShowFeedSummary;
   }
-}
-
-/**
- * Expand or collapse the folder pane.
- */
-function MsgToggleFolderPane() {
-  // Bail without doing anything if we are not a folder tab.
-  let currentTabInfo = document.getElementById("tabmail").currentTabInfo;
-  if (currentTabInfo.mode.name != "folder") {
-    return;
-  }
-
-  togglePaneSplitter("folderpane_splitter");
-}
-
-/**
- * Expand or collapse the message preview pane.
- */
-function MsgToggleMessagePane() {
-  // Bail without doing anything if we are not a folder tab.
-  let currentTabInfo = document.getElementById("tabmail").currentTabInfo;
-  if (currentTabInfo.mode.name != "folder") {
-    return;
-  }
-
-  togglePaneSplitter("threadpane-splitter");
-  ChangeMessagePaneVisibility(IsMessagePaneCollapsed());
-  SetFocusThreadPaneIfNotOnMessagePane();
 }
 
 function SetMenuItemLabel(menuItemId, customLabel) {

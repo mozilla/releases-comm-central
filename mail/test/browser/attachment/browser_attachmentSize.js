@@ -384,9 +384,10 @@ async function help_test_attachment_size(index) {
   info(`Testing message ${index}: ${messages[index].name}`);
   let expectedSizes = messages[index].attachmentSizes;
 
-  mc.window.toggleAttachmentList(true);
+  let aboutMessage = get_about_message();
+  aboutMessage.toggleAttachmentList(true);
 
-  let attachmentList = mc.window.document.getElementById("attachmentList");
+  let attachmentList = aboutMessage.document.getElementById("attachmentList");
   await TestUtils.waitForCondition(
     () => !attachmentList.collapsed,
     "Attachment list is shown"

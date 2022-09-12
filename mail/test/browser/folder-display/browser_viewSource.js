@@ -104,14 +104,17 @@ function addToFolder(subject, charset, body) {
 async function subtest(row, expectedDisplayed, expectedSource) {
   select_click_row(row);
 
-  let win = get_about_message();
-  let displayContent = win.content.contentDocument.body.textContent;
+  let aboutMessage = get_about_message();
+  let displayContent = aboutMessage.content.contentDocument.body.textContent;
   Assert.stringContains(
     displayContent,
     expectedDisplayed,
     "Message content must include the readable text"
   );
-  Assert.equal(mc.e("messagepane").docShell.charset, "UTF-8");
+  Assert.equal(
+    aboutMessage.document.getElementById("messagepane").docShell.charset,
+    "UTF-8"
+  );
 
   plan_for_new_window("navigator:view-source");
   EventUtils.synthesizeKey("U", { shiftKey: false, accelKey: true });
