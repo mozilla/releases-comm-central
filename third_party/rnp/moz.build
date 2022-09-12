@@ -36,15 +36,23 @@ if CONFIG["CC_TYPE"] == "clang-cl":
         "/EHs",
     ]
 
-DEFINES["_GNU_SOURCE"] = True
-
-DEFINES["HAVE_BZLIB_H"] = True
-DEFINES["HAVE_ZLIB_H"] = True
-DEFINES["MOZ_RNP_DIST_INFO"] = rnp_dist_info
-
-CONFIGURE_DEFINE_FILES += [
+rnp_defines = {
+    "HAVE_BZLIB_H": True,
+    "HAVE_ZLIB_H": True,
+    "CRYPTO_BACKEND_BOTAN": True,
+    "ENABLE_AEAD": True,
+    "ENABLE_TWOFISH": True,
+    "ENABLE_BRAINPOOL": True,
+}
+GeneratedFile(
     "src/lib/config.h",
-]
+    script="/comm/python/rocbuild/process_cmake_define_files.py",
+    inputs=["src/lib/config.h.in"],
+    flags=[
+        "-D%s=%s" % (k, "1" if v is True else v)
+        for k, v in rnp_defines.items()
+    ],
+)
 
 LOCAL_INCLUDES = [
     "include",
