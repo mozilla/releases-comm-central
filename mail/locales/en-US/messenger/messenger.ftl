@@ -108,9 +108,6 @@ appmenu-settings =
 appmenu-addons-and-themes =
     .label = Add-ons and Themes
 
-appmenu-redirect-msg =
-    .label = Redirect
-
 ## Context menu
 
 context-menu-redirect-msg =

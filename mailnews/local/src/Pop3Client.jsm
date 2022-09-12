@@ -526,10 +526,11 @@ class Pop3Client {
       if (this._server.authMethod == Ci.nsMsgAuthMethod.passwordCleartext) {
         this._possibleAuthMethods.unshift("USERPASS");
       } else if (
-        this._server.authMethod == Ci.nsMsgAuthMethod.passwordEncrypted &&
-        this._apopTimestamp
+        this._server.authMethod == Ci.nsMsgAuthMethod.passwordEncrypted
       ) {
-        this._possibleAuthMethods.unshift("APOP");
+        this._possibleAuthMethods.unshift(
+          this._apopTimestamp ? "APOP" : "CRAM-MD5"
+        );
       } else if (this._server.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
         // Some servers don't return XOAUTH2 in CAPA correctly.
         this._possibleAuthMethods.unshift("XOAUTH2");
