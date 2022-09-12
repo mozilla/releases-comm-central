@@ -8,6 +8,13 @@ var { recurrenceRule2String } = ChromeUtils.import(
 );
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
+const lazy = {};
+ChromeUtils.defineModuleGetter(
+  lazy,
+  "CalRecurrenceDate",
+  "resource:///modules/CalRecurrenceDate.jsm"
+);
+
 const EXPORTED_SYMBOLS = ["calinvitation"];
 
 var calinvitation = {
@@ -432,7 +439,10 @@ var calinvitation = {
 
       // Show removed instances
       for (let exc of ev.recurrenceInfo.getRecurrenceItems()) {
-        if (exc instanceof Ci.calIRecurrenceDate && exc.isNegative) {
+        if (
+          (exc instanceof lazy.CalRecurrenceDate || exc instanceof Ci.calIRecurrenceDate) &&
+          exc.isNegative
+        ) {
           // This is an EXDATE
           let excDate = exc.date.getInTimezone(kDefaultTimezone);
           formattedExDates.push(formatter.formatDateTime(excDate));
@@ -453,7 +463,10 @@ var calinvitation = {
       let modifiedOccurrences = [];
 
       for (let exc of ev.recurrenceInfo.getRecurrenceItems()) {
-        if (exc instanceof Ci.calIRecurrenceDate && !exc.isNegative) {
+        if (
+          (exc instanceof lazy.CalRecurrenceDate || exc instanceof Ci.calIRecurrenceDate) &&
+          !exc.isNegative
+        ) {
           // This is an RDATE, close enough to a modified occurrence
           let excItem = ev.recurrenceInfo.getOccurrenceFor(exc.date);
           cal.data.binaryInsert(modifiedOccurrences, excItem, dateComptor, true);

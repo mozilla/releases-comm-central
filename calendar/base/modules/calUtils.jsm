@@ -5,6 +5,14 @@
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
 
+const lazy = {};
+XPCOMUtils.defineLazyModuleGetters(lazy, {
+  CalDateTime: "resource:///modules/CalDateTime.jsm",
+  CalDuration: "resource:///modules/CalDuration.jsm",
+  CalRecurrenceDate: "resource:///modules/CalRecurrenceDate.jsm",
+  CalRecurrenceRule: "resource:///modules/CalRecurrenceRule.jsm",
+});
+
 // The calendar console instance
 var gCalendarConsole = new ConsoleAPI({
   prefix: "Calendar",
@@ -16,18 +24,34 @@ const EXPORTED_SYMBOLS = ["cal"];
 var cal = {
   // These functions exist to reduce boilerplate code for creating instances
   // as well as getting services and other (cached) objects.
-  createDateTime: _instance("@mozilla.org/calendar/datetime;1", Ci.calIDateTime, "icalString"),
-  createDuration: _instance("@mozilla.org/calendar/duration;1", Ci.calIDuration, "icalString"),
-  createRecurrenceDate: _instance(
-    "@mozilla.org/calendar/recurrence-date;1",
-    Ci.calIRecurrenceDate,
-    "icalString"
-  ),
-  createRecurrenceRule: _instance(
-    "@mozilla.org/calendar/recurrence-rule;1",
-    Ci.calIRecurrenceRule,
-    "icalString"
-  ),
+  createDateTime(value) {
+    let instance = new lazy.CalDateTime();
+    if (value) {
+      instance.icalString = value;
+    }
+    return instance;
+  },
+  createDuration(value) {
+    let instance = new lazy.CalDuration();
+    if (value) {
+      instance.icalString = value;
+    }
+    return instance;
+  },
+  createRecurrenceDate(value) {
+    let instance = new lazy.CalRecurrenceDate();
+    if (value) {
+      instance.icalString = value;
+    }
+    return instance;
+  },
+  createRecurrenceRule(value) {
+    let instance = new lazy.CalRecurrenceRule();
+    if (value) {
+      instance.icalString = value;
+    }
+    return instance;
+  },
 
   /**
    * The calendar console instance
@@ -520,26 +544,6 @@ XPCOMUtils.defineLazyModuleGetter(
   "resource:///modules/calendar/utils/calXMLUtils.jsm",
   "calxml"
 );
-
-/**
- * Returns a function that creates an instance of the given component and
- * optionally initializes it using the property name passed.
- *
- * @param cid           The contract id to create
- * @param iid           The interface id to create with
- * @param prop          The property name used for initialization
- * @return {function}   A function that creates the given instance, which takes an
- *                          initialization value.
- */
-function _instance(cid, iid, prop) {
-  return function(propval) {
-    let thing = Cc[cid].createInstance(iid);
-    if (propval) {
-      thing[prop] = propval;
-    }
-    return thing;
-  };
-}
 
 // will be used to clean up global objects on shutdown
 // some objects have cyclic references due to wrappers

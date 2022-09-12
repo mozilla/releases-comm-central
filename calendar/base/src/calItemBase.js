@@ -12,6 +12,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalAlarm: "resource:///modules/CalAlarm.jsm",
+  CalDateTime: "resource:///modules/CalDateTime.jsm",
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
 });
 
@@ -233,7 +234,7 @@ calItemBase.prototype = {
     }
 
     for (let propValue of this.mProperties.values()) {
-      if (propValue instanceof Ci.calIDateTime && propValue.isMutable) {
+      if (propValue?.isMutable) {
         propValue.makeImmutable();
       }
     }
@@ -315,7 +316,7 @@ calItemBase.prototype = {
 
     cloned.mProperties = new Map();
     for (let [name, value] of this.mProperties.entries()) {
-      if (value instanceof Ci.calIDateTime) {
+      if (value instanceof CalDateTime || value instanceof Ci.calIDateTime) {
         value = value.clone();
       }
 

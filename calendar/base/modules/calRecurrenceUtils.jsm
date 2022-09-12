@@ -7,7 +7,14 @@
  */
 
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+
+const lazy = {};
+XPCOMUtils.defineLazyModuleGetters(lazy, {
+  CalRecurrenceDate: "resource:///modules/CalRecurrenceDate.jsm",
+  CalRecurrenceRule: "resource:///modules/CalRecurrenceRule.jsm",
+});
 
 const EXPORTED_SYMBOLS = [
   "recurrenceStringFromItem",
@@ -487,7 +494,7 @@ function countOccurrences(aItem) {
     let byCount = false;
     let ritems = recInfo.getRecurrenceItems();
     for (let ritem of ritems) {
-      if (ritem instanceof Ci.calIRecurrenceRule) {
+      if (ritem instanceof lazy.CalRecurrenceRule || ritem instanceof Ci.calIRecurrenceRule) {
         if (ritem.isByCount) {
           occCounter = occCounter + ritem.count;
           byCount = true;
@@ -523,7 +530,10 @@ function countOccurrences(aItem) {
           let occurrences = recInfo.getOccurrences(from, until, 0);
           occCounter = occCounter + occurrences.length;
         }
-      } else if (ritem instanceof Ci.calIRecurrenceDate) {
+      } else if (
+        ritem instanceof lazy.CalRecurrenceDate ||
+        ritem instanceof Ci.calIRecurrenceDate
+      ) {
         if (ritem.isNegative) {
           // this is an exdate
           excCounter++;

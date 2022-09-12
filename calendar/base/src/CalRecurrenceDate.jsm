@@ -6,6 +6,9 @@ var EXPORTED_SYMBOLS = ["CalRecurrenceDate"];
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
+const lazy = {};
+ChromeUtils.defineModuleGetter(lazy, "CalPeriod", "resource:///modules/CalPeriod.jsm");
+
 function CalRecurrenceDate() {
   this.wrappedJSObject = this;
 }
@@ -105,7 +108,7 @@ CalRecurrenceDate.prototype = {
     if (prop.propertyName == "RDATE") {
       this.mIsNegative = false;
       if (prop.getParameter("VALUE") == "PERIOD") {
-        let period = Cc["@mozilla.org/calendar/period;1"].createInstance(Ci.calIPeriod);
+        let period = new lazy.CalPeriod();
         period.icalString = prop.valueAsIcalString;
         this.mDate = period.start;
       } else {

@@ -15,7 +15,10 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 const EXPORTED_SYMBOLS = ["calprovider"];
 
 const lazy = {};
-ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
+XPCOMUtils.defineLazyModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.jsm",
+  CalPeriod: "resource:///modules/CalPeriod.jsm",
+});
 
 var calprovider = {
   /**
@@ -270,7 +273,7 @@ var calprovider = {
 
     constructor(aCalId, aFreeBusyType, aStart, aEnd) {
       this.calId = aCalId;
-      this.interval = Cc["@mozilla.org/calendar/period;1"].createInstance(Ci.calIPeriod);
+      this.interval = new lazy.CalPeriod();
       this.interval.start = aStart;
       this.interval.end = aEnd;
 

@@ -7,6 +7,9 @@ var EXPORTED_SYMBOLS = ["CalAlarmService"];
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+const lazy = {};
+ChromeUtils.defineModuleGetter(lazy, "CalDateTime", "resource:///modules/CalDateTime.jsm");
+
 var kHoursBetweenUpdates = 6;
 
 function nowUTC() {
@@ -437,7 +440,11 @@ CalAlarmService.prototype = {
         );
       }
 
-      if (snoozeDate && !(snoozeDate instanceof Ci.calIDateTime)) {
+      if (
+        snoozeDate &&
+        !(snoozeDate instanceof lazy.CalDateTime) &&
+        !(snoozeDate instanceof Ci.calIDateTime)
+      ) {
         snoozeDate = cal.createDateTime(snoozeDate);
       }
 

@@ -19,6 +19,7 @@ var { sendString, synthesizeKey, synthesizeMouseAtCenter } = ChromeUtils.import(
 );
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { CalDateTime } = ChromeUtils.import("resource:///modules/CalDateTime.jsm");
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 function sleep(window, time = 0) {
@@ -173,7 +174,10 @@ async function setData(dialogWindow, iframeWindow, data) {
   }
 
   // startdate
-  if (data.startdate !== undefined && data.startdate instanceof Ci.calIDateTime) {
+  if (
+    data.startdate !== undefined &&
+    (data.startdate instanceof CalDateTime || data.startdate instanceof Ci.calIDateTime)
+  ) {
     let startdate = formatDate(data.startdate);
 
     if (!isEvent) {
@@ -186,14 +190,20 @@ async function setData(dialogWindow, iframeWindow, data) {
   }
 
   // starttime
-  if (data.starttime !== undefined && data.starttime instanceof Ci.calIDateTime) {
+  if (
+    data.starttime !== undefined &&
+    (data.starttime instanceof CalDateTime || data.starttime instanceof Ci.calIDateTime)
+  ) {
     let starttime = formatTime(data.starttime);
     replaceText(starttimeInput, starttime);
     await sleep(iframeWindow);
   }
 
   // enddate
-  if (data.enddate !== undefined && data.enddate instanceof Ci.calIDateTime) {
+  if (
+    data.enddate !== undefined &&
+    (data.enddate instanceof CalDateTime || data.enddate instanceof Ci.calIDateTime)
+  ) {
     let enddate = formatDate(data.enddate);
     if (!isEvent) {
       let checkbox = iframeDocument.getElementById("todo-has-duedate");
@@ -205,7 +215,10 @@ async function setData(dialogWindow, iframeWindow, data) {
   }
 
   // endtime
-  if (data.endtime !== undefined && data.endtime instanceof Ci.calIDateTime) {
+  if (
+    data.endtime !== undefined &&
+    (data.endtime instanceof CalDateTime || data.endtime instanceof Ci.calIDateTime)
+  ) {
     let endtime = formatTime(data.endtime);
     replaceText(endtimeInput, endtime);
   }
@@ -238,7 +251,10 @@ async function setData(dialogWindow, iframeWindow, data) {
       await menulistSelect(iframeDocument.getElementById("item-repeat"), data.repeat);
     }
   }
-  if (data.repeatuntil !== undefined && data.repeatuntil instanceof Ci.calIDateTime) {
+  if (
+    data.repeatuntil !== undefined &&
+    (data.repeatuntil instanceof CalDateTime || data.repeatuntil instanceof Ci.calIDateTime)
+  ) {
     // Only fill in date, when the Datepicker is visible.
     if (!iframeDocument.getElementById("repeat-untilDate").hidden) {
       let untildate = formatDate(data.repeatuntil);
@@ -284,7 +300,11 @@ async function setData(dialogWindow, iframeWindow, data) {
   let currentStatus = iframeDocument.getElementById("todo-status").value;
 
   // completed on
-  if (data.completed !== undefined && data.completed instanceof Ci.calIDateTime && !isEvent) {
+  if (
+    data.completed !== undefined &&
+    (data.completed instanceof CalDateTime || data.completed instanceof Ci.calIDateTime) &&
+    !isEvent
+  ) {
     let completeddate = formatDate(data.completed);
     if (currentStatus == "COMPLETED") {
       replaceText(completeddateInput, completeddate);
