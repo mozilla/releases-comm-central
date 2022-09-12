@@ -6806,7 +6806,6 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
     if (txnMgr) txnMgr->EndBatch(false);
   }
 
-  // Do this before delete, as it destroys the messages
   if (!msgHdrsCopied.IsEmpty()) {
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
         do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
@@ -6816,7 +6815,38 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
     }
   }
 
-  if (isMove && NS_SUCCEEDED(rv) && (deleteToTrash || deleteImmediately)) {
+  // NOTE (Bug 1787963):
+  // If we're performing a move, by rights we should be deleting the source
+  // message(s) here. But that would mean they won't be available when we try
+  // to run the offline move operation once we're back online. So we'll just
+  // leave things as they are:
+  //  - the message(s) copied into the destination folder
+  //  - the original message(s) left in the source folder
+  //  - the offline move operation all queued up for when we go back online
+  // When we do go back online, the offline move op will be performed and
+  // the source message(s) will be deleted. For real.
+  // Would be nice to have some marker to hide or grey out messages which are
+  // in this state of impending doom... but it's a pretty obscure corner case
+  // and we've already got quite enough of those.
+  //
+  // BUT... CopyMessagesOffline() is also used when online (ha!), *if* we're
+  // copying between folders on the same nsIMsgIncomingServer, in order to
+  // support undo. In that case we _do_ want to go ahead with the delete now.
+
+  nsCOMPtr<nsIMsgIncomingServer> srcServer;
+  if (NS_SUCCEEDED(rv)) {
+    rv = srcFolder->GetServer(getter_AddRefs(srcServer));
+  }
+  nsCOMPtr<nsIMsgIncomingServer> destServer;
+  if (NS_SUCCEEDED(rv)) {
+    rv = GetServer(getter_AddRefs(destServer));
+  }
+  bool sameServer;
+  if (NS_SUCCEEDED(rv)) {
+    rv = destServer->Equals(srcServer, &sameServer);
+  }
+  if (NS_SUCCEEDED(rv) && sameServer && isMove &&
+      (deleteToTrash || deleteImmediately)) {
     DeleteStoreMessages(keysToDelete, srcFolder);
     srcFolder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications,
                                    false);
@@ -6824,7 +6854,6 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
     srcFolder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications,
                                    true);
   }
-
   nsCOMPtr<nsISupports> srcSupport = do_QueryInterface(srcFolder);
   OnCopyCompleted(srcSupport, rv);
 
