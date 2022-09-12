@@ -83,11 +83,30 @@ function _imageFromURI(uri, privateMode, callback) {
     // Ignore channels which do not support nsIPrivateBrowsingChannel.
   }
   NetUtil.asyncFetch(channel, function(inputStream, resultCode) {
-    if (!Components.isSuccessCode(resultCode))
+    if (!Components.isSuccessCode(resultCode)) {
       return;
+    }
+
+    const decodeCallback = {
+      onImageReady(image, status) {
+        if (!image) {
+          // We failed, so use the default favicon (only if this wasn't the
+          // default favicon).
+          let defaultURI = PlacesUtils.favicons.defaultFavicon;
+          if (!defaultURI.equals(uri)) {
+            _imageFromURI(defaultURI, privateMode, callback);
+            return;
+          }
+        }
+
+        callback(image);
+      }
+    };
+
     try {
-      let out_img = imgTools.decodeImageAsync(inputStream, channel.contentType);
-      callback(out_img);
+      let threadManager = Cc["@mozilla.org/thread-manager;1"].getService();
+      imgTools.decodeImageAsync(inputStream, channel.contentType,
+                                decodeCallback, threadManager.currentThread);
     } catch (e) {
       // We failed, so use the default favicon (only if this wasn't the default
       // favicon).
