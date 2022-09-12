@@ -43,6 +43,8 @@ rnp_defines = {
     "ENABLE_AEAD": True,
     "ENABLE_TWOFISH": True,
     "ENABLE_BRAINPOOL": True,
+    "PACKAGE_BUGREPORT": '"https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird"',
+    "PACKAGE_STRING": '"rnp {}"'.format(CONFIG["MZLA_LIBRNP_FULL_VERSION"])
 }
 GeneratedFile(
     "src/lib/config.h",
