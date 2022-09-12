@@ -478,7 +478,7 @@ add_task(async function test_background_tab() {
   let tabmail = document.getElementById("tabmail");
   window.openContentTab("about:buildconfig");
   window.openContentTab("about:mozilla");
-  tabmail.openTab("folder", { folder: subFolders.test1 });
+  tabmail.openTab("mail3PaneTab", { folderURI: subFolders.test1.URI });
 
   await extension.startup();
   extension.sendMessage(account.key);
@@ -487,60 +487,6 @@ add_task(async function test_background_tab() {
 
   tabmail.closeOtherTabs(tabmail.tabModes.folder.tabs[0]);
   window.gFolderTreeView.selectFolder(rootFolder);
-});
-
-add_task(async function test_glodaList_tab() {
-  async function background() {
-    let mailTabs = await browser.mailTabs.query({});
-    browser.test.assertEq(2, mailTabs.length);
-
-    let [tab] = await browser.mailTabs.query({ active: true });
-    browser.test.assertTrue(!tab.folderPaneVisible);
-    browser.test.assertTrue(tab.messagePaneVisible);
-
-    // This should have no effect, and it certainly shouldn't throw.
-    await browser.mailTabs.update({
-      folderPaneVisible: true,
-      messagePaneVisible: false,
-    });
-
-    await window.sendMessage("checkRealLayout", {
-      folderPaneVisible: false,
-      messagePaneVisible: true,
-    });
-
-    [tab] = await browser.mailTabs.query({ active: true });
-    browser.test.assertEq(2, mailTabs.length);
-    browser.test.assertTrue(!tab.folderPaneVisible);
-    browser.test.assertTrue(tab.messagePaneVisible);
-
-    browser.test.notifyPass("mailTabs");
-  }
-
-  let tabmail = document.getElementById("tabmail");
-  tabmail.openTab("glodaList", { collection: { items: [] } });
-
-  let extension = ExtensionTestUtils.loadExtension({
-    files: {
-      "background.js": background,
-      "utils.js": await getUtilsJS(),
-    },
-    manifest: {
-      background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["accountsRead", "messagesRead"],
-    },
-  });
-
-  extension.onMessage("checkRealLayout", expected => {
-    check3PaneState(expected.folderPaneVisible, expected.messagePaneVisible);
-    extension.sendMessage();
-  });
-
-  await extension.startup();
-  await extension.awaitFinish("mailTabs");
-  await extension.unload();
-
-  tabmail.closeOtherTabs(tabmail.tabModes.folder.tabs[0]);
 });
 
 add_task(async function test_get_and_query() {
@@ -688,8 +634,8 @@ add_task(async function test_get_and_query() {
     win.gFolderTreeView.selectFolder(rootFolder);
     let tabmail = win.document.getElementById("tabmail");
     win.openContentTab("about:mozilla");
-    tabmail.openTab("folder", { folder: subFolders.test1 });
-    tabmail.openTab("folder", { folder: subFolders.test2 });
+    tabmail.openTab("mail3PaneTab", { folderURI: subFolders.test1.URI });
+    tabmail.openTab("mail3PaneTab", { folderURI: subFolders.test2.URI });
   }
 
   await extension.startup();
@@ -905,7 +851,7 @@ add_task(async function test_setSelectedMessages() {
   let tabmail = document.getElementById("tabmail");
   window.openContentTab("about:buildconfig");
   window.openContentTab("about:mozilla");
-  tabmail.openTab("folder", { folder: subFolders.test1 });
+  tabmail.openTab("mail3PaneTab", { folderURI: subFolders.test1.URI });
 
   await extension.startup();
   extension.sendMessage(account.key);

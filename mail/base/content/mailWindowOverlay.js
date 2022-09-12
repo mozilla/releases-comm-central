@@ -2290,20 +2290,11 @@ function MsgOpenNewTabForFolders(folders, tabParams = {}) {
   }
 
   let tabmail = document.getElementById("tabmail");
-  if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
-    for (let i = 0; i < folders.length; i++) {
-      tabmail.openTab("mail3PaneTab", {
-        ...tabParams,
-        folderURI: folders[i].URI,
-      });
-    }
-  } else {
-    for (let i = 0; i < folders.length; i++) {
-      tabmail.openTab("folder", {
-        folder: folders[i],
-        background: tabParams.background,
-      });
-    }
+  for (let i = 0; i < folders.length; i++) {
+    tabmail.openTab("mail3PaneTab", {
+      ...tabParams,
+      folderURI: folders[i].URI,
+    });
   }
 }
 

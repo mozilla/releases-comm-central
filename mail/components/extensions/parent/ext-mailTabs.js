@@ -67,45 +67,19 @@ function convertMailTab(tab, context) {
   };
 
   let nativeTab = tab.nativeTab;
-  if (nativeTab.mode.name == "mail3PaneTab") {
-    mailTabObject.folderPaneVisible = nativeTab.folderPaneVisible;
-    mailTabObject.messagePaneVisible = nativeTab.messagePaneVisible;
-    mailTabObject.sortType = SORT_TYPE_MAP.get(nativeTab.sort.type);
-    mailTabObject.sortOrder = SORT_ORDER_MAP.get(nativeTab.sort.order);
-    if (nativeTab.sort.grouped) {
-      mailTabObject.viewType = "groupedBySortType";
-    } else if (nativeTab.sort.threaded) {
-      mailTabObject.viewType = "groupedByThread";
-    } else {
-      mailTabObject.viewType = "ungrouped";
-    }
-    if (context.extension.hasPermission("accountsRead")) {
-      mailTabObject.displayedFolder = convertFolder(nativeTab.folder);
-    }
-  } else if (nativeTab.mode.name == "glodaList") {
-    let folderDisplay = nativeTab.folderDisplay;
-    mailTabObject.folderPaneVisible = false;
-    mailTabObject.messagePaneVisible = true;
-    mailTabObject.sortType = SORT_TYPE_MAP.get(
-      folderDisplay.view.primarySortType
-    );
-    mailTabObject.sortOrder = SORT_ORDER_MAP.get(
-      folderDisplay.view.primarySortOrder
-    );
-
-    if (folderDisplay.view.showGroupedBySort) {
-      mailTabObject.viewType = "groupedBySortType";
-    } else if (folderDisplay.view.showThreaded) {
-      mailTabObject.viewType = "groupedByThread";
-    } else {
-      mailTabObject.viewType = "ungrouped";
-    }
-
-    if (context.extension.hasPermission("accountsRead")) {
-      mailTabObject.displayedFolder = convertFolder(
-        folderDisplay.displayedFolder
-      );
-    }
+  mailTabObject.folderPaneVisible = nativeTab.folderPaneVisible;
+  mailTabObject.messagePaneVisible = nativeTab.messagePaneVisible;
+  mailTabObject.sortType = SORT_TYPE_MAP.get(nativeTab.sort.type);
+  mailTabObject.sortOrder = SORT_ORDER_MAP.get(nativeTab.sort.order);
+  if (nativeTab.sort.grouped) {
+    mailTabObject.viewType = "groupedBySortType";
+  } else if (nativeTab.sort.threaded) {
+    mailTabObject.viewType = "groupedByThread";
+  } else {
+    mailTabObject.viewType = "ungrouped";
+  }
+  if (context.extension.hasPermission("accountsRead")) {
+    mailTabObject.displayedFolder = convertFolder(nativeTab.folder);
   }
   return mailTabObject;
 }

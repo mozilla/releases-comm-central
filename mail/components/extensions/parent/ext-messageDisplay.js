@@ -9,9 +9,7 @@ async function getDisplayedMessages(tab, extension) {
   let displayedMessages;
 
   if (tab instanceof TabmailTab) {
-    if (["folder", "glodaList", "message"].includes(tab.nativeTab.mode.name)) {
-      displayedMessages = tab.nativeTab.folderDisplay.selectedMessages;
-    }
+    // TODO: Fix this.
   } else if (tab.nativeTab.gMessageDisplay) {
     displayedMessages = [tab.nativeTab.gMessageDisplay.displayedMessage];
   }
@@ -128,13 +126,7 @@ this.messageDisplay = class extends ExtensionAPI {
           let displayedMessage = null;
 
           if (tab instanceof TabmailTab) {
-            if (
-              ["folder", "glodaList", "message"].includes(
-                tab.nativeTab.mode.name
-              )
-            ) {
-              displayedMessage = tab.nativeTab.messageDisplay.displayedMessage;
-            }
+            // TODO: Fix this.
           } else if (tab.nativeTab.gMessageDisplay) {
             displayedMessage = tab.nativeTab.gMessageDisplay.displayedMessage;
           }
@@ -177,8 +169,8 @@ this.messageDisplay = class extends ExtensionAPI {
                 );
                 let tabmail = window.document.getElementById("tabmail");
                 let currentTab = tabmail.selectedTab;
-                let nativeTabInfo = tabmail.openTab("message", {
-                  msgHdr,
+                let nativeTabInfo = tabmail.openTab("mailMessageTab", {
+                  messageURI: msgHdr.folder.getUriForMsg(msgHdr),
                   background: !active,
                 });
 

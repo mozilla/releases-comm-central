@@ -1740,10 +1740,6 @@ FolderDisplayWidget.prototype = {
     // update singleton globals' state
     msgWindow.openFolder = this.view.displayedFolder;
 
-    // This depends on us being active, so get it before we're marked active.
-    // We don't get this._folderPaneActive directly for idempotence's sake.
-    let folderPaneVisible = this.folderPaneVisible;
-
     this._active = true;
     this._runNotificationsPendingActivation();
 
@@ -1812,28 +1808,10 @@ FolderDisplayWidget.prototype = {
       //  state on folder entry, in which case we were probably not inactive.
       this._restoreColumnStates();
 
-      // the tab mode knows whether we are folder or message display, which
-      // impacts the legal modes
-      if (this._tabInfo) {
-        mailTabType._setPaneStates(this._tabInfo.mode.legalPanes, {
-          folder: folderPaneVisible,
-          message: this.messageDisplay.visible,
-        });
-      }
-
       // update the columns and such that live inside the thread pane
       this._updateThreadDisplay();
 
       this.messageDisplay.makeActive(dontReloadMessage);
-    } else {
-      // account central stuff when we don't have a dbview
-      this._showAccountCentral();
-      if (this._tabInfo) {
-        mailTabType._setPaneStates(
-          this._tabInfo.mode.accountCentralLegalPanes,
-          { folder: folderPaneVisible }
-        );
-      }
     }
 
     this._updateContextDisplay();

@@ -558,7 +558,7 @@ add_task(async function test_tab() {
   let tabmail = document.getElementById("tabmail");
   window.openContentTab("about:config");
   window.openContentTab("about:mozilla");
-  tabmail.openTab("folder", { folder: gFolders[0] });
+  tabmail.openTab("mail3PaneTab", { folderURI: gFolders[0].URI });
 
   let tabs = document.getElementById("tabmail-tabs").allTabs;
   let menu = document.getElementById("tabContextMenu");

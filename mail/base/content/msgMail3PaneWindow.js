@@ -487,7 +487,6 @@ var gMailInit = {
     let tabmail = document.getElementById("tabmail");
     if (tabmail) {
       // mailTabType is defined in mailTabs.js
-      tabmail.registerTabType(mailTabType);
       tabmail.registerTabType(newMailTabType);
       // glodaFacetTab* in glodaFacetTab.js
       tabmail.registerTabType(glodaFacetTabType);
@@ -1432,18 +1431,10 @@ function OpenMessageInNewTab(msgHdr, tabParams = {}) {
   }
 
   let tabmail = document.getElementById("tabmail");
-  if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
-    tabmail.openTab("mailMessageTab", {
-      ...tabParams,
-      messageURI: msgHdr.folder.getUriForMsg(msgHdr),
-    });
-  } else {
-    tabmail.openTab("message", {
-      msgHdr,
-      viewWrapperToClone: tabParams.viewWrapper ?? gFolderDisplay.view,
-      background: tabParams.background,
-    });
-  }
+  tabmail.openTab("mailMessageTab", {
+    ...tabParams,
+    messageURI: msgHdr.folder.getUriForMsg(msgHdr),
+  });
 }
 
 function ThreadTreeOnClick(event) {

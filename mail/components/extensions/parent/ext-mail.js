@@ -1073,13 +1073,10 @@ class TabmailTab extends Tab {
   /** What sort of tab is this? */
   get type() {
     switch (this.nativeTab.mode.name) {
-      case "folder":
-      case "glodaList":
       case "mail3PaneTab":
         return "mail";
       case "addressBookTab":
         return "addressBook";
-      case "message":
       case "mailMessageTab":
         return "messageDisplay";
       case "contentTab": {

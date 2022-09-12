@@ -145,8 +145,14 @@ add_task(async () => {
   });
 
   let tabmail = document.getElementById("tabmail");
-  tabmail.openTab("folder", { folder: rootFolder, background: false });
-  tabmail.openTab("folder", { folder: rootFolder, background: false });
+  tabmail.openTab("mail3PaneTab", {
+    folderURI: rootFolder.URI,
+    background: false,
+  });
+  tabmail.openTab("mail3PaneTab", {
+    folderURI: rootFolder.URI,
+    background: false,
+  });
 
   let mailTabs = tabmail.tabInfo;
   is(mailTabs.length, 3);
