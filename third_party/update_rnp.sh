@@ -44,8 +44,6 @@ LATEST_VERSION=$($THIRDROC latest_version $TAGLIST)
 REVISION=$(git -C "${RNPgit}" rev-parse --verify HEAD)
 TIMESTAMP=$(git -C "${RNPgit}" show -s --format=%ct)
 
-BUGREPORT="https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird"
-
 # Cleanup rnp checkout
 rm -rf ${RNPgit}/{.git,.github,.cirrus.yml,.clang-format,.gitignore}
 rm -rf ${RNPgit}/{_config.yml,docker.sh,ci,cmake,git-hooks,travis.sh,vcpkg.txt}
@@ -54,12 +52,11 @@ rm -rf ${RNPgit}/{Brewfile,CMakeLists.txt,CMakeSettings.json}
 # Do the switch
 rm -rf rnp
 mv "${RNPgit}" rnp
-# Build version.h/config.h.in
+# Build version.h
 $THIRDROC rnp_source_update rnp/ \
   "${LATEST_VERSION}" \
   "${REVISION}" \
-  "${TIMESTAMP}" \
-  "${BUGREPORT}"
+  "${TIMESTAMP}"
 
 # Restore moz.build
 hg revert rnp/moz.build rnp/module.ver rnp/rnp.symbols rnp/src/lib/rnp/rnp_export.h \
