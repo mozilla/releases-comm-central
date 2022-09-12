@@ -37,8 +37,6 @@ function RestoreSelectionWithoutContentLoad(tree) {
     if (tree) {
       tree.invalidate();
     }
-
-    UpdateMailToolbar("RestoreSelectionWithoutContentLoad");
   }
 }
 

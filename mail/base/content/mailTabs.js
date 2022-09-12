@@ -70,7 +70,7 @@ var newMailTabType = {
   modes: {
     mail3PaneTab: {
       _nextId: 1,
-      isDefault: Services.prefs.getBoolPref("mail.useNewMailTabs"),
+      isDefault: true,
 
       openTab(tab, args = {}) {
         newMailTabType._cloneTemplate("mail3PaneTabTemplate", tab, win =>

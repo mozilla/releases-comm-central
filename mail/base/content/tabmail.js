@@ -738,89 +738,8 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       // event to ensure we have an accurate title.  We assume the tab
       // contents will set themselves up correctly.
       if (this.tabInfo.length == 0) {
-        if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
-          let tab = this.openTab("mail3PaneTab", { first: true });
-          this.tabs[0].linkedPanel = tab.panel.id;
-          return;
-        }
-
-        let firstTab = {
-          mode: this.defaultTabMode,
-          busy: false,
-          canClose: false,
-          thinking: false,
-          _ext: {},
-          get linkedBrowser() {
-            // This is a hack to make Marionette work. It needs a linkedBrowser
-            // from the first tab before it will start. Because linkedBrowser is
-            // implemented as a getter, it's ignored by anything that
-            // JSON-serializes this tab.
-            let browserFunc =
-              this.mode.getBrowser || this.mode.tabType.getBrowser;
-            let browser = browserFunc
-              ? browserFunc.call(this.mode.tabType, this)
-              : null;
-            if (browser && !("permanentKey" in browser)) {
-              // The permanentKey property is a unique Object, thus allowing this
-              // browser to be stored in a WeakMap.
-              // Use the JSM global to create the permanentKey, so that if the
-              // permanentKey is held by something after this window closes, it
-              // doesn't keep the window alive.
-              browser.permanentKey = new (Cu.getGlobalForObject(
-                Services
-              ).Object)();
-            }
-            return browser;
-          },
-        };
-
-        firstTab.tabNode = this.tabContainer.arrowScrollbox.firstElementChild;
-        firstTab.tabId = this.tabId++;
-
-        firstTab.mode.tabs.push(firstTab);
-        this.tabs[0].linkedPanel = "mailContent";
-        this.tabInfo[0] = this.currentTabInfo = firstTab;
-        let tabOpenFirstFunc =
-          firstTab.mode.openFirstTab || firstTab.mode.tabType.openFirstTab;
-        tabOpenFirstFunc.call(firstTab.mode.tabType, firstTab);
-        this.setTabTitle(null);
-
-        // Set the tabId after defining a <browser> and before notifications.
-        firstTab.browser = this.getBrowserForTab(firstTab);
-        firstTab.browser._activeTabId = firstTab.tabId;
-
-        // Register browser progress listeners. For firstTab, it is the shared
-        // #messagepane so only do it once.
-
-        for (let tabMonitor of this.tabMonitors) {
-          try {
-            if ("onTabOpened" in tabMonitor) {
-              tabMonitor.onTabOpened(firstTab, true);
-            }
-            tabMonitor.onTabSwitched(firstTab, null);
-          } catch (ex) {
-            console.error(ex);
-          }
-        }
-
-        let panel = document.getElementById(firstTab.tabNode.linkedPanel);
-        panel.setAttribute("selected", "true");
-
-        // Dispatch tab opening event
-        let evt = new CustomEvent("TabOpen", {
-          bubbles: true,
-          detail: { tabInfo: firstTab, moving: false },
-        });
-        firstTab.tabNode.dispatchEvent(evt);
-
-        firstTab.browser._progressListener = new TabProgressListener(
-          firstTab.browser,
-          this
-        );
-        firstTab.browser.webProgress.addProgressListener(
-          firstTab.browser._progressListener,
-          Ci.nsIWebProgress.NOTIFY_ALL
-        );
+        let tab = this.openTab("mail3PaneTab", { first: true });
+        this.tabs[0].linkedPanel = tab.panel.id;
       }
     }
 
@@ -1029,9 +948,6 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
         if (!background) {
           this.setDocumentTitle(tab);
-          // Update the toolbar status - we don't need to do menus as they
-          // do themselves when we open them.
-          UpdateMailToolbar("tabmail");
           // Move the focus on the newly selected tab.
           this.panelContainer.selectedPanel.focus();
         }
@@ -1736,10 +1652,6 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         // active tabs should not have the wasThinking attribute
         this.tabContainer.selectedItem.removeAttribute("wasThinking");
         this.setDocumentTitle(tab);
-
-        // Update the toolbar status - we don't need to do menus as they
-        // do themselves when we open them.
-        UpdateMailToolbar("tabmail");
 
         // We switched tabs, so we don't need to know the last tab
         // opener anymore.

@@ -227,16 +227,7 @@ var gSpacesToolbar = {
               -1
             );
           }
-          if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
-            return openTab("mail3PaneTab", { folderURI }, "tab");
-          }
-          return openTab(
-            "folder",
-            {
-              folder: folderURI ? MailUtils.getExistingFolder(folderURI) : null,
-            },
-            "tab"
-          );
+          return openTab("mail3PaneTab", { folderURI }, "tab");
         },
         allowMultipleTabs: true,
       },

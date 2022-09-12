@@ -232,7 +232,6 @@ StandaloneMessageDisplayWidget.prototype = {
     this.isDummy = true;
     this.displayedUri = aUri;
     this.onDisplayingMessage(messageHeaderSink.dummyMsgHeader);
-    UpdateMailToolbar("external message display");
     // null out the selection on the view so it operates in stand alone mode
     this.folderDisplay.view.dbView.selection = null;
     this.folderDisplay.view.dbView.loadMessageByUrl(aUri);
@@ -435,7 +434,6 @@ function delayedOnLoadMessageWindow() {
       if (gMessageDisplay.isDummy) {
         gMessageDisplay.onDisplayingMessage(messageHeaderSink.dummyMsgHeader);
       }
-      UpdateMailToolbar(".eml/message from attachment finished loading");
     },
     onEndAttachments() {},
   });

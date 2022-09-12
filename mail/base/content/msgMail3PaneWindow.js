@@ -244,122 +244,6 @@ function ServerContainsFolder(server, folder) {
   return server.equals(folder.server);
 }
 
-// aMsgWindowInitialized: false if we are calling from the onload handler, otherwise true
-function UpdateMailPaneConfig(aMsgWindowInitialized) {
-  if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
-    return;
-  }
-
-  const dynamicIds = ["messagesBox", "mailContent", "threadPaneBox"];
-  const layouts = ["standard", "wide", "vertical"];
-  var layoutView = Services.prefs.getIntPref("mail.pane_config.dynamic");
-  // Ensure valid value; hard fail if not.
-  layoutView = dynamicIds[layoutView] ? layoutView : kStandardPaneConfig;
-  var desiredId = dynamicIds[layoutView];
-  document
-    .getElementById("mailContent")
-    .setAttribute("layout", layouts[layoutView]);
-  var messagePaneBoxWrapper = GetMessagePaneWrapper();
-  if (messagePaneBoxWrapper.parentNode.id != desiredId) {
-    ClearAttachmentList();
-    var messagePaneSplitter = GetThreadAndMessagePaneSplitter();
-    var desiredParent = document.getElementById(desiredId);
-
-    // The find bar needs disconnecting before the browser it is attached to.
-    // Due to its position in the DOM, this doesn't happen.
-    document.getElementById("FindToolbar").destroy();
-
-    let footerBox = desiredParent.lastElementChild;
-    if (footerBox && footerBox.id == "messenger-notification-footer") {
-      desiredParent.insertBefore(messagePaneSplitter, footerBox);
-      desiredParent.insertBefore(messagePaneBoxWrapper, footerBox);
-    } else {
-      desiredParent.appendChild(messagePaneSplitter);
-      desiredParent.appendChild(messagePaneBoxWrapper);
-    }
-
-    // Reconnect the message pane's web progress listener.
-    let messagePane = document.getElementById("messagepane");
-    if (messagePane._progressListener) {
-      messagePane.webProgress.addProgressListener(
-        messagePane._progressListener,
-        Ci.nsIWebProgress.NOTIFY_ALL
-      );
-    }
-
-    if (msgWindow) {
-      // Reassigning statusFeedback adds a progress listener to the new docShell.
-      // eslint-disable-next-line no-self-assign
-      msgWindow.statusFeedback = msgWindow.statusFeedback;
-    }
-    messagePaneSplitter.setAttribute(
-      "orient",
-      desiredParent.getAttribute("orient")
-    );
-    if (aMsgWindowInitialized) {
-      messenger.setWindow(null, null);
-      messenger.setWindow(window, msgWindow);
-      // Hack to make sure that the message is re-displayed
-      // with the correct charset.
-      setTimeout(ReloadMessage);
-    }
-
-    // The quick filter bar gets badly lied to due to standard XUL/XBL problems,
-    //  so we need to generate synthetic notifications after a delay on those
-    //  nodes that care about overflow.  The 'lie' comes in the form of being
-    //  given (at startup) an overflow event with a tiny clientWidth (100), then
-    //  a more tiny resize event (clientWidth = 32), then a resize event that
-    //  claims the entire horizontal space is allocated to us
-    //  (clientWidth = 1036).  It would appear that when the messagepane's XBL
-    //  binding (or maybe the splitter's?) finally activates, the quick filter
-    //  pane gets resized down without any notification.
-    // Our solution tries to be generic and help out any code with an onoverflow
-    //  handler.  We will also generate an onresize notification if it turns out
-    //  that onoverflow is not appropriate (and such a handler is registered).
-    //  This does require that XUL attributes were used to register the handlers
-    //  rather than addEventListener.
-    // The choice of the delay is basically a kludge because something like 10ms
-    //  may be insufficient to ensure we get enqueued after whatever triggers
-    //  the layout discontinuity.  (We need to wait for a paint to happen to
-    //  trigger the XBL binding, and then there may be more complexities...)
-    setTimeout(function() {
-      let threadPaneBox = document.getElementById("threadPaneBox");
-      let overflowNodes = threadPaneBox.querySelectorAll("[onoverflow]");
-
-      for (let iNode = 0; iNode < overflowNodes.length; iNode++) {
-        let node = overflowNodes[iNode];
-
-        if (node.scrollWidth > node.clientWidth) {
-          let e = document.createEvent("HTMLEvents");
-          e.initEvent("overflow", false, false);
-          node.dispatchEvent(e);
-        } else if (node.onresize) {
-          let e = document.createEvent("HTMLEvents");
-          e.initEvent("resize", false, false);
-          node.dispatchEvent(e);
-        }
-      }
-    }, 1500);
-  }
-}
-
-var MailPrefObserver = {
-  observe(subject, topic, prefName) {
-    // verify that we're changing the mail pane config pref
-    if (topic == "nsPref:changed") {
-      if (prefName == "mail.pane_config.dynamic") {
-        UpdateMailPaneConfig(true);
-      } else if (prefName == "mail.showCondensedAddresses") {
-        let version = Services.prefs.getIntPref("mail.displayname.version", 0);
-        Services.prefs.setIntPref("mail.displayname.version", ++version);
-
-        // refresh the thread pane
-        document.getElementById("threadTree").invalidate();
-      }
-    }
-  },
-};
-
 /**
  * Called on startup if there are no accounts.
  */
@@ -460,13 +344,6 @@ var gMailInit = {
    */
   onLoad() {
     TagUtils.loadTagsIntoCSS(document);
-
-    // update the pane config before we exit onload otherwise the user may see a flicker if we poke the document
-    // in delayedOnLoadMessenger...
-    UpdateMailPaneConfig(false);
-
-    Services.prefs.addObserver("mail.pane_config.dynamic", MailPrefObserver);
-    Services.prefs.addObserver("mail.showCondensedAddresses", MailPrefObserver);
 
     CreateMailWindowGlobals();
     GetMessagePaneWrapper().collapsed = true;
@@ -667,11 +544,6 @@ var gMailInit = {
    */
   onUnload() {
     Services.obs.notifyObservers(window, "mail-unloading-messenger");
-    Services.prefs.removeObserver("mail.pane_config.dynamic", MailPrefObserver);
-    Services.prefs.removeObserver(
-      "mail.showCondensedAddresses",
-      MailPrefObserver
-    );
 
     if (gRightMouseButtonSavedSelection) {
       // Avoid possible cycle leaks.
@@ -787,7 +659,6 @@ async function loadPostAccountWizard() {
   InitMsgWindow();
   messenger.setWindow(window, msgWindow);
 
-  await initPanes();
   MigrateJunkMailSettings();
   MigrateFolderViews();
   MigrateOpenMessageBehavior();
@@ -799,10 +670,6 @@ async function loadPostAccountWizard() {
   } catch (e) {
     Cu.reportError(e);
   }
-
-  // Add to session before trying to load the start folder otherwise the
-  // listeners aren't set up correctly.
-  AddToSession();
 
   // Load the message header pane.
   OnLoadMsgHeaderPane();
@@ -1178,65 +1045,6 @@ async function loadStartFolder(initialUri) {
         SendUnsentMessages();
       }
     }, 0);
-  }
-}
-
-function AddToSession() {
-  if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
-    return;
-  }
-
-  var notifyFlags =
-    Ci.nsIFolderListener.intPropertyChanged | Ci.nsIFolderListener.event;
-  MailServices.mailSession.AddFolderListener(folderListener, notifyFlags);
-}
-
-/**
- * Initialize all the panes composing the main UI. Folder pane, Message thread
- * pane, and Message view pane.
- */
-async function initPanes() {
-  if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
-    return;
-  }
-
-  let messagepaneboxwrapper = GetMessagePaneWrapper();
-  for (let attrName of ["collapsed", "height", "width"]) {
-    let attrValue = Services.xulStore.getValue(
-      "chrome://messenger/content/messenger.xhtml",
-      "messagepaneboxwrapper",
-      attrName
-    );
-    if (attrValue) {
-      messagepaneboxwrapper.setAttribute(attrName, attrValue);
-    }
-  }
-  messagepaneboxwrapper.setAttribute("persist", "collapsed height width");
-
-  var threadTree = document.getElementById("threadTree");
-  threadTree.addEventListener("click", ThreadTreeOnClick, true);
-
-  OnLoadThreadPane();
-
-  for (let browser of ["messagepane", "multimessage"]) {
-    let element = document.getElementById(browser);
-    if (!element) {
-      continue;
-    }
-    element.addEventListener(
-      "DoZoomEnlargeBy10",
-      () => {
-        ZoomManager.scrollZoomEnlarge(element);
-      },
-      true
-    );
-    element.addEventListener(
-      "DoZoomReduceBy10",
-      () => {
-        ZoomManager.scrollReduceEnlarge(element);
-      },
-      true
-    );
   }
 }
 

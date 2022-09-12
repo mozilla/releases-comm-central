@@ -1411,13 +1411,7 @@ FolderDisplayWidget.prototype = {
    *  AND (we're not removing a row OR we are now out of rows).
    * In response, we update the toolbar.
    */
-  updateCommandStatus() {
-    // Do this only if we're active. If we aren't, we're going to take care of
-    // this when we switch back to the tab.
-    if (this._active) {
-      UpdateMailToolbar("FolderDisplayWidget command updater notification");
-    }
-  },
+  updateCommandStatus() {},
 
   /**
    * This gets called by nsMsgDBView::UpdateDisplayMessage following a call
@@ -1447,7 +1441,6 @@ FolderDisplayWidget.prototype = {
       browser.contentDocument.body.hidden = true;
     }
 
-    UpdateMailToolbar("FolderDisplayWidget displayed message changed");
     let selected = this.view.dbView.getSelectedMsgHdrs();
     let msgHdr = selected.length ? selected[0] : null;
     this.messageDisplay.onDisplayingMessage(msgHdr);
@@ -1628,7 +1621,6 @@ FolderDisplayWidget.prototype = {
    */
   _updateContextDisplay() {
     if (this.active) {
-      UpdateMailToolbar("FolderDisplayWidget updating context");
       UpdateStatusQuota(this.displayedFolder);
       UpdateStatusMessageCounts(this.displayedFolder);
 

@@ -132,12 +132,6 @@ var nsSearchResultsController = {
 function UpdateMailSearch(caller) {
   document.commandDispatcher.updateCommands("mail-search");
 }
-/**
- * FolderDisplayWidget currently calls this function when the command updater
- *  notification for updateCommandStatus is called.  We don't have a toolbar,
- *  but our 'mail-search' command set serves the same purpose.
- */
-var UpdateMailToolbar = UpdateMailSearch;
 
 /**
  * No-op clear message pane function for FolderDisplayWidget.

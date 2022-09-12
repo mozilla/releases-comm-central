@@ -16,27 +16,6 @@ var { MailViewConstants } = ChromeUtils.import(
   "resource:///modules/MailViewManager.jsm"
 );
 
-function UpdateMailToolbar(caller) {
-  if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
-    return;
-  }
-
-  // If we have a transient selection, we shouldn't update the toolbar. We'll
-  // update it once we've restored the original selection.
-  if (
-    "gRightMouseButtonSavedSelection" in window &&
-    window.gRightMouseButtonSavedSelection
-  ) {
-    return;
-  }
-
-  // dump("XXX update mail-toolbar " + caller + "\n");
-  document.commandDispatcher.updateCommands("mail-toolbar");
-
-  // hook for extra toolbar items
-  Services.obs.notifyObservers(window, "mail:updateToolbarItems");
-}
-
 function isNewsURI(uri) {
   if (!uri) {
     return false;
