@@ -374,7 +374,13 @@ class AddrBookDirectory {
           ["Notes", card.getProperty("Notes", "")],
         ]);
       } else if (card._properties.has("_vCard")) {
-        properties = card.vCardProperties.toPropertyMap();
+        try {
+          properties = card.vCardProperties.toPropertyMap();
+        } catch (ex) {
+          // Parsing failed. Skip the vCard and just use the other properties.
+          Cu.reportError(ex);
+          properties = new Map();
+        }
         for (let [key, value] of card._properties) {
           if (!properties.has(key)) {
             properties.set(key, value);
