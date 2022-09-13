@@ -49,9 +49,11 @@ class VCardIMPPComponent extends HTMLElement {
 
     this.protocolEl.addEventListener("change", event => {
       let entered = this.imppEl.value.split(":", 1)[0]?.toLowerCase();
-      this.protocolEl.value =
-        [...this.protocolEl.options].find(o => o.value.startsWith(entered))
-          ?.value || "";
+      if (entered) {
+        this.protocolEl.value =
+          [...this.protocolEl.options].find(o => o.value.startsWith(entered))
+            ?.value || "";
+      }
       this.imppEl.placeholder = this.protocolEl.value;
       this.imppEl.pattern = this.protocolEl.selectedOptions[0].dataset.pattern;
     });
@@ -61,9 +63,7 @@ class VCardIMPPComponent extends HTMLElement {
     imppLabel.htmlFor = this.imppEl.id;
     document.l10n.setAttributes(imppLabel, "vcard-impp-label");
     this.imppEl.addEventListener("change", event => {
-      if (event.target.value) {
-        this.protocolEl.dispatchEvent(new CustomEvent("change"));
-      }
+      this.protocolEl.dispatchEvent(new CustomEvent("change"));
     });
 
     this.fromVCardPropertyEntryToUI();

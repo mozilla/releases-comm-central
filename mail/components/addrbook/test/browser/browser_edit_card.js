@@ -2415,7 +2415,7 @@ add_task(async function test_vCard_fields() {
   await setVCardInputValues({
     impp: [
       { value: "matrix:u/contact1:example.com" },
-      { value: "irc:irc.example.com/contact1,isuser" },
+      { value: "irc://irc.example.com/contact1,isuser" },
       { value: "xmpp:test@example.com" },
     ],
     url: [
@@ -2452,7 +2452,7 @@ add_task(async function test_vCard_fields() {
   checkVCardValues(book.childCards[0], {
     impp: [
       { value: "matrix:u/contact1:example.com" },
-      { value: "irc:irc.example.com/contact1,isuser" },
+      { value: "irc://irc.example.com/contact1,isuser" },
       { value: "xmpp:test@example.com" },
     ],
     url: [
@@ -2536,7 +2536,7 @@ add_task(async function test_vCard_fields() {
   checkVCardValues(book.childCards[0], {
     impp: [
       { value: "matrix:u/contact1:example.com" },
-      { value: "irc:irc.example.com/contact1,isuser" },
+      { value: "irc://irc.example.com/contact1,isuser" },
       { value: "xmpp:test@example.com" },
     ],
     url: [
@@ -2588,7 +2588,7 @@ add_task(async function test_vCard_fields() {
   checkVCardInputValues({
     impp: [
       { value: "matrix:u/contact1:example.com" },
-      { value: "irc:irc.example.com/contact1,isuser" },
+      { value: "irc://irc.example.com/contact1,isuser" },
       { value: "xmpp:test@example.com" },
     ],
     url: [
