@@ -250,8 +250,6 @@ function switchToView(viewType) {
     "calendar-view-context-menu-previous",
     "calendar-go-menu-next",
     "calendar-go-menu-previous",
-    "appmenu_calendar-go-menu-next",
-    "appmenu_calendar-go-menu-previous",
   ];
   ids.forEach(x => {
     setupViewNode(x, "label");

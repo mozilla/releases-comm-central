@@ -420,10 +420,6 @@ const PanelUI = {
       case "appMenu-viewZoomView":
         UpdateFullZoomMenu();
         break;
-      // Go
-      case "appMenu-goRecentlyClosedTabsView":
-        PanelUI._refreshDynamicView(event, InitRecentlyClosedTabsPopup);
-        break;
     }
   },
 
