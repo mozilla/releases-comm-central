@@ -1164,9 +1164,15 @@ class Pop3Client {
           break;
       }
     } else {
-      this._sink.endMailDelivery(this);
-      this._folderLocked = false;
-      this._logger.debug("Folder lock released.");
+      try {
+        this._sink.endMailDelivery(this);
+        this._folderLocked = false;
+        this._logger.debug("Folder lock released.");
+      } catch (e) {
+        this._logger.error("endMailDelivery failed", e);
+        this._actionDone(e.result || Cr.NS_ERROR_FAILURE);
+        return;
+      }
       this._actionDone();
     }
   };

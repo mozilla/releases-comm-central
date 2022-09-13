@@ -892,11 +892,20 @@ class MsgIncomingServer {
       }
       let filterFile = this.rootFolder.filePath.clone();
       filterFile.append("msgFilterRules.dat");
-      this._filterList = MailServices.filters.OpenFilterList(
-        filterFile,
-        this.rootFolder,
-        msgWindow
-      );
+      try {
+        this._filterList = MailServices.filters.OpenFilterList(
+          filterFile,
+          this.rootFolder,
+          msgWindow
+        );
+      } catch (e) {
+        Cu.reportError(e);
+        const NS_ERROR_FILE_FS_CORRUPTED = 0x80520016;
+        if (e.result == NS_ERROR_FILE_FS_CORRUPTED && filterFile.exists()) {
+          // OpenFilterList will create a new one next time.
+          filterFile.renameTo(filterFile.parent, "msgFilterRules.dat.orig");
+        }
+      }
     }
     return this._filterList;
   }
