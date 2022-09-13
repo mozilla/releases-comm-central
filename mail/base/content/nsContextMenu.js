@@ -734,32 +734,28 @@ class nsContextMenu {
 
     this.setSingleSelection("mailContext-calendar-convert-menu");
   }
-  /* eslint-enable complexity */
   initSeparators() {
-    const mailContextSeparators = [
-      "mailContext-sep-open-browser",
-      "mailContext-sep-link",
-      "mailContext-sep-open",
-      "mailContext-sep-open2",
-      "mailContext-sep-reply",
-      "paneContext-afterMove",
-      "mailContext-sep-afterTagAddNew",
-      "mailContext-sep-afterTagRemoveAll",
-      "mailContext-sep-afterMarkAllRead",
-      "mailContext-sep-afterMarkFlagged",
-      "mailContext-sep-afterMarkMenu",
-      "mailContext-afterWatchThread",
-      "mailContext-sep-edit",
-      "mailContext-sep-editTemplate",
-      "mailContext-sep-copy",
-      "mailContext-sep-reportPhishing",
-      "mailContext-sep-undo",
-      "mailContext-sep-clipboard",
-      "mailContext-spell-suggestions-separator",
-      "mailContext-spell-separator",
-    ];
-    mailContextSeparators.forEach(this.hideIfAppropriate, this);
-
+    let separators = Array.from(
+      this.xulMenu.querySelectorAll(":scope > menuseparator")
+    );
+    let lastShownSeparator = null;
+    for (let separator of separators) {
+      let shouldShow = this.shouldShowSeparator(separator);
+      if (
+        !shouldShow &&
+        lastShownSeparator &&
+        separator.classList.contains("webextension-group-separator")
+      ) {
+        // The separator for the WebExtension elements group must be shown, hide
+        // the last shown menu separator instead.
+        lastShownSeparator.hidden = true;
+        shouldShow = true;
+      }
+      if (shouldShow) {
+        lastShownSeparator = separator;
+      }
+      separator.hidden = !shouldShow;
+    }
     this.checkLastSeparator(this.xulMenu);
   }
 
@@ -1071,26 +1067,14 @@ class nsContextMenu {
   }
 
   /**
-   * Hide a separator based on whether there are any non-hidden items between
-   * it and the previous separator.
-   *
-   * @param aSeparatorID  The id of the separator element.
-   */
-  hideIfAppropriate(aSeparatorID) {
-    this.showItem(aSeparatorID, this.shouldShowSeparator(aSeparatorID));
-  }
-
-  /**
    * Determine whether a separator should be shown based on whether
    * there are any non-hidden items between it and the previous separator.
-   * @param  aSeparatorID
-   *         The id of the separator element
-   * @return true if the separator should be shown, false if not
+   * @param {DomElement} element - The separator element.
+   * @return {boolean} True if the separator should be shown, false if not.
    */
-  shouldShowSeparator(aSeparatorID) {
-    var separator = document.getElementById(aSeparatorID);
-    if (separator) {
-      var sibling = separator.previousElementSibling;
+  shouldShowSeparator(element) {
+    if (element) {
+      let sibling = element.previousElementSibling;
       while (sibling && sibling.localName != "menuseparator") {
         if (!sibling.hidden) {
           return true;
