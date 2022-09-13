@@ -16,6 +16,17 @@
 JSON-C - A JSON implementation in C <a name="overview"></a>
 -----------------------------------
 
+JSON-C implements a reference counting object model that allows you to easily
+construct JSON objects in C, output them as JSON formatted strings and parse
+JSON formatted strings back into the C representation of JSON objects.
+It aims to conform to [RFC 7159](https://tools.ietf.org/html/rfc7159).
+
+Skip down to [Using json-c](#using)
+or check out the [API docs](https://json-c.github.io/json-c/),
+if you already have json-c installed and ready to use.
+
+Home page for json-c: https://github.com/json-c/json-c/wiki
+
 Build Status
 * [AppVeyor Build](https://ci.appveyor.com/project/hawicz/json-c) ![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/json-c/json-c?branch=master&svg=true)
 * [Travis Build](https://travis-ci.org/json-c/json-c) ![Travis Build Status](https://travis-ci.org/json-c/json-c.svg?branch=master)
@@ -23,21 +34,17 @@ Build Status
 Test Status
 * [Coveralls](https://coveralls.io/github/json-c/json-c?branch=master) [![Coverage Status](https://coveralls.io/repos/github/json-c/json-c/badge.svg?branch=master)](https://coveralls.io/github/json-c/json-c?branch=master)
 
-JSON-C implements a reference counting object model that allows you to easily
-construct JSON objects in C, output them as JSON formatted strings and parse
-JSON formatted strings back into the C representation of JSON objects.
-It aims to conform to [RFC 7159](https://tools.ietf.org/html/rfc7159).
-
 Building on Unix with `git`, `gcc` and `cmake` <a name="buildunix"></a>
 --------------------------------------------------
 
-Home page for json-c: https://github.com/json-c/json-c/wiki
+If you already have json-c installed, see [Linking to `libjson-c`](#linking)
+for how to build and link your program against it.
 
 ### Prerequisites: <a name="installprereq"></a>
 
  - `gcc`, `clang`, or another C compiler
 
- - cmake>=2.8, >=3.16 recommended
+ - `cmake>=2.8`, `>=3.16` recommended, `cmake=>3.1` for tests
 
 To generate docs you'll also need:
  - `doxygen>=1.8.13`
@@ -80,7 +87,7 @@ $ make install
 
 ### Generating documentation with Doxygen:
 
-The libray documentation can be generated directly from the source codes using Doxygen tool:
+The library documentation can be generated directly from the source code using Doxygen tool:
 
 ```sh
 # in build directory
@@ -186,7 +193,7 @@ If a test fails, check `Testing/Temporary/LastTest.log`,
 `tests/testSubDir/${testname}/${testname}.vg.out`, and other similar files.
 If there is insufficient output try:
 ```sh
-VERBOSE=1 make test
+VERBOSE=1 CTEST_OUTPUT_ON_FAILURE=1 make test
 ```
 or
 ```sh
@@ -220,19 +227,36 @@ CFLAGS += $(shell pkg-config --cflags json-c)
 LDFLAGS += $(shell pkg-config --libs json-c)
 ```
 
-Without `pkgconfig`, you would do something like this:
+Without `pkgconfig`, you might do something like this:
 
 ```make
 JSON_C_DIR=/path/to/json_c/install
 CFLAGS += -I$(JSON_C_DIR)/include/json-c
+# Or to use lines like: #include <json-c/json_object.h>
+#CFLAGS += -I$(JSON_C_DIR)/include
 LDFLAGS+= -L$(JSON_C_DIR)/lib -ljson-c
 ```
 
+If your project uses cmake:
+
+* Add to your CMakeLists.txt file:
+
+```cmake
+find_package(json-c CONFIG)
+target_link_libraries(${PROJECT_NAME} PRIVATE json-c::json-c)
+```
+
+* Then you might run in your project:
+
+```sh
+cd build
+cmake -DCMAKE_PREFIX_PATH=/path/to/json_c/install/lib64/cmake ..
+```
 
 Using json-c <a name="using">
 ------------
 
-To use json-c you can either include json.h, or preferrably, one of the
+To use json-c you can either include json.h, or preferably, one of the
 following more specific header files:
 
 * json_object.h  - Core types and methods.
@@ -241,9 +265,9 @@ following more specific header files:
                    objects from a json-c object tree.
 * json_object_iterator.h - Methods for iterating over single json_object instances.  (See also `json_object_object_foreach()` in json_object.h)
 * json_visit.h   - Methods for walking a tree of json-c objects.
-* json_util.h    - Miscelleanous utility functions.
+* json_util.h    - Miscellaneous utility functions.
 
-For a full list of headers see [files.html](http://json-c.github.io/json-c/json-c-current-release/doc/html/files.html)
+For a full list of headers see [files.html](https://json-c.github.io/json-c/json-c-current-release/doc/html/files.html)
 
 The primary type in json-c is json_object.  It describes a reference counted
 tree of json objects which are created by either parsing text with a
@@ -251,7 +275,7 @@ json_tokener (i.e. `json_tokener_parse_ex()`), or by creating
 (with `json_object_new_object()`, `json_object_new_int()`, etc...) and adding
 (with `json_object_object_add()`, `json_object_array_add()`, etc...) them 
 individually.
-Typically, every object in the tree will have one reference, from it's parent.
+Typically, every object in the tree will have one reference, from its parent.
 When you are done with the tree of objects, you call json_object_put() on just
 the root object to free it, which recurses down through any child objects
 calling json_object_put() on each one of those in turn.
@@ -266,7 +290,7 @@ the parent being freed or it being removed from its parent
 
 When parsing text, the json_tokener object is independent from the json_object
 that it returns.  It can be allocated (`json_tokener_new()`)
-used ones or multiple times (`json_tokener_parse_ex()`, and
+used one or multiple times (`json_tokener_parse_ex()`, and
 freed (`json_tokener_free()`) while the json_object objects live on.
 
 A json_object tree can be serialized back into a string with 
