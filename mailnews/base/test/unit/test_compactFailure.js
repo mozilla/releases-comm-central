@@ -31,18 +31,7 @@ var gTargetFolder;
 var gCid;
 
 // Allow certain xpcom errors.
-logHelperAllowedErrors.push("NS_ERROR_FILE_IS_LOCKED");
 logHelperAllowedErrors.push("NS_ERROR_FILE_NOT_FOUND");
-
-function LockedFileOutputStream() {}
-
-LockedFileOutputStream.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIFileOutputStream"]),
-
-  init(file, ioFlags, perm, behaviorFlags) {
-    throw Components.Exception("", Cr.NS_ERROR_FILE_IS_LOCKED);
-  },
-};
 
 var MsgDBServiceFailure = {
   QueryInterface: ChromeUtils.generateQI(["nsIMsgDBService"]),
@@ -131,27 +120,6 @@ async function delete_all_messages() {
 add_task(function setup_test() {
   localAccountUtils.loadLocalMailAccount();
   create_local_folders();
-});
-
-add_task(async function test_compact_without_crash() {
-  // Setup target folder.
-  gTargetFolder = localAccountUtils.rootFolder.createLocalSubfolder("Target");
-  addMessagesToFolder(generate_messages(), gTargetFolder);
-
-  await new Promise(resolve => {
-    mailTestUtils.updateFolderAndNotify(gTargetFolder, resolve);
-  });
-  // Delete messages.
-  await delete_all_messages();
-  // Setup output stream stub.
-  gCid = MockRegistrar.register(
-    "@mozilla.org/network/file-output-stream;1",
-    LockedFileOutputStream
-  );
-  // Test compact without crash.
-  await compact_with_exception(Cr.NS_ERROR_FILE_IS_LOCKED);
-  // Teardown output stream stub.
-  MockRegistrar.unregister(gCid);
 });
 
 add_task(async function test_compact_without_failure() {
