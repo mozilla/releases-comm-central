@@ -83,7 +83,7 @@ if CONFIG["MZLA_SYSTEM_JSONC"]:
     CXXFLAGS += CONFIG["MZLA_JSONC_CFLAGS"]
 else:
     IQuote("{}/../json-c".format(OBJDIR))
-    LOCAL_INCLUDES += ["../json-c"]
+    LOCAL_INCLUDES += ["!../json-c", "../json-c"]
 
 if CONFIG["MZLA_SYSTEM_BZIP2"]:
     CXXFLAGS += CONFIG["MZLA_BZIP2_CFLAGS"]
