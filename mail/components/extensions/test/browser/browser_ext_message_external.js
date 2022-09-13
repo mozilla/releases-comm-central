@@ -31,7 +31,7 @@ add_task(async function testExternalMessage() {
           author: "Batman <bruce@wayne-enterprises.com>",
           ccList: ["Robin <damian@wayne-enterprises.com>"],
           subject: "Attached message with attachments",
-          attachments: 4,
+          attachments: 2,
           size: 9754,
           external: true,
           read: null,

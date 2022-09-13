@@ -2093,12 +2093,17 @@
      *      An error function that is called if an emitter callback throws an error.
      *      By default, such errors are swallowed by the parser. If you want the
      *      parser itself to throw an error, rethrow it via the onerror function.
+     *    decodeSubMessages: <boolean> [default=true]
+     *      Parse attached messages (message/rfc822, message/global & message/news)
+     *      and return all of their mime data instead of returning their content
+     *      as regular attachments.
      */
     function MimeParser(emitter, options) {
       // The actual emitter
       this._emitter = emitter;
       // Options for the parser (those listed here are defaults)
       this._options = {
+        decodeSubMessages: true,
         pruneat: "",
         bodyformat: "nodecode",
         strformat: "binarystring",
@@ -2641,9 +2646,10 @@
           return [preLF, rest + buffer.substring(splitPoint)];
         };
       } else if (
-        contentType.type == "message/rfc822" ||
-        contentType.type == "message/global" ||
-        contentType.type == "message/news"
+        (this._options.decodeSubMessages || this._willIgnorePart(partNum)) &&
+        (contentType.type == "message/rfc822" ||
+          contentType.type == "message/global" ||
+          contentType.type == "message/news")
       ) {
         // The subpart is just another header/body pair that goes to EOF, so just
         // return the parse from that blob
