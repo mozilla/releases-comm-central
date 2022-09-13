@@ -12,6 +12,7 @@ var { AppConstants } = ChromeUtils.import(
 );
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
+var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -2952,6 +2953,7 @@ var detailsPane = {
     list = section.querySelector("ul");
     list.replaceChildren();
 
+    this._screenNamesToIMPPs();
     for (let entry of vCardProperties.getAllEntries("impp")) {
       let li = list.appendChild(createEntryItem());
       let url;
@@ -3154,6 +3156,68 @@ var detailsPane = {
     this.editCurrentContact(vCard);
   },
 
+  /** Takes old nsIAbCard chat names and put them on the card as IMPP URIs. */
+  _screenNamesToIMPPs() {
+    let card = this.currentCard;
+    let existingIMPPValues = card.vCardProperties.getAllValues("impp");
+    for (let key of [
+      "_GoogleTalk",
+      "_AimScreenName",
+      "_Yahoo",
+      "_Skype",
+      "_QQ",
+      "_MSN",
+      "_ICQ",
+      "_JabberId",
+      "_IRC",
+    ]) {
+      let value = card.getProperty(key, "");
+      if (!value) {
+        continue;
+      }
+      switch (key) {
+        case "_GoogleTalk":
+          value = `gtalk:chat?jid=${value}`;
+          break;
+        case "_AimScreenName":
+          value = `aim:goim?screenname=${value}`;
+          break;
+        case "_Yahoo":
+          value = `ymsgr:sendIM?${value}`;
+          break;
+        case "_Skype":
+          value = `skype:${value}`;
+          break;
+        case "_QQ":
+          value = `mqq://${value}`;
+          break;
+        case "_MSN":
+          value = `msnim:chat?contact=${value}`;
+          break;
+        case "_ICQ":
+          value = `icq:message?uin=${value}`;
+          break;
+        case "_JabberId":
+          value = `xmpp:${value}`;
+          break;
+        case "_IRC":
+          // Guess host, in case we have an irc account configured.
+          let host =
+            IMServices.accounts
+              .getAccounts()
+              .find(a => a.protocol.normalizedName == "irc")
+              ?.name.split("@", 2)[1] || "irc.example.org";
+          value = `ircs://${host}/${value},isuser`;
+          break;
+      }
+      if (!existingIMPPValues.includes(value)) {
+        card.vCardProperties.addEntry(
+          new VCardPropertyEntry(`impp`, {}, "uri", value)
+        );
+      }
+    }
+  },
+
   /**
    * Show controls for editing the currently displayed card.
    *
@@ -3177,6 +3241,9 @@ var detailsPane = {
           );
         }
       }
+
+      this._screenNamesToIMPPs();
+
       this.vCardEdit.vCardProperties = card.vCardProperties;
       // getProperty may return a "1" or "0" string, we want a boolean.
       this.vCardEdit.preferDisplayName.checked =
@@ -3300,6 +3367,21 @@ var detailsPane = {
     card.deleteProperty("Custom2");
     card.deleteProperty("Custom3");
     card.deleteProperty("Custom4");
+
+    // Old screen names should by now be on the vCard. Delete them.
+    for (let key of [
+      "_GoogleTalk",
+      "_AimScreenName",
+      "_Yahoo",
+      "_Skype",
+      "_QQ",
+      "_MSN",
+      "_ICQ",
+      "_JabberId",
+      "_IRC",
+    ]) {
+      card.deleteProperty(key);
+    }
 
     // No photo or a new photo. Delete the old one.
     if (this._photoChanged) {
