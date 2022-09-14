@@ -87,8 +87,13 @@ class ImapIncomingServer extends MsgIncomingServer {
   }
 
   closeCachedConnections() {
+    // Close all connections.
     for (let client of [...this._freeConnections, ...this._busyConnections]) {
       client.logout();
+    }
+    // Cancel all waitings in queue.
+    for (let resolve of this._connectionWaitingQueue) {
+      resolve(false);
     }
     this._freeConnections = [];
     this._busyConnections = [];
@@ -437,9 +442,14 @@ class ImapIncomingServer extends MsgIncomingServer {
       this._busyConnections.push(client);
       return client;
     }
-    // Wait until a connection is available.
-    await new Promise(resolve => this._connectionWaitingQueue.push(resolve));
-    return this._getNextClient();
+    // Wait until a connection is available. canGetNext is false when
+    // closeCachedConnections is called.
+    let canGetNext = await new Promise(resolve =>
+      this._connectionWaitingQueue.push(resolve)
+    );
+    if (canGetNext) {
+      return this._getNextClient();
+    }
   }
 
   /**
@@ -449,13 +459,16 @@ class ImapIncomingServer extends MsgIncomingServer {
    */
   async withClient(handler) {
     let client = await this._getNextClient();
+    if (!client) {
+      return;
+    }
     client.onDone = async () => {
       this._busyConnections = this._busyConnections.filter(c => c != client);
       this._freeConnections.push(client);
       let resolve = this._connectionWaitingQueue.shift();
       if (resolve) {
         // Resovle the first waiting in queue.
-        resolve();
+        resolve(true);
       } else if (
         !this._busyConnections.length &&
         this.useIdle &&
