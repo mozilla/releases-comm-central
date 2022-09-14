@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardPropertyEntryView, vCardIdGen */
+/* globals VCardEdit, VCardPropertyEntryView, vCardIdGen */
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -109,26 +109,19 @@ class VCardSpecialDateComponent extends HTMLElement {
       this.fillDayOptions();
     });
 
-    let button = this.querySelector(`button[type="button"]`);
-
-    document.l10n
-      .formatValues([
-        { id: "vcard-date-year" },
-        // FIXME: Temporarily use the existing "Delete" string for the remove
-        // button. We should add a "Remove" fluent string for this after 102.
-        { id: "about-addressbook-delete-edit-contact-button" },
-      ])
-      .then(([yearLabel, deleteLabel]) => {
-        this.year.placeholder = yearLabel;
-        button.title = deleteLabel;
-      });
-
-    button.addEventListener("click", () => {
-      this.dispatchEvent(
-        VCardSpecialDateComponent.RemoveVCardDateEntryEvent(this)
-      );
-      this.remove();
+    document.l10n.formatValues([{ id: "vcard-date-year" }]).then(yearLabel => {
+      this.year.placeholder = yearLabel;
     });
+
+    this.querySelector(".remove-property-button").addEventListener(
+      "click",
+      () => {
+        this.dispatchEvent(
+          new CustomEvent("vcard-remove-property", { bubbles: true })
+        );
+        this.remove();
+      }
+    );
 
     this.fillMonthOptions();
     this.fromVCardPropertyEntryToUI();
@@ -180,22 +173,6 @@ class VCardSpecialDateComponent extends HTMLElement {
     return new CustomEvent("vcard-bday-anniversary-change", {
       detail: {
         name,
-      },
-      bubbles: true,
-    });
-  }
-
-  /**
-   * This event is fired when the checkbox is checked and we need to uncheck the
-   * other checkboxes from each VCardEmailComponent.
-   * FIXME: This should be a radio button part of radiogroup.
-   *
-   * @returns {CustomEvent}
-   */
-  static RemoveVCardDateEntryEvent(element) {
-    return new CustomEvent("vcard-special-date-remove", {
-      detail: {
-        element,
       },
       bubbles: true,
     });

@@ -603,6 +603,9 @@ async function setVCardInputValues(changes) {
         case "role":
           valueField = field.roleEl;
           break;
+        case "custom":
+          valueField = field.querySelector("vcard-custom:last-of-type input");
+          break;
       }
 
       if (valueField) {
@@ -3305,4 +3308,123 @@ add_task(async function testGoogleEscaping() {
 
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(googleBook.URI);
+});
+
+add_task(async function test_delete_button() {
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+
+  let book = createAddressBook("Test Book VCard Fields");
+  let contact1 = createContact("contact1", "lastname");
+  book.addCard(contact1);
+
+  openDirectory(book);
+
+  await editContactAtIndex(0, {});
+  let detailsPane = abDocument.getElementById("detailsPane");
+
+  let deleteButtons = detailsPane.querySelectorAll(".remove-property-button");
+  Assert.equal(
+    deleteButtons.length,
+    2,
+    "Email and Organization Properties delete button is present."
+  );
+
+  Assert.ok(
+    BrowserTestUtils.is_visible(
+      abDocument
+        .getElementById("addr-book-edit-email")
+        .querySelector(".remove-property-button")
+    ),
+    "Email is present and delete button is visible."
+  );
+
+  Assert.ok(
+    BrowserTestUtils.is_hidden(
+      abDocument
+        .getElementById("addr-book-edit-org")
+        .querySelector(".remove-property-button")
+    ),
+    "Organization Properties are not filled and the delete button is not visible."
+  );
+
+  // Set a value for each field.
+  await setVCardInputValues({
+    impp: [{ value: "invalid:example.com" }],
+    url: [{ value: "https://www.thunderbird.net" }],
+    tel: [{ value: "650-903-0800" }],
+    note: [{ value: "Another note\nfor contact 2" }],
+    specialDate: [{ value: [1966, 12, 15], key: "bday" }],
+    adr: [{ value: ["123 Work Street", "", "", "", ""], type: "work" }],
+    tz: [{ value: "Africa/Accra" }],
+    role: [{ value: "Role contact 2" }],
+    title: [{ value: "Title contact 2" }],
+    org: [{ value: "Organization contact 2" }],
+    custom: [{ value: "foo" }],
+  });
+
+  let vCardEdit = detailsPane.querySelector("vcard-edit");
+
+  // Click the delete buttons and check that the properties are removed.
+
+  for (let [propertyName, fieldsetId, propertySelector, addButton] of [
+    ["adr", "addr-book-edit-address", "vcard-adr"],
+    ["impp", "addr-book-edit-impp", "vcard-impp"],
+    ["tel", "addr-book-edit-tel", "vcard-tel"],
+    ["url", "addr-book-edit-url", "vcard-url"],
+    ["email", "addr-book-edit-email", "#vcard-email tr"],
+    ["bday", "addr-book-edit-bday-anniversary", "vcard-special-date"],
+    ["tz", "addr-book-edit-tz", "vcard-tz", "vcard-add-tz"],
+    ["note", "addr-book-edit-note", "vcard-note", "vcard-add-note"],
+    ["org", "addr-book-edit-org", "vcard-org", "vcard-add-org"],
+    ["x-custom1", "addr-book-edit-custom", "vcard-custom", "vcard-add-custom"],
+  ]) {
+    Assert.ok(
+      vCardEdit.vCardProperties.getFirstEntry(propertyName),
+      `${propertyName} is present.`
+    );
+    let removeButton = abDocument
+      .getElementById(fieldsetId)
+      .querySelector(".remove-property-button");
+
+    removeButton.scrollIntoView({ block: "nearest" });
+    let removeEvent = BrowserTestUtils.waitForEvent(
+      vCardEdit,
+      "vcard-remove-property"
+    );
+    EventUtils.synthesizeMouseAtCenter(removeButton, {}, abWindow);
+    await removeEvent;
+
+    await Assert.ok(
+      !vCardEdit.vCardProperties.getFirstEntry(propertyName),
+      `${propertyName} is removed.`
+    );
+    Assert.equal(
+      vCardEdit.querySelectorAll(propertySelector).length,
+      0,
+      `All elements representing ${propertyName} are removed.`
+    );
+
+    // For single entries the add button have to be visible again.
+    // Time Zone, Notes, Organizational Properties, Custom Properties
+    if (addButton) {
+      Assert.ok(
+        BrowserTestUtils.is_visible(abDocument.getElementById(addButton)),
+        `Add button for ${propertyName} is visible after delete.`
+      );
+      Assert.equal(
+        abDocument.activeElement.id,
+        addButton,
+        `The focus for ${propertyName} was moved to the add button.`
+      );
+    }
+  }
+
+  let saveEditButton = abDocument.getElementById("saveEditButton");
+  let editButton = abDocument.getElementById("editButton");
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode(editButton);
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(book.URI);
 });

@@ -35,6 +35,37 @@ class VCardEdit extends HTMLElement {
   connectedCallback() {
     if (this.isConnected) {
       this.updateView();
+
+      this.addEventListener("vcard-remove-property", e => {
+        if (e.target.vCardPropertyEntries) {
+          for (let entry of e.target.vCardPropertyEntries) {
+            this.vCardProperties.removeEntry(entry);
+          }
+        } else {
+          this.vCardProperties.removeEntry(e.target.vCardPropertyEntry);
+        }
+
+        // Move the focus to the first available valid element of the fieldset.
+        let sibling =
+          e.target.nextElementSibling || e.target.previousElementSibling;
+        // If we got a button, focus it since it's the "add row" button.
+        if (sibling?.type == "button") {
+          sibling.focus();
+          return;
+        }
+
+        // Otherwise we have a row field, so try to find a focusable element.
+        if (sibling && this.moveFocusIntoElement(sibling)) {
+          return;
+        }
+
+        // If we reach this point, the markup was unpredictable and we should
+        // move the focus to a valid element to avoid focus lost.
+        e.target
+          .closest("fieldset")
+          .querySelector(".add-property-button")
+          .focus();
+      });
     }
   }
 
@@ -484,6 +515,9 @@ class VCardEdit extends HTMLElement {
           title,
           fieldset.querySelector("vcard-role, vcard-org, #vcard-add-org")
         );
+        this.querySelector(
+          "#addr-book-edit-org .remove-property-button"
+        ).hidden = false;
         // Only one title is allowed via UI.
         addButton.hidden = true;
         return title;
@@ -496,6 +530,9 @@ class VCardEdit extends HTMLElement {
           role,
           fieldset.querySelector("vcard-org, #vcard-add-org")
         );
+        this.querySelector(
+          "#addr-book-edit-org .remove-property-button"
+        ).hidden = false;
         // Only one role is allowed via UI.
         addButton.hidden = true;
         return role;
@@ -505,6 +542,9 @@ class VCardEdit extends HTMLElement {
         fieldset = this.querySelector("#addr-book-edit-org");
         addButton = document.getElementById("vcard-add-org");
         fieldset.insertBefore(org, addButton);
+        this.querySelector(
+          "#addr-book-edit-org .remove-property-button"
+        ).hidden = false;
         // Only one org is allowed via UI.
         addButton.hidden = true;
         return org;
@@ -601,7 +641,7 @@ class VCardEdit extends HTMLElement {
 
     for (let i = 1; i <= 4; i++) {
       let entry = this._vCardProperties.getFirstEntry(`x-custom${i}`);
-      if (!entry.value) {
+      if (entry && !entry.value) {
         this._vCardProperties.removeEntry(entry);
       }
     }
@@ -618,6 +658,7 @@ class VCardEdit extends HTMLElement {
    * Move focus to the first visible form element below the given element.
    *
    * @param {Element} element - The element to move focus into.
+   * @return {boolean} - If the focus was moved into the element.
    */
   moveFocusIntoElement(element) {
     for (let child of element.querySelectorAll(
@@ -626,9 +667,10 @@ class VCardEdit extends HTMLElement {
       // Make sure it is visible.
       if (child.clientWidth != 0 && child.clientHeight != 0) {
         child.focus();
-        return;
+        return true;
       }
     }
+    return false;
   }
 
   /**
@@ -680,15 +722,6 @@ class VCardEdit extends HTMLElement {
         event.target.vCardPropertyEntry = newVCardPropertyEntry;
         this.vCardProperties.addEntry(newVCardPropertyEntry);
         this.checkForBdayOccurrences();
-      }
-    );
-
-    specialDatesFieldset.addEventListener(
-      "vcard-special-date-remove",
-      event => {
-        this.vCardProperties.removeEntry(
-          event.detail.element.vCardPropertyEntry
-        );
       }
     );
 
@@ -746,6 +779,17 @@ class VCardEdit extends HTMLElement {
     let addCustom = document.getElementById("vcard-add-custom");
     addCustom.addEventListener("click", event => {
       let el = new VCardCustomComponent();
+
+      // When the custom properties are deleted and added again ensure that
+      // the properties are set.
+      for (let i = 1; i <= 4; i++) {
+        if (!this._vCardProperties.getFirstEntry(`x-custom${i}`)) {
+          this._vCardProperties.addEntry(
+            new VCardPropertyEntry(`x-custom${i}`, {}, "text", "")
+          );
+        }
+      }
+
       el.vCardPropertyEntries = [
         this._vCardProperties.getFirstEntry("x-custom1"),
         this._vCardProperties.getFirstEntry("x-custom2"),
@@ -756,6 +800,25 @@ class VCardEdit extends HTMLElement {
 
       this.moveFocusIntoElement(el);
       addCustom.hidden = true;
+    });
+
+    // Delete button for Organization Properties. This property has multiple
+    // fields, so we should dispatch the remove event only once after everything
+    // has been removed.
+    this.querySelector(
+      "#addr-book-edit-org .remove-property-button"
+    ).addEventListener("click", event => {
+      this.querySelector("vcard-title").remove();
+      this.querySelector("vcard-role").remove();
+      let org = this.querySelector("vcard-org");
+      // Reveal the "Add" button so we can focus it.
+      document.getElementById("vcard-add-org").hidden = false;
+      // Dispatch the event before removing the element so we can handle focus.
+      org.dispatchEvent(
+        new CustomEvent("vcard-remove-property", { bubbles: true })
+      );
+      org.remove();
+      event.target.hidden = true;
     });
   }
 
@@ -796,17 +859,20 @@ class VCardEdit extends HTMLElement {
    * Hide the default checkbox if we only have one email field.
    */
   toggleDefaultEmailView() {
-    let showDefault =
+    let hideDefault =
       document.getElementById("vcard-email").children.length <= 1;
-    this.querySelector(".default-column").hidden = showDefault;
+    let defaultColumn = this.querySelector(".default-column");
+    if (defaultColumn) {
+      defaultColumn.hidden = hideDefault;
+    }
     document.getElementById(
       "addr-book-edit-email-default"
-    ).hidden = showDefault;
+    ).hidden = hideDefault;
 
     // Add class to position legend absolute.
     document
       .getElementById("addr-book-edit-email")
-      .classList.toggle("default-table-header", !showDefault);
+      .classList.toggle("default-table-header", !hideDefault);
   }
 
   /**

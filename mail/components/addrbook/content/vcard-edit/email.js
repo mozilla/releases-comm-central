@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardPropertyEntryView */
+/* globals VCardEdit, VCardPropertyEntryView */
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -61,6 +61,17 @@ class VCardEmailComponent extends HTMLTableRowElement {
     this.vCardType.createTypeSelection(this.vCardPropertyEntry, {
       labelledBy: "addr-book-edit-email-type",
     });
+
+    this.querySelector(".remove-property-button").addEventListener(
+      "click",
+      () => {
+        this.dispatchEvent(
+          new CustomEvent("vcard-remove-property", { bubbles: true })
+        );
+        this.remove();
+        document.querySelector("vcard-edit").toggleDefaultEmailView();
+      }
+    );
 
     this.fromVCardPropertyEntryToUI();
   }

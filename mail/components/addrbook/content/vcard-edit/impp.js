@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardPropertyEntryView, vCardIdGen */
+/* globals VCardEdit, VCardPropertyEntryView, vCardIdGen */
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -65,6 +65,16 @@ class VCardIMPPComponent extends HTMLElement {
     this.imppEl.addEventListener("change", event => {
       this.protocolEl.dispatchEvent(new CustomEvent("change"));
     });
+
+    this.querySelector(".remove-property-button").addEventListener(
+      "click",
+      () => {
+        this.dispatchEvent(
+          new CustomEvent("vcard-remove-property", { bubbles: true })
+        );
+        this.remove();
+      }
+    );
 
     this.fromVCardPropertyEntryToUI();
     this.imppEl.dispatchEvent(new CustomEvent("change"));

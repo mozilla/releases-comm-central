@@ -673,6 +673,7 @@
   skin/classic/messenger/icons/new/event-start.svg            (../shared/mail/icons/new/event-start.svg)
   skin/classic/messenger/icons/new/event-end.svg              (../shared/mail/icons/new/event-end.svg)
   skin/classic/messenger/icons/new/event-continue.svg         (../shared/mail/icons/new/event-continue.svg)
+  skin/classic/messenger/icons/new/subtract-circle-sm.svg     (../shared/mail/icons/new/subtract-circle-sm.svg)
 
   skin/classic/messenger/icons/new/compact/forward-col.svg    (../shared/mail/icons/new/compact/forward-col.svg)
   skin/classic/messenger/icons/new/compact/reply-col.svg      (../shared/mail/icons/new/compact/reply-col.svg)

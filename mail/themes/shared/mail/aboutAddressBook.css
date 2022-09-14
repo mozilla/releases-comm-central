@@ -955,12 +955,11 @@ section#selectedCards ul {
 }
 
 #detailsDeleteButton {
-  color: var(--red-60);
-  outline-color: var(--red-60);
+  color: var(--vcard-delete-button-color);
 }
 
 #detailsDeleteButton:hover {
-  background-color: var(--red-60);
+  background-color: var(--vcard-delete-button-color);
   color: var(--color-white);
 }
 
