@@ -618,9 +618,9 @@ nsWindowsShellService::SetDesktopBackground(dom::Element* aElement,
     return NS_ERROR_FAILURE;
 
   // get the file name from localized strings
-  nsCOMPtr<nsIStringBundleService> bundleService =
-    mozilla::services::GetStringBundleService();
-  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
+  nsCOMPtr<nsIStringBundleService> bundleService(
+    do_GetService(NS_STRINGBUNDLE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIStringBundle> shellBundle;
   rv = bundleService->CreateBundle(SHELLSERVICE_PROPERTIES,
