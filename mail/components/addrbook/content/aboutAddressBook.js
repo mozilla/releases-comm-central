@@ -958,12 +958,10 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
   }
 
   _showContextMenu(event) {
-    let row;
-    if (event.target == this) {
-      row = this.rows[this.selectedIndex];
-    } else {
-      row = event.target.closest("li");
-    }
+    let row =
+      event.target == this
+        ? this.rows[this.selectedIndex]
+        : event.target.closest("li");
     if (!row) {
       return;
     }
@@ -996,6 +994,13 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       for (let item of popup.children) {
         item.hidden = false;
       }
+
+      document.l10n.setAttributes(
+        document.getElementById("bookContextProperties"),
+        row.classList.contains("listRow")
+          ? "about-addressbook-books-context-edit-list"
+          : "about-addressbook-books-context-properties"
+      );
 
       synchronizeItem.hidden = !row.classList.contains("carddav");
       exportItem.hidden = row.classList.contains("remote");

@@ -25,6 +25,8 @@ all-address-books = All Address Books
 
 about-addressbook-books-context-properties =
   .label = Properties
+about-addressbook-books-context-edit-list =
+  .label = Edit list
 about-addressbook-books-context-synchronize =
   .label = Synchronize
 about-addressbook-books-context-edit =
