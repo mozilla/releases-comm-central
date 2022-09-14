@@ -35,14 +35,13 @@ class BaseMessageService {
     outUrl
   ) {
     this._logger.debug("CopyMessage", messageUri, moveMessage);
-    let { host, folderName, key } = this._decomposeMessageUri(messageUri);
+    let { host, folder, folderName, key } = this._decomposeMessageUri(
+      messageUri
+    );
     let imapUrl = Services.io
       .newURI(`imap://${host}/fetch>UID>/${folderName}>${key}`)
       .QueryInterface(Ci.nsIImapUrl);
 
-    let folder = lazy.MailUtils.getOrCreateFolder(
-      `imap://${host}/${folderName}`
-    );
     if (urlListener) {
       imapUrl
         .QueryInterface(Ci.nsIMsgMailNewsUrl)
@@ -73,14 +72,13 @@ class BaseMessageService {
     outURL
   ) {
     this._logger.debug("DisplayMessage", messageUri);
-    let { host, folderName, key } = this._decomposeMessageUri(messageUri);
+    let { host, folder, folderName, key } = this._decomposeMessageUri(
+      messageUri
+    );
     let imapUrl = Services.io
       .newURI(`imap://${host}/fetch>UID>/${folderName}>${key}`)
       .QueryInterface(Ci.nsIImapUrl);
 
-    let folder = lazy.MailUtils.getOrCreateFolder(
-      `imap://${host}/${folderName}`
-    );
     let mailnewsUrl = imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
     if (urlListener) {
       mailnewsUrl.RegisterListener(urlListener);
@@ -109,14 +107,13 @@ class BaseMessageService {
     msgWindow
   ) {
     this._logger.debug("SaveMessageToDisk", messageUri);
-    let { host, folderName, key } = this._decomposeMessageUri(messageUri);
+    let { host, folder, folderName, key } = this._decomposeMessageUri(
+      messageUri
+    );
     let imapUrl = Services.io
       .newURI(`imap://${host}/fetch>UID>/${folderName}>${key}`)
       .QueryInterface(Ci.nsIImapUrl);
 
-    let folder = lazy.MailUtils.getOrCreateFolder(
-      `imap://${host}/${folderName}`
-    );
     let msgUrl = imapUrl.QueryInterface(Ci.nsIMsgMessageUrl);
     msgUrl.messageFile = file;
     msgUrl.AddDummyEnvelope = addDummyEnvelope;
@@ -143,9 +140,15 @@ class BaseMessageService {
       return Services.io.newURI(messageUri);
     }
 
-    let { host, folderName, key } = this._decomposeMessageUri(messageUri);
+    let { host, folder, folderName, key } = this._decomposeMessageUri(
+      messageUri
+    );
+    let delimiter =
+      folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
     let imapUrl = Services.io
-      .newURI(`imap://${host}/fetch>UID>/${folderName}>${key}`)
+      .newURI(
+        `imap://${host}:${folder.server.port}/fetch>UID>${delimiter}${folderName}>${key}`
+      )
       .QueryInterface(Ci.nsIImapUrl);
 
     return imapUrl;
@@ -161,17 +164,15 @@ class BaseMessageService {
     localOnly
   ) {
     this._logger.debug("streamMessage", messageUri);
-    let { host, folderName, key } = this._decomposeMessageUri(messageUri);
+    let { host, folder, folderName, key } = this._decomposeMessageUri(
+      messageUri
+    );
     let url = `imap://${host}/fetch>UID>/${folderName}>${key}`;
     if (additionalHeader) {
       url += `?header=${additionalHeader}`;
     }
     let imapUrl = Services.io.newURI(url).QueryInterface(Ci.nsIImapUrl);
     imapUrl.localFetchOnly = localOnly;
-
-    let folder = lazy.MailUtils.getOrCreateFolder(
-      `imap://${host}/${folderName}`
-    );
 
     let mailnewsUrl = imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
     mailnewsUrl.folder = folder;
@@ -196,10 +197,7 @@ class BaseMessageService {
 
   streamHeaders(messageUri, consumer, urlListener, localOnly) {
     this._logger.debug("streamHeaders", messageUri);
-    let { host, folderName, key } = this._decomposeMessageUri(messageUri);
-    let folder = lazy.MailUtils.getOrCreateFolder(
-      `imap://${host}/${folderName}`
-    );
+    let { folder, key } = this._decomposeMessageUri(messageUri);
 
     let hasMsgOffline = folder.hasMsgOffline(key);
     if (!hasMsgOffline) {
@@ -236,23 +234,23 @@ class BaseMessageService {
   }
 
   messageURIToMsgHdr(messageUri) {
-    let { host, folderName, key } = this._decomposeMessageUri(messageUri);
-    let folder = lazy.MailUtils.getOrCreateFolder(
-      `imap://${host}/${folderName}`
-    );
+    let { folder, key } = this._decomposeMessageUri(messageUri);
     return folder.GetMessageHeader(key);
   }
 
   /**
    * Parse a message uri to hostname, folder and message key.
    * @param {string} uri - The imap-message:// url to parse.
-   * @returns {host: string, folderName: string, key: string}
+   * @returns {host: string, folder: nsIMsgFolder, folderName: string, key: string}
    */
   _decomposeMessageUri(messageUri) {
     let matches = /imap-message:\/\/([^:]+)\/(.+)#(\d+)/.exec(messageUri);
     let [, host, folderName, key] = matches;
+    let folder = lazy.MailUtils.getOrCreateFolder(
+      `imap://${host}/${folderName}`
+    );
 
-    return { host, folderName, key };
+    return { host, folder, folderName, key };
   }
 }
 
