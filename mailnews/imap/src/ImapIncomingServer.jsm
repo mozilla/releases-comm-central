@@ -450,6 +450,7 @@ class ImapIncomingServer extends MsgIncomingServer {
     if (canGetNext) {
       return this._getNextClient();
     }
+    return null;
   }
 
   /**
