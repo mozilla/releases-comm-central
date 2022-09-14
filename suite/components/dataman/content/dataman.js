@@ -56,7 +56,7 @@ var gDataman = {
     Services.obs.addObserver(this, "cookie-changed");
     Services.obs.addObserver(this, "perm-changed");
     Services.obs.addObserver(this, "passwordmgr-storage-changed");
-    // Services.contentPrefs.addObserver(null, this);
+    Services.contentPrefs2.addObserverForName(null, this);
     Services.obs.addObserver(this, "satchel-storage-changed");
     Services.obs.addObserver(this, "dom-storage-changed");
     Services.obs.addObserver(this, "dom-storage2-changed");
@@ -78,7 +78,7 @@ var gDataman = {
     Services.obs.removeObserver(this, "cookie-changed");
     Services.obs.removeObserver(this, "perm-changed");
     Services.obs.removeObserver(this, "passwordmgr-storage-changed");
-    // Services.contentPrefs.removeObserver(null, this);
+    Services.contentPrefs2.removeObserverForName(null, this);
     Services.obs.removeObserver(this, "satchel-storage-changed");
     Services.obs.removeObserver(this, "dom-storage-changed");
     Services.obs.removeObserver(this, "dom-storage2-changed");
@@ -257,11 +257,18 @@ var gDomains = {
     this.searchfield = document.getElementById("domainSearch");
 
     // global "domain"
-    this.domainObjects["*"] = {title: "*",
-                               displayTitle: "*",
-                               hasPermissions: true,
-//                               hasPreferences: Services.contentPrefs.getPrefs(null, null).enumerator.hasMoreElements(),
-                               hasFormData: true};
+    Services.contentPrefs2.hasPrefs(null, null, {
+      handleResult(resultPref) {
+        gDomains.domainObjects["*"] = {title: "*",
+                                       displayTitle: "*",
+                                       hasPermissions: true,
+                                       hasPreferences: resultPref.value,
+                                       hasFormData: true};
+      },
+      handleCompletion: () => {
+      },
+    });
+
     this.search("");
     if (!gDataman.viewToLoad.length)
       this.tree.view.selection.select(0);
@@ -301,23 +308,25 @@ var gDomains = {
       gDomains.search(gDomains.searchfield.value);
       yield setTimeout(nextStep, 0);
 
-      // Add domains for content prefs.
-      gDataman.debugMsg("Add content prefs to domain list: " + Date.now()/1000);
-      gDomains.ignoreUpdate = true;
-      try {
-        var statement = Services.contentPrefs.DBConnection.createStatement("SELECT groups.name AS host FROM groups");
-        while (statement.executeStep()) {
-          gDataman.debugMsg("Found pref: " + statement.row["host"]);
-          let prefHost = gDomains.getDomainFromHostWithCheck(statement.row["host"]);
-          gDomains.addDomainOrFlag(prefHost, "hasPreferences");
-        }
-      }
-      finally {
-        statement.reset();
-      }
-      gDomains.ignoreUpdate = false;
-      gDomains.search(gDomains.searchfield.value);
-      yield setTimeout(nextStep, 0);
+      let domains = [];
+      Services.contentPrefs2.getDomains(null, {
+        handleResult(resultPref) {
+          domains.push(resultPref.domain);
+        },
+        handleCompletion: () => {
+          // Add domains for content prefs.
+          gDataman.debugMsg("Add content prefs to domain list: " +
+                            Date.now()/1000);
+          gDomains.ignoreUpdate = true;
+          for (let domain of domains) {
+            gDataman.debugMsg("Found pref: " + domain);
+            let prefHost = gDomains.getDomainFromHostWithCheck(domain);
+            gDomains.addDomainOrFlag(prefHost, "hasPreferences");
+          }
+          gDomains.ignoreUpdate = false;
+          gDomains.search(gDomains.searchfield.value);
+        },
+      });
 
       // Add domains for passwords.
       gDataman.debugMsg("Add passwords to domain list: " + Date.now()/1000);
@@ -1720,42 +1729,37 @@ var gPrefs = {
 
     this.removeButton = document.getElementById("prefsRemove");
 
-    this.tree.treeBoxObject.beginUpdateBatch();
     // Get all groups (hosts) that match the domain.
     let domain = gDomains.selectedDomain.title;
 
     if (domain == "*") {
-      let enumerator = Services.contentPrefs.getPrefs(null, null).enumerator;
-      while (enumerator.hasMoreElements()) {
-        let pref = enumerator.getNext().QueryInterface(Ci.nsIProperty);
-        this.prefs.push({host: null, displayHost: "", name: pref.name,
-                         value: pref.value});
-      }
+      domain = null;
     }
 
-    try {
-      var statement = Services.contentPrefs.DBConnection.createStatement("SELECT groups.name AS host FROM groups");
-
-      while (statement.executeStep()) {
-        if (gDomains.hostMatchesSelected(gDomains.getDomainFromHostWithCheck(statement.row["host"]))) {
-          // Now, get all prefs for that host.
-          let enumerator =  Services.contentPrefs.getPrefs(statement.row["host"], null).enumerator;
-          while (enumerator.hasMoreElements()) {
-            let pref = enumerator.getNext().QueryInterface(Ci.nsIProperty);
-            this.prefs.push({host: statement.row["host"],
-                             displayHost: gLocSvc.idn.convertToDisplayIDN(statement.row["host"], {}),
-                             name: pref.name,
-                             value: pref.value});
+    let prefs = [];
+    Services.contentPrefs2.getBySubdomain(domain, null, {
+      handleResult(resultPref) {
+        prefs.push(resultPref);
+      },
+      handleCompletion: () => {
+        gPrefs.tree.treeBoxObject.beginUpdateBatch();
+        gPrefs.prefs = [];
+        for (let pref of prefs) {
+          if (!domain) {
+            gPrefs.prefs.push({host: null, displayHost: "", name: pref.name,
+                               value: pref.value});
+          }
+          else {
+            let display = gLocSvc.idn.convertToDisplayIDN(pref.domain, {});
+            gPrefs.prefs.push({host: pref.domain, displayHost: display,
+                               name: pref.name, value: pref.value});
           }
         }
-      }
-    }
-    finally {
-      statement.reset();
-    }
 
-    this.sort(null, false, false);
-    this.tree.treeBoxObject.endUpdateBatch();
+        gPrefs.sort(null, false, false);
+        gPrefs.tree.treeBoxObject.endUpdateBatch();
+      },
+    });
   },
 
   shutdown: function prefs_shutdown() {
@@ -1868,7 +1872,7 @@ var gPrefs = {
       let delPref = this.prefs[selections[i]];
       this.prefs.splice(selections[i], 1);
       this.tree.treeBoxObject.rowCountChanged(selections[i], -1);
-      Services.contentPrefs.removePref(delPref.host, delPref.name, null);
+      Services.contentPrefs2.removeByDomainAndName(delPref.host, delPref.name, null);
     }
     if (!this.prefs.length)
       gDomains.removeDomainOrFlag(gDomains.selectedDomain.title, "hasPreferences");
@@ -1911,34 +1915,18 @@ var gPrefs = {
     }
     else if (aData == "prefRemoved") {
       // See if there are any prefs left for that domain.
-      if (domain == "*") {
-        let enumerator = Services.contentPrefs.getPrefs(null, null).enumerator;
-        if (enumerator.hasMoreElements())
-          domainPrefs++;
-      }
-
-      try {
-        let sql = "SELECT groups.name AS host FROM groups";
-        var statement = Services.contentPrefs.DBConnection.createStatement(sql);
-
-        while (statement.executeStep()) {
-          if (gDomains.hostMatchesSelected(gDomains.getDomainFromHostWithCheck(statement.row["host"]))) {
-            // Now, get all prefs for that host.
-            let enumerator = Services.contentPrefs.getPrefs(statement.row["host"], null).enumerator;
-            if (enumerator.hasMoreElements())
-              domainPrefs++;
+      Services.contentPrefs2.hasPrefs(domain != "*" ? domain : null, null, {
+        handleResult(prefResult) {
+          if (!prefResult.value) {
+            gDomains.removeDomainOrFlag(domain, "hasPreferences");
           }
-        }
-      }
-      finally {
-        statement.reset();
-      }
-
-      if (!domainPrefs)
-        gDomains.removeDomainOrFlag(domain, "hasPreferences");
+        },
+        handleCompletion: () => {
+        },
+      });
     }
     if (aData == "prefSet")
-        aSubject.displayHost = gLocSvc.idn.convertToDisplayIDN(aSubject.host, {});
+      aSubject.displayHost = gLocSvc.idn.convertToDisplayIDN(aSubject.host, {});
 
     // Affects loaded domain and is an existing pref.
     if (idx >= 0) {
@@ -1972,40 +1960,21 @@ var gPrefs = {
   },
 
   forget: function prefs_forget() {
-    let delPrefs = [];
-    try {
-      // Get all groups (hosts) that match the domain.
-      let domain = gDomains.selectedDomain.title;
-      if (domain == "*") {
-        let enumerator =  Services.contentPrefs.getPrefs(null, null).enumerator;
-        while (enumerator.hasMoreElements()) {
-          let pref = enumerator.getNext().QueryInterface(Ci.nsIProperty);
-          delPrefs.push({host: null, name: pref.name, value: pref.value});
-        }
-      }
+    let callbacks = {
+      handleResult(resultDomain) {
+      },
+      handleCompletion: () => {
+        gDomains.removeDomainOrFlag(domain, "hasPreferences");
+      },
+    };
 
-      let sql = "SELECT groups.name AS host FROM groups";
-      var statement = Services.contentPrefs.DBConnection.createStatement(sql);
-
-      while (statement.executeStep()) {
-        if (gDomains.hostMatchesSelected(gDomains.getDomainFromHostWithCheck(statement.row["host"]))) {
-          // Now, get all prefs for that host.
-          let enumerator =  Services.contentPrefs.getPrefs(statement.row["host"], null).enumerator;
-          while (enumerator.hasMoreElements()) {
-            let pref = enumerator.getNext().QueryInterface(Ci.nsIProperty);
-            delPrefs.push({host: statement.row["host"], name: pref.name, value: pref.value});
-          }
-        }
-      }
+    let domain = gDomains.selectedDomain.title;
+    if (domain == "*") {
+      Services.contentPrefs2.removeAllGlobals(null, callbacks);
     }
-    finally {
-      statement.reset();
+    else {
+      Services.contentPrefs2.removeBySubdomain(domain, null, callbacks);
     }
-    // Loop backwards so later indexes in the list don't change.
-    for (let i = delPrefs.length - 1; i >= 0; i--) {
-      Services.contentPrefs.removePref(delPrefs[i].host, delPrefs[i].name, null);
-    }
-    gDomains.removeDomainOrFlag(gDomains.selectedDomain.title, "hasPreferences");
   },
 
   // nsITreeView

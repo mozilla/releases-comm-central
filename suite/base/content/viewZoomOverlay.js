@@ -12,9 +12,6 @@ const MOUSE_SCROLL_ZOOM = 3;
  * Controls the "full zoom" setting and its site-specific preferences.
  */
 var FullZoom = FullZoom || {
-  contentPrefs: Cc["@mozilla.org/content-pref/service;1"]
-                  .getService(Ci.nsIContentPrefService2),
-
   // Identifies the setting in the content prefs database.
   name: "browser.content.full-zoom",
 
@@ -51,10 +48,10 @@ var FullZoom = FullZoom || {
     window.addEventListener("wheel", this, true);
 
     // Fetch the initial global value.
-    this.contentPrefs.getGlobal(this.name, null, this);
+    Services.contentPrefs2.getGlobal(this.name, null, this);
 
     // Register ourselves with the service so we know when our pref changes.
-    this.contentPrefs.addObserverForName(this.name, this);
+    Services.contentPrefs2.addObserverForName(this.name, this);
 
     this._siteSpecificPref =
       Services.prefs.getBoolPref("browser.zoom.siteSpecific");
@@ -67,7 +64,7 @@ var FullZoom = FullZoom || {
 
   destroy: function FullZoom_destroy() {
     Services.prefs.removeObserver("browser.zoom.", this);
-    this.contentPrefs.removeObserverForName(this.name, this);
+    Services.contentPrefs2.removeObserverForName(this.name, this);
     window.removeEventListener("wheel", this, true);
   },
 
@@ -140,7 +137,7 @@ var FullZoom = FullZoom || {
   // nsIContentPrefObserver
 
   onContentPrefSet: function FullZoom_onContentPrefSet(aGroup, aName, aValue) {
-    if (aGroup == this.contentPrefs.extractDomain(getBrowser().currentURI.spec))
+    if (aGroup == Services.contentPrefs2.extractDomain(getBrowser().currentURI.spec))
       this._applyPrefToSetting(aValue);
     else if (aGroup == null) {
       this.globalValue = this._ensureValid(aValue);
@@ -148,14 +145,14 @@ var FullZoom = FullZoom || {
       // If the current page doesn't have a site-specific preference,
       // then its zoom should be set to the new global preference now that
       // the global preference has changed.
-      var zoomValue = this.contentPrefs.getCachedByDomainAndName(getBrowser().currentURI.spec, this.name, getBrowser().docShell);
+      var zoomValue = Services.contentPrefs2.getCachedByDomainAndName(getBrowser().currentURI.spec, this.name, getBrowser().docShell);
       if (zoomValue && !zoomValue.value)
         this._applyPrefToSetting();
     }
   },
 
   onContentPrefRemoved: function FullZoom_onContentPrefRemoved(aGroup, aName) {
-    if (aGroup == this.contentPrefs.extractDomain(getBrowser().currentURI.spec))
+    if (aGroup == Services.contentPrefs2.extractDomain(getBrowser().currentURI.spec))
       this._applyPrefToSetting();
     else if (aGroup == null) {
       this.globalValue = undefined;
@@ -163,7 +160,7 @@ var FullZoom = FullZoom || {
       // If the current page doesn't have a site-specific preference,
       // then its zoom should be set to the default preference now that
       // the global preference has changed.
-      var zoomValue = this.contentPrefs.getCachedByDomainAndName(getBrowser().currentURI.spec, this.name, getBrowser().docShell);
+      var zoomValue = Services.contentPrefs2.getCachedByDomainAndName(getBrowser().currentURI.spec, this.name, getBrowser().docShell);
       if (zoomValue && !zoomValue.value)
         this._applyPrefToSetting();
     }
@@ -207,11 +204,11 @@ var FullZoom = FullZoom || {
     }
 
     var loadContext = aBrowser.docShell;
-    var zoomValue = this.contentPrefs.getCachedByDomainAndName(aURI.spec, this.name, loadContext);
+    var zoomValue = Services.contentPrefs2.getCachedByDomainAndName(aURI.spec, this.name, loadContext);
     if (zoomValue) {
       this._applyPrefToSetting(zoomValue.value, aBrowser);
     } else {
-      this.contentPrefs.getByDomainAndName(aURI.spec, this.name, loadContext, {
+      Services.contentPrefs2.getByDomainAndName(aURI.spec, this.name, loadContext, {
         self: this,
         value: undefined,
         handleCompletion: function(aReason) {
@@ -304,12 +301,12 @@ var FullZoom = FullZoom || {
       return;
 
     var zoomLevel = ZoomManager.zoom;
-    this.contentPrefs.set(getBrowser().currentURI.spec, this.name, zoomLevel, getBrowser().docShell);
+    Services.contentPrefs2.set(getBrowser().currentURI.spec, this.name, zoomLevel, getBrowser().docShell);
   },
 
   _removePref: function FullZoom_removePref() {
     if (!content.document.mozSyntheticDocument)
-      this.contentPrefs.removeByDomainAndName(getBrowser().currentURI.spec, this.name, getBrowser().docShell);
+      Services.contentPrefs2.removeByDomainAndName(getBrowser().currentURI.spec, this.name, getBrowser().docShell);
   },
 
 
