@@ -24,6 +24,7 @@ add_task(async function testExternalMessage() {
 
   let files = {
     "background.js": async () => {
+      const platform = await browser.runtime.getPlatformInfo();
       const emlData = {
         openExternalFileMessage: {
           headerMessageId: "sample.eml@mime.sample",
@@ -45,7 +46,7 @@ add_task(async function testExternalMessage() {
           ccList: ["Jimmy <jimmy.Olsen@dailyplanet.com>"],
           subject: "Test message",
           attachments: 3,
-          size: 0,
+          size: platform.os == "win" ? 6947 : 6825,
           external: true,
           read: null,
           recipients: ["Heinz Müller <mueller@examples.com>"],
