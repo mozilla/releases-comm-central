@@ -83,8 +83,8 @@ Content-Disposition: attachment; filename="message2.eml"
 Content-Transfer-Encoding: 7bit
 
 Message-ID: <sample-nested-attached.eml@mime.sample>
-From: Superman <clark.kent@dailyplanet.com>
-To:  Jimmy <jimmy.olsen@dailyplanet.com>
+From: Jimmy <jimmy.olsen@dailyplanet.com>
+To: Superman <clark.kent@dailyplanet.com>
 Subject: Test message 2
 Date: Wed, 16 May 2000 19:32:47 -0400
 MIME-Version: 1.0

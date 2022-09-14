@@ -246,9 +246,49 @@ add_task(
           browser.test.assertEq(5, messages.length);
           let message = messages[4];
 
+          function validateMessage(msg, expectedValues) {
+            for (let expectedValueName in expectedValues) {
+              let value = msg[expectedValueName];
+              let expected = expectedValues[expectedValueName];
+              if (Array.isArray(expected)) {
+                browser.test.assertTrue(
+                  Array.isArray(value),
+                  `Value for ${expectedValueName} should be an Array.`
+                );
+                browser.test.assertEq(
+                  expected.length,
+                  value.length,
+                  `Value for ${expectedValueName} should have the correct Array size.`
+                );
+                for (let i = 0; i < expected.length; i++) {
+                  browser.test.assertEq(
+                    expected[i],
+                    value[i],
+                    `Value for ${expectedValueName}[${i}] should be correct.`
+                  );
+                }
+              } else if (expected instanceof Date) {
+                browser.test.assertTrue(
+                  value instanceof Date,
+                  `Value for ${expectedValueName} should be a Date.`
+                );
+                browser.test.assertEq(
+                  expected.getTime(),
+                  value.getTime(),
+                  `Date value for ${expectedValueName} should be correct.`
+                );
+              } else {
+                browser.test.assertEq(
+                  expected,
+                  value,
+                  `Value for ${expectedValueName} should be correct.`
+                );
+              }
+            }
+          }
+
           // Request attachments.
           let attachments = await browser.messages.listAttachments(message.id);
-
           browser.test.assertEq(2, attachments.length);
           browser.test.assertEq("1.2", attachments[0].partName);
           browser.test.assertEq("1.3", attachments[1].partName);
@@ -256,15 +296,118 @@ add_task(
           browser.test.assertEq("message1.eml", attachments[0].name);
           browser.test.assertEq("yellowPixel.png", attachments[1].name);
 
-          // Test getting attachments.
+          // Validate the returned MessageHeader for attached message1.eml.
+          let subMessage = attachments[0].message;
+          browser.test.assertTrue(
+            subMessage.id != message.id,
+            `Id of attached SubMessage (${subMessage.id}) should be different from the id of the outer message (${message.id})`
+          );
+          validateMessage(subMessage, {
+            date: new Date(958606367000),
+            author: "Superman <clark.kent@dailyplanet.com>",
+            recipients: ["Jimmy <jimmy.olsen@dailyplanet.com>"],
+            ccList: [],
+            bccList: [],
+            subject: "Test message 1",
+            new: false,
+            headersOnly: false,
+            flagged: false,
+            junk: false,
+            junkScore: 0,
+            headerMessageId: "sample-attached.eml@mime.sample",
+            size: 0,
+            tags: [],
+            external: true,
+          });
+
+          // Get attachments of sub-message messag1.eml.
+          let subAttachments = await browser.messages.listAttachments(
+            subMessage.id
+          );
+          browser.test.assertEq(4, subAttachments.length);
+          browser.test.assertEq("1.2.1.2", subAttachments[0].partName);
+          browser.test.assertEq("1.2.1.3", subAttachments[1].partName);
+          browser.test.assertEq("1.2.1.4", subAttachments[2].partName);
+          browser.test.assertEq("1.2.1.5", subAttachments[3].partName);
+
+          browser.test.assertEq("whitePixel.png", subAttachments[0].name);
+          browser.test.assertEq("greenPixel.png", subAttachments[1].name);
+          browser.test.assertEq("redPixel.png", subAttachments[2].name);
+          browser.test.assertEq("message2.eml", subAttachments[3].name);
+
+          // Validate the returned MessageHeader for sub-message message2.eml
+          // attached to sub-message message1.eml.
+          let subSubMessage = subAttachments[3].message;
+          browser.test.assertTrue(
+            ![message.id, subMessage.id].includes(subSubMessage.id),
+            `Id of attached SubSubMessage (${subSubMessage.id}) should be different from the id of the outer message (${message.id}) and from the SubMessage (${subMessage.id})`
+          );
+          validateMessage(subSubMessage, {
+            date: new Date(958519967000),
+            author: "Jimmy <jimmy.olsen@dailyplanet.com>",
+            recipients: ["Superman <clark.kent@dailyplanet.com>"],
+            ccList: [],
+            bccList: [],
+            subject: "Test message 2",
+            new: false,
+            headersOnly: false,
+            flagged: false,
+            junk: false,
+            junkScore: 0,
+            headerMessageId: "sample-nested-attached.eml@mime.sample",
+            size: 0,
+            tags: [],
+            external: true,
+          });
+
+          // Test getAttachmentFile().
+          // Note: This function has x-ray vision into sub-messages and can get
+          // any part inside the message, even if - technically - the attachments
+          // belong to subMessages. There is no difference between requesting
+          // part 1.2.1.2 from the main message or from message1.eml (part 1.2).
+          // X-ray vision from a sub-message back into a parent is not allowed.
           let platform = await browser.runtime.getPlatformInfo();
-          let tests = [
+          let fileTests = [
             {
               partName: "1.2",
               name: "message1.eml",
               size:
-                platform.os != "win" && account.type == "none" ? 2518 : 2602,
+                platform.os != "win" && account.type == "none" ? 2517 : 2601,
               text: "Message-ID: <sample-attached.eml@mime.sample>",
+            },
+            {
+              partName: "1.2.1.2",
+              name: "whitePixel.png",
+              size: 69,
+              data:
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC",
+            },
+            {
+              partName: "1.2.1.3",
+              name: "greenPixel.png",
+              size: 119,
+              data:
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY+C76AoAAhUBJel4xsMAAAAASUVORK5CYII=",
+            },
+            {
+              partName: "1.2.1.4",
+              name: "redPixel.png",
+              size: 119,
+              data:
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY+hgkAYAAbcApOp/9LEAAAAASUVORK5CYII=",
+            },
+            {
+              partName: "1.2.1.5",
+              name: "message2.eml",
+              size: platform.os != "win" && account.type == "none" ? 838 : 867,
+              text: "Message-ID: <sample-nested-attached.eml@mime.sample>",
+            },
+            {
+              partName: "1.2.1.5.1.2",
+              name: "whitePixel.png",
+              size: 69,
+              data:
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC",
             },
             {
               partName: "1.3",
@@ -274,36 +417,69 @@ add_task(
                 "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j/iQEABOUB8pypNlQAAAAASUVORK5CYII=",
             },
           ];
-          for (let test of tests) {
-            let file = await browser.messages.getAttachmentFile(
-              message.id,
-              test.partName
+          let testMessages = [
+            {
+              id: message.id,
+              expectedFileCounts: 7,
+            },
+            {
+              id: subMessage.id,
+              subPart: "1.2.",
+              expectedFileCounts: 5,
+            },
+            {
+              id: subSubMessage.id,
+              subPart: "1.2.1.5.",
+              expectedFileCounts: 1,
+            },
+          ];
+          for (let msg of testMessages) {
+            let fileCounts = 0;
+            for (let test of fileTests) {
+              if (msg.subPart && !test.partName.startsWith(msg.subPart)) {
+                await browser.test.assertRejects(
+                  browser.messages.getAttachmentFile(msg.id, test.partName),
+                  `Part ${test.partName} not found in message ${msg.id}.`,
+                  "Sub-message should not be able to get parts from parent message"
+                );
+                continue;
+              }
+              fileCounts++;
+
+              let file = await browser.messages.getAttachmentFile(
+                msg.id,
+                test.partName
+              );
+
+              // eslint-disable-next-line mozilla/use-isInstance
+              browser.test.assertTrue(file instanceof File);
+              browser.test.assertEq(test.name, file.name);
+              browser.test.assertEq(test.size, file.size);
+
+              if (test.text) {
+                browser.test.assertTrue(
+                  (await file.text()).startsWith(test.text)
+                );
+              }
+
+              if (test.data) {
+                let reader = new FileReader();
+                let data = await new Promise(resolve => {
+                  reader.onload = e => resolve(e.target.result);
+                  reader.readAsDataURL(file);
+                });
+                browser.test.assertEq(
+                  test.data,
+                  data.replaceAll("\r\n", "\n").trim()
+                );
+              }
+            }
+            browser.test.assertEq(
+              msg.expectedFileCounts,
+              fileCounts,
+              "Should have requested to correct amount of attachment files."
             );
-
-            // eslint-disable-next-line mozilla/use-isInstance
-            browser.test.assertTrue(file instanceof File);
-            browser.test.assertEq(test.name, file.name);
-            browser.test.assertEq(test.size, file.size);
-
-            if (test.text) {
-              browser.test.assertTrue(
-                (await file.text()).startsWith(test.text)
-              );
-            }
-
-            if (test.data) {
-              let reader = new FileReader();
-              let data = await new Promise(resolve => {
-                reader.onload = e => resolve(e.target.result);
-                reader.readAsDataURL(file);
-              });
-              browser.test.assertEq(
-                test.data,
-                data.replaceAll("\r\n", "\n").trim()
-              );
-            }
           }
-
           browser.test.notifyPass("finished");
         },
         "utils.js": await getUtilsJS(),
