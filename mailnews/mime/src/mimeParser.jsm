@@ -3,9 +3,12 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 // vim:set ts=2 sw=2 sts=2 et ft=javascript:
 
-const { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
-
 var EXPORTED_SYMBOLS = ["MimeParser"];
+
+var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
+var { MailStringUtils } = ChromeUtils.import(
+  "resource:///modules/MailStringUtils.jsm"
+);
 
 // Emitter helpers, for internal functions later on.
 var ExtractMimeMsgEmitter = {
@@ -106,8 +109,6 @@ var ExtractMimeMsgEmitter = {
   },
 
   startPart(partNum, headerMap) {
-    let utf8Encoder = new TextEncoder();
-
     let contentType = headerMap.contentType?.type
       ? headerMap.contentType.type
       : "text/plain";
@@ -118,8 +119,7 @@ var ExtractMimeMsgEmitter = {
       let valueArray = Array.isArray(headerValue) ? headerValue : [headerValue];
       // Return a binary string, to mimic MsgHdrToMimeMessage.
       headers[headerName] = valueArray.map(value => {
-        let utf8ByteArray = utf8Encoder.encode(value);
-        return String.fromCharCode(...utf8ByteArray);
+        return MailStringUtils.stringToByteString(value);
       });
     }
 
@@ -213,7 +213,7 @@ var ExtractMimeMsgEmitter = {
     if (typeof data === "string") {
       currentPart.body += data;
     } else {
-      currentPart.body += String.fromCharCode(...data);
+      currentPart.body += MailStringUtils.uint8ArrayToByteString(data);
     }
   },
 };

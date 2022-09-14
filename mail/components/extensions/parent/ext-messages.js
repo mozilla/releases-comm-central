@@ -33,6 +33,10 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/jsmime.jsm"
 );
 
+var { MailStringUtils } = ChromeUtils.import(
+  "resource:///modules/MailStringUtils.jsm"
+);
+
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["File", "FileReader", "IOUtils", "PathUtils"]);
 
@@ -449,14 +453,7 @@ this.messages = class extends ExtensionAPI {
       ].getService(Ci.nsPIExternalAppLauncher);
       extAppLauncher.deleteTemporaryFileOnExit(emlFile);
 
-      let buffer = new Uint8Array(rawBinaryString.length);
-      // rawBinaryString should be a sequence of chars where each char *should*
-      // use only the lowest 8 bytes. Each charcode value (0...255) is to be
-      // added to an Uint8Array. Since charCodeAt() may return 16bit values, mask
-      // them to 8bit. This should not be necessary, but does not harm.
-      for (let i = 0; i < rawBinaryString.length; i++) {
-        buffer[i] = rawBinaryString.charCodeAt(i) & 0xff;
-      }
+      let buffer = MailStringUtils.byteStringToUint8Array(rawBinaryString);
       await IOUtils.write(pathEmlFile, buffer);
       return emlFile;
     }

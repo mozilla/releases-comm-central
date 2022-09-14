@@ -14,6 +14,9 @@ var { LineReader } = ChromeUtils.import("resource:///modules/LineReader.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { MailStringUtils } = ChromeUtils.import(
+  "resource:///modules/MailStringUtils.jsm"
+);
 var { Pop3Authenticator } = ChromeUtils.import(
   "resource:///modules/MailAuthenticator.jsm"
 );
@@ -785,8 +788,8 @@ class Pop3Client {
       // Unlike PLAIN auth, the payload of LOGIN auth is not standardized. When
       // `mail.smtp_login_pop3_user_pass_auth_is_latin1` is true, we apply
       // base64 encoding directly. Otherwise, we convert it to UTF-8
-      // BinaryString first.
-      password = String.fromCharCode(...new TextEncoder().encode(password));
+      // BinaryString first, to make it work with btoa().
+      password = MailStringUtils.stringToByteString(password);
     }
     this._send(btoa(password), true);
   };

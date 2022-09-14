@@ -2260,10 +2260,11 @@ async function updateAttachmentItemProperties(attachmentItem) {
     // Update the CloudPartHeaderData, if there is a valid cloudFileUpload.
     if (attachmentItem.cloudFileUpload) {
       let json = JSON.stringify(attachmentItem.cloudFileUpload);
-      // Convert 16bit JavaScript string to binary string so it works with btoa().
-      let utf8Bytes = new TextEncoder().encode(json);
-      let binaryString = String.fromCharCode(...utf8Bytes);
-      attachmentItem.attachment.cloudPartHeaderData = btoa(binaryString);
+      // Convert 16bit JavaScript string to a byteString, to make it work with
+      // btoa().
+      attachmentItem.attachment.cloudPartHeaderData = btoa(
+        MailStringUtils.stringToByteString(json)
+      );
     }
 
     // Update the cloudFile placeholder file.
@@ -4564,16 +4565,10 @@ async function ComposeStartup() {
       attachmentItem.attachment.cloudFileAccountKey &&
       attachmentItem.attachment.cloudPartHeaderData
     ) {
-      let binaryString = atob(attachmentItem.attachment.cloudPartHeaderData);
-      let utf8Bytes = new Uint8Array(binaryString.length);
-      // binaryString should be a sequence of chars where each char *should* use
-      // only the lowest 8 bytes. Each charcode value (0...255) is to be added to
-      // an Uint8Array. Since charCodeAt() may return 16bit values, mask them to
-      // 8bit. This should not be necessary, but does not harm.
-      for (let i = 0; i < binaryString.length; i++) {
-        utf8Bytes[i] = binaryString.charCodeAt(i) & 0xff;
-      }
-      let uploadFromDraft = JSON.parse(new TextDecoder().decode(utf8Bytes));
+      let byteString = atob(attachmentItem.attachment.cloudPartHeaderData);
+      let uploadFromDraft = JSON.parse(
+        MailStringUtils.byteStringToString(byteString)
+      );
       if (uploadFromDraft && uploadFromDraft.path && uploadFromDraft.name) {
         let cloudFileUpload;
         let cloudFileAccount = cloudFileAccounts.getAccount(
