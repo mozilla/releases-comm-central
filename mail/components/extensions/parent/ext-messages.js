@@ -81,15 +81,24 @@ function convertAttachment(attachment) {
   };
 }
 
-async function getAttachments(msgHdr) {
+/**
+ * Returns attachments found in the message belonging to the given nsIMsgHdr.
+ *
+ * @param {nsIMsgHdr} msgHdr
+ * @param {boolean} includeNestedAttachments - Whether attached messages will be
+ *   decoded to return their attachments as well
+ * @returns {MimeMessageAttachment[]}
+ */
+async function getAttachments(msgHdr, includeNestedAttachments) {
   // Use jsmime based MimeParser to read NNTP messages, which are not
   // supported by MsgHdrToMimeMessage. No encryption support!
   if (msgHdr.folder?.server.type == "nntp") {
     let raw = await MsgHdrToRawMessage(msgHdr);
     let mimeMsg = MimeParser.extractMimeMsg(raw, {
       includeAttachments: true,
+      decodeSubMessages: includeNestedAttachments,
     });
-    return mimeMsg.allAttachments;
+    return mimeMsg.attachments;
   }
 
   return new Promise(resolve => {
@@ -97,12 +106,83 @@ async function getAttachments(msgHdr) {
       msgHdr,
       null,
       (_msgHdr, mimeMsg) => {
-        resolve(mimeMsg.allAttachments);
+        let attachments = includeNestedAttachments
+          ? mimeMsg.allInlineAttachments // all attachments, as in the "display attachments inline" UI option
+          : mimeMsg.allUserAttachments; // only direct attachments, skipping attachments from sub-messages
+        resolve(attachments);
       },
       true,
       { examineEncryptedParts: true, partsOnDemand: true }
     );
   });
+}
+
+/**
+ * Returns the attachment identified by the provided partName. The returned
+ * MimeMessageAttachment holds its binary content in an Uint8Array in the
+ * additional property bodyAsTypedArray.
+ *
+ * @param {nsIMsgHdr} msgHdr
+ * @param {string} partName
+ * @returns {MimeMessageAttachment}
+ */
+async function getAttachment(msgHdr, partName) {
+  // Use jsmime based MimeParser to read NNTP messages, which are not
+  // supported by MsgHdrToMimeMessage. No encryption support!
+  if (msgHdr.folder?.server.type == "nntp") {
+    let raw = await MsgHdrToRawMessage(msgHdr);
+    return MimeParser.extractMimeMsg(raw, {
+      includeAttachments: true,
+      getMimePart: partName,
+      decodeSubMessages: false,
+    });
+  }
+
+  // It's not ideal to have to call MsgHdrToMimeMessage here but we
+  // need the name of the attached file, plus this also gives us the
+  // URI without having to jump through a lot of hoops.
+  let attachment = await new Promise(resolve => {
+    MsgHdrToMimeMessage(
+      msgHdr,
+      null,
+      (_msgHdr, mimeMsg) => {
+        resolve(mimeMsg.allInlineAttachments.find(a => a.partName == partName));
+      },
+      true,
+      { examineEncryptedParts: true, partsOnDemand: true }
+    );
+  });
+
+  if (!attachment) {
+    return null;
+  }
+
+  let channel = Services.io.newChannelFromURI(
+    Services.io.newURI(attachment.url),
+    null,
+    Services.scriptSecurityManager.getSystemPrincipal(),
+    null,
+    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+    Ci.nsIContentPolicy.TYPE_OTHER
+  );
+
+  attachment.bodyAsTypedArray = await new Promise((resolve, reject) => {
+    let listener = Cc["@mozilla.org/network/stream-loader;1"].createInstance(
+      Ci.nsIStreamLoader
+    );
+    listener.init({
+      onStreamComplete(loader, context, status, resultLength, result) {
+        if (Components.isSuccessCode(status)) {
+          resolve(Uint8Array.from(result));
+        } else {
+          reject(new Error(`Failed to read attachment content: ${status}`));
+        }
+      },
+    });
+    channel.asyncOpen(listener, null);
+  });
+
+  return attachment;
 }
 
 this.messages = class extends ExtensionAPI {
@@ -416,77 +496,23 @@ this.messages = class extends ExtensionAPI {
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-          return getAttachments(msgHdr).then(rv => rv.map(convertAttachment));
+          let attachments = await getAttachments(msgHdr);
+          return attachments
+            .map(convertAttachment)
+            .sort((a, b) => a.partName > b.partName);
         },
         async getAttachmentFile(messageId, partName) {
           let msgHdr = messageTracker.getMessage(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-
-          // Use jsmime based MimeParser to read NNTP messages, which are not
-          // supported by MsgHdrToMimeMessage. No encryption support!
-          if (msgHdr.folder?.server.type == "nntp") {
-            let raw = await MsgHdrToRawMessage(msgHdr);
-            let attachment = MimeParser.extractMimeMsg(raw, {
-              includeAttachments: true,
-              getMimePart: partName,
-            });
-            if (!attachment) {
-              throw new ExtensionError(
-                `Part ${partName} not found in message ${messageId}.`
-              );
-            }
-            return new File([attachment.bodyAsTypedArray], attachment.name, {
-              type: attachment.contentType,
-            });
-          }
-
-          // It's not ideal to have to call MsgHdrToMimeMessage here but we
-          // need the name of the attached file, plus this also gives us the
-          // URI without having to jump through a lot of hoops.
-          let attachment = await new Promise(resolve => {
-            MsgHdrToMimeMessage(
-              msgHdr,
-              null,
-              (_msgHdr, mimeMsg) => {
-                resolve(
-                  mimeMsg.allAttachments.find(a => a.partName == partName)
-                );
-              },
-              true,
-              { examineEncryptedParts: true, partsOnDemand: true }
-            );
-          });
-
+          let attachment = await getAttachment(msgHdr, partName);
           if (!attachment) {
             throw new ExtensionError(
               `Part ${partName} not found in message ${messageId}.`
             );
           }
-
-          let channel = Services.io.newChannelFromURI(
-            Services.io.newURI(attachment.url),
-            null,
-            Services.scriptSecurityManager.getSystemPrincipal(),
-            null,
-            Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-            Ci.nsIContentPolicy.TYPE_OTHER
-          );
-
-          let byteArray = await new Promise(resolve => {
-            let listener = Cc[
-              "@mozilla.org/network/stream-loader;1"
-            ].createInstance(Ci.nsIStreamLoader);
-            listener.init({
-              onStreamComplete(loader, context, status, resultLength, result) {
-                resolve(Uint8Array.from(result));
-              },
-            });
-            channel.asyncOpen(listener, null);
-          });
-
-          return new File([byteArray], attachment.name, {
+          return new File([attachment.bodyAsTypedArray], attachment.name, {
             type: attachment.contentType,
           });
         },
@@ -788,7 +814,10 @@ this.messages = class extends ExtensionAPI {
 
             // Check attachments.
             if (queryInfo.attachment != null) {
-              let attachments = await getAttachments(msg);
+              let attachments = await getAttachments(
+                msg,
+                /* includeNestedAttachments */ true
+              );
               return !!attachments.length == queryInfo.attachment;
             }
 

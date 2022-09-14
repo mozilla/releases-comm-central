@@ -15,7 +15,7 @@ add_task(
   {
     skip_if: () => IS_IMAP,
   },
-  async function test_attachments() {
+  async function test_setup() {
     let _account = createAccount();
     let _testFolder = await createSubfolder(
       _account.incomingServer.rootFolder,
@@ -53,14 +53,25 @@ add_task(
       subject: "2 attachments",
       attachments: [binaryAttachment, textAttachment],
     });
+    await createMessageFromFile(
+      _testFolder,
+      do_get_file("messages/nestedMessages.eml").path
+    );
+  }
+);
 
+add_task(
+  {
+    skip_if: () => IS_IMAP,
+  },
+  async function test_attachments() {
     let extension = ExtensionTestUtils.loadExtension({
       files: {
         "background.js": async () => {
           let [account] = await browser.accounts.list();
           let testFolder = account.folders.find(f => f.name == "test1");
           let { messages } = await browser.messages.list(testFolder);
-          browser.test.assertEq(4, messages.length);
+          browser.test.assertEq(5, messages.length);
 
           let attachments, attachment, file;
 
@@ -204,6 +215,94 @@ add_task(
             /Part 1.42 not found in message \d+\./,
             "Non-existent part should throw"
           );
+
+          browser.test.notifyPass("finished");
+        },
+        "utils.js": await getUtilsJS(),
+      },
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "messagesRead"],
+      },
+    });
+
+    await extension.startup();
+    await extension.awaitFinish("finished");
+    await extension.unload();
+  }
+);
+
+add_task(
+  {
+    skip_if: () => IS_IMAP,
+  },
+  async function test_messages_as_attachments() {
+    let extension = ExtensionTestUtils.loadExtension({
+      files: {
+        "background.js": async () => {
+          let [account] = await browser.accounts.list();
+          let testFolder = account.folders.find(f => f.name == "test1");
+          let { messages } = await browser.messages.list(testFolder);
+          browser.test.assertEq(5, messages.length);
+          let message = messages[4];
+
+          // Request attachments.
+          let attachments = await browser.messages.listAttachments(message.id);
+
+          browser.test.assertEq(2, attachments.length);
+          browser.test.assertEq("1.2", attachments[0].partName);
+          browser.test.assertEq("1.3", attachments[1].partName);
+
+          browser.test.assertEq("message1.eml", attachments[0].name);
+          browser.test.assertEq("yellowPixel.png", attachments[1].name);
+
+          // Test getting attachments.
+          let platform = await browser.runtime.getPlatformInfo();
+          let tests = [
+            {
+              partName: "1.2",
+              name: "message1.eml",
+              size:
+                platform.os != "win" && account.type == "none" ? 2518 : 2602,
+              text: "Message-ID: <sample-attached.eml@mime.sample>",
+            },
+            {
+              partName: "1.3",
+              name: "yellowPixel.png",
+              size: 119,
+              data:
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j/iQEABOUB8pypNlQAAAAASUVORK5CYII=",
+            },
+          ];
+          for (let test of tests) {
+            let file = await browser.messages.getAttachmentFile(
+              message.id,
+              test.partName
+            );
+
+            // eslint-disable-next-line mozilla/use-isInstance
+            browser.test.assertTrue(file instanceof File);
+            browser.test.assertEq(test.name, file.name);
+            browser.test.assertEq(test.size, file.size);
+
+            if (test.text) {
+              browser.test.assertTrue(
+                (await file.text()).startsWith(test.text)
+              );
+            }
+
+            if (test.data) {
+              let reader = new FileReader();
+              let data = await new Promise(resolve => {
+                reader.onload = e => resolve(e.target.result);
+                reader.readAsDataURL(file);
+              });
+              browser.test.assertEq(
+                test.data,
+                data.replaceAll("\r\n", "\n").trim()
+              );
+            }
+          }
 
           browser.test.notifyPass("finished");
         },
