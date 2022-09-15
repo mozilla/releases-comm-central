@@ -148,10 +148,23 @@ vcard-org-header = Organizational Properties
 vcard-org-add = Add organizational properties
 
 vcard-org-title = Title
+vcard-org-title-input =
+    .title = Position or job
+    .placeholder = Job title
 
 vcard-org-role = Role
+vcard-org-role-input =
+    .title = Function or part played in a particular situation
+    .placeholder = Role in a project
 
 vcard-org-org = Organization
+vcard-org-org-input =
+    .title = Organizational name
+    .placeholder = Company name
+vcard-org-org-unit = Department
+vcard-org-org-unit-input =
+    .title = Organizational unit name
+    .placeholder = Department
 
 # Custom properties
 

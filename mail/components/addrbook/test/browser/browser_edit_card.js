@@ -209,7 +209,7 @@ function getFields(entryName, addIfNeeded = false, count) {
       expectFocusSelector = "#addr-book-edit-org input";
       break;
     default:
-      throw new Error("entryName not found");
+      throw new Error("entryName not found: " + entryName);
   }
   let fields = abDocument.querySelectorAll(fieldsSelector).length;
   if (addIfNeeded && fields < count) {
@@ -357,7 +357,15 @@ function checkVCardInputValues(expected) {
           valueField = field.selectEl;
           break;
         case "org":
-          valueField = field.orgEl;
+          let orgValue = [field.orgEl.value];
+          if (field.unitEl.value) {
+            orgValue.push(field.unitEl.value);
+          }
+          Assert.deepEqual(
+            expectedEntry.value,
+            orgValue,
+            `Value of ${key} at position ${index}`
+          );
           break;
         case "role":
           valueField = field.roleEl;
@@ -598,7 +606,18 @@ async function setVCardInputValues(changes) {
           valueField = field.titleEl;
           break;
         case "org":
-          valueField = field.orgEl;
+          for (let [index, input] of [field.orgEl, field.unitEl].entries()) {
+            input.select();
+            if (
+              changeEntry &&
+              Array.isArray(changeEntry.value) &&
+              changeEntry.value[index]
+            ) {
+              EventUtils.sendString(changeEntry.value[index]);
+            } else {
+              EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
+            }
+          }
           break;
         case "role":
           valueField = field.roleEl;
@@ -2345,7 +2364,7 @@ add_task(async function test_vCard_fields() {
     tz: [{ value: "Africa/Abidjan" }],
     role: [{ value: "Role" }],
     title: [{ value: "Title" }],
-    org: [{ value: "North American Division\nMarketing" }],
+    org: [{ value: ["Example Inc.", "European Division"] }],
   });
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
@@ -2374,7 +2393,7 @@ add_task(async function test_vCard_fields() {
     tz: [{ value: "Africa/Abidjan" }],
     role: [{ value: "Role" }],
     title: [{ value: "Title" }],
-    org: [{ value: ["Marketing", "North American Division"] }],
+    org: [{ value: ["Example Inc.", "European Division"] }],
   });
 
   checkVCardValues(book.childCards[1], {
@@ -2412,7 +2431,7 @@ add_task(async function test_vCard_fields() {
     tz: [{ value: "Africa/Abidjan" }],
     role: [{ value: "Role" }],
     title: [{ value: "Title" }],
-    org: [{ value: "North American Division\nMarketing" }],
+    org: [{ value: ["Example Inc.", "European Division"] }],
   });
 
   await setVCardInputValues({
@@ -2446,7 +2465,7 @@ add_task(async function test_vCard_fields() {
     tz: [{ value: "Africa/Abidjan" }],
     role: [{ value: "Role" }],
     title: [{ value: "Title" }],
-    org: [{ value: "North American Division\nMarketing" }],
+    org: [{ value: ["Example Co.", "South American Division"] }],
   });
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
@@ -2483,7 +2502,7 @@ add_task(async function test_vCard_fields() {
     tz: [{ value: "Africa/Abidjan" }],
     role: [{ value: "Role" }],
     title: [{ value: "Title" }],
-    org: [{ value: ["Marketing", "North American Division"] }],
+    org: [{ value: ["Example Co.", "South American Division"] }],
   });
 
   checkVCardValues(book.childCards[1], {
@@ -2530,7 +2549,7 @@ add_task(async function test_vCard_fields() {
     tz: [{ value: "Africa/Accra" }],
     role: [{ value: "Role contact 2" }],
     title: [{ value: "Title contact 2" }],
-    org: [{ value: "Organization contact 2" }],
+    org: [{ value: ["Organization contact 2"] }],
   });
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
@@ -2567,7 +2586,7 @@ add_task(async function test_vCard_fields() {
     tz: [{ value: "Africa/Abidjan" }],
     role: [{ value: "Role" }],
     title: [{ value: "Title" }],
-    org: [{ value: ["Marketing", "North American Division"] }],
+    org: [{ value: ["Example Co.", "South American Division"] }],
   });
 
   checkVCardValues(book.childCards[1], {
@@ -2619,7 +2638,7 @@ add_task(async function test_vCard_fields() {
     tz: [{ value: "Africa/Abidjan" }],
     role: [{ value: "Role" }],
     title: [{ value: "Title" }],
-    org: [{ value: ["North American Division\nMarketing"] }],
+    org: [{ value: ["Example Co.", "South American Division"] }],
   });
 
   await setVCardInputValues({
@@ -2839,7 +2858,7 @@ add_task(async function test_vCard_minimal() {
     "Organization should be visible"
   );
 
-  abDocument.querySelector("vcard-org textarea").value = "FBI";
+  abDocument.querySelector("vcard-org input").value = "FBI";
 
   let saveEditButton = abDocument.getElementById("saveEditButton");
   let editButton = abDocument.getElementById("editButton");

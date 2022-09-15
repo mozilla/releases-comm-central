@@ -353,7 +353,7 @@ add_task(async function testDisplay() {
       items[4].querySelector(".entry-value").childNodes,
       n => n.textContent
     ),
-    ["engineering", "", "thunderbird"]
+    ["thunderbird", " • ", "engineering"]
   );
   Assert.equal(
     items[5].children[0].dataset.l10nId,
