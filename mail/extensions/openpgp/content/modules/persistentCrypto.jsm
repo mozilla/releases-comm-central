@@ -157,7 +157,7 @@ var EnigmailPersistentCrypto = {
 
       let msgFolder = originalMsgHdr.folder;
 
-      // The following technique was copied from nsDelAttachListener in Thunderbird's
+      // The following technique was copied from AttachmentDeleter in Thunderbird's
       // nsMessenger.cpp. There is a "unified" listener which serves as copy and delete
       // listener. In all cases, the `OnStopCopy()` of the delete listener selects the
       // replacement message.

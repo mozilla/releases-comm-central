@@ -351,6 +351,10 @@ add_task(async function test_rename_and_delete() {
 
   Assert.ok(BrowserTestUtils.is_visible(propertiesMenuItem));
   Assert.ok(!propertiesMenuItem.disabled);
+  Assert.deepEqual(document.l10n.getAttributes(propertiesMenuItem), {
+    id: "about-addressbook-books-context-properties",
+    args: null,
+  });
 
   let dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml"
@@ -409,6 +413,10 @@ add_task(async function test_rename_and_delete() {
   await rightClickOnIndex(3);
 
   Assert.ok(BrowserTestUtils.is_visible(propertiesMenuItem));
+  Assert.deepEqual(document.l10n.getAttributes(propertiesMenuItem), {
+    id: "about-addressbook-books-context-edit-list",
+    args: null,
+  });
 
   dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abEditListDialog.xhtml"

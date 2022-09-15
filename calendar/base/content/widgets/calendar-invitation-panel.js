@@ -28,8 +28,8 @@
    */
   class BaseInvitationElement extends HTMLElement {
     /**
-     * The id of the <template> tag the element should use.
-     * @param {string} id
+     * The id of the <template> tag to initialize the element with.
+     * @param {string?} id
      */
     constructor(id) {
       super();
@@ -40,40 +40,67 @@
       link.rel = "stylesheet";
       link.href = "chrome://calendar/skin/shared/widgets/calendar-invitation-panel.css";
       this.shadowRoot.appendChild(link);
-      this.shadowRoot.appendChild(document.getElementById(id).content.cloneNode(true));
+
+      if (id) {
+        this.shadowRoot.appendChild(document.getElementById(id).content.cloneNode(true));
+      }
     }
   }
 
   /**
    * InvitationPanel displays the details of an iTIP event invitation in an
-   * interactive panel. This widget is meant to be displayed just above the
-   * message body.
+   * interactive panel.
    */
   class InvitationPanel extends BaseInvitationElement {
-    constructor() {
-      super("calendarInvitationPanel");
-    }
+    MODE_NEW = "New";
+    MODE_ALREADY_PROCESSED = "Processed";
+    MODE_UPDATE_MAJOR = "UpdateMajor";
+    MODE_UPDATE_MINOR = "UpdateMinor";
+    MODE_CANCELLED = "Cancelled";
+    MODE_CANCELLED_NOT_FOUND = "CancelledNotFound";
 
     /**
-     * Setting the itipItem will trigger the rendering of the invitation details.
-     * This widget is designed to have this value set only once.
-     * @type {calIItipItem}
+     * mode determines how the UI should display the received invitation. It
+     * must be set to one of the MODE_* constants, defaults to MODE_NEW.
+     * @type {string}
      */
-    set itipItem(value) {
-      let item = value.getItemList()[0];
-      if (!item) {
-        return;
+    mode = this.MODE_NEW;
+
+    /**
+     * The event item to be displayed.
+     * @type {calIEvent?}
+     */
+    item;
+
+    connectedCallback() {
+      if (this.item && this.mode) {
+        let template = document.getElementById(`calendarInvitationPanel${this.mode}`);
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
+        this.shadowRoot.getElementById("wrapper").item = this.item;
+        this.shadowRoot.getElementById("header").item = this.item;
       }
-      this.shadowRoot.getElementById("minidate").date = item.startDate;
-      this.shadowRoot.getElementById("header").item = item;
-      this.shadowRoot.getElementById("properties").item = item;
     }
   }
   customElements.define("calendar-invitation-panel", InvitationPanel);
 
   /**
-   * InvitationPanelHeader renders the header for the details section of
-   * the invitation panel.
+   * InvitationPanelWrapper wraps the contents of the panel for formatting and
+   * provides the minidate to the left of the details.
+   */
+  class InvitationPanelWrapper extends BaseInvitationElement {
+    constructor() {
+      super("calendarInvitationPanelWrapper");
+    }
+
+    set item(value) {
+      this.shadowRoot.getElementById("minidate").date = value.startDate;
+      this.shadowRoot.getElementById("properties").item = value;
+    }
+  }
+  customElements.define("calendar-invitation-panel-wrapper", InvitationPanelWrapper);
+
+  /**
+   * InvitationPanelHeader renders the header part of the invitation panel.
    */
   class InvitationPanelHeader extends BaseInvitationElement {
     constructor() {
@@ -90,10 +117,15 @@
         organizer: item.organizer ? item.organizer?.commonName || item.organizer.toString() : "",
       });
 
-      for (let id of ["calendar-invitation-panel-intro", "calendar-invitation-panel-title"]) {
+      let action = this.getAttribute("actionType");
+      if (action) {
         this.shadowRoot
-          .querySelector(`[data-l10n-id="${id}"]`)
-          .setAttribute("data-l10n-args", l10nArgs);
+          .getElementById("intro")
+          .setAttribute("data-l10n-id", `calendar-invitation-panel-intro-${action}`);
+      }
+
+      for (let id of ["intro", "title"]) {
+        this.shadowRoot.getElementById(id).setAttribute("data-l10n-args", l10nArgs);
       }
     }
 

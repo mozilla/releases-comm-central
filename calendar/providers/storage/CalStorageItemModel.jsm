@@ -964,7 +964,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     switch (prop.propertyName) {
       case "RDATE":
       case "EXDATE":
-        ritem = Cc["@mozilla.org/calendar/recurrence-date;1"].createInstance(Ci.calIRecurrenceDate);
+        ritem = cal.createRecurrenceDate();
         break;
       case "RRULE":
       case "EXRULE":

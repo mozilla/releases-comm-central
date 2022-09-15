@@ -1783,8 +1783,6 @@ var chatHandler = {
         "joinChatMenuItem",
         "newIMAccountMenuItem",
         "newIMContactMenuItem",
-        "appmenu_goChat",
-        "appmenu_goChatSeparator",
         "appmenu_newIMAccountMenuItem",
         "appmenu_newIMContactMenuItem",
       ].forEach(function(aId) {

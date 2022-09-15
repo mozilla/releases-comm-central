@@ -121,7 +121,6 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
 
     if (this._items.accounts) {
       await this._importServersAndAccounts();
-      this._importPasswords();
       this._importOtherPrefs(this._otherPrefs);
       await this._updateProgress();
     }
@@ -729,28 +728,6 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
           this._recursivelyCopyMsgFolder(entry, targetDir, true);
         }
       }
-    }
-  }
-
-  /**
-   * Import logins.json and key4.db.
-   */
-  _importPasswords() {
-    let sourceLoginsJson = this._sourceProfileDir.clone();
-    sourceLoginsJson.append("logins.json");
-    let sourceKeyDb = this._sourceProfileDir.clone();
-    sourceKeyDb.append("key4.db");
-    let targetLoginsJson = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    targetLoginsJson.append("logins.json");
-
-    if (
-      sourceLoginsJson.exists() &&
-      sourceKeyDb.exists() &&
-      !targetLoginsJson.exists()
-    ) {
-      // Only copy if logins.json doesn't exist in the current profile.
-      sourceLoginsJson.copyTo(targetLoginsJson.parent, "");
-      sourceKeyDb.copyTo(targetLoginsJson.parent, "");
     }
   }
 

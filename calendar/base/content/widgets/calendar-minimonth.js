@@ -10,6 +10,9 @@
 {
   const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+  const lazy = {};
+  ChromeUtils.defineModuleGetter(lazy, "CalDateTime", "resource:///modules/CalDateTime.jsm");
+
   let dayFormatter = new Services.intl.DateTimeFormat(undefined, { day: "numeric" });
   let dateFormatter = new Services.intl.DateTimeFormat(undefined, { dateStyle: "long" });
 
@@ -719,7 +722,7 @@
     }
 
     _boxKeyForDate(aDate) {
-      if (aDate instanceof Ci.calIDateTime) {
+      if (aDate instanceof lazy.CalDateTime || aDate instanceof Ci.calIDateTime) {
         return aDate
           .getInTimezone(cal.dtz.defaultTimezone)
           .toString()

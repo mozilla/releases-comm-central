@@ -16,6 +16,9 @@ const { AppConstants } = ChromeUtils.import(
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { MailStringUtils } = ChromeUtils.import(
+  "resource:///modules/MailStringUtils.jsm"
+);
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -421,8 +424,9 @@ var AddrBookUtils = {
         value[0] == "<" ||
         /[\0\r\n\u0080-\uffff]/.test(value)
       ) {
-        let utf8Bytes = new TextEncoder().encode(value);
-        let byteString = String.fromCharCode(...utf8Bytes);
+        // Convert 16bit JavaScript string to a byteString, to make it work with
+        // btoa().
+        let byteString = MailStringUtils.stringToByteString(value);
         output += name + ":: " + btoa(byteString) + LINEBREAK;
       } else {
         output += name + ": " + value + LINEBREAK;

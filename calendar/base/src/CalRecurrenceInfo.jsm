@@ -247,6 +247,7 @@ CalRecurrenceInfo.prototype = {
     this.ensureMutable();
     this.ensureSortedRecurrenceRules();
 
+    aItem = cal.unwrapInstance(aItem);
     this.mRecurrenceItems.push(aItem);
     if (aItem.isNegative) {
       this.mNegativeRules.push(aItem);
@@ -273,17 +274,9 @@ CalRecurrenceInfo.prototype = {
   },
 
   deleteRecurrenceItem(aItem) {
-    // Because xpcom objects can be wrapped in various ways, testing for
-    // mere == sometimes returns false even when it should be true.  Use
-    // the interface pointer returned by sip to avoid that problem.
-    let sip1 = Cc["@mozilla.org/supports-interface-pointer;1"].createInstance(
-      Ci.nsISupportsInterfacePointer
-    );
-    sip1.data = aItem;
-    sip1.dataIID = Ci.calIRecurrenceItem;
-
-    let pos;
-    if ((pos = this.mRecurrenceItems.indexOf(sip1.data)) > -1) {
+    aItem = cal.unwrapInstance(aItem);
+    let pos = this.mRecurrenceItems.indexOf(aItem);
+    if (pos > -1) {
       this.deleteRecurrenceItemAt(pos);
     } else {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
@@ -299,6 +292,7 @@ CalRecurrenceInfo.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
+    aItem = cal.unwrapInstance(aItem);
     if (aItem.isNegative) {
       this.mNegativeRules.push(aItem);
     } else {
@@ -658,7 +652,7 @@ CalRecurrenceInfo.prototype = {
     this.ensureBaseItem();
     this.ensureMutable();
 
-    let rdate = Cc["@mozilla.org/calendar/recurrence-date;1"].createInstance(Ci.calIRecurrenceDate);
+    let rdate = cal.createRecurrenceDate();
     rdate.isNegative = true;
     rdate.date = aRecurrenceId.clone();
 

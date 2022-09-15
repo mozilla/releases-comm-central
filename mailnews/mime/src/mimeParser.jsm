@@ -3,9 +3,12 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 // vim:set ts=2 sw=2 sts=2 et ft=javascript:
 
-const { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
-
 var EXPORTED_SYMBOLS = ["MimeParser"];
+
+var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
+var { MailStringUtils } = ChromeUtils.import(
+  "resource:///modules/MailStringUtils.jsm"
+);
 
 // Emitter helpers, for internal functions later on.
 var ExtractMimeMsgEmitter = {
@@ -76,8 +79,7 @@ var ExtractMimeMsgEmitter = {
       parts: [],
       size: 0,
       headers: {},
-      rawHeaderText: "",
-      allAttachments: [],
+      attachments: [],
       // No support for encryption.
       isEncrypted: false,
     };
@@ -98,24 +100,18 @@ var ExtractMimeMsgEmitter = {
     if (this.options.getMimePart) {
       if (this.mimeTree.parts[0].partName == this.options.getMimePart) {
         this.mimeMsg = this.mimeTree.parts[0];
-        this.mimeMsg.bodyAsTypedArray = jsmime.mimeutils.stringToTypedArray(
-          this.mimeMsg.body
-        );
       }
       return;
     }
 
+    this.mimeTree.attachments.sort((a, b) => a.partName > b.partName);
     this.mimeMsg = this.mimeTree;
   },
 
   startPart(partNum, headerMap) {
-    let utf8Encoder = new TextEncoder();
-
     let contentType = headerMap.contentType?.type
       ? headerMap.contentType.type
       : "text/plain";
-
-    let rawHeaderText = headerMap.rawHeaderText;
 
     let headers = {};
     for (let [headerName, headerValue] of headerMap._rawHeaders) {
@@ -123,34 +119,27 @@ var ExtractMimeMsgEmitter = {
       let valueArray = Array.isArray(headerValue) ? headerValue : [headerValue];
       // Return a binary string, to mimic MsgHdrToMimeMessage.
       headers[headerName] = valueArray.map(value => {
-        let utf8ByteArray = utf8Encoder.encode(value);
-        return String.fromCharCode(...utf8ByteArray);
+        return MailStringUtils.stringToByteString(value);
       });
     }
 
     // Get the most recent part from the hierarchical parts stack, which is the
     // parent of the new part to by added.
-    let currentPart = this.partsPath[this.partsPath.length - 1];
+    let parentPart = this.partsPath[this.partsPath.length - 1];
 
-    // Add a leading 1 to the partNum.
-    let partName = "1" + (partNum !== "" ? "." : "") + partNum;
-    if (partName == "1") {
-      // MsgHdrToMimeMessage differentiates between the message headers and the
-      // headers of the first part. jsmime.js however returns all headers of
-      // the message in the first part.
+    // Add a leading 1 to the partNum and convert the "$" sub-message deliminator.
+    let partName = "1" + (partNum ? "." : "") + partNum.replaceAll("$", ".1");
 
-      // Move rawHeaderText and add the content-* headers back to the new/first
-      // part.
-      currentPart.rawHeaderText = rawHeaderText;
-      rawHeaderText = rawHeaderText
-        .split(/\n(?![ \t])/)
-        .filter(h => h.toLowerCase().startsWith("content-"))
-        .join("\n")
-        .trim();
-
-      // Move all headers and add the content-* headers back to the new/first
-      // part.
-      currentPart.headers = headers;
+    // MsgHdrToMimeMessage differentiates between the message headers and the
+    // headers of the first part. jsmime.js however returns all headers of
+    // the message in the first multipart/* part: Merge all headers into the
+    // parent part and only keep content-* headers.
+    if (parentPart.contentType.startsWith("message/")) {
+      for (let [k, v] of Object.entries(headers)) {
+        if (!parentPart.headers[k]) {
+          parentPart.headers[k] = v;
+        }
+      }
       headers = Object.fromEntries(
         Object.entries(headers).filter(h => h[0].startsWith("content-"))
       );
@@ -165,7 +154,6 @@ var ExtractMimeMsgEmitter = {
       partName,
       body: "",
       headers,
-      rawHeaderText,
       contentType,
       size: 0,
       parts: [],
@@ -174,8 +162,8 @@ var ExtractMimeMsgEmitter = {
     };
 
     // Add nested new part.
-    currentPart.parts.push(newPart);
-    // Update the newly added part to be current part.
+    parentPart.parts.push(newPart);
+    // Push the newly added part into the hierarchical parts stack.
     this.partsPath.push(newPart);
   },
 
@@ -187,14 +175,12 @@ var ExtractMimeMsgEmitter = {
     // Add size.
     let size = currentPart.body.length;
     currentPart.size += size;
+    let partSize = currentPart.size;
 
     if (this.isAttachment(currentPart)) {
       currentPart.name = this.getAttachmentName(currentPart);
-      if (this.options.includeAttachments) {
-        this.mimeTree.allAttachments.push(currentPart);
-      } else {
-        deleteBody = true;
-      }
+      this.mimeTree.attachments.push({ ...currentPart });
+      deleteBody = !this.options.getMimePart;
     }
 
     if (deleteBody || currentPart.body == "") {
@@ -214,7 +200,7 @@ var ExtractMimeMsgEmitter = {
 
     // Add the size of this part to its parent as well.
     currentPart = this.partsPath[this.partsPath.length - 1];
-    currentPart.size += size;
+    currentPart.size += partSize;
   },
 
   /**
@@ -227,7 +213,7 @@ var ExtractMimeMsgEmitter = {
     if (typeof data === "string") {
       currentPart.body += data;
     } else {
-      currentPart.body += String.fromCharCode(...data);
+      currentPart.body += MailStringUtils.uint8ArrayToByteString(data);
     }
   },
 };
@@ -404,8 +390,9 @@ var MimeParser = {
    * Returns a mimeMsg object for the given input. The returned object tries to
    * be compatible with the return value of MsgHdrToMimeMessage. Differences:
    *  - no support for encryption
-   *  - calculated sizes differ slightly
-   *  - allAttachments includes the content and not a URL
+   *  - returned attachments include the body and not the URL
+   *  - returned attachments match either allInlineAttachments or
+   *    allUserAttachments (decodeSubMessages = false)
    *  - does not eat TABs in headers, if they follow a CRLF
    *
    * The input is any type of input that would be accepted by parseSync.
@@ -416,8 +403,8 @@ var MimeParser = {
     var emitter = Object.create(ExtractMimeMsgEmitter);
     // Set default options.
     emitter.options = {
-      includeAttachments: true,
       getMimePart: "",
+      decodeSubMessages: true,
     };
     // Override default options.
     for (let option of Object.keys(options)) {
@@ -426,10 +413,13 @@ var MimeParser = {
 
     MimeParser.parseSync(input, emitter, {
       // jsmime does not use the "1." prefix for the partName.
+      // jsmime uses "$." as sub-message deliminator.
       pruneat: emitter.options.getMimePart
         .split(".")
         .slice(1)
-        .join("."),
+        .join(".")
+        .replaceAll(".1.", "$."),
+      decodeSubMessages: emitter.options.decodeSubMessages,
       bodyformat: "decode",
       stripcontinuations: true,
       strformat: "unicode",

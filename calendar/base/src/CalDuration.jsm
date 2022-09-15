@@ -34,42 +34,42 @@ CalDuration.prototype = {
     return this.innerObject.isNegative;
   },
   set isNegative(val) {
-    this.innerObject.isNegative = val;
+    this.innerObject.isNegative = !!val;
   },
 
   get weeks() {
     return this.innerObject.weeks;
   },
   set weeks(val) {
-    this.innerObject.weeks = val;
+    this.innerObject.weeks = parseInt(val, 10);
   },
 
   get days() {
     return this.innerObject.days;
   },
   set days(val) {
-    this.innerObject.days = val;
+    this.innerObject.days = parseInt(val, 10);
   },
 
   get hours() {
     return this.innerObject.hours;
   },
   set hours(val) {
-    this.innerObject.hours = val;
+    this.innerObject.hours = parseInt(val, 10);
   },
 
   get minutes() {
     return this.innerObject.minutes;
   },
   set minutes(val) {
-    this.innerObject.minutes = val;
+    this.innerObject.minutes = parseInt(val, 10);
   },
 
   get seconds() {
     return this.innerObject.seconds;
   },
   set seconds(val) {
-    this.innerObject.seconds = val;
+    this.innerObject.seconds = parseInt(val, 10);
   },
 
   get inSeconds() {

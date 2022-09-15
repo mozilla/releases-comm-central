@@ -848,12 +848,7 @@ function HideMenus() {
     fileMenuAfterCompactSeparator.setAttribute("hidden", "true");
   }
 
-  var goStartPageSeparator = document.getElementById("goNextSeparator");
-  if (goStartPageSeparator) {
-    goStartPageSeparator.hidden = true;
-  }
-
-  goStartPageSeparator = document.getElementById("appmenu_goNextSeparator");
+  let goStartPageSeparator = document.getElementById("goNextSeparator");
   if (goStartPageSeparator) {
     goStartPageSeparator.hidden = true;
   }
@@ -865,19 +860,7 @@ function HideMenus() {
     goRecentlyClosedTabsSeparator.setAttribute("hidden", "true");
   }
 
-  goRecentlyClosedTabsSeparator = document.getElementById(
-    "appmenu_goRecentlyClosedTabsSeparator"
-  );
-  if (goRecentlyClosedTabsSeparator) {
-    goRecentlyClosedTabsSeparator.setAttribute("hidden", "true");
-  }
-
   let goFolder = document.getElementById("goFolderMenu");
-  if (goFolder) {
-    goFolder.hidden = true;
-  }
-
-  goFolder = document.getElementById("appmenu_goFolderMenu");
   if (goFolder) {
     goFolder.hidden = true;
   }
@@ -887,17 +870,7 @@ function HideMenus() {
     goFolder.hidden = true;
   }
 
-  goFolder = document.getElementById("appmenu_goFolderSeparator");
-  if (goFolder) {
-    goFolder.hidden = true;
-  }
-
-  var goStartPage = document.getElementById("goStartPage");
-  if (goStartPage) {
-    goStartPage.hidden = true;
-  }
-
-  goStartPage = document.getElementById("appmenu_goStartPage");
+  let goStartPage = document.getElementById("goStartPage");
   if (goStartPage) {
     goStartPage.hidden = true;
   }

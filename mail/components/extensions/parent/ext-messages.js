@@ -33,10 +33,16 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/jsmime.jsm"
 );
 
+var { MailStringUtils } = ChromeUtils.import(
+  "resource:///modules/MailStringUtils.jsm"
+);
+
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["File", "FileReader", "IOUtils", "PathUtils"]);
 
 var { DefaultMap } = ExtensionUtils;
+
+let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 /**
  * Takes a part of a MIME message (as retrieved with MsgHdrToMimeMessage) and
@@ -72,37 +78,346 @@ function convertMessagePart(part) {
   return partObject;
 }
 
-function convertAttachment(attachment) {
-  return {
+async function convertAttachment(attachment) {
+  let rv = {
     contentType: attachment.contentType,
     name: attachment.name,
     size: attachment.size,
     partName: attachment.partName,
   };
+
+  if (attachment.contentType.startsWith("message/")) {
+    // The attached message may not have been seen/opened yet, create a dummy
+    // msgHdr.
+    let attachedMsgHdr = new nsDummyMsgHeader();
+    attachedMsgHdr.setStringProperty("dummyMsgUrl", attachment.url);
+    attachedMsgHdr.recipients = attachment.headers.to;
+    attachedMsgHdr.ccList = attachment.headers.cc;
+    attachedMsgHdr.bccList = attachment.headers.bcc;
+    attachedMsgHdr.author = attachment.headers.from[0];
+    attachedMsgHdr.date = Date.parse(attachment.headers.date[0]) * 1000;
+    attachedMsgHdr.subject = attachment.headers.subject[0];
+    attachedMsgHdr.messageId = attachment.headers["message-id"][0].replace(
+      /^<|>$/g,
+      ""
+    );
+    rv.message = convertMessage(attachedMsgHdr);
+  }
+
+  return rv;
 }
 
-async function getAttachments(msgHdr) {
+/**
+ * @typedef MimeMessagePart
+ * @property {MimeMessagePart[]} [attachments] - flat list of attachment parts
+ *   found in any of the nested mime parts
+ * @property {string} [body] - the body of the part
+ * @property {Uint8Array} [raw] - the raw binary content of the part
+ * @property {string} [contentType]
+ * @property {string} headers - key-value object with key being a header name
+ *   and value an array with all header values found
+ * @property {string} [name] - filename, if part is an attachment
+ * @property {string} partName - name of the mime part (e.g: "1.2")
+ * @property {MimeMessagePart[]} [parts] - nested mime parts
+ * @property {string} [size] - size of the part
+ * @property {string} [url] - message url
+ */
+
+/**
+ * Returns attachments found in the message belonging to the given nsIMsgHdr.
+ *
+ * @param {nsIMsgHdr} msgHdr
+ * @param {boolean} includeNestedAttachments - Whether to return all attachments,
+ *   including attachments from nested mime parts.
+ * @returns {Promise<MimeMessagePart[]>}
+ */
+async function getAttachments(msgHdr, includeNestedAttachments = false) {
+  let mimeMsg = await getMimeMessage(msgHdr);
+  if (!mimeMsg) {
+    return null;
+  }
+
+  // Reduce returned attachments according to includeNestedAttachments.
+  let level = mimeMsg.partName ? mimeMsg.partName.split(".").length : 0;
+  return mimeMsg.attachments.filter(
+    a => includeNestedAttachments || a.partName.split(".").length == level + 2
+  );
+}
+
+/**
+ * Returns the attachment identified by the provided partName.
+ *
+ * @param {nsIMsgHdr} msgHdr
+ * @param {string} partName
+ * @returns {Promise<MimeMessagePart>}
+ */
+async function getAttachment(msgHdr, partName) {
+  // It's not ideal to have to call MsgHdrToMimeMessage here again, but we need
+  // the name of the attached file, plus this also gives us the URI without having
+  // to jump through a lot of hoops.
+  let attachment = await getMimeMessage(msgHdr, partName);
+  if (!attachment) {
+    return null;
+  }
+
+  if (attachment.url.startsWith("news://")) {
+    attachment.raw = new Uint8Array(attachment.body.length);
+    for (var i = 0; i < attachment.body.length; i++) {
+      attachment.raw[i] = attachment.body.charCodeAt(i);
+    }
+  } else {
+    let channel = Services.io.newChannelFromURI(
+      Services.io.newURI(attachment.url),
+      null,
+      Services.scriptSecurityManager.getSystemPrincipal(),
+      null,
+      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+      Ci.nsIContentPolicy.TYPE_OTHER
+    );
+
+    attachment.raw = await new Promise((resolve, reject) => {
+      let listener = Cc["@mozilla.org/network/stream-loader;1"].createInstance(
+        Ci.nsIStreamLoader
+      );
+      listener.init({
+        onStreamComplete(loader, context, status, resultLength, result) {
+          if (Components.isSuccessCode(status)) {
+            resolve(Uint8Array.from(result));
+          } else {
+            reject(new Error(`Failed to read attachment content: ${status}`));
+          }
+        },
+      });
+      channel.asyncOpen(listener, null);
+    });
+  }
+
+  return attachment;
+}
+
+/**
+ * Returns the <part> parameter of the dummyMsgUrl of the provided nsIMsgHdr.
+ *
+ * @param {nsIMsgHdr} msgHdr
+ * @returns {string}
+ */
+function getSubMessagePartName(msgHdr) {
+  if (msgHdr.folder || !msgHdr.getStringProperty("dummyMsgUrl")) {
+    return "";
+  }
+
+  return new URL(msgHdr.getStringProperty("dummyMsgUrl")).searchParams.get(
+    "part"
+  );
+}
+
+/**
+ * Returns the nsIMsgHdr of the outer message, if the provided nsIMsgHdr belongs
+ * to a message which is actually an attachment of another message. Returns null
+ * otherwise.
+ *
+ * @param {nsIMsgHdr} msgHdr
+ * @returns {nsIMsgHdr}
+ */
+function getParentMsgHdr(msgHdr) {
+  if (msgHdr.folder || !msgHdr.getStringProperty("dummyMsgUrl")) {
+    return null;
+  }
+
+  let url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
+
+  if (url.protocol == "news:") {
+    let newsUrl = `news-message://${url.hostname}/${url.searchParams.get(
+      "group"
+    )}#${url.searchParams.get("key")}`;
+    return messenger.msgHdrFromURI(newsUrl);
+  }
+
+  if (url.protocol == "mailbox:") {
+    // This could be a sub-message of a message opened from file.
+    let fileUrl = `file://${url.pathname}`;
+    let parentMsgHdr = messageTracker._dummyMessageHeaders.get(fileUrl);
+    if (parentMsgHdr) {
+      return parentMsgHdr;
+    }
+  }
+  // Everything else should be a mailbox:// or an imap:// url.
+  let params = Array.from(url.searchParams, p => p[0]).filter(
+    p => !["number"].includes(p)
+  );
+  for (let param of params) {
+    url.searchParams.delete(param);
+  }
+  return Services.io.newURI(url.href).QueryInterface(Ci.nsIMsgMessageUrl)
+    .messageHeader;
+}
+
+/**
+ * Get the raw message for a given nsIMsgHdr.
+ *
+ * @param aMsgHdr - The message header to retrieve the raw message for.
+ * @returns {Promise<string>} - Binary string of the raw message.
+ */
+async function getRawMessage(msgHdr) {
+  // If this message is a sub-message (an attachment of another message), get it
+  // as an attachment from the parent message and return its raw content.
+  let subMsgPartName = getSubMessagePartName(msgHdr);
+  if (subMsgPartName) {
+    let parentMsgHdr = getParentMsgHdr(msgHdr);
+    let attachment = await getAttachment(parentMsgHdr, subMsgPartName);
+    return attachment.raw.reduce(
+      (prev, curr) => prev + String.fromCharCode(curr),
+      ""
+    );
+  }
+
+  // Messages opened from file do not have a folder property, but
+  // have their url stored as a string property.
+  let msgUri = msgHdr.folder
+    ? msgHdr.folder.generateMessageURI(msgHdr.messageKey)
+    : msgHdr.getStringProperty("dummyMsgUrl");
+
+  let service = messenger.messageServiceFromURI(msgUri);
+  return new Promise((resolve, reject) => {
+    let streamlistener = {
+      _data: [],
+      _stream: null,
+      onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
+        if (!this._stream) {
+          this._stream = Cc[
+            "@mozilla.org/scriptableinputstream;1"
+          ].createInstance(Ci.nsIScriptableInputStream);
+          this._stream.init(aInputStream);
+        }
+        this._data.push(this._stream.read(aCount));
+      },
+      onStartRequest() {},
+      onStopRequest(request, status) {
+        if (Components.isSuccessCode(status)) {
+          resolve(this._data.join(""));
+        } else {
+          reject(
+            new Error(`Error while streaming message <${msgUri}>: ${status}`)
+          );
+        }
+      },
+      QueryInterface: ChromeUtils.generateQI([
+        "nsIStreamListener",
+        "nsIRequestObserver",
+      ]),
+    };
+
+    // This is not using aConvertData and therefore works for news:// messages.
+    service.streamMessage(
+      msgUri,
+      streamlistener,
+      null, // aMsgWindow
+      null, // aUrlListener
+      false, // aConvertData
+      "" //aAdditionalHeader
+    );
+  });
+}
+
+/**
+ * Returns MIME parts found in the message identified by the given nsIMsgHdr.
+ *
+ * @param {nsIMsgHdr} msgHdr
+ * @param {string} partName - Return only a specific mime part.
+ * @returns {Promise<MimeMessagePart>}
+ */
+async function getMimeMessage(msgHdr, partName = "") {
+  // If this message is a sub-message (an attachment of another message), get the
+  // mime parts of the parent message and return the part of the sub-message.
+  let subMsgPartName = getSubMessagePartName(msgHdr);
+  if (subMsgPartName) {
+    let parentMsgHdr = getParentMsgHdr(msgHdr);
+    if (!parentMsgHdr) {
+      return null;
+    }
+
+    let mimeMsg = await getMimeMessage(parentMsgHdr, partName);
+    if (!mimeMsg) {
+      return null;
+    }
+
+    // If <partName> was specified, the returned mime message is just that part,
+    // no further processing needed. But prevent x-ray vision into the parent.
+    if (partName) {
+      if (partName.split(".").length > subMsgPartName.split(".").length) {
+        return mimeMsg;
+      }
+      return null;
+    }
+
+    // Limit mimeMsg and attachments to the requested <subMessagePart>.
+    let findSubPart = (parts, partName) => {
+      let match = parts.find(a => partName.startsWith(a.partName));
+      if (!match) {
+        throw new ExtensionError(
+          `Unexpected Error: Part ${partName} not found.`
+        );
+      }
+      return match.partName == partName
+        ? match
+        : findSubPart(match.parts, partName);
+    };
+    let subMimeMsg = findSubPart(mimeMsg.parts, subMsgPartName);
+
+    if (mimeMsg.attachments) {
+      subMimeMsg.attachments = mimeMsg.attachments.filter(
+        a =>
+          a.partName != subMsgPartName && a.partName.startsWith(subMsgPartName)
+      );
+    }
+    return subMimeMsg;
+  }
+
   // Use jsmime based MimeParser to read NNTP messages, which are not
   // supported by MsgHdrToMimeMessage. No encryption support!
   if (msgHdr.folder?.server.type == "nntp") {
-    let raw = await MsgHdrToRawMessage(msgHdr);
+    let raw = await getRawMessage(msgHdr);
     let mimeMsg = MimeParser.extractMimeMsg(raw, {
-      includeAttachments: true,
+      decodeSubMessages: !partName,
+      getMimePart: partName,
     });
-    return mimeMsg.allAttachments;
+    if (!mimeMsg) {
+      return null;
+    }
+
+    // Re-build news:// URL, which is not provided by MimeParser.extractMimeMsg().
+    let msgUri = msgHdr.folder.getUriForMsg(msgHdr);
+    let baseUrl = new URL(
+      messenger.messageServiceFromURI(msgUri).getUrlForUri(msgUri).spec
+    );
+    if (partName) {
+      baseUrl.searchParams.set("part", mimeMsg.partName);
+      mimeMsg.url = baseUrl.href;
+    } else if (mimeMsg.attachments) {
+      for (let attachment of mimeMsg.attachments) {
+        baseUrl.searchParams.set("part", attachment.partName);
+        attachment.url = baseUrl.href;
+      }
+    }
+    return mimeMsg;
   }
 
-  return new Promise(resolve => {
+  let mimeMsg = await new Promise(resolve => {
     MsgHdrToMimeMessage(
       msgHdr,
       null,
       (_msgHdr, mimeMsg) => {
-        resolve(mimeMsg.allAttachments);
+        mimeMsg.attachments = mimeMsg.allInlineAttachments;
+        resolve(mimeMsg);
       },
       true,
       { examineEncryptedParts: true, partsOnDemand: true }
     );
   });
+
+  return partName
+    ? mimeMsg.attachments.find(a => a.partName == partName)
+    : mimeMsg;
 }
 
 this.messages = class extends ExtensionAPI {
@@ -121,6 +436,26 @@ this.messages = class extends ExtensionAPI {
       }
 
       return folderMap;
+    }
+
+    async function createTempFileMessage(msgHdr) {
+      let rawBinaryString = await getRawMessage(msgHdr);
+      let pathEmlFile = await IOUtils.createUniqueFile(
+        PathUtils.tempDir,
+        encodeURIComponent(msgHdr.messageId) + ".eml",
+        0o600
+      );
+
+      let emlFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+      emlFile.initWithPath(pathEmlFile);
+      let extAppLauncher = Cc[
+        "@mozilla.org/uriloader/external-helper-app-service;1"
+      ].getService(Ci.nsPIExternalAppLauncher);
+      extAppLauncher.deleteTemporaryFileOnExit(emlFile);
+
+      let buffer = MailStringUtils.byteStringToUint8Array(rawBinaryString);
+      await IOUtils.write(pathEmlFile, buffer);
+      return emlFile;
     }
 
     async function moveOrCopyMessages(messageIds, { accountId, path }, isMove) {
@@ -156,10 +491,15 @@ this.messages = class extends ExtensionAPI {
             }
 
             for (let msgHdr of msgHeaders) {
+              let file;
               let fileUrl = msgHdr.getStringProperty("dummyMsgUrl");
-              let file = Services.io
-                .newURI(fileUrl)
-                .QueryInterface(Ci.nsIFileURL).file;
+              if (fileUrl.startsWith("file://")) {
+                file = Services.io.newURI(fileUrl).QueryInterface(Ci.nsIFileURL)
+                  .file;
+              } else {
+                file = await createTempFileMessage(msgHdr);
+              }
+
               promises.push(
                 new Promise((resolve, reject) => {
                   MailServices.copy.copyFileMessage(
@@ -224,38 +564,6 @@ this.messages = class extends ExtensionAPI {
         throw new ExtensionError(
           `Error ${isMove ? "moving" : "copying"} message: ${ex.message}`
         );
-      }
-    }
-
-    async function getMimeMessage(msgHdr) {
-      // Use jsmime based MimeParser to read NNTP messages, which are not
-      // supported by MsgHdrToMimeMessage. No encryption support!
-      if (msgHdr.folder?.server.type == "nntp") {
-        try {
-          let raw = await MsgHdrToRawMessage(msgHdr);
-          let mimeMsg = MimeParser.extractMimeMsg(raw, {
-            includeAttachments: false,
-          });
-          return mimeMsg;
-        } catch (e) {
-          return null;
-        }
-      }
-
-      try {
-        return await new Promise(resolve => {
-          MsgHdrToMimeMessage(
-            msgHdr,
-            null,
-            (_msgHdr, mimeMsg) => {
-              resolve(mimeMsg);
-            },
-            true,
-            { examineEncryptedParts: true }
-          );
-        });
-      } catch (e) {
-        return null;
       }
     }
 
@@ -407,7 +715,8 @@ this.messages = class extends ExtensionAPI {
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-          return MsgHdrToRawMessage(msgHdr).catch(() => {
+          return getRawMessage(msgHdr).catch(ex => {
+            Cu.reportError(ex);
             throw new ExtensionError(`Error reading message ${messageId}`);
           });
         },
@@ -416,77 +725,24 @@ this.messages = class extends ExtensionAPI {
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-          return getAttachments(msgHdr).then(rv => rv.map(convertAttachment));
+          let attachments = await getAttachments(msgHdr);
+          for (let i = 0; i < attachments.length; i++) {
+            attachments[i] = await convertAttachment(attachments[i]);
+          }
+          return attachments;
         },
         async getAttachmentFile(messageId, partName) {
           let msgHdr = messageTracker.getMessage(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-
-          // Use jsmime based MimeParser to read NNTP messages, which are not
-          // supported by MsgHdrToMimeMessage. No encryption support!
-          if (msgHdr.folder?.server.type == "nntp") {
-            let raw = await MsgHdrToRawMessage(msgHdr);
-            let attachment = MimeParser.extractMimeMsg(raw, {
-              includeAttachments: true,
-              getMimePart: partName,
-            });
-            if (!attachment) {
-              throw new ExtensionError(
-                `Part ${partName} not found in message ${messageId}.`
-              );
-            }
-            return new File([attachment.bodyAsTypedArray], attachment.name, {
-              type: attachment.contentType,
-            });
-          }
-
-          // It's not ideal to have to call MsgHdrToMimeMessage here but we
-          // need the name of the attached file, plus this also gives us the
-          // URI without having to jump through a lot of hoops.
-          let attachment = await new Promise(resolve => {
-            MsgHdrToMimeMessage(
-              msgHdr,
-              null,
-              (_msgHdr, mimeMsg) => {
-                resolve(
-                  mimeMsg.allAttachments.find(a => a.partName == partName)
-                );
-              },
-              true,
-              { examineEncryptedParts: true, partsOnDemand: true }
-            );
-          });
-
+          let attachment = await getAttachment(msgHdr, partName);
           if (!attachment) {
             throw new ExtensionError(
               `Part ${partName} not found in message ${messageId}.`
             );
           }
-
-          let channel = Services.io.newChannelFromURI(
-            Services.io.newURI(attachment.url),
-            null,
-            Services.scriptSecurityManager.getSystemPrincipal(),
-            null,
-            Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-            Ci.nsIContentPolicy.TYPE_OTHER
-          );
-
-          let byteArray = await new Promise(resolve => {
-            let listener = Cc[
-              "@mozilla.org/network/stream-loader;1"
-            ].createInstance(Ci.nsIStreamLoader);
-            listener.init({
-              onStreamComplete(loader, context, status, resultLength, result) {
-                resolve(Uint8Array.from(result));
-              },
-            });
-            channel.asyncOpen(listener, null);
-          });
-
-          return new File([byteArray], attachment.name, {
+          return new File([attachment.raw], attachment.name, {
             type: attachment.contentType,
           });
         },
@@ -788,7 +1044,10 @@ this.messages = class extends ExtensionAPI {
 
             // Check attachments.
             if (queryInfo.attachment != null) {
-              let attachments = await getAttachments(msg);
+              let attachments = await getAttachments(
+                msg,
+                /* includeNestedAttachments */ true
+              );
               return !!attachments.length == queryInfo.attachment;
             }
 

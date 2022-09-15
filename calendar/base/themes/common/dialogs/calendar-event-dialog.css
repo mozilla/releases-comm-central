@@ -115,6 +115,10 @@
   border-bottom: 1px solid #444444;
 }
 
+#counter-proposal-box > vbox:not(#counter-buttons) {
+  color: #000;
+}
+
 #counter-proposal-property-values > description {
   margin-bottom: 2px;
 }

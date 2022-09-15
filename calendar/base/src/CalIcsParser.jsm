@@ -89,9 +89,7 @@ CalIcsParser.prototype = {
           state.items.push(parent);
         }
         if (item.id in fakedParents) {
-          let rdate = Cc["@mozilla.org/calendar/recurrence-date;1"].createInstance(
-            Ci.calIRecurrenceDate
-          );
+          let rdate = cal.createRecurrenceDate();
           rdate.date = item.recurrenceId;
           parent.recurrenceInfo.appendRecurrenceItem(rdate);
           // we'll keep the parentless-API until we switch over using itip-process for import (e.g. in dnd code)

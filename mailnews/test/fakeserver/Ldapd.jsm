@@ -5,6 +5,10 @@
 
 const EXPORTED_SYMBOLS = ["LDAPDaemon", "LDAPHandlerFn"];
 
+var { MailStringUtils } = ChromeUtils.import(
+  "resource:///modules/MailStringUtils.jsm"
+);
+
 /**
  * This file provides fake LDAP server functionality, just enough to run
  * our unit tests against.
@@ -158,7 +162,7 @@ class BERValue {
   asString() {
     // TODO: pass in expected encoding?
     if (this.data.length > 0) {
-      return String.fromCharCode(...this.data);
+      return MailStringUtils.uint8ArrayToByteString(new Uint8Array(this.data));
     }
     return "";
   }

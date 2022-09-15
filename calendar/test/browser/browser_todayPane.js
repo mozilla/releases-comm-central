@@ -8,6 +8,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalDateTime: "resource:///modules/CalDateTime.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
 });
@@ -55,7 +56,7 @@ function checkEvent(row, { dateHeader, time, title, relative, overlap, classes =
   let dateHeaderElement = row.querySelector(".agenda-date-header");
   if (dateHeader) {
     Assert.ok(BrowserTestUtils.is_visible(dateHeaderElement), "date header is visible");
-    if (dateHeader instanceof Ci.calIDateTime) {
+    if (dateHeader instanceof CalDateTime || dateHeader instanceof Ci.calIDateTime) {
       dateHeader = cal.dtz.formatter.formatDateLongWithoutYear(dateHeader);
     }
     Assert.equal(dateHeaderElement.textContent, dateHeader, "date header has correct value");
@@ -68,7 +69,7 @@ function checkEvent(row, { dateHeader, time, title, relative, overlap, classes =
   if (time) {
     Assert.ok(BrowserTestUtils.is_visible(calendarElement), "calendar is visible");
     Assert.ok(BrowserTestUtils.is_visible(timeElement), "time is visible");
-    if (time instanceof Ci.calIDateTime) {
+    if (time instanceof CalDateTime || time instanceof Ci.calIDateTime) {
       time = cal.dtz.formatter.formatTime(time);
     }
     Assert.equal(timeElement.textContent, time, "time has correct value");

@@ -13,6 +13,8 @@ const lazy = {};
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
+  CalDateTime: "resource:///modules/CalDateTime.jsm",
+  CalDuration: "resource:///modules/CalDuration.jsm",
 });
 
 const ALARM_RELATED_ABSOLUTE = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
@@ -84,7 +86,7 @@ CalAlarm.prototype = {
 
     // Properties
     for (let propval of this.mProperties.values()) {
-      if (propval instanceof Ci.calIDateTime && propval.isMutable) {
+      if (propval?.isMutable) {
         propval.makeImmutable();
       }
     }
@@ -126,7 +128,7 @@ CalAlarm.prototype = {
     // X-Props
     cloned.mProperties = new Map();
     for (let [name, value] of this.mProperties.entries()) {
-      if (value instanceof Ci.calIDateTime) {
+      if (value instanceof lazy.CalDateTime || value instanceof Ci.calIDateTime) {
         value = value.clone();
       }
 
@@ -196,7 +198,7 @@ CalAlarm.prototype = {
     return this.mOffset;
   },
   set offset(aValue) {
-    if (aValue && !(aValue instanceof Ci.calIDuration)) {
+    if (aValue && !(aValue instanceof lazy.CalDuration) && !(aValue instanceof Ci.calIDuration)) {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
     if (this.related != ALARM_RELATED_START && this.related != ALARM_RELATED_END) {
@@ -210,7 +212,7 @@ CalAlarm.prototype = {
     return this.mAbsoluteDate;
   },
   set alarmDate(aValue) {
-    if (aValue && !(aValue instanceof Ci.calIDateTime)) {
+    if (aValue && !(aValue instanceof lazy.CalDateTime) && !(aValue instanceof Ci.calIDateTime)) {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
     if (this.related != ALARM_RELATED_ABSOLUTE) {
@@ -246,7 +248,11 @@ CalAlarm.prototype = {
   },
   set repeatOffset(aValue) {
     this.ensureMutable();
-    if (aValue !== null && !(aValue instanceof Ci.calIDuration)) {
+    if (
+      aValue !== null &&
+      !(aValue instanceof lazy.CalDuration) &&
+      !(aValue instanceof Ci.calIDuration)
+    ) {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
     this.mDuration = aValue;

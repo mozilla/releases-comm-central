@@ -6,6 +6,8 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
+  const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+
   /**
    * CalInvitationDisplay is the controller responsible for the display of the
    * invitation panel when an email contains an embedded invitation.
@@ -86,14 +88,35 @@
      * Displays the invitation display with the data from the provided
      * calIItipItem.
      *
-     * @param {calIItipItem} item
+     * @param {calIItipItem} itipItem
      */
-    show(item) {
+    async show(itipItem) {
+      this.display.replaceChildren();
+      let [item] = itipItem.getItemList();
+      let foundItem = await itipItem.targetCalendar.getItem(item.id);
       let panel = document.createElement("calendar-invitation-panel");
-      this.display.replaceChildren(panel);
-      panel.itipItem = item;
-      this.container.hidden = false;
+      let { mode } = panel;
+      switch (itipItem.receivedMethod) {
+        case "REQUEST":
+          if (foundItem) {
+            if (cal.itip.compareSequence(foundItem, item) == 1) {
+              mode = panel.MODE_UPDATE_MAJOR;
+            } else if (cal.itip.compareStamp(foundItem, item) == 1) {
+              mode = panel.MODE_UPDATE_MINOR;
+            } else {
+              mode = panel.MODE_ALREADY_PROCESSED;
+            }
+          }
+          break;
+        case "CANCEL":
+          mode = foundItem ? panel.MODE_CANCELLED : panel.MODE_CANCELLED_NOT_FOUND;
+          break;
+      }
+      panel.mode = mode;
+      panel.item = item;
+      this.display.appendChild(panel);
       this.body.hidden = true;
+      this.container.hidden = false;
     },
 
     /**

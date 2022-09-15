@@ -49,6 +49,7 @@ class nsMessenger : public nsIMessenger,
                              const nsTArray<nsCString>& aDisplayNameArray,
                              const nsTArray<nsCString>& aMessageUriArray,
                              nsTArray<nsCString>* saveFileUris,
+                             nsIUrlListener* aListener,
                              bool withoutWarning = false);
   nsresult SaveAllAttachments(const nsTArray<nsCString>& contentTypeArray,
                               const nsTArray<nsCString>& urlArray,

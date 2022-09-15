@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardPropertyEntryView */
+/* globals VCardEdit, VCardPropertyEntryView */
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -38,6 +38,16 @@ class VCardNoteComponent extends HTMLElement {
       this.textAreaEl.addEventListener("input", () => {
         this.resizeTextAreaEl();
       });
+      this.querySelector(".remove-property-button").addEventListener(
+        "click",
+        () => {
+          document.getElementById("vcard-add-note").hidden = false;
+          this.dispatchEvent(
+            new CustomEvent("vcard-remove-property", { bubbles: true })
+          );
+          this.remove();
+        }
+      );
       this.fromVCardPropertyEntryToUI();
     }
   }

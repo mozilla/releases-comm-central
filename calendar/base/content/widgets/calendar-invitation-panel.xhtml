@@ -2,31 +2,107 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<!-- Template for <calendar-invitation-panel /> -->
-<template id="calendarInvitationPanel" xmlns="http://www.w3.org/1999/xhtml">
-  <div class="calendar-invitation-panel-body">
+<!-- Template used by <calendar-invitation-panel/> when an item is first 
+     encountered -->
+<template id="calendarInvitationPanelNew" xmlns="http://www.w3.org/1999/xhtml">
+  <calendar-invitation-panel-wrapper id="wrapper">
+    <calendar-invitation-panel-header id="header" slot="header">
+      <button id="actionButton"
+              class="calendar-invitation-panel-action-button"
+              data-l10n-id="calendar-invitation-panel-save-button"
+              slot="action"></button>
+    </calendar-invitation-panel-header>
+  </calendar-invitation-panel-wrapper>
+  <calendar-invitation-panel-footer/>
+</template>
+
+<!-- Template for <calendar-invitation-panel/> when the invitation has already
+     been processed. -->
+<template id="calendarInvitationPanelProcessed" xmlns="http://www.w3.org/1999/xhtml">
+  <calendar-invitation-panel-wrapper id="wrapper">
+    <calendar-invitation-panel-header id="header" slot="header">
+      <button id="actionButton"
+              class="calendar-invitation-panel-action-button"
+              data-l10n-id="calendar-invitation-panel-view-button"
+              slot="action"></button>
+    </calendar-invitation-panel-header>
+  </calendar-invitation-panel-wrapper>
+  <calendar-invitation-panel-footer/>
+</template>
+
+<!-- Template for <calendar-invitation-panel/> when the invitation is a major
+     update. -->
+<template id="calendarInvitationPanelUpdateMajor" xmlns="http://www.w3.org/1999/xhtml">
+  <calendar-invitation-panel-wrapper id="wrapper">
+    <calendar-invitation-panel-header id="header" slot="header" actionType="update">
+      <button id="actionButton"
+              class="calendar-invitation-panel-action-button"
+              data-l10n-id="calendar-invitation-panel-view-button"
+              slot="action"></button>
+    </calendar-invitation-panel-header>
+  </calendar-invitation-panel-wrapper>
+  <calendar-invitation-panel-footer/>
+</template>
+
+<!-- Template for <calendar-invitation-panel/> when the invitation is a minor
+     update. -->
+<template id="calendarInvitationPanelUpdateMinor" xmlns="http://www.w3.org/1999/xhtml">
+  <calendar-invitation-panel-wrapper id="wrapper">
+    <calendar-invitation-panel-header id="header" slot="header" actionType="update">
+      <button id="actionButton"
+              class="calendar-invitation-panel-action-button"
+              data-l10n-id="calendar-invitation-panel-update-button"
+              slot="action"></button>
+    </calendar-invitation-panel-header>
+  </calendar-invitation-panel-wrapper>
+  <calendar-invitation-panel-footer/>
+</template>
+
+<!-- Template for <calendar-invitation-panel/> when the invitation is a 
+     cancellation of an existing event. -->
+<template id="calendarInvitationPanelCancelled" xmlns="http://www.w3.org/1999/xhtml">
+  <calendar-invitation-panel-wrapper id="wrapper">
+    <calendar-invitation-panel-header id="header" slot="header" actionType="cancel">
+      <button id="actionButton"
+              class="calendar-invitation-panel-action-button"
+              data-l10n-id="calendar-invitation-panel-delete-button"
+              slot="action"></button>
+    </calendar-invitation-panel-header>
+  </calendar-invitation-panel-wrapper>
+  <calendar-invitation-panel-footer/>
+</template>
+
+<!-- Template for <calendar-invitation-panel/> when the invitation is a 
+     cancellation of an unprocessed event. -->
+<template id="calendarInvitationPanelCancelledNotFound" xmlns="http://www.w3.org/1999/xhtml">
+  <calendar-invitation-panel-wrapper id="wrapper">
+    <calendar-invitation-panel-header id="header" slot="header" actionType="cancel"/>
+  </calendar-invitation-panel-wrapper>
+  <calendar-invitation-panel-footer/>
+</template>
+
+<!-- Template for <calendar-invitation-panel-wrapper/> -->
+<template id="calendarInvitationPanelWrapper" xmlns="http://www.w3.org/1999/xhtml">
     <div class="calendar-invitation-panel-preview">
       <calendar-minidate id="minidate"/>
     </div>
     <div class="calendar-invitation-panel-details">
-      <calendar-invitation-panel-header id="header"/>
+      <slot name="header"></slot>
       <calendar-invitation-panel-properties id="properties"/>
     </div>
-  </div>
-  <calendar-invitation-panel-footer/>
 </template>
 
 <!-- Template for <calendar-invitation-panel-header/> -->
 <template id="calendarInvitationPanelHeader" xmlns="http://www.w3.org/1999/xhtml">
   <div class="calendar-invitation-panel-details-header">
-    <div class="calendar-invitation-panel-intro" 
+    <div id="intro"
+         class="calendar-invitation-panel-intro" 
          data-l10n-id="calendar-invitation-panel-intro"></div>
     <div class="calendar-invitation-panel-summary">
-      <h1 class="calendar-invitation-panel-title" 
+      <h1 id="title"
+          class="calendar-invitation-panel-title" 
           data-l10n-id="calendar-invitation-panel-title"></h1>
-      <button id="actionButton"
-              class="calendar-invitation-panel-action-button"
-              data-l10n-id="calendar-invitation-panel-action-button"/>
+      <slot name="action"></slot>
     </div>
   </div>
 </template>
@@ -58,7 +134,7 @@
   </table>
 </template>
 
-<!-- Template for <calendar-invitation-datetime /> -->
+<!-- Template for <calendar-invitation-datetime/> -->
 <template id="calendarInvitationDatetime" xmlns="http://www.w3.org/1999/xhtml">
   <div id="datetime" class="calendar-invitation-datetime">
     <div id="date"
@@ -69,7 +145,7 @@
   </div>
 </template>
 
-<!-- Template for <calendar-invitation-partstat-summary /> -->
+<!-- Template for <calendar-invitation-partstat-summary/> -->
 <template id="calendarInvitationPartStatSummary" xmlns="http://www.w3.org/1999/xhtml">
   <div id="summary" class="calendar-invitation-attendees-summary">
     <span id="total" 
@@ -78,7 +154,7 @@
   </div>
 </template>
 
-<!-- Template for <calendar-invitation-attendees-list /> -->
+<!-- Template for <calendar-invitation-attendees-list/> -->
 <template id="calendarInvitationAttendeesList" xmlns="http://www.w3.org/1999/xhtml">
   <ul id="attendeeList" class="calendar-invitation-attendee-list"></ul>
 </template>
@@ -92,14 +168,13 @@
       <button id="acceptButton"
               name="accept"
               class="primary"
-              data-l10n-id="calendar-invitation-panel-accept-button"/>
+              data-l10n-id="calendar-invitation-panel-accept-button"></button>
       <button id="declineButton"
               name="decline"
-              data-l10n-id="calendar-invitation-panel-decline-button"/>
+              data-l10n-id="calendar-invitation-panel-decline-button"></button>
       <button id="tentativeButton"
               name="tentative"
-              data-l10n-id="calendar-invitation-panel-tentative-button"/>
+              data-l10n-id="calendar-invitation-panel-tentative-button"></button>
       </div>
     </div>
 </template>
-

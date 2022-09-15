@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardPropertyEntryView, vCardIdGen */
+/* globals VCardEdit, VCardPropertyEntryView, vCardIdGen */
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -49,9 +49,11 @@ class VCardIMPPComponent extends HTMLElement {
 
     this.protocolEl.addEventListener("change", event => {
       let entered = this.imppEl.value.split(":", 1)[0]?.toLowerCase();
-      this.protocolEl.value =
-        [...this.protocolEl.options].find(o => o.value.startsWith(entered))
-          ?.value || "";
+      if (entered) {
+        this.protocolEl.value =
+          [...this.protocolEl.options].find(o => o.value.startsWith(entered))
+            ?.value || "";
+      }
       this.imppEl.placeholder = this.protocolEl.value;
       this.imppEl.pattern = this.protocolEl.selectedOptions[0].dataset.pattern;
     });
@@ -61,10 +63,18 @@ class VCardIMPPComponent extends HTMLElement {
     imppLabel.htmlFor = this.imppEl.id;
     document.l10n.setAttributes(imppLabel, "vcard-impp-label");
     this.imppEl.addEventListener("change", event => {
-      if (event.target.value) {
-        this.protocolEl.dispatchEvent(new CustomEvent("change"));
-      }
+      this.protocolEl.dispatchEvent(new CustomEvent("change"));
     });
+
+    this.querySelector(".remove-property-button").addEventListener(
+      "click",
+      () => {
+        this.dispatchEvent(
+          new CustomEvent("vcard-remove-property", { bubbles: true })
+        );
+        this.remove();
+      }
+    );
 
     this.fromVCardPropertyEntryToUI();
     this.imppEl.dispatchEvent(new CustomEvent("change"));

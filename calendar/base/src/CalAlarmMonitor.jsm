@@ -6,6 +6,9 @@ var EXPORTED_SYMBOLS = ["CalAlarmMonitor"];
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
+const lazy = {};
+ChromeUtils.defineModuleGetter(lazy, "CalEvent", "resource:///modules/CalEvent.jsm");
+
 function peekAlarmWindow() {
   return Services.wm.getMostRecentWindow("Calendar:AlarmWindow");
 }
@@ -159,7 +162,7 @@ CalAlarmMonitor.prototype = {
     }
     // Don't notify if you declined this event invitation.
     if (
-      item instanceof Ci.calIEvent &&
+      (item instanceof lazy.CalEvent || item instanceof Ci.calIEvent) &&
       item.calendar instanceof Ci.calISchedulingSupport &&
       item.calendar.isInvitation(item) &&
       item.calendar.getInvitedAttendee(item)?.participationStatus == "DECLINED"

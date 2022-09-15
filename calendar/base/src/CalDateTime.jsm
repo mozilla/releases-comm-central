@@ -43,7 +43,7 @@ CalDateTime.prototype = {
     return this.innerObject.year;
   },
   set year(val) {
-    this.innerObject.year = val;
+    this.innerObject.year = parseInt(val, 10);
   },
 
   get month() {
@@ -57,28 +57,28 @@ CalDateTime.prototype = {
     return this.innerObject.day;
   },
   set day(val) {
-    this.innerObject.day = val;
+    this.innerObject.day = parseInt(val, 10);
   },
 
   get hour() {
     return this.innerObject.hour;
   },
   set hour(val) {
-    this.innerObject.hour = val;
+    this.innerObject.hour = parseInt(val, 10);
   },
 
   get minute() {
     return this.innerObject.minute;
   },
   set minute(val) {
-    this.innerObject.minute = val;
+    this.innerObject.minute = parseInt(val, 10);
   },
 
   get second() {
     return this.innerObject.second;
   },
   set second(val) {
-    this.innerObject.second = val;
+    this.innerObject.second = parseInt(val, 10);
   },
 
   get timezone() {
@@ -119,7 +119,7 @@ CalDateTime.prototype = {
     return this.innerObject.isDate;
   },
   set isDate(val) {
-    this.innerObject.isDate = val;
+    this.innerObject.isDate = !!val;
   },
 
   get weekday() {

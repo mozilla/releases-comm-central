@@ -593,7 +593,7 @@ compose-send-html-description = Some recipients may not be able to read the mess
 compose-send-plain-option =
     .label = Only Plain Text
 
-compose-send-plain-description = Some styling will be converted into a plain alternative, whilst other composition features will be disabled.
+compose-send-plain-description = Some styling will be converted into a plain alternative, while other composition features will be disabled.
 
 autocomplete-description = When addressing messages, look for matching entries in:
 

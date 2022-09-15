@@ -37,6 +37,12 @@ var PAB_CARD_DATA = [
     SecondEmail: "tomez.doe@foo2.invalid",
     PreferDisplayName: true,
     PopularityIndex: 10,
+    // Poison the card data with an unparseable birthday. This will cause the
+    // vCard parser to throw an exception, but it should be caught and the
+    // search should carry on as normal.
+    BirthDay: 25,
+    BirthMonth: 9,
+    BirthYear: "NaN",
   },
   {
     FirstName: "Tomas",

@@ -1762,9 +1762,7 @@ upgrade.v22 = function(db, version) {
 
           let ritem;
           if (aType == "x-date") {
-            ritem = Cc["@mozilla.org/calendar/recurrence-date;1"].createInstance(
-              Ci.calIRecurrenceDate
-            );
+            ritem = cal.createRecurrenceDate();
             ritem.date = textToDate(aDates);
             ritem.isNegative = !!aIsNegative;
           } else {

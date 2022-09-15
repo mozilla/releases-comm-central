@@ -183,63 +183,6 @@ async function getRealFileForFile(file) {
 }
 
 /**
- * Get raw message for a given msgHdr. This is not using aConvertData
- * and therefore also works for nntp/news.
- *
- * @param aMsgHdr - The message header to retrieve the raw message for.
- * @return {string} - A Promise for a binary string of the raw message.
- */
-function MsgHdrToRawMessage(msgHdr) {
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
-  // Messages opened from file or attachments do not have a folder property, but
-  // have their url stored as a string property.
-  let msgUri = msgHdr.folder
-    ? msgHdr.folder.generateMessageURI(msgHdr.messageKey)
-    : msgHdr.getStringProperty("dummyMsgUrl");
-
-  let service = messenger.messageServiceFromURI(msgUri);
-  return new Promise((resolve, reject) => {
-    let streamlistener = {
-      _data: [],
-      _stream: null,
-      onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
-        if (!this._stream) {
-          this._stream = Cc[
-            "@mozilla.org/scriptableinputstream;1"
-          ].createInstance(Ci.nsIScriptableInputStream);
-          this._stream.init(aInputStream);
-        }
-        this._data.push(this._stream.read(aCount));
-      },
-      onStartRequest() {},
-      onStopRequest(aRequest, aStatus) {
-        if (aStatus == Cr.NS_OK) {
-          resolve(this._data.join(""));
-        } else {
-          Cu.reportError(aStatus);
-          reject();
-        }
-      },
-      QueryInterface: ChromeUtils.generateQI([
-        "nsIStreamListener",
-        "nsIRequestObserver",
-      ]),
-    };
-
-    service.streamMessage(
-      msgUri,
-      streamlistener,
-      null, // aMsgWindow
-      null, // aUrlListener
-      false, // aConvertData
-      "" //aAdditionalHeader
-    );
-  });
-}
-
-/**
  * Gets the window for a tabmail tabInfo.
  *
  * @param {NativeTabInfo} nativeTabInfo - The tabInfo object to get the browser for
@@ -348,6 +291,88 @@ XPCOMUtils.defineLazyGetter(global, "searchInitialized", () => {
     (_, data) => data == "init-complete"
   );
 });
+
+/**
+ * Class for dummy message Headers.
+ */
+class nsDummyMsgHeader {
+  constructor(msgHdr) {
+    this.mProperties = [];
+    this.messageSize = 0;
+    this.author = null;
+    this.subject = "";
+    this.recipients = null;
+    this.ccList = null;
+    this.listPost = null;
+    this.messageId = null;
+    this.date = 0;
+    this.accountKey = "";
+    this.flags = 0;
+    // If you change us to return a fake folder, please update
+    // folderDisplay.js's FolderDisplayWidget's selectedMessageIsExternal getter.
+    this.folder = null;
+
+    if (msgHdr) {
+      for (let member of [
+        "accountKey",
+        "author",
+        "ccList",
+        "date",
+        "flags",
+        "listPost",
+        "messageId",
+        "messageSize",
+        "mProperties",
+        "recipients",
+        "subject",
+      ]) {
+        // Members are either (associative) arrays or primitives.
+        if (typeof msgHdr[member] == "object") {
+          this[member] = [];
+          for (let property in msgHdr[member]) {
+            this[member][property] = msgHdr[member][property];
+          }
+        } else {
+          this[member] = msgHdr[member];
+        }
+      }
+    }
+  }
+  getProperty(aProperty) {
+    return this.getStringProperty(aProperty);
+  }
+  setProperty(aProperty, aVal) {
+    return this.setStringProperty(aProperty, aVal);
+  }
+  getStringProperty(aProperty) {
+    if (aProperty in this.mProperties) {
+      return this.mProperties[aProperty];
+    }
+    return "";
+  }
+  setStringProperty(aProperty, aVal) {
+    this.mProperties[aProperty] = aVal;
+  }
+  getUint32Property(aProperty) {
+    if (aProperty in this.mProperties) {
+      return parseInt(this.mProperties[aProperty]);
+    }
+    return 0;
+  }
+  setUint32Property(aProperty, aVal) {
+    this.mProperties[aProperty] = aVal.toString();
+  }
+  markHasAttachments(hasAttachments) {}
+  get mime2DecodedAuthor() {
+    return this.author;
+  }
+  get mime2DecodedSubject() {
+    return this.subject;
+  }
+  get mime2DecodedRecipients() {
+    return this.recipients;
+  }
+}
 
 /**
  * The window tracker tracks opening and closing Thunderbird windows. Each window has an id, which
@@ -1530,10 +1555,11 @@ class WindowManager extends WindowManagerBase {
 
 /**
  * Wait until the window identified by the given windowId has finished its delayed
- * startup. Returns its DOMWindow when done.
+ * startup. Returns its DOMWindow when done. Waits for the top window, if no window
+ * is specified.
  *
- * @param {*} context - a WebExtension context
- * @param {*} windowId - a WebExtension window id
+ * @param {*} [context] - a WebExtension context
+ * @param {*} [windowId] - a WebExtension window id
  * @returns {DOMWindow}
  */
 function getNormalWindowReady(context, windowId) {
@@ -1541,14 +1567,13 @@ function getNormalWindowReady(context, windowId) {
     let window = !windowId
       ? windowTracker.topNormalWindow
       : windowTracker.getWindow(windowId, context);
-    let { gMailInit } = window;
-    if (!gMailInit || !gMailInit.delayedStartupFinished) {
+    if (!window?.gMailInit || !window.gMailInit.delayedStartupFinished) {
       let obs = (finishedWindow, topic, data) => {
-        if (finishedWindow != window) {
+        if (window && finishedWindow != window) {
           return;
         }
         Services.obs.removeObserver(obs, "mail-delayed-startup-finished");
-        resolve(window);
+        resolve(finishedWindow);
       };
       Services.obs.addObserver(obs, "mail-delayed-startup-finished");
     } else {
@@ -1766,23 +1791,6 @@ class FolderManager {
 }
 
 /**
- * Check if the provided fileUrl points to a valid file.
- */
-function isValidFileURL(fileUrl) {
-  if (!fileUrl) {
-    return false;
-  }
-  try {
-    return Services.io
-      .newURI(fileUrl)
-      .QueryInterface(Ci.nsIFileURL)
-      .file?.exists();
-  } catch (ex) {
-    return false;
-  }
-}
-
-/**
  * Checks if the provided nsIMsgHdr is a dummy message header of an attached message.
  */
 function isAttachedMessage(msgHdr) {
@@ -1797,65 +1805,6 @@ function isAttachedMessage(msgHdr) {
 }
 
 /**
- * Asynchronous wrapper for convertMessage(), which first checks if the passed
- * nsIMsgHdr belongs to an attached message and saves it as a temporary file (if
- * not yet done) and uses that for further processing.
- */
-async function convertMessageOrAttachedMessage(msgHdr, extension) {
-  try {
-    if (isAttachedMessage(msgHdr)) {
-      let dummyMsgUrl = msgHdr.getStringProperty("dummyMsgUrl");
-      let emlFileUrl = messageTracker._attachedMessageUrls.get(dummyMsgUrl);
-      let rawBinaryString = await MsgHdrToRawMessage(msgHdr);
-
-      if (!isValidFileURL(emlFileUrl)) {
-        let pathEmlFile = await IOUtils.createUniqueFile(
-          PathUtils.tempDir,
-          encodeURIComponent(msgHdr.messageId) + ".eml",
-          0o600
-        );
-
-        let emlFile = Cc["@mozilla.org/file/local;1"].createInstance(
-          Ci.nsIFile
-        );
-        emlFile.initWithPath(pathEmlFile);
-        let extAppLauncher = Cc[
-          "@mozilla.org/uriloader/external-helper-app-service;1"
-        ].getService(Ci.nsPIExternalAppLauncher);
-        extAppLauncher.deleteTemporaryFileOnExit(emlFile);
-
-        let buffer = new Uint8Array(rawBinaryString.length);
-        // rawBinaryString should be a sequence of chars where each char *should*
-        // use only the lowest 8 bytes. Each charcode value (0...255) is to be
-        // added to an Uint8Array. Since charCodeAt() may return 16bit values, mask
-        // them to 8bit. This should not be necessary, but does not harm.
-        for (let i = 0; i < rawBinaryString.length; i++) {
-          buffer[i] = rawBinaryString.charCodeAt(i) & 0xff;
-        }
-        await IOUtils.write(pathEmlFile, buffer);
-
-        // Attach x-message-display type to make MsgHdrToRawMessage() work with
-        // the file url.
-        emlFileUrl = Services.io
-          .newFileURI(emlFile)
-          .mutate()
-          .setQuery("type=application/x-message-display")
-          .finalize().spec;
-        messageTracker._attachedMessageUrls.set(dummyMsgUrl, emlFileUrl);
-      }
-
-      msgHdr.setStringProperty("dummyMsgUrl", emlFileUrl);
-      //FIXME : msgHdr of attached message has size of main message
-      msgHdr.setStringProperty("dummyMsgSize", rawBinaryString.length);
-    }
-  } catch (ex) {
-    Cu.reportError(ex);
-  }
-
-  return convertMessage(msgHdr, extension);
-}
-
-/**
  * Converts an nsIMsgHdr to a simple object for use in messages.
  * This function WILL change as the API develops.
  * @return {Object}
@@ -1863,12 +1812,6 @@ async function convertMessageOrAttachedMessage(msgHdr, extension) {
 function convertMessage(msgHdr, extension) {
   if (!msgHdr) {
     return null;
-  }
-
-  if (isAttachedMessage(msgHdr)) {
-    throw new Error(
-      "Attached messages need to be converted through convertMessageOrAttachedMessage()."
-    );
   }
 
   let composeFields = Cc[
@@ -1881,7 +1824,13 @@ function convertMessage(msgHdr, extension) {
     .filter(MailServices.tags.isValidKey);
 
   let external = !msgHdr.folder;
-  let size = msgHdr.getStringProperty("dummyMsgSize") || msgHdr.messageSize;
+
+  // Getting the size of attached messages does not work consistently. For imap://
+  // and mailbox:// messages the returned size in msgHdr.messageSize is 0, and for
+  // file:// messages the returned size is always the total file size
+  // Be consistent here and always return 0. The user can obtain the message size
+  // from the size of the associated attachment file.
+  let size = isAttachedMessage(msgHdr) ? 0 : msgHdr.messageSize;
 
   let messageObject = {
     id: messageTracker.getId(msgHdr),
@@ -1932,7 +1881,6 @@ var messageTracker = new (class extends EventEmitter {
     this._messageIds = new Map();
     this._listenerCount = 0;
     this._pendingKeyChanges = new Map();
-    this._attachedMessageUrls = new Map();
     this._dummyMessageHeaders = new Map();
 
     // nsIObserver
@@ -1952,6 +1900,25 @@ var messageTracker = new (class extends EventEmitter {
         MailServices.mfn.msgsMoveCopyCompleted |
         MailServices.mfn.msgKeyChanged
     );
+
+    this._messageOpenListener = {
+      async handleEvent(event) {
+        let msgHdr = event.detail;
+        // It is not possible to retrieve the dummyMsgHdr of messages opened
+        // from file at a later time, track them manually.
+        if (
+          msgHdr &&
+          !msgHdr.folder &&
+          msgHdr.getStringProperty("dummyMsgUrl").startsWith("file://")
+        ) {
+          messageTracker.getId(msgHdr);
+        }
+      },
+    };
+    // Wait till app startup has finished, before adding window listeners.
+    getNormalWindowReady().then(() =>
+      windowTracker.addListener("MsgLoaded", this._messageOpenListener)
+    );
   }
 
   cleanup() {
@@ -1962,6 +1929,7 @@ var messageTracker = new (class extends EventEmitter {
     MailServices.mailSession.RemoveFolderListener(this);
     // nsIMsgFolderListener
     MailServices.mfn.removeListener(this);
+    windowTracker.removeListener("MsgLoaded", this._messageOpenListener);
   }
 
   /**
@@ -1973,8 +1941,8 @@ var messageTracker = new (class extends EventEmitter {
     this._messages.set(id, msgIdentifier);
     // Keep track of dummy message headers, which do not have a folderURI property
     // and cannot be retrieved later.
-    if (msgHdr && !msgHdr.folderURI) {
-      this._dummyMessageHeaders.set(id, msgHdr);
+    if (msgHdr && !msgHdr.folder) {
+      this._dummyMessageHeaders.set(msgIdentifier.dummyMsgUrl, msgHdr);
     }
   }
 
@@ -1998,7 +1966,7 @@ var messageTracker = new (class extends EventEmitter {
     let id = this._get(msgIdentifier);
     this._messages.delete(id);
     this._messageIds.delete(hash);
-    this._dummyMessageHeaders.delete(id);
+    this._dummyMessageHeaders.delete(msgIdentifier.dummyMsgUrl);
   }
 
   /**
@@ -2006,14 +1974,31 @@ var messageTracker = new (class extends EventEmitter {
    * @return {int} The messageTracker id of the message
    */
   getId(msgHdr) {
-    let msgIdentifier = msgHdr.folder
-      ? { folderURI: msgHdr.folder.URI, messageKey: msgHdr.messageKey }
-      : {
-          dummyMsgUrl: msgHdr.getStringProperty("dummyMsgUrl"),
-          dummyMsgLastModifiedTime: msgHdr.getUint32Property(
-            "dummyMsgLastModifiedTime"
-          ),
-        };
+    let msgIdentifier;
+    if (msgHdr.folder) {
+      msgIdentifier = {
+        folderURI: msgHdr.folder.URI,
+        messageKey: msgHdr.messageKey,
+      };
+    } else {
+      // Normalize the dummyMsgUrl by sorting its parameters and striping them
+      // to a minimum.
+      let url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
+      let parameters = Array.from(url.searchParams, p => p[0]).filter(
+        p => !["group", "number", "key", "part"].includes(p)
+      );
+      for (let parameter of parameters) {
+        url.searchParams.delete(parameter);
+      }
+      url.searchParams.sort();
+
+      msgIdentifier = {
+        dummyMsgUrl: url.href,
+        dummyMsgLastModifiedTime: msgHdr.getUint32Property(
+          "dummyMsgLastModifiedTime"
+        ),
+      };
+    }
 
     let id = this._get(msgIdentifier);
     if (id) {
@@ -2021,7 +2006,7 @@ var messageTracker = new (class extends EventEmitter {
     }
     id = this._nextId++;
 
-    this._set(id, msgIdentifier, msgHdr);
+    this._set(id, msgIdentifier, new nsDummyMsgHeader(msgHdr));
     return id;
   }
 
@@ -2032,6 +2017,10 @@ var messageTracker = new (class extends EventEmitter {
    * @returns {Boolean}
    */
   isModifiedFileMsg(msgIdentifier) {
+    if (!msgIdentifier.dummyMsgUrl?.startsWith("file://")) {
+      return false;
+    }
+
     try {
       let file = Services.io
         .newURI(msgIdentifier.dummyMsgUrl)
@@ -2076,7 +2065,7 @@ var messageTracker = new (class extends EventEmitter {
         }
       }
     } else {
-      let msgHdr = this._dummyMessageHeaders.get(id);
+      let msgHdr = this._dummyMessageHeaders.get(msgIdentifier.dummyMsgUrl);
       if (msgHdr && !this.isModifiedFileMsg(msgIdentifier)) {
         return msgHdr;
       }
@@ -2425,13 +2414,6 @@ class MessageManager {
 
   convert(msgHdr) {
     return convertMessage(msgHdr, this.extension);
-  }
-
-  // Streaming attached messages does not fully work. Use this async wrapper for
-  // convert(), which reads the content of attached messages, stores them as temp
-  // files and uses those for later message processing.
-  convertMessageOrAttachedMessage(msgHdr) {
-    return convertMessageOrAttachedMessage(msgHdr, this.extension);
   }
 
   get(id) {

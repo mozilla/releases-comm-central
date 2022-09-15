@@ -59,8 +59,8 @@ async function loadCalendarComponent() {
   // Set up the command controller from calendar-command-controller.js
   injectCalendarCommandController();
 
-  // Set up calendar menu items in the appmenu.
-  setUpCalendarAppMenuItems();
+  // Set up calendar appmenu buttons.
+  setUpCalendarAppMenuButtons();
 
   // Set up calendar deactivation for this window.
   calendarDeactivator.registerWindow(window);
@@ -171,43 +171,12 @@ async function uninstallLightningAddon() {
 }
 
 /**
- * Event listener used to refresh the "Events and Tasks" menu/view in the appmenu.
+ * Set up calendar appmenu buttons by adding event listeners to the buttons.
  */
-function refreshEventsAndTasksMenu() {
-  changeMenuForTask();
-  setupDeleteMenuitem("appmenu_calDeleteSelectedCalendar");
-
-  // Refresh the "disabled" property of the Progress and Priority menu items. Needed because if
-  // the menu items (toolbarbuttons) are given a "command" or "observes" attribute that is set to
-  // their respective commands, then their "oncommand" attribute is automatically overwritten
-  // (because the commands have an oncommand attribute).  And then the sub-menus will not open.
-  document.getElementById(
-    "appmenu_calTaskActionsPriorityMenuitem"
-  ).disabled = document
-    .getElementById("calendar_general-priority_command")
-    .hasAttribute("disabled");
-
-  document.getElementById(
-    "appmenu_calTaskActionsProgressMenuitem"
-  ).disabled = document
-    .getElementById("calendar_general-progress_command")
-    .hasAttribute("disabled");
-}
-
-/**
- * Set up calendar menu items that are in the appmenu. (Needed because there is no "onpopupshowing"
- * event for appmenu menus/views.)
- */
-function setUpCalendarAppMenuItems() {
-  // Refresh the "Events and Tasks" menu when it is shown.
-  document
-    .getElementById("appmenu_Event_Task_View")
-    .addEventListener("ViewShowing", refreshEventsAndTasksMenu);
-
-  // Refresh the "View" / "Calendar" / "Calendar Pane" menu when it is shown.
-  document
-    .getElementById("appmenu_calCalendarPaneView")
-    .addEventListener("ViewShowing", initViewCalendarPaneMenu);
+function setUpCalendarAppMenuButtons() {
+  PanelUI.initAppMenuButton("calendar-appmenu-button", "calendar-toolbox");
+  PanelUI.initAppMenuButton("task-appmenu-button", "task-toolbox");
+  PanelUI.initAppMenuButton("calendar-item-appmenu-button", "event-toolbox");
 }
 
 /**

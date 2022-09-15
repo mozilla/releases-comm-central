@@ -60,7 +60,7 @@
     </table>
     <button id="vcard-add-email"
             data-l10n-id="vcard-email-add"
-            class="addr-book-edit-fieldset-button"
+            class="addr-book-edit-fieldset-button add-property-button icon-button"
             type="button"></button>
   </fieldset>
   <!-- URL -->
@@ -68,7 +68,7 @@
     <legend data-l10n-id="vcard-url-header"/>
     <button id="vcard-add-url"
             data-l10n-id="vcard-url-add"
-            class="addr-book-edit-fieldset-button"
+            class="addr-book-edit-fieldset-button add-property-button icon-button"
             type="button"></button>
   </fieldset>
   <!-- Address -->
@@ -76,7 +76,7 @@
     <legend data-l10n-id="vcard-adr-header"/>
     <button id="vcard-add-adr"
             data-l10n-id="vcard-adr-add"
-            class="addr-book-edit-fieldset-button"
+            class="addr-book-edit-fieldset-button add-property-button icon-button"
             type="button"></button>
   </fieldset>
   <!-- Tel -->
@@ -84,7 +84,7 @@
     <legend data-l10n-id="vcard-tel-header"/>
     <button id="vcard-add-tel"
             data-l10n-id="vcard-tel-add"
-            class="addr-book-edit-fieldset-button"
+            class="addr-book-edit-fieldset-button add-property-button icon-button"
             type="button"></button>
   </fieldset>
   <!-- Time Zone -->
@@ -92,7 +92,7 @@
     <legend data-l10n-id="vcard-tz-header"/>
     <button id="vcard-add-tz"
             data-l10n-id="vcard-tz-add"
-            class="addr-book-edit-fieldset-button"
+            class="addr-book-edit-fieldset-button add-property-button icon-button"
             type="button"></button>
   </fieldset>
   <!-- IMPP (Chat) -->
@@ -100,7 +100,7 @@
     <legend data-l10n-id="vcard-impp2-header"/>
     <button id="vcard-add-impp"
             data-l10n-id="vcard-impp-add"
-            class="addr-book-edit-fieldset-button"
+            class="addr-book-edit-fieldset-button add-property-button icon-button"
             type="button"></button>
   </fieldset>
   <!-- Birthday and Anniversary (Special dates) -->
@@ -108,7 +108,7 @@
     <legend data-l10n-id="vcard-bday-anniversary-header"/>
     <button id="vcard-add-bday-anniversary"
             data-l10n-id="vcard-bday-anniversary-add"
-            class="addr-book-edit-fieldset-button"
+            class="addr-book-edit-fieldset-button add-property-button icon-button"
             type="button"></button>
   </fieldset>
   <!-- Notes -->
@@ -116,7 +116,7 @@
     <legend data-l10n-id="vcard-note-header"/>
     <button id="vcard-add-note"
             data-l10n-id="vcard-note-add"
-            class="addr-book-edit-fieldset-button"
+            class="addr-book-edit-fieldset-button add-property-button icon-button"
             type="button"></button>
   </fieldset>
   <!-- Organization Info -->
@@ -124,15 +124,19 @@
     <legend data-l10n-id="vcard-org-header"/>
     <button id="vcard-add-org"
             data-l10n-id="vcard-org-add"
-            class="addr-book-edit-fieldset-button"
+            class="addr-book-edit-fieldset-button add-property-button icon-button"
             type="button"></button>
+    <button type="button"
+            class="addr-book-edit-fieldset-button remove-property-button icon-button"
+            data-l10n-id="vcard-remove-button"
+            hidden="hidden"></button>
   </fieldset>
   <!-- Custom -->
   <fieldset id="addr-book-edit-custom" class="addr-book-edit-fieldset fieldset-reset">
     <legend data-l10n-id="vcard-custom-header"/>
     <button id="vcard-add-custom"
             data-l10n-id="vcard-custom-add"
-            class="addr-book-edit-fieldset-button"
+            class="addr-book-edit-fieldset-button add-property-button icon-button"
             type="button"></button>
   </fieldset>
 </template>
@@ -220,6 +224,11 @@
     <input type="checkbox"
            aria-labelledby="addr-book-edit-email-default" />
   </td>
+  <td>
+    <button type="button"
+            class="addr-book-edit-fieldset-button remove-property-button icon-button"
+            data-l10n-id="vcard-remove-button-title"></button>
+  </td>
 </template>
 
 <!-- Phone -->
@@ -227,6 +236,9 @@
   <vcard-type></vcard-type>
   <label class="screen-reader-only" for="text"/>
   <input type="text"/>
+  <button type="button"
+          class="addr-book-edit-fieldset-button remove-property-button icon-button"
+          data-l10n-id="vcard-remove-button-title"></button>
 </template>
 
 <!-- Field with type and text -->
@@ -234,6 +246,9 @@
   <vcard-type></vcard-type>
   <label class="screen-reader-only" for="text"/>
   <input type="text"/>
+  <button type="button"
+          class="addr-book-edit-fieldset-button remove-property-button icon-button"
+          data-l10n-id="vcard-remove-button-title"></button>
 </template>
 
 <!-- Time Zone -->
@@ -241,6 +256,9 @@
   <select>
     <option value=""></option>
   </select>
+  <button type="button"
+          class="addr-book-edit-fieldset-button remove-property-button icon-button"
+          data-l10n-id="vcard-remove-button"></button>
 </template>
 
 <!-- IMPP -->
@@ -249,13 +267,16 @@
   <select name="protocol" class="vcard-type-selection">
     <option value="matrix:u/john:example.org" data-pattern="matrix:.+/.+:.+">Matrix</option>
     <option value="xmpp:john@example.org" data-pattern="xmpp:.+@.+">XMPP</option>
-    <option value="ircs:irc.example.org/john,isuser" data-pattern="ircs?:.+/.+,.+">IRC</option>
+    <option value="ircs://irc.example.org/john,isuser" data-pattern="ircs?://.+/.+,.+">IRC</option>
     <option value="sip:1-555-123-4567@voip.example.org" data-pattern="sip:.+@.+">SIP</option>
-    <option value="skype:johndoe" data-pattern="skype:[A-Za-z\d\,\-\.\_]{6,32}">Skype</option>
+    <option value="skype:johndoe" data-pattern="skype:[A-Za-z\d\-\._]{6,32}">Skype</option>
     <option value="" data-l10n-id="vcard-impp-option-other" data-pattern="..+:..+"></option>
   </select>
   <label class="screen-reader-only" for="impp" data-l10n-id="vcard-impp-input-label"></label>
   <input type="text" name="impp" pattern="..+:..+" />
+  <button type="button"
+          class="addr-book-edit-fieldset-button remove-property-button icon-button"
+          data-l10n-id="vcard-remove-button-title"></button>
 </template>
 
 <!-- Birthday and Anniversary -->
@@ -281,9 +302,9 @@
       <option value="" data-l10n-id="vcard-date-day" selected="selected"></option>
     </select>
 
-    <button type="button" class="plain-button remove-property-button">
-      <img src="chrome://messenger/skin/icons/new/compact/close.svg" alt="" />
-    </button>
+    <button type="button"
+            class="addr-book-edit-fieldset-button remove-property-button icon-button"
+            data-l10n-id="vcard-remove-button-title"></button>
   </div>
 </template>
 
@@ -313,11 +334,17 @@
       <input type="text" name="country"/>
     </div>
   </fieldset>
+  <button type="button"
+          class="addr-book-edit-fieldset-button remove-property-button icon-button"
+          data-l10n-id="vcard-remove-button"></button>
 </template>
 
 <!-- Notes -->
 <template id="template-vcard-edit-note">
   <textarea></textarea>
+  <button type="button"
+          class="addr-book-edit-fieldset-button remove-property-button icon-button"
+          data-l10n-id="vcard-remove-button"></button>
 </template>
 
 <!-- Organization Info -->
@@ -358,6 +385,9 @@
     <label for="custom4"/>
     <input type="text"/>
   </div>
+  <button type="button"
+          class="addr-book-edit-fieldset-button remove-property-button icon-button"
+          data-l10n-id="vcard-remove-button"></button>
 </template>
 
 <template id="template-vcard-edit-type">
