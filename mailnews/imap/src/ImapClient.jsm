@@ -140,6 +140,7 @@ class ImapClient {
    */
   discoverAllFolders(folder) {
     this._logger.debug("discoverAllFolders", folder.URI);
+    let supportsListExtended = this._capabilities.includes("LIST-EXTENDED");
     let handleListResponse = res => {
       this._hasTrash = res.mailboxes.some(
         mailbox => mailbox.flags & ImapUtils.FLAG_IMAP_TRASH
@@ -164,13 +165,31 @@ class ImapClient {
     };
 
     this._nextAction = res => {
-      this._nextAction = res => {
+      if (supportsListExtended) {
         handleListResponse(res);
+        this._actionFinishFolderDiscovery();
+        return;
+      }
+      this._nextAction = res2 => {
+        // Per rfc3501#section-6.3.9, if LSUB returns different flags from LIST,
+        // use the LIST responses.
+        for (let mailbox of res2.mailboxes) {
+          let mailboxFromList = res.mailboxes.find(x => x.name == mailbox.name);
+          if (
+            mailboxFromList?.flags &&
+            mailboxFromList?.flags != mailbox.flags
+          ) {
+            mailbox.flags = mailboxFromList.flags;
+          }
+        }
+        handleListResponse(res2);
         this._actionFinishFolderDiscovery();
       };
       this._sendTagged('LSUB "" "*"');
     };
-    this._sendTagged('LIST "" "*"');
+    this._sendTagged(
+      supportsListExtended ? 'LIST (SUBSCRIBED) "" "*"' : 'LIST "" "*"'
+    );
   }
 
   /**
@@ -220,6 +239,17 @@ class ImapClient {
     let newName = this._getServerSubFolderName(dstFolder, srcFolder.name);
     this._nextAction = this._actionRenameResponse(oldName, newName);
     this._sendTagged(`RENAME "${oldName}" "${newName}"`);
+  }
+
+  /**
+   * Send LIST command for a folder.
+   * @param {nsIMsgFolder} folder - The folder to list.
+   */
+  listFolder(folder) {
+    this._logger.debug("listFolder", folder.URI);
+    this._actionList(this._getServerFolderName(folder), () => {
+      this._actionDone();
+    });
   }
 
   /**

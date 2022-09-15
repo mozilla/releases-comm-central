@@ -242,7 +242,11 @@ class ImapIncomingServer extends MsgIncomingServer {
         imapFolder.explicitlyVerify ||
         (folder.hasSubFolders && this._noDescendentsAreVerified(folder))
       ) {
-        if (!imapFolder.isNamespace) {
+        let isNamespace = false;
+        try {
+          isNamespace = imapFolder.isNamespace;
+        } catch (e) {}
+        if (!isNamespace) {
           // If there are no subfolders and this is unverified, we don't want to
           // run this url. That is, we want to undiscover the folder.
           // If there are subfolders and no descendants are verified, we want to
