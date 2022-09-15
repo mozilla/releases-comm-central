@@ -102,29 +102,30 @@ add_task(async function test_customize_toolbar_doesnt_double_get_mail_menu() {
   /**
    * Get the getAllNewMessages menu and check the number of items.
    */
-  function check_getAllNewMsgMenu() {
+  async function check_getAllNewMsgMenu() {
     wait_for_window_focused(mc.window);
 
-    const subview = mc.click_through_appmenu([
-      { id: "appmenu_File" },
-      { id: "appmenu_getNewMsgFor" },
-    ]);
+    let button = mc.e("button-getmsg");
+    let popup = mc.e("button-getMsgPopup");
 
-    Assert.equal(
-      subview.children.length,
-      5,
-      "Incorrect number of items for GetNewMessages before customization"
-    );
-
-    // Close the appmenu.
+    let shownPromise = BrowserTestUtils.waitForEvent(popup, "popupshown");
     EventUtils.synthesizeMouseAtCenter(
-      mc.e("button-appmenu"),
-      { clickCount: 1 },
+      button.querySelector(".toolbarbutton-menubutton-dropmarker"),
+      {},
       mc.window
     );
+    await shownPromise;
+
+    Assert.equal(
+      popup.childElementCount,
+      4,
+      "Incorrect number of items for GetNewMessages before customization"
+    );
+    // Close the popup.
+    await close_popup(mc, popup);
   }
 
-  check_getAllNewMsgMenu();
+  await check_getAllNewMsgMenu();
 
   plan_for_new_window("mailnews:customizeToolbar");
   // Open the customization dialog.
@@ -146,9 +147,8 @@ add_task(async function test_customize_toolbar_doesnt_double_get_mail_menu() {
   );
   wait_for_window_close();
 
-  check_getAllNewMsgMenu();
-}).__skipMe =
-  AppConstants.platform == "macosx" || AppConstants.platform == "win";
+  await check_getAllNewMsgMenu();
+}).__skipMe = AppConstants.platform == "macosx";
 
 /* A helper function that opens up the new filter dialog (assuming that the
  * main filters dialog is already open), creates a simple filter, and then

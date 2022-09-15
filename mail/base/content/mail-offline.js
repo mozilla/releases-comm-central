@@ -239,11 +239,6 @@ var MailOfflineMgr = {
     document
       .getElementById("goOfflineMenuItem")
       .setAttribute("checked", aIsOffline);
-    if (document.getElementById("appmenu_goOffline")) {
-      document
-        .getElementById("appmenu_goOffline")
-        .setAttribute("checked", aIsOffline);
-    }
     var statusBarPanel = document.getElementById("offline-status");
     if (aIsOffline) {
       statusBarPanel.setAttribute("offline", "true");

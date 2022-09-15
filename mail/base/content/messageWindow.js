@@ -667,17 +667,7 @@ function HideMenus() {
     menuDeleteFolder.hidden = true;
   }
 
-  menuDeleteFolder = document.getElementById("appmenu_deleteFolder");
-  if (menuDeleteFolder) {
-    menuDeleteFolder.hidden = true;
-  }
-
   var renameFolderMenu = document.getElementById("menu_renameFolder");
-  if (renameFolderMenu) {
-    renameFolderMenu.setAttribute("hidden", "true");
-  }
-
-  renameFolderMenu = document.getElementById("appmenu_renameFolder");
   if (renameFolderMenu) {
     renameFolderMenu.setAttribute("hidden", "true");
   }
@@ -826,28 +816,9 @@ function HideMenus() {
     compactFolderMenu.setAttribute("hidden", "true");
   }
 
-  compactFolderMenu = document.getElementById("appmenu_compactFolder");
-  if (compactFolderMenu) {
-    compactFolderMenu.setAttribute("hidden", "true");
-  }
-
-  var trashSeparator = document.getElementById("trashMenuSeparator");
+  let trashSeparator = document.getElementById("trashMenuSeparator");
   if (trashSeparator) {
     trashSeparator.setAttribute("hidden", "true");
-  }
-
-  let fileMenuAfterRenameSeparator = document.getElementById(
-    "appmenu_fileMenuAfterRenameSeparator"
-  );
-  if (fileMenuAfterRenameSeparator) {
-    fileMenuAfterRenameSeparator.setAttribute("hidden", "true");
-  }
-
-  let fileMenuAfterCompactSeparator = document.getElementById(
-    "appmenu_fileMenuAfterCompactSeparator"
-  );
-  if (fileMenuAfterCompactSeparator) {
-    fileMenuAfterCompactSeparator.setAttribute("hidden", "true");
   }
 
   let goStartPageSeparator = document.getElementById("goNextSeparator");

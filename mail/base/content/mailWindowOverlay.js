@@ -2881,11 +2881,10 @@ function IsGetNewMessagesEnabled() {
 }
 
 function IsGetNextNMessagesEnabled() {
-  var selectedFolders = GetSelectedMsgFolders();
-  var folder = selectedFolders.length ? selectedFolders[0] : null;
+  let selectedFolders = GetSelectedMsgFolders();
+  let folder = selectedFolders.length ? selectedFolders[0] : null;
 
-  var menuItem = document.getElementById("menu_getnextnmsg");
-  var appMenuItem = document.getElementById("appmenu_getNextNMsgs");
+  let menuItem = document.getElementById("menu_getnextnmsg");
   if (
     folder &&
     !folder.isServer &&
@@ -2898,17 +2897,10 @@ function IsGetNextNMessagesEnabled() {
         .getString("getNextNewsMessages")
     ).replace("#1", folder.server.maxArticles);
     menuItem.removeAttribute("hidden");
-    if (appMenuItem) {
-      appMenuItem.label = menuItem.label;
-      appMenuItem.removeAttribute("hidden");
-    }
     return true;
   }
 
   menuItem.setAttribute("hidden", "true");
-  if (appMenuItem) {
-    appMenuItem.setAttribute("hidden", "true");
-  }
   return false;
 }
 
