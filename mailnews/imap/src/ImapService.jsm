@@ -256,17 +256,6 @@ class ImapService {
     });
   }
 
-  listFolder(folder, urlListener) {
-    this._withClient(folder, client => {
-      let runningUrl = client.startRunningUrl(urlListener);
-      runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
-        Ci.nsIImapUrl.nsImapListFolder;
-      client.onReady = () => {
-        client.listFolder(folder);
-      };
-    });
-  }
-
   storeCustomKeywords(folder, msgWindow, flagsToAdd, flagsToSubtract, uids) {
     return this._withClient(folder, (client, runningUrl) => {
       client.startRunningUrl(null, msgWindow, runningUrl);
