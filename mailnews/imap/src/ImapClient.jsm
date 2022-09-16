@@ -62,6 +62,7 @@ class ImapClient {
       "@mozilla.org/charset-converter-manager;1"
     ].getService(Ci.nsICharsetConverterManager);
 
+    this._messageUids = [];
     this._messages = new Map();
 
     this._loadPrefs();
@@ -1230,8 +1231,6 @@ class ImapClient {
       "highestRecordedUID",
       0
     );
-    this._messageUids = [];
-    this._messages.clear();
     for (let msg of res.messages) {
       this._messageUids[msg.sequence] = msg.uid;
       this._messages.set(msg.uid, msg);
