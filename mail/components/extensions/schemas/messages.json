@@ -758,6 +758,7 @@
         ],
         "parameters": [
           {
+            "name": "file",
             "type": "object",
             "isInstanceOf": "File",
             "additionalProperties": true
