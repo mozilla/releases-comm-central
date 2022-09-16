@@ -384,7 +384,7 @@ class MailboxData {
       "\\NOINFERIORS":
         // RFC 5258 \NoInferiors implies \HasNoChildren
         ImapUtils.FLAG_NO_INFERIORS | ImapUtils.FLAG_HAS_NO_CHILDREN,
-      "\\NOSELECT": ImapUtils.NO_SELECT,
+      "\\NOSELECT": ImapUtils.FLAG_NO_SELECT,
       "\\TRASH": ImapUtils.FLAG_IMAP_TRASH | ImapUtils.FLAG_IMAP_XLIST_TRASH,
       "\\SENT": ImapUtils.FLAG_IMAP_SENT,
       "\\SPAM": ImapUtils.FLAG_IMAP_SPAM,

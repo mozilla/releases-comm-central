@@ -242,17 +242,8 @@ class ImapIncomingServer extends MsgIncomingServer {
         imapFolder.explicitlyVerify ||
         (folder.hasSubFolders && this._noDescendentsAreVerified(folder))
       ) {
-        if (!imapFolder.isNamespace) {
-          // If there are no subfolders and this is unverified, we don't want to
-          // run this url. That is, we want to undiscover the folder.
-          // If there are subfolders and no descendants are verified, we want to
-          // undiscover all of the folders.
-          // Only if there are subfolders and at least one of them is verified
-          // do we want to refresh that folder's flags, because it won't be going
-          // away.
-          imapFolder.explicitlyVerify = false;
-          imapFolder.list();
-        }
+        imapFolder.explicitlyVerify = false;
+        imapFolder.list();
       } else if (folder.parent) {
         imapFolder.removeLocalSelf();
         this._logger.debug(`Removed unverified folder name=${folder.name}`);
