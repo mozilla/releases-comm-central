@@ -28,7 +28,9 @@ codespell:
     description: Checks for misspellings in text files
     treeherder:
         symbol: text(spell)
-    run-on-projects: []
+        # We don't want patches to be backed out because of a typo, a follow up bug will be
+        # good enough
+        tier: 2
     run:
         mach: >
             lint -v -l codespell -f treeherder
@@ -37,21 +39,22 @@ codespell:
             comm/*
     optimization:
         skip-unless-changed-no-suite:
-            - 'comm/**.js'
-            - 'comm/**.jsm'
-            - 'comm/**.jxs'
-            - 'comm/**.xml'
-            - 'comm/**.html'
-            - 'comm/**.xhtml'
-            - 'comm/**.cpp'
-            - 'comm/**.c'
-            - 'comm/**.h'
-            - 'comm/**.configure'
-            - 'comm/**.py'
-            - 'comm/**.properties'
-            - 'comm/**.rst'
-            - 'comm/**.md'
-            - 'comm/**.ftl'
+            - 'comm/**/*.js'
+            - 'comm/**/*.jsm'
+            - 'comm/**/*.jxs'
+            - 'comm/**/*.mjs'
+            - 'comm/**/*.xml'
+            - 'comm/**/*.html'
+            - 'comm/**/*.xhtml'
+            - 'comm/**/*.cpp'
+            - 'comm/**/*.c'
+            - 'comm/**/*.h'
+            - 'comm/**/*.configure'
+            - 'comm/**/*.py'
+            - 'comm/**/*.properties'
+            - 'comm/**/*.rst'
+            - 'comm/**/*.md'
+            - 'comm/**/*.ftl'
 
 eslint:
     description: JS lint check

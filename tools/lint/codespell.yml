@@ -2,7 +2,16 @@
 codespell:
     description: Check code for common misspellings
     include:
-        - .
+        - comm/calendar/locales/en-US/
+        - comm/chat/locales/en-US/
+        - comm/mail/branding/
+        - comm/mail/components/telemetry/
+        - comm/mail/locales/en-US/
+        - comm/mailnews/extensions/fts3/
+        - comm/python/
+        - comm/taskcluster/docs/
+        - comm/third_party/
+        - comm/README.md
     # List of extensions coming from:
     # tools/lint/{flake8,eslint}.yml
     # tools/mach_commands.py (clang-format)
@@ -12,6 +21,7 @@ codespell:
         - js
         - jsm
         - jxs
+        - mjs
         - xml
         - html
         - xhtml
@@ -30,3 +40,4 @@ codespell:
     setup: spell:setup
     payload: commlint:lint_wrapper
     wraps: spell:lint
+    commroot: true
