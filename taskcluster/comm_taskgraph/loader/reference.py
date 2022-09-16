@@ -23,7 +23,7 @@ def _get_aliases(kind, job, project):
                 job["run"],
                 "toolchain-alias",
                 item_name=f"{kind}-{job['name']}",
-                project=project
+                project=project,
             )
             aliaslist = job["run"].get("toolchain-alias")
             if aliaslist is not None:
