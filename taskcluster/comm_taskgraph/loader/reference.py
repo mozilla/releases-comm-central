@@ -9,32 +9,40 @@ import logging
 
 from taskgraph.util.yaml import load_yaml
 from taskgraph.util.python_path import find_object
+from taskgraph.util.schema import resolve_keyed_by
 
 logger = logging.getLogger(__name__)
 
 
-def _get_aliases(kind, job):
+def _get_aliases(kind, job, project):
     aliases = {job["name"]}
 
     if kind == "toolchain":
         if job["run"].get("toolchain-alias"):
+            resolve_keyed_by(
+                job["run"],
+                "toolchain-alias",
+                item_name=f"{kind}-{job['name']}",
+                project=project
+            )
             aliaslist = job["run"].get("toolchain-alias")
-            if isinstance(aliaslist, str):
-                aliaslist = [aliaslist]
-            for alias in aliaslist:
-                aliases.add(alias)
+            if aliaslist is not None:
+                if isinstance(aliaslist, str):
+                    aliaslist = [aliaslist]
+                for alias in aliaslist:
+                    aliases.add(alias)
 
     return aliases
 
 
-def _expand_aliases(kind, inputs):
+def _expand_aliases(kind, inputs, project):
     """Given the list of all "reference-jobs" pulled in from upstream, return a
     set with all job names and aliases.
     For example "linux64-clang" is an alias of "linux64-clang-13", and both
     of those names will be included in the returned set."""
     rv = set()
     for input_job in inputs:
-        for alias in _get_aliases(kind, input_job):
+        for alias in _get_aliases(kind, input_job, project):
             rv.add(alias)
     return rv
 
@@ -66,17 +74,18 @@ def loader(kind, path, config, params, loaded_tasks):
     jobs = config.pop("reference-jobs", None)
 
     config.update(sub_config)
+    project = params["project"]
 
     if jobs is not None:
         jobs = set(jobs)
 
         found_reference_jobs = [
-            job for job in inputs if (_get_aliases(kind, job) & jobs)
+            job for job in inputs if (_get_aliases(kind, job, project) & jobs)
         ]
 
         # Check for jobs listed as a reference job in Thunderbird's config
         # that do not exist in upstream.
-        reference_alias_names = _expand_aliases(kind, found_reference_jobs)
+        reference_alias_names = _expand_aliases(kind, found_reference_jobs, project)
         if reference_alias_names >= jobs:
             return found_reference_jobs
         else:
