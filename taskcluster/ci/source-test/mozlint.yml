@@ -76,6 +76,8 @@ eslint:
             - 'comm/**/*.jsm'
             - 'comm/**/*.jsx'
             - 'comm/**/*.html'
+            - 'comm/**/*.mjs'
+            - 'comm/**/*.sjs'
             - 'comm/**/*.xhtml'
             - 'comm/**/*.xml'
             # Run when eslint policies change.
@@ -90,6 +92,9 @@ file-perm:
     platform: lint/opt
     treeherder:
         symbol: pedantic(file-perm)
+        # We don't want patches to be backed out because of this, a follow up bug will be
+        # good enough
+        tier: 2
     run:
         mach: >
             lint -v -l file-perm -f treeherder
@@ -101,6 +106,7 @@ file-perm:
             - 'comm/**/*.c'
             - 'comm/**/*.cc'
             - 'comm/**/*.cpp'
+            - 'comm/**/*.flac'
             - 'comm/**/*.h'
             - 'comm/**/*.html'
             - 'comm/**/*.idl'
@@ -108,12 +114,17 @@ file-perm:
             - 'comm/**/*.jsm'
             - 'comm/**/*.jsx'
             - 'comm/**/*.m'
+            - 'comm/**/*.m4s'
+            - 'comm/**/*.mjs'
             - 'comm/**/*.mm'
+            - 'comm/**/*.mp4'
             - 'comm/**/*.png'
             - 'comm/**/*.py'
             - 'comm/**/*.rs'
             - 'comm/**/*.sh'
             - 'comm/**/*.svg'
+            - 'comm/**/*.ttf'
+            - 'comm/**/*.wasm'
             - 'comm/**/*.xhtml'
             - 'comm/**/*.xml'
             - 'comm/**/*.xul'
@@ -124,6 +135,9 @@ file-whitespace:
     platform: lint/opt
     treeherder:
         symbol: pedantic(file-whitespace)
+        # We don't want patches to be backed out because of this, a follow up bug will be
+        # good enough
+        tier: 2
     run:
         mach: >
             lint -v -l file-whitespace -f treeherder
@@ -176,10 +190,13 @@ license:
             - 'comm/**/*.ftl'
             - 'comm/**/*.h'
             - 'comm/**/*.html'
+            - 'comm/**/*.idl'
+            - 'comm/**/*.java'
             - 'comm/**/*.js'
             - 'comm/**/*.jsm'
             - 'comm/**/*.jsx'
             - 'comm/**/*.m'
+            - 'comm/**/*.mjs'
             - 'comm/**/*.mm'
             - 'comm/**/*.properties'
             - 'comm/**/*.py'

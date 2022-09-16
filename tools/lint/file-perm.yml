@@ -7,16 +7,22 @@ file-perm:
         - .c
         - .cc
         - .cpp
+        - .flac
         - .h
         - .html
         - .idl
         - .jsm
         - .jsx
         - .m
+        - .m4s
+        - .mjs
         - .mm
+        - .mp4
         - .png
         - .rs
         - .svg
+        - .ttf
+        - .wasm
         - .xhtml
         - .xml
         - .xul

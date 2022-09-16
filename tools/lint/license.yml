@@ -29,10 +29,13 @@ license:
         - .ftl
         - .h
         - .html
+        - .idl
+        - .java
         - .js
         - .jsm
         - .jsx
         - .m
+        - .mjs
         - .mm
         - .properties
         - .py
