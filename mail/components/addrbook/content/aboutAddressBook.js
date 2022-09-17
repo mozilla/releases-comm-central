@@ -76,10 +76,7 @@ XPCOMUtils.defineLazyGetter(this, "bundle", function() {
 XPCOMUtils.defineLazyGetter(
   this,
   "l10n",
-  () =>
-    new Localization([
-      "messenger/addressbook/aboutAddressBook.ftl",
-    ])
+  () => new Localization(["messenger/addressbook/aboutAddressBook.ftl"])
 );
 
 UIDensity.registerWindow(window);
@@ -227,7 +224,6 @@ window.addEventListener("keypress", event => {
 
   targets[focusedElementIndex].focus();
 });
-
 
 /**
  * Add a keydown document event listener for international keyboard shortcuts.
