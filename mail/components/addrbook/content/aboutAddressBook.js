@@ -73,6 +73,14 @@ XPCOMUtils.defineLazyGetter(this, "bundle", function() {
     "chrome://messenger/locale/addressbook/addressBook.properties"
   );
 });
+XPCOMUtils.defineLazyGetter(
+  this,
+  "l10n",
+  () =>
+    new Localization([
+      "messenger/addressbook/aboutAddressBook.ftl",
+    ])
+);
 
 UIDensity.registerWindow(window);
 UIFontSize.registerWindow(window);
@@ -130,6 +138,8 @@ window.addEventListener("load", () => {
   cardsPane.init();
   detailsPane.init();
   photoDialog.init();
+
+  setKeyboardShortcuts();
 
   // Once the old Address Book has gone away, this should be changed to use
   // UIDs instead of URIs. It's just easier to keep as-is for now.
@@ -217,6 +227,38 @@ window.addEventListener("keypress", event => {
 
   targets[focusedElementIndex].focus();
 });
+
+
+/**
+ * Add a keydown document event listener for international keyboard shortcuts.
+ */
+async function setKeyboardShortcuts() {
+  let [newContactKey] = await l10n.formatValues([
+    { id: "about-addressbook-new-contact-key" },
+  ]);
+
+  document.addEventListener("keydown", event => {
+    if (
+      !(AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey) ||
+      ["Shift", "Control", "Meta"].includes(event.key)
+    ) {
+      return;
+    }
+
+    // Always use lowercase to compare the key and avoid OS inconsistencies:
+    // For Cmd/Ctrl+Shift+A, on Mac, key = "a" vs. on Windows/Linux, key = "A".
+    switch (event.key.toLowerCase()) {
+      // Always prevent the default behavior of the keydown if we intercepted
+      // the key in order to avoid triggering OS specific shortcuts.
+      case newContactKey.toLowerCase(): {
+        // Ctrl/Cmd+n.
+        event.preventDefault();
+        createContact();
+        break;
+      }
+    }
+  });
+}
 
 /**
  * Called on load from `toAddressBook` to create, display or edit a card.
