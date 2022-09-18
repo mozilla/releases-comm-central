@@ -2343,18 +2343,18 @@ var cardsPane = {
   _flavorDataProvider: {
     QueryInterface: ChromeUtils.generateQI(["nsIFlavorDataProvider"]),
 
-    getFlavorData(aTransferable, aFlavor, aData) {
-      if (aFlavor == "application/x-moz-file-promise") {
+    getFlavorData(transferable, flavor, data) {
+      if (flavor == "application/x-moz-file-promise") {
         let primitive = {};
-        aTransferable.getTransferData("text/vcard", primitive);
+        transferable.getTransferData("text/vcard", primitive);
         let vCard = primitive.value.QueryInterface(Ci.nsISupportsString).data;
-        aTransferable.getTransferData(
+        transferable.getTransferData(
           "application/x-moz-file-promise-dest-filename",
           primitive
         );
         let leafName = primitive.value.QueryInterface(Ci.nsISupportsString)
           .data;
-        aTransferable.getTransferData(
+        transferable.getTransferData(
           "application/x-moz-file-promise-dir",
           primitive
         );
@@ -2372,7 +2372,7 @@ var cardsPane = {
         converter.writeString(vCard);
         converter.close();
 
-        aData.value = localFile;
+        data.value = localFile;
       }
     },
   },
