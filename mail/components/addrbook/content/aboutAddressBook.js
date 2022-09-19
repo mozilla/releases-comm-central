@@ -3202,6 +3202,10 @@ var detailsPane = {
   /** Takes old nsIAbCard chat names and put them on the card as IMPP URIs. */
   _screenNamesToIMPPs() {
     let card = this.currentCard;
+    if (!card.supportsVCard) {
+      return;
+    }
+
     let existingIMPPValues = card.vCardProperties.getAllValues("impp");
     for (let key of [
       "_GoogleTalk",
