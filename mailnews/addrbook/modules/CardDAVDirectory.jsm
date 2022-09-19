@@ -488,10 +488,13 @@ class CardDAVDirectory extends SQLiteDirectory {
   }
 
   /**
-   * Get all cards on the server and add them to this directory. This should
-   * be used for the initial population of a directory.
+   * Get all cards on the server and add them to this directory.
+   *
+   * This is usually used for the initial population of a directory, but it
+   * can also be used for a complete re-sync.
    */
   async fetchAllFromServer() {
+    log.log("Fetching all cards from the server.");
     this._syncInProgress = true;
 
     let data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
@@ -511,13 +514,40 @@ class CardDAVDirectory extends SQLiteDirectory {
       expectedStatuses: [207],
     });
 
+    // A map of all existing hrefs and etags. If the etag for an href matches
+    // what we already have, we won't fetch it.
+    let currentHrefs = new Map(
+      Array.from(this.cards.values(), c => [c.get("_href"), c.get("_etag")])
+    );
+
     let hrefsToFetch = [];
     for (let { href, properties } of this._readResponse(response.dom)) {
-      if (properties && !properties.querySelector("resourcetype collection")) {
-        hrefsToFetch.push(href);
+      if (!properties || properties.querySelector("resourcetype collection")) {
+        continue;
       }
+
+      let currentEtag = currentHrefs.get(href);
+      currentHrefs.delete(href);
+
+      let etag = properties.querySelector("getetag")?.textContent;
+      if (etag && currentEtag == etag) {
+        continue;
+      }
+
+      hrefsToFetch.push(href);
     }
 
+    // Delete any existing cards we didn't see. They're not on the server so
+    // they shouldn't be on the client.
+    let cardsToDelete = [];
+    for (let href of currentHrefs.keys()) {
+      cardsToDelete.push(this.getCardFromProperty("_href", href, true));
+    }
+    if (cardsToDelete.length > 0) {
+      super.deleteCards(cardsToDelete);
+    }
+
+    // Fetch any cards we don't already have, or that have changed.
     if (hrefsToFetch.length > 0) {
       response = await this._multigetRequest(hrefsToFetch);
 
@@ -549,6 +579,7 @@ class CardDAVDirectory extends SQLiteDirectory {
 
     await this._getSyncToken();
 
+    log.log("Sync with server completed successfully.");
     Services.obs.notifyObservers(this, "addrbook-directory-synced");
 
     this._scheduleNextSync();
@@ -699,6 +730,8 @@ class CardDAVDirectory extends SQLiteDirectory {
    * @see RFC 6578
    */
   async _getSyncToken() {
+    log.log("Fetching new sync token");
+
     let data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
       <prop>
          <displayname/>
@@ -758,8 +791,17 @@ class CardDAVDirectory extends SQLiteDirectory {
       headers: {
         Depth: 1, // Only Google seems to need this.
       },
-      expectedStatuses: [207],
+      expectedStatuses: [207, 400],
     });
+
+    if (response.status == 400) {
+      log.warn(
+        `Server responded with: ${response.status} ${response.statusText}`
+      );
+      await this.fetchAllFromServer();
+      return;
+    }
+
     let dom = response.dom;
 
     // If this directory is set to read-only, the following operations would

@@ -374,7 +374,7 @@ class SQLiteDirectory extends AddrBookDirectory {
       usedUIDs.add(uid);
 
       let cachedCard;
-      if (this.hasOwnProperty("lists")) {
+      if (this.hasOwnProperty("cards")) {
         cachedCard = new Map();
         this.cards.set(uid, cachedCard);
       }

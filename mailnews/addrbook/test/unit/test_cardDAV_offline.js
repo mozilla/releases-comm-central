@@ -10,9 +10,6 @@
 // the server is localhost and therefore not affected by the offline setting.
 
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-var { TestUtils } = ChromeUtils.import(
-  "resource://testing-common/TestUtils.jsm"
-);
 
 var directory, restart, useSyncV1;
 

@@ -31,9 +31,12 @@ async function subtest() {
   let cardMap = new Map();
   let oldETags = new Map();
   for (let card of directory.childCards) {
-    info(card.displayName);
-    info(card.getProperty("_href", ""));
-    info(card.getProperty("_etag", ""));
+    info(
+      ` ${card.displayName} [${card.getProperty(
+        "_href",
+        ""
+      )}, ${card.getProperty("_etag", "")}]`
+    );
 
     cardMap.set(card.UID, card);
     oldETags.set(card.UID, card.getProperty("_etag", ""));
@@ -79,9 +82,12 @@ async function subtest() {
   info("Cards:");
   cardMap.clear();
   for (let card of directory.childCards) {
-    info(card.displayName);
-    info(card.getProperty("_href", ""));
-    info(card.getProperty("_etag", ""));
+    info(
+      ` ${card.displayName} [${card.getProperty(
+        "_href",
+        ""
+      )}, ${card.getProperty("_etag", "")}]`
+    );
 
     cardMap.set(card.UID, card);
   }
@@ -287,4 +293,108 @@ add_task(async function testReadOnly() {
   Services.prefs.setBoolPref("ldap_2.servers.carddav.readOnly", true);
   await subtest();
   Services.prefs.clearUserPref("ldap_2.servers.carddav.readOnly");
+});
+
+add_task(async function testExpiredToken() {
+  // Put some cards on the server.
+  CardDAVServer.putCardInternal(
+    "first.vcf",
+    "BEGIN:VCARD\r\nUID:first\r\nFN:First Person\r\nEND:VCARD\r\n"
+  );
+  CardDAVServer.putCardInternal(
+    "second.vcf",
+    "BEGIN:VCARD\r\nUID:second\r\nFN:Second Person\r\nEND:VCARD\r\n"
+  );
+  CardDAVServer.putCardInternal(
+    "third.vcf",
+    "BEGIN:VCARD\r\nUID:third\r\nFN:Third Person\r\nEND:VCARD\r\n"
+  );
+
+  let directory = initDirectory();
+
+  info("Initial sync with server.");
+  await directory.fetchAllFromServer();
+
+  info(`Token is: ${directory._syncToken}`);
+
+  info("Cards:");
+  for (let card of directory.childCards) {
+    info(
+      ` ${card.displayName} [${card.getProperty(
+        "_href",
+        ""
+      )}, ${card.getProperty("_etag", "")}]`
+    );
+  }
+
+  Assert.equal(directory.childCardCount, 3);
+  Assert.deepEqual(Array.from(directory.childCards, c => c.UID).sort(), [
+    "first",
+    "second",
+    "third",
+  ]);
+
+  // Corrupt the sync token. This will cause a 400 Bad Request response and a
+  // complete resync should happen.
+
+  directory._syncToken = "wrong token";
+
+  // Make some changes on the server.
+
+  CardDAVServer.putCardInternal(
+    "fourth.vcf",
+    "BEGIN:VCARD\r\nUID:fourth\r\nFN:Fourth\r\nEND:VCARD\r\n"
+  );
+  CardDAVServer.putCardInternal(
+    "second.vcf",
+    "BEGIN:VCARD\r\nUID:second\r\nFN:Second Person, but different\r\nEND:VCARD\r\n"
+  );
+  CardDAVServer.deleteCardInternal("first.vcf");
+
+  // Sync with the server.
+
+  info("Sync with server.");
+
+  let notificationPromise = TestUtils.topicObserved(
+    "addrbook-directory-invalidated"
+  );
+  observer.init();
+  await directory.updateAllFromServerV2();
+  // Check what notifications were fired. There should be an "invalidated"
+  // notification, making the others redundant, but the "deleted"
+  // notification is hard to avoid.
+  observer.checkAndClearNotifications({
+    "addrbook-contact-created": [],
+    "addrbook-contact-updated": [],
+    "addrbook-contact-deleted": ["first"],
+  });
+  await notificationPromise;
+
+  info(`Token is now: ${directory._syncToken}`);
+
+  info("Cards:");
+  for (let card of directory.childCards) {
+    info(
+      ` ${card.displayName} [${card.getProperty(
+        "_href",
+        ""
+      )}, ${card.getProperty("_etag", "")}]`
+    );
+  }
+
+  // Check that the changes were synced.
+
+  Assert.equal(directory.childCardCount, 3);
+  Assert.deepEqual(Array.from(directory.childCards, c => c.UID).sort(), [
+    "fourth",
+    "second",
+    "third",
+  ]);
+  Assert.equal(
+    directory.childCards.find(c => c.UID == "second").displayName,
+    "Second Person, but different"
+  );
+
+  await clearDirectory(directory);
+  CardDAVServer.reset();
 });
