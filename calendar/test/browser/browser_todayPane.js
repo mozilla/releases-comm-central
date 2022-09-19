@@ -5,6 +5,9 @@
 /* globals TodayPane */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { formatDate, formatTime } = ChromeUtils.import(
+  "resource://testing-common/calendar/ItemEditingHelpers.jsm"
+);
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -751,3 +754,68 @@ add_task(async function testOpenEvent() {
     await calendar.deleteItem(addedEvent);
   }
 });
+
+/**
+ * Tests that the "New Event" button begins creating an event on the date
+ * selected in the Today Pane.
+ */
+add_task(async function testNewEvent() {
+  async function checkEventDialogDate() {
+    let dialogWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
+    EventUtils.synthesizeMouseAtCenter(newEventButton, {}, window);
+    await dialogWindowPromise.then(async function(dialogWindow) {
+      let iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
+      let iframeDocument = iframe.contentDocument;
+
+      let startDate = iframeDocument.getElementById("event-starttime");
+      Assert.equal(
+        startDate._datepicker._inputField.value,
+        formatDate(expectedDate),
+        "date should match the expected date"
+      );
+      Assert.equal(
+        startDate._timepicker._inputField.value,
+        formatTime(expectedDate),
+        "time should be the next hour after now"
+      );
+
+      await BrowserTestUtils.closeWindow(dialogWindow);
+    });
+  }
+
+  let newEventButton = document.getElementById("todaypane-new-event-button");
+
+  // Check today with the "day" view.
+
+  TodayPane.displayMiniSection("miniday");
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("today-button"), {}, window);
+
+  let expectedDate = cal.dtz.now();
+  expectedDate.hour++;
+  expectedDate.minute = 0;
+
+  await checkEventDialogDate();
+
+  // Check tomorrow with the "day" view.
+
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("next-day-button"), {}, window);
+  expectedDate.day++;
+
+  await checkEventDialogDate();
+
+  // Check today with the "month" view;
+
+  TodayPane.displayMiniSection("minimonth");
+  let minimonth = document.getElementById("today-minimonth");
+  minimonth.value = new Date();
+  expectedDate.day--;
+
+  await checkEventDialogDate();
+
+  // Check a date in the past with the "month" view;
+
+  minimonth.value = new Date(Date.UTC(2018, 8, 1));
+  expectedDate.resetTo(2018, 8, 1, expectedDate.hour, 0, 0, cal.dtz.UTC);
+
+  await checkEventDialogDate();
+}).__skipMe = new Date().getUTCHours() == 23;
