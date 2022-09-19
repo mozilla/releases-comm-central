@@ -18,38 +18,27 @@ interface nsIAutoSyncState : nsISupports {
    * happen.
    */
 
-  /** Initial state.  Returned to after new messages downloaded */
+  /** sync'd and no pending messages */
   const long stCompletedIdle = 0;
 
-  /**
-   * STATUS issued (URL "folderstatus"). Will check to see if new messages
-   * are present.
-   */
+  /** STATUS issued. Will check to see if  any counts changed since last STATUS */
   const long stStatusIssued = 1;
 
   /**
-   * Occurs when imap APPEND, COPY or MOVE imap command and adds messages that
-   * may not be detected in autosync stStatusIssued state. These are the
-   * "pending" messages referred to in the autosync code.
-   * Update (URL "select") will be issued next.
+   * Status found new messages. Update should be issued next. Status most
+   * likely was issued by non-autosync code (e.g., check other folders for
+   * new messages).
    */
   const long stUpdateNeeded = 2;
 
-  /**
-   * Update issued (URL "select"). Will figure out if there are any bodies to
-   * download after new headers are fetched.
-   */
+  /** Update issued. Will figure out if there are any bodies to download */
   const long stUpdateIssued = 3;
 
-  /** ready to download the next group of messages */
-  const long stReadyToDownload = 4;
+  /** Message body download in progress */
+  const long stDownloadInProgress = 4;
 
-  /**
-   * Fetch body issued (URL "fetch"). Group of message bodies download in
-   * progress. If more are needed, next state is stReadyToDownload; otherwise,
-   * next state is stCompleteIdle.
-   */
-  const long stDownloadInProgress = 5;
+  /** ready to download the next group of messages */
+  const long stReadyToDownload = 5;
 
   /**
    * Puts the download queue offset to its previous position.
@@ -107,11 +96,6 @@ interface nsIAutoSyncState : nsISupports {
    * @return the number of headers left to process
    */
   unsigned long processExistingHeaders(in unsigned long aNumberOfHeadersToProcess);
-
-  /**
-   * Tests whether the download queue is empty.
-   */
-  boolean isDownloadQEmpty();
 
   /**
    * Last time the existing headers are completely processed.

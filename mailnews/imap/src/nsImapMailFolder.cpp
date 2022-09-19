@@ -227,7 +227,7 @@ nsImapMailFolder::nsImapMailFolder()
   m_boxFlags = 0;
   m_uidValidity = kUidUnknown;
   m_numServerRecentMessages = 0;
-  m_numServerUnseenMessages = -1;  // -1 indicates not yet set to a valid value
+  m_numServerUnseenMessages = 0;
   m_numServerTotalMessages = 0;
   m_nextUID = nsMsgKey_None;
   m_hierarchyDelimiter = kOnlineHierarchySeparatorUnknown;
@@ -1877,11 +1877,7 @@ NS_IMETHODIMP nsImapMailFolder::ReadFromFolderCacheElem(
   m_aclFlags = kAclInvalid;  // init to invalid value.
   element->GetCachedUInt32("aclFlags", &m_aclFlags);
   element->GetCachedInt32("serverTotal", &m_numServerTotalMessages);
-  // Init m_numServerUnseenMessages to cached "totalUnreadMsgs" since
-  // cached "serverUnseen" may be incorrect due to imap NOOP occurring instead
-  // of STATUS when url folderstatus occurs during autosync. NOOP doesn't always
-  // report UNSEEN changes.
-  element->GetCachedInt32("totalUnreadMsgs", &m_numServerUnseenMessages);
+  element->GetCachedInt32("serverUnseen", &m_numServerUnseenMessages);
   element->GetCachedInt32("serverRecent", &m_numServerRecentMessages);
   element->GetCachedInt32("nextUID", &m_nextUID);
   int32_t lastSyncTimeInSec;
@@ -1904,12 +1900,7 @@ NS_IMETHODIMP nsImapMailFolder::WriteToFolderCacheElem(
   element->SetCachedString("onlineName", m_onlineFolderName);
   element->SetCachedUInt32("aclFlags", m_aclFlags);
   element->SetCachedInt32("serverTotal", m_numServerTotalMessages);
-  // Don't save "serverUnseen" to cache unless we have a valid value indicated
-  // by m_numServerUnseenMessages > -1.
-  int32_t tmp;
-  element->GetCachedInt32("serverUnseen", &tmp);
-  if (m_numServerUnseenMessages > -1 || tmp < 0)
-    element->SetCachedInt32("serverUnseen", m_numServerUnseenMessages);
+  element->SetCachedInt32("serverUnseen", m_numServerUnseenMessages);
   element->SetCachedInt32("serverRecent", m_numServerRecentMessages);
   if (m_nextUID != (int32_t)nsMsgKey_None)
     element->SetCachedInt32("nextUID", m_nextUID);
@@ -2489,9 +2480,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   ChangeNumPendingTotalMessages(-mNumPendingTotalMessages);
   ChangeNumPendingUnread(-mNumPendingUnreadMessages);
   m_numServerRecentMessages = 0;  // clear this since we selected the folder.
-  // m_numServerUnseenMessages = 0;  // clear this since we selected the folder.
-  // Actually, setting to zero may cause wrong unseen count since select doesn't
-  // return number of unseen but the first unseen message sequence number.
+  m_numServerUnseenMessages = 0;  // clear this since we selected the folder.
 
   if (!mDatabase) GetDatabase();
 
@@ -2644,14 +2633,11 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   }
   int32_t numUnreadFromServer;
   aSpec->GetNumUnseenMessages(&numUnreadFromServer);
-  // Set to zero if unread from server is unknown (no imap STATUS yet)
-  if (numUnreadFromServer == -1) numUnreadFromServer = 0;
 
   bool partialUIDFetch;
   flagState->GetPartialUIDFetch(&partialUIDFetch);
 
   // For partial UID fetches, we can only trust the numUnread from the server.
-  // But can't really "trust" it until imap STATUS occurs
   if (partialUIDFetch) numNewUnread = numUnreadFromServer;
 
   // If we are performing biff for this folder, tell the
@@ -2691,9 +2677,6 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   return rv;
 }
 
-/*
- * Called after successful imap STATUS response occurs. Have valid unseen value.
- */
 NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxStatus(
     nsIImapProtocol* aProtocol, nsIMailboxSpec* aSpec) {
   NS_ENSURE_ARG_POINTER(aSpec);
@@ -2705,15 +2688,14 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxStatus(
   aSpec->GetNextUID(&m_nextUID);
   bool summaryChanged = false;
 
-  // If m_numServerUnseenMessages is -1, it usually means
+  // If m_numServerUnseenMessages is 0, it means
   // this is the first time we've done a Status.
   // In that case, we count all the previous pending unread messages we know
   // about as unread messages. We may want to do similar things with total
   // messages, but the total messages include deleted messages if the folder
   // hasn't been expunged.
-  // Don't set previouUnread to -1 (yet unknown unseen count).
   int32_t previousUnreadMessages =
-      (m_numServerUnseenMessages > 0)
+      (m_numServerUnseenMessages)
           ? m_numServerUnseenMessages
           : mNumPendingUnreadMessages + mNumUnreadMessages;
   if (numUnread != previousUnreadMessages || m_nextUID != prevNextUID) {
@@ -5310,12 +5292,8 @@ void nsImapMailFolder::UpdatePendingCounts() {
     // count the moves that were unread
     int numUnread = m_copyState->m_unreadCount;
     if (numUnread) {
-      // At this point, if unseen is unknown (negative), set to numUnread;
-      // otherwise, increment it by numUnread
-      if (m_numServerUnseenMessages < 0)
-        m_numServerUnseenMessages = numUnread;
-      else
-        m_numServerUnseenMessages += numUnread;
+      m_numServerUnseenMessages +=
+          numUnread;  // adjust last status count by this delta.
       ChangeNumPendingUnread(numUnread);
     }
     SummaryChanged();
@@ -8783,7 +8761,7 @@ NS_IMETHODIMP nsImapMailFolder::InitiateAutoSync(nsIUrlListener* aUrlListener) {
   nsCString folderName;
   GetURI(folderName);
   MOZ_LOG(gAutoSyncLog, mozilla::LogLevel::Debug,
-          ("%s: Updating folder: %s", __func__, folderName.get()));
+          ("Updating folder: %s", folderName.get()));
 
   // HACK: if UpdateFolder finds out that it can't open
   // the folder, it doesn't set the url listener and returns
@@ -8794,7 +8772,7 @@ NS_IMETHODIMP nsImapMailFolder::InitiateAutoSync(nsIUrlListener* aUrlListener) {
 
   if (!canOpenThisFolder) {
     MOZ_LOG(gAutoSyncLog, mozilla::LogLevel::Debug,
-            ("%s: Cannot update folder: %s", __func__, folderName.get()));
+            ("Cannot update folder: %s", folderName.get()));
     return NS_ERROR_FAILURE;
   }
 
