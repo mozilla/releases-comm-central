@@ -1,12 +1,11 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 [
   {
     "namespace": "manifest",
     "types": [
-     {
+      {
         "id": "KeyName",
         "type": "string",
         "format": "manifestShortcutKey"
@@ -19,7 +18,9 @@
             "optional": true,
             "additionalProperties": {
               "type": "object",
-              "additionalProperties": { "$ref": "UnrecognizedProperty" },
+              "additionalProperties": {
+                "$ref": "UnrecognizedProperty"
+              },
               "properties": {
                 "suggested_key": {
                   "type": "object",
@@ -75,13 +76,15 @@
   {
     "namespace": "commands",
     "description": "Use the commands API to add keyboard shortcuts that trigger actions in your extension, for example, an action to open the browser action or send a command to the xtension.",
-    "permissions": ["manifest:commands"],
+    "permissions": [
+      "manifest:commands"
+    ],
     "types": [
       {
         "id": "Command",
         "type": "object",
         "properties": {
-          "name":        {
+          "name": {
             "type": "string",
             "optional": true,
             "description": "The name of the Extension Command"
@@ -102,7 +105,7 @@
     "events": [
       {
         "name": "onCommand",
-        "description": "Fired when a registered command is activated using a keyboard shortcut.",
+        "description": "Fired when a registered command is activated using a keyboard shortcut. This is a user input event handler. For asynchronous listeners some `restrictions <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/User_actions>`__ apply.",
         "type": "function",
         "parameters": [
           {
@@ -127,21 +130,22 @@
           {
             "type": "object",
             "name": "detail",
-            "description": "The new description for the command.",
+            "description": "The new details for the command.",
             "properties": {
               "name": {
                 "type": "string",
                 "description": "The name of the command."
-                },
+              },
               "description": {
                 "type": "string",
                 "optional": true,
-                "description": "The new description for the command."
+                "description": "The description for the command."
               },
               "shortcut": {
                 "type": "string",
                 "format": "manifestShortcutKeyOrEmpty",
-                "optional": true
+                "optional": true,
+                "description": "An empty string to clear the shortcut, or a string matching the format defined by the `MDN page of the commands API <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/commands#shortcut_values>`_  to set a new shortcut key. If the string does not match this format, the function throws an error."
               }
             }
           }

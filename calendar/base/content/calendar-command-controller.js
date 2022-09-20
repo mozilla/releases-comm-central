@@ -30,6 +30,7 @@ var calendarController = {
     // Common commands
     "calendar_new_event_command",
     "calendar_new_event_context_command",
+    "calendar_new_event_todaypane_command",
     "calendar_modify_event_command",
     "calendar_view_event_command",
     "calendar_delete_event_command",
@@ -122,6 +123,7 @@ var calendarController = {
     switch (aCommand) {
       case "calendar_new_event_command":
       case "calendar_new_event_context_command":
+      case "calendar_new_event_todaypane_command":
         return CalendarNewEventsCommandEnabled;
       case "calendar_modify_focused_item_command":
         return this.item_selected && canEditSelectedItems();
@@ -292,6 +294,9 @@ var calendarController = {
         createEventWithDialog(getSelectedCalendar(), newStart, null, null, null, newStart.isDate);
         break;
       }
+      case "calendar_new_event_todaypane_command":
+        createEventWithDialog(getSelectedCalendar(), cal.dtz.getDefaultStartDate(TodayPane.start));
+        break;
       case "calendar_modify_event_command":
         editSelectedEvents();
         break;

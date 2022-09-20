@@ -65,8 +65,35 @@ function contactsListOnContextMenu(aEvent) {
     // If there's a selection, show "cardProperties" context menu.
   } else {
     contextMenuID = gAbResultsTree.getAttribute("contextSelection");
+    updateCardPropertiesMenu();
   }
   showContextMenu(contextMenuID, aEvent, positionArray);
+}
+
+/**
+ * Update the single row card properties context menu to show or hide the "Edit"
+ * menu item only depending on the selection type.
+ */
+function updateCardPropertiesMenu() {
+  let cards = GetSelectedAbCards();
+
+  let separator = document.getElementById("abContextBeforeEditContact");
+  let menuitem = document.getElementById("abContextEditContact");
+
+  // Only show the Edit item if one item is selected, is not a mailing list, and
+  // the contact is not part of a readOnly address book.
+  if (
+    cards.length != 1 ||
+    cards.some(c => c.isMailList) ||
+    MailServices.ab.getDirectoryFromUID(cards[0].directoryUID)?.readOnly
+  ) {
+    separator.hidden = true;
+    menuitem.hidden = true;
+    return;
+  }
+
+  separator.hidden = false;
+  menuitem.hidden = false;
 }
 
 /**
@@ -126,6 +153,14 @@ function addSelectedAddresses(recipientType) {
     ),
     addresses
   );
+}
+
+/**
+ * Open the address book tab and trigger the edit of the selected contact.
+ */
+function editSelectedAddress() {
+  let cards = GetSelectedAbCards();
+  window.top.toAddressBook({ action: "edit", card: cards[0] });
 }
 
 function AddressBookMenuListChange(aValue) {

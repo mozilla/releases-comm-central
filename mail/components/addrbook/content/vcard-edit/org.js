@@ -133,67 +133,55 @@ customElements.define("vcard-role", VCardRoleComponent);
 class VCardOrgComponent extends HTMLElement {
   /** @type {VCardPropertyEntry} */
   vCardPropertyEntry;
-
   /** @type {HTMLInputElement} */
   orgEl;
+  /** @type {HTMLInputElement} */
+  unitEl;
 
   static newVCardPropertyEntry() {
     return new VCardPropertyEntry("org", {}, "text", ["", ""]);
   }
 
-  constructor() {
-    super();
+  connectedCallback() {
+    if (this.hasConnected) {
+      return;
+    }
+    this.hasConnected = true;
+
     let template = document.getElementById("template-vcard-edit-org");
     let clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
-  }
 
-  connectedCallback() {
-    if (this.isConnected) {
-      this.orgEl = this.querySelector('textarea[name="org"]');
-      this.assignIds(this.orgEl, this.querySelector('label[for="org"]'));
-      this.orgEl.addEventListener("input", () => {
-        this.resizeOrgEl();
-      });
+    this.orgEl = this.querySelector('input[name="org"]');
+    this.orgEl.id = vCardIdGen.next().value;
+    this.querySelector('label[for="org"]').htmlFor = this.orgEl.id;
 
-      this.fromVCardPropertyEntryToUI();
-    }
-  }
+    this.unitEl = this.querySelector('input[name="orgUnit"]');
+    this.unitEl.id = vCardIdGen.next().value;
+    this.querySelector('label[for="orgUnit"]').htmlFor = this.unitEl.id;
 
-  disconnectedCallback() {
-    if (!this.isConnected) {
-      this.vCardPropertyEntry = null;
-      this.orgEl = null;
-    }
+    this.fromVCardPropertyEntryToUI();
   }
 
   fromVCardPropertyEntryToUI() {
     let values = this.vCardPropertyEntry.value;
     if (!values) {
       this.orgEl.value = "";
+      this.unitEl.value = "";
       return;
     }
     if (!Array.isArray(values)) {
       values = [values];
     }
-
-    this.orgEl.value = values
-      .filter(Boolean)
-      .reverse()
-      .join("\n");
-    this.resizeOrgEl();
+    this.orgEl.value = values.shift() || "";
+    // In case data had more levels of units, just pull them together.
+    this.unitEl.value = values.join(", ");
   }
 
   fromUIToVCardPropertyEntry() {
-    let orgValue = this.orgEl.value.trim();
-    if (orgValue.includes("\n")) {
-      orgValue = orgValue.replaceAll("\r", "");
-      this.vCardPropertyEntry.value = orgValue
-        .split("\n")
-        .filter(Boolean)
-        .reverse();
-    } else {
-      this.vCardPropertyEntry.value = orgValue;
+    this.vCardPropertyEntry.value = [this.orgEl.value.trim()];
+    if (this.unitEl.value.trim()) {
+      this.vCardPropertyEntry.value.push(this.unitEl.value.trim());
     }
   }
 
@@ -203,16 +191,6 @@ class VCardOrgComponent extends HTMLElement {
       (Array.isArray(this.vCardPropertyEntry.value) &&
         this.vCardPropertyEntry.value.every(v => v === ""))
     );
-  }
-
-  assignIds(inputEl, labelEl) {
-    let labelInputId = vCardIdGen.next().value;
-    inputEl.id = labelInputId;
-    labelEl.htmlFor = labelInputId;
-  }
-
-  resizeOrgEl() {
-    this.orgEl.rows = Math.max(1, this.orgEl.value.split("\n").length);
   }
 }
 customElements.define("vcard-org", VCardOrgComponent);

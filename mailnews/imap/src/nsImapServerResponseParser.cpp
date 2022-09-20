@@ -27,7 +27,7 @@ nsImapServerResponseParser::nsImapServerResponseParser(
       fCurrentFolderReadOnly(false),
       fCurrentLineContainedFlagInfo(false),
       fServerIsNetscape3xServer(false),
-      fSeqNumOfFirstUnseenMsg(0),
+      fNumberOfUnseenMessages(0),
       fNumberOfExistingMessages(0),
       fNumberOfRecentMessages(0),
       fSizeOfMostRecentMessage(0),
@@ -52,8 +52,10 @@ nsImapServerResponseParser::nsImapServerResponseParser(
   fFolderUIDValidity = 0;
   fHighestModSeq = 0;
   fAuthChallenge = nullptr;
-  fStatusUnseenMessages = -1;  // -1 indicates UNSEEN response has yet to occur
+  fStatusUnseenMessages = 0;
+  fStatusRecentMessages = 0;
   fStatusNextUID = nsMsgKey_None;
+  fStatusExistingMessages = 0;
   fReceivedHeaderOrSizeForUID = nsMsgKey_None;
   fCondStoreEnabled = false;  // Seems to be unused!
   fUtf8AcceptEnabled = false;
@@ -547,7 +549,7 @@ void nsImapServerResponseParser::response_data() {
             } else if (!PL_strcasecmp(fNextToken, "MESSAGES")) {
               AdvanceToNextToken();
               if (fNextToken) {
-                fNumberOfExistingMessages = strtoul(fNextToken, nullptr, 10);
+                fStatusExistingMessages = strtoul(fNextToken, nullptr, 10);
                 // if this token ends in ')', then it is the last token
                 // else we advance
                 if (*(fNextToken + strlen(fNextToken) - 1) == ')')
@@ -565,7 +567,7 @@ void nsImapServerResponseParser::response_data() {
             } else if (!PL_strcasecmp(fNextToken, "RECENT")) {
               AdvanceToNextToken();
               if (fNextToken) {
-                fNumberOfRecentMessages = strtoul(fNextToken, nullptr, 10);
+                fStatusRecentMessages = strtoul(fNextToken, nullptr, 10);
                 // if this token ends in ')', then it is the last token
                 // else we advance
                 if (*(fNextToken + strlen(fNextToken) - 1) == ')')
@@ -1722,11 +1724,7 @@ void nsImapServerResponseParser::resp_text_code() {
     } else if (!PL_strcasecmp(fNextToken, "UNSEEN")) {
       AdvanceToNextToken();
       if (ContinueParse()) {
-        // Note: As a response code, "UNSEEN" is NOT the number of
-        // unseen/unread messages. It is the lowest sequence number of the first
-        // unseen/unread message in the mailbox. Go ahead and save the value for
-        // possible future use but currently not used.
-        fSeqNumOfFirstUnseenMsg = strtoul(fNextToken, nullptr, 10);
+        fNumberOfUnseenMessages = strtoul(fNextToken, nullptr, 10);
         AdvanceToNextToken();
       }
     } else if (!PL_strcasecmp(fNextToken, "UIDNEXT")) {
@@ -2873,6 +2871,10 @@ int32_t nsImapServerResponseParser::NumberOfRecentMessages() {
   return fNumberOfRecentMessages;
 }
 
+int32_t nsImapServerResponseParser::NumberOfUnseenMessages() {
+  return fNumberOfUnseenMessages;
+}
+
 int32_t nsImapServerResponseParser::FolderUID() { return fFolderUIDValidity; }
 
 void nsImapServerResponseParser::SetCurrentResponseUID(uint32_t uid) {
@@ -2918,13 +2920,16 @@ nsImapServerResponseParser::CreateCurrentMailboxSpec(
     returnSpec->mHierarchySeparator = (ns) ? ns->GetDelimiter() : '/';
   }
 
-  // If mailboxName null, we're doing imap SELECT; otherwise doing STATUS
-  returnSpec->mFolderSelected = !mailboxName;
+  returnSpec->mFolderSelected =
+      !mailboxName;  // if mailboxName is null, we're doing a Status
   returnSpec->mFolder_UIDVALIDITY = fFolderUIDValidity;
   returnSpec->mHighestModSeq = fHighestModSeq;
-  returnSpec->mNumOfMessages = fNumberOfExistingMessages;
-  returnSpec->mNumOfUnseenMessages = fStatusUnseenMessages;  // Will be >= -1
-  returnSpec->mNumOfRecentMessages = fNumberOfRecentMessages;
+  returnSpec->mNumOfMessages =
+      (mailboxName) ? fStatusExistingMessages : fNumberOfExistingMessages;
+  returnSpec->mNumOfUnseenMessages =
+      (mailboxName) ? fStatusUnseenMessages : fNumberOfUnseenMessages;
+  returnSpec->mNumOfRecentMessages =
+      (mailboxName) ? fStatusRecentMessages : fNumberOfRecentMessages;
   returnSpec->mNextUID = fStatusNextUID;
 
   returnSpec->mSupportedUserFlags = fSupportsUserDefinedFlags;

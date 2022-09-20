@@ -188,6 +188,74 @@ add_task(async function() {
     checkPills(bccAddrRow, []);
   }
 
+  async function inABEditingMode() {
+    let topWindow = Services.wm.getMostRecentWindow("mail:3pane");
+    let abWindow = await topWindow.toAddressBook();
+    await new Promise(resolve => abWindow.setTimeout(resolve));
+    await TestUtils.waitForCondition(
+      () => abWindow.detailsPane.isEditing,
+      "entering editing mode"
+    );
+    let tabmail = topWindow.document.getElementById("tabmail");
+    let tab = tabmail.tabInfo.find(
+      t => t.browser?.currentURI.spec == "about:addressbook"
+    );
+    tabmail.closeTab(tab);
+  }
+
+  /**
+   * Make sure the "edit contact" menuitem only shows up for the correct
+   * contacts, and it properly opens the address book tab.
+   *
+   * @param {int} row - The row index to activate.
+   * @param {boolean} isEditable - If the selected contact should be editable.
+   */
+  async function checkEditContact(row, isEditable) {
+    clickOnRow(row, {});
+    let shownPromise = BrowserTestUtils.waitForEvent(
+      cardsContext,
+      "popupshown"
+    );
+    clickOnRow(row, { type: "contextmenu" });
+    await shownPromise;
+
+    let hiddenPromise = BrowserTestUtils.waitForEvent(
+      cardsContext,
+      "popuphidden"
+    );
+
+    Assert.equal(
+      cardsContext.querySelector("#abContextBeforeEditContact").hidden,
+      !isEditable
+    );
+    Assert.equal(
+      cardsContext.querySelector("#abContextEditContact").hidden,
+      !isEditable
+    );
+
+    // If it's an editable row, we should see the edit contact menu items.
+    if (isEditable) {
+      EventUtils.synthesizeMouseAtCenter(
+        cardsContext.querySelector("#abContextEditContact"),
+        {},
+        sidebarWindow
+      );
+      await inABEditingMode();
+      composeWindow.focus();
+      await TestUtils.waitForCondition(
+        () => Services.focus.activeWindow == composeWindow
+      );
+    } else {
+      EventUtils.synthesizeKey("VK_ESCAPE", {}, composeWindow);
+      await hiddenPromise;
+    }
+  }
+
+  // Click on a contact and make sure is editable.
+  await checkEditContact(2, true);
+  // Click on a mailing list and make sure is NOT editable.
+  await checkEditContact(6, false);
+
   // Check that the address book picker works.
 
   await doMenulist(book1.URI);

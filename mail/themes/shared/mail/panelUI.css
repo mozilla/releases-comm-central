@@ -15,7 +15,6 @@
   --menu-panel-button-width: calc(--menu-panel-width / 3 - 1.1px);
   --arrowpanel-menuitem-border-radius: 3px;
   --appmenu-button-margin: 0 8px;
-  --appmenu-button-padding: 6px;
   --appmenu-button-border-color: hsla(210, 4%, 10%, 0.14);
   --appmenu-warning-background-color: #ffefbf;
   --appmenu-warning-background-color-hover: #ffe8a2;
@@ -52,6 +51,10 @@
   --arrowpanel-padding: 4px 0;
   --appmenu-button-padding: 4px;
   --appmenu-button-margin: 0 4px;
+}
+
+:root:not([uidensity]) panel.cui-widget-panel {
+  --appmenu-button-padding: 6px;
 }
 
 :root[uidensity="compact"] panel.cui-widget-panel {
@@ -411,7 +414,7 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
 .PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"] {
   margin-inline-start: 0;
   margin-block: 1px;
-  padding: 2px 3px;
+  padding: 4px 8px;
   min-height: 22px;
   border: 1px solid var(--appmenu-button-border-color);
   border-radius: 0;
@@ -441,9 +444,14 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
   color: var(--select-focus-text-color);
 }
 
+:root[uidensity="compact"] .PanelUI-subView .toolbaritem-combined-buttons >
+  .subviewbutton[type="radio"] {
+  padding: 2px 6px;
+}
+
 :root[uidensity="touch"] .PanelUI-subView .toolbaritem-combined-buttons >
   .subviewbutton[type="radio"] {
-  padding: 6px 9px;
+  padding: 6px 10px;
 }
 
 .subview-subheader {
@@ -953,12 +961,29 @@ menulist[open="true"]:not([disabled="true"]) {
   padding: 0;
 }
 
+/* Compensate the smaller icon. */
+#appMenu-fontSizeEnlarge-button > .toolbarbutton-icon {
+  margin-inline-end: -2px;
+}
+
+:root[uidensity="compact"] #appMenu-fontSizeEnlarge-button > .toolbarbutton-icon {
+  margin-inline-end: -1px;
+}
+
 #appMenu-fontSizeReset-button > .toolbarbutton-text {
   border: 1px solid var(--appmenu-button-border-color);
   border-radius: 2px;
-  min-width: calc(4ch + 8px);
+  min-width: 47px;
   text-align: center;
   padding: 2px;
+}
+
+:root[uidensity="compact"] #appMenu-fontSizeReset-button > .toolbarbutton-text {
+  min-width: 41px;
+}
+
+:root[uidensity="touch"] #appMenu-fontSizeReset-button > .toolbarbutton-text {
+  min-width: 51px;
 }
 
 #appMenu-fontSizeReset-button:hover > .toolbarbutton-text {
@@ -986,7 +1011,11 @@ menulist[open="true"]:not([disabled="true"]) {
 
 #appMenu-fontSize-controls > .subviewbutton {
   margin-inline-start: 2px;
-  padding: 4px;
+  padding: 3px;
+}
+
+#appMenu-fontSize-controls > #appMenu-fontSizeEnlarge-button {
+  padding-inline-end: 0;
 }
 
 :root[uidensity="compact"] #appMenu-fontSizeReduce-button > .toolbarbutton-icon,

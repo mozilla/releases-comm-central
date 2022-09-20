@@ -73,6 +73,11 @@ XPCOMUtils.defineLazyGetter(this, "bundle", function() {
     "chrome://messenger/locale/addressbook/addressBook.properties"
   );
 });
+XPCOMUtils.defineLazyGetter(
+  this,
+  "l10n",
+  () => new Localization(["messenger/addressbook/aboutAddressBook.ftl"])
+);
 
 UIDensity.registerWindow(window);
 UIFontSize.registerWindow(window);
@@ -130,6 +135,8 @@ window.addEventListener("load", () => {
   cardsPane.init();
   detailsPane.init();
   photoDialog.init();
+
+  setKeyboardShortcuts();
 
   // Once the old Address Book has gone away, this should be changed to use
   // UIDs instead of URIs. It's just easier to keep as-is for now.
@@ -217,6 +224,37 @@ window.addEventListener("keypress", event => {
 
   targets[focusedElementIndex].focus();
 });
+
+/**
+ * Add a keydown document event listener for international keyboard shortcuts.
+ */
+async function setKeyboardShortcuts() {
+  let [newContactKey] = await l10n.formatValues([
+    { id: "about-addressbook-new-contact-key" },
+  ]);
+
+  document.addEventListener("keydown", event => {
+    if (
+      !(AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey) ||
+      ["Shift", "Control", "Meta"].includes(event.key)
+    ) {
+      return;
+    }
+
+    // Always use lowercase to compare the key and avoid OS inconsistencies:
+    // For Cmd/Ctrl+Shift+A, on Mac, key = "a" vs. on Windows/Linux, key = "A".
+    switch (event.key.toLowerCase()) {
+      // Always prevent the default behavior of the keydown if we intercepted
+      // the key in order to avoid triggering OS specific shortcuts.
+      case newContactKey.toLowerCase(): {
+        // Ctrl/Cmd+n.
+        event.preventDefault();
+        createContact();
+        break;
+      }
+    }
+  });
+}
 
 /**
  * Called on load from `toAddressBook` to create, display or edit a card.
@@ -2305,18 +2343,18 @@ var cardsPane = {
   _flavorDataProvider: {
     QueryInterface: ChromeUtils.generateQI(["nsIFlavorDataProvider"]),
 
-    getFlavorData(aTransferable, aFlavor, aData) {
-      if (aFlavor == "application/x-moz-file-promise") {
+    getFlavorData(transferable, flavor, data) {
+      if (flavor == "application/x-moz-file-promise") {
         let primitive = {};
-        aTransferable.getTransferData("text/vcard", primitive);
+        transferable.getTransferData("text/vcard", primitive);
         let vCard = primitive.value.QueryInterface(Ci.nsISupportsString).data;
-        aTransferable.getTransferData(
+        transferable.getTransferData(
           "application/x-moz-file-promise-dest-filename",
           primitive
         );
         let leafName = primitive.value.QueryInterface(Ci.nsISupportsString)
           .data;
-        aTransferable.getTransferData(
+        transferable.getTransferData(
           "application/x-moz-file-promise-dir",
           primitive
         );
@@ -2334,7 +2372,7 @@ var cardsPane = {
         converter.writeString(vCard);
         converter.close();
 
-        aData.value = localFile;
+        data.value = localFile;
       }
     },
   },
@@ -3063,7 +3101,7 @@ var detailsPane = {
       let span = li.querySelector(".entry-value");
       for (let part of org.filter(Boolean).reverse()) {
         if (span.firstChild) {
-          span.appendChild(document.createElement("br"));
+          span.append(" • ");
         }
         span.appendChild(document.createTextNode(part));
       }
@@ -3164,6 +3202,10 @@ var detailsPane = {
   /** Takes old nsIAbCard chat names and put them on the card as IMPP URIs. */
   _screenNamesToIMPPs() {
     let card = this.currentCard;
+    if (!card.supportsVCard) {
+      return;
+    }
+
     let existingIMPPValues = card.vCardProperties.getAllValues("impp");
     for (let key of [
       "_GoogleTalk",

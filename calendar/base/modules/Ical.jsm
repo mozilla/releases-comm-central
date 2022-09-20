@@ -4494,10 +4494,6 @@ ICAL.Binary = (function() {
 
       changesEndYear += ICAL.Timezone.EXTRA_COVERAGE;
 
-      if (changesEndYear > ICAL.Timezone.MAX_YEAR) {
-        changesEndYear = ICAL.Timezone.MAX_YEAR;
-      }
-
       if (!this.changes.length || this.expandedUntilYear < aYear) {
         var subcomps = this.component.getAllSubcomponents();
         var compLen = subcomps.length;
@@ -4748,7 +4744,6 @@ ICAL.Binary = (function() {
   };
 
   ICAL.Timezone._minimumExpansionYear = -1;
-  ICAL.Timezone.MAX_YEAR = 2035; // TODO this is because of time_t, which we don't need. Still useful?
   ICAL.Timezone.EXTRA_COVERAGE = 5;
 })();
 /* This Source Code Form is subject to the terms of the Mozilla Public

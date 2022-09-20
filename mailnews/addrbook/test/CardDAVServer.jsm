@@ -377,6 +377,10 @@ var CardDAVServer = {
     let token = input
       .querySelector("sync-token")
       .textContent.replace(/\D/g, "");
+    if (!token) {
+      response.setStatusLine("1.1", 400, "Bad Request");
+      return;
+    }
     let propNames = this._inputProps(input);
 
     let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;

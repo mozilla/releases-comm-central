@@ -54,6 +54,7 @@ add_task(async () => {
   let searchBox = abDocument.getElementById("searchInput");
   let cardsList = abDocument.getElementById("cards");
   let noSearchResults = abDocument.getElementById("placeholderNoSearchResults");
+  let detailsPane = abDocument.getElementById("detailsPane");
 
   // Search for some people in the LDAP directory.
 
@@ -73,9 +74,16 @@ add_task(async () => {
   LDAPServer.writeSearchResultEntry(ldapContacts.sherlock);
   LDAPServer.writeSearchResultDone();
 
+  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
   await waitForCountChange(2);
   checkNamesListed("Mycroft Holmes", "Sherlock Holmes");
   checkPlaceholders();
+
+  // Check that displaying an LDAP card works without error.
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  await TestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(detailsPane)
+  );
 
   EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
   EventUtils.synthesizeKey("a", { accelKey: true }, abWindow);

@@ -351,19 +351,21 @@
 <template id="template-vcard-edit-title">
   <div class="vcard-adr-inputs">
     <label for="title" data-l10n-id="vcard-org-title"/>
-    <input type="text" name="title"/>
+    <input type="text" data-l10n-id="vcard-org-title-input" name="title" />
   </div>
 </template>
 <template id="template-vcard-edit-role">
   <div class="vcard-adr-inputs">
     <label for="role" data-l10n-id="vcard-org-role"/>
-    <input type="text" name="role"/>
+    <input type="text" data-l10n-id="vcard-org-role-input" name="role" />
   </div>
 </template>
 <template id="template-vcard-edit-org">
   <div class="vcard-adr-inputs">
-    <label for="org" data-l10n-id="vcard-org-org"/>
-    <textarea name="org"></textarea>
+    <label for="org" data-l10n-id="vcard-org-org" />
+    <input type="text" name="org" data-l10n-id="vcard-org-org-input" />
+    <label for="orgUnit" data-l10n-id="vcard-org-org-unit" class="screen-reader-only"/>
+    <input type="text" name="orgUnit" data-l10n-id="vcard-org-org-unit-input" />
   </div>
 </template>
 

@@ -223,7 +223,7 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   uint16_t fSettablePermanentFlags;
 
   int32_t fFolderUIDValidity;
-  int32_t fSeqNumOfFirstUnseenMsg;  // Not used
+  int32_t fNumberOfUnseenMessages;
   int32_t fNumberOfExistingMessages;
   int32_t fNumberOfRecentMessages;
   uint32_t fCurrentResponseUID;
@@ -234,7 +234,9 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   int32_t fTotalDownloadSize;
 
   int32_t fStatusUnseenMessages;
+  int32_t fStatusRecentMessages;
   uint32_t fStatusNextUID;
+  uint32_t fStatusExistingMessages;
 
   int fNumberOfTaggedResponsesExpected;
 

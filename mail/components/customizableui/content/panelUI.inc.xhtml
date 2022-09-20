@@ -105,11 +105,6 @@
                        closemenu="none"
                        oncommand="openOptionsDialog();"/>
         <toolbarseparator/>
-        <toolbarbutton id="appmenu_File"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&fileMenu.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-fileView', this)"/>
         <toolbarbutton id="appmenu_toolsMenu"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        data-l10n-id="appmenu-tools-panel"
@@ -304,115 +299,6 @@
                        label="&showMessageCmd.label;"
                        key="key_toggleMessagePane"
                        command="cmd_toggleMessagePane"/>
-      </vbox>
-    </panelview>
-
-    <!-- File -->
-    <panelview id="appMenu-fileView"
-               title="&fileMenu.label;"
-               class="PanelUI-subView">
-      <vbox id="appMenu-fileViewItems"
-            class="panel-subview-body">
-        <toolbarbutton id="appmenu_close"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&closeCmd.label;"
-                       key="key_close"
-                       command="cmd_close"/>
-        <toolbarseparator id="appmenu_fileMenuAfterCloseSeparator"/>
-        <toolbarbutton id="appmenu_getNewMsgFor"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&getNewMsgForCmd.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-fileGetNewMsgForView', this)"/>
-        <toolbarbutton id="appmenu_getNextNMsgs"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&getNextNMsgCmd2.label;"
-                       command="cmd_getNextNMessages"/>
-        <toolbarbutton id="appmenu_sendUnsentMsgs"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&sendUnsentCmd.label;"
-                       command="cmd_sendUnsentMsgs"/>
-        <toolbarbutton id="appmenu_subscribe"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&subscribeCmd.label;"
-                       command="cmd_subscribe"/>
-        <toolbarseparator id="appmenu_fileMenuAfterSubscribeSeparator"/>
-        <toolbarbutton id="appmenu_deleteFolder"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&deleteFolder.label;"
-                       command="cmd_deleteFolder"/>
-        <toolbarbutton id="appmenu_renameFolder"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&renameFolder.label;"
-#ifndef XP_MACOSX
-                       key="key_renameFolder"
-#endif
-                       command="cmd_renameFolder"/>
-        <toolbarseparator id="appmenu_fileMenuAfterRenameSeparator"/>
-        <toolbarbutton id="appmenu_compactFolder"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&compactFolders.label;"
-                       command="cmd_compactFolder"/>
-        <toolbarseparator id="appmenu_fileMenuAfterCompactSeparator"/>
-        <toolbarbutton id="appmenu_offline"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&offlineMenu.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-fileOfflineView', this)"/>
-      </vbox>
-    </panelview>
-
-    <!-- File / Get New Message For -->
-    <panelview is="folder-panelview" id="appMenu-fileGetNewMsgForView"
-               title="&getNewMsgForCmd.label;"
-               class="PanelUI-subView"
-               mode="getMail"
-               expandFolders="false"
-               oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_getnewmsgs_all_accounts"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&getAllNewMsgCmdPopupMenu.label;"
-                       key="key_getAllNewMessages"
-                       command="cmd_getMsgsForAuthAccounts"/>
-        <toolbarbutton id="appmenu_getnewmsgs_current_account"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&getNewMsgCurrentAccountCmdPopupMenu.label;"
-                       key="key_getNewMessages"
-                       command="cmd_getNewMessages"/>
-        <toolbarseparator/>
-        <!-- toolbarbuttons are dynamically added here by folder-panelview custom element. -->
-      </vbox>
-    </panelview>
-
-    <!-- File / Offline -->
-    <panelview id="appMenu-fileOfflineView"
-               title="&offlineMenu.label;"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_goOffline"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="checkbox"
-                       label="&offlineGoOfflineCmd.label;"
-                       oncommand="MailOfflineMgr.toggleOfflineStatus();"/>
-        <toolbarseparator id="appmenu_offlineMenuAfterGoSeparator"/>
-        <toolbarbutton id="appmenu_synchronizeOffline"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&synchronizeOfflineCmd.label;"
-                       command="cmd_synchronizeOffline"/>
-        <toolbarbutton id="appmenu_settingsOffline"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&settingsOfflineCmd2.label;"
-                       command="cmd_settingsOffline"/>
-        <toolbarseparator id="app_offlineMenuAfterSettingsSeparator"/>
-        <toolbarbutton id="appmenu_downloadFlagged"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&downloadStarredCmd.label;"
-                       command="cmd_downloadFlagged"/>
-        <toolbarbutton id="appmenu_downloadSelected"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&downloadSelectedCmd.label;"
-                       command="cmd_downloadSelected"/>
       </vbox>
     </panelview>
 
