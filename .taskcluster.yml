@@ -259,10 +259,6 @@ tasks:
                                 --head-repository="$GECKO_HEAD_REPOSITORY"
                                 --head-ref="$GECKO_HEAD_REF"
                                 --head-rev="$GECKO_HEAD_REV"
-                                --comm-base-repository="$COMM_BASE_REPOSITORY"
-                                --comm-head-repository="$COMM_HEAD_REPOSITORY"
-                                --comm-head-ref="$COMM_HEAD_REF"
-                                --comm-head-rev="$COMM_HEAD_REV"
                                 --try-task-config-file=comm/try_task_config.json
                                 ${extraArgs}
 

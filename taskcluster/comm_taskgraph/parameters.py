@@ -8,6 +8,7 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
+import os
 import logging
 
 from voluptuous import (
@@ -137,18 +138,30 @@ def get_decision_parameters(graph_config, parameters):
         time_interval=BACKSTOP_TIME_INTERVAL,
         integration_projects=INTEGRATION_PROJECTS,
     )
+    for n in (
+        "COMM_BASE_REPOSITORY",
+        "COMM_BASE_REV",
+        "COMM_HEAD_REPOSITORY",
+        "COMM_HEAD_REV",
+        "COMM_HEAD_REF",
+    ):
+        val = os.environ.get(n, "")
+        parameters[n.lower()] = val
+
     repo_path = COMM
     repo = get_repository(repo_path)
+    logger.info("Determining comm_base_ref...")
     parameters["comm_base_ref"] = _determine_more_accurate_base_ref(
         repo,
         candidate_base_ref="",
         head_ref=parameters.get("comm_head_ref"),
-        base_rev="",
+        base_rev=parameters.get("comm_base_rev"),
     )
+    logger.info("Determining comm_base_rev...")
     parameters["comm_base_rev"] = _determine_more_accurate_base_rev(
         repo,
         base_ref=parameters["comm_base_ref"],
-        candidate_base_rev="",
+        candidate_base_rev=parameters.get("comm_base_rev"),
         head_rev=parameters.get("comm_head_rev"),
         env_prefix=_get_env_prefix(graph_config),
     )
