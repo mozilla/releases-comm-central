@@ -329,6 +329,7 @@ class MessageData {
    */
   constructor(sequence, tokens) {
     this.sequence = sequence;
+    this.customAttributes = {};
     for (let i = 0; i < tokens.length; i += 2) {
       let name = tokens[i].toUpperCase();
       switch (name) {
@@ -353,8 +354,12 @@ class MessageData {
           }
           break;
         }
+        case "RFC822.SIZE": {
+          this.size = +tokens[i + 1];
+          break;
+        }
         default:
-          this[tokens[i]] = tokens[i + 1];
+          this.customAttributes[tokens[i]] = tokens[i + 1];
           break;
       }
     }

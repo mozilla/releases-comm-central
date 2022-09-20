@@ -126,13 +126,11 @@ class ImapIncomingServer extends MsgIncomingServer {
 
     let uri = this.serverURI;
     let parentName = folderPath;
-    let folderName = folderPath;
     let parentUri = uri;
     let hasParent = false;
     let lastSlashIndex = folderPath.lastIndexOf("/");
     if (lastSlashIndex > 0) {
       parentName = parentName.slice(0, lastSlashIndex);
-      folderName = folderName.slice(lastSlashIndex + 1);
       hasParent = true;
       parentUri += "/" + parentName;
     }
@@ -192,27 +190,24 @@ class ImapIncomingServer extends MsgIncomingServer {
         if (this.deleteModel == Ci.nsMsgImapDeleteModels.MoveToTrash) {
           child.setFlag(Ci.nsMsgFolderFlags.Trash);
         }
-        imapFolder.boxFlags = boxFlags;
-        imapFolder.explicitlyVerify = explicitlyVerify;
-        let onlineName = imapFolder.onlineName;
-        folderPath.replaceAll("/", delimiter);
-        if (delimiter != "/") {
-          folderPath = decodeURIComponent(folderPath);
-        }
-
-        if (boxFlags & lazy.ImapUtils.FLAG_IMAP_INBOX) {
-          // GMail gives us a localized name for the inbox but doesn't let
-          // us select that localized name.
-          imapFolder.onlineName = "INBOX";
-        } else if (!onlineName || onlineName != folderPath) {
-          imapFolder.onlineName = folderPath;
-        }
-
-        if (delimiter != "/") {
-          folderName = decodeURIComponent(folderName);
-        }
-        child.prettyName = folderName;
       }
+      imapFolder.boxFlags = boxFlags;
+      imapFolder.explicitlyVerify = explicitlyVerify;
+      let onlineName = imapFolder.onlineName;
+      folderPath.replaceAll("/", delimiter);
+      if (delimiter != "/") {
+        folderPath = decodeURIComponent(folderPath);
+      }
+
+      if (boxFlags & lazy.ImapUtils.FLAG_IMAP_INBOX) {
+        // GMail gives us a localized name for the inbox but doesn't let
+        // us select that localized name.
+        imapFolder.onlineName = "INBOX";
+      } else if (!onlineName || onlineName != folderPath) {
+        imapFolder.onlineName = folderPath;
+      }
+
+      child.prettyName = imapFolder.name;
       if (isNewFolder) {
         // Close the db so we don't hold open all the .msf files for new folders.
         child.msgDatabase = null;

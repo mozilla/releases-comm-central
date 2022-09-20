@@ -298,7 +298,9 @@ class ImapClient {
     this._logger.debug("fetchMsgAttribute", folder.URI, uids, attribute);
     this._nextAction = res => {
       if (res.done) {
-        let resultAttributes = res.messages.map(m => m[attribute]).flat();
+        let resultAttributes = res.messages
+          .map(m => m.customAttributes[attribute])
+          .flat();
         this.runningUrl.QueryInterface(Ci.nsIImapUrl).customAttributeResult =
           resultAttributes.length > 1
             ? `(${resultAttributes.join(" ")})`
@@ -738,6 +740,9 @@ class ImapClient {
     if (res.capabilities) {
       this._capabilities = res.capabilities;
       this._server.wrappedJSObject.capabilities = res.capabilities;
+      if (this._capabilities.includes("X-GM-EXT-1")) {
+        this._server.isGMailServer = true;
+      }
 
       this._supportedAuthMethods = res.authMethods;
       this._actionChooseFirstAuthMethod();
@@ -1247,12 +1252,25 @@ class ImapClient {
     this._folderSink.UpdateImapMailboxInfo(this, this._getMailboxSpec());
     let latestUid = this._messageUids.at(-1);
     if (latestUid > highestUid) {
-      this._nextAction = this._actionUidFetchBodyResponse;
+      let extraItems = "";
+      if (this._server.isGMailServer) {
+        extraItems += "X-GM-MSGID X-GM-THRID X-GM-LABELS ";
+      }
+      this._nextAction = this._actionUidFetchHeaderResponse;
       this._sendTagged(
         `UID FETCH ${highestUid +
-          1}:${latestUid} (UID RFC822.SIZE FLAGS BODY.PEEK[])`
+          1}:${latestUid} (UID ${extraItems}RFC822.SIZE FLAGS BODY.PEEK[HEADER])`
       );
     } else {
+      this._folderSink.headerFetchCompleted(this);
+      if (this._bodysToDownload.length) {
+        let uids = this._bodysToDownload.join(",");
+        this._nextAction = this._actionUidFetchBodyResponse;
+        this._sendTagged(
+          `UID FETCH ${uids} (UID RFC822.SIZE FLAGS BODY.PEEK[])`
+        );
+        return;
+      }
       this._actionDone();
     }
   }
@@ -1275,6 +1293,48 @@ class ImapClient {
   }
 
   /**
+   * Handle UID FETCH BODY.PEEK[HEADER] response.
+   * @param {ImapResponse} res - Response received from the server.
+   */
+  _actionUidFetchHeaderResponse(res) {
+    this._msgSink = this.folder.QueryInterface(Ci.nsIImapMessageSink);
+    this._folderSink = this.folder.QueryInterface(Ci.nsIImapMailFolderSink);
+    for (let msg of res.messages) {
+      this._messageUids[msg.sequence] = msg.uid;
+      this._messages.set(msg.uid, msg);
+      this._folderSink.StartMessage(this.runningUrl);
+      let hdrXferInfo = {
+        numHeaders: 1,
+        getHeader() {
+          return {
+            msgUid: msg.uid,
+            msgSize: msg.size,
+            get msgHdrs() {
+              let sepIndex = msg.body.indexOf("\r\n\r\n");
+              return sepIndex == -1
+                ? msg.body + "\r\n"
+                : msg.body.slice(0, sepIndex + 2);
+            },
+          };
+        },
+      };
+      this._folderSink.parseMsgHdrs(this, hdrXferInfo);
+      this.onData?.(msg.body);
+    }
+    this._folderSink.headerFetchCompleted(this);
+    if (this._bodysToDownload.length) {
+      // nsImapMailFolder decides to fetch the full body by calling
+      // NotifyBodysToDownload.
+      let uids = this._bodysToDownload.join(",");
+      this._nextAction = this._actionUidFetchBodyResponse;
+      this._sendTagged(`UID FETCH ${uids} (UID RFC822.SIZE FLAGS BODY.PEEK[])`);
+      return;
+    }
+    this.onData?.();
+    this._actionDone();
+  }
+
+  /**
    * Handle UID FETCH BODY response.
    * @param {ImapResponse} res - Response received from the server.
    */
@@ -1288,7 +1348,7 @@ class ImapClient {
         getHeader() {
           return {
             msgUid: msg.uid,
-            msgSize: msg.body.length,
+            msgSize: msg.size,
             get msgHdrs() {
               let sepIndex = msg.body.indexOf("\r\n\r\n");
               return sepIndex == -1
@@ -1395,6 +1455,7 @@ class ImapClient {
   /** @see nsIImapProtocol */
   NotifyBodysToDownload(keys) {
     this._logger.debug("NotifyBodysToDownload", keys);
+    this._bodysToDownload = keys;
   }
 
   GetRunningUrl() {
@@ -1414,6 +1475,14 @@ class ImapClient {
       hasMessage: uid => this._messages.has(uid),
       getMessageFlagsByUid,
       getCustomFlags: uid => this._messages.get(uid)?.keywords,
+      getCustomAttribute: (uid, name) => {
+        let value = this._messages.get(uid)?.customAttributes[name];
+        return Array.isArray(value)
+          ? value
+              .map(x => (x.startsWith("\\") || x.includes(" ") ? `"${x}"` : x))
+              .join(" ")
+          : value;
+      },
     };
   }
 }

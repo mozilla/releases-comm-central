@@ -51,18 +51,21 @@ add_task(function test_FetchResponse_flags() {
     flags:
       ImapUtils.FLAG_ANSWERED | ImapUtils.FLAG_SEEN | ImapUtils.FLAG_FORWARDED,
     keywords: "$Forwarded",
+    customAttributes: {},
   });
   deepEqual(response.messages[1], {
     sequence: 2,
     uid: 600,
     flags: ImapUtils.FLAG_SEEN,
     keywords: "",
+    customAttributes: {},
   });
   deepEqual(response.messages[2], {
     sequence: 3,
     uid: 601,
     flags: 0,
     keywords: "",
+    customAttributes: {},
   });
 });
 
