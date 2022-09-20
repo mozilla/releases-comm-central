@@ -13,8 +13,15 @@ import logging
 from voluptuous import (
     Required,
 )
-
+from taskgraph.decision import (
+    # TODO: Let standalone taskgraph generate parameters instead
+    # of calling internals
+    _determine_more_accurate_base_ref,
+    _determine_more_accurate_base_rev,
+    _get_env_prefix,
+)
 from taskgraph.parameters import extend_parameters_schema
+from taskgraph.util.vcs import get_repository
 from gecko_taskgraph.parameters import (
     gecko_parameters_schema as comm_parameters_schema,
     get_app_version,
@@ -23,6 +30,8 @@ from gecko_taskgraph.parameters import (
 )
 from gecko_taskgraph.util.partials import populate_release_history
 from gecko_taskgraph.util.backstop import is_backstop
+
+from . import COMM
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +71,8 @@ INTEGRATION_PROJECTS = {"comm-central"}
 comm_parameters_schema.update(
     {
         Required("comm_base_repository"): str,
+        Required("comm_base_ref"): str,
+        Required("comm_base_rev"): str,
         Required("comm_head_ref"): str,
         Required("comm_head_repository"): str,
         Required("comm_head_rev"): str,
@@ -104,6 +115,9 @@ def get_decision_parameters(graph_config, parameters):
             if _k not in parameters or not parameters[_k]
         ]
         parameters.update(update_parameters)
+        logger.info(
+            "project parameters set for project {} from {}.".format(project, __file__)
+        )
     else:
         # Projects without a target_tasks_method should not exist for Thunderbird CI
         raise Exception(
@@ -122,4 +136,19 @@ def get_decision_parameters(graph_config, parameters):
         trust_domain="comm",
         time_interval=BACKSTOP_TIME_INTERVAL,
         integration_projects=INTEGRATION_PROJECTS,
+    )
+    repo_path = COMM
+    repo = get_repository(repo_path)
+    parameters["comm_base_ref"] = _determine_more_accurate_base_ref(
+        repo,
+        candidate_base_ref="",
+        head_ref=parameters.get("comm_head_ref"),
+        base_rev="",
+    )
+    parameters["comm_base_rev"] = _determine_more_accurate_base_rev(
+        repo,
+        base_ref=parameters["comm_base_ref"],
+        candidate_base_rev="",
+        head_rev=parameters.get("comm_head_rev"),
+        env_prefix=_get_env_prefix(graph_config),
     )
