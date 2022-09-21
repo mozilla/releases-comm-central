@@ -26,7 +26,7 @@ var gMsgFile2 = do_get_file("../../../data/draft1");
 
 var gTargetFolder = null;
 
-add_task(async function setupTest() {
+add_setup(async function() {
   if (typeof localAccountUtils.inboxFolder == "undefined") {
     localAccountUtils.loadLocalMailAccount();
   }
