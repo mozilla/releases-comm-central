@@ -18,6 +18,7 @@ const lazy = {};
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   cal: "resource:///modules/calendar/calUtils.jsm",
   CalPeriod: "resource:///modules/CalPeriod.jsm",
+  CalReadableStreamFactory: "resource:///modules/CalReadableStreamFactory.jsm",
 });
 
 var calprovider = {
@@ -543,6 +544,21 @@ var calprovider = {
       } else {
         lazy.cal.ASSERT(this.mBatchCount > 0, "unexpected endBatch!");
       }
+    }
+
+    /**
+     * Implementation of calICalendar.getItems(). This should be overridden by
+     * all child classes.
+     *
+     * @param {number} itemFilter
+     * @param {number} count
+     * @param {calIDateTime} rangeStart
+     * @param {calIDateTime} rangeEnd
+     *
+     * @return {ReadableStream<calIItemBase>}
+     */
+    getItems(itemFilter, count, rangeStart, rangeEnd) {
+      return lazy.CalReadableStreamFactory.createEmptyReadableStream();
     }
 
     /**
