@@ -3319,20 +3319,31 @@ function manageAttachmentNotification(aForce = false) {
     "label",
     getComposeBundle().getString("disableAttachmentReminderButton")
   );
-  disableAttachmentReminder.addEventListener("command", () => {
+  disableAttachmentReminder.addEventListener("command", event => {
     gDisableAttachmentReminder = true;
     toggleAttachmentReminder(false);
+    event.stopPropagation();
   });
   remindLaterMenuPopup.appendChild(disableAttachmentReminder);
 
-  let remindButton = {
-    is: "button-menu-button",
-    accessKey: getComposeBundle().getString("remindLaterButton.accesskey"),
-    label: getComposeBundle().getString("remindLaterButton"),
-    callback(aNotificationBar, aButton) {
-      toggleAttachmentReminder(true);
-    },
-  };
+  // The notification code only deals with buttons but we need a toolbarbutton,
+  // so we construct it and add it ourselves.
+  let remindButton = document.createXULElement("toolbarbutton", {
+    is: "toolbarbutton-menu-button",
+  });
+  remindButton.classList.add("notification-button", "small-button");
+  remindButton.setAttribute(
+    "accessKey",
+    getComposeBundle().getString("remindLaterButton.accesskey")
+  );
+  remindButton.setAttribute(
+    "label",
+    getComposeBundle().getString("remindLaterButton")
+  );
+  remindButton.addEventListener("command", function(event) {
+    toggleAttachmentReminder(true);
+  });
+  remindButton.appendChild(remindLaterMenuPopup);
 
   notification = gComposeNotification.appendNotification(
     "attachmentReminder",
@@ -3340,14 +3351,12 @@ function manageAttachmentNotification(aForce = false) {
       label: "",
       priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
     },
-    [addButton, remindButton]
+    [addButton]
   );
   notification.setAttribute("id", "attachmentNotificationBox");
 
   notification.messageText.appendChild(msg);
-  notification.buttonContainer.lastElementChild.appendChild(
-    remindLaterMenuPopup
-  );
+  notification.buttonContainer.appendChild(remindButton);
 }
 
 function clearRecipientsWithKeyIssues() {

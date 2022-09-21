@@ -96,7 +96,6 @@ messenger.jar:
     content/messenger/viewSource.js                 (content/viewSource.js)
 *   content/messenger/viewSource.xhtml              (content/viewSource.xhtml)
     content/messenger/viewZoomOverlay.js            (content/viewZoomOverlay.js)
-    content/messenger/button-menu-button.js         (content/widgets/button-menu-button.js)
     content/messenger/customizable-toolbar.js       (content/widgets/customizable-toolbar.js)
     content/messenger/foldersummary.js              (content/widgets/foldersummary.js)
     content/messenger/gloda-autocomplete-input.js   (content/widgets/gloda-autocomplete-input.js)

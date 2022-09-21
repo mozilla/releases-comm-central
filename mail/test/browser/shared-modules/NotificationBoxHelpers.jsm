@@ -194,7 +194,9 @@ function get_notification(controller, id, val) {
  */
 function get_notification_button(aController, aBoxId, aValue, aMatch) {
   let notification = get_notification(aController, aBoxId, aValue);
-  let buttons = notification.buttonContainer.querySelectorAll("button");
+  let buttons = notification.buttonContainer.querySelectorAll(
+    "button, toolbarbutton"
+  );
   for (let button of buttons) {
     let matchedAll = true;
     for (let name in aMatch) {

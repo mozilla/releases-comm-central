@@ -734,7 +734,7 @@ add_task(async function test_disabling_attachment_reminder() {
   });
   cwc.click(disableButton.querySelector("dropmarker"));
   await cwc.click_menus_in_sequence(
-    disableButton.closest("button").querySelector("menupopup"),
+    disableButton.closest("toolbarbutton").querySelector("menupopup"),
     [{ id: "disableReminder" }]
   );
 
@@ -766,7 +766,7 @@ add_task(async function test_disabling_attachment_reminder() {
   });
   cwc.click(disableButton.querySelector("dropmarker"));
   await cwc.click_menus_in_sequence(
-    disableButton.closest("button").querySelector("menupopup"),
+    disableButton.closest("toolbarbutton").querySelector("menupopup"),
     [{ id: "disableReminder" }]
   );
   wait_for_reminder_state(cwc, false);
