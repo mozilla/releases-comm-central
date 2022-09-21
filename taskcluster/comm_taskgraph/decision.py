@@ -4,14 +4,25 @@
 
 import logging
 import os
+import sys
+
+from redo import retry
+
 from taskgraph.decision import (
     _determine_more_accurate_base_ref,
     _determine_more_accurate_base_rev,
     _get_env_prefix,
 )
+from taskgraph.taskgraph import TaskGraph
+from taskgraph.util.taskcluster import get_artifact
 from taskgraph.util.vcs import get_repository
+
 from gecko_taskgraph.util.backstop import is_backstop
 from gecko_taskgraph.util.partials import populate_release_history
+from gecko_taskgraph.util.taskgraph import (
+    find_decision_task,
+    find_existing_tasks_from_previous_kinds,
+)
 
 from . import COMM
 
@@ -48,6 +59,17 @@ PER_PROJECT_PARAMETERS = {
     },
 }
 
+CRON_OPTIONS = {
+    "nightly_desktop": {
+        "existing_tasks": lambda parameters, graph_config: get_existing_tasks(
+            parameters, graph_config
+        ),
+        "release_history": lambda parameters, graph_config: populate_release_history(
+            BALROG_PRODUCT, parameters["project"]
+        ),
+    }
+}
+
 
 def get_decision_parameters(graph_config, parameters):
     logger.info("{}.get_decision_parameters called".format(__name__))
@@ -76,12 +98,6 @@ def get_decision_parameters(graph_config, parameters):
         # Projects without a target_tasks_method should not exist for Thunderbird CI
         raise Exception(
             "No target_tasks_method is defined for project {}.".format(project)
-        )
-
-    parameters.setdefault("release_history", dict())
-    if "nightly" in parameters.get("target_tasks_method", ""):
-        parameters["release_history"] = populate_release_history(
-            BALROG_PRODUCT, project
         )
 
     del parameters["backstop"]
@@ -127,3 +143,24 @@ def get_decision_parameters(graph_config, parameters):
             result = _callable(parameters, graph_config)
             parameters[key] = result
 
+
+def get_existing_tasks(parameters, graph_config):
+    """
+    Find the decision task corresponding to the on-push graph, and return
+    a mapping of labels to task-ids from it.
+    """
+    try:
+        decision_task = retry(
+            find_decision_task,
+            args=(parameters, graph_config),
+            attempts=4,
+            sleeptime=5 * 60,
+        )
+    except Exception:
+        logger.exception("Didn't find existing push task.")
+        sys.exit(1)
+
+    _, task_graph = TaskGraph.from_json(
+        get_artifact(decision_task, "public/full-task-graph.json")
+    )
+    return find_existing_tasks_from_previous_kinds(task_graph, [decision_task], [])
