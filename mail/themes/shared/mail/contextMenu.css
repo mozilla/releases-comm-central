@@ -3,15 +3,15 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
-  --appmenu-button-margin: 0 4px;
-  --appmenu-button-padding: 4px;
+  --menu-item-margin: 0 4px;
+  --menu-item-padding: 4px;
 }
 
 /* UI Density customization */
 
 :root[uidensity="compact"] {
-  --appmenu-button-margin: 0 3px;
-  --appmenu-button-padding: 3px;
+  --menu-item-margin: 0 3px;
+  --menu-item-padding: 3px;
 }
 
 :root[uidensity="compact"] menupopup {
@@ -19,7 +19,7 @@
 }
 
 :root[uidensity="touch"] {
-  --appmenu-button-padding: 9px;
+  --menu-item-padding: 9px;
 }
 
 menupopup {
@@ -53,10 +53,10 @@ menupopup > :is(menu, menuitem) > .menu-text {
 
 menupopup > :is(menu, menuitem) {
   appearance: none;
-  margin: var(--appmenu-button-margin);
+  margin: var(--menu-item-margin);
   min-height: 24px;
   padding-inline: 8px;
-  padding-block: var(--appmenu-button-padding);
+  padding-block: var(--menu-item-padding);
   border-radius: 3px;
   background-color: transparent;
 }

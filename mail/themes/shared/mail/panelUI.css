@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-:root {
+:root .cui-widget-panel {
   --menu-panel-width: 22.35em;
   --wide-menu-panel-width: 29em;
   --panel-palette-icon-size: 16px;
@@ -13,9 +13,15 @@
   causing buttons to wrap. For gory details, refer to
   https://bugzilla.mozilla.org/show_bug.cgi?id=963365#c11 */
   --menu-panel-button-width: calc(--menu-panel-width / 3 - 1.1px);
+  /* Complement the .subviewbutton margin. */
+  --arrowpanel-padding: 8px 0;
   --arrowpanel-menuitem-border-radius: 3px;
-  --appmenu-button-margin: 0 8px;
   --appmenu-button-border-color: hsla(210, 4%, 10%, 0.14);
+  --appmenu-button-margin: 0 8px;
+  --appmenu-button-padding: 6px;
+  --appmenu-combined-radio-button-padding: 4px 8px;
+  --appmenu-fontsize-icon-size: 20px;
+  --appmenu-fontsize-reset-button-width: 47px;
   --appmenu-warning-background-color: #ffefbf;
   --appmenu-warning-background-color-hover: #ffe8a2;
   --appmenu-warning-background-color-active: #ffe38f;
@@ -27,58 +33,38 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root .cui-widget-panel {
     --appmenu-icons-fill: color-mix(in srgb, var(--color-ink-10) 20%, transparent);
     --appmenu-icons-stroke: var(--color-ink-10);
   }
 }
 
 @media (prefers-contrast) {
-  :root {
+  :root .cui-widget-panel {
     --appmenu-icons-fill: color-mix(in srgb, currentColor 20%, transparent);
     --appmenu-icons-stroke: currentColor;
   }
 }
 
-.cui-widget-panel {
-  /* Complement the .subviewbutton margin. */
-  --arrowpanel-padding: 8px 0;
-}
-
 /* UI Density customization */
 
-:root:not([uidensity]) menupopup.cui-widget-panel {
-  --arrowpanel-padding: 4px 0;
-  --appmenu-button-padding: 4px;
-  --appmenu-button-margin: 0 4px;
-}
-
-:root:not([uidensity]) panel.cui-widget-panel {
-  --appmenu-button-padding: 6px;
-}
-
-:root[uidensity="compact"] panel.cui-widget-panel {
+:root[uidensity="compact"] .cui-widget-panel {
   --arrowpanel-padding: 4px 0;
   --appmenu-button-margin: 0 4px;
   --appmenu-button-padding: 3px;
+  --appmenu-combined-radio-button-padding: 2px 6px;
+  --appmenu-fontsize-icon-size: 16px;
+  --appmenu-fontsize-reset-button-width: 41px;
 }
 
-:root[uidensity="compact"] menupopup.cui-widget-panel {
-  --arrowpanel-padding: 3px 0;
-  --appmenu-button-margin: 0 3px;
-  --appmenu-button-padding: 3px;
-}
-
-:root[uidensity="touch"] {
+:root[uidensity="touch"] .cui-widget-panel {
   --appmenu-button-padding: 9px;
+  --appmenu-combined-radio-button-padding: 6px 10px;
+  --appmenu-fontsize-icon-size: 24px;
+  --appmenu-fontsize-reset-button-width: 51px;
 }
 
-:root[uidensity="touch"] menupopup.cui-widget-panel {
-  --arrowpanel-padding: 4px 0;
-  --appmenu-button-margin: 0 4px;
-}
-
-:root[lwt-popup-brighttext] {
+:root[lwt-popup-brighttext] .cui-widget-panel {
   --appmenu-button-border-color: rgba(249, 249, 250, 0.2);
   --appmenu-warning-background-color: hsla(55, 100%, 50%, .1);
   --appmenu-warning-background-color-hover: hsla(55, 100%, 50%, .2);
@@ -414,7 +400,7 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
 .PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"] {
   margin-inline-start: 0;
   margin-block: 1px;
-  padding: 4px 8px;
+  padding: var(--appmenu-combined-radio-button-padding);
   min-height: 22px;
   border: 1px solid var(--appmenu-button-border-color);
   border-radius: 0;
@@ -442,16 +428,6 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
   --appmenu-icons-stroke: currentColor;
   background-color: var(--select-focus-background-color);
   color: var(--select-focus-text-color);
-}
-
-:root[uidensity="compact"] .PanelUI-subView .toolbaritem-combined-buttons >
-  .subviewbutton[type="radio"] {
-  padding: 2px 6px;
-}
-
-:root[uidensity="touch"] .PanelUI-subView .toolbaritem-combined-buttons >
-  .subviewbutton[type="radio"] {
-  padding: 6px 10px;
 }
 
 .subview-subheader {
@@ -951,8 +927,8 @@ menulist[open="true"]:not([disabled="true"]) {
 
 #appMenu-fontSizeReduce-button > .toolbarbutton-icon,
 #appMenu-fontSizeEnlarge-button > .toolbarbutton-icon {
-  width: 20px;
-  height: 20px;
+  width: var(--appmenu-fontsize-icon-size);
+  height: var(--appmenu-fontsize-icon-size);
   -moz-context-properties: fill, stroke;
   fill: var(--button-bgcolor, ButtonFace);
   stroke: var(--button-color);
@@ -973,17 +949,9 @@ menulist[open="true"]:not([disabled="true"]) {
 #appMenu-fontSizeReset-button > .toolbarbutton-text {
   border: 1px solid var(--appmenu-button-border-color);
   border-radius: 2px;
-  min-width: 47px;
+  min-width: var(--appmenu-fontsize-reset-button-width);
   text-align: center;
   padding: 2px;
-}
-
-:root[uidensity="compact"] #appMenu-fontSizeReset-button > .toolbarbutton-text {
-  min-width: 41px;
-}
-
-:root[uidensity="touch"] #appMenu-fontSizeReset-button > .toolbarbutton-text {
-  min-width: 51px;
 }
 
 #appMenu-fontSizeReset-button:hover > .toolbarbutton-text {
@@ -1020,15 +988,7 @@ menulist[open="true"]:not([disabled="true"]) {
 
 :root[uidensity="compact"] #appMenu-fontSizeReduce-button > .toolbarbutton-icon,
 :root[uidensity="compact"] #appMenu-fontSizeEnlarge-button > .toolbarbutton-icon {
-  width: 16px;
-  height: 16px;
   margin-block-start: 2px;
-}
-
-:root[uidensity="touch"] #appMenu-fontSizeReduce-button > .toolbarbutton-icon,
-:root[uidensity="touch"] #appMenu-fontSizeEnlarge-button > .toolbarbutton-icon {
-  width: 24px;
-  height: 24px;
 }
 
 .checkbox-description {

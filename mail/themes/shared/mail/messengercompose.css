@@ -693,7 +693,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 /* :::: Reorder Attachments Panel :::: */
 
 #reorderAttachmentsPanel::part(content) {
-  --arrowpanel-padding: 4px;
+  --panel-padding: 4px;
 }
 
 #btn_moveAttachmentFirst {
