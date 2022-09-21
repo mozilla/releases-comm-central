@@ -83,12 +83,12 @@ appmenu-create-contact =
 
 ## Open
 
-appmenu-open-panel =
-  .label = Open
+appmenu-open-file-panel =
+  .label = Open from File
   .accesskey = O
 
-appmenu-open-panel-title =
-  .title = Open
+appmenu-open-file-panel-title =
+  .title = Open from File
 
 appmenu-open-message =
   .label = Message…

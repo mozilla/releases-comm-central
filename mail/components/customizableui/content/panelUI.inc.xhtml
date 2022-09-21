@@ -41,7 +41,7 @@
         <toolbarseparator id="appmenu_createPopupMenuSeparator"/>
         <toolbarbutton id="appmenu_open"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
-                       data-l10n-id="appmenu-open-panel"
+                       data-l10n-id="appmenu-open-file-panel"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-openView', this)"/>
         <toolbarseparator/>
@@ -90,20 +90,20 @@
                          data-l10n-id="appmenuitem-font-size-enlarge"/>
         </toolbaritem>
         <toolbarseparator/>
-        <toolbarbutton id="appmenu_addons"
-                       class="subviewbutton subviewbutton-iconic"
-                       data-l10n-id="appmenu-addons-and-themes"
-                       closemenu="none"
-                       oncommand="openAddonsMgr();"/>
-        <toolbarbutton id="appmenu_accountmgr"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&accountManagerCmd2.label;"
-                       oncommand="MsgAccountManager(null);"/>
         <toolbarbutton id="appmenu_preferences"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-settings"
                        closemenu="none"
                        oncommand="openOptionsDialog();"/>
+        <toolbarbutton id="appmenu_accountmgr"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="&accountManagerCmd2.label;"
+                       oncommand="MsgAccountManager(null);"/>
+        <toolbarbutton id="appmenu_addons"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-addons-and-themes"
+                       closemenu="none"
+                       oncommand="openAddonsMgr();"/>
         <toolbarseparator/>
         <toolbarbutton id="appmenu_toolsMenu"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
@@ -209,7 +209,7 @@
 
     <!-- Open -->
     <panelview id="appMenu-openView"
-               data-l10n-id="appmenu-open-panel-title"
+               data-l10n-id="appmenu-open-file-panel-title"
                class="PanelUI-subView">
       <vbox id="appMenu-openViewItems"
             class="panel-subview-body">
