@@ -1343,22 +1343,6 @@ class ImapClient {
     this._folderSink = this.folder.QueryInterface(Ci.nsIImapMailFolderSink);
     for (let msg of res.messages) {
       this._folderSink.StartMessage(this.runningUrl);
-      let hdrXferInfo = {
-        numHeaders: 1,
-        getHeader() {
-          return {
-            msgUid: msg.uid,
-            msgSize: msg.size,
-            get msgHdrs() {
-              let sepIndex = msg.body.indexOf("\r\n\r\n");
-              return sepIndex == -1
-                ? msg.body + "\r\n"
-                : msg.body.slice(0, sepIndex + 2);
-            },
-          };
-        },
-      };
-      this._folderSink.parseMsgHdrs(this, hdrXferInfo);
       this._msgSink.parseAdoptedMsgLine(msg.body, msg.uid, this.runningUrl);
       this._msgSink.normalEndMsgWriteStream(
         msg.uid,
