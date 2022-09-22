@@ -139,6 +139,8 @@ TEST_F(rnp_tests, test_cli_rnp_keyfile)
                    "password",
                    "-d",
                    FILES "/hello.txt.pgp",
+                   "--output",
+                   "-",
                    NULL);
     assert_int_equal(ret, 0);
     assert_int_equal(rnp_unlink(FILES "/hello.txt.pgp"), 0);
@@ -175,6 +177,8 @@ TEST_F(rnp_tests, test_cli_rnp_keyfile)
                    "password",
                    "-d",
                    FILES "/hello.txt.asc",
+                   "--output",
+                   "-",
                    NULL);
     assert_int_not_equal(ret, 0);
     /* decrypt correctly with seckey + subkeys */
@@ -185,6 +189,8 @@ TEST_F(rnp_tests, test_cli_rnp_keyfile)
                    "password",
                    "-d",
                    FILES "/hello.txt.asc",
+                   "--output",
+                   "-",
                    NULL);
     assert_int_equal(ret, 0);
     assert_int_equal(rnp_unlink(FILES "/hello.txt.asc"), 0);
@@ -210,7 +216,8 @@ test_cli_g10_key_sign(const char *userid)
     }
 
     /* verify back */
-    ret = call_rnp("rnp", "--homedir", G10KEYS, "-v", FILES "/hello.txt.pgp", NULL);
+    ret = call_rnp(
+      "rnp", "--homedir", G10KEYS, "-v", FILES "/hello.txt.pgp", "--output", "-", NULL);
     rnp_unlink(FILES "/hello.txt.pgp");
     return !ret;
 }
@@ -234,6 +241,8 @@ test_cli_g10_key_encrypt(const char *userid)
                    "password",
                    "-d",
                    FILES "/hello.txt.pgp",
+                   "--output",
+                   "-",
                    NULL);
     rnp_unlink(FILES "/hello.txt.pgp");
     return !ret;
@@ -265,6 +274,8 @@ TEST_F(rnp_tests, test_cli_g10_operations)
                    "password",
                    "-d",
                    FILES "/hello.txt.pgp",
+                   "--output",
+                   "-",
                    NULL);
     assert_int_equal(ret, 0);
     assert_int_equal(rnp_unlink(FILES "/hello.txt.pgp"), 0);
@@ -275,11 +286,11 @@ TEST_F(rnp_tests, test_cli_g10_operations)
     assert_false(test_cli_g10_key_sign("02a5715c3537717e"));   // fail - encrypting subkey
     assert_true(test_cli_g10_key_encrypt("02a5715c3537717e")); // success
 
-    /* check rsa/rsa key, key is SC while subkey is E. Must fail as uses SHA1 */
-    assert_false(test_cli_g10_key_sign("2fb9179118898e8b"));
-    assert_false(test_cli_g10_key_encrypt("2fb9179118898e8b"));
+    /* check rsa/rsa key, key is SC while subkey is E. Must succeed till year 2024 */
+    assert_true(test_cli_g10_key_sign("2fb9179118898e8b"));
+    assert_true(test_cli_g10_key_encrypt("2fb9179118898e8b"));
     assert_false(test_cli_g10_key_sign("6e2f73008f8b8d6e"));
-    assert_false(test_cli_g10_key_encrypt("6e2f73008f8b8d6e"));
+    assert_true(test_cli_g10_key_encrypt("6e2f73008f8b8d6e"));
 
     /* check new rsa/rsa key, key is SC while subkey is E. */
     /* Now fails since we cannot parse new S-exps */
@@ -347,10 +358,9 @@ TEST_F(rnp_tests, test_cli_rnpkeys_unicode)
     std::string  uid_acp = "\x80@a.com";
     std::wstring uid2_wide =
       L"\x03C9\x0410@b.com"; // some Greek and Cyrillic for CreateProcessW test
-    char *rnpkeys_path = rnp_compose_path(original_dir(), "../rnpkeys/rnpkeys.exe", NULL);
     std::string homedir_s = std::string(m_dir) + "/unicode";
     rnp_mkdir(homedir_s.c_str());
-    std::string path_s = rnpkeys_path;
+    std::string path_s = rnp::path::append(original_dir(), "../rnpkeys/rnpkeys.exe");
     std::string cmdline_s = path_s + " --numbits 2048 --homedir " + homedir_s +
                             " --password password --userid " + uid_acp + " --generate-key";
     UINT         acp = GetACP();
@@ -515,45 +525,39 @@ TEST_F(rnp_tests, test_cli_rnp)
                    "password",
                    "--decrypt",
                    FILES "/hello.txt.pgp",
+                   "--output",
+                   "-",
                    NULL);
     assert_int_equal(ret, 0);
 }
 
 TEST_F(rnp_tests, test_cli_examples)
 {
-    char *examples_path = rnp_compose_path(original_dir(), "../examples", NULL);
-    char *example_path = NULL;
+    auto examples_path = rnp::path::append(original_dir(), "../examples");
     /* key generation example */
-    example_path = rnp_compose_path(examples_path, "generate", NULL);
-    assert_non_null(example_path);
-    assert_int_equal(system(example_path), 0);
-    free(example_path);
+    auto example_path = rnp::path::append(examples_path, "generate");
+    assert_false(example_path.empty());
+    assert_int_equal(system(example_path.c_str()), 0);
 
     /* encryption sample */
-    example_path = rnp_compose_path(examples_path, "encrypt", NULL);
-    assert_non_null(example_path);
-    assert_int_equal(system(example_path), 0);
-    free(example_path);
+    example_path = rnp::path::append(examples_path, "encrypt");
+    assert_false(example_path.empty());
+    assert_int_equal(system(example_path.c_str()), 0);
 
     /* decryption sample */
-    example_path = rnp_compose_path(examples_path, "decrypt", NULL);
-    assert_non_null(example_path);
-    assert_int_equal(system(example_path), 0);
-    free(example_path);
+    example_path = rnp::path::append(examples_path, "decrypt");
+    assert_false(example_path.empty());
+    assert_int_equal(system(example_path.c_str()), 0);
 
     /* signing sample */
-    example_path = rnp_compose_path(examples_path, "sign", NULL);
-    assert_non_null(example_path);
-    assert_int_equal(system(example_path), 0);
-    free(example_path);
+    example_path = rnp::path::append(examples_path, "sign");
+    assert_false(example_path.empty());
+    assert_int_equal(system(example_path.c_str()), 0);
 
     /* verification sample */
-    example_path = rnp_compose_path(examples_path, "verify", NULL);
-    assert_non_null(example_path);
-    assert_int_equal(system(example_path), 0);
-    free(example_path);
-
-    free(examples_path);
+    example_path = rnp::path::append(examples_path, "verify");
+    assert_false(example_path.empty());
+    assert_int_equal(system(example_path.c_str()), 0);
 }
 
 TEST_F(rnp_tests, test_cli_rnpkeys)
@@ -787,36 +791,35 @@ TEST_F(rnp_tests, test_cli_rnpkeys_genkey)
 
 TEST_F(rnp_tests, test_cli_dump)
 {
-    char *dump_path = rnp_compose_path(original_dir(), "../examples/dump", NULL);
-    char  cmd[512] = {0};
-    int   chnum;
-    int   status;
+    auto dump_path = rnp::path::append(original_dir(), "../examples/dump");
+    char cmd[512] = {0};
+    int  chnum;
+    int  status;
     /* call dump's help */
-    chnum = snprintf(cmd, sizeof(cmd), "%s -h", dump_path);
+    chnum = snprintf(cmd, sizeof(cmd), "%s -h", dump_path.c_str());
     assert_true(chnum < (int) sizeof(cmd));
     status = system(cmd);
     assert_true(WIFEXITED(status));
     assert_int_equal(WEXITSTATUS(status), 1);
     /* run dump on some data */
-    chnum = snprintf(cmd, sizeof(cmd), "%s \"%s\"", dump_path, KEYS "/1/pubring.gpg");
+    chnum = snprintf(cmd, sizeof(cmd), "%s \"%s\"", dump_path.c_str(), KEYS "/1/pubring.gpg");
     assert_true(chnum < (int) sizeof(cmd));
     status = system(cmd);
     assert_true(WIFEXITED(status));
     assert_int_equal(WEXITSTATUS(status), 0);
     /* run dump on some data with json output */
-    chnum = snprintf(cmd, sizeof(cmd), "%s -j \"%s\"", dump_path, KEYS "/1/pubring.gpg");
+    chnum =
+      snprintf(cmd, sizeof(cmd), "%s -j \"%s\"", dump_path.c_str(), KEYS "/1/pubring.gpg");
     assert_true(chnum < (int) sizeof(cmd));
     status = system(cmd);
     assert_true(WIFEXITED(status));
     assert_int_equal(WEXITSTATUS(status), 0);
     /* run dump on directory - must fail but not crash */
-    chnum = snprintf(cmd, sizeof(cmd), "%s \"%s\"", dump_path, KEYS "/1/");
+    chnum = snprintf(cmd, sizeof(cmd), "%s \"%s\"", dump_path.c_str(), KEYS "/1/");
     assert_true(chnum < (int) sizeof(cmd));
     status = system(cmd);
     assert_true(WIFEXITED(status));
     assert_int_not_equal(WEXITSTATUS(status), 0);
-
-    free(dump_path);
 }
 
 TEST_F(rnp_tests, test_cli_logname)

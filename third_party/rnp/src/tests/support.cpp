@@ -27,6 +27,10 @@
 #include "support.h"
 #include "rnp_tests.h"
 #include "file-utils.h"
+#include <librepgp/stream-ctx.h>
+#include "pgp-key.h"
+#include "librepgp/stream-armor.h"
+#include "ffi-priv-types.h"
 
 #ifdef _MSC_VER
 #include "uniwin.h"
@@ -231,22 +235,22 @@ delete_recursively(const char *path)
 #else
       *path != '/';
 #endif
-    char *fullpath = const_cast<char *>(path);
+    std::string fullpath = path;
     if (relative) {
         char *cwd = getcwd(NULL, 0);
-        fullpath = rnp_compose_path(cwd, path, NULL);
+        fullpath = rnp::path::append(cwd, fullpath);
         free(cwd);
     }
     /* sanity check, we should only be purging things from /tmp/ */
-    assert_true(is_tmp_path(fullpath));
+    assert_true(is_tmp_path(fullpath.c_str()));
 
 #ifdef WINSHELLAPI
     SHFILEOPSTRUCTA fileOp = {};
     fileOp.fFlags = FOF_NOCONFIRMATION;
-    assert_true(strlen(fullpath) < MAX_PATH);
+    assert_true(fullpath.size() < MAX_PATH);
     char newFrom[MAX_PATH + 1];
-    strcpy_s(newFrom, fullpath);
-    newFrom[strlen(fullpath) + 1] = NULL; // two NULLs are required
+    strcpy_s(newFrom, fullpath.c_str());
+    newFrom[fullpath.size() + 1] = NULL; // two NULLs are required
     fileOp.pFrom = newFrom;
     fileOp.pTo = NULL;
     fileOp.wFunc = FO_DELETE;
@@ -256,9 +260,6 @@ delete_recursively(const char *path)
     assert_int_equal(0, SHFileOperationA(&fileOp));
 #else
     nftw(path, remove_cb, 64, FTW_DEPTH | FTW_PHYS);
-    if (*path != '/') {
-        free(fullpath);
-    }
 #endif
 }
 
@@ -351,65 +352,6 @@ make_temp_dir()
 #error Unsupported platform
 #endif
 
-static char *
-directory_from_absolute_file_path(const char *file_path)
-{
-    const char *last_sep = strrchr(file_path, '/');
-    if (!last_sep) {
-        return NULL;
-    }
-
-    size_t file_path_len = (last_sep - file_path);
-    size_t dir_len = file_path_len + 1;
-    char * dir = (char *) calloc(1, dir_len);
-    if (!dir) {
-        return NULL;
-    }
-    strncpy(dir, file_path, file_path_len);
-
-    char *full_dir = realpath(dir, NULL);
-    free(dir);
-    dir = NULL;
-    return full_dir;
-}
-
-static char *
-directory_from_relative_file_path(const char *file_path, const char *reldir)
-{
-    const char *last_sep = strrchr(file_path, '/');
-    if (!last_sep) {
-        return NULL;
-    }
-
-    size_t file_path_len = (last_sep - file_path);
-    size_t dir_len = strlen(reldir) + 1 + file_path_len + 1;
-    char * dir = (char *) calloc(1, dir_len);
-    if (!dir) {
-        return NULL;
-    }
-
-    strncpy(dir, reldir, dir_len);
-    strncat(dir, "/", dir_len);
-    strncat(dir, file_path, file_path_len);
-
-    char *full_dir = realpath(dir, NULL);
-    free(dir);
-    dir = NULL;
-    return full_dir;
-}
-
-char *
-directory_from_file_path(const char *file_path, const char *reldir)
-{
-    if (!file_path) {
-        return NULL;
-    }
-    if (*file_path == '/') {
-        return directory_from_absolute_file_path(file_path);
-    }
-    return directory_from_relative_file_path(file_path, reldir);
-}
-
 bool
 bin_eq_hex(const uint8_t *data, size_t len, const char *val)
 {
@@ -472,6 +414,16 @@ test_value_equal(const char *what, const char *expected_value, const uint8_t v[]
     assert_string_equal(produced, expected_value);
     free(produced);
     return 0;
+}
+
+void
+test_ffi_init(rnp_ffi_t *ffi)
+{
+    // setup FFI
+    assert_rnp_success(rnp_ffi_create(ffi, "GPG", "GPG"));
+    // load our keyrings
+    assert_true(
+      load_keys_gpg(*ffi, "data/keyrings/1/pubring.gpg", "data/keyrings/1/secring.gpg"));
 }
 
 bool
@@ -690,6 +642,28 @@ string_copy_password_callback(const pgp_password_ctx_t *ctx,
     return true;
 }
 
+void
+unused_getkeycb(rnp_ffi_t   ffi,
+                void *      app_ctx,
+                const char *identifier_type,
+                const char *identifier,
+                bool        secret)
+{
+    assert_true(false);
+}
+
+bool
+unused_getpasscb(rnp_ffi_t        ffi,
+                 void *           app_ctx,
+                 rnp_key_handle_t key,
+                 const char *     pgp_context,
+                 char *           buf,
+                 size_t           buf_len)
+{
+    assert_true(false);
+    return false;
+}
+
 bool
 starts_with(const std::string &data, const std::string &match)
 {
@@ -848,9 +822,8 @@ rnp_tests_get_key_by_id(rnp_key_store_t *keyring, const std::string &keyid, pgp_
     if (binlen > PGP_KEY_ID_SIZE) {
         return NULL;
     }
-    pgp_key_search_t search = {};
+    pgp_key_search_t search(PGP_KEY_SEARCH_KEYID);
     search.by.keyid = keyid_bin;
-    search.type = PGP_KEY_SEARCH_KEYID;
     return rnp_key_store_search(keyring, &search, after);
 }
 
@@ -874,9 +847,8 @@ rnp_tests_get_key_by_grip(rnp_key_store_t *keyring, const pgp_key_grip_t &grip)
     if (!keyring) {
         return NULL;
     }
-    pgp_key_search_t search = {};
+    pgp_key_search_t search(PGP_KEY_SEARCH_GRIP);
     search.by.grip = grip;
-    search.type = PGP_KEY_SEARCH_GRIP;
     return rnp_key_store_search(keyring, &search, NULL);
 }
 
@@ -903,7 +875,7 @@ rnp_tests_key_search(rnp_key_store_t *keyring, const std::string &uid)
         return NULL;
     }
 
-    pgp_key_search_t srch_userid = {PGP_KEY_SEARCH_USERID};
+    pgp_key_search_t srch_userid(PGP_KEY_SEARCH_USERID);
     strncpy(srch_userid.by.userid, uid.c_str(), sizeof(srch_userid.by.userid));
     srch_userid.by.userid[sizeof(srch_userid.by.userid) - 1] = '\0';
     return rnp_key_store_search(keyring, &srch_userid, NULL);
@@ -1038,9 +1010,10 @@ import_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len, uint32_t flags)
 }
 
 bool
-import_all_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len)
+import_all_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len, uint32_t flags)
 {
-    return import_keys(ffi, data, len, RNP_LOAD_SAVE_PUBLIC_KEYS | RNP_LOAD_SAVE_SECRET_KEYS);
+    return import_keys(
+      ffi, data, len, RNP_LOAD_SAVE_PUBLIC_KEYS | RNP_LOAD_SAVE_SECRET_KEYS | flags);
 }
 
 bool
@@ -1088,6 +1061,52 @@ dump_key_stdout(rnp_key_handle_t key, bool secret)
     }
     auto sec = export_key(key, true, true);
     printf("%.*s", (int) sec.size(), (char *) sec.data());
+}
+
+bool
+write_transferable_key(pgp_transferable_key_t &key, pgp_dest_t &dst, bool armor)
+{
+    pgp_key_sequence_t keys;
+    keys.keys.push_back(key);
+    return write_transferable_keys(keys, &dst, armor);
+}
+
+bool
+write_transferable_keys(pgp_key_sequence_t &keys, pgp_dest_t *dst, bool armor)
+{
+    std::unique_ptr<rnp::ArmoredDest> armdst;
+    if (armor) {
+        pgp_armored_msg_t msgtype = PGP_ARMORED_PUBLIC_KEY;
+        if (!keys.keys.empty() && is_secret_key_pkt(keys.keys.front().key.tag)) {
+            msgtype = PGP_ARMORED_SECRET_KEY;
+        }
+        armdst = std::unique_ptr<rnp::ArmoredDest>(new rnp::ArmoredDest(*dst, msgtype));
+        dst = &armdst->dst();
+    }
+
+    for (auto &key : keys.keys) {
+        /* main key */
+        key.key.write(*dst);
+        /* revocation and direct-key signatures */
+        for (auto &sig : key.signatures) {
+            sig.write(*dst);
+        }
+        /* user ids/attrs and signatures */
+        for (auto &uid : key.userids) {
+            uid.uid.write(*dst);
+            for (auto &sig : uid.signatures) {
+                sig.write(*dst);
+            }
+        }
+        /* subkeys with signatures */
+        for (auto &skey : key.subkeys) {
+            skey.subkey.write(*dst);
+            for (auto &sig : skey.signatures) {
+                sig.write(*dst);
+            }
+        }
+    }
+    return !dst->werr;
 }
 
 bool
@@ -1155,6 +1174,17 @@ check_sub_valid(rnp_key_handle_t key, size_t idx, bool validity)
     return valid == validity;
 }
 
+rnp_key_handle_t
+bogus_key_handle(rnp_ffi_t ffi)
+{
+    rnp_key_handle_t handle = (rnp_key_handle_t) calloc(1, sizeof(*handle));
+    handle->ffi = ffi;
+    handle->pub = NULL;
+    handle->sec = NULL;
+    handle->locator.type = PGP_KEY_SEARCH_KEYID;
+    return handle;
+}
+
 bool
 sm2_enabled()
 {
@@ -1190,6 +1220,16 @@ twofish_enabled()
 {
     bool enabled = false;
     if (rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "Twofish", &enabled)) {
+        return false;
+    }
+    return enabled;
+}
+
+bool
+idea_enabled()
+{
+    bool enabled = false;
+    if (rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "IDEA", &enabled)) {
         return false;
     }
     return enabled;

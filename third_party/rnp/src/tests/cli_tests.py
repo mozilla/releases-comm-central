@@ -29,6 +29,7 @@ PASSWORD = 'password'
 RMWORKDIR = True
 GPG_AEAD = False
 GPG_NO_OLD = False
+GPG_BRAINPOOL = False
 TESTS_SUCCEEDED = []
 TESTS_FAILED = []
 TEST_WORKFILES = []
@@ -37,6 +38,7 @@ TEST_WORKFILES = []
 RNP_TWOFISH = True
 RNP_BRAINPOOL = True
 RNP_AEAD = True
+RNP_IDEA = True
 
 if sys.version_info >= (3,):
     unichr = chr
@@ -85,15 +87,21 @@ AT_EXAMPLE = '@example.com'
 PUBRING = 'pubring.gpg'
 SECRING = 'secring.gpg'
 PUBRING_1 = 'keyrings/1/pubring.gpg'
+SECRING_1 = 'keyrings/1/secring.gpg'
+KEYRING_DIR_1 = 'keyrings/1'
+KEYRING_DIR_3 = 'keyrings/3'
 SECRING_G10 = 'test_stream_key_load/g10'
 KEY_ALICE_PUB = 'test_key_validity/alice-pub.asc'
+KEY_ALICE_SUB_PUB = 'test_key_validity/alice-sub-pub.pgp'
 KEY_ALICE_SEC = 'test_key_validity/alice-sec.asc'
 KEY_ALICE_SUB_SEC = 'test_key_validity/alice-sub-sec.pgp'
+KEY_ALICE = 'Alice <alice@rnp>'
 KEY_25519_NOTWEAK_SEC = 'test_key_edge_cases/key-25519-non-tweaked-sec.asc'
 
 # Messages
 MSG_TXT = 'test_messages/message.txt'
 MSG_ES_25519 = 'test_messages/message.txt.enc-sign-25519'
+MSG_SIG_CRCR = 'test_messages/message.text-sig-crcr.sig'
 
 # Extensions
 EXT_SIG = '.txt.sig'
@@ -124,7 +132,7 @@ r'.*$'
 
 RE_RSA_KEY_LIST = r'^\s*' \
 r'2 keys found\s+' \
-r'pub\s+(\d{4})/RSA \(Encrypt or Sign\) ([0-9a-z]{16}) \d{4}-\d{2}-\d{2} \[.*\]\s+' \
+r'pub\s+(\d{4})/RSA ([0-9a-z]{16}) \d{4}-\d{2}-\d{2} \[.*\]\s+' \
 r'([0-9a-z]{40})\s+' \
 r'uid\s+(.+)\s+' \
 r'sub.+\s+' \
@@ -166,8 +174,9 @@ r'Secret subkey packet.*' \
 r'secret key material:.*' \
 r'encrypted secret key data:.*$'
 
-RE_RNP_REVOCATION_SIG = r'(?s)^.*' \
-r'packet header .* \(tag 2, len .*' \
+RE_RNP_REVOCATION_SIG = r'(?s)' \
+r':armored input\n' \
+r':off 0: packet header .* \(tag 2, len .*' \
 r'Signature packet.*' \
 r'version: 4.*' \
 r'type: 32 \(Key revocation signature\).*' \
@@ -191,6 +200,8 @@ r'new key revocations: 1.*$'
 
 RE_SIG_1_IMPORT = r'(?s)^.*Import finished: 1 new signature, 0 unchanged, 0 unknown.*'
 
+RE_KEYSTORE_INFO = r'(?s)^.*fatal: cannot set keystore info'
+
 RNP_TO_GPG_ZALGS = { 'zip' : '1', 'zlib' : '2', 'bzip2' : '3' }
 # These are mostly identical
 RNP_TO_GPG_CIPHERS = {'AES' : 'aes128', 'AES192' : 'aes192', 'AES256' : 'aes256',
@@ -210,6 +221,7 @@ ALICE_IMPORT_FAIL = 'Alice key import failed'
 ENC_FAILED = 'encryption failed'
 DEC_FAILED = 'decryption failed'
 DEC_DIFFERS = 'Decrypted data differs'
+GPG_IMPORT_FAILED = 'gpg key import failed'
 
 def check_packets(fname, regexp):
     ret, output, err = run_proc(GPG, ['--homedir', '.',
@@ -265,11 +277,11 @@ def compare_file_ex(src, string, message, symbol='?'):
             raise_err(message)
 
 def remove_files(*args):
-    try:
-        for fpath in args:
+    for fpath in args:
+        try:
             os.remove(fpath)
-    except Exception:
-        pass
+        except Exception:
+            pass
 
 def reg_workfiles(mainname, *exts):
     global TEST_WORKFILES
@@ -421,7 +433,7 @@ def rnp_verify_file(src, dst, signer=None):
     match = re.match(RE_RNP_GOOD_SIGNATURE, err)
     if not match:
         raise_err('wrong rnp verification output', err)
-    if signer and (not match.group(1).strip() == signer.strip()):
+    if signer and (match.group(1).strip() != signer.strip()):
         raise_err('rnp verification failed, wrong signer')
 
 
@@ -433,7 +445,7 @@ def rnp_verify_detached(sig, signer=None):
     match = re.match(RE_RNP_GOOD_SIGNATURE, err)
     if not match:
         raise_err('wrong rnp detached verification output', err)
-    if signer and (not match.group(1).strip() == signer.strip()):
+    if signer and (match.group(1).strip() != signer.strip()):
         raise_err('rnp detached verification failed, wrong signer'.format())
 
 
@@ -446,7 +458,7 @@ def rnp_verify_cleartext(src, signer=None):
     match = re.match(RE_RNP_GOOD_SIGNATURE, err)
     if not match:
         raise_err('wrong rnp verification output', err)
-    if signer and (not match.group(1).strip() == signer.strip()):
+    if signer and (match.group(1).strip() != signer.strip()):
         raise_err('rnp verification failed, wrong signer')
 
 
@@ -456,7 +468,7 @@ def gpg_import_pubring(kpath=None):
     ret, _, err = run_proc(
         GPG, ['--display-charset', CONSOLE_ENCODING, '--batch', '--homedir', GPGHOME, '--import', kpath])
     if ret != 0:
-        raise_err('gpg key import failed', err)
+        raise_err(GPG_IMPORT_FAILED, err)
 
 
 def gpg_import_secring(kpath=None, password = PASSWORD):
@@ -806,12 +818,12 @@ def rnp_cleartext_signing_gpg_to_rnp(filesize):
     clear_workfiles()
 
 def gpg_check_features():
-    global GPG_AEAD, GPG_NO_OLD
+    global GPG_AEAD, GPG_NO_OLD, GPG_BRAINPOOL
     _, out, _ = run_proc(GPG, ["--version"])
     # AEAD
     GPG_AEAD = re.match(r'(?s)^.*AEAD:\s+EAX,\s+OCB.*', out)
     # Version 2.3.0-beta1598 and up drops support of 64-bit block algos
-    match = re.match(r'(?s)^.*gpg \(GnuPG\) ([0-9]+)\.([0-9]+)\.([0-9]+)(-beta([0-9]+))?.*$', out)
+    match = re.match(r'(?s)^.*gpg \(GnuPG\) (\d+)\.(\d+)\.(\d+)(-beta(\d+))?.*$', out)
     if not match:
         raise_err('Failed to parse GnuPG version.')
     # Version < 2.3.0
@@ -824,9 +836,12 @@ def gpg_check_features():
         return
     # Version 2.3.0 release or beta
     GPG_NO_OLD = not match.group(5) or (int(match.group(5)) >= 1598)
+    # Check whether Brainpool curves are supported
+    _, out, _ = run_proc(GPG, ["--with-colons", "--list-config", "curve"])
+    GPG_BRAINPOOL = re.match(r'(?s)^.*brainpoolP256r1.*', out)
 
 def rnp_check_features():
-    global RNP_TWOFISH, RNP_BRAINPOOL, RNP_AEAD
+    global RNP_TWOFISH, RNP_BRAINPOOL, RNP_AEAD, RNP_IDEA
     ret, out, _ = run_proc(RNP, ['--version'])
     if ret != 0:
         raise_err('Failed to get RNP version.')
@@ -836,9 +851,8 @@ def rnp_check_features():
     RNP_TWOFISH = re.match(r'(?s)^.*Encryption:.*TWOFISH.*', out)
     # Brainpool curves
     RNP_BRAINPOOL = re.match(r'(?s)^.*Curves:.*brainpoolP256r1.*brainpoolP384r1.*brainpoolP512r1.*', out)
-    # Check that everything is enabled for Botan:
-    if re.match(r'(?s)^.*Backend:\s+Botan.*', out) and (not RNP_AEAD or not RNP_TWOFISH or not RNP_BRAINPOOL):
-        raise_err('Something is wrong with features detection.')
+    # IDEA encryption algorithm
+    RNP_IDEA = re.match(r'(?s)^.*Encryption:.*IDEA.*', out)
 
 def setup(loglvl):
     # Setting up directories.
@@ -968,7 +982,7 @@ class Keystore(unittest.TestCase):
                                        GPGHOME, '--import',
                                        path_for_gpg(os.path.join(RNPDIR, PUBRING)),
                                        path_for_gpg(os.path.join(RNPDIR, SECRING))])
-        self.assertEqual(ret, 0, 'gpg key import failed')
+        self.assertEqual(ret, 0, GPG_IMPORT_FAILED)
         # Cleanup and return
         clear_keyrings()
 
@@ -1005,7 +1019,7 @@ class Keystore(unittest.TestCase):
         ret, _, err = run_proc(RNPK, ['--cipher', 'WRONG_AES', '--homedir', RNPDIR, '--password', 'password', 
                                       '--userid', 'wrong_aes', '--generate-key'])
         self.assertNotEqual(ret, 0)
-        self.assertRegex(err, r'(?s)^.*Unsupported symmetric algorithm: WRONG_AES.*')
+        self.assertRegex(err, r'(?s)^.*Unsupported encryption algorithm: WRONG_AES.*Failed to process argument --cipher.*')
 
     def test_generate_multiple_rsa_key__check_if_available(self):
         '''
@@ -1271,6 +1285,8 @@ class Keystore(unittest.TestCase):
         os.close(pipe)
         self.assertEqual(ret, 0)
         self.assertTrue(os.path.isfile(OUT_ALICE_REV))
+        with open(OUT_ALICE_REV, "rb") as armored:
+            self.assertRegex(armored.read().decode('utf-8'), r'-----END PGP PUBLIC KEY BLOCK-----\r\n$', 'Armor tail not found')
         # Check revocation contents
         ret, out, _ = run_proc(RNP, ['--homedir', RNPDIR, '--list-packets', OUT_ALICE_REV])
         self.assertEqual(ret, 0)
@@ -1332,6 +1348,8 @@ class Keystore(unittest.TestCase):
             self.assertEqual(ret, 0, 'Failed to export revocation with code ' + revcode)
             self.assertTrue(os.path.isfile(OUT_ALICE_REV), 'Failed to export revocation with code ' + revcode)
             # Check revocation contents
+            with open(OUT_ALICE_REV, "rb") as armored:
+                self.assertRegex(armored.read().decode('utf-8'), r'-----END PGP PUBLIC KEY BLOCK-----\r\n$', 'Armor tail not found')
             ret, out, _ = run_proc(RNP, ['--homedir', RNPDIR, '--list-packets', OUT_ALICE_REV])
             self.assertEqual(ret, 0, 'Failed to list exported revocation packets')
             self.assertNotEqual(len(out), 0, 'Failed to list exported revocation packets')
@@ -1376,7 +1394,7 @@ class Keystore(unittest.TestCase):
 
         clear_keyrings()
         # Import Alice's public key
-        ret, _, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--import', data_path('test_key_validity/alice-sub-pub.pgp')])
+        ret, _, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--import', data_path(KEY_ALICE_SUB_PUB)])
         self.assertEqual(ret, 0)
         # Attempt to export no key
         ret, _, err = run_proc(RNPK, ['--homedir', RNPDIR, '--export-key'])
@@ -1420,7 +1438,7 @@ class Keystore(unittest.TestCase):
             f.truncate(10)
         ret, out, err = run_proc(RNPK, ['--homedir', RNPDIR, '--export-key', 'alice', '--output', kpub, '--overwrite'])
         self.assertEqual(ret, 0)
-        # Re-import it, making sure file was correctly overwriten
+        # Re-import it, making sure file was correctly overwritten
         ret, _, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--import', kpub])
         self.assertEqual(ret, 0)
         # Enter 'y' in ovewrite prompt
@@ -1723,6 +1741,8 @@ class Misc(unittest.TestCase):
 
         if not RNP_TWOFISH:
             ciphers.remove('TWOFISH')
+        if not RNP_IDEA:
+            ciphers.remove('IDEA')
 
         def rnp_encryption_s2k_gpg(cipher, hash_alg, s2k=None, iterations=None):
             params = ['--homedir', GPGHOME, '-c', '--s2k-cipher-algo', cipher, 
@@ -1782,16 +1802,35 @@ class Misc(unittest.TestCase):
             compare_files(src_beg, dst_mid, "RNP armor/dearmor test failed")
             remove_files(dst_beg, dst_mid, dst_fin)
 
+        # 3-byte last chunk with missing crc
+        msg = '-----BEGIN PGP MESSAGE-----\n\nMTIzNDU2Nzg5\n-----END PGP MESSAGE-----\n'
+        ret, out, err = run_proc(RNP, ['--dearmor'], msg)
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^.*123456789.*')
+        self.assertRegex(err, r'(?s)^.*Warning: missing or malformed CRC line.*')
+        # No invalid CRC message
+        R_CRC = r'(?s)^.*Warning: CRC mismatch.*$'
+        dec = 'decoded.pgp'
+        ret, _, err = run_proc(RNP, ['--dearmor', data_path('test_stream_key_load/ecc-25519-pub.asc'), '--output', dec])
+        remove_files(dec)
+        self.assertEqual(ret, 0)
+        self.assertNotRegex(err, R_CRC)
+        # Invalid CRC message
+        ret, _, err = run_proc(RNP, ['--dearmor', data_path('test_stream_armor/ecc-25519-pub-bad-crc.asc'), '--output', dec])
+        remove_files(dec)
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, R_CRC)
+
     def test_rnpkeys_lists(self):
-        KEYRING_1 = data_path('keyrings/1')
+        KEYRING_1 = data_path(KEYRING_DIR_1)
         KEYRING_2 = data_path('keyrings/2')
-        KEYRING_3 = data_path('keyrings/3')
+        KEYRING_3 = data_path(KEYRING_DIR_3)
         KEYRING_5 = data_path('keyrings/5')
         path = data_path('test_cli_rnpkeys') + '/'
 
         _, out, _ = run_proc(RNPK, ['--homedir', KEYRING_1, '--list-keys'])
         compare_file_any(allow_y2k38_on_32bit(path + 'keyring_1_list_keys'), out, 'keyring 1 key listing failed')
-        _, out, _ = run_proc(RNPK, ['--hom', KEYRING_1, '-l', '--with-sigs'])
+        _, out, _ = run_proc(RNPK, ['--home', KEYRING_1, '-l', '--with-sigs'])
         compare_file_any(allow_y2k38_on_32bit(path + 'keyring_1_list_sigs'), out, 'keyring 1 sig listing failed')
         _, out, _ = run_proc(RNPK, ['--home', KEYRING_1, '--list-keys', '--secret'])
         compare_file_any(allow_y2k38_on_32bit(path + 'keyring_1_list_keys_sec'), out, 'keyring 1 sec key listing failed')
@@ -1854,6 +1893,17 @@ class Misc(unittest.TestCase):
         _, out, _ = run_proc(RNPK, ['--homedir', KEYRING_1, '-l', '--userid', '2fcadf05ffa501bb'])
         compare_file_any(allow_y2k38_on_32bit(path + 'getkey_2fcadf05ffa501bb'), out, 'list key 2fcadf05ffa501bb failed')
 
+    def test_rnpkeys_list_invalid_keys(self):
+        RNPDIR2 = RNPDIR + '2'
+        os.mkdir(RNPDIR2, 0o700)
+        ret, _, _ = run_proc(RNPK, ['--homedir', RNPDIR2, '--import', data_path('test_forged_keys/eddsa-2012-md5-pub.pgp')])
+        self.assertEqual(ret, 0)
+        ret, out, err = run_proc(RNPK, ['--homedir', RNPDIR2, '--list-keys', '--with-sigs'])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)2 keys found.*8801eafbd906bd21.*\[INVALID\].*expired-md5-key-sig.*\[INVALID\].*sig.*\[unknown\] \[invalid\]')
+        self.assertRegex(err, r'(?s)Insecure hash algorithm 1, marking signature as invalid')
+        shutil.rmtree(RNPDIR2, ignore_errors=True)
+
     def test_rnpkeys_g10_list_order(self):
         ret, out, _ = run_proc(RNPK, ['--homedir', data_path(SECRING_G10), '--list-keys'])
         self.assertEqual(ret, 0)
@@ -1894,34 +1944,34 @@ class Misc(unittest.TestCase):
         # Verifying large packet file with GnuPG
         kpath = path_for_gpg(data_path(PUBRING_1))
         dpath = path_for_gpg(data_path('test_large_packet/4g.bzip2.gpg'))
-        ret, _, _ = run_proc(GPG, ['--homedir', GPGHOME, '--keyring', kpath, '--verify', dpath])
+        ret, _, _ = run_proc(GPG, ['--homedir', GPGHOME, '--no-default-keyring', '--keyring', kpath, '--verify', dpath])
         self.assertEqual(ret, 0, 'large packet verification failed')
 
     def test_partial_length_signature(self):
         # Verifying partial length signature with GnuPG
         kpath = path_for_gpg(data_path(PUBRING_1))
         mpath = path_for_gpg(data_path('test_partial_length/message.txt.partial-signed'))
-        ret, _, _ = run_proc(GPG, ['--homedir', GPGHOME, '--keyring', kpath, '--verify', mpath])
+        ret, _, _ = run_proc(GPG, ['--homedir', GPGHOME, '--no-default-keyring', '--keyring', kpath, '--verify', mpath])
         self.assertNotEqual(ret, 0, 'partial length signature packet should result in failure but did not')
 
     def test_partial_length_public_key(self):
         # Reading keyring that has a public key packet with partial length using GnuPG
         kpath = data_path('test_partial_length/pubring.gpg.partial')
-        ret, _, _ = run_proc(GPG, ['--homedir', GPGHOME, '--keyring', kpath, '--list-keys'])
+        ret, _, _ = run_proc(GPG, ['--homedir', GPGHOME, '--no-default-keyring', '--keyring', kpath, '--list-keys'])
         self.assertNotEqual(ret, 0, 'partial length public key packet should result in failure but did not')
 
     def test_partial_length_zero_last_chunk(self):
         # Verifying message in partial packets having 0-size last chunk with GnuPG
         kpath = path_for_gpg(data_path(PUBRING_1))
         mpath = path_for_gpg(data_path('test_partial_length/message.txt.partial-zero-last'))
-        ret, _, _ = run_proc(GPG, ['--homedir', GPGHOME, '--keyring', kpath, '--verify', mpath])
+        ret, _, _ = run_proc(GPG, ['--homedir', GPGHOME, '--no-default-keyring', '--keyring', kpath, '--verify', mpath])
         self.assertEqual(ret, 0, 'message in partial packets having 0-size last chunk verification failed')
 
     def test_partial_length_largest(self):
         # Verifying message having largest possible partial packet with GnuPG
         kpath = path_for_gpg(data_path(PUBRING_1))
         mpath = path_for_gpg(data_path('test_partial_length/message.txt.partial-1g'))
-        ret, _, _ = run_proc(GPG, ['--homedir', GPGHOME, '--keyring', kpath, '--verify', mpath])
+        ret, _, _ = run_proc(GPG, ['--homedir', GPGHOME, '--no-default-keyring', '--keyring', kpath, '--verify', mpath])
         self.assertEqual(ret, 0, 'message having largest possible partial packet verification failed')
 
     def test_rnp_single_export(self):
@@ -1960,6 +2010,50 @@ class Misc(unittest.TestCase):
         self.assertEqual(ret, 0, PKT_LIST_FAILED)
         compare_file_any(allow_y2k38_on_32bit(data_path('test_cli_rnpkeys/pubring-malf-cert-permissive-import.txt')),
             out, 'listing mismatch')
+
+    def test_rnp_autocrypt_key_import(self):
+        R_25519 = r'(?s)^.*pub.*255/EdDSA.*21fc68274aae3b5de39a4277cc786278981b0728.*$'
+        R_256K1 = r'(?s)^.*pub.*3ea5bb6f9692c1a0.*7635401f90d3e533.*$'
+        # Import misc configurations of base64-encoded autocrypt keys
+        clear_keyrings()
+        ret, out, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--import-keys', data_path('test_stream_key_load/ecc-25519-pub.b64')])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, R_25519)
+        # No trailing EOL after the base64 data
+        clear_keyrings()
+        ret, out, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--import-keys', data_path('test_stream_key_load/ecc-25519-pub-2.b64')])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, R_25519)
+        # Extra spaces/eols/tabs after the base64 data
+        clear_keyrings()
+        ret, out, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--import-keys', data_path('test_stream_key_load/ecc-25519-pub-3.b64')])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, R_25519)
+        # Invalid symbols after the base64 data
+        clear_keyrings()
+        ret, _, err = run_proc(RNPK, ['--homedir', RNPDIR, '--import-keys', data_path('test_stream_key_load/ecc-25519-pub-4.b64')])
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, r'(?s)^.*wrong base64 padding: ==zz.*Failed to init/check dearmor.*failed to import key\(s\) from .*, stopping.$')
+        # Binary data size is multiple of 3, single base64 line
+        clear_keyrings()
+        ret, out, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--import-keys', data_path('test_stream_key_load/ecc-p256k1-pub.b64')])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, R_256K1)
+        # Binary data size is multiple of 3, multiple base64 lines
+        clear_keyrings()
+        ret, out, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--import-keys', data_path('test_stream_key_load/ecc-p256k1-pub-2.b64')])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, R_256K1)
+        # Too long base64 trailer ('===')
+        clear_keyrings()
+        ret, _, err = run_proc(RNPK, ['--homedir', RNPDIR, '--import-keys', data_path('test_stream_armor/long_b64_trailer.b64')])
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, r'(?s)^.*wrong base64 padding length 3.*Failed to init/check dearmor.*$')
+        # Extra data after the base64-encoded data
+        ret, out, err = run_proc(RNPK, ['--homedir', RNPDIR, '--import-keys', data_path('test_stream_armor/b64_trailer_extra_data.b64')])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*warning: extra data after the base64 stream.*Failed to init/check dearmor.*warning: not all data was processed.*$')
+        self.assertRegex(out, R_25519)
 
     def test_rnp_list_packets(self):
         KEY_P256 = data_path('test_list_packets/ecc-p256-pub.asc')
@@ -2037,20 +2131,40 @@ class Misc(unittest.TestCase):
         ret, out, _ = run_proc(RNP, params)
         self.assertEqual(ret, 0)
         self.assertRegex(out, r'(?s)^.*:type 20, len 35, critical.*notation data: critical text = critical value.*$')
+        # List signature with signer's userid subpacket
+        params = ['--list-packets', data_path(MSG_SIG_CRCR)]
+        ret, out, _ = run_proc(RNP, params)
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^.*:type 28, len 9.*signer\'s user ID: alice@rnp.*$')
+        # JSON list signature with signer's userid subpacket
+        params = ['--list-packets', '--json', data_path(MSG_SIG_CRCR)]
+        ret, out, _ = run_proc(RNP, params)
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^.*"type.str":"signer\'s user ID".*"length":9.*"uid":"alice@rnp".*$')
+        # List signature with reason for revocation subpacket
+        params = ['--list-packets', data_path('test_uid_validity/key-sig-revocation.pgp')]
+        ret, out, _ = run_proc(RNP, params)
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^.*:type 29, len 24.*reason for revocation: 32 \(No longer valid\).*message: Testing revoked userid.*$')
+        # JSON list signature with reason for revocation subpacket
+        params = ['--list-packets', '--json', data_path('test_uid_validity/key-sig-revocation.pgp')]
+        ret, out, _ = run_proc(RNP, params)
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^.*"type.str":"reason for revocation".*"code":32.*"message":"Testing revoked userid.".*$')
 
     def test_rnp_list_packets_edge_cases(self):
         KEY_EMPTY_UID = data_path('test_key_edge_cases/key-empty-uid.pgp')
         # List empty key packets
         params = ['--list-packets', data_path('test_key_edge_cases/key-empty-packets.pgp')]
         ret, out, _ = run_proc(RNP, params)
-        self.assertNotEqual(ret, 0, 'packet listing not failed')
+        self.assertEqual(ret, 0, PKT_LIST_FAILED)
         compare_file_ex(data_path('test_key_edge_cases/key-empty-packets.txt'), out,
                         'key-empty-packets listing mismatch')
         
         # List empty key packets json
         params = ['--list-packets', '--json', data_path('test_key_edge_cases/key-empty-packets.pgp')]
         ret, _, _ = run_proc(RNP, params)
-        self.assertNotEqual(ret, 0, 'packet listing not failed')
+        self.assertEqual(ret, 0, PKT_LIST_FAILED)
 
         # List empty uid
         params = ['--list-packets', KEY_EMPTY_UID]
@@ -2102,14 +2216,15 @@ class Misc(unittest.TestCase):
                         'key-malf-sig json listing mismatch')
 
     def test_debug_log(self):
-        run_proc(RNPK, ['--homedir', data_path('keyrings/1'), '--list-keys', '--debug', '--all'])
+        run_proc(RNPK, ['--homedir', data_path(KEYRING_DIR_1), '--list-keys', '--debug', '--all'])
         run_proc(RNPK, ['--homedir', data_path('keyrings/2'), '--list-keys', '--debug', '--all'])
-        run_proc(RNPK, ['--homedir', data_path('keyrings/3'), '--list-keys', '--debug', '--all'])
+        run_proc(RNPK, ['--homedir', data_path(KEYRING_DIR_3), '--list-keys', '--debug', '--all'])
         run_proc(RNPK, ['--homedir', data_path(SECRING_G10),
                         '--list-keys', '--debug', '--all'])
 
     def test_pubring_loading(self):
         NO_PUBRING = r'(?s)^.*warning: keyring at path \'.*/pubring.gpg\' doesn\'t exist.*$'
+        EMPTY_HOME = r'(?s)^.*Keyring directory .* is empty.*rnpkeys.*GnuPG.*'
         NO_USERID = 'No userid or default key for operation'
 
         test_dir = tempfile.mkdtemp(prefix='rnpctmp')
@@ -2118,19 +2233,22 @@ class Misc(unittest.TestCase):
         params = ['--symmetric', '--password', 'pass', '--homedir', test_dir, test_data, '--output', output]
         ret, _, err = run_proc(RNP, ['--encrypt'] + params)
         self.assertEqual(ret, 1, 'encrypt w/o pubring didn\'t fail')
-        self.assertRegex(err, NO_PUBRING, 'wrong no-keyring message')
+        self.assertNotRegex(err, NO_PUBRING, 'wrong no-keyring message')
+        self.assertRegex(err, EMPTY_HOME)
         self.assertIn(NO_USERID, err, 'Unexpected no key output')
         self.assertIn('Failed to build recipients key list', err, 'Unexpected key list output')
 
         ret, _, err = run_proc(RNP, ['--sign'] + params)
         self.assertEqual(ret, 1, 'sign w/o pubring didn\'t fail')
-        self.assertRegex(err, NO_PUBRING, 'wrong failure output')
+        self.assertNotRegex(err, NO_PUBRING, 'wrong failure output')
+        self.assertRegex(err, EMPTY_HOME)
         self.assertIn(NO_USERID, err, 'wrong no userid message')
         self.assertIn('Failed to build signing keys list', err, 'wrong signing list failure message')
 
         ret, _, err = run_proc(RNP, ['--clearsign'] + params)
         self.assertEqual(ret, 1, 'clearsign w/o pubring didn\'t fail')
-        self.assertRegex(err, NO_PUBRING, 'wrong clearsign no pubring message')
+        self.assertNotRegex(err, NO_PUBRING, 'wrong clearsign no pubring message')
+        self.assertRegex(err, EMPTY_HOME)
         self.assertIn(NO_USERID, err, 'Unexpected clearsign no key output')
         self.assertIn('Failed to build signing keys list', err, 'Unexpected clearsign key list output')
 
@@ -2140,18 +2258,24 @@ class Misc(unittest.TestCase):
         shutil.rmtree(test_dir)
 
     def test_homedir_accessibility(self):
-        ret, _, _ = run_proc(RNPK, ['--homedir', os.path.join(RNPDIR, 'non-existing'), '--generate', '--password=none'])
+        ret, _, err = run_proc(RNPK, ['--homedir', os.path.join(RNPDIR, 'non-existing'), '--generate', '--password=none'])
         self.assertNotEqual(ret, 0, 'failed to check for homedir accessibility')
+        self.assertRegex(err, r'(?s)^.*Home directory .*.rnp.non-existing.* does not exist or is not writable!')
+        self.assertRegex(err, RE_KEYSTORE_INFO)
         os.mkdir(os.path.join(RNPDIR, 'existing'), 0o700)
-        ret, _, _ = run_proc(RNPK, ['--homedir', os.path.join(RNPDIR, 'existing'), '--generate', '--password=none'])
+        ret, _, err = run_proc(RNPK, ['--homedir', os.path.join(RNPDIR, 'existing'), '--generate', '--password=none'])
         self.assertEqual(ret, 0, 'failed to use writeable and existing homedir')
+        self.assertNotRegex(err, r'(?s)^.*Home directory .* does not exist or is not writable!')
+        self.assertNotRegex(err, RE_KEYSTORE_INFO)
 
     def test_no_home_dir(self):
         home = os.environ['HOME']
         del os.environ['HOME']
-        ret, _, _ = run_proc(RNP, ['-v', 'non-existing.pgp'])
+        ret, _, err = run_proc(RNP, ['-v', 'non-existing.pgp'])
         os.environ['HOME'] = home
         self.assertEqual(ret, 2, 'failed to run without HOME env variable')
+        self.assertRegex(err, r'(?s)^.*Home directory .* does not exist or is not writable!')
+        self.assertRegex(err, RE_KEYSTORE_INFO)
 
     def test_exit_codes(self):
         ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--help'])
@@ -2274,15 +2398,15 @@ class Misc(unittest.TestCase):
 
     def test_empty_keyrings(self):
         NO_KEYRING = r'(?s)^.*' \
-        r'warning: keyring at path \'.*/\.rnp/pubring.gpg\' doesn\'t exist.*' \
-        r'warning: keyring at path \'.*/\.rnp/secring.gpg\' doesn\'t exist.*$'
+        r'warning: keyring at path \'.*.\.rnp.pubring\.gpg\' doesn\'t exist.*' \
+        r'warning: keyring at path \'.*.\.rnp.secring\.gpg\' doesn\'t exist.*$'
         EMPTY_KEYRING = r'(?s)^.*' \
-        r'warning: no keys were loaded from the keyring \'.*/\.rnp/pubring.gpg\'.*' \
-        r'warning: no keys were loaded from the keyring \'.*/\.rnp/secring.gpg\'.*$'
+        r'Warning: no keys were loaded from the keyring \'.*.\.rnp.pubring\.gpg\'.*' \
+        r'Warning: no keys were loaded from the keyring \'.*.\.rnp.secring\.gpg\'.*$'
         PUB_IMPORT= r'(?s)^.*pub\s+255/EdDSA 0451409669ffde3c .* \[SC\].*$'
-        EMPTY_SECRING = r'(?s)^.*' \
-        r'warning: no keys were loaded from the keyring \'.*/\.rnp/secring.gpg\'.*$'
+        EMPTY_SECRING = r'(?s)^.*Warning: no keys were loaded from the keyring \'.*\.rnp.secring.gpg\'.*$'
         SEC_IMPORT= r'(?s)^.*sec\s+255/EdDSA 0451409669ffde3c .* \[SC\].*$'
+        EMPTY_HOME = r'(?s)^.*Keyring directory .* is empty.*rnpkeys.*GnuPG.*'
 
         os.rename(RNPDIR, RNPDIR + '-old')
         home = os.environ['HOME']
@@ -2297,20 +2421,23 @@ class Misc(unittest.TestCase):
             self.assertNotRegex(err, NO_KEYRING, 'No keyring msg in encryption output')
             ret, _, err = run_proc(RNP, ['-d', enc, '--password', 'password', '--output', dec])
             self.assertEqual(ret, 0, 'Symmetric decryption without home failed')
-            self.assertRegex(err, NO_KEYRING, 'No keyring msg in decryption output')
+            self.assertNotRegex(err, NO_KEYRING, 'No keyring msg in decryption output')
+            self.assertRegex(err, EMPTY_HOME)
             self.assertIn(WORKDIR, err, 'No workdir in decryption output')
             compare_files(src, dec, DEC_DIFFERS)
             remove_files(enc, dec)
             # Import key without .rnp home directory
             ret, out, err = run_proc(RNPK, ['--import', data_path(KEY_ALICE_PUB)])
             self.assertEqual(ret, 0, 'Key import failed without home')
-            self.assertRegex(err, NO_KEYRING, 'No keyring msg in key import output')
+            self.assertNotRegex(err, NO_KEYRING, 'No keyring msg in key import output')
+            self.assertRegex(err, EMPTY_HOME)
             self.assertIn(WORKDIR, err, 'No workdir in key import output')
             self.assertRegex(out, PUB_IMPORT, 'Wrong key import output')
             ret, out, err = run_proc(RNPK, ['--import', data_path(KEY_ALICE_SEC)])
             self.assertEqual(ret, 0, 'Secret key import without home failed')
             self.assertNotRegex(err, NO_KEYRING, 'no keyring message in key import output')
-            self.assertRegex(err, EMPTY_SECRING, 'no empty secrin in key import output')
+            self.assertNotRegex(err, EMPTY_HOME)
+            self.assertRegex(err, EMPTY_SECRING, 'no empty secring in key import output')
             self.assertIn(WORKDIR, err, 'no workdir in key import output')
             self.assertRegex(out, SEC_IMPORT, 'Wrong secret key import output')
             # Run with empty .rnp home directory
@@ -2321,22 +2448,59 @@ class Misc(unittest.TestCase):
             self.assertNotRegex(err, NO_KEYRING)
             ret, out, err = run_proc(RNP, ['-d', enc, '--password', 'password', '--output', dec])
             self.assertEqual(ret, 0, 'Symmetric decryption failed')
-            self.assertRegex(err, NO_KEYRING, 'No keyring message in decryption output')
+            self.assertRegex(err, EMPTY_HOME)
+            self.assertNotRegex(err, NO_KEYRING, 'No keyring message in decryption output')
             self.assertIn(WORKDIR, err, 'No workdir in decryption output')
             compare_files(src, dec, DEC_DIFFERS)
             remove_files(enc, dec)
             # Import key with empty .rnp home directory
             ret, out, err = run_proc(RNPK, ['--import', data_path(KEY_ALICE_PUB)])
             self.assertEqual(ret, 0, 'Public key import with empty home failed')
-            self.assertRegex(err, NO_KEYRING, 'No keyring message in key import output')
+            self.assertNotRegex(err, NO_KEYRING, 'No keyring message in key import output')
+            self.assertRegex(err, EMPTY_HOME)
             self.assertIn(WORKDIR, err, 'No workdir in key import output')
             self.assertRegex(out, PUB_IMPORT, 'Wrong pub key import output')
             ret, out, err = run_proc(RNPK, ['--import', data_path(KEY_ALICE_SEC)])
             self.assertEqual(ret, 0, 'Secret key import failed')
             self.assertNotRegex(err, NO_KEYRING, 'No-keyring message in secret key import output')
             self.assertRegex(err, EMPTY_SECRING, 'No empty secring msg in secret key import output')
+            self.assertNotRegex(err, EMPTY_HOME)
             self.assertIn(WORKDIR, err, 'No workdir in secret key import output')
             self.assertRegex(out, SEC_IMPORT, 'wrong secret key import output')
+            if not is_windows():
+                # Attempt ro run with non-writable HOME
+                newhome = os.path.join(WORKDIR, 'new')
+                os.mkdir(newhome, 0o400)
+                os.environ['HOME'] = newhome
+                ret, out, err = run_proc(RNPK, ['--import', data_path(KEY_ALICE_PUB)])
+                self.assertEqual(ret, 1)
+                self.assertRegex(err, r'(?s)^.*Home directory \'.*new\' does not exist or is not writable!')
+                self.assertRegex(err, RE_KEYSTORE_INFO)
+                self.assertIn(WORKDIR, err)
+                os.environ['HOME'] = WORKDIR
+                shutil.rmtree(newhome, ignore_errors=True)
+                # Attempt to load keyring with invalid permissions
+                os.chmod(os.path.join(RNPDIR, PUBRING), 0o000)
+                ret, out, err = run_proc(RNPK, ['--list-keys'])
+                self.assertEqual(ret, 0)
+                self.assertRegex(err, r'(?s)^.*Warning: failed to open keyring at path \'.*pubring\.gpg\' for reading.')
+                self.assertRegex(out, r'(?s)^.*Alice <alice@rnp>')
+                os.chmod(os.path.join(RNPDIR, SECRING), 0o000)
+                ret, out, err = run_proc(RNPK, ['--list-keys'])
+                self.assertEqual(ret, 1)
+                self.assertRegex(err, r'(?s)^.*Warning: failed to open keyring at path \'.*pubring\.gpg\' for reading.')
+                self.assertRegex(err, r'(?s)^.*Warning: failed to open keyring at path \'.*secring\.gpg\' for reading.')
+                self.assertRegex(out, r'(?s)^.*Key\(s\) not found.')
+            # Attempt to load keyring with random data
+            shutil.rmtree(RNPDIR, ignore_errors=True)
+            os.mkdir(RNPDIR, 0o700)
+            random_text(os.path.join(RNPDIR, PUBRING), 1000)
+            random_text(os.path.join(RNPDIR, SECRING), 1000)
+            ret, out, err = run_proc(RNPK, ['--list-keys'])
+            self.assertEqual(ret, 1)
+            self.assertRegex(err, r'(?s)^.*Error: failed to load keyring from \'.*pubring\.gpg\'')
+            self.assertNotRegex(err, r'(?s)^.*Error: failed to load keyring from \'.*secring\.gpg\'')
+            self.assertRegex(out, r'(?s)^.*Key\(s\) not found.')
             # Run with .rnp home directory with empty keyrings
             shutil.rmtree(RNPDIR, ignore_errors=True)
             os.mkdir(RNPDIR, 0o700)
@@ -2375,7 +2539,8 @@ class Misc(unittest.TestCase):
             f.write('Hello world')
         # Encrypt file but forget to pass cipher name
         ret, _, err = run_proc(RNP, ['-c', src, '--password', 'password', '--cipher'])
-        self.assertNotEqual(ret, 0)
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, r'(?s)^.*rnp(|\.exe): option( .--cipher.|) requires an argument.*Usage: rnp --command \[options\] \[files\].*')
         # Encrypt file using the unknown symmetric algorithm
         ret, _, err = run_proc(RNP, ['-c', src, '--cipher', 'bad', '--password', 'password'])
         self.assertNotEqual(ret, 0)
@@ -2603,7 +2768,501 @@ class Misc(unittest.TestCase):
         ret, _, _ = run_proc(GPG, ['--batch', '--homedir', GPGHOME, '--yes', '--delete-secret-key', 'dde0ee539c017d2bd3f604a53176fc1486aa2528'])
         self.assertEqual(ret, 0)
         ret, _, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--remove-key', '--force', 'dde0ee539c017d2bd3f604a53176fc1486aa2528'])
-        self.assertEqual(ret, 0)        
+        self.assertEqual(ret, 0)
+    
+    def test_aead_last_chunk_zero_length(self):
+        # Cover case with last AEAD chunk of the zero size
+        os.rename(RNPDIR, RNPDIR + '-old')
+        os.mkdir(RNPDIR)
+        try:
+            dec, enc = reg_workfiles('cleartext', '.dec', '.enc')
+            srctxt = data_path('test_messages/message.aead-last-zero-chunk.txt')
+            srcenc = data_path('test_messages/message.aead-last-zero-chunk.enc')
+            # Import Alice's key
+            ret, _, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--import', data_path(KEY_ALICE_SUB_SEC)])
+            self.assertEqual(ret, 0)
+            # Decrypt already existing file
+            if RNP_AEAD and RNP_BRAINPOOL:
+                ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--password', PASSWORD, '-d', srcenc, '--output', dec])
+                self.assertEqual(ret, 0)
+                self.assertEqual(file_text(srctxt), file_text(dec))
+                os.remove(dec)
+            # Decrypt with gnupg
+            if GPG_AEAD and GPG_BRAINPOOL:
+                ret, _, _ = run_proc(GPG, ['--batch', '--passphrase', PASSWORD, '--homedir',
+                                        GPGHOME, '--import', data_path(KEY_ALICE_SUB_SEC)])
+                self.assertEqual(ret, 0, GPG_IMPORT_FAILED)
+                gpg_decrypt_file(srcenc, dec, PASSWORD)
+                self.assertEqual(file_text(srctxt), file_text(dec))
+                os.remove(dec)
+            if RNP_AEAD and RNP_BRAINPOOL:
+                # Encrypt with RNP
+                ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--password', PASSWORD, '-z', '0', '-r', 'alice', '--aead=eax', '--aead-chunk-bits=1', '-e', srctxt, '--output', enc])
+                self.assertEqual(ret, 0)
+                # Decrypt with RNP again
+                ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--password', PASSWORD, '-d', enc, '--output', dec])
+                self.assertEqual(file_text(srctxt), file_text(dec))
+                os.remove(dec)
+                if GPG_AEAD and GPG_BRAINPOOL:
+                    # Decrypt with GnuPG
+                    gpg_decrypt_file(enc, dec, PASSWORD)
+                    self.assertEqual(file_text(srctxt), file_text(dec))
+        finally:
+            shutil.rmtree(RNPDIR, ignore_errors=True)
+            os.rename(RNPDIR + '-old', RNPDIR)
+            clear_workfiles()
+
+    def test_text_sig_crcr(self):
+        # Cover case with line ending with multiple CRs
+        srcsig = data_path(MSG_SIG_CRCR)
+        srctxt = data_path('test_messages/message.text-sig-crcr')
+        # Verify with RNP
+        ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--keyfile', data_path(KEY_ALICE_SUB_PUB), '-v', srcsig])
+        self.assertEqual(ret, 0)
+        # Verify with GPG
+        if GPG_BRAINPOOL:
+            ret, _, _ = run_proc(GPG, ['--batch', '--homedir', GPGHOME, '--import', data_path(KEY_ALICE_SUB_PUB)])
+            self.assertEqual(ret, 0, GPG_IMPORT_FAILED)
+            gpg_verify_detached(srctxt, srcsig, KEY_ALICE)
+
+    def test_encrypted_password_wrong(self):
+        # Test symmetric decryption with wrong password used
+        srcenc = data_path('test_messages/message.enc-password')
+        ret, _, err = run_proc(RNP, ['--homedir', RNPDIR, '--password', 'password1', '-d', srcenc])
+        self.assertNotEqual(ret, 0)
+        self.assertIn('checksum check failed', err)
+        ret, _, err = run_proc(RNP, ['--homedir', RNPDIR, '--password', 'password', '-d', srcenc, '--output', 'decrypted'])
+        self.assertEqual(ret, 0)
+        os.remove('decrypted')
+
+    def test_clearsign_long_lines(self):
+        # Cover case with cleartext signed file with long lines and filesize > 32k (buffer size)
+        [sig] = reg_workfiles('cleartext', '.sig')
+        srctxt = data_path('test_messages/message.4k-long-lines')
+        srcsig = data_path('test_messages/message.4k-long-lines.asc')
+        pubkey = data_path(KEY_ALICE_SUB_PUB)
+        seckey = data_path(KEY_ALICE_SUB_SEC)
+        # Verify already existing file
+        ret, _, err = run_proc(RNP, ['--homedir', RNPDIR, '--keyfile', pubkey, '-v', srcsig])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*Good signature made.*73edcc9119afc8e2dbbdcde50451409669ffde3c.*')
+        # Verify with gnupg
+        if GPG_BRAINPOOL:
+            ret, _, _ = run_proc(GPG, ['--batch', '--homedir', GPGHOME, '--import', pubkey])
+            self.assertEqual(ret, 0, GPG_IMPORT_FAILED)
+            gpg_verify_cleartext(srcsig, KEY_ALICE)
+        # Sign again with RNP
+        ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--keyfile', seckey, '--password', PASSWORD, '--clearsign', srctxt, '--output', sig])
+        self.assertEqual(ret, 0)
+        # Verify with RNP again
+        ret, _, err = run_proc(RNP, ['--homedir', RNPDIR, '--keyfile', pubkey, '-v', sig])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*Good signature made.*73edcc9119afc8e2dbbdcde50451409669ffde3c.*')
+        # Verify with gnupg again
+        if GPG_BRAINPOOL:
+            gpg_verify_cleartext(sig, KEY_ALICE)
+        clear_workfiles()
+
+    def test_eddsa_sig_lead_zero(self):
+        # Cover case with lead zeroes in EdDSA signature
+        srcs = data_path('test_messages/eddsa-zero-s.txt.sig')
+        srcr = data_path('test_messages/eddsa-zero-r.txt.sig')
+        # Verify with RNP
+        ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--keyfile', data_path(KEY_ALICE_SUB_PUB), '-v', srcs])
+        self.assertEqual(ret, 0)
+        ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--keyfile', data_path(KEY_ALICE_SUB_PUB), '-v', srcr])
+        self.assertEqual(ret, 0)
+        # Verify with GPG
+        if GPG_BRAINPOOL:
+            [dst] = reg_workfiles('eddsa-zero', '.txt')
+            ret, _, _ = run_proc(GPG, ['--batch', '--homedir', GPGHOME, '--import', data_path(KEY_ALICE_SUB_PUB)])
+            self.assertEqual(ret, 0, GPG_IMPORT_FAILED)
+            gpg_verify_file(srcs, dst, KEY_ALICE)
+            os.remove(dst)
+            gpg_verify_file(srcr, dst, KEY_ALICE)
+        clear_workfiles()
+    
+    def test_eddsa_seckey_lead_zero(self):
+        # Load and use *unencrypted* EdDSA secret key with 2 leading zeroes
+        seckey = data_path('test_stream_key_load/eddsa-00-sec.pgp')
+        pubkey = data_path('test_stream_key_load/eddsa-00-pub.pgp')
+        src, sig = reg_workfiles('source', '.txt', '.sig')
+        random_text(src, 2000)
+
+        # Sign with RNP
+        ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--keyfile', seckey, '-s', src, '--output', sig])
+        self.assertEqual(ret, 0)
+        # Verify with RNP
+        ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--keyfile', pubkey, '-v', sig])
+        self.assertEqual(ret, 0)
+        # Verify with GnuPG
+        ret, _, _ = run_proc(GPG, ['--batch', '--homedir', GPGHOME, '--import', pubkey])
+        ret, _, err = run_proc(GPG, ['--batch', '--homedir', GPGHOME, '--verify', sig])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*Signature made.*8BF2223370F61F8D965B.*Good signature from "eddsa-lead-zero".*$')
+        clear_workfiles()
+    
+    def test_verify_detached_source(self):
+        # Test --source parameter for the detached signature verification.
+        src = data_path(MSG_TXT)
+        sig = data_path(MSG_TXT + '.sig')
+        sigasc = data_path(MSG_TXT + '.asc')
+        keys = data_path(KEYRING_DIR_1)
+        # Just verify
+        ret, _, err = run_proc(RNP, ['--homedir', keys, '-v', sig])
+        self.assertEqual(ret, 0)
+        R_GOOD = r'(?s)^.*Good signature made.*e95a3cbf583aa80a2ccc53aa7bc6709b15c23a4a.*'
+        self.assertRegex(err, R_GOOD)
+        # Verify .asc
+        ret, _, err = run_proc(RNP, ['--homedir', keys, '-v', sigasc])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, R_GOOD)
+        # Do not provide source
+        ret, _, err = run_proc(RNP, ['--homedir', keys, '-v', sig, '--source'])
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, r'(?s)^.*rnp(|\.exe): option( .--source.|) requires an argument.*Usage: rnp --command \[options\] \[files\].*')
+        # Verify by specifying the correct path
+        ret, _, err = run_proc(RNP, ['--homedir', keys, '--source', src, '-v', sig])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, R_GOOD)
+        # Verify by specifying the incorrect path
+        ret, _, err = run_proc(RNP, ['--homedir', keys, '--source', src + '.wrong', '-v', sig])
+        self.assertNotEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*Failed to open source for detached signature verification.*')
+        # Verify detached signature with non-asc/sig extension
+        [csig] = reg_workfiles('message', '.dat')
+        shutil.copy(sig, csig)
+        ret, _, err = run_proc(RNP, ['--homedir', keys, '-v', csig])
+        self.assertNotEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*Unsupported detached signature extension. Use --source to override.*')
+        # Verify by reading data from stdin
+        srcdata = ""
+        with open(src, "rb") as srcf:
+            srcdata = srcf.read().decode('utf-8')
+        ret, _, err = run_proc(RNP, ['--homedir', keys, '--source', '-', '-v', csig], srcdata)
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, R_GOOD)
+        # Verify by reading data from env
+        os.environ["SIGNED_DATA"] = srcdata
+        ret, _, err = run_proc(RNP, ['--homedir', keys, '--source', 'env:SIGNED_DATA', '-v', csig])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, R_GOOD)
+        del os.environ["SIGNED_DATA"]
+        # Attempt to verify by specifying bot sig and data from stdin
+        sigtext = file_text(sigasc)
+        ret, _, err = run_proc(RNP, ['--homedir', keys, '--source', '-', '-v'], sigtext)
+        self.assertNotEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*Detached signature and signed source cannot be both stdin.*')
+
+        clear_workfiles()
+
+    def test_onepass_edge_cases(self):
+        key = data_path('test_key_validity/alice-pub.asc')
+        onepass22 = data_path('test_messages/message.txt.signed-2-2-onepass-v10')
+        # Verify one-pass which doesn't match the signature - different keyid
+        ret, _, err = run_proc(RNP, ['--keyfile', key, '-v', data_path('test_messages/message.txt.signed-wrong-onepass')])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*Warning: signature doesn\'t match one-pass.*Good signature made.*0451409669ffde3c.*')
+        # Verify one-pass with unknown hash algorithm
+        ret, _, err = run_proc(RNP, ['--keyfile', key, '-v', data_path('test_messages/message.txt.signed-unknown-onepass-hash')])
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, r'(?s)^.*Failed to create hash 136 for onepass 0.*')
+        # Verify one-pass with hash algorithm which doesn't match sig's one
+        ret, _, err = run_proc(RNP, ['--keyfile', key, '-v', data_path('test_messages/message.txt.signed-wrong-onepass-hash')])
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, r'(?s)^.*failed to get hash context.*BAD signature.*0451409669ffde3c.*')
+        # Extra one-pass without the corresponding signature
+        ret, _, err = run_proc(RNP, ['--keyfile', key, '-v', data_path('test_messages/message.txt.signed-2-onepass')])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*Warning: premature end of signatures.*Good signature made.*0451409669ffde3c.*')
+        # Two one-passes and two equal signatures
+        ret, _, err = run_proc(RNP, ['--keyfile', key, '-v', data_path('test_messages/message.txt.signed-2-2-onepass')])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*Good signature made.*0451409669ffde3c.*Good signature made.*0451409669ffde3c.*')
+        # Two one-passes and two sigs, but first one-pass is of unknown version
+        ret, _, err = run_proc(RNP, ['--keyfile', key, '-v', onepass22])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*wrong packet version.*warning: unexpected data on the stream end.*Good signature made.*0451409669ffde3c.*')
+        # Dump it as well
+        ret, out, err = run_proc(RNP, ['--list-packets', onepass22])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*wrong packet version.*failed to process packet.*')
+        self.assertRegex(out, r'(?s)^.*:off 0: packet header 0xc40d.*:off 15: packet header 0xc40d.*One-pass signature packet.*')
+        # Dump it in JSON
+        ret, out, err = run_proc(RNP, ['--list-packets', '--json', onepass22])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*wrong packet version.*failed to process packet.*')
+        self.assertRegex(out, r'(?s)^.*"offset":0.*"tag":4.*"offset":15.*"tag":4.*"version":3.*"nested":true.*')
+        # Two one-passes and sig of the unknown version
+        ret, _, err = run_proc(RNP, ['--keyfile', key, '-v', data_path('test_messages/message.txt.signed-2-2-sig-v10')])
+        self.assertEqual(ret, 1)
+        R_VER_10 = r'(?s)^.*unknown signature version: 10.*failed to parse signature.*UNKNOWN signature.*Good signature made.*0451409669ffde3c.*'
+        R_1_UNK = r'(?s)^.*Signature verification failure: 1 unknown signature.*'
+        self.assertRegex(err, R_VER_10)
+        self.assertRegex(err, R_1_UNK)
+        # Two one-passes and sig of the unknown version (second)
+        ret, _, err = run_proc(RNP, ['--keyfile', key, '-v', data_path('test_messages/message.txt.signed-2-2-sig-v10-2')])
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, r'(?s)^.*unknown signature version: 10.*failed to parse signature.*Good signature made.*0451409669ffde3c.*UNKNOWN signature.*')
+        self.assertRegex(err, R_1_UNK)
+        # 2 detached signatures, first is of version 10
+        ret, _, err = run_proc(RNP, ['--keyfile', key, '-v', data_path('test_messages/message.txt.2sigs'), '--source', data_path(MSG_TXT)])
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, R_VER_10)
+        self.assertRegex(err, R_1_UNK)
+        # 2 detached signatures, second is of version 10
+        ret, _, err = run_proc(RNP, ['--keyfile', key, '-v', data_path('test_messages/message.txt.2sigs-2'), '--source', data_path(MSG_TXT)])
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, r'(?s)^.*unknown signature version: 10.*failed to parse signature.*Good signature made.*0451409669ffde3c.*UNKNOWN signature.*')
+        self.assertRegex(err, R_1_UNK)
+        # Two cleartext signatures, first is of unknown version
+        ret, _, err = run_proc(RNP, ['--keyfile', key, '-v', data_path('test_messages/message.txt.clear-2-sigs')])
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, R_VER_10)
+        self.assertRegex(err, R_1_UNK)
+        # Two cleartext signatures, second is of unknown version
+        ret, _, err = run_proc(RNP, ['--keyfile', key, '-v', data_path('test_messages/message.txt.clear-2-sigs-2')])
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, r'(?s)^.*unknown signature version: 11.*failed to parse signature.*Good signature made.*0451409669ffde3c.*UNKNOWN signature.*')
+        self.assertRegex(err, R_1_UNK)
+
+    def test_pkesk_skesk_wrong_version(self):
+        key = data_path('test_stream_key_load/ecc-p256-sec.asc')
+        msg = data_path('test_messages/message.txt.pkesk-skesk-v10')
+        msg2 = data_path('test_messages/message.txt.pkesk-skesk-v10-only')
+        # Decrypt with secret key
+        ret, out, err = run_proc(RNP, ['--keyfile', key, '--password', PASSWORD, '-d', msg])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^.*This is test message to be signed, and/or encrypted, cleartext signed and detached signed.*')
+        self.assertRegex(err, r'(?s)^.*wrong packet version.*Failed to parse PKESK, skipping.*wrong packet version.*Failed to parse SKESK, skipping.*')
+        # Decrypt with password
+        ret, out, err = run_proc(RNP, ['--homedir', RNPDIR, '--password', PASSWORD, '-d', msg])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^.*This is test message to be signed, and/or encrypted, cleartext signed and detached signed.*')
+        self.assertRegex(err, r'(?s)^.*wrong packet version.*Failed to parse PKESK, skipping.*wrong packet version.*Failed to parse SKESK, skipping.*')
+        # Attempt to decrypt message with only invalid PKESK/SKESK
+        ret, _, err = run_proc(RNP, ['--keyfile', key, '--password', PASSWORD, '-d', msg2])
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, r'(?s)^.*wrong packet version.*Failed to parse PKESK, skipping.*wrong packet version.*Failed to parse SKESK, skipping.*failed to obtain decrypting key or password.*')
+    
+    def test_ext_adding_stripping(self):
+        # Check whether rnp correctly strip .pgp/.gpg/.asc extension
+        seckey = data_path('test_stream_key_load/ecc-p256-sec.asc')
+        pubkey = data_path('test_stream_key_load/ecc-p256-pub.asc')
+        src, src2, asc, pgp, gpg, some = reg_workfiles('cleartext', '.txt', '.txt2', '.txt.asc', '.txt.pgp', '.txt.gpg', '.txt.some')
+        with open(src, 'w+') as f:
+            f.write('Hello world')
+        # Encrypt with binary output
+        ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--keyfile', pubkey, '-e', src])
+        self.assertEqual(ret, 0)
+        self.assertTrue(os.path.isfile(pgp))
+        # Decrypt binary output, it must be put in cleartext.txt if it doesn't exists
+        os.remove(src)
+        ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--keyfile', seckey, '--password', PASSWORD, '-d', pgp])
+        self.assertEqual(ret, 0)
+        self.assertTrue(os.path.isfile(src))
+        # Decrypt binary output with the rename prompt
+        ret, out, _ = run_proc(RNP, ['--keyfile', seckey, '--password', PASSWORD, '--notty', '-d', pgp], "n\n" + src2 + "\n")
+        self.assertEqual(ret, 0)
+        self.assertTrue(os.path.isfile(src2))
+        self.assertRegex(out, r'(?s)^.*File.*cleartext.txt.*already exists. Would you like to overwrite it.*Please enter the new filename:.*$')
+        self.assertIn(src, out)
+        self.assertTrue(os.path.isfile(src2))
+        os.remove(src2)
+        # Rename from .pgp to .gpg and try again
+        os.remove(src)
+        os.rename(pgp, gpg)
+        ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--keyfile', seckey, '--password', PASSWORD, '-d', gpg])
+        self.assertEqual(ret, 0)
+        self.assertTrue(os.path.isfile(src))
+        # Rename from .pgp to .some and check that all is put in stdout
+        os.rename(gpg, some)
+        ret, out, _ = run_proc(RNP, ['--keyfile', seckey, '--password', PASSWORD, '--notty', '-d', some], "\n\n")
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^\s*Hello world\s*$')
+        os.remove(some)
+        # Encrypt with armored output
+        ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--keyfile', pubkey, '-e', src, '--armor'])
+        self.assertEqual(ret, 0)
+        self.assertTrue(os.path.isfile(asc))
+        # Decrypt armored output, it must be put in cleartext.txt if it doesn't exists
+        os.remove(src)
+        ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--keyfile', seckey, '--password', PASSWORD, '-d', asc])
+        self.assertEqual(ret, 0)
+        self.assertTrue(os.path.isfile(src))
+        # Enarmor - must be put in .asc file
+        os.remove(asc)
+        ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--enarmor=msg', src])
+        self.assertEqual(ret, 0)
+        self.assertTrue(os.path.isfile(asc))
+        # Dearmor asc - must be outputed to src
+        os.remove(src)
+        ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '--dearmor', asc])
+        self.assertEqual(ret, 0)
+        self.assertTrue(os.path.isfile(src))
+        # Dearmor unknown extension - must be put to stdout
+        os.rename(asc, some)
+        ret, out, _ = run_proc(RNP, ['--homedir', RNPDIR, '--dearmor', some])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^\s*Hello world\s*$')
+
+
+    def test_interactive_password(self):
+        # Reuse password for subkey, say "yes"
+        stdinstr = 'password\npassword\ny\n'
+        ret, out, err = run_proc(RNPK, ['--homedir', RNPDIR, '--notty', '--generate-key'], stdinstr)
+        self.assertEqual(ret, 0)
+        # Do not reuse same password for subkey, say "no"
+        stdinstr = 'password\npassword\nN\nsubkeypassword\nsubkeypassword\n'
+        ret, out, err = run_proc(RNPK, ['--homedir', RNPDIR, '--notty', '--generate-key'], stdinstr)
+        self.assertEqual(ret, 0)
+        # Set empty password and reuse it
+        stdinstr = '\n\ny\ny\n'
+        ret, out, err = run_proc(RNPK, ['--homedir', RNPDIR, '--notty', '--generate-key'], stdinstr)
+        self.assertEqual(ret, 0)
+
+    def test_set_current_time(self):
+        RNP2 = RNPDIR + '2'
+        os.mkdir(RNP2, 0o700)
+
+        # Generate key back in the past
+        ret, out, _ = run_proc(RNPK, ['--homedir', RNP2, '--notty', '--password', PASSWORD, '--generate-key', '--current-time', '2015-02-02', '--userid', 'key-2015'])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^.*Generating a new key\.\.\..*sec.*2015\-02\-0.*EXPIRES 2017\-.*ssb.*2015\-02\-0.*EXPIRES 2017\-.*$')
+        # List keys
+        ret, out, _ = run_proc(RNPK, ['--homedir', RNP2, '--notty', '--list-keys'])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^.*pub.*2015-02-0.*EXPIRED 2017.*sub.*2015-02-0.*\[INVALID\] \[EXPIRES 2017.*$')
+        ret, out, _ = run_proc(RNPK, ['--homedir', RNP2, '--notty', '--current-time', '2015-02-04', '--list-keys'])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^.*pub.*2015-02-0.*EXPIRES 2017.*sub.*2015-02-0.*EXPIRES 2017.*$')
+        # Create workfile
+        src, sig, enc = reg_workfiles('cleartext', '.txt', '.txt.sig', '.txt.enc')
+        with open(src, 'w+') as f:
+            f.write('Hello world')
+        # Sign with key from the past
+        ret, _, err = run_proc(RNP, ['--homedir', RNP2, '--password', PASSWORD, '-u', 'key-2015', '-s', src, '--output', sig])
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, r'(?s)^.*Failed to add signature.*$')
+        ret, _, _ = run_proc(RNP, ['--homedir', RNP2, '--password', PASSWORD, '-u', 'key-2015', '--current-time', '2015-02-03', '-s', src, '--output', sig])
+        self.assertEqual(ret, 0)
+        # List packets
+        ret, out, _ = run_proc(RNP, ['--homedir', RNP2, '--list-packets', sig])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^.*signature creation time.*2015\).*signature expiration time.*$')
+        # Verify with the expired key
+        ret, out, err = run_proc(RNP, ['--homedir', RNP2, '-v', sig, '--output', '-'])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*Good signature made.*2015.*pub.*\[SC\] \[EXPIRED 2017.*$')
+        self.assertRegex(out, r'(?s)^.*Hello world.*$')
+        # Encrypt with the expired key
+        ret, _, err = run_proc(RNP, ['--homedir', RNP2, '-r', 'key-2015', '-e', src, '--output', enc])
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, r'(?s)^.*Operation failed: No suitable key.*$')
+        ret, _, _ = run_proc(RNP, ['--homedir', RNP2, '-r', 'key-2015', '--current-time', '2015-02-03', '-e', src, '--output', enc])
+        self.assertEqual(ret, 0)
+        # Decrypt with the expired key
+        ret, out, _ = run_proc(RNP, ['--homedir', RNP2, '--password', PASSWORD, '-d', enc, '--output', '-'])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^.*Hello world.*$')
+
+        shutil.rmtree(RNP2, ignore_errors=True)
+        clear_workfiles()
+
+    def test_wrong_passfd(self):
+        ret, _, err = run_proc(RNPK, ['--homedir', RNPDIR, '--pass-fd', '999', '--userid',
+                                      'test_wrong_passfd', '--generate-key', '--expert'], '22\n')
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, r'(?s)^.*Cannot open fd 999 for reading')
+        self.assertRegex(err, r'(?s)^.*fatal: failed to initialize rnpkeys')
+
+    def test_keystore_formats(self):
+        # Use wrong keystore format
+        ret, _, err = run_proc(RNPK, ['--homedir', RNPDIR, '--keystore-format', 'WRONG', '--list-keys'])
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, r'(?s)^.*Unsupported keystore format: "WRONG"')
+        # Use G10 keystore format
+        ret, _, err = run_proc(RNPK, ['--homedir', data_path(KEYRING_DIR_3), '--keystore-format', 'G10', '--list-keys'])
+        self.assertEqual(ret, 1)
+        self.assertRegex(err, r'(?s)^.*Warning: no keys were loaded from the keyring \'.*private-keys-v1.d\'')
+        # Use G21 keystore format
+        ret, out, _ = run_proc(RNPK, ['--homedir', data_path(KEYRING_DIR_3), '--keystore-format', 'GPG21', '--list-keys'])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^.*2 keys found')
+
+    def test_no_twofish(self):
+        if (RNP_TWOFISH):
+            return
+        src, dst, dec = reg_workfiles('cleartext', '.txt', '.pgp', '.dec')
+        random_text(src, 100)
+        # Attempt to encrypt to twofish
+        ret, _, err = run_proc(RNP, ['--homedir', RNPDIR, '--cipher', 'twofish', '--output', dst, '-e', src])
+        self.assertEqual(ret, 2)
+        self.assertFalse(os.path.isfile(dst))
+        self.assertRegex(err, r'(?s)^.*Unsupported encryption algorithm: twofish')
+        # Symmetrically encrypt with GnuPG
+        gpg_symencrypt_file(src, dst, 'TWOFISH')
+        # Attempt to decrypt
+        ret, _, err = run_proc(RNP, ['--homedir', RNPDIR, '--password', PASSWORD, '--output', dec, '-d', dst])
+        self.assertEqual(ret, 1)
+        self.assertFalse(os.path.isfile(dec))
+        self.assertRegex(err, r'(?s)^.*failed to start cipher')
+        # Public-key encrypt with GnuPG
+        kpath = path_for_gpg(data_path(PUBRING_1))
+        os.remove(dst)
+        ret, _, _ = run_proc(GPG, ['--homedir', GPGHOME, '--no-default-keyring', '--batch', '--keyring', kpath, '-r', 'key0-uid0',
+                                   '--trust-model', 'always', '--cipher-algo', 'TWOFISH', '--output', dst, '-e', src])
+        self.assertEqual(ret, 0)
+        # Attempt to decrypt
+        ret, _, err = run_proc(RNP, ['--keyfile', data_path(SECRING_1), '--password', PASSWORD, '--output', dec, '-d', dst])
+        self.assertEqual(ret, 1)
+        self.assertFalse(os.path.isfile(dec))
+        self.assertRegex(err, r'(?s)^.*unsupported symmetric algorithm 10')
+        clear_workfiles()
+
+    def test_no_idea(self):
+        if (RNP_IDEA):
+            return
+        src, dst, dec = reg_workfiles('cleartext', '.txt', '.pgp', '.dec')
+        random_text(src, 100)
+        # Attempt to encrypt to twofish
+        ret, _, err = run_proc(RNP, ['--homedir', RNPDIR, '--cipher', 'idea', '--output', dst, '-e', src])
+        self.assertEqual(ret, 2)
+        self.assertFalse(os.path.isfile(dst))
+        self.assertRegex(err, r'(?s)^.*Unsupported encryption algorithm: idea')
+        # Symmetrically encrypt with GnuPG
+        gpg_symencrypt_file(src, dst, 'IDEA')
+        # Attempt to decrypt
+        ret, _, err = run_proc(RNP, ['--homedir', RNPDIR, '--password', PASSWORD, '--output', dec, '-d', dst])
+        self.assertEqual(ret, 1)
+        self.assertFalse(os.path.isfile(dec))
+        self.assertRegex(err, r'(?s)^.*failed to start cipher')
+        # Public-key encrypt with GnuPG
+        kpath = path_for_gpg(data_path(PUBRING_1))
+        os.remove(dst)
+        params = ['--no-default-keyring', '--batch', '--keyring', kpath, '-r', 'key0-uid0', '--trust-model', 'always', '--cipher-algo', 'IDEA', '--output', dst, '-e', src]
+        if GPG_NO_OLD:
+            params.insert(1, '--allow-old-cipher-algos')
+        ret, _, _ = run_proc(GPG, params)
+        self.assertEqual(ret, 0)
+        # Attempt to decrypt
+        ret, _, err = run_proc(RNP, ['--keyfile', data_path(SECRING_1), '--password', PASSWORD, '--output', dec, '-d', dst])
+        self.assertEqual(ret, 1)
+        self.assertFalse(os.path.isfile(dec))
+        self.assertRegex(err, r'(?s)^.*unsupported symmetric algorithm 1')
+        # List secret key, encrypted with IDEA
+        ret, out, err = run_proc(RNP, ['--homedir', RNPDIR, '--list-packets', data_path('keyrings/4/rsav3-s.asc')])
+        self.assertEqual(ret, 0)
+        self.assertNotRegex(out, r'(?s)^.*failed to process packet')
+        self.assertRegex(out, r'(?s)^.*secret key material.*symmetric algorithm: 1 .IDEA.')
+        # Import secret key - must succeed.
+        RNP2 = RNPDIR + '2'
+        os.mkdir(RNP2, 0o700)
+        ret, out, err = run_proc(RNPK, ['--homedir', RNP2, '--import', data_path('keyrings/4/rsav3-s.asc')])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^.*sec.*7d0bc10e933404c9.*INVALID')
+        shutil.rmtree(RNP2, ignore_errors=True)
+        clear_workfiles()
 
 class Encryption(unittest.TestCase):
     '''
@@ -2638,6 +3297,8 @@ class Encryption(unittest.TestCase):
         gpg_import_secring()
         if not RNP_TWOFISH:
             Encryption.CIPHERS.remove('TWOFISH')
+        if not RNP_IDEA:
+            Encryption.CIPHERS.remove('IDEA')
         Encryption.CIPHERS_R = list_upto(Encryption.CIPHERS, Encryption.RUNS)
         Encryption.SIZES_R = list_upto(Encryption.SIZES, Encryption.RUNS)
         Encryption.Z_R = list_upto(Encryption.Z, Encryption.RUNS)
@@ -2685,6 +3346,24 @@ class Encryption(unittest.TestCase):
         for size, cipher, aead, bits, z in zip(Encryption.SIZES_R, AEAD_C,
                                                AEAD_M, AEAD_B, Encryption.Z_R):
             rnp_sym_encryption_rnp_aead(size, cipher, z, [aead, bits], GPG_AEAD)
+
+    def test_aead_chunk_edge_cases(self):
+        if not RNP_AEAD:
+            print('AEAD is not available for RNP - skipping.')
+            return
+        src, dst, enc = reg_workfiles('cleartext', '.txt', '.rnp', '.enc')
+        # Cover lines from src_skip() where > 16 bytes must be skipped
+        random_text(src, 1001)
+        ret, _, err = run_proc(RNP, ['--homedir', RNPDIR, '--password', PASSWORD, '--output', enc, '--aead=eax', '--aead-chunk-bits', '2', '-z', '0', '-c', src])
+        self.assertEqual(ret, 0)
+        rnp_decrypt_file(enc, dst)
+        remove_files(src, dst, enc)
+        # Cover case with AEAD chunk start on the data end
+        random_text(src, 1002)
+        ret, _, err = run_proc(RNP, ['--homedir', RNPDIR, '--password', PASSWORD, '--output', enc, '--aead=eax', '--aead-chunk-bits', '2', '-z', '0', '-c', src])
+        self.assertEqual(ret, 0)
+        rnp_decrypt_file(enc, dst)
+        remove_files(src, dst, enc)
 
     def test_encryption_multiple_recipients(self):
         USERIDS = ['key1@rnp', 'key2@rnp', 'key3@rnp']
@@ -2899,7 +3578,7 @@ class Encryption(unittest.TestCase):
         self.assertNotRegex(err, BITS_MSG)
         ret, _, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--remove-key', 'eddsa-25519-non-tweaked', '--force'])
         self.assertEqual(ret, 0)
-        # Due to issue in GnuPG it reports successfull import of non-tweaked secret key in batch mode
+        # Due to issue in GnuPG it reports successful import of non-tweaked secret key in batch mode
         ret, _, _ = run_proc(GPG, ['--batch', '--homedir', GPGHOME, '--import', data_path(KEY_25519_NOTWEAK_SEC)])
         self.assertEqual(ret, 0)
         ret, _, _ = run_proc(GPG, ['--batch', '--homedir', GPGHOME, '-d', data_path(MSG_ES_25519)])
@@ -2944,7 +3623,70 @@ class Encryption(unittest.TestCase):
         # Decrypt and verify with RNP
         rnp_decrypt_file(dst, dec, 'password')
         self.assertEqual(file_text(src), file_text(dec))
+        # Encrypt/decrypt using the p256 key, making sure message is not displayed
+        key = data_path('test_stream_key_load/ecc-p256-sec.asc')
+        remove_files(dst, dec)
+        ret, _, err = run_proc(RNP, ['--keyfile', key, '-es', '-r', 'ecc-p256', '-u', 'ecc-p256', '--password', PASSWORD, src, '--output', dst])
+        self.assertEqual(ret, 0)
+        self.assertNotRegex(err, BITS_MSG)
+        ret, _, err = run_proc(RNP, ['--keyfile', key, '-d', '--password', PASSWORD, dst, '--output', dec])
+        self.assertEqual(ret, 0)
+        self.assertNotRegex(err, BITS_MSG)
         # Cleanup
+        clear_workfiles()
+
+    def test_encryption_aead_defs(self):
+        if not RNP_AEAD or not RNP_BRAINPOOL:
+            return
+        # Encrypt with RNP
+        pubkey = data_path(KEY_ALICE_SUB_PUB)
+        src, enc, dec = reg_workfiles('cleartext', '.txt', '.enc', '.dec')
+        random_text(src, 120000)
+        ret, _, _ = run_proc(RNP, ['--keyfile', pubkey, '-z', '0', '-r', 'alice', '--aead', '-e', src, '--output', enc])
+        self.assertEqual(ret, 0)
+        # List packets
+        ret, out, _ = run_proc(RNP, ['--list-packets', enc])
+        self.assertEqual(ret, 0)
+        self.assertRegex(out, r'(?s)^.*tag 20, partial len.*AEAD-encrypted data packet.*version: 1.*AES-256.*EAX.*chunk size: 12.*')
+        # Attempt to encrypt with too high AEAD bits value
+        ret, _, err = run_proc(RNP, ['--keyfile', pubkey, '-r', 'alice', '--aead', '--aead-chunk-bits', '17', '-e', src, '--output', enc])
+        self.assertEqual(ret, 2)
+        self.assertRegex(err, r'(?s)^.*Wrong argument value 17 for aead-chunk-bits, must be 0..16.*')
+        # Attempt to encrypt with wrong AEAD bits value
+        ret, _, err = run_proc(RNP, ['--keyfile', pubkey, '-r', 'alice', '--aead', '--aead-chunk-bits', 'banana', '-e', src, '--output', enc])
+        self.assertEqual(ret, 2)
+        self.assertRegex(err, r'(?s)^.*Wrong argument value banana for aead-chunk-bits, must be 0..16.*')
+        # Attempt to encrypt with another wrong AEAD bits value
+        ret, _, err = run_proc(RNP, ['--keyfile', pubkey, '-r', 'alice', '--aead', '--aead-chunk-bits', '5banana', '-e', src, '--output', enc])
+        self.assertEqual(ret, 2)
+        self.assertRegex(err, r'(?s)^.*Wrong argument value 5banana for aead-chunk-bits, must be 0..16.*')
+        clear_workfiles()
+    
+    def test_encryption_no_wrap(self):
+        src, sig, enc, dec = reg_workfiles('cleartext', '.txt', '.sig', '.enc', '.dec')
+        random_text(src, 2000)
+        # Sign with GnuPG
+        ret, _, _ = run_proc(GPG, ['--batch', '--homedir', GPGHOME, GPG_LOOPBACK, '--passphrase', PASSWORD, '-u', KEY_ENCRYPT, '--output', sig, '-s', src])
+        # Additionally encrypt with RNP
+        ret, _, _ = run_proc(RNP, ['--homedir', RNPDIR, '-r', 'dummy1@rnp', '--no-wrap', '-e', sig, '--output', enc])
+        self.assertEqual(ret, 0)
+        # List packets
+        ret, out, err = run_proc(GPG, ['--batch', '--homedir', GPGHOME, GPG_LOOPBACK, '--passphrase', PASSWORD, '--list-packets', enc])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*gpg: encrypted with .*dummy1@rnp.*')
+        self.assertRegex(out, r'(?s)^.*:pubkey enc packet: version 3.*:encrypted data packet:.*mdc_method: 2.*' \
+                              r':compressed packet.*:onepass_sig packet:.*:literal data packet.*:signature packet.*')
+        # Decrypt with GnuPG
+        ret, _, err = run_proc(GPG, ['--batch', '--homedir', GPGHOME, GPG_LOOPBACK, '--passphrase', PASSWORD, '--output', dec, '-d', enc])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*gpg: encrypted with .*dummy1@rnp.*gpg: Good signature from "encryption@rnp".*')
+        self.assertEqual(file_text(dec), file_text(src))
+        remove_files(dec)
+        # Decrypt with RNP
+        ret, _, err = run_proc(RNP, ['--homedir', RNPDIR, '--password', PASSWORD, '--output', dec, '-d', enc])
+        self.assertEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*Good signature.*uid\s+encryption@rnp.*Signature\(s\) verified successfully.*')
+        self.assertEqual(file_text(dec), file_text(src))
         clear_workfiles()
 
 class Compression(unittest.TestCase):
@@ -3090,6 +3832,12 @@ class SignDefault(unittest.TestCase):
 
         clear_workfiles()
 
+    def test_verify_bad_sig_class(self):
+        ret, _, err = run_proc(RNP, ['--keyfile', data_path(KEY_ALICE_SEC), '--verify', data_path('test_messages/message.txt.signed-class19')])
+        self.assertNotEqual(ret, 0)
+        self.assertRegex(err, r'(?s)^.*Invalid document signature type: 19.*')
+        self.assertNotRegex(err, r'(?s)^.*Good signature.*')
+        self.assertRegex(err, r'(?s)^.*BAD signature.*Signature verification failure: 1 invalid signature')
 
 class Encrypt(unittest.TestCase, TestIdMixin, KeyLocationChooserMixin):
     def _encrypt_decrypt(self, e1, e2, failenc = False, faildec = False):
@@ -3147,8 +3895,8 @@ class EncryptElgamal(Encrypt):
         pfx = EncryptElgamal.key_pfx(sign_key_size, enc_key_size)
         self.operation_key_location = tuple((key_path(pfx, False), key_path(pfx, True)))
         self.rnp.userid = self.gpg.userid = pfx + AT_EXAMPLE
-        # DSA 1024 key uses SHA-1 as hash so verification would fail
-        self._encrypt_decrypt(self.gpg, self.rnp, sign_key_size <= 1024, sign_key_size <= 1024)
+        # DSA 1024 key uses SHA-1 as hash but verification would succeed till 2024
+        self._encrypt_decrypt(self.gpg, self.rnp)
 
     def do_test_decrypt(self, sign_key_size, enc_key_size):
         pfx = EncryptElgamal.key_pfx(sign_key_size, enc_key_size)
@@ -3167,8 +3915,8 @@ class EncryptElgamal(Encrypt):
     def test_generate_elgamal_key1024_in_gpg_and_encrypt(self):
         cmd = EncryptElgamal.GPG_GENERATE_DSA_ELGAMAL_PATTERN.format(1024, 1024, self.gpg.userid)
         self.operation_key_gencmd = cmd
-        # Will fail since 1024-bit DSA key uses SHA-1 as hash.
-        self._encrypt_decrypt(self.gpg, self.rnp, True, True)
+        # Will not fail till 2024 since 1024-bit DSA key uses SHA-1 as hash.
+        self._encrypt_decrypt(self.gpg, self.rnp)
 
     def test_generate_elgamal_key1536_in_gpg_and_encrypt(self):
         cmd = EncryptElgamal.GPG_GENERATE_DSA_ELGAMAL_PATTERN.format(1536, 1536, self.gpg.userid)
@@ -3344,14 +4092,14 @@ class SignDSA(Sign):
         pfx = SignDSA.key_pfx(p_size)
         self.operation_key_location = tuple((key_path(pfx, False), key_path(pfx, True)))
         self.rnp.userid = self.gpg.userid = pfx + AT_EXAMPLE
-        # DSA 1024-bit key uses SHA-1 so verification would fail
-        self._sign_verify(self.rnp, self.gpg, p_size <= 1024, p_size <= 1024)
+        # DSA 1024-bit key uses SHA-1 so verification would not fail till 2024
+        self._sign_verify(self.rnp, self.gpg)
 
     def do_test_verify(self, p_size):
         pfx = SignDSA.key_pfx(p_size)
         self.operation_key_location = tuple((key_path(pfx, False), key_path(pfx, True)))
         self.rnp.userid = self.gpg.userid = pfx + AT_EXAMPLE
-        # DSA 1024-bit key uses SHA-1 so verification would fail
+        # DSA 1024-bit key uses SHA-1, but verification would fail since SHA1 is used by GnuPG
         self._sign_verify(self.gpg, self.rnp, False, p_size <= 1024)
 
     def test_sign_P1024_Q160(self): self.do_test_sign(1024)

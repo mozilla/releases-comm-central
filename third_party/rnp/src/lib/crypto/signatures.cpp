@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2018-2022, [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,13 +52,13 @@ signature_hash_finish(const pgp_signature_t &sig, rnp::Hash &hash, uint8_t *hbuf
     hlen = hash.finish(hbuf);
 }
 
-void
-signature_init(const pgp_key_material_t &key, pgp_hash_alg_t hash_alg, rnp::Hash &hash)
+std::unique_ptr<rnp::Hash>
+signature_init(const pgp_key_material_t &key, pgp_hash_alg_t hash_alg)
 {
-    hash = rnp::Hash(hash_alg);
+    auto hash = rnp::Hash::create(hash_alg);
     if (key.alg == PGP_PKA_SM2) {
 #if defined(ENABLE_SM2)
-        rnp_result_t r = sm2_compute_za(key.ec, hash);
+        rnp_result_t r = sm2_compute_za(key.ec, *hash);
         if (r != RNP_SUCCESS) {
             RNP_LOG("failed to compute SM2 ZA field");
             throw rnp::rnp_exception(r);
@@ -68,6 +68,7 @@ signature_init(const pgp_key_material_t &key, pgp_hash_alg_t hash_alg, rnp::Hash
         throw rnp::rnp_exception(RNP_ERROR_NOT_IMPLEMENTED);
 #endif
     }
+    return hash;
 }
 
 void
@@ -189,73 +190,12 @@ signature_calculate(pgp_signature_t &     sig,
     }
 }
 
-static bool is_hash_alg_allowed_in_sig(const pgp_hash_alg_t hash_alg)
-{
-    switch (hash_alg) {
-        case PGP_HASH_SHA1:
-        case PGP_HASH_RIPEMD:
-        case PGP_HASH_SHA256:
-        case PGP_HASH_SHA384:
-        case PGP_HASH_SHA512:
-        case PGP_HASH_SHA224:
-        case PGP_HASH_SHA3_256:
-        case PGP_HASH_SHA3_512:
-            return true;
-
-        case PGP_HASH_MD5:
-        case PGP_HASH_SM3:
-        case PGP_HASH_UNKNOWN:
-        default:
-            return false;
-    }
-}
-
-static bool is_pubkey_alg_allowed_in_sig(const pgp_pubkey_alg_t pubkey_alg) {
-    switch (pubkey_alg) {
-        case PGP_PKA_RSA:
-        case PGP_PKA_RSA_ENCRYPT_ONLY:
-        case PGP_PKA_RSA_SIGN_ONLY:
-        case PGP_PKA_ELGAMAL:
-        case PGP_PKA_DSA:
-        case PGP_PKA_ECDH:
-        case PGP_PKA_ECDSA:
-        case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
-        case PGP_PKA_EDDSA:
-            return true;
-
-        case PGP_PKA_RESERVED_DH:
-        case PGP_PKA_NOTHING:
-        case PGP_PKA_SM2:
-        case PGP_PKA_PRIVATE00:
-        case PGP_PKA_PRIVATE01:
-        case PGP_PKA_PRIVATE02:
-        case PGP_PKA_PRIVATE03:
-        case PGP_PKA_PRIVATE04:
-        case PGP_PKA_PRIVATE05:
-        case PGP_PKA_PRIVATE06:
-        case PGP_PKA_PRIVATE07:
-        case PGP_PKA_PRIVATE08:
-        case PGP_PKA_PRIVATE09:
-        case PGP_PKA_PRIVATE10:
-        default:
-            return false;
-    }
-}
-
 rnp_result_t
 signature_validate(const pgp_signature_t &     sig,
                    const pgp_key_material_t &  key,
                    rnp::Hash &                 hash,
                    const rnp::SecurityContext &ctx)
 {
-    if (!is_hash_alg_allowed_in_sig(hash.alg())) {
-        return RNP_ERROR_SIGNATURE_INVALID;
-    }
-
-    if (!is_pubkey_alg_allowed_in_sig(sig.palg)) {
-        return RNP_ERROR_SIGNATURE_INVALID;
-    }
-
     if (sig.palg != key.alg) {
         RNP_LOG("Signature and key do not agree on algorithm type: %d vs %d",
                 (int) sig.palg,
@@ -263,40 +203,13 @@ signature_validate(const pgp_signature_t &     sig,
         return RNP_ERROR_BAD_PARAMETERS;
     }
 
-    bool check_security_level = true;
-    if (hash.alg() == PGP_HASH_SHA1) {
-      /* Check signature security */
-      switch (sig.type()) {
-          /* key certifications */
-          case PGP_CERT_GENERIC:
-          case PGP_CERT_PERSONA:
-          case PGP_CERT_CASUAL:
-          case PGP_CERT_POSITIVE:
-          /* subkey binding signature */
-          case PGP_SIG_SUBKEY:
-          case PGP_SIG_PRIMARY:
-          /* direct-key signature */
-          case PGP_SIG_DIRECT:
-          /* revocation signatures */
-          case PGP_SIG_REV_KEY:
-          case PGP_SIG_REV_SUBKEY:
-          case PGP_SIG_REV_CERT:
-              /* Allow */
-              check_security_level = false;
-              break;
-
-          default:
-              break;
-      }
-    }
-
-    if (check_security_level) {
-      /* Only allow if the additional check passes. */
-      if (ctx.profile.hash_level(sig.halg, sig.creation()) < rnp::SecurityLevel::Default) {
-          RNP_LOG("Insecure hash algorithm %d, marking signature as invalid.", sig.halg);
-          return RNP_ERROR_SIGNATURE_INVALID;
-
-      }
+    /* Check signature security */
+    auto action =
+      sig.is_document() ? rnp::SecurityAction::VerifyData : rnp::SecurityAction::VerifyKey;
+    if (ctx.profile.hash_level(sig.halg, sig.creation(), action) <
+        rnp::SecurityLevel::Default) {
+        RNP_LOG("Insecure hash algorithm %d, marking signature as invalid.", sig.halg);
+        return RNP_ERROR_SIGNATURE_INVALID;
     }
 
     /* Finalize hash */

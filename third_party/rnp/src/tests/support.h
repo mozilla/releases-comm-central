@@ -120,17 +120,6 @@ void copy_recursively(const char *src, const char *dst);
  */
 char *make_temp_dir(void);
 
-/** get an absolute directory from a file path
- *
- *  @param file_path the path to the file, which must not be NULL. This can be absolute
- *         or relative (if reldir is supplied)
- *  @param reldir a directory that will be used to construct a full path from a relative
- *         one. Can be NULL if file_path is absolute.
- *  @return if there is no error, it returns an absolute path to the directory.
- *          Otherwise, it returns NULL.
- **/
-char *directory_from_file_path(const char *file_path, const char *reldir);
-
 /* check whether bin value is equals hex string */
 bool bin_eq_hex(const uint8_t *data, size_t len, const char *val);
 
@@ -148,6 +137,8 @@ int test_value_equal(const char *  what,
                      const char *  expected_value,
                      const uint8_t v[],
                      size_t        v_len);
+
+void test_ffi_init(rnp_ffi_t *ffi);
 
 bool mpi_empty(const pgp_mpi_t &val);
 /*
@@ -208,6 +199,19 @@ bool ffi_string_password_provider(rnp_ffi_t        ffi,
                                   char *           buf,
                                   size_t           buf_len);
 
+void unused_getkeycb(rnp_ffi_t   ffi,
+                     void *      app_ctx,
+                     const char *identifier_type,
+                     const char *identifier,
+                     bool        secret);
+
+bool unused_getpasscb(rnp_ffi_t        ffi,
+                      void *           app_ctx,
+                      rnp_key_handle_t key,
+                      const char *     pgp_context,
+                      char *           buf,
+                      size_t           buf_len);
+
 bool starts_with(const std::string &data, const std::string &match);
 bool ends_with(const std::string &data, const std::string &match);
 
@@ -240,13 +244,17 @@ bool load_keys_kbx_g10(rnp_ffi_t ffi, const std::string &pub, const std::string 
 bool import_all_keys(rnp_ffi_t ffi, const std::string &path);
 bool import_pub_keys(rnp_ffi_t ffi, const std::string &path);
 bool import_sec_keys(rnp_ffi_t ffi, const std::string &path);
-bool import_all_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len);
+bool import_all_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len, uint32_t flags = 0);
 bool import_pub_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len);
 bool import_sec_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len);
 /* key export shortcut */
 std::vector<uint8_t> export_key(rnp_key_handle_t key,
                                 bool             armored = false,
                                 bool             secret = false);
+/* write transferable key(s) to stream */
+bool write_transferable_key(pgp_transferable_key_t &key, pgp_dest_t &dst, bool armor = false);
+bool write_transferable_keys(pgp_key_sequence_t &keys, pgp_dest_t *dst, bool armor = false);
+
 /* Dump key to the stdout. Not used in real tests, but useful for artefact generation */
 void dump_key_stdout(rnp_key_handle_t key, bool secret = false);
 
@@ -258,10 +266,14 @@ bool     check_sub_valid(rnp_key_handle_t key, size_t idx, bool validity);
 bool     check_uid_valid(rnp_key_handle_t key, size_t idx, bool valid);
 bool     check_uid_primary(rnp_key_handle_t key, size_t idx, bool primary);
 
+/* create bogus key handle with NULL pub/sec keys */
+rnp_key_handle_t bogus_key_handle(rnp_ffi_t ffi);
+
 bool sm2_enabled();
 bool aead_eax_enabled();
 bool aead_ocb_enabled();
 bool twofish_enabled();
+bool idea_enabled();
 bool brainpool_enabled();
 
 inline size_t
@@ -272,5 +284,9 @@ rnp_round_up(size_t n, size_t align_to)
     }
     return n;
 }
+
+#define MD5_FROM 1325376000
+#define SHA1_DATA_FROM 1547856000
+#define SHA1_KEY_FROM 1705629600
 
 #endif /* SUPPORT_H_ */

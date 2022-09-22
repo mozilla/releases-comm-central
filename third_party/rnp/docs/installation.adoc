@@ -43,6 +43,7 @@ at GitHub.
 [source,console]
 ----
 rpm --import https://github.com/riboseinc/yum/raw/master/ribose-packages.pub
+rpm --import https://github.com/riboseinc/yum/raw/master/ribose-packages-next.pub
 curl -L https://github.com/riboseinc/yum/raw/master/ribose.repo > /etc/yum.repos.d/ribose.repo
 yum install -y rnp
 ----
@@ -54,7 +55,7 @@ Prerequisite: please ensure `git` is installed on the system.
 [source,console]
 ----
 # Clone the repository by version tag (or omit it to get the latest sources)
-git clone https://github.com/rnpgp/rnp.git -b v0.16.0
+git clone https://github.com/rnpgp/rnp.git -b v0.16.2
 
 # Install required packages
 sudo apt install g++-8 cmake libbz2-dev zlib1g-dev libjson-c-dev \
@@ -90,7 +91,7 @@ Prerequisite: please ensure `git` is installed on the system.
 [source,console]
 ----
 # Clone the repository by version tag (or omit it to get the latest sources)
-git clone https://github.com/rnpgp/rnp.git -b v0.16.0
+git clone https://github.com/rnpgp/rnp.git -b v0.16.2
 
 # Enable access to `testing` packages by editing /etc/apt/sources.list
 # deb http://deb.debian.org/debian testing main

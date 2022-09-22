@@ -39,8 +39,10 @@ static const char *
 pgp_sa_to_openssl_string(pgp_symm_alg_t alg)
 {
     switch (alg) {
+#if defined(ENABLE_IDEA)
     case PGP_SA_IDEA:
         return "idea-ecb";
+#endif
     case PGP_SA_TRIPLEDES:
         return "des-ede3";
     case PGP_SA_CAST5:

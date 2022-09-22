@@ -39,9 +39,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #endif // !_MSC_VER
+#include "str-utils.h"
+#include <algorithm>
 #ifdef _WIN32
 #include <random> // for rnp_mkstemp
-#include "str-utils.h"
 #define CATCH_AND_RETURN(v) \
     catch (...)             \
     {                       \
@@ -106,6 +107,16 @@ rnp_fopen(const char *filename, const char *mode)
     CATCH_AND_RETURN(NULL)
 #else
     return fopen(filename, mode);
+#endif
+}
+
+FILE *
+rnp_fdopen(int fildes, const char *mode)
+{
+#ifdef _WIN32
+    return _fdopen(fildes, mode);
+#else
+    return fdopen(fildes, mode);
 #endif
 }
 
@@ -285,115 +296,61 @@ rnp_mkstemp(char *tmpl)
 }
 #endif // _WIN32
 
-static char *
-vcompose_path(char **buf, size_t *buf_len, const char *first, va_list ap)
+namespace rnp {
+namespace path {
+inline char
+separator()
 {
-    size_t curlen = 0;
-    char * tmp_buf = NULL;
-    size_t tmp_buf_len = 0;
-
-    if (!first) {
-        return NULL;
-    }
-    if (!buf) {
-        buf = &tmp_buf;
-    }
-    if (!buf_len) {
-        buf_len = &tmp_buf_len;
-    }
-
-    const char *s = first;
-    do {
-        size_t len = strlen(s);
-
-        // current string len + NULL terminator + possible '/' +
-        // len of this path component
-        size_t reqsize = curlen + 1 + 1 + len;
-        if (*buf_len < reqsize) {
-            char *newbuf = (char *) realloc(*buf, reqsize);
-            if (!newbuf) {
-                // realloc failed, bail
-                free(*buf);
-                *buf = NULL;
-                break;
-            }
-            *buf = newbuf;
-            *buf_len = reqsize;
-        }
-
-        if (s != first) {
-            if ((*buf)[curlen - 1] != '/' && *s != '/') {
-                // add missing separator
-                (*buf)[curlen] = '/';
-                curlen += 1;
-            } else if ((*buf)[curlen - 1] == '/' && *s == '/') {
-                // skip duplicate separator
-                s++;
-                len--;
-            }
-        }
-        memcpy(*buf + curlen, s, len + 1);
-        curlen += len;
-    } while ((s = va_arg(ap, const char *)));
-
-    return *buf;
+#ifdef _WIN32
+    return '\\';
+#else
+    return '/';
+#endif
 }
 
-/** compose a path from one or more components
- *
- *  Notes:
- *  - The final argument must be NULL.
- *  - The caller must free the returned buffer.
- *  - The returned buffer is always NULL-terminated.
- *
- *  @param first the first path component
- *  @return the composed path buffer. The caller must free it.
- */
-char *
-rnp_compose_path(const char *first, ...)
+bool
+exists(const std::string &path, bool is_dir)
 {
-    va_list ap;
-    va_start(ap, first);
-    char *path = vcompose_path(NULL, NULL, first, ap);
-    va_end(ap);
-    return path;
+    return is_dir ? rnp_dir_exists(path.c_str()) : rnp_file_exists(path.c_str());
 }
 
-/** compose a path from one or more components
- *
- *  This version is useful when a function is composing
- *  multiple paths and wants to try to avoid unnecessary
- *  allocations.
- *
- *  Notes:
- *  - The final argument must be NULL.
- *  - The caller must free the returned buffer.
- *  - The returned buffer is always NULL-terminated.
- *
- *  @code
- *  char *buf = NULL;
- *  size_t buf_len = 0;
- *  rnp_compose_path_ex(&buf, &buf_len, "/tmp", dir1, file1, NULL);
- *  // the calls below will realloc the buffer if needed
- *  rnp_compose_path_ex(&buf, &buf_len, "/tmp", dir3, NULL);
- *  rnp_compose_path_ex(&buf, &buf_len, "/tmp", something, NULL);
- *  free(buf);
- *  @endcode
- *
- *  @param buf pointer to the buffer where the result will be stored.
- *         If buf is NULL, the caller must use the returned value.
- *         If *buf is NULL, a new buffer will be allocated.
- *  @param buf_len pointer to the allocated buffer size.
- *         Can be NULL.
- *  @param first the first path component
- *  @return the composed path buffer. The caller must free it.
- */
-char *
-rnp_compose_path_ex(char **buf, size_t *buf_len, const char *first, ...)
+bool
+empty(const std::string &path)
 {
-    va_list ap;
-    va_start(ap, first);
-    char *path = vcompose_path(buf, buf_len, first, ap);
-    va_end(ap);
-    return path;
+    auto dir = rnp_opendir(path.c_str());
+    bool empty = !dir || rnp_readdir_name(dir).empty();
+    rnp_closedir(dir);
+    return empty;
 }
+
+std::string
+HOME(const std::string &sdir)
+{
+    const char *home = getenv("HOME");
+    if (!home) {
+        return "";
+    }
+    return sdir.empty() ? home : append(home, sdir);
+}
+
+static bool
+has_forward_slash(const std::string &path)
+{
+    return std::find(path.begin(), path.end(), '/') != path.end();
+}
+
+std::string
+append(const std::string &path, const std::string &name)
+{
+    bool no_sep = path.empty() || name.empty() || (rnp::is_slash(path.back())) ||
+                  (rnp::is_slash(name.front()));
+    if (no_sep) {
+        return path + name;
+    }
+    /* Use forward slash if there is at least one in the path/name. */
+    char sep = has_forward_slash(path) || has_forward_slash(name) ? '/' : separator();
+    return path + sep + name;
+}
+
+} // namespace path
+} // namespace rnp

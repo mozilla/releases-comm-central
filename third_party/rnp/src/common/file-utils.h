@@ -37,6 +37,7 @@ bool    rnp_dir_exists(const char *path);
 int64_t rnp_filemtime(const char *path);
 int     rnp_open(const char *filename, int oflag, int pmode);
 FILE *  rnp_fopen(const char *filename, const char *mode);
+FILE *  rnp_fdopen(int fildes, const char *mode);
 int     rnp_access(const char *path, int mode);
 int     rnp_stat(const char *filename, struct stat *statbuf);
 int     rnp_rename(const char *oldpath, const char *newpath);
@@ -64,9 +65,6 @@ std::string rnp_readdir_name(DIR *dir);
 #define F_OK 0 /* Test for existence.  */
 #endif
 
-char *rnp_compose_path(const char *first, ...);
-char *rnp_compose_path_ex(char **buf, size_t *buf_len, const char *first, ...);
-
 /** @private
  *  generate a temporary file name based on TMPL.  TMPL must match the
  *  rules for mk[s]temp (i.e. end in "XXXXXX").  The name constructed
@@ -77,5 +75,15 @@ char *rnp_compose_path_ex(char **buf, size_t *buf_len, const char *first, ...);
  *  @return file descriptor of newly created and opened file, or -1 on error
  **/
 int rnp_mkstemp(char *tmpl);
+
+namespace rnp {
+namespace path {
+inline char separator();
+bool        exists(const std::string &path, bool is_dir = false);
+bool        empty(const std::string &path);
+std::string HOME(const std::string &sdir = "");
+std::string append(const std::string &path, const std::string &name);
+} // namespace path
+} // namespace rnp
 
 #endif

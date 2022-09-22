@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Ribose Inc.
+ * Copyright (c) 2022 Ribose Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,16 +24,29 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CRYPTO_HASH_SHA1CD_H_
-#define CRYPTO_HASH_SHA1CD_H_
-#include <stdint.h>
+#ifndef CRYPTO_HASH_SHA1CD_HPP_
+#define CRYPTO_HASH_SHA1CD_HPP_
 
-void *hash_sha1cd_create();
+#include "hash.hpp"
+#include "sha1cd/sha1.h"
 
-void hash_sha1cd_add(void *ctx, const void *buf, size_t len);
+namespace rnp {
+class Hash_SHA1CD : public Hash {
+  private:
+    SHA1_CTX ctx_;
 
-void *hash_sha1cd_clone(void *ctx);
+    Hash_SHA1CD();
+    Hash_SHA1CD(const Hash_SHA1CD &src);
 
-int hash_sha1cd_finish(void *ctx, uint8_t *digest);
+  public:
+    virtual ~Hash_SHA1CD();
 
+    static std::unique_ptr<Hash_SHA1CD> create();
+    std::unique_ptr<Hash>               clone() const override;
+
+    void   add(const void *buf, size_t len) override;
+    size_t finish(uint8_t *digest = NULL) override;
+};
+
+} // namespace rnp
 #endif

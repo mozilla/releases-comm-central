@@ -89,6 +89,46 @@ str_case_eq(const char *s1, const char *s2)
     }
     return !*s1 && !*s2;
 }
+
+bool
+str_case_eq(const std::string &s1, const std::string &s2)
+{
+    if (s1.size() != s2.size()) {
+        return false;
+    }
+    return str_case_eq(s1.c_str(), s2.c_str());
+}
+
+char *
+lowercase(char *s)
+{
+    if (!s) {
+        return s;
+    }
+    for (char *ptr = s; *ptr; ++ptr) {
+        *ptr = tolower(*ptr);
+    }
+    return s;
+}
+
+bool
+str_to_int(const std::string &s, int &val)
+{
+    for (const char &ch : s) {
+        if ((ch < '0') || (ch > '9')) {
+            return false;
+        }
+    }
+    val = std::stoi(s);
+    return true;
+}
+
+bool
+is_slash(char c)
+{
+    return (c == '/') || (c == '\\');
+}
+
 } // namespace rnp
 
 #ifdef _WIN32

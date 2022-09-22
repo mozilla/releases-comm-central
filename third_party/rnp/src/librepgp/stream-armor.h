@@ -35,7 +35,8 @@ typedef enum {
     PGP_ARMORED_PUBLIC_KEY,
     PGP_ARMORED_SECRET_KEY,
     PGP_ARMORED_SIGNATURE,
-    PGP_ARMORED_CLEARTEXT
+    PGP_ARMORED_CLEARTEXT,
+    PGP_ARMORED_BASE64
 } pgp_armored_msg_t;
 
 /* @brief Init dearmoring stream
@@ -43,7 +44,9 @@ typedef enum {
  * @param readsrc source to read data from
  * @return RNP_SUCCESS on success or error code otherwise
  **/
-rnp_result_t init_armored_src(pgp_source_t *src, pgp_source_t *readsrc);
+rnp_result_t init_armored_src(pgp_source_t *src,
+                              pgp_source_t *readsrc,
+                              bool          noheaders = false);
 
 /* @brief Init armoring stream
  * @param dst allocated pgp_dest_t structure
@@ -100,6 +103,12 @@ bool is_armored_dest(pgp_dest_t *dst);
  **/
 bool is_cleartext_source(pgp_source_t *src);
 
+/** @brief Check whether source is base64-encoded
+ *  @param src initialized source with some data
+ *  @return true if source could be a base64-encoded data or false otherwise
+ **/
+bool is_base64_source(pgp_source_t &src);
+
 /** Set line length for armoring
  *
  *  @param dst initialized dest to write armored data to
@@ -107,5 +116,59 @@ bool is_cleartext_source(pgp_source_t *src);
  *  @return RNP_SUCCESS on success, or any other value on error
  */
 rnp_result_t armored_dst_set_line_length(pgp_dest_t *dst, size_t llen);
+
+namespace rnp {
+
+class ArmoredSource : public Source {
+    pgp_source_t &readsrc_;
+    bool          armored_;
+    bool          multiple_;
+
+  public:
+    static const uint32_t AllowBinary;
+    static const uint32_t AllowBase64;
+    static const uint32_t AllowMultiple;
+
+    ArmoredSource(const ArmoredSource &) = delete;
+    ArmoredSource(ArmoredSource &&) = delete;
+
+    ArmoredSource(pgp_source_t &readsrc, uint32_t flags = 0);
+
+    pgp_source_t &src();
+
+    bool
+    multiple()
+    {
+        return multiple_;
+    }
+
+    /* Restart dearmoring in case of multiple armored messages in a single stream */
+    void restart();
+};
+
+class ArmoredDest : public Dest {
+    pgp_dest_t &writedst_;
+
+  public:
+    ArmoredDest(const ArmoredDest &) = delete;
+    ArmoredDest(ArmoredDest &&) = delete;
+
+    ArmoredDest(pgp_dest_t &writedst, pgp_armored_msg_t msgtype) : Dest(), writedst_(writedst)
+    {
+        auto ret = init_armored_dst(&dst_, &writedst_, msgtype);
+        if (ret) {
+            throw rnp::rnp_exception(ret);
+        }
+    };
+
+    ~ArmoredDest()
+    {
+        if (!discard_) {
+            dst_finish(&dst_);
+        }
+    }
+};
+
+} // namespace rnp
 
 #endif

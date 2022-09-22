@@ -75,13 +75,6 @@ load_generated_g10_key(pgp_key_t *           dst,
                        pgp_key_t *           pubkey,
                        rnp::SecurityContext &ctx)
 {
-    bool                     ok = false;
-    pgp_dest_t               memdst = {};
-    pgp_source_t             memsrc = {};
-    rnp_key_store_t *        key_store = NULL;
-    std::vector<pgp_key_t *> key_ptrs; /* holds primary and pubkey, when used */
-    pgp_key_provider_t       prov = {};
-
     // this should generally be zeroed
     assert(dst->type() == 0);
     // if a primary is provided, make sure it's actually a primary key
@@ -91,62 +84,38 @@ load_generated_g10_key(pgp_key_t *           dst,
     // G10 always needs pubkey here
     assert(pubkey);
 
-    if (init_mem_dest(&memdst, NULL, 0)) {
-        goto end;
-    }
-
-    if (!g10_write_seckey(&memdst, newkey, NULL, ctx.rng)) {
-        RNP_LOG("failed to write generated seckey");
-        goto end;
-    }
-
     // this would be better on the stack but the key store does not allow it
-    try {
-        key_store = new rnp_key_store_t(ctx);
-    } catch (const std::exception &e) {
-        RNP_LOG("%s", e.what());
-        goto end;
+    std::unique_ptr<rnp_key_store_t> key_store(new (std::nothrow) rnp_key_store_t(ctx));
+    if (!key_store) {
+        return false;
+    }
+    /* Write g10 seckey */
+    rnp::MemoryDest memdst(NULL, 0);
+    if (!g10_write_seckey(&memdst.dst(), newkey, NULL, ctx)) {
+        RNP_LOG("failed to write generated seckey");
+        return false;
     }
 
+    std::vector<pgp_key_t *> key_ptrs; /* holds primary and pubkey, when used */
     // if this is a subkey, add the primary in first
-    try {
-        if (primary_key) {
-            key_ptrs.push_back(primary_key);
-        }
-        // G10 needs the pubkey for copying some attributes (key version, creation time, etc)
-        key_ptrs.push_back(pubkey);
-    } catch (const std::exception &e) {
-        RNP_LOG("%s", e.what());
-        goto end;
+    if (primary_key) {
+        key_ptrs.push_back(primary_key);
     }
+    // G10 needs the pubkey for copying some attributes (key version, creation time, etc)
+    key_ptrs.push_back(pubkey);
 
-    prov.callback = rnp_key_provider_key_ptr_list;
-    prov.userdata = &key_ptrs;
-
-    if (init_mem_src(&memsrc, mem_dest_get_memory(&memdst), memdst.writeb, false)) {
-        goto end;
+    rnp::MemorySource  memsrc(memdst.memory(), memdst.writeb(), false);
+    pgp_key_provider_t prov(rnp_key_provider_key_ptr_list, &key_ptrs);
+    if (!rnp_key_store_g10_from_src(key_store.get(), &memsrc.src(), &prov)) {
+        return false;
     }
-
-    if (!rnp_key_store_g10_from_src(key_store, &memsrc, &prov)) {
-        goto end;
-    }
-    if (rnp_key_store_get_key_count(key_store) != 1) {
-        goto end;
+    if (rnp_key_store_get_key_count(key_store.get()) != 1) {
+        return false;
     }
     // if a primary key is provided, it should match the sub with regards to type
     assert(!primary_key || (primary_key->is_secret() == key_store->keys.front().is_secret()));
-    try {
-        *dst = pgp_key_t(key_store->keys.front());
-        ok = true;
-    } catch (const std::exception &e) {
-        RNP_LOG("Failed to copy key: %s", e.what());
-        ok = false;
-    }
-end:
-    delete key_store;
-    src_close(&memsrc);
-    dst_close(&memdst, true);
-    return ok;
+    *dst = pgp_key_t(key_store->keys.front());
+    return true;
 }
 
 static uint8_t
@@ -318,13 +287,15 @@ keygen_primary_merge_defaults(rnp_keygen_primary_desc_t &desc)
         // set some default key flags if none are provided
         desc.cert.key_flags = pk_alg_default_flags(desc.crypto.key_alg);
     }
-    if (desc.cert.userid[0] == '\0') {
-        snprintf((char *) desc.cert.userid,
-                 sizeof(desc.cert.userid),
+    if (desc.cert.userid.empty()) {
+        char uid[MAX_ID_LENGTH] = {0};
+        snprintf(uid,
+                 sizeof(uid),
                  "%s %d-bit key <%s@localhost>",
                  id_str_pair::lookup(pubkey_alg_map, desc.crypto.key_alg),
                  get_numbits(&desc.crypto),
                  getenv_logname());
+        desc.cert.userid = uid;
     }
 }
 
@@ -493,55 +464,4 @@ pgp_generate_subkey(rnp_keygen_subkey_desc_t &     desc,
         RNP_LOG("Subkey generation failed: %s", e.what());
         return false;
     }
-}
-
-static void
-keygen_merge_defaults(rnp_keygen_primary_desc_t &primary_desc,
-                      rnp_keygen_subkey_desc_t & subkey_desc)
-{
-    if (!primary_desc.cert.key_flags && !subkey_desc.binding.key_flags) {
-        // if no flags are set for either the primary key nor subkey,
-        // we can set up some typical defaults here (these are validated
-        // later against the alg capabilities)
-        primary_desc.cert.key_flags = PGP_KF_SIGN | PGP_KF_CERTIFY;
-        subkey_desc.binding.key_flags = PGP_KF_ENCRYPT;
-    }
-}
-
-bool
-pgp_generate_keypair(rnp_keygen_primary_desc_t &primary_desc,
-                     rnp_keygen_subkey_desc_t & subkey_desc,
-                     bool                       merge_defaults,
-                     pgp_key_t &                primary_sec,
-                     pgp_key_t &                primary_pub,
-                     pgp_key_t &                subkey_sec,
-                     pgp_key_t &                subkey_pub,
-                     pgp_key_store_format_t     secformat)
-{
-    // merge some defaults in, if requested
-    if (merge_defaults) {
-        keygen_merge_defaults(primary_desc, subkey_desc);
-    }
-
-    // generate the primary key
-    if (!pgp_generate_primary_key(
-          primary_desc, merge_defaults, primary_sec, primary_pub, secformat)) {
-        RNP_LOG("failed to generate primary key");
-        return false;
-    }
-
-    // generate the subkey
-    pgp_password_provider_t prov = {};
-    if (!pgp_generate_subkey(subkey_desc,
-                             merge_defaults,
-                             primary_sec,
-                             primary_pub,
-                             subkey_sec,
-                             subkey_pub,
-                             prov,
-                             secformat)) {
-        RNP_LOG("failed to generate subkey");
-        return false;
-    }
-    return true;
 }

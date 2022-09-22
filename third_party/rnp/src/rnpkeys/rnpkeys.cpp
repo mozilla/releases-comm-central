@@ -38,6 +38,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include "rnpkeys.h"
+#include "str-utils.h"
 
 const char *usage =
   "Manipulate OpenPGP keys and keyrings.\n"
@@ -78,6 +79,7 @@ const char *usage =
   "  --output [file, -]     Write data to the specified file or stdout.\n"
   "  --overwrite            Overwrite output file without a prompt.\n"
   "  --notty                Do not write anything to the TTY.\n"
+  "  --current-time         Override system's time.\n"
   "\n"
   "See man page for a detailed listing and explanation.\n"
   "\n";
@@ -131,6 +133,7 @@ struct option options[] = {
   {"notty", no_argument, NULL, OPT_NOTTY},
   {"fix-cv25519-bits", no_argument, NULL, OPT_FIX_25519_BITS},
   {"check-cv25519-bits", no_argument, NULL, OPT_CHK_25519_BITS},
+  {"current-time", required_argument, NULL, OPT_CURTIME},
   {NULL, 0, NULL, 0},
 };
 
@@ -176,8 +179,8 @@ import_keys(cli_rnp_t *rnp, rnp_input_t input, const std::string &inname)
     bool res = false;
     bool updated = false;
 
-    uint32_t flags =
-      RNP_LOAD_SAVE_PUBLIC_KEYS | RNP_LOAD_SAVE_SECRET_KEYS | RNP_LOAD_SAVE_SINGLE;
+    uint32_t flags = RNP_LOAD_SAVE_PUBLIC_KEYS | RNP_LOAD_SAVE_SECRET_KEYS |
+                     RNP_LOAD_SAVE_SINGLE | RNP_LOAD_SAVE_BASE64;
 
     bool permissive = rnp->cfg().get_bool(CFG_PERMISSIVE);
     if (permissive) {
@@ -189,6 +192,12 @@ import_keys(cli_rnp_t *rnp, rnp_input_t input, const std::string &inname)
         char *       results = NULL;
         rnp_result_t ret = rnp_import_keys(rnp->ffi, input, flags, &results);
         if (ret == RNP_ERROR_EOF) {
+            res = true;
+            break;
+        }
+        if (ret && updated) {
+            /* some keys were imported, but then error occurred */
+            ERR_MSG("warning: not all data was processed.");
             res = true;
             break;
         }
@@ -458,59 +467,26 @@ setoption(rnp_cfg &cfg, optdefs_t *cmd, int val, const char *arg)
         return true;
     /* options */
     case OPT_KEY_STORE_FORMAT:
-        if (!arg) {
-            ERR_MSG("No keyring format argument provided");
-            return false;
-        }
         cfg.set_str(CFG_KEYSTOREFMT, arg);
         return true;
     case OPT_USERID:
-        if (!arg) {
-            ERR_MSG("no userid argument provided");
-            return false;
-        }
         cfg.add_str(CFG_USERID, arg);
         return true;
     case OPT_HOMEDIR:
-        if (!arg) {
-            ERR_MSG("no home directory argument provided");
-            return false;
-        }
         cfg.set_str(CFG_HOMEDIR, arg);
         return true;
     case OPT_NUMBITS: {
-        if (!arg) {
-            ERR_MSG("no number of bits argument provided");
-            return false;
-        }
-        int bits = atoi(arg);
-        if ((bits < 1024) || (bits > 16384)) {
+        int bits = 0;
+        if (!rnp::str_to_int(arg, bits) || (bits < 1024) || (bits > 16384)) {
             ERR_MSG("wrong bits value: %s", arg);
             return false;
         }
         cfg.set_int(CFG_NUMBITS, bits);
         return true;
     }
-    case OPT_HASH_ALG: {
-        if (!arg) {
-            ERR_MSG("No hash algorithm argument provided");
-            return false;
-        }
-        bool               supported = false;
-        const std::string &alg = cli_rnp_alg_to_ffi(arg);
-        if (rnp_supports_feature(RNP_FEATURE_HASH_ALG, alg.c_str(), &supported) ||
-            !supported) {
-            ERR_MSG("Unsupported hash algorithm: %s", arg);
-            return false;
-        }
-        cfg.set_str(CFG_HASH, alg);
-        return true;
-    }
+    case OPT_HASH_ALG:
+        return cli_rnp_set_hash(cfg, arg);
     case OPT_S2K_ITER: {
-        if (!arg) {
-            ERR_MSG("No s2k iteration argument provided");
-            return false;
-        }
         int iterations = atoi(arg);
         if (!iterations) {
             ERR_MSG("Wrong iterations value: %s", arg);
@@ -524,12 +500,8 @@ setoption(rnp_cfg &cfg, optdefs_t *cmd, int val, const char *arg)
         cfg.set_str(CFG_KG_SUBKEY_EXPIRATION, arg);
         return true;
     case OPT_S2K_MSEC: {
-        if (!arg) {
-            ERR_MSG("No s2k msec argument provided");
-            return false;
-        }
-        int msec = atoi(arg);
-        if (!msec) {
+        int msec = 0;
+        if (!rnp::str_to_int(arg, msec) || !msec) {
             ERR_MSG("Invalid s2k msec value: %s", arg);
             return false;
         }
@@ -537,37 +509,16 @@ setoption(rnp_cfg &cfg, optdefs_t *cmd, int val, const char *arg)
         return true;
     }
     case OPT_PASSWDFD:
-        if (!arg) {
-            ERR_MSG("no pass-fd argument provided");
-            return false;
-        }
         cfg.set_str(CFG_PASSFD, arg);
         return true;
     case OPT_PASSWD:
-        if (!arg) {
-            ERR_MSG("No password argument provided");
-            return false;
-        }
         cfg.set_str(CFG_PASSWD, arg);
         return true;
     case OPT_RESULTS:
-        if (!arg) {
-            ERR_MSG("No output filename argument provided");
-            return false;
-        }
         cfg.set_str(CFG_IO_RESS, arg);
         return true;
-    case OPT_CIPHER: {
-        bool               supported = false;
-        const std::string &alg = cli_rnp_alg_to_ffi(arg);
-        if (rnp_supports_feature(RNP_FEATURE_SYMM_ALG, alg.c_str(), &supported) ||
-            !supported) {
-            ERR_MSG("Unsupported symmetric algorithm: %s", arg);
-            return false;
-        }
-        cfg.set_str(CFG_CIPHER, alg);
-        return true;
-    }
+    case OPT_CIPHER:
+        return cli_rnp_set_cipher(cfg, arg);
     case OPT_DEBUG:
         ERR_MSG("Option --debug is deprecated, ignoring.");
         return true;
@@ -591,10 +542,6 @@ setoption(rnp_cfg &cfg, optdefs_t *cmd, int val, const char *arg)
         cfg.set_bool(CFG_WITH_SIGS, true);
         return true;
     case OPT_REV_TYPE: {
-        if (!arg) {
-            ERR_MSG("No revocation type argument provided");
-            return false;
-        }
         std::string revtype = arg;
         if (revtype == "0") {
             revtype = "no";
@@ -609,10 +556,6 @@ setoption(rnp_cfg &cfg, optdefs_t *cmd, int val, const char *arg)
         return true;
     }
     case OPT_REV_REASON:
-        if (!arg) {
-            ERR_MSG("No revocation reason argument provided");
-            return false;
-        }
         cfg.set_str(CFG_REV_REASON, arg);
         return true;
     case OPT_PERMISSIVE:
@@ -626,6 +569,9 @@ setoption(rnp_cfg &cfg, optdefs_t *cmd, int val, const char *arg)
         return true;
     case OPT_CHK_25519_BITS:
         cfg.set_bool(CFG_CHK_25519_BITS, true);
+        return true;
+    case OPT_CURTIME:
+        cfg.set_str(CFG_CURTIME, arg);
         return true;
     default:
         *cmd = CMD_HELP;

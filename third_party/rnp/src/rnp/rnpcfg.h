@@ -87,6 +87,9 @@
 #define CFG_NOTTY "notty" /* disable tty usage and do input/output via stdin/stdout */
 #define CFG_FIX_25519_BITS "fix-25519-bits"   /* fix Cv25519 secret key via --edit-key */
 #define CFG_CHK_25519_BITS "check-25519-bits" /* check Cv25519 secret key bits */
+#define CFG_SOURCE "source"                   /* source for the detached signature */
+#define CFG_NOWRAP "no-wrap"  /* do not wrap the output in a literal data packet */
+#define CFG_CURTIME "curtime" /* date or timestamp to override the system's time */
 
 /* rnp keyring setup variables */
 #define CFG_KR_PUB_FORMAT "kr-pub-format"
@@ -126,6 +129,7 @@ class rnp_cfg {
      *  @return true when parsed successfully or false otherwise
      */
     bool parse_date(const std::string &s, uint64_t &t) const;
+    bool extract_timestamp(const std::string &st, uint64_t &t) const;
 
   public:
     /** @brief load default settings */
@@ -175,7 +179,7 @@ class rnp_cfg {
      *  - 2017-07-12 : as the exact date
      *  - 60000 : number of seconds
      *
-     *  @param seconds On successfull return result will be placed here
+     *  @param seconds On successful return result will be placed here
      *  @return true on success or false otherwise
      */
     bool get_expiration(const std::string &key, uint32_t &seconds) const;
@@ -188,6 +192,13 @@ class rnp_cfg {
      *  @return timestamp of the signature creation.
      */
     uint64_t get_sig_creation() const;
+
+    /** @brief Get current time from the config.
+     *
+     * @return timestamp which should be considered as current time.
+     */
+    uint64_t time() const;
+
     /** @brief copy or override a configuration.
      *  @param src vals will be overridden (if key exist) or copied (if not) from this object
      */

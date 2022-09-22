@@ -29,7 +29,6 @@
 
 #include "rnp_tests.h"
 #include "support.h"
-#include "crypto/hash.h"
 #include "crypto.h"
 
 /* This test loads a .gpg keyring and tests protect/unprotect functionality.
@@ -85,16 +84,16 @@ TEST_F(rnp_tests, test_key_protect_load_pgp)
     assert_true(mpi_empty(key->material().rsa.u));
 
     // try to unprotect with a failing password provider
-    pgp_password_provider_t pprov = {.callback = failing_password_callback, .userdata = NULL};
-    assert_false(key->unprotect(pprov, global_ctx.rng));
+    pgp_password_provider_t pprov(failing_password_callback);
+    assert_false(key->unprotect(pprov, global_ctx));
 
     // try to unprotect with an incorrect password
-    pprov = {.callback = string_copy_password_callback, .userdata = (void *) "badpass"};
-    assert_false(key->unprotect(pprov, global_ctx.rng));
+    pprov = {string_copy_password_callback, (void *) "badpass"};
+    assert_false(key->unprotect(pprov, global_ctx));
 
     // unprotect with the correct password
-    pprov = {.callback = string_copy_password_callback, .userdata = (void *) "password"};
-    assert_true(key->unprotect(pprov, global_ctx.rng));
+    pprov = {string_copy_password_callback, (void *) "password"};
+    assert_true(key->unprotect(pprov, global_ctx));
     assert_false(key->is_protected());
 
     // should still be locked
@@ -107,7 +106,7 @@ TEST_F(rnp_tests, test_key_protect_load_pgp)
     assert_true(mpi_empty(key->material().rsa.u));
 
     // unlock (no password required since the key is not protected)
-    pprov = {.callback = asserting_password_callback, .userdata = NULL};
+    pprov = {asserting_password_callback};
     assert_true(key->unlock(pprov));
     assert_false(key->is_locked());
 
@@ -164,8 +163,7 @@ TEST_F(rnp_tests, test_key_protect_load_pgp)
         assert_true(mpi_empty(reloaded_key->material().rsa.q));
         assert_true(mpi_empty(reloaded_key->material().rsa.u));
         // unlock it (no password, since it's not protected)
-        pgp_password_provider_t pprov = {.callback = asserting_password_callback,
-                                         .userdata = NULL};
+        pgp_password_provider_t pprov(asserting_password_callback);
         assert_true(reloaded_key->unlock(pprov));
         assert_false(reloaded_key->is_locked());
         // compare MPIs of the reloaded key, with the unlocked key from earlier
@@ -181,23 +179,23 @@ TEST_F(rnp_tests, test_key_protect_load_pgp)
     assert_true(key->lock());
 
     // try to protect (will fail when key is locked)
-    pprov = {.callback = string_copy_password_callback, .userdata = (void *) "newpass"};
-    assert_false(key->protect({}, pprov, global_ctx.rng));
+    pprov = {string_copy_password_callback, (void *) "newpass"};
+    assert_false(key->protect({}, pprov, global_ctx));
     assert_false(key->is_protected());
 
     // unlock
-    pprov = {.callback = asserting_password_callback, .userdata = NULL};
+    pprov = {asserting_password_callback};
     assert_true(key->unlock(pprov));
     assert_false(key->is_locked());
 
     // try to protect with a failing password provider
-    pprov = {.callback = failing_password_callback, .userdata = NULL};
-    assert_false(key->protect({}, pprov, global_ctx.rng));
+    pprov = {failing_password_callback};
+    assert_false(key->protect({}, pprov, global_ctx));
     assert_false(key->is_protected());
 
     // (re)protect with a new password
-    pprov = {.callback = string_copy_password_callback, .userdata = (void *) "newpass"};
-    assert_true(key->protect({}, pprov, global_ctx.rng));
+    pprov = {string_copy_password_callback, (void *) "newpass"};
+    assert_true(key->protect({}, pprov, global_ctx));
     assert_true(key->is_protected());
 
     // lock
@@ -205,12 +203,12 @@ TEST_F(rnp_tests, test_key_protect_load_pgp)
     assert_true(key->is_locked());
 
     // try to unlock with old password
-    pprov = {.callback = string_copy_password_callback, .userdata = (void *) "password"};
+    pprov = {string_copy_password_callback, (void *) "password"};
     assert_false(key->unlock(pprov));
     assert_true(key->is_locked());
 
     // unlock with new password
-    pprov = {.callback = string_copy_password_callback, .userdata = (void *) "newpass"};
+    pprov = {string_copy_password_callback, (void *) "newpass"};
     assert_true(key->unlock(pprov));
     assert_false(key->is_locked());
 
@@ -230,7 +228,7 @@ TEST_F(rnp_tests, test_key_protect_sec_data)
     pri_desc.crypto.key_alg = PGP_PKA_RSA;
     pri_desc.crypto.rsa.modulus_bit_len = 1024;
     pri_desc.crypto.ctx = &global_ctx;
-    memcpy(pri_desc.cert.userid, "test", 5);
+    pri_desc.cert.userid = "test";
 
     rnp_keygen_subkey_desc_t sub_desc = {};
     sub_desc.crypto.key_alg = PGP_PKA_RSA;
@@ -238,9 +236,11 @@ TEST_F(rnp_tests, test_key_protect_sec_data)
     sub_desc.crypto.ctx = &global_ctx;
 
     /* generate raw unprotected keypair */
-    pgp_key_t skey, pkey, ssub, psub;
-    assert_true(pgp_generate_keypair(
-      pri_desc, sub_desc, true, skey, pkey, ssub, psub, PGP_KEY_STORE_GPG));
+    pgp_key_t               skey, pkey, ssub, psub;
+    pgp_password_provider_t prov = {};
+    assert_true(pgp_generate_primary_key(pri_desc, true, skey, pkey, PGP_KEY_STORE_GPG));
+    assert_true(
+      pgp_generate_subkey(sub_desc, true, skey, pkey, ssub, psub, prov, PGP_KEY_STORE_GPG));
     assert_non_null(skey.pkt().sec_data);
     assert_non_null(ssub.pkt().sec_data);
     assert_null(pkey.pkt().sec_data);
@@ -285,11 +285,10 @@ TEST_F(rnp_tests, test_key_protect_sec_data)
 #endif
 
     /* protect key and subkey */
-    pgp_password_provider_t     pprov = {.callback = string_copy_password_callback,
-                                     .userdata = (void *) "password"};
+    pgp_password_provider_t     pprov(string_copy_password_callback, (void *) "password");
     rnp_key_protection_params_t prot = {};
-    assert_true(skey.protect(prot, pprov, global_ctx.rng));
-    assert_true(ssub.protect(prot, pprov, global_ctx.rng));
+    assert_true(skey.protect(prot, pprov, global_ctx));
+    assert_true(ssub.protect(prot, pprov, global_ctx));
     assert_int_not_equal(memcmp(raw_skey, skey.pkt().sec_data, 32), 0);
     assert_int_not_equal(memcmp(raw_ssub, ssub.pkt().sec_data, 32), 0);
 #if defined(__has_feature)
@@ -323,15 +322,14 @@ TEST_F(rnp_tests, test_key_protect_sec_data)
     assert_int_not_equal(memcmp(raw_skey, skey.pkt().sec_data, 32), 0);
     assert_int_not_equal(memcmp(raw_ssub, ssub.pkt().sec_data, 32), 0);
     /* unprotect key */
-    assert_true(skey.unprotect(pprov, global_ctx.rng));
-    assert_true(ssub.unprotect(pprov, global_ctx.rng));
+    assert_true(skey.unprotect(pprov, global_ctx));
+    assert_true(ssub.unprotect(pprov, global_ctx));
     assert_int_equal(memcmp(raw_skey, skey.pkt().sec_data, 32), 0);
     assert_int_equal(memcmp(raw_ssub, ssub.pkt().sec_data, 32), 0);
     /* protect it back  with another password */
-    pgp_password_provider_t pprov2 = {.callback = string_copy_password_callback,
-                                      .userdata = (void *) "password2"};
-    assert_true(skey.protect(prot, pprov2, global_ctx.rng));
-    assert_true(ssub.protect(prot, pprov2, global_ctx.rng));
+    pgp_password_provider_t pprov2(string_copy_password_callback, (void *) "password2");
+    assert_true(skey.protect(prot, pprov2, global_ctx));
+    assert_true(ssub.protect(prot, pprov2, global_ctx));
     assert_int_not_equal(memcmp(raw_skey, skey.pkt().sec_data, 32), 0);
     assert_int_not_equal(memcmp(raw_ssub, ssub.pkt().sec_data, 32), 0);
     assert_false(skey.unlock(pprov));
