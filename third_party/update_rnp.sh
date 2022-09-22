@@ -45,7 +45,7 @@ REVISION=$(git -C "${RNPgit}" rev-parse --verify HEAD)
 TIMESTAMP=$(git -C "${RNPgit}" show -s --format=%ct)
 
 # Cleanup rnp checkout
-rm -rf ${RNPgit}/{.git,.github,.cirrus.yml,.clang-format,.gitignore}
+rm -rf ${RNPgit}/{.git,.github,.cirrus.yml,.clang-format,.gitignore,.codespellrc}
 rm -rf ${RNPgit}/{_config.yml,docker.sh,ci,cmake,git-hooks,travis.sh,vcpkg.txt}
 rm -rf ${RNPgit}/{Brewfile,CMakeLists.txt,CMakeSettings.json}
 
@@ -62,13 +62,13 @@ $THIRDROC rnp_source_update rnp/ \
 hg revert rnp/moz.build rnp/module.ver rnp/rnp.symbols rnp/src/lib/rnp/rnp_export.h \
   rnp/src/rnp/moz.build  rnp/src/rnpkeys/moz.build
 
-# Reapply Thunderbird patch to disable obsolete ciphers
-PATCH_FILES=("patches/rnp/disable_obsolete_ciphers.patch" \
-             "patches/rnp/bug_1763641.patch" \
-             "patches/rnp/bug_1768424.patch")
-for PATCH_FILE in "${PATCH_FILES[@]}"; do
-  patch -p2 -i "${PATCH_FILE}" -N -r "${MY_TEMP_DIR}/${PATCH_FILE}.rej"
-done
+# Patch librnp - currently not needed
+#PATCH_FILES=("patches/rnp/disable_obsolete_ciphers.patch")
+#for PATCH_FILE in "${PATCH_FILES[@]}"; do
+#  # shellcheck disable=SC2086
+#  echo "Applying patch $(basename ${PATCH_FILE})"
+#  patch -p2 -i "${PATCH_FILE}" -N -r "${MY_TEMP_DIR}/${PATCH_FILE}.rej"
+#done
 
 # Patch sometimes creates backup files that are not wanted.
 find rnp -name '*.orig' -exec rm -f '{}' \;
