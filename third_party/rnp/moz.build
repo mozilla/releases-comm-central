@@ -43,6 +43,7 @@ rnp_defines = {
     "ENABLE_AEAD": True,
     "ENABLE_TWOFISH": True,
     "ENABLE_BRAINPOOL": True,
+    "ENABLE_IDEA": True,
     "PACKAGE_BUGREPORT": '"https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird"',
     "PACKAGE_STRING": '"rnp {}"'.format(CONFIG["MZLA_LIBRNP_FULL_VERSION"])
 }
@@ -121,12 +122,12 @@ SOURCES += [
     "src/lib/crypto/elgamal.cpp",
     "src/lib/crypto/hash.cpp",
     "src/lib/crypto/hash_common.cpp",
+    "src/lib/crypto/hash_sha1cd.cpp",
     "src/lib/crypto/mem.cpp",
     "src/lib/crypto/mpi.cpp",
     "src/lib/crypto/rng.cpp",
     "src/lib/crypto/rsa.cpp",
     "src/lib/crypto/s2k.cpp",
-    "src/lib/crypto/sha1cd/hash_sha1cd.cpp",
     "src/lib/crypto/sha1cd/sha1.c",
     "src/lib/crypto/sha1cd/ubc_check.c",
     "src/lib/crypto/signatures.cpp",
