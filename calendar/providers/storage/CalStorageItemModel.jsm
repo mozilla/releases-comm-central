@@ -495,6 +495,18 @@ class CalStorageItemModel extends CalStorageModelBase {
   }
 
   /**
+   * The `icalString` database fields could be stored with or without lines
+   * folded, but if this raw data is passed to ical.js it misinterprets the
+   * white-space as significant. Strip it out as the data is fetched.
+   *
+   * @param {mozIStorageRow} row
+   * @returns {string}
+   */
+  _unfoldIcalString(row) {
+    return row.getResultByName("icalString").replaceAll("\r\n ", "");
+  }
+
+  /**
    * Populates additional data for a Map of items. This method is overridden in
    * CalStorageCachedItemModel to allow the todos to be loaded from the cache.
    *
@@ -515,7 +527,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         return;
       }
 
-      let attendee = new lazy.CalAttendee(row.getResultByName("icalString"));
+      let attendee = new lazy.CalAttendee(this._unfoldIcalString(row));
       if (attendee && attendee.id) {
         if (attendee.isOrganizer) {
           item.organizer = attendee;
@@ -615,7 +627,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     await this.db.executeAsync(this.statements.mSelectAllAttachments, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
-        item.addAttachment(new lazy.CalAttachment(row.getResultByName("icalString")));
+        item.addAttachment(new lazy.CalAttachment(this._unfoldIcalString(row)));
       }
     });
 
@@ -623,7 +635,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     await this.db.executeAsync(this.statements.mSelectAllRelations, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
-        item.addRelation(new lazy.CalRelation(row.getResultByName("icalString")));
+        item.addRelation(new lazy.CalRelation(this._unfoldIcalString(row)));
       }
     });
 
@@ -631,7 +643,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     await this.db.executeAsync(this.statements.mSelectAllAlarms, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
-        item.addAlarm(new lazy.CalAlarm(row.getResultByName("icalString")));
+        item.addAlarm(new lazy.CalAlarm(this._unfoldIcalString(row)));
       }
     });
 
@@ -759,7 +771,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         this.db.prepareStatement(selectItem);
         selectItem.params.item_id = item.id;
         await this.db.executeAsync(selectItem, row => {
-          let attendee = new lazy.CalAttendee(row.getResultByName("icalString"));
+          let attendee = new lazy.CalAttendee(this._unfoldIcalString(row));
           if (attendee && attendee.id) {
             if (attendee.isOrganizer) {
               item.organizer = attendee;
@@ -903,7 +915,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         this.db.prepareStatement(selectAttachment);
         selectAttachment.params.item_id = item.id;
         await this.db.executeAsync(selectAttachment, row => {
-          item.addAttachment(new lazy.CalAttachment(row.getResultByName("icalString")));
+          item.addAttachment(new lazy.CalAttachment(this._unfoldIcalString(row)));
         });
       } catch (e) {
         this.db.logError(
@@ -923,7 +935,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         this.db.prepareStatement(selectRelation);
         selectRelation.params.item_id = item.id;
         await this.db.executeAsync(selectRelation, row => {
-          item.addRelation(new lazy.CalRelation(row.getResultByName("icalString")));
+          item.addRelation(new lazy.CalRelation(this._unfoldIcalString(row)));
         });
       } catch (e) {
         this.db.logError(
@@ -943,7 +955,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         selectAlarm.params.item_id = item.id;
         this.db.prepareStatement(selectAlarm);
         await this.db.executeAsync(selectAlarm, row => {
-          item.addAlarm(new lazy.CalAlarm(row.getResultByName("icalString")));
+          item.addAlarm(new lazy.CalAlarm(this._unfoldIcalString(row)));
         });
       } catch (e) {
         this.db.logError(
@@ -960,7 +972,7 @@ class CalStorageItemModel extends CalStorageModelBase {
 
   getRecurrenceItemFromRow(row, item) {
     let ritem;
-    let prop = cal.icsService.createIcalPropertyFromString(row.getResultByName("icalString"));
+    let prop = cal.icsService.createIcalPropertyFromString(this._unfoldIcalString(row));
     switch (prop.propertyName) {
       case "RDATE":
       case "EXDATE":

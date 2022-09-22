@@ -331,7 +331,7 @@ button dropmarker::part(icon) {
   margin-inline-start: 3px;
 }
 
-button.notification-button[is="button-menu-button"] > .button-box > dropmarker {
+toolbarbutton.notification-button[is="toolbarbutton-menu-button"] > .button-box > dropmarker {
   margin-inline-end: -5px;
 }
 

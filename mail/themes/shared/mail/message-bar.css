@@ -303,13 +303,15 @@ button:-moz-locale-dir(rtl).button-menu-list {
   background-position-x: left 4px;
 }
 
-button.notification-button[type="menu-button"] {
-  margin-inline: 6px;
+toolbarbutton.notification-button[type="menu-button"] {
+  -moz-box-align: center;
+  margin: 4px 6px;
   padding-block: 0;
-  padding-inline-start: 0;
+  padding-inline: 0 11px;
+  background-color: var(--in-content-button-background);
 }
 
-button[type="menu-button"] > .button-box > button {
+toolbarbutton[type="menu-button"] > toolbarbutton {
   margin-block: 0;
   margin-inline: 0 2px;
   min-height: 22px;
@@ -317,10 +319,25 @@ button[type="menu-button"] > .button-box > button {
   border-start-end-radius: 2px;
   border-start-end-radius: 0;
   border-end-end-radius: 0;
-  padding-block: 2px;
+  padding: 2px 15px;
   font-weight: inherit;
+  background-color: var(--in-content-button-background);
   border-width: 0;
   border-inline-end: 1px solid var(--in-content-button-border);
+}
+
+toolbarbutton.notification-button[type="menu-button"]:hover,
+toolbarbutton.notification-button[type="menu-button"] > toolbarbutton:hover {
+  background-color: var(--in-content-button-background-hover);
+  color: var(--in-content-button-text-color-hover);
+  border-color: var(--in-content-button-border-color-hover);
+}
+
+toolbarbutton.notification-button[type="menu-button"]:hover:active,
+toolbarbutton.notification-button[type="menu-button"] > toolbarbutton:hover:active {
+  background-color: var(--in-content-button-background-active);
+  color: var(--in-content-button-text-color-active);
+  border-color: var(--in-content-button-border-color-active);
 }
 
 .button-menubutton-dropmarker {
@@ -331,12 +348,13 @@ button dropmarker::part(icon) {
   margin-inline-start: 3px;
 }
 
-button.notification-button[is="button-menu-button"] > .button-box > dropmarker {
+toolbarbutton.notification-button[is="toolbarbutton-menu-button"] > dropmarker {
   appearance: none;
   list-style-image: var(--icon-nav-down-sm);
   -moz-context-properties: stroke;
   stroke: currentColor;
   margin-inline-end: -5px;
+  padding-inline-start: 5px;
   border-start-start-radius: 0;
   border-start-end-radius: 0;
 }

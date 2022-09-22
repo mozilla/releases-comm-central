@@ -2351,7 +2351,9 @@ nsresult nsImapProtocol::LoadImapUrlInternal() {
     // our underlying transport.
     nsCOMPtr<nsISSLSocketControl> tlsSocketControl;
     m_transport->GetTlsSocketControl(getter_AddRefs(tlsSocketControl));
-    m_mockChannel->SetSecurityInfo(tlsSocketControl);
+    nsCOMPtr<nsITransportSecurityInfo> transportSecInfo =
+        do_QueryInterface(tlsSocketControl);
+    m_mockChannel->SetSecurityInfo(transportSecInfo);
 
     SetSecurityCallbacksFromChannel(m_transport, m_mockChannel);
 
@@ -9892,12 +9894,14 @@ NS_IMETHODIMP nsImapMockChannel::SetOwner(nsISupports* aPrincipal) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMockChannel::GetSecurityInfo(nsISupports** aSecurityInfo) {
+NS_IMETHODIMP nsImapMockChannel::GetSecurityInfo(
+    nsITransportSecurityInfo** aSecurityInfo) {
   NS_IF_ADDREF(*aSecurityInfo = mSecurityInfo);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMockChannel::SetSecurityInfo(nsISupports* aSecurityInfo) {
+NS_IMETHODIMP nsImapMockChannel::SetSecurityInfo(
+    nsITransportSecurityInfo* aSecurityInfo) {
   mSecurityInfo = aSecurityInfo;
   return NS_OK;
 }

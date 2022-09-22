@@ -310,7 +310,7 @@ function externalAction({ action, address, card, vCard } = {}) {
  * Show UI to create a new address book of the type specified.
  *
  * @param {integer} [type=Ci.nsIAbManager.JS_DIRECTORY_TYPE] - One of the
- *     nsIAbManager directory type constants.
+ *   nsIAbManager directory type constants.
  */
 function createBook(type = Ci.nsIAbManager.JS_DIRECTORY_TYPE) {
   const typeURLs = {
@@ -628,7 +628,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
    * Get the index of the row representing a book or list.
    *
    * @param {string|null} uid - The UID of the book or list to find, or null
-   *     for All Address Books.
+   *   for All Address Books.
    * @returns {integer} - Index of the book or list.
    */
   getIndexForUID(uid) {
@@ -642,7 +642,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
    * Get the row representing a book or list.
    *
    * @param {string|null} uid - The UID of the book or list to find, or null
-   *     for All Address Books.
+   *   for All Address Books.
    * @returns {HTMLLIElement} - Row of the book or list.
    */
   getRowForUID(uid) {
@@ -1673,7 +1673,7 @@ var cardsPane = {
    * Display an address book, or all address books.
    *
    * @param {string|null} uid - The UID of the book or list to display, or null
-   *     for All Address Books.
+   *   for All Address Books.
    */
   displayBook(uid) {
     let book = uid ? MailServices.ab.getDirectoryFromUID(uid) : null;
@@ -2830,7 +2830,7 @@ var detailsPane = {
    * Show a read-only representation of a card in the details pane.
    *
    * @param {nsIAbCard?} card - The card to display. This should not be a
-   *     mailing list card. Pass null to hide the details pane.
+   *   mailing list card. Pass null to hide the details pane.
    */
   displayContact(card) {
     if (this.isEditing) {
@@ -2843,19 +2843,11 @@ var detailsPane = {
     }
     this.currentCard = card;
 
-    document.querySelector("#viewContact .contact-header").hidden = false;
-    document.getElementById("viewContactName").textContent = card.generateName(
-      ABView.nameFormat
-    );
-    document.getElementById("viewPrimaryEmail").textContent = card.primaryEmail;
-
-    document.getElementById("viewContactPhoto").src =
-      card.photoURL || "chrome://messenger/skin/icons/new/compact/user.svg";
-
-    // TODO no!
+    this.fillContactDetails(document.getElementById("viewContact"), card);
     document.getElementById("viewContactPhoto").hidden = document.querySelector(
       "#viewContact .contact-headings"
     ).hidden = false;
+    document.querySelector("#viewContact .contact-header").hidden = false;
 
     this.writeButton.hidden = this.searchButton.hidden = !card.primaryEmail;
     this.eventButton.hidden =
@@ -2870,16 +2862,37 @@ var detailsPane = {
     this.editButton.hidden = book.readOnly;
     this.actions.hidden = this.writeButton.hidden && this.editButton.hidden;
 
+    this.isEditing = false;
+    this.node.hidden = this.splitter.isCollapsed = false;
+    document.getElementById("viewContact").scrollTo(0, 0);
+  },
+
+  /**
+   * Set all the values for displaying a contact.
+   *
+   * @param {HTMLElement} element - The element to fill, either the on-screen
+   *   contact display or a clone of the printing template.
+   * @param {nsIAbCard} card - The card to display. This should not be a
+   *   mailing list card.
+   */
+  fillContactDetails(element, card) {
     let vCardProperties = card.supportsVCard
       ? card.vCardProperties
       : VCardProperties.fromPropertyMap(
           new Map(card.properties.map(p => [p.name, p.value]))
         );
 
-    let nickname = document.getElementById("viewContactNickName");
+    element.querySelector(".contact-photo").src =
+      card.photoURL || "chrome://messenger/skin/icons/new/compact/user.svg";
+    element.querySelector(
+      ".contact-heading-name"
+    ).textContent = card.generateName(ABView.nameFormat);
+    let nickname = element.querySelector(".contact-heading-nickname");
     let nicknameValue = vCardProperties.getFirstValue("nickname");
     nickname.hidden = !nicknameValue;
     nickname.textContent = nicknameValue;
+    element.querySelector(".contact-heading-email").textContent =
+      card.primaryEmail;
 
     let template = document.getElementById("entryItem");
     let createEntryItem = function(name) {
@@ -2910,7 +2923,7 @@ var detailsPane = {
       );
     };
 
-    let section = document.getElementById("emailAddresses");
+    let section = element.querySelector(".details-email-addresses");
     let list = section.querySelector("ul");
     list.replaceChildren();
     for (let entry of vCardProperties.getAllEntries("email")) {
@@ -2927,7 +2940,7 @@ var detailsPane = {
     }
     section.hidden = list.childElementCount == 0;
 
-    section = document.getElementById("phoneNumbers");
+    section = element.querySelector(".details-phone-numbers");
     list = section.querySelector("ul");
     list.replaceChildren();
     for (let entry of vCardProperties.getAllEntries("tel")) {
@@ -2940,7 +2953,7 @@ var detailsPane = {
     }
     section.hidden = list.childElementCount == 0;
 
-    section = document.getElementById("addresses");
+    section = element.querySelector(".details-addresses");
     list = section.querySelector("ul");
     list.replaceChildren();
     for (let entry of vCardProperties.getAllEntries("adr")) {
@@ -2960,7 +2973,7 @@ var detailsPane = {
     }
     section.hidden = list.childElementCount == 0;
 
-    section = document.getElementById("notes");
+    section = element.querySelector(".details-notes");
     let note = vCardProperties.getFirstValue("note");
     if (note) {
       section.querySelector("div").textContent = note;
@@ -2969,7 +2982,7 @@ var detailsPane = {
       section.hidden = true;
     }
 
-    section = document.getElementById("websites");
+    section = element.querySelector(".details-websites");
     list = section.querySelector("ul");
     list.replaceChildren();
 
@@ -2992,11 +3005,11 @@ var detailsPane = {
     }
     section.hidden = list.childElementCount == 0;
 
-    section = document.getElementById("instantMessaging");
+    section = element.querySelector(".details-instant-messaging");
     list = section.querySelector("ul");
     list.replaceChildren();
 
-    this._screenNamesToIMPPs();
+    this._screenNamesToIMPPs(card);
     for (let entry of vCardProperties.getAllEntries("impp")) {
       let li = list.appendChild(createEntryItem());
       let url;
@@ -3014,7 +3027,7 @@ var detailsPane = {
     }
     section.hidden = list.childElementCount == 0;
 
-    section = document.getElementById("otherInfo");
+    section = element.querySelector(".details-other-info");
     list = section.querySelector("ul");
     list.replaceChildren();
 
@@ -3151,10 +3164,6 @@ var detailsPane = {
     }
 
     section.hidden = list.childElementCount == 0;
-
-    this.isEditing = false;
-    this.node.hidden = this.splitter.isCollapsed = false;
-    document.getElementById("viewContact").scrollTo(0, 0);
   },
 
   /**
@@ -3199,9 +3208,12 @@ var detailsPane = {
     this.editCurrentContact(vCard);
   },
 
-  /** Takes old nsIAbCard chat names and put them on the card as IMPP URIs. */
-  _screenNamesToIMPPs() {
-    let card = this.currentCard;
+  /**
+   * Takes old nsIAbCard chat names and put them on the card as IMPP URIs.
+   *
+   * @param {nsIAbCard?} card - The card to change.
+   */
+  _screenNamesToIMPPs(card) {
     if (!card.supportsVCard) {
       return;
     }
@@ -3289,7 +3301,7 @@ var detailsPane = {
         }
       }
 
-      this._screenNamesToIMPPs();
+      this._screenNamesToIMPPs(card);
 
       this.vCardEdit.vCardProperties = card.vCardProperties;
       // getProperty may return a "1" or "0" string, we want a boolean.
@@ -4196,7 +4208,7 @@ var printHandler = {
     this._printCards(document.title, cards);
   },
 
-  _printCards(title, cards) {
+  async _printCards(title, cards) {
     let collator = new Intl.Collator(undefined, { numeric: true });
     let nameFormat = Services.prefs.getIntPref(
       "mail.addr_book.lastnamefirst",
@@ -4209,30 +4221,37 @@ var printHandler = {
       return collator.compare(aName, bName);
     });
 
-    let xml = "";
+    let printDocument = document.implementation.createHTMLDocument();
+    printDocument.title = title;
+    printDocument.head
+      .appendChild(printDocument.createElement("meta"))
+      .setAttribute("charset", "utf-8");
+    let link = printDocument.head.appendChild(
+      printDocument.createElement("link")
+    );
+    link.setAttribute("rel", "stylesheet");
+    link.setAttribute("href", "chrome://messagebody/skin/abPrint.css");
+
+    let printTemplate = document.getElementById("printTemplate");
+
     for (let card of cards) {
       if (card.isMailList) {
         continue;
       }
 
-      xml += `<separator/>\n${card.translateTo("xml")}\n<separator/>\n`;
+      let div = printDocument.createElement("div");
+      div.append(printTemplate.content.cloneNode(true));
+      detailsPane.fillContactDetails(div, card);
+      let photo = div.querySelector(".contact-photo");
+      if (photo.src.startsWith("chrome:")) {
+        photo.hidden = true;
+      }
+      await document.l10n.translateFragment(div);
+      printDocument.body.appendChild(div);
     }
 
-    this._printURL(
-      URL.createObjectURL(
-        new File(
-          [
-            `<?xml version="1.0"?>`,
-            `<?xml-stylesheet type="text/css" href="chrome://messagebody/skin/abPrint.css"?>`,
-            `<directory>`,
-            `<title xmlns="http://www.w3.org/1999/xhtml">${title}</title>`,
-            xml,
-            `</directory>`,
-          ],
-          "text/xml"
-        )
-      )
-    );
+    let html = new XMLSerializer().serializeToString(printDocument);
+    this._printURL(URL.createObjectURL(new File([html], "text/html")));
   },
 
   async _printURL(url) {

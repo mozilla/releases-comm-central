@@ -1940,12 +1940,17 @@ var IMAP_GMAIL_extension = {
     toBeThis._preGMAIL_STORE = toBeThis.STORE;
     toBeThis._preGMAIL_STORE_argFormat = toBeThis._argFormat.STORE;
     toBeThis._argFormat.STORE = ["number", "atom", "..."];
+    toBeThis._DEFAULT_LIST = toBeThis.LIST;
   },
   XLIST(args) {
     // XLIST is really just SPECIAL-USE that does not conform to RFC 6154
+    return this.LIST(args);
+  },
+  LIST(args) {
+    // XLIST was deprecated, LIST implies SPECIAL-USE for Gmail.
     args.push("RETURN");
     args.push("SPECIAL-USE");
-    return this.LIST(args);
+    return this._DEFAULT_LIST(args);
   },
   _LIST_RETURN_CHILDREN(aBox) {
     return IMAP_RFC5258_extension._LIST_RETURN_CHILDREN(aBox);

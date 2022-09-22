@@ -2,88 +2,88 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-directory {
-  display: block;
+:root {
+  font-family: sans-serif;
+}
+
+body > div {
+  padding: 0.5em;
+  break-inside: avoid-page;
+  border: 1px solid black;
+  margin: 0.5em;
+}
+
+.contact-header {
+  display: flex;
+  align-items: center;
+}
+
+.contact-photo {
+  margin-inline-end: 0.5em;
+  width: 5em;
+  height: 5em;
+  border-radius: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.contact-headings {
+  flex: 1;
+}
+
+.contact-heading-name {
+  margin-block: 0;
+  font-size: 1.4rem;
+  font-weight: 400;
+}
+
+.contact-heading-nickname {
+  margin-block: 0;
+  font-size: 1.1rem;
+}
+
+.contact-heading-email {
+  /* Don't print this, it's redundant information. */
+  display: none;
+}
+
+.contact-body {
+  column-width: 25em;
 }
 
 section {
-  display:block;
-  margin: 15px 20px;
+  padding-block: 0.5em;
+  line-height: 1.2;
+  box-shadow: var(--address-book-blocks-box-shadow);
+  box-sizing: border-box;
+  break-inside: avoid-column;
 }
 
-sectiontitle {
-  display:block;
-  font-weight:bold;
-  font-family:verdana;
-  font-size:small;
+h2 {
+  margin-block: 0 0.5em;
+  font-size: 1.1rem;
+  line-height: 1.2;
+  font-weight: 500;
 }
 
-labelrow {
-  display:block;
+.entry-list {
+  display: grid;
+  grid-template-columns: min-content auto;
+  gap: 0.5em;
+  align-items: baseline;
+  margin-block: 0;
+  margin-inline-start: 0.5em;
+  padding: 0;
+  list-style: none inside;
 }
 
-label {
-  display:inline;
-  font-family:verdana;
-  font-size:small;
+.entry-item {
+  display: contents;
 }
 
-GeneratedName {
-  display:block;
-  font-weight:bold;
-  font-family:verdana;
-  margin-top: 20px;
-  margin-bottom: 3px;
-  margin-inline-end: 10px;
-  margin-inline-start: 10px;
-}
-
-FirstName, LastName,
-HomeAddress, HomeAddress2, HomeCountry,
-WorkAddress, WorkAddress2, WorkCountry,
-JobTitle, Department, Company, Notes {
-  display: block;
-  font-family: verdana;
-  font-size: small;
-}
-
-DisplayName, NickName,
-WorkPhone, HomePhone, FaxNumber, PagerNumber, CellularNumber,
-HomeCity, HomeState, HomeZipCode,
-WorkCity, WorkState, WorkZipCode,
-Custom1, Custom2, Custom3, Custom4 {
-  display: inline;
-  font-family: verdana;
-  font-size: small;
-}
-
-PrimaryEmail, SecondEmail,
-WebPage1, WebPage2 {
-  display: block;
-  font-family: verdana;
-  font-size: small;
-  text-decoration: underline;
-  color: #666666;
-}
-
-separator {
-  display: block;
-  border-bottom: 1px solid #000000;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  margin-inline-end: 0px;
-  margin-inline-start: 10px;
-}
-
-table {
-  display: table;
-}
-
-tr {
-  display: table-row;
-}
-
-td {
-  display: table-cell;
-  vertical-align: top;
+.entry-type {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  opacity: .85;
 }

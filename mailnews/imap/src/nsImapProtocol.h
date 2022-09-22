@@ -812,7 +812,7 @@ class nsImapMockChannel : public nsIImapMockChannel,
   nsCOMPtr<nsIProgressEventSink> mProgressEventSink;
   nsCOMPtr<nsIInterfaceRequestor> mCallbacks;
   nsCOMPtr<nsISupports> mOwner;
-  nsCOMPtr<nsISupports> mSecurityInfo;
+  nsCOMPtr<nsITransportSecurityInfo> mSecurityInfo;
   nsCOMPtr<nsIRequest>
       mCacheRequest;  // the request associated with a read from the cache
   nsCString mContentType;

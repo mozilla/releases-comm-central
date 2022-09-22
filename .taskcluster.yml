@@ -41,7 +41,7 @@
 #
 #   {
 #     tasks_for: 'action',
-#     push: {owner, pushlog_id, revision},
+#     push: {owner, pushlog_id, revision, base_revision},
 #     repository: {url, project, level},
 #     input,
 #     taskId,      // targeted taskId
@@ -194,6 +194,7 @@ tasks:
                       # to `mach taskgraph decision` are all on the command line.
                       $merge:
                           - COMM_BASE_REPOSITORY: '${repoUrl}'
+                            COMM_BASE_REV: '${push.base_revision}'
                             COMM_HEAD_REPOSITORY: '${repoUrl}'
                             COMM_HEAD_REF: '${push.revision}'
                             COMM_HEAD_REV: '${push.revision}'
@@ -258,10 +259,6 @@ tasks:
                                 --head-repository="$GECKO_HEAD_REPOSITORY"
                                 --head-ref="$GECKO_HEAD_REF"
                                 --head-rev="$GECKO_HEAD_REV"
-                                --comm-base-repository="$COMM_BASE_REPOSITORY"
-                                --comm-head-repository="$COMM_HEAD_REPOSITORY"
-                                --comm-head-ref="$COMM_HEAD_REF"
-                                --comm-head-rev="$COMM_HEAD_REV"
                                 --try-task-config-file=comm/try_task_config.json
                                 ${extraArgs}
 

@@ -568,25 +568,12 @@ var stateListener = {
     // identity/signature switch. This can only be done once the message
     // body has already been assembled with the signature we need to switch.
     if (gMsgCompose.identity != gCurrentIdentity) {
-      // Since switching the signature loses the caret position, we record it
-      // and restore it later.
-      let editor = GetCurrentEditor();
-      let selection = editor.selection;
-      let range = selection.getRangeAt(0);
-      let start = range.startOffset;
-      let startNode = range.startContainer;
-
-      editor.enableUndo(false);
       let identityList = document.getElementById("msgIdentity");
       identityList.selectedItem = identityList.getElementsByAttribute(
         "identitykey",
         gMsgCompose.identity.key
       )[0];
       LoadIdentity(false);
-
-      editor.enableUndo(true);
-      editor.resetModificationCount();
-      selection.collapse(startNode, start);
     }
     if (gMsgCompose.composeHTML) {
       loadHTMLMsgPrefs();
@@ -3328,20 +3315,31 @@ function manageAttachmentNotification(aForce = false) {
     "label",
     getComposeBundle().getString("disableAttachmentReminderButton")
   );
-  disableAttachmentReminder.addEventListener("command", () => {
+  disableAttachmentReminder.addEventListener("command", event => {
     gDisableAttachmentReminder = true;
     toggleAttachmentReminder(false);
+    event.stopPropagation();
   });
   remindLaterMenuPopup.appendChild(disableAttachmentReminder);
 
-  let remindButton = {
-    is: "button-menu-button",
-    accessKey: getComposeBundle().getString("remindLaterButton.accesskey"),
-    label: getComposeBundle().getString("remindLaterButton"),
-    callback(aNotificationBar, aButton) {
-      toggleAttachmentReminder(true);
-    },
-  };
+  // The notification code only deals with buttons but we need a toolbarbutton,
+  // so we construct it and add it ourselves.
+  let remindButton = document.createXULElement("toolbarbutton", {
+    is: "toolbarbutton-menu-button",
+  });
+  remindButton.classList.add("notification-button", "small-button");
+  remindButton.setAttribute(
+    "accessKey",
+    getComposeBundle().getString("remindLaterButton.accesskey")
+  );
+  remindButton.setAttribute(
+    "label",
+    getComposeBundle().getString("remindLaterButton")
+  );
+  remindButton.addEventListener("command", function(event) {
+    toggleAttachmentReminder(true);
+  });
+  remindButton.appendChild(remindLaterMenuPopup);
 
   notification = gComposeNotification.appendNotification(
     "attachmentReminder",
@@ -3349,14 +3347,12 @@ function manageAttachmentNotification(aForce = false) {
       label: "",
       priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
     },
-    [addButton, remindButton]
+    [addButton]
   );
   notification.setAttribute("id", "attachmentNotificationBox");
 
   notification.messageText.appendChild(msg);
-  notification.buttonContainer.lastElementChild.appendChild(
-    remindLaterMenuPopup
-  );
+  notification.buttonContainer.appendChild(remindButton);
 }
 
 function clearRecipientsWithKeyIssues() {
@@ -8921,6 +8917,16 @@ function LoadIdentity(startup) {
     return;
   }
 
+  // Since switching the signature loses the caret position, we record it
+  // and restore it later.
+  let editor = GetCurrentEditor();
+  let selection = editor.selection;
+  let range = selection.getRangeAt(0);
+  let start = range.startOffset;
+  let startNode = range.startContainer;
+
+  editor.enableUndo(false);
+
   // Handle non-startup changing of identity.
   if (prevIdentity && idKey != prevIdentity.key) {
     let changedRecipients = false;
@@ -9105,6 +9111,10 @@ function LoadIdentity(startup) {
       [identityElement.selectedItem.value]
     );
   }
+
+  editor.enableUndo(true);
+  editor.resetModificationCount();
+  selection.collapse(startNode, start);
 
   // Try to focus the first available address row. If there are none, focus the
   // Subject which is always available.

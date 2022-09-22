@@ -42,7 +42,7 @@ interface nsIImapMockChannel : nsIChannel
   void GetChannelListener(out nsIStreamListener aChannelListener);
   void Close();
   void setImapProtocol(in nsIImapProtocol aProtocol);
-  [noscript] void setSecurityInfo(in nsISupports securityInfo);
+  [noscript] void setSecurityInfo(in nsITransportSecurityInfo securityInfo);
 
   void setURI(in nsIURI uri);
 };

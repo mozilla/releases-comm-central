@@ -70,7 +70,7 @@ function resetAlertPromise() {
   });
 }
 
-add_task(async function setupTest() {
+add_setup(async function() {
   localAccountUtils.loadLocalMailAccount();
 
   allow4GBFolders(false);

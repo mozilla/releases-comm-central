@@ -18,7 +18,7 @@ setupIMAPPump("GMail");
 // create our own handler so that we can call imapd functions directly
 var handler;
 
-add_task(function setupTest() {
+add_setup(function() {
   Services.prefs.setBoolPref(
     "mail.server.server1.autosync_offline_stores",
     false

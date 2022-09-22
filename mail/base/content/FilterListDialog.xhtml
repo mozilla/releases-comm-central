@@ -29,7 +29,6 @@
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/button-menu-button.js"/>
   <script src="chrome://messenger/content/searchWidgets.js"/>
   <script src="chrome://messenger/content/FilterListDialog.js"/>
 
@@ -108,11 +107,11 @@
     </vbox>
     <vbox>
       <label value=""/>
-      <button is="button-menu-button" id="newButton"
-              type="menu-button"
-              label="&newButton.label;"
-              accesskey="&newButton.accesskey;"
-              oncommand="onNewFilter();">
+      <toolbarbutton is="toolbarbutton-menu-button" id="newButton"
+                     type="menu-button"
+                     label="&newButton.label;"
+                     accesskey="&newButton.accesskey;"
+                     oncommand="onNewFilter();">
         <menupopup>
           <menuitem label="&newButton.label;"
                     accesskey="&newButton.accesskey;"/>
@@ -121,7 +120,7 @@
                     accesskey="&newButton.popupCopy.accesskey;"
                     oncommand="onCopyToNewFilter(); event.stopPropagation();"/>
         </menupopup>
-      </button>
+      </toolbarbutton>
       <button id="editButton" label="&editButton.label;"
               accesskey="&editButton.accesskey;"
               oncommand="onEditFilter();"/>

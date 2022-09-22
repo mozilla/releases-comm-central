@@ -2071,24 +2071,20 @@ var CustomizableUIInternal = {
   },
 
   maybeAutoHidePanel(aEvent) {
-    if (aEvent.type == "keypress") {
-      if (aEvent.keyCode != aEvent.DOM_VK_RETURN) {
-        return;
-      }
-      // If the user hit enter/return, we don't check preventDefault - it makes sense
-      // that this was prevented, but we probably still want to close the panel.
-      // If consumers don't want this to happen, they should specify the closemenu
-      // attribute.
-    } else if (aEvent.type != "command") {
-      // mouse events:
-      if (aEvent.defaultPrevented || aEvent.button != 0) {
-        return;
-      }
-      let isInteractive = this._isOnInteractiveElement(aEvent);
-      lazy.log.debug("maybeAutoHidePanel: interactive ? " + isInteractive);
-      if (isInteractive) {
-        return;
-      }
+    let eventType = aEvent.type;
+    if (eventType == "keypress" && aEvent.keyCode != aEvent.DOM_VK_RETURN) {
+      return;
+    }
+
+    if (eventType == "click" && aEvent.button != 0) {
+      return;
+    }
+
+    // We don't check preventDefault - it makes sense that this was prevented,
+    // but we probably still want to close the panel. If consumers don't want
+    // this to happen, they should specify the closemenu attribute.
+    if (eventType != "command" && this._isOnInteractiveElement(aEvent)) {
+      return;
     }
 
     // We can't use event.target because we might have passed an anonymous
@@ -2096,11 +2092,12 @@ var CustomizableUIInternal = {
     // that case. Unfortunately, this means we get anonymous child nodes instead
     // of the real ones, so looking for the 'stoooop, don't close me' attributes
     // is more involved.
-    let target = aEvent.target;
+    let target = aEvent.originalTarget;
     while (target.parentNode && target.localName != "panel") {
       if (
         target.getAttribute("closemenu") == "none" ||
-        target.getAttribute("widget-type") == "view"
+        target.getAttribute("widget-type") == "view" ||
+        target.getAttribute("widget-type") == "button-and-view"
       ) {
         return;
       }

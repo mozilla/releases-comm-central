@@ -141,6 +141,7 @@
   <hr is="pane-splitter" id="detailsSplitter" resize-id="detailsPane" />
   <div id="detailsPane" hidden="hidden">
     <article id="viewContact" class="contact-details-scroll">
+      <!-- If you're changing this, you probably want to change #printTemplate too. -->
       <header>
         <div class="contact-header">
           <img id="viewContactPhoto" class="contact-photo" alt="" />
@@ -178,33 +179,33 @@
                     data-l10n-id="about-addressbook-begin-edit-contact-button"></button>
           </div>
         </section>
-        <section id="emailAddresses">
+        <section id="emailAddresses" class="details-email-addresses">
           <h2 data-l10n-id="about-addressbook-details-email-addresses-header"></h2>
           <ul class="entry-list"></ul>
         </section>
-        <section id="phoneNumbers">
+        <section id="phoneNumbers" class="details-phone-numbers">
           <h2 data-l10n-id="about-addressbook-details-phone-numbers-header"></h2>
           <ul class="entry-list"></ul>
         </section>
-        <section id="addresses">
+        <section id="addresses" class="details-addresses">
           <h2 data-l10n-id="about-addressbook-details-addresses-header"></h2>
           <ul class="entry-list"></ul>
         </section>
-        <section id="notes">
+        <section id="notes" class="details-notes">
           <h2 data-l10n-id="about-addressbook-details-notes-header"></h2>
           <div></div>
         </section>
-        <section id="websites">
+        <section id="websites" class="details-websites">
           <!-- FIXME! We should use `about-addressbook-entry-name-website` for
            this fluent ID, after 102 when we can update it to a plural. -->
           <h2 data-l10n-id="vcard-url-header"></h2>
           <ul class="entry-list"></ul>
         </section>
-        <section id="instantMessaging">
+        <section id="instantMessaging" class="details-instant-messaging">
           <h2 data-l10n-id="about-addressbook-details-impp-header"></h2>
           <ul class="entry-list"></ul>
         </section>
-        <section id="otherInfo">
+        <section id="otherInfo" class="details-other-info">
           <h2 data-l10n-id="about-addressbook-details-other-info-header"></h2>
           <ul class="entry-list"></ul>
         </section>
@@ -333,6 +334,50 @@
                    disablehistory="true"/>
     </xul:vbox>
   </xul:vbox>
+
+  <template id="printTemplate">
+    <!-- If you're changing this, you probably want to change #viewContact too. -->
+    <div class="contact-header">
+      <img class="contact-photo" alt="" />
+      <div class="contact-headings">
+        <h1 class="contact-heading-name"></h1>
+        <p class="contact-heading-nickname"></p>
+        <p class="contact-heading-email"></p>
+      </div>
+    </div>
+    <div class="contact-body">
+      <section class="details-email-addresses">
+        <h2 data-l10n-id="about-addressbook-details-email-addresses-header"></h2>
+        <ul class="entry-list"></ul>
+      </section>
+      <section class="details-phone-numbers">
+        <h2 data-l10n-id="about-addressbook-details-phone-numbers-header"></h2>
+        <ul class="entry-list"></ul>
+      </section>
+      <section class="details-addresses">
+        <h2 data-l10n-id="about-addressbook-details-addresses-header"></h2>
+        <ul class="entry-list"></ul>
+      </section>
+      <section class="details-notes">
+        <h2 data-l10n-id="about-addressbook-details-notes-header"></h2>
+        <div></div>
+      </section>
+      <section class="details-websites">
+        <!-- FIXME! We should use `about-addressbook-entry-name-website` for
+         this fluent ID, after 102 when we can update it to a plural. -->
+        <h2 data-l10n-id="vcard-url-header"></h2>
+        <ul class="entry-list"></ul>
+      </section>
+      <section class="details-instant-messaging">
+        <h2 data-l10n-id="about-addressbook-details-impp-header"></h2>
+        <ul class="entry-list"></ul>
+      </section>
+      <section class="details-other-info">
+        <h2 data-l10n-id="about-addressbook-details-other-info-header"></h2>
+        <ul class="entry-list"></ul>
+      </section>
+    </div>
+  </template>
 </body>
 <xul:menupopup id="bookContext">
   <xul:menuitem id="bookContextProperties"/>
