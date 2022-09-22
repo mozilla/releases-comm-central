@@ -130,7 +130,6 @@ SOURCES += [
     "src/lib/crypto/sha1cd/sha1.c",
     "src/lib/crypto/sha1cd/ubc_check.c",
     "src/lib/crypto/signatures.cpp",
-    "src/lib/crypto/sm2.cpp",
     "src/lib/crypto/symmetric.cpp",
     "src/lib/fingerprint.cpp",
     "src/lib/generate-key.cpp",
