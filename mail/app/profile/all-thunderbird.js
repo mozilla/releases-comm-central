@@ -481,8 +481,6 @@ pref("browser.startup.homepage.abouthome_cache.enabled", true);
 #else
 pref("browser.startup.homepage.abouthome_cache.enabled", false);
 #endif
-// Whether to start the private browsing mode at application startup. Not used in Thunderbird.
-pref("browser.privatebrowsing.autostart", false);
 
 pref("spellchecker.dictionary", "");
 // Dictionary download preference
