@@ -81,7 +81,6 @@ add_task(async function test_spellcheck_in_content_tabs() {
   await wait_for_popup_to_open(mailContext);
   assert_element_visible("mailContext-spell-dictionaries");
   assert_element_visible("mailContext-spell-check-enabled");
-  assert_element_not_visible("mailContext-replySender"); // we're in a content tab!
   await close_popup(mc, mailContext);
 
   // Different test

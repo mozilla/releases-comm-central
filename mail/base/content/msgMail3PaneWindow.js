@@ -1040,9 +1040,6 @@ function FindInSidebar(currentWindow, id) {
  * selection object (thanks to JSTreeSelection) and set that as the
  * current/transient selection.
  *
- * It is up you to call RestoreSelectionWithoutContentLoad to clean up when we
- * are done.
- *
  * @param aSingleSelect Should the selection we create be a single selection?
  *     This is relevant if the row being clicked on is already part of the
  *     selection.  If it is part of the selection and !aSingleSelect, then we
@@ -1131,8 +1128,6 @@ function OpenMessageInNewTab(msgHdr, tabParams = {}) {
 }
 
 function ThreadTreeOnClick(event) {
-  var threadTree = document.getElementById("threadTree");
-
   // Middle click on a message opens the message in a tab
   if (
     event.button == 1 &&
@@ -1140,7 +1135,6 @@ function ThreadTreeOnClick(event) {
     event.target.localName != "scrollbarbutton"
   ) {
     OpenMessageInNewTab(gFolderDisplay.selectedMessage, { event });
-    RestoreSelectionWithoutContentLoad(threadTree);
   }
 }
 

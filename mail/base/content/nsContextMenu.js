@@ -129,18 +129,8 @@ class nsContextMenu {
       return;
     }
 
-    // Message Related Items
-    this.inAMessage = false;
-    this.inThreadPane = false;
-    this.inStandaloneWindow = false;
-    this.numSelectedMessages = 0;
-    this.isNewsgroup = false;
-    this.hideMailItems = false;
-
     this.isContentSelected =
       !this.selectionInfo || !this.selectionInfo.docSelectionIsCollapsed;
-
-    this.setMessageTargets();
 
     if (!aIsShift) {
       // The rest of this block sends menu information to WebExtensions.
@@ -175,11 +165,6 @@ class nsContextMenu {
           ? this.contentData.webExtContextData
           : undefined,
       };
-
-      if (this.inThreadPane) {
-        subject.displayedFolder = gFolderDisplay.view.displayedFolder;
-        subject.selectedMessages = gFolderDisplay.selectedMessages;
-      }
 
       subject.wrappedJSObject = subject;
       Services.obs.notifyObservers(subject, "on-build-contextmenu");
@@ -332,7 +317,6 @@ class nsContextMenu {
     this.initClipboardItems();
     this.initMediaPlayerItems();
     this.initBrowserItems();
-    this.initMessageItems();
     this.initSpellingItems();
     this.initSeparators();
   }
@@ -411,38 +395,27 @@ class nsContextMenu {
 
     goUpdateGlobalEditMenuItems();
 
-    this.showItem("mailContext-cut", !this.inAMessage && this.onTextInput);
+    this.showItem("mailContext-cut", this.onTextInput);
     this.showItem(
       "mailContext-copy",
-      !this.inThreadPane &&
-        !this.onPlayableMedia &&
-        (this.isContentSelected || this.onTextInput)
+      !this.onPlayableMedia && (this.isContentSelected || this.onTextInput)
     );
-    this.showItem("mailContext-paste", !this.inAMessage && this.onTextInput);
+    this.showItem("mailContext-paste", this.onTextInput);
 
-    this.showItem("mailContext-undo", !this.inAMessage && this.onTextInput);
+    this.showItem("mailContext-undo", this.onTextInput);
     // Select all not available in the thread pane or on playable media.
-    this.showItem(
-      "mailContext-selectall",
-      !this.inThreadPane && !this.onPlayableMedia
-    );
+    this.showItem("mailContext-selectall", !this.onPlayableMedia);
     this.showItem("mailContext-copyemail", this.onMailtoLink);
     this.showItem("mailContext-copylink", this.onLink && !this.onMailtoLink);
     this.showItem("mailContext-copyimage", this.onImage);
 
-    this.showItem(
-      "mailContext-composeemailto",
-      this.onMailtoLink && !this.inThreadPane
-    );
-    this.showItem(
-      "mailContext-addemail",
-      this.onMailtoLink && !this.inThreadPane
-    );
+    this.showItem("mailContext-composeemailto", this.onMailtoLink);
+    this.showItem("mailContext-addemail", this.onMailtoLink);
 
     let searchTheWeb = document.getElementById("mailContext-searchTheWeb");
     this.showItem(
       searchTheWeb,
-      !this.inThreadPane && !this.onPlayableMedia && this.isContentSelected
+      !this.onPlayableMedia && this.isContentSelected
     );
 
     if (!searchTheWeb.hidden) {
@@ -488,7 +461,6 @@ class nsContextMenu {
     // Work out if we are a context menu on a special item e.g. an image, link
     // etc.
     let notOnSpecialItem = !(
-      this.inAMessage ||
       this.isContentSelected ||
       this.onCanvas ||
       this.onLink ||
@@ -528,212 +500,6 @@ class nsContextMenu {
       this.onLink && ["http", "https"].includes(this.linkProtocol)
     );
   }
-  /* eslint-disable complexity */
-  initMessageItems() {
-    // If we're not in a message related tab, we're just going to bulk hide most
-    // items as this simplifies the logic below.
-    if (!this.inAMessage) {
-      const messageTabSpecificItems = [
-        "mailContext-openNewWindow",
-        "threadPaneContext-openNewTab",
-        "mailContext-openConversation",
-        "mailContext-openContainingFolder",
-        "mailContext-archive",
-        "mailContext-replySender",
-        "mailContext-replyNewsgroup",
-        "mailContext-replyAll",
-        "mailContext-replyList",
-        "mailContext-forward",
-        "mailContext-forwardAsMenu",
-        "mailContext-multiForwardAsAttachment",
-        "mailContext-redirect",
-        "mailContext-editAsNew",
-        "mailContext-editDraftMsg",
-        "mailContext-newMsgFromTemplate",
-        "mailContext-editTemplateMsg",
-        "mailContext-copyMessageUrl",
-        "mailContext-moveMenu",
-        "mailContext-copyMenu",
-        "mailContext-moveToFolderAgain",
-        "mailContext-decryptToFolder",
-        "mailContext-ignoreThread",
-        "mailContext-ignoreSubthread",
-        "mailContext-watchThread",
-        "mailContext-tags",
-        "mailContext-mark",
-        "mailContext-saveAs",
-        "mailContext-print",
-        "mailContext-delete",
-        "downloadSelected",
-        "mailContext-reportPhishingURL",
-        "mailContext-calendar-convert-menu",
-      ];
-      for (let i = 0; i < messageTabSpecificItems.length; ++i) {
-        this.showItem(messageTabSpecificItems[i], false);
-      }
-      return;
-    }
-
-    let canMove = gFolderDisplay.canDeleteSelectedMessages;
-
-    // Show the Open in New Window and New Tab options if there is exactly one
-    // message selected.
-    this.showItem(
-      "mailContext-openNewWindow",
-      this.numSelectedMessages == 1 && this.inThreadPane
-    );
-    this.showItem(
-      "threadPaneContext-openNewTab",
-      this.numSelectedMessages == 1 && this.inThreadPane
-    );
-
-    this.showItem(
-      "mailContext-openConversation",
-      this.numSelectedMessages == 1 &&
-        this.inThreadPane &&
-        ConversationOpener.isMessageIndexed(gFolderDisplay.selectedMessage)
-    );
-    this.showItem(
-      "mailContext-openContainingFolder",
-      !gFolderDisplay.folderPaneVisible &&
-        this.numSelectedMessages == 1 &&
-        !gMessageDisplay.isDummy
-    );
-
-    this.setSingleSelection("mailContext-replySender");
-    this.setSingleSelection("mailContext-replyNewsgroup", this.isNewsgroup);
-    this.setSingleSelection("mailContext-replyAll");
-    this.setSingleSelection("mailContext-replyList");
-    this.setSingleSelection("mailContext-forward");
-    this.setSingleSelection("mailContext-forwardAsMenu");
-    this.setSingleSelection("mailContext-redirect");
-    this.setSingleSelection("mailContext-editAsNew");
-    this.setSingleSelection(
-      "mailContext-editDraftMsg",
-      !document.getElementById("cmd_editDraftMsg").hidden
-    );
-    this.setSingleSelection(
-      "mailContext-newMsgFromTemplate",
-      !document.getElementById("cmd_newMsgFromTemplate").hidden
-    );
-    this.setSingleSelection(
-      "mailContext-editTemplateMsg",
-      !document.getElementById("cmd_editTemplateMsg").hidden
-    );
-
-    this.showItem(
-      "mailContext-multiForwardAsAttachment",
-      this.numSelectedMessages > 1 && this.inThreadPane && !this.hideMailItems
-    );
-
-    this.setSingleSelection("mailContext-copyMessageUrl", this.isNewsgroup);
-
-    let msgModifyItems =
-      this.numSelectedMessages > 0 &&
-      !this.hideMailItems &&
-      !this.onPlayableMedia &&
-      !(this.numSelectedMessages == 1 && gMessageDisplay.isDummy);
-    let canArchive = gFolderDisplay.canArchiveSelectedMessages;
-
-    this.showItem(
-      "mailContext-archive",
-      canMove && msgModifyItems && canArchive
-    );
-
-    // Set up the move menu. We can't move from newsgroups.
-    this.showItem("mailContext-moveMenu", msgModifyItems && !this.isNewsgroup);
-
-    // disable move if we can't delete message(s) from this folder
-    this.enableItem("mailContext-moveMenu", canMove && !this.onPlayableMedia);
-
-    // Copy is available as long as something is selected.
-    let canCopy =
-      msgModifyItems ||
-      (gMessageDisplay.isDummy && window.arguments[0].scheme == "file");
-    this.showItem("mailContext-copyMenu", canCopy);
-
-    this.showItem("mailContext-moveToFolderAgain", msgModifyItems);
-    if (msgModifyItems) {
-      initMoveToFolderAgainMenu(
-        document.getElementById("mailContext-moveToFolderAgain")
-      );
-      goUpdateCommand("cmd_moveToFolderAgain");
-    }
-
-    let showDecrypt = this.numSelectedMessages > 1;
-    if (this.numSelectedMessages == 1) {
-      let msgURI = gFolderDisplay.selectedMessageUris[0];
-      showDecrypt =
-        EnigmailURIs.isEncryptedUri(msgURI) ||
-        gEncryptedURIService.isEncrypted(msgURI);
-    }
-    this.showItem("mailContext-decryptToFolder", showDecrypt);
-
-    this.showItem("mailContext-tags", msgModifyItems);
-
-    this.showItem("mailContext-mark", msgModifyItems);
-
-    this.showItem(
-      "mailContext-ignoreThread",
-      !this.inStandaloneWindow &&
-        this.numSelectedMessages >= 1 &&
-        !this.hideMailItems &&
-        !this.onPlayableMedia
-    );
-
-    this.showItem(
-      "mailContext-ignoreSubthread",
-      !this.inStandaloneWindow &&
-        this.numSelectedMessages >= 1 &&
-        !this.hideMailItems &&
-        !this.onPlayableMedia
-    );
-
-    this.showItem(
-      "mailContext-watchThread",
-      !this.inStandaloneWindow &&
-        this.numSelectedMessages > 0 &&
-        !this.hideMailItems &&
-        !this.onPlayableMedia
-    );
-
-    this.showItem("mailContext-afterWatchThread", !this.inStandaloneWindow);
-
-    this.showItem(
-      "mailContext-saveAs",
-      this.numSelectedMessages > 0 &&
-        !this.hideMailItems &&
-        !gMessageDisplay.isDummy &&
-        !this.onPlayableMedia
-    );
-
-    // XXX Not quite modifying the message, but the same rules apply at the
-    // moment as we can't print non-message content from the message pane yet.
-    this.showItem("mailContext-print", msgModifyItems);
-
-    this.showItem(
-      "mailContext-delete",
-      msgModifyItems && (this.isNewsgroup || canMove)
-    );
-
-    // This function is needed for the case where a folder is just loaded (while
-    // there isn't a message loaded in the message pane), a right-click is done
-    // in the thread pane. This function will disable enable the 'Delete
-    // Message' menu item.
-    goUpdateCommand("cmd_delete");
-
-    this.showItem(
-      "downloadSelected",
-      this.numSelectedMessages > 1 && !this.hideMailItems
-    );
-
-    this.showItem(
-      "mailContext-reportPhishingURL",
-      !this.inThreadPane && this.onLink && !this.onMailtoLink
-    );
-
-    this.setSingleSelection("mailContext-calendar-convert-menu");
-  }
   initSeparators() {
     let separators = Array.from(
       this.xulMenu.querySelectorAll(":scope > menuseparator")
@@ -757,31 +523,6 @@ class nsContextMenu {
       separator.hidden = !shouldShow;
     }
     this.checkLastSeparator(this.xulMenu);
-  }
-
-  setMessageTargets() {
-    if (this.browser) {
-      this.inAMessage = ["imap", "mailbox", "news", "snews"].includes(
-        this.browser.currentURI.scheme
-      );
-      this.inThreadPane = false;
-      if (!this.inAMessage) {
-        this.inStandaloneWindow = true;
-        this.numSelectedMessages = 0;
-        this.isNewsgroup = false;
-        this.hideMailItems = true;
-        return;
-      }
-    } else {
-      this.inThreadPane = true;
-    }
-
-    this.inAMessage = true;
-    this.inStandaloneWindow = false;
-    this.numSelectedMessages = gFolderDisplay.selectedCount;
-    this.isNewsgroup = gFolderDisplay.selectedMessageIsNews;
-    // Don't show mail items for links/images, just show related items.
-    this.hideMailItems = !this.inThreadPane && (this.onImage || this.onLink);
   }
 
   /**
@@ -929,28 +670,6 @@ class nsContextMenu {
         ? document.getElementById(aItemOrId)
         : aItemOrId;
     item.disabled = !aEnabled;
-  }
-
-  /**
-   * Most menu items are visible if there's 1 or 0 messages selected, and
-   * enabled if there's exactly one selected. Handle those here.
-   * Exception: playable media is selected, in which case, don't show them.
-   *
-   * @param aID   the id of the element to display/enable
-   * @param aShow (optional)  an additional criteria to evaluate when we
-   *              decide whether to display the element. If false, we'll hide
-   *              the item no matter what messages are selected.
-   */
-  setSingleSelection(aID, aShow) {
-    let show = aShow != undefined ? aShow : true;
-    this.showItem(
-      aID,
-      this.numSelectedMessages == 1 &&
-        !this.hideMailItems &&
-        show &&
-        !this.onPlayableMedia
-    );
-    this.enableItem(aID, this.numSelectedMessages == 1);
   }
 
   /**

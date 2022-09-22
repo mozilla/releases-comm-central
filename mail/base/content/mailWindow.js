@@ -40,8 +40,6 @@ var msgWindow;
 
 var accountManager;
 
-var gContextMenu;
-
 UIDensity.registerWindow(window);
 
 /**

@@ -226,10 +226,6 @@ function handleDeleteColClick(event) {
 
   // Trigger the message deletion.
   goDoCommand("cmd_delete");
-
-  // Since a right click wasn't actually triggered, we need to call this method
-  // to restore the previous selection.
-  RestoreSelectionWithoutContentLoad(gFolderDisplay.tree);
 }
 
 function ThreadPaneDoubleClick() {

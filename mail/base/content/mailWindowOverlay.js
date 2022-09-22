@@ -1120,6 +1120,14 @@ function InitAppmenuViewBodyMenu() {
   }
 }
 
+function ShowMenuItem(id, showItem) {
+  document.getElementById(id).hidden = !showItem;
+}
+
+function EnableMenuItem(id, enableItem) {
+  document.getElementById(id).disabled = !enableItem;
+}
+
 function SetMenuItemLabel(menuItemId, customLabel) {
   var menuItem = document.getElementById(menuItemId);
   if (menuItem) {

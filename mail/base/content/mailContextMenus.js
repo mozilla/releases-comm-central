@@ -14,37 +14,12 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-/**
- * Function to change the highlighted row back to the row that is currently
- * outline/dotted without loading the contents of either rows. This is
- * triggered when the context menu for a given row is hidden/closed
- * (onpopuphiding).
- * @param tree the tree element to restore selection for
- */
-function RestoreSelectionWithoutContentLoad(tree) {
-  if (gRightMouseButtonSavedSelection) {
-    let view = gRightMouseButtonSavedSelection.view;
-    // restore the selection
-    let transientSelection = gRightMouseButtonSavedSelection.transientSelection;
-    let realSelection = gRightMouseButtonSavedSelection.realSelection;
-    view.selection = realSelection;
-    // replay any calls to adjustSelection, this handles suppression.
-    transientSelection.replayAdjustSelectionLog(realSelection);
-    // Avoid possible cycle leaks.
-    gRightMouseButtonSavedSelection.view = null;
-    gRightMouseButtonSavedSelection = null;
-
-    if (tree) {
-      tree.invalidate();
-    }
-  }
-}
+var gContextMenu;
 
 /**
- * Function to clear out the global nsContextMenu, and in the case when we
- * were a threadpane context menu, restore the selection so that a right-click
- * on a non-selected row doesn't move the selection.
- * @param event the onpopuphiding event
+ * Function to clear out the global nsContextMenu.
+ *
+ * @param {Event} event - The onpopuphiding event.
  */
 function mailContextOnPopupHiding(aEvent) {
   // Don't do anything if it's a submenu's onpopuphiding that's just bubbling
@@ -53,56 +28,16 @@ function mailContextOnPopupHiding(aEvent) {
     return;
   }
 
-  let wasInThreadPane = gContextMenu.inThreadPane;
   gContextMenu.hiding();
   gContextMenu = null;
-  if (wasInThreadPane && "GetThreadTree" in window) {
-    RestoreSelectionWithoutContentLoad(GetThreadTree());
-  }
 }
 
+/**
+ * Function to set the global nsContextMenu.
+ *
+ * @param {Event} event - The onpopupshowing event.
+ */
 function fillMailContextMenu(event) {
-  let target = event.target.triggerNode;
-  if (target?.localName == "treecol") {
-    let treeColPicker = target.parentNode.querySelector("treecolpicker");
-    let popup = treeColPicker.querySelector(`menupopup[anonid="popup"]`);
-    treeColPicker.buildPopup(popup);
-    popup.openPopup(target, "after_start", 0, 0, true);
-    return false;
-  }
-
-  // If the popupshowing was for a submenu, we don't need to do anything.
-  if (event.target != event.currentTarget) {
-    return true;
-  }
-
-  // No menu on grouped header row currently, any command would be an implied
-  // multiselect.
-  if (gFolderDisplay?.tree) {
-    let row = gFolderDisplay.tree.getRowAt(event.clientX, event.clientY);
-    if (gFolderDisplay.view.isGroupedByHeaderAtIndex(row)) {
-      RestoreSelectionWithoutContentLoad(gFolderDisplay.tree);
-      return false;
-    }
-  }
-
-  goUpdateCommand("cmd_killThread");
-  goUpdateCommand("cmd_killSubthread");
-  goUpdateCommand("cmd_watchThread");
-
-  goUpdateCommand("cmd_print");
-
-  updateCheckedStateForIgnoreAndWatchThreadCmds();
-
-  // Show "Edit Draft Message" menus only in a drafts folder; otherwise hide them.
-  showCommandInSpecialFolder("cmd_editDraftMsg", Ci.nsMsgFolderFlags.Drafts);
-  // Show "New Message from Template" and "Edit Template" menus only in a
-  // templates folder; otherwise hide them.
-  showCommandInSpecialFolder(
-    ["cmd_newMsgFromTemplate", "cmd_editTemplateMsg"],
-    Ci.nsMsgFolderFlags.Templates
-  );
-
   gContextMenu = new nsContextMenu(event.target, event.shiftKey);
   return gContextMenu.shouldDisplay;
 }
@@ -176,42 +111,6 @@ function OpenMessageByHeader(messageHeader, openInNewWindow) {
   }
 }
 
-function folderPaneOnPopupHiding() {
-  RestoreSelectionWithoutContentLoad(document.getElementById("folderTree"));
-}
-
-function ShowMenuItem(id, showItem) {
-  document.getElementById(id).hidden = !showItem;
-}
-
-function EnableMenuItem(id, enableItem) {
-  document.getElementById(id).disabled = !enableItem;
-}
-
-function SetMenuItemLabel(id, label) {
-  document.getElementById(id).setAttribute("label", label);
-}
-
-// helper function used by shouldShowSeparator
-function hasAVisibleNextSibling(aNode) {
-  var sibling = aNode.nextElementSibling;
-  while (sibling) {
-    if (!sibling.hidden && sibling.localName != "menuseparator") {
-      return true;
-    }
-    sibling = sibling.nextElementSibling;
-  }
-  return false;
-}
-
-function IsMenuItemShowing(menuID) {
-  var item = document.getElementById(menuID);
-  if (item) {
-    return item.hidden != "true";
-  }
-  return false;
-}
-
 // message pane context menu helper methods
 function addEmail(url = gContextMenu.linkURL) {
   let addresses = getEmail(url);
@@ -260,23 +159,4 @@ function getEmail(url) {
     // Do nothing.
   }
   return addresses;
-}
-
-function CopyMessageUrl() {
-  try {
-    var hdr = gDBView.hdrForFirstSelectedMessage;
-    var server = hdr.folder.server;
-
-    // TODO let backend construct URL and return as attribute
-    var url =
-      server.socketType == Ci.nsMsgSocketType.SSL ? "snews://" : "news://";
-    url += server.hostName + ":" + server.port + "/" + hdr.messageId;
-
-    var clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
-      Ci.nsIClipboardHelper
-    );
-    clipboard.copyString(url);
-  } catch (ex) {
-    dump("ex=" + ex + "\n");
-  }
 }
