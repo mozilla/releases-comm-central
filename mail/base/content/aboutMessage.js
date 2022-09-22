@@ -89,10 +89,6 @@ function getMessagePaneBrowser() {
   return content;
 }
 
-function reportMsgRead() {
-  // TODO: implement this telemetry function.
-}
-
 function ReloadMessage() {
   if (!gMessageURI) {
     return;

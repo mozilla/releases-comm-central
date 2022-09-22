@@ -8,7 +8,6 @@
 /* import-globals-from ../../../mailnews/extensions/newsblog/newsblogOverlay.js */
 /* import-globals-from commandglue.js */
 /* import-globals-from contentAreaClick.js */
-/* import-globals-from folderDisplay.js */
 /* import-globals-from mail3PaneWindowCommands.js */
 /* import-globals-from mailCommands.js */
 /* import-globals-from mailContextMenus.js */
@@ -137,10 +136,6 @@ function updateCheckedStateForIgnoreAndWatchThreadCmds() {
   let tab = document.getElementById("tabmail")?.currentTabInfo;
   if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
     message = tab.message;
-  } else if (tab?.folderDisplay) {
-    message = tab.folderDisplay.selectedMessage;
-  } else {
-    message = gFolderDisplay?.selectedMessage;
   }
 
   let folder = message?.folder;
@@ -1551,44 +1546,6 @@ function MsgOpenNewTabForFolders(folders, tabParams = {}) {
   }
 }
 
-function MsgOpenSelectedMessages() {
-  // Toggle message body (feed summary) and content-base url in message pane or
-  // load in browser, per pref, otherwise open summary or web page in new window
-  // or tab, per that pref.
-  if (
-    gFolderDisplay.treeSelection &&
-    gFolderDisplay.treeSelection.count == 1 &&
-    gFolderDisplay.selectedMessageIsFeed
-  ) {
-    let msgHdr = gFolderDisplay.selectedMessage;
-    if (
-      document.documentElement.getAttribute("windowtype") == "mail:3pane" &&
-      FeedMessageHandler.onOpenPref ==
-        FeedMessageHandler.kOpenToggleInMessagePane
-    ) {
-      let showSummary = FeedMessageHandler.shouldShowSummary(msgHdr, true);
-      FeedMessageHandler.setContent(msgHdr, showSummary);
-      return;
-    }
-    if (
-      FeedMessageHandler.onOpenPref == FeedMessageHandler.kOpenLoadInBrowser
-    ) {
-      setTimeout(FeedMessageHandler.loadWebPage, 20, msgHdr, { browser: true });
-      return;
-    }
-  }
-
-  // This is somewhat evil. If we're in a 3pane window, we'd have a tabmail
-  // element and would pass it in here, ensuring that if we open tabs, we use
-  // this tabmail to open them. If we aren't, then we wouldn't, so
-  // displayMessages would look for a 3pane window and open tabs there.
-  MailUtils.displayMessages(
-    gFolderDisplay.selectedMessages,
-    gFolderDisplay.view,
-    document.getElementById("tabmail")
-  );
-}
-
 function MsgOpenFromFile() {
   var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
@@ -2177,10 +2134,10 @@ function openGlodaSearchTab() {
  * Opens a search window with the given folder, or the displayed one if none is
  * chosen.
  *
- * @param {?nsIMsgFolder} aFolder - The folder to open the search window for, if
+ * @param {nsIMsgFolder} folder - The folder to open the search window for, if
  *   different from the displayed one.
  */
-function MsgSearchMessages(aFolder) {
+function MsgSearchMessages(folder) {
   // Don't trigger anything if there are no accounts configured. This is to
   // disable potential triggers via shortcuts.
   if (MailServices.accounts.accounts.length == 0) {
@@ -2192,9 +2149,7 @@ function MsgSearchMessages(aFolder) {
     "chrome://messenger/content/SearchDialog.xhtml",
     "_blank",
     "chrome,resizable,status,centerscreen,dialog=no",
-    {
-      folder: aFolder || gFolderDisplay.displayedFolder,
-    }
+    { folder }
   );
 }
 

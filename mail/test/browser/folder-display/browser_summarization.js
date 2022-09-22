@@ -164,8 +164,6 @@ add_task(async function test_message_tabs_update_correctly() {
 add_task(function test_selection_stabilization_logic() {
   // make sure all summarization has run to completion.
   mc.sleep(0);
-  // make it inconceivable that the timeout happens.
-  mc.window.MessageDisplayWidget.prototype.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS = 10000;
   // does not summarize anything, does not affect timer
   select_click_row(0);
   // does summarize things.  timer will be tick tick ticking!
@@ -181,18 +179,6 @@ add_task(function test_selection_stabilization_logic() {
   select_shift_click_row(2, mc, true);
   // verify that our summary is still just 0 and 1.
   assert_messages_summarized(mc, messages);
-
-  // - put it back, the way it was
-  // oh put it back the way it was
-  // ...
-  // That's right folks, a 'Lil Abner reference.
-  // ...
-  // Culture!
-  // ...
-  // I'm already embarrassed I wrote that.
-  mc.window.MessageDisplayWidget.prototype.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS = 0;
-  // (we did that because the stability logic is going to schedule another guard
-  //  timer when we manually trigger it, and we want that to clear immediately.)
 
   // - pretend the timer fired.
   // we need to de-schedule the timer, but do not need to clear the variable

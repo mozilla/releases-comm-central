@@ -7,7 +7,6 @@
 /* import-globals-from mailContextMenus.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from mailWindowOverlay.js */
-/* import-globals-from messageDisplay.js */
 /* import-globals-from msgMail3PaneWindow.js */
 
 XPCOMUtils.defineLazyModuleGetters(this, {

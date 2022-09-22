@@ -6,7 +6,6 @@
  * Command-specific code. This stuff should be called by the widgets
  */
 
-/* import-globals-from folderDisplay.js */
 /* import-globals-from folderPane.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from msgMail3PaneWindow.js */

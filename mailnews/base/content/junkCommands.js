@@ -13,14 +13,13 @@
  *
  *   One of:
  *     GetSelectedIndices(view) (in suite)
- *     gFolderDisplay (in mail)
  *
  *   messenger
  *   gDBView
  *   msgWindow
  */
 
-/* globals ClearMessagePane, gDBView, gFolderDisplay, MarkSelectedMessagesRead, messenger,
+/* globals ClearMessagePane, gDBView, MarkSelectedMessagesRead, messenger,
    msgWindow, nsMsgViewIndex_None */
 
 var { MailServices } = ChromeUtils.import(

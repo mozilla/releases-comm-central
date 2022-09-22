@@ -7,7 +7,7 @@
 "use strict";
 
 /* global setMessageEncryptionStateButton */
-/* global gFolderDisplay: false, currentAttachments: false */
+/* global currentAttachments: false */
 /* global gDBView: false, msgWindow: false, messageHeaderSink: false, gMessageListeners: false */
 /* global gExpandedHeaderView: false, CanDetachAttachments: true, gEncryptedURIService: false, FillAttachmentListPopup: false */
 /* global attachmentList: false, currentHeaderData: false */

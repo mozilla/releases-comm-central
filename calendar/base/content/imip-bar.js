@@ -5,7 +5,7 @@
 /* import-globals-from ../../../mail/base/content/msgHdrView.js */
 /* import-globals-from item-editing/calendar-item-editing.js */
 
-/* globals gMessageDisplay, msgWindow */
+/* globals msgWindow */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 

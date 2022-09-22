@@ -126,8 +126,6 @@
   <script defer="defer" src="chrome://messenger/content/mailCommands.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailWindowOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailTabs.js"></script>
-  <script defer="defer" src="chrome://messenger/content/messageDisplay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/folderDisplay.js"></script>
   <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/mail-offline.js"></script>
   <script defer="defer" src="chrome://messenger/content/msgViewPickerOverlay.js"></script>
@@ -156,9 +154,6 @@
 #ifdef XP_WIN
   <script defer="defer" src="chrome://messenger/content/minimizeToTray.js"></script>
 #endif
-
-  <script defer="defer" src="chrome://messenger/content/threadPane.js"></script>
-
   <!-- calendar-management.js also needed for multiple calendar support and today pane -->
   <script defer="defer" src="chrome://calendar/content/calendar-management.js"></script>
   <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
@@ -286,10 +281,6 @@
              oncommand="goDoCommand('cmd_deleteAllAttachments');"
              disabled="true"/>
   </commandset>
-  <commandset id="FocusRingUpdate_Mail"
-        commandupdater="true"
-        events="focus"
-        oncommandupdate="FocusRingUpdate_Mail()"/>
   <commandset id="tasksCommands">
     <command id="cmd_newMessage" oncommand="goOpenNewMessage();"/>
     <command id="cmd_newCard" oncommand="openNewCardDialog()"/>

@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from commandglue.js */
-/* import-globals-from folderDisplay.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
 
@@ -111,11 +110,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
       type == Ci.nsIMsgCompType.ReplyToSenderAndGroup ||
       type == Ci.nsIMsgCompType.ReplyToList
     ) {
-      let displayKey =
-        window.gMessageDisplay?.displayedMessage &&
-        "messageKey" in gMessageDisplay.displayedMessage
-          ? gMessageDisplay.displayedMessage.messageKey
-          : null;
+      let displayKey = null; // TODO
       if (msgKey != displayKey) {
         // Not replying to the displayed message, so remove the selection
         // in order not to quote from the wrong message.

@@ -11,10 +11,8 @@
 
 /* import-globals-from ../../components/im/content/chat-messenger.js */
 /* import-globals-from commandglue.js */
-/* import-globals-from folderDisplay.js */
 /* import-globals-from mailCore.js */
 /* import-globals-from mailWindow.js */
-/* import-globals-from threadPane.js */
 /* import-globals-from utilityOverlay.js */
 
 var { MailServices } = ChromeUtils.import(
@@ -320,33 +318,6 @@ function CloseTabOrWindow() {
 function GetNumSelectedMessages() {
   // This global function is only for mailnews/ compatibility.
   return gFolderDisplay.selectedCount;
-}
-
-var gLastFocusedElement = null;
-
-function FocusRingUpdate_Mail() {
-  if (!gFolderDisplay) {
-    return;
-  }
-
-  // if the focusedElement is null, we're here on a blur.
-  // nsFocusController::Blur() calls nsFocusController::SetFocusedElement(null),
-  // which will update any commands listening for "focus".
-  // we really only care about nsFocusController::Focus() happens,
-  // which calls nsFocusController::SetFocusedElement(element)
-  var currentFocusedElement = gFolderDisplay.focusedPane;
-
-  if (currentFocusedElement != gLastFocusedElement) {
-    if (currentFocusedElement) {
-      currentFocusedElement.setAttribute("focusring", "true");
-    }
-
-    if (gLastFocusedElement) {
-      gLastFocusedElement.removeAttribute("focusring");
-    }
-
-    gLastFocusedElement = currentFocusedElement;
-  }
 }
 
 function IsSendUnsentMsgsEnabled(unsentMsgsFolder) {

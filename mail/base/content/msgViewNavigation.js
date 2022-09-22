@@ -6,9 +6,7 @@
 /*  This file contains the js functions necessary to implement view navigation within the 3 pane. */
 
 /* import-globals-from commandglue.js */
-/* import-globals-from folderDisplay.js */
 /* import-globals-from mailWindow.js */
-/* import-globals-from messageDisplay.js */
 
 ChromeUtils.defineModuleGetter(
   this,

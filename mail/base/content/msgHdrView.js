@@ -1312,6 +1312,7 @@ function UpdateExpandedMessageHeaders() {
 }
 
 function ClearCurrentHeaders() {
+  gSecureMsgProbe = {};
   // eslint-disable-next-line no-global-assign
   currentHeaderData = {};
   // eslint-disable-next-line no-global-assign
@@ -3809,20 +3810,26 @@ const gMessageHeader = {
     let id = event.currentTarget.closest(".header-message-id").id;
     if (event.button == 0) {
       // Remove the < and > symbols.
-      OpenMessageForMessageId(id.substring(1, id.length - 1));
+      window.browsingContext.topChromeWindow.OpenMessageForMessageId(
+        id.substring(1, id.length - 1)
+      );
     }
   },
 
   openMessage(event) {
     let id = event.currentTarget.parentNode.headerField.id;
     // Remove the < and > symbols.
-    OpenMessageForMessageId(id.substring(1, id.length - 1));
+    window.browsingContext.topChromeWindow.OpenMessageForMessageId(
+      id.substring(1, id.length - 1)
+    );
   },
 
   openBrowser(event) {
     let id = event.currentTarget.parentNode.headerField.id;
     // Remove the < and > symbols.
-    OpenBrowserWithMessageId(id.substring(1, id.length - 1));
+    window.browsingContext.topChromeWindow.OpenBrowserWithMessageId(
+      id.substring(1, id.length - 1)
+    );
   },
 
   copyMessageId(event) {
@@ -5041,3 +5048,29 @@ function SendMDNResponse() {
 function IgnoreMDNResponse() {
   gMessageNotificationBar.mdnGenerator.userDeclined();
 }
+
+// An object to help collecting reading statistics of secure emails.
+var gSecureMsgProbe = {};
+
+/**
+ * Update gSecureMsgProbe and report to telemetry if necessary.
+ */
+function reportMsgRead({ isNewRead = false, key = null }) {
+  if (isNewRead) {
+    gSecureMsgProbe.isNewRead = true;
+  }
+  if (key) {
+    gSecureMsgProbe.key = key;
+  }
+  if (gSecureMsgProbe.key && gSecureMsgProbe.isNewRead) {
+    Services.telemetry.keyedScalarAdd(
+      "tb.mails.read_secure",
+      gSecureMsgProbe.key,
+      1
+    );
+  }
+}
+
+window.addEventListener("secureMsgLoaded", event => {
+  reportMsgRead({ key: event.detail.key });
+});
