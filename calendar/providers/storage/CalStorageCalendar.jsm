@@ -170,13 +170,15 @@ CalStorageCalendar.prototype = {
 
   afterUpgradeDB() {
     this.initDB();
-    Services.obs.addObserver(this, "profile-before-change");
+    Services.obs.addObserver(this, "profile-change-teardown");
   },
 
   observe(aSubject, aTopic, aData) {
-    if (aTopic == "profile-before-change") {
-      Services.obs.removeObserver(this, "profile-before-change");
-      this.shutdownDB();
+    if (aTopic == "profile-change-teardown") {
+      Services.obs.removeObserver(this, "profile-change-teardown");
+      // Finalize the storage statements, but don't close the database.
+      // CalStorageDatabase.jsm will take care of that while blocking profile-before-change.
+      this.mStatements?.finalize();
     }
   },
 
@@ -497,11 +499,11 @@ CalStorageCalendar.prototype = {
     }
   },
 
-  shutdownDB() {
+  async shutdownDB() {
     try {
       this.mStatements.finalize();
       if (this.mStorageDb) {
-        this.mStorageDb.close();
+        await this.mStorageDb.close();
         this.mStorageDb = null;
       }
     } catch (e) {
