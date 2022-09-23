@@ -373,6 +373,7 @@ class ImapClient {
   fetchMessage(folder, uid) {
     this._logger.debug(`fetchMessage folder=${folder.name} uid=${uid}`);
     if (folder.hasMsgOffline(uid, null, 10)) {
+      this.onDone = () => {};
       this.channel?.readFromLocalCache();
       this._actionDone();
       return;
@@ -604,7 +605,6 @@ class ImapClient {
   logout() {
     this._sendTagged("LOGOUT");
     this._socket.close();
-    this._actionDone();
   }
 
   /**
@@ -1329,7 +1329,6 @@ class ImapClient {
       this._sendTagged(`UID FETCH ${uids} (UID RFC822.SIZE FLAGS BODY.PEEK[])`);
       return;
     }
-    this.onData?.();
     this._actionDone();
   }
 
@@ -1353,7 +1352,6 @@ class ImapClient {
       this.onData?.(msg.body);
     }
     this._folderSink.headerFetchCompleted(this);
-    this.onData?.();
     this._actionDone();
   }
 
@@ -1431,8 +1429,10 @@ class ImapClient {
     this._nextAction = null;
     this._urlListener?.OnStopRunningUrl(this.runningUrl, status);
     this.runningUrl.SetUrlState(false, status);
-    this.onDone?.();
+    this.onDone?.(status);
     this._reset();
+    // Tell ImapIncomingServer this client can be reused now.
+    this.onFree?.();
   };
 
   /** @see nsIImapProtocol */

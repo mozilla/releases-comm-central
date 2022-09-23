@@ -449,7 +449,7 @@ class ImapIncomingServer extends MsgIncomingServer {
     if (!client) {
       return;
     }
-    client.onDone = async () => {
+    client.onFree = async () => {
       this._busyConnections = this._busyConnections.filter(c => c != client);
       this._freeConnections.push(client);
       let resolve = this._connectionWaitingQueue.shift();
