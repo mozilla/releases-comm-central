@@ -1344,15 +1344,24 @@ class ImapClient {
     this._msgSink = this.folder.QueryInterface(Ci.nsIImapMessageSink);
     this._folderSink = this.folder.QueryInterface(Ci.nsIImapMailFolderSink);
     for (let msg of res.messages) {
-      this._folderSink.StartMessage(this.runningUrl);
-      this._msgSink.parseAdoptedMsgLine(msg.body, msg.uid, this.runningUrl);
-      this._msgSink.normalEndMsgWriteStream(
-        msg.uid,
-        true,
-        this.runningUrl,
-        msg.body.length
-      );
-      this._folderSink.EndMessage(this.runningUrl, msg.uid);
+      let shouldStoreMsgOffline = false;
+      try {
+        shouldStoreMsgOffline = this.folder.shouldStoreMsgOffline(msg.uid);
+      } catch (e) {}
+      if (
+        shouldStoreMsgOffline ||
+        this.runningUrl.QueryInterface(Ci.nsIImapUrl).storeResultsOffline
+      ) {
+        this._folderSink.StartMessage(this.runningUrl);
+        this._msgSink.parseAdoptedMsgLine(msg.body, msg.uid, this.runningUrl);
+        this._msgSink.normalEndMsgWriteStream(
+          msg.uid,
+          true,
+          this.runningUrl,
+          msg.body.length
+        );
+        this._folderSink.EndMessage(this.runningUrl, msg.uid);
+      }
       this.onData?.(msg.body);
     }
     this._folderSink.headerFetchCompleted(this);
