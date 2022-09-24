@@ -4,9 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["CalStorageDatabase"];
 
-const { AsyncShutdown } = ChromeUtils.import(
-  "resource://gre/modules/AsyncShutdown.jsm"
-);
+const { AsyncShutdown } = ChromeUtils.import("resource://gre/modules/AsyncShutdown.jsm");
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 let connections = new Map();
@@ -58,16 +56,13 @@ function closeConnection(connection, forceClosed) {
 }
 
 // Clean up all open databases at shutdown.
-AsyncShutdown.profileBeforeChange.addBlocker(
-  "Calendar: closing databases",
-  async () => {
-    let promises = [];
-    for (let data of connections.values()) {
-      promises.push(closeConnection(data.connection, true));
-    }
-    await Promise.allSettled(promises);
+AsyncShutdown.profileBeforeChange.addBlocker("Calendar: closing databases", async () => {
+  let promises = [];
+  for (let data of connections.values()) {
+    promises.push(closeConnection(data.connection, true));
   }
-);
+  await Promise.allSettled(promises);
+});
 
 /**
  * CalStorageDatabase is a mozIStorageAsyncConnection wrapper used by the
