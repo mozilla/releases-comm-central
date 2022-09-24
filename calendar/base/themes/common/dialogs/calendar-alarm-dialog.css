@@ -103,12 +103,3 @@ richlistitem[is="calendar-alarm-widget-richlistitem"]:not([selected="true"]) .al
   padding: 0;
 }
 
-:root[lwt-tree] #alarm-snooze-all-popup,
-:root[lwt-tree] menupopup[is="calendar-snooze-popup"] {
-  appearance: none;
-  border: 1px solid var(--box-border-color);
-  border-radius: var(--button-border-radius);
-  background-color: var(--box-background-color);
-  color: var(--box-text-color);
-}
-
