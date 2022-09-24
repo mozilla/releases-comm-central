@@ -52,3 +52,7 @@ hbox > .small-button + .small-button {
 #searchTermList > listitem[selected="true"] {
   background-color: inherit;
 }
+
+toolbarbutton[type="menu-button"] > toolbarbutton {
+  min-height: 0;
+}

@@ -340,14 +340,6 @@ toolbarbutton.notification-button[type="menu-button"] > toolbarbutton:hover:acti
   border-color: var(--in-content-button-border-color-active);
 }
 
-.button-menubutton-dropmarker {
-  appearance: none;
-}
-
-button dropmarker::part(icon) {
-  margin-inline-start: 3px;
-}
-
 toolbarbutton.notification-button[is="toolbarbutton-menu-button"] > dropmarker {
   appearance: none;
   list-style-image: var(--icon-nav-down-sm);
