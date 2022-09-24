@@ -4,7 +4,70 @@
 
 const EXPORTED_SYMBOLS = ["CalStorageDatabase"];
 
+const { AsyncShutdown } = ChromeUtils.import(
+  "resource://gre/modules/AsyncShutdown.jsm"
+);
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+
+let connections = new Map();
+
+/**
+ * Checks for an existing SQLite connection to `file`, or creates a new one.
+ * Calls to `openConnectionTo` and `closeConnection` are counted so we know
+ * if a connection is no longer used.
+ *
+ * @param {nsIFile} file
+ * @returns {mozIStorageConnection}
+ */
+function openConnectionTo(file) {
+  let data = connections.get(file.path);
+
+  if (data) {
+    data.useCount++;
+    return data.connection;
+  }
+
+  let connection = Services.storage.openDatabase(file);
+  connections.set(file.path, { connection, useCount: 1 });
+  return connection;
+}
+
+/**
+ * Closes an SQLite connection if it is no longer in use.
+ *
+ * @param {mozIStorageConnection} connection
+ * @returns {Promise} - resolves when the connection is closed, or immediately
+ *   if the database is still in use.
+ */
+function closeConnection(connection, forceClosed) {
+  let file = connection.databaseFile;
+  let data = connections.get(file.path);
+
+  if (forceClosed || !data || --data.useCount == 0) {
+    return new Promise(resolve => {
+      connection.asyncClose({
+        complete() {
+          resolve();
+        },
+      });
+      connections.delete(file.path);
+    });
+  }
+
+  return Promise.resolve();
+}
+
+// Clean up all open databases at shutdown.
+AsyncShutdown.profileBeforeChange.addBlocker(
+  "Calendar: closing databases",
+  async () => {
+    let promises = [];
+    for (let data of connections.values()) {
+      promises.push(closeConnection(data.connection, true));
+    }
+    await Promise.allSettled(promises);
+  }
+);
 
 /**
  * CalStorageDatabase is a mozIStorageAsyncConnection wrapper used by the
@@ -52,7 +115,7 @@ class CalStorageDatabase {
         throw new Components.Exception("Invalid file", Cr.NS_ERROR_NOT_IMPLEMENTED);
       }
       // open the database
-      return new CalStorageDatabase(Services.storage.openDatabase(fileURL.file), calendarId);
+      return new CalStorageDatabase(openConnectionTo(fileURL.file), calendarId);
     } else if (uri.schemeIs("moz-storage-calendar")) {
       // New style uri, no need for migration here
       let localDB = cal.provider.getCalendarDirectory();
@@ -63,7 +126,7 @@ class CalStorageDatabase {
         localDB.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o700);
       }
 
-      return new CalStorageDatabase(Services.storage.openDatabase(localDB), calendarId);
+      return new CalStorageDatabase(openConnectionTo(localDB), calendarId);
     }
     throw new Components.Exception("Invalid Scheme " + uri.spec);
   }
@@ -266,7 +329,7 @@ class CalStorageDatabase {
    * Close the underlying db connection.
    */
   close() {
-    this.db.asyncClose();
+    closeConnection(this.db);
     this.db = null;
   }
 }

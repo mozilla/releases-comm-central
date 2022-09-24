@@ -170,14 +170,6 @@ CalStorageCalendar.prototype = {
 
   afterUpgradeDB() {
     this.initDB();
-    Services.obs.addObserver(this, "profile-before-change");
-  },
-
-  observe(aSubject, aTopic, aData) {
-    if (aTopic == "profile-before-change") {
-      Services.obs.removeObserver(this, "profile-before-change");
-      this.shutdownDB();
-    }
   },
 
   refresh() {
@@ -497,11 +489,11 @@ CalStorageCalendar.prototype = {
     }
   },
 
-  shutdownDB() {
+  async shutdownDB() {
     try {
       this.mStatements.finalize();
       if (this.mStorageDb) {
-        this.mStorageDb.close();
+        await this.mStorageDb.close();
         this.mStorageDb = null;
       }
     } catch (e) {
