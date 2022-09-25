@@ -62,6 +62,23 @@ menu-help-about-product =
     .label = About { -brand-short-name }
     .accesskey = A
 
+# These menu-quit strings are only used on Windows and Linux.
+menu-quit =
+    .label =
+        { PLATFORM() ->
+            [windows] Exit
+           *[other] Quit
+        }
+    .accesskey =
+        { PLATFORM() ->
+            [windows] x
+           *[other] Q
+        }
+
+# This menu-quit-mac string is only used on macOS.
+menu-quit-mac =
+    .label = Quit { -brand-shorter-name }
+
 ## Mail Toolbar
 
 toolbar-junk-button =

@@ -4,6 +4,9 @@
 
 ## Shortcuts
 
+quit-app-shortcut =
+    .key = Q
+
 # Variables:
 #  $key (String) - The shortcut key.
 shortcut-key = { $key }
