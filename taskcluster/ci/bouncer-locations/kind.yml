@@ -12,6 +12,7 @@ transforms:
     - gecko_taskgraph.transforms.release:run_on_releases
     - gecko_taskgraph.transforms.release_deps:transforms
     - gecko_taskgraph.transforms.task:transforms
+    - comm_taskgraph.transforms.bouncer_location_hack:mangle_bouncer_location_payload
 
 job-defaults:
     description: nightly bouncer locations job
