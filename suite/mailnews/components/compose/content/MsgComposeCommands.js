@@ -2401,11 +2401,19 @@ function ComposeChangeLanguage(aLang)
     // Update spellchecker pref
     Services.prefs.setCharPref("spellchecker.dictionary", aLang);
 
-    // now check the document and the subject over again with the new dictionary
-    if (InlineSpellCheckerUI.enabled)
-    {
+    // Now check the document and the subject over again with the new
+    // dictionary.
+    if (InlineSpellCheckerUI.enabled) {
       InlineSpellCheckerUI.mInlineSpellChecker.spellCheckRange(null);
-      GetMsgSubjectElement().inputField.parentNode.spellCheckerUI.mInlineSpellChecker.spellCheckRange(null);
+
+      // Also force a recheck of the subject. The spell checker for the subject
+      // isn't always ready yet. Usually throws unless the subject was selected
+      // at least once. So don't auto-create it, hence pass 'false'.
+      let inlineSpellChecker =
+        GetMsgSubjectElement().editor.getInlineSpellChecker(false);
+      if (inlineSpellChecker) {
+        inlineSpellChecker.spellCheckRange(null);
+      }
     }
   }
 }
