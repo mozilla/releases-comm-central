@@ -1873,8 +1873,8 @@ var RNP = {
       throw new Error("rejecting big keyblock");
     }
 
-    let tempFFI = new RNPLib.rnp_ffi_t();
-    if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {
+    let tempFFI = RNPLib.prepare_ffi();
+    if (!tempFFI) {
       throw new Error("Couldn't initialize librnp.");
     }
 
@@ -1902,8 +1902,8 @@ var RNP = {
       throw new Error("rejecting big keyblock");
     }
 
-    let tempFFI = new RNPLib.rnp_ffi_t();
-    if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {
+    let tempFFI = RNPLib.prepare_ffi();
+    if (!tempFFI) {
       throw new Error("Couldn't initialize librnp.");
     }
 
@@ -1939,8 +1939,8 @@ var RNP = {
       throw new Error("keyBlock too big");
     }
 
-    let tempFFI = new RNPLib.rnp_ffi_t();
-    if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {
+    let tempFFI = RNPLib.prepare_ffi();
+    if (!tempFFI) {
       throw new Error("Couldn't initialize librnp.");
     }
 
@@ -2077,8 +2077,8 @@ var RNP = {
     result.importedKeys = [];
     result.errorMsg = "";
 
-    let tempFFI = new RNPLib.rnp_ffi_t();
-    if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {
+    let tempFFI = RNPLib.prepare_ffi();
+    if (!tempFFI) {
       throw new Error("Couldn't initialize librnp.");
     }
 
@@ -3133,8 +3133,8 @@ var RNP = {
   export_pubkey_strip_sigs_uids(expKey, keepUserIDs, out_binary) {
     let expKeyId = this.getKeyIDFromHandle(expKey);
 
-    let tempFFI = new RNPLib.rnp_ffi_t();
-    if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {
+    let tempFFI = RNPLib.prepare_ffi();
+    if (!tempFFI) {
       throw new Error("Couldn't initialize librnp.");
     }
 
@@ -3417,8 +3417,8 @@ var RNP = {
       throw new Error("rnp_output_to_armor failed:" + rv);
     }
 
-    let tempFFI = new RNPLib.rnp_ffi_t();
-    if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {
+    let tempFFI = RNPLib.prepare_ffi();
+    if (!tempFFI) {
       throw new Error("Couldn't initialize librnp.");
     }
 
