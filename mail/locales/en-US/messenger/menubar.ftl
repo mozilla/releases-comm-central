@@ -79,6 +79,9 @@ menu-quit =
 menu-quit-mac =
     .label = Quit { -brand-shorter-name }
 
+quit-app-shortcut =
+    .key = Q
+
 ## Mail Toolbar
 
 toolbar-junk-button =

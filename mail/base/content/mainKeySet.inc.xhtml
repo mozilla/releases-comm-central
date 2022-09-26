@@ -16,13 +16,18 @@
   <key id="key_close2" keycode="VK_F4" modifiers="accel" command="cmd_close"/>
   <key id="key_renameFolder" keycode="&renameFolder.key;" oncommand="goDoCommand('cmd_renameFolder')"/>
 #endif
-  <key id="key_quit" command="cmd_quit"
+  <key id="key_quitApplication" data-l10n-id="quit-app-shortcut"
 #ifdef XP_WIN
        modifiers="accel,shift"
 #else
        modifiers="accel"
 #endif
-       data-l10n-id="quit-app-shortcut"/>
+#ifdef XP_MACOSX
+       internal="true"
+#else
+       command="cmd_quitApplication"
+#endif
+       reserved="true"/>
   <!-- Edit Menu -->
   <key id="key_undo" data-l10n-id="text-action-undo-shortcut" modifiers="accel" internal="true"/>
   <key id="key_redo"
