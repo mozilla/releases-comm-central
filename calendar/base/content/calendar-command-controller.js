@@ -899,6 +899,7 @@ function calendarUpdateNewItemsCommand() {
   [
     "calendar_new_event_command",
     "calendar_new_event_context_command",
+    "calendar_new_event_todaypane_command",
     "calendar_new_todo_command",
     "calendar_new_todo_context_command",
     "calendar_new_todo_todaypane_command",

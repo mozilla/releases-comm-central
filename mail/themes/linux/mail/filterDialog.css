@@ -37,3 +37,11 @@
 .small-button + .small-button {
   margin-inline: 0 4px;
 }
+
+toolbarbutton[type="menu-button"] {
+  padding-inline-end: 8px !important;
+}
+
+toolbarbutton[type="menu-button"] > dropmarker {
+  padding-inline-start: 6px;
+}

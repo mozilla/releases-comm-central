@@ -3,8 +3,3 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url(chrome://calendar/skin/shared/dialogs/calendar-alarm-dialog.css);
-
-#alarm-snooze-all-popup > menuitem,
-menupopup[is="calendar-snooze-popup"] > menuitem {
-  padding: 5px;
-}

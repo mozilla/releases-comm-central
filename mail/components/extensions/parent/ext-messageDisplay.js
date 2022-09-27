@@ -106,7 +106,7 @@ this.messageDisplay = class extends ExtensionAPI {
         }).api(),
         onMessagesDisplayed: new EventManager({
           context,
-          name: "messageDisplay.onMessageDisplayed",
+          name: "messageDisplay.onMessagesDisplayed",
           register: fire => {
             let listener = {
               handleEvent(event) {

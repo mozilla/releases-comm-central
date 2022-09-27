@@ -202,20 +202,13 @@
                 command="cmd_print"/>
       <menuseparator id="menu_FileQuitSeparator"/>
       <menuitem id="menu_FileQuitItem"
-#ifdef XP_UNIX
-                key="key_quit"
-#ifndef XP_MACOSX
-                label="&quitApplicationCmdUnix.label;"
-                accesskey="&quitApplicationCmdUnix.accesskey;"
+#ifdef XP_MACOSX
+                data-l10n-id="menu-quit-mac"
 #else
-                label="&quitApplicationCmdMac.label;"
-                accesskey="&quitApplicationCmdMac.accesskey;"
+                data-l10n-id="menu-quit"
 #endif
-#else
-                label="&quitApplicationCmd.label;"
-                accesskey="&quitApplicationCmd.accesskey;"
-#endif
-                command="cmd_quit"/>
+                key="key_quitApplication"
+                command="cmd_quitApplication"/>
     </menupopup>
   </menu>
 
@@ -316,13 +309,14 @@
 #endif
 #ifdef XP_UNIX
 #ifndef XP_MACOSX
+    <menuseparator id="prefSep"/>
+    <menuitem id="menu_preferences"
+              oncommand="openOptionsDialog()"
+              data-l10n-id="menu-tools-settings"/>
     <menuitem id="menu_accountmgr"
               label="&accountManagerCmd2.label;"
               accesskey="&accountManagerCmdUnix2.accesskey;"
               oncommand="MsgAccountManager(null);"/>
-    <menuitem id="menu_preferences"
-              oncommand="openOptionsDialog()"
-              data-l10n-id="menu-tools-settings"/>
 #endif
 #endif
   </menupopup>
@@ -1115,24 +1109,24 @@
               oncommand="toSanitize();"/>
 #ifndef XP_UNIX
     <menuseparator id="prefSep"/>
-    <menuitem id="menu_accountmgr"
-              label="&accountManagerCmd2.label;"
-              accesskey="&accountManagerCmd2.accesskey;"
-              oncommand="MsgAccountManager(null);"/>
     <menuitem id="menu_preferences"
               oncommand="openOptionsDialog()"
               data-l10n-id="menu-tools-settings"/>
-#else
-#ifdef XP_MACOSX
-    <menuseparator id="prefSep"/>
     <menuitem id="menu_accountmgr"
               label="&accountManagerCmd2.label;"
               accesskey="&accountManagerCmd2.accesskey;"
               oncommand="MsgAccountManager(null);"/>
+#else
+#ifdef XP_MACOSX
+    <menuseparator id="prefSep"/>
     <menuitem id="menu_preferences"
               data-l10n-id="menu-tools-settings"
               key="key_preferencesCmdMac"
               oncommand="openOptionsDialog()"/>
+    <menuitem id="menu_accountmgr"
+              label="&accountManagerCmd2.label;"
+              accesskey="&accountManagerCmd2.accesskey;"
+              oncommand="MsgAccountManager(null);"/>
     <menuitem id="menu_mac_services"
               label="&servicesMenuMac.label;"/>
     <menuitem id="menu_mac_hide_app"

@@ -40,3 +40,7 @@
 .small-button + .small-button {
   margin-inline: 0 4px;
 }
+
+toolbarbutton[type="menu-button"] > toolbarbutton {
+  min-height: 22px;
+}
