@@ -99,12 +99,11 @@ class ImapClient {
       // Reuse the connection.
       this.onReady();
     } else {
-      this._logger.debug(
-        `Connecting to ${this._server.hostName}:${this._server.port}`
-      );
+      let hostname = this._server.hostName.toLowerCase();
+      this._logger.debug(`Connecting to ${hostname}:${this._server.port}`);
       this._capabilities = null;
       this._secureTransport = this._server.socketType == Ci.nsMsgSocketType.SSL;
-      this._socket = new TCPSocket(this._server.hostName, this._server.port, {
+      this._socket = new TCPSocket(hostname, this._server.port, {
         binaryType: "arraybuffer",
         useSecureTransport: this._secureTransport,
       });

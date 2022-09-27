@@ -130,15 +130,14 @@ class Pop3Client {
    * Initiate a connection to the server
    */
   connect() {
-    this._logger.debug(
-      `Connecting to pop://${this._server.hostName}:${this._server.port}`
-    );
+    let hostname = this._server.hostName.toLowerCase();
+    this._logger.debug(`Connecting to pop://${hostname}:${this._server.port}`);
     this.runningUri
       .QueryInterface(Ci.nsIMsgMailNewsUrl)
       .SetUrlState(true, Cr.NS_OK);
     this._server.serverBusy = true;
     this._secureTransport = this._server.socketType == Ci.nsMsgSocketType.SSL;
-    this._socket = new TCPSocket(this._server.hostName, this._server.port, {
+    this._socket = new TCPSocket(hostname, this._server.port, {
       binaryType: "arraybuffer",
       useSecureTransport: this._secureTransport,
     });

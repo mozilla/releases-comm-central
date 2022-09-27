@@ -41,12 +41,13 @@ class LDAPClient {
   }
 
   connect() {
+    let hostname = this._host.toLowerCase();
     this._logger.debug(
-      `Connecting to ${this._useSecureTransport ? "ldaps" : "ldap"}://${
-        this._host
-      }:${this._port}`
+      `Connecting to ${
+        this._useSecureTransport ? "ldaps" : "ldap"
+      }://${hostname}:${this._port}`
     );
-    this._socket = new TCPSocket(this._host, this._port, {
+    this._socket = new TCPSocket(hostname, this._port, {
       binaryType: "arraybuffer",
       useSecureTransport: this._useSecureTransport,
     });
