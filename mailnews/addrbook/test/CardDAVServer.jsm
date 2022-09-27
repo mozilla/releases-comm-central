@@ -563,6 +563,11 @@ var CardDAVServer = {
     }
 
     let vCard = CommonUtils.readBytesFromInputStream(request.bodyInputStream);
+    if (this.mimicGoogle && !/^N[;:]/im.test(vCard)) {
+      response.setStatusLine("1.1", 400, "Bad Request");
+      return;
+    }
+
     this.putCardInternal(request.path, vCard);
     response.setStatusLine("1.1", 204, "No Content");
 
