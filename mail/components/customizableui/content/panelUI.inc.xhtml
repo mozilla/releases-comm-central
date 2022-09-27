@@ -78,15 +78,15 @@
           <label class="toolbarbutton-text" data-l10n-id="appmenu-font-size-value"/>
           <toolbarbutton id="appMenu-fontSizeReduce-button"
                          class="subviewbutton subviewbutton-iconic"
-                         command="cmd_fontSizeReduce"
+                         oncommand="UIFontSize.reduceSize();"
                          data-l10n-id="appmenuitem-font-size-reduce"/>
           <toolbarbutton id="appMenu-fontSizeReset-button"
                          class="subviewbutton"
-                         command="cmd_fontSizeReset"
+                         oncommand="UIFontSize.resetSize();"
                          tooltip="fontSizeReset"/>
           <toolbarbutton id="appMenu-fontSizeEnlarge-button"
                          class="subviewbutton subviewbutton-iconic"
-                         command="cmd_fontSizeEnlarge"
+                         oncommand="UIFontSize.increaseSize();"
                          data-l10n-id="appmenuitem-font-size-enlarge"/>
         </toolbaritem>
         <toolbarseparator/>
@@ -877,11 +877,11 @@
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-tools-message-search"
                        key="key_searchMail"
-                       command="cmd_search"/>
+                       oncommand="MsgSearchMessages();"/>
         <toolbarbutton id="appmenu_filtersCmd"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-tools-message-filters"
-                       command="cmd_displayMsgFilters"/>
+                       oncommand="MsgFilters();"/>
         <toolbarbutton id="appmenu_manageKeysOpenPGP"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="openpgp-manage-keys-openpgp-cmd"

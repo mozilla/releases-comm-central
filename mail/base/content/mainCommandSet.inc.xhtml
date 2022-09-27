@@ -73,12 +73,6 @@
                 oncommand="goDoCommand('cmd_fullZoomToggle');"
                 checked="false"/>
      </commandset>
-     <command id="cmd_fontSizeReduce"
-              oncommand="goDoCommand('cmd_fontSizeReduce');"/>
-     <command id="cmd_fontSizeReset"
-              oncommand="goDoCommand('cmd_fontSizeReset');"/>
-     <command id="cmd_fontSizeEnlarge"
-              oncommand="goDoCommand('cmd_fontSizeEnlarge');"/>
   </commandset>
 
   <commandset id="mailEditMenuItems"
@@ -142,7 +136,6 @@
     <command id="cmd_findAgain" oncommand="goDoCommand('cmd_findAgain')" disabled="true"/>
     <command id="cmd_findPrevious" oncommand="goDoCommand('cmd_findPrevious')"
              disabled="true"/>
-    <command id="cmd_search" oncommand="goDoCommand('cmd_search')"/>
     <!-- Stop/abort current network activities. -->
     <command id="cmd_stop" oncommand="goDoCommand('cmd_stop')"/>
     <command id="cmd_reload" oncommand="goDoCommand('cmd_reload')"/>
@@ -275,8 +268,6 @@
               commandupdater="true"
               events="create-menu-tasks"
               oncommandupdate="goUpdateMailMenuItems(this);">
-    <command id="cmd_displayMsgFilters"
-             oncommand="goDoCommand('cmd_displayMsgFilters');" disabled="true"/>
     <command id="cmd_applyFilters" oncommand="goDoCommand('cmd_applyFilters');" disabled="true"/>
     <command id="cmd_applyFiltersToSelection"
              oncommand="goDoCommand('cmd_applyFiltersToSelection');"

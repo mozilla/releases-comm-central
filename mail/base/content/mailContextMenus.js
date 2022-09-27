@@ -516,7 +516,6 @@ function fillFolderPaneContextMenu(aEvent) {
     "folderPaneContext-searchMessages",
     numSelected == 1 && !haveAnyVirtualFolders
   );
-  goUpdateCommand("cmd_search");
 
   // handle our separators
   function hideIfAppropriate(aID) {

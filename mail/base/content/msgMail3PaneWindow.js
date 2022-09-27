@@ -989,9 +989,6 @@ function HandleAppCommandEvent(evt) {
     case "Stop":
       msgWindow.StopUrls();
       break;
-    case "Search":
-      goDoCommand("cmd_search");
-      break;
     case "Bookmarks":
       toAddressBook();
       break;

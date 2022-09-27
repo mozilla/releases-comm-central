@@ -205,6 +205,9 @@ var UIFontSize = {
   },
 
   reduceSize() {
+    if (this.size <= this.MIN_VALUE) {
+      return;
+    }
     this.size--;
   },
 
@@ -213,6 +216,9 @@ var UIFontSize = {
   },
 
   increaseSize() {
+    if (this.size >= this.MAX_VALUE) {
+      return;
+    }
     this.size++;
   },
 
