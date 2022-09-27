@@ -113,10 +113,7 @@ var gFolderTreeController = {
       }
 
       // We may be rebuilding a folder that is not the displayed one.
-      let sameFolder = gFolderDisplay.displayedFolder == folder;
-      if (sameFolder) {
-        gFolderDisplay.view.close();
-      }
+      // TODO: Close any open views of this folder.
 
       // Send a notification that we are triggering a database rebuild.
       MailServices.mfn.notifyFolderReindexTriggered(folder);
@@ -132,9 +129,7 @@ var gFolderTreeController = {
         folder.ForceDBClosed();
       }
       folder.updateFolder(msgWindow);
-      if (sameFolder) {
-        gFolderDisplay.show(folder);
-      }
+      // TODO: Reopen closed views.
     }
 
     window.openDialog(
@@ -387,13 +382,7 @@ var gFolderTreeController = {
 
     // xxx should pass the folder object
     function editVirtualCallback(aURI) {
-      // we need to reload the folder if it is the currently loaded folder...
-      if (
-        gFolderDisplay.displayedFolder &&
-        aURI == gFolderDisplay.displayedFolder.URI
-      ) {
-        FolderPaneSelectionChange();
-      }
+      // TODO: we need to reload the folder if it is the currently loaded folder...
     }
     window.openDialog(
       "chrome://messenger/content/virtualFolderProperties.xhtml",

@@ -185,13 +185,8 @@ function CrossFolderNavigation(type) {
           return;
         }
       }
-      if (gFolderDisplay) {
-        gFolderDisplay.pushNavigation(type, true);
-        SelectFolder(folder.URI);
-      } else {
-        // about:3pane
-        window.displayFolder(folder.URI);
-      }
+      // about:3pane
+      window.displayFolder(folder.URI);
     }
   } else {
     // if no message is loaded, relPos should be 0, to
@@ -199,7 +194,7 @@ function CrossFolderNavigation(type) {
     var relPos = 0;
     if (type == Ci.nsMsgNavigationType.forward) {
       relPos = 1;
-    } else if (gMessageDisplay.displayedMessage) {
+    } else {
       relPos = -1;
     }
     var folderUri = messenger.getFolderUriAtNavigatePos(relPos);

@@ -2355,14 +2355,6 @@ function MsgApplyFiltersToSelection() {
   }
 }
 
-function ChangeMailLayout(newLayout) {
-  Services.prefs.setIntPref("mail.pane_config.dynamic", newLayout);
-}
-
-function ChangeMailLayoutForCommand(aCommand) {
-  ChangeMailLayout(kMailLayoutCommandMap[aCommand]);
-}
-
 function MsgViewAllHeaders() {
   const mode = Ci.nsMimeHeaderDisplayTypes.AllHeaders;
   Services.prefs.setIntPref("mail.show_headers", mode); // 2

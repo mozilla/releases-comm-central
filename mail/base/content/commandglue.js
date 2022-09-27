@@ -23,37 +23,6 @@ function isNewsURI(uri) {
   return uri.startsWith("news:/") || uri.startsWith("news-message:/");
 }
 
-function SwitchView(command) {
-  // when switching thread views, we might be coming out of quick search
-  // or a message view.
-  // first set view picker to all
-  if (gFolderDisplay.view.mailViewIndex != MailViewConstants.kViewItemAll) {
-    gFolderDisplay.view.setMailView(MailViewConstants.kViewItemAll);
-  }
-
-  switch (command) {
-    // "All" threads and "Unread" threads don't change threading state
-    case "cmd_viewAllMsgs":
-      gFolderDisplay.view.showUnreadOnly = false;
-      break;
-    case "cmd_viewUnreadMsgs":
-      gFolderDisplay.view.showUnreadOnly = true;
-      break;
-    // "Threads with Unread" and "Watched Threads with Unread" force threading
-    case "cmd_viewWatchedThreadsWithUnread":
-      gFolderDisplay.view.specialViewWatchedThreadsWithUnread = true;
-      break;
-    case "cmd_viewThreadsWithUnread":
-      gFolderDisplay.view.specialViewThreadsWithUnread = true;
-      break;
-    // "Ignored Threads" toggles 'ignored' inclusion --
-    //   but it also resets 'With Unread' views to 'All'
-    case "cmd_viewIgnoredThreads":
-      gFolderDisplay.view.showIgnored = !gFolderDisplay.view.showIgnored;
-      break;
-  }
-}
-
 function SetNewsFolderColumns() {
   var sizeColumn = document.getElementById("sizeCol");
   var bundle = document.getElementById("bundle_messenger");
@@ -92,7 +61,7 @@ function UpdateStatusMessageCounts(folder) {
   var unreadElement = document.getElementById("unreadMessageCount");
   var totalElement = document.getElementById("totalMessageCount");
   if (folder && !folder.isServer && unreadElement && totalElement) {
-    var numSelected = gFolderDisplay.selectedCount;
+    var numSelected = 0; // TODO
     var bundle = document.getElementById("bundle_messenger");
 
     var numUnread =
@@ -278,26 +247,6 @@ function ConvertSortTypeToColumnID(sortKey) {
 var gDBView = null;
 var gCurViewFlags;
 var gCurSortType;
-
-function ChangeMessagePaneVisibility(now_hidden) {
-  // We also have to disable the Message/Attachments menuitem.
-  // It will be enabled when loading a message with attachments
-  // (see messageHeaderSink.handleAttachment).
-  var node = document.getElementById("msgAttachmentMenu");
-  if (node && now_hidden) {
-    node.setAttribute("disabled", "true");
-  }
-
-  gMessageDisplay.visible = !now_hidden;
-
-  var event = document.createEvent("Events");
-  if (now_hidden) {
-    event.initEvent("messagepane-hide", false, true);
-  } else {
-    event.initEvent("messagepane-unhide", false, true);
-  }
-  document.getElementById("messengerWindow").dispatchEvent(event);
-}
 
 /**
  * Our multiplexed tabbing model ends up sending synthetic folder pane

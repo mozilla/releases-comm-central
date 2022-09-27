@@ -14,7 +14,6 @@
 /* import-globals-from folderDisplay.js */
 /* import-globals-from mailCore.js */
 /* import-globals-from mailWindow.js */
-/* import-globals-from msgViewNavigation.js */
 /* import-globals-from threadPane.js */
 /* import-globals-from utilityOverlay.js */
 
@@ -102,30 +101,7 @@ var DefaultController = {
       case "button_showconversation":
       case "cmd_shiftDelete":
       case "button_shiftDelete":
-      case "button_nextMsg":
-      case "cmd_nextMsg":
-      case "button_next":
-      case "cmd_nextUnreadMsg":
-      case "cmd_nextFlaggedMsg":
-      case "cmd_nextUnreadThread":
-      case "button_previousMsg":
-      case "cmd_previousMsg":
-      case "button_previous":
-      case "cmd_previousUnreadMsg":
-      case "cmd_previousFlaggedMsg":
-      case "button_goForward":
-      case "button_goBack":
-      case "cmd_goForward":
-      case "cmd_goBack":
       case "cmd_undoCloseTab":
-      case "cmd_viewClassicMailLayout":
-      case "cmd_viewWideMailLayout":
-      case "cmd_viewVerticalMailLayout":
-      case "cmd_viewAllMsgs":
-      case "cmd_viewUnreadMsgs":
-      case "cmd_viewThreadsWithUnread":
-      case "cmd_viewWatchedThreadsWithUnread":
-      case "cmd_viewIgnoredThreads":
       case "cmd_undo":
       case "cmd_redo":
       case "cmd_expandAllThreads":
@@ -167,9 +143,6 @@ var DefaultController = {
       case "cmd_viewNormalHeader":
       case "cmd_stop":
       case "cmd_chat":
-      case "cmd_watchThread":
-      case "cmd_killThread":
-      case "cmd_killSubthread":
         return true;
       case "cmd_downloadFlagged":
       case "cmd_downloadSelected":
@@ -208,13 +181,6 @@ var DefaultController = {
       case "button_junk":
         UpdateJunkToolbarButton();
         return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.junk);
-      case "cmd_killThread":
-      case "cmd_killSubthread":
-        return gFolderDisplay.selectedCount > 0;
-      case "cmd_watchThread":
-        return gFolderDisplay.getCommandStatus(
-          Ci.nsMsgViewCommandType.toggleThreadWatched
-        );
       case "cmd_createFilterFromPopup":
       case "cmd_createFilterFromMenu":
         return (
@@ -354,28 +320,6 @@ var DefaultController = {
         return CanMarkMsgAsRead(true);
       case "cmd_markAsUnread":
         return CanMarkMsgAsRead(false);
-      case "button_nextMsg":
-      case "cmd_nextMsg":
-      case "button_next":
-      case "cmd_nextUnreadMsg":
-      case "cmd_nextUnreadThread":
-      case "button_previousMsg":
-      case "cmd_previousMsg":
-      case "button_previous":
-      case "cmd_previousUnreadMsg":
-        return IsViewNavigationItemEnabled();
-      case "button_goForward":
-      case "button_goBack":
-      case "cmd_goForward":
-      case "cmd_goBack":
-        if (gDBView) {
-          return gDBView.navigateStatus(
-            command == "cmd_goBack" || command == "button_goBack"
-              ? Ci.nsMsgNavigationType.back
-              : Ci.nsMsgNavigationType.forward
-          );
-        }
-        return false;
       case "cmd_undoCloseTab":
         return document.getElementById("tabmail").recentlyClosedTabs.length > 0;
       case "cmd_markAllRead":
@@ -401,19 +345,6 @@ var DefaultController = {
           gFolderDisplay.view.showThreaded ||
           gFolderDisplay.view.showGroupedBySort
         );
-      case "cmd_nextFlaggedMsg":
-      case "cmd_previousFlaggedMsg":
-        return IsViewNavigationItemEnabled();
-      case "cmd_viewClassicMailLayout":
-      case "cmd_viewWideMailLayout":
-      case "cmd_viewVerticalMailLayout":
-      case "cmd_viewAllMsgs":
-      case "cmd_viewIgnoredThreads":
-        return gDBView;
-      case "cmd_viewUnreadMsgs":
-      case "cmd_viewThreadsWithUnread":
-      case "cmd_viewWatchedThreadsWithUnread":
-        return !gFolderDisplay.view.isVirtual;
       case "cmd_stop":
         return window.MsgStatusFeedback._meteorsSpinning;
       case "cmd_undo":
@@ -547,83 +478,8 @@ var DefaultController = {
         gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
         UpdateDeleteToolbarButton();
         break;
-      case "cmd_killThread":
-        if (!gFolderDisplay.selectedMessageIsNews) {
-          if (!gFolderDisplay.selectedMessageThreadIgnored) {
-            ShowIgnoredMessageNotification(
-              gFolderDisplay.selectedMessages,
-              false
-            );
-          } else {
-            FolderPaneController.notificationBox.removeTransientNotifications();
-          }
-        }
-        // kill thread kills the thread and then does a next unread
-        GoNextMessage(Ci.nsMsgNavigationType.toggleThreadKilled, true);
-        break;
-      case "cmd_killSubthread":
-        if (!gFolderDisplay.selectedMessageIsNews) {
-          if (!gFolderDisplay.selectedMessageSubthreadIgnored) {
-            ShowIgnoredMessageNotification(
-              gFolderDisplay.selectedMessages,
-              true
-            );
-          } else {
-            FolderPaneController.notificationBox.removeTransientNotifications();
-          }
-        }
-        GoNextMessage(Ci.nsMsgNavigationType.toggleSubthreadKilled, true);
-        break;
-      case "cmd_watchThread":
-        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.toggleThreadWatched);
-        break;
-      case "button_next":
-      case "cmd_nextUnreadMsg":
-        GoNextMessage(Ci.nsMsgNavigationType.nextUnreadMessage, true);
-        break;
-      case "cmd_nextUnreadThread":
-        GoNextMessage(Ci.nsMsgNavigationType.nextUnreadThread, true);
-        break;
-      case "button_nextMsg":
-      case "cmd_nextMsg":
-        GoNextMessage(Ci.nsMsgNavigationType.nextMessage, false);
-        break;
-      case "cmd_nextFlaggedMsg":
-        GoNextMessage(Ci.nsMsgNavigationType.nextFlagged, true);
-        break;
-      case "button_previousMsg":
-      case "cmd_previousMsg":
-        GoNextMessage(Ci.nsMsgNavigationType.previousMessage, false);
-        break;
-      case "button_previous":
-      case "cmd_previousUnreadMsg":
-        GoNextMessage(Ci.nsMsgNavigationType.previousUnreadMessage, true);
-        break;
-      case "cmd_previousFlaggedMsg":
-        GoNextMessage(Ci.nsMsgNavigationType.previousFlagged, true);
-        break;
-      case "button_goForward":
-      case "cmd_goForward":
-        GoNextMessage(Ci.nsMsgNavigationType.forward, true);
-        break;
-      case "button_goBack":
-      case "cmd_goBack":
-        GoNextMessage(Ci.nsMsgNavigationType.back, true);
-        break;
       case "cmd_undoCloseTab":
         document.getElementById("tabmail").undoCloseTab();
-        break;
-      case "cmd_viewClassicMailLayout":
-      case "cmd_viewWideMailLayout":
-      case "cmd_viewVerticalMailLayout":
-        ChangeMailLayoutForCommand(command);
-        break;
-      case "cmd_viewAllMsgs":
-      case "cmd_viewThreadsWithUnread":
-      case "cmd_viewWatchedThreadsWithUnread":
-      case "cmd_viewUnreadMsgs":
-      case "cmd_viewIgnoredThreads":
-        SwitchView(command);
         break;
       case "cmd_undo":
         messenger.undo(msgWindow);

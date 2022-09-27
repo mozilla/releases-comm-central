@@ -760,6 +760,9 @@ var commandController = {
     cmd_editAsNew: Ci.nsIMsgCompType.EditAsNew,
   },
   _navigationCommands: {
+    // TODO: Back and forward are broken because they rely on nsIMessenger.
+    cmd_goForward: Ci.nsMsgNavigationType.forward,
+    cmd_goBack: Ci.nsMsgNavigationType.back,
     cmd_nextUnreadMsg: Ci.nsMsgNavigationType.nextUnreadMessage,
     cmd_nextUnreadThread: Ci.nsMsgNavigationType.nextUnreadThread,
     cmd_nextMsg: Ci.nsMsgNavigationType.nextMessage,

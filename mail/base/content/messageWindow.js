@@ -16,7 +16,6 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from mailWindowOverlay.js */
 /* import-globals-from messenger-customization.js */
-/* import-globals-from msgViewNavigation.js */
 /* import-globals-from toolbarIconColor.js */
 
 var { AppConstants } = ChromeUtils.import(
@@ -483,10 +482,6 @@ var MessageWindowController = {
       case "cmd_saveAsTemplate":
       case "cmd_getMsgsForAuthAccounts":
       case "button_file":
-      case "cmd_goForward":
-      case "cmd_goBack":
-      case "button_goForward":
-      case "button_goBack":
         return false;
       case "cmd_newMessage":
       case "button_followup":
@@ -569,8 +564,6 @@ var MessageWindowController = {
         return true;
       case "button_goForward":
       case "button_goBack":
-      case "cmd_goForward":
-      case "cmd_goBack":
         return false;
       case "cmd_undo":
       case "cmd_redo":
@@ -665,12 +658,6 @@ var MessageWindowController = {
       case "cmd_settingsOffline":
         MailOfflineMgr.openOfflineAccountSettings();
         return;
-      case "cmd_goForward":
-        performNavigation(Ci.nsMsgNavigationType.forward);
-        break;
-      case "cmd_goBack":
-        performNavigation(Ci.nsMsgNavigationType.back);
-        break;
       case "cmd_applyFiltersToSelection":
         MsgApplyFiltersToSelection();
         break;
@@ -709,16 +696,6 @@ var MessageWindowController = {
 
   onEvent(event) {},
 };
-
-function performNavigation(type) {
-  // Try to load a message by navigation type if we can find
-  // the message in the same folder.
-  if (gFolderDisplay.navigate(type)) {
-    return;
-  }
-
-  CrossFolderNavigation(type);
-}
 
 function SetupCommandUpdateHandlers() {
   top.controllers.insertControllerAt(0, MessageWindowController);
