@@ -41,3 +41,11 @@ function openQAUrl(aUrl)
                    Services.scriptSecurityManager.createNullPrincipal({}),
                });
 }
+
+// Flush the memory using minimizeMemoryUsage.
+function flushMemory() {
+  Services.obs.notifyObservers(null, "child-mmu-request");
+  Cc["@mozilla.org/memory-reporter-manager;1"]
+    .getService(Ci.nsIMemoryReporterManager)
+    .minimizeMemoryUsage(() => {});
+}
