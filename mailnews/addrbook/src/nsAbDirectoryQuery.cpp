@@ -6,7 +6,6 @@
 #include "nsIAbCard.h"
 #include "nsAbDirectoryQuery.h"
 #include "nsAbDirectoryQueryProxy.h"
-#include "nsAbUtils.h"
 #include "nsAbBooleanExpression.h"
 #include "nsComponentManagerUtils.h"
 #include "nsString.h"
