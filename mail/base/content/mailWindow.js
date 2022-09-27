@@ -379,7 +379,7 @@ nsMsgStatusFeedback.prototype = {
   // How many start meteors have been requested.
   _startRequests: 0,
   _meteorsSpinning: false,
-  _defaultStatusText: null,
+  _defaultStatusText: "",
   _progressBarVisible: false,
   _activeProcesses: null,
   _statusFeedbackProgress: -1,
