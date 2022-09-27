@@ -660,7 +660,15 @@ class VCardProperties {
 
     let rv = new VCardProperties();
     let [, properties] = ICAL.parse(vCard);
-    for (let [name, params, type, value] of properties) {
+    for (let property of properties) {
+      let [name, params, type, value] = property;
+      if (property.length > 4) {
+        // The jCal format stores multiple values as the 4th...nth items.
+        // VCardPropertyEntry has only one place for a value, so store an
+        // array instead. This applies to CATEGORIES and NICKNAME types in
+        // vCard 4 and also NOTE in vCard 3.
+        value = property.slice(3);
+      }
       if (isGoogleCardDAV) {
         // Google escapes the characters \r : , ; and \ unnecessarily, in
         // violation of RFC6350. Removing the escaping at this point means no
@@ -939,9 +947,18 @@ class VCardProperties {
    * @return {string} vCard
    */
   toVCard() {
-    return ICAL.stringify([
-      "vcard",
-      this.entries.map(e => [e.name, e.params, e.type, e.value]),
-    ]);
+    let jCal = this.entries.map(e => {
+      if (Array.isArray(e.value)) {
+        let design = this.designSet.property[e.name];
+        if (design.multiValue == "," && !design.structuredValue) {
+          // The jCal format stores multiple values as the 4th...nth items,
+          // but VCardPropertyEntry stores them as an array. This applies to
+          // CATEGORIES and NICKNAME types in vCard 4 and also NOTE in vCard 3.
+          return [e.name, e.params, e.type, ...e.value];
+        }
+      }
+      return [e.name, e.params, e.type, e.value];
+    });
+    return ICAL.stringify(["vcard", jCal]);
   }
 }
