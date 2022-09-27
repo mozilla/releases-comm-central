@@ -305,7 +305,9 @@
                  messagemanagergroup="single-page"
                  onclick="return contentAreaClick(event);"
                  onresize="return messagePaneOnResize(event);"/>
-        <splitter id="attachment-splitter" collapse="after" resizebefore="closest" resizeafter="closest" collapsed="true"/>
+        <splitter id="attachment-splitter" orient="vertical"
+                  resizebefore="closest" resizeafter="closest"
+                  collapse="after" collapsed="true"/>
         <vbox id="attachmentView" collapsed="true">
 #include msgAttachmentView.inc.xhtml
         </vbox>

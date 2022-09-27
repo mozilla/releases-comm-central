@@ -720,6 +720,7 @@
 
                 <!-- if you change this id, please change GetThreadAndMessagePaneSplitter() and MsgToggleMessagePane() -->
                 <splitter id="threadpane-splitter"
+                          orient="vertical"
                           collapse="after"
                           collapsed="true"
                           onmouseup="OnMouseUpThreadAndMessagePaneSplitter()"/>
@@ -783,9 +784,9 @@
                                    onresize="return messagePaneOnResize(event);"/>
                         </stack>
                       </hbox>
-                      <splitter id="attachment-splitter" collapse="after"
+                      <splitter id="attachment-splitter" orient="vertical"
                                 resizebefore="closest" resizeafter="closest"
-                                collapsed="true"/>
+                                collapse="after" collapsed="true"/>
                       <vbox id="attachmentView" collapsed="true">
 #include msgAttachmentView.inc.xhtml
                       </vbox>
