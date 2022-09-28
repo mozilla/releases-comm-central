@@ -279,52 +279,6 @@ add_task(async function test_addressBooks() {
         );
       }
 
-      // Test Custom1.
-      {
-        await browser.contacts.update(newContactId, {
-          vCard: `BEGIN:VCARD\r\nVERSION:4.0\r\nNOTE:Notes\r\nN:last;first;;;\r\nX-CUSTOM1;VALUE=TEXT:Original custom value\r\nEND:VCARD`,
-        });
-        await checkEvents([
-          "contacts",
-          "onUpdated",
-          { type: "contact", parentId: firstBookId, id: newContactId },
-          {
-            Custom1: { oldValue: null, newValue: "Original custom value" },
-          },
-        ]);
-        let updContact1 = await browser.contacts.get(newContactId);
-        browser.test.assertEq(
-          "Original custom value",
-          updContact1.properties.Custom1
-        );
-
-        await browser.contacts.update(newContactId, {
-          Custom1: "Updated custom value",
-        });
-        await checkEvents([
-          "contacts",
-          "onUpdated",
-          { type: "contact", parentId: firstBookId, id: newContactId },
-          {
-            Custom1: {
-              oldValue: "Original custom value",
-              newValue: "Updated custom value",
-            },
-          },
-        ]);
-        let updContact2 = await browser.contacts.get(newContactId);
-        browser.test.assertEq(
-          "Updated custom value",
-          updContact2.properties.Custom1
-        );
-        browser.test.assertTrue(
-          updContact2.properties.vCard.includes(
-            "X-CUSTOM1;VALUE=TEXT:Updated custom value"
-          ),
-          "vCard should include the correct x-custom1 entry"
-        );
-      }
-
       // If a vCard and legacy properties are given, vCard must win.
       await browser.contacts.update(newContactId, {
         vCard: `BEGIN:VCARD\r\nVERSION:4.0\r\nN:;first;;;\r\nEMAIL;PREF=1:first@last\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
@@ -346,7 +300,6 @@ add_task(async function test_addressBooks() {
             newValue: "Yet another custom property",
           },
           PreferDisplayName: { oldValue: null, newValue: "0" },
-          Custom1: { oldValue: "Updated custom value", newValue: null },
         },
       ]);
 

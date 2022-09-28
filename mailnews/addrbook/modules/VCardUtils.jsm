@@ -347,10 +347,6 @@ const BANISHED_PROPERTIES = [
   "CellularNumber",
   "WebPage1",
   "WebPage2",
-  "Custom1",
-  "Custom2",
-  "Custom3",
-  "Custom4",
 ];
 
 /** Helper functions for typeMap. */
