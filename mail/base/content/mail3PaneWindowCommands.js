@@ -67,71 +67,28 @@ var DefaultController = {
   supportsCommand(command) {
     switch (command) {
       case "cmd_createFilterFromPopup":
-      case "cmd_archive":
-      case "button_archive":
       case "cmd_newMessage":
-      case "cmd_reply":
-      case "button_reply":
-      case "cmd_replySender":
-      case "cmd_replyGroup":
-      case "button_followup":
-      case "cmd_replyall":
-      case "button_replyall":
-      case "cmd_replylist":
-      case "button_replylist":
-      case "cmd_forward":
-      case "button_forward":
-      case "cmd_forwardInline":
-      case "cmd_forwardAttachment":
-      case "cmd_redirect":
-      case "cmd_editAsNew":
-      case "cmd_editDraftMsg":
-      case "cmd_newMsgFromTemplate":
-      case "cmd_editTemplateMsg":
-      case "cmd_createFilterFromMenu":
-      case "cmd_delete":
       case "cmd_cancel":
-      case "button_delete":
-      case "button_junk":
-      case "cmd_shiftDelete":
-      case "button_shiftDelete":
       case "cmd_undoCloseTab":
       case "cmd_undo":
       case "cmd_redo":
-      case "cmd_expandAllThreads":
-      case "cmd_collapseAllThreads":
       case "cmd_sendUnsentMsgs":
       case "cmd_subscribe":
-      case "cmd_openMessage":
       case "button_print":
       case "cmd_print":
       case "cmd_saveAsFile":
       case "cmd_saveAsTemplate":
-      case "cmd_viewPageSource":
       case "cmd_reload":
       case "button_getNewMessages":
       case "cmd_getNewMessages":
       case "cmd_getMsgsForAuthAccounts":
       case "cmd_getNextNMessages":
-      case "button_mark":
-      case "cmd_toggleRead":
-      case "cmd_markAsRead":
-      case "cmd_markAsUnread":
-      case "cmd_markAllRead":
-      case "cmd_markThreadAsRead":
-      case "cmd_markReadByDate":
-      case "cmd_markAsFlagged":
-      case "cmd_markAsJunk":
-      case "cmd_markAsNotJunk":
-      case "cmd_recalculateJunkScore":
       case "cmd_applyFiltersToSelection":
       case "cmd_applyFilters":
       case "cmd_runJunkControls":
       case "cmd_deleteJunk":
       case "button_file":
       case "cmd_settingsOffline":
-      case "cmd_selectThread":
-      case "cmd_selectFlagged":
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
       case "cmd_stop":
@@ -153,29 +110,12 @@ var DefaultController = {
 
   isCommandEnabled(command) {
     switch (command) {
-      case "cmd_delete":
-        UpdateDeleteCommand();
-      // fall through
-      case "button_delete":
-        UpdateDeleteToolbarButton();
-        return gFolderDisplay.getCommandStatus(
-          Ci.nsMsgViewCommandType.deleteMsg
-        );
-      case "cmd_shiftDelete":
-      case "button_shiftDelete":
-        return gFolderDisplay.getCommandStatus(
-          Ci.nsMsgViewCommandType.deleteNoTrash
-        );
       case "cmd_cancel":
         return (
           gFolderDisplay.selectedCount == 1 &&
           gFolderDisplay.selectedMessageIsNews
         );
-      case "button_junk":
-        UpdateJunkToolbarButton();
-        return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.junk);
       case "cmd_createFilterFromPopup":
-      case "cmd_createFilterFromMenu":
         return (
           gFolderDisplay.selectedCount == 1 &&
           gFolderDisplay.selectedMessage.folder &&
@@ -187,27 +127,7 @@ var DefaultController = {
         if (gFolderDisplay.selectedCount > 1) {
           return false;
         } // else fall through
-      case "cmd_reply":
-      case "button_reply":
-      case "cmd_replySender":
-      case "cmd_replyGroup":
-      case "button_followup":
-      case "cmd_replyall":
-      case "button_replyall":
-      case "cmd_replylist":
-      case "button_replylist":
-      case "cmd_forward":
-      case "button_forward":
-      case "cmd_forwardInline":
-      case "cmd_forwardAttachment":
-      case "cmd_redirect":
-      case "cmd_editAsNew":
-      case "cmd_editDraftMsg":
-      case "cmd_newMsgFromTemplate":
-      case "cmd_editTemplateMsg":
-      case "cmd_openMessage":
       case "button_print":
-      case "cmd_viewPageSource":
       case "cmd_reload":
       case "cmd_applyFiltersToSelection":
         if (!CanComposeMessages()) {
@@ -245,17 +165,6 @@ var DefaultController = {
           ) {
             return false;
           }
-          if (
-            command == "cmd_reply" ||
-            command == "button_reply" ||
-            command == "cmd_replyall" ||
-            command == "button_replyall"
-          ) {
-            return IsReplyEnabled();
-          }
-          if (command == "cmd_replylist" || command == "button_replylist") {
-            return IsReplyListEnabled();
-          }
           return true;
         }
         return false;
@@ -266,26 +175,8 @@ var DefaultController = {
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
         return true;
-      case "cmd_markAsFlagged":
       case "button_file":
         return gFolderDisplay.selectedCount > 0;
-      case "cmd_archive":
-      case "button_archive":
-        return gFolderDisplay.canArchiveSelectedMessages;
-      case "cmd_markAsJunk":
-      case "cmd_markAsNotJunk":
-        return gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.junk);
-      case "cmd_recalculateJunkScore":
-        // We're going to take a conservative position here, because we really
-        // don't want people running junk controls on folders that are not
-        // enabled for junk. The junk type picks up possible dummy message headers,
-        // while the runJunkControls will prevent running on XF virtual folders.
-        return (
-          gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.junk) &&
-          gFolderDisplay.getCommandStatus(
-            Ci.nsMsgViewCommandType.runJunkControls
-          )
-        );
       case "cmd_applyFilters":
         return gFolderDisplay.getCommandStatus(
           Ci.nsMsgViewCommandType.applyFilters
@@ -298,40 +189,8 @@ var DefaultController = {
         return gFolderDisplay.getCommandStatus(
           Ci.nsMsgViewCommandType.deleteJunk
         );
-      case "button_mark":
-      case "cmd_toggleRead":
-        return gFolderDisplay.selectedCount > 0;
-      case "cmd_markThreadAsRead":
-        return gFolderDisplay.canMarkThreadAsRead;
-      case "cmd_markAsRead":
-        return CanMarkMsgAsRead(true);
-      case "cmd_markAsUnread":
-        return CanMarkMsgAsRead(false);
       case "cmd_undoCloseTab":
         return document.getElementById("tabmail").recentlyClosedTabs.length > 0;
-      case "cmd_markAllRead":
-        return (
-          IsFolderSelected() &&
-          gDBView &&
-          gDBView.msgFolder &&
-          gDBView.msgFolder.getNumUnread(false) > 0
-        );
-      case "cmd_markReadByDate":
-        return IsFolderSelected();
-      case "cmd_selectFlagged":
-        return !!gDBView;
-      // these are enabled on when we are in threaded mode
-      case "cmd_selectThread":
-        if (gFolderDisplay.selectedCount <= 0) {
-          return false;
-        }
-      // Falls through
-      case "cmd_expandAllThreads":
-      case "cmd_collapseAllThreads":
-        return (
-          gFolderDisplay.view.showThreaded ||
-          gFolderDisplay.view.showGroupedBySort
-        );
       case "cmd_stop":
         return window.MsgStatusFeedback._meteorsSpinning;
       case "cmd_undo":
@@ -387,83 +246,16 @@ var DefaultController = {
       case "cmd_getNextNMessages":
         MsgGetNextNMessages();
         break;
-      case "cmd_archive":
-        MsgArchiveSelectedMessages(null);
-        break;
       case "cmd_newMessage":
         MsgNewMessage(null);
         break;
-      case "cmd_reply":
-        MsgReplyMessage(null);
-        break;
-      case "cmd_replySender":
-        MsgReplySender(null);
-        break;
-      case "cmd_replyGroup":
-        MsgReplyGroup(null);
-        break;
-      case "cmd_replyall":
-        MsgReplyToAllMessage(null);
-        break;
-      case "cmd_replylist":
-        MsgReplyToListMessage(null);
-        break;
-      case "cmd_forward":
-        MsgForwardMessage(null);
-        break;
-      case "cmd_forwardInline":
-        MsgForwardAsInline(null);
-        break;
-      case "cmd_forwardAttachment":
-        MsgForwardAsAttachment(null);
-        break;
-      case "cmd_redirect":
-        MsgRedirectMessage(null);
-        break;
-      case "cmd_editAsNew":
-        MsgEditMessageAsNew(null);
-        break;
-      case "cmd_editDraftMsg":
-        MsgEditDraftMessage(null);
-        break;
-      case "cmd_newMsgFromTemplate":
-        MsgNewMessageFromTemplate(null);
-        break;
-      case "cmd_editTemplateMsg":
-        MsgEditTemplateMessage(null);
-        break;
-      case "cmd_createFilterFromMenu":
-        MsgCreateFilter();
-        break;
       case "cmd_createFilterFromPopup":
         break; // This does nothing because the createfilter is invoked from the popupnode oncommand.
-      case "button_delete":
-      case "cmd_delete":
-        // if the user deletes a message before its mark as read timer goes off, we should mark it as read
-        // this ensures that we clear the biff indicator from the system tray when the user deletes the new message
-        MarkSelectedMessagesRead(true);
-        // If this is a right-click triggered delete, then do not hint about
-        //  the deletion.  Note: The code that swaps the selection back in will
-        //  take care of ensuring that this deletion does not make the saved
-        //  selection incorrect.
-        if (!gRightMouseButtonSavedSelection) {
-          gFolderDisplay.hintAboutToDeleteMessages();
-        }
-        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
-        UpdateDeleteToolbarButton();
-        break;
       case "cmd_cancel":
         let message = gFolderDisplay.selectedMessage;
         message.folder
           .QueryInterface(Ci.nsIMsgNewsFolder)
           .cancelMessage(message, msgWindow);
-        break;
-      case "button_shiftDelete":
-      case "cmd_shiftDelete":
-        MarkSelectedMessagesRead(true);
-        gFolderDisplay.hintAboutToDeleteMessages();
-        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
-        UpdateDeleteToolbarButton();
         break;
       case "cmd_undoCloseTab":
         document.getElementById("tabmail").undoCloseTab();
@@ -473,15 +265,6 @@ var DefaultController = {
         break;
       case "cmd_redo":
         messenger.redo(msgWindow);
-        break;
-      case "cmd_expandAllThreads":
-        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.expandAll);
-        gFolderDisplay.ensureSelectionIsVisible();
-        break;
-      case "cmd_collapseAllThreads":
-        gFolderDisplay.selectSelectedThreadRoots();
-        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.collapseAll);
-        gFolderDisplay.ensureSelectionIsVisible();
         break;
       case "cmd_sendUnsentMsgs":
         // if offline, prompt for sendUnsentMessages
@@ -494,9 +277,6 @@ var DefaultController = {
       case "cmd_subscribe":
         MsgSubscribe();
         return;
-      case "cmd_openMessage":
-        MsgOpenSelectedMessages();
-        return;
       case "cmd_print":
         PrintSelectedMessages();
         return;
@@ -506,55 +286,17 @@ var DefaultController = {
       case "cmd_saveAsTemplate":
         MsgSaveAsTemplate();
         return;
-      case "cmd_viewPageSource":
-        ViewPageSource(gFolderDisplay.selectedMessageUris);
-        return;
       case "cmd_reload":
         ReloadMessage();
         return;
-      case "cmd_markReadByDate":
-        MsgMarkReadByDate();
-        return;
-      case "button_mark":
-      case "cmd_toggleRead":
-        MsgMarkMsgAsRead();
-        return;
-      case "cmd_markAsRead":
-        MsgMarkMsgAsRead(true);
-        return;
-      case "cmd_markAsUnread":
-        MsgMarkMsgAsRead(false);
-        return;
-      case "cmd_markThreadAsRead":
-        ClearPendingReadTimer();
-        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.markThreadRead);
-        return;
-      case "cmd_markAllRead":
-        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.markAllRead);
-        return;
-      case "button_junk":
-        MsgJunk();
-        return;
       case "cmd_stop":
         msgWindow.StopUrls();
-        return;
-      case "cmd_markAsFlagged":
-        MsgMarkAsFlagged();
         return;
       case "cmd_viewAllHeader":
         MsgViewAllHeaders();
         return;
       case "cmd_viewNormalHeader":
         MsgViewNormalHeaders();
-        return;
-      case "cmd_markAsJunk":
-        JunkSelectedMessages(true);
-        return;
-      case "cmd_markAsNotJunk":
-        JunkSelectedMessages(false);
-        return;
-      case "cmd_recalculateJunkScore":
-        analyzeMessagesForJunk();
         return;
       case "cmd_applyFiltersToSelection":
         MsgApplyFiltersToSelection();
@@ -585,12 +327,6 @@ var DefaultController = {
         break;
       case "cmd_settingsOffline":
         MailOfflineMgr.openOfflineAccountSettings();
-        break;
-      case "cmd_selectThread":
-        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectThread);
-        break;
-      case "cmd_selectFlagged":
-        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectFlagged);
         break;
       case "cmd_chat":
         showChatTab();

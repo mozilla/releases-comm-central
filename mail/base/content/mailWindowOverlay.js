@@ -49,15 +49,6 @@ Object.defineProperty(this, "BrowserConsoleManager", {
 
 var ADDR_DB_LARGE_COMMIT = 1;
 
-var kClassicMailLayout = 0;
-var kWideMailLayout = 1;
-var kVerticalMailLayout = 2;
-var kMailLayoutCommandMap = {
-  cmd_viewClassicMailLayout: kClassicMailLayout,
-  cmd_viewWideMailLayout: kWideMailLayout,
-  cmd_viewVerticalMailLayout: kVerticalMailLayout,
-};
-
 // Per message header flags to keep track of whether the user is allowing remote
 // content for a particular message.
 // if you change or add more values to these constants, be sure to modify
