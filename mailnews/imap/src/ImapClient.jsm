@@ -357,9 +357,13 @@ class ImapClient {
   _getServerSubFolderName(parent, folderName) {
     let mailboxName = this._getServerFolderName(parent);
     if (mailboxName) {
-      let delimiter =
-        parent.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter ||
-        "/";
+      let delimiter = parent.QueryInterface(Ci.nsIMsgImapMailFolder)
+        .hierarchyDelimiter;
+      // @see nsImapCore.h.
+      const ONLINE_HIERARCHY_SEPARATOR_UNKNOWN = "^";
+      if (!delimiter || delimiter == ONLINE_HIERARCHY_SEPARATOR_UNKNOWN) {
+        delimiter = "/";
+      }
       return mailboxName + delimiter + folderName;
     }
     return folderName;
@@ -1399,6 +1403,13 @@ class ImapClient {
       this._nextAction = this._actionUidFetchResponse;
       this._sendTagged(`UID FETCH ${highestUid + 1}:* (FLAGS)`);
     } else {
+      if (!res.exists) {
+        this._messageUids = [];
+        this._messages.clear();
+      }
+      this.folder
+        .QueryInterface(Ci.nsIImapMailFolderSink)
+        .UpdateImapMailboxInfo(this, this._getMailboxSpec());
       this._actionDone();
     }
   }
