@@ -145,19 +145,6 @@ var DefaultController = {
       case "cmd_getMsgsForAuthAccounts":
       case "cmd_getNextNMessages":
       case "button_mark":
-      case "cmd_tag":
-      case "cmd_addTag":
-      case "cmd_manageTags":
-      case "cmd_removeTags":
-      case "cmd_tag1":
-      case "cmd_tag2":
-      case "cmd_tag3":
-      case "cmd_tag4":
-      case "cmd_tag5":
-      case "cmd_tag6":
-      case "cmd_tag7":
-      case "cmd_tag8":
-      case "cmd_tag9":
       case "cmd_toggleRead":
       case "cmd_markAsRead":
       case "cmd_markAsUnread":
@@ -359,19 +346,6 @@ var DefaultController = {
           Ci.nsMsgViewCommandType.deleteJunk
         );
       case "button_mark":
-      case "cmd_tag":
-      case "cmd_addTag":
-      case "cmd_manageTags":
-      case "cmd_removeTags":
-      case "cmd_tag1":
-      case "cmd_tag2":
-      case "cmd_tag3":
-      case "cmd_tag4":
-      case "cmd_tag5":
-      case "cmd_tag6":
-      case "cmd_tag7":
-      case "cmd_tag8":
-      case "cmd_tag9":
       case "cmd_toggleRead":
         return gFolderDisplay.selectedCount > 0;
       case "cmd_markThreadAsRead":
@@ -703,27 +677,6 @@ var DefaultController = {
         return;
       case "cmd_markReadByDate":
         MsgMarkReadByDate();
-        return;
-      case "cmd_addTag":
-        AddTag();
-        return;
-      case "cmd_manageTags":
-        ManageTags();
-        return;
-      case "cmd_removeTags":
-        RemoveAllMessageTags();
-        return;
-      case "cmd_tag1":
-      case "cmd_tag2":
-      case "cmd_tag3":
-      case "cmd_tag4":
-      case "cmd_tag5":
-      case "cmd_tag6":
-      case "cmd_tag7":
-      case "cmd_tag8":
-      case "cmd_tag9":
-        var tagNumber = parseInt(command[7]);
-        ToggleMessageTagKey(tagNumber);
         return;
       case "button_mark":
       case "cmd_toggleRead":

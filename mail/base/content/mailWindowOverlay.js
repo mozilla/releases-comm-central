@@ -1005,158 +1005,6 @@ function SetGetMsgButtonTooltip() {
   ]);
 }
 
-function RemoveAllMessageTags() {
-  var selectedMessages = gFolderDisplay.selectedMessages;
-  if (!selectedMessages.length) {
-    return;
-  }
-
-  let messages = [];
-  let tagArray = MailServices.tags.getAllTags();
-
-  var allKeys = "";
-  for (var j = 0; j < tagArray.length; ++j) {
-    if (j) {
-      allKeys += " ";
-    }
-    allKeys += tagArray[j].key;
-  }
-
-  var prevHdrFolder = null;
-  // this crudely handles cross-folder virtual folders with selected messages
-  // that spans folders, by coalescing consecutive messages in the selection
-  // that happen to be in the same folder. nsMsgSearchDBView does this better,
-  // but nsIMsgDBView doesn't handle commands with arguments, and untag takes a
-  // key argument. Furthermore, we only delete legacy labels and known tags,
-  // keeping other keywords like (non)junk intact.
-
-  for (var i = 0; i < selectedMessages.length; ++i) {
-    var msgHdr = selectedMessages[i];
-    msgHdr.label = 0; // remove legacy label
-    if (prevHdrFolder != msgHdr.folder) {
-      if (prevHdrFolder) {
-        prevHdrFolder.removeKeywordsFromMessages(messages, allKeys);
-      }
-      messages = [];
-      prevHdrFolder = msgHdr.folder;
-    }
-    messages.push(msgHdr);
-  }
-  if (prevHdrFolder) {
-    prevHdrFolder.removeKeywordsFromMessages(messages, allKeys);
-  }
-  OnTagsChange();
-}
-
-/**
- * Toggle the state of a message tag on the selected messages (based on the
- * state of the first selected message, like for starring).
- *
- * @param keyNumber the number (1 through 9) associated with the tag
- */
-function ToggleMessageTagKey(keyNumber) {
-  let msgHdr = gFolderDisplay.selectedMessage;
-  if (!msgHdr) {
-    return;
-  }
-
-  let tagArray = MailServices.tags.getAllTags();
-  if (keyNumber > tagArray.length) {
-    return;
-  }
-
-  let key = tagArray[keyNumber - 1].key;
-  let curKeys = msgHdr.getStringProperty("keywords").split(" ");
-  if (msgHdr.label) {
-    curKeys.push("$label" + msgHdr.label);
-  }
-  let addKey = !curKeys.includes(key);
-
-  ToggleMessageTag(key, addKey);
-}
-
-function ToggleMessageTagMenu(target) {
-  var key = target.getAttribute("value");
-  var addKey = target.getAttribute("checked") == "true";
-  ToggleMessageTag(key, addKey);
-}
-
-function ToggleMessageTag(key, addKey) {
-  var messages = [];
-  var selectedMessages = gFolderDisplay.selectedMessages;
-  var toggler = addKey ? "addKeywordsToMessages" : "removeKeywordsFromMessages";
-  var prevHdrFolder = null;
-  // this crudely handles cross-folder virtual folders with selected messages
-  // that spans folders, by coalescing consecutive msgs in the selection
-  // that happen to be in the same folder. nsMsgSearchDBView does this
-  // better, but nsIMsgDBView doesn't handle commands with arguments,
-  // and (un)tag takes a key argument.
-  for (var i = 0; i < selectedMessages.length; ++i) {
-    var msgHdr = selectedMessages[i];
-    if (msgHdr.label) {
-      // Since we touch all these messages anyway, migrate the label now.
-      // If we don't, the thread tree won't always show the correct tag state,
-      // because resetting a label doesn't update the tree anymore...
-      msgHdr.folder.addKeywordsToMessages([msgHdr], "$label" + msgHdr.label);
-      msgHdr.label = 0; // remove legacy label
-    }
-    if (prevHdrFolder != msgHdr.folder) {
-      if (prevHdrFolder) {
-        prevHdrFolder[toggler](messages, key);
-      }
-      messages = [];
-      prevHdrFolder = msgHdr.folder;
-    }
-    messages.push(msgHdr);
-  }
-  if (prevHdrFolder) {
-    prevHdrFolder[toggler](messages, key);
-  }
-  OnTagsChange();
-}
-
-function AddTag() {
-  var args = { result: "", okCallback: AddTagCallback };
-  window.openDialog(
-    "chrome://messenger/content/newTagDialog.xhtml",
-    "",
-    "chrome,titlebar,modal,centerscreen",
-    args
-  );
-}
-
-function ManageTags() {
-  openOptionsDialog("paneGeneral", "tagsCategory");
-}
-
-function AddTagCallback(name, color) {
-  MailServices.tags.addTag(name, color, "");
-  let key = MailServices.tags.getKeyForTag(name);
-  TagUtils.addTagToAllDocumentSheets(key, color);
-
-  try {
-    ToggleMessageTag(key, true);
-  } catch (ex) {
-    return false;
-  }
-  return true;
-}
-
-function SetMessageTagLabel(menuitem, index, name) {
-  // if a <key> is defined for this tag, use its key as the accesskey
-  // (the key for the tag at index n needs to have the id key_tag<n>)
-  let shortcutkey = document.getElementById("key_tag" + index);
-  let accesskey = shortcutkey ? shortcutkey.getAttribute("key") : "  ";
-  if (accesskey != "  ") {
-    menuitem.setAttribute("accesskey", accesskey);
-    menuitem.setAttribute("acceltext", accesskey);
-  }
-  let label = document
-    .getElementById("bundle_messenger")
-    .getFormattedString("mailnews.tags.format", [accesskey, name]);
-  menuitem.setAttribute("label", label);
-}
-
 /**
  * Refresh the contents of the tag popup menu/panel.
  * Used for example for appmenu/Message/Tag panel.
@@ -1166,6 +1014,21 @@ function SetMessageTagLabel(menuitem, index, name) {
  * @param {string} [classes]        Classes to set on the menu items.
  */
 function InitMessageTags(parent, elementName = "menuitem", classes) {
+  function SetMessageTagLabel(menuitem, index, name) {
+    // if a <key> is defined for this tag, use its key as the accesskey
+    // (the key for the tag at index n needs to have the id key_tag<n>)
+    let shortcutkey = document.getElementById("key_tag" + index);
+    let accesskey = shortcutkey ? shortcutkey.getAttribute("key") : "  ";
+    if (accesskey != "  ") {
+      menuitem.setAttribute("accesskey", accesskey);
+      menuitem.setAttribute("acceltext", accesskey);
+    }
+    let label = document
+      .getElementById("bundle_messenger")
+      .getFormattedString("mailnews.tags.format", [accesskey, name]);
+    menuitem.setAttribute("label", label);
+  }
+
   let message;
 
   let tab = document.getElementById("tabmail")?.currentTabInfo;
@@ -1218,7 +1081,15 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
     }
     item.setAttribute("value", tagInfo.key);
     item.setAttribute("type", "checkbox");
-    item.setAttribute("oncommand", "ToggleMessageTagMenu(event.target);");
+    item.addEventListener("command", function(event) {
+      let tab = document.getElementById("tabmail")?.currentTabInfo;
+      if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
+        tab.chromeBrowser.contentWindow.commandController.doCommand(
+          "cmd_toggleTag",
+          event
+        );
+      }
+    });
 
     if (tagInfo.color) {
       item.setAttribute("style", `color: ${tagInfo.color};`);

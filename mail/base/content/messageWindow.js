@@ -472,15 +472,6 @@ var MessageWindowController = {
       // external messages cannot be deleted, mutated, or subjected to filtering
       case "button_delete":
       case "button_junk":
-      case "cmd_tag1":
-      case "cmd_tag2":
-      case "cmd_tag3":
-      case "cmd_tag4":
-      case "cmd_tag5":
-      case "cmd_tag6":
-      case "cmd_tag7":
-      case "cmd_tag8":
-      case "cmd_tag9":
       case "cmd_applyFiltersToSelection":
       case "cmd_applyFilters":
       case "cmd_runJunkControls":
@@ -551,15 +542,6 @@ var MessageWindowController = {
       case "cmd_saveAsTemplate":
       case "cmd_reload":
       case "cmd_find":
-      case "cmd_tag1":
-      case "cmd_tag2":
-      case "cmd_tag3":
-      case "cmd_tag4":
-      case "cmd_tag5":
-      case "cmd_tag6":
-      case "cmd_tag7":
-      case "cmd_tag8":
-      case "cmd_tag9":
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
       case "cmd_stop":
@@ -661,18 +643,6 @@ var MessageWindowController = {
       case "cmd_findPrevious":
         document.getElementById("FindToolbar").onFindAgainCommand(true);
         break;
-      case "cmd_tag1":
-      case "cmd_tag2":
-      case "cmd_tag3":
-      case "cmd_tag4":
-      case "cmd_tag5":
-      case "cmd_tag6":
-      case "cmd_tag7":
-      case "cmd_tag8":
-      case "cmd_tag9":
-        var tagNumber = parseInt(command[7]);
-        ToggleMessageTagKey(tagNumber);
-        return;
       case "cmd_viewAllHeader":
         MsgViewAllHeaders();
         return;

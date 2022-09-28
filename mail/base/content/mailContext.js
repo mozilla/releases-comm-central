@@ -642,6 +642,33 @@ var mailContextMenu = {
     }
   },
 
+  /**
+   * Toggle the state of a message tag on the selected messages (based on the
+   * state of the first selected message, like for starring).
+   *
+   * @param {number} keyNumber - The number (1 through 9) associated with the tag.
+   */
+  _toggleMessageTagKey(keyNumber) {
+    let msgHdr = gDBView.hdrForFirstSelectedMessage;
+    if (!msgHdr) {
+      return;
+    }
+
+    let tagArray = MailServices.tags.getAllTags();
+    if (keyNumber > tagArray.length) {
+      return;
+    }
+
+    let key = tagArray[keyNumber - 1].key;
+    let curKeys = msgHdr.getStringProperty("keywords").split(" ");
+    if (msgHdr.label) {
+      curKeys.push("$label" + msgHdr.label);
+    }
+    let addKey = !curKeys.includes(key);
+
+    this._toggleMessageTag(key, addKey);
+  },
+
   addTag() {
     window.browsingContext.topChromeWindow.openDialog(
       "chrome://messenger/content/newTagDialog.xhtml",
@@ -777,6 +804,15 @@ var commandController = {
     cmd_tag() {
       // Does nothing, just here to enable/disable the tags sub-menu.
     },
+    cmd_tag1: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 1),
+    cmd_tag2: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 2),
+    cmd_tag3: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 3),
+    cmd_tag4: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 4),
+    cmd_tag5: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 5),
+    cmd_tag6: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 6),
+    cmd_tag7: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 7),
+    cmd_tag8: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 8),
+    cmd_tag9: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 9),
     cmd_addTag() {
       mailContextMenu.addTag();
     },
@@ -924,6 +960,15 @@ var commandController = {
         return numSelectedMessages >= 1;
       case "cmd_openMessage":
       case "cmd_tag":
+      case "cmd_tag1":
+      case "cmd_tag2":
+      case "cmd_tag3":
+      case "cmd_tag4":
+      case "cmd_tag5":
+      case "cmd_tag6":
+      case "cmd_tag7":
+      case "cmd_tag8":
+      case "cmd_tag9":
       case "cmd_addTag":
       case "cmd_manageTags":
       case "cmd_removeTags":
