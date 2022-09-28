@@ -160,12 +160,12 @@ class BaseMessageService {
     let server = msgFolder.server.QueryInterface(Ci.nsINntpIncomingServer);
 
     server.wrappedJSObject.withClient(client => {
+      client.startRunningUrl(
+        searchSession.QueryInterface(Ci.nsIUrlListener),
+        msgWindow
+      );
       client.onOpen = () => {
-        client.search(
-          searchSession.QueryInterface(Ci.nsIUrlListener),
-          msgFolder.name,
-          xpatLines
-        );
+        client.search(msgFolder.name, xpatLines);
       };
 
       client.onData = line => {

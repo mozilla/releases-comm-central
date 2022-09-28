@@ -291,20 +291,23 @@ class NntpChannel {
     }
 
     this._server.wrappedJSObject.withClient(client => {
-      client.runningUri = this.URI.QueryInterface(Ci.nsIMsgMailNewsUrl);
+      let msgWindow;
+      try {
+        msgWindow = this.URI.msgWindow;
+      } catch (e) {}
+      client.startRunningUrl(
+        null,
+        msgWindow,
+        this.URI.QueryInterface(Ci.nsIMsgMailNewsUrl)
+      );
       this._listener.onStartRequest(this);
       client.onOpen = () => {
-        let msgWindow;
-        try {
-          msgWindow = this.URI.msgWindow;
-        } catch (e) {}
         if (this._messageId) {
-          client.getArticleByMessageId(this._messageId, msgWindow);
+          client.getArticleByMessageId(this._messageId);
         } else {
           client.getArticleByArticleNumber(
             this._groupName,
-            this._articleNumber,
-            msgWindow
+            this._articleNumber
           );
         }
       };
@@ -342,6 +345,15 @@ class NntpChannel {
     let newsFolder = this._server.findGroup(groupName);
     let allKeys = new Set(newsFolder.msgDatabase.listAllKeys());
     this._server.wrappedJSObject.withClient(client => {
+      let msgWindow;
+      try {
+        msgWindow = this.URI.msgWindow;
+      } catch (e) {}
+      client.startRunningUrl(
+        null,
+        msgWindow,
+        this.URI.QueryInterface(Ci.nsIMsgMailNewsUrl)
+      );
       this._listener.onStartRequest(this);
       client.onOpen = () => {
         client.listgroup(groupName);
