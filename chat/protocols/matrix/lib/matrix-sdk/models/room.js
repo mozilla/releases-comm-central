@@ -1893,22 +1893,13 @@ class Room extends _typedEventEmitter.TypedEventEmitter {
         }
       }
     }
-
-    if (event.getUnsigned().transaction_id) {
-      const existingEvent = this.txnToEvent[event.getUnsigned().transaction_id];
-
-      if (existingEvent) {
-        // remote echo of an event we sent earlier
-        this.handleRemoteEcho(event, existingEvent);
-      }
-    }
   }
   /**
    * Add an event to the end of this room's live timelines. Will fire
    * "Room.timeline".
    *
    * @param {MatrixEvent} event Event to be added
-   * @param {IAddLiveEventOptions} options addLiveEvent options
+   * @param {IAddLiveEventOptions} addLiveEventOptions addLiveEvent options
    * @fires module:client~MatrixClient#event:"Room.timeline"
    * @private
    */
@@ -2259,7 +2250,7 @@ class Room extends _typedEventEmitter.TypedEventEmitter {
 
   addLiveEvents(events, duplicateStrategyOrOpts, fromCache = false) {
     let duplicateStrategy = duplicateStrategyOrOpts;
-    let timelineWasEmpty;
+    let timelineWasEmpty = false;
 
     if (typeof duplicateStrategyOrOpts === 'object') {
       ({
@@ -2294,10 +2285,26 @@ class Room extends _typedEventEmitter.TypedEventEmitter {
 
     const threadRoots = this.findThreadRoots(events);
     const eventsByThread = {};
+    const options = {
+      duplicateStrategy,
+      fromCache,
+      timelineWasEmpty
+    };
 
     for (const event of events) {
       // TODO: We should have a filter to say "only add state event types X Y Z to the timeline".
       this.processLiveEvent(event);
+
+      if (event.getUnsigned().transaction_id) {
+        const existingEvent = this.txnToEvent[event.getUnsigned().transaction_id];
+
+        if (existingEvent) {
+          // remote echo of an event we sent earlier
+          this.handleRemoteEcho(event, existingEvent);
+          continue; // we can skip adding the event to the timeline sets, it is already there
+        }
+      }
+
       const {
         shouldLiveInRoom,
         shouldLiveInThread,
@@ -2311,11 +2318,7 @@ class Room extends _typedEventEmitter.TypedEventEmitter {
       eventsByThread[threadId]?.push(event);
 
       if (shouldLiveInRoom) {
-        this.addLiveEvent(event, {
-          duplicateStrategy,
-          fromCache,
-          timelineWasEmpty
-        });
+        this.addLiveEvent(event, options);
       }
     }
 
@@ -2521,29 +2524,24 @@ class Room extends _typedEventEmitter.TypedEventEmitter {
     // some more intelligent manner or the client should just use timestamps
     const timelineSet = this.getUnfilteredTimelineSet();
     const publicReadReceipt = this.getReadReceiptForUserId(userId, ignoreSynthesized, _read_receipts.ReceiptType.Read);
-    const privateReadReceipt = this.getReadReceiptForUserId(userId, ignoreSynthesized, _read_receipts.ReceiptType.ReadPrivate);
-    const unstablePrivateReadReceipt = this.getReadReceiptForUserId(userId, ignoreSynthesized, _read_receipts.ReceiptType.UnstableReadPrivate); // If we have all, compare them
+    const privateReadReceipt = this.getReadReceiptForUserId(userId, ignoreSynthesized, _read_receipts.ReceiptType.ReadPrivate); // If we have both, compare them
 
-    if (publicReadReceipt?.eventId && privateReadReceipt?.eventId && unstablePrivateReadReceipt?.eventId) {
-      const comparison1 = timelineSet.compareEventOrdering(publicReadReceipt.eventId, privateReadReceipt.eventId);
-      const comparison2 = timelineSet.compareEventOrdering(publicReadReceipt.eventId, unstablePrivateReadReceipt.eventId);
-      const comparison3 = timelineSet.compareEventOrdering(privateReadReceipt.eventId, unstablePrivateReadReceipt.eventId);
+    let comparison;
 
-      if (comparison1 && comparison2 && comparison3) {
-        return comparison1 > 0 ? comparison2 > 0 ? publicReadReceipt.eventId : unstablePrivateReadReceipt.eventId : comparison3 > 0 ? privateReadReceipt.eventId : unstablePrivateReadReceipt.eventId;
-      }
-    }
+    if (publicReadReceipt?.eventId && privateReadReceipt?.eventId) {
+      comparison = timelineSet.compareEventOrdering(publicReadReceipt?.eventId, privateReadReceipt?.eventId);
+    } // If we didn't get a comparison try to compare the ts of the receipts
 
-    let latest = privateReadReceipt;
-    [unstablePrivateReadReceipt, publicReadReceipt].forEach(receipt => {
-      if (receipt?.data?.ts > latest?.data?.ts || !latest) {
-        latest = receipt;
-      }
-    });
-    if (latest?.eventId) return latest?.eventId; // The more less likely it is for a read receipt to drift out of date
-    // the bigger is its precedence
 
-    return privateReadReceipt?.eventId ?? unstablePrivateReadReceipt?.eventId ?? publicReadReceipt?.eventId ?? null;
+    if (!comparison && publicReadReceipt?.data?.ts && privateReadReceipt?.data?.ts) {
+      comparison = publicReadReceipt?.data?.ts - privateReadReceipt?.data?.ts;
+    } // The public receipt is more likely to drift out of date so the private
+    // one has precedence
+
+
+    if (!comparison) return privateReadReceipt?.eventId ?? publicReadReceipt?.eventId ?? null; // If public read receipt is older, return the private one
+
+    return (comparison < 0 ? privateReadReceipt?.eventId : publicReadReceipt?.eventId) ?? null;
   }
   /**
    * Determines if the given user has read a particular event ID with the known

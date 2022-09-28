@@ -480,7 +480,20 @@ class SecretStorage {
       return;
     }
 
+    if (!olmlib.isOlmEncrypted(event)) {
+      _logger.logger.error("secret event not properly encrypted");
+
+      return;
+    }
+
     const content = event.getContent();
+    const senderKeyUser = this.baseApis.crypto.deviceList.getUserByIdentityKey(olmlib.OLM_ALGORITHM, content.sender_key);
+
+    if (senderKeyUser !== event.getSender()) {
+      _logger.logger.error("sending device does not belong to the user it claims to be from");
+
+      return;
+    }
 
     _logger.logger.log("got secret share for request", content.request_id);
 
@@ -499,6 +512,17 @@ class SecretStorage {
 
       if (!requestControl.devices.includes(deviceInfo.deviceId)) {
         _logger.logger.log("unsolicited secret share from device", deviceInfo.deviceId);
+
+        return;
+      } // unsure that the sender is trusted.  In theory, this check is
+      // unnecessary since we only accept secret shares from devices that
+      // we requested from, but it doesn't hurt.
+
+
+      const deviceTrust = this.baseApis.crypto.checkDeviceInfoTrust(event.getSender(), deviceInfo);
+
+      if (!deviceTrust.isVerified()) {
+        _logger.logger.log("secret share from unverified device");
 
         return;
       }

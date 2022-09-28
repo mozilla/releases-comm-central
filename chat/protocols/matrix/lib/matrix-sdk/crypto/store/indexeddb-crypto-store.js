@@ -605,6 +605,22 @@ class IndexedDBCryptoStore {
     return this.backend.getSharedHistoryInboundGroupSessions(roomId, txn);
   }
   /**
+   * Park a shared-history group session for a room we may be invited to later.
+   */
+
+
+  addParkedSharedHistory(roomId, parkedData, txn) {
+    this.backend.addParkedSharedHistory(roomId, parkedData, txn);
+  }
+  /**
+   * Pop out all shared-history group sessions for a room.
+   */
+
+
+  takeParkedSharedHistory(roomId, txn) {
+    return this.backend.takeParkedSharedHistory(roomId, txn);
+  }
+  /**
    * Perform a transaction on the crypto store. Any store methods
    * that require a transaction (txn) object to be passed in may
    * only be called within a callback of either this function or
@@ -645,6 +661,8 @@ _defineProperty(IndexedDBCryptoStore, "STORE_INBOUND_GROUP_SESSIONS", 'inbound_g
 _defineProperty(IndexedDBCryptoStore, "STORE_INBOUND_GROUP_SESSIONS_WITHHELD", 'inbound_group_sessions_withheld');
 
 _defineProperty(IndexedDBCryptoStore, "STORE_SHARED_HISTORY_INBOUND_GROUP_SESSIONS", 'shared_history_inbound_group_sessions');
+
+_defineProperty(IndexedDBCryptoStore, "STORE_PARKED_SHARED_HISTORY", 'parked_shared_history');
 
 _defineProperty(IndexedDBCryptoStore, "STORE_DEVICE_DATA", 'device_data');
 

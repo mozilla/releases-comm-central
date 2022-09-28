@@ -20,7 +20,6 @@ exports.encodeUri = encodeUri;
 exports.ensureNoTrailingSlash = ensureNoTrailingSlash;
 exports.escapeRegExp = escapeRegExp;
 exports.getCrypto = getCrypto;
-exports.getPrivateReadReceiptField = getPrivateReadReceiptField;
 exports.globToRegexp = globToRegexp;
 exports.internaliseString = internaliseString;
 exports.isFunction = isFunction;
@@ -290,36 +289,23 @@ function deepCompare(x, y) {
       }
     }
   } else {
-    // disable jshint "The body of a for in should be wrapped in an if
-    // statement"
-
-    /* jshint -W089 */
     // check that all of y's direct keys are in x
-    let p;
-
-    for (p in y) {
+    for (const p in y) {
       if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
         return false;
       }
     } // finally, compare each of x's keys with y
 
 
-    for (p in y) {
-      // eslint-disable-line guard-for-in
-      if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
-        return false;
-      }
-
-      if (!deepCompare(x[p], y[p])) {
+    for (const p in x) {
+      if (y.hasOwnProperty(p) !== x.hasOwnProperty(p) || !deepCompare(x[p], y[p])) {
         return false;
       }
     }
   }
-  /* jshint +W089 */
-
 
   return true;
-} // Dev note: This returns a tuple, but jsdoc doesn't like that. https://github.com/jsdoc/jsdoc/issues/1703
+} // Dev note: This returns an array of tuples, but jsdoc doesn't like that. https://github.com/jsdoc/jsdoc/issues/1703
 
 /**
  * Creates an array of object properties/values (entries) then
@@ -409,12 +395,12 @@ function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function globToRegexp(glob, extended) {
+function globToRegexp(glob, extended = false) {
   // From
   // https://github.com/matrix-org/synapse/blob/abbee6b29be80a77e05730707602f3bbfc3f38cb/synapse/push/__init__.py#L132
   // Because micromatch is about 130KB with dependencies,
   // and minimatch is not much better.
-  const replacements = [[/\\\*/g, '.*'], [/\?/g, '.'], extended !== false && [/\\\[(!|)(.*)\\]/g, (_match, neg, pat) => ['[', neg ? '^' : '', pat.replace(/\\-/, '-'), ']'].join('')]];
+  const replacements = [[/\\\*/g, '.*'], [/\?/g, '.'], !extended && [/\\\[(!|)(.*)\\]/g, (_match, neg, pat) => ['[', neg ? '^' : '', pat.replace(/\\-/, '-'), ']'].join('')]];
   return replacements.reduce( // https://github.com/microsoft/TypeScript/issues/30134
   (pat, args) => args ? pat.replace(args[0], args[1]) : pat, escapeRegExp(glob));
 }
@@ -735,12 +721,6 @@ function sortEventsByLatestContentTimestamp(left, right) {
   return getContentTimestampWithFallback(right) - getContentTimestampWithFallback(left);
 }
 
-async function getPrivateReadReceiptField(client) {
-  if (await client.doesServerSupportUnstableFeature("org.matrix.msc2285.stable")) return _read_receipts.ReceiptType.ReadPrivate;
-  if (await client.doesServerSupportUnstableFeature("org.matrix.msc2285")) return _read_receipts.ReceiptType.UnstableReadPrivate;
-  return null;
-}
-
 function isSupportedReceiptType(receiptType) {
-  return [_read_receipts.ReceiptType.Read, _read_receipts.ReceiptType.ReadPrivate, _read_receipts.ReceiptType.UnstableReadPrivate].includes(receiptType);
+  return [_read_receipts.ReceiptType.Read, _read_receipts.ReceiptType.ReadPrivate].includes(receiptType);
 }

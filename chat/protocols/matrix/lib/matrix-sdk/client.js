@@ -87,7 +87,11 @@ var _thread = require("./models/thread");
 
 var _beacon = require("./@types/beacon");
 
+var _NamespacedValue = require("./NamespacedValue");
+
 var _ToDeviceMessageQueue = require("./ToDeviceMessageQueue");
+
+var _invitesIgnorer = require("./models/invites-ignorer");
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
@@ -152,11 +156,13 @@ exports.ClientEvent = ClientEvent;
   ClientEvent["TurnServersError"] = "turnServers.error";
 })(ClientEvent || (exports.ClientEvent = ClientEvent = {}));
 
+const SSO_ACTION_PARAM = new _NamespacedValue.UnstableValue("action", "org.matrix.msc3824.action");
 /**
  * Represents a Matrix Client. Only directly construct this if you want to use
  * custom modules. Normally, {@link createClient} should be used
  * as it specifies 'sensible' defaults for these modules.
  */
+
 class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
   // populated after initCrypto
   // XXX: Intended private, used in code.
@@ -171,6 +177,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
   // The pushprocessor caches useful things, so keep one and re-use it
   // Promise to a response of the server's /versions response
   // TODO: This should expire: https://github.com/matrix-org/matrix-js-sdk/issues/1020
+  // A manager for determining which invites should be ignored.
   constructor(opts) {
     super();
 
@@ -275,6 +282,8 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "pendingEventEncryption", new Map());
 
     _defineProperty(this, "toDeviceMessageQueue", void 0);
+
+    _defineProperty(this, "ignoredInvites", void 0);
 
     _defineProperty(this, "startCallEventHandler", () => {
       if (this.isInitialSyncComplete()) {
@@ -445,6 +454,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
         room.setUnreadNotificationCount(_matrix.NotificationCountType.Highlight, highlightCount);
       }
     });
+    this.ignoredInvites = new _invitesIgnorer.IgnoredInvites(this);
   }
   /**
    * High level helper method to begin syncing and poll for new events. To listen for these
@@ -4414,6 +4424,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
    * @param {object} [options]
    * @param {boolean} options.preventReEmit don't re-emit events emitted on an event mapped by this mapper on the client
    * @param {boolean} options.decrypt decrypt event proactively
+   * @param {boolean} options.toDevice the event is a to_device event
    * @return {Function}
    */
 
@@ -6239,20 +6250,23 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
    * @param {string} loginType The type of SSO login we are doing (sso or cas).
    *     Defaults to 'sso'.
    * @param {string} idpId The ID of the Identity Provider being targeted, optional.
+   * @param {SSOAction} action the SSO flow to indicate to the IdP, optional.
    * @return {string} The HS URL to hit to begin the SSO login process.
    */
 
 
-  getSsoLoginUrl(redirectUrl, loginType = "sso", idpId) {
+  getSsoLoginUrl(redirectUrl, loginType = "sso", idpId, action) {
     let url = "/login/" + loginType + "/redirect";
 
     if (idpId) {
       url += "/" + idpId;
     }
 
-    return this.http.getUrl(url, {
-      redirectUrl
-    }, _httpApi.PREFIX_R0);
+    const params = {
+      redirectUrl,
+      [SSO_ACTION_PARAM.unstable]: action
+    };
+    return this.http.getUrl(url, params, _httpApi.PREFIX_R0);
   }
   /**
    * @param {string} token Login token previously received from homeserver
@@ -6596,10 +6610,9 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       [_read_receipts.ReceiptType.FullyRead]: rmEventId,
       [_read_receipts.ReceiptType.Read]: rrEventId
     };
-    const privateField = await utils.getPrivateReadReceiptField(this);
 
-    if (privateField) {
-      content[privateField] = rpEventId;
+    if (await this.doesServerSupportUnstableFeature("org.matrix.msc2285.stable")) {
+      content[_read_receipts.ReceiptType.ReadPrivate] = rpEventId;
     }
 
     return this.http.authedRequest(undefined, _httpApi.Method.Post, path, undefined, content);

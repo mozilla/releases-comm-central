@@ -365,7 +365,6 @@ class BackupManager {
     ret.usable = ret.sigs.some(s => {
       return s.valid && (s.device && s.deviceTrust.isVerified() || s.crossSigningId);
     });
-    ret.usable = ret.usable || ret.trusted_locally;
     return ret;
   }
   /**

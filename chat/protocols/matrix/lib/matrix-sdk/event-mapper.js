@@ -18,6 +18,10 @@ function eventMapperFor(client, options) {
   const decrypt = options.decrypt !== false;
 
   function mapper(plainOldJsObject) {
+    if (options.toDevice) {
+      delete plainOldJsObject.room_id;
+    }
+
     const room = client.getRoom(plainOldJsObject.room_id);
     let event; // If the event is already known to the room, let's re-use the model rather than duplicating.
     // We avoid doing this to state events as they may be forward or backwards looking which tweaks behaviour.

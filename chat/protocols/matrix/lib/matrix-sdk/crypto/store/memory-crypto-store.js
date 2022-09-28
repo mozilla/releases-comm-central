@@ -55,7 +55,11 @@ class MemoryCryptoStore {
     _defineProperty(this, "sessionsNeedingBackup", {});
 
     _defineProperty(this, "sharedHistoryInboundGroupSessions", {});
+
+    _defineProperty(this, "parkedSharedHistory", new Map());
   }
+
+  // keyed by room ID
 
   /**
    * Ensure the database exists and is up-to-date.
@@ -187,10 +191,7 @@ class MemoryCryptoStore {
 
     for (const req of this.outgoingRoomKeyRequests) {
       for (const state of wantedStates) {
-        if (req.state === state && req.recipients.includes({
-          userId,
-          deviceId
-        })) {
+        if (req.state === state && req.recipients.some(recipient => recipient.userId === userId && recipient.deviceId === deviceId)) {
           results.push(req);
         }
       }
@@ -493,6 +494,18 @@ class MemoryCryptoStore {
 
   getSharedHistoryInboundGroupSessions(roomId) {
     return Promise.resolve(this.sharedHistoryInboundGroupSessions[roomId] || []);
+  }
+
+  addParkedSharedHistory(roomId, parkedData) {
+    const parked = this.parkedSharedHistory.get(roomId) ?? [];
+    parked.push(parkedData);
+    this.parkedSharedHistory.set(roomId, parked);
+  }
+
+  takeParkedSharedHistory(roomId) {
+    const parked = this.parkedSharedHistory.get(roomId) ?? [];
+    this.parkedSharedHistory.delete(roomId);
+    return Promise.resolve(parked);
   } // Session key backups
 
 

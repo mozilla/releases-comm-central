@@ -27,5 +27,4 @@ exports.ReceiptType = ReceiptType;
   ReceiptType["Read"] = "m.read";
   ReceiptType["FullyRead"] = "m.fully_read";
   ReceiptType["ReadPrivate"] = "m.read.private";
-  ReceiptType["UnstableReadPrivate"] = "org.matrix.msc2285.read.private";
 })(ReceiptType || (exports.ReceiptType = ReceiptType = {}));

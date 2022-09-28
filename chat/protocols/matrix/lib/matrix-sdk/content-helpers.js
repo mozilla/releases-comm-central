@@ -275,16 +275,13 @@ const makeBeaconContent = (uri, timestamp, beaconInfoEventId, description) => ({
 exports.makeBeaconContent = makeBeaconContent;
 
 const parseBeaconContent = content => {
-  const {
-    description,
-    uri
-  } = _location.M_LOCATION.findIn(content);
+  const location = _location.M_LOCATION.findIn(content);
 
   const timestamp = _location.M_TIMESTAMP.findIn(content);
 
   return {
-    description,
-    uri,
+    description: location?.description,
+    uri: location?.uri,
     timestamp
   };
 };

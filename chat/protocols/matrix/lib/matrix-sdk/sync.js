@@ -70,13 +70,11 @@ const MSC2716_ROOM_VERSIONS = ['org.matrix.msc2716v3'];
 function getFilterName(userId, suffix) {
   // scope this on the user ID because people may login on many accounts
   // and they all need to be stored!
-  return "FILTER_SYNC_" + userId + (suffix ? "_" + suffix : "");
+  return `FILTER_SYNC_${userId}` + (suffix ? "_" + suffix : "");
 }
 
 function debuglog(...params) {
-  if (!DEBUG) {
-    return;
-  }
+  if (!DEBUG) return;
 
   _logger.logger.log(...params);
 }
@@ -135,6 +133,121 @@ class SyncApi {
 
     _defineProperty(this, "storeIsInvalid", false);
 
+    _defineProperty(this, "getPushRules", async () => {
+      try {
+        debuglog("Getting push rules...");
+        const result = await this.client.getPushRules();
+        debuglog("Got push rules");
+        this.client.pushRules = result;
+      } catch (err) {
+        _logger.logger.error("Getting push rules failed", err);
+
+        if (this.shouldAbortSync(err)) return; // wait for saved sync to complete before doing anything else,
+        // otherwise the sync state will end up being incorrect
+
+        debuglog("Waiting for saved sync before retrying push rules...");
+        await this.recoverFromSyncStartupError(this.savedSyncPromise, err);
+        return this.getPushRules(); // try again
+      }
+    });
+
+    _defineProperty(this, "buildDefaultFilter", () => {
+      return new _filter.Filter(this.client.credentials.userId);
+    });
+
+    _defineProperty(this, "checkLazyLoadStatus", async () => {
+      debuglog("Checking lazy load status...");
+
+      if (this.opts.lazyLoadMembers && this.client.isGuest()) {
+        this.opts.lazyLoadMembers = false;
+      }
+
+      if (this.opts.lazyLoadMembers) {
+        debuglog("Checking server lazy load support...");
+        const supported = await this.client.doesServerSupportLazyLoading();
+
+        if (supported) {
+          debuglog("Enabling lazy load on sync filter...");
+
+          if (!this.opts.filter) {
+            this.opts.filter = this.buildDefaultFilter();
+          }
+
+          this.opts.filter.setLazyLoadMembers(true);
+        } else {
+          debuglog("LL: lazy loading requested but not supported " + "by server, so disabling");
+          this.opts.lazyLoadMembers = false;
+        }
+      } // need to vape the store when enabling LL and wasn't enabled before
+
+
+      debuglog("Checking whether lazy loading has changed in store...");
+      const shouldClear = await this.wasLazyLoadingToggled(this.opts.lazyLoadMembers);
+
+      if (shouldClear) {
+        this.storeIsInvalid = true;
+        const reason = _errors.InvalidStoreError.TOGGLED_LAZY_LOADING;
+        const error = new _errors.InvalidStoreError(reason, !!this.opts.lazyLoadMembers);
+        this.updateSyncState(SyncState.Error, {
+          error
+        }); // bail out of the sync loop now: the app needs to respond to this error.
+        // we leave the state as 'ERROR' which isn't great since this normally means
+        // we're retrying. The client must be stopped before clearing the stores anyway
+        // so the app should stop the client, clear the store and start it again.
+
+        _logger.logger.warn("InvalidStoreError: store is not usable: stopping sync.");
+
+        return;
+      }
+
+      if (this.opts.lazyLoadMembers) {
+        this.opts.crypto?.enableLazyLoading();
+      }
+
+      try {
+        debuglog("Storing client options...");
+        await this.client.storeClientOptions();
+        debuglog("Stored client options");
+      } catch (err) {
+        _logger.logger.error("Storing client options failed", err);
+
+        throw err;
+      }
+    });
+
+    _defineProperty(this, "getFilter", async () => {
+      debuglog("Getting filter...");
+      let filter;
+
+      if (this.opts.filter) {
+        filter = this.opts.filter;
+      } else {
+        filter = this.buildDefaultFilter();
+      }
+
+      let filterId;
+
+      try {
+        filterId = await this.client.getOrCreateFilter(getFilterName(this.client.credentials.userId), filter);
+      } catch (err) {
+        _logger.logger.error("Getting filter failed", err);
+
+        if (this.shouldAbortSync(err)) return {}; // wait for saved sync to complete before doing anything else,
+        // otherwise the sync state will end up being incorrect
+
+        debuglog("Waiting for saved sync before retrying filter...");
+        await this.recoverFromSyncStartupError(this.savedSyncPromise, err);
+        return this.getFilter(); // try again
+      }
+
+      return {
+        filter,
+        filterId
+      };
+    });
+
+    _defineProperty(this, "savedSyncPromise", void 0);
+
     _defineProperty(this, "onOnline", () => {
       debuglog("Browser thinks we are back online");
       this.startKeepAlives(0);
@@ -176,7 +289,7 @@ class SyncApi {
    * historical messages are shown when we paginate `/messages` again.
    * @param {Room} room The room where the marker event was sent
    * @param {MatrixEvent} markerEvent The new marker event
-   * @param {ISetStateOptions} setStateOptions When `timelineWasEmpty` is set
+   * @param {IMarkerFoundOptions} setStateOptions When `timelineWasEmpty` is set
    * as `true`, the given marker event will be ignored
   */
 
@@ -312,7 +425,7 @@ class SyncApi {
       const messages = response.messages.chunk.map(client.getEventMapper()); // XXX: copypasted from /sync until we kill off this minging v1 API stuff)
       // handle presence events (User objects)
 
-      if (response.presence && Array.isArray(response.presence)) {
+      if (Array.isArray(response.presence)) {
         response.presence.map(client.getEventMapper()).forEach(function (presenceEvent) {
           let user = client.store.getUser(presenceEvent.getContent().user_id);
 
@@ -502,193 +615,89 @@ class SyncApi {
 
     return false;
   }
+
   /**
    * Main entry point
    */
-
-
-  sync() {
-    const client = this.client;
+  async sync() {
     this.running = true;
+    global.window?.addEventListener?.("online", this.onOnline, false);
 
-    if (global.window && global.window.addEventListener) {
-      global.window.addEventListener("online", this.onOnline, false);
-    }
+    if (this.client.isGuest()) {
+      // no push rules for guests, no access to POST filter for guests.
+      return this.doSync({});
+    } // Pull the saved sync token out first, before the worker starts sending
+    // all the sync data which could take a while. This will let us send our
+    // first incremental sync request before we've processed our saved data.
 
-    let savedSyncPromise = Promise.resolve();
-    let savedSyncToken = null; // We need to do one-off checks before we can begin the /sync loop.
+
+    debuglog("Getting saved sync token...");
+    const savedSyncTokenPromise = this.client.store.getSavedSyncToken().then(tok => {
+      debuglog("Got saved sync token");
+      return tok;
+    });
+    this.savedSyncPromise = this.client.store.getSavedSync().then(savedSync => {
+      debuglog(`Got reply from saved sync, exists? ${!!savedSync}`);
+
+      if (savedSync) {
+        return this.syncFromCache(savedSync);
+      }
+    }).catch(err => {
+      _logger.logger.error("Getting saved sync failed", err);
+    }); // We need to do one-off checks before we can begin the /sync loop.
     // These are:
     //   1) We need to get push rules so we can check if events should bing as we get
     //      them from /sync.
     //   2) We need to get/create a filter which we can use for /sync.
     //   3) We need to check the lazy loading option matches what was used in the
     //       stored sync. If it doesn't, we can't use the stored sync.
+    // Now start the first incremental sync request: this can also
+    // take a while so if we set it going now, we can wait for it
+    // to finish while we process our saved sync data.
 
-    const getPushRules = async () => {
-      try {
-        debuglog("Getting push rules...");
-        const result = await client.getPushRules();
-        debuglog("Got push rules");
-        client.pushRules = result;
-      } catch (err) {
-        _logger.logger.error("Getting push rules failed", err);
+    await this.getPushRules();
+    await this.checkLazyLoadStatus();
+    const {
+      filterId,
+      filter
+    } = await this.getFilter();
+    if (!filter) return; // bail, getFilter failed
+    // reset the notifications timeline to prepare it to paginate from
+    // the current point in time.
+    // The right solution would be to tie /sync pagination tokens into
+    // /notifications API somehow.
 
-        if (this.shouldAbortSync(err)) return; // wait for saved sync to complete before doing anything else,
-        // otherwise the sync state will end up being incorrect
+    this.client.resetNotifTimelineSet();
 
-        debuglog("Waiting for saved sync before retrying push rules...");
-        await this.recoverFromSyncStartupError(savedSyncPromise, err);
-        getPushRules();
-        return;
-      }
+    if (this.currentSyncRequest === null) {
+      let firstSyncFilter = filterId;
+      const savedSyncToken = await savedSyncTokenPromise;
 
-      checkLazyLoadStatus(); // advance to the next stage
-    };
-
-    const buildDefaultFilter = () => {
-      const filter = new _filter.Filter(client.credentials.userId);
-      filter.setTimelineLimit(this.opts.initialSyncLimit);
-      return filter;
-    };
-
-    const checkLazyLoadStatus = async () => {
-      debuglog("Checking lazy load status...");
-
-      if (this.opts.lazyLoadMembers && client.isGuest()) {
-        this.opts.lazyLoadMembers = false;
-      }
-
-      if (this.opts.lazyLoadMembers) {
-        debuglog("Checking server lazy load support...");
-        const supported = await client.doesServerSupportLazyLoading();
-
-        if (supported) {
-          debuglog("Enabling lazy load on sync filter...");
-
-          if (!this.opts.filter) {
-            this.opts.filter = buildDefaultFilter();
-          }
-
-          this.opts.filter.setLazyLoadMembers(true);
-        } else {
-          debuglog("LL: lazy loading requested but not supported " + "by server, so disabling");
-          this.opts.lazyLoadMembers = false;
-        }
-      } // need to vape the store when enabling LL and wasn't enabled before
-
-
-      debuglog("Checking whether lazy loading has changed in store...");
-      const shouldClear = await this.wasLazyLoadingToggled(this.opts.lazyLoadMembers);
-
-      if (shouldClear) {
-        this.storeIsInvalid = true;
-        const reason = _errors.InvalidStoreError.TOGGLED_LAZY_LOADING;
-        const error = new _errors.InvalidStoreError(reason, !!this.opts.lazyLoadMembers);
-        this.updateSyncState(SyncState.Error, {
-          error
-        }); // bail out of the sync loop now: the app needs to respond to this error.
-        // we leave the state as 'ERROR' which isn't great since this normally means
-        // we're retrying. The client must be stopped before clearing the stores anyway
-        // so the app should stop the client, clear the store and start it again.
-
-        _logger.logger.warn("InvalidStoreError: store is not usable: stopping sync.");
-
-        return;
-      }
-
-      if (this.opts.lazyLoadMembers && this.opts.crypto) {
-        this.opts.crypto.enableLazyLoading();
-      }
-
-      try {
-        debuglog("Storing client options...");
-        await this.client.storeClientOptions();
-        debuglog("Stored client options");
-      } catch (err) {
-        _logger.logger.error("Storing client options failed", err);
-
-        throw err;
-      }
-
-      getFilter(); // Now get the filter and start syncing
-    };
-
-    const getFilter = async () => {
-      debuglog("Getting filter...");
-      let filter;
-
-      if (this.opts.filter) {
-        filter = this.opts.filter;
-      } else {
-        filter = buildDefaultFilter();
-      }
-
-      let filterId;
-
-      try {
-        filterId = await client.getOrCreateFilter(getFilterName(client.credentials.userId), filter);
-      } catch (err) {
-        _logger.logger.error("Getting filter failed", err);
-
-        if (this.shouldAbortSync(err)) return; // wait for saved sync to complete before doing anything else,
-        // otherwise the sync state will end up being incorrect
-
-        debuglog("Waiting for saved sync before retrying filter...");
-        await this.recoverFromSyncStartupError(savedSyncPromise, err);
-        getFilter();
-        return;
-      } // reset the notifications timeline to prepare it to paginate from
-      // the current point in time.
-      // The right solution would be to tie /sync pagination tokens into
-      // /notifications API somehow.
-
-
-      client.resetNotifTimelineSet();
-
-      if (this.currentSyncRequest === null) {
-        // Send this first sync request here so we can then wait for the saved
-        // sync data to finish processing before we process the results of this one.
+      if (savedSyncToken) {
         debuglog("Sending first sync request...");
-        this.currentSyncRequest = this.doSyncRequest({
-          filterId
-        }, savedSyncToken);
-      } // Now wait for the saved sync to finish...
+      } else {
+        debuglog("Sending initial sync request...");
+        const initialFilter = this.buildDefaultFilter();
+        initialFilter.setDefinition(filter.getDefinition());
+        initialFilter.setTimelineLimit(this.opts.initialSyncLimit); // Use an inline filter, no point uploading it for a single usage
+
+        firstSyncFilter = JSON.stringify(initialFilter.getDefinition());
+      } // Send this first sync request here so we can then wait for the saved
+      // sync data to finish processing before we process the results of this one.
 
 
-      debuglog("Waiting for saved sync before starting sync processing...");
-      await savedSyncPromise;
-      this.doSync({
-        filterId
-      });
-    };
+      this.currentSyncRequest = this.doSyncRequest({
+        filter: firstSyncFilter
+      }, savedSyncToken);
+    } // Now wait for the saved sync to finish...
 
-    if (client.isGuest()) {
-      // no push rules for guests, no access to POST filter for guests.
-      this.doSync({});
-    } else {
-      // Pull the saved sync token out first, before the worker starts sending
-      // all the sync data which could take a while. This will let us send our
-      // first incremental sync request before we've processed our saved data.
-      debuglog("Getting saved sync token...");
-      savedSyncPromise = client.store.getSavedSyncToken().then(tok => {
-        debuglog("Got saved sync token");
-        savedSyncToken = tok;
-        debuglog("Getting saved sync...");
-        return client.store.getSavedSync();
-      }).then(savedSync => {
-        debuglog(`Got reply from saved sync, exists? ${!!savedSync}`);
 
-        if (savedSync) {
-          return this.syncFromCache(savedSync);
-        }
-      }).catch(err => {
-        _logger.logger.error("Getting saved sync failed", err);
-      }); // Now start the first incremental sync request: this can also
-      // take a while so if we set it going now, we can wait for it
-      // to finish while we process our saved sync data.
+    debuglog("Waiting for saved sync before starting sync processing...");
+    await this.savedSyncPromise; // process the first sync request and continue syncing with the normal filterId
 
-      getPushRules();
-    }
+    return this.doSync({
+      filter: filterId
+    });
   }
   /**
    * Stops the sync object from syncing.
@@ -701,10 +710,7 @@ class SyncApi {
     // Some platforms (e.g. React Native) register global.window,
     // but do not have global.window.removeEventListener.
 
-    if (global.window && global.window.removeEventListener) {
-      global.window.removeEventListener("online", this.onOnline, false);
-    }
-
+    global.window?.removeEventListener?.("online", this.onOnline, false);
     this.running = false;
     this.currentSyncRequest?.abort();
 
@@ -742,7 +748,6 @@ class SyncApi {
     this.client.store.setSyncToken(nextSyncToken); // No previous sync, set old token to null
 
     const syncEventData = {
-      oldSyncToken: null,
       nextSyncToken,
       catchingUp: false,
       fromCache: true
@@ -777,7 +782,87 @@ class SyncApi {
 
 
   async doSync(syncOptions) {
-    const client = this.client;
+    while (this.running) {
+      const syncToken = this.client.store.getSyncToken();
+      let data;
+
+      try {
+        //debuglog('Starting sync since=' + syncToken);
+        if (this.currentSyncRequest === null) {
+          this.currentSyncRequest = this.doSyncRequest(syncOptions, syncToken);
+        }
+
+        data = await this.currentSyncRequest;
+      } catch (e) {
+        const abort = await this.onSyncError(e);
+        if (abort) return;
+        continue;
+      } finally {
+        this.currentSyncRequest = null;
+      } //debuglog('Completed sync, next_batch=' + data.next_batch);
+      // set the sync token NOW *before* processing the events. We do this so
+      // if something barfs on an event we can skip it rather than constantly
+      // polling with the same token.
+
+
+      this.client.store.setSyncToken(data.next_batch); // Reset after a successful sync
+
+      this.failedSyncCount = 0;
+      await this.client.store.setSyncData(data);
+      const syncEventData = {
+        oldSyncToken: syncToken,
+        nextSyncToken: data.next_batch,
+        catchingUp: this.catchingUp
+      };
+
+      if (this.opts.crypto) {
+        // tell the crypto module we're about to process a sync
+        // response
+        await this.opts.crypto.onSyncWillProcess(syncEventData);
+      }
+
+      try {
+        await this.processSyncResponse(syncEventData, data);
+      } catch (e) {
+        // log the exception with stack if we have it, else fall back
+        // to the plain description
+        _logger.logger.error("Caught /sync error", e); // Emit the exception for client handling
+
+
+        this.client.emit(_client.ClientEvent.SyncUnexpectedError, e);
+      } // update this as it may have changed
+
+
+      syncEventData.catchingUp = this.catchingUp; // emit synced events
+
+      if (!syncOptions.hasSyncedBefore) {
+        this.updateSyncState(SyncState.Prepared, syncEventData);
+        syncOptions.hasSyncedBefore = true;
+      } // tell the crypto module to do its processing. It may block (to do a
+      // /keys/changes request).
+
+
+      if (this.opts.crypto) {
+        await this.opts.crypto.onSyncCompleted(syncEventData);
+      } // keep emitting SYNCING -> SYNCING for clients who want to do bulk updates
+
+
+      this.updateSyncState(SyncState.Syncing, syncEventData);
+
+      if (this.client.store.wantsSave()) {
+        // We always save the device list (if it's dirty) before saving the sync data:
+        // this means we know the saved device list data is at least as fresh as the
+        // stored sync data which means we don't have to worry that we may have missed
+        // device changes. We can also skip the delay since we're not calling this very
+        // frequently (and we don't really want to delay the sync for it).
+        if (this.opts.crypto) {
+          await this.opts.crypto.saveDeviceList(0);
+        } // tell databases that everything is now in a consistent state and can be saved.
+
+
+        this.client.store.save();
+      }
+    }
 
     if (!this.running) {
       debuglog("Sync no longer running: exiting.");
@@ -788,90 +873,7 @@ class SyncApi {
       }
 
       this.updateSyncState(SyncState.Stopped);
-      return;
     }
-
-    const syncToken = client.store.getSyncToken();
-    let data;
-
-    try {
-      //debuglog('Starting sync since=' + syncToken);
-      if (this.currentSyncRequest === null) {
-        this.currentSyncRequest = this.doSyncRequest(syncOptions, syncToken);
-      }
-
-      data = await this.currentSyncRequest;
-    } catch (e) {
-      this.onSyncError(e, syncOptions);
-      return;
-    } finally {
-      this.currentSyncRequest = null;
-    } //debuglog('Completed sync, next_batch=' + data.next_batch);
-    // set the sync token NOW *before* processing the events. We do this so
-    // if something barfs on an event we can skip it rather than constantly
-    // polling with the same token.
-
-
-    client.store.setSyncToken(data.next_batch); // Reset after a successful sync
-
-    this.failedSyncCount = 0;
-    await client.store.setSyncData(data);
-    const syncEventData = {
-      oldSyncToken: syncToken,
-      nextSyncToken: data.next_batch,
-      catchingUp: this.catchingUp
-    };
-
-    if (this.opts.crypto) {
-      // tell the crypto module we're about to process a sync
-      // response
-      await this.opts.crypto.onSyncWillProcess(syncEventData);
-    }
-
-    try {
-      await this.processSyncResponse(syncEventData, data);
-    } catch (e) {
-      // log the exception with stack if we have it, else fall back
-      // to the plain description
-      _logger.logger.error("Caught /sync error", e); // Emit the exception for client handling
-
-
-      this.client.emit(_client.ClientEvent.SyncUnexpectedError, e);
-    } // update this as it may have changed
-
-
-    syncEventData.catchingUp = this.catchingUp; // emit synced events
-
-    if (!syncOptions.hasSyncedBefore) {
-      this.updateSyncState(SyncState.Prepared, syncEventData);
-      syncOptions.hasSyncedBefore = true;
-    } // tell the crypto module to do its processing. It may block (to do a
-    // /keys/changes request).
-
-
-    if (this.opts.crypto) {
-      await this.opts.crypto.onSyncCompleted(syncEventData);
-    } // keep emitting SYNCING -> SYNCING for clients who want to do bulk updates
-
-
-    this.updateSyncState(SyncState.Syncing, syncEventData);
-
-    if (client.store.wantsSave()) {
-      // We always save the device list (if it's dirty) before saving the sync data:
-      // this means we know the saved device list data is at least as fresh as the
-      // stored sync data which means we don't have to worry that we may have missed
-      // device changes. We can also skip the delay since we're not calling this very
-      // frequently (and we don't really want to delay the sync for it).
-      if (this.opts.crypto) {
-        await this.opts.crypto.saveDeviceList(0);
-      } // tell databases that everything is now in a consistent state and can be saved.
-
-
-      client.store.save();
-    } // Begin next sync
-
-
-    this.doSync(syncOptions);
   }
 
   doSyncRequest(syncOptions, syncToken) {
@@ -882,7 +884,7 @@ class SyncApi {
   getSyncParams(syncOptions, syncToken) {
     let pollTimeout = this.opts.pollTimeout;
 
-    if (this.getSyncState() !== 'SYNCING' || this.catchingUp) {
+    if (this.getSyncState() !== SyncState.Syncing || this.catchingUp) {
       // unless we are happily syncing already, we want the server to return
       // as quickly as possible, even if there are no events queued. This
       // serves two purposes:
@@ -898,14 +900,14 @@ class SyncApi {
       pollTimeout = 0;
     }
 
-    let filterId = syncOptions.filterId;
+    let filter = syncOptions.filter;
 
-    if (this.client.isGuest() && !filterId) {
-      filterId = this.getGuestFilter();
+    if (this.client.isGuest() && !filter) {
+      filter = this.getGuestFilter();
     }
 
     const qps = {
-      filter: filterId,
+      filter,
       timeout: pollTimeout
     };
 
@@ -922,7 +924,7 @@ class SyncApi {
       qps._cacheBuster = Date.now();
     }
 
-    if (this.getSyncState() == 'ERROR' || this.getSyncState() == 'RECONNECTING') {
+    if ([SyncState.Reconnecting, SyncState.Error].includes(this.getSyncState())) {
       // we think the connection is dead. If it comes back up, we won't know
       // about it till /sync returns. If the timeout= is high, this could
       // be a long time. Set it to 0 when doing retries so we don't have to wait
@@ -933,7 +935,7 @@ class SyncApi {
     return qps;
   }
 
-  onSyncError(err, syncOptions) {
+  async onSyncError(err) {
     if (!this.running) {
       debuglog("Sync no longer running: exiting");
 
@@ -943,15 +945,13 @@ class SyncApi {
       }
 
       this.updateSyncState(SyncState.Stopped);
-      return;
+      return true; // abort
     }
 
     _logger.logger.error("/sync error %s", err);
 
-    _logger.logger.error(err);
-
     if (this.shouldAbortSync(err)) {
-      return;
+      return true; // abort
     }
 
     this.failedSyncCount++;
@@ -966,26 +966,24 @@ class SyncApi {
     // instead, so that clients can observe this state
     // if they wish.
 
-    this.startKeepAlives().then(connDidFail => {
-      // Only emit CATCHUP if we detected a connectivity error: if we didn't,
-      // it's quite likely the sync will fail again for the same reason and we
-      // want to stay in ERROR rather than keep flip-flopping between ERROR
-      // and CATCHUP.
-      if (connDidFail && this.getSyncState() === SyncState.Error) {
-        this.updateSyncState(SyncState.Catchup, {
-          oldSyncToken: null,
-          nextSyncToken: null,
-          catchingUp: true
-        });
-      }
-
-      this.doSync(syncOptions);
-    });
+    const keepAlivePromise = this.startKeepAlives();
     this.currentSyncRequest = null; // Transition from RECONNECTING to ERROR after a given number of failed syncs
 
     this.updateSyncState(this.failedSyncCount >= FAILED_SYNC_ERROR_THRESHOLD ? SyncState.Error : SyncState.Reconnecting, {
       error: err
     });
+    const connDidFail = await keepAlivePromise; // Only emit CATCHUP if we detected a connectivity error: if we didn't,
+    // it's quite likely the sync will fail again for the same reason and we
+    // want to stay in ERROR rather than keep flip-flopping between ERROR
+    // and CATCHUP.
+
+    if (connDidFail && this.getSyncState() === SyncState.Error) {
+      this.updateSyncState(SyncState.Catchup, {
+        catchingUp: true
+      });
+    }
+
+    return false;
   }
   /**
    * Process data returned from a sync response and propagate it
@@ -1042,7 +1040,7 @@ class SyncApi {
     // - The isBrandNewRoom boilerplate is boilerplatey.
     // handle presence events (User objects)
 
-    if (data.presence && Array.isArray(data.presence.events)) {
+    if (Array.isArray(data.presence?.events)) {
       data.presence.events.map(client.getEventMapper()).forEach(function (presenceEvent) {
         let user = client.store.getUser(presenceEvent.getSender());
 
@@ -1059,7 +1057,7 @@ class SyncApi {
     } // handle non-room account_data
 
 
-    if (data.account_data && Array.isArray(data.account_data.events)) {
+    if (Array.isArray(data.account_data?.events)) {
       const events = data.account_data.events.map(client.getEventMapper());
       const prevEventsMap = events.reduce((m, c) => {
         m[c.getId()] = client.store.getAccountData(c.getType());
@@ -1085,7 +1083,17 @@ class SyncApi {
 
     if (Array.isArray(data.to_device?.events) && data.to_device.events.length > 0) {
       const cancelledKeyVerificationTxns = [];
-      data.to_device.events.map(client.getEventMapper()).map(toDeviceEvent => {
+      data.to_device.events.filter(eventJSON => {
+        if (eventJSON.type === _event.EventType.RoomMessageEncrypted && !["m.olm.v1.curve25519-aes-sha2"].includes(eventJSON.content?.algorithm)) {
+          _logger.logger.log('Ignoring invalid encrypted to-device event from ' + eventJSON.sender);
+
+          return false;
+        }
+
+        return true;
+      }).map(client.getEventMapper({
+        toDevice: true
+      })).map(toDeviceEvent => {
         // map is a cheap inline forEach
         // We want to flag m.key.verification.start events as cancelled
         // if there's an accompanying m.key.verification.cancel event, so
@@ -1155,6 +1163,17 @@ class SyncApi {
       const room = inviteObj.room;
       const stateEvents = this.mapSyncEventsFormat(inviteObj.invite_state, room);
       await this.processRoomEvents(room, stateEvents);
+      const inviter = room.currentState.getStateEvents(_event.EventType.RoomMember, client.getUserId())?.getSender();
+      const parkedHistory = await client.crypto.cryptoStore.takeParkedSharedHistory(room.roomId);
+
+      for (const parked of parkedHistory) {
+        if (parked.senderId === inviter) {
+          await this.client.crypto.olmDevice.addInboundGroupSession(room.roomId, parked.senderKey, parked.forwardingCurve25519KeyChain, parked.sessionId, parked.sessionKey, parked.keysClaimed, true, {
+            sharedHistory: true,
+            untrusted: true
+          });
+        }
+      }
 
       if (inviteObj.isBrandNewRoom) {
         room.recalculate();
@@ -1188,7 +1207,7 @@ class SyncApi {
         // server's for this case, and therefore will assume that our non-zero
         // count is accurate.
 
-        if (!encrypted || encrypted && room.getUnreadNotificationCount(_room.NotificationCountType.Highlight) <= 0) {
+        if (!encrypted || room.getUnreadNotificationCount(_room.NotificationCountType.Highlight) <= 0) {
           room.setUnreadNotificationCount(_room.NotificationCountType.Highlight, joinObj.unread_notifications.highlight_count);
         }
       }
@@ -1242,9 +1261,14 @@ class SyncApi {
         }
       }
 
-      await this.processRoomEvents(room, stateEvents, events, syncEventData.fromCache); // set summary after processing events,
+      try {
+        await this.processRoomEvents(room, stateEvents, events, syncEventData.fromCache);
+      } catch (e) {
+        _logger.logger.error(`Failed to process events on room ${room.roomId}:`, e);
+      } // set summary after processing events,
       // because it will trigger a name calculation
       // which needs the room state to be up to date
+
 
       if (joinObj.summary) {
         room.setSummary(joinObj.summary);

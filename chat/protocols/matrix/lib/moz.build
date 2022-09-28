@@ -91,6 +91,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
     "matrix-sdk/models/event-timeline-set.js",
     "matrix-sdk/models/event-timeline.js",
     "matrix-sdk/models/event.js",
+    "matrix-sdk/models/invites-ignorer.js",
     "matrix-sdk/models/MSC3089Branch.js",
     "matrix-sdk/models/MSC3089TreeSpace.js",
     "matrix-sdk/models/related-relations.js",
@@ -117,6 +118,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.store += [
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.types += [
+    "matrix-sdk/@types/auth.js",
     "matrix-sdk/@types/beacon.js",
     "matrix-sdk/@types/event.js",
     "matrix-sdk/@types/extensible_events.js",

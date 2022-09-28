@@ -101,9 +101,11 @@ let loader = Loader({
     "../../utils": matrixPath + "matrix_sdk/utils.js",
 
     // @types
+    "@types/auth": matrixPath + "matrix_sdk/types/auth.js",
     "@types/beacon": matrixPath + "matrix_sdk/types/beacon.js",
     "@types/event": matrixPath + "matrix_sdk/types/event.js",
     "../@types/event": matrixPath + "matrix_sdk/types/event.js",
+    "../../@types/event": matrixPath + "matrix_sdk/types/event.js",
     "@types/extensible_events":
       matrixPath + "matrix_sdk/types/extensible_events.js",
     "@types/location": matrixPath + "matrix_sdk/types/location.js",
@@ -132,6 +134,8 @@ let loader = Loader({
     "crypto/recoverykey": matrixPath + "matrix_sdk/crypto/recoverykey.js",
     recoverykey: matrixPath + "matrix_sdk/crypto/recoverykey.js",
     OutgoingRoomKeyRequestManager:
+      matrixPath + "matrix_sdk/crypto/OutgoingRoomKeyRequestManager.js",
+    "../OutgoingRoomKeyRequestManager":
       matrixPath + "matrix_sdk/crypto/OutgoingRoomKeyRequestManager.js",
     "crypto/RoomList": matrixPath + "matrix_sdk/crypto/RoomList.js",
     "crypto/CrossSigning": matrixPath + "matrix_sdk/crypto/CrossSigning.js",
