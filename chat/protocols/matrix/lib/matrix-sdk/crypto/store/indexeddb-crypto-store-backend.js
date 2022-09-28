@@ -16,7 +16,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-const VERSION = 10;
+const VERSION = 11;
 exports.VERSION = VERSION;
 const PROFILE_TRANSACTIONS = false;
 /**
