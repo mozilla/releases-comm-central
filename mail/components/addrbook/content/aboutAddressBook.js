@@ -93,13 +93,13 @@ window.addEventListener("load", () => {
     });
   document
     .getElementById("toolbarCreateContact")
-    .addEventListener("command", event => createContact());
+    .addEventListener("command", () => createContact());
   document
     .getElementById("toolbarCreateList")
-    .addEventListener("command", event => createList());
+    .addEventListener("command", () => createList());
   document
     .getElementById("toolbarImport")
-    .addEventListener("command", event => importBook());
+    .addEventListener("command", () => importBook());
 
   document.getElementById("bookContext").addEventListener("command", event => {
     switch (event.target.id) {
@@ -1914,6 +1914,18 @@ var cardsPane = {
     }
   },
 
+  /**
+   * Export the selected mailing list to a file.
+   */
+  exportSelected() {
+    let card = this.selectedCards[0];
+    if (!card || !card.isMailList) {
+      return;
+    }
+    let row = booksList.getRowForUID(card.UID);
+    AddrBookUtils.exportDirectory(row._list);
+  },
+
   _canModifySelected() {
     if (this.cardsList.view.directory?.readOnly) {
       return false;
@@ -2039,6 +2051,12 @@ var cardsPane = {
       "cardContextWriteSeparator"
     );
     let editItem = document.getElementById("cardContextEdit");
+    // Always reset the edit item to its default string.
+    document.l10n.setAttributes(
+      editItem,
+      "about-addressbook-books-context-edit"
+    );
+    let exportItem = document.getElementById("cardContextExport");
     if (this.cardsList.selectedIndices.length == 1) {
       let card = this.cardsList.view.getCardFromRow(
         this.cardsList.selectedIndex
@@ -2046,7 +2064,12 @@ var cardsPane = {
       if (card.isMailList) {
         writeMenuItem.hidden = writeMenuSeparator.hidden = false;
         writeMenu.hidden = true;
-        editItem.hidden = true;
+        editItem.hidden = !this._canModifySelected();
+        document.l10n.setAttributes(
+          editItem,
+          "about-addressbook-books-context-edit-list"
+        );
+        exportItem.hidden = false;
       } else {
         let addresses = card.emailAddresses;
 
@@ -2077,11 +2100,13 @@ var cardsPane = {
         }
 
         editItem.hidden = !this._canModifySelected();
+        exportItem.hidden = true;
       }
     } else {
       writeMenuItem.hidden = false;
       writeMenu.hidden = true;
       editItem.hidden = true;
+      exportItem.hidden = true;
     }
 
     let deleteItem = document.getElementById("cardContextDelete");
@@ -2131,10 +2156,13 @@ var cardsPane = {
         this.writeToSelected();
         return;
       case "cardContextEdit":
-        detailsPane.editCurrentContact();
+        detailsPane.editCurrent();
         return;
       case "cardContextPrint":
         this.printSelected();
+        return;
+      case "cardContextExport":
+        this.exportSelected();
         return;
       case "cardContextDelete":
         this.deleteSelected();
