@@ -1480,11 +1480,7 @@ class ImapClient {
       getCustomFlags: uid => this._messages.get(uid)?.keywords,
       getCustomAttribute: (uid, name) => {
         let value = this._messages.get(uid)?.customAttributes[name];
-        return Array.isArray(value)
-          ? value
-              .map(x => (x.startsWith("\\") || x.includes(" ") ? `"${x}"` : x))
-              .join(" ")
-          : value;
+        return Array.isArray(value) ? value.join(" ") : value;
       },
     };
   }
