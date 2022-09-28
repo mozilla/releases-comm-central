@@ -305,6 +305,12 @@
                        label="&showMessageCmd.label;"
                        key="key_toggleMessagePane"
                        command="cmd_toggleMessagePane"/>
+        <toolbarseparator/>
+        <toolbarbutton id="appmenu_calShowTodayPane-2"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="&todaypane.showTodayPane.label;"
+                       type="checkbox"
+                       command="calendar_toggle_todaypane_command"/>
       </vbox>
     </panelview>
 
@@ -315,96 +321,21 @@
       <vbox id="appMenu-viewViewItems"
             class="panel-subview-body">
         <toolbarbutton id="appmenu_Toolbars"
-                       class="subviewbutton subviewbutton-nav"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        label="&viewToolbarsMenu.label;"
                        accesskey="&viewToolbarsMenu.accesskey;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-toolbarsView', this)"/>
         <toolbarbutton id="appmenu_MessagePaneLayout"
-                       class="subviewbutton subviewbutton-nav"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        label="&messagePaneLayoutStyle.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-preferencesLayoutView', this)"/>
         <toolbarbutton id="appmenu_FolderViews"
-                       class="subviewbutton subviewbutton-nav"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        label="&folderView.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-foldersView', this)"/>
-        <toolbarseparator/>
-        <toolbarbutton id="appmenu_viewFullZoomMenu"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&fullZoom.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-viewZoomView', this)"/>
-#ifdef MAIN_WINDOW
-        <toolbarseparator id="appmenu_calendar-view-menu-separator"
-                          class="hide-when-calendar-deactivated"/>
-        <toolbarbutton id="appmenu_calendar-today-pane-menu"
-                      class="subviewbutton subviewbutton-nav hide-when-calendar-deactivated"
-                      label="&calendar.context.button.label;"
-                      closemenu="none"
-                      oncommand="PanelUI.showSubView('appmenu_calendar-today-pane-view', this)"/>
-        <toolbarbutton id="appmenu_calendar-calendar-menu"
-                      class="subviewbutton subviewbutton-nav hide-when-calendar-deactivated"
-                      observes="calendar_in_foreground"
-                      label="&lightning.menu.view.calendar.label;"
-                      closemenu="none"
-                      oncommand="PanelUI.showSubView('appmenu_calendar-calendar-view', this)"/>
-        <toolbarbutton id="appmenu_calendar-tasks-menu"
-                      class="subviewbutton subviewbutton-nav hide-when-calendar-deactivated"
-                      observes="calendar_mode_task"
-                      label="&lightning.menu.view.tasks.label;"
-                      closemenu="none"
-                      oncommand="PanelUI.showSubView('appmenu_calendar-tasks-view', this)"/>
-#endif
-        <toolbarseparator id="appmenu_viewSortMenuSeparator"/>
-        <toolbarbutton id="appmenu_viewSortMenu"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&sortMenu.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-viewSortByView', this)"/>
-        <toolbarbutton id="appmenu_viewMessageViewMenu"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&msgsMenu.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-viewMessagesView', this)"/>
-        <toolbarbutton id="appmenu_viewMessagesMenu"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&threads.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-viewThreadsView', this)"/>
-        <toolbarbutton id="appmenu_viewHeadersMenu"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&headersMenu.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-viewHeadersView', this)"/>
-        <toolbarbutton id="appmenu_viewBodyMenu"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&bodyMenu.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-viewMessageBodyAsView', this)"/>
-        <toolbarbutton id="appmenu_viewFeedSummary"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&bodyMenuFeed.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-viewFeedsView', this)"/>
-        <toolbarbutton id="appmenu_viewAttachmentsInlineMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&viewAttachmentsInlineCmd.label;"
-                       oncommand="ToggleInlineAttachment(event.target)"
-                       type="checkbox"
-                       checked="true"/>
-        <toolbarseparator id="appmenu_viewAfterAttachmentsSeparator"/>
-        <toolbarbutton id="appmenu_charsetRepairMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       data-l10n-id="repair-text-encoding-button"
-                       oncommand="MailSetCharacterSet()"/>
-        <toolbarseparator id="appmenu_viewAfterCharsetSeparator"/>
-        <toolbarbutton id="appmenu_pageSourceMenuItem"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&pageSourceCmd.label;"
-                       key="key_viewPageSource"
-                       command="cmd_viewPageSource"/>
       </vbox>
     </panelview>
 
@@ -476,184 +407,6 @@
       </vbox>
     </panelview>
 
-    <!-- View / Sort by -->
-    <panelview id="appMenu-viewSortByView"
-               title="&sortMenu.label;"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_sortByDateMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortby"
-                       label="&sortByDateCmd.label;"
-                       oncommand="MsgSortThreadPane('byDate')"/>
-        <toolbarbutton id="appmenu_sortByReceivedMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortby"
-                       label="&sortByReceivedCmd.label;"
-                       oncommand="MsgSortThreadPane('byReceived')"/>
-        <toolbarbutton id="appmenu_sortByFlagMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortby"
-                       label="&sortByStarCmd.label;"
-                       oncommand="MsgSortThreadPane('byFlagged')"/>
-        <toolbarbutton id="appmenu_sortByOrderReceivedMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortby"
-                       label="&sortByOrderReceivedCmd.label;"
-                       oncommand="MsgSortThreadPane('byId')"/>
-        <toolbarbutton id="appmenu_sortByPriorityMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortby"
-                       label="&sortByPriorityCmd.label;"
-                       oncommand="MsgSortThreadPane('byPriority')"/>
-        <toolbarbutton id="appmenu_sortByFromMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortby"
-                       label="&sortByFromCmd.label;"
-                       oncommand="MsgSortThreadPane('byAuthor')"/>
-        <toolbarbutton id="appmenu_sortByRecipientMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortby"
-                       label="&sortByRecipientCmd.label;"
-                       oncommand="MsgSortThreadPane('byRecipient')"/>
-        <toolbarbutton id="appmenu_sortByCorrespondentMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortby"
-                       label="&sortByCorrespondentCmd.label;"
-                       oncommand="MsgSortThreadPane('byCorrespondent')"/>
-        <toolbarbutton id="appmenu_sortBySizeMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortby"
-                       label="&sortBySizeCmd.label;"
-                       oncommand="MsgSortThreadPane('bySize')"/>
-        <toolbarbutton id="appmenu_sortByStatusMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortby"
-                       label="&sortByStatusCmd.label;"
-                       oncommand="MsgSortThreadPane('byStatus')"/>
-        <toolbarbutton id="appmenu_sortBySubjectMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortby"
-                       label="&sortBySubjectCmd.label;"
-                       oncommand="MsgSortThreadPane('bySubject')"/>
-        <toolbarbutton id="appmenu_sortByUnreadMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortby"
-                       label="&sortByUnreadCmd.label;"
-                       oncommand="MsgSortThreadPane('byUnread')"/>
-        <toolbarbutton id="appmenu_sortByTagsMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortby"
-                       label="&sortByTagsCmd.label;"
-                       oncommand="MsgSortThreadPane('byTags')"/>
-        <toolbarbutton id="appmenu_sortByJunkStatusMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortby"
-                       label="&sortByJunkStatusCmd.label;"
-                       oncommand="MsgSortThreadPane('byJunkStatus')"/>
-        <toolbarbutton id="appmenu_sortByAttachmentsMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortby"
-                       label="&sortByAttachmentsCmd.label;"
-                       oncommand="MsgSortThreadPane('byAttachments')"/>
-        <toolbarseparator id="appmenu_sortAfterAttachmentSeparator"/>
-        <toolbarbutton id="appmenu_sortAscending"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortdirection"
-                       label="&sortAscending.label;"
-                       oncommand="MsgSortAscending()"/>
-        <toolbarbutton id="appmenu_sortDescending"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="sortdirection"
-                       label="&sortDescending.label;"
-                       oncommand="MsgSortDescending()"/>
-        <toolbarseparator id="appmenu_sortAfterDescendingSeparator"/>
-        <toolbarbutton id="appmenu_sortThreaded"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="threaded"
-                       label="&sortThreaded.label;"
-                       oncommand="MsgSortThreaded();"/>
-        <toolbarbutton id="appmenu_sortUnthreaded"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="threaded"
-                       label="&sortUnthreaded.label;"
-                       oncommand="MsgSortUnthreaded();"/>
-        <toolbarbutton id="appmenu_groupBySort"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="group"
-                       label="&groupBySort.label;"
-                       oncommand="MsgGroupBySort();"/>
-      </vbox>
-    </panelview>
-
-    <!-- View / Messages -->
-    <panelview id="appMenu-viewMessagesView"
-               title="&msgsMenu.label;"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_viewMessageAll"
-                       class="subviewbutton subviewbutton-iconic"
-                       value="0"
-                       type="radio"
-                       label="&viewAll.label;"
-                       oncommand="ViewChangeByMenuitem(event.target);"/>
-        <toolbarbutton id="appmenu_viewMessageUnread"
-                       class="subviewbutton subviewbutton-iconic"
-                       value="1"
-                       type="radio"
-                       label="&viewUnread.label;"
-                       oncommand="ViewChangeByMenuitem(event.target);"/>
-        <toolbarbutton id="appmenu_viewMessageNotDeleted"
-                       class="subviewbutton subviewbutton-iconic"
-                       value="3"
-                       type="radio"
-                       label="&viewNotDeleted.label;"
-                       oncommand="ViewChangeByMenuitem(event.target);"/>
-        <toolbarseparator id="appmenu_messageViewAfterUnreadSeparator"/>
-        <toolbarbutton id="appmenu_viewMessageTags"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&viewTags.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-viewMessagesTagsView', this)"/>
-        <toolbarbutton id="appmenu_viewMessageCustomViews"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&viewCustomViews.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-viewMessagesCustomViewsView', this)"/>
-        <toolbarseparator id="appmenu_messageViewAfterCustomSeparator"/>
-        <toolbarbutton id="appmenu_viewMessageVirtualFolder"
-                       class="subviewbutton subviewbutton-iconic"
-                       value="7"
-                       label="&viewVirtualFolder.label;"
-                       oncommand="ViewChangeByMenuitem(event.target);"/>
-        <toolbarbutton id="appmenu_viewMessageCustomize"
-                       class="subviewbutton subviewbutton-iconic"
-                       value="8"
-                       label="&viewCustomizeView.label;"
-                       oncommand="ViewChangeByMenuitem(event.target);"/>
-      </vbox>
-    </panelview>
-
     <!-- View / Messages / Tags -->
     <!-- Dynamically populated when shown. -->
     <panelview id="appMenu-viewMessagesTagsView"
@@ -670,193 +423,6 @@
                class="PanelUI-subView"
                oncommand="ViewChangeByMenuitem(event.target);">
       <vbox class="panel-subview-body"/>
-    </panelview>
-
-    <!-- View / Threads -->
-    <panelview id="appMenu-viewThreadsView"
-               title="&threads.label;"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_viewAllMessagesMenuItem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="viewmessages"
-                       label="&allMsgsCmd.label;"
-                       disabled="true"
-                       command="cmd_viewAllMsgs"/>
-        <toolbarbutton id="appmenu_viewUnreadMessagesMenuItem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="viewmessages"
-                       label="&unreadMsgsCmd.label;"
-                       disabled="true"
-                       command="cmd_viewUnreadMsgs"/>
-        <toolbarbutton id="appmenu_viewThreadsWithUnreadMenuItem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="viewmessages"
-                       label="&threadsWithUnreadCmd.label;"
-                       disabled="true"
-                       command="cmd_viewThreadsWithUnread"/>
-        <toolbarbutton id="appmenu_viewWatchedThreadsWithUnreadMenuItem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="viewmessages"
-                       label="&watchedThreadsWithUnreadCmd.label;"
-                       disabled="true"
-                       command="cmd_viewWatchedThreadsWithUnread"/>
-        <toolbarseparator id="appmenu_threadsAfterWatchedSeparator"/>
-        <toolbarbutton id="appmenu_viewIgnoredThreadsMenuItem"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="checkbox"
-                       label="&ignoredThreadsCmd.label;"
-                       disabled="true"
-                       command="cmd_viewIgnoredThreads"/>
-        <toolbarseparator id="appmenu_threadsAfterIgnoredSeparator"/>
-        <toolbarbutton id="appmenu_expandAllThreads"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&expandAllThreadsCmd.label;"
-                       key="key_expandAllThreads"
-                       disabled="true"
-                       command="cmd_expandAllThreads"/>
-        <toolbarbutton id="appmenu_collapseAllThreads"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&collapseAllThreadsCmd.label;"
-                       key="key_collapseAllThreads"
-                       disabled="true"
-                       command="cmd_collapseAllThreads"/>
-      </vbox>
-    </panelview>
-
-    <!-- View / Headers -->
-    <panelview id="appMenu-viewHeadersView"
-               title="&headersMenu.label;"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_viewallheaders"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="viewheadergroup"
-                       label="&headersAllCmd.label;"
-                       command="cmd_viewAllHeader"/>
-        <toolbarbutton id="appmenu_viewnormalheaders"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="viewheadergroup"
-                       label="&headersNormalCmd.label;"
-                       command="cmd_viewNormalHeader"/>
-      </vbox>
-    </panelview>
-
-    <!-- View / Message Body As -->
-    <panelview id="appMenu-viewMessageBodyAsView"
-               title="&bodyMenu.label;"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_bodyAllowHTML"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="bodyPlaintextVsHTMLPref"
-                       label="&bodyAllowHTML.label;"
-                       oncommand="MsgBodyAllowHTML()"/>
-        <toolbarbutton id="appmenu_bodySanitized"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="bodyPlaintextVsHTMLPref"
-                       label="&bodySanitized.label;"
-                       oncommand="MsgBodySanitized()"/>
-        <toolbarbutton id="appmenu_bodyAsPlaintext"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="bodyPlaintextVsHTMLPref"
-                       label="&bodyAsPlaintext.label;"
-                       oncommand="MsgBodyAsPlaintext()"/>
-        <toolbarbutton id="appmenu_bodyAllParts"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="bodyPlaintextVsHTMLPref"
-                       label="&bodyAllParts.label;"
-                       oncommand="MsgBodyAllParts()"/>
-      </vbox>
-    </panelview>
-
-    <!-- View / Feed Message Body As -->
-    <panelview id="appMenu-viewFeedsView"
-               title="&bodyMenuFeed.label;"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_bodyFeedGlobalWebPage"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="viewFeedSummaryGroup"
-                       label="&viewFeedWebPage.label;"
-                       observes="bodyFeedGlobalWebPage"
-                       oncommand="FeedMessageHandler.onSelectPref = 0"/>
-        <toolbarbutton id="appmenu_bodyFeedGlobalSummary"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="viewFeedSummaryGroup"
-                       label="&viewFeedSummary.label;"
-                       observes="bodyFeedGlobalSummary"
-                       oncommand="FeedMessageHandler.onSelectPref = 1"/>
-        <toolbarbutton id="appmenu_bodyFeedPerFolderPref"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="viewFeedSummaryGroup"
-                       label="&viewFeedSummaryFeedPropsPref.label;"
-                       observes="bodyFeedPerFolderPref"
-                       oncommand="FeedMessageHandler.onSelectPref = 2"/>
-        <toolbarseparator id="appmenu_viewFeedSummarySeparator"/>
-        <toolbarbutton id="appmenu_bodyFeedSummaryAllowHTML"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="viewFeedBodyHTMLGroup"
-                       label="&bodyAllowHTML.label;"
-                       oncommand="MsgFeedBodyRenderPrefs(false, 0, 0)"/>
-        <toolbarbutton id="appmenu_bodyFeedSummarySanitized"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="viewFeedBodyHTMLGroup"
-                       label="&bodySanitized.label;"
-                       oncommand="MsgFeedBodyRenderPrefs(false, 3, gDisallow_classes_no_html)"/>
-        <toolbarbutton id="appmenu_bodyFeedSummaryAsPlaintext"
-                       class="subviewbutton subviewbutton-iconic"
-                       type="radio"
-                       name="viewFeedBodyHTMLGroup"
-                       label="&bodyAsPlaintext.label;"
-                       oncommand="MsgFeedBodyRenderPrefs(true, 1, gDisallow_classes_no_html)"/>
-      </vbox>
-    </panelview>
-
-    <!-- View / Zoom -->
-    <panelview id="appMenu-viewZoomView"
-               title="&fullZoom.label;"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_fullZoomEnlarge"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&fullZoomEnlargeCmd.label;"
-                       key="key_fullZoomEnlarge"
-                       command="cmd_fullZoomEnlarge"/>
-        <toolbarbutton id="appmenu_fullZoomReduce"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&fullZoomReduceCmd.label;"
-                       key="key_fullZoomReduce"
-                       command="cmd_fullZoomReduce"/>
-        <toolbarseparator id="appmenu_fullZoomAfterReduceSeparator"/>
-        <toolbarbutton id="appmenu_fullZoomReset"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&fullZoomResetCmd.label;"
-                       key="key_fullZoomReset"
-                       command="cmd_fullZoomReset"/>
-        <toolbarseparator id="appmenu_fullZoomAfterResetSeparator"/>
-        <toolbarbutton id="appmenu_fullZoomToggle"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&fullZoomToggleCmd.label;"
-                       type="checkbox"
-                       command="cmd_fullZoomToggle"
-                       checked="false"/>
-      </vbox>
     </panelview>
 
     <!-- Tools -->
@@ -951,10 +517,5 @@
                        oncommand="openAboutDialog();"/>
       </vbox>
     </panelview>
-
-#ifdef MAIN_WINDOW
-#include ../../../../calendar/base/content/calendar-appmenu-panelviews.inc.xhtml
-#endif
-
   </panelmultiview>
 </panel>

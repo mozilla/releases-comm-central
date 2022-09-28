@@ -29,6 +29,7 @@ var folder;
 var thread1, thread2, thread3;
 
 add_setup(async function() {
+  document.getElementById("toolbar-menubar").removeAttribute("autohide");
   folder = await create_folder("WatchIgnoreThreadTest");
   thread1 = create_thread(3);
   thread2 = create_thread(4);
@@ -38,17 +39,23 @@ add_setup(async function() {
   be_in_folder(folder);
   make_display_threaded();
   expand_all_threads();
+
+  registerCleanupFunction(() => {
+    document.getElementById("toolbar-menubar").autohide = true;
+  });
 });
 
 /**
- * Click one of the menu items in the appmenu View | Messages menu.
- * @param {string} menuId  The id of the menu item to click.
+ * Click one of the menu items in the View | Messages menu.
+ *
+ * @param {string} id - The id of the menu item to click.
  */
-function clickViewMessagesItem(menuId) {
-  mc.click_through_appmenu(
-    [{ id: "appmenu_View" }, { id: "appmenu_viewMessagesMenu" }],
-    { id: menuId }
-  );
+async function clickViewMessagesItem(id) {
+  mc.click(mc.e("menu_View"));
+  await mc.click_menus_in_sequence(mc.e("menu_View_Popup"), [
+    { id: "viewMessagesMenu" },
+    { id },
+  ]);
 }
 
 /**
@@ -81,27 +88,27 @@ add_task(function test_ignore_thread() {
  * Test that ignored threads are shown when the View | Threads |
  * Ignored Threads option is checked.
  */
-add_task(function test_view_threads_ignored_threads() {
+add_task(async function test_view_threads_ignored_threads() {
   let t1root = thread1.getMsgHdr(0);
   let t2root = thread2.getMsgHdr(0);
 
   // Check "Ignored Threads" - the ignored messages should appear =>
   // the first row is the first message of the first thread.
-  clickViewMessagesItem("appmenu_viewIgnoredThreadsMenuItem");
+  await clickViewMessagesItem("viewIgnoredThreadsMenuItem");
   select_click_row(0);
   assert_selected_and_displayed(t1root);
 
   // Uncheck "Ignored Threads" - the ignored messages should get hidden.
-  clickViewMessagesItem("appmenu_viewIgnoredThreadsMenuItem");
+  await clickViewMessagesItem("viewIgnoredThreadsMenuItem");
   select_click_row(0);
   assert_selected_and_displayed(t2root);
   assert_not_shown(thread1.msgHdrList);
-});
+}).__skipMe = AppConstants.platform == "macosx";
 
 /**
  * Test that Watch Thread makes the thread watched.
  */
-add_task(function test_watch_thread() {
+add_task(async function test_watch_thread() {
   let t2second = select_click_row(1);
   let t3root = thread3.getMsgHdr(0);
   assert_selected_and_displayed(t2second);
@@ -110,14 +117,13 @@ add_task(function test_watch_thread() {
   EventUtils.synthesizeKey("W", { shiftKey: false, accelKey: false });
 
   // Choose "Watched Threads with Unread".
-  clickViewMessagesItem("appmenu_viewWatchedThreadsWithUnreadMenuItem");
-  select_click_row(1);
+  await clickViewMessagesItem("viewWatchedThreadsWithUnreadMenuItem");
   assert_selected_and_displayed(t2second);
   assert_not_shown(thread1.msgHdrList);
   assert_not_shown(thread3.msgHdrList);
 
   // Choose "All Messages" again.
-  clickViewMessagesItem("appmenu_viewAllMessagesMenuItem");
+  await clickViewMessagesItem("viewAllMessagesMenuItem");
   assert_not_shown(thread1.msgHdrList); // still ignored (and now shown)
   select_click_row(thread2.msgHdrList.length);
   assert_selected_and_displayed(t3root);
@@ -128,4 +134,4 @@ add_task(function test_watch_thread() {
     undefined,
     "Test ran to completion successfully"
   );
-});
+}).__skipMe = AppConstants.platform == "macosx";

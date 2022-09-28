@@ -636,7 +636,7 @@ function help_get_num_lines(node) {
  * @param {HTMLOListElement} node - The recipients container of a header row.
  */
 async function subtest_more_widget_display(node, showAll = false) {
-  // Test that the to element doesn't have more than max lines.
+  // Test that the `To` element doesn't have more than max lines.
   let numLines = help_get_num_lines(node);
   // Get the max line pref.
   let maxLines = Services.prefs.getIntPref(LINES_PREF);
@@ -813,17 +813,50 @@ add_task(async function test_view_more_button_focus() {
  */
 add_task(async function test_show_all_header_mode() {
   async function toggle_header_mode(show) {
-    mc.click_through_appmenu(
-      [{ id: "appmenu_View" }, { id: "appmenu_viewHeadersMenu" }],
-      {
-        id: show ? "appmenu_viewallheaders" : "appmenu_viewnormalheaders",
-      }
+    let popup = document.getElementById("otherActionsPopup");
+    let popupShown = BrowserTestUtils.waitForEvent(popup, "popupshown");
+    EventUtils.synthesizeMouseAtCenter(
+      document.getElementById("otherActionsButton"),
+      {},
+      mc.window
+    );
+    await popupShown;
+
+    let panel = document.getElementById("messageHeaderCustomizationPanel");
+    let customizeBtn = document.getElementById(
+      "messageHeaderMoreMenuCustomize"
+    );
+    let panelShown = BrowserTestUtils.waitForEvent(panel, "popupshown");
+    EventUtils.synthesizeMouseAtCenter(customizeBtn, {}, mc.window);
+    await panelShown;
+
+    let viewAllHeaders = document.getElementById("headerViewAllHeaders");
+
+    let modeChanged = await TestUtils.waitForCondition(
+      () =>
+        document
+          .getElementById("messageHeader")
+          .getAttribute("show_header_mode") == show
+          ? "all"
+          : "normal",
+      "Message header updated correctly"
+    );
+    EventUtils.synthesizeMouseAtCenter(viewAllHeaders, {}, mc.window);
+    await modeChanged;
+
+    Assert.ok(
+      viewAllHeaders.checked == show,
+      "The view all headers checkbox was updated to the correct state"
     );
 
     await BrowserTestUtils.waitForCondition(
       () => document.getElementById("expandedsubjectBox").value.textContent,
       "The message was loaded"
     );
+
+    let panelHidden = BrowserTestUtils.waitForEvent(panel, "popuphidden");
+    EventUtils.synthesizeKey("VK_ESCAPE", {});
+    await panelHidden;
   }
 
   // Generate message with 35 recipients.
@@ -845,10 +878,14 @@ add_task(async function test_show_all_header_mode() {
   assert_selected_and_displayed(mc, curMessage);
 
   await toggle_header_mode(true);
+  wait_for_message_display_completion(mc);
+  assert_selected_and_displayed(mc, curMessage);
   let node = document.getElementById("expandedtoBox").recipientsList;
   await subtest_more_widget_display(node, true);
 
   await toggle_header_mode(false);
+  wait_for_message_display_completion(mc);
+  assert_selected_and_displayed(mc, curMessage);
   await subtest_more_widget_display(node);
   subtest_more_widget_activate(node);
   await subtest_more_widget_display(node, true);

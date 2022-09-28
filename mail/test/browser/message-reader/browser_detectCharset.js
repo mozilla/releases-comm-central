@@ -38,37 +38,27 @@ async function check_display_charset(eml, expectedCharset) {
 async function extract_eml_body_textcontent(eml, autodetect = true) {
   let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
   let msgc = await open_message_from_file(file);
+  let reloadPromise = BrowserTestUtils.browserLoaded(msgc.contentPane);
   // Be sure to view message body as Original HTML
   msgc.window.MsgBodyAllowHTML();
+  await reloadPromise;
 
   if (autodetect) {
-    // Open main application menu
-    let appMenu = msgc.window.document.getElementById("appMenu-popup");
-    let menuShownPromise = BrowserTestUtils.waitForEvent(appMenu, "popupshown");
+    // Open other actions menu.
+    let popup = msgc.window.document.getElementById("otherActionsPopup");
+    let popupShown = BrowserTestUtils.waitForEvent(popup, "popupshown");
     EventUtils.synthesizeMouseAtCenter(
-      msgc.window.document.getElementById("button-appmenu"),
+      msgc.window.document.getElementById("otherActionsButton"),
       {},
       msgc.window
     );
-    await menuShownPromise;
+    await popupShown;
 
-    // Go to "View" sub menu
-    let viewShownPromise = BrowserTestUtils.waitForEvent(
-      appMenu.querySelector("#appMenu-viewView"),
-      "ViewShown"
-    );
+    // Click on the "Repair Text Encoding" item.
+    let hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
+    reloadPromise = BrowserTestUtils.browserLoaded(msgc.contentPane);
     EventUtils.synthesizeMouseAtCenter(
-      appMenu.querySelector("#appmenu_View"),
-      {},
-      msgc.window
-    );
-    await viewShownPromise;
-
-    // Click on the "Repair Text Encoding" item
-    let hiddenPromise = BrowserTestUtils.waitForEvent(appMenu, "popuphidden");
-    let reloadPromise = BrowserTestUtils.browserLoaded(msgc.contentPane);
-    EventUtils.synthesizeMouseAtCenter(
-      appMenu.querySelector("#appmenu_charsetRepairMenuitem"),
+      msgc.window.document.getElementById("charsetRepairMenuitem"),
       {},
       msgc.window
     );

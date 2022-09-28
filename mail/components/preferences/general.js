@@ -64,6 +64,7 @@ Preferences.addAll([
   { id: "general.smoothScroll", type: "bool" },
   { id: "widget.gtk.overlay-scrollbars.enabled", type: "bool", inverted: true },
   { id: "mail.fixed_width_messages", type: "bool" },
+  { id: "mail.inline_attachments", type: "bool" },
   { id: "mail.quoted_style", type: "int" },
   { id: "mail.quoted_size", type: "int" },
   { id: "mail.citation_color", type: "string" },

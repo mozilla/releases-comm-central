@@ -149,3 +149,7 @@ menupopup > menuseparator {
   background-color: var(--arrowpanel-background) !important;
   color: var(--arrowpanel-color) !important;
 }
+
+.menu-iconic-accel {
+  margin-inline-end: 3px !important;
+}

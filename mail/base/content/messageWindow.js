@@ -712,20 +712,8 @@ function HideMenus() {
     viewMessageViewMenu.setAttribute("hidden", "true");
   }
 
-  viewMessageViewMenu = document.getElementById("appmenu_viewMessageViewMenu");
-  if (viewMessageViewMenu) {
-    viewMessageViewMenu.setAttribute("hidden", "true");
-  }
-
   var viewMessagesMenuSeparator = document.getElementById(
     "viewMessagesMenuSeparator"
-  );
-  if (viewMessagesMenuSeparator) {
-    viewMessagesMenuSeparator.setAttribute("hidden", "true");
-  }
-
-  viewMessagesMenuSeparator = document.getElementById(
-    "appmenu_viewMessagesMenuSeparator"
   );
   if (viewMessagesMenuSeparator) {
     viewMessagesMenuSeparator.setAttribute("hidden", "true");
@@ -756,11 +744,6 @@ function HideMenus() {
   }
 
   var viewSortMenu = document.getElementById("viewSortMenu");
-  if (viewSortMenu) {
-    viewSortMenu.setAttribute("hidden", "true");
-  }
-
-  viewSortMenu = document.getElementById("appmenu_viewSortMenu");
   if (viewSortMenu) {
     viewSortMenu.setAttribute("hidden", "true");
   }

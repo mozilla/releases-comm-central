@@ -370,16 +370,6 @@ async function OnLoadMsgHeaderPane() {
 
   initializeHeaderViewTables();
 
-  // Only offer openInTab and openInNewWindow if this window supports tabs.
-  let opensAreHidden = !document.getElementById("tabmail");
-  for (let id of ["otherActionsOpenInNewWindow", "otherActionsOpenInNewTab"]) {
-    let menu = document.getElementById(id);
-    if (menu) {
-      // May not be available yet.
-      menu.hidden = opensAreHidden;
-    }
-  }
-
   // Add the keyboard shortcut event listener for the message header.
   // Ctrl+Alt+S / Cmd+Control+S. We don't use the Alt/Option key on macOS
   // because it alters the pressed key to an ASCII character. See bug 1692263.
@@ -3147,6 +3137,11 @@ function onShowOtherActionsPopup() {
       .getElementById("markAsUnreadMenuItem")
       .setAttribute("hidden", true);
   }
+
+  // Check if the current message is feed or not.
+  let isFeed = FeedUtils.isFeedMessage(gFolderDisplay.selectedMessage);
+  document.getElementById("otherActionsMessageBodyAs").hidden = isFeed;
+  document.getElementById("otherActionsFeedBodyAs").hidden = !isFeed;
 }
 
 /**
@@ -3292,6 +3287,12 @@ const gHeaderCustomize = {
 
     document.getElementById("headerSubjectLarge").checked =
       this.customizeData.subjectLarge || false;
+
+    let type = Ci.nsMimeHeaderDisplayTypes;
+    let pref = Services.prefs.getIntPref("mail.show_headers");
+
+    document.getElementById("headerViewAllHeaders").checked =
+      type.AllHeaders == pref;
   },
 
   /**
@@ -3343,6 +3344,20 @@ const gHeaderCustomize = {
   updateSubjectStyle(event) {
     this.customizeData.subjectLarge = event.target.checked;
     this.updateLayout();
+  },
+
+  /**
+   * Show or hide all the headers of a message.
+   *
+   * @param {Event} event - The checkbox command event.
+   */
+  toggleAllHeaders(event) {
+    let mode = event.target.checked
+      ? Ci.nsMimeHeaderDisplayTypes.AllHeaders
+      : Ci.nsMimeHeaderDisplayTypes.NormalHeaders;
+    Services.prefs.setIntPref("mail.show_headers", mode);
+    AdjustHeaderView(mode);
+    ReloadMessage();
   },
 
   /**

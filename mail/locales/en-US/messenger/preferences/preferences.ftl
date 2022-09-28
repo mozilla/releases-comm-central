@@ -459,6 +459,10 @@ mark-read-no-delay =
     .label = Immediately on display
     .accesskey = o
 
+view-attachments-inline =
+    .label = View attachments inline
+    .accesskey = V
+
 ## Note: This will concatenate to "After displaying for [___] seconds",
 ## using (mark-read-delay) and a number (seconds-label).
 

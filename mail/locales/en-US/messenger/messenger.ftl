@@ -172,6 +172,10 @@ message-header-large-subject =
     .label = Large subject
     .accesskey = s
 
+message-header-all-headers =
+    .label = Show all headers
+    .accesskey = a
+
 ## Action Button Context Menu
 
 toolbar-context-menu-manage-extension =
