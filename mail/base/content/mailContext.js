@@ -72,6 +72,7 @@ var mailContextMenu = {
     "mailContext-editDraftMsg": "cmd_editDraftMsg",
     "mailContext-newMsgFromTemplate": "cmd_newMsgFromTemplate",
     "mailContext-editTemplateMsg": "cmd_editTemplateMsg",
+    "mailContext-openConversation": "cmd_openConversation",
     "mailContext-replyNewsgroup": "cmd_replyGroup",
     "mailContext-replySender": "cmd_replySender",
     "mailContext-replyAll": "cmd_replyall",
@@ -231,7 +232,6 @@ var mailContextMenu = {
     for (let id of [
       "mailContext-openInBrowser",
       "mailContext-savelink",
-      "mailContext-openConversation",
       "mailContext-openContainingFolder",
       "mailContext-recalculateJunkScore",
       "mailContext-copyMessageUrl",
@@ -266,10 +266,6 @@ var mailContextMenu = {
 
     setSingleSelection("mailContext-openNewTab");
     setSingleSelection("mailContext-openNewWindow");
-    setSingleSelection(
-      "mailContext-openConversation",
-      LazyModules.ConversationOpener.isMessageIndexed(message)
-    );
     // setSingleSelection("mailContext-openContainingFolder");
     setSingleSelection("mailContext-forwardAsMenu");
     if (isDummyMessage) {
@@ -430,11 +426,6 @@ var mailContextMenu = {
         topChromeWindow.MsgOpenNewWindowForMessage(
           gDBView.hdrForFirstSelectedMessage,
           gViewWrapper
-        );
-        break;
-      case "mailContext-openConversation":
-        new LazyModules.ConversationOpener(window).openConversationForMessages(
-          gDBView.getSelectedMsgHdrs()
         );
         break;
       // case "mailContext-openContainingFolder":
@@ -781,6 +772,11 @@ var commandController = {
     cmd_watchThread: Ci.nsMsgViewCommandType.toggleThreadWatched,
   },
   _callbackCommands: {
+    cmd_openConversation() {
+      new LazyModules.ConversationOpener(window).openConversationForMessages(
+        gDBView.getSelectedMsgHdrs()
+      );
+    },
     cmd_reply(event) {
       if (gFolder?.flags & Ci.nsMsgFolderFlags.Newsgroup) {
         commandController.doCommand("cmd_replyGroup", event);
@@ -949,6 +945,10 @@ var commandController = {
       numSelectedMessages >= 1 && !isNewsgroup && gFolder?.canDeleteMessages;
 
     switch (command) {
+      case "cmd_openConversation":
+        return gDBView
+          .getSelectedMsgHdrs()
+          .some(m => LazyModules.ConversationOpener.isMessageIndexed(m));
       case "cmd_reply":
       case "cmd_replySender":
       case "cmd_replyall":

@@ -25,11 +25,6 @@ var { PluralForm } = ChromeUtils.import(
 );
 ChromeUtils.defineModuleGetter(
   this,
-  "ConversationOpener",
-  "resource:///modules/ConversationOpener.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
   "MailUtils",
   "resource:///modules/MailUtils.jsm"
 );
@@ -98,7 +93,6 @@ var DefaultController = {
       case "cmd_cancel":
       case "button_delete":
       case "button_junk":
-      case "button_showconversation":
       case "cmd_shiftDelete":
       case "button_shiftDelete":
       case "cmd_undoCloseTab":
@@ -109,7 +103,6 @@ var DefaultController = {
       case "cmd_sendUnsentMsgs":
       case "cmd_subscribe":
       case "cmd_openMessage":
-      case "cmd_openConversation":
       case "button_print":
       case "cmd_print":
       case "cmd_saveAsFile":
@@ -187,12 +180,6 @@ var DefaultController = {
           gFolderDisplay.selectedCount == 1 &&
           gFolderDisplay.selectedMessage.folder &&
           gFolderDisplay.selectedMessage.folder.server.canHaveFilters
-        );
-      case "cmd_openConversation":
-      case "button_showconversation":
-        return (
-          gFolderDisplay.selectedCount == 1 &&
-          ConversationOpener.isMessageIndexed(gFolderDisplay.selectedMessage)
         );
       case "cmd_saveAsFile":
         return gFolderDisplay.selectedCount > 0;
@@ -509,12 +496,6 @@ var DefaultController = {
         return;
       case "cmd_openMessage":
         MsgOpenSelectedMessages();
-        return;
-      case "cmd_openConversation":
-      case "button_showconversation":
-        new ConversationOpener(window).openConversationForMessages(
-          gFolderDisplay.selectedMessages
-        );
         return;
       case "cmd_print":
         PrintSelectedMessages();
