@@ -33,7 +33,7 @@ add_task(async function testLocal() {
   Assert.equal(
     dbB.databaseFile.path,
     PathUtils.join(PathUtils.profileDir, "calendar-data", "local.sqlite"),
-    "local calendar two uses the right database file"
+    "local calendar B uses the right database file"
   );
   Assert.equal(dbA, dbB, "local calendars share a database connection");
 });
@@ -44,7 +44,7 @@ add_task(async function testLocal() {
  */
 add_task(async function testLocalFile() {
   let testFileA = new FileUtils.File(PathUtils.join(PathUtils.osTempDir, "file-a.sqlite"));
-  let testFileB = new FileUtils.File(PathUtils.join(PathUtils.osTempDir, "file-two.sqlite"));
+  let testFileB = new FileUtils.File(PathUtils.join(PathUtils.osTempDir, "file-b.sqlite"));
 
   let fileCalendarA = cal.manager.createCalendar("storage", Services.io.newFileURI(testFileA));
   fileCalendarA.id = cal.getUUID();
@@ -66,12 +66,12 @@ add_task(async function testLocalFile() {
   Assert.equal(
     dbB.databaseFile.path,
     testFileB.path,
-    "local calendar two uses the right database file"
+    "local calendar B uses the right database file"
   );
   Assert.equal(
     dbC.databaseFile.path,
     testFileA.path,
-    "local calendar three uses the right database file"
+    "local calendar C uses the right database file"
   );
   Assert.notEqual(
     dbA,
@@ -90,6 +90,9 @@ add_task(async function testLocalFile() {
  * Tests that cached network calendars share a database connection.
  */
 add_task(async function testNetwork() {
+  // Pretend to be offline so connecting to calendars that don't exist doesn't throw errors.
+  Services.io.offline = true;
+
   let networkCalendarA = cal.manager.createCalendar(
     "ics",
     Services.io.newURI("http://localhost/ics")
@@ -97,8 +100,8 @@ add_task(async function testNetwork() {
   networkCalendarA.id = cal.getUUID();
   networkCalendarA.setProperty("cache.enabled", true);
   cal.manager.registerCalendar(networkCalendarA);
-  let dbA = cal.manager.getCalendarById(networkCalendarA.id).wrappedJSObject.mCachedCalendar
-    .wrappedJSObject.mStorageDb.db;
+  networkCalendarA = cal.manager.getCalendarById(networkCalendarA.id);
+  let dbA = networkCalendarA.wrappedJSObject.mCachedCalendar.wrappedJSObject.mStorageDb.db;
 
   let networkCalendarB = cal.manager.createCalendar(
     "caldav",
@@ -107,8 +110,8 @@ add_task(async function testNetwork() {
   networkCalendarB.id = cal.getUUID();
   networkCalendarB.setProperty("cache.enabled", true);
   cal.manager.registerCalendar(networkCalendarB);
-  let dbB = cal.manager.getCalendarById(networkCalendarB.id).wrappedJSObject.mCachedCalendar
-    .wrappedJSObject.mStorageDb.db;
+  networkCalendarB = cal.manager.getCalendarById(networkCalendarB.id);
+  let dbB = networkCalendarB.wrappedJSObject.mCachedCalendar.wrappedJSObject.mStorageDb.db;
 
   Assert.equal(
     dbA.databaseFile.path,
@@ -118,7 +121,7 @@ add_task(async function testNetwork() {
   Assert.equal(
     dbB.databaseFile.path,
     PathUtils.join(PathUtils.profileDir, "calendar-data", "cache.sqlite"),
-    "network calendar two uses the right database file"
+    "network calendar B uses the right database file"
   );
   Assert.equal(dbA, dbB, "network calendars share a database connection");
 });
