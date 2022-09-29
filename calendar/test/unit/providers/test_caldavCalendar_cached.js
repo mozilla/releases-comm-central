@@ -6,7 +6,7 @@ var { CalDAVServer } = ChromeUtils.import("resource://testing-common/calendar/Ca
 
 CalDAVServer.open();
 CalDAVServer.putItemInternal(
-  "testfile.ics",
+  "5a9fa76c-93f3-4ad8-9f00-9e52aedd2821.ics",
   CalendarTestUtils.dedent`
     BEGIN:VCALENDAR
     BEGIN:VEVENT
@@ -43,6 +43,8 @@ add_task(async function() {
 
   info("deleting the item");
   await runDeleteItem(calendar);
+
+  cal.manager.unregisterCalendar(calendar);
 });
 
 /**
@@ -58,6 +60,8 @@ add_task(async function testCalendarWithNoPrivSupport() {
   info("calendar set-up complete");
 
   Assert.ok(!calendar.readOnly, "calendar was not marked read-only");
+
+  cal.manager.unregisterCalendar(calendar);
 });
 
 /**
@@ -84,4 +88,55 @@ add_task(async function testModifyItemWithNoChanges() {
 
   Assert.ok(modifiedEvent, "an event was returned");
   Assert.equal(modifiedEvent.title, event.title, "the un-modified event is returned");
+
+  await calendar.deleteItem(modifiedEvent);
+  cal.manager.unregisterCalendar(calendar);
+});
+
+/**
+ * Tests that an error response from the server when syncing doesn't delete
+ * items from the local calendar.
+ */
+add_task(async function testSyncError() {
+  calendarObserver._onAddItemPromise = PromiseUtils.defer();
+  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  let calendar = createCalendar("caldav", CalDAVServer.url, true);
+  await calendarObserver._onAddItemPromise.promise;
+  await calendarObserver._onLoadPromise.promise;
+  info("calendar set-up complete");
+
+  Assert.ok(
+    await calendar.getItem("5a9fa76c-93f3-4ad8-9f00-9e52aedd2821"),
+    "item should exist when first connected"
+  );
+
+  info("syncing with rate limit error");
+  CalDAVServer.throwRateLimitErrors = true;
+  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendar.refresh();
+  await calendarObserver._onLoadPromise.promise;
+  CalDAVServer.throwRateLimitErrors = false;
+  info("sync with rate limit error complete");
+
+  Assert.equal(
+    calendar.getProperty("currentStatus"),
+    Cr.NS_OK,
+    "calendar should not be in an error state"
+  );
+  Assert.equal(calendar.getProperty("disabled"), null, "calendar should not be disabled");
+  Assert.ok(
+    await calendar.getItem("5a9fa76c-93f3-4ad8-9f00-9e52aedd2821"),
+    "item should still exist after error response"
+  );
+
+  info("syncing without rate limit error");
+  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendar.refresh();
+  await calendarObserver._onLoadPromise.promise;
+  info("sync without rate limit error complete");
+
+  Assert.ok(
+    await calendar.getItem("5a9fa76c-93f3-4ad8-9f00-9e52aedd2821"),
+    "item should still exist after successful sync"
+  );
 });

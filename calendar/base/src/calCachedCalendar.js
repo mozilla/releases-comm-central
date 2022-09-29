@@ -275,7 +275,7 @@ calCachedCalendar.prototype = {
   mPendingSync: null,
   async synchronize() {
     if (!this.mPendingSync) {
-      this.mPendingSync = this._doSynchronize();
+      this.mPendingSync = this._doSynchronize().catch(Cu.reportError);
     }
     return this.mPendingSync;
   },

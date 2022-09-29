@@ -18,6 +18,25 @@ const { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 const { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
 const { HttpServer } = ChromeUtils.import("resource://testing-common/httpd.js");
 
+const logger = console.createInstance({
+  prefix: "CalDAVServer",
+  maxLogLevel: "Log",
+});
+
+// The response bodies Google sends if you exceed its rate limit.
+let MULTIGET_RATELIMIT_ERROR = `<?xml version="1.0" encoding="UTF-8"?>
+<D:error xmlns:D="DAV:"/>
+`;
+let PROPFIND_RATELIMIT_ERROR = `<?xml version="1.0" encoding="UTF-8"?>
+<errors xmlns="http://schemas.google.com/g/2005">
+ <error>
+  <domain>GData</domain>
+  <code>rateLimitExceeded</code>
+  <internalReason>Some text we're not looking at anyway</internalReason>
+ </error>
+</errors>
+`;
+
 var CalDAVServer = {
   items: new Map(),
   deletedItems: new Map(),
@@ -245,10 +264,9 @@ var CalDAVServer = {
       return;
     }
 
-    let input = new DOMParser().parseFromString(
-      CommonUtils.readBytesFromInputStream(request.bodyInputStream),
-      "text/xml"
-    );
+    let input = CommonUtils.readBytesFromInputStream(request.bodyInputStream);
+    logger.log("C: " + input);
+    input = new DOMParser().parseFromString(input, "text/xml");
 
     switch (input.documentElement.localName) {
       case "calendar-query":
@@ -290,6 +308,7 @@ var CalDAVServer = {
     response.setStatusLine("1.1", 207, "Multi-Status");
     response.setHeader("Content-Type", "text/xml");
     response.write(output.replace(/>\s+</g, "><"));
+    logger.log("S: " + output.replace(/>\s+</g, "><"));
   },
 
   async calendarMultiGet(input, response) {
@@ -307,9 +326,18 @@ var CalDAVServer = {
     response.setStatusLine("1.1", 207, "Multi-Status");
     response.setHeader("Content-Type", "text/xml");
     response.write(output.replace(/>\s+</g, "><"));
+    logger.log("S: " + output.replace(/>\s+</g, "><"));
   },
 
   propFind(input, depth, response) {
+    if (this.throwRateLimitErrors) {
+      response.setStatusLine("1.1", 403, "Forbidden");
+      response.setHeader("Content-Type", "text/xml");
+      response.write(PROPFIND_RATELIMIT_ERROR);
+      logger.log("S: " + PROPFIND_RATELIMIT_ERROR);
+      return;
+    }
+
     let propNames = this._inputProps(input);
     let propValues = {
       "d:resourcetype": "<d:collection/><c:calendar/>",
@@ -344,9 +372,18 @@ var CalDAVServer = {
     response.setStatusLine("1.1", 207, "Multi-Status");
     response.setHeader("Content-Type", "text/xml");
     response.write(output.replace(/>\s+</g, "><"));
+    logger.log("S: " + output.replace(/>\s+</g, "><"));
   },
 
   syncCollection(input, response) {
+    if (this.throwRateLimitErrors) {
+      response.setStatusLine("1.1", 403, "Forbidden");
+      response.setHeader("Content-Type", "text/xml");
+      response.write(MULTIGET_RATELIMIT_ERROR);
+      logger.log("S: " + MULTIGET_RATELIMIT_ERROR);
+      return;
+    }
+
     let token = input.querySelector("sync-token").textContent.replace(/\D/g, "");
     let propNames = this._inputProps(input);
 
@@ -374,6 +411,7 @@ var CalDAVServer = {
     response.setStatusLine("1.1", 207, "Multi-Status");
     response.setHeader("Content-Type", "text/xml");
     response.write(output.replace(/>\s+</g, "><"));
+    logger.log("S: " + output.replace(/>\s+</g, "><"));
   },
 
   _itemResponse(href, item, propNames) {

@@ -6,7 +6,7 @@ var { CalDAVServer } = ChromeUtils.import("resource://testing-common/calendar/Ca
 
 CalDAVServer.open();
 CalDAVServer.putItemInternal(
-  "testfile.ics",
+  "5a9fa76c-93f3-4ad8-9f00-9e52aedd2821.ics",
   CalendarTestUtils.dedent`
     BEGIN:VCALENDAR
     BEGIN:VEVENT
@@ -43,6 +43,8 @@ add_task(async function() {
 
   info("deleting the item");
   await runDeleteItem(calendar);
+
+  cal.manager.unregisterCalendar(calendar);
 });
 
 /**
@@ -58,6 +60,8 @@ add_task(async function testCalendarWithNoPrivSupport() {
   info("calendar set-up complete");
 
   Assert.ok(!calendar.readOnly, "calendar was not marked read-only");
+
+  cal.manager.unregisterCalendar(calendar);
 });
 
 /**
@@ -84,4 +88,7 @@ add_task(async function testModifyItemWithNoChanges() {
 
   Assert.ok(modifiedEvent, "an event was returned");
   Assert.equal(modifiedEvent.title, event.title, "the un-modified event is returned");
+
+  await calendar.deleteItem(modifiedEvent);
+  cal.manager.unregisterCalendar(calendar);
 });
