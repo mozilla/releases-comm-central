@@ -33,6 +33,10 @@
   min-height: var(--tab-min-height);
 }
 
+#tabpanelcontainer {
+  min-height: 0;
+}
+
 .tab-stack {
   min-height: inherit;
 }
