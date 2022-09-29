@@ -249,3 +249,21 @@ add_task(async function testSecretForPreferredSignSubkeyIsMissing() {
     "should obtain key ID of older, non-preferred subkey that has the secret key available"
   );
 });
+
+// Sanity check for bug 1790610 and bug 1792450, test that our passphrase
+// reading code, which can run through repair code for corrupted profiles,
+// will not replace our existing and good data.
+// Ideally this test should restart the application, but is is difficult.
+// We simulate a restart by erasing the cache and forcing it to read
+// data again from disk (which will run the consistency checks and
+// could potentially execute the repair code).
+add_task(async function testRereadingPassphrase() {
+  let pass1 = await OpenPGPMasterpass.retrieveOpenPGPPassword();
+  OpenPGPMasterpass.cachedPassword = null;
+  let pass2 = await OpenPGPMasterpass.retrieveOpenPGPPassword();
+  Assert.equal(
+    pass1,
+    pass2,
+    "openpgp passphrase should remain the same after cache invalidation"
+  );
+});
