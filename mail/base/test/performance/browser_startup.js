@@ -74,8 +74,8 @@ const startupPhases = {
         "resource:///modules/index_im.jsm",
         "resource:///modules/MsgDBCacheManager.jsm",
         "resource:///modules/PeriodicFilterManager.jsm",
-        "resource://gre/modules/NewTabUtils.jsm",
-        "resource://gre/modules/Sqlite.jsm",
+        "resource://gre/modules/NewTabUtils.sys.mjs",
+        "resource://gre/modules/Sqlite.sys.mjs",
         // Bug 1660907: These core modules shouldn't really be being loaded
         // until sometime after first paint.
         // "resource://gre/modules/PlacesUtils.sys.mjs",
@@ -169,7 +169,7 @@ const startupPhases = {
         "resource:///modules/SmtpServer.jsm",
         "resource:///modules/SmtpService.jsm",
         "resource:///modules/TemplateUtils.jsm",
-        "resource://gre/modules/AsyncPrefs.jsm",
+        "resource://gre/modules/AsyncPrefs.sys.mjs",
         "resource://gre/modules/LoginManagerContextMenu.jsm",
         "resource://pdf.js/PdfStreamConverter.jsm",
       ]),
