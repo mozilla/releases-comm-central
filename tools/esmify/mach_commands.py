@@ -61,6 +61,7 @@ excluded_from_imports_prefix = list(
             "mail/app/profile/all-thunderbird.js",
             "mail/branding/thunderbird/pref/thunderbird-branding.js",
             "mail/components/compose/composer.js",
+            "mail/components/enterprisepolicies/schemas/schema.jsm",
             "mail/locales/en-US/all-l10n.js",
             "mail/extensions/am-e2e/prefs/e2e-prefs.js",
             "mailnews/extensions/mdn/mdn.js",
@@ -143,21 +144,21 @@ class HgUtils(VCSUtils):
         cmd = ["hg", "files", f"set:glob:{path}/**/*.jsm"]
         for line in self.run(cmd):
             js = pathlib.Path(line)
-            if is_excluded_from_imports(js):
+            if is_excluded_from_imports(js) or is_excluded_from_convert(js):
                 continue
             jss.append(js)
 
         cmd = ["hg", "files", f"set:glob:{path}/**/*.js"]
         for line in self.run(cmd):
             js = pathlib.Path(line)
-            if is_excluded_from_imports(js):
+            if is_excluded_from_imports(js) or is_excluded_from_convert(js):
                 continue
             jss.append(js)
 
         cmd = ["hg", "files", f"set:glob:{path}/**/*.sys.mjs"]
         for line in self.run(cmd):
             js = pathlib.Path(line)
-            if is_excluded_from_imports(js):
+            if is_excluded_from_imports(js) or is_excluded_from_convert(js):
                 continue
             jss.append(js)
 
@@ -173,7 +174,8 @@ class HgUtils(VCSUtils):
     "path",
     nargs=1,
     help="Path to the JSM file to ESMify, or the directory that contains "
-    "JSM files and/or JS files that imports ESM-ified JSM.",
+    "JSM files and/or JS files that imports ESM-ified JSM. This path is relative"
+    "to your current directory, $topsrcdir/comm",
 )
 @CommandArgument(
     "--convert",
@@ -186,12 +188,25 @@ class HgUtils(VCSUtils):
     help="Only perform the step 2 = import calls part",
 )
 @CommandArgument(
+    "--upstream-imports",
+    action="store_true",
+    help="Perform step 2, import calls, but for converted JSMs in mozilla-central",
+)
+@CommandArgument(
     "--prefix",
     default="",
     help="Restrict the target of import in the step 2 to ESM-ified JSM, by the "
-    "prefix match for the JSM file's path.  e.g. 'browser/'.",
+    "prefix match for the JSM file's path.  This path is relative to $topsrcdir, "
+    "not your current directory. e.g. --prefix=comm/mail/ or --prefix=toolkit/",
 )
-def tb_esmify(command_context, path=None, convert=False, imports=False, prefix=""):
+def tb_esmify(
+    command_context,
+    path=None,
+    convert=False,
+    imports=False,
+    upstream_imports=False,
+    prefix="",
+):
     """
     This command does the following 2 steps:
       1. Convert the JSM file specified by `path` to ESM file, or the JSM files
@@ -200,13 +215,20 @@ def tb_esmify(command_context, path=None, convert=False, imports=False, prefix="
       2. Convert import calls inside file(s) specified by `path` for ESM-ified
          files to use new APIs
 
+    Note: When performing import rewrites, when using --imports for comm-central
+      modules, you will see "Unknown module" WARNING messages referring to modules
+      from mozilla-central.
+      When using --upstream-imports for migrated modules from mozilla-central,
+      you will see "Unknown module" WARNINGs referring to modules from
+      comm-central. This is expected, and not a problem.
+
     Example 1:
       # Convert all JSM files inside `mail/components/customizableui` directory,
       # and replace all references for ESM-ified files in the entire tree to use
       # new APIs
 
       $ ../mach tb-esmify --convert mail/components/customizableui
-      $ ../mach tb-esmify --imports . --prefix=mail/components/customizableui
+      $ ../mach tb-esmify --imports . --prefix=comm/mail/components/customizableui
 
     Example 2:
       # Convert all JSM files inside `mail` directory, and replace all
@@ -214,6 +236,11 @@ def tb_esmify(command_context, path=None, convert=False, imports=False, prefix="
       # new APIs
 
       $ ../mach tb-esmify mail
+
+    Example 3:
+      # Replace references for ESM-ified files from toolkit/ in calendar/
+
+      $ ../mach tb-esmify --upstream-imports --prefix=toolkit/ calendar/
     """
 
     def error(text):
@@ -221,6 +248,10 @@ def tb_esmify(command_context, path=None, convert=False, imports=False, prefix="
 
     def info(text):
         command_context.log(logging.INFO, "tb-esmify", {}, f"[INFO] {text}")
+
+    if upstream_imports:
+        imports = True
+        assert not convert, "Cannot use --convert with --upstream-imports"
 
     # If no options is specified, perform both.
     if not convert and not imports:
@@ -286,7 +317,7 @@ def tb_esmify(command_context, path=None, convert=False, imports=False, prefix="
 
         info(f"Found {len(jss)} file(s). Rewriting imports...")
 
-        result = rewrite_imports(jss, prefix)
+        result = rewrite_imports(jss, prefix, upstream_imports)
         if result is None:
             return 1
 
@@ -562,7 +593,7 @@ def convert_module(command_context, jsms):
     return ok_files
 
 
-def rewrite_imports(jss, prefix):
+def rewrite_imports(jss, prefix, upstream_imports=False):
     """Replace import calls for JSM with import calls for ESM or static import
     for ESM."""
 
@@ -570,7 +601,8 @@ def rewrite_imports(jss, prefix):
         return []
 
     env = os.environ.copy()
-    env["ESMIFY_MAP_JSON"] = MAP_JSON
+    if not upstream_imports:
+        env["ESMIFY_MAP_JSON"] = MAP_JSON
     env["ESMIFY_TARGET_PREFIX"] = prefix
     cmd = [
         sys.executable,
