@@ -59,8 +59,8 @@ li.activityitem {
 }
 
 .activityitem > img {
-  width: 32px;
-  height: 32px;
+  width: 48px;
+  height: 48px;
   grid-area: icon;
   align-self: start;
 }

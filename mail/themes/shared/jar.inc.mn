@@ -712,3 +712,7 @@
   skin/classic/messenger/icons/new/activity/syncMailIcon.svg   (../shared/mail/icons/new/activity/syncMailIcon.svg)
   skin/classic/messenger/icons/new/activity/undoIcon.svg       (../shared/mail/icons/new/activity/undoIcon.svg)
   skin/classic/messenger/icons/new/activity/warning.svg        (../shared/mail/icons/new/activity/warning.svg)
+  skin/classic/messenger/icons/new/activity/question.svg       (../shared/mail/icons/new/activity/question.svg)
+  skin/classic/messenger/icons/new/activity/info.svg           (../shared/mail/icons/new/activity/info.svg)
+  skin/classic/messenger/icons/new/activity/error.svg          (../shared/mail/icons/new/activity/error.svg)
+

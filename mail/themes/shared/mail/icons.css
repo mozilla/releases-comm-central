@@ -179,6 +179,9 @@
   --icon-status-online: url("chrome://messenger/skin/icons/new/status-online.svg");
   --icon-status-online-sm: url("chrome://messenger/skin/icons/new/status-online-sm.svg");
 
+  --icon-warning-dialog: url("chrome://messenger/skin/icons/new/activity/warning.svg");
+  --icon-question-dialog: url("chrome://messenger/skin/icons/new/activity/question.svg");
+
   --spaces-icon-mail: url("chrome://messenger/skin/icons/new/normal/mail.svg");
   --spaces-icon-address-book: url("chrome://messenger/skin/icons/new/normal/address-book.svg");
   --spaces-icon-calendar: url("chrome://messenger/skin/icons/new/normal/calendar.svg");

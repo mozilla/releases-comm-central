@@ -1,25 +1,4 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32">
-  <defs>
-    <linearGradient id="b">
-      <stop offset="0" style="stop-color:#f6f6f9;stop-opacity:1"/>
-      <stop offset="1" style="stop-color:#c0c2d6;stop-opacity:1"/>
-    </linearGradient>
-    <linearGradient id="a">
-      <stop offset="0" style="stop-color:#c0c2d6;stop-opacity:1"/>
-      <stop offset=".5" style="stop-color:#f6f6f9;stop-opacity:1"/>
-      <stop offset="1" style="stop-color:#c0c2d6;stop-opacity:1"/>
-    </linearGradient>
-    <linearGradient xlink:href="#a" id="c" x1="3" x2="13" y1="619.52" y2="619.52" gradientUnits="userSpaceOnUse"/>
-    <radialGradient xlink:href="#b" id="d" cx="8" cy=".999" r="6" fx="8" fy=".999" gradientTransform="matrix(1 0 0 .33369 0 2.667)" gradientUnits="userSpaceOnUse"/>
-  </defs>
-  <g transform="matrix(2 0 0 2 0 -1221.04)">
-    <rect width="10" height="12" x="3" y="613.52" rx="2" ry="2" style="opacity:1;fill:url(#c);fill-opacity:1;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none;stop-color:#000"/>
-    <path d="M6.5 8a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.5-.5Zm3 0a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.5-.5Z" style="color:#000;fill:#8a8ca0;stroke-linecap:round;-inkscape-stroke:none" transform="translate(0 610.52)"/>
-    <path d="M3 12v1c0 1.108.892 2 2 2h6c1.108 0 2-.892 2-2v-1c0 1.108-.892 2-2 2H5c-1.108 0-2-.892-2-2Z" style="opacity:.15;fill:#000;fill-opacity:1;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none;stop-color:#000" transform="translate(0 610.52)"/>
-    <path d="M4 2c-1.1 0-2 .9-2 2v1c.5.5 2.5.941 6 1 3.5.059 5.5-.5 6-1V4c0-1.1-.9-2-2-2H4Z" style="color:#000;fill:url(#d);fill-opacity:1;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none" transform="translate(0 610.52)"/>
-    <path d="M6.5 610.52c-.822 0-1.5.677-1.5 1.5v1a.5.5 0 0 0 .5.5.5.5 0 0 0 .5-.5v-1c0-.286.214-.5.5-.5h3c.286 0 .5.214.5.5v1a.5.5 0 0 0 .5.5.5.5 0 0 0 .5-.5v-1c0-.823-.678-1.5-1.5-1.5z" style="color:#000;fill:#8a8ca0;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none"/>
-  </g>
-</svg>
+<svg width="48" height="48" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="c"><stop style="stop-color:#6e6f9b;stop-opacity:1" offset="0"/><stop style="stop-color:#52507c;stop-opacity:1" offset="1"/></linearGradient><linearGradient id="b"><stop style="stop-color:#cdd0e5;stop-opacity:1" offset="0"/><stop style="stop-color:#e3e5f2;stop-opacity:1" offset="1"/></linearGradient><linearGradient id="a"><stop style="stop-color:#9b9ec2;stop-opacity:1" offset="0"/><stop style="stop-color:#cdd0e5;stop-opacity:1" offset="1"/></linearGradient><linearGradient xlink:href="#a" id="d" x1="24" y1="656.52" x2="24" y2="631.52" gradientUnits="userSpaceOnUse"/><linearGradient xlink:href="#b" id="e" x1="24" y1="629.52" x2="24" y2="615.52" gradientUnits="userSpaceOnUse"/><linearGradient xlink:href="#c" id="f" x1="24" y1="648.02" x2="24" y2="632.52" gradientUnits="userSpaceOnUse"/></defs><g transform="translate(0 -612.52)"><rect style="fill:url(#d);stroke-linecap:round;stroke-linejoin:round;stop-color:#000;fill-opacity:1" width="34" height="41.5" x="7" y="617.02" rx="11.5" ry="11.5"/><rect style="fill:#9b9ec2;stroke-linecap:round;stroke-linejoin:round;stop-color:#000" width="36" height="16" x="6" y="615.52" rx="11" ry="6.682"/><rect style="fill:url(#e);stroke-linecap:round;stroke-linejoin:round;stop-color:#000;fill-opacity:1" width="36" height="14" x="6" y="615.52" rx="11" ry="6.682"/><path style="fill:#6e6f9b;stroke-linecap:round;stroke-linejoin:round;stop-color:#000" d="M7 645.02v2c0 6.37 5.129 11.5 11.5 11.5h11c6.371 0 11.5-5.13 11.5-11.5v-2c0 6.37-5.129 11.5-11.5 11.5h-11c-6.371 0-11.5-5.13-11.5-11.5z"/></g><path style="color:#000;fill:#9b9ec2;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none" d="M22 612.52c-2.735 0-5 2.264-5 5v1a2 2 0 0 0 2 2 2 2 0 0 0 2-2v-1c0-.59.411-1 1-1h4c.589 0 1 .41 1 1v1a2 2 0 0 0 2 2 2 2 0 0 0 2-2v-1c0-2.736-2.265-5-5-5z" transform="translate(0 -610.52)"/><path style="opacity:.5;fill:url(#f);fill-opacity:1;stroke:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stop-color:#000" d="M15 632.52c-1.108 0-2 .892-2 2v11c0 1.108.892 2 2 2s2-.892 2-2v-11c0-1.108-.892-2-2-2zm9 1c-1.108 0-2 .892-2 2v11c0 1.108.892 2 2 2s2-.892 2-2v-11c0-1.108-.892-2-2-2zm9-1c-1.108 0-2 .892-2 2v11c0 1.108.892 2 2 2s2-.892 2-2v-11c0-1.108-.892-2-2-2z" transform="translate(0 -610.52)"/></svg>

@@ -1,18 +1,4 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32">
-  <defs>
-    <linearGradient id="a">
-      <stop offset="0" style="stop-color:#85c2ff;stop-opacity:1"/>
-      <stop offset="1" style="stop-color:#45a1ff;stop-opacity:1"/>
-    </linearGradient>
-    <linearGradient xlink:href="#a" id="b" x1="16" x2="16" y1="610.52" y2="642.52" gradientUnits="userSpaceOnUse"/>
-  </defs>
-  <g transform="translate(0 -610.52)">
-    <circle cx="16" cy="626.52" r="16" style="font-variation-settings:'wght' 700;opacity:1;fill:url(#b);stroke-width:1.00323;stroke-linecap:round;stroke-linejoin:round;stop-color:#000;fill-opacity:1"/>
-    <path d="M31.947 625.268A16 16 0 0 1 16 640.52a16 16 0 0 1-15.93-15 16 16 0 0 0-.07 1 16 16 0 0 0 16 16 16 16 0 0 0 16-16 16 16 0 0 0-.053-1.252z" style="font-variation-settings:'wght' 700;opacity:.15;fill:#000;stroke-width:1.00323;stroke-linecap:round;stroke-linejoin:round;stop-color:#000;fill-opacity:1"/>
-    <path d="M16 617.52a1 1 0 0 0-1 1v7H8a1 1 0 0 0-1 1 1 1 0 0 0 1 1h7v7a1 1 0 0 0 1 1 1 1 0 0 0 1-1v-7h7a1 1 0 0 0 1-1 1 1 0 0 0-1-1h-7v-7a1 1 0 0 0-1-1z" style="color:#000;fill:#fff;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none;fill-opacity:1;opacity:.5"/>
-    <path d="M16 616.52a1 1 0 0 0-1 1v7H8a1 1 0 0 0-1 1 1 1 0 0 0 1 1h7v7a1 1 0 0 0 1 1 1 1 0 0 0 1-1v-7h7a1 1 0 0 0 1-1 1 1 0 0 0-1-1h-7v-7a1 1 0 0 0-1-1z" style="color:#000;fill:#000f40;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none"/>
-  </g>
-</svg>
+<svg width="48" height="48" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="a"><stop style="stop-color:#0a929d;stop-opacity:1" offset="0"/><stop style="stop-color:#27d3d6;stop-opacity:1" offset="1"/></linearGradient><linearGradient xlink:href="#a" id="b" x1="24.025" y1="654.52" x2="24.025" y2="612.546" gradientUnits="userSpaceOnUse"/></defs><path style="opacity:1;fill:url(#b);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stop-color:#000" d="M46.026 634.546a22 22 0 0 1-22 22 22 22 0 0 1-22-22 22 22 0 0 1 22-22 22 22 0 0 1 22 22z" transform="translate(0 -610.52)"/><path style="opacity:1;fill:#135e67;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stop-color:#000" d="M24 616.52c-9.941 0-18 8.059-18 18 0 9.94 8.059 18 18 18s18-8.06 18-18c0-9.941-8.059-18-18-18zm0 2c8.837 0 16 7.163 16 16 0 8.836-7.163 16-16 16s-16-7.164-16-16c0-8.837 7.163-16 16-16zm0 5c-1.108 0-2 .892-2 2v7h-7c-1.108 0-2 .892-2 2s.892 2 2 2h7v7c0 1.108.892 2 2 2s2-.892 2-2v-7h7c1.108 0 2-.892 2-2s-.892-2-2-2h-7v-7c0-1.108-.892-2-2-2zm21.979 9.658c-.356 11.874-10.074 21.322-21.954 21.342-11.738-.026-21.388-9.263-21.927-20.989-.032.338-.056.676-.073 1.014 0 12.15 9.85 22 22 22s22-9.85 22-22a21.973 21.973 0 0 0-.046-1.367z" transform="translate(0 -610.52)"/><path style="opacity:1;fill:#f1f3fa;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stop-color:#000" d="M24 615.52c-9.941 0-18 8.059-18 18 0 9.94 8.059 18 18 18s18-8.06 18-18c0-9.941-8.059-18-18-18zm0 2c8.837 0 16 7.163 16 16 0 8.836-7.163 16-16 16s-16-7.164-16-16c0-8.837 7.163-16 16-16zm0 5c-1.108 0-2 .892-2 2v7h-7c-1.108 0-2 .892-2 2s.892 2 2 2h7v7c0 1.108.892 2 2 2s2-.892 2-2v-7h7c1.108 0 2-.892 2-2s-.892-2-2-2h-7v-7c0-1.108-.892-2-2-2z" transform="translate(0 -610.52)"/></svg>
