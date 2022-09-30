@@ -1056,8 +1056,6 @@ var beforeSendEventTracker = {
     // Load the new details into gMsgCompose.compFields for sending.
     composeWindow.GetComposeDetails();
 
-    // Calling getComposeDetails collapses mailing lists. Expand them again.
-    composeWindow.expandRecipients();
     composeWindow.ToggleWindowLock(false);
     sendPromise.resolve();
   },
