@@ -78,7 +78,7 @@ const startupPhases = {
         "resource://gre/modules/Sqlite.jsm",
         // Bug 1660907: These core modules shouldn't really be being loaded
         // until sometime after first paint.
-        // "resource://gre/modules/PlacesUtils.jsm",
+        // "resource://gre/modules/PlacesUtils.sys.mjs",
         // "resource://gre/modules/Preferences.jsm",
         // These can probably be pushed back even further.
       ]),
@@ -118,14 +118,14 @@ const startupPhases = {
         "resource:///modules/MimeJSComponents.jsm",
         "resource:///modules/mimeParser.jsm",
         "resource://gre/modules/Blocklist.jsm",
-        "resource://gre/modules/BookmarkHTMLUtils.jsm",
-        "resource://gre/modules/Bookmarks.jsm",
+        "resource://gre/modules/BookmarkHTMLUtils.sys.mjs",
+        "resource://gre/modules/Bookmarks.sys.mjs",
         "resource://gre/modules/ContextualIdentityService.jsm",
         "resource://gre/modules/CrashSubmit.jsm",
         "resource://gre/modules/FxAccounts.jsm",
         "resource://gre/modules/FxAccountsStorage.jsm",
-        "resource://gre/modules/PlacesBackups.jsm",
-        "resource://gre/modules/PlacesSyncUtils.jsm",
+        "resource://gre/modules/PlacesBackups.sys.mjs",
+        "resource://gre/modules/PlacesSyncUtils.sys.mjs",
         "resource://gre/modules/PushComponents.jsm",
       ]),
       services: new Set([
