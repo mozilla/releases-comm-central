@@ -31,15 +31,11 @@ add_task(async function testPlainTextBody() {
             );
           }
         }
-        // Windows and Linux return different line endings. Just check for the
-        // actual line content. The expected value is given as an array, to
-        // indicate the return value of getComposeDetails is not expected to be
-        // a specific line ending.
         for (let field of ["plainTextBody"]) {
           if (field in expected) {
             browser.test.assertEq(
               JSON.stringify(expected[field]),
-              JSON.stringify(state[field].replaceAll("\r\n", "\n").split("\n")),
+              JSON.stringify(state[field]),
               `Check value for ${field}`
             );
           }
@@ -58,16 +54,31 @@ add_task(async function testPlainTextBody() {
 
       let tests = [
         {
-          // Set plaintextBody with Windows style newlines. The test will check
-          // the content of the returned lines, independent of their endings.
+          // Set plaintextBody with Windows style newlines. The return value of
+          // the API is independent of the used OS and only returns LF endings.
           input: { isPlainText: true, plainTextBody: "123\r\n456\r\n789" },
-          expected: { isPlainText: true, plainTextBody: ["123", "456", "789"] },
+          expected: { isPlainText: true, plainTextBody: "123\n456\n789" },
         },
         {
-          // Set plaintextBody with Linux style newlines. The test will check
-          // the content of the returned lines, independent of their endings.
+          // Set plaintextBody with Linux style newlines. The return value of
+          // the API is independent of the used OS and only returns LF endings.
           input: { isPlainText: true, plainTextBody: "ABC\nDEF\nGHI" },
-          expected: { isPlainText: true, plainTextBody: ["ABC", "DEF", "GHI"] },
+          expected: { isPlainText: true, plainTextBody: "ABC\nDEF\nGHI" },
+        },
+        {
+          // Bug 1792551 without newline at the end.
+          input: { isPlainText: true, plainTextBody: "123456 \n Hello " },
+          expected: { isPlainText: true, plainTextBody: "123456 \n Hello " },
+        },
+        {
+          // Bug 1792551 without newline at the end.
+          input: { isPlainText: true, plainTextBody: "123456 &nbsp; \n " },
+          expected: { isPlainText: true, plainTextBody: "123456 &nbsp; \n " },
+        },
+        {
+          // Bug 1792551 with a newline at the end.
+          input: { isPlainText: true, plainTextBody: "123456 \n Hello \n" },
+          expected: { isPlainText: true, plainTextBody: "123456 \n Hello \n" },
         },
       ];
       for (let test of tests) {
