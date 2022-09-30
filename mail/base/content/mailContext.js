@@ -16,12 +16,16 @@ var { XPCOMUtils } = ChromeUtils.import(
 );
 
 var LazyModules = {};
+
+ChromeUtils.defineESModuleGetters(LazyModules, {
+  PlacesUtils: "resource://gre/modules/PlacesUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(LazyModules, {
   ConversationOpener: "resource:///modules/ConversationOpener.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   MessageArchiver: "resource:///modules/MessageArchiver.jsm",
   PhishingDetector: "resource:///modules/PhishingDetector.jsm",
-  PlacesUtils: "resource://gre/modules/PlacesUtils.jsm",
   TagUtils: "resource:///modules/TagUtils.jsm",
 });
 
