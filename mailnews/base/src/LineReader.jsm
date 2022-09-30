@@ -16,6 +16,7 @@ const EXPORTED_SYMBOLS = ["LineReader"];
  */
 class LineReader {
   processingMultiLineResponse = false;
+  _data = "";
 
   /**
    * Read a multi-line response, emit each line through a callback.
@@ -25,33 +26,41 @@ class LineReader {
    * @param {Function} doneCallback - A function to be called when data is ended.
    */
   read(data, lineCallback, doneCallback) {
-    if (this._leftoverData) {
-      // For a single request, the response can span multiple responses.
-      // Concatenate the leftover from the last data to the current data.
-      data = this._leftoverData + data;
-      this._leftoverData = null;
-    }
-    this.processingMultiLineResponse = true;
-    if (data == ".\r\n" || data.endsWith("\r\n.\r\n")) {
+    this._data += data;
+    if (this._data == ".\r\n" || this._data.endsWith("\r\n.\r\n")) {
       this.processingMultiLineResponse = false;
-      data = data.slice(0, -3);
+      this._data = this._data.slice(0, -3);
+    } else {
+      this.processingMultiLineResponse = true;
     }
-    while (data) {
-      let index = data.indexOf("\r\n");
+    if (this._running) {
+      // This function can be called multiple times, but this._data should only
+      // be consumed once.
+      return;
+    }
+
+    let i = 0;
+    this._running = true;
+    while (this._data) {
+      let index = this._data.indexOf("\r\n");
       if (index == -1) {
         // Not enough data, save it for the next round.
-        this._leftoverData = data;
         break;
       }
-      let line = data.slice(0, index + 2);
+      let line = this._data.slice(0, index + 2);
       if (line.startsWith("..")) {
         // Remove stuffed dot.
         line = line.slice(1);
       }
       lineCallback(line);
-      data = data.slice(index + 2);
+      this._data = this._data.slice(index + 2);
+      if (++i % 100 == 0) {
+        // Prevent blocking main process for too long.
+        Services.tm.spinEventLoopUntilEmpty();
+      }
     }
-    if (!this.processingMultiLineResponse) {
+    this._running = false;
+    if (!this.processingMultiLineResponse && !this._data) {
       doneCallback();
     }
   }
