@@ -33,9 +33,13 @@ var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  Color: "resource://gre/modules/Color.sys.mjs",
+  ShortcutUtils: "resource://gre/modules/ShortcutUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
-  Color: "resource://gre/modules/Color.jsm",
   CustomizableUI: "resource:///modules/CustomizableUI.jsm",
   JSTreeSelection: "resource:///modules/JsTreeSelection.jsm",
   LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
@@ -44,7 +48,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   msgDBCacheManager: "resource:///modules/MsgDBCacheManager.jsm",
   PeriodicFilterManager: "resource:///modules/PeriodicFilterManager.jsm",
   SessionStoreManager: "resource:///modules/SessionStoreManager.jsm",
-  ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
   SummaryFrameManager: "resource:///modules/SummaryFrameManager.jsm",
   TagUtils: "resource:///modules/TagUtils.jsm",
 });

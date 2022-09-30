@@ -4,7 +4,9 @@
 
 const EXPORTED_SYMBOLS = ["SessionStoreManager"];
 
-const { JSONFile } = ChromeUtils.import("resource://gre/modules/JSONFile.jsm");
+const { JSONFile } = ChromeUtils.importESModule(
+  "resource://gre/modules/JSONFile.sys.mjs"
+);
 
 /**
  * asuth arbitrarily chose this value to trade-off powersaving,

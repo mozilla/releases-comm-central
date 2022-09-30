@@ -28,11 +28,14 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  ShortcutUtils: "resource://gre/modules/ShortcutUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   CustomizableUI: "resource:///modules/CustomizableUI.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   MsgHdrSyntheticView: "resource:///modules/MsgHdrSyntheticView.jsm",
-  ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
   UIDensity: "resource:///modules/UIDensity.jsm",
   UIFontSize: "resource:///modules/UIFontSize.jsm",
 });

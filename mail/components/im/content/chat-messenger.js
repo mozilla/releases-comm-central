@@ -16,8 +16,8 @@ var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-var { InlineSpellChecker } = ChromeUtils.import(
-  "resource://gre/modules/InlineSpellChecker.jsm"
+var { InlineSpellChecker } = ChromeUtils.importESModule(
+  "resource://gre/modules/InlineSpellChecker.sys.mjs"
 );
 
 ChromeUtils.defineModuleGetter(this, "OTRUI", "resource:///modules/OTRUI.jsm");

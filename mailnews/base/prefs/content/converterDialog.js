@@ -8,7 +8,9 @@
  */
 
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { FileUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/FileUtils.sys.mjs"
+);
 ChromeUtils.defineModuleGetter(
   this,
   "FolderUtils",

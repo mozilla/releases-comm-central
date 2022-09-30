@@ -25,6 +25,13 @@ XPCOMUtils.defineLazyGetter(lazy, "gMailBundle", function() {
   );
 });
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  LightweightThemeConsumer:
+    "resource://gre/modules/LightweightThemeConsumer.sys.mjs",
+
+  OsEnvironment: "resource://gre/modules/OsEnvironment.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   ActorManagerParent: "resource://gre/modules/ActorManagerParent.jsm",
   AddonManager: "resource://gre/modules/AddonManager.jsm",
@@ -34,12 +41,11 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   MailMigrator: "resource:///modules/MailMigrator.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   MailUsageTelemetry: "resource:///modules/MailUsageTelemetry.jsm",
-  LightweightThemeConsumer:
-    "resource://gre/modules/LightweightThemeConsumer.jsm",
-  OsEnvironment: "resource://gre/modules/OsEnvironment.jsm",
   PdfJs: "resource://pdf.js/PdfJs.jsm",
+
   RemoteSecuritySettings:
     "resource://gre/modules/psm/RemoteSecuritySettings.jsm",
+
   TBDistCustomizer: "resource:///modules/TBDistCustomizer.jsm",
 });
 
@@ -559,8 +565,8 @@ MailGlue.prototype = {
     }
 
     if (AppConstants.ASAN_REPORTER) {
-      var { AsanReporter } = ChromeUtils.import(
-        "resource://gre/modules/AsanReporter.jsm"
+      var { AsanReporter } = ChromeUtils.importESModule(
+        "resource://gre/modules/AsanReporter.sys.mjs"
       );
       AsanReporter.init();
     }

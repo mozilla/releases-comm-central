@@ -3,11 +3,9 @@
 
 "use strict";
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "FileUtils",
-  "resource://gre/modules/FileUtils.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
+});
 
 add_task(async function test_defaultdownload() {
   await setupPolicyEngineWithJson({

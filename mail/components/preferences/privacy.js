@@ -16,11 +16,9 @@ ChromeUtils.defineModuleGetter(
   "LoginHelper",
   "resource://gre/modules/LoginHelper.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "OSKeyStore",
-  "resource://gre/modules/OSKeyStore.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  OSKeyStore: "resource://gre/modules/OSKeyStore.sys.mjs",
+});
 
 const PREF_UPLOAD_ENABLED = "datareporting.healthreport.uploadEnabled";
 

@@ -23,6 +23,11 @@ XPCOMUtils.defineLazyGetter(this, "ABQueryUtils", function() {
 XPCOMUtils.defineLazyGetter(this, "AddrBookUtils", function() {
   return ChromeUtils.import("resource:///modules/AddrBookUtils.jsm");
 });
+
+ChromeUtils.defineESModuleGetters(this, {
+  FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddrBookCard: "resource:///modules/AddrBookCard.jsm",
   AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
@@ -30,7 +35,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalMetronome: "resource:///modules/CalMetronome.jsm",
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
-  FileUtils: "resource://gre/modules/FileUtils.jsm",
   GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.jsm",
   ICAL: "resource:///modules/calendar/Ical.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
@@ -39,8 +43,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   VCardPropertyEntry: "resource:///modules/VCardUtils.jsm",
 });
 XPCOMUtils.defineLazyGetter(this, "SubDialog", function() {
-  const { SubDialogManager } = ChromeUtils.import(
-    "resource://gre/modules/SubDialog.jsm"
+  const { SubDialogManager } = ChromeUtils.importESModule(
+    "resource://gre/modules/SubDialog.sys.mjs"
   );
   return new SubDialogManager({
     dialogStack: document.getElementById("dialogStack"),
