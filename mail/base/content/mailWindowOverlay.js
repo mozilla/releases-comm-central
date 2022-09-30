@@ -441,7 +441,11 @@ function initUiDensityMenu(event) {
   }
 }
 
-function initUiDensityAppMenu(event) {
+/**
+ * Assign the proper mode to the UI density controls in the App Menu and set
+ * the correct checked state based on the current density.
+ */
+function initUiDensityAppMenu() {
   // Apply the correct mode attribute to the various items.
   document.getElementById("appmenu_uiDensityCompact").mode =
     UIDensity.MODE_COMPACT;
@@ -452,7 +456,7 @@ function initUiDensityAppMenu(event) {
   // Fetch the currently active identity.
   let currentDensity = UIDensity.prefValue;
 
-  for (let item of event.originalTarget.querySelectorAll(
+  for (let item of document.querySelectorAll(
     "#appMenu-uiDensity-controls > toolbarbutton"
   )) {
     if (item.mode == currentDensity) {
@@ -2519,24 +2523,30 @@ function MsgMarkAllFoldersRead(selectedFolders) {
  * If an email address was passed, first a new filter is offered for creation
  * with the data prefilled.
  *
- * @param emailAddress  An email address to use as value in the first search term.
- * @param folder        The filter will be created in this folder's filter list.
- * @param fieldName     Search field string, from nsMsgSearchTerm.cpp::SearchAttribEntryTable.
+ * @param {?string} emailAddress - An email address to use as value in the first
+ *   search term.
+ * @param {?nsIMsgFolder} folder - The filter will be created in this folder's
+ *   filter list.
+ * @param {?string} fieldName - Search field string, from
+ *   nsMsgSearchTerm.cpp::SearchAttribEntryTable.
  */
 function MsgFilters(emailAddress, folder, fieldName) {
+  // Don't trigger anything if there are no accounts configured. This is to
+  // disable potential triggers via shortcuts.
+  if (MailServices.accounts.accounts.length == 0) {
+    return;
+  }
+
   if (!folder) {
     // Try to determine the folder from the selected message.
     if (gDBView) {
-      /*
-       * Here we face a decision. If the message has been moved to a
-       *  different account, then a single filter cannot work for both
-       *  manual and incoming scope. So we will create the filter based
-       *  on its existing location, which will make it work properly in
-       *  manual scope. This is the best solution for POP3 with global
-       *  inbox (as then both manual and incoming filters work correctly),
-       *  but may not be what IMAP users who filter to a local folder
-       *  really want.
-       */
+      // Here we face a decision. If the message has been moved to a different
+      // account, then a single filter cannot work for both manual and incoming
+      // scope. So we will create the filter based on its existing location,
+      // which will make it work properly in manual scope. This is the best
+      // solution for POP3 with global inbox (as then both manual and incoming
+      // filters work correctly), but may not be what IMAP users who filter to a
+      // local folder really want.
       try {
         folder = gFolderDisplay.selectedMessage.folder;
       } catch (ex) {}
@@ -2545,10 +2555,10 @@ function MsgFilters(emailAddress, folder, fieldName) {
       folder = GetFirstSelectedMsgFolder();
     }
   }
-  var args;
+  let args;
   if (emailAddress) {
-    // We have to do prefill filter so we are going to launch the
-    // filterEditor dialog and prefill that with the emailAddress.
+    // We have to do prefill filter so we are going to launch the filterEditor
+    // dialog and prefill that with the emailAddress.
     args = {
       filterList: folder.getEditableFilterList(msgWindow),
       filterName: emailAddress,
@@ -2573,7 +2583,7 @@ function MsgFilters(emailAddress, folder, fieldName) {
       MsgFilterList(args);
     }
   } else {
-    // just launch filterList dialog
+    // Just launch filterList dialog.
     args = { refresh: false, folder };
     MsgFilterList(args);
   }
@@ -3852,10 +3862,16 @@ function openGlodaSearchTab() {
  * Opens a search window with the given folder, or the displayed one if none is
  * chosen.
  *
- * @param [aFolder] the folder to open the search window for, if different from
- *                  the displayed one
+ * @param {?nsIMsgFolder} aFolder - The folder to open the search window for, if
+ *   different from the displayed one.
  */
 function MsgSearchMessages(aFolder) {
+  // Don't trigger anything if there are no accounts configured. This is to
+  // disable potential triggers via shortcuts.
+  if (MailServices.accounts.accounts.length == 0) {
+    return;
+  }
+
   // We always open a new search dialog for each search command
   window.openDialog(
     "chrome://messenger/content/SearchDialog.xhtml",
@@ -3910,6 +3926,8 @@ function initAppMenuPopup() {
   CommandUpdate_UndoRedo();
   InitAppFolderViewsMenu();
   document.commandDispatcher.updateCommands("create-menu-tasks");
+  UIFontSize.updateAppMenuButton(window);
+  initUiDensityAppMenu();
 }
 
 /**

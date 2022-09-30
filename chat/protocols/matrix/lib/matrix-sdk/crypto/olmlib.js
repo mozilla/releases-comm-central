@@ -10,6 +10,7 @@ exports.encodeUnpaddedBase64 = encodeUnpaddedBase64;
 exports.encryptMessageForDevice = encryptMessageForDevice;
 exports.ensureOlmSessionsForDevices = ensureOlmSessionsForDevices;
 exports.getExistingOlmSessions = getExistingOlmSessions;
+exports.isOlmEncrypted = isOlmEncrypted;
 exports.pkSign = pkSign;
 exports.pkVerify = pkVerify;
 exports.verifySignature = verifySignature;
@@ -17,6 +18,8 @@ exports.verifySignature = verifySignature;
 var _anotherJson = _interopRequireDefault(require("another-json"));
 
 var _logger = require("../logger");
+
+var _event = require("../@types/event");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -520,6 +523,26 @@ function pkVerify(obj, pubKey, userId) {
     if (unsigned) obj.unsigned = unsigned;
     util.free();
   }
+}
+/**
+ * Check that an event was encrypted using olm.
+ */
+
+
+function isOlmEncrypted(event) {
+  if (!event.getSenderKey()) {
+    _logger.logger.error("Event has no sender key (not encrypted?)");
+
+    return false;
+  }
+
+  if (event.getWireType() !== _event.EventType.RoomMessageEncrypted || !["m.olm.v1.curve25519-aes-sha2"].includes(event.getWireContent().algorithm)) {
+    _logger.logger.error("Event was not encrypted using an appropriate algorithm");
+
+    return false;
+  }
+
+  return true;
 }
 /**
  * Encode a typed array of uint8 as base64.

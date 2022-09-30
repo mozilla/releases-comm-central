@@ -55,10 +55,10 @@ class NntpService {
     server = server.QueryInterface(Ci.nsINntpIncomingServer);
 
     server.wrappedJSObject.withClient(client => {
-      client.urlListener = urlListener;
+      client.startRunningUrl(urlListener, msgWindow);
 
       client.onOpen = () => {
-        client.post(msgWindow);
+        client.post();
       };
 
       client.onReadyToPost = () => {
@@ -94,9 +94,9 @@ class NntpService {
       .newURI(uri)
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
     server.wrappedJSObject.withClient(client => {
-      client.runningUri = runningUri;
+      client.startRunningUrl(urlListener, msgWindow, runningUri);
       client.onOpen = () => {
-        client.getNewNews(groupName, getOld, urlListener, msgWindow);
+        client.getNewNews(groupName, getOld);
       };
     });
 
@@ -105,6 +105,7 @@ class NntpService {
 
   getListOfGroupsOnServer(server, msgWindow, getOnlyNew) {
     server.wrappedJSObject.withClient(client => {
+      client.startRunningUrl(null, msgWindow);
       client.onOpen = () => {
         client.getListOfGroups();
       };
@@ -127,10 +128,10 @@ class NntpService {
 
     let server = folder.server.QueryInterface(Ci.nsINntpIncomingServer);
     server.wrappedJSObject.withClient(client => {
-      client.urlListener = urlListener;
+      client.startRunningUrl(urlListener, msgWindow);
 
       client.onOpen = () => {
-        client.getArticleByArticleNumber(folder.name, key, msgWindow);
+        client.getArticleByArticleNumber(folder.name, key);
         streamListener?.onStartRequest(null);
       };
       client.onData = data => {
@@ -178,10 +179,11 @@ class NntpService {
     );
 
     server.wrappedJSObject.withClient(client => {
-      client.runningUri.msgWindow = msgWindow;
+      let runningUrl = client.startRunningUrl(urlListener, msgWindow);
+      runningUrl.msgWindow = msgWindow;
 
       client.onOpen = () => {
-        client.cancelArticle(urlListener, groupName);
+        client.cancelArticle(groupName);
       };
 
       client.onReadyToPost = () => {

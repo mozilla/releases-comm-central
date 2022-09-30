@@ -516,7 +516,6 @@ var MessageWindowController = {
       case "cmd_find":
       case "cmd_findAgain":
       case "cmd_findPrevious":
-      case "cmd_search":
       case "cmd_reload":
       case "cmd_getNewMessages":
       case "button_getNewMessages":
@@ -528,16 +527,11 @@ var MessageWindowController = {
       case "cmd_fullZoomEnlarge":
       case "cmd_fullZoomReset":
       case "cmd_fullZoomToggle":
-      case "cmd_fontSizeReset":
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
       case "cmd_stop":
       case "cmd_chat":
         return true;
-      case "cmd_fontSizeReduce":
-        return UIFontSize.size > UIFontSize.MIN_VALUE;
-      case "cmd_fontSizeEnlarge":
-        return UIFontSize.size < UIFontSize.MAX_VALUE;
       case "cmd_synchronizeOffline":
       case "cmd_downloadFlagged":
       case "cmd_downloadSelected":
@@ -603,18 +597,11 @@ var MessageWindowController = {
       case "cmd_fullZoomEnlarge":
       case "cmd_fullZoomReset":
       case "cmd_fullZoomToggle":
-      case "cmd_fontSizeReduce":
-        return UIFontSize.size > UIFontSize.MIN_VALUE;
-      case "cmd_fontSizeEnlarge":
-        return UIFontSize.size < UIFontSize.MAX_VALUE;
-      case "cmd_fontSizeReset":
         return true;
       case "button_goForward":
       case "button_goBack":
       case "cmd_goForward":
       case "cmd_goBack":
-        return false;
-      case "cmd_search":
         return false;
       case "cmd_undo":
       case "cmd_redo":
@@ -687,9 +674,6 @@ var MessageWindowController = {
       case "cmd_findPrevious":
         document.getElementById("FindToolbar").onFindAgainCommand(true);
         break;
-      case "cmd_search":
-        MsgSearchMessages();
-        break;
       case "cmd_tag1":
       case "cmd_tag2":
       case "cmd_tag3":
@@ -744,15 +728,6 @@ var MessageWindowController = {
         break;
       case "cmd_fullZoomToggle":
         ZoomManager.toggleZoom();
-        break;
-      case "cmd_fontSizeReduce":
-        UIFontSize.reduceSize();
-        break;
-      case "cmd_fontSizeReset":
-        UIFontSize.resetSize();
-        break;
-      case "cmd_fontSizeEnlarge":
-        UIFontSize.increaseSize();
         break;
       case "cmd_stop":
         msgWindow.StopUrls();

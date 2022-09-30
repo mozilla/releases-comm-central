@@ -148,14 +148,5 @@ MailNewsCommandLineHandler.prototype = {
     "  -mail              Open the mail folder view.\n" +
     "  -mail <URL>        Open the message specified by this URL.\n",
 
-  /* nsIFactory */
-  createInstance(iid) {
-    return this.QueryInterface(iid);
-  },
-
-  QueryInterface: ChromeUtils.generateQI([
-    "nsICommandLineHandler",
-    "nsIFactory",
-    "nsIModule",
-  ]),
+  QueryInterface: ChromeUtils.generateQI(["nsICommandLineHandler"]),
 };

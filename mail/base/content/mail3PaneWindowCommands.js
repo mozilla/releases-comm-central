@@ -168,7 +168,6 @@ var DefaultController = {
       case "cmd_markAsJunk":
       case "cmd_markAsNotJunk":
       case "cmd_recalculateJunkScore":
-      case "cmd_displayMsgFilters":
       case "cmd_applyFiltersToSelection":
       case "cmd_applyFilters":
       case "cmd_runJunkControls":
@@ -177,7 +176,6 @@ var DefaultController = {
       case "cmd_settingsOffline":
       case "cmd_selectThread":
       case "cmd_selectFlagged":
-      case "cmd_fontSizeReset":
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
       case "cmd_stop":
@@ -186,10 +184,6 @@ var DefaultController = {
       case "cmd_killThread":
       case "cmd_killSubthread":
         return true;
-      case "cmd_fontSizeReduce":
-        return UIFontSize.size > UIFontSize.MIN_VALUE;
-      case "cmd_fontSizeEnlarge":
-        return UIFontSize.size < UIFontSize.MAX_VALUE;
       case "cmd_downloadFlagged":
       case "cmd_downloadSelected":
       case "cmd_synchronizeOffline":
@@ -352,8 +346,6 @@ var DefaultController = {
             Ci.nsMsgViewCommandType.runJunkControls
           )
         );
-      case "cmd_displayMsgFilters":
-        return MailServices.accounts.accounts.length > 0;
       case "cmd_applyFilters":
         return gFolderDisplay.getCommandStatus(
           Ci.nsMsgViewCommandType.applyFilters
@@ -475,11 +467,6 @@ var DefaultController = {
         return MailOfflineMgr.isOnline();
       case "cmd_settingsOffline":
         return IsAccountOfflineEnabled();
-      case "cmd_fontSizeReduce":
-        return UIFontSize.size > UIFontSize.MIN_VALUE;
-      case "cmd_fontSizeEnlarge":
-        return UIFontSize.size < UIFontSize.MAX_VALUE;
-      case "cmd_fontSizeReset":
       case "cmd_chat":
         return true;
       case "cmd_joinChat":
@@ -779,9 +766,6 @@ var DefaultController = {
       case "cmd_recalculateJunkScore":
         analyzeMessagesForJunk();
         return;
-      case "cmd_displayMsgFilters":
-        MsgFilters(null, null);
-        return;
       case "cmd_applyFiltersToSelection":
         MsgApplyFiltersToSelection();
         return;
@@ -817,15 +801,6 @@ var DefaultController = {
         break;
       case "cmd_selectFlagged":
         gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectFlagged);
-        break;
-      case "cmd_fontSizeReduce":
-        UIFontSize.reduceSize();
-        break;
-      case "cmd_fontSizeReset":
-        UIFontSize.resetSize();
-        break;
-      case "cmd_fontSizeEnlarge":
-        UIFontSize.increaseSize();
         break;
       case "cmd_chat":
         showChatTab();

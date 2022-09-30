@@ -13,7 +13,7 @@
   onViewToolbarsPopupShowing RefreshCustomViewsPopup RefreshTagsPopup
   RefreshViewPopup SanitizeAttachmentDisplayName
   updateEditUIVisibility UpdateFullZoomMenu
-  initUiDensityAppMenu gSpacesToolbar
+  initUiDensityAppMenu gSpacesToolbar MailServices
    */
 
 var { CustomizableUI } = ChromeUtils.import(
@@ -32,7 +32,6 @@ var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
-var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -317,8 +316,6 @@ const PanelUI = {
     switch (event.type) {
       case "popupshowing":
         initAppMenuPopup();
-        UIFontSize.updateAppMenuButton(window);
-        initUiDensityAppMenu(event);
       // Fall through
       case "popupshown":
         if (event.type == "popupshown") {
@@ -419,6 +416,9 @@ const PanelUI = {
         break;
       case "appMenu-viewZoomView":
         UpdateFullZoomMenu();
+        break;
+      case "appMenu-toolsView":
+        this._onToolsMenuShown(event);
         break;
     }
   },
@@ -650,6 +650,12 @@ const PanelUI = {
 
     InitAppFolderViewsMenu();
     InitViewFolderViewsMenu(event);
+  },
+
+  _onToolsMenuShown(event) {
+    let noAccounts = MailServices.accounts.accounts.length == 0;
+    event.target.querySelector("#appmenu_searchCmd").disabled = noAccounts;
+    event.target.querySelector("#appmenu_filtersCmd").disabled = noAccounts;
   },
 
   _updateNotifications(notificationsChanged) {

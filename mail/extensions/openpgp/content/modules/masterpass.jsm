@@ -16,6 +16,7 @@ const lazy = {};
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
 });
 
@@ -36,6 +37,7 @@ var OpenPGPMasterpass = {
   },
 
   filename: "encrypted-openpgp-passphrase.txt",
+  secringFilename: "secring.gpg",
 
   getPassPath() {
     let path = Services.dirsvc.get("ProfD", Ci.nsIFile);
@@ -45,7 +47,7 @@ var OpenPGPMasterpass = {
 
   getSecretKeyRingFile() {
     let path = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    path.append("secring.gpg");
+    path.append(this.secringFilename);
     return path;
   },
 
@@ -149,8 +151,95 @@ var OpenPGPMasterpass = {
     }
 
     if (await IOUtils.exists(this.getPassPath().path)) {
-      this.cachedPassword = await this._readPasswordFromFile();
-      return;
+      try {
+        this.cachedPassword = await this._readPasswordFromFile();
+        return;
+      } catch (e) {
+        // This code handles the corruption described in bug 1790610.
+        // Is a primary password set?
+        let tokenDB = Cc["@mozilla.org/security/pk11tokendb;1"].getService(
+          Ci.nsIPK11TokenDB
+        );
+        let token = tokenDB.getInternalKeyToken();
+        if (token.hasPassword && !token.isLoggedIn()) {
+          // Yes, primary password is set, but user is not logged in.
+          // Let's throw now, a future action will result in trying again.
+          throw e;
+        }
+
+        // No. We have profile corruption: key4.db doesn't contain the
+        // key to decrypt file encrypted-openpgp-passphrase.txt
+        // Move to backup file and create a fresh file to fix the situation.
+
+        let backup = await IOUtils.createUniqueFile(
+          Services.dirsvc.get("ProfD", Ci.nsIFile).path,
+          this.filename + ".corrupt"
+        );
+
+        try {
+          await IOUtils.move(this.getPassPath().path, backup);
+          console.warn(
+            `${this.filename} corruption fixed. Corrupted file moved to ${backup}`
+          );
+        } catch (e2) {
+          console.warn(
+            `Cannot move corrupted file ${this.filename} to backup name ${backup}`
+          );
+          // We cannot repair, so restarting doesn't help, keep running,
+          // and hope the user notices this error in console.
+          throw e2;
+        }
+
+        let secRingFile = this.getSecretKeyRingFile();
+        if (secRingFile.exists() && secRingFile.fileSize > 0) {
+          // We have secret keys that can no longer be accessed.
+
+          try {
+            let backupOld = await IOUtils.createUniqueFile(
+              Services.dirsvc.get("ProfD", Ci.nsIFile).path,
+              this.secringFilename + ".old.corrupt"
+            );
+            await IOUtils.move(secRingFile.path + ".old", backupOld);
+          } catch (eOld) {}
+
+          let backup2 = await IOUtils.createUniqueFile(
+            Services.dirsvc.get("ProfD", Ci.nsIFile).path,
+            this.secringFilename + ".corrupt"
+          );
+
+          try {
+            await IOUtils.move(secRingFile.path, backup2);
+            console.warn(
+              `secring.gpg corruption fixed. Corrupted file moved to ${backup}`
+            );
+            await IOUtils.write(secRingFile.path, new Uint8Array());
+          } catch (e3) {
+            console.warn(
+              `Cannot move corrupted file ${this.filename} to backup name ${backup}`
+            );
+            // We cannot repair, so restarting doesn't help, keep running,
+            // and hope the user notices this error in console.
+            throw e3;
+          }
+
+          // RNP might have already read the old file, we cannot easily
+          // trigger rereading of the file, so let's restart.
+          lazy.MailUtils.restartApplication();
+          return;
+        }
+
+        // If we arrive here, we have successfully repaired, and
+        // can proceed with the code below to create a fresh file.
+      }
+    }
+
+    if (await IOUtils.exists(this.getPassPath().path)) {
+      // This check is an additional precaution, to prevent against
+      // logic errors, or unexpected filesystem behavior.
+      // If this file already exists, we MUST NOT create it again.
+      // The code below is executed if the file does not exist yet,
+      // or if the file was deleted or moved, after automatic repairing.
+      throw new Error("File " + this.getPassPath().path + " already exists");
     }
 
     // Make sure we don't use the new password unless we're successful

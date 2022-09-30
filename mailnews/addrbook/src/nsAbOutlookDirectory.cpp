@@ -11,7 +11,6 @@
 #include "nsIAbBooleanExpression.h"
 #include "nsIAbManager.h"
 #include "nsAbQueryStringToExpression.h"
-#include "nsAbUtils.h"
 #include "nsEnumeratorUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"

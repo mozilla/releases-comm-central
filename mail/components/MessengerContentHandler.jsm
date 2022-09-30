@@ -684,7 +684,7 @@ function MessengerContentHandler() {
 }
 
 MessengerContentHandler.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIModule", "nsIContentHandler"]),
+  QueryInterface: ChromeUtils.generateQI(["nsIContentHandler"]),
 };
 
 var gMessengerContentHandler = new MailDefaultHandler();

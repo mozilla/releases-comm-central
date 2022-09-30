@@ -634,8 +634,9 @@ add_task(async function test_context_menu_edit() {
 
   let menu = abDocument.getElementById("cardContext");
   let editMenuItem = abDocument.getElementById("cardContextEdit");
+  let exportMenuItem = abDocument.getElementById("cardContextExport");
 
-  async function checkEditItems(index, hidden) {
+  async function checkEditItems(index, hidden, isMailList = false) {
     await rightClickOnIndex(index);
 
     Assert.equal(
@@ -643,6 +644,18 @@ add_task(async function test_context_menu_edit() {
       hidden,
       `editMenuItem should be hidden=${hidden} on index ${index}`
     );
+    Assert.equal(
+      exportMenuItem.hidden,
+      !isMailList,
+      `exportMenuItem should be hidden=${!isMailList} on index ${index}`
+    );
+
+    Assert.deepEqual(document.l10n.getAttributes(editMenuItem), {
+      id: isMailList
+        ? "about-addressbook-books-context-edit-list"
+        : "about-addressbook-books-context-edit",
+      args: null,
+    });
 
     let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     menu.hidePopup();
@@ -652,7 +665,7 @@ add_task(async function test_context_menu_edit() {
   info("Testing Normal Book");
   openDirectory(normalBook);
   await checkEditItems(0, false); // normal contact
-  await checkEditItems(1, true); // normal list
+  await checkEditItems(1, false, true); // normal list
 
   cardsList.selectedIndices = [0, 1];
   await checkEditItems(0, true); // normal contact + normal list
@@ -665,7 +678,7 @@ add_task(async function test_context_menu_edit() {
   info("Testing Read-Only Book");
   openDirectory(readOnlyBook);
   await checkEditItems(0, true); // read-only contact
-  await checkEditItems(1, true); // read-only list
+  await checkEditItems(1, true, true); // read-only list
 
   info("Testing Read-Only List");
   openDirectory(readOnlyList);
@@ -674,9 +687,9 @@ add_task(async function test_context_menu_edit() {
   info("Testing All Address Books");
   openAllAddressBooks();
   await checkEditItems(0, false); // normal contact
-  await checkEditItems(1, true); // normal list
+  await checkEditItems(1, false, true); // normal list
   await checkEditItems(2, true); // read-only contact
-  await checkEditItems(3, true); // read-only list
+  await checkEditItems(3, true, true); // read-only list
 
   cardsList.selectedIndices = [0, 1];
   await checkEditItems(1, true); // normal contact + normal list

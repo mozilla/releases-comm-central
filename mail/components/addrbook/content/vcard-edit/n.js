@@ -113,21 +113,13 @@ class VCardNComponent extends HTMLElement {
   }
 
   fromUIToVCardPropertyEntry() {
-    this.vCardPropertyEntry.value[3] = this.prefixEl.querySelector(
-      "input"
-    ).value;
-    this.vCardPropertyEntry.value[1] = this.firstNameEl.querySelector(
-      "input"
-    ).value;
-    this.vCardPropertyEntry.value[2] = this.middleNameEl.querySelector(
-      "input"
-    ).value;
-    this.vCardPropertyEntry.value[0] = this.lastNameEl.querySelector(
-      "input"
-    ).value;
-    this.vCardPropertyEntry.value[4] = this.suffixEl.querySelector(
-      "input"
-    ).value;
+    this.vCardPropertyEntry.value = [
+      this.lastNameEl.querySelector("input").value,
+      this.firstNameEl.querySelector("input").value,
+      this.middleNameEl.querySelector("input").value,
+      this.prefixEl.querySelector("input").value,
+      this.suffixEl.querySelector("input").value,
+    ];
   }
 
   valueIsEmpty() {

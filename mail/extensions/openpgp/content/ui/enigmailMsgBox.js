@@ -12,7 +12,6 @@ var { AppConstants } = ChromeUtils.import(
 
 function onLoad() {
   var dlg = document.getElementById("enigmailMsgBox");
-  dlg.getButton("help").setAttribute("hidden", "true");
   dlg.getButton("cancel").setAttribute("hidden", "true");
   dlg.getButton("extra1").setAttribute("hidden", "true");
   dlg.getButton("extra2").setAttribute("hidden", "true");

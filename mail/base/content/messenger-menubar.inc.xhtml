@@ -281,7 +281,7 @@
         <menuitem id="searchMailCmd" label="&searchMailCmd.label;"
                   key="key_searchMail"
                   accesskey="&searchMailCmd.accesskey;"
-                  command="cmd_search"/>
+                  oncommand="MsgSearchMessages();"/>
         <menuitem id="glodaSearchCmd"
                   label="&glodaSearchCmd.label;"
                   accesskey="&glodaSearchCmd.accesskey;"
@@ -454,16 +454,16 @@
           <menupopup id="view_font_size_popup">
             <menuitem id="menu_fontSizeEnlarge"
                       data-l10n-id="menuitem-font-size-enlarge"
-                      command="cmd_fontSizeEnlarge"
+                      oncommand="UIFontSize.increaseSize();"
                       closemenu="none"/>
             <menuitem id="menu_fontSizeReduce"
                       data-l10n-id="menuitem-font-size-reduce"
-                      command="cmd_fontSizeReduce"
+                      oncommand="UIFontSize.reduceSize();"
                       closemenu="none"/>
             <menuseparator id="fontSizeAfterReduceSeparator"/>
             <menuitem id="menu_fontSizeReset"
                       data-l10n-id="menuitem-font-size-reset"
-                      command="cmd_fontSizeReset"
+                      oncommand="UIFontSize.resetSize();"
                       closemenu="none"/>
           </menupopup>
         </menu>
@@ -1055,7 +1055,7 @@
     <menuseparator id="devToolsSeparator"/>
     <menuitem id="filtersCmd" label="&filtersCmd2.label;"
               accesskey="&filtersCmd2.accesskey;"
-              command="cmd_displayMsgFilters"/>
+              oncommand="MsgFilters();"/>
     <menuitem id="applyFilters"
               label="&filtersApply.label;"
               accesskey="&filtersApply.accesskey;"

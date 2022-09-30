@@ -285,7 +285,9 @@ add_task(async function testNormal() {
 
 add_task(async function testGoogle() {
   CardDAVServer.mimicGoogle = true;
+  Services.prefs.setBoolPref("ldap_2.servers.carddav.carddav.vcard3", true);
   await subtest();
+  Services.prefs.clearUserPref("ldap_2.servers.carddav.carddav.vcard3");
   CardDAVServer.mimicGoogle = false;
 });
 

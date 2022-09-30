@@ -22,6 +22,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
   setInterval: "resource://gre/modules/Timer.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
+  VCardProperties: "resource:///modules/VCardUtils.jsm",
   VCardUtils: "resource:///modules/VCardUtils.jsm",
 });
 
@@ -51,12 +52,21 @@ class CardDAVDirectory extends SQLiteDirectory {
 
     let serverURL = this._serverURL;
     if (serverURL) {
-      this._isGoogleCardDAV = serverURL.startsWith(
-        "https://www.googleapis.com/"
-      );
-      if (this._isGoogleCardDAV) {
-        this.setBoolValue("carddav.vcard3", true);
+      // Google's server enforces some vCard 3.0-isms (or just fails badly if
+      // you don't provide exactly what it wants) so we use this property to
+      // determine when to do things differently. Cards from this directory
+      // inherit the same property.
+      if (this.getBoolValue("carddav.vcard3")) {
+        this._isGoogleCardDAV = true;
+      } else {
+        this._isGoogleCardDAV = serverURL.startsWith(
+          "https://www.googleapis.com/"
+        );
+        if (this._isGoogleCardDAV) {
+          this.setBoolValue("carddav.vcard3", true);
+        }
       }
+
       // If this directory is configured, start sync'ing with the server in 30s.
       // Don't do this immediately, as this code runs at start-up and could
       // impact performance if there are lots of changes to process.
@@ -388,7 +398,17 @@ class CardDAVDirectory extends SQLiteDirectory {
       contentType: "text/vcard",
     };
 
-    requestDetails.body = card.getProperty("_vCard", "");
+    let vCard = card.getProperty("_vCard", "");
+    if (this._isGoogleCardDAV) {
+      // There must be an `N` property, even if empty.
+      let vCardProperties = lazy.VCardProperties.fromVCard(vCard);
+      if (!vCardProperties.getFirstEntry("n")) {
+        vCardProperties.addValue("n", ["", "", "", "", ""]);
+      }
+      requestDetails.body = vCardProperties.toVCard();
+    } else {
+      requestDetails.body = vCard;
+    }
 
     let response;
     try {

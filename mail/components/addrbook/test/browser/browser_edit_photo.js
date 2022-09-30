@@ -686,6 +686,7 @@ add_task(async function test_add_photo_carddav3() {
   book.setStringValue("carddav.url", CardDAVServer.url);
   book.setStringValue("carddav.username", "alice");
   book.setBoolValue("carddav.vcard3", true);
+  book.wrappedJSObject._isGoogleCardDAV = true;
 
   let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo

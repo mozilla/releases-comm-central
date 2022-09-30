@@ -493,7 +493,7 @@ tabbox {
 tabs {
   margin-block: 8px 10px;
   margin-inline: 4px;
-  border-block: 1px solid var(--box-border-color);
+  border-bottom: 1px solid var(--box-border-color);
 }
 
 tab {

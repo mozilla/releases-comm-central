@@ -786,11 +786,15 @@ nsresult nsMsgNewsFolder::GetNewsMessages(nsIMsgWindow* aMsgWindow,
 
   bool isNewsServer = false;
   rv = GetIsServer(&isNewsServer);
-  if (NS_FAILED(rv)) return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (isNewsServer)
-    // get new messages only works on a newsgroup, not a news server
-    return NS_OK;
+  if (isNewsServer) {
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    rv = GetServer(getter_AddRefs(server));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    return server->PerformExpand(aMsgWindow);
+  }
 
   nsCOMPtr<nsINntpService> nntpService =
       do_GetService(NS_NNTPSERVICE_CONTRACTID, &rv);
@@ -798,7 +802,7 @@ nsresult nsMsgNewsFolder::GetNewsMessages(nsIMsgWindow* aMsgWindow,
 
   nsCOMPtr<nsINntpIncomingServer> nntpServer;
   rv = GetNntpServer(getter_AddRefs(nntpServer));
-  if (NS_FAILED(rv)) return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIURI> resultUri;
   rv = nntpService->GetNewNews(nntpServer, mURI, aGetOld, this, aMsgWindow,

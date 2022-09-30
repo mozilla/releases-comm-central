@@ -312,7 +312,15 @@ class VerificationBase extends _typedEventEmitter.TypedEventEmitter {
       this.started = true;
       this.resetTimer(); // restart the timeout
 
-      Promise.resolve(this.doVerification()).then(this.done.bind(this), this.cancel.bind(this));
+      new Promise((resolve, reject) => {
+        const crossSignId = this.baseApis.crypto.deviceList.getStoredCrossSigningForUser(this.userId)?.getId();
+
+        if (crossSignId === this.deviceId) {
+          reject(new Error("Device ID is the same as the cross-signing ID"));
+        }
+
+        resolve();
+      }).then(() => this.doVerification()).then(this.done.bind(this), this.cancel.bind(this));
     }
 
     return this.promise;
@@ -330,7 +338,7 @@ class VerificationBase extends _typedEventEmitter.TypedEventEmitter {
 
       if (device) {
         verifier(keyId, device, keyInfo);
-        verifiedDevices.push(deviceId);
+        verifiedDevices.push([deviceId, keyId, device.keys[keyId]]);
       } else {
         const crossSigningInfo = this.baseApis.crypto.deviceList.getStoredCrossSigningForUser(userId);
 
@@ -340,7 +348,7 @@ class VerificationBase extends _typedEventEmitter.TypedEventEmitter {
               [keyId]: deviceId
             }
           }, deviceId), keyInfo);
-          verifiedDevices.push(deviceId);
+          verifiedDevices.push([deviceId, keyId, deviceId]);
         } else {
           _logger.logger.warn(`verification: Could not find device ${deviceId} to verify`);
         }
@@ -358,8 +366,17 @@ class VerificationBase extends _typedEventEmitter.TypedEventEmitter {
     // API supports as many signatures as you like.
 
 
-    for (const deviceId of verifiedDevices) {
-      await this.baseApis.setDeviceVerified(userId, deviceId);
+    for (const [deviceId, keyId, key] of verifiedDevices) {
+      await this.baseApis.crypto.setDeviceVerification(userId, deviceId, true, null, null, {
+        [keyId]: key
+      });
+    } // if one of the user's own devices is being marked as verified / unverified,
+    // check the key backup status, since whether or not we use this depends on
+    // whether it has a signature from a verified device
+
+
+    if (userId == this.baseApis.credentials.userId) {
+      await this.baseApis.checkKeyBackup();
     }
   }
 

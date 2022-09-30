@@ -5,8 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.isTimestampInDuration = exports.getBeaconInfoIdentifier = exports.BeaconEvent = exports.Beacon = void 0;
 
-var _location = require("../@types/location");
-
 var _contentHelpers = require("../content-helpers");
 
 var _utils = require("../utils");
@@ -160,9 +158,12 @@ class Beacon extends _typedEventEmitter.TypedEventEmitter {
 
     const validLocationEvents = beaconLocationEvents.filter(event => {
       const content = event.getContent();
+      const parsed = (0, _contentHelpers.parseBeaconContent)(content);
+      if (!parsed.uri || !parsed.timestamp) return false; // we won't be able to process these
 
-      const timestamp = _location.M_TIMESTAMP.findIn(content);
-
+      const {
+        timestamp
+      } = parsed;
       return (// only include positions that were taken inside the beacon's live period
         isTimestampInDuration(this._beaconInfo.timestamp, this._beaconInfo.timeout, timestamp) && ( // ignore positions older than our current latest location
         !this.latestLocationState || timestamp > this.latestLocationState.timestamp)

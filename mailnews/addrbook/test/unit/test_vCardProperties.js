@@ -141,10 +141,12 @@ add_task(function testFromToVCard() {
     FN:Mike Test
     N:Test;Mike;;;
     EMAIL;PREF=1:mike@test.invalid
+    NICKNAME:Testing Mike
+    CATEGORIES:testers,quality control,QA
     END:VCARD`;
   let properties = VCardProperties.fromVCard(inVCard);
 
-  Assert.equal(properties.entries.length, 4, "entry count");
+  Assert.equal(properties.entries.length, 6, "entry count");
   propertyEqual(
     properties.getFirstEntry("version"),
     {
@@ -184,6 +186,26 @@ add_task(function testFromToVCard() {
       value: "mike@test.invalid",
     },
     "email entry"
+  );
+  propertyEqual(
+    properties.getFirstEntry("nickname"),
+    {
+      name: "nickname",
+      params: {},
+      type: "text",
+      value: "Testing Mike",
+    },
+    "multivalue entry with one value"
+  );
+  propertyEqual(
+    properties.getFirstEntry("categories"),
+    {
+      name: "categories",
+      params: {},
+      type: "text",
+      value: ["testers", "quality control", "QA"],
+    },
+    "multivalue entry with multiple values"
   );
 
   let outVCard = properties.toVCard();

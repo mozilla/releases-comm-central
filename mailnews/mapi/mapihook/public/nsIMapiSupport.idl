@@ -10,7 +10,7 @@
  *
  */
 
-[noscript, uuid(2907B676-C4BD-49af-880A-E27A0616291E)]
+[uuid(2907B676-C4BD-49af-880A-E27A0616291E)]
 interface nsIMapiSupport : nsISupports {
 
    /** Initiates MAPI support

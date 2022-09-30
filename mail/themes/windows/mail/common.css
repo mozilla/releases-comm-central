@@ -7,14 +7,42 @@
 @namespace html "http://www.w3.org/1999/xhtml";
 @namespace xul "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
+:host,
 :root {
   --in-content-button-height: 2.2em;
+  --in-content-button-border-radius: 3px;
   --in-content-button-border-color: color-mix(in srgb, currentColor 9%, transparent);
   --in-content-button-border-color-hover: color-mix(in srgb, currentColor 17%, transparent);
 }
 
 :root:not(.system-font-size) {
   font: message-box;
+}
+
+@media not (prefers-contrast) {
+  :host,
+  :root {
+    --in-content-button-background: var(--grey-90-a10);
+    --in-content-button-background-hover: var(--grey-90-a20);
+    --in-content-button-background-active: var(--grey-90-a30);
+    --in-content-categories-background: #ebebef;
+    --in-content-item-selected-unfocused: var(--grey-20);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :host,
+    :root {
+      --in-content-categories-background: rgba(249, 249, 250, 0.1);
+      --in-content-item-selected-unfocused: rgba(249, 249, 250, 0.05);
+      --in-content-button-background: rgba(249, 249, 250, 0.1);
+      --in-content-button-background-hover: rgba(249, 249, 250, 0.15);
+      --in-content-button-background-active: rgba(249, 249, 250, 0.2);
+      --in-content-primary-button-background: #45a1ff;
+      --in-content-primary-button-background-hover: #65c1ff;
+      --in-content-primary-button-background-active: #85e1ff;
+      --in-content-focus-outline-color: #45a1ff;
+    }
+  }
 }
 
 xul|checkbox,

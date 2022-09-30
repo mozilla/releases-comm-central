@@ -278,6 +278,10 @@ class Pop3Client {
       }
       this.onOpen();
     };
+    this._socket.transport.setTimeout(
+      Ci.nsISocketTransport.TIMEOUT_READ_WRITE,
+      Services.prefs.getIntPref("mailnews.tcptimeout")
+    );
   };
 
   /**
