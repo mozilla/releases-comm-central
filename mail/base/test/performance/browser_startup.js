@@ -48,10 +48,10 @@ const startupPhases = {
     denylist: {
       modules: new Set([
         "chrome://openpgp/content/modules/constants.jsm",
-        "resource:///modules/IMServices.jsm",
-        "resource:///modules/imXPCOMUtils.jsm",
-        "resource:///modules/jsProtoHelper.jsm",
-        "resource:///modules/logger.jsm",
+        "resource:///modules/IMServices.sys.mjs",
+        "resource:///modules/imXPCOMUtils.sys.mjs",
+        "resource:///modules/jsProtoHelper.sys.mjs",
+        "resource:///modules/logger.sys.mjs",
         "resource:///modules/MailNotificationManager.jsm",
         "resource:///modules/MailNotificationService.jsm",
         "resource:///modules/MsgIncomingServer.jsm",
@@ -71,7 +71,7 @@ const startupPhases = {
     denylist: {
       modules: new Set([
         "chrome://openpgp/content/BondOpenPGP.jsm",
-        "resource:///modules/index_im.jsm",
+        "resource:///modules/index_im.sys.mjs",
         "resource:///modules/MsgDBCacheManager.jsm",
         "resource:///modules/PeriodicFilterManager.jsm",
         "resource://gre/modules/NewTabUtils.sys.mjs",
@@ -113,7 +113,7 @@ const startupPhases = {
         "resource:///modules/gloda/NounFreetag.jsm",
         "resource:///modules/gloda/NounMimetype.jsm",
         "resource:///modules/gloda/NounTag.jsm",
-        "resource:///modules/index_im.jsm",
+        "resource:///modules/index_im.sys.mjs",
         "resource:///modules/jsmime.jsm",
         "resource:///modules/MimeJSComponents.jsm",
         "resource:///modules/mimeParser.jsm",
