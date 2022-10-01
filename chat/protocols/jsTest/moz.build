@@ -5,7 +5,7 @@
 
 if CONFIG["MOZ_DEBUG"]:
     EXTRA_JS_MODULES += [
-        "jsTestProtocol.jsm",
+        "jsTestProtocol.sys.mjs",
     ]
 
     XPCOM_MANIFESTS += [
