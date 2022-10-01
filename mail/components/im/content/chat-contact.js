@@ -8,8 +8,8 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { IMServices } = ChromeUtils.import(
-    "resource:///modules/IMServices.jsm"
+  const { IMServices } = ChromeUtils.importESModule(
+    "resource:///modules/IMServices.sys.mjs"
   );
   const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 

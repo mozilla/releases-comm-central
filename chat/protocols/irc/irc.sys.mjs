@@ -5,27 +5,23 @@
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var { GenericProtocolPrototype } = ChromeUtils.import(
-  "resource:///modules/jsProtoHelper.jsm"
-);
+import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
+import { GenericProtocolPrototype } from "resource:///modules/jsProtoHelper.sys.mjs";
 
 const lazy = {};
 
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
 );
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "ircAccount",
-  "resource:///modules/ircAccount.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  ircAccount: "resource:///modules/ircAccount.sys.mjs",
+});
 
 export function ircProtocol() {
   // ircCommands.jsm exports one variable: commands. Import this directly into
   // the protocol object.
-  this.commands = ChromeUtils.import(
-    "resource:///modules/ircCommands.jsm"
+  this.commands = ChromeUtils.importESModule(
+    "resource:///modules/ircCommands.sys.mjs"
   ).commands;
   this.registerCommands();
 }

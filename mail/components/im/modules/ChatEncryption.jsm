@@ -8,7 +8,9 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 const lazy = {};
-ChromeUtils.defineModuleGetter(lazy, "OTRUI", "resource:///modules/OTRUI.jsm");
+ChromeUtils.defineESModuleGetters(lazy, {
+  OTRUI: "resource:///modules/OTRUI.sys.mjs",
+});
 
 XPCOMUtils.defineLazyGetter(
   lazy,

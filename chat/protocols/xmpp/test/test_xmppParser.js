@@ -1,7 +1,9 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { XMPPParser } = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
+var { XMPPParser } = ChromeUtils.importESModule(
+  "resource:///modules/xmpp-xml.sys.mjs"
+);
 
 let expectedResult =
   '<presence xmlns="jabber:client" from="chat@example.com/Étienne" to="user@example.com/Thunderbird" \

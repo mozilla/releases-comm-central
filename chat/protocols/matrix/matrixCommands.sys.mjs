@@ -5,7 +5,7 @@
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 
 const lazy = {};
 
@@ -13,16 +13,10 @@ XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
 );
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "MatrixPowerLevels",
-  "resource:///modules/matrixPowerLevels.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "MatrixSDK",
-  "resource:///modules/matrix-sdk.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  MatrixPowerLevels: "resource:///modules/matrixPowerLevels.sys.mjs",
+  MatrixSDK: "resource:///modules/matrix-sdk.sys.mjs",
+});
 
 XPCOMUtils.defineLazyGetter(lazy, "EVENT_TO_STRING", () => ({
   ban: "powerLevel.ban",

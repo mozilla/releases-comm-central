@@ -12,7 +12,9 @@ var { AppConstants } = ChromeUtils.import(
 );
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+var { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );

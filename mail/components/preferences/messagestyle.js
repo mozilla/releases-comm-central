@@ -4,14 +4,17 @@
 
 /* import-globals-from preferences.js */
 
-var { GenericConvIMPrototype, GenericMessagePrototype } = ChromeUtils.import(
-  "resource:///modules/jsProtoHelper.jsm"
-);
-var { getThemeByName, getThemeVariants } = ChromeUtils.import(
-  "resource:///modules/imThemes.jsm"
+var {
+  GenericConvIMPrototype,
+  GenericMessagePrototype,
+} = ChromeUtils.importESModule("resource:///modules/jsProtoHelper.sys.mjs");
+var { getThemeByName, getThemeVariants } = ChromeUtils.importESModule(
+  "resource:///modules/imThemes.sys.mjs"
 );
 
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+var { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
 
 function Conversation(aName) {
   this._name = aName;

@@ -2,41 +2,36 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let { ircBase } = ChromeUtils.import("resource:///modules/ircBase.jsm");
-let { ircISUPPORT, isupportBase } = ChromeUtils.import(
-  "resource:///modules/ircISUPPORT.jsm"
-);
-let { ircCAP, capNotify } = ChromeUtils.import(
-  "resource:///modules/ircCAP.jsm"
-);
-let { ircCTCP, ctcpBase } = ChromeUtils.import(
-  "resource:///modules/ircCTCP.jsm"
-);
-let { ircServices, servicesBase } = ChromeUtils.import(
-  "resource:///modules/ircServices.jsm"
-);
-let { ctcpDCC } = ChromeUtils.import("resource:///modules/ircDCC.jsm");
-let { capEchoMessage } = ChromeUtils.import(
-  "resource:///modules/ircEchoMessage.jsm"
-);
-let { isupportNAMESX, capMultiPrefix } = ChromeUtils.import(
-  "resource:///modules/ircMultiPrefix.jsm"
-);
-let { ircNonStandard } = ChromeUtils.import(
-  "resource:///modules/ircNonStandard.jsm"
-);
-let {
+import { ircBase } from "resource:///modules/ircBase.sys.mjs";
+
+import {
+  ircISUPPORT,
+  isupportBase,
+} from "resource:///modules/ircISUPPORT.sys.mjs";
+import { ircCAP, capNotify } from "resource:///modules/ircCAP.sys.mjs";
+import { ircCTCP, ctcpBase } from "resource:///modules/ircCTCP.sys.mjs";
+import {
+  ircServices,
+  servicesBase,
+} from "resource:///modules/ircServices.sys.mjs";
+import { ctcpDCC } from "resource:///modules/ircDCC.sys.mjs";
+import { capEchoMessage } from "resource:///modules/ircEchoMessage.sys.mjs";
+import {
+  isupportNAMESX,
+  capMultiPrefix,
+} from "resource:///modules/ircMultiPrefix.sys.mjs";
+import { ircNonStandard } from "resource:///modules/ircNonStandard.sys.mjs";
+import {
   ircWATCH,
   isupportWATCH,
   ircMONITOR,
   isupportMONITOR,
-} = ChromeUtils.import("resource:///modules/ircWatchMonitor.jsm");
-let { ircSASL, capSASL } = ChromeUtils.import(
-  "resource:///modules/ircSASL.jsm"
-);
-let { capServerTime, tagServerTime } = ChromeUtils.import(
-  "resource:///modules/ircServerTime.jsm"
-);
+} from "resource:///modules/ircWatchMonitor.sys.mjs";
+import { ircSASL, capSASL } from "resource:///modules/ircSASL.sys.mjs";
+import {
+  capServerTime,
+  tagServerTime,
+} from "resource:///modules/ircServerTime.sys.mjs";
 
 export var ircHandlers = {
   /*

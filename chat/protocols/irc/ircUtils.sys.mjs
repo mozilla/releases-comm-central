@@ -5,9 +5,7 @@
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { l10nHelper } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
+import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 const lazy = {};
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")

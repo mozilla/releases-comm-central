@@ -5,7 +5,9 @@
 var { registerTestProtocol, unregisterTestProtocol } = ChromeUtils.import(
   "resource://testing-common/TestProtocol.jsm"
 );
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+var { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
 
 async function openChatTab() {
   let tabmail = document.getElementById("tabmail");

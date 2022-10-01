@@ -4,7 +4,9 @@
 
 const EXPORTED_SYMBOLS = ["Notifications"];
 
-const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+const { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
 const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );

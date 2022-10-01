@@ -4,7 +4,9 @@
 
 var EXPORTED_SYMBOLS = ["IMIncomingServer"];
 
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+var { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
 
 function IMIncomingServer() {}
 

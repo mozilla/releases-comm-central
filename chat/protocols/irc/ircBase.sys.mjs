@@ -20,9 +20,10 @@
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { l10nHelper, nsSimpleEnumerator } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
+import {
+  l10nHelper,
+  nsSimpleEnumerator,
+} from "resource:///modules/imXPCOMUtils.sys.mjs";
 const lazy = {};
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
@@ -32,15 +33,14 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
 
-var { ircHandlerPriorities } = ChromeUtils.import(
-  "resource:///modules/ircHandlerPriorities.jsm"
-);
-var {
+import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
+
+import {
   ctcpFormatToText,
   conversationErrorMessage,
   displayMessage,
   kListRefreshInterval,
-} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
+} from "resource:///modules/ircUtils.sys.mjs";
 
 // Display the message and remove them from the rooms they're in.
 function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {

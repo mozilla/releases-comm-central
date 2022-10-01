@@ -11,18 +11,14 @@
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { l10nHelper } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
+import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 const lazy = {};
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
 );
 
-const { ircHandlerPriorities } = ChromeUtils.import(
-  "resource:///modules/ircHandlerPriorities.jsm"
-);
-var { displayMessage } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
+import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
+import { displayMessage } from "resource:///modules/ircUtils.sys.mjs";
 
 // Split into a CTCP message which is a single command and a single parameter:
 //   <command> " " <parameter>

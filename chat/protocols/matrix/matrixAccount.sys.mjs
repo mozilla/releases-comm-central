@@ -8,11 +8,13 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { nsSimpleEnumerator, l10nHelper } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-var {
+import {
+  nsSimpleEnumerator,
+  l10nHelper,
+} from "resource:///modules/imXPCOMUtils.sys.mjs";
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
+
+import {
   GenericAccountPrototype,
   GenericConvChatPrototype,
   GenericConvChatBuddyPrototype,
@@ -22,7 +24,7 @@ var {
   GenericMessagePrototype,
   GenericSessionPrototype,
   TooltipInfo,
-} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+} from "resource:///modules/jsProtoHelper.sys.mjs";
 
 const lazy = {};
 
@@ -30,17 +32,20 @@ XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
 );
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  InteractiveBrowser: "resource:///modules/InteractiveBrowser.sys.mjs",
+  MatrixCrypto: "resource:///modules/matrix-sdk.sys.mjs",
+  MatrixMessageContent: "resource:///modules/matrixMessageContent.sys.mjs",
+  MatrixPowerLevels: "resource:///modules/matrixPowerLevels.sys.mjs",
+  MatrixSDK: "resource:///modules/matrix-sdk.sys.mjs",
+  OlmLib: "resource:///modules/matrix-sdk.sys.mjs",
+  ReceiptType: "resource:///modules/matrix-sdk.sys.mjs",
+  SasEvent: "resource:///modules/matrix-sdk.sys.mjs",
+  SyncState: "resource:///modules/matrix-sdk.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  MatrixSDK: "resource:///modules/matrix-sdk.jsm",
-  MatrixCrypto: "resource:///modules/matrix-sdk.jsm",
-  SyncState: "resource:///modules/matrix-sdk.jsm",
-  OlmLib: "resource:///modules/matrix-sdk.jsm",
-  SasEvent: "resource:///modules/matrix-sdk.jsm",
-  ReceiptType: "resource:///modules/matrix-sdk.jsm",
-  MatrixPowerLevels: "resource:///modules/matrixPowerLevels.jsm",
   DownloadUtils: "resource://gre/modules/DownloadUtils.jsm",
-  InteractiveBrowser: "resource:///modules/InteractiveBrowser.jsm",
-  MatrixMessageContent: "resource:///modules/matrixMessageContent.jsm",
 });
 
 /**

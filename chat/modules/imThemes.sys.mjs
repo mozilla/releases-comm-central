@@ -46,11 +46,9 @@ XPCOMUtils.defineLazyGetter(lazy, "gTimeFormatter", () => {
   });
 });
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "ToLocaleFormat",
-  "resource:///modules/ToLocaleFormat.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  ToLocaleFormat: "resource:///modules/ToLocaleFormat.sys.mjs",
+});
 
 var gCurrentTheme = null;
 

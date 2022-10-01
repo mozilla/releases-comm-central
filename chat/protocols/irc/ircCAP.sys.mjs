@@ -16,9 +16,7 @@
  * include example parameters.
  */
 
-const { ircHandlerPriorities } = ChromeUtils.import(
-  "resource:///modules/ircHandlerPriorities.jsm"
-);
+import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
 
 /*
  * Parses a CAP message of the form:

@@ -1,9 +1,11 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { ircMessage } = ChromeUtils.import("resource:///modules/ircAccount.jsm");
-const { ircNonStandard } = ChromeUtils.import(
-  "resource:///modules/ircNonStandard.jsm"
+var { ircMessage } = ChromeUtils.importESModule(
+  "resource:///modules/ircAccount.sys.mjs"
+);
+const { ircNonStandard } = ChromeUtils.importESModule(
+  "resource:///modules/ircNonStandard.sys.mjs"
 );
 
 // The function that is under test here.

@@ -12,9 +12,7 @@
  *     https://tools.ietf.org/html/draft-hardy-irc-isupport-00
  */
 
-const { ircHandlerPriorities } = ChromeUtils.import(
-  "resource:///modules/ircHandlerPriorities.jsm"
-);
+import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
 
 /*
  * Parses an ircMessage into an ISUPPORT message for each token of the form:

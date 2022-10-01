@@ -18,7 +18,9 @@ const { GlodaConstants } = ChromeUtils.import(
 const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaIndexer.jsm"
 );
-const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+const { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

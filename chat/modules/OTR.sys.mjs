@@ -6,9 +6,9 @@ const { BasePromiseWorker } = ChromeUtils.import(
   "resource://gre/modules/PromiseWorker.jsm"
 );
 const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-const { CLib } = ChromeUtils.import("resource:///modules/CLib.jsm");
-const { OTRLibLoader } = ChromeUtils.import("resource:///modules/OTRLib.jsm");
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
+import { CLib } from "resource:///modules/CLib.sys.mjs";
+import { OTRLibLoader } from "resource:///modules/OTRLib.sys.mjs";
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );

@@ -8,17 +8,19 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { ClassInfo, executeSoon, l10nHelper } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
+import {
+  ClassInfo,
+  executeSoon,
+  l10nHelper,
+} from "resource:///modules/imXPCOMUtils.sys.mjs";
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-var {
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
+import {
   GenericAccountPrototype,
   GenericAccountBuddyPrototype,
-} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+} from "resource:///modules/jsProtoHelper.sys.mjs";
 
 const lazy = {};
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>

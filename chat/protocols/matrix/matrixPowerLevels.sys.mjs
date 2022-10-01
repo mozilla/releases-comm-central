@@ -5,7 +5,7 @@
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 
 const lazy = {};
 

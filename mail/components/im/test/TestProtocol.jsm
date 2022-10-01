@@ -17,9 +17,9 @@ var {
   GenericConvChatBuddyPrototype,
   GenericMessagePrototype,
   TooltipInfo,
-} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
-var { nsSimpleEnumerator } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
+} = ChromeUtils.importESModule("resource:///modules/jsProtoHelper.sys.mjs");
+var { nsSimpleEnumerator } = ChromeUtils.importESModule(
+  "resource:///modules/imXPCOMUtils.sys.mjs"
 );
 
 function Message(who, text, properties, conversation) {

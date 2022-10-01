@@ -1,7 +1,9 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { CTCPMessage } = ChromeUtils.import("resource:///modules/ircCTCP.jsm");
+var { CTCPMessage } = ChromeUtils.importESModule(
+  "resource:///modules/ircCTCP.sys.mjs"
+);
 
 var input = [
   "ACTION",

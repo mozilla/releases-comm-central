@@ -8,8 +8,8 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Status } = ChromeUtils.import(
-    "resource:///modules/imStatusUtils.jsm"
+  const { Status } = ChromeUtils.importESModule(
+    "resource:///modules/imStatusUtils.sys.mjs"
   );
   const { AppConstants } = ChromeUtils.import(
     "resource://gre/modules/AppConstants.jsm"

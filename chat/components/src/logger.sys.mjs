@@ -2,20 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
+
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { GenericMessagePrototype } = ChromeUtils.import(
-  "resource:///modules/jsProtoHelper.jsm"
-);
-const { ClassInfo, l10nHelper } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
+import { GenericMessagePrototype } from "resource:///modules/jsProtoHelper.sys.mjs";
+import {
+  ClassInfo,
+  l10nHelper,
+} from "resource:///modules/imXPCOMUtils.sys.mjs";
 
 const lazy = {};
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  ToLocaleFormat: "resource:///modules/ToLocaleFormat.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  ToLocaleFormat: "resource:///modules/ToLocaleFormat.sys.mjs",
 });
 
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>

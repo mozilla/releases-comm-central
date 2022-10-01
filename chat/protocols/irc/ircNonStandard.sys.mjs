@@ -15,20 +15,17 @@
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { l10nHelper } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
+import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 const lazy = {};
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
 );
 
-const { ircHandlerPriorities } = ChromeUtils.import(
-  "resource:///modules/ircHandlerPriorities.jsm"
-);
-const { conversationErrorMessage, kListRefreshInterval } = ChromeUtils.import(
-  "resource:///modules/ircUtils.jsm"
-);
+import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
+import {
+  conversationErrorMessage,
+  kListRefreshInterval,
+} from "resource:///modules/ircUtils.sys.mjs";
 
 export var ircNonStandard = {
   name: "Non-Standard IRC Extensions",

@@ -7,9 +7,7 @@
  *   https://ircv3.net/specs/extensions/server-time-3.2
  */
 
-const { ircHandlerPriorities } = ChromeUtils.import(
-  "resource:///modules/ircHandlerPriorities.jsm"
-);
+import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
 
 function handleServerTimeTag(aMsg) {
   if (aMsg.tagValue) {

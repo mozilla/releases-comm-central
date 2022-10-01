@@ -5,25 +5,17 @@
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var { GenericProtocolPrototype } = ChromeUtils.import(
-  "resource:///modules/jsProtoHelper.jsm"
-);
+import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
+import { GenericProtocolPrototype } from "resource:///modules/jsProtoHelper.sys.mjs";
 const lazy = {};
 
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "XMPPAccountPrototype",
-  "resource:///modules/xmpp-base.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "XMPPSession",
-  "resource:///modules/xmpp-session.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  XMPPAccountPrototype: "resource:///modules/xmpp-base.sys.mjs",
+  XMPPSession: "resource:///modules/xmpp-session.sys.mjs",
+});
 
 XPCOMUtils.defineLazyGetter(lazy, "OdnoklassnikiAccount", () => {
   function OdnoklassnikiAccount(aProtoInstance, aImAccount) {

@@ -5,15 +5,14 @@
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { l10nHelper } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
-const { MatrixSDK, getHttpUriForMxc } = ChromeUtils.import(
-  "resource:///modules/matrix-sdk.jsm"
-);
+import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
+import {
+  MatrixSDK,
+  getHttpUriForMxc,
+} from "resource:///modules/matrix-sdk.sys.mjs";
 const lazy = {};
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  getMatrixTextForEvent: "resource:///modules/matrixTextForEvent.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  getMatrixTextForEvent: "resource:///modules/matrixTextForEvent.sys.mjs",
 });
 XPCOMUtils.defineLazyGetter(lazy, "domParser", () => new DOMParser());
 XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function() {

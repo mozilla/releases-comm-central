@@ -12,7 +12,9 @@
 var { Notifications } = ChromeUtils.import(
   "resource:///modules/chatNotifications.jsm"
 );
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+var { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
@@ -20,7 +22,9 @@ var { InlineSpellChecker } = ChromeUtils.importESModule(
   "resource://gre/modules/InlineSpellChecker.sys.mjs"
 );
 
-ChromeUtils.defineModuleGetter(this, "OTRUI", "resource:///modules/OTRUI.jsm");
+ChromeUtils.defineESModuleGetters(this, {
+  OTRUI: "resource:///modules/OTRUI.sys.mjs",
+});
 ChromeUtils.defineModuleGetter(
   this,
   "ChatEncryption",

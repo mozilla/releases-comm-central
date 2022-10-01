@@ -5,22 +5,24 @@
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var {
+import {
   ClassInfo,
   executeSoon,
   l10nHelper,
   nsSimpleEnumerator,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+} from "resource:///modules/imXPCOMUtils.sys.mjs";
 
 var { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
 
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-var { ctcpFormatToHTML, kListRefreshInterval } = ChromeUtils.import(
-  "resource:///modules/ircUtils.jsm"
-);
-var {
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
+import {
+  ctcpFormatToHTML,
+  kListRefreshInterval,
+} from "resource:///modules/ircUtils.sys.mjs";
+
+import {
   GenericAccountPrototype,
   GenericAccountBuddyPrototype,
   GenericConvIMPrototype,
@@ -28,11 +30,10 @@ var {
   GenericConvChatBuddyPrototype,
   GenericConversationPrototype,
   TooltipInfo,
-} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
-var { NormalizedMap } = ChromeUtils.import(
-  "resource:///modules/NormalizedMap.jsm"
-);
-var { Socket } = ChromeUtils.import("resource:///modules/socket.jsm");
+} from "resource:///modules/jsProtoHelper.sys.mjs";
+
+import { NormalizedMap } from "resource:///modules/NormalizedMap.sys.mjs";
+import { Socket } from "resource:///modules/socket.sys.mjs";
 
 const lazy = {};
 
@@ -48,11 +49,9 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/DownloadUtils.jsm"
 );
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "ircHandlers",
-  "resource:///modules/ircHandlers.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  ircHandlers: "resource:///modules/ircHandlers.sys.mjs",
+});
 
 XPCOMUtils.defineLazyGetter(lazy, "_conv", () =>
   l10nHelper("chrome://chat/locale/conversations.properties")

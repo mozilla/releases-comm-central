@@ -10,7 +10,7 @@ const {
   wasNextMessage,
   removeMessage,
   isNextMessage,
-} = ChromeUtils.import("resource:///modules/imThemes.jsm");
+} = ChromeUtils.importESModule("resource:///modules/imThemes.sys.mjs");
 const { MockDocument } = ChromeUtils.import(
   "resource://testing-common/MockDocument.jsm"
 );

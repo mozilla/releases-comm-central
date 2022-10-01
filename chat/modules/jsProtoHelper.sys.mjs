@@ -5,13 +5,13 @@
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { initLogModule, nsSimpleEnumerator, l10nHelper } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
-const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-const { ClassInfo } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
+import {
+  initLogModule,
+  nsSimpleEnumerator,
+  l10nHelper,
+} from "resource:///modules/imXPCOMUtils.sys.mjs";
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
+import { ClassInfo } from "resource:///modules/imXPCOMUtils.sys.mjs";
 
 const lazy = {};
 

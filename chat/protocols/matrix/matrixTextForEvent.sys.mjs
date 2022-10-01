@@ -5,8 +5,8 @@
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var { MatrixSDK } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
+import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
+import { MatrixSDK } from "resource:///modules/matrix-sdk.sys.mjs";
 
 const lazy = {};
 
@@ -14,11 +14,9 @@ XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
 );
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "MatrixPowerLevels",
-  "resource:///modules/matrixPowerLevels.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  MatrixPowerLevels: "resource:///modules/matrixPowerLevels.sys.mjs",
+});
 
 /**
  * Shared handler for verification requests. We need it twice because the

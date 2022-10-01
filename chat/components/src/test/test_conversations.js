@@ -1,12 +1,14 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-var { GenericConvIMPrototype, Message } = ChromeUtils.import(
-  "resource:///modules/jsProtoHelper.jsm"
+var { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
 );
-var { imMessage, UIConversation } = ChromeUtils.import(
-  "resource:///modules/imConversations.jsm"
+var { GenericConvIMPrototype, Message } = ChromeUtils.importESModule(
+  "resource:///modules/jsProtoHelper.sys.mjs"
+);
+var { imMessage, UIConversation } = ChromeUtils.importESModule(
+  "resource:///modules/imConversations.sys.mjs"
 );
 
 // Fake prplConversation

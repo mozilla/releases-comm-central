@@ -8,24 +8,20 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { XPCOMUtils } = ChromeUtils.import(
-    "resource://gre/modules/XPCOMUtils.jsm"
-  );
-
   const LazyModules = {};
-  XPCOMUtils.defineLazyModuleGetters(LazyModules, {
-    cleanupImMarkup: "resource:///modules/imContentSink.jsm",
-    getCurrentTheme: "resource:///modules/imThemes.jsm",
-    getDocumentFragmentFromHTML: "resource:///modules/imThemes.jsm",
-    getHTMLForMessage: "resource:///modules/imThemes.jsm",
-    initHTMLDocument: "resource:///modules/imThemes.jsm",
-    insertHTMLForMessage: "resource:///modules/imThemes.jsm",
-    isNextMessage: "resource:///modules/imThemes.jsm",
-    wasNextMessage: "resource:///modules/imThemes.jsm",
-    replaceHTMLForMessage: "resource:///modules/imThemes.jsm",
-    removeMessage: "resource:///modules/imThemes.jsm",
-    serializeSelection: "resource:///modules/imThemes.jsm",
-    smileTextNode: "resource:///modules/imSmileys.jsm",
+  ChromeUtils.defineESModuleGetters(LazyModules, {
+    cleanupImMarkup: "resource:///modules/imContentSink.sys.mjs",
+    getCurrentTheme: "resource:///modules/imThemes.sys.mjs",
+    getDocumentFragmentFromHTML: "resource:///modules/imThemes.sys.mjs",
+    getHTMLForMessage: "resource:///modules/imThemes.sys.mjs",
+    initHTMLDocument: "resource:///modules/imThemes.sys.mjs",
+    insertHTMLForMessage: "resource:///modules/imThemes.sys.mjs",
+    isNextMessage: "resource:///modules/imThemes.sys.mjs",
+    wasNextMessage: "resource:///modules/imThemes.sys.mjs",
+    replaceHTMLForMessage: "resource:///modules/imThemes.sys.mjs",
+    removeMessage: "resource:///modules/imThemes.sys.mjs",
+    serializeSelection: "resource:///modules/imThemes.sys.mjs",
+    smileTextNode: "resource:///modules/imSmileys.sys.mjs",
   });
 
   (function() {

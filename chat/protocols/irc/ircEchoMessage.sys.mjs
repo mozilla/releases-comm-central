@@ -12,9 +12,7 @@
  * signify whether a message was properly sent to a channel during disconnect.
  */
 
-const { ircHandlerPriorities } = ChromeUtils.import(
-  "resource:///modules/ircHandlerPriorities.jsm"
-);
+import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
 
 export var capEchoMessage = {
   name: "echo-message CAP",

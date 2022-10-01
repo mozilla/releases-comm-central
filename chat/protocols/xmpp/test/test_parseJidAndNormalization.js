@@ -1,8 +1,8 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { XMPPAccountPrototype } = ChromeUtils.import(
-  "resource:///modules/xmpp-base.jsm"
+var { XMPPAccountPrototype } = ChromeUtils.importESModule(
+  "resource:///modules/xmpp-base.sys.mjs"
 );
 
 var TEST_DATA = {

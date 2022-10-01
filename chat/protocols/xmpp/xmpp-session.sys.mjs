@@ -6,14 +6,10 @@ const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var { Socket } = ChromeUtils.import("resource:///modules/socket.jsm");
-var { Stanza, XMPPParser } = ChromeUtils.import(
-  "resource:///modules/xmpp-xml.jsm"
-);
-var { XMPPAuthMechanisms } = ChromeUtils.import(
-  "resource:///modules/xmpp-authmechs.jsm"
-);
+import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
+import { Socket } from "resource:///modules/socket.sys.mjs";
+import { Stanza, XMPPParser } from "resource:///modules/xmpp-xml.sys.mjs";
+import { XMPPAuthMechanisms } from "resource:///modules/xmpp-authmechs.sys.mjs";
 
 const lazy = {};
 

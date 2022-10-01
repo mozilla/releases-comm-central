@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { InteractiveBrowser, CancelledError } = ChromeUtils.import(
-  "resource:///modules/InteractiveBrowser.jsm"
+const { InteractiveBrowser, CancelledError } = ChromeUtils.importESModule(
+  "resource:///modules/InteractiveBrowser.sys.mjs"
 );
 const kBaseWindowUri = "chrome://messenger/content/browserRequest.xhtml";
 

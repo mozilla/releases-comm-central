@@ -10,12 +10,10 @@
 {
   const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
-  ChromeUtils.defineModuleGetter(this, "OTR", "resource:///modules/OTR.jsm");
-  ChromeUtils.defineModuleGetter(
-    this,
-    "OTRUI",
-    "resource:///modules/OTRUI.jsm"
-  );
+  ChromeUtils.defineESModuleGetters(this, {
+    OTR: "resource:///modules/OTR.sys.mjs",
+    OTRUI: "resource:///modules/OTRUI.sys.mjs",
+  });
 
   /**
    * The MozChatConversationInfo widget displays information about a chat:

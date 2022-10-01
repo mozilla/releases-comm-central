@@ -8,9 +8,7 @@
  *   https://ircv3.net/specs/extensions/sasl-3.2
  */
 
-const { ircHandlerPriorities } = ChromeUtils.import(
-  "resource:///modules/ircHandlerPriorities.jsm"
-);
+import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
 
 export var ircSASL = {
   name: "SASL AUTHENTICATE",

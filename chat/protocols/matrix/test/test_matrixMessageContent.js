@@ -1,16 +1,18 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { MatrixMessageContent } = ChromeUtils.import(
-  "resource:///modules/matrixMessageContent.jsm"
+var { MatrixMessageContent } = ChromeUtils.importESModule(
+  "resource:///modules/matrixMessageContent.sys.mjs"
 );
 const { XPCShellContentUtils } = ChromeUtils.import(
   "resource://testing-common/XPCShellContentUtils.jsm"
 );
-var { getMatrixTextForEvent } = ChromeUtils.import(
-  "resource:///modules/matrixTextForEvent.jsm"
+var { getMatrixTextForEvent } = ChromeUtils.importESModule(
+  "resource:///modules/matrixTextForEvent.sys.mjs"
 );
-var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { l10nHelper } = ChromeUtils.importESModule(
+  "resource:///modules/imXPCOMUtils.sys.mjs"
+);
 var _ = l10nHelper("chrome://chat/locale/matrix.properties");
 
 // Required to make it so the DOMParser can handle images and such.

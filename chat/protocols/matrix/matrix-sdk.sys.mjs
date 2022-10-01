@@ -9,9 +9,7 @@ const {
   setInterval,
   setTimeout,
 } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-const { scriptError } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
+import { scriptError } from "resource:///modules/imXPCOMUtils.sys.mjs";
 
 const { Loader, Require, Module } = ChromeUtils.import(
   "resource://devtools/shared/loader/base-loader.js"

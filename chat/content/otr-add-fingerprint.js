@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
+var { l10nHelper } = ChromeUtils.importESModule(
+  "resource:///modules/imXPCOMUtils.sys.mjs"
+);
+var { OTR } = ChromeUtils.importESModule("resource:///modules/OTR.sys.mjs");
 
 window.addEventListener("DOMContentLoaded", () => {
   otrAddFinger.onload();

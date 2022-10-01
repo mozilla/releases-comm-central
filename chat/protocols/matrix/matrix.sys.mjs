@@ -5,10 +5,8 @@
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var { GenericProtocolPrototype } = ChromeUtils.import(
-  "resource:///modules/jsProtoHelper.jsm"
-);
+import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
+import { GenericProtocolPrototype } from "resource:///modules/jsProtoHelper.sys.mjs";
 
 const lazy = {};
 
@@ -21,15 +19,13 @@ XPCOMUtils.defineLazyGetter(lazy, "brandShortName", () =>
     .createBundle("chrome://branding/locale/brand.properties")
     .GetStringFromName("brandShortName")
 );
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "MatrixAccount",
-  "resource:///modules/matrixAccount.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  MatrixAccount: "resource:///modules/matrixAccount.sys.mjs",
+});
 
 export function MatrixProtocol() {
-  this.commands = ChromeUtils.import(
-    "resource:///modules/matrixCommands.jsm"
+  this.commands = ChromeUtils.importESModule(
+    "resource:///modules/matrixCommands.sys.mjs"
   ).commands;
   this.registerCommands();
 }

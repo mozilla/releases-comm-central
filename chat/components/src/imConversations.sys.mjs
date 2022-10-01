@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
+import { Status } from "resource:///modules/imStatusUtils.sys.mjs";
+
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { ClassInfo } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var { Message } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+import { ClassInfo } from "resource:///modules/imXPCOMUtils.sys.mjs";
+import { Message } from "resource:///modules/jsProtoHelper.sys.mjs";
 
 var gLastUIConvId = 0;
 var gLastPrplConvId = 0;

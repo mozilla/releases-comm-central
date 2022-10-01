@@ -69,9 +69,8 @@
  *     desired flood time?).
  */
 
-var { executeSoon } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
+import { executeSoon } from "resource:///modules/imXPCOMUtils.sys.mjs";
+
 const { clearTimeout, requestIdleCallback, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );

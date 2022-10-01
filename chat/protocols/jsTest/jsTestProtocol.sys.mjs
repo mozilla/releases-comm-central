@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-var {
+import {
   GenericAccountPrototype,
   GenericConvIMPrototype,
   GenericProtocolPrototype,
-} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+} from "resource:///modules/jsProtoHelper.sys.mjs";
 
 function Conversation(aAccount) {
   this._init(aAccount);

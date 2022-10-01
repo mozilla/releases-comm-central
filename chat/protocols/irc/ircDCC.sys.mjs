@@ -9,9 +9,7 @@
  *     http://www.irchelp.org/irchelp/rfc/dccspec.html
  */
 
-const { ircHandlerPriorities } = ChromeUtils.import(
-  "resource:///modules/ircHandlerPriorities.jsm"
-);
+import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
 
 // Parse a CTCP message into a DCC message. A DCC message is a CTCP message of
 // the form:

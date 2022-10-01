@@ -15,9 +15,7 @@
  *   https://ircv3.net/specs/extensions/multi-prefix-3.1
  */
 
-const { ircHandlerPriorities } = ChromeUtils.import(
-  "resource:///modules/ircHandlerPriorities.jsm"
-);
+import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
 
 export var isupportNAMESX = {
   name: "ISUPPORT NAMESX",

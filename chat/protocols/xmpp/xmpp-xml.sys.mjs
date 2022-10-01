@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { SAX } = ChromeUtils.import("resource:///modules/sax.jsm");
+import { SAX } from "resource:///modules/sax.sys.mjs";
 
 var NS = {
   xml: "http://www.w3.org/XML/1998/namespace",

@@ -35,7 +35,7 @@ const { CommonUtils } = ChromeUtils.import(
 const { CryptoUtils } = ChromeUtils.import(
   "resource://services-crypto/utils.js"
 );
-var { Stanza } = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
+import { Stanza } from "resource:///modules/xmpp-xml.sys.mjs";
 
 // Handle PLAIN authorization mechanism.
 function* PlainAuth(aUsername, aPassword, aDomain) {

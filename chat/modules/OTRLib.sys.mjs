@@ -4,7 +4,7 @@
 
 const otrl_version = [4, 1, 1];
 
-const { CLib } = ChromeUtils.import("resource:///modules/CLib.jsm");
+import { CLib } from "resource:///modules/CLib.sys.mjs";
 const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 var systemOS = Services.appinfo.OS.toLowerCase();
 

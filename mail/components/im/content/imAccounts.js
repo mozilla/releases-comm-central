@@ -6,7 +6,9 @@
 /* globals statusSelector */
 /* globals MsgAccountManager */
 
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+var { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

@@ -5,35 +5,34 @@
 const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
-const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-const { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
+import { Status } from "resource:///modules/imStatusUtils.sys.mjs";
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const {
+import {
   executeSoon,
   nsSimpleEnumerator,
   EmptyEnumerator,
   ClassInfo,
   l10nHelper,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var {
+} from "resource:///modules/imXPCOMUtils.sys.mjs";
+
+import {
   GenericAccountPrototype,
   GenericAccountBuddyPrototype,
   GenericConvIMPrototype,
   GenericConvChatPrototype,
   GenericConversationPrototype,
   TooltipInfo,
-} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
-const { NormalizedMap } = ChromeUtils.import(
-  "resource:///modules/NormalizedMap.jsm"
-);
-var { Stanza, SupportedFeatures } = ChromeUtils.import(
-  "resource:///modules/xmpp-xml.jsm"
-);
-var { XMPPSession } = ChromeUtils.import(
-  "resource:///modules/xmpp-session.jsm"
-);
+} from "resource:///modules/jsProtoHelper.sys.mjs";
+
+import { NormalizedMap } from "resource:///modules/NormalizedMap.sys.mjs";
+import {
+  Stanza,
+  SupportedFeatures,
+} from "resource:///modules/xmpp-xml.sys.mjs";
+import { XMPPSession } from "resource:///modules/xmpp-session.sys.mjs";
 
 const lazy = {};
 

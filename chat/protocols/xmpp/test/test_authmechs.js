@@ -1,10 +1,12 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { XMPPAuthMechanisms } = ChromeUtils.import(
-  "resource:///modules/xmpp-authmechs.jsm"
+var { XMPPAuthMechanisms } = ChromeUtils.importESModule(
+  "resource:///modules/xmpp-authmechs.sys.mjs"
 );
-var { Stanza } = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
+var { Stanza } = ChromeUtils.importESModule(
+  "resource:///modules/xmpp-xml.sys.mjs"
+);
 
 /*
  * Test PLAIN using the examples given in section 6 of RFC 6120.

@@ -13,9 +13,7 @@
  */
 
 const { clearTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-const { ircHandlerPriorities } = ChromeUtils.import(
-  "resource:///modules/ircHandlerPriorities.jsm"
-);
+import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
 
 function setStatus(aAccount, aNick, aStatus) {
   if (!aAccount.watchEnabled && !aAccount.monitorEnabled) {

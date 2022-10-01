@@ -2,10 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-var { ClassInfo, initLogModule } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
+
+import {
+  ClassInfo,
+  initLogModule,
+} from "resource:///modules/imXPCOMUtils.sys.mjs";
 
 var kQuitApplicationGranted = "quit-application-granted";
 var kProtocolPluginCategory = "im-protocol-plugin";

@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-const { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
+
+import { OTR } from "resource:///modules/OTR.sys.mjs";
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
