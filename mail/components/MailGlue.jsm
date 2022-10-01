@@ -54,10 +54,10 @@ let JSWINDOWACTORS = {
   ChatAction: {
     matches: ["chrome://chat/content/conv.html"],
     parent: {
-      moduleURI: "resource:///actors/ChatActionParent.jsm",
+      esModuleURI: "resource:///actors/ChatActionParent.sys.mjs",
     },
     child: {
-      moduleURI: "resource:///actors/ChatActionChild.jsm",
+      esModuleURI: "resource:///actors/ChatActionChild.sys.mjs",
       events: {
         contextmenu: { mozSystemGroup: true },
       },
