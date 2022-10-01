@@ -3,10 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
-
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { GenericMessagePrototype } from "resource:///modules/jsProtoHelper.sys.mjs";
 import {
   ClassInfo,
@@ -27,14 +24,14 @@ XPCOMUtils.defineLazyGetter(lazy, "_", () =>
  * This is so that a file can be read after a pending write operation completes
  * and vice versa (opening a file multiple times concurrently may fail on Windows).
  */
-var gFilePromises = new Map();
+export var gFilePromises = new Map();
 /**
  * Set containing log file paths that are scheduled to have deleted messages
  * removed.
  *
  * @type {Set<string>}
  */
-var gPendingCleanup = new Set();
+export var gPendingCleanup = new Set();
 
 const kPendingLogCleanupPref = "chat.logging.cleanup.pending";
 
@@ -46,7 +43,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
 );
 
 // Uses above map to queue operations on a file.
-function queueFileOperation(aPath, aOperation) {
+export function queueFileOperation(aPath, aOperation) {
   // Ensure the operation is queued regardless of whether the last one succeeded.
   // This is safe since the promise is returned and consumers are expected to
   // handle any errors. If there's no promise existing for the given path already,
@@ -78,7 +75,7 @@ function queueFileOperation(aPath, aOperation) {
  * (opening a file multiple times concurrently may fail on Windows).
  * Note: This function creates parent directories if required.
  */
-function appendToFile(aPath, aString, aCreate) {
+export function appendToFile(aPath, aString, aCreate) {
   return queueFileOperation(aPath, async function() {
     await IOUtils.makeDirectory(PathUtils.parent(aPath));
     const mode = aCreate ? "create" : "append";
@@ -102,7 +99,7 @@ function appendToFile(aPath, aString, aCreate) {
 
 // This function checks names against OS naming conventions and alters them
 // accordingly so that they can be used as file/folder names.
-function encodeName(aName) {
+export function encodeName(aName) {
   // Reserved device names by Windows (prefixing "%").
   let reservedNames = /^(CON|PRN|AUX|NUL|COM\d|LPT\d)$/i;
   if (reservedNames.test(aName)) {
@@ -122,7 +119,7 @@ function encodeName(aName) {
   return aName.replace(/[<>:"\/\\|?*&%]/g, encodeReservedChars);
 }
 
-function getLogFolderPathForAccount(aAccount) {
+export function getLogFolderPathForAccount(aAccount) {
   return PathUtils.join(
     Services.dirsvc.get("ProfD", Ci.nsIFile).path,
     "logs",
@@ -131,7 +128,7 @@ function getLogFolderPathForAccount(aAccount) {
   );
 }
 
-function getLogFilePathForConversation(aConv, aStartTime) {
+export function getLogFilePathForConversation(aConv, aStartTime) {
   if (!aStartTime) {
     aStartTime = aConv.startDate / 1000;
   }
@@ -143,7 +140,7 @@ function getLogFilePathForConversation(aConv, aStartTime) {
   return PathUtils.join(path, encodeName(name), getNewLogFileName(aStartTime));
 }
 
-function getNewLogFileName(aStartTime) {
+export function getNewLogFileName(aStartTime) {
   let date = aStartTime ? new Date(aStartTime) : new Date();
   let dateTime = lazy.ToLocaleFormat("%Y-%m-%d.%H%M%S", date);
   let offset = date.getTimezoneOffset();
@@ -418,7 +415,7 @@ var dummyLogWriter = {
 };
 
 var gLogWritersById = new Map();
-function getLogWriter(aConversation) {
+export function getLogWriter(aConversation) {
   let id = aConversation.id;
   if (!gLogWritersById.has(id)) {
     let prefName =
@@ -432,7 +429,7 @@ function getLogWriter(aConversation) {
   return gLogWritersById.get(id);
 }
 
-function closeLogWriter(aConversation) {
+export function closeLogWriter(aConversation) {
   gLogWritersById.delete(aConversation.id);
 }
 

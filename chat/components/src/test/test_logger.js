@@ -8,8 +8,19 @@ var { IMServices } = ChromeUtils.importESModule(
   "resource:///modules/IMServices.sys.mjs"
 );
 
-var gLogger = {};
-Services.scriptloader.loadSubScript("resource:///modules/logger.jsm", gLogger);
+const {
+  Logger,
+  gFilePromises,
+  gPendingCleanup,
+  queueFileOperation,
+  getLogFolderPathForAccount,
+  encodeName,
+  getLogFilePathForConversation,
+  getNewLogFileName,
+  appendToFile,
+  getLogWriter,
+  closeLogWriter,
+} = ChromeUtils.importESModule("resource:///modules/logger.sys.mjs");
 
 var logDirPath = PathUtils.join(
   Services.dirsvc.get("ProfD", Ci.nsIFile).path,
@@ -164,34 +175,31 @@ var test_queueFileOperation = async function() {
   let dummyRejectedOperation = () => Promise.reject("Rejected!");
   let dummyResolvedOperation = () => Promise.resolve("Resolved!");
 
-  let gFP = gLogger.gFilePromises;
-  let qFO = gLogger.queueFileOperation;
-
   // Immediately after calling qFO, "path1" should be mapped to p1.
   // After yielding, the reference should be cleared from the map.
-  let p1 = qFO("path1", dummyResolvedOperation);
-  equal(gFP.get("path1"), p1);
+  let p1 = queueFileOperation("path1", dummyResolvedOperation);
+  equal(gFilePromises.get("path1"), p1);
   await p1;
-  ok(!gFP.has("path1"));
+  ok(!gFilePromises.has("path1"));
 
   // Repeat above test for a rejected promise.
-  let p2 = qFO("path2", dummyRejectedOperation);
-  equal(gFP.get("path2"), p2);
+  let p2 = queueFileOperation("path2", dummyRejectedOperation);
+  equal(gFilePromises.get("path2"), p2);
   // This should throw since p2 rejected. Drop the error.
   await p2.then(
     () => do_throw(),
     () => {}
   );
-  ok(!gFP.has("path2"));
+  ok(!gFilePromises.has("path2"));
 
   let onPromiseComplete = (aPromise, aHandler) => {
     return aPromise.then(aHandler, aHandler);
   };
   let test_queueOrder = aOperation => {
-    let promise = qFO("queueOrderPath", aOperation);
+    let promise = queueFileOperation("queueOrderPath", aOperation);
     let firstOperationComplete = false;
     onPromiseComplete(promise, () => (firstOperationComplete = true));
-    return qFO("queueOrderPath", () => {
+    return queueFileOperation("queueOrderPath", () => {
       ok(firstOperationComplete);
     });
   };
@@ -201,12 +209,12 @@ var test_queueFileOperation = async function() {
 };
 
 var test_getLogFolderPathForAccount = async function() {
-  let path = gLogger.getLogFolderPathForAccount(dummyAccount);
+  let path = getLogFolderPathForAccount(dummyAccount);
   equal(
     PathUtils.join(
       logDirPath,
       dummyAccount.protocol.normalizedName,
-      gLogger.encodeName(dummyAccount.normalizedName)
+      encodeName(dummyAccount.normalizedName)
     ),
     path
   );
@@ -214,37 +222,37 @@ var test_getLogFolderPathForAccount = async function() {
 
 // Tests the global function getLogFilePathForConversation in logger.js.
 var test_getLogFilePathForConversation = async function() {
-  let path = gLogger.getLogFilePathForConversation(dummyConv);
+  let path = getLogFilePathForConversation(dummyConv);
   let expectedPath = PathUtils.join(
     logDirPath,
     dummyAccount.protocol.normalizedName,
-    gLogger.encodeName(dummyAccount.normalizedName)
+    encodeName(dummyAccount.normalizedName)
   );
   expectedPath = PathUtils.join(
     expectedPath,
-    gLogger.encodeName(dummyConv.normalizedName)
+    encodeName(dummyConv.normalizedName)
   );
   expectedPath = PathUtils.join(
     expectedPath,
-    gLogger.getNewLogFileName(dummyConv.startDate / 1000)
+    getNewLogFileName(dummyConv.startDate / 1000)
   );
   equal(path, expectedPath);
 };
 
 var test_getLogFilePathForMUC = async function() {
-  let path = gLogger.getLogFilePathForConversation(dummyMUC);
+  let path = getLogFilePathForConversation(dummyMUC);
   let expectedPath = PathUtils.join(
     logDirPath,
     dummyAccount.protocol.normalizedName,
-    gLogger.encodeName(dummyAccount.normalizedName)
+    encodeName(dummyAccount.normalizedName)
   );
   expectedPath = PathUtils.join(
     expectedPath,
-    gLogger.encodeName(dummyMUC.normalizedName + ".chat")
+    encodeName(dummyMUC.normalizedName + ".chat")
   );
   expectedPath = PathUtils.join(
     expectedPath,
-    gLogger.getNewLogFileName(dummyMUC.startDate / 1000)
+    getNewLogFileName(dummyMUC.startDate / 1000)
   );
   equal(path, expectedPath);
 };
@@ -256,12 +264,10 @@ var test_appendToFile = async function() {
     "testFile.txt"
   );
   await IOUtils.write(path, new Uint8Array());
-  gLogger.appendToFile(path, kStringToWrite);
-  gLogger.appendToFile(path, kStringToWrite);
-  ok(await gLogger.queueFileOperation(path, () => IOUtils.exists(path)));
-  let text = await gLogger.queueFileOperation(path, () =>
-    IOUtils.readUTF8(path)
-  );
+  appendToFile(path, kStringToWrite);
+  appendToFile(path, kStringToWrite);
+  ok(await queueFileOperation(path, () => IOUtils.exists(path)));
+  let text = await queueFileOperation(path, () => IOUtils.readUTF8(path));
   // The read text should be equal to kStringToWrite repeated twice.
   equal(text, kStringToWrite + kStringToWrite);
   await IOUtils.remove(path);
@@ -273,11 +279,9 @@ add_task(async function test_appendToFileHeader() {
     Services.dirsvc.get("ProfD", Ci.nsIFile).path,
     "headerTestFile.txt"
   );
-  await gLogger.appendToFile(path, kStringToWrite, true);
-  await gLogger.appendToFile(path, kStringToWrite, true);
-  let text = await gLogger.queueFileOperation(path, () =>
-    IOUtils.readUTF8(path)
-  );
+  await appendToFile(path, kStringToWrite, true);
+  await appendToFile(path, kStringToWrite, true);
+  let text = await queueFileOperation(path, () => IOUtils.readUTF8(path));
   // The read text should be equal to kStringToWrite once, since the second
   // create should just noop.
   equal(text, kStringToWrite);
@@ -286,22 +290,22 @@ add_task(async function test_appendToFileHeader() {
 
 // Tests the getLogPathsForConversation API defined in the imILogger interface.
 var test_getLogPathsForConversation = async function() {
-  let logger = new gLogger.Logger();
+  let logger = new Logger();
   let paths = await logger.getLogPathsForConversation(dummyConv);
   // The path should be null since a LogWriter hasn't been created yet.
   equal(paths, null);
-  let logWriter = gLogger.getLogWriter(dummyConv);
+  let logWriter = getLogWriter(dummyConv);
   paths = await logger.getLogPathsForConversation(dummyConv);
   equal(paths.length, 1);
   equal(paths[0], logWriter.currentPath);
   ok(await IOUtils.exists(paths[0]));
   // Ensure this doesn't interfere with future tests.
   await IOUtils.remove(paths[0]);
-  gLogger.closeLogWriter(dummyConv);
+  closeLogWriter(dummyConv);
 };
 
 var test_logging = async function() {
-  let logger = new gLogger.Logger();
+  let logger = new Logger();
   let oneSec = 1000000; // Microseconds.
 
   // Creates a set of dummy messages for a conv (sets appropriate times).
@@ -356,7 +360,7 @@ var test_logging = async function() {
   let secondDayMsgs = getMsgsForConv(dummyConv2);
 
   let logMessagesForConv = async function(aConv, aMessages) {
-    let logWriter = gLogger.getLogWriter(aConv);
+    let logWriter = getLogWriter(aConv);
     for (let message of aMessages) {
       logWriter.logMessage(message);
     }
@@ -365,26 +369,24 @@ var test_logging = async function() {
     // will return an EmptyEnumerator. Logging the messages is queued on the
     // _initialized promise, so we need to await on that first.
     await logWriter._initialized;
-    await gLogger.gFilePromises.get(logWriter.currentPath);
+    await gFilePromises.get(logWriter.currentPath);
     // Ensure two different files for the different dates.
-    gLogger.closeLogWriter(aConv);
+    closeLogWriter(aConv);
   };
   await logMessagesForConv(dummyConv, firstDayMsgs);
   await logMessagesForConv(dummyConv2, secondDayMsgs);
 
   // Write a zero-length file and a file with incorrect JSON for each day
   // to ensure they are handled correctly.
-  let logDir = PathUtils.parent(
-    gLogger.getLogFilePathForConversation(dummyConv)
-  );
+  let logDir = PathUtils.parent(getLogFilePathForConversation(dummyConv));
   let createBadFiles = async function(aConv) {
     let blankFile = PathUtils.join(
       logDir,
-      gLogger.getNewLogFileName((aConv.startDate + oneSec) / 1000)
+      getNewLogFileName((aConv.startDate + oneSec) / 1000)
     );
     let invalidJSONFile = PathUtils.join(
       logDir,
-      gLogger.getNewLogFileName((aConv.startDate + 2 * oneSec) / 1000)
+      getNewLogFileName((aConv.startDate + 2 * oneSec) / 1000)
     );
     await IOUtils.write(blankFile, new Uint8Array());
     await IOUtils.writeUTF8(invalidJSONFile, "This isn't JSON!");
@@ -449,9 +451,7 @@ var test_logging = async function() {
       await IOUtils.remove(aLog);
     },
   });
-  let logFolder = PathUtils.parent(
-    gLogger.getLogFilePathForConversation(dummyConv)
-  );
+  let logFolder = PathUtils.parent(getLogFilePathForConversation(dummyConv));
   // The folder should now be empty - this will throw if it isn't.
   await IOUtils.remove(logFolder, { ignoreAbsent: false });
 };
@@ -459,7 +459,7 @@ var test_logging = async function() {
 var test_logFileSplitting = async function() {
   // Start clean, remove the log directory.
   await IOUtils.remove(logDirPath, { recursive: true });
-  let logWriter = gLogger.getLogWriter(dummyConv);
+  let logWriter = getLogWriter(dummyConv);
   let startTime = logWriter._startTime / 1000; // Message times are in seconds.
   let oldPath = logWriter.currentPath;
   let message = {
@@ -472,7 +472,7 @@ var test_logFileSplitting = async function() {
   let logMessage = async function(aMessage) {
     logWriter.logMessage(aMessage);
     await logWriter._initialized;
-    await gLogger.gFilePromises.get(logWriter.currentPath);
+    await gFilePromises.get(logWriter.currentPath);
   };
 
   await logMessage(message);
@@ -550,14 +550,14 @@ var test_logFileSplitting = async function() {
 
   // Clean up.
   await IOUtils.remove(logDirPath, { recursive: true });
-  gLogger.closeLogWriter(dummyConv);
+  closeLogWriter(dummyConv);
 };
 
 add_task(async function test_logWithEdits() {
   // Start clean, remove the log directory.
   await IOUtils.remove(logDirPath, { recursive: true });
-  let logger = new gLogger.Logger();
-  let logFilePath = gLogger.getLogFilePathForConversation(dummyConv);
+  let logger = new Logger();
+  let logFilePath = getLogFilePathForConversation(dummyConv);
   await IOUtils.writeUTF8(
     logFilePath,
     [
@@ -662,8 +662,8 @@ add_task(async function test_logWithEdits() {
 add_task(async function test_logWithDeletedMessages() {
   // Start clean, remove the log directory.
   await IOUtils.remove(logDirPath, { recursive: true });
-  let logger = new gLogger.Logger();
-  let logFilePath = gLogger.getLogFilePathForConversation(dummyConv);
+  let logger = new Logger();
+  let logFilePath = getLogFilePathForConversation(dummyConv);
   const remoteId = "$GFlcel-9tWrTvSb7HM_113-WpkzEdB4neglPVpZn3dM";
   await IOUtils.writeUTF8(
     logFilePath,
@@ -714,14 +714,14 @@ add_task(async function test_logWithDeletedMessages() {
 add_task(async function test_logDeletedMessageCleanup() {
   // Start clean, remove the log directory.
   await IOUtils.remove(logDirPath, { recursive: true });
-  let logger = new gLogger.Logger();
-  let logWriter = gLogger.getLogWriter(dummyConv);
+  let logger = new Logger();
+  let logWriter = getLogWriter(dummyConv);
   let remoteId = "testId";
 
   let logMessage = async function(aMessage) {
     logWriter.logMessage(aMessage);
     await logWriter._initialized;
-    await gLogger.gFilePromises.get(logWriter.currentPath);
+    await gFilePromises.get(logWriter.currentPath);
   };
 
   await logMessage({
@@ -740,16 +740,16 @@ add_task(async function test_logDeletedMessageCleanup() {
     deleted: true,
     incoming: true,
   });
-  ok(gLogger.gPendingCleanup.has(logWriter.currentPath));
+  ok(gPendingCleanup.has(logWriter.currentPath));
   equal(
     Services.prefs.getStringPref("chat.logging.cleanup.pending"),
     JSON.stringify([logWriter.currentPath])
   );
 
   await new Promise(resolve => ChromeUtils.idleDispatch(resolve));
-  await (gLogger.gFilePromises.get(logWriter.currentPath) || Promise.resolve());
+  await (gFilePromises.get(logWriter.currentPath) || Promise.resolve());
 
-  ok(!gLogger.gPendingCleanup.has(logWriter.currentPath));
+  ok(!gPendingCleanup.has(logWriter.currentPath));
   equal(Services.prefs.getStringPref("chat.logging.cleanup.pending"), "[]");
 
   let logs = await logger.getLogsForConversation(dummyConv);
@@ -777,14 +777,14 @@ add_task(async function test_logDeletedMessageCleanup() {
   // Clean up.
   await IOUtils.remove(logDirPath, { recursive: true });
 
-  gLogger.closeLogWriter(dummyConv);
+  closeLogWriter(dummyConv);
 });
 
 add_task(async function test_displayOldActionLog() {
   // Start clean, remove the log directory.
   await IOUtils.remove(logDirPath, { recursive: true });
-  let logger = new gLogger.Logger();
-  let logFilePath = gLogger.getLogFilePathForConversation(dummyConv);
+  let logger = new Logger();
+  let logFilePath = getLogFilePathForConversation(dummyConv);
   await IOUtils.writeUTF8(
     logFilePath,
     [
@@ -840,7 +840,7 @@ add_task(async function test_displayOldActionLog() {
 function run_test() {
   // Test encodeName().
   for (let i = 0; i < encodeName_input.length; ++i) {
-    equal(gLogger.encodeName(encodeName_input[i]), encodeName_output[i]);
+    equal(encodeName(encodeName_input[i]), encodeName_output[i]);
   }
 
   add_task(test_getLogFolderPathForAccount);
