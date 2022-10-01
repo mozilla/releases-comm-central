@@ -45,6 +45,12 @@
   }
 }
 
+@media (prefers-contrast) {
+  :root {
+    --in-content-categories-background: transparent;
+  }
+}
+
 xul|checkbox,
 xul|radio {
   padding-inline-start: 0;

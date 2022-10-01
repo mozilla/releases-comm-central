@@ -58,15 +58,20 @@ search-textbox {
 }
 
 #categories > .category[selected] {
-  background-color: var(--in-content-button-background) !important;
-  color: unset !important;
   font-weight: 500;
 }
 
-#categories:focus > .category[selected] {
-  background-color: var(--in-content-item-selected) !important;
-  color: var(--in-content-item-selected-text) !important;
-  outline: none !important;
+@media not (prefers-contrast) {
+  #categories > .category[selected] {
+    background-color: var(--in-content-button-background) !important;
+    color: unset;
+  }
+
+  #categories > .category[selected]:focus {
+    background-color: var(--in-content-item-selected) !important;
+    color: var(--in-content-item-selected-text);
+    outline: none;
+  }
 }
 
 /* Temporary styles for the supernova icons */

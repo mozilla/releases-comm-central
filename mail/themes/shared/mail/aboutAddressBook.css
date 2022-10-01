@@ -36,6 +36,7 @@
 @media (prefers-contrast) {
   :root {
     --address-book-blocks-box-shadow: none;
+    --in-content-categories-background: transparent;
   }
 }
 

@@ -27,6 +27,12 @@
   }
 }
 
+@media (prefers-contrast) {
+  :root {
+    --in-content-categories-background: transparent;
+  }
+}
+
 body {
   /* Override the absolute (px) font-size value in common-shared.css. */
   font-size: 1.1rem;
@@ -54,15 +60,20 @@ body {
 }
 
 #categories > .category[selected] {
-  background-color: var(--in-content-button-background) !important;
-  color: unset;
   font-weight: 500;
 }
 
-#categories > .category[selected]:focus {
-  background-color: var(--in-content-item-selected) !important;
-  color: var(--in-content-item-selected-text);
-  outline: none;
+@media not (prefers-contrast) {
+  #categories > .category[selected] {
+    background-color: var(--in-content-button-background) !important;
+    color: unset;
+  }
+
+  #categories > .category[selected]:focus {
+    background-color: var(--in-content-item-selected) !important;
+    color: var(--in-content-item-selected-text);
+    outline: none;
+  }
 }
 
 .category-name {
