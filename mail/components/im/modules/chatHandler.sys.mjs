@@ -2,19 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["allContacts", "onlineContacts", "ChatCore"];
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
-const { IMServices } = ChromeUtils.importESModule(
-  "resource:///modules/IMServices.sys.mjs"
-);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var allContacts = {};
-var onlineContacts = {};
+export var allContacts = {};
+export var onlineContacts = {};
 
-var ChatCore = {
+export var ChatCore = {
   initialized: false,
   _initializing: false,
   init() {

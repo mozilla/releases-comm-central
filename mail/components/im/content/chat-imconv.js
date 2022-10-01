@@ -14,7 +14,9 @@
   const { AppConstants } = ChromeUtils.import(
     "resource://gre/modules/AppConstants.jsm"
   );
-  const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
+  const { ChatIcons } = ChromeUtils.importESModule(
+    "resource:///modules/chatIcons.sys.mjs"
+  );
 
   /**
    * The MozChatConvRichlistitem widget displays opened conversation information from the

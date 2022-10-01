@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { registerTestProtocol, unregisterTestProtocol } = ChromeUtils.import(
-  "resource://testing-common/TestProtocol.jsm"
+var {
+  registerTestProtocol,
+  unregisterTestProtocol,
+} = ChromeUtils.importESModule(
+  "resource://testing-common/TestProtocol.sys.mjs"
 );
 var { IMServices } = ChromeUtils.importESModule(
   "resource:///modules/IMServices.sys.mjs"

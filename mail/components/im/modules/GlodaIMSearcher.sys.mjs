@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["GlodaIMSearcher"];
-
 const { Gloda } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaPublic.jsm"
 );
@@ -192,7 +190,7 @@ function scoreOffsets(aMessage, aContext) {
  *  mechanism to explicitly score the IM conversations given the search context in
  *  addition to the more generic score adjusting rules.
  */
-function GlodaIMSearcher(aListener, aSearchString, aAndTerms) {
+export function GlodaIMSearcher(aListener, aSearchString, aAndTerms) {
   this.listener = aListener;
 
   this.searchString = aSearchString;
@@ -204,6 +202,7 @@ function GlodaIMSearcher(aListener, aSearchString, aAndTerms) {
 
   this.scores = null;
 }
+
 GlodaIMSearcher.prototype = {
   /**
    * Number of messages to retrieve initially.

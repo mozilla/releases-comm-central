@@ -8,7 +8,9 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
+  const { ChatIcons } = ChromeUtils.importESModule(
+    "resource:///modules/chatIcons.sys.mjs"
+  );
 
   ChromeUtils.defineESModuleGetters(this, {
     OTR: "resource:///modules/OTR.sys.mjs",

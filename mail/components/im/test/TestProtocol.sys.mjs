@@ -2,13 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = [
-  "registerTestProtocol",
-  "unregisterTestProtocol",
-  "TestProtocol",
-];
-
-var {
+import {
   GenericAccountPrototype,
   GenericConvChatPrototype,
   GenericConvIMPrototype,
@@ -17,10 +11,9 @@ var {
   GenericConvChatBuddyPrototype,
   GenericMessagePrototype,
   TooltipInfo,
-} = ChromeUtils.importESModule("resource:///modules/jsProtoHelper.sys.mjs");
-var { nsSimpleEnumerator } = ChromeUtils.importESModule(
-  "resource:///modules/imXPCOMUtils.sys.mjs"
-);
+} from "resource:///modules/jsProtoHelper.sys.mjs";
+
+import { nsSimpleEnumerator } from "resource:///modules/imXPCOMUtils.sys.mjs";
 
 function Message(who, text, properties, conversation) {
   this._init(who, text, properties, conversation);
@@ -255,7 +248,7 @@ Account.prototype = {
   remove() {},
 };
 
-function TestProtocol() {}
+export function TestProtocol() {}
 TestProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
   get id() {
@@ -295,7 +288,7 @@ TestProtocol.prototype = {
   classID: Components.ID("{a4617631-b8b8-4053-8afa-5c4c43498280}"),
 };
 
-function registerTestProtocol() {
+export function registerTestProtocol() {
   Services.catMan.addCategoryEntry(
     "im-protocol-plugin",
     TestProtocol.prototype.id,
@@ -305,7 +298,7 @@ function registerTestProtocol() {
   );
 }
 
-function unregisterTestProtocol() {
+export function unregisterTestProtocol() {
   Services.catMan.deleteCategoryEntry(
     "im-protocol-plugin",
     TestProtocol.prototype.id,

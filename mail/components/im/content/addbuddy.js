@@ -5,7 +5,9 @@
 var { IMServices } = ChromeUtils.importESModule(
   "resource:///modules/IMServices.sys.mjs"
 );
-var { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
+var { ChatIcons } = ChromeUtils.importESModule(
+  "resource:///modules/chatIcons.sys.mjs"
+);
 
 var addBuddy = {
   onload() {

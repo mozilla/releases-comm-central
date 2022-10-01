@@ -5,16 +5,14 @@
 // chat/content/imAccountOptionsHelper.js
 /* globals accountOptionsHelper */
 
+const { ChatIcons } = ChromeUtils.importESModule(
+  "resource:///modules/chatIcons.sys.mjs"
+);
 ChromeUtils.defineESModuleGetters(this, {
+  ChatEncryption: "resource:///modules/ChatEncryption.sys.mjs",
   OTR: "resource:///modules/OTR.sys.mjs",
   OTRUI: "resource:///modules/OTRUI.sys.mjs",
 });
-const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
-ChromeUtils.defineModuleGetter(
-  this,
-  "ChatEncryption",
-  "resource:///modules/ChatEncryption.jsm"
-);
 
 var autoJoinPref = "autoJoin";
 

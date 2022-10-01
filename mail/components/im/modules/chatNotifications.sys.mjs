@@ -2,11 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["Notifications"];
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
-const { IMServices } = ChromeUtils.importESModule(
-  "resource:///modules/IMServices.sys.mjs"
-);
 const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
@@ -16,13 +13,13 @@ const { PluralForm } = ChromeUtils.import(
 const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
-const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
+import { ChatIcons } from "resource:///modules/chatIcons.sys.mjs";
 
 // Time in seconds: it is the minimum time of inactivity
 // needed to show the bundled notification.
 var kTimeToWaitForMoreMsgs = 3;
 
-var Notifications = {
+export var Notifications = {
   get ellipsis() {
     let ellipsis = "[\u2026]";
 

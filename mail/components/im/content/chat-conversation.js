@@ -40,11 +40,9 @@
     constructor() {
       super();
 
-      ChromeUtils.defineModuleGetter(
-        this,
-        "ChatEncryption",
-        "resource:///modules/ChatEncryption.jsm"
-      );
+      ChromeUtils.defineESModuleGetters(this, {
+        ChatEncryption: "resource:///modules/ChatEncryption.sys.mjs",
+      });
 
       this.observer = {
         // @see {nsIObserver}

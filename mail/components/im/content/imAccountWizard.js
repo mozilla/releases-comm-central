@@ -11,7 +11,9 @@ var { IMServices } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
+var { ChatIcons } = ChromeUtils.importESModule(
+  "resource:///modules/chatIcons.sys.mjs"
+);
 
 var PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
 

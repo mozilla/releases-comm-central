@@ -11,7 +11,9 @@
   const { IMServices } = ChromeUtils.importESModule(
     "resource:///modules/IMServices.sys.mjs"
   );
-  const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
+  const { ChatIcons } = ChromeUtils.importESModule(
+    "resource:///modules/chatIcons.sys.mjs"
+  );
 
   /**
    * The MozChatContactRichlistitem widget displays contact information about user under

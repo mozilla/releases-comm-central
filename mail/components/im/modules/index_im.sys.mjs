@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = [];
-
 var CC = Components.Constructor;
 
 const { Gloda } = ChromeUtils.import(
@@ -18,15 +16,11 @@ const { GlodaConstants } = ChromeUtils.import(
 const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaIndexer.jsm"
 );
-const { IMServices } = ChromeUtils.importESModule(
-  "resource:///modules/IMServices.sys.mjs"
-);
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { FileUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/FileUtils.sys.mjs"
-);
+import { FileUtils } from "resource://gre/modules/FileUtils.sys.mjs";
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
