@@ -4,7 +4,6 @@
 
 cookies-window-dialog =
     .title = Cookies
-    .style = width: 36em;
 
 window-close-key =
     .key = w

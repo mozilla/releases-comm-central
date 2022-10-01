@@ -20,10 +20,6 @@ connection-dns-over-https-custom-label = Custom
 
 connection-dialog-window =
     .title = Connection Settings
-    .style = { PLATFORM() ->
-        [macos] width: 44em !important
-        *[other] width: 49em !important
-    }
 
 disable-extension-button = Disable Extension
 

@@ -4,10 +4,6 @@
 
 colors-dialog-window =
     .title = Colors
-    .style = { PLATFORM() ->
-        [macos] width: 41em !important
-        *[other] width: 38em !important
-    }
 
 colors-dialog-legend = Text and Background
 
