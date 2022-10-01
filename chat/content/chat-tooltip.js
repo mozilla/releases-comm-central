@@ -13,7 +13,9 @@
   var { IMServices } = ChromeUtils.importESModule(
     "resource:///modules/IMServices.sys.mjs"
   );
-  let { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
+  let { ChatIcons } = ChromeUtils.importESModule(
+    "resource:///modules/chatIcons.sys.mjs"
+  );
   const LazyModules = {};
 
   ChromeUtils.defineESModuleGetters(LazyModules, {

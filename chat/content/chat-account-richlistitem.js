@@ -11,7 +11,9 @@
   const { DownloadUtils } = ChromeUtils.import(
     "resource://gre/modules/DownloadUtils.jsm"
   );
-  const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
+  const { ChatIcons } = ChromeUtils.importESModule(
+    "resource:///modules/chatIcons.sys.mjs"
+  );
 
   /**
    * The MozChatAccountRichlistitem widget displays the information about the

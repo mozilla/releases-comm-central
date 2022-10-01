@@ -48,7 +48,9 @@ ChromeUtils.defineModuleGetter(
 var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
   "resource:///modules/hostnameUtils.jsm"
 );
-var { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
+var { ChatIcons } = ChromeUtils.importESModule(
+  "resource:///modules/chatIcons.sys.mjs"
+);
 
 XPCOMUtils.defineLazyGetter(this, "gSubDialog", function() {
   const { SubDialogManager } = ChromeUtils.importESModule(

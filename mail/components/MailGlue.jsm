@@ -26,9 +26,9 @@ XPCOMUtils.defineLazyGetter(lazy, "gMailBundle", function() {
 });
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  ChatCore: "resource:///modules/chatHandler.sys.mjs",
   LightweightThemeConsumer:
     "resource://gre/modules/LightweightThemeConsumer.sys.mjs",
-
   OsEnvironment: "resource://gre/modules/OsEnvironment.sys.mjs",
 });
 
@@ -36,7 +36,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   ActorManagerParent: "resource://gre/modules/ActorManagerParent.jsm",
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   cal: "resource:///modules/calendar/calUtils.jsm",
-  ChatCore: "resource:///modules/chatHandler.jsm",
   ExtensionSupport: "resource:///modules/ExtensionSupport.jsm",
   MailMigrator: "resource:///modules/MailMigrator.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
@@ -637,7 +636,7 @@ MailGlue.prototype = {
         condition: Services.prefs.getBoolPref("mail.chat.enabled"),
         task() {
           lazy.ChatCore.idleStart();
-          ChromeUtils.import("resource:///modules/index_im.jsm");
+          ChromeUtils.importESModule("resource:///modules/index_im.sys.mjs");
         },
       },
       {
