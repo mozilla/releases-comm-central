@@ -3032,7 +3032,12 @@ var detailsPane = {
     list.replaceChildren();
 
     let formatDate = function(date) {
-      date = ICAL.VCardTime.fromDateAndOrTimeString(date);
+      try {
+        date = ICAL.VCardTime.fromDateAndOrTimeString(date);
+      } catch (ex) {
+        Cu.reportError(ex);
+        return "";
+      }
       if (date.year && date.month && date.day) {
         return new Services.intl.DateTimeFormat(
           Services.locale.appLocalesAsBCP47,

@@ -135,15 +135,20 @@ class VCardSpecialDateComponent extends HTMLElement {
       return;
     }
     // Default value is date-and-or-time.
-    let dateValue = ICAL.VCardTime.fromDateAndOrTimeString(
-      this.vCardPropertyEntry.value || "",
-      "date-and-or-time"
-    );
+    let dateValue;
+    try {
+      dateValue = ICAL.VCardTime.fromDateAndOrTimeString(
+        this.vCardPropertyEntry.value || "",
+        "date-and-or-time"
+      );
+    } catch (ex) {
+      Cu.reportError(ex);
+    }
     // Always set the month first since that controls the available days.
-    this.month.value = dateValue.month || "";
+    this.month.value = dateValue?.month || "";
     this.fillDayOptions();
-    this.day.value = dateValue.day || "";
-    this.year.value = dateValue.year || "";
+    this.day.value = dateValue?.day || "";
+    this.year.value = dateValue?.year || "";
   }
 
   fromUIToVCardPropertyEntry() {
