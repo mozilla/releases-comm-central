@@ -535,13 +535,17 @@
         </tabs>
 
         <box id="notification-popup-box" align="center" hidden="true">
-          <image id="addons-notification-icon"
-                 class="notification-anchor-icon addons-icon"
-                 role="button"/>
+          <html:img id="addons-notification-icon"
+                    src="chrome://messenger/skin/icons/new/compact/extension.svg"
+                    alt=""
+                    class="notification-anchor-icon addons-icon"
+                    role="button" />
 #ifdef MOZ_UPDATER
-          <image id="app-update-notification-icon"
-                 class="notification-anchor-icon app-update-icon"
-                 role="button"/>
+          <html:img id="app-update-notification-icon"
+                    src="chrome://messenger/skin/icons/app-update-badge.svg"
+                    alt=""
+                    class="notification-anchor-icon app-update-icon"
+                    role="button" />
 #endif
         </box>
 
