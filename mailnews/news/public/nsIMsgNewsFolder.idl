@@ -110,7 +110,32 @@ interface nsIMsgNewsFolder : nsISupports {
   ACString getMessageIdForKey(in nsMsgKey key);
 
   void getNextNMessages(in nsIMsgWindow aMsgWindow);
-  void notifyDownloadedLine(in string line, in nsMsgKey key);
+
+  /**
+   * Begin loading a message into the folder's offline store.
+   * @param key - the key of the message being loaded (the folder must
+   *              already have the message in it's DB)
+   */
+  void notifyDownloadBegin(in nsMsgKey key);
+
+  /**
+   * Feed the next line of a message into the folder, to be invoked multiple
+   * times between notifyDownloadBegin() and notifyDownloadEnd().
+   *
+   * @param line - a single line of data to append to the message, including
+   *               end-of-line terminator.
+   */
+  void notifyDownloadedLine(in ACString line);
+
+  /**
+   * Finish loading a message into the folder. If an error occurs, the
+   * folder hears about it via this function, and should abort the message.
+   *
+   * @param status - NS_OK if the operation was completed, an error code
+   *                 otherwise.
+   */
+  void notifyDownloadEnd(in nsresult status);
+
   void notifyFinishedDownloadinghdrs();
 
   /**

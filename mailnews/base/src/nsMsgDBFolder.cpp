@@ -1631,7 +1631,7 @@ nsresult nsMsgDBFolder::StartNewOfflineMessage() {
   return rv;
 }
 
-nsresult nsMsgDBFolder::EndNewOfflineMessage() {
+nsresult nsMsgDBFolder::EndNewOfflineMessage(nsresult status) {
   int64_t curStorePos;
   uint64_t messageOffset;
   uint32_t messageSize;
@@ -1644,9 +1644,20 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage() {
   m_offlineHeader->GetMessageKey(&messageKey);
 
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  GetMsgStore(getter_AddRefs(msgStore));
+  rv = GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  mDatabase->MarkOffline(messageKey, true, nullptr);
+  // Are we being asked to abort and clean up?
+  if (NS_FAILED(status)) {
+    mDatabase->MarkOffline(messageKey, false, nullptr);
+    if (m_tempMessageStream) {
+      msgStore->DiscardNewMessage(m_tempMessageStream, m_offlineHeader);
+    }
+    m_tempMessageStream = nullptr;
+    m_offlineHeader = nullptr;
+    return NS_OK;
+  }
+
   if (m_tempMessageStream) {
     m_tempMessageStream->Flush();
   }
@@ -1681,11 +1692,8 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage() {
       mDatabase->MarkOffline(messageKey, false, nullptr);
       // we should truncate the offline store at messageOffset
       ReleaseSemaphore(static_cast<nsIMsgFolder*>(this));
-      if (msgStore)
-        // this closes the stream
-        msgStore->DiscardNewMessage(m_tempMessageStream, m_offlineHeader);
-      else
-        m_tempMessageStream->Close();
+      // this closes the stream
+      msgStore->DiscardNewMessage(m_tempMessageStream, m_offlineHeader);
       m_tempMessageStream = nullptr;
 #ifdef _DEBUG
       nsAutoCString message("Offline message too small: messageSize=");
@@ -1703,19 +1711,17 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage() {
     }
   }
 
-  // Successful. Finalise the message.
+  // Success! Finalise the message.
+  mDatabase->MarkOffline(messageKey, true, nullptr);
   m_offlineHeader->SetOfflineMessageSize(m_tempMessageStreamBytesWritten);
   m_offlineHeader->SetLineCount(m_numOfflineMsgLines);
 
-  if (msgStore)
-    msgStore->FinishNewMessage(m_tempMessageStream, m_offlineHeader);
-
+  // (But remember, stream might be buffered and closing/flushing could still
+  // fail!)
+  rv = msgStore->FinishNewMessage(m_tempMessageStream, m_offlineHeader);
+  m_tempMessageStream = nullptr;
   m_offlineHeader = nullptr;
-  if (m_tempMessageStream) {
-    m_tempMessageStream->Close();
-    m_tempMessageStream = nullptr;
-  }
-  return NS_OK;
+  return rv;
 }
 
 class AutoCompactEvent : public mozilla::Runnable {

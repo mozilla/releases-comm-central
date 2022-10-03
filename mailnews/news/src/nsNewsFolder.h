@@ -26,8 +26,6 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIMSGNEWSFOLDER
 
-  // nsIUrlListener method
-  NS_IMETHOD OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) override;
   // nsIMsgFolder methods:
   NS_IMETHOD GetSubFolders(nsTArray<RefPtr<nsIMsgFolder>>& folders) override;
 
@@ -117,7 +115,6 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
   bool mGettingNews;
   bool mInitialized;
   bool m_downloadMessageForOfflineUse;
-  bool m_downloadingMultipleMessages;
 
   nsCString mOptionLines;
   nsCString mUnsubscribedNewsgroupLines;
