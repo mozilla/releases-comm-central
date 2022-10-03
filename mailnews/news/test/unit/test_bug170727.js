@@ -1,15 +1,17 @@
 // Bug 170727 - Remove the escaped dot from body lines before saving in the offline store.
 
-var daemon, localserver, server;
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
-function run_test() {
-  daemon = setupNNTPDaemon();
+add_task(async function testDisplayMessage() {
+  let daemon = setupNNTPDaemon();
   daemon.addGroup("dot.test");
   daemon.addArticle(make_article(do_get_file("postings/post3.eml")));
 
-  server = makeServer(NNTP_RFC2980_handler, daemon);
+  let server = makeServer(NNTP_RFC2980_handler, daemon);
   server.start();
-  localserver = setupLocalServer(server.port);
+  let localserver = setupLocalServer(server.port);
   localserver.subscribeToNewsgroup("dot.test");
 
   let folder = localserver.rootFolder.getChildNamed("dot.test");
@@ -22,42 +24,38 @@ function run_test() {
   server.performTest();
 
   let uri = folder.generateMessageURI(1);
-  var msgService = Cc[
+  let msgService = Cc[
     "@mozilla.org/messenger/messageservice;1?type=news"
   ].getService(Ci.nsIMsgMessageService);
 
   // Pretend to display the message: During the first run, the article is downloaded,
   // displayed directly and simultaneously saved in the offline storage.
-  msgService.DisplayMessage(uri, articleTextListener, null, null, null, {});
-  // Get the server to run
-  var thread = gThreadManager.currentThread;
-  while (!articleTextListener.finished) {
-    thread.processNextEvent(true);
+  {
+    let listener = new PromiseTestUtils.PromiseStreamListener();
+    msgService.DisplayMessage(uri, listener, null, null, null, {});
+    let msgText = await listener.promise;
+    localserver.closeCachedConnections();
+
+    // Correct text? (original file uses LF only, so strip CR)
+    Assert.equal(
+      msgText.replaceAll("\r", ""),
+      daemon.getArticle("<2@dot.invalid>").fullText
+    );
   }
-  localserver.closeCachedConnections();
-
-  // Correct text?
-  Assert.equal(
-    articleTextListener.data,
-    daemon.getArticle("<2@dot.invalid>").fullText
-  );
-
-  articleTextListener.data = "";
-  articleTextListener.finished = false;
 
   // In the second run, the offline store serves as the source of the article.
-  msgService.DisplayMessage(uri, articleTextListener, null, null, null, {});
-  // Get the server to run
-  while (!articleTextListener.finished) {
-    thread.processNextEvent(true);
-  }
-  localserver.closeCachedConnections();
+  {
+    let listener = new PromiseTestUtils.PromiseStreamListener();
+    msgService.DisplayMessage(uri, listener, null, null, null, {});
+    let msgText = await listener.promise;
+    localserver.closeCachedConnections();
 
-  // Correct text?
-  Assert.equal(
-    articleTextListener.data,
-    daemon.getArticle("<2@dot.invalid>").fullText
-  );
+    // Correct text? (original file uses LF only, so strip CR)
+    Assert.equal(
+      msgText.replaceAll("\r", ""),
+      daemon.getArticle("<2@dot.invalid>").fullText
+    );
+  }
 
   server.stop();
-}
+});

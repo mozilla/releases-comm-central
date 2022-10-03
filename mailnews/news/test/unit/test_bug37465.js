@@ -1,12 +1,16 @@
 // Bug 37465 -- assertions with no accounts
 
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
+
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-function run_test() {
-  var daemon = setupNNTPDaemon();
-  var server = makeServer(NNTP_RFC2980_handler, daemon);
+add_task(async function textChannelAsync() {
+  let daemon = setupNNTPDaemon();
+  let server = makeServer(NNTP_RFC2980_handler, daemon);
   server.start();
 
   // Correct URI?
@@ -30,20 +34,16 @@ function run_test() {
     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
     Ci.nsIContentPolicy.TYPE_OTHER
   );
-  channel.asyncOpen(articleTextListener, null);
-
-  // Run the server
-  var thread = gThreadManager.currentThread;
-  while (!articleTextListener.finished) {
-    thread.processNextEvent(true);
-  }
-
+  let listener = new PromiseTestUtils.PromiseStreamListener();
+  channel.asyncOpen(listener, null);
+  let msgText = await listener.promise;
+  // Correct text? (original file uses LF only, so strip CR)
   Assert.equal(
-    articleTextListener.data,
+    msgText.replaceAll("\r", ""),
     daemon.getArticle("<1@regular.invalid>").fullText
   );
 
   // Shut down connections
   MailServices.accounts.closeCachedConnections();
   server.stop();
-}
+});
