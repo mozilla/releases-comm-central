@@ -17,7 +17,7 @@ class NntpProtocolInfo {
   canDelete = true;
   canLoginAtStartUp = true;
   canDuplicate = true;
-  canGetMessages = false;
+  canGetMessages = true;
   canGetIncomingMessages = false;
   defaultDoBiff = false;
   showComposeMsgLink = false;
