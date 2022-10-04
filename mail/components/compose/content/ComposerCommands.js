@@ -696,8 +696,6 @@ var gPersistObj;
 
 // Don't forget to do these things after calling OutputFileWithPersistAPI:
 // we need to update the uri before notifying listeners
-//    if (doUpdateURI)
-//      SetDocumentURI(docURI);
 //    UpdateWindowTitle();
 //    if (!aSaveCopy)
 //      editor.resetModificationCount();
@@ -1264,9 +1262,6 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
         if (tempLocalFile) {
           docURI = GetFileProtocolHandler().newFileURI(tempLocalFile);
         }
-
-        // We need to set new document uri before notifying listeners
-        SetDocumentURI(docURI);
       }
 
       // Update window title to show possibly different filename
@@ -1292,15 +1287,6 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
   return success;
 }
 /* eslint-enable complexity */
-
-function SetDocumentURI(uri) {
-  try {
-    // XXX WE'LL NEED TO GET "CURRENT" CONTENT FRAME ONCE MULTIPLE EDITORS ARE ALLOWED
-    GetCurrentEditorElement().docShell.setCurrentURI(uri);
-  } catch (e) {
-    dump("SetDocumentURI:\n" + e + "\n");
-  }
-}
 
 var nsFindReplaceCommand = {
   isCommandEnabled(aCommand, editorElement) {

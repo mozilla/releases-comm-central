@@ -6,8 +6,12 @@
  */
 
 let { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-let { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-let { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+let { FileUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/FileUtils.sys.mjs"
+);
+let { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
 let { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

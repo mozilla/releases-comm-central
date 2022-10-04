@@ -1,7 +1,9 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { capMessage } = ChromeUtils.import("resource:///modules/ircCAP.jsm");
+var { capMessage } = ChromeUtils.importESModule(
+  "resource:///modules/ircCAP.sys.mjs"
+);
 
 var testData = [
   // A normal LS from the server.

@@ -10,13 +10,13 @@ DIRS += [
 ]
 
 EXTRA_JS_MODULES += [
-    "sax.jsm",
-    "xmpp-authmechs.jsm",
-    "xmpp-base.jsm",
-    "xmpp-commands.jsm",
-    "xmpp-session.jsm",
-    "xmpp-xml.jsm",
-    "xmpp.jsm",
+    "sax.sys.mjs",
+    "xmpp-authmechs.sys.mjs",
+    "xmpp-base.sys.mjs",
+    "xmpp-commands.sys.mjs",
+    "xmpp-session.sys.mjs",
+    "xmpp-xml.sys.mjs",
+    "xmpp.sys.mjs",
 ]
 
 JAR_MANIFESTS += ["jar.mn"]

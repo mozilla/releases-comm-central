@@ -4,18 +4,18 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    "IMIncomingServer.jsm",
-    "IMProtocolInfo.jsm",
-    "modules/ChatEncryption.jsm",
-    "modules/chatHandler.jsm",
-    "modules/chatIcons.jsm",
-    "modules/chatNotifications.jsm",
-    "modules/GlodaIMSearcher.jsm",
-    "modules/index_im.jsm",
+    "IMIncomingServer.sys.mjs",
+    "IMProtocolInfo.sys.mjs",
+    "modules/ChatEncryption.sys.mjs",
+    "modules/chatHandler.sys.mjs",
+    "modules/chatIcons.sys.mjs",
+    "modules/chatNotifications.sys.mjs",
+    "modules/GlodaIMSearcher.sys.mjs",
+    "modules/index_im.sys.mjs",
 ]
 
 TESTING_JS_MODULES += [
-    "test/TestProtocol.jsm",
+    "test/TestProtocol.sys.mjs",
 ]
 
 JAR_MANIFESTS += ["jar.mn"]

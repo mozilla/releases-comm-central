@@ -30,6 +30,12 @@
   }
 }
 
+@media (prefers-contrast) {
+  :root {
+    --in-content-categories-background: transparent;
+  }
+}
+
 html {
   height: 100%;
 }

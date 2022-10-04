@@ -1,11 +1,17 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-var { commands } = ChromeUtils.import("resource:///modules/ircCommands.jsm");
-var { ircProtocol } = ChromeUtils.import("resource:///modules/irc.jsm");
-var { ircAccount, ircConversation } = ChromeUtils.import(
-  "resource:///modules/ircAccount.jsm"
+var { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
+var { commands } = ChromeUtils.importESModule(
+  "resource:///modules/ircCommands.sys.mjs"
+);
+var { ircProtocol } = ChromeUtils.importESModule(
+  "resource:///modules/irc.sys.mjs"
+);
+var { ircAccount, ircConversation } = ChromeUtils.importESModule(
+  "resource:///modules/ircAccount.sys.mjs"
 );
 
 // Ensure the commands have been initialized.

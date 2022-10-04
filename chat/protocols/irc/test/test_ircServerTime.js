@@ -1,10 +1,12 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { tagServerTime } = ChromeUtils.import(
-  "resource:///modules/ircServerTime.jsm"
+var { tagServerTime } = ChromeUtils.importESModule(
+  "resource:///modules/ircServerTime.sys.mjs"
 );
-var { ircMessage } = ChromeUtils.import("resource:///modules/ircAccount.jsm");
+var { ircMessage } = ChromeUtils.importESModule(
+  "resource:///modules/ircAccount.sys.mjs"
+);
 
 function getTags(aRawMsg) {
   const { tags } = ircMessage(aRawMsg, "does.not@matter");

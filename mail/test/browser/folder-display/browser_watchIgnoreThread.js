@@ -30,6 +30,7 @@ var folder;
 var thread1, thread2, thread3;
 
 add_setup(async function() {
+  document.getElementById("toolbar-menubar").removeAttribute("autohide");
   folder = await create_folder("WatchIgnoreThreadTest");
   thread1 = create_thread(3);
   thread2 = create_thread(4);
@@ -39,17 +40,23 @@ add_setup(async function() {
   await be_in_folder(folder);
   make_display_threaded();
   expand_all_threads();
+
+  registerCleanupFunction(() => {
+    document.getElementById("toolbar-menubar").autohide = true;
+  });
 });
 
 /**
- * Click one of the menu items in the appmenu View | Messages menu.
- * @param {string} menuId  The id of the menu item to click.
+ * Click one of the menu items in the View | Messages menu.
+ *
+ * @param {string} id - The id of the menu item to click.
  */
-function clickViewMessagesItem(menuId) {
-  mc.click_through_appmenu(
-    [{ id: "appmenu_View" }, { id: "appmenu_viewMessagesMenu" }],
-    { id: menuId }
-  );
+async function clickViewMessagesItem(id) {
+  mc.click(mc.e("menu_View"));
+  await mc.click_menus_in_sequence(mc.e("menu_View_Popup"), [
+    { id: "viewMessagesMenu" },
+    { id },
+  ]);
 }
 
 /**
@@ -99,7 +106,7 @@ add_task(async function test_view_threads_ignored_threads() {
   select_click_row(0);
   assert_selected_and_displayed(t2root);
   assert_not_shown(thread1.msgHdrList);
-});
+}).__skipMe = AppConstants.platform == "macosx";
 
 /**
  * Test that Watch Thread makes the thread watched.
@@ -133,4 +140,4 @@ add_task(async function test_watch_thread() {
     undefined,
     "Test ran to completion successfully"
   );
-});
+}).__skipMe = AppConstants.platform == "macosx";

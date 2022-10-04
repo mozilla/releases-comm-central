@@ -5,7 +5,9 @@
 /* import-globals-from preferences.js */
 
 var { Downloads } = ChromeUtils.import("resource://gre/modules/Downloads.jsm");
-var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { FileUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/FileUtils.sys.mjs"
+);
 
 Preferences.addAll([
   { id: "browser.download.useDownloadDir", type: "bool" },

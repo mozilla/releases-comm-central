@@ -21,8 +21,8 @@ var { MailServices } = ChromeUtils.import(
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
-var { PromiseUtils } = ChromeUtils.import(
-  "resource://gre/modules/PromiseUtils.jsm"
+var { PromiseUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/PromiseUtils.sys.mjs"
 );
 
 var server = null;
@@ -71,7 +71,7 @@ function OnStopCopy(aStatus) {
   onStopCopyPromise.resolve();
 }
 
-add_task(async function setupTest() {
+add_setup(async function() {
   // Load in the test files so we have a record of length and their data.
   for (var i = 0; i < gMsgFile.length; ++i) {
     gMsgFileData[i] = await IOUtils.readUTF8(gMsgFile[i].path);

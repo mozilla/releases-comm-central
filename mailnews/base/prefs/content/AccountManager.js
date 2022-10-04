@@ -48,11 +48,13 @@ ChromeUtils.defineModuleGetter(
 var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
   "resource:///modules/hostnameUtils.jsm"
 );
-var { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
+var { ChatIcons } = ChromeUtils.importESModule(
+  "resource:///modules/chatIcons.sys.mjs"
+);
 
 XPCOMUtils.defineLazyGetter(this, "gSubDialog", function() {
-  const { SubDialogManager } = ChromeUtils.import(
-    "resource://gre/modules/SubDialog.jsm"
+  const { SubDialogManager } = ChromeUtils.importESModule(
+    "resource://gre/modules/SubDialog.sys.mjs"
   );
   return new SubDialogManager({
     dialogStack: document.getElementById("dialogStack"),

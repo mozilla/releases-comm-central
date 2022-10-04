@@ -3,13 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!-- FIXME: Temporarily use the old DTD strings for those fields that don't
-  have a fluent string, yet.  -->
-<!DOCTYPE html [
-  <!ENTITY % abResultsPaneDTD SYSTEM "chrome://messenger/locale/addressbook/abResultsPane.dtd">
-  %abResultsPaneDTD;
-]>
-
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
@@ -75,7 +69,9 @@
   </xul:toolbox>
   <div id="booksPane">
     <ul is="ab-tree-listbox" id="books" role="tree">
-      <li id="allAddressBooks" class="bookRow noDelete readOnly">
+      <li id="allAddressBooks"
+          class="bookRow noDelete readOnly"
+          data-l10n-id="all-address-books-row">
         <div class="bookRow-container">
           <div class="twisty"></div>
           <div class="bookRow-icon"></div>
@@ -84,7 +80,7 @@
         </div>
       </li>
     </ul>
-    <div id="aboutAddressBookCount"></div>
+    <div id="cardCount"></div>
     <template id="bookRow">
       <li class="bookRow">
         <div class="bookRow-container">
@@ -157,6 +153,9 @@
           </div>
           <h1 id="viewListName" class="contact-heading-name"></h1>
         </div>
+        <div class="selection-header">
+          <h1 id="viewSelectionCount" class="contact-heading-name"></h1>
+        </div>
       </header>
       <div id="detailsBody">
         <section id="detailsActions" class="button-block">
@@ -170,9 +169,9 @@
             <button type="button" id="detailsSearchButton"
                     class="icon-button"
                     data-l10n-id="about-addressbook-search-action-button"></button>
-            <!-- FIXME! Add a string for this button. -->
             <button type="button" id="detailsNewListButton"
-                    class="icon-button"></button>
+                    class="icon-button"
+                    data-l10n-id="about-addressbook-new-list-action-button"></button>
           </div>
           <div class="edit-block">
             <button type="button" id="editButton"
@@ -196,9 +195,7 @@
           <div></div>
         </section>
         <section id="websites" class="details-websites">
-          <!-- FIXME! We should use `about-addressbook-entry-name-website` for
-           this fluent ID, after 102 when we can update it to a plural. -->
-          <h2 data-l10n-id="vcard-url-header"></h2>
+          <h2 data-l10n-id="about-addressbook-details-websites-header"></h2>
           <ul class="entry-list"></ul>
         </section>
         <section id="instantMessaging" class="details-instant-messaging">
@@ -239,9 +236,6 @@
       <div class="contact-details-scroll">
         <div class="contact-header">
           <div class="contact-headings">
-            <!-- TODO: provide an initial "New Contact" heading when creating a
-               - new contact to provide a visible Form title and an accessible
-               - name for the form. -->
             <h1 id="editContactHeadingName" class="contact-heading-name"></h1>
             <p id="editContactHeadingNickName" class="contact-heading-nickname">
             </p>
@@ -253,7 +247,9 @@
           <!-- NOTE: We wrap the button with a plain div because the button
              - itself will not receive the paste event. -->
           <div id="photoInput">
-            <button type="button" id="photoButton" class="plain-button">
+            <button type="button" id="photoButton"
+                    class="plain-button"
+                    data-l10n-id="about-addressbook-details-edit-photo">
               <img class="contact-photo" alt="" />
               <div id="photoOverlay"></div>
             </button>
@@ -363,9 +359,7 @@
         <div></div>
       </section>
       <section class="details-websites">
-        <!-- FIXME! We should use `about-addressbook-entry-name-website` for
-         this fluent ID, after 102 when we can update it to a plural. -->
-        <h2 data-l10n-id="vcard-url-header"></h2>
+        <h2 data-l10n-id="about-addressbook-details-websites-header"></h2>
         <ul class="entry-list"></ul>
       </section>
       <section class="details-instant-messaging">

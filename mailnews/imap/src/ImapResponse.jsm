@@ -236,7 +236,7 @@ class ImapResponse {
       if (sep == '"') {
         // Parse the whole string as a token.
         line = line.slice(index + 1);
-        let str = "";
+        let str = sep;
         while (true) {
           index = line.indexOf('"');
           if (line[index - 1] == "\\") {
@@ -246,8 +246,8 @@ class ImapResponse {
             continue;
           } else {
             // The ending quote.
-            str += line.slice(0, index);
-            tokens.push(str.replaceAll('\\"', '"'));
+            str += line.slice(0, index + 1);
+            tokens.push(str);
             line = line.slice(index + 1);
             break;
           }
@@ -373,8 +373,8 @@ class MailboxData {
   constructor(tokens) {
     let [, , attributes, delimiter, name] = tokens;
     this.flags = this._stringsToFlags(attributes);
-    this.delimiter = delimiter;
-    this.name = name;
+    this.delimiter = unwrapString(delimiter);
+    this.name = unwrapString(name);
   }
 
   /**
@@ -392,6 +392,7 @@ class MailboxData {
       "\\NOSELECT": ImapUtils.FLAG_NO_SELECT,
       "\\TRASH": ImapUtils.FLAG_IMAP_TRASH | ImapUtils.FLAG_IMAP_XLIST_TRASH,
       "\\SENT": ImapUtils.FLAG_IMAP_SENT,
+      "\\DRAFTS": ImapUtils.FLAG_IMAP_DRAFTS,
       "\\SPAM": ImapUtils.FLAG_IMAP_SPAM,
       "\\JUNK": ImapUtils.FLAG_IMAP_SPAM,
       "\\ARCHIVE": ImapUtils.FLAG_IMAP_ARCHIVE,
@@ -427,7 +428,7 @@ class StatusData {
 
     // The first two tokens are ["*", "STATUS"], the last token is the attribute
     // list, the middle part is the mailbox name.
-    this.attributes.mailbox = tokens[2];
+    this.attributes.mailbox = unwrapString(tokens[2]);
 
     let attributes = tokens.at(-1);
     for (let i = 0; i < attributes.length; i += 2) {
@@ -435,4 +436,14 @@ class StatusData {
       this.attributes[type] = attributes[i + 1];
     }
   }
+}
+
+/**
+ * Following rfc3501 section-5.1 and section-9, this function does two things:
+ *   1. Remove the wrapping DQUOTE.
+ *   2. Unesacpe QUOTED-CHAR.
+ * @params {string} name - E.g. `"a \"b\" c"` will become `a "b" c`.
+ */
+function unwrapString(name) {
+  return name.replace(/(^"|"$)/g, "").replaceAll('\\"', '"');
 }

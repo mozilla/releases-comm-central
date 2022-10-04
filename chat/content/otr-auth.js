@@ -2,14 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+const { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { l10nHelper } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
+const { l10nHelper } = ChromeUtils.importESModule(
+  "resource:///modules/imXPCOMUtils.sys.mjs"
 );
-const { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
+const { OTR } = ChromeUtils.importESModule("resource:///modules/OTR.sys.mjs");
 
 window.addEventListener("DOMContentLoaded", event => {
   otrAuth.onload();

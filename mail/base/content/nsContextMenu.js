@@ -10,11 +10,11 @@
 /* import-globals-from utilityOverlay.js */
 /* global EnigmailURIs: false, gEncryptedURIService: true */
 
-var { InlineSpellChecker, SpellCheckHelper } = ChromeUtils.import(
-  "resource://gre/modules/InlineSpellChecker.jsm"
+var { InlineSpellChecker, SpellCheckHelper } = ChromeUtils.importESModule(
+  "resource://gre/modules/InlineSpellChecker.sys.mjs"
 );
-var { PlacesUtils } = ChromeUtils.import(
-  "resource://gre/modules/PlacesUtils.jsm"
+var { PlacesUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/PlacesUtils.sys.mjs"
 );
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"

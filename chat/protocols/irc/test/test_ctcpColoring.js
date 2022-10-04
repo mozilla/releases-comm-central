@@ -1,8 +1,8 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { ctcpFormatToText, ctcpFormatToHTML } = ChromeUtils.import(
-  "resource:///modules/ircUtils.jsm"
+var { ctcpFormatToText, ctcpFormatToHTML } = ChromeUtils.importESModule(
+  "resource:///modules/ircUtils.sys.mjs"
 );
 
 var input = [

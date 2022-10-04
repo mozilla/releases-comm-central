@@ -1,10 +1,12 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { XMPPAccountPrototype } = ChromeUtils.import(
-  "resource:///modules/xmpp-base.jsm"
+var { XMPPAccountPrototype } = ChromeUtils.importESModule(
+  "resource:///modules/xmpp-base.sys.mjs"
 );
-var { XMPPParser } = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
+var { XMPPParser } = ChromeUtils.importESModule(
+  "resource:///modules/xmpp-xml.sys.mjs"
+);
 
 /*
  * Open an input stream, instantiate an XMPP parser, and feed the input string

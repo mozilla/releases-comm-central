@@ -45,13 +45,16 @@ var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  SelectionUtils: "resource://gre/modules/SelectionUtils.sys.mjs",
+  ShortcutUtils: "resource://gre/modules/ShortcutUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   FolderUtils: "resource:///modules/FolderUtils.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
-  SelectionUtils: "resource://gre/modules/SelectionUtils.jsm",
-  ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
   UIFontSize: "resource:///modules/UIFontSize.jsm",
   UIDensity: "resource:///modules/UIDensity.jsm",
 });
@@ -5618,7 +5621,6 @@ function SetComposeDetails(newValues) {
  */
 async function GenericSendMessage(msgType) {
   let msgCompFields = GetComposeDetails();
-  let subject = msgCompFields.subject;
 
   // Some other msgCompFields have already been updated instantly in their
   // respective toggle functions, e.g. ToggleReturnReceipt(), ToggleDSN(),
@@ -5638,6 +5640,26 @@ async function GenericSendMessage(msgType) {
 
   try {
     if (sending) {
+      // Since the onBeforeSend event can manipulate compose details, execute it
+      // before the final sanity checks.
+      try {
+        await new Promise((resolve, reject) => {
+          let beforeSendEvent = new CustomEvent("beforesend", {
+            cancelable: true,
+            detail: {
+              resolve,
+              reject,
+            },
+          });
+          window.dispatchEvent(beforeSendEvent);
+          if (!beforeSendEvent.defaultPrevented) {
+            resolve();
+          }
+        });
+      } catch (ex) {
+        throw new Error(`Send aborted by an onBeforeSend event`);
+      }
+
       expandRecipients();
       // Check if e-mail addresses are complete, in case user turned off
       // autocomplete to local domain.
@@ -5668,6 +5690,7 @@ async function GenericSendMessage(msgType) {
 
       // Strip trailing spaces and long consecutive WSP sequences from the
       // subject line to prevent getting only WSP chars on a folded line.
+      let subject = msgCompFields.subject;
       let fixedSubject = subject.replace(/\s{74,}/g, "    ").trimRight();
       if (fixedSubject != subject) {
         subject = fixedSubject;
@@ -5850,24 +5873,6 @@ async function GenericSendMessage(msgType) {
           break;
         default:
           throw new Error(`Invalid send format ${sendFormat}`);
-      }
-
-      try {
-        await new Promise((resolve, reject) => {
-          let beforeSendEvent = new CustomEvent("beforesend", {
-            cancelable: true,
-            detail: {
-              resolve,
-              reject,
-            },
-          });
-          window.dispatchEvent(beforeSendEvent);
-          if (!beforeSendEvent.defaultPrevented) {
-            resolve();
-          }
-        });
-      } catch (ex) {
-        throw new Error(`Send aborted by an onBeforeSend event`);
       }
     }
 

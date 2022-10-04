@@ -8,20 +8,20 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { IMServices } = ChromeUtils.import(
-    "resource:///modules/IMServices.jsm"
+  const { IMServices } = ChromeUtils.importESModule(
+    "resource:///modules/IMServices.sys.mjs"
   );
-  const { Status } = ChromeUtils.import(
-    "resource:///modules/imStatusUtils.jsm"
+  const { Status } = ChromeUtils.importESModule(
+    "resource:///modules/imStatusUtils.sys.mjs"
   );
-  const { TextboxSize } = ChromeUtils.import(
-    "resource:///modules/imTextboxUtils.jsm"
+  const { TextboxSize } = ChromeUtils.importESModule(
+    "resource:///modules/imTextboxUtils.sys.mjs"
   );
   const { AppConstants } = ChromeUtils.import(
     "resource://gre/modules/AppConstants.jsm"
   );
-  const { InlineSpellChecker } = ChromeUtils.import(
-    "resource://gre/modules/InlineSpellChecker.jsm"
+  const { InlineSpellChecker } = ChromeUtils.importESModule(
+    "resource://gre/modules/InlineSpellChecker.sys.mjs"
   );
 
   /**
@@ -40,11 +40,9 @@
     constructor() {
       super();
 
-      ChromeUtils.defineModuleGetter(
-        this,
-        "ChatEncryption",
-        "resource:///modules/ChatEncryption.jsm"
-      );
+      ChromeUtils.defineESModuleGetters(this, {
+        ChatEncryption: "resource:///modules/ChatEncryption.sys.mjs",
+      });
 
       this.observer = {
         // @see {nsIObserver}

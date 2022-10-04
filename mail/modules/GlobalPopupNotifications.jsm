@@ -6,8 +6,8 @@
 
 var EXPORTED_SYMBOLS = ["PopupNotifications"];
 
-const { PromiseUtils } = ChromeUtils.import(
-  "resource://gre/modules/PromiseUtils.jsm"
+const { PromiseUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/PromiseUtils.sys.mjs"
 );
 
 const NOTIFICATION_EVENT_DISMISSED = "dismissed";

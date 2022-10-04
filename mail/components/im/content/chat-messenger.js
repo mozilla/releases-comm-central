@@ -9,23 +9,23 @@
 /* globals MailToolboxCustomizeDone, openIMAccountMgr,
    PROTO_TREE_VIEW, Status, statusSelector, ZoomManager, gSpacesToolbar */
 
-var { Notifications } = ChromeUtils.import(
-  "resource:///modules/chatNotifications.jsm"
+var { Notifications } = ChromeUtils.importESModule(
+  "resource:///modules/chatNotifications.sys.mjs"
 );
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+var { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-var { InlineSpellChecker } = ChromeUtils.import(
-  "resource://gre/modules/InlineSpellChecker.jsm"
+var { InlineSpellChecker } = ChromeUtils.importESModule(
+  "resource://gre/modules/InlineSpellChecker.sys.mjs"
 );
 
-ChromeUtils.defineModuleGetter(this, "OTRUI", "resource:///modules/OTRUI.jsm");
-ChromeUtils.defineModuleGetter(
-  this,
-  "ChatEncryption",
-  "resource:///modules/ChatEncryption.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  ChatEncryption: "resource:///modules/ChatEncryption.sys.mjs",
+  OTRUI: "resource:///modules/OTRUI.sys.mjs",
+});
 
 var gChatSpellChecker;
 var gRangeParent;
@@ -1855,9 +1855,11 @@ var chatHandler = {
     document.getElementById("conversationsGroup").sortComparator = (a, b) =>
       a.title.toLowerCase().localeCompare(b.title.toLowerCase());
 
-    const { allContacts, onlineContacts, ChatCore } = ChromeUtils.import(
-      "resource:///modules/chatHandler.jsm"
-    );
+    const {
+      allContacts,
+      onlineContacts,
+      ChatCore,
+    } = ChromeUtils.importESModule("resource:///modules/chatHandler.sys.mjs");
     this.allContacts = allContacts;
     this.onlineContacts = onlineContacts;
     this.ChatCore = ChatCore;

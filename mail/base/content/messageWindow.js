@@ -26,6 +26,10 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  ShortcutUtils: "resource://gre/modules/ShortcutUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   UIDensity: "resource:///modules/UIDensity.jsm",
   UIFontSize: "resource:///modules/UIFontSize.jsm",
@@ -318,20 +322,8 @@ function HideMenus() {
     viewMessageViewMenu.setAttribute("hidden", "true");
   }
 
-  viewMessageViewMenu = document.getElementById("appmenu_viewMessageViewMenu");
-  if (viewMessageViewMenu) {
-    viewMessageViewMenu.setAttribute("hidden", "true");
-  }
-
   var viewMessagesMenuSeparator = document.getElementById(
     "viewMessagesMenuSeparator"
-  );
-  if (viewMessagesMenuSeparator) {
-    viewMessagesMenuSeparator.setAttribute("hidden", "true");
-  }
-
-  viewMessagesMenuSeparator = document.getElementById(
-    "appmenu_viewMessagesMenuSeparator"
   );
   if (viewMessagesMenuSeparator) {
     viewMessagesMenuSeparator.setAttribute("hidden", "true");
@@ -362,11 +354,6 @@ function HideMenus() {
   }
 
   var viewSortMenu = document.getElementById("viewSortMenu");
-  if (viewSortMenu) {
-    viewSortMenu.setAttribute("hidden", "true");
-  }
-
-  viewSortMenu = document.getElementById("appmenu_viewSortMenu");
   if (viewSortMenu) {
     viewSortMenu.setAttribute("hidden", "true");
   }

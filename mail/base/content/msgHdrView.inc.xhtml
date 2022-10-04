@@ -167,14 +167,13 @@
                     class="menuitem-iconic"
                     data-l10n-id="other-action-redirect-msg"
                     oncommand="MsgRedirectMessage();"/>
-          <menuseparator id="otherActionsComposeSeparator"/>
 #ifdef MAIN_WINDOW
+          <menuseparator id="otherActionsRedirectSeparator"/>
           <menuitem id="otherActionsOpenConversation"
                     class="menuitem-iconic"
                     label="&otherActionsOpenConversation1.label;"
                     accesskey="&otherActionsOpenConversation1.accesskey;"
                     oncommand="new ConversationOpener(window).openConversationForMessages(gFolderDisplay.selectedMessages);"/>
-#endif
           <menuitem id="otherActionsOpenInNewWindow"
                     class="menuitem-iconic"
                     label="&otherActionsOpenInNewWindow1.label;"
@@ -185,11 +184,7 @@
                     label="&otherActionsOpenInNewTab1.label;"
                     accesskey="&otherActionsOpenInNewTab1.accesskey;"
                     oncommand="OpenMessageInNewTab(gFolderDisplay.selectedMessage, { event });"/>
-          <menuitem id="viewSourceMenuItem"
-                    class="menuitem-iconic"
-                    label="&viewSourceMenuItem1.label;"
-                    accesskey="&viewSourceMenuItem1.accesskey;"
-                    oncommand="ViewPageSource(gFolderDisplay.selectedMessageUris);"/>
+#endif
           <menuseparator id="otherActionsSeparator"/>
           <menu id="otherActionsTag"
                 class="menu-iconic"
@@ -250,6 +245,97 @@
             </menupopup>
           </menu>
           <menuseparator id="otherActionsComposeSeparator"/>
+          <menuitem id="viewSourceMenuItem"
+                    class="menuitem-iconic"
+                    label="&viewSourceMenuItem1.label;"
+                    accesskey="&viewSourceMenuItem1.accesskey;"
+                    key="key_viewPageSource"
+                    oncommand="ViewPageSource(gFolderDisplay.selectedMessageUris);"/>
+          <menuitem id="charsetRepairMenuitem"
+                    class="menuitem-iconic"
+                    data-l10n-id="repair-text-encoding-button"
+                    oncommand="MailSetCharacterSet()"/>
+          <menu id="otherActionsMessageBodyAs"
+                class="menu-iconic"
+                label="&bodyMenu.label;">
+            <menupopup id="hdrMessageBodyAsDropdown"
+                       class="menu-iconic"
+                       onpopupshowing="InitOtherActionsViewBodyMenu();">
+              <menuitem id="otherActionsMenu_bodyAllowHTML"
+                        class="menuitem-iconic"
+                        type="radio"
+                        name="bodyPlaintextVsHTMLPref"
+                        label="&bodyAllowHTML.label;"
+                        oncommand="MsgBodyAllowHTML()"/>
+              <menuitem id="otherActionsMenu_bodySanitized"
+                        class="menuitem-iconic"
+                        type="radio"
+                        name="bodyPlaintextVsHTMLPref"
+                        label="&bodySanitized.label;"
+                        oncommand="MsgBodySanitized()"/>
+              <menuitem id="otherActionsMenu_bodyAsPlaintext"
+                        class="menuitem-iconic"
+                        type="radio"
+                        name="bodyPlaintextVsHTMLPref"
+                        label="&bodyAsPlaintext.label;"
+                        oncommand="MsgBodyAsPlaintext()"/>
+              <menuitem id="otherActionsMenu_bodyAllParts"
+                        class="menuitem-iconic"
+                        type="radio"
+                        name="bodyPlaintextVsHTMLPref"
+                        label="&bodyAllParts.label;"
+                        oncommand="MsgBodyAllParts()"/>
+            </menupopup>
+          </menu>
+          <menu id="otherActionsFeedBodyAs"
+                class="menu-iconic"
+                label="&bodyMenu.label;">
+            <menupopup id="hdrFeedBodyAsDropdown"
+                       class="menu-iconic"
+                       onpopupshowing="InitOtherActionsViewBodyMenu();">
+              <menuitem id="otherActionsMenu_bodyFeedGlobalWebPage"
+                        class="menuitem-iconic"
+                        type="radio"
+                        name="viewFeedSummaryGroup"
+                        label="&viewFeedWebPage.label;"
+                        observes="bodyFeedGlobalWebPage"
+                        oncommand="FeedMessageHandler.onSelectPref = 0"/>
+              <menuitem id="otherActionsMenu_bodyFeedGlobalSummary"
+                        class="menuitem-iconic"
+                        type="radio"
+                        name="viewFeedSummaryGroup"
+                        label="&viewFeedSummary.label;"
+                        observes="bodyFeedGlobalSummary"
+                        oncommand="FeedMessageHandler.onSelectPref = 1"/>
+              <menuitem id="otherActionsMenu_bodyFeedPerFolderPref"
+                        class="menuitem-iconic"
+                        type="radio"
+                        name="viewFeedSummaryGroup"
+                        label="&viewFeedSummaryFeedPropsPref.label;"
+                        observes="bodyFeedPerFolderPref"
+                        oncommand="FeedMessageHandler.onSelectPref = 2"/>
+              <menuseparator id="otherActionsMenu_viewFeedSummarySeparator"/>
+              <menuitem id="otherActionsMenu_bodyFeedSummaryAllowHTML"
+                        class="menuitem-iconic"
+                        type="radio"
+                        name="viewFeedBodyHTMLGroup"
+                        label="&bodyAllowHTML.label;"
+                        oncommand="MsgFeedBodyRenderPrefs(false, 0, 0)"/>
+              <menuitem id="otherActionsMenu_bodyFeedSummarySanitized"
+                        class="menuitem-iconic"
+                        type="radio"
+                        name="viewFeedBodyHTMLGroup"
+                        label="&bodySanitized.label;"
+                        oncommand="MsgFeedBodyRenderPrefs(false, 3, gDisallow_classes_no_html)"/>
+              <menuitem id="otherActionsMenu_bodyFeedSummaryAsPlaintext"
+                        class="menuitem-iconic"
+                        type="radio"
+                        name="viewFeedBodyHTMLGroup"
+                        label="&bodyAsPlaintext.label;"
+                        oncommand="MsgFeedBodyRenderPrefs(true, 1, gDisallow_classes_no_html)"/>
+            </menupopup>
+          </menu>
+          <menuseparator/>
           <menuitem id="messageHeaderMoreMenuCustomize"
                     class="menuitem-iconic"
                     data-l10n-id="menuitem-customize-label"
@@ -468,6 +554,10 @@
         <checkbox id="headerSubjectLarge"
                   data-l10n-id="message-header-large-subject"
                   oncommand="gHeaderCustomize.updateSubjectStyle(event);"/>
+
+        <checkbox id="headerViewAllHeaders"
+                  data-l10n-id="message-header-all-headers"
+                  oncommand="gHeaderCustomize.toggleAllHeaders(event);"/>
       </html:div>
     </html:div>
 

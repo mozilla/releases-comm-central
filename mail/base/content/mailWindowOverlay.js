@@ -317,58 +317,25 @@ function view_init() {
   // Disable some menus if account manager is showing
   document.getElementById("viewSortMenu").disabled = accountCentralDisplayed;
 
-  let appmenuViewSort = document.getElementById("appmenu_viewSortMenu");
-  if (appmenuViewSort) {
-    appmenuViewSort.disabled = accountCentralDisplayed;
-  }
-
   document.getElementById(
     "viewMessageViewMenu"
   ).disabled = accountCentralDisplayed;
-
-  let appmenuViewMessageView = document.getElementById(
-    "appmenu_viewMessageViewMenu"
-  );
-  if (appmenuViewMessageView) {
-    appmenuViewMessageView.disabled = accountCentralDisplayed;
-  }
 
   document.getElementById(
     "viewMessagesMenu"
   ).disabled = accountCentralDisplayed;
 
-  let appmenuViewMessagesMenu = document.getElementById(
-    "appmenu_viewMessagesMenu"
-  );
-  if (appmenuViewMessagesMenu) {
-    appmenuViewMessagesMenu.disabled = accountCentralDisplayed;
-  }
-
   // Hide the "View > Messages" menu item if the user doesn't have the "Views"
   // (aka "Mail Views") toolbar button in the main toolbar. (See bug 1563789.)
   var viewsToolbarButton = document.getElementById("mailviews-container");
   document.getElementById("viewMessageViewMenu").hidden = !viewsToolbarButton;
-  if (appmenuViewMessageView) {
-    appmenuViewMessageView.hidden = !viewsToolbarButton;
-  }
 
   // Initialize the Message Body menuitem
   document.getElementById("viewBodyMenu").hidden = isFeed;
 
-  let appmenuViewBodyMenu = document.getElementById("appmenu_viewBodyMenu");
-  if (appmenuViewBodyMenu) {
-    appmenuViewBodyMenu.hidden = isFeed;
-  }
-
   // Initialize the Show Feed Summary menu
   let viewFeedSummary = document.getElementById("viewFeedSummary");
   viewFeedSummary.hidden = !isFeed;
-  let appmenuViewFeedSummary = document.getElementById(
-    "appmenu_viewFeedSummary"
-  );
-  if (appmenuViewFeedSummary) {
-    appmenuViewFeedSummary.hidden = !isFeed;
-  }
 
   let viewRssMenuItemIds = [
     "bodyFeedGlobalWebPage",
@@ -388,13 +355,6 @@ function view_init() {
     .getElementById("viewAttachmentsInlineMenuitem")
     .setAttribute("checked", viewAttachmentInline);
 
-  let viewAttachmentInlineMenu = document.getElementById(
-    "appmenu_viewAttachmentsInlineMenuitem"
-  );
-  if (viewAttachmentInlineMenu) {
-    viewAttachmentInlineMenu.setAttribute("checked", viewAttachmentInline);
-  }
-
   document.commandDispatcher.updateCommands("create-menu-view");
 
   // Disable the charset item if there's nothing to enable
@@ -402,10 +362,6 @@ function view_init() {
   document
     .getElementById("repair-text-encoding")
     .setAttribute("disabled", disableCharsetItems);
-  let appmenuCharset = document.getElementById("appmenu_charsetRepairMenuitem");
-  if (appmenuCharset) {
-    appmenuCharset.disabled = disableCharsetItems;
-  }
 
   // No need to do anything if we don't have a spaces toolbar like in standalone
   // windows or another non tabmail window.
@@ -598,103 +554,6 @@ function InitViewSortByMenu() {
   groupBySortOrderMenuItem.setAttribute("checked", grouped);
 }
 
-function InitAppViewSortByMenu() {
-  let sortType, sortOrder, grouped, threaded;
-
-  let tab = document.getElementById("tabmail")?.currentTabInfo;
-  if (tab?.mode.name == "mail3PaneTab") {
-    ({ type: sortType, order: sortOrder, grouped, threaded } = tab.sort);
-  } else if (tab?.mode.tabType.name == "mail") {
-    ({
-      primarySortType: sortType,
-      primarySortOrder: sortOrder,
-      showGroupedBySort: grouped,
-      showThreaded: threaded,
-    } = tab.folderDisplay.view);
-  }
-
-  setSortByMenuItemCheckState(
-    "appmenu_sortByDateMenuitem",
-    sortType == Ci.nsMsgViewSortType.byDate
-  );
-  setSortByMenuItemCheckState(
-    "appmenu_sortByReceivedMenuitem",
-    sortType == Ci.nsMsgViewSortType.byReceived
-  );
-  setSortByMenuItemCheckState(
-    "appmenu_sortByFlagMenuitem",
-    sortType == Ci.nsMsgViewSortType.byFlagged
-  );
-  setSortByMenuItemCheckState(
-    "appmenu_sortByOrderReceivedMenuitem",
-    sortType == Ci.nsMsgViewSortType.byId
-  );
-  setSortByMenuItemCheckState(
-    "appmenu_sortByPriorityMenuitem",
-    sortType == Ci.nsMsgViewSortType.byPriority
-  );
-  setSortByMenuItemCheckState(
-    "appmenu_sortBySizeMenuitem",
-    sortType == Ci.nsMsgViewSortType.bySize
-  );
-  setSortByMenuItemCheckState(
-    "appmenu_sortByStatusMenuitem",
-    sortType == Ci.nsMsgViewSortType.byStatus
-  );
-  setSortByMenuItemCheckState(
-    "appmenu_sortBySubjectMenuitem",
-    sortType == Ci.nsMsgViewSortType.bySubject
-  );
-  setSortByMenuItemCheckState(
-    "appmenu_sortByUnreadMenuitem",
-    sortType == Ci.nsMsgViewSortType.byUnread
-  );
-  setSortByMenuItemCheckState(
-    "appmenu_sortByTagsMenuitem",
-    sortType == Ci.nsMsgViewSortType.byTags
-  );
-  setSortByMenuItemCheckState(
-    "appmenu_sortByJunkStatusMenuitem",
-    sortType == Ci.nsMsgViewSortType.byJunkStatus
-  );
-  setSortByMenuItemCheckState(
-    "appmenu_sortByFromMenuitem",
-    sortType == Ci.nsMsgViewSortType.byAuthor
-  );
-  setSortByMenuItemCheckState(
-    "appmenu_sortByRecipientMenuitem",
-    sortType == Ci.nsMsgViewSortType.byRecipient
-  );
-  setSortByMenuItemCheckState(
-    "appmenu_sortByAttachmentsMenuitem",
-    sortType == Ci.nsMsgViewSortType.byAttachments
-  );
-
-  let sortTypeSupportsGrouping = isSortTypeValidForGrouping(sortType);
-
-  setSortByMenuItemCheckState(
-    "appmenu_sortAscending",
-    sortOrder == Ci.nsMsgViewSortOrder.ascending
-  );
-  setSortByMenuItemCheckState(
-    "appmenu_sortDescending",
-    sortOrder == Ci.nsMsgViewSortOrder.descending
-  );
-
-  let sortThreadedMenuItem = document.getElementById("appmenu_sortThreaded");
-  let sortUnthreadedMenuItem = document.getElementById(
-    "appmenu_sortUnthreaded"
-  );
-
-  sortThreadedMenuItem.setAttribute("checked", threaded);
-  sortUnthreadedMenuItem.setAttribute("checked", !threaded && !grouped);
-
-  let groupBySortOrderMenuItem = document.getElementById("appmenu_groupBySort");
-
-  groupBySortOrderMenuItem.setAttribute("disabled", !sortTypeSupportsGrouping);
-  groupBySortOrderMenuItem.setAttribute("checked", grouped);
-}
-
 function isSortTypeValidForGrouping(sortType) {
   return Boolean(
     sortType == Ci.nsMsgViewSortType.byAccount ||
@@ -742,34 +601,6 @@ function InitViewMessagesMenu() {
   document
     .getElementById("viewIgnoredThreadsMenuItem")
     .setAttribute("checked", view.showIgnored);
-}
-
-function InitAppmenuViewMessagesMenu() {
-  document
-    .getElementById("appmenu_viewAllMessagesMenuItem")
-    .setAttribute(
-      "checked",
-      !gFolderDisplay.view.showUnreadOnly && !gFolderDisplay.view.specialView
-    );
-
-  document
-    .getElementById("appmenu_viewUnreadMessagesMenuItem")
-    .setAttribute("checked", gFolderDisplay.view.showUnreadOnly);
-
-  document
-    .getElementById("appmenu_viewThreadsWithUnreadMenuItem")
-    .setAttribute("checked", gFolderDisplay.view.specialViewThreadsWithUnread);
-
-  document
-    .getElementById("appmenu_viewWatchedThreadsWithUnreadMenuItem")
-    .setAttribute(
-      "checked",
-      gFolderDisplay.view.specialViewWatchedThreadsWithUnread
-    );
-
-  document
-    .getElementById("appmenu_viewIgnoredThreadsMenuItem")
-    .setAttribute("checked", gFolderDisplay.view.showIgnored);
 }
 
 function InitMessageMenu() {
@@ -914,9 +745,12 @@ function initMoveToFolderAgainMenu(aMenuItem) {
   aMenuItem.accesskey = bundle.getString(stringName + "AccessKey");
 }
 
+/**
+ * Update the "Show Header" menu items to reflect the current pref.
+ */
 function InitViewHeadersMenu() {
-  const dt = Ci.nsMimeHeaderDisplayTypes;
-  var headerchoice = Services.prefs.getIntPref("mail.show_headers");
+  let dt = Ci.nsMimeHeaderDisplayTypes;
+  let headerchoice = Services.prefs.getIntPref("mail.show_headers");
   document
     .getElementById("cmd_viewAllHeader")
     .setAttribute("checked", headerchoice == dt.AllHeaders);
@@ -1027,11 +861,11 @@ function InitViewBodyMenu() {
     AsPlaintext_menuitem.hidden = !FeedMessageHandler.gShowSummary;
     document.getElementById(
       "viewFeedSummarySeparator"
-    ).hidden = !FeedMessageHandler.gShowSummary;
+    ).hidden = !gShowFeedSummary;
   }
 }
 
-function InitAppmenuViewBodyMenu() {
+function InitOtherActionsViewBodyMenu() {
   let html_as = Services.prefs.getIntPref("mailnews.display.html_as");
   let prefer_plaintext = Services.prefs.getBoolPref(
     "mailnews.display.prefer_plaintext"
@@ -1041,15 +875,15 @@ function InitAppmenuViewBodyMenu() {
   );
   let isFeed = gFolderDisplay.selectedMessageIsFeed;
   const kDefaultIDs = [
-    "appmenu_bodyAllowHTML",
-    "appmenu_bodySanitized",
-    "appmenu_bodyAsPlaintext",
-    "appmenu_bodyAllParts",
+    "otherActionsMenu_bodyAllowHTML",
+    "otherActionsMenu_bodySanitized",
+    "otherActionsMenu_bodyAsPlaintext",
+    "otherActionsMenu_bodyAllParts",
   ];
   const kRssIDs = [
-    "appmenu_bodyFeedSummaryAllowHTML",
-    "appmenu_bodyFeedSummarySanitized",
-    "appmenu_bodyFeedSummaryAsPlaintext",
+    "otherActionsMenu_bodyFeedSummaryAllowHTML",
+    "otherActionsMenu_bodyFeedSummarySanitized",
+    "otherActionsMenu_bodyFeedSummaryAsPlaintext",
   ];
   let menuIDs = isFeed ? kRssIDs : kDefaultIDs;
 
@@ -1066,7 +900,7 @@ function InitAppmenuViewBodyMenu() {
     : null;
 
   document.getElementById(
-    "appmenu_bodyAllParts"
+    "otherActionsMenu_bodyAllParts"
   ).hidden = !Services.prefs.getBoolPref(
     "mailnews.display.show_all_body_parts_menu"
   );
@@ -1115,7 +949,7 @@ function InitAppmenuViewBodyMenu() {
     Sanitized_menuitem.hidden = !gShowFeedSummary;
     AsPlaintext_menuitem.hidden = !gShowFeedSummary;
     document.getElementById(
-      "appmenu_viewFeedSummarySeparator"
+      "otherActionsMenu_viewFeedSummarySeparator"
     ).hidden = !gShowFeedSummary;
   }
 }

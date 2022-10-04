@@ -1372,7 +1372,7 @@ function UpdateWindowTitle() {
   try {
     var filename = "";
     var windowTitle = "";
-    var title = GetDocumentTitle();
+    var title = document.title;
 
     // Append just the 'leaf' filename to the Doc. Title for the window caption
     var docUrl = GetDocumentUrl();
@@ -1388,14 +1388,7 @@ function UpdateWindowTitle() {
       SaveRecentFilesPrefs(title, fileType);
     }
 
-    // Set window title with " - Composer" or " - Text Editor" appended.
-    var appWin = document.documentElement;
-
-    document.title =
-      (title || filename || window.gUntitledString) +
-      windowTitle +
-      appWin.getAttribute("titlemenuseparator") +
-      appWin.getAttribute("titlemodifier");
+    document.title = (title || filename) + windowTitle;
   } catch (e) {
     dump(e);
   }

@@ -1,8 +1,8 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-const { ReceiptType } = ChromeUtils.import(
-  "resource:///modules/matrix-sdk.jsm"
+const { ReceiptType } = ChromeUtils.importESModule(
+  "resource:///modules/matrix-sdk.sys.mjs"
 );
 
 const kSendReadPref = "purple.conversations.im.send_read";

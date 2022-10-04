@@ -1,10 +1,12 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { MatrixPowerLevels } = ChromeUtils.import(
-  "resource:///modules/matrixPowerLevels.jsm"
+var { MatrixPowerLevels } = ChromeUtils.importESModule(
+  "resource:///modules/matrixPowerLevels.sys.mjs"
 );
-var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { l10nHelper } = ChromeUtils.importESModule(
+  "resource:///modules/imXPCOMUtils.sys.mjs"
+);
 var _ = l10nHelper("chrome://chat/locale/matrix.properties");
 
 const TO_TEXT_FIXTURES = [

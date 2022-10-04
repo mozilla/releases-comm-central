@@ -5,7 +5,7 @@
 var EXPORTED_SYMBOLS = ["CalDeletedItems"];
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { FileUtils } = ChromeUtils.importESModule("resource://gre/modules/FileUtils.sys.mjs");
 
 /**
  * Handles remembering deleted items.

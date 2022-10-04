@@ -18,6 +18,9 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 let { MsgUtils } = ChromeUtils.import(
   "resource:///modules/MimeMessageUtils.jsm"
 );
+let parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
+  Ci.nsIParserUtils
+);
 
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["File", "FileReader"]);
@@ -389,7 +392,20 @@ async function getComposeDetails(composeWindow, extension) {
   let body = trimContent(
     editor.outputToString("text/html", Ci.nsIDocumentEncoder.OutputRaw)
   );
-  let plainTextBody = trimContent(MsgUtils.convertToPlainText(body, true));
+  let plainTextBody;
+  if (composeWindow.IsHTMLEditor()) {
+    plainTextBody = trimContent(MsgUtils.convertToPlainText(body, true));
+  } else {
+    plainTextBody = parserUtils.convertToPlainText(
+      body,
+      Ci.nsIDocumentEncoder.OutputLFLineBreak,
+      0
+    );
+    // Remove the extra new line at the end.
+    if (plainTextBody.endsWith("\n")) {
+      plainTextBody = plainTextBody.slice(0, -1);
+    }
+  }
 
   let details = {
     from: composeFields.splitRecipients(composeFields.from, false).shift(),
@@ -1056,8 +1072,6 @@ var beforeSendEventTracker = {
     // Load the new details into gMsgCompose.compFields for sending.
     composeWindow.GetComposeDetails();
 
-    // Calling getComposeDetails collapses mailing lists. Expand them again.
-    composeWindow.expandRecipients();
     composeWindow.ToggleWindowLock(false);
     sendPromise.resolve();
   },

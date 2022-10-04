@@ -927,19 +927,27 @@ add_task(async function test_total_address_book_count() {
   let abWindow = await openAddressBookWindow();
   let abDocument = abWindow.document;
   let booksList = abWindow.booksList;
-  let addressBookCountEl = abDocument.getElementById("aboutAddressBookCount");
+  let cardCount = abDocument.getElementById("cardCount");
 
-  for (let [index, [addressBookLabel, count]] of [
-    ["All Address Book", 5],
+  await openAllAddressBooks();
+  Assert.deepEqual(abDocument.l10n.getAttributes(cardCount), {
+    id: "about-addressbook-card-count-all",
+    args: {
+      count: 5,
+    },
+  });
+
+  for (let [index, [name, count]] of [
     ["Personal Address Book", 0],
     ["First Book", 4],
     ["Ordinary List", 0],
     ["Second Book", 1],
   ].entries()) {
-    // Click programmatically to fire a "select" event from the booksList.
-    booksList.getRowAtIndex(index).click();
-    Assert.ok(addressBookCountEl.textContent.includes(addressBookLabel));
-    Assert.ok(addressBookCountEl.textContent.includes(count));
+    booksList.getRowAtIndex(index + 1).click();
+    Assert.deepEqual(abDocument.l10n.getAttributes(cardCount), {
+      id: "about-addressbook-card-count",
+      args: { name, count },
+    });
   }
 
   // Create a contact and check that the count updates.
@@ -948,8 +956,12 @@ add_task(async function test_total_address_book_count() {
   let createdPromise = TestUtils.topicObserved("addrbook-contact-created");
   book2.addCard(createContact("contact2", "book 2"));
   await createdPromise;
-  Assert.ok(
-    addressBookCountEl.textContent.includes("2"),
+  Assert.deepEqual(
+    abDocument.l10n.getAttributes(cardCount),
+    {
+      id: "about-addressbook-card-count",
+      args: { name: "Second Book", count: 2 },
+    },
     "Address Book count is updated on contact creation."
   );
 
@@ -961,8 +973,12 @@ add_task(async function test_total_address_book_count() {
   EventUtils.synthesizeKey("VK_DELETE", {}, abWindow);
   await promptPromise;
   await deletedPromise;
-  Assert.ok(
-    addressBookCountEl.textContent.includes("1"),
+  Assert.deepEqual(
+    abDocument.l10n.getAttributes(cardCount),
+    {
+      id: "about-addressbook-card-count",
+      args: { name: "Second Book", count: 1 },
+    },
     "Address Book count is updated on contact deletion."
   );
 

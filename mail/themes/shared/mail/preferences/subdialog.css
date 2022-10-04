@@ -69,7 +69,7 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
   -moz-box-flex: 1;
   /* Default dialog dimensions */
   height: 12em;
-  width: 40ch;
+  min-width: 40ch;
 }
 
 .largeDialogContainer.doScroll {

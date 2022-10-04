@@ -10,15 +10,17 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-  let { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
+  var { IMServices } = ChromeUtils.importESModule(
+    "resource:///modules/IMServices.sys.mjs"
+  );
+  let { ChatIcons } = ChromeUtils.importESModule(
+    "resource:///modules/chatIcons.sys.mjs"
+  );
   const LazyModules = {};
 
-  ChromeUtils.defineModuleGetter(
-    LazyModules,
-    "Status",
-    "resource:///modules/imStatusUtils.jsm"
-  );
+  ChromeUtils.defineESModuleGetters(LazyModules, {
+    Status: "resource:///modules/imStatusUtils.sys.mjs",
+  });
 
   /**
    * The MozChatTooltip widget implements a custom tooltip for chat. This tooltip

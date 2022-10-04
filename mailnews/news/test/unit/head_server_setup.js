@@ -239,38 +239,6 @@ function make_article(file) {
   return new NewsArticle(post);
 }
 
-var articleTextListener = {
-  data: "",
-  finished: false,
-
-  QueryInterface: ChromeUtils.generateQI([
-    "nsIStreamListener",
-    "nsIRequestObserver",
-  ]),
-
-  // nsIRequestObserver
-  onStartRequest(aRequest) {},
-  onStopRequest(aRequest, aStatusCode) {
-    Assert.equal(aStatusCode, 0);
-
-    // Reduce any \r\n to just \n so we can do a good comparison on any
-    // platform.
-    this.data = this.data.replace(/\r\n/g, "\n");
-    this.finished = true;
-  },
-
-  // nsIStreamListener
-  onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
-    let scriptStream = Cc[
-      "@mozilla.org/scriptableinputstream;1"
-    ].createInstance(Ci.nsIScriptableInputStream);
-
-    scriptStream.init(aInputStream);
-
-    this.data += scriptStream.read(aCount);
-  },
-};
-
 registerCleanupFunction(function() {
   load("../../../resources/mailShutdown.js");
 });

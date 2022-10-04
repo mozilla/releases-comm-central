@@ -12,7 +12,9 @@ var { AppConstants } = ChromeUtils.import(
 );
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+var { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -23,6 +25,11 @@ XPCOMUtils.defineLazyGetter(this, "ABQueryUtils", function() {
 XPCOMUtils.defineLazyGetter(this, "AddrBookUtils", function() {
   return ChromeUtils.import("resource:///modules/AddrBookUtils.jsm");
 });
+
+ChromeUtils.defineESModuleGetters(this, {
+  FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddrBookCard: "resource:///modules/AddrBookCard.jsm",
   AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
@@ -30,7 +37,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalMetronome: "resource:///modules/CalMetronome.jsm",
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
-  FileUtils: "resource://gre/modules/FileUtils.jsm",
   GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.jsm",
   ICAL: "resource:///modules/calendar/Ical.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
@@ -39,8 +45,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   VCardPropertyEntry: "resource:///modules/VCardUtils.jsm",
 });
 XPCOMUtils.defineLazyGetter(this, "SubDialog", function() {
-  const { SubDialogManager } = ChromeUtils.import(
-    "resource://gre/modules/SubDialog.jsm"
+  const { SubDialogManager } = ChromeUtils.importESModule(
+    "resource://gre/modules/SubDialog.sys.mjs"
   );
   return new SubDialogManager({
     dialogStack: document.getElementById("dialogStack"),
@@ -68,16 +74,6 @@ XPCOMUtils.defineLazyGetter(this, "SubDialog", function() {
     },
   });
 });
-XPCOMUtils.defineLazyGetter(this, "bundle", function() {
-  return Services.strings.createBundle(
-    "chrome://messenger/locale/addressbook/addressBook.properties"
-  );
-});
-XPCOMUtils.defineLazyGetter(
-  this,
-  "l10n",
-  () => new Localization(["messenger/addressbook/aboutAddressBook.ftl"])
-);
 
 UIDensity.registerWindow(window);
 UIFontSize.registerWindow(window);
@@ -229,7 +225,7 @@ window.addEventListener("keypress", event => {
  * Add a keydown document event listener for international keyboard shortcuts.
  */
 async function setKeyboardShortcuts() {
-  let [newContactKey] = await l10n.formatValues([
+  let [newContactKey] = await document.l10n.formatValues([
     { id: "about-addressbook-new-contact-key" },
   ]);
 
@@ -437,39 +433,21 @@ function importBook() {
 /**
  * Sets the total count for the current selected address book at the bottom
  * of the address book view.
- *
- * @FIXME Replace with fluent strings for 103+.
  */
 async function updateAddressBookCount() {
-  let statusTextElement = document.getElementById("aboutAddressBookCount");
-  let stringBundle = Services.strings.createBundle(
-    "chrome://messenger/locale/addressbook/addressBook.properties"
-  );
-  let totalCount = document.getElementById("cards")._view.rowCount;
-  let totalCountMessage = "";
-  if (booksList.selectedRow._book) {
-    totalCountMessage = stringBundle.formatStringFromName(
-      "totalContactStatus",
-      [booksList.selectedRow._book.dirName, totalCount]
-    );
-  } else if (booksList.selectedRow._list) {
-    totalCountMessage = stringBundle.formatStringFromName(
-      "totalContactStatus",
-      [booksList.selectedRow._list.dirName, totalCount]
-    );
-  } else if (booksList.selectedIndex == 0) {
-    let [allAddressBookString] = await document.l10n.formatValues([
-      {
-        id: "all-address-books",
-      },
-    ]);
-    totalCountMessage = stringBundle.formatStringFromName(
-      "totalContactStatus",
-      [allAddressBookString, totalCount]
-    );
-  }
+  let cardCount = document.getElementById("cardCount");
+  let { rowCount: count, directory } = cardsPane.cardsList.view;
 
-  statusTextElement.textContent = totalCountMessage;
+  if (directory) {
+    document.l10n.setAttributes(cardCount, "about-addressbook-card-count", {
+      name: directory.dirName,
+      count,
+    });
+  } else {
+    document.l10n.setAttributes(cardCount, "about-addressbook-card-count-all", {
+      count,
+    });
+  }
 }
 
 // Books
@@ -497,12 +475,6 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     this.addEventListener("dragleave", this);
     this.addEventListener("drop", this);
 
-    // FIXME: Do this with HTML when we get new strings.
-    document.l10n.ready.then(() => {
-      this.firstElementChild.title = this.firstElementChild.querySelector(
-        ".bookRow-name"
-      ).textContent;
-    });
     for (let book of MailServices.ab.directories) {
       this.appendChild(this._createBookRow(book));
     }
@@ -1507,23 +1479,19 @@ var cardsPane = {
       header.classList.add(`${column.toLowerCase()}-column`);
       header.value = column;
       header.hidden = !shown;
-      if (column == "NickName") {
-        // FIXME: Use a fluent string for this.
-        header.textContent = bundle.GetStringFromName("propertyNickname");
-      } else {
-        document.l10n.setAttributes(
-          header,
-          `about-addressbook-column-header-${column.toLowerCase()}`
-        );
-        // about-addressbook-column-header-generatedname
-        // about-addressbook-column-header-emailaddresses
-        // about-addressbook-column-header-phonenumbers
-        // about-addressbook-column-header-addresses
-        // about-addressbook-column-header-title
-        // about-addressbook-column-header-department
-        // about-addressbook-column-header-organization
-        // about-addressbook-column-header-addrbook
-      }
+      document.l10n.setAttributes(
+        header,
+        `about-addressbook-column-header-${column.toLowerCase()}`
+      );
+      // about-addressbook-column-header-generatedname
+      // about-addressbook-column-header-emailaddresses
+      // about-addressbook-column-header-nickname
+      // about-addressbook-column-header-phonenumbers
+      // about-addressbook-column-header-addresses
+      // about-addressbook-column-header-title
+      // about-addressbook-column-header-department
+      // about-addressbook-column-header-organization
+      // about-addressbook-column-header-addrbook
 
       if (column == "GeneratedName") {
         continue;
@@ -1537,26 +1505,19 @@ var cardsPane = {
       menuitem.setAttribute("name", "toggle");
       menuitem.setAttribute("value", column);
       menuitem.setAttribute("closemenu", "none");
-      if (column == "NickName") {
-        // FIXME: Use a fluent string for this.
-        menuitem.setAttribute(
-          "label",
-          bundle.GetStringFromName("propertyNickname")
-        );
-      } else {
-        document.l10n.setAttributes(
-          menuitem,
-          `about-addressbook-column-label-${column.toLowerCase()}`
-        );
-        // about-addressbook-column-label-generatedname
-        // about-addressbook-column-label-emailaddresses
-        // about-addressbook-column-label-phonenumbers
-        // about-addressbook-column-label-addresses
-        // about-addressbook-column-label-title
-        // about-addressbook-column-label-department
-        // about-addressbook-column-label-organization
-        // about-addressbook-column-label-addrbook
-      }
+      document.l10n.setAttributes(
+        menuitem,
+        `about-addressbook-column-label-${column.toLowerCase()}`
+      );
+      // about-addressbook-column-label-generatedname
+      // about-addressbook-column-label-emailaddresses
+      // about-addressbook-column-label-nickname
+      // about-addressbook-column-label-phonenumbers
+      // about-addressbook-column-label-addresses
+      // about-addressbook-column-label-title
+      // about-addressbook-column-label-department
+      // about-addressbook-column-label-organization
+      // about-addressbook-column-label-addrbook
 
       if (shown) {
         menuitem.setAttribute("checked", "true");
@@ -2448,9 +2409,6 @@ var detailsPane = {
     this.eventButton = document.getElementById("detailsEventButton");
     this.searchButton = document.getElementById("detailsSearchButton");
     this.newListButton = document.getElementById("detailsNewListButton");
-    this.newListButton.textContent = document.getElementById(
-      "toolbarCreateList"
-    ).label;
     this.editButton = document.getElementById("editButton");
     this.form = document.getElementById("editContactForm");
     this.vCardEdit = this.form.querySelector("vcard-edit");
@@ -2577,8 +2535,6 @@ var detailsPane = {
     this.photoInput.addEventListener("drop", photoDialog);
 
     let photoButton = document.getElementById("photoButton");
-    // FIXME: Remove this once we get new strings after 102.
-    photoButton.title = bundle.GetStringFromName("browsePhoto");
     photoButton.addEventListener("click", () => {
       if (this._photoDetails.sourceURL) {
         photoDialog.showWithURL(
@@ -2768,7 +2724,7 @@ var detailsPane = {
     this.currentList = null;
 
     for (let section of document.querySelectorAll(
-      "#viewContact .contact-header, #viewContact .list-header, #detailsBody > section"
+      "#viewContact :is(.contact-header, .list-header, .selection-header), #detailsBody > section"
     )) {
       section.hidden = true;
     }
@@ -2794,20 +2750,36 @@ var detailsPane = {
       return;
     }
 
-    // TODO: Add a heading when we can create new strings again.
-
-    let contacts = cards.filter(c => !c.isMailList).filter(c => c.primaryEmail);
+    let contacts = cards.filter(c => !c.isMailList);
+    let contactsWithAddresses = contacts.filter(c => c.primaryEmail);
     let lists = cards.filter(c => c.isMailList);
 
-    this.writeButton.hidden = contacts.length + lists.length == 0;
+    document.querySelector("#viewContact .selection-header").hidden = false;
+    let headerString;
+    if (contacts.length) {
+      if (lists.length) {
+        headerString = "about-addressbook-selection-mixed-header";
+      } else {
+        headerString = "about-addressbook-selection-contacts-header";
+      }
+    } else {
+      headerString = "about-addressbook-selection-lists-header";
+    }
+    document.l10n.setAttributes(
+      document.getElementById("viewSelectionCount"),
+      headerString,
+      { count: cards.length }
+    );
+
+    this.writeButton.hidden = contactsWithAddresses.length + lists.length == 0;
     this.eventButton.hidden =
-      !contacts.length ||
+      !contactsWithAddresses.length ||
       !cal.manager
         .getCalendars()
         .filter(cal.acl.isCalendarWritable)
         .filter(cal.acl.userCanAddItemsToCalendar).length;
     this.searchButton.hidden = true;
-    this.newListButton.hidden = contacts.length == 0;
+    this.newListButton.hidden = contactsWithAddresses.length == 0;
     this.editButton.hidden = true;
 
     this.actions.hidden = this.writeButton.hidden;
@@ -3179,10 +3151,7 @@ var detailsPane = {
           card.vCardProperties.getFirstValue(`x-${key.toLowerCase()}`) ?? value;
       }
       if (value) {
-        let li = list.appendChild(createEntryItem());
-        li.querySelector(".entry-type").textContent = bundle.GetStringFromName(
-          `property${key}`
-        );
+        let li = list.appendChild(createEntryItem(key.toLowerCase()));
         li.querySelector(".entry-type").style.setProperty(
           "white-space",
           "nowrap"
@@ -3234,6 +3203,11 @@ var detailsPane = {
   async editNewContact(vCard) {
     this.currentCard = null;
     this.editCurrentContact(vCard);
+    if (!vCard) {
+      this.vCardEdit.contactNameHeading.textContent = await document.l10n.formatValue(
+        "about-addressbook-new-contact-header"
+      );
+    }
   },
 
   /**
@@ -3378,6 +3352,9 @@ var detailsPane = {
    */
   handleInvalidForm() {
     // FIXME: Drop this in favor of an inline notification with fluent strings.
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/addressbook/addressBook.properties"
+    );
     Services.prompt.alert(
       window,
       bundle.GetStringFromName("cardRequiredDataMissingTitle"),

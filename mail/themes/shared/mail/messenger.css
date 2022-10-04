@@ -784,7 +784,7 @@ hr[is="pane-splitter"][resize-direction="horizontal"].splitter-collapsed:is(
   border-radius: 0;
 }
 
-#notification-popup-box > image.notification-anchor-icon {
+#notification-popup-box > .notification-anchor-icon {
   width: 16px;
   height: 16px;
   -moz-context-properties: fill, stroke;

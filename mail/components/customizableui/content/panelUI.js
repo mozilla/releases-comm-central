@@ -5,10 +5,10 @@
 /* globals CanDetachAttachments
   currentAttachments FullScreen
   getIconForAttachment goUpdateAttachmentCommands initAddonPrefsMenu
-  initAppMenuPopup InitAppmenuViewBodyMenu
+  initAppMenuPopup
   InitAppmenuViewMessagesMenu InitAppFolderViewsMenu InitAppViewSortByMenu
   InitMessageTags InitRecentlyClosedTabsPopup InitViewFolderViewsMenu
-  InitViewHeadersMenu InitViewLayoutStyleMenu initSearchMessagesMenu
+  InitViewLayoutStyleMenu initSearchMessagesMenu
   MozXULElement msgWindow
   onViewToolbarsPopupShowing RefreshCustomViewsPopup RefreshTagsPopup
   RefreshViewPopup SanitizeAttachmentDisplayName
@@ -25,8 +25,8 @@ var { ExtensionParent } = ChromeUtils.import(
 var { ExtensionSupport } = ChromeUtils.import(
   "resource:///modules/ExtensionSupport.jsm"
 );
-var { ShortcutUtils } = ChromeUtils.import(
-  "resource://gre/modules/ShortcutUtils.jsm"
+var { ShortcutUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/ShortcutUtils.sys.mjs"
 );
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
@@ -36,11 +36,9 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "AppMenuNotifications",
-  "resource://gre/modules/AppMenuNotifications.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  AppMenuNotifications: "resource://gre/modules/AppMenuNotifications.sys.mjs",
+});
 ChromeUtils.defineModuleGetter(
   this,
   "ExtensionsUI",
@@ -390,35 +388,11 @@ const PanelUI = {
         PanelUI._onPreferencesLayoutViewShow(event);
         break;
       // View
-      case "appMenu-viewSortByView":
-        InitAppViewSortByMenu();
-        break;
-      case "appMenu-viewMessagesView":
-        RefreshViewPopup(event.target);
-        break;
       case "appMenu-viewMessagesTagsView":
         PanelUI._refreshDynamicView(event, RefreshTagsPopup);
         break;
       case "appMenu-viewMessagesCustomViewsView":
         PanelUI._refreshDynamicView(event, RefreshCustomViewsPopup);
-        break;
-      case "appMenu-viewThreadsView":
-        InitAppmenuViewMessagesMenu();
-        break;
-      case "appMenu-viewHeadersView":
-        InitViewHeadersMenu();
-        break;
-      case "appMenu-viewMessageBodyAsView":
-        InitAppmenuViewBodyMenu();
-        break;
-      case "appMenu-viewFeedsView":
-        InitAppmenuViewBodyMenu();
-        break;
-      case "appMenu-viewZoomView":
-        UpdateFullZoomMenu();
-        break;
-      case "appMenu-toolsView":
-        this._onToolsMenuShown(event);
         break;
     }
   },

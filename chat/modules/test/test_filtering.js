@@ -4,7 +4,9 @@
 // These tests run into issues if there isn't a profile directory, see bug 1542397.
 do_get_profile();
 
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+var { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
 var {
   cleanupImMarkup,
   createDerivedRuleset,
@@ -14,7 +16,7 @@ var {
   removeGlobalAllowedAttribute,
   addGlobalAllowedStyleRule,
   removeGlobalAllowedStyleRule,
-} = ChromeUtils.import("resource:///modules/imContentSink.jsm");
+} = ChromeUtils.importESModule("resource:///modules/imContentSink.sys.mjs");
 
 var kModePref = "messenger.options.filterMode";
 var kStrictMode = 0,

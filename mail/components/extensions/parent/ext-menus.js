@@ -15,8 +15,8 @@ ChromeUtils.defineModuleGetter(
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-var { SelectionUtils } = ChromeUtils.import(
-  "resource://gre/modules/SelectionUtils.jsm"
+var { SelectionUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/SelectionUtils.sys.mjs"
 );
 
 var { DefaultMap, ExtensionError } = ExtensionUtils;

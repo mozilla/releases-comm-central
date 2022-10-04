@@ -863,6 +863,18 @@ menulist[open="true"]:not([disabled="true"]) {
   list-style-image: var(--icon-eye);
 }
 
+#appmenu_Toolbars {
+  list-style-image: var(--icon-spaces-menu);
+}
+
+#appmenu_MessagePaneLayout {
+  list-style-image: var(--icon-layout);
+}
+
+#appmenu_FolderViews {
+  list-style-image: var(--icon-folder);
+}
+
 #appMenu-uiDensity-controls {
   list-style-image: var(--icon-spaces-menu);
 }

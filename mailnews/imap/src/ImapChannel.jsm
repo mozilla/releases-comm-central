@@ -154,16 +154,16 @@ class ImapChannel {
       };
 
       client.onData = data => {
-        if (!data) {
-          try {
-            this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
-          } catch (e) {}
-          this._listener.onStopRequest(this, Cr.NS_OK);
-          return;
-        }
         this.contentLength += data.length;
         outputStream.write(data, data.length);
         this._listener.onDataAvailable(this, inputStream, 0, data.length);
+      };
+
+      client.onDone = status => {
+        try {
+          this.loadGroup?.removeRequest(this, null, status);
+        } catch (e) {}
+        this._listener.onStopRequest(this, status);
       };
     });
   }

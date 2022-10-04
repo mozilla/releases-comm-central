@@ -2,16 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
+var { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
 
 // Modules that should only be loaded once a chat account exists.
 var ACCOUNT_MODULES = new Set([
-  "resource:///modules/matrixAccount.jsm",
-  "resource:///modules/matrix-sdk.jsm",
-  "resource:///modules/ircAccount.jsm",
-  "resource:///modules/ircHandlers.jsm",
-  "resource:///modules/xmpp-base.jsm",
-  "resource:///modules/xmpp-session.jsm",
+  "resource:///modules/matrixAccount.sys.mjs",
+  "resource:///modules/matrix-sdk.sys.mjs",
+  "resource:///modules/ircAccount.sys.mjs",
+  "resource:///modules/ircHandlers.sys.mjs",
+  "resource:///modules/xmpp-base.sys.mjs",
+  "resource:///modules/xmpp-session.sys.mjs",
 ]);
 
 add_task(function test_coreInitLoadedModules() {
@@ -20,8 +22,7 @@ add_task(function test_coreInitLoadedModules() {
   IMServices.core.init();
   IMServices.core.getProtocols();
 
-  const loadedModules = Cu.loadedModules;
-  for (const module of loadedModules) {
-    ok(!ACCOUNT_MODULES.has(module), `${module} should be loaded later`);
+  for (const module of ACCOUNT_MODULES) {
+    ok(!Cu.isESModuleLoaded(module), `${module} should be loaded later`);
   }
 });

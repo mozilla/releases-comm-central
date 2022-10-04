@@ -8,7 +8,9 @@
  */
 
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { FileUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/FileUtils.sys.mjs"
+);
 ChromeUtils.defineModuleGetter(
   this,
   "FolderUtils",
@@ -21,14 +23,12 @@ var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 
-// Set platform dependent icon src.
 window.addEventListener("DOMContentLoaded", () => {
-  let src =
-    AppConstants.platform == "linux"
-      ? "moz-icon://stock/gtk-dialog-warning?size=dialog"
-      : "chrome://global/skin/icons/warning-large.png";
   for (let img of document.querySelectorAll(".infoIcon")) {
-    img.setAttribute("src", src);
+    img.setAttribute(
+      "src",
+      "chrome://messenger/skin/icons/new/activity/warning.svg"
+    );
   }
 });
 

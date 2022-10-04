@@ -99,12 +99,11 @@ class ImapClient {
       // Reuse the connection.
       this.onReady();
     } else {
-      this._logger.debug(
-        `Connecting to ${this._server.hostName}:${this._server.port}`
-      );
+      let hostname = this._server.hostName.toLowerCase();
+      this._logger.debug(`Connecting to ${hostname}:${this._server.port}`);
       this._capabilities = null;
       this._secureTransport = this._server.socketType == Ci.nsMsgSocketType.SSL;
-      this._socket = new TCPSocket(this._server.hostName, this._server.port, {
+      this._socket = new TCPSocket(hostname, this._server.port, {
         binaryType: "arraybuffer",
         useSecureTransport: this._secureTransport,
       });
@@ -358,9 +357,13 @@ class ImapClient {
   _getServerSubFolderName(parent, folderName) {
     let mailboxName = this._getServerFolderName(parent);
     if (mailboxName) {
-      let delimiter =
-        parent.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter ||
-        "/";
+      let delimiter = parent.QueryInterface(Ci.nsIMsgImapMailFolder)
+        .hierarchyDelimiter;
+      // @see nsImapCore.h.
+      const ONLINE_HIERARCHY_SEPARATOR_UNKNOWN = "^";
+      if (!delimiter || delimiter == ONLINE_HIERARCHY_SEPARATOR_UNKNOWN) {
+        delimiter = "/";
+      }
       return mailboxName + delimiter + folderName;
     }
     return folderName;
@@ -374,6 +377,7 @@ class ImapClient {
   fetchMessage(folder, uid) {
     this._logger.debug(`fetchMessage folder=${folder.name} uid=${uid}`);
     if (folder.hasMsgOffline(uid, null, 10)) {
+      this.onDone = () => {};
       this.channel?.readFromLocalCache();
       this._actionDone();
       return;
@@ -605,7 +609,6 @@ class ImapClient {
   logout() {
     this._sendTagged("LOGOUT");
     this._socket.close();
-    this._actionDone();
   }
 
   /**
@@ -1330,7 +1333,6 @@ class ImapClient {
       this._sendTagged(`UID FETCH ${uids} (UID RFC822.SIZE FLAGS BODY.PEEK[])`);
       return;
     }
-    this.onData?.();
     this._actionDone();
   }
 
@@ -1342,19 +1344,27 @@ class ImapClient {
     this._msgSink = this.folder.QueryInterface(Ci.nsIImapMessageSink);
     this._folderSink = this.folder.QueryInterface(Ci.nsIImapMailFolderSink);
     for (let msg of res.messages) {
-      this._folderSink.StartMessage(this.runningUrl);
-      this._msgSink.parseAdoptedMsgLine(msg.body, msg.uid, this.runningUrl);
-      this._msgSink.normalEndMsgWriteStream(
-        msg.uid,
-        true,
-        this.runningUrl,
-        msg.body.length
-      );
-      this._folderSink.EndMessage(this.runningUrl, msg.uid);
+      let shouldStoreMsgOffline = false;
+      try {
+        shouldStoreMsgOffline = this.folder.shouldStoreMsgOffline(msg.uid);
+      } catch (e) {}
+      if (
+        shouldStoreMsgOffline ||
+        this.runningUrl.QueryInterface(Ci.nsIImapUrl).storeResultsOffline
+      ) {
+        this._folderSink.StartMessage(this.runningUrl);
+        this._msgSink.parseAdoptedMsgLine(msg.body, msg.uid, this.runningUrl);
+        this._msgSink.normalEndMsgWriteStream(
+          msg.uid,
+          true,
+          this.runningUrl,
+          msg.body.length
+        );
+        this._folderSink.EndMessage(this.runningUrl, msg.uid);
+      }
       this.onData?.(msg.body);
     }
     this._folderSink.headerFetchCompleted(this);
-    this.onData?.();
     this._actionDone();
   }
 
@@ -1402,6 +1412,13 @@ class ImapClient {
       this._nextAction = this._actionUidFetchResponse;
       this._sendTagged(`UID FETCH ${highestUid + 1}:* (FLAGS)`);
     } else {
+      if (!res.exists) {
+        this._messageUids = [];
+        this._messages.clear();
+      }
+      this.folder
+        .QueryInterface(Ci.nsIImapMailFolderSink)
+        .UpdateImapMailboxInfo(this, this._getMailboxSpec());
       this._actionDone();
     }
   }
@@ -1432,8 +1449,10 @@ class ImapClient {
     this._nextAction = null;
     this._urlListener?.OnStopRunningUrl(this.runningUrl, status);
     this.runningUrl.SetUrlState(false, status);
-    this.onDone?.();
+    this.onDone?.(status);
     this._reset();
+    // Tell ImapIncomingServer this client can be reused now.
+    this.onFree?.();
   };
 
   /** @see nsIImapProtocol */
@@ -1461,11 +1480,7 @@ class ImapClient {
       getCustomFlags: uid => this._messages.get(uid)?.keywords,
       getCustomAttribute: (uid, name) => {
         let value = this._messages.get(uid)?.customAttributes[name];
-        return Array.isArray(value)
-          ? value
-              .map(x => (x.startsWith("\\") || x.includes(" ") ? `"${x}"` : x))
-              .join(" ")
-          : value;
+        return Array.isArray(value) ? value.join(" ") : value;
       },
     };
   }

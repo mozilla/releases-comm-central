@@ -25,17 +25,13 @@ class VCardCustomComponent extends HTMLElement {
 
   connectedCallback() {
     if (this.isConnected) {
-      // FIXME: Add some Fluent strings so that we don't have to do this.
-      let stringBundle = Services.strings.createBundle(
-        "chrome://messenger/locale/addressbook/addressBook.properties"
-      );
-
       this.inputEls = this.querySelectorAll("input");
       let labelEls = this.querySelectorAll("label");
       for (let i = 0; i < 4; i++) {
         let inputId = vCardIdGen.next().value;
-        labelEls[i].textContent = stringBundle.GetStringFromName(
-          `propertyCustom${i + 1}`
+        document.l10n.setAttributes(
+          labelEls[i],
+          `about-addressbook-entry-name-custom${i + 1}`
         );
         labelEls[i].htmlFor = inputId;
         this.inputEls[i].id = inputId;

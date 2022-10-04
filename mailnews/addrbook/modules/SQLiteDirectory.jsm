@@ -17,8 +17,11 @@ const { AsyncShutdown } = ChromeUtils.import(
   "resource://gre/modules/AsyncShutdown.jsm"
 );
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  FileUtils: "resource://gre/modules/FileUtils.jsm",
   newUID: "resource:///modules/AddrBookUtils.jsm",
 });
 

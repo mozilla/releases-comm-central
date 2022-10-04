@@ -8,13 +8,15 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Status } = ChromeUtils.import(
-    "resource:///modules/imStatusUtils.jsm"
+  const { Status } = ChromeUtils.importESModule(
+    "resource:///modules/imStatusUtils.sys.mjs"
   );
   const { AppConstants } = ChromeUtils.import(
     "resource://gre/modules/AppConstants.jsm"
   );
-  const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
+  const { ChatIcons } = ChromeUtils.importESModule(
+    "resource:///modules/chatIcons.sys.mjs"
+  );
 
   /**
    * The MozChatConvRichlistitem widget displays opened conversation information from the

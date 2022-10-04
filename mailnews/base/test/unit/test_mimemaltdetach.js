@@ -36,7 +36,7 @@ SaveAttachmentCallback.prototype = {
 };
 var gCallbackObject = new SaveAttachmentCallback();
 
-add_task(async function setupTest() {
+add_setup(async function() {
   if (!localAccountUtils.inboxFolder) {
     localAccountUtils.loadLocalMailAccount();
   }

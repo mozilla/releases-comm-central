@@ -1,8 +1,8 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { ircAccount, ircMessage } = ChromeUtils.import(
-  "resource:///modules/ircAccount.jsm"
+var { ircAccount, ircMessage } = ChromeUtils.importESModule(
+  "resource:///modules/ircAccount.sys.mjs"
 );
 
 var testData = [

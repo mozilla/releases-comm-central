@@ -1,14 +1,16 @@
 // Bug 403242 stems from invalid message ids
 
-var daemon, localserver, server;
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
-function run_test() {
-  daemon = setupNNTPDaemon();
+add_task(async function test403242() {
+  let daemon = setupNNTPDaemon();
   daemon.addGroup("test1");
   daemon.addArticle(make_article(do_get_file("postings/bug403242.eml")));
-  server = makeServer(NNTP_RFC2980_handler, daemon);
+  let server = makeServer(NNTP_RFC2980_handler, daemon);
   server.start();
-  localserver = setupLocalServer(server.port);
+  let localserver = setupLocalServer(server.port);
   localserver.subscribeToNewsgroup("test1");
 
   let folder = localserver.rootFolder.getChildNamed("test1");
@@ -21,7 +23,7 @@ function run_test() {
 
   // Fetch the message
   let uri = folder.generateMessageURI(1);
-  var msgService = Cc[
+  let msgService = Cc[
     "@mozilla.org/messenger/messageservice;1?type=news"
   ].getService(Ci.nsIMsgMessageService);
 
@@ -30,17 +32,17 @@ function run_test() {
   Assert.equal(neckoUrl.newsAction, Ci.nsINntpUrl.ActionFetchArticle);
 
   // Pretend to display the message
-  msgService.DisplayMessage(uri, articleTextListener, null, null, null, {});
-  // Get the server to run
-  var thread = gThreadManager.currentThread;
-  while (!articleTextListener.finished) {
-    thread.processNextEvent(true);
-  }
+  let listener = new PromiseTestUtils.PromiseStreamListener();
+  msgService.DisplayMessage(uri, listener, null, null, null, {});
+  let msgText = await listener.promise;
   localserver.closeCachedConnections();
   server.stop();
 
-  // Correct text?
-  Assert.equal(articleTextListener.data, daemon.getGroup("test1")[1].fullText);
+  // Correct text? (original file uses LF only, so strip CR)
+  Assert.equal(
+    msgText.replaceAll("\r", ""),
+    daemon.getGroup("test1")[1].fullText
+  );
 
   // No illegal commands?
   test = "bug 403242";
@@ -50,4 +52,4 @@ function run_test() {
     "GROUP test1",
     "ARTICLE 1",
   ]);
-}
+});

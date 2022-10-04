@@ -6,7 +6,7 @@
 JAR_MANIFESTS += ["jar.mn"]
 
 EXTRA_JS_MODULES += [
-    "facebook.jsm",
+    "facebook.sys.mjs",
 ]
 
 XPCOM_MANIFESTS += [

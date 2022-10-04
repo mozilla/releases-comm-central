@@ -59,7 +59,7 @@ var gSanitizePromptDialog = {
     let warningIcon = document.getElementById("sanitizeEverythingWarningIcon");
     warningIcon.setAttribute(
       "src",
-      "chrome://messenger/skin/icons/new/compact/warning.svg"
+      "chrome://messenger/skin/icons/new/activity/warning.svg"
     );
 
     if (this.selectedTimespan === Sanitizer.TIMESPAN_EVERYTHING) {

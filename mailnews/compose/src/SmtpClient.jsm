@@ -113,10 +113,11 @@ class SmtpClient {
    * Initiate a connection to the server
    */
   connect() {
+    let hostname = this._server.hostname.toLowerCase();
     let port = this._server.port || (this.options.requireTLS ? 465 : 587);
-    this.logger.debug(`Connecting to smtp://${this._server.hostname}:${port}`);
+    this.logger.debug(`Connecting to smtp://${hostname}:${port}`);
     this._secureTransport = this.options.requireTLS;
-    this.socket = new TCPSocket(this._server.hostname, port, {
+    this.socket = new TCPSocket(hostname, port, {
       binaryType: "arraybuffer",
       useSecureTransport: this._secureTransport,
     });

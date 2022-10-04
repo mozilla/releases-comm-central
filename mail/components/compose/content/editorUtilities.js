@@ -506,7 +506,7 @@ function TextIsURI(selectedText) {
 }
 
 function IsUrlAboutBlank(urlString) {
-  return urlString == "about:blank";
+  return urlString.startsWith("about:blank");
 }
 
 function MakeRelativeUrl(url) {

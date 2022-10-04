@@ -9,7 +9,9 @@
 const { MockRegistrar } = ChromeUtils.import(
   "resource://testing-common/MockRegistrar.jsm"
 );
-const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
+const { ChatIcons } = ChromeUtils.importESModule(
+  "resource:///modules/chatIcons.sys.mjs"
+);
 
 let originalAlertsServiceCID;
 let alertShown;

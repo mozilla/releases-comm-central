@@ -1,7 +1,9 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { commands } = ChromeUtils.import("resource:///modules/matrixCommands.jsm");
+var { commands } = ChromeUtils.importESModule(
+  "resource:///modules/matrixCommands.sys.mjs"
+);
 
 function run_test() {
   add_test(testUnhandledEmptyCommands);

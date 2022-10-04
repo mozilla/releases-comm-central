@@ -1,12 +1,18 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-const { MatrixProtocol } = ChromeUtils.import("resource:///modules/matrix.jsm");
-const { MatrixRoom, MatrixAccount, MatrixMessage } = ChromeUtils.import(
-  "resource:///modules/matrixAccount.jsm"
+var { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
 );
-var { MatrixSDK } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
+const { MatrixProtocol } = ChromeUtils.importESModule(
+  "resource:///modules/matrix.sys.mjs"
+);
+const { MatrixRoom, MatrixAccount, MatrixMessage } = ChromeUtils.importESModule(
+  "resource:///modules/matrixAccount.sys.mjs"
+);
+var { MatrixSDK } = ChromeUtils.importESModule(
+  "resource:///modules/matrix-sdk.sys.mjs"
+);
 function loadMatrix() {
   IMServices.conversations.initConversations();
 }

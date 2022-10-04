@@ -40,39 +40,29 @@ async function extract_eml_body_textcontent(eml, autodetect = true) {
   let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
   let msgc = await open_message_from_file(file);
   let aboutMessage = get_about_message(msgc.window);
+  let reloadPromise = BrowserTestUtils.browserLoaded(aboutMessage.content);
   // Be sure to view message body as Original HTML
   msgc.window.MsgBodyAllowHTML();
+  await reloadPromise;
 
   if (autodetect) {
-    // Open main application menu
-    let appMenu = msgc.window.document.getElementById("appMenu-popup");
-    let menuShownPromise = BrowserTestUtils.waitForEvent(appMenu, "popupshown");
+    // Open other actions menu.
+    let popup = aboutMessage.document.getElementById("otherActionsPopup");
+    let popupShown = BrowserTestUtils.waitForEvent(popup, "popupshown");
     EventUtils.synthesizeMouseAtCenter(
-      msgc.window.document.getElementById("button-appmenu"),
+      aboutMessage.document.getElementById("otherActionsButton"),
       {},
-      msgc.window
+      aboutMessage
     );
-    await menuShownPromise;
+    await popupShown;
 
-    // Go to "View" sub menu
-    let viewShownPromise = BrowserTestUtils.waitForEvent(
-      appMenu.querySelector("#appMenu-viewView"),
-      "ViewShown"
-    );
+    // Click on the "Repair Text Encoding" item.
+    let hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
+    reloadPromise = BrowserTestUtils.browserLoaded(aboutMessage.content);
     EventUtils.synthesizeMouseAtCenter(
-      appMenu.querySelector("#appmenu_View"),
+      aboutMessage.document.getElementById("charsetRepairMenuitem"),
       {},
-      msgc.window
-    );
-    await viewShownPromise;
-
-    // Click on the "Repair Text Encoding" item
-    let hiddenPromise = BrowserTestUtils.waitForEvent(appMenu, "popuphidden");
-    let reloadPromise = BrowserTestUtils.browserLoaded(msgc.contentPane);
-    EventUtils.synthesizeMouseAtCenter(
-      appMenu.querySelector("#appmenu_charsetRepairMenuitem"),
-      {},
-      msgc.window
+      aboutMessage
     );
     await hiddenPromise;
     await reloadPromise;

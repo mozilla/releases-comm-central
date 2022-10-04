@@ -14,10 +14,13 @@ const { MailServices } = ChromeUtils.import(
 
 const lazy = {};
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  JSONFile: "resource://gre/modules/JSONFile.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   Feed: "resource:///modules/Feed.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
-  JSONFile: "resource://gre/modules/JSONFile.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
 });
 

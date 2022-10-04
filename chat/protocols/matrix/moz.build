@@ -11,13 +11,13 @@ DIRS += [
 ]
 
 EXTRA_JS_MODULES += [
-    "matrix-sdk.jsm",
-    "matrix.jsm",
-    "matrixAccount.jsm",
-    "matrixCommands.jsm",
-    "matrixMessageContent.jsm",
-    "matrixPowerLevels.jsm",
-    "matrixTextForEvent.jsm",
+    "matrix-sdk.sys.mjs",
+    "matrix.sys.mjs",
+    "matrixAccount.sys.mjs",
+    "matrixCommands.sys.mjs",
+    "matrixMessageContent.sys.mjs",
+    "matrixPowerLevels.sys.mjs",
+    "matrixTextForEvent.sys.mjs",
 ]
 
 JAR_MANIFESTS += [

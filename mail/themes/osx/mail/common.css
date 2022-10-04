@@ -45,6 +45,12 @@
   }
 }
 
+@media (prefers-contrast) {
+  :root {
+    --in-content-categories-background: transparent;
+  }
+}
+
 xul|tabs {
   padding-inline: 0;
   position: static;

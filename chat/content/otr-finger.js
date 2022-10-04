@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { IMServices } = ChromeUtils.import("resource:///modules/IMServices.jsm");
-var { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
+var { IMServices } = ChromeUtils.importESModule(
+  "resource:///modules/IMServices.sys.mjs"
+);
+var { OTR } = ChromeUtils.importESModule("resource:///modules/OTR.sys.mjs");
 
 var l10n = new Localization(["messenger/otr/finger-sync.ftl"], true);
 

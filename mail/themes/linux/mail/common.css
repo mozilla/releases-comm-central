@@ -47,6 +47,12 @@
   }
 }
 
+@media (prefers-contrast) {
+  :root {
+    --in-content-categories-background: transparent;
+  }
+}
+
 xul|tab[visuallyselected] {
   /* Override styles for tab[selected] from
      toolkit/themes/linux/global/tabbox.css */

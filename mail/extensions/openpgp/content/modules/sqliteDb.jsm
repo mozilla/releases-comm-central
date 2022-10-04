@@ -16,11 +16,14 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 const lazy = {};
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  Sqlite: "resource://gre/modules/Sqlite.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
-  Sqlite: "resource://gre/modules/Sqlite.jsm",
 });
 
 var PgpSqliteDb2 = {

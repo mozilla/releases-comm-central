@@ -8,7 +8,9 @@
 
 "use strict";
 
-const { OTRLibLoader } = ChromeUtils.import("resource:///modules/OTRLib.jsm");
+const { OTRLibLoader } = ChromeUtils.importESModule(
+  "resource:///modules/OTRLib.sys.mjs"
+);
 
 /**
  * Initialize libotr.

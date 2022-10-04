@@ -108,6 +108,15 @@ function ReloadMessage() {
   }
 }
 
+function MailSetCharacterSet() {
+  msgWindow.charsetOverride = true;
+  gMessageDisplay.keyForCharsetOverride =
+    "messageKey" in gMessageDisplay.displayedMessage
+      ? gMessageDisplay.displayedMessage.messageKey
+      : null;
+  messenger.forceDetectDocumentCharset();
+}
+
 var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 var MsgStatusFeedback =
   window.browsingContext.topChromeWindow.MsgStatusFeedback;

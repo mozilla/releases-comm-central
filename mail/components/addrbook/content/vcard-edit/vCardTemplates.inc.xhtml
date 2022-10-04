@@ -206,8 +206,7 @@
 
 <!-- NICKNAME field. -->
 <template id="template-vcard-edit-nickname">
-  <!-- FIXME: Replace this DTD string with a fluent ID after 102. -->
-  <label for="vCardNickName">&NickName.label;</label>
+  <label for="vCardNickName" data-l10n-id="vcard-nickname"></label>
   <input id="vCardNickName" type="text"/>
 </template>
 
@@ -404,11 +403,9 @@
   <select class="vcard-type-selection">
     <option value="work" data-l10n-id="vcard-entry-type-work"/>
     <option value="home" data-l10n-id="vcard-entry-type-home"/>
-    <!-- FIXME: Replace these strings and remove aboutAddressBook.ftl from
-         AccountManager.xhtml. -->
-    <option value="cell" data-l10n-id="about-addressbook-entry-type-cell"/>
-    <option value="fax" data-l10n-id="about-addressbook-entry-type-fax"/>
-    <option value="pager" data-l10n-id="about-addressbook-entry-type-pager"/>
+    <option value="cell" data-l10n-id="vcard-entry-type-cell"/>
+    <option value="fax" data-l10n-id="vcard-entry-type-fax"/>
+    <option value="pager" data-l10n-id="vcard-entry-type-pager"/>
     <option value="" data-l10n-id="vcard-entry-type-none" selected="selected"/>
   </select>
 </template>

@@ -6,8 +6,8 @@
 /* import-globals-from ../editorUtilities.js */
 /* import-globals-from EdDialogCommon.js */
 
-var { InlineSpellChecker } = ChromeUtils.import(
-  "resource://gre/modules/InlineSpellChecker.jsm"
+var { InlineSpellChecker } = ChromeUtils.importESModule(
+  "resource://gre/modules/InlineSpellChecker.sys.mjs"
 );
 
 var gMisspelledWord;

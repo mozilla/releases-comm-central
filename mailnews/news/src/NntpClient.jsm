@@ -93,13 +93,14 @@ class NntpClient {
       this.onOpen();
     } else {
       // Start a new connection.
+      let hostname = this._server.hostName.toLowerCase();
       let useSecureTransport = this._server.isSecure;
       this._logger.debug(
-        `Connecting to ${useSecureTransport ? "snews" : "news"}://${
-          this._server.hostName
-        }:${this._server.port}`
+        `Connecting to ${useSecureTransport ? "snews" : "news"}://${hostname}:${
+          this._server.port
+        }`
       );
-      this._socket = new TCPSocket(this._server.hostName, this._server.port, {
+      this._socket = new TCPSocket(hostname, this._server.port, {
         binaryType: "arraybuffer",
         useSecureTransport,
       });

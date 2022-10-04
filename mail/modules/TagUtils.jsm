@@ -8,11 +8,9 @@ const { MailServices } = ChromeUtils.import(
 
 const lazy = {};
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "Color",
-  "resource://gre/modules/Color.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  Color: "resource://gre/modules/Color.sys.mjs",
+});
 
 var EXPORTED_SYMBOLS = ["TagUtils"];
 

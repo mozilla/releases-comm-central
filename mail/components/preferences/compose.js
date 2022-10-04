@@ -7,8 +7,8 @@
 
 /* import-globals-from preferences.js */
 
-var { InlineSpellChecker } = ChromeUtils.import(
-  "resource://gre/modules/InlineSpellChecker.jsm"
+var { InlineSpellChecker } = ChromeUtils.importESModule(
+  "resource://gre/modules/InlineSpellChecker.sys.mjs"
 );
 
 // CloudFile account tools used by gCloudFile.

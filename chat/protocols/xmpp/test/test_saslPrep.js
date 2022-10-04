@@ -1,7 +1,9 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { saslPrep } = ChromeUtils.import("resource:///modules/xmpp-authmechs.jsm");
+var { saslPrep } = ChromeUtils.importESModule(
+  "resource:///modules/xmpp-authmechs.sys.mjs"
+);
 
 // RFC 4013 3.Examples
 var TEST_DATA = [

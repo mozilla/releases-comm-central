@@ -521,6 +521,7 @@
   skin/classic/messenger/icons/new/compact/inbox.svg          (../shared/mail/icons/new/compact/inbox.svg)
   skin/classic/messenger/icons/new/compact/info.svg           (../shared/mail/icons/new/compact/info.svg)
   skin/classic/messenger/icons/new/compact/key.svg            (../shared/mail/icons/new/compact/key.svg)
+  skin/classic/messenger/icons/new/compact/layout.svg         (../shared/mail/icons/new/compact/layout.svg)
   skin/classic/messenger/icons/new/compact/link.svg           (../shared/mail/icons/new/compact/link.svg)
   skin/classic/messenger/icons/new/compact/lock.svg           (../shared/mail/icons/new/compact/lock.svg)
   skin/classic/messenger/icons/new/compact/lock-disabled.svg  (../shared/mail/icons/new/compact/lock-disabled.svg)
@@ -712,3 +713,7 @@
   skin/classic/messenger/icons/new/activity/syncMailIcon.svg   (../shared/mail/icons/new/activity/syncMailIcon.svg)
   skin/classic/messenger/icons/new/activity/undoIcon.svg       (../shared/mail/icons/new/activity/undoIcon.svg)
   skin/classic/messenger/icons/new/activity/warning.svg        (../shared/mail/icons/new/activity/warning.svg)
+  skin/classic/messenger/icons/new/activity/question.svg       (../shared/mail/icons/new/activity/question.svg)
+  skin/classic/messenger/icons/new/activity/info.svg           (../shared/mail/icons/new/activity/info.svg)
+  skin/classic/messenger/icons/new/activity/error.svg          (../shared/mail/icons/new/activity/error.svg)
+
