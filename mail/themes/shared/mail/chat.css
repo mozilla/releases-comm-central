@@ -335,12 +335,8 @@ richlistitem[is="chat-contact-richlistitem"][cansend]:hover .startChatBubble {
 
 .fillUserIcon {
   -moz-context-properties: fill, fill-opacity;
-  fill: #000;
-  fill-opacity: 0.25;
-}
-
-:root[lwt-tree-brighttext] .fillUserIcon {
-  fill: #fff;
+  fill: currentColor;
+  fill-opacity: 0.3;
 }
 
 .statusTypeIcon, .smallStatusIcon {
