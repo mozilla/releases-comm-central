@@ -87,6 +87,8 @@ calendar-invitation-interval-same-day = { $startDate } <b>{ $startTime }</b> –
 # $timezone  (String) - The timezone the interval is in.
 calendar-invitation-interval-several-days = { $startDate } <b>{ $startTime }</b> – { $endDate } <b>{ $endTime }</b> { $timezone }
 
+calendar-invitation-panel-prop-title-recurrence = Repeats:
+
 calendar-invitation-panel-prop-title-attendees = Attendees:
 
 calendar-invitation-panel-prop-title-description = Description:

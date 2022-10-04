@@ -8,6 +8,10 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
+  var { recurrenceRule2String } = ChromeUtils.import(
+    "resource:///modules/calendar/calRecurrenceUtils.jsm"
+  );
+
   /**
    * Base element providing boilerplate for shadow root initialisation.
    */
@@ -151,6 +155,14 @@
     set item(item) {
       let interval = this.shadowRoot.getElementById("interval");
       interval.item = item;
+
+      if (item.recurrenceInfo || item.parentItem.recurrenceInfo) {
+        let parent = item.parentItem;
+        this.shadowRoot.getElementById("recurrence").textContent = recurrenceRule2String(
+          parent.recurrenceInfo,
+          parent.recurrenceStartDate
+        );
+      }
 
       this.shadowRoot
         .getElementById("location")
