@@ -114,7 +114,7 @@ search-textbox {
 fieldset {
   margin: 0 0 32px;
   padding: 0;
-  border-style: none;
+  border-style: none !important;
 }
 
 fieldset > hbox,
