@@ -179,7 +179,6 @@ MessageDisplayWidget.prototype = {
     this.displayedMessage = null;
     this.messageLoading = false;
     this.messageLoaded = false;
-    ClearPendingReadTimer();
     ClearMessagePane();
   },
 
@@ -258,8 +257,6 @@ MessageDisplayWidget.prototype = {
     if (!this.active) {
       return true;
     }
-
-    ClearPendingReadTimer();
 
     if (this.folderDisplay.selectedCount == 1) {
       // the display of the message is happening without us
@@ -370,7 +367,6 @@ MessageDisplayWidget.prototype = {
       // If there are no messages selected, show the folder summary. Gloda will
       // break if passed empty selectedMessages, so do not use any tree row
       // count value to indicate messages (dummy rows are not messages).
-      summarizeFolder(this);
     } else {
       // If there are some messages selected, show the multi-message summary
       // (unless this folder doesn't support summarizing selections).

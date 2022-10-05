@@ -50,7 +50,6 @@ UIDensity.registerWindow(window);
  */
 function OnMailWindowUnload() {
   MailOfflineMgr.uninit();
-  ClearPendingReadTimer();
 
   // all dbview closing is handled by OnUnloadMessenger for the 3-pane (it closes
   //  the tabs which close their views) and OnUnloadMessageWindow for the
@@ -658,40 +657,13 @@ nsMsgWindowCommands.prototype = {
 };
 
 /**
- * Loads the mail start page.
- */
-function loadStartPage(aForce) {
-  // If the preference isn't enabled, then don't load anything.
-  if (!aForce && !Services.prefs.getBoolPref("mailnews.start_page.enabled")) {
-    return;
-  }
-
-  let messagePane = getMessagePaneBrowser();
-  gMessageDisplay.singleMessageDisplay = true;
-  gMessageNotificationBar.clearMsgNotifications();
-  let startpage = Services.urlFormatter.formatURLPref(
-    "mailnews.start_page.url"
-  );
-  if (startpage) {
-    try {
-      let { preferredURI } = Services.uriFixup.getFixupURIInfo(startpage, 0);
-      MailE10SUtils.loadURI(messagePane, preferredURI.spec);
-    } catch (e) {
-      Cu.reportError(e);
-    }
-  } else {
-    ClearMessagePane();
-  }
-}
-
-/**
  * Returns the browser element of the current tab.
  * The zoom manager, view source and possibly some other functions still rely
  * on the getBrowser function.
  */
 function getBrowser() {
   let tabmail = document.getElementById("tabmail");
-  return tabmail ? tabmail.getBrowserForSelectedTab() : getMessagePaneBrowser();
+  return tabmail ? tabmail.getBrowserForSelectedTab() : null;
 }
 
 /**

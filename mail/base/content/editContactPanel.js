@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from mailCore.js */
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -184,7 +182,7 @@ var editContactInlineUI = {
 
   editDetails() {
     this.saveChanges();
-    toAddressBook({ action: "edit", card: this._cardDetails.card });
+    top.toAddressBook({ action: "edit", card: this._cardDetails.card });
   },
 
   deleteContact() {

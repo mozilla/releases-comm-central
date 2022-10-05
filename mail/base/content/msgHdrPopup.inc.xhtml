@@ -86,9 +86,143 @@
               oncommand="Services.prefs.setBoolPref('mailnews.attachments.display.start_expanded', this.getAttribute('checked'));"/>
   </menupopup>
 
+  <menupopup id="emailAddressPopup"
+             position="after_start"
+             class="no-icon-menupopup"
+             popupshowing="goUpdateCommand('cmd_createFilterFromPopup');">
+    <menuitem id="emailAddressPlaceHolder"
+              class="menuitem-iconic"
+              disabled="true"/>
+    <menuseparator/>
+    <menuitem id="addToAddressBookItem"
+              label="&AddDirectlyToAddressBook.label;"
+              accesskey="&AddDirectlyToAddressBook.accesskey;"
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.addContact(event);"/>
+    <menuitem id="editContactItem" label="&EditContact1.label;" hidden="true"
+              accesskey="&EditContact1.accesskey;"
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.showContactEdit(event);"/>
+    <menuitem id="viewContactItem" label="&ViewContact.label;" hidden="true"
+              accesskey="&ViewContact.accesskey;"
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.showContactEdit(event);"/>
+    <menuitem id="sendMailToItem" label="&SendMessageTo.label;"
+              accesskey="&SendMessageTo.accesskey;"
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.composeMessage(event);"/>
+    <menuitem id="copyEmailAddressItem" label="&CopyEmailAddress.label;"
+              accesskey="&CopyEmailAddress.accesskey;"
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.copyAddress(event)"/>
+    <menuitem id="copyNameAndEmailAddressItem" label="&CopyNameAndEmailAddress.label;"
+              accesskey="&CopyNameAndEmailAddress.accesskey;"
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.copyAddress(event, true);"/>
+    <menuseparator/>
+    <menuitem id="searchKeysOpenPGP" data-l10n-id="openpgp-search-keys-openpgp"
+              class="menuitem-iconic"
+              oncommand="Enigmail.msg.searchKeysOnInternet(event)"/>
+    <menuseparator/>
+    <menuitem id="createFilterFromItem" label="&CreateFilterFrom.label;"
+              accesskey="&CreateFilterFrom.accesskey;"
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.createFilter(event);"
+              observes="cmd_createFilterFromPopup"/>
+  </menupopup>
+
+  <menupopup id="copyPopup" class="no-icon-menupopup">
+    <menuitem id="copyMenuitem"
+              data-l10n-id="text-action-copy"
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.copyString(event);"/>
+    <menuitem id="createFilterFromMenuItem"
+              label="&CreateFilterFrom.label;"
+              accesskey="&CreateFilterFrom.accesskey;"
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.createFilter(event);"
+              observes="cmd_createFilterFromPopup"/>
+  </menupopup>
+
   <menupopup id="copyUrlPopup"
              popupanchor="bottomleft">
     <menuitem label="&copyLinkCmd.label;"
               accesskey="&copyLinkCmd.accesskey;"
               oncommand="gMessageHeader.copyWebsiteUrl(event);"/>
+  </menupopup>
+
+  <menupopup id="simpleCopyPopup" class="no-icon-menupopup">
+    <menuitem id="copyMenuitem"
+              data-l10n-id="text-action-copy"
+              class="menuitem-iconic"
+              oncommand="gMessageHeader.copyString(event);"/>
+  </menupopup>
+
+  <menupopup id="newsgroupPopup"
+             position="after_start"
+             class="newsgroupPopup no-icon-menupopup"
+             onpopupshowing="goUpdateCommand('cmd_createFilterFromPopup');">
+      <menuitem id="newsgroupPlaceHolder"
+                class="menuitem-iconic"
+                disabled="true"/>
+      <menuseparator/>
+      <menuitem id="sendMessageToNewsgroupItem"
+                label="&SendMessageTo.label;"
+                accesskey="&SendMessageTo.accesskey;"
+                class="menuitem-iconic"
+                oncommand="gMessageHeader.composeMessage(event);"/>
+      <menuitem id="copyNewsgroupNameItem"
+                label="&CopyNewsgroupName.label;"
+                accesskey="&CopyNewsgroupName.accesskey;"
+                class="menuitem-iconic"
+                oncommand="gMessageHeader.copyAddress(event);"/>
+      <menuitem id="copyNewsgroupURLItem"
+                label="&CopyNewsgroupURL.label;"
+                accesskey="&CopyNewsgroupURL.accesskey;"
+                class="menuitem-iconic"
+                oncommand="gMessageHeader.copyNewsgroupURL(event);"/>
+      <menuseparator id="subscribeToNewsgroupSeparator"/>
+      <menuitem id="subscribeToNewsgroupItem"
+                label="&SubscribeToNewsgroup.label;"
+                accesskey="&SubscribeToNewsgroup.accesskey;"
+                class="menuitem-iconic"
+                oncommand="gMessageHeader.subscribeToNewsgroup(event)"/>
+  </menupopup>
+
+  <menupopup id="remoteContentOptions" value=""
+             onpopupshowing="onRemoteContentOptionsShowing(event);">
+    <menuitem id="remoteContentOptionAllowForMsg"
+              label="&remoteContentOptionsAllowForMsg.label;"
+              accesskey="&remoteContentOptionsAllowForMsg.accesskey;"
+              oncommand="LoadMsgWithRemoteContent();"/>
+    <menuseparator id="remoteContentSettingsMenuSeparator"/>
+    <menuitem id="editRemoteContentSettings"
+#ifdef XP_WIN
+              label="&editRemoteContentSettings.label;"
+              accesskey="&editRemoteContentSettings.accesskey;"
+#else
+              label="&editRemoteContentSettingsUnix.label;"
+              accesskey="&editRemoteContentSettingsUnix.accesskey;"
+#endif
+              oncommand="editRemoteContentSettings();"/>
+    <menuseparator id="remoteContentOriginsMenuSeparator"/>
+    <menuseparator id="remoteContentAllMenuSeparator"/>
+    <menuitem id="remoteContentOptionAllowAll"
+              oncommand="allowRemoteContentForAll(this.parentNode);"/>
+  </menupopup>
+
+  <menupopup id="phishingOptions">
+    <menuitem id="phishingOptionIgnore"
+              label="&phishingOptionIgnore.label;"
+              accesskey="&phishingOptionIgnore.accesskey;"
+              oncommand="IgnorePhishingWarning();"/>
+    <menuitem id="phishingOptionSettings"
+#ifdef XP_WIN
+              label="&phishingOptionSettings.label;"
+              accesskey="&phishingOptionSettings.accesskey;"
+#else
+              label="&phishingOptionSettingsUnix.label;"
+              accesskey="&phishingOptionSettingsUnix.accesskey;"
+#endif
+              oncommand="OpenPhishingSettings();"/>
   </menupopup>

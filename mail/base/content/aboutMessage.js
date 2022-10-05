@@ -7,12 +7,10 @@
 // mailContext.js
 /* globals dbViewWrapperListener */
 
-// mailWindowOverlay.js
-/* globals ClearPendingReadTimer, gMessageNotificationBar */
-
 // msgHdrView.js
-/* globals HideMessageHeaderPane, messageHeaderSink, gMessageListeners,
-   OnLoadMsgHeaderPane, OnTagsChange, OnUnloadMsgHeaderPane */
+/* globals AdjustHeaderView ClearPendingReadTimer gMessageListeners
+   HideMessageHeaderPane messageHeaderSink OnLoadMsgHeaderPane OnTagsChange
+   OnUnloadMsgHeaderPane */
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -160,6 +158,7 @@ window.addEventListener("DOMContentLoaded", event => {
 });
 
 window.addEventListener("unload", () => {
+  ClearPendingReadTimer();
   OnUnloadMsgHeaderPane();
   MailServices.mailSession.RemoveFolderListener(folderListener);
   preferenceObserver.cleanUp();
@@ -329,6 +328,8 @@ var preferenceObserver = {
     "rss.show.summary",
   ],
 
+  _reloadTimeout: null,
+
   init() {
     for (let topic of this._topics) {
       Services.prefs.addObserver(topic, this);
@@ -342,6 +343,16 @@ var preferenceObserver = {
   },
 
   observe(subject, topic, data) {
-    ReloadMessage();
+    if (data == "mail.show_headers") {
+      AdjustHeaderView(Services.prefs.getIntPref(data));
+    }
+    if (!this._reloadTimeout) {
+      // Clear the event queue before reloading the message. Several prefs may
+      // be changed at once.
+      this._reloadTimeout = setTimeout(() => {
+        this._reloadTimeout = null;
+        ReloadMessage();
+      });
+    }
   },
 };

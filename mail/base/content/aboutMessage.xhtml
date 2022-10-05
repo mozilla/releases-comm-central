@@ -55,18 +55,15 @@
 
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
-  <script defer="defer" src="chrome://messenger/content/mailContextMenus.js"></script>
   <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
   <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
   <script defer="defer" src="chrome://messenger/content/msgViewNavigation.js"></script>
   <script defer="defer" src="chrome://messenger/content/editContactPanel.js"></script>
   <script defer="defer" src="chrome://messenger/content/header-fields.js"></script>
-  <script defer="defer" src="chrome://messenger/content/msgHdrView.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mail-offline.js"></script>
   <script defer="defer" src="chrome://openpgp/content/ui/enigmailMessengerOverlay.js"></script>
   <script defer="defer" src="chrome://openpgp/content/ui/enigmailMsgHdrViewOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/msgSecurityPane.js"></script>
-  <script defer="defer" src="chrome://messenger/content/mailCommands.js"></script>
-  <script defer="defer" src="chrome://messenger/content/mailWindowOverlay.js"></script>
   <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/messenger-customization.js"></script>
   <script defer="defer" src="chrome://calendar/content/imip-bar.js"></script>
@@ -74,6 +71,7 @@
   <script defer="defer" src="chrome://calendar/content/widgets/calendar-invitation-panel.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailContext.js"></script>
+  <script defer="defer" src="chrome://messenger/content/msgHdrView.js"></script>
   <script defer="defer" src="chrome://messenger/content/aboutMessage.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -82,7 +80,6 @@
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
   <popupset id="mainPopupSet">
-#include mainPopupSet.inc.xhtml
 #include mailContext.inc.xhtml
 #include msgHdrPopup.inc.xhtml
 #include editContactPanel.inc.xhtml

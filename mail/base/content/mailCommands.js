@@ -575,26 +575,6 @@ function SaveAsTemplate(uri) {
   }
 }
 
-function MarkSelectedMessagesRead(markRead) {
-  ClearPendingReadTimer();
-  gDBView.doCommand(
-    markRead
-      ? Ci.nsMsgViewCommandType.markMessagesRead
-      : Ci.nsMsgViewCommandType.markMessagesUnread
-  );
-  if (markRead) {
-    reportMsgRead({ isNewRead: true });
-  }
-}
-
-function MarkSelectedMessagesFlagged(markFlagged) {
-  gDBView.doCommand(
-    markFlagged
-      ? Ci.nsMsgViewCommandType.flagMessages
-      : Ci.nsMsgViewCommandType.unflagMessages
-  );
-}
-
 function ViewPageSource(messages) {
   var numMessages = messages.length;
 

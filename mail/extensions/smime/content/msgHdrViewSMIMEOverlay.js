@@ -398,6 +398,7 @@ function msgHdrViewSMIMEOnLoad(event) {
   listener.onBeforeShowHeaderPane = onSMIMEBeforeShowHeaderPane;
   gMessageListeners.push(listener);
 
+  // eslint-disable-next-line no-global-assign
   gEncryptedURIService = Cc[
     "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"
   ].getService(Ci.nsIEncryptedSMIMEURIsService);

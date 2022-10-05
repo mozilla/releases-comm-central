@@ -229,18 +229,7 @@ function handleDeleteColClick(event) {
 }
 
 function ThreadPaneDoubleClick() {
-  if (IsSpecialFolderSelected(Ci.nsMsgFolderFlags.Drafts, true)) {
-    MsgComposeDraftMessage();
-  } else if (IsSpecialFolderSelected(Ci.nsMsgFolderFlags.Templates, true)) {
-    ComposeMessage(
-      Ci.nsIMsgCompType.Template,
-      Ci.nsIMsgCompFormat.Default,
-      gFolderDisplay.displayedFolder,
-      gFolderDisplay.selectedMessageUris
-    );
-  } else {
-    MsgOpenSelectedMessages();
-  }
+  MsgOpenSelectedMessages();
 }
 
 function ThreadPaneKeyDown(event) {
@@ -449,21 +438,8 @@ function UpdateSortIndicators(sortType, sortOrder) {
   }
 }
 
-function IsSpecialFolderSelected(flags, checkAncestors) {
-  let folder = GetThreadPaneFolder();
-  return folder && folder.isSpecialFolder(flags, checkAncestors);
-}
-
 function GetThreadTree() {
   return document.getElementById("threadTree");
-}
-
-function GetThreadPaneFolder() {
-  try {
-    return gDBView.msgFolder;
-  } catch (ex) {
-    return null;
-  }
 }
 
 function ThreadPaneOnLoad() {

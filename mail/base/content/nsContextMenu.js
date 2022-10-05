@@ -8,7 +8,6 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from messageDisplay.js */
 /* import-globals-from utilityOverlay.js */
-/* global EnigmailURIs: false, gEncryptedURIService: true */
 
 var { InlineSpellChecker, SpellCheckHelper } = ChromeUtils.importESModule(
   "resource://gre/modules/InlineSpellChecker.sys.mjs"
