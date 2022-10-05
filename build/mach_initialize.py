@@ -19,6 +19,7 @@ MACH_MODULES = [
     "comm/python/l10n/mach_commands.py",
     "comm/tools/lint/mach_commands.py",
     "comm/tools/esmify/mach_commands.py",
+    "comm/mail/components/storybook/mach_commands.py",
 ]
 
 CATEGORIES = {

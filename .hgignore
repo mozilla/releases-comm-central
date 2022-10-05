@@ -44,3 +44,7 @@ mozilla
 # Ignore the files and directory that JetBrains IDEs create.
 \.idea/
 \.iml$
+
+# Ignore Storybook generated files
+^mail/components/storybook/node_modules/
+^mail/components/storybook/storybook-static/
