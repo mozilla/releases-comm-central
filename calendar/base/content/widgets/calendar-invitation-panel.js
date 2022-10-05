@@ -34,6 +34,10 @@
         this.shadowRoot.appendChild(document.getElementById(id).content.cloneNode(true));
       }
     }
+
+    disconnectedCallback() {
+      document.l10n.disconnectRoot(this.shadowRoot);
+    }
   }
 
   /**
@@ -131,10 +135,6 @@
         .map(node => node.textContent)
         .join(" ");
     }
-
-    disconnectedCallback() {
-      document.l10n.disconnectRoot(this.shadowRoot);
-    }
   }
   customElements.define("calendar-invitation-panel-header", InvitationPanelHeader);
 
@@ -174,10 +174,6 @@
       this.shadowRoot
         .getElementById("description")
         .appendChild(cal.view.textToHtmlDocumentFragment(item.descriptionText, document));
-    }
-
-    disconnectedCallback() {
-      document.l10n.disconnectRoot(this.shadowRoot);
     }
   }
   customElements.define("calendar-invitation-panel-properties", InvitationPanelProperties);
@@ -266,10 +262,6 @@
         breakdown.appendChild(span);
       }
     }
-
-    disconnectedCallback() {
-      document.l10n.disconnectRoot(this.shadowRoot);
-    }
   }
   customElements.define("calendar-invitation-partstat-summary", InvitationPartStatSummary);
 
@@ -313,10 +305,6 @@
         this.shadowRoot.getElementById("status"),
         "calendar-invitation-panel-reply-status"
       );
-    }
-
-    disconnectedCallback() {
-      document.l10n.disconnectRoot(this.shadowRoot);
     }
   }
 
