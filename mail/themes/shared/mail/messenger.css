@@ -149,8 +149,11 @@ p {
   -moz-box-flex: 2;
 }
 
-.tree-columnpicker-icon {
+.tree-columnpicker-button {
   list-style-image: var(--icon-column-menu);
+  padding-inline: 4px;
+  border-style: none;
+  border-radius: 0;
   -moz-context-properties: stroke, fill;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
@@ -1067,7 +1070,7 @@ tree > treechildren::-moz-tree-image(primary, dropOn) {
 }
 
 :root:-moz-lwtheme treecol:not([hideheader="true"]),
-:root:-moz-lwtheme treecolpicker:not([hideheader="true"]) {
+:root:-moz-lwtheme .tree-columnpicker-button:not([hideheader="true"]) {
   appearance: none;
   color: inherit;
   background-color: transparent;
@@ -1083,7 +1086,7 @@ tree > treechildren::-moz-tree-image(primary, dropOn) {
 
 @media (prefers-color-scheme: dark) {
   :root:-moz-lwtheme treecol,
-  :root:-moz-lwtheme treecolpicker {
+  :root:-moz-lwtheme .tree-columnpicker-button {
     border-color: var(--splitter-color, rgba(249, 249, 250, 0.2));
   }
 
@@ -1093,13 +1096,13 @@ tree > treechildren::-moz-tree-image(primary, dropOn) {
 }
 
 :root:-moz-lwtheme treecol:hover,
-:root:-moz-lwtheme treecolpicker:hover {
+:root:-moz-lwtheme .tree-columnpicker-button:hover {
   background-color: hsla(0, 0%, 60%, 0.4);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:-moz-lwtheme treecol:hover,
-  :root:-moz-lwtheme treecolpicker:hover {
+  :root:-moz-lwtheme .tree-columnpicker-button:hover {
     background-color: rgba(249, 249, 250, 0.2);
   }
 }

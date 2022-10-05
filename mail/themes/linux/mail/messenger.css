@@ -391,7 +391,7 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
 }
 
 :root[lwt-tree] treecol:not([hideheader="true"]),
-:root[lwt-tree] treecolpicker:not([hideheader="true"]) {
+:root[lwt-tree] .tree-columnpicker-button:not([hideheader="true"]) {
   padding-inline-start: 7px;
   padding-inline-end: 6px;
 }

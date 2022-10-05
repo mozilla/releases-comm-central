@@ -292,12 +292,12 @@ treechildren::-moz-tree-indentation {
 
 @media (-moz-windows-classic) {
   treecol[hideheader="true"],
-  treecolpicker[hideheader="true"] {
+  .tree-columnpicker-button[hideheader="true"] {
     border-width: 0;
   }
 
   :root[lwt-tree] treecol:not([hideheader="true"]),
-  :root[lwt-tree] treecolpicker:not([hideheader="true"]) {
+  :root[lwt-tree] .tree-columnpicker-button:not([hideheader="true"]) {
     border-top-width: 0;
     border-inline-start-width: 0;
   }
