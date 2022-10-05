@@ -207,9 +207,3 @@ function CrossFolderNavigation(type) {
     }
   }
 }
-
-function GoNextMessage(type, startFromBeginning) {
-  if (!gFolderDisplay.navigate(type)) {
-    CrossFolderNavigation(type);
-  }
-}

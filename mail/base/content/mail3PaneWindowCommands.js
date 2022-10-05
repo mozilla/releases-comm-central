@@ -42,23 +42,6 @@ var FolderPaneController = {
   },
 };
 
-function UpdateDeleteLabelsFromFolderCommand(folder, command) {
-  if (command != "cmd_delete") {
-    return;
-  }
-
-  if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
-    goSetMenuValue(command, "valueFolder");
-    goSetAccessKey(command, "valueFolderAccessKey");
-  } else if (folder.server.type == "nntp") {
-    goSetMenuValue(command, "valueNewsgroup");
-    goSetAccessKey(command, "valueNewsgroupAccessKey");
-  } else {
-    goSetMenuValue(command, "valueFolder");
-    goSetAccessKey(command, "valueFolderAccessKey");
-  }
-}
-
 // DefaultController object (handles commands when one of the trees does not have focus)
 var DefaultController = {
   /* eslint-disable complexity */
@@ -315,11 +298,6 @@ function CloseTabOrWindow() {
   }
 }
 
-function GetNumSelectedMessages() {
-  // This global function is only for mailnews/ compatibility.
-  return gFolderDisplay.selectedCount;
-}
-
 function IsSendUnsentMsgsEnabled(unsentMsgsFolder) {
   // If no account has been configured, there are no messages for sending.
   if (MailServices.accounts.accounts.length == 0) {
@@ -385,41 +363,6 @@ function IsSubscribeEnabled() {
   }
 
   return false;
-}
-
-function IsFolderCharsetEnabled() {
-  return IsFolderSelected();
-}
-
-function IsPropertiesEnabled(command) {
-  var folders = GetSelectedMsgFolders();
-  if (!folders.length) {
-    return false;
-  }
-  var folder = folders[0];
-
-  // when servers are selected it should be "Edit | Properties..."
-  if (folder.isServer) {
-    goSetMenuValue(command, "valueGeneric");
-  } else if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
-    goSetMenuValue(command, "valueFolder");
-  } else {
-    goSetMenuValue(
-      command,
-      isNewsURI(folder.URI) ? "valueNewsgroup" : "valueFolder"
-    );
-  }
-
-  return folders.length == 1;
-}
-
-function IsViewNavigationItemEnabled() {
-  return IsFolderSelected();
-}
-
-function IsFolderSelected() {
-  var folders = GetSelectedMsgFolders();
-  return folders.length == 1 && !folders[0].isServer;
 }
 
 /**
@@ -499,28 +442,4 @@ function SwitchPaneFocus(event) {
   }
 
   panes[focusedElementIndex].focus();
-}
-
-/** Check if this is a folder the user is allowed to delete. */
-function CanDeleteFolder(folder) {
-  if (folder.isServer) {
-    return false;
-  }
-
-  var specialFolder = FolderUtils.getSpecialFolderString(folder);
-
-  if (
-    specialFolder == "Inbox" ||
-    specialFolder == "Trash" ||
-    specialFolder == "Drafts" ||
-    specialFolder == "Sent" ||
-    specialFolder == "Templates" ||
-    specialFolder == "Outbox" ||
-    (specialFolder == "Junk" &&
-      !FolderUtils.canRenameDeleteJunkMail(folder.URI))
-  ) {
-    return false;
-  }
-
-  return true;
 }

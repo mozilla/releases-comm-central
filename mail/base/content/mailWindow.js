@@ -13,17 +13,12 @@
 /* import-globals-from msgMail3PaneWindow.js */
 /* import-globals-from utilityOverlay.js */
 
-// From netError.js
-/* globals retryThis */
-
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 XPCOMUtils.defineLazyModuleGetters(this, {
   appIdleManager: "resource:///modules/AppIdleManager.jsm",
   Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
-  MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
   UIDensity: "resource:///modules/UIDensity.jsm",
 });
 
@@ -34,11 +29,8 @@ XPCOMUtils.defineLazyScriptGetter(
 );
 
 // This file stores variables common to mail windows
-var messenger;
 var statusFeedback;
 var msgWindow;
-
-var accountManager;
 
 UIDensity.registerWindow(window);
 
@@ -217,8 +209,6 @@ function CreateMailWindowGlobals() {
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
     Ci.nsIMsgWindow
   );
-
-  accountManager = MailServices.accounts;
 }
 
 function toggleCaretBrowsing() {
@@ -283,7 +273,6 @@ function toggleCaretBrowsing() {
 }
 
 function InitMsgWindow() {
-  msgWindow.windowCommands = new nsMsgWindowCommands();
   // set the domWindow before setting the status feedback and header sink objects
   msgWindow.domWindow = window;
   msgWindow.statusFeedback = statusFeedback;
@@ -635,23 +624,6 @@ nsMsgStatusFeedback.prototype = {
   onHandlerChanged(aActivity) {},
 };
 
-function nsMsgWindowCommands() {}
-
-nsMsgWindowCommands.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIMsgWindowCommands"]),
-
-  selectFolder(folderUri) {},
-
-  selectMessage(messageUri) {
-    let msgHdr = messenger.msgHdrFromURI(messageUri);
-    gFolderDisplay.selectMessage(msgHdr);
-  },
-
-  clearMsgPane() {
-    // TODO: Fix or bin.
-  },
-};
-
 /**
  * Returns the browser element of the current tab.
  * The zoom manager, view source and possibly some other functions still rely
@@ -660,31 +632,6 @@ nsMsgWindowCommands.prototype = {
 function getBrowser() {
   let tabmail = document.getElementById("tabmail");
   return tabmail ? tabmail.getBrowserForSelectedTab() : null;
-}
-
-/**
- * This function is global and expected by toolkit to get the notification box
- * for the browser for use with items like password manager.
- */
-function getNotificationBox(aWindow) {
-  var tabmail = document.getElementById("tabmail");
-  var tabInfo = tabmail.tabInfo;
-
-  for (var i = 0; i < tabInfo.length; ++i) {
-    var browserFunc =
-      tabInfo[i].mode.getBrowser || tabInfo[i].mode.tabType.getBrowser;
-    if (browserFunc) {
-      var possBrowser = browserFunc.call(tabInfo[i].mode.tabType, tabInfo[i]);
-      if (
-        possBrowser &&
-        possBrowser.contentWindow == aWindow &&
-        possBrowser.parentNode.tagName == "notificationbox"
-      ) {
-        return possBrowser.parentNode;
-      }
-    }
-  }
-  return null;
 }
 
 // Given the server, open the twisty and the set the selection

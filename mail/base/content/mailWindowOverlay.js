@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozElements gSpacesToolbar */
+/* global gSpacesToolbar */
 
 /* import-globals-from ../../../mailnews/extensions/newsblog/newsblogOverlay.js */
 /* import-globals-from commandglue.js */
@@ -29,8 +29,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   MimeParser: "resource:///modules/mimeParser.jsm",
-  MessageArchiver: "resource:///modules/MessageArchiver.jsm",
-  TagUtils: "resource:///modules/TagUtils.jsm",
 });
 
 Object.defineProperty(this, "BrowserConsoleManager", {
@@ -44,8 +42,6 @@ Object.defineProperty(this, "BrowserConsoleManager", {
   configurable: true,
   enumerable: true,
 });
-
-var ADDR_DB_LARGE_COMMIT = 1;
 
 // the user preference,
 // if HTML is not allowed. I assume, that the user could have set this to a
@@ -66,13 +62,8 @@ function menu_new_init() {
     Services.prefs.getBoolPref("mail.provider.enabled")
   );
 
-  // If we don't have a gFolderDisplay, just get out of here and leave the menu
-  // as it is.
-  if (!gFolderDisplay) {
-    return;
-  }
-
-  let folder = gFolderDisplay.displayedFolder;
+  // If we don't have a folder, just get out of here and leave the menu as it is.
+  let folder = document.getElementById("tabmail")?.currentTabInfo.folder;
   if (!folder) {
     return;
   }
@@ -229,9 +220,6 @@ function view_init() {
       selectedMessage: message,
     } = tab.folderDisplay);
     messageDisplayVisible = tab.messageDisplay.visible;
-  } else if (!tab && gMessageDisplay) {
-    message = gMessageDisplay.displayedMessage;
-    messageDisplayVisible = true;
   } else {
     // TODO disable everything?
   }
@@ -576,10 +564,6 @@ function InitMessageMenu() {
   let tab = document.getElementById("tabmail")?.currentTabInfo;
   if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
     message = tab.message;
-  } else if (tab?.mode.tabType.name == "mail") {
-    message = tab.folderDisplay.selectedMessage;
-  } else {
-    message = gFolderDisplay.selectedMessage;
   }
 
   let isNews = message?.folder?.flags & Ci.nsMsgFolderFlags.Newsgroup;
@@ -733,10 +717,6 @@ function InitViewBodyMenu() {
   let tab = document.getElementById("tabmail")?.currentTabInfo;
   if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
     message = tab.message;
-  } else if (tab?.mode.tabType.name == "mail") {
-    message = tab.folderDisplay.selectedMessage;
-  } else {
-    message = gFolderDisplay.selectedMessage;
   }
 
   // Separate render prefs not implemented for feeds, bug 458606.  Show the
@@ -830,7 +810,7 @@ function InitOtherActionsViewBodyMenu() {
   let disallow_classes = Services.prefs.getIntPref(
     "mailnews.display.disallow_mime_handlers"
   );
-  let isFeed = gFolderDisplay.selectedMessageIsFeed;
+  let isFeed = false; // TODO
   const kDefaultIDs = [
     "otherActionsMenu_bodyAllowHTML",
     "otherActionsMenu_bodySanitized",
@@ -927,42 +907,6 @@ function SetMenuItemLabel(menuItemId, customLabel) {
 }
 
 /**
- * Update the tooltip of the "Get messages" button to indicate which accounts
- * (usernames) will be fetched if clicked.
- */
-
-function SetGetMsgButtonTooltip() {
-  var msgButton = document.getElementById("button-getmsg");
-  // The button is not found in the document if isn't on the toolbar but available
-  // in the Customize palette. In that case we do not need to update its tooltip.
-  if (!msgButton) {
-    return;
-  }
-
-  var selectedFolders = GetSelectedMsgFolders();
-  var folders;
-  if (selectedFolders.length) {
-    folders = selectedFolders;
-  } else {
-    folders = [GetDefaultAccountRootFolder()];
-  }
-
-  if (!folders[0]) {
-    return;
-  }
-
-  var bundle = document.getElementById("bundle_messenger");
-  var listSeparator = bundle.getString("getMsgButtonTooltip.listSeparator");
-
-  // Push the usernames through a Set() to remove duplicates.
-  var names = new Set(folders.map(v => v.server.prettyName));
-  var tooltipNames = Array.from(names).join(listSeparator);
-  msgButton.tooltipText = bundle.getFormattedString("getMsgButtonTooltip", [
-    tooltipNames,
-  ]);
-}
-
-/**
  * Refresh the contents of the tag popup menu/panel.
  * Used for example for appmenu/Message/Tag panel.
  *
@@ -991,10 +935,6 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
   let tab = document.getElementById("tabmail")?.currentTabInfo;
   if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
     message = tab.message;
-  } else if (tab?.mode.tabType.name == "mail") {
-    message = tab.folderDisplay.selectedMessage;
-  } else {
-    message = gFolderDisplay.selectedMessage;
   }
 
   const tagArray = MailServices.tags.getAllTags();
@@ -1113,7 +1053,7 @@ function InitRecentlyClosedTabsPopup(
       document.getElementById("bundle_messenger").getString("restoreAllTabs")
     );
 
-    item.setAttribute("oncommand", "goRestoreAllTabs();");
+    item.addEventListener("command", goRestoreAllTabs);
 
     if (classes) {
       item.setAttribute("class", classes);
@@ -1133,7 +1073,8 @@ function goRestoreAllTabs() {
     document.getElementById("tabmail").undoCloseTab();
   }
 }
-
+/*
+TODO: Fix and enable this code.
 function backToolbarMenu_init(menuPopup) {
   populateHistoryMenu(menuPopup, true);
 }
@@ -1234,21 +1175,23 @@ function populateHistoryMenu(menuPopup, isBackMenu) {
     relPos += isBackMenu ? -1 : 1;
     newMenuItem.setAttribute("value", relPos);
     newMenuItem.folder = folder;
-    newMenuItem.setAttribute(
-      "oncommand",
-      "NavigateToUri(event.target); event.stopPropagation();"
-    );
+    newMenuItem.addEventListener("command", event => {
+      NavigateToUri(event.target);
+      event.stopPropagation();
+    });
     menuPopup.appendChild(newMenuItem);
     if (!(relPos % 20)) {
       break;
     }
   }
 }
-
+*/
 /**
  * This is triggered by the history navigation menu options, as created by
  *  populateHistoryMenu above.
  */
+/*
+TODO: Fix and enable this code.
 function NavigateToUri(target) {
   var historyIndex = target.getAttribute("value");
   var msgUri = messenger.getMsgUriAtNavigatePos(historyIndex);
@@ -1270,7 +1213,7 @@ function NavigateToUri(target) {
 function forwardToolbarMenu_init(menuPopup) {
   populateHistoryMenu(menuPopup, false);
 }
-
+*/
 function InitMessageMark() {
   // TODO: Fix or remove this function.
   // document
@@ -1328,7 +1271,7 @@ function MsgGetMessagesForAllServers(defaultServer) {
     // Parallel array of folders to download to...
     var localFoldersToDownloadTo = [];
     var pop3Server;
-    for (let server of accountManager.allServers) {
+    for (let server of MailServices.accounts.allServers) {
       if (server.protocolInfo.canLoginAtStartUp && server.loginAtStartUp) {
         if (
           defaultServer &&
@@ -1403,52 +1346,24 @@ function MsgGetNextNMessages() {
   }
 }
 
-function MsgDeleteMessage(reallyDelete, fromToolbar) {
-  // If from the toolbar, return right away if this is a news message
-  // only allow cancel from the menu:  "Edit | Cancel / Delete Message".
-  if (fromToolbar && gFolderDisplay.view.isNewsFolder) {
-    return;
-  }
+function MsgNewMessage(event) {
+  let msgFolder = document.getElementById("tabmail")?.currentTabInfo.folder;
 
-  gFolderDisplay.hintAboutToDeleteMessages();
-  if (reallyDelete) {
-    gDBView.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
-  } else {
-    gDBView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
-  }
-}
-
-function OpenContainingFolder() {
-  MailUtils.displayMessageInFolderTab(gMessageDisplay.displayedMessage);
-}
-
-/**
- * Calls the ComposeMessage function with the desired type, and proper default
- * based on the event that fired it.
- *
- * @param aCompType  the nsIMsgCompType to pass to the function
- * @param aEvent (optional) the event that triggered the call
- */
-function composeMsgByType(aCompType, aEvent) {
-  // If we're the hidden window, then we're not going to have a gFolderDisplay
-  // to work out existing folders, so just use null.
-  let msgFolder = gFolderDisplay ? GetFirstSelectedMsgFolder() : null;
-  let msgUris = gFolderDisplay ? gFolderDisplay.selectedMessageUris : null;
-
-  if (aEvent && aEvent.shiftKey) {
+  if (event?.shiftKey) {
     ComposeMessage(
-      aCompType,
+      Ci.nsIMsgCompType.New,
       Ci.nsIMsgCompFormat.OppositeOfDefault,
       msgFolder,
-      msgUris
+      []
     );
   } else {
-    ComposeMessage(aCompType, Ci.nsIMsgCompFormat.Default, msgFolder, msgUris);
+    ComposeMessage(
+      Ci.nsIMsgCompType.New,
+      Ci.nsIMsgCompFormat.Default,
+      msgFolder,
+      []
+    );
   }
-}
-
-function MsgNewMessage(event) {
-  composeMsgByType(Ci.nsIMsgCompType.New, event);
 }
 
 function CanComposeMessages() {
@@ -1707,7 +1622,8 @@ function MsgFilters(emailAddress, folder, fieldName) {
       // filters work correctly), but may not be what IMAP users who filter to a
       // local folder really want.
       try {
-        folder = gFolderDisplay.selectedMessage.folder;
+        // TODO: Fix this.
+        // folder = gFolderDisplay.selectedMessage.folder;
       } catch (ex) {}
     }
     if (!folder) {
@@ -1812,14 +1728,8 @@ function ToggleInlineAttachment(target) {
   target.setAttribute("checked", viewAttachmentInline ? "true" : "false");
 }
 
-function IsMailFolderSelected() {
-  var selectedFolders = GetSelectedMsgFolders();
-  var folder = selectedFolders.length ? selectedFolders[0] : null;
-  return folder && folder.server.type != "nntp";
-}
-
 function IsGetNewMessagesEnabled() {
-  for (let server of accountManager.allServers) {
+  for (let server of MailServices.accounts.allServers) {
     if (server.type == "none") {
       continue;
     }
@@ -1871,7 +1781,7 @@ function IsAccountOfflineEnabled() {
 }
 
 function GetDefaultAccountRootFolder() {
-  var account = accountManager.defaultAccount;
+  var account = MailServices.accounts.defaultAccount;
   if (account) {
     return account.incomingServer.rootMsgFolder;
   }
@@ -2023,7 +1933,7 @@ function GetMessagesForAllAuthenticatedAccounts() {
     var localFoldersToDownloadTo = [];
     var pop3Server;
 
-    for (let server of accountManager.allServers) {
+    for (let server of MailServices.accounts.allServers) {
       if (
         server.protocolInfo.canGetMessages &&
         !server.passwordPromptRequired

@@ -62,10 +62,6 @@ function composeEmailTo(linkURL, identity) {
   params.format = Ci.nsIMsgCompFormat.Default;
   if (identity) {
     params.identity = identity;
-  } else if (gFolderDisplay?.displayedFolder) {
-    params.identity = accountManager.getFirstIdentityForServer(
-      gFolderDisplay.displayedFolder.server
-    );
   }
   params.composeFields = fields;
   MailServices.compose.OpenComposeWindowWithParams(null, params);

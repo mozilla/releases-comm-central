@@ -129,11 +129,6 @@ function UpdateMailSearch(caller) {
   document.commandDispatcher.updateCommands("mail-search");
 }
 
-/**
- * No-op clear message pane function for FolderDisplayWidget.
- */
-function ClearMessagePane() {}
-
 function SetAdvancedSearchStatusText(aNumHits) {}
 
 /**

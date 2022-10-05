@@ -24,10 +24,6 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-ChromeUtils.defineESModuleGetters(this, {
-  ShortcutUtils: "resource://gre/modules/ShortcutUtils.sys.mjs",
-});
-
 XPCOMUtils.defineLazyModuleGetters(this, {
   UIDensity: "resource:///modules/UIDensity.jsm",
   UIFontSize: "resource:///modules/UIFontSize.jsm",
@@ -457,10 +453,6 @@ function OnUnloadMessageWindow() {
   ToolbarIconColor.uninit();
   PanelUI.uninit();
   OnMailWindowUnload();
-}
-
-function ReloadMessage() {
-  messageBrowser.contentWindow.ReloadMessage();
 }
 
 // MessageWindowController object (handles commands when one of the trees does not have focus)

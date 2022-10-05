@@ -27,8 +27,6 @@
 %msgHdrViewOverlayDTD;
 <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
 %messengerDTD;
-<!ENTITY % editContactOverlayDTD SYSTEM "chrome://messenger/locale/editContactOverlay.dtd">
-%editContactOverlayDTD;
 <!ENTITY % customizeToolbarDTD SYSTEM "chrome://messenger/locale/customizeToolbar.dtd">
 %customizeToolbarDTD;
 <!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
@@ -157,16 +155,11 @@
     </keyset>
   </keyset>
 
-  <!-- Popup menus provided by mailWindowOverlay.xhtml -->
   <popupset id="mainPopupSet">
 #include mainPopupSet.inc.xhtml
-
 <!-- The panelUI is for the appmenu. -->
 #include ../../components/customizableui/content/panelUI.inc.xhtml
-
-#include msgHdrPopup.inc.xhtml
   </popupset>
-#include editContactPanel.inc.xhtml
 
   <toolbox id="mail-toolbox"
            class="mail-toolbox"

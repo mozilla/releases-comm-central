@@ -112,7 +112,6 @@
   <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
   <script defer="defer" src="chrome://messenger/content/folderPane.js"></script>
   <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
-  <script defer="defer" src="chrome://messenger/content/editContactPanel.js"></script>
   <script defer="defer" src="chrome://messenger/content/toolbarIconColor.js"></script>
   <script defer="defer" src="chrome://messenger/content/jsTreeView.js"></script>
   <script defer="defer" src="chrome://openpgp/content/ui/enigmailMessengerOverlay.js"></script>
@@ -327,14 +326,10 @@
 
 #include ../../../calendar/base/content/calendar-keys.inc.xhtml
 
-<!-- Popup menus provided by mailWindowOverlay.xhtml -->
 <popupset id="mainPopupSet">
 #include mainPopupSet.inc.xhtml
-
 <!-- The panelUI is for the appmenu. -->
 #include ../../components/customizableui/content/panelUI.inc.xhtml
-
-#include msgHdrPopup.inc.xhtml
   <panel is="glodacomplete-rich-result-popup"
          id="PopupGlodaAutocomplete"
          noautofocus="true"/>
@@ -431,7 +426,6 @@
   </popupnotification>
 #endif
 
-#include editContactPanel.inc.xhtml
 #include ../../components/im/content/chat-menu.inc.xhtml
 </popupset>
 #ifdef XP_MACOSX

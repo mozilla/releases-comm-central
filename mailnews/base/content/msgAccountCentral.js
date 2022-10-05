@@ -3,12 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../mail/base/content/mailCore.js */
-/* import-globals-from ../prefs/content/accountUtils.js */
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 

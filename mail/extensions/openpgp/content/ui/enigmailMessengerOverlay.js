@@ -6,6 +6,9 @@
 
 "use strict";
 
+// TODO: Fix undefined things in this file.
+/* eslint-disable no-undef */
+
 // TODO: check if this is safe
 /* eslint-disable no-unsanitized/property */
 
@@ -122,40 +125,6 @@ Enigmail.msg = {
       // to trigger the key check
       EnigmailKeyRing.getAllKeys();
     }, 3600 * 1000); // 1 hour
-
-    this.treeController = {
-      supportsCommand(command) {
-        // EnigmailLog.DEBUG("enigmailMessengerOverlay.js: treeCtrl: supportsCommand: "+command+"\n");
-        switch (command) {
-          case "button_enigmail_decrypt":
-            return true;
-        }
-        return false;
-      },
-      isCommandEnabled(command) {
-        // EnigmailLog.DEBUG("enigmailMessengerOverlay.js: treeCtrl: isCommandEnabled: "+command+"\n");
-        try {
-          if (gFolderDisplay.messageDisplay.visible) {
-            if (gFolderDisplay.selectedCount != 1) {
-              Enigmail.hdrView.statusBarHide();
-            }
-            return gFolderDisplay.selectedCount == 1;
-          }
-          Enigmail.hdrView.statusBarHide();
-        } catch (ex) {}
-        return false;
-      },
-      doCommand(command) {
-        //EnigmailLog.DEBUG("enigmailMessengerOverlay.js: treeCtrl: doCommand: "+command+"\n");
-        // nothing
-      },
-      onEvent(event) {
-        // EnigmailLog.DEBUG("enigmailMessengerOverlay.js: treeCtrl: onEvent: "+command+"\n");
-        // nothing
-      },
-    };
-
-    top.controllers.appendController(this.treeController);
 
     EnigmailMsgRead.ensureExtraAddonHeaders();
     Enigmail.msg.messageListener.onEndHeaders();
@@ -2760,10 +2729,6 @@ Enigmail.msg = {
       if (elem) {
         elem.setAttribute(c.attrib, c.value);
       }
-    }
-
-    if (this.treeController) {
-      top.controllers.removeController(this.treeController);
     }
 
     this.messengerClose();

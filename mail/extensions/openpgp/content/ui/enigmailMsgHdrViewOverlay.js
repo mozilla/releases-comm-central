@@ -6,6 +6,8 @@
 
 "use strict";
 
+// aboutMessage.js
+/* global gFolderDisplay */
 /* global setMessageEncryptionStateButton */
 /* global currentAttachments: false */
 /* global gDBView: false, msgWindow: false, messageHeaderSink: false, gMessageListeners: false */

@@ -15,6 +15,8 @@
 /* import-globals-from mailCore.js */
 /* import-globals-from mail-offline.js */
 /* import-globals-from mailTabs.js */
+/* import-globals-from mailWindow.js */
+/* import-globals-from mailWindowOverlay.js */
 /* import-globals-from messenger-customization.js */
 /* import-globals-from quickFilterBar.js */
 /* import-globals-from searchBar.js */
@@ -34,28 +36,16 @@ var { AppConstants } = ChromeUtils.import(
 
 ChromeUtils.defineESModuleGetters(this, {
   Color: "resource://gre/modules/Color.sys.mjs",
-  ShortcutUtils: "resource://gre/modules/ShortcutUtils.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
-  CustomizableUI: "resource:///modules/CustomizableUI.jsm",
-  JSTreeSelection: "resource:///modules/JsTreeSelection.jsm",
-  LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
   MailConsts: "resource:///modules/MailConsts.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   msgDBCacheManager: "resource:///modules/MsgDBCacheManager.jsm",
   PeriodicFilterManager: "resource:///modules/PeriodicFilterManager.jsm",
   SessionStoreManager: "resource:///modules/SessionStoreManager.jsm",
-  SummaryFrameManager: "resource:///modules/SummaryFrameManager.jsm",
-  TagUtils: "resource:///modules/TagUtils.jsm",
 });
-
-// A stub for tests to avoid test failures caused by the harness expecting
-// this to exist.
-var NewTabPagePreloading = {
-  removePreloadedBrowser() {},
-};
 
 XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function() {
   let { PopupNotifications } = ChromeUtils.import(
@@ -157,23 +147,8 @@ function getWindowsVersionInfo() {
 /* This is where functions related to the 3 pane window are kept */
 
 // from MailNewsTypes.h
-var nsMsgKey_None = 0xffffffff;
-var nsMsgViewIndex_None = 0xffffffff;
 var kMailCheckOncePrefName = "mail.startup.enabledMailCheckOnce";
 
-var kStandardPaneConfig = 0;
-var kWidePaneConfig = 1;
-var kVerticalPaneConfig = 2;
-
-var kNumFolderViews = 4; // total number of folder views
-
-/** widget with id=messagepanebox, initialized by GetMessagePane() */
-var gMessagePane;
-
-/** widget with id=messagepaneboxwrapper, initialized by GetMessagePaneWrapper() */
-var gMessagePaneWrapper;
-
-var gThreadAndMessagePaneSplitter = null;
 /**
  * Tracks whether the right mouse button changed the selection or not.  If the
  * user right clicks on the selection, it stays the same.  If they click outside
@@ -187,64 +162,8 @@ var gThreadAndMessagePaneSplitter = null;
 var gRightMouseButtonSavedSelection = null;
 var gNewAccountToLoad = null;
 
-var gDisplayStartupPage = false;
-
 // The object in charge of managing the mail summary pane
 var gSummaryFrameManager;
-
-// the folderListener object
-var folderListener = {
-  onFolderAdded(parentFolder, child) {},
-  onMessageAdded(parentFolder, msg) {},
-  onFolderRemoved(parentFolder, child) {},
-  onMessageRemoved(parentFolder, msg) {},
-
-  onFolderPropertyChanged(item, property, oldValue, newValue) {},
-
-  onFolderIntPropertyChanged(item, property, oldValue, newValue) {
-    if (item == gFolderDisplay.displayedFolder) {
-      if (property == "TotalMessages" || property == "TotalUnreadMessages") {
-        UpdateStatusMessageCounts(gFolderDisplay.displayedFolder);
-      }
-    }
-  },
-
-  onFolderBoolPropertyChanged(item, property, oldValue, newValue) {},
-
-  onFolderUnicharPropertyChanged(item, property, oldValue, newValue) {},
-  onFolderPropertyFlagChanged(item, property, oldFlag, newFlag) {},
-
-  onFolderEvent(folder, event) {
-    if (event == "ImapHdrDownloaded") {
-      if (folder) {
-        var imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
-        if (imapFolder) {
-          var hdrParser = imapFolder.hdrParser;
-          if (hdrParser) {
-            var msgHdr = hdrParser.GetNewMsgHdr();
-            if (msgHdr) {
-              var hdrs = hdrParser.headers;
-              if (hdrs && hdrs.includes("X-attachment-size:")) {
-                msgHdr.OrFlags(Ci.nsMsgMessageFlags.Attachment);
-              }
-              if (hdrs && hdrs.includes("X-image-size:")) {
-                msgHdr.setStringProperty("imageSize", "1");
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-};
-
-function ServerContainsFolder(server, folder) {
-  if (!folder || !server) {
-    return false;
-  }
-
-  return server.equals(folder.server);
-}
 
 /**
  * Called on startup if there are no accounts.
@@ -339,8 +258,6 @@ var gMailInit = {
    * initialized when needed.
    */
   onLoad() {
-    TagUtils.loadTagsIntoCSS(document);
-
     CreateMailWindowGlobals();
 
     if (!Services.policies.isAllowed("devtools")) {
@@ -544,7 +461,6 @@ var gMailInit = {
     ToolbarIconColor.uninit();
 
     document.getElementById("tabmail")._teardown();
-    MailServices.mailSession.RemoveFolderListener(folderListener);
 
     OnMailWindowUnload();
   },
@@ -626,14 +542,6 @@ function switchToMailTab() {
   }
 }
 
-function switchToCalendarTab() {
-  document.getElementById("tabmail").openTab("calendar");
-}
-
-function switchToTasksTab() {
-  document.getElementById("tabmail").openTab("tasks");
-}
-
 /**
  * Trigger the initialization of the entire UI. Called after the okCallback of
  * the emailWizard during a first run, or directly from the accountProvisioner
@@ -646,10 +554,10 @@ async function loadPostAccountWizard() {
   MigrateFolderViews();
   MigrateOpenMessageBehavior();
 
-  accountManager.setSpecialFolders();
+  MailServices.accounts.setSpecialFolders();
 
   try {
-    accountManager.loadVirtualFolders();
+    MailServices.accounts.loadVirtualFolders();
   } catch (e) {
     Cu.reportError(e);
   }
@@ -673,7 +581,7 @@ function showSystemIntegrationDialog() {
       Ci.nsIShellService
     );
   } catch (ex) {}
-  let defaultAccount = accountManager.defaultAccount;
+  let defaultAccount = MailServices.accounts.defaultAccount;
 
   // Load the search integration module.
   let { SearchIntegration } = ChromeUtils.import(
@@ -771,18 +679,6 @@ function HandleAppCommandEvent(evt) {
     default:
       break;
   }
-}
-
-/**
- * Look for another 3-pane window.
- */
-function FindOther3PaneWindow() {
-  for (let win of Services.wm.getEnumerator("mail:3pane")) {
-    if (win != window) {
-      return win;
-    }
-  }
-  return null;
 }
 
 /**
@@ -919,7 +815,7 @@ async function loadStartFolder(initialUri) {
     if (initialUri) {
       startFolder = MailUtils.getOrCreateFolder(initialUri);
     } else {
-      let defaultAccount = accountManager.defaultAccount;
+      let defaultAccount = MailServices.accounts.defaultAccount;
       if (!defaultAccount) {
         return;
       }
@@ -1018,22 +914,6 @@ async function loadStartFolder(initialUri) {
   }
 }
 
-function FindInSidebar(currentWindow, id) {
-  var item = currentWindow.document.getElementById(id);
-  if (item) {
-    return item;
-  }
-
-  for (var i = 0; i < currentWindow.frames.length; ++i) {
-    var frameItem = FindInSidebar(currentWindow.frames[i], id);
-    if (frameItem) {
-      return frameItem;
-    }
-  }
-
-  return null;
-}
-
 function OpenMessageInNewTab(msgHdr, tabParams = {}) {
   if (!msgHdr) {
     return;
@@ -1055,17 +935,6 @@ function OpenMessageInNewTab(msgHdr, tabParams = {}) {
   });
 }
 
-function ThreadTreeOnClick(event) {
-  // Middle click on a message opens the message in a tab
-  if (
-    event.button == 1 &&
-    event.target.localName != "slider" &&
-    event.target.localName != "scrollbarbutton"
-  ) {
-    OpenMessageInNewTab(gFolderDisplay.selectedMessage, { event });
-  }
-}
-
 function GetSelectedMsgFolders() {
   // TODO: Replace this.
 }
@@ -1084,7 +953,7 @@ function MigrateJunkMailSettings() {
   if (!junkMailSettingsVersion) {
     // Get the default account, check to see if we have values for our
     // globally migrated prefs.
-    let defaultAccount = accountManager.defaultAccount;
+    let defaultAccount = MailServices.accounts.defaultAccount;
     if (defaultAccount) {
       // we only care about
       var prefix = "mail.server." + defaultAccount.incomingServer.key + ".";
@@ -1125,7 +994,7 @@ function MigrateFolderViews() {
     "mail.folder.views.version"
   );
   if (!folderViewsVersion) {
-    for (let server of accountManager.allServers) {
+    for (let server of MailServices.accounts.allServers) {
       if (server) {
         let inbox = MailUtils.getInboxFolder(server);
         if (inbox) {
@@ -1213,35 +1082,6 @@ messageFlavorDataProvider.prototype = {
     );
   },
 };
-
-/**
- * Returns a new filename that is guaranteed to not be in the Set
- * of existing names.
- *
- * Example use:
- *   suggestUniqueFileName("testname", ".txt", new Set("testname", "testname1"))
- *   returns "testname2.txt"
- * Does not check file system for existing files.
- *
- * @param aIdentifier     proposed filename
- * @param aType           extension
- * @param aExistingNames  a Set of names already in use
- */
-function suggestUniqueFileName(aIdentifier, aType, aExistingNames) {
-  let suffix = 1;
-  let base = validateFileName(aIdentifier);
-  let suggestion = base + aType;
-  while (true) {
-    if (!aExistingNames.has(suggestion)) {
-      break;
-    }
-
-    suggestion = base + suffix + aType;
-    suffix++;
-  }
-
-  return suggestion;
-}
 
 var TabsInTitlebar = {
   init() {
@@ -1375,15 +1215,6 @@ var TabsInTitlebar = {
     Services.prefs.removeObserver(this._drawInTitlePref, this);
   },
 };
-
-/* Draw */
-function onTitlebarMaxClick() {
-  if (window.windowState == window.STATE_MAXIMIZED) {
-    window.restore();
-  } else {
-    window.maximize();
-  }
-}
 
 var BrowserAddonUI = {
   async promptRemoveExtension(addon) {

@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// TODO: Fix undefined things in this file.
+/* eslint-disable no-undef */
+
 /* import-globals-from ../../../base/content/commandglue.js */
 
 var { MailServices } = ChromeUtils.import(

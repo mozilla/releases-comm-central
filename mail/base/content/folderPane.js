@@ -7,10 +7,18 @@
 // This is used in the main folder pane, but also some dialogs that need
 // to show a nice list of folders.
 
+/* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
 /* import-globals-from commandglue.js */
+/* import-globals-from mailWindowOverlay.js */
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
+);
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "FolderUtils",
+  "resource:///modules/FolderUtils.jsm"
 );
 
 /**

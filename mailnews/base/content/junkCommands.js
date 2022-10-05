@@ -19,8 +19,10 @@
  *   msgWindow
  */
 
-/* globals ClearMessagePane, gDBView, MarkSelectedMessagesRead, messenger,
-   msgWindow, nsMsgViewIndex_None */
+// TODO: Fix undefined things in this file.
+/* eslint-disable no-undef */
+
+/* globals gDBView, MarkSelectedMessagesRead, messenger, msgWindow */
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -459,7 +461,7 @@ function deleteJunkInFolder() {
   //
   // We'll leave no selection after the delete
   if ("gNextMessageViewIndexAfterDelete" in window) {
-    window.gNextMessageViewIndexAfterDelete = nsMsgViewIndex_None;
+    window.gNextMessageViewIndexAfterDelete = 0xffffffff; // nsMsgViewIndex_None
   }
   gDBView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
   treeSelection.clearSelection();
