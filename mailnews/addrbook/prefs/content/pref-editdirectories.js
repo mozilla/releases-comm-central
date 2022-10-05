@@ -124,10 +124,9 @@ function dblClickDirectory(event) {
 }
 
 function addDirectory() {
-  window.browsingContext.topChromeWindow.openDialog(
+  parent.gSubDialog.open(
     "chrome://messenger/content/addressbook/pref-directory-add.xhtml",
-    "",
-    "chrome,resizable=no,centerscreen"
+    { features: "resizable=no" }
   );
 }
 
@@ -138,10 +137,9 @@ function editDirectory() {
     let abURI = abList.value;
     let ab = MailServices.ab.getDirectory(abURI);
 
-    window.browsingContext.topChromeWindow.openDialog(
-      ab.propertiesChromeURI,
-      "editDirectory",
-      "chrome,modal=yes,resizable=no",
+    parent.gSubDialog.open(
+      "chrome://messenger/content/addressbook/pref-directory-add.xhtml",
+      { features: "resizable=no" },
       { selectedDirectory: ab }
     );
   }
