@@ -492,8 +492,8 @@ var gMailInit = {
         window.matchMedia("(-moz-platform: windows-win8)").matches &&
         window.matchMedia("(-moz-windows-default-theme)").matches
       ) {
-        let { Windows8WindowFrameColor } = ChromeUtils.import(
-          "resource:///modules/Windows8WindowFrameColor.jsm"
+        let { Windows8WindowFrameColor } = ChromeUtils.importESModule(
+          "resource:///modules/Windows8WindowFrameColor.sys.mjs"
         );
         let windowFrameColor = new Color(...Windows8WindowFrameColor.get());
         // Default to black for foreground text.

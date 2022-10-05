@@ -4,13 +4,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    "BuiltInThemes.jsm",
-    "ThemeVariableMap.jsm",
+    "BuiltInThemes.sys.mjs",
+    "ThemeVariableMap.sys.mjs",
 ]
 
 if CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
     EXTRA_JS_MODULES += [
-        "Windows8WindowFrameColor.jsm",
+        "Windows8WindowFrameColor.sys.mjs",
     ]
 
 if CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
