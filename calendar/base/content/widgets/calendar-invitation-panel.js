@@ -8,21 +8,6 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const dateFormat = new Intl.DateTimeFormat(undefined, {
-    month: "long",
-    day: "2-digit",
-    year: "numeric",
-  });
-  const dayFormat = new Intl.DateTimeFormat(undefined, { weekday: "long" });
-
-  const timeFormat = new Intl.DateTimeFormat(undefined, {
-    timeStyle: "short",
-  });
-
-  const fmtDate = date => dateFormat.format(date);
-  const fmtDay = date => dayFormat.format(date);
-  const fmtTime = date => timeFormat.format(date);
-
   /**
    * Base element providing boilerplate for shadow root initialisation.
    */
@@ -164,17 +149,8 @@
      * @type {calIEvent}
      */
     set item(item) {
-      let when = this.shadowRoot.getElementById("when");
-
-      let startDatetime = document.createElement("calendar-invitation-datetime");
-      startDatetime.datetime = item.startDate;
-      when.appendChild(startDatetime);
-
-      if (item.endDate) {
-        let endDateTime = document.createElement("calendar-invitation-datetime");
-        endDateTime.datetime = item.endDate;
-        when.appendChild(endDateTime);
-      }
+      let interval = this.shadowRoot.getElementById("interval");
+      interval.item = item;
 
       this.shadowRoot
         .getElementById("location")
@@ -195,39 +171,30 @@
   customElements.define("calendar-invitation-panel-properties", InvitationPanelProperties);
 
   /**
-   * InvitationDatetime displays the formatted date and time of the event in the
-   * format: "Tuesday, February 24, 2022" using the Intl.DateTimeFormat API.
+   * InvitationInterval displays the formatted interval of the event. Formatting
+   * relies on cal.dtz.formatter.formatIntervalParts().
    */
-  class InvitationDatetime extends BaseInvitationElement {
+  class InvitationInterval extends BaseInvitationElement {
     constructor() {
-      super("calendarInvitationDatetime");
+      super("calendarInvitationInterval");
     }
 
     /**
-     * Set to display a date and time.
-     * @type {calIDateTIme}
+     * The item whose interval to show.
+     * @type {calIEvent}
      */
-    set datetime(datetime) {
-      let date = cal.dtz.dateTimeToJsDate(datetime);
-
+    set item(value) {
+      let [startDate, endDate] = cal.dtz.formatter.getItemDates(value);
+      let timezone = startDate.timezone.displayName;
+      let parts = cal.dtz.formatter.formatIntervalParts(startDate, endDate);
       document.l10n.setAttributes(
-        this.shadowRoot.getElementById("date"),
-        "calendar-invitation-datetime-date",
-        { dayOfWeek: fmtDay(date), date: fmtDate(date) }
+        this.shadowRoot.getElementById("interval"),
+        `calendar-invitation-interval-${parts.type}`,
+        { ...parts, timezone }
       );
-
-      document.l10n.setAttributes(
-        this.shadowRoot.getElementById("time"),
-        "calendar-invitation-datetime-time",
-        { time: fmtTime(date), timezone: datetime.timezone.displayName }
-      );
-    }
-
-    disconnectedCallback() {
-      document.l10n.disconnectRoot(this.shadowRoot);
     }
   }
-  customElements.define("calendar-invitation-datetime", InvitationDatetime);
+  customElements.define("calendar-invitation-interval", InvitationInterval);
 
   const partStatOrder = ["ACCEPTED", "DECLINED", "TENTATIVE", "NEEDS-ACTION"];
 
