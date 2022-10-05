@@ -10,7 +10,7 @@ linux64/opt:
     treeherder:
         platform: linux64/opt
         symbol: B
-    worker-type: b-linux
+    worker-type: b-linux-gcp
     worker:
         max-run-time: 7200
         env:
@@ -58,7 +58,7 @@ linux64-shippable/opt:
     treeherder:
         platform: linux64-shippable/opt
         symbol: B
-    worker-type: b-linux
+    worker-type: b-linux-gcp
     worker:
         max-run-time: 7200
         env:
@@ -100,7 +100,7 @@ linux64/debug:
     treeherder:
         platform: linux64/debug
         symbol: B
-    worker-type: b-linux
+    worker-type: b-linux-gcp
     worker:
         max-run-time: 7200
         env:
@@ -144,7 +144,7 @@ linux64-asan/opt:
     treeherder:
         platform: linux64/asan
         symbol: Bo
-    worker-type: b-linux
+    worker-type: b-linux-gcp
     worker:
         env:
             PERFHERDER_EXTRA_OPTIONS: "opt asan"
@@ -201,7 +201,7 @@ linux64-asan-reporter-shippable/opt:
         platform: linux64-asan-reporter/opt
         symbol: BoR
     run-on-projects: ['comm-central']
-    worker-type: b-linux
+    worker-type: b-linux-gcp
     worker:
         env:
             PERFHERDER_EXTRA_OPTIONS: asan-reporter
@@ -250,7 +250,7 @@ linux64-tsan/opt:
     treeherder:
         platform: linux64/tsan
         symbol: Bo
-    worker-type: b-linux
+    worker-type: b-linux-gcp
     worker:
         env:
             PERFHERDER_EXTRA_OPTIONS: "opt tsan"
@@ -302,7 +302,7 @@ linux64-aarch64/opt:
         platform: linux64-aarch64/opt
         symbol: B
         tier: 2
-    worker-type: b-linux
+    worker-type: b-linux-gcp
     worker:
         max-run-time: 7200
     run:
@@ -347,7 +347,7 @@ linux/opt:
     treeherder:
         platform: linux32/opt
         symbol: B
-    worker-type: b-linux
+    worker-type: b-linux-gcp
     worker:
         max-run-time: 7200
     run:
@@ -394,7 +394,7 @@ linux-shippable/opt:
     treeherder:
         platform: linux32-shippable/opt
         symbol: B
-    worker-type: b-linux
+    worker-type: b-linux-gcp
     worker:
         max-run-time: 7200
         env:
@@ -437,7 +437,7 @@ linux/debug:
     treeherder:
         platform: linux32/debug
         symbol: B
-    worker-type: b-linux
+    worker-type: b-linux-gcp
     worker:
         max-run-time: 7200
     run:
