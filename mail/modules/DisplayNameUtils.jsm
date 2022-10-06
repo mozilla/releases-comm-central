@@ -37,36 +37,38 @@ function _getIdentityForAddress(aEmailAddress) {
  * appropriate name can be made (e.g. there is no card for this address),
  * returns |null|.
  *
- * @param aEmailAddress      The email address to format.
- * @param aHeaderDisplayName The display name from the header, if any
- *                           (unused, maintained for add-ons, previously used
- *                           as a fallback).
- * @param aContext           The field being formatted (e.g. "to", "from").
- * @param aCard              The address book card, if any.
+ * @param {string} emailAddress - The email address to format.
+ * @param {string} headerDisplayName - The display name from the header, if any.
+ * @param {string} context - The field being formatted (e.g. "to", "from").
  * @return The formatted display name, or null.
  */
-function formatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard) {
-  var displayName = null;
-  var identity = _getIdentityForAddress(aEmailAddress);
-  var card = MailServices.ab.cardForEmailAddress(aEmailAddress);
+function formatDisplayName(emailAddress, headerDisplayName, context) {
+  let displayName = null;
+  let identity = _getIdentityForAddress(emailAddress);
+  let card = MailServices.ab.cardForEmailAddress(emailAddress);
 
   // If this address is one of the user's identities...
   if (identity) {
-    // ...pick a localized version of the word "Me" appropriate to this
-    // specific header; fall back to the version used by the "to" header
-    // if nothing else is available.
-    try {
-      displayName = gMessengerBundle.GetStringFromName(
-        "header" + aContext + "FieldMe"
-      );
-    } catch (e) {
-      displayName = gMessengerBundle.GetStringFromName("headertoFieldMe");
-    }
-
-    // Make sure we have an unambiguous name if there are multiple identities
-    if (MailServices.accounts.allIdentities.length > 1) {
+    if (
+      MailServices.accounts.allIdentities.length == 1 &&
+      (!headerDisplayName || identity.fullName == headerDisplayName)
+    ) {
+      // ...pick a localized version of the word "Me" appropriate to this
+      // specific header; fall back to the version used by the "to" header
+      // if nothing else is available.
+      try {
+        displayName = gMessengerBundle.GetStringFromName(
+          `header${context}FieldMe`
+        );
+      } catch (e) {
+        displayName = gMessengerBundle.GetStringFromName("headertoFieldMe");
+      }
+    } else {
+      // Use the full address. It's not the expected name, maybe a customized
+      //  one the user sent, or one the sender got wrong, or we have multiple
+      // identities making the "Me" short string ambiguous.
       displayName = MailServices.headerParser
-        .makeMailboxObject(displayName, identity.email)
+        .makeMailboxObject(headerDisplayName, emailAddress)
         .toString();
     }
   }
@@ -80,7 +82,7 @@ function formatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard) {
       displayName = card.displayName || null;
     }
 
-    // Note: aHeaderDisplayName is not used as a fallback as confusion could be
+    // Note: headerDisplayName is not used as a fallback as confusion could be
     // caused by a collected address using an e-mail address as display name.
   }
 
