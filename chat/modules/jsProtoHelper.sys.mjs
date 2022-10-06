@@ -9,9 +9,9 @@ import {
   initLogModule,
   nsSimpleEnumerator,
   l10nHelper,
+  ClassInfo,
 } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
-import { ClassInfo } from "resource:///modules/imXPCOMUtils.sys.mjs";
 
 const lazy = {};
 

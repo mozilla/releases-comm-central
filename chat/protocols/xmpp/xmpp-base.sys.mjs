@@ -7,6 +7,7 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
 );
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import { Status } from "resource:///modules/imStatusUtils.sys.mjs";
+
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );

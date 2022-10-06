@@ -13,6 +13,7 @@ import {
   executeSoon,
   l10nHelper,
 } from "resource:///modules/imXPCOMUtils.sys.mjs";
+
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

@@ -5,6 +5,7 @@
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
 import { OTR } from "resource:///modules/OTR.sys.mjs";
+
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
