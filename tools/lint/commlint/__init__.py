@@ -2,9 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from __future__ import absolute_import, print_function, unicode_literals
-
+from contextlib import contextmanager
 import os
+from pathlib import Path
 
 from mozpack import path as mozpath
 from mozlint.types import supported_types
@@ -12,6 +12,20 @@ from mozlint.types import supported_types
 COMM_EXCLUSION_FILES = [os.path.join("comm", "tools", "lint", "ThirdPartyPaths.txt")]
 
 TASKCLUSTER_EXCLUDE_PATHS = (os.path.join("comm", "suite"),)
+
+
+@contextmanager
+def pushd(dest_path: Path):
+    """
+    Sets the cwd within the context
+    :param Path dest_path: The path to the cwd
+    """
+    origin = Path().absolute()
+    try:
+        os.chdir(dest_path)
+        yield
+    finally:
+        os.chdir(origin)
 
 
 def _apply_global_excludes(root, config):
@@ -36,6 +50,14 @@ def _expand_support_files(root, config):
     support_files = config.get("support-files", [])
     absolute_support_files = [mozpath.join(root, f) for f in support_files]
     config["support-files"] = absolute_support_files
+
+
+def eslint_wrapper(paths, config, **lintargs):
+    comm_root = Path(lintargs["root"]) / "comm"
+    with pushd(comm_root):
+        rv = lint_wrapper(paths, config, **lintargs)
+
+    return rv
 
 
 def lint_wrapper(paths, config, **lintargs):
