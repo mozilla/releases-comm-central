@@ -43,6 +43,8 @@ class ImapIncomingServer extends MsgIncomingServer {
   constructor() {
     super();
 
+    this._userAuthenticated = false;
+
     // nsIMsgIncomingServer attributes.
     this.localStoreType = "imap";
     this.localDatabaseType = "imap";
@@ -81,6 +83,10 @@ class ImapIncomingServer extends MsgIncomingServer {
   OnStopRunningUrl() {}
 
   /** @see nsIMsgIncomingServer */
+  get serverRequiresPasswordForBiff() {
+    return !this._userAuthenticated;
+  }
+
   performExpand(msgWindow) {
     this.hasDiscoveredFolders = false;
     MailServices.imap.discoverAllFolders(this.rootFolder, this, msgWindow);
@@ -100,6 +106,19 @@ class ImapIncomingServer extends MsgIncomingServer {
   }
 
   /** @see nsIImapServerSink */
+
+  /** @type {boolean} - User has authenticated with the server. */
+  get userAuthenticated() {
+    return this._userAuthenticated;
+  }
+
+  set userAuthenticated(value) {
+    this._userAuthenticated = value;
+    if (value) {
+      MailServices.accounts.userNeedsToAuthenticate = false;
+    }
+  }
+
   possibleImapMailbox(folderPath, delimiter, boxFlags) {
     let explicitlyVerify = false;
 

@@ -7,6 +7,7 @@ const EXPORTED_SYMBOLS = ["ImapClient"];
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var { MailStringUtils } = ChromeUtils.import(
   "resource:///modules/MailStringUtils.jsm"
 );
@@ -631,6 +632,11 @@ class ImapClient {
    * @param {TCPSocketEvent} event - The data event.
    */
   _onData = async event => {
+    // Without this, some tests are blocked waiting for response from Maild.jsm.
+    // Don't know the real cause, but possibly because ImapClient and Maild runs
+    // on the same process. We also have this in Pop3Client.
+    await new Promise(resolve => setTimeout(resolve));
+
     let stringPayload = MailStringUtils.uint8ArrayToByteString(
       new Uint8Array(event.data)
     );
@@ -907,6 +913,7 @@ class ImapClient {
     this._authenticating = false;
 
     if (res.status == "OK") {
+      this._serverSink.userAuthenticated = true;
       let actionId = () => {
         if (this._capabilities.includes("ID") && Services.appinfo.name) {
           this._nextAction = res => {

@@ -3718,7 +3718,9 @@ NS_IMETHODIMP nsImapMailFolder::LiteSelect(nsIUrlListener* aUrlListener,
   nsCOMPtr<nsIImapService> imapService =
       do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return imapService->LiteSelectFolder(this, aUrlListener, aMsgWindow, nullptr);
+  nsCOMPtr<nsIURI> outUri;
+  return imapService->LiteSelectFolder(this, aUrlListener, aMsgWindow,
+                                       getter_AddRefs(outUri));
 }
 
 nsresult nsImapMailFolder::GetFolderOwnerUserName(nsACString& userName) {
