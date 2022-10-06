@@ -4,10 +4,14 @@
 
 const EXPORTED_SYMBOLS = ["Pop3ProtocolInfo"];
 
+var { MsgProtocolInfo } = ChromeUtils.importESModule(
+  "resource:///modules/MsgProtocolInfo.sys.mjs"
+);
+
 /**
  * @implements {nsIMsgProtocolInfo}
  */
-class Pop3ProtocolInfo {
+class Pop3ProtocolInfo extends MsgProtocolInfo {
   QueryInterface = ChromeUtils.generateQI(["nsIMsgProtocolInfo"]);
 
   serverIID = Components.ID("{f99fdbf7-2e79-4ce3-9d94-7af3763b82fc}");
@@ -23,55 +27,16 @@ class Pop3ProtocolInfo {
   showComposeMsgLink = true;
   foldersCreatedAsync = false;
 
-  get defaultLocalPath() {
-    let file = this._getFileValue("mail.root.pop3-rel", "mail.root.pop3");
-    if (!file) {
-      file = Services.dirsvc.get("MailD", Ci.nsIFile);
-      this._setFileValue("mail.root.pop3-rel", "mail.root.pop3", file);
-    }
-    if (!file.exists()) {
-      file.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o775);
-    }
-    return file;
-  }
-
-  set defaultLocalPath(value) {
-    this._setFileValue("mail.root.pop3-rel", "mail.root.pop3", value);
-  }
-
   getDefaultServerPort(isSecure) {
     return isSecure
       ? Ci.nsIPop3URL.DEFAULT_POP3S_PORT
       : Ci.nsIPop3URL.DEFAULT_POP3_PORT;
   }
 
-  _getFileValue(relPrefName, absPrefName) {
-    try {
-      return Services.prefs.getComplexValue(relPrefName, Ci.nsIRelativeFilePref)
-        .file;
-    } catch (e) {
-      try {
-        let file = Services.prefs.getComplexValue(absPrefName, Ci.nsIFile);
-        Services.prefs.setComplexValue(relPrefName, Ci.nsIRelativeFilePref, {
-          QueryInterface: ChromeUtils.generateQI(["nsIRelativeFilePref"]),
-          file,
-          relativeToKey: "ProfD",
-        });
-        return file;
-      } catch (e) {
-        return null;
-      }
-    }
-  }
-
-  _setFileValue(relPrefName, absPrefName, file) {
-    Services.prefs.setComplexValue(relPrefName, Ci.nsIRelativeFilePref, {
-      QueryInterface: ChromeUtils.generateQI(["nsIRelativeFilePref"]),
-      file,
-      relativeToKey: "ProfD",
-    });
-    Services.prefs.setComplexValue(absPrefName, Ci.nsIFile, file);
-  }
+  // @see MsgProtocolInfo.sys.mjs
+  RELATIVE_PREF = "mail.root.pop3-rel";
+  ABSOLUTE_PREF = "mail.root.pop3";
+  DIR_SERVICE_PROP = "MailD";
 }
 
 Pop3ProtocolInfo.prototype.classID = Components.ID(
