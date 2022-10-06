@@ -971,10 +971,12 @@ nsresult nsMsgNewsFolder::CreateNewsgroupUrlForSignon(const char* ref,
 
   nsCOMPtr<nsIURL> url;
   if (singleSignon) {
-    nsCString serverURI;
-    rv = server->GetServerURI(serverURI);
+    // Do not include username in the url when interacting with LoginManager.
+    nsCString serverURI = "news://"_ns;
+    nsCString hostName;
+    rv = server->GetHostName(hostName);
     NS_ENSURE_SUCCESS(rv, rv);
-
+    serverURI.Append(hostName);
     rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
              .SetSpec(serverURI)
              .Finalize(url);
