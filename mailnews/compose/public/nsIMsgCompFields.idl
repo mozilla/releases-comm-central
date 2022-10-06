@@ -70,6 +70,12 @@ interface nsIMsgCompFields : msgIWritableStructuredHeaders {
   void removeAttachments();
 
   /**
+   * Values for other headers. Headers in order, from the
+   * mail.compose.other.header pref.
+   */
+  attribute Array<AString> otherHeaders;
+
+  /**
    * This function will split the recipients into an array.
    *
    * @param aRecipients       The recipients list to split.

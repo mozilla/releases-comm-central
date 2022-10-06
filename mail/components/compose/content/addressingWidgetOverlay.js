@@ -34,11 +34,18 @@ function Recipients2CompFields(msgCompFields) {
     );
   }
 
+  let otherHeaders = Services.prefs
+    .getCharPref("mail.compose.other.header", "")
+    .split(",")
+    .map(h => h.trim())
+    .filter(Boolean);
   for (let row of document.querySelectorAll(".address-row-raw")) {
     let recipientType = row.dataset.recipienttype;
     let headerValue = row.querySelector(".address-row-input").value.trim();
     if (headerValue) {
       msgCompFields.setRawHeader(recipientType, headerValue);
+    } else if (otherHeaders.includes(recipientType)) {
+      msgCompFields.deleteHeader(recipientType);
     }
   }
 

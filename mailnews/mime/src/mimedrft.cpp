@@ -314,7 +314,8 @@ nsresult CreateCompositionFields(
     const char* bcc, const char* fcc, const char* newsgroups,
     const char* followup_to, const char* organization, const char* subject,
     const char* references, const char* priority, const char* newspost_url,
-    char* charset, nsIMsgCompFields** _retval) {
+    const nsTArray<nsString>& otherHeaders, char* charset,
+    nsIMsgCompFields** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
   nsresult rv;
@@ -414,8 +415,19 @@ nsresult CreateCompositionFields(
     cFields->SetNewspostUrl(!val.IsEmpty() ? val.get() : newspost_url);
   }
 
+  nsTArray<nsString> cFieldsOtherHeaders;
+  cFields->GetOtherHeaders(cFieldsOtherHeaders);
+  for (auto otherHeader : otherHeaders) {
+    if (!otherHeader.IsEmpty()) {
+      MIME_DecodeMimeHeader(NS_ConvertUTF16toUTF8(otherHeader).get(), charset,
+                            false, true, val);
+      cFieldsOtherHeaders.AppendElement(NS_ConvertUTF8toUTF16(val));
+    } else {
+      cFieldsOtherHeaders.AppendElement(u""_ns);
+    }
+  }
+  cFields->SetOtherHeaders(cFieldsOtherHeaders);
   cFields.forget(_retval);
-
   return rv;
 }
 
@@ -1148,6 +1160,7 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
   char* draftInfo = 0;
   char* contentLanguage = 0;
   char* identityKey = 0;
+  nsTArray<nsString> readOtherHeaders;
 
   bool forward_inline = false;
   bool bodyAsAttachment = false;
@@ -1254,11 +1267,30 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
           news_host = PR_smprintf("news://%s", host);
         }
       }
+
+      // Other headers via pref.
+      nsCString otherHeaders;
+      nsTArray<nsCString> otherHeadersArray;
+      nsresult rv;
+      nsCOMPtr<nsIPrefBranch> pPrefBranch(
+          do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+      pPrefBranch->GetCharPref("mail.compose.other.header", otherHeaders);
+      if (!otherHeaders.IsEmpty()) {
+        ToLowerCase(otherHeaders);
+        ParseString(otherHeaders, ',', otherHeadersArray);
+        for (auto otherHeader : otherHeadersArray) {
+          otherHeader.Trim(" ");
+          nsAutoCString result;
+          result.Assign(
+              MimeHeaders_get(mdd->headers, otherHeader.get(), false, false));
+          readOtherHeaders.AppendElement(NS_ConvertUTF8toUTF16(result));
+        }
+      }
     }
 
     CreateCompositionFields(from, repl, to, cc, bcc, fcc, grps, foll, org, subj,
-                            refs, priority, news_host, mdd->mailcharset,
-                            getter_AddRefs(fields));
+                            refs, priority, news_host, readOtherHeaders,
+                            mdd->mailcharset, getter_AddRefs(fields));
 
     contentLanguage =
         MimeHeaders_get(mdd->headers, HEADER_CONTENT_LANGUAGE, false, false);
@@ -1598,8 +1630,8 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
     }
   } else {
     CreateCompositionFields(from, repl, to, cc, bcc, fcc, grps, foll, org, subj,
-                            refs, priority, news_host, mdd->mailcharset,
-                            getter_AddRefs(fields));
+                            refs, priority, news_host, readOtherHeaders,
+                            mdd->mailcharset, getter_AddRefs(fields));
     if (fields)
       CreateTheComposeWindow(fields, newAttachData, nsIMsgCompType::New,
                              nsIMsgCompFormat::Default, mdd->identity,

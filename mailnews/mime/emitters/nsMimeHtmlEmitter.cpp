@@ -167,6 +167,9 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
   bool pushAllHeaders = false;
   bool checkExtraHeaders = false;
   bool checkAddonHeaders = false;
+  nsCString otherHeaders;
+  nsTArray<nsCString> otherHeadersArray;
+  bool checkOtherHeaders = false;
 
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> pPrefBranch(
@@ -191,6 +194,17 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
         ParseString(extraAddonHeaders, ' ', extraAddonHeadersArray);
         checkAddonHeaders = true;
       }
+    }
+
+    pPrefBranch->GetCharPref("mail.compose.other.header", otherHeaders);
+    if (!otherHeaders.IsEmpty()) {
+      ToLowerCase(otherHeaders);
+      ParseString(otherHeaders, ',', otherHeadersArray);
+      for (uint32_t i = 0; i < otherHeadersArray.Length(); i++) {
+        otherHeadersArray[i].Trim(" ");
+      }
+
+      checkOtherHeaders = true;
     }
   }
 
@@ -235,7 +249,7 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
                  !PL_strcasecmp("delivered-to", headerName)) {
         skip = false;
 
-      } else if (checkExtraHeaders || checkAddonHeaders) {
+      } else if (checkExtraHeaders || checkAddonHeaders || checkOtherHeaders) {
         // Make headerStr lowercase because
         // extraExpandedHeaders/extraAddonHeadersArray was made lowercase above.
         nsDependentCString headerStr(headerInfo->name);
@@ -244,6 +258,8 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
         if (checkExtraHeaders && extraExpandedHeadersArray.Contains(headerStr))
           skip = false;
         if (checkAddonHeaders && extraAddonHeadersArray.Contains(headerStr))
+          skip = false;
+        if (checkOtherHeaders && otherHeadersArray.Contains(headerStr))
           skip = false;
       }
 

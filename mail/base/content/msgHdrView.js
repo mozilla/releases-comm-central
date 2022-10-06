@@ -303,6 +303,19 @@ function initializeHeaderViewTables() {
     );
   }
 
+  let otherHeaders = Services.prefs
+    .getCharPref("mail.compose.other.header", "")
+    .split(",")
+    .map(h => h.trim())
+    .filter(Boolean);
+
+  for (let otherHeaderName of otherHeaders) {
+    gExpandedHeaderView[otherHeaderName.toLowerCase()] = new HeaderView(
+      otherHeaderName,
+      otherHeaderName
+    );
+  }
+
   if (Services.prefs.getBoolPref("mailnews.headers.showOrganization")) {
     var organizationEntry = {
       name: "organization",
@@ -1228,6 +1241,23 @@ function UpdateExpandedMessageHeaders() {
         headerEntry.outputFunction(headerEntry, headerField.headerValue);
         headerEntry.valid = true;
       }
+    }
+  }
+
+  let otherHeaders = Services.prefs
+    .getCharPref("mail.compose.other.header", "")
+    .split(",")
+    .map(h => h.trim())
+    .filter(Boolean);
+
+  for (let otherHeaderName of otherHeaders) {
+    let toLowerCaseHeaderName = otherHeaderName.toLowerCase();
+    let headerEntry = gExpandedHeaderView[toLowerCaseHeaderName];
+    let headerData = currentHeaderData[toLowerCaseHeaderName];
+
+    if (headerEntry && headerData) {
+      headerEntry.outputFunction(headerEntry, headerData.headerValue);
+      headerEntry.valid = true;
     }
   }
 

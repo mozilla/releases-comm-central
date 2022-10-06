@@ -10,6 +10,7 @@ var {
   get_msg_source,
   open_compose_new_mail,
   save_compose_message,
+  open_compose_from_draft,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var { be_in_folder, select_click_row, get_special_folder } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -28,7 +29,7 @@ add_task(async function test_customHeaders() {
   let otherHeaders = Services.prefs.getCharPref("mail.compose.other.header");
   Services.prefs.setCharPref(
     "mail.compose.other.header",
-    "X-Header1, X-Header2, Approved, Supersedes"
+    "X-Header1, X-Header2, Approved ,Supersedes"
   );
 
   // Set values to custom headers.
@@ -75,6 +76,16 @@ add_task(async function test_customHeaders() {
     ),
     "Correct Supersedes found"
   );
+
+  cwc = open_compose_from_draft();
+  let inputs2 = cwc.window.document.querySelectorAll(".address-row-raw input");
+
+  Assert.equal(inputs2[0].value, "Test äöü");
+  Assert.equal(inputs2[1].value, "Test 😃");
+  Assert.equal(inputs2[2].value, "moderator@tinderbox.com");
+  Assert.equal(inputs2[3].value, "<message-id-1234@tinderbox.com>");
+
+  close_compose_window(cwc);
 
   // Reset other.header.
   Services.prefs.setCharPref("mail.compose.other.header", otherHeaders);
