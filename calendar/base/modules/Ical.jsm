@@ -9,6 +9,8 @@
  * upstream first.
  *
  * Current ical.js git revision: 7fb7b51f1b36d49b576a359ee178d85e6d4b192a
+ * plus https://github.com/kewisch/ical.js/pull/541
+ * plus https://github.com/kewisch/ical.js/pull/531
  */
 
 var EXPORTED_SYMBOLS = ["ICAL", "unwrap", "unwrapSetter", "unwrapSingle", "wrapGetter"];

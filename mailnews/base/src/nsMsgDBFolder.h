@@ -173,10 +173,12 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   // logged in or c) the user logged in successfully.
   static bool PromptForMasterPasswordIfNecessary();
 
-  // offline support methods.
+  // Offline support methods. Used by IMAP and News folders, but not local
+  // folders.
   nsresult StartNewOfflineMessage();
   nsresult WriteStartOfNewLocalMessage();
-  nsresult EndNewOfflineMessage();
+  nsresult EndNewOfflineMessage(nsresult status);
+
   nsresult AutoCompact(nsIMsgWindow* aWindow);
   // this is a helper routine that ignores whether nsMsgMessageFlags::Offline is
   // set for the folder
@@ -219,17 +221,29 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   bool mGettingNewMessages;
   nsMsgKey mLastMessageLoaded;
 
+  /*
+   * Start of offline-message-writing vars.
+   * These track offline message writing for IMAP and News folders.
+   * But *not* for local folders, which do their own thing.
+   * They are set up by StartNewOfflineMessage() and cleaned up
+   * by EndNewOfflineMessage().
+   * IMAP folder also uses these vars when saving messages to disk.
+   */
+
+  // The header of the message currently being written.
   nsCOMPtr<nsIMsgDBHdr> m_offlineHeader;
   int32_t m_numOfflineMsgLines;
+  // Number of bytes added due to add X-Mozilla-* headers.
   int32_t m_bytesAddedToLocalMsg;
   // This is currently used when we do a save as of an imap or news message..
   // Also used by IMAP/News offline messsage writing.
   nsCOMPtr<nsIOutputStream> m_tempMessageStream;
-  // Tracks the number of bytes written to m_tempMessageStream.
-  // Intentionally cumbersome name. Needed to fix Bug 1742975, but should
-  // be removed as soon as nsIMsgPluggableStore implementations track byte
-  // counts properly themselves.
+  // The number of bytes written to m_tempMessageStream so far.
   uint32_t m_tempMessageStreamBytesWritten;
+
+  /*
+   * End of offline message tracking vars
+   */
 
   nsCOMPtr<nsIMsgRetentionSettings> m_retentionSettings;
   nsCOMPtr<nsIMsgDownloadSettings> m_downloadSettings;

@@ -2,15 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-"use strict";
+import { WindowsRegistry } from "resource://gre/modules/WindowsRegistry.sys.mjs";
 
-const EXPORTED_SYMBOLS = ["Windows8WindowFrameColor"];
-
-const { WindowsRegistry } = ChromeUtils.importESModule(
-  "resource://gre/modules/WindowsRegistry.sys.mjs"
-);
-
-var Windows8WindowFrameColor = {
+export var Windows8WindowFrameColor = {
   _windowFrameColor: null,
 
   get() {

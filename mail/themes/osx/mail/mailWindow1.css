@@ -28,6 +28,12 @@
   background-color: -moz-OddTreeRow;
 }
 
+@media (prefers-contrast) {
+  :root:not([lwt-tree]) #folderTree {
+    background-color: Field;
+  }
+}
+
 treechildren::-moz-tree-row(modeHeader) {
   appearance: none !important;
 }

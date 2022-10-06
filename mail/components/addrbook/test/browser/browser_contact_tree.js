@@ -69,6 +69,7 @@ add_task(async function test_additions_and_removals() {
   checkCardsListed(contactA1, contactA2);
   await deleteRowWithPrompt(0);
   checkCardsListed(contactA2);
+  Assert.equal(cardsList.currentIndex, 0);
 
   await openAllAddressBooks();
   info("Performing check #3");
@@ -79,6 +80,7 @@ add_task(async function test_additions_and_removals() {
   checkCardsListed(contactA1, contactA2, listC);
   await deleteRowWithPrompt(0); // Delete A1.
   checkCardsListed(contactA2, listC);
+  Assert.equal(cardsList.currentIndex, 0);
   // Now do some things in an unrelated book. Check nothing changes here.
   let contactB2 = bookB.addCard(createContact("contact", "B2")); // Add B2.
   checkCardsListed(contactA2, listC);
@@ -134,8 +136,10 @@ add_task(async function test_additions_and_removals() {
   checkCardsListed(contactA2, contactB2);
   await deleteRowWithPrompt(1);
   checkCardsListed(contactA2);
+  Assert.equal(cardsList.currentIndex, 0);
   bookA.deleteCards([contactA2]);
   checkCardsListed();
+  Assert.equal(cardsList.currentIndex, -1);
 
   // While in "All Address Books", delete a directory that has contacts and
   // mailing lists. They should disappear.

@@ -1,5 +1,5 @@
 {
-  "version": "2.2022a",
+  "version": "2.2022b",
   "aliases": [
     "AUS Central Standard Time",
     "AUS Eastern Standard Time",
@@ -68,6 +68,7 @@
     "Etc/Unversal",
     "Etc/Zulu",
     "Europe/Belfast",
+    "Europe/Kiev",
     "FLE Standard Time",
     "Fiji Standard Time",
     "GFT Standard Time",
@@ -513,8 +514,8 @@
     "Europe/Istanbul",
     "Europe/Jersey",
     "Europe/Kaliningrad",
-    "Europe/Kiev",
     "Europe/Kirov",
+    "Europe/Kyiv",
     "Europe/Lisbon",
     "Europe/Ljubljana",
     "Europe/London",

@@ -1,0 +1,31 @@
+{
+  "name": "mail-storybook",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-storybook": "build-storybook",
+    "storybook": "start-storybook -p 5703 --no-open"
+  },
+  "author": "",
+  "license": "MPL-2.0",
+  "private": true,
+  "dependencies": {
+    "comm-central": "file:../../..",
+    "mozilla-central": "file:../../../.."
+  },
+  "devDependencies": {
+    "@babel/core": "^7.19.3",
+    "@fluent/bundle": "^0.17.1",
+    "@fluent/dom": "^0.8.1",
+    "@storybook/addon-actions": "^6.5.12",
+    "@storybook/addon-essentials": "^6.5.12",
+    "@storybook/addon-links": "^6.5.12",
+    "@storybook/builder-webpack5": "^6.5.12",
+    "@storybook/manager-webpack5": "^6.5.12",
+    "@storybook/web-components": "^6.5.12",
+    "babel-loader": "^8.2.5",
+    "lit": "^2.3.1"
+  }
+}

@@ -461,3 +461,101 @@ add_task(async function formatTime_test() {
   // let's reset the preferences
   Services.prefs.setStringPref("calendar.timezone.local", tzlocal);
 });
+
+add_task(async function formatInterval_test() {
+  let data = [
+    //1: task-without-dates
+    {
+      input: {},
+      expected: "no start or due date",
+    },
+    //2: task-without-due-date
+    {
+      input: { start: "20220916T140000Z" },
+      expected: "start date Friday, September 16, 2022 14:00",
+    },
+    //3: task-without-start-date
+    {
+      input: { end: "20220916T140000Z" },
+      expected: "due date Friday, September 16, 2022 14:00",
+    },
+    //4: all-day
+    {
+      input: {
+        start: "20220916T140000Z",
+        end: "20220916T140000Z",
+        allDay: true,
+      },
+      expected: "Friday, September 16, 2022",
+    },
+    //5: all-day-between-years
+    {
+      input: {
+        start: "20220916T140000Z",
+        end: "20230916T140000Z",
+        allDay: true,
+      },
+      expected: "September 16, 2022 – September 16, 2023",
+    },
+    //6: all-day-in-month
+    {
+      input: {
+        start: "20220916T140000Z",
+        end: "20220920T140000Z",
+        allDay: true,
+      },
+      expected: "September 16 – 20, 2022",
+    },
+    //7: all-day-between-months
+    {
+      input: {
+        start: "20220916T140000Z",
+        end: "20221020T140000Z",
+        allDay: true,
+      },
+      expected: "September 16 – October 20, 2022",
+    },
+    //8: same-date-time
+    {
+      input: {
+        start: "20220916T140000Z",
+        end: "20220916T140000Z",
+      },
+      expected: "Friday, September 16, 2022 14:00",
+    },
+    //9: same-day
+    {
+      input: {
+        start: "20220916T140000Z",
+        end: "20220916T160000Z",
+      },
+      expected: "Friday, September 16, 2022 14:00 – 16:00",
+    },
+    //10: several-days
+    {
+      input: {
+        start: "20220916T140000Z",
+        end: "20220920T160000Z",
+      },
+      expected: "Friday, September 16, 2022 14:00 – Tuesday, September 20, 2022 16:00",
+    },
+  ];
+
+  let i = 0;
+  for (let test of data) {
+    i++;
+    let startDate = test.input.start ? cal.createDateTime(test.input.start) : null;
+    let endDate = test.input.end ? cal.createDateTime(test.input.end) : null;
+
+    if (test.input.allDay) {
+      startDate.isDate = true;
+    }
+
+    let formatted = formatter.formatInterval(startDate, endDate);
+    equal(
+      test.expected,
+      formatted,
+      "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"
+    );
+  }
+});

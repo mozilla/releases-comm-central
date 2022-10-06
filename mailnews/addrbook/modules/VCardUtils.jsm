@@ -403,10 +403,14 @@ function dateProperty(abCardPrefix, vPropName) {
       yield [vPropName, {}, "date", dateValue.toString()];
     },
     *toAbCard(value) {
-      let dateValue = ICAL.VCardTime.fromDateAndOrTimeString(value);
-      yield [`${abCardPrefix}Year`, String(dateValue.year)];
-      yield [`${abCardPrefix}Month`, String(dateValue.month)];
-      yield [`${abCardPrefix}Day`, String(dateValue.day)];
+      try {
+        let dateValue = ICAL.VCardTime.fromDateAndOrTimeString(value);
+        yield [`${abCardPrefix}Year`, String(dateValue.year ?? "")];
+        yield [`${abCardPrefix}Month`, String(dateValue.month ?? "")];
+        yield [`${abCardPrefix}Day`, String(dateValue.day ?? "")];
+      } catch (ex) {
+        Cu.reportError(ex);
+      }
     },
   };
 }

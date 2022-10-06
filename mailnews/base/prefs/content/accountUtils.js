@@ -108,29 +108,17 @@ function AddFeedAccount() {
   );
 }
 
-function AddAddressBook() {
-  window.browsingContext.topChromeWindow.openDialog(
-    "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml",
-    "",
-    "chrome,modal,resizable=no,centerscreen"
-  );
-}
-
-function addCardDAVAddressBook() {
-  window.browsingContext.topChromeWindow.openDialog(
-    "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml",
-    "",
-    "chrome,resizable=no,centerscreen",
-    {}
-  );
-}
-
-function addLDAPAddressBook() {
-  window.browsingContext.topChromeWindow.openDialog(
-    "chrome://messenger/content/addressbook/pref-directory-add.xhtml",
-    "",
-    "chrome,resizable=no,centerscreen"
-  );
+/**
+ * Opens Address Book tab and triggers the address book creation dialog based on
+ * the passed type.
+ *
+ * @param {string} type - The address book type needing creation. Accepted types
+ *   are "JS", "LDAP", and "CARDDAV".
+ */
+function addNewAddressBook(type) {
+  window.browsingContext.topChromeWindow.toAddressBook({
+    action: `create_ab_${type}`,
+  });
 }
 
 function showCalendarWizard() {

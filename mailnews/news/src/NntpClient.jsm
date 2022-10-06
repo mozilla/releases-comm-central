@@ -661,6 +661,8 @@ class NntpClient {
   _actionArticle = () => {
     this._sendCommand(`ARTICLE ${this._articleNumber}`);
     this._nextAction = this._actionArticleResponse;
+    this._newsFolder?.notifyDownloadBegin(this._articleNumber);
+    this._downloadingToFolder = true;
   };
 
   /**
@@ -675,16 +677,13 @@ class NntpClient {
       line => {
         // NewsFolder will decide whether to save it to the offline storage.
         this._newsFolder?.notifyDownloadedLine(
-          line.slice(0, -2) + lineSeparator,
-          this._articleNumber
+          line.slice(0, -2) + lineSeparator
         );
         this.onData(line);
       },
       () => {
-        this._newsFolder?.notifyDownloadedLine(
-          `.${lineSeparator}`,
-          this._articleNumber
-        );
+        this._newsFolder?.notifyDownloadEnd(Cr.NS_OK);
+        this._downloadingToFolder = false;
         this._actionDone();
       }
     );
@@ -831,6 +830,12 @@ class NntpClient {
   _actionDone = (status = Cr.NS_OK) => {
     if (this._done) {
       return;
+    }
+    if (this._downloadingToFolder) {
+      // If we're in the middle of sending a message to the folder, make sure
+      // the folder knows we're aborting.
+      this._newsFolder.notifyDownloadEnd(Cr.NS_ERROR_FAILURE);
+      this._downloadingToFolder = false;
     }
     this._done = true;
     this._logger.debug(`Done with status=${status}`);

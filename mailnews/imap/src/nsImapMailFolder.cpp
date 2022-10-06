@@ -4352,7 +4352,7 @@ nsImapMailFolder::NormalEndMsgWriteStream(nsMsgKey uidOfMessage, bool markRead,
           "Failed to get message header when trying to update message size");
   }
 
-  if (m_offlineHeader) EndNewOfflineMessage();
+  if (m_offlineHeader) EndNewOfflineMessage(NS_OK);
 
   m_curMsgUid = uidOfMessage;
 

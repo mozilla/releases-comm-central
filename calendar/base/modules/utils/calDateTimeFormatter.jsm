@@ -175,99 +175,221 @@ var formatter = {
   },
 
   /**
-   * Format a date/time interval. The returned string may assume that the dates are so close to each
-   * other, that it can leave out some parts of the part string denoting the end date.
+   * Format a date/time interval to a string. The returned string may assume
+   * that the dates are so close to each other, that it can leave out some parts
+   * of the part string denoting the end date.
    *
-   * @param {calIDateTime} aStartDate        The start of the interval.
-   * @param {calIDateTime} aEndDate          The end of the interval.
-   * @return {string}                        A string describing the interval in a legible form.
+   * @param {calIDateTime} startDate - The start of the interval.
+   * @param {calIDateTime} endDate   - The end of the interval.
+   * @return {string}                - A string describing the interval in a legible form.
    */
-  formatInterval(aStartDate, aEndDate) {
-    // Check for tasks without start and/or due date
-    if (aEndDate == null && aStartDate == null) {
-      return lazy.cal.l10n.getCalString("datetimeIntervalTaskWithoutDate");
-    } else if (aEndDate == null) {
-      let startDateString = this.formatDate(aStartDate);
-      let startTime = this.formatTime(aStartDate);
-      return lazy.cal.l10n.getCalString("datetimeIntervalTaskWithoutDueDate", [
-        startDateString,
-        startTime,
-      ]);
-    } else if (aStartDate == null) {
-      let endDateString = this.formatDate(aEndDate);
-      let endTime = this.formatTime(aEndDate);
-      return lazy.cal.l10n.getCalString("datetimeIntervalTaskWithoutStartDate", [
-        endDateString,
-        endTime,
-      ]);
+  formatInterval(startDate, endDate) {
+    let format = this.formatIntervalParts(startDate, endDate);
+    switch (format.type) {
+      case "task-without-dates":
+        return lazy.cal.l10n.getCalString("datetimeIntervalTaskWithoutDate");
+
+      case "task-without-due-date":
+        return lazy.cal.l10n.getCalString("datetimeIntervalTaskWithoutDueDate", [
+          format.startDate,
+          format.startTime,
+        ]);
+
+      case "task-without-start-date":
+        return lazy.cal.l10n.getCalString("datetimeIntervalTaskWithoutStartDate", [
+          format.endDate,
+          format.endTime,
+        ]);
+
+      case "all-day":
+        return format.startDate;
+
+      case "all-day-between-years":
+        return lazy.cal.l10n.getCalString("daysIntervalBetweenYears", [
+          format.startMonth,
+          format.startDay,
+          format.startYear,
+          format.endMonth,
+          format.endDay,
+          format.endYear,
+        ]);
+
+      case "all-day-in-month":
+        return lazy.cal.l10n.getCalString("daysIntervalInMonth", [
+          format.month,
+          format.startDay,
+          format.endDay,
+          format.year,
+        ]);
+
+      case "all-day-between-months":
+        return lazy.cal.l10n.getCalString("daysIntervalBetweenMonths", [
+          format.startMonth,
+          format.startDay,
+          format.endMonth,
+          format.endDay,
+          format.year,
+        ]);
+
+      case "same-date-time":
+        return lazy.cal.l10n.getCalString("datetimeIntervalOnSameDateTime", [
+          format.startDate,
+          format.startTime,
+        ]);
+
+      case "same-day":
+        return lazy.cal.l10n.getCalString("datetimeIntervalOnSameDay", [
+          format.startDate,
+          format.startTime,
+          format.endTime,
+        ]);
+
+      case "several-days":
+        return lazy.cal.l10n.getCalString("datetimeIntervalOnSeveralDays", [
+          format.startDate,
+          format.startTime,
+          format.endDate,
+          format.endTime,
+        ]);
+      default:
+        return "";
     }
+  },
+
+  /**
+   * Object used to describe the parts of a formatted interval.
+   * @typedef {object} IntervalParts
+   * @property {string} type
+   *   Used to distinguish IntervalPart results.
+   * @property {string?} startDate
+   *   The full date of the start of the interval.
+   * @property {string?} startTime
+   *   The time part of the start of the interval.
+   * @property {string?} startDay
+   *   The day (of the month) the interval starts on.
+   * @property {string?} startMonth
+   *   The month the interval starts on.
+   * @property {string?} startYear
+   *   The year interval starts on.
+   * @property {string?} endDate
+   *   The full date of the end of the interval.
+   * @property {string?} endTime
+   *   The time part of the end of the interval.
+   * @property {string?} endDay
+   *   The day (of the month) the interval ends on.
+   * @property {string?} endMonth
+   *   The month the interval ends on.
+   * @property {string?} endYear
+   *   The year interval ends on.
+   * @property {string?} month
+   *   The month the interval occurs in when the start is all day and the
+   *   interval does not span multiple months.
+   * @property {string?} year
+   *   The year the interval occurs in when the the start is all day and the
+   *   interval does not span multiple years.
+   */
+
+  /**
+   * Format a date interval into various parts suitable for building
+   * strings that describe the interval. This result may leave out some parts of
+   * either date based on the closeness of the two.
+   *
+   * @param {calIDateTime} startDate       The start of the interval.
+   * @param {calIDateTime} endDate         The end of the interval.
+   * @return {IntervalParts}               An object to be used to create an
+   *                                       interval string.
+   */
+  formatIntervalParts(startDate, endDate) {
+    if (endDate == null && startDate == null) {
+      return { type: "task-without-dates" };
+    }
+
+    if (endDate == null) {
+      return {
+        type: "task-without-due-date",
+        startDate: this.formatDate(startDate),
+        startTime: this.formatTime(startDate),
+      };
+    }
+
+    if (startDate == null) {
+      return {
+        type: "task-without-start-date",
+        endDate: this.formatDate(endDate),
+        endTime: this.formatTime(endDate),
+      };
+    }
+
     // Here there are only events or tasks with both start and due date.
     // make sure start and end use the same timezone when formatting intervals:
-    let endDate = aEndDate.getInTimezone(aStartDate.timezone);
-    let testdate = aStartDate.clone();
+    let testdate = startDate.clone();
     testdate.isDate = true;
+    let originalEndDate = endDate.clone();
+    endDate = endDate.getInTimezone(startDate.timezone);
     let sameDay = testdate.compare(endDate) == 0;
-    if (aStartDate.isDate) {
+    if (startDate.isDate) {
       // All-day interval, so we should leave out the time part
       if (sameDay) {
-        return this.formatDateLong(aStartDate);
+        return {
+          type: "all-day",
+          startDate: this.formatDateLong(startDate),
+        };
       }
-      let startDay = this.formatDayWithOrdinal(aStartDate.day);
-      let startYear = aStartDate.year;
+
+      let startDay = this.formatDayWithOrdinal(startDate.day);
+      let startYear = String(startDate.year);
       let endDay = this.formatDayWithOrdinal(endDate.day);
-      let endYear = endDate.year;
-      if (aStartDate.year != endDate.year) {
-        let startMonthName = lazy.cal.l10n.formatMonth(
-          aStartDate.month + 1,
-          "calendar",
-          "daysIntervalBetweenYears"
-        );
-        let endMonthName = lazy.cal.l10n.formatMonth(
-          aEndDate.month + 1,
-          "calendar",
-          "daysIntervalBetweenYears"
-        );
-        return lazy.cal.l10n.getCalString("daysIntervalBetweenYears", [
-          startMonthName,
+      let endYear = String(endDate.year);
+      if (startDate.year != endDate.year) {
+        return {
+          type: "all-day-between-years",
           startDay,
+          startMonth: lazy.cal.l10n.formatMonth(
+            startDate.month + 1,
+            "calendar",
+            "daysIntervalBetweenYears"
+          ),
           startYear,
-          endMonthName,
           endDay,
+          endMonth: lazy.cal.l10n.formatMonth(
+            originalEndDate.month + 1,
+            "calendar",
+            "daysIntervalBetweenYears"
+          ),
           endYear,
-        ]);
-      } else if (aStartDate.month == endDate.month) {
-        let startMonthName = lazy.cal.l10n.formatMonth(
-          aStartDate.month + 1,
-          "calendar",
-          "daysIntervalInMonth"
-        );
-        return lazy.cal.l10n.getCalString("daysIntervalInMonth", [
-          startMonthName,
-          startDay,
-          endDay,
-          endYear,
-        ]);
+        };
       }
-      let startMonthName = lazy.cal.l10n.formatMonth(
-        aStartDate.month + 1,
-        "calendar",
-        "daysIntervalBetweenMonths"
-      );
-      let endMonthName = lazy.cal.l10n.formatMonth(
-        aEndDate.month + 1,
-        "calendar",
-        "daysIntervalBetweenMonths"
-      );
-      return lazy.cal.l10n.getCalString("daysIntervalBetweenMonths", [
-        startMonthName,
+
+      if (startDate.month == endDate.month) {
+        return {
+          type: "all-day-in-month",
+          startDay,
+          month: lazy.cal.l10n.formatMonth(startDate.month + 1, "calendar", "daysIntervalInMonth"),
+          endDay,
+          year: endYear,
+        };
+      }
+
+      return {
+        type: "all-day-between-months",
         startDay,
-        endMonthName,
+        startMonth: lazy.cal.l10n.formatMonth(
+          startDate.month + 1,
+          "calendar",
+          "daysIntervalBetweenMonths"
+        ),
         endDay,
-        endYear,
-      ]);
+        endMonth: lazy.cal.l10n.formatMonth(
+          originalEndDate.month + 1,
+          "calendar",
+          "daysIntervalBetweenMonths"
+        ),
+        year: endYear,
+      };
     }
-    let startDateString = this.formatDate(aStartDate);
-    let startTime = this.formatTime(aStartDate);
+
+    let startDateString = this.formatDate(startDate);
+    let startTime = this.formatTime(startDate);
     let endDateString = this.formatDate(endDate);
     let endTime = this.formatTime(endDate);
     // non-allday, so need to return date and time
@@ -276,28 +398,32 @@ var formatter = {
       if (startTime == endTime) {
         // End time is on the same time as start, so we can leave out the end time
         // "5 Jan 2006 13:00"
-        return lazy.cal.l10n.getCalString("datetimeIntervalOnSameDateTime", [
-          startDateString,
+        return {
+          type: "same-date-time",
+          startDate: startDateString,
           startTime,
-        ]);
+        };
       }
       // still include end time
       // "5 Jan 2006 13:00 - 17:00"
-      return lazy.cal.l10n.getCalString("datetimeIntervalOnSameDay", [
-        startDateString,
+      return {
+        type: "same-day",
+        startDate: startDateString,
         startTime,
         endTime,
-      ]);
+      };
     }
+
     // Spanning multiple days, so need to include date and time
     // for start and end
     // "5 Jan 2006 13:00 - 7 Jan 2006 9:00"
-    return lazy.cal.l10n.getCalString("datetimeIntervalOnSeveralDays", [
-      startDateString,
+    return {
+      type: "several-days",
+      startDate: startDateString,
       startTime,
-      endDateString,
+      endDate: endDateString,
       endTime,
-    ]);
+    };
   },
 
   /**
@@ -315,13 +441,39 @@ var formatter = {
   },
 
   /**
+   * Helper to get the start/end dates for a given item.
+   *
+   * @param {calIItemBase} item - The item to get the dates for.
+   * @return {[calIDateTime, calIDateTime]} An array with start and end date.
+   */
+  getItemDates(item) {
+    let start = item[lazy.cal.dtz.startDateProp(item)];
+    let end = item[lazy.cal.dtz.endDateProp(item)];
+    let kDefaultTimezone = lazy.cal.dtz.defaultTimezone;
+    // Check for tasks without start and/or due date
+    if (start) {
+      start = start.getInTimezone(kDefaultTimezone);
+    }
+    if (end) {
+      end = end.getInTimezone(kDefaultTimezone);
+    }
+    // EndDate is exclusive. For all-day events, we need to subtract one day,
+    // to get into a format that's understandable.
+    if (start && start.isDate && end) {
+      end.day -= 1;
+    }
+
+    return [start, end];
+  },
+
+  /**
    * Format an interval that is defined by an item with the default timezone.
    *
    * @param {calIItemBase} aItem      The item describing the interval.
    * @return {string}                 The formatted item interval.
    */
   formatItemInterval(aItem) {
-    return this.formatInterval(...getItemDates(aItem));
+    return this.formatInterval(...this.getItemDates(aItem));
   },
 
   /**
@@ -331,7 +483,7 @@ var formatter = {
    * @return {string}                 The formatted item interval.
    */
   formatItemTimeInterval(aItem) {
-    return this.formatTimeInterval(...getItemDates(aItem));
+    return this.formatTimeInterval(...this.getItemDates(aItem));
   },
 
   /**
@@ -447,30 +599,4 @@ function inTimezone(date, formatOptions) {
   return getFormatterWithTimezone(formatOptions, date.isDate ? null : date.timezone).format(
     lazy.cal.dtz.dateTimeToJsDate(date)
   );
-}
-
-/**
- * Helper to get the start/end dates for a given item.
- *
- * @param {calIItemBase} aItem              The item to get the dates for.
- * @return {[calIDateTime, calIDateTime]}   An array with start and end date.
- */
-function getItemDates(aItem) {
-  let start = aItem[lazy.cal.dtz.startDateProp(aItem)];
-  let end = aItem[lazy.cal.dtz.endDateProp(aItem)];
-  let kDefaultTimezone = lazy.cal.dtz.defaultTimezone;
-  // Check for tasks without start and/or due date
-  if (start) {
-    start = start.getInTimezone(kDefaultTimezone);
-  }
-  if (end) {
-    end = end.getInTimezone(kDefaultTimezone);
-  }
-  // EndDate is exclusive. For all-day events, we need to subtract one day,
-  // to get into a format that's understandable.
-  if (start && start.isDate && end) {
-    end.day -= 1;
-  }
-
-  return [start, end];
 }

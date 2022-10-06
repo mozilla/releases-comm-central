@@ -49,13 +49,18 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
 
 #chatPanel:-moz-lwtheme {
   color: -moz-DialogText;
-  background-color: -moz-OddTreeRow;
   text-shadow: none;
 }
 
 /* Adaptation from #folderTree */
 :root:not([lwt-tree]) #chatPanel {
   background-color: -moz-OddTreeRow;
+}
+
+@media (prefers-contrast) {
+  :root:not([lwt-tree]) #chatPanel {
+    background-color: Field;
+  }
 }
 
 #contactlistbox {
@@ -108,5 +113,5 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
 
 /* Set a background color to avoid lightweight theme backgrounds */
 #contextPane {
-  background-color: #fff;
+  background-color: Field;
 }

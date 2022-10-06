@@ -66,7 +66,6 @@ nsMsgNewsFolder::nsMsgNewsFolder(void)
       mGettingNews(false),
       mInitialized(false),
       m_downloadMessageForOfflineUse(false),
-      m_downloadingMultipleMessages(false),
       mReadSet(nullptr),
       mSortOrder(kNewsSortOffset) {
   mFolderSize = kSizeUnknown;
@@ -1444,7 +1443,6 @@ NS_IMETHODIMP nsMsgNewsFolder::DownloadAllForOffline(nsIUrlListener* listener,
   }
   RefPtr<DownloadNewsArticlesToOfflineStore> downloadState =
       new DownloadNewsArticlesToOfflineStore(msgWindow, mDatabase, this);
-  m_downloadingMultipleMessages = true;
   rv = downloadState->DownloadArticles(msgWindow, this, &srcKeyArray);
   (void)RefreshSizeOnDisk();
   return rv;
@@ -1464,7 +1462,6 @@ NS_IMETHODIMP nsMsgNewsFolder::DownloadMessagesForOffline(
   }
   RefPtr<DownloadNewsArticlesToOfflineStore> downloadState =
       new DownloadNewsArticlesToOfflineStore(window, mDatabase, this);
-  m_downloadingMultipleMessages = true;
 
   rv = downloadState->DownloadArticles(window, this, &srcKeyArray);
   (void)RefreshSizeOnDisk();
@@ -1490,37 +1487,33 @@ NS_IMETHODIMP nsMsgNewsFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
   return NS_OK;
 }
 
-// line does not have a line terminator (e.g., CR or CRLF)
-NS_IMETHODIMP nsMsgNewsFolder::NotifyDownloadedLine(const char* line,
-                                                    nsMsgKey keyOfArticle) {
-  nsresult rv = NS_OK;
-  if (m_downloadMessageForOfflineUse) {
-    if (!m_offlineHeader) {
-      GetMessageHeader(keyOfArticle, getter_AddRefs(m_offlineHeader));
-      rv = StartNewOfflineMessage();
-    }
-    m_numOfflineMsgLines++;
+NS_IMETHODIMP nsMsgNewsFolder::NotifyDownloadBegin(nsMsgKey key) {
+  if (!m_downloadMessageForOfflineUse) {
+    return NS_OK;
   }
+  nsresult rv = GetMessageHeader(key, getter_AddRefs(m_offlineHeader));
+  NS_ENSURE_SUCCESS(rv, rv);
+  return StartNewOfflineMessage();  // Sets up m_tempMessageStream et al.
+}
 
+NS_IMETHODIMP nsMsgNewsFolder::NotifyDownloadedLine(nsACString const& line) {
+  nsresult rv = NS_OK;
   if (m_tempMessageStream) {
-    // line now contains the linebreak.
-    if (line[0] == '.' && line[MSG_LINEBREAK_LEN + 1] == 0) {
-      // end of article.
-      if (m_offlineHeader) EndNewOfflineMessage();
-
-      if (m_tempMessageStream && !m_downloadingMultipleMessages) {
-        m_tempMessageStream->Close();
-        m_tempMessageStream = nullptr;
-      }
-    } else {
-      uint32_t count = 0;
-      rv = m_tempMessageStream->Write(line, strlen(line), &count);
-      NS_ENSURE_SUCCESS(rv, rv);
-      m_tempMessageStreamBytesWritten += count;
-    }
+    m_numOfflineMsgLines++;
+    uint32_t count = 0;
+    rv = m_tempMessageStream->Write(line.BeginReading(), line.Length(), &count);
+    NS_ENSURE_SUCCESS(rv, rv);
+    m_tempMessageStreamBytesWritten += count;
   }
 
   return rv;
+}
+
+NS_IMETHODIMP nsMsgNewsFolder::NotifyDownloadEnd(nsresult status) {
+  if (m_tempMessageStream) {
+    return EndNewOfflineMessage(status);
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::NotifyFinishedDownloadinghdrs() {
@@ -1684,16 +1677,6 @@ nsMsgNewsFolder::GetEditableFilterList(nsIMsgWindow* aMsgWindow,
 NS_IMETHODIMP
 nsMsgNewsFolder::SetEditableFilterList(nsIMsgFilterList* aFilterList) {
   return SetFilterList(aFilterList);
-}
-
-NS_IMETHODIMP
-nsMsgNewsFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
-  if (m_tempMessageStream) {
-    m_tempMessageStream->Close();
-    m_tempMessageStream = nullptr;
-  }
-  m_downloadingMultipleMessages = false;
-  return nsMsgDBFolder::OnStopRunningUrl(aUrl, aExitCode);
 }
 
 NS_IMETHODIMP

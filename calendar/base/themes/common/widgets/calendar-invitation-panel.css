@@ -96,14 +96,6 @@
   flex-direction: column;
 }
 
-calendar-invitation-datetime + calendar-invitation-datetime {
-  margin-top: 0.5em;
-}
-
-.calendar-invitation-datetime-time {
-  font-weight: 800;
-}
-
 .calendar-invitation-panel-partstat-breakdown:before {
   content: "("
 }

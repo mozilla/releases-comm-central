@@ -113,7 +113,13 @@
     <tbody>
       <tr>
         <th data-l10n-id="calendar-invitation-panel-prop-title-when"></th>
-        <td id="when" class="calendar-invitation-when"></td>
+        <td id="when" class="calendar-invitation-when">
+          <calendar-invitation-interval id="interval"/>
+        </td>
+      </tr>
+      <tr>
+        <th data-l10n-id="calendar-invitation-panel-prop-title-recurrence"></th>
+        <td id="recurrence" class="calendar-invitation-recurrence"></td>
       </tr>
       <tr>
         <th data-l10n-id="calendar-invitation-panel-prop-title-location"></th>
@@ -134,15 +140,9 @@
   </table>
 </template>
 
-<!-- Template for <calendar-invitation-datetime/> -->
-<template id="calendarInvitationDatetime" xmlns="http://www.w3.org/1999/xhtml">
-  <div id="datetime" class="calendar-invitation-datetime">
-    <div id="date"
-         class="calendar-invitation-datetime-date"></div>
-    <div id="time"
-         class="calendar-invitation-datetime-time"
-         data-l10n-id="calendar-invitation-datetime-time"></div>
-  </div>
+<!-- Template for <calendar-invitation-interval/> -->
+<template id="calendarInvitationInterval" xmlns="http://www.w3.org/1999/xhtml">
+  <div id="interval"></div>
 </template>
 
 <!-- Template for <calendar-invitation-partstat-summary/> -->

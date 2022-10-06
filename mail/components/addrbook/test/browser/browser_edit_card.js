@@ -47,9 +47,9 @@ async function notInEditingMode(expectedFocus) {
   );
   checkToolbarState(true);
   Assert.equal(
-    expectedFocus,
     abDocument.activeElement,
-    `Focus should be on the ${expectedFocus.id}`
+    expectedFocus,
+    `Focus should be on #${expectedFocus.id}`
   );
 }
 
@@ -1456,10 +1456,9 @@ add_task(async function test_delete_button() {
   openDirectory(personalBook);
 
   let abDocument = abWindow.document;
+  let searchInput = abDocument.getElementById("searchInput");
   let cardsList = abDocument.getElementById("cards");
   let detailsPane = abDocument.getElementById("detailsPane");
-
-  let searchInput = abDocument.getElementById("searchInput");
 
   let createContactButton = abDocument.getElementById("toolbarCreateContact");
   let editButton = abDocument.getElementById("editButton");
@@ -1556,7 +1555,6 @@ add_task(async function test_delete_button() {
   Assert.ok(BrowserTestUtils.is_visible(deleteButton));
 
   // Click to delete, accept the deletion.
-
   deletionPromise = TestUtils.topicObserved("addrbook-contact-deleted");
   promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   EventUtils.synthesizeMouseAtCenter(deleteButton, {}, abWindow);
@@ -3329,7 +3327,7 @@ add_task(async function testGoogleEscaping() {
   await promiseDirectoryRemoved(googleBook.URI);
 });
 
-add_task(async function test_delete_button() {
+add_task(async function test_remove_button() {
   let abWindow = await openAddressBookWindow();
   let abDocument = abWindow.document;
 
@@ -3342,11 +3340,11 @@ add_task(async function test_delete_button() {
   await editContactAtIndex(0, {});
   let detailsPane = abDocument.getElementById("detailsPane");
 
-  let deleteButtons = detailsPane.querySelectorAll(".remove-property-button");
+  let removeButtons = detailsPane.querySelectorAll(".remove-property-button");
   Assert.equal(
-    deleteButtons.length,
+    removeButtons.length,
     2,
-    "Email and Organization Properties delete button is present."
+    "Email and Organization Properties remove button is present."
   );
 
   Assert.ok(
@@ -3355,7 +3353,7 @@ add_task(async function test_delete_button() {
         .getElementById("addr-book-edit-email")
         .querySelector(".remove-property-button")
     ),
-    "Email is present and delete button is visible."
+    "Email is present and remove button is visible."
   );
 
   Assert.ok(
@@ -3364,7 +3362,7 @@ add_task(async function test_delete_button() {
         .getElementById("addr-book-edit-org")
         .querySelector(".remove-property-button")
     ),
-    "Organization Properties are not filled and the delete button is not visible."
+    "Organization Properties are not filled and the remove button is not visible."
   );
 
   // Set a value for each field.
@@ -3384,7 +3382,7 @@ add_task(async function test_delete_button() {
 
   let vCardEdit = detailsPane.querySelector("vcard-edit");
 
-  // Click the delete buttons and check that the properties are removed.
+  // Click the remove buttons and check that the properties are removed.
 
   for (let [propertyName, fieldsetId, propertySelector, addButton] of [
     ["adr", "addr-book-edit-address", "vcard-adr"],
@@ -3429,7 +3427,7 @@ add_task(async function test_delete_button() {
     if (addButton) {
       Assert.ok(
         BrowserTestUtils.is_visible(abDocument.getElementById(addButton)),
-        `Add button for ${propertyName} is visible after delete.`
+        `Add button for ${propertyName} is visible after remove.`
       );
       Assert.equal(
         abDocument.activeElement.id,

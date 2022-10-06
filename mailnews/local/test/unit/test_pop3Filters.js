@@ -12,13 +12,13 @@ registerCleanupFunction(() => {
   server.stop();
 });
 
+let incomingServer = createPop3ServerAndLocalFolders(server.port);
+
 /**
  * Inject a message to the server and do a GetNewMail for the incomingServer.
- * @param {nsIPop3IncomingServer} incomingServer
  */
-async function getNewMail(incomingServer) {
+async function getNewMail() {
   daemon.setMessages(["message1.eml", "message3.eml"]);
-
   let urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.pop3.GetNewMail(
     null,
@@ -33,7 +33,6 @@ async function getNewMail(incomingServer) {
  * Test DeleteFromPop3Server filter should send DELE for matched message.
  */
 add_task(async function testDeleteFromPop3Server() {
-  let incomingServer = createPop3ServerAndLocalFolders(server.port);
   // Turn on leaveMessagesOnServer, so that DELE would not be sent normally.
   incomingServer.leaveMessagesOnServer = true;
 
@@ -56,7 +55,7 @@ add_task(async function testDeleteFromPop3Server() {
   filter.enabled = true;
   filterList.insertFilterAt(0, filter);
 
-  await getNewMail(incomingServer);
+  await getNewMail();
   do_check_transaction(server.playTransaction(), [
     "CAPA",
     "AUTH PLAIN",
@@ -67,4 +66,49 @@ add_task(async function testDeleteFromPop3Server() {
     "RETR 2",
     "DELE 2", // message3.eml matches the filter, DELE was sent.
   ]);
+
+  // MailServices.accounts.removeIncomingServer(incomingServer, false);
+  filterList.removeFilterAt(0);
+});
+
+/**
+ * Test FetchBodyFromPop3Server filter should send RETR for matched message.
+ */
+add_task(async function testFetchBodyFromPop3Server() {
+  incomingServer.leaveMessagesOnServer = true;
+  // Turn on leaveMessagesOnServer, so that RETR would not be sent normally.
+  incomingServer.headersOnly = true;
+
+  // Create a FetchBodyFromPop3Server filter.
+  let filterList = incomingServer.getFilterList(null);
+  let filter = filterList.createFilter("fetchBodyFromServer");
+
+  let searchTerm = filter.createTerm();
+  searchTerm.attrib = Ci.nsMsgSearchAttrib.Subject;
+  searchTerm.op = Ci.nsMsgSearchOp.Contains;
+  let value = searchTerm.value;
+  value.str = "mail 2";
+  searchTerm.value = value;
+  filter.appendTerm(searchTerm);
+
+  let action = filter.createAction();
+  action.type = Ci.nsMsgFilterAction.FetchBodyFromPop3Server;
+  filter.appendAction(action);
+
+  filter.enabled = true;
+  filterList.insertFilterAt(0, filter);
+
+  await getNewMail();
+  do_check_transaction(server.playTransaction(), [
+    "CAPA",
+    "AUTH PLAIN",
+    "STAT",
+    "LIST",
+    "UIDL",
+    "TOP 1 0", // message1.eml doesn't match the filter, no RETR.
+    "TOP 2 0",
+    "RETR 2", // message3.eml matches the filter, RETR was sent.
+  ]);
+
+  filterList.removeFilterAt(0);
 });
