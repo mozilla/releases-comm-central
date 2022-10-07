@@ -1,4 +1,2 @@
 . "$topsrcdir/comm/build/mozconfig.comm-sccache"
 . "$topsrcdir/comm/mail/config/mozconfigs/linux32/common-linux32"
-
-export MOZ_TELEMETRY_REPORTING=1

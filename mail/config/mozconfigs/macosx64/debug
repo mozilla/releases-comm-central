@@ -3,9 +3,6 @@
 
 ac_add_options --enable-debug
 
-# For NSS symbols
-export MOZ_DEBUG_SYMBOLS=1
-
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
 

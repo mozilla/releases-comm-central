@@ -1,6 +1,3 @@
 . "$topsrcdir/comm/mail/config/mozconfigs/linux64/common-linux64"
 
 ac_add_options --enable-official-branding
-
-export MOZ_TELEMETRY_REPORTING=1
-
