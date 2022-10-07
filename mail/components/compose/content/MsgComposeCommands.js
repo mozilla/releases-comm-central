@@ -7550,7 +7550,7 @@ async function messageAttachmentToFile(attachment) {
   await IOUtils.makeDirectory(pathTempDir, { permissions: 0o700 });
   let pathTempFile = await IOUtils.createUniqueFile(
     pathTempDir,
-    attachment.name,
+    attachment.name.replaceAll(/[/:*?\"<>|]/g, "_"),
     0o600
   );
   let tempFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
