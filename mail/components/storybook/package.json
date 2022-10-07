@@ -11,10 +11,7 @@
   "author": "",
   "license": "MPL-2.0",
   "private": true,
-  "dependencies": {
-    "comm-central": "file:../../..",
-    "mozilla-central": "file:../../../.."
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.19.3",
     "@fluent/bundle": "^0.17.1",
