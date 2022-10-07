@@ -277,7 +277,9 @@ nsresult nsMsgSendLater::RebufferLeftovers(char* startBuf, uint32_t aLen) {
 nsresult nsMsgSendLater::BuildNewBuffer(const char* aBuf, uint32_t aCount,
                                         uint32_t* totalBufSize) {
   // Only build a buffer when there are leftovers...
-  NS_ENSURE_TRUE(mLeftoverBuffer, NS_ERROR_FAILURE);
+  if (!mLeftoverBuffer) {
+    return NS_ERROR_FAILURE;
+  }
 
   int32_t leftoverSize = PL_strlen(mLeftoverBuffer);
   char* newBuffer = (char*)PR_Realloc(mLeftoverBuffer, aCount + leftoverSize);
@@ -1015,7 +1017,7 @@ nsresult DoGrowBuffer(int32_t desired_size, int32_t element_size,
                       &m_headersSize)                                 \
        : NS_OK)
 
-nsresult nsMsgSendLater::DeliverQueuedLine(char* line, int32_t length) {
+nsresult nsMsgSendLater::DeliverQueuedLine(const char* line, int32_t length) {
   int32_t flength = length;
 
   m_bytesRead += length;
