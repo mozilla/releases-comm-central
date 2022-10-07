@@ -27,15 +27,12 @@ if (major < 3) or (major == 3 and minor < 5):
 
 import os
 import shutil
-import stat
 import subprocess
 import tempfile
-import zipfile
-import base64
-import gzip
+import ctypes
 
+from pathlib import Path
 from optparse import OptionParser
-from urllib.request import urlopen
 
 CLONE_MERCURIAL_PULL_FAIL = """
 Failed to pull from hg.mozilla.org.
@@ -43,7 +40,7 @@ Failed to pull from hg.mozilla.org.
 This is most likely because of unstable network connection.
 Try running `cd %s && hg pull https://hg.mozilla.org/comm-central` manually,
 or download a mercurial bundle and use it:
-https://developer.mozilla.org/en-US/docs/Mozilla/Developer_guide/Source_Code/Mercurial/Bundles"""
+https://firefox-source-docs.mozilla.org/contributing/vcs/mercurial_bundles.html"""
 
 WINDOWS = sys.platform.startswith("win32") or sys.platform.startswith("msys")
 VCS_HUMAN_READABLE = {
@@ -64,61 +61,65 @@ def which(name):
     search_dirs = os.environ["PATH"].split(os.pathsep)
 
     for path in search_dirs:
-        test = os.path.join(path, name)
-        if os.path.isfile(test) and os.access(test, os.X_OK):
+        test = Path(path) / name
+        if test.is_file() and os.access(test, os.X_OK):
             return test
 
     return None
 
 
-def validate_clone_dest(dest):
-    dest = os.path.abspath(dest)
+def validate_clone_dest(dest: Path):
+    dest = dest.resolve()
 
-    if not os.path.exists(dest):
+    if not dest.exists():
         return dest
 
-    if not os.path.isdir(dest):
-        print("ERROR! Destination %s exists but is not a directory." % dest)
+    if not dest.is_dir():
+        print(f"ERROR! Destination {dest} exists but is not a directory.")
         return None
 
-    if not os.listdir(dest):
+    if not any(dest.iterdir()):
         return dest
     else:
-        print("ERROR! Destination directory %s exists but is nonempty." % dest)
+        print(f"ERROR! Destination directory {dest} exists but is nonempty.")
+        print(
+            f"To re-bootstrap the existing checkout, go into '{dest}' and run './mach bootstrap'."
+        )
         return None
 
 
 def input_clone_dest(vcs, no_interactive):
-    repo_name = "mozilla-central"
+    repo_name = "mozilla-unified"
+    print(f"Cloning into {repo_name} using {VCS_HUMAN_READABLE[vcs]}...")
     while True:
         dest = None
         if not no_interactive:
             dest = input(
-                "Destination directory for clone (leave empty to use "
-                "default destination of %s): " % repo_name
+                f"Destination directory for clone (leave empty to use "
+                f"default destination of {repo_name}): "
             ).strip()
         if not dest:
             dest = repo_name
-        dest = validate_clone_dest(os.path.expanduser(dest))
+        dest = validate_clone_dest(Path(dest).expanduser())
         if dest:
             return dest
         if no_interactive:
             return None
 
 
-def hg_clone(hg, repo, dest, watchman):
-    print("Cloning %s hg repository to %s" % (repo, dest))
+def hg_clone(hg: Path, repo, dest: Path, watchman: Path):
+    print(f"Cloning {repo} to {dest}...")
     # We create an empty repo then modify the config before adding data.
     # This is necessary to ensure storage settings are optimally
     # configured.
     args = [
-        hg,
+        str(hg),
         # The unified repo is generaldelta, so ensure the client is as
         # well.
         "--config",
         "format.generaldelta=true",
         "init",
-        dest,
+        str(dest),
     ]
     res = subprocess.call(args)
     if res:
@@ -128,7 +129,7 @@ def hg_clone(hg, repo, dest, watchman):
     # Strictly speaking, this could overwrite a config based on a template
     # the user has installed. Let's pretend this problem doesn't exist
     # unless someone complains about it.
-    with open(os.path.join(dest, ".hg", "hgrc"), "a") as fh:
+    with open(dest / ".hg" / "hgrc", "a") as fh:
         fh.write("[paths]\n")
         fh.write("default = https://hg.mozilla.org/{}\n".format(repo))
         fh.write("\n")
@@ -142,7 +143,7 @@ def hg_clone(hg, repo, dest, watchman):
         fh.write("maxchainlen = 10000\n")
 
     res = subprocess.call(
-        [hg, "pull", "https://hg.mozilla.org/{}".format(repo)], cwd=dest
+        [str(hg), "pull", "https://hg.mozilla.org/{}".format(repo)], cwd=str(dest)
     )
     print("")
     if res:
@@ -151,49 +152,40 @@ def hg_clone(hg, repo, dest, watchman):
 
     update_rev = {"mozilla-unified": "central", "comm-central": "tip"}[repo]
     print("updating to {}".format(update_rev))
-    res = subprocess.call([hg, "update", "-r", update_rev], cwd=dest)
+    res = subprocess.call([str(hg), "update", "-r", update_rev], cwd=str(dest))
     if res:
         print(
-            "error updating; you will need to `cd %s && hg update -r central` "
-            "manually" % dest
+            f"error updating; you will need to `cd {dest} && hg update -r {update_rev}` "
+            "manually"
         )
     return dest
 
 
-def git_clone(git, repo, dest, watchman):
-    print("Cloning %s git repository to %s" % (repo, dest))
+def git_clone(git: Path, repo, dest: Path, watchman: Path):
+    print(f"Cloning {repo} to {dest}...")
     tempdir = None
     cinnabar = None
     env = dict(os.environ)
     try:
         cinnabar = which("git-cinnabar")
         if not cinnabar:
-            cinnabar_url = (
-                "https://github.com/glandium/git-cinnabar/archive/" "master.zip"
-            )
+            cinnabar_url = "https://github.com/glandium/git-cinnabar/"
             # If git-cinnabar isn't installed already, that's fine; we can
             # download a temporary copy. `mach bootstrap` will clone a full copy
             # of the repo in the state dir; we don't want to copy all that logic
             # to this tiny bootstrapping script.
-            tempdir = tempfile.mkdtemp()
-            with open(os.path.join(tempdir, "git-cinnabar.zip"), mode="w+b") as archive:
-                with urlopen(cinnabar_url) as repo:
-                    shutil.copyfileobj(repo, archive)
-                archive.seek(0)
-                with zipfile.ZipFile(archive) as zipf:
-                    zipf.extractall(path=tempdir)
-            cinnabar_dir = os.path.join(tempdir, "git-cinnabar-master")
-            cinnabar = os.path.join(cinnabar_dir, "git-cinnabar")
-            # Make git-cinnabar and git-remote-hg executable.
-            st = os.stat(cinnabar)
-            os.chmod(cinnabar, st.st_mode | stat.S_IEXEC)
-            st = os.stat(os.path.join(cinnabar_dir, "git-remote-hg"))
-            os.chmod(
-                os.path.join(cinnabar_dir, "git-remote-hg"), st.st_mode | stat.S_IEXEC
-            )
-            env["PATH"] = cinnabar_dir + os.pathsep + env["PATH"]
+            tempdir = Path(tempfile.mkdtemp())
+            cinnabar_dir = tempdir / "git-cinnabar-master"
             subprocess.check_call(
-                ["git", "cinnabar", "download"], cwd=cinnabar_dir, env=env
+                [str(git), "clone", "--depth=1", str(cinnabar_url), str(cinnabar_dir)],
+                cwd=str(tempdir),
+                env=env,
+            )
+            env["PATH"] = str(cinnabar_dir) + os.pathsep + env["PATH"]
+            subprocess.check_call(
+                [sys.executable, str(cinnabar_dir / "download.py")],
+                cwd=str(cinnabar_dir),
+                env=env,
             )
             print(
                 "WARNING! git-cinnabar is required for Firefox development  "
@@ -206,7 +198,7 @@ def git_clone(git, repo, dest, watchman):
         # We're guaranteed to have `git-cinnabar` installed now.
         # Configure git per the git-cinnabar requirements.
         cmd = [
-            git,
+            str(git),
             "clone",
         ]
         if repo == "mozilla-unified":
@@ -216,29 +208,37 @@ def git_clone(git, repo, dest, watchman):
             ]
         cmd += [
             "hg::https://hg.mozilla.org/{}".format(repo),
-            dest,
+            str(dest),
         ]
         subprocess.check_call(cmd, env=env)
-        subprocess.check_call([git, "config", "fetch.prune", "true"], cwd=dest, env=env)
-        subprocess.check_call([git, "config", "pull.ff", "only"], cwd=dest, env=env)
+        subprocess.check_call(
+            [str(git), "config", "fetch.prune", "true"], cwd=str(dest), env=env
+        )
+        subprocess.check_call(
+            [str(git), "config", "pull.ff", "only"], cwd=str(dest), env=env
+        )
 
-        watchman_sample = os.path.join(dest, ".git/hooks/fsmonitor-watchman.sample")
+        watchman_sample = dest / ".git/hooks/fsmonitor-watchman.sample"
         # Older versions of git didn't include fsmonitor-watchman.sample.
-        if watchman and os.path.exists(watchman_sample):
+        if watchman and watchman_sample.exists():
             print("Configuring watchman")
-            watchman_config = os.path.join(dest, ".git/hooks/query-watchman")
-            if not os.path.exists(watchman_config):
-                print("Copying %s to %s" % (watchman_sample, watchman_config))
+            watchman_config = dest / ".git/hooks/query-watchman"
+            if not watchman_config.exists():
+                print(f"Copying {watchman_sample} to {watchman_config}")
                 copy_args = [
                     "cp",
                     ".git/hooks/fsmonitor-watchman.sample",
                     ".git/hooks/query-watchman",
                 ]
-                subprocess.check_call(copy_args, cwd=dest)
-                subprocess.check_call(copy_args, cwd=dest)
+                subprocess.check_call(copy_args, cwd=str(dest))
 
-            config_args = [git, "config", "core.fsmonitor", ".git/hooks/query-watchman"]
-            subprocess.check_call(config_args, cwd=dest, env=env)
+            config_args = [
+                str(git),
+                "config",
+                "core.fsmonitor",
+                ".git/hooks/query-watchman",
+            ]
+            subprocess.check_call(config_args, cwd=str(dest), env=env)
         return dest
     finally:
         if not cinnabar:
@@ -248,10 +248,58 @@ def git_clone(git, repo, dest, watchman):
                 "Mozilla:-A-git-workflow-for-Gecko-development"
             )
         if tempdir:
-            shutil.rmtree(tempdir)
+            shutil.rmtree(str(tempdir))
 
 
-def clone(vcs, no_interactive):
+def add_microsoft_defender_antivirus_exclusions(dest, no_system_changes):
+    if no_system_changes:
+        return
+
+    if not WINDOWS:
+        return
+
+    powershell_exe = which("powershell")
+
+    if not powershell_exe:
+        return
+
+    def print_attempt_exclusion(path):
+        print(
+            f"Attempting to add exclusion path to Microsoft Defender Antivirus for: {path}"
+        )
+
+    powershell_exe = str(powershell_exe)
+    paths = []
+
+    # mozilla-unified / clone dest
+    repo_dir = Path.cwd() / dest
+    paths.append(repo_dir)
+    print_attempt_exclusion(repo_dir)
+
+    # MOZILLABUILD
+    mozillabuild_dir = os.getenv("MOZILLABUILD")
+    if mozillabuild_dir:
+        paths.append(mozillabuild_dir)
+        print_attempt_exclusion(mozillabuild_dir)
+
+    # .mozbuild
+    mozbuild_dir = Path.home() / ".mozbuild"
+    paths.append(mozbuild_dir)
+    print_attempt_exclusion(mozbuild_dir)
+
+    args = ";".join(f"Add-MpPreference -ExclusionPath '{path}'" for path in paths)
+    command = f'-Command "{args}"'
+
+    # This will attempt to run as administrator by triggering a UAC prompt
+    # for admin credentials. If "No" is selected, no exclusions are added.
+    ctypes.windll.shell32.ShellExecuteW(None, "runas", powershell_exe, command, None, 0)
+
+
+def clone(options):
+    vcs = options.vcs
+    no_interactive = options.no_interactive
+    no_system_changes = options.no_system_changes
+
     hg = which("hg")
     if not hg:
         print(
@@ -287,6 +335,8 @@ def clone(vcs, no_interactive):
     if not dest:
         return None
 
+    add_microsoft_defender_antivirus_exclusions(dest, no_system_changes)
+
     if vcs == "hg":
         clone_func = hg_clone
     else:
@@ -298,7 +348,7 @@ def clone(vcs, no_interactive):
     # to mozilla-central. Only return "cc" if cloning comm-central
     # fails.
     if mc == dest:
-        cc_dest = os.path.join(dest, "comm")
+        cc_dest = Path(dest) / "comm"
         cc = clone_func(binary, "comm-central", cc_dest, watchman)
         if cc:
             return mc
@@ -307,8 +357,8 @@ def clone(vcs, no_interactive):
     return mc
 
 
-def bootstrap(srcdir, artifact_mode, no_interactive, no_system_changes):
-    args = [sys.executable, os.path.join(srcdir, "mach")]
+def bootstrap(srcdir: Path, artifact_mode, no_interactive, no_system_changes):
+    args = [sys.executable, "mach"]
 
     if no_interactive:
         # --no-interactive is a global argument, not a command argument,
@@ -325,7 +375,7 @@ def bootstrap(srcdir, artifact_mode, no_interactive, no_system_changes):
         args += ["--no-system-changes"]
 
     print("Running `%s`" % " ".join(args))
-    return subprocess.call(args, cwd=srcdir)
+    return subprocess.call(args, cwd=str(srcdir))
 
 
 def mozconfig(srcdir):
@@ -369,10 +419,27 @@ def main(args):
     options, leftover = parser.parse_args(args)
 
     try:
-        srcdir = clone(options.vcs, options.no_interactive)
+        srcdir = clone(options)
         if not srcdir:
             return 1
         print("Clone complete.")
+        print(
+            "If you need to run the tooling bootstrapping again, "
+            "then consider running './mach bootstrap' instead."
+        )
+        if not options.no_interactive:
+            remove_bootstrap_file = input(
+                "Unless you are going to have more local copies of Firefox source code, "
+                "this 'bootstrap.py' file is no longer needed and can be deleted. "
+                "Clean up the bootstrap.py file? (Y/n)"
+            )
+            if not remove_bootstrap_file:
+                remove_bootstrap_file = "y"
+        if options.no_interactive or remove_bootstrap_file == "y":
+            try:
+                Path(sys.argv[0]).unlink()
+            except FileNotFoundError:
+                print("File could not be found !")
         bootstrap(
             srcdir,
             options.artifact_mode,
