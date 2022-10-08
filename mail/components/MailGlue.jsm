@@ -223,6 +223,9 @@ let JSWINDOWACTORS = {
 // Seconds of idle time before the late idle tasks will be scheduled.
 const LATE_TASKS_IDLE_TIME_SEC = 20;
 
+// Time after we stop tracking startup crashes.
+const STARTUP_CRASHES_END_DELAY_MS = 30 * 1000;
+
 /**
  * Glue code that should be executed before any windows are opened. Any
  * window-independent helper methods (a la nsBrowserGlue.js) should go in
@@ -260,6 +263,7 @@ MailGlue.prototype = {
     // app-startup happens first, registered in components.conf.
     Services.obs.addObserver(this, "command-line-startup");
     Services.obs.addObserver(this, "final-ui-startup");
+    Services.obs.addObserver(this, "quit-application-granted");
     Services.obs.addObserver(this, "mail-startup-done");
 
     // Shut-down notifications.
@@ -288,6 +292,7 @@ MailGlue.prototype = {
   _dispose() {
     Services.obs.removeObserver(this, "command-line-startup");
     Services.obs.removeObserver(this, "final-ui-startup");
+    Services.obs.removeObserver(this, "quit-application-granted");
     // mail-startup-done is removed by its handler.
 
     Services.obs.removeObserver(this, "xpcom-shutdown");
@@ -363,6 +368,9 @@ MailGlue.prototype = {
           .getService(Ci.nsIMsgDBViewService)
           .initializeDBViewStrings();
         this._beforeUIStartup();
+        break;
+      case "quit-application-granted":
+        Services.startup.trackStartupCrashEnd();
         break;
       case "mail-startup-done":
         this._onFirstWindowLoaded();
@@ -630,6 +638,18 @@ MailGlue.prototype = {
       {
         task() {
           MailGlue.resolveAfterStartUp();
+        },
+      },
+      {
+        task() {
+          let { setTimeout } = ChromeUtils.import(
+            "resource://gre/modules/Timer.jsm"
+          );
+          setTimeout(function() {
+            Services.tm.idleDispatchToMainThread(
+              Services.startup.trackStartupCrashEnd
+            );
+          }, STARTUP_CRASHES_END_DELAY_MS);
         },
       },
       {
