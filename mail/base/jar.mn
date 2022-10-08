@@ -121,7 +121,6 @@ messenger.jar:
 % override chrome://global/content/buildconfig.html chrome://messenger/content/buildconfig.html
 
 # L10n resources and overrides.
-% override chrome://global/locale/netError.dtd chrome://messenger/locale/netError.dtd
 % override chrome://mozapps/locale/profile/profileDowngrade.dtd chrome://messenger/locale/profileDowngrade.dtd
 
 comm.jar:

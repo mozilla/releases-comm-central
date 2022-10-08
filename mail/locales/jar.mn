@@ -169,7 +169,6 @@
   locale/@AB_CD@/messenger/migration/migration.properties               (%chrome/messenger/migration/migration.properties)
   locale/@AB_CD@/messenger/activity.dtd                                 (%chrome/messenger/activity.dtd)
   locale/@AB_CD@/messenger/activity.properties                          (%chrome/messenger/activity.properties)
-  locale/@AB_CD@/messenger/netError.dtd                                 (%chrome/overrides/netError.dtd)
   locale/@AB_CD@/messenger/profileDowngrade.dtd                         (%chrome/overrides/profileDowngrade.dtd)
   locale/@AB_CD@/messenger/newsError.dtd                                (%chrome/messenger/newsError.dtd)
   locale/@AB_CD@/messenger/chat.dtd                                     (%chrome/messenger/chat.dtd)
