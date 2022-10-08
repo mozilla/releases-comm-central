@@ -40,8 +40,6 @@
 %lightningDTD;
 <!ENTITY % lightningToolbarDTD SYSTEM "chrome://lightning/locale/lightning-toolbar.dtd" >
 %lightningToolbarDTD;
-<!ENTITY % globalDTD SYSTEM "chrome://global/locale/global.dtd" >
-%globalDTD;
 <!ENTITY % mailOverlayDTD SYSTEM "chrome://messenger/locale/mailOverlay.dtd">
 %mailOverlayDTD;
 <!ENTITY % smimeDTD SYSTEM "chrome://messenger-smime/locale/msgReadSecurityInfo.dtd">

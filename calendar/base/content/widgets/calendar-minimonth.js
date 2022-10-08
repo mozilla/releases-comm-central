@@ -130,7 +130,7 @@
             ${minimonthWeekRow}
           </html:table>
           `,
-          ["chrome://calendar/locale/global.dtd", "chrome://global/locale/global.dtd"]
+          ["chrome://calendar/locale/global.dtd"]
         )
       );
       this.initializeAttributeInheritance();
