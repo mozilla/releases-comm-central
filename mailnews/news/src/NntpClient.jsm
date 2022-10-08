@@ -561,6 +561,7 @@ class NntpClient {
   _actionXOverResponse(res) {
     if (res.status == 224) {
       this._nextAction = this._actionReadXOver;
+      this._newsGroup.addKnownArticles(this._startArticle, this._endArticle);
       this._actionReadXOver(res);
     } else {
       // Somehow XOVER is not supported by the server, fallback to use HEAD to
