@@ -3327,6 +3327,44 @@ add_task(async function testGoogleEscaping() {
   await promiseDirectoryRemoved(googleBook.URI);
 });
 
+/**
+ * Tests that contacts with nickname can be edited.
+ */
+add_task(async function testNickname() {
+  let book = createAddressBook("Nick");
+  book.addCard(
+    VCardUtils.vCardToAbCard(formatVCard`
+      BEGIN:VCARD
+      VERSION:4.0
+      EMAIL;PREF=1:jsmith@example.org
+      NICKNAME:Johnny
+      N:SMITH;JOHN;;;
+      END:VCARD
+    `)
+  );
+
+  let abWindow = await openAddressBookWindow();
+
+  let abDocument = abWindow.document;
+  let cardsList = abDocument.getElementById("cards");
+  let detailsPane = abDocument.getElementById("detailsPane");
+
+  openDirectory(book);
+  Assert.equal(cardsList.view.rowCount, 1);
+  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
+  await editContactAtIndex(0, {});
+
+  checkInputValues({
+    FirstName: "JOHN",
+    LastName: "SMITH",
+    NickName: "Johnny",
+    PrimaryEmail: "jsmith@example.org",
+  });
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(book.URI);
+});
+
 add_task(async function test_remove_button() {
   let abWindow = await openAddressBookWindow();
   let abDocument = abWindow.document;
