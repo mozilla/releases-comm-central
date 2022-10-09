@@ -1250,14 +1250,16 @@ var gGeneralPane = {
     for (let i = 0; i < messages.length; i++) {
       let messageContainer = document.createXULElement("hbox");
       messageContainer.classList.add("message-bar-content");
-      if (i == 0 && gGeneralPane.getLocaleDirection(locales[0]) === "rtl") {
-        description.classList.add("rtl-locale");
-      }
       messageContainer.setAttribute("flex", "1");
       messageContainer.setAttribute("align", "center");
 
       let description = document.createXULElement("description");
       description.classList.add("message-bar-description");
+
+      if (i == 0 && gGeneralPane.getLocaleDirection(locales[0]) === "rtl") {
+        description.classList.add("rtl-locale");
+      }
+
       description.setAttribute("flex", "1");
       description.textContent = messages[i];
       messageContainer.appendChild(description);
