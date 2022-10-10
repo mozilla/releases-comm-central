@@ -2,71 +2,14 @@
 
 /* Test of accessing over 2 GiB local folder. */
 
-var bugmail10 = do_get_file("../../../data/bugmail10");
-
-Services.prefs.setCharPref(
-  "mail.serverDefaultStoreContractID",
-  "@mozilla.org/msgstore/berkeleystore;1"
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-var gLocalInboxSize;
-var gLocalTrashFolder;
-
-function run_test() {
-  localAccountUtils.loadLocalMailAccount();
-
-  // "Master" do_test_pending(), paired with a do_test_finished() at the end of
-  // all the operations.
-  do_test_pending();
-
-  let inboxFile = localAccountUtils.inboxFolder.filePath;
-
-  let neededFreeSpace = 0x100000000;
-  let freeDiskSpace = inboxFile.diskSpaceAvailable;
-  info("Free disk space = " + mailTestUtils.toMiBString(freeDiskSpace));
-  if (freeDiskSpace < neededFreeSpace) {
-    info(
-      "This test needs " +
-        mailTestUtils.toMiBString(neededFreeSpace) +
-        " free space to run. Aborting."
-    );
-    todo_check_true(false);
-
-    endTest();
-    return;
-  }
-
-  // "Trash" folder
-  gLocalTrashFolder = localAccountUtils.incomingServer.rootMsgFolder.getChildNamed(
-    "Trash"
-  );
-
-  // Extend local folder to over 2 GiB.
-  let outputStream = Cc["@mozilla.org/network/file-output-stream;1"]
-    .createInstance(Ci.nsIFileOutputStream)
-    .QueryInterface(Ci.nsISeekableStream);
-  // Open in write-only mode, no truncate.
-  outputStream.init(inboxFile, 0x02, -1, 0);
-  // seek past 2GB.
-  outputStream.seek(0, 0x80000010);
-  // Write a "space" character.
-  outputStream.write(" ", 1);
-  outputStream.close();
-
-  // Save initial file size.
-  gLocalInboxSize = localAccountUtils.inboxFolder.filePath.fileSize;
-  info(
-    "Local inbox size (before copyFileMessageInLocalFolder()) = " +
-      gLocalInboxSize
-  );
-
-  // Append mail data to over 2 GiB position for over 2 GiB msgkey.
-  copyFileMessageInLocalFolder(bugmail10, 0, "", null, copyMessages);
-}
-
-// Get message whose offset is over 2 GiB.
-function getMessageHdr() {
-  for (let header of localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages()) {
+// Find hdr for message whose offset is over 2 GiB.
+function findHugeMessageHdr(folder) {
+  //getMessageHdr() {
+  for (let header of folder.msgDatabase.EnumerateMessages()) {
     if (header.messageOffset >= 0x80000000) {
       return header;
     }
@@ -76,86 +19,115 @@ function getMessageHdr() {
   return null; // This won't ever happen, but we're keeping the linter happy.
 }
 
-function copyMessages() {
+let gInboxFile;
+let gInbox;
+let gSmallMsgFile = do_get_file("../../../data/bugmail10");
+
+add_setup(async function() {
+  // Make sure we're using mbox.
+  Services.prefs.setCharPref(
+    "mail.serverDefaultStoreContractID",
+    "@mozilla.org/msgstore/berkeleystore;1"
+  );
+
+  localAccountUtils.loadLocalMailAccount();
+
+  gInbox = localAccountUtils.inboxFolder;
+  gInboxFile = gInbox.filePath;
+
+  let neededFreeSpace = 0x100000000;
+  let freeDiskSpace = gInboxFile.diskSpaceAvailable;
+  info("Free disk space = " + mailTestUtils.toMiBString(freeDiskSpace));
+  if (freeDiskSpace < neededFreeSpace) {
+    throw new Error(
+      "This test needs " +
+        mailTestUtils.toMiBString(neededFreeSpace) +
+        " free space to run. Aborting."
+    );
+  }
+});
+
+// Extend mbox file to over 2 GiB.
+add_task(async function extendPast2GiB() {
+  let outputStream = Cc["@mozilla.org/network/file-output-stream;1"]
+    .createInstance(Ci.nsIFileOutputStream)
+    .QueryInterface(Ci.nsISeekableStream);
+  // Open in write-only mode, no truncate.
+  outputStream.init(gInboxFile, 0x02, -1, 0);
+  // seek past 2GB.
+  outputStream.seek(0, 0x80000010);
+  // Write a "space" character.
+  outputStream.write(" ", 1);
+  outputStream.close();
+});
+
+// Copy another (normal sized) message into the local folder.
+// This message should be past the 2GiB position.
+add_task(async function appendSmallMessage() {
+  // Remember initial mbox file size.
+  let initialInboxSize = gInbox.filePath.fileSize;
+  info(`Local inbox size (before copyFileMessage()) = ${initialInboxSize}`);
+
+  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  MailServices.copy.copyFileMessage(
+    gSmallMsgFile,
+    gInbox,
+    null /* msgToReplace*/,
+    false /* isDraftOrTemplate */,
+    0 /* message flags */,
+    "" /* keywords */,
+    copyListener,
+    null /* window */
+  );
+  await copyListener.promise;
+
   // Make sure inbox file grew (i.e., we were not writing over data).
-  let localInboxSize = localAccountUtils.inboxFolder.filePath.fileSize;
+  let localInboxSize = gInbox.filePath.fileSize;
   info(
     "Local inbox size (after copyFileMessageInLocalFolder()) = " +
       localInboxSize
   );
-  Assert.ok(localInboxSize > gLocalInboxSize);
+  Assert.greater(localInboxSize, initialInboxSize);
+});
 
-  // Copy the message into the subfolder.
+// Copy the huge message into a subfolder.
+add_task(async function copyHugeMessage() {
+  let trash = localAccountUtils.incomingServer.rootMsgFolder.getChildNamed(
+    "Trash"
+  );
+  let copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
-    localAccountUtils.inboxFolder,
-    [getMessageHdr()],
-    gLocalTrashFolder,
+    gInbox,
+    [findHugeMessageHdr(gInbox)],
+    trash /* destFolder */,
     false,
-    copyListener2,
+    copyListener,
     null,
     false
   );
-}
+  await copyListener.promise;
+});
 
-var copyListener2 = {
-  OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey(aKey) {},
-  OnStopCopy(aStatus) {
-    Assert.equal(aStatus, 0);
-
-    do_timeout(0, accessOver2GBMsg);
-  },
-};
-
-// streamMessage() test by over 2 GiB mail offset.
-function accessOver2GBMsg() {
+// Read out the smaller message beyond the 2 GiB offset and make sure
+// it matches what we expect.
+add_task(async function verifySmallMessage() {
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
     Ci.nsIMessenger
   );
-  let msghdr = getMessageHdr();
+  let msghdr = findHugeMessageHdr(gInbox);
   let msgURI = msghdr.folder.getUriForMsg(msghdr);
   let msgServ = messenger.messageServiceFromURI(msgURI);
-  msgServ.streamMessage(msgURI, gStreamListener, null, null, false, "", true);
-}
 
-var gStreamListener = {
-  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
-  _stream: null,
-  _data: null,
-  onStartRequest(aRequest) {
-    this._data = "";
-  },
-  onStopRequest(aRequest, aStatusCode) {
-    let fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
-      Ci.nsIFileInputStream
-    );
-    let stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-      Ci.nsIScriptableInputStream
-    );
+  let streamListener = new PromiseTestUtils.PromiseStreamListener();
+  msgServ.streamMessage(msgURI, streamListener, null, null, false, "", true);
+  let got = await streamListener.promise;
 
-    fstream.init(bugmail10, -1, 0, 0);
-    stream.init(fstream);
-    let original = stream.read(this._data.length);
-    Assert.equal(this._data, original);
+  let expected = await IOUtils.readUTF8(gSmallMsgFile.path);
+  Assert.equal(got, expected);
+});
 
-    do_timeout(0, endTest);
-  },
-  onDataAvailable(aRequest, aInputStream, aOff, aCount) {
-    if (this._stream == null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-        Ci.nsIScriptableInputStream
-      );
-      this._stream.init(aInputStream);
-    }
-    this._data += this._stream.read(aCount);
-  },
-};
-
-function endTest() {
+add_task(async function cleanup() {
   // Free up disk space - if you want to look at the file after running
   // this test, comment out this line.
-  localAccountUtils.inboxFolder.filePath.remove(false);
-
-  do_test_finished();
-}
+  gInbox.filePath.remove(false);
+});
