@@ -125,6 +125,7 @@ EXTRA_JS_MODULES += [
     "MsgDBCacheManager.jsm",
     "MsgIncomingServer.jsm",
     "MsgKeySet.jsm",
+    "MsgProtocolInfo.sys.mjs",
     "OAuth2.jsm",
     "OAuth2Module.jsm",
     "OAuth2Providers.jsm",

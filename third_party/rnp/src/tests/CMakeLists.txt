@@ -47,15 +47,20 @@ elseif (NOT DOWNLOAD_GTEST)
   find_package(GTest REQUIRED)
   set(GTestMain GTest::Main)
 else()
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS_EQUAL "4.8.5")
+    set(GTEST_GIT_TAG "c43f710")
+  else()
+    set(GTEST_GIT_TAG "HEAD")
+  endif()
   # download and build googletest
   include(FetchContent)
   FetchContent_Declare(googletest
     GIT_REPOSITORY  https://github.com/google/googletest.git
-    GIT_TAG         c43f710
+    GIT_TAG         "${GTEST_GIT_TAG}"
   )
   # maintain compiler/linker settings on Windows
   set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-  # explicitely disable unneeded gmock build
+  # explicitly disable unneeded gmock build
   set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
   FetchContent_MakeAvailable(googletest)
   set(GTestMain gtest_main)
@@ -93,6 +98,7 @@ add_executable(rnp_tests
   ffi-uid.cpp
   ffi-key-sig.cpp
   ffi-key-prop.cpp
+  ffi-key.cpp
   file-utils.cpp
   generatekey.cpp
   kbx-nsigs-test.cpp
@@ -185,6 +191,12 @@ target_compile_definitions(rnp_tests
     RNP_RUN_TESTS
     RNP_STATIC
 )
+
+# Centos 7 with CLang 7.0.1 reports strange memory leak in GoogleTest, maybe there is a better solution
+if (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 7.0.1)
+  set_target_properties(rnp_tests PROPERTIES CXX_VISIBILITY_PRESET hidden)
+endif()
+
 gtest_discover_tests(rnp_tests
   PROPERTIES
     FIXTURES_REQUIRED testdata
@@ -212,7 +224,7 @@ if (DOWNLOAD_RUBYRNP AND NOT ENABLE_SANITIZERS AND BUILD_SHARED_LIBS AND NOT WIN
     BUILD_IN_SOURCE yes
     CONFIGURE_COMMAND ""
     BUILD_COMMAND
-      COMMAND bundle add ffi --version 1.9.25
+      COMMAND bundle add ffi --version 1.15.5
       COMMAND bundle show parallel_tests || bundle add parallel_tests
       COMMAND bundle install --path .
     INSTALL_COMMAND ""

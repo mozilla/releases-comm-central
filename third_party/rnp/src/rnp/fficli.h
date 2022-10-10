@@ -36,6 +36,8 @@
 #include "rnpcfg.h"
 #include "json.h"
 
+enum class Operation { EncryptOrSign, Verify, Enarmor, Dearmor, Dump };
+
 class cli_rnp_t {
   private:
     rnp_cfg cfg_{};
@@ -48,15 +50,20 @@ class cli_rnp_t {
     bool    check_cv25519_bits(rnp_key_handle_t key, char *prot_password, bool &tweaked);
 
   public:
-    rnp_ffi_t ffi{};
-    FILE *    resfp{};      /* where to put result messages, defaults to stdout */
-    FILE *    passfp{};     /* file pointer for password input */
-    FILE *    userio_in{};  /* file pointer for user's inputs */
-    FILE *    userio_out{}; /* file pointer for user's outputs */
-    int       pswdtries{};  /* number of password tries, -1 for unlimited */
+    rnp_ffi_t   ffi{};
+    FILE *      resfp{};      /* where to put result messages, defaults to stdout */
+    FILE *      passfp{};     /* file pointer for password input */
+    FILE *      userio_in{};  /* file pointer for user's inputs */
+    FILE *      userio_out{}; /* file pointer for user's outputs */
+    int         pswdtries{};  /* number of password tries, -1 for unlimited */
+    bool        reuse_password_for_subkey{};
+    std::string reuse_primary_fprint;
+    char *      reused_password{};
 
     bool init(const rnp_cfg &cfg);
     void end();
+
+    bool init_io(Operation op, rnp_input_t *input, rnp_output_t *output);
 
     bool load_keyrings(bool loadsecret = false);
 
@@ -217,11 +224,27 @@ void        cli_rnp_print_feature(FILE *fp, const char *type, const char *printe
  */
 const std::string cli_rnp_alg_to_ffi(const std::string alg);
 
+/**
+ * @brief Attempt to set hash algorithm using the value provided.
+ *
+ * @param cfg config
+ * @param hash algorithm name.
+ * @return true if algorithm is supported and set correctly, or false otherwise.
+ */
+bool cli_rnp_set_hash(rnp_cfg &cfg, const std::string &hash);
+
+/**
+ * @brief Attempt to set symmetric cipher algorithm using the value provided.
+ *
+ * @param cfg config
+ * @param cipher algorithm name.
+ * @return true if algorithm is supported and set correctly, or false otherwise.
+ */
+bool cli_rnp_set_cipher(rnp_cfg &cfg, const std::string &cipher);
+
 void clear_key_handles(std::vector<rnp_key_handle_t> &keys);
 
 const char *json_obj_get_str(json_object *obj, const char *key);
-int64_t     json_obj_get_int64(json_object *obj, const char *key);
-bool        rnp_casecmp(const std::string &str1, const std::string &str2);
 
 #ifdef _WIN32
 bool rnp_win_substitute_cmdline_args(int *argc, char ***argv);

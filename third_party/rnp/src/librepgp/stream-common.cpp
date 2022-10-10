@@ -231,6 +231,9 @@ src_skip(pgp_source_t *src, size_t len)
         (void) src_read(src, sbuf, len, &res);
         return;
     }
+    if (src_eof(src)) {
+        return;
+    }
 
     void *buf = calloc(1, std::min((size_t) PGP_INPUT_CACHE_SIZE, len));
     if (!buf) {
@@ -626,15 +629,16 @@ bool
 init_dst_common(pgp_dest_t *dst, size_t paramsize)
 {
     memset(dst, 0, sizeof(*dst));
-    if (paramsize) {
-        dst->param = calloc(1, paramsize);
-        if (!dst->param) {
-            RNP_LOG("allocation failed");
-            return false;
-        }
-    }
     dst->werr = RNP_SUCCESS;
-    return true;
+    if (!paramsize) {
+        return true;
+    }
+    /* allocate param */
+    dst->param = calloc(1, paramsize);
+    if (!dst->param) {
+        RNP_LOG("allocation failed");
+    }
+    return dst->param;
 }
 
 void

@@ -473,10 +473,20 @@ NS_IMETHODIMP nsMsgCompFields::RemoveAttachment(nsIMsgAttachment* attachment) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgCompFields::SetOtherHeaders(
+    const nsTArray<nsString>& headers) {
+  m_otherHeaders = headers.Clone();
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgCompFields::GetOtherHeaders(nsTArray<nsString>& headers) {
+  headers = m_otherHeaders.Clone();
+  return NS_OK;
+}
+
 /* void removeAttachments (); */
 NS_IMETHODIMP nsMsgCompFields::RemoveAttachments() {
   m_attachments.Clear();
-
   return NS_OK;
 }
 

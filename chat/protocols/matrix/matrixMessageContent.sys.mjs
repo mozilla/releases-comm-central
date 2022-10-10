@@ -10,6 +10,7 @@ import {
   MatrixSDK,
   getHttpUriForMxc,
 } from "resource:///modules/matrix-sdk.sys.mjs";
+
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   getMatrixTextForEvent: "resource:///modules/matrixTextForEvent.sys.mjs",

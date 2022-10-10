@@ -459,6 +459,8 @@ void test_fuzz_verify_detached(void **state);
 
 void test_rng_randomness(void **state);
 
+void test_result_to_string(void **state);
+
 #define assert_true(a) EXPECT_TRUE((a))
 #define assert_false(a) EXPECT_FALSE((a))
 #define assert_string_equal(a, b) EXPECT_STREQ((a), (b))
@@ -471,6 +473,6 @@ void test_rng_randomness(void **state);
 #define assert_rnp_failure(a) EXPECT_NE((a), RNP_SUCCESS)
 #define assert_memory_equal(a, b, sz) EXPECT_EQ(0, memcmp((a), (b), (sz)))
 #define assert_memory_not_equal(a, b, sz) EXPECT_NE(0, memcmp((a), (b), (sz)))
-#define assert_throw(a) EXPECT_ANY_THROW((a))
+#define assert_throw(a) EXPECT_ANY_THROW(a)
 
 #endif // RNP_TESTS_H

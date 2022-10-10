@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2017-2022 [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -64,25 +64,25 @@ TEST_F(rnp_tests, hash_test_success)
       "23097D223405D8228642A477BDA255B32AADBCE4BDA0B3F7E36C9DA7",
       "66C7F0F462EEEDD9D1F2D46BDC10E4E24167C4875CF2F7A2297DA02B8F4BA8E0",
       "3A985DA74FE225B2045C172D6BD390BD855F086E3E9D525B46BFE24511431532",
-      "B751850B1A57168A5693CD924B6B096E08F621827444F70D884F5D0240D2712E1"
-      "0E116E9192AF3C91A7EC57647E3934057340B4CF408D5A56592F8274EEC53F0"};
+      ("B751850B1A57168A5693CD924B6B096E08F621827444F70D884F5D0240D2712E1"
+       "0E116E9192AF3C91A7EC57647E3934057340B4CF408D5A56592F8274EEC53F0")};
 
     for (int i = 0; hash_algs[i] != PGP_HASH_UNKNOWN; ++i) {
 #if !defined(ENABLE_SM2)
         if (hash_algs[i] == PGP_HASH_SM3) {
-            assert_throw({ rnp::Hash hash(hash_algs[i]); });
+            assert_throw({ auto hash = rnp::Hash::create(hash_algs[i]); });
             size_t hash_size = rnp::Hash::size(hash_algs[i]);
             assert_int_equal(hash_size * 2, strlen(hash_alg_expected_outputs[i]));
             continue;
         }
 #endif
-        rnp::Hash hash(hash_algs[i]);
-        size_t    hash_size = rnp::Hash::size(hash_algs[i]);
+        auto   hash = rnp::Hash::create(hash_algs[i]);
+        size_t hash_size = rnp::Hash::size(hash_algs[i]);
         assert_int_equal(hash_size * 2, strlen(hash_alg_expected_outputs[i]));
 
-        hash.add(test_input, 1);
-        hash.add(test_input + 1, sizeof(test_input) - 1);
-        hash.finish(hash_output);
+        hash->add(test_input, 1);
+        hash->add(test_input + 1, sizeof(test_input) - 1);
+        hash->finish(hash_output);
 
         assert_int_equal(0,
                          test_value_equal(rnp::Hash::name(hash_algs[i]),
@@ -347,7 +347,7 @@ TEST_F(rnp_tests, ecdh_decryptionNegativeCases)
     rnp_keygen_crypto_params_t key_desc;
     key_desc.key_alg = PGP_PKA_ECDH;
     key_desc.hash_alg = PGP_HASH_SHA512;
-    key_desc.ecc = {.curve = PGP_CURVE_NIST_P_256};
+    key_desc.ecc.curve = PGP_CURVE_NIST_P_256;
     key_desc.ctx = &global_ctx;
 
     pgp_key_pkt_t ecdh_key1;
@@ -398,7 +398,7 @@ TEST_F(rnp_tests, sm2_roundtrip)
     rnp_keygen_crypto_params_t key_desc;
     key_desc.key_alg = PGP_PKA_SM2;
     key_desc.hash_alg = PGP_HASH_SM3;
-    key_desc.ecc = {.curve = PGP_CURVE_SM2_P_256};
+    key_desc.ecc.curve = PGP_CURVE_SM2_P_256;
     key_desc.ctx = &global_ctx;
 
     global_ctx.rng.get(key, sizeof(key));
@@ -450,11 +450,11 @@ TEST_F(rnp_tests, sm2_sm3_signature_test)
 
     assert_int_equal(sm2_validate_key(&global_ctx.rng, &sm2_key, true), RNP_SUCCESS);
 
-    rnp::Hash hash(hash_alg);
+    auto hash = rnp::Hash::create(hash_alg);
 
-    assert_int_equal(sm2_compute_za(sm2_key, hash, "sm2_p256_test@example.com"), RNP_SUCCESS);
-    hash.add(msg, strlen(msg));
-    assert_int_equal(hash.finish(digest), hash_len);
+    assert_int_equal(sm2_compute_za(sm2_key, *hash, "sm2_p256_test@example.com"), RNP_SUCCESS);
+    hash->add(msg, strlen(msg));
+    assert_int_equal(hash->finish(digest), hash_len);
 
     // First generate a signature, then verify it
     assert_int_equal(sm2_sign(&global_ctx.rng, &sig, hash_alg, digest, hash_len, &sm2_key),
@@ -493,10 +493,10 @@ TEST_F(rnp_tests, sm2_sha256_signature_test)
 
     assert_int_equal(sm2_validate_key(&global_ctx.rng, &sm2_key, true), RNP_SUCCESS);
 
-    rnp::Hash hash(hash_alg);
-    assert_int_equal(sm2_compute_za(sm2_key, hash, "sm2test@example.com"), RNP_SUCCESS);
-    hash.add(msg, strlen(msg));
-    assert_int_equal(hash.finish(digest), hash_len);
+    auto hash = rnp::Hash::create(hash_alg);
+    assert_int_equal(sm2_compute_za(sm2_key, *hash, "sm2test@example.com"), RNP_SUCCESS);
+    hash->add(msg, strlen(msg));
+    assert_int_equal(hash->finish(digest), hash_len);
 
     // First generate a signature, then verify it
     assert_int_equal(sm2_sign(&global_ctx.rng, &sig, hash_alg, digest, hash_len, &sm2_key),
@@ -639,6 +639,12 @@ TEST_F(rnp_tests, s2k_iteration_tuning)
     // Should not crash for unknown hash algorithm
     assert_int_equal(pgp_s2k_compute_iters(PGP_HASH_UNKNOWN, 1000, TRIAL_MSEC), 0);
     /// TODO test that hashing iters_xx data takes roughly requested time
+
+    size_t iter_sha1 = global_ctx.s2k_iterations(PGP_HASH_SHA1);
+    assert_int_equal(iter_sha1, global_ctx.s2k_iterations(PGP_HASH_SHA1));
+    size_t iter_sha512 = global_ctx.s2k_iterations(PGP_HASH_SHA512);
+    assert_int_equal(iter_sha512, global_ctx.s2k_iterations(PGP_HASH_SHA512));
+    assert_int_equal(global_ctx.s2k_iterations(PGP_HASH_UNKNOWN), 0);
 }
 
 TEST_F(rnp_tests, s2k_iteration_encode_decode)
@@ -931,6 +937,30 @@ TEST_F(rnp_tests, test_aead_enabled)
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "EAX", &supported));
     assert_false(supported);
     assert_rnp_success(rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "OCB", &supported));
+    assert_false(supported);
+#endif
+}
+
+TEST_F(rnp_tests, test_idea_enabled)
+{
+    char *features = NULL;
+    bool  supported = false;
+    /* check whether FFI returns value which corresponds to defines */
+#if defined(ENABLE_IDEA)
+    assert_true(idea_enabled());
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_SYMM_ALG, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("IDEA") != std::string::npos);
+    rnp_buffer_destroy(features);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "IDEA", &supported));
+    assert_true(supported);
+#else
+    assert_false(idea_enabled());
+    assert_rnp_success(rnp_supported_features(RNP_FEATURE_SYMM_ALG, &features));
+    assert_non_null(features);
+    assert_true(std::string(features).find("IDEA") == std::string::npos);
+    rnp_buffer_destroy(features);
+    assert_rnp_success(rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "IDEA", &supported));
     assert_false(supported);
 #endif
 }

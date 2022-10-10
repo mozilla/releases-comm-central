@@ -17,7 +17,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   setTimeout: "resource://gre/modules/Timer.jsm",
 });
 
-const MIN_RNP_VERSION = [0, 16, 0];
+const MIN_RNP_VERSION = [0, 16, 2];
 
 var systemOS = Services.appinfo.OS.toLowerCase();
 var abi = ctypes.default_abi;
@@ -153,6 +153,8 @@ function enableRNPLibJS() {
   RNPLib = {
     path: librnpPath,
 
+    // Handle to the RNP library and primary key data store.
+    // Kept at null if init fails.
     ffi: null,
 
     // returns rnp_input_t, destroy using rnp_input_destroy
@@ -269,9 +271,200 @@ function enableRNPLibJS() {
       return Boolean(this_version >= min_version);
     },
 
+    /**
+     * Prepare an RNP library handle, and in addition set all the
+     * application's preferences for library behavior.
+     *
+     * Other application code should NOT call rnp_ffi_create directly,
+     * but obtain an RNP library handle from this function.
+     */
+    prepare_ffi() {
+      let ffi = new rnp_ffi_t();
+      if (this._rnp_ffi_create(ffi.address(), "GPG", "GPG")) {
+        return null;
+      }
+
+      // Treat MD5 as insecure.
+      if (
+        this.rnp_add_security_rule(
+          ffi,
+          this.RNP_FEATURE_HASH_ALG,
+          this.RNP_ALGNAME_MD5,
+          this.RNP_SECURITY_OVERRIDE,
+          0,
+          this.RNP_SECURITY_INSECURE
+        )
+      ) {
+        return null;
+      }
+
+      // Use RNP's default rule for SHA1 used with data signatures,
+      // and use our override to allow it for key signatures.
+      if (
+        this.rnp_add_security_rule(
+          ffi,
+          this.RNP_FEATURE_HASH_ALG,
+          this.RNP_ALGNAME_SHA1,
+          this.RNP_SECURITY_VERIFY_KEY | this.RNP_SECURITY_OVERRIDE,
+          0,
+          this.RNP_SECURITY_DEFAULT
+        )
+      ) {
+        return null;
+      }
+
+      /*
+      // Security rules API does not yet support PK and SYMM algs.
+      //
+      // If a hash algorithm is already disabled at build time,
+      // and an attempt is made to set a security rule for that
+      // algorithm, then RNP returns a failure.
+      //
+      // Ideally, RNP should allow these calls (regardless of build time
+      // settings) to define an application security rule, that is
+      // independent of the configuration used for building the
+      // RNP library.
+
+      if (
+        this.rnp_add_security_rule(
+          ffi,
+          this.RNP_FEATURE_HASH_ALG,
+          this.RNP_ALGNAME_SM3,
+          this.RNP_SECURITY_OVERRIDE,
+          0,
+          this.RNP_SECURITY_PROHIBITED
+        )
+      ) {
+        return null;
+      }
+
+      if (
+        this.rnp_add_security_rule(
+          ffi,
+          this.RNP_FEATURE_PK_ALG,
+          this.RNP_ALGNAME_SM2,
+          this.RNP_SECURITY_OVERRIDE,
+          0,
+          this.RNP_SECURITY_PROHIBITED
+        )
+      ) {
+        return null;
+      }
+
+      if (
+        this.rnp_add_security_rule(
+          ffi,
+          this.RNP_FEATURE_SYMM_ALG,
+          this.RNP_ALGNAME_SM4,
+          this.RNP_SECURITY_OVERRIDE,
+          0,
+          this.RNP_SECURITY_PROHIBITED
+        )
+      ) {
+        return null;
+      }
+      */
+
+      return ffi;
+    },
+
+    /**
+     * Test the correctness of security rules, in particular, test
+     * if the given hash algorithm is allowed at the given time.
+     *
+     * This is an application consistency test. If the behavior isn't
+     * according to the expectation, the function throws an error.
+     *
+     * @param {string} hashAlg - Test this hash algorithm
+     * @param {time_t} time - Test status at this timestamp
+     * @param {boolean} keySigAllowed - Test if using the hash algorithm
+     *  is allowed for signatures found inside OpenPGP keys.
+     * @param {boolean} dataSigAllowed - Test if using the hash algorithm
+     *  is allowed for signatures on data.
+     */
+    _confirmSecurityRule(hashAlg, time, keySigAllowed, dataSigAllowed) {
+      let level = new ctypes.uint32_t();
+      let flag = new ctypes.uint32_t();
+
+      flag.value = this.RNP_SECURITY_VERIFY_DATA;
+      let testDataSuccess = false;
+      if (
+        !RNPLib.rnp_get_security_rule(
+          this.ffi,
+          this.RNP_FEATURE_HASH_ALG,
+          hashAlg,
+          time,
+          flag.address(),
+          null,
+          level.address()
+        )
+      ) {
+        if (dataSigAllowed) {
+          testDataSuccess = level.value == RNPLib.RNP_SECURITY_DEFAULT;
+        } else {
+          testDataSuccess = level.value < RNPLib.RNP_SECURITY_DEFAULT;
+        }
+      }
+
+      if (!testDataSuccess) {
+        throw new Error("security configuration for data signatures failed");
+      }
+
+      flag.value = this.RNP_SECURITY_VERIFY_KEY;
+      let testKeySuccess = false;
+      if (
+        !RNPLib.rnp_get_security_rule(
+          this.ffi,
+          this.RNP_FEATURE_HASH_ALG,
+          hashAlg,
+          time,
+          flag.address(),
+          null,
+          level.address()
+        )
+      ) {
+        if (keySigAllowed) {
+          testKeySuccess = level.value == RNPLib.RNP_SECURITY_DEFAULT;
+        } else {
+          testKeySuccess = level.value < RNPLib.RNP_SECURITY_DEFAULT;
+        }
+      }
+
+      if (!testKeySuccess) {
+        throw new Error("security configuration for key signatures failed");
+      }
+    },
+
+    /**
+     * Perform tests that the RNP library behaves according to the
+     * defined security rules.
+     * If a problem is found, the function throws an error.
+     */
+    _sanityCheckSecurityRules() {
+      let time_t_now = Math.round(Date.now() / 1000);
+      let ten_years_in_seconds = 10 * 365 * 24 * 60 * 60;
+      let ten_years_future = time_t_now + ten_years_in_seconds;
+
+      this._confirmSecurityRule(this.RNP_ALGNAME_MD5, time_t_now, false, false);
+      this._confirmSecurityRule(
+        this.RNP_ALGNAME_MD5,
+        ten_years_future,
+        false,
+        false
+      );
+
+      this._confirmSecurityRule(this.RNP_ALGNAME_SHA1, time_t_now, true, false);
+      this._confirmSecurityRule(
+        this.RNP_ALGNAME_SHA1,
+        ten_years_future,
+        true,
+        false
+      );
+    },
+
     async init() {
-      this.ffi = new rnp_ffi_t();
-      if (this.rnp_ffi_create(this.ffi.address(), "GPG", "GPG")) {
+      this.ffi = this.prepare_ffi();
+      if (!this.ffi) {
         throw new Error("Couldn't initialize librnp.");
       }
 
@@ -289,6 +482,14 @@ function enableRNPLibJS() {
       );
 
       let { pubRingPath, secRingPath } = this.getFilenames();
+
+      try {
+        this._sanityCheckSecurityRules();
+      } catch (e) {
+        // Disable all RNP operation
+        this.ffi = null;
+        throw e;
+      }
 
       await this.loadWithFallback(pubRingPath, this.RNP_LOAD_SAVE_PUBLIC_KEYS);
       await this.loadWithFallback(secRingPath, this.RNP_LOAD_SAVE_SECRET_KEYS);
@@ -485,6 +686,10 @@ function enableRNPLibJS() {
      *   RNP_LOAD_SAVE_SECRET_KEYS.
      */
     async saveKeyRing(path, keyRingFlag) {
+      if (!this.ffi) {
+        return;
+      }
+
       let oldPath = path + ".old";
 
       // Ignore failure, oldPath might not exist yet.
@@ -544,6 +749,9 @@ function enableRNPLibJS() {
     },
 
     async saveKeys() {
+      if (!this.ffi) {
+        return;
+      }
       let { pubRingPath, secRingPath } = this.getFilenames();
 
       let saveThem = async () => {
@@ -604,7 +812,9 @@ function enableRNPLibJS() {
     ),
 
     // Get a RNP library handle.
-    rnp_ffi_create: librnp.declare(
+    // Mark with leading underscore, to clarify that this function
+    // shouldn't be called directly - you should call prepare_ffi().
+    _rnp_ffi_create: librnp.declare(
       "rnp_ffi_create",
       abi,
       rnp_result_t,
@@ -1717,6 +1927,18 @@ function enableRNPLibJS() {
       ctypes.uint32_t.ptr
     ),
 
+    rnp_add_security_rule: librnp.declare(
+      "rnp_add_security_rule",
+      abi,
+      rnp_result_t,
+      rnp_ffi_t,
+      ctypes.char.ptr,
+      ctypes.char.ptr,
+      ctypes.uint32_t,
+      ctypes.uint64_t,
+      ctypes.uint32_t
+    ),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,
@@ -1752,7 +1974,22 @@ function enableRNPLibJS() {
 
     RNP_SUCCESS: 0x00000000,
 
+    RNP_FEATURE_SYMM_ALG: "symmetric algorithm",
     RNP_FEATURE_HASH_ALG: "hash algorithm",
+    RNP_FEATURE_PK_ALG: "public key algorithm",
+    RNP_ALGNAME_MD5: "MD5",
+    RNP_ALGNAME_SHA1: "SHA1",
+    RNP_ALGNAME_SM2: "SM2",
+    RNP_ALGNAME_SM3: "SM3",
+    RNP_ALGNAME_SM4: "SM4",
+
+    RNP_SECURITY_OVERRIDE: 1,
+    RNP_SECURITY_VERIFY_KEY: 2,
+    RNP_SECURITY_VERIFY_DATA: 4,
+    RNP_SECURITY_REMOVE_ALL: 65536,
+
+    RNP_SECURITY_PROHIBITED: 0,
+    RNP_SECURITY_INSECURE: 1,
     RNP_SECURITY_DEFAULT: 2,
 
     /* Common error codes */

@@ -24,6 +24,7 @@ import {
   l10nHelper,
   nsSimpleEnumerator,
 } from "resource:///modules/imXPCOMUtils.sys.mjs";
+
 const lazy = {};
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")

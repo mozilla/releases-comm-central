@@ -66,17 +66,25 @@ add_setup(async function() {
   folder = await create_folder("DisplayNamesA");
   decoyFolder = await create_folder("DisplayNamesB");
 
+  // # 0
   await add_message_to_folder(
     [folder],
     create_message({ to: [["", myEmail]] })
   );
+  // # 1
   await add_message_to_folder(
     [folder],
     create_message({ from: ["", friendEmail] })
   );
+  // # 2
   await add_message_to_folder(
     [folder],
     create_message({ from: [friendName, friendEmail] })
+  );
+  // # 3 - a message I got with a custom address to myself
+  await add_message_to_folder(
+    [folder],
+    create_message({ to: [["Customized", myEmail]] })
   );
 
   // Ensure all the directories are initialised.
@@ -133,6 +141,8 @@ add_task(async function test_single_identity() {
   ensure_no_card_exists(myEmail);
   ensure_single_identity();
   await help_test_display_name(0, "to", headertoFieldMe);
+
+  await help_test_display_name(3, "to", `Customized <${myEmail}>`);
 });
 
 add_task(async function test_single_identity_in_abook() {
@@ -150,7 +160,9 @@ add_task(async function test_single_identity_in_abook_no_pdn() {
 add_task(async function test_multiple_identities() {
   ensure_no_card_exists(myEmail);
   ensure_multiple_identities();
-  await help_test_display_name(0, "to", headertoFieldMe + " <" + myEmail + ">");
+  await help_test_display_name(0, "to", myEmail);
+
+  await help_test_display_name(3, "to", `Customized <${myEmail}>`);
 });
 
 add_task(async function test_multiple_identities_in_abook() {
@@ -162,7 +174,9 @@ add_task(async function test_multiple_identities_in_abook() {
 add_task(async function test_multiple_identities_in_abook_no_pdn() {
   ensure_card_exists(myEmail, "President Frankenstein");
   ensure_multiple_identities();
-  await help_test_display_name(0, "to", headertoFieldMe + " <" + myEmail + ">");
+  await help_test_display_name(0, "to", myEmail);
+
+  await help_test_display_name(3, "to", `Customized <${myEmail}>`);
 });
 
 add_task(async function test_no_header_name() {

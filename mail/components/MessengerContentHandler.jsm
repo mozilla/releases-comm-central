@@ -266,12 +266,17 @@ MailDefaultHandler.prototype = {
                 ].createInstance(Ci.nsISupportsString);
                 remoteParams.shift();
                 argstring.data = remoteParams.join(",");
+                let args = Cc["@mozilla.org/array;1"].createInstance(
+                  Ci.nsIMutableArray
+                );
+                args.appendElement(argstring);
+                args.appendElement(cmdLine);
                 Services.ww.openWindow(
                   null,
                   "chrome://messenger/content/messengercompose/messengercompose.xhtml",
                   "_blank",
                   "chrome,dialog=no,all",
-                  argstring
+                  args
                 );
                 break;
               }

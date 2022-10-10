@@ -289,6 +289,7 @@ let require = Require(loader, requirer);
 
 // Load the buffer shim into the global commonJS scope
 loader.globals.Buffer = require("safe-buffer").Buffer;
+
 globals.Buffer = loader.globals.Buffer;
 
 // The main entry point into the Matrix client.

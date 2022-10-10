@@ -49,10 +49,11 @@
 #include <errno.h>
 
 #include "fficli.h"
+#include "str-utils.h"
 #include "logging.h"
 
 static const char *usage =
-  "Sign, verify, encrypt, decrypt, investigate OpenPGP data.\n"
+  "Sign, verify, encrypt, decrypt, inspect OpenPGP data.\n"
   "Usage: rnp --command [options] [files]\n"
   "Commands:\n"
   "  -h, --help           This help message.\n"
@@ -64,6 +65,7 @@ static const char *usage =
   "    -z 0..9            Set the compression level.\n"
   "    --[zip,zlib,bzip]  Use the corresponding compression algorithm.\n"
   "    --armor            Apply ASCII armor to the encryption/signing output.\n"
+  "    --no-wrap          Do not wrap the output in a literal data packet.\n"
   "  -c, --symmetric      Encrypt data using the password(s).\n"
   "    --passwords num    Encrypt to the specified number of passwords.\n"
   "  -s, --sign           Sign data. May be combined with encryption.\n"
@@ -73,6 +75,7 @@ static const char *usage =
   "  --clearsign          Cleartext-sign data.\n"
   "  -d, --decrypt        Decrypt and output data, verifying signatures.\n"
   "  -v, --verify         Verify signatures, without outputting data.\n"
+  "    --source           Specify source for the detached signature.\n"
   "  --dearmor            Strip ASCII armor from the data, outputting binary.\n"
   "  --enarmor            Add ASCII armor to the data.\n"
   "  --list-packets       List OpenPGP packets from the input.\n"
@@ -89,6 +92,7 @@ static const char *usage =
   "  --password           Password used during operation.\n"
   "  --pass-fd num        Read password(s) from the file descriptor.\n"
   "  --notty              Do not output anything to the TTY.\n"
+  "  --current-time       Override system's time.\n"
   "\n"
   "See man page for a detailed listing and explanation.\n"
   "\n";
@@ -143,6 +147,9 @@ enum optdefs {
     OPT_MPIS,
     OPT_RAW,
     OPT_NOTTY,
+    OPT_SOURCE,
+    OPT_NOWRAP,
+    OPT_CURTIME,
 
     /* debug */
     OPT_DEBUG
@@ -203,6 +210,9 @@ static struct option options[] = {
   {"mpi", no_argument, NULL, OPT_MPIS},
   {"raw", no_argument, NULL, OPT_RAW},
   {"notty", no_argument, NULL, OPT_NOTTY},
+  {"source", required_argument, NULL, OPT_SOURCE},
+  {"no-wrap", no_argument, NULL, OPT_NOWRAP},
+  {"current-time", required_argument, NULL, OPT_CURTIME},
 
   {NULL, 0, NULL, 0},
 };
@@ -300,22 +310,18 @@ setcmd(rnp_cfg &cfg, int cmd, const char *arg)
         cfg.set_bool(CFG_KEYSTORE_DISABLED, true);
         break;
     case CMD_ENARMOR: {
-        std::string msgt = "";
-
-        if (arg) {
-            msgt = arg;
-            if (msgt == "msg") {
-                msgt = "message";
-            } else if (msgt == "pubkey") {
-                msgt = "public key";
-            } else if (msgt == "seckey") {
-                msgt = "secret key";
-            } else if (msgt == "sign") {
-                msgt = "signature";
-            } else {
-                ERR_MSG("Wrong enarmor argument: %s", arg);
-                return false;
-            }
+        std::string msgt = arg;
+        if (msgt == "msg") {
+            msgt = "message";
+        } else if (msgt == "pubkey") {
+            msgt = "public key";
+        } else if (msgt == "seckey") {
+            msgt = "secret key";
+        } else if (msgt == "sign") {
+            msgt = "signature";
+        } else {
+            ERR_MSG("Wrong enarmor argument: %s", arg);
+            return false;
         }
 
         if (!msgt.empty()) {
@@ -363,24 +369,12 @@ setoption(rnp_cfg &cfg, int val, const char *arg)
         cfg.set_bool(CFG_COREDUMPS, true);
         return true;
     case OPT_KEY_STORE_FORMAT:
-        if (!arg) {
-            ERR_MSG("No keyring format argument provided");
-            return false;
-        }
         cfg.set_str(CFG_KEYSTOREFMT, arg);
         return true;
     case OPT_USERID:
-        if (!arg) {
-            ERR_MSG("No userid argument provided");
-            return false;
-        }
         cfg.add_str(CFG_SIGNERS, arg);
         return true;
     case OPT_RECIPIENT:
-        if (!arg) {
-            ERR_MSG("No recipient argument provided");
-            return false;
-        }
         cfg.add_str(CFG_RECIPIENTS, arg);
         return true;
     case OPT_ARMOR:
@@ -390,56 +384,23 @@ setoption(rnp_cfg &cfg, int val, const char *arg)
         cfg.set_bool(CFG_DETACHED, true);
         return true;
     case OPT_HOMEDIR:
-        if (!arg) {
-            ERR_MSG("No home directory argument provided");
-            return false;
-        }
         cfg.set_str(CFG_HOMEDIR, arg);
         return true;
     case OPT_KEYFILE:
-        if (!arg) {
-            ERR_MSG("No keyfile argument provided");
-            return false;
-        }
         cfg.set_str(CFG_KEYFILE, arg);
         cfg.set_bool(CFG_KEYSTORE_DISABLED, true);
         return true;
-    case OPT_HASH_ALG: {
-        if (!arg) {
-            ERR_MSG("No hash algorithm argument provided");
-            return false;
-        }
-        bool               supported = false;
-        const std::string &alg = cli_rnp_alg_to_ffi(arg);
-        if (rnp_supports_feature(RNP_FEATURE_HASH_ALG, alg.c_str(), &supported) ||
-            !supported) {
-            ERR_MSG("Unsupported hash algorithm: %s", arg);
-            return false;
-        }
-        cfg.set_str(CFG_HASH, alg);
-        return true;
-    }
+    case OPT_HASH_ALG:
+        return cli_rnp_set_hash(cfg, arg);
     case OPT_PASSWDFD:
-        if (!arg) {
-            ERR_MSG("No pass-fd argument provided");
-            return false;
-        }
         cfg.set_str(CFG_PASSFD, arg);
         return true;
     case OPT_PASSWD:
-        if (!arg) {
-            ERR_MSG("No password argument provided");
-            return false;
-        }
         cfg.set_str(CFG_PASSWD, arg);
         return true;
     case OPT_PASSWORDS: {
-        if (!arg) {
-            ERR_MSG("You must provide a number with --passwords option");
-            return false;
-        }
-        int count = atoi(arg);
-        if (count <= 0) {
+        int count = 0;
+        if (!rnp::str_to_int(arg, count) || (count <= 0)) {
             ERR_MSG("Incorrect value for --passwords option: %s", arg);
             return false;
         }
@@ -449,17 +410,9 @@ setoption(rnp_cfg &cfg, int val, const char *arg)
         return true;
     }
     case OPT_OUTPUT:
-        if (!arg) {
-            ERR_MSG("No output filename argument provided");
-            return false;
-        }
         cfg.set_str(CFG_OUTFILE, arg);
         return true;
     case OPT_RESULTS:
-        if (!arg) {
-            ERR_MSG("No output filename argument provided");
-            return false;
-        }
         cfg.set_str(CFG_RESULTS, arg);
         return true;
     case OPT_EXPIRATION:
@@ -468,21 +421,8 @@ setoption(rnp_cfg &cfg, int val, const char *arg)
     case OPT_CREATION:
         cfg.set_str(CFG_CREATION, arg);
         return true;
-    case OPT_CIPHER: {
-        if (!arg) {
-            ERR_MSG("No encryption algorithm argument provided");
-            return false;
-        }
-        bool               supported = false;
-        const std::string &alg = cli_rnp_alg_to_ffi(arg);
-        if (rnp_supports_feature(RNP_FEATURE_SYMM_ALG, alg.c_str(), &supported) ||
-            !supported) {
-            ERR_MSG("Unsupported encryption algorithm: %s", arg);
-            return false;
-        }
-        cfg.set_str(CFG_CIPHER, alg);
-        return true;
-    }
+    case OPT_CIPHER:
+        return cli_rnp_set_cipher(cfg, arg);
     case OPT_NUMTRIES:
         cfg.set_str(CFG_NUMTRIES, arg);
         return true;
@@ -496,28 +436,22 @@ setoption(rnp_cfg &cfg, int val, const char *arg)
         cfg.set_str(CFG_ZALG, "BZip2");
         return true;
     case OPT_AEAD: {
-        const char *alg = NULL;
         std::string argstr = arg ? arg : "";
-        if (argstr.empty() || (argstr == "1") || rnp_casecmp(argstr, "eax")) {
-            alg = "EAX";
-        } else if ((argstr == "2") || rnp_casecmp(argstr, "ocb")) {
-            alg = "OCB";
+        if (argstr.empty() || (argstr == "1") || rnp::str_case_eq(argstr, "eax")) {
+            argstr = "EAX";
+        } else if ((argstr == "2") || rnp::str_case_eq(argstr, "ocb")) {
+            argstr = "OCB";
         } else {
-            ERR_MSG("Wrong AEAD algorithm: %s", arg);
+            ERR_MSG("Wrong AEAD algorithm: %s", argstr.c_str());
             return false;
         }
-        cfg.set_str(CFG_AEAD, alg);
+        cfg.set_str(CFG_AEAD, argstr);
         return true;
     }
     case OPT_AEAD_CHUNK: {
-        if (!arg) {
-            ERR_MSG("Option aead-chunk-bits requires parameter");
-            return false;
-        }
-
-        int bits = atoi(arg);
-        if ((bits < 0) || (bits > 56)) {
-            ERR_MSG("Wrong argument value %s for aead-chunk-bits", arg);
+        int bits = 0;
+        if (!rnp::str_to_int(arg, bits) || (bits < 0) || (bits > 16)) {
+            ERR_MSG("Wrong argument value %s for aead-chunk-bits, must be 0..16.", arg);
             return false;
         }
         cfg.set_int(CFG_AEAD_CHUNK, bits);
@@ -540,6 +474,16 @@ setoption(rnp_cfg &cfg, int val, const char *arg)
         return true;
     case OPT_NOTTY:
         cfg.set_bool(CFG_NOTTY, true);
+        return true;
+    case OPT_SOURCE:
+        cfg.set_str(CFG_SOURCE, arg);
+        return true;
+    case OPT_NOWRAP:
+        cfg.set_bool(CFG_NOWRAP, true);
+        cfg.set_int(CFG_ZLEVEL, 0);
+        return true;
+    case OPT_CURTIME:
+        cfg.set_str(CFG_CURTIME, arg);
         return true;
     case OPT_DEBUG:
         ERR_MSG("Option --debug is deprecated, ignoring.");
@@ -614,7 +558,7 @@ rnp_main(int argc, char **argv)
                 cmd = CMD_VERIFY;
                 break;
             case 'r':
-                if (strlen(optarg) < 1) {
+                if (!strlen(optarg)) {
                     ERR_MSG("Recipient should not be empty");
                 } else {
                     cfg.add_str(CFG_RECIPIENTS, optarg);

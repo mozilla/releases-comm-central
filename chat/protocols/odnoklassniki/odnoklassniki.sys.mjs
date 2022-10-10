@@ -7,6 +7,7 @@ var { XPCOMUtils } = ChromeUtils.import(
 );
 import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { GenericProtocolPrototype } from "resource:///modules/jsProtoHelper.sys.mjs";
+
 const lazy = {};
 
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>

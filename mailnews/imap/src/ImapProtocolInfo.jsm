@@ -4,10 +4,14 @@
 
 const EXPORTED_SYMBOLS = ["ImapProtocolInfo"];
 
+var { MsgProtocolInfo } = ChromeUtils.importESModule(
+  "resource:///modules/MsgProtocolInfo.sys.mjs"
+);
+
 /**
  * @implements {nsIMsgProtocolInfo}
  */
-class ImapProtocolInfo {
+class ImapProtocolInfo extends MsgProtocolInfo {
   QueryInterface = ChromeUtils.generateQI(["nsIMsgProtocolInfo"]);
 
   serverIID = Components.ID("{b02a4e1c-0d9e-498c-8b9d-18917ba9f65b}");
@@ -23,55 +27,16 @@ class ImapProtocolInfo {
   showComposeMsgLink = true;
   foldersCreatedAsync = false;
 
-  get defaultLocalPath() {
-    let file = this._getFileValue("mail.root.imap-rel", "mail.root.imap");
-    if (!file) {
-      file = Services.dirsvc.get("MailD", Ci.nsIFile);
-      this._setFileValue("mail.root.imap-rel", "mail.root.imap", file);
-    }
-    if (!file.exists()) {
-      file.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o775);
-    }
-    return file;
-  }
-
-  set defaultLocalPath(value) {
-    this._setFileValue("mail.root.imap-rel", "mail.root.imap", value);
-  }
-
   getDefaultServerPort(isSecure) {
     return isSecure
       ? Ci.nsIImapUrl.DEFAULT_IMAPS_PORT
       : Ci.nsIImapUrl.DEFAULT_IMAP_PORT;
   }
 
-  _getFileValue(relPrefName, absPrefName) {
-    try {
-      return Services.prefs.getComplexValue(relPrefName, Ci.nsIRelativeFilePref)
-        .file;
-    } catch (e) {
-      try {
-        let file = Services.prefs.getComplexValue(absPrefName, Ci.nsIFile);
-        Services.prefs.setComplexValue(relPrefName, Ci.nsIRelativeFilePref, {
-          QueryInterface: ChromeUtils.generateQI(["nsIRelativeFilePref"]),
-          file,
-          relativeToKey: "ProfD",
-        });
-        return file;
-      } catch (e) {
-        return null;
-      }
-    }
-  }
-
-  _setFileValue(relPrefName, absPrefName, file) {
-    Services.prefs.setComplexValue(relPrefName, Ci.nsIRelativeFilePref, {
-      QueryInterface: ChromeUtils.generateQI(["nsIRelativeFilePref"]),
-      file,
-      relativeToKey: "ProfD",
-    });
-    Services.prefs.setComplexValue(absPrefName, Ci.nsIFile, file);
-  }
+  // @see MsgProtocolInfo.sys.mjs
+  RELATIVE_PREF = "mail.root.imap-rel";
+  ABSOLUTE_PREF = "mail.root.imap";
+  DIR_SERVICE_PROP = "IMapMD";
 }
 
 ImapProtocolInfo.prototype.classID = Components.ID(

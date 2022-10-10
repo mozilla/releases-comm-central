@@ -35,8 +35,10 @@ There are some special cases for _INPUT_FILE_ :
 Depending on the input, output may be written:
 
 * if *--output* option is given output is written to the path specified (or to the *stdout* if *-* is used)
-* to the _INPUT_FILE_ with a removed or added file extension (_.pgp_, _.asc_, _.sig_); or
+* to the _INPUT_FILE_ with a removed or added file extension (_.pgp_, _.gpg_, _.asc_, _.sig_), depending on operation.
 * to the _stdout_ if input was read from the _stdin_.
+
+If output file already exists, it will *not* be overwritten, unless *--overwrite* option is given.
 
 Without the *--armor* option, output will be in binary.
 
@@ -77,6 +79,10 @@ Select a compression algorithm and level.
 
 *--armor*:::
 Output ASCII data instead of binary via the *--armor* option. If the input file is _file.ext_, and *--output* is not specified, then the data will be written (depending on *--armor* option) to _file.ext.pgp_ or _file.ext.asc_. +
+
+*--no-wrap*:::
+Do not wrap the output in literal data packet. This could be used to encrypt a file which is already signed or encrypted.
+By default this would also disable compression, use option *-z* to override.
 
 *--overwrite*:::
 If the destination file already exists, and the *--overwrite* option is not given, the caller will be asked for the permission to overwrite or to provide a new file name. Please see the *OPTIONS* section for more information.
@@ -128,7 +134,7 @@ If the data is signed, signature verification information will be printed to _st
 Additional options:
 
 *--output*:::
-Output, if not overridden with this option, will be written to the file with stripped _.pgp_ extension or stdout. If _INPUT_FILE_ does not end with the _.pgp_ extension, then output file name will be asked via _stdin_/_tty_.
+Override the default output selection with a file name or stdout specifier (*_-_*). For the default output path selection see the *BASICS* section.
 
 *--password*, *--pass-fd*:::
 Depending on encryption options, you may be asked for the password of one of your secret keys, or for the encryption password. These options override that behavior such that you can input the password through automated means.
@@ -137,6 +143,8 @@ Depending on encryption options, you may be asked for the password of one of you
 Verify signature(s) without writing embedded data out, if any (unless option _--output_ is specified). +
 +
 To verify the detached signature of a file _file.ext_, the detached signature file in the file name pattern of _file.ext.sig_ or _file.ext.asc_ must exist. +
++
+Also you may use option *--source* to specify the exact source for the signed data. +
 +
 If data is encrypted, you may be asked for password as in the *--decrypt* command.
 
@@ -232,6 +240,9 @@ via _stdin_/_tty_.
 *--overwrite*::
 Overwrite already existing files without prompt.
 
+*--source*::
+Specify signed data for the detached signature verification (_-_ and _env:_ substitutions may be used here). +
+
 *--hash* _ALGORITHM_::
 Set hash algorithm which to be used for signing and derivation
 of the encryption key from a password. +
@@ -247,7 +258,7 @@ The default value is _AES256_.
 Enable AEAD encryption and select algorithm to be used.
 
 *--aead-chunk-bits* _BITS_::
-Change AEAD chunk size. This is used for testing or debugging.
+Change AEAD chunk size bits, from 0 to 16 (actual chunk size would be 1 << (6 + bits)). See OpenPGP documentation for the details. +
 
 *--zip*, *--zlib*, *--bzip2*::
 Select corresponding algorithm to compress data with.
@@ -268,7 +279,7 @@ Useful for automated or non-interactive sessions.
 *--password* _PASSWORD_::
 Use the specified password when it is needed. +
 +
-WARNING: Not recommended for production use due to potential security issues.
+WARNING: Not recommended for production use due to potential security issues.
 Use *--pass-fd* for batch operations instead.
 
 *--passwords* _COUNT_::
@@ -279,11 +290,9 @@ While not commonly used, you may encrypt a message to any reasonable number of p
 *--creation* _TIME_::
 Override signature creation time. +
 +
-By default, creation time is set to current local computer time. +
+By default, creation time is set to the current local computer time. +
 +
-A specific time could be specified in the
-ISO 8601-1:2019 date format (_yyyy-mm-dd_),
-or in the UNIX timestamp format.
+*TIME* could be specified in the ISO 8601-1:2019 date format (_yyyy-mm-dd_), or in the UNIX timestamp format.
 
 *--expiration* _TIME_::
 Set signature expiration time, counting from the creation time. +
@@ -309,6 +318,13 @@ Disable use of tty. +
 By default RNP would detect whether TTY is attached and use it for user prompts. +
 +
 This option overrides default behaviour so user input may be passed in batch mode.
+
+*--current-time* _TIME_::
+Override system's time with a specified value. +
++
+By default RNP uses system's time in all signature/key checks, however in some scenarios it could be needed to override this. +
++
+*TIME* may be specified in the same way as *--creation*.
 
 == EXIT STATUS
 

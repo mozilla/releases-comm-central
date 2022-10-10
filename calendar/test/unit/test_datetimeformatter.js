@@ -472,12 +472,18 @@ add_task(async function formatInterval_test() {
     //2: task-without-due-date
     {
       input: { start: "20220916T140000Z" },
-      expected: "start date Friday, September 16, 2022 14:00",
+      expected: [
+        "start date Friday, September 16, 2022 2:00 PM",
+        "start date Friday, September 16, 2022 14:00",
+      ],
     },
     //3: task-without-start-date
     {
       input: { end: "20220916T140000Z" },
-      expected: "due date Friday, September 16, 2022 14:00",
+      expected: [
+        "due date Friday, September 16, 2022 2:00 PM",
+        "due date Friday, September 16, 2022 14:00",
+      ],
     },
     //4: all-day
     {
@@ -521,7 +527,7 @@ add_task(async function formatInterval_test() {
         start: "20220916T140000Z",
         end: "20220916T140000Z",
       },
-      expected: "Friday, September 16, 2022 14:00",
+      expected: ["Friday, September 16, 2022 2:00 PM", "Friday, September 16, 2022 14:00"],
     },
     //9: same-day
     {
@@ -529,7 +535,10 @@ add_task(async function formatInterval_test() {
         start: "20220916T140000Z",
         end: "20220916T160000Z",
       },
-      expected: "Friday, September 16, 2022 14:00 – 16:00",
+      expected: [
+        "Friday, September 16, 2022 2:00 PM – 4:00 PM",
+        "Friday, September 16, 2022 14:00 – 16:00",
+      ],
     },
     //10: several-days
     {
@@ -537,7 +546,10 @@ add_task(async function formatInterval_test() {
         start: "20220916T140000Z",
         end: "20220920T160000Z",
       },
-      expected: "Friday, September 16, 2022 14:00 – Tuesday, September 20, 2022 16:00",
+      expected: [
+        "Friday, September 16, 2022 2:00 PM – Tuesday, September 20, 2022 4:00 PM",
+        "Friday, September 16, 2022 14:00 – Tuesday, September 20, 2022 16:00",
+      ],
     },
   ];
 
@@ -552,9 +564,8 @@ add_task(async function formatInterval_test() {
     }
 
     let formatted = formatter.formatInterval(startDate, endDate);
-    equal(
-      test.expected,
-      formatted,
+    ok(
+      test.expected.includes(formatted),
       "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"
     );
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2017-2022, [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -34,13 +34,11 @@
 #endif
 #include <string.h>
 #include <algorithm>
-#include <rnp/rnp_def.h>
 #include "stream-def.h"
 #include "stream-armor.h"
 #include "stream-packet.h"
 #include "str-utils.h"
-#include "crypto/hash.h"
-#include "types.h"
+#include "crypto/hash.hpp"
 #include "utils.h"
 
 #define ARMORED_BLOCK_SIZE (4096)
@@ -64,18 +62,19 @@ typedef struct pgp_source_armored_param_t {
     bool     eofb64;     /* end of base64 stream reached */
     uint8_t  readcrc[3]; /* crc-24 from the armored data */
     bool     has_crc;    /* message contains CRC line */
-    rnp::CRC24 crc_ctx;  /* CTX used to calculate CRC */
+    std::unique_ptr<rnp::CRC24> crc_ctx;   /* CTX used to calculate CRC */
+    bool                        noheaders; /* only base64 data, no headers */
 } pgp_source_armored_param_t;
 
 typedef struct pgp_dest_armored_param_t {
     pgp_dest_t *      writedst;
     pgp_armored_msg_t type;    /* type of the message */
-    bool              usecrlf; /* use CR LF instead of LF as eol */
+    char              eol[2];  /* end of line, all non-zeroes are written */
     unsigned          lout;    /* chars written in current line */
     unsigned          llen;    /* length of the base64 line, defaults to 76 as per RFC */
     uint8_t           tail[2]; /* bytes which didn't fit into 3-byte boundary */
     unsigned          tailc;   /* number of bytes in tail */
-    rnp::CRC24        crc_ctx; /* CTX used to calculate CRC */
+    std::unique_ptr<rnp::CRC24> crc_ctx; /* CTX used to calculate CRC */
 } pgp_dest_armored_param_t;
 
 /*
@@ -106,13 +105,12 @@ static const uint8_t B64DEC[256] = {
   0xff};
 
 static bool
-armor_read_padding(pgp_source_t *src, size_t *read)
+armor_read_padding(pgp_source_armored_param_t *param, size_t *read)
 {
-    char          st[64];
-    size_t        stlen = 0;
-    pgp_source_t *readsrc = ((pgp_source_armored_param_t *) src->param)->readsrc;
+    char   st[64];
+    size_t stlen = 0;
 
-    if (!src_peek_line(readsrc, st, 12, &stlen)) {
+    if (!src_peek_line(param->readsrc, st, 64, &stlen)) {
         return false;
     }
 
@@ -122,13 +120,49 @@ armor_read_padding(pgp_source_t *src, size_t *read)
         }
 
         *read = stlen;
-        src_skip(readsrc, stlen);
-        return src_skip_eol(readsrc);
+        src_skip(param->readsrc, stlen);
+        return src_skip_eol(param->readsrc);
     } else if (stlen == 5) {
+        *read = 0;
+        return true;
+    } else if ((stlen > 5) && !memcmp(st, ST_DASHES, 5)) {
+        /* case with absent crc and 3-byte last chunk */
         *read = 0;
         return true;
     }
     return false;
+}
+
+static bool
+base64_read_padding(pgp_source_armored_param_t *param, size_t *read)
+{
+    char   pad[16];
+    size_t padlen = sizeof(pad);
+
+    /* we would allow arbitrary number of whitespaces/eols after the padding */
+    if (!src_read(param->readsrc, pad, padlen, &padlen)) {
+        return false;
+    }
+    /* strip trailing whitespaces */
+    while (padlen && (B64DEC[(int) pad[padlen - 1]] == 0xfd)) {
+        padlen--;
+    }
+    /* check for '=' */
+    for (size_t i = 0; i < padlen; i++) {
+        if (pad[i] != CH_EQ) {
+            RNP_LOG("wrong base64 padding: %.*s", (int) padlen, pad);
+            return false;
+        }
+    }
+    if (padlen > 2) {
+        RNP_LOG("wrong base64 padding length %zu.", padlen);
+        return false;
+    }
+    if (!src_eof(param->readsrc)) {
+        RNP_LOG("warning: extra data after the base64 stream.");
+    }
+    *read = padlen;
+    return true;
 }
 
 static bool
@@ -225,6 +259,31 @@ armor_read_trailer(pgp_source_t *src)
 }
 
 static bool
+armored_update_crc(pgp_source_armored_param_t *param,
+                   const void *                buf,
+                   size_t                      len,
+                   bool                        finish = false)
+{
+    if (param->noheaders) {
+        return true;
+    }
+    try {
+        param->crc_ctx->add(buf, len);
+        if (!finish) {
+            return true;
+        }
+        auto crc = param->crc_ctx->finish();
+        if (param->has_crc && memcmp(param->readcrc, crc.data(), 3)) {
+            RNP_LOG("Warning: CRC mismatch");
+        }
+        return true;
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return false;
+    }
+}
+
+static bool
 armored_src_read(pgp_source_t *src, void *buf, size_t len, size_t *readres)
 {
     pgp_source_armored_param_t *param = (pgp_source_armored_param_t *) src->param;
@@ -250,7 +309,7 @@ armored_src_read(pgp_source_t *src, void *buf, size_t len, size_t *readres)
             memcpy(bufptr, &param->rest[param->restpos], len);
             param->restpos += len;
             try {
-                param->crc_ctx.add(bufptr, len);
+                param->crc_ctx->add(bufptr, len);
             } catch (const std::exception &e) {
                 RNP_LOG("%s", e.what());
                 return false;
@@ -294,7 +353,13 @@ armored_src_read(pgp_source_t *src, void *buf, size_t len, size_t *readres)
                 param->eofb64 = true;
                 break;
             } else if (bval == 0xff) {
-                RNP_LOG("wrong base64 character 0x%02hhX", *(bptr - 1));
+                auto ch = *(bptr - 1);
+                /* OpenPGP message headers without the crc and without trailing = */
+                if ((ch == CH_DASH) && !param->noheaders) {
+                    param->eofb64 = true;
+                    break;
+                }
+                RNP_LOG("wrong base64 character 0x%02hhX", ch);
                 return false;
             }
         }
@@ -326,31 +391,44 @@ armored_src_read(pgp_source_t *src, void *buf, size_t len, size_t *readres)
         memmove(decbuf, dptr, dend - dptr);
         dend = decbuf + (dend - dptr);
 
-        if (param->eofb64) {
-            /* '=' reached, bptr points on it */
-            src_skip(param->readsrc, bptr - b64buf - 1);
-
-            /* reading b64 padding if any */
-            if (!armor_read_padding(src, &eqcount)) {
-                RNP_LOG("wrong padding");
-                return false;
-            }
-
-            /* reading crc */
-            if (!armor_read_crc(src)) {
-                RNP_LOG("Warning: missing or malformed CRC line");
-            }
-            /* reading armor trailing line */
-            if (!armor_read_trailer(src)) {
-                RNP_LOG("wrong armor trailer");
-                return false;
-            }
-
-            break;
-        } else {
+        /* skip already processed data */
+        if (!param->eofb64) {
             /* all input is base64 data or eol/spaces, so skipping it */
             src_skip(param->readsrc, read);
+            /* check for eof for base64-encoded data without headers */
+            if (param->noheaders && src_eof(param->readsrc)) {
+                src_skip(param->readsrc, read);
+                param->eofb64 = true;
+            } else {
+                continue;
+            }
+        } else {
+            /* '=' reached, bptr points on it */
+            src_skip(param->readsrc, bptr - b64buf - 1);
         }
+
+        /* end of base64 data */
+        if (param->noheaders) {
+            if (!base64_read_padding(param, &eqcount)) {
+                return false;
+            }
+            break;
+        }
+        /* reading b64 padding if any */
+        if (!armor_read_padding(param, &eqcount)) {
+            RNP_LOG("wrong padding");
+            return false;
+        }
+        /* reading crc */
+        if (!armor_read_crc(src)) {
+            RNP_LOG("Warning: missing or malformed CRC line");
+        }
+        /* reading armor trailing line */
+        if (!armor_read_trailer(src)) {
+            RNP_LOG("wrong armor trailer");
+            return false;
+        }
+        break;
     } while (left >= 3);
 
     /* process bytes left in decbuf */
@@ -368,10 +446,7 @@ armored_src_read(pgp_source_t *src, void *buf, size_t len, size_t *readres)
         *bptr++ = b24 & 0xff;
     }
 
-    try {
-        param->crc_ctx.add(buf, bufptr - (uint8_t *) buf);
-    } catch (const std::exception &e) {
-        RNP_LOG("%s", e.what());
+    if (!armored_update_crc(param, buf, bufptr - (uint8_t *) buf)) {
         return false;
     }
 
@@ -389,18 +464,9 @@ armored_src_read(pgp_source_t *src, void *buf, size_t len, size_t *readres)
             *bptr++ = (*dptr << 2) | (*(dptr + 1) >> 4);
         }
 
-        uint8_t crc_fin[5];
         /* Calculate CRC after reading whole input stream */
-        try {
-            param->crc_ctx.add(param->rest, bptr - param->rest);
-            param->crc_ctx.finish(crc_fin);
-        } catch (const std::exception &e) {
-            RNP_LOG("Can't finalize RNP ctx: %s", e.what());
+        if (!armored_update_crc(param, param->rest, bptr - param->rest, true)) {
             return false;
-        }
-
-        if (param->has_crc && memcmp(param->readcrc, crc_fin, 3)) {
-            RNP_LOG("Warning: CRC mismatch");
         }
     } else {
         /* few bytes which do not fit to 4 boundary */
@@ -416,13 +482,8 @@ armored_src_read(pgp_source_t *src, void *buf, size_t len, size_t *readres)
     if ((left > 0) && (param->restlen > 0)) {
         read = left > param->restlen ? param->restlen : left;
         memcpy(bufptr, param->rest, read);
-        if (!param->eofb64) {
-            try {
-                param->crc_ctx.add(bufptr, read);
-            } catch (const std::exception &e) {
-                RNP_LOG("%s", e.what());
-                return false;
-            }
+        if (!param->eofb64 && !armored_update_crc(param, bufptr, read)) {
+            return false;
         }
         left -= read;
         param->restpos += read;
@@ -733,28 +794,33 @@ armor_parse_headers(pgp_source_t *src)
 }
 
 rnp_result_t
-init_armored_src(pgp_source_t *src, pgp_source_t *readsrc)
+init_armored_src(pgp_source_t *src, pgp_source_t *readsrc, bool noheaders)
 {
-    rnp_result_t                errcode = RNP_ERROR_GENERIC;
-    pgp_source_armored_param_t *param;
-
     if (!init_src_common(src, 0)) {
         return RNP_ERROR_OUT_OF_MEMORY;
     }
-    try {
-        param = new pgp_source_armored_param_t();
-    } catch (const std::exception &e) {
-        RNP_LOG("%s", e.what());
+    pgp_source_armored_param_t *param = new (std::nothrow) pgp_source_armored_param_t();
+    if (!param) {
+        RNP_LOG("allocation failed");
         return RNP_ERROR_OUT_OF_MEMORY;
     }
 
     param->readsrc = readsrc;
+    param->noheaders = noheaders;
     src->param = param;
     src->read = armored_src_read;
     src->close = armored_src_close;
     src->type = PGP_STREAM_ARMORED;
 
+    /* base64 data only */
+    if (noheaders) {
+        return RNP_SUCCESS;
+    }
+
+    /* initialize crc context */
+    param->crc_ctx = rnp::CRC24::create();
     /* parsing armored header */
+    rnp_result_t errcode = RNP_ERROR_GENERIC;
     if (!armor_parse_header(src)) {
         errcode = RNP_ERROR_BAD_FORMAT;
         goto finish;
@@ -774,23 +840,20 @@ init_armored_src(pgp_source_t *src, pgp_source_t *readsrc)
 
     /* now we are good to go with base64-encoded data */
     errcode = RNP_SUCCESS;
-
 finish:
-    if (errcode != RNP_SUCCESS) {
+    if (errcode) {
         src_close(src);
     }
     return errcode;
 }
 
-/** @brief Copy armor header of tail to the buffer. Buffer should be at least ~40 chars. */
+/** @brief Write message header to the dst. */
 static bool
-armor_message_header(pgp_armored_msg_t type, bool finish, char *buf)
+armor_write_message_header(pgp_dest_armored_param_t *param, bool finish)
 {
-    const char *str;
-    str = finish ? ST_ARMOR_END : ST_ARMOR_BEGIN;
-    memcpy(buf, str, strlen(str));
-    buf += strlen(str);
-    switch (type) {
+    const char *str = finish ? ST_ARMOR_END : ST_ARMOR_BEGIN;
+    dst_write(param->writedst, str, strlen(str));
+    switch (param->type) {
     case PGP_ARMORED_MESSAGE:
         str = "MESSAGE";
         break;
@@ -809,21 +872,30 @@ armor_message_header(pgp_armored_msg_t type, bool finish, char *buf)
     default:
         return false;
     }
-
-    memcpy(buf, str, strlen(str));
-    buf += strlen(str);
-    memcpy(buf, ST_DASHES, std::min<size_t>(sizeof(ST_DASHES) - 1, 5));
-    buf[5] = '\0';
+    dst_write(param->writedst, str, strlen(str));
+    dst_write(param->writedst, ST_DASHES, strlen(ST_DASHES));
     return true;
 }
 
 static void
 armor_write_eol(pgp_dest_armored_param_t *param)
 {
-    if (param->usecrlf) {
-        dst_write(param->writedst, ST_CRLF, 2);
-    } else {
-        dst_write(param->writedst, ST_LF, 1);
+    if (param->eol[0]) {
+        dst_write(param->writedst, &param->eol[0], 1);
+    }
+    if (param->eol[1]) {
+        dst_write(param->writedst, &param->eol[1], 1);
+    }
+}
+
+static void
+armor_append_eol(pgp_dest_armored_param_t *param, uint8_t *&ptr)
+{
+    if (param->eol[0]) {
+        *ptr++ = param->eol[0];
+    }
+    if (param->eol[1]) {
+        *ptr++ = param->eol[1];
     }
 }
 
@@ -857,36 +929,34 @@ armored_encode3(uint8_t *out, uint8_t *in)
 static rnp_result_t
 armored_dst_write(pgp_dest_t *dst, const void *buf, size_t len)
 {
-    uint8_t                   encbuf[PGP_INPUT_CACHE_SIZE / 2];
-    uint8_t *                 encptr = encbuf;
-    uint8_t *                 enclast;
-    uint8_t                   dec3[3];
-    uint8_t *                 bufptr = (uint8_t *) buf;
-    uint8_t *                 bufend = bufptr + len;
-    uint8_t *                 inlend;
-    uint32_t                  t;
-    unsigned                  inllen;
     pgp_dest_armored_param_t *param = (pgp_dest_armored_param_t *) dst->param;
-
     if (!param) {
         RNP_LOG("wrong param");
         return RNP_ERROR_BAD_PARAMETERS;
     }
 
     /* update crc */
-    try {
-        param->crc_ctx.add(buf, len);
-    } catch (const std::exception &e) {
-        RNP_LOG("%s", e.what());
-        return RNP_ERROR_BAD_STATE;
+    bool base64 = param->type == PGP_ARMORED_BASE64;
+    if (!base64) {
+        try {
+            param->crc_ctx->add(buf, len);
+        } catch (const std::exception &e) {
+            RNP_LOG("%s", e.what());
+            return RNP_ERROR_BAD_STATE;
+        }
     }
 
+    uint8_t  encbuf[PGP_INPUT_CACHE_SIZE / 2];
+    uint8_t *bufptr = (uint8_t *) buf;
+    uint8_t *bufend = bufptr + len;
+    uint8_t *encptr = encbuf;
     /* processing tail if any */
     if (len + param->tailc < 3) {
         memcpy(&param->tail[param->tailc], buf, len);
         param->tailc += len;
         return RNP_SUCCESS;
     } else if (param->tailc > 0) {
+        uint8_t dec3[3] = {0};
         memcpy(dec3, param->tail, param->tailc);
         memcpy(&dec3[param->tailc], bufptr, 3 - param->tailc);
         bufptr += 3 - param->tailc;
@@ -895,10 +965,7 @@ armored_dst_write(pgp_dest_t *dst, const void *buf, size_t len)
         encptr += 4;
         param->lout += 4;
         if (param->lout == param->llen) {
-            if (param->usecrlf) {
-                *encptr++ = CH_CR;
-            }
-            *encptr++ = CH_LF;
+            armor_append_eol(param, encptr);
             param->lout = 0;
         }
     }
@@ -906,9 +973,9 @@ armored_dst_write(pgp_dest_t *dst, const void *buf, size_t len)
     /* this version prints whole chunks, so rounding down to the closest 4 */
     auto adjusted_llen = param->llen & ~3;
     /* number of input bytes to form a whole line of output, param->llen / 4 * 3 */
-    inllen = (adjusted_llen >> 2) + (adjusted_llen >> 1);
+    auto inllen = (adjusted_llen >> 2) + (adjusted_llen >> 1);
     /* pointer to the last full line space in encbuf */
-    enclast = encbuf + sizeof(encbuf) - adjusted_llen - 2;
+    auto enclast = encbuf + sizeof(encbuf) - adjusted_llen - 2;
 
     /* processing line chunks, this is the main performance-hitting cycle */
     while (bufptr + 3 <= bufend) {
@@ -918,8 +985,8 @@ armored_dst_write(pgp_dest_t *dst, const void *buf, size_t len)
             encptr = encbuf;
         }
         /* setup length of the input to process in this iteration */
-        inlend = param->lout == 0 ? bufptr + inllen :
-                                    bufptr + ((adjusted_llen - param->lout) >> 2) * 3;
+        uint8_t *inlend =
+          !param->lout ? bufptr + inllen : bufptr + ((adjusted_llen - param->lout) >> 2) * 3;
         if (inlend > bufend) {
             /* no enough input for the full line */
             inlend = bufptr + (bufend - bufptr) / 3 * 3;
@@ -931,7 +998,7 @@ armored_dst_write(pgp_dest_t *dst, const void *buf, size_t len)
 
         /* processing one line */
         while (bufptr < inlend) {
-            t = (bufptr[0] << 16) | (bufptr[1] << 8) | (bufptr[2]);
+            uint32_t t = (bufptr[0] << 16) | (bufptr[1] << 8) | (bufptr[2]);
             bufptr += 3;
             *encptr++ = B64ENC[(t >> 18) & 0xff];
             *encptr++ = B64ENC[(t >> 12) & 0xff];
@@ -940,11 +1007,8 @@ armored_dst_write(pgp_dest_t *dst, const void *buf, size_t len)
         }
 
         /* adding line ending */
-        if (param->lout == 0) {
-            if (param->usecrlf) {
-                *encptr++ = CH_CR;
-            }
-            *encptr++ = CH_LF;
+        if (!param->lout) {
+            armor_append_eol(param, encptr);
         }
     }
 
@@ -960,11 +1024,10 @@ armored_dst_write(pgp_dest_t *dst, const void *buf, size_t len)
 static rnp_result_t
 armored_dst_finish(pgp_dest_t *dst)
 {
-    uint8_t                   buf[64];
-    uint8_t                   crcbuf[3];
     pgp_dest_armored_param_t *param = (pgp_dest_armored_param_t *) dst->param;
 
     /* writing tail */
+    uint8_t buf[5];
     if (param->tailc == 1) {
         buf[0] = B64ENC[param->tail[0] >> 2];
         buf[1] = B64ENC[(param->tail[0] << 4) & 0xff];
@@ -978,6 +1041,10 @@ armored_dst_finish(pgp_dest_t *dst)
         buf[3] = CH_EQ;
         dst_write(param->writedst, buf, 4);
     }
+    /* Check for base64 */
+    if (param->type == PGP_ARMORED_BASE64) {
+        return param->writedst->werr;
+    }
 
     /* writing EOL if needed */
     if ((param->tailc > 0) || (param->lout > 0)) {
@@ -985,23 +1052,22 @@ armored_dst_finish(pgp_dest_t *dst)
     }
 
     /* writing CRC and EOL */
-    buf[0] = CH_EQ;
-
     // At this point crc_ctx is initialized, so call can't fail
+    buf[0] = CH_EQ;
     try {
-        param->crc_ctx.finish(crcbuf);
+        auto crc = param->crc_ctx->finish();
+        armored_encode3(&buf[1], crc.data());
     } catch (const std::exception &e) {
         RNP_LOG("%s", e.what());
     }
-    armored_encode3(&buf[1], crcbuf);
     dst_write(param->writedst, buf, 5);
     armor_write_eol(param);
 
     /* writing armor header */
-    armor_message_header(param->type, true, (char *) buf);
-    dst_write(param->writedst, buf, strlen((char *) buf));
+    if (!armor_write_message_header(param, true)) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
     armor_write_eol(param);
-
     return param->writedst->werr;
 }
 
@@ -1021,17 +1087,11 @@ armored_dst_close(pgp_dest_t *dst, bool discard)
 rnp_result_t
 init_armored_dst(pgp_dest_t *dst, pgp_dest_t *writedst, pgp_armored_msg_t msgtype)
 {
-    char                      hdr[64];
-    pgp_dest_armored_param_t *param;
-    rnp_result_t              ret = RNP_SUCCESS;
-
     if (!init_dst_common(dst, 0)) {
         return RNP_ERROR_OUT_OF_MEMORY;
     }
-    try {
-        param = new pgp_dest_armored_param_t();
-    } catch (const std::exception &e) {
-        RNP_LOG("%s", e.what());
+    pgp_dest_armored_param_t *param = new (std::nothrow) pgp_dest_armored_param_t();
+    if (!param) {
         return RNP_ERROR_OUT_OF_MEMORY;
     }
 
@@ -1045,27 +1105,30 @@ init_armored_dst(pgp_dest_t *dst, pgp_dest_t *writedst, pgp_armored_msg_t msgtyp
 
     param->writedst = writedst;
     param->type = msgtype;
-    param->usecrlf = true;
-    param->llen = 76; /* must be multiple of 4 */
-
-    if (!armor_message_header(param->type, false, hdr)) {
-        RNP_LOG("unknown data type");
-        ret = RNP_ERROR_BAD_PARAMETERS;
-        goto finish;
+    /* Base64 message */
+    if (msgtype == PGP_ARMORED_BASE64) {
+        /* Base64 encoding will not output EOLs but we need this to not duplicate code for a
+         * separate base64_dst_write function */
+        param->eol[0] = 0;
+        param->eol[1] = 0;
+        param->llen = 256;
+        return RNP_SUCCESS;
     }
-
+    /* create crc context */
+    param->crc_ctx = rnp::CRC24::create();
+    param->eol[0] = CH_CR;
+    param->eol[1] = CH_LF;
+    param->llen = 76; /* must be multiple of 4 */
     /* armor header */
-    dst_write(writedst, hdr, strlen(hdr));
+    if (!armor_write_message_header(param, false)) {
+        RNP_LOG("unknown data type");
+        armored_dst_close(dst, true);
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
     armor_write_eol(param);
     /* empty line */
     armor_write_eol(param);
-
-finish:
-    if (ret != RNP_SUCCESS) {
-        armored_dst_close(dst, true);
-    }
-
-    return ret;
+    return RNP_SUCCESS;
 }
 
 bool
@@ -1112,6 +1175,18 @@ is_cleartext_source(pgp_source_t *src)
     return !!strstr((char *) buf, ST_CLEAR_BEGIN);
 }
 
+bool
+is_base64_source(pgp_source_t &src)
+{
+    char   buf[128];
+    size_t read = 0;
+
+    if (!src_peek(&src, buf, sizeof(buf), &read) || (read < 4)) {
+        return false;
+    }
+    return is_base64_line(buf, read);
+}
+
 rnp_result_t
 rnp_dearmor_source(pgp_source_t *src, pgp_dest_t *dst)
 {
@@ -1150,3 +1225,63 @@ rnp_armor_source(pgp_source_t *src, pgp_dest_t *dst, pgp_armored_msg_t msgtype)
     dst_close(&armordst, res != RNP_SUCCESS);
     return res;
 }
+
+namespace rnp {
+
+const uint32_t ArmoredSource::AllowBinary = 0x01;
+const uint32_t ArmoredSource::AllowBase64 = 0x02;
+const uint32_t ArmoredSource::AllowMultiple = 0x04;
+
+ArmoredSource::ArmoredSource(pgp_source_t &readsrc, uint32_t flags)
+    : Source(), readsrc_(readsrc), multiple_(false)
+{
+    /* Do not dearmor already armored stream */
+    bool already = readsrc_.type == PGP_STREAM_ARMORED;
+    /* Check for base64 source: no multiple streams allowed */
+    if (!already && (flags & AllowBase64) && (is_base64_source(readsrc))) {
+        auto res = init_armored_src(&src_, &readsrc_, true);
+        if (res) {
+            RNP_LOG("Failed to parse base64 data.");
+            throw rnp::rnp_exception(res);
+        }
+        armored_ = true;
+        return;
+    }
+    /* Check for armored source */
+    if (!already && is_armored_source(&readsrc)) {
+        auto res = init_armored_src(&src_, &readsrc_);
+        if (res) {
+            RNP_LOG("Failed to parse armored data.");
+            throw rnp::rnp_exception(res);
+        }
+        armored_ = true;
+        multiple_ = flags & AllowMultiple;
+        return;
+    }
+    /* Use binary source if allowed */
+    if (!(flags & AllowBinary)) {
+        RNP_LOG("Non-armored data is not allowed here.");
+        throw rnp::rnp_exception(RNP_ERROR_BAD_PARAMETERS);
+    }
+    armored_ = false;
+}
+
+void
+ArmoredSource::restart()
+{
+    if (!armored_ || src_eof(&readsrc_) || src_error(&readsrc_)) {
+        return;
+    }
+    src_close(&src_);
+    auto res = init_armored_src(&src_, &readsrc_);
+    if (res) {
+        throw rnp::rnp_exception(res);
+    }
+}
+
+pgp_source_t &
+ArmoredSource::src()
+{
+    return armored_ ? src_ : readsrc_;
+}
+} // namespace rnp

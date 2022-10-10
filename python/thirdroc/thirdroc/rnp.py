@@ -13,7 +13,7 @@ from packaging.version import parse
 from mozbuild.preprocessor import Preprocessor
 
 
-def rnp_source_update(rnp_root, version_str, revision, timestamp, bug_report):
+def rnp_source_update(rnp_root, version_str, revision, timestamp):
     """
     Update RNP source files: generate version.h and mangle config.h.in
     :param rnp_root:
@@ -21,7 +21,6 @@ def rnp_source_update(rnp_root, version_str, revision, timestamp, bug_report):
     :param string version_str: latest version
     :param string revision: revision hash (short form)
     :param float timestamp: UNIX timestamp from revision
-    :param string bug_report: where to report bugs for this RNP build
     """
     version = parse(version_str)
     version_major = version.major
@@ -38,16 +37,13 @@ def rnp_source_update(rnp_root, version_str, revision, timestamp, bug_report):
         RNP_VERSION=version_str,
         RNP_VERSION_FULL=version_full,
         RNP_VERSION_COMMIT_TIMESTAMP=str(timestamp),
-        BUGREPORT_EMAIL=bug_report,
     )
     src_lib = os.path.join(rnp_root, "src", "lib")
     version_h_in = os.path.join(src_lib, "version.h.in")
     version_h = os.path.join(src_lib, "version.h")
-    config_h_in = os.path.join(src_lib, "config.h.in")
     readme_rnp = os.path.join(rnp_root, "..", "README.rnp")
 
     generate_version_h(version_h_in, version_h, defines)
-    mangle_config_h_in(config_h_in, defines)
     update_readme(readme_rnp, revision)
 
 
@@ -79,26 +75,6 @@ def generate_version_h(template, destination, defines):
     with open(template) as tmpl:
         with open(destination, "w") as dest:
             rnp_preprocess(tmpl, dest, defines)
-
-
-def mangle_config_h_in(template, defines):
-    """
-    Mangle RNP's config.h.in so that it will work with CONFIGURE_DEFINE_FILES
-    :param string template: path to config.h.in
-    :param dict defines: result of get_defines()
-    """
-    with open(template) as tmpl:
-        tmp_string = StringIO()
-        rnp_preprocess(tmpl, tmp_string, defines)
-
-    tmp_string.seek(0)
-
-    with open(template, "w") as dest:
-        for line in tmp_string:
-            if line.startswith("#cmakedefine"):
-                line = line.replace("#cmakedefine", "#undef")
-            dest.write(line)
-        dest.write("\n")
 
 
 def update_readme(path, revision):

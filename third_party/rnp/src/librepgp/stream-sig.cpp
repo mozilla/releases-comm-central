@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2018-2022, [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -87,93 +87,70 @@ signature_hash_userid(const pgp_userid_pkt_t &uid, rnp::Hash &hash, pgp_version_
     hash.add(uid.uid, uid.uid_len);
 }
 
-void
+std::unique_ptr<rnp::Hash>
 signature_hash_certification(const pgp_signature_t & sig,
                              const pgp_key_pkt_t &   key,
-                             const pgp_userid_pkt_t &userid,
-                             rnp::Hash &             hash)
+                             const pgp_userid_pkt_t &userid)
 {
-    signature_init(key.material, sig.halg, hash);
-    signature_hash_key(key, hash);
-    signature_hash_userid(userid, hash, sig.version);
+    auto hash = signature_init(key.material, sig.halg);
+    signature_hash_key(key, *hash);
+    signature_hash_userid(userid, *hash, sig.version);
+    return hash;
 }
 
-void
+std::unique_ptr<rnp::Hash>
 signature_hash_binding(const pgp_signature_t &sig,
                        const pgp_key_pkt_t &  key,
-                       const pgp_key_pkt_t &  subkey,
-                       rnp::Hash &            hash)
+                       const pgp_key_pkt_t &  subkey)
 {
-    signature_init(key.material, sig.halg, hash);
-    signature_hash_key(key, hash);
-    signature_hash_key(subkey, hash);
+    auto hash = signature_init(key.material, sig.halg);
+    signature_hash_key(key, *hash);
+    signature_hash_key(subkey, *hash);
+    return hash;
 }
 
-void
-signature_hash_direct(const pgp_signature_t &sig, const pgp_key_pkt_t &key, rnp::Hash &hash)
+std::unique_ptr<rnp::Hash>
+signature_hash_direct(const pgp_signature_t &sig, const pgp_key_pkt_t &key)
 {
-    signature_init(key.material, sig.halg, hash);
-    signature_hash_key(key, hash);
+    auto hash = signature_init(key.material, sig.halg);
+    signature_hash_key(key, *hash);
+    return hash;
 }
 
 rnp_result_t
-process_pgp_signatures(pgp_source_t *src, pgp_signature_list_t &sigs)
+process_pgp_signatures(pgp_source_t &src, pgp_signature_list_t &sigs)
 {
-    bool          armored = false;
-    pgp_source_t  armorsrc = {0};
-    pgp_source_t *origsrc = src;
-    rnp_result_t  ret = RNP_ERROR_GENERIC;
-
     sigs.clear();
-    /* check whether signatures are armored */
-armoredpass:
-    if (is_armored_source(src)) {
-        if ((ret = init_armored_src(&armorsrc, src))) {
-            RNP_LOG("failed to parse armored data");
-            goto finish;
-        }
-        armored = true;
-        src = &armorsrc;
-    }
-
+    /* Allow binary or armored input, including multiple armored messages */
+    rnp::ArmoredSource armor(
+      src, rnp::ArmoredSource::AllowBinary | rnp::ArmoredSource::AllowMultiple);
     /* read sequence of OpenPGP signatures */
-    while (!src_eof(src) && !src_error(src)) {
-        int ptag = stream_pkt_type(src);
-
+    while (!armor.error()) {
+        if (armor.eof() && armor.multiple()) {
+            armor.restart();
+        }
+        if (armor.eof()) {
+            break;
+        }
+        int ptag = stream_pkt_type(&armor.src());
         if (ptag != PGP_PKT_SIGNATURE) {
             RNP_LOG("wrong signature tag: %d", ptag);
-            ret = RNP_ERROR_BAD_FORMAT;
-            goto finish;
+            sigs.clear();
+            return RNP_ERROR_BAD_FORMAT;
         }
 
-        try {
-            sigs.emplace_back();
-            if ((ret = sigs.back().parse(*src))) {
-                goto finish;
-            }
-        } catch (const std::exception &e) {
-            RNP_LOG("%s", e.what());
-            ret = RNP_ERROR_OUT_OF_MEMORY;
-            goto finish;
+        sigs.emplace_back();
+        rnp_result_t ret = sigs.back().parse(armor.src());
+        if (ret) {
+            sigs.clear();
+            return ret;
         }
     }
-
-    /* file may have multiple armored keys */
-    if (armored && !src_eof(origsrc) && is_armored_source(origsrc)) {
-        src_close(&armorsrc);
-        armored = false;
-        src = origsrc;
-        goto armoredpass;
-    }
-    ret = RNP_SUCCESS;
-finish:
-    if (armored) {
-        src_close(&armorsrc);
-    }
-    if (ret) {
+    if (armor.error()) {
         sigs.clear();
+        return RNP_ERROR_READ;
     }
-    return ret;
+    return RNP_SUCCESS;
 }
 
 pgp_sig_subpkt_t::pgp_sig_subpkt_t(const pgp_sig_subpkt_t &src)
@@ -585,13 +562,13 @@ pgp_signature_t::~pgp_signature_t()
 pgp_sig_id_t
 pgp_signature_t::get_id() const
 {
-    rnp::Hash hash(PGP_HASH_SHA1);
-    hash.add(hashed_data, hashed_len);
-    hash.add(material_buf, material_len);
-    pgp_sig_id_t res;
+    auto hash = rnp::Hash::create(PGP_HASH_SHA1);
+    hash->add(hashed_data, hashed_len);
+    hash->add(material_buf, material_len);
+    pgp_sig_id_t res = {0};
     static_assert(std::tuple_size<decltype(res)>::value == PGP_SHA1_HASH_SIZE,
                   "pgp_sig_id_t size mismatch");
-    hash.finish(res.data());
+    hash->finish(res.data());
     return res;
 }
 
@@ -1100,15 +1077,10 @@ pgp_signature_t::add_notation(const std::string &name, const std::string &value,
 void
 pgp_signature_t::set_embedded_sig(const pgp_signature_t &esig)
 {
-    pgp_rawpacket_t esigpkt(esig);
-    pgp_source_t    memsrc = {};
-    if (init_mem_src(&memsrc, esigpkt.raw.data(), esigpkt.raw.size(), false)) {
-        RNP_LOG("failed to init mem src");
-        throw rnp::rnp_exception(RNP_ERROR_OUT_OF_MEMORY);
-    }
-    size_t len = 0;
-    stream_read_pkt_len(&memsrc, &len);
-    src_close(&memsrc);
+    pgp_rawpacket_t   esigpkt(esig);
+    rnp::MemorySource mem(esigpkt.raw);
+    size_t            len = 0;
+    stream_read_pkt_len(&mem.src(), &len);
     if (!len || (len > 0xffff) || (len >= esigpkt.raw.size())) {
         RNP_LOG("wrong pkt len");
         throw rnp::rnp_exception(RNP_ERROR_BAD_STATE);
@@ -1576,10 +1548,10 @@ rnp_selfsig_cert_info_t::populate(pgp_userid_pkt_t &uid, pgp_signature_t &sig)
     }
     /* populate uid */
     uid.tag = PGP_PKT_USER_ID;
-    uid.uid_len = strlen((char *) userid);
+    uid.uid_len = userid.size();
     if (!(uid.uid = (uint8_t *) malloc(uid.uid_len))) {
         RNP_LOG("alloc failed");
         throw rnp::rnp_exception(RNP_ERROR_OUT_OF_MEMORY);
     }
-    memcpy(uid.uid, (char *) userid, uid.uid_len);
+    memcpy(uid.uid, userid.data(), uid.uid_len);
 }

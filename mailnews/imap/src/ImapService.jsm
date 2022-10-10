@@ -42,6 +42,10 @@ class ImapService {
     return runningUrl;
   }
 
+  liteSelectFolder(folder, urlListener, msgWindow) {
+    return this.selectFolder(folder, urlListener, msgWindow);
+  }
+
   discoverAllFolders(folder, urlListener, msgWindow) {
     let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
       .imapIncomingServer;

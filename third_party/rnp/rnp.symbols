@@ -39,6 +39,7 @@ rnp_input_destroy
 rnp_input_from_callback
 rnp_input_from_memory
 rnp_input_from_path
+rnp_input_from_stdin
 rnp_key_25519_bits_tweak
 rnp_key_25519_bits_tweaked
 rnp_key_add_uid
@@ -77,6 +78,7 @@ rnp_key_handle_destroy
 rnp_key_have_public
 rnp_key_have_secret
 rnp_key_is_compromised
+rnp_key_is_expired
 rnp_key_is_locked
 rnp_key_is_primary
 rnp_key_is_protected
@@ -114,6 +116,7 @@ rnp_op_encrypt_set_creation_time
 rnp_op_encrypt_set_expiration_time
 rnp_op_encrypt_set_file_mtime
 rnp_op_encrypt_set_file_name
+rnp_op_encrypt_set_flags
 rnp_op_encrypt_set_hash
 rnp_op_generate_add_pref_cipher
 rnp_op_generate_add_pref_compression
@@ -171,6 +174,7 @@ rnp_op_verify_get_symenc_at
 rnp_op_verify_get_symenc_count
 rnp_op_verify_get_used_recipient
 rnp_op_verify_get_used_symenc
+rnp_op_verify_set_flags
 rnp_op_verify_signature_get_handle
 rnp_op_verify_signature_get_hash
 rnp_op_verify_signature_get_key
@@ -187,6 +191,7 @@ rnp_output_to_file
 rnp_output_to_memory
 rnp_output_to_null
 rnp_output_to_path
+rnp_output_to_stdout
 rnp_output_write
 rnp_recipient_get_alg
 rnp_recipient_get_keyid
@@ -194,10 +199,12 @@ rnp_remove_security_rule
 rnp_request_password
 rnp_result_to_string
 rnp_save_keys
+rnp_set_timestamp
 rnp_signature_get_alg
 rnp_signature_get_creation
 rnp_signature_get_expiration
 rnp_signature_get_hash_alg
+rnp_signature_get_key_fprint
 rnp_signature_get_keyid
 rnp_signature_get_signer
 rnp_signature_get_type

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2021-2022, [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,15 +26,22 @@
 
 #include <string>
 #include <cstring>
+#include <cassert>
 #include "crypto/rsa.h"
-#include "hash.h"
 #include "config.h"
 #include "utils.h"
 #include "bn.h"
+#include "ossl_common.h"
 #include <openssl/rsa.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
+#ifdef CRYPTO_BACKEND_OPENSSL3
+#include <openssl/param_build.h>
+#include <openssl/core_names.h>
+#endif
+#include "hash_ossl.hpp"
 
+#ifndef CRYPTO_BACKEND_OPENSSL3
 static RSA *
 rsa_load_public_key(const pgp_rsa_key_t *key)
 {
@@ -137,18 +144,152 @@ done:
     EVP_PKEY_free(evpkey);
     return ctx;
 }
+#else
+static OSSL_PARAM *
+rsa_bld_params(const pgp_rsa_key_t *key, bool secret)
+{
+    OSSL_PARAM *    params = NULL;
+    OSSL_PARAM_BLD *bld = OSSL_PARAM_BLD_new();
+    bignum_t *      n = mpi2bn(&key->n);
+    bignum_t *      e = mpi2bn(&key->e);
+    bignum_t *      d = NULL;
+    bignum_t *      p = NULL;
+    bignum_t *      q = NULL;
+    bignum_t *      u = NULL;
+    BN_CTX *        bnctx = NULL;
+
+    if (!n || !e || !bld) {
+        RNP_LOG("Out of memory");
+        goto done;
+    }
+
+    if (!OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_N, n) ||
+        !OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_E, e)) {
+        RNP_LOG("Failed to push RSA params.");
+        goto done;
+    }
+    if (secret) {
+        d = mpi2bn(&key->d);
+        /* As we have u = p^-1 mod q, and qInv = q^-1 mod p, we need to replace one with
+         * another */
+        p = mpi2bn(&key->q);
+        q = mpi2bn(&key->p);
+        u = mpi2bn(&key->u);
+        if (!d || !p || !q || !u) {
+            goto done;
+        }
+        /* We need to calculate exponents manually */
+        bnctx = BN_CTX_new();
+        if (!bnctx) {
+            RNP_LOG("Failed to allocate BN_CTX.");
+            goto done;
+        }
+        bignum_t *p1 = BN_CTX_get(bnctx);
+        bignum_t *q1 = BN_CTX_get(bnctx);
+        bignum_t *dp = BN_CTX_get(bnctx);
+        bignum_t *dq = BN_CTX_get(bnctx);
+        if (!BN_copy(p1, p) || !BN_sub_word(p1, 1) || !BN_copy(q1, q) || !BN_sub_word(q1, 1) ||
+            !BN_mod(dp, d, p1, bnctx) || !BN_mod(dq, d, q1, bnctx)) {
+            RNP_LOG("Failed to calculate dP or dQ.");
+        }
+        /* Push params */
+        if (!OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_D, d) ||
+            !OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_FACTOR1, p) ||
+            !OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_FACTOR2, q) ||
+            !OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_EXPONENT1, dp) ||
+            !OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_EXPONENT2, dq) ||
+            !OSSL_PARAM_BLD_push_BN(bld, OSSL_PKEY_PARAM_RSA_COEFFICIENT1, u)) {
+            RNP_LOG("Failed to push RSA secret params.");
+            goto done;
+        }
+    }
+    params = OSSL_PARAM_BLD_to_param(bld);
+    if (!params) {
+        RNP_LOG("Failed to build RSA params: %s.", ossl_latest_err());
+    }
+done:
+    bn_free(n);
+    bn_free(e);
+    bn_free(d);
+    bn_free(p);
+    bn_free(q);
+    bn_free(u);
+    BN_CTX_free(bnctx);
+    OSSL_PARAM_BLD_free(bld);
+    return params;
+}
+
+static EVP_PKEY *
+rsa_load_key(const pgp_rsa_key_t *key, bool secret)
+{
+    /* Build params */
+    OSSL_PARAM *params = rsa_bld_params(key, secret);
+    if (!params) {
+        return NULL;
+    }
+    /* Create context for key creation */
+    EVP_PKEY *    res = NULL;
+    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
+    if (!ctx) {
+        RNP_LOG("Context allocation failed: %s", ossl_latest_err());
+        goto done;
+    }
+    /* Create key */
+    if (EVP_PKEY_fromdata_init(ctx) <= 0) {
+        RNP_LOG("Failed to initialize key creation: %s", ossl_latest_err());
+        goto done;
+    }
+    if (EVP_PKEY_fromdata(
+          ctx, &res, secret ? EVP_PKEY_KEYPAIR : EVP_PKEY_PUBLIC_KEY, params) <= 0) {
+        RNP_LOG("Failed to create RSA key: %s", ossl_latest_err());
+    }
+done:
+    EVP_PKEY_CTX_free(ctx);
+    OSSL_PARAM_free(params);
+    return res;
+}
+
+static EVP_PKEY_CTX *
+rsa_init_context(const pgp_rsa_key_t *key, bool secret)
+{
+    EVP_PKEY *pkey = rsa_load_key(key, secret);
+    if (!pkey) {
+        return NULL;
+    }
+    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(pkey, NULL);
+    if (!ctx) {
+        RNP_LOG("Context allocation failed: %s", ossl_latest_err());
+    }
+    EVP_PKEY_free(pkey);
+    return ctx;
+}
+#endif
 
 rnp_result_t
 rsa_validate_key(rnp::RNG *rng, const pgp_rsa_key_t *key, bool secret)
 {
+#ifdef CRYPTO_BACKEND_OPENSSL3
+    EVP_PKEY_CTX *ctx = rsa_init_context(key, secret);
+    if (!ctx) {
+        RNP_LOG("Failed to init context: %s", ossl_latest_err());
+        return RNP_ERROR_GENERIC;
+    }
+    int res = secret ? EVP_PKEY_pairwise_check(ctx) : EVP_PKEY_public_check(ctx);
+    if (res <= 0) {
+        RNP_LOG("Key validation error: %s", ossl_latest_err());
+    }
+    EVP_PKEY_CTX_free(ctx);
+    return res > 0 ? RNP_SUCCESS : RNP_ERROR_GENERIC;
+#else
     if (secret) {
         EVP_PKEY_CTX *ctx = rsa_init_context(key, secret);
         if (!ctx) {
+            RNP_LOG("Failed to init context: %s", ossl_latest_err());
             return RNP_ERROR_GENERIC;
         }
         int res = EVP_PKEY_check(ctx);
-        if (res < 0) {
-            RNP_LOG("Key validation error: %lu", ERR_peek_last_error());
+        if (res <= 0) {
+            RNP_LOG("Key validation error: %s", ossl_latest_err());
         }
         EVP_PKEY_CTX_free(ctx);
         return res > 0 ? RNP_SUCCESS : RNP_ERROR_GENERIC;
@@ -171,19 +312,29 @@ done:
     bn_free(n);
     bn_free(e);
     return ret;
+#endif
 }
 
 static bool
-rsa_setup_context(EVP_PKEY_CTX *ctx, pgp_hash_alg_t hash_alg = PGP_HASH_UNKNOWN)
+rsa_setup_context(EVP_PKEY_CTX *ctx)
 {
     if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_PADDING) <= 0) {
         RNP_LOG("Failed to set padding: %lu", ERR_peek_last_error());
         return false;
     }
-    if (hash_alg == PGP_HASH_UNKNOWN) {
-        return true;
-    }
-    const char *hash_name = rnp::Hash::name_backend(hash_alg);
+    return true;
+}
+
+static const uint8_t PKCS1_SHA1_ENCODING[15] = {
+  0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x0e, 0x03, 0x02, 0x1a, 0x05, 0x00, 0x04, 0x14};
+
+static bool
+rsa_setup_signature_hash(EVP_PKEY_CTX *  ctx,
+                         pgp_hash_alg_t  hash_alg,
+                         const uint8_t *&enc,
+                         size_t &        enc_size)
+{
+    const char *hash_name = rnp::Hash_OpenSSL::name(hash_alg);
     if (!hash_name) {
         RNP_LOG("Unknown hash: %d", (int) hash_alg);
         return false;
@@ -194,8 +345,15 @@ rsa_setup_context(EVP_PKEY_CTX *ctx, pgp_hash_alg_t hash_alg = PGP_HASH_UNKNOWN)
         return false;
     }
     if (EVP_PKEY_CTX_set_signature_md(ctx, hash_tp) <= 0) {
-        RNP_LOG("Failed to set digest: %lu", ERR_peek_last_error());
-        return false;
+        if ((hash_alg != PGP_HASH_SHA1)) {
+            RNP_LOG("Failed to set digest %s: %s", hash_name, ossl_latest_err());
+            return false;
+        }
+        enc = &PKCS1_SHA1_ENCODING[0];
+        enc_size = sizeof(PKCS1_SHA1_ENCODING);
+    } else {
+        enc = NULL;
+        enc_size = 0;
     }
     return true;
 }
@@ -243,12 +401,26 @@ rsa_verify_pkcs1(const pgp_rsa_signature_t *sig,
     if (!ctx) {
         return ret;
     }
+    const uint8_t *hash_enc = NULL;
+    size_t         hash_enc_size = 0;
+    uint8_t        hash_enc_buf[PGP_MAX_HASH_SIZE + 32] = {0};
+    assert(hash_len + hash_enc_size <= sizeof(hash_enc_buf));
+
     if (EVP_PKEY_verify_init(ctx) <= 0) {
         RNP_LOG("Failed to initialize verification: %lu", ERR_peek_last_error());
         goto done;
     }
-    if (!rsa_setup_context(ctx, hash_alg)) {
+    if (!rsa_setup_context(ctx) ||
+        !rsa_setup_signature_hash(ctx, hash_alg, hash_enc, hash_enc_size)) {
         goto done;
+    }
+    /* Check whether we need to workaround on unsupported SHA1 for RSA signature verification
+     */
+    if (hash_enc_size) {
+        memcpy(hash_enc_buf, hash_enc, hash_enc_size);
+        memcpy(&hash_enc_buf[hash_enc_size], hash, hash_len);
+        hash = hash_enc_buf;
+        hash_len += hash_enc_size;
     }
     int res;
     if (sig->s.len < key->n.len) {
@@ -265,8 +437,7 @@ rsa_verify_pkcs1(const pgp_rsa_signature_t *sig,
     if (res > 0) {
         ret = RNP_SUCCESS;
     } else {
-        RNP_LOG("RSA verification failure: %s",
-                ERR_reason_error_string(ERR_peek_last_error()));
+        RNP_LOG("RSA verification failure: %s", ossl_latest_err());
     }
 done:
     EVP_PKEY_CTX_free(ctx);
@@ -290,12 +461,25 @@ rsa_sign_pkcs1(rnp::RNG *           rng,
     if (!ctx) {
         return ret;
     }
+    const uint8_t *hash_enc = NULL;
+    size_t         hash_enc_size = 0;
+    uint8_t        hash_enc_buf[PGP_MAX_HASH_SIZE + 32] = {0};
+    assert(hash_len + hash_enc_size <= sizeof(hash_enc_buf));
     if (EVP_PKEY_sign_init(ctx) <= 0) {
         RNP_LOG("Failed to initialize signing: %lu", ERR_peek_last_error());
         goto done;
     }
-    if (!rsa_setup_context(ctx, hash_alg)) {
+    if (!rsa_setup_context(ctx) ||
+        !rsa_setup_signature_hash(ctx, hash_alg, hash_enc, hash_enc_size)) {
         goto done;
+    }
+    /* Check whether we need to workaround on unsupported SHA1 for RSA signature verification
+     */
+    if (hash_enc_size) {
+        memcpy(hash_enc_buf, hash_enc, hash_enc_size);
+        memcpy(&hash_enc_buf[hash_enc_size], hash, hash_len);
+        hash = hash_enc_buf;
+        hash_len += hash_enc_size;
     }
     sig->s.len = PGP_MPINT_SIZE;
     if (EVP_PKEY_sign(ctx, sig->s.mpi, &sig->s.len, hash, hash_len) <= 0) {
@@ -351,13 +535,12 @@ rsa_generate(rnp::RNG *rng, pgp_rsa_key_t *key, size_t numbits)
         return RNP_ERROR_BAD_PARAMETERS;
     }
 
-    rnp_result_t  ret = RNP_ERROR_GENERIC;
-    RSA *         rsa = NULL;
-    EVP_PKEY *    pkey = NULL;
-    EVP_PKEY_CTX *ctx = NULL;
-    bignum_t *    u = NULL;
-    bignum_t *    nq = NULL;
-    BN_CTX *      bnctx = NULL;
+    rnp_result_t    ret = RNP_ERROR_GENERIC;
+    const RSA *     rsa = NULL;
+    EVP_PKEY *      pkey = NULL;
+    EVP_PKEY_CTX *  ctx = NULL;
+    const bignum_t *u = NULL;
+    BN_CTX *        bnctx = NULL;
 
     ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
     if (!ctx) {
@@ -402,28 +585,35 @@ rsa_generate(rnp::RNG *rng, pgp_rsa_key_t *key, size_t numbits)
     }
     /* OpenSSL doesn't care whether p < q */
     if (BN_cmp(p, q) > 0) {
+        /* In this case we have u, as iqmp is inverse of q mod p, and we exchange them */
         const bignum_t *tmp = p;
         p = q;
         q = tmp;
+        u = RSA_get0_iqmp(rsa);
+    } else {
+        /* we need to calculate u, since we need inverse of p mod q, while OpenSSL has inverse
+         * of q mod p, and doesn't care of p < q */
+        bnctx = BN_CTX_new();
+        if (!bnctx) {
+            ret = RNP_ERROR_OUT_OF_MEMORY;
+            goto done;
+        }
+        BN_CTX_start(bnctx);
+        bignum_t *nu = BN_CTX_get(bnctx);
+        bignum_t *nq = BN_CTX_get(bnctx);
+        if (!nu || !nq) {
+            ret = RNP_ERROR_OUT_OF_MEMORY;
+            goto done;
+        }
+        BN_with_flags(nq, q, BN_FLG_CONSTTIME);
+        /* calculate inverse of p mod q */
+        if (!BN_mod_inverse(nu, p, nq, bnctx)) {
+            RNP_LOG("Failed to calculate u");
+            ret = RNP_ERROR_BAD_STATE;
+            goto done;
+        }
+        u = nu;
     }
-    /* we need to calculate u, since we need inverse of p mod q, while OpenSSL has inverse of q
-     * mod p, and doesn't care of p < q */
-    bnctx = BN_CTX_new();
-    u = BN_new();
-    nq = BN_new();
-    if (!ctx || !u || !nq) {
-        ret = RNP_ERROR_OUT_OF_MEMORY;
-        goto done;
-    }
-    BN_with_flags(nq, q, BN_FLG_CONSTTIME);
-    /* calculate inverse of p mod q */
-    if (!BN_mod_inverse(u, p, nq, bnctx)) {
-        bn_free(nq);
-        RNP_LOG("Failed to calculate u");
-        ret = RNP_ERROR_BAD_STATE;
-        goto done;
-    }
-    bn_free(nq);
     bn2mpi(n, &key->n);
     bn2mpi(e, &key->e);
     bn2mpi(p, &key->p);
@@ -435,6 +625,5 @@ done:
     EVP_PKEY_CTX_free(ctx);
     EVP_PKEY_free(pkey);
     BN_CTX_free(bnctx);
-    bn_free(u);
     return ret;
 }

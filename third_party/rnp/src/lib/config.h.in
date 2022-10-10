@@ -24,39 +24,41 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define PACKAGE_STRING    "rnp 0.16+git20220124.f06439f7.MZLA"
-#define PACKAGE_BUGREPORT "https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird"
+#define PACKAGE_STRING    "rnp @RNP_VERSION_FULL@"
+#define PACKAGE_BUGREPORT "@BUGREPORT_EMAIL@"
 
-#undef HAVE_BZLIB_H
-#undef HAVE_ZLIB_H
+#cmakedefine HAVE_BZLIB_H
+#cmakedefine HAVE_ZLIB_H
 
-#undef HAVE_FCNTL_H
-#undef HAVE_INTTYPES_H
-#undef HAVE_LIMITS_H
-#undef HAVE_STDINT_H
-#undef HAVE_STRING_H
-#undef HAVE_SYS_CDEFS_H
-#undef HAVE_SYS_MMAN_H
-#undef HAVE_SYS_RESOURCE_H
-#undef HAVE_SYS_STAT_H
-#undef HAVE_SYS_TYPES_H
-#undef HAVE_UNISTD_H
-#undef HAVE_SYS_WAIT_H
-#undef HAVE_SYS_PARAM_H
-#undef HAVE_MKDTEMP
-#undef HAVE_MKSTEMP
-#undef HAVE_REALPATH
-#undef HAVE_O_BINARY
-#undef HAVE__O_BINARY
-#undef HAVE__TEMPNAM
+#cmakedefine HAVE_FCNTL_H
+#cmakedefine HAVE_INTTYPES_H
+#cmakedefine HAVE_LIMITS_H
+#cmakedefine HAVE_STDINT_H
+#cmakedefine HAVE_STRING_H
+#cmakedefine HAVE_SYS_CDEFS_H
+#cmakedefine HAVE_SYS_MMAN_H
+#cmakedefine HAVE_SYS_RESOURCE_H
+#cmakedefine HAVE_SYS_STAT_H
+#cmakedefine HAVE_SYS_TYPES_H
+#cmakedefine HAVE_UNISTD_H
+#cmakedefine HAVE_SYS_WAIT_H
+#cmakedefine HAVE_SYS_PARAM_H
+#cmakedefine HAVE_MKDTEMP
+#cmakedefine HAVE_MKSTEMP
+#cmakedefine HAVE_REALPATH
+#cmakedefine HAVE_O_BINARY
+#cmakedefine HAVE__O_BINARY
+#cmakedefine HAVE__TEMPNAM
 
-#undef CRYPTO_BACKEND_BOTAN
-#undef CRYPTO_BACKEND_OPENSSL
+#cmakedefine CRYPTO_BACKEND_BOTAN
+#cmakedefine CRYPTO_BACKEND_OPENSSL
+#cmakedefine CRYPTO_BACKEND_OPENSSL3
 
-#undef ENABLE_SM2
-#undef ENABLE_AEAD
-#undef ENABLE_TWOFISH
-#undef ENABLE_BRAINPOOL
+#cmakedefine ENABLE_SM2
+#cmakedefine ENABLE_AEAD
+#cmakedefine ENABLE_TWOFISH
+#cmakedefine ENABLE_BRAINPOOL
+#cmakedefine ENABLE_IDEA
 
 /* Macro _GLIBCXX_USE_CXX11_ABI was first introduced with GCC 5.0, which
  * we assume to be bundled with a sane implementation of std::regex. */
@@ -64,4 +66,3 @@
   (defined(__clang__) && (__clang_major__ >= 4))
 #define RNP_USE_STD_REGEX 1
 #endif
-

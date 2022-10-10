@@ -36,7 +36,7 @@ static bool
 load_transferable_key(pgp_transferable_key_t *key, const char *fname)
 {
     pgp_source_t src = {};
-    bool         res = !init_file_src(&src, fname) && !process_pgp_key(&src, key, false);
+    bool         res = !init_file_src(&src, fname) && !process_pgp_key(src, key, false);
     src_close(&src);
     return res;
 }
@@ -150,7 +150,7 @@ main(int argc, char **argv)
 
     pgp_dest_t dst = {};
     init_stdout_dest(&dst);
-    write_pgp_key(&tpkey, &dst, true);
+    write_transferable_key(tpkey, dst, true);
     dst_close(&dst, false);
 
     transferable_key_destroy(&tpkey);

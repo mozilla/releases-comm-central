@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2018-2022, [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -83,6 +83,12 @@ typedef struct pgp_signature_t {
     set_type(pgp_sig_type_t atype)
     {
         type_ = atype;
+    };
+
+    bool
+    is_document() const
+    {
+        return (type_ == PGP_SIG_BINARY) || (type_ == PGP_SIG_TEXT);
     };
 
     /** @brief Calculate the unique signature identifier by hashing signature's fields. */
@@ -406,19 +412,16 @@ void signature_hash_key(const pgp_key_pkt_t &key, rnp::Hash &hash);
 
 void signature_hash_userid(const pgp_userid_pkt_t &uid, rnp::Hash &hash, pgp_version_t sigver);
 
-void signature_hash_certification(const pgp_signature_t & sig,
-                                  const pgp_key_pkt_t &   key,
-                                  const pgp_userid_pkt_t &userid,
-                                  rnp::Hash &             hash);
+std::unique_ptr<rnp::Hash> signature_hash_certification(const pgp_signature_t & sig,
+                                                        const pgp_key_pkt_t &   key,
+                                                        const pgp_userid_pkt_t &userid);
 
-void signature_hash_binding(const pgp_signature_t &sig,
-                            const pgp_key_pkt_t &  key,
-                            const pgp_key_pkt_t &  subkey,
-                            rnp::Hash &            hash);
+std::unique_ptr<rnp::Hash> signature_hash_binding(const pgp_signature_t &sig,
+                                                  const pgp_key_pkt_t &  key,
+                                                  const pgp_key_pkt_t &  subkey);
 
-void signature_hash_direct(const pgp_signature_t &sig,
-                           const pgp_key_pkt_t &  key,
-                           rnp::Hash &            hash);
+std::unique_ptr<rnp::Hash> signature_hash_direct(const pgp_signature_t &sig,
+                                                 const pgp_key_pkt_t &  key);
 
 /**
  * @brief Parse stream with signatures to the signatures list.
@@ -429,6 +432,6 @@ void signature_hash_direct(const pgp_signature_t &sig,
  * @param sigs on success parsed signature structures will be put here.
  * @return RNP_SUCCESS or error code otherwise.
  */
-rnp_result_t process_pgp_signatures(pgp_source_t *src, pgp_signature_list_t &sigs);
+rnp_result_t process_pgp_signatures(pgp_source_t &src, pgp_signature_list_t &sigs);
 
 #endif

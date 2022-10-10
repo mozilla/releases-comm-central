@@ -101,8 +101,7 @@ TEST_F(rnp_tests, test_key_validate)
 
     secring =
       new rnp_key_store_t(PGP_KEY_STORE_G10, "data/keyrings/3/private-keys-v1.d", global_ctx);
-    pgp_key_provider_t key_provider = {.callback = rnp_key_provider_store,
-                                       .userdata = pubring};
+    pgp_key_provider_t key_provider(rnp_key_provider_store, pubring);
     assert_true(rnp_key_store_load_from_path(secring, &key_provider));
     assert_true(all_keys_valid(secring));
     delete pubring;
@@ -158,7 +157,7 @@ key_store_add(rnp_key_store_t *keyring, const char *keypath)
     pgp_transferable_key_t tkey = {};
 
     assert_rnp_success(init_file_src(&keysrc, keypath));
-    assert_rnp_success(process_pgp_key(&keysrc, tkey, false));
+    assert_rnp_success(process_pgp_key(keysrc, tkey, false));
     assert_true(rnp_key_store_add_transferable_key(keyring, &tkey));
     src_close(&keysrc);
 }
@@ -274,14 +273,16 @@ TEST_F(rnp_tests, test_forged_key_validate)
 
     /* load valid rsa/rsa keypair */
     key_store_add(pubring, DATA_PATH "rsa-rsa-pub.pgp");
-    /* it is invalid since SHA1 hash is used for signatures */
-    assert_false(key_check(pubring, "2FB9179118898E8B", true));
-    assert_false(key_check(pubring, "6E2F73008F8B8D6E", true));
-    /* allow SHA1 within further checks */
-    rnp::SecurityRule allow_sha1(
-      rnp::FeatureType::Hash, PGP_HASH_SHA1, rnp::SecurityLevel::Default, 1547856001);
-    global_ctx.profile.add_rule(allow_sha1);
-
+    /* it is valid only till year 2024 since SHA1 hash is used for signatures */
+    assert_true(key_check(pubring, "2FB9179118898E8B", true));
+    assert_true(key_check(pubring, "6E2F73008F8B8D6E", true));
+    rnp_key_store_clear(pubring);
+    /* load eddsa key which uses SHA1 signature and is created after the cutoff date */
+    global_ctx.set_time(SHA1_KEY_FROM + 10);
+    key_store_add(pubring, DATA_PATH "eddsa-2024-pub.pgp");
+    assert_false(key_check(pubring, "980E3741F632212C", true));
+    assert_false(key_check(pubring, "6DA00BF7F8B59B53", true));
+    global_ctx.set_time(0);
     rnp_key_store_clear(pubring);
 
     /* load rsa/rsa key with forged self-signature. Valid because of valid binding. */
@@ -312,9 +313,6 @@ TEST_F(rnp_tests, test_forged_key_validate)
     assert_true(key_check(pubring, "3D032D00EE1EC3F5", false));
     assert_true(key_check(pubring, "021085B640CE8DCE", false));
     rnp_key_store_clear(pubring);
-
-    /* remove SHA1 rule */
-    assert_true(global_ctx.profile.del_rule(allow_sha1));
 
     /* load eddsa/rsa keypair with certification with future creation date - valid because of
      * binding. */
@@ -645,8 +643,7 @@ TEST_F(rnp_tests, test_key_expiry_direct_sig)
     sig.set_keyfp(key->fp());
     sig.set_keyid(key->keyid());
 
-    pgp_password_provider_t pprov = {.callback = string_copy_password_callback,
-                                     .userdata = (void *) "password"};
+    pgp_password_provider_t pprov(string_copy_password_callback, (void *) "password");
     key->unlock(pprov);
     key->sign_direct(key->pkt(), sig, global_ctx);
     key->add_sig(sig, PGP_UID_NONE);
@@ -683,7 +680,7 @@ TEST_F(rnp_tests, test_key_expiry_direct_sig)
     /* add primary userid with smaller expiration date */
     rnp_selfsig_cert_info_t selfsig1 = {};
     const char *            boris = "Boris <boris@rnp>";
-    memcpy(selfsig1.userid, boris, strlen(boris));
+    selfsig1.userid = boris;
     selfsig1.key_expiration = 100;
     selfsig1.primary = true;
     key->add_uid_cert(selfsig1, PGP_HASH_SHA256, global_ctx);
@@ -718,7 +715,7 @@ TEST_F(rnp_tests, test_key_expiry_direct_sig)
     assert_int_equal(key->expiration(), 6);
     /* add primary userid with 0 expiration */
     selfsig1 = {};
-    memcpy(selfsig1.userid, boris, strlen(boris));
+    selfsig1.userid = boris;
     selfsig1.key_expiration = 0;
     selfsig1.primary = true;
     key->add_uid_cert(selfsig1, PGP_HASH_SHA256, global_ctx);

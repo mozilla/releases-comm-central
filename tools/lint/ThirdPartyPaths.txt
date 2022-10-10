@@ -1,5 +1,6 @@
 comm/chat/protocols/matrix/lib
 comm/chat/protocols/xmpp/lib
+comm/mail/components/storybook/storybook-static
 comm/mailnews/mapi/include
 comm/third_party/botan
 comm/third_party/bzip2

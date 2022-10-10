@@ -439,7 +439,7 @@ class VCardEdit extends HTMLElement {
         );
         fieldset.insertBefore(
           nickname,
-          fieldset.firstElementChild.nextElementSibling
+          fieldset.firstElementChild?.nextElementSibling
         );
         return nickname;
       case "email":

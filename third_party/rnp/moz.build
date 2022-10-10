@@ -36,15 +36,26 @@ if CONFIG["CC_TYPE"] == "clang-cl":
         "/EHs",
     ]
 
-DEFINES["_GNU_SOURCE"] = True
-
-DEFINES["HAVE_BZLIB_H"] = True
-DEFINES["HAVE_ZLIB_H"] = True
-DEFINES["MOZ_RNP_DIST_INFO"] = rnp_dist_info
-
-CONFIGURE_DEFINE_FILES += [
+rnp_defines = {
+    "HAVE_BZLIB_H": True,
+    "HAVE_ZLIB_H": True,
+    "CRYPTO_BACKEND_BOTAN": True,
+    "ENABLE_AEAD": True,
+    "ENABLE_TWOFISH": True,
+    "ENABLE_BRAINPOOL": True,
+    "ENABLE_IDEA": True,
+    "PACKAGE_BUGREPORT": '"https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird"',
+    "PACKAGE_STRING": '"rnp {}"'.format(CONFIG["MZLA_LIBRNP_FULL_VERSION"])
+}
+GeneratedFile(
     "src/lib/config.h",
-]
+    script="/comm/python/rocbuild/process_cmake_define_files.py",
+    inputs=["src/lib/config.h.in"],
+    flags=[
+        "-D%s=%s" % (k, "1" if v is True else v)
+        for k, v in rnp_defines.items()
+    ],
+)
 
 LOCAL_INCLUDES = [
     "include",
@@ -72,7 +83,7 @@ if CONFIG["MZLA_SYSTEM_JSONC"]:
     CXXFLAGS += CONFIG["MZLA_JSONC_CFLAGS"]
 else:
     IQuote("{}/../json-c".format(OBJDIR))
-    LOCAL_INCLUDES += ["../json-c"]
+    LOCAL_INCLUDES += ["!../json-c", "../json-c"]
 
 if CONFIG["MZLA_SYSTEM_BZIP2"]:
     CXXFLAGS += CONFIG["MZLA_BZIP2_CFLAGS"]
@@ -111,16 +122,15 @@ SOURCES += [
     "src/lib/crypto/elgamal.cpp",
     "src/lib/crypto/hash.cpp",
     "src/lib/crypto/hash_common.cpp",
+    "src/lib/crypto/hash_sha1cd.cpp",
     "src/lib/crypto/mem.cpp",
     "src/lib/crypto/mpi.cpp",
     "src/lib/crypto/rng.cpp",
     "src/lib/crypto/rsa.cpp",
     "src/lib/crypto/s2k.cpp",
-    "src/lib/crypto/sha1cd/hash_sha1cd.cpp",
     "src/lib/crypto/sha1cd/sha1.c",
     "src/lib/crypto/sha1cd/ubc_check.c",
     "src/lib/crypto/signatures.cpp",
-    "src/lib/crypto/sm2.cpp",
     "src/lib/crypto/symmetric.cpp",
     "src/lib/fingerprint.cpp",
     "src/lib/generate-key.cpp",

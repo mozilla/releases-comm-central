@@ -1,42 +1,42 @@
 
-#ifndef RNP_API_H
-#define RNP_API_H
+#ifndef RNP_EXPORT
+#define RNP_EXPORT
 
 #ifdef RNP_STATIC
 #  define RNP_API
-#  define RNP_RNP_NO_EXPORT
+#  define RNP_NO_EXPORT
 #else
 #  ifndef RNP_API
 #    ifdef librnp_EXPORTS
         /* We are building this library */
-#      define RNP_API __attribute__((visibility("default")))
+#      define RNP_API 
 #    else
         /* We are using this library */
-#      define RNP_API __attribute__((visibility("default")))
+#      define RNP_API 
 #    endif
 #  endif
 
-#  ifndef RNP_RNP_NO_EXPORT
-#    define RNP_RNP_NO_EXPORT __attribute__((visibility("hidden")))
+#  ifndef RNP_NO_EXPORT
+#    define RNP_NO_EXPORT 
 #  endif
 #endif
 
-#ifndef RNP_RNP_DEPRECATED
-#  define RNP_RNP_DEPRECATED __attribute__ ((__deprecated__))
+#ifndef RNP_DEPRECATED
+#  define RNP_DEPRECATED __attribute__ ((__deprecated__))
 #endif
 
-#ifndef RNP_RNP_DEPRECATED_EXPORT
-#  define RNP_RNP_DEPRECATED_EXPORT RNP_API RNP_RNP_DEPRECATED
+#ifndef RNP_DEPRECATED_EXPORT
+#  define RNP_DEPRECATED_EXPORT RNP_API RNP_DEPRECATED
 #endif
 
-#ifndef RNP_RNP_DEPRECATED_NO_EXPORT
-#  define RNP_RNP_DEPRECATED_NO_EXPORT RNP_RNP_NO_EXPORT RNP_RNP_DEPRECATED
+#ifndef RNP_DEPRECATED_NO_EXPORT
+#  define RNP_DEPRECATED_NO_EXPORT RNP_NO_EXPORT RNP_DEPRECATED
 #endif
 
 #if 0 /* DEFINE_NO_DEPRECATED */
-#  ifndef RNP_RNP_NO_DEPRECATED
-#    define RNP_RNP_NO_DEPRECATED
+#  ifndef RNP_NO_DEPRECATED
+#    define RNP_NO_DEPRECATED
 #  endif
 #endif
 
-#endif /* RNP_API_H */
+#endif /* RNP_EXPORT */

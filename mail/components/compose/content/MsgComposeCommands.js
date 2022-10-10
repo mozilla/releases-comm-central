@@ -4658,6 +4658,21 @@ async function ComposeStartup() {
     toggleAttachmentPane("show");
   }
 
+  // Fill custom headers.
+  let otherHeaders = Services.prefs
+    .getCharPref("mail.compose.other.header", "")
+    .split(",")
+    .map(h => h.trim())
+    .filter(Boolean);
+  for (let i = 0; i < otherHeaders.length; i++) {
+    if (gMsgCompose.compFields.otherHeaders[i]) {
+      let row = document.getElementById(`addressRow${otherHeaders[i]}`);
+      addressRowSetVisibility(row, true);
+      let input = document.getElementById(`${otherHeaders[i]}AddrInput`);
+      input.value = gMsgCompose.compFields.otherHeaders[i];
+    }
+  }
+
   document
     .getElementById("msgcomposeWindow")
     .dispatchEvent(
@@ -4948,10 +4963,11 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
 
 async function ComposeLoad() {
   updateTroubleshootMenuItem();
-  let otherHeaders = Services.prefs.getCharPref(
-    "mail.compose.other.header",
-    ""
-  );
+  let otherHeaders = Services.prefs
+    .getCharPref("mail.compose.other.header", "")
+    .split(",")
+    .map(h => h.trim())
+    .filter(Boolean);
 
   AddMessageComposeOfflineQuitObserver();
 
@@ -5027,9 +5043,8 @@ async function ComposeLoad() {
       row => row.dataset.recipienttype
     );
 
-    for (let header of otherHeaders.split(",")) {
-      header = header.trim();
-      if (!header || existingTypes.includes(header)) {
+    for (let header of otherHeaders) {
+      if (existingTypes.includes(header)) {
         continue;
       }
       existingTypes.push(header);
@@ -7544,7 +7559,7 @@ async function messageAttachmentToFile(attachment) {
   await IOUtils.makeDirectory(pathTempDir, { permissions: 0o700 });
   let pathTempFile = await IOUtils.createUniqueFile(
     pathTempDir,
-    attachment.name,
+    attachment.name.replaceAll(/[/:*?\"<>|]/g, "_"),
     0o600
   );
   let tempFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);

@@ -17,10 +17,12 @@ const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaIndexer.jsm"
 );
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
+
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 import { FileUtils } from "resource://gre/modules/FileUtils.sys.mjs";
+
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );

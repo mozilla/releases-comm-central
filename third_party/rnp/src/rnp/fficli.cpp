@@ -52,7 +52,10 @@
 #endif
 #endif
 
-#include "config.h"
+#ifdef _WIN32
+#include <crtdbg.h>
+#endif
+
 #include "fficli.h"
 #include "str-utils.h"
 #include "file-utils.h"
@@ -100,9 +103,7 @@ disable_core_dumps(void)
 #endif
 
 #ifdef _WIN32
-#include "str-utils.h"
 #include <windows.h>
-#include <vector>
 #include <stdexcept>
 
 static std::vector<std::string>
@@ -151,7 +152,7 @@ rnp_win_substitute_cmdline_args(int *argc, char ***argv)
         auto argv_utf8_strings = get_utf8_args();
         argc_utf8 = argv_utf8_strings.size();
         *argc = argc_utf8;
-        argv_utf8_cstrs = new (std::nothrow) char *[argc_utf8]();
+        argv_utf8_cstrs = new (std::nothrow) char *[argc_utf8 + 1]();
         if (!argv_utf8_cstrs) {
             throw std::bad_alloc();
         }
@@ -162,6 +163,8 @@ rnp_win_substitute_cmdline_args(int *argc, char ***argv)
             }
             argv_utf8_cstrs[i] = arg_utf8;
         }
+        /* argv must be terminated with NULL string */
+        argv_utf8_cstrs[argc_utf8] = NULL;
     } catch (...) {
         if (argv_utf8_cstrs) {
             rnp_win_clear_args(argc_utf8, argv_utf8_cstrs);
@@ -180,9 +183,9 @@ set_pass_fd(FILE **file, int passfd)
     if (!file) {
         return false;
     }
-    *file = fdopen(passfd, "r");
+    *file = rnp_fdopen(passfd, "r");
     if (!*file) {
-        ERR_MSG("cannot open fd %d for reading", passfd);
+        ERR_MSG("Cannot open fd %d for reading", passfd);
         return false;
     }
     return true;
@@ -322,14 +325,16 @@ stdin_getpass(const char *prompt, char *buffer, size_t size, cli_rnp_t *rnp)
     // doesn't hurt
     *buffer = '\0';
 
+    if (!rnp->cfg().get_bool(CFG_NOTTY)) {
 #ifndef _WIN32
-    in = fopen("/dev/tty", "w+ce");
+        in = fopen("/dev/tty", "w+ce");
 #endif
+        out = in;
+    }
+
     if (!in) {
         in = userio_in;
-        out = stderr;
-    } else {
-        out = in;
+        out = (rnp && rnp->userio_out) ? rnp->userio_out : stdout;
     }
 
     // TODO: Implement alternative for hiding password entry on Windows
@@ -377,36 +382,67 @@ ffi_pass_callback_stdin(rnp_ffi_t        ffi,
     char       prompt[128] = {0};
     char *     buffer = NULL;
     bool       ok = false;
+    bool       protect = false;
+    bool       decrypt_symmetric = false;
+    bool       encrypt_symmetric = false;
+    bool       is_primary = false;
     cli_rnp_t *rnp = static_cast<cli_rnp_t *>(app_ctx);
 
     if (!ffi || !pgp_context) {
         goto done;
     }
 
-    if (strcmp(pgp_context, "decrypt (symmetric)") &&
-        strcmp(pgp_context, "encrypt (symmetric)")) {
+    if (!strcmp(pgp_context, "protect")) {
+        protect = true;
+    } else if (!strcmp(pgp_context, "decrypt (symmetric)")) {
+        decrypt_symmetric = true;
+    } else if (!strcmp(pgp_context, "encrypt (symmetric)")) {
+        encrypt_symmetric = true;
+    }
+
+    if (!decrypt_symmetric && !encrypt_symmetric) {
         rnp_key_get_keyid(key, &keyid);
         snprintf(target, sizeof(target), "key 0x%s", keyid);
         rnp_buffer_destroy(keyid);
+        (void) rnp_key_is_primary(key, &is_primary);
     }
+
+    if (protect && rnp->reuse_password_for_subkey && !is_primary) {
+        char *primary_fprint = NULL;
+        if (rnp_key_get_primary_fprint(key, &primary_fprint) == RNP_SUCCESS &&
+            !rnp->reuse_primary_fprint.empty() &&
+            rnp->reuse_primary_fprint == primary_fprint) {
+            strncpy(buf, rnp->reused_password, buf_len);
+            ok = true;
+        }
+
+        rnp_buffer_clear(rnp->reused_password, strnlen(rnp->reused_password, buf_len));
+        free(rnp->reused_password);
+        rnp->reused_password = NULL;
+        rnp->reuse_password_for_subkey = false;
+        rnp_buffer_destroy(primary_fprint);
+        if (ok)
+            return true;
+    }
+
     buffer = (char *) calloc(1, buf_len);
     if (!buffer) {
         return false;
     }
 start:
-    if (!strcmp(pgp_context, "decrypt (symmetric)")) {
+    if (decrypt_symmetric) {
         snprintf(prompt, sizeof(prompt), "Enter password to decrypt data: ");
-    } else if (!strcmp(pgp_context, "encrypt (symmetric)")) {
+    } else if (encrypt_symmetric) {
         snprintf(prompt, sizeof(prompt), "Enter password to encrypt data: ");
     } else {
-        snprintf(prompt, sizeof(prompt), "Enter password for %s: ", target);
+        snprintf(prompt, sizeof(prompt), "Enter password for %s to %s: ", target, pgp_context);
     }
 
     if (!stdin_getpass(prompt, buf, buf_len, rnp)) {
         goto done;
     }
-    if (!strcmp(pgp_context, "protect") || !strcmp(pgp_context, "encrypt (symmetric)")) {
-        if (!strcmp(pgp_context, "protect")) {
+    if (protect || encrypt_symmetric) {
+        if (protect) {
             snprintf(prompt, sizeof(prompt), "Repeat password for %s: ", target);
         } else {
             snprintf(prompt, sizeof(prompt), "Repeat password: ");
@@ -419,6 +455,23 @@ start:
             fputs("\nPasswords do not match!", rnp->userio_out);
             // currently will loop forever
             goto start;
+        }
+        if (strnlen(buf, buf_len) == 0 && !rnp->cfg().get_bool(CFG_FORCE)) {
+            if (!cli_rnp_get_confirmation(
+                  rnp, "Password is empty. The key will be left unprotected. Are you sure?")) {
+                goto start;
+            }
+        }
+    }
+    if (protect && is_primary) {
+        if (cli_rnp_get_confirmation(
+              rnp, "Would you like to use the same password to protect subkey(s)?")) {
+            char *primary_fprint = NULL;
+            rnp->reuse_password_for_subkey = true;
+            rnp_key_get_fprint(key, &primary_fprint);
+            rnp->reuse_primary_fprint = primary_fprint;
+            rnp->reused_password = strdup(buf);
+            rnp_buffer_destroy(primary_fprint);
         }
     }
     ok = true;
@@ -470,6 +523,18 @@ ffi_pass_callback_string(rnp_ffi_t        ffi,
     return true;
 }
 
+#ifdef _WIN32
+void
+rnpffiInvalidParameterHandler(const wchar_t *expression,
+                              const wchar_t *function,
+                              const wchar_t *file,
+                              unsigned int   line,
+                              uintptr_t      pReserved)
+{
+    // do nothing as within release CRT all params are NULL
+}
+#endif
+
 bool
 cli_rnp_t::init(const rnp_cfg &cfg)
 {
@@ -502,6 +567,13 @@ cli_rnp_t::init(const rnp_cfg &cfg)
     }
 #endif
 
+#ifdef _WIN32
+    /* Setup invalid parameter handler for Windows */
+    _invalid_parameter_handler handler = rnpffiInvalidParameterHandler;
+    _set_invalid_parameter_handler(handler);
+    _CrtSetReportMode(_CRT_ASSERT, 0);
+#endif
+
     /* Configure the results stream. */
     // TODO: UTF8?
     const std::string &ress = cfg_.get_str(CFG_IO_RESS);
@@ -510,7 +582,7 @@ cli_rnp_t::init(const rnp_cfg &cfg)
     } else if (ress == "<stdout>") {
         resfp = stdout;
     } else if (!(resfp = rnp_fopen(ress.c_str(), "w"))) {
-        ERR_MSG("cannot open results %s for writing", ress.c_str());
+        ERR_MSG("Cannot open results %s for writing", ress.c_str());
         return false;
     }
 
@@ -522,7 +594,7 @@ cli_rnp_t::init(const rnp_cfg &cfg)
         return false;
     }
     if (rnp_ffi_create(&ffi, pformat.c_str(), sformat.c_str())) {
-        ERR_MSG("failed to initialize FFI");
+        ERR_MSG("Failed to initialize FFI");
         return false;
     }
 
@@ -539,6 +611,10 @@ cli_rnp_t::init(const rnp_cfg &cfg)
         if (rnp_ffi_set_pass_provider(ffi, ffi_pass_callback_file, passfp)) {
             goto done;
         }
+    }
+    // setup current time if requested
+    if (cfg_.has(CFG_CURTIME)) {
+        rnp_set_timestamp(ffi, cfg_.time());
     }
     pswdtries = MAX_PASSWORD_ATTEMPTS;
     res = true;
@@ -572,25 +648,27 @@ cli_rnp_t::end()
     rnp_ffi_destroy(ffi);
     ffi = NULL;
     cfg_.clear();
+    reuse_primary_fprint.clear();
+    if (reused_password) {
+        rnp_buffer_clear(reused_password, strlen(reused_password));
+        free(reused_password);
+        reused_password = NULL;
+    }
+    reuse_password_for_subkey = false;
 }
 
 bool
 cli_rnp_t::load_keyring(bool secret)
 {
-    const char *path = secret ? secpath().c_str() : pubpath().c_str();
-    bool        dir = secret && (secformat() == RNP_KEYSTORE_G10);
-    if (dir && !rnp_dir_exists(path)) {
-        ERR_MSG("warning: keyring directory at '%s' doesn't exist.", path);
-        return true;
-    }
-    if (!dir && !rnp_file_exists(path)) {
-        ERR_MSG("warning: keyring at path '%s' doesn't exist.", path);
+    const std::string &path = secret ? secpath() : pubpath();
+    bool               dir = secret && (secformat() == RNP_KEYSTORE_G10);
+    if (!rnp::path::exists(path, dir)) {
         return true;
     }
 
     rnp_input_t keyin = NULL;
-    if (rnp_input_from_path(&keyin, path)) {
-        ERR_MSG("warning: failed to open keyring at path '%s' for reading.", path);
+    if (rnp_input_from_path(&keyin, path.c_str())) {
+        ERR_MSG("Warning: failed to open keyring at path '%s' for reading.", path.c_str());
         return true;
     }
 
@@ -598,7 +676,7 @@ cli_rnp_t::load_keyring(bool secret)
     uint32_t     flags = secret ? RNP_LOAD_SAVE_SECRET_KEYS : RNP_LOAD_SAVE_PUBLIC_KEYS;
     rnp_result_t ret = rnp_load_keys(ffi, format, keyin, flags);
     if (ret) {
-        ERR_MSG("error: failed to load keyring from '%s'", path);
+        ERR_MSG("Error: failed to load keyring from '%s'", path.c_str());
     }
     rnp_input_destroy(keyin);
 
@@ -613,7 +691,7 @@ cli_rnp_t::load_keyring(bool secret)
         (void) rnp_get_public_key_count(ffi, &keycount);
     }
     if (!keycount) {
-        ERR_MSG("warning: no keys were loaded from the keyring '%s'.", path);
+        ERR_MSG("Warning: no keys were loaded from the keyring '%s'.", path.c_str());
     }
     return true;
 }
@@ -905,31 +983,6 @@ json_obj_get_str(json_object *obj, const char *key)
     return json_object_get_string(fld);
 }
 
-int64_t
-json_obj_get_int64(json_object *obj, const char *key)
-{
-    json_object *fld = NULL;
-    if (!json_object_object_get_ex(obj, key, &fld)) {
-        return 0;
-    }
-    return json_object_get_int64(fld);
-}
-
-bool
-rnp_casecmp(const std::string &str1, const std::string &str2)
-{
-    if (str1.size() != str2.size()) {
-        return false;
-    }
-
-    for (size_t i = 0; i < str1.size(); i++) {
-        if (tolower(str1[i]) != tolower(str2[i])) {
-            return false;
-        }
-    }
-    return true;
-}
-
 static char *
 cli_key_usage_str(rnp_key_handle_t key, char *buf)
 {
@@ -1002,11 +1055,37 @@ cli_rnp_alg_to_ffi(const std::string alg)
     size_t count = sizeof(alg_aliases) / sizeof(alg_aliases[0]);
     assert((count % 2) == 0);
     for (size_t idx = 0; idx < count; idx += 2) {
-        if (rnp_casecmp(alg, alg_aliases[idx])) {
+        if (rnp::str_case_eq(alg, alg_aliases[idx])) {
             return alg_aliases[idx + 1];
         }
     }
     return alg;
+}
+
+bool
+cli_rnp_set_hash(rnp_cfg &cfg, const std::string &hash)
+{
+    bool  supported = false;
+    auto &alg = cli_rnp_alg_to_ffi(hash);
+    if (rnp_supports_feature(RNP_FEATURE_HASH_ALG, alg.c_str(), &supported) || !supported) {
+        ERR_MSG("Unsupported hash algorithm: %s", hash.c_str());
+        return false;
+    }
+    cfg.set_str(CFG_HASH, alg);
+    return true;
+}
+
+bool
+cli_rnp_set_cipher(rnp_cfg &cfg, const std::string &cipher)
+{
+    bool  supported = false;
+    auto &alg = cli_rnp_alg_to_ffi(cipher);
+    if (rnp_supports_feature(RNP_FEATURE_SYMM_ALG, alg.c_str(), &supported) || !supported) {
+        ERR_MSG("Unsupported encryption algorithm: %s", cipher.c_str());
+        return false;
+    }
+    cfg.set_str(CFG_CIPHER, alg);
+    return true;
 }
 
 #ifndef RNP_USE_STD_REGEX
@@ -1051,35 +1130,86 @@ cli_rnp_unescape_for_regcomp(const std::string &src)
 }
 #endif
 
+/* Convert key algorithm constant to one displayed to the user */
+static const char *
+cli_rnp_normalize_key_alg(const char *alg)
+{
+    if (!strcmp(alg, RNP_ALGNAME_EDDSA)) {
+        return "EdDSA";
+    }
+    if (!strcmp(alg, RNP_ALGNAME_ELGAMAL)) {
+        return "ElGamal";
+    }
+    return alg;
+}
+
+static void
+cli_rnp_print_sig_info(FILE *fp, rnp_ffi_t ffi, rnp_signature_handle_t sig)
+{
+    uint32_t creation = 0;
+    (void) rnp_signature_get_creation(sig, &creation);
+
+    char *keyfp = NULL;
+    char *keyid = NULL;
+    (void) rnp_signature_get_key_fprint(sig, &keyfp);
+    (void) rnp_signature_get_keyid(sig, &keyid);
+
+    char *           signer_uid = NULL;
+    rnp_key_handle_t signer = NULL;
+    if (keyfp) {
+        /* Fingerprint lookup is faster */
+        (void) rnp_locate_key(ffi, "fingerprint", keyfp, &signer);
+    } else if (keyid) {
+        (void) rnp_locate_key(ffi, "keyid", keyid, &signer);
+    }
+    if (signer) {
+        /* signer primary uid */
+        (void) rnp_key_get_primary_uid(signer, &signer_uid);
+    }
+
+    /* signer key id */
+    fprintf(fp, "sig           %s ", keyid ? rnp::lowercase(keyid) : "[no key id]");
+    /* signature creation time */
+    char buf[64] = {0};
+    fprintf(fp, "%s", ptimestr(buf, sizeof(buf), creation));
+    /* signer's userid */
+    fprintf(fp, " %s", signer_uid ? signer_uid : "[unknown]");
+    /* signature validity */
+    const char * valmsg = NULL;
+    rnp_result_t validity = rnp_signature_is_valid(sig, 0);
+    switch (validity) {
+    case RNP_SUCCESS:
+        valmsg = "";
+        break;
+    case RNP_ERROR_SIGNATURE_EXPIRED:
+        valmsg = " [expired]";
+        break;
+    case RNP_ERROR_SIGNATURE_INVALID:
+        valmsg = " [invalid]";
+        break;
+    default:
+        valmsg = " [unverified]";
+    }
+    fprintf(fp, "%s\n", valmsg);
+
+    (void) rnp_key_handle_destroy(signer);
+    rnp_buffer_destroy(keyid);
+    rnp_buffer_destroy(keyfp);
+    rnp_buffer_destroy(signer_uid);
+}
+
 void
 cli_rnp_print_key_info(FILE *fp, rnp_ffi_t ffi, rnp_key_handle_t key, bool psecret, bool psigs)
 {
-    char         buf[64] = {0};
-    const char * header = NULL;
-    bool         secret = false;
-    bool         primary = false;
-    bool         revoked = false;
-    uint32_t     bits = 0;
-    int64_t      create = 0;
-    uint32_t     expiry = 0;
-    size_t       uids = 0;
-    char *       json = NULL;
-    json_object *pkts = NULL;
-    json_object *keypkt = NULL;
+    char        buf[64] = {0};
+    const char *header = NULL;
+    bool        secret = false;
+    bool        primary = false;
 
     /* header */
-    if (rnp_key_have_secret(key, &secret) || rnp_key_is_primary(key, &primary) ||
-        rnp_key_packets_to_json(key, false, RNP_JSON_DUMP_GRIP, &json)) {
+    if (rnp_key_have_secret(key, &secret) || rnp_key_is_primary(key, &primary)) {
         fprintf(fp, "Key error.\n");
         return;
-    }
-    if (!(pkts = json_tokener_parse(json))) {
-        fprintf(fp, "Key JSON error.\n");
-        goto done;
-    }
-    if (!(keypkt = json_object_array_get_idx(pkts, 0))) {
-        fprintf(fp, "Key JSON error.\n");
-        goto done;
     }
 
     if (psecret && secret) {
@@ -1093,49 +1223,81 @@ cli_rnp_print_key_info(FILE *fp, rnp_ffi_t ffi, rnp_key_handle_t key, bool psecr
     fprintf(fp, "%s   ", header);
 
     /* key bits */
+    uint32_t bits = 0;
     rnp_key_get_bits(key, &bits);
     fprintf(fp, "%d/", (int) bits);
     /* key algorithm */
-    fprintf(fp, "%s ", json_obj_get_str(keypkt, "algorithm.str"));
+    char *alg = NULL;
+    (void) rnp_key_get_alg(key, &alg);
+    fprintf(fp, "%s ", cli_rnp_normalize_key_alg(alg));
     /* key id */
-    fprintf(fp, "%s", json_obj_get_str(keypkt, "keyid"));
+    char *keyid = NULL;
+    (void) rnp_key_get_keyid(key, &keyid);
+    fprintf(fp, "%s", rnp::lowercase(keyid));
     /* key creation time */
-    create = json_obj_get_int64(keypkt, "creation time");
+    uint32_t create = 0;
+    (void) rnp_key_get_creation(key, &create);
     fprintf(fp, " %s", ptimestr(buf, sizeof(buf), create));
     /* key usage */
-    fprintf(fp, " [%s]", cli_key_usage_str(key, buf));
+    bool valid = false;
+    bool expired = false;
+    bool revoked = false;
+    (void) rnp_key_is_valid(key, &valid);
+    (void) rnp_key_is_expired(key, &expired);
+    (void) rnp_key_is_revoked(key, &revoked);
+    if (valid || expired || revoked) {
+        fprintf(fp, " [%s]", cli_key_usage_str(key, buf));
+    } else {
+        fprintf(fp, " [INVALID]");
+    }
     /* key expiration */
+    uint32_t expiry = 0;
     (void) rnp_key_get_expiration(key, &expiry);
-    if (expiry > 0) {
-        uint32_t now = time(NULL);
-        auto     expire_time = create + expiry;
-        ptimestr(buf, sizeof(buf), expire_time);
-        fprintf(fp, " [%s %s]", expire_time <= now ? "EXPIRED" : "EXPIRES", buf);
+    if (expiry) {
+        ptimestr(buf, sizeof(buf), create + expiry);
+        fprintf(fp, " [%s %s]", expired ? "EXPIRED" : "EXPIRES", buf);
     }
     /* key is revoked */
-    (void) rnp_key_is_revoked(key, &revoked);
     if (revoked) {
         fprintf(fp, " [REVOKED]");
     }
     /* fingerprint */
-    fprintf(fp, "\n      %s\n", json_obj_get_str(keypkt, "fingerprint"));
+    char *keyfp = NULL;
+    (void) rnp_key_get_fprint(key, &keyfp);
+    fprintf(fp, "\n      %s\n", rnp::lowercase(keyfp));
+    /* direct-key or binding signatures */
+    if (psigs) {
+        size_t sigs = 0;
+        (void) rnp_key_get_signature_count(key, &sigs);
+        for (size_t i = 0; i < sigs; i++) {
+            rnp_signature_handle_t sig = NULL;
+            (void) rnp_key_get_signature_at(key, i, &sig);
+            if (!sig) {
+                continue;
+            }
+            cli_rnp_print_sig_info(fp, ffi, sig);
+            rnp_signature_handle_destroy(sig);
+        }
+    }
     /* user ids */
+    size_t uids = 0;
     (void) rnp_key_get_uid_count(key, &uids);
     for (size_t i = 0; i < uids; i++) {
         rnp_uid_handle_t uid = NULL;
-        bool             revoked = false;
-        char *           uid_str = NULL;
-        size_t           sigs = 0;
 
         if (rnp_key_get_uid_handle_at(key, i, &uid)) {
             continue;
         }
+        bool  revoked = false;
+        bool  valid = false;
+        char *uid_str = NULL;
         (void) rnp_uid_is_revoked(uid, &revoked);
+        (void) rnp_uid_is_valid(uid, &valid);
         (void) rnp_key_get_uid_at(key, i, &uid_str);
 
         /* userid itself with revocation status */
         fprintf(fp, "uid           %s", cli_rnp_escape_string(uid_str).c_str());
-        fprintf(fp, "%s\n", revoked ? "[REVOKED]" : "");
+        fprintf(fp, "%s\n", revoked ? " [REVOKED]" : valid ? "" : " [INVALID]");
         rnp_buffer_destroy(uid_str);
 
         /* print signatures only if requested */
@@ -1144,55 +1306,23 @@ cli_rnp_print_key_info(FILE *fp, rnp_ffi_t ffi, rnp_key_handle_t key, bool psecr
             continue;
         }
 
+        size_t sigs = 0;
         (void) rnp_uid_get_signature_count(uid, &sigs);
         for (size_t j = 0; j < sigs; j++) {
             rnp_signature_handle_t sig = NULL;
-            rnp_key_handle_t       signer = NULL;
-            char *                 keyid = NULL;
-            uint32_t               creation = 0;
-            char *                 signer_uid = NULL;
-
-            if (rnp_uid_get_signature_at(uid, j, &sig)) {
+            (void) rnp_uid_get_signature_at(uid, j, &sig);
+            if (!sig) {
                 continue;
             }
-            if (rnp_signature_get_creation(sig, &creation)) {
-                goto next;
-            }
-            if (rnp_signature_get_keyid(sig, &keyid)) {
-                goto next;
-            }
-            if (keyid) {
-                /* lowercase key id */
-                for (char *idptr = keyid; *idptr; ++idptr) {
-                    *idptr = tolower(*idptr);
-                }
-                /* signer primary uid */
-                if (rnp_locate_key(ffi, "keyid", keyid, &signer)) {
-                    goto next;
-                }
-                if (signer) {
-                    (void) rnp_key_get_primary_uid(signer, &signer_uid);
-                }
-            }
-
-            /* signer key id */
-            fprintf(fp, "sig           %s ", keyid ? keyid : "[no key id]");
-            /* signature creation time */
-            fprintf(fp, "%s", ptimestr(buf, sizeof(buf), creation));
-            /* signer's userid */
-            fprintf(fp, " %s\n", signer_uid ? signer_uid : "[unknown]");
-        next:
-            (void) rnp_signature_handle_destroy(sig);
-            (void) rnp_key_handle_destroy(signer);
-            rnp_buffer_destroy(keyid);
-            rnp_buffer_destroy(signer_uid);
+            cli_rnp_print_sig_info(fp, ffi, sig);
+            rnp_signature_handle_destroy(sig);
         }
         (void) rnp_uid_handle_destroy(uid);
     }
 
-done:
-    rnp_buffer_destroy(json);
-    json_object_put(pkts);
+    rnp_buffer_destroy(alg);
+    rnp_buffer_destroy(keyid);
+    rnp_buffer_destroy(keyfp);
 }
 
 bool
@@ -1717,34 +1847,6 @@ done:
     return res;
 }
 
-/** @brief compose path from dir, subdir and filename, and return it.
- *  @param dir [in] directory path
- *  @param subddir [in] subdirectory to add to the path, can be empty
- *  @param filename [in] filename (or path/filename)
- *
- *  @return constructed path
- **/
-static std::string
-rnp_path_compose(const std::string &dir,
-                 const std::string &subdir,
-                 const std::string &filename)
-{
-    std::string res = dir;
-    if (!subdir.empty()) {
-        if (!res.empty() && (res.back() != '/')) {
-            res.push_back('/');
-        }
-        res.append(subdir);
-    }
-
-    if (!res.empty() && (res.back() != '/')) {
-        res.push_back('/');
-    }
-
-    res.append(filename);
-    return res;
-}
-
 static bool
 rnp_cfg_set_ks_info(rnp_cfg &cfg)
 {
@@ -1761,77 +1863,93 @@ rnp_cfg_set_ks_info(rnp_cfg &cfg)
     bool        defhomedir = false;
     std::string homedir = cfg.get_str(CFG_HOMEDIR);
     if (homedir.empty()) {
-        const char *home = getenv("HOME");
-        homedir = home ? home : "";
+        homedir = rnp::path::HOME();
         defhomedir = true;
     }
 
+    /* Check whether $HOME or homedir exists */
     struct stat st;
-
     if (rnp_stat(homedir.c_str(), &st) || rnp_access(homedir.c_str(), R_OK | W_OK)) {
         ERR_MSG("Home directory '%s' does not exist or is not writable!", homedir.c_str());
         return false;
     }
 
-    /* detecting key storage format */
-    std::string subdir = defhomedir ? SUBDIRECTORY_RNP : "";
-    std::string pubpath;
-    std::string secpath;
-    std::string ks_format = cfg.get_str(CFG_KEYSTOREFMT);
-
-    if (ks_format.empty()) {
-        pubpath = rnp_path_compose(homedir, subdir, PUBRING_KBX);
-        secpath = rnp_path_compose(homedir, subdir, SECRING_G10);
-
-        bool pubpath_exists = !rnp_stat(pubpath.c_str(), &st);
-        bool secpath_exists = !rnp_stat(secpath.c_str(), &st);
-
-        if (pubpath_exists && secpath_exists) {
-            ks_format = RNP_KEYSTORE_GPG21;
-        } else if (secpath_exists) {
-            ks_format = RNP_KEYSTORE_G10;
-        } else if (pubpath_exists) {
-            ks_format = RNP_KEYSTORE_KBX;
-        } else {
-            ks_format = RNP_KEYSTORE_GPG;
+    /* creating home dir if needed */
+    if (defhomedir) {
+        char *rnphome = NULL;
+        if (rnp_get_default_homedir(&rnphome)) {
+            ERR_MSG("Failed to obtain default home directory.");
+            return false;
+        }
+        homedir = rnphome;
+        rnp_buffer_destroy(rnphome);
+        if (!rnp::path::exists(homedir, true) && RNP_MKDIR(homedir.c_str(), 0700) == -1 &&
+            errno != EEXIST) {
+            ERR_MSG("Cannot mkdir '%s' errno = %d", homedir.c_str(), errno);
+            return false;
         }
     }
 
-    /* creating home dir if needed */
-    if (!subdir.empty()) {
-        pubpath = rnp_path_compose(homedir, "", subdir);
-        if (RNP_MKDIR(pubpath.c_str(), 0700) == -1 && errno != EEXIST) {
-            ERR_MSG("cannot mkdir '%s' errno = %d", pubpath.c_str(), errno);
-            return false;
+    /* detecting key storage format */
+    std::string ks_format = cfg.get_str(CFG_KEYSTOREFMT);
+    if (ks_format.empty()) {
+        char *pub_format = NULL;
+        char *sec_format = NULL;
+        char *pubpath = NULL;
+        char *secpath = NULL;
+        rnp_detect_homedir_info(homedir.c_str(), &pub_format, &pubpath, &sec_format, &secpath);
+        bool detected = pub_format && sec_format && pubpath && secpath;
+        if (detected) {
+            cfg.set_str(CFG_KR_PUB_FORMAT, pub_format);
+            cfg.set_str(CFG_KR_SEC_FORMAT, sec_format);
+            cfg.set_str(CFG_KR_PUB_PATH, pubpath);
+            cfg.set_str(CFG_KR_SEC_PATH, secpath);
+        } else {
+            /* default to GPG */
+            ks_format = RNP_KEYSTORE_GPG;
+        }
+        rnp_buffer_destroy(pub_format);
+        rnp_buffer_destroy(sec_format);
+        rnp_buffer_destroy(pubpath);
+        rnp_buffer_destroy(secpath);
+        if (detected) {
+            return true;
         }
     }
 
     std::string pub_format = RNP_KEYSTORE_GPG;
     std::string sec_format = RNP_KEYSTORE_GPG;
+    std::string pubpath;
+    std::string secpath;
 
     if (ks_format == RNP_KEYSTORE_GPG) {
-        pubpath = rnp_path_compose(homedir, subdir, PUBRING_GPG);
-        secpath = rnp_path_compose(homedir, subdir, SECRING_GPG);
-        pub_format = RNP_KEYSTORE_GPG;
-        sec_format = RNP_KEYSTORE_GPG;
+        pubpath = rnp::path::append(homedir, PUBRING_GPG);
+        secpath = rnp::path::append(homedir, SECRING_GPG);
     } else if (ks_format == RNP_KEYSTORE_GPG21) {
-        pubpath = rnp_path_compose(homedir, subdir, PUBRING_KBX);
-        secpath = rnp_path_compose(homedir, subdir, SECRING_G10);
+        pubpath = rnp::path::append(homedir, PUBRING_KBX);
+        secpath = rnp::path::append(homedir, SECRING_G10);
         pub_format = RNP_KEYSTORE_KBX;
         sec_format = RNP_KEYSTORE_G10;
     } else if (ks_format == RNP_KEYSTORE_KBX) {
-        pubpath = rnp_path_compose(homedir, subdir, PUBRING_KBX);
-        secpath = rnp_path_compose(homedir, subdir, SECRING_KBX);
+        pubpath = rnp::path::append(homedir, PUBRING_KBX);
+        secpath = rnp::path::append(homedir, SECRING_KBX);
         pub_format = RNP_KEYSTORE_KBX;
         sec_format = RNP_KEYSTORE_KBX;
     } else if (ks_format == RNP_KEYSTORE_G10) {
-        pubpath = rnp_path_compose(homedir, subdir, PUBRING_G10);
-        secpath = rnp_path_compose(homedir, subdir, SECRING_G10);
+        pubpath = rnp::path::append(homedir, PUBRING_G10);
+        secpath = rnp::path::append(homedir, SECRING_G10);
         pub_format = RNP_KEYSTORE_G10;
         sec_format = RNP_KEYSTORE_G10;
     } else {
-        ERR_MSG("unsupported keystore format: \"%s\"", ks_format.c_str());
+        ERR_MSG("Unsupported keystore format: \"%s\"", ks_format.c_str());
         return false;
+    }
+
+    /* Check whether homedir is empty */
+    if (rnp::path::empty(homedir)) {
+        ERR_MSG("Keyring directory '%s' is empty.\nUse \"rnpkeys\" command to generate a new "
+                "key or import existing keys from the file or GnuPG keyrings.",
+                homedir.c_str());
     }
 
     cfg.set_str(CFG_KR_PUB_PATH, pubpath);
@@ -1841,80 +1959,13 @@ rnp_cfg_set_ks_info(rnp_cfg &cfg)
     return true;
 }
 
-/* read any gpg config file */
-static bool
-conffile(const std::string &homedir, std::string &userid)
-{
-    char  buf[BUFSIZ];
-    FILE *fp;
-
-#ifndef RNP_USE_STD_REGEX
-    regmatch_t matchv[10];
-    regex_t    keyre;
-#else
-    static std::regex keyre("^[ \t]*default-key[ \t]+([0-9a-zA-F]+)",
-                            std::regex_constants::extended);
-#endif
-    (void) snprintf(buf, sizeof(buf), "%s/.gnupg/gpg.conf", homedir.c_str());
-    if ((fp = rnp_fopen(buf, "r")) == NULL) {
-        return false;
-    }
-#ifndef RNP_USE_STD_REGEX
-    (void) memset(&keyre, 0x0, sizeof(keyre));
-    if (regcomp(&keyre, "^[ \t]*default-key[ \t]+([0-9a-zA-F]+)", REG_EXTENDED) != 0) {
-        ERR_MSG("failed to compile regular expression");
-        fclose(fp);
-        return false;
-    }
-#endif
-    while (fgets(buf, (int) sizeof(buf), fp) != NULL) {
-#ifndef RNP_USE_STD_REGEX
-        if (regexec(&keyre, buf, 10, matchv, 0) == 0) {
-            userid =
-              std::string(&buf[(int) matchv[1].rm_so], matchv[1].rm_eo - matchv[1].rm_so);
-            ERR_MSG("rnp: default key set to \"%s\"", userid.c_str());
-        }
-#else
-        std::smatch result;
-        std::string input = buf;
-        if (std::regex_search(input, result, keyre)) {
-            userid = result[1].str();
-            ERR_MSG("rnp: default key set to \"%s\"", userid.c_str());
-        }
-#endif
-    }
-    (void) fclose(fp);
-#ifndef RNP_USE_STD_REGEX
-    regfree(&keyre);
-#endif
-    return true;
-}
-
 static void
 rnp_cfg_set_defkey(rnp_cfg &cfg)
 {
-    bool        defhomedir = false;
-    std::string homedir = cfg.get_str(CFG_HOMEDIR);
-    if (homedir.empty()) {
-        const char *home = getenv("HOME");
-        homedir = home ? home : "";
-        defhomedir = true;
-    }
-
     /* If a userid has been given, we'll use it. */
     std::string userid = cfg.get_count(CFG_USERID) ? cfg.get_str(CFG_USERID, 0) : "";
     if (!userid.empty()) {
         cfg.set_str(CFG_KR_DEF_KEY, userid);
-        return;
-    }
-    /* also search in config file for default id */
-    if (defhomedir) {
-        std::string id;
-        if (conffile(homedir, id) && !id.empty()) {
-            cfg.unset(CFG_USERID);
-            cfg.add_str(CFG_USERID, id);
-            cfg.set_str(CFG_KR_DEF_KEY, id);
-        }
     }
 }
 
@@ -1923,7 +1974,6 @@ cli_cfg_set_keystore_info(rnp_cfg &cfg)
 {
     /* detecting keystore paths and format */
     if (!rnp_cfg_set_ks_info(cfg)) {
-        ERR_MSG("cannot obtain keystore path(s)");
         return false;
     }
 
@@ -1933,27 +1983,9 @@ cli_cfg_set_keystore_info(rnp_cfg &cfg)
 }
 
 static bool
-stdin_reader(void *app_ctx, void *buf, size_t len, size_t *readres)
+is_stdinout_spec(const std::string &spec)
 {
-    ssize_t res = read(STDIN_FILENO, buf, len);
-    if (res < 0) {
-        return false;
-    }
-    *readres = res;
-    return true;
-}
-
-/* This produces
-   runtime error: call to function stdout_writer(void*, void const*, unsigned long) through
-   pointer to incorrect function type 'bool (*)(void *, const void *, unsigned long)' */
-#if defined(__clang__)
-__attribute__((no_sanitize("undefined")))
-#endif
-static bool
-stdout_writer(void *app_ctx, const void *buf, size_t len)
-{
-    ssize_t wlen = write(STDOUT_FILENO, buf, len);
-    return (wlen >= 0) && (size_t) wlen == len;
+    return spec.empty() || (spec == "-");
 }
 
 rnp_input_t
@@ -1962,9 +1994,9 @@ cli_rnp_input_from_specifier(cli_rnp_t &rnp, const std::string &spec, bool *is_p
     rnp_input_t  input = NULL;
     rnp_result_t res = RNP_ERROR_GENERIC;
     bool         path = false;
-    if (spec.empty() || (spec == "-")) {
+    if (is_stdinout_spec(spec)) {
         /* input from stdin */
-        res = rnp_input_from_callback(&input, stdin_reader, NULL, NULL);
+        res = rnp_input_from_stdin(&input);
     } else if ((spec.size() > 4) && (spec.compare(0, 4, "env:") == 0)) {
         /* input from an environment variable */
         const char *envval = getenv(spec.c_str() + 4);
@@ -1996,10 +2028,14 @@ cli_rnp_output_to_specifier(cli_rnp_t &rnp, const std::string &spec, bool discar
     std::string  path = spec;
     if (discard) {
         res = rnp_output_to_null(&output);
-    } else if (spec.empty() || (spec == "-")) {
-        res = rnp_output_to_callback(&output, stdout_writer, NULL, NULL);
+    } else if (is_stdinout_spec(spec)) {
+        res = rnp_output_to_stdout(&output);
     } else if (!rnp_get_output_filename(spec, path, rnp)) {
-        ERR_MSG("Operation failed: file '%s' already exists.", spec.c_str());
+        if (spec.empty()) {
+            ERR_MSG("Operation failed: no output filename specified");
+        } else {
+            ERR_MSG("Operation failed: file '%s' already exists.", spec.c_str());
+        }
         res = RNP_ERROR_BAD_PARAMETERS;
     } else {
         res = rnp_output_to_file(&output, path.c_str(), RNP_OUTPUT_FILE_OVERWRITE);
@@ -2071,7 +2107,6 @@ cli_rnp_export_revocation(cli_rnp_t *rnp, const char *key)
         return false;
     }
     rnp_output_t output = NULL;
-    rnp_output_t armored = NULL;
     bool         result = false;
 
     output = cli_rnp_output_to_specifier(*rnp, rnp->cfg().get_str(CFG_OUTFILE));
@@ -2079,19 +2114,13 @@ cli_rnp_export_revocation(cli_rnp_t *rnp, const char *key)
         goto done;
     }
 
-    /* export it armored by default */
-    if (rnp_output_to_armor(output, &armored, "public key")) {
-        goto done;
-    }
-
     result = !rnp_key_export_revocation(keys[0],
-                                        armored,
-                                        0,
+                                        output,
+                                        RNP_KEY_EXPORT_ARMORED,
                                         rnp->cfg().get_cstr(CFG_HASH),
                                         rnp->cfg().get_cstr(CFG_REV_TYPE),
                                         rnp->cfg().get_cstr(CFG_REV_REASON));
 done:
-    rnp_output_destroy(armored);
     rnp_output_destroy(output);
     clear_key_handles(keys);
     return result;
@@ -2265,9 +2294,10 @@ has_extension(const std::string &path, const std::string &ext)
 }
 
 static std::string
-output_extension(const rnp_cfg &cfg, const std::string &op)
+output_extension(const rnp_cfg &cfg, Operation op)
 {
-    if (op == "encrypt_sign") {
+    switch (op) {
+    case Operation::EncryptOrSign: {
         bool armor = cfg.get_bool(CFG_ARMOR);
         if (cfg.get_bool(CFG_DETACHED)) {
             return armor ? EXT_ASC : EXT_SIG;
@@ -2277,8 +2307,31 @@ output_extension(const rnp_cfg &cfg, const std::string &op)
         }
         return armor ? EXT_ASC : EXT_PGP;
     }
-    if (op == "armor") {
+    case Operation::Enarmor:
         return EXT_ASC;
+    default:
+        return "";
+    }
+}
+
+static bool
+has_pgp_extension(const std::string &path)
+{
+    return has_extension(path, EXT_PGP) || has_extension(path, EXT_ASC) ||
+           has_extension(path, EXT_GPG);
+}
+
+static std::string
+output_strip_extension(Operation op, const std::string &in)
+{
+    std::string out = in;
+    if ((op == Operation::Verify) && (has_pgp_extension(out))) {
+        strip_extension(out);
+        return out;
+    }
+    if ((op == Operation::Dearmor) && (has_extension(out, EXT_ASC))) {
+        strip_extension(out);
+        return out;
     }
     return "";
 }
@@ -2293,16 +2346,13 @@ extract_filename(const std::string path)
     return path.substr(lpos + 1);
 }
 
-static bool
-cli_rnp_init_io(const std::string &op,
-                rnp_input_t *      input,
-                rnp_output_t *     output,
-                cli_rnp_t *        rnp)
+bool
+cli_rnp_t::init_io(Operation op, rnp_input_t *input, rnp_output_t *output)
 {
-    const std::string &in = rnp->cfg().get_str(CFG_INFILE);
+    const std::string &in = cfg().get_str(CFG_INFILE);
     bool               is_pathin = true;
     if (input) {
-        *input = cli_rnp_input_from_specifier(*rnp, in, &is_pathin);
+        *input = cli_rnp_input_from_specifier(*this, in, &is_pathin);
         if (!*input) {
             return false;
         }
@@ -2311,17 +2361,20 @@ cli_rnp_init_io(const std::string &op,
     if (!output) {
         return true;
     }
-    std::string out = rnp->cfg().get_str(CFG_OUTFILE);
-    bool discard = (op == "verify") && out.empty() && rnp->cfg().get_bool(CFG_NO_OUTPUT);
+    std::string out = cfg().get_str(CFG_OUTFILE);
+    bool discard = (op == Operation::Verify) && out.empty() && cfg().get_bool(CFG_NO_OUTPUT);
 
     if (out.empty() && is_pathin && !discard) {
-        std::string ext = output_extension(rnp->cfg(), op);
+        /* Attempt to guess whether to add or strip extension for known cases */
+        std::string ext = output_extension(cfg(), op);
         if (!ext.empty()) {
             out = in + ext;
+        } else {
+            out = output_strip_extension(op, in);
         }
     }
 
-    *output = cli_rnp_output_to_specifier(*rnp, out, discard);
+    *output = cli_rnp_output_to_specifier(*this, out, discard);
     if (!*output && input) {
         rnp_input_destroy(*input);
         *input = NULL;
@@ -2351,7 +2404,7 @@ cli_rnp_dump_file(cli_rnp_t *rnp)
     }
 
     rnp_result_t ret = 0;
-    if (!cli_rnp_init_io("dump", &input, &output, rnp)) {
+    if (!rnp->init_io(Operation::Dump, &input, &output)) {
         ERR_MSG("failed to open source or create output");
         ret = 1;
         goto done;
@@ -2391,7 +2444,7 @@ cli_rnp_armor_file(cli_rnp_t *rnp)
     rnp_input_t  input = NULL;
     rnp_output_t output = NULL;
 
-    if (!cli_rnp_init_io("armor", &input, &output, rnp)) {
+    if (!rnp->init_io(Operation::Enarmor, &input, &output)) {
         ERR_MSG("failed to open source or create output");
         return false;
     }
@@ -2407,7 +2460,7 @@ cli_rnp_dearmor_file(cli_rnp_t *rnp)
     rnp_input_t  input = NULL;
     rnp_output_t output = NULL;
 
-    if (!cli_rnp_init_io("dearmor", &input, &output, rnp)) {
+    if (!rnp->init_io(Operation::Dearmor, &input, &output)) {
         ERR_MSG("failed to open source or create output");
         return false;
     }
@@ -2543,6 +2596,9 @@ cli_rnp_encrypt_and_sign(const rnp_cfg &cfg,
         rnp_op_encrypt_set_aead_bits(op, cfg.get_int(CFG_AEAD_CHUNK))) {
         goto done;
     }
+    if (cfg.has(CFG_NOWRAP) && rnp_op_encrypt_set_flags(op, RNP_ENCRYPT_NOWRAP)) {
+        goto done;
+    }
 
     /* adding passwords if password-based encryption is used */
     if (cfg.get_bool(CFG_ENCRYPT_SK)) {
@@ -2636,7 +2692,7 @@ cli_rnp_protect_file(cli_rnp_t *rnp)
     rnp_input_t  input = NULL;
     rnp_output_t output = NULL;
 
-    if (!cli_rnp_init_io("encrypt_sign", &input, &output, rnp)) {
+    if (!rnp->init_io(Operation::EncryptOrSign, &input, &output)) {
         ERR_MSG("failed to open source or create output");
         return false;
     }
@@ -2661,37 +2717,19 @@ cli_rnp_protect_file(cli_rnp_t *rnp)
 static void
 cli_rnp_print_sig_key_info(FILE *resfp, rnp_signature_handle_t sig)
 {
-    char *      keyid = NULL;
-    const char *alg = "Unknown";
+    char *keyid = NULL;
+    char *alg = NULL;
 
-    if (!rnp_signature_get_keyid(sig, &keyid)) {
-        for (char *idptr = keyid; *idptr; ++idptr) {
-            *idptr = tolower(*idptr);
-        }
-    }
+    (void) rnp_signature_get_keyid(sig, &keyid);
+    rnp::lowercase(keyid);
+    (void) rnp_signature_get_alg(sig, &alg);
 
-    char *       json = NULL;
-    json_object *pkts = NULL;
-    json_object *sigpkt = NULL;
-
-    if (rnp_signature_packet_to_json(sig, RNP_JSON_DUMP_GRIP, &json)) {
-        ERR_MSG("Signature error.");
-        goto done;
-    }
-    if (!(pkts = json_tokener_parse(json))) {
-        ERR_MSG("Signature JSON error");
-        goto done;
-    }
-    if (!(sigpkt = json_object_array_get_idx(pkts, 0))) {
-        ERR_MSG("Signature JSON error");
-        goto done;
-    }
-    alg = json_obj_get_str(sigpkt, "algorithm.str");
-done:
-    fprintf(resfp, "using %s key %s\n", alg, keyid ? keyid : "0000000000000000");
+    fprintf(resfp,
+            "using %s key %s\n",
+            cli_rnp_normalize_key_alg(alg),
+            keyid ? keyid : "0000000000000000");
     rnp_buffer_destroy(keyid);
-    rnp_buffer_destroy(json);
-    json_object_put(pkts);
+    rnp_buffer_destroy(alg);
 }
 
 static void
@@ -2722,31 +2760,36 @@ cli_rnp_print_signatures(cli_rnp_t *rnp, const std::vector<rnp_op_verify_signatu
             title = "NO PUBLIC KEY for signature";
             unknownc++;
             break;
-        default:
+        case RNP_ERROR_SIGNATURE_UNKNOWN:
             title = "UNKNOWN signature";
+            unknownc++;
             break;
+        default:
+            title = "UNKNOWN signature status";
+            break;
+        }
+
+        if (status == RNP_ERROR_SIGNATURE_UNKNOWN) {
+            fprintf(resfp, "%s\n", title.c_str());
+            continue;
         }
 
         uint32_t create = 0;
         uint32_t expiry = 0;
         rnp_op_verify_signature_get_times(sig, &create, &expiry);
 
-        if (create > 0) {
-            time_t crtime = create;
+        time_t crtime = create;
+        fprintf(resfp,
+                "%s made %s%s",
+                title.c_str(),
+                rnp_y2k38_warning(crtime) ? ">=" : "",
+                rnp_ctime(crtime));
+        if (expiry) {
+            crtime = rnp_timeadd(crtime, expiry);
             fprintf(resfp,
-                    "%s made %s%s",
-                    title.c_str(),
+                    "Valid until %s%s\n",
                     rnp_y2k38_warning(crtime) ? ">=" : "",
                     rnp_ctime(crtime));
-            if (expiry > 0) {
-                crtime = rnp_timeadd(crtime, expiry);
-                fprintf(resfp,
-                        "Valid until %s%s\n",
-                        rnp_y2k38_warning(crtime) ? ">=" : "",
-                        rnp_ctime(crtime));
-            }
-        } else {
-            fprintf(resfp, "%s\n", title.c_str());
         }
 
         rnp_signature_handle_t handle = NULL;
@@ -2765,15 +2808,29 @@ cli_rnp_print_signatures(cli_rnp_t *rnp, const std::vector<rnp_op_verify_signatu
         rnp_signature_handle_destroy(handle);
     }
 
-    if (sigs.size() == 0) {
+    if (!sigs.size()) {
         ERR_MSG("No signature(s) found - is this a signed file?");
-    } else if (invalidc > 0 || unknownc > 0) {
-        ERR_MSG(
-          "Signature verification failure: %u invalid signature(s), %u unknown signature(s)",
-          invalidc,
-          unknownc);
-    } else {
+        return;
+    }
+    if (!invalidc && !unknownc) {
         ERR_MSG("Signature(s) verified successfully");
+        return;
+    }
+    /* Show a proper error message if there are invalid/unknown signatures */
+    auto si = invalidc > 1 ? "s" : "";
+    auto su = unknownc > 1 ? "s" : "";
+    auto fail = "Signature verification failure: ";
+    if (invalidc && !unknownc) {
+        ERR_MSG("%s%u invalid signature%s", fail, invalidc, si);
+    } else if (!invalidc && unknownc) {
+        ERR_MSG("%s%u unknown signature%s", fail, unknownc, su);
+    } else {
+        ERR_MSG("%s%u invalid signature%s, %u unknown signature%s",
+                fail,
+                invalidc,
+                si,
+                unknownc,
+                su);
     }
 }
 
@@ -2781,7 +2838,7 @@ bool
 cli_rnp_process_file(cli_rnp_t *rnp)
 {
     rnp_input_t input = NULL;
-    if (!cli_rnp_init_io("verify", &input, NULL, rnp)) {
+    if (!rnp->init_io(Operation::Verify, &input, NULL)) {
         ERR_MSG("failed to open source");
         return false;
     }
@@ -2802,29 +2859,48 @@ cli_rnp_process_file(cli_rnp_t *rnp)
     std::vector<rnp_op_verify_signature_t> sigs;
     size_t                                 scount = 0;
 
-    if (rnp_casecmp(contents, "signature")) {
+    if (rnp::str_case_eq(contents, "signature")) {
         /* detached signature */
         std::string in = rnp->cfg().get_str(CFG_INFILE);
-        if (in.empty() || in == "-") {
-            ERR_MSG("Cannot verify detached signature from stdin.");
+        std::string src = rnp->cfg().get_str(CFG_SOURCE);
+        if (is_stdinout_spec(in) && is_stdinout_spec(src)) {
+            ERR_MSG("Detached signature and signed source cannot be both stdin.");
             goto done;
         }
-        if (!has_extension(in, EXT_SIG) && !has_extension(in, EXT_ASC)) {
-            ERR_MSG("Unsupported detached signature extension.");
+        if (src.empty() && !has_extension(in, EXT_SIG) && !has_extension(in, EXT_ASC)) {
+            ERR_MSG("Unsupported detached signature extension. Use --source to override.");
             goto done;
         }
-        if (!strip_extension(in) || rnp_input_from_path(&source, in.c_str())) {
+        if (src.empty()) {
+            src = in;
+            /* cannot fail as we checked for extension previously */
+            strip_extension(src);
+        }
+        source = cli_rnp_input_from_specifier(*rnp, src, NULL);
+        if (!source) {
             ERR_MSG("Failed to open source for detached signature verification.");
             goto done;
         }
 
         ret = rnp_op_verify_detached_create(&verify, rnp->ffi, source, input);
+        if (!ret) {
+            /* Currently CLI requires all signatures to be valid for success */
+            ret = rnp_op_verify_set_flags(verify, RNP_VERIFY_REQUIRE_ALL_SIGS);
+        }
     } else {
-        if (!cli_rnp_init_io("verify", NULL, &output, rnp)) {
+        if (!rnp->init_io(Operation::Verify, NULL, &output)) {
             ERR_MSG("Failed to create output stream.");
             goto done;
         }
         ret = rnp_op_verify_create(&verify, rnp->ffi, input, output);
+        if (!ret && !rnp->cfg().get_bool(CFG_NO_OUTPUT)) {
+            /* This would happen if user requested decryption instead of verification */
+            ret = rnp_op_verify_set_flags(verify, RNP_VERIFY_IGNORE_SIGS_ON_DECRYPT);
+        }
+        if (!ret && rnp->cfg().get_bool(CFG_NO_OUTPUT)) {
+            /* Currently CLI requires all signatures to be valid for success */
+            ret = rnp_op_verify_set_flags(verify, RNP_VERIFY_REQUIRE_ALL_SIGS);
+        }
     }
     if (ret) {
         ERR_MSG("Failed to initialize verification/decryption operation.");

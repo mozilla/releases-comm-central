@@ -30,7 +30,6 @@
 #include "bn.h"
 #include "dsa.h"
 #include "dl_ossl.h"
-#include "hash.h"
 #include "utils.h"
 #include <openssl/dsa.h>
 #include <openssl/dh.h>
@@ -247,7 +246,7 @@ dsa_generate(rnp::RNG *rng, pgp_dsa_key_t *key, size_t keylen, size_t qbits)
     }
 
     rnp_result_t  ret = RNP_ERROR_GENERIC;
-    DSA *         dsa = NULL;
+    const DSA *   dsa = NULL;
     EVP_PKEY *    pkey = NULL;
     EVP_PKEY *    parmkey = NULL;
     EVP_PKEY_CTX *ctx = NULL;

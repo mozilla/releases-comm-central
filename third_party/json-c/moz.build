@@ -23,6 +23,18 @@ else:
 
     CONFIGURE_DEFINE_FILES += ["config.h", "json_config.h"]
 
+    GeneratedFile(
+        "json.h",
+        script="/python/mozbuild/mozbuild/action/preprocessor.py",
+        entry_point="generate",
+        inputs=["json.h.cmakein"],
+        flags=[
+            "--marker", "%",
+            "-F", "substitution",
+            "-DJSON_H_JSON_POINTER=#include \"json_pointer.h\""
+        ]
+    )
+
     SOURCES += [
         "arraylist.c",
         "debug.c",

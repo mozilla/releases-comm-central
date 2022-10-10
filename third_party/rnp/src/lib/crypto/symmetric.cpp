@@ -63,7 +63,7 @@ static const char *
 pgp_sa_to_botan_string(pgp_symm_alg_t alg)
 {
     switch (alg) {
-#if defined(BOTAN_HAS_IDEA)
+#if defined(BOTAN_HAS_IDEA) && defined(ENABLE_IDEA)
     case PGP_SA_IDEA:
         return "IDEA";
 #endif

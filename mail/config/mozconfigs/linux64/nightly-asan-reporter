@@ -1,7 +1,5 @@
 . "$topsrcdir/comm/mail/config/mozconfigs/linux64/common-linux64"
 
-export MOZ_TELEMETRY_REPORTING=1
-
 # We still need to build with debug symbols
 ac_add_options --disable-debug
 ac_add_options --enable-optimize="-O2 -gline-tables-only"

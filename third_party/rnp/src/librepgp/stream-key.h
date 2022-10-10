@@ -126,17 +126,13 @@ rnp_result_t process_pgp_key_auto(pgp_source_t &          src,
                                   bool                    allowsub,
                                   bool                    skiperrors);
 
-rnp_result_t process_pgp_keys(pgp_source_t *src, pgp_key_sequence_t &keys, bool skiperrors);
+rnp_result_t process_pgp_keys(pgp_source_t &src, pgp_key_sequence_t &keys, bool skiperrors);
 
-rnp_result_t process_pgp_key(pgp_source_t *src, pgp_transferable_key_t &key, bool skiperrors);
+rnp_result_t process_pgp_key(pgp_source_t &src, pgp_transferable_key_t &key, bool skiperrors);
 
 rnp_result_t process_pgp_subkey(pgp_source_t &             src,
                                 pgp_transferable_subkey_t &subkey,
                                 bool                       skiperrors);
-
-rnp_result_t write_pgp_key(pgp_transferable_key_t &key, pgp_dest_t *dst, bool armor);
-
-rnp_result_t write_pgp_keys(pgp_key_sequence_t &keys, pgp_dest_t *dst, bool armor);
 
 rnp_result_t decrypt_secret_key(pgp_key_pkt_t *key, const char *password);
 
