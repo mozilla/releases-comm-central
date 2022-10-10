@@ -14,6 +14,7 @@ var { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddrBookCard: "resource:///modules/AddrBookCard.jsm",
+  AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
 });
 
 add_task(async function setup() {
@@ -21,12 +22,6 @@ add_task(async function setup() {
 });
 
 add_task(async function test_addressBooks() {
-  // Copy photo file into the required Photos subfolder of the profile folder.
-  await IOUtils.copy(
-    do_get_file("images/pixel.png").path,
-    PathUtils.join(PathUtils.profileDir, "Photos", "pixel.png")
-  );
-
   async function background() {
     let firstBookId, secondBookId, newContactId;
 
@@ -52,19 +47,6 @@ add_task(async function test_addressBooks() {
           });
         }
       }
-    }
-
-    function getDataUrl(file) {
-      return new Promise((resolve, reject) => {
-        var reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = function() {
-          resolve(reader.result);
-        };
-        reader.onerror = function(error) {
-          reject(new Error(error));
-        };
-      });
     }
 
     let outsideEvent = function(action, ...args) {
@@ -732,7 +714,6 @@ add_task(async function test_addressBooks() {
 
     async function outsideEventsTest() {
       browser.test.log("Starting outsideEventsTest");
-
       let [bookId, newBookPrefId] = await outsideEvent("createAddressBook");
       let [newBook] = await checkEvents([
         "addressBooks",
@@ -764,34 +745,8 @@ add_task(async function test_addressBooks() {
         newContact.properties.vCard.includes("VERSION:4.0"),
         "vCard should be version 4.0"
       );
-      let vCard4Photo = `PHOTO;VALUE=URL:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAA
- ACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC`.replaceAll(
-        "\r\n",
-        "\n"
-      );
 
-      browser.test.assertTrue(
-        newContact.properties.vCard
-          .replaceAll("\r\n", "\n")
-          .includes(vCard4Photo),
-        `vCard should include the correct Photo property [${newContact.properties.vCard}] vs [${vCard4Photo}]`
-      );
-
-      // Check internal photoUrl is a fileUrl.
-      await window.sendMessage("verifyPhotoUrl", contactId, "file:");
-      let photo = await browser.contacts.getPhoto(contactId);
-      // eslint-disable-next-line mozilla/use-isInstance
-      browser.test.assertTrue(photo instanceof File);
-      browser.test.assertEq("image/png", photo.type);
-      browser.test.assertEq(`${contactId}.png`, photo.name);
-      browser.test.assertEq(
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC",
-        await getDataUrl(photo),
-        "vCard 4.0 contact with photo from internal fileUrl from photoName should return the correct photo file"
-      );
-      // Re-check internal photoUrl is a fileUrl (getPhoto() should not change it).
-      await window.sendMessage("verifyPhotoUrl", contactId, "file:");
-
+      // Update the contact from outside.
       await outsideEvent("updateContact", contactId);
       let [updatedContact] = await checkEvents([
         "contacts",
@@ -836,95 +791,6 @@ add_task(async function test_addressBooks() {
       await outsideEvent("deleteContact", contactId);
       await checkEvents(["contacts", "onDeleted", parentId1, contactId]);
 
-      let [parentId3, contactId3] = await outsideEvent(
-        "createContactWithBothPhotoProps"
-      );
-      let [newContact3] = await checkEvents([
-        "contacts",
-        "onCreated",
-        { type: "contact", parentId: parentId3, id: contactId3 },
-      ]);
-      browser.test.assertEq("external", newContact3.properties.FirstName);
-      browser.test.assertEq("add", newContact3.properties.LastName);
-      browser.test.assertTrue(
-        newContact3.properties.vCard.includes("VERSION:4.0"),
-        "vCard should be version 4.0"
-      );
-
-      // The card should not include vCard4Photo (which photoName points to), but the value already
-      // stored in the vCard photo property.
-      let vCard4Photo3 = `PHOTO;VALUE=URL:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAA
- ACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQg==`.replaceAll(
-        "\r\n",
-        "\n"
-      );
-
-      browser.test.assertTrue(
-        newContact3.properties.vCard
-          .replaceAll("\r\n", "\n")
-          .includes(vCard4Photo3),
-        `vCard should include the correct Photo property [${newContact3.properties.vCard}] vs [${vCard4Photo3}]`
-      );
-
-      // Check internal photoUrl is a dataUrl.
-      await window.sendMessage("verifyPhotoUrl", contactId3, "data:");
-      let photo3 = await browser.contacts.getPhoto(contactId3);
-      // eslint-disable-next-line mozilla/use-isInstance
-      browser.test.assertTrue(photo3 instanceof File);
-      browser.test.assertEq("image/png", photo3.type);
-      browser.test.assertEq(`${contactId3}.png`, photo3.name);
-      browser.test.assertEq(
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQg==",
-        await getDataUrl(photo3),
-        "vCard 4.0 contact with photo from internal dataUrl from vCard (vCard wins over photoName) should return the correct photo file"
-      );
-      // Re-check internal photoUrl is a dataUrl (getPhoto() should not change it).
-      await window.sendMessage("verifyPhotoUrl", contactId3, "data:");
-
-      await outsideEvent("deleteContact", contactId3);
-      await checkEvents(["contacts", "onDeleted", parentId3, contactId3]);
-
-      let [parentId4, contactId4] = await outsideEvent("createContactV3");
-      let [newContact4] = await checkEvents([
-        "contacts",
-        "onCreated",
-        { type: "contact", parentId: parentId4, id: contactId4 },
-      ]);
-      browser.test.assertEq("external", newContact4.properties.FirstName);
-      browser.test.assertEq("add", newContact4.properties.LastName);
-      browser.test.assertTrue(
-        newContact4.properties.vCard.includes("VERSION:3.0"),
-        "vCard should be version 3.0"
-      );
-
-      let vCard3Photo4 = `PHOTO;ENCODING=B;TYPE=PNG:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAD
- ElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC`;
-
-      browser.test.assertTrue(
-        newContact4.properties.vCard
-          .replaceAll("\r\n", "\n")
-          .includes(vCard3Photo4),
-        `vCard should include the correct Photo property [${newContact4.properties.vCard}] vs [${vCard3Photo4}]`
-      );
-
-      // Check internal photoUrl is a fileUrl.
-      await window.sendMessage("verifyPhotoUrl", contactId4, "file:");
-      let photo4 = await browser.contacts.getPhoto(contactId4);
-      // eslint-disable-next-line mozilla/use-isInstance
-      browser.test.assertTrue(photo4 instanceof File);
-      browser.test.assertEq("image/png", photo4.type);
-      browser.test.assertEq(`${contactId4}.png`, photo4.name);
-      browser.test.assertEq(
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC",
-        await getDataUrl(photo4),
-        "vCard 3.0 contact with photo from internal fileUrl from photoName should return the correct photo file"
-      );
-      // Re-check internal photoUrl is a fileUrl (getPhoto() should not change it).
-      await window.sendMessage("verifyPhotoUrl", contactId4, "file:");
-
-      await outsideEvent("deleteContact", contactId4);
-      await checkEvents(["contacts", "onDeleted", parentId4, contactId4]);
-
       browser.test.log("Completed outsideEventsTest");
     }
 
@@ -966,17 +832,7 @@ add_task(async function test_addressBooks() {
     return null;
   }
 
-  extension.onMessage("verifyPhotoUrl", (id, expectedScheme) => {
-    let contact = findContact(id);
-    let photoUrl = contact.photoURL;
-    Assert.ok(
-      photoUrl.startsWith(expectedScheme),
-      `photoURL should start with <${expectedScheme}> : (${photoUrl})`
-    );
-    extension.sendMessage();
-  });
-
-  extension.onMessage("outsideEventsTest", (action, ...args) => {
+  extension.onMessage("outsideEventsTest", async (action, ...args) => {
     switch (action) {
       case "createAddressBook": {
         let dirPrefId = MailServices.ab.newAddressBook(
@@ -1000,48 +856,12 @@ add_task(async function test_addressBooks() {
         extension.sendMessage();
         return;
       }
-
       case "createContact": {
         let contact = new AddrBookCard();
         contact.firstName = "external";
         contact.lastName = "add";
         contact.primaryEmail = "test@invalid";
-        contact.setProperty("PhotoName", "pixel.png");
 
-        let newContact = parent.addCard(contact);
-        extension.sendMessage(parent.UID, newContact.UID);
-        return;
-      }
-      case "createContactWithBothPhotoProps": {
-        let contact = new AddrBookCard();
-        contact.setProperty("PhotoName", "pixel.png");
-        contact.setProperty(
-          "_vCard",
-          `BEGIN:VCARD
-VERSION:4.0
-EMAIL;PREF=1:test@invalid
-N:add;external;;;
-UID:fd9aecf9-2453-4ba1-bec6-574a15bb380b
-PHOTO;VALUE=URL:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAA
- ACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQg==
-END:VCARD`
-        );
-        let newContact = parent.addCard(contact);
-        extension.sendMessage(parent.UID, newContact.UID);
-        return;
-      }
-      case "createContactV3": {
-        let contact = new AddrBookCard();
-        contact.setProperty("PhotoName", "pixel.png");
-        contact.setProperty(
-          "_vCard",
-          `BEGIN:VCARD
-VERSION:3.0
-EMAIL:test@invalid
-N:add;external
-UID:fd9aecf9-2453-4ba1-bec6-574a15bb380c
-END:VCARD`
-        );
         let newContact = parent.addCard(contact);
         extension.sendMessage(parent.UID, newContact.UID);
         return;
@@ -1066,7 +886,6 @@ END:VCARD`
         }
         break;
       }
-
       case "createMailingList": {
         let list = Cc[
           "@mozilla.org/addressbook/directoryproperty;1"
@@ -1131,10 +950,613 @@ END:VCARD`
   await extension.startup();
   await extension.awaitFinish("addressBooks");
   await extension.unload();
+});
 
-  await IOUtils.remove(
-    PathUtils.join(PathUtils.profileDir, "Photos", "pixel.png")
-  );
+add_task(async function test_photos() {
+  async function background() {
+    let events = [];
+    let eventPromise;
+    let eventPromiseResolve;
+    for (let eventNamespace of ["addressBooks", "contacts"]) {
+      for (let eventName of ["onCreated", "onUpdated", "onDeleted"]) {
+        if (eventName in browser[eventNamespace]) {
+          browser[eventNamespace][eventName].addListener((...args) => {
+            events.push({ namespace: eventNamespace, name: eventName, args });
+            if (eventPromiseResolve) {
+              let resolve = eventPromiseResolve;
+              eventPromiseResolve = null;
+              resolve();
+            }
+          });
+        }
+      }
+    }
+
+    let getDataUrl = function(file) {
+      return new Promise((resolve, reject) => {
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function() {
+          resolve(reader.result);
+        };
+        reader.onerror = function(error) {
+          reject(new Error(error));
+        };
+      });
+    };
+
+    let updateAndVerifyPhoto = async function(
+      parentId,
+      id,
+      photoFile,
+      photoData
+    ) {
+      eventPromise = new Promise(resolve => {
+        eventPromiseResolve = resolve;
+      });
+      await browser.contacts.setPhoto(id, photoFile);
+
+      await checkEvents([
+        "contacts",
+        "onUpdated",
+        { type: "contact", parentId, id },
+        {},
+      ]);
+      let updatedPhoto = await browser.contacts.getPhoto(id);
+      // eslint-disable-next-line mozilla/use-isInstance
+      browser.test.assertTrue(updatedPhoto instanceof File);
+      browser.test.assertEq("image/png", updatedPhoto.type);
+      browser.test.assertEq(`${id}.png`, updatedPhoto.name);
+      browser.test.assertEq(photoData, await getDataUrl(updatedPhoto));
+    };
+    let normalizeVCard = function(vCard) {
+      return vCard
+        .replaceAll("\r\n", "")
+        .replaceAll("\n", "")
+        .replaceAll(" ", "");
+    };
+    let outsideEvent = function(action, ...args) {
+      eventPromise = new Promise(resolve => {
+        eventPromiseResolve = resolve;
+      });
+      return window.sendMessage("outsideEventsTest", action, ...args);
+    };
+    let checkEvents = async function(...expectedEvents) {
+      if (eventPromiseResolve) {
+        await eventPromise;
+      }
+
+      browser.test.assertEq(
+        expectedEvents.length,
+        events.length,
+        "Correct number of events"
+      );
+
+      if (expectedEvents.length != events.length) {
+        for (let event of events) {
+          let args = event.args.join(", ");
+          browser.test.log(`${event.namespace}.${event.name}(${args})`);
+        }
+        throw new Error("Wrong number of events, stopping.");
+      }
+
+      for (let [namespace, name, ...expectedArgs] of expectedEvents) {
+        let event = events.shift();
+        browser.test.assertEq(
+          namespace,
+          event.namespace,
+          "Event namespace is correct"
+        );
+        browser.test.assertEq(name, event.name, "Event type is correct");
+        browser.test.assertEq(
+          expectedArgs.length,
+          event.args.length,
+          "Argument count is correct"
+        );
+        window.assertDeepEqual(expectedArgs, event.args);
+        if (expectedEvents.length == 1) {
+          return event.args;
+        }
+      }
+
+      return null;
+    };
+
+    let whitePixelData =
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC";
+    let bluePixelData =
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQg==";
+    let greenPixelData =
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY5CeYAMAAbEA6ASxSWcAAAAASUVORK5CYII=";
+    let redPixelData =
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY3growIAAycBLhVrvukAAAAASUVORK5CYII=";
+    let vCard3WhitePixel =
+      "PHOTO;ENCODING=B;TYPE=PNG:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC";
+    let vCard4WhitePixel =
+      "PHOTO;VALUE=URL:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC";
+    let vCard4BluePixel =
+      "PHOTO;VALUE=URL:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQg==";
+
+    // Create a photo file, which is linked to a local file to simulate a file
+    // opened through a filepicker.
+    let [redPixelRealFile] = await window.sendMessage("getRedPixelFile");
+
+    // Create a photo file, which is a simple data blob.
+    let greenPixelFile = await fetch(greenPixelData)
+      .then(res => res.arrayBuffer())
+      .then(buf => new File([buf], "greenPixel.png", { type: "image/png" }));
+
+    // -------------------------------------------------------------------------
+    // Test vCard v4 with a photoName set.
+    // -------------------------------------------------------------------------
+
+    let [parentId1, contactId1, photoName1] = await outsideEvent(
+      "createV4ContactWithPhotoName"
+    );
+    let [newContact] = await checkEvents([
+      "contacts",
+      "onCreated",
+      { type: "contact", parentId: parentId1, id: contactId1 },
+    ]);
+    browser.test.assertEq("external", newContact.properties.FirstName);
+    browser.test.assertEq("add", newContact.properties.LastName);
+    browser.test.assertTrue(
+      newContact.properties.vCard.includes("VERSION:4.0"),
+      "vCard should be version 4.0"
+    );
+    browser.test.assertTrue(
+      normalizeVCard(newContact.properties.vCard).includes(vCard4WhitePixel),
+      `vCard should include the correct Photo property [${normalizeVCard(
+        newContact.properties.vCard
+      )}] vs [${vCard4WhitePixel}]`
+    );
+    // Check internal photoUrl is the correct fileUrl.
+    await window.sendMessage(
+      "verifyInternalPhotoUrl",
+      contactId1,
+      `^file:.*?${photoName1}$`
+    );
+
+    // Test if we can get the photo through the API.
+
+    let photo = await browser.contacts.getPhoto(contactId1);
+    // eslint-disable-next-line mozilla/use-isInstance
+    browser.test.assertTrue(photo instanceof File);
+    browser.test.assertEq("image/png", photo.type);
+    browser.test.assertEq(`${contactId1}.png`, photo.name);
+    browser.test.assertEq(
+      whitePixelData,
+      await getDataUrl(photo),
+      "vCard 4.0 contact with photo from internal fileUrl from photoName should return the correct photo file"
+    );
+    // Re-check internal photoUrl.
+    await window.sendMessage(
+      "verifyInternalPhotoUrl",
+      contactId1,
+      `^file:.*?${photoName1}$`
+    );
+
+    // Test if we can update the photo through the API by providing a file which
+    // is linked to a local file. Since this vCard had only a photoName set and
+    // its photo stored as a local file, the updated photo should also be stored
+    // as a local file.
+
+    await updateAndVerifyPhoto(
+      parentId1,
+      contactId1,
+      redPixelRealFile,
+      redPixelData
+    );
+    await window.sendMessage(
+      "verifyInternalPhotoUrl",
+      contactId1,
+      `^file:.*?${contactId1}\.png$`
+    );
+
+    // Test if we can update the photo through the API, by providing a pure data
+    // blob (decoupled from a local file, without file.mozFullPath set).
+
+    await updateAndVerifyPhoto(
+      parentId1,
+      contactId1,
+      greenPixelFile,
+      greenPixelData
+    );
+    await window.sendMessage(
+      "verifyInternalPhotoUrl",
+      contactId1,
+      `^file:.*?${contactId1}-1\.png$`
+    );
+
+    // Test if we get the correct photo if it is updated by the user, storing the
+    // photo in its vCard (outside of the API).
+
+    await outsideEvent("updateV4ContactWithBluePixel", contactId1);
+    let [updatedContact1] = await checkEvents([
+      "contacts",
+      "onUpdated",
+      { type: "contact", parentId: parentId1, id: contactId1 },
+      { LastName: { oldValue: "add", newValue: "edit" } },
+    ]);
+    browser.test.assertEq("external", updatedContact1.properties.FirstName);
+    browser.test.assertEq("edit", updatedContact1.properties.LastName);
+    let updatedPhoto1 = await browser.contacts.getPhoto(contactId1);
+    // eslint-disable-next-line mozilla/use-isInstance
+    browser.test.assertTrue(updatedPhoto1 instanceof File);
+    browser.test.assertEq("image/png", updatedPhoto1.type);
+    browser.test.assertEq(`${contactId1}.png`, updatedPhoto1.name);
+    browser.test.assertEq(bluePixelData, await getDataUrl(updatedPhoto1));
+    await window.sendMessage(
+      "verifyInternalPhotoUrl",
+      contactId1,
+      bluePixelData
+    );
+
+    // -------------------------------------------------------------------------
+    // Test vCard v4 with a photoName and also a photo in its vCard.
+    // -------------------------------------------------------------------------
+
+    let [parentId2, contactId2] = await outsideEvent(
+      "createV4ContactWithBothPhotoProps"
+    );
+    let [newContact2] = await checkEvents([
+      "contacts",
+      "onCreated",
+      { type: "contact", parentId: parentId2, id: contactId2 },
+    ]);
+    browser.test.assertEq("external", newContact2.properties.FirstName);
+    browser.test.assertEq("add", newContact2.properties.LastName);
+    browser.test.assertTrue(
+      newContact2.properties.vCard.includes("VERSION:4.0"),
+      "vCard should be version 4.0"
+    );
+    // The card should not include vCard4WhitePixel (which photoName points to),
+    // but the value of vCard4BluePixel stored in the vCard photo property.
+    browser.test.assertTrue(
+      normalizeVCard(newContact2.properties.vCard).includes(vCard4BluePixel),
+      `vCard should include the correct Photo property [${normalizeVCard(
+        newContact2.properties.vCard
+      )}] vs [${vCard4BluePixel}]`
+    );
+    // Check internal photoUrl is the correct dataUrl.
+    await window.sendMessage(
+      "verifyInternalPhotoUrl",
+      contactId2,
+      bluePixelData
+    );
+
+    // Test if we can get the correct photo through the API.
+
+    let photo3 = await browser.contacts.getPhoto(contactId2);
+    // eslint-disable-next-line mozilla/use-isInstance
+    browser.test.assertTrue(photo3 instanceof File);
+    browser.test.assertEq("image/png", photo3.type);
+    browser.test.assertEq(`${contactId2}.png`, photo3.name);
+    browser.test.assertEq(
+      bluePixelData,
+      await getDataUrl(photo3),
+      "vCard 4.0 contact with photo from internal dataUrl from vCard (vCard wins over photoName) should return the correct photo file"
+    );
+    // Re-check internal photoUrl.
+    await window.sendMessage(
+      "verifyInternalPhotoUrl",
+      contactId2,
+      bluePixelData
+    );
+
+    // Test if we can update the photo through the API by providing a file which
+    // is linked to a local file. Since this vCard had its photo stored as dataUrl
+    // in the vCard, the updated photo should be stored as a dataUrl as well.
+
+    await updateAndVerifyPhoto(
+      parentId2,
+      contactId2,
+      redPixelRealFile,
+      redPixelData
+    );
+    await window.sendMessage(
+      "verifyInternalPhotoUrl",
+      contactId2,
+      redPixelData
+    );
+
+    // Test if we can update the photo through the API, by providing a pure data
+    // blob (decoupled from a local file, without file.mozFullPath set).
+
+    await updateAndVerifyPhoto(
+      parentId2,
+      contactId2,
+      greenPixelFile,
+      greenPixelData
+    );
+    await window.sendMessage(
+      "verifyInternalPhotoUrl",
+      contactId2,
+      greenPixelData
+    );
+
+    // -------------------------------------------------------------------------
+    // Test vCard v3 with a photoName set.
+    // -------------------------------------------------------------------------
+
+    let [parentId3, contactId3, photoName4] = await outsideEvent(
+      "createV3ContactWithPhotoName"
+    );
+    let [newContact4] = await checkEvents([
+      "contacts",
+      "onCreated",
+      { type: "contact", parentId: parentId3, id: contactId3 },
+    ]);
+    browser.test.assertEq("external", newContact4.properties.FirstName);
+    browser.test.assertEq("add", newContact4.properties.LastName);
+    browser.test.assertTrue(
+      newContact4.properties.vCard.includes("VERSION:3.0"),
+      "vCard should be version 3.0"
+    );
+    browser.test.assertTrue(
+      normalizeVCard(newContact4.properties.vCard).includes(vCard3WhitePixel),
+      `vCard should include the correct Photo property [${normalizeVCard(
+        newContact4.properties.vCard
+      )}] vs [${vCard3WhitePixel}]`
+    );
+    // Check internal photoUrl is the correct fileUrl.
+    await window.sendMessage(
+      "verifyInternalPhotoUrl",
+      contactId3,
+      `^file:.*?${photoName4}$`
+    );
+    let photo4 = await browser.contacts.getPhoto(contactId3);
+    // eslint-disable-next-line mozilla/use-isInstance
+    browser.test.assertTrue(photo4 instanceof File);
+    browser.test.assertEq("image/png", photo4.type);
+    browser.test.assertEq(`${contactId3}.png`, photo4.name);
+    browser.test.assertEq(
+      whitePixelData,
+      await getDataUrl(photo4),
+      "vCard 3.0 contact with photo from internal fileUrl from photoName should return the correct photo file"
+    );
+    // Re-check internal photoUrl.
+    await window.sendMessage(
+      "verifyInternalPhotoUrl",
+      contactId3,
+      `^file:.*?${photoName4}$`
+    );
+
+    // Test if we can update the photo through the API by providing a file which
+    // is linked to a local file. Since this vCard had only a photoName set and
+    // its photo stored as a local file, the updated photo should also be stored
+    // as a local file.
+
+    await updateAndVerifyPhoto(
+      parentId3,
+      contactId3,
+      redPixelRealFile,
+      redPixelData
+    );
+    await window.sendMessage(
+      "verifyInternalPhotoUrl",
+      contactId3,
+      `^file:.*?${contactId3}\.png$`
+    );
+
+    // Test if we can update the photo through the API, by providing a pure data
+    // blob (decoupled from a local file, without file.mozFullPath set).
+
+    await updateAndVerifyPhoto(
+      parentId3,
+      contactId3,
+      greenPixelFile,
+      greenPixelData
+    );
+    await window.sendMessage(
+      "verifyInternalPhotoUrl",
+      contactId3,
+      `^file:.*?${contactId3}-1\.png$`
+    );
+
+    // Test if we get the correct photo if it is updated by the user, storing the
+    // photo in its vCard (outside of the API).
+
+    await outsideEvent("updateV3ContactWithBluePixel", contactId3);
+    let [updatedContact3] = await checkEvents([
+      "contacts",
+      "onUpdated",
+      { type: "contact", parentId: parentId3, id: contactId3 },
+      { LastName: { oldValue: "add", newValue: "edit" } },
+    ]);
+    browser.test.assertEq("external", updatedContact3.properties.FirstName);
+    browser.test.assertEq("edit", updatedContact3.properties.LastName);
+    let updatedPhoto3 = await browser.contacts.getPhoto(contactId3);
+    // eslint-disable-next-line mozilla/use-isInstance
+    browser.test.assertTrue(updatedPhoto3 instanceof File);
+    browser.test.assertEq("image/png", updatedPhoto3.type);
+    browser.test.assertEq(`${contactId3}.png`, updatedPhoto3.name);
+    browser.test.assertEq(bluePixelData, await getDataUrl(updatedPhoto3));
+    await window.sendMessage(
+      "verifyInternalPhotoUrl",
+      contactId3,
+      bluePixelData
+    );
+
+    // Cleanup. Delete all created contacts.
+
+    await outsideEvent("deleteContact", contactId1);
+    await checkEvents(["contacts", "onDeleted", parentId1, contactId1]);
+    await outsideEvent("deleteContact", contactId2);
+    await checkEvents(["contacts", "onDeleted", parentId2, contactId2]);
+    await outsideEvent("deleteContact", contactId3);
+    await checkEvents(["contacts", "onDeleted", parentId3, contactId3]);
+    browser.test.notifyPass("addressBooksPhotos");
+  }
+
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["addressBooks"],
+    },
+  });
+
+  let parent = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
+  function findContact(id) {
+    for (let child of parent.childCards) {
+      if (child.UID == id) {
+        return child;
+      }
+    }
+    return null;
+  }
+
+  async function getUniqueWhitePixelFile() {
+    // Copy photo file into the required Photos subfolder of the profile folder.
+    let photoName = `${AddrBookUtils.newUID()}.png`;
+    await IOUtils.copy(
+      do_get_file("images/whitePixel.png").path,
+      PathUtils.join(PathUtils.profileDir, "Photos", photoName)
+    );
+    return photoName;
+  }
+
+  extension.onMessage("getRedPixelFile", async () => {
+    let redPixelFile = await File.createFromNsIFile(
+      do_get_file("images/redPixel.png")
+    );
+    extension.sendMessage(redPixelFile);
+  });
+
+  extension.onMessage("verifyInternalPhotoUrl", (id, expected) => {
+    let contact = findContact(id);
+    let photoUrl = contact.photoURL;
+    if (expected.startsWith("data:")) {
+      Assert.equal(expected, photoUrl, `photoURL should be correct`);
+    } else {
+      let regExp = new RegExp(expected);
+      Assert.ok(
+        regExp.test(photoUrl),
+        `photoURL <${photoUrl}> should match expected regExp <${expected}>`
+      );
+    }
+    extension.sendMessage();
+  });
+
+  extension.onMessage("outsideEventsTest", async (action, ...args) => {
+    switch (action) {
+      case "createV4ContactWithPhotoName": {
+        let photoName = await getUniqueWhitePixelFile();
+        let contact = new AddrBookCard();
+        contact.firstName = "external";
+        contact.lastName = "add";
+        contact.primaryEmail = "test@invalid";
+        contact.setProperty("PhotoName", photoName);
+
+        let newContact = parent.addCard(contact);
+        extension.sendMessage(parent.UID, newContact.UID, photoName);
+        return;
+      }
+      case "createV4ContactWithBothPhotoProps": {
+        // This contact has whitePixel as file but bluePixel in the vCard.
+        let photoName = await getUniqueWhitePixelFile();
+        let contact = new AddrBookCard();
+        contact.setProperty("PhotoName", photoName);
+        contact.setProperty(
+          "_vCard",
+          formatVCard`
+            BEGIN:VCARD
+            VERSION:4.0
+            EMAIL;PREF=1:test@invalid
+            N:add;external;;;
+            UID:fd9aecf9-2453-4ba1-bec6-574a15bb380b
+            PHOTO;VALUE=URL:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAA
+             ACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQg==
+            END:VCARD
+          `
+        );
+        let newContact = parent.addCard(contact);
+        extension.sendMessage(parent.UID, newContact.UID, photoName);
+        return;
+      }
+      case "updateV4ContactWithBluePixel": {
+        let contact = findContact(args[0]);
+        if (contact) {
+          contact.setProperty(
+            "_vCard",
+            formatVCard`
+              BEGIN:VCARD
+              VERSION:4.0
+              EMAIL;PREF=1:test@invalid
+              N:edit;external;;;
+              PHOTO;VALUE=URL:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAA
+               ACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQg==
+              END:VCARD
+            `
+          );
+          parent.modifyCard(contact);
+          extension.sendMessage();
+          return;
+        }
+        break;
+      }
+      case "createV3ContactWithPhotoName": {
+        let photoName = await getUniqueWhitePixelFile();
+        let contact = new AddrBookCard();
+        contact.setProperty("PhotoName", photoName);
+        contact.setProperty(
+          "_vCard",
+          formatVCard`
+            BEGIN:VCARD
+            VERSION:3.0
+            EMAIL:test@invalid
+            N:add;external
+            UID:fd9aecf9-2453-4ba1-bec6-574a15bb380c
+            END:VCARD
+          `
+        );
+        let newContact = parent.addCard(contact);
+        extension.sendMessage(parent.UID, newContact.UID, photoName);
+        return;
+      }
+      case "updateV3ContactWithBluePixel": {
+        let contact = findContact(args[0]);
+        if (contact) {
+          contact.setProperty(
+            "_vCard",
+            formatVCard`
+              BEGIN:VCARD
+              VERSION:3.0
+              EMAIL:test@invalid
+              N:edit;external
+              PHOTO;ENCODING=b;TYPE=PNG:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAD
+               ElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQg==
+              END:VCARD
+            `
+          );
+          parent.modifyCard(contact);
+          extension.sendMessage();
+          return;
+        }
+        break;
+      }
+      case "deleteContact": {
+        let contact = findContact(args[0]);
+        if (contact) {
+          parent.deleteCards([contact]);
+          extension.sendMessage();
+          return;
+        }
+        break;
+      }
+    }
+    throw new Error(
+      `Message "${action}" passed to handler didn't do anything.`
+    );
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("addressBooksPhotos");
+  await extension.unload();
 });
 
 registerCleanupFunction(() => {

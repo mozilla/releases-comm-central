@@ -539,6 +539,23 @@
         "description": "Gets the photo associated with this contact, if any."
       },
       {
+        "name": "setPhoto",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "isInstanceOf": "File",
+            "additionalProperties": true
+          }
+        ],
+        "description": "Sets the photo associated with this contact."
+      },
+      {
         "name": "create",
         "type": "function",
         "async": "callback",
