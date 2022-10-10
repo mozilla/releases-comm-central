@@ -5,7 +5,6 @@
 
 /* global MozElements gSpacesToolbar */
 
-/* import-globals-from ../../../mailnews/base/content/junkCommands.js */
 /* import-globals-from ../../../mailnews/extensions/newsblog/newsblogOverlay.js */
 /* import-globals-from commandglue.js */
 /* import-globals-from contentAreaClick.js */
@@ -335,12 +334,6 @@ function view_init() {
     .setAttribute("checked", viewAttachmentInline);
 
   document.commandDispatcher.updateCommands("create-menu-view");
-
-  // Disable the charset item if there's nothing to enable
-  let disableCharsetItems = !message;
-  document
-    .getElementById("repair-text-encoding")
-    .setAttribute("disabled", disableCharsetItems);
 
   // No need to do anything if we don't have a spaces toolbar like in standalone
   // windows or another non tabmail window.
@@ -1292,62 +1285,6 @@ function InitMessageMark() {
   document.commandDispatcher.updateCommands("create-menu-mark");
 }
 
-function UpdateJunkToolbarButton() {
-  let junkButton = document.getElementById("button-isJunk");
-  if (!junkButton) {
-    return;
-  }
-
-  // TODO: Fix or remove this function.
-  // if (SelectedMessagesAreJunk()) {
-  //   document.l10n.setAttributes(junkButton, "toolbar-not-junk-button");
-  // } else {
-  document.l10n.setAttributes(junkButton, "toolbar-junk-button");
-  // }
-}
-
-function UpdateDeleteToolbarButton() {
-  let buttonMarkDeleted = document.getElementById("button-mark-deleted");
-
-  // Never show "Undelete" in the 3-pane for folders, when delete would
-  // apply to the selected folder.
-  if (!buttonMarkDeleted) {
-    return;
-  }
-
-  if (
-    gFolderDisplay.focusedPane == document.getElementById("folderTree") &&
-    gFolderDisplay.selectedCount == 0
-  ) {
-    document.l10n.setAttributes(buttonMarkDeleted, "toolbar-delete-button");
-  } else if (SelectedMessagesAreDeleted()) {
-    document.l10n.setAttributes(buttonMarkDeleted, "toolbar-undelete-button");
-  } else {
-    document.l10n.setAttributes(buttonMarkDeleted, "toolbar-delete-button");
-  }
-}
-function UpdateDeleteCommand() {
-  var value = "value";
-  if (SelectedMessagesAreDeleted()) {
-    value += "IMAPDeleted";
-  }
-  if (gFolderDisplay.selectedCount < 2) {
-    value += "Message";
-  } else {
-    value += "Messages";
-  }
-  goSetMenuValue("cmd_delete", value);
-  goSetAccessKey("cmd_delete", value + "AccessKey");
-}
-
-function SelectedMessagesAreDeleted() {
-  let firstSelectedMessage = gFolderDisplay.selectedMessage;
-  return (
-    firstSelectedMessage &&
-    firstSelectedMessage.flags & Ci.nsMsgMessageFlags.IMAPDeleted
-  );
-}
-
 function GetFirstSelectedMsgFolder() {
   try {
     var selectedFolders = GetSelectedMsgFolders();
@@ -1486,54 +1423,6 @@ function MsgDeleteMessage(reallyDelete, fromToolbar) {
   }
 }
 
-/**
- * Copies the selected messages to the destination folder
- * @param aDestFolder  the destination folder
- */
-function MsgCopyMessage(aDestFolder) {
-  if (gMessageDisplay.isDummy) {
-    let file = window.arguments[0].QueryInterface(Ci.nsIFileURL).file;
-    MailServices.copy.copyFileMessage(
-      file,
-      aDestFolder,
-      null,
-      false,
-      Ci.nsMsgMessageFlags.Read,
-      "",
-      null,
-      msgWindow
-    );
-  } else {
-    gDBView.doCommandWithFolder(
-      Ci.nsMsgViewCommandType.copyMessages,
-      aDestFolder
-    );
-  }
-
-  Services.prefs.setCharPref(
-    "mail.last_msg_movecopy_target_uri",
-    aDestFolder.URI
-  );
-  Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", false);
-}
-
-/**
- * Moves the selected messages to the destination folder
- * @param aDestFolder  the destination folder
- */
-function MsgMoveMessage(aDestFolder) {
-  gFolderDisplay.hintAboutToDeleteMessages();
-  gDBView.doCommandWithFolder(
-    Ci.nsMsgViewCommandType.moveMessages,
-    aDestFolder
-  );
-  Services.prefs.setCharPref(
-    "mail.last_msg_movecopy_target_uri",
-    aDestFolder.URI
-  );
-  Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", true);
-}
-
 function OpenContainingFolder() {
   MailUtils.displayMessageInFolderTab(gMessageDisplay.displayedMessage);
 }
@@ -1569,16 +1458,6 @@ function MsgNewMessage(event) {
 
 function CanComposeMessages() {
   return MailServices.accounts.allIdentities.length > 0;
-}
-
-function MsgCreateFilter(msgHdr = gFolderDisplay.selectedMessage) {
-  // retrieve Sender direct from selected message's headers
-  let emailAddress = MailServices.headerParser.extractHeaderAddressMailboxes(
-    msgHdr.author
-  );
-  if (emailAddress) {
-    top.MsgFilters(emailAddress, msgHdr.folder);
-  }
 }
 
 /** Open subscribe window. */
@@ -1636,16 +1515,6 @@ function MsgUnsubscribe(folders) {
 function ToggleFavoriteFolderFlag() {
   var folder = GetFirstSelectedMsgFolder();
   folder.toggleFlag(Ci.nsMsgFolderFlags.Favorite);
-}
-
-function MsgSaveAsFile() {
-  SaveAsFile(gFolderDisplay.selectedMessageUris);
-}
-
-function MsgSaveAsTemplate() {
-  if (gFolderDisplay.selectedCount == 1) {
-    SaveAsTemplate(gFolderDisplay.selectedMessageUris[0]);
-  }
 }
 
 function MsgOpenNewWindowForFolder(folderURI, msgKeyToSelect) {
@@ -1795,24 +1664,15 @@ function MsgOpenEMLFile(aFile, aURL) {
 }
 
 function MsgOpenNewWindowForMessage(aMsgHdr, aView) {
-  // no message header provided?  get the selected message (this will give us
-  //  the right-click selected message if that's what is going down.)
-  if (!aMsgHdr) {
-    aMsgHdr = gFolderDisplay.selectedMessage;
-  }
-
-  // (there might not have been a selected message, so check...)
-  if (aMsgHdr) {
-    // we also need to tell the window about our current view so that it can
-    //  clone it.  This enables advancing through the messages, etc.
-    window.openDialog(
-      "chrome://messenger/content/messageWindow.xhtml",
-      "_blank",
-      "all,chrome,dialog=no,status,toolbar",
-      aMsgHdr,
-      aView || gFolderDisplay?.view
-    );
-  }
+  // We need to tell the window about our current view so that it can clone it.
+  // This enables advancing through the messages, etc.
+  window.openDialog(
+    "chrome://messenger/content/messageWindow.xhtml",
+    "_blank",
+    "all,chrome,dialog=no,status,toolbar",
+    aMsgHdr,
+    aView
+  );
 }
 
 /**
@@ -1822,20 +1682,6 @@ function MsgOpenNewWindowForMessage(aMsgHdr, aView) {
  */
 function MsgDisplayMessageInFolderTab(aMsgHdr) {
   // TODO: Reimplement or fix the callers.
-}
-
-function MsgJunk() {
-  // TODO: Fix or remove this function.
-  // JunkSelectedMessages(!SelectedMessagesAreJunk());
-}
-
-function MsgMarkReadByDate() {
-  window.openDialog(
-    "chrome://messenger/content/markByDate.xhtml",
-    "",
-    "chrome,modal,titlebar,centerscreen",
-    gFolderDisplay.displayedFolder
-  );
 }
 
 function MsgMarkAllRead(folders) {
@@ -1942,59 +1788,6 @@ function MsgFilters(emailAddress, folder, fieldName) {
     // Just launch filterList dialog.
     args = { refresh: false, folder };
     MsgFilterList(args);
-  }
-}
-
-function MsgApplyFilters() {
-  let preselectedFolder = GetFirstSelectedMsgFolder();
-
-  let curFilterList = preselectedFolder.getFilterList(msgWindow);
-  // create a new filter list and copy over the enabled filters to it.
-  // We do this instead of having the filter after the fact code ignore
-  // disabled filters because the Filter Dialog filter after the fact
-  // code would have to clone filters to allow disabled filters to run,
-  // and we don't support cloning filters currently.
-  let tempFilterList = MailServices.filters.getTempFilterList(
-    preselectedFolder
-  );
-  let numFilters = curFilterList.filterCount;
-  // make sure the temp filter list uses the same log stream
-  tempFilterList.loggingEnabled = curFilterList.loggingEnabled;
-  tempFilterList.logStream = curFilterList.logStream;
-  let newFilterIndex = 0;
-  for (let i = 0; i < numFilters; i++) {
-    let curFilter = curFilterList.getFilterAt(i);
-    // only add enabled, UI visible filters that are in the manual context
-    if (
-      curFilter.enabled &&
-      !curFilter.temporary &&
-      curFilter.filterType & Ci.nsMsgFilterType.Manual
-    ) {
-      tempFilterList.insertFilterAt(newFilterIndex, curFilter);
-      newFilterIndex++;
-    }
-  }
-  MailServices.filters.applyFiltersToFolders(
-    tempFilterList,
-    [preselectedFolder],
-    msgWindow
-  );
-}
-
-function MsgApplyFiltersToSelection() {
-  // bail if we're dealing with a dummy header
-  if (gMessageDisplay.isDummy) {
-    return;
-  }
-
-  var selectedMessages = gFolderDisplay.selectedMessages;
-  if (selectedMessages.length) {
-    MailServices.filters.applyFilters(
-      Ci.nsMsgFilterType.Manual,
-      selectedMessages,
-      gFolderDisplay.displayedFolder,
-      msgWindow
-    );
   }
 }
 
@@ -2109,54 +1902,6 @@ function MsgSynchronizeOffline() {
     "centerscreen,chrome,modal,titlebar,resizable=yes",
     { msgWindow }
   );
-}
-
-function SpaceHit(event) {
-  // If focus is in chrome, we want to scroll the content window, unless
-  // the focus is on an important chrome button like the otherActionsButton
-  // popup; if focus is on a non-link content element like a button, bail so we
-  // don't scroll when the element is going to do something else.
-
-  var contentWindow = document.commandDispatcher.focusedWindow;
-  let focusedElement = document.commandDispatcher.focusedElement;
-
-  if (!gMessageDisplay.singleMessageDisplay) {
-    contentWindow = document.getElementById("multimessage").contentWindow;
-  } else if (contentWindow.top == window) {
-    // These elements should always take priority over scrolling.
-    const importantElements = ["otherActionsButton", "attachmentToggle"];
-    contentWindow = window.content;
-    if (focusedElement && importantElements.includes(focusedElement.id)) {
-      return;
-    }
-  } else if (focusedElement && !hRefForClickEvent(event)[0]) {
-    return;
-  }
-
-  if (!contentWindow) {
-    return;
-  }
-
-  var rssiframe = contentWindow.document.getElementById("_mailrssiframe");
-  // If we are displaying an RSS article, we really want to scroll
-  // the nested iframe.
-  if (contentWindow == window.content && rssiframe) {
-    contentWindow = rssiframe.contentWindow;
-  }
-
-  if (event && event.shiftKey) {
-    // if at the start of the message, go to the previous one
-    if (contentWindow.scrollY > 0) {
-      contentWindow.scrollByPages(-1);
-    } else if (Services.prefs.getBoolPref("mail.advance_on_spacebar")) {
-      goDoCommand("cmd_previousUnreadMsg");
-    }
-  } else if (contentWindow.scrollY < contentWindow.scrollMaxY) {
-    // if at the end of the message, go to the next one
-    contentWindow.scrollByPages(1);
-  } else if (Services.prefs.getBoolPref("mail.advance_on_spacebar")) {
-    goDoCommand("cmd_nextUnreadMsg");
-  }
 }
 
 function IsAccountOfflineEnabled() {
@@ -2595,4 +2340,21 @@ function openNewCardDialog() {
  */
 function openNewABDialog(type = "JS") {
   toAddressBook({ action: `create_ab_${type}` });
+}
+
+function goPerformCommand(command, ...args) {
+  let chromeBrowser;
+  let tabmail = document.getElementById("tabmail");
+  if (tabmail) {
+    chromeBrowser = tabmail.currentTabInfo.chromeBrowser;
+  } else {
+    chromeBrowser = window.messageBrowser;
+  }
+
+  if (chromeBrowser) {
+    let { commandController } = chromeBrowser.contentWindow;
+    if (commandController?.isCommandEnabled(command)) {
+      commandController.doCommand(command, ...args);
+    }
+  }
 }

@@ -75,7 +75,7 @@
                    label="&fileButton.label;"
                    tooltiptext="&fileButton.tooltip;"
                    observes="button_file"
-                   oncommand="MsgMoveMessage(event.target._folder)">
+                   oncommand="goPerformCommand('cmd_moveMessage', event.target._folder)">
       <menupopup is="folder-menupopup" id="button-filePopup"
                  mode="filing"
                  showRecent="true"

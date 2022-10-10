@@ -179,7 +179,6 @@ MessageDisplayWidget.prototype = {
     this.displayedMessage = null;
     this.messageLoading = false;
     this.messageLoaded = false;
-    ClearMessagePane();
   },
 
   onCreatedView() {

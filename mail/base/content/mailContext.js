@@ -94,8 +94,9 @@ var mailContextMenu = {
     "mailContext-ignoreThread": "cmd_killThread",
     "mailContext-ignoreSubthread": "cmd_killSubthread",
     "mailContext-watchThread": "cmd_watchThread",
-    // "mailContext-print": "cmd_print",
-    // "mailContext-downloadSelected": "cmd_downloadSelected",
+    "mailContext-saveAs": "cmd_saveAsFile",
+    "mailContext-print": "cmd_print",
+    "mailContext-downloadSelected": "cmd_downloadSelected",
   },
 
   // More commands handled by commandController, except these ones get
@@ -236,8 +237,6 @@ var mailContextMenu = {
       "mailContext-recalculateJunkScore",
       "mailContext-copyMessageUrl",
       "mailContext-calendar-convert-menu",
-      "mailContext-print",
-      "mailContext-downloadSelected",
     ]) {
       showItem(id, false);
     }
@@ -307,7 +306,10 @@ var mailContextMenu = {
       folder?.msgDatabase.IsWatched(message?.messageKey)
     );
 
-    // showItem("mailContext-downloadSelected", numSelectedMessages > 1);
+    showItem(
+      "mailContext-downloadSelected",
+      window.threadTree && numSelectedMessages > 1
+    );
 
     let lastItem;
     for (let child of document.getElementById("mailContext").children) {
@@ -462,21 +464,15 @@ var mailContextMenu = {
       //   break;
 
       // Save/print/download
-      case "mailContext-saveAs":
-        window.browsingContext.topChromeWindow.SaveAsFile(
-          gDBView.getURIsForSelection()
-        );
-        break;
-
       default: {
         if (
           document.getElementById("mailContext-moveMenu").contains(event.target)
         ) {
-          this.moveMessage(event.target._folder);
+          commandController.doCommand("cmd_moveMessage", event.target._folder);
         } else if (
           document.getElementById("mailContext-copyMenu").contains(event.target)
         ) {
-          this.copyMessage(event.target._folder);
+          commandController.doCommand("cmd_copyMessage", event.target._folder);
         }
         break;
       }
@@ -682,57 +678,6 @@ var mailContextMenu = {
       }
     );
   },
-
-  // Move/copy
-
-  /**
-   * Moves the selected messages to the destination folder
-   * @param destFolder  the destination folder
-   */
-  moveMessage(destFolder) {
-    // gFolderDisplay.hintAboutToDeleteMessages();
-    gViewWrapper.dbView.doCommandWithFolder(
-      Ci.nsMsgViewCommandType.moveMessages,
-      destFolder
-    );
-    Services.prefs.setCharPref(
-      "mail.last_msg_movecopy_target_uri",
-      destFolder.URI
-    );
-    Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", true);
-  },
-
-  /**
-   * Copies the selected messages to the destination folder
-   * @param destFolder  the destination folder
-   */
-  copyMessage(destFolder) {
-    if (window.messageHeaderSink?.dummyMsgHeader) {
-      let file = Services.io
-        .newURI(window.gMessageURI)
-        .QueryInterface(Ci.nsIFileURL).file;
-      MailServices.copy.copyFileMessage(
-        file,
-        destFolder,
-        null,
-        false,
-        Ci.nsMsgMessageFlags.Read,
-        "",
-        null,
-        window.msgWindow
-      );
-    } else {
-      gViewWrapper.dbView.doCommandWithFolder(
-        Ci.nsMsgViewCommandType.copyMessages,
-        destFolder
-      );
-    }
-    Services.prefs.setCharPref(
-      "mail.last_msg_movecopy_target_uri",
-      destFolder.URI
-    );
-    Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", false);
-  },
 };
 
 var commandController = {
@@ -853,8 +798,53 @@ var commandController = {
       }
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.junk);
     },
-    cmd_recalculateJunkScore() {
-      // TODO
+    /**
+     * Moves the selected messages to the destination folder.
+     *
+     * @param {nsIMsgFolder} destFolder - the destination folder
+     */
+    cmd_moveMessage(destFolder) {
+      gViewWrapper.dbView.doCommandWithFolder(
+        Ci.nsMsgViewCommandType.moveMessages,
+        destFolder
+      );
+      Services.prefs.setCharPref(
+        "mail.last_msg_movecopy_target_uri",
+        destFolder.URI
+      );
+      Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", true);
+    },
+    /**
+     * Copies the selected messages to the destination folder.
+     *
+     * @param {nsIMsgFolder} destFolder - the destination folder
+     */
+    cmd_copyMessage(destFolder) {
+      if (window.messageHeaderSink?.dummyMsgHeader) {
+        let file = Services.io
+          .newURI(window.gMessageURI)
+          .QueryInterface(Ci.nsIFileURL).file;
+        MailServices.copy.copyFileMessage(
+          file,
+          destFolder,
+          null,
+          false,
+          Ci.nsMsgMessageFlags.Read,
+          "",
+          null,
+          window.msgWindow
+        );
+      } else {
+        gViewWrapper.dbView.doCommandWithFolder(
+          Ci.nsMsgViewCommandType.copyMessages,
+          destFolder
+        );
+      }
+      Services.prefs.setCharPref(
+        "mail.last_msg_movecopy_target_uri",
+        destFolder.URI
+      );
+      Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", false);
     },
     cmd_archive() {
       let archiver = new LazyModules.MessageArchiver();
@@ -878,9 +868,13 @@ var commandController = {
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
     },
     cmd_createFilterFromMenu() {
-      window.browsingContext.topChromeWindow.MsgCreateFilter(
-        gDBView.hdrForFirstSelectedMessage
+      let msgHdr = gDBView.hdrForFirstSelectedMessage;
+      let emailAddress = MailServices.headerParser.extractHeaderAddressMailboxes(
+        msgHdr.author
       );
+      if (emailAddress) {
+        top.MsgFilters(emailAddress, msgHdr.folder);
+      }
     },
     cmd_killThread() {
       // TODO: show notification (ShowIgnoredMessageNotification)
@@ -890,12 +884,61 @@ var commandController = {
       // TODO: show notification (ShowIgnoredMessageNotification)
       commandController._navigate(Ci.nsMsgNavigationType.toggleSubthreadKilled);
     },
-    // cmd_print() {},
-    // cmd_downloadSelected() {},
     cmd_viewPageSource() {
       window.browsingContext.topChromeWindow.ViewPageSource(
         gDBView.getURIsForSelection()
       );
+    },
+    cmd_saveAsFile() {
+      top.SaveAsFile(gDBView.getURIsForSelection());
+    },
+    cmd_saveAsTemplate() {
+      top.SaveAsTemplate(gDBView.getURIsForSelection()[0]);
+    },
+    cmd_applyFilters() {
+      let curFilterList = gFolder.getFilterList(window.msgWindow);
+      // Create a new filter list and copy over the enabled filters to it.
+      // We do this instead of having the filter after the fact code ignore
+      // disabled filters because the Filter Dialog filter after the fact
+      // code would have to clone filters to allow disabled filters to run,
+      // and we don't support cloning filters currently.
+      let tempFilterList = MailServices.filters.getTempFilterList(gFolder);
+      let numFilters = curFilterList.filterCount;
+      // Make sure the temp filter list uses the same log stream.
+      tempFilterList.loggingEnabled = curFilterList.loggingEnabled;
+      tempFilterList.logStream = curFilterList.logStream;
+      let newFilterIndex = 0;
+      for (let i = 0; i < numFilters; i++) {
+        let curFilter = curFilterList.getFilterAt(i);
+        // Only add enabled, UI visible filters that are in the manual context.
+        if (
+          curFilter.enabled &&
+          !curFilter.temporary &&
+          curFilter.filterType & Ci.nsMsgFilterType.Manual
+        ) {
+          tempFilterList.insertFilterAt(newFilterIndex, curFilter);
+          newFilterIndex++;
+        }
+      }
+      MailServices.filters.applyFiltersToFolders(
+        tempFilterList,
+        [gFolder],
+        window.msgWindow
+      );
+    },
+    cmd_applyFiltersToSelection() {
+      let selectedMessages = gDBView.getSelectedMsgHdrs();
+      if (selectedMessages.length) {
+        MailServices.filters.applyFilters(
+          Ci.nsMsgFilterType.Manual,
+          selectedMessages,
+          gFolder,
+          window.msgWindow
+        );
+      }
+    },
+    cmd_space() {
+      // TODO: Implement
     },
   },
   _isCallbackEnabled: {},
@@ -957,9 +1000,11 @@ var commandController = {
       case "cmd_redirect":
       case "cmd_editAsNew":
       case "cmd_viewPageSource":
+      case "cmd_saveAsTemplate":
         return numSelectedMessages == 1;
       case "cmd_forwardInline":
       case "cmd_forwardAttachment":
+      case "cmd_saveAsFile":
         return numSelectedMessages >= 1;
       case "cmd_openMessage":
       case "cmd_tag":
@@ -981,6 +1026,7 @@ var commandController = {
       case "cmd_markAsFlagged":
       case "cmd_killThread":
       case "cmd_killSubthread":
+      case "cmd_applyFiltersToSelection":
         return numSelectedMessages >= 1 && !isDummyMessage;
       case "cmd_editDraftMsg":
         return (
@@ -1023,15 +1069,6 @@ var commandController = {
       case "cmd_markAsJunk":
       case "cmd_markAsNotJunk":
         return this._getViewCommandStatus(Ci.nsMsgViewCommandType.junk);
-      case "cmd_recalculateJunkScore":
-        // We're going to take a conservative position here, because we really
-        // don't want people running junk controls on folders that are not
-        // enabled for junk. The junk type picks up possible dummy message headers,
-        // while the runJunkControls will prevent running on XF virtual folders.
-        return (
-          this._getViewCommandStatus(Ci.nsMsgViewCommandType.junk) &&
-          this._getViewCommandStatus(Ci.nsMsgViewCommandType.runJunkControls)
-        );
       case "cmd_archive":
         return LazyModules.MessageArchiver.canArchive(
           gDBView.getSelectedMsgHdrs(),
@@ -1077,17 +1114,20 @@ var commandController = {
         );
         return enabledObj.value;
       }
+      case "cmd_applyFilters": {
+        return this._getViewCommandStatus(Ci.nsMsgViewCommandType.applyFilters);
+      }
     }
 
     return false;
   },
-  doCommand(command, event) {
+  doCommand(command, ...args) {
     if (!this.isCommandEnabled(command)) {
       return;
     }
 
     if (command in this._composeCommands) {
-      this._composeMsgByType(this._composeCommands[command], event);
+      this._composeMsgByType(this._composeCommands[command], ...args);
       return;
     }
 
@@ -1109,7 +1149,7 @@ var commandController = {
     }
 
     if (command in this._callbackCommands) {
-      this._callbackCommands[command](event);
+      this._callbackCommands[command](...args);
     }
   },
 

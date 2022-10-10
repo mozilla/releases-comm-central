@@ -608,10 +608,6 @@
       <menuitem id="viewAttachmentsInlineMenuitem" label="&viewAttachmentsInlineCmd.label;" accesskey="&viewAttachmentsInlineCmd.accesskey;"
         oncommand="ToggleInlineAttachment(event.target)" type="checkbox" checked="true"/>
       <menuseparator id="viewAfterAttachmentsSeparator"/>
-      <menuitem id="repair-text-encoding"
-            data-l10n-id="menu-view-repair-text-encoding"
-            oncommand="MailSetCharacterSet();"/>
-      <menuseparator id="viewAfterCharsetSeparator"/>
       <menuitem id="pageSourceMenuItem"
                 label="&pageSourceCmd.label;"
                 key="key_viewPageSource"
@@ -955,7 +951,7 @@
         <menu id="moveMenu"
               label="&moveMsgToMenu.label;"
               accesskey="&moveMsgToMenu.accesskey;"
-              oncommand="MsgMoveMessage(event.target._folder)">
+              oncommand="goPerformCommand('cmd_moveMessage', event.target._folder)">
           <menupopup is="folder-menupopup"
                       mode="filing"
                       showFileHereLabel="true"
@@ -969,7 +965,7 @@
         <menu id="copyMenu"
               label="&copyMsgToMenu.label;"
               accesskey="&copyMsgToMenu.accesskey;"
-              oncommand="MsgCopyMessage(event.target._folder)">
+              oncommand="goPerformCommand('cmd_copyMessage', event.target._folder)">
           <menupopup is="folder-menupopup"
                       mode="filing"
                       showFileHereLabel="true"

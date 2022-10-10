@@ -153,14 +153,6 @@ var newMailTabType = {
           },
         });
 
-        // The same as `doCommand` but with an extra argument.
-        tab.performCommand = function(command, event) {
-          let commandController =
-            tab.chromeBrowser?.contentWindow.commandController;
-          if (commandController?.isCommandEnabled(command)) {
-            commandController.doCommand(command, event);
-          }
-        };
         tab.canClose = !tab.first;
         return tab;
       },
@@ -249,14 +241,6 @@ var newMailTabType = {
           },
         });
 
-        // The same as `doCommand` but with an extra argument.
-        tab.performCommand = function(command, event) {
-          let commandController =
-            tab.chromeBrowser?.contentWindow.commandController;
-          if (commandController?.isCommandEnabled(command)) {
-            commandController.doCommand(command, event);
-          }
-        };
         tab.chromeBrowser.addEventListener("messageURIChanged", function(
           event
         ) {

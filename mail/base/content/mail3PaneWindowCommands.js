@@ -66,36 +66,22 @@ var DefaultController = {
   /* eslint-disable complexity */
   supportsCommand(command) {
     switch (command) {
-      case "cmd_createFilterFromPopup":
       case "cmd_newMessage":
-      case "cmd_cancel":
       case "cmd_undoCloseTab":
       case "cmd_undo":
       case "cmd_redo":
       case "cmd_sendUnsentMsgs":
       case "cmd_subscribe":
-      case "button_print":
-      case "cmd_print":
-      case "cmd_saveAsFile":
-      case "cmd_saveAsTemplate":
-      case "cmd_reload":
       case "button_getNewMessages":
       case "cmd_getNewMessages":
       case "cmd_getMsgsForAuthAccounts":
       case "cmd_getNextNMessages":
-      case "cmd_applyFiltersToSelection":
-      case "cmd_applyFilters":
-      case "cmd_runJunkControls":
-      case "cmd_deleteJunk":
-      case "button_file":
       case "cmd_settingsOffline":
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
       case "cmd_stop":
       case "cmd_chat":
         return true;
-      case "cmd_downloadFlagged":
-      case "cmd_downloadSelected":
       case "cmd_synchronizeOffline":
         return MailOfflineMgr.isOnline();
       case "cmd_joinChat":
@@ -110,85 +96,11 @@ var DefaultController = {
 
   isCommandEnabled(command) {
     switch (command) {
-      case "cmd_cancel":
-        return (
-          gFolderDisplay.selectedCount == 1 &&
-          gFolderDisplay.selectedMessageIsNews
-        );
-      case "cmd_createFilterFromPopup":
-        return (
-          gFolderDisplay.selectedCount == 1 &&
-          gFolderDisplay.selectedMessage.folder &&
-          gFolderDisplay.selectedMessage.folder.server.canHaveFilters
-        );
-      case "cmd_saveAsFile":
-        return gFolderDisplay.selectedCount > 0;
-      case "cmd_saveAsTemplate":
-        if (gFolderDisplay.selectedCount > 1) {
-          return false;
-        } // else fall through
-      case "button_print":
-      case "cmd_reload":
-      case "cmd_applyFiltersToSelection":
-        if (!CanComposeMessages()) {
-          return false;
-        }
-
-        let numSelected = gFolderDisplay.selectedCount;
-        if (command == "cmd_applyFiltersToSelection") {
-          var whichText = "valueMessage";
-          if (numSelected > 1) {
-            whichText = "valueSelection";
-          }
-          goSetMenuValue(command, whichText);
-          goSetAccessKey(command, whichText + "AccessKey");
-        }
-        if (numSelected > 0) {
-          if (
-            !gFolderDisplay.getCommandStatus(
-              Ci.nsMsgViewCommandType.cmdRequiringMsgBody
-            )
-          ) {
-            return false;
-          }
-
-          // Check if we have a collapsed thread selected and are summarizing it.
-          // If so, selectedIndices.length won't match numSelected. Also check
-          // that we're not displaying a message, which handles the case
-          // where we failed to summarize the selection and fell back to
-          // displaying a message.
-          if (
-            gFolderDisplay.selectedIndices.length != numSelected &&
-            command != "cmd_applyFiltersToSelection" &&
-            gDBView &&
-            gDBView.currentlyDisplayedMessage == nsMsgViewIndex_None
-          ) {
-            return false;
-          }
-          return true;
-        }
-        return false;
-      case "cmd_print":
-        return gFolderDisplay.selectedCount >= 1;
       case "cmd_newMessage":
         return CanComposeMessages();
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
         return true;
-      case "button_file":
-        return gFolderDisplay.selectedCount > 0;
-      case "cmd_applyFilters":
-        return gFolderDisplay.getCommandStatus(
-          Ci.nsMsgViewCommandType.applyFilters
-        );
-      case "cmd_runJunkControls":
-        return gFolderDisplay.getCommandStatus(
-          Ci.nsMsgViewCommandType.runJunkControls
-        );
-      case "cmd_deleteJunk":
-        return gFolderDisplay.getCommandStatus(
-          Ci.nsMsgViewCommandType.deleteJunk
-        );
       case "cmd_undoCloseTab":
         return document.getElementById("tabmail").recentlyClosedTabs.length > 0;
       case "cmd_stop":
@@ -206,14 +118,6 @@ var DefaultController = {
         return IsGetNewMessagesEnabled();
       case "cmd_getNextNMessages":
         return IsGetNextNMessagesEnabled();
-      case "cmd_downloadFlagged":
-        return IsFolderSelected() && MailOfflineMgr.isOnline();
-      case "cmd_downloadSelected":
-        return (
-          IsFolderSelected() &&
-          MailOfflineMgr.isOnline() &&
-          gFolderDisplay.selectedCount > 0
-        );
       case "cmd_synchronizeOffline":
         return MailOfflineMgr.isOnline();
       case "cmd_settingsOffline":
@@ -249,14 +153,6 @@ var DefaultController = {
       case "cmd_newMessage":
         MsgNewMessage(null);
         break;
-      case "cmd_createFilterFromPopup":
-        break; // This does nothing because the createfilter is invoked from the popupnode oncommand.
-      case "cmd_cancel":
-        let message = gFolderDisplay.selectedMessage;
-        message.folder
-          .QueryInterface(Ci.nsIMsgNewsFolder)
-          .cancelMessage(message, msgWindow);
-        break;
       case "cmd_undoCloseTab":
         document.getElementById("tabmail").undoCloseTab();
         break;
@@ -277,18 +173,6 @@ var DefaultController = {
       case "cmd_subscribe":
         MsgSubscribe();
         return;
-      case "cmd_print":
-        PrintSelectedMessages();
-        return;
-      case "cmd_saveAsFile":
-        MsgSaveAsFile();
-        return;
-      case "cmd_saveAsTemplate":
-        MsgSaveAsTemplate();
-        return;
-      case "cmd_reload":
-        ReloadMessage();
-        return;
       case "cmd_stop":
         msgWindow.StopUrls();
         return;
@@ -298,30 +182,6 @@ var DefaultController = {
       case "cmd_viewNormalHeader":
         MsgViewNormalHeaders();
         return;
-      case "cmd_applyFiltersToSelection":
-        MsgApplyFiltersToSelection();
-        return;
-      case "cmd_applyFilters":
-        MsgApplyFilters(null);
-        return;
-      case "cmd_runJunkControls":
-        filterFolderForJunk();
-        return;
-      case "cmd_deleteJunk":
-        // Even though deleteJunkInFolder returns a value, we don't want to let
-        // it get past us
-        deleteJunkInFolder();
-        return;
-      case "cmd_downloadFlagged":
-        gFolderDisplay.doCommand(
-          Ci.nsMsgViewCommandType.downloadFlaggedForOffline
-        );
-        break;
-      case "cmd_downloadSelected":
-        gFolderDisplay.doCommand(
-          Ci.nsMsgViewCommandType.downloadSelectedForOffline
-        );
-        break;
       case "cmd_synchronizeOffline":
         MsgSynchronizeOffline();
         break;
@@ -692,43 +552,4 @@ function CanDeleteFolder(folder) {
   }
 
   return true;
-}
-
-/** Prints the messages selected in the thread pane. */
-async function PrintSelectedMessages() {
-  if (gFolderDisplay.selectedCount == 1) {
-    if (
-      gMessageDisplay.visible &&
-      gFolderDisplay.selectedMessage == gMessageDisplay.displayedMessage
-    ) {
-      // Use the already displayed message and print preview UI if we can.
-      let messagePaneBrowser = document.getElementById("messagepane");
-      PrintUtils.startPrintWindow(messagePaneBrowser.browsingContext, {});
-    } else {
-      // Load the only message in a hidden browser, then use the print preview UI.
-      let uri = gFolderDisplay.selectedMessageUris[0];
-      let messageService = messenger.messageServiceFromURI(uri);
-      await PrintUtils.loadPrintBrowser(messageService.getUrlForUri(uri).spec);
-      PrintUtils.startPrintWindow(PrintUtils.printBrowser.browsingContext, {});
-    }
-
-    return;
-  }
-
-  // Multiple messages. Get the printer settings, then load the messages into
-  // a hidden browser and print them one at a time.
-  let ps = PrintUtils.getPrintSettings();
-  Cc["@mozilla.org/widget/printdialog-service;1"]
-    .getService(Ci.nsIPrintDialogService)
-    .showPrintDialog(window, false, ps);
-  if (ps.isCancelled) {
-    return;
-  }
-  ps.printSilent = true;
-
-  for (let uri of gFolderDisplay.selectedMessageUris) {
-    let messageService = messenger.messageServiceFromURI(uri);
-    await PrintUtils.loadPrintBrowser(messageService.getUrlForUri(uri).spec);
-    await PrintUtils.printBrowser.browsingContext.print(ps);
-  }
 }

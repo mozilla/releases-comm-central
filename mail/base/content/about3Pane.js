@@ -5,6 +5,9 @@
 /* globals commandController, dbViewWrapperListener, mailContextMenu
      nsMsgViewIndex_None */ // mailContext.js
 /* globals goDoCommand */ // globalOverlay.js
+/* globals MailOfflineMgr */ // mail-offline.js
+// junkCommands.js
+/* globals analyzeMessagesForJunk deleteJunkInFolder filterFolderForJunk */
 
 var { DBViewWrapper } = ChromeUtils.import(
   "resource:///modules/DBViewWrapper.jsm"
@@ -965,6 +968,26 @@ commandController.registerCallback(
   },
   () => !!gViewWrapper
 );
+commandController.registerCallback(
+  "cmd_downloadFlagged",
+  () =>
+    gViewWrapper.dbView.doCommand(
+      Ci.nsMsgViewCommandType.downloadFlaggedForOffline
+    ),
+  () => gFolder && !gFolder.isServer && MailOfflineMgr.isOnline()
+);
+commandController.registerCallback(
+  "cmd_downloadSelected",
+  () =>
+    gViewWrapper.dbView.doCommand(
+      Ci.nsMsgViewCommandType.downloadSelectedForOffline
+    ),
+  () =>
+    gFolder &&
+    !gFolder.isServer &&
+    MailOfflineMgr.isOnline() &&
+    gViewWrapper.dbView.selectedCount > 0
+);
 
 var sortController = {
   handleCommand(event) {
@@ -1199,4 +1222,74 @@ commandController.registerCallback(
 
 commandController.registerCallback("cmd_goStartPage", () =>
   displayWebPage(Services.urlFormatter.formatURLPref("mailnews.start_page.url"))
+);
+commandController.registerCallback("cmd_print", async () => {
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
+  let PrintUtils = top.PrintUtils;
+  let uris = gViewWrapper.dbView.getURIsForSelection();
+  if (uris.length == 1) {
+    if (messageBrowser.hidden) {
+      // Load the only message in a hidden browser, then use the print preview UI.
+      let messageService = messenger.messageServiceFromURI(uris[0]);
+      await PrintUtils.loadPrintBrowser(
+        messageService.getUrlForUri(uris[0]).spec
+      );
+      PrintUtils.startPrintWindow(PrintUtils.printBrowser.browsingContext, {});
+    } else {
+      PrintUtils.startPrintWindow(
+        messageBrowser.contentWindow.content.browsingContext,
+        {}
+      );
+    }
+    return;
+  }
+
+  // Multiple messages. Get the printer settings, then load the messages into
+  // a hidden browser and print them one at a time.
+  let ps = PrintUtils.getPrintSettings();
+  Cc["@mozilla.org/widget/printdialog-service;1"]
+    .getService(Ci.nsIPrintDialogService)
+    .showPrintDialog(window, false, ps);
+  if (ps.isCancelled) {
+    return;
+  }
+  ps.printSilent = true;
+
+  for (let uri of uris) {
+    let messageService = messenger.messageServiceFromURI(uri);
+    await PrintUtils.loadPrintBrowser(messageService.getUrlForUri(uri).spec);
+    await PrintUtils.printBrowser.browsingContext.print(ps);
+  }
+});
+commandController.registerCallback(
+  "cmd_recalculateJunkScore",
+  () => analyzeMessagesForJunk(),
+  () => {
+    // We're going to take a conservative position here, because we really
+    // don't want people running junk controls on folders that are not
+    // enabled for junk. The junk type picks up possible dummy message headers,
+    // while the runJunkControls will prevent running on XF virtual folders.
+    return (
+      commandController._getViewCommandStatus(Ci.nsMsgViewCommandType.junk) &&
+      commandController._getViewCommandStatus(
+        Ci.nsMsgViewCommandType.runJunkControls
+      )
+    );
+  }
+);
+commandController.registerCallback(
+  "cmd_runJunkControls",
+  () => filterFolderForJunk(gFolder),
+  () =>
+    commandController._getViewCommandStatus(
+      Ci.nsMsgViewCommandType.runJunkControls
+    )
+);
+commandController.registerCallback(
+  "cmd_deleteJunk",
+  () => deleteJunkInFolder(gFolder),
+  () =>
+    commandController._getViewCommandStatus(Ci.nsMsgViewCommandType.deleteJunk)
 );

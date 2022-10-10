@@ -6,7 +6,6 @@
 /* This is where functions related to the standalone message window are kept */
 
 /* import-globals-from ../../../../toolkit/content/viewZoomOverlay.js */
-/* import-globals-from ../../../mailnews/base/content/junkCommands.js */
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
 /* import-globals-from ../../components/customizableui/content/panelUI.js */
 /* import-globals-from commandglue.js */
@@ -468,18 +467,8 @@ function ReloadMessage() {
 var MessageWindowController = {
   supportsCommand(command) {
     switch (command) {
-      // external messages cannot be deleted, mutated, or subjected to filtering
-      case "button_delete":
-      case "button_junk":
-      case "cmd_applyFiltersToSelection":
-      case "cmd_applyFilters":
-      case "cmd_runJunkControls":
-      case "cmd_deleteJunk":
-        return false;
       case "cmd_undo":
       case "cmd_redo":
-      case "cmd_saveAsFile":
-      case "cmd_saveAsTemplate":
       case "cmd_getMsgsForAuthAccounts":
       case "button_file":
         return false;
@@ -493,9 +482,7 @@ var MessageWindowController = {
       case "cmd_getNewMessages":
       case "button_getNewMessages":
       case "button_print":
-      case "cmd_print":
       case "cmd_settingsOffline":
-      case "cmd_createFilterFromPopup":
       case "cmd_fullZoomReduce":
       case "cmd_fullZoomEnlarge":
       case "cmd_fullZoomReset":
@@ -506,8 +493,6 @@ var MessageWindowController = {
       case "cmd_chat":
         return true;
       case "cmd_synchronizeOffline":
-      case "cmd_downloadFlagged":
-      case "cmd_downloadSelected":
         return MailOfflineMgr.isOnline();
       default:
         return false;
@@ -515,26 +500,10 @@ var MessageWindowController = {
   },
 
   isCommandEnabled(command) {
-    let loadedFolder;
     switch (command) {
-      case "cmd_createFilterFromPopup":
-        loadedFolder = gFolderDisplay.displayedFolder;
-        return loadedFolder && loadedFolder.server.canHaveFilters;
-      case "button_delete":
-        UpdateDeleteToolbarButton();
-        return gFolderDisplay.getCommandStatus(
-          Ci.nsMsgViewCommandType.deleteMsg
-        );
-      case "button_junk":
-        UpdateJunkToolbarButton();
-      // fall through
       case "cmd_newMessage":
       case "button_followup":
         return CanComposeMessages();
-      case "cmd_print":
-      case "button_print":
-      case "cmd_saveAsFile":
-      case "cmd_saveAsTemplate":
       case "cmd_reload":
       case "cmd_find":
       case "cmd_viewAllHeader":
@@ -548,15 +517,12 @@ var MessageWindowController = {
         return IsGetNewMessagesEnabled();
       case "cmd_getNextNMessages":
         return IsGetNextNMessagesEnabled();
-      case "cmd_downloadFlagged":
-      case "cmd_downloadSelected":
       case "cmd_synchronizeOffline":
         return MailOfflineMgr.isOnline();
       case "cmd_settingsOffline":
         return IsAccountOfflineEnabled();
       case "cmd_findAgain":
       case "cmd_findPrevious":
-      case "cmd_applyFiltersToSelection":
       case "cmd_fullZoomReduce":
       case "cmd_fullZoomEnlarge":
       case "cmd_fullZoomReset":
@@ -568,10 +534,6 @@ var MessageWindowController = {
       case "cmd_undo":
       case "cmd_redo":
         return SetupUndoRedoCommand(command);
-      case "cmd_applyFilters":
-      case "cmd_runJunkControls":
-      case "cmd_deleteJunk":
-        return false;
       case "cmd_chat":
         return true;
       default:
@@ -605,25 +567,6 @@ var MessageWindowController = {
       case "cmd_newMessage":
         MsgNewMessage(null);
         break;
-      case "cmd_createFilterFromPopup":
-        break; // This does nothing because the createfilter is invoked from the popupnode oncommand.
-      case "button_delete":
-        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
-        UpdateDeleteToolbarButton();
-        break;
-      case "button_junk":
-        MsgJunk();
-        break;
-      case "cmd_print":
-        let messagePaneBrowser = document.getElementById("messagepane");
-        PrintUtils.startPrintWindow(messagePaneBrowser.browsingContext, {});
-        break;
-      case "cmd_saveAsFile":
-        MsgSaveAsFile();
-        break;
-      case "cmd_saveAsTemplate":
-        MsgSaveAsTemplate();
-        break;
       case "cmd_reload":
         ReloadMessage();
         break;
@@ -642,25 +585,12 @@ var MessageWindowController = {
       case "cmd_viewNormalHeader":
         MsgViewNormalHeaders();
         return;
-      case "cmd_downloadFlagged":
-        gFolderDisplay.doCommand(
-          Ci.nsMsgViewCommandType.downloadFlaggedForOffline
-        );
-        return;
-      case "cmd_downloadSelected":
-        gFolderDisplay.doCommand(
-          Ci.nsMsgViewCommandType.downloadSelectedForOffline
-        );
-        return;
       case "cmd_synchronizeOffline":
         MsgSynchronizeOffline();
         return;
       case "cmd_settingsOffline":
         MailOfflineMgr.openOfflineAccountSettings();
         return;
-      case "cmd_applyFiltersToSelection":
-        MsgApplyFiltersToSelection();
-        break;
       case "cmd_fullZoomReduce":
         ZoomManager.reduce();
         break;

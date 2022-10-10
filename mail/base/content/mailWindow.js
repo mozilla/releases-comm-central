@@ -648,11 +648,7 @@ nsMsgWindowCommands.prototype = {
   },
 
   clearMsgPane() {
-    // This call happens as part of a display decision made by the nsMsgDBView
-    //  instance.  Strictly speaking, we don't want this.  I think davida's
-    //  patch will change this, so we can figure it out after that lands if
-    //  there are issues.
-    ClearMessagePane();
+    // TODO: Fix or bin.
   },
 };
 
@@ -954,15 +950,6 @@ nsBrowserAccess.prototype = {
     return document.getElementById("tabmail").tabInfo.length;
   },
 };
-
-function MailSetCharacterSet() {
-  msgWindow.charsetOverride = true;
-  gMessageDisplay.keyForCharsetOverride =
-    "messageKey" in gMessageDisplay.displayedMessage
-      ? gMessageDisplay.displayedMessage.messageKey
-      : null;
-  messenger.forceDetectDocumentCharset();
-}
 
 /**
  * Called from the extensions manager to open an add-on options XUL document.

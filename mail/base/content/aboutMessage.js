@@ -5,7 +5,7 @@
 /* globals MailE10SUtils */
 
 // mailContext.js
-/* globals dbViewWrapperListener */
+/* globals commandController, dbViewWrapperListener */
 
 // msgHdrView.js
 /* globals AdjustHeaderView ClearPendingReadTimer gMessageListeners
@@ -107,12 +107,19 @@ function ReloadMessage() {
 }
 
 function MailSetCharacterSet() {
-  msgWindow.charsetOverride = true;
-  gMessageDisplay.keyForCharsetOverride =
-    "messageKey" in gMessageDisplay.displayedMessage
-      ? gMessageDisplay.displayedMessage.messageKey
-      : null;
-  messenger.forceDetectDocumentCharset();
+  let protocol = new URL(gMessageURI).protocol.replace(/:$/, "");
+  let messageService = Cc[
+    `@mozilla.org/messenger/messageservice;1?type=${protocol}`
+  ].getService(Ci.nsIMsgMessageService);
+  gMessage = messageService.messageURIToMsgHdr(gMessageURI);
+  messageService.DisplayMessage(
+    gMessageURI,
+    content.docShell,
+    msgWindow,
+    null,
+    true,
+    {}
+  );
 }
 
 var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
@@ -356,3 +363,15 @@ var preferenceObserver = {
     }
   },
 };
+
+commandController.registerCallback(
+  "cmd_createFilterFromPopup",
+  () => {
+    // This does nothing because gMessageHeader.createfilter is invoked from
+    // the popupnode oncommand.
+  },
+  () => gFolder?.server.canHaveFilters
+);
+commandController.registerCallback("cmd_print", () => {
+  top.PrintUtils.startPrintWindow(content.browsingContext, {});
+});
