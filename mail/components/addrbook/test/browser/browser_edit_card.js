@@ -3,6 +3,9 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
+var { AddrBookCard } = ChromeUtils.import(
+  "resource:///modules/AddrBookCard.jsm"
+);
 
 requestLongerTimeout(2);
 
@@ -3212,15 +3215,22 @@ add_task(async function test_special_date_field() {
  * Tests that custom properties (Custom1 etc.) are editable.
  */
 add_task(async function testCustomProperties() {
-  let card = VCardUtils.vCardToAbCard(formatVCard`
-    BEGIN:VCARD
-    FN:custom person
-    X-CUSTOM3:x-custom three
-    X-CUSTOM4:x-custom four
-    END:VCARD
-  `);
-  card.setProperty("Custom2", "custom two");
-  card.setProperty("Custom4", "custom four");
+  let card = new AddrBookCard();
+  card._properties = new Map([
+    ["PopularityIndex", 0],
+    ["Custom2", "custom two"],
+    ["Custom4", "custom four"],
+    [
+      "_vCard",
+      formatVCard`
+      BEGIN:VCARD
+      FN:custom person
+      X-CUSTOM3:x-custom three
+      X-CUSTOM4:x-custom four
+      END:VCARD
+      `,
+    ],
+  ]);
   card = personalBook.addCard(card);
 
   let abWindow = await openAddressBookWindow();
