@@ -171,6 +171,7 @@ class nsContextMenu {
           ? this.selectionInfo.fullText
           : undefined,
         frameId: this.frameID,
+        webExtBrowserType: this.webExtBrowserType,
         webExtContextData: this.contentData
           ? this.contentData.webExtContextData
           : undefined,
@@ -293,6 +294,10 @@ class nsContextMenu {
 
     this.textSelected = this.selectionInfo?.text;
     this.isTextSelected = !!this.textSelected?.length;
+
+    this.webExtBrowserType = this.browser.getAttribute(
+      "webextension-view-type"
+    );
 
     if (context.shouldInitInlineSpellCheckerUINoChildren) {
       gSpellChecker.initFromRemote(

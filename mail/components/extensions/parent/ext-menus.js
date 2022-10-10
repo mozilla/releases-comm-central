@@ -104,7 +104,7 @@ var gMenuBuilder = {
       return {
         ...contextDataBase,
         tab,
-        pageUrl: tab.linkedBrowser.currentURI.spec,
+        pageUrl: tab.linkedBrowser?.currentURI?.spec,
         onTab: true,
       };
     }

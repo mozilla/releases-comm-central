@@ -274,3 +274,305 @@ add_task(async function overrideContext_in_extension_tab() {
   let tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tabmail.currentTabInfo);
 });
+
+async function run_overrideContext_test_in_popup(testWindow, buttonId) {
+  function extensionPopupScript() {
+    document.addEventListener(
+      "contextmenu",
+      () => {
+        browser.menus.overrideContext({});
+        browser.test.sendMessage("oncontextmenu_in_dom_part_1");
+      },
+      { once: true }
+    );
+
+    let shadowRoot = document
+      .getElementById("shadowHost")
+      .attachShadow({ mode: "open" });
+    shadowRoot.innerHTML = `<a href="http://example.com/">Link2</a>`;
+    shadowRoot.firstChild.addEventListener(
+      "contextmenu",
+      () => {
+        browser.menus.overrideContext({});
+        browser.test.sendMessage("oncontextmenu_in_shadow_dom");
+      },
+      { once: true }
+    );
+
+    browser.menus.create({
+      id: "popup_1",
+      title: "popup_1",
+      documentUrlPatterns: [document.URL],
+      onclick() {
+        document.addEventListener(
+          "contextmenu",
+          () => {
+            // Verifies that last call takes precedence.
+            browser.menus.overrideContext({ showDefaults: false });
+            browser.menus.overrideContext({ showDefaults: true });
+            browser.test.sendMessage("oncontextmenu_in_dom_part_2");
+          },
+          { once: true }
+        );
+        browser.test.sendMessage("onClicked_popup_1");
+      },
+    });
+    browser.menus.create(
+      {
+        id: "popup_2",
+        title: "popup_2",
+        onclick() {
+          browser.test.sendMessage("onClicked_popup_2");
+        },
+      },
+      () => {
+        browser.test.sendMessage("menu-registered");
+      }
+    );
+  }
+
+  let extension = ExtensionTestUtils.loadExtension({
+    manifest: {
+      applications: {
+        gecko: {
+          id: `overrideContext@mochi.test`,
+        },
+      },
+      permissions: ["menus", "menus.overrideContext"],
+      browser_action: {
+        default_popup: "popup.html",
+        default_title: "Popup",
+      },
+      compose_action: {
+        default_popup: "popup.html",
+        default_title: "Popup",
+      },
+      message_display_action: {
+        default_popup: "popup.html",
+        default_title: "Popup",
+      },
+    },
+    files: {
+      "popup.html": `
+        <!DOCTYPE html><meta charset="utf-8">
+        <a id="link1" href="http://example.com/">Link1</a>
+        <div id="shadowHost"></div>
+        <script src="popup.js"></script>
+      `,
+      "popup.js": extensionPopupScript,
+    },
+    background() {
+      // Expected to match and thus be visible.
+      browser.menus.create({
+        id: "bg_1",
+        title: "bg_1",
+        viewTypes: ["popup"],
+      });
+      // Expected to not match and be hidden.
+      browser.menus.create({
+        id: "bg_2",
+        title: "bg_2",
+        viewTypes: ["tab"],
+      });
+      browser.menus.onShown.addListener(info => {
+        browser.test.assertEq("popup", info.viewType, "Expected viewType");
+        browser.test.assertEq(
+          "bg_1,popup_1,popup_2",
+          info.menuIds.join(","),
+          "Expected menu items."
+        );
+        browser.test.sendMessage("onShown");
+      });
+
+      browser.test.sendMessage("ready");
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitMessage("ready");
+
+  const EXPECTED_EXTENSION_MENU_IDS = [
+    `${makeWidgetId(extension.id)}-menuitem-_bg_1`,
+    `${makeWidgetId(extension.id)}-menuitem-_popup_1`,
+    `${makeWidgetId(extension.id)}-menuitem-_popup_2`,
+  ];
+  const button = testWindow.document.getElementById(buttonId);
+  Assert.ok(button, "Button created");
+  EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, testWindow);
+  await extension.awaitMessage("menu-registered");
+
+  {
+    // Tests overrideContext({})
+    info("Expecting the menu to be replaced by overrideContext.");
+
+    let menu = await openContextMenuInPopup(extension, "#link1", testWindow);
+    await extension.awaitMessage("oncontextmenu_in_dom_part_1");
+    await extension.awaitMessage("onShown");
+
+    Assert.deepEqual(
+      getVisibleChildrenIds(menu),
+      EXPECTED_EXTENSION_MENU_IDS,
+      "Expected only extension menu items"
+    );
+
+    let menuItems = menu.getElementsByAttribute("label", "popup_1");
+
+    await closeExtensionContextMenu(menuItems[0], {}, testWindow);
+    await extension.awaitMessage("onClicked_popup_1");
+  }
+
+  {
+    // Tests overrideContext({showDefaults:true}))
+    info(
+      "Expecting the menu to be replaced by overrideContext, including default menu items."
+    );
+    let menu = await openContextMenuInPopup(extension, "#link1", testWindow);
+    await extension.awaitMessage("oncontextmenu_in_dom_part_2");
+    await extension.awaitMessage("onShown");
+    let visibleMenuItemIds = getVisibleChildrenIds(menu);
+    Assert.deepEqual(
+      visibleMenuItemIds.slice(0, EXPECTED_EXTENSION_MENU_IDS.length),
+      EXPECTED_EXTENSION_MENU_IDS,
+      "Expected extension menu items at the start."
+    );
+    checkIsDefaultMenuItemVisible(visibleMenuItemIds);
+
+    let menuItems = menu.getElementsByAttribute("label", "popup_2");
+    await closeExtensionContextMenu(menuItems[0], {}, testWindow);
+    await extension.awaitMessage("onClicked_popup_2");
+  }
+
+  {
+    // Tests that previous overrideContext call has been forgotten,
+    // so the default behavior should occur (=move items into submenu).
+    info(
+      "Expecting the default menu to be used when overrideContext is not called."
+    );
+    let menu = await openContextMenuInPopup(extension, "#link1", testWindow);
+    await extension.awaitMessage("onShown");
+
+    checkIsDefaultMenuItemVisible(getVisibleChildrenIds(menu));
+
+    let menuItems = menu.getElementsByAttribute("ext-type", "top-level-menu");
+    is(menuItems.length, 1, "Expected top-level menu element for extension.");
+    let topLevelExtensionMenuItem = menuItems[0];
+    is(
+      topLevelExtensionMenuItem.nextSibling,
+      null,
+      "Extension menu should be the last element."
+    );
+
+    const submenu = await openSubmenu(topLevelExtensionMenuItem);
+    is(submenu, topLevelExtensionMenuItem.menupopup, "Correct submenu opened");
+
+    Assert.deepEqual(
+      getVisibleChildrenIds(submenu),
+      EXPECTED_EXTENSION_MENU_IDS,
+      "Extension menu items should be in the submenu by default."
+    );
+
+    await closeContextMenu(menu);
+  }
+
+  {
+    info("Testing overrideContext from a listener inside a shaddow DOM.");
+    // Tests that overrideContext({}) can be used from a listener inside shadow DOM.
+    let menu = await openContextMenuInPopup(
+      extension,
+      () => this.document.getElementById("shadowHost").shadowRoot.firstChild,
+      testWindow
+    );
+    await extension.awaitMessage("oncontextmenu_in_shadow_dom");
+    await extension.awaitMessage("onShown");
+
+    Assert.deepEqual(
+      getVisibleChildrenIds(menu),
+      EXPECTED_EXTENSION_MENU_IDS,
+      "Expected only extension menu items after overrideContext({}) in shadow DOM"
+    );
+
+    await closeContextMenu(menu);
+  }
+
+  await closeBrowserAction(extension, testWindow);
+  await extension.unload();
+}
+
+add_task(async function overrideContext_in_extension_browser_action_popup() {
+  await run_overrideContext_test_in_popup(
+    window,
+    "overridecontext_mochi_test-browserAction-toolbarbutton"
+  );
+});
+
+add_task(async function overrideContext_in_extension_compose_action_popup() {
+  let account = createAccount();
+  addIdentity(account);
+
+  let composeWindow = await openComposeWindow(account);
+  await focusWindow(composeWindow);
+  await run_overrideContext_test_in_popup(
+    composeWindow,
+    "overridecontext_mochi_test-composeAction-toolbarbutton"
+  );
+  composeWindow.close();
+});
+
+add_task(
+  async function overrideContext_in_extension_message_display_action_popup_of_mail3pane() {
+    let account = createAccount();
+    addIdentity(account);
+    let rootFolder = account.incomingServer.rootFolder;
+    let subFolders = rootFolder.subFolders;
+    createMessages(subFolders[0], 10);
+    let messages = subFolders[0].messages;
+
+    window.gFolderTreeView.selectFolder(subFolders[0]);
+    window.gFolderDisplay.selectMessages([messages.getNext()]);
+
+    await run_overrideContext_test_in_popup(
+      window,
+      "overridecontext_mochi_test-messageDisplayAction-toolbarbutton"
+    );
+
+    window.gFolderTreeView.selectFolder(rootFolder);
+  }
+);
+
+add_task(
+  async function overrideContext_in_extension_message_display_action_popup_of_window() {
+    let account = createAccount();
+    addIdentity(account);
+    let rootFolder = account.incomingServer.rootFolder;
+    let subFolders = rootFolder.subFolders;
+    createMessages(subFolders[0], 10);
+    let messages = subFolders[0].messages;
+
+    let messageWindow = await openMessageInWindow(messages.getNext());
+    await focusWindow(messageWindow);
+    await run_overrideContext_test_in_popup(
+      messageWindow,
+      "overridecontext_mochi_test-messageDisplayAction-toolbarbutton"
+    );
+    messageWindow.close();
+  }
+);
+
+add_task(
+  async function overrideContext_in_extension_message_display_action_popup_of_tab() {
+    let account = createAccount();
+    addIdentity(account);
+    let rootFolder = account.incomingServer.rootFolder;
+    let subFolders = rootFolder.subFolders;
+    createMessages(subFolders[0], 10);
+    let messages = subFolders[0].messages;
+
+    await openMessageInTab(messages.getNext());
+
+    await run_overrideContext_test_in_popup(
+      window,
+      "overridecontext_mochi_test-messageDisplayAction-toolbarbutton"
+    );
+    document.getElementById("tabmail").closeTab();
+  }
+);

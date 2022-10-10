@@ -568,8 +568,37 @@ async function openContextMenu(selector = "#img1", win = window) {
   return contentAreaContextMenu;
 }
 
-async function closeExtensionContextMenu(itemToSelect, modifiers = {}) {
-  let contentAreaContextMenu = document.getElementById("mailContext");
+async function openContextMenuInPopup(extension, selector, win = window) {
+  let contentAreaContextMenu = win.document.getElementById("mailContext");
+  let stack = getBrowserActionPopup(extension, win);
+  let browser = stack.querySelector("browser");
+  // Ensure that the document layout has been flushed before triggering the mouse event
+  // (See Bug 1519808 for a rationale).
+  await browser.ownerGlobal.promiseDocumentFlushed(() => {});
+  let popupShownPromise = BrowserTestUtils.waitForEvent(
+    contentAreaContextMenu,
+    "popupshown"
+  );
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    selector,
+    { type: "mousedown", button: 2 },
+    browser
+  );
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    selector,
+    { type: "contextmenu" },
+    browser
+  );
+  await popupShownPromise;
+  return contentAreaContextMenu;
+}
+
+async function closeExtensionContextMenu(
+  itemToSelect,
+  modifiers = {},
+  win = window
+) {
+  let contentAreaContextMenu = win.document.getElementById("mailContext");
   let popupHiddenPromise = BrowserTestUtils.waitForEvent(
     contentAreaContextMenu,
     "popuphidden"
