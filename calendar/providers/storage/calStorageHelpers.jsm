@@ -2,21 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { CalTimezone } = ChromeUtils.import("resource:///modules/CalTimezone.jsm");
 
-/* exported CAL_ITEM_FLAG, getInUtcOrKeepFloating, dateToText, textToDate,
- *          calStorageTimezone, getTimezone, newDateTime
- */
+var { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
 
-const EXPORTED_SYMBOLS = [
-  "CAL_ITEM_FLAG",
-  "getInUtcOrKeepFloating",
-  "dateToText",
-  "textToDate",
-  "calStorageTimezone",
-  "getTimezone",
-  "newDateTime",
-];
+const EXPORTED_SYMBOLS = ["CAL_ITEM_FLAG", "textToDate", "getTimezone", "newDateTime"];
 
 // Storage flags. These are used in the Database |flags| column to give
 // information about the item's features. For example, if the item has
@@ -36,44 +27,6 @@ var CAL_ITEM_FLAG = {
 
 // The cache of foreign timezones
 var gForeignTimezonesCache = {};
-
-/**
- * Returns the passed date in UTC, unless it is floating. In this case, it is
- * kept floating.
- *
- * @param date      The calIDateTime to convert.
- * @return          The possibly converted calIDateTime.
- */
-function getInUtcOrKeepFloating(date) {
-  let timezone = date.timezone;
-  if (timezone.isFloating || timezone.isUTC) {
-    return date;
-  }
-  return date.getInTimezone(cal.dtz.UTC);
-}
-
-/**
- * Transforms a date object to a text which is suitable for the database
- *
- * @param date  The calIDateTime to transform.
- * @return      The string representation of the date object.
- */
-function dateToText(date) {
-  let zonestr;
-  if (date.timezone.isFloating) {
-    zonestr = "L";
-  } else if (date.timezone.isUTC) {
-    zonestr = "U";
-  } else {
-    zonestr = "Z";
-  }
-
-  let datestr = zonestr + (date.isDate ? "D" : "T") + date.nativeTime;
-  if (!date.timezone.isFloating && !date.timezone.isUTC) {
-    datestr += ":" + date.timezone.tzid.replace(/%/g, "%%").replace(/:/g, "%:");
-  }
-  return datestr;
-}
 
 /**
  * Transforms the text representation of this date object to a calIDateTime
@@ -108,30 +61,6 @@ function textToDate(text) {
   return date;
 }
 
-//
-// other helpers
-//
-
-/**
- * Prototype definition for foreign timezone.
- */
-function calStorageTimezone(comp) {
-  this.wrappedJSObject = this;
-  this.provider = null;
-  this.icalComponent = comp;
-  this.tzid = comp.getFirstProperty("TZID").value;
-  this.displayName = null;
-  this.isUTC = false;
-  this.isFloating = false;
-  this.latitude = null;
-  this.longitude = null;
-}
-calStorageTimezone.prototype = {
-  toString() {
-    return this.icalComponent.toString();
-  },
-};
-
 /**
  * Gets the timezone for the given definition or identifier
  *
@@ -143,14 +72,12 @@ function getTimezone(aTimezone) {
   if (aTimezone.startsWith("BEGIN:VTIMEZONE")) {
     timezone = gForeignTimezonesCache[aTimezone]; // using full definition as key
     if (!timezone) {
-      try {
-        // cannot cope without parent VCALENDAR:
-        let comp = cal.icsService.parseICS("BEGIN:VCALENDAR\n" + aTimezone + "\nEND:VCALENDAR");
-        timezone = new calStorageTimezone(comp.getFirstSubcomponent("VTIMEZONE"));
-        gForeignTimezonesCache[aTimezone] = timezone;
-      } catch (e) {
-        cal.ASSERT(false, e);
-      }
+      timezone = new CalTimezone(
+        ICAL.Timezone.fromData({
+          component: aTimezone,
+        })
+      );
+      gForeignTimezonesCache[aTimezone] = timezone;
     }
   } else {
     timezone = cal.timezoneService.getTimezone(aTimezone);
