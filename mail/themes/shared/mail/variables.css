@@ -61,6 +61,7 @@
   --item-focus-selected-border-color: #0060df;
   --default: #4f526d;
   --primary: #0a84ff;
+  --select-focus-text-color: SelectedItemText;
   --select-focus-background-color: SelectedItem;
 }
 

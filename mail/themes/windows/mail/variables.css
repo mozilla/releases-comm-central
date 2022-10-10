@@ -31,7 +31,6 @@
     --panel-separator-color: hsla(210, 4%, 10%, 0.14);
     --autocomplete-popup-url-color: hsl(210, 77%, 47%);
     --splitter-color: #a9b7c9;
-    --select-focus-text-color: SelectedItemText;
   }
 }
 
@@ -60,7 +59,6 @@
 @media (prefers-contrast) {
   :root {
     --button-border-color: WindowText;
-    --select-focus-text-color: SelectedItemText;
     --lwt-tabs-border-color: ThreeDShadow;
     --tabline-color: SelectedItem;
     --item-focus-selected-border-color: SelectedItemText;
