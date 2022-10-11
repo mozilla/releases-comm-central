@@ -534,7 +534,6 @@ pref("mail.server.default.download_on_biff", false);
 pref("mail.server.default.check_time", 10);
 pref("mail.server.default.delete_by_age_from_server", false);
 pref("mail.server.default.num_days_to_leave_on_server", 7);
-pref("mail.server.default.dot_fix", true);
 pref("mail.server.default.limit_offline_message_size", false);
 pref("mail.server.default.max_size", 50);
 pref("mail.server.default.delete_mail_left_on_server", false);
