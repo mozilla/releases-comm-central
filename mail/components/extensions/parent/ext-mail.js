@@ -159,7 +159,7 @@ async function getRealFileForFile(file) {
 
   let pathTempFile = await IOUtils.createUniqueFile(
     PathUtils.tempDir,
-    file.name,
+    file.name.replaceAll(/[/:*?\"<>|]/g, "_"),
     0o600
   );
 

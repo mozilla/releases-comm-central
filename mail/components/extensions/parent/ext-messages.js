@@ -442,7 +442,8 @@ this.messages = class extends ExtensionAPI {
       let rawBinaryString = await getRawMessage(msgHdr);
       let pathEmlFile = await IOUtils.createUniqueFile(
         PathUtils.tempDir,
-        encodeURIComponent(msgHdr.messageId) + ".eml",
+        encodeURIComponent(msgHdr.messageId).replaceAll(/[/:*?\"<>|]/g, "_") +
+          ".eml",
         0o600
       );
 
