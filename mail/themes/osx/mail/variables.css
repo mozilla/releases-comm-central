@@ -15,7 +15,6 @@
   --panel-separator-color: hsla(210, 4%, 10%, 0.14);
   --splitter-color: #bdbdbd;
   --autocomplete-popup-url-color: hsl(210, 77%, 47%);
-  --select-focus-text-color: SelectedItemText;
   --noselect-folder-color: gray;
   --new-folder-color: blue;
 }

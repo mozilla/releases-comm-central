@@ -6,11 +6,6 @@ var { convertMailStoreTo } = ChromeUtils.import(
   "resource:///modules/mailstoreConverter.jsm"
 );
 
-Services.prefs.setCharPref(
-  "mail.serverDefaultStoreContractID",
-  "@mozilla.org/msgstore/berkeleystore;1"
-);
-
 var { FileUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/FileUtils.sys.mjs"
 );
@@ -22,14 +17,8 @@ var { PromiseTestUtils } = ChromeUtils.import(
 );
 
 // Globals
-var gMsgFile1 = do_get_file("../../../data/bugmail10");
-
-// Copied straight from the example files
-var gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
-var gMsgId2 = "200804111417.m3BEHTk4030129@mrapp51.mozilla.org";
-// var gMsgId3 = "4849BF7B.2030800@example.com";
-var gMsgId4 = "bugmail7.m47LtAEf007542@mrapp51.mozilla.org";
-var gMsgId5 = "bugmail6.m47LtAEf007542@mrapp51.mozilla.org";
+let gMsgFile1 = do_get_file("../../../data/bugmail10");
+let gTestMsgs = [gMsgFile1, gMsgFile1, gMsgFile1, gMsgFile1];
 
 function checkConversion(aSource, aTarget) {
   for (let sourceContent of aSource.directoryEntries) {
@@ -67,23 +56,13 @@ var EventTarget = function() {
   };
 };
 
-// Adds some messages directly to a mailbox (eg new mail).
-function addMessagesToServer(aMessages, aMailbox) {
-  // For every message we have, we need to convert it to a file:/// URI
-  aMessages.forEach(function(message) {
-    let URI = Services.io
-      .newFileURI(message.file)
-      .QueryInterface(Ci.nsIFileURL);
-    message.spec = URI.spec;
-  });
+add_setup(async function() {
+  // Force mbox.
+  Services.prefs.setCharPref(
+    "mail.serverDefaultStoreContractID",
+    "@mozilla.org/msgstore/berkeleystore;1"
+  );
 
-  // Create the ImapMessages and store them on the mailbox.
-  aMessages.forEach(function(message) {
-    aMailbox.addMessage(new ImapMessage(message.spec, aMailbox.uidnext++, []));
-  });
-}
-
-add_task(function setupTest() {
   setupIMAPPump();
 
   // These hacks are required because we've created the inbox before
@@ -93,18 +72,12 @@ add_task(function setupTest() {
   IMAPPump.inbox.hierarchyDelimiter = "/";
   IMAPPump.inbox.verifiedAsOnlineFolder = true;
 
-  // Add a couple of messages to the INBOX.
-  // This is synchronous.
-  addMessagesToServer(
-    [
-      { file: gMsgFile1, messageId: gMsgId1 },
-      { file: gMsgFile1, messageId: gMsgId4 },
-      { file: gMsgFile1, messageId: gMsgId2 },
-      { file: gMsgFile1, messageId: gMsgId5 },
-    ],
-    IMAPPump.daemon.getMailbox("INBOX"),
-    IMAPPump.inbox
-  );
+  // Add our test messages to the INBOX.
+  let mailbox = IMAPPump.daemon.getMailbox("INBOX");
+  for (let file of gTestMsgs) {
+    let URI = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
+    mailbox.addMessage(new ImapMessage(URI.spec, mailbox.uidnext++, []));
+  }
 });
 
 add_task(async function downloadForOffline() {
@@ -119,25 +92,17 @@ add_task(async function convert() {
     "mail.server." + IMAPPump.incomingServer.key + ".storeContractID"
   );
   let eventTarget = new EventTarget();
-  let pConverted = convertMailStoreTo(
+  let originalRootFolder = IMAPPump.incomingServer.rootFolder.filePath;
+  await convertMailStoreTo(
     mailstoreContractId,
     IMAPPump.incomingServer,
     eventTarget
   );
-  let originalRootFolder = IMAPPump.incomingServer.rootFolder.filePath;
-  await pConverted
-    .then(function(val) {
-      // Conversion done: originalRootFolder.path => val.
-      let newRootFolder = IMAPPump.incomingServer.rootFolder.filePath;
-      checkConversion(originalRootFolder, newRootFolder);
-      let newRootFolderMsf = FileUtils.File(newRootFolder.path + ".msf");
-      Assert.ok(newRootFolderMsf.exists());
-    })
-    .catch(function(reason) {
-      // Conversion Failed.
-      Assert.ok(false);
-      throw new Error(reason);
-    });
+  // Conversion done.
+  let newRootFolder = IMAPPump.incomingServer.rootFolder.filePath;
+  checkConversion(originalRootFolder, newRootFolder);
+  let newRootFolderMsf = FileUtils.File(newRootFolder.path + ".msf");
+  Assert.ok(newRootFolderMsf.exists());
 });
 
 add_task(function endTest() {

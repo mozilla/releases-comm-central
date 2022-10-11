@@ -49,6 +49,11 @@ class NntpDaemon {
       this._groups[group].nextKey = key + 1;
     }
   }
+  removeArticleFromGroup(groupName, key) {
+    let group = this._groups[groupName];
+    delete group[key];
+    group.keys = group.keys.filter(x => x != key);
+  }
   getGroup(group) {
     if (this._groups.hasOwnProperty(group)) {
       return this._groups[group];

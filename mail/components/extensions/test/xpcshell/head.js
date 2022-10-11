@@ -26,6 +26,23 @@ ExtensionTestUtils.init(this);
 var IS_IMAP = false;
 var IS_NNTP = false;
 
+function formatVCard(strings, ...values) {
+  let arr = [];
+  for (let str of strings) {
+    arr.push(str);
+    arr.push(values.shift());
+  }
+  let lines = arr.join("").split("\n");
+  let indent = lines[1].length - lines[1].trimLeft().length;
+  let outLines = [];
+  for (let line of lines) {
+    if (line.length > 0) {
+      outLines.push(line.substring(indent) + "\r\n");
+    }
+  }
+  return outLines.join("");
+}
+
 function createAccount(type = "none") {
   let account;
 

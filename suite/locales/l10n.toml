@@ -45,10 +45,6 @@ locales = [
     l10n = "{l}suite/**"
 
 [[paths]]
-    reference = "editor/ui/locales/en-US/**"
-    l10n = "{l}editor/ui/**"
-
-[[paths]]
     reference = "suite/branding/seamonkey/locales/en-US/**"
     l10n = "{l}suite/branding/seamonkey/**"
 

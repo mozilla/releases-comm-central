@@ -18,7 +18,6 @@ function Startup()
  */
 function SwitchLocales_Load() {
   var menulist = document.getElementById("switchLocales");
-  var pref = document.getElementById("general.useragent.locale");
 
   var cr = Cc["@mozilla.org/chrome/chrome-registry;1"]
              .getService(Ci.nsIToolkitChromeRegistry);
@@ -26,6 +25,8 @@ function SwitchLocales_Load() {
   var langNames = document.getElementById("languageNamesBundle");
   var regNames  = document.getElementById("regionNamesBundle");
 
+  var matched = false;
+  var currentLocale = Services.locale.getRequestedLocale() || undefined;
   var locales = cr.getLocalesForPackage("global");
 
   while (locales.hasMore()) {
@@ -49,40 +50,27 @@ function SwitchLocales_Load() {
       displayName = locale;
     }
 
-    menulist.appendItem(displayName, locale);
+    var item = menulist.appendItem(displayName, locale);
+    if (!matched && currentLocale && currentLocale == locale) {
+      matched = true;
+      menulist.selectedItem = item;
+    }
   }
-  pref.setElementValue(menulist);
+  // If somehow we have not found the current locale, select the first in list.
+  if (!matched) {
+    menulist.selectedIndex = 1;
+  }
 }
 
 /**
- * determine the appropriate value to select
- * go through element value, pref value and pref default value and use the first one available
- * else fall back to the first available selection
+ * Determine the appropriate value to set and set it.
  */
-function SelectLocale(aElement)
-{
-  var matchItems;
-  var pref = document.getElementById(aElement.getAttribute("preference"));
-  if (pref.value) {
-    matchItems = aElement.getElementsByAttribute("value", pref.value);
-    // If the pref matches an entry that actually is in the list, use it.
-    if (matchItems.length)
-      return pref.value;
+function SelectLocale(aElement) {
+  var locale = aElement.value;
+  var currentLocale = Services.locale.getRequestedLocale() || undefined;
+  if (!currentLocale || (currentLocale && currentLocale != locale)) {
+    Services.locale.setRequestedLocales([locale]);
   }
-
-  if (pref.defaultValue) {
-    matchItems = aElement.getElementsByAttribute("value", pref.defaultValue);
-    // If the pref's default matches an entry that actually is in the list, use it.
-    if (matchItems.length)
-      return pref.defaultValue;
-  }
-
-  // If prefs can't point us to a valid value and something is set, leave that.
-  if (aElement.value)
-    return aElement.value;
-
-  // If somehow we still have no value, return the first value in the list
-  return aElement.firstChild.firstChild.getAttribute("value");
 }
 
 /**

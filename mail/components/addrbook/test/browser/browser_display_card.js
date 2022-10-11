@@ -12,6 +12,9 @@ var { MockRegistrar } = ChromeUtils.import(
 );
 
 var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
+var { AddrBookCard } = ChromeUtils.import(
+  "resource:///modules/AddrBookCard.jsm"
+);
 
 /** @implements {nsIExternalProtocolService} */
 let mockExternalProtocolService = {
@@ -518,15 +521,22 @@ add_task(async function testOrganisationNameOnly() {
  * Tests that custom properties (Custom1 etc.) are displayed.
  */
 add_task(async function testCustomProperties() {
-  let card = VCardUtils.vCardToAbCard(formatVCard`
-    BEGIN:VCARD
-    FN:custom person
-    X-CUSTOM3:x-custom three
-    X-CUSTOM4:x-custom four
-    END:VCARD
-  `);
-  card.setProperty("Custom2", "custom two");
-  card.setProperty("Custom4", "custom four");
+  let card = new AddrBookCard();
+  card._properties = new Map([
+    ["PopularityIndex", 0],
+    ["Custom2", "custom two"],
+    ["Custom4", "custom four"],
+    [
+      "_vCard",
+      formatVCard`
+      BEGIN:VCARD
+      FN:custom person
+      X-CUSTOM3:x-custom three
+      X-CUSTOM4:x-custom four
+      END:VCARD
+      `,
+    ],
+  ]);
   card = await addAndDisplayCard(card);
 
   let abWindow = await getAddressBookWindow();
@@ -875,7 +885,6 @@ async function addAndDisplayCard(card) {
   await TestUtils.waitForCondition(() =>
     BrowserTestUtils.is_visible(detailsPane)
   );
-
   return card;
 }
 

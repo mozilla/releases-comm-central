@@ -1549,6 +1549,10 @@ panel[type="arrow"].panel-block-padding::part(content) {
   margin-block-end: 1em;
 }
 
+#viewSource-toolbox {
+  appearance: none;
+}
+
 /* Frame used for rendering the DevTools inspector highlighters */
 iframe.devtools-highlighter-renderer {
   border: none;

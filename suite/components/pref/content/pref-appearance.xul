@@ -27,9 +27,6 @@
       <preference id="browser.toolbars.grippyhidden"
                   name="browser.toolbars.grippyhidden"
                   type="bool"/>
-      <preference id="general.useragent.locale"
-                  name="general.useragent.locale"
-                  type="string"/>
       <preference id="intl.regional_prefs.use_os_locales"
                   name="intl.regional_prefs.use_os_locales"
                   type="bool"/>
@@ -83,8 +80,7 @@
       <description>&selectLocale.label;</description>
 
       <menulist id="switchLocales"
-                preference="general.useragent.locale"
-                onsyncfrompreference="return document.getElementById('appearance_pane').SelectLocale(this);"/>
+                onselect="SelectLocale(this);"/>
 
     </groupbox>
 

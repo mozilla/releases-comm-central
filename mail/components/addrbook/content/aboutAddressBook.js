@@ -3195,16 +3195,10 @@ var detailsPane = {
       li.querySelector(".entry-value").appendChild(time);
     }
 
-    for (let key of ["Custom1", "Custom2", "Custom3", "Custom4"]) {
-      // Custom properties can be nsIAbCard properties or vCard properties.
-      // If there's both, the vCard property has precedence.
-      let value = card.getProperty(key, "");
-      if (card.supportsVCard) {
-        value =
-          card.vCardProperties.getFirstValue(`x-${key.toLowerCase()}`) ?? value;
-      }
+    for (let key of ["custom1", "custom2", "custom3", "custom4"]) {
+      let value = vCardProperties.getFirstValue(`x-${key}`);
       if (value) {
-        let li = list.appendChild(createEntryItem(key.toLowerCase()));
+        let li = list.appendChild(createEntryItem(key));
         li.querySelector(".entry-type").style.setProperty(
           "white-space",
           "nowrap"
@@ -3341,21 +3335,6 @@ var detailsPane = {
     let card = this.currentCard;
 
     if (card && card.supportsVCard) {
-      for (let key of ["Custom1", "Custom2", "Custom3", "Custom4"]) {
-        // Custom properties could still exist as nsIAbCard properties.
-        // If they do, and no vCard equivalent exists, add them to the vCard
-        // so that they get displayed.
-        let value = card.getProperty(key, "");
-        if (
-          value &&
-          card.vCardProperties.getFirstEntry(`x-${key.toLowerCase()}`) === null
-        ) {
-          card.vCardProperties.addEntry(
-            new VCardPropertyEntry(`x-${key.toLowerCase()}`, {}, "text", value)
-          );
-        }
-      }
-
       this._screenNamesToIMPPs(card);
 
       this.vCardEdit.vCardProperties = card.vCardProperties;
@@ -3478,12 +3457,6 @@ var detailsPane = {
       "PreferDisplayName",
       this.vCardEdit.preferDisplayName.checked
     );
-
-    // By now, nsIAbCard custom properties should be on the vCard. Delete them.
-    card.deleteProperty("Custom1");
-    card.deleteProperty("Custom2");
-    card.deleteProperty("Custom3");
-    card.deleteProperty("Custom4");
 
     // Old screen names should by now be on the vCard. Delete them.
     for (let key of [

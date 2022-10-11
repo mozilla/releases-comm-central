@@ -18,6 +18,10 @@ const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
   let ownerWindow = window.browsingContext.topChromeWindow;
   let ownerDocument = ownerWindow.document;
 
+  let link = document.head.appendChild(document.createElement("link"));
+  link.rel = "stylesheet";
+  link.href = "chrome://messenger/skin/icons.css";
+
   let otherForm = document.querySelector("form");
   otherForm.hidden = true;
 

@@ -63,10 +63,51 @@ function getDataUrl(file) {
 }
 
 /**
+ * Returns the image type of the given contentType string, or throws if the
+ * contentType is not an image type supported by the address book.
+ *
+ * @param {String} contentType - The contentType of a photo.
+ * @returns {String} - Either "png" or "jpeg". Throws otherwise.
+ */
+function getImageType(contentType) {
+  let typeParts = contentType.toLowerCase().split("/");
+  if (typeParts[0] != "image" || !["jpeg", "png"].includes(typeParts[1])) {
+    throw new Error(`Unsupported image format: ${contentType}`);
+  }
+  return typeParts[1];
+}
+
+/**
+ * Adds a PHOTO VCardPropertyEntry for the given photo file.
+ *
+ * @param {VCardProperties} vCardProperties
+ * @param {File} photoFile
+ * @returns {VCardPropertyEntry}
+ */
+async function addVCardPhotoEntry(vCardProperties, photoFile) {
+  let dataUrl = await getDataUrl(photoFile);
+  if (vCardProperties.getFirstValue("version") == "4.0") {
+    vCardProperties.addEntry(
+      new VCardPropertyEntry("photo", {}, "url", dataUrl)
+    );
+  } else {
+    // If vCard version is not 4.0, default to 3.0.
+    vCardProperties.addEntry(
+      new VCardPropertyEntry(
+        "photo",
+        { encoding: "B", type: getImageType(photoFile.type).toUpperCase() },
+        "binary",
+        dataUrl.substring(dataUrl.indexOf(",") + 1)
+      )
+    );
+  }
+}
+
+/**
  * Returns a DOM File object for the contact photo of the given contact.
  *
  * @param {string} id - The id of the contact
- * @returns {File}
+ * @returns {File} The photo of the contact, or null.
  */
 async function getPhotoFile(id) {
   let { item } = addressBookCache.findContactById(id);
@@ -75,35 +116,92 @@ async function getPhotoFile(id) {
     return null;
   }
 
-  if (photoUrl.startsWith("file://")) {
-    let realFile = Services.io.newURI(photoUrl).QueryInterface(Ci.nsIFileURL)
-      .file;
-    let file = await File.createFromNsIFile(realFile);
-    let typeParts = file.type.toLowerCase().split("/");
-    if (typeParts && typeParts.length > 1 && typeParts[0] == "image") {
+  try {
+    if (photoUrl.startsWith("file://")) {
+      let realFile = Services.io.newURI(photoUrl).QueryInterface(Ci.nsIFileURL)
+        .file;
+      let file = await File.createFromNsIFile(realFile);
+      let type = getImageType(file.type);
       // Clone the File object to be able to give it the correct name, matching
       // the dataUrl/webUrl code path below.
-      return new File([file], `${id}.${typeParts[1]}`, {
-        type: `image/${typeParts[1]}`,
-      });
+      return new File([file], `${id}.${type}`, { type: `image/${type}` });
     }
-    return null;
-  }
 
-  // Retrieve dataUrls or webUrls.
-  let result = await fetch(photoUrl);
-  let typeParts = result.headers
-    .get("content-type")
-    .toLowerCase()
-    .split("/");
-  if (typeParts && typeParts.length > 1 && typeParts[0] == "image") {
+    // Retrieve dataUrls or webUrls.
+    let result = await fetch(photoUrl);
+    let type = getImageType(result.headers.get("content-type"));
     let blob = await result.blob();
-    return new File([blob], `${id}.${typeParts[1]}`, {
-      type: `image/${typeParts[1]}`,
-    });
+    return new File([blob], `${id}.${type}`, { type: `image/${type}` });
+  } catch (ex) {
+    Cu.reportError(`Failed to read photo information for ${id}: ` + ex);
   }
 
   return null;
+}
+
+/**
+ * Sets the provided file as the primary photo of the given contact.
+ *
+ * @param {string} id - The id of the contact
+ * @param {File} file - The new photo
+ */
+async function setPhotoFile(id, file) {
+  let node = addressBookCache.findContactById(id);
+  let vCardProperties = vCardPropertiesFromCard(node.item);
+
+  try {
+    let type = getImageType(file.type);
+
+    // If the contact already has a photoUrl, replace it with the same url type.
+    // Otherwise save the photo as a local file, except for CardDAV contacts.
+    let photoUrl = node.item.photoURL;
+    let parentNode = addressBookCache.findAddressBookById(node.parentId);
+    let useFile = photoUrl
+      ? photoUrl.startsWith("file://")
+      : parentNode.item.dirType != Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE;
+
+    if (useFile) {
+      let oldPhotoFile = Services.io
+        .newURI(photoUrl)
+        .QueryInterface(Ci.nsIFileURL).file;
+      let pathPhotoFile = await IOUtils.createUniqueFile(
+        PathUtils.join(PathUtils.profileDir, "Photos"),
+        `${id}.${type}`,
+        0o600
+      );
+
+      if (file.mozFullPath) {
+        // The file object was created by selecting a real file through a file
+        // picker and is directly linked to a local file. Do a low level copy.
+        await IOUtils.copy(file.mozFullPath, pathPhotoFile);
+      } else {
+        // The file object is a data blob. Dump it into a real file.
+        let buffer = await file.arrayBuffer();
+        await IOUtils.write(pathPhotoFile, new Uint8Array(buffer));
+      }
+
+      // Set the PhotoName.
+      node.item.setProperty("PhotoName", PathUtils.filename(pathPhotoFile));
+
+      // Delete the old photo file.
+      if (oldPhotoFile?.exists()) {
+        try {
+          await IOUtils.remove(oldPhotoFile.path);
+        } catch (ex) {
+          Cu.reportError(`Failed to delete old photo file for ${id}: ` + ex);
+        }
+      }
+    } else {
+      // Follow the UI and replace the entire entry.
+      vCardProperties.clearValues("photo");
+      await addVCardPhotoEntry(vCardProperties, file);
+    }
+    parentNode.item.modifyCard(node.item);
+  } catch (ex) {
+    throw new ExtensionError(
+      `Failed to read new photo information for ${id}: ` + ex
+    );
+  }
 }
 
 /**
@@ -490,31 +588,7 @@ var addressBookCache = new (class extends EventEmitter {
             realPhotoFile.append("Photos");
             realPhotoFile.append(photoName);
             let photoFile = await File.createFromNsIFile(realPhotoFile);
-            let dataUrl = await getDataUrl(photoFile);
-
-            if (vCardProperties.getFirstValue("version") == "4.0") {
-              vCardProperties.addEntry(
-                new VCardPropertyEntry("photo", {}, "url", dataUrl)
-              );
-            } else {
-              let typeParts = photoFile.type.toLowerCase().split("/");
-              if (
-                !typeParts ||
-                !typeParts.length > 1 ||
-                typeParts[0] != "image"
-              ) {
-                throw new Error("Unsupported image format");
-              }
-              let type = typeParts[1].toUpperCase();
-              vCardProperties.addEntry(
-                new VCardPropertyEntry(
-                  "photo",
-                  { encoding: "B", type },
-                  "binary",
-                  dataUrl.substring(dataUrl.indexOf(",") + 1)
-                )
-              );
-            }
+            await addVCardPhotoEntry(vCardProperties, photoFile);
           } catch (ex) {
             Cu.reportError(
               `Failed to read photo information for ${node.id}: ` + ex
@@ -967,6 +1041,9 @@ this.addressBook = class extends ExtensionAPI {
         },
         async getPhoto(id) {
           return getPhotoFile(id);
+        },
+        async setPhoto(id, file) {
+          return setPhotoFile(id, file);
         },
         create(parentId, id, createData) {
           let parentNode = addressBookCache.findAddressBookById(parentId);

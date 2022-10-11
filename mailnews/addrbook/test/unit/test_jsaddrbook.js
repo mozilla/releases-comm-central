@@ -234,9 +234,9 @@ add_task(async function editContact() {
   contact.firstName = "updated";
   contact.lastName = "contact";
   contact.displayName = "updated contact";
-  contact.setProperty("Custom1", "a new property");
-  contact.setProperty("Custom2", "");
   contact.setProperty("Foo", null);
+  contact.setProperty("Bar1", "a new property");
+  contact.setProperty("Bar2", "");
   contact.setProperty("LastModifiedDate", 0);
   book.modifyCard(contact);
   let [, propertyEvent] = observer.checkEvents(
@@ -252,13 +252,13 @@ add_task(async function editContact() {
       oldValue: "This will be deleted later.",
       newValue: null,
     },
+    Bar1: {
+      oldValue: null,
+      newValue: "a new property",
+    },
     FirstName: {
       oldValue: "new",
       newValue: "updated",
-    },
-    Custom1: {
-      oldValue: null,
-      newValue: "a new property",
     },
     _vCard: {
       oldValue: formatVCard`
@@ -283,9 +283,9 @@ add_task(async function editContact() {
   equal(contact.firstName, "updated");
   equal(contact.lastName, "contact");
   equal(contact.displayName, "updated contact");
-  equal(contact.getProperty("Custom1", ""), "a new property");
-  equal(contact.getProperty("Custom2", "no value"), "no value");
   equal(contact.getProperty("Foo", "empty"), "empty");
+  equal(contact.getProperty("Bar1", ""), "a new property");
+  equal(contact.getProperty("Bar2", "no value"), "no value");
   let modifiedDate = parseInt(contact.getProperty("LastModifiedDate", ""), 10);
   Assert.lessOrEqual(modifiedDate, Date.now() / 1000);
   Assert.greater(modifiedDate, Date.now() / 1000 - 10);

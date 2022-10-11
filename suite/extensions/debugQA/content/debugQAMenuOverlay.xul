@@ -90,7 +90,7 @@
         <menuitem label="Composer (with test page)"
                   oncommand="NewEditorWindow('chrome://debugqa/content/EditorInitPage.html');"/>
         <menuitem label="Flush Memory"
-                  oncommand="Cc['@mozilla.org/xpcom/memory-service;1'].getService(Ci.nsIMemory).heapMinimize(true);"/>
+                  oncommand="flushMemory();"/>
         <menuitem label="Show Configuration Editor"
                   oncommand="goAbout('config');"/>
       </menupopup>

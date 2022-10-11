@@ -511,16 +511,7 @@ man/*
 @RESPATH@/res/zones.json
 @RESPATH@/@PREF_DIR@/calendar.js
 
-# Files added to components directory via `EXTRA_COMPONENTS`.
-@RESPATH@/components/calICALJSComponents.js
-
 # Files added to components directory via `FINAL_TARGET_FILES.components`.
 @RESPATH@/components/calCachedCalendar.js
-@RESPATH@/components/calDateTime.js
-@RESPATH@/components/calDuration.js
-@RESPATH@/components/calICSService.js
 @RESPATH@/components/calICSService-worker.js
 @RESPATH@/components/calItemBase.js
-@RESPATH@/components/calPeriod.js
-@RESPATH@/components/calRecurrenceRule.js
-@RESPATH@/components/calTimezone.js

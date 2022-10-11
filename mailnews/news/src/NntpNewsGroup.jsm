@@ -152,7 +152,13 @@ class NntpNewsGroup {
     msgHdr.messageSize = bytes;
     msgHdr.lineCount = lines;
     this._msgHdrs.push(msgHdr);
-    this._knownKeySet.add(articleNumber);
+  }
+
+  /**
+   * Add a range (usually XOVER range) to the known key set.
+   */
+  addKnownArticles(start, end) {
+    this._knownKeySet.addRange(start, end);
   }
 
   /**

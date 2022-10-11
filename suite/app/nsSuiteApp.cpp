@@ -221,8 +221,6 @@ static int do_main(int argc, char* argv[], char* envp[])
 #if defined(XP_WIN) && defined(MOZ_SANDBOX)
   sandbox::BrokerServices* brokerServices =
     sandboxing::GetInitializedBrokerServices();
-  sandboxing::PermissionsService* permissionsService =
-    sandboxing::GetPermissionsService();
 #if defined(MOZ_CONTENT_SANDBOX)
   if (!brokerServices) {
     Output("Couldn't initialize the broker services.\n");
@@ -230,7 +228,6 @@ static int do_main(int argc, char* argv[], char* envp[])
   }
 #endif
   config.sandboxBrokerServices = brokerServices;
-  config.sandboxPermissionsService = permissionsService;
 #endif
 
 #ifdef LIBFUZZER

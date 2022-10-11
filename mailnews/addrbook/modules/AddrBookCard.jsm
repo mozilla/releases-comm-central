@@ -42,9 +42,29 @@ function AddrBookCard() {
     let vCard = this.getProperty("_vCard", "");
     try {
       if (vCard) {
-        return lazy.VCardProperties.fromVCard(vCard, {
+        let vCardProperties = lazy.VCardProperties.fromVCard(vCard, {
           isGoogleCardDAV: this._isGoogleCardDAV,
         });
+        // Custom1..4 properties could still exist as nsIAbCard properties.
+        // Migrate them now.
+        for (let key of ["Custom1", "Custom2", "Custom3", "Custom4"]) {
+          let value = this.getProperty(key, "");
+          if (
+            value &&
+            vCardProperties.getFirstEntry(`x-${key.toLowerCase()}`) === null
+          ) {
+            vCardProperties.addEntry(
+              new lazy.VCardPropertyEntry(
+                `x-${key.toLowerCase()}`,
+                {},
+                "text",
+                value
+              )
+            );
+          }
+          this.deleteProperty(key);
+        }
+        return vCardProperties;
       }
       return lazy.VCardProperties.fromPropertyMap(this._properties);
     } catch (error) {

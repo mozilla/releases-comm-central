@@ -41,17 +41,15 @@ function Startup()
   defaultElement.min = Services.prefs.getIntPref("zoom.minPercent");
   defaultElement.max = Services.prefs.getIntPref("zoom.maxPercent");
 
-  let cps2 = Cc["@mozilla.org/content-pref/service;1"]
-               .getService(Ci.nsIContentPrefService2);
-
-  var zoomValue = cps2.getCachedGlobal("browser.content.full-zoom", null);
+  var zoomValue = Services.contentPrefs2
+                          .getCachedGlobal("browser.content.full-zoom", null);
   if (zoomValue && zoomValue.value) {
     defaultElement.value = Math.round(zoomValue.value * 100);
     return;
   }
 
   defaultElement.value = 100;
-  cps2.getGlobal("browser.content.full-zoom", null, {
+  Services.contentPrefs2.getGlobal("browser.content.full-zoom", null, {
     handleResult(pref) {
       defaultElement.value = Math.round(pref.value * 100);
     },
@@ -120,16 +118,15 @@ function AdjustMinZoom()
 function SetDefaultZoom()
 {
   let defaultElement  = document.getElementById("defaultZoom");
-  let cps2 = Cc["@mozilla.org/content-pref/service;1"]
-               .getService(Ci.nsIContentPrefService2);
 
   if (defaultElement.valueNumber == 100) {
-    cps2.removeGlobal("browser.content.full-zoom", null);
+    Services.contentPrefs2.removeGlobal("browser.content.full-zoom", null);
     return;
   }
 
   let new_value = defaultElement.valueNumber / 100.;
-  cps2.setGlobal("browser.content.full-zoom", new_value, null);
+  Services.contentPrefs2.setGlobal("browser.content.full-zoom", new_value,
+                                   null);
 }
 
 /**

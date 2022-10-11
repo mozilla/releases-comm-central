@@ -412,7 +412,7 @@ SuiteGlue.prototype = {
    * level.
    */
   _migrateUI() {
-    const UI_VERSION = 9;
+    const UI_VERSION = 10;
 
     // If the pref is not set this is a new or pre SeaMonkey 2.49 profile.
     // We can't tell so we just run migration with version 0.
@@ -591,6 +591,31 @@ SuiteGlue.prototype = {
 
       // We might bring this back later but currently set to default.
       Services.prefs.clearUserPref("browser.tabs.opentabfor.doubleclick");
+    }
+
+    // Migrate the old requested locales prefs to use the new model
+    if (currentUIVersion < 10) {
+      const SELECTED_LOCALE_PREF = "general.useragent.locale";
+      const MATCHOS_LOCALE_PREF = "intl.locale.matchOS";
+
+      if (Services.prefs.prefHasUserValue(MATCHOS_LOCALE_PREF) ||
+          Services.prefs.prefHasUserValue(SELECTED_LOCALE_PREF)) {
+        if (Services.prefs.getBoolPref(MATCHOS_LOCALE_PREF, false)) {
+          Services.locale.setRequestedLocales([]);
+        } else {
+          let locale = Services.prefs.getComplexValue(SELECTED_LOCALE_PREF,
+            Ci.nsIPrefLocalizedString);
+          if (locale) {
+            try {
+              Services.locale.setRequestedLocales([locale.data]);
+            } catch (e) {
+              /* Don't panic if the value is not a valid locale code. */
+            }
+          }
+        }
+        Services.prefs.clearUserPref(SELECTED_LOCALE_PREF);
+        Services.prefs.clearUserPref(MATCHOS_LOCALE_PREF);
+      }
     }
 
     // Update the migration version.

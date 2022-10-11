@@ -38,10 +38,6 @@ async function subtest(cardConstructor) {
 
   let contact2 = cardConstructor();
   contact2.UID = "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy";
-  contact2.setProperty("Custom1", "custom, 1");
-  contact2.setProperty("Custom2", "custom\t2");
-  contact2.setProperty("Custom3", "custom\r3");
-  contact2.setProperty("Custom4", "custom\n4");
   contact2.displayName = "contact number two";
   contact2.firstName = "contact";
   contact2.lastName = "two";
@@ -49,9 +45,25 @@ async function subtest(cardConstructor) {
   if (contact2.supportsVCard) {
     contact2.vCardProperties.addValue("title", `"worker"`);
     contact2.vCardProperties.addValue("note", "here's some unicode text…");
+    contact2.vCardProperties.addEntry(
+      new VCardPropertyEntry("x-custom1", {}, "text", "custom, 1")
+    );
+    contact2.vCardProperties.addEntry(
+      new VCardPropertyEntry("x-custom2", {}, "text", "custom\t2")
+    );
+    contact2.vCardProperties.addEntry(
+      new VCardPropertyEntry("x-custom3", {}, "text", "custom\r3")
+    );
+    contact2.vCardProperties.addEntry(
+      new VCardPropertyEntry("x-custom4", {}, "text", "custom\n4")
+    );
   } else {
     contact2.setProperty("JobTitle", `"worker"`);
     contact2.setProperty("Notes", "here's some unicode text…");
+    contact2.setProperty("Custom1", "custom, 1");
+    contact2.setProperty("Custom2", "custom\t2");
+    contact2.setProperty("Custom3", "custom\r3");
+    contact2.setProperty("Custom4", "custom\n4");
   }
   contact2 = book.addCard(contact2);
 

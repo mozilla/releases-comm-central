@@ -55,7 +55,6 @@ class Pop3IncomingServer extends MsgIncomingServer {
       ["Bool", "leaveMessagesOnServer", "leave_on_server"],
       ["Bool", "headersOnly", "headers_only"],
       ["Bool", "deleteMailLeftOnServer", "delete_mail_left_on_server"],
-      ["Bool", "dotFix", "dot_fix"],
       ["Bool", "deleteByAgeFromServer", "delete_by_age_from_server"],
       ["Bool", "deferGetNewMail", "defer_get_new_mail"],
       ["Int", "numDaysToLeaveOnServer", "num_days_to_leave_on_server"],
