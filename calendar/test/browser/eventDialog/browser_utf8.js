@@ -43,7 +43,8 @@ add_task(async function testUTF8() {
   let editorEl = iframeDocument.getElementById("item-description");
   let editor = editorEl.getEditor(editorEl.contentWindow);
   let description = editor.outputToString("text/plain", 0);
-  Assert.equal(description, UTF8STRING);
+  // The HTML editor makes the first character a NBSP instead of a space.
+  Assert.equal(description.replaceAll("\xA0", " "), UTF8STRING);
   Assert.ok(
     iframeDocument
       .getElementById("item-categories")
