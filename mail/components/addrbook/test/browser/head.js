@@ -11,6 +11,13 @@ const historyBook = MailServices.ab.getDirectoryFromId(
   "ldap_2.servers.history"
 );
 
+add_setup(async () => {
+  // Force the window to be full screen to avoid issues with buttons not being
+  // reachable. This is a temporary solution while we update the details pane
+  // UI to be properly responsive and wrap elements correctly.
+  window.fullScreen = true;
+});
+
 // We want to check that everything has been removed/reset, but if we register
 // a cleanup function here, it will run before any other cleanup function has
 // had a chance to run. Instead, when it runs register another cleanup
@@ -53,6 +60,8 @@ registerCleanupFunction(function() {
     let searchInput = document.getElementById("searchInput");
     searchInput.focus();
     searchInput.blur();
+    // Reset the window to its default size.
+    window.fullScreen = false;
   });
 });
 

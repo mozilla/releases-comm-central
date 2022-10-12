@@ -56,6 +56,9 @@ async function openMessageFromFile(file) {
  * Check if clicking attached vCard image opens the Address Book and adds a contact.
  */
 add_task(async function test_check_vcard_icon() {
+  // Force full screen to avoid UI issues before the AB gets fully responsive.
+  window.fullScreen = true;
+
   let newcards = get_cards_in_all_address_books_for_email(
     "meister@example.com"
   );
@@ -103,5 +106,7 @@ add_task(async function test_check_vcard_icon() {
   Assert.equal(newcards[0].displayName, "Meister", "display name saved");
 
   tabmail.closeTab(tabmail.currentTabInfo);
+  // Reset the window size.
+  window.fullScreen = false;
   await BrowserTestUtils.closeWindow(messageWindow);
 });
