@@ -2,9 +2,9 @@
 file-whitespace:
     description: File content sanity check
     include:
-        - .
+        - comm/.
     exclude:
-        - calendar/libical/src/**
+        - comm/calendar/libical/src/**
     extensions:
         - .c
         - .cc

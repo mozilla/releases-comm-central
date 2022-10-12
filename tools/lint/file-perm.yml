@@ -2,7 +2,7 @@
 file-perm:
     description: File permission check
     include:
-        - .
+        - comm/
     extensions:
         - .c
         - .cc

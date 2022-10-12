@@ -2,7 +2,7 @@
 license:
     description: License Check
     include:
-        - .
+        - comm/
     exclude:
         # By design
         - comm/build/macosx/hardenedruntime/developer.entitlements.xml

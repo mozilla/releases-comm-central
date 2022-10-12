@@ -2,7 +2,7 @@
 avoid-blacklist-and-whitelist:
     description: "Use words like 'skip', 'select', 'allow' or 'deny' instead"
     level: error
-    include: ['.']
+    include: ['comm/']
     exclude:
         - comm/tools/lint/rejected-words.yml
     type: external
