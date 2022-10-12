@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import {
   ClassInfo,
   executeSoon,
@@ -21,7 +19,6 @@ import {
   ctcpFormatToHTML,
   kListRefreshInterval,
 } from "resource:///modules/ircUtils.sys.mjs";
-
 import {
   GenericAccountPrototype,
   GenericAccountBuddyPrototype,
@@ -31,7 +28,6 @@ import {
   GenericConversationPrototype,
   TooltipInfo,
 } from "resource:///modules/jsProtoHelper.sys.mjs";
-
 import { NormalizedMap } from "resource:///modules/NormalizedMap.sys.mjs";
 import { Socket } from "resource:///modules/socket.sys.mjs";
 

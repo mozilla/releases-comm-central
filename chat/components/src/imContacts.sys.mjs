@@ -4,9 +4,7 @@
 
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import {
   executeSoon,
   ClassInfo,

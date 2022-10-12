@@ -9,10 +9,7 @@ const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import { CLib } from "resource:///modules/CLib.sys.mjs";
 import { OTRLibLoader } from "resource:///modules/OTRLib.sys.mjs";
-
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 

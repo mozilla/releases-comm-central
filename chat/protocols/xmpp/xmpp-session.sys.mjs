@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { Socket } from "resource:///modules/socket.sys.mjs";
 import { Stanza, XMPPParser } from "resource:///modules/xmpp-xml.sys.mjs";

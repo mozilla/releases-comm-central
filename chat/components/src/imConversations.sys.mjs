@@ -4,9 +4,7 @@
 
 import { Status } from "resource:///modules/imStatusUtils.sys.mjs";
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { ClassInfo } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { Message } from "resource:///modules/jsProtoHelper.sys.mjs";
 

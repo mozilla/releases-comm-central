@@ -5,8 +5,8 @@
 const { IMServices } = ChromeUtils.importESModule(
   "resource:///modules/IMServices.sys.mjs"
 );
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 const { l10nHelper } = ChromeUtils.importESModule(
   "resource:///modules/imXPCOMUtils.sys.mjs"
