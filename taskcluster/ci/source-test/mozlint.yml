@@ -17,11 +17,6 @@ job-defaults:
     run:
         using: mach
         comm-checkout: true
-    optimization:
-        skip-unless-changed-no-suite:
-            # Other misc lint related files.
-            - 'python/mozlint/**'
-            - 'tools/lint/**'
 
 codespell:
     always-target: false
@@ -38,23 +33,9 @@ codespell:
             --config-path=comm/tools/lint
             comm/*
     optimization:
-        skip-unless-changed-no-suite:
-            - 'comm/**/*.js'
-            - 'comm/**/*.jsm'
-            - 'comm/**/*.jxs'
-            - 'comm/**/*.mjs'
-            - 'comm/**/*.xml'
-            - 'comm/**/*.html'
-            - 'comm/**/*.xhtml'
-            - 'comm/**/*.cpp'
-            - 'comm/**/*.c'
-            - 'comm/**/*.h'
-            - 'comm/**/*.configure'
-            - 'comm/**/*.py'
-            - 'comm/**/*.properties'
-            - 'comm/**/*.rst'
-            - 'comm/**/*.md'
-            - 'comm/**/*.ftl'
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: codespell.yml
 
 eslint:
     description: JS lint check
@@ -62,30 +43,17 @@ eslint:
         symbol: js(ES)
     run:
         using: run-task
+        cwd: '{checkout}'
         command: >
-            cd /builds/worker/checkouts/gecko/ &&
             cp -r /build/node_modules_eslint node_modules &&
+            cp -r /build/node_modules_eslint-plugin-mozilla/ tools/lint/eslint/eslint-plugin-mozilla/node_modules &&
             ln -s ../tools/lint/eslint/eslint-plugin-mozilla node_modules &&
             ln -s ../tools/lint/eslint/eslint-plugin-spidermonkey-js node_modules &&
-            cd /builds/worker/checkouts/gecko/comm &&
-            ../mach lint -f treeherder -l eslint --quiet -f json:/builds/worker/mozlint.json *
+            ./mach commlint -v -l eslint -f treeherder -f json:/builds/worker/mozlint.json comm/
     optimization:
-        skip-unless-changed-no-suite:
-            # Files that are likely audited.
-            - 'comm/**/*.js'
-            - 'comm/**/*.jsm'
-            - 'comm/**/*.jsx'
-            - 'comm/**/*.html'
-            - 'comm/**/*.mjs'
-            - 'comm/**/*.sjs'
-            - 'comm/**/*.xhtml'
-            - 'comm/**/*.xml'
-            # Run when eslint policies change.
-            - '**/.eslintignore'
-            - '**/*eslintrc*'
-            # The plugin implementing custom checks.
-            - 'tools/lint/eslint/eslint-plugin-mozilla/**'
-            - 'tools/lint/eslint/eslint-plugin-spidermonkey-js/**'
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: eslint.yml
 
 file-perm:
     description: Check for incorrect permissions on source files
@@ -102,33 +70,10 @@ file-perm:
             --config-path=comm/tools/lint
             comm/*
     optimization:
-        skip-unless-changed-no-suite:
-            - 'comm/**/*.c'
-            - 'comm/**/*.cc'
-            - 'comm/**/*.cpp'
-            - 'comm/**/*.flac'
-            - 'comm/**/*.h'
-            - 'comm/**/*.html'
-            - 'comm/**/*.idl'
-            - 'comm/**/*.js'
-            - 'comm/**/*.jsm'
-            - 'comm/**/*.jsx'
-            - 'comm/**/*.m'
-            - 'comm/**/*.m4s'
-            - 'comm/**/*.mjs'
-            - 'comm/**/*.mm'
-            - 'comm/**/*.mp4'
-            - 'comm/**/*.png'
-            - 'comm/**/*.py'
-            - 'comm/**/*.rs'
-            - 'comm/**/*.sh'
-            - 'comm/**/*.svg'
-            - 'comm/**/*.ttf'
-            - 'comm/**/*.wasm'
-            - 'comm/**/*.xhtml'
-            - 'comm/**/*.xml'
-            - 'comm/**/*.xul'
-            - 'comm/**/*.yml'
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: file-perm.yml
+
 
 file-whitespace:
     description: Check for trailing whitespaces and Windows CR
@@ -145,13 +90,9 @@ file-whitespace:
             --config-path=comm/tools/lint
             comm/*
     optimization:
-        skip-unless-changed-no-suite:
-            - 'comm/**/*.c'
-            - 'comm/**/*.cc'
-            - 'comm/**/*.cpp'
-            - 'comm/**/*.h'
-            - 'comm/**/*.py'
-            - 'comm/**/*.rs'
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: file-whitespace.yml
 
 fluent-lint:
     description: Check for problems with Fluent files.
@@ -163,10 +104,9 @@ fluent-lint:
             --config-path=comm/tools/lint
             comm/*
     optimization:
-        skip-unless-changed-no-suite:
-            - 'comm/**/*.ftl'
-            - 'comm/tools/lint/fluent-lint.yml'
-            - 'comm/tools/lint/fluent-lint/exclusions.yml'
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: fluent-lint.yml
 
 
 license:
@@ -181,31 +121,10 @@ license:
             --config-path=comm/tools/lint
             comm/*
     optimization:
-        skip-unless-changed-no-suite:
-            - 'comm/**/*.c'
-            - 'comm/**/*.cc'
-            - 'comm/**/*.cpp'
-            - 'comm/**/*.css'
-            - 'comm/**/*.dtd'
-            - 'comm/**/*.ftl'
-            - 'comm/**/*.h'
-            - 'comm/**/*.html'
-            - 'comm/**/*.idl'
-            - 'comm/**/*.java'
-            - 'comm/**/*.js'
-            - 'comm/**/*.jsm'
-            - 'comm/**/*.jsx'
-            - 'comm/**/*.m'
-            - 'comm/**/*.mjs'
-            - 'comm/**/*.mm'
-            - 'comm/**/*.properties'
-            - 'comm/**/*.py'
-            - 'comm/**/*.rs'
-            - 'comm/**/*.svg'
-            - 'comm/**/*.xhtml'
-            - 'comm/**/*.xml'
-            - 'comm/**/*.xul'
-            - 'comm/tools/lint/license.yml'
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: license.yml
+
 
 l10n-conflicts:
     description: l10n tests for strings with errors and conflicts with cross-channel
@@ -219,16 +138,9 @@ l10n-conflicts:
             --config-path=comm/tools/lint
             comm/*
     optimization:
-        skip-unless-changed-no-suite:
-            - 'comm/calendar/locales/l10n.toml'
-            - 'comm/calendar/locales/en-US/**'
-            - 'comm/chat/locales/en-US/**'
-            - 'comm/mail/locales/l10n.toml'
-            - 'comm/mail/locales/en-US/**'
-            - 'comm/mail/branding/thunderbird/locales/en-US/**'
-            - 'comm/tools/lint/l10n.yml'
-            - 'third_party/python/compare-locales/**'
-            - 'third_party/python/fluent/**'
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: l10n.yml
 
 localization:
     description: l10n tests for strings with errors
@@ -242,16 +154,9 @@ localization:
     attributes:
         code-review: false
     optimization:
-        skip-unless-changed-no-suite:
-            - 'comm/calendar/locales/l10n.toml'
-            - 'comm/calendar/locales/en-US/**'
-            - 'comm/chat/locales/en-US/**'
-            - 'comm/mail/locales/l10n.toml'
-            - 'comm/mail/locales/en-US/**'
-            - 'comm/mail/branding/thunderbird/locales/en-US/**'
-            - 'comm/tools/lint/l10n.yml'
-            - 'third_party/python/compare-locales/**'
-            - 'third_party/python/fluent/**'
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: l10n.yml
 
 lintpref:
     description: Check for duplicates between all.js and StaticPrefList.yaml.
@@ -264,13 +169,9 @@ lintpref:
             --config-path=comm/tools/lint
             comm/*
     optimization:
-        skip-unless-changed-no-suite:
-            - 'modules/libpref/init/all.js'
-            - 'modules/libpref/init/StaticPrefList.yaml'
-            - 'comm/mail/app/profile/all-thunderbird.js'
-            - 'comm/mail/app/profile/channel-prefs.js'
-            - 'comm/mail/branding/nightly/thunderbird-branding.js'
-            - 'comm/mail/branding/thunderbird/thunderbird-branding.js'
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: lintpref.yml
 
 mingw-cap:
     description: lint for MinGW Capitalization issues
@@ -283,11 +184,9 @@ mingw-cap:
             --config-path=comm/tools/lint
             comm/*
     optimization:
-        skip-unless-changed-no-suite:
-            - 'comm/**/*.cpp'
-            - 'comm/**/*.cc'
-            - 'comm/**/*.c'
-            - 'comm/**/*.h'
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: mingw-capitalization.yml
 
 py-black:
     description: black run over the gecko codebase
@@ -300,11 +199,9 @@ py-black:
               --config-path=comm/tools/lint
               comm/*
     optimization:
-        skip-unless-changed-no-suite:
-            - 'comm/**/*.configure'
-            - 'comm/**/*.py'
-            - 'comm/**/moz.build'
-            - 'comm/**/*.mozbuild'
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: black.yml
 
 py-flake8:
     description: flake8 run over the thunderbird codebase
@@ -317,11 +214,9 @@ py-flake8:
             --config-path=comm/tools/lint
             comm/taskcluster
     optimization:
-        skip-unless-changed-no-suite:
-            - '**/*.py'
-            - '**/.flake8'
-            # moz.configure files are also Python files.
-            - '**/*.configure'
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: flake8.yml
 
 shellcheck:
     always-target: false
@@ -336,8 +231,9 @@ shellcheck:
             --config-path=comm/tools/lint
             comm/*
     optimization:
-        skip-unless-changed-no-suite:
-            - 'comm/**/*.sh'
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: shellcheck.yml
 
 trojan-source:
     description: Trojan Source attack - CVE-2021-42572
@@ -351,14 +247,9 @@ trojan-source:
               --config-path=comm/tools/lint
               comm/*
     optimization:
-        skip-unless-changed-no-suite:
-            - 'comm/**/*.c'
-            - 'comm/**/*.cc'
-            - 'comm/**/*.cpp'
-            - 'comm/**/*.h'
-            - 'comm/**/*.py'
-            - 'comm/**/*.rs'
-            - 'tools/lint/trojan-source.yml'
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: trojan-source.yml
 
 yaml:
     description: yamllint run over the taskcluster configuration
@@ -373,7 +264,6 @@ yaml:
             comm/taskcluster
             comm/.*.yml
     optimization:
-        skip-unless-changed-no-suite:
-            - 'comm/**/*.yml'
-            - 'comm/**/*.yaml'
-            - '**/.ymllint'
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: yaml.yml
