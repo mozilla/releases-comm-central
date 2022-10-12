@@ -156,7 +156,7 @@ function stepFocus(forward, expectElement, msg) {
 }
 
 // If the widget is empty, it receives focus on itself.
-add_task(async function test_empty_widget_focus() {
+add_task(function test_empty_widget_focus() {
   for (let model of selectionModels) {
     reset({ model });
 
@@ -275,7 +275,7 @@ add_task(function test_initial_select_focus() {
   for (let model of selectionModels) {
     reset({ model });
     widget.addItems(0, ["First", "Second", "Third"]);
-    widget.selectItem(1);
+    widget.selectSingleItem(1);
 
     assertFocus(before, "Forward start");
     assertSingleSelection(1, "Initial selection on second item");
@@ -288,7 +288,7 @@ add_task(function test_initial_select_focus() {
     reset({ model });
     after.focus();
     widget.addItems(0, ["First", "Second", "Third"]);
-    widget.selectItem(1);
+    widget.selectSingleItem(1);
 
     assertFocus(after, "Reverse start");
     assertSingleSelection(1, "Reverse start");
@@ -304,7 +304,7 @@ add_task(function test_initial_select_focus() {
 
         reset({ model });
         widget.addItems(0, ["First", "Second", "Third"]);
-        widget.selectItem(1);
+        widget.selectSingleItem(1);
 
         assertFocus(before, "Click empty start");
         assertSingleSelection(1, "Click empty start");
@@ -322,7 +322,7 @@ add_task(function test_initial_select_focus() {
         // With mouse click on item.
         reset({ model });
         widget.addItems(0, ["First", "Second", "Third"]);
-        widget.selectItem(1);
+        widget.selectSingleItem(1);
 
         assertFocus(before, "Click first item start");
         assertSingleSelection(1, "Click first item start");
@@ -350,6 +350,161 @@ add_task(function test_initial_select_focus() {
           assertSingleSelection(
             0,
             "First item becomes selected with click on item"
+          );
+        }
+      }
+    }
+  }
+});
+
+// If selectSingleItem API method is called, we select an item and make it the
+// focus.
+add_task(function test_select_single_item_method() {
+  function subTestSelectSingleItem(outside, index) {
+    if (outside) {
+      stepFocus(true, after, "Moving focus to outside widget");
+    }
+
+    widget.selectSingleItem(index);
+    assertSingleSelection(index, "Item becomes selected after call");
+
+    if (outside) {
+      assertFocus(after, "Focus remains outside the widget");
+      // Return.
+      stepFocus(
+        false,
+        widget.items[index].element,
+        "Focus moves to selected item on return"
+      );
+      assertSingleSelection(index, "Item remains selected on return");
+    } else {
+      assertFocus(
+        widget.items[index].element,
+        "Focus force moved to selected item"
+      );
+    }
+  }
+
+  for (let model of selectionModels) {
+    reset({ model });
+    widget.addItems(0, ["First", "Second", "Third", "Fourth"]);
+
+    stepFocus(true, widget.items[0].element, "Move onto first item");
+
+    for (let outside of [false, true]) {
+      info(`Testing selecting item${outside ? " with focus outside" : ""}`);
+
+      EventUtils.synthesizeKey("KEY_Home", {}, win);
+      assertFocus(widget.items[0].element, "Focus initially on first item");
+      assertSingleSelection(0, "Initial selection on first item");
+
+      subTestSelectSingleItem(outside, 1);
+      // Selecting again.
+      subTestSelectSingleItem(outside, 1);
+
+      if (model == "focus") {
+        continue;
+      }
+
+      // Split focus from selection
+      EventUtils.synthesizeKey("KEY_ArrowLeft", { ctrlKey: true }, win);
+      assertFocus(widget.items[2].element, "Third item has focus");
+      assertSingleSelection(1, "Second item remains selected");
+
+      // Select focused item.
+      subTestSelectSingleItem(outside, 2);
+
+      // Split again.
+      EventUtils.synthesizeKey("KEY_ArrowRight", { ctrlKey: true }, win);
+      assertFocus(widget.items[1].element, "Second item has focus");
+      assertSingleSelection(2, "Third item remains selected");
+
+      // Selecting selected item will still move focus.
+      subTestSelectSingleItem(outside, 2);
+
+      // Split again.
+      EventUtils.synthesizeKey("KEY_ArrowRight", { ctrlKey: true }, win);
+      EventUtils.synthesizeKey("KEY_ArrowRight", { ctrlKey: true }, win);
+      assertFocus(widget.items[0].element, "First item has focus");
+      assertSingleSelection(2, "Third item remains selected");
+
+      // Select neither focused nor selected.
+      subTestSelectSingleItem(outside, 1);
+    }
+
+    // With mouse click to focus.
+    for (let shiftKey of [false, true]) {
+      for (let ctrlKey of [false, true]) {
+        info(`Clicking widget: ctrlKey: ${ctrlKey}, shiftKey: ${shiftKey}`);
+
+        reset({ model });
+        widget.addItems(0, ["First", "Second", "Third"]);
+        stepFocus(true, widget.items[0].element, "Move onto first item");
+        assertSingleSelection(0, "First item becomes selected");
+
+        // Move focus outside widget.
+        stepFocus(true, after, "Move focus outside");
+
+        // Select an item.
+        widget.selectSingleItem(1);
+
+        // Click empty space will focus the selected item.
+        // Assume the center does not include an item.
+        EventUtils.synthesizeMouseAtCenter(widget, { shiftKey, ctrlKey }, win);
+        assertFocus(
+          widget.items[1].element,
+          "Selected item becomes focused with click on empty"
+        );
+        assertSingleSelection(
+          1,
+          "Second item remains selected with click on empty"
+        );
+
+        // With mouse click on selected item.
+        stepFocus(false, before, "Move focus outside");
+        widget.selectSingleItem(2);
+
+        EventUtils.synthesizeMouseAtCenter(
+          widget.items[2].element,
+          { shiftKey, ctrlKey },
+          win
+        );
+        assertFocus(
+          widget.items[2].element,
+          "Selected item becomes focused with click on selected"
+        );
+        assertSingleSelection(
+          2,
+          "Selected item remains selected with click on selected"
+        );
+
+        // With mouse click on non-selected item.
+        stepFocus(false, before, "Move focus outside");
+        widget.selectSingleItem(1);
+
+        EventUtils.synthesizeMouseAtCenter(
+          widget.items[2].element,
+          { shiftKey, ctrlKey },
+          win
+        );
+        if (shiftKey || ctrlKey) {
+          // Multi-selection not supported, so acts the same as clicking empty.
+          assertFocus(
+            widget.items[1].element,
+            "Selected item becomes focused with click on item"
+          );
+          assertSingleSelection(
+            1,
+            "Selected item remains selected with click on item"
+          );
+        } else {
+          assertFocus(
+            widget.items[2].element,
+            "Third item becomes focused with click on item"
+          );
+          assertSingleSelection(
+            2,
+            "Third item becomes selected with click on item"
           );
         }
       }
@@ -1152,7 +1307,7 @@ add_task(function test_emptying_widget() {
     widget.addItems(0, ["First", "Second"]);
     // Move away from and back to widget to focus second item.
     stepFocus(true, after, "Focus elsewhere");
-    widget.selectItem(1);
+    widget.selectSingleItem(1);
     stepFocus(false, widget.items[1].element, "Focus on second item");
     stepFocus(false, before, "Return focus to elsewhere");
     widget.removeItems(0, 2);

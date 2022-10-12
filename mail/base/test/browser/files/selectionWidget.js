@@ -84,11 +84,15 @@ class TestSelectionWidget extends HTMLElement {
       element.textContent = text;
       element.id = `widgetItem${this.#itemId}`;
       element.setAttribute("role", "option");
+      element.tabIndex = -1;
       this.#itemId++;
       this.insertBefore(element, this.items[index + i]?.element ?? null);
       this.items.splice(index + i, 0, { element });
     }
     this.#controller.addedSelectableItems(index, textList.length);
+    // Force re-layout. This is needed for the items to be able to enter the
+    // focus cycle immediately.
+    this.getBoundingClientRect();
   }
 
   /**
@@ -106,12 +110,13 @@ class TestSelectionWidget extends HTMLElement {
   }
 
   /**
-   * Select an item.
+   * Selects a single item via the SelectionWidgetController.selectSingleItem
+   * method.
    *
    * @param {index} - The index of the item to select.
    */
-  selectItem(index) {
-    this.#controller.selectSingle(index);
+  selectSingleItem(index) {
+    this.#controller.selectSingleItem(index);
   }
 
   /**

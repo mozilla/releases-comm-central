@@ -216,10 +216,28 @@ class SelectionWidgetController {
           // If the focused item was selected, we move the selection with it.
           // This is deemed safe to do since it only effects the state of the
           // focused item.
-          this.selectSingle(this.#focusIndex);
+          this.#selectSingle(this.#focusIndex);
         }
       }
     }
+  }
+
+  /**
+   * Select the specified item and deselect all other items. The next time the
+   * widget is entered by the user, the specified item will also receive the
+   * focus.
+   *
+   * This should normally not be used in a situation were the focus may already
+   * be within the widget because it will actively move the focus, which can be
+   * disruptive if unexpected. It is mostly exposed to set an initial selection
+   * after creating the widget, or when changing its dataset.
+   *
+   * @param {number} index - The index for the item to select. This must not
+   *   exceed the number of items controlled by the widget.
+   */
+  selectSingleItem(index) {
+    this.#selectSingle(index);
+    this.#moveFocus(index);
   }
 
   /**
@@ -228,7 +246,7 @@ class SelectionWidgetController {
    * @param {number} index - The index to select. This must not exceed the
    *   number of items controlled by the widget.
    */
-  selectSingle(index) {
+  #selectSingle(index) {
     if (!(index >= 0 && index < this.#numItems)) {
       throw new RangeError(
         `index ${index} is not in the range [0, ${this.#numItems - 1}]`
@@ -273,12 +291,12 @@ class SelectionWidgetController {
   #handleFocusIn(event) {
     // If the widget receives focus and we have items, we move focus onto an
     // item.
-    if (event.target != this.#widget || !this.#numItems) {
+    if (this.#focusIndex != null || !this.#numItems) {
       return;
     }
     // If nothing is selected, select the first item.
     if (this.#selectedIndex == null) {
-      this.selectSingle(0);
+      this.#selectSingle(0);
     }
     // Focus first selected item.
     this.#moveFocus(this.#selectedIndex, true);
@@ -319,7 +337,7 @@ class SelectionWidgetController {
 
       this.#moveFocus(focusIndex, true);
       if (selectIndex != null) {
-        this.selectSingle(selectIndex);
+        this.#selectSingle(selectIndex);
       }
     } else {
       let isVertical = this.#methods.getLayoutDirection() == "vertical";
@@ -389,7 +407,7 @@ class SelectionWidgetController {
         selectIndex = this.#focusIndex;
       }
       if (selectIndex != null) {
-        this.selectSingle(selectIndex);
+        this.#selectSingle(selectIndex);
       }
     }
 
