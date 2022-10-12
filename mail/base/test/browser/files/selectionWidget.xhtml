@@ -6,17 +6,32 @@
   <style>
     test-selection-widget {
       display: flex;
-      gap: 4px;
-      padding: 4px;
-      border: 1px solid black;
-      width: 500px;
-      height: 500px;
-      overflow: auto;
       align-items: start;
+      border: 1px solid black;
+      width: 600px;
+      height: 600px;
+      overflow: auto;
     }
 
     test-selection-widget[layout-direction="vertical"] {
       flex-direction: column;
+    }
+
+    /* Fit 20 items in the view. */
+    test-selection-widget[layout-direction="vertical"] > * {
+      height: 30px;
+    }
+    test-selection-widget[layout-direction="horizontal"] > * {
+      width: 30px;
+      writing-mode: vertical-rl;
+    }
+
+    test-selection-widget > * {
+      padding-inline: 10px;
+      box-sizing: border-box;
+      border: 1px solid grey;
+      white-space: nowrap;
+      flex: 0 0 auto;
     }
 
     .selected {
@@ -24,7 +39,12 @@
     }
 
     :focus {
-      outline: 2px dashed blue;
+      outline: 3px dashed black;
+      outline-offset: -3px;
+    }
+
+    :focus-visible {
+      outline-color: blue;
     }
   </style>
   <!-- Load the SelectionWidgetController class inline if testing in a browser.

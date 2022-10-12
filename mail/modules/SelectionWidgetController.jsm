@@ -4,6 +4,10 @@
 
 const EXPORTED_SYMBOLS = ["SelectionWidgetController"];
 
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+
 /**
  * @callback GetLayoutDirectionMethod
  *
@@ -31,9 +35,12 @@ const EXPORTED_SYMBOLS = ["SelectionWidgetController"];
 /**
  * @callback SetItemSelectionStateMethod
  *
- * @param {number} index - The index for the selectable item to set the
+ * @param {number} index - The index of the first selectable items to set the
  *   selection state of.
- * @param {boolean} selected - Whether the specified item should be selected or
+ * @param {number} number - The number of subsequent selectable items that
+ *   should be set to the same selection state, including the first item and any
+ *   immediately following it.
+ * @param {boolean} selected - Whether the specified items should be selected or
  *   unselected.
  */
 
@@ -71,10 +78,11 @@ const EXPORTED_SYMBOLS = ["SelectionWidgetController"];
  *
  * Model behaviour table:
  *
- *  Model Name | Selection follows focus | Zero selectable | Multi selectable
- *  =========================================================================
- *  focus        always                    no                no
- *  browse       default                   no                no
+ *  Model Name  | Selection follows focus | Multi selectable
+ *  ==========================================================================
+ *  focus         always                    no
+ *  browse        default                   no
+ *  browse-multi  default                   yes
  *
  *
  * ## Behaviour: Selection follows focus
@@ -94,35 +102,94 @@ const EXPORTED_SYMBOLS = ["SelectionWidgetController"];
  * Moreover, this behaviour will prefer selecting a single item, and so is not
  * appropriate if the primary use case is to select multiple, or zero, items.
  *
- * ## Behaviour: Zero selectable
- *
- * This determines whether the user can manually deselect the last selected
- * item.
- *
- * "no" will ensure that, in most usage, at least one item will be selected.
- * However, it is still possible to get into a state where no item is selected
- * when the widget is empty or the selected item is deleted when it doesn't have
- * focus.
- *
  * ## Behaviour: Multi selectable
  *
  * This determines whether the user can select more than one item. If the
  * selection follows the focus (by default) the user can use a modifier to
  * select more than one item.
+ *
+ * Note, if this is "no", then in most usage, exactly one item will be selected.
+ * However, it is still possible to get into a state where no item is selected
+ * when the widget is empty or the selected item is deleted when it doesn't have
+ * focus.
  */
 class SelectionWidgetController {
-  #numItems = 0;
-  #selectedIndex = null;
-  #focusIndex = null;
+  /**
+   * The widget this controller controls.
+   *
+   * @type {Element}
+   */
   #widget = null;
+  /**
+   * A collection of methods passed to the controller at initialization.
+   *
+   * @type {Object}
+   */
   #methods = null;
+  /**
+   * The number of items the controller controls.
+   *
+   * @type {number}
+   */
+  #numItems = 0;
+  /**
+   * A range that points to all selectable items whose index `i` obeys
+   *   `start <= i < end`
+   *
+   * @typedef {object} SelectionRange
+   * @property {number} start - The starting point of the range.
+   * @property {number} end - The ending point of the range.
+   */
+  /**
+   * The ranges of selected indices, ordered by their `start` property.
+   *
+   * Each range is kept "disjoint": no natural number N obeys
+   *   `#ranges[i].start <= N <= #ranges[i].end`
+   * for more than one index `i`. Essentially, this means that no range of
+   * selected items will overlap, or even be immediately adjacent to
+   * another set of selected items. Instead, if two ranges would be adjacent or
+   * overlap, they will be merged into one range instead.
+   *
+   * We use ranges, rather than a list of indices to reduce the footprint when a
+   * large number of items are selected. Similarly, we also avoid looping over
+   * all selected indices.
+   *
+   * @type {SelectionRange[]}
+   */
+  #ranges = [];
+  /**
+   * The direction of travel when holding the Shift modifier, or null if some
+   * other selection has broken the Shift selection sequence.
+   *
+   * @type {"forward"|"backward"|null}
+   */
+  #shiftRangeDirection = null;
+  /**
+   * The index of the focused selectable item, or null if the widget is focused
+   * instead.
+   *
+   * @type {?number}
+   */
+  #focusIndex = null;
+  /**
+   * Whether the focused item must always be selected.
+   *
+   * @type {boolean}
+   */
   #focusIsSelected = false;
+  /**
+   * Whether the user can select multiple items.
+   *
+   * @type {boolean}
+   */
+  #multiSelectable = false;
 
   /**
    * Creates a new selection controller for the given widget.
    *
    * @param {widget} widget - The widget to control.
-   * @param {"focus"|"browse"} model - The selection model to follow.
+   * @param {"focus"|"browse"|"browse-multi"} model - The selection model to
+   *   follow.
    * @param {Object} methods - Methods for the controller to communicate with
    *   the widget.
    * @param {GetLayoutDirectionMethod} methods.getLayoutDirection - Used to
@@ -132,29 +199,53 @@ class SelectionWidgetController {
    * @param {SetFocusableItemMethod} methods.setFocusableItem - Used to update
    *   the widget on which item should receive focus.
    * @param {SetItemSelectionStateMethod} methods.setItemSelectionState - Used
-   *   to update the widget on whether an item should be selected.
+   *   to update the widget on whether a range of items should be selected.
    */
   constructor(widget, model, methods) {
     this.#widget = widget;
     switch (model) {
       case "focus":
         this.#focusIsSelected = true;
+        this.#multiSelectable = false;
         break;
       case "browse":
         this.#focusIsSelected = false;
+        this.#multiSelectable = false;
+        break;
+      case "browse-multi":
+        this.#focusIsSelected = false;
+        this.#multiSelectable = true;
         break;
       default:
         throw new RangeError(`The model "${model}" is not a supported model`);
     }
     this.#methods = methods;
 
-    widget.addEventListener("mousedown", event =>
-      this.#handleKeyMouseDown(event)
-    );
-    widget.addEventListener("keydown", event =>
-      this.#handleKeyMouseDown(event)
-    );
+    widget.addEventListener("mousedown", event => this.#handleMouseDown(event));
+    widget.addEventListener("keydown", event => this.#handleKeyDown(event));
     widget.addEventListener("focusin", event => this.#handleFocusIn(event));
+  }
+
+  /**
+   * Query whether the selectable item at the given index is selected or not.
+   *
+   * @param {number} index - The index of the selectable item.
+   *
+   * @return {boolean} - Whether the item is selected.
+   */
+  #indexIsSelected(index) {
+    for (let { start, end } of this.#ranges) {
+      if (index < start) {
+        // index was not in any lower ranges and is before the start of this
+        // range, so should be unselected.
+        return false;
+      }
+      if (index < end) {
+        // start <= index < end
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -163,20 +254,84 @@ class SelectionWidgetController {
    * items.
    *
    * @param {number} index - The index at which the selectable items were added.
+   *   Between 0 and the current number of items (inclusive).
    * @param {number} number - The number of selectable items that were added at
    *   this index.
    */
   addedSelectableItems(index, number) {
-    this.#numItems += number;
-    if (this.#selectedIndex != null && this.#selectedIndex >= index) {
-      this.#selectedIndex += number;
+    if (!Number.isInteger(index) || index < 0 || index > this.#numItems) {
+      throw new RangeError(
+        `index ${index} is not an integer in the range [0, ${this.#numItems}]`
+      );
     }
+    if (!Number.isInteger(number) || number <= 0) {
+      throw new RangeError(`number ${number} is not an integer greater than 0`);
+    }
+
+    this.#numItems += number;
+
+    // Go through ranges from last to first.
+    for (let i = this.#ranges.length - 1; i >= 0; i--) {
+      let { start, end } = this.#ranges[i];
+      if (end <= index) {
+        // A   B [ C   D   E ] F   G
+        //         ^start   end^
+        //                     ^index (or higher)
+        // No change, and all earlier ranges are also before.
+        break;
+      }
+      if (start < index) {
+        // start < index < end
+        // A   B [ C   D   E ] F   G
+        //         ^start   end^
+        //             ^index
+        // Split the range by modifying the end of the earlier half and creating
+        // a new range for the second half.
+        this.#ranges[i].end = index;
+        this.#ranges.splice(i + 1, 0, {
+          start: index + number,
+          end: end + number,
+        });
+      } else {
+        // A   B [ C   D   E ] F   G
+        //         ^start   end^
+        //         ^index (or lower)
+        // Shift the range.
+        this.#ranges[i].start = start + number;
+        this.#ranges[i].end = end + number;
+      }
+    }
+
     if (this.#focusIndex != null && this.#focusIndex >= index) {
       this.#focusIndex += number;
     }
+
     // Newly added items are unselected.
-    for (let i = 0; i < number; i++) {
-      this.#methods.setItemSelectionState(index + i, false);
+    this.#methods.setItemSelectionState(index, number, false);
+  }
+
+  /**
+   * Assert that the given range is within the full range of indices.
+   *
+   * @param {number} index - The range start.
+   * @param {number} number - The number of indices in the range.
+   */
+  #assertValidRange(index, number) {
+    if (!Number.isInteger(index) || index < 0 || index >= this.#numItems) {
+      throw new RangeError(
+        `index ${index} is not an integer in the range [0, ${this.#numItems -
+          1}]`
+      );
+    }
+    if (
+      !Number.isInteger(number) ||
+      number < 1 ||
+      number > this.#numItems - index
+    ) {
+      throw new RangeError(
+        `number ${number} is not an integer in the range [1, ${this.#numItems -
+          index}]`
+      );
     }
   }
 
@@ -194,28 +349,150 @@ class SelectionWidgetController {
    *   were removed, including the first item and any immediately following it.
    */
   removingSelectableItems(index, number) {
+    this.#assertValidRange(index, number);
+
+    let focusWasSelected =
+      this.#focusIndex != null && this.#indexIsSelected(this.#focusIndex);
+
     this.#numItems -= number;
-    let focusWasSelected = this.#focusIndex == this.#selectedIndex;
-    if (this.#selectedIndex != null) {
-      if (this.#selectedIndex >= index + number) {
-        this.#selectedIndex -= number;
-      } else if (this.#selectedIndex >= index) {
-        // Selected item was removed.
-        // NOTE: In general, we do not move the selection since this would be a
-        // change outside the focused item. See below for when the selected item
-        // is focused.
-        this.#selectedIndex = null;
+
+    // The ranges to remove.
+    let deleteRangesStart = 0;
+    let deleteRangesNumber = 0;
+    // The range to insert by combining overlapping ranges on either side of the
+    // deleted indices.
+    let insertRange = { start: index, end: index };
+
+    // Go through ranges from last to first.
+    for (let i = this.#ranges.length - 1; i >= 0; i--) {
+      let { start, end } = this.#ranges[i];
+      if (end < index) {
+        //                                     <- removed ->
+        // A   B   C   D   E [ F   G   H ] I   J   K   L   M
+        //                     ^start   end^
+        //                                     ^index (or higher)
+        deleteRangesStart = i + 1;
+        // This and all earlier ranges do not need to be updated.
+        break;
+      } else if (start > index + number) {
+        // <- removed ->
+        // A   B   C   D   E [ F   G   H ] I   J   K   L   M
+        //                     ^start   end^
+        //                 ^index + number (or lower)
+        // Shift the range.
+        this.#ranges[i].start = start - number;
+        this.#ranges[i].end = end - number;
+        continue;
+      }
+      deleteRangesNumber++;
+      if (end > index + number) {
+        // start <= (index + number) < end
+        //     <- removed ->
+        // A   B   C   D   E [ F   G   H ] I   J   K   L   M
+        //                     ^start   end^
+        //     ^index          ^index + number
+        //
+        //             <- removed ->
+        // A   B   C   D   E [ F   G   H ] I   J   K   L   M
+        //                     ^start   end^
+        //             ^index          ^index + number
+        //
+        //                 <- removed ->
+        // A   B   C [ D   E   F   G   H   I ] J   K   L   M
+        //             ^start               end^
+        //                 ^index          ^index + number
+        //
+        // Overlaps or touches the end of the removed indices, but is not
+        // entirely contained within the removed region.
+        // Extend the insertRange to the end of this range, and then shift it to
+        // remove the deleted indices.
+        insertRange.end = end - number;
+      }
+      if (start < index) {
+        // start < index <= end
+        //                                 <- removed ->
+        // A   B   C   D   E [ F   G   H ] I   J   K   L   M
+        //                     ^start   end^
+        //                                 ^index          ^index + number
+        //
+        //                         <- removed ->
+        // A   B   C   D   E [ F   G   H ] I   J   K   L   M
+        //                     ^start   end^
+        //                         ^index          ^index + number
+        //
+        //                 <- removed ->
+        // A   B   C [ D   E   F   G   H   I ] J   K   L   M
+        //             ^start               end^
+        //                 ^index          ^index + number
+        //
+        // Overlaps or touches the start of the removed indices, but is not
+        // entirely contained within the removed region.
+        // Extend the insertRange to the start of this range.
+        insertRange.start = start;
+        // Expect break on next loop.
       }
     }
+    if (deleteRangesNumber) {
+      if (insertRange.end > insertRange.start) {
+        this.#ranges.splice(deleteRangesStart, deleteRangesNumber, insertRange);
+      } else {
+        // No range to insert.
+        this.#ranges.splice(deleteRangesStart, deleteRangesNumber);
+      }
+    }
+
+    if (!this.#ranges.length) {
+      // Ends any shift range.
+      this.#shiftRangeDirection = null;
+    }
+
     if (this.#focusIndex != null) {
       if (this.#focusIndex >= index + number) {
         this.#focusIndex -= number;
       } else if (this.#focusIndex >= index) {
-        this.#moveFocus(index);
-        if (focusWasSelected && this.#focusIndex != null) {
-          // If the focused item was selected, we move the selection with it.
-          // This is deemed safe to do since it only effects the state of the
-          // focused item.
+        // Focus is lost.
+        // Try to move to the first item after the removed items. If this does
+        // not exist, it will be capped to the last item overall in #moveFocus.
+        let newFocus = index;
+        if (focusWasSelected && this.#shiftRangeDirection) {
+          // As a special case, if the focused item was inside a shift
+          // selection range when it was removed, and the range still exists
+          // after, we keep the focus within the selection boundary that is
+          // opposite the "pivot" point. I.e. when selecting forwards we keep
+          // the focus below the selection end, and when selecting backwards we
+          // keep the focus above the selection start. This is to prevent the
+          // focused item becoming unselected in the middle of an ongoing shift
+          // range selection.
+          // NOTE: When selecting forwards, we do not keep the focus above the
+          // selection start because the user would only be here (at the
+          // selection "pivot") if they navigated with Ctrl+Space to this
+          // position, so we do not override the default behaviour. Similarly
+          // when selecting backwards we do not require the focus to remain
+          // above the selection end.
+          switch (this.#shiftRangeDirection) {
+            case "forward":
+              newFocus = Math.min(
+                newFocus,
+                this.#ranges[this.#ranges.length - 1].end - 1
+              );
+              break;
+            case "backward":
+              newFocus = Math.max(newFocus, this.#ranges[0].start);
+          }
+        }
+        // TODO: if we have a tree structure, we will want to move the focus
+        // within the nearest parent by clamping the focus to lie between the
+        // parent index (inclusive) and its last descendant (inclusive). If
+        // there are no children left, this will fallback to focusing the
+        // parent.
+        this.#moveFocus(newFocus);
+        // #focusIndex may now be different from newFocus if the deleted
+        // indices were the final ones, and may be null if no items remain.
+        if (!this.#ranges.length && this.#focusIndex != null) {
+          // If the focus was moved, and now we have no selection, we select it.
+          // This is deemed relatively safe to do since it only effects the
+          // state of the focused item. And it is convenient to have selection
+          // resume.
           this.#selectSingle(this.#focusIndex);
         }
       }
@@ -241,25 +518,162 @@ class SelectionWidgetController {
   }
 
   /**
-   * Select one index and nothing else.
+   * Select the specified range of indices, and nothing else.
    *
-   * @param {number} index - The index to select. This must not exceed the
-   *   number of items controlled by the widget.
+   * @param {number} index - The first index to select.
+   * @param {number} number - The number of indices to select.
    */
-  #selectSingle(index) {
-    if (!(index >= 0 && index < this.#numItems)) {
-      throw new RangeError(
-        `index ${index} is not in the range [0, ${this.#numItems - 1}]`
-      );
-    }
-    if (index == this.#selectedIndex) {
+  #selectRange(index, number) {
+    this.#assertValidRange(index, number);
+
+    let rangeStart = index;
+    let rangeEnd = index + number;
+    if (
+      this.#ranges.length == 1 &&
+      this.#ranges[0].start == rangeStart &&
+      this.#ranges[0].end == rangeEnd
+    ) {
+      // No change.
       return;
     }
-    if (this.#selectedIndex != null) {
-      this.#methods.setItemSelectionState(this.#selectedIndex, false);
+
+    if (this.#ranges.length) {
+      // Clear any existing selection.
+      // NOTE: For simplicity, we do a blanket de-selection across the whole
+      // region, even items in between ranges that are not selected, but we
+      // avoid de-selecting the items in the region we are about to select to
+      // avoid toggling their selection state in this method.
+      let firstRangeStart = this.#ranges[0].start;
+      let lastRangeEnd = this.#ranges[this.#ranges.length - 1].end;
+      if (firstRangeStart < rangeStart) {
+        // Clear everything from first range up to rangeStart.
+        this.#methods.setItemSelectionState(
+          firstRangeStart,
+          rangeStart - firstRangeStart,
+          false
+        );
+      }
+      if (lastRangeEnd > rangeEnd) {
+        // Clear everything from the rangeEnd to last range.
+        this.#methods.setItemSelectionState(
+          rangeEnd,
+          lastRangeEnd - rangeEnd,
+          false
+        );
+      }
     }
-    this.#methods.setItemSelectionState(index, true);
-    this.#selectedIndex = index;
+
+    this.#methods.setItemSelectionState(index, number, true);
+    this.#ranges = [{ start: rangeStart, end: rangeEnd }];
+  }
+
+  /**
+   * Select one index and nothing else.
+   *
+   * @param {number} index - The index to select.
+   */
+  #selectSingle(index) {
+    this.#selectRange(index, 1);
+    // Cancel any shift range.
+    this.#shiftRangeDirection = null;
+  }
+
+  /**
+   * Toggle the selection state at a single index.
+   *
+   * @param {number} index - The index to toggle the selection state of.
+   */
+  #toggleSelection(index) {
+    this.#assertValidRange(index, 1);
+
+    let wasSelected = false;
+    let i;
+    // We traverse over the ranges.
+    for (i = 0; i < this.#ranges.length; i++) {
+      let { start, end } = this.#ranges[i];
+      // Test if in a gap between the end of last range and the start of the
+      // current one.
+      // NOTE: Since we did not break on the previous loop, we already know that
+      // the index is above the end of the previous range.
+      if (index < start) {
+        // This index is not selected.
+        break;
+      }
+      // Test if in the range.
+      if (index < end) {
+        // start <= index < end
+        wasSelected = true;
+        if (start == index && end == index + 1) {
+          // A   B   C [ D ] E   F   G
+          //        start^   ^end
+          //             ^index
+          //
+          // Remove the range entirely.
+          this.#ranges.splice(i, 1);
+        } else if (start == index) {
+          // A [ B   C   D   E   F ] G
+          //     ^start           end^
+          //     ^index
+          //
+          // Remove the start of the range.
+          this.#ranges[i].start = index + 1;
+        } else if (end == index + 1) {
+          // A [ B   C   D   E   F ] G
+          //     ^start           end^
+          //                     ^index
+          //
+          // Remove the end of the range.
+          this.#ranges[i].end = index;
+        } else {
+          // A [ B   C   D   E   F ] G
+          //     ^start           end^
+          //             ^index
+          //
+          // Split the range in two.
+          //
+          // A [ B   C ] D [ E   F ] G
+          this.#ranges[i].end = index;
+          this.#ranges.splice(i + 1, 0, { start: index + 1, end });
+        }
+        break;
+      }
+    }
+    if (!wasSelected) {
+      // The index i points to a *gap* between existing ranges, so lies in
+      // [0, numItems]. Note, the space between the start and the first range,
+      // or the end and the last range count as gaps, even if they are zero
+      // width.
+      // We want to know whether the index touches the borders of the range
+      // either side of the gap.
+      let touchesRangeEnd = i > 0 && index == this.#ranges[i - 1].end;
+      // A [ B   C   D ] E   F   G   H   I
+      //         end(i-1)^
+      //                 ^index
+      let touchesRangeStart =
+        i < this.#ranges.length && index + 1 == this.#ranges[i].start;
+      // A   B   C   D   E [ F   G   H ] I
+      //                     ^start(i)
+      //                 ^index
+      if (touchesRangeEnd && touchesRangeStart) {
+        // A [ B   C   D ] E [ F   G   H ] I
+        //                 ^index
+        // Merge the two ranges together.
+        this.#ranges[i - 1].end = this.#ranges[i].end;
+        this.#ranges.splice(i, 1);
+      } else if (touchesRangeEnd) {
+        // Grow the range forwards to include the index.
+        this.#ranges[i - 1].end = index + 1;
+      } else if (touchesRangeStart) {
+        // Grow the range backwards to include the index.
+        this.#ranges[i].start = index;
+      } else {
+        // Create a new range.
+        this.#ranges.splice(i, 0, { start: index, end: index + 1 });
+      }
+    }
+    this.#methods.setItemSelectionState(index, 1, !wasSelected);
+    // Cancel any shift range.
+    this.#shiftRangeDirection = null;
   }
 
   /**
@@ -295,125 +709,257 @@ class SelectionWidgetController {
       return;
     }
     // If nothing is selected, select the first item.
-    if (this.#selectedIndex == null) {
+    if (!this.#ranges.length) {
       this.#selectSingle(0);
     }
     // Focus first selected item.
-    this.#moveFocus(this.#selectedIndex, true);
+    this.#moveFocus(this.#ranges[0].start, true);
   }
 
-  #handleKeyMouseDown(event) {
-    if (event.metaKey || event.altKey) {
+  /**
+   * Adjust the focus and selection in response to a user generated event.
+   *
+   * @param {?number} [focusIndex] - The new index to move focus to, or null to
+   *   move the focus to the widget, or undefined to leave the focus as it is.
+   *   Note that the focusIndex will be clamped to lie within the current index
+   *   range.
+   * @param {string} [select] - The change in selection to trigger, relative to
+   *   the #focusIndex. "single" to select the #focusIndex, "toggle" to swap its
+   *   selection state, "range" to start or continue a range selection, or "all"
+   *   to select all items.
+   */
+  #adjustFocusAndSelection(focusIndex, select) {
+    let prevFocusIndex = this.#focusIndex;
+    if (focusIndex !== undefined) {
+      // NOTE: We need a strict inequality since focusIndex may be null.
+      this.#moveFocus(focusIndex, true);
+    }
+    // Change selection relative to the focused index.
+    // NOTE: We use the #focusIndex value rather than the focusIndex variable.
+    if (this.#focusIndex != null) {
+      switch (select) {
+        case "single":
+          this.#selectSingle(this.#focusIndex);
+          break;
+        case "toggle":
+          this.#toggleSelection(this.#focusIndex);
+          break;
+        case "range":
+          // We want to select all items between a "pivot" point and the focused
+          // index. If we do not have a "pivot" point, we use the previously
+          // focused index.
+          // This "pivot" point is lost every time the user performs a single
+          // selection or a toggle selection. I.e. if the selection changes by
+          // any means other than "range" selection.
+          //
+          // NOTE: We represent the presence of such a "pivot" point using the
+          // #shiftRangeDirection property. If it is null, no such point exists,
+          // if it is "forward" then the "pivot" point is the first selected
+          // index, and if it is "backward" then the "pivot" point is the last
+          // selected index.
+          // Usually, we only have one #ranges entry whilst doing such a Shift
+          // selection, but if items are added in the middle of such a range,
+          // then the selection can be split, but subsequent Shift selection
+          // will reselect all of them.
+          // NOTE: We do not keep track of this "pivot" index explicitly in a
+          // property because otherwise we would have to adjust its value every
+          // time items are removed, and handle cases where the "pivot" index is
+          // removed. Instead, we just borrow the logic of how the #ranges array
+          // is updated, and continue to derive the "pivot" point from the
+          // #shiftRangeDirection and #ranges properties.
+          let start;
+          switch (this.#shiftRangeDirection) {
+            case "forward":
+              // When selecting forward, the range start is the first selected
+              // index.
+              start = this.#ranges[0].start;
+              break;
+            case "backward":
+              // When selecting backward, the range end is the last selected
+              // index.
+              start = this.#ranges[this.#ranges.length - 1].end - 1;
+              break;
+            default:
+              // We start a new range selection between the previously focused
+              // index and the newly focused index.
+              start = prevFocusIndex || 0;
+              break;
+          }
+          let number;
+          // NOTE: Selection may transition from "forward" to "backward" if the
+          // user moves the selection in the other direction.
+          if (start > this.#focusIndex) {
+            this.#shiftRangeDirection = "backward";
+            number = start - this.#focusIndex + 1;
+            start = this.#focusIndex;
+          } else {
+            this.#shiftRangeDirection = "forward";
+            number = this.#focusIndex - start + 1;
+          }
+          this.#selectRange(start, number);
+          break;
+      }
+    }
+
+    // Selecting all does not require focus.
+    if (select == "all" && this.#numItems) {
+      this.#shiftRangeDirection = null;
+      this.#selectRange(0, this.#numItems);
+    }
+  }
+
+  #handleMouseDown(event) {
+    if (event.buttons != 1 || event.metaKey || event.altKey) {
+      return;
+    }
+    // Reserve the mousedown event.
+    event.stopPropagation();
+    event.preventDefault();
+
+    let { shiftKey, ctrlKey } = event;
+    let focusIndex;
+    let select;
+    let clickIndex = this.#methods.indexFromTarget(event.target);
+    if (
+      clickIndex == null ||
+      // Clicking empty space.
+      (ctrlKey && shiftKey) ||
+      // Both modifiers pressed.
+      ((ctrlKey || shiftKey) && !this.#multiSelectable)
+      // Attempting multi-selection when not supported
+    ) {
+      // Just re-focus the widget.
+      focusIndex = this.#focusIndex;
+    } else {
+      focusIndex = clickIndex;
+      if (ctrlKey) {
+        select = "toggle";
+      } else if (shiftKey) {
+        select = "range";
+      } else {
+        select = "single";
+      }
+    }
+    this.#adjustFocusAndSelection(focusIndex, select);
+  }
+
+  #handleKeyDown(event) {
+    if (event.altKey) {
       // Not handled.
       return;
     }
-    if (event.type == "mousedown" && event.buttons != 1) {
-      // Not handled
-      return;
-    }
-    let { shiftKey, ctrlKey } = event;
-    let handledEvent = false;
 
-    // Move focus and/or selection.
-    let prevFocusIndex = this.#focusIndex;
-    if (event.type == "mousedown") {
-      let focusIndex;
-      let selectIndex = null;
-      handledEvent = true;
-      if (shiftKey || ctrlKey) {
-        // NOTE: Modifiers are for multi-selection, which we we don't support
-        // yet. Instead, we just re-focus.
-        focusIndex = prevFocusIndex;
-      } else {
-        let clickIndex = this.#methods.indexFromTarget(event.target);
-        if (clickIndex == null) {
-          // Did not click an item. Re-focus, and don't change the selection.
-          focusIndex = prevFocusIndex;
-        } else {
-          focusIndex = clickIndex;
-          selectIndex = clickIndex;
-        }
-      }
-
-      this.#moveFocus(focusIndex, true);
-      if (selectIndex != null) {
-        this.#selectSingle(selectIndex);
-      }
-    } else {
-      let isVertical = this.#methods.getLayoutDirection() == "vertical";
-      let ltrDir = this.#widget.matches(":dir(ltr)");
-      if (
-        event.key == "Home" ||
-        event.key == "End" ||
-        event.key == " " ||
-        (isVertical && event.key == "ArrowUp") ||
-        (isVertical && event.key == "ArrowDown") ||
-        (!isVertical && event.key == "ArrowLeft") ||
-        (!isVertical && event.key == "ArrowRight")
-      ) {
-        // We reserve control over these keys, regardless of modifiers pressed.
-        handledEvent = true;
-      }
-
-      let selectIndex = null;
-      // Move focus.
-      if (!shiftKey && !(this.#focusIsSelected && ctrlKey)) {
-        // Shift is for multi-selection only, which we don't support yet.
-        // Ctrl is for moving focus without changing the focus, if this is not
-        // allowed, we simply do nothing when the modifier is pressed.
-        let focusIndex;
-        // NOTE: focusIndex may be set to an out of range index, but it will be
-        // clipped in #moveFocus.
-        if (event.key == "Home") {
-          focusIndex = 0;
-        } else if (event.key == "End") {
-          focusIndex = this.#numItems - 1;
-        } else if (
-          (isVertical && event.key == "ArrowUp") ||
-          (!isVertical && ltrDir && event.key == "ArrowLeft") ||
-          (!isVertical && !ltrDir && event.key == "ArrowRight")
-        ) {
-          if (prevFocusIndex == null) {
-            // Move to first item.
-            focusIndex = 0;
-          } else {
-            focusIndex = prevFocusIndex - 1;
-          }
-        } else if (
-          (isVertical && event.key == "ArrowDown") ||
-          (!isVertical && ltrDir && event.key == "ArrowRight") ||
-          (!isVertical && !ltrDir && event.key == "ArrowLeft")
-        ) {
-          if (prevFocusIndex == null) {
-            // Move to first item.
-            focusIndex = 0;
-          } else {
-            focusIndex = prevFocusIndex + 1;
-          }
-        }
-        if (focusIndex != undefined) {
-          this.#moveFocus(focusIndex, true);
-          if (!ctrlKey) {
-            // We use the set #focusIndex rather than focusIndex because the
-            // latter may be out of bounds.
-            selectIndex = this.#focusIndex;
-          }
-        }
-      }
-
-      if (event.key == " " && !ctrlKey && !shiftKey) {
-        // Ctrl and Shift are used for multi-selection only, which we don't
-        // support yet.
-        selectIndex = this.#focusIndex;
-      }
-      if (selectIndex != null) {
-        this.#selectSingle(selectIndex);
-      }
-    }
-
-    if (handledEvent) {
+    let { shiftKey, ctrlKey, metaKey } = event;
+    if (
+      this.#multiSelectable &&
+      event.key == "a" &&
+      !shiftKey &&
+      (AppConstants.platform == "macosx") == metaKey &&
+      (AppConstants.platform != "macosx") == ctrlKey
+    ) {
+      this.#adjustFocusAndSelection(undefined, "all");
       event.stopPropagation();
       event.preventDefault();
+      return;
     }
+
+    if (metaKey) {
+      // Not handled.
+      return;
+    }
+
+    if (event.key == " ") {
+      // Always reserve the Space press.
+      event.stopPropagation();
+      event.preventDefault();
+
+      if (shiftKey) {
+        // Not handled.
+        return;
+      }
+
+      if (ctrlKey) {
+        if (this.#multiSelectable) {
+          this.#adjustFocusAndSelection(undefined, "toggle");
+        }
+        // Else, do nothing.
+        return;
+      }
+
+      this.#adjustFocusAndSelection(undefined, "single");
+      return;
+    }
+
+    let forwardKey;
+    let backwardKey;
+    if (this.#methods.getLayoutDirection() == "vertical") {
+      forwardKey = "ArrowDown";
+      backwardKey = "ArrowUp";
+    } else if (this.#widget.matches(":dir(ltr)")) {
+      forwardKey = "ArrowRight";
+      backwardKey = "ArrowLeft";
+    } else {
+      forwardKey = "ArrowLeft";
+      backwardKey = "ArrowRight";
+    }
+
+    // NOTE: focusIndex may be set to an out of range index, but it will be
+    // clipped in #moveFocus.
+    let focusIndex;
+    switch (event.key) {
+      case "Home":
+        focusIndex = 0;
+        break;
+      case "End":
+        focusIndex = this.#numItems - 1;
+        break;
+      case forwardKey:
+        if (this.#focusIndex == null) {
+          // Move to first item.
+          focusIndex = 0;
+        } else {
+          focusIndex = this.#focusIndex + 1;
+        }
+        break;
+      case backwardKey:
+        if (this.#focusIndex == null) {
+          // Move to first item.
+          focusIndex = 0;
+        } else {
+          focusIndex = this.#focusIndex - 1;
+        }
+        break;
+      default:
+        // Not a navigation key.
+        return;
+    }
+
+    // NOTE: We always reserve control over these keys, regardless of whether
+    // we respond to them.
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (shiftKey && ctrlKey) {
+      // Both modifiers not handled.
+      return;
+    }
+
+    if (ctrlKey) {
+      // Move the focus without changing the selection.
+      if (!this.#focusIsSelected) {
+        this.#adjustFocusAndSelection(focusIndex, undefined);
+      }
+      return;
+    }
+
+    if (shiftKey) {
+      // Range selection.
+      if (this.#multiSelectable) {
+        this.#adjustFocusAndSelection(focusIndex, "range");
+      }
+      return;
+    }
+
+    this.#adjustFocusAndSelection(focusIndex, "single");
   }
 }

@@ -35,40 +35,40 @@ class TestSelectionWidget extends HTMLElement {
       "aria-orientation",
       widget.getAttribute("layout-direction")
     );
+    let model = widget.getAttribute("selection-model");
+    widget.setAttribute("aria-multiselectable", model == "browse-multi");
 
     this.#itemId = 0;
 
-    this.#controller = new SelectionWidgetController(
-      widget,
-      widget.getAttribute("selection-model"),
-      {
-        getLayoutDirection() {
-          return widget.getAttribute("layout-direction");
-        },
-        indexFromTarget(target) {
-          for (let i = 0; i < widget.items.length; i++) {
-            if (widget.items[i].element.contains(target)) {
-              return i;
-            }
+    this.#controller = new SelectionWidgetController(widget, model, {
+      getLayoutDirection() {
+        return widget.getAttribute("layout-direction");
+      },
+      indexFromTarget(target) {
+        for (let i = 0; i < widget.items.length; i++) {
+          if (widget.items[i].element.contains(target)) {
+            return i;
           }
-          return null;
-        },
-        setFocusableItem(index, focus) {
-          widget.#focusItem.tabIndex = -1;
-          widget.#focusItem =
-            index == null ? widget : widget.items[index].element;
-          widget.#focusItem.tabIndex = 0;
-          if (focus) {
-            widget.#focusItem.focus();
-          }
-        },
-        setItemSelectionState(index, selected) {
-          widget.items[index].selected = selected;
-          widget.items[index].element.classList.toggle("selected", selected);
-          widget.items[index].element.setAttribute("aria-selected", selected);
-        },
-      }
-    );
+        }
+        return null;
+      },
+      setFocusableItem(index, focus) {
+        widget.#focusItem.tabIndex = -1;
+        widget.#focusItem =
+          index == null ? widget : widget.items[index].element;
+        widget.#focusItem.tabIndex = 0;
+        if (focus) {
+          widget.#focusItem.focus();
+        }
+      },
+      setItemSelectionState(index, number, selected) {
+        for (let i = index; i < index + number; i++) {
+          widget.items[i].selected = selected;
+          widget.items[i].element.classList.toggle("selected", selected);
+          widget.items[i].element.setAttribute("aria-selected", selected);
+        }
+      },
+    });
   }
 
   /**
@@ -80,9 +80,13 @@ class TestSelectionWidget extends HTMLElement {
    */
   addItems(index, textList) {
     for (let [i, text] of textList.entries()) {
+      for (let { element } of this.items) {
+        if (element.textContent == text) {
+          throw new Error(`An item with the text "${text}" already exists`);
+        }
+      }
       let element = this.ownerDocument.createElement("span");
       element.textContent = text;
-      element.id = `widgetItem${this.#itemId}`;
       element.setAttribute("role", "option");
       element.tabIndex = -1;
       this.#itemId++;
@@ -124,7 +128,7 @@ class TestSelectionWidget extends HTMLElement {
    *
    * @return {number[]} - The indices for selected items.
    */
-  selectedIndicies() {
+  selectedIndices() {
     let indices = [];
     for (let i = 0; i < this.items.length; i++) {
       if (this.items[i].selected) {
