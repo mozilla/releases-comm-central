@@ -565,7 +565,7 @@ function shutdownCleanup(obj, prop) {
 }
 
 /**
- * This is the makeQI function from XPCOMUtils.jsm, it is separate to avoid leaks
+ * This is the makeQI function from XPCOMUtils.sys.mjs, it is separate to avoid leaks
  *
  * @param {Array<String|nsIIDRef>} aInterfaces      The interfaces to make QI for.
  * @return {Function}                               The QueryInterface function.
