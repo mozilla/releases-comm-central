@@ -1004,6 +1004,7 @@ var commandController = {
         return numSelectedMessages == 1;
       case "cmd_forwardInline":
       case "cmd_forwardAttachment":
+      case "cmd_copyMessage":
       case "cmd_saveAsFile":
         return numSelectedMessages >= 1;
       case "cmd_openMessage":
@@ -1024,6 +1025,7 @@ var commandController = {
       case "cmd_toggleRead":
       case "cmd_markReadByDate":
       case "cmd_markAsFlagged":
+      case "cmd_moveMessage":
       case "cmd_killThread":
       case "cmd_killSubthread":
       case "cmd_applyFiltersToSelection":
