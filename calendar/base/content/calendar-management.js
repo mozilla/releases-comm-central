@@ -149,6 +149,7 @@ async function loadCalendarManager() {
     let item = document
       .getElementById("calendar-list-item")
       .content.firstElementChild.cloneNode(true);
+    let forceDisabled = calendar.getProperty("force-disabled");
     item.id = `calendar-listitem-${calendar.id}`;
     item.searchLabel = calendar.name;
     item.setAttribute("aria-label", calendar.name);
@@ -156,7 +157,7 @@ async function loadCalendarManager() {
     item.toggleAttribute("calendar-disabled", calendar.getProperty("disabled"));
     item.toggleAttribute(
       "calendar-readfailed",
-      !Components.isSuccessCode(calendar.getProperty("currentStatus"))
+      !Components.isSuccessCode(calendar.getProperty("currentStatus")) || forceDisabled
     );
     item.toggleAttribute("calendar-readonly", calendar.readOnly);
 
@@ -181,7 +182,8 @@ async function loadCalendarManager() {
       }
       enable.textContent = bundle.GetStringFromName("webextPerms.sideloadEnable.label");
     }
-    enable.hidden = !calendar.getProperty("disabled");
+
+    enable.hidden = forceDisabled || !calendar.getProperty("disabled");
 
     let displayedCheckbox = item.querySelector(".calendar-displayed");
     displayedCheckbox.checked = calendar.getProperty("calendar-main-in-composite");
@@ -259,7 +261,7 @@ async function loadCalendarManager() {
 
     let calendarId = item.getAttribute("calendar-id");
     let calendar = cal.manager.getCalendarById(calendarId);
-    cal.window.openCalendarProperties(window, calendar);
+    cal.window.openCalendarProperties(window, { calendar });
   });
   calendarList.addEventListener("ordered", event => {
     saveSortOrder();
@@ -352,7 +354,11 @@ async function loadCalendarManager() {
           item.querySelector(".calendar-name").textContent = value;
           break;
         case "currentStatus":
-          item.toggleAttribute("calendar-readfailed", !Components.isSuccessCode(value));
+        case "force-disabled":
+          item.toggleAttribute(
+            "calendar-readfailed",
+            name == "currentStatus" ? !Components.isSuccessCode(value) : value
+          );
           updatedCalendarReadStatus(item);
           break;
         case "readOnly":

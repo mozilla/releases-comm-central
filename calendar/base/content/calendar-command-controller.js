@@ -372,7 +372,7 @@ var calendarController = {
         cal.window.openCalendarWizard(window);
         break;
       case "calendar_edit_calendar_command":
-        cal.window.openCalendarProperties(window, getSelectedCalendar());
+        cal.window.openCalendarProperties(window, { calendar: getSelectedCalendar() });
         break;
       case "calendar_delete_calendar_command":
         promptDeleteCalendar(getSelectedCalendar());

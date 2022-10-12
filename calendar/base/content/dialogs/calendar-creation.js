@@ -810,7 +810,7 @@ function openCalendarPropertiesFromEvent(event) {
   if (listItem) {
     let calendar = listItem.calendar;
     if (calendar && !calendar.getProperty("disabled")) {
-      cal.window.openCalendarProperties(window, calendar, false);
+      cal.window.openCalendarProperties(window, { calendar, canDisable: false });
 
       // Update the calendar list item.
       listItem.querySelector(".calendar-name").value = calendar.name;

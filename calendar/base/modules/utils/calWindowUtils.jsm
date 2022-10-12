@@ -38,20 +38,25 @@ var calwindow = {
   },
 
   /**
+   * @typedef {Object} OpenCalendarPropertiesArgs
+   * @property {calICalendar} calendar - The calendar whose properties should be displayed.
+   * @property {boolean} [canDisable=true] - Whether the user can disable the calendar.
+   */
+
+  /**
    * Opens the calendar properties window for aCalendar.
    *
    * @param {ChromeWindow | null} aWindow   The window to open the dialog on,
    *                                          or null for the main calendar window.
-   * @param {calICalendar} aCalendar  The calendar whose properties should be displayed.
-   * @param {boolean} [aCanDisable]   True if the calendar can be disabled, else false.
+   * @param {OpenCalendarPropertiesArgs} args   Passed directly to the window.
    */
-  openCalendarProperties(aWindow, aCalendar, aCanDisable = true) {
+  openCalendarProperties(aWindow, args) {
     let window = aWindow || calwindow.getCalendarWindow();
     window.openDialog(
       "chrome://calendar/content/calendar-properties-dialog.xhtml",
       "CalendarPropertiesDialog",
       "chrome,titlebar,resizable,centerscreen",
-      { calendar: aCalendar, canDisable: aCanDisable }
+      { canDisable: true, ...args }
     );
   },
 
