@@ -9,6 +9,7 @@
 @media (prefers-color-scheme: dark) {
   :host,
   :root:-moz-lwtheme {
+    --arrowpanel-color: #f9f9fa;
     --arrowpanel-background: #282829;
     --richlist-button-background: #1e1e1e;
   }
@@ -85,5 +86,6 @@ tabbox {
 }
 
 #commonDialog:not([subdialog]) {
+  color: var(--arrowpanel-color);
   background-color: var(--arrowpanel-background);
 }
