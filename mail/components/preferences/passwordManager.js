@@ -9,8 +9,8 @@ var { AppConstants } = ChromeUtils.import(
 );
 /* eslint-disable-next-line no-var */
 /* eslint-disable-next-line no-var */
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
+var { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
 ChromeUtils.defineModuleGetter(

@@ -22,8 +22,8 @@ customElements.whenDefined("autocomplete-input").then(() => {
   const { GlodaConstants } = ChromeUtils.import(
     "resource:///modules/gloda/GlodaConstants.jsm"
   );
-  const { XPCOMUtils } = ChromeUtils.import(
-    "resource://gre/modules/XPCOMUtils.jsm"
+  const { XPCOMUtils } = ChromeUtils.importESModule(
+    "resource://gre/modules/XPCOMUtils.sys.mjs"
   );
 
   const lazy = {};

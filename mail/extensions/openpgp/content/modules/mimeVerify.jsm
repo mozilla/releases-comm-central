@@ -10,8 +10,8 @@ const EXPORTED_SYMBOLS = ["EnigmailVerify"];
  *  Module for handling PGP/MIME signed messages implemented as JS module.
  */
 
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
 const lazy = {};
