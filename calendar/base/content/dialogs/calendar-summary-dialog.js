@@ -9,7 +9,7 @@
 /* import-globals-from calendar-dialog-utils.js */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 XPCOMUtils.defineLazyGetter(this, "gStatusNotification", () => {
   return new MozElements.NotificationBox(async element => {

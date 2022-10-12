@@ -8,7 +8,7 @@
 
 {
   const { CalMetronome } = ChromeUtils.import("resource:///modules/CalMetronome.jsm");
-  const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+  const { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
   const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
   class Agenda extends CalendarFilteredViewMixin(customElements.get("tree-listbox")) {

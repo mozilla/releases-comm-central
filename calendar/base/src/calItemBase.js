@@ -8,7 +8,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { CalAttendee } = ChromeUtils.import("resource:///modules/CalAttendee.jsm");
 var { CalRelation } = ChromeUtils.import("resource:///modules/CalRelation.jsm");
 var { CalAttachment } = ChromeUtils.import("resource:///modules/CalAttachment.jsm");
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalAlarm: "resource:///modules/CalAlarm.jsm",
