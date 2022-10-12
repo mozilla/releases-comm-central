@@ -101,6 +101,7 @@ class TestSelectionWidget extends HTMLElement {
    *   entry in the array will create one item in the same order.
    */
   addItems(index, textList) {
+    let draggable = this.hasAttribute("items-draggable");
     for (let [i, text] of textList.entries()) {
       for (let { element } of this.items) {
         if (element.textContent == text) {
@@ -111,6 +112,7 @@ class TestSelectionWidget extends HTMLElement {
       element.textContent = text;
       element.setAttribute("role", "option");
       element.tabIndex = -1;
+      element.draggable = draggable;
       this.#itemId++;
       this.insertBefore(element, this.items[index + i]?.element ?? null);
       this.items.splice(index + i, 0, { element });

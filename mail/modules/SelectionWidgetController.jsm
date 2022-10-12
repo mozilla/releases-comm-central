@@ -253,6 +253,9 @@ class SelectionWidgetController {
     this.#methods = methods;
 
     widget.addEventListener("mousedown", event => this.#handleMouseDown(event));
+    if (this.#multiSelectable) {
+      widget.addEventListener("click", event => this.#handleClick(event));
+    }
     widget.addEventListener("keydown", event => this.#handleKeyDown(event));
     widget.addEventListener("focusin", event => this.#handleFocusIn(event));
   }
@@ -897,9 +900,32 @@ class SelectionWidgetController {
       this.#adjustFocusAndSelection(clickIndex, "toggle");
     } else if (shiftKey) {
       this.#adjustFocusAndSelection(clickIndex, "range");
+    } else if (this.#multiSelectable && this.#indexIsSelected(clickIndex)) {
+      // We set the focus now, but wait until "click" to select a single item.
+      // We do this to allow the user to drag a multi selection.
+      this.#adjustFocusAndSelection(clickIndex, undefined);
     } else {
       this.#adjustFocusAndSelection(clickIndex, "single");
     }
+  }
+
+  #handleClick(event) {
+    // NOTE: This handler is only used if we have #multiSelectable.
+    // See #handleMouseDown
+    if (
+      event.button != 0 ||
+      event.metaKey ||
+      event.altKey ||
+      event.shiftKey ||
+      event.ctrlKey
+    ) {
+      return;
+    }
+    let clickIndex = this.#methods.indexFromTarget(event.target);
+    if (clickIndex == null) {
+      return;
+    }
+    this.#adjustFocusAndSelection(clickIndex, "single");
   }
 
   #handleKeyDown(event) {

@@ -54,6 +54,8 @@ var after;
  *   Choosing "right-to-left" or "left-to-right" will set the page's direction
  *   to "rtl" or "ltr", respectively, and will layout items in the writing
  *   direction.
+ * @param {boolean} [options.draggable=false] - Whether to make the items
+ *   draggable.
  */
 function reset(options) {
   function createTabStop(text) {
@@ -80,6 +82,7 @@ function reset(options) {
     "layout-direction",
     direction == "top-to-bottom" ? "vertical" : "horizontal"
   );
+  widget.toggleAttribute("items-draggable", options.draggable);
 
   win.document.body.replaceChildren(before, widget, after);
 
@@ -5050,5 +5053,120 @@ add_task(function test_emptying_widget() {
     widget.removeItems(0, 2);
     assertFocus({ element: before }, "Focus still elsewhere after removing");
     stepFocus(true, { element: widget }, "Widget becomes focused");
+  }
+});
+
+// Test that dragging is possible.
+add_task(function test_can_drag_items() {
+  /**
+   * Assert that dragging can occur and takes place with the expected selection.
+   *
+   * @param {number} index - The index of the item to start dragging on. We also
+   *   expect this item to have focus during and after dragging.
+   * @param {number[]} selection - The expected selection during and after
+   *   dragging.
+   * @param {string} msg - A message to use in assertions.
+   */
+  function assertDragstart(index, selection, msg) {
+    let element = widget.items[index].element;
+    let eventFired = false;
+
+    let dragstartListener = event => {
+      eventFired = true;
+      Assert.ok(
+        element.contains(event.target),
+        `Item ${index} contains the dragstart target`
+      );
+      assertFocus({ index }, `Item ${index} has focus in dragstart: ${msg}`);
+      assertSelection(selection, `Selection in dragstart: ${msg}`);
+    };
+    widget.addEventListener("dragstart", dragstartListener, true);
+
+    // Synthesize the start of a drag.
+    let rect = element.getBoundingClientRect();
+    let x = rect.left + rect.width / 2;
+    let y = rect.top + rect.height / 2;
+    EventUtils.synthesizeMouseAtPoint(x, y, { type: "mousedown" }, win);
+    EventUtils.synthesizeMouseAtPoint(x, y, { type: "mousemove" }, win);
+    EventUtils.synthesizeMouseAtPoint(x, y + 60, { type: "mousemove" }, win);
+    // Don't care about ending the drag.
+
+    Assert.ok(eventFired, `dragstart event fired: ${msg}`);
+    widget.removeEventListener("dragstart", dragstartListener, true);
+    assertSelection(selection, `Same selection after dragging: ${msg}`);
+    assertFocus(
+      { index },
+      `Item ${index} still has focus after dragging: ${msg}`
+    );
+  }
+
+  for (let model of selectionModels) {
+    reset({ model, draggable: true });
+    widget.addItems(0, ["First", "Second", "Third"]);
+    assertFocus({ element: before }, "Focus outside widget");
+    assertSelection([], "No initial selection");
+    assertDragstart(1, [1], "First drag with no focus or selection");
+
+    assertDragstart(1, [1], "Already selected item");
+    assertDragstart(2, [2], "Non-selected item");
+
+    reset({ model, draggable: true });
+    widget.addItems(0, ["First", "Second", "Third"]);
+    widget.selectSingleItem(1);
+    assertFocus({ element: before }, "Focus outside widget");
+    assertSelection([1], "Initial selection on item 1");
+    assertDragstart(1, [1], "First drag on selected item");
+
+    reset({ model, draggable: true });
+    widget.addItems(0, ["First", "Second", "Third", "Fourth", "Fifth"]);
+    widget.selectSingleItem(3);
+    assertFocus({ element: before }, "Focus outside widget");
+    assertSelection([3], "Initial selection on item 3");
+    assertDragstart(2, [2], "First drag on non-selected item");
+
+    // With focus split from selected.
+    if (model == "focus") {
+      continue;
+    }
+    EventUtils.synthesizeKey("KEY_ArrowLeft", { ctrlKey: true }, win);
+    assertFocus({ index: 3 }, "Focus on item 3");
+    assertSelection([2], "Item 2 is selected");
+    assertDragstart(3, [3], "Non-selected but focused item");
+
+    EventUtils.synthesizeKey("KEY_ArrowRight", { ctrlKey: true }, win);
+    assertFocus({ index: 2 }, "Focus on item 2");
+    assertSelection([3], "Item 3 is selected");
+    assertDragstart(3, [3], "Selected but non-focused item");
+
+    // With mutli-selection.
+    if (model == "browse") {
+      continue;
+    }
+
+    // Clicking a non-selected item will change to selection to the single item
+    // before dragging.
+    EventUtils.synthesizeKey("KEY_ArrowRight", { ctrlKey: true }, win);
+    EventUtils.synthesizeKey("KEY_ArrowRight", { ctrlKey: true }, win);
+    EventUtils.synthesizeKey(" ", { ctrlKey: true }, win);
+    assertFocus({ index: 1 }, "Focus on item 1");
+    assertSelection([1, 3], "Multi selection");
+    assertDragstart(2, [2], "Selection moves to item 2 before drag");
+
+    // Clicking a selected item will keep the same selection for dragging.
+    EventUtils.synthesizeKey("KEY_ArrowLeft", { ctrlKey: true }, win);
+    EventUtils.synthesizeKey("KEY_ArrowLeft", { ctrlKey: true }, win);
+    EventUtils.synthesizeKey(" ", { ctrlKey: true }, win);
+    assertFocus({ index: 4 }, "Focus on item 4");
+    assertSelection([2, 4], "Multi selection");
+    assertDragstart(
+      4,
+      [2, 4],
+      "Selection same when dragging selected and focused"
+    );
+    assertDragstart(
+      2,
+      [2, 4],
+      "Selection same when dragging selected and non-focussed"
+    );
   }
 });
