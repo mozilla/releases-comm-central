@@ -4,35 +4,6 @@
 
  @import url("chrome://messenger/skin/icons.css");
 
-:root {
-  --in-content-button-border-radius: 3px;
-}
-
-@media not (prefers-contrast) {
-  :root {
-    --in-content-button-background: var(--grey-90-a10);
-    --in-content-button-background-active: var(--grey-90-a30);
-    --in-content-categories-background: #ebebef;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --in-content-categories-background: rgba(249, 249, 250, 0.1);
-      --in-content-button-background: rgba(249, 249, 250, 0.1);
-      --in-content-button-background-active: rgba(249, 249, 250, 0.2);
-      --in-content-primary-button-background: #45a1ff;
-      --in-content-primary-button-background-hover: #65c1ff;
-      --in-content-primary-button-background-active: #85e1ff;
-    }
-  }
-}
-
-@media (prefers-contrast) {
-  :root {
-    --in-content-categories-background: transparent;
-  }
-}
-
 body {
   /* Override the absolute (px) font-size value in common-shared.css. */
   font-size: 1.1rem;
@@ -52,32 +23,10 @@ body {
 }
 
 #categories > .category {
-  margin-inline: 6px;
   border-radius: var(--in-content-button-border-radius);
   -moz-context-properties: fill, fill-opacity, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
-}
-
-#categories > .category[selected] {
-  font-weight: 500;
-}
-
-@media not (prefers-contrast) {
-  #categories > .category[selected] {
-    background-color: var(--in-content-button-background) !important;
-    color: unset;
-  }
-
-  #categories > .category[selected]:focus {
-    background-color: var(--in-content-item-selected) !important;
-    color: var(--in-content-item-selected-text);
-    outline: none;
-  }
-}
-
-.category-name {
-  font-size: 1.1rem;
 }
 
 /* Hide Plugins category */
@@ -85,21 +34,9 @@ button[name="plugin"] {
   display: none;
 }
 
-.sidebar-footer-list {
-  margin-inline: 0;
-}
-
 .sidebar-footer-list > li {
   margin-inline: 6px;
   border-radius: var(--in-content-button-border-radius);
-}
-
-.sidebar-footer-icon {
-  margin: 10px;
-}
-
-.sidebar-footer-label {
-  margin: 0;
 }
 
 @media (max-width: 830px) {
