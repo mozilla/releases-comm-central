@@ -450,6 +450,23 @@ async function updateAddressBookCount() {
   }
 }
 
+/**
+ * Update the shared splitter between the cardsPane and detailsPane in order to
+ * properly set its properties to handle the correct pane based on the layout.
+ *
+ * @param {boolean} isTableLayout - If the current body layout is a table.
+ */
+function updateSharedSplitter(isTableLayout) {
+  let splitter = document.getElementById("sharedSplitter");
+  splitter.resizeDirection = isTableLayout ? "vertical" : "horizontal";
+  splitter.resizeElement = document.getElementById(
+    isTableLayout ? "detailsPane" : "cardsPane"
+  );
+
+  splitter.isCollapsed =
+    document.getElementById("detailsPane").hidden && isTableLayout;
+}
+
 // Books
 
 /**
@@ -1606,7 +1623,8 @@ var cardsPane = {
       "layout-table",
       isTableLayout
     );
-    document.body.classList.toggle("layout-list", !isTableLayout);
+
+    updateSharedSplitter(isTableLayout);
 
     this.cardsList.setAttribute(
       "rows",
@@ -2399,23 +2417,61 @@ var detailsPane = {
   ],
 
   init() {
-    this.splitter = document.getElementById("detailsSplitter");
-    let splitterHeight = Services.xulStore.getValue(
+    let booksSplitter = document.getElementById("booksSplitter");
+    let booksSplitterWidth = Services.xulStore.getValue(
       "about:addressbook",
-      "detailsSplitter",
-      "height"
+      "booksSplitter",
+      "width"
     );
-    if (splitterHeight) {
-      this.splitter.height = splitterHeight;
+    if (booksSplitterWidth) {
+      booksSplitter.width = booksSplitterWidth;
     }
-    this.splitter.addEventListener("splitter-resized", () =>
+    booksSplitter.addEventListener("splitter-resized", () =>
       Services.xulStore.setValue(
         "about:addressbook",
-        "detailsSplitter",
-        "height",
-        this.splitter.height
+        "booksSplitter",
+        "width",
+        booksSplitter.width
       )
     );
+
+    let isTableLayout = document.body.classList.contains("layout-table");
+    updateSharedSplitter(isTableLayout);
+
+    this.splitter = document.getElementById("sharedSplitter");
+    let sharedSplitterWidth = Services.xulStore.getValue(
+      "about:addressbook",
+      "sharedSplitter",
+      "width"
+    );
+    if (sharedSplitterWidth) {
+      this.splitter.width = sharedSplitterWidth;
+    }
+    let sharedSplitterHeight = Services.xulStore.getValue(
+      "about:addressbook",
+      "sharedSplitter",
+      "height"
+    );
+    if (sharedSplitterHeight) {
+      this.splitter.height = sharedSplitterHeight;
+    }
+    this.splitter.addEventListener("splitter-resized", () => {
+      if (isTableLayout) {
+        Services.xulStore.setValue(
+          "about:addressbook",
+          "sharedSplitter",
+          "height",
+          this.splitter.height
+        );
+        return;
+      }
+      Services.xulStore.setValue(
+        "about:addressbook",
+        "sharedSplitter",
+        "width",
+        this.splitter.width
+      );
+    });
 
     this.node = document.getElementById("detailsPane");
     this.actions = document.getElementById("detailsActions");
@@ -2786,7 +2842,10 @@ var detailsPane = {
     this.clearDisplay();
 
     if (cards.length == 0) {
-      this.node.hidden = this.splitter.isCollapsed = true;
+      this.node.hidden = true;
+      this.splitter.isCollapsed = document.body.classList.contains(
+        "layout-table"
+      );
       return;
     }
     if (cards.length == 1) {

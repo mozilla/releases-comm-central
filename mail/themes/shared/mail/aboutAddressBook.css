@@ -77,21 +77,29 @@
 /* Page layout */
 
 body {
+  --address-book-pane-min-width: 240px;
+  --booksSplitter-width: var(--address-book-pane-min-width);
+  --sharedSplitter-height: 50%;
+  --address-book-cards-pane-min-width: 340px;
+  --sharedSplitter-width: var(--address-book-cards-pane-min-width);
+  --address-book-details-pane-min-width: 500px;
+
   display: grid;
-  grid-template: "toolbox toolbox toolbox" min-content
-                 "books cards details" minmax(auto, 1fr)
-                 / min-content min-content minmax(auto, 1fr);
+  grid-template: "toolbox toolbox toolbox toolbox toolbox" min-content
+                 "books booksSplitter cards sharedSplitter details" minmax(auto, 1fr)
+                 / minmax(var(--address-book-pane-min-width), var(--booksSplitter-width)) min-content
+                   minmax(var(--address-book-cards-pane-min-width), var(--sharedSplitter-width)) min-content
+                   minmax(var(--address-book-details-pane-min-width), 1fr);
   text-shadow: none;
   font-size: 1.1rem;
-  --detailsSplitter-height: 50%;
 }
 
 body.layout-table {
-  grid-template: "toolbox toolbox" min-content
-                 "books cards" minmax(var(--address-book-card-min-height), 1fr)
-                 "books detailsSplitter" min-content
-                 "books details" minmax(auto, var(--detailsSplitter-height))
-                 / min-content minmax(auto, 1fr);
+  grid-template: "toolbox toolbox toolbox" min-content
+                 "books booksSplitter cards" minmax(var(--address-book-card-min-height), 1fr)
+                 "books booksSplitter sharedSplitter" min-content
+                 "books booksSplitter details" minmax(auto, var(--sharedSplitter-height))
+                 / minmax(var(--address-book-pane-min-width), var(--booksSplitter-width)) min-content minmax(var(--address-book-details-pane-min-width), 1fr);
 }
 
 #dialogStack {
@@ -134,13 +142,16 @@ body.layout-table {
 
 #booksPane {
   grid-area: books;
-  width: 18em;
   padding-block-start: 30px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   color: var(--in-content-page-color);
   background-color: var(--in-content-categories-background);
+}
+
+#booksSplitter {
+  grid-area: booksSplitter;
 }
 
 #books {
@@ -331,10 +342,6 @@ body.layout-table {
   background-color: var(--in-content-box-background);
 }
 
-body.layout-list #cardsPane {
-  width: 27em;
-}
-
 #cardsPaneHeader {
   display: flex;
   margin-block-end: 8px;
@@ -343,7 +350,6 @@ body.layout-list #cardsPane {
 
 #searchInput {
   height: var(--in-content-button-height);
-  max-width: 24em;
   flex: 1;
   margin-block: 0;
   margin-inline: 0 6px;
@@ -377,7 +383,7 @@ body.layout-list #cardsPane {
   display: none;
 }
 
-body.layout-list ~ menupopup#sortContext > :is(menuitem[name="toggle"], #sortContextListLayout),
+body:not(.layout-table) ~ menupopup#sortContext > :is(menuitem[name="toggle"], #sortContextListLayout),
 body.layout-table ~ menupopup#sortContext > :is(menuitem[name="sort"], #sortContextTableLayout) {
   /* Hide table items in list view, and list items in table view. */
   display: none;
@@ -390,7 +396,7 @@ body.layout-table ~ menupopup#sortContext > :is(menuitem[name="sort"], #sortCont
   font-weight: initial;
 }
 
-body.layout-list.all-ab-selected ~ menupopup#sortContext > :is(menuitem[value="addrbook"], #sortContextTableLayout) {
+body:not(.layout-table).all-ab-selected ~ menupopup#sortContext > :is(menuitem[value="addrbook"], #sortContextTableLayout) {
   /* Show address book toggle in the list view if All Address Book is
      selected. */
   display: initial;
@@ -544,7 +550,7 @@ ab-card-listrow.selected .recipient-avatar.is-mail-list {
   border-top: 1px solid var(--in-content-border-color);
 }
 
-body.layout-list #cardsHeader {
+body:not(.layout-table) #cardsHeader {
   display: none;
 }
 
@@ -646,12 +652,20 @@ ab-table-card-listrow > div.generatedname-column {
 
 /* Details pane */
 
-#detailsSplitter {
-  grid-area: detailsSplitter;
+#sharedSplitter {
+  grid-area: sharedSplitter;
 }
 
-body.layout-list #detailsSplitter,
-#detailsSplitter.splitter-collapsed {
+body.layout-table #sharedSplitter {
+  width: auto !important;
+}
+
+body:not(.layout-table) #sharedSplitter {
+  height: auto !important;
+}
+
+#detailsPane.collapsed-by-splitter,
+#sharedSplitter.splitter-collapsed {
   display: none;
 }
 
@@ -659,7 +673,7 @@ body.layout-list #detailsSplitter,
   grid-area: details;
   color: var(--in-content-page-color);
   background-color: var(--in-content-categories-background);
-  min-height: 18em;
+  min-height: var(--address-book-card-min-height);
 }
 
 #detailsPane:not([hidden]) {
@@ -1164,35 +1178,6 @@ input[type="number"]::-moz-number-spin-down {
 
 #photoDialog .extra1 {
   margin-inline-end: auto;
-}
-
-
-/* Responsive style */
-
-@media (max-width: 1024px) {
-  body.layout-list {
-    grid-template: "toolbox toolbox" min-content
-                  "books cards" minmax(var(--address-book-card-min-height), 1fr)
-                  "books detailsSplitter" min-content
-                  "books details" minmax(auto, var(--detailsSplitter-height))
-                  / min-content minmax(auto, 1fr);
-  }
-
-  body.layout-list #cardsPane {
-    width: 100%;
-  }
-
-  body.layout-list #detailsSplitter {
-    display: unset;
-  }
-
-  body.layout-list #detailsPane {
-    min-height: 18em;
-  }
-
-  section#selectedCards {
-    width: -moz-available;
-  }
 }
 
 #cardCount {
