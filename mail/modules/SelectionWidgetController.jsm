@@ -92,7 +92,8 @@ var { AppConstants } = ChromeUtils.import(
  * in the index of selectable items. In particular, the widget should call the
  * addedSelectableItems method to inform the controller of any initial set of
  * items or any additional items that are added to the widget. It should also
- * use the removeSelectableItems method when it wishes to remove items.
+ * use the removeSelectableItems and moveSelectableItems methods when it wishes
+ * to remove or move items.
  *
  * The communication between the widget and its SelectionWidgetController
  * instance will use the item's index to reference the item. This means that the
@@ -283,6 +284,56 @@ class SelectionWidgetController {
     return false;
   }
 
+  #assertIntegerInRange(integer, lower, upper, name) {
+    if (!Number.isInteger(integer)) {
+      throw new RangeError(`"${name}" ${integer} is not an integer`);
+    }
+    if (lower != null && integer < lower) {
+      throw new RangeError(
+        `"${name}" ${integer} is not greater than or equal to ${lower}`
+      );
+    }
+    if (upper != null && integer > upper) {
+      throw new RangeError(
+        `"${name}" ${integer} is not less than or equal to ${upper}`
+      );
+    }
+  }
+
+  /**
+   * Update the widget's selection state for the specified items.
+   *
+   * @param {number} index - The index at which to start.
+   * @param {number} number - The number of items to set the state of.
+   */
+  #updateWidgetSelectionState(index, number) {
+    // First, inform the widget of the selection state of the new items.
+    let prevRangeEnd = index;
+    for (let { start, end } of this.#ranges) {
+      // Deselect the items in the gap between the previous range and this one.
+      // For the first range, there may not be a gap.
+      if (start > prevRangeEnd) {
+        this.#methods.setItemSelectionState(
+          prevRangeEnd,
+          start - prevRangeEnd,
+          false
+        );
+      }
+      // Select the items in the range.
+      this.#methods.setItemSelectionState(start, end - start, true);
+      prevRangeEnd = end;
+    }
+    // Deselect the items in the gap between the final range and the end of the
+    // new items, if there is a gap.
+    if (index + number > prevRangeEnd) {
+      this.#methods.setItemSelectionState(
+        prevRangeEnd,
+        index + number - prevRangeEnd,
+        false
+      );
+    }
+  }
+
   /**
    * Informs the controller that a set of selectable items were added to the
    * widget. It is important to call this *after* the widget has indexed the new
@@ -294,25 +345,65 @@ class SelectionWidgetController {
    *   this index.
    */
   addedSelectableItems(index, number) {
-    if (!Number.isInteger(index) || index < 0 || index > this.#numItems) {
-      throw new RangeError(
-        `index ${index} is not an integer in the range [0, ${this.#numItems}]`
-      );
-    }
-    if (!Number.isInteger(number) || number <= 0) {
-      throw new RangeError(`number ${number} is not an integer greater than 0`);
+    this.#assertIntegerInRange(index, 0, this.#numItems, "index");
+    this.#assertIntegerInRange(number, 1, null, "number");
+    // Newly added items are unselected.
+    this.#adjustRangesOnAddItems(index, number, []);
+    this.#numItems += number;
+
+    if (this.#focusIndex != null && this.#focusIndex >= index) {
+      // Focus remains on the same item, but is adjusted in index.
+      this.#focusIndex += number;
     }
 
-    this.#numItems += number;
+    this.#updateWidgetSelectionState(index, number);
+  }
+
+  /**
+   * Adjust the #ranges to account for additional inserted items.
+   *
+   * @param {number} index - The index at which items are added.
+   * @param {number} number - The number of items that are added at this index.
+   * @param {SelectionRange[]} insertSelection - The selection state of the
+   *   inserted items. The ranges should be "disjoint" and only overlap the
+   *   added indices. The given array is owned by the method.
+   */
+  #adjustRangesOnAddItems(index, number, insertSelection) {
+    // We want to insert whatever ranges are specified in insertSelection into
+    // the #ranges Array. insertRangeIndex tracks the index at which we will
+    // insert the given insertSelection.
+    let insertRangeIndex = 0;
+    // However, if insertSelection touches the start or end of the new items, it
+    // may be possible to merge it with an existing SelectionRange that touches
+    // the same edge.
+    let touchStartRange =
+      insertSelection.length && insertSelection[0].start == index
+        ? insertSelection[0]
+        : null;
+    let touchEndRange =
+      insertSelection.length &&
+      insertSelection[insertSelection.length - 1].end == index + number
+        ? insertSelection[insertSelection.length - 1]
+        : null;
 
     // Go through ranges from last to first.
     for (let i = this.#ranges.length - 1; i >= 0; i--) {
       let { start, end } = this.#ranges[i];
+      if (touchStartRange && end == index) {
+        // Merge the range with touchStartRange.
+        touchStartRange.start = start;
+        this.#ranges.splice(i, 1, ...insertSelection);
+        // All earlier ranges should end strictly before the index.
+        return;
+      }
       if (end <= index) {
         // A   B [ C   D   E ] F   G
         //         ^start   end^
         //                     ^index (or higher)
         // No change, and all earlier ranges are also before.
+        // This is the last range that lies before the inserted items, so we
+        // want to insert the given insertSelection after this range.
+        insertRangeIndex = i + 1;
         break;
       }
       if (start < index) {
@@ -320,53 +411,46 @@ class SelectionWidgetController {
         // A   B [ C   D   E ] F   G
         //         ^start   end^
         //             ^index
-        // Split the range by modifying the end of the earlier half and creating
-        // a new range for the second half.
-        this.#ranges[i].end = index;
-        this.#ranges.splice(i + 1, 0, {
-          start: index + number,
-          end: end + number,
-        });
-      } else {
-        // A   B [ C   D   E ] F   G
-        //         ^start   end^
-        //         ^index (or lower)
-        // Shift the range.
-        this.#ranges[i].start = start + number;
-        this.#ranges[i].end = end + number;
+        // The range is split in two parts by the index.
+        if (touchEndRange) {
+          // Extend touchEndRange to the end part of the current range.
+          // We add "number" to account for the inserted indices.
+          touchEndRange.end = end + number;
+        } else {
+          // Append a new range for the end part of the current range.
+          insertSelection.push({ start: index + number, end: end + number });
+        }
+        if (touchStartRange) {
+          // We merge touchStartRange with the first part of the current range.
+          touchStartRange.start = start;
+          this.#ranges.splice(i, 1, ...insertSelection);
+        } else {
+          // We adjust the first part to end where the inserted indices begin.
+          this.#ranges[i].end = index;
+          this.#ranges.splice(i + 1, 0, ...insertSelection);
+        }
+        // All earlier ranges should end strictly before the index.
+        return;
       }
+      // A   B [ C   D   E ] F   G
+      //         ^start   end^
+      //         ^index (or lower)
+      if (touchEndRange && start == index) {
+        // Merge the range with the touchEndRange.
+        // We add "number" to account for the inserted indices.
+        touchEndRange.end = end + number;
+        this.#ranges.splice(i, 1, ...insertSelection);
+        // All earlier ranges should end strictly before the index.
+        return;
+      }
+      // Shift the range to account for the inserted indices.
+      this.#ranges[i].start = start + number;
+      this.#ranges[i].end = end + number;
     }
 
-    if (this.#focusIndex != null && this.#focusIndex >= index) {
-      this.#focusIndex += number;
-    }
-
-    // Newly added items are unselected.
-    this.#methods.setItemSelectionState(index, number, false);
-  }
-
-  /**
-   * Assert that the given range is within the full range of indices.
-   *
-   * @param {number} index - The range start.
-   * @param {number} number - The number of indices in the range.
-   */
-  #assertValidRange(index, number) {
-    if (!Number.isInteger(index) || index < 0 || index >= this.#numItems) {
-      throw new RangeError(
-        `index ${index} is not an integer in the range [0, ${this.#numItems -
-          1}]`
-      );
-    }
-    if (
-      !Number.isInteger(number) ||
-      number < 1 ||
-      number > this.#numItems - index
-    ) {
-      throw new RangeError(
-        `number ${number} is not an integer in the range [1, ${this.#numItems -
-          index}]`
-      );
+    // Add the insert ranges in the gap.
+    if (insertSelection.length) {
+      this.#ranges.splice(insertRangeIndex, 0, ...insertSelection);
     }
   }
 
@@ -388,7 +472,8 @@ class SelectionWidgetController {
    *   shifted the indices of the remaining items to fill the gap.
    */
   removeSelectableItems(index, number, removeCallback) {
-    this.#assertValidRange(index, number);
+    this.#assertIntegerInRange(index, 0, this.#numItems - 1, "index");
+    this.#assertIntegerInRange(number, 1, this.#numItems - index, "number");
 
     let focusWasSelected =
       this.#focusIndex != null && this.#indexIsSelected(this.#focusIndex);
@@ -398,8 +483,79 @@ class SelectionWidgetController {
 
     removeCallback();
 
+    this.#adjustRangesOnRemoveItems(index, number);
     this.#numItems -= number;
 
+    if (!this.#ranges.length) {
+      // Ends any shift range.
+      this.#shiftRangeDirection = null;
+    }
+
+    // Adjust focus.
+    if (this.#focusIndex == null || this.#focusIndex < index) {
+      // No change in index if on widget or before the removed index.
+      return;
+    }
+    if (this.#focusIndex >= index + number) {
+      // Reduce index if after the removed items.
+      this.#focusIndex -= number;
+      return;
+    }
+    // Focus is lost.
+    // Try to move to the first item after the removed items. If this does
+    // not exist, it will be capped to the last item overall in #moveFocus.
+    let newFocus = index;
+    if (focusWasSelected && this.#shiftRangeDirection) {
+      // As a special case, if the focused item was inside a shift selection
+      // range when it was removed, and the range still exists after, we keep
+      // the focus within the selection boundary that is opposite the "pivot"
+      // point. I.e. when selecting forwards we keep the focus below the
+      // selection end, and when selecting backwards we keep the focus above the
+      // selection start. This is to prevent the focused item becoming
+      // unselected in the middle of an ongoing shift range selection.
+      // NOTE: When selecting forwards, we do not keep the focus above the
+      // selection start because the user would only be here (at the selection
+      // "pivot") if they navigated with Ctrl+Space to this position, so we do
+      // not override the default behaviour. Similarly when selecting backwards
+      // we do not require the focus to remain above the selection end.
+      switch (this.#shiftRangeDirection) {
+        case "forward":
+          newFocus = Math.min(
+            newFocus,
+            this.#ranges[this.#ranges.length - 1].end - 1
+          );
+          break;
+        case "backward":
+          newFocus = Math.max(newFocus, this.#ranges[0].start);
+      }
+    }
+    // TODO: if we have a tree structure, we will want to move the focus
+    // within the nearest parent by clamping the focus to lie between the
+    // parent index (inclusive) and its last descendant (inclusive). If
+    // there are no children left, this will fallback to focusing the
+    // parent.
+    this.#moveFocus(newFocus, focusInWidget);
+    // #focusIndex may now be different from newFocus if the deleted indices
+    // were the final ones, and may be null if no items remain.
+    if (!this.#ranges.length && this.#focusIndex != null) {
+      // If the focus was moved, and now we have no selection, we select it.
+      // This is deemed relatively safe to do since it only effects the state of
+      // the focused item. And it is convenient to have selection resume.
+      this.#selectSingle(this.#focusIndex);
+    }
+  }
+
+  /**
+   * Adjust the #ranges to remove items.
+   *
+   * @param {number} index - The index at which items are removed.
+   * @param {number} number - The number of items that are removed.
+   *
+   * @return {SelectionRange[]} - The removed SelectionRange objects. This will
+   *   contain all the ranges that touched or overlapped the selected items.
+   *   Owned by the caller.
+   */
+  #adjustRangesOnRemoveItems(index, number) {
     // The ranges to remove.
     let deleteRangesStart = 0;
     let deleteRangesNumber = 0;
@@ -476,71 +632,93 @@ class SelectionWidgetController {
         // Expect break on next loop.
       }
     }
-    if (deleteRangesNumber) {
-      if (insertRange.end > insertRange.start) {
-        this.#ranges.splice(deleteRangesStart, deleteRangesNumber, insertRange);
-      } else {
-        // No range to insert.
-        this.#ranges.splice(deleteRangesStart, deleteRangesNumber);
+    if (!deleteRangesNumber) {
+      // No change in selection.
+      return [];
+    }
+    if (insertRange.end > insertRange.start) {
+      return this.#ranges.splice(
+        deleteRangesStart,
+        deleteRangesNumber,
+        insertRange
+      );
+    }
+    // No range to insert.
+    return this.#ranges.splice(deleteRangesStart, deleteRangesNumber);
+  }
+
+  /**
+   * Move a set of selectable items within the widget. The actual moving of
+   * the items and their elements in the widget is controlled by the widget
+   * through a callback, and the controller will update its internals.
+   *
+   * Unlike simply adding and then removing indices, this will transfer the
+   * focus and selection states along with the moved items.
+   *
+   * @param {number} from - The index of the first selectable item to be
+   *   moved, before the move.
+   * @param {number} to - The index that the first selectable item will be moved
+   *   to, after the move.
+   * @param {number} number - The number of subsequent selectable items that
+   *   will be moved along with the first item, including the first item and any
+   *   immediately following it. Their relative positions should remain the
+   *   same.
+   * @param {Function} moveCallback - A function to call with no arguments
+   *   that moves the specified items within the widget to the specified
+   *   position. After this call the widget should have adjusted the indices
+   *   of its items accordingly.
+   */
+  moveSelectableItems(from, to, number, moveCallback) {
+    this.#assertIntegerInRange(from, 0, this.#numItems - 1, "from");
+    this.#assertIntegerInRange(number, 1, this.#numItems - from, "number");
+    this.#assertIntegerInRange(to, 0, this.#numItems - number, "to");
+    // Get whether the focus is within the widget now in case it is lost when
+    // the items are moved.
+    let focusInWidget = this.#focusInWidget();
+
+    moveCallback();
+
+    let movedSelection = this.#adjustRangesOnRemoveItems(from, number);
+    // Descend the removed ranges.
+    for (let i = movedSelection.length - 1; i >= 0; i--) {
+      let range = movedSelection[i];
+      if (range.end <= from || range.start >= from + number) {
+        // Touched the start or end, but did not overlap.
+        movedSelection.splice(i, 1);
+        // NOTE: Since we are descending it is safe to continue the loop by
+        // decreasing i by 1.
+        continue;
       }
+      // Translate and clip the range.
+      range.start = to + Math.max(0, range.start - from);
+      range.end = to + Math.min(number, range.end - from);
     }
+    this.#adjustRangesOnAddItems(to, number, movedSelection);
 
-    if (!this.#ranges.length) {
-      // Ends any shift range.
-      this.#shiftRangeDirection = null;
-    }
+    // End any range selection.
+    this.#shiftRangeDirection = null;
 
+    // Adjust focus.
     if (this.#focusIndex != null) {
-      if (this.#focusIndex >= index + number) {
-        this.#focusIndex -= number;
-      } else if (this.#focusIndex >= index) {
-        // Focus is lost.
-        // Try to move to the first item after the removed items. If this does
-        // not exist, it will be capped to the last item overall in #moveFocus.
-        let newFocus = index;
-        if (focusWasSelected && this.#shiftRangeDirection) {
-          // As a special case, if the focused item was inside a shift
-          // selection range when it was removed, and the range still exists
-          // after, we keep the focus within the selection boundary that is
-          // opposite the "pivot" point. I.e. when selecting forwards we keep
-          // the focus below the selection end, and when selecting backwards we
-          // keep the focus above the selection start. This is to prevent the
-          // focused item becoming unselected in the middle of an ongoing shift
-          // range selection.
-          // NOTE: When selecting forwards, we do not keep the focus above the
-          // selection start because the user would only be here (at the
-          // selection "pivot") if they navigated with Ctrl+Space to this
-          // position, so we do not override the default behaviour. Similarly
-          // when selecting backwards we do not require the focus to remain
-          // above the selection end.
-          switch (this.#shiftRangeDirection) {
-            case "forward":
-              newFocus = Math.min(
-                newFocus,
-                this.#ranges[this.#ranges.length - 1].end - 1
-              );
-              break;
-            case "backward":
-              newFocus = Math.max(newFocus, this.#ranges[0].start);
-          }
+      if (this.#focusIndex >= from && this.#focusIndex < from + number) {
+        // Focus was in the moved range.
+        // We adjust the #focusIndex, but we also force the widget to reset the
+        // focus in case it needs to apply it to a newly created items.
+        this.#moveFocus(this.#focusIndex + to - from, focusInWidget);
+      } else {
+        // Adjust for removing `number` items at `from`.
+        if (this.#focusIndex >= from + number) {
+          this.#focusIndex -= number;
         }
-        // TODO: if we have a tree structure, we will want to move the focus
-        // within the nearest parent by clamping the focus to lie between the
-        // parent index (inclusive) and its last descendant (inclusive). If
-        // there are no children left, this will fallback to focusing the
-        // parent.
-        this.#moveFocus(newFocus, focusInWidget);
-        // #focusIndex may now be different from newFocus if the deleted
-        // indices were the final ones, and may be null if no items remain.
-        if (!this.#ranges.length && this.#focusIndex != null) {
-          // If the focus was moved, and now we have no selection, we select it.
-          // This is deemed relatively safe to do since it only effects the
-          // state of the focused item. And it is convenient to have selection
-          // resume.
-          this.#selectSingle(this.#focusIndex);
+        // Adjust for then adding `number` items at `to`.
+        if (this.#focusIndex >= to) {
+          this.#focusIndex += number;
         }
       }
     }
+    // Reset the selection state for the moved items in case it needs to be
+    // applied to newly created items.
+    this.#updateWidgetSelectionState(to, number);
   }
 
   /**
@@ -567,7 +745,7 @@ class SelectionWidgetController {
    * Note that ranges are returned rather than individual indices to keep this
    * method fast. Unlike the selected indices which might become very large with
    * a single user operation, like Select-All, the number of ranges will
-   * increase by at most one range per user interaction or public method call.
+   * increase by order-one range per user interaction or public method call.
    *
    * Note that the SelectionRange objects specify the range with a `start` and
    * `end` index. The `start` is inclusive of the index, but the `end` is
@@ -592,47 +770,37 @@ class SelectionWidgetController {
    * @param {number} number - The number of indices to select.
    */
   #selectRange(index, number) {
-    this.#assertValidRange(index, number);
+    this.#assertIntegerInRange(index, 0, this.#numItems - 1, "index");
+    this.#assertIntegerInRange(number, 1, this.#numItems - index, "number");
 
-    let rangeStart = index;
-    let rangeEnd = index + number;
+    let prevRanges = this.#ranges;
+    let start = index;
+    let end = index + number;
     if (
-      this.#ranges.length == 1 &&
-      this.#ranges[0].start == rangeStart &&
-      this.#ranges[0].end == rangeEnd
+      prevRanges.length == 1 &&
+      prevRanges[0].start == start &&
+      prevRanges[0].end == end
     ) {
       // No change.
       return;
     }
 
-    if (this.#ranges.length) {
-      // Clear any existing selection.
-      // NOTE: For simplicity, we do a blanket de-selection across the whole
-      // region, even items in between ranges that are not selected, but we
-      // avoid de-selecting the items in the region we are about to select to
-      // avoid toggling their selection state in this method.
-      let firstRangeStart = this.#ranges[0].start;
-      let lastRangeEnd = this.#ranges[this.#ranges.length - 1].end;
-      if (firstRangeStart < rangeStart) {
-        // Clear everything from first range up to rangeStart.
-        this.#methods.setItemSelectionState(
-          firstRangeStart,
-          rangeStart - firstRangeStart,
-          false
-        );
-      }
-      if (lastRangeEnd > rangeEnd) {
-        // Clear everything from the rangeEnd to last range.
-        this.#methods.setItemSelectionState(
-          rangeEnd,
-          lastRangeEnd - rangeEnd,
-          false
-        );
-      }
+    this.#ranges = [{ start, end }];
+    // Adjust the selection state to match the new range.
+    // NOTE: For simplicity, we do a blanket re-selection across the whole
+    // region, even items in between ranges that are not selected.
+    // NOTE: If the new range overlaps the previous range then the selection
+    // state be set more than once for an item, but it will be to the same
+    // value.
+    if (prevRanges.length) {
+      let firstRangeStart = prevRanges[0].start;
+      let lastRangeEnd = prevRanges[prevRanges.length - 1].end;
+      this.#updateWidgetSelectionState(
+        firstRangeStart,
+        lastRangeEnd - firstRangeStart
+      );
     }
-
-    this.#methods.setItemSelectionState(index, number, true);
-    this.#ranges = [{ start: rangeStart, end: rangeEnd }];
+    this.#updateWidgetSelectionState(index, number);
   }
 
   /**
@@ -652,7 +820,7 @@ class SelectionWidgetController {
    * @param {number} index - The index to toggle the selection state of.
    */
   #toggleSelection(index) {
-    this.#assertValidRange(index, 1);
+    this.#assertIntegerInRange(index, 0, this.#numItems - 1, "index");
 
     let wasSelected = false;
     let i;

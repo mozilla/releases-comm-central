@@ -2991,6 +2991,33 @@ add_task(function test_add_items_to_empty_with_focus() {
     assertState([{ text: "Second" }], "No item focused or selected");
     assertFocus({ element: widget }, "Focus remains on the widget");
 
+    // Moving items does not set focus.
+    reset({ model });
+    stepFocus(true, { element: widget }, "Move focus onto empty widget");
+    widget.addItems(0, ["First", "Second", "Third", "Fourth"]);
+    widget.moveItems(1, 0, 2, false);
+    assertState(
+      [
+        { text: "Second" },
+        { text: "Third" },
+        { text: "First" },
+        { text: "Fourth" },
+      ],
+      "No item focused or selected"
+    );
+    assertFocus({ element: widget }, "Focus remains on the widget");
+    widget.moveItems(0, 1, 3, true);
+    assertState(
+      [
+        { text: "Fourth" },
+        { text: "Second" },
+        { text: "Third" },
+        { text: "First" },
+      ],
+      "No item focused or selected"
+    );
+    assertFocus({ element: widget }, "Focus remains on the widget");
+
     // This does not effect clicking.
     // NOTE: case where widget does not initially have focus on clicking is
     // handled by test_initial_no_select_focus
@@ -5053,6 +5080,899 @@ add_task(function test_emptying_widget() {
     widget.removeItems(0, 2);
     assertFocus({ element: before }, "Focus still elsewhere after removing");
     stepFocus(true, { element: widget }, "Widget becomes focused");
+  }
+});
+
+/**
+ * Test moving items in the widget.
+ *
+ * @param {string} model - The selection model to use.
+ * @param {boolean} reCreate - Whether the widget should reCreate the items when
+ *   moving them.
+ */
+function subtest_move_items(model, reCreate) {
+  reset({ model, direction: "right-to-left" });
+
+  widget.addItems(0, [
+    "0-add",
+    "1-add",
+    "2-add",
+    "3-add",
+    "4-add",
+    "5-add",
+    "6-add",
+    "7-add",
+    "8-add",
+    "9-add",
+    "10-add",
+    "11-add",
+    "12-add",
+    "13-add",
+  ]);
+  clickWidgetItem(5, {});
+
+  assertState(
+    [
+      { text: "0-add" },
+      { text: "1-add" },
+      { text: "2-add" },
+      { text: "3-add" },
+      { text: "4-add" },
+      { text: "5-add", selected: true, focused: true },
+      { text: "6-add" },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "9-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Item 5 selected and focused"
+  );
+
+  // Move items before focus.
+  widget.moveItems(4, 3, 1, reCreate);
+  assertState(
+    [
+      { text: "0-add" },
+      { text: "1-add" },
+      { text: "2-add" },
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "5-add", selected: true, focused: true },
+      { text: "6-add" },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "9-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Same focus and selection"
+  );
+  widget.moveItems(1, 3, 2, reCreate);
+  assertState(
+    [
+      { text: "0-add" },
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "1-add" },
+      { text: "2-add" },
+      { text: "5-add", selected: true, focused: true },
+      { text: "6-add" },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "9-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Same focus and selection"
+  );
+
+  // Move items after focus.
+  widget.moveItems(6, 8, 2, reCreate);
+  assertState(
+    [
+      { text: "0-add" },
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "1-add" },
+      { text: "2-add" },
+      { text: "5-add", selected: true, focused: true },
+      { text: "8-add" },
+      { text: "9-add" },
+      { text: "6-add" },
+      { text: "7-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Same focus and selection"
+  );
+  widget.moveItems(9, 6, 1, reCreate);
+  assertState(
+    [
+      { text: "0-add" },
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "1-add" },
+      { text: "2-add" },
+      { text: "5-add", selected: true, focused: true },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "9-add" },
+      { text: "6-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Same focus and selection"
+  );
+
+  // Move from before focus to after focus.
+  widget.moveItems(2, 3, 3, reCreate);
+  assertState(
+    [
+      { text: "0-add" },
+      { text: "4-add" },
+      { text: "5-add", selected: true, focused: true },
+      { text: "3-add" },
+      { text: "1-add" },
+      { text: "2-add" },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "9-add" },
+      { text: "6-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Same focus and selection, but moved"
+  );
+
+  // Move from after focus to before focus.
+  widget.moveItems(3, 2, 5, reCreate);
+  assertState(
+    [
+      { text: "0-add" },
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "1-add" },
+      { text: "2-add" },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "5-add", selected: true, focused: true },
+      { text: "9-add" },
+      { text: "6-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Same focus and selection, but moved"
+  );
+
+  // Move selected and focused up.
+  widget.moveItems(7, 3, 1, reCreate);
+  assertState(
+    [
+      { text: "0-add" },
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "5-add", selected: true, focused: true },
+      { text: "1-add" },
+      { text: "2-add" },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "9-add" },
+      { text: "6-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Focus and selection moved to index 3"
+  );
+
+  // Move down.
+  widget.moveItems(3, 5, 1, reCreate);
+  assertState(
+    [
+      { text: "0-add" },
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "1-add" },
+      { text: "2-add" },
+      { text: "5-add", selected: true, focused: true },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "9-add" },
+      { text: "6-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Focus and selection moved to index 5"
+  );
+
+  // Move in a group.
+  widget.moveItems(4, 5, 3, reCreate);
+  assertState(
+    [
+      { text: "0-add" },
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "1-add" },
+      { text: "8-add" },
+      { text: "2-add" },
+      { text: "5-add", selected: true, focused: true },
+      { text: "7-add" },
+      { text: "9-add" },
+      { text: "6-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Focus and selection moved to index 6"
+  );
+  widget.moveItems(5, 4, 3, reCreate);
+  assertState(
+    [
+      { text: "0-add" },
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "1-add" },
+      { text: "2-add" },
+      { text: "5-add", selected: true, focused: true },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "9-add" },
+      { text: "6-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Focus and selection moved back to index 5"
+  );
+
+  // With focus split from selection.
+  if (model == "focus") {
+    return;
+  }
+
+  // Focus before selection.
+  EventUtils.synthesizeKey("KEY_ArrowRight", { ctrlKey: true }, win);
+  EventUtils.synthesizeKey("KEY_ArrowRight", { ctrlKey: true }, win);
+  assertState(
+    [
+      { text: "0-add" },
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "1-add", focused: true },
+      { text: "2-add" },
+      { text: "5-add", selected: true },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "9-add" },
+      { text: "6-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Focus before selection"
+  );
+
+  // Move before both.
+  widget.moveItems(0, 1, 1, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "0-add" },
+      { text: "3-add" },
+      { text: "1-add", focused: true },
+      { text: "2-add" },
+      { text: "5-add", selected: true },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "9-add" },
+      { text: "6-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Same focus and selection"
+  );
+
+  // Move after both.
+  widget.moveItems(8, 7, 1, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "0-add" },
+      { text: "3-add" },
+      { text: "1-add", focused: true },
+      { text: "2-add" },
+      { text: "5-add", selected: true },
+      { text: "7-add" },
+      { text: "9-add" },
+      { text: "8-add" },
+      { text: "6-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Same focus and selection"
+  );
+
+  // Move focus to after selected.
+  widget.moveItems(3, 6, 2, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "0-add" },
+      { text: "3-add" },
+      { text: "5-add", selected: true },
+      { text: "7-add" },
+      { text: "9-add" },
+      { text: "1-add", focused: true },
+      { text: "2-add" },
+      { text: "8-add" },
+      { text: "6-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Focus moved to after selection"
+  );
+
+  // Move focus before selected.
+  widget.moveItems(5, 2, 3, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "0-add" },
+      { text: "9-add" },
+      { text: "1-add", focused: true },
+      { text: "2-add" },
+      { text: "3-add" },
+      { text: "5-add", selected: true },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "6-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Focus moved to before selection"
+  );
+
+  // Move selection before focus.
+  widget.moveItems(5, 1, 5, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "5-add", selected: true },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "6-add" },
+      { text: "0-add" },
+      { text: "9-add" },
+      { text: "1-add", focused: true },
+      { text: "2-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Selected moved to before focus"
+  );
+
+  // Move selection after focus.
+  widget.moveItems(2, 8, 1, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "6-add" },
+      { text: "0-add" },
+      { text: "9-add" },
+      { text: "1-add", focused: true },
+      { text: "5-add", selected: true },
+      { text: "2-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Selected moved to after focus"
+  );
+
+  // Navigation still works.
+  EventUtils.synthesizeKey("KEY_ArrowRight", { ctrlKey: true }, win);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "6-add" },
+      { text: "0-add" },
+      { text: "9-add", focused: true },
+      { text: "1-add" },
+      { text: "5-add", selected: true },
+      { text: "2-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Selected moved to after focus"
+  );
+
+  // Test with multi-selection.
+  if (model == "browse") {
+    return;
+  }
+
+  EventUtils.synthesizeKey("KEY_ArrowRight", { shiftKey: true }, win);
+  EventUtils.synthesizeKey("KEY_ArrowRight", { shiftKey: true }, win);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "6-add", selected: true, focused: true },
+      { text: "0-add", selected: true },
+      { text: "9-add", selected: true },
+      { text: "1-add" },
+      { text: "5-add" },
+      { text: "2-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Range selection from 9-add to 6-add"
+  );
+
+  // Move non-selected into the middle of the selected.
+  widget.moveItems(8, 5, 2, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "6-add", selected: true, focused: true },
+      { text: "5-add" },
+      { text: "2-add" },
+      { text: "0-add", selected: true },
+      { text: "9-add", selected: true },
+      { text: "1-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Non-selected gap"
+  );
+
+  // Moving an item always ends a Shift range selection.
+  EventUtils.synthesizeKey("KEY_ArrowRight", { shiftKey: true }, win);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "7-add" },
+      { text: "8-add", selected: true, focused: true },
+      { text: "6-add", selected: true },
+      { text: "5-add" },
+      { text: "2-add" },
+      { text: "0-add" },
+      { text: "9-add" },
+      { text: "1-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Range selection from 6-add to 8-add"
+  );
+
+  clickWidgetItem(9, { shiftKey: true }, win);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "6-add", selected: true },
+      { text: "5-add", selected: true },
+      { text: "2-add", selected: true },
+      { text: "0-add", selected: true },
+      { text: "9-add", selected: true },
+      { text: "1-add", selected: true, focused: true },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Range selection from 6-add to 1-add"
+  );
+
+  // Move selected to middle of selected.
+  widget.moveItems(8, 6, 2, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "6-add", selected: true },
+      { text: "5-add", selected: true },
+      { text: "9-add", selected: true },
+      { text: "1-add", selected: true, focused: true },
+      { text: "2-add", selected: true },
+      { text: "0-add", selected: true },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Selection block"
+  );
+
+  // Also ends a Shift range selection.
+  EventUtils.synthesizeKey("KEY_ArrowRight", { shiftKey: true }, win);
+  EventUtils.synthesizeKey("KEY_ArrowRight", { shiftKey: true }, win);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "6-add" },
+      { text: "5-add", selected: true, focused: true },
+      { text: "9-add", selected: true },
+      { text: "1-add", selected: true },
+      { text: "2-add" },
+      { text: "0-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Range selection from 1-add to 5-add"
+  );
+
+  // Move from start of selection to end.
+  widget.moveItems(5, 7, 1, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "6-add" },
+      { text: "9-add", selected: true },
+      { text: "1-add", selected: true },
+      { text: "5-add", selected: true, focused: true },
+      { text: "2-add" },
+      { text: "0-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Moved to end"
+  );
+
+  // And reverse.
+  widget.moveItems(7, 5, 1, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "3-add" },
+      { text: "7-add" },
+      { text: "8-add" },
+      { text: "6-add" },
+      { text: "5-add", selected: true, focused: true },
+      { text: "9-add", selected: true },
+      { text: "1-add", selected: true },
+      { text: "2-add" },
+      { text: "0-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Moved back to start"
+  );
+
+  // Also broke Shift range selection.
+  EventUtils.synthesizeKey("KEY_ArrowRight", { shiftKey: true }, win);
+  EventUtils.synthesizeKey("KEY_ArrowRight", { shiftKey: true }, win);
+  EventUtils.synthesizeKey("KEY_ArrowRight", { shiftKey: true }, win);
+  EventUtils.synthesizeKey("KEY_ArrowRight", { shiftKey: true }, win);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "3-add", selected: true, focused: true },
+      { text: "7-add", selected: true },
+      { text: "8-add", selected: true },
+      { text: "6-add", selected: true },
+      { text: "5-add", selected: true },
+      { text: "9-add" },
+      { text: "1-add" },
+      { text: "2-add" },
+      { text: "0-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "13-add" },
+    ],
+    "Range selection from 5-add to 3-add"
+  );
+
+  EventUtils.synthesizeKey("KEY_ArrowLeft", { ctrlKey: true }, win);
+  EventUtils.synthesizeKey(" ", { ctrlKey: true }, win);
+  EventUtils.synthesizeKey("KEY_End", { ctrlKey: true }, win);
+  EventUtils.synthesizeKey(" ", { ctrlKey: true }, win);
+  EventUtils.synthesizeKey("KEY_ArrowRight", { ctrlKey: true }, win);
+  EventUtils.synthesizeKey("KEY_ArrowRight", { ctrlKey: true }, win);
+  EventUtils.synthesizeKey(" ", { ctrlKey: true }, win);
+  EventUtils.synthesizeKey("KEY_ArrowRight", { ctrlKey: true }, win);
+  EventUtils.synthesizeKey("KEY_ArrowRight", { ctrlKey: true }, win);
+  EventUtils.synthesizeKey(" ", { ctrlKey: true }, win);
+  EventUtils.synthesizeKey("KEY_ArrowRight", { ctrlKey: true }, win);
+  EventUtils.synthesizeKey(" ", { ctrlKey: true }, win);
+
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "3-add", selected: true },
+      { text: "7-add" },
+      { text: "8-add", selected: true },
+      { text: "6-add", selected: true },
+      { text: "5-add", selected: true },
+      { text: "9-add" },
+      { text: "1-add" },
+      { text: "2-add", selected: true, focused: true },
+      { text: "0-add", selected: true },
+      { text: "10-add" },
+      { text: "11-add", selected: true },
+      { text: "12-add" },
+      { text: "13-add", selected: true },
+    ],
+    "Multi-selection"
+  );
+
+  // Move selected with gap into middle of a selection block.
+  widget.moveItems(8, 4, 6, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "3-add", selected: true },
+      { text: "7-add" },
+      { text: "8-add", selected: true },
+      { text: "2-add", selected: true, focused: true },
+      { text: "0-add", selected: true },
+      { text: "10-add" },
+      { text: "11-add", selected: true },
+      { text: "12-add" },
+      { text: "13-add", selected: true },
+      { text: "6-add", selected: true },
+      { text: "5-add", selected: true },
+      { text: "9-add" },
+      { text: "1-add" },
+    ],
+    "Merged ranges together on both sides"
+  );
+
+  // Move selected with gap to start of a selection block.
+  widget.moveItems(5, 1, 5, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "0-add", selected: true },
+      { text: "10-add" },
+      { text: "11-add", selected: true },
+      { text: "12-add" },
+      { text: "13-add", selected: true },
+      { text: "3-add", selected: true },
+      { text: "7-add" },
+      { text: "8-add", selected: true },
+      { text: "2-add", selected: true, focused: true },
+      { text: "6-add", selected: true },
+      { text: "5-add", selected: true },
+      { text: "9-add" },
+      { text: "1-add" },
+    ],
+    "Merged ranges together at start"
+  );
+
+  // Move selected with gap to end of a selection block.
+  widget.moveItems(1, 4, 8, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "2-add", selected: true, focused: true },
+      { text: "6-add", selected: true },
+      { text: "5-add", selected: true },
+      { text: "0-add", selected: true },
+      { text: "10-add" },
+      { text: "11-add", selected: true },
+      { text: "12-add" },
+      { text: "13-add", selected: true },
+      { text: "3-add", selected: true },
+      { text: "7-add" },
+      { text: "8-add", selected: true },
+      { text: "9-add" },
+      { text: "1-add" },
+    ],
+    "Merged ranges together at end"
+  );
+
+  // Move block with non-selected boundaries into middle of selected.
+  widget.moveItems(5, 3, 6, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "2-add", selected: true, focused: true },
+      { text: "6-add", selected: true },
+      { text: "10-add" },
+      { text: "11-add", selected: true },
+      { text: "12-add" },
+      { text: "13-add", selected: true },
+      { text: "3-add", selected: true },
+      { text: "7-add" },
+      { text: "5-add", selected: true },
+      { text: "0-add", selected: true },
+      { text: "8-add", selected: true },
+      { text: "9-add" },
+      { text: "1-add" },
+    ],
+    "Split range block"
+  );
+
+  // Move block with selected at start into middle of selected.
+  widget.moveItems(1, 6, 5, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "13-add", selected: true },
+      { text: "3-add", selected: true },
+      { text: "7-add" },
+      { text: "5-add", selected: true },
+      { text: "0-add", selected: true },
+      { text: "2-add", selected: true, focused: true },
+      { text: "6-add", selected: true },
+      { text: "10-add" },
+      { text: "11-add", selected: true },
+      { text: "12-add" },
+      { text: "8-add", selected: true },
+      { text: "9-add" },
+      { text: "1-add" },
+    ],
+    "Merged ranges together at start"
+  );
+
+  // Move block with selected at end into middle of selected.
+  widget.moveItems(8, 6, 4, reCreate);
+  assertState(
+    [
+      { text: "4-add" },
+      { text: "13-add", selected: true },
+      { text: "3-add", selected: true },
+      { text: "7-add" },
+      { text: "5-add", selected: true },
+      { text: "0-add", selected: true },
+      { text: "10-add" },
+      { text: "11-add", selected: true },
+      { text: "12-add" },
+      { text: "8-add", selected: true },
+      { text: "2-add", selected: true, focused: true },
+      { text: "6-add", selected: true },
+      { text: "9-add" },
+      { text: "1-add" },
+    ],
+    "Merged ranges together at end"
+  );
+
+  // Move selected into non-selected region and move to start.
+  widget.moveItems(4, 0, 6, reCreate);
+  assertState(
+    [
+      { text: "5-add", selected: true },
+      { text: "0-add", selected: true },
+      { text: "10-add" },
+      { text: "11-add", selected: true },
+      { text: "12-add" },
+      { text: "8-add", selected: true },
+      { text: "4-add" },
+      { text: "13-add", selected: true },
+      { text: "3-add", selected: true },
+      { text: "7-add" },
+      { text: "2-add", selected: true, focused: true },
+      { text: "6-add", selected: true },
+      { text: "9-add" },
+      { text: "1-add" },
+    ],
+    "Merged ranges together at end"
+  );
+
+  // Remove gap between two selections and move to end.
+  widget.moveItems(2, 9, 5, reCreate);
+  assertState(
+    [
+      { text: "5-add", selected: true },
+      { text: "0-add", selected: true },
+      { text: "13-add", selected: true },
+      { text: "3-add", selected: true },
+      { text: "7-add" },
+      { text: "2-add", selected: true, focused: true },
+      { text: "6-add", selected: true },
+      { text: "9-add" },
+      { text: "1-add" },
+      { text: "10-add" },
+      { text: "11-add", selected: true },
+      { text: "12-add" },
+      { text: "8-add", selected: true },
+      { text: "4-add" },
+    ],
+    "Merged ranges together"
+  );
+
+  // Navigation still works.
+  EventUtils.synthesizeKey("KEY_ArrowLeft", {}, win);
+  assertState(
+    [
+      { text: "5-add" },
+      { text: "0-add" },
+      { text: "13-add" },
+      { text: "3-add" },
+      { text: "7-add" },
+      { text: "2-add" },
+      { text: "6-add", selected: true, focused: true },
+      { text: "9-add" },
+      { text: "1-add" },
+      { text: "10-add" },
+      { text: "11-add" },
+      { text: "12-add" },
+      { text: "8-add" },
+      { text: "4-add" },
+    ],
+    "Move by one index and single select"
+  );
+}
+
+// Moving items in the widget will move focus and selection with the moved
+// items.
+add_task(function test_move_items() {
+  for (let model of selectionModels) {
+    // We want to be sure the methods work with or without re-creating the
+    // item elements.
+    subtest_move_items(model, false);
+    subtest_move_items(model, true);
   }
 });
 

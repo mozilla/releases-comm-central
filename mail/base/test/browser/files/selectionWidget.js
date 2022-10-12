@@ -23,7 +23,6 @@ class TestSelectionWidget extends HTMLElement {
   items = [];
   #focusItem = this;
   #controller = null;
-  #itemId = 0;
 
   connectedCallback() {
     let widget = this;
@@ -37,8 +36,6 @@ class TestSelectionWidget extends HTMLElement {
     );
     let model = widget.getAttribute("selection-model");
     widget.setAttribute("aria-multiselectable", model == "browse-multi");
-
-    this.#itemId = 0;
 
     this.#controller = new SelectionWidgetController(widget, model, {
       getLayoutDirection() {
@@ -93,6 +90,20 @@ class TestSelectionWidget extends HTMLElement {
     });
   }
 
+  #createItemElement(text) {
+    for (let { element } of this.items) {
+      if (element.textContent == text) {
+        throw new Error(`An item with the text "${text}" already exists`);
+      }
+    }
+    let element = this.ownerDocument.createElement("span");
+    element.textContent = text;
+    element.setAttribute("role", "option");
+    element.tabIndex = -1;
+    element.draggable = this.hasAttribute("items-draggable");
+    return element;
+  }
+
   /**
    * Create new items and add them to the widget.
    *
@@ -101,19 +112,8 @@ class TestSelectionWidget extends HTMLElement {
    *   entry in the array will create one item in the same order.
    */
   addItems(index, textList) {
-    let draggable = this.hasAttribute("items-draggable");
     for (let [i, text] of textList.entries()) {
-      for (let { element } of this.items) {
-        if (element.textContent == text) {
-          throw new Error(`An item with the text "${text}" already exists`);
-        }
-      }
-      let element = this.ownerDocument.createElement("span");
-      element.textContent = text;
-      element.setAttribute("role", "option");
-      element.tabIndex = -1;
-      element.draggable = draggable;
-      this.#itemId++;
+      let element = this.#createItemElement(text);
       this.insertBefore(element, this.items[index + i]?.element ?? null);
       this.items.splice(index + i, 0, { element });
     }
@@ -126,13 +126,40 @@ class TestSelectionWidget extends HTMLElement {
   /**
    * Remove items from the widget.
    *
-   * @param {index} - The starting index at which to remove items.
-   * @param {number} - How many items to remove.
+   * @param {number} index - The starting index at which to remove items.
+   * @param {number} number - How many items to remove.
    */
   removeItems(index, number) {
     this.#controller.removeSelectableItems(index, number, () => {
       for (let { element } of this.items.splice(index, number)) {
         element.remove();
+      }
+    });
+  }
+
+  /**
+   * Move items within the widget.
+   *
+   * @param {number} from - The index at which to move items from.
+   * @param {number} to - The index at which to move items to.
+   * @param {number} number - How many items to move.
+   * @param {boolean} reCreate - Whether to recreate the item when
+   *   moving it. Otherwise the existing item is used.
+   */
+  moveItems(from, to, number, reCreate) {
+    if (reCreate == undefined) {
+      throw new Error("Missing reCreate argument");
+    }
+    this.#controller.moveSelectableItems(from, to, number, () => {
+      let moving = this.items.splice(from, number);
+      for (let [i, item] of moving.entries()) {
+        item.element.remove();
+        if (reCreate) {
+          let text = item.element.textContent;
+          item = { element: this.#createItemElement(text) };
+        }
+        this.insertBefore(item.element, this.items[to + i]?.element ?? null);
+        this.items.splice(to + i, 0, item);
       }
     });
   }
@@ -155,6 +182,9 @@ class TestSelectionWidget extends HTMLElement {
   selectedIndices() {
     let indices = [];
     for (let i = 0; i < this.items.length; i++) {
+      if (typeof this.items[i].selected != "boolean") {
+        throw new Error(`Item ${i} has an undefined selection state`);
+      }
       if (this.items[i].selected) {
         indices.push(i);
       }
