@@ -135,6 +135,7 @@ class SelectionWidgetController {
   /**
    * A range that points to all selectable items whose index `i` obeys
    *   `start <= i < end`
+   * Note, the `start` is inclusive of the index but the `end` is not.
    *
    * @typedef {object} SelectionRange
    * @property {number} start - The starting point of the range.
@@ -515,6 +516,30 @@ class SelectionWidgetController {
   selectSingleItem(index) {
     this.#selectSingle(index);
     this.#moveFocus(index);
+  }
+
+  /**
+   * Get the ranges of all selected items.
+   *
+   * Note that ranges are returned rather than individual indices to keep this
+   * method fast. Unlike the selected indices which might become very large with
+   * a single user operation, like Select-All, the number of ranges will
+   * increase by at most one range per user interaction or public method call.
+   *
+   * Note that the SelectionRange objects specify the range with a `start` and
+   * `end` index. The `start` is inclusive of the index, but the `end` is
+   * not.
+   *
+   * Note that the returned Array is static (it will not update as the selection
+   * changes).
+   *
+   * @return {SelectionRange[]} - An array of all non-overlapping selection
+   * ranges, order by their start index.
+   */
+  getSelectionRanges() {
+    return Array.from(this.#ranges, r => {
+      return { start: r.start, end: r.end };
+    });
   }
 
   /**

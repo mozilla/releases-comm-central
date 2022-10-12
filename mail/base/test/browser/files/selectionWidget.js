@@ -137,6 +137,13 @@ class TestSelectionWidget extends HTMLElement {
     }
     return indices;
   }
+
+  /**
+   * Get the return of SelectionWidgetController.getSelectionRanges
+   */
+  getSelectionRanges() {
+    return this.#controller.getSelectionRanges();
+  }
 }
 
 customElements.define("test-selection-widget", TestSelectionWidget);

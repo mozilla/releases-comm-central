@@ -97,6 +97,24 @@ function reset(options) {
 function assertSelection(indices, msg) {
   let selected = widget.selectedIndices();
   Assert.deepEqual(selected, indices, `Selected indices should match: ${msg}`);
+  // Test that the return of getSelectionRanges is as expected.
+  let expectRanges = [];
+  let lastIndex = -2;
+  let rangeIndex = -1;
+  for (let index of indices) {
+    if (index == lastIndex + 1) {
+      expectRanges[rangeIndex].end++;
+    } else {
+      rangeIndex++;
+      expectRanges.push({ start: index, end: index + 1 });
+    }
+    lastIndex = index;
+  }
+  Assert.deepEqual(
+    widget.getSelectionRanges(),
+    expectRanges,
+    `Selection ranges should match expected: ${msg}`
+  );
 }
 
 /**
