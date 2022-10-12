@@ -11,7 +11,6 @@ from taskgraph.parameters import extend_parameters_schema
 from gecko_taskgraph.parameters import (
     gecko_parameters_schema as comm_parameters_schema,
     get_app_version,
-    get_defaults as get_gecko_defaults,
     get_version,
 )
 
@@ -27,20 +26,21 @@ comm_parameters_schema.update(
         Required("comm_head_ref"): str,
         Required("comm_head_repository"): str,
         Required("comm_head_rev"): str,
+        Required("comm_src_path"): str,
     }
 )
 
 
 def get_defaults(repo_root=None):
-    defaults = get_gecko_defaults(repo_root)
-    defaults.update(
-        {
-            "app_version": get_app_version(product_dir="comm/mail"),
-            "version": get_version("comm/mail"),
-        }
-    )
-    return defaults
+    return {
+        "app_version": get_app_version(product_dir="comm/mail"),
+        "version": get_version("comm/mail"),
+        "comm_src_path": "comm/",
+    }
 
 
 def register_parameters():
+    """Register the additional comm_* parameters with taskgraph. Note that
+    defaults_fn is registered, but it does not actually run by design in the
+    decision task due to 'strict' being True in that case."""
     extend_parameters_schema(comm_parameters_schema, defaults_fn=get_defaults)
