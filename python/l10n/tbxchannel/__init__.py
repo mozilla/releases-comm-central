@@ -11,10 +11,10 @@ def get_thunderbird_xc_config(topsrcdir, strings_path):
     return {
         "strings": {
             "path": strings_path,
-            "url": "https://hg.mozilla.org/users/thunderbird_calypsoblue.org/comm-strings-quarantine/",
+            "url": "https://hg.mozilla.org/users/thunderbird_calypsoblue.org/comm-strings-quarantine/",  # NOQA: E501
             "heads": {"default": "default"},
             "update_on_pull": True,
-            "push_url": "ssh://hg.mozilla.org/users/thunderbird_calypsoblue.org/comm-strings-quarantine/",
+            "push_url": "ssh://hg.mozilla.org/users/thunderbird_calypsoblue.org/comm-strings-quarantine/",  # NOQA: E501
         },
         "source": {
             "comm-central": {
