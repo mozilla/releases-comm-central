@@ -262,28 +262,6 @@ class SelectionWidgetController {
     widget.addEventListener("focusin", event => this.#handleFocusIn(event));
   }
 
-  /**
-   * Query whether the selectable item at the given index is selected or not.
-   *
-   * @param {number} index - The index of the selectable item.
-   *
-   * @return {boolean} - Whether the item is selected.
-   */
-  #indexIsSelected(index) {
-    for (let { start, end } of this.#ranges) {
-      if (index < start) {
-        // index was not in any lower ranges and is before the start of this
-        // range, so should be unselected.
-        return false;
-      }
-      if (index < end) {
-        // start <= index < end
-        return true;
-      }
-    }
-    return false;
-  }
-
   #assertIntegerInRange(integer, lower, upper, name) {
     if (!Number.isInteger(integer)) {
       throw new RangeError(`"${name}" ${integer} is not an integer`);
@@ -476,7 +454,7 @@ class SelectionWidgetController {
     this.#assertIntegerInRange(number, 1, this.#numItems - index, "number");
 
     let focusWasSelected =
-      this.#focusIndex != null && this.#indexIsSelected(this.#focusIndex);
+      this.#focusIndex != null && this.itemIsSelected(this.#focusIndex);
     // Get whether the focus is within the widget now in case it is lost when
     // the items are removed.
     let focusInWidget = this.#focusInWidget();
@@ -736,7 +714,33 @@ class SelectionWidgetController {
    */
   selectSingleItem(index) {
     this.#selectSingle(index);
-    this.#moveFocus(index);
+    let focusInWidget = this.#focusInWidget();
+    if (this.#focusIndex == null && !focusInWidget) {
+      // Wait until handleFocusIn to move the focus to the selected item in case
+      // other items become selected through setItemSelected.
+      return;
+    }
+    this.#moveFocus(index, focusInWidget);
+  }
+
+  /**
+   * Set the selection state of the specified item, but otherwise leave the
+   * selection state of other items the same.
+   *
+   * Note that this will throw if the selection model does not support multi
+   * selection. Generally, you should try and use selectSingleItem instead
+   * because this also moves the focus appropriately and works for all models.
+   *
+   * @param {number} index - The index for the item to set the selection state
+   *   of.
+   * @param {boolean} selected - Whether the item should be selected or
+   *   unselected.
+   */
+  setItemSelected(index, selected) {
+    if (!this.#multiSelectable) {
+      throw new Error("Widget does not support multi-selection");
+    }
+    this.#toggleSelection(index, !!selected);
   }
 
   /**
@@ -761,6 +765,29 @@ class SelectionWidgetController {
     return Array.from(this.#ranges, r => {
       return { start: r.start, end: r.end };
     });
+  }
+
+  /**
+   * Query whether the specified item is selected or not.
+   *
+   * @param {number} index - The index for the item to query.
+   *
+   * @return {boolean} - Whether the item is selected.
+   */
+  itemIsSelected(index) {
+    this.#assertIntegerInRange(index, 0, this.#numItems - 1, "index");
+    for (let { start, end } of this.#ranges) {
+      if (index < start) {
+        // index was not in any lower ranges and is before the start of this
+        // range, so should be unselected.
+        return false;
+      }
+      if (index < end) {
+        // start <= index < end
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -818,8 +845,10 @@ class SelectionWidgetController {
    * Toggle the selection state at a single index.
    *
    * @param {number} index - The index to toggle the selection state of.
+   * @param {boolean} [selectState] - The state to force the selection state of
+   *   the item to, or leave undefined to toggle the state.
    */
-  #toggleSelection(index) {
+  #toggleSelection(index, selectState) {
     this.#assertIntegerInRange(index, 0, this.#numItems - 1, "index");
 
     let wasSelected = false;
@@ -839,6 +868,10 @@ class SelectionWidgetController {
       if (index < end) {
         // start <= index < end
         wasSelected = true;
+        if (selectState) {
+          // Already selected and we want to keep it that way.
+          break;
+        }
         if (start == index && end == index + 1) {
           // A   B   C [ D ] E   F   G
           //        start^   ^end
@@ -874,7 +907,7 @@ class SelectionWidgetController {
         break;
       }
     }
-    if (!wasSelected) {
+    if (!wasSelected && (selectState == undefined || selectState)) {
       // The index i points to a *gap* between existing ranges, so lies in
       // [0, numItems]. Note, the space between the start and the first range,
       // or the end and the last range count as gaps, even if they are zero
@@ -907,7 +940,7 @@ class SelectionWidgetController {
         this.#ranges.splice(i, 0, { start: index, end: index + 1 });
       }
     }
-    this.#methods.setItemSelectionState(index, 1, !wasSelected);
+    this.#methods.setItemSelectionState(index, 1, selectState ?? !wasSelected);
     // Cancel any shift range.
     this.#shiftRangeDirection = null;
   }
@@ -1093,7 +1126,7 @@ class SelectionWidgetController {
       this.#adjustFocusAndSelection(clickIndex, "toggle");
     } else if (shiftKey) {
       this.#adjustFocusAndSelection(clickIndex, "range");
-    } else if (this.#multiSelectable && this.#indexIsSelected(clickIndex)) {
+    } else if (this.#multiSelectable && this.itemIsSelected(clickIndex)) {
       // We set the focus now, but wait until "click" to select a single item.
       // We do this to allow the user to drag a multi selection.
       this.#adjustFocusAndSelection(clickIndex, undefined);

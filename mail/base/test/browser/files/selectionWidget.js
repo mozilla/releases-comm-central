@@ -168,10 +168,22 @@ class TestSelectionWidget extends HTMLElement {
    * Selects a single item via the SelectionWidgetController.selectSingleItem
    * method.
    *
-   * @param {index} - The index of the item to select.
+   * @param {number} index - The index of the item to select.
    */
   selectSingleItem(index) {
     this.#controller.selectSingleItem(index);
+  }
+
+  /**
+   * Changes the selection state of an item via the
+   * SelectionWidgetController.setItemSelected method.
+   *
+   * @param {number} index - The index of the item to set the selection state
+   *   of.
+   * @param {boolean} select - Whether to select the item.
+   */
+  setItemSelected(index, select) {
+    this.#controller.setItemSelected(index, select);
   }
 
   /**
@@ -182,10 +194,20 @@ class TestSelectionWidget extends HTMLElement {
   selectedIndices() {
     let indices = [];
     for (let i = 0; i < this.items.length; i++) {
+      // Assert that the item has a defined selection state set in
+      // setItemSelectionState.
       if (typeof this.items[i].selected != "boolean") {
         throw new Error(`Item ${i} has an undefined selection state`);
       }
-      if (this.items[i].selected) {
+      // Assert that our stored selection state matches that returned by the
+      // controller API.
+      let itemIsSelected = this.#controller.itemIsSelected(i);
+      if (this.items[i].selected != itemIsSelected) {
+        throw new Error(
+          `itemIsSelected(${i}): "${itemIsSelected}" does not match stored selection state "${this.items[i].selected}"`
+        );
+      }
+      if (itemIsSelected) {
         indices.push(i);
       }
     }

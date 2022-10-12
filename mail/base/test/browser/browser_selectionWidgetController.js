@@ -324,57 +324,86 @@ add_task(function test_empty_widget_focus() {
   }
 });
 
-// If the widget has no selection when we move into it, the first item is
-// focused and selected.
-add_task(function test_initial_no_select_focus() {
-  for (let model of selectionModels) {
-    // Forward.
-    reset({ model });
-    widget.addItems(0, ["First", "Second"]);
+/**
+ * Test that the initial focus is as expected.
+ *
+ * @param {string} model - The selection model to use.
+ * @param {Function} setup - A callback to set up the widget.
+ * @param {number} clickIndex - The index of an item to click.
+ * @param {object} expect - The expected states.
+ * @param {number} expect.focusIndex - The expected focus index.
+ * @param {number[]} expect.selection - The expected initial selection.
+ * @param {boolean} expect.selectFocus - Whether we expect the focused item to
+ *   become selected.
+ */
+function subtest_initial_focus(model, setup, expect) {
+  let { focusIndex: index, selection, selectFocus } = expect;
 
-    assertFocus({ element: before }, "Forward start");
-    assertSelection([], "Initial");
+  reset({ model });
+  setup();
 
-    stepFocus(true, { index: 0 }, "Move onto first item");
-    assertSelection([0], "First item becomes selected");
-    stepFocus(true, { element: after }, "Move out of widget");
+  assertFocus({ element: before }, "Forward start");
+  assertSelection(selection, "Initial selection");
 
-    // Reverse.
-    reset({ model });
-    after.focus();
-    widget.addItems(0, ["First", "Second"]);
+  stepFocus(true, { index }, "Move onto selected item");
+  if (selectFocus) {
+    assertSelection([index], "Focus becomes selected");
+  } else {
+    assertSelection(selection, "Selection remains when focussing");
+  }
+  stepFocus(true, { element: after }, "Move out of widget");
 
-    assertFocus({ element: after }, "Reverse start");
-    assertSelection([], "Reverse start");
+  // Reverse.
+  reset({ model });
+  after.focus();
+  setup();
 
-    stepFocus(false, { index: 0 }, "Move backward to first item");
-    assertSelection([0], "First item becomes selected on reverse");
-    stepFocus(false, { element: before }, "Move out of widget");
+  assertFocus({ element: after }, "Reverse start");
+  assertSelection(selection, "Reverse start");
 
-    // With mouse click.
-    for (let shiftKey of [false, true]) {
-      for (let ctrlKey of [false, true]) {
-        info(`Clicking widget: ctrlKey: ${ctrlKey}, shiftKey: ${shiftKey}`);
+  stepFocus(false, { index }, "Move backward to selected item");
+  if (selectFocus) {
+    assertSelection([index], "Focus becomes selected");
+  } else {
+    assertSelection(selection, "Selection remains when focussing");
+  }
+  stepFocus(false, { element: before }, "Move out of widget");
 
+  // With mouse click.
+  for (let shiftKey of [false, true]) {
+    for (let ctrlKey of [false, true]) {
+      info(`Clicking widget: ctrlKey: ${ctrlKey}, shiftKey: ${shiftKey}`);
+
+      reset({ model });
+      setup();
+
+      assertFocus({ element: before }, "Click empty start");
+      assertSelection(selection, "Click empty start");
+      clickWidgetEmptySpace({ ctrlKey, shiftKey });
+      assertFocus(
+        { index },
+        "Selected item becomes focused with click on empty"
+      );
+      if (selectFocus) {
+        assertSelection([index], "Focus becomes selected on click on empty");
+      } else {
+        assertSelection(selection, "Selection remains when click on empty");
+      }
+
+      // With mouse click on item focus moves to the clicked item instead.
+      for (let clickIndex of [
+        (index || widget.items.length) - 1,
+        index,
+        index + 1,
+      ]) {
         reset({ model });
-        widget.addItems(0, ["First", "Second"]);
+        setup();
 
-        assertFocus({ element: before }, "Click empty start");
-        assertSelection([], "Click empty start");
-        clickWidgetEmptySpace({});
-        assertFocus(
-          { index: 0 },
-          "First item becomes focused with click on empty"
-        );
-        assertSelection([0], "First item becomes selected with click on empty");
+        assertFocus({ element: before }, "Click first item start");
+        assertSelection(selection, "Click first item start");
 
-        // With mouse click on item.
-        reset({ model });
-        widget.addItems(0, ["First", "Second", "Third", "Fourth"]);
+        clickWidgetItem(clickIndex, { shiftKey, ctrlKey });
 
-        assertFocus({ element: before }, "Click third item start");
-        assertSelection([], "Click third item start");
-        clickWidgetItem(2, { shiftKey, ctrlKey });
         if (
           (shiftKey && ctrlKey) ||
           ((shiftKey || ctrlKey) && (model == "focus" || model == "browse"))
@@ -382,142 +411,110 @@ add_task(function test_initial_no_select_focus() {
           // Both modifiers, or multi-selection not supported, so acts the
           // same as clicking empty.
           assertFocus(
-            { index: 0 },
-            "First item becomes focused with click on item"
+            { index },
+            "Selected item becomes focused with click on item"
           );
-          assertSelection(
-            [0],
-            "First item becomes selected with click on item"
-          );
+          if (selectFocus) {
+            assertSelection([index], "Focus becomes selected on click on item");
+          } else {
+            assertSelection(selection, "Selection remains when click on item");
+          }
         } else {
           assertFocus(
-            { index: 2 },
-            "Third item becomes focused with click on item"
+            { index: clickIndex },
+            "Clicked item becomes focused with click on item"
           );
+          let clickSelection;
           if (ctrlKey) {
-            // Ctrl key toggles the clicked index to be selected.
-            assertSelection(
-              [2],
-              "Third item becomes selected with Ctrl+click on item"
-            );
+            if (selection.includes(clickIndex)) {
+              // Toggle off clicked item.
+              clickSelection = selection.filter(index => index != clickIndex);
+            } else {
+              clickSelection = selection.concat([clickIndex]).sort();
+            }
           } else if (shiftKey) {
-            // Shift key selects from the first index to the clicked index.
-            assertSelection(
-              [0, 1, 2],
-              "First to third item become selected with Shift+click on item"
-            );
+            // Range selection is always from 0, regardless of the selection
+            // before the click.
+            clickSelection = range(0, clickIndex + 1);
           } else {
-            assertSelection(
-              [2],
-              "Third item becomes selected with click on item"
-            );
+            clickSelection = [clickIndex];
           }
+          assertSelection(clickSelection, "Selection after click on item");
         }
       }
     }
   }
-});
+}
 
 // If the widget has a selection when we move into it, the selected item is
 // focused.
-add_task(function test_initial_select_focus() {
+add_task(function test_initial_focus() {
   for (let model of selectionModels) {
-    reset({ model });
-    widget.addItems(0, ["First", "Second", "Third"]);
-    widget.selectSingleItem(1);
-
-    assertFocus({ element: before }, "Forward start");
-    assertSelection([1], "Initial selection on second item");
-
-    stepFocus(true, { index: 1 }, "Move onto selected item");
-    assertSelection([1], "Second item remains selected");
-    stepFocus(true, { element: after }, "Move out of widget");
-
-    // Reverse.
-    reset({ model });
-    after.focus();
-    widget.addItems(0, ["First", "Second", "Third"]);
-    widget.selectSingleItem(1);
-
-    assertFocus({ element: after }, "Reverse start");
-    assertSelection([1], "Reverse start");
-
-    stepFocus(false, { index: 1 }, "Move backward to selected item");
-    assertSelection([1], "Second item remains selected on reverse");
-    stepFocus(false, { element: before }, "Move out of widget");
-
-    // With mouse click.
-    for (let shiftKey of [false, true]) {
-      for (let ctrlKey of [false, true]) {
-        info(`Clicking widget: ctrlKey: ${ctrlKey}, shiftKey: ${shiftKey}`);
-
-        reset({ model });
-        widget.addItems(0, ["First", "Second", "Third"]);
-        widget.selectSingleItem(1);
-
-        assertFocus({ element: before }, "Click empty start");
-        assertSelection([1], "Click empty start");
-        clickWidgetEmptySpace({});
-        assertFocus(
-          { index: 1 },
-          "Selected item becomes focused with click on empty"
-        );
-        assertSelection(
-          [1],
-          "Second item remains selected with click on empty"
-        );
-
-        // With mouse click on item.
-        reset({ model });
+    // With no initial selection.
+    subtest_initial_focus(
+      model,
+      () => {
+        widget.addItems(0, ["First", "Second", "Third", "Fourth"]);
+      },
+      { focusIndex: 0, selection: [], selectFocus: true }
+    );
+    // With call to selectSingleItem
+    subtest_initial_focus(
+      model,
+      () => {
         widget.addItems(0, ["First", "Second", "Third", "Fourth"]);
         widget.selectSingleItem(2);
+      },
+      { focusIndex: 2, selection: [2], selectFocus: false }
+    );
 
-        assertFocus({ element: before }, "Click first item start");
-        assertSelection([2], "Click first item start");
-
-        clickWidgetItem(0, { shiftKey, ctrlKey });
-        if (
-          (shiftKey && ctrlKey) ||
-          ((shiftKey || ctrlKey) && (model == "focus" || model == "browse"))
-        ) {
-          // Both modifiers, or multi-selection not supported, so acts the
-          // same as clicking empty.
-          assertFocus(
-            { index: 2 },
-            "Selected item becomes focused with click on item"
-          );
-          assertSelection(
-            [2],
-            "Third item remains selected with click on item"
-          );
-        } else {
-          assertFocus(
-            { index: 0 },
-            "First item becomes focused with click on item"
-          );
-          if (ctrlKey) {
-            // We toggle the first item to be selected, and the third item
-            // remains selected.
-            assertSelection(
-              [0, 2],
-              "First item becomes selected with Ctrl+click on item"
-            );
-          } else if (shiftKey) {
-            // We select between the previous focus item and the clicked item.
-            // I.e. between the third and the first.
-            assertSelection(
-              [0, 1, 2],
-              "First to third items are selected with Shift+click on item"
-            );
-          } else {
-            assertSelection(
-              [0],
-              "First item becomes selected with click on item"
-            );
-          }
-        }
-      }
+    // Using the setItemSelected API
+    if (model == "focus" || model == "browse") {
+      continue;
     }
+
+    subtest_initial_focus(
+      model,
+      () => {
+        widget.addItems(0, ["First", "Second", "Third", "Fourth"]);
+        widget.setItemSelected(2, true);
+      },
+      { focusIndex: 2, selection: [2], selectFocus: false }
+    );
+
+    // With multiple selected, we move focus to the first selected.
+    subtest_initial_focus(
+      model,
+      () => {
+        widget.addItems(0, ["First", "Second", "Third", "Fourth"]);
+        widget.setItemSelected(2, true);
+        widget.setItemSelected(1, true);
+      },
+      { focusIndex: 1, selection: [1, 2], selectFocus: false }
+    );
+
+    // If we use both methods.
+    subtest_initial_focus(
+      model,
+      () => {
+        widget.addItems(0, ["First", "Second", "Third", "Fourth"]);
+        widget.selectSingleItem(2, true);
+        widget.setItemSelected(1, true);
+      },
+      { focusIndex: 1, selection: [1, 2], selectFocus: false }
+    );
+
+    // If we call selectSingleItem and then unselect it, we act same as the
+    // default case.
+    subtest_initial_focus(
+      model,
+      () => {
+        widget.addItems(0, ["First", "Second", "Third", "Fourth"]);
+        widget.selectSingleItem(2, true);
+        widget.setItemSelected(2, false);
+      },
+      { focusIndex: 0, selection: [], selectFocus: true }
+    );
   }
 });
 
@@ -681,6 +678,75 @@ add_task(function test_select_single_item_method() {
         }
       }
     }
+  }
+});
+
+// If setItemSelected API method is called, we set the selection state of an
+// item but do not change anything else.
+add_task(function test_set_item_selected_method() {
+  for (let model of selectionModels) {
+    reset({ model });
+    widget.addItems(0, ["First", "Second", "Third", "Fourth", "Fifth"]);
+    stepFocus(true, { index: 0 }, "Initial focus on first item");
+    assertSelection([0], "Initial selection on first item");
+
+    if (model == "focus" || model == "browse") {
+      // This method always throws.
+      Assert.throws(
+        () => widget.setItemSelected(2, true),
+        /Widget does not support multi-selection/
+      );
+      // Even if it would not change the single selection state.
+      Assert.throws(
+        () => widget.setItemSelected(2, false),
+        /Widget does not support multi-selection/
+      );
+      Assert.throws(
+        () => widget.setItemSelected(0, true),
+        /Widget does not support multi-selection/
+      );
+      continue;
+    }
+
+    // Can select.
+    widget.setItemSelected(2, true);
+    assertFocus({ index: 0 }, "Same focus");
+    assertSelection([0, 2], "Item 2 becomes selected");
+
+    // And unselect.
+    widget.setItemSelected(0, false);
+    assertFocus({ index: 0 }, "Same focus");
+    assertSelection([2], "Item 0 is unselected");
+
+    // Does nothing extra if already selected/unselected.
+    widget.setItemSelected(2, true);
+    assertFocus({ index: 0 }, "Same focus");
+    assertSelection([2], "Same selected");
+
+    widget.setItemSelected(0, false);
+    assertFocus({ index: 0 }, "Same focus");
+    assertSelection([2], "Same selected");
+
+    EventUtils.synthesizeKey("KEY_ArrowLeft", { ctrlKey: true }, win);
+    EventUtils.synthesizeKey("KEY_ArrowLeft", { ctrlKey: true }, win);
+    EventUtils.synthesizeKey("KEY_ArrowLeft", { ctrlKey: true }, win);
+
+    // Select the focused item.
+    assertFocus({ index: 3 }, "Focus on item 3");
+    assertSelection([2], "Same selected");
+
+    widget.setItemSelected(3, true);
+    assertFocus({ index: 3 }, "Same focus");
+    assertSelection([2, 3], "Item 3 selected");
+
+    widget.setItemSelected(2, false);
+    assertFocus({ index: 3 }, "Same focus");
+    assertSelection([3], "Item 2 unselected");
+
+    // Can select none this way.
+    widget.setItemSelected(3, false);
+    assertFocus({ index: 3 }, "Same focus");
+    assertSelection([], "None selected");
   }
 });
 
@@ -2052,6 +2118,44 @@ add_task(function test_range_selection() {
     assertFocus({ index: 1 }, "Focus remains on second item");
     assertSelection([0], "Second item is no longer selected");
 
+    EventUtils.synthesizeKey("KEY_ArrowLeft", { shiftKey: true }, win);
+    assertFocus({ index: 2 }, "Focus moves to third item");
+    assertSelection([1, 2], "Second to third item are selected");
+
+    // Same when using setItemSelected API
+    widget.setItemSelected(4, true);
+    assertFocus({ index: 2 }, "Focus remains on third item");
+    assertSelection([1, 2, 4], "Fifth item becomes selected");
+
+    EventUtils.synthesizeKey("KEY_ArrowLeft", { shiftKey: true }, win);
+    assertFocus({ index: 3 }, "Focus moves to fourth item");
+    assertSelection([2, 3], "Third to fourth item are selected");
+    EventUtils.synthesizeKey("KEY_ArrowLeft", { shiftKey: true }, win);
+    assertFocus({ index: 4 }, "Focus moves to fifth item");
+    assertSelection([2, 3, 4], "Third to fifth item are selected");
+
+    widget.setItemSelected(3, false);
+    assertFocus({ index: 4 }, "Focus remains on fifth item");
+    assertSelection([2, 4], "Fourth item becomes unselected");
+
+    EventUtils.synthesizeKey("KEY_ArrowRight", { shiftKey: true }, win);
+    assertFocus({ index: 3 }, "Focus moves to fourth item");
+    assertSelection([3, 4], "Fifth to fourth item are selected");
+
+    // Even when the selection state does not change.
+    widget.setItemSelected(3, true);
+    assertFocus({ index: 3 }, "Focus remains on fourth item");
+    assertSelection([3, 4], "Same selection");
+    EventUtils.synthesizeKey("KEY_ArrowRight", { shiftKey: true }, win);
+    assertFocus({ index: 2 }, "Focus moves to third item");
+    assertSelection([2, 3], "Fourth to third item are selected");
+    EventUtils.synthesizeKey("KEY_ArrowRight", { shiftKey: true }, win);
+    assertFocus({ index: 1 }, "Focus moves to second item");
+    assertSelection([1, 2, 3], "Fourth to second item are selected");
+
+    widget.setItemSelected(4, false);
+    assertFocus({ index: 1 }, "Focus remains on second item");
+    assertSelection([1, 2, 3], "Same selection");
     EventUtils.synthesizeKey("KEY_ArrowLeft", { shiftKey: true }, win);
     assertFocus({ index: 2 }, "Focus moves to third item");
     assertSelection([1, 2], "Second to third item are selected");
