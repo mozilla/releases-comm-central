@@ -2996,11 +2996,18 @@ add_task(function test_add_items_to_empty_with_focus() {
         info(
           `Adding items to empty focused widget and then ${
             ctrlKey ? "Ctrl+" : ""
-          }${shiftKey ? "Shift+" : ""}+Click`
+          }${shiftKey ? "Shift+" : ""}Click`
         );
         reset({ model });
         stepFocus(true, { element: widget }, "Move focus onto empty widget");
         widget.addItems(0, ["First", "Second", "Third"]);
+
+        // Clicking empty space does nothing.
+        clickWidgetEmptySpace({ ctrlKey, shiftKey });
+        assertFocus({ element: widget }, "Focus remains on widget");
+        assertSelection([], "No item selected");
+
+        // Clicking an item can change focus and selection.
         clickWidgetItem(1, { ctrlKey, shiftKey });
         if (
           (ctrlKey && shiftKey) ||

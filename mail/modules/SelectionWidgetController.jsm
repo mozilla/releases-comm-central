@@ -737,10 +737,8 @@ class SelectionWidgetController {
    *
    * @param {?number} index - The index of the item to focus, or null to focus
    *   the widget. If the index is out of range, it will be truncated.
-   * @param {boolean} [forceFocus=false] - Whether to move the focus onto the
-   *   item, regardless of whether the widget has focus.
    */
-  #moveFocus(index, forceFocus) {
+  #moveFocus(index) {
     let numItems = this.#numItems;
     if (index != null) {
       if (index >= numItems) {
@@ -752,23 +750,34 @@ class SelectionWidgetController {
     this.#focusIndex = index;
     this.#methods.setFocusableItem(
       index,
-      forceFocus ||
-        this.#widget.contains(this.#widget.ownerDocument.activeElement)
+      // If focus is within the widget, we move focus onto the new item.
+      this.#widget.contains(this.#widget.ownerDocument.activeElement)
     );
   }
 
   #handleFocusIn(event) {
-    // If the widget receives focus and we have items, we move focus onto an
-    // item.
-    if (this.#focusIndex != null || !this.#numItems) {
+    if (
+      // No item is focused,
+      this.#focusIndex == null &&
+      // and we have at least one item,
+      this.#numItems &&
+      // and the focus moved from outside the widget.
+      // NOTE: relatedTarget may be null, but Node.contains will also return
+      // false for this case, as desired.
+      !this.#widget.contains(event.relatedTarget)
+    ) {
+      // If nothing is selected, select the first item.
+      if (!this.#ranges.length) {
+        this.#selectSingle(0);
+      }
+      // Focus first selected item.
+      this.#moveFocus(this.#ranges[0].start);
       return;
     }
-    // If nothing is selected, select the first item.
-    if (!this.#ranges.length) {
-      this.#selectSingle(0);
+    if (this.#focusIndex != this.#methods.indexFromTarget(event.target)) {
+      // Restore focus to where it needs to be.
+      this.#moveFocus(this.#focusIndex);
     }
-    // Focus first selected item.
-    this.#moveFocus(this.#ranges[0].start, true);
   }
 
   /**
@@ -787,7 +796,7 @@ class SelectionWidgetController {
     let prevFocusIndex = this.#focusIndex;
     if (focusIndex !== undefined) {
       // NOTE: We need a strict inequality since focusIndex may be null.
-      this.#moveFocus(focusIndex, true);
+      this.#moveFocus(focusIndex);
     }
     // Change selection relative to the focused index.
     // NOTE: We use the #focusIndex value rather than the focusIndex variable.
@@ -864,38 +873,33 @@ class SelectionWidgetController {
   }
 
   #handleMouseDown(event) {
-    if (event.buttons != 1 || event.metaKey || event.altKey) {
+    // NOTE: The default handler for mousedown will move focus onto the clicked
+    // item or the widget, but #handleFocusIn will re-assign it to the current
+    // #focusIndex if it differs.
+    if (event.button != 0 || event.metaKey || event.altKey) {
       return;
     }
-    // Reserve the mousedown event.
-    event.stopPropagation();
-    event.preventDefault();
-
     let { shiftKey, ctrlKey } = event;
-    let focusIndex;
-    let select;
-    let clickIndex = this.#methods.indexFromTarget(event.target);
     if (
-      clickIndex == null ||
-      // Clicking empty space.
       (ctrlKey && shiftKey) ||
       // Both modifiers pressed.
       ((ctrlKey || shiftKey) && !this.#multiSelectable)
       // Attempting multi-selection when not supported
     ) {
-      // Just re-focus the widget.
-      focusIndex = this.#focusIndex;
-    } else {
-      focusIndex = clickIndex;
-      if (ctrlKey) {
-        select = "toggle";
-      } else if (shiftKey) {
-        select = "range";
-      } else {
-        select = "single";
-      }
+      return;
     }
-    this.#adjustFocusAndSelection(focusIndex, select);
+    let clickIndex = this.#methods.indexFromTarget(event.target);
+    if (clickIndex == null) {
+      // Clicked empty space.
+      return;
+    }
+    if (ctrlKey) {
+      this.#adjustFocusAndSelection(clickIndex, "toggle");
+    } else if (shiftKey) {
+      this.#adjustFocusAndSelection(clickIndex, "range");
+    } else {
+      this.#adjustFocusAndSelection(clickIndex, "single");
+    }
   }
 
   #handleKeyDown(event) {
