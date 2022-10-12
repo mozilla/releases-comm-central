@@ -121,9 +121,6 @@ function delayedOnLoadMessageWindow() {
 
   InitMsgWindow();
 
-  msgWindow.msgHeaderSink = messageBrowser.contentWindow.messageHeaderSink;
-  messenger.setWindow(window, msgWindow);
-
   // initialize the customizeDone method on the customizeable toolbar
   var toolbox = document.getElementById("mail-toolbox");
   toolbox.customizeDone = function(aEvent) {

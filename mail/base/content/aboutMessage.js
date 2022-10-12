@@ -111,24 +111,12 @@ function MailSetCharacterSet() {
   messageService.DisplayMessage(
     gMessageURI,
     content.docShell,
-    msgWindow,
+    top.msgWindow,
     null,
     true,
     {}
   );
 }
-
-var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-var MsgStatusFeedback =
-  window.browsingContext.topChromeWindow.MsgStatusFeedback;
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
-msgWindow.domWindow = window;
-msgWindow.msgHeaderSink = window.messageHeaderSink;
-msgWindow.statusFeedback = Cc[
-  "@mozilla.org/messenger/statusfeedback;1"
-].createInstance(Ci.nsIMsgStatusFeedback);
 
 window.addEventListener("DOMContentLoaded", event => {
   if (event.target != document) {
@@ -148,16 +136,6 @@ window.addEventListener("DOMContentLoaded", event => {
   }
 
   preferenceObserver.init();
-
-  // TODO: I really don't understand what's going on here. The messenger.xhtml
-  // sink needs to be set or images in messageWindow.xhtml don't display.
-  if (
-    window.browsingContext.topChromeWindow.location.href ==
-    "chrome://messenger/content/messenger.xhtml"
-  ) {
-    window.browsingContext.topChromeWindow.msgWindow.msgHeaderSink =
-      window.messageHeaderSink;
-  }
 });
 
 window.addEventListener("unload", () => {
@@ -165,11 +143,7 @@ window.addEventListener("unload", () => {
   OnUnloadMsgHeaderPane();
   MailServices.mailSession.RemoveFolderListener(folderListener);
   preferenceObserver.cleanUp();
-  msgWindow.msgHeaderSink = null;
-  msgWindow.closeWindow();
-  msgWindow = null;
   gViewWrapper?.close();
-  window.browsingContext.topChromeWindow.msgWindow.msgHeaderSink = null;
 });
 
 window.addEventListener("keypress", event => {
@@ -190,10 +164,16 @@ function displayExternalMessage(uri) {
   gViewWrapper.openSearchView();
   gDBView = gViewWrapper.dbView;
 
-  messenger.setWindow(window, msgWindow);
-  messenger.loadURL(null, uri);
-
-  gMessage = messageHeaderSink.dummyMsgHeader;
+  let messageService = MailServices.messageServiceFromURI(uri);
+  messageService.DisplayMessage(
+    uri,
+    content.docShell,
+    top.msgWindow,
+    null,
+    null,
+    {}
+  );
+  gMessage = top.msgWindow.msgHeaderSink.dummyMsgHeader;
 }
 
 function displayMessage(uri, viewWrapper) {
@@ -234,8 +214,6 @@ function displayMessage(uri, viewWrapper) {
       gViewWrapper.dbView.findIndexOfMsgHdr(gMessage, true)
     );
     gDBView = gViewWrapper.dbView;
-  } else {
-    gMessage = messageHeaderSink.dummyMsgHeader;
   }
 
   MailE10SUtils.changeRemoteness(content, null);
@@ -244,20 +222,21 @@ function displayMessage(uri, viewWrapper) {
   content.docShell
     ?.QueryInterface(Ci.nsIWebProgress)
     .addProgressListener(
-      msgWindow.statusFeedback,
+      top.msgWindow.statusFeedback,
       Ci.nsIWebProgress.NOTIFY_ALL
     );
 
-  // Ideally we'd do this without creating a msgWindow, and just pass the
-  // docShell to the message service, but that's not easy yet.
   messageService.DisplayMessage(
     uri,
     content.docShell,
-    msgWindow,
+    top.msgWindow,
     null,
     null,
     {}
   );
+  if (!gMessage) {
+    gMessage = top.msgWindow.msgHeaderSink.dummyMsgHeader;
+  }
 
   if (gMessage.flags & Ci.nsMsgMessageFlags.HasRe) {
     document.title = `Re: ${gMessage.mime2DecodedSubject}`;
