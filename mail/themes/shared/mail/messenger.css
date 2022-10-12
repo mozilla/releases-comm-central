@@ -821,10 +821,6 @@ hr[is="pane-splitter"][resize-direction="horizontal"].splitter-collapsed:is(
   display: none;
 }
 
-.addons-icon {
-  list-style-image: url("chrome://messenger/skin/icons/new/compact/extension.svg");
-}
-
 .popup-notification-icon {
   width: 32px;
   height: 32px;
@@ -861,7 +857,6 @@ hr[is="pane-splitter"][resize-direction="horizontal"].splitter-collapsed:is(
 }
 
 .app-update-icon {
-  list-style-image: url("chrome://messenger/skin/icons/app-update-badge.svg");
   background-color: #74BF43;
   border-radius: 50%;
 }
