@@ -89,6 +89,18 @@ function reset(options) {
 }
 
 /**
+ * Create an array of sequential integers.
+ *
+ * @param {number} start - The starting integer.
+ * @param {number} num - The number of integers.
+ *
+ * @return {number[]} - Array of integers between start and (start + num - 1).
+ */
+function range(start, num) {
+  return Array.from({ length: num }, (_, i) => start + i);
+}
+
+/**
  * Assert that the specified items are selected in the widget, and nothing else.
  *
  * @param {number[]} indices - The indices of the selected items.
@@ -669,151 +681,897 @@ add_task(function test_select_single_item_method() {
   }
 });
 
+/**
+ * Test navigation for the given direction.
+ *
+ * @param {string} model - The selection model to use.
+ * @param {string} direction - The layout direction of the widget.
+ * @param {Object} keys - Navigation keys.
+ * @param {string} keys.forward - The key to move forward.
+ * @param {string} keys.backward - The key to move backward.
+ */
+function subtest_keyboard_navigation(model, direction, keys) {
+  let { forward: forwardKey, backward: backwardKey } = keys;
+  reset({ model, direction });
+  widget.addItems(0, ["First", "Second", "Third"]);
+
+  stepFocus(true, { index: 0 }, "Initially on first item");
+
+  // Without Ctrl, selection follows focus.
+
+  // Forward.
+  EventUtils.synthesizeKey(forwardKey, {}, win);
+  assertFocus({ index: 1 }, "Forward to second item");
+  assertSelection([1], "Second item becomes selected on focus");
+  EventUtils.synthesizeKey(forwardKey, {}, win);
+  assertFocus({ index: 2 }, "Forward to third item");
+  assertSelection([2], "Third item becomes selected on focus");
+  EventUtils.synthesizeKey(forwardKey, {}, win);
+  assertFocus({ index: 2 }, "Forward at end remains on third item");
+  assertSelection([2], "Third item remains selected");
+
+  // Backward.
+  EventUtils.synthesizeKey(backwardKey, {}, win);
+  assertFocus({ index: 1 }, "Backward to second item");
+  assertSelection([1], "Second item becomes selected on focus");
+  EventUtils.synthesizeKey(backwardKey, {}, win);
+  assertFocus({ index: 0 }, "Backward to first item");
+  assertSelection([0], "First item becomes selected on focus");
+  EventUtils.synthesizeKey(backwardKey, {}, win);
+  assertFocus({ index: 0 }, "Backward at end remains on first item");
+  assertSelection([0], "First item remains selected");
+
+  // End.
+  EventUtils.synthesizeKey("KEY_End", {}, win);
+  assertFocus({ index: 2 }, "Third becomes focused on End");
+  assertSelection([2], "Third becomes selected on End");
+  // Move to middle.
+  EventUtils.synthesizeKey(backwardKey, {}, win);
+  EventUtils.synthesizeKey("KEY_End", {}, win);
+  assertFocus({ index: 2 }, "Third becomes focused on End from second");
+  assertSelection([2], "Third becomes selected on End from second");
+  EventUtils.synthesizeKey("KEY_End", {}, win);
+  assertFocus({ index: 2 }, "Third remains focused on End from third");
+  assertSelection([2], "Third becomes selected on End from third");
+
+  // Home.
+  EventUtils.synthesizeKey("KEY_Home", {}, win);
+  assertFocus({ index: 0 }, "First becomes focused on Home");
+  assertSelection([0], "First becomes selected on Home");
+  // Move to middle.
+  EventUtils.synthesizeKey(forwardKey, {}, win);
+  EventUtils.synthesizeKey("KEY_Home", {}, win);
+  assertFocus({ index: 0 }, "First becomes focused on Home from second");
+  assertSelection([0], "First becomes selected on Home from second");
+  EventUtils.synthesizeKey("KEY_Home", {}, win);
+  assertFocus({ index: 0 }, "First remains focused on Home from first");
+  assertSelection([0], "First becomes selected on Home from first");
+
+  // With Ctrl key, selection does not follow focus.
+  if (model == "focus") {
+    // Disabled in "focus" model.
+    // Move to middle item.
+    EventUtils.synthesizeKey(forwardKey, {}, win);
+    assertFocus({ index: 1 }, "Second item is focused");
+    assertFocus({ index: 1 }, "Second item is selected");
+
+    for (let key of [backwardKey, forwardKey, "KEY_Home", "KEY_End"]) {
+      for (let shiftKey of [false, true]) {
+        info(
+          `Pressing Ctrl+${
+            shiftKey ? "Shift+" : ""
+          }${key} on "focus" model widget`
+        );
+        EventUtils.synthesizeKey(key, { ctrlKey: true, shiftKey }, win);
+        assertFocus({ index: 1 }, "Second item is still focused");
+        assertSelection([1], "Second item is still selected");
+      }
+    }
+  } else {
+    EventUtils.synthesizeKey(forwardKey, { ctrlKey: true }, win);
+    assertFocus({ index: 1 }, "Ctrl+Forward to second item");
+    assertSelection([0], "First item remains selected on Ctrl+Forward");
+
+    EventUtils.synthesizeKey(forwardKey, { ctrlKey: true }, win);
+    assertFocus({ index: 2 }, "Ctrl+Forward to third item");
+    assertSelection([0], "First item remains selected on Ctrl+Forward");
+
+    EventUtils.synthesizeKey(backwardKey, { ctrlKey: true }, win);
+    assertFocus({ index: 1 }, "Ctrl+Backward to second item");
+    assertSelection([0], "First item remains selected on Ctrl+Backward");
+
+    EventUtils.synthesizeKey(backwardKey, { ctrlKey: true }, win);
+    assertFocus({ index: 0 }, "Ctrl+Backward to first item");
+    assertSelection([0], "First item remains selected on Ctrl+Backward");
+
+    EventUtils.synthesizeKey("KEY_End", { ctrlKey: true }, win);
+    assertFocus({ index: 2 }, "Ctrl+End to third item");
+    assertSelection([0], "First item remains selected on Ctrl+End");
+
+    EventUtils.synthesizeKey(backwardKey, {}, win);
+    assertFocus({ index: 1 }, "Backward to second item");
+    assertSelection([1], "Selection moves with focus when not pressing Ctrl");
+
+    EventUtils.synthesizeKey("KEY_Home", { ctrlKey: true }, win);
+    assertFocus({ index: 0 }, "Ctrl+Home to first item");
+    assertSelection([1], "Second item remains selected on Ctrl+Home");
+
+    // Does nothing if combined with Shift.
+    for (let key of [backwardKey, forwardKey, "KEY_Home", "KEY_End"]) {
+      info(`Pressing Ctrl+Shift+${key} on "${model}" model widget`);
+      EventUtils.synthesizeKey(key, { ctrlKey: true, shiftKey: true }, win);
+      assertFocus({ index: 0 }, "First item is still focused");
+      assertSelection([1], "Second item is still selected");
+    }
+
+    // Even if focus remains the same, the selection is still updated if we
+    // don't press Ctrl.
+    EventUtils.synthesizeKey(backwardKey, {}, win);
+    assertFocus({ index: 0 }, "Focus remains on first item");
+    assertSelection(
+      [0],
+      "Selection moves to the first item since Ctrl was not pressed"
+    );
+  }
+}
+
 // Navigating with keyboard will move focus, and possibly selection.
 add_task(function test_keyboard_navigation() {
   for (let model of selectionModels) {
-    for (let { direction, forwardKey, backwardKey } of [
-      {
-        direction: "top-to-bottom",
-        forwardKey: "KEY_ArrowDown",
-        backwardKey: "KEY_ArrowUp",
-      },
-      {
-        direction: "right-to-left",
-        forwardKey: "KEY_ArrowLeft",
-        backwardKey: "KEY_ArrowRight",
-      },
-      {
-        direction: "left-to-right",
-        forwardKey: "KEY_ArrowRight",
-        backwardKey: "KEY_ArrowLeft",
-      },
-    ]) {
-      reset({ model, direction });
-      widget.addItems(0, ["First", "Second", "Third"]);
+    subtest_keyboard_navigation(model, "top-to-bottom", {
+      forward: "KEY_ArrowDown",
+      backward: "KEY_ArrowUp",
+    });
+    subtest_keyboard_navigation(model, "right-to-left", {
+      forward: "KEY_ArrowLeft",
+      backward: "KEY_ArrowRight",
+    });
+    subtest_keyboard_navigation(model, "left-to-right", {
+      forward: "KEY_ArrowRight",
+      backward: "KEY_ArrowLeft",
+    });
+  }
+});
 
-      stepFocus(true, { index: 0 }, "Initially on first item");
+/**
+ * A method to scroll the widget.
+ *
+ * @callback ScrollMethod
+ * @param {number} pos - The position/offset to scroll to.
+ */
+/**
+ * The position of an element, relative to the layout of the widget.
+ *
+ * @typedef {Object} StartEndPositions
+ * @property {number} start - The starting position of the element in the
+ *   direction of the widget's layout. The value should be a pixel offset
+ *   from some fixed point, such that a higher value indicates an element
+ *   further from the start of the widget.
+ * @property {number} end - The ending position of the element in the
+ *   direction of the widget's layout. This should use the same fixed point
+ *   as the start.
+ * @property {number} xStart - An X position in the client coordinates that
+ *   points to the inside of the element, close to the starting corner. I.e.
+ *   the block-start and inline-start.
+ * @property {number} yStart - A Y position in the client coordinates that
+ *   points to the inside of the element, close to the starting corner.
+ * @property {number} xEnd - An X position in the client coordinates that
+ *   points to the inside of the element, close to the ending corner. I.e.
+ *   the block-end and inline-end.
+ * @property {number} yEnd - A Y position in the client coordinates that
+ *   points to the inside of the element, close to the ending corner.
+ */
+/**
+ * A method to return the starting and ending positions of the bounding
+ * client rectangle of an element.
+ *
+ * @callback GetStartEndMethod
+ * @param {DOMRect} rect - The rectangle to get the positions of.
+ * @return {Object} positions
+/**
+ * Test page navigation for the given direction.
+ *
+ * @param {string} model - The selection model to use on the widget.
+ * @param {string} direction - The direction of the widget layout.
+ * @param {Object} details - Details about the direction.
+ * @param {string} details.sizeName - The CSS style name that controls the
+ *   widget size in the direction of widget layout.
+ * @param {string} details.forwardKey - The key to press to move forward one
+ *   item.
+ * @param {string} details.backwardKey - The key to press to move backward
+ *   one item.
+ * @param {ScrollMethod} details.scrollTo - A method to call to scroll the
+ *   widget.
+ * @param {GetStartEndMethod} details.getStartEnd - A method to get the
+ *   positioning of an element.
+ */
+function subtest_page_navigation(model, direction, details) {
+  let { sizeName, forwardKey, backwardKey, scrollTo, getStartEnd } = details;
+  function getStartEndBoundary(element) {
+    return getStartEnd(element.getBoundingClientRect());
+  }
+  function assertInView(expect, msg) {
+    let { first, firstClipped, last, lastClipped } = expect;
+    if (!firstClipped) {
+      firstClipped = 0;
+    }
+    if (!lastClipped) {
+      lastClipped = 0;
+    }
+    let { start: viewStart, end: viewEnd } = getStartEndBoundary(widget);
+    // The widget has a 1px border that should not contribute to the view
+    // size.
+    viewStart += 1;
+    viewEnd -= 1;
+    let firstStart = getStartEndBoundary(widget.items[expect.first].element)
+      .start;
+    Assert.equal(
+      firstStart,
+      viewStart - firstClipped,
+      `Item ${first} should be at the start of the view (${viewStart}) clipped by ${firstClipped}: ${msg}`
+    );
+    if (expect.first > 0) {
+      Assert.lessOrEqual(
+        getStartEndBoundary(widget.items[expect.first - 1].element).end,
+        viewStart,
+        `Item ${expect.first - 1} should be out of view: ${msg}`
+      );
+    }
+    let lastEnd = getStartEndBoundary(widget.items[expect.last].element).end;
+    Assert.equal(
+      lastEnd,
+      viewEnd + lastClipped,
+      `Item ${last} should be at the end of the view (${viewEnd}) clipped by ${lastClipped}: ${msg}`
+    );
+    if (expect.last < widget.items.length - 1) {
+      Assert.greaterOrEqual(
+        getStartEndBoundary(widget.items[expect.last + 1].element).start,
+        viewEnd,
+        `Item ${expect.last + 1} should be out of view: ${msg}`
+      );
+    }
+  }
+  reset({ model, direction });
+  widget.addItems(
+    0,
+    range(0, 70).map(i => `add-${i}`)
+  );
+  let { start: itemStart, end: itemEnd } = getStartEndBoundary(
+    widget.items[0].element
+  );
+  Assert.equal(itemEnd - itemStart, 30, "Expected item size");
 
-      // Without Ctrl, selection follows focus.
+  assertInView({ first: 0, last: 19 }, "First 20 items in view");
+  stepFocus(true, { index: 0 }, "Move into widget");
+  assertSelection([0], "Fist item selected");
+  assertInView({ first: 0, last: 19 }, "First 20 items still in view");
 
-      // Forward.
-      EventUtils.synthesizeKey(forwardKey, {}, win);
-      assertFocus({ index: 1 }, "Forward to second item");
-      assertSelection([1], "Second item becomes selected on focus");
-      EventUtils.synthesizeKey(forwardKey, {}, win);
-      assertFocus({ index: 2 }, "Forward to third item");
-      assertSelection([2], "Third item becomes selected on focus");
-      EventUtils.synthesizeKey(forwardKey, {}, win);
-      assertFocus({ index: 2 }, "Forward at end remains on third item");
-      assertSelection([2], "Third item remains selected");
+  // PageDown goes to the end of the current page.
+  EventUtils.synthesizeKey("KEY_PageDown", {}, win);
+  assertInView({ first: 0, last: 19 }, "First 20 item still in view");
+  assertFocus({ index: 19 }, "Focus moves to end of the page");
+  assertSelection([19], "Selection at end of the page");
 
-      // Backward.
-      EventUtils.synthesizeKey(backwardKey, {}, win);
-      assertFocus({ index: 1 }, "Backward to second item");
-      assertSelection([1], "Second item becomes selected on focus");
-      EventUtils.synthesizeKey(backwardKey, {}, win);
-      assertFocus({ index: 0 }, "Backward to first item");
-      assertSelection([0], "First item becomes selected on focus");
-      EventUtils.synthesizeKey(backwardKey, {}, win);
-      assertFocus({ index: 0 }, "Backward at end remains on first item");
-      assertSelection([0], "First item remains selected");
+  // Pressing forward key will scroll the next item into view.
+  EventUtils.synthesizeKey(forwardKey, {}, win);
+  assertInView({ first: 1, last: 20 }, "Items 1 to 20 in view");
+  assertFocus({ index: 20 }, "Focus at end of the page");
+  assertSelection([20], "Selection at end of the page");
 
-      // End.
-      EventUtils.synthesizeKey("KEY_End", {}, win);
-      assertFocus({ index: 2 }, "Third becomes focused on End");
-      assertSelection([2], "Third becomes selected on End");
-      // Move to middle.
-      EventUtils.synthesizeKey(backwardKey, {}, win);
-      EventUtils.synthesizeKey("KEY_End", {}, win);
-      assertFocus({ index: 2 }, "Third becomes focused on End from second");
-      assertSelection([2], "Third becomes selected on End from second");
-      EventUtils.synthesizeKey("KEY_End", {}, win);
-      assertFocus({ index: 2 }, "Third remains focused on End from third");
-      assertSelection([2], "Third becomes selected on End from third");
+  // Pressing backward will not change the view.
+  EventUtils.synthesizeKey(backwardKey, {}, win);
+  assertInView({ first: 1, last: 20 }, "Items 1 to 20 still in view");
+  assertFocus({ index: 19 }, "Focus moves up to 19");
+  assertSelection([19], "Selection moves up to 19");
 
-      // Home.
-      EventUtils.synthesizeKey("KEY_Home", {}, win);
-      assertFocus({ index: 0 }, "First becomes focused on Home");
-      assertSelection([0], "First becomes selected on Home");
-      // Move to middle.
-      EventUtils.synthesizeKey(forwardKey, {}, win);
-      EventUtils.synthesizeKey("KEY_Home", {}, win);
-      assertFocus({ index: 0 }, "First becomes focused on Home from second");
-      assertSelection([0], "First becomes selected on Home from second");
-      EventUtils.synthesizeKey("KEY_Home", {}, win);
-      assertFocus({ index: 0 }, "First remains focused on Home from first");
-      assertSelection([0], "First becomes selected on Home from first");
+  // PageDown goes to the end of the current page.
+  EventUtils.synthesizeKey("KEY_PageDown", {}, win);
+  assertInView({ first: 1, last: 20 }, "Items 1 to 20 still in view");
+  assertFocus({ index: 20 }, "Focus moves to end of page");
+  assertSelection([20], "Selection moves to end of page");
 
-      // With Ctrl key, selection does not follow focus.
-      if (model == "focus") {
-        // Disabled in "focus" model.
-        // Move to middle item.
-        EventUtils.synthesizeKey(forwardKey, {}, win);
-        assertFocus({ index: 1 }, "Second item is focused");
-        assertFocus({ index: 1 }, "Second item is selected");
+  // PageDown when already at the end of the page will move to the next
+  // page.
+  // The last index from the previous page (20) should still be visible at
+  // the top.
+  EventUtils.synthesizeKey("KEY_PageDown", {}, win);
+  assertInView({ first: 20, last: 39 }, "Items 20 to 39 in view");
+  assertFocus({ index: 39 }, "Focus moves to end of new page");
+  assertSelection([39], "Selection moves to end of new page");
 
-        for (let key of [backwardKey, forwardKey, "KEY_Home", "KEY_End"]) {
-          for (let shiftKey of [false, true]) {
-            info(
-              `Pressing Ctrl+${
-                shiftKey ? "Shift+" : ""
-              }${key} on "focus" model widget`
-            );
-            EventUtils.synthesizeKey(key, { ctrlKey: true, shiftKey }, win);
-            assertFocus({ index: 1 }, "Second item is still focused");
-            assertSelection([1], "Second item is still selected");
-          }
-        }
+  // Another PageDown will do the same.
+  EventUtils.synthesizeKey("KEY_PageDown", {}, win);
+  assertInView({ first: 39, last: 58 }, "Items 39 to 58 in view");
+  assertFocus({ index: 58 }, "Focus moves to end of new page");
+  assertSelection([58], "Selection moves to end of new page");
+
+  // Last PageDown will take us to the end.
+  EventUtils.synthesizeKey("KEY_PageDown", {}, win);
+  assertInView({ first: 50, last: 69 }, "Last 20 items in view");
+  assertFocus({ index: 69 }, "Focus moves to end");
+  assertSelection([69], "Selection moves to end");
+
+  // Same thing in reverse with PageUp.
+  // PageUp goes to the start of the current page.
+  EventUtils.synthesizeKey("KEY_PageUp", {}, win);
+  assertInView({ first: 50, last: 69 }, "Last 20 item still in view");
+  assertFocus({ index: 50 }, "Focus moves to start of the page");
+  assertSelection([50], "Selection at end of the page");
+
+  // Pressing backward will scroll the previous item into view.
+  EventUtils.synthesizeKey(backwardKey, {}, win);
+  assertInView({ first: 49, last: 68 }, "Items 49 to 68 in view");
+  assertFocus({ index: 49 }, "Focus at start of the page");
+  assertSelection([49], "Selection at start of the page");
+
+  // Pressing forward will not change the view.
+  EventUtils.synthesizeKey(forwardKey, {}, win);
+  assertInView({ first: 49, last: 68 }, "Items 49 to 68 still in view");
+  assertFocus({ index: 50 }, "Focus moves up to 50");
+  assertSelection([50], "Selection moves up to 50");
+
+  // PageUp goes to the start of the current page.
+  EventUtils.synthesizeKey("KEY_PageUp", {}, win);
+  assertInView({ first: 49, last: 68 }, "Items 49 to 68 still in view");
+  assertFocus({ index: 49 }, "Focus moves to start of page");
+  assertSelection([49], "Selection moves to start of page");
+
+  // PageUp when already at the start of the page will move one page up.
+  // The first index from the previously shown page (49) should still be
+  // visible at the bottom.
+  EventUtils.synthesizeKey("KEY_PageUp", {}, win);
+  assertInView({ first: 30, last: 49 }, "Items 30 to 49 in view");
+  assertFocus({ index: 30 }, "Focus moves to start of new page");
+  assertSelection([30], "Selection moves to start of new page");
+
+  // Another PageUp will do the same.
+  EventUtils.synthesizeKey("KEY_PageUp", {}, win);
+  assertInView({ first: 11, last: 30 }, "Items 11 to 30 in view");
+  assertFocus({ index: 11 }, "Focus moves to start of new page");
+  assertSelection([11], "Selection moves to start of new page");
+
+  // Last PageUp will take us to the start.
+  EventUtils.synthesizeKey("KEY_PageUp", {}, win);
+  assertInView({ first: 0, last: 19 }, "Items 0 to 19 in view");
+  assertFocus({ index: 0 }, "Focus moves to start");
+  assertSelection([0], "Selection moves to start");
+
+  // PageDown with focus above the view. Focus should move to the end of the
+  // visible page.
+  scrollTo(120);
+  assertInView({ first: 4, last: 23 }, "Items 4 to 23 in view");
+  assertFocus({ index: 0 }, "Focus remains above the view");
+  assertSelection([0], "Selection remains above the view");
+
+  EventUtils.synthesizeKey("KEY_PageDown", {}, win);
+  assertInView({ first: 4, last: 23 }, "Same items in view");
+  assertFocus({ index: 23 }, "Focus moves to the end of the visible page");
+  assertSelection([23], "Selection moves to the end of the visible page");
+
+  // PageDown with focus below the view. Focus should shift by one page,
+  // with the previous focus at the top of the page.
+  scrollTo(60);
+  assertInView({ first: 2, last: 21 }, "Items 2 to 21 in view");
+  assertFocus({ index: 23 }, "Focus remains below the view");
+  assertSelection([23], "Selection remains below the view");
+
+  EventUtils.synthesizeKey("KEY_PageDown", {}, win);
+  assertInView(
+    { first: 23, last: 42 },
+    "View shifts by a page relative to focus"
+  );
+  assertFocus({ index: 42 }, "Focus moves to end of new page");
+  assertSelection([42], "Selection moves to end of new page");
+
+  // PageUp with focus below the view. Focus should move to the start of the
+  // visible page.
+  scrollTo(630);
+  assertInView({ first: 21, last: 40 }, "Items 21 to 40 in view");
+  assertFocus({ index: 42 }, "Focus remains below the view");
+  assertSelection([42], "Selection remains below the view");
+
+  EventUtils.synthesizeKey("KEY_PageUp", {}, win);
+  assertInView({ first: 21, last: 40 }, "Same items in view");
+  assertFocus({ index: 21 }, "Focus moves to the start of the visible page");
+  assertSelection([21], "Selection moves to the start of the visible page");
+
+  // PageUp with focus above the view. Focus should shift by one page, with
+  // the previous focus at the bottom of the page.
+  scrollTo(750);
+  assertInView({ first: 25, last: 44 }, "Items 25 to 44 in view");
+  assertFocus({ index: 21 }, "Focus remains above the view");
+  assertSelection([21], "Selection remains above the view");
+
+  EventUtils.synthesizeKey("KEY_PageUp", {}, win);
+  assertInView(
+    { first: 2, last: 21 },
+    "View shifts by a page relative to focus"
+  );
+  assertFocus({ index: 2 }, "Focus moves to start of new page");
+  assertSelection([2], "Selection moves to start of new page");
+
+  // Test when view does not exactly fit items.
+  for (let sizeDiff of [0, 10, 15, 20]) {
+    info(`Reducing widget size by ${sizeDiff}px`);
+    widget.style[sizeName] = `${600 - sizeDiff}px`;
+
+    // When we reduce the size of the view by half an item or more, we
+    // reduce the page size from 20 to 19.
+    // NOTE: At each sizeDiff still fits strictly more than 19 items in its
+    // view.
+    let pageSize = sizeDiff < 15 ? 20 : 19;
+
+    // Make sure that Home and End keys scroll the view and clip the items
+    // as expected.
+    EventUtils.synthesizeKey("KEY_Home", {}, win);
+    assertInView(
+      { first: 0, last: 19, lastClipped: sizeDiff },
+      `Start of view with last item clipped by ${sizeDiff}px`
+    );
+    assertFocus({ index: 0 }, "First item has focus");
+    assertSelection([0], "First item is selected");
+
+    EventUtils.synthesizeKey("KEY_End", {}, win);
+    assertInView(
+      { first: 50, firstClipped: sizeDiff, last: 69 },
+      `End of view with first item clipped by ${sizeDiff}px`
+    );
+    assertFocus({ index: 69 }, "Last item has focus");
+    assertSelection([69], "Last item is selected");
+
+    for (let lastClipped of [0, 10, 15, 20]) {
+      info(`Testing PageDown with last item clipped by ${lastClipped}px`);
+      // Across all sizeDiff and lastClipped values we still want the last
+      // item to be index 21 clipped by lastClipped.
+      // E.g. when sizeDiff is 10 and lastClipped is 10, then the scroll
+      // will be 60px and the first item will be index 2 with no clipping.
+      // But when the sizeDiff is 10 and the lastClipped is 20, then the
+      // scroll will be 50px and the first item will be index 1 with 20px
+      // clipping.
+      let scroll = 60 + sizeDiff - lastClipped;
+      scrollTo(scroll);
+      let first = Math.floor(scroll / 30);
+      let firstClipped = scroll % 30;
+      clickWidgetItem(3, {});
+      assertInView(
+        { first, firstClipped, last: 21, lastClipped },
+        `Last item 21 in view clipped by ${lastClipped}px`
+      );
+      assertFocus({ index: 3 }, "Focus on item 3");
+      assertSelection([3], "Selection on item 3");
+
+      EventUtils.synthesizeKey("KEY_PageDown", {}, win);
+      let pageEnd;
+      if (lastClipped < 15) {
+        // The last item is more than half in view, so counts as part of the
+        // page.
+        // NOTE: Index of the first item is always "2", even if it was "1"
+        // before the scroll, because the view fits (19, 20] items.
+        assertInView(
+          { first: 2, firstClipped: sizeDiff, last: 21 },
+          "Scrolls down to fully include the last item 21"
+        );
+        pageEnd = 21;
       } else {
-        EventUtils.synthesizeKey(forwardKey, { ctrlKey: true }, win);
-        assertFocus({ index: 1 }, "Ctrl+Forward to second item");
-        assertSelection([0], "First item remains selected on Ctrl+Forward");
-
-        EventUtils.synthesizeKey(forwardKey, { ctrlKey: true }, win);
-        assertFocus({ index: 2 }, "Ctrl+Forward to third item");
-        assertSelection([0], "First item remains selected on Ctrl+Forward");
-
-        EventUtils.synthesizeKey(backwardKey, { ctrlKey: true }, win);
-        assertFocus({ index: 1 }, "Ctrl+Backward to second item");
-        assertSelection([0], "First item remains selected on Ctrl+Backward");
-
-        EventUtils.synthesizeKey(backwardKey, { ctrlKey: true }, win);
-        assertFocus({ index: 0 }, "Ctrl+Backward to first item");
-        assertSelection([0], "First item remains selected on Ctrl+Backward");
-
-        EventUtils.synthesizeKey("KEY_End", { ctrlKey: true }, win);
-        assertFocus({ index: 2 }, "Ctrl+End to third item");
-        assertSelection([0], "First item remains selected on Ctrl+End");
-
-        EventUtils.synthesizeKey(backwardKey, {}, win);
-        assertFocus({ index: 1 }, "Backward to second item");
-        assertSelection(
-          [1],
-          "Selection moves with focus when not pressing Ctrl"
+        // The last item is half or less in view, so only the one before it
+        // counts as being part of the page.
+        assertInView(
+          { first, firstClipped, last: 21, lastClipped },
+          "Same view"
         );
+        pageEnd = 20;
+      }
+      assertFocus({ index: pageEnd }, "Focus moves to pageEnd");
+      assertSelection([pageEnd], "Selection moves to pageEnd");
 
-        EventUtils.synthesizeKey("KEY_Home", { ctrlKey: true }, win);
-        assertFocus({ index: 0 }, "Ctrl+Home to first item");
-        assertSelection([1], "Second item remains selected on Ctrl+Home");
+      // Reset scroll to test scrolling when the focus is already at the
+      // pageEnd.
+      scrollTo(scroll);
+      assertInView(
+        { first, firstClipped, last: 21, lastClipped },
+        `Last item 21 in view clipped by ${lastClipped}px`
+      );
 
-        // Does nothing if combined with Shift.
-        for (let key of [backwardKey, forwardKey, "KEY_Home", "KEY_End"]) {
-          info(`Pressing Ctrl+Shift+${key} on "${model}" model widget`);
-          EventUtils.synthesizeKey(key, { ctrlKey: true, shiftKey: true }, win);
-          assertFocus({ index: 0 }, "First item is still focused");
-          assertSelection([1], "Second item is still selected");
-        }
+      // PageDown again will move by a page. The new end of the page will be
+      // scrolled just into view at the bottom.
+      EventUtils.synthesizeKey("KEY_PageDown", {}, win);
+      let newPageEnd = pageEnd + pageSize - 1;
+      // NOTE: If the previous pageEnd would fit mostly in view, then we
+      // expect the first item in the view to be this item. Otherwise, we
+      // expect it to be the one before, which will ensure the previous
+      // pageEnd is fully visible.
+      firstClipped = sizeDiff;
+      first = sizeDiff < 15 ? pageEnd : pageEnd - 1;
+      assertInView(
+        { first, firstClipped, last: newPageEnd },
+        "New page end scrolled into view, previous page end mostly visible"
+      );
+      assertFocus({ index: newPageEnd }, "Focus moves to end of new page");
+      assertSelection([newPageEnd], "Selection moves to end of new page");
 
-        // Even if focus remains the same, the selection is still updated if we
-        // don't press Ctrl.
-        EventUtils.synthesizeKey(backwardKey, {}, win);
-        assertFocus({ index: 0 }, "Focus remains on first item");
-        assertSelection(
-          [0],
-          "Selection moves to the first item since Ctrl was not pressed"
+      // PageUp reverses the focus.
+      // We don't test the the view since that is handled lower down.
+      EventUtils.synthesizeKey("KEY_PageUp", {}, win);
+      assertFocus({ index: pageEnd }, "Focus returns to pageEnd");
+      assertSelection([pageEnd], "Selection returns to pageEnd");
+    }
+
+    for (let firstClipped of [0, 10, 15, 20]) {
+      // Across all sizeDiff and firstClipped values we still want the first
+      // item to be index 24 clipped by firstClipped.
+      // E.g. when sizeDiff is 10 and firstClipped is 10, then the scroll
+      // will be 730px and the last item will be index 44 with no clipping.
+      // But when the sizeDiff is 10 and the firstClipped is 0, then the
+      // scroll will be 720px and the last item will be index 43 with 10px
+      // clipping.
+      info(`Testing PageUp with first item clipped by ${firstClipped}px`);
+      scrollTo(720 + firstClipped);
+      let viewEnd = 720 + firstClipped + 600 - sizeDiff;
+      let last = Math.floor(viewEnd / 30);
+      let lastClipped = 30 - (viewEnd % 30);
+      clickWidgetItem(42, {});
+      assertInView(
+        { first: 24, firstClipped, last, lastClipped },
+        `First item 24 in view clipped by ${firstClipped}px`
+      );
+      assertFocus({ index: 42 }, "Focus on item 42");
+      assertSelection([42], "Selection on item 42");
+
+      EventUtils.synthesizeKey("KEY_PageUp", {}, win);
+      let pageStart;
+      if (firstClipped < 15) {
+        // The first item is more than half in view, so counts as part of
+        // the page.
+        // NOTE: Index of the last item is always "43", even if it was "44"
+        // before the scroll, because the view fits (19, 20] items.
+        assertInView(
+          { first: 24, last: 43, lastClipped: sizeDiff },
+          "Scrolls up to fully include the first item 24"
         );
+        pageStart = 24;
+      } else {
+        // The first item is half or less in view, so only the one after it
+        // counts as being part of the page.
+        assertInView(
+          { first: 24, firstClipped, last, lastClipped },
+          "Same view"
+        );
+        pageStart = 25;
+      }
+      assertFocus({ index: pageStart }, "Focus moves to pageStart");
+      assertSelection([pageStart], "Selection moves to pageStart");
+
+      // Reset scroll.
+      scrollTo(720 + firstClipped);
+      assertInView(
+        { first: 24, firstClipped, last, lastClipped },
+        `First item 24 in view clipped by ${firstClipped}px`
+      );
+
+      // PageUp again will move by a page. The new start of the page will be
+      // scrolled just into view at the top.
+      EventUtils.synthesizeKey("KEY_PageUp", {}, win);
+      let newPageStart = pageStart - pageSize + 1;
+      // NOTE: If the previous pageStart would fit mostly in view, then we
+      // expect the last item in the view to be this item. Otherwise, we
+      // expect it to be the one after, which will ensure the previous
+      // pageStart is fully visible.
+      lastClipped = sizeDiff;
+      last = sizeDiff < 15 ? pageStart : pageStart + 1;
+      assertInView(
+        { first: newPageStart, last, lastClipped },
+        "New page end scrolled into view, previous page end mostly visible"
+      );
+      assertFocus({ index: newPageStart }, "Focus moves to start of new page");
+      assertSelection([newPageStart], "Selection moves to start of new page");
+
+      // PageDown reverses the focus.
+      // We don't test the the view since that is handled further up.
+      EventUtils.synthesizeKey("KEY_PageDown", {}, win);
+      assertFocus({ index: pageStart }, "Focus returns to pageStart");
+      assertSelection([pageStart], "Selection returns to pageStart");
+    }
+  }
+
+  // When widget only fits 1 visible item or less.
+  for (let size of [10, 20, 30, 45, 50]) {
+    info(`Resizing widget to ${size}px`);
+    widget.style[sizeName] = `${size}px`;
+
+    scrollTo(600);
+    // When the view size is less than the size of an item, we cannot always
+    // click the center of the item, so we need to click the start instead.
+    let { xStart, yStart } = getStartEndBoundary(widget.items[20].element);
+    EventUtils.synthesizeMouseAtPoint(xStart, yStart, {}, win);
+    let last = size > 30 ? 21 : 20;
+    let lastClipped = size > 30 ? 60 - size : 30 - size;
+    assertInView({ first: 20, last, lastClipped }, "Small number of items");
+    assertFocus({ index: 20 }, "Focus on item 20");
+    assertSelection([20], "Item 20 selected");
+
+    EventUtils.synthesizeKey("KEY_PageDown", {}, win);
+    if (size <= 45) {
+      // Only 1 or 0 items fit on the page, so does nothing.
+      assertInView({ first: 20, last, lastClipped }, "Same view");
+      assertFocus({ index: 20 }, "Same focus");
+      assertSelection([20], "Same selected");
+    } else {
+      // 2 items fit visibly on the page, so acts as normal.
+      assertInView(
+        { first: 20, firstClipped: lastClipped, last: 21 },
+        "Last item scrolled into view"
+      );
+      assertFocus({ index: 21 }, "Focus increases by one");
+      assertSelection([21], "Selected moves to focus");
+    }
+
+    scrollTo(660 - size);
+    let { xEnd, yEnd } = getStartEndBoundary(widget.items[21].element);
+    EventUtils.synthesizeMouseAtPoint(xEnd, yEnd, {}, win);
+    let first = size > 30 ? 20 : 21;
+    let firstClipped = size > 30 ? 60 - size : 30 - size;
+    assertInView({ first, firstClipped, last: 21 }, "Small number of items");
+    assertFocus({ index: 21 }, "Focus on item 21");
+    assertSelection([21], "Item 21 selected");
+
+    EventUtils.synthesizeKey("KEY_PageUp", {}, win);
+    if (size <= 45) {
+      // Only 1 or 0 items fit on the page, so does nothing.
+      assertInView({ first, firstClipped, last: 21 }, "Same view");
+      assertFocus({ index: 21 }, "Same focus");
+      assertSelection([21], "Same selected");
+    } else {
+      // 2 items fit visibly on the page, so acts as normal.
+      assertInView(
+        { first: 20, last: 21, lastClipped: firstClipped },
+        "First item scrolled into view"
+      );
+      assertFocus({ index: 20 }, "Focus decreases by one");
+      assertSelection([20], "Selected moves to focus");
+    }
+  }
+  widget.style[sizeName] = null;
+
+  // Disable page navigation.
+  // This would be used when the item sizes or the page layout do not allow
+  // for page navigation, or if PageUp and PageDown should be used for something
+  // else.
+  widget.toggleAttribute("no-pages", true);
+
+  let gotKeys = [];
+  let keydownListener = event => {
+    gotKeys.push(event.key);
+  };
+  win.document.body.addEventListener("keydown", keydownListener);
+  scrollTo(600);
+  clickWidgetItem(20, {});
+  assertInView({ first: 20, last: 39 }, "Items 20 to 39 in view");
+  assertFocus({ index: 20 }, "First item focused");
+  assertSelection([20], "First item selected");
+
+  EventUtils.synthesizeKey("KEY_PageUp", {}, win);
+  assertInView({ first: 20, last: 39 }, "Same view");
+  assertFocus({ index: 20 }, "Same focus");
+  assertSelection([20], "Same selected");
+  Assert.deepEqual(gotKeys, ["PageUp"], "PageUp reaches document body");
+  gotKeys = [];
+  EventUtils.synthesizeKey("KEY_PageDown", {}, win);
+  assertInView({ first: 20, last: 39 }, "Same view");
+  assertFocus({ index: 20 }, "Same focus");
+  assertSelection([20], "Same selected");
+  Assert.deepEqual(gotKeys, ["PageDown"], "PageDown reaches document body");
+  gotKeys = [];
+
+  clickWidgetItem(39, {});
+  assertInView({ first: 20, last: 39 }, "Items 20 to 39 in view");
+  assertFocus({ index: 39 }, "Last item focused");
+  assertSelection([39], "Last item selected");
+
+  EventUtils.synthesizeKey("KEY_PageUp", {}, win);
+  assertInView({ first: 20, last: 39 }, "Same view");
+  assertFocus({ index: 39 }, "Same focus");
+  assertSelection([39], "Same selected");
+  Assert.deepEqual(gotKeys, ["PageUp"], "PageUp reaches document body");
+  gotKeys = [];
+  EventUtils.synthesizeKey("KEY_PageDown", {}, win);
+  assertInView({ first: 20, last: 39 }, "Same view");
+  assertFocus({ index: 39 }, "Same focus");
+  assertSelection([39], "Same selected");
+  Assert.deepEqual(gotKeys, ["PageDown"], "PageDown reaches document body");
+  gotKeys = [];
+
+  widget.removeAttribute("no-pages");
+
+  // With page navigation enabled key-presses do not reach the document body.
+  EventUtils.synthesizeKey("KEY_PageUp", {}, win);
+  Assert.deepEqual(gotKeys, [], "No key reaches document body");
+  EventUtils.synthesizeKey("KEY_PageDown", {}, win);
+  Assert.deepEqual(gotKeys, [], "No key reaches document body");
+
+  win.document.body.removeEventListener("keydown", keydownListener);
+
+  // Test with modifiers.
+  for (let { shiftKey, ctrlKey } of [
+    { shiftKey: true, ctrlKey: true },
+    { shiftKey: false, ctrlKey: true },
+    { shiftKey: true, ctrlKey: false },
+  ]) {
+    info(
+      `Pressing ${ctrlKey ? "Ctrl+" : ""}${shiftKey ? "Shift+" : ""}PageUp/Down`
+    );
+    EventUtils.synthesizeKey("KEY_Home", {}, win);
+    EventUtils.synthesizeKey(forwardKey, {}, win);
+    assertInView({ first: 0, last: 19 }, "First 20 items in view");
+    assertFocus({ index: 1 }, "Item 1 has focus");
+    assertSelection([1], "Item 1 is selected");
+
+    EventUtils.synthesizeKey("KEY_PageDown", { ctrlKey, shiftKey }, win);
+    assertInView({ first: 0, last: 19 }, "Same view");
+    if (
+      (ctrlKey && shiftKey) ||
+      model == "focus" ||
+      (model == "browse" && shiftKey)
+    ) {
+      // Does nothing.
+      assertFocus({ index: 1 }, "Same focus");
+      assertSelection([1], "Same selected");
+      // Move focus to the end of the view.
+      clickWidgetItem(19, {});
+      assertFocus({ index: 19 }, "Focus at end of page");
+      assertSelection([19], "Selected at end of page");
+    } else {
+      assertFocus({ index: 19 }, "Focus moves to end of page");
+      if (ctrlKey) {
+        // Splits focus from selected.
+        assertSelection([1], "Same selected");
+      } else {
+        assertSelection(range(1, 19), "Range selection from 1 to 19");
       }
     }
+    // And again, with focus at the end of the page.
+    EventUtils.synthesizeKey("KEY_PageDown", { ctrlKey, shiftKey }, win);
+    if (
+      (ctrlKey && shiftKey) ||
+      model == "focus" ||
+      (model == "browse" && shiftKey)
+    ) {
+      // Does nothing.
+      assertInView({ first: 0, last: 19 }, "Same view");
+      assertFocus({ index: 19 }, "Same focus");
+      assertSelection([19], "Same selected");
+    } else {
+      assertInView({ first: 19, last: 38 }, "View scrolls to focus");
+      assertFocus({ index: 38 }, "Focus moves to end of new page");
+      if (ctrlKey) {
+        // Splits focus from selected.
+        assertSelection([1], "Same selected");
+      } else {
+        assertSelection(range(1, 38), "Range selection from 1 to 38");
+      }
+    }
+
+    EventUtils.synthesizeKey("KEY_End", {}, win);
+    EventUtils.synthesizeKey(backwardKey, {}, win);
+    assertInView({ first: 50, last: 69 }, "Last 20 items in view");
+    assertFocus({ index: 68 }, "Item 68 has focus");
+    assertSelection([68], "Item 68 is selected");
+
+    EventUtils.synthesizeKey("KEY_PageUp", { ctrlKey, shiftKey }, win);
+    assertInView({ first: 50, last: 69 }, "Same view");
+    if (
+      (ctrlKey && shiftKey) ||
+      model == "focus" ||
+      (model == "browse" && shiftKey)
+    ) {
+      // Does nothing.
+      assertFocus({ index: 68 }, "Same focus");
+      assertSelection([68], "Same selected");
+      // Move focus to the end of the view.
+      clickWidgetItem(50, {});
+      assertFocus({ index: 50 }, "Focus at start of page");
+      assertSelection([50], "Selected at start of page");
+    } else {
+      assertFocus({ index: 50 }, "Focus moves to start of page");
+      if (ctrlKey) {
+        // Splits focus from selected.
+        assertSelection([68], "Same selected");
+      } else {
+        assertSelection(range(50, 19), "Range selection from 50 to 68");
+      }
+    }
+    // And again, with focus at the start of the page.
+    EventUtils.synthesizeKey("KEY_PageUp", { ctrlKey, shiftKey }, win);
+    if (
+      (ctrlKey && shiftKey) ||
+      model == "focus" ||
+      (model == "browse" && shiftKey)
+    ) {
+      // Does nothing.
+      assertInView({ first: 50, last: 69 }, "Same view");
+      assertFocus({ index: 50 }, "Same focus");
+      assertSelection([50], "Same selected");
+    } else {
+      assertInView({ first: 31, last: 50 }, "View scrolls to focus");
+      assertFocus({ index: 31 }, "Focus moves to start of new page");
+      if (ctrlKey) {
+        // Splits focus from selected.
+        assertSelection([68], "Same selected");
+      } else {
+        assertSelection(range(31, 38), "Range selection from 31 to 68");
+      }
+    }
+  }
+
+  // Does nothing with an empty widget.
+  reset({ model, direction });
+  stepFocus(true, { element: widget }, "Focus on empty widget");
+  assertState([], "Empty");
+  EventUtils.synthesizeKey("KEY_PageDown", {}, win);
+  assertFocus({ element: widget }, "No change in focus");
+  assertState([], "Empty");
+  EventUtils.synthesizeKey("KEY_PageUp", {}, win);
+  assertFocus({ element: widget }, "No change in focus");
+  assertState([], "Empty");
+}
+
+// Test that pressing PageUp or PageDown shifts the view according to the
+// visible items.
+add_task(function test_page_navigation() {
+  for (let model of selectionModels) {
+    subtest_page_navigation(model, "top-to-bottom", {
+      sizeName: "height",
+      forwardKey: "KEY_ArrowDown",
+      backwardKey: "KEY_ArrowUp",
+      scrollTo: pos => {
+        widget.scrollTop = pos;
+      },
+      getStartEnd: rect => {
+        return {
+          start: rect.top,
+          end: rect.bottom,
+          xStart: rect.right - 1,
+          xEnd: rect.left + 1,
+          yStart: rect.top + 1,
+          yEnd: rect.bottom - 1,
+        };
+      },
+    });
+    subtest_page_navigation(model, "right-to-left", {
+      sizeName: "width",
+      forwardKey: "KEY_ArrowLeft",
+      backwardKey: "KEY_ArrowRight",
+      scrollTo: pos => {
+        widget.scrollLeft = -pos;
+      },
+      getStartEnd: rect => {
+        return {
+          start: -rect.right,
+          end: -rect.left,
+          xStart: rect.right - 1,
+          xEnd: rect.left + 1,
+          yStart: rect.top + 1,
+          yEnd: rect.bottom - 1,
+        };
+      },
+    });
+    subtest_page_navigation(model, "left-to-right", {
+      sizeName: "width",
+      forwardKey: "KEY_ArrowRight",
+      backwardKey: "KEY_ArrowLeft",
+      scrollTo: pos => {
+        widget.scrollLeft = pos;
+      },
+      getStartEnd: rect => {
+        return {
+          start: rect.left,
+          end: rect.right,
+          xStart: rect.left + 1,
+          xEnd: rect.right - 1,
+          yStart: rect.top + 1,
+          yEnd: rect.bottom - 1,
+        };
+      },
+    });
   }
 });
 
@@ -1256,11 +2014,11 @@ add_task(function test_range_selection() {
     assertSelection([2], "Only third item is selected");
 
     // Home and End also work.
-    EventUtils.synthesizeKey("Home", { shiftKey: true }, win);
+    EventUtils.synthesizeKey("KEY_Home", { shiftKey: true }, win);
     assertFocus({ index: 0 }, "Focus moves to first item");
     assertSelection([0, 1, 2], "Up to third item is selected");
 
-    EventUtils.synthesizeKey("End", { shiftKey: true }, win);
+    EventUtils.synthesizeKey("KEY_End", { shiftKey: true }, win);
     assertFocus({ index: 4 }, "Focus moves to last item");
     assertSelection([2, 3, 4], "Third item and above is selected");
 
@@ -1276,7 +2034,7 @@ add_task(function test_range_selection() {
     assertSelection([3, 4], "Fifth to fourth item are selected");
 
     // Ctrl+Space also breaks range selection sequence.
-    EventUtils.synthesizeKey("Home", { ctrlKey: true }, win);
+    EventUtils.synthesizeKey("KEY_Home", { ctrlKey: true }, win);
     assertFocus({ index: 0 }, "Focus moves to first item");
     assertSelection([3, 4], "Range selection remains");
     EventUtils.synthesizeKey(" ", { ctrlKey: true }, win);
@@ -1319,7 +2077,7 @@ add_task(function test_range_selection() {
     stepFocus(false, { index: 0 }, "Focus returns to the widget");
     assertSelection([0, 1], "Second to first item are still selected");
 
-    EventUtils.synthesizeKey("End", { shiftKey: true }, win);
+    EventUtils.synthesizeKey("KEY_End", { shiftKey: true }, win);
     assertFocus({ index: 4 }, "Focus moves to last item");
     assertSelection([1, 2, 3, 4], "Second to fifth item are selected");
 
@@ -2001,72 +2759,173 @@ add_task(function test_add_items_to_nonempty() {
   }
 });
 
+/**
+ * Test that pressing a key on a non-empty widget that has focus on itself will
+ * move to the expected index.
+ *
+ * @param {Object} initialState - The initial state of the widget to set up.
+ * @param {string} initialState.model - The selection model to use.
+ * @param {string} initialState.direction - The layout direction of the widget.
+ * @param {number} initialState.numItems - The number of items in the widget.
+ * @param {function} [initialState.scroll] - A method to call to scroll the
+ *   widget.
+ * @param {string} key - The key to press once the widget is set up.
+ * @param {number} index - The expected index for the item that will receive
+ *   focus after the key press.
+ */
+function subtest_keypress_on_focused_widget(initialState, key, index) {
+  let { model, direction, numItems, scroll } = initialState;
+  for (let ctrlKey of [false, true]) {
+    for (let shiftKey of [false, true]) {
+      info(
+        `Adding items to empty ${direction} widget and then pressing ${
+          ctrlKey ? "Ctrl+" : ""
+        }${shiftKey ? "Shift+" : ""}${key}`
+      );
+      reset({ model, direction });
+
+      stepFocus(true, { element: widget }, "Move focus onto empty widget");
+      widget.addItems(
+        0,
+        range(0, numItems).map(i => `add-${i}`)
+      );
+      scroll?.();
+
+      assertFocus(
+        { element: widget },
+        "Focus remains on the widget after adding items"
+      );
+      assertSelection([], "No items are selected yet");
+
+      EventUtils.synthesizeKey(key, { ctrlKey, shiftKey }, win);
+      if (
+        (ctrlKey && shiftKey) ||
+        (model == "browse" && shiftKey) ||
+        (model == "focus" && (ctrlKey || shiftKey))
+      ) {
+        // Does nothing.
+        assertFocus({ element: widget }, "Focus remains on widget");
+        assertSelection([], "No change in selection");
+        continue;
+      }
+
+      assertFocus({ index }, `Focus moves to ${index} after ${key}`);
+      if (ctrlKey) {
+        assertSelection([], `No selection if pressing Ctrl+${key}`);
+      } else if (shiftKey) {
+        assertSelection(
+          range(0, index + 1),
+          `Range selection from 0 to ${index} if pressing Shift+${key}`
+        );
+      } else {
+        assertSelection([index], `Item selected after ${key}`);
+      }
+    }
+  }
+}
+
 // If items are added to an empty widget that has focus, nothing happens
 // initially. Arrow keys will focus the first item.
 add_task(function test_add_items_to_empty_with_focus() {
   for (let model of selectionModels) {
-    for (let { direction, key, index } of [
-      { direction: "top-to-bottom", key: "KEY_ArrowUp", index: 0 },
-      { direction: "top-to-bottom", key: "KEY_ArrowDown", index: 0 },
-      { direction: "right-to-left", key: "KEY_ArrowRight", index: 0 },
-      { direction: "right-to-left", key: "KEY_ArrowLeft", index: 0 },
-      { direction: "left-to-right", key: "KEY_ArrowRight", index: 0 },
-      { direction: "left-to-right", key: "KEY_ArrowLeft", index: 0 },
-      { direction: "top-to-bottom", key: "KEY_Home", index: 0 },
-      { direction: "right-to-left", key: "KEY_Home", index: 0 },
-      { direction: "left-to-right", key: "KEY_Home", index: 0 },
-      { direction: "top-to-bottom", key: "KEY_End", index: 2 },
-      { direction: "right-to-left", key: "KEY_End", index: 2 },
-      { direction: "left-to-right", key: "KEY_End", index: 2 },
-    ]) {
-      for (let ctrlKey of [false, true]) {
-        for (let shiftKey of [false, true]) {
-          info(
-            `Adding items to empty ${direction} widget and then pressing ${
-              ctrlKey ? "Ctrl+" : ""
-            }${shiftKey ? "Shift+" : ""}${key}`
-          );
-          reset({ model, direction });
-
-          stepFocus(true, { element: widget }, "Move focus onto empty widget");
-          widget.addItems(0, ["First", "Second", "Third"]);
-
-          assertFocus(
-            { element: widget },
-            "Focus remains on the widget after adding items"
-          );
-          assertSelection([], "No items are selected yet");
-
-          EventUtils.synthesizeKey(key, { ctrlKey, shiftKey }, win);
-          if (
-            (ctrlKey && shiftKey) ||
-            (model == "browse" && shiftKey) ||
-            (model == "focus" && (ctrlKey || shiftKey))
-          ) {
-            // Does nothing.
-            assertFocus({ element: widget }, "Focus remains on widget");
-            assertSelection([], "No change in selection");
-            continue;
-          }
-
-          assertFocus({ index }, `Focus moves to ${index} after ${key}`);
-          if (ctrlKey) {
-            assertSelection([], `No selection if pressing Ctrl+${key}`);
-          } else if (shiftKey) {
-            let selection = [];
-            for (let i = 0; i <= index; i++) {
-              selection.push(i);
-            }
-            assertSelection(
-              selection,
-              `Range selection from 0 to ${index} if pressing Shift+${key}`
-            );
-          } else {
-            assertSelection([index], `Item selected after ${key}`);
-          }
-        }
-      }
-    }
+    // Step navigation always takes us to the first item.
+    subtest_keypress_on_focused_widget(
+      { model, direction: "top-to-bottom", numItems: 3 },
+      "KEY_ArrowUp",
+      0
+    );
+    subtest_keypress_on_focused_widget(
+      { model, direction: "top-to-bottom", numItems: 3 },
+      "KEY_ArrowDown",
+      0
+    );
+    subtest_keypress_on_focused_widget(
+      { model, direction: "right-to-left", numItems: 3 },
+      "KEY_ArrowRight",
+      0
+    );
+    subtest_keypress_on_focused_widget(
+      { model, direction: "right-to-left", numItems: 3 },
+      "KEY_ArrowLeft",
+      0
+    );
+    subtest_keypress_on_focused_widget(
+      { model, direction: "left-to-right", numItems: 3 },
+      "KEY_ArrowLeft",
+      0
+    );
+    subtest_keypress_on_focused_widget(
+      { model, direction: "left-to-right", numItems: 3 },
+      "KEY_ArrowRight",
+      0
+    );
+    // Home also takes us to the first item.
+    subtest_keypress_on_focused_widget(
+      { model, direction: "top-to-bottom", numItems: 3 },
+      "KEY_Home",
+      0
+    );
+    subtest_keypress_on_focused_widget(
+      { model, direction: "right-to-left", numItems: 3 },
+      "KEY_Home",
+      0
+    );
+    subtest_keypress_on_focused_widget(
+      { model, direction: "left-to-right", numItems: 3 },
+      "KEY_Home",
+      0
+    );
+    // End takes us to the last item.
+    subtest_keypress_on_focused_widget(
+      { model, direction: "top-to-bottom", numItems: 3 },
+      "KEY_End",
+      2
+    );
+    subtest_keypress_on_focused_widget(
+      { model, direction: "right-to-left", numItems: 3 },
+      "KEY_End",
+      2
+    );
+    subtest_keypress_on_focused_widget(
+      { model, direction: "left-to-right", numItems: 3 },
+      "KEY_End",
+      2
+    );
+    // PageUp and PageDown take us to the start or end of the visible page.
+    subtest_keypress_on_focused_widget(
+      { model, direction: "top-to-bottom", numItems: 3 },
+      "KEY_PageUp",
+      0
+    );
+    subtest_keypress_on_focused_widget(
+      { model, direction: "top-to-bottom", numItems: 3 },
+      "KEY_PageDown",
+      2
+    );
+    subtest_keypress_on_focused_widget(
+      {
+        model,
+        direction: "top-to-bottom",
+        numItems: 30,
+        scroll: () => {
+          widget.scrollTop = 270;
+        },
+      },
+      "KEY_PageUp",
+      9
+    );
+    subtest_keypress_on_focused_widget(
+      {
+        model,
+        direction: "top-to-bottom",
+        numItems: 30,
+        scroll: () => {
+          widget.scrollTop = 60;
+        },
+      },
+      "KEY_PageDown",
+      21
+    );
 
     // Arrow keys in other directions do nothing.
     reset({ model, direction: "top-to-bottom" });

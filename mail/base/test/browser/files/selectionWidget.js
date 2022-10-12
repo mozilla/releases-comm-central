@@ -52,6 +52,24 @@ class TestSelectionWidget extends HTMLElement {
         }
         return null;
       },
+      getPageSizeDetails() {
+        if (widget.hasAttribute("no-pages")) {
+          return null;
+        }
+        let itemRect = widget.items[0]?.element.getBoundingClientRect();
+        if (widget.getAttribute("layout-direction") == "vertical") {
+          return {
+            itemSize: itemRect?.height ?? null,
+            viewSize: widget.clientHeight,
+            viewOffset: widget.scrollTop,
+          };
+        }
+        return {
+          itemSize: itemRect?.width ?? null,
+          viewSize: widget.clientWidth,
+          viewOffset: Math.abs(widget.scrollLeft),
+        };
+      },
       setFocusableItem(index, focus) {
         widget.#focusItem.tabIndex = -1;
         widget.#focusItem =
@@ -59,6 +77,10 @@ class TestSelectionWidget extends HTMLElement {
         widget.#focusItem.tabIndex = 0;
         if (focus) {
           widget.#focusItem.focus();
+          widget.#focusItem.scrollIntoView({
+            block: "nearest",
+            inline: "nearest",
+          });
         }
       },
       setItemSelectionState(index, number, selected) {

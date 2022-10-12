@@ -16,6 +16,31 @@ var { AppConstants } = ChromeUtils.import(
  *   following the text direction.
  */
 /**
+ * Details about the sizing of the widget in the same direction as its layout.
+ *
+ * @typedef {Object} PageSizeDetails
+ * @param {number} viewSize - The size of the widget's "view" of its items. If
+ *   the items are placed under a scrollable area with 0 padding, this would
+ *   usually be the clientHeight or clientWidth, which exclude the border and
+ *   the scroll bars.
+ * @param {number} viewOffset - The offset of the widget's "view" from the
+ *   starting item. If the items are placed under a scrollable area with 0
+ *   padding, this would usually be its scrollTop, or the absolute value of its
+ *   scrollLeft (to account for negative values in right-to-left).
+ * @param {?number} itemSize - The size of an item. If the items have no spacing
+ *   between them, then this would usually correspond to their bounding client
+ *   widths or heights. If the items do not share the same size, or there are no
+ *   items this should return null.
+ */
+/**
+ * @callback GetPageSizeDetailsMethod
+ *
+ * @return {?PageSizeDetails} Details about the currently visible items. Or null
+ *   if page navigation should not be allowed: either because the required
+ *   conditions do not apply or PageUp and PageDown should be used for something
+ *   else.
+ */
+/**
  * @callback IndexFromTargetMethod
  *
  * @param {EventTarget} target - An event target.
@@ -28,7 +53,9 @@ var { AppConstants } = ChromeUtils.import(
  *
  * @param {?number} index - The index for the selectable item that should become
  *   focusable, replacing any previous focusable item. Or null if the widget
- *   itself should become focusable instead.
+ *   itself should become focusable instead. If the corresponding item was not
+ *   previously the focused item and it is not yet visible, it should be scrolled
+ *   into view.
  * @param {boolean} focus - Whether to also focus the specified item after it
  *   becomes focusable.
  */
@@ -197,6 +224,9 @@ class SelectionWidgetController {
    *   get the layout direction of the widget.
    * @param {IndexFromTargetMethod} methods.indexFromTarget - Used to get the
    *   corresponding item index from an event target.
+   * @param {GetPageSizeDetailsMethod} method.getPageSizeDetails - Used to get
+   *   details about the visible display of the widget items for page
+   *   navigation.
    * @param {SetFocusableItemMethod} methods.setFocusableItem - Used to update
    *   the widget on which item should receive focus.
    * @param {SetItemSelectionStateMethod} methods.setItemSelectionState - Used
@@ -938,6 +968,81 @@ class SelectionWidgetController {
       case "End":
         focusIndex = this.#numItems - 1;
         break;
+      case "PageUp":
+      case "PageDown":
+        let sizeDetails = this.#methods.getPageSizeDetails();
+        if (!sizeDetails) {
+          // Do not handle and allow PageUp or PageDown to propagate.
+          return;
+        }
+        if (!sizeDetails.itemSize || !sizeDetails.viewSize) {
+          // Still reserve PageUp and PageDown
+          break;
+        }
+        let { itemSize, viewSize, viewOffset } = sizeDetails;
+        // We want to determine what items are visible. We count an item as
+        // "visible" if more than half of it is in view.
+        //
+        // Consider an item at index i that follows the assumed model:
+        //
+        //      [   item content   ]
+        //      <---- itemSize ---->
+        // ---->start_i = i * itemSize
+        //
+        // where start_i is the offset of the starting edge of the item relative
+        // to the starting edge of the first item.
+        //
+        // As such, an item will be visible if
+        //     start_i + itemSize / 2 > viewOffset
+        // and
+        //     start_i + itemSize / 2 < viewOffset + viewSize
+        // <=>
+        //     i > (viewOffset / itemSize) - 1/2
+        // and
+        //     i < ((viewOffset + viewSize) / itemSize) - 1/2
+
+        // First, we want to know the number of items we can visibly fit on a
+        // page. I.e. when the viewOffset is 0, the number of items whose midway
+        // point is lower than the viewSize. This is given by (i + 1), where i
+        // is the largest index i that satisfies
+        //     i < (viewSize / itemSize) - 1/2
+        // This is given by taking the ceiling - 1, which cancels with the +1.
+        let itemsPerPage = Math.ceil(viewSize / itemSize - 0.5);
+        if (itemsPerPage <= 1) {
+          break;
+        }
+        if (event.key == "PageUp") {
+          // We want to know what the first visible index is. I.e. the smallest
+          // i that satisfies
+          //     i > (viewOffset / itemSize) - 1/2
+          // This is equivalent to flooring the right hand side + 1.
+          let pageStart = Math.floor(viewOffset / itemSize - 0.5) + 1;
+          if (this.#focusIndex == null || this.#focusIndex > pageStart) {
+            // Move focus to the top of the page.
+            focusIndex = pageStart;
+          } else {
+            // Reduce focusIndex by one page.
+            // We add "1" index to try and keep the previous focusIndex visible
+            // at the bottom of the view.
+            focusIndex = this.#focusIndex - itemsPerPage + 1;
+          }
+        } else {
+          // We want to know what the last visible index is. I.e. the largest i
+          // that satisfies
+          //     i < (viewOffset + viewSize) / itemSize - 1/2
+          // This is equivalent to ceiling the right hand side - 1.
+          let pageEnd = Math.ceil((viewOffset + viewSize) / itemSize - 0.5) - 1;
+          if (this.#focusIndex == null || this.#focusIndex < pageEnd) {
+            // Move focus to the end of the page.
+            focusIndex = pageEnd;
+          } else {
+            // Increase focusIndex by one page.
+            // We minus "1" index to try and keep the previous focusIndex
+            // visible at the top of the view.
+            focusIndex = this.#focusIndex + itemsPerPage - 1;
+          }
+        }
+        break;
       case forwardKey:
         if (this.#focusIndex == null) {
           // Move to first item.
@@ -963,6 +1068,10 @@ class SelectionWidgetController {
     // we respond to them.
     event.stopPropagation();
     event.preventDefault();
+
+    if (focusIndex === undefined) {
+      return;
+    }
 
     if (shiftKey && ctrlKey) {
       // Both modifiers not handled.
