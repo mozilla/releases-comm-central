@@ -89,9 +89,10 @@ var { AppConstants } = ChromeUtils.import(
  * may also query the widget for information as needed.
  *
  * The widget must inform its SelectionWidgetController instance of any changes
- * in the index of selectable items using the addedSelectableItems and
- * removingSelectableItems controller methods. In particular, the widget must
- * inform the controller of any initial set of items after it is initialized.
+ * in the index of selectable items. In particular, the widget should call the
+ * addedSelectableItems method to inform the controller of any initial set of
+ * items or any additional items that are added to the widget. It should also
+ * use the removeSelectableItems method when it wishes to remove items.
  *
  * The communication between the widget and its SelectionWidgetController
  * instance will use the item's index to reference the item. This means that the
@@ -370,23 +371,32 @@ class SelectionWidgetController {
   }
 
   /**
-   * Informs the controller that a set of selectable items are being removed
-   * from the widget. It is important to call this after the widget has stopped
-   * indexing the removed items, but before the elements are removed from the
-   * DOM. In particular, the focus and selection may be changed during this
-   * call using the *updated* indices, and the focus will need to be transferred
-   * before the previous focused element is removed.
+   * Remove a set of selectable items from the widget. The actual removing of
+   * the items and their elements from the widget is controlled by the widget
+   * through a callback, and the controller will update its internals. The
+   * controller may also change the selection state and focus of the widget
+   * if need be.
    *
-   * @param {number} index - The index of the first selectable item before it
-   *   was removed.
+   * @param {number} index - The index of the first selectable item to be
+   *   removed.
    * @param {number} number - The number of subsequent selectable items that
-   *   were removed, including the first item and any immediately following it.
+   *   will be removed, including the first item and any immediately following
+   *   it.
+   * @param {Function} removeCallback - A function to call with no arguments
+   *   that removes the specified items from the widget. After this call the
+   *   widget should no longer be tracking the specified items and should have
+   *   shifted the indices of the remaining items to fill the gap.
    */
-  removingSelectableItems(index, number) {
+  removeSelectableItems(index, number, removeCallback) {
     this.#assertValidRange(index, number);
 
     let focusWasSelected =
       this.#focusIndex != null && this.#indexIsSelected(this.#focusIndex);
+    // Get whether the focus is within the widget now in case it is lost when
+    // the items are removed.
+    let focusInWidget = this.#focusInWidget();
+
+    removeCallback();
 
     this.#numItems -= number;
 
@@ -519,7 +529,7 @@ class SelectionWidgetController {
         // parent index (inclusive) and its last descendant (inclusive). If
         // there are no children left, this will fallback to focusing the
         // parent.
-        this.#moveFocus(newFocus);
+        this.#moveFocus(newFocus, focusInWidget);
         // #focusIndex may now be different from newFocus if the deleted
         // indices were the final ones, and may be null if no items remain.
         if (!this.#ranges.length && this.#focusIndex != null) {
@@ -735,13 +745,27 @@ class SelectionWidgetController {
   }
 
   /**
-   * Make the specified element focusable. Also move focus to this item if the
-   * widget has focus.
+   * Determine whether the focus lies within the widget or elsewhere.
+   *
+   * @return {boolean} - Whether the active element is the widget or one of its
+   *   descendants.
+   */
+  #focusInWidget() {
+    return this.#widget.contains(this.#widget.ownerDocument.activeElement);
+  }
+
+  /**
+   * Make the specified element focusable. Also move focus to this element if
+   * the widget already has focus.
    *
    * @param {?number} index - The index of the item to focus, or null to focus
    *   the widget. If the index is out of range, it will be truncated.
+   * @param {boolean} [forceInWidget] - Whether the focus was in the widget
+   *   before the specified element becomes focusable. This should be given to
+   *   reference an earlier focus state, otherwise leave undefined to use the
+   *   current focus state.
    */
-  #moveFocus(index) {
+  #moveFocus(index, focusInWidget) {
     let numItems = this.#numItems;
     if (index != null) {
       if (index >= numItems) {
@@ -750,12 +774,13 @@ class SelectionWidgetController {
         index = numItems ? 0 : null;
       }
     }
+    if (focusInWidget == undefined) {
+      focusInWidget = this.#focusInWidget();
+    }
+
     this.#focusIndex = index;
-    this.#methods.setFocusableItem(
-      index,
-      // If focus is within the widget, we move focus onto the new item.
-      this.#widget.contains(this.#widget.ownerDocument.activeElement)
-    );
+    // If focus is within the widget, we move focus onto the new item.
+    this.#methods.setFocusableItem(index, focusInWidget);
   }
 
   #handleFocusIn(event) {

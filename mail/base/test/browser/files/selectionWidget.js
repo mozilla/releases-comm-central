@@ -130,11 +130,11 @@ class TestSelectionWidget extends HTMLElement {
    * @param {number} - How many items to remove.
    */
   removeItems(index, number) {
-    let itemsToRemove = this.items.splice(index, number);
-    this.#controller.removingSelectableItems(index, number);
-    for (let { element } of itemsToRemove) {
-      element.remove();
-    }
+    this.#controller.removeSelectableItems(index, number, () => {
+      for (let { element } of this.items.splice(index, number)) {
+        element.remove();
+      }
+    });
   }
 
   /**
