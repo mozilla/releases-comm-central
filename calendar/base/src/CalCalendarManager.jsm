@@ -536,6 +536,13 @@ CalCalendarManager.prototype = {
       }
     }
 
+    let shouldResyncGoogleCalDav = false;
+    if (!Services.prefs.prefHasUserValue("calendar.caldav.googleResync")) {
+      // Some users' calendars got into a bad state due to Google rate-limit
+      // problems so this code triggers a full resync.
+      shouldResyncGoogleCalDav = true;
+    }
+
     // do refreshing in a second step, when *all* calendars are already available
     // via getCalendars():
     for (let calendar of Object.values(this.mCache)) {
@@ -544,8 +551,26 @@ CalCalendarManager.prototype = {
         // If the calendar is cached, we don't need to refresh it RIGHT NOW, so let's wait a
         // while and let other things happen first.
         delay = 15000;
+
+        if (
+          shouldResyncGoogleCalDav &&
+          calendar.type == "caldav" &&
+          calendar.uri.prePath == "https://apidata.googleusercontent.com"
+        ) {
+          cal.LOG(`CalDAV: Resetting sync token of ${calendar.name} to perform a full resync`);
+          let calCachedCalendar = calendar.wrappedJSObject;
+          let calDavCalendar = calCachedCalendar.mUncachedCalendar.wrappedJSObject;
+          calDavCalendar.mWebdavSyncToken = null;
+          calDavCalendar.saveCalendarProperties();
+        }
       }
       setTimeout(() => maybeRefreshCalendar(calendar), delay);
+    }
+
+    if (shouldResyncGoogleCalDav) {
+      // Record the fact that we've scheduled a resync, so that we only do it once.
+      // Store the date instead of a boolean because we might want to use this again some day.
+      Services.prefs.setIntPref("calendar.caldav.googleResync", Date.now() / 1000);
     }
   },
 
