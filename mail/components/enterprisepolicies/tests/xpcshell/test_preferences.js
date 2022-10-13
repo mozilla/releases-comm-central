@@ -64,6 +64,22 @@ const NEW_PREFERENCES_TESTS = [
           Value: 11,
           Status: "user",
         },
+        "mail.openMessageBehavior": {
+          Value: 1,
+          Status: "locked",
+        },
+        "mailnews.display.prefer_plaintext": {
+          Value: true,
+          Status: "locked",
+        },
+        "chat.enabled": {
+          Value: false,
+          Status: "locked",
+        },
+        "calendar.agenda.days": {
+          Value: 21,
+          Status: "locked",
+        },
       },
     },
     defaultPrefs: {
@@ -75,6 +91,10 @@ const NEW_PREFERENCES_TESTS = [
       "browser.policies.test.locked.boolean": true,
       "browser.policies.test.locked.string": "string",
       "browser.policies.test.locked.number": 11,
+      "mail.openMessageBehavior": 1,
+      "mailnews.display.prefer_plaintext": true,
+      "chat.enabled": false,
+      "calendar.agenda.days": 21,
     },
     userPrefs: {
       "browser.policies.test.user.boolean": true,
