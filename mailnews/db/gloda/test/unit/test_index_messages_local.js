@@ -26,7 +26,7 @@ var { MessageInjection } = ChromeUtils.import(
 /* import-globals-from base_index_messages.js */
 load("base_index_messages.js");
 
-add_task(async function setupTest() {
+add_setup(async function() {
   msgGen = new MessageGenerator();
   scenarios = new MessageScenarioFactory(msgGen);
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);

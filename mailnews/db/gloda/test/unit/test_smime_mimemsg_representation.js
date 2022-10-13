@@ -38,7 +38,7 @@ function initNSS() {
   Cc["@mozilla.org/psm;1"].getService(Ci.nsISupports);
 }
 
-add_task(async function setupTest() {
+add_setup(async function() {
   initNSS();
   msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);

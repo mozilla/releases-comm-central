@@ -21,7 +21,7 @@ var { MessageInjection } = ChromeUtils.import(
 
 var messageInjection;
 
-add_task(async function setupTest() {
+add_setup(async function() {
   // We must do this before the first load otherwise gloda is started without
   // picking up the necessary initialisation.
   Services.io.manageOfflineStatus = false;
