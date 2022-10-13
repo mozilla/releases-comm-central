@@ -36,7 +36,7 @@ class LDAPURLParser {
       dn: decodeURIComponent(dn),
       attributes,
       scope,
-      filter: filter || "(objectclass=*)",
+      filter: filter ? decodeURIComponent(filter) : "(objectclass=*)",
       options: scheme == "ldaps" ? Ci.nsILDAPURL.OPT_SECURE : 0,
     };
   }
