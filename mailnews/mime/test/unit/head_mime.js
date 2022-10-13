@@ -31,46 +31,9 @@ registerCleanupFunction(function() {
   load(gDEPTH + "mailnews/resources/mailShutdown.js");
 });
 
-class DummyMsgHeader {
-  constructor() {
-    this.mProperties = {};
-    this.messageSize = 0;
-    this.recipients = null;
-    this.from = null;
-    this.subject = "";
-    this.ccList = null;
-    this.messageId = null;
-    this.listPost = null;
-    this.date = 0;
-    this.accountKey = "";
-    this.flags = 0;
-    this.folder = null;
-  }
-  getStringProperty(aProperty) {
-    return this.mProperties[aProperty];
-  }
-  setStringProperty(aProperty, aVal) {
-    this.mProperties[aProperty] = aVal;
-  }
-  getUint32Property(aProperty) {
-    if (aProperty in this.mProperties) {
-      return parseInt(this.mProperties[aProperty]);
-    }
-    return 0;
-  }
-  setUint32Property(aProperty, aVal) {
-    this.mProperties[aProperty] = aVal.toString();
-  }
-  markHasAttachments(hasAttachments) {}
-  get mime2DecodedSubject() {
-    return this.subject;
-  }
-}
-
 function apply_mime_conversion(msgUri, headerSink = {}, msgWindow = undefined) {
   let stubHeaderSink = {
     securityInfo: null,
-    dummyMsgHeader: new DummyMsgHeader(),
     QueryInterface: ChromeUtils.generateQI(["nsIMsgHeaderSink"]),
   };
 

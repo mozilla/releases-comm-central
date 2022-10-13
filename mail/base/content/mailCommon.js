@@ -538,9 +538,9 @@ var commandController = {
     // If we're the hidden window, then we're not going to have a gFolderDisplay
     // to work out existing folders, so just use null.
     let msgFolder = gFolder;
-    let msgUris = top.msgWindow.msgHeaderSink.dummyMsgHeader
-      ? [window.gMessageURI]
-      : gDBView?.getURIsForSelection();
+    let msgUris = gFolder
+      ? gDBView?.getURIsForSelection()
+      : [window.gMessageURI];
 
     if (event && event.shiftKey) {
       window.browsingContext.topChromeWindow.ComposeMessage(

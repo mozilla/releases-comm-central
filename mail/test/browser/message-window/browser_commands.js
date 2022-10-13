@@ -56,8 +56,7 @@ add_task(async function test_copy_eml_message() {
   let msgc = await open_message_from_file(file);
   let aboutMessage = get_about_message(msgc.window);
 
-  // First check the properties are correct when opening the .eml form file.
-  // @see nsDummyMsgHeader.
+  // First check the properties are correct when opening the .eml from file.
   let emlMessage = aboutMessage.gMessage;
   Assert.equal(emlMessage.mime2DecodedSubject, "An email");
   Assert.equal(emlMessage.mime2DecodedAuthor, "from@example.com");

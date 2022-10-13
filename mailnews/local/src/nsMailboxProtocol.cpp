@@ -111,16 +111,6 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
         rv =
             OpenFileSocket(aURL, 0, -1 /* read in all the bytes in the file */);
       } else {
-        // we need to specify a byte range to read in so we read in JUST the
-        // message we want.
-        rv = SetupMessageExtraction();
-        if (NS_FAILED(rv)) return rv;
-        uint32_t msgSize = 0;
-        rv = m_runningUrl->GetMessageSize(&msgSize);
-        NS_ASSERTION(NS_SUCCEEDED(rv), "oops....i messed something up");
-        SetContentLength(msgSize);
-        mailnewsUrl->SetMaxProgress(msgSize);
-
         if (RunningMultipleMsgUrl()) {
           // if we're running multiple msg url, we clear the event sink because
           // the multiple msg urls will handle setting the progress.
@@ -134,6 +124,13 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
           nsCOMPtr<nsIMsgDBHdr> msgHdr;
           rv = msgUrl->GetMessageHeader(getter_AddRefs(msgHdr));
           if (NS_SUCCEEDED(rv) && msgHdr) {
+            uint32_t msgSize = 0;
+            msgHdr->GetMessageSize(&msgSize);
+            m_runningUrl->SetMessageSize(msgSize);
+
+            SetContentLength(msgSize);
+            mailnewsUrl->SetMaxProgress(msgSize);
+
             rv = msgHdr->GetFolder(getter_AddRefs(folder));
             if (NS_SUCCEEDED(rv) && folder) {
               nsCOMPtr<nsIInputStream> stream;
@@ -182,8 +179,9 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
               m_socketIsOpen = false;
             }
           }
-          if (!folder)  // must be a .eml file
-            rv = OpenFileSocket(aURL, 0, int64_t(msgSize));
+          if (!folder) {  // must be a .eml file
+            rv = OpenFileSocket(aURL, 0, -1);
+          }
         }
         NS_ASSERTION(NS_SUCCEEDED(rv), "oops....i messed something up");
       }
@@ -401,30 +399,6 @@ nsresult nsMailboxProtocol::DoneReadingMessage() {
       m_msgFileOutputStream)
     rv = m_msgFileOutputStream->Close();
 
-  return rv;
-}
-
-nsresult nsMailboxProtocol::SetupMessageExtraction() {
-  // Determine the number of bytes we are going to need to read out of the
-  // mailbox url....
-  nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  nsresult rv = NS_OK;
-
-  NS_ASSERTION(m_runningUrl, "Not running a url");
-  if (m_runningUrl) {
-    uint32_t messageSize = 0;
-    m_runningUrl->GetMessageSize(&messageSize);
-    if (!messageSize) {
-      nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(m_runningUrl, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-      rv = msgUrl->GetMessageHeader(getter_AddRefs(msgHdr));
-      if (NS_SUCCEEDED(rv) && msgHdr) {
-        msgHdr->GetMessageSize(&messageSize);
-        m_runningUrl->SetMessageSize(messageSize);
-      } else
-        NS_ASSERTION(false, "couldn't get message header");
-    }
-  }
   return rv;
 }
 

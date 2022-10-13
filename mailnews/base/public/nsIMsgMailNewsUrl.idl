@@ -190,10 +190,10 @@ interface nsIMsgMessageUrl : nsISupports {
    *
    *  @note This attribute is not guaranteed to be set, so callers that
    *  actually require an nsIMsgDBHdr will need to use the uri attribute
-   *  on this interface to get the  appropriate nsIMsgMessageService and
+   *  on this interface to get the appropriate nsIMsgMessageService and
    *  then get the header from there.
    */
-  attribute nsIMsgDBHdr messageHeader;
+  readonly attribute nsIMsgDBHdr messageHeader;
 };
 
 //////////////////////////////////////////////////////////////////////////////////

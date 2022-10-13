@@ -589,6 +589,7 @@ var messageHeaderSink2 = {
       gViewAllHeaders = false;
     }
 
+    document.title = "";
     ClearCurrentHeaders();
     gBuiltExpandedView = false;
     gBuildAttachmentsForCurrentMsg = false;
@@ -665,41 +666,8 @@ var messageHeaderSink2 = {
       // See RFC 5322 section 3.6 for min-max number for given header.
       // If multiple headers exist we need to make sure to use the first one.
 
-      if (this.mDummyMsgHeader) {
-        if (lowerCaseHeaderName == "from" && !this.mDummyMsgHeader.author) {
-          this.mDummyMsgHeader.author = header.headerValue;
-        } else if (lowerCaseHeaderName == "to") {
-          this.mDummyMsgHeader.recipients = header.headerValue;
-        } else if (lowerCaseHeaderName == "cc") {
-          this.mDummyMsgHeader.ccList = header.headerValue;
-        } else if (
-          lowerCaseHeaderName == "subject" &&
-          !this.mDummyMsgHeader.subject
-        ) {
-          this.mDummyMsgHeader.subject = header.headerValue;
-        } else if (
-          lowerCaseHeaderName == "reply-to" &&
-          !this.mDummyMsgHeader.replyTo
-        ) {
-          this.mDummyMsgHeader.replyTo = header.headerValue;
-        } else if (
-          lowerCaseHeaderName == "message-id" &&
-          !this.mDummyMsgHeader.messageId
-        ) {
-          this.mDummyMsgHeader.messageId = header.headerValue.replace(
-            /^<(.*)>$/,
-            "$1"
-          );
-        } else if (lowerCaseHeaderName == "list-post") {
-          this.mDummyMsgHeader.listPost = header.headerValue;
-        } else if (lowerCaseHeaderName == "delivered-to") {
-          this.mDummyMsgHeader.deliveredTo = header.headerValue;
-        } else if (
-          lowerCaseHeaderName == "date" &&
-          !this.mDummyMsgHeader.date
-        ) {
-          this.mDummyMsgHeader.date = Date.parse(header.headerValue) * 1000;
-        }
+      if (lowerCaseHeaderName == "subject" && !document.title) {
+        document.title = header.headerValue;
       }
       // according to RFC 2822, certain headers
       // can occur "unlimited" times
@@ -3095,59 +3063,6 @@ let attachmentNameDNDObserver = {
     setupDataTransfer(event, [attachmentList.getItemAtIndex(0).attachment]);
     event.stopPropagation();
   },
-};
-
-function nsDummyMsgHeader() {}
-
-nsDummyMsgHeader.prototype = {
-  mProperties: [],
-  getProperty(aProperty) {
-    return this.getStringProperty(aProperty);
-  },
-  setProperty(aProperty, aVal) {
-    return this.setStringProperty(aProperty, aVal);
-  },
-  getStringProperty(aProperty) {
-    if (aProperty in this.mProperties) {
-      return this.mProperties[aProperty];
-    }
-    return "";
-  },
-  setStringProperty(aProperty, aVal) {
-    this.mProperties[aProperty] = aVal;
-  },
-  getUint32Property(aProperty) {
-    if (aProperty in this.mProperties) {
-      return parseInt(this.mProperties[aProperty]);
-    }
-    return 0;
-  },
-  setUint32Property(aProperty, aVal) {
-    this.mProperties[aProperty] = aVal.toString();
-  },
-  markHasAttachments(hasAttachments) {},
-  messageSize: 0,
-  author: null,
-  get mime2DecodedAuthor() {
-    return this.author;
-  },
-  subject: "",
-  get mime2DecodedSubject() {
-    return this.subject;
-  },
-  recipients: null,
-  get mime2DecodedRecipients() {
-    return this.recipients;
-  },
-  ccList: null,
-  listPost: null,
-  messageId: null,
-  date: 0,
-  accountKey: "",
-  flags: 0,
-  // If you change us to return a fake folder, please update
-  // folderDisplay.js's FolderDisplayWidget's selectedMessageIsExternal getter.
-  folder: null,
 };
 
 function onShowOtherActionsPopup() {

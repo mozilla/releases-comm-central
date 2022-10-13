@@ -78,7 +78,7 @@ function OnLoadMessageWindow() {
 
   setTimeout(delayedOnLoadMessageWindow, 0); // when debugging, set this to 5000, so you can see what happens after the window comes up.
 
-  messageBrowser.addEventListener("pagetitlechanged", () => {
+  messageBrowser.addEventListener("DOMTitleChanged", () => {
     if (messageBrowser.contentTitle) {
       document.title =
         messageBrowser.contentTitle +

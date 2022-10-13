@@ -88,7 +88,6 @@ class nsMailboxProtocol : public nsMsgProtocol {
                                         uint32_t length) override;
   virtual nsresult CloseSocket() override;
 
-  nsresult SetupMessageExtraction();
   nsresult OpenMultipleMsgTransport(uint64_t offset, int64_t size);
   bool RunningMultipleMsgUrl();
 

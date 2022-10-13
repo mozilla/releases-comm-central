@@ -29,7 +29,7 @@ var newMailTabType = {
     let browser = clone.querySelector("browser");
     browser.id = `${tab.mode.name}Browser${tab.mode._nextId}`;
     browser.addEventListener(
-      "pagetitlechanged",
+      "DOMTitleChanged",
       () => {
         tab.title = browser.contentTitle;
         tabmail.setTabTitle(tab);

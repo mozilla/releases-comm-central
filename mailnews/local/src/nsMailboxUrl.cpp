@@ -228,52 +228,25 @@ nsresult nsMailboxUrl::GetMsgHdrForKey(nsMsgKey msgKey, nsIMsgDBHdr** aMsgHdr) {
     nsCOMPtr<nsIMsgDBService> msgDBService =
         do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
 
-    if (msgDBService)
+    if (msgDBService) {
       rv = msgDBService->OpenMailDBFromFile(m_filePath, nullptr, false, false,
                                             getter_AddRefs(mailDB));
-    if (NS_SUCCEEDED(rv) && mailDB)  // did we get a db back?
-      rv = mailDB->GetMsgHdrForKey(msgKey, aMsgHdr);
-    else {
-      nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
-      if (!msgWindow) {
-        nsCOMPtr<nsIMsgMailSession> mailSession =
-            do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
-        mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
-      }
-
-      // maybe this is .eml file we're trying to read. See if we can get a
-      // header from the header sink.
-      if (msgWindow) {
-        nsCOMPtr<nsIMsgHeaderSink> headerSink;
-        msgWindow->GetMsgHeaderSink(getter_AddRefs(headerSink));
-        if (headerSink) {
-          rv = headerSink->GetDummyMsgHeader(aMsgHdr);
-          if (NS_SUCCEEDED(rv)) {
-            int64_t fileSize = 0;
-            m_filePath->GetFileSize(&fileSize);
-            (*aMsgHdr)->SetMessageSize(fileSize);
-          }
-        }
-      }
     }
-  } else
+    if (NS_SUCCEEDED(rv) && mailDB) {
+      // Did we get a db back?
+      rv = mailDB->GetMsgHdrForKey(msgKey, aMsgHdr);
+    } else {
+      rv = NS_OK;
+    }
+  } else {
     rv = NS_ERROR_NULL_POINTER;
+  }
 
   return rv;
 }
 
 NS_IMETHODIMP nsMailboxUrl::GetMessageHeader(nsIMsgDBHdr** aMsgHdr) {
-  if (m_dummyHdr) {
-    NS_IF_ADDREF(*aMsgHdr = m_dummyHdr);
-    return NS_OK;
-  }
   return GetMsgHdrForKey(m_messageKey, aMsgHdr);
-}
-
-NS_IMETHODIMP nsMailboxUrl::SetMessageHeader(nsIMsgDBHdr* aMsgHdr) {
-  m_dummyHdr = aMsgHdr;
-  return NS_OK;
 }
 
 NS_IMPL_GETSET(nsMailboxUrl, AddDummyEnvelope, bool, m_addDummyEnvelope)

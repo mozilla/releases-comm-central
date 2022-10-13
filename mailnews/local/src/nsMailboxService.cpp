@@ -165,15 +165,6 @@ nsresult nsMailboxService::FetchMessage(
       msgUrl->SetMsgWindow(aMsgWindow);
       nsCOMPtr<nsIMailboxUrl> mailboxUrl = do_QueryInterface(msgUrl, &rv);
       mailboxUrl->SetMessageSize((uint32_t)fileSize);
-      nsCOMPtr<nsIMsgHeaderSink> headerSink;
-      // need to tell the header sink to capture some headers to create a fake
-      // db header so we can do reply to a .eml file or a rfc822 msg attachment.
-      if (aMsgWindow) aMsgWindow->GetMsgHeaderSink(getter_AddRefs(headerSink));
-      if (headerSink) {
-        nsCOMPtr<nsIMsgDBHdr> dummyHeader;
-        headerSink->GetDummyMsgHeader(getter_AddRefs(dummyHeader));
-        if (dummyHeader) dummyHeader->SetMessageSize((uint32_t)fileSize);
-      }
     }
   } else {
     // this happens with forward inline of message/rfc822 attachment

@@ -18,6 +18,4 @@ interface nsIWritablePropertyBag2;
 interface nsIMsgHeaderSink : nsISupports
 {
   attribute nsISupports securityInfo;
-
-  readonly attribute nsIMsgDBHdr dummyMsgHeader;
 };

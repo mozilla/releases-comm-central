@@ -211,78 +211,9 @@ function CreateMailWindowGlobals() {
     Ci.nsIMsgWindow
   );
   msgWindow.msgHeaderSink = {
-    resetProperties() {
-      delete this.mProperties;
-    },
     securityInfo: null,
-    get dummyMsgHeader() {
-      if (!this.mDummyMsgHeader) {
-        this.mDummyMsgHeader = new nsDummyMsgHeader();
-      }
-      return this.mDummyMsgHeader;
-    },
-    get properties() {
-      if (!this.mProperties) {
-        this.mProperties = Cc[
-          "@mozilla.org/hash-property-bag;1"
-        ].createInstance(Ci.nsIWritablePropertyBag2);
-      }
-      return this.mProperties;
-    },
   };
 }
-
-function nsDummyMsgHeader() {}
-nsDummyMsgHeader.prototype = {
-  mProperties: [],
-  getProperty(aProperty) {
-    return this.getStringProperty(aProperty);
-  },
-  setProperty(aProperty, aVal) {
-    return this.setStringProperty(aProperty, aVal);
-  },
-  getStringProperty(aProperty) {
-    if (aProperty in this.mProperties) {
-      return this.mProperties[aProperty];
-    }
-    return "";
-  },
-  setStringProperty(aProperty, aVal) {
-    this.mProperties[aProperty] = aVal;
-  },
-  getUint32Property(aProperty) {
-    if (aProperty in this.mProperties) {
-      return parseInt(this.mProperties[aProperty]);
-    }
-    return 0;
-  },
-  setUint32Property(aProperty, aVal) {
-    this.mProperties[aProperty] = aVal.toString();
-  },
-  markHasAttachments(hasAttachments) {},
-  messageSize: 0,
-  author: null,
-  get mime2DecodedAuthor() {
-    return this.author;
-  },
-  subject: "",
-  get mime2DecodedSubject() {
-    return this.subject;
-  },
-  recipients: null,
-  get mime2DecodedRecipients() {
-    return this.recipients;
-  },
-  ccList: null,
-  listPost: null,
-  messageId: null,
-  date: 0,
-  accountKey: "",
-  flags: 0,
-  // If you change us to return a fake folder, please update
-  // folderDisplay.js's FolderDisplayWidget's selectedMessageIsExternal getter.
-  folder: null,
-};
 
 function toggleCaretBrowsing() {
   const enabledPref = "accessibility.browsewithcaret_shortcut.enabled";

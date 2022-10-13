@@ -1350,7 +1350,3 @@ NS_IMETHODIMP nsImapUrl::GetMessageHeader(nsIMsgDBHdr** aMsgHdr) {
   NS_ENSURE_SUCCESS(rv, rv);
   return GetMsgDBHdrFromURI(uri, aMsgHdr);
 }
-
-NS_IMETHODIMP nsImapUrl::SetMessageHeader(nsIMsgDBHdr* aMsgHdr) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
