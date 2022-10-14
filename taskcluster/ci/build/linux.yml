@@ -25,7 +25,6 @@ linux64/opt:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
         script: "mozharness/scripts/fx_desktop_build.py"
-        need-xvfb: true
     use-sccache: true
     optimization:
         skip-suite-only: null
@@ -74,7 +73,6 @@ linux64-shippable/opt:
             - builds/releng_base_linux_64_builds.py
             - taskcluster_nightly.py
         script: "mozharness/scripts/fx_desktop_build.py"
-        need-xvfb: true
     run-on-projects: ['release']
     optimization:
         skip-suite-only: null
@@ -117,7 +115,6 @@ linux64/debug:
         script: "mozharness/scripts/fx_desktop_build.py"
         custom-build-variant-cfg: debug
         mozconfig-variant: debug
-        need-xvfb: true
     use-sccache: true
     optimization:
         skip-suite-only: null
@@ -164,7 +161,6 @@ linux64-asan/opt:
         custom-build-variant-cfg: asan-tc
         mozconfig-variant: nightly-asan
         tooltool-downloads: public
-        need-xvfb: true
     run-on-projects: ['comm-central']
     use-sccache: true
     optimization:
@@ -220,7 +216,6 @@ linux64-asan-reporter-shippable/opt:
         script: "mozharness/scripts/fx_desktop_build.py"
         custom-build-variant-cfg: asan-reporter-tc
         mozconfig-variant: nightly-asan-reporter
-        need-xvfb: true
         mar-channel-id:
             thunderbird-comm-central-asan
         accepted-mar-channel-ids:
@@ -270,7 +265,6 @@ linux64-tsan/opt:
         custom-build-variant-cfg: tsan-tc
         mozconfig-variant: tsan
         tooltool-downloads: public
-        need-xvfb: true
     run-on-projects: ['comm-central']
     use-sccache: true
     optimization:
@@ -319,7 +313,6 @@ linux64-aarch64/opt:
         script: "mozharness/scripts/fx_desktop_build.py"
         mozconfig-variant: opt
         tooltool-downloads: public
-        need-xvfb: true
     run-on-projects: ['comm-central']
     use-sccache: true
     optimization:
@@ -360,7 +353,6 @@ linux/opt:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_32_builds.py
         script: "mozharness/scripts/fx_desktop_build.py"
-        need-xvfb: true
     use-sccache: true
     optimization:
         skip-suite-only: null
@@ -410,7 +402,6 @@ linux-shippable/opt:
             - builds/releng_base_linux_32_builds.py
             - taskcluster_nightly.py
         script: "mozharness/scripts/fx_desktop_build.py"
-        need-xvfb: true
     run-on-projects: ['release']
     optimization:
         skip-suite-only: null
@@ -452,7 +443,6 @@ linux/debug:
         script: "mozharness/scripts/fx_desktop_build.py"
         custom-build-variant-cfg: debug
         mozconfig-variant: debug
-        need-xvfb: true
     use-sccache: true
     optimization:
         skip-suite-only: null
