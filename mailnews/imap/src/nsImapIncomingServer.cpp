@@ -671,40 +671,69 @@ nsresult nsImapIncomingServer::GetImapConnection(
   int32_t cnt = m_connectionCache.Count();
   *aImapConnection = nullptr;
 
-  if (cnt == 1 && maxConnections > 1) {
-    // We now have one connection and can possibly have more. If the user has
-    // not yet been authenticated in this session, queue the new URL until
-    // authentication occurs on the initial connection. This is to hold off
-    // running additional URLs, typically select or folderstatus, by queuing
-    // them, until the connection for the initial URL, typically
-    // discoverallboxes, is authenticated.
-    nsresult res;
-    nsCOMPtr<nsIImapHostSessionList> hostSessionList =
-        do_GetService(kCImapHostSessionListCID, &res);
-    if (NS_SUCCEEDED(res) && hostSessionList) {
-      nsAutoCString serverKey;
+  // Need to determine if we are already authenticated on this server during
+  // this session before creating the first connection (cnt is 0) or when we
+  // already have a single connection (cnt is 1) and more are possible.
+  bool hasBeenAuthenticated = false;
+  nsCOMPtr<nsIImapHostSessionList> hostSessionList;
+  nsAutoCString serverKey;
+  if (cnt == 0 || (cnt == 1 && maxConnections > 1)) {
+    nsImapProtocol::LogImapUrl("check for auth'd", aImapUrl);
+    hostSessionList = do_GetService(kCImapHostSessionListCID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (hostSessionList) {
       if (NS_SUCCEEDED(GetKey(serverKey)) && !serverKey.IsEmpty()) {
-        bool hasBeenAuthenticated = false;
-        if (NS_SUCCEEDED(hostSessionList->GetPasswordVerifiedOnline(
-                serverKey.get(), hasBeenAuthenticated)) &&
-            !hasBeenAuthenticated) {
-          // Authentication has not yet occurred with this host during this
-          // session. Returning here with aImapConnection null will tell caller
-          // to queue the URL. Also tell caller to skip the immediate retry of
-          // the queued URL which, at this time, will fail.
-          // However, don't want to queue the URL if the host has seen a TLS
-          // related error that can possibly be overriden. Let the URL run even
-          // though it will fail.
-          nsresult tlsError;
-          hostSessionList->GetSavedTlsError(serverKey.get(), tlsError);
-          if (NS_SUCCEEDED(tlsError)) {
-            m_skipRetryQueued = true;
-            return NS_OK;
-          }
-        }
+        hostSessionList->GetPasswordVerifiedOnline(serverKey.get(),
+                                                   hasBeenAuthenticated);
         if (hasBeenAuthenticated)
           hostSessionList->SetSavedTlsError(serverKey.get(), NS_OK);
       }
+    }
+  }
+
+  // If not already authenticated, don't try to create the 1st connection and
+  // run the URL if the server has no stored password and if the URL has no
+  // window for a possible password prompt. E.g., if URL ensureExists or
+  // folderstatus occurs first. Queue the URL (return NS_OK with aImapConnection
+  // null) and skip the immediate retry so the windowless URL runs later, after
+  // a URL with a window, such as discoverallbox or select has run and possibly
+  // prompts for authentication.
+  // Note: The check for m_password is only needed because imap unit tests
+  // pre-store the password locally and don't obtain it from the login manager.
+  if (!hasBeenAuthenticated && cnt == 0 && m_password.IsEmpty()) {
+    nsCOMPtr<nsIMsgWindow> msgWindow;
+    nsCOMPtr<nsIMsgMailNewsUrl> msgUrl;
+    msgUrl = do_QueryInterface(aImapUrl, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    msgUrl->GetMsgWindow(getter_AddRefs(msgWindow));
+    if (!msgWindow) {
+      nsImapProtocol::LogImapUrl("no auth, cnt 0, pwd empty & no win - q URL",
+                                 aImapUrl);
+      m_skipRetryQueued = true;
+      return NS_OK;
+    }
+  }
+
+  // If not already authenticated and we now have one connection and can
+  // possibly have more. Queue the current URL until authentication occurs
+  // on the initial connection. This is to hold off running additional URLs,
+  // typically select or folderstatus, until the connection for the initial
+  // URL, usually discoverallboxes, completes the authentication. Returning
+  // here with aImapConnection null will tell caller to queue the URL. Also
+  // we tell caller to skip the immediate retry of the  queued URL which, at
+  // this time, will fail.
+  // However, don't want to queue the URL if the host has seen a TLS related
+  // error that can possibly be overriden. Let the URL run even though it will
+  // fail in order to trigger the override dialog.
+  if (!hasBeenAuthenticated && cnt == 1 && maxConnections > 1) {
+    nsresult tlsError = NS_OK;
+    if (hostSessionList)
+      hostSessionList->GetSavedTlsError(serverKey.get(), tlsError);
+    if (NS_SUCCEEDED(tlsError)) {
+      nsImapProtocol::LogImapUrl("no auth, cnt 1 & no TLS error - q URL",
+                                 aImapUrl);
+      m_skipRetryQueued = true;
+      return NS_OK;
     }
   }
 
@@ -1939,6 +1968,18 @@ nsImapIncomingServer::AsyncGetPassword(nsIImapProtocol* aProtocol,
   }
   if (!m_password.IsEmpty()) aPassword = m_password;
   return NS_OK;
+}
+
+// Get password already stored in login manager. This won't trigger a prompt
+// if no password string is present.
+NS_IMETHODIMP
+nsImapIncomingServer::SyncGetPassword(nsAString& aPassword) {
+  nsresult rv = NS_OK;
+  if (NS_SUCCEEDED(GetPasswordWithoutUI()) && !m_password.IsEmpty())
+    aPassword = m_password;
+  else
+    rv = NS_ERROR_NOT_AVAILABLE;
+  return rv;
 }
 
 NS_IMETHODIMP

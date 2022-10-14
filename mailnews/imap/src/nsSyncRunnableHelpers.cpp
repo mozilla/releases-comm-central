@@ -435,6 +435,7 @@ NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlertFromServer, const nsACString&,
 NS_SYNCRUNNABLEMETHOD0(ImapServerSink, CommitNamespaces)
 NS_SYNCRUNNABLEMETHOD3(ImapServerSink, AsyncGetPassword, nsIImapProtocol*, bool,
                        nsAString&)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SyncGetPassword, nsAString&)
 NS_SYNCRUNNABLEATTRIBUTE(ImapServerSink, UserAuthenticated, bool)
 NS_SYNCRUNNABLEMETHOD3(ImapServerSink, SetMailServerUrls, const nsACString&,
                        const nsACString&, const nsACString&)
