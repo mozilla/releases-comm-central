@@ -1570,12 +1570,11 @@ AttachmentInfo.prototype = {
       let { name, url } = this;
       name = DownloadPaths.sanitize(name);
 
-      let sourceURI = Services.io.newURI(url);
       async function saveToFile(path) {
         let buffer = await new Promise(function(resolve, reject) {
           NetUtil.asyncFetch(
             {
-              uri: sourceURI,
+              uri: Services.io.newURI(url),
               loadUsingSystemPrincipal: true,
             },
             function(inputStream, status) {
@@ -1590,32 +1589,6 @@ AttachmentInfo.prototype = {
           );
         });
         await IOUtils.write(path, new Uint8Array(buffer));
-
-        // Create download.
-        let persist = Cc[
-          "@mozilla.org/embedding/browser/nsWebBrowserPersist;1"
-        ].createInstance(Ci.nsIWebBrowserPersist);
-        let tr = Cc["@mozilla.org/transfer;1"].createInstance(Ci.nsITransfer);
-        tr.init(
-          sourceURI,
-          null,
-          Services.io.newURI(PathUtils.toFileURI(path)),
-          "",
-          null,
-          null,
-          null,
-          persist,
-          false,
-          Ci.nsITransfer.DOWNLOAD_ACCEPTABLE,
-          null
-        );
-        tr.onStateChange(
-          null,
-          null,
-          Ci.nsIWebProgressListener.STATE_STOP |
-            Ci.nsIWebProgressListener.STATE_IS_NETWORK,
-          0
-        );
       }
 
       let createTemporaryFileAndOpen = async mimeInfo => {
