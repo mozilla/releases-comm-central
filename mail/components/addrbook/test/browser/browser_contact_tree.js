@@ -864,16 +864,23 @@ add_task(async function test_layout() {
   let abDocument = abWindow.document;
   let cardsHeader = abDocument.getElementById("cardsHeader");
   let cardsList = abDocument.getElementById("cards");
+  let sharedSplitter = abDocument.getElementById("sharedSplitter");
 
   // Sanity check.
 
   Assert.ok(
-    abDocument.body.classList.contains("layout-list"),
-    "list layout on opening"
-  );
-  Assert.ok(
     !abDocument.body.classList.contains("layout-table"),
     "not table layout on opening"
+  );
+  Assert.equal(
+    sharedSplitter.resizeDirection,
+    "horizontal",
+    "splitter direction is horizontal"
+  );
+  Assert.equal(
+    sharedSplitter.resizeElement.id,
+    "cardsPane",
+    "splitter is affecting the cards pane"
   );
   Assert.equal(
     cardsList.getAttribute("rows"),
@@ -886,12 +893,18 @@ add_task(async function test_layout() {
   await toggleLayout(true);
 
   Assert.ok(
-    !abDocument.body.classList.contains("layout-list"),
-    "layout changed"
-  );
-  Assert.ok(
     abDocument.body.classList.contains("layout-table"),
     "layout changed"
+  );
+  Assert.equal(
+    sharedSplitter.resizeDirection,
+    "vertical",
+    "splitter direction is vertical"
+  );
+  Assert.equal(
+    sharedSplitter.resizeElement.id,
+    "detailsPane",
+    "splitter is affecting the details pane"
   );
   Assert.equal(
     cardsList.getAttribute("rows"),
@@ -990,14 +1003,21 @@ add_task(async function test_layout() {
   abDocument = abWindow.document;
   cardsHeader = abDocument.getElementById("cardsHeader");
   cardsList = abDocument.getElementById("cards");
+  sharedSplitter = abDocument.getElementById("sharedSplitter");
 
-  Assert.ok(
-    !abDocument.body.classList.contains("layout-list"),
-    "table layout preserved on reopening"
-  );
   Assert.ok(
     abDocument.body.classList.contains("layout-table"),
     "table layout preserved on reopening"
+  );
+  Assert.equal(
+    sharedSplitter.resizeDirection,
+    "vertical",
+    "splitter direction preserved as vertical"
+  );
+  Assert.equal(
+    sharedSplitter.resizeElement.id,
+    "detailsPane",
+    "splitter preserved affecting the details pane"
   );
   Assert.equal(
     cardsList.getAttribute("rows"),
@@ -1023,12 +1043,18 @@ add_task(async function test_layout() {
   await toggleLayout(false);
 
   Assert.ok(
-    abDocument.body.classList.contains("layout-list"),
-    "layout changed"
-  );
-  Assert.ok(
     !abDocument.body.classList.contains("layout-table"),
     "layout changed"
+  );
+  Assert.equal(
+    sharedSplitter.resizeDirection,
+    "horizontal",
+    "splitter direction is horizontal"
+  );
+  Assert.equal(
+    sharedSplitter.resizeElement.id,
+    "cardsPane",
+    "splitter is affecting the cards pane"
   );
   Assert.equal(
     cardsList.getAttribute("rows"),

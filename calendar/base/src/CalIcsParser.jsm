@@ -6,7 +6,7 @@ var EXPORTED_SYMBOLS = ["CalIcsParser"];
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 const lazy = {};
 

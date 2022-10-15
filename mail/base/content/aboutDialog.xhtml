@@ -46,7 +46,10 @@
       <vbox id="rightBox" flex="1">
         <hbox align="baseline">
 #expand   <label id="version">__MOZ_APP_VERSION_DISPLAY__</label>
-          <label is="text-link" id="releasenotes" hidden="true">&releaseNotes.link;</label>
+          <html:a id="releasenotes" class="text-link" hidden="hidden"
+                  onclick="openLink(event.target.href)">
+            &releaseNotes.link;
+          </html:a>
         </hbox>
 
         <label id="distribution" class="text-blurb"/>

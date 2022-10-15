@@ -20,7 +20,7 @@ var calendarTaskButtonDNDObserver;
   var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
   var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
   var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
-  var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+  var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
   XPCOMUtils.defineLazyModuleGetters(this, {
     CalAttachment: "resource:///modules/CalAttachment.jsm",

@@ -8,9 +8,7 @@
  * http://pubs.opengroup.org/onlinepubs/007908799/xsh/strftime.html
  */
 
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 XPCOMUtils.defineLazyGetter(

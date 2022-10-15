@@ -23,7 +23,6 @@ class TestSelectionWidget extends HTMLElement {
   items = [];
   #focusItem = this;
   #controller = null;
-  #itemId = 0;
 
   connectedCallback() {
     let widget = this;
@@ -35,40 +34,74 @@ class TestSelectionWidget extends HTMLElement {
       "aria-orientation",
       widget.getAttribute("layout-direction")
     );
+    let model = widget.getAttribute("selection-model");
+    widget.setAttribute("aria-multiselectable", model == "browse-multi");
 
-    this.#itemId = 0;
-
-    this.#controller = new SelectionWidgetController(
-      widget,
-      widget.getAttribute("selection-model"),
-      {
-        getLayoutDirection() {
-          return widget.getAttribute("layout-direction");
-        },
-        indexFromTarget(target) {
-          for (let i = 0; i < widget.items.length; i++) {
-            if (widget.items[i].element.contains(target)) {
-              return i;
-            }
+    this.#controller = new SelectionWidgetController(widget, model, {
+      getLayoutDirection() {
+        return widget.getAttribute("layout-direction");
+      },
+      indexFromTarget(target) {
+        for (let i = 0; i < widget.items.length; i++) {
+          if (widget.items[i].element.contains(target)) {
+            return i;
           }
+        }
+        return null;
+      },
+      getPageSizeDetails() {
+        if (widget.hasAttribute("no-pages")) {
           return null;
-        },
-        setFocusableItem(index, focus) {
-          widget.#focusItem.tabIndex = -1;
-          widget.#focusItem =
-            index == null ? widget : widget.items[index].element;
-          widget.#focusItem.tabIndex = 0;
-          if (focus) {
-            widget.#focusItem.focus();
-          }
-        },
-        setItemSelectionState(index, selected) {
-          widget.items[index].selected = selected;
-          widget.items[index].element.classList.toggle("selected", selected);
-          widget.items[index].element.setAttribute("aria-selected", selected);
-        },
+        }
+        let itemRect = widget.items[0]?.element.getBoundingClientRect();
+        if (widget.getAttribute("layout-direction") == "vertical") {
+          return {
+            itemSize: itemRect?.height ?? null,
+            viewSize: widget.clientHeight,
+            viewOffset: widget.scrollTop,
+          };
+        }
+        return {
+          itemSize: itemRect?.width ?? null,
+          viewSize: widget.clientWidth,
+          viewOffset: Math.abs(widget.scrollLeft),
+        };
+      },
+      setFocusableItem(index, focus) {
+        widget.#focusItem.tabIndex = -1;
+        widget.#focusItem =
+          index == null ? widget : widget.items[index].element;
+        widget.#focusItem.tabIndex = 0;
+        if (focus) {
+          widget.#focusItem.focus();
+          widget.#focusItem.scrollIntoView({
+            block: "nearest",
+            inline: "nearest",
+          });
+        }
+      },
+      setItemSelectionState(index, number, selected) {
+        for (let i = index; i < index + number; i++) {
+          widget.items[i].selected = selected;
+          widget.items[i].element.classList.toggle("selected", selected);
+          widget.items[i].element.setAttribute("aria-selected", selected);
+        }
+      },
+    });
+  }
+
+  #createItemElement(text) {
+    for (let { element } of this.items) {
+      if (element.textContent == text) {
+        throw new Error(`An item with the text "${text}" already exists`);
       }
-    );
+    }
+    let element = this.ownerDocument.createElement("span");
+    element.textContent = text;
+    element.setAttribute("role", "option");
+    element.tabIndex = -1;
+    element.draggable = this.hasAttribute("items-draggable");
+    return element;
   }
 
   /**
@@ -80,38 +113,77 @@ class TestSelectionWidget extends HTMLElement {
    */
   addItems(index, textList) {
     for (let [i, text] of textList.entries()) {
-      let element = this.ownerDocument.createElement("span");
-      element.textContent = text;
-      element.id = `widgetItem${this.#itemId}`;
-      element.setAttribute("role", "option");
-      this.#itemId++;
+      let element = this.#createItemElement(text);
       this.insertBefore(element, this.items[index + i]?.element ?? null);
       this.items.splice(index + i, 0, { element });
     }
     this.#controller.addedSelectableItems(index, textList.length);
+    // Force re-layout. This is needed for the items to be able to enter the
+    // focus cycle immediately.
+    this.getBoundingClientRect();
   }
 
   /**
    * Remove items from the widget.
    *
-   * @param {index} - The starting index at which to remove items.
-   * @param {number} - How many items to remove.
+   * @param {number} index - The starting index at which to remove items.
+   * @param {number} number - How many items to remove.
    */
   removeItems(index, number) {
-    let itemsToRemove = this.items.splice(index, number);
-    this.#controller.removingSelectableItems(index, number);
-    for (let { element } of itemsToRemove) {
-      element.remove();
-    }
+    this.#controller.removeSelectableItems(index, number, () => {
+      for (let { element } of this.items.splice(index, number)) {
+        element.remove();
+      }
+    });
   }
 
   /**
-   * Select an item.
+   * Move items within the widget.
    *
-   * @param {index} - The index of the item to select.
+   * @param {number} from - The index at which to move items from.
+   * @param {number} to - The index at which to move items to.
+   * @param {number} number - How many items to move.
+   * @param {boolean} reCreate - Whether to recreate the item when
+   *   moving it. Otherwise the existing item is used.
    */
-  selectItem(index) {
-    this.#controller.selectSingle(index);
+  moveItems(from, to, number, reCreate) {
+    if (reCreate == undefined) {
+      throw new Error("Missing reCreate argument");
+    }
+    this.#controller.moveSelectableItems(from, to, number, () => {
+      let moving = this.items.splice(from, number);
+      for (let [i, item] of moving.entries()) {
+        item.element.remove();
+        if (reCreate) {
+          let text = item.element.textContent;
+          item = { element: this.#createItemElement(text) };
+        }
+        this.insertBefore(item.element, this.items[to + i]?.element ?? null);
+        this.items.splice(to + i, 0, item);
+      }
+    });
+  }
+
+  /**
+   * Selects a single item via the SelectionWidgetController.selectSingleItem
+   * method.
+   *
+   * @param {number} index - The index of the item to select.
+   */
+  selectSingleItem(index) {
+    this.#controller.selectSingleItem(index);
+  }
+
+  /**
+   * Changes the selection state of an item via the
+   * SelectionWidgetController.setItemSelected method.
+   *
+   * @param {number} index - The index of the item to set the selection state
+   *   of.
+   * @param {boolean} select - Whether to select the item.
+   */
+  setItemSelected(index, select) {
+    this.#controller.setItemSelected(index, select);
   }
 
   /**
@@ -119,14 +191,34 @@ class TestSelectionWidget extends HTMLElement {
    *
    * @return {number[]} - The indices for selected items.
    */
-  selectedIndicies() {
+  selectedIndices() {
     let indices = [];
     for (let i = 0; i < this.items.length; i++) {
-      if (this.items[i].selected) {
+      // Assert that the item has a defined selection state set in
+      // setItemSelectionState.
+      if (typeof this.items[i].selected != "boolean") {
+        throw new Error(`Item ${i} has an undefined selection state`);
+      }
+      // Assert that our stored selection state matches that returned by the
+      // controller API.
+      let itemIsSelected = this.#controller.itemIsSelected(i);
+      if (this.items[i].selected != itemIsSelected) {
+        throw new Error(
+          `itemIsSelected(${i}): "${itemIsSelected}" does not match stored selection state "${this.items[i].selected}"`
+        );
+      }
+      if (itemIsSelected) {
         indices.push(i);
       }
     }
     return indices;
+  }
+
+  /**
+   * Get the return of SelectionWidgetController.getSelectionRanges
+   */
+  getSelectionRanges() {
+    return this.#controller.getSelectionRanges();
   }
 }
 

@@ -38,7 +38,7 @@
   <script src="chrome://messenger/content/addressbook/abView-new.js"></script>
   <script src="chrome://messenger/content/addressbook/aboutAddressBook.js"></script>
 </head>
-<body class="layout-list">
+<body>
   <xul:toolbox id="toolbox" class="contentTabToolbox" labelalign="end">
     <xul:toolbar class="chromeclass-toolbar contentTabToolbar themeable-full" mode="full">
       <xul:toolbarbutton id="toolbarCreateBook" is="toolbarbutton-menu-button" type="menu-button"
@@ -104,6 +104,9 @@
       </li>
     </template>
   </div>
+  <hr is="pane-splitter" id="booksSplitter"
+      resize-direction="horizontal"
+      resize-id="booksPane"/>
   <div id="cardsPane">
     <div id="cardsPaneHeader">
       <input is="ab-card-search-input" id="searchInput"
@@ -134,7 +137,9 @@
            data-l10n-id="about-addressbook-placeholder-no-search-results"></div>
     </div>
   </div>
-  <hr is="pane-splitter" id="detailsSplitter" resize-id="detailsPane" />
+  <!-- We will dynamically switch this splitter to be horizontal or vertical and
+    affect the cardsPane or detailsPane based on the required layout. -->
+  <hr is="pane-splitter" id="sharedSplitter" />
   <div id="detailsPane" hidden="hidden">
     <article id="viewContact" class="contact-details-scroll">
       <!-- If you're changing this, you probably want to change #printTemplate too. -->

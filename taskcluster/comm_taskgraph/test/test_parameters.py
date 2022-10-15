@@ -28,6 +28,7 @@ class TestCommParameters(unittest.TestCase):
         "comm_head_ref": "comm_head_ref",
         "comm_head_repository": "comm_head_repository",
         "comm_head_rev": "comm_head_rev",
+        "comm_src_path": "comm/",
         "do_not_optimize": [],
         "existing_tasks": {},
         "filters": [],

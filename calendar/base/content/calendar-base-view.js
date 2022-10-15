@@ -9,7 +9,7 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+  const { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
   /**
    * Calendar observer for calendar view elements. Used in CalendarBaseView class.

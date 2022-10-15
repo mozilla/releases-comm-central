@@ -4,7 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["CalWeekInfoService"];
 
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 const SUNDAY = 0;
 const THURSDAY = 4;

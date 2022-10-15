@@ -7,7 +7,7 @@
  */
 
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 const lazy = {};

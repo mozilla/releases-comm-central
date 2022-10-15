@@ -2,7 +2,7 @@
 yamllint:
     description: YAML linter
     include:
-        - .
+        - comm/
     extensions: ['yml', 'yaml']
     support-files:
         - '**/.yamllint'

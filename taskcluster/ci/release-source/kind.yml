@@ -36,7 +36,6 @@ job-defaults:
             - builds/thunderbird_source.py
         options: []
         tooltool-downloads: public
-        need-xvfb: false
     run-on-projects: []
     optimization: null
 

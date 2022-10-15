@@ -8,12 +8,12 @@ Support for optimizing tasks based on the set of files that have changed.
 
 import logging
 import os
-
-from mozpack.path import match as mozpackmatch, join as join_path
-from mozversioncontrol import get_repository_object, InvalidRepoPath
 from subprocess import CalledProcessError
-from mozbuild.util import memoize
 
+from mozversioncontrol import get_repository_object, InvalidRepoPath
+
+from taskgraph.util.path import match as match_path, join as join_path
+from taskgraph.util.memoize import memoize
 from gecko_taskgraph import GECKO
 from gecko_taskgraph.util.hg import get_json_automationrelevance
 
@@ -50,36 +50,52 @@ def get_changed_files(repository, revision):
     return changed_files
 
 
-def check(params, file_patterns):
-    """Determine whether any of the files changed in the indicated push to
-    https://hg.mozilla.org match any of the given file patterns."""
-    repository = params.get("head_repository")
-    revision = params.get("head_rev")
-    if not repository or not revision:
-        logger.warning(
-            "Missing `head_repository` or `head_rev` parameters; "
-            "assuming all files have changed"
-        )
-        return True
+def get_files_changed_extended(params):
+    """
+    Get the set of files changed in the push head from possibly multiple
+    head_repositories.
+    """
+    changed_files = set()
 
-    changed_files = get_changed_files(repository, revision)
+    repo_keys = [key for key in params.keys() if key.endswith("head_repository")]
 
-    if "comm_head_repository" in params:
-        repository = params.get("comm_head_repository")
-        revision = params.get("comm_head_rev")
-        if not revision:
+    def prefix_changed(_changed, prefix):
+        if not prefix:
+            return _changed
+        else:
+            return {join_path(prefix, file) for file in _changed}
+
+    for repo_key in repo_keys:
+        repo_prefix = repo_key.replace("head_repository", "")
+        rev_key = f"{repo_prefix}head_rev"
+        repo_subdir_key = f"{repo_prefix}src_path"
+
+        repository = params.get(repo_key)
+        revision = params.get(rev_key)
+        repo_subdir = params.get(repo_subdir_key, "")
+
+        if not repository or not revision:
             logger.warning(
-                "Missing `comm_head_rev` parameters; " "assuming all files have changed"
+                f"Missing `{repo_key}` or `{rev_key}` parameters; "
+                "assuming all files have changed"
             )
             return True
 
-        changed_files |= {
-            join_path("comm", file) for file in get_changed_files(repository, revision)
-        }
+        changed_files |= prefix_changed(
+            get_changed_files(repository, revision), repo_subdir
+        )
+
+    return changed_files
+
+
+def check(params, file_patterns):
+    """Determine whether any of the files changed in the indicated push to
+    https://hg.mozilla.org match any of the given file patterns."""
+    changed_files = get_files_changed_extended(params)
 
     for pattern in file_patterns:
         for path in changed_files:
-            if mozpackmatch(path, pattern):
+            if match_path(path, pattern):
                 return True
 
     return False

@@ -21,7 +21,7 @@ load("base_index_messages.js");
 
 expectFulltextResults = false;
 
-add_task(async function setupTest() {
+add_setup(async function() {
   msgGen = new MessageGenerator();
   scenarios = new MessageScenarioFactory(msgGen);
   messageInjection = new MessageInjection(

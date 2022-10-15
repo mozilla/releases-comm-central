@@ -20,7 +20,7 @@ var { MessageInjection } = ChromeUtils.import(
 /* import-globals-from base_gloda_content.js */
 load("base_gloda_content.js");
 
-add_task(async function setupTest() {
+add_setup(async function() {
   msgGen = new MessageGenerator();
   messageInjection = new MessageInjection(
     { mode: "imap", offline: true },

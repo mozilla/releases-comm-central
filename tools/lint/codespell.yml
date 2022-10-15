@@ -12,6 +12,8 @@ codespell:
         - comm/taskcluster/docs/
         - comm/third_party/
         - comm/README.md
+    exclude:
+        - comm/mailnews/extensions/fts3/fts3_porter.c
     # List of extensions coming from:
     # tools/lint/{flake8,eslint}.yml
     # tools/mach_commands.py (clang-format)
@@ -36,8 +38,8 @@ codespell:
         - ftl
     support-files:
         - 'tools/lint/spell/**'
+        - 'comm/tools/lint/spell/**'
     type: external
     setup: spell:setup
     payload: commlint:lint_wrapper
     wraps: spell:lint
-    commroot: true

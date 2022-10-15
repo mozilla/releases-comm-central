@@ -12,8 +12,8 @@ const { MailServices } = ChromeUtils.import(
 
 var EXPORTED_SYMBOLS = ["EnigmailPersistentCrypto"];
 
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 

@@ -23,6 +23,7 @@ from gecko_taskgraph.util.taskgraph import (
     find_decision_task,
     find_existing_tasks_from_previous_kinds,
 )
+from comm_taskgraph.parameters import get_defaults
 
 from . import COMM
 
@@ -73,6 +74,9 @@ CRON_OPTIONS = {
 
 def get_decision_parameters(graph_config, parameters):
     logger.info("{}.get_decision_parameters called".format(__name__))
+
+    # Apply default values for all Thunderbird CI projects
+    parameters.update(get_defaults(graph_config.vcs_root))
 
     # If the target method is nightly, we should build partials. This means
     # knowing what has been released previously.

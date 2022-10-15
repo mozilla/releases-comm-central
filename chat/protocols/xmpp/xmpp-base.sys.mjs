@@ -7,10 +7,7 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
 );
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import { Status } from "resource:///modules/imStatusUtils.sys.mjs";
-
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import {
   executeSoon,
   nsSimpleEnumerator,
@@ -18,7 +15,6 @@ import {
   ClassInfo,
   l10nHelper,
 } from "resource:///modules/imXPCOMUtils.sys.mjs";
-
 import {
   GenericAccountPrototype,
   GenericAccountBuddyPrototype,
@@ -27,7 +23,6 @@ import {
   GenericConversationPrototype,
   TooltipInfo,
 } from "resource:///modules/jsProtoHelper.sys.mjs";
-
 import { NormalizedMap } from "resource:///modules/NormalizedMap.sys.mjs";
 import {
   Stanza,

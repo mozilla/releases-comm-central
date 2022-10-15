@@ -39,7 +39,7 @@ function onLoad() {
     calColor = alphaHex[1];
   }
 
-  if (args.canDisable) {
+  if (args.canDisable && !gCalendar.getProperty("force-disabled")) {
     document.documentElement.setAttribute("canDisable", "true");
   } else {
     document.getElementById("calendar-enabled-checkbox").hidden = true;
@@ -92,7 +92,7 @@ function onLoad() {
 
   // Set up the disabled checkbox
   let calendarDisabled = false;
-  if (gCalendar.getProperty("force-disabled") && !args.canDisable) {
+  if (gCalendar.getProperty("force-disabled")) {
     document.getElementById("force-disabled-description").removeAttribute("hidden");
     document.getElementById("calendar-enabled-checkbox").setAttribute("disabled", "true");
   } else {

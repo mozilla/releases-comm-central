@@ -5020,6 +5020,8 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
               // Create a new protocol instance for queued select url and let
               // it run and fail so it can trigger the exception dialog.
               if (m_imapServerSink) {
+                Log("CreateNewLineFromSocket", nullptr,
+                    "handle queued url after  error");
                 bool urlRun;
                 m_imapServerSink->LoadNextQueuedUrl(nullptr, &urlRun);
               }
@@ -8363,50 +8365,60 @@ nsresult nsImapProtocol::GetPassword(nsString& password,
   // Get the password already stored in mem
   rv = m_imapServerSink->GetServerPassword(password);
   if (NS_FAILED(rv) || password.IsEmpty()) {
+    // First see if there's an associated window. We don't want to produce a
+    // password prompt if there is no window, e.g., during biff.
     AutoProxyReleaseMsgWindow msgWindow;
     GetMsgWindow(getter_AddRefs(msgWindow));
-    NS_ENSURE_TRUE(msgWindow, NS_ERROR_NOT_AVAILABLE);  // biff case
-    m_passwordStatus = NS_OK;
-    m_passwordObtained = false;
+    if (msgWindow) {
+      m_passwordStatus = NS_OK;
+      m_passwordObtained = false;
 
-    // Get the password from pw manager (harddisk) or user (dialog)
-    rv = m_imapServerSink->AsyncGetPassword(this, newPasswordRequested,
-                                            password);
+      // Get the password from pw manager (harddisk) or user (dialog)
+      rv = m_imapServerSink->AsyncGetPassword(this, newPasswordRequested,
+                                              password);
 
-    if (NS_SUCCEEDED(rv)) {
-      while (password.IsEmpty()) {
-        bool shuttingDown = false;
-        (void)m_imapServerSink->GetServerShuttingDown(&shuttingDown);
-        if (shuttingDown) {
-          // Note: If we fix bug 1783573 this check could be ditched.
-          rv = NS_ERROR_FAILURE;
-          break;
-        }
+      if (NS_SUCCEEDED(rv)) {
+        while (password.IsEmpty()) {
+          bool shuttingDown = false;
+          (void)m_imapServerSink->GetServerShuttingDown(&shuttingDown);
+          if (shuttingDown) {
+            // Note: If we fix bug 1783573 this check could be ditched.
+            rv = NS_ERROR_FAILURE;
+            break;
+          }
 
-        ReentrantMonitorAutoEnter mon(m_passwordReadyMonitor);
-        if (!m_passwordObtained && !NS_FAILED(m_passwordStatus) &&
-            m_passwordStatus != NS_MSG_PASSWORD_PROMPT_CANCELLED &&
-            !DeathSignalReceived()) {
-          mon.Wait(PR_MillisecondsToInterval(1000));
-        }
+          ReentrantMonitorAutoEnter mon(m_passwordReadyMonitor);
+          if (!m_passwordObtained && !NS_FAILED(m_passwordStatus) &&
+              m_passwordStatus != NS_MSG_PASSWORD_PROMPT_CANCELLED &&
+              !DeathSignalReceived()) {
+            mon.Wait(PR_MillisecondsToInterval(1000));
+          }
 
-        if (NS_FAILED(m_passwordStatus) ||
-            m_passwordStatus == NS_MSG_PASSWORD_PROMPT_CANCELLED) {
-          rv = m_passwordStatus;
-          break;
-        }
+          if (NS_FAILED(m_passwordStatus) ||
+              m_passwordStatus == NS_MSG_PASSWORD_PROMPT_CANCELLED) {
+            rv = m_passwordStatus;
+            break;
+          }
 
-        if (DeathSignalReceived()) {
-          rv = NS_ERROR_FAILURE;
-          break;
-        }
+          if (DeathSignalReceived()) {
+            rv = NS_ERROR_FAILURE;
+            break;
+          }
 
-        if (m_passwordObtained) {
-          rv = m_passwordStatus;
-          password = m_password;
-          break;
-        }
+          if (m_passwordObtained) {
+            rv = m_passwordStatus;
+            password = m_password;
+            break;
+          }
+        }  // end while
       }
+    } else {
+      // If no msgWindow (i.e., unattended operation like biff, filtering or
+      // autosync) try to get the password directly from login mgr. If it's not
+      // there, will return NS_ERROR_NOT_AVAILABLE and the connection will fail
+      // with only the IMAP log message: `password prompt failed or user
+      // canceled it'. No password prompt occurs.
+      rv = m_imapServerSink->SyncGetPassword(password);
     }
   }
   if (!password.IsEmpty()) m_lastPasswordSent = password;

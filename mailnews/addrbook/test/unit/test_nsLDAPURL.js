@@ -208,12 +208,14 @@ function run_test() {
 
   // Test - filter
 
-  url.filter = "(oc=ygh)";
+  url.filter = "(&(oc=ygh)(l=Ереван))";
 
-  Assert.equal(url.filter, "(oc=ygh)");
+  Assert.equal(url.filter, "(&(oc=ygh)(l=Ереван))");
   Assert.equal(
     url.spec,
-    "ldap://localhost" + portAdpt + "/dc=short??one?(oc=ygh)"
+    "ldap://localhost" +
+      portAdpt +
+      "/dc=short??one?(&(oc=ygh)(l=%D0%95%D1%80%D0%B5%D0%B2%D0%B0%D0%BD))"
   );
 
   url.filter = "";

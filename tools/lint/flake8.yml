@@ -1,0 +1,15 @@
+---
+flake8:
+    description: Python linter
+    include:
+        - .
+    # The configure option is used by the build system
+    extensions: ['py']
+    support-files:
+        - 'comm/.flake8'
+        - 'tools/lint/python/flake8*'
+    commroot: true
+    type: external
+    payload: commlint:lint_wrapper
+    wraps: python.flake8:lint
+    setup: python.flake8:setup

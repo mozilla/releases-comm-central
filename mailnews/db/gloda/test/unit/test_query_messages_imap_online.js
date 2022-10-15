@@ -24,7 +24,7 @@ load("base_query_messages.js");
 
 expectFulltextResults = false;
 
-add_task(async function setupTest() {
+add_setup(async function() {
   msgGen = new MessageGenerator();
   messageInjection = new MessageInjection(
     { mode: "imap", offline: false },

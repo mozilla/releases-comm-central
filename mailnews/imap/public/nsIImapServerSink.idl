@@ -133,6 +133,15 @@ interface nsIImapServerSink : nsISupports {
                         in boolean aNewPasswordRequested,
                         out AString aPassword);
 
+  /**
+   * Returns a password via the out param if password is stored in login mgr.
+   * If no password is stored, this function returns NS_ERROR_NOT_AVAILABLE.
+   * This never triggers a password prompt.
+   *
+   * @param aPassword returns the stored password or empty string if not stored.
+   */
+  void syncGetPassword(out AString aPassword);
+
   attribute boolean userAuthenticated;
   void setMailServerUrls(in ACString manageMailAccount, in ACString manageLists, in ACString manageFilters);
 

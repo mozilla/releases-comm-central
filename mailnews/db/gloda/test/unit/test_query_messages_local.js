@@ -22,7 +22,7 @@ var messageInjection;
 /* import-globals-from base_query_messages.js */
 load("base_query_messages.js");
 
-add_task(async function setupTest() {
+add_setup(async function() {
   msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   glodaTestHelperInitialize(messageInjection);

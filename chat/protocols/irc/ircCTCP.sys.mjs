@@ -8,18 +8,15 @@
  *     http://www.alien.net.au/irc/ctcp.txt
  */
 
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
+import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
+import { displayMessage } from "resource:///modules/ircUtils.sys.mjs";
 
 const lazy = {};
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
 );
-
-import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
-import { displayMessage } from "resource:///modules/ircUtils.sys.mjs";
 
 // Split into a CTCP message which is a single command and a single parameter:
 //   <command> " " <parameter>

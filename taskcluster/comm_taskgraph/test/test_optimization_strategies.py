@@ -59,6 +59,7 @@ def params():
         "head_rev": "zyxwvu",
         "comm_head_repository": "https://hg.mozilla.org/comm-central",
         "comm_head_rev": "abcdef",
+        "comm_src_path": "comm/",
         "project": "comm-central",
         "pushlog_id": 1,
         "pushdate": mktime(datetime.now().timetuple()),

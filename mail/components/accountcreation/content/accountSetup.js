@@ -11,8 +11,8 @@ var { AccountCreationUtils } = ChromeUtils.import(
 var { fetchConfigFromExchange, getAddonsList } = ChromeUtils.import(
   "resource:///modules/accountcreation/ExchangeAutoDiscover.jsm"
 );
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
+var { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {

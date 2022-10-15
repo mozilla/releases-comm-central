@@ -10,8 +10,8 @@
 /* globals gFolderDisplay, gSignatureStatus, Enigmail, gDBView */
 /* globals showImapSignatureUnknown, loadSmimeMessageSecurityInfo */
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
+var { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {

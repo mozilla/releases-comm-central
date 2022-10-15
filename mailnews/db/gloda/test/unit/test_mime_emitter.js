@@ -336,7 +336,7 @@ var messageInfos = [
   },
 ];
 
-add_task(async function setupTest() {
+add_setup(async function() {
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   registerCleanupFunction(function() {
     GlodaDatastore.shutdown();

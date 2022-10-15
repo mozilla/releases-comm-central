@@ -8,7 +8,7 @@
 /* globals goUpdateCommand */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 var { CalTransactionManager } = ChromeUtils.import("resource:///modules/CalTransactionManager.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {

@@ -1,0 +1,17 @@
+---
+trojan-source:
+    description: Trojan Source attack - CVE-2021-42572
+    include:
+        - comm/
+    extensions:
+        - .c
+        - .cc
+        - .cpp
+        - .h
+        - .py
+        - .rs
+    support-files:
+        - 'tools/lint/trojan-source/**'
+    type: external
+    payload: commlint:lint_wrapper
+    wraps: trojan-source:lint

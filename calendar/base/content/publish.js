@@ -105,7 +105,12 @@ async function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgr
 
   aProgressDialog.onStartUpload();
   let oldCalendar = CalendarPublishObject.calendar;
-  let items = await oldCalendar.getItems(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
+  let items = await oldCalendar.getItemsAsArray(
+    Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,
+    0,
+    null,
+    null
+  );
   publishItemArray(items, CalendarPublishObject.remotePath, aProgressDialog);
 }
 

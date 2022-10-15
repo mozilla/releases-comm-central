@@ -22,7 +22,7 @@ var messageInjection;
 /* import-globals-from base_index_junk.js */
 load("base_index_junk.js");
 
-add_task(async function setupTest() {
+add_setup(async function() {
   msgGen = new MessageGenerator();
   messageInjection = new MessageInjection(
     { mode: "imap", offline: false },

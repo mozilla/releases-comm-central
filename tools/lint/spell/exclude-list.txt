@@ -23,5 +23,6 @@ complies
 nd
 fpr
 keyserver
+keyservers
 Nd
 msdos

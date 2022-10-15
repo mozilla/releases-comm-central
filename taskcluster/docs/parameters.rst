@@ -32,3 +32,7 @@ repository to checkout. All parameters are required.
 
 ``comm_head_ref``
    This is the same as ``head_rev``.
+
+``comm_src_path``
+   This will effectively always be "comm/". It's used in `comm_taskgraph.files_changed.get_files_changed_extended`
+   to handle multiple VCS repositories without hardcoding parameters.

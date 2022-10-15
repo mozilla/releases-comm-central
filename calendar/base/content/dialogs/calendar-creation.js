@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 var { ExtensionParent } = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
@@ -810,7 +810,7 @@ function openCalendarPropertiesFromEvent(event) {
   if (listItem) {
     let calendar = listItem.calendar;
     if (calendar && !calendar.getProperty("disabled")) {
-      cal.window.openCalendarProperties(window, calendar, false);
+      cal.window.openCalendarProperties(window, { calendar, canDisable: false });
 
       // Update the calendar list item.
       listItem.querySelector(".calendar-name").value = calendar.name;

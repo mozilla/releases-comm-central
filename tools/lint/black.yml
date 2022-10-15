@@ -1,6 +1,8 @@
 ---
 black:
     description: Reformat python
+    include:
+        - comm/
     extensions:
         - build
         - configure
