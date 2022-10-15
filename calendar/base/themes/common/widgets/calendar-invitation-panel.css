@@ -113,8 +113,19 @@
   margin-inline-end: 0.5em;
 }
 
-.calendar-invitation-attendee-list {
+.calendar-invitation-list {
   list-style: none;
   padding: 0;
-  margin: 0.5em 0;
+  margin: 0;
+}
+
+.calendar-invitation-list li {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.calendar-invitation-list li img {
+  width: 16px;
+  height: 16px;
 }
