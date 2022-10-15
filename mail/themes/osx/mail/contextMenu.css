@@ -32,8 +32,12 @@ menupopup > menuitem > .menu-right {
   list-style-image: none;
 }
 
+menulist > menupopup > menuitem::before {
+  margin-inline: 0 -10px;
+}
+
 menulist > menupopup > menuitem:is([checked="true"], [selected="true"])::before {
-  margin-inline: 0 -15px;
+  visibility: hidden;
 }
 
 menulist > menupopup > menuitem.menuitem-iconic::before {
