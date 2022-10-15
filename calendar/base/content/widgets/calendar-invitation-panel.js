@@ -12,6 +12,8 @@
     "resource:///modules/calendar/calRecurrenceUtils.jsm"
   );
 
+  let l10n = new DOMLocalization(["calendar/calendar-invitation-panel.ftl"]);
+
   /**
    * Base element providing boilerplate for shadow root initialisation.
    */
@@ -23,7 +25,7 @@
     constructor(id) {
       super();
       this.attachShadow({ mode: "open" });
-      document.l10n.connectRoot(this.shadowRoot);
+      l10n.connectRoot(this.shadowRoot);
 
       let link = document.createElement("link");
       link.rel = "stylesheet";
@@ -36,7 +38,7 @@
     }
 
     disconnectedCallback() {
-      document.l10n.disconnectRoot(this.shadowRoot);
+      l10n.disconnectRoot(this.shadowRoot);
     }
   }
 
@@ -198,7 +200,7 @@
       let [startDate, endDate] = cal.dtz.formatter.getItemDates(value);
       let timezone = startDate.timezone.displayName;
       let parts = cal.dtz.formatter.formatIntervalParts(startDate, endDate);
-      document.l10n.setAttributes(
+      l10n.setAttributes(
         this.shadowRoot.getElementById("interval"),
         `calendar-invitation-interval-${parts.type}`,
         { ...parts, timezone }
@@ -239,7 +241,7 @@
           counts.OTHER++;
         }
       }
-      document.l10n.setAttributes(
+      l10n.setAttributes(
         this.shadowRoot.getElementById("total"),
         "calendar-invitation-panel-partstat-total",
         { count: counts.TOTAL }
@@ -255,13 +257,9 @@
         // calendar-invitation-panel-partstat-declined
         // calendar-invitation-panel-partstat-tentative
         // calendar-invitation-panel-partstat-needs-action
-        document.l10n.setAttributes(
-          span,
-          `calendar-invitation-panel-partstat-${partStat.toLowerCase()}`,
-          {
-            count: counts[partStat],
-          }
-        );
+        l10n.setAttributes(span, `calendar-invitation-panel-partstat-${partStat.toLowerCase()}`, {
+          count: counts[partStat],
+        });
         breakdown.appendChild(span);
       }
     }
@@ -372,7 +370,7 @@
     }
 
     connectedCallback() {
-      document.l10n.setAttributes(
+      l10n.setAttributes(
         this.shadowRoot.getElementById("status"),
         "calendar-invitation-panel-reply-status"
       );
