@@ -848,7 +848,6 @@
       }
 
       const dateBoxes = [];
-      const today = this.today();
 
       // This gets set to true, telling us to collapse the rest of the rows.
       let finished = false;
@@ -910,20 +909,6 @@
             boxClass = "calendar-month-day-box-day-off " + boxClass;
           }
 
-          // Set up date relations.
-          switch (date.compare(today)) {
-            case -1:
-              daybox.setAttribute("relation", "past");
-              break;
-            case 0:
-              daybox.setAttribute("relation", "today");
-              this.dayHeaders[j].setAttribute("relation", "today");
-              break;
-            case 1:
-              daybox.setAttribute("relation", "future");
-              break;
-          }
-
           // Set up label with the week number in the first day of the row.
           if (this.mShowWeekNumber) {
             const weekLabel = daybox.querySelector("[data-label='week']");
@@ -968,6 +953,7 @@
 
       // Store these, so that we can access them later.
       this.mDateBoxes = dateBoxes;
+      this.setDateBoxRelations();
       this.hideDaysOff();
 
       this.adjustWeekdayLength();
@@ -993,6 +979,36 @@
 
       this.mToggleStatus = toggleStatus;
       this.refreshItems(true);
+    }
+
+    /**
+     * Marks the box for today and the header for the current day of the week.
+     */
+    setDateBoxRelations() {
+      const today = this.today();
+
+      for (let header of this.dayHeaders) {
+        if (header.weekDay == today.weekday) {
+          header.setAttribute("relation", "today");
+        } else {
+          header.removeAttribute("relation");
+        }
+      }
+
+      for (let daybox of this.mDateBoxes) {
+        // Set up date relations.
+        switch (daybox.mDate.compare(today)) {
+          case -1:
+            daybox.setAttribute("relation", "past");
+            break;
+          case 0:
+            daybox.setAttribute("relation", "today");
+            break;
+          case 1:
+            daybox.setAttribute("relation", "future");
+            break;
+        }
+      }
     }
 
     /**

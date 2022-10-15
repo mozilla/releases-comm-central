@@ -558,6 +558,10 @@
 
     // calICalendarView Methods
 
+    /**
+     * @note This is overridden in each of the built-in calendar views.
+     * It's only left here in case some extension is relying on it.
+     */
     goToDay(date) {
       this.showDate(date);
     }
