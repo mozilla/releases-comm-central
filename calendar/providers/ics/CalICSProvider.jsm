@@ -274,7 +274,9 @@ class ICSDetector {
    * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
    */
   async _attemptMethod(method, location) {
-    let request = new CalDavGenericRequest(this.session, null, method, location);
+    let request = new CalDavGenericRequest(this.session, null, method, location, {
+      Accept: "text/calendar, application/ics, text/plain;q=0.9",
+    });
 
     // `request.commit()` can throw; errors should be caught by calling functions.
     let response = await request.commit();
