@@ -1,0 +1,74 @@
+X-Mozilla-Status: 0001
+X-Mozilla-Status2: 00800000
+X-Mozilla-Keys:                                                                                 
+To: alice@openpgp.example
+From: Eve <eve@openpgp.example>
+From: Bob Babbage <bob@openpgp.example>
+Message-ID: <ef4ee59f-bb76-3407-ffa5-9b46eb756ae3@openpgp.example>
+Date: Wed, 14 Oct 2020 13:55:14 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:83.0) Gecko/20100101
+ Thunderbird/83.0a1
+MIME-Version: 1.0
+Subject: ...
+Content-Type: multipart/encrypted;
+ protocol="application/pgp-encrypted";
+ boundary="0SJCM8f3etpwdMBIl6eGvaijNVWPX6KJj"
+
+This is an OpenPGP/MIME encrypted message (RFC 4880 and 3156)
+--0SJCM8f3etpwdMBIl6eGvaijNVWPX6KJj
+Content-Type: application/pgp-encrypted
+Content-Description: PGP/MIME version identification
+
+Version: 1
+
+--0SJCM8f3etpwdMBIl6eGvaijNVWPX6KJj
+Content-Type: application/octet-stream; name="encrypted.asc"
+Content-Description: OpenPGP encrypted message
+Content-Disposition: inline; filename="encrypted.asc"
+
+-----BEGIN PGP MESSAGE-----
+
+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
+KvoyvWLzJj8vqyGdD8NRB24JJAQo
+=ci+H
+-----END PGP MESSAGE-----
+
+--0SJCM8f3etpwdMBIl6eGvaijNVWPX6KJj--

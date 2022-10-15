@@ -288,6 +288,34 @@ add_task(async function testOpenSignedByVerifiedEncrypted() {
 });
 
 /**
+ * Test that opening a message that is signed by a verified key, but the From
+ * is not what it should be due to multiple From headers, will show mismatch.
+ * Here it's signed by Bob, but Eve inserted an From: Eve <eve@openpgp.example>
+ * header first. Only first From is used. The second From should not
+ * be used for verification.
+ */
+add_task(async function testOpenSignedEncryptedMultiFrom() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath(
+        "data/eml/signed-by-0xfbfcc82a015e7330-encrypted-to-0xf231550c4f47e38e-multi-from.eml"
+      )
+    )
+  );
+
+  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "mismatch"),
+    "mismatch icon should be displayed"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon should be displayed"
+  );
+  close_window(mc);
+});
+
+/**
  * Test that opening a message signed (only) by an unverified key shows as such.
  */
 add_task(async function testOpenSignedByUnverifiedUnencrypted() {
