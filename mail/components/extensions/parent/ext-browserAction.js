@@ -89,17 +89,19 @@ this.browserAction = class extends ToolbarButtonAPI {
     let toolbars = ["mail-bar3", "tabbar-toolbar", "toolbar-menubar"];
     for (let windowURL of windowURLs) {
       for (let toolbar of toolbars) {
-        let currentSet = Services.xulStore
-          .getValue(windowURL, toolbar, "currentset")
-          .split(",");
-        let newSet = currentSet.filter(e => e != id);
-        if (newSet.length < currentSet.length) {
-          Services.xulStore.setValue(
-            windowURL,
-            toolbar,
-            "currentset",
-            newSet.join(",")
-          );
+        for (let setName of ["currentset", "extensionset"]) {
+          let set = Services.xulStore
+            .getValue(windowURL, toolbar, setName)
+            .split(",");
+          let newSet = set.filter(e => e != id);
+          if (newSet.length < set.length) {
+            Services.xulStore.setValue(
+              windowURL,
+              toolbar,
+              setName,
+              newSet.join(",")
+            );
+          }
         }
       }
     }

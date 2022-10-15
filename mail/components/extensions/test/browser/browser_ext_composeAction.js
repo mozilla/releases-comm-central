@@ -222,3 +222,74 @@ add_task(async function test_button_order() {
 
   composeWindow.close();
 });
+
+add_task(async function test_upgrade() {
+  let composeWindow = await openComposeWindow(account);
+  await focusWindow(composeWindow);
+
+  // Add a compose_action, to make sure the currentSet has been initialized.
+  let extension1 = ExtensionTestUtils.loadExtension({
+    useAddonManager: "permanent",
+    manifest: {
+      manifest_version: 2,
+      version: "1.0",
+      name: "Extension1",
+      applications: { gecko: { id: "Extension1@mochi.test" } },
+      compose_action: {
+        default_title: "Extension1",
+      },
+    },
+    background() {
+      browser.test.sendMessage("Extension1 ready");
+    },
+  });
+  await extension1.startup();
+  await extension1.awaitMessage("Extension1 ready");
+
+  // Add extension without a compose_action.
+  let extension2 = ExtensionTestUtils.loadExtension({
+    useAddonManager: "permanent",
+    manifest: {
+      manifest_version: 2,
+      version: "1.0",
+      name: "Extension2",
+      applications: { gecko: { id: "Extension2@mochi.test" } },
+    },
+    background() {
+      browser.test.sendMessage("Extension2 ready");
+    },
+  });
+  await extension2.startup();
+  await extension2.awaitMessage("Extension2 ready");
+
+  // Update the extension, now including a compose_action.
+  let updatedExtension2 = ExtensionTestUtils.loadExtension({
+    useAddonManager: "permanent",
+    manifest: {
+      manifest_version: 2,
+      version: "2.0",
+      name: "Extension2",
+      applications: { gecko: { id: "Extension2@mochi.test" } },
+      compose_action: {
+        default_title: "Extension2",
+      },
+    },
+    background() {
+      browser.test.sendMessage("Extension2 updated");
+    },
+  });
+  await updatedExtension2.startup();
+  await updatedExtension2.awaitMessage("Extension2 updated");
+
+  let button = composeWindow.document.getElementById(
+    "extension2_mochi_test-composeAction-toolbarbutton"
+  );
+
+  Assert.ok(button, "Button should exist");
+
+  await extension1.unload();
+  await extension2.unload();
+  await updatedExtension2.unload();
+
+  composeWindow.close();
+});

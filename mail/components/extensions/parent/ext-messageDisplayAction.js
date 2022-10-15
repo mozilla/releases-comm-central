@@ -60,17 +60,19 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
       "chrome://messenger/content/messageWindow.xhtml",
     ];
     for (let windowURL of windowURLs) {
-      let currentSet = Services.xulStore
-        .getValue(windowURL, toolbar, "currentset")
-        .split(",");
-      let newSet = currentSet.filter(e => e != id);
-      if (newSet.length < currentSet.length) {
-        Services.xulStore.setValue(
-          windowURL,
-          toolbar,
-          "currentset",
-          newSet.join(",")
-        );
+      for (let setName of ["currentset", "extensionset"]) {
+        let set = Services.xulStore
+          .getValue(windowURL, toolbar, setName)
+          .split(",");
+        let newSet = set.filter(e => e != id);
+        if (newSet.length < set.length) {
+          Services.xulStore.setValue(
+            windowURL,
+            toolbar,
+            setName,
+            newSet.join(",")
+          );
+        }
       }
     }
   }

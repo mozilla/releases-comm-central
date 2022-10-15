@@ -138,39 +138,6 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
     };
     this.globals = Object.create(this.defaults);
 
-    // In tests, startupReason is undefined, because the test suite is naughty.
-    // Assume ADDON_INSTALL.
-    // The initial post-install addition of the toolbar button must be handled
-    // here (and not in paint) to let the user directly remove the button from
-    // the toolbar without it being re-added, when a new window is opened.
-    if (
-      !this.extension.startupReason ||
-      this.extension.startupReason == "ADDON_INSTALL"
-    ) {
-      for (let windowURL of this.windowURLs) {
-        // Postpone adding the toolbar button here if currentSet has not yet been
-        // defined. It has to be added during paint, when the defaultset of the
-        // toolbar is accessible.
-        if (
-          Services.xulStore.hasValue(windowURL, this.toolbarId, "currentset")
-        ) {
-          let currentSet = Services.xulStore
-            .getValue(windowURL, this.toolbarId, "currentset")
-            .split(",")
-            .filter(e => e != "");
-          if (!currentSet.includes(this.id)) {
-            currentSet.push(this.id);
-            Services.xulStore.setValue(
-              windowURL,
-              this.toolbarId,
-              "currentset",
-              currentSet.join(",")
-            );
-          }
-        }
-      }
-    }
-
     this.browserStyle = options.browser_style;
 
     this.defaults.icon = await StartupCache.get(
@@ -287,7 +254,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
       let currentSet = Services.xulStore
         .getValue(windowURL, toolbar.id, "currentset")
         .split(",")
-        .filter(e => e != "");
+        .filter(Boolean);
       if (currentSet.includes(this.id)) {
         this.toolbarId = toolbar.id;
         break;
@@ -302,19 +269,39 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
       toolbar.appendChild(button);
     }
 
-    // Handle the special case where this toolbar did not have a currentSet
-    // defined during extension startup and add the button now.
-    if (
-      !Services.xulStore.hasValue(
-        window.location.href,
-        this.toolbarId,
-        "currentset"
-      )
-    ) {
-      let currentSet = toolbar
+    // Handle the special case where this toolbar does not yet have a currentset
+    // defined.
+    if (!Services.xulStore.hasValue(windowURL, this.toolbarId, "currentset")) {
+      let defaultSet = toolbar
         .getAttribute("defaultset")
         .split(",")
-        .filter(e => e != "");
+        .filter(Boolean);
+      Services.xulStore.setValue(
+        windowURL,
+        this.toolbarId,
+        "currentset",
+        defaultSet.join(",")
+      );
+    }
+
+    // Add new buttons to currentset: If the extensionset does not include the
+    // button, it is a new one which needs to be added.
+    let extensionSet = Services.xulStore
+      .getValue(windowURL, this.toolbarId, "extensionset")
+      .split(",")
+      .filter(Boolean);
+    if (!extensionSet.includes(this.id)) {
+      extensionSet.push(this.id);
+      Services.xulStore.setValue(
+        windowURL,
+        this.toolbarId,
+        "extensionset",
+        extensionSet.join(",")
+      );
+      let currentSet = Services.xulStore
+        .getValue(windowURL, this.toolbarId, "currentset")
+        .split(",")
+        .filter(Boolean);
       if (!currentSet.includes(this.id)) {
         currentSet.push(this.id);
         Services.xulStore.setValue(
@@ -368,7 +355,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
     let currentSet = Services.xulStore
       .getValue(windowURL, toolbar.id, "currentset")
       .split(",")
-      .filter(e => e != "");
+      .filter(Boolean);
     if (!currentSet.includes(this.id)) {
       currentSet.push(this.id);
       Services.xulStore.setValue(
