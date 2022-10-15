@@ -7,9 +7,8 @@ import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-const { PluralForm } = ChromeUtils.import(
-  "resource://gre/modules/PluralForm.jsm"
-);
+import { PluralForm } from "resource://gre/modules/PluralForm.sys.mjs";
+
 const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );

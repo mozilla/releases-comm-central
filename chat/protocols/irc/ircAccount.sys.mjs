@@ -33,21 +33,16 @@ import { Socket } from "resource:///modules/socket.sys.mjs";
 
 const lazy = {};
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "PluralForm",
-  "resource://gre/modules/PluralForm.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
+  ircHandlers: "resource:///modules/ircHandlers.sys.mjs",
+});
 
 ChromeUtils.defineModuleGetter(
   lazy,
   "DownloadUtils",
   "resource://gre/modules/DownloadUtils.jsm"
 );
-
-ChromeUtils.defineESModuleGetters(lazy, {
-  ircHandlers: "resource:///modules/ircHandlers.sys.mjs",
-});
 
 XPCOMUtils.defineLazyGetter(lazy, "_conv", () =>
   l10nHelper("chrome://chat/locale/conversations.properties")

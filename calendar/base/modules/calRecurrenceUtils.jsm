@@ -6,7 +6,7 @@
  *          checkRecurrenceRule, countOccurrences
  */
 
-var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { PluralForm } = ChromeUtils.importESModule("resource://gre/modules/PluralForm.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 

@@ -28,6 +28,7 @@ XPCOMUtils.defineLazyGetter(this, "AddrBookUtils", function() {
 
 ChromeUtils.defineESModuleGetters(this, {
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
+  PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -40,7 +41,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.jsm",
   ICAL: "resource:///modules/calendar/Ical.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
-  PluralForm: "resource://gre/modules/PluralForm.jsm",
   VCardProperties: "resource:///modules/VCardUtils.jsm",
   VCardPropertyEntry: "resource:///modules/VCardUtils.jsm",
 });

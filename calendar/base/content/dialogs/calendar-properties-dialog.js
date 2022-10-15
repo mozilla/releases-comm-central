@@ -9,7 +9,7 @@
 /* import-globals-from calendar-identity-utils.js */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { PluralForm } = ChromeUtils.importESModule("resource://gre/modules/PluralForm.sys.mjs");
 
 /**
  * The calendar to modify, is retrieved from window.arguments[0].calendar

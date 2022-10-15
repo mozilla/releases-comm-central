@@ -9,8 +9,8 @@ const EXPORTED_SYMBOLS = [
   "QuickFilterSearchListener",
 ];
 
-const { PluralForm } = ChromeUtils.import(
-  "resource://gre/modules/PluralForm.jsm"
+const { PluralForm } = ChromeUtils.importESModule(
+  "resource://gre/modules/PluralForm.sys.mjs"
 );
 const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"

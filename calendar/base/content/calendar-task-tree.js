@@ -8,7 +8,7 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-  const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+  const { PluralForm } = ChromeUtils.importESModule("resource://gre/modules/PluralForm.sys.mjs");
 
   /**
    * An observer for the calendar event data source. This keeps the unifinder

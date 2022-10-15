@@ -16,8 +16,8 @@ var kCurrentColor = "";
 var kDefaultColor = "#363959";
 var gNeedToRestoreFolderSelection = false;
 
-var { PluralForm } = ChromeUtils.import(
-  "resource://gre/modules/PluralForm.jsm"
+var { PluralForm } = ChromeUtils.importESModule(
+  "resource://gre/modules/PluralForm.sys.mjs"
 );
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
