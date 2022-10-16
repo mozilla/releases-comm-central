@@ -277,19 +277,12 @@
                   }
                 ],
                 "optional": true,
-                "description": "Either an ImageDataType object defining a single icon used for all sizes or an ImageDataDictionary object defining dedicated icons for different sizes."
+                "description": "Either an ImageDataType object defining a single icon used for all sizes or an ImageDataDictionary object defining dedicated icons for different sizes. At least the ``16px`` icon should be specified. The ``32px`` icon will be used on screens with a very high pixel density, if specified."
               },
               "path": {
-                "choices": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "$ref": "manifest.IconPath"
-                  }
-                ],
+                "$ref": "manifest.IconPath",
                 "optional": true,
-                "description": "Either a relative image path defining a single icon used for all sizes or an IconPathDictionary object defining dedicated icons for different sizes."
+                "description": "The icon for the messageDisplayAction."
               }
             }
           },

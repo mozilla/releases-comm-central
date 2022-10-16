@@ -804,8 +804,12 @@ MenuItem.prototype = {
       this[propName] = createProperties[propName];
     }
 
-    if ("icons" in createProperties && createProperties.icons === null) {
-      this.icons = null;
+    if ("icons" in createProperties) {
+      if (createProperties.icons === null) {
+        this.icons = null;
+      } else if (typeof createProperties.icons == "string") {
+        this.icons = { 16: createProperties.icons };
+      }
     }
 
     if (createProperties.documentUrlPatterns != null) {

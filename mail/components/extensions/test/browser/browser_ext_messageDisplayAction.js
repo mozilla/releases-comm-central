@@ -340,3 +340,57 @@ add_task(async function test_upgrade() {
   await extension2.unload();
   await updatedExtension2.unload();
 });
+
+add_task(async function test_iconPath() {
+  // String values for the default_icon manifest entry have been tested in the
+  // theme_icons test already. Here we test imagePath objects for the manifest key
+  // and string values as well as objects for the setIcons() function.
+  let files = {
+    "background.js": async () => {
+      await window.sendMessage("checkState", "icon1.png");
+
+      await browser.messageDisplayAction.setIcon({ path: "icon2.png" });
+      await window.sendMessage("checkState", "icon2.png");
+
+      await browser.messageDisplayAction.setIcon({ path: { 16: "icon3.png" } });
+      await window.sendMessage("checkState", "icon3.png");
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      applications: {
+        gecko: {
+          id: "message_display_action@mochi.test",
+        },
+      },
+      message_display_action: {
+        default_title: "default",
+        default_icon: { 16: "icon1.png" },
+      },
+      background: { scripts: ["utils.js", "background.js"] },
+    },
+  });
+
+  extension.onMessage("checkState", async expected => {
+    let uuid = extension.uuid;
+    let button = document.getElementById(
+      "message_display_action_mochi_test-messageDisplayAction-toolbarbutton"
+    );
+
+    Assert.equal(
+      window.getComputedStyle(button).listStyleImage,
+      `url("moz-extension://${uuid}/${expected}")`,
+      `Icon path should be correct.`
+    );
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
