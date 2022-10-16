@@ -35,8 +35,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 Object.defineProperty(this, "BrowserConsoleManager", {
   get() {
-    let { loader } = ChromeUtils.import(
-      "resource://devtools/shared/loader/Loader.jsm"
+    let { loader } = ChromeUtils.importESModule(
+      "resource://devtools/shared/loader/Loader.sys.mjs"
     );
     return loader.require("devtools/client/webconsole/browser-console-manager")
       .BrowserConsoleManager;
