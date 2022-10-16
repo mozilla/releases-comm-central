@@ -956,6 +956,11 @@ function setupDataTransfer(event, attachments) {
       new nsFlavorDataProvider(),
       index
     );
+    event.dataTransfer.mozSetDataAt(
+      "application/x-moz-file-promise-dest-filename",
+      name.replace(/(.{74}).*(.{10})$/u, "$1...$2"),
+      index
+    );
     index++;
   }
 }
@@ -1023,7 +1028,7 @@ nsFlavorDataProvider.prototype = {
         var destFilePath = messenger.saveAttachmentToFolder(
           attachment.contentType,
           attachment.url,
-          encodeURIComponent(name),
+          name.replace(/(.{74}).*(.{10})$/u, "$1...$2"),
           attachment.uri,
           destDirectory
         );
