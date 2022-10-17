@@ -837,27 +837,25 @@ add_task(async function test_displayOldActionLog() {
   await IOUtils.remove(logDirPath, { recursive: true });
 });
 
-function run_test() {
+add_task(function test_encodeName() {
   // Test encodeName().
   for (let i = 0; i < encodeName_input.length; ++i) {
     equal(encodeName(encodeName_input[i]), encodeName_output[i]);
   }
+});
 
-  add_task(test_getLogFolderPathForAccount);
+add_task(test_getLogFolderPathForAccount);
 
-  add_task(test_getLogFilePathForConversation);
+add_task(test_getLogFilePathForConversation);
 
-  add_task(test_getLogFilePathForMUC);
+add_task(test_getLogFilePathForMUC);
 
-  add_task(test_queueFileOperation);
+add_task(test_queueFileOperation);
 
-  add_task(test_appendToFile);
+add_task(test_appendToFile);
 
-  add_task(test_getLogPathsForConversation);
+add_task(test_getLogPathsForConversation);
 
-  add_task(test_logging);
+add_task(test_logging);
 
-  add_task(test_logFileSplitting);
-
-  run_next_test();
-}
+add_task(test_logFileSplitting);
