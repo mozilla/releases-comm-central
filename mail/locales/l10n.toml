@@ -88,14 +88,6 @@ locales = [
     l10n = "{l}chat/**"
 
 [[paths]]
-    reference = "editor/ui/locales/en-US/**"
-    l10n = "{l}editor/ui/**"
-
-[[paths]]
-    reference = "other-licenses/branding/thunderbird/locales/en-US/**"
-    l10n = "{l}other-licenses/branding/thunderbird/**"
-
-[[paths]]
     reference = "mail/branding/thunderbird/locales/en-US/**"
     l10n = "{l}mail/branding/thunderbird/**"
 
@@ -116,11 +108,6 @@ locales = [
     reference = "{mozilla}/devtools/startup/locales/en-US/**"
     l10n = "{l}devtools/startup/**"
 
-# for Gecko 60 and older and cross-channel
-[[paths]]
-    reference = "{mozilla}/devtools/shim/locales/en-US/**"
-    l10n = "{l}devtools/shim/**"
-
 # ignore MOZ_LANGPACK_CONTRIBUTORS
 [[filters]]
     path = "{l}mail/defines.inc"
@@ -133,16 +120,4 @@ locales = [
         "{l}mail/defines.inc",
         "{l}mail/all-l10n.js",
     ]
-    action = "ignore"
-
-# search prefs don't have the same number for all locales
-[[filters]]
-    path = "{l}mail/chrome/messenger-region/region.properties"
-    key = "re:browser\\.search\\.order\\.[1-9].*"
-    action = "ignore"
-
-# map service prefs don't have the same number for all locales
-[[filters]]
-    path = "{l}mail/chrome/messenger-region/region.properties"
-    key = "re:mail\\.addr_book\\.mapit_url\\.[1-5].*"
     action = "ignore"
