@@ -9,6 +9,7 @@
 #include "nsIWritablePropertyBag2.h"
 #include "nsTArray.h"
 #include "nsTString.h"
+#include "calIItipItem.h"
 
 class nsMailChannel : public nsIMailChannel {
  public:
@@ -18,6 +19,8 @@ class nsMailChannel : public nsIMailChannel {
   nsTArray<nsCString> mHeaderNames;
   nsTArray<nsCString> mHeaderValues;
   nsTArray<RefPtr<nsIWritablePropertyBag2>> mAttachments;
+  nsCString mImipMethod;
+  nsCOMPtr<calIItipItem> mImipItem;
 };
 
 #endif /* nsMailChannel_h__ */

@@ -15,6 +15,7 @@
 #include "nsISimpleMimeConverter.h"
 #include "nsServiceManagerUtils.h"
 #include "nsSimpleMimeConverterStub.h"
+#include "nsIMailChannel.h"
 
 typedef struct MimeSimpleStub MimeSimpleStub;
 typedef struct MimeSimpleStubClass MimeSimpleStubClass;
@@ -79,6 +80,9 @@ static int EndGather(MimeObject* obj, bool abort_p) {
     nsCOMPtr<nsIURI> uri;
     channel->GetURI(getter_AddRefs(uri));
     ssobj->innerScriptable->SetUri(uri);
+
+    nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(channel);
+    ssobj->innerScriptable->SetMailChannel(mailChannel);
   }
   // Remove possible embedded NULL bytes.
   // Parsers can't handle this but e.g. calendar invitation might contain such

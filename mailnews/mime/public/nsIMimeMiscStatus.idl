@@ -20,12 +20,4 @@ interface nsIMsgHeaderSink : nsISupports
   attribute nsISupports securityInfo;
 
   readonly attribute nsIMsgDBHdr dummyMsgHeader;
-
-  // used as a hook for extension mime content handlers to store data that can later
-  // be accessed by other parts of the code, e.g., UI code.
-  // TODO - Should replace securityInfo
-  readonly attribute nsIWritablePropertyBag2 properties;
-  // When streaming a new message, properties should be reset, so that there are
-  // not previous values lurking around.
-  void resetProperties();
 };

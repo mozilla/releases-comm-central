@@ -76,6 +76,7 @@
 
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgHdr.h"
+#include "nsIMailChannel.h"
 
 using namespace mozilla;
 
@@ -428,11 +429,14 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
       if (full_content_type) {
         char* imip_method = MimeHeaders_get_parameter(
             full_content_type, "method", nullptr, nullptr);
-        nsCOMPtr<nsIMsgDBHdr> msgHdr;
-        getMsgHdrForCurrentURL(opts, getter_AddRefs(msgHdr));
-        if (msgHdr)
-          msgHdr->SetStringProperty("imip_method",
-                                    (imip_method) ? imip_method : "nomethod");
+
+        mime_stream_data* msd = (mime_stream_data*)(opts->stream_closure);
+        nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(msd->channel);
+        if (mailChannel) {
+          mailChannel->SetImipMethod(
+              nsCString(imip_method ? imip_method : "nomethod"));
+        }
+
         // PR_Free checks for null
         PR_Free(imip_method);
         PR_Free(full_content_type);

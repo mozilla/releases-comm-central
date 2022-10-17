@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
+#include "calIItipItem.idl"
 #include "nsIPropertyBag2.idl"
 
 /**
@@ -50,4 +51,16 @@ interface nsIMailChannel : nsISupports {
    * Attachments for this request, available at onStopRequest.
    */
   readonly attribute Array<nsIPropertyBag2> attachments;
+
+  /**
+   * The method property of iMIP attachments, as determined by the MIME parser.
+   * Not to be set after onStopRequest.
+   */
+  attribute AUTF8String imipMethod;
+
+  /**
+   * The actual iMIP invitation, as created by CalMIMEConverter.
+   * Not to be set after onStopRequest.
+   */
+  attribute calIItipItem imipItem;
 };

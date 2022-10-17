@@ -726,21 +726,6 @@ extern "C" nsresult SetMailCharacterSetToMsgWindow(MimeObject* obj,
   return rv;
 }
 
-static void ResetMsgHeaderSinkProps(nsIURI* uri) {
-  nsCOMPtr<nsIMsgMailNewsUrl> msgurl(do_QueryInterface(uri));
-  if (!msgurl) return;
-
-  nsCOMPtr<nsIMsgWindow> msgWindow;
-  msgurl->GetMsgWindow(getter_AddRefs(msgWindow));
-  if (!msgWindow) return;
-
-  nsCOMPtr<nsIMsgHeaderSink> msgHeaderSink;
-  msgWindow->GetMsgHeaderSink(getter_AddRefs(msgHeaderSink));
-  if (!msgHeaderSink) return;
-
-  msgHeaderSink->ResetProperties();
-}
-
 static char* mime_file_type(const char* filename, void* stream_closure) {
   char* retType = nullptr;
   char* ext = nullptr;
@@ -1473,8 +1458,6 @@ extern "C" void* mime_bridge_create_display_stream(
     PR_Free(obj);
     return 0;
   }
-
-  ResetMsgHeaderSinkProps(uri);
 
   memset(stream, 0, sizeof(*stream));
   stream->name = "MIME Conversion Stream";

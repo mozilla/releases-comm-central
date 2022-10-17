@@ -71,10 +71,6 @@ function apply_mime_conversion(msgUri, headerSink = {}, msgWindow = undefined) {
   let stubHeaderSink = {
     securityInfo: null,
     dummyMsgHeader: new DummyMsgHeader(),
-    get properties() {
-      return null;
-    },
-    resetProperties() {},
     QueryInterface: ChromeUtils.generateQI(["nsIMsgHeaderSink"]),
   };
 

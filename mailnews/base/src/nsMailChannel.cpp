@@ -59,3 +59,27 @@ nsMailChannel::GetAttachments(
   }
   return NS_OK;
 }
+
+NS_IMETHODIMP
+nsMailChannel::GetImipMethod(nsACString& aImipMethod) {
+  aImipMethod = mImipMethod;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMailChannel::SetImipMethod(const nsACString& aImipMethod) {
+  mImipMethod = aImipMethod;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMailChannel::GetImipItem(calIItipItem** aImipItem) {
+  NS_IF_ADDREF(*aImipItem = mImipItem);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMailChannel::SetImipItem(calIItipItem* aImipItem) {
+  mImipItem = aImipItem;
+  return NS_OK;
+}

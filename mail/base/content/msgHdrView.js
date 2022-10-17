@@ -9,6 +9,7 @@
 
 /* import-globals-from ../../../../toolkit/content/contentAreaUtils.js */
 /* import-globals-from ../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../calendar/base/content/imip-bar.js */
 /* import-globals-from ../../../mailnews/extensions/newsblog/newsblogOverlay.js */
 /* import-globals-from ../../extensions/openpgp/content/ui/enigmailMsgHdrViewOverlay.js */
 /* import-globals-from aboutMessage.js */
@@ -533,6 +534,9 @@ var messageHeaderSink2 = {
         request.QueryInterface(Ci.nsIChannel);
         request.QueryInterface(Ci.nsIMailChannel);
         this.processHeaders(request.headerNames, request.headerValues);
+        if (request.imipItem) {
+          calImipBar.showImipBar(request.imipItem, request.imipMethod);
+        }
         for (let attachment of request.attachments) {
           this.handleAttachment(
             attachment.getProperty("contentType"),
