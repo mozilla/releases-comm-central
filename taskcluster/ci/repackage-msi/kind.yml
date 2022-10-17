@@ -31,9 +31,11 @@ job-template:
             by-build-platform:
                 win32\b.*:
                     - repackage/base.py
+                    - repackage/tb_win32_sfx_stub.py
                     - repackage/win32_signed.py
                 win64\b.*:
                     - repackage/base.py
+                    - repackage/tb_win32_sfx_stub.py
                     - repackage/win64_signed.py
     package-formats: [msi]
     fetches:
