@@ -6,6 +6,9 @@
 
 JAR_MANIFESTS += ["jar.mn"]
 
+# If DIST_SUBDIR ever gets set for Thunderbird this path might be wrong due to PREF_DIR changing.
+LOCALIZED_PP_FILES.defaults.pref += ["en-US/all-l10n.js"]
+
 if CONFIG["MOZ_CRASHREPORTER"]:
     LOCALIZED_FILES += ["en-US/crashreporter/crashreporter-override.ini"]
 
