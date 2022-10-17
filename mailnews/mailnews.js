@@ -204,6 +204,7 @@ pref("mail.show_headers", 1);
 // some S/MIME parts are not external (but inline decrypted).
 pref("mailnews.p7m_external", false);
 pref("mail.pane_config.dynamic", 0);
+#ifdef MOZ_SUITE
 pref("mail.addr_book.mapit_url.format", "chrome://messenger-region/locale/region.properties");
 pref("mail.addr_book.mapit_url.1.name", "chrome://messenger-region/locale/region.properties");
 pref("mail.addr_book.mapit_url.1.format", "chrome://messenger-region/locale/region.properties");
@@ -215,7 +216,6 @@ pref("mail.addr_book.mapit_url.4.name", "chrome://messenger-region/locale/region
 pref("mail.addr_book.mapit_url.4.format", "chrome://messenger-region/locale/region.properties");
 pref("mail.addr_book.mapit_url.5.name", "chrome://messenger-region/locale/region.properties");
 pref("mail.addr_book.mapit_url.5.format", "chrome://messenger-region/locale/region.properties");
-#ifdef MOZ_SUITE
 pref("mailnews.start_page.url", "chrome://messenger-region/locale/region.properties");
 pref("mail.accountwizard.deferstorage", false);
 // |false|: Show both name and address, even for people in my addressbook.
