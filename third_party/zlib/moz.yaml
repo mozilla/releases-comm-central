@@ -12,9 +12,9 @@ origin:
   url: "https://zlib.net/"
   license: Zlib
 
-  release: commit v1.2.12 (2022-03-27T15:47:03-07:00).
+  release: v1.2.13 (2022-10-12T17:54:34-07:00).
 
-  revision: v1.2.12
+  revision: v1.2.13
 
   license-file: LICENSE
 
