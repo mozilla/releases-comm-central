@@ -33,7 +33,7 @@
               }
             ],
             "optional": true,
-            "description": "Either a relative image path defining a single icon used for all sizes or an IconPathDictionary object defining dedicated icons for different sizes. At least the ``16px`` icon should be specified. The ``32px`` icon will be used on screens with a very high pixel density, if specified. Defaults to the extension icon, if set to an empty string."
+            "description": "The icon for the button in the spaces toolbar. Defaults to the extension icon, if set to an empty string."
           },
           "themeIcons": {
             "type": "array",

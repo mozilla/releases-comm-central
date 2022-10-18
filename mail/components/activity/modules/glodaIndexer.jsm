@@ -22,11 +22,14 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 
 const lazy = {};
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
   GlodaConstants: "resource:///modules/gloda/GlodaConstants.jsm",
   GlodaIndexer: "resource:///modules/gloda/GlodaIndexer.jsm",
-  PluralForm: "resource://gre/modules/PluralForm.jsm",
 });
 
 /**

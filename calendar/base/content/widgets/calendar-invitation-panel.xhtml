@@ -127,14 +127,18 @@
       </tr>
       <tr>
         <th data-l10n-id="calendar-invitation-panel-prop-title-attendees"></th>
-        <td id="attendees">
+        <td>
           <calendar-invitation-partstat-summary id="summary"/>
-          <calendar-invitation-attendee-list id="list"/>
+          <calendar-invitation-attendee-list id="attendees"/>
         </td>
       </tr>
       <tr>
         <th data-l10n-id="calendar-invitation-panel-prop-title-description"></th>
         <td id="description" class="content"></td>
+      </tr>
+      <tr>
+        <th data-l10n-id="calendar-invitation-panel-prop-title-attachments"></th>
+        <td class="content"><calendar-invitation-panel-attachment-list id="attachments"/></td>
       </tr>
     </tbody>
   </table>
@@ -156,7 +160,12 @@
 
 <!-- Template for <calendar-invitation-attendees-list/> -->
 <template id="calendarInvitationAttendeesList" xmlns="http://www.w3.org/1999/xhtml">
-  <ul id="attendeeList" class="calendar-invitation-attendee-list"></ul>
+  <ul id="list" class="calendar-invitation-list"></ul>
+</template>
+
+<!-- Template for <calendar-invitation-attachment-list/> -->
+<template id="calendarInvitationAttachmentList" xmlns="http://www.w3.org/1999/xhtml">
+  <ul id="list" class="calendar-invitation-list"></ul>
 </template>
 
 <!-- Template for <calendar-invitation-panel-footer/> -->

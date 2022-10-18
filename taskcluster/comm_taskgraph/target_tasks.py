@@ -2,16 +2,14 @@
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
 #  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from __future__ import absolute_import, print_function, unicode_literals
-
 import logging
 
 from gecko_taskgraph.target_tasks import (
-    _target_task,
     _try_task_config,
     filter_on_platforms,
     filter_out_shipping_phase,
     filter_out_shippable,
+    register_target_task,
     standard_filter,
 )
 from comm_taskgraph.try_option_syntax import _try_cc_option_syntax
@@ -19,7 +17,7 @@ from comm_taskgraph.try_option_syntax import _try_cc_option_syntax
 logger = logging.getLogger(__name__)
 
 
-@_target_task("comm_searchfox_index")
+@register_target_task("comm_searchfox_index")
 def target_tasks_searchfox(full_task_graph, parameters, graph_config):
     """Select tasks required for indexing Thunderbird for Searchfox web site each day"""
     return [
@@ -29,7 +27,7 @@ def target_tasks_searchfox(full_task_graph, parameters, graph_config):
     ]
 
 
-@_target_task("comm_central_tasks")
+@register_target_task("comm_central_tasks")
 def target_tasks_default(full_task_graph, parameters, graph_config):
     """Target the tasks which have indicated they should be run on this project
     via the `run_on_projects` attributes."""
@@ -40,7 +38,7 @@ def target_tasks_default(full_task_graph, parameters, graph_config):
     ]
 
 
-@_target_task("try_cc_tasks")
+@register_target_task("try_cc_tasks")
 def target_tasks_try(full_task_graph, parameters, graph_config):
     try_mode = parameters["try_mode"]
     if try_mode == "try_task_config":
@@ -53,7 +51,7 @@ def target_tasks_try(full_task_graph, parameters, graph_config):
         return []
 
 
-@_target_task("ash_tasks")
+@register_target_task("ash_tasks")
 def target_tasks_ash(full_task_graph, parameters, graph_config):
     run_for_platforms = (
         "linux64",

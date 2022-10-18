@@ -13,8 +13,8 @@
   const { FacetUtils } = ChromeUtils.import(
     "resource:///modules/gloda/Facet.jsm"
   );
-  const { PluralForm } = ChromeUtils.import(
-    "resource://gre/modules/PluralForm.jsm"
+  const { PluralForm } = ChromeUtils.importESModule(
+    "resource://gre/modules/PluralForm.sys.mjs"
   );
   const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 

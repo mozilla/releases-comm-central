@@ -400,13 +400,9 @@
                 "description": "The unique ID to assign to this item. Mandatory for event pages. Cannot be the same as another ID for this extension."
               },
               "icons": {
-                "type": "object",
+                "$ref": "manifest.IconPath",
                 "optional": true,
-                "patternProperties": {
-                  "^[1-9]\\d*$": {
-                    "type": "string"
-                  }
-                }
+                "description": "Custom icons to display next to the menu item. Custom icons can only be set for items appearing in submenus."
               },
               "title": {
                 "type": "string",
@@ -535,13 +531,8 @@
                 "optional": true
               },
               "icons": {
-                "type": "object",
-                "optional": "omit-key-if-missing",
-                "patternProperties": {
-                  "^[1-9]\\d*$": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "manifest.IconPath",
+                "optional": "omit-key-if-missing"
               },
               "title": {
                 "type": "string",

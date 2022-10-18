@@ -28,6 +28,7 @@ XPCOMUtils.defineLazyGetter(this, "AddrBookUtils", function() {
 
 ChromeUtils.defineESModuleGetters(this, {
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
+  PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -40,7 +41,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.jsm",
   ICAL: "resource:///modules/calendar/Ical.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
-  PluralForm: "resource://gre/modules/PluralForm.jsm",
   VCardProperties: "resource:///modules/VCardUtils.jsm",
   VCardPropertyEntry: "resource:///modules/VCardUtils.jsm",
 });
@@ -2337,7 +2337,7 @@ var cardsPane = {
         event.dataTransfer.setData("text/vcard", decodeURIComponent(vCard));
         event.dataTransfer.setData(
           "application/x-moz-file-promise-dest-filename",
-          card.displayName + ".vcf"
+          `${card.displayName}.vcf`.replace(/(.{74}).*(.{10})$/u, "$1...$2")
         );
         event.dataTransfer.setData(
           "application/x-moz-file-promise-url",

@@ -16,6 +16,7 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   AppMenuNotifications: "resource://gre/modules/AppMenuNotifications.sys.mjs",
+  PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
@@ -24,7 +25,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   AMTelemetry: "resource://gre/modules/AddonManager.jsm",
   ExtensionData: "resource://gre/modules/Extension.jsm",
   ExtensionParent: "resource://gre/modules/ExtensionParent.jsm",
-  PluralForm: "resource://gre/modules/PluralForm.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
 });
 

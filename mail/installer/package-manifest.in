@@ -497,6 +497,7 @@
 #endif
 #endif
 #ifdef MOZ_CRASHREPORTER_INJECTOR
+@RESPATH@/crashreporter-override.ini
 @BINPATH@/breakpadinjector.dll
 #endif
 #endif

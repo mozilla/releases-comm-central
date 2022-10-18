@@ -18,8 +18,8 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { PluralForm } = ChromeUtils.import(
-  "resource://gre/modules/PluralForm.jsm"
+var { PluralForm } = ChromeUtils.importESModule(
+  "resource://gre/modules/PluralForm.sys.mjs"
 );
 ChromeUtils.defineModuleGetter(
   this,

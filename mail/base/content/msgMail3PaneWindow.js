@@ -1056,7 +1056,7 @@ messageFlavorDataProvider.prototype = {
     );
     let fileUri = Services.io.newURI(fileUriStr.data);
     let fileUrl = fileUri.QueryInterface(Ci.nsIURL);
-    let fileName = fileUrl.fileName;
+    let fileName = fileUrl.fileName.replace(/(.{74}).*(.{10})$/u, "$1...$2");
 
     let destDirPrimitive = {};
     aTransferable.getTransferData(

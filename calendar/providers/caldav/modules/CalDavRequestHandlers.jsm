@@ -569,7 +569,7 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
       return;
     }
 
-    if (this.calendar.mWebdavSyncToken == null) {
+    if (this.calendar.mWebdavSyncToken == null && !this.additionalSyncNeeded) {
       // null token means reset or first refresh indicating we did
       // a full sync; remove local items that were not returned in this full
       // sync
@@ -597,6 +597,16 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
         this.calendar.mWebdavSyncToken = this.newSyncToken;
         this.calendar.saveCalendarProperties();
         cal.LOG("CalDAV: New webdav-sync Token: " + this.calendar.mWebdavSyncToken);
+
+        if (this.additionalSyncNeeded) {
+          let wds = new CalDavWebDavSyncHandler(
+            this.calendar,
+            this.baseUri,
+            this.changeLogListener
+          );
+          wds.doWebDAVSync();
+          return;
+        }
       }
       this.calendar.finalizeUpdatedItems(this.changeLogListener, this.baseUri);
     }

@@ -7,8 +7,8 @@ var EXPORTED_SYMBOLS = ["MailUtils"];
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { PluralForm } = ChromeUtils.import(
-  "resource://gre/modules/PluralForm.jsm"
+const { PluralForm } = ChromeUtils.importESModule(
+  "resource://gre/modules/PluralForm.sys.mjs"
 );
 const lazy = {};
 ChromeUtils.defineModuleGetter(

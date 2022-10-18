@@ -44,9 +44,11 @@ job-template:
                     - repackage/osx_signed.py
                 win32.*:
                     - repackage/base.py
+                    - repackage/tb_win32_sfx_stub.py
                     - repackage/win32_signed.py
                 win64.*:
                     - repackage/base.py
+                    - repackage/tb_win32_sfx_stub.py
                     - repackage/win64_signed.py
     package-formats:
         by-build-platform:

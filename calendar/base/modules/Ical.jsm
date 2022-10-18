@@ -9,6 +9,7 @@
  * upstream first.
  *
  * Current ical.js git revision: 7fb7b51f1b36d49b576a359ee178d85e6d4b192a
+ * plus https://github.com/kewisch/ical.js/pull/542
  * plus https://github.com/kewisch/ical.js/pull/541
  * plus https://github.com/kewisch/ical.js/pull/531
  */
@@ -840,7 +841,6 @@ ICAL.design = (function() {
       }
     },
     period: {
-
       fromICAL: function(string) {
         var parts = string.split('/');
         parts[0] = icalValues['date-time'].fromICAL(parts[0]);
@@ -853,6 +853,7 @@ ICAL.design = (function() {
       },
 
       toICAL: function(parts) {
+        parts = parts.slice();
         if (!design.strict && parts[0].length == 10) {
           parts[0] = icalValues.date.toICAL(parts[0]);
         } else {

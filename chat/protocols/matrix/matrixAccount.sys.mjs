@@ -29,6 +29,12 @@ XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
 );
 
+XPCOMUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/matrix.ftl"], true)
+);
+
 ChromeUtils.defineESModuleGetters(lazy, {
   InteractiveBrowser: "resource:///modules/InteractiveBrowser.sys.mjs",
   MatrixCrypto: "resource:///modules/matrix-sdk.sys.mjs",
@@ -1583,6 +1589,48 @@ function getStatusString(status) {
     : lazy._("options.encryption.statusNotOk");
 }
 
+/**
+ * Get the conversation name to display for a room.
+ *
+ * @param {string} roomId - ID of the room.
+ * @param {RoomNameState} state - State of the room name from the SDK.
+ * @returns {string?} Name to show for the room. If nothing is returned, the SDK
+ *   uses its built in naming logic.
+ */
+function getRoomName(roomId, state) {
+  switch (state.type) {
+    case lazy.MatrixSDK.RoomNameType.Actual:
+      return state.name;
+    case lazy.MatrixSDK.RoomNameType.Generated: {
+      if (!state.names) {
+        return lazy.l10n.formatValueSync("room-name-empty");
+      }
+      if (state.names.length === 1 && state.count <= 2) {
+        return state.names[0];
+      }
+      if (state.names.length === 2 && state.count <= 3) {
+        return new Intl.ListFormat(undefined, {
+          style: "long",
+          type: "conjunction",
+        }).format(state.names);
+      }
+      return lazy.l10n.formatValueSync("room-name-others", {
+        participant: state.names[0],
+        otherParticipantCount: state.names.length - 1,
+      });
+    }
+    case lazy.MatrixSDK.RoomNameType.EmptyRoom:
+      if (state.oldName) {
+        return lazy.l10n.formatValueSync("room-name-empty-had-name", {
+          oldName: state.oldName,
+        });
+      }
+      return lazy.l10n.formatValueSync("room-name-empty");
+  }
+  // Else fall through to default SDK room naming logic.
+  return undefined;
+}
+
 /*
  * TODO Other random functionality from MatrixClient that will be useful:
  *  getRooms / getUsers / publicRooms
@@ -1875,6 +1923,7 @@ MatrixAccount.prototype = {
         },
       },
       verificationMethods: [lazy.MatrixCrypto.verificationMethods.SAS],
+      roomNameGenerator: getRoomName,
     };
     await Promise.all([opts.store.startup(), opts.cryptoStore.startup()]);
     return opts;
@@ -2572,7 +2621,7 @@ MatrixAccount.prototype = {
    * only returns true if the conversation should update the state.
    *
    * @param {(prplIConversation) => boolean} [shouldUpdateConv] - Condition to
-   *   evaluate if a conversation should have the device trust recalcualted.
+   *   evaluate if a conversation should have the device trust recalculated.
    */
   updateConvDeviceTrust(shouldUpdateConv) {
     for (const conv of this.roomList.values()) {

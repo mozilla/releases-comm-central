@@ -5,17 +5,7 @@ var { commands } = ChromeUtils.importESModule(
   "resource:///modules/matrixCommands.sys.mjs"
 );
 
-function run_test() {
-  add_test(testUnhandledEmptyCommands);
-  add_test(testTopic);
-  add_test(testMsgMissingMessage);
-  add_test(testMsgNoRoom);
-  add_test(testJoinNotRoomId);
-  add_test(testJoinSuccess);
-  run_next_test();
-}
-
-function testUnhandledEmptyCommands() {
+add_task(function testUnhandledEmptyCommands() {
   const noopCommands = [
     "ban",
     "unban",
@@ -47,11 +37,9 @@ function testUnhandledEmptyCommands() {
       );
     }
   }
+});
 
-  run_next_test();
-}
-
-function testHelpString() {
+add_task(function testHelpString() {
   for (const command of commands) {
     const helpString = command.helpString;
     equal(
@@ -64,11 +52,9 @@ function testHelpString() {
       command.name + " is not mentioned in its help string"
     );
   }
+});
 
-  run_next_test();
-}
-
-function testTopic() {
+add_task(function testTopic() {
   const conversation = {
     wrappedJSObject: {
       set topic(value) {
@@ -81,9 +67,7 @@ function testTopic() {
   const result = command(topic, conversation);
   ok(result, "Setting topic was not handled");
   equal(conversation._topic, topic, "Topic not correctly set");
-
-  run_next_test();
-}
+});
 
 add_task(async function testMsgSuccess() {
   const targetUser = "@test:example.com";
@@ -119,17 +103,15 @@ add_task(async function testMsgSuccess() {
   equal(message, directMessage, "Message was not sent in DM room");
 });
 
-function testMsgMissingMessage() {
+add_task(function testMsgMissingMessage() {
   const targetUser = "@test:example.com";
   const conversation = {};
   const command = _getRunCommand("msg");
   const result = command(targetUser, conversation);
   ok(!result, "Sending direct message was handled");
+});
 
-  run_next_test();
-}
-
-function testMsgNoRoom() {
+add_task(function testMsgNoRoom() {
   const targetUser = "@test:example.com";
   const directMessage = "lorem ipsum";
   const conversation = {
@@ -154,11 +136,9 @@ function testMsgNoRoom() {
     "Did not try to get the conversation for the target user"
   );
   ok(conversation.errorMsg, "Did not report an error");
+});
 
-  run_next_test();
-}
-
-function testJoinSuccess() {
+add_task(function testJoinSuccess() {
   const roomName = "#test:example.com";
   const conversation = {
     wrappedJSObject: {
@@ -173,19 +153,15 @@ function testJoinSuccess() {
   const result = command(roomName, conversation);
   ok(result, "Did not handle join command");
   equal(conversation.roomId, roomName, "Did not try to join expected room");
+});
 
-  run_next_test();
-}
-
-function testJoinNotRoomId() {
+add_task(function testJoinNotRoomId() {
   const roomName = "!asdf:example.com";
   const conversation = {};
   const command = _getRunCommand("join");
   const result = command(roomName, conversation);
   ok(!result, "Handled join command for unsupported room Id");
-
-  run_next_test();
-}
+});
 
 // Fetch the run() of a named command.
 function _getRunCommand(aCommandName) {

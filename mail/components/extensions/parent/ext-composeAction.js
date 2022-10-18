@@ -58,18 +58,19 @@ this.composeAction = class extends ToolbarButtonAPI {
     // shutdown when onUninstall is called.
     let toolbars = ["composeToolbar2", "FormatToolbar"];
     for (let toolbar of toolbars) {
-      let currentSet = Services.xulStore
-        .getValue(windowURL, toolbar, "currentset")
-        .split(",");
-
-      let newSet = currentSet.filter(e => e != id);
-      if (newSet.length < currentSet.length) {
-        Services.xulStore.setValue(
-          windowURL,
-          toolbar,
-          "currentset",
-          newSet.join(",")
-        );
+      for (let setName of ["currentset", "extensionset"]) {
+        let set = Services.xulStore
+          .getValue(windowURL, toolbar, setName)
+          .split(",");
+        let newSet = set.filter(e => e != id);
+        if (newSet.length < set.length) {
+          Services.xulStore.setValue(
+            windowURL,
+            toolbar,
+            setName,
+            newSet.join(",")
+          );
+        }
       }
     }
   }

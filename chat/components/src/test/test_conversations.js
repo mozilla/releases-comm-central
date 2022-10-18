@@ -235,8 +235,5 @@ var test_update_message = function() {
   ok(updateText, "Expected update-text to have fired.");
 };
 
-function run_test() {
-  test_null_message();
-  test_update_message();
-  run_next_test();
-}
+add_task(test_null_message);
+add_task(test_update_message);

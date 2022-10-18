@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals cal */
+/* globals cal openLinkExternally */
 
 "use strict";
 
@@ -11,6 +11,8 @@
   var { recurrenceRule2String } = ChromeUtils.import(
     "resource:///modules/calendar/calRecurrenceUtils.jsm"
   );
+
+  let l10n = new DOMLocalization(["calendar/calendar-invitation-panel.ftl"]);
 
   /**
    * Base element providing boilerplate for shadow root initialisation.
@@ -23,7 +25,7 @@
     constructor(id) {
       super();
       this.attachShadow({ mode: "open" });
-      document.l10n.connectRoot(this.shadowRoot);
+      l10n.connectRoot(this.shadowRoot);
 
       let link = document.createElement("link");
       link.rel = "stylesheet";
@@ -36,7 +38,7 @@
     }
 
     disconnectedCallback() {
-      document.l10n.disconnectRoot(this.shadowRoot);
+      l10n.disconnectRoot(this.shadowRoot);
     }
   }
 
@@ -168,12 +170,15 @@
         .getElementById("location")
         .appendChild(cal.view.textToHtmlDocumentFragment(item.getProperty("LOCATION"), document));
 
-      this.shadowRoot.getElementById("summary").attendees = item.getAttendees();
-      this.shadowRoot.getElementById("list").attendees = item.getAttendees();
+      let attendees = item.getAttendees();
+      this.shadowRoot.getElementById("summary").attendees = attendees;
+      this.shadowRoot.getElementById("attendees").attendees = attendees;
 
       this.shadowRoot
         .getElementById("description")
         .appendChild(cal.view.textToHtmlDocumentFragment(item.descriptionText, document));
+
+      this.shadowRoot.getElementById("attachments").attachments = item.getAttachments();
     }
   }
   customElements.define("calendar-invitation-panel-properties", InvitationPanelProperties);
@@ -195,7 +200,7 @@
       let [startDate, endDate] = cal.dtz.formatter.getItemDates(value);
       let timezone = startDate.timezone.displayName;
       let parts = cal.dtz.formatter.formatIntervalParts(startDate, endDate);
-      document.l10n.setAttributes(
+      l10n.setAttributes(
         this.shadowRoot.getElementById("interval"),
         `calendar-invitation-interval-${parts.type}`,
         { ...parts, timezone }
@@ -236,7 +241,7 @@
           counts.OTHER++;
         }
       }
-      document.l10n.setAttributes(
+      l10n.setAttributes(
         this.shadowRoot.getElementById("total"),
         "calendar-invitation-panel-partstat-total",
         { count: counts.TOTAL }
@@ -252,13 +257,9 @@
         // calendar-invitation-panel-partstat-declined
         // calendar-invitation-panel-partstat-tentative
         // calendar-invitation-panel-partstat-needs-action
-        document.l10n.setAttributes(
-          span,
-          `calendar-invitation-panel-partstat-${partStat.toLowerCase()}`,
-          {
-            count: counts[partStat],
-          }
-        );
+        l10n.setAttributes(span, `calendar-invitation-panel-partstat-${partStat.toLowerCase()}`, {
+          count: counts[partStat],
+        });
         breakdown.appendChild(span);
       }
     }
@@ -278,9 +279,9 @@
      * Setting this property will trigger rendering of the attendees list.
      * @type {calIAttendee[]}
      */
-    set attendees(attendees) {
-      let ul = this.shadowRoot.getElementById("attendeeList");
-      for (let att of attendees) {
+    set attendees(value) {
+      let ul = this.shadowRoot.getElementById("list");
+      for (let att of value) {
         let li = document.createElement("li");
         let span = document.createElement("span");
         span.textContent = att;
@@ -292,6 +293,74 @@
   customElements.define("calendar-invitation-attendee-list", InvitationAttendeeList);
 
   /**
+   * InvitationAttachmentList displays a list of all attachments in the
+   * invitation that have URIs. Binary attachments are not supported.
+   */
+  class InvitationAttachmentList extends BaseInvitationElement {
+    constructor() {
+      super("calendarInvitationAttachmentList");
+    }
+
+    /**
+     * Setting this property will trigger rendering of the attachments list.
+     * @type {calIAttachment[]}
+     */
+    set attachments(value) {
+      let ul = this.shadowRoot.getElementById("list");
+      for (let attachment of value) {
+        if (attachment.uri) {
+          let item = document.createElement("li", { is: "calendar-invitation-attachment-item" });
+          item.attachment = attachment;
+          ul.appendChild(item);
+        }
+      }
+    }
+  }
+  customElements.define("calendar-invitation-panel-attachment-list", InvitationAttachmentList);
+
+  /**
+   * InvitationAttachmentItem displays a link to an attachment attached to the
+   * event.
+   */
+  class InvitationAttachmentItem extends HTMLLIElement {
+    /**
+     * Settings this property will set up the attachment to be displayed as a
+     * link with appropriate icon. Links are opened externally.
+     * @type {calIAttachment[]}
+     */
+    set attachment(value) {
+      let title = value.getParameter("FILENAME") || value.uri.spec;
+      let link = document.createElement("a");
+      link.textContent = title;
+      link.setAttribute("href", value.uri.spec);
+      link.addEventListener("click", event => {
+        event.preventDefault();
+        openLinkExternally(event.target.href);
+      });
+
+      let icon = document.createElement("img");
+      let iconSrc = value.uri.spec.length ? value.uri.spec : "dummy.html";
+      if (!value.uri.schemeIs("file")) {
+        // Using an uri directly, with e.g. a http scheme, wouldn't render any icon.
+        if (value.formatType) {
+          iconSrc = "goat?contentType=" + value.formatType;
+        } else {
+          // Let's try to auto-detect.
+          let parts = iconSrc.substr(value.uri.scheme.length + 2).split("/");
+          if (parts.length) {
+            iconSrc = parts[parts.length - 1];
+          }
+        }
+      }
+      icon.setAttribute("src", "moz-icon://" + iconSrc);
+      this.append(icon, link);
+    }
+  }
+  customElements.define("calendar-invitation-attachment-item", InvitationAttachmentItem, {
+    extends: "li",
+  });
+
+  /**
    * InvitationPanelFooter renders the footer for the details section of
    * the invitation panel.
    */
@@ -301,12 +370,11 @@
     }
 
     connectedCallback() {
-      document.l10n.setAttributes(
+      l10n.setAttributes(
         this.shadowRoot.getElementById("status"),
         "calendar-invitation-panel-reply-status"
       );
     }
   }
-
   customElements.define("calendar-invitation-panel-footer", InvitationPanelFooter);
 }

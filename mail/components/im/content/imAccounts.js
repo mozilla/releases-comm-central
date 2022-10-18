@@ -15,11 +15,9 @@ var { MailServices } = ChromeUtils.import(
 var { DownloadUtils } = ChromeUtils.import(
   "resource://gre/modules/DownloadUtils.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "PluralForm",
-  "resource://gre/modules/PluralForm.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
+});
 
 // This is the list of notifications that the account manager window observes
 var events = [

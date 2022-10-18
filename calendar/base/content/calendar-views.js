@@ -226,6 +226,9 @@
       this.displayDaysOff = !this.mWorkdaysOnly;
 
       this.showDate(date ? date.getInTimezone(this.timezone) : null);
+      if (!date) {
+        this.setDateBoxRelations();
+      }
     }
 
     getRangeDescription() {

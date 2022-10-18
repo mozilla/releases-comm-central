@@ -371,7 +371,7 @@ export var commands = [
   {
     name: "part",
     get helpString() {
-      return lazy._("command.leave", "leave");
+      return lazy._("command.leave", "part");
     },
     run: clientCommand("leave", 0),
   },

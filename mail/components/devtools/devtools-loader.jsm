@@ -32,8 +32,8 @@ DevToolsStartup.prototype = {
   },
 
   initialize() {
-    let { loader, require, DevToolsLoader } = ChromeUtils.import(
-      "resource://devtools/shared/loader/Loader.jsm"
+    let { loader, require, DevToolsLoader } = ChromeUtils.importESModule(
+      "resource://devtools/shared/loader/Loader.sys.mjs"
     );
     let { DevToolsServer } = require("devtools/server/devtools-server");
     let { gDevTools } = require("devtools/client/framework/devtools");

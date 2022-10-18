@@ -231,6 +231,7 @@ class CalDavRequestBase {
     copyHeader("Recipient");
     copyHeader("If-None-Match");
     copyHeader("If-Match");
+    copyHeader("Accept");
 
     aNewChannel.requestMethod = oldHttpChannel.requestMethod;
     this.session.prepareRedirect(aOldChannel, aNewChannel).then(() => {

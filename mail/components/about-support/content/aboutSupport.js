@@ -29,13 +29,9 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/DownloadUtils.jsm"
 );
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "PluralForm",
-  "resource://gre/modules/PluralForm.jsm"
-);
 ChromeUtils.defineESModuleGetters(this, {
   PlacesDBUtils: "resource://gre/modules/PlacesDBUtils.sys.mjs",
+  PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
   ProcessType: "resource://gre/modules/ProcessType.sys.mjs",
 });
 
