@@ -1,0 +1,81 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Required for placing the window controls in the proper place without having
+# them inside the toolbar.
+
+<html:template id="search-bar-template"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <form>
+    <input type="search" placeholder="" required="required" />
+    <div aria-hidden="true"><slot name="placeholder"></slot></div>
+    <button><slot name="button"></slot></button>
+  </form>
+</html:template>
+<html:template id="unified-toolbar-template">
+  <html:div id="unifiedToolbarContainer">
+    <html:div id="unifiedToolbar" role="toolbar">
+#include ../../../base/content/spacesToolbarPin.inc.xhtml
+      <html:div id="unifiedToolbarContent">
+        <html:div class="spacer"></html:div>
+        <html:search-bar class="searchBar" label="Search:" aria-keyshortcuts="Control+K">
+          <html:span slot="placeholder">Search... <html:kbd>Ctrl</html:kbd> + <html:kbd>K</html:kbd></html:span>
+          <html:img alt="Search"
+                    slot="button"
+                    src="chrome://messenger/skin/icons/new/compact/search.svg" />
+        </html:search-bar>
+        <html:div class="spacer"></html:div>
+      </html:div>
+      <toolbarbutton id="button-appmenu"
+                     type="menu"
+                     badged="true"
+                     class="toolbarbutton-1 button-appmenu"
+                     label="&appmenuButton.label;"
+                     tooltiptext="&appmenuButton1.tooltip;" />
+    </html:div>
+#include ../../../base/content/messenger-titlebar-items.inc.xhtml
+  </html:div>
+</html:template>
+<html:template id="unified-toolbar-customization-template"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <form id="unifiedToolbarCustomizationContainer"
+        aria-labelledby="customizationHeading">
+    <h1 id="customizationHeading" data-l10n-id="customize-title"></h1>
+    <div role="tablist"></div>
+    <div role="tabpanel"></div>
+    <div id="customizationFooter">
+      <div>
+        <button type="reset" data-l10n-id="customize-restore-default"></button>
+        <button type="button"
+                class="link"
+                data-l10n-id="customize-change-appearance"></button>
+      </div>
+      <div>
+        <label>
+          <span data-l10n-id="customize-button-style-label"></span>
+          <xul:menulist value="icons-beside-text">
+            <xul:menupopup>
+              <xul:menuitem value="icons-beside-text"
+                            data-l10n-id="customize-button-style-icons-beside-text"
+                            default="default" />
+              <xul:menuitem value="icons-above-text"
+                            data-l10n-id="customize-button-style-icons-above-text" />
+              <xul:menuitem value="icons-only"
+                            data-l10n-id="customize-button-style-icons-only" />
+              <xul:menuitem value="text-only"
+                            data-l10n-id="customize-button-style-text-only" />
+            </xul:menupopup>
+          </xul:menulist>
+        </label>
+      </div>
+      <div>
+        <button id="unifiedToolbarCustomizationCancel"
+                type="button"
+                data-l10n-id="customize-cancel"></button>
+        <button type="submit" class="primary" data-l10n-id="customize-save"></button>
+      </div>
+    </div>
+    <small data-l10n-id="customize-unsaved-changes" hidden="hidden"></small>
+  </form>
+</html:template>

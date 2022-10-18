@@ -37,3 +37,47 @@
 .searchBar {
   flex: 1 0 33%;
 }
+
+unified-toolbar-customization {
+  display: none;
+}
+
+/* customizing unified toolbar */
+
+/* TODO this approach will have issues with spaces toolbar paddings */
+
+/* we still need the space to be taken up for correct alignment of window decorations */
+.customizingUnifiedToolbar #unifiedToolbar {
+  visibility: hidden;
+}
+
+.customizingUnifiedToolbar #unifiedToolbar > *,
+.customizingUnifiedToolbar #messengerBody,
+.customizingUnifiedToolbar #spacesToolbar,
+.customizingUnifiedToolbar #toolbar-menubar,
+.customizingUnifiedToolbar #tabs-toolbar {
+  display: none;
+}
+
+.customizingUnifiedToolbar unified-toolbar-customization {
+  display: flex;
+  height: 100%;
+  background: white;
+  -moz-box-flex: 1;
+}
+
+#unifiedToolbarCustomizationContainer {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#unifiedToolbarCustomizationContainer div[role="tabpanel"] {
+  flex-grow: 1;
+}
+
+#customizationFooter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

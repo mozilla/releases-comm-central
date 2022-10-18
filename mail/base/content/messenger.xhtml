@@ -90,6 +90,7 @@
   <link rel="localization" href="messenger/chat.ftl" />
   <link rel="localization" href="messenger/messageheader/headerFields.ftl" />
   <link rel="localization" href="messenger/mailWidgets.ftl" />
+  <link rel="localization" href="messenger/unifiedToolbar.ftl" />
 
   <title>&titledefault.label;@PRE_RELEASE_SUFFIX@</title>
 
@@ -223,6 +224,9 @@
 
   <script defer="defer" src="chrome://messenger/content/accountcreation/accountHub.js"></script>
 
+  <!-- Unified toolbar -->
+  <script type="module" defer="defer" src="chrome://messenger/content/unifiedtoolbar/unified-toolbar.mjs"></script>
+
   <script>
     window.onload = gMailInit.onLoad.bind(gMailInit);
     window.onunload = gMailInit.onUnload.bind(gMailInit);
@@ -331,6 +335,7 @@
 #include mainPopupSet.inc.xhtml
 <!-- The panelUI is for the appmenu. -->
 #include ../../components/customizableui/content/panelUI.inc.xhtml
+#include ../../components/unifiedToolbar/content/unifiedToolbarPopups.inc.xhtml
   <panel is="glodacomplete-rich-result-popup"
          id="PopupGlodaAutocomplete"
          noautofocus="true"/>
@@ -443,7 +448,7 @@
 #endif
 
 #include ../../../calendar/base/content/calendar-context-menus-and-tooltips.inc.xhtml
-
+#include ../../components/unifiedToolbar/content/unifiedToolbarTemplates.inc.xhtml
 
 #include spacesToolbar.inc.xhtml
 
@@ -456,7 +461,7 @@
   <toolbox id="navigation-toolbox" flex="1" labelalign="end" defaultlabelalign="end">
 
     <vbox id="titlebar">
-#include ../../components/unifiedToolbar/content/unifiedToolbar.inc.xhtml
+      <html:unified-toolbar></html:unified-toolbar>
       <!-- Menu -->
       <toolbar is="customizable-toolbar" id="toolbar-menubar"
                class="chromeclass-menubar themeable-full"

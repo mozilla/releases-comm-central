@@ -4,7 +4,7 @@
 
 import { html } from "lit";
 import { action } from "@storybook/addon-actions";
-import "mail/components/unifiedToolbar/content/search-bar.js";
+import "mail/components/unifiedToolbar/content/search-bar.mjs";
 
 export default {
   title: "Widgets/Search Bar",
