@@ -420,9 +420,6 @@ cannot-use-own-key-because = Unable to send the message, because there is a prob
 cannot-encrypt-because-missing = Unable to send this message with end-to-end encryption, because there are problems with the keys of the following recipients: { $problem }
 window-locked = Compose window is locked; send cancelled
 
-# Strings in mimeDecrypt.jsm
-mime-decrypt-encrypted-part-concealed-data = This is an encrypted message part. You need to open it in a separate window by clicking on the attachment.
-
 # Strings in keyserver.jsm
 keyserver-error-aborted = Aborted
 keyserver-error-unknown = An unknown error occurred

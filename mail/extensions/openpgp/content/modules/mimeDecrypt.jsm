@@ -56,25 +56,6 @@ var EnigmailMimeDecrypt = {
   },
 
   /**
-   * Return a fake empty attachment with information that the message
-   * was not decrypted
-   *
-   * @return {String}: MIME string (HTML text)
-   */
-  emptyAttachment() {
-    lazy.EnigmailLog.DEBUG("mimeDecrypt.jsm: emptyAttachment()\n");
-
-    let concealed = lazy.l10n.formatValueSync(
-      "mime-decrypt-encrypted-part-concealed-data"
-    );
-    let retData = `Content-Type: text/html
-
-<p><i>${concealed}</i></p>
-`;
-    return retData;
-  },
-
-  /**
    * Wrap the decrypted output into a message/rfc822 attachment
    *
    * @param {String} decryptingMimePartNum: requested MIME part number
@@ -505,13 +486,13 @@ MimeDecryptHandler.prototype = {
       )
     ) {
       if (!this.isUrlEnigmailConvert()) {
-        this.returnData(EnigmailMimeDecrypt.emptyAttachment());
-      } else {
-        throw new Error(
-          "Cannot decrypt messages with mixed (encrypted/non-encrypted) content"
-        );
+        // ignore
+        return;
       }
-      return;
+
+      throw new Error(
+        "Cannot decrypt messages with mixed (encrypted/non-encrypted) content"
+      );
     }
 
     if (!this.isReloadingLastMessage()) {
