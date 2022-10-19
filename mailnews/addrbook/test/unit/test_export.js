@@ -10,8 +10,8 @@ var { AddrBookCard } = ChromeUtils.import(
 var { AddrBookUtils } = ChromeUtils.import(
   "resource:///modules/AddrBookUtils.jsm"
 );
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
 );
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

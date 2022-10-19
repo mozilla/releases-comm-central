@@ -4,10 +4,12 @@
 
 const EXPORTED_SYMBOLS = ["ImapClient"];
 
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+var { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
 var { MailStringUtils } = ChromeUtils.import(
   "resource:///modules/MailStringUtils.jsm"
 );

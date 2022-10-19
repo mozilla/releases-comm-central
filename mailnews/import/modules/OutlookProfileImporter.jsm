@@ -7,7 +7,9 @@ const EXPORTED_SYMBOLS = ["OutlookProfileImporter"];
 var { BaseProfileImporter } = ChromeUtils.import(
   "resource:///modules/BaseProfileImporter.jsm"
 );
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+var { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
 
 /**
  * A module to import things from an outlook profile dir into the current

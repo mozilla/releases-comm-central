@@ -4,12 +4,9 @@
 
 const EXPORTED_SYMBOLS = ["ProfileExporter"];
 
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
 const lazy = {};
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  setTimeout: "resource://gre/modules/Timer.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
 // No need to backup those paths, they are not used when importing.

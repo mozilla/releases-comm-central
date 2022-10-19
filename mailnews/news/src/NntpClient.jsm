@@ -4,8 +4,8 @@
 
 const EXPORTED_SYMBOLS = ["NntpClient"];
 
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
 );
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
 var { LineReader } = ChromeUtils.import("resource:///modules/LineReader.jsm");
