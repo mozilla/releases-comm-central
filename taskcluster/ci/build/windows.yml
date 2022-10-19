@@ -8,9 +8,6 @@ job-defaults:
         comm-checkout: true
         config-paths:
             - comm/testing/mozharness/configs
-    fetches:
-        toolchain:
-            - win64-pdbstr
 
 win32/opt:
     description: "Win32 Opt (Cross)"
