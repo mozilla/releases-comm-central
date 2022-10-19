@@ -7,10 +7,10 @@
 var EXPORTED_SYMBOLS = ["CalCalendarManager"];
 
 const { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
-const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+const { Preferences } = ChromeUtils.importESModule("resource://gre/modules/Preferences.sys.mjs");
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 const { calCachedCalendar } = ChromeUtils.import("resource:///components/calCachedCalendar.js");
-const { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+const { setTimeout } = ChromeUtils.importESModule("resource://gre/modules/Timer.sys.mjs");
 
 var REGISTRY_BRANCH = "calendar.registry.";
 var MAX_INT = Math.pow(2, 31) - 1;
