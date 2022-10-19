@@ -70,10 +70,11 @@
  */
 
 import { executeSoon } from "resource:///modules/imXPCOMUtils.sys.mjs";
-
-const { clearTimeout, requestIdleCallback, setTimeout } = ChromeUtils.import(
-  "resource://gre/modules/Timer.jsm"
-);
+import {
+  clearTimeout,
+  requestIdleCallback,
+  setTimeout,
+} from "resource://gre/modules/Timer.sys.mjs";
 
 // Network errors see: xpcom/base/nsError.h
 var NS_ERROR_MODULE_NETWORK = 2152398848;

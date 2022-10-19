@@ -22,24 +22,19 @@ import {
   l10nHelper,
   nsSimpleEnumerator,
 } from "resource:///modules/imXPCOMUtils.sys.mjs";
-
-const lazy = {};
-XPCOMUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/irc.properties")
-);
-
-const { clearTimeout, setTimeout } = ChromeUtils.import(
-  "resource://gre/modules/Timer.jsm"
-);
-
+import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
-
 import {
   ctcpFormatToText,
   conversationErrorMessage,
   displayMessage,
   kListRefreshInterval,
 } from "resource:///modules/ircUtils.sys.mjs";
+
+const lazy = {};
+XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+  l10nHelper("chrome://chat/locale/irc.properties")
+);
 
 // Display the message and remove them from the rooms they're in.
 function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {
