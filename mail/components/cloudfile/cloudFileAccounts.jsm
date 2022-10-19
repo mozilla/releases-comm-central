@@ -6,8 +6,8 @@ const EXPORTED_SYMBOLS = ["cloudFileAccounts"];
 
 var ACCOUNT_ROOT = "mail.cloud_files.accounts.";
 
-var { EventEmitter } = ChromeUtils.import(
-  "resource://gre/modules/EventEmitter.jsm"
+var { EventEmitter } = ChromeUtils.importESModule(
+  "resource://gre/modules/EventEmitter.sys.mjs"
 );
 
 var cloudFileAccounts = new (class extends EventEmitter {

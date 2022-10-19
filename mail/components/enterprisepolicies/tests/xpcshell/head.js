@@ -4,8 +4,8 @@
 
 "use strict";
 
-const { Preferences } = ChromeUtils.import(
-  "resource://gre/modules/Preferences.jsm"
+const { Preferences } = ChromeUtils.importESModule(
+  "resource://gre/modules/Preferences.sys.mjs"
 );
 const { updateAppInfo, getAppInfo } = ChromeUtils.import(
   "resource://testing-common/AppInfo.jsm"

@@ -4,14 +4,10 @@
 
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
-const { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
-);
+import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { PluralForm } from "resource://gre/modules/PluralForm.sys.mjs";
 
-const { clearTimeout, setTimeout } = ChromeUtils.import(
-  "resource://gre/modules/Timer.jsm"
-);
+import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 import { ChatIcons } from "resource:///modules/chatIcons.sys.mjs";
 
 // Time in seconds: it is the minimum time of inactivity

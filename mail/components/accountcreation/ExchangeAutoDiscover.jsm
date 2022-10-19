@@ -13,12 +13,15 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 
 const lazy = {};
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   AccountConfig: "resource:///modules/accountcreation/AccountConfig.jsm",
   FetchHTTP: "resource:///modules/accountcreation/FetchHTTP.jsm",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.jsm",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.jsm",
-  setTimeout: "resource://gre/modules/Timer.jsm",
 });
 
 var {

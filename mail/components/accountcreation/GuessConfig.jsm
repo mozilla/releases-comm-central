@@ -19,7 +19,9 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/accountcreation/Sanitizer.jsm"
 );
 
-const { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+const { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
 
 const {
   Abortable,

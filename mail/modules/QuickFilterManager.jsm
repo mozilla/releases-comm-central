@@ -12,8 +12,8 @@ const EXPORTED_SYMBOLS = [
 const { PluralForm } = ChromeUtils.importESModule(
   "resource://gre/modules/PluralForm.sys.mjs"
 );
-const { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
+const { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
 );
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

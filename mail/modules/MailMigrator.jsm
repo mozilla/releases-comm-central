@@ -21,11 +21,14 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 
 const lazy = {};
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  EventEmitter: "resource://gre/modules/EventEmitter.sys.mjs",
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   FolderUtils: "resource:///modules/FolderUtils.jsm",
-  EventEmitter: "resource://gre/modules/EventEmitter.jsm",
   migrateMailnews: "resource:///modules/MailnewsMigrator.jsm",
-  setTimeout: "resource://gre/modules/Timer.jsm",
 });
 
 var MailMigrator = {
@@ -258,8 +261,8 @@ var MailMigrator = {
 
       // Changed notification sound behaviour on OS X.
       if (currentUIVersion < 15) {
-        var { AppConstants } = ChromeUtils.import(
-          "resource://gre/modules/AppConstants.jsm"
+        var { AppConstants } = ChromeUtils.importESModule(
+          "resource://gre/modules/AppConstants.sys.mjs"
         );
         if (AppConstants.platform == "macosx") {
           // For people updating from versions < 52 who had "Play system sound"

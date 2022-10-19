@@ -11,8 +11,8 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-const { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
+const { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
 );
 
 const lazy = {};
@@ -26,6 +26,7 @@ XPCOMUtils.defineLazyGetter(lazy, "gMailBundle", function() {
 });
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  ActorManagerParent: "resource://gre/modules/ActorManagerParent.sys.mjs",
   ChatCore: "resource:///modules/chatHandler.sys.mjs",
   LightweightThemeConsumer:
     "resource://gre/modules/LightweightThemeConsumer.sys.mjs",
@@ -33,7 +34,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  ActorManagerParent: "resource://gre/modules/ActorManagerParent.jsm",
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   cal: "resource:///modules/calendar/calUtils.jsm",
   ExtensionSupport: "resource:///modules/ExtensionSupport.jsm",
@@ -41,10 +41,8 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   MailServices: "resource:///modules/MailServices.jsm",
   MailUsageTelemetry: "resource:///modules/MailUsageTelemetry.jsm",
   PdfJs: "resource://pdf.js/PdfJs.jsm",
-
   RemoteSecuritySettings:
     "resource://gre/modules/psm/RemoteSecuritySettings.jsm",
-
   TBDistCustomizer: "resource:///modules/TBDistCustomizer.jsm",
 });
 
@@ -77,7 +75,7 @@ let JSWINDOWACTORS = {
     allFrames: true,
   },
 
-  // As in ActorManagerParent.jsm, but with single-site and single-page
+  // As in ActorManagerParent.sys.mjs, but with single-site and single-page
   // message manager groups added.
   FindBar: {
     parent: {
@@ -134,7 +132,7 @@ let JSWINDOWACTORS = {
     messageManagerGroups: ["browsers", "single-site", "single-page"],
   },
 
-  // As in ActorManagerParent.jsm, but with single-site and single-page
+  // As in ActorManagerParent.sys.mjs, but with single-site and single-page
   // message manager groups added.
   LoginManager: {
     parent: {
@@ -642,8 +640,8 @@ MailGlue.prototype = {
       },
       {
         task() {
-          let { setTimeout } = ChromeUtils.import(
-            "resource://gre/modules/Timer.jsm"
+          let { setTimeout } = ChromeUtils.importESModule(
+            "resource://gre/modules/Timer.sys.mjs"
           );
           setTimeout(function() {
             Services.tm.idleDispatchToMainThread(

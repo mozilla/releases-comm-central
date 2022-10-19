@@ -30,8 +30,8 @@ const startupPhases = {
       modules: new Set([
         "resource:///modules/MailGlue.jsm",
         "resource:///modules/StartupRecorder.jsm",
-        "resource://gre/modules/ActorManagerParent.jsm",
-        "resource://gre/modules/AppConstants.jsm",
+        "resource://gre/modules/ActorManagerParent.sys.mjs",
+        "resource://gre/modules/AppConstants.sys.mjs",
         "resource://gre/modules/CustomElementsListener.jsm",
         "resource://gre/modules/MainProcessSingleton.jsm",
         "resource://gre/modules/XPCOMUtils.sys.mjs",

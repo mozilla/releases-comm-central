@@ -7,7 +7,9 @@
 // mail/base/content/specialTabs.js
 /* globals specialTabs */
 
-var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
+var { ConsoleAPI } = ChromeUtils.importESModule(
+  "resource://gre/modules/Console.sys.mjs"
+);
 
 /**
  * A content tab for the account provisioner.  We use Javascript-y magic to

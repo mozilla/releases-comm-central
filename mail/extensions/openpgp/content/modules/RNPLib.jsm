@@ -12,9 +12,12 @@ const lazy = {};
 
 const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.jsm",
-  setTimeout: "resource://gre/modules/Timer.jsm",
 });
 
 const MIN_RNP_VERSION = [0, 16, 2];
