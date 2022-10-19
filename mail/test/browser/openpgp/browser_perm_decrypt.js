@@ -31,8 +31,8 @@ const { MailServices } = ChromeUtils.import(
 const { EnigmailPersistentCrypto } = ChromeUtils.import(
   "chrome://openpgp/content/modules/persistentCrypto.jsm"
 );
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
 );
 
 const MSG_TEXT = "Sundays are nothing without callaloo.";

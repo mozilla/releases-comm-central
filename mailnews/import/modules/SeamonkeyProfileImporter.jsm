@@ -4,8 +4,8 @@
 
 const EXPORTED_SYMBOLS = ["SeamonkeyProfileImporter"];
 
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
 );
 var { ThunderbirdProfileImporter } = ChromeUtils.import(
   "resource:///modules/ThunderbirdProfileImporter.jsm"

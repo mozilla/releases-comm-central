@@ -9,7 +9,9 @@
 // Note that we close the server rather than using Services.io.offline, as
 // the server is localhost and therefore not affected by the offline setting.
 
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+var { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
 
 var directory, restart, useSyncV1;
 

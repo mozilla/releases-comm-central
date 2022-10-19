@@ -4,9 +4,11 @@
 
 const EXPORTED_SYMBOLS = ["Pop3Client"];
 
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
+var { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
 );
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
 var { CryptoUtils } = ChromeUtils.import("resource://services-crypto/utils.js");

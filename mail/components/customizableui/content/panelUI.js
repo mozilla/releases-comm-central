@@ -28,8 +28,8 @@ var { ExtensionSupport } = ChromeUtils.import(
 var { ShortcutUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/ShortcutUtils.sys.mjs"
 );
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
 );
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { XPCOMUtils } = ChromeUtils.importESModule(

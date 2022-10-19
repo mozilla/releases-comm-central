@@ -38,8 +38,8 @@ var { MailServices } = ChromeUtils.import(
 var { PluralForm } = ChromeUtils.importESModule(
   "resource://gre/modules/PluralForm.sys.mjs"
 );
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
 );
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"

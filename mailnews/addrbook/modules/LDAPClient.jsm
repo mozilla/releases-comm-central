@@ -5,7 +5,9 @@
 const EXPORTED_SYMBOLS = ["LDAPClient"];
 
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+var { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
 var {
   AbandonRequest,
   BindRequest,

@@ -15,10 +15,13 @@ var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUti
 
 const lazy = {};
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   cal: "resource:///modules/calendar/calUtils.jsm",
   MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.jsm",
-  setTimeout: "resource://gre/modules/Timer.jsm",
 });
 
 /**

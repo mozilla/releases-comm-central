@@ -8,8 +8,8 @@ var { IMServices } = ChromeUtils.importESModule(
 var { ircAccount } = ChromeUtils.importESModule(
   "resource:///modules/ircAccount.sys.mjs"
 );
-var { clearTimeout, setTimeout } = ChromeUtils.import(
-  "resource://gre/modules/Timer.jsm"
+var { clearTimeout, setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
 );
 
 function FakeAccount() {

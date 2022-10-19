@@ -7,7 +7,7 @@
 var FIREFOX_UID = "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}";
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { AppConstants } = ChromeUtils.importESModule("resource://gre/modules/AppConstants.sys.mjs");
 
 /**
  * A data migrator prototype, holding the information for migration

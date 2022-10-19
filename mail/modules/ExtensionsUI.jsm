@@ -8,8 +8,8 @@ const EXPORTED_SYMBOLS = ["ExtensionsUI"];
 const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-const { EventEmitter } = ChromeUtils.import(
-  "resource://gre/modules/EventEmitter.jsm"
+const { EventEmitter } = ChromeUtils.importESModule(
+  "resource://gre/modules/EventEmitter.sys.mjs"
 );
 
 const lazy = {};
@@ -17,6 +17,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   AppMenuNotifications: "resource://gre/modules/AppMenuNotifications.sys.mjs",
   PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
@@ -25,7 +26,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   AMTelemetry: "resource://gre/modules/AddonManager.jsm",
   ExtensionData: "resource://gre/modules/Extension.jsm",
   ExtensionParent: "resource://gre/modules/ExtensionParent.jsm",
-  setTimeout: "resource://gre/modules/Timer.jsm",
 });
 
 const ADDONS_PROPERTIES = "chrome://messenger/locale/addons.properties";

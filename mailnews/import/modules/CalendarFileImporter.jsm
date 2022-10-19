@@ -10,8 +10,11 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 
 const lazy = {};
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  setTimeout: "resource://gre/modules/Timer.jsm",
   cal: "resource:///modules/calendar/calUtils.jsm",
 });
 

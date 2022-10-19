@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
-var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
+var { ConsoleAPI } = ChromeUtils.importESModule("resource://gre/modules/Console.sys.mjs");
 
 const lazy = {};
 XPCOMUtils.defineLazyModuleGetters(lazy, {

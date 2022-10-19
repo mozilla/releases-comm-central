@@ -12,7 +12,7 @@
  *     http://www.stack.nl/~jilles/cgi-bin/hgwebdir.cgi/irc-documentation-jilles/raw-file/tip/reference/draft-meglio-irc-watch-00.txt
  */
 
-const { clearTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+import { clearTimeout } from "resource://gre/modules/Timer.sys.mjs";
 import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
 
 function setStatus(aAccount, aNick, aStatus) {

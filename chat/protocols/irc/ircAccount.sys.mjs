@@ -9,11 +9,7 @@ import {
   l10nHelper,
   nsSimpleEnumerator,
 } from "resource:///modules/imXPCOMUtils.sys.mjs";
-
-var { clearTimeout, setTimeout } = ChromeUtils.import(
-  "resource://gre/modules/Timer.jsm"
-);
-
+import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import {
   ctcpFormatToHTML,

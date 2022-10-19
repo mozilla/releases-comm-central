@@ -97,7 +97,7 @@ add_task(async function testModifyItemWithNoChanges() {
  * Tests that an error response from the server when syncing doesn't delete
  * items from the local calendar.
  */
-add_task(async function testSyncError() {
+add_task(async function testSyncError1() {
   calendarObserver._onAddItemPromise = PromiseUtils.defer();
   calendarObserver._onLoadPromise = PromiseUtils.defer();
   let calendar = createCalendar("caldav", CalDAVServer.url, true);
@@ -139,4 +139,61 @@ add_task(async function testSyncError() {
     await calendar.getItem("5a9fa76c-93f3-4ad8-9f00-9e52aedd2821"),
     "item should still exist after successful sync"
   );
+
+  cal.manager.unregisterCalendar(calendar);
+});
+
+/**
+ * Tests that multiple pages of item responses from the server when syncing
+ * doesn't result in items being deleted from the local calendar.
+ *
+ * The server has a page size of 3, although this test should pass regardless
+ * of the page size.
+ */
+add_task(async function testSyncError2() {
+  // Add some items to the server so multiple requests are required to get
+  // them all. There's already one item on the server.
+  for (let i = 0; i < 3; i++) {
+    CalDAVServer.putItemInternal(
+      `fake-uid-${i}.ics`,
+      CalendarTestUtils.dedent`
+        BEGIN:VCALENDAR
+        BEGIN:VEVENT
+        UID:fake-uid-${i}
+        SUMMARY:event ${i}
+        DTSTART:20210401T120000Z
+        DTEND:20210401T130000Z
+        END:VEVENT
+        END:VCALENDAR
+        `
+    );
+  }
+
+  calendarObserver._onAddItemPromise = PromiseUtils.defer();
+  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  let calendar = createCalendar("caldav", CalDAVServer.url, true);
+  await calendarObserver._onAddItemPromise.promise;
+  await calendarObserver._onLoadPromise.promise;
+  info("calendar set-up complete");
+
+  let items = await calendar.getItemsAsArray(Ci.calICalendar.ITEM_FILTER_TYPE_ALL, 0, null, null);
+  Assert.equal(items.length, 4, "all items added to calendar when first connected");
+
+  info("forced syncing with multiple pages");
+  calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject.mWebdavSyncToken = null;
+  calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject.saveCalendarProperties();
+  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendar.refresh();
+  await calendarObserver._onLoadPromise.promise;
+  info("forced sync with multiple pages complete");
+
+  items = await calendar.getItemsAsArray(Ci.calICalendar.ITEM_FILTER_TYPE_ALL, 0, null, null);
+  Assert.equal(items.length, 4, "all items still in calendar after forced refresh");
+
+  cal.manager.unregisterCalendar(calendar);
+
+  // Delete the added items.
+  for (let i = 0; i < 3; i++) {
+    CalDAVServer.deleteItemInternal(`fake-uid-${i}.ics`);
+  }
 });

@@ -14,14 +14,17 @@ const { SQLiteDirectory } = ChromeUtils.import(
   "resource:///modules/SQLiteDirectory.jsm"
 );
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  clearInterval: "resource://gre/modules/Timer.sys.mjs",
+  setInterval: "resource://gre/modules/Timer.sys.mjs",
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   CardDAVUtils: "resource:///modules/CardDAVUtils.jsm",
-  clearInterval: "resource://gre/modules/Timer.jsm",
   NotificationCallbacks: "resource:///modules/CardDAVUtils.jsm",
   OAuth2Module: "resource:///modules/OAuth2Module.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
-  setInterval: "resource://gre/modules/Timer.jsm",
-  setTimeout: "resource://gre/modules/Timer.jsm",
   VCardProperties: "resource:///modules/VCardUtils.jsm",
   VCardUtils: "resource:///modules/VCardUtils.jsm",
 });

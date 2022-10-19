@@ -13,8 +13,8 @@ var { InlineSpellChecker, SpellCheckHelper } = ChromeUtils.importESModule(
 var { PlacesUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/PlacesUtils.sys.mjs"
 );
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
@@ -24,7 +24,9 @@ ChromeUtils.defineModuleGetter(
   "MailUtils",
   "resource:///modules/MailUtils.jsm"
 );
-var { E10SUtils } = ChromeUtils.import("resource://gre/modules/E10SUtils.jsm");
+var { E10SUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/E10SUtils.sys.mjs"
+);
 
 var gSpellChecker = new InlineSpellChecker();
 

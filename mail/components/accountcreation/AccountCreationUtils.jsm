@@ -18,9 +18,11 @@ ChromeUtils.defineModuleGetter(
 const { AddonManager } = ChromeUtils.import(
   "resource://gre/modules/AddonManager.jsm"
 );
-const { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
-const { clearInterval, clearTimeout, setTimeout } = ChromeUtils.import(
-  "resource://gre/modules/Timer.jsm"
+const { ConsoleAPI } = ChromeUtils.importESModule(
+  "resource://gre/modules/Console.sys.mjs"
+);
+const { clearInterval, clearTimeout, setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
 );
 
 // --------------------------

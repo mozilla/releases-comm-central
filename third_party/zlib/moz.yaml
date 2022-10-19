@@ -1,0 +1,73 @@
+---
+schema: 1
+
+bugzilla:
+  product: "Thunderbird"
+  component: "Build Config"
+
+origin:
+  name: "zlib"
+  description: "ZLIB compression library"
+
+  url: "https://zlib.net/"
+  license: Zlib
+
+  release: v1.2.13 (2022-10-12T17:54:34-07:00).
+
+  revision: v1.2.13
+
+  license-file: LICENSE
+
+vendoring:
+  url: https://github.com/madler/zlib
+  source-hosting: github
+  tracking: tag
+
+  skip-vendoring-steps:
+    - hg-add
+    - spurious-check
+    - update-moz-build
+
+  exclude:
+    - "**"
+    - ".*"
+    - ".github/workflows/**"
+
+  include:
+    - adler32.c
+    - ChangeLog
+    - compress.c
+    - crc32.c
+    - crc32.h
+    - deflate.c
+    - deflate.h
+    - FAQ
+    - gzclose.c
+    - gzguts.h
+    - gzlib.c
+    - gzread.c
+    - gzwrite.c
+    - INDEX
+    - infback.c
+    - inffast.c
+    - inffast.h
+    - inffixed.h
+    - inflate.c
+    - inflate.h
+    - inftrees.c
+    - inftrees.h
+    - LICENSE
+    - README
+    - trees.c
+    - trees.h
+    - uncompr.c
+    - zconf.h
+    - zlib.h
+    - zutil.c
+    - zutil.h
+
+  update-actions:
+    - action: replace-in-file-regex
+      file: '{yaml_dir}/../README.zlib'
+      pattern: '\[tag v[1-9\.]+\]'
+      with: '[tag {revision}]'

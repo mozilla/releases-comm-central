@@ -16,8 +16,8 @@ if (!customElements.get("autocomplete-input")) {
 }
 
 customElements.whenDefined("autocomplete-input").then(() => {
-  const { AppConstants } = ChromeUtils.import(
-    "resource://gre/modules/AppConstants.jsm"
+  const { AppConstants } = ChromeUtils.importESModule(
+    "resource://gre/modules/AppConstants.sys.mjs"
   );
   const { GlodaConstants } = ChromeUtils.import(
     "resource:///modules/gloda/GlodaConstants.jsm"

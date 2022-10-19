@@ -12,8 +12,12 @@ const { MailServices } = ChromeUtils.import(
 );
 
 const lazy = {};
+
+ChromeUtils.defineESModuleGetters(lazy, {
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  setTimeout: "resource://gre/modules/Timer.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
   MimeMessage: "resource:///modules/MimeMessage.jsm",

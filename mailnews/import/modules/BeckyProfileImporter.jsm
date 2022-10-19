@@ -7,7 +7,9 @@ const EXPORTED_SYMBOLS = ["BeckyProfileImporter"];
 var { BaseProfileImporter } = ChromeUtils.import(
   "resource:///modules/BaseProfileImporter.jsm"
 );
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+var { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
 
 /**
  * A module to import things from an becky profile dir into the current

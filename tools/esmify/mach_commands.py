@@ -165,6 +165,14 @@ class HgUtils(VCSUtils):
         return jss
 
 
+class Summary:
+    def __init__(self):
+        self.convert_errors = []
+        self.import_errors = []
+        self.rename_errors = []
+        self.no_refs = []
+
+
 @Command(
     "tb-esmify",
     category="thunderbird",
@@ -246,6 +254,9 @@ def tb_esmify(
     def error(text):
         command_context.log(logging.ERROR, "tb-esmify", {}, f"[ERROR] {text}")
 
+    def warn(text):
+        command_context.log(logging.WARN, "tb-esmify", {}, f"[WARN] {text}")
+
     def info(text):
         command_context.log(logging.INFO, "tb-esmify", {}, f"[INFO] {text}")
 
@@ -280,6 +291,7 @@ def tb_esmify(
     is_single_file = path.is_file()
 
     modified_files = []
+    summary = Summary()
 
     if convert:
         info("Searching files to convert to ESM...")
@@ -291,15 +303,13 @@ def tb_esmify(
         info(f"Found {len(jsms)} file(s) to convert to ESM.")
 
         info("Converting to ESM...")
-        jsms = convert_module(command_context, jsms)
+        jsms = convert_module(jsms, summary)
         if jsms is None:
             error("Failed to rewrite exports.")
             return 1
 
         info("Renaming...")
-        # Strip "comm/" prefix from results
-        jsms = [j.relative_to("comm/") for j in jsms]
-        esms = rename_jsms(command_context, vcs_utils, jsms)
+        esms = rename_jsms(command_context, vcs_utils, jsms, summary)
 
         modified_files += esms
 
@@ -317,7 +327,7 @@ def tb_esmify(
 
         info(f"Found {len(jss)} file(s). Rewriting imports...")
 
-        result = rewrite_imports(jss, prefix, upstream_imports)
+        result = rewrite_imports(jss, prefix, summary, upstream_imports)
         if result is None:
             return 1
 
@@ -330,6 +340,37 @@ def tb_esmify(
 
     info(f"Applying eslint --fix for {len(modified_files)} file(s)...")
     eslint_fix(command_context, modified_files)
+
+    def print_files(f, errors):
+        for [path, message] in errors:
+            f(f"  * {path}")
+            if message:
+                f(f"    {message}")
+
+    if len(summary.convert_errors):
+        error("========")
+        error("Following files are not converted into ESM due to error:")
+        print_files(error, summary.convert_errors)
+
+    if len(summary.import_errors):
+        warn("========")
+        warn("Following files are not rewritten to import ESMs due to error:")
+        warn(
+            "(NOTE: Errors related to 'private names' are mostly due to "
+            " preprocessor macros in the file):"
+        )
+        print_files(warn, summary.import_errors)
+
+    if len(summary.rename_errors):
+        error("========")
+        error("Following files are not renamed due to error:")
+        print_files(error, summary.rename_errors)
+
+    if len(summary.no_refs):
+        warn("========")
+        warn("Following files are not found in any build files.")
+        warn("Please update references to those files manually:")
+        print_files(warn, summary.rename_errors)
 
     return 0
 
@@ -396,7 +437,7 @@ def try_rename_in(command_context, path, target, jsm_name, esm_name, jsm_path):
     if modified:
         info(f"  {str(target_path)}")
         info(f"    {jsm_name} => {esm_name}")
-        with open(target_path, "w") as f:
+        with open(target_path, "w", newline="\n") as f:
             f.write(content)
 
     return True
@@ -431,7 +472,7 @@ def try_rename_components_conf(command_context, path, jsm_name, esm_name):
     info(f"    {jsm_name} => {esm_name}")
 
     content = prop_re.sub(r"'esModule':\1" + esm_name, content)
-    with open(target_path, "w") as f:
+    with open(target_path, "w", newline="\n") as f:
         f.write(content)
 
     return True
@@ -448,12 +489,9 @@ def esmify_path(jsm_path):
     return esm_path
 
 
-def rename_single_file(command_context, vcs_utils, jsm_path):
+def rename_single_file(command_context, vcs_utils, jsm_path, summary):
     """Rename `jsm_path` to .sys.mjs, and fix references to the file in build and
     test definitions."""
-
-    def warn(text):
-        command_context.log(logging.WARN, "tb-esmify", {}, f"[WARN] {text}")
 
     def info(text):
         command_context.log(logging.INFO, "tb-esmify", {}, f"[INFO] {text}")
@@ -496,17 +534,20 @@ def rename_single_file(command_context, vcs_utils, jsm_path):
         renamed = True
 
     if not renamed:
-        warn(f"  {jsm_path} is not found in any build file")
+        summary.no_refs.append([jsm_path, None])
 
-    vcs_utils.rename(jsm_path, esm_path)
+    if not esm_path.exists():
+        vcs_utils.rename(jsm_path, esm_path)
+    else:
+        summary.rename_errors.append([jsm_path, f"{esm_path} already exists"])
 
     return esm_path
 
 
-def rename_jsms(command_context, vcs_utils, jsms):
+def rename_jsms(command_context, vcs_utils, jsms, summary):
     esms = []
     for jsm in jsms:
-        esm = rename_single_file(command_context, vcs_utils, jsm)
+        esm = rename_single_file(command_context, vcs_utils, jsm, summary)
         esms.append(esm)
 
     return esms
@@ -531,34 +572,19 @@ def setup_jscodeshift():
     subprocess.run(cmd, check=True)
 
 
-def convert_module(command_context, jsms):
-    """Replace EXPORTED_SYMBOLS with export declarations, and replace
-    ChromeUtils.importESModule with static import as much as possible,
-    and return the list of successfully rewritten files."""
-
-    def warn(text):
-        command_context.log(logging.WARN, "tb-esmify", {}, f"[WARN] {text}")
-
-    if len(jsms) == 0:
-        return []
-
-    env = os.environ.copy()
-    env["ESMIFY_MAP_JSON"] = MAP_JSON
+def run_npm_command(args, env, stdin):
     cmd = [
         sys.executable,
         "../mach",
         "npm",
         "run",
-        "convert_module",
-        "--prefix",
-        str(npm_prefix),
-    ]
+    ] + args
     p = subprocess.Popen(cmd, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    p.stdin.write("\n".join(map(str, paths_from_npm_prefix(jsms))).encode())
+    p.stdin.write(stdin)
     p.stdin.close()
 
     ok_files = []
-    error_files = []
+    errors = []
     while True:
         line = p.stdout.readline()
         if not line:
@@ -570,30 +596,59 @@ def convert_module(command_context, jsms):
 
         print(line)
 
-        m = re.search(r"^ (OKK|ERR) \.\.(/|\\)\.\.(/|\\)([^ ]+)", line)
+        m = re.search(r"^ (OKK|ERR) ([^ ]+)(?: (.+))?", line)
         if not m:
             continue
 
         result = m.group(1)
-        path = pathlib.Path(m.group(4))
+        # NOTE: path is written from `tools/esmify`.
+        path = pathlib.Path(m.group(2)).relative_to(path_from_npm_prefix)
+        error = m.group(3)
 
         if result == "OKK":
             ok_files.append(path)
-        else:
-            error_files.append(path)
+
+        if result == "ERR":
+            errors.append([path, error])
 
     if p.wait() != 0:
+        return [None, None]
+
+    return ok_files, errors
+
+
+def convert_module(jsms, summary):
+    """Replace EXPORTED_SYMBOLS with export declarations, and replace
+    ChromeUtils.importESModule with static import as much as possible,
+    and return the list of successfully rewritten files."""
+
+    if len(jsms) == 0:
+        return []
+
+    env = os.environ.copy()
+    env["ESMIFY_MAP_JSON"] = MAP_JSON
+
+    stdin = "\n".join(map(str, paths_from_npm_prefix(jsms))).encode()
+
+    ok_files, errors = run_npm_command(
+        [
+            "convert_module",
+            "--prefix",
+            str(npm_prefix),
+        ],
+        env=env,
+        stdin=stdin,
+    )
+
+    if ok_files is None and errors is None:
         return None
 
-    if len(error_files):
-        warn("Following files are not rewritten due to error:")
-        for path in error_files:
-            warn(f"  {path}")
+    summary.convert_errors.extend(errors)
 
     return ok_files
 
 
-def rewrite_imports(jss, prefix, upstream_imports=False):
+def rewrite_imports(jss, prefix, summary, upstream_imports=False):
     """Replace import calls for JSM with import calls for ESM or static import
     for ESM."""
 
@@ -604,40 +659,25 @@ def rewrite_imports(jss, prefix, upstream_imports=False):
     if not upstream_imports:
         env["ESMIFY_MAP_JSON"] = MAP_JSON
     env["ESMIFY_TARGET_PREFIX"] = prefix
-    cmd = [
-        sys.executable,
-        "../mach",
-        "npm",
-        "run",
-        "rewrite_imports",
-        "--prefix",
-        str(npm_prefix),
-    ]
-    p = subprocess.Popen(cmd, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    p.stdin.write("\n".join(map(str, paths_from_npm_prefix(jss))).encode())
-    p.stdin.close()
 
-    modified = []
-    while True:
-        line = p.stdout.readline()
-        if not line:
-            break
-        line = line.rstrip().decode()
+    stdin = "\n".join(map(str, paths_from_npm_prefix(jss))).encode()
 
-        if line.startswith(" NOC "):
-            continue
+    ok_files, errors = run_npm_command(
+        [
+            "rewrite_imports",
+            "--prefix",
+            str(npm_prefix),
+        ],
+        env=env,
+        stdin=stdin,
+    )
 
-        print(line)
-
-        if line.startswith(" OKK "):
-            # Modified file
-            path = pathlib.Path(line[5:])
-            modified.append(path.relative_to(path_from_npm_prefix))
-
-    if p.wait() != 0:
+    if ok_files is None and errors is None:
         return None
 
-    return modified
+    summary.import_errors.extend(errors)
+
+    return ok_files
 
 
 def paths_from_npm_prefix(paths):

@@ -4,7 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["CalTimezoneService"];
 
-var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { AppConstants } = ChromeUtils.importESModule("resource://gre/modules/AppConstants.sys.mjs");
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");

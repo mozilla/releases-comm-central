@@ -5,8 +5,8 @@
 /**
  * This tests that nsIFolderLookupService works according to specification.
  */
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
 );
 var kRootURI = "mailbox://nobody@Local%20Folders";
 

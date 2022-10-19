@@ -16,9 +16,7 @@
  *  https://www.anope.org/docgen/1.8/
  */
 
-const { setTimeout, clearTimeout } = ChromeUtils.import(
-  "resource://gre/modules/Timer.jsm"
-);
+import { setTimeout, clearTimeout } from "resource://gre/modules/Timer.sys.mjs";
 import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
 
 /*

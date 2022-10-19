@@ -384,29 +384,59 @@ var CalDAVServer = {
       return;
     }
 
-    let token = input.querySelector("sync-token").textContent.replace(/\D/g, "");
-    let propNames = this._inputProps(input);
+    // The maximum number of responses to make at any one request.
+    let pageSize = 3;
+    // The last-seen token. Changes before this won't be returned.
+    let token = 0;
+    // Which page of responses to return.
+    let page = 0;
 
-    let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
+    let tokenStr = input.querySelector("sync-token")?.textContent.replace(/.*\//g, "");
+    if (tokenStr?.includes("#")) {
+      [token, page] = tokenStr.split("#");
+      token = parseInt(token, 10);
+      page = parseInt(page, 10);
+    } else if (tokenStr) {
+      token = parseInt(tokenStr, 10);
+    }
+
+    let nextPage = page + 1;
+
+    // Collect all responses, even if we know some won't be returned.
+    // This is a test, who cares about performance?
+    let propNames = this._inputProps(input);
+    let responses = [];
     for (let [href, item] of this.items) {
       if (item.changed > token) {
-        output += this._itemResponse(href, item, propNames);
+        responses.push(this._itemResponse(href, item, propNames));
       }
     }
     for (let [href, deleted] of this.deletedItems) {
       if (deleted > token) {
-        output += `<response>
+        responses.push(`<response>
           <status>HTTP/1.1 404 Not Found</status>
           <href>${href}</href>
           <propstat>
             <prop/>
             <status>HTTP/1.1 418 I'm a teapot</status>
           </propstat>
-        </response>`;
+        </response>`);
       }
     }
-    output += `<sync-token>http://mochi.test/sync/${this.changeCount}</sync-token>
-    </multistatus>`;
+
+    let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
+    // Use only the responses that match those requested.
+    output += responses.slice(page * pageSize, nextPage * pageSize).join("");
+    if (responses.length > nextPage * pageSize) {
+      output += `<response>
+          <status>HTTP/1.1 507 Insufficient Storage</status>
+          <href>${this.path}</href>
+        </response>`;
+      output += `<sync-token>http://mochi.test/sync/${token}#${nextPage}</sync-token>`;
+    } else {
+      output += `<sync-token>http://mochi.test/sync/${this.changeCount}</sync-token>`;
+    }
+    output += `</multistatus>`;
 
     response.setStatusLine("1.1", 207, "Multi-Status");
     response.setHeader("Content-Type", "text/xml");

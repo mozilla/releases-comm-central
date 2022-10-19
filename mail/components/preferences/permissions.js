@@ -5,8 +5,8 @@
 // toolkit/content/treeUtils.js
 /* globals gTreeUtils */
 
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
 );
 
 var NOTIFICATION_FLUSH_PERMISSIONS = "flush-pending-permissions";

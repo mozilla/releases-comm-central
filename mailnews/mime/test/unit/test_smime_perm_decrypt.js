@@ -23,7 +23,9 @@ var { SmimeUtils } = ChromeUtils.import(
 const { EnigmailPersistentCrypto } = ChromeUtils.import(
   "chrome://openpgp/content/modules/persistentCrypto.jsm"
 );
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+var { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
 
 let gCertValidityResult = 0;
 

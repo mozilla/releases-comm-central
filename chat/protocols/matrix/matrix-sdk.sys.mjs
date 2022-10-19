@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { console } = ChromeUtils.import("resource://gre/modules/Console.jsm");
-const {
+import { console } from "resource://gre/modules/Console.sys.mjs";
+import {
   clearInterval,
   clearTimeout,
   setInterval,
   setTimeout,
-} = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+} from "resource://gre/modules/Timer.sys.mjs";
 import { scriptError } from "resource:///modules/imXPCOMUtils.sys.mjs";
 
 const { Loader, Require, Module } = ChromeUtils.import(
