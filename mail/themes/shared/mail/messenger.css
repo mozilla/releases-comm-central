@@ -4,6 +4,7 @@
 
 @import url("chrome://global/skin/global.css");
 @import url("chrome://messenger/content/webextensions.css");
+@import url("chrome://messenger/skin/autocomplete.css");
 @import url("chrome://messenger/skin/variables.css");
 
 @namespace xul url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");

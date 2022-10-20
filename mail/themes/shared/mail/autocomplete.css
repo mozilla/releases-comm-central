@@ -1,0 +1,23 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#PopupAutoComplete > richlistbox > richlistitem {
+  min-height: 20px;
+  border: 0;
+  border-radius: 0;
+  padding: 0 1px;
+}
+
+#PopupAutoComplete > richlistbox > richlistitem > .ac-site-icon {
+  margin-inline: 4px 0;
+}
+
+#PopupAutoComplete > richlistbox > richlistitem > .ac-title {
+  font: icon;
+  margin-inline-start: 4px;
+}
+
+#PopupAutoComplete > richlistbox {
+  padding: 0;
+}
