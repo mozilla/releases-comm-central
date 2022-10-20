@@ -33,6 +33,10 @@
   min-height: var(--tab-min-height);
 }
 
+#tabmail-arrowscrollbox::part(scrollbox-clip) {
+  contain: inline-size;
+}
+
 #tabpanelcontainer {
   min-height: 0;
 }
@@ -51,6 +55,9 @@
   margin: 0;
   margin-inline-end: 1px;
   padding: 0;
+  max-width: var(--tab-max-width);
+  min-width: var(--tab-min-width);
+  width: 0;
 }
 
 /* The selected tab should appear above adjacent tabs and the highlight
@@ -64,6 +71,7 @@
   padding-inline: 9px;
   display: flex;
   align-items: center;
+  min-width: 0;
 }
 
 .tab-content > :is(.tab-throbber, .tab-icon-image, .tab-close-button) {
