@@ -3,108 +3,127 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
+  --color-red-10: rgb(254, 226, 226);
+  --color-red-20: rgb(254, 202, 202);
+  --color-red-30: rgb(252, 165, 165);
+  --color-red-40: rgb(248, 113, 113);
+  --color-red-50: rgb(239, 68, 68);
+  --color-red-60: rgb(220, 38, 38);
+  --color-red-70: rgb(185, 28, 28);
+  --color-red-80: rgb(153, 27, 27);
+  --color-red-90: rgb(127, 29, 29);
+
+  --color-orange-10: rgb(255, 237, 213);
+  --color-orange-20: rgb(254, 215, 170);
+  --color-orange-30: rgb(253, 186, 116);
+  --color-orange-40: rgb(251, 146, 60);
+  --color-orange-50: rgb(249, 115, 22);
+  --color-orange-60: rgb(234, 88, 12);
+  --color-orange-70: rgb(194, 65, 12);
+  --color-orange-80: rgb(154, 52, 18);
+  --color-orange-90: rgb(124, 45, 18);
+
+  --color-amber-10: rgb(254, 243, 199);
+  --color-amber-20: rgb(253, 230, 138);
+  --color-amber-30: rgb(252, 211, 77);
+  --color-amber-40: rgb(251, 191, 36);
+  --color-amber-50: rgb(245, 158, 11);
+  --color-amber-60: rgb(217, 119, 6);
+  --color-amber-70: rgb(180, 83, 9);
+  --color-amber-80: rgb(146, 64, 14);
+  --color-amber-90: rgb(120, 53, 15);
+
+  --color-yellow-10: rgb(254, 249, 195);
+  --color-yellow-20: rgb(254, 240, 138);
+  --color-yellow-30: rgb(253, 224, 71);
+  --color-yellow-40: rgb(250, 204, 21);
+  --color-yellow-50: rgb(234, 179, 8);
+  --color-yellow-60: rgb(202, 138, 4);
+  --color-yellow-70: rgb(161, 98, 7);
+  --color-yellow-80: rgb(133, 77, 14);
+  --color-yellow-90: rgb(113, 63, 18);
+
+  --color-green-10: rgb(220, 252, 231);
+  --color-green-20: rgb(187, 247, 208);
+  --color-green-30: rgb(134, 239, 172);
+  --color-green-40: rgb(74, 222, 128);
+  --color-green-50: rgb(34, 197, 94);
+  --color-green-60: rgb(22, 163, 74);
+  --color-green-70: rgb(21, 128, 61);
+  --color-green-80: rgb(22, 101, 52);
+  --color-green-90: rgb(20, 83, 45);
+
+  --color-teal-10: rgb(205, 250, 247);
+  --color-teal-20: rgb(159, 244, 240);
+  --color-teal-30: rgb(98, 233, 230);
+  --color-teal-40: rgb(39, 211, 214);
+  --color-teal-50: rgb(13, 183, 189);
+  --color-teal-60: rgb(10, 146, 157);
+  --color-teal-70: rgb(14, 117, 127);
+  --color-teal-80: rgb(19, 94, 103);
+  --color-teal-90: rgb(20, 78, 86);
+
+  --color-blue-10: rgb(221, 238, 254);
+  --color-blue-20: rgb(188, 224, 253);
+  --color-blue-30: rgb(136, 204, 252);
+  --color-blue-40: rgb(76, 177, 249);
+  --color-blue-50: rgb(36, 147, 239);
+  --color-blue-60: rgb(19, 115, 217);
+  --color-blue-70: rgb(16, 91, 188);
+  --color-blue-80: rgb(18, 76, 154);
+  --color-blue-90: rgb(21, 66, 124);
+
+  --color-purple-10: rgb(243, 232, 255);
+  --color-purple-20: rgb(233, 213, 255);
+  --color-purple-30: rgb(216, 180, 254);
+  --color-purple-40: rgb(192, 132, 252);
+  --color-purple-50: rgb(168, 85, 247);
+  --color-purple-60: rgb(147, 51, 234);
+  --color-purple-70: rgb(126, 34, 206);
+  --color-purple-80: rgb(107, 33, 168);
+  --color-purple-90: rgb(88, 28, 135);
+
+  --color-magenta-10: rgb(251, 231, 249);
+  --color-magenta-20: rgb(248, 207, 243);
+  --color-magenta-30: rgb(244, 169, 232);
+  --color-magenta-40: rgb(238, 117, 215);
+  --color-magenta-50: rgb(226, 71, 196);
+  --color-magenta-60: rgb(205, 38, 165);
+  --color-magenta-70: rgb(176, 26, 134);
+  --color-magenta-80: rgb(145, 24, 110);
+  --color-magenta-90: rgb(121, 25, 92);
+
+  --color-brown-10: rgb(244, 233, 215);
+  --color-brown-20: rgb(239, 223, 196);
+  --color-brown-30: rgb(228, 205, 171);
+  --color-brown-40: rgb(215, 188, 150);
+  --color-brown-50: rgb(182, 152, 108);
+  --color-brown-60: rgb(150, 118, 75);
+  --color-brown-70: rgb(117, 91, 56);
+  --color-brown-80: rgb(81, 65, 44);
+  --color-brown-90: rgb(71, 52, 31);
+
+  --color-gray-05: rgb(250, 250, 250);
+  --color-gray-10: rgb(244, 244, 245);
+  --color-gray-20: rgb(228, 228, 231);
+  --color-gray-30: rgb(212, 212, 216);
+  --color-gray-40: rgb(161, 161, 170);
+  --color-gray-50: rgb(113, 113, 122);
+  --color-gray-60: rgb(82, 82, 91);
+  --color-gray-70: rgb(63, 63, 70);
+  --color-gray-80: rgb(39, 39, 42);
+  --color-gray-90: rgb(24, 24, 27);
+
+  --color-ink-10: rgb(241, 243, 250);
+  --color-ink-20: rgb(227, 229, 242);
+  --color-ink-30: rgb(205, 208, 229);
+  --color-ink-40: rgb(155, 158, 194);
+  --color-ink-50: rgb(110, 111, 155);
+  --color-ink-60: rgb(82, 80, 124);
+  --color-ink-70: rgb(62, 60, 103);
+  --color-ink-80: rgb(42, 40, 75);
+  --color-ink-90: rgb(26, 24, 56);
+
   --color-white: rgb(255, 255, 255);
-  --color-gray-10: rgb(249, 249, 250);
-  --color-gray-20: rgb(237, 237, 240);
-  --color-gray-30: rgb(215, 215, 219);
-  --color-gray-40: rgb(177, 177, 179);
-  --color-gray-50: rgb(115, 115, 115);
-  --color-gray-60: rgb(074, 074, 079);
-  --color-gray-70: rgb(056, 056, 061);
-  --color-gray-80: rgb(042, 042, 046);
-  --color-gray-90: rgb(012, 012, 013);
-
-  --color-red-30: rgb(249, 146, 152);
-  --color-red-40: rgb(255, 085, 095);
-  --color-red-50: rgb(255, 000, 057);
-  --color-red-60: rgb(215, 000, 034);
-  --color-red-70: rgb(164, 000, 015);
-  --color-red-80: rgb(090, 000, 002);
-  --color-red-90: rgb(062, 002, 000);
-
-  --color-orange-30: rgb(255, 190, 100);
-  --color-orange-40: rgb(255, 172, 056);
-  --color-orange-50: rgb(255, 148, 000);
-  --color-orange-60: rgb(215, 110, 000);
-  --color-orange-70: rgb(164, 073, 000);
-  --color-orange-80: rgb(113, 043, 000);
-  --color-orange-90: rgb(062, 019, 000);
-
-  --color-amber-30: rgb(255, 229, 163);
-  --color-amber-40: rgb(255, 218, 097);
-  --color-amber-50: rgb(255, 204, 000);
-  --color-amber-60: rgb(236, 171, 000);
-  --color-amber-70: rgb(177, 106, 000);
-  --color-amber-80: rgb(126, 076, 000);
-  --color-amber-90: rgb(062, 033, 000);
-
-  --color-yellow-30: rgb(255, 250, 197);
-  --color-yellow-40: rgb(255, 243, 118);
-  --color-yellow-50: rgb(255, 233, 000);
-  --color-yellow-60: rgb(215, 182, 000);
-  --color-yellow-70: rgb(164, 127, 000);
-  --color-yellow-80: rgb(113, 081, 000);
-  --color-yellow-90: rgb(062, 040, 000);
-
-  --color-green-30: rgb(171, 247, 155);
-  --color-green-40: rgb(134, 233, 114);
-  --color-green-50: rgb(048, 230, 011);
-  --color-green-60: rgb(018, 188, 000);
-  --color-green-70: rgb(005, 139, 000);
-  --color-green-80: rgb(000, 101, 004);
-  --color-green-90: rgb(000, 055, 006);
-
-  --color-teal-30: rgb(176, 255, 255);
-  --color-teal-40: rgb(000, 254, 255);
-  --color-teal-50: rgb(000, 237, 245);
-  --color-teal-60: rgb(000, 200, 215);
-  --color-teal-70: rgb(000, 142, 164);
-  --color-teal-80: rgb(000, 090, 113);
-  --color-teal-90: rgb(000, 045, 062);
-
-  --color-blue-00: rgb(201, 227, 255);
-  --color-blue-10: rgb(163, 209, 255);
-  --color-blue-20: rgb(133, 194, 255);
-  --color-blue-30: rgb(102, 177, 255);
-  --color-blue-40: rgb(069, 161, 255);
-  --color-blue-50: rgb(010, 132, 255);
-  --color-blue-60: rgb(000, 096, 223);
-  --color-blue-70: rgb(000, 062, 170);
-  --color-blue-80: rgb(000, 034, 117);
-  --color-blue-90: rgb(000, 015, 064);
-
-  --color-purple-00: rgb(229, 199, 255);
-  --color-purple-10: rgb(217, 168, 255);
-  --color-purple-20: rgb(207, 143, 255);
-  --color-purple-30: rgb(192, 105, 255);
-  --color-purple-40: rgb(173, 059, 255);
-  --color-purple-50: rgb(148, 000, 255);
-  --color-purple-60: rgb(128, 000, 215);
-  --color-purple-70: rgb(098, 000, 164);
-  --color-purple-80: rgb(068, 000, 113);
-  --color-purple-90: rgb(037, 000, 062);
-
-  --color-magenta-30: rgb(255, 182, 243);
-  --color-magenta-40: rgb(255, 131, 234);
-  --color-magenta-50: rgb(255, 026, 217);
-  --color-magenta-60: rgb(237, 000, 181);
-  --color-magenta-70: rgb(181, 000, 127);
-  --color-magenta-80: rgb(125, 000, 079);
-  --color-magenta-90: rgb(068, 000, 039);
-
-  --color-brown-30: rgb(244, 233, 215);
-  --color-brown-40: rgb(239, 223, 196);
-  --color-brown-50: rgb(215, 188, 150);
-  --color-brown-60: rgb(182, 152, 108);
-  --color-brown-70: rgb(150, 118, 075);
-  --color-brown-80: rgb(114, 085, 052);
-  --color-brown-90: rgb(071, 052, 031);
-
-  --color-ink-30: rgb(192, 194, 214);
-  --color-ink-40: rgb(171, 172, 192);
-  --color-ink-50: rgb(138, 140, 160);
-  --color-ink-60: rgb(087, 090, 119);
-  --color-ink-70: rgb(054, 057, 089);
-  --color-ink-80: rgb(032, 035, 064);
-  --color-ink-90: rgb(15, 017, 038);
+  --color-black: rgb(0, 0, 0);
  }
