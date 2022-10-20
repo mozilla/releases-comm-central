@@ -76,6 +76,7 @@
 #include "nsIObserverService.h"
 #include "nsIProtocolHandler.h"
 #include "nsContentUtils.h"
+#include "nsStreamUtils.h"
 #include "nsIFileURL.h"
 #include "nsTextNode.h"  // from dom/base
 #include "nsIParserUtils.h"
@@ -3649,7 +3650,7 @@ nsresult nsMsgCompose::LoadDataFromFile(nsIFile* file, nsString& sigData,
   nsAutoCString readStr(readBuf, (int32_t)fileSize);
   PR_FREEIF(readBuf);
 
-  // XXX: ^^^ could really use nsContentUtils::SlurpFileToString instead!
+  // XXX: ^^^ could really use SlurpFileToString instead!
 
   if (NS_FAILED(nsMsgI18NConvertToUnicode(sigEncoding, readStr, sigData)))
     CopyASCIItoUTF16(readStr, sigData);
@@ -3740,7 +3741,7 @@ nsresult nsMsgCompose::DataURLForFileURL(const nsAString& aFileURL,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString data;
-  rv = nsContentUtils::SlurpFileToString(file, data);
+  rv = nsMsgCompose::SlurpFileToString(file, data);
   NS_ENSURE_SUCCESS(rv, rv);
 
   aDataURL.AssignLiteral("data:");
@@ -3765,6 +3766,44 @@ nsresult nsMsgCompose::DataURLForFileURL(const nsAString& aFileURL,
   nsDependentCString base64data(result);
   NS_ENSURE_SUCCESS(rv, rv);
   AppendUTF8toUTF16(base64data, aDataURL);
+  return NS_OK;
+}
+
+nsresult nsMsgCompose::SlurpFileToString(nsIFile* aFile,
+                                           nsACString& aString) {
+  aString.Truncate();
+
+  nsCOMPtr<nsIURI> fileURI;
+  nsresult rv = NS_NewFileURI(getter_AddRefs(fileURI), aFile);
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+
+  nsCOMPtr<nsIChannel> channel;
+  rv = NS_NewChannel(getter_AddRefs(channel), fileURI,
+                     nsContentUtils::GetSystemPrincipal(),
+                     nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+                     nsIContentPolicy::TYPE_OTHER);
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+
+  nsCOMPtr<nsIInputStream> stream;
+  rv = channel->Open(getter_AddRefs(stream));
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+
+  rv = NS_ConsumeStream(stream, UINT32_MAX, aString);
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+
+  rv = stream->Close();
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+
   return NS_OK;
 }
 

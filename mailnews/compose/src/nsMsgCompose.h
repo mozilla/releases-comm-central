@@ -89,6 +89,14 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
   nsresult ReplaceFileURLs(nsString& sigData);
   nsresult DataURLForFileURL(const nsAString& aFileURL, nsAString& aDataURL);
 
+  /**
+   * Given an nsIFile, attempts to read it into aString.
+   *
+   * Note: Use sparingly! This causes main-thread I/O, which causes jank and all
+   * other bad things.
+   */
+  static nsresult SlurpFileToString(nsIFile* aFile, nsACString& aString);
+
 // 3 = To, Cc, Bcc
 #define MAX_OF_RECIPIENT_ARRAY 3
   typedef nsTArray<nsMsgRecipient> RecipientsArray[MAX_OF_RECIPIENT_ARRAY];
