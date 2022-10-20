@@ -1175,6 +1175,110 @@ export var Policies = {
     },
   },
 
+  SearchEngines: {
+    onBeforeUIStartup(manager, param) {
+      if (param.PreventInstalls) {
+        manager.disallowFeature("installSearchEngine", true);
+      }
+    },
+    onAllWindowsRestored(manager, param) {
+      Services.search.init().then(async () => {
+        // Adding of engines is handled by the SearchService in the init().
+        // Remove can happen after those are added - no engines are allowed
+        // to replace the application provided engines, even if they have been
+        // removed.
+        if (param.Remove) {
+          // Only rerun if the list of engine names has changed.
+          await runOncePerModification(
+            "removeSearchEngines",
+            JSON.stringify(param.Remove),
+            async function() {
+              for (let engineName of param.Remove) {
+                let engine = Services.search.getEngineByName(engineName);
+                if (engine) {
+                  try {
+                    await Services.search.removeEngine(engine);
+                  } catch (ex) {
+                    lazy.log.error("Unable to remove the search engine", ex);
+                  }
+                }
+              }
+            }
+          );
+        }
+        if (param.Default) {
+          await runOncePerModification(
+            "setDefaultSearchEngine",
+            param.Default,
+            async () => {
+              let defaultEngine;
+              try {
+                defaultEngine = Services.search.getEngineByName(param.Default);
+                if (!defaultEngine) {
+                  throw new Error("No engine by that name could be found");
+                }
+              } catch (ex) {
+                lazy.log.error(
+                  `Search engine lookup failed when attempting to set ` +
+                    `the default engine. Requested engine was ` +
+                    `"${param.Default}".`,
+                  ex
+                );
+              }
+              if (defaultEngine) {
+                try {
+                  await Services.search.setDefault(
+                    defaultEngine,
+                    Ci.nsISearchService.CHANGE_REASON_ENTERPRISE
+                  );
+                } catch (ex) {
+                  lazy.log.error("Unable to set the default search engine", ex);
+                }
+              }
+            }
+          );
+        }
+        if (param.DefaultPrivate) {
+          await runOncePerModification(
+            "setDefaultPrivateSearchEngine",
+            param.DefaultPrivate,
+            async () => {
+              let defaultPrivateEngine;
+              try {
+                defaultPrivateEngine = Services.search.getEngineByName(
+                  param.DefaultPrivate
+                );
+                if (!defaultPrivateEngine) {
+                  throw new Error("No engine by that name could be found");
+                }
+              } catch (ex) {
+                lazy.log.error(
+                  `Search engine lookup failed when attempting to set ` +
+                    `the default private engine. Requested engine was ` +
+                    `"${param.DefaultPrivate}".`,
+                  ex
+                );
+              }
+              if (defaultPrivateEngine) {
+                try {
+                  await Services.search.setDefaultPrivate(
+                    defaultPrivateEngine,
+                    Ci.nsISearchService.CHANGE_REASON_ENTERPRISE
+                  );
+                } catch (ex) {
+                  lazy.log.error(
+                    "Unable to set the default private search engine",
+                    ex
+                  );
+                }
+              }
+            }
+          );
+        }
+      });
+    },
+  },
+
   SSLVersionMax: {
     onBeforeAddons(manager, param) {
       let tlsVersion;
