@@ -423,7 +423,7 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
   nsMimeOutputType newType = mOutputType;
   if (!mAlreadyKnowOutputType) {
     nsAutoCString urlSpec;
-    rv = aURI->GetSpec(urlSpec);
+    rv = aURI->GetSpecIgnoringRef(urlSpec);
     DetermineOutputFormat(urlSpec.get(), &newType);
     mAlreadyKnowOutputType = true;
     mOutputType = newType;
