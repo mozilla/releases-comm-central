@@ -147,11 +147,13 @@ FeedParser.prototype = {
     tags = this.childrenByTagNameNS(channel, nsURI, "link");
     aFeed.link = this.validLink(this.getNodeValue(tags ? tags[0] : null));
 
-    if (!(aFeed.title || aFeed.description) || !aFeed.link) {
+    if (!(aFeed.title || aFeed.description)) {
       lazy.FeedUtils.log.error(
         "FeedParser.parseAsRSS2: missing mandatory element " +
-          "<title> and <description>, or <link>"
+          "<title> and <description>"
       );
+      // The RSS2 spec requires a <link> as well, but we can do without it
+      // so ignore the case of (valid) link missing.
       aFeed.onParseError(aFeed);
       return [];
     }
