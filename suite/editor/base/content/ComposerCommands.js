@@ -1234,7 +1234,7 @@ var gEditorOutputProgressListener = {
 
             // Clear transaction cache since we just did a potentially
             //  very large insert and this will eat up memory
-            editor.transactionManager.clear();
+            editor.clearUndoRedo();
           } catch (e) {}
         }
 

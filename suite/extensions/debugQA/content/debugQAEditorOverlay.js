@@ -178,27 +178,6 @@ sampleJSTransaction.prototype = {
   }
 }
 
-function ExecuteJSTransactionViaTxmgr()
-{
-  try {
-    var editor = GetCurrentEditor();
-    var txmgr = editor.transactionManager;
-    txmgr = txmgr.QueryInterface(Ci.nsITransactionManager);
-
-    var selection = editor.selection;
-    var range =  selection.getRangeAt(0);
-
-    var txn = new sampleJSTransaction();
-
-    txn.mContainer = range.startContainer;
-    txn.mOffset = range.startOffset;
-
-    txmgr.doTransaction(txn);
-  } catch (e) {
-    dump("ExecuteJSTransactionViaTxmgr() failed!");
-  }
-}
-
 function ExecuteJSTransactionViaEditor()
 {
   try {

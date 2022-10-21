@@ -34,8 +34,6 @@
         <menuitem label="&testDocumentCmd.label;"
                   oncommand="EditorTestDocument()"/>
         <menuseparator/>
-        <menuitem label="&executeJSTransactionViaTxmgr.label;"
-                  oncommand="ExecuteJSTransactionViaTxmgr()"/>
         <menuitem label="&executeJSTransactionViaEditor.label;"
                   oncommand="ExecuteJSTransactionViaEditor()"/>
         <menuseparator/>
