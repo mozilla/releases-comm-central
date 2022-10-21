@@ -70,7 +70,6 @@ menulist::part(icon) {
 
 #addressingWidget {
   -moz-user-focus: none;
-  width: 0;
 }
 
 .dummy-row,
