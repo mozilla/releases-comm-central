@@ -3769,8 +3769,7 @@ nsresult nsMsgCompose::DataURLForFileURL(const nsAString& aFileURL,
   return NS_OK;
 }
 
-nsresult nsMsgCompose::SlurpFileToString(nsIFile* aFile,
-                                           nsACString& aString) {
+nsresult nsMsgCompose::SlurpFileToString(nsIFile* aFile, nsACString& aString) {
   aString.Truncate();
 
   nsCOMPtr<nsIURI> fileURI;
