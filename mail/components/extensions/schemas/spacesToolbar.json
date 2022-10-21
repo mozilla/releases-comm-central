@@ -33,7 +33,7 @@
               }
             ],
             "optional": true,
-            "description": "The icon for the button in the spaces toolbar. Defaults to the extension icon, if set to an empty string."
+            "description": "The paths to one or more icons for the button in the spaces toolbar. Defaults to the extension icon, if set to an empty string."
           },
           "themeIcons": {
             "type": "array",

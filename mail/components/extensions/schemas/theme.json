@@ -160,7 +160,7 @@
               "tab_text": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "The text color for the selected tab.  Defaults to the color specified by ``toolbar_text``."
+                "description": "The text color for the selected tab. Defaults to the color specified by ``toolbar_text``."
               },
               "tab_line": {
                 "$ref": "ThemeColor",

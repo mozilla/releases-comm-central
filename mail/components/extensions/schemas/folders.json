@@ -195,7 +195,7 @@
         "permissions": [
           "accountsFolders"
         ],
-        "description": "Copies the given ``sourceFolder`` into the given ``destination``.  Throws if the destination already contains a folder with the name of the source folder.",
+        "description": "Copies the given ``sourceFolder`` into the given ``destination``. Throws if the destination already contains a folder with the name of the source folder.",
         "async": "callback",
         "parameters": [
           {

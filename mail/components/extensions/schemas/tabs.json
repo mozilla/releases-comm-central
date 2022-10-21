@@ -172,7 +172,7 @@
         "properties": {
           "urls": {
             "type": "array",
-            "description": "A list of URLs or URL patterns. Events that cannot match any of the URLs will be filtered out.  Filtering with urls requires the <permission>tabs</permission> or  <permission>activeTab</permission> permission.",
+            "description": "A list of URLs or URL patterns. Events that cannot match any of the URLs will be filtered out. Filtering with urls requires the <permission>tabs</permission> or  <permission>activeTab</permission> permission.",
             "optional": true,
             "items": {
               "type": "string"
@@ -285,7 +285,7 @@
       {
         "name": "sendMessage",
         "type": "function",
-        "description": "Sends a single message to the content script(s) in the specified tab, with an optional callback to run when a response is sent back.  The `runtime.onMessage <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage>`_ event is fired in each content script running in the specified tab for the current extension.",
+        "description": "Sends a single message to the content script(s) in the specified tab, with an optional callback to run when a response is sent back. The `runtime.onMessage <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage>`_ event is fired in each content script running in the specified tab for the current extension.",
         "async": "responseCallback",
         "parameters": [
           {
@@ -436,7 +436,7 @@
               "highlighted": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the tabs are highlighted.  Works as an alias of active."
+                "description": "Whether the tabs are highlighted. Works as an alias of active."
               },
               "currentWindow": {
                 "type": "boolean",
