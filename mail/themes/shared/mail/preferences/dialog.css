@@ -35,6 +35,8 @@ window,
   color: var(--in-content-page-color);
   margin: 0;
   padding: 0;
+  min-width: 0;
+  min-height: 0;
 }
 
 body > dialog {
@@ -44,6 +46,16 @@ body > dialog {
 .contentPane.doScroll,
 dialog.doScroll::part(content-box) {
   overflow-y: auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+dialog.doScroll {
+  margin-inline: -4px;
+}
+
+dialog.doScroll::part(content-box) {
+  padding-inline: 4px;
 }
 
 tabbox {

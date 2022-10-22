@@ -375,7 +375,6 @@ toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolb
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker::part(icon),
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::part(icon) {
   width: 12px;
-  height: 12px;
 }
 
 /* Separator between menu and split type buttons */
