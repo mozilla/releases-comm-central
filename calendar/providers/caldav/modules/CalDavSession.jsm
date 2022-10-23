@@ -32,13 +32,12 @@ class CalDavGoogleOAuth extends OAuth2 {
    */
   constructor(sessionId, name) {
     /* eslint-disable no-undef */
-    super(
-      "https://accounts.google.com/o/oauth2/auth",
-      "https://www.googleapis.com/oauth2/v3/token",
-      "https://www.googleapis.com/auth/calendar",
-      OAUTH_CLIENT_ID,
-      OAUTH_HASH
-    );
+    super("https://www.googleapis.com/auth/calendar", {
+      authorizationEndpoint: "https://accounts.google.com/o/oauth2/auth",
+      tokenEndpoint: "https://www.googleapis.com/oauth2/v3/token",
+      clientId: OAUTH_CLIENT_ID,
+      clientSecret: OAUTH_HASH,
+    });
     /*  eslint-enable no-undef */
 
     this.id = sessionId;
@@ -63,9 +62,10 @@ class CalDavGoogleOAuth extends OAuth2 {
    */
   _maybeUpgrade() {
     if (!this.refreshToken) {
-      [this.clientId, this.consumerSecret] = lazy.OAuth2Providers.getIssuerDetails(
-        "accounts.google.com"
-      );
+      const issuerDetails = lazy.OAuth2Providers.getIssuerDetails("accounts.google.com");
+      this.clientId = issuerDetails.clientId;
+      this.consumerSecret = issuerDetails.clientSecret;
+
       this.origin = "oauth://accounts.google.com";
       this.pwMgrId = "https://www.googleapis.com/auth/calendar";
     }
@@ -269,7 +269,10 @@ class CalDavTestOAuth extends CalDavGoogleOAuth {
 
   _maybeUpgrade() {
     if (!this.refreshToken) {
-      [this.clientId, this.consumerSecret] = lazy.OAuth2Providers.getIssuerDetails("mochi.test");
+      const issuerDetails = lazy.OAuth2Providers.getIssuerDetails("mochi.test");
+      this.clientId = issuerDetails.clientId;
+      this.consumerSecret = issuerDetails.clientSecret;
+
       this.origin = "oauth://mochi.test";
       this.pwMgrId = "test_scope";
     }

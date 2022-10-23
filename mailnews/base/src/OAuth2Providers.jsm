@@ -50,14 +50,14 @@ var kHostnames = new Map([
     "outlook.office365.com",
     [
       "login.microsoftonline.com",
-      "https://outlook.office365.com/IMAP.AccessAsUser.All https://outlook.office365.com/POP.AccessAsUser.All https://outlook.office365.com/SMTP.Send offline_access",
+      "https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/POP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access",
     ],
   ],
   [
     "smtp.office365.com",
     [
       "login.microsoftonline.com",
-      "https://outlook.office365.com/IMAP.AccessAsUser.All https://outlook.office365.com/POP.AccessAsUser.All https://outlook.office365.com/SMTP.Send offline_access",
+      "https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/POP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access",
     ],
   ],
 
@@ -79,70 +79,81 @@ var kHostnames = new Map([
 var kIssuers = new Map([
   [
     "accounts.google.com",
-    [
-      "406964657835-aq8lmia8j95dhl1a2bvharmfk3t1hgqj.apps.googleusercontent.com",
-      "kSmqreRr0qwBWJgbf5Y-PjSU",
-      "https://accounts.google.com/o/oauth2/auth",
-      "https://www.googleapis.com/oauth2/v3/token",
-    ],
+    {
+      clientId:
+        "406964657835-aq8lmia8j95dhl1a2bvharmfk3t1hgqj.apps.googleusercontent.com",
+      clientSecret: "kSmqreRr0qwBWJgbf5Y-PjSU",
+      authorizationEndpoint: "https://accounts.google.com/o/oauth2/auth",
+      tokenEndpoint: "https://www.googleapis.com/oauth2/v3/token",
+    },
   ],
   [
     "o2.mail.ru",
-    [
-      "thunderbird",
-      "I0dCAXrcaNFujaaY",
-      "https://o2.mail.ru/login",
-      "https://o2.mail.ru/token",
-    ],
+    {
+      clientId: "thunderbird",
+      clientSecret: "I0dCAXrcaNFujaaY",
+      authorizationEndpoint: "https://o2.mail.ru/login",
+      tokenEndpoint: "https://o2.mail.ru/token",
+    },
   ],
   [
     "oauth.yandex.com",
-    [
-      "2a00bba7374047a6ab79666485ffce31",
-      "3ded85b4ec574c2187a55dc49d361280",
-      "https://oauth.yandex.com/authorize",
-      "https://oauth.yandex.com/token",
-    ],
+    {
+      clientId: "2a00bba7374047a6ab79666485ffce31",
+      clientSecret: "3ded85b4ec574c2187a55dc49d361280",
+      authorizationEndpoint: "https://oauth.yandex.com/authorize",
+      tokenEndpoint: "https://oauth.yandex.com/token",
+    },
   ],
   [
     "login.yahoo.com",
-    [
-      "dj0yJmk9NUtCTWFMNVpTaVJmJmQ9WVdrOVJ6UjVTa2xJTXpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD0yYw--",
-      "f2de6a30ae123cdbc258c15e0812799010d589cc",
-      "https://api.login.yahoo.com/oauth2/request_auth",
-      "https://api.login.yahoo.com/oauth2/get_token",
-    ],
+    {
+      clientId:
+        "dj0yJmk9NUtCTWFMNVpTaVJmJmQ9WVdrOVJ6UjVTa2xJTXpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD0yYw--",
+      clientSecret: "f2de6a30ae123cdbc258c15e0812799010d589cc",
+      authorizationEndpoint: "https://api.login.yahoo.com/oauth2/request_auth",
+      tokenEndpoint: "https://api.login.yahoo.com/oauth2/get_token",
+    },
   ],
   [
     "login.aol.com",
-    [
-      "dj0yJmk9OXRHc1FqZHRQYzVvJmQ9WVdrOU1UQnJOR0pvTjJrbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD02NQ--",
-      "79c1c11991d148ddd02a919000d69879942fc278",
-      "https://api.login.aol.com/oauth2/request_auth",
-      "https://api.login.aol.com/oauth2/get_token",
-    ],
+    {
+      clientId:
+        "dj0yJmk9OXRHc1FqZHRQYzVvJmQ9WVdrOU1UQnJOR0pvTjJrbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD02NQ--",
+      clientSecret: "79c1c11991d148ddd02a919000d69879942fc278",
+      authorizationEndpoint: "https://api.login.aol.com/oauth2/request_auth",
+      tokenEndpoint: "https://api.login.aol.com/oauth2/get_token",
+    },
   ],
 
   [
     "login.microsoftonline.com",
-    [
-      "08162f7c-0fd2-4200-a84a-f25a4db0b584", // Application (client) ID
-      "TxRBilcHdC6WGBee]fs?QR:SJ8nI[g82", // @see App registrations | Certificates & secrets
+    {
+      clientId: "9e5f94bc-e8a4-4e73-b8be-63364c29d753", // Application (client) ID
       // https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols#endpoints
-      "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
-      "https://login.microsoftonline.com/common/oauth2/v2.0/token",
-    ],
+      authorizationEndpoint:
+        "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+      tokenEndpoint:
+        "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+      redirectionEndpoint: "https://localhost",
+    },
   ],
 
   // For testing purposes.
   [
     "mochi.test",
-    [
-      "test_client_id",
-      "test_secret",
-      "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/redirect_auto.sjs",
-      "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/token.sjs",
-    ],
+    {
+      clientId: "test_client_id",
+      clientSecret: "test_secret",
+      authorizationEndpoint:
+        "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/redirect_auto.sjs",
+      tokenEndpoint:
+        "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/token.sjs",
+      // I don't know why, but tests refuse to work with a plain HTTP endpoint
+      // (the request is redirected to HTTPS, which we're not listening to).
+      // Just use an HTTPS endpoint.
+      redirectionEndpoint: "https://localhost",
+    },
   ],
 ]);
 
