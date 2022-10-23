@@ -631,7 +631,6 @@ var PanelMultiView = class extends AssociatedToNode {
    *        subview when a "title" attribute is not specified.
    */
   showSubView(viewIdOrNode, anchor) {
-
     this._showSubView(viewIdOrNode, anchor).catch(Cu.reportError);
   }
   async _showSubView(viewIdOrNode, anchor) {
