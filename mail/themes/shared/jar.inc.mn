@@ -465,6 +465,7 @@
   skin/classic/messenger/avatars.css                          (../shared/mail/avatars.css)
   skin/classic/messenger/icons.css                            (../shared/mail/icons.css)
   skin/classic/messenger/colors.css                           (../shared/mail/colors.css)
+  skin/classic/messenger/folderColors.css                     (../shared/mail/folderColors.css)
 
   skin/classic/messenger/icons/new/compact/account-settings.svg (../shared/mail/icons/new/compact/account-settings.svg)
   skin/classic/messenger/icons/new/compact/add.svg            (../shared/mail/icons/new/compact/add.svg)

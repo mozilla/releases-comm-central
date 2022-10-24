@@ -10,8 +10,22 @@ var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 var gFolderTreeView;
 var gMsgFolder;
 var gLockedPref = null;
+const styles = getComputedStyle(document.body);
+const folderColors = {
+  Inbox: styles.getPropertyValue("--folder-color-inbox"),
+  Sent: styles.getPropertyValue("--folder-color-sent"),
+  Outbox: styles.getPropertyValue("--folder-color-outbox"),
+  Drafts: styles.getPropertyValue("--folder-color-draft"),
+  Trash: styles.getPropertyValue("--folder-color-trash"),
+  Archive: styles.getPropertyValue("--folder-color-archive"),
+  Templates: styles.getPropertyValue("--folder-color-template"),
+  Spam: styles.getPropertyValue("--folder-color-spam"),
+  Virtual: styles.getPropertyValue("--folder-color-folder-filter"),
+  RSS: styles.getPropertyValue("--folder-color-rss"),
+  Newsgroup: styles.getPropertyValue("--folder-color-newsletter"),
+};
 var kCurrentColor = "";
-var kDefaultColor = "#363959";
+var kDefaultColor = styles.getPropertyValue("--folder-color-folder");
 var gNeedToRestoreFolderSelection = false;
 
 window.addEventListener("DOMContentLoaded", folderPropsOnLoad);
@@ -270,6 +284,26 @@ function folderPropsOnLoad() {
       gMsgFolder.msgDatabase;
     } catch (e) {
       gMsgFolder.updateFolder(window.arguments[0].msgWindow);
+    }
+
+    // Check the current folder name against known folder names to set the
+    // correct default color, if needed.
+    let selectedFolderName = "";
+
+    switch (window.arguments[0].serverType) {
+      case "rss":
+        selectedFolderName = "RSS";
+        break;
+      case "nntp":
+        selectedFolderName = "Newsgroup";
+        break;
+      default:
+        selectedFolderName = window.arguments[0].name;
+        break;
+    }
+
+    if (Object.keys(folderColors).includes(selectedFolderName)) {
+      kDefaultColor = folderColors[selectedFolderName];
     }
 
     let colorInput = document.getElementById("color");
