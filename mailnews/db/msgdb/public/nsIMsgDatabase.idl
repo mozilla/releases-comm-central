@@ -321,11 +321,6 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   void MarkMDNNeeded(in nsMsgKey key, in boolean bNeeded,
                            in nsIDBChangeListener instigator);
 
-  // MarkMDNneeded only used when mail server is a POP3 server
-  // or when the IMAP server does not support user defined
-  // PERMANENTFLAGS
-  boolean IsMDNNeeded(in nsMsgKey key);
-
   void MarkMDNSent(in nsMsgKey key, in boolean bNeeded,
                          in nsIDBChangeListener instigator);
   boolean IsMDNSent(in nsMsgKey key);

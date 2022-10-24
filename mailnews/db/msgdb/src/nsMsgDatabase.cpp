@@ -2260,19 +2260,6 @@ NS_IMETHODIMP nsMsgDatabase::MarkMDNNeeded(
                     instigator);
 }
 
-NS_IMETHODIMP nsMsgDatabase::IsMDNNeeded(nsMsgKey key, bool* pNeeded) {
-  nsCOMPtr<nsIMsgDBHdr> msgHdr;
-
-  nsresult rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-  if (NS_FAILED(rv) || !msgHdr)
-    return NS_MSG_MESSAGE_NOT_FOUND;  // XXX return rv?
-
-  uint32_t flags;
-  (void)msgHdr->GetFlags(&flags);
-  *pNeeded = !!(flags & nsMsgMessageFlags::MDNReportNeeded);
-  return rv;
-}
-
 nsresult nsMsgDatabase::MarkMDNSent(
     nsMsgKey key, bool bSent, nsIDBChangeListener* instigator /* = NULL */) {
   return SetKeyFlag(key, bSent, nsMsgMessageFlags::MDNReportSent, instigator);
