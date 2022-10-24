@@ -313,8 +313,6 @@ menulist::part(dropmarker) {
 }
 
 menulist::part(dropmarker-icon) {
-  width: 16px;
-  height: 16px;
   -moz-context-properties: stroke;
   stroke: currentColor;
 }
