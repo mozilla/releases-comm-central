@@ -41,13 +41,13 @@ add_task(async function testAlarms() {
 add_task(async function testSyncChanges() {
   await syncChangesTest.setUp();
 
-  CalDAVServer.putItemInternal(
+  await CalDAVServer.putItemInternal(
     "ad0850e5-8020-4599-86a4-86c90af4e2cd.ics",
     syncChangesTest.part1Item
   );
   await syncChangesTest.runPart1();
 
-  CalDAVServer.putItemInternal(
+  await CalDAVServer.putItemInternal(
     "ad0850e5-8020-4599-86a4-86c90af4e2cd.ics",
     syncChangesTest.part2Item
   );
