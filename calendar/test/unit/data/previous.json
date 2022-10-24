@@ -1,5 +1,5 @@
 {
-  "version": "2.2022b",
+  "version": "2.2022d",
   "aliases": [
     "AUS Central Standard Time",
     "AUS Eastern Standard Time",
@@ -69,6 +69,8 @@
     "Etc/Zulu",
     "Europe/Belfast",
     "Europe/Kiev",
+    "Europe/Uzhgorod",
+    "Europe/Zaporozhye",
     "FLE Standard Time",
     "Fiji Standard Time",
     "GFT Standard Time",
@@ -544,7 +546,6 @@
     "Europe/Tallinn",
     "Europe/Tirane",
     "Europe/Ulyanovsk",
-    "Europe/Uzhgorod",
     "Europe/Vaduz",
     "Europe/Vatican",
     "Europe/Vienna",
@@ -552,7 +553,6 @@
     "Europe/Volgograd",
     "Europe/Warsaw",
     "Europe/Zagreb",
-    "Europe/Zaporozhye",
     "Europe/Zurich",
     "Indian/Antananarivo",
     "Indian/Chagos",
