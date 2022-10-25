@@ -26,7 +26,6 @@
 #include "plstr.h"
 #include "prmem.h"
 #include "nsIDocShell.h"
-#include "nsAbBaseCID.h"
 #include "nsCExternalHandlerService.h"
 #include "nsIMIMEService.h"
 #include "nsIDocShellTreeItem.h"
@@ -4240,7 +4239,7 @@ nsresult nsMsgCompose::GetABDirAndMailLists(
 
   nsresult rv;
   nsCOMPtr<nsIAbManager> abManager =
-      do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/abmanager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (aDirUri.Equals(kAllDirectoryRoot)) {

@@ -5,7 +5,6 @@
 #include "nsAbOutlookDirectory.h"
 #include "nsAbWinHelper.h"
 
-#include "nsAbBaseCID.h"
 #include "nsString.h"
 #include "nsAbDirectoryQuery.h"
 #include "nsIAbBooleanExpression.h"
@@ -424,7 +423,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::AddCard(nsIAbCard* aCard,
     }
     // The UID of the card is the top directory's UID.
     nsCOMPtr<nsIAbManager> abManager(
-        do_GetService(NS_ABMANAGER_CONTRACTID, &retCode));
+        do_GetService("@mozilla.org/abmanager;1", &retCode));
     NS_ENSURE_SUCCESS(retCode, retCode);
     retCode = abManager->GetDirectory(dirURI, getter_AddRefs(topDir));
     NS_ENSURE_SUCCESS(retCode, retCode);
@@ -549,7 +548,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::AddMailList(nsIAbDirectory* aMailList,
   nsAutoCString cardURI(kOutlookCardScheme);
   cardURI.Append(newEntryString);
   nsCOMPtr<nsIAbCard> newCard =
-      do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/addressbook/cardproperty;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   newCard->SetPropertyAsAUTF8String("OutlookEntryURI", cardURI);
 
@@ -599,7 +598,8 @@ NS_IMETHODIMP nsAbOutlookDirectory::EditMailListToDatabase(
   nsAutoCString topEntryString;
   int32_t slashPos = uri.RFindChar('/');
   uri.SetLength(slashPos);
-  nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
+  nsCOMPtr<nsIAbManager> abManager(
+      do_GetService("@mozilla.org/abmanager;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIAbDirectory> parent;
   rv = abManager->GetDirectory(uri, getter_AddRefs(parent));
@@ -753,8 +753,8 @@ NS_IMETHODIMP nsAbOutlookDirectory::Search(const nsAString& query,
 
   nsCOMPtr<nsIAbBooleanExpression> expression;
 
-  nsCOMPtr<nsIAbDirectoryQueryArguments> arguments =
-      do_CreateInstance(NS_ABDIRECTORYQUERYARGUMENTS_CONTRACTID, &retCode);
+  nsCOMPtr<nsIAbDirectoryQueryArguments> arguments = do_CreateInstance(
+      "@mozilla.org/addressbook/directory/query-arguments;1", &retCode);
   NS_ENSURE_SUCCESS(retCode, retCode);
 
   retCode = nsAbQueryStringToExpression::Convert(NS_ConvertUTF16toUTF8(query),
@@ -845,7 +845,7 @@ nsresult nsAbOutlookDirectory::GetCards(nsIMutableArray* aCards,
     // AddrBookManager. That relies on the fact that the top-level
     // directory is already in its map before being initialised.
     nsCOMPtr<nsIAbManager> abManager(
-        do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
+        do_GetService("@mozilla.org/abmanager;1", &rv));
     NS_ENSURE_SUCCESS(rv, rv);
     nsAutoCString dirURI(kOutlookDirectoryScheme);
     dirURI.Append(mParentEntryId);
@@ -896,7 +896,8 @@ nsresult nsAbOutlookDirectory::GetNodes(nsIMutableArray* aNodes) {
 
   nsresult rv = NS_OK;
 
-  nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
+  nsCOMPtr<nsIAbManager> abManager(
+      do_GetService("@mozilla.org/abmanager;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString topEntryString;
@@ -1270,7 +1271,7 @@ nsresult nsAbOutlookDirectory::OutlookCardForURI(const nsACString& aUri,
 
   nsresult rv;
   nsCOMPtr<nsIAbCard> card =
-      do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/addressbook/cardproperty;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   card->SetPropertyAsAUTF8String("OutlookEntryURI", aUri);

@@ -18,7 +18,6 @@
 #include "nsIImportABDescriptor.h"
 #include "nsIImportFieldMap.h"
 #include "nsIAbLDIFService.h"
-#include "nsAbBaseCID.h"
 #include "nsTextFormatter.h"
 #include "nsImportStringBundle.h"
 #include "nsTextAddress.h"
@@ -442,7 +441,7 @@ NS_IMETHODIMP ImportAddressImpl::GetNeedsFieldMap(nsIFile* aLocation,
 
   bool isLDIF = false;
   nsCOMPtr<nsIAbLDIFService> ldifService =
-      do_GetService(NS_ABLDIFSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/addressbook/abldifservice;1", &rv);
 
   if (NS_SUCCEEDED(rv)) rv = ldifService->IsLDIFFile(aLocation, &isLDIF);
 

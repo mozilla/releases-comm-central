@@ -8,7 +8,6 @@
 
 #include "mozilla/Attributes.h"
 #include "nsISupports.h"
-#include "nsAbBaseCID.h"
 #include "nsAbDirProperty.h"
 #include "nsIAbDirSearchListener.h"
 #include "nsIMutableArray.h"

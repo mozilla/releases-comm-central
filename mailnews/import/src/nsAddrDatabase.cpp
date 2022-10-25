@@ -6,7 +6,6 @@
 // this file implements the nsAddrDatabase interface using the MDB Interface.
 
 #include "nsAddrDatabase.h"
-#include "nsAbBaseCID.h"
 #include "nsMsgUtils.h"
 #include "nsIMdbFactoryFactory.h"
 #include "nsSimpleEnumerator.h"
@@ -788,7 +787,8 @@ nsresult nsAddrDatabase::CreateCard(nsIMdbRow* cardRow, mdb_id listRowID,
 
   if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIAbCard> personCard;
-    personCard = do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv);
+    personCard =
+        do_CreateInstance("@mozilla.org/addressbook/cardproperty;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     InitCardFromRow(personCard, cardRow);
@@ -825,7 +825,8 @@ nsresult nsAddrDatabase::CreateABListCard(nsIMdbRow* listRow,
   listURI = PR_smprintf("MailList%ld", rowID);
 
   nsCOMPtr<nsIAbCard> personCard;
-  personCard = do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv);
+  personCard =
+      do_CreateInstance("@mozilla.org/addressbook/cardproperty;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (personCard) {

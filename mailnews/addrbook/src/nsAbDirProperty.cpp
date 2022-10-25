@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsAbDirProperty.h"
-#include "nsAbBaseCID.h"
 #include "nsIAbCard.h"
 #include "nsIPrefService.h"
 #include "nsIPrefLocalizedString.h"
@@ -103,7 +102,7 @@ NS_IMETHODIMP nsAbDirProperty::SetDirName(const nsAString& aDirName) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbManager> abManager =
-      do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/abmanager;1", &rv);
 
   if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIObserverService> observerService =

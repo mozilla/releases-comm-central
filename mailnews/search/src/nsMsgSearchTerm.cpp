@@ -38,7 +38,6 @@
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgPluggableStore.h"
-#include "nsAbBaseCID.h"
 #include "nsIAbManager.h"
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
@@ -899,7 +898,7 @@ nsresult nsMsgSearchTerm::InitializeAddressBook() {
   }
   if (!mDirectory) {
     nsCOMPtr<nsIAbManager> abManager =
-        do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/abmanager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv =

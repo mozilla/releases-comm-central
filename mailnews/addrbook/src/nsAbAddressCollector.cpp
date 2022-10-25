@@ -7,7 +7,6 @@
 #include "nsISimpleEnumerator.h"
 
 #include "nsIAbCard.h"
-#include "nsAbBaseCID.h"
 #include "nsAbAddressCollector.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -42,7 +41,8 @@ already_AddRefed<nsIAbCard> nsAbAddressCollector::GetCardForAddress(
     const char* aProperty, const nsACString& aEmailAddress,
     nsIAbDirectory** aDirectory) {
   nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
+  nsCOMPtr<nsIAbManager> abManager(
+      do_GetService("@mozilla.org/abmanager;1", &rv));
   NS_ENSURE_SUCCESS(rv, nullptr);
 
   nsTArray<RefPtr<nsIAbDirectory>> directories;
@@ -117,7 +117,7 @@ nsAbAddressCollector::CollectSingleAddress(const nsACString& aEmail,
   }
 
   if (!card && (aCreateCard || aSkipCheckExisting)) {
-    card = do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv);
+    card = do_CreateInstance("@mozilla.org/addressbook/cardproperty;1", &rv);
     if (NS_SUCCEEDED(rv) && card) {
       // Set up the fields for the new card.
       SetNamesForCard(card, aDisplayName);
@@ -259,7 +259,8 @@ void nsAbAddressCollector::SetUpAbFromPrefs(nsIPrefBranch* aPrefBranch) {
   mABURI = abURI;
 
   nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
+  nsCOMPtr<nsIAbManager> abManager(
+      do_GetService("@mozilla.org/abmanager;1", &rv));
   NS_ENSURE_SUCCESS_VOID(rv);
 
   rv = abManager->GetDirectory(mABURI, getter_AddRefs(mDirectory));

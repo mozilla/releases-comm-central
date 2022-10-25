@@ -26,7 +26,6 @@
 #include "nsIPrompt.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIInterfaceRequestorUtils.h"
-#include "nsAbBaseCID.h"
 #include "nsIAbCard.h"
 #include "nsIAbDirectory.h"
 #include "nsISpamSettings.h"

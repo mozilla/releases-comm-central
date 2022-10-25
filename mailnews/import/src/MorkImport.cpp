@@ -16,7 +16,6 @@
 #include "nsIImportAddressBooks.h"
 #include "nsIImportABDescriptor.h"
 #include "nsIImportFieldMap.h"
-#include "nsAbBaseCID.h"
 #include "nsImportStringBundle.h"
 #include "nsIComponentManager.h"
 #include "nsIAbDirectory.h"

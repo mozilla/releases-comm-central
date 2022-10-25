@@ -10,7 +10,6 @@
 #include "nsISupportsPrimitives.h"
 #include "nsIImportABDescriptor.h"
 #include "nsIAbManager.h"
-#include "nsAbBaseCID.h"
 #include "nsImportStringBundle.h"
 #include "nsTextFormatter.h"
 #include "msgCore.h"
@@ -297,7 +296,7 @@ void nsImportGenericAddressBooks::SetLogs(nsString& success, nsString& error,
 already_AddRefed<nsIAbDirectory> GetAddressBookFromUri(const char* pUri) {
   if (!pUri) return nullptr;
 
-  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID);
+  nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1");
   if (!abManager) return nullptr;
 
   nsCOMPtr<nsIAbDirectory> directory;
@@ -319,7 +318,7 @@ already_AddRefed<nsIAbDirectory> GetAddressBook(nsString name, bool makeNew) {
   nsresult rv;
   nsCOMPtr<nsIAbDirectory> directory;
   nsCOMPtr<nsIAbManager> abManager =
-      do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/abmanager;1", &rv);
   if (NS_SUCCEEDED(rv)) {
     nsAutoCString dirPrefId;
     rv = abManager->NewAddressBook(name, EmptyCString(),
@@ -402,7 +401,8 @@ NS_IMETHODIMP nsImportGenericAddressBooks::BeginImport(
   m_pThreadData->stringBundle = m_stringBundle;
 
   nsresult rv;
-  m_pThreadData->ldifService = do_GetService(NS_ABLDIFSERVICE_CONTRACTID, &rv);
+  m_pThreadData->ldifService =
+      do_GetService("@mozilla.org/addressbook/abldifservice;1", &rv);
 
   ImportAddressThread(m_pThreadData);
   delete m_pThreadData;

@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsAbCardProperty.h"
-#include "nsAbBaseCID.h"
 #include "nsIPrefService.h"
 #include "nsIAbDirectory.h"
 #include "plbase64.h"
@@ -333,7 +332,7 @@ NS_IMETHODIMP nsAbCardProperty::SetUID(const nsACString& aUID) {
   }
 
   nsCOMPtr<nsIAbManager> abManager =
-      do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/abmanager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbDirectory> directory = nullptr;
@@ -517,7 +516,7 @@ NS_IMETHODIMP nsAbCardProperty::TranslateTo(const nsACString& type,
 nsresult nsAbCardProperty::ConvertToEscapedVCard(nsACString& aResult) {
   nsresult rv;
   nsCOMPtr<nsIMsgVCardService> vCardService =
-      do_GetService(NS_MSGVCARDSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/addressbook/msgvcardservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoString result;
@@ -656,7 +655,7 @@ nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString& aXMLSubstr) {
     xmlStr.AppendLiteral("</sectiontitle>");
 
     nsCOMPtr<nsIAbManager> abManager =
-        do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/abmanager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIAbDirectory> mailList = nullptr;

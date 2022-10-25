@@ -9,7 +9,6 @@
 #include "nsIFile.h"
 #include "nsIDirectoryEnumerator.h"
 #include "nsString.h"
-#include "nsAbBaseCID.h"
 #include "nsIImportService.h"
 #include "nsIImportABDescriptor.h"
 #include "nsMsgUtils.h"

@@ -19,7 +19,6 @@
 #include "mozilla/ArrayUtils.h"
 #include "nsIFile.h"
 
-#include "nsAbBaseCID.h"
 #include "nsIAbManager.h"
 #include "nsIAbDirectory.h"
 #include "../../../../mailnews/import/src/MorkImport.h"
@@ -1046,7 +1045,8 @@ nsresult nsSeamonkeyProfileMigrator::MigrateMABFile(
 
   nsresult rv;
 
-  nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
+  nsCOMPtr<nsIAbManager> abManager(
+      do_GetService("@mozilla.org/abmanager;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbDirectory> directory;

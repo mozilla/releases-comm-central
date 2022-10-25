@@ -24,7 +24,6 @@
 #include "nsDirectoryServiceUtils.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsISimpleEnumerator.h"
-#include "nsAbBaseCID.h"
 #include "nsIAbCard.h"
 #include "nsIAbManager.h"
 #include "nsIMsgAccountManager.h"
@@ -303,7 +302,7 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer* aServer) {
   mWhiteListDirArray.Clear();
   if (!mWhiteListAbURI.IsEmpty()) {
     nsCOMPtr<nsIAbManager> abManager(
-        do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
+        do_GetService("@mozilla.org/abmanager;1", &rv));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsTArray<nsCString> whiteListArray;
