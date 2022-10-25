@@ -33,7 +33,6 @@
 #include "nsIMsgFilterPlugin.h"
 #include "nsIMsgMailSession.h"
 #include "nsTextFormatter.h"
-#include "nsMsgDBCID.h"
 #include "nsReadLine.h"
 #include "nsLayoutCID.h"
 #include "nsIParserUtils.h"
@@ -329,7 +328,7 @@ NS_IMETHODIMP nsMsgDBFolder::ForceDBClosed() {
     mDatabase = nullptr;
   } else {
     nsCOMPtr<nsIMsgDBService> mailDBFactory(
-        do_GetService(NS_MSGDB_SERVICE_CONTRACTID));
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1"));
     if (mailDBFactory) mailDBFactory->ForceFolderDBClosed(this);
   }
   return NS_OK;
@@ -400,7 +399,7 @@ NS_IMETHODIMP nsMsgDBFolder::OpenBackupMsgDatabase() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = msgDBService->OpenMailDBFromFile(backupDBDummyFolder, this, false, true,
                                         getter_AddRefs(mBackupDatabase));

@@ -19,7 +19,6 @@
 #include "nsIComponentManager.h"
 #include "nsIServiceManager.h"
 #include "nsMsgAccountManager.h"
-#include "nsMsgDBCID.h"
 #include "prmem.h"
 #include "prcmon.h"
 #include "prthread.h"
@@ -169,7 +168,7 @@ nsresult nsMsgAccountManager::Shutdown() {
   SaveVirtualFolders();
 
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   if (msgDBService) {
     nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
         m_virtualFolderListeners);
@@ -2668,7 +2667,7 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
 
   nsresult rv;
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   if (msgDBService) {
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIFileInputStream> fileStream =
@@ -2927,7 +2926,7 @@ nsresult nsMsgAccountManager::RemoveVFListenerForVF(nsIMsgFolder* virtualFolder,
                                                     nsIMsgFolder* folder) {
   nsresult rv;
   nsCOMPtr<nsIMsgDBService> msgDBService(
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
@@ -3058,7 +3057,7 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
   if (folderFlags & nsMsgFolderFlags::Virtual && !m_loadingVirtualFolders) {
     // When a new virtual folder is added, need to create a db Listener for it.
     nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     if (msgDBService) {
       nsCOMPtr<nsIMsgDatabase> virtDatabase;
       nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;

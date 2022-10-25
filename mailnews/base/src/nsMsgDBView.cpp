@@ -33,7 +33,6 @@
 #include "nsMsgMessageFlags.h"
 #include "nsIPrompt.h"
 #include "nsIWindowWatcher.h"
-#include "nsMsgDBCID.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
@@ -2193,7 +2192,7 @@ nsMsgDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                                       getter_AddRefs(m_db));
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     msgDBService->RegisterPendingListener(folder, this);
     m_folder = folder;
@@ -2297,7 +2296,7 @@ nsMsgDBView::Close() {
   if (m_folder) {
     nsresult rv;
     nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     msgDBService->UnregisterPendingListener(this);
   }

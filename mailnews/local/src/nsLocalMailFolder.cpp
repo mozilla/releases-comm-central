@@ -19,7 +19,6 @@
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgWindow.h"
 #include "nsCOMPtr.h"
-#include "nsMsgDBCID.h"
 #include "nsMsgUtils.h"
 #include "nsLocalUtils.h"
 #include "nsIPop3IncomingServer.h"
@@ -269,7 +268,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetDatabaseWithReparse(
       return NS_ERROR_NULL_POINTER;  // mDatabase will be null at this point.
 
     nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsresult folderOpen =
@@ -839,7 +838,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetName(nsAString& aName) {
 nsresult nsMsgLocalMailFolder::OpenDatabase() {
   nsresult rv;
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIFile> file;

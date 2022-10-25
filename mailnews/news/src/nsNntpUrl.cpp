@@ -14,7 +14,6 @@
 #include "nntpCore.h"
 
 #include "nsCOMPtr.h"
-#include "nsMsgDBCID.h"
 #include "nsMsgNewsCID.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgNewsFolder.h"

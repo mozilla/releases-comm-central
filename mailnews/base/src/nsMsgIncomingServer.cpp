@@ -16,7 +16,6 @@
 #include "nsISupportsPrimitives.h"
 
 #include "nsIMsgBiffManager.h"
-#include "nsMsgDBCID.h"
 #include "nsIMsgFolder.h"
 #include "nsMsgDBFolder.h"
 #include "nsIMsgFolderCache.h"
@@ -1384,7 +1383,7 @@ NS_IMETHODIMP nsMsgIncomingServer::GetRetentionSettings(
   // Create an empty retention settings object,
   // get the settings from the server prefs, and init the object from the prefs.
   nsCOMPtr<nsIMsgRetentionSettings> retentionSettings =
-      do_CreateInstance(NS_MSG_RETENTIONSETTINGS_CONTRACTID);
+      do_CreateInstance("@mozilla.org/msgDatabase/retentionSettings;1");
   if (retentionSettings) {
     rv = GetIntValue("retainBy", (int32_t*)&retainByPreference);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -1460,7 +1459,8 @@ NS_IMETHODIMP nsMsgIncomingServer::GetDownloadSettings(
   uint32_t ageLimitOfMsgsToDownload = 0;
   nsresult rv = NS_OK;
   if (!m_downloadSettings) {
-    m_downloadSettings = do_CreateInstance(NS_MSG_DOWNLOADSETTINGS_CONTRACTID);
+    m_downloadSettings =
+        do_CreateInstance("@mozilla.org/msgDatabase/downloadSettings;1");
     if (m_downloadSettings) {
       rv = GetBoolValue("downloadUnreadOnly", &downloadUnreadOnly);
       rv = GetBoolValue("downloadByDate", &downloadByDate);

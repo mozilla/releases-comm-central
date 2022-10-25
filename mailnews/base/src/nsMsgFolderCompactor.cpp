@@ -12,7 +12,6 @@
 #include "nsIChannel.h"
 #include "nsIStreamListener.h"
 #include "nsIMsgMessageService.h"
-#include "nsMsgDBCID.h"
 #include "nsMsgUtils.h"
 #include "nsISeekableStream.h"
 #include "nsIDBFolderInfo.h"
@@ -205,7 +204,7 @@ nsresult nsFolderCompactState::InitDB(nsIMsgDatabase* db) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = msgDBService->OpenMailDBFromFile(m_file, m_folder, true, false,
                                         getter_AddRefs(m_db));
@@ -610,7 +609,7 @@ nsresult nsFolderCompactState::FinishCompact() {
   if (msfRenameSucceeded) {
     // Transfer local db information from transferInfo
     nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = msgDBService->OpenFolderDB(m_folder, true, getter_AddRefs(m_db));
     NS_ENSURE_TRUE(m_db, NS_FAILED(rv) ? rv : NS_ERROR_FAILURE);

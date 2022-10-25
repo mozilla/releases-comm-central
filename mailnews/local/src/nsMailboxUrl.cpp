@@ -12,7 +12,6 @@
 #include "nsString.h"
 #include "nsLocalUtils.h"
 #include "nsIMsgDatabase.h"
-#include "nsMsgDBCID.h"
 #include "nsIMsgHdr.h"
 
 #include "nsIMsgFolder.h"
@@ -227,7 +226,7 @@ nsresult nsMailboxUrl::GetMsgHdrForKey(nsMsgKey msgKey, nsIMsgDBHdr** aMsgHdr) {
     nsCOMPtr<nsIMsgDatabase> mailDBFactory;
     nsCOMPtr<nsIMsgDatabase> mailDB;
     nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
 
     if (msgDBService)
       rv = msgDBService->OpenMailDBFromFile(m_filePath, nullptr, false, false,

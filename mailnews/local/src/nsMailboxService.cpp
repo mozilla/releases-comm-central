@@ -11,7 +11,6 @@
 #include "nsIMsgMailNewsUrl.h"
 #include "nsMailboxProtocol.h"
 #include "nsIMsgDatabase.h"
-#include "nsMsgDBCID.h"
 #include "MailNewsTypes.h"
 #include "nsTArray.h"
 #include "nsLocalUtils.h"

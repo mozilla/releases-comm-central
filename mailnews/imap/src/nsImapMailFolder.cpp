@@ -12,7 +12,6 @@
 #include "nsAnonymousTemporaryFile.h"
 #include "nsIUrlListener.h"
 #include "nsCOMPtr.h"
-#include "nsMsgDBCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsISeekableStream.h"
 #include "nsThreadUtils.h"
@@ -595,7 +594,7 @@ nsresult nsImapMailFolder::GetDatabase() {
   nsresult rv = NS_OK;
   if (!mDatabase) {
     nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Create the database, blowing it away if it needs to be rebuilt
@@ -924,7 +923,7 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
   nsCOMPtr<nsIMsgFolder> child;
 
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgDatabase> unusedDB;
   nsCOMPtr<nsIFile> dbFile;
@@ -2542,7 +2541,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     if (NS_FAILED(rv)) return rv;
 
     nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIDBFolderInfo> transferInfo;
@@ -8062,7 +8061,7 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder;
 
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgDatabase> unusedDB;

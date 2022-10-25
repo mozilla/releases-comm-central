@@ -19,7 +19,6 @@
 #include "nsINntpService.h"
 #include "nsIMsgFilterService.h"
 #include "nsCOMPtr.h"
-#include "nsMsgDBCID.h"
 #include "nsMsgNewsCID.h"
 #include "nsMsgUtils.h"
 #include "nsNewsUtils.h"
@@ -218,7 +217,7 @@ nsresult nsMsgNewsFolder::GetDatabase() {
   nsresult rv;
   if (!mDatabase) {
     nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Get the database, blowing it away if it's out of date.

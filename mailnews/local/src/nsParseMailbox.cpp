@@ -14,7 +14,6 @@
 #include "nsIInputStream.h"
 #include "nsIFile.h"
 #include "nsMsgLocalFolderHdrs.h"
-#include "nsMsgDBCID.h"
 #include "nsIMailboxUrl.h"
 #include "nsNetUtil.h"
 #include "nsMsgFolderFlags.h"
@@ -112,7 +111,7 @@ NS_IMETHODIMP nsMsgMailboxParser::OnStartRequest(nsIRequest* request) {
       m_graph_progress_total = fileSize;
       UpdateStatusText("buildingSummary");
       nsCOMPtr<nsIMsgDBService> msgDBService =
-          do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+          do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
       if (msgDBService) {
         // Use OpenFolderDB to always open the db so that db's m_folder
         // is set correctly.
@@ -1515,7 +1514,7 @@ nsresult nsParseNewMailState::Init(nsIMsgFolder* serverFolder,
   // can't use the OnStartRequest mechanism the mailbox parser uses. So, let's
   // open the db right now.
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   if (msgDBService && !m_mailDB)
     rv = msgDBService->OpenFolderDB(downloadFolder, false,
                                     getter_AddRefs(m_mailDB));

@@ -17,7 +17,6 @@
 #include "mozilla/Logging.h"
 #include "mozilla/Telemetry.h"
 #include "prprf.h"
-#include "nsMsgDBCID.h"
 #include "nsMsgMimeCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgAccountManager.h"
@@ -167,7 +166,7 @@ NS_IMETHODIMP nsMsgDBService::OpenFolderDB(nsIMsgFolder* aFolder,
 
   nsCString localDatabaseType;
   incomingServer->GetLocalDatabaseType(localDatabaseType);
-  nsAutoCString dbContractID(NS_MSGDB_CONTRACTID);
+  nsAutoCString dbContractID("@mozilla.org/nsMsgDatabase/msgDB-");
   dbContractID.Append(localDatabaseType.get());
   nsCOMPtr<nsIMsgDatabase> msgDB = do_CreateInstance(dbContractID.get(), &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -225,7 +224,7 @@ NS_IMETHODIMP nsMsgDBService::AsyncOpenFolderDB(nsIMsgFolder* aFolder,
   NS_ENSURE_SUCCESS(rv, rv);
   nsCString localDatabaseType;
   incomingServer->GetLocalDatabaseType(localDatabaseType);
-  nsAutoCString dbContractID(NS_MSGDB_CONTRACTID);
+  nsAutoCString dbContractID("@mozilla.org/nsMsgDatabase/msgDB-");
   dbContractID.Append(localDatabaseType.get());
   nsCOMPtr<nsIMsgDatabase> msgDB = do_CreateInstance(dbContractID.get(), &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -399,7 +398,7 @@ NS_IMETHODIMP nsMsgDBService::CreateNewDB(nsIMsgFolder* aFolder,
 
   nsCString localDatabaseType;
   incomingServer->GetLocalDatabaseType(localDatabaseType);
-  nsAutoCString dbContractID(NS_MSGDB_CONTRACTID);
+  nsAutoCString dbContractID("@mozilla.org/nsMsgDatabase/msgDB-");
   dbContractID.Append(localDatabaseType.get());
 
   nsCOMPtr<nsIMsgDatabase> msgDB = do_CreateInstance(dbContractID.get(), &rv);
@@ -1082,7 +1081,8 @@ nsMsgDatabase::~nsMsgDatabase() {
   MOZ_LOG(DBLog, LogLevel::Info,
           ("closing database    %s", m_dbFile->HumanReadablePath().get()));
 
-  nsCOMPtr<nsIMsgDBService> serv(do_GetService(NS_MSGDB_SERVICE_CONTRACTID));
+  nsCOMPtr<nsIMsgDBService> serv(
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1"));
   if (serv) static_cast<nsMsgDBService*>(serv.get())->RemoveFromCache(this);
 
   // if the db folder info refers to the mdb db, we must clear it because

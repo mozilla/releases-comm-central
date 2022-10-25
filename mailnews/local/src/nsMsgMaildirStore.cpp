@@ -22,7 +22,6 @@
 #include "nsIMsgDatabase.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsMsgUtils.h"
-#include "nsMsgDBCID.h"
 #include "nsIDBFolderInfo.h"
 #include "nsMailHeaders.h"
 #include "nsParseMailbox.h"
@@ -228,7 +227,7 @@ NS_IMETHODIMP nsMsgMaildirStore::CreateFolder(nsIMsgFolder* aParent,
 
   // Create an empty database for this mail folder, set its name from the user
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   if (msgDBService) {
     nsCOMPtr<nsIMsgDatabase> unusedDB;
     rv = msgDBService->OpenFolderDB(child, true, getter_AddRefs(unusedDB));

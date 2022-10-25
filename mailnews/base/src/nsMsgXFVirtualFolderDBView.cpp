@@ -13,7 +13,6 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgSearchSession.h"
 #include "nsIMsgSearchTerm.h"
-#include "nsMsgDBCID.h"
 #include "nsMsgMessageFlags.h"
 #include "nsServiceManagerUtils.h"
 
@@ -41,7 +40,7 @@ nsMsgXFVirtualFolderDBView::Open(nsIMsgFolder* folder,
 void nsMsgXFVirtualFolderDBView::RemovePendingDBListeners() {
   nsresult rv;
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
 
   // UnregisterPendingListener will return an error when there are no more
   // instances of this object registered as pending listeners.
@@ -88,7 +87,7 @@ nsMsgXFVirtualFolderDBView::CopyDBView(
   // It's OK not to have a search session.
   NS_ENSURE_SUCCESS(rv, NS_OK);
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   searchSession->CountSearchScopes(&scopeCount);
   for (int32_t i = 0; i < scopeCount; i++) {
@@ -368,7 +367,7 @@ nsMsgXFVirtualFolderDBView::OnNewSearch() {
   // Just ignore.
   NS_ENSURE_TRUE(searchSession, NS_OK);
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1");
   searchSession->CountSearchScopes(&scopeCount);
 
   // Figure out how many search terms the virtual folder has.
