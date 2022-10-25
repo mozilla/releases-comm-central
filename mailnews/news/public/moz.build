@@ -15,5 +15,4 @@ XPIDL_SOURCES += [
 
 XPIDL_MODULE = "msgnews"
 
-EXPORTS += [
-]
+EXPORTS += []

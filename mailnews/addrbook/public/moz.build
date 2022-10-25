@@ -45,5 +45,4 @@ if CONFIG["MOZ_PREF_EXTENSIONS"]:
 
 XPIDL_MODULE = "addrbook"
 
-EXPORTS += [
-]
+EXPORTS += []

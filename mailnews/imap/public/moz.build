@@ -25,5 +25,4 @@ XPIDL_SOURCES += [
 
 XPIDL_MODULE = "msgimap"
 
-EXPORTS += [
-]
+EXPORTS += []
