@@ -6,7 +6,6 @@
 #include "nsMsgDatabaseEnumerators.h"
 #include "nsMsgDatabase.h"
 #include "nsIMsgHdr.h"
-#include "nsMsgBaseCID.h"
 #include "nsMsgThread.h"
 
 /*
@@ -171,7 +170,8 @@ nsresult nsMsgFilteredDBEnumerator::InitSearchSession(
     const nsTArray<RefPtr<nsIMsgSearchTerm>>& searchTerms,
     nsIMsgFolder* folder) {
   nsresult rv;
-  m_searchSession = do_CreateInstance(NS_MSGSEARCHSESSION_CONTRACTID, &rv);
+  m_searchSession =
+      do_CreateInstance("@mozilla.org/messenger/searchSession;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   m_searchSession->AddScopeTerm(nsMsgSearchScope::offlineMail, folder);

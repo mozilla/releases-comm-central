@@ -5,7 +5,6 @@
 
 #include "nsMsgBiffManager.h"
 #include "nsIMsgAccountManager.h"
-#include "nsMsgBaseCID.h"
 #include "nsStatusBarBiffManager.h"
 #include "nsCOMArray.h"
 #include "mozilla/Logging.h"
@@ -65,7 +64,7 @@ NS_IMETHODIMP nsMsgBiffManager::Init() {
   nsresult rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   if (NS_SUCCEEDED(rv)) accountManager->AddIncomingServerListener(this);
 
   // in turbo mode on profile change we don't need to do anything below this
@@ -95,7 +94,7 @@ NS_IMETHODIMP nsMsgBiffManager::Shutdown() {
 
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   if (NS_SUCCEEDED(rv)) accountManager->RemoveIncomingServerListener(this);
 
   mHaveShutdown = true;

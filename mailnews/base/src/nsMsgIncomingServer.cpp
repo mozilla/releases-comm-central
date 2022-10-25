@@ -16,7 +16,6 @@
 #include "nsISupportsPrimitives.h"
 
 #include "nsIMsgBiffManager.h"
-#include "nsMsgBaseCID.h"
 #include "nsMsgDBCID.h"
 #include "nsIMsgFolder.h"
 #include "nsMsgDBFolder.h"
@@ -1073,7 +1072,7 @@ nsMsgIncomingServer::GetFilterList(nsIMsgWindow* aMsgWindow,
       }
     }
     nsCOMPtr<nsIMsgFilterService> filterService =
-        do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = filterService->OpenFilterList(mFilterFile, msgFolder, aMsgWindow,
@@ -1302,7 +1301,7 @@ nsMsgIncomingServer::SetDoBiff(bool aDoBiff) {
   // existing/non-existing server is handled without error checking.
   nsresult rv;
   nsCOMPtr<nsIMsgBiffManager> biffService =
-      do_GetService(NS_MSGBIFFMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/biffManager;1", &rv);
   if (NS_SUCCEEDED(rv) && biffService) {
     if (aDoBiff)
       (void)biffService->AddServerBiff(this);
@@ -1735,7 +1734,7 @@ nsresult nsMsgIncomingServer::ConfigureTemporaryServerSpamFilters(
   if (!file) return NS_OK;
 
   nsCOMPtr<nsIMsgFilterService> filterService =
-      do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
   nsCOMPtr<nsIMsgFilterList> serverFilterList;
 
   rv = filterService->OpenFilterList(file, NULL, NULL,
@@ -1830,7 +1829,7 @@ nsresult nsMsgIncomingServer::ConfigureTemporaryReturnReceiptsFilter(
   nsresult rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountMgr =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgIdentity> identity;
@@ -1966,7 +1965,8 @@ nsMsgIncomingServer::GetSpamSettings(nsISpamSettings** aSpamSettings) {
 
   if (!mSpamSettings) {
     nsresult rv;
-    mSpamSettings = do_CreateInstance(NS_SPAMSETTINGS_CONTRACTID, &rv);
+    mSpamSettings =
+        do_CreateInstance("@mozilla.org/messenger/spamsettings;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     mSpamSettings->Initialize(this);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -1997,7 +1997,7 @@ nsresult nsMsgIncomingServer::GetDeferredServers(
     nsTArray<RefPtr<nsIPop3IncomingServer>>& aServers) {
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgAccount> thisAccount;
@@ -2023,7 +2023,7 @@ nsresult nsMsgIncomingServer::GetDeferredServers(
 NS_IMETHODIMP nsMsgIncomingServer::GetIsDeferredTo(bool* aIsDeferredTo) {
   NS_ENSURE_ARG_POINTER(aIsDeferredTo);
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID);
+      do_GetService("@mozilla.org/messenger/account-manager;1");
   if (accountManager) {
     nsCOMPtr<nsIMsgAccount> thisAccount;
     accountManager->FindAccountForServer(this, getter_AddRefs(thisAccount));

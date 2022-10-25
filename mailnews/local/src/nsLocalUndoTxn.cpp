@@ -130,7 +130,7 @@ nsLocalMoveCopyMsgTxn::UndoTransaction() {
     NS_ADDREF(mUndoFolderListener);
 
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = mailSession->AddFolderListener(mUndoFolderListener,
@@ -149,7 +149,7 @@ nsresult nsLocalMoveCopyMsgTxn::UndoTransactionInternal() {
 
   if (mUndoFolderListener) {
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = mailSession->RemoveFolderListener(mUndoFolderListener);
@@ -211,7 +211,7 @@ nsresult nsLocalMoveCopyMsgTxn::UndoTransactionInternal() {
       }
 
       nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+          do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
       if (notifier) {
         // Remember that we're actually moving things back from the destination
         //  to the source!

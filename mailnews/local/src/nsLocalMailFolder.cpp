@@ -25,7 +25,6 @@
 #include "nsIPop3IncomingServer.h"
 #include "nsILocalMailIncomingServer.h"
 #include "nsIMsgIncomingServer.h"
-#include "nsMsgBaseCID.h"
 #include "nsMsgLocalCID.h"
 #include "nsString.h"
 #include "nsIMsgFolderCacheElement.h"
@@ -35,7 +34,6 @@
 #include "nsIMsgCopyService.h"
 #include "nsMsgTxn.h"
 #include "nsIMessenger.h"
-#include "nsMsgBaseCID.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsIDocShell.h"
 #include "nsIPrompt.h"
@@ -127,7 +125,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CreateLocalSubfolder(
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
   if (notifier) notifier->NotifyFolderAdded(*aChild);
 
   return NS_OK;
@@ -448,7 +446,7 @@ nsMsgLocalMailFolder::CreateSubfolder(const nsAString& folderName,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
   if (notifier) notifier->NotifyFolderAdded(newFolder);
 
   return NS_OK;
@@ -519,7 +517,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener* aListener,
   }
 
   nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
-      do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messenger/foldercompactor;1", &rv);
   return folderCompactor->CompactFolders(folderArray, aListener, aMsgWindow);
 }
 
@@ -541,7 +539,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Compact(nsIUrlListener* aListener,
   }
 
   nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
-      do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messenger/foldercompactor;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return folderCompactor->CompactFolders({this}, aListener, aMsgWindow);
 }
@@ -651,7 +649,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
   rv = GetTrashFolder(getter_AddRefs(trashFolder));
   if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIMsgCopyService> copyService(
-        do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv));
+        do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv));
     NS_ENSURE_SUCCESS(rv, rv);
     rv = copyService->CopyFolder(this, trashFolder, true, nullptr, msgWindow);
   }
@@ -783,7 +781,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsAString& aNewName,
     newFolder->NotifyFolderEvent(kRenameCompleted);
 
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
     if (notifier) notifier->NotifyFolderRenamed(this, newFolder);
   }
   return rv;
@@ -986,7 +984,7 @@ nsMsgLocalMailFolder::DeleteMessages(
   // notify on delete from trash and shift-delete
   if (!isMove && (deleteStorage || isTrashFolder)) {
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
     if (notifier) {
       if (listener) {
         listener->OnStartCopy();
@@ -1002,7 +1000,7 @@ nsMsgLocalMailFolder::DeleteMessages(
     rv = GetTrashFolder(getter_AddRefs(trashFolder));
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIMsgCopyService> copyService =
-          do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
+          do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
       // When the copy completes, DeleteMessages() will be called again to
       // perform the actual delete.
@@ -1256,7 +1254,7 @@ nsMsgLocalMailFolder::OnCopyCompleted(nsISupports* srcSupport,
   delete mCopyState;
   mCopyState = nullptr;
   nsCOMPtr<nsIMsgCopyService> copyService =
-      do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return copyService->NotifyCompletion(
       srcSupport, this, moveCopySucceeded ? NS_OK : NS_ERROR_FAILURE);
@@ -2251,7 +2249,7 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
       // we need to send this notification before we delete the source messages,
       // because deleting the source messages clears out the src msg db hdr.
       nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+          do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
       if (notifier) {
         notifier->NotifyMsgsMoveCopyCompleted(mCopyState->m_isMove,
                                               mCopyState->m_messages, this,
@@ -2295,7 +2293,7 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
     // notifications in that case.
     if (!numHdrs && newHdr) {
       nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+          do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
       if (notifier) {
         notifier->NotifyMsgAdded(newHdr);
         // We do not appear to trigger classification in this case, so let's
@@ -2484,8 +2482,8 @@ nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
 
   nsresult rv;
 
-  nsCOMPtr<nsICopyMessageStreamListener> copyStreamListener =
-      do_CreateInstance(NS_COPYMESSAGESTREAMLISTENER_CONTRACTID, &rv);
+  nsCOMPtr<nsICopyMessageStreamListener> copyStreamListener = do_CreateInstance(
+      "@mozilla.org/messenger/copymessagestreamlistener;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolder> srcFolder(
@@ -2545,8 +2543,8 @@ nsresult nsMsgLocalMailFolder::CopyMessageTo(nsISupports* message,
   nsCString uri;
   srcFolder->GetUriForMsg(msgHdr, uri);
 
-  nsCOMPtr<nsICopyMessageStreamListener> copyStreamListener =
-      do_CreateInstance(NS_COPYMESSAGESTREAMLISTENER_CONTRACTID, &rv);
+  nsCOMPtr<nsICopyMessageStreamListener> copyStreamListener = do_CreateInstance(
+      "@mozilla.org/messenger/copymessagestreamlistener;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = copyStreamListener->Init(this);
@@ -2588,7 +2586,7 @@ nsMsgLocalMailFolder::MarkMsgsOnPop3Server(
   NS_ENSURE_SUCCESS(rv, NS_MSG_INVALID_OR_MISSING_SERVER);
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // I wonder if we should run through the pop3 accounts and see if any of them
@@ -2834,7 +2832,7 @@ nsMsgLocalMailFolder::GetIncomingServerType(nsACString& aServerType) {
     if (NS_FAILED(rv)) return rv;
 
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
     if (NS_FAILED(rv)) return rv;
 
     nsCOMPtr<nsIMsgIncomingServer> server;
@@ -2906,7 +2904,7 @@ nsMsgLocalMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
   nsresult rv;
   if (NS_SUCCEEDED(aExitCode)) {
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIMsgWindow> msgWindow;
     rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
@@ -3238,7 +3236,7 @@ nsMsgLocalMailFolder::OnMessageClassified(const nsACString& aMsgURI,
 
       if (folder) {
         nsCOMPtr<nsIMsgCopyService> copySvc =
-            do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
+            do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
         NS_ENSURE_SUCCESS(rv, rv);
 
         rv = copySvc->CopyMessages(
@@ -3382,7 +3380,7 @@ nsMsgLocalMailFolder::AddMessageBatch(
       // folders will silently fail if not signed in and no window for a prompt.
       nsCOMPtr<nsIMsgWindow> msgWindow;
       nsCOMPtr<nsIMsgMailSession> mailSession =
-          do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+          do_GetService("@mozilla.org/messenger/services/session;1", &rv);
       if (NS_SUCCEEDED(rv))
         mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
 

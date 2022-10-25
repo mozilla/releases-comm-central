@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsMsgBaseCID.h"
 #include "nsIMsgAccountManager.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIINIParser.h"
@@ -112,7 +111,7 @@ nsresult nsBeckySettings::CreateIncomingServer(const nsCString& aUserName,
                                                nsIMsgIncomingServer** aServer) {
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgIncomingServer> incomingServer;
@@ -286,7 +285,7 @@ nsresult nsBeckySettings::CreateIdentity(nsIMsgIdentity** aIdentity) {
 
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgIdentity> identity;
@@ -311,7 +310,7 @@ nsresult nsBeckySettings::CreateAccount(nsIMsgIdentity* aIdentity,
                                         nsIMsgAccount** aAccount) {
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgAccount> account;

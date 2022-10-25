@@ -8,7 +8,6 @@
 #include "nsIMsgFilterService.h"
 #include "nsIMsgMailSession.h"
 #include "nsIMsgSearchTerm.h"
-#include "nsMsgBaseCID.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsDirectoryServiceUtils.h"
 #include "nsIFile.h"
@@ -212,7 +211,7 @@ nsresult nsMsgMailViewList::LoadMailViews() {
   file->Exists(&exists);
   if (!exists) {
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIFile> defaultMessagesFile;
     nsCOMPtr<nsIFile> profileDir;
@@ -234,7 +233,7 @@ nsresult nsMsgMailViewList::LoadMailViews() {
   // a data structure we wish to give to our consumers.
 
   nsCOMPtr<nsIMsgFilterService> filterService =
-      do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
   nsCOMPtr<nsIMsgFilterList> mfilterList;
 
   rv = filterService->OpenFilterList(file, nullptr, nullptr,

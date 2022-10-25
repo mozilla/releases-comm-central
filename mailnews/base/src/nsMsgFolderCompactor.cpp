@@ -25,7 +25,6 @@
 #include "nsMsgMessageFlags.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgStatusFeedback.h"
-#include "nsMsgBaseCID.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsMsgFolderCompactor.h"
 #include "nsIOutputStream.h"
@@ -460,7 +459,7 @@ nsresult nsFolderCompactState::StartCompacting() {
   // messages to be copied because the summary database still gets blown away
   // which is still pretty interesting.  (And we like consistency.)
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
   if (notifier) {
     notifier->NotifyFolderCompactStart(m_folder);
   }
@@ -634,7 +633,7 @@ nsresult nsFolderCompactState::FinishCompact() {
 
   // Notify that compaction of the folder is completed.
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
   if (notifier) {
     notifier->NotifyFolderCompactFinish(m_folder);
   }

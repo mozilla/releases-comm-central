@@ -14,7 +14,6 @@
 #include "nsIMsgFolder.h"
 #include "nsCOMPtr.h"
 #include "nsMsgSearchCore.h"
-#include "nsMsgBaseCID.h"
 #include "nsMsgUtils.h"
 #include "msgCore.h"
 
@@ -643,7 +642,8 @@ nsresult nsBeckyFilters::GetMessageFolder(const nsAString& aName,
   nsresult rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountManager;
-  accountManager = do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+  accountManager =
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsTArray<RefPtr<nsIMsgAccount>> accounts;
@@ -679,7 +679,8 @@ nsresult nsBeckyFilters::GetMessageFolder(const nsAString& aName,
 nsresult nsBeckyFilters::CollectServers() {
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager;
-  accountManager = do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+  accountManager =
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgAccount> defaultAccount;

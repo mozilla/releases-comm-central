@@ -9,12 +9,12 @@
 #include "nsISupports.h"
 #include "nsIFactory.h"
 #include "nsIComponentManager.h"
-#include "nsMsgBaseCID.h"
 
 //
 // nsMsgNewsFolder
-#define NS_NEWSFOLDERRESOURCE_CONTRACTID \
-  NS_FOLDER_FACTORY_CONTRACTID_PREFIX "news"
+#define NS_NEWSFOLDERRESOURCE_CONTRACTID      \
+  "@mozilla.org/mail/folder-factory;1"_PREFIX \
+  "news"
 #define NS_NEWSFOLDERRESOURCE_CID                    \
   { /* 4ace448a-f6d4-11d2-880d-004005263078 */       \
     0x4ace448a, 0xf6d4, 0x11d2, {                    \

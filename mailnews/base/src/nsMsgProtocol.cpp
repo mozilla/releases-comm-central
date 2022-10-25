@@ -9,7 +9,6 @@
 #include "nsMsgProtocol.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgMailSession.h"
-#include "nsMsgBaseCID.h"
 #include "nsIStreamTransportService.h"
 #include "nsISocketTransportService.h"
 #include "nsISocketTransport.h"
@@ -220,7 +219,7 @@ nsresult nsMsgProtocol::OpenFileSocket(nsIURI* aURL, uint64_t aStartPosition,
 nsresult nsMsgProtocol::GetTopmostMsgWindow(nsIMsgWindow** aWindow) {
   nsresult rv;
   nsCOMPtr<nsIMsgMailSession> mailSession(
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   return mailSession->GetTopmostMsgWindow(aWindow);
 }
@@ -373,7 +372,7 @@ void nsMsgProtocol::ShowAlertMessage(nsIMsgMailNewsUrl* aMsgUrl,
   }
 
   nsCOMPtr<nsIMsgMailSession> mailSession =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID);
+      do_GetService("@mozilla.org/messenger/services/session;1");
   if (mailSession) mailSession->AlertUser(errorMsg, aMsgUrl);
 }
 

@@ -13,7 +13,6 @@
 #include "nsIMsgNewsFolder.h"
 #include "nsMsgThread.h"
 #include "nsIMsgSearchTerm.h"
-#include "nsMsgBaseCID.h"
 #include "nsMorkCID.h"
 #include "nsIMdbFactoryFactory.h"
 #include "mozilla/Logging.h"
@@ -1446,7 +1445,7 @@ NS_IMETHODIMP nsMsgDatabase::Commit(nsMsgDBCommit commitType) {
 
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   if (NS_SUCCEEDED(rv) && accountManager) {
     nsCOMPtr<nsIMsgFolderCache> folderCache;
 

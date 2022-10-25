@@ -13,7 +13,6 @@
 #include "nsIAppShellService.h"
 #include "mozIDOMWindow.h"
 #include "nsIMsgAccountManager.h"
-#include "nsMsgBaseCID.h"
 #include "nsIStringBundle.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -208,7 +207,7 @@ bool nsMapiHook::VerifyUserName(const nsCString& aUsername, nsCString& aIdKey) {
   if (aUsername.IsEmpty()) return false;
 
   nsCOMPtr<nsIMsgAccountManager> accountManager(
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv));
   if (NS_FAILED(rv)) return false;
   nsTArray<RefPtr<nsIMsgIdentity>> identities;
   rv = accountManager->GetAllIdentities(identities);
@@ -302,7 +301,7 @@ nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
 
   // get the MsgIdentity for the above key using AccountManager
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID);
+      do_GetService("@mozilla.org/messenger/account-manager;1");
   if (NS_FAILED(rv) || (!accountManager)) return rv;
 
   nsCOMPtr<nsIMsgIdentity> pMsgId;

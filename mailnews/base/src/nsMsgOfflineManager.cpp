@@ -11,7 +11,6 @@
 #include "netCore.h"
 #include "nsMsgOfflineManager.h"
 #include "nsIServiceManager.h"
-#include "nsMsgBaseCID.h"
 #include "nsIImapService.h"
 #include "nsMsgImapCID.h"
 #include "nsIMsgSendLater.h"
@@ -161,7 +160,7 @@ nsresult nsMsgOfflineManager::SendUnsentMessages() {
   nsCOMPtr<nsIMsgSendLater> pMsgSendLater(do_GetService(kMsgSendLaterCID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   // now we have to iterate over the identities, finding the *unique* unsent
   // messages folder for each one, determine if they have unsent messages, and

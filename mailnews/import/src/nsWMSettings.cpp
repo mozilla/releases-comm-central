@@ -16,7 +16,6 @@
 #include "nsIMsgAccount.h"
 #include "nsIImportSettings.h"
 #include "nsWMSettings.h"
-#include "nsMsgBaseCID.h"
 #include "nsMsgI18N.h"
 #include "nsISmtpService.h"
 #include "nsISmtpServer.h"
@@ -146,7 +145,7 @@ bool WMSettings::DoImport(nsIMsgAccount** ppAccount) {
                        defNewsAcct);  // ref_sz
 
   nsCOMPtr<nsIMsgAccountManager> accMgr =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   if (NS_FAILED(rv)) {
     IMPORT_LOG0("*** Failed to create an account manager!\n");
     return false;

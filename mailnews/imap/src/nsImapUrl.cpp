@@ -15,7 +15,6 @@
 #include "prprf.h"
 #include "nsMemory.h"
 #include "nsCOMPtr.h"
-#include "nsMsgBaseCID.h"
 #include "nsImapUtils.h"
 #include "nsIImapMockChannel.h"
 #include "nsIImapMailFolderSink.h"

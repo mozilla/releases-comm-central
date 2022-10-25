@@ -2396,7 +2396,7 @@ nsresult nsImapProtocol::LoadImapUrlInternal() {
     // shutdown, then this should fail because running urls during
     // shutdown will very likely fail and potentially hang.
     nsCOMPtr<nsIMsgAccountManager> accountMgr =
-        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     bool shuttingDown = false;
     (void)accountMgr->GetShutdownInProgress(&shuttingDown);
@@ -9129,7 +9129,7 @@ NS_IMETHODIMP nsImapMockChannel::Open(nsIInputStream** _retval) {
     // shutdown, then this should fail because running urls during
     // shutdown will very likely fail and potentially hang.
     nsCOMPtr<nsIMsgAccountManager> accountMgr =
-        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     bool shuttingDown = false;
     (void)accountMgr->GetShutdownInProgress(&shuttingDown);

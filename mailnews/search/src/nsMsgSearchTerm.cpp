@@ -34,7 +34,6 @@
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include <ctype.h>
-#include "nsMsgBaseCID.h"
 #include "nsIMsgTagService.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgFilterService.h"
@@ -1419,7 +1418,7 @@ nsresult nsMsgSearchTerm::MatchKeyword(const nsACString& keywordList,
   nsTArray<nsCString> keywordArray;
   ParseString(keywordList, ' ', keywordArray);
   nsCOMPtr<nsIMsgTagService> tagService(
-      do_GetService(NS_MSGTAGSERVICE_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/messenger/tagservice;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Loop through tokens in keywords
@@ -1526,7 +1525,7 @@ NS_IMETHODIMP nsMsgSearchTerm::MatchCustom(nsIMsgDBHdr* aHdr, bool* pResult) {
 
   nsresult rv;
   nsCOMPtr<nsIMsgFilterService> filterService =
-      do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgSearchCustomTerm> customTerm;

@@ -5,7 +5,6 @@
 
 #include "msgCore.h"
 #include "nsMsgMailNewsUrl.h"
-#include "nsMsgBaseCID.h"
 #include "nsMsgLocalCID.h"
 #include "nsIMsgAccountManager.h"
 #include "nsString.h"
@@ -288,7 +287,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(
     rv = NS_MutateURI(url).SetScheme(scheme).Finalize(url);
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIMsgIncomingServer> server;

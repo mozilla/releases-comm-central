@@ -34,7 +34,6 @@
 #include "nsIWindowMediator.h"
 #include "nsIURL.h"
 #include "nsIMsgMailSession.h"
-#include "nsMsgBaseCID.h"
 #include "nsMsgMimeCID.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
 #include "nsIMsgComposeService.h"
@@ -154,7 +153,7 @@ static void GetTopmostMsgWindowCharacterSet(nsCString& charset,
   // from that window) then use that over ride charset instead of the charset
   // specified in the message
   nsCOMPtr<nsIMsgMailSession> mailSession(
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID));
+      do_GetService("@mozilla.org/messenger/services/session;1"));
   if (mailSession) {
     nsCOMPtr<nsIMsgWindow> msgWindow;
     mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
@@ -2192,7 +2191,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
                          &replyToSelfCheckAll);
 
       nsCOMPtr<nsIMsgAccountManager> accountManager =
-          do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsTArray<RefPtr<nsIMsgIdentity>> identities;

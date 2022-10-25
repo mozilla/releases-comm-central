@@ -16,7 +16,6 @@
 #include "nsIMsgSearchNotify.h"
 #include "nsIMsgMailSession.h"
 #include "nsIMsgWindow.h"
-#include "nsMsgBaseCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgLocalSearch.h"
 #include "nsComponentManagerUtils.h"
@@ -501,7 +500,7 @@ void nsMsgSearchSession::ReleaseFolderDBRef() {
   nsCOMPtr<nsIMsgFolder> folder;
   scope->GetFolder(getter_AddRefs(folder));
   nsCOMPtr<nsIMsgMailSession> mailSession =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID);
+      do_GetService("@mozilla.org/messenger/services/session;1");
   if (!mailSession || !folder) return;
 
   mailSession->IsFolderOpenInWindow(folder, &isOpen);

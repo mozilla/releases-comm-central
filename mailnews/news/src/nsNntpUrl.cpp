@@ -397,7 +397,7 @@ nsNntpUrl::GetServer(nsIMsgIncomingServer** aServer) {
   }
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   *aServer = nullptr;

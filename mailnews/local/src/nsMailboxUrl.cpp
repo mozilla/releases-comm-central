@@ -13,7 +13,6 @@
 #include "nsLocalUtils.h"
 #include "nsIMsgDatabase.h"
 #include "nsMsgDBCID.h"
-#include "nsMsgBaseCID.h"
 #include "nsIMsgHdr.h"
 
 #include "nsIMsgFolder.h"
@@ -28,7 +27,6 @@
 // the real fix is to attach the URI to the URL as it runs through netlib
 // then grab it and use it on the other side
 #include "nsCOMPtr.h"
-#include "nsMsgBaseCID.h"
 #include "nsIMsgAccountManager.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Components.h"
@@ -203,7 +201,7 @@ NS_IMETHODIMP nsMailboxUrl::GetUri(nsACString& aURI) {
       nsAutoCString baseUri;
       nsresult rv;
       nsCOMPtr<nsIMsgAccountManager> accountManager =
-          do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
 
       // we blow off errors here so that we can open attachments
@@ -240,7 +238,7 @@ nsresult nsMailboxUrl::GetMsgHdrForKey(nsMsgKey msgKey, nsIMsgDBHdr** aMsgHdr) {
       nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
       if (!msgWindow) {
         nsCOMPtr<nsIMsgMailSession> mailSession =
-            do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+            do_GetService("@mozilla.org/messenger/services/session;1", &rv);
         NS_ENSURE_SUCCESS(rv, rv);
         mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
       }

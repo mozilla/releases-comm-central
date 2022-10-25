@@ -9,7 +9,6 @@
 #include "nsISupportsPrimitives.h"
 #include "nsIImportMailboxDescriptor.h"
 #include "nsIMsgAccountManager.h"
-#include "nsMsgBaseCID.h"
 #include "nsImportStringBundle.h"
 #include "nsTextFormatter.h"
 #include "ImportDebug.h"
@@ -636,7 +635,7 @@ static void ImportMailThread(void* stuff) {
 
   // Now save the new acct info to pref file.
   nsCOMPtr<nsIMsgAccountManager> accMgr =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   if (NS_SUCCEEDED(rv) && accMgr) {
     rv = accMgr->SaveAccountInfo();
     NS_ASSERTION(NS_SUCCEEDED(rv), "Can't save account info to pref file");
@@ -685,7 +684,7 @@ bool nsImportGenericMail::CreateFolder(nsIMsgFolder** ppFolder) {
     return false;
   }
   nsCOMPtr<nsIMsgAccountManager> accMgr =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   if (NS_FAILED(rv)) {
     IMPORT_LOG0("*** Failed to create account manager!\n");
     return false;

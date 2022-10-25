@@ -464,7 +464,7 @@ NS_IMETHODIMP nsAutoSyncState::SetState(int32_t aState) {
     // tell folder to let go of its cached msg db pointer
     nsresult rv;
     nsCOMPtr<nsIMsgMailSession> session =
-        do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
     if (NS_SUCCEEDED(rv) && session) {
       nsCOMPtr<nsIMsgFolder> ownerFolder = do_QueryReferent(mOwnerFolder, &rv);
       NS_ENSURE_SUCCESS(rv, rv);

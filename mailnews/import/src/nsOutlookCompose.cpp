@@ -16,7 +16,6 @@
 #include "nsIOutputStream.h"
 #include "nsIInputStream.h"
 #include "nsMsgAttachmentData.h"
-#include "nsMsgBaseCID.h"
 #include "nsIMsgCompFields.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgSend.h"
@@ -212,7 +211,7 @@ nsresult nsOutlookCompose::CreateIdentity(void) {
 
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accMgr =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = accMgr->CreateIdentity(getter_AddRefs(m_pIdentity));
   nsString name;

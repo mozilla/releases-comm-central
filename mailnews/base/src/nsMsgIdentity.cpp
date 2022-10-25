@@ -12,7 +12,6 @@
 #include "nsIMsgIncomingServer.h"
 #include "nsIMsgAccountManager.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
-#include "nsMsgBaseCID.h"
 #include "prprf.h"
 #include "nsISupportsPrimitives.h"
 #include "nsMsgUtils.h"
@@ -344,7 +343,7 @@ nsresult nsMsgIdentity::getFolderPref(const char* prefname, nsCString& retval,
   // here I think we need to create a uri for the folder on the
   // default server for this identity.
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsTArray<RefPtr<nsIMsgIncomingServer>> servers;
@@ -391,7 +390,7 @@ nsresult nsMsgIdentity::setFolderPref(const char* prefname,
     // Clear the temporary return receipt filter so that the new filter
     // rule can be recreated (by ConfigureTemporaryFilters()).
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsTArray<RefPtr<nsIMsgIncomingServer>> servers;

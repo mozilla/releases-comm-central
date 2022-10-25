@@ -8,7 +8,6 @@
 #include "nsImapMoveCoalescer.h"
 #include "nsIImapService.h"
 #include "nsIMsgCopyService.h"
-#include "nsMsgBaseCID.h"
 #include "nsIMsgFolder.h"  // TO include biffState enum. Change to bool later...
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgHdr.h"
@@ -101,7 +100,7 @@ nsresult nsImapMoveCoalescer::PlaybackMoves(
 
     keysToAdd.Clear();
     nsCOMPtr<nsIMsgCopyService> copySvc =
-        do_GetService(NS_MSGCOPYSERVICE_CONTRACTID);
+        do_GetService("@mozilla.org/messenger/messagecopyservice;1");
     if (copySvc) {
       nsCOMPtr<nsIMsgCopyServiceListener> listener;
       if (m_doNewMailNotification) {

@@ -16,7 +16,6 @@
 #include "nsTArray.h"
 #include "nsLocalUtils.h"
 #include "nsMsgLocalCID.h"
-#include "nsMsgBaseCID.h"
 #include "nsIDocShell.h"
 #include "nsMsgUtils.h"
 #include "nsPop3URL.h"

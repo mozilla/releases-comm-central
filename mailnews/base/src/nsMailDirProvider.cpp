@@ -6,7 +6,6 @@
 #include "nsMailDirProvider.h"
 #include "nsMailDirServiceDefs.h"
 #include "nsXULAppAPI.h"
-#include "nsMsgBaseCID.h"
 #include "nsCOMArray.h"
 #include "nsEnumeratorUtils.h"
 #include "nsDirectoryServiceDefs.h"

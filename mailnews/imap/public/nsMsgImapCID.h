@@ -6,17 +6,12 @@
 #ifndef nsMsgImapCID_h__
 #define nsMsgImapCID_h__
 
-#include "nsMsgBaseCID.h"
-
 #define NS_IMAPURL_CID                             \
   {                                                \
     0x21a89611, 0xdc0d, 0x11d2, {                  \
       0x80, 0x6c, 0x0, 0x60, 0x8, 0x12, 0x8c, 0x4e \
     }                                              \
   }
-
-#define NS_IMAPPROTOCOLINFO_CONTRACTID \
-  NS_MSGPROTOCOLINFO_CONTRACTID_PREFIX "imap"
 
 #define NS_IMAPINCOMINGSERVER_CONTRACTID \
   NS_MSGINCOMINGSERVER_CONTRACTID_PREFIX "imap"

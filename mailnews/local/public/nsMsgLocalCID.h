@@ -6,15 +6,14 @@
 #ifndef nsMsgLocalCID_h__
 #define nsMsgLocalCID_h__
 
-#include "nsMsgBaseCID.h"
-
 #define NS_POP3INCOMINGSERVER_TYPE "pop3"
 
 //
 // nsLocalMailFolderResourceCID
 //
 #define NS_LOCALMAILFOLDERRESOURCE_CONTRACTID \
-  NS_FOLDER_FACTORY_CONTRACTID_PREFIX "mailbox"
+  "@mozilla.org/mail/folder-factory;1"_PREFIX \
+  "mailbox"
 #define NS_LOCALMAILFOLDERRESOURCE_CID               \
   { /* e490d22c-cd67-11d2-8cca-0060b0fc14a3 */       \
     0xe490d22c, 0xcd67, 0x11d2, {                    \

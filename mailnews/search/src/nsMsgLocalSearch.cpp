@@ -14,7 +14,6 @@
 #include "nsMsgSearchTerm.h"
 #include "nsMsgResultElement.h"
 #include "nsIDBFolderInfo.h"
-#include "nsMsgBaseCID.h"
 #include "nsMsgSearchValue.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgWindow.h"

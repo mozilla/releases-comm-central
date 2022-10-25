@@ -14,7 +14,6 @@
 #include "nsISupportsPrimitives.h"
 #include "nsTextFormatter.h"
 #include "nsUnicharUtils.h"
-#include "nsMsgBaseCID.h"
 #include "nsCOMPtr.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"

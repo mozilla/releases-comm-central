@@ -328,7 +328,7 @@ bool nsMsgDownloadAllNewsgroups::AdvanceToNextServer() {
 
   if (m_allServers.IsEmpty()) {
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
     NS_ASSERTION(accountManager && NS_SUCCEEDED(rv),
                  "couldn't get account mgr");
     if (!accountManager || NS_FAILED(rv)) return false;
@@ -388,7 +388,7 @@ bool nsMsgDownloadAllNewsgroups::AdvanceToNextGroup() {
     if (newsFolder) newsFolder->SetSaveArticleOffline(false);
 
     nsCOMPtr<nsIMsgMailSession> session =
-        do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
     if (NS_SUCCEEDED(rv) && session) {
       bool folderOpen;
       uint32_t folderFlags;
@@ -467,7 +467,7 @@ nsresult nsMsgDownloadAllNewsgroups::DownloadMsgsForCurrentGroup() {
   if (newsFolder) newsFolder->SetSaveArticleOffline(true);
 
   nsCOMPtr<nsIMsgSearchSession> searchSession =
-      do_CreateInstance(NS_MSGSEARCHSESSION_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messenger/searchSession;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool downloadByDate, downloadUnreadOnly;

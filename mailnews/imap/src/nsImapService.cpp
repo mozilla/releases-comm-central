@@ -26,7 +26,6 @@
 #include "nsIPrefService.h"
 #include "nsILoadGroup.h"
 #include "nsIMsgAccountManager.h"
-#include "nsMsgBaseCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMailDirServiceDefs.h"
 #include "nsIWebNavigation.h"
@@ -2371,7 +2370,7 @@ nsresult nsImapService::GetServerFromUrl(nsIImapUrl* aImapUrl,
   }
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = accountManager->FindServerByURI(mailnewsUrl, aServer);
@@ -2663,8 +2662,8 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
             nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl =
                 do_QueryInterface(subscribeURI);
             if (mailnewsUrl) {
-              nsCOMPtr<nsIMsgMailSession> mailSession =
-                  do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+              nsCOMPtr<nsIMsgMailSession> mailSession = do_GetService(
+                  "@mozilla.org/messenger/services/session;1", &rv);
               NS_ENSURE_SUCCESS(rv, rv);
               nsCOMPtr<nsIMsgWindow> msgWindow;
               rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
@@ -2695,7 +2694,7 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
       // way of doing this.
       if (!imapFolder) {
         nsCOMPtr<nsIMsgMailSession> mailSession =
-            do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+            do_GetService("@mozilla.org/messenger/services/session;1", &rv);
         NS_ENSURE_SUCCESS(rv, rv);
         nsCOMPtr<nsIMsgWindow> msgWindow;
         rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
@@ -3191,7 +3190,7 @@ NS_IMETHODIMP nsImapService::HandleContent(
       nsCString unescapedUriStr;
       MsgUnescapeString(uriStr, 0, unescapedUriStr);
       nsCOMPtr<nsIMessengerWindowService> messengerWindowService =
-          do_GetService(NS_MESSENGERWINDOWSERVICE_CONTRACTID, &rv);
+          do_GetService("@mozilla.org/messenger/windowservice;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
 
       rv = messengerWindowService->OpenMessengerWindowWithUri(

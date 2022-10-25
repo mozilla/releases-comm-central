@@ -11,7 +11,6 @@
 #include "nsIMsgProtocolInfo.h"
 
 #include "nsMsgLocalCID.h"
-#include "nsMsgBaseCID.h"
 #include "nsIFile.h"
 #include "nsCOMPtr.h"
 #include "nsMsgUtils.h"

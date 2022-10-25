@@ -18,7 +18,6 @@
 #include "nsIWidget.h"
 #include "nsIWindowMediator.h"
 #include "nsMessengerWinIntegration.h"
-#include "nsMsgBaseCID.h"
 #include "nsMsgDBFolder.h"
 #include "nsPIDOMWindow.h"
 

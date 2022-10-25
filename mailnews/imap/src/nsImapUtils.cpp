@@ -10,7 +10,6 @@
 #include "prprf.h"
 #include "nsNetCID.h"
 
-#include "nsMsgBaseCID.h"
 #include "nsMsgUtils.h"
 #include "nsImapFlagAndUidState.h"
 #include "nsImapNamespace.h"

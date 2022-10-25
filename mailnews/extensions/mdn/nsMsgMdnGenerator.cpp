@@ -7,7 +7,6 @@
 #include "nsImapCore.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsIMsgAccountManager.h"
-#include "nsMsgBaseCID.h"
 #include "nsMimeTypes.h"
 #include "prprf.h"
 #include "prmem.h"
@@ -773,7 +772,7 @@ nsresult nsMsgMdnGenerator::InitAndProcess(bool* needToAskUser) {
   DEBUG_MDN("nsMsgMdnGenerator::InitAndProcess");
   nsresult rv = m_folder->GetServer(getter_AddRefs(m_server));
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   if (accountManager && m_server) {
     if (!m_identity) {
       // check if this is a message delivered to the global inbox,

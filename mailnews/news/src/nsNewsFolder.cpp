@@ -27,7 +27,6 @@
 #include "nsIMsgIncomingServer.h"
 #include "nsINntpIncomingServer.h"
 #include "nsINewsDatabase.h"
-#include "nsMsgBaseCID.h"
 #include "nsILineInputStream.h"
 
 #include "nsIMsgWindow.h"
@@ -419,7 +418,7 @@ NS_IMETHODIMP nsMsgNewsFolder::CreateSubfolder(const nsAString& newsgroupName,
 
     NotifyFolderAdded(child);
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
     if (notifier) notifier->NotifyFolderAdded(child);
   }
   return rv;
@@ -689,7 +688,7 @@ nsMsgNewsFolder::DeleteMessages(nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHdrs,
 
   if (!isMove) {
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
     if (notifier) notifier->NotifyMsgsDeleted(msgHdrs);
   }
 
@@ -1366,7 +1365,7 @@ NS_IMETHODIMP nsMsgNewsFolder::RemoveMessage(nsMsgKey key) {
 
   // Notify listeners of a delete for a single message
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
   if (notifier) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     rv = mDatabase->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
@@ -1384,7 +1383,7 @@ NS_IMETHODIMP nsMsgNewsFolder::RemoveMessages(
 
   // Notify listeners of a multiple message delete
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
 
   if (notifier) {
     nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrs;
@@ -1657,7 +1656,7 @@ nsMsgNewsFolder::GetFilterList(nsIMsgWindow* aMsgWindow,
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIMsgFilterService> filterService =
-        do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = filterService->OpenFilterList(filterFile, this, aMsgWindow,

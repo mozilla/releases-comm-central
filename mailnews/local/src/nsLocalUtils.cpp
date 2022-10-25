@@ -11,7 +11,6 @@
 // stuff for temporary root folder hack
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgIncomingServer.h"
-#include "nsMsgBaseCID.h"
 #include "nsNativeCharsetUtils.h"
 
 #include "nsMsgUtils.h"
@@ -34,7 +33,7 @@ static nsresult nsGetMailboxServer(const char* uriStr,
 
   // retrieve the AccountManager
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   if (NS_FAILED(rv)) return rv;
 
   // find all local mail "no servers" matching the given hostname

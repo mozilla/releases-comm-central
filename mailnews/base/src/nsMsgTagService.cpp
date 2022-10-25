@@ -5,7 +5,6 @@
 
 #include "msgCore.h"
 #include "nsMsgTagService.h"
-#include "nsMsgBaseCID.h"
 #include "nsIPrefService.h"
 #include "nsISupportsPrimitives.h"
 #include "nsMsgI18N.h"

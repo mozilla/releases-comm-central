@@ -12,7 +12,6 @@
 #include "nsNetUtil.h"
 #include "nsIMsgFolderCache.h"
 #include "nsIMsgFolderCacheElement.h"
-#include "nsMsgBaseCID.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsMsgDatabase.h"
 #include "nsIMsgAccountManager.h"
@@ -606,7 +605,7 @@ nsresult nsMsgDBFolder::GetFolderCacheElemFromFile(
                "whoops, file doesn't exist, mac will break");
 #endif
   nsCOMPtr<nsIMsgAccountManager> accountMgr =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &result);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &result);
   if (NS_SUCCEEDED(result)) {
     result = accountMgr->GetFolderCache(getter_AddRefs(folderCache));
     if (NS_SUCCEEDED(result) && folderCache) {
@@ -1313,7 +1312,7 @@ nsresult nsMsgDBFolder::GetFolderCacheKey(nsIFile** aFile) {
 nsresult nsMsgDBFolder::FlushToFolderCache() {
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   if (NS_SUCCEEDED(rv) && accountManager) {
     nsCOMPtr<nsIMsgFolderCache> folderCache;
     rv = accountManager->GetFolderCache(getter_AddRefs(folderCache));
@@ -1744,7 +1743,7 @@ class AutoCompactEvent : public mozilla::Runnable {
 nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountMgr =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   if (NS_SUCCEEDED(rv)) {
     nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
     rv = accountMgr->GetAllServers(allServers);
@@ -1856,8 +1855,8 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
           NotifyFolderEvent(kAboutToCompact);
 
           if (localExpungedBytes > 0 || offlineExpungedBytes > 0) {
-            nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
-                do_CreateInstance(NS_MSGFOLDERCOMPACTOR_CONTRACTID, &rv);
+            nsCOMPtr<nsIMsgFolderCompactor> folderCompactor = do_CreateInstance(
+                "@mozilla.org/messenger/foldercompactor;1", &rv);
             NS_ENSURE_SUCCESS(rv, rv);
             for (nsIMsgFolder* f : offlineFolderArray) {
               folderArray.AppendElement(f);
@@ -1947,7 +1946,7 @@ nsMsgDBFolder::MatchOrChangeFilterDestination(nsIMsgFolder* newFolder,
 
   nsCOMPtr<nsIMsgFilterList> filterList;
   nsCOMPtr<nsIMsgAccountManager> accountMgr =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
@@ -2155,7 +2154,7 @@ nsMsgDBFolder::OnMessageClassified(const nsACString& aMsgURI,
     if (!mPostBayesMessagesToFilter.IsEmpty()) {
       // Apply post-bayes filtering.
       nsCOMPtr<nsIMsgFilterService> filterService(
-          do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv));
+          do_GetService("@mozilla.org/messenger/services/filters;1", &rv));
       if (NS_SUCCEEDED(rv))
         // We use a null nsIMsgWindow because we don't want some sort of ui
         // appearing in the middle of automatic filtering (plus I really don't
@@ -2171,8 +2170,8 @@ nsMsgDBFolder::OnMessageClassified(const nsACString& aMsgURI,
     rv = MsgGetHeadersFromKeys(mDatabase, mClassifiedMsgKeys, hdrs);
     NS_ENSURE_SUCCESS(rv, rv);
     if (!hdrs.IsEmpty()) {
-      nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID, &rv));
+      nsCOMPtr<nsIMsgFolderNotificationService> notifier(do_GetService(
+          "@mozilla.org/messenger/msgnotificationservice;1", &rv));
       NS_ENSURE_SUCCESS(rv, rv);
       notifier->NotifyMsgsClassified(hdrs, mBayesJunkClassifying,
                                      mBayesTraitClassifying);
@@ -2626,7 +2625,7 @@ nsresult nsMsgDBFolder::NotifyHdrsNotBeingClassified() {
       delete mProcessingFlag[5].keys;
       mProcessingFlag[5].keys = nsMsgKeySetU::Create();
       nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+          do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
       if (notifier)
         notifier->NotifyMsgsClassified(msgHdrsNotBeingClassified,
                                        // no classification is being performed
@@ -2654,7 +2653,7 @@ nsMsgDBFolder::SetLastMessageLoaded(nsMsgKey aMsgKey) {
 bool nsMsgDBFolder::PromptForMasterPasswordIfNecessary() {
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, false);
 
   bool userNeedsToAuthenticate = false;
@@ -2941,7 +2940,7 @@ nsresult nsMsgDBFolder::parseURI(bool needServer) {
     // no parent. do the extra work of asking
     if (!server && needServer) {
       nsCOMPtr<nsIMsgAccountManager> accountManager =
-          do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsCString serverType;
@@ -3389,7 +3388,7 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage,
   nsresult result = GetFolderCacheKey(getter_AddRefs(dbPath));
 
   nsCOMPtr<nsIMsgAccountManager> accountMgr =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &result);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &result);
   if (NS_SUCCEEDED(result)) {
     nsCOMPtr<nsIMsgFolderCache> folderCache;
     result = accountMgr->GetFolderCache(getter_AddRefs(folderCache));
@@ -3424,7 +3423,7 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage,
     // IMAP moves use true, leaving this here in the hope that bug 439108
     // works out.
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
     if (notifier) notifier->NotifyFolderDeleted(this);
     rv = DeleteStorage();
   }
@@ -4505,7 +4504,7 @@ nsMsgDBFolder::NotifyPropertyChanged(const nsACString& aProperty,
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return folderListenerManager->OnFolderPropertyChanged(this, aProperty,
                                                         aOldValue, aNewValue);
@@ -4521,7 +4520,7 @@ nsMsgDBFolder::NotifyUnicharPropertyChanged(const nsACString& aProperty,
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return folderListenerManager->OnFolderUnicharPropertyChanged(
       this, aProperty, aOldValue, aNewValue);
@@ -4541,7 +4540,7 @@ nsMsgDBFolder::NotifyIntPropertyChanged(const nsACString& aProperty,
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return folderListenerManager->OnFolderIntPropertyChanged(
       this, aProperty, aOldValue, aNewValue);
@@ -4556,7 +4555,7 @@ nsMsgDBFolder::NotifyBoolPropertyChanged(const nsACString& aProperty,
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return folderListenerManager->OnFolderBoolPropertyChanged(
       this, aProperty, aOldValue, aNewValue);
@@ -4573,7 +4572,7 @@ nsMsgDBFolder::NotifyPropertyFlagChanged(nsIMsgDBHdr* aItem,
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return folderListenerManager->OnFolderPropertyFlagChanged(
       aItem, aProperty, aOldValue, aNewValue);
@@ -4585,7 +4584,7 @@ NS_IMETHODIMP nsMsgDBFolder::NotifyMessageAdded(nsIMsgDBHdr* msg) {
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = folderListenerManager->OnMessageAdded(this, msg);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -4598,7 +4597,7 @@ nsresult nsMsgDBFolder::NotifyMessageRemoved(nsIMsgDBHdr* msg) {
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = folderListenerManager->OnMessageRemoved(this, msg);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -4611,7 +4610,7 @@ NS_IMETHODIMP nsMsgDBFolder::NotifyFolderAdded(nsIMsgFolder* child) {
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return folderListenerManager->OnFolderAdded(this, child);
 }
@@ -4622,7 +4621,7 @@ nsresult nsMsgDBFolder::NotifyFolderRemoved(nsIMsgFolder* child) {
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return folderListenerManager->OnFolderRemoved(this, child);
 }
@@ -4633,7 +4632,7 @@ nsresult nsMsgDBFolder::NotifyFolderEvent(const nsACString& aEvent) {
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return folderListenerManager->OnFolderEvent(this, aEvent);
 }
@@ -4903,7 +4902,7 @@ NS_IMETHODIMP nsMsgDBFolder::NotifyCompactCompleted() {
 nsresult nsMsgDBFolder::CloseDBIfFolderNotOpen() {
   nsresult rv;
   nsCOMPtr<nsIMsgMailSession> session =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   bool folderOpen;
   session->IsFolderOpenInWindow(this, &folderOpen);

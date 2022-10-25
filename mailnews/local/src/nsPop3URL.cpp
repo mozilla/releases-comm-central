@@ -10,7 +10,6 @@
 #include "prmem.h"
 #include "plstr.h"
 #include "prprf.h"
-#include "nsMsgBaseCID.h"
 #include "nsMsgLocalCID.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgAccountManager.h"
@@ -130,7 +129,7 @@ nsresult nsPop3URL::NewURI(const nsACString& aSpec, nsIURI* aBaseURI,
     if (msgHdr) localFolder->GetUidlFromFolder(&folderScanState, msgHdr);
     if (!folderScanState.m_accountKey.IsEmpty()) {
       nsCOMPtr<nsIMsgAccountManager> accountManager =
-          do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
       if (accountManager) {
         nsCOMPtr<nsIMsgAccount> account;
         accountManager->GetAccount(folderScanState.m_accountKey,

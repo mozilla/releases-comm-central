@@ -30,7 +30,6 @@
 #include "mozIDOMWindow.h"
 #include "nsEmbedCID.h"
 #include "nsMsgUtils.h"
-#include "nsMsgBaseCID.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIPop3Service.h"
 #include "nsMsgLocalCID.h"
@@ -158,7 +157,7 @@ nsresult nsPop3Sink::BeginMailDelivery(bool uidlDownload,
   m_window = aMsgWindow;
 
   nsCOMPtr<nsIMsgAccountManager> acctMgr =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   nsCOMPtr<nsIMsgAccount> account;
   NS_ENSURE_SUCCESS(rv, rv);
   acctMgr->FindAccountForServer(server, getter_AddRefs(account));
