@@ -3119,8 +3119,8 @@ NS_IMETHODIMP nsImapService::PlaybackAllOfflineOperations(
   NS_ENSURE_ARG_POINTER(aResult);
 
   nsresult rv;
-  nsImapOfflineSync* goOnline =
-      new nsImapOfflineSync(aMsgWindow, aListener, nullptr);
+  nsImapOfflineSync* goOnline = new nsImapOfflineSync();
+  goOnline->Init(aMsgWindow, aListener, nullptr, false);
   if (goOnline) {
     rv = goOnline->QueryInterface(NS_GET_IID(nsISupports), (void**)aResult);
     NS_ENSURE_SUCCESS(rv, rv);

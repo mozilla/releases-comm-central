@@ -774,8 +774,8 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
       // hold a reference to the offline sync object. If ProcessNextOperation
       // runs a url, a reference will be added to it. Otherwise, it will get
       // destroyed when the refptr goes out of scope.
-      RefPtr<nsImapOfflineSync> goOnline =
-          new nsImapOfflineSync(aMsgWindow, this, this);
+      RefPtr<nsImapOfflineSync> goOnline = new nsImapOfflineSync();
+      goOnline->Init(aMsgWindow, this, this, false);
       if (goOnline) {
         m_urlListener = aUrlListener;
         return goOnline->ProcessNextOperation();
@@ -8831,8 +8831,8 @@ void nsImapMailFolder::PlaybackTimerCallback(nsITimer* aTimer, void* aClosure) {
   NS_ASSERTION(request->SrcFolder->m_pendingPlaybackReq == request,
                "wrong playback request pointer");
 
-  RefPtr<nsImapOfflineSync> offlineSync = new nsImapOfflineSync(
-      request->MsgWindow, nullptr, request->SrcFolder, true);
+  RefPtr<nsImapOfflineSync> offlineSync = new nsImapOfflineSync();
+  offlineSync->Init(request->MsgWindow, nullptr, request->SrcFolder, true);
   if (offlineSync) {
     mozilla::DebugOnly<nsresult> rv = offlineSync->ProcessNextOperation();
     NS_ASSERTION(NS_SUCCEEDED(rv), "pseudo-offline playback is not successful");

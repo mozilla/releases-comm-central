@@ -22,12 +22,13 @@
 #include "mozilla/Unused.h"
 
 NS_IMPL_ISUPPORTS(nsImapOfflineSync, nsIUrlListener, nsIMsgCopyServiceListener,
-                  nsIDBChangeListener)
+                  nsIDBChangeListener, nsIImapOfflineSync)
 
-nsImapOfflineSync::nsImapOfflineSync(nsIMsgWindow* window,
-                                     nsIUrlListener* listener,
-                                     nsIMsgFolder* singleFolderOnly,
-                                     bool isPseudoOffline) {
+nsImapOfflineSync::nsImapOfflineSync() {}
+
+NS_IMETHODIMP
+nsImapOfflineSync::Init(nsIMsgWindow* window, nsIUrlListener* listener,
+                        nsIMsgFolder* singleFolderOnly, bool isPseudoOffline) {
   m_singleFolderToUpdate = singleFolderOnly;
   m_window = window;
   // not the perfect place for this, but I think it will work.
@@ -41,6 +42,8 @@ nsImapOfflineSync::nsImapOfflineSync(nsIMsgWindow* window,
   m_KeyIndex = 0;
   mCurrentUIDValidity = nsMsgKey_None;
   m_listener = listener;
+
+  return NS_OK;
 }
 
 nsImapOfflineSync::~nsImapOfflineSync() {}
@@ -679,7 +682,8 @@ int32_t nsImapOfflineSync::GetCurrentUIDValidity() {
  * The first state is creating online any folders created offline (we do this
  * first, so we can play back any operations in them in the next pass)
  */
-nsresult nsImapOfflineSync::ProcessNextOperation() {
+NS_IMETHODIMP
+nsImapOfflineSync::ProcessNextOperation() {
   nsresult rv = NS_OK;
 
   // if we haven't created offline folders, and we're updating all folders,
@@ -977,7 +981,8 @@ void nsImapOfflineSync::DeleteAllOfflineOpsForCurrentDB() {
 
 nsImapOfflineDownloader::nsImapOfflineDownloader(nsIMsgWindow* aMsgWindow,
                                                  nsIUrlListener* aListener)
-    : nsImapOfflineSync(aMsgWindow, aListener) {
+    : nsImapOfflineSync() {
+  Init(aMsgWindow, aListener, nullptr, false);
   // pause auto-sync service
   nsresult rv;
   nsCOMPtr<nsIAutoSyncManager> autoSyncMgr =
@@ -987,7 +992,8 @@ nsImapOfflineDownloader::nsImapOfflineDownloader(nsIMsgWindow* aMsgWindow,
 
 nsImapOfflineDownloader::~nsImapOfflineDownloader() {}
 
-nsresult nsImapOfflineDownloader::ProcessNextOperation() {
+NS_IMETHODIMP
+nsImapOfflineDownloader::ProcessNextOperation() {
   nsresult rv = NS_OK;
   m_mailboxupdatesStarted = true;
 
