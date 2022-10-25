@@ -18,7 +18,6 @@
 #include "nsIProperties.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsProfileMigrator.h"
-#include "nsMailMigrationCID.h"
 
 #ifdef XP_WIN
 #  include <windows.h>
