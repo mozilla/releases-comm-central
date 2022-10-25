@@ -8,7 +8,6 @@
 #include "nsAddrDatabase.h"
 #include "nsAbBaseCID.h"
 #include "nsMsgUtils.h"
-#include "nsMorkCID.h"
 #include "nsIMdbFactoryFactory.h"
 #include "nsSimpleEnumerator.h"
 
@@ -120,7 +119,7 @@ nsresult nsAddrDatabase::GetMDBFactory(nsIMdbFactory** aMdbFactory) {
   if (!mMdbFactory) {
     nsresult rv;
     nsCOMPtr<nsIMdbFactoryService> mdbFactoryService =
-        do_GetService(NS_MORK_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/db/mork;1", &rv);
     if (NS_SUCCEEDED(rv) && mdbFactoryService) {
       rv = mdbFactoryService->GetMdbFactory(getter_AddRefs(mMdbFactory));
       NS_ENSURE_SUCCESS(rv, rv);

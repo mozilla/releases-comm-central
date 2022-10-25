@@ -14,7 +14,6 @@
 #include "prprf.h"
 #include "mozilla/Logging.h"
 // Mork-related includes.
-#include "nsMorkCID.h"
 #include "nsIMdbFactoryFactory.h"
 #include "mdb.h"
 // Includes for jsoncpp.
@@ -418,7 +417,7 @@ static void applyEntry(nsCString const& name, nsCString const& val,
 static nsresult importFromMork(PathString const& dbName, Json::Value& root) {
   nsresult rv;
   nsCOMPtr<nsIMdbFactoryService> factoryService =
-      do_GetService(NS_MORK_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/db/mork;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMdbFactory> factory;
   rv = factoryService->GetMdbFactory(getter_AddRefs(factory));

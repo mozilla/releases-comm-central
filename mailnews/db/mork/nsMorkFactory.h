@@ -8,7 +8,6 @@
 
 #include "mozilla/ModuleUtils.h"
 #include "nsCOMPtr.h"
-#include "nsMorkCID.h"
 #include "nsIMdbFactoryFactory.h"
 #include "mdb.h"
 
