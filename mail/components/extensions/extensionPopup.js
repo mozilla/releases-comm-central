@@ -23,6 +23,8 @@ var gContextMenu;
 
 /* globals nsContextMenu, reporterListener */
 
+window.addEventListener("DOMContentLoaded", loadRequestedUrl);
+
 function loadRequestedUrl() {
   let browser = document.getElementById("requestFrame");
   browser.addProgressListener(reporterListener, Ci.nsIWebProgress.NOTIFY_ALL);
