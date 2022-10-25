@@ -10,7 +10,6 @@
 #include "nsIStringBundle.h"
 #include "nsNewsDownloader.h"
 #include "nsINntpService.h"
-#include "nsMsgNewsCID.h"
 #include "nsIMsgSearchSession.h"
 #include "nsIMsgSearchTerm.h"
 #include "nsIMsgAccountManager.h"
@@ -99,7 +98,7 @@ nsresult nsNewsDownloader::DownloadNext(bool firstTimeP) {
   StartDownload();
   m_wroteAnyP = false;
   nsCOMPtr<nsINntpService> nntpService =
-      do_GetService(NS_NNTPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/nntpservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIURI> uri;

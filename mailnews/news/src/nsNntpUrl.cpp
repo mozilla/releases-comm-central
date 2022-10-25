@@ -14,7 +14,6 @@
 #include "nntpCore.h"
 
 #include "nsCOMPtr.h"
-#include "nsMsgNewsCID.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgNewsFolder.h"
 #include "nsINntpService.h"
@@ -333,7 +332,7 @@ NS_IMETHODIMP nsNntpUrl::GetMessageHeader(nsIMsgDBHdr** aMsgHdr) {
   nsresult rv;
 
   nsCOMPtr<nsINntpService> nntpService =
-      do_GetService(NS_NNTPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/nntpservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgMessageService> msgService =
@@ -466,7 +465,7 @@ nsresult nsNntpUrl::NewURI(const nsACString& aSpec, nsIURI* aBaseURI,
   nsresult rv;
 
   nsCOMPtr<nsIMsgMailNewsUrl> nntpUri =
-      do_CreateInstance(NS_NNTPURL_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messenger/nntpurl;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (aBaseURI) {

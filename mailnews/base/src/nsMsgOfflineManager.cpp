@@ -16,7 +16,6 @@
 #include "nsIMsgAccountManager.h"
 #include "nsIIOService.h"
 #include "nsNetCID.h"
-#include "nsMsgNewsCID.h"
 #include "nsINntpService.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsServiceManagerUtils.h"
@@ -228,7 +227,7 @@ nsresult nsMsgOfflineManager::DownloadOfflineNewsgroups() {
   nsresult rv;
   ShowStatus("downloadingNewsgroups");
   nsCOMPtr<nsINntpService> nntpService(
-      do_GetService(NS_NNTPSERVICE_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/messenger/nntpservice;1", &rv));
   if (NS_SUCCEEDED(rv) && nntpService)
     rv = nntpService->DownloadNewsgroupsForOffline(m_window, this);
 

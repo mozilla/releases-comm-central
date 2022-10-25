@@ -15,7 +15,6 @@
 #include "nsIImapUrl.h"
 #include "nsIMailboxUrl.h"
 #include "nsINntpUrl.h"
-#include "nsMsgNewsCID.h"
 #include "nsMsgI18N.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsCharTraits.h"

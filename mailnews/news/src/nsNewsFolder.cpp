@@ -19,7 +19,6 @@
 #include "nsINntpService.h"
 #include "nsIMsgFilterService.h"
 #include "nsCOMPtr.h"
-#include "nsMsgNewsCID.h"
 #include "nsMsgUtils.h"
 #include "nsNewsUtils.h"
 
@@ -727,7 +726,7 @@ NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr* msgHdr,
   nsresult rv;
 
   nsCOMPtr<nsINntpService> nntpService =
-      do_GetService(NS_NNTPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/nntpservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // for cancel, we need to
@@ -794,7 +793,7 @@ nsresult nsMsgNewsFolder::GetNewsMessages(nsIMsgWindow* aMsgWindow,
   }
 
   nsCOMPtr<nsINntpService> nntpService =
-      do_GetService(NS_NNTPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/nntpservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsINntpIncomingServer> nntpServer;
