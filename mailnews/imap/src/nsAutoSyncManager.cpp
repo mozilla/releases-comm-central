@@ -6,7 +6,6 @@
 #include "nsAutoSyncState.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsIMsgHdr.h"
-#include "nsMsgImapCID.h"
 #include "nsIObserverService.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgIncomingServer.h"

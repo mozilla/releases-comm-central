@@ -17,7 +17,6 @@
 #include "nsINntpUrl.h"
 #include "nsMsgNewsCID.h"
 #include "nsMsgLocalCID.h"
-#include "nsMsgImapCID.h"
 #include "nsMsgI18N.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsCharTraits.h"

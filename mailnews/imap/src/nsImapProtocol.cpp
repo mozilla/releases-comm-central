@@ -10,7 +10,6 @@
 #include "nsImapStringBundle.h"
 #include "nsVersionComparator.h"
 
-#include "nsMsgImapCID.h"
 #include "nsThreadUtils.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsImapCore.h"
@@ -9318,7 +9317,7 @@ nsresult nsImapMockChannel::OpenCacheEntry() {
   nsresult rv;
   // get the cache session from our imap service...
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsICacheStorage> cacheStorage;

@@ -7,7 +7,6 @@
 #include "nsIMsgHdr.h"
 #include "nsLocalUndoTxn.h"
 #include "nsImapCore.h"
-#include "nsMsgImapCID.h"
 #include "nsIImapService.h"
 #include "nsIUrlListener.h"
 #include "nsIMsgLocalMailFolder.h"
@@ -82,7 +81,7 @@ nsresult nsLocalMoveCopyMsgTxn::UndoImapDeleteFlag(nsIMsgFolder* folder,
   nsresult rv = NS_ERROR_FAILURE;
   if (m_srcIsImap4) {
     nsCOMPtr<nsIImapService> imapService =
-        do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIUrlListener> urlListener;
     nsCString msgIds;

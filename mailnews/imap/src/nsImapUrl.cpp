@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "msgCore.h"  // precompiled header...
-#include "nsMsgImapCID.h"
 
 #include "nsImapUrl.h"
 #include "../public/nsIImapHostSessionList.h"

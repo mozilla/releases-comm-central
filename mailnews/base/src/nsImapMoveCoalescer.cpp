@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "msgCore.h"
-#include "nsMsgImapCID.h"
 #include "nsImapMoveCoalescer.h"
 #include "nsIImapService.h"
 #include "nsIMsgCopyService.h"
@@ -182,7 +181,7 @@ NS_IMETHODIMP nsMoveCoalescerCopyListener::OnStopCopy(nsresult aStatus) {
       m_destFolder->GetFlags(&folderFlags);
       if (!(folderFlags & (nsMsgFolderFlags::Junk | nsMsgFolderFlags::Trash))) {
         nsCOMPtr<nsIImapService> imapService =
-            do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+            do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
         NS_ENSURE_SUCCESS(rv, rv);
         nsCOMPtr<nsIURI> url;
         rv = imapService->SelectFolder(m_destFolder, m_coalescer, nullptr,

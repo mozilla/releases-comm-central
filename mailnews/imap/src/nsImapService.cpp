@@ -5,7 +5,6 @@
 
 #include "msgCore.h"  // precompiled header...
 #include "nsImapService.h"
-#include "nsMsgImapCID.h"
 #include "nsImapCore.h"
 #include "netCore.h"
 

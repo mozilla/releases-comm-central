@@ -8,7 +8,6 @@
 #include "nsImapCore.h"
 #include "nsImapNamespace.h"
 #include "../public/nsIImapHostSessionList.h"
-#include "nsMsgImapCID.h"
 #include "nsImapUrl.h"
 #include "nsString.h"
 #include "nsServiceManagerUtils.h"

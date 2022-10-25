@@ -5,7 +5,6 @@
 #include "nsAutoSyncState.h"
 #include "nsImapMailFolder.h"
 #include "nsIImapService.h"
-#include "nsMsgImapCID.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgMailSession.h"
 #include "nsMsgFolderFlags.h"
@@ -575,7 +574,7 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
     nsTArray<RefPtr<nsIMsgDBHdr>> const& messages) {
   nsresult rv;
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString messageIds;

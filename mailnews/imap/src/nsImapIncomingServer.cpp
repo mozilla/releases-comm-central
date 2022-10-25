@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "msgCore.h"
-#include "nsMsgImapCID.h"
 
 #include "netCore.h"
 #include "../public/nsIImapHostSessionList.h"
@@ -967,7 +966,7 @@ nsImapIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
   if (!rootMsgFolder) return NS_ERROR_FAILURE;
 
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
   rv = imapService->DiscoverAllFolders(rootMsgFolder, this, aMsgWindow);
@@ -989,7 +988,7 @@ nsImapIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
   nsresult rv;
 
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgFolder> rootFolder;
   // this will create the resource if it doesn't exist, but it shouldn't
@@ -2150,7 +2149,7 @@ nsImapIncomingServer::StartPopulatingWithUri(nsIMsgWindow* aMsgWindow,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   /*
@@ -2181,7 +2180,7 @@ nsImapIncomingServer::StartPopulating(nsIMsgWindow* aMsgWindow,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return imapService->GetListOfFoldersOnServer(this, aMsgWindow);
 }
@@ -2340,7 +2339,7 @@ nsImapIncomingServer::SubscribeToFolder(const nsAString& aName, bool subscribe,
                                         nsIURI** aUri) {
   nsresult rv;
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolder> rootMsgFolder;
