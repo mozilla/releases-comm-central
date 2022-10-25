@@ -32,6 +32,8 @@
 	<dict>
 		<key>MallocNanoZone</key>
 		<string>0</string>
+		<key>SYSTEM_VERSION_COMPAT</key>
+		<string>0</string>
 	</dict>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.9.0</string>
