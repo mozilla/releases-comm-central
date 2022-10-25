@@ -93,6 +93,7 @@ class NntpClient {
       this.onOpen();
     } else {
       // Start a new connection.
+      this._authenticated = false;
       let hostname = this._server.hostName.toLowerCase();
       let useSecureTransport = this._server.isSecure;
       this._logger.debug(
@@ -410,8 +411,16 @@ class NntpClient {
    * Send `POST` request to the server.
    */
   post() {
-    this._sendCommand("POST");
-    this._nextAction = this._actionHandlePost;
+    let action = () => {
+      this._nextAction = this._actionHandlePost;
+      this._sendCommand("POST");
+    };
+    if (this._server.pushAuth && !this._authenticated) {
+      this._currentAction = action;
+      this._actionAuthUser();
+    } else {
+      action();
+    }
   }
 
   /**
@@ -461,7 +470,7 @@ class NntpClient {
       this._sendCommand("MODE READER");
       this._inReadingMode = true;
       this._nextAction = () => {
-        if (this._server.pushAuth) {
+        if (this._server.pushAuth && !this._authenticated) {
           this._currentAction = nextAction;
           this._actionAuthUser();
         } else {
@@ -753,6 +762,7 @@ class NntpClient {
   _actionAuthResult({ status }) {
     switch (status) {
       case AUTH_ACCEPTED:
+        this._authenticated = true;
         this._currentAction?.();
         return;
       case AUTH_PASSWORD_REQUIRED:

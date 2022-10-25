@@ -57,7 +57,7 @@ MessageSend.prototype = {
     compType
   ) {
     this._userIdentity = userIdentity;
-    this._accountKey = accountKey;
+    this._accountKey = accountKey || this._accountKeyForIdentity(userIdentity);
     this._compFields = compFields;
     this._dontDeliver = dontDeliver;
     this._deliverMode = deliverMode;
@@ -166,7 +166,7 @@ MessageSend.prototype = {
     smtpPassword
   ) {
     this._userIdentity = userIdentity;
-    this._accountKey = accountKey;
+    this._accountKey = accountKey || this._accountKeyForIdentity(userIdentity);
     this._compFields = compFields;
     this._deliverMode = deliverMode;
     this._msgToReplace = msgToReplace;
@@ -1099,9 +1099,12 @@ MessageSend.prototype = {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_NNTP;
     lazy.MsgUtils.sendLogger.debug("Delivering news message");
     let deliveryListener = new MsgDeliveryListener(this, true);
-    let msgWindow =
-      this._sendProgress?.msgWindow ||
-      MailServices.mailSession.topmostMsgWindow;
+    let msgWindow;
+    try {
+      msgWindow =
+        this._sendProgress?.msgWindow ||
+        MailServices.mailSession.topmostMsgWindow;
+    } catch (e) {}
     MailServices.nntp.postMessage(
       this._deliveryFile,
       this._compFields.newsgroups,
@@ -1301,6 +1304,18 @@ MessageSend.prototype = {
     }
 
     return bodyText;
+  },
+
+  /**
+   * Get the first account key of an identity.
+   * @param {nsIMsgIdentity} identity - The identity.
+   * @returns {string}
+   */
+  _accountKeyForIdentity(identity) {
+    let servers = MailServices.accounts.getServersForIdentity(identity);
+    return servers.length
+      ? MailServices.accounts.FindAccountForServer(servers[0])?.key
+      : null;
   },
 };
 
