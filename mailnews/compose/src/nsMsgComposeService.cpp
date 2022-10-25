@@ -31,7 +31,6 @@
 #include "nsIMsgAccountManager.h"
 #include "nsIMimeMiscStatus.h"
 #include "nsIStreamConverter.h"
-#include "nsMsgMimeCID.h"
 #include "nsToolkitCompsCID.h"
 #include "nsNetUtil.h"
 #include "nsIMsgMailNewsUrl.h"
@@ -1248,8 +1247,9 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Create a mime parser (nsIMimeStreamConverter)to do the conversion.
-  nsCOMPtr<nsIMimeStreamConverter> mimeConverter =
-      do_CreateInstance(NS_MAILNEWS_MIME_STREAM_CONVERTER_CONTRACTID, &rv);
+  nsCOMPtr<nsIMimeStreamConverter> mimeConverter = do_CreateInstance(
+      "@mozilla.org/streamconv;1?from=message/rfc822&to=application/xhtml+xml",
+      &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   mimeConverter->SetMimeOutputType(

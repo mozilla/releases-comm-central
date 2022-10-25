@@ -13,7 +13,6 @@
 #include "nsIMimeConverter.h"
 #include "nsMsgUtils.h"
 #include "nsMsgI18N.h"
-#include "nsMsgMimeCID.h"
 #include "nsILineInputStream.h"
 #include "nsMimeTypes.h"
 #include "nsString.h"
@@ -191,7 +190,7 @@ char* nsMsgI18NEncodeMimePartIIStr(const char* header, bool structured,
   nsAutoCString encodedString;
   nsresult res;
   nsCOMPtr<nsIMimeConverter> converter =
-      do_GetService(NS_MIME_CONVERTER_CONTRACTID, &res);
+      do_GetService("@mozilla.org/messenger/mimeconverter;1", &res);
   if (NS_SUCCEEDED(res) && nullptr != converter) {
     res = converter->EncodeMimePartIIStr_UTF8(
         nsDependentCString(header), structured, fieldnamelen,

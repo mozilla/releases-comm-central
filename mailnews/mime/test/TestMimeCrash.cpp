@@ -3,7 +3,6 @@
 #include "nsCOMPtr.h"
 #include "nsIMimeConverter.h"
 #include "nsServiceManagerUtils.h"
-#include "nsMsgMimeCID.h"
 
 #include "prshma.h"
 #include "prsystem.h"
@@ -20,7 +19,7 @@ nsresult do_test(const char* aBuffer, const uint32_t aSize) {
   int32_t written = 0;
 
   nsCOMPtr<nsIMimeConverter> converter =
-      do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = converter->QPEncoderInit(mime_encoder_output_fn, nullptr, &encodeData);

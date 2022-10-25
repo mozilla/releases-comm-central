@@ -11,7 +11,6 @@
 #include "nsString.h"
 #include "nsMsgUtils.h"
 #include "nsIMimeConverter.h"
-#include "nsMsgMimeCID.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsCRT.h"
@@ -177,7 +176,7 @@ nsresult nsMailtoUrl::ParseMailtoUrl(char* searchPart) {
   nsresult rv;
   // Get a global converter
   nsCOMPtr<nsIMimeConverter> mimeConverter =
-      do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Now unescape everything, and mime-decode the things that can be encoded.

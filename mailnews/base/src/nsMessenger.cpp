@@ -72,7 +72,6 @@
 #include "nsMsgTxn.h"
 
 // charset conversions
-#include "nsMsgMimeCID.h"
 #include "nsIMimeConverter.h"
 
 // Save As

@@ -19,7 +19,6 @@
 #include "prlog.h"
 #include "prmem.h"
 #include "nsIMimeConverter.h"
-#include "nsMsgMimeCID.h"
 #include "nsComposeStrings.h"
 #include "nsIObserverService.h"
 #include "nsIMsgLocalMailFolder.h"

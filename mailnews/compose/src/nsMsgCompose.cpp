@@ -33,7 +33,6 @@
 #include "nsIWindowMediator.h"
 #include "nsIURL.h"
 #include "nsIMsgMailSession.h"
-#include "nsMsgMimeCID.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
 #include "nsIMsgComposeService.h"
 #include "nsIMsgComposeProgressParams.h"
@@ -2112,7 +2111,8 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
 
       bool needToRemoveDup = false;
       if (!mMimeConverter) {
-        mMimeConverter = do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
+        mMimeConverter =
+            do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
         NS_ENSURE_SUCCESS(rv, rv);
       }
       nsCString charset("UTF-8");

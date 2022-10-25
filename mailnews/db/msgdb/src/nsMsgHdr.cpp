@@ -10,7 +10,6 @@
 #include "nsMsgUtils.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgThread.h"
-#include "nsMsgMimeCID.h"
 #include "mozilla/Attributes.h"
 #include "nsStringEnumerator.h"
 #ifdef DEBUG

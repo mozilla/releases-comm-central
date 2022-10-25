@@ -21,7 +21,6 @@
 #include "nsMsgSearchValue.h"
 #include "nsMsgI18N.h"
 #include "nsIMimeConverter.h"
-#include "nsMsgMimeCID.h"
 #include "nsIPrefBranch.h"
 #include "nsIPrefService.h"
 #include "nsIMsgFilterPlugin.h"
@@ -947,7 +946,7 @@ nsresult nsMsgSearchTerm::MatchRfc2047String(const nsACString& rfc2047string,
 
   nsresult rv;
   nsCOMPtr<nsIMimeConverter> mimeConverter =
-      do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsAutoString stringToMatch;
   rv = mimeConverter->DecodeMimeHeader(PromiseFlatCString(rfc2047string).get(),

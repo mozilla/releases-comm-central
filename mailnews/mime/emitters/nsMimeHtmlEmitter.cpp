@@ -23,7 +23,6 @@
 // hack: include this to fix opening news attachments.
 #include "nsINntpUrl.h"
 #include "nsComponentManagerUtils.h"
-#include "nsMsgMimeCID.h"
 #include "nsMsgUtils.h"
 #include "nsMemory.h"
 #include "mozilla/Components.h"

@@ -19,7 +19,6 @@
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
-#include "nsMsgMimeCID.h"
 #include "nsMsgCompose.h"
 #include "nsMsgMailNewsUrl.h"
 #include "mozilla/Components.h"

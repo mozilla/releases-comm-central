@@ -16,8 +16,6 @@
 #include "mimexpcom.h"
 #include "nsMsgUtils.h"
 
-#include "nsMsgMimeCID.h"
-
 #include "mimecth.h"
 #include "mimemoz2.h"
 #include "nspr.h"

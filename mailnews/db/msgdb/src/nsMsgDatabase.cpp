@@ -17,7 +17,6 @@
 #include "mozilla/Logging.h"
 #include "mozilla/Telemetry.h"
 #include "prprf.h"
-#include "nsMsgMimeCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgDBView.h"
@@ -2865,7 +2864,7 @@ nsresult nsMsgDatabase::RowCellColumnToConstCharPtr(nsIMdbRow* hdrRow,
 nsIMimeConverter* nsMsgDatabase::GetMimeConverter() {
   if (!m_mimeConverter) {
     // apply mime decode
-    m_mimeConverter = do_GetService(NS_MIME_CONVERTER_CONTRACTID);
+    m_mimeConverter = do_GetService("@mozilla.org/messenger/mimeconverter;1");
   }
   return m_mimeConverter;
 }
