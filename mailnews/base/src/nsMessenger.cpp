@@ -60,7 +60,6 @@
 #include "nsIMsgHdr.h"
 #include "nsIMimeMiscStatus.h"
 // compose
-#include "nsMsgCompCID.h"
 #include "nsNativeCharsetUtils.h"
 
 // draft/folders/sendlater/etc

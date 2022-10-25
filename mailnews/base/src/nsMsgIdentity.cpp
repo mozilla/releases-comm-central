@@ -7,7 +7,6 @@
 #include "nsMsgIdentity.h"
 #include "nsIPrefService.h"
 #include "nsString.h"
-#include "nsMsgCompCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgIncomingServer.h"

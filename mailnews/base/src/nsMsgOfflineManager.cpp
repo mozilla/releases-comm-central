@@ -16,7 +16,6 @@
 #include "nsMsgImapCID.h"
 #include "nsIMsgSendLater.h"
 #include "nsIMsgAccountManager.h"
-#include "nsMsgCompCID.h"
 #include "nsIIOService.h"
 #include "nsNetCID.h"
 #include "nsMsgNewsCID.h"

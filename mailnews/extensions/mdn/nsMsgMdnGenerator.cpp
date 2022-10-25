@@ -17,7 +17,6 @@
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsIHttpProtocolHandler.h"
 #include "nsISmtpService.h"  // for actually sending the message...
-#include "nsMsgCompCID.h"
 #include "nsComposeStrings.h"
 #include "nsISmtpServer.h"
 #include "nsIPrompt.h"
@@ -375,7 +374,7 @@ nsresult nsMsgMdnGenerator::CreateFirstPart() {
   nsCOMPtr<nsIMsgCompUtils> compUtils;
 
   if (m_mimeSeparator.IsEmpty()) {
-    compUtils = do_GetService(NS_MSGCOMPUTILS_CONTRACTID, &rv);
+    compUtils = do_GetService("@mozilla.org/messengercompose/computils;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = compUtils->MimeMakeSeparator("mdn", getter_Copies(m_mimeSeparator));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -615,7 +614,7 @@ nsresult nsMsgMdnGenerator::CreateSecondPart() {
     PUSH_N_FREE_STRING(tmpBuffer);
   }
 
-  compUtils = do_GetService(NS_MSGCOMPUTILS_CONTRACTID, &rv);
+  compUtils = do_GetService("@mozilla.org/messengercompose/computils;1", &rv);
   if (compUtils) compUtils->GetMsgMimeConformToStandard(&conformToStandard);
 
   convbuf = nsMsgI18NEncodeMimePartIIStr(m_email.get(), true, "UTF-8", 0,
@@ -747,7 +746,7 @@ nsresult nsMsgMdnGenerator::SendMdnMsg() {
   DEBUG_MDN("nsMsgMdnGenerator::SendMdnMsg");
   nsresult rv;
   nsCOMPtr<nsISmtpService> smtpService =
-      do_GetService(NS_SMTPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messengercompose/smtp;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIURI> aUri;
@@ -962,7 +961,7 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI* url,
   }
 
   nsCOMPtr<nsISmtpService> smtpService(
-      do_GetService(NS_SMTPSERVICE_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/messengercompose/smtp;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Get the smtp hostname and format the string.

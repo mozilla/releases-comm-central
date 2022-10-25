@@ -20,7 +20,6 @@
 #include "nsIServiceManager.h"
 #include "nsMsgAccountManager.h"
 #include "nsMsgBaseCID.h"
-#include "nsMsgCompCID.h"
 #include "nsMsgDBCID.h"
 #include "prmem.h"
 #include "prcmon.h"

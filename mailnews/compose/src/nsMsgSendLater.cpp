@@ -10,7 +10,6 @@
 #include "nsIMsgMessageService.h"
 #include "nsIMsgAccountManager.h"
 #include "nsMsgBaseCID.h"
-#include "nsMsgCompCID.h"
 #include "nsMsgCompUtils.h"
 #include "nsMsgUtils.h"
 #include "nsMailHeaders.h"
@@ -470,10 +469,11 @@ nsresult nsMsgSendLater::CompleteMailFileSend() {
   if (!created) return NS_ERROR_FAILURE;
 
   nsCOMPtr<nsIMsgCompFields> compFields =
-      do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messengercompose/composefields;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgSend> pMsgSend = do_CreateInstance(NS_MSGSEND_CONTRACTID, &rv);
+  nsCOMPtr<nsIMsgSend> pMsgSend =
+      do_CreateInstance("@mozilla.org/messengercompose/send;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Since we have already parsed all of the headers, we are simply going to

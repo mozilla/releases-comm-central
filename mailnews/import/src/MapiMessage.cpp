@@ -20,7 +20,6 @@
 #include "nsNativeCharsetUtils.h"
 #include "nsIOutputStream.h"
 
-#include "nsMsgCompCID.h"
 #include "MapiDbgLog.h"
 #include "MapiApi.h"
 
@@ -1130,7 +1129,7 @@ nsresult CMapiMessage::GetAttachments(
        it != m_stdattachments.end(); it++) {
     nsresult rv;
     nsCOMPtr<nsIMsgAttachedFile> a(
-        do_CreateInstance(NS_MSGATTACHEDFILE_CONTRACTID, &rv));
+        do_CreateInstance("@mozilla.org/messengercompose/attachedfile;1", &rv));
     NS_ENSURE_SUCCESS(rv, rv);
     a->SetOrigUrl((*it)->orig_url);
     a->SetTmpFile((*it)->tmp_file);

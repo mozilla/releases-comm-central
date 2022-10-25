@@ -9,7 +9,6 @@
 #include "mozIDOMWindow.h"
 #include "nsISelectionController.h"
 #include "nsMsgI18N.h"
-#include "nsMsgCompCID.h"
 #include "nsMsgQuote.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -798,7 +797,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
   nsCOMPtr<nsIMsgComposeService> composeService(
-      do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID));
+      do_GetService("@mozilla.org/messengercompose;1"));
   composeService->TimeStamp(
       "Finished inserting data into the editor. The window is finally ready!",
       false);
@@ -875,7 +874,7 @@ nsMsgCompose::Initialize(nsIMsgComposeParams* aParams,
   aParams->GetComposeFields(getter_AddRefs(composeFields));
 
   nsCOMPtr<nsIMsgComposeService> composeService =
-      do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messengercompose;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = composeService->DetermineComposeHTML(m_identity, format, &m_composeHTML);
@@ -1038,7 +1037,8 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode,
     observerService->NotifyObservers(NS_ISUPPORTS_CAST(nsIMsgCompose*, this),
                                      "mail-set-sender", sendParms.get());
 
-    if (!mMsgSend) mMsgSend = do_CreateInstance(NS_MSGSEND_CONTRACTID);
+    if (!mMsgSend)
+      mMsgSend = do_CreateInstance("@mozilla.org/messengercompose/send;1");
 
     if (mMsgSend) {
       nsString bodyString;
@@ -1047,7 +1047,8 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode,
 
       // Create the listener for the send operation...
       nsCOMPtr<nsIMsgComposeSendListener> composeSendListener =
-          do_CreateInstance(NS_MSGCOMPOSESENDLISTENER_CONTRACTID);
+          do_CreateInstance(
+              "@mozilla.org/messengercompose/composesendlistener;1");
       if (!composeSendListener) return NS_ERROR_OUT_OF_MEMORY;
 
       // right now, AutoSaveAsDraft is identical to SaveAsDraft as
@@ -1153,8 +1154,8 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
       if (prefBranch) {
         prefBranch->GetBoolPref("mailnews.show_send_progress", &showProgress);
         if (showProgress) {
-          nsCOMPtr<nsIMsgComposeProgressParams> params =
-              do_CreateInstance(NS_MSGCOMPOSEPROGRESSPARAMS_CONTRACTID, &rv);
+          nsCOMPtr<nsIMsgComposeProgressParams> params = do_CreateInstance(
+              "@mozilla.org/messengercompose/composeprogressparameters;1", &rv);
           if (NS_FAILED(rv) || !params) return NS_ERROR_FAILURE;
 
           params->SetSubject(msgSubject.get());
@@ -1194,7 +1195,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
       PR_Free(result);
 
       nsCOMPtr<nsIMsgAttachment> attachment =
-          do_CreateInstance(NS_MSGATTACHMENT_CONTRACTID, &rv);
+          do_CreateInstance("@mozilla.org/messengercompose/attachment;1", &rv);
       if (NS_SUCCEEDED(rv) && attachment) {
         // [comment from 4.x]
         // Send the vCard out with a filename which distinguishes this user.
@@ -1318,7 +1319,7 @@ NS_IMETHODIMP nsMsgCompose::CloseWindow(void) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgComposeService> composeService =
-      do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messengercompose;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // unregister the compose object with the compose service
@@ -1768,8 +1769,8 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
           // Setup quoting callbacks for later...
           mQuotingToFollow =
               false;  // We don't need to quote the original message.
-          nsCOMPtr<nsIMsgAttachment> attachment =
-              do_CreateInstance(NS_MSGATTACHMENT_CONTRACTID, &rv);
+          nsCOMPtr<nsIMsgAttachment> attachment = do_CreateInstance(
+              "@mozilla.org/messengercompose/attachment;1", &rv);
           if (NS_SUCCEEDED(rv) && attachment) {
             bool addExtension = true;
             nsString sanitizedSubj;
@@ -2487,7 +2488,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
   nsCOMPtr<nsIMsgComposeService> composeService(
-      do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID));
+      do_GetService("@mozilla.org/messengercompose;1"));
   composeService->TimeStamp(
       "Done with MIME. Now we're updating the UI elements", false);
 #endif
@@ -2718,7 +2719,7 @@ nsMsgCompose::QuoteMessage(const nsACString& msgURI) {
   mQuotingToFollow = false;
 
   // Create a mime parser (nsIStreamConverter)!
-  mQuote = do_CreateInstance(NS_MSGQUOTE_CONTRACTID, &rv);
+  mQuote = do_CreateInstance("@mozilla.org/messengercompose/quoting;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
@@ -2744,7 +2745,7 @@ nsresult nsMsgCompose::QuoteOriginalMessage()  // New template
   mQuotingToFollow = false;
 
   // Create a mime parser (nsIStreamConverter)!
-  mQuote = do_CreateInstance(NS_MSGQUOTE_CONTRACTID, &rv);
+  mQuote = do_CreateInstance("@mozilla.org/messengercompose/quoting;1", &rv);
   if (NS_FAILED(rv) || !mQuote) return NS_ERROR_FAILURE;
 
   bool bAutoQuote = true;

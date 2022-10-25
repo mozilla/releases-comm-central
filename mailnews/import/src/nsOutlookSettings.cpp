@@ -16,7 +16,6 @@
 #include "nsIImportSettings.h"
 #include "nsOutlookSettings.h"
 #include "nsMsgBaseCID.h"
-#include "nsMsgCompCID.h"
 #include "nsISmtpService.h"
 #include "nsISmtpServer.h"
 #include "nsOutlookStringBundle.h"
@@ -471,7 +470,7 @@ nsresult OutlookSettings::SetSmtpServer(nsIMsgAccountManager* aMgr,
                                         const nsString& aUser) {
   nsresult rv;
   nsCOMPtr<nsISmtpService> smtpService(
-      do_GetService(NS_SMTPSERVICE_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/messengercompose/smtp;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString nativeUserName;

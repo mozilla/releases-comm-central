@@ -7,7 +7,6 @@
 
 #include "msgCore.h"
 #include "nsIMsgCompose.h"
-#include "nsMsgCompCID.h"
 #include "nsMsgPrompts.h"
 #include "nsError.h"
 #include "nsComposeStrings.h"

@@ -14,7 +14,6 @@
 #include "nsString.h"
 #include "nsCOMPtr.h"
 #include "nsISupports.h"
-#include "nsMsgCompCID.h"
 #include "nsIMsgDatabase.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgHdr.h"
@@ -180,7 +179,7 @@ STDMETHODIMP CMapiImp::SendMail(unsigned long aSession,
   /** create nsIMsgCompFields obj and populate it **/
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgCompFields> pCompFields =
-      do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messengercompose/composefields;1", &rv);
   if (NS_FAILED(rv) || (!pCompFields)) return MAPI_E_INSUFFICIENT_MEMORY;
 
   if (aMessage)
@@ -216,7 +215,7 @@ STDMETHODIMP CMapiImp::SendMailW(unsigned long aSession,
   // Create nsIMsgCompFields obj and populate it.
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgCompFields> pCompFields =
-      do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messengercompose/composefields;1", &rv);
   if (NS_FAILED(rv) || !pCompFields) return MAPI_E_INSUFFICIENT_MEMORY;
 
   if (aMessage) rv = nsMapiHook::PopulateCompFieldsW(aMessage, pCompFields);
@@ -242,7 +241,7 @@ STDMETHODIMP CMapiImp::SendDocuments(unsigned long aSession, LPSTR aDelimChar,
           ("CMapiImp::SendDocument using flags %lu", aFlags));
   /** create nsIMsgCompFields obj and populate it **/
   nsCOMPtr<nsIMsgCompFields> pCompFields =
-      do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messengercompose/composefields;1", &rv);
   if (NS_FAILED(rv) || (!pCompFields)) return MAPI_E_INSUFFICIENT_MEMORY;
 
   if (aFilePaths) {

@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgBaseCID.h"
-#include "nsMsgCompCID.h"
 #include "nsIMsgAccountManager.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIINIParser.h"
@@ -84,7 +83,7 @@ nsresult nsBeckySettings::CreateSmtpServer(const nsCString& aUserName,
   nsresult rv;
 
   nsCOMPtr<nsISmtpService> smtpService =
-      do_GetService(NS_SMTPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messengercompose/smtp;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsISmtpServer> server;

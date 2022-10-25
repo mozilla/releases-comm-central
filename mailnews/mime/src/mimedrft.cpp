@@ -35,7 +35,6 @@
 #include "comi18n.h"
 #include "nsIMsgAttachment.h"
 #include "nsIMsgCompFields.h"
-#include "nsMsgCompCID.h"
 #include "nsIMsgComposeService.h"
 #include "nsMsgAttachmentData.h"
 #include "nsMsgI18N.h"
@@ -186,8 +185,8 @@ nsresult CreateComposeParams(nsCOMPtr<nsIMsgComposeParams>& pMsgComposeParams,
     while (curAttachment && curAttachment->m_url) {
       rv = curAttachment->m_url->GetSpec(spec);
       if (NS_SUCCEEDED(rv)) {
-        nsCOMPtr<nsIMsgAttachment> attachment =
-            do_CreateInstance(NS_MSGATTACHMENT_CONTRACTID, &rv);
+        nsCOMPtr<nsIMsgAttachment> attachment = do_CreateInstance(
+            "@mozilla.org/messengercompose/attachment;1", &rv);
         if (NS_SUCCEEDED(rv) && attachment) {
           nsAutoString nameStr;
           rv = nsMsgI18NConvertToUnicode("UTF-8"_ns, curAttachment->m_realName,
@@ -241,7 +240,8 @@ nsresult CreateComposeParams(nsCOMPtr<nsIMsgComposeParams>& pMsgComposeParams,
                    : nsIMsgCompFormat::PlainText;
   }
 
-  pMsgComposeParams = do_CreateInstance(NS_MSGCOMPOSEPARAMS_CONTRACTID, &rv);
+  pMsgComposeParams =
+      do_CreateInstance("@mozilla.org/messengercompose/composeparams;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   pMsgComposeParams->SetType(composeType);
@@ -293,7 +293,7 @@ nsresult ForwardMsgInline(nsIMsgCompFields* compFields,
   NS_ENSURE_SUCCESS(rv, rv);
   // create the nsIMsgCompose object to send the object
   nsCOMPtr<nsIMsgCompose> pMsgCompose(
-      do_CreateInstance(NS_MSGCOMPOSE_CONTRACTID, &rv));
+      do_CreateInstance("@mozilla.org/messengercompose/compose;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   /** initialize nsIMsgCompose, Send the message, wait for send completion
@@ -327,7 +327,7 @@ nsresult CreateCompositionFields(
   *_retval = nullptr;
 
   nsCOMPtr<nsIMsgCompFields> cFields =
-      do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messengercompose/composefields;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   NS_ENSURE_TRUE(cFields, NS_ERROR_OUT_OF_MEMORY);
 

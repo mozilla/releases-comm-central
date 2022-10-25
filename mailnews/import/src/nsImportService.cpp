@@ -14,7 +14,6 @@
 #include "nsICategoryManager.h"
 #include "nsXPCOM.h"
 #include "nsISupportsPrimitives.h"
-#include "nsMsgCompCID.h"
 #include "nsThreadUtils.h"
 #include "ImportDebug.h"
 #include "nsImportService.h"
@@ -192,7 +191,8 @@ nsProxySendRunnable::nsProxySendRunnable(
 
 NS_IMETHODIMP nsProxySendRunnable::Run() {
   nsresult rv;
-  nsCOMPtr<nsIMsgSend> msgSend = do_CreateInstance(NS_MSGSEND_CONTRACTID, &rv);
+  nsCOMPtr<nsIMsgSend> msgSend =
+      do_CreateInstance("@mozilla.org/messengercompose/send;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return msgSend->CreateRFC822Message(

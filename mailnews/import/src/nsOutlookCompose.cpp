@@ -17,7 +17,6 @@
 #include "nsIInputStream.h"
 #include "nsMsgAttachmentData.h"
 #include "nsMsgBaseCID.h"
-#include "nsMsgCompCID.h"
 #include "nsIMsgCompFields.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgSend.h"

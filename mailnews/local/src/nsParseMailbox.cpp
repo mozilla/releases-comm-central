@@ -36,7 +36,6 @@
 #include "nsMsgSearchCore.h"
 #include "nsMailHeaders.h"
 #include "nsIMsgMailSession.h"
-#include "nsMsgCompCID.h"
 #include "nsIPrefBranch.h"
 #include "nsIPrefService.h"
 #include "nsIMsgComposeService.h"
@@ -2091,7 +2090,7 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
       NS_ENSURE_SUCCESS(rv, rv);
       {
         nsCOMPtr<nsIMsgComposeService> compService =
-            do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
+            do_GetService("@mozilla.org/messengercompose;1", &rv);
         NS_ENSURE_SUCCESS(rv, rv);
         rv = compService->ForwardMessage(
             forwardStr, m_msgToForwardOrReply, msgWindow, server,
@@ -2119,7 +2118,7 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
       rv = m_rootFolder->GetServer(getter_AddRefs(server));
       if (server) {
         nsCOMPtr<nsIMsgComposeService> compService =
-            do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID);
+            do_GetService("@mozilla.org/messengercompose;1");
         if (compService) {
           rv = compService->ReplyWithTemplate(
               m_msgToForwardOrReply, m_replyTemplateUri[i], msgWindow, server);

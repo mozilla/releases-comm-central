@@ -12,7 +12,6 @@
 #include "nsIPrefService.h"
 #include "nsISupportsPrimitives.h"
 #include "nsMsgBaseCID.h"
-#include "nsMsgCompCID.h"
 #include "nsNetCID.h"
 #include "nsNetUtil.h"
 #include "nsSeamonkeyProfileMigrator.h"
@@ -848,7 +847,7 @@ nsresult nsSeamonkeyProfileMigrator::TransformSmtpServersForImport(
     PBStructArray& aServers, PrefKeyHashTable& keyHashTable) {
   nsresult rv;
   nsCOMPtr<nsISmtpService> smtpService(
-      do_GetService(NS_SMTPSERVICE_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/messengercompose/smtp;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsTArray<nsCString> newKeys;

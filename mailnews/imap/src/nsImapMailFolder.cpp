@@ -67,7 +67,6 @@
 #include "nsIMsgMailNewsUrl.h"
 #include "nsEmbedCID.h"
 #include "nsIMsgComposeService.h"
-#include "nsMsgCompCID.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsIDirectoryEnumerator.h"
 #include "nsIMsgIdentity.h"
@@ -3485,7 +3484,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
           if (NS_FAILED(rv)) break;
           if (!forwardTo.IsEmpty()) {
             nsCOMPtr<nsIMsgComposeService> compService =
-                do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
+                do_GetService("@mozilla.org/messengercompose;1", &rv);
             if (NS_FAILED(rv)) break;
             rv = compService->ForwardMessage(
                 NS_ConvertUTF8toUTF16(forwardTo), msgHdr, msgWindow, server,
@@ -3501,7 +3500,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
           if (NS_FAILED(rv)) break;
           if (!replyTemplateUri.IsEmpty()) {
             nsCOMPtr<nsIMsgComposeService> compService =
-                do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
+                do_GetService("@mozilla.org/messengercompose;1", &rv);
             if (NS_SUCCEEDED(rv) && compService) {
               rv = compService->ReplyWithTemplate(msgHdr, replyTemplateUri,
                                                   msgWindow, server);

@@ -24,7 +24,6 @@
 #include "nsIMsgCompFields.h"
 #include "nsIMsgComposeParams.h"
 #include "nsIMsgCompose.h"
-#include "nsMsgCompCID.h"
 #include "nsIMsgSend.h"
 #include "nsIMsgComposeService.h"
 #include "nsDirectoryServiceDefs.h"
@@ -315,7 +314,7 @@ nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
 
   // create the compose params object
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams(
-      do_CreateInstance(NS_MSGCOMPOSEPARAMS_CONTRACTID, &rv));
+      do_CreateInstance("@mozilla.org/messengercompose/composeparams;1", &rv));
   if (NS_FAILED(rv) || (!pMsgComposeParams)) return rv;
 
   // populate the compose params
@@ -331,7 +330,7 @@ nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
 
   // create the nsIMsgCompose object to send the object
   nsCOMPtr<nsIMsgCompose> pMsgCompose(
-      do_CreateInstance(NS_MSGCOMPOSE_CONTRACTID, &rv));
+      do_CreateInstance("@mozilla.org/messengercompose/compose;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   rv = pMsgCompose->Initialize(pMsgComposeParams, hiddenWindow, nullptr);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -424,7 +423,7 @@ nsresult nsMapiHook::HandleAttachments(nsIMsgCompFields* aCompFields,
         pFile->GetLeafName(leafName);
 
       nsCOMPtr<nsIMsgAttachment> attachment =
-          do_CreateInstance(NS_MSGATTACHMENT_CONTRACTID, &rv);
+          do_CreateInstance("@mozilla.org/messengercompose/attachment;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
       attachment->SetName(leafName);
 
@@ -532,7 +531,7 @@ nsresult nsMapiHook::HandleAttachmentsW(nsIMsgCompFields* aCompFields,
         pFile->GetLeafName(leafName);
 
       nsCOMPtr<nsIMsgAttachment> attachment =
-          do_CreateInstance(NS_MSGATTACHMENT_CONTRACTID, &rv);
+          do_CreateInstance("@mozilla.org/messengercompose/attachment;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
       attachment->SetName(leafName);
 
@@ -860,7 +859,7 @@ nsresult nsMapiHook::PopulateCompFieldsForSendDocs(
 
       // create MsgCompose attachment object
       nsCOMPtr<nsIMsgAttachment> attachment =
-          do_CreateInstance(NS_MSGATTACHMENT_CONTRACTID, &rv);
+          do_CreateInstance("@mozilla.org/messengercompose/attachment;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsDependentString fileNameNative(leafName.get());
@@ -904,7 +903,7 @@ nsresult nsMapiHook::ShowComposerWindow(unsigned long aSession,
 
   // create the compose params object
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams(
-      do_CreateInstance(NS_MSGCOMPOSEPARAMS_CONTRACTID, &rv));
+      do_CreateInstance("@mozilla.org/messengercompose/composeparams;1", &rv));
   if (NS_FAILED(rv) || (!pMsgComposeParams)) return rv;
 
   // If we found HTML, compose in HTML.
@@ -926,7 +925,7 @@ nsresult nsMapiHook::ShowComposerWindow(unsigned long aSession,
 
   /** get the nsIMsgComposeService object to open the compose window **/
   nsCOMPtr<nsIMsgComposeService> compService =
-      do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID);
+      do_GetService("@mozilla.org/messengercompose;1");
   if (NS_FAILED(rv) || (!compService)) return rv;
 
   rv = compService->OpenComposeWindowWithParams(nullptr, pMsgComposeParams);

@@ -6,7 +6,6 @@
 #include "nsMsgComposeContentHandler.h"
 #include "nsMsgComposeService.h"
 #include "nsMsgBaseCID.h"
-#include "nsMsgCompCID.h"
 #include "nsIChannel.h"
 #include "nsIURI.h"
 #include "plstr.h"

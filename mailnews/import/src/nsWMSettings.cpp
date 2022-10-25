@@ -17,7 +17,6 @@
 #include "nsIImportSettings.h"
 #include "nsWMSettings.h"
 #include "nsMsgBaseCID.h"
-#include "nsMsgCompCID.h"
 #include "nsMsgI18N.h"
 #include "nsISmtpService.h"
 #include "nsISmtpServer.h"
@@ -621,7 +620,7 @@ void WMSettings::SetSmtpServer(mozilla::dom::Document* xmlDoc,
 
   nsresult rv;
   nsCOMPtr<nsISmtpService> smtpService(
-      do_GetService(NS_SMTPSERVICE_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/messengercompose/smtp;1", &rv));
   if (NS_SUCCEEDED(rv) && smtpService) {
     nsCOMPtr<nsISmtpServer> extgServer;
     // don't try to make another server
