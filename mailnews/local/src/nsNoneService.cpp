@@ -10,7 +10,6 @@
 #include "nsINoneService.h"
 #include "nsIMsgProtocolInfo.h"
 
-#include "nsMsgLocalCID.h"
 #include "nsIFile.h"
 #include "nsCOMPtr.h"
 #include "nsMsgUtils.h"

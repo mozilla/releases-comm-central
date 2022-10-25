@@ -26,7 +26,6 @@
 #include "nsIDBFolderInfo.h"
 #include "nsMailHeaders.h"
 #include "nsParseMailbox.h"
-#include "nsMsgLocalCID.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsITimer.h"
 #include "nsIMailboxUrl.h"
@@ -1139,7 +1138,7 @@ nsresult MaildirStoreParser::ParseNextMessage(nsIFile* aFile) {
   NS_ENSURE_TRUE(m_db, NS_ERROR_NULL_POINTER);
   nsCOMPtr<nsIInputStream> inputStream;
   nsCOMPtr<nsIMsgParseMailMsgState> msgParser =
-      do_CreateInstance(NS_PARSEMAILMSGSTATE_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messenger/messagestateparser;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   msgParser->SetMailDB(m_db);
   nsCOMPtr<nsIMsgDBHdr> newMsgHdr;
@@ -1195,7 +1194,7 @@ void MaildirStoreParser::TimerCallback(nsITimer* aTimer, void* aClosure) {
     if (parser->m_listener) {
       nsresult rv;
       nsCOMPtr<nsIMailboxUrl> mailboxurl =
-          do_CreateInstance(NS_MAILBOXURL_CONTRACTID, &rv);
+          do_CreateInstance("@mozilla.org/messenger/mailboxurl;1", &rv);
       if (NS_SUCCEEDED(rv) && mailboxurl) {
         nsCOMPtr<nsIMsgMailNewsUrl> url = do_QueryInterface(mailboxurl);
         url->SetUpdatingFolder(true);

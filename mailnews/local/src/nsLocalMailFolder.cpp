@@ -25,7 +25,6 @@
 #include "nsIPop3IncomingServer.h"
 #include "nsILocalMailIncomingServer.h"
 #include "nsIMsgIncomingServer.h"
-#include "nsMsgLocalCID.h"
 #include "nsString.h"
 #include "nsIMsgFolderCacheElement.h"
 #include "nsUnicharUtils.h"

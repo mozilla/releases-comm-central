@@ -15,7 +15,6 @@
 #include "MailNewsTypes.h"
 #include "nsTArray.h"
 #include "nsLocalUtils.h"
-#include "nsMsgLocalCID.h"
 #include "nsIDocShell.h"
 #include "nsMsgUtils.h"
 #include "nsPop3URL.h"
@@ -46,7 +45,7 @@ nsresult nsMailboxService::ParseMailbox(nsIMsgWindow* aMsgWindow,
 
   nsresult rv;
   nsCOMPtr<nsIMailboxUrl> mailboxurl =
-      do_CreateInstance(NS_MAILBOXURL_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messenger/mailboxurl;1", &rv);
   if (NS_SUCCEEDED(rv) && mailboxurl) {
     nsCOMPtr<nsIMsgMailNewsUrl> url = do_QueryInterface(mailboxurl);
     // okay now generate the url string
@@ -413,7 +412,8 @@ nsresult nsMailboxService::PrepareMessageUrl(
     const nsACString& aSrcMsgMailboxURI, nsIUrlListener* aUrlListener,
     nsMailboxAction aMailboxAction, nsIMailboxUrl** aMailboxUrl,
     nsIMsgWindow* msgWindow) {
-  nsresult rv = CallCreateInstance(NS_MAILBOXURL_CONTRACTID, aMailboxUrl);
+  nsresult rv =
+      CallCreateInstance("@mozilla.org/messenger/mailboxurl;1", aMailboxUrl);
   if (NS_SUCCEEDED(rv) && aMailboxUrl && *aMailboxUrl) {
     // okay now generate the url string
     char* urlSpec;
@@ -504,7 +504,7 @@ nsresult nsMailboxService::NewURI(const nsACString& aSpec,
   *_retval = 0;
   nsresult rv;
   nsCOMPtr<nsIMsgMailNewsUrl> aMsgUri =
-      do_CreateInstance(NS_MAILBOXURL_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messenger/mailboxurl;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   // SetSpecInternal must not fail, or else the URL won't have a base URL and
   // we'll crash later.
@@ -535,7 +535,7 @@ NS_IMETHODIMP nsMailboxService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
 
   if (spec.Find("?uidl=") >= 0 || spec.Find("&uidl=") >= 0) {
     nsCOMPtr<nsIProtocolHandler> handler =
-        do_GetService(NS_POP3SERVICE_CONTRACTID2, &rv);
+        do_GetService("@mozilla.org/network/protocol;1?name=pop", &rv);
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIURI> pop3Uri;
 

@@ -20,7 +20,6 @@
 #include "nsImapUtils.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgMailSession.h"
-#include "nsMsgLocalCID.h"
 #include "nsITransactionManager.h"
 #include "nsImapUndoTxn.h"
 #include "../public/nsIImapHostSessionList.h"
@@ -7693,7 +7692,7 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
 
   nsCOMPtr<nsIInputStream> inputStream;
   nsCOMPtr<nsIMsgParseMailMsgState> msgParser =
-      do_CreateInstance(NS_PARSEMAILMSGSTATE_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messenger/messagestateparser;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   msgParser->SetMailDB(mDatabase);
 

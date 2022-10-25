@@ -43,7 +43,6 @@
 #include "nsIInputStream.h"
 #include "nsMsgLineBuffer.h"
 #include "nsIMsgParseMailMsgState.h"
-#include "nsMsgLocalCID.h"
 #include "nsIOutputStream.h"
 #include "nsIDocShell.h"
 #include "nsIMessengerWindowService.h"
@@ -1921,8 +1920,8 @@ nsresult nsImapService::OfflineAppendFromFile(
 
       if (NS_SUCCEEDED(rv) && outputStream) {
         nsCOMPtr<nsIInputStream> inputStream;
-        nsCOMPtr<nsIMsgParseMailMsgState> msgParser =
-            do_CreateInstance(NS_PARSEMAILMSGSTATE_CONTRACTID, &rv);
+        nsCOMPtr<nsIMsgParseMailMsgState> msgParser = do_CreateInstance(
+            "@mozilla.org/messenger/messagestateparser;1", &rv);
         msgParser->SetMailDB(destDB);
 
         rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aFile);

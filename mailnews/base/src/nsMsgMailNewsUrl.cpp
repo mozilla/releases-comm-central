@@ -5,7 +5,6 @@
 
 #include "msgCore.h"
 #include "nsMsgMailNewsUrl.h"
-#include "nsMsgLocalCID.h"
 #include "nsIMsgAccountManager.h"
 #include "nsString.h"
 #include "nsILoadGroup.h"

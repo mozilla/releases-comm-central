@@ -10,7 +10,6 @@
 #include "prmem.h"
 #include "plstr.h"
 #include "prprf.h"
-#include "nsMsgLocalCID.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgAccountManager.h"
 #include "nsLocalMailFolder.h"

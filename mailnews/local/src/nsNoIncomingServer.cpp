@@ -9,7 +9,6 @@
 #include "plstr.h"
 #include "prprf.h"
 #include "nsNoIncomingServer.h"
-#include "nsMsgLocalCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgMailSession.h"

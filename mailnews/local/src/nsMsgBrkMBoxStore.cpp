@@ -29,7 +29,6 @@
 #include "nsMailHeaders.h"
 #include "nsParseMailbox.h"
 #include "nsIMailboxService.h"
-#include "nsMsgLocalCID.h"
 #include "nsIMsgFolderCompactor.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -779,7 +778,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::RebuildIndex(nsIMsgFolder* aFolder,
   }
 
   nsCOMPtr<nsIMailboxService> mailboxService =
-      do_GetService(NS_MAILBOXSERVICE_CONTRACTID1, &rv);
+      do_GetService("@mozilla.org/messenger/mailboxservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   RefPtr<nsMsgMailboxParser> parser = new nsMsgMailboxParser(aFolder);
