@@ -88,7 +88,7 @@ nsresult nsProfileMigrator::GetDefaultMailMigratorKey(
   nsAutoCString migratorID;
   if (!forceMigrationType.IsEmpty()) {
     bool exists = false;
-    migratorID.AppendLiteral(NS_MAILPROFILEMIGRATOR_CONTRACTID_PREFIX);
+    migratorID.AppendLiteral("@mozilla.org/messenger/server;1?type=");
     migratorID.Append(forceMigrationType);
     mailMigrator = do_CreateInstance(migratorID.get());
     if (!mailMigrator) return NS_ERROR_NOT_AVAILABLE;
@@ -105,7 +105,7 @@ nsresult nsProfileMigrator::GetDefaultMailMigratorKey(
 #define MAX_SOURCE_LENGTH 10
   const char sources[][MAX_SOURCE_LENGTH] = {"seamonkey", "outlook", ""};
   for (uint32_t i = 0; sources[i][0]; ++i) {
-    migratorID.AssignLiteral(NS_MAILPROFILEMIGRATOR_CONTRACTID_PREFIX);
+    migratorID.AssignLiteral("@mozilla.org/messenger/server;1?type=");
     migratorID.Append(sources[i]);
     mailMigrator = do_CreateInstance(migratorID.get());
     if (!mailMigrator) continue;

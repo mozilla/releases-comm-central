@@ -9,6 +9,7 @@
 #include "nsMsgComposeSecure.h"
 #include "nsMsgCompCID.h"
 #include "nsCOMPtr.h"
+#include "nsIComponentManager.h"
 #include "nsMemory.h"
 #include "nsString.h"
 #include "nsIX509CertDB.h"

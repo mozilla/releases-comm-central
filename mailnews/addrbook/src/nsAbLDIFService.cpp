@@ -18,6 +18,7 @@
 #include "prprf.h"
 #include "nsCRTGlue.h"
 #include "nsTArray.h"
+#include "nsIComponentManager.h"
 
 #include <ctype.h>
 
