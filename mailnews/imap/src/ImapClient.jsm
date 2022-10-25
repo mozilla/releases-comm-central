@@ -128,12 +128,14 @@ class ImapClient {
     this._msgWindow = msgWindow;
     this.runningUrl = runningUrl;
     if (!this.runningUrl) {
-      this.runningUrl = Services.io
-        .newURI(`imap://${this._server.hostName}:${this._server.port}`)
-        .QueryInterface(Ci.nsIMsgMailNewsUrl);
+      this.runningUrl = Services.io.newURI(
+        `imap://${this._server.hostName}:${this._server.port}`
+      );
     }
     this._urlListener?.OnStartRunningUrl(this.runningUrl, Cr.NS_OK);
-    this.runningUrl.SetUrlState(true, Cr.NS_OK);
+    this.runningUrl
+      .QueryInterface(Ci.nsIMsgMailNewsUrl)
+      .SetUrlState(true, Cr.NS_OK);
     return this.runningUrl;
   }
 

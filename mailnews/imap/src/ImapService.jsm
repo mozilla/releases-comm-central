@@ -12,6 +12,7 @@ const lazy = {};
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   ImapChannel: "resource:///modules/ImapChannel.jsm",
+  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
 });
 
 /**
@@ -21,6 +22,11 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
  */
 class ImapService {
   QueryInterface = ChromeUtils.generateQI(["nsIImapService"]);
+
+  constructor() {
+    // Initialize nsIAutoSyncManager.
+    Cc["@mozilla.org/imap/autosyncmgr;1"].getService(Ci.nsIAutoSyncManager);
+  }
 
   selectFolder(folder, urlListener, msgWindow) {
     let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
@@ -206,14 +212,84 @@ class ImapService {
     copyState,
     msgWindow
   ) {
+    let server = dstFolder.server;
+    let imapUrl = Services.io
+      .newURI(
+        `imap://${server.hostName}:${server.port}/fetch>UID>/${dstFolder.name}>${messageId}`
+      )
+      .QueryInterface(Ci.nsIImapUrl);
+    imapUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
+      Ci.nsIImapUrl.nsImapAppendMsgFromFile;
+    if (Services.io.offline) {
+      this._offlineAppendMessageFile(file, imapUrl, dstFolder, urlListener);
+      return;
+    }
     this._withClient(dstFolder, client => {
-      let runningUrl = client.startRunningUrl(urlListener, msgWindow);
-      runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
-        Ci.nsIImapUrl.nsImapAppendMsgFromFile;
+      client.startRunningUrl(urlListener, msgWindow, imapUrl);
       client.onReady = () => {
         client.uploadMessageFromFile(file, dstFolder, copyState);
       };
     });
+  }
+
+  /**
+   * Append a message file to a folder locally.
+   * @param {nsIFile} file - The message file to append.
+   * @param {nsIURI} url - The imap url to run.
+   * @param {nsIMsgFolder} dstFolder - The target message folder.
+   * @param {nsIUrlListener} urlListener - Callback for the request.
+   */
+  async _offlineAppendMessageFile(file, url, dstFolder, urlListener) {
+    if (dstFolder.locked) {
+      const NS_MSG_FOLDER_BUSY = 2153054218;
+      throw Components.Exception(
+        "Destination folder locked",
+        NS_MSG_FOLDER_BUSY
+      );
+    }
+
+    let db = dstFolder.msgDatabase;
+    let fakeKey = db.nextFakeOfflineMsgKey;
+    let op = db.GetOfflineOpForKey(fakeKey, true);
+    op.operation = Ci.nsIMsgOfflineImapOperation.kAppendDraft;
+    op.destinationFolderURI = dstFolder.URI;
+    // Release op eagerly, to make test_offlineDraftDataloss happy in debug build.
+    op = null;
+    Cu.forceGC();
+
+    let server = dstFolder.server;
+    let newMsgHdr = db.CreateNewHdr(fakeKey);
+    let outputStream = dstFolder.getOfflineStoreOutputStream(newMsgHdr);
+    let content = lazy.MailStringUtils.uint8ArrayToByteString(
+      await IOUtils.read(file.path)
+    );
+
+    let msgParser = Cc[
+      "@mozilla.org/messenger/messagestateparser;1"
+    ].createInstance(Ci.nsIMsgParseMailMsgState);
+    msgParser.SetMailDB(db);
+    msgParser.state = Ci.nsIMsgParseMailMsgState.ParseHeadersState;
+    msgParser.newMsgHdr = newMsgHdr;
+    msgParser.setNewKey(fakeKey);
+
+    for (let line of content.split("\r\n")) {
+      line += "\r\n";
+      msgParser.ParseAFolderLine(line, line.length);
+      outputStream.write(line, line.length);
+    }
+    msgParser.FinishHeader();
+
+    newMsgHdr.OrFlags(Ci.nsMsgMessageFlags.Offline | Ci.nsMsgMessageFlags.Read);
+    newMsgHdr.offlineMessageSize = content.length;
+    db.AddNewHdrToDB(newMsgHdr, true);
+    dstFolder.setFlag(Ci.nsMsgFolderFlags.OfflineEvents);
+    if (server.msgStore) {
+      server.msgStore.finishNewMessage(outputStream, newMsgHdr);
+    }
+
+    urlListener.OnStopRunningUrl(url, Cr.NS_OK);
+    outputStream.close();
+    db.Close(true);
   }
 
   ensureFolderExists(parent, folderName, msgWindow, urlListener) {
@@ -302,6 +378,14 @@ class ImapService {
         client.fetchMessage(folder, messageIds);
       };
     });
+  }
+
+  playbackAllOfflineOperations(msgWindow, urlListener) {
+    let offlineSync = Cc["@mozilla.org/imap/offlinesync;1"].createInstance(
+      Ci.nsIImapOfflineSync
+    );
+    offlineSync.init(msgWindow, urlListener, null, false);
+    offlineSync.processNextOperation();
   }
 
   /**
