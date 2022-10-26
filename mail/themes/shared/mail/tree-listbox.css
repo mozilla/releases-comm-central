@@ -2,6 +2,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://messenger/skin/colors.css");
+
+:root {
+  --listbox-color: var(--color-gray-80);
+  --listbox-selected-bg: var(--color-gray-20);
+  --listbox-focused-selected-bg: var(--color-blue-50);
+  --listbox-selected-color: var(--color-white);
+  --listbox-hover: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
+  --listbox-selected-outline: none;
+}
+
+@media not (prefers-contrast) {
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --listbox-color: var(--color-gray-05);
+      --listbox-selected-bg: var(--color-gray-70);
+      --listbox-focused-selected-bg: var(--color-blue-60);
+    }
+  }
+}
+
+@media (prefers-contrast) {
+  :root {
+    --listbox-color: currentColor;
+    --listbox-selected-bg: transparent;
+    --listbox-selected-color: SelectedItemText;
+    --listbox-focused-selected-bg: SelectedItem;
+    --listbox-selected-outline: 2px solid SelectedItem;
+  }
+}
+
 tree-view-listbox {
   overflow-y: auto;
   display: flex;
@@ -26,22 +57,28 @@ tree-view-listbox > * {
   cursor: default;
 }
 
+tree-view-listbox > *:hover {
+  background-color: var(--listbox-hover);
+}
+
 tree-view-listbox > .selected {
-  background-color: var(--in-content-button-background);
+  background-color: var(--listbox-selected-bg);
+  outline: var(--listbox-selected-outline);
+  outline-offset: -2px;
 }
 
 tree-view-listbox:focus > .current {
-  outline: 2px dotted var(--in-content-focus-outline-color);
+  outline: 2px dotted var(--listbox-selected-color);
   outline-offset: -2px;
   z-index: 1;
 }
 
 tree-view-listbox:focus > .selected {
-  color: var(--in-content-item-selected-text);
-  background-color: var(--in-content-item-selected);
+  color: var(--listbox-selected-color);
+  background-color: var(--listbox-focused-selected-bg);
 }
 
 tree-view-listbox:focus > .current.selected {
-  outline: 1px dashed var(--in-content-item-selected-text);
+  outline: 1px dashed var(--listbox-selected-color);
   outline-offset: -1px;
 }

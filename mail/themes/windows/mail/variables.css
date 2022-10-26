@@ -93,7 +93,6 @@
   :root:not(:-moz-lwtheme) .toolbarbutton-1[checked="true"],
   :root:not(:-moz-lwtheme) .toolbarbutton-menubutton-button:hover {
     color: SelectedItemText !important;
-    fill: currentColor;
   }
 
   menulist {

@@ -9,9 +9,7 @@
 :root {
   appearance: none;
   font: message-box;
-  background-color: var(--in-content-page-background);
-  color: var(--in-content-page-color);
-  --address-book-blocks-box-shadow: 0 6px 6px -5px var(--in-content-button-background);
+  background-color: var(--color-white);
 
   --address-book-book-label-color: var(--color-white);
   --address-book-book-label-background: var(--color-gray-50);
@@ -19,8 +17,6 @@
 
   --ab-card-line-height: 1.3em;
   --ab-card-table-row-height: 22px;
-
-  --counter-bg-color: var(--color-gray-20)
 }
 
 :root[uidensity="compact"] {
@@ -35,21 +31,47 @@
 
 @media (prefers-contrast) {
   :root {
-    --address-book-blocks-box-shadow: none;
-    --in-content-categories-background: transparent;
+    background-color: transparent;
+    color: currentColor;
+
+    --address-book-books-list-bg: transparent;
+    --address-book-cards-list-bg: transparent;
+
+    --address-book-icons-color: currentColor;
+
+    --address-book-section-border-color: currentColor;
+    --address-book-section-bg: transparent;
   }
 }
 
 @media not (prefers-contrast) {
   :root {
+    color: var(--color-gray-80);
+
+    --address-book-books-list-bg: var(--color-gray-10);
+    --address-book-cards-list-bg: var(--color-gray-05);
+
+    --address-book-icons-color: var(--color-ink-80);
+
     --in-content-button-background-active: var(--grey-90-a30);
     --in-content-categories-background: #ebebef;
     --in-content-item-selected-unfocused: var(--grey-20);
     --splitter-color: var(--in-content-border-color);
+
+    --address-book-section-border-color: var(--color-gray-30);
+    --address-book-section-bg: var(--color-gray-05);
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
+      background: var(--color-gray-90);
+      color: var(--color-gray-05);
+
+      --address-book-books-list-bg: var(--color-gray-80);
+      --address-book-cards-list-bg: var(--color-gray-80);
+
+      --address-book-icons-color: var(--color-gray-30);
+
       --in-content-categories-background: rgba(249, 249, 250, 0.1);
       --in-content-item-selected-unfocused: rgba(249, 249, 250, 0.05);
       --in-content-button-background-active: rgba(249, 249, 250, 0.2);
@@ -58,11 +80,11 @@
       --in-content-primary-button-background-active: #85e1ff;
       --in-content-focus-outline-color: #45a1ff;
 
-      --address-book-blocks-box-shadow: none;
       --address-book-book-label-color: var(--color-white);
       --address-book-book-label-background: var(--color-gray-50);
 
-      --counter-bg-color: var(--color-gray-80);
+      --address-book-section-border-color: transparent;
+      --address-book-section-bg: var(--color-gray-80);
     }
   }
 }
@@ -146,8 +168,7 @@ body.layout-table {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  color: var(--in-content-page-color);
-  background-color: var(--in-content-categories-background);
+  background-color: var(--address-book-books-list-bg);
 }
 
 #booksSplitter {
@@ -183,26 +204,33 @@ body.layout-table {
   align-items: center;
   margin-inline: 6px;
   border-radius: var(--in-content-button-border-radius);
+  color: var(--listbox-color);
   -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
+  fill: color-mix(in srgb, var(--address-book-icons-color) 20%, transparent);
+  stroke: var(--address-book-icons-color);
   cursor: default;
 }
 
-.bookRow.selected > .bookRow-container,
-.listRow.selected > .listRow-container {
-  background-color: var(--in-content-button-background);
+#books:not(:focus) :where(.bookRow, .listRow).selected > :is(.bookRow-container, .listRow-container) {
+  background-color: var(--listbox-selected-bg);
+  outline: var(--listbox-selected-outline);
+  outline-offset: -2px;
 }
 
 .bookRow > .bookRow-container:hover,
 .listRow > .listRow-container:hover {
-  background-color: var(--in-content-item-hover);
+  background-color: var(--listbox-hover);
 }
 
-#books:focus .bookRow.selected > .bookRow-container,
-#books:focus .listRow.selected > .listRow-container {
-  background-color: var(--in-content-item-selected);
-  color: var(--in-content-item-selected-text);
+#books:focus :where(.bookRow, .listRow).selected > :is(.bookRow-container, .listRow-container) {
+  background-color: var(--listbox-focused-selected-bg);
+  color: var(--listbox-selected-color);
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
+#books:focus .selected .twisty {
+  stroke: currentColor;
 }
 
 .bookRow.drop-target > .bookRow-container,
@@ -216,7 +244,7 @@ body.layout-table {
   width: 26px;
   height: 26px;
   -moz-context-properties: stroke;
-  stroke: currentColor;
+  stroke: var(--address-book-icons-color);
 }
 
 .bookRow:not(.children) .twisty-icon {
@@ -338,8 +366,7 @@ body.layout-table {
   display: flex;
   flex-direction: column;
   overflow-y: hidden;
-  color: var(--in-content-page-color);
-  background-color: var(--in-content-box-background);
+  background-color: var(--address-book-cards-list-bg);
 }
 
 #cardsPaneHeader {
@@ -363,11 +390,11 @@ body.layout-table {
 
 #searchInput:focus {
   border-color: transparent;
-  outline: 2px solid var(--in-content-focus-outline-color);
+  outline: 2px solid var(--color-blue-60);
   outline-offset: -1px;
 }
 
-#sortButton {
+#displayButton {
   display: inline-flex;
   min-width: 0;
   min-height: 0;
@@ -379,12 +406,8 @@ body.layout-table {
   stroke: currentColor;
 }
 
-#sortButton dropmarker {
-  display: none;
-}
-
-body:not(.layout-table) ~ menupopup#sortContext > :is(menuitem[name="toggle"], #sortContextListLayout),
-body.layout-table ~ menupopup#sortContext > :is(menuitem[name="sort"], #sortContextTableLayout) {
+body:not(.layout-table) ~ menupopup#sortContext > menuitem[name="toggle"],
+body.layout-table ~ menupopup#sortContext > menuitem[name="sort"] {
   /* Hide table items in list view, and list items in table view. */
   display: none;
 }
@@ -396,7 +419,7 @@ body.layout-table ~ menupopup#sortContext > :is(menuitem[name="sort"], #sortCont
   font-weight: initial;
 }
 
-body:not(.layout-table).all-ab-selected ~ menupopup#sortContext > :is(menuitem[value="addrbook"], #sortContextTableLayout) {
+body:not(.layout-table).all-ab-selected ~ menupopup#sortContext > menuitem[value="addrbook"] {
   /* Show address book toggle in the list view if All Address Book is
      selected. */
   display: initial;
@@ -472,11 +495,6 @@ ab-card-listrow {
   white-space: nowrap;
   display: flex;
   align-items: center;
-}
-
-ab-card-listrow:hover,
-ab-table-card-listrow:hover {
-  background-color: var(--in-content-item-hover);
 }
 
 .selected-card {
@@ -671,8 +689,6 @@ body:not(.layout-table) #sharedSplitter {
 
 #detailsPane {
   grid-area: details;
-  color: var(--in-content-page-color);
-  background-color: var(--in-content-categories-background);
   min-height: var(--address-book-card-min-height);
 }
 
@@ -754,9 +770,8 @@ body:not(.is-editing) #editContactForm {
   object-fit: cover;
   object-position: center;
   background-color: var(--in-content-button-background);
-  box-shadow: var(--address-book-blocks-box-shadow);
   -moz-context-properties: stroke;
-  stroke: var(--in-content-box-background);
+  stroke: color-mix(in srgb, transparent 50%, var(--recipient-avatar-color));
 }
 
 #photoButton {
@@ -847,13 +862,11 @@ body:not(.is-editing) #editContactForm {
 
 #detailsBody section {
   padding: 15px;
-  border-radius: 3px;
-  background-color: var(--in-content-page-background);
-  color: var(--in-content-page-color);
+  border-radius: var(--in-content-button-border-radius);
+  border: 1px solid var(--address-book-section-border-color);
+  background-color: var(--address-book-section-bg);
   font-size: 1.1rem;
   line-height: 1.2;
-  box-shadow: var(--address-book-blocks-box-shadow);
-  box-sizing: border-box;
 }
 
 .button-block:not([hidden]) {
@@ -1093,8 +1106,11 @@ input[type="number"]::-moz-number-spin-down {
 
 @media (prefers-reduced-motion: no-preference) {
   ab-card-listrow,
-  ab-table-card-listrow {
-    transition: background-color 320ms ease;
+  ab-table-card-listrow,
+  .bookRow-container,
+  .listRow-container,
+  .twisty {
+    transition: color 320ms ease, background-color 320ms ease, fill 320ms ease, stroke 320ms ease;
   }
 
   #photoDropTarget.drop-loading .icon {
@@ -1183,9 +1199,9 @@ input[type="number"]::-moz-number-spin-down {
 #cardCount {
   position: sticky;
   bottom: 0;
-  background-color: var(--counter-bg-color);
-  border-top: 1px solid var(--button-border-color);
-  color: color-mix(in srgb, var(--in-content-page-color) 75%, transparent);
+  background-color: var(--address-book-books-list-bg);
+  border-top: 1px solid var(--splitter-color);
+  color: color-mix(in srgb, currentColor 75%, transparent);
   padding: 9px;
   margin-block-start: 6px;
   font-weight: 500;

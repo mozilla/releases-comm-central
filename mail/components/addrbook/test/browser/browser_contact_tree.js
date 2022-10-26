@@ -890,7 +890,7 @@ add_task(async function test_layout() {
 
   // Switch layout to table.
 
-  await toggleLayout(true);
+  await toggleLayout();
 
   Assert.ok(
     abDocument.body.classList.contains("layout-table"),
@@ -1040,7 +1040,7 @@ add_task(async function test_layout() {
 
   // Reset layout to list.
 
-  await toggleLayout(false);
+  await toggleLayout();
 
   Assert.ok(
     !abDocument.body.classList.contains("layout-table"),
@@ -1155,7 +1155,7 @@ add_task(async function test_list_table_layout() {
 
   // Switch layout to table.
 
-  await toggleLayout(true);
+  await toggleLayout();
 
   await showSortMenu("toggle", "addrbook");
   await TestUtils.waitForCondition(

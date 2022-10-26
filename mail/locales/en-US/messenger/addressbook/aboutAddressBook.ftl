@@ -91,10 +91,8 @@ about-addressbook-sort-email-ascending =
 about-addressbook-sort-email-descending =
   .label = Sort by email address (Z > A)
 
-about-addressbook-horizontal-layout =
-  .label = Switch to horizontal layout
-about-addressbook-vertical-layout =
-  .label = Switch to vertical layout
+about-addressbook-table-layout =
+  .label = Table layout
 
 ## Card column headers
 ## Each string is listed here twice, and the values should match.

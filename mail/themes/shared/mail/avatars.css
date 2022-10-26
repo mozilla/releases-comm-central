@@ -23,10 +23,19 @@
   --recipient-avatar-placeholder-size: 16px;
 }
 
-@media (prefers-color-scheme: dark) {
+@media not (prefers-contrast) {
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --recipient-avatar-color: var(--color-gray-30);
+      --recipient-avatar-background-color: var(--color-gray-60);
+    }
+  }
+}
+
+@media (prefers-contrast) {
   :root {
-    --recipient-avatar-color: var(--color-gray-40);
-    --recipient-avatar-background-color: var(--color-gray-60);
+    --recipient-avatar-color: currentColor;
+    --recipient-avatar-background-color: color-mix(in srgb, currentColor 30%, transparent);
   }
 }
 
