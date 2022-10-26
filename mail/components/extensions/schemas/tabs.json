@@ -32,7 +32,7 @@
   },
   {
     "namespace": "tabs",
-    "description": "Use the <code>browser.tabs</code> API to interact with the browser's tab system. You can use this API to create, modify, and rearrange tabs in the browser.",
+    "description": "The tabs API supports creating, modifying and interacting with tabs in Thunderbird windows.",
     "types": [
       {
         "id": "Tab",
@@ -42,7 +42,7 @@
             "type": "integer",
             "minimum": -1,
             "optional": true,
-            "description": "The ID of the tab. Tab IDs are unique within a browser session. Under some circumstances a Tab may not be assigned an ID. Tab ID can also be set to :ref:`tabs.TAB_ID_NONE` for apps and devtools windows."
+            "description": "The ID of the tab. Tab IDs are unique within a session. Under some circumstances a Tab may not be assigned an ID. Tab ID can also be set to :ref:`tabs.TAB_ID_NONE` for apps and devtools windows."
           },
           "index": {
             "type": "integer",
@@ -96,7 +96,7 @@
           "status": {
             "type": "string",
             "optional": true,
-            "description": "Either <em>loading</em> or <em>complete</em>."
+            "description": "Either <value>loading</value> or <value>complete</value>."
           },
           "width": {
             "type": "integer",
@@ -172,7 +172,7 @@
         "properties": {
           "urls": {
             "type": "array",
-            "description": "A list of URLs or URL patterns. Events that cannot match any of the URLs will be filtered out. Filtering with urls requires the <permission>tabs</permission> or  <permission>activeTab</permission> permission.",
+            "description": "A list of URLs or URL patterns. Events that cannot match any of the URLs will be filtered out. Filtering with urls requires the <permission>tabs</permission> or <permission>activeTab</permission> permission.",
             "optional": true,
             "items": {
               "type": "string"
@@ -202,7 +202,7 @@
     "properties": {
       "TAB_ID_NONE": {
         "value": -1,
-        "description": "An ID which represents the absence of a browser tab."
+        "description": "An ID which represents the absence of a tab."
       }
     },
     "functions": [
@@ -251,7 +251,7 @@
       {
         "name": "connect",
         "type": "function",
-        "description": "Connects to the content script(s) in the specified tab. The `runtime.onConnect <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onConnect>`_ event is fired in each content script running in the specified tab for the current extension. For more details, see `Content Script Messaging <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts>`_.",
+        "description": "Connects to the content script(s) in the specified tab. The `runtime.onConnect <|link-runtime-on-connect|>`__ event is fired in each content script running in the specified tab for the current extension. For more details, see `Content Script Messaging <|link-content-scripts|>`__.",
         "parameters": [
           {
             "type": "integer",
@@ -271,7 +271,7 @@
                 "type": "integer",
                 "optional": true,
                 "minimum": 0,
-                "description": "Open a port to a specific frame identified by <code>frameId</code> instead of all frames in the tab."
+                "description": "Open a port to a specific frame identified by ``frameId`` instead of all frames in the tab."
               }
             },
             "optional": true
@@ -285,7 +285,7 @@
       {
         "name": "sendMessage",
         "type": "function",
-        "description": "Sends a single message to the content script(s) in the specified tab, with an optional callback to run when a response is sent back. The `runtime.onMessage <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage>`_ event is fired in each content script running in the specified tab for the current extension.",
+        "description": "Sends a single message to the content script(s) in the specified tab, with an optional callback to run when a response is sent back. The `runtime.onMessage <|link-runtime-on-message|>`__ event is fired in each content script running in the specified tab for the current extension.",
         "async": "responseCallback",
         "parameters": [
           {
@@ -305,7 +305,7 @@
                 "type": "integer",
                 "optional": true,
                 "minimum": 0,
-                "description": "Send a message to a specific frame identified by <code>frameId</code> instead of all frames in the tab."
+                "description": "Send a message to a specific frame identified by ``frameId`` instead of all frames in the tab."
               }
             },
             "optional": true
@@ -318,7 +318,7 @@
               {
                 "name": "response",
                 "type": "any",
-                "description": "The JSON response object sent by the handler of the message. If an error occurs while connecting to the specified tab, the callback will be called with no arguments and `runtime.lastError <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/lastError>`_ will be set to the error message."
+                "description": "The JSON response object sent by the handler of the message. If an error occurs while connecting to the specified tab, the callback will be called with no arguments and `runtime.lastError <|link-runtime-last-error|>`__ will be set to the error message."
               }
             ]
           }
@@ -327,7 +327,7 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates a new content tab. Use the :ref:`messageDisplay_api` to open messages.",
+        "description": "Creates a new content tab. Use the :ref:`messageDisplay_api` to open messages. Only supported in <value>normal</value> windows.",
         "async": "callback",
         "parameters": [
           {
@@ -350,19 +350,19 @@
               "url": {
                 "type": "string",
                 "optional": true,
-                "description": "The URL to navigate the tab to initially. Fully-qualified URLs must include a scheme (i.e. 'http://www.google.com', not 'www.google.com'). Relative URLs will be relative to the current page within the extension."
+                "description": "The URL to navigate the tab to initially. Fully-qualified URLs must include a scheme (i.e. <value>http://www.google.com</value>, not <value>www.google.com</value>). Relative URLs will be relative to the current page within the extension."
               },
               "active": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the tab should become the active tab in the window. Does not affect whether the window is focused (see :ref:`windows.update`). Defaults to <var>true</var>."
+                "description": "Whether the tab should become the active tab in the window. Does not affect whether the window is focused (see :ref:`windows.update`). Defaults to <value>true</value>."
               },
               "selected": {
-                "deprecated": "Please use <em>active</em>.",
+                "deprecated": "Please use ``createProperties.active``.",
                 "unsupported": true,
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the tab should become the selected tab in the window. Defaults to <var>true</var>"
+                "description": "Whether the tab should become the selected tab in the window. Defaults to <value>true</value>"
               }
             }
           },
@@ -401,7 +401,7 @@
               {
                 "name": "tab",
                 "optional": true,
-                "description": "Details about the duplicated tab. The :ref:`tabs.Tab` object doesn't contain <code>url</code>, <code>title</code> and <code>favIconUrl</code> if the <permission>tabs</permission> permission has not been requested.",
+                "description": "Details about the duplicated tab. The :ref:`tabs.Tab` object doesn't contain ``url``, ``title`` and ``favIconUrl`` if the <permission>tabs</permission> permission has not been requested.",
                 "$ref": "Tab"
               }
             ]
@@ -471,7 +471,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "Match tabs against one or more `URL Patterns <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns>`_. Note that fragment identifiers are not matched."
+                "description": "Match tabs against one or more `URL Patterns <|link-match-patterns|>`__. Note that fragment identifiers are not matched."
               },
               "windowId": {
                 "type": "integer",
@@ -510,7 +510,7 @@
       {
         "name": "update",
         "type": "function",
-        "description": "Modifies the properties of a tab. Properties that are not specified in <var>updateProperties</var> are not modified.",
+        "description": "Modifies the properties of a tab. Properties that are not specified in ``updateProperties`` are not modified.",
         "async": "callback",
         "parameters": [
           {
@@ -528,12 +528,12 @@
               "url": {
                 "type": "string",
                 "optional": true,
-                "description": "A URL to navigate the tab to. Only applicable for ``content`` tabs and active ``mail`` tabs."
+                "description": "A URL to navigate the tab to. Only applicable for <value>content</value> tabs and active <value>mail</value> tabs."
               },
               "active": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Set this to true, if the tab should be active. Does not affect whether the window is focused (see :ref:`windows.update`). Setting this to false has no effect."
+                "description": "Set this to <value>true</value>, if the tab should be active. Does not affect whether the window is focused (see :ref:`windows.update`). Setting this to <value>false</value> has no effect."
               }
             }
           },
@@ -546,7 +546,7 @@
                 "name": "tab",
                 "$ref": "Tab",
                 "optional": true,
-                "description": "Details about the updated tab. The :ref:`tabs.Tab` object doesn't contain <code>url</code>, <code>title</code> and <code>favIconUrl</code> if the <permission>tabs</permission> permission has not been requested."
+                "description": "Details about the updated tab. The :ref:`tabs.Tab` object doesn't contain ``url``, ``title`` and ``favIconUrl`` if the <permission>tabs</permission> permission has not been requested."
               }
             ]
           }
@@ -555,7 +555,7 @@
       {
         "name": "move",
         "type": "function",
-        "description": "Moves one or more tabs to a new position within its window, or to a new window. Note that tabs can only be moved to and from normal windows (<code>window.type === \"normal\"</code>).",
+        "description": "Moves one or more tabs to a new position within its window, or to a new window. Note that tabs can only be moved to and from windows of type <value>normal</value>.",
         "async": "callback",
         "parameters": [
           {
@@ -588,7 +588,7 @@
               "index": {
                 "type": "integer",
                 "minimum": -1,
-                "description": "The position to move the window to. -1 will place the tab at the end of the window."
+                "description": "The position to move the window to. <value>-1</value> will place the tab at the end of the window."
               }
             }
           },
@@ -683,7 +683,7 @@
       {
         "name": "executeScript",
         "type": "function",
-        "description": "Injects JavaScript code into a page. For details, see the `programmatic injection <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts>`_ section of the content scripts doc.",
+        "description": "Injects JavaScript code into a page. For details, see the `programmatic injection <|link-content-scripts|>`__ section of the content scripts doc.",
         "async": "callback",
         "parameters": [
           {
@@ -720,7 +720,7 @@
       {
         "name": "insertCSS",
         "type": "function",
-        "description": "Injects CSS into a page. For details, see the `programmatic injection <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts>`_ section of the content scripts doc.",
+        "description": "Injects CSS into a page. For details, see the `programmatic injection <|link-content-scripts|>`__ section of the content scripts doc.",
         "async": "callback",
         "parameters": [
           {
@@ -747,7 +747,7 @@
       {
         "name": "removeCSS",
         "type": "function",
-        "description": "Removes injected CSS from a page. For details, see the `programmatic injection <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts>`_ section of the content scripts doc.",
+        "description": "Removes injected CSS from a page. For details, see the `programmatic injection <|link-content-scripts|>`__ section of the content scripts doc.",
         "async": "callback",
         "parameters": [
           {
@@ -803,7 +803,7 @@
               "status": {
                 "type": "string",
                 "optional": true,
-                "description": "The status of the tab. Can be either <em>loading</em> or <em>complete</em>."
+                "description": "The status of the tab. Can be either <value>loading</value> or <value>complete</value>."
               },
               "url": {
                 "type": "string",
@@ -958,7 +958,7 @@
               },
               "isWindowClosing": {
                 "type": "boolean",
-                "description": "True when the tab is being closed because its window is being closed."
+                "description": "Is <value>true</value> when the tab is being closed because its window is being closed."
               }
             }
           }

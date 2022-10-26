@@ -47,11 +47,11 @@
               "browser_style": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Enable browser styles. See the `MDN documentation on browser styles <https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/user_interface/Browser_styles>`__ for more information.",
+                "description": "Enable browser styles. See the `MDN documentation on browser styles <|link-mdn-browser-styles|>`__ for more information.",
                 "default": false
               },
               "default_area": {
-                "description": "Defines the location the composeAction button will appear. The default location is ``maintoolbar``.",
+                "description": "Defines the location the composeAction button will appear. The default location is <value>maintoolbar</value>.",
                 "type": "string",
                 "enum": [
                   "maintoolbar",
@@ -75,7 +75,7 @@
     "types": [
       {
         "id": "ColorArray",
-        "description": "An array of four integers in the range [0,255] that make up the RGBA color. For example, opaque red is <code>[255, 0, 0, 255]</code>.",
+        "description": "An array of four integers in the range [0,255] that make up the RGBA color. For example, opaque red is <value>[255, 0, 0, 255]</value>.",
         "type": "array",
         "items": {
           "type": "integer",
@@ -93,12 +93,12 @@
           "type": "any"
         },
         "postprocess": "convertImageDataToURL",
-        "description": "Pixel data for an image. Must be an ImageData object (for example, from a <code>canvas</code> element)."
+        "description": "Pixel data for an image. Must be an |ImageData| object (for example, from a |Canvas| element)."
       },
       {
         "id": "ImageDataDictionary",
         "type": "object",
-        "description": "A ``{size: ImageDataType}`` dictionary representing the icon to be set. The actual :ref:`composeAction.ImageDataType` to be used is chosen depending on the screen's pixel density. See the `MDN documentation on browser styles <https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/user_interface/Browser_styles>`__ for more information on this. At least one :ref:`composeAction.ImageDataType` must be specified.",
+        "description": "A <em>dictionary object</em> to specify multiple |ImageData| objects in different sizes, so the icon does not have to be scaled for a device with a different pixel density. Each entry is a <em>name-value</em> pair with <em>value</em> being an |ImageData| object, and <em>name</em> its size. Example: <literalinclude>includes/ImageDataDictionary.json<lang>JavaScript</lang></literalinclude>See the `MDN documentation about choosing icon sizes <|link-mdn-icon-size|>`__ for more information on this.",
         "patternProperties": {
           "^[1-9]\\d*$": {
             "$ref": "ImageDataType"
@@ -152,7 +152,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "The string the composeAction button should display as its label and when moused over. Cleared by setting it to ``null`` or an empty string (title defined the manifest will be used)."
+                "description": "A string the composeAction button should display as its label and when moused over. Cleared by setting it to <value>null</value> or an empty string (title defined the manifest will be used)."
               },
               "tabId": {
                 "type": "integer",
@@ -233,7 +233,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "The string the composeAction button should use as its label, overriding the defined title. Can be set to an empty string to not display any label at all. If the containing toolbar is configured to display text only, its title will be used. Cleared by setting it to ``null``."
+                "description": "A string the composeAction button should use as its label, overriding the defined title. Can be set to an empty string to not display any label at all. If the containing toolbar is configured to display text only, its title will be used. Cleared by setting it to <value>null</value>."
               },
               "tabId": {
                 "type": "integer",
@@ -298,7 +298,7 @@
       {
         "name": "setIcon",
         "type": "function",
-        "description": "Sets the icon for the composeAction button. Either the <b>path</b> or the <b>imageData</b> property must be specified.",
+        "description": "Sets the icon for the composeAction button. Either the ``path`` or the ``imageData`` property must be specified.",
         "async": "callback",
         "parameters": [
           {
@@ -364,7 +364,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "The html file to show in a popup. Can be set to an empty string to not open a popup. Cleared by setting it to ``null`` (action will use the popup value defined in the manifest)."
+                "description": "The html file to show in a popup. Can be set to an empty string to not open a popup. Cleared by setting it to <value>null</value> (action will use the popup value defined in the manifest)."
               },
               "tabId": {
                 "type": "integer",
@@ -445,7 +445,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "Any number of characters can be passed, but only about four can fit in the space. Cleared by setting it to ``null`` or an empty string."
+                "description": "Any number of characters can be passed, but only about four can fit in the space. Cleared by setting it to <value>null</value> or an empty string."
               },
               "tabId": {
                 "type": "integer",
@@ -529,7 +529,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "The color to use as background in the badge. Cleared by setting it to ``null`` or an empty string."
+                "description": "The color to use as background in the badge. Cleared by setting it to <value>null</value> or an empty string."
               },
               "tabId": {
                 "type": "integer",
@@ -683,7 +683,7 @@
       {
         "name": "onClicked",
         "type": "function",
-        "description": "Fired when a composeAction button is clicked. This event will not fire if the composeAction has a popup. This is a user input event handler. For asynchronous listeners some `restrictions <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/User_actions>`__ apply.",
+        "description": "Fired when a composeAction button is clicked. This event will not fire if the composeAction has a popup. This is a user input event handler. For asynchronous listeners some `restrictions <|link-user-input-restrictions|>`__ apply.",
         "parameters": [
           {
             "name": "tab",

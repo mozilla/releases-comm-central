@@ -16,7 +16,7 @@
               }
             ],
             "optional": true,
-            "description": "Sets the background color of the badge. Can be specified as an array of four integers in the range [0,255] that make up the RGBA color of the badge. For example, opaque red is <code>[255, 0, 0, 255]</code>. Can also be a string with an HTML color name (<code>red</code>) or a HEX color value (<code>#FF0000</code> or <code>#F00</code>). Reset when set to an empty string."
+            "description": "Sets the background color of the badge. Can be specified as an array of four integers in the range [0,255] that make up the RGBA color of the badge. For example, opaque red is <value>[255, 0, 0, 255]</value>. Can also be a string with an HTML color name (<value>red</value>) or a HEX color value (<value>#FF0000</value> or <value>#F00</value>). Reset when set to an empty string."
           },
           "badgeText": {
             "type": "string",
@@ -41,7 +41,7 @@
             "items": {
               "$ref": "manifest.ThemeIcons"
             },
-            "description": "Specifies dark and light icons for the spaces toolbar button to be used with themes: The ``light`` icons will be used on dark backgrounds and vice versa. At least the set for ``16px`` icons should be specified. The set for ``32px`` icons will be used on screens with a very high pixel density, if specified."
+            "description": "Specifies dark and light icons for the spaces toolbar button to be used with themes: The ``light`` icons will be used on dark backgrounds and vice versa. At least the set for <em>16px</em> icons should be specified. The set for <em>32px</em> icons will be used on screens with a very high pixel density, if specified."
           },
           "title": {
             "type": "string",
@@ -51,13 +51,13 @@
           "url": {
             "type": "string",
             "optional": true,
-            "description": "The page url, loaded into a tab when the button is clicked. Supported are ``https://`` and ``http://`` links, as well as links to WebExtension pages."
+            "description": "The page url, loaded into a tab when the button is clicked. Supported are <value>https://</value> and <value>http://</value> links, as well as links to WebExtension pages."
           }
         }
       },
       {
         "id": "ColorArray",
-        "description": "An array of four integers in the range [0,255] that make up the RGBA color. For example, opaque red is <code>[255, 0, 0, 255]</code>.",
+        "description": "An array of four integers in the range [0,255] that make up the RGBA color. For example, opaque red is <value>[255, 0, 0, 255]</value>.",
         "type": "array",
         "items": {
           "type": "integer",

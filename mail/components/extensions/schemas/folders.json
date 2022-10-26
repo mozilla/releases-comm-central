@@ -275,7 +275,7 @@
           },
           {
             "name": "includeSubFolders",
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each parent folder should include its nested subfolders . Defaults to ``false``.",
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each parent folder should include its nested subfolders . Defaults to <value>false</value>.",
             "optional": true,
             "default": false,
             "type": "boolean"
@@ -314,7 +314,7 @@
           },
           {
             "name": "includeSubFolders",
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each direct subfolder should also include all its nested subfolders . Defaults to ``true``.",
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each direct subfolder should also include all its nested subfolders . Defaults to <value>true</value>.",
             "optional": true,
             "default": true,
             "type": "boolean"

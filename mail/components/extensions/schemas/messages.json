@@ -56,7 +56,7 @@
           },
           "flagged": {
             "type": "boolean",
-            "description": "Whether this message is flagged (a.k.a. 'starred')."
+            "description": "Whether this message is flagged (a.k.a. starred)."
           },
           "folder": {
             "$ref": "folders.MailFolder",
@@ -68,7 +68,7 @@
             "description": "The message-id header of the message."
           },
           "headersOnly": {
-            "description": "Some account types (for example POP) allow to download only the headers of the message, but not its body. The body of such messages will not be available.",
+            "description": "Some account types (for example <value>pop3</value>) allow to download only the headers of the message, but not its body. The body of such messages will not be available.",
             "type": "boolean"
           },
           "id": {
@@ -76,12 +76,12 @@
             "minimum": 1
           },
           "junk": {
-            "description": "Whether the message has been marked as junk. Always ``false`` for news/nntp messages and external messages.",
+            "description": "Whether the message has been marked as junk. Always <value>false</value> for news/nntp messages and external messages.",
             "type": "boolean"
           },
           "junkScore": {
             "type": "integer",
-            "description": "The junk score associated with the message. Always ``0`` for news/nntp messages and external messages.",
+            "description": "The junk score associated with the message. Always <value>0</value> for news/nntp messages and external messages.",
             "minimum": 0,
             "maximum": 100
           },
@@ -151,7 +151,7 @@
           },
           "headers": {
             "type": "object",
-            "description": "An object of part headers, with the header name as key, and an array of header values as value",
+            "description": "A <em>dictionary object</em> of part headers as <em>key-value</em> pairs, with the header name as <em>key</em>, and an array of headers as <em>value</em>",
             "optional": true,
             "additionalProperties": {
               "type": "array",
@@ -168,7 +168,7 @@
           "partName": {
             "type": "string",
             "optional": true,
-            "description": "The identifier of this part, used in :ref:`messages.getAttachmentFile"
+            "description": "The identifier of this part, used in :ref:`messages.getAttachmentFile`"
           },
           "parts": {
             "type": "array",
@@ -181,7 +181,7 @@
           "size": {
             "type": "integer",
             "optional": true,
-            "description": "The size of this part. The size of ``message/*`` parts is not the actual message size (on disc), but the total size of its decoded body parts, excluding headers."
+            "description": "The size of this part. The size of <em>message/*</em> parts is not the actual message size (on disc), but the total size of its decoded body parts, excluding headers."
           }
         }
       },
@@ -192,7 +192,7 @@
         "properties": {
           "flagged": {
             "type": "boolean",
-            "description": "Whether the message is flagged (a.k.a 'starred').",
+            "description": "Whether the message is flagged (a.k.a starred).",
             "optional": true
           },
           "junk": {
@@ -249,7 +249,7 @@
         "properties": {
           "tags": {
             "type": "object",
-            "description": "Object keys are tags to filter on, values are <code>true</code> if the message must have the tag, or <code>false</code> if it must not have the tag. For a list of available tags, call the :ref:`messages.listTags` method.",
+            "description": "A <em>dictionary object</em> with one or more filter condition as <em>key-value</em> pairs, the <em>key</em> being the tag to filter on, and the <em>value</em> being a boolean expression, requesting whether a message must include (<value>true</value>) or exclude (<value>false</value>) the tag. For a list of available tags, call the :ref:`messages.listTags` method.",
             "patternProperties": {
               ".*": {
                 "type": "boolean"
@@ -475,7 +475,7 @@
       {
         "name": "getRaw",
         "type": "function",
-        "description": "Returns the unmodified source of a message as a `binary string <https://developer.mozilla.org/en-US/docs/Web/API/DOMString/Binary>`__, which is a simple series of 8-bit values. Throws if the message could not be read, for example due to network issues. If the message contains non-ASCII characters, the body parts in the binary string cannot be read directly and must be decoded according to their character sets. Use :ref:`messages.getFull` to get the correctly decoded parts. Manually decoding the raw message is probably too error-prone, especially if the message contains MIME parts with different character set encodings or attachments.\n\nTo get a readable version of the raw message as it appears in Thunderbird's message source view, it may be sufficient to decode the message according to the character set specified in its main ``content-type`` header (example: `text/html; charset=UTF-8`) using the following function (see MDN for `supported input encodings <https://developer.mozilla.org/en-US/docs/Web/API/Encoding_API/Encodings>`__): <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude>",
+        "description": "Returns the unmodified source of a message as a `binary string <|link-binary-string|>`__, which is a simple series of 8-bit values. Throws if the message could not be read, for example due to network issues. If the message contains non-ASCII characters, the body parts in the binary string cannot be read directly and must be decoded according to their character sets. Use :ref:`messages.getFull` to get the correctly decoded parts. Manually decoding the raw message is probably too error-prone, especially if the message contains MIME parts with different character set encodings or attachments.\n\nTo get a readable version of the raw message as it appears in Thunderbird's message source view, it may be sufficient to decode the message according to the character set specified in its main `content-type <|link-content-type|>`__ header (example: <value>text/html; charset=UTF-8</value>) using the following function (see MDN for `supported input encodings <|link-input-encoding|>`__): <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude>",
         "async": "callback",
         "parameters": [
           {
@@ -522,7 +522,7 @@
       {
         "name": "getAttachmentFile",
         "type": "function",
-        "description": "Gets the content of a :ref:`messages.MessageAttachment` as a DOM <code>File</code> object.",
+        "description": "Gets the content of a :ref:`messages.MessageAttachment` as a |File| object.",
         "async": "callback",
         "parameters": [
           {
@@ -566,7 +566,7 @@
               "author": {
                 "type": "string",
                 "optional": true,
-                "description": "Returns only messages with this value matching the author. The search value is a single email address, a name or a combination (e.g.: ``Name <user@domain.org>``). The address part of the search value (if provided) must match the author's address completely. The name part of the search value (if provided) must match the author's name partially. All matches are done case-insensitive."
+                "description": "Returns only messages with this value matching the author. The search value is a single email address, a name or a combination (e.g.: <value>Name <user@domain.org></value>). The address part of the search value (if provided) must match the author's address completely. The name part of the search value (if provided) must match the author's name partially. All matches are done case-insensitive."
               },
               "body": {
                 "type": "string",
@@ -611,7 +611,7 @@
               "recipients": {
                 "type": "string",
                 "optional": true,
-                "description": "Returns only messages whose recipients match all specified addresses. The search value is a semicolon separated list of email addresses, names or combinations (e.g.: ``Name <user@domain.org>``). For a match, all specified addresses must equal a recipient's address completely and all specified names must match a recipient's name partially. All matches are done case-insensitive."
+                "description": "Returns only messages whose recipients match all specified addresses. The search value is a semicolon separated list of email addresses, names or combinations (e.g.: <value>Name <user@domain.org></value>). For a match, all specified addresses must equal a recipient's address completely and all specified names must match a recipient's name partially. All matches are done case-insensitive."
               },
               "subject": {
                 "type": "string",
@@ -655,7 +655,7 @@
       {
         "name": "update",
         "type": "function",
-        "description": "Marks or unmarks a message as junk, read, flagged, or tagged. Updating external messages will throw an ``ExtensionError``.",
+        "description": "Marks or unmarks a message as junk, read, flagged, or tagged. Updating external messages will throw an <em>ExtensionError</em>.",
         "async": true,
         "parameters": [
           {
@@ -672,7 +672,7 @@
       {
         "name": "move",
         "type": "function",
-        "description": "Moves messages to a specified folder. If the messages cannot be removed from the source folder, they will be copied instead of moved. Moving external messages will throw an ``ExtensionError``.",
+        "description": "Moves messages to a specified folder. If the messages cannot be removed from the source folder, they will be copied instead of moved. Moving external messages will throw an <em>ExtensionError</em>.",
         "async": true,
         "permissions": [
           "accountsRead",
@@ -724,7 +724,7 @@
       {
         "name": "delete",
         "type": "function",
-        "description": "Deletes messages permanently, or moves them to the trash folder (honoring the account's deletion behavior settings). Deleting external messages will throw an ``ExtensionError``. The ``skipTrash`` parameter allows immediate permanent deletion, bypassing the trash folder.\n**Note**: Consider using :ref:`messages.move` to manually move messages to the account's trash folder, instead of requesting the overly powerful permission to actually delete messages. The account's trash folder can be extracted as follows: <literalinclude>includes/messages/getTrash.js<lang>JavaScript</lang></literalinclude>",
+        "description": "Deletes messages permanently, or moves them to the trash folder (honoring the account's deletion behavior settings). Deleting external messages will throw an <em>ExtensionError</em>. The ``skipTrash`` parameter allows immediate permanent deletion, bypassing the trash folder.\n**Note**: Consider using :ref:`messages.move` to manually move messages to the account's trash folder, instead of requesting the overly powerful permission to actually delete messages. The account's trash folder can be extracted as follows: <literalinclude>includes/messages/getTrash.js<lang>JavaScript</lang></literalinclude>",
         "async": true,
         "permissions": [
           "messagesDelete"
@@ -788,7 +788,7 @@
       {
         "name": "archive",
         "type": "function",
-        "description": "Archives messages using the current settings. Archiving external messages will throw an ``ExtensionError``.",
+        "description": "Archives messages using the current settings. Archiving external messages will throw an <em>ExtensionError</em>.",
         "async": true,
         "permissions": [
           "messagesMove"
