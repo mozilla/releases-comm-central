@@ -70,8 +70,11 @@ function really_run_test() {
   let getTz = aTz => cal.timezoneService.getTimezone(aTz);
   let timezone = getTz("America/New_York");
   let utc = cal.dtz.UTC;
-  // Timezones used in tests.
-  let belize = getTz("America/Belize");
+
+  // Timezones used in tests. This isn't a great representation, as we don't
+  // care what the actual timezone is, just that the offset is correct. Offset
+  // isn't presently easily accessible from the timezone object, however.
+  let utcminus6 = getTz("America/Bahia_Banderas");
   let dawson = getTz("America/Dawson");
 
   /*
@@ -100,8 +103,8 @@ function really_run_test() {
   );
 
   // This represents 03:00:23 on October 14, 2004 in Central Standard Time.
-  testRfc3339("2004-10-14T03:00:23-06:00", timezone, [2004, 10, 14, 3, 0, 23, belize, false]);
-  testRfc3339("2004-10-14T03:00:23-06:00", utc, [2004, 10, 14, 3, 0, 23, belize, false]);
+  testRfc3339("2004-10-14T03:00:23-06:00", timezone, [2004, 10, 14, 3, 0, 23, utcminus6, false]);
+  testRfc3339("2004-10-14T03:00:23-06:00", utc, [2004, 10, 14, 3, 0, 23, utcminus6, false]);
 
   /*
    * The following tests are the RFC 3339 examples

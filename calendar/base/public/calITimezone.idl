@@ -6,7 +6,7 @@
 
 interface calIIcalComponent;
 
-[scriptable, uuid(D79161E7-0DB9-427d-A0C3-27E0DB3B030F)]
+[scriptable, uuid(d79161e7-0db9-427d-a0c3-27e0db3b030f)]
 interface calITimezone : nsISupports
 {
     /**
@@ -28,16 +28,6 @@ interface calITimezone : nsISupports
      * Whether this is the "UTC" timezone.
      */
     readonly attribute boolean isUTC;
-
-    /**
-     * Latitude of timezone or void/null if unknown.
-     */
-    readonly attribute AUTF8String latitude;
-
-    /**
-     * Longitude of timezone or void/null if unknown.
-     */
-    readonly attribute AUTF8String longitude;
 
     /**
      * Localized name of the timezone; falls back to TZID if unknown.

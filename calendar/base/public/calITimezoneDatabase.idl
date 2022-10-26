@@ -1,0 +1,37 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+/**
+ * Provides access to raw iCalendar timezone definitions. Intended for providing
+ * a backing database for a calITimezoneService; most consumers will want to use
+ * calITimezoneService instead.
+ */
+[scriptable, uuid(dcace7e1-9600-47ba-a27e-b3bc8222192a)]
+interface calITimezoneDatabase : nsISupports
+{
+    /**
+     * The version of the IANA Time Zone Database provided.
+     */
+    readonly attribute AUTF8String version;
+
+    /**
+     * Get all supported canonical timezone IDs. This does not include link
+     * timezone IDs and should only be used to provide users with a list of
+     * timezones they may select, not to restrict supported timezone values.
+     *
+     * @return         a list of supported canonical timezone IDs
+     */
+    Array<AUTF8String> getCanonicalTimezoneIds();
+
+    /**
+     * Get an iCalendar timezone definition by timezone ID.
+     *
+     * @param tzid       timezone ID for which to return definition
+     * @return           a string containing an ical VTIMEZONE definition, or
+     *                   the empty string if the timezone ID is not recognized
+     */
+    AUTF8String getTimezoneDefinition(in AUTF8String tzid);
+};

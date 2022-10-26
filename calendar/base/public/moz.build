@@ -39,6 +39,7 @@ XPIDL_SOURCES += [
     "calIStartupService.idl",
     "calIStatusObserver.idl",
     "calITimezone.idl",
+    "calITimezoneDatabase.idl",
     "calITimezoneService.idl",
     "calITodo.idl",
     "calIWeekInfoService.idl",

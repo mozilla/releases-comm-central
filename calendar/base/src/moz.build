@@ -43,6 +43,14 @@ EXTRA_JS_MODULES += [
     "CalWeekInfoService.jsm",
 ]
 
+EXPORTS += [
+    "TimezoneDatabase.h",
+]
+
+UNIFIED_SOURCES += [
+    "TimezoneDatabase.cpp",
+]
+
 XPCOM_MANIFESTS += [
     "components.conf",
 ]
@@ -59,3 +67,5 @@ with Files("**"):
 
 with Files("calAlarm*"):
     BUG_COMPONENT = ("Calendar", "Alarms")
+
+FINAL_LIBRARY = "xul"
