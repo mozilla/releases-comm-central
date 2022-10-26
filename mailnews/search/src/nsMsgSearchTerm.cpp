@@ -835,7 +835,6 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm* scope,
 
   nsAutoCString buf;
   bool endOfFile = false;  // if retValue == 0, we've hit the end of the file
-  uint32_t lines = 0;
 
   // Change the sense of the loop so we don't bail out prematurely
   // on negative terms. i.e. opDoesntContain must look at all lines
@@ -868,7 +867,6 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm* scope,
           rv = MatchString(compare,
                            charset.IsEmpty() ? folderCharset : charset.get(),
                            &result);
-          lines++;
         }
         compare.Truncate();
       }
