@@ -1,0 +1,151 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/inContentDialog.css");
+
+/* Dialog container */
+
+.account-hub-dialog {
+  display: grid;
+  width: 600px;
+  height: 400px;
+  max-width: 70vw;
+  max-height: 70vh;
+}
+
+.account-hub-view:not([hidden]) {
+  display: grid;
+  grid-template: "header" min-content
+                 "body" minmax(auto, 1fr)
+                 "footer" min-content;
+  gap: 21px;
+  text-align: center;
+}
+
+/* Typography */
+
+dialog h1 {
+  font-weight: 300;
+  font-size: 1.8rem;
+  line-height: 1em;
+  margin-block: 0;
+}
+
+/* Header */
+
+.start-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.start-header h1 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.icon-button:not([hidden]) {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background-color: transparent;
+  --in-content-button-border-color: transparent;
+}
+
+.icon-button:hover {
+  background-color: var(--in-content-button-background);
+}
+
+.icon-button:hover:active {
+  background-color: var(--in-content-button-background-active);
+}
+
+#closeButton {
+  position: absolute;
+  inset-inline-end: 15px;
+  inset-block-start: 15px;
+  appearance: none;
+  border: none;
+  border-radius: 12px;
+  width: 21px;
+  height: 21px;
+}
+
+#closeButton:hover {
+  background-color: var(--button-hover-bgcolor);
+}
+#closeButton:hover:active {
+  background-color: var(--button-active-bgcolor);
+}
+
+#closeButton img {
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+  content: var(--icon-close);
+}
+
+#welcomeHeader > img {
+  width: 90px;
+  height: 90px;
+}
+
+#defaultHeader > img {
+  width: 60px;
+  height: 60px;
+}
+
+#defaultHeader .start-header-brand-name {
+  font-size: 1.3rem;
+}
+
+#defaultHeader .start-header-title {
+  font-size: 2rem;
+}
+
+#welcomeHeader h1 {
+  font-size: 1.4rem;
+  gap: 12px;
+}
+
+#welcomeHeader h1 > span {
+  font-size: 2.5rem;
+}
+
+#welcomeHeader h1 > span > small {
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+#hubHeader {
+  grid-area: header;
+}
+
+/* Body */
+
+#hubBody {
+  grid-area: body;
+}
+
+/* Footer */
+
+#hubFooter {
+  grid-area: footer;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 6px;
+  justify-content: center;
+}
+
+.footer-links li:not([hidden]) ~ li:not([hidden])::before {
+  content: "·";
+  margin-inline-end: 6px;
+}

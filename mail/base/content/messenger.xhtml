@@ -239,6 +239,8 @@
   <script defer="defer" src="chrome://calendar/content/calendar-migration.js"></script>
   <script defer="defer" src="chrome://messenger/content/shortcutsOverlay.js"></script>
 
+  <script defer="defer" src="chrome://messenger/content/accountcreation/accountHub.js"></script>
+
   <script>
     window.onload = gMailInit.onLoad.bind(gMailInit);
     window.onunload = gMailInit.onUnload.bind(gMailInit);
@@ -939,5 +941,6 @@
 </hbox><!-- Closing #messengerContainer. -->
 
 #include tabDialogs.inc.xhtml
+#include ../../components/accountcreation/templates/accountHubTemplate.inc.xhtml
 </html:body>
 </html>

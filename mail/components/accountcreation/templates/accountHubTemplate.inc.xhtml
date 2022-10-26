@@ -1,0 +1,59 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<!--
+  List of all the account creation templates. Don't load any JavaScript or
+  CSS in here, those files are handled lazily in the controller and in the
+  various shadowRoots of the views.
+-->
+<html:template id="accountHubDialog" xmlns="http://www.w3.org/1999/xhtml">
+  <dialog class="account-hub-dialog">
+    <button id="closeButton" type="button" class="icon-button">
+      <img src="" alt="" />
+    </button>
+  </dialog>
+</html:template>
+
+<html:template id="accountHubStart" xmlns="http://www.w3.org/1999/xhtml">
+  <header id="hubHeader">
+    <div id="welcomeHeader" class="start-header" hidden="hidden">
+      <img src="chrome://branding/content/logo-gradient.svg" alt="" />
+      <h1 data-l10n-id="account-hub-welcome-line">
+        <span data-l10n-name="brand-name"></span>
+      </h1>
+    </div>
+    <div id="defaultHeader" class="start-header" hidden="hidden">
+      <img src="chrome://branding/content/logo-gradient.svg" alt="" />
+      <h1>
+        <span class="start-header-brand-name"
+              data-l10n-id="account-hub-brand"></span>
+        <span class="start-header-title"
+              data-l10n-id="account-hub-title"></span>
+      </h1>
+    </div>
+  </header>
+
+  <div id="hubBody"></div>
+
+  <div id="hubFooter">
+    <ul class="reset-list footer-links">
+      <li>
+        <a id="hubReleaseNotes"
+            data-l10n-id="account-hub-release-notes"></a>
+      </li>
+      <li>
+        <a href="https://support.mozilla.org/products/thunderbird"
+            data-l10n-id="account-hub-support"
+            onclick="openLinkExternally(this.href);"></a>
+      </li>
+      <li>
+        <a href="https://give.thunderbird.net/?utm_source=thunderbird_account_hub&amp;utm_medium=referral&amp;utm_content=hub_footer"
+            data-l10n-id="account-hub-donate"
+            onclick="openLinkExternally(this.href);"></a>
+      </li>
+    </ul>
+  </div>
+</html:template>
+
+<html:template id="accountHubEmailSetup" xmlns="http://www.w3.org/1999/xhtml"></html:template>
