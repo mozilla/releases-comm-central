@@ -11,10 +11,10 @@ def get_thunderbird_xc_config(topsrcdir, strings_path):
     return {
         "strings": {
             "path": strings_path,
-            "url": "https://hg.mozilla.org/users/thunderbird_calypsoblue.org/comm-strings-quarantine/",  # NOQA: E501
+            "url": "https://hg.mozilla.org/projects/comm-strings-quarantine/",
             "heads": {"default": "default"},
             "update_on_pull": True,
-            "push_url": "ssh://hg.mozilla.org/users/thunderbird_calypsoblue.org/comm-strings-quarantine/",  # NOQA: E501
+            "push_url": "ssh://hg.mozilla.org/projects/comm-strings-quarantine/",
         },
         "source": {
             "comm-central": {
@@ -24,10 +24,10 @@ def get_thunderbird_xc_config(topsrcdir, strings_path):
                     # This list of repositories is ordered, starting with the
                     # one with the most recent content (central) to the oldest
                     # (ESR). In case two ESR versions are supported, the oldest
-                    # ESR goes last (e.g. esr78 goes after esr91).
+                    # ESR goes last (e.g. esr102 goes after esr115).
                     "comm": "comm-central",
                     "comm-beta": "releases/comm-beta",
-                    "comm-esr91": "releases/comm-esr91",
+                    "comm-esr102": "releases/comm-esr102",
                 },
                 "config_files": [
                     "comm/calendar/locales/l10n.toml",
