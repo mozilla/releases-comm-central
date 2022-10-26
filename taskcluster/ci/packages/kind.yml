@@ -8,6 +8,8 @@ reference-base-path: taskcluster/ci
 reference-jobs:
     - deb8-32-gcc-7
     - deb8-gcc-7
+    - deb10-python-zstandard
+    - deb10-mercurial
     - deb11-python-zstandard
     - deb11-mercurial
     - ub18-32-libc6
