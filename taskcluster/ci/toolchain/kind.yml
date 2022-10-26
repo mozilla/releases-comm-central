@@ -37,6 +37,7 @@ reference-jobs:
     - linux64-minidump-stackwalk
     - linux64-nasm
     - linux64-node
+    - linux64-pkgconf
     - linux64-rust
     - linux64-rust-cross
     - linux64-rust-dev

@@ -60,6 +60,7 @@ jobs:
                 - linux64-libotr
                 - linux64-nasm
                 - linux64-node
+                - linux64-pkgconf
                 - linux64-rust
                 - sysroot-wasm32-wasi
                 - sysroot-x86_64-linux-gnu
