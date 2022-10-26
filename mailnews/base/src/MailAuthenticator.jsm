@@ -390,6 +390,17 @@ class IncomingServerAuthenticator extends MailAuthenticator {
  * @extends {IncomingServerAuthenticator}
  */
 class NntpAuthenticator extends IncomingServerAuthenticator {
+  /**
+   * @type string - NNTP server has no userName pref, need to pass it in.
+   */
+  get username() {
+    return this._username;
+  }
+
+  set username(value) {
+    this._username = value;
+  }
+
   promptAuthFailed() {
     return this._promptAuthFailed(null, this._server.prettyName);
   }
