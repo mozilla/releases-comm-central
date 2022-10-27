@@ -10,22 +10,9 @@ var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 var gFolderTreeView;
 var gMsgFolder;
 var gLockedPref = null;
-const styles = getComputedStyle(document.body);
-const folderColors = {
-  Inbox: styles.getPropertyValue("--folder-color-inbox"),
-  Sent: styles.getPropertyValue("--folder-color-sent"),
-  Outbox: styles.getPropertyValue("--folder-color-outbox"),
-  Drafts: styles.getPropertyValue("--folder-color-draft"),
-  Trash: styles.getPropertyValue("--folder-color-trash"),
-  Archive: styles.getPropertyValue("--folder-color-archive"),
-  Templates: styles.getPropertyValue("--folder-color-template"),
-  Spam: styles.getPropertyValue("--folder-color-spam"),
-  Virtual: styles.getPropertyValue("--folder-color-folder-filter"),
-  RSS: styles.getPropertyValue("--folder-color-rss"),
-  Newsgroup: styles.getPropertyValue("--folder-color-newsletter"),
-};
-var kCurrentColor = "";
-var kDefaultColor = styles.getPropertyValue("--folder-color-folder");
+
+var gCurrentColor = "";
+var gDefaultColor = "";
 var gNeedToRestoreFolderSelection = false;
 
 window.addEventListener("DOMContentLoaded", folderPropsOnLoad);
@@ -152,7 +139,7 @@ function inputColorClicked() {
  */
 function resetColor() {
   inputColorClicked();
-  document.getElementById("color").value = kDefaultColor;
+  document.getElementById("color").value = gDefaultColor;
   window.arguments[0].previewSelectedColorCallback(gMsgFolder, null);
 }
 
@@ -197,7 +184,7 @@ function folderPropsOKButton(event) {
 
     // Check if the icon color was updated.
     if (
-      kCurrentColor !=
+      gCurrentColor !=
       gFolderTreeView.getFolderCacheProperty(gMsgFolder, "folderIconColor")
     ) {
       window.arguments[0].updateColorCallback(gMsgFolder);
@@ -221,7 +208,7 @@ function folderPropsOKButton(event) {
 function folderCancelButton(event) {
   // Restore the icon to the previous color and discard edits.
   if (gMsgFolder && window.arguments[0].previewSelectedColorCallback) {
-    window.arguments[0].previewSelectedColorCallback(gMsgFolder, kCurrentColor);
+    window.arguments[0].previewSelectedColorCallback(gMsgFolder, gCurrentColor);
   }
 
   restoreFolderSelection();
@@ -242,6 +229,22 @@ function restoreFolderSelection() {
 }
 
 function folderPropsOnLoad() {
+  let styles = getComputedStyle(document.body);
+  let folderColors = {
+    Inbox: styles.getPropertyValue("--folder-color-inbox"),
+    Sent: styles.getPropertyValue("--folder-color-sent"),
+    Outbox: styles.getPropertyValue("--folder-color-outbox"),
+    Drafts: styles.getPropertyValue("--folder-color-draft"),
+    Trash: styles.getPropertyValue("--folder-color-trash"),
+    Archive: styles.getPropertyValue("--folder-color-archive"),
+    Templates: styles.getPropertyValue("--folder-color-template"),
+    Spam: styles.getPropertyValue("--folder-color-spam"),
+    Virtual: styles.getPropertyValue("--folder-color-folder-filter"),
+    RSS: styles.getPropertyValue("--folder-color-rss"),
+    Newsgroup: styles.getPropertyValue("--folder-color-newsletter"),
+  };
+  gDefaultColor = styles.getPropertyValue("--folder-color-folder");
+
   // look in arguments[0] for parameters
   if (window.arguments && window.arguments[0]) {
     if (window.arguments[0].title) {
@@ -257,7 +260,7 @@ function folderPropsOnLoad() {
     gMsgFolder = window.arguments[0].folder;
     gFolderTreeView = window.arguments[0].treeView;
     // Store the current icon color to allow discarding edits.
-    kCurrentColor = gFolderTreeView.getFolderCacheProperty(
+    gCurrentColor = gFolderTreeView.getFolderCacheProperty(
       gMsgFolder,
       "folderIconColor"
     );
@@ -303,11 +306,11 @@ function folderPropsOnLoad() {
     }
 
     if (Object.keys(folderColors).includes(selectedFolderName)) {
-      kDefaultColor = folderColors[selectedFolderName];
+      gDefaultColor = folderColors[selectedFolderName];
     }
 
     let colorInput = document.getElementById("color");
-    colorInput.value = kCurrentColor ? kCurrentColor : kDefaultColor;
+    colorInput.value = gCurrentColor || gDefaultColor;
     colorInput.addEventListener("input", event => {
       window.arguments[0].previewSelectedColorCallback(
         gMsgFolder,
