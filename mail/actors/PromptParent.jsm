@@ -136,6 +136,9 @@ class PromptParent extends JSWindowActorParent {
       win = browsingContext.window;
     } else {
       win = browser?.ownerGlobal;
+      if (!win?.isChromeWindow) {
+        win = browsingContext.topChromeWindow;
+      }
     }
 
     // There's a requirement for prompts to be blocked if a window is
