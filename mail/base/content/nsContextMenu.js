@@ -33,7 +33,7 @@ var { E10SUtils } = ChromeUtils.importESModule(
 
 var gSpellChecker = new InlineSpellChecker();
 
-/** Called by ContextMenuParent.jsm */
+/** Called by ContextMenuParent.sys.mjs */
 function openContextMenu({ data }, browser, actor) {
   if (!browser.hasAttribute("context")) {
     return;
@@ -219,7 +219,7 @@ class nsContextMenu {
     this.shouldDisplay = !this.contentData || context.shouldDisplay;
     this.timeStamp = context.timeStamp;
 
-    // Assign what's _possibly_ needed from `context` sent by ContextMenuChild.jsm
+    // Assign what's _possibly_ needed from `context` sent by ContextMenuChild.sys.mjs
     // Keep this consistent with the similar code in ContextMenu's _setContext
     this.bgImageURL = context.bgImageURL;
     this.imageDescURL = context.imageDescURL;

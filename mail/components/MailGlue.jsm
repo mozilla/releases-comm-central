@@ -64,10 +64,10 @@ let JSWINDOWACTORS = {
 
   ContextMenu: {
     parent: {
-      moduleURI: "resource:///actors/ContextMenuParent.jsm",
+      esModuleURI: "resource:///actors/ContextMenuParent.sys.mjs",
     },
     child: {
-      moduleURI: "resource:///actors/ContextMenuChild.jsm",
+      esModuleURI: "resource:///actors/ContextMenuChild.sys.mjs",
       events: {
         contextmenu: { mozSystemGroup: true },
       },
