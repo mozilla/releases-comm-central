@@ -135,7 +135,7 @@ function getPreviewForTask(toDoItem, aIsTooltip = true) {
     if (aIsTooltip) {
       // tooltip appears above or below pointer, so may have as little as
       // one half the screen height available (avoid top going off screen).
-      vbox.maxHeight = Math.floor(screen.height / 2);
+      vbox.style.maxHeight = Math.floor(screen.height / 2);
     } else {
       vbox.setAttribute("flex", "1");
     }

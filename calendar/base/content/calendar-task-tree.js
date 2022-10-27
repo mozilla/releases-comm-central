@@ -361,7 +361,7 @@
      */
     persistColumnState() {
       const columns = Array.from(this.querySelectorAll("treecol"));
-      const widths = columns.map(col => col.width || 0);
+      const widths = columns.map(col => col.getBoundingClientRect().width || 0);
       const ordinals = columns.map(col => col.ordinal);
       const visibleColumns = columns
         .filter(col => !col.hidden)
@@ -404,7 +404,7 @@
           col.ordinal = ordinals.shift();
         }
         if (widths && widths.length > 0) {
-          col.width = Number(widths.shift());
+          col.style.width = Number(widths.shift()) + "px";
         }
         if (sorted && sorted == itemProperty) {
           this.mTreeView.sortDirection = sortDirection;

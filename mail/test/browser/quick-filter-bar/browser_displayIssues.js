@@ -68,7 +68,7 @@ add_setup(async function() {
 
   // Store folder pane width that we will change temporarily.
   let folderPaneBox = mc.e("folderPaneBox");
-  gOriginalPaneWidth = folderPaneBox.width;
+  gOriginalPaneWidth = folderPaneBox.style.width;
 
   // Hide Lightning's Today pane as it takes up too much room in the
   // small TB window our tests run in.
@@ -174,7 +174,7 @@ add_task(function test_buttons_collapse_and_expand_on_spawn_in_vertical_mode() {
 
   // Now expand the folder pane to cause the QFB buttons to shrink
   let folderPaneBox = mc.e("folderPaneBox");
-  folderPaneBox.width = 600;
+  folderPaneBox.setAttribute("width", 600);
 
   // Now spawn a new 3pane...
   let mc2 = open_folder_in_new_window(folder);
@@ -202,7 +202,7 @@ registerCleanupFunction(function() {
   restore_default_window_size();
   collapse_panes(mc.e("folderpane_splitter"), false);
   let folderPaneBox = mc.e("folderPaneBox");
-  folderPaneBox.width = gOriginalPaneWidth;
+  folderPaneBox.style.width = gOriginalPaneWidth;
 
   if (gTodayPane && gTodayPane.collapsed) {
     EventUtils.synthesizeKey("VK_F11", {});

@@ -469,11 +469,15 @@ var TodayPane = {
   onModeModified() {
     let todayPanePanel = document.getElementById("today-pane-panel");
     // Store the previous mode panel's width.
-    todayPanePanel.setModeAttribute("modewidths", todayPanePanel.width, TodayPane.previousMode);
+    todayPanePanel.setModeAttribute(
+      "modewidths",
+      todayPanePanel.getBoundingClientRect().width,
+      TodayPane.previousMode
+    );
 
     TodayPane.updateDisplay();
     TodayPane.updateSplitterState();
-    todayPanePanel.width = todayPanePanel.getModeAttribute("modewidths");
+    todayPanePanel.style.width = todayPanePanel.getModeAttribute("modewidths") + "px";
     TodayPane.previousMode = gCurrentMode;
   },
 

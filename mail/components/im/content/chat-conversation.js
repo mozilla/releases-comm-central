@@ -560,7 +560,7 @@
     _onSplitterChange() {
       // set the default height as the deck height (modified by the splitter)
       this.inputBox.defaultHeight =
-        parseInt(this.inputBox.parentNode.height) -
+        parseInt(this.inputBox.parentNode.getBoundingClientRect().height) -
         this._TEXTBOX_VERTICAL_OVERHEAD;
     }
 
@@ -600,15 +600,15 @@
       this.inputBox.defaultHeight = numberOfLines * lineHeight;
 
       // set minimum height (in case the user moves the splitter)
-      this.inputBox.parentNode.minHeight =
-        lineHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
+      this.inputBox.parentNode.style.minHeight =
+        lineHeight + this._TEXTBOX_VERTICAL_OVERHEAD + "px";
     }
 
     initTextboxFormat() {
       // Init the textbox size
       this.calculateTextboxDefaultHeight();
-      this.inputBox.parentNode.height =
-        this.inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
+      this.inputBox.parentNode.style.height =
+        this.inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD + "px";
       this.inputBox.style.overflowY = "hidden";
 
       this.spellchecker = new InlineSpellChecker(this.inputBox);
@@ -1049,7 +1049,9 @@
       this.displayStatusText();
 
       if (TextboxSize.autoResize) {
-        let currHeight = parseInt(this.inputBox.parentNode.height);
+        let currHeight = Math.round(
+          this.inputBox.parentNode.getBoundingClientRect().height
+        );
         if (
           this.inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD >
           currHeight
@@ -1057,8 +1059,8 @@
           this.inputBox.defaultHeight =
             currHeight - this._TEXTBOX_VERTICAL_OVERHEAD;
         }
-        this.convBottom.height =
-          this.inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
+        this.convBottom.style.height =
+          this.inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD + "px";
         this.inputBox.style.overflowY = "hidden";
       }
     }
@@ -1080,26 +1082,26 @@
       let topMinSize = parseInt(topBoxStyle.getPropertyValue("min-height"));
       let topSize = parseInt(topBoxStyle.getPropertyValue("height"));
       let deck = this.inputBox.parentNode;
-      let oldDeckHeight = parseInt(deck.height);
+      let oldDeckHeight = Math.round(deck.getBoundingClientRect().height);
       let newDeckHeight =
         parseInt(this.inputBox.scrollHeight) + this._TEXTBOX_VERTICAL_OVERHEAD;
 
       if (!topMinSize || topSize - topMinSize > newDeckHeight - oldDeckHeight) {
         // Hide a possible vertical scrollbar.
         this.inputBox.style.overflowY = "hidden";
-        deck.height = newDeckHeight;
+        deck.style.height = newDeckHeight + "px";
       } else {
         this.inputBox.style.overflowY = "";
         // Set it to the maximum possible value.
-        deck.height = oldDeckHeight + (topSize - topMinSize);
+        deck.style.height = oldDeckHeight + (topSize - topMinSize) + "px";
       }
     }
 
     onConvResize() {
       if (!this.splitter.hasAttribute("state")) {
         this.calculateTextboxDefaultHeight();
-        this.inputBox.parentNode.height =
-          this.inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD;
+        this.inputBox.parentNode.style.height =
+          this.inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD + "px";
       } else {
         // Used in case the browser is already on its min-height, resize the
         // textbox to avoid hiding the status bar.
@@ -1110,13 +1112,12 @@
         );
 
         if (convTopHeight == convTopMinHeight) {
-          this.inputBox.parentNode.height = parseInt(
-            this.inputBox.parentNode.minHeight
-          );
+          this.inputBox.parentNode.style.height = this.inputBox.parentNode.style.minHeight;
           convTopHeight = parseInt(convTopStyle.getPropertyValue("height"));
-          this.inputBox.parentNode.height =
-            parseInt(this.inputBox.parentNode.minHeight) +
-            (convTopHeight - convTopMinHeight);
+          this.inputBox.parentNode.style.height =
+            parseInt(this.inputBox.parentNode.style.minHeight) +
+            (convTopHeight - convTopMinHeight) +
+            "px";
         }
       }
       if (TextboxSize.autoResize) {

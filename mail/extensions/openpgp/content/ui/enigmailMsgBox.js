@@ -16,8 +16,8 @@ function onLoad() {
   dlg.getButton("extra1").setAttribute("hidden", "true");
   dlg.getButton("extra2").setAttribute("hidden", "true");
 
-  document.getElementById("filler").maxWidth = screen.availWidth - 50;
-  //dlg.maxHeight = screen.availHeight;
+  document.getElementById("filler").style.maxWidth =
+    screen.availWidth - 50 + "px";
 
   let args = window.arguments[0];
   let msgtext = args.msgtext;
