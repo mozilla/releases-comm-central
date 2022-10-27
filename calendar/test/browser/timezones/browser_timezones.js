@@ -88,7 +88,7 @@ add_task(async function testTimezones3_checkStJohns() {
   let times = [
     [
       [4, 30],
-      [6, 00],
+      [6, 0],
       [6, 30],
       [7, 30],
       [7, 30],
@@ -98,7 +98,7 @@ add_task(async function testTimezones3_checkStJohns() {
     ],
     [
       [4, 30],
-      [7, 00],
+      [7, 0],
       [7, 30],
       [7, 30],
       [9, 30],
@@ -108,7 +108,7 @@ add_task(async function testTimezones3_checkStJohns() {
     ],
     [
       [4, 30],
-      [7, 00],
+      [7, 0],
       [7, 30],
       [7, 30],
       [9, 30],
@@ -118,7 +118,7 @@ add_task(async function testTimezones3_checkStJohns() {
     ],
     [
       [4, 30],
-      [7, 00],
+      [7, 0],
       [7, 30],
       [7, 30],
       [9, 30],
@@ -128,7 +128,7 @@ add_task(async function testTimezones3_checkStJohns() {
     ],
     [
       [4, 30],
-      [7, 00],
+      [7, 0],
       [7, 30],
       [7, 30],
       [9, 30],
@@ -138,7 +138,7 @@ add_task(async function testTimezones3_checkStJohns() {
     ],
     [
       [4, 30],
-      [7, 00],
+      [7, 0],
       [7, 30],
       [7, 30],
       [9, 30],
@@ -148,7 +148,7 @@ add_task(async function testTimezones3_checkStJohns() {
     ],
     [
       [4, 30],
-      [7, 00],
+      [7, 0],
       [7, 30],
       [7, 30],
       [9, 30],
@@ -158,7 +158,7 @@ add_task(async function testTimezones3_checkStJohns() {
     ],
     [
       [4, 30],
-      [6, 00],
+      [6, 0],
       [6, 30],
       [7, 30],
       [8, 30],
