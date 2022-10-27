@@ -9,8 +9,6 @@
 <?xml-stylesheet href="chrome://branding/content/aboutDialog.css" type="text/css"?>
 
 <!DOCTYPE window [
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
-%brandDTD;
 <!ENTITY % aboutDialogDTD SYSTEM "chrome://messenger/locale/aboutDialog.dtd" >
 %aboutDialogDTD;
 ]>
@@ -26,26 +24,24 @@
 #ifdef XP_MACOSX
         inwindowmenu="false"
 #else
-        title="&aboutDialog.title;"
+        data-l10n-id="aboutDialog-title"
 #endif
         role="dialog"
         aria-describedby="version distribution distributionId currentChannelText communityDesc contributeDesc trademark"
         >
   <linkset>
+    <html:link rel="localization" href="branding/brand.ftl"/>
     <html:link rel="localization" href="messenger/aboutDialog.ftl"/>
   </linkset>
 
   <script src="chrome://messenger/content/aboutDialog.js"/>
-#ifdef MOZ_UPDATER
-  <script src="chrome://messenger/content/aboutDialog-appUpdater.js"/>
-#endif
 
   <vbox id="aboutDialogContainer">
     <hbox id="clientBox">
       <vbox id="leftBox" flex="1"/>
       <vbox id="rightBox" flex="1">
         <hbox align="baseline">
-#expand   <label id="version">__MOZ_APP_VERSION_DISPLAY__</label>
+          <label id="version"></label>
           <html:a id="releasenotes" class="text-link" hidden="hidden"
                   onclick="openLink(event.target.href)">
             &releaseNotes.link;
@@ -56,102 +52,105 @@
         <label id="distributionId" class="text-blurb"/>
 
         <vbox id="detailsBox">
-          <vbox id="updateBox">
+          <hbox id="updateBox">
 #ifdef MOZ_UPDATER
-            <stack id="updateDeck" orient="vertical">
-              <html:div id="checkForUpdates" class="update-deck-container">
-                <html:button id="checkForUpdatesButton"
-                             accesskey="&update.checkForUpdatesButton.accesskey;"
-                             onclick="gAppUpdater.checkForUpdates();">
-                  &update.checkForUpdatesButton.label;
-                </html:button>
-              </html:div>
-              <html:div id="downloadAndInstall" class="update-deck-container">
-                <html:button id="downloadAndInstallButton"
-                             onclick="gAppUpdater.startDownload();">
-                </html:button>
-                <html:a id="updateNotes" class="text-link download-link" hidden="hidden"
-                        data-l10n-id="about-update-whats-new"></html:a>
-              </html:div>
-              <html:div id="apply" class="update-deck-container">
-                <html:button id="updateButton"
-                             accesskey="&update.updateButton.accesskey;"
-                             onclick="gAppUpdater.buttonRestartAfterDownload();">
-                  &update.updateButton.label3;
-                </html:button>
-              </html:div>
-              <html:div id="checkingForUpdates" class="update-deck-container">
-                <html:img class="update-throbber" alt=""
-                          src="chrome://global/skin/icons/loading.png"
-                          srcset="chrome://global/skin/icons/loading@2x.png 2x" />
-                <html:span>&update.checkingForUpdates;</html:span>
-              </html:div>
-              <html:div id="downloading" class="update-deck-container">
-                <html:img class="update-throbber" alt=""
-                          src="chrome://global/skin/icons/loading.png"
-                          srcset="chrome://global/skin/icons/loading@2x.png 2x" />
-                <!-- Group within a single span to center align with icon. -->
-                <html:span>
-                  <html:span>&update.downloading.start;</html:span>
-                  <html:span id="downloadStatus"></html:span>
-                  <html:span>&update.downloading.end;</html:span>
-                </html:span>
-              </html:div>
-              <html:div id="applying" class="update-deck-container">
-                <html:img class="update-throbber" alt=""
-                          src="chrome://global/skin/icons/loading.png"
-                          srcset="chrome://global/skin/icons/loading@2x.png 2x" />
-                <html:span>&update.applying;</html:span>
-              </html:div>
-              <html:div id="downloadFailed" class="update-deck-container">
-                <!-- Outer span ensures whitespace between the plain text and
-                   - the link. Otherwise, this would be suppressed by the
-                   - update-deck-container's display: flex. -->
-                <html:span>
-                  <html:span>&update.failed.start;</html:span>
-                  <html:a id="failedLink" class="text-link download-link">
-                    &update.failed.linkText;
-                  </html:a>
-                  <html:span>&update.failed.end;</html:span>
-                </html:span>
-              </html:div>
-              <html:div id="policyDisabled" class="update-deck-container">
-                <html:span>&update.adminDisabled;</html:span>
-              </html:div>
-              <html:div id="noUpdatesFound" class="update-deck-container">
-                <html:span>&update.noUpdatesFound;</html:span>
-              </html:div>
-              <html:div id="otherInstanceHandlingUpdates"
-                        class="update-deck-container">
-                <html:span>&update.otherInstanceHandlingUpdates;</html:span>
-              </html:div>
-              <html:div id="manualUpdate" class="update-deck-container">
-                <html:span>
-                  <html:span>&update.manual.start;</html:span>
-                  <html:a id="manualLink" class="text-link download-link">
-                    &update.manual.linkText;
-                  </html:a>
-                  <html:span>&update.manual.end;</html:span>
-                </html:span>
-              </html:div>
-              <html:div id="unsupportedSystem" class="update-deck-container">
-                <html:span>
-                  <html:span>&update.unsupported.start;</html:span>
-                  <html:a id="unsupportedLink" class="text-link download-link">
-                    &update.unsupported.linkText;
-                  </html:a>
-                  <html:span>&update.unsupported.end;</html:span>
-                </html:span>
-              </html:div>
-              <html:div id="restarting" class="update-deck-container">
-                <html:img class="update-throbber" alt=""
-                          src="chrome://global/skin/icons/loading.png"
-                          srcset="chrome://global/skin/icons/loading@2x.png 2x" />
-                <html:span>&update.restarting;</html:span>
-              </html:div>
-            </stack>
+            <html:div id="icons">
+              <html:img class="icon update-throbber" src="chrome://global/skin/icons/loading.png" role="presentation"/>
+              <html:img class="icon noUpdatesFound" src="chrome://global/skin/icons/check.svg" role="presentation"/>
+              <html:img class="icon apply" src="chrome://global/skin/icons/reload.svg" role="presentation"/>
+            </html:div>
+            <vbox>
+              <deck id="updateDeck" orient="vertical">
+                <html:div id="checkForUpdates" class="update-deck-container">
+                  <html:button id="checkForUpdatesButton"
+                               accesskey="&update.checkForUpdatesButton.accesskey;"
+                               onclick="gAppUpdater.checkForUpdates();">
+                    &update.checkForUpdatesButton.label;
+                  </html:button>
+                </html:div>
+                <html:div id="downloadAndInstall" class="update-deck-container">
+                  <html:button id="downloadAndInstallButton"
+                               onclick="gAppUpdater.startDownload();">
+                  </html:button>
+                  <html:a id="updateNotes" class="text-link download-link" hidden="hidden"
+                          data-l10n-id="about-update-whats-new"></html:a>
+                </html:div>
+                <html:div id="apply" class="update-deck-container">
+                  <html:button id="updateButton"
+                               accesskey="&update.updateButton.accesskey;"
+                               onclick="gAppUpdater.buttonRestartAfterDownload();">
+                    &update.updateButton.label3;
+                  </html:button>
+                </html:div>
+                <html:div id="checkingForUpdates" class="update-deck-container">
+                  <html:span>&update.checkingForUpdates;</html:span>
+                </html:div>
+                <html:div id="downloading" class="update-deck-container">
+                  <!-- Group within a single span to center align with icon. -->
+                  <html:span>
+                    <html:span>&update.downloading.start;</html:span>
+                    <html:span id="downloadStatus"></html:span>
+                    <html:span>&update.downloading.end;</html:span>
+                  </html:span>
+                </html:div>
+                <html:div id="applying" class="update-deck-container">
+                  <html:span>&update.applying;</html:span>
+                </html:div>
+                <html:div id="downloadFailed" class="update-deck-container">
+                  <!-- Outer span ensures whitespace between the plain text and
+                     - the link. Otherwise, this would be suppressed by the
+                     - update-deck-container's display: flex. -->
+                  <html:span>
+                    <html:span>&update.failed.start;</html:span>
+                    <html:a id="failedLink" class="text-link download-link">
+                      &update.failed.linkText;
+                    </html:a>
+                    <html:span>&update.failed.end;</html:span>
+                  </html:span>
+                </html:div>
+                <html:div id="policyDisabled" class="update-deck-container">
+                  <html:span>&update.adminDisabled;</html:span>
+                </html:div>
+                <html:div id="noUpdatesFound" class="update-deck-container">
+                  <html:span>&update.noUpdatesFound;</html:span>
+                </html:div>
+                <html:div id="otherInstanceHandlingUpdates"
+                          class="update-deck-container">
+                  <html:span>&update.otherInstanceHandlingUpdates;</html:span>
+                </html:div>
+                <html:div id="manualUpdate" class="update-deck-container">
+                  <html:span>
+                    <html:span>&update.manual.start;</html:span>
+                    <html:a id="manualLink" class="text-link download-link">
+                      &update.manual.linkText;
+                    </html:a>
+                    <html:span>&update.manual.end;</html:span>
+                  </html:span>
+                </html:div>
+                <html:div id="unsupportedSystem" class="update-deck-container">
+                  <html:span>
+                    <html:span>&update.unsupported.start;</html:span>
+                    <html:a id="unsupportedLink" class="text-link download-link">
+                      &update.unsupported.linkText;
+                    </html:a>
+                    <html:span>&update.unsupported.end;</html:span>
+                  </html:span>
+                </html:div>
+                <html:div id="restarting" class="update-deck-container">
+                  <html:span>&update.restarting;</html:span>
+                </html:div>
+              </deck>
+              <!-- This HBOX is duplicated above without class="update" -->
+              <hbox align="baseline">
+                <label id="version" class="update"></label>
+                <html:a id="releasenotes" class="text-link" hidden="hidden"
+                        onclick="openLink(event.target.href)">
+                  &releaseNotes.link;
+                </html:a>
+              </hbox>
+            </vbox>
 #endif
-          </vbox>
+          </hbox>
 
 #ifdef MOZ_UPDATER
           <description class="text-blurb" id="currentChannelText">
@@ -184,9 +183,7 @@
         <label class="text-link bottom-link" onclick="openAboutTab('about:rights');">&bottomLinks.rights;</label>
         <label class="text-link bottom-link" onclick="openLink('https://www.mozilla.org/privacy/thunderbird/');">&bottomLinks.privacy;</label>
       </hbox>
-      <description id="trademark">
-        <label class="trademark-label">&trademarkInfo.part1;</label>
-      </description>
+      <description id="trademark" data-l10n-id="trademarkInfo"></description>
     </vbox>
   </vbox>
 

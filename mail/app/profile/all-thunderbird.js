@@ -26,6 +26,13 @@ pref("mail.rights.override", true);
 pref("mail.rights.override", true);
 #endif
 
+// At startup, should we check to see if the installation
+// date is older than some threshold
+pref("app.update.checkInstallTime", true);
+
+// The number of days a binary is permitted to be old without checking is defined in
+// thunderbird-branding.js (app.update.checkInstallTime.days)
+
 // The minimum delay in seconds for the timer to fire between the notification
 // of each consumer of the timer manager.
 // minimum=30 seconds, default=120 seconds, and maximum=300 seconds
