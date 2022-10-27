@@ -1026,40 +1026,38 @@ var RNP = {
               sigObj.signerKeyId = sigIdStr;
               RNPLib.rnp_buffer_destroy(sig_id_str);
 
-              if (keyObj.keyId != sigObj.signerKeyId) {
-                let signerHandle = new RNPLib.rnp_key_handle_t();
+              let signerHandle = new RNPLib.rnp_key_handle_t();
 
+              if (
+                RNPLib.rnp_signature_get_signer(
+                  sig_handle,
+                  signerHandle.address()
+                )
+              ) {
+                throw new Error("rnp_signature_get_signer failed");
+              }
+
+              if (signerHandle.isNull() || this.isBadKey(signerHandle)) {
+                if (!ignoreUnknownUid) {
+                  sigObj.userId = "?";
+                  sigObj.sigKnown = false;
+                  subList.sigList.push(sigObj);
+                }
+              } else {
+                let signer_uid_str = new lazy.ctypes.char.ptr();
                 if (
-                  RNPLib.rnp_signature_get_signer(
-                    sig_handle,
-                    signerHandle.address()
+                  RNPLib.rnp_key_get_primary_uid(
+                    signerHandle,
+                    signer_uid_str.address()
                   )
                 ) {
-                  throw new Error("rnp_signature_get_signer failed");
+                  throw new Error("rnp_key_get_primary_uid failed");
                 }
-
-                if (signerHandle.isNull() || this.isBadKey(signerHandle)) {
-                  if (!ignoreUnknownUid) {
-                    sigObj.userId = "?";
-                    sigObj.sigKnown = false;
-                    subList.sigList.push(sigObj);
-                  }
-                } else {
-                  let signer_uid_str = new lazy.ctypes.char.ptr();
-                  if (
-                    RNPLib.rnp_key_get_primary_uid(
-                      signerHandle,
-                      signer_uid_str.address()
-                    )
-                  ) {
-                    throw new Error("rnp_key_get_primary_uid failed");
-                  }
-                  sigObj.userId = signer_uid_str.readStringReplaceMalformed();
-                  RNPLib.rnp_buffer_destroy(signer_uid_str);
-                  sigObj.sigKnown = true;
-                  subList.sigList.push(sigObj);
-                  RNPLib.rnp_key_handle_destroy(signerHandle);
-                }
+                sigObj.userId = signer_uid_str.readStringReplaceMalformed();
+                RNPLib.rnp_buffer_destroy(signer_uid_str);
+                sigObj.sigKnown = true;
+                subList.sigList.push(sigObj);
+                RNPLib.rnp_key_handle_destroy(signerHandle);
               }
               RNPLib.rnp_signature_handle_destroy(sig_handle);
             }
