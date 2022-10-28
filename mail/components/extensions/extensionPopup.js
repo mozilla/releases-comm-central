@@ -23,8 +23,6 @@ var gContextMenu;
 
 /* globals nsContextMenu, reporterListener */
 
-window.addEventListener("DOMContentLoaded", loadRequestedUrl);
-
 function loadRequestedUrl() {
   let browser = document.getElementById("requestFrame");
   browser.addProgressListener(reporterListener, Ci.nsIWebProgress.NOTIFY_ALL);
@@ -75,24 +73,25 @@ var gBrowser = {
   get webNavigation() {
     return this.selectedBrowser.webNavigation;
   },
-  updateTitlebar() {
+  async updateTitlebar() {
     let docTitle =
       browser.browsingContext?.currentWindowGlobal?.documentTitle?.trim() || "";
-    let docElement = document.documentElement;
-    // If the document title is blank, add the default title.
     if (!docTitle) {
-      docTitle = docElement.getAttribute("defaultTabTitle");
+      // If the document title is blank, use the default title.
+      docTitle = await document.l10n.formatValue(
+        "extension-popup-default-title"
+      );
+    } else {
+      // Let l10n handle the addition of separator and modifier.
+      docTitle = await document.l10n.formatValue("extension-popup-title", {
+        title: docTitle,
+      });
     }
 
+    // Add preface, if defined.
+    let docElement = document.documentElement;
     if (docElement.hasAttribute("titlepreface")) {
       docTitle = docElement.getAttribute("titlepreface") + docTitle;
-    }
-
-    // If we're on Mac, don't display the separator and the modifier.
-    if (AppConstants.platform != "macosx") {
-      docTitle +=
-        docElement.getAttribute("titlemenuseparator") +
-        docElement.getAttribute("titlemodifier");
     }
 
     document.title = docTitle;
@@ -129,6 +128,7 @@ var gBrowserInit = {
       ) {
         gBrowser.selectedBrowser.focus();
       }
+      loadRequestedUrl();
     });
   },
 };

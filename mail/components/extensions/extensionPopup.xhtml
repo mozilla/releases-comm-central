@@ -21,14 +21,14 @@
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
       windowtype="mail:extensionPopup"
-      titlemodifier="&titledefault.label;"
-      titlemenuseparator="&titleSeparator.label;"
       width="800" height="500"
       scrolling="false">
 <head>
-  <title>&titledefault.label;</title>
+  <title data-l10n-id="extension-popup-default-title"></title>
+  <link rel="localization" href="branding/brand.ftl"/>
   <link rel="localization" href="toolkit/global/textActions.ftl" />
   <link rel="localization" href="messenger/messenger.ftl" />
+  <link rel="localization" href="messenger/extensions/popup.ftl"/>
   <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
@@ -50,9 +50,14 @@
     <command id="cmd_stop" oncommand="document.getElementById('requestFrame').stop()"/>
     <command id="cmd_copyLink" oncommand="goDoCommand('cmd_copyLink')" disabled="false"/>
     <command id="cmd_copyImage" oncommand="goCopyImage()" disabled="false"/>
+    <command id="cmd_close" oncommand="window.close()"/>
   </commandset>
 
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
+
+  <keyset id="popupKeys">
+    <key id="key_close" data-l10n-id="close-shortcut" command="cmd_close" modifiers="accel" reserved="true"/>
+  </keyset>
 
   <!-- Use the same styling and semantics as content tabs. -->
   <html:div id="header" class="contentTabAddress">
