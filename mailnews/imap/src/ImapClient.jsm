@@ -578,6 +578,25 @@ class ImapClient {
   }
 
   /**
+   * Get message headers by the specified uids.
+   * @param {nsIMsgFolder} folder - The folder of the messages.
+   * @param {string[]} uids - The message uids.
+   */
+  getHeaders(folder, uids) {
+    this._logger.debug("getHeaders", folder.URI, uids);
+    this._actionFolderCommand(folder, () => {
+      this._nextAction = this._actionUidFetchHeaderResponse;
+      let extraItems = "";
+      if (this._server.isGMailServer) {
+        extraItems += "X-GM-MSGID X-GM-THRID X-GM-LABELS ";
+      }
+      this._sendTagged(
+        `UID FETCH ${uids} (UID ${extraItems}RFC822.SIZE FLAGS BODY.PEEK[HEADER])`
+      );
+    });
+  }
+
+  /**
    * Send IDLE command to the server.
    */
   idle() {
