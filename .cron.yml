@@ -86,3 +86,13 @@ jobs:
           - comm-central
       when: [{hour: 0, minute: 15}]
       # when: []
+
+    - name: l10n-cross-channel
+      job:
+          type: decision-task
+          treeherder-symbol: l10n-cross-channel
+          target-tasks-method: l10n-cross-channel
+      run-on-projects:
+          - comm-central
+      when: [{hour: 12, minute: 0}]
+      # when: []
