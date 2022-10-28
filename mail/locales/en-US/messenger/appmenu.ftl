@@ -2,6 +2,27 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+
+## Sync
+
+appmenu-sync-panel-title =
+  .title = Sync
+
+appmenu-signin-panel =
+  .label = Sign in to Sync
+  .accesskey = i
+
+appmenu-sync-sync =
+  .value = Account Sync
+  .accesskey = A
+
+appmenu-sync-manage =
+  .value = Manage Account
+  .accesskey = M
+
+appmenu-sync-account =
+  .value = example@example.com
+
 ## New Account
 
 appmenu-new-account-panel-title =
