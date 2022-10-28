@@ -3121,11 +3121,9 @@ NS_IMETHODIMP nsImapService::PlaybackAllOfflineOperations(
   nsresult rv;
   nsImapOfflineSync* goOnline = new nsImapOfflineSync();
   goOnline->Init(aMsgWindow, aListener, nullptr, false);
-  if (goOnline) {
-    rv = goOnline->QueryInterface(NS_GET_IID(nsISupports), (void**)aResult);
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (NS_SUCCEEDED(rv) && *aResult) return goOnline->ProcessNextOperation();
-  }
+  rv = goOnline->QueryInterface(NS_GET_IID(nsISupports), (void**)aResult);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (NS_SUCCEEDED(rv) && *aResult) return goOnline->ProcessNextOperation();
   return NS_ERROR_OUT_OF_MEMORY;
 }
 
