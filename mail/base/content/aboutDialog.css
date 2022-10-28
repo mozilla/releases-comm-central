@@ -56,6 +56,11 @@
   fill: currentColor;
 }
 
+#updateDeck {
+  align-items: center;
+  min-height: 33px;
+}
+
 .update-throbber {
   width: 16px;
   min-height: 16px;
@@ -167,9 +172,5 @@ img.update-throbber {
 }
 
 #icons > .noUpdatesFound {
-  fill: #30e60b;
-}
-
-#icons > .apply {
-  fill: white;
+  fill: #16a34a;
 }
