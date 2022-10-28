@@ -4,7 +4,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsAbBaseCID.h"
 #include "nsTextAddress.h"
 #include "nsIAbCard.h"
 #include "nsIAbDirectory.h"
@@ -404,7 +403,8 @@ nsresult nsTextAddress::ProcessLine(const nsAString& aLine, nsString& errors) {
       if (GetField(aLine, i, fieldVal, m_delim)) {
         if (!fieldVal.IsEmpty()) {
           if (!newCard) {
-            newCard = do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv);
+            newCard = do_CreateInstance(
+                "@mozilla.org/addressbook/cardproperty;1", &rv);
           }
           if (newCard) {
             rv = m_fieldMap->SetFieldValue(m_directory, newCard, fieldNum,

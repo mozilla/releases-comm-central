@@ -221,6 +221,8 @@
   <script defer="defer" src="chrome://calendar/content/calendar-migration.js"></script>
   <script defer="defer" src="chrome://messenger/content/shortcutsOverlay.js"></script>
 
+  <script defer="defer" src="chrome://messenger/content/accountcreation/accountHub.js"></script>
+
   <script>
     window.onload = gMailInit.onLoad.bind(gMailInit);
     window.onunload = gMailInit.onUnload.bind(gMailInit);
@@ -501,7 +503,6 @@
                           clicktoscroll="true"
                           style="min-width: 1px;">
             <tab is="tabmail-tab" selected="true" validate="never"
-                 style="min-width:100px; max-width:250px; " width="0"
                  class="tabmail-tab" crop="end"/>
           </arrowscrollbox>
         </tabs>
@@ -720,5 +721,6 @@
 </vbox><!-- Closing #messengerBody. -->
 
 #include tabDialogs.inc.xhtml
+#include ../../components/accountcreation/templates/accountHubTemplate.inc.xhtml
 </html:body>
 </html>

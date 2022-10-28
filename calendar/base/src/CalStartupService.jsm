@@ -53,9 +53,11 @@ CalStartupService.prototype = {
    */
   getStartupOrder() {
     let self = this;
+
     let tzService = Cc["@mozilla.org/calendar/timezone-service;1"]
       .getService(Ci.calITimezoneService)
       .QueryInterface(Ci.calIStartupService);
+
     let calMgr = Cc["@mozilla.org/calendar/manager;1"]
       .getService(Ci.calICalendarManager)
       .QueryInterface(Ci.calIStartupService);

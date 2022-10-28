@@ -13,14 +13,10 @@
 #include "nsIMsgNewsFolder.h"
 #include "nsMsgThread.h"
 #include "nsIMsgSearchTerm.h"
-#include "nsMsgBaseCID.h"
-#include "nsMorkCID.h"
 #include "nsIMdbFactoryFactory.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Telemetry.h"
 #include "prprf.h"
-#include "nsMsgDBCID.h"
-#include "nsMsgMimeCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgDBView.h"
@@ -169,7 +165,7 @@ NS_IMETHODIMP nsMsgDBService::OpenFolderDB(nsIMsgFolder* aFolder,
 
   nsCString localDatabaseType;
   incomingServer->GetLocalDatabaseType(localDatabaseType);
-  nsAutoCString dbContractID(NS_MSGDB_CONTRACTID);
+  nsAutoCString dbContractID("@mozilla.org/nsMsgDatabase/msgDB-");
   dbContractID.Append(localDatabaseType.get());
   nsCOMPtr<nsIMsgDatabase> msgDB = do_CreateInstance(dbContractID.get(), &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -199,112 +195,6 @@ NS_IMETHODIMP nsMsgDBService::OpenFolderDB(nsIMsgFolder* aFolder,
   }
 
   FinishDBOpen(aFolder, msgDatabase);
-  return rv;
-}
-
-NS_IMETHODIMP nsMsgDBService::AsyncOpenFolderDB(nsIMsgFolder* aFolder,
-                                                bool aLeaveInvalidDB,
-                                                nsIMsgDatabase** _retval) {
-  NS_ENSURE_ARG(aFolder);
-
-  nsCOMPtr<nsIFile> summaryFilePath;
-  nsresult rv = aFolder->GetSummaryFile(getter_AddRefs(summaryFilePath));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsMsgDatabase* cacheDB = FindInCache(summaryFilePath);
-  if (cacheDB) {
-    // this db could have ended up in the folder cache w/o an m_folder pointer
-    // via OpenMailDBFromFile. If so, take this chance to fix the folder.
-    if (!cacheDB->m_folder) cacheDB->m_folder = aFolder;
-    *_retval = cacheDB;  // FindInCache already addRefed.
-    // We don't care if an other consumer is thumbing the store. In that
-    // case, they'll both thumb the store.
-    return NS_OK;
-  }
-
-  nsCOMPtr<nsIMsgIncomingServer> incomingServer;
-  rv = aFolder->GetServer(getter_AddRefs(incomingServer));
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCString localDatabaseType;
-  incomingServer->GetLocalDatabaseType(localDatabaseType);
-  nsAutoCString dbContractID(NS_MSGDB_CONTRACTID);
-  dbContractID.Append(localDatabaseType.get());
-  nsCOMPtr<nsIMsgDatabase> msgDB = do_CreateInstance(dbContractID.get(), &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsMsgDatabase* msgDatabase = static_cast<nsMsgDatabase*>(msgDB.get());
-  rv = msgDatabase->OpenInternal(this, summaryFilePath, false, aLeaveInvalidDB,
-                                 false /* open asynchronously */);
-
-  NS_ADDREF(*_retval = msgDB);
-  msgDatabase->m_folder = aFolder;
-
-  if (NS_FAILED(rv)) {
-#ifdef DEBUG
-    // Doing these checks for debug only as we don't want to report certain
-    // errors in debug mode, but in release mode we wouldn't report them either
-
-    // These errors are expected.
-    if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING ||
-        rv == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE)
-      return rv;
-
-    // If it isn't one of the expected errors, throw a warning.
-    NS_ENSURE_SUCCESS(rv, rv);
-#endif
-    return rv;
-  }
-
-  FinishDBOpen(aFolder, msgDatabase);
-  return rv;
-}
-
-NS_IMETHODIMP nsMsgDBService::OpenMore(nsIMsgDatabase* aDB, uint32_t aTimeHint,
-                                       bool* _retval) {
-  NS_ENSURE_ARG_POINTER(_retval);
-  nsMsgDatabase* msgDatabase = static_cast<nsMsgDatabase*>(aDB);
-  NS_ENSURE_TRUE(msgDatabase, NS_ERROR_INVALID_ARG);
-  // Check if this db has been opened.
-  if (!msgDatabase->m_thumb) {
-    *_retval = true;
-    return NS_OK;
-  }
-  nsresult rv;
-  *_retval = false;
-  PRIntervalTime startTime = PR_IntervalNow();
-  do {
-    mdb_count outTotal;        // total somethings to do in operation
-    mdb_count outCurrent;      // subportion of total completed so far
-    mdb_bool outDone = false;  // is operation finished?
-    mdb_bool outBroken;        // is operation irreparably dead and broken?
-    rv = msgDatabase->m_thumb->DoMore(msgDatabase->m_mdbEnv, &outTotal,
-                                      &outCurrent, &outDone, &outBroken);
-    if (NS_FAILED(rv)) break;
-    if (outDone) {
-      nsCOMPtr<nsIMdbFactory> mdbFactory;
-      rv = msgDatabase->GetMDBFactory(getter_AddRefs(mdbFactory));
-      NS_ENSURE_SUCCESS(rv, rv);
-      rv = mdbFactory->ThumbToOpenStore(msgDatabase->m_mdbEnv,
-                                        msgDatabase->m_thumb,
-                                        &msgDatabase->m_mdbStore);
-      msgDatabase->m_thumb = nullptr;
-      nsCOMPtr<nsIFile> folderPath;
-      (void)msgDatabase->m_folder->GetFilePath(getter_AddRefs(folderPath));
-      nsCOMPtr<nsIFile> summaryFile;
-      (void)GetSummaryFileLocation(folderPath, getter_AddRefs(summaryFile));
-
-      if (NS_SUCCEEDED(rv))
-        rv = (msgDatabase->m_mdbStore) ? msgDatabase->InitExistingDB()
-                                       : NS_ERROR_FAILURE;
-      if (NS_SUCCEEDED(rv))
-        rv = msgDatabase->CheckForErrors(rv, false, this, summaryFile);
-
-      FinishDBOpen(msgDatabase->m_folder, msgDatabase);
-      break;
-    }
-  } while (PR_IntervalToMilliseconds(PR_IntervalNow() - startTime) <=
-           aTimeHint);
-  *_retval = !msgDatabase->m_thumb;
   return rv;
 }
 
@@ -401,7 +291,7 @@ NS_IMETHODIMP nsMsgDBService::CreateNewDB(nsIMsgFolder* aFolder,
 
   nsCString localDatabaseType;
   incomingServer->GetLocalDatabaseType(localDatabaseType);
-  nsAutoCString dbContractID(NS_MSGDB_CONTRACTID);
+  nsAutoCString dbContractID("@mozilla.org/nsMsgDatabase/msgDB-");
   dbContractID.Append(localDatabaseType.get());
 
   nsCOMPtr<nsIMsgDatabase> msgDB = do_CreateInstance(dbContractID.get(), &rv);
@@ -1084,7 +974,8 @@ nsMsgDatabase::~nsMsgDatabase() {
   MOZ_LOG(DBLog, LogLevel::Info,
           ("closing database    %s", m_dbFile->HumanReadablePath().get()));
 
-  nsCOMPtr<nsIMsgDBService> serv(do_GetService(NS_MSGDB_SERVICE_CONTRACTID));
+  nsCOMPtr<nsIMsgDBService> serv(
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1"));
   if (serv) static_cast<nsMsgDBService*>(serv.get())->RemoveFromCache(this);
 
   // if the db folder info refers to the mdb db, we must clear it because
@@ -1111,7 +1002,7 @@ nsresult nsMsgDatabase::GetMDBFactory(nsIMdbFactory** aMdbFactory) {
   if (!mMdbFactory) {
     nsresult rv;
     nsCOMPtr<nsIMdbFactoryService> mdbFactoryService =
-        do_GetService(NS_MORK_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/db/mork;1", &rv);
     if (NS_SUCCEEDED(rv) && mdbFactoryService) {
       rv = mdbFactoryService->GetMdbFactory(getter_AddRefs(mMdbFactory));
       NS_ENSURE_SUCCESS(rv, rv);
@@ -1446,7 +1337,7 @@ NS_IMETHODIMP nsMsgDatabase::Commit(nsMsgDBCommit commitType) {
 
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   if (NS_SUCCEEDED(rv) && accountManager) {
     nsCOMPtr<nsIMsgFolderCache> folderCache;
 
@@ -2369,19 +2260,6 @@ NS_IMETHODIMP nsMsgDatabase::MarkMDNNeeded(
                     instigator);
 }
 
-NS_IMETHODIMP nsMsgDatabase::IsMDNNeeded(nsMsgKey key, bool* pNeeded) {
-  nsCOMPtr<nsIMsgDBHdr> msgHdr;
-
-  nsresult rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-  if (NS_FAILED(rv) || !msgHdr)
-    return NS_MSG_MESSAGE_NOT_FOUND;  // XXX return rv?
-
-  uint32_t flags;
-  (void)msgHdr->GetFlags(&flags);
-  *pNeeded = !!(flags & nsMsgMessageFlags::MDNReportNeeded);
-  return rv;
-}
-
 nsresult nsMsgDatabase::MarkMDNSent(
     nsMsgKey key, bool bSent, nsIDBChangeListener* instigator /* = NULL */) {
   return SetKeyFlag(key, bSent, nsMsgMessageFlags::MDNReportSent, instigator);
@@ -2867,7 +2745,7 @@ nsresult nsMsgDatabase::RowCellColumnToConstCharPtr(nsIMdbRow* hdrRow,
 nsIMimeConverter* nsMsgDatabase::GetMimeConverter() {
   if (!m_mimeConverter) {
     // apply mime decode
-    m_mimeConverter = do_GetService(NS_MIME_CONVERTER_CONTRACTID);
+    m_mimeConverter = do_GetService("@mozilla.org/messenger/mimeconverter;1");
   }
   return m_mimeConverter;
 }

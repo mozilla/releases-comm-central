@@ -128,31 +128,6 @@ interface nsIMsgDBService : nsISupports
                               in boolean aLeaveInvalidDB);
 
   /**
-   * This is the same as a synchronous open in terms of params and errors.
-   * But to finish opening the db, the caller must call
-   * nsIMsgDBService::OpenMore repeatedly until the open is finished.
-   * @see nsIMsgDBService::openFolderDB
-   * @see nsIMsgDBService::openMore
-   */
-  nsIMsgDatabase asyncOpenFolderDB(in nsIMsgFolder aFolder,
-                                   in boolean aLeaveInvalidDB);
-
-  /**
-   * Continues the open process for a db opened with
-   * nsIMsgDBService::asyncOpenFolderDB. Returns true if the db is ready
-   * to use, false if openMore needs to be called again.
-   * This will throw the same kinds of exceptions as openFolderDB.
-   * @param aTimeHint approximate number of milliseconds to spend
-   *                  before returning. This is more of a floor than
-                      a ceiling, since we can't guarantee that there
-                      won't be one big chunk that we can't interrupt.
-   * @return true if db is ready to use, false if openMore needs to
-   *         be called again.
-   * @see nsIMsgDBService::openFolderDB
-   */
-  boolean openMore(in nsIMsgDatabase aDB, in unsigned long aTimeHint);
-
-  /**
    * Creates a new database for the given folder.
    *
    * If the database already exists, it will return the database, emit a
@@ -345,11 +320,6 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   // MDN support
   void MarkMDNNeeded(in nsMsgKey key, in boolean bNeeded,
                            in nsIDBChangeListener instigator);
-
-  // MarkMDNneeded only used when mail server is a POP3 server
-  // or when the IMAP server does not support user defined
-  // PERMANENTFLAGS
-  boolean IsMDNNeeded(in nsMsgKey key);
 
   void MarkMDNSent(in nsMsgKey key, in boolean bNeeded,
                          in nsIDBChangeListener instigator);

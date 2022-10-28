@@ -7,8 +7,8 @@
 #include "nspr.h"
 #include "nsSMimeJSHelper.h"
 #include "nsMsgComposeSecure.h"
-#include "nsMsgCompCID.h"
 #include "nsCOMPtr.h"
+#include "nsIComponentManager.h"
 #include "nsMemory.h"
 #include "nsString.h"
 #include "nsIX509CertDB.h"
@@ -67,7 +67,7 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
   rv = NS_OK;
 
   nsCOMPtr<nsIMsgComposeSecure> composeSecure =
-      do_CreateInstance(NS_MSGCOMPOSESECURE_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messengercompose/composesecure;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (uint32_t i = 0; i < mailbox_count; ++i) {
@@ -124,7 +124,7 @@ NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
   emailAddresses.SetCapacity(mailbox_count);
 
   nsCOMPtr<nsIMsgComposeSecure> composeSecure =
-      do_CreateInstance(NS_MSGCOMPOSESECURE_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messengercompose/composesecure;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (uint32_t i = 0; i < mailbox_count; ++i) {

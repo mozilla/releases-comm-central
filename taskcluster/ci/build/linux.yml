@@ -37,6 +37,7 @@ linux64/opt:
             - linux64-libotr
             - linux64-nasm
             - linux64-node
+            - linux64-pkgconf
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
@@ -85,6 +86,7 @@ linux64-shippable/opt:
             - linux64-libotr
             - linux64-nasm
             - linux64-node
+            - linux64-pkgconf
             - linux64-rust
             - linux64-rust-size
             - sysroot-wasm32-wasi
@@ -127,6 +129,7 @@ linux64/debug:
             - linux64-libotr
             - linux64-nasm
             - linux64-node
+            - linux64-pkgconf
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
@@ -175,6 +178,7 @@ linux64-asan/opt:
             - linux64-libotr
             - linux64-nasm
             - linux64-node
+            - linux64-pkgconf
             - linux64-rust-dev
             - linux64-rust-size
             - linux64-sccache
@@ -232,6 +236,7 @@ linux64-asan-reporter-shippable/opt:
             - linux64-libotr
             - linux64-nasm
             - linux64-node
+            - linux64-pkgconf
             - linux64-rust
             - linux64-rust-size
             - sysroot-wasm32-wasi
@@ -279,6 +284,7 @@ linux64-tsan/opt:
             - linux64-libotr
             - linux64-nasm
             - linux64-node
+            - linux64-pkgconf
             - linux64-rust-dev
             - linux64-rust-size
             - linux64-sccache
@@ -325,6 +331,7 @@ linux64-aarch64/opt:
             - linux64-clang
             - linux64-dump_syms
             - linux64-node
+            - linux64-pkgconf
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
@@ -365,6 +372,7 @@ linux/opt:
             - linux32-libotr
             - linux64-nasm
             - linux64-node
+            - linux64-pkgconf
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
@@ -414,6 +422,7 @@ linux-shippable/opt:
             - linux32-libotr
             - linux64-nasm
             - linux64-node
+            - linux64-pkgconf
             - linux64-rust
             - linux64-rust-size
             - sysroot-i686-linux-gnu
@@ -455,6 +464,7 @@ linux/debug:
             - linux32-libotr
             - linux64-nasm
             - linux64-node
+            - linux64-pkgconf
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache

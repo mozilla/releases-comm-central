@@ -18,7 +18,6 @@
 #include "nsDirectoryServiceUtils.h"
 #include "nsIMIMEHeaderParam.h"
 #include "nsNetCID.h"
-#include "nsMsgMimeCID.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMimeMiscStatus.h"
 #include "nsIPrefService.h"

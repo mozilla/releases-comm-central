@@ -11,6 +11,11 @@ ID01:
     messages:
         - accounts-ID
         - msg-compose-partially-encrypted-inlinePGP
+        - trademarkInfo
+        # aboutDialog.ftl - exclusions same as Firefox
+        - aboutDialog-title
+        - aboutDialog-version
+        - aboutDialog-version-nightly
     files:
         # Files listed here must not have a comm/ prefix
         # policies-descriptions.ftl: These IDs are generated programmatically
@@ -45,6 +50,8 @@ ID02:
 # Check with the localization team for advice.
 CO01:
     messages:
+        # comm/mail/branding/thunderbird/locales/en-US/brand.ftl
+        - trademarkInfo
         # comm/mail/locales/en-US/messenger/aboutRights.ftl
         - rights-intro-point-1
         - rights-intro-point-2

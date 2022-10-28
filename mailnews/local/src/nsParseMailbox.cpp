@@ -14,8 +14,6 @@
 #include "nsIInputStream.h"
 #include "nsIFile.h"
 #include "nsMsgLocalFolderHdrs.h"
-#include "nsMsgBaseCID.h"
-#include "nsMsgDBCID.h"
 #include "nsIMailboxUrl.h"
 #include "nsNetUtil.h"
 #include "nsMsgFolderFlags.h"
@@ -36,7 +34,6 @@
 #include "nsMsgSearchCore.h"
 #include "nsMailHeaders.h"
 #include "nsIMsgMailSession.h"
-#include "nsMsgCompCID.h"
 #include "nsIPrefBranch.h"
 #include "nsIPrefService.h"
 #include "nsIMsgComposeService.h"
@@ -114,7 +111,7 @@ NS_IMETHODIMP nsMsgMailboxParser::OnStartRequest(nsIRequest* request) {
       m_graph_progress_total = fileSize;
       UpdateStatusText("buildingSummary");
       nsCOMPtr<nsIMsgDBService> msgDBService =
-          do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+          do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
       if (msgDBService) {
         // Use OpenFolderDB to always open the db so that db's m_folder
         // is set correctly.
@@ -1517,7 +1514,7 @@ nsresult nsParseNewMailState::Init(nsIMsgFolder* serverFolder,
   // can't use the OnStartRequest mechanism the mailbox parser uses. So, let's
   // open the db right now.
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   if (msgDBService && !m_mailDB)
     rv = msgDBService->OpenFolderDB(downloadFolder, false,
                                     getter_AddRefs(m_mailDB));
@@ -1653,7 +1650,7 @@ int32_t nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
       if (m_mailDB) {
         m_mailDB->AddNewHdrToDB(m_newMsgHdr, true);
         nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-            do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+            do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
         if (notifier) notifier->NotifyMsgAdded(m_newMsgHdr);
         // mark the header as not yet reported classified
         nsMsgKey msgKey;
@@ -1881,7 +1878,8 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
               break;
             }
 
-            copyService = do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
+            copyService = do_GetService(
+                "@mozilla.org/messenger/messagecopyservice;1", &rv);
             if (NS_SUCCEEDED(rv))
               rv = copyService->CopyMessages(m_downloadFolder, {&*msgHdr},
                                              dstFolder, false, nullptr,
@@ -2091,7 +2089,7 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
       NS_ENSURE_SUCCESS(rv, rv);
       {
         nsCOMPtr<nsIMsgComposeService> compService =
-            do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
+            do_GetService("@mozilla.org/messengercompose;1", &rv);
         NS_ENSURE_SUCCESS(rv, rv);
         rv = compService->ForwardMessage(
             forwardStr, m_msgToForwardOrReply, msgWindow, server,
@@ -2119,7 +2117,7 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
       rv = m_rootFolder->GetServer(getter_AddRefs(server));
       if (server) {
         nsCOMPtr<nsIMsgComposeService> compService =
-            do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID);
+            do_GetService("@mozilla.org/messengercompose;1");
         if (compService) {
           rv = compService->ReplyWithTemplate(
               m_msgToForwardOrReply, m_replyTemplateUri[i], msgWindow, server);
@@ -2169,7 +2167,7 @@ nsresult nsParseNewMailState::EndMsgDownload() {
   uint32_t serverCount = m_filterTargetFolders.Count();
   nsresult rv;
   nsCOMPtr<nsIMsgMailSession> session =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   if (NS_SUCCEEDED(rv) && session)  // don't use NS_ENSURE_SUCCESS here - we
                                     // need to release semaphore below
   {
@@ -2323,7 +2321,7 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
     }
   }
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
   if (notifier) notifier->NotifyMsgAdded(newHdr);
   // mark the header as not yet reported classified
   destIFolder->OrProcessingFlags(msgKey,

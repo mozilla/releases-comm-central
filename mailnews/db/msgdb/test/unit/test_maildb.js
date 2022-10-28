@@ -34,31 +34,6 @@ var gTestArray = [
     db = null;
     doTest(++gCurTestNum);
   },
-  function test_async_open() {
-    let messageGenerator = new MessageGenerator();
-    gTestFolder = gTestFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-    let gMessages = [];
-
-    // Add some messages to gTestFolder, close the db, and then test that opening
-    // asynchronously works.
-    for (let i = 0; i < kNumTestMessages; i++) {
-      let message = messageGenerator.makeMessage();
-      gMessages.push(message);
-      gTestFolder.addMessage(message.toMboxString());
-    }
-    gTestFolder.msgDatabase = null;
-    let db = dbService.asyncOpenFolderDB(gTestFolder, false);
-    openMore(db);
-  },
-  function test_invalid_db_async_open() {
-    // mark the summary invalid
-    gTestFolder.msgDatabase.summaryValid = false;
-    // clear the database so next time we have to reparse
-    gTestFolder.msgDatabase.ForceClosed();
-    let db = dbService.asyncOpenFolderDB(gTestFolder, false);
-    // this should eventually throw an error in one of the callbacks
-    openMoreAsync(db);
-  },
 ];
 
 function doTest(test) {
@@ -89,37 +64,4 @@ function run_test() {
   localAccountUtils.loadLocalMailAccount();
   do_test_pending();
   doTest(1);
-}
-
-function openMore(db) {
-  let done = dbService.openMore(db, 1);
-  dump("in openMore done = " + done + "\n");
-  if (!done) {
-    mailTestUtils.do_timeout_function(0, openMore, null, [db]);
-  } else {
-    // just check that we can get something out of the db.
-    Assert.equal(db.dBFolderInfo.numMessages, kNumTestMessages);
-    db.Close(true);
-    db.ForceClosed();
-    db = null;
-    doTest(++gCurTestNum);
-  }
-}
-
-function openMoreAsync(db) {
-  let done = false;
-  try {
-    done = dbService.openMore(db, 100);
-    dump("in openMoreAsync done = " + done + "\n");
-  } catch (ex) {
-    dump("got expected error opening corrupt db async\n");
-    db = null;
-    doTest(++gCurTestNum);
-    return;
-  }
-  if (!done) {
-    mailTestUtils.do_timeout_function(0, openMoreAsync, null, [db]);
-  } else {
-    throw new Error("Should have got an exception opening out of date db");
-  }
 }

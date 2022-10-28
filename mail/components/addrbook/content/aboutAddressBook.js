@@ -1452,7 +1452,7 @@ var cardsPane = {
 
   init() {
     this.searchInput = document.getElementById("searchInput");
-    this.sortButton = document.getElementById("sortButton");
+    this.displayButton = document.getElementById("displayButton");
     this.sortContext = document.getElementById("sortContext");
     this.cardsHeader = document.getElementById("cardsHeader");
     this.cardsList = document.getElementById("cards");
@@ -1542,7 +1542,7 @@ var cardsPane = {
     }
 
     this.searchInput.addEventListener("command", this);
-    this.sortButton.addEventListener("click", this);
+    this.displayButton.addEventListener("click", this);
     this.sortContext.addEventListener("command", this);
     this.cardsHeader.addEventListener("click", this);
     this.cardsList.addEventListener("select", this);
@@ -1630,6 +1630,16 @@ var cardsPane = {
       "rows",
       isTableLayout ? "ab-table-card-listrow" : "ab-card-listrow"
     );
+    if (isTableLayout) {
+      this.sortContext
+        .querySelector("#sortContextTableLayout")
+        .setAttribute("checked", "true");
+    } else {
+      this.sortContext
+        .querySelector("#sortContextTableLayout")
+        .removeAttribute("checked");
+    }
+
     this.cardsList.scrollToIndex(this.cardsList.selectedIndex);
     Services.xulStore.setValue(
       "about:addressbook",
@@ -2140,10 +2150,7 @@ var cardsPane = {
 
     switch (event.target.id) {
       case "sortContextTableLayout":
-        this.toggleLayout(true);
-        break;
-      case "sortContextListLayout":
-        this.toggleLayout(false);
+        this.toggleLayout(event.target.getAttribute("checked") === "true");
         break;
       case "cardContextWrite":
         this.writeToSelected();
@@ -2200,8 +2207,8 @@ var cardsPane = {
   },
 
   _onClick(event) {
-    if (event.target.closest("button") == this.sortButton) {
-      this.sortContext.openPopup(this.sortButton, { triggerEvent: event });
+    if (event.target.closest("button") == this.displayButton) {
+      this.sortContext.openPopup(this.displayButton, { triggerEvent: event });
       event.preventDefault();
       return;
     }
@@ -2787,7 +2794,7 @@ var detailsPane = {
     }
 
     // Remove these elements from (or add them back to) the tab focus cycle.
-    for (let id of ["books", "searchInput", "sortButton", "cards"]) {
+    for (let id of ["books", "searchInput", "displayButton", "cards"]) {
       document.getElementById(id).tabIndex = editing ? -1 : 0;
     }
 

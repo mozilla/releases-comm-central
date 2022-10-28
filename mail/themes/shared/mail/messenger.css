@@ -4,6 +4,7 @@
 
 @import url("chrome://global/skin/global.css");
 @import url("chrome://messenger/content/webextensions.css");
+@import url("chrome://messenger/skin/autocomplete.css");
 @import url("chrome://messenger/skin/variables.css");
 
 @namespace xul url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
@@ -360,7 +361,6 @@ toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolb
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker::part(icon),
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::part(icon) {
   width: 12px;
-  height: 12px;
 }
 
 /* Separator between menu and split type buttons */

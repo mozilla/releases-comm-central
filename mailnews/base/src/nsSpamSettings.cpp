@@ -24,11 +24,9 @@
 #include "nsDirectoryServiceUtils.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsISimpleEnumerator.h"
-#include "nsAbBaseCID.h"
 #include "nsIAbCard.h"
 #include "nsIAbManager.h"
 #include "nsIMsgAccountManager.h"
-#include "nsMsgBaseCID.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
 
 using namespace mozilla::mailnews;
@@ -304,7 +302,7 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer* aServer) {
   mWhiteListDirArray.Clear();
   if (!mWhiteListAbURI.IsEmpty()) {
     nsCOMPtr<nsIAbManager> abManager(
-        do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
+        do_GetService("@mozilla.org/abmanager;1", &rv));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsTArray<nsCString> whiteListArray;
@@ -340,7 +338,7 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer* aServer) {
   // collect lists of identity users if needed
   if (mInhibitWhiteListingIdentityDomain || mInhibitWhiteListingIdentityUser) {
     nsCOMPtr<nsIMsgAccountManager> accountManager(
-        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv));
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIMsgAccount> account;

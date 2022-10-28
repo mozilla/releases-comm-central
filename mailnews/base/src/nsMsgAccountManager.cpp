@@ -19,9 +19,6 @@
 #include "nsIComponentManager.h"
 #include "nsIServiceManager.h"
 #include "nsMsgAccountManager.h"
-#include "nsMsgBaseCID.h"
-#include "nsMsgCompCID.h"
-#include "nsMsgDBCID.h"
 #include "prmem.h"
 #include "prcmon.h"
 #include "prthread.h"
@@ -91,6 +88,12 @@
 #define PREF_MAIL_ACCOUNTMANAGER_APPEND_ACCOUNTS \
   "mail.accountmanager.appendaccounts"
 
+#define NS_MSGACCOUNT_CID                          \
+  {                                                \
+    0x68b25510, 0xe641, 0x11d2, {                  \
+      0xb7, 0xfc, 0x0, 0x80, 0x5f, 0x5, 0xff, 0xa5 \
+    }                                              \
+  }
 static NS_DEFINE_CID(kMsgAccountCID, NS_MSGACCOUNT_CID);
 
 #define SEARCH_FOLDER_FLAG "searchFolderFlag"
@@ -165,7 +168,7 @@ nsresult nsMsgAccountManager::Shutdown() {
   SaveVirtualFolders();
 
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   if (msgDBService) {
     nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
         m_virtualFolderListeners);
@@ -183,13 +186,13 @@ nsresult nsMsgAccountManager::Shutdown() {
   // shutdown removes nsIIncomingServer listener from biff manager, so do it
   // after accounts have been unloaded
   nsCOMPtr<nsIMsgBiffManager> biffService =
-      do_GetService(NS_MSGBIFFMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/biffManager;1", &rv);
   if (NS_SUCCEEDED(rv) && biffService) biffService->Shutdown();
 
   // shutdown removes nsIIncomingServer listener from purge service, so do it
   // after accounts have been unloaded
   nsCOMPtr<nsIMsgPurgeService> purgeService =
-      do_GetService(NS_MSGPURGESERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/purgeService;1", &rv);
   if (NS_SUCCEEDED(rv) && purgeService) purgeService->Shutdown();
 
   if (m_msgFolderCache) {
@@ -399,7 +402,7 @@ nsresult nsMsgAccountManager::createKeyedIdentity(const nsACString& key,
                                                   nsIMsgIdentity** aIdentity) {
   nsresult rv;
   nsCOMPtr<nsIMsgIdentity> identity =
-      do_CreateInstance(NS_MSGIDENTITY_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messenger/identity;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   identity->SetKey(key);
@@ -503,9 +506,9 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer* aServer,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolderNotificationService> notifier =
-      do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID);
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1");
   nsCOMPtr<nsIFolderListener> mailSession =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID);
+      do_GetService("@mozilla.org/messenger/services/session;1");
 
   for (auto folder : allDescendants) {
     folder->ForceDBClosed();
@@ -550,7 +553,7 @@ nsresult nsMsgAccountManager::createKeyedServer(
   *aServer = nullptr;
 
   // construct the contractid
-  nsAutoCString serverContractID(NS_MSGINCOMINGSERVER_CONTRACTID_PREFIX);
+  nsAutoCString serverContractID("@mozilla.org/messenger/server;1?type=");
   serverContractID += type;
 
   // finally, create the server
@@ -954,7 +957,7 @@ nsresult nsMsgAccountManager::LoadAccounts() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgMailSession> mailSession =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
 
   if (NS_SUCCEEDED(rv))
     mailSession->AddFolderListener(
@@ -966,13 +969,13 @@ nsresult nsMsgAccountManager::LoadAccounts() {
 
   // Ensure biff service has started
   nsCOMPtr<nsIMsgBiffManager> biffService =
-      do_GetService(NS_MSGBIFFMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/biffManager;1", &rv);
 
   if (NS_SUCCEEDED(rv)) biffService->Init();
 
   // Ensure purge service has started
   nsCOMPtr<nsIMsgPurgeService> purgeService =
-      do_GetService(NS_MSGPURGESERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/purgeService;1", &rv);
 
   if (NS_SUCCEEDED(rv)) purgeService->Init();
 
@@ -1235,7 +1238,7 @@ nsresult nsMsgAccountManager::LoadAccounts() {
             serverPrefBranch->GetCharPref("type", type);
             // Find a server with the same info.
             nsCOMPtr<nsIMsgAccountManager> accountManager =
-                do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+                do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
             if (NS_FAILED(rv)) {
               continue;
             }
@@ -1420,7 +1423,7 @@ nsMsgAccountManager::UnloadAccounts() {
 
   if (m_accountsLoaded) {
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService(NS_MSGMAILSESSION_CONTRACTID);
+        do_GetService("@mozilla.org/messenger/services/session;1");
     if (mailSession) mailSession->RemoveFolderListener(this);
     m_accountsLoaded = false;
   }
@@ -1492,7 +1495,7 @@ nsMsgAccountManager::CleanupOnExit() {
                                    authMethod == nsMsgAuthMethod::OAuth2))) {
           nsCOMPtr<nsIUrlListener> urlListener;
           nsCOMPtr<nsIMsgAccountManager> accountManager =
-              do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+              do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
           if (NS_FAILED(rv)) continue;
 
           if (isImap) urlListener = do_QueryInterface(accountManager, &rv);
@@ -2305,7 +2308,7 @@ nsresult VirtualFolderChangeListener::Init() {
     nsCString searchTermString;
     dbFolderInfo->GetCharProperty("searchStr", searchTermString);
     nsCOMPtr<nsIMsgFilterService> filterService =
-        do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
     nsCOMPtr<nsIMsgFilterList> filterList;
     rv = filterService->GetTempFilterList(m_virtualFolder,
                                           getter_AddRefs(filterList));
@@ -2315,7 +2318,8 @@ nsresult VirtualFolderChangeListener::Init() {
     NS_ENSURE_SUCCESS(rv, rv);
     filterList->ParseCondition(tempFilter, searchTermString.get());
     NS_ENSURE_SUCCESS(rv, rv);
-    m_searchSession = do_CreateInstance(NS_MSGSEARCHSESSION_CONTRACTID, &rv);
+    m_searchSession =
+        do_CreateInstance("@mozilla.org/messenger/searchSession;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsTArray<RefPtr<nsIMsgSearchTerm>> searchTerms;
@@ -2476,7 +2480,7 @@ NS_IMETHODIMP VirtualFolderChangeListener::OnHdrFlagsChanged(
     if (oldMatch != newMatch) {
       // bool isOpen = false;
       // nsCOMPtr<nsIMsgMailSession> mailSession =
-      //     do_GetService(NS_MSGMAILSESSION_CONTRACTID);
+      //     do_GetService("@mozilla.org/messenger/services/session;1");
       // if (mailSession && aFolder)
       //   mailSession->IsFolderOpenInWindow(m_virtualFolder, &isOpen);
       // we can't remove headers that no longer match - but we might add headers
@@ -2663,7 +2667,7 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
 
   nsresult rv;
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   if (msgDBService) {
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIFileInputStream> fileStream =
@@ -2922,7 +2926,7 @@ nsresult nsMsgAccountManager::RemoveVFListenerForVF(nsIMsgFolder* virtualFolder,
                                                     nsIMsgFolder* folder) {
   nsresult rv;
   nsCOMPtr<nsIMsgDBService> msgDBService(
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
@@ -3053,7 +3057,7 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
   if (folderFlags & nsMsgFolderFlags::Virtual && !m_loadingVirtualFolders) {
     // When a new virtual folder is added, need to create a db Listener for it.
     nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     if (msgDBService) {
       nsCOMPtr<nsIMsgDatabase> virtDatabase;
       nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;

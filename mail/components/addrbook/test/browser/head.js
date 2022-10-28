@@ -273,10 +273,10 @@ async function showSortMenu(name, value) {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
 
-  let sortButton = abDocument.getElementById("sortButton");
+  let displayButton = abDocument.getElementById("displayButton");
   let sortContext = abDocument.getElementById("sortContext");
   let shownPromise = BrowserTestUtils.waitForEvent(sortContext, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(sortButton, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(displayButton, {}, abWindow);
   await shownPromise;
   let hiddenPromise = BrowserTestUtils.waitForEvent(sortContext, "popuphidden");
   sortContext.activateItem(
@@ -288,21 +288,17 @@ async function showSortMenu(name, value) {
   await hiddenPromise;
 }
 
-async function toggleLayout(tableLayout) {
+async function toggleLayout() {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
 
-  let sortButton = abDocument.getElementById("sortButton");
+  let displayButton = abDocument.getElementById("displayButton");
   let sortContext = abDocument.getElementById("sortContext");
   let shownPromise = BrowserTestUtils.waitForEvent(sortContext, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(sortButton, {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(displayButton, {}, abWindow);
   await shownPromise;
   let hiddenPromise = BrowserTestUtils.waitForEvent(sortContext, "popuphidden");
-  sortContext.activateItem(
-    abDocument.getElementById(
-      tableLayout ? "sortContextTableLayout" : "sortContextListLayout"
-    )
-  );
+  sortContext.activateItem(abDocument.getElementById("sortContextTableLayout"));
   await hiddenPromise;
 }
 

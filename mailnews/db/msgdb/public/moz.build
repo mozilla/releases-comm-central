@@ -19,7 +19,6 @@ EXPORTS += [
     "nsImapMailDatabase.h",
     "nsMailDatabase.h",
     "nsMsgDatabase.h",
-    "nsMsgDBCID.h",
     "nsMsgHdr.h",
     "nsMsgThread.h",
     "nsNewsDatabase.h",

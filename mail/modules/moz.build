@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
+    "AppUpdater.jsm",
     "AttachmentChecker.jsm",
     "BrowserWindowTracker.jsm",
     "ConversationOpener.jsm",
@@ -39,11 +40,6 @@ EXTRA_JS_MODULES.sessionstore += [
     "SessionStore.jsm",
     "TabStateFlusher.jsm",
 ]
-
-if CONFIG["MOZ_UPDATER"]:
-    EXTRA_JS_MODULES += [
-        "AppUpdateUI.jsm",
-    ]
 
 if CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
     EXTRA_JS_MODULES += [

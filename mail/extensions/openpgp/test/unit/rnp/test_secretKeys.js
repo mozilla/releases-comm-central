@@ -250,6 +250,40 @@ add_task(async function testSecretForPreferredSignSubkeyIsMissing() {
   );
 });
 
+// If we an existing public key, with multiple subkeys, and then we
+// import the secret key, but one of the existing public subkeys is
+// missing, test that we don't fail to import (bug 1795698).
+add_task(async function testNoSecretForExistingPublicSubkey() {
+  let pubBlock = await IOUtils.readUTF8(
+    do_get_file(`${keyDir}/two-enc-subkeys-still-both.pub.asc`).path
+  );
+
+  let importResult = await RNP.importPubkeyBlockAutoAcceptImpl(
+    null,
+    pubBlock,
+    null // acceptance
+  );
+
+  Assert.ok(importResult.exitCode == 0);
+
+  let secBlock = await IOUtils.readUTF8(
+    do_get_file(`${keyDir}/two-enc-subkeys-one-deleted.sec.asc`).path
+  );
+
+  let cancelPassword = function(win, keyId, resultFlags) {
+    resultFlags.canceled = true;
+    return "";
+  };
+
+  importResult = await RNP.importSecKeyBlockImpl(
+    null,
+    cancelPassword,
+    secBlock
+  );
+
+  Assert.ok(importResult.exitCode == 0);
+});
+
 // Sanity check for bug 1790610 and bug 1792450, test that our passphrase
 // reading code, which can run through repair code for corrupted profiles,
 // will not replace our existing and good data.

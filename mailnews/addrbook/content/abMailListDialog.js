@@ -385,9 +385,11 @@ function SetInputValue(inputValue, parentNode, templateNode) {
   parentNode.appendChild(newNode); // we need to insert the new node before we set the value of the select element!
 
   var input = newNode.querySelector(`input[is="autocomplete-input"]`);
+  let label = newNode.querySelector(`label.person-icon`);
   if (input) {
     input.value = inputValue;
     input.setAttribute("id", "addressCol1#" + top.MAX_RECIPIENTS);
+    label.setAttribute("for", "addressCol1#" + top.MAX_RECIPIENTS);
     input.popup.addEventListener("click", () => {
       awReturnHit(input);
     });
@@ -448,6 +450,7 @@ function awAppendNewRow(setFocus) {
   let body = document.getElementById("addressingWidget");
   let listitem1 = awGetListItem(1);
   let input;
+  let label;
 
   if (body && listitem1) {
     let nextDummy = awGetNextDummyRow();
@@ -461,9 +464,11 @@ function awAppendNewRow(setFocus) {
     top.MAX_RECIPIENTS++;
 
     input = newNode.querySelector(`input[is="autocomplete-input"]`);
+    label = newNode.querySelector(`label.person-icon`);
     if (input) {
       input.value = "";
       input.setAttribute("id", "addressCol1#" + top.MAX_RECIPIENTS);
+      label.setAttribute("for", "addressCol1#" + top.MAX_RECIPIENTS);
       input.popup.addEventListener("click", () => {
         awReturnHit(input);
       });

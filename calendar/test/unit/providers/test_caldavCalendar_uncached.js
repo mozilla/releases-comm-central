@@ -4,20 +4,22 @@
 
 var { CalDAVServer } = ChromeUtils.import("resource://testing-common/calendar/CalDAVServer.jsm");
 
-CalDAVServer.open();
-CalDAVServer.putItemInternal(
-  "5a9fa76c-93f3-4ad8-9f00-9e52aedd2821.ics",
-  CalendarTestUtils.dedent`
-    BEGIN:VCALENDAR
-    BEGIN:VEVENT
-    UID:5a9fa76c-93f3-4ad8-9f00-9e52aedd2821
-    SUMMARY:exists before time
-    DTSTART:20210401T120000Z
-    DTEND:20210401T130000Z
-    END:VEVENT
-    END:VCALENDAR
-    `
-);
+add_setup(async function() {
+  CalDAVServer.open();
+  await CalDAVServer.putItemInternal(
+    "5a9fa76c-93f3-4ad8-9f00-9e52aedd2821.ics",
+    CalendarTestUtils.dedent`
+      BEGIN:VCALENDAR
+      BEGIN:VEVENT
+      UID:5a9fa76c-93f3-4ad8-9f00-9e52aedd2821
+      SUMMARY:exists before time
+      DTSTART:20210401T120000Z
+      DTEND:20210401T130000Z
+      END:VEVENT
+      END:VCALENDAR
+      `
+  );
+});
 registerCleanupFunction(() => CalDAVServer.close());
 
 add_task(async function() {

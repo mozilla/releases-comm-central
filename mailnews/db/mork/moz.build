@@ -6,7 +6,6 @@
 EXPORTS += [
     "mdb.h",
     "nsIMdbFactoryFactory.h",
-    "nsMorkCID.h",
 ]
 
 SOURCES += [

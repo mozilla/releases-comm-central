@@ -954,3 +954,15 @@ add_task(async function test_caldav_sync() {
   await webDavSync.doWebDAVSync();
   ok(webDavSync.logXML.includes("イベント"), "Non-ASCII text should be parsed correctly");
 });
+
+add_task(function test_can_get_google_adapter() {
+  // Initialize a session with bogus values
+  const session = new CalDavSession("xpcshell@example.com", "xpcshell");
+
+  // We don't have a facility for actually testing our Google CalDAV requests,
+  // but we can at least verify that the adapter looks okay at a glance
+  equal(
+    session.authAdapters["apidata.googleusercontent.com"].authorizationEndpoint,
+    "https://accounts.google.com/o/oauth2/auth"
+  );
+});

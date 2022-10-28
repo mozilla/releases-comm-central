@@ -16,9 +16,8 @@
 #include "nsIImportAddressBooks.h"
 #include "nsIImportABDescriptor.h"
 #include "nsIImportFieldMap.h"
-#include "nsAbBaseCID.h"
 #include "nsImportStringBundle.h"
-
+#include "nsIComponentManager.h"
 #include "nsIAbDirectory.h"
 #include "nsAddrDatabase.h"
 #include "nsInterfaceHashtable.h"
@@ -265,7 +264,8 @@ nsresult ReadMABToDirectory(nsIFile* oldFile, nsIAbDirectory* newDirectory) {
       continue;
     }
 
-    nsCOMPtr<nsIAbDirectory> mailList = do_CreateInstance(NS_ABDIRPROPERTY_CID);
+    nsCOMPtr<nsIAbDirectory> mailList =
+        do_CreateInstance("@mozilla.org/addressbook/directoryproperty;1");
     mailList->SetIsMailList(true);
 
     nsAutoString listName;

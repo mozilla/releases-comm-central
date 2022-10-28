@@ -4,10 +4,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsIMimeObjectClassAccess.h"
-#include "nsMsgMimeCID.h"
 #include "nsCOMPtr.h"
 #include "nsComponentManagerUtils.h"
 
+// {403B0540-B7C3-11d2-B35E-525400E2D63A}
+#define NS_MIME_OBJECT_CLASS_ACCESS_CID             \
+  {                                                 \
+    0x403b0540, 0xb7c3, 0x11d2, {                   \
+      0xb3, 0x5e, 0x52, 0x54, 0x0, 0xe2, 0xd6, 0x3a \
+    }                                               \
+  }
 static NS_DEFINE_CID(kMimeObjectClassAccessCID,
                      NS_MIME_OBJECT_CLASS_ACCESS_CID);
 

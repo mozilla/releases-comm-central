@@ -376,14 +376,15 @@ class Pop3Client {
    * Read popstate.dat into this._uidlMap.
    */
   async _loadUidlState() {
-    this._uidlMap = new Map();
     let stateFile = this._server.localPath;
     stateFile.append("popstate.dat");
     if (!(await IOUtils.exists(stateFile.path))) {
+      this._uidlMap = new Map();
       return;
     }
 
     let content = await IOUtils.readUTF8(stateFile.path);
+    this._uidlMap = new Map();
     let uidlLine = false;
     for (let line of content.split(this._lineSeparator)) {
       if (!line) {

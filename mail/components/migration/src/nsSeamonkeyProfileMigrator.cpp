@@ -11,8 +11,6 @@
 #include "nsIPrefLocalizedString.h"
 #include "nsIPrefService.h"
 #include "nsISupportsPrimitives.h"
-#include "nsMsgBaseCID.h"
-#include "nsMsgCompCID.h"
 #include "nsNetCID.h"
 #include "nsNetUtil.h"
 #include "nsSeamonkeyProfileMigrator.h"
@@ -21,7 +19,6 @@
 #include "mozilla/ArrayUtils.h"
 #include "nsIFile.h"
 
-#include "nsAbBaseCID.h"
 #include "nsIAbManager.h"
 #include "nsIAbDirectory.h"
 #include "../../../../mailnews/import/src/MorkImport.h"
@@ -633,7 +630,7 @@ nsresult nsSeamonkeyProfileMigrator::ImportPreferences(uint16_t aItems) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgAccountManager> accountManager(
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   PrefKeyHashTable smtpServerKeyHashTable;
   PrefKeyHashTable identityKeyHashTable;
@@ -848,7 +845,7 @@ nsresult nsSeamonkeyProfileMigrator::TransformSmtpServersForImport(
     PBStructArray& aServers, PrefKeyHashTable& keyHashTable) {
   nsresult rv;
   nsCOMPtr<nsISmtpService> smtpService(
-      do_GetService(NS_SMTPSERVICE_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/messengercompose/smtp;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsTArray<nsCString> newKeys;
@@ -1048,7 +1045,8 @@ nsresult nsSeamonkeyProfileMigrator::MigrateMABFile(
 
   nsresult rv;
 
-  nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
+  nsCOMPtr<nsIAbManager> abManager(
+      do_GetService("@mozilla.org/abmanager;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbDirectory> directory;

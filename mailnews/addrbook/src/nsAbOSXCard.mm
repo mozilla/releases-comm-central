@@ -182,7 +182,7 @@ nsresult nsAbOSXCard::Update(bool aNotify) {
   nsCOMPtr<nsIAbManager> abManager;
   nsresult rv;
   if (aNotify) {
-    abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+    abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 

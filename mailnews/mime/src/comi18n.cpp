@@ -7,7 +7,6 @@
 #include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
-#include "nsMsgMimeCID.h"
 #include "nsIMimeConverter.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/Encoding.h"
@@ -24,7 +23,7 @@ void MIME_DecodeMimeHeader(const char* header, const char* default_charset,
                            nsACString& result) {
   nsresult rv;
   nsCOMPtr<nsIMimeConverter> mimeConverter =
-      do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
   if (NS_FAILED(rv)) {
     result.Truncate();
     return;

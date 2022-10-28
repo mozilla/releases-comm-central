@@ -5,7 +5,6 @@
 
 #include "nsMsgPurgeService.h"
 #include "nsIMsgAccountManager.h"
-#include "nsMsgBaseCID.h"
 #include "nsMsgUtils.h"
 #include "nsMsgSearchCore.h"
 #include "msgCore.h"
@@ -125,7 +124,7 @@ nsresult nsMsgPurgeService::PerformPurge() {
   nsresult rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   bool keepApplyingRetentionSettings = true;
 
@@ -364,7 +363,8 @@ nsresult nsMsgPurgeService::PerformPurge() {
 nsresult nsMsgPurgeService::SearchFolderToPurge(nsIMsgFolder* folder,
                                                 int32_t purgeInterval) {
   nsresult rv;
-  mSearchSession = do_CreateInstance(NS_MSGSEARCHSESSION_CONTRACTID, &rv);
+  mSearchSession =
+      do_CreateInstance("@mozilla.org/messenger/searchSession;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   mSearchSession->RegisterListener(this, nsIMsgSearchSession::allNotifications);
 

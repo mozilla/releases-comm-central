@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "msgCore.h"
-#include "nsMsgImapCID.h"
 
 #include "netCore.h"
 #include "../public/nsIImapHostSessionList.h"
@@ -50,7 +49,19 @@ using namespace mozilla;
 #define PREF_TRASH_FOLDER_PATH "trash_folder_name"
 #define DEFAULT_TRASH_FOLDER_PATH "Trash"  // XXX Is this a useful default?
 
+#define NS_SUBSCRIBABLESERVER_CID                    \
+  {                                                  \
+    0x8510876a, 0x1dd2, 0x11b2, {                    \
+      0x82, 0x53, 0x91, 0xf7, 0x1b, 0x34, 0x8a, 0x25 \
+    }                                                \
+  }
 static NS_DEFINE_CID(kSubscribableServerCID, NS_SUBSCRIBABLESERVER_CID);
+#define NS_IIMAPHOSTSESSIONLIST_CID                  \
+  {                                                  \
+    0x479ce8fc, 0xe725, 0x11d2, {                    \
+      0xa5, 0x05, 0x00, 0x60, 0xb0, 0xfc, 0x04, 0xb7 \
+    }                                                \
+  }
 static NS_DEFINE_CID(kCImapHostSessionListCID, NS_IIMAPHOSTSESSIONLIST_CID);
 
 NS_IMPL_ADDREF_INHERITED(nsImapIncomingServer, nsMsgIncomingServer)
@@ -150,7 +161,7 @@ nsImapIncomingServer::GetConstructedPrettyName(nsAString& retval) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgIdentity> identity;
@@ -955,7 +966,7 @@ nsImapIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
   if (!rootMsgFolder) return NS_ERROR_FAILURE;
 
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
   rv = imapService->DiscoverAllFolders(rootMsgFolder, this, aMsgWindow);
@@ -977,7 +988,7 @@ nsImapIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
   nsresult rv;
 
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgFolder> rootFolder;
   // this will create the resource if it doesn't exist, but it shouldn't
@@ -1404,7 +1415,7 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
     // flag set appropriately.
 
     nsCOMPtr<nsIMsgAccountManager> accountMgr =
-        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIMsgIdentity> identity;
@@ -1719,7 +1730,7 @@ nsresult nsImapIncomingServer::AlertUser(const nsAString& aString,
                                          nsIMsgMailNewsUrl* aUrl) {
   nsresult rv;
   nsCOMPtr<nsIMsgMailSession> mailSession =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return mailSession->AlertUser(aString, aUrl);
@@ -1956,7 +1967,7 @@ nsImapIncomingServer::AsyncGetPassword(nsIImapProtocol* aProtocol,
     // prompt), so we need to use the async prompter.
     nsresult rv;
     nsCOMPtr<nsIMsgAsyncPrompter> asyncPrompter =
-        do_GetService(NS_MSGASYNCPROMPTER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/msgAsyncPrompter;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIMsgAsyncPromptListener> promptListener(
         do_QueryInterface(aProtocol));
@@ -2079,7 +2090,7 @@ NS_IMETHODIMP nsImapIncomingServer::SetUserAuthenticated(
   if (aUserAuthenticated) {
     nsresult rv;
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     accountManager->SetUserNeedsToAuthenticate(false);
@@ -2138,7 +2149,7 @@ nsImapIncomingServer::StartPopulatingWithUri(nsIMsgWindow* aMsgWindow,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   /*
@@ -2169,7 +2180,7 @@ nsImapIncomingServer::StartPopulating(nsIMsgWindow* aMsgWindow,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return imapService->GetListOfFoldersOnServer(this, aMsgWindow);
 }
@@ -2206,7 +2217,7 @@ nsImapIncomingServer::OnStopRunningUrl(nsIURI* url, nsresult exitCode) {
         if (msgFolder) {
           nsresult rv;
           nsCOMPtr<nsIMsgMailSession> session =
-              do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+              do_GetService("@mozilla.org/messenger/services/session;1", &rv);
           NS_ENSURE_SUCCESS(rv, rv);
           bool folderOpen;
           rv = session->IsFolderOpenInWindow(msgFolder, &folderOpen);
@@ -2328,7 +2339,7 @@ nsImapIncomingServer::SubscribeToFolder(const nsAString& aName, bool subscribe,
                                         nsIURI** aUri) {
   nsresult rv;
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolder> rootMsgFolder;
@@ -2639,7 +2650,7 @@ nsImapIncomingServer::GeneratePrettyNameForMigration(nsAString& aPrettyName) {
   // Here, the final contract ID is already known, so use it directly for
   // efficiency.
   nsCOMPtr<nsIMsgProtocolInfo> protocolInfo =
-      do_GetService(NS_IMAPPROTOCOLINFO_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/protocol/info;1?type=imap", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Get the default port
@@ -2808,7 +2819,7 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
     if (performingBiff) imapFolder->SetPerformingBiff(true);
     bool isOpen = false;
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService(NS_MSGMAILSESSION_CONTRACTID);
+        do_GetService("@mozilla.org/messenger/services/session;1");
     if (mailSession && aFolder)
       mailSession->IsFolderOpenInWindow(aFolder, &isOpen);
     // eventually, the gGotStatusPref should go away, once we work out the kinks

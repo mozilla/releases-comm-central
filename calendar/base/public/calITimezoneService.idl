@@ -4,7 +4,6 @@
 
 #include "nsISupports.idl"
 
-interface nsIUTF8StringEnumerator;
 interface calITimezone;
 
 /**
@@ -14,7 +13,9 @@ interface calITimezone;
 interface calITimezoneService : nsISupports
 {
     /**
-     * All timezone IDs provided by the current IANA Time Zone Database.
+     * All canonical timezone IDs provided by the current IANA Time Zone
+     * Database; intended to provide a list of selectable timezones, not to
+     * restrict the list of valid timezones.
      */
     readonly attribute Array<AUTF8String> timezoneIds;
 

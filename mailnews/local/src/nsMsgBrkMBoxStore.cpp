@@ -23,13 +23,11 @@
 #include "nsIMsgDatabase.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsMsgUtils.h"
-#include "nsMsgDBCID.h"
 #include "nsIDBFolderInfo.h"
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsMailHeaders.h"
 #include "nsParseMailbox.h"
 #include "nsIMailboxService.h"
-#include "nsMsgLocalCID.h"
 #include "nsIMsgFolderCompactor.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -103,7 +101,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder* aParent,
   }
   // Create an empty database for this mail folder, set its name from the user
   nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   if (msgDBService) {
     nsCOMPtr<nsIMsgDatabase> unusedDB;
     rv = msgDBService->OpenFolderDB(child, true, getter_AddRefs(unusedDB));
@@ -453,7 +451,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
     origPath->GetLeafName(folderLeafName);
     newPath->Append(folderLeafName);
     nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = msgDBService->OpenMailDBFromFile(newPath, newMsgFolder, false, true,
                                           getter_AddRefs(destDB));
@@ -779,7 +777,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::RebuildIndex(nsIMsgFolder* aFolder,
   }
 
   nsCOMPtr<nsIMailboxService> mailboxService =
-      do_GetService(NS_MAILBOXSERVICE_CONTRACTID1, &rv);
+      do_GetService("@mozilla.org/messenger/mailboxservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   RefPtr<nsMsgMailboxParser> parser = new nsMsgMailboxParser(aFolder);

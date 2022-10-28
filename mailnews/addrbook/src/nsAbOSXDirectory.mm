@@ -32,7 +32,7 @@ static nsresult GetOrCreateGroup(NSString* aUid, nsIAbDirectory** aResult) {
   AppendToCString(aUid, uri);
 
   nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+  nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbDirectory> directory;
@@ -73,7 +73,8 @@ static nsresult CreateCard(ABRecord* aRecord, nsIAbCard** aResult) {
   if (!uid) return NS_ERROR_FAILURE;
 
   nsresult rv;
-  nsCOMPtr<nsIAbOSXCard> osxCard = do_CreateInstance(NS_ABOSXCARD_CONTRACTID, &rv);
+  nsCOMPtr<nsIAbOSXCard> osxCard =
+      do_CreateInstance("@mozilla.org/addressbook/directory;1?type=moz-abosxcard", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString uri(NS_ABOSXCARD_URI_PREFIX);
@@ -108,7 +109,7 @@ static nsresult Sync(NSString* aUid) {
     nsCOMPtr<nsIAbCard> abCard;
     nsresult rv;
 
-    nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+    nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIAbDirectory> directory;
@@ -142,7 +143,7 @@ static nsresult Sync(NSString* aUid) {
   NSArray* inserted = [changes objectForKey:kABInsertedRecords];
 
   if (inserted) {
-    nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+    nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
     NS_ENSURE_SUCCESS_VOID(rv);
 
     nsCOMPtr<nsIAbDirectory> directory;
@@ -185,7 +186,7 @@ static nsresult Sync(NSString* aUid) {
 
   NSArray* deleted = [changes objectForKey:kABDeletedRecords];
   if (deleted) {
-    nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+    nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
     NS_ENSURE_SUCCESS_VOID(rv);
 
     nsCOMPtr<nsIAbDirectory> directory;
@@ -287,7 +288,7 @@ nsAbOSXDirectory::Init(const char* aUri) {
 
   unsigned int nbCards = [cards count];
   nsCOMPtr<nsIAbCard> card;
-  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+  nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbOSXDirectory> rootOSXDirectory;
@@ -369,7 +370,7 @@ nsresult nsAbOSXDirectory::GetRootOSXDirectory(nsIAbOSXDirectory** aResult) {
   if (!mCacheTopLevelOSXAb) {
     // Attempt to get card from the toplevel directories
     nsresult rv;
-    nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+    nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIAbDirectory> directory;
@@ -390,7 +391,7 @@ nsresult nsAbOSXDirectory::Update() {
   NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+  nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   ABAddressBook* addressBook = [ABAddressBook sharedAddressBook];
@@ -513,7 +514,7 @@ nsresult nsAbOSXDirectory::AssertChildNodes() {
   }
 
   nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+  nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   NSArray* groups = [[ABAddressBook sharedAddressBook] groups];
@@ -812,7 +813,7 @@ nsAbOSXDirectory::Search(const nsAString& query, const nsAString& searchString,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbDirectoryQueryArguments> arguments =
-      do_CreateInstance(NS_ABDIRECTORYQUERYARGUMENTS_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/addressbook/directory/query-arguments;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = arguments->SetExpression(expression);
@@ -828,7 +829,7 @@ nsAbOSXDirectory::Search(const nsAString& query, const nsAString& searchString,
 
   // Initiate the proxy query with the no query directory
   nsCOMPtr<nsIAbDirectoryQueryProxy> queryProxy =
-      do_CreateInstance(NS_ABDIRECTORYQUERYPROXY_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/addressbook/directory-query/proxy;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = queryProxy->Initiate();
@@ -845,7 +846,7 @@ nsresult nsAbOSXDirectory::DeleteUid(const nsACString& aUid) {
   if (!m_AddressList) return NS_ERROR_NULL_POINTER;
 
   nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+  nsCOMPtr<nsIAbManager> abManager = do_GetService("@mozilla.org/abmanager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // At this stage we don't know if aUid represents a card or group. The OS X

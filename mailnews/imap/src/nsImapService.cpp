@@ -5,7 +5,6 @@
 
 #include "msgCore.h"  // precompiled header...
 #include "nsImapService.h"
-#include "nsMsgImapCID.h"
 #include "nsImapCore.h"
 #include "netCore.h"
 
@@ -26,7 +25,6 @@
 #include "nsIPrefService.h"
 #include "nsILoadGroup.h"
 #include "nsIMsgAccountManager.h"
-#include "nsMsgBaseCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMailDirServiceDefs.h"
 #include "nsIWebNavigation.h"
@@ -45,7 +43,6 @@
 #include "nsIInputStream.h"
 #include "nsMsgLineBuffer.h"
 #include "nsIMsgParseMailMsgState.h"
-#include "nsMsgLocalCID.h"
 #include "nsIOutputStream.h"
 #include "nsIDocShell.h"
 #include "nsIMessengerWindowService.h"
@@ -68,7 +65,20 @@
 // old - for backward compatibility only
 #define PREF_MAIL_ROOT_IMAP "mail.root.imap"
 
+#define NS_IMAPURL_CID                             \
+  {                                                \
+    0x21a89611, 0xdc0d, 0x11d2, {                  \
+      0x80, 0x6c, 0x0, 0x60, 0x8, 0x12, 0x8c, 0x4e \
+    }                                              \
+  }
 static NS_DEFINE_CID(kImapUrlCID, NS_IMAPURL_CID);
+
+#define NS_IMAPMOCKCHANNEL_CID                    \
+  {                                               \
+    0x4eca51df, 0x6734, 0x11d3, {                 \
+      0x98, 0x9a, 0x0, 0x10, 0x83, 0x1, 0xe, 0x9b \
+    }                                             \
+  }
 static NS_DEFINE_CID(kCImapMockChannel, NS_IMAPMOCKCHANNEL_CID);
 
 static const char sequenceString[] = "SEQUENCE";
@@ -1910,8 +1920,8 @@ nsresult nsImapService::OfflineAppendFromFile(
 
       if (NS_SUCCEEDED(rv) && outputStream) {
         nsCOMPtr<nsIInputStream> inputStream;
-        nsCOMPtr<nsIMsgParseMailMsgState> msgParser =
-            do_CreateInstance(NS_PARSEMAILMSGSTATE_CONTRACTID, &rv);
+        nsCOMPtr<nsIMsgParseMailMsgState> msgParser = do_CreateInstance(
+            "@mozilla.org/messenger/messagestateparser;1", &rv);
         msgParser->SetMailDB(destDB);
 
         rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aFile);
@@ -2358,7 +2368,7 @@ nsresult nsImapService::GetServerFromUrl(nsIImapUrl* aImapUrl,
   }
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = accountManager->FindServerByURI(mailnewsUrl, aServer);
@@ -2650,8 +2660,8 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
             nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl =
                 do_QueryInterface(subscribeURI);
             if (mailnewsUrl) {
-              nsCOMPtr<nsIMsgMailSession> mailSession =
-                  do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+              nsCOMPtr<nsIMsgMailSession> mailSession = do_GetService(
+                  "@mozilla.org/messenger/services/session;1", &rv);
               NS_ENSURE_SUCCESS(rv, rv);
               nsCOMPtr<nsIMsgWindow> msgWindow;
               rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
@@ -2682,7 +2692,7 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
       // way of doing this.
       if (!imapFolder) {
         nsCOMPtr<nsIMsgMailSession> mailSession =
-            do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+            do_GetService("@mozilla.org/messenger/services/session;1", &rv);
         NS_ENSURE_SUCCESS(rv, rv);
         nsCOMPtr<nsIMsgWindow> msgWindow;
         rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
@@ -3109,8 +3119,8 @@ NS_IMETHODIMP nsImapService::PlaybackAllOfflineOperations(
   NS_ENSURE_ARG_POINTER(aResult);
 
   nsresult rv;
-  nsImapOfflineSync* goOnline =
-      new nsImapOfflineSync(aMsgWindow, aListener, nullptr);
+  nsImapOfflineSync* goOnline = new nsImapOfflineSync();
+  goOnline->Init(aMsgWindow, aListener, nullptr, false);
   if (goOnline) {
     rv = goOnline->QueryInterface(NS_GET_IID(nsISupports), (void**)aResult);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -3178,7 +3188,7 @@ NS_IMETHODIMP nsImapService::HandleContent(
       nsCString unescapedUriStr;
       MsgUnescapeString(uriStr, 0, unescapedUriStr);
       nsCOMPtr<nsIMessengerWindowService> messengerWindowService =
-          do_GetService(NS_MESSENGERWINDOWSERVICE_CONTRACTID, &rv);
+          do_GetService("@mozilla.org/messenger/windowservice;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
 
       rv = messengerWindowService->OpenMessengerWindowWithUri(

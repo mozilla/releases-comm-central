@@ -95,8 +95,7 @@ PgpWkdHandler.prototype = {
 
     if (this.uri) {
       this.backgroundJob =
-        this.uri.spec.search(/[&?]header=(print|quotebody|enigmailConvert)/) >=
-        0;
+        this.uri.spec.search(/[&?]header=(print|quotebody)/) >= 0;
     }
   },
 

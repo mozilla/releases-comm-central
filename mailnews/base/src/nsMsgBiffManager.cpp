@@ -5,7 +5,6 @@
 
 #include "nsMsgBiffManager.h"
 #include "nsIMsgAccountManager.h"
-#include "nsMsgBaseCID.h"
 #include "nsStatusBarBiffManager.h"
 #include "nsCOMArray.h"
 #include "mozilla/Logging.h"
@@ -21,6 +20,12 @@
 
 #define PREF_BIFF_JITTER "mail.biff.add_interval_jitter"
 
+#define NS_STATUSBARBIFFMANAGER_CID                  \
+  {                                                  \
+    0x7f9a9fb0, 0x4161, 0x11d4, {                    \
+      0x98, 0x76, 0x00, 0xc0, 0x4f, 0xa0, 0xd2, 0xa6 \
+    }                                                \
+  }
 static NS_DEFINE_CID(kStatusBarBiffManagerCID, NS_STATUSBARBIFFMANAGER_CID);
 
 static mozilla::LazyLogModule MsgBiffLogModule("MsgBiff");
@@ -59,7 +64,7 @@ NS_IMETHODIMP nsMsgBiffManager::Init() {
   nsresult rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   if (NS_SUCCEEDED(rv)) accountManager->AddIncomingServerListener(this);
 
   // in turbo mode on profile change we don't need to do anything below this
@@ -89,7 +94,7 @@ NS_IMETHODIMP nsMsgBiffManager::Shutdown() {
 
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   if (NS_SUCCEEDED(rv)) accountManager->RemoveIncomingServerListener(this);
 
   mHaveShutdown = true;

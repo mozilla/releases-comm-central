@@ -8,7 +8,6 @@
 
 #include "nsIDocumentLoaderFactory.h"
 #include "nsMimeTypes.h"
-#include "nsMsgBaseCID.h"
 
 namespace mozilla {
 namespace mailnews {
@@ -31,7 +30,8 @@ class MailNewsDLF : public nsIDocumentLoaderFactory {
 }  // namespace mailnews
 }  // namespace mozilla
 
-#define MAILNEWSDLF_CATEGORIES \
-  {"Gecko-Content-Viewers", MESSAGE_RFC822, NS_MAILNEWSDLF_CONTRACTID},
+#define MAILNEWSDLF_CATEGORIES              \
+  {"Gecko-Content-Viewers", MESSAGE_RFC822, \
+   "@mozilla.org/mailnews/document-loader-factory;1"},
 
 #endif

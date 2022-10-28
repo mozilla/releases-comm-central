@@ -343,9 +343,6 @@ MimeDecryptHandler.prototype = {
     if ("lastMessageData" in LAST_MSG && LAST_MSG.lastMessageData === "") {
       return false;
     }
-    if (this.isUrlEnigmailConvert()) {
-      return false;
-    }
 
     let currMsg = lazy.EnigmailURIs.msgIdentificationFromUrl(this.uri);
 
@@ -357,14 +354,6 @@ MimeDecryptHandler.prototype = {
     }
 
     return false;
-  },
-
-  isUrlEnigmailConvert() {
-    if (!this.uri) {
-      return false;
-    }
-
-    return this.uri.spec.search(/[&?]header=enigmailConvert/) >= 0;
   },
 
   onStopRequest(request, status, dummy) {
@@ -400,8 +389,7 @@ MimeDecryptHandler.prototype = {
       // printing, replying, etc)
 
       this.backgroundJob =
-        this.uri.spec.search(/[&?]header=(print|quotebody|enigmailConvert)/) >=
-        0;
+        this.uri.spec.search(/[&?]header=(print|quotebody)/) >= 0;
 
       try {
         if (!Services.prefs.getBoolPref("temp.openpgp.autoDecrypt")) {
@@ -485,14 +473,8 @@ MimeDecryptHandler.prototype = {
         false
       )
     ) {
-      if (!this.isUrlEnigmailConvert()) {
-        // ignore
-        return;
-      }
-
-      throw new Error(
-        "Cannot decrypt messages with mixed (encrypted/non-encrypted) content"
-      );
+      // ignore
+      return;
     }
 
     if (!this.isReloadingLastMessage()) {
@@ -583,12 +565,10 @@ MimeDecryptHandler.prototype = {
         this.returnStatus.statusFlags &
         lazy.EnigmailConstants.DECRYPTION_FAILED;
 
-      if (!this.isUrlEnigmailConvert()) {
-        // don't return decrypted data if decryption failed (because it's likely an MDC error),
-        // unless we are called for permanent decryption
-        if (decError) {
-          this.decryptedData = "";
-        }
+      // don't return decrypted data if decryption failed (because it's likely an MDC error),
+      // unless we are called for permanent decryption
+      if (decError) {
+        this.decryptedData = "";
       }
 
       this.displayStatus();
@@ -740,23 +720,21 @@ MimeDecryptHandler.prototype = {
   },
 
   addWrapperToDecryptedResult() {
-    if (!this.isUrlEnigmailConvert()) {
-      let wrapper = lazy.EnigmailMime.createBoundary();
+    let wrapper = lazy.EnigmailMime.createBoundary();
 
-      this.decryptedData =
-        'Content-Type: multipart/mixed; boundary="' +
-        wrapper +
-        '"\r\n' +
-        "Content-Disposition: inline\r\n\r\n" +
-        "--" +
-        wrapper +
-        "\r\n" +
-        this.decryptedData +
-        "\r\n" +
-        "--" +
-        wrapper +
-        "--\r\n";
-    }
+    this.decryptedData =
+      'Content-Type: multipart/mixed; boundary="' +
+      wrapper +
+      '"\r\n' +
+      "Content-Disposition: inline\r\n\r\n" +
+      "--" +
+      wrapper +
+      "\r\n" +
+      this.decryptedData +
+      "\r\n" +
+      "--" +
+      wrapper +
+      "--\r\n";
   },
 
   extractContentType(data) {

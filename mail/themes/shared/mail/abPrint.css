@@ -54,7 +54,6 @@ body > div {
 section {
   padding-block: 0.5em;
   line-height: 1.2;
-  box-shadow: var(--address-book-blocks-box-shadow);
   box-sizing: border-box;
   break-inside: avoid-column;
 }

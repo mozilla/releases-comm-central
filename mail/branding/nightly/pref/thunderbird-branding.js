@@ -23,4 +23,13 @@ pref("app.update.interval", 3600);
 // Give the user x seconds to react before showing the big UI. nightly=1 hour
 pref("app.update.promptWaitTime", 3600);
 
+// The number of days a binary is permitted to be old
+// without checking for an update.  This assumes that
+// app.update.checkInstallTime is true.
+pref("app.update.checkInstallTime.days", 2);
+
+// Give the user x seconds to reboot before showing a badge on the hamburger
+// button. default=immediately
+pref("app.update.badgeWaitTime", 0);
+
 pref("app.vendorURL", "https://www.thunderbird.net/%LOCALE%/");

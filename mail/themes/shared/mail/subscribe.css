@@ -8,6 +8,11 @@
 
 @import url("chrome://messenger/skin/messenger.css");
 
+#subscribeWindow {
+  min-width: 40em;
+  min-height: 30em;
+}
+
 #nameColumn,
 #nameColumn2 {
   -moz-box-flex: 10;

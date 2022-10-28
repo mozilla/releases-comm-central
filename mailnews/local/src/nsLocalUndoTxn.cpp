@@ -7,7 +7,6 @@
 #include "nsIMsgHdr.h"
 #include "nsLocalUndoTxn.h"
 #include "nsImapCore.h"
-#include "nsMsgImapCID.h"
 #include "nsIImapService.h"
 #include "nsIUrlListener.h"
 #include "nsIMsgLocalMailFolder.h"
@@ -82,7 +81,7 @@ nsresult nsLocalMoveCopyMsgTxn::UndoImapDeleteFlag(nsIMsgFolder* folder,
   nsresult rv = NS_ERROR_FAILURE;
   if (m_srcIsImap4) {
     nsCOMPtr<nsIImapService> imapService =
-        do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIUrlListener> urlListener;
     nsCString msgIds;
@@ -130,7 +129,7 @@ nsLocalMoveCopyMsgTxn::UndoTransaction() {
     NS_ADDREF(mUndoFolderListener);
 
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = mailSession->AddFolderListener(mUndoFolderListener,
@@ -149,7 +148,7 @@ nsresult nsLocalMoveCopyMsgTxn::UndoTransactionInternal() {
 
   if (mUndoFolderListener) {
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = mailSession->RemoveFolderListener(mUndoFolderListener);
@@ -211,7 +210,7 @@ nsresult nsLocalMoveCopyMsgTxn::UndoTransactionInternal() {
       }
 
       nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+          do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
       if (notifier) {
         // Remember that we're actually moving things back from the destination
         //  to the source!

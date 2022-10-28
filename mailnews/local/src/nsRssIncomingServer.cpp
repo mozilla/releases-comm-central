@@ -5,7 +5,6 @@
 #include "nsRssIncomingServer.h"
 #include "nsMsgFolderFlags.h"
 #include "nsINewsBlogFeedDownloader.h"
-#include "nsMsgBaseCID.h"
 #include "nsIFile.h"
 #include "nsIMsgFolderNotificationService.h"
 
@@ -26,7 +25,7 @@ nsRssIncomingServer::nsRssIncomingServer() {
   if (gInstanceCount == 0) {
     nsresult rv;
     nsCOMPtr<nsIMsgFolderNotificationService> notifyService =
-        do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/msgnotificationservice;1", &rv);
     if (NS_SUCCEEDED(rv))
       notifyService->AddListener(
           this, nsIMsgFolderNotificationService::folderAdded |
@@ -44,7 +43,7 @@ nsRssIncomingServer::~nsRssIncomingServer() {
   if (gInstanceCount == 0) {
     nsresult rv;
     nsCOMPtr<nsIMsgFolderNotificationService> notifyService =
-        do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/msgnotificationservice;1", &rv);
     if (NS_SUCCEEDED(rv)) notifyService->RemoveListener(this);
   }
 }

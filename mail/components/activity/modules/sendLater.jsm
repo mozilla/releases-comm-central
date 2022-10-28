@@ -231,14 +231,13 @@ var sendLaterModule = {
       } else if (aMessageCopyPercent >= 100) {
         // We need to set this to completed otherwise activity manager
         // complains.
-        if (this._copyProcess.state != Ci.nsIActivityProcess.STATE_COMPLETED) {
+        if (this._copyProcess) {
           this._copyProcess.state = Ci.nsIActivityProcess.STATE_COMPLETED;
+          this.activityMgr.removeActivity(this._copyProcess.id);
+          this._copyProcess = null;
         }
 
-        // Just drop the copy process, we don't need it now.
-        this.activityMgr.removeActivity(this._copyProcess.id);
         this._sendProcess = null;
-        this._copyProcess = null;
       }
     }
   },

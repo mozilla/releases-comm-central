@@ -15,7 +15,6 @@
 #include "nsMsgUtils.h"
 #include "nsMsgSearchTerm.h"
 #include "nsString.h"
-#include "nsMsgBaseCID.h"
 #include "nsIMsgFilterService.h"
 #include "nsMsgSearchScopeTerm.h"
 #include "nsIStringBundle.h"
@@ -294,7 +293,7 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
   msgHdr->GetMessageKey(&msgKey);
   nsCString typeName;
   nsCOMPtr<nsIMsgFilterService> filterService =
-      do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
   filterService->FilterTypeName(filterType, typeName);
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
           ("(Auto) Filter run initiated, trigger=%s (%i)", typeName.get(),
@@ -408,7 +407,7 @@ NS_IMETHODIMP
 nsMsgFilterList::SaveToDefaultFile() {
   nsresult rv;
   nsCOMPtr<nsIMsgFilterService> filterService =
-      do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return filterService->SaveFilterList(this, m_defaultFile);

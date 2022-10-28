@@ -21,7 +21,6 @@
 #include "nsMsgSearchValue.h"
 #include "nsMsgI18N.h"
 #include "nsIMimeConverter.h"
-#include "nsMsgMimeCID.h"
 #include "nsIPrefBranch.h"
 #include "nsIPrefService.h"
 #include "nsIMsgFilterPlugin.h"
@@ -34,12 +33,10 @@
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include <ctype.h>
-#include "nsMsgBaseCID.h"
 #include "nsIMsgTagService.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgPluggableStore.h"
-#include "nsAbBaseCID.h"
 #include "nsIAbManager.h"
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
@@ -838,7 +835,6 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm* scope,
 
   nsAutoCString buf;
   bool endOfFile = false;  // if retValue == 0, we've hit the end of the file
-  uint32_t lines = 0;
 
   // Change the sense of the loop so we don't bail out prematurely
   // on negative terms. i.e. opDoesntContain must look at all lines
@@ -871,7 +867,6 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm* scope,
           rv = MatchString(compare,
                            charset.IsEmpty() ? folderCharset : charset.get(),
                            &result);
-          lines++;
         }
         compare.Truncate();
       }
@@ -900,7 +895,7 @@ nsresult nsMsgSearchTerm::InitializeAddressBook() {
   }
   if (!mDirectory) {
     nsCOMPtr<nsIAbManager> abManager =
-        do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/abmanager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv =
@@ -949,7 +944,7 @@ nsresult nsMsgSearchTerm::MatchRfc2047String(const nsACString& rfc2047string,
 
   nsresult rv;
   nsCOMPtr<nsIMimeConverter> mimeConverter =
-      do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsAutoString stringToMatch;
   rv = mimeConverter->DecodeMimeHeader(PromiseFlatCString(rfc2047string).get(),
@@ -1419,7 +1414,7 @@ nsresult nsMsgSearchTerm::MatchKeyword(const nsACString& keywordList,
   nsTArray<nsCString> keywordArray;
   ParseString(keywordList, ' ', keywordArray);
   nsCOMPtr<nsIMsgTagService> tagService(
-      do_GetService(NS_MSGTAGSERVICE_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/messenger/tagservice;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Loop through tokens in keywords
@@ -1526,7 +1521,7 @@ NS_IMETHODIMP nsMsgSearchTerm::MatchCustom(nsIMsgDBHdr* aHdr, bool* pResult) {
 
   nsresult rv;
   nsCOMPtr<nsIMsgFilterService> filterService =
-      do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgSearchCustomTerm> customTerm;

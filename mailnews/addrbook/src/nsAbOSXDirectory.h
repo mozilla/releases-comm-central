@@ -8,7 +8,6 @@
 
 #include "mozilla/Attributes.h"
 #include "nsISupports.h"
-#include "nsAbBaseCID.h"
 #include "nsAbDirProperty.h"
 #include "nsIAbDirSearchListener.h"
 #include "nsIMutableArray.h"
@@ -19,7 +18,7 @@
 class nsIAbManager;
 class nsIAbBooleanExpression;
 
-#define NS_ABOSXDIRECTORY_URI_PREFIX NS_ABOSXDIRECTORY_PREFIX "://"
+#define NS_ABOSXDIRECTORY_URI_PREFIX "moz-abosxdirectory://"
 
 #define NS_IABOSXDIRECTORY_IID                       \
   {                                                  \

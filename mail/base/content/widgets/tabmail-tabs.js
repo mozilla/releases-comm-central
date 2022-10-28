@@ -8,6 +8,10 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
+  const { XPCOMUtils } = ChromeUtils.importESModule(
+    "resource://gre/modules/XPCOMUtils.sys.mjs"
+  );
+
   /**
    * The MozTabs widget holds all the tabs for the main tab UI.
    * @extends {MozTabs}
@@ -448,12 +452,6 @@
 
       this._dragTime = 0;
 
-      this.mTabMinWidth = 100;
-
-      this.mTabMaxWidth = 250;
-
-      this.mTabClipWidth = 140;
-
       this._mAutoHide = false;
 
       this.mAllTabsButton = document.getElementById(
@@ -542,8 +540,6 @@
         document.documentElement.setAttribute("tabbarhidden", "true");
       }
 
-      this.arrowScrollbox.firstElementChild.minWidth = this.mTabMinWidth;
-      this.arrowScrollbox.firstElementChild.maxWidth = this.mTabMaxWidth;
       this._updateCloseButtons();
 
       Services.prefs.addObserver("mail.tabs.", this._prefObserver);
@@ -574,6 +570,27 @@
       this.addEventListener("TabSelect", event => {
         this._handleTabSelect();
       });
+      XPCOMUtils.defineLazyPreferenceGetter(
+        this,
+        "_tabMinWidthPref",
+        "mail.tabs.tabMinWidth",
+        null,
+        (pref, prevValue, newValue) => (this._tabMinWidth = newValue),
+        newValue => {
+          const LIMIT = 50;
+          return Math.max(newValue, LIMIT);
+        }
+      );
+      this._tabMinWidth = this._tabMinWidthPref;
+
+      XPCOMUtils.defineLazyPreferenceGetter(
+        this,
+        "_tabMaxWidthPref",
+        "mail.tabs.tabMaxWidth",
+        null,
+        (pref, prevValue, newValue) => (this._tabMaxWidth = newValue)
+      );
+      this._tabMaxWidth = this._tabMaxWidthPref;
     }
 
     get tabbox() {
@@ -809,6 +826,13 @@
       }
 
       return tabs.length;
+    }
+
+    set _tabMinWidth(val) {
+      this.arrowScrollbox.style.setProperty("--tab-min-width", `${val}px`);
+    }
+    set _tabMaxWidth(val) {
+      this.arrowScrollbox.style.setProperty("--tab-max-width", `${val}px`);
     }
 
     disconnectedCallback() {

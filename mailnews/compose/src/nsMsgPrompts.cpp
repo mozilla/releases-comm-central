@@ -7,7 +7,6 @@
 #include "nsMsgCopy.h"
 #include "nsIPrompt.h"
 #include "nsIWindowWatcher.h"
-#include "nsMsgCompCID.h"
 #include "nsComposeStrings.h"
 #include "nsIStringBundle.h"
 #include "nsServiceManagerUtils.h"

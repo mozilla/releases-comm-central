@@ -14,12 +14,10 @@
 #include "nsString.h"
 #include "nsCOMPtr.h"
 #include "nsISupports.h"
-#include "nsMsgCompCID.h"
 #include "nsIMsgDatabase.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgHdr.h"
 #include "MailNewsTypes.h"
-#include "nsMsgBaseCID.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgImapMailFolder.h"
@@ -120,7 +118,7 @@ STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LPSTR aLogin,
     // get default account
     nsresult rv;
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
     NS_ENSURE_SUCCESS(rv, MAPI_E_LOGIN_FAILURE);
 
     nsCOMPtr<nsIMsgAccount> account;
@@ -180,7 +178,7 @@ STDMETHODIMP CMapiImp::SendMail(unsigned long aSession,
   /** create nsIMsgCompFields obj and populate it **/
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgCompFields> pCompFields =
-      do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messengercompose/composefields;1", &rv);
   if (NS_FAILED(rv) || (!pCompFields)) return MAPI_E_INSUFFICIENT_MEMORY;
 
   if (aMessage)
@@ -216,7 +214,7 @@ STDMETHODIMP CMapiImp::SendMailW(unsigned long aSession,
   // Create nsIMsgCompFields obj and populate it.
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgCompFields> pCompFields =
-      do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messengercompose/composefields;1", &rv);
   if (NS_FAILED(rv) || !pCompFields) return MAPI_E_INSUFFICIENT_MEMORY;
 
   if (aMessage) rv = nsMapiHook::PopulateCompFieldsW(aMessage, pCompFields);
@@ -242,7 +240,7 @@ STDMETHODIMP CMapiImp::SendDocuments(unsigned long aSession, LPSTR aDelimChar,
           ("CMapiImp::SendDocument using flags %lu", aFlags));
   /** create nsIMsgCompFields obj and populate it **/
   nsCOMPtr<nsIMsgCompFields> pCompFields =
-      do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messengercompose/composefields;1", &rv);
   if (NS_FAILED(rv) || (!pCompFields)) return MAPI_E_INSUFFICIENT_MEMORY;
 
   if (aFilePaths) {
@@ -264,7 +262,7 @@ nsresult CMapiImp::GetDefaultInbox(nsIMsgFolder** inboxFolder) {
   // get default account
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgAccount> account;

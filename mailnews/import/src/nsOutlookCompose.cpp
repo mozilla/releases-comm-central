@@ -16,8 +16,6 @@
 #include "nsIOutputStream.h"
 #include "nsIInputStream.h"
 #include "nsMsgAttachmentData.h"
-#include "nsMsgBaseCID.h"
-#include "nsMsgCompCID.h"
 #include "nsIMsgCompFields.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgSend.h"
@@ -38,6 +36,12 @@
 #include "nsMsgMessageFlags.h"
 #include "nsMsgLocalFolderHdrs.h"
 
+#define NS_MSGCOMPFIELDS_CID                         \
+  { /* e64b0f51-0d7b-4e2f-8c60-3862ee8c174f */       \
+    0xe64b0f51, 0x0d7b, 0x4e2f, {                    \
+      0x8c, 0x60, 0x38, 0x62, 0xee, 0x8c, 0x17, 0x4f \
+    }                                                \
+  }
 static NS_DEFINE_CID(kMsgCompFieldsCID, NS_MSGCOMPFIELDS_CID);
 
 #ifdef IMPORT_DEBUG
@@ -207,7 +211,7 @@ nsresult nsOutlookCompose::CreateIdentity(void) {
 
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accMgr =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = accMgr->CreateIdentity(getter_AddRefs(m_pIdentity));
   nsString name;

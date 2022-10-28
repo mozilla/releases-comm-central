@@ -70,7 +70,6 @@ menulist::part(icon) {
 
 #addressingWidget {
   -moz-user-focus: none;
-  width: 0;
 }
 
 .dummy-row,
@@ -116,7 +115,7 @@ panel[type="autocomplete-richlistbox"]::part(content) {
 
 .person-icon {
   margin: 0 3px;
-  list-style-image: var(--icon-contact);
+  content: var(--icon-contact);
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;

@@ -4,11 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "msgCore.h"
-#include "nsMsgImapCID.h"
 #include "nsImapMoveCoalescer.h"
 #include "nsIImapService.h"
 #include "nsIMsgCopyService.h"
-#include "nsMsgBaseCID.h"
 #include "nsIMsgFolder.h"  // TO include biffState enum. Change to bool later...
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgHdr.h"
@@ -101,7 +99,7 @@ nsresult nsImapMoveCoalescer::PlaybackMoves(
 
     keysToAdd.Clear();
     nsCOMPtr<nsIMsgCopyService> copySvc =
-        do_GetService(NS_MSGCOPYSERVICE_CONTRACTID);
+        do_GetService("@mozilla.org/messenger/messagecopyservice;1");
     if (copySvc) {
       nsCOMPtr<nsIMsgCopyServiceListener> listener;
       if (m_doNewMailNotification) {
@@ -183,7 +181,7 @@ NS_IMETHODIMP nsMoveCoalescerCopyListener::OnStopCopy(nsresult aStatus) {
       m_destFolder->GetFlags(&folderFlags);
       if (!(folderFlags & (nsMsgFolderFlags::Junk | nsMsgFolderFlags::Trash))) {
         nsCOMPtr<nsIImapService> imapService =
-            do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+            do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
         NS_ENSURE_SUCCESS(rv, rv);
         nsCOMPtr<nsIURI> url;
         rv = imapService->SelectFolder(m_destFolder, m_coalescer, nullptr,

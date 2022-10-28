@@ -15,8 +15,6 @@
 #include "nsIMsgAccount.h"
 #include "nsIImportSettings.h"
 #include "nsOutlookSettings.h"
-#include "nsMsgBaseCID.h"
-#include "nsMsgCompCID.h"
 #include "nsISmtpService.h"
 #include "nsISmtpServer.h"
 #include "nsOutlookStringBundle.h"
@@ -178,7 +176,7 @@ bool OutlookSettings::DoImport(nsIMsgAccount** aAccount) {
   }
 
   nsCOMPtr<nsIMsgAccountManager> accMgr =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   if (NS_FAILED(rv)) {
     IMPORT_LOG0("*** Failed to create a account manager!\n");
     return false;
@@ -471,7 +469,7 @@ nsresult OutlookSettings::SetSmtpServer(nsIMsgAccountManager* aMgr,
                                         const nsString& aUser) {
   nsresult rv;
   nsCOMPtr<nsISmtpService> smtpService(
-      do_GetService(NS_SMTPSERVICE_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/messengercompose/smtp;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString nativeUserName;

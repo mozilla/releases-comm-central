@@ -41,9 +41,23 @@ body > dialog {
   background-color: unset;
 }
 
+.contentPane,
+dialog::part(content-box) {
+  -moz-box-flex: 1;
+}
+
 .contentPane.doScroll,
 dialog.doScroll::part(content-box) {
   overflow-y: auto;
+  contain: size;
+}
+
+dialog.doScroll {
+  margin-inline: -4px;
+}
+
+dialog.doScroll::part(content-box) {
+  padding-inline: 4px;
 }
 
 tabbox {

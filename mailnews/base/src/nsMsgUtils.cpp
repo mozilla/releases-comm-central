@@ -15,10 +15,6 @@
 #include "nsIImapUrl.h"
 #include "nsIMailboxUrl.h"
 #include "nsINntpUrl.h"
-#include "nsMsgNewsCID.h"
-#include "nsMsgLocalCID.h"
-#include "nsMsgBaseCID.h"
-#include "nsMsgImapCID.h"
 #include "nsMsgI18N.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsCharTraits.h"
@@ -27,7 +23,6 @@
 #include "nsNetCID.h"
 #include "nsIIOService.h"
 #include "nsIMimeConverter.h"
-#include "nsMsgMimeCID.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsISupportsPrimitives.h"
@@ -551,7 +546,8 @@ bool NS_MsgStripRE(const nsCString& subject, nsCString& modifiedSubject) {
   // We cannot strip "Re:" for RFC2047-encoded subject without modifying the
   // original.
   if (subject.Find("=?") != kNotFound) {
-    mimeConverter = do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
+    mimeConverter =
+        do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
     if (NS_SUCCEEDED(rv))
       rv = mimeConverter->DecodeMimeHeaderToUTF8(subject, nullptr, false, true,
                                                  decodedString);

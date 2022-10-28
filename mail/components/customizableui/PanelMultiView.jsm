@@ -631,17 +631,6 @@ var PanelMultiView = class extends AssociatedToNode {
    *        subview when a "title" attribute is not specified.
    */
   showSubView(viewIdOrNode, anchor) {
-    // When autoPosition is true, the popup window manager would attempt to re-position
-    // the panel as subviews are opened and it changes size. The resulting popoppositioned
-    // events triggers the binding's arrow position adjustment - and its reflow.
-    // This is not needed here, as we calculated and set maxHeight so it is known
-    // to fit the screen while open.
-    // We do need autoposition for cases where the panel's anchor moves, which can happen
-    // especially with the "page actions" button in the URL bar (see bug 1520607), so
-    // we only set this to false when showing a subview, and set it back to true after we
-    // activate the subview.
-    this._panel.autoPosition = false;
-
     this._showSubView(viewIdOrNode, anchor).catch(Cu.reportError);
   }
   async _showSubView(viewIdOrNode, anchor) {
@@ -856,9 +845,6 @@ var PanelMultiView = class extends AssociatedToNode {
         panelView.focusWhenActive = false;
       }
       panelView.dispatchCustomEvent("ViewShown");
-
-      // Re-enable panel autopositioning.
-      this._panel.autoPosition = true;
     }
   }
 
@@ -921,9 +907,9 @@ var PanelMultiView = class extends AssociatedToNode {
     this._viewContainer.style.height = prevPanelView.knownHeight + "px";
     this._viewContainer.style.width = prevPanelView.knownWidth + "px";
     // Lock the dimensions of the window that hosts the popup panel.
-    let rect = this._panel.getOuterScreenRect();
-    this._panel.setAttribute("width", rect.width);
-    this._panel.setAttribute("height", rect.height);
+    let rect = this._getBoundsWithoutFlushing(this._panel);
+    this._panel.style.width = rect.width + "px";
+    this._panel.style.height = rect.height + "px";
 
     let viewRect;
     if (reverse) {
@@ -1015,10 +1001,8 @@ var PanelMultiView = class extends AssociatedToNode {
     // kicks of the height animation.
     this._viewContainer.style.height = viewRect.height + "px";
     this._viewContainer.style.width = viewRect.width + "px";
-
-    // TODO - Removing the width here causes a double-wide panel flicker.
-    // this._panel.removeAttribute("width");
-    this._panel.removeAttribute("height");
+    this._panel.style.removeProperty("width");
+    this._panel.style.removeProperty("height");
 
     // We're setting the width property to prevent flickering during the
     // sliding animation with smaller views.
@@ -1099,8 +1083,8 @@ var PanelMultiView = class extends AssociatedToNode {
     this._transitionDetails = null;
 
     if (phase >= TRANSITION_PHASES.START) {
-      this._panel.removeAttribute("width");
-      this._panel.removeAttribute("height");
+      this._panel.style.removeProperty("width");
+      this._panel.style.removeProperty("height");
       this._viewContainer.style.removeProperty("height");
       this._viewContainer.style.removeProperty("width");
     }

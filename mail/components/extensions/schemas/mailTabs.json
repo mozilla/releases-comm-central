@@ -90,26 +90,26 @@
         "properties": {
           "text": {
             "type": "string",
-            "description": "String to match against the <var>recipients</var>, <var>author</var>, <var>subject</var>, or <var>body</var>."
+            "description": "String to match against the ``recipients``, ``author``, ``subject``, or ``body``."
           },
           "recipients": {
             "type": "boolean",
-            "description": "Shows messages where <var>text</var> matches the recipients.",
+            "description": "Shows messages where ``text`` matches the recipients.",
             "optional": true
           },
           "author": {
             "type": "boolean",
-            "description": "Shows messages where <var>text</var> matches the author.",
+            "description": "Shows messages where ``text`` matches the author.",
             "optional": true
           },
           "subject": {
             "type": "boolean",
-            "description": "Shows messages where <var>text</var> matches the subject.",
+            "description": "Shows messages where ``text`` matches the subject.",
             "optional": true
           },
           "body": {
             "type": "boolean",
-            "description": "Shows messages where <var>text</var> matches the message body.",
+            "description": "Shows messages where ``text`` matches the message body.",
             "optional": true
           }
         }
@@ -209,7 +209,7 @@
       {
         "name": "update",
         "type": "function",
-        "description": "Modifies the properties of a mail tab. Properties that are not specified in <var>updateProperties</var> are not modified.",
+        "description": "Modifies the properties of a mail tab. Properties that are not specified in ``updateProperties`` are not modified.",
         "async": true,
         "parameters": [
           {
@@ -230,7 +230,7 @@
               },
               "sortType": {
                 "type": "string",
-                "description": "Sorts the list of messages. <var>sortOrder</var> must also be given.",
+                "description": "Sorts the list of messages. ``sortOrder`` must also be given.",
                 "optional": true,
                 "enum": [
                   "none",
@@ -257,7 +257,7 @@
               },
               "sortOrder": {
                 "type": "string",
-                "description": "Sorts the list of messages. <var>sortType</var> must also be given.",
+                "description": "Sorts the list of messages. ``sortType`` must also be given.",
                 "optional": true,
                 "enum": [
                   "none",

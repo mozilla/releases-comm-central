@@ -19,8 +19,6 @@
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
-#include "nsMsgMimeCID.h"
-#include "nsMsgCompCID.h"
 #include "nsMsgCompose.h"
 #include "nsMsgMailNewsUrl.h"
 #include "mozilla/Components.h"
@@ -136,7 +134,8 @@ nsresult nsMsgQuote::QuoteMessage(
     if (i18nUrl) i18nUrl->SetAutodetectCharset(true);
   }
 
-  mQuoteListener = do_CreateInstance(NS_MSGQUOTELISTENER_CONTRACTID, &rv);
+  mQuoteListener =
+      do_CreateInstance("@mozilla.org/messengercompose/quotinglistener;1", &rv);
   if (NS_FAILED(rv)) return rv;
   mQuoteListener->SetMsgQuote(this);
 

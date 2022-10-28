@@ -23,6 +23,4 @@ XPIDL_SOURCES += [
 
 XPIDL_MODULE = "msglocal"
 
-EXPORTS += [
-    "nsMsgLocalCID.h",
-]
+EXPORTS += []

@@ -7,7 +7,6 @@
 #include "nsMsgBiffManager.h"
 #include "nsIMsgMailSession.h"
 #include "nsIMsgAccountManager.h"
-#include "nsMsgBaseCID.h"
 #include "nsIObserverService.h"
 #include "nsIWindowMediator.h"
 #include "nsIMsgMailSession.h"
@@ -52,7 +51,7 @@ nsresult nsStatusBarBiffManager::Init() {
   nsresult rv;
 
   nsCOMPtr<nsIMsgMailSession> mailSession =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   if (NS_SUCCEEDED(rv))
     mailSession->AddFolderListener(this, nsIFolderListener::intPropertyChanged);
 

@@ -7,7 +7,6 @@
 #include "nsMsgQuickSearchDBView.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgHdr.h"
-#include "nsMsgBaseCID.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsImapCore.h"
 #include "nsIMsgHdr.h"

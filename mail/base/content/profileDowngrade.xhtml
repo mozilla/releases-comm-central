@@ -13,8 +13,11 @@
 %profileDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        title="&window.title;" onload="init()" style="&window.style;">
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&window.title;"
+        onload="init()"
+        style="&window.style;">
 <dialog buttonlabelextra1="&window.create;"
 #ifdef XP_WIN
         buttonlabelaccept="&window.quit-win;"
@@ -28,7 +31,9 @@
   <script src="chrome://global/content/customElements.js"/>
 
   <hbox flex="1" align="start">
-    <image id="info" role="presentation"/>
+    <html:img src="chrome://messenger/skin/icons/new/activity/info.svg"
+              alt=""
+              role="presentation" />
     <vbox flex="1">
       <description id="nosync">&window.nosync2;</description>
       <hbox>

@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#subscriptionsDialog {
-  width: 60em;
-  height: 40em;
+#feedSubscriptions {
+  min-width: 60em;
+  min-height: 40em;
 }
 
 #rssSubscriptionsList > treechildren::-moz-tree-image {
@@ -35,7 +35,7 @@
 }
 
 #autotagPrefix {
-  flex: 0;
+  max-width: 15em;
 }
 
 #statusContainerBox {

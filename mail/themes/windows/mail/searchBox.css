@@ -31,7 +31,6 @@
   padding-block: 0;
   padding-inline: 4px 2px;
   margin-block: 2px;
-  width: 25em;
 }
 
 .autocomplete-richlistitem[type^="gloda-"] {

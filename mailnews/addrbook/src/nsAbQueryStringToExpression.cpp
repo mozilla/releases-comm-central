@@ -11,7 +11,6 @@
 #include "nsString.h"
 #include "nsITextToSubURI.h"
 #include "nsAbBooleanExpression.h"
-#include "nsAbBaseCID.h"
 #include "plstr.h"
 
 /**
@@ -209,7 +208,7 @@ nsresult nsAbQueryStringToExpression::CreateBooleanExpression(
   nsresult rv;
 
   nsCOMPtr<nsIAbBooleanExpression> expr =
-      do_CreateInstance(NS_BOOLEANEXPRESSION_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/boolean-expression/n-peer;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = expr->SetOperation(op);
@@ -253,8 +252,8 @@ nsresult nsAbQueryStringToExpression::CreateBooleanConditionString(
 
   nsresult rv;
 
-  nsCOMPtr<nsIAbBooleanConditionString> cs =
-      do_CreateInstance(NS_BOOLEANCONDITIONSTRING_CONTRACTID, &rv);
+  nsCOMPtr<nsIAbBooleanConditionString> cs = do_CreateInstance(
+      "@mozilla.org/boolean-expression/condition-string;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = cs->SetCondition(c);

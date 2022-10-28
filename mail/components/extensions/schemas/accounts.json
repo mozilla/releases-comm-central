@@ -36,7 +36,7 @@
           },
           "type": {
             "type": "string",
-            "description": "What sort of account this is, e.g. ``imap``, ``nntp``, or ``pop3``."
+            "description": "What sort of account this is, e.g. <value>imap</value>, <value>nntp</value>, or <value>pop3</value>."
           },
           "folders": {
             "type": "array",
@@ -65,7 +65,7 @@
         "parameters": [
           {
             "name": "includeFolders",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should included their account's folders. Defaults to ``true``.",
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should included their account's folders. Defaults to <value>true</value>.",
             "optional": true,
             "default": true,
             "type": "boolean"
@@ -88,7 +88,7 @@
       {
         "name": "get",
         "type": "function",
-        "description": "Returns details of the requested account, or null if it doesn't exist.",
+        "description": "Returns details of the requested account, or <value>null</value> if it doesn't exist.",
         "async": "callback",
         "parameters": [
           {
@@ -97,7 +97,7 @@
           },
           {
             "name": "includeFolders",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to ``true``.",
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to <value>true</value>.",
             "optional": true,
             "default": true,
             "type": "boolean"
@@ -118,12 +118,12 @@
       {
         "name": "getDefault",
         "type": "function",
-        "description": "Returns the default account, or null if it is not defined.",
+        "description": "Returns the default account, or <value>null</value> if it is not defined.",
         "async": "callback",
         "parameters": [
           {
             "name": "includeFolders",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to ``true``.",
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to <value>true</value>.",
             "optional": true,
             "default": true,
             "type": "boolean"
@@ -161,7 +161,7 @@
       {
         "name": "getDefaultIdentity",
         "type": "function",
-        "description": "Returns the default identity for an account, or null if it is not defined.",
+        "description": "Returns the default identity for an account, or <value>null</value> if it is not defined.",
         "async": "callback",
         "deprecated": "This will be removed. Use :ref:`identities.getDefault` instead.",
         "parameters": [

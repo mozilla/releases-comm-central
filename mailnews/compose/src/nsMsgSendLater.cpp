@@ -9,8 +9,6 @@
 #include "nsIPrefBranch.h"
 #include "nsIMsgMessageService.h"
 #include "nsIMsgAccountManager.h"
-#include "nsMsgBaseCID.h"
-#include "nsMsgCompCID.h"
 #include "nsMsgCompUtils.h"
 #include "nsMsgUtils.h"
 #include "nsMailHeaders.h"
@@ -21,7 +19,6 @@
 #include "prlog.h"
 #include "prmem.h"
 #include "nsIMimeConverter.h"
-#include "nsMsgMimeCID.h"
 #include "nsComposeStrings.h"
 #include "nsIObserverService.h"
 #include "nsIMsgLocalMailFolder.h"
@@ -470,10 +467,11 @@ nsresult nsMsgSendLater::CompleteMailFileSend() {
   if (!created) return NS_ERROR_FAILURE;
 
   nsCOMPtr<nsIMsgCompFields> compFields =
-      do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messengercompose/composefields;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgSend> pMsgSend = do_CreateInstance(NS_MSGSEND_CONTRACTID, &rv);
+  nsCOMPtr<nsIMsgSend> pMsgSend =
+      do_CreateInstance("@mozilla.org/messengercompose/send;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Since we have already parsed all of the headers, we are simply going to
@@ -618,7 +616,7 @@ nsMsgSendLater::HasUnsentMessages(nsIMsgIdentity* aIdentity, bool* aResult) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsTArray<RefPtr<nsIMsgAccount>> accounts;
@@ -1254,7 +1252,7 @@ nsresult nsMsgSendLater::GetIdentityFromKey(const char* aKey,
 
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (aKey) {

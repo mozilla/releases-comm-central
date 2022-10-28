@@ -13,7 +13,6 @@
 #include "mozilla/MemoryReporting.h"
 #include "mozilla/RefCountType.h"
 #include "mozilla/RefPtr.h"
-#include "nsMsgBaseCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgFolder.h"
@@ -212,7 +211,7 @@ nsresult nsMsgCopy::DoCopy(nsIFile* aDiskFile, nsIMsgFolder* dstFolder,
     if (aIsDraft) {
       nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(dstFolder);
       nsCOMPtr<nsIMsgAccountManager> accountManager =
-          do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
       if (NS_FAILED(rv)) return rv;
       bool shutdownInProgress = false;
       rv = accountManager->GetShutdownInProgress(&shutdownInProgress);
@@ -225,7 +224,7 @@ nsresult nsMsgCopy::DoCopy(nsIFile* aDiskFile, nsIMsgFolder* dstFolder,
       }
     }
     nsCOMPtr<nsIMsgCopyService> copyService =
-        do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = copyService->CopyFileMessage(aDiskFile, dstFolder, aMsgToReplace,
@@ -380,7 +379,7 @@ nsresult LocateMessageFolder(nsIMsgIdentity* userIdentity,
 
     // get the account manager
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // If any folder will do, go look for one.

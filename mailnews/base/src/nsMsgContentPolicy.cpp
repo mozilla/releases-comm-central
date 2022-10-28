@@ -17,7 +17,6 @@
 #include "nsIEncryptedSMIMEURIsSrvc.h"
 #include "nsNetUtil.h"
 #include "nsIMsgComposeService.h"
-#include "nsMsgCompCID.h"
 #include "nsIDocShellTreeItem.h"
 #include "nsIWebNavigation.h"
 #include "nsContentPolicyUtils.h"
@@ -792,7 +791,7 @@ nsMsgContentPolicy::GetMsgComposeForBrowsingContext(
   NS_ENSURE_SUCCESS(rv, nullptr);
 
   nsCOMPtr<nsIMsgComposeService> composeService(
-      do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/messengercompose;1", &rv));
   NS_ENSURE_SUCCESS(rv, nullptr);
 
   nsCOMPtr<nsIMsgCompose> msgCompose;

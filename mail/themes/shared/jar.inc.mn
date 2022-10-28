@@ -114,8 +114,10 @@
   skin/classic/messenger/aboutImport.css                      (../shared/mail/aboutImport.css)
   skin/classic/messenger/aboutPolicies.css                    (../shared/mail/aboutPolicies.css)
   skin/classic/messenger/aboutSupport.css                     (../shared/mail/aboutSupport.css)
+  skin/classic/messenger/accountHub.css                       (../shared/mail/accountHub.css)
   skin/classic/messenger/accountSetup.css                     (../shared/mail/accountSetup.css)
   skin/classic/messenger/accountWizard.css                    (../shared/mail/accountWizard.css)
+  skin/classic/messenger/autocomplete.css                     (../shared/mail/autocomplete.css)
   skin/classic/messenger/cloudfileSelectDialog.css            (../shared/mail/cloudfileSelectDialog.css)
   skin/classic/messenger/extensionPopup.css                   (../shared/mail/extensionPopup.css)
   skin/classic/messenger/folderProps.css                      (../shared/mail/folderProps.css)
@@ -466,6 +468,7 @@
   skin/classic/messenger/avatars.css                          (../shared/mail/avatars.css)
   skin/classic/messenger/icons.css                            (../shared/mail/icons.css)
   skin/classic/messenger/colors.css                           (../shared/mail/colors.css)
+  skin/classic/messenger/folderColors.css                     (../shared/mail/folderColors.css)
 
   skin/classic/messenger/icons/new/compact/account-settings.svg (../shared/mail/icons/new/compact/account-settings.svg)
   skin/classic/messenger/icons/new/compact/add.svg            (../shared/mail/icons/new/compact/add.svg)

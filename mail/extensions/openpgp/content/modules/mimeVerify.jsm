@@ -548,8 +548,7 @@ MimeVerify.prototype = {
       // printing, replying, etc)
 
       this.backgroundJob =
-        this.uri.spec.search(/[&?]header=(print|quotebody|enigmailConvert)/) >=
-        0;
+        this.uri.spec.search(/[&?]header=(print|quotebody)/) >= 0;
 
       try {
         if (!Services.prefs.getBoolPref("temp.openpgp.autoDecrypt")) {

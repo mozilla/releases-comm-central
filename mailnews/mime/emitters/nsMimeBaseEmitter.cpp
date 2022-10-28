@@ -16,7 +16,6 @@
 #include "msgCore.h"
 #include "nsEmitterUtils.h"
 #include "nsIMimeStreamConverter.h"
-#include "nsMsgMimeCID.h"
 #include "mozilla/Logging.h"
 #include "prprf.h"
 #include "nsIMimeHeaders.h"
@@ -72,7 +71,7 @@ nsMimeBaseEmitter::nsMimeBaseEmitter() {
   //  mBody = "";
 
   // This is needed for conversion of I18N Strings...
-  mUnicodeConverter = do_GetService(NS_MIME_CONVERTER_CONTRACTID);
+  mUnicodeConverter = do_GetService("@mozilla.org/messenger/mimeconverter;1");
 
   // Do prefs last since we can live without this if it fails...
   nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));

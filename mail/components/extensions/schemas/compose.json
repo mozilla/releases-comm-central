@@ -25,7 +25,7 @@
         "choices": [
           {
             "type": "string",
-            "description": "A name and email address in the format \"Name <email@example.com>\", or just an email address."
+            "description": "A name and email address in the format <value>Name <email@example.com></value>, or just an email address."
           },
           {
             "type": "object",
@@ -105,7 +105,7 @@
           "overrideDefaultFcc": {
             "type": "boolean",
             "optional": true,
-            "description": "Indicates whether the default fcc setting (defined by the used identity) is being overridden for this message. Setting ``false`` will clear the override. Setting ``true`` will throw an ``ExtensionError``, if ``overrideDefaultFccFolder`` is not set as well."
+            "description": "Indicates whether the default fcc setting (defined by the used identity) is being overridden for this message. Setting <value>false</value> will clear the override. Setting <value>true</value> will throw an <em>ExtensionError</em>, if ``overrideDefaultFccFolder`` is not set as well."
           },
           "overrideDefaultFccFolder": {
             "choices": [
@@ -120,7 +120,7 @@
               }
             ],
             "optional": true,
-            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a :ref:`folders.MailFolder` specifying the folder for the copy of the sent message, or ``\"\"`` to not save a copy at all."
+            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a :ref:`folders.MailFolder` specifying the folder for the copy of the sent message, or an empty string to not save a copy at all."
           },
           "additionalFccFolder": {
             "choices": [
@@ -134,7 +134,7 @@
                 ]
               }
             ],
-            "description": "An additional fcc folder which can be selected while composing the message, ``\"\"`` if not used.",
+            "description": "An additional fcc folder which can be selected while composing the message, an empty string if not used.",
             "optional": true
           },
           "replyTo": {
@@ -162,7 +162,7 @@
             "optional": true
           },
           "relatedMessageId": {
-            "description": "The id of the original message (in case of draft, template, forward or reply). Read-only. Is <code>null</code> in all other cases or if the original message was opened from file.",
+            "description": "The id of the original message (in case of draft, template, forward or reply). Read-only. Is <value>null</value> in all other cases or if the original message was opened from file.",
             "type": "integer",
             "optional": true
           },
@@ -205,7 +205,7 @@
               "html",
               "both"
             ],
-            "description": "Defines the mime format of the sent message (ignored on plain text messages). Defaults to ``auto``, which will send html messages as plain text, if they do not include any formatting, and as ``both`` otherwise (a multipart/mixed message).",
+            "description": "Defines the mime format of the sent message (ignored on plain text messages). Defaults to <value>auto</value>, which will send html messages as plain text, if they do not include any formatting, and as <value>both</value> otherwise (a multipart/mixed message).",
             "optional": true
           },
           "customHeaders": {
@@ -213,7 +213,7 @@
             "items": {
               "$ref": "CustomHeader"
             },
-            "description": "Array of custom headers. Headers will be returned in ``Http-Header-Case`` (a.k.a. ``Train-Case``). Set an empty array to clear all custom headers.",
+            "description": "Array of custom headers. Headers will be returned in <em>Http-Header-Case</em> (a.k.a. <em>Train-Case</em>). Set an empty array to clear all custom headers.",
             "optional": true
           },
           "priority": {
@@ -231,7 +231,7 @@
           "returnReceipt": {
             "type": "boolean",
             "optional": true,
-            "description": "Add the ``Disposition-Notification-To`` header to the message to requests the recipients email client to send a reply once the message has been received. Recipient server may strip the header and the recipient might ignore the request."
+            "description": "Add the <em>Disposition-Notification-To</em> header to the message to requests the recipients email client to send a reply once the message has been received. Recipient server may strip the header and the recipient might ignore the request."
           },
           "deliveryStatusNotification": {
             "type": "boolean",
@@ -307,7 +307,7 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "Name of a custom header, must have a ``X-`` prefix.",
+            "description": "Name of a custom header, must have a <value>X-</value> prefix.",
             "pattern": "^X-.*$"
           },
           "value": {
@@ -321,14 +321,14 @@
         "additionalProperties": {
           "type": "boolean"
         },
-        "description": "Object with language identifiers of all installed dictionaries as keys (for example ``en-US``) and a boolean value, indicating whether that dictionary is enabled for spellchecking or not."
+        "description": "A <em>dictionary object</em> with entries for all installed dictionaries, having a language identifier as <em>key</em> (for example <value>en-US</value>) and a boolean expression as <em>value</em>, indicating whether that dictionary is enabled for spellchecking or not."
       }
     ],
     "events": [
       {
         "name": "onBeforeSend",
         "type": "function",
-        "description": "Fired when a message is about to be sent from the compose window. This is a user input event handler. For asynchronous listeners some `restrictions <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/User_actions>`__ apply.",
+        "description": "Fired when a message is about to be sent from the compose window. This is a user input event handler. For asynchronous listeners some `restrictions <|link-user-input-restrictions|>`__ apply.",
         "permissions": [
           "compose"
         ],
@@ -690,7 +690,7 @@
         "name": "getActiveDictionaries",
         "type": "function",
         "async": "callback",
-        "description": "Returns a :ref:`ComposeDictionaries` object, listing all installed dictionaries, including the information whether they are currently enabled or not.",
+        "description": "Returns a :ref:`compose.ComposeDictionaries` object, listing all installed dictionaries, including the information whether they are currently enabled or not.",
         "permissions": [
           "compose"
         ],
@@ -766,7 +766,7 @@
       {
         "name": "getAttachmentFile",
         "type": "function",
-        "description": "Gets the content of a :ref:`compose.ComposeAttachment` as a DOM <code>File</code> object.",
+        "description": "Gets the content of a :ref:`compose.ComposeAttachment` as a |File| object.",
         "async": "callback",
         "parameters": [
           {
@@ -827,7 +827,7 @@
       {
         "name": "updateAttachment",
         "type": "function",
-        "description": "Updates the name and/or the content of an attachment in the message being composed in the specified tab. If the specified attachment is a cloud file attachment and the associated provider failed to update the attachment, the function will throw an ``ExtensionError``.",
+        "description": "Updates the name and/or the content of an attachment in the message being composed in the specified tab. If the specified attachment is a cloud file attachment and the associated provider failed to update the attachment, the function will throw an <em>ExtensionError</em>.",
         "permissions": [
           "compose"
         ],
@@ -882,7 +882,7 @@
           "compose.send"
         ],
         "type": "function",
-        "description": "Sends the message currently being composed. If the send mode is not specified or set to ``default``, the message will be send directly if the user is online and placed in the users outbox otherwise. The returned Promise fulfills once the message has been successfully sent or placed in the user's outbox. Throws when the send process has been aborted by the user, by an :ref:`onBeforeSend` event or if there has been an error while sending the message to the outgoing mail server.",
+        "description": "Sends the message currently being composed. If the send mode is not specified or set to <value>default</value>, the message will be send directly if the user is online and placed in the users outbox otherwise. The returned Promise fulfills once the message has been successfully sent or placed in the user's outbox. Throws when the send process has been aborted by the user, by an :ref:`compose.onBeforeSend` event or if there has been an error while sending the message to the outgoing mail server.",
         "async": "callback",
         "parameters": [
           {

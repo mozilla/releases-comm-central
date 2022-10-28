@@ -15,29 +15,27 @@ var gConnecting = {};
  * Constructor for the OAuth2 object.
  *
  * @constructor
- * @param {string} authorizationEndpoint - The authorization endpoint as
- *   defined by RFC 6749 Section 3.1.
- * @param {string} tokenEndpoint - The token endpoint as defined by
- *   RFC 6749 Section 3.2.
  * @param {?string} scope - The scope as specified by RFC 6749 Section 3.3.
  *   Will not be included in the requests if falsy.
- * @param {string} clientId - The client_id as specified by RFC 6749 Section
- *   2.3.1.
- * @param {string} [clientSecret=null] - The client_secret as specified in
- *    RFC 6749 section 2.3.1. Will not be included in the requests if null.
+ * @param {string} issuerDetails.authorizationEndpoint - The authorization
+ *   endpoint as defined by RFC 6749 Section 3.1.
+ * @param {string} issuerDetails.clientId - The client_id as specified by RFC
+ *   6749 Section 2.3.1.
+ * @param {string} issuerDetails.clientSecret - The client_secret as specified
+ *   in RFC 6749 section 2.3.1. Will not be included in the requests if null.
+ * @param {string} issuerDetails.redirectionEndpoint - The redirect_uri as
+ *   specified by RFC 6749 section 3.1.2.
+ * @param {string} issuerDetails.tokenEndpoint - The token endpoint as defined
+ *   by RFC 6749 Section 3.2.
  */
-function OAuth2(
-  authorizationEndpoint,
-  tokenEndpoint,
-  scope,
-  clientId,
-  clientSecret = null
-) {
-  this.authorizationEndpoint = authorizationEndpoint;
-  this.tokenEndpoint = tokenEndpoint;
+function OAuth2(scope, issuerDetails) {
   this.scope = scope;
-  this.clientId = clientId;
-  this.consumerSecret = clientSecret;
+  this.authorizationEndpoint = issuerDetails.authorizationEndpoint;
+  this.clientId = issuerDetails.clientId;
+  this.consumerSecret = issuerDetails.clientSecret || null;
+  this.redirectionEndpoint =
+    issuerDetails.redirectionEndpoint || "http://localhost";
+  this.tokenEndpoint = issuerDetails.tokenEndpoint;
 
   this.extraAuthParams = [];
 
@@ -51,7 +49,6 @@ function OAuth2(
 OAuth2.prototype = {
   clientId: null,
   consumerSecret: null,
-  redirectionEndpoint: "http://localhost",
   requestWindowURI: "chrome://messenger/content/browserRequest.xhtml",
   requestWindowFeatures: "chrome,private,centerscreen,width=980,height=750",
   requestWindowTitle: "",
@@ -208,9 +205,9 @@ OAuth2.prototype = {
   // @see RFC 6749 section 4.1.2: Authorization Response
   onAuthorizationReceived(aURL) {
     this.log.info("OAuth2 authorization received: url=" + aURL);
-    let params = new URLSearchParams(aURL.split("?", 2)[1]);
-    if (params.has("code")) {
-      this.requestAccessToken(params.get("code"), false);
+    const url = new URL(aURL);
+    if (url.searchParams.has("code")) {
+      this.requestAccessToken(url.searchParams.get("code"), false);
     } else {
       this.onAuthorizationFailed(null, aURL);
     }

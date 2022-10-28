@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsAbBaseCID.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsNetUtil.h"
 #include "nsVCardAddress.h"
@@ -70,7 +69,7 @@ nsresult nsVCardAddress::ImportAddresses(bool* pAbort, const char16_t* pName,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgVCardService> vCardService =
-      do_GetService(NS_MSGVCARDSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/addressbook/msgvcardservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool more = true;

@@ -11,20 +11,22 @@
 #include "netCore.h"
 #include "nsMsgOfflineManager.h"
 #include "nsIServiceManager.h"
-#include "nsMsgBaseCID.h"
 #include "nsIImapService.h"
-#include "nsMsgImapCID.h"
 #include "nsIMsgSendLater.h"
 #include "nsIMsgAccountManager.h"
-#include "nsMsgCompCID.h"
 #include "nsIIOService.h"
 #include "nsNetCID.h"
-#include "nsMsgNewsCID.h"
 #include "nsINntpService.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsServiceManagerUtils.h"
 #include "mozilla/Components.h"
 
+#define NS_MSGSENDLATER_CID                         \
+  { /* E15C83F1-1CF4-11d3-8EF0-00A024A7D144 */      \
+    0xe15c83f1, 0x1cf4, 0x11d3, {                   \
+      0x8e, 0xf0, 0x0, 0xa0, 0x24, 0xa7, 0xd1, 0x44 \
+    }                                               \
+  }
 static NS_DEFINE_CID(kMsgSendLaterCID, NS_MSGSENDLATER_CID);
 
 NS_IMPL_ISUPPORTS(nsMsgOfflineManager, nsIMsgOfflineManager,
@@ -145,7 +147,7 @@ nsresult nsMsgOfflineManager::AdvanceToNextState(nsresult exitStatus) {
 nsresult nsMsgOfflineManager::SynchronizeOfflineImapChanges() {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return imapService->PlaybackAllOfflineOperations(
       m_window, this, getter_AddRefs(mOfflineImapSync));
@@ -156,7 +158,7 @@ nsresult nsMsgOfflineManager::SendUnsentMessages() {
   nsCOMPtr<nsIMsgSendLater> pMsgSendLater(do_GetService(kMsgSendLaterCID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   // now we have to iterate over the identities, finding the *unique* unsent
   // messages folder for each one, determine if they have unsent messages, and
@@ -225,7 +227,7 @@ nsresult nsMsgOfflineManager::DownloadOfflineNewsgroups() {
   nsresult rv;
   ShowStatus("downloadingNewsgroups");
   nsCOMPtr<nsINntpService> nntpService(
-      do_GetService(NS_NNTPSERVICE_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/messenger/nntpservice;1", &rv));
   if (NS_SUCCEEDED(rv) && nntpService)
     rv = nntpService->DownloadNewsgroupsForOffline(m_window, this);
 
@@ -237,7 +239,7 @@ nsresult nsMsgOfflineManager::DownloadMail() {
   nsresult rv = NS_OK;
   ShowStatus("downloadingMail");
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return imapService->DownloadAllOffineImapFolders(m_window, this);
   // ### we should do get new mail on pop servers, and download imap messages

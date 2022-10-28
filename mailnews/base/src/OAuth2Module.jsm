@@ -43,12 +43,6 @@ OAuth2Module.prototype = {
       aDirectory.getStringValue("carddav.username", "") || aDirectory.UID,
       aHostname
     );
-    if (aHostname == "mochi.test") {
-      // I don't know why, but tests refuse to work with a plain HTTP endpoint
-      // (the request is redirected to HTTPS, which we're not listening to).
-      // Just use an HTTPS endpoint.
-      this._oauth.redirectionEndpoint = "https://localhost";
-    }
   },
   _initPrefs(root, aUsername, aHostname) {
     // Load all of the parameters from preferences.
@@ -72,13 +66,8 @@ OAuth2Module.prototype = {
     // Find the app key we need for the OAuth2 string. Eventually, this should
     // be using dynamic client registration, but there are no current
     // implementations that we can test this with.
-    let [
-      clientId,
-      clientSecret,
-      authorizationEndpoint,
-      tokenEndpoint,
-    ] = OAuth2Providers.getIssuerDetails(issuer);
-    if (!clientId) {
+    const issuerDetails = OAuth2Providers.getIssuerDetails(issuer);
+    if (!issuerDetails.clientId) {
       return false;
     }
 
@@ -90,13 +79,7 @@ OAuth2Module.prototype = {
     this._scope = scope;
 
     // Define the OAuth property and store it.
-    this._oauth = new OAuth2(
-      authorizationEndpoint,
-      tokenEndpoint,
-      scope,
-      clientId,
-      clientSecret
-    );
+    this._oauth = new OAuth2(scope, issuerDetails);
 
     // Try hinting the username...
     this._oauth.extraAuthParams = [["login_hint", aUsername]];

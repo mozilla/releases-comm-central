@@ -6,7 +6,6 @@
 #include "nsAutoSyncState.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsIMsgHdr.h"
-#include "nsMsgImapCID.h"
 #include "nsIObserverService.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgIncomingServer.h"
@@ -140,7 +139,7 @@ NS_IMETHODIMP nsDefaultAutoSyncFolderStrategy::Sort(
   bool folderAOpen = false;
   bool folderBOpen = false;
   nsCOMPtr<nsIMsgMailSession> session =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   if (NS_SUCCEEDED(rv) && session) {
     session->IsFolderOpenInWindow(aFolderA, &folderAOpen);
     session->IsFolderOpenInWindow(aFolderB, &folderBOpen);
@@ -650,7 +649,7 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
   // iterate through each imap account and update offline folders automatically
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsTArray<RefPtr<nsIMsgAccount>> accounts;

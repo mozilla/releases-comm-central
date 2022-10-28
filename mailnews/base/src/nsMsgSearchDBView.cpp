@@ -9,7 +9,6 @@
 #include "nsIMsgThread.h"
 #include "nsQuickSort.h"
 #include "nsIDBFolderInfo.h"
-#include "nsMsgBaseCID.h"
 #include "nsIMsgCopyService.h"
 #include "nsMsgUtils.h"
 #include "nsTreeColumns.h"
@@ -982,7 +981,7 @@ nsresult nsMsgSearchDBView::ProcessRequestsInOneFolder(nsIMsgWindow* window) {
                  "The source folder and the destination folder are the same");
     if (NS_SUCCEEDED(rv) && curFolder != mDestFolder) {
       nsCOMPtr<nsIMsgCopyService> copyService =
-          do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
+          do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
       if (NS_SUCCEEDED(rv)) {
         if (mCommand == nsMsgViewCommandType::moveMessages)
           copyService->CopyMessages(curFolder, msgs, mDestFolder,

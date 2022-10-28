@@ -671,7 +671,10 @@ function enableRNPLibJS() {
         if (RNPLib.rnp_key_get_subkey_at(handle, i, sub_handle.address())) {
           throw new Error("rnp_key_get_subkey_at failed");
         }
-        if (RNPLib.isSecretKeyMaterialAvailable(sub_handle)) {
+        if (
+          RNPLib.getSecretAvailableFromHandle(sub_handle) &&
+          RNPLib.isSecretKeyMaterialAvailable(sub_handle)
+        ) {
           if (
             RNPLib.rnp_key_protect(sub_handle, newPass, null, null, null, 0)
           ) {

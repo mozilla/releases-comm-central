@@ -1873,14 +1873,14 @@
           getOptimalMinimumHeight(label) +
           getSummarizedStyleValues(label.parentNode, ["padding-bottom", "padding-top"]) +
           getSummarizedStyleValues(this, ["border-bottom-width", "border-top-width"]);
-        this.setAttribute("minheight", minHeight);
-        this.setAttribute("minwidth", "1");
+        this.style.minHeight = minHeight + "px";
+        this.style.minWidth = "1px";
         return minHeight;
       }
       label.style.minWidth = "2em";
       let minWidth = getOptimalMinimumWidth(this.eventNameLabel);
-      this.setAttribute("minwidth", minWidth);
-      this.setAttribute("minheight", "1");
+      this.style.minWidth = minWidth + "px";
+      this.style.minHeight = "1px";
       return minWidth;
     }
 

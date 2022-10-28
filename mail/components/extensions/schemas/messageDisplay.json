@@ -43,7 +43,7 @@
       {
         "name": "getDisplayedMessage",
         "type": "function",
-        "description": "Gets the currently displayed message in the specified tab (even if the tab itself is currently not visible). It returns null if no messages are displayed, or if multiple messages are displayed.",
+        "description": "Gets the currently displayed message in the specified tab (even if the tab itself is currently not visible). It returns <value>null</value> if no messages are displayed, or if multiple messages are displayed.",
         "async": "callback",
         "parameters": [
           {
@@ -111,12 +111,12 @@
                 "type": "integer",
                 "optional": true,
                 "minimum": 1,
-                "description": "The id of a message to be opened. Will throw an ``ExtensionError``, if the provided ``messageId`` is unknown or invalid."
+                "description": "The id of a message to be opened. Will throw an <em>ExtensionError</em>, if the provided ``messageId`` is unknown or invalid."
               },
               "headerMessageId": {
                 "type": "string",
                 "optional": true,
-                "description": "The headerMessageId of a message to be opened. Will throw an ``ExtensionError``, if the provided ``headerMessageId`` is unknown or invalid. Not supported for external messages."
+                "description": "The headerMessageId of a message to be opened. Will throw an <em>ExtensionError</em>, if the provided ``headerMessageId`` is unknown or invalid. Not supported for external messages."
               },
               "location": {
                 "type": "string",

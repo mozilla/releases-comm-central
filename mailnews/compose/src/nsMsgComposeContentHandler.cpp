@@ -5,8 +5,6 @@
 
 #include "nsMsgComposeContentHandler.h"
 #include "nsMsgComposeService.h"
-#include "nsMsgBaseCID.h"
-#include "nsMsgCompCID.h"
 #include "nsIChannel.h"
 #include "nsIURI.h"
 #include "plstr.h"
@@ -23,6 +21,12 @@
 #include "nsIMsgIncomingServer.h"
 #include "nsIMsgAccountManager.h"
 
+#define NS_MSGCOMPOSESERVICE_CID                    \
+  { /* 588595FE-1ADA-11d3-A715-0060B0EB39B5 */      \
+    0x588595fe, 0x1ada, 0x11d3, {                   \
+      0xa7, 0x15, 0x0, 0x60, 0xb0, 0xeb, 0x39, 0xb5 \
+    }                                               \
+  }
 static NS_DEFINE_CID(kMsgComposeServiceCID, NS_MSGCOMPOSESERVICE_CID);
 
 nsMsgComposeContentHandler::nsMsgComposeContentHandler() {}
@@ -72,7 +76,7 @@ nsresult nsMsgComposeContentHandler::GetBestIdentity(
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = accountManager->GetFirstIdentityForServer(server, aIdentity);

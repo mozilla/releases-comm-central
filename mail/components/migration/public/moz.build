@@ -9,6 +9,4 @@ XPIDL_SOURCES += [
 
 XPIDL_MODULE = "mailprofilemigration"
 
-EXPORTS += [
-    "nsMailMigrationCID.h",
-]
+EXPORTS += []

@@ -19,13 +19,11 @@
 #include "nsImapCore.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgLocalMailFolder.h"
-#include "nsMsgMimeCID.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsIMsgSearchSession.h"
 #include "nsIMsgCopyService.h"
-#include "nsMsgBaseCID.h"
 #include "nsISpamSettings.h"
 #include "nsIMsgAccountManager.h"
 #include "nsTreeColumns.h"
@@ -34,7 +32,6 @@
 #include "nsMsgMessageFlags.h"
 #include "nsIPrompt.h"
 #include "nsIWindowWatcher.h"
-#include "nsMsgDBCID.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
@@ -257,7 +254,7 @@ nsresult nsMsgDBView::AppendKeywordProperties(const nsACString& keywords,
   // Get the top most keyword's CSS selector and append that as a property.
   nsresult rv;
   if (!mTagService) {
-    mTagService = do_GetService(NS_MSGTAGSERVICE_CONTRACTID, &rv);
+    mTagService = do_GetService("@mozilla.org/messenger/tagservice;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -415,7 +412,7 @@ nsresult nsMsgDBView::FetchAccount(nsIMsgDBHdr* aHdr, nsAString& aAccount) {
 
   // Cache the account manager?
   nsCOMPtr<nsIMsgAccountManager> accountManager(
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv));
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv));
 
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgAccount> account;
@@ -749,7 +746,7 @@ nsresult nsMsgDBView::FetchKeywords(nsIMsgDBHdr* aHdr,
   NS_ENSURE_ARG_POINTER(aHdr);
   nsresult rv = NS_OK;
   if (!mTagService) {
-    mTagService = do_GetService(NS_MSGTAGSERVICE_CONTRACTID, &rv);
+    mTagService = do_GetService("@mozilla.org/messenger/tagservice;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
   }
   nsMsgLabelValue label = 0;
@@ -815,7 +812,7 @@ nsresult nsMsgDBView::FetchTags(nsIMsgDBHdr* aHdr, nsAString& aTagString) {
   NS_ENSURE_ARG_POINTER(aHdr);
   nsresult rv = NS_OK;
   if (!mTagService) {
-    mTagService = do_GetService(NS_MSGTAGSERVICE_CONTRACTID, &rv);
+    mTagService = do_GetService("@mozilla.org/messenger/tagservice;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -2178,7 +2175,7 @@ nsMsgDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
 
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
 
   NS_ENSURE_SUCCESS(rv, rv);
   bool userNeedsToAuthenticate = false;
@@ -2194,7 +2191,7 @@ nsMsgDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                                       getter_AddRefs(m_db));
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     msgDBService->RegisterPendingListener(folder, this);
     m_folder = folder;
@@ -2298,7 +2295,7 @@ nsMsgDBView::Close() {
   if (m_folder) {
     nsresult rv;
     nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     msgDBService->UnregisterPendingListener(this);
   }
@@ -2797,7 +2794,7 @@ nsresult nsMsgDBView::CopyMessages(nsIMsgWindow* window,
   }
 
   nsCOMPtr<nsIMsgCopyService> copyService =
-      do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return copyService->CopyMessages(m_folder /* source folder */, hdrs,
@@ -2959,7 +2956,7 @@ nsresult nsMsgDBView::ApplyCommandToIndices(
     if (command == nsMsgViewCommandType::junk ||
         command == nsMsgViewCommandType::unjunk) {
       nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+          do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
       if (notifier) {
         notifier->NotifyMsgsJunkStatusChanged(messages);
       }
@@ -3428,7 +3425,7 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
     nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(mMsgWindowWeak));
     if (targetFolder) {
       nsCOMPtr<nsIMsgCopyService> copyService =
-          do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
+          do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
 
       rv = copyService->CopyMessages(srcFolder, mJunkHdrs, targetFolder, true,

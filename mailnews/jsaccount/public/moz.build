@@ -10,8 +10,6 @@ XPIDL_SOURCES += [
     "msgIOverride.idl",
 ]
 
-EXPORTS += [
-    "msgJsAccountCID.h",
-]
+EXPORTS += []
 
 XPIDL_MODULE = "msgjsaccount"

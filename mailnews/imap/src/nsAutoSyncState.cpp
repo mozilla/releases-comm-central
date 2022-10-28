@@ -5,7 +5,6 @@
 #include "nsAutoSyncState.h"
 #include "nsImapMailFolder.h"
 #include "nsIImapService.h"
-#include "nsMsgImapCID.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgMailSession.h"
 #include "nsMsgFolderFlags.h"
@@ -464,7 +463,7 @@ NS_IMETHODIMP nsAutoSyncState::SetState(int32_t aState) {
     // tell folder to let go of its cached msg db pointer
     nsresult rv;
     nsCOMPtr<nsIMsgMailSession> session =
-        do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
     if (NS_SUCCEEDED(rv) && session) {
       nsCOMPtr<nsIMsgFolder> ownerFolder = do_QueryReferent(mOwnerFolder, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
@@ -575,7 +574,7 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
     nsTArray<RefPtr<nsIMsgDBHdr>> const& messages) {
   nsresult rv;
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString messageIds;

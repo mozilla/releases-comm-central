@@ -6,7 +6,6 @@
 // this file implements the nsMsgFilter interface
 
 #include "msgCore.h"
-#include "nsMsgBaseCID.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgFilterList.h"  // for kFileVersion
 #include "nsMsgFilter.h"
@@ -142,7 +141,7 @@ NS_IMETHODIMP nsMsgRuleAction::GetCustomAction(
     if (m_customId.IsEmpty()) return NS_ERROR_NOT_INITIALIZED;
     nsresult rv;
     nsCOMPtr<nsIMsgFilterService> filterService =
-        do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = filterService->GetCustomAction(m_customId,
@@ -653,7 +652,7 @@ nsresult nsMsgFilter::ConvertMoveOrCopyToFolderValue(
         localMailRoot = rootFolder;
       else {
         nsCOMPtr<nsIMsgAccountManager> accountManager =
-            do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+            do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
         NS_ENSURE_SUCCESS(rv, rv);
         nsCOMPtr<nsIMsgIncomingServer> server;
         rv = accountManager->GetLocalFoldersServer(getter_AddRefs(server));

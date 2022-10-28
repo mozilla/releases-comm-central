@@ -51,12 +51,6 @@ var MsgDBServiceFailure = {
   openFolderDB(folder, leaveInvalidDB) {
     return this._genuine.openFolderDB(folder, leaveInvalidDB);
   },
-  asyncOpenFolderDB(folder, leaveInvalidDB) {
-    return this._genuine.asyncOpenFolderDB(folder, leaveInvalidDB);
-  },
-  openMore(db, timeHint) {
-    return this._genuine.openMore(db, timeHint);
-  },
   createNewDB(folder) {
     return this._genuine.createNewDB(folder);
   },

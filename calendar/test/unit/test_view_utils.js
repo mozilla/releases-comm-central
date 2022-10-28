@@ -10,6 +10,10 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 });
 
 function run_test() {
+  do_calendar_startup(really_run_test);
+}
+
+function really_run_test() {
   test_not_a_date();
   test_compare_event_and_todo();
   test_compare_startdate();

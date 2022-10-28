@@ -67,7 +67,7 @@ add_task(async () => {
       }
       return task.title;
     }
-    tree.height; // Try and trigger a reflow...
+    tree.getBoundingClientRect(); // Try and trigger a reflow...
     tree.invalidate();
 
     // It seems that under certain conditions notifyOperationComplete() is

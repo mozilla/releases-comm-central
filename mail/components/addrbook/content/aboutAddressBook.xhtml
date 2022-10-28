@@ -112,8 +112,8 @@
       <input is="ab-card-search-input" id="searchInput"
              type="search"
              data-l10n-attrs="placeholder" />
-      <button id="sortButton" data-l10n-id="about-addressbook-sort-button2">
-        <img src="chrome://messenger/skin/icons/new/compact/sort.svg" alt="" />
+      <button id="displayButton" data-l10n-id="about-addressbook-sort-button2">
+        <img src="chrome://messenger/skin/icons/new/compact/filter.svg" alt="" />
       </button>
     </div>
     <div id="cardsHeader"></div>
@@ -429,9 +429,8 @@
                 data-l10n-id="about-addressbook-sort-email-descending"/>
   <xul:menuseparator/>
   <xul:menuitem id="sortContextTableLayout"
-                data-l10n-id="about-addressbook-horizontal-layout"/>
-  <xul:menuitem id="sortContextListLayout"
-                data-l10n-id="about-addressbook-vertical-layout"/>
+                type="checkbox"
+                data-l10n-id="about-addressbook-table-layout"/>
 </xul:menupopup>
 <xul:menupopup id="cardContext">
   <xul:menuitem id="cardContextWrite"

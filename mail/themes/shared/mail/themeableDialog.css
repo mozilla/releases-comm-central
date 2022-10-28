@@ -128,6 +128,10 @@
   }
 }
 
+dialog::part(content-box) {
+  -moz-box-flex: 1;
+}
+
 html|input,
 html|textarea {
   appearance: none;
@@ -313,8 +317,6 @@ menulist::part(dropmarker) {
 }
 
 menulist::part(dropmarker-icon) {
-  width: 16px;
-  height: 16px;
   -moz-context-properties: stroke;
   stroke: currentColor;
 }
@@ -555,13 +557,13 @@ separator.groove:not([orient="vertical"]) {
 }
 
 .alert-icon {
-  list-style-image: var(--icon-warning-dialog);
+  content: var(--icon-warning-dialog);
   height: 48px;
   width: 48px;
 }
 
 .question-icon {
-  list-style-image: var(--icon-question-dialog);
+  content: var(--icon-question-dialog);
   height: 48px;
   width: 48px;
 }

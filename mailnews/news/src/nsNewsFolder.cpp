@@ -19,15 +19,12 @@
 #include "nsINntpService.h"
 #include "nsIMsgFilterService.h"
 #include "nsCOMPtr.h"
-#include "nsMsgDBCID.h"
-#include "nsMsgNewsCID.h"
 #include "nsMsgUtils.h"
 #include "nsNewsUtils.h"
 
 #include "nsIMsgIncomingServer.h"
 #include "nsINntpIncomingServer.h"
 #include "nsINewsDatabase.h"
-#include "nsMsgBaseCID.h"
 #include "nsILineInputStream.h"
 
 #include "nsIMsgWindow.h"
@@ -219,7 +216,7 @@ nsresult nsMsgNewsFolder::GetDatabase() {
   nsresult rv;
   if (!mDatabase) {
     nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Get the database, blowing it away if it's out of date.
@@ -419,7 +416,7 @@ NS_IMETHODIMP nsMsgNewsFolder::CreateSubfolder(const nsAString& newsgroupName,
 
     NotifyFolderAdded(child);
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
     if (notifier) notifier->NotifyFolderAdded(child);
   }
   return rv;
@@ -689,7 +686,7 @@ nsMsgNewsFolder::DeleteMessages(nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHdrs,
 
   if (!isMove) {
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+        do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
     if (notifier) notifier->NotifyMsgsDeleted(msgHdrs);
   }
 
@@ -729,7 +726,7 @@ NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr* msgHdr,
   nsresult rv;
 
   nsCOMPtr<nsINntpService> nntpService =
-      do_GetService(NS_NNTPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/nntpservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // for cancel, we need to
@@ -796,7 +793,7 @@ nsresult nsMsgNewsFolder::GetNewsMessages(nsIMsgWindow* aMsgWindow,
   }
 
   nsCOMPtr<nsINntpService> nntpService =
-      do_GetService(NS_NNTPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/nntpservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsINntpIncomingServer> nntpServer;
@@ -1366,7 +1363,7 @@ NS_IMETHODIMP nsMsgNewsFolder::RemoveMessage(nsMsgKey key) {
 
   // Notify listeners of a delete for a single message
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
   if (notifier) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     rv = mDatabase->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
@@ -1384,7 +1381,7 @@ NS_IMETHODIMP nsMsgNewsFolder::RemoveMessages(
 
   // Notify listeners of a multiple message delete
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-      do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
+      do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
 
   if (notifier) {
     nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrs;
@@ -1657,7 +1654,7 @@ nsMsgNewsFolder::GetFilterList(nsIMsgWindow* aMsgWindow,
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIMsgFilterService> filterService =
-        do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/services/filters;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = filterService->OpenFilterList(filterFile, this, aMsgWindow,

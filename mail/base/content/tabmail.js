@@ -799,21 +799,8 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           t = this.tabContainer.querySelector(`tab[is="tabmail-tab"]`);
         } else {
           t = document.createXULElement("tab", { is: "tabmail-tab" });
-          t.maxWidth = this.tabContainer.mTabMaxWidth;
-          t.minWidth = this.tabContainer.mTabMinWidth;
-          t.width = 0;
-          t.setAttribute("validate", "never");
           t.className = "tabmail-tab";
-
-          // TEMPORARY! Add a temporary class to style the new icons while we
-          // replace them all. This is necessary in order to maintain
-          // compatibility with old icons that use a different context fill.
-          t.classList.toggle(
-            "supernova",
-            ["about:addressbook", "about:preferences"].includes(aArgs.url) ||
-              ["calendar", "tasks", "chat"].includes(aTabModeName)
-          );
-
+          t.setAttribute("validate", "never");
           this.tabContainer.appendChild(t);
         }
         tab.tabNode = t;

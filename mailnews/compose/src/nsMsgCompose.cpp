@@ -9,7 +9,6 @@
 #include "mozIDOMWindow.h"
 #include "nsISelectionController.h"
 #include "nsMsgI18N.h"
-#include "nsMsgCompCID.h"
 #include "nsMsgQuote.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -27,7 +26,6 @@
 #include "plstr.h"
 #include "prmem.h"
 #include "nsIDocShell.h"
-#include "nsAbBaseCID.h"
 #include "nsCExternalHandlerService.h"
 #include "nsIMIMEService.h"
 #include "nsIDocShellTreeItem.h"
@@ -35,8 +33,6 @@
 #include "nsIWindowMediator.h"
 #include "nsIURL.h"
 #include "nsIMsgMailSession.h"
-#include "nsMsgBaseCID.h"
-#include "nsMsgMimeCID.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
 #include "nsIMsgComposeService.h"
 #include "nsIMsgComposeProgressParams.h"
@@ -76,6 +72,7 @@
 #include "nsIObserverService.h"
 #include "nsIProtocolHandler.h"
 #include "nsContentUtils.h"
+#include "nsStreamUtils.h"
 #include "nsIFileURL.h"
 #include "nsTextNode.h"  // from dom/base
 #include "nsIParserUtils.h"
@@ -154,7 +151,7 @@ static void GetTopmostMsgWindowCharacterSet(nsCString& charset,
   // from that window) then use that over ride charset instead of the charset
   // specified in the message
   nsCOMPtr<nsIMsgMailSession> mailSession(
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID));
+      do_GetService("@mozilla.org/messenger/services/session;1"));
   if (mailSession) {
     nsCOMPtr<nsIMsgWindow> msgWindow;
     mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
@@ -797,7 +794,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
   nsCOMPtr<nsIMsgComposeService> composeService(
-      do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID));
+      do_GetService("@mozilla.org/messengercompose;1"));
   composeService->TimeStamp(
       "Finished inserting data into the editor. The window is finally ready!",
       false);
@@ -874,7 +871,7 @@ nsMsgCompose::Initialize(nsIMsgComposeParams* aParams,
   aParams->GetComposeFields(getter_AddRefs(composeFields));
 
   nsCOMPtr<nsIMsgComposeService> composeService =
-      do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messengercompose;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = composeService->DetermineComposeHTML(m_identity, format, &m_composeHTML);
@@ -1037,7 +1034,8 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode,
     observerService->NotifyObservers(NS_ISUPPORTS_CAST(nsIMsgCompose*, this),
                                      "mail-set-sender", sendParms.get());
 
-    if (!mMsgSend) mMsgSend = do_CreateInstance(NS_MSGSEND_CONTRACTID);
+    if (!mMsgSend)
+      mMsgSend = do_CreateInstance("@mozilla.org/messengercompose/send;1");
 
     if (mMsgSend) {
       nsString bodyString;
@@ -1046,7 +1044,8 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode,
 
       // Create the listener for the send operation...
       nsCOMPtr<nsIMsgComposeSendListener> composeSendListener =
-          do_CreateInstance(NS_MSGCOMPOSESENDLISTENER_CONTRACTID);
+          do_CreateInstance(
+              "@mozilla.org/messengercompose/composesendlistener;1");
       if (!composeSendListener) return NS_ERROR_OUT_OF_MEMORY;
 
       // right now, AutoSaveAsDraft is identical to SaveAsDraft as
@@ -1152,8 +1151,8 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
       if (prefBranch) {
         prefBranch->GetBoolPref("mailnews.show_send_progress", &showProgress);
         if (showProgress) {
-          nsCOMPtr<nsIMsgComposeProgressParams> params =
-              do_CreateInstance(NS_MSGCOMPOSEPROGRESSPARAMS_CONTRACTID, &rv);
+          nsCOMPtr<nsIMsgComposeProgressParams> params = do_CreateInstance(
+              "@mozilla.org/messengercompose/composeprogressparameters;1", &rv);
           if (NS_FAILED(rv) || !params) return NS_ERROR_FAILURE;
 
           params->SetSubject(msgSubject.get());
@@ -1193,7 +1192,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
       PR_Free(result);
 
       nsCOMPtr<nsIMsgAttachment> attachment =
-          do_CreateInstance(NS_MSGATTACHMENT_CONTRACTID, &rv);
+          do_CreateInstance("@mozilla.org/messengercompose/attachment;1", &rv);
       if (NS_SUCCEEDED(rv) && attachment) {
         // [comment from 4.x]
         // Send the vCard out with a filename which distinguishes this user.
@@ -1317,7 +1316,7 @@ NS_IMETHODIMP nsMsgCompose::CloseWindow(void) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgComposeService> composeService =
-      do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messengercompose;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // unregister the compose object with the compose service
@@ -1767,8 +1766,8 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
           // Setup quoting callbacks for later...
           mQuotingToFollow =
               false;  // We don't need to quote the original message.
-          nsCOMPtr<nsIMsgAttachment> attachment =
-              do_CreateInstance(NS_MSGATTACHMENT_CONTRACTID, &rv);
+          nsCOMPtr<nsIMsgAttachment> attachment = do_CreateInstance(
+              "@mozilla.org/messengercompose/attachment;1", &rv);
           if (NS_SUCCEEDED(rv) && attachment) {
             bool addExtension = true;
             nsString sanitizedSubj;
@@ -2112,7 +2111,8 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
 
       bool needToRemoveDup = false;
       if (!mMimeConverter) {
-        mMimeConverter = do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
+        mMimeConverter =
+            do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
         NS_ENSURE_SUCCESS(rv, rv);
       }
       nsCString charset("UTF-8");
@@ -2190,7 +2190,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
                          &replyToSelfCheckAll);
 
       nsCOMPtr<nsIMsgAccountManager> accountManager =
-          do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsTArray<RefPtr<nsIMsgIdentity>> identities;
@@ -2486,7 +2486,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
   nsCOMPtr<nsIMsgComposeService> composeService(
-      do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID));
+      do_GetService("@mozilla.org/messengercompose;1"));
   composeService->TimeStamp(
       "Done with MIME. Now we're updating the UI elements", false);
 #endif
@@ -2717,7 +2717,7 @@ nsMsgCompose::QuoteMessage(const nsACString& msgURI) {
   mQuotingToFollow = false;
 
   // Create a mime parser (nsIStreamConverter)!
-  mQuote = do_CreateInstance(NS_MSGQUOTE_CONTRACTID, &rv);
+  mQuote = do_CreateInstance("@mozilla.org/messengercompose/quoting;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
@@ -2743,7 +2743,7 @@ nsresult nsMsgCompose::QuoteOriginalMessage()  // New template
   mQuotingToFollow = false;
 
   // Create a mime parser (nsIStreamConverter)!
-  mQuote = do_CreateInstance(NS_MSGQUOTE_CONTRACTID, &rv);
+  mQuote = do_CreateInstance("@mozilla.org/messengercompose/quoting;1", &rv);
   if (NS_FAILED(rv) || !mQuote) return NS_ERROR_FAILURE;
 
   bool bAutoQuote = true;
@@ -3649,7 +3649,7 @@ nsresult nsMsgCompose::LoadDataFromFile(nsIFile* file, nsString& sigData,
   nsAutoCString readStr(readBuf, (int32_t)fileSize);
   PR_FREEIF(readBuf);
 
-  // XXX: ^^^ could really use nsContentUtils::SlurpFileToString instead!
+  // XXX: ^^^ could really use SlurpFileToString instead!
 
   if (NS_FAILED(nsMsgI18NConvertToUnicode(sigEncoding, readStr, sigData)))
     CopyASCIItoUTF16(readStr, sigData);
@@ -3740,7 +3740,7 @@ nsresult nsMsgCompose::DataURLForFileURL(const nsAString& aFileURL,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString data;
-  rv = nsContentUtils::SlurpFileToString(file, data);
+  rv = nsMsgCompose::SlurpFileToString(file, data);
   NS_ENSURE_SUCCESS(rv, rv);
 
   aDataURL.AssignLiteral("data:");
@@ -3765,6 +3765,43 @@ nsresult nsMsgCompose::DataURLForFileURL(const nsAString& aFileURL,
   nsDependentCString base64data(result);
   NS_ENSURE_SUCCESS(rv, rv);
   AppendUTF8toUTF16(base64data, aDataURL);
+  return NS_OK;
+}
+
+nsresult nsMsgCompose::SlurpFileToString(nsIFile* aFile, nsACString& aString) {
+  aString.Truncate();
+
+  nsCOMPtr<nsIURI> fileURI;
+  nsresult rv = NS_NewFileURI(getter_AddRefs(fileURI), aFile);
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+
+  nsCOMPtr<nsIChannel> channel;
+  rv = NS_NewChannel(getter_AddRefs(channel), fileURI,
+                     nsContentUtils::GetSystemPrincipal(),
+                     nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+                     nsIContentPolicy::TYPE_OTHER);
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+
+  nsCOMPtr<nsIInputStream> stream;
+  rv = channel->Open(getter_AddRefs(stream));
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+
+  rv = NS_ConsumeStream(stream, UINT32_MAX, aString);
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+
+  rv = stream->Close();
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+
   return NS_OK;
 }
 
@@ -4202,7 +4239,7 @@ nsresult nsMsgCompose::GetABDirAndMailLists(
 
   nsresult rv;
   nsCOMPtr<nsIAbManager> abManager =
-      do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/abmanager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (aDirUri.Equals(kAllDirectoryRoot)) {

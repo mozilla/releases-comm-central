@@ -2530,7 +2530,7 @@ FolderDisplayWidget.prototype = {
     }
 
     // try and trigger a reflow...
-    tree.height;
+    tree.getBoundingClientRect();
 
     let maxIndex = tree.view.rowCount - 1;
 

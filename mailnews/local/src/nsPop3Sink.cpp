@@ -30,10 +30,8 @@
 #include "mozIDOMWindow.h"
 #include "nsEmbedCID.h"
 #include "nsMsgUtils.h"
-#include "nsMsgBaseCID.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIPop3Service.h"
-#include "nsMsgLocalCID.h"
 #include "mozilla/Logging.h"
 
 /* for logging to Error Console */
@@ -158,7 +156,7 @@ nsresult nsPop3Sink::BeginMailDelivery(bool uidlDownload,
   m_window = aMsgWindow;
 
   nsCOMPtr<nsIMsgAccountManager> acctMgr =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   nsCOMPtr<nsIMsgAccount> account;
   NS_ENSURE_SUCCESS(rv, rv);
   acctMgr->FindAccountForServer(server, getter_AddRefs(account));
@@ -188,7 +186,7 @@ nsresult nsPop3Sink::BeginMailDelivery(bool uidlDownload,
   printf("Begin mail message delivery.\n");
 #endif
   nsCOMPtr<nsIPop3Service> pop3Service(
-      do_GetService(NS_POP3SERVICE_CONTRACTID1, &rv));
+      do_GetService("@mozilla.org/messenger/popservice;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   pop3Service->NotifyDownloadStarted(m_folder);
   if (aBool) *aBool = true;
@@ -289,7 +287,7 @@ nsresult nsPop3Sink::EndMailDelivery(nsIPop3Protocol* protocol) {
   printf("End mail message delivery.\n");
 #endif
   nsCOMPtr<nsIPop3Service> pop3Service(
-      do_GetService(NS_POP3SERVICE_CONTRACTID1, &rv));
+      do_GetService("@mozilla.org/messenger/popservice;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   pop3Service->NotifyDownloadCompleted(m_folder, m_numNewMessages);
   return NS_OK;
@@ -334,7 +332,7 @@ nsresult nsPop3Sink::AbortMailDelivery(nsIPop3Protocol* protocol) {
   printf("Abort mail message delivery.\n");
 #endif
   nsCOMPtr<nsIPop3Service> pop3Service(
-      do_GetService(NS_POP3SERVICE_CONTRACTID1, &rv));
+      do_GetService("@mozilla.org/messenger/popservice;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   pop3Service->NotifyDownloadCompleted(m_folder, 0);
   return NS_OK;
@@ -625,7 +623,7 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
   printf("Incorporate message complete.\n");
 #endif
   nsCOMPtr<nsIPop3Service> pop3Service(
-      do_GetService(NS_POP3SERVICE_CONTRACTID1, &rv));
+      do_GetService("@mozilla.org/messenger/popservice;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   pop3Service->NotifyDownloadProgress(m_folder, ++m_numMsgsDownloaded,
                                       m_numNewMessages);

@@ -47,7 +47,6 @@
 
 // mail
 #include "nsIMsgMailNewsUrl.h"
-#include "nsMsgBaseCID.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgMailSession.h"
 #include "nsIMailboxUrl.h"
@@ -60,7 +59,6 @@
 #include "nsIMsgHdr.h"
 #include "nsIMimeMiscStatus.h"
 // compose
-#include "nsMsgCompCID.h"
 #include "nsNativeCharsetUtils.h"
 
 // draft/folders/sendlater/etc
@@ -74,7 +72,6 @@
 #include "nsMsgTxn.h"
 
 // charset conversions
-#include "nsMsgMimeCID.h"
 #include "nsIMimeConverter.h"
 
 // Save As
@@ -234,7 +231,7 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy* aWin,
   nsresult rv;
 
   nsCOMPtr<nsIMsgMailSession> mailSession =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Remove the folder listener if we added it, i.e. if mWindow is non-null.
@@ -1669,7 +1666,7 @@ nsSaveMsgListener::OnStopRunningUrl(nsIURI* url, nsresult exitCode) {
     rv = GetOrCreateFolder(m_templateUri, getter_AddRefs(templateFolder));
     if (NS_FAILED(rv)) goto done;
     nsCOMPtr<nsIMsgCopyService> copyService =
-        do_GetService(NS_MSGCOPYSERVICE_CONTRACTID);
+        do_GetService("@mozilla.org/messenger/messagecopyservice;1");
     if (copyService) {
       nsCOMPtr<nsIFile> clone;
       m_file->Clone(getter_AddRefs(clone));
@@ -2448,7 +2445,7 @@ AttachmentDeleter::OnStopRequest(nsIRequest* aRequest, nsresult aStatusCode) {
   mMsgFileStream = nullptr;
   mNewMessageKey = nsMsgKey_None;
   nsCOMPtr<nsIMsgCopyService> copyService =
-      do_GetService(NS_MSGCOPYSERVICE_CONTRACTID);
+      do_GetService("@mozilla.org/messenger/messagecopyservice;1");
   m_state = eCopyingNewMsg;
   // clone file because nsIFile on Windows caches the wrong file size.
   nsCOMPtr<nsIFile> clone;

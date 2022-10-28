@@ -9,11 +9,9 @@
 #include "plstr.h"
 #include "prprf.h"
 #include "nsNoIncomingServer.h"
-#include "nsMsgLocalCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgMailSession.h"
-#include "nsMsgBaseCID.h"
 #include "nsIPop3IncomingServer.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
@@ -67,7 +65,7 @@ NS_IMETHODIMP nsNoIncomingServer::CopyDefaultMessages(
 
   nsresult rv;
   nsCOMPtr<nsIMsgMailSession> mailSession =
-      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Get defaults directory for messenger files. MailSession service appends

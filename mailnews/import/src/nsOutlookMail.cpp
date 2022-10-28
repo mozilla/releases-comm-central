@@ -15,7 +15,6 @@
 #include "nsIImportMailboxDescriptor.h"
 #include "nsIImportABDescriptor.h"
 #include "nsOutlookStringBundle.h"
-#include "nsAbBaseCID.h"
 #include "nsIAbCard.h"
 #include "mdb.h"
 #include "ImportDebug.h"
@@ -573,7 +572,7 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t* pCount, uint32_t* pTotal,
           if (pVal) m_mapi.GetStringFromProp(pVal, subject);
 
           nsCOMPtr<nsIAbCard> newCard =
-              do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv);
+              do_CreateInstance("@mozilla.org/addressbook/cardproperty;1", &rv);
           if (newCard) {
             if (BuildCard(subject.get(), pDirectory, newCard, lpMsg,
                           pFieldMap)) {
@@ -608,7 +607,7 @@ nsresult nsOutlookMail::CreateList(const nsString& pName,
   if (!pDirectory) return rv;
 
   nsCOMPtr<nsIAbDirectory> newList =
-      do_CreateInstance(NS_ABDIRPROPERTY_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/addressbook/directoryproperty;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = newList->SetDirName(pName);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -659,7 +658,7 @@ nsresult nsOutlookMail::CreateList(const nsString& pName,
     if (pVal) m_mapi.GetStringFromProp(pVal, subject);
 
     nsCOMPtr<nsIAbCard> newCard =
-        do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv);
+        do_CreateInstance("@mozilla.org/addressbook/cardproperty;1", &rv);
     if (newCard) {
       if (BuildCard(subject.get(), pDirectory, newCard, lpMsg, pFieldMap)) {
         nsIAbCard* outCard;

@@ -8,12 +8,19 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
 
-function run_test() {
+add_setup(function() {
+  // The deleted items service is started automatically by the start-up
+  // procedure, but that doesn't happen in XPCShell tests. Add an observer
+  // ourselves to simulate the behaviour.
+  let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(Ci.calIDeletedItems);
+  Services.obs.addObserver(delmgr, "profile-after-change");
+
   do_calendar_startup(run_next_test);
-}
+});
 
 function check_delmgr_call(aFunc) {
   let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(Ci.calIDeletedItems);
+
   return new Promise((resolve, reject) => {
     delmgr.wrappedJSObject.completedNotifier.handleCompletion = aReason => {
       if (aReason == Ci.mozIStorageStatementCallback.REASON_FINISHED) {
@@ -28,6 +35,7 @@ function check_delmgr_call(aFunc) {
 
 add_task(async function test_deleted_items() {
   let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(Ci.calIDeletedItems);
+
   // No items have been deleted, retrieving one should return null.
   equal(delmgr.getDeletedDate("random"), null);
   equal(delmgr.getDeletedDate("random", "random"), null);

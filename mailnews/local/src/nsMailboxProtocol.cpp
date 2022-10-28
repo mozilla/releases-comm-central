@@ -10,7 +10,6 @@
 #include "nsIInputStreamPump.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgLineBuffer.h"
-#include "nsMsgDBCID.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgFolder.h"
 #include "nsICopyMessageStreamListener.h"

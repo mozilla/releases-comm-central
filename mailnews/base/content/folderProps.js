@@ -12,8 +12,9 @@ var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 
 var gMsgFolder;
 var gLockedPref = null;
-var kCurrentColor = "";
-var kDefaultColor = "#363959";
+
+var gCurrentColor = "";
+var gDefaultColor = "";
 var gNeedToRestoreFolderSelection = false;
 
 window.addEventListener("DOMContentLoaded", folderPropsOnLoad);
@@ -140,7 +141,7 @@ function inputColorClicked() {
  */
 function resetColor() {
   inputColorClicked();
-  document.getElementById("color").value = kDefaultColor;
+  document.getElementById("color").value = gDefaultColor;
   window.arguments[0].previewSelectedColorCallback(gMsgFolder, null);
 }
 
@@ -206,7 +207,7 @@ function folderPropsOKButton(event) {
 function folderCancelButton(event) {
   // Restore the icon to the previous color and discard edits.
   if (gMsgFolder && window.arguments[0].previewSelectedColorCallback) {
-    window.arguments[0].previewSelectedColorCallback(gMsgFolder, kCurrentColor);
+    window.arguments[0].previewSelectedColorCallback(gMsgFolder, gCurrentColor);
   }
 
   restoreFolderSelection();
@@ -227,6 +228,22 @@ function restoreFolderSelection() {
 }
 
 function folderPropsOnLoad() {
+  let styles = getComputedStyle(document.body);
+  let folderColors = {
+    Inbox: styles.getPropertyValue("--folder-color-inbox"),
+    Sent: styles.getPropertyValue("--folder-color-sent"),
+    Outbox: styles.getPropertyValue("--folder-color-outbox"),
+    Drafts: styles.getPropertyValue("--folder-color-draft"),
+    Trash: styles.getPropertyValue("--folder-color-trash"),
+    Archive: styles.getPropertyValue("--folder-color-archive"),
+    Templates: styles.getPropertyValue("--folder-color-template"),
+    Spam: styles.getPropertyValue("--folder-color-spam"),
+    Virtual: styles.getPropertyValue("--folder-color-folder-filter"),
+    RSS: styles.getPropertyValue("--folder-color-rss"),
+    Newsgroup: styles.getPropertyValue("--folder-color-newsletter"),
+  };
+  gDefaultColor = styles.getPropertyValue("--folder-color-folder");
+
   // look in arguments[0] for parameters
   if (window.arguments && window.arguments[0]) {
     if (window.arguments[0].title) {
@@ -241,7 +258,7 @@ function folderPropsOnLoad() {
     // Fill in folder name, based on what they selected in the folder pane.
     gMsgFolder = window.arguments[0].folder;
     // Store the current icon color to allow discarding edits.
-    kCurrentColor = FolderTreeProperties.getColor(gMsgFolder.URI);
+    gCurrentColor = FolderTreeProperties.getColor(gMsgFolder.URI);
   }
 
   if (window.arguments[0].name) {
@@ -267,8 +284,28 @@ function folderPropsOnLoad() {
       gMsgFolder.updateFolder(window.arguments[0].msgWindow);
     }
 
+    // Check the current folder name against known folder names to set the
+    // correct default color, if needed.
+    let selectedFolderName = "";
+
+    switch (window.arguments[0].serverType) {
+      case "rss":
+        selectedFolderName = "RSS";
+        break;
+      case "nntp":
+        selectedFolderName = "Newsgroup";
+        break;
+      default:
+        selectedFolderName = window.arguments[0].name;
+        break;
+    }
+
+    if (Object.keys(folderColors).includes(selectedFolderName)) {
+      gDefaultColor = folderColors[selectedFolderName];
+    }
+
     let colorInput = document.getElementById("color");
-    colorInput.value = kCurrentColor ? kCurrentColor : kDefaultColor;
+    colorInput.value = gCurrentColor || gDefaultColor;
     colorInput.addEventListener("input", event => {
       window.arguments[0].previewSelectedColorCallback(
         gMsgFolder,

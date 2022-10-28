@@ -22,7 +22,6 @@
 #include "nsIX509CertDB.h"
 #include "nsMemory.h"
 #include "nsMimeTypes.h"
-#include "nsMsgMimeCID.h"
 #include "nsNSSComponent.h"
 #include "nsServiceManagerUtils.h"
 #include "nspr.h"
@@ -490,7 +489,7 @@ nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign,
   NS_ConvertUTF16toUTF8 enc_content_desc_utf8(mime_smime_enc_content_desc);
 
   nsCOMPtr<nsIMimeConverter> mimeConverter =
-      do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCString encodedContentDescription;
   mimeConverter->EncodeMimePartIIStr_UTF8(

@@ -51,7 +51,7 @@ add_task(async function testTaskDeletion() {
   EventUtils.synthesizeKey("VK_DELETE");
 
   // Try and trigger a reflow
-  tree.height;
+  tree.getBoundingClientRect();
   tree.invalidate();
   await new Promise(r => setTimeout(r));
 
@@ -119,7 +119,7 @@ add_task(async function testRecurringTaskDeletion() {
   await handleSingleDelete;
 
   // Try and trigger a reflow
-  tree.height;
+  tree.getBoundingClientRect();
   tree.invalidate();
   await new Promise(r => setTimeout(r));
 
@@ -168,7 +168,7 @@ add_task(async function testRecurringTaskDeletion() {
   await handleAllDelete;
 
   // Try and trigger a reflow
-  tree.height;
+  tree.getBoundingClientRect();
   tree.invalidate();
   await new Promise(r => setTimeout(r));
 

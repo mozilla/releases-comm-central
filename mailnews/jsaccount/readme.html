@@ -18,7 +18,6 @@
       to create objects of the appropriate type by appending that string to the
       end of a base XPCOM contractID. So, for example, to create an imap server,
       you generate a contractID using a base ID,
-      NS_MSGINCOMINGSERVER_CONTRACTID_PREFIX
       "@mozilla.org/messenger/server;1?type=", then append "imap" to get:</p>
     <p>@mozilla.org/messenger/server;1?type=imap</p>
     <p>In the C++ code, there is a base object implementing shared

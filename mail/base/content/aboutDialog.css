@@ -56,6 +56,16 @@
   fill: currentColor;
 }
 
+.update-throbber {
+  width: 16px;
+  min-height: 16px;
+  margin-inline-end: 3px;
+}
+
+html|img.update-throbber {
+  vertical-align: middle;
+}
+
 #rightBox:-moz-locale-dir(rtl) {
   background-position: 100% 0;
 }
@@ -94,8 +104,8 @@
   flex: 0 0 auto;
 }
 
-.update-deck-container:not(.selected) {
-  visibility: hidden;
+.update-deck-container.deck-selected {
+  visibility: visible;
 }
 
 .update-deck-container span {
@@ -141,4 +151,25 @@
   margin: 0;
   padding: 0;
   font-weight: bold;
+}
+
+#icons > .icon {
+  -moz-context-properties: fill;
+  margin: 10px 5px;
+  width: 16px;
+  height: 16px;
+}
+
+#icons:not(.checkingForUpdates, .downloading, .applying, .restarting) > .update-throbber,
+#icons:not(.noUpdatesFound) > .noUpdatesFound,
+#icons:not(.apply) > .apply {
+  display: none;
+}
+
+#icons > .noUpdatesFound {
+  fill: #30e60b;
+}
+
+#icons > .apply {
+  fill: white;
 }

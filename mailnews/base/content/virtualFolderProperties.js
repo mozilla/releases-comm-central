@@ -11,8 +11,8 @@ var gSearchTermSession; // really an in memory temporary filter we use to read i
 var gSearchFolderURIs = "";
 var gMessengerBundle = null;
 var gFolderBundle = null;
-var kCurrentColor = "";
-var kDefaultColor = "#363959";
+var gCurrentColor = "";
+var gDefaultColor = "";
 var gNeedToRestoreFolderSelection = false;
 
 var { FolderTreeProperties } = ChromeUtils.import(
@@ -151,6 +151,22 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
     window.arguments[0].folder
   );
 
+  let styles = getComputedStyle(document.body);
+  let folderColors = {
+    Inbox: styles.getPropertyValue("--folder-color-inbox"),
+    Sent: styles.getPropertyValue("--folder-color-sent"),
+    Outbox: styles.getPropertyValue("--folder-color-outbox"),
+    Drafts: styles.getPropertyValue("--folder-color-draft"),
+    Trash: styles.getPropertyValue("--folder-color-trash"),
+    Archive: styles.getPropertyValue("--folder-color-archive"),
+    Templates: styles.getPropertyValue("--folder-color-template"),
+    Spam: styles.getPropertyValue("--folder-color-spam"),
+    Virtual: styles.getPropertyValue("--folder-color-folder-filter"),
+    RSS: styles.getPropertyValue("--folder-color-rss"),
+    Newsgroup: styles.getPropertyValue("--folder-color-newsletter"),
+  };
+  gDefaultColor = styles.getPropertyValue("--folder-color-folder");
+
   // when editing an existing folder, hide the folder picker that stores the parent location of the folder
   document.getElementById("msgNewFolderPicker").collapsed = true;
   document.getElementById("chooseFolderLocationLabel").collapsed = true;
@@ -160,10 +176,30 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
   // Show the icon color options.
   document.getElementById("iconColorContainer").collapsed = false;
   // Store the current icon color to allow discarding edits.
-  kCurrentColor = FolderTreeProperties.getColor(aVirtualFolder.URI);
+  gCurrentColor = FolderTreeProperties.getColor(aVirtualFolder.URI);
+
+  // Check the current folder name against known folder names to set the
+  // correct default color, if needed.
+  let selectedFolderName = "";
+
+  switch (window.arguments[0].serverType) {
+    case "rss":
+      selectedFolderName = "RSS";
+      break;
+    case "nntp":
+      selectedFolderName = "Newsgroup";
+      break;
+    default:
+      selectedFolderName = "Virtual";
+      break;
+  }
+
+  if (Object.keys(folderColors).includes(selectedFolderName)) {
+    gDefaultColor = folderColors[selectedFolderName];
+  }
 
   let colorInput = document.getElementById("color");
-  colorInput.value = kCurrentColor ? kCurrentColor : kDefaultColor;
+  colorInput.value = gCurrentColor || gDefaultColor;
   colorInput.addEventListener("input", event => {
     window.arguments[0].previewSelectedColorCallback(
       aVirtualFolder,
@@ -289,7 +325,7 @@ function onCancel(event) {
     // Restore the icon to the previous color and discard edits.
     window.arguments[0].previewSelectedColorCallback(
       window.arguments[0].folder,
-      kCurrentColor
+      gCurrentColor
     );
   }
 
@@ -380,7 +416,7 @@ function inputColorClicked() {
  */
 function resetColor() {
   inputColorClicked();
-  document.getElementById("color").value = kDefaultColor;
+  document.getElementById("color").value = gDefaultColor;
   window.arguments[0].previewSelectedColorCallback(
     window.arguments[0].folder,
     null

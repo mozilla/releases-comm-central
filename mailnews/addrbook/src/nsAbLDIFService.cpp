@@ -2,7 +2,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#include "nsAbBaseCID.h"
 #include "nsIAbDirectory.h"
 #include "nsIAbCard.h"
 #include "nsString.h"
@@ -18,6 +17,7 @@
 #include "prprf.h"
 #include "nsCRTGlue.h"
 #include "nsTArray.h"
+#include "nsIComponentManager.h"
 
 #include <ctype.h>
 
@@ -325,7 +325,8 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAbDirectory* aDirectory,
     return;
   }
 
-  nsCOMPtr<nsIAbCard> newCard = do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID);
+  nsCOMPtr<nsIAbCard> newCard =
+      do_CreateInstance("@mozilla.org/addressbook/cardproperty;1");
   nsTArray<nsCString> members;
 
   char* cursor = ToNewCString(mLdifLine);
@@ -356,7 +357,7 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAbDirectory* aDirectory,
 
   if (bIsList) {
     nsCOMPtr<nsIAbDirectory> newList =
-        do_CreateInstance(NS_ABDIRPROPERTY_CONTRACTID);
+        do_CreateInstance("@mozilla.org/addressbook/directoryproperty;1");
     newList->SetIsMailList(true);
 
     nsAutoString temp;

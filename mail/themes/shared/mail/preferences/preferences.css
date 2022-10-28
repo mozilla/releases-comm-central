@@ -406,6 +406,18 @@ checkbox {
   white-space: nowrap;
 }
 
+#tagList {
+  height: 180px;
+}
+
+#keywordList {
+  height: 250px;
+}
+
+#signonsTree {
+  height: 20em;
+}
+
 .update-deck-container {
   display: flex;
   align-items: center;

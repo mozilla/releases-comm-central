@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgComposeService.h"
-#include "nsMsgCompCID.h"
 #include "nsIMsgSend.h"
 #include "nsIServiceManager.h"
 #include "nsIObserverService.h"
@@ -29,11 +28,9 @@
 #include "nsIBaseWindow.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
-#include "nsMsgBaseCID.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMimeMiscStatus.h"
 #include "nsIStreamConverter.h"
-#include "nsMsgMimeCID.h"
 #include "nsToolkitCompsCID.h"
 #include "nsNetUtil.h"
 #include "nsIMsgMailNewsUrl.h"
@@ -400,10 +397,10 @@ nsMsgComposeService::OpenComposeWindow(
   }
 
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams(
-      do_CreateInstance(NS_MSGCOMPOSEPARAMS_CONTRACTID, &rv));
+      do_CreateInstance("@mozilla.org/messengercompose/composeparams;1", &rv));
   if (NS_SUCCEEDED(rv) && pMsgComposeParams) {
-    nsCOMPtr<nsIMsgCompFields> pMsgCompFields(
-        do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv));
+    nsCOMPtr<nsIMsgCompFields> pMsgCompFields(do_CreateInstance(
+        "@mozilla.org/messengercompose/composefields;1", &rv));
     if (NS_SUCCEEDED(rv) && pMsgCompFields) {
       pMsgComposeParams->SetType(type);
       pMsgComposeParams->SetFormat(format);
@@ -534,16 +531,16 @@ NS_IMETHODIMP nsMsgComposeService::GetParamsForMailto(
         }
       }
 
-      nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams(
-          do_CreateInstance(NS_MSGCOMPOSEPARAMS_CONTRACTID, &rv));
+      nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams(do_CreateInstance(
+          "@mozilla.org/messengercompose/composeparams;1", &rv));
       if (NS_SUCCEEDED(rv) && pMsgComposeParams) {
         pMsgComposeParams->SetType(nsIMsgCompType::MailToUrl);
         pMsgComposeParams->SetFormat(composeHTMLFormat
                                          ? nsIMsgCompFormat::HTML
                                          : nsIMsgCompFormat::PlainText);
 
-        nsCOMPtr<nsIMsgCompFields> pMsgCompFields(
-            do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv));
+        nsCOMPtr<nsIMsgCompFields> pMsgCompFields(do_CreateInstance(
+            "@mozilla.org/messengercompose/composefields;1", &rv));
         if (pMsgCompFields) {
           // ugghh more conversion work!!!!
           pMsgCompFields->SetTo(NS_ConvertUTF8toUTF16(toPart));
@@ -584,7 +581,7 @@ NS_IMETHODIMP nsMsgComposeService::InitCompose(nsIMsgComposeParams* aParams,
                                                nsIMsgCompose** _retval) {
   nsresult rv;
   nsCOMPtr<nsIMsgCompose> msgCompose =
-      do_CreateInstance(NS_MSGCOMPOSE_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messengercompose/compose;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = msgCompose->Initialize(aParams, aWindow, aDocShell);
@@ -601,7 +598,7 @@ nsMsgComposeService::GetDefaultIdentity(nsIMsgIdentity** _retval) {
 
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgAccount> defaultAccount;
@@ -699,10 +696,10 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI* aUrl,
 
   // create the compose params object
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams(
-      do_CreateInstance(NS_MSGCOMPOSEPARAMS_CONTRACTID, &rv));
+      do_CreateInstance("@mozilla.org/messengercompose/composeparams;1", &rv));
   if (NS_FAILED(rv) || (!pMsgComposeParams)) return rv;
   nsCOMPtr<nsIMsgCompFields> compFields =
-      do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messengercompose/composefields;1", &rv);
 
   nsCString replyTo;
   mHdrToReplyTo->GetStringProperty("replyTo", getter_Copies(replyTo));
@@ -746,7 +743,7 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI* aUrl,
 
   // create the nsIMsgCompose object to send the object
   nsCOMPtr<nsIMsgCompose> pMsgCompose(
-      do_CreateInstance(NS_MSGCOMPOSE_CONTRACTID, &rv));
+      do_CreateInstance("@mozilla.org/messengercompose/compose;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   /** initialize nsIMsgCompose, Send the message, wait for send completion
@@ -835,7 +832,7 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(
   nsresult rv;
   const nsPromiseFlatCString& templateUriFlat = PromiseFlatCString(templateUri);
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgAccount> account;
@@ -974,7 +971,7 @@ nsMsgComposeService::ForwardMessage(const nsAString& forwardTo,
 
   // get the MsgIdentity for the above key using AccountManager
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgAccount> account;
@@ -1004,10 +1001,10 @@ nsMsgComposeService::ForwardMessage(const nsAString& forwardTo,
   }
   // create the compose params object
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams(
-      do_CreateInstance(NS_MSGCOMPOSEPARAMS_CONTRACTID, &rv));
+      do_CreateInstance("@mozilla.org/messengercompose/composeparams;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgCompFields> compFields =
-      do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv);
+      do_CreateInstance("@mozilla.org/messengercompose/composefields;1", &rv);
 
   compFields->SetTo(forwardTo);
   // populate the compose params
@@ -1018,7 +1015,7 @@ nsMsgComposeService::ForwardMessage(const nsAString& forwardTo,
   pMsgComposeParams->SetOriginalMsgURI(uriToOpen);
   // create the nsIMsgCompose object to send the object
   nsCOMPtr<nsIMsgCompose> pMsgCompose(
-      do_CreateInstance(NS_MSGCOMPOSE_CONTRACTID, &rv));
+      do_CreateInstance("@mozilla.org/messengercompose/compose;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   /** initialize nsIMsgCompose, Send the message, wait for send completion
@@ -1250,8 +1247,9 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Create a mime parser (nsIMimeStreamConverter)to do the conversion.
-  nsCOMPtr<nsIMimeStreamConverter> mimeConverter =
-      do_CreateInstance(NS_MAILNEWS_MIME_STREAM_CONVERTER_CONTRACTID, &rv);
+  nsCOMPtr<nsIMimeStreamConverter> mimeConverter = do_CreateInstance(
+      "@mozilla.org/streamconv;1?from=message/rfc822&to=application/xhtml+xml",
+      &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   mimeConverter->SetMimeOutputType(

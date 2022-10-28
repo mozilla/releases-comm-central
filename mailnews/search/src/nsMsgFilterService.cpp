@@ -19,13 +19,11 @@
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
-#include "nsMsgBaseCID.h"
 #include "nsIMsgCopyService.h"
 #include "nsIInputStream.h"
 #include "nsIOutputStream.h"
 #include "nsISafeOutputStream.h"
 #include "nsIMsgComposeService.h"
-#include "nsMsgCompCID.h"
 #include "nsNetUtil.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgMailSession.h"
@@ -298,7 +296,7 @@ nsresult nsMsgFilterService::ThrowAlertMsg(const char* aMsgName,
   nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
   if (!msgWindow) {
     nsCOMPtr<nsIMsgMailSession> mailSession(
-        do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv));
+        do_GetService("@mozilla.org/messenger/services/session;1", &rv));
     if (NS_SUCCEEDED(rv))
       rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
   }
@@ -458,7 +456,8 @@ nsresult nsMsgFilterAfterTheFact::RunNextFilter() {
     CONTINUE_IF_FAILURE(rv, "Could not get searchTerms");
 
     if (m_searchSession) m_searchSession->UnregisterListener(this);
-    m_searchSession = do_CreateInstance(NS_MSGSEARCHSESSION_CONTRACTID, &rv);
+    m_searchSession =
+        do_CreateInstance("@mozilla.org/messenger/searchSession;1", &rv);
     BREAK_IF_FAILURE(rv, "Failed to get search session");
 
     nsMsgSearchScopeValue searchScope = nsMsgSearchScope::offlineMail;
@@ -766,7 +765,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
                                   "messages, disabling the filter");
           }
           nsCOMPtr<nsIMsgCopyService> copyService =
-              do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
+              do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
           BREAK_ACTION_IF_FAILURE(rv, "Could not get copy service");
 
           if (actionType == nsMsgFilterAction::MoveToFolder) {
@@ -863,7 +862,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           filterAction->GetStrValue(forwardTo);
           BREAK_ACTION_IF_FALSE(!forwardTo.IsEmpty(), "blank forwardTo URI");
           nsCOMPtr<nsIMsgComposeService> compService =
-              do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
+              do_GetService("@mozilla.org/messengercompose;1", &rv);
           BREAK_ACTION_IF_FAILURE(rv, "Could not get compose service");
 
           for (auto msgHdr : m_searchHitHdrs) {
@@ -884,7 +883,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           BREAK_ACTION_IF_FAILURE(rv, "Could not get server");
 
           nsCOMPtr<nsIMsgComposeService> compService =
-              do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
+              do_GetService("@mozilla.org/messengercompose;1", &rv);
           BREAK_ACTION_IF_FAILURE(rv, "Could not get compose service");
           for (auto msgHdr : m_searchHitHdrs) {
             rv = compService->ReplyWithTemplate(msgHdr, replyTemplateUri,

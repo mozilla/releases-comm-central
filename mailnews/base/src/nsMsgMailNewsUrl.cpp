@@ -5,8 +5,6 @@
 
 #include "msgCore.h"
 #include "nsMsgMailNewsUrl.h"
-#include "nsMsgBaseCID.h"
-#include "nsMsgLocalCID.h"
 #include "nsIMsgAccountManager.h"
 #include "nsString.h"
 #include "nsILoadGroup.h"
@@ -165,6 +163,12 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetFlags(uint32_t* aFlags) {
   return NS_OK;
 }
 
+#define NS_MSGMAILNEWSURL_CID                        \
+  {                                                  \
+    0x3fdae3ab, 0x4ac1, 0x4ad4, {                    \
+      0xb2, 0x8a, 0x28, 0xd0, 0xfa, 0x36, 0x39, 0x29 \
+    }                                                \
+  }
 static NS_DEFINE_CID(kNS_MSGMAILNEWSURL_CID, NS_MSGMAILNEWSURL_CID);
 NS_IMETHODIMP nsMsgMailNewsUrl::GetClassIDNoAlloc(nsCID* aClassIDNoAlloc) {
   *aClassIDNoAlloc = kNS_MSGMAILNEWSURL_CID;
@@ -282,7 +286,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(
     rv = NS_MutateURI(url).SetScheme(scheme).Finalize(url);
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIMsgIncomingServer> server;

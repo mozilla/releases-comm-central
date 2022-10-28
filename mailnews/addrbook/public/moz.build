@@ -45,6 +45,4 @@ if CONFIG["MOZ_PREF_EXTENSIONS"]:
 
 XPIDL_MODULE = "addrbook"
 
-EXPORTS += [
-    "nsAbBaseCID.h",
-]
+EXPORTS += []

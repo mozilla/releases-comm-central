@@ -10,8 +10,14 @@
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
+if (AppConstants.MOZ_UPDATER) {
+  Services.scriptloader.loadSubScript(
+    "chrome://messenger/content/aboutDialog-appUpdater.js",
+    this
+  );
+}
 
-function init(aEvent) {
+async function init(aEvent) {
   if (aEvent.target != document) {
     return;
   }
@@ -40,30 +46,32 @@ function init(aEvent) {
     }
   }
 
-  // XXX FIXME
-  // Include the build ID and display warning if this is an "a#" (nightly) build
-  let versionField = document.getElementById("version");
+  // Include the build ID and display warning if this is an "a#" (nightly or aurora) build
+  let versionId = "aboutDialog-version";
+  let versionAttributes = {
+    version: AppConstants.MOZ_APP_VERSION_DISPLAY,
+    bits: Services.appinfo.is64Bit ? 64 : 32,
+  };
+
   let version = Services.appinfo.version;
   if (/a\d+$/.test(version)) {
+    versionId = "aboutDialog-version-nightly";
     let buildID = Services.appinfo.appBuildID;
     let year = buildID.slice(0, 4);
     let month = buildID.slice(4, 6);
     let day = buildID.slice(6, 8);
-    versionField.textContent += ` (${year}-${month}-${day})`;
+    versionAttributes.isodate = `${year}-${month}-${day}`;
 
     document.getElementById("experimental").hidden = false;
     document.getElementById("communityDesc").hidden = true;
   }
 
-  // Append "(32-bit)" or "(64-bit)" build architecture to the version number:
-  let bundle = Services.strings.createBundle(
-    "chrome://messenger/locale/messenger.properties"
-  );
-  let archResource = Services.appinfo.is64Bit
-    ? "aboutDialog.architecture.sixtyFourBit"
-    : "aboutDialog.architecture.thirtyTwoBit";
-  let arch = bundle.GetStringFromName(archResource);
-  versionField.textContent += ` (${arch})`;
+  // Use Fluent arguments for append version and the architecture of the build
+  let versionField = document.getElementById("version");
+
+  document.l10n.setAttributes(versionField, versionId, versionAttributes);
+
+  await document.l10n.translateElements([versionField]);
 
   if (!AppConstants.NIGHTLY_BUILD) {
     // Show a release notes link if we have a URL.

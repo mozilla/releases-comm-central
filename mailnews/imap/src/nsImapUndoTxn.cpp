@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "msgCore.h"  // for precompiled headers
-#include "nsMsgImapCID.h"
 #include "nsIMsgHdr.h"
 #include "nsImapUndoTxn.h"
 #include "nsIMsgIncomingServer.h"
@@ -79,7 +78,7 @@ NS_IMETHODIMP
 nsImapMoveCopyMsgTxn::UndoTransaction(void) {
   nsresult rv;
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool finishInOnStopRunningUrl = false;
@@ -154,7 +153,7 @@ NS_IMETHODIMP
 nsImapMoveCopyMsgTxn::RedoTransaction(void) {
   nsresult rv;
   nsCOMPtr<nsIImapService> imapService =
-      do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (m_isMove || !m_dstFolder) {
@@ -326,7 +325,7 @@ NS_IMETHODIMP nsImapMoveCopyMsgTxn::OnStopRunningUrl(nsIURI* aUrl,
   if (imapUrl) {
     nsresult rv;
     nsCOMPtr<nsIImapService> imapService =
-        do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     nsImapAction imapAction;
     imapUrl->GetImapAction(&imapAction);

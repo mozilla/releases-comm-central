@@ -9,7 +9,7 @@
 #include "mozilla/Attributes.h"
 #include "nsAbCardProperty.h"
 
-#define NS_ABOSXCARD_URI_PREFIX NS_ABOSXCARD_PREFIX "://"
+#define NS_ABOSXCARD_URI_PREFIX "moz-abosxcard://"
 
 #define NS_IABOSXCARD_IID                            \
   {                                                  \

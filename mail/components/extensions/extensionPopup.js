@@ -15,9 +15,15 @@ var { MailE10SUtils } = ChromeUtils.import(
   "resource:///modules/MailE10SUtils.jsm"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  PromiseUtils: "resource://gre/modules/PromiseUtils.sys.mjs",
+});
+
 var gContextMenu;
 
 /* globals nsContextMenu, reporterListener */
+
+window.addEventListener("DOMContentLoaded", loadRequestedUrl);
 
 function loadRequestedUrl() {
   let browser = document.getElementById("requestFrame");
@@ -92,6 +98,9 @@ var gBrowser = {
     document.title = docTitle;
     document.dispatchEvent(new Event("extension-window-title-changed"));
   },
+  getTabForBrowser(browser) {
+    return null;
+  },
 };
 
 this.__defineGetter__("browser", getBrowser);
@@ -104,3 +113,32 @@ function fillMailContextMenu(event) {
   return gContextMenu.shouldDisplay;
 }
 function mailContextOnPopupHiding() {}
+
+var gBrowserInit = {
+  onDOMContentLoaded() {
+    let initiallyFocusedElement = document.commandDispatcher.focusedElement;
+    let promise = gBrowser.selectedBrowser.isRemoteBrowser
+      ? PromiseUtils.defer().promise
+      : Promise.resolve();
+
+    promise.then(() => {
+      // If focus didn't move while we were waiting, we're okay to move to
+      // the browser.
+      if (
+        document.commandDispatcher.focusedElement == initiallyFocusedElement
+      ) {
+        gBrowser.selectedBrowser.focus();
+      }
+    });
+  },
+};
+
+// The listener of DOMContentLoaded must be set on window, rather than
+// document, because the window can go away before the event is fired.
+// In that case, we don't want to initialize anything, otherwise we
+// may be leaking things because they will never be destroyed after.
+window.addEventListener(
+  "DOMContentLoaded",
+  gBrowserInit.onDOMContentLoaded.bind(gBrowserInit),
+  { once: true }
+);

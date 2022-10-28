@@ -5,7 +5,6 @@
 #include "nsAbOutlookInterface.h"
 #include "nsAbWinHelper.h"
 #include "nsComponentManagerUtils.h"
-#include "nsAbBaseCID.h"
 
 NS_IMPL_ISUPPORTS(nsAbOutlookInterface, nsIAbOutlookInterface)
 

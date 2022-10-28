@@ -46,6 +46,40 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   TBDistCustomizer: "resource:///modules/TBDistCustomizer.jsm",
 });
 
+if (AppConstants.MOZ_UPDATER) {
+  XPCOMUtils.defineLazyModuleGetters(lazy, {
+    UpdateListener: "resource://gre/modules/UpdateListener.jsm",
+  });
+}
+
+const listeners = {
+  observers: {},
+
+  observe(subject, topic, data) {
+    for (let module of this.observers[topic]) {
+      try {
+        lazy[module].observe(subject, topic, data);
+      } catch (e) {
+        Cu.reportError(e);
+      }
+    }
+  },
+
+  init() {
+    for (let observer of Object.keys(this.observers)) {
+      Services.obs.addObserver(this, observer);
+    }
+  },
+};
+if (AppConstants.MOZ_UPDATER) {
+  listeners.observers["update-downloading"] = ["UpdateListener"];
+  listeners.observers["update-staged"] = ["UpdateListener"];
+  listeners.observers["update-downloaded"] = ["UpdateListener"];
+  listeners.observers["update-available"] = ["UpdateListener"];
+  listeners.observers["update-error"] = ["UpdateListener"];
+  listeners.observers["update-swap"] = ["UpdateListener"];
+}
+
 const PREF_PDFJS_ISDEFAULT_CACHE_STATE = "pdfjs.enabledCache.state";
 
 let JSWINDOWACTORS = {
@@ -64,10 +98,10 @@ let JSWINDOWACTORS = {
 
   ContextMenu: {
     parent: {
-      moduleURI: "resource:///actors/ContextMenuParent.jsm",
+      esModuleURI: "resource:///actors/ContextMenuParent.sys.mjs",
     },
     child: {
-      moduleURI: "resource:///actors/ContextMenuChild.jsm",
+      esModuleURI: "resource:///actors/ContextMenuChild.sys.mjs",
       events: {
         contextmenu: { mozSystemGroup: true },
       },
@@ -369,6 +403,9 @@ MailGlue.prototype = {
         break;
       case "quit-application-granted":
         Services.startup.trackStartupCrashEnd();
+        if (AppConstants.MOZ_UPDATER) {
+          lazy.UpdateListener.reset();
+        }
         break;
       case "mail-startup-done":
         this._onFirstWindowLoaded();
@@ -504,10 +541,40 @@ MailGlue.prototype = {
     );
 
     if (AppConstants.MOZ_UPDATER) {
-      const { AppUpdateUI } = ChromeUtils.import(
-        "resource:///modules/AppUpdateUI.jsm"
-      );
-      AppUpdateUI.init();
+      listeners.init();
+    }
+  },
+
+  _checkForOldBuildUpdates() {
+    // check for update if our build is old
+    if (
+      AppConstants.MOZ_UPDATER &&
+      Services.prefs.getBoolPref("app.update.checkInstallTime")
+    ) {
+      let buildID = Services.appinfo.appBuildID;
+      let today = new Date().getTime();
+      /* eslint-disable no-multi-spaces */
+      let buildDate = new Date(
+        buildID.slice(0, 4), // year
+        buildID.slice(4, 6) - 1, // months are zero-based.
+        buildID.slice(6, 8), // day
+        buildID.slice(8, 10), // hour
+        buildID.slice(10, 12), // min
+        buildID.slice(12, 14)
+      ) // ms
+        .getTime();
+      /* eslint-enable no-multi-spaces */
+
+      const millisecondsIn24Hours = 86400000;
+      let acceptableAge =
+        Services.prefs.getIntPref("app.update.checkInstallTime.days") *
+        millisecondsIn24Hours;
+
+      if (buildDate + acceptableAge < today) {
+        Cc["@mozilla.org/updates/update-service;1"]
+          .getService(Ci.nsIApplicationUpdateService)
+          .checkForBackgroundUpdates();
+      }
     }
   },
 
@@ -520,6 +587,8 @@ MailGlue.prototype = {
       Ci.mozINewMailListener
     );
     Cc["@mozilla.org/chat/logger;1"].getService(Ci.imILogger);
+
+    this._checkForOldBuildUpdates();
 
     // On Windows 7 and above, initialize the jump list module.
     const WINTASKBAR_CONTRACTID = "@mozilla.org/windows-taskbar;1";
@@ -655,6 +724,12 @@ MailGlue.prototype = {
         task() {
           lazy.ChatCore.idleStart();
           ChromeUtils.importESModule("resource:///modules/index_im.sys.mjs");
+        },
+      },
+      {
+        condition: AppConstants.MOZ_UPDATER,
+        task: () => {
+          lazy.UpdateListener.maybeShowUnsupportedNotification();
         },
       },
       {

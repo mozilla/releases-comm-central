@@ -615,7 +615,6 @@ extern "C" nsresult MimeGetAttachmentList(MimeObject* tobj,
 
 extern "C" void NotifyEmittersOfAttachmentList(MimeDisplayOptions* opt,
                                                nsMsgAttachmentData* data) {
-  int32_t i = 0;
   nsMsgAttachmentData* tmp = data;
 
   if (!tmp) return;
@@ -636,7 +635,6 @@ extern "C" void NotifyEmittersOfAttachmentList(MimeDisplayOptions* opt,
         (tmp->m_realName.IsEmpty() ||
          (!tmp->m_hasFilename &&
           (opt->html_as_p != 4 || opt->metadata_only)))) {
-      ++i;
       ++tmp;
       continue;
     }
@@ -680,7 +678,6 @@ extern "C" void NotifyEmittersOfAttachmentList(MimeDisplayOptions* opt,
     }
 
     mimeEmitterEndAttachment(opt);
-    ++i;
     ++tmp;
   }
   mimeEmitterEndAllAttachments(opt);

@@ -11,32 +11,34 @@
 <?xml-stylesheet href="chrome://messenger/skin/browserRequest.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/extensionPopup.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
   %brandDTD;
   <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd">
   %messengerDTD;
 ]>
-<window id="browserRequest"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        windowtype="mail:extensionPopup"
-        buttons=","
-        onload="loadRequestedUrl()"
-        title="&titledefault.label;"
-        titlemodifier="&titledefault.label;"
-        titlemenuseparator="&titleSeparator.label;"
-        width="800"
-        height="500"
-        orient="vertical">
-
-  <script src="chrome://communicator/content/utilityOverlay.js"/>
-  <script src="chrome://global/content/contentAreaUtils.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://messenger/content/viewZoomOverlay.js"/>
-  <script src="chrome://messenger/content/browserRequest.js"/>
-  <script src="chrome://messenger/content/extensionPopup.js"/>
-  <script src="chrome://messenger/content/nsContextMenu.js"/>
+<html id="browserRequest" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="mail:extensionPopup"
+      titlemodifier="&titledefault.label;"
+      titlemenuseparator="&titleSeparator.label;"
+      width="800" height="500"
+      scrolling="false">
+<head>
+  <title>&titledefault.label;</title>
+  <link rel="localization" href="toolkit/global/textActions.ftl" />
+  <link rel="localization" href="messenger/messenger.ftl" />
+  <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/viewZoomOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/browserRequest.js"></script>
+  <script defer="defer" src="chrome://messenger/content/nsContextMenu.js"></script>
+  <script defer="defer" src="chrome://messenger/content/extensionPopup.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <popupset>
 #define BROWSER_POPUPS_ONLY
@@ -51,11 +53,6 @@
   </commandset>
 
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-
-  <linkset>
-    <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
-    <html:link rel="localization" href="messenger/messenger.ftl"/>
-  </linkset>
 
   <!-- Use the same styling and semantics as content tabs. -->
   <html:div id="header" class="contentTabAddress">
@@ -74,4 +71,5 @@
              selectmenulist="ContentSelectDropdown"
              messagemanagergroup="browsers"/>
   </stack>
-</window>
+</html:body>
+</html>

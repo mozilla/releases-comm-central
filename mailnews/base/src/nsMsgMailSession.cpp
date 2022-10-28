@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "msgCore.h"  // for pre-compiled headers
-#include "nsMsgBaseCID.h"
 #include "nsMsgMailSession.h"
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"
@@ -43,7 +42,7 @@ nsresult nsMsgMailSession::Init() {
   // Ensures the shutdown service is initialised
   nsresult rv;
   nsCOMPtr<nsIMsgShutdownService> shutdownService =
-      do_GetService(NS_MSGSHUTDOWNSERVICE_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/messenger/msgshutdownservice;1", &rv);
   return rv;
 }
 
@@ -340,7 +339,7 @@ NS_IMETHODIMP nsMsgMailSession::RemoveMsgWindow(nsIMsgWindow* msgWindow) {
   if (!mWindows.Count()) {
     nsresult rv;
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
     if (NS_FAILED(rv)) return rv;
     accountManager->CleanupOnExit();
   }
@@ -468,7 +467,7 @@ nsresult nsMsgShutdownService::ProcessNextTask() {
     SetStatusText(taskName);
 
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService(NS_MSGMAILSESSION_CONTRACTID);
+        do_GetService("@mozilla.org/messenger/services/session;1");
     NS_ENSURE_TRUE(mailSession, NS_ERROR_FAILURE);
 
     nsCOMPtr<nsIMsgWindow> topMsgWindow;
@@ -569,11 +568,11 @@ NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports* aSubject,
 
     mTaskIndex = 0;
 
-    mMsgProgress = do_CreateInstance(NS_MSGPROGRESS_CONTRACTID);
+    mMsgProgress = do_CreateInstance("@mozilla.org/messenger/progress;1");
     NS_ENSURE_TRUE(mMsgProgress, NS_ERROR_FAILURE);
 
     nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService(NS_MSGMAILSESSION_CONTRACTID);
+        do_GetService("@mozilla.org/messenger/services/session;1");
     NS_ENSURE_TRUE(mailSession, NS_ERROR_FAILURE);
 
     nsCOMPtr<nsIMsgWindow> topMsgWindow;
