@@ -1590,10 +1590,10 @@ function getNormalWindowReady(context, windowId) {
         if (window && finishedWindow != window) {
           return;
         }
-        Services.obs.removeObserver(obs, "mail-delayed-startup-finished");
+        Services.obs.removeObserver(obs, "browser-delayed-startup-finished");
         resolve(finishedWindow);
       };
-      Services.obs.addObserver(obs, "mail-delayed-startup-finished");
+      Services.obs.addObserver(obs, "browser-delayed-startup-finished");
     } else {
       resolve(window);
     }
