@@ -5,13 +5,13 @@
 loader: gecko_taskgraph.loader.transform:loader
 
 transforms:
-    - gecko_taskgraph.transforms.cross_channel:transforms
+    - comm_taskgraph.transforms.tb_cross_channel:transforms
     - gecko_taskgraph.transforms.job:transforms
     - gecko_taskgraph.transforms.task:transforms
 
 jobs:
     quarantine:
-        description: Push strings from all shipping trains to the quarantine strings repo
+        description: Push strings from all shipping trains to comm-strings-quarantine
         run-on-projects: []
         worker-type: b-linux
         ssh-key-secret:
@@ -29,12 +29,13 @@ jobs:
                 TASK_ID: {"task-reference": "<self>"}
                 TASKCLUSTER_PROXY_URL: http://taskcluster
         treeherder:
-            platform: firefox-release/opt
+            platform: thunderbird-release/opt
             tier: 1
             kind: build
             symbol: Rel(l10n-cross-channel)
         run:
             using: mach
+            comm-checkout: true
             actions:
                 by-level:
                     "3": ["prep", "create", "push", "clean"]
