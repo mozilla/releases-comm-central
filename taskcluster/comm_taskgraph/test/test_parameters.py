@@ -30,6 +30,7 @@ class TestCommParameters(unittest.TestCase):
         "comm_head_rev": "comm_head_rev",
         "comm_src_path": "comm/",
         "do_not_optimize": [],
+        "enable_always_target": False,
         "existing_tasks": {},
         "filters": [],
         "head_ref": "head_ref",
