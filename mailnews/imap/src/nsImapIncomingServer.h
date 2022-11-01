@@ -64,7 +64,7 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
   NS_IMETHOD GetServerRequiresPasswordForBiff(
       bool* aServerRequiresPasswordForBiff) override;
   NS_IMETHOD GetNumIdleConnections(int32_t* aNumIdleConnections);
-  NS_IMETHOD ForgetSessionPassword() override;
+  NS_IMETHOD ForgetSessionPassword(bool modifyLogin) override;
   NS_IMETHOD GetMsgFolderFromURI(nsIMsgFolder* aFolderResource,
                                  const nsACString& aURI,
                                  nsIMsgFolder** aFolder) override;

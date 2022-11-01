@@ -4945,7 +4945,7 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
   do {
     newLine = m_inputStreamBuffer->ReadNextLine(m_inputStream, numBytesInLine,
                                                 needMoreData, &rv);
-    MOZ_LOG(IMAP, LogLevel::Debug,
+    MOZ_LOG(IMAP, LogLevel::Verbose,
             ("ReadNextLine [rv=0x%" PRIx32 " stream=%p nb=%u needmore=%u]",
              static_cast<uint32_t>(rv), m_inputStream.get(), numBytesInLine,
              needMoreData));
@@ -5064,8 +5064,9 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
 nsresult nsImapProtocol::GetConnectionStatus() { return m_connectionStatus; }
 
 void nsImapProtocol::SetConnectionStatus(nsresult status) {
+  // Log failure at Debug level, otherwise use Verbose to avoid huge logs
   MOZ_LOG(
-      IMAP, LogLevel::Debug,
+      IMAP, NS_SUCCEEDED(status) ? LogLevel::Verbose : LogLevel::Debug,
       ("SetConnectionStatus(0x%" PRIx32 ")", static_cast<uint32_t>(status)));
   m_connectionStatus = status;
 }
@@ -6838,42 +6839,52 @@ void nsImapProtocol::OnStatusForFolder(const char* mailboxName) {
           "mailbox change on selected folder during noop");
       m_imapMailFolderSinkSelected->OnNewIdleMessages();
     }
-    return;
+    mailboxName = nullptr;  // for new_spec below. Obtain SELECTed mailbox data.
+  } else {
+    // Imap connection is not in selected state or imap connection is selected
+    // on a mailbox other than than the mailbox folderstatus URL is requesting
+    // status for.
+    IncrementCommandTagNumber();
+
+    nsAutoCString command(GetServerCommandTag());
+    nsCString escapedName;
+    CreateEscapedMailboxName(mailboxName, escapedName);
+
+    command.AppendLiteral(" STATUS \"");
+    command.Append(escapedName);
+    command.AppendLiteral("\" (UIDNEXT MESSAGES UNSEEN RECENT)" CRLF);
+
+    int32_t prevNumMessages = GetServerStateParser().NumberOfMessages();
+    nsresult rv = SendData(command.get());
+    if (NS_SUCCEEDED(rv)) ParseIMAPandCheckForNewMail();
+
+    // Respond to possible untagged responses EXISTS and RECENT for the SELECTed
+    // folder. Handle as though this were an IDLE response. Can't check for any
+    // untagged as for Noop() above since STATUS always produces an untagged
+    // response for the target mailbox and possibly also for the SELECTed box.
+    // Of cource, this won't occur if imap connection is not in selected state.
+    if (GetServerStateParser().GetIMAPstate() ==
+            nsImapServerResponseParser::kFolderSelected &&
+        m_imapMailFolderSinkSelected &&
+        (GetServerStateParser().NumberOfRecentMessages() ||
+         prevNumMessages != GetServerStateParser().NumberOfMessages())) {
+      Log("OnStatusForFolder", nullptr,
+          "new mail on selected folder during status");
+      m_imapMailFolderSinkSelected->OnNewIdleMessages();
+    }
+    MOZ_ASSERT(m_imapMailFolderSink != m_imapMailFolderSinkSelected);
   }
 
-  IncrementCommandTagNumber();
-
-  nsAutoCString command(GetServerCommandTag());
-  nsCString escapedName;
-  CreateEscapedMailboxName(mailboxName, escapedName);
-
-  command.AppendLiteral(" STATUS \"");
-  command.Append(escapedName);
-  command.AppendLiteral("\" (UIDNEXT MESSAGES UNSEEN RECENT)" CRLF);
-
-  int32_t prevNumMessages = GetServerStateParser().NumberOfMessages();
-  nsresult rv = SendData(command.get());
-  if (NS_SUCCEEDED(rv)) ParseIMAPandCheckForNewMail();
-
+  // Always do this to ensure autosync detects changes in server counts and thus
+  // triggers a full body fetch for when NOOP or STATUS is sent above.
+  // Note: For SELECTed noop() above, "folder sink" and "folder sink selected"
+  // both reference the same folder but are not always equal. So OK to use
+  // m_imapMailFolderSink below since it is correct for NOOP and STATUS cases.
   if (GetServerStateParser().LastCommandSuccessful()) {
     RefPtr<nsImapMailboxSpec> new_spec =
         GetServerStateParser().CreateCurrentMailboxSpec(mailboxName);
     if (new_spec && m_imapMailFolderSink)
       m_imapMailFolderSink->UpdateImapMailboxStatus(this, new_spec);
-  }
-
-  // Respond to possible untagged responses EXISTS and RECENT for the SELECTed
-  // folder. Handle as though this were an IDLE response. Can't check for any
-  // untagged as for Noop() above since STATUS produces untagged response for
-  // the target mailbox and not just for the SELECTed box.
-  if (GetServerStateParser().GetIMAPstate() ==
-          nsImapServerResponseParser::kFolderSelected &&
-      m_imapMailFolderSinkSelected &&
-      (GetServerStateParser().NumberOfRecentMessages() ||
-       prevNumMessages != GetServerStateParser().NumberOfMessages())) {
-    Log("OnStatusForFolder", nullptr,
-        "new mail on selected folder during status");
-    m_imapMailFolderSinkSelected->OnNewIdleMessages();
   }
 }
 

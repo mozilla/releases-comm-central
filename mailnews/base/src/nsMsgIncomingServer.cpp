@@ -102,7 +102,14 @@ nsMsgIncomingServer::Observe(nsISupports* aSubject, const char* aTopic,
       }
       if (!fullName.Equals(NS_ConvertUTF16toUTF8(hostnameInfo))) return NS_OK;
     }
-    rv = ForgetSessionPassword();
+    // When this calls nsMsgImapIncomingServer::ForgetSessionPassword with
+    // parameter modifyLogin true and if the server uses oauth2, it causes the
+    // password to not be cleared from cache. This is needed by autosync. When
+    // the aData paremater of Observe() is not "modifyLogin" but is
+    // e.g., "removeLogin" or "removeAllLogins", ForgetSessionPassword(false)
+    // will still clear the cached password regardless of authentication method.
+    rv = ForgetSessionPassword(
+        nsDependentString(aData).EqualsLiteral("modifyLogin"));
     NS_ENSURE_SUCCESS(rv, rv);
   } else if (strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID) == 0) {
     // Now remove ourselves from the observer service as well.
@@ -833,7 +840,7 @@ nsMsgIncomingServer::ForgetPassword() {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::ForgetSessionPassword() {
+nsMsgIncomingServer::ForgetSessionPassword(bool modifyLogin) {
   m_password.Truncate();
   return NS_OK;
 }

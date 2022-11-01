@@ -506,8 +506,11 @@ void nsImapOfflineSync::ProcessMoveOperation(nsIMsgOfflineImapOperation* op) {
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
       do_QueryInterface(m_currentFolder);
   if (imapFolder && DestFolderOnSameServer(destFolder)) {
+    uint32_t curFolderFlags;
+    m_currentFolder->GetFlags(&curFolderFlags);
+    bool curFolderOffline = curFolderFlags & nsMsgFolderFlags::Offline;
     imapFolder->ReplayOfflineMoveCopy(matchingFlagKeys, true, destFolder, this,
-                                      m_window);
+                                      m_window, curFolderOffline);
   } else {
     nsresult rv;
     nsTArray<RefPtr<nsIMsgDBHdr>> messages;
@@ -611,8 +614,11 @@ void nsImapOfflineSync::ProcessCopyOperation(
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
       do_QueryInterface(m_currentFolder);
   if (imapFolder && DestFolderOnSameServer(destFolder)) {
+    uint32_t curFolderFlags;
+    m_currentFolder->GetFlags(&curFolderFlags);
+    bool curFolderOffline = curFolderFlags & nsMsgFolderFlags::Offline;
     rv = imapFolder->ReplayOfflineMoveCopy(matchingFlagKeys, false, destFolder,
-                                           this, m_window);
+                                           this, m_window, curFolderOffline);
   } else {
     nsTArray<RefPtr<nsIMsgDBHdr>> messages;
     for (uint32_t keyIndex = 0; keyIndex < matchingFlagKeys.Length();

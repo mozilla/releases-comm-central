@@ -18,27 +18,50 @@ interface nsIAutoSyncState : nsISupports {
    * happen.
    */
 
-  /** sync'd and no pending messages */
+  /**
+   * Initial state.  Returned to after new message bodies downloaded or if
+   * it is determined that no body fetches are actually needed. The next state
+   * is typically stStatusIssued but a transition directly to stUpdateNeeded
+   * may also occur.
+   */
   const long stCompletedIdle = 0;
 
-  /** STATUS issued. Will check to see if  any counts changed since last STATUS */
+  /**
+   * STATUS issued (URL "folderstatus"). Will check to see if new messages
+   * are present. If new messages are detected, the next state is
+   * stUpdateIssued; otherwise, a return to stCompleteIdle occurs. The previous
+   * state is always stCompleteIdle.
+   */
   const long stStatusIssued = 1;
 
   /**
-   * Status found new messages. Update should be issued next. Status most
-   * likely was issued by non-autosync code (e.g., check other folders for
-   * new messages).
+   * Occurs when imap APPEND and sometimes COPY or MOVE imap commands add
+   * messages that may not be detected in autosync stStatusIssued state. These
+   * are the "pending" messages referred to in the autosync code.
+   * stUpdateIssued state (URL "select") will occur next.
+   * The previous state is always stCompleteIdle, skipping stStatusIssued.
    */
   const long stUpdateNeeded = 2;
 
-  /** Update issued. Will figure out if there are any bodies to download */
+  /**
+   * Update issued (URL "select"). Will figure out if there are any bodies to
+   * download after new headers are fetched and, if so, move to state
+   * stReadyToDownload. Otherwise, returns to stCompleteIdle.
+   */
   const long stUpdateIssued = 3;
 
-  /** Message body download in progress */
-  const long stDownloadInProgress = 4;
+  /**
+   * Preparing to download the next group of message bodies then move to
+   * stDownloadInProgress
+   */
+  const long stReadyToDownload = 4;
 
-  /** ready to download the next group of messages */
-  const long stReadyToDownload = 5;
+  /**
+   * Fetch bodies issued (URL "fetch"). Group of message bodies download in
+   * progress. If more are needed, next state is stReadyToDownload; otherwise,
+   * when all are received, the next state is stCompleteIdle.
+   */
+  const long stDownloadInProgress = 5;
 
   /**
    * Puts the download queue offset to its previous position.
@@ -96,6 +119,11 @@ interface nsIAutoSyncState : nsISupports {
    * @return the number of headers left to process
    */
   unsigned long processExistingHeaders(in unsigned long aNumberOfHeadersToProcess);
+
+  /**
+   * Tests whether the download queue is empty.
+   */
+  boolean isDownloadQEmpty();
 
   /**
    * Last time the existing headers are completely processed.

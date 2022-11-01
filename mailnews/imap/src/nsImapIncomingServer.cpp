@@ -1924,23 +1924,34 @@ void nsImapIncomingServer::GetUnverifiedSubFolders(
   }
 }
 
-NS_IMETHODIMP nsImapIncomingServer::ForgetSessionPassword() {
-  nsresult rv = nsMsgIncomingServer::ForgetSessionPassword();
-  NS_ENSURE_SUCCESS(rv, rv);
+NS_IMETHODIMP nsImapIncomingServer::ForgetSessionPassword(bool modifyLogin) {
+  bool usingOauth2 = false;
+  if (modifyLogin) {
+    // Only need to check for oauth2 if modifyLogin is true.
+    int32_t authMethod = 0;
+    GetAuthMethod(&authMethod);
+    usingOauth2 = (authMethod == nsMsgAuthMethod::OAuth2);
+  }
 
-  // fix for bugscape bug #15485
-  // if we use turbo, and we logout, we need to make sure
-  // the server doesn't think it's authenticated.
-  // the biff timer continues to fire when you use turbo
-  // (see #143848).  if we exited, we've set the password to null
-  // but if we're authenticated, and the biff timer goes off
-  // we'll still perform biff, because we use m_userAuthenticated
-  // to determine if we require a password for biff.
-  // (if authenticated, we don't require a password
-  // see nsMsgBiffManager::PerformBiff())
-  // performing biff without a password will pop up the prompt dialog
-  // which is pretty wacky, when it happens after you quit the application
-  m_userAuthenticated = false;
+  // Clear the cached password if not using Oauth2 or if modifyLogin is false.
+  if (!usingOauth2 || !modifyLogin) {
+    nsresult rv = nsMsgIncomingServer::ForgetSessionPassword(modifyLogin);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // fix for bugscape bug #15485
+    // if we use turbo, and we logout, we need to make sure
+    // the server doesn't think it's authenticated.
+    // the biff timer continues to fire when you use turbo
+    // (see #143848).  if we exited, we've set the password to null
+    // but if we're authenticated, and the biff timer goes off
+    // we'll still perform biff, because we use m_userAuthenticated
+    // to determine if we require a password for biff.
+    // (if authenticated, we don't require a password
+    // see nsMsgBiffManager::PerformBiff())
+    // performing biff without a password will pop up the prompt dialog
+    // which is pretty wacky, when it happens after you quit the application
+    m_userAuthenticated = false;
+  }
   return NS_OK;
 }
 
