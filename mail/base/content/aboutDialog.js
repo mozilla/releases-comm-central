@@ -94,7 +94,10 @@ async function init(aEvent) {
     let channelLabel = document.getElementById("currentChannel");
     let currentChannelText = document.getElementById("currentChannelText");
     channelLabel.value = UpdateUtils.UpdateChannel;
-    if (gAppUpdater.updateDisabledByPackage) {
+    if (
+      /^release($|\-)/.test(channelLabel.value) ||
+      Services.sysinfo.getProperty("isPackagedApp")
+    ) {
       currentChannelText.hidden = true;
     }
   }
