@@ -403,6 +403,11 @@ function onLoad() {
     rule.type = "DAILY";
     rule.interval = 1;
     rule.count = -1;
+
+    // We don't let the user set the week start day for a given rule, but we
+    // want to default to the user's week start so rules behave as expected
+    let weekStart = Services.prefs.getIntPref("calendar.week.start", 0);
+    rule.weekStart = weekStart;
   }
   initializeControls(rule);
 
@@ -448,6 +453,8 @@ function initializeControls(rule) {
     let mask = aByDay.reduce((value, item) => value | (1 << item), 1);
     return aByDay.length == 7 && mask == Math.pow(2, 8) - 1;
   }
+
+  document.getElementById("week-start").value = rule.weekStart;
 
   switch (rule.type) {
     case "DAILY":
@@ -622,6 +629,12 @@ function onSave(item) {
   }
 
   let recRule = cal.createRecurrenceRule();
+
+  // We don't let the user edit the start of the week for a given rule, but we
+  // want to preserve the value set
+  let weekStart = Number(document.getElementById("week-start").value);
+  recRule.weekStart = weekStart;
+
   const ALL_WEEKDAYS = [2, 3, 4, 5, 6, 7, 1]; // The sequence MO,TU,WE,TH,FR,SA,SU.
   switch (periodNumber) {
     case 0: {
