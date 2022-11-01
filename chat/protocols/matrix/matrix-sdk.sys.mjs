@@ -259,7 +259,7 @@ let loader = Loader({
 // wasm module, do crypto operations and log errors.
 // Create the global in the commonJS loader context, so they share the same
 // Uint8Array constructor.
-let olmScope = Cu.createObjectIn(loader.sharedGlobalSandbox);
+let olmScope = Cu.createObjectIn(loader.sharedGlobal);
 Object.assign(olmScope, {
   crypto,
   fetch,

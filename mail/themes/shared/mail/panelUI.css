@@ -789,8 +789,37 @@ menulist[open="true"]:not([disabled="true"]) {
 
 /* App Menu items icons */
 
-#appmenu-quit {
-  list-style-image: var(--icon-quit);
+/* Sync */
+
+/* TODO: Temporarily hide these elements until the sync back-end is in place */
+#appmenu_signin,
+#appmenu_sync,
+#syncSeparator {
+  display: none;
+}
+
+#appmenu_signin {
+  list-style-image: var(--icon-sync);
+}
+
+#appmenu-sync-icon {
+  content: var(--icon-sync);
+}
+
+#syncSeparator {
+  background-color: var(--color-blue-50);
+  background-image: linear-gradient(to right, var(--color-teal-40), var(--color-magenta-60));
+  height: 1px;
+  border: none;
+  border-radius: 2px;
+}
+
+#appmenu-manage-sync-icon  {
+  content: var(--icon-contact);
+}
+
+.appmenu-sync-account-email {
+  font-weight: 600;
 }
 
 /* New Account and Create */
@@ -1085,4 +1114,10 @@ menulist[open="true"]:not([disabled="true"]) {
 
 #appmenu_about {
   list-style-image: var(--icon-info);
+}
+
+/* Quit */
+
+#appmenu-quit {
+  list-style-image: var(--icon-quit);
 }

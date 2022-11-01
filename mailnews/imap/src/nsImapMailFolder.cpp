@@ -2441,13 +2441,13 @@ nsresult nsImapMailFolder::GetBodysToDownload(
   nsresult rv = mDatabase->EnumerateMessages(getter_AddRefs(enumerator));
   if (NS_SUCCEEDED(rv) && enumerator) {
     bool hasMore;
+    nsCOMPtr<nsIMsgDBHdr> header;
+    nsMsgKey msgKey;
     while (NS_SUCCEEDED(rv = enumerator->HasMoreElements(&hasMore)) &&
            hasMore) {
-      nsCOMPtr<nsIMsgDBHdr> header;
       rv = enumerator->GetNext(getter_AddRefs(header));
       NS_ENSURE_SUCCESS(rv, rv);
       bool shouldStoreMsgOffline = false;
-      nsMsgKey msgKey;
       header->GetMessageKey(&msgKey);
       // MsgFitsDownloadCriteria ignores nsMsgFolderFlags::Offline, which we
       // want
@@ -2457,6 +2457,16 @@ nsresult nsImapMailFolder::GetBodysToDownload(
         ShouldStoreMsgOffline(msgKey, &shouldStoreMsgOffline);
       if (shouldStoreMsgOffline)
         keysOfMessagesToDownload->AppendElement(msgKey);
+    }
+    if (MOZ_LOG_TEST(gAutoSyncLog, mozilla::LogLevel::Debug) && header) {
+      // Log this only if folder is not empty.
+      uint32_t msgFlags = 0;
+      header->GetFlags(&msgFlags);
+      MOZ_LOG(gAutoSyncLog, mozilla::LogLevel::Debug,
+              ("%s: num keys to download=%zu, last key=%d, last msg flag=0x%x "
+               "nsMsgMessageFlags::Offline=0x%x",
+               __func__, keysOfMessagesToDownload->Length(), msgKey, msgFlags,
+               nsMsgMessageFlags::Offline));
     }
   }
   return rv;
@@ -2685,6 +2695,12 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   return rv;
 }
 
+/*
+ * Called after successful imap STATUS response occurs. Have valid unseen value
+ * if folderstatus URL produced an imap STATUS. If a NOOP occurs instead (doing
+ * folderstatus from a connection SELECTed on the same folder) there is no
+ * UNSEEN returned by NOOP.
+ */
 NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxStatus(
     nsIImapProtocol* aProtocol, nsIMailboxSpec* aSpec) {
   NS_ENSURE_ARG_POINTER(aSpec);
@@ -3599,7 +3615,8 @@ NS_IMETHODIMP
 nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& aMsgKeys,
                                         bool isMove, nsIMsgFolder* aDstFolder,
                                         nsIUrlListener* aUrlListener,
-                                        nsIMsgWindow* aWindow) {
+                                        nsIMsgWindow* aWindow,
+                                        bool srcFolderOffline) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(aDstFolder);
@@ -3643,8 +3660,9 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& aMsgKeys,
             }
           }
         }
-        // 3rd parameter: Set offline flag.
-        destImapFolder->SetPendingAttributes(messages, isMove, true);
+        // 3rd parameter: Sets offline flag.
+        destImapFolder->SetPendingAttributes(messages, isMove,
+                                             srcFolderOffline);
       }
     }
     // if we can't get the dst folder db, we should still try to playback
@@ -5511,17 +5529,34 @@ nsImapMailFolder::HeaderFetchCompleted(nsIImapProtocol* aProtocol) {
         autoDownloadNewHeaders) {
       nsTArray<nsMsgKey> keysToDownload;
       GetBodysToDownload(&keysToDownload);
-      // this is the case when DownloadAllForOffline is called.
       if (!keysToDownload.IsEmpty() &&
           (m_downloadingFolderForOfflineUse || autoDownloadNewHeaders)) {
+        // this is the case when DownloadAllForOffline is called.
         notifiedBodies = true;
         aProtocol->NotifyBodysToDownload(keysToDownload);
       } else {
         // create auto-sync state object lazily
         InitAutoSyncState();
-
+        if (MOZ_LOG_TEST(gAutoSyncLog, mozilla::LogLevel::Debug)) {
+          int32_t flags = 0;
+          GetFlags((uint32_t*)&flags);
+          nsString folderName;
+          GetName(folderName);
+          nsCString utfLeafName;
+          CopyUTF16toUTF8(folderName, utfLeafName);
+          MOZ_LOG(gAutoSyncLog, mozilla::LogLevel::Debug,
+                  ("%s: foldername=%s, flags=0x%X, "
+                   "isOffline=%s, nsMsgFolderFlags::Offline=0x%X",
+                   __func__, utfLeafName.get(), flags,
+                   (flags & nsMsgFolderFlags::Offline) ? "true" : "false",
+                   nsMsgFolderFlags::Offline));
+          MOZ_LOG(gAutoSyncLog, mozilla::LogLevel::Debug,
+                  ("%s: created autosync obj, have keys to download=%s",
+                   __func__, keysToDownload.IsEmpty() ? "false" : "true"));
+        }
         // make enough room for new downloads
-        m_autoSyncStateObj->ManageStorageSpace();
+        m_autoSyncStateObj->ManageStorageSpace();  // currently a no-op
+
         m_autoSyncStateObj->SetServerCounts(
             m_numServerTotalMessages, m_numServerRecentMessages,
             m_numServerUnseenMessages, m_nextUID);
@@ -8771,7 +8806,7 @@ NS_IMETHODIMP nsImapMailFolder::InitiateAutoSync(nsIUrlListener* aUrlListener) {
   nsCString folderName;
   GetURI(folderName);
   MOZ_LOG(gAutoSyncLog, mozilla::LogLevel::Debug,
-          ("Updating folder: %s", folderName.get()));
+          ("%s: Updating folder: %s", __func__, folderName.get()));
 
   // HACK: if UpdateFolder finds out that it can't open
   // the folder, it doesn't set the url listener and returns
@@ -8782,7 +8817,7 @@ NS_IMETHODIMP nsImapMailFolder::InitiateAutoSync(nsIUrlListener* aUrlListener) {
 
   if (!canOpenThisFolder) {
     MOZ_LOG(gAutoSyncLog, mozilla::LogLevel::Debug,
-            ("Cannot update folder: %s", folderName.get()));
+            ("%s: Cannot update folder: %s", __func__, folderName.get()));
     return NS_ERROR_FAILURE;
   }
 

@@ -207,6 +207,11 @@ add_task(async () => {
 });
 
 add_task(async function checkTitlePreface() {
+  let l10n = new Localization([
+    "branding/brand.ftl",
+    "messenger/extensions/popup.ftl",
+  ]);
+
   let extension = ExtensionTestUtils.loadExtension({
     files: {
       "content.html": `
@@ -277,12 +282,13 @@ add_task(async function checkTitlePreface() {
   extension.onMessage("checkTitle", async titlePreface => {
     let win = Services.wm.getMostRecentWindow("mail:extensionPopup");
 
+    let defaultTitle = await l10n.formatValue("extension-popup-default-title");
+
     let expectedTitle = titlePreface + "A test document";
-    // If we're on Mac, don't display the separator and the modifier.
+    // If we're on Mac, we don't display the separator and the app name (which
+    // is also used as default title).
     if (AppConstants.platform != "macosx") {
-      expectedTitle +=
-        win.document.documentElement.getAttribute("titlemenuseparator") +
-        win.document.documentElement.getAttribute("titlemodifier");
+      expectedTitle += ` - ${defaultTitle}`;
     }
 
     if (win.document.title != expectedTitle) {

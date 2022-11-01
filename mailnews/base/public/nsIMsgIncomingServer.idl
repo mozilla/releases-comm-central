@@ -134,8 +134,14 @@ interface nsIMsgIncomingServer : nsISupports {
   /* forget the password in memory and in single signon database */
   void forgetPassword();
 
-  /* forget the password in memory which is cached for the session */
-  void forgetSessionPassword();
+  /**
+   * Forget the password in memory which is cached for the session.
+   *
+   * @param modifyLogin  Only relevant for nsImapIncomingServer override. When
+   *                     true and authentication method is oauth2, the password
+   *                     and user authenticated flag are not cleared.
+   */
+  void forgetSessionPassword(in boolean modifyLogin);
 
   /* should we download whole messages when biff goes off? */
   attribute boolean downloadOnBiff;

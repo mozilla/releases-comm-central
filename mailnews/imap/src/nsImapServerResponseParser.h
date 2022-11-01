@@ -60,7 +60,6 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   bool CurrentFolderReadOnly();
   int32_t NumberOfMessages();
   int32_t NumberOfRecentMessages();
-  int32_t NumberOfUnseenMessages();
   int32_t FolderUID();
   uint32_t CurrentResponseUID();
   uint32_t HighestRecordedUID();
@@ -132,9 +131,8 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   bool GetFillingInShell();
   void UseCachedShell(nsImapBodyShell* cachedShell);
   void SetHostSessionList(nsIImapHostSessionList* aHostSession);
-  char* fAuthChallenge;    // the challenge returned by the server in
-                           // response to authenticate using CRAM-MD5 or NTLM
-  bool fCondStoreEnabled;  // Not used it seems
+  char* fAuthChallenge;  // the challenge returned by the server in
+                         // response to authenticate using CRAM-MD5 or NTLM
   bool fUtf8AcceptEnabled;
   bool fUseModSeq;  // can use mod seq for currently selected folder
   uint64_t fHighestModSeq;
@@ -223,7 +221,7 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   uint16_t fSettablePermanentFlags;
 
   int32_t fFolderUIDValidity;
-  int32_t fNumberOfUnseenMessages;
+  int32_t fSeqNumOfFirstUnseenMsg;
   int32_t fNumberOfExistingMessages;
   int32_t fNumberOfRecentMessages;
   uint32_t fCurrentResponseUID;
@@ -236,7 +234,8 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   int32_t fStatusUnseenMessages;
   int32_t fStatusRecentMessages;
   uint32_t fStatusNextUID;
-  uint32_t fStatusExistingMessages;
+  int32_t fStatusExistingMessages;
+  uint32_t fNextUID;
 
   int fNumberOfTaggedResponsesExpected;
 

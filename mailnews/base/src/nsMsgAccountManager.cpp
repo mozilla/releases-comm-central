@@ -829,7 +829,7 @@ void nsMsgAccountManager::LogoutOfServer(nsIMsgIncomingServer* aServer) {
   if (!aServer) return;
   mozilla::DebugOnly<nsresult> rv = aServer->Shutdown();
   NS_ASSERTION(NS_SUCCEEDED(rv), "Shutdown of server failed");
-  rv = aServer->ForgetSessionPassword();
+  rv = aServer->ForgetSessionPassword(false);
   NS_ASSERTION(NS_SUCCEEDED(rv),
                "failed to remove the password associated with server");
 }

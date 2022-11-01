@@ -388,6 +388,17 @@ class ImapService {
     offlineSync.processNextOperation();
   }
 
+  getHeaders(folder, urlListener, outURL, messageIds, messageIdsAreUID) {
+    return this._withClient(folder, (client, runningUrl) => {
+      client.startRunningUrl(urlListener, null, runningUrl);
+      runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
+        Ci.nsIImapUrl.nsImapMsgFetch;
+      client.onReady = () => {
+        client.getHeaders(folder, messageIds);
+      };
+    });
+  }
+
   /**
    * Do some actions with a connection.
    * @param {nsIMsgFolder} folder - The associated folder.

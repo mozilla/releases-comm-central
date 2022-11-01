@@ -27,7 +27,7 @@ nsImapServerResponseParser::nsImapServerResponseParser(
       fCurrentFolderReadOnly(false),
       fCurrentLineContainedFlagInfo(false),
       fServerIsNetscape3xServer(false),
-      fNumberOfUnseenMessages(0),
+      fSeqNumOfFirstUnseenMsg(0),
       fNumberOfExistingMessages(0),
       fNumberOfRecentMessages(0),
       fSizeOfMostRecentMessage(0),
@@ -55,9 +55,9 @@ nsImapServerResponseParser::nsImapServerResponseParser(
   fStatusUnseenMessages = 0;
   fStatusRecentMessages = 0;
   fStatusNextUID = nsMsgKey_None;
+  fNextUID = nsMsgKey_None;
   fStatusExistingMessages = 0;
   fReceivedHeaderOrSizeForUID = nsMsgKey_None;
-  fCondStoreEnabled = false;  // Seems to be unused!
   fUtf8AcceptEnabled = false;
   fStdJunkNotJunkUseOk = false;
 }
@@ -1724,13 +1724,16 @@ void nsImapServerResponseParser::resp_text_code() {
     } else if (!PL_strcasecmp(fNextToken, "UNSEEN")) {
       AdvanceToNextToken();
       if (ContinueParse()) {
-        fNumberOfUnseenMessages = strtoul(fNextToken, nullptr, 10);
+        // Note: As a response code, "UNSEEN" is NOT the number of
+        // unseen/unread messages. It is the lowest sequence number of the first
+        // unseen/unread message in the mailbox.
+        fSeqNumOfFirstUnseenMsg = strtoul(fNextToken, nullptr, 10);
         AdvanceToNextToken();
       }
     } else if (!PL_strcasecmp(fNextToken, "UIDNEXT")) {
       AdvanceToNextToken();
       if (ContinueParse()) {
-        fStatusNextUID = strtoul(fNextToken, nullptr, 10);
+        fNextUID = strtoul(fNextToken, nullptr, 10);
         AdvanceToNextToken();
       }
     } else if (!PL_strcasecmp(fNextToken, "APPENDUID")) {
@@ -2067,11 +2070,8 @@ void nsImapServerResponseParser::enable_data() {
   do {
     // eat each enable response;
     AdvanceToNextToken();
-    if (!strcmp("CONDSTORE", fNextToken)) fCondStoreEnabled = true;
     if (!PL_strcasecmp("UTF8=ACCEPT", fNextToken)) fUtf8AcceptEnabled = true;
   } while (fNextToken && !fAtEndOfLine && ContinueParse());
-  // fCondStoreEnabled is not used. Also, an imap extension is not truly enabled
-  // unless there is an untagged response detected here.
 }
 
 void nsImapServerResponseParser::language_data() {
@@ -2871,10 +2871,6 @@ int32_t nsImapServerResponseParser::NumberOfRecentMessages() {
   return fNumberOfRecentMessages;
 }
 
-int32_t nsImapServerResponseParser::NumberOfUnseenMessages() {
-  return fNumberOfUnseenMessages;
-}
-
 int32_t nsImapServerResponseParser::FolderUID() { return fFolderUIDValidity; }
 
 void nsImapServerResponseParser::SetCurrentResponseUID(uint32_t uid) {
@@ -2904,6 +2900,8 @@ bool nsImapServerResponseParser::IsNumericString(const char* string) {
   return true;
 }
 
+// Capture the mailbox state for folder select/update and for status.
+// If mailboxName is null, we've done imap SELECT; otherwise STATUS.
 already_AddRefed<nsImapMailboxSpec>
 nsImapServerResponseParser::CreateCurrentMailboxSpec(
     const char* mailboxName /* = nullptr */) {
@@ -2920,23 +2918,26 @@ nsImapServerResponseParser::CreateCurrentMailboxSpec(
     returnSpec->mHierarchySeparator = (ns) ? ns->GetDelimiter() : '/';
   }
 
-  returnSpec->mFolderSelected =
-      !mailboxName;  // if mailboxName is null, we're doing a Status
+  returnSpec->mFolderSelected = !mailboxName;
   returnSpec->mFolder_UIDVALIDITY = fFolderUIDValidity;
   returnSpec->mHighestModSeq = fHighestModSeq;
+  // clang-format off
   returnSpec->mNumOfMessages =
       (mailboxName) ? fStatusExistingMessages : fNumberOfExistingMessages;
   returnSpec->mNumOfUnseenMessages =
-      (mailboxName) ? fStatusUnseenMessages : fNumberOfUnseenMessages;
+      (mailboxName) ? fStatusUnseenMessages : fSeqNumOfFirstUnseenMsg;
+                                              // fSeqNumOfFirstUnseenMsg is
+                                              // wrong but causes no harm!
   returnSpec->mNumOfRecentMessages =
       (mailboxName) ? fStatusRecentMessages : fNumberOfRecentMessages;
-  returnSpec->mNextUID = fStatusNextUID;
+  returnSpec->mNextUID =
+      (mailboxName) ? fStatusNextUID : fNextUID;
+  // clang-format on
 
   returnSpec->mSupportedUserFlags = fSupportsUserDefinedFlags;
 
-  returnSpec->mBoxFlags = kNoFlags;  // stub
-  returnSpec->mOnlineVerified =
-      false;  // we're fabricating this.  The flags aren't verified.
+  returnSpec->mBoxFlags = kNoFlags;     // stub
+  returnSpec->mOnlineVerified = false;  // Fabricated. Flags aren't verified.
   returnSpec->mAllocatedPathName.Assign(mailboxNameToConvert);
   returnSpec->mConnection = &fServerConnection;
   if (returnSpec->mConnection) {

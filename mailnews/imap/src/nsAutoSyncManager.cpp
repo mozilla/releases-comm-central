@@ -256,7 +256,7 @@ void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
     autoSyncMgr->StopTimer();
   }
 
-  // process folders within the discovery queue
+  // process a folder in the discovery queue
   if (autoSyncMgr->mDiscoveryQ.Count() > 0) {
     nsCOMPtr<nsIAutoSyncState> autoSyncStateObj(autoSyncMgr->mDiscoveryQ[0]);
     if (autoSyncStateObj) {
@@ -277,6 +277,14 @@ void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
           NOTIFY_LISTENERS_STATIC(
               autoSyncMgr, OnFolderRemovedFromQ,
               (nsIAutoSyncMgrListener::DiscoveryQueue, folder));
+      }
+      if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
+        nsCString folderName;
+        folder->GetURI(folderName);
+        MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+                ("%s: processed discovery q for folder=%s, "
+                 "msgs left to process in folder=%d",
+                 __func__, folderName.get(), leftToProcess));
       }
     }
   }
@@ -302,6 +310,13 @@ void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
                                       (folder));
             }
           }
+          if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
+            nsCString folderName;
+            folder->GetURI(folderName);
+            MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+                    ("%s: process update q for folder=%s", __func__,
+                     folderName.get()));
+          }
         }
       }
     }
@@ -317,6 +332,13 @@ void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
       if (folder)
         NOTIFY_LISTENERS_STATIC(autoSyncMgr, OnFolderRemovedFromQ,
                                 (nsIAutoSyncMgrListener::UpdateQueue, folder));
+      if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Error)) {
+        nsCString folderName;
+        folder->GetURI(folderName);
+        MOZ_LOG(gAutoSyncLog, LogLevel::Error,
+                ("%s: update q init failed for folder=%s", __func__,
+                 folderName.get()));
+      }
     }
 
   }  // endif
@@ -472,6 +494,13 @@ NS_IMETHODIMP nsAutoSyncManager::OnStartRunningUrl(nsIURI* aUrl) {
 NS_IMETHODIMP nsAutoSyncManager::OnStopRunningUrl(nsIURI* aUrl,
                                                   nsresult aExitCode) {
   mUpdateState = completed;
+  if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
+    nsCString uri;
+    if (aUrl) uri = aUrl->GetSpecOrDefault();
+    MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+            ("nsAutoSyncManager::%s, count=%d, url=%s", __func__,
+             mUpdateQ.Count(), uri.get()));
+  }
   if (mUpdateQ.Count() > 0) mUpdateQ.RemoveObjectAt(0);
 
   return aExitCode;
@@ -526,11 +555,13 @@ NS_IMETHODIMP nsAutoSyncManager::Observe(nsISupports*, const char* aTopic,
       SetIdleState(appIdle);
       if (prevIdleState != notIdle) return NS_OK;
 
+      MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("%s: in app idle", __func__));
       return StartIdleProcessing();
     }
 
     // we're back from appIdle - if already notIdle, just return;
     if (GetIdleState() == notIdle) return NS_OK;
+    MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("%s: out of app idle", __func__));
 
     SetIdleState(notIdle);
     NOTIFY_LISTENERS(OnStateChanged, (false));
@@ -548,6 +579,7 @@ NS_IMETHODIMP nsAutoSyncManager::Observe(nsISupports*, const char* aTopic,
     if (GetIdleState() != appIdle) {
       SetIdleState(notIdle);
       NOTIFY_LISTENERS(OnStateChanged, (false));
+      MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("%s: out of idle", __func__));
     }
     return NS_OK;
   } else  // we've gone system idle
@@ -563,6 +595,7 @@ NS_IMETHODIMP nsAutoSyncManager::Observe(nsISupports*, const char* aTopic,
     // in appIdle state.
     if (GetIdleState() != appIdle) SetIdleState(systemIdle);
     if (WeAreOffline()) return NS_OK;
+    MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("%s: in sys idle", __func__));
     return StartIdleProcessing();
   }
   return NS_OK;
@@ -571,6 +604,7 @@ NS_IMETHODIMP nsAutoSyncManager::Observe(nsISupports*, const char* aTopic,
 nsresult nsAutoSyncManager::StartIdleProcessing() {
   if (mPaused) return NS_OK;
 
+  MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("enter %s", __func__));
   StartTimerIfNeeded();
 
   // Ignore idle events sent during the startup
@@ -629,6 +663,14 @@ nsresult nsAutoSyncManager::StartIdleProcessing() {
     autoSyncStateObj->GetOwnerFolder(getter_AddRefs(folder));
     if (folder) NOTIFY_LISTENERS(OnDownloadCompleted, (folder));
 
+    if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
+      nsCString folderName;
+      folder->GetURI(folderName);
+      MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+              ("%s: folder=%s has no pending msgs, "
+               "remove from priority q",
+               __func__, folderName.get()));
+    }
     autoSyncStateObj->SetState(nsAutoSyncState::stCompletedIdle);
 
     if (mPriorityQ.RemoveObject(autoSyncStateObj))
@@ -647,6 +689,7 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
   nsresult rv;
 
   // iterate through each imap account and update offline folders automatically
+  MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("enter %s", __func__));
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
@@ -668,10 +711,22 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
 
     if (!type.EqualsLiteral("imap")) continue;
 
-    // if we haven't logged onto this server yet, then skip this server.
-    bool passwordRequired;
-    incomingServer->GetServerRequiresPasswordForBiff(&passwordRequired);
-    if (passwordRequired) continue;
+    // If we haven't logged onto this server yet during this session or if the
+    // password has been removed from cache (see
+    // nsImapIncomingServer::ForgetSessionPassword) then skip autosync for
+    // this account.
+    bool notLoggedIn;
+    incomingServer->GetServerRequiresPasswordForBiff(&notLoggedIn);
+    if (notLoggedIn) {
+      if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
+        nsCString serverName;
+        incomingServer->GetHostName(serverName);
+        MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+                ("%s: server |%s| don't autosync; not yet logged in", __func__,
+                 serverName.get()));
+      }
+      continue;
+    }
 
     nsCOMPtr<nsIMsgFolder> rootFolder;
 
@@ -681,6 +736,27 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
 
       nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
       rv = rootFolder->GetDescendants(allDescendants);
+
+      // Get the update time in minutes for each folder of this account/server.
+      // It will be the user configured biff time for server even if user has
+      // disabled "Check for new messages every X minutes" for the account.
+      // Update time will default to 10 minutes if an invalid value is set or
+      // if there are errors obtaining it.
+      // Specifically, the value used here is mail.server.serverX.check_time
+      // or the default mail.server.default.check_time.
+      int32_t updateMinutes = -1;
+      rv = incomingServer->GetBiffMinutes(&updateMinutes);
+      if (NS_FAILED(rv) || updateMinutes < 1)
+        updateMinutes = kDefaultUpdateInterval;
+      PRTime span = updateMinutes * (PR_USEC_PER_SEC * 60UL);
+      if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
+        nsCString serverName;
+        incomingServer->GetHostName(serverName);
+        MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+                ("%s: Update time set to |%d| minutes for "
+                 "folders in account |%s|",
+                 __func__, updateMinutes, serverName.get()));
+      }
 
       for (auto folder : allDescendants) {
         uint32_t folderFlags;
@@ -716,17 +792,64 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
 
         int32_t state;
         rv = autoSyncState->GetState(&state);
-
-        if (NS_SUCCEEDED(rv) && nsAutoSyncState::stCompletedIdle == state) {
-          // ensure that we wait for at least nsMsgIncomingServer::BiffMinutes
-          // between each update of the same folder
+        nsCString folderName;
+        if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
+          folder->GetURI(folderName);
+          MOZ_LOG(
+              gAutoSyncLog, LogLevel::Debug,
+              ("%s: folder=%s, state=%d", __func__, folderName.get(), state));
+        }
+        if (state == nsAutoSyncState::stCompletedIdle ||
+            state == nsAutoSyncState::stUpdateNeeded ||
+            state == nsAutoSyncState::stUpdateIssued) {
+          // Ensure that we wait for at least the "span" time set above before
+          // queuing an update of the same folder.
           PRTime lastUpdateTime;
           rv = autoSyncState->GetLastUpdateTime(&lastUpdateTime);
-          PRTime span =
-              GetUpdateIntervalFor(autoSyncState) * (PR_USEC_PER_SEC * 60UL);
           if (NS_SUCCEEDED(rv) && ((lastUpdateTime + span) < PR_Now())) {
-            if (mUpdateQ.IndexOf(autoSyncState) == -1) {
+            int32_t idx = mUpdateQ.IndexOf(autoSyncState);
+            if (state == nsAutoSyncState::stUpdateIssued) {
+              // Handle the case where an update is triggered but nothing is
+              // found to download. This can happen after messages are copied
+              // or moved between offline folders of the same server or if imap
+              // "folderstatus" URL triggers an update but no new messages
+              // are detected.
+              bool downloadQEmpty;
+              autoSyncState->IsDownloadQEmpty(&downloadQEmpty);
+              if (downloadQEmpty) {
+                MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+                        ("%s: nothing to download for folder %s, "
+                         "set state to stCompletedIdle, updateQ idx=%d",
+                         __func__, folderName.get(), idx));
+                autoSyncState->SetState(nsAutoSyncState::stCompletedIdle);
+
+                // Usually this is already done by
+                // nsAutoSyncManager::OnStopRunningUrl() but set update state to
+                // completed and remove folder state object from update queue in
+                // case OnStopRunningUrl never occurred.
+                if (idx > -1) {
+                  mUpdateState = completed;
+                  mUpdateQ.RemoveObjectAt(idx);
+                  idx = -1;  // re-q below
+                }
+              } else {
+                MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+                        ("%s: downloadQ not empty. Why? updateQ idx=%d",
+                         __func__, idx));
+                if (idx > -1) {
+                  // Download q not empty and folder still on update q, maybe it
+                  // just needs more time so leave update q as it is to update
+                  // on next "span" interval. (Not sure this ever happens.)
+                  idx = 0;
+                }
+              }
+            }
+            // Now q or re-q the update for this folder unless it's still q'd.
+            if (idx < 0) {
               mUpdateQ.AppendObject(autoSyncState);
+              MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+                      ("%s: folder=%s added to update q", __func__,
+                       folderName.get()));
               if (folder)
                 NOTIFY_LISTENERS(OnFolderAddedIntoQ,
                                  (nsIAutoSyncMgrListener::UpdateQueue, folder));
@@ -734,7 +857,8 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
           }
         }
 
-        // check last sync time
+        // Check if time to add folder to discovery q on kAutoSyncFreq (1 hour)
+        // time base.
         PRTime lastSyncTime;
         rv = autoSyncState->GetLastSyncTime(&lastSyncTime);
         if (NS_SUCCEEDED(rv) && ((lastSyncTime + kAutoSyncFreq) < PR_Now())) {
@@ -742,6 +866,9 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
           // and discover messages not downloaded yet
           if (mDiscoveryQ.IndexOf(autoSyncState) == -1) {
             mDiscoveryQ.AppendObject(autoSyncState);
+            MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+                    ("%s: folder=%s added to discovery q", __func__,
+                     folderName.get()));
             if (folder)
               NOTIFY_LISTENERS(
                   OnFolderAddedIntoQ,
@@ -816,7 +943,7 @@ void nsAutoSyncManager::ScheduleFolderForOfflineDownload(
         NOTIFY_LISTENERS(OnFolderAddedIntoQ,
                          (nsIAutoSyncMgrListener::PriorityQueue, folderB));
         break;
-      }  // endwhile
+      }  // end while
     }
   }  // endif
 }
@@ -925,26 +1052,6 @@ nsresult nsAutoSyncManager::HandleDownloadErrorFor(
   }
 
   return NS_OK;
-}
-
-uint32_t nsAutoSyncManager::GetUpdateIntervalFor(
-    nsIAutoSyncState* aAutoSyncStateObj) {
-  nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = aAutoSyncStateObj->GetOwnerFolder(getter_AddRefs(folder));
-  if (NS_FAILED(rv)) return kDefaultUpdateInterval;
-
-  nsCOMPtr<nsIMsgIncomingServer> server;
-  rv = folder->GetServer(getter_AddRefs(server));
-  if (NS_FAILED(rv)) return kDefaultUpdateInterval;
-
-  if (server) {
-    int32_t interval;
-    rv = server->GetBiffMinutes(&interval);
-
-    if (NS_SUCCEEDED(rv)) return (uint32_t)interval;
-  }
-
-  return kDefaultUpdateInterval;
 }
 
 NS_IMETHODIMP nsAutoSyncManager::GetGroupSize(uint32_t* aGroupSize) {

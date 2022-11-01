@@ -427,8 +427,8 @@ checkbox {
   flex: 0 0 auto;
 }
 
-.update-deck-container:not(.selected) {
-  visibility: hidden;
+.update-deck-container.deck-selected {
+  visibility: visible;
 }
 
 .update-deck-container > button {
@@ -444,7 +444,7 @@ checkbox {
  
 /* Work around bug 560067 - animated images in visibility: hidden
  * still eat CPU. */
-#updateDeck > *:not(.selected) > .update-throbber {
+#updateDeck > *:not(.deck-selected) > .update-throbber {
   display: none;
 }
 

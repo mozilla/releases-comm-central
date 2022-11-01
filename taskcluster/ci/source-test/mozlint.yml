@@ -19,7 +19,6 @@ job-defaults:
         comm-checkout: true
 
 codespell:
-    always-target: false
     description: Checks for misspellings in text files
     treeherder:
         symbol: text(spell)
@@ -110,7 +109,6 @@ fluent-lint:
 
 
 license:
-    always-target: false
     description: Check for license blocks in source files.
     treeherder:
         symbol: pedantic(license)

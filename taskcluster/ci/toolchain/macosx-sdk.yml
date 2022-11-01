@@ -11,7 +11,7 @@ job-defaults:
         platform: toolchains/opt
         tier: 1
     run-on-projects: []
-    worker-type: b-linux
+    worker-type: b-linux-gcp
     worker:
         max-run-time: 1800
     run:

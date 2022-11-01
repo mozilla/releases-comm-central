@@ -28,6 +28,31 @@
                        oncommand="PanelUI._onBannerItemSelected(event)"
                        wrap="true"
                        hidden="true"/>
+        <toolbarbutton id="appmenu_signin"
+                       data-l10n-id="appmenu-signin-panel"
+                       class="subviewbutton subviewbutton-iconic"
+                       oncommand=""/>
+        <toolbarbutton id="appmenu_sync"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
+                       align="center"
+                       closemenu="none"
+                       oncommand="PanelUI.showSubView('appMenu-syncView', this)">
+          <hbox flex="1">
+            <html:img id="appmenu-sync-icon"
+                      class="toolbarbutton-icon"
+                      alt=""/>
+            <vbox flex="1">
+              <label id="appmenu-sync-sync"
+                     crop="end"
+                     data-l10n-id="appmenu-sync-sync"/>
+              <label id="appmenu-sync-account"
+                     class="appmenu-sync-account-email"
+                     crop="end"
+                     data-l10n-id="appmenu-sync-account"/>
+            </vbox>
+          </hbox>
+        </toolbarbutton>
+        <toolbarseparator id="syncSeparator"/>
         <toolbarbutton id="appmenu_new"
                        data-l10n-id="appmenu-new-account-panel"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
@@ -121,6 +146,34 @@
                        data-l10n-id="menu-quit"
                        key="key_quitApplication"
                        command="cmd_quitApplication"/>
+      </vbox>
+    </panelview>
+
+    <!-- Sync -->
+    <panelview id="appMenu-syncView"
+               data-l10n-id="appmenu-sync-panel-title"
+               class="PanelUI-subView">
+      <vbox id="appMenu-syncViewItems"
+            class="panel-subview-body">
+        <toolbarbutton id="appmenu_manageSyncAccountMenuItem"
+                       class="subviewbutton subviewbutton-iconic"
+                       align="center"
+                       oncommand="">
+          <hbox flex="1">
+            <html:img id="appmenu-manage-sync-icon"
+                      class="toolbarbutton-icon"
+                      alt=""/>
+            <vbox flex="1">
+              <label id="appmenu-sync-menu-manage"
+                     crop="end"
+                     data-l10n-id="appmenu-sync-manage"/>
+              <label id="appmenu-sync-menu-account"
+                     class="appmenu-sync-account-email"
+                     crop="end"
+                     data-l10n-id="appmenu-sync-account"/>
+            </vbox>
+          </hbox>
+        </toolbarbutton>
       </vbox>
     </panelview>
 

@@ -24,24 +24,29 @@
 NS_IMPL_ISUPPORTS(nsImapOfflineSync, nsIUrlListener, nsIMsgCopyServiceListener,
                   nsIDBChangeListener, nsIImapOfflineSync)
 
-nsImapOfflineSync::nsImapOfflineSync() {}
-
-NS_IMETHODIMP
-nsImapOfflineSync::Init(nsIMsgWindow* window, nsIUrlListener* listener,
-                        nsIMsgFolder* singleFolderOnly, bool isPseudoOffline) {
-  m_singleFolderToUpdate = singleFolderOnly;
-  m_window = window;
-  // not the perfect place for this, but I think it will work.
-  if (m_window) m_window->SetStopped(false);
-
+nsImapOfflineSync::nsImapOfflineSync() {
+  m_singleFolderToUpdate = nullptr;
+  m_window = nullptr;
   mCurrentPlaybackOpType = nsIMsgOfflineImapOperation::kFlagsChanged;
   m_mailboxupdatesStarted = false;
   m_mailboxupdatesFinished = false;
   m_createdOfflineFolders = false;
-  m_pseudoOffline = isPseudoOffline;
+  m_pseudoOffline = false;
   m_KeyIndex = 0;
   mCurrentUIDValidity = nsMsgKey_None;
+  m_listener = nullptr;
+}
+
+NS_IMETHODIMP
+nsImapOfflineSync::Init(nsIMsgWindow* window, nsIUrlListener* listener,
+                        nsIMsgFolder* singleFolderOnly, bool isPseudoOffline) {
+  m_window = window;
   m_listener = listener;
+  m_singleFolderToUpdate = singleFolderOnly;
+  m_pseudoOffline = isPseudoOffline;
+
+  // not the perfect place for this, but I think it will work.
+  if (m_window) m_window->SetStopped(false);
 
   return NS_OK;
 }
@@ -501,8 +506,11 @@ void nsImapOfflineSync::ProcessMoveOperation(nsIMsgOfflineImapOperation* op) {
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
       do_QueryInterface(m_currentFolder);
   if (imapFolder && DestFolderOnSameServer(destFolder)) {
+    uint32_t curFolderFlags;
+    m_currentFolder->GetFlags(&curFolderFlags);
+    bool curFolderOffline = curFolderFlags & nsMsgFolderFlags::Offline;
     imapFolder->ReplayOfflineMoveCopy(matchingFlagKeys, true, destFolder, this,
-                                      m_window);
+                                      m_window, curFolderOffline);
   } else {
     nsresult rv;
     nsTArray<RefPtr<nsIMsgDBHdr>> messages;
@@ -606,8 +614,11 @@ void nsImapOfflineSync::ProcessCopyOperation(
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
       do_QueryInterface(m_currentFolder);
   if (imapFolder && DestFolderOnSameServer(destFolder)) {
+    uint32_t curFolderFlags;
+    m_currentFolder->GetFlags(&curFolderFlags);
+    bool curFolderOffline = curFolderFlags & nsMsgFolderFlags::Offline;
     rv = imapFolder->ReplayOfflineMoveCopy(matchingFlagKeys, false, destFolder,
-                                           this, m_window);
+                                           this, m_window, curFolderOffline);
   } else {
     nsTArray<RefPtr<nsIMsgDBHdr>> messages;
     for (uint32_t keyIndex = 0; keyIndex < matchingFlagKeys.Length();

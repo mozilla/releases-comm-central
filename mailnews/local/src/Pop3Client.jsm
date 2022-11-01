@@ -1087,10 +1087,10 @@ class Pop3Client {
           this._newUidlMap = this._uidlMap;
         }
 
-        let messagesToDownload = this._messagesToHandle.filter(msg =>
+        this._messagesToDownload = this._messagesToHandle.filter(msg =>
           [UIDL_FETCH_BODY, UIDL_TOO_BIG].includes(msg.status)
         );
-        this._totalDownloadSize = messagesToDownload.reduce(
+        this._totalDownloadSize = this._messagesToDownload.reduce(
           (acc, msg) => acc + this._messageSizeMap.get(msg.messageNumber),
           0
         );
@@ -1119,7 +1119,7 @@ class Pop3Client {
         // This discards staled uidls that are no longer on the server.
         this._uidlMap = this._newUidlMap;
 
-        this._sink.setMsgsToDownload(messagesToDownload.length);
+        this._sink.setMsgsToDownload(this._messagesToDownload.length);
         this._actionHandleMessage();
         this._updateProgress();
       }
@@ -1186,6 +1186,14 @@ class Pop3Client {
           break;
       }
     } else {
+      this._sink.setBiffStateAndUpdateFE(
+        Ci.nsIMsgFolder.nsMsgBiffState_NewMail,
+        this._messagesToDownload
+          ? this._messagesToDownload.length
+          : // No UIDL support, every message is new.
+            this._messageSizeMap.size,
+        false
+      );
       try {
         this._sink.endMailDelivery(this);
         this._folderLocked = false;
