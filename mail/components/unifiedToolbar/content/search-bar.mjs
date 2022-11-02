@@ -5,10 +5,11 @@
 /**
  * Search input with customizable search button and placeholder.
  * Attributes:
- * - label: Search field label for accessibility tree
- * Slots in template (#search-bar-template):
- * - placeholder: Content displayed as placeholder
- * - button: Content displayed on the search button
+ * - label: Search field label for accessibility tree.
+ * Slots in template (#searchBarTemplate):
+ * - placeholder: Content displayed as placeholder. When not provided, the value
+ *   of the label attribute is shown as placeholder.
+ * - button: Content displayed on the search button.
  *
  * @emits search: Event when a search should be executed. detail holds the
  *  search term.
@@ -57,7 +58,7 @@ class SearchBar extends HTMLElement {
     const shadowRoot = this.attachShadow({ mode: "open" });
 
     const template = document
-      .getElementById("search-bar-template")
+      .getElementById("searchBarTemplate")
       .content.cloneNode(true);
     this.#input = template.querySelector("input");
 
@@ -66,6 +67,9 @@ class SearchBar extends HTMLElement {
     });
 
     this.#input.setAttribute("aria-label", this.getAttribute("label"));
+    template.querySelector(
+      "slot[name=placeholder]"
+    ).textContent = this.getAttribute("label");
     this.#input.addEventListener("input", this.#onInput);
 
     const styles = document.createElement("link");
@@ -80,6 +84,9 @@ class SearchBar extends HTMLElement {
   attributeChangedCallback(attributeName, oldValue, newValue) {
     if (attributeName === "label" && this.#input) {
       this.#input.setAttribute("aria-label", newValue);
+      this.shadowRoot.querySelector(
+        "slot[name=placeholder]"
+      ).textContent = newValue;
     }
   }
 

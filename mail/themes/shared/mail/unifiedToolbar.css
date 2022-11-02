@@ -34,8 +34,12 @@
   flex: 1 1 auto;
 }
 
-.searchBar {
+.search-bar {
   flex: 1 0 33%;
+}
+
+.search-button-icon {
+  content: var(--icon-search);
 }
 
 unified-toolbar-customization {
@@ -80,4 +84,13 @@ unified-toolbar-customization {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+}
+
+#customizationTabs {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+unified-toolbar-customization-pane {
+  flex-grow: 1;
 }

@@ -122,10 +122,10 @@ add_task(async function test_autocompleteEvent() {
   event = await typeAndWaitForAutocomplete("e");
   is(event.detail, "Te", "Autocomplete for e");
 
-  event = await typeAndWaitForAutocomplete("VK_BACK_SPACE");
+  event = await typeAndWaitForAutocomplete("KEY_Backspace");
   is(event.detail, "T", "Autocomplete for backspace");
 
-  await BrowserTestUtils.synthesizeKey("VK_BACK_SPACE", {}, browser);
+  await BrowserTestUtils.synthesizeKey("KEY_Backspace", {}, browser);
 });
 
 add_task(async function test_searchEventFromEnter() {
@@ -134,7 +134,7 @@ add_task(async function test_searchEventFromEnter() {
   searchBar.focus();
 
   const eventPromise = BrowserTestUtils.waitForEvent(searchBar, "search");
-  await BrowserTestUtils.synthesizeKey("VK_RETURN", {}, browser);
+  await BrowserTestUtils.synthesizeKey("KEY_Enter", {}, browser);
   const event = await eventPromise;
 
   is(event.detail, "Lorem ipsum", "Event contains search query");
@@ -198,4 +198,28 @@ add_task(async function test_placeholderVisibility() {
     is_visible(placeholder),
     "Placeholder is visible again after input is cleared"
   );
+});
+
+add_task(async function test_placeholderFallbackToLabel() {
+  const placeholder = searchBar.querySelector("span");
+  placeholder.remove();
+
+  const shadowedPlaceholder = searchBar.shadowRoot.querySelector("div");
+  const label = searchBar.getAttribute("label");
+
+  is(
+    shadowedPlaceholder.textContent,
+    label,
+    "Falls back to label if no placeholder slot contents provided"
+  );
+
+  searchBar.setAttribute("label", "Foo bar");
+  is(
+    shadowedPlaceholder.textContent,
+    "Foo bar",
+    "Placeholder contents get updated with label attribute"
+  );
+
+  searchBar.prepend(placeholder);
+  searchBar.setAttribute("label", label);
 });

@@ -7,7 +7,7 @@ import "./search-bar.mjs"; // eslint-disable-line import/no-unassigned-import
 
 /**
  * Unified toolbar container custom element. Used to contain the state
- * management and interaction logic. Template: #unified-toolbar-template.
+ * management and interaction logic. Template: #unifiedToolbarTemplate.
  * Requires unifiedToolbarPopups.inc.xhtml to be in a popupset of the same
  * document.
  */
@@ -20,7 +20,7 @@ class UnifiedToolbar extends HTMLElement {
     // toolbar, like the window controls.
     this.hasConnected = true;
     const template = document
-      .getElementById("unified-toolbar-template")
+      .getElementById("unifiedToolbarTemplate")
       .content.cloneNode(true);
 
     template

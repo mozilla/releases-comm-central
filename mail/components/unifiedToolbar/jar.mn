@@ -6,3 +6,5 @@ messenger.jar:
     content/messenger/unifiedtoolbar/search-bar.mjs                    (content/search-bar.mjs)
     content/messenger/unifiedtoolbar/unified-toolbar.mjs               (content/unified-toolbar.mjs)
     content/messenger/unifiedtoolbar/unified-toolbar-customization.mjs (content/unified-toolbar-customization.mjs)
+    content/messenger/unifiedtoolbar/unified-toolbar-customization-pane.mjs (content/unified-toolbar-customization-pane.mjs)
+    content/messenger/unifiedtoolbar/unified-toolbar-tab.mjs           (content/unified-toolbar-tab.mjs)

@@ -1,0 +1,14 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.search-button-icon {
+  content: var(--icon-search);
+}
+
+search-bar {
+  display: block;
+  margin: 12px auto;
+  max-width: 50ch;
+  height: 2em;
+}
