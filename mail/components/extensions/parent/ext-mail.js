@@ -1590,10 +1590,10 @@ function getNormalWindowReady(context, windowId) {
         if (window && finishedWindow != window) {
           return;
         }
-        Services.obs.removeObserver(obs, "mail-delayed-startup-finished");
+        Services.obs.removeObserver(obs, "browser-delayed-startup-finished");
         resolve(finishedWindow);
       };
-      Services.obs.addObserver(obs, "mail-delayed-startup-finished");
+      Services.obs.addObserver(obs, "browser-delayed-startup-finished");
     } else {
       resolve(window);
     }
@@ -1920,6 +1920,7 @@ var messageTracker = new (class extends EventEmitter {
     );
 
     this._messageOpenListener = {
+      registered: false,
       async handleEvent(event) {
         let msgHdr = event.detail;
         // It is not possible to retrieve the dummyMsgHdr of messages opened
@@ -1934,9 +1935,15 @@ var messageTracker = new (class extends EventEmitter {
       },
     };
     // Wait till app startup has finished, before adding window listeners.
-    getNormalWindowReady().then(() =>
-      windowTracker.addListener("MsgLoaded", this._messageOpenListener)
-    );
+    getNormalWindowReady().then(() => {
+      try {
+        windowTracker.addListener("MsgLoaded", this._messageOpenListener);
+        this._messageOpenListener.registered = true;
+      } catch (ex) {
+        // May fail during XPCSHELL tests, which mock the WindowWatcher but do
+        // not implement registerNotification.
+      }
+    });
   }
 
   cleanup() {
@@ -1947,7 +1954,10 @@ var messageTracker = new (class extends EventEmitter {
     MailServices.mailSession.RemoveFolderListener(this);
     // nsIMsgFolderListener
     MailServices.mfn.removeListener(this);
-    windowTracker.removeListener("MsgLoaded", this._messageOpenListener);
+    if (this._messageOpenListener.registered) {
+      windowTracker.removeListener("MsgLoaded", this._messageOpenListener);
+      this._messageOpenListener.registered = false;
+    }
   }
 
   /**
