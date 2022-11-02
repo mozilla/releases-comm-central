@@ -61,6 +61,7 @@ p {
 #toolbar-menubar[autohide="true"][inactive="true"]:not([customizing="true"]) {
   min-height: 0 !important;
   height: 0 !important;
+  padding: 0 !important;
   appearance: none !important;
 }
 
