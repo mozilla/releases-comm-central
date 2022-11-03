@@ -234,7 +234,6 @@ appmenu-help-about-product =
   .label = About { -brand-short-name }
   .accesskey = A
 
-
 ## Application Update
 
 appmenuitem-banner-update-downloading =
