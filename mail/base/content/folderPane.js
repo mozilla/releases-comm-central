@@ -1046,7 +1046,10 @@ var gFolderTreeView = {
         isMove = false;
       }
 
-      prefBranch.setCharPref("last_msg_movecopy_target_uri", targetFolder.URI);
+      prefBranch.setStringPref(
+        "last_msg_movecopy_target_uri",
+        targetFolder.URI
+      );
       prefBranch.setBoolPref("last_msg_movecopy_was_move", isMove);
       // ### ugh, so this won't work with cross-folder views. We would
       // really need to partition the messages by folder.

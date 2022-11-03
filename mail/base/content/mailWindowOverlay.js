@@ -775,7 +775,7 @@ function showCommandInSpecialFolder(aCommandIds, aFolderFlag) {
  * @param aMenuItem the menu item to adjust
  */
 function initMoveToFolderAgainMenu(aMenuItem) {
-  let lastFolderURI = Services.prefs.getCharPref(
+  let lastFolderURI = Services.prefs.getStringPref(
     "mail.last_msg_movecopy_target_uri"
   );
 
@@ -1943,7 +1943,7 @@ function MsgCopyMessage(aDestFolder) {
     );
   }
 
-  Services.prefs.setCharPref(
+  Services.prefs.setStringPref(
     "mail.last_msg_movecopy_target_uri",
     aDestFolder.URI
   );
@@ -1960,7 +1960,7 @@ function MsgMoveMessage(aDestFolder) {
     Ci.nsMsgViewCommandType.moveMessages,
     aDestFolder
   );
-  Services.prefs.setCharPref(
+  Services.prefs.setStringPref(
     "mail.last_msg_movecopy_target_uri",
     aDestFolder.URI
   );

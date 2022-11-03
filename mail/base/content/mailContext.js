@@ -664,7 +664,7 @@ var mailContextMenu = {
       Ci.nsMsgViewCommandType.moveMessages,
       destFolder
     );
-    Services.prefs.setCharPref(
+    Services.prefs.setStringPref(
       "mail.last_msg_movecopy_target_uri",
       destFolder.URI
     );
@@ -680,7 +680,7 @@ var mailContextMenu = {
       Ci.nsMsgViewCommandType.copyMessages,
       destFolder
     );
-    Services.prefs.setCharPref(
+    Services.prefs.setStringPref(
       "mail.last_msg_movecopy_target_uri",
       destFolder.URI
     );
@@ -797,7 +797,7 @@ var commandController = {
     },
     cmd_moveToFolderAgain() {
       let folder = LazyModules.MailUtils.getOrCreateFolder(
-        Services.prefs.getCharPref("mail.last_msg_movecopy_target_uri")
+        Services.prefs.getStringPref("mail.last_msg_movecopy_target_uri")
       );
       if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")) {
         mailContextMenu.moveMessage(folder);
@@ -954,7 +954,7 @@ var commandController = {
           canMoveAgain = canMove;
         }
         if (canMoveAgain) {
-          let targetURI = Services.prefs.getCharPref(
+          let targetURI = Services.prefs.getStringPref(
             "mail.last_msg_movecopy_target_uri"
           );
           canMoveAgain =
