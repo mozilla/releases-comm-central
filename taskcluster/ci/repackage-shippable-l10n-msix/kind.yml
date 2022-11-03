@@ -7,6 +7,7 @@ loader: gecko_taskgraph.loader.single_dep:loader
 transforms:
     - gecko_taskgraph.transforms.name_sanity:transforms
     - gecko_taskgraph.transforms.repackage:transforms
+    - comm_taskgraph.transforms.repackage_msix:transforms
     - gecko_taskgraph.transforms.job:transforms
     - gecko_taskgraph.transforms.task:transforms
 
@@ -15,11 +16,11 @@ kind-dependencies:
     - build-signing
     # We're not going to generate tasks based on these.  But we are going to `depend` on and fetch
     # langpacks from these.
-    - shippable-l10n-signing
+    - shippable-l10n
     - toolchain
 
 not-for-kind-dependencies:
-    - shippable-l10n-signing
+    - shippable-l10n
 
 group-by: platform
 
