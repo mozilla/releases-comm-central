@@ -27,7 +27,6 @@
   --appmenu-warning-background-color-active: #ffe38f;
   --appmenu-warning-color: black;
   --appmenu-warning-border-color: hsl(45, 100%, 77%);
-
   --appmenu-icons-fill: color-mix(in srgb, var(--color-ink-70) 20%, transparent);
   --appmenu-icons-stroke: var(--color-ink-70);
 }
@@ -715,35 +714,83 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 
 .button-appmenu[badge-status] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
   display: -moz-box;
-  height: 10px;
-  width: 10px;
+  background: center no-repeat transparent;
   background-size: contain;
   border: none;
+  box-shadow: none;
+}
+
+.button-appmenu[badge-status="update-available"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
+.button-appmenu[badge-status="update-downloading"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
+.button-appmenu[badge-status="update-manual"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
+.button-appmenu[badge-status="update-other-instance"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
+.button-appmenu[badge-status="update-restart"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
+  margin-top: -3px !important;
+  margin-inline-end: -2px !important;
+  min-width: 12px;
+  min-height: 12px;
+  -moz-context-properties: fill;
+  fill: var(--color-green-60);
+  background-image: var(--icon-notification-sm);
+  background-size: 12px;
 }
 
 .button-appmenu[badge-status="addon-alert"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
   height: 12px;
   margin-inline-end: -5px !important;
-  background: url(chrome://messenger/skin/icons/warning-12.svg) center no-repeat transparent;
+  background-image: var(--icon-warning-sm);
   box-shadow: none;
   border-radius: 0;
   -moz-context-properties: fill, stroke;
-  fill: #ffec41;
-  stroke: #d76e00;
+  fill: var(--color-amber-30);
+  stroke: var(--color-amber-60);
 }
 
-.addon-banner-item::after {
-  content: "";
+/* Main menu banner menuitems */
+
+.panel-banner-item {
+  appearance: none;
+  -moz-box-align: start;
+  margin: var(--appmenu-button-margin);
+  padding-inline: 8px;
+  padding-block: calc(var(--appmenu-button-padding) + 3px);
+  border-radius: var(--arrowpanel-menuitem-border-radius);
+  color: var(--button-color);
+  background-color: var(--button-bgcolor);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.panel-banner-item:not([disabled]):hover {
+  background-color: var(--button-hover-bgcolor);
+}
+
+.panel-banner-item:not([disabled]):hover:active {
+  background-color: var(--button-active-bgcolor);
+}
+
+.panel-banner-item > .toolbarbutton-text {
+  display: inline-block;
+  padding: 0;
+}
+
+.panel-banner-item > .toolbarbutton-icon {
   width: 16px;
   height: 16px;
-  margin-inline: 10px 0;
-  display: -moz-box;
-  background: url(chrome://global/skin/icons/warning.svg) no-repeat center;
+  /* Move the icon to appear after the text label. */
+  -moz-box-ordinal-group: 2;
 }
 
-:root[lwt-popup-brighttext] .addon-banner-item::after {
+.panel-banner-item[notificationid="update-available"] > .toolbarbutton-icon,
+.panel-banner-item[notificationid="update-downloading"] > .toolbarbutton-icon,
+.panel-banner-item[notificationid="update-manual"] > .toolbarbutton-icon,
+.panel-banner-item[notificationid="update-other-instance"] > .toolbarbutton-icon,
+.panel-banner-item[notificationid="update-restart"] > .toolbarbutton-icon {
+  background-image: url(chrome://messenger/skin/icons/app-update-badge.svg);
+  background-repeat: no-repeat;
+  background-position: center;
   -moz-context-properties: fill;
-  fill: #ffe900;
+  fill: var(--color-green-60);
 }
 
 .addon-banner-item {
@@ -761,6 +808,20 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   border-inline: 1px solid var(--appmenu-warning-border-color);
   border-radius: var(--arrowpanel-menuitem-border-radius);
   transition: background-color;
+}
+
+.addon-banner-item::after {
+  content: "";
+  width: 16px;
+  height: 16px;
+  margin-inline: 10px 0;
+  display: -moz-box;
+  background: var(--icon-warning) no-repeat center;
+}
+
+:root[lwt-popup-brighttext] .addon-banner-item::after {
+  -moz-context-properties: fill;
+  fill: var(--color-amber-30);
 }
 
 .addon-banner-item:last-child {

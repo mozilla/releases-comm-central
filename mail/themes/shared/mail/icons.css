@@ -9,7 +9,7 @@
   --icon-add: url("chrome://messenger/skin/icons/new/compact/add.svg");
   --icon-address-book: url("chrome://messenger/skin/icons/new/compact/address-book.svg");
   --icon-app-menu: url("chrome://messenger/skin/icons/new/compact/app-menu.svg");
-  --icon-app-meun-badged: url("chrome://messenger/skin/icons/new/compact/app-meun-badged.svg");
+  --icon-app-menu-badged: url("chrome://messenger/skin/icons/new/compact/app-menu-badged.svg");
   --icon-archive: url("chrome://messenger/skin/icons/new/compact/archive.svg");
   --icon-attachment: url("chrome://messenger/skin/icons/new/compact/attachment.svg");
   --icon-calendar-invite: url("chrome://messenger/skin/icons/new/compact/calendar-invite.svg");
@@ -81,6 +81,7 @@
   --icon-new-task: url("chrome://messenger/skin/icons/new/compact/new-task.svg");
   --icon-new-user-list: url("chrome://messenger/skin/icons/new/compact/new-user-list.svg");
   --icon-newsletter: url("chrome://messenger/skin/icons/new/compact/newsletter.svg");
+  --icon-notification-sm: url("chrome://messenger/skin/icons/notification-fill-12.svg");
   --icon-offline: url("chrome://messenger/skin/icons/new/compact/offline.svg");
   --icon-online: url("chrome://messenger/skin/icons/new/compact/online.svg");
   --icon-outbox: url("chrome://messenger/skin/icons/new/compact/outbox.svg");
@@ -130,6 +131,7 @@
   --icon-user: url("chrome://messenger/skin/icons/new/compact/user.svg");
   --icon-user-list: url("chrome://messenger/skin/icons/new/compact/user-list.svg");
   --icon-warning: url("chrome://messenger/skin/icons/new/compact/warning.svg");
+  --icon-warning-sm: url("chrome://messenger/skin/icons/warning-12.svg");
 
   --icon-import-lg : url("chrome://messenger/skin/icons/new/touch/import.svg");
   --icon-export-lg : url("chrome://messenger/skin/icons/new/touch/export.svg");
