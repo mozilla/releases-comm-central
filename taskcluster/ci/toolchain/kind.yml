@@ -35,6 +35,7 @@ reference-jobs:
     - linux64-makecab
     - linux64-mar-tools
     - linux64-minidump-stackwalk
+    - linux64-msix-packaging
     - linux64-nasm
     - linux64-node
     - linux64-pkgconf

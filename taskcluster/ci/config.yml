@@ -38,6 +38,8 @@ treeherder:
         'ms': 'Complete MAR signing'
         'MSI': 'Repack installers into MSIs'
         'MSIs': 'Signing of Repacked installers of MSIs'
+        'MSIX': 'Repack into MSIX package'
+        'MSIXs': 'Signing of Repack into MSIX package'
         'p': 'Partial generation'
         'ps': 'Partials signing'
         'Rel': 'Release promotion'
