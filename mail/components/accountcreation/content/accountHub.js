@@ -8,6 +8,10 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  loadCustomElement: "resource:///modules/CustomElementLoader.sys.mjs",
+});
+
 /**
  * Holds the main controller class.
  * @type {?AccountHubControllerClass}
@@ -63,20 +67,20 @@ class AccountHubControllerClass {
     });
 
     this.#modal.addEventListener("cancel", event => {
-      // Don't allow the dialog to be canceled via the ESC key if some
-      // operations are in progress and can't be aborted or the UI can't be
-      // cleared.
-      if (!this.#reset()) {
-        event.preventDefault();
-        return;
-      }
-
       if (
         !MailServices.accounts.accounts.length &&
         !Services.prefs.getBoolPref("app.use_without_mail_account", false)
       ) {
         // Prevent closing the modal if no account is currently present and the
         // user didn't request using Thunderbird without an email account.
+        event.preventDefault();
+        return;
+      }
+
+      // Don't allow the dialog to be canceled via the ESC key if some
+      // operations are in progress and can't be aborted or the UI can't be
+      // cleared.
+      if (!this.#reset()) {
         event.preventDefault();
       }
     });
@@ -88,14 +92,14 @@ class AccountHubControllerClass {
    * the unnecessary account creation files.
    *
    * @param {string} view - The name of the view to load.
+   * @returns {Promise<void>} Resolves when custom element of the view is usable.
    */
   #loadScript(view) {
-    if (!customElements.get(`account-hub-${view}`)) {
-      Services.scriptloader.loadSubScript(
-        `chrome://messenger/content/accountcreation/views/${view}.js`,
-        window
-      );
-    }
+    return loadCustomElement(
+      `account-hub-${view}`,
+      `chrome://messenger/content/accountcreation/views/${view}.js`,
+      window
+    );
   }
 
   /**
@@ -169,8 +173,8 @@ class AccountHubControllerClass {
   /**
    * Show the initial view of the account hub dialog.
    */
-  #viewStart() {
-    this.#loadScript("start");
+  async #viewStart() {
+    await this.#loadScript("start");
     this.#loadView("account-hub-start");
   }
 
