@@ -52,7 +52,7 @@ add_task(async function test_reparse_of_local_folder_works() {
   // Mark the summary invalid.
   folder.msgDatabase.summaryValid = false;
   // Clear the database so next time we have to reparse.
-  folder.msgDatabase.ForceClosed();
+  folder.msgDatabase.forceClosed();
 
   // Force gloda to re-parse the folder again.
   GlodaMsgIndexer.indexFolder(folder);

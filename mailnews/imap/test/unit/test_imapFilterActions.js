@@ -139,7 +139,7 @@ var gTestArray = [
     await setupTest(gFilter, gAction);
 
     testCounts(false, 0, 0, 0);
-    let thread = db().GetThreadContainingMsgHdr(gHeader);
+    let thread = db().getThreadContainingMsgHdr(gHeader);
     Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Ignored);
   },
   async function KillThreadBody() {
@@ -147,7 +147,7 @@ var gTestArray = [
     await setupTest(gBodyFilter, gAction);
 
     testCounts(false, 0, 0, 0);
-    let thread = db().GetThreadContainingMsgHdr(gHeader);
+    let thread = db().getThreadContainingMsgHdr(gHeader);
     Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Ignored);
   },
   async function KillSubthread() {
@@ -218,7 +218,7 @@ var gTestArray = [
     await setupTest(gFilter, gAction);
 
     testCounts(true, 1, 1, 1);
-    let thread = db().GetThreadContainingMsgHdr(gHeader);
+    let thread = db().getThreadContainingMsgHdr(gHeader);
     Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Watched);
   },
   async function WatchThreadBody() {
@@ -226,7 +226,7 @@ var gTestArray = [
     await setupTest(gBodyFilter, gAction);
 
     testCounts(true, 1, 1, 1);
-    let thread = db().GetThreadContainingMsgHdr(gHeader);
+    let thread = db().getThreadContainingMsgHdr(gHeader);
     Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Watched);
   },
   async function MarkFlagged() {
@@ -526,7 +526,7 @@ DBListener.prototype = {
 // folder counts match the database counts)
 function folderCount(folder) {
   // count using the database
-  let dbCount = [...folder.msgDatabase.EnumerateMessages()].length;
+  let dbCount = [...folder.msgDatabase.enumerateMessages()].length;
 
   // count using the folder
   let count = folder.getTotalMessages(false);

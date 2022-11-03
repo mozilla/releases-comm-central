@@ -65,7 +65,7 @@ add_task(async function test_cancel() {
   // This tests nsMsgNewsFolder::CancelMessage.
   let folder = localserver.rootFolder.getChildNamed("test.filter");
   let db = folder.msgDatabase;
-  let hdr = db.GetMsgHdrForKey(4);
+  let hdr = db.getMsgHdrForKey(4);
 
   folder.QueryInterface(Ci.nsIMsgNewsFolder).cancelMessage(hdr, dummyMsgWindow);
   await dummyMsgWindow.promise;
@@ -221,7 +221,7 @@ add_task(async function test_postMessage() {
 // function test_forwardInline() {
 //   // This tests mime_parse_stream_complete via forwarding inline
 //   let folder = localserver.rootFolder.getChildNamed("test.filter");
-//   let hdr = folder.msgDatabase.GetMsgHdrForKey(1);
+//   let hdr = folder.msgDatabase.getMsgHdrForKey(1);
 //   MailServices.compose.forwardMessage("a@b.invalid", hdr, null,
 //     localserver, Ci.nsIMsgComposeService.kForwardInline);
 // }

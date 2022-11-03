@@ -36,7 +36,7 @@ add_setup(async function() {
 add_task(function test_load_folder_with_invalidDB() {
   folder.msgDatabase.dBFolderInfo.sortType = Ci.nsMsgViewSortType.bySubject;
   folder.msgDatabase.summaryValid = false;
-  folder.msgDatabase.ForceClosed();
+  folder.msgDatabase.forceClosed();
   folder.msgDatabase = null;
   be_in_folder(folder);
 

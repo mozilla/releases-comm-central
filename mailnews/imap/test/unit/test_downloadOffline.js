@@ -56,7 +56,7 @@ async function downloadAllForOffline() {
 
 function verifyDownloaded() {
   // verify that the message headers have the offline flag set.
-  for (let header of IMAPPump.inbox.msgDatabase.EnumerateMessages()) {
+  for (let header of IMAPPump.inbox.msgDatabase.enumerateMessages()) {
     // Verify that each message has been downloaded and looks OK.
     if (
       header instanceof Ci.nsIMsgDBHdr &&

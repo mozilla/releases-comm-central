@@ -126,7 +126,7 @@ var mailTestUtils = {
 
   // Gets the first message header in a folder.
   firstMsgHdr(folder) {
-    let enumerator = folder.msgDatabase.EnumerateMessages();
+    let enumerator = folder.msgDatabase.enumerateMessages();
     let first = enumerator[Symbol.iterator]().next();
     return first.done ? null : first.value;
   },
@@ -134,7 +134,7 @@ var mailTestUtils = {
   // Gets message header number N (0 based index) in a folder.
   getMsgHdrN(folder, n) {
     let i = 0;
-    for (let next of folder.msgDatabase.EnumerateMessages()) {
+    for (let next of folder.msgDatabase.enumerateMessages()) {
       if (i == n) {
         return next;
       }

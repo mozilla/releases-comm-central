@@ -92,7 +92,7 @@ add_task(async function testOfflineMoveLocalToIMAP() {
   // We're offline so this should result in a queued-up offline IMAP
   // operation, which will execute when we go back online.
   let copyListener = new PromiseTestUtils.PromiseCopyListener();
-  let msgs = [...localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages()];
+  let msgs = [...localAccountUtils.inboxFolder.msgDatabase.enumerateMessages()];
   MailServices.copy.copyMessages(
     localAccountUtils.inboxFolder,
     msgs,
@@ -115,9 +115,9 @@ add_task(async function testOfflineMoveLocalToIMAP() {
 
   // Local folder should be empty, contents now in IMAP inbox.
   let localCount = [
-    ...localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages(),
+    ...localAccountUtils.inboxFolder.msgDatabase.enumerateMessages(),
   ].length;
-  let imapCount = [...IMAPPump.inbox.msgDatabase.EnumerateMessages()].length;
+  let imapCount = [...IMAPPump.inbox.msgDatabase.enumerateMessages()].length;
   Assert.equal(imapCount, msgs.length);
   Assert.equal(localCount, 0);
 

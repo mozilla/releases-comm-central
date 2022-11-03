@@ -108,7 +108,7 @@ add_task(async function doMoves() {
   // get five messages to move from Inbox to folder 1.
   let headers1 = [];
   let count = 0;
-  for (let header of gIMAPInbox.msgDatabase.EnumerateMessages()) {
+  for (let header of gIMAPInbox.msgDatabase.enumerateMessages()) {
     if (count >= 5) {
       break;
     }
@@ -146,7 +146,7 @@ add_task(async function doMoves() {
   Assert.equal(gFolder1.msgDatabase.dBFolderInfo.highWater, 6);
   headers1 = [];
   count = 0;
-  for (let header of gIMAPInbox.msgDatabase.EnumerateMessages()) {
+  for (let header of gIMAPInbox.msgDatabase.enumerateMessages()) {
     if (count >= 5) {
       break;
     }
@@ -157,8 +157,8 @@ add_task(async function doMoves() {
   }
   // Check that copyMessages will handle having a high highwater mark.
   // It will thrown an exception if it can't.
-  let msgHdr = gFolder1.msgDatabase.CreateNewHdr(0xfffffffd);
-  gFolder1.msgDatabase.AddNewHdrToDB(msgHdr, false);
+  let msgHdr = gFolder1.msgDatabase.createNewHdr(0xfffffffd);
+  gFolder1.msgDatabase.addNewHdrToDB(msgHdr, false);
   let copyListenerHighWater = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
     gIMAPInbox,
@@ -172,7 +172,7 @@ add_task(async function doMoves() {
   await copyListenerHighWater.promise;
   gServer.performTest("UID COPY");
 
-  gFolder1.msgDatabase.DeleteHeader(msgHdr, null, true, false);
+  gFolder1.msgDatabase.deleteHeader(msgHdr, null, true, false);
   let urlListenerInboxAfterDelete = new PromiseTestUtils.PromiseUrlListener();
   gIMAPInbox.updateFolderWithListener(null, urlListenerInboxAfterDelete);
   await urlListenerInboxAfterDelete.promise;

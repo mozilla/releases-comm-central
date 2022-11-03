@@ -155,5 +155,5 @@ add_task(function endTest() {
 });
 
 function folderCount(folder) {
-  return [...folder.msgDatabase.EnumerateMessages()].length;
+  return [...folder.msgDatabase.enumerateMessages()].length;
 }

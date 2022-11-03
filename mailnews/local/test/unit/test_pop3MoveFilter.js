@@ -83,7 +83,7 @@ var gTestArray = [
   function verifyMessages() {
     let hdrs = [];
     let keys = [];
-    for (let hdr of gMoveFolder.msgDatabase.EnumerateMessages()) {
+    for (let hdr of gMoveFolder.msgDatabase.enumerateMessages()) {
       keys.push(hdr.messageKey);
       hdrs.push(hdr);
     }
@@ -100,7 +100,7 @@ var gTestArray = [
 ];
 
 function folderCount(folder) {
-  return [...folder.msgDatabase.EnumerateMessages()].length;
+  return [...folder.msgDatabase.enumerateMessages()].length;
 }
 
 function setup_store(storeID) {

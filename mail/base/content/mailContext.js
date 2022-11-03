@@ -287,7 +287,7 @@ var mailContextMenu = {
 
     checkItem(
       "mailContext-ignoreThread",
-      folder?.msgDatabase.IsIgnored(message.messageKey)
+      folder?.msgDatabase.isIgnored(message.messageKey)
     );
     checkItem(
       "mailContext-ignoreSubthread",
@@ -295,7 +295,7 @@ var mailContextMenu = {
     );
     checkItem(
       "mailContext-watchThread",
-      folder?.msgDatabase.IsWatched(message.messageKey)
+      folder?.msgDatabase.isWatched(message.messageKey)
     );
 
     // showItem("mailContext-downloadSelected", numSelectedMessages > 1);

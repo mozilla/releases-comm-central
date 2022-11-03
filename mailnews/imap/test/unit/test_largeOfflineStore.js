@@ -117,7 +117,7 @@ add_task(async function check_result() {
   Assert.ok(offlineStoreSize > gOfflineStoreSize);
 
   // Verify that the message headers have the offline flag set.
-  for (let header of IMAPPump.inbox.msgDatabase.EnumerateMessages()) {
+  for (let header of IMAPPump.inbox.msgDatabase.enumerateMessages()) {
     // Verify that each message has been downloaded and looks OK.
     Assert.ok(
       header instanceof Ci.nsIMsgDBHdr &&

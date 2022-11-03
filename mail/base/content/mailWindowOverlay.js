@@ -167,7 +167,7 @@ function updateCheckedStateForIgnoreAndWatchThreadCmds() {
 
   document
     .getElementById("cmd_killThread")
-    .setAttribute("checked", folder?.msgDatabase.IsIgnored(message.messageKey));
+    .setAttribute("checked", folder?.msgDatabase.isIgnored(message.messageKey));
   document
     .getElementById("cmd_killSubthread")
     .setAttribute(
@@ -176,7 +176,7 @@ function updateCheckedStateForIgnoreAndWatchThreadCmds() {
     );
   document
     .getElementById("cmd_watchThread")
-    .setAttribute("checked", folder?.msgDatabase.IsWatched(message.messageKey));
+    .setAttribute("checked", folder?.msgDatabase.isWatched(message.messageKey));
 }
 
 function file_init() {

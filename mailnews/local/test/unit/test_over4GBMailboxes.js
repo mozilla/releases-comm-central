@@ -109,7 +109,7 @@ add_setup(async function() {
 
   // Force the db closed, so that getDatabaseWithReparse will notice
   // that it's out of date.
-  gInbox.msgDatabase.ForceClosed();
+  gInbox.msgDatabase.forceClosed();
   gInbox.msgDatabase = null;
   let parseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   try {

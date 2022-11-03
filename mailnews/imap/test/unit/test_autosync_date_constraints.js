@@ -66,7 +66,7 @@ add_task(async function downloadForOffline() {
 
 add_task(function test_applyRetentionSettings() {
   IMAPPump.inbox.applyRetentionSettings();
-  let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
+  let enumerator = IMAPPump.inbox.msgDatabase.enumerateMessages();
   if (enumerator) {
     let now = new Date();
     let dateInSeconds = now.getSeconds();

@@ -1609,7 +1609,7 @@ var gFolderTreeView = {
         dbFolderInfo.setUint32Property("searchFolderFlag", folderFlag);
         dbFolderInfo.setBooleanProperty("searchOnline", true);
         vfdb.summaryValid = true;
-        vfdb.Close(true);
+        vfdb.close(true);
       }
       parentFolder.notifyFolderAdded(newFolder);
       MailServices.accounts.saveVirtualFolders();

@@ -201,7 +201,7 @@ function richCreateMessage(
     gDraftFolder = rootFolder.createLocalSubfolder("Drafts");
   }
   // Clear all messages
-  let msgs = [...gDraftFolder.msgDatabase.EnumerateMessages()];
+  let msgs = [...gDraftFolder.msgDatabase.enumerateMessages()];
   if (msgs.length > 0) {
     gDraftFolder.deleteMessages(msgs, null, true, false, null, false);
   }

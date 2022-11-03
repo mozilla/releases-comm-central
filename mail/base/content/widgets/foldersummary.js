@@ -189,7 +189,7 @@
           i++
         ) {
           let msgBox = MozFolderSummary.createFolderSummaryMessage();
-          let msgHdr = msgDatabase.GetMsgHdrForKey(msgKeys[i]);
+          let msgHdr = msgDatabase.getMsgHdrForKey(msgKeys[i]);
           msgBox.addEventListener("click", event => {
             if (event.button !== 0) {
               return;
@@ -252,7 +252,7 @@
       let msgDatabase = folder.msgDatabase;
       for (let msgKey of msgKeys.slice(0, this.maxMsgHdrsInPopup)) {
         let msgBox = MozFolderSummary.createFolderSummaryMessage();
-        let msgHdr = msgDatabase.GetMsgHdrForKey(msgKey);
+        let msgHdr = msgDatabase.getMsgHdrForKey(msgKey);
         msgBox.addEventListener("click", event => {
           if (event.button !== 0) {
             return;

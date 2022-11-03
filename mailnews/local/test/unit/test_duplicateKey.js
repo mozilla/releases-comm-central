@@ -67,7 +67,7 @@ add_task(async function runPump() {
 
 function showMessages(folder) {
   var hdrs = [];
-  for (let hdr of folder.msgDatabase.EnumerateMessages()) {
+  for (let hdr of folder.msgDatabase.enumerateMessages()) {
     hdrs.push(hdr);
     dump(
       "key " +

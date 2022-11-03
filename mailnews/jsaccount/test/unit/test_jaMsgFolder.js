@@ -49,7 +49,7 @@ function run_test() {
   Assert.ok(fi instanceof Ci.nsIDBFolderInfo);
   fi.setCharProperty("testProperty", "foobar");
   Assert.equal(fi.getCharProperty("testProperty"), "foobar");
-  db.ForceClosed();
+  db.forceClosed();
   db = null;
 
   // Confirm that we can access XPCOM properties.

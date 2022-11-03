@@ -35,7 +35,7 @@ add_task(async function loadMessages() {
 
   // Get message headers for the inbox folder.
   var msgCount = 0;
-  for (gHdr of localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages()) {
+  for (gHdr of localAccountUtils.inboxFolder.msgDatabase.enumerateMessages()) {
     msgCount++;
     Assert.equal(gHdr.subject, testSubjects[msgCount - 1]);
   }
@@ -70,7 +70,7 @@ add_task(async function badStreaming() {
 
   let dbFile = folder.summaryFile;
   // Force an invalid database.
-  folder.msgDatabase.ForceClosed();
+  folder.msgDatabase.forceClosed();
   dbFile.remove(false);
   folder.msgDatabase = null;
 

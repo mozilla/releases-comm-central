@@ -142,7 +142,7 @@ class NntpNewsGroup {
       bytes,
       lines,
     ] = parts;
-    let msgHdr = this._db.CreateNewHdr(articleNumber);
+    let msgHdr = this._db.createNewHdr(articleNumber);
     msgHdr.OrFlags(Ci.nsMsgMessageFlags.New);
     msgHdr.subject = subject;
     msgHdr.author = from;
@@ -190,7 +190,7 @@ class NntpNewsGroup {
     let spaceIndex = line.indexOf(" ");
     let articleNumber = line.slice(0, spaceIndex);
     let value = line.slice(spaceIndex).trim();
-    let msgHdr = this._db.GetMsgHdrForKey(articleNumber);
+    let msgHdr = this._db.getMsgHdrForKey(articleNumber);
     msgHdr.setStringProperty(header, value);
   }
 
@@ -204,7 +204,7 @@ class NntpNewsGroup {
     }
 
     if (articleNumber >= 0) {
-      this._msgHdr = this._db.CreateNewHdr(articleNumber);
+      this._msgHdr = this._db.createNewHdr(articleNumber);
     }
   }
 
@@ -289,8 +289,8 @@ class NntpNewsGroup {
           this._msgWindow
         );
       }
-      if (this._addHdrToDB && !this._db.ContainsKey(msgHdr.messageKey)) {
-        this._db.AddNewHdrToDB(msgHdr, true);
+      if (this._addHdrToDB && !this._db.containsKey(msgHdr.messageKey)) {
+        this._db.addNewHdrToDB(msgHdr, true);
         MailServices.mfn.notifyMsgAdded(msgHdr);
         this._folder.orProcessingFlags(
           msgHdr.messageKey,
@@ -317,10 +317,10 @@ class NntpNewsGroup {
           this._addHdrToDB = false;
           break;
         case Ci.nsMsgFilterAction.MarkRead:
-          this._db.MarkHdrRead(this._filteringHdr, true, null);
+          this._db.markHdrRead(this._filteringHdr, true, null);
           break;
         case Ci.nsMsgFilterAction.MarkUnread:
-          this._db.MarkHdrRead(this._filteringHdr, false, null);
+          this._db.markHdrRead(this._filteringHdr, false, null);
           break;
         case Ci.nsMsgFilterAction.KillThread:
           this._filteringHdr.setUint32Property(
@@ -382,7 +382,7 @@ class NntpNewsGroup {
       this._folder.setReadSetFromStr(this._readKeySet);
     }
     this._folder.notifyFinishedDownloadinghdrs();
-    this._db.Commit(Ci.nsMsgDBCommitType.kSessionCommit);
-    this._db.Close(true);
+    this._db.commit(Ci.nsMsgDBCommitType.kSessionCommit);
+    this._db.close(true);
   }
 }

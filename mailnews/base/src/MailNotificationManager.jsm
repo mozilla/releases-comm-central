@@ -204,7 +204,7 @@ class MailNotificationManager {
     this._logger.debug(
       `Filling alert info; folder.URI=${folder.URI}, numNewMessages=${numNewMessages}`
     );
-    let firstNewMsgHdr = folder.msgDatabase.GetMsgHdrForKey(newMsgKeys[0]);
+    let firstNewMsgHdr = folder.msgDatabase.getMsgHdrForKey(newMsgKeys[0]);
 
     let title = this._getAlertTitle(folder, numNewMessages);
     let body;
@@ -422,7 +422,7 @@ class MailNotificationManager {
       .getNewList()
       .slice(-folder.getNumNewMessages(false))
       .filter(key => {
-        let msgHdr = msgDb.GetMsgHdrForKey(key);
+        let msgHdr = msgDb.getMsgHdrForKey(key);
         return msgHdr.dateInSeconds * 1000 > lastBiffTime;
       });
   }

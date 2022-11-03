@@ -117,7 +117,7 @@ function deleteMessages(srcFolder, items) {
 function calculateFolderSize(folder) {
   let msgDB = folder.msgDatabase;
   let totalSize = 0;
-  for (let header of msgDB.EnumerateMessages()) {
+  for (let header of msgDB.enumerateMessages()) {
     totalSize += header.messageSize + gSeparatorLine.length;
   }
   return totalSize;
@@ -125,7 +125,7 @@ function calculateFolderSize(folder) {
 
 function verifyMsgOffsets(folder) {
   let msgDB = folder.msgDatabase;
-  let enumerator = msgDB.EnumerateMessages();
+  let enumerator = msgDB.enumerateMessages();
   if (enumerator) {
     for (let header of enumerator) {
       if (header instanceof Ci.nsIMsgDBHdr) {

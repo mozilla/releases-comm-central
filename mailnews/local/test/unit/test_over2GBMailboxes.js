@@ -9,7 +9,7 @@ const { PromiseTestUtils } = ChromeUtils.import(
 // Find hdr for message whose offset is over 2 GiB.
 function findHugeMessageHdr(folder) {
   //getMessageHdr() {
-  for (let header of folder.msgDatabase.EnumerateMessages()) {
+  for (let header of folder.msgDatabase.enumerateMessages()) {
     if (header.messageOffset >= 0x80000000) {
       return header;
     }

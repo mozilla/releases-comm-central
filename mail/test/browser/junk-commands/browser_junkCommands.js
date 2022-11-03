@@ -86,7 +86,7 @@ add_task(function test_delete_junk_messages() {
   let db = folder.getDBFolderInfoAndDB({});
   for (let msgHdr of selectedMessages) {
     let key = msgHdr.messageKey;
-    if (db.ContainsKey(key)) {
+    if (db.containsKey(key)) {
       throw new Error(
         "The database shouldn't contain key " + key + ", but does."
       );

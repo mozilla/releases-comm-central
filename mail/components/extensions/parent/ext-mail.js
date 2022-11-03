@@ -2085,7 +2085,7 @@ var messageTracker = new (class extends EventEmitter {
         msgIdentifier.folderURI
       );
       if (folder) {
-        let msgHdr = folder.msgDatabase.GetMsgHdrForKey(
+        let msgHdr = folder.msgDatabase.getMsgHdrForKey(
           msgIdentifier.messageKey
         );
         if (msgHdr) {
@@ -2178,7 +2178,7 @@ var messageTracker = new (class extends EventEmitter {
       this.emit(
         "messages-received",
         folder,
-        newMsgKeys.map(key => msgDb.GetMsgHdrForKey(key))
+        newMsgKeys.map(key => msgDb.getMsgHdrForKey(key))
       );
     }
   }

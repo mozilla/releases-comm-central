@@ -15,7 +15,7 @@ var gServer;
 var gSentFolder;
 
 function cleanUpSent() {
-  let messages = [...gSentFolder.msgDatabase.EnumerateMessages()];
+  let messages = [...gSentFolder.msgDatabase.enumerateMessages()];
   if (messages.length) {
     gSentFolder.deleteMessages(messages, null, true, false, null, false);
   }
