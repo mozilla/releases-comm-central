@@ -34,7 +34,7 @@ add_task(async function run_the_test() {
     );
   }
   gMessages = [
-    ...localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages(),
+    ...localAccountUtils.inboxFolder.msgDatabase.enumerateMessages(),
   ];
   doNextTest();
 });

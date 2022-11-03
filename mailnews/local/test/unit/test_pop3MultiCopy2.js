@@ -51,7 +51,7 @@ add_task(async function maildirToMbox() {
 
   // Accumulate messages to copy.
   let messages = [];
-  for (let hdr of gInboxFolder.msgDatabase.EnumerateMessages()) {
+  for (let hdr of gInboxFolder.msgDatabase.enumerateMessages()) {
     messages.push(hdr);
   }
   Assert.equal(messages.length, 2);
@@ -72,7 +72,7 @@ add_task(async function maildirToMbox() {
   // Check the destination headers.
   messages = [];
   let subjects = [];
-  for (let hdr of gTestFolder.msgDatabase.EnumerateMessages()) {
+  for (let hdr of gTestFolder.msgDatabase.enumerateMessages()) {
     messages.push(hdr);
     dump("Subject: " + hdr.subject + "\n");
     subjects.push(hdr.subject);
@@ -89,7 +89,7 @@ add_task(async function maildirToMbox() {
   }
 
   // Make sure the body matches the message.
-  for (let hdr of gTestFolder.msgDatabase.EnumerateMessages()) {
+  for (let hdr of gTestFolder.msgDatabase.enumerateMessages()) {
     let body = mailTestUtils.loadMessageToString(gTestFolder, hdr);
     Assert.ok(body.includes(hdr.subject));
   }
@@ -100,7 +100,7 @@ add_task(async function mboxToMaildir() {
 
   // Accumulate messages to copy.
   let messages = [];
-  for (let hdr of gTestFolder.msgDatabase.EnumerateMessages()) {
+  for (let hdr of gTestFolder.msgDatabase.enumerateMessages()) {
     messages.push(hdr);
   }
   Assert.equal(messages.length, 2);
@@ -121,7 +121,7 @@ add_task(async function mboxToMaildir() {
   // Check the destination headers.
   messages = [];
   let subjects = [];
-  for (let hdr of gInboxFolder.msgDatabase.EnumerateMessages()) {
+  for (let hdr of gInboxFolder.msgDatabase.enumerateMessages()) {
     messages.push(hdr);
     dump("Subject: " + hdr.subject + "\n");
     subjects.push(hdr.subject);
@@ -138,7 +138,7 @@ add_task(async function mboxToMaildir() {
   }
 
   // Make sure the body matches the message.
-  for (let hdr of gInboxFolder.msgDatabase.EnumerateMessages()) {
+  for (let hdr of gInboxFolder.msgDatabase.enumerateMessages()) {
     let body = mailTestUtils.loadMessageToString(gInboxFolder, hdr);
     Assert.ok(body.includes(hdr.subject));
   }

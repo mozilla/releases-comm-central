@@ -898,7 +898,7 @@ var GlodaMsgIndexer = {
         false
       );
     } else if (aEnumKind == this.kEnumAllMsgs) {
-      this._indexingEnumerator = this._indexingDatabase.ReverseEnumerateMessages();
+      this._indexingEnumerator = this._indexingDatabase.reverseEnumerateMessages();
     } else {
       throw new Error("Unknown enumerator type requested:" + aEnumKind);
     }
@@ -907,7 +907,7 @@ var GlodaMsgIndexer = {
   _indexerLeaveFolder() {
     if (this._indexingFolder !== null) {
       if (this._indexingDatabase) {
-        this._indexingDatabase.Commit(Ci.nsMsgDBCommitType.kLargeCommit);
+        this._indexingDatabase.commit(Ci.nsMsgDBCommitType.kLargeCommit);
         // remove our listener!
         this._indexingDatabase.RemoveListener(this._databaseAnnouncerListener);
       }
@@ -1439,7 +1439,7 @@ var GlodaMsgIndexer = {
         //  so no action is required.
       }
       // Commit the filthy status changes to the message database.
-      this._indexingDatabase.Commit(Ci.nsMsgDBCommitType.kLargeCommit);
+      this._indexingDatabase.commit(Ci.nsMsgDBCommitType.kLargeCommit);
 
       // this will automatically persist to the database
       glodaFolder._downgradeDirtyStatus(glodaFolder.kFolderDirty);
@@ -1608,7 +1608,7 @@ var GlodaMsgIndexer = {
       //  ContainsKey first to see if the header is really actually there.
       if (typeof item[1] == "number") {
         msgHdr =
-          this._indexingDatabase.ContainsKey(item[1]) &&
+          this._indexingDatabase.containsKey(item[1]) &&
           this._indexingFolder.GetMessageHeader(item[1]);
       } else {
         // Same deal as in move processing.
@@ -3276,7 +3276,7 @@ var GlodaMsgIndexer = {
           curMsg = candMsg;
         } else if (
           curMsg === null &&
-          !this._indexingDatabase.ContainsKey(candMsg.messageKey)
+          !this._indexingDatabase.containsKey(candMsg.messageKey)
         ) {
           // (We are in the same folder and) the candidate message's underlying
           // message no longer exists/matches. Assume we are the same but

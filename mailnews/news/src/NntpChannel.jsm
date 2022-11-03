@@ -328,7 +328,7 @@ class NntpChannel {
           this._cacheEntry?.asyncDoom(null);
         }
         this._listener.onStopRequest(this, status);
-        this._newsFolder?.msgDatabase.Commit(
+        this._newsFolder?.msgDatabase.commit(
           Ci.nsMsgDBCommitType.kSessionCommit
         );
       };

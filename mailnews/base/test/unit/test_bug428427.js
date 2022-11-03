@@ -206,7 +206,7 @@ function CreateVirtualFolder(
   dbFolderInfo.setBooleanProperty("searchOnline", searchOnline);
   // This fails because the folder doesn't exist - why were we doing it?
   //  vfdb.summaryValid = true;
-  vfdb.Close(true);
+  vfdb.close(true);
   // use acctMgr to setup the virtual folder listener
   var acctMgr = MailServices.accounts.QueryInterface(Ci.nsIFolderListener);
   // print(acctMgr);

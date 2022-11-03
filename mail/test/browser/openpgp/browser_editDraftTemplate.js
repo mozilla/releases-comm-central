@@ -57,7 +57,7 @@ async function waitForComposeWindow() {
 
 function clearFolder(folder) {
   return new Promise(resolve => {
-    let msgs = [...folder.msgDatabase.EnumerateMessages()];
+    let msgs = [...folder.msgDatabase.enumerateMessages()];
 
     folder.deleteMessages(
       msgs,

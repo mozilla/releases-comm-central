@@ -295,7 +295,7 @@ var mailContextMenu = {
 
     checkItem(
       "mailContext-ignoreThread",
-      folder?.msgDatabase.IsIgnored(message?.messageKey)
+      folder?.msgDatabase.isIgnored(message?.messageKey)
     );
     checkItem(
       "mailContext-ignoreSubthread",
@@ -303,7 +303,7 @@ var mailContextMenu = {
     );
     checkItem(
       "mailContext-watchThread",
-      folder?.msgDatabase.IsWatched(message?.messageKey)
+      folder?.msgDatabase.isWatched(message?.messageKey)
     );
 
     showItem(
@@ -852,7 +852,7 @@ var commandController = {
     },
     cmd_moveToFolderAgain() {
       let folder = LazyModules.MailUtils.getOrCreateFolder(
-        Services.prefs.getCharPref("mail.last_msg_movecopy_target_uri")
+        Services.prefs.getStringPref("mail.last_msg_movecopy_target_uri")
       );
       if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")) {
         mailContextMenu.moveMessage(folder);
@@ -1084,7 +1084,7 @@ var commandController = {
           canMoveAgain = canMove;
         }
         if (canMoveAgain) {
-          let targetURI = Services.prefs.getCharPref(
+          let targetURI = Services.prefs.getStringPref(
             "mail.last_msg_movecopy_target_uri"
           );
           canMoveAgain =

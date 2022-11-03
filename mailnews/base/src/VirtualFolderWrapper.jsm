@@ -59,7 +59,7 @@ var VirtualFolderHelper = {
 
     let msgDatabase = msgFolder.msgDatabase;
     msgDatabase.summaryValid = true;
-    msgDatabase.Close(true);
+    msgDatabase.close(true);
 
     aParentFolder.notifyFolderAdded(msgFolder);
     MailServices.accounts.saveVirtualFolders();
@@ -245,7 +245,7 @@ VirtualFolderWrapper.prototype = {
    *  folder will be able to re-establish the reference for minimal cost.
    */
   cleanUpMessageDatabase() {
-    this.virtualFolder.msgDatabase.Close(true);
+    this.virtualFolder.msgDatabase.close(true);
     this.virtualFolder.msgDatabase = null;
   },
 };

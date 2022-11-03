@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+- License, v. 2.0. If a copy of the MPL was not distributed with this file,
+- You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<!-- #filter substitution -->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap2="http://schemas.microsoft.com/appx/manifest/uap/windows10/2"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap uap2 uap3 uap10 rescap">
+
+  <Identity Name="@APPX_IDENTITY@" Publisher="@APPX_PUBLISHER@" Version="@APPX_VERSION@"
+            ProcessorArchitecture="@APPX_ARCH@"/>
+  <Properties>
+    <DisplayName>@APPX_DISPLAYNAME@</DisplayName>
+    <PublisherDisplayName>@APPX_PUBLISHER_DISPLAY_NAME@</PublisherDisplayName>
+    <Description>@APPX_DESCRIPTION@</Description>
+    <Logo>Assets\StoreLogo.png</Logo>
+    <uap10:PackageIntegrity>
+      <uap10:Content Enforcement="on"/>
+    </uap10:PackageIntegrity>
+  </Properties>
+  <Resources>
+    @APPX_RESOURCE_LANGUAGE_LIST@
+  </Resources>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0"
+                        MaxVersionTested="10.0.19041.1"/>
+  </Dependencies>
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust"/>
+  </Capabilities>
+  <Applications>
+    <Application Id="App" Executable="VFS\ProgramFiles\@APPX_INSTDIR@\@MOZ_APP_NAME@.exe"
+                 EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements BackgroundColor="#20123A" DisplayName="@MOZ_APP_DISPLAYNAME@"
+                          Square150x150Logo="Assets\Square150x150Logo.png"
+                          Square44x44Logo="Assets\Square44x44Logo.png"
+                          Description="@MOZ_APP_DISPLAYNAME@">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"
+                         Square310x310Logo="Assets\LargeTile.png"
+                         Square71x71Logo="Assets\SmallTile.png"/>
+      </uap:VisualElements>
+      <Extensions>
+        <uap3:Extension Category="windows.appExecutionAlias"
+                        EntryPoint="Windows.FullTrustApplication"
+                        Executable="VFS\ProgramFiles\@APPX_INSTDIR@\@MOZ_APP_NAME@.exe">
+          <uap3:AppExecutionAlias>
+            <desktop:ExecutionAlias Alias="@MOZ_APP_NAME@.exe"/>
+          </uap3:AppExecutionAlias>
+        </uap3:Extension>
+        <uap3:Extension Category="windows.fileTypeAssociation">
+          <uap3:FileTypeAssociation Name="eml">
+            <uap:SupportedFileTypes>
+              <!-- Keep synchronized with
+                   https://searchfox.org/comm-central/source/mail/installer/windows/nsis/shared.nsh -->
+              <uap:FileType>.eml</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap:Logo>Assets\Email44x44.png</uap:Logo>
+            <uap2:SupportedVerbs>
+              <uap3:Verb Id="open" Parameters="-osint -mail &quot;%1&quot;">open</uap3:Verb>
+            </uap2:SupportedVerbs>
+          </uap3:FileTypeAssociation>
+        </uap3:Extension>
+        <uap3:Extension Category="windows.fileTypeAssociation">
+          <uap3:FileTypeAssociation Name="ics">
+            <uap:SupportedFileTypes>
+              <!-- Keep synchronized with
+                   https://searchfox.org/comm-central/source/mail/installer/windows/nsis/shared.nsh -->
+              <uap:FileType>.ics</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap:Logo>Assets\Calendar44x44.png</uap:Logo>
+            <uap2:SupportedVerbs>
+              <uap3:Verb Id="open" Parameters="-osint &quot;%1&quot;">open</uap3:Verb>
+            </uap2:SupportedVerbs>
+          </uap3:FileTypeAssociation>
+        </uap3:Extension>
+        <uap3:Extension Category="windows.protocol">
+          <uap3:Protocol Name="mailto" Parameters="-osint -url &quot;%1&quot;">
+            <uap:DisplayName>mailto</uap:DisplayName>
+            <uap:Logo>Assets\Email44x44.png</uap:Logo>
+          </uap3:Protocol>
+        </uap3:Extension>
+        <uap3:Extension Category="windows.protocol">
+          <uap3:Protocol Name="mid" Parameters="-osint -url &quot;%1&quot;">
+            <uap:DisplayName>mid</uap:DisplayName>
+            <uap:Logo>Assets\Email44x44.png</uap:Logo>
+          </uap3:Protocol>
+        </uap3:Extension>
+        <uap3:Extension Category="windows.protocol">
+          <uap3:Protocol Name="nntp" Parameters="-osint -url &quot;%1&quot;">
+            <uap:DisplayName>nntp</uap:DisplayName>
+            <uap:Logo>Assets\News44x44.png</uap:Logo>
+          </uap3:Protocol>
+        </uap3:Extension>
+        <uap3:Extension Category="windows.protocol">
+          <uap3:Protocol Name="news" Parameters="-osint -url &quot;%1&quot;">
+            <uap:DisplayName>news</uap:DisplayName>
+            <uap:Logo>Assets\News44x44.png</uap:Logo>
+          </uap3:Protocol>
+        </uap3:Extension>
+        <uap3:Extension Category="windows.protocol">
+          <uap3:Protocol Name="snews" Parameters="-osint -url &quot;%1&quot;">
+            <uap:DisplayName>snews</uap:DisplayName>
+            <uap:Logo>Assets\News44x44.png</uap:Logo>
+          </uap3:Protocol>
+        </uap3:Extension>
+        <uap3:Extension Category="windows.protocol">
+          <uap3:Protocol Name="webcal" Parameters="-osint -url &quot;%1&quot;">
+            <uap:DisplayName>webcal</uap:DisplayName>
+            <uap:Logo>Assets\Calendar44x44.png</uap:Logo>
+          </uap3:Protocol>
+        </uap3:Extension>
+        <uap3:Extension Category="windows.protocol">
+          <uap3:Protocol Name="webcals" Parameters="-osint -url &quot;%1&quot;">
+            <uap:DisplayName>webcals</uap:DisplayName>
+            <uap:Logo>Assets\Calendar44x44.png</uap:Logo>
+          </uap3:Protocol>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  <Extensions>
+    <!-- These COM registrations allow Windows/MSAA to access Thunderbird accessibility features. -->
+    <com:Extension Category="windows.comInterface">
+      <com:ComInterface>
+        <com:ProxyStub DisplayName="AccessibleHandler"
+                       Id="@MOZ_IGECKOBACKCHANNEL_IID@"
+                       Path="VFS\ProgramFiles\@APPX_INSTDIR@\AccessibleHandler.dll"/>
+        <com:ProxyStub DisplayName="AccessibleMarshal"
+                       Id="1814ceeb-49e2-407f-af99-fa755a7d2607"
+                       Path="VFS\ProgramFiles\@APPX_INSTDIR@\AccessibleMarshal.dll"/>
+        <com:Interface Id="@MOZ_IGECKOBACKCHANNEL_IID@"
+                       ProxyStubClsid="@MOZ_IGECKOBACKCHANNEL_IID@"/>
+        <com:Interface Id="@MOZ_IHANDLERCONTROL_IID@"
+                       ProxyStubClsid="@MOZ_IGECKOBACKCHANNEL_IID@"
+                       AsynchronousInterface="@MOZ_ASYNCIHANDLERCONTROL_IID@"/>
+        <com:Interface Id="@MOZ_ASYNCIHANDLERCONTROL_IID@"
+                       ProxyStubClsid="@MOZ_IGECKOBACKCHANNEL_IID@"
+                       SynchronousInterface="@MOZ_IHANDLERCONTROL_IID@"/>
+        <com:Interface Id="4e747be5-2052-4265-8af0-8ecad7aad1c0"
+                       ProxyStubClsid="1814ceeb-49e2-407f-af99-fa755a7d2607"/>
+        <com:Interface Id="1814ceeb-49e2-407f-af99-fa755a7d2607"
+                       ProxyStubClsid="1814ceeb-49e2-407f-af99-fa755a7d2607"/>
+        <com:Interface Id="0d68d6d0-d93d-4d08-a30d-f00dd1f45b24"
+                       ProxyStubClsid="1814ceeb-49e2-407f-af99-fa755a7d2607"/>
+      </com:ComInterface>
+    </com:Extension>
+  </Extensions>
+</Package>

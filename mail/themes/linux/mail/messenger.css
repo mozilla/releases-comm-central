@@ -182,7 +182,6 @@
     border-radius: 100%;
     margin-inline: 5px;
     padding: 1px;
-    width: 16px;
   }
   .titlebar-button > .toolbarbutton-icon:-moz-lwtheme {
     display: -moz-inline-box;

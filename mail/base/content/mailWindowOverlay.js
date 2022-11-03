@@ -133,7 +133,7 @@ function updateCheckedStateForIgnoreAndWatchThreadCmds() {
 
   document
     .getElementById("cmd_killThread")
-    .setAttribute("checked", folder?.msgDatabase.IsIgnored(message.messageKey));
+    .setAttribute("checked", folder?.msgDatabase.isIgnored(message.messageKey));
   document
     .getElementById("cmd_killSubthread")
     .setAttribute(
@@ -142,7 +142,7 @@ function updateCheckedStateForIgnoreAndWatchThreadCmds() {
     );
   document
     .getElementById("cmd_watchThread")
-    .setAttribute("checked", folder?.msgDatabase.IsWatched(message.messageKey));
+    .setAttribute("checked", folder?.msgDatabase.isWatched(message.messageKey));
 }
 
 function file_init() {
@@ -673,7 +673,7 @@ function showCommandInSpecialFolder(aCommandIds, aFolderFlag) {
  * @param aMenuItem the menu item to adjust
  */
 function initMoveToFolderAgainMenu(aMenuItem) {
-  let lastFolderURI = Services.prefs.getCharPref(
+  let lastFolderURI = Services.prefs.getStringPref(
     "mail.last_msg_movecopy_target_uri"
   );
 

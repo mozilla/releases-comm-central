@@ -51,7 +51,7 @@ add_task(async function test_copyToInvalidDB() {
   // folder2 contains [msg3].
 
   // Take note of the message we're going to move (first msg in folder1).
-  let msgHdr = Array.from(folder1.msgDatabase.EnumerateMessages())[0];
+  let msgHdr = Array.from(folder1.msgDatabase.enumerateMessages())[0];
   let expectedID = msgHdr.messageId;
   let expectedMsg = mailTestUtils.loadMessageToString(folder1, msgHdr);
 

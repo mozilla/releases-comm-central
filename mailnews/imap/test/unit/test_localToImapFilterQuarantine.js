@@ -117,5 +117,5 @@ add_task(function endTest() {
 
 // count of messages in a folder, using the database
 function folderCount(folder) {
-  return [...folder.msgDatabase.EnumerateMessages()].length;
+  return [...folder.msgDatabase.enumerateMessages()].length;
 }

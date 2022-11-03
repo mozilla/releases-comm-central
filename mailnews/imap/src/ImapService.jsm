@@ -250,7 +250,7 @@ class ImapService {
 
     let db = dstFolder.msgDatabase;
     let fakeKey = db.nextFakeOfflineMsgKey;
-    let op = db.GetOfflineOpForKey(fakeKey, true);
+    let op = db.getOfflineOpForKey(fakeKey, true);
     op.operation = Ci.nsIMsgOfflineImapOperation.kAppendDraft;
     op.destinationFolderURI = dstFolder.URI;
     // Release op eagerly, to make test_offlineDraftDataloss happy in debug build.
@@ -258,7 +258,7 @@ class ImapService {
     Cu.forceGC();
 
     let server = dstFolder.server;
-    let newMsgHdr = db.CreateNewHdr(fakeKey);
+    let newMsgHdr = db.createNewHdr(fakeKey);
     let outputStream = dstFolder.getOfflineStoreOutputStream(newMsgHdr);
     let content = lazy.MailStringUtils.uint8ArrayToByteString(
       await IOUtils.read(file.path)
@@ -281,7 +281,7 @@ class ImapService {
 
     newMsgHdr.OrFlags(Ci.nsMsgMessageFlags.Offline | Ci.nsMsgMessageFlags.Read);
     newMsgHdr.offlineMessageSize = content.length;
-    db.AddNewHdrToDB(newMsgHdr, true);
+    db.addNewHdrToDB(newMsgHdr, true);
     dstFolder.setFlag(Ci.nsMsgFolderFlags.OfflineEvents);
     if (server.msgStore) {
       server.msgStore.finishNewMessage(outputStream, newMsgHdr);
@@ -289,7 +289,7 @@ class ImapService {
 
     urlListener.OnStopRunningUrl(url, Cr.NS_OK);
     outputStream.close();
-    db.Close(true);
+    db.close(true);
   }
 
   ensureFolderExists(parent, folderName, msgWindow, urlListener) {

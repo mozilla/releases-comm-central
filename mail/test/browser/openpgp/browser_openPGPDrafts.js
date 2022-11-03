@@ -99,7 +99,7 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
   registerCleanupFunction(
     async () =>
       new Promise(resolve => {
-        let msgs = [...draftsFolder.msgDatabase.EnumerateMessages()];
+        let msgs = [...draftsFolder.msgDatabase.enumerateMessages()];
 
         draftsFolder.deleteMessages(
           msgs,

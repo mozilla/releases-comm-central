@@ -99,7 +99,7 @@ var gTestArray = [
 ];
 
 function folderCount(folder) {
-  return [...folder.msgDatabase.EnumerateMessages()].length;
+  return [...folder.msgDatabase.enumerateMessages()].length;
 }
 
 function run_test() {

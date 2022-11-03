@@ -79,7 +79,7 @@ add_task(async function startMime() {
 
 // test that we don't mark all inline messages as read.
 add_task(async function testAllInlineMessage() {
-  for (let msg of IMAPPump.inbox.msgDatabase.EnumerateMessages()) {
+  for (let msg of IMAPPump.inbox.msgDatabase.enumerateMessages()) {
     await new Promise(resolve => {
       MsgHdrToMimeMessage(
         msg,

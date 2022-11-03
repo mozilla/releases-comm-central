@@ -1049,6 +1049,10 @@ done:
                     // temp folder and database
     ReleaseFolderLock();
     NS_RELEASE_THIS();  // kill self
+
+    if (m_completionFn) {
+      m_completionFn(m_status);
+    }
     return rv;
   }
   return rv;

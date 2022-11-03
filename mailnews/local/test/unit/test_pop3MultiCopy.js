@@ -43,7 +43,7 @@ add_task(async function runPump() {
   // Accumulate messages to copy.
   let messages = [];
   let msgCount = 0;
-  for (let hdr of inbox.msgDatabase.EnumerateMessages()) {
+  for (let hdr of inbox.msgDatabase.enumerateMessages()) {
     msgCount++;
     messages.push(hdr);
     Assert.equal(hdr.subject, testSubjects[msgCount - 1]);
@@ -73,7 +73,7 @@ add_task(async function runPump() {
   messages = [];
   msgCount = 0;
   let subjects = [];
-  for (let hdr of testFolder.msgDatabase.EnumerateMessages()) {
+  for (let hdr of testFolder.msgDatabase.enumerateMessages()) {
     msgCount++;
     messages.push(hdr);
     dump("Subject: " + hdr.subject + "\n");
@@ -88,7 +88,7 @@ add_task(async function runPump() {
   }
 
   // Make sure the body matches the message.
-  for (let hdr of testFolder.msgDatabase.EnumerateMessages()) {
+  for (let hdr of testFolder.msgDatabase.enumerateMessages()) {
     let body = mailTestUtils.loadMessageToString(testFolder, hdr);
     Assert.ok(body.includes(hdr.subject));
   }

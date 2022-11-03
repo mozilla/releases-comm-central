@@ -229,7 +229,7 @@ MessageArchiver.prototype = {
     // Don't move any items that the filter moves or deleted
     for (let item of batch.messages) {
       if (
-        srcFolder.msgDatabase.ContainsKey(item.messageKey) &&
+        srcFolder.msgDatabase.containsKey(item.messageKey) &&
         !(
           srcFolder.getProcessingFlags(item.messageKey) &
           Ci.nsMsgProcessingFlags.FilterToMove

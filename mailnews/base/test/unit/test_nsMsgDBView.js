@@ -304,7 +304,7 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
   ) {
     let searchNotify = gDBView.QueryInterface(Ci.nsIMsgSearchNotify);
     searchNotify.onNewSearch();
-    for (let msgHdr of aTestFolder.msgDatabase.EnumerateMessages()) {
+    for (let msgHdr of aTestFolder.msgDatabase.enumerateMessages()) {
       searchNotify.onSearchHit(msgHdr, msgHdr.folder);
     }
     searchNotify.onSearchDone(Cr.NS_OK);
@@ -805,12 +805,12 @@ function test_expand_collapse() {
 
   // test that expand/collapse works with killed sub-thread.
   oldRowCount = gDBView.rowCount;
-  gTestFolder.msgDatabase.MarkHeaderKilled(thirdChild, true, null);
+  gTestFolder.msgDatabase.markHeaderKilled(thirdChild, true, null);
   gDBView.toggleOpenState(0);
   if (gDBView.rowCount != oldRowCount + 2) {
     view_throw("expanding first item should have aded 2 items");
   }
-  gTestFolder.msgDatabase.MarkHeaderKilled(thirdChild, false, null);
+  gTestFolder.msgDatabase.markHeaderKilled(thirdChild, false, null);
   oldRowCount = gDBView.rowCount;
   gDBView.toggleOpenState(0);
   if (gDBView.rowCount != oldRowCount - 2) {

@@ -62,7 +62,7 @@ function addGeneratedMessagesToServer(messages, mailbox) {
 }
 
 function checkOfflineStore(prevOfflineStoreSize) {
-  let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
+  let enumerator = IMAPPump.inbox.msgDatabase.enumerateMessages();
   if (enumerator) {
     for (let header of enumerator) {
       // this will verify that the message in the offline store

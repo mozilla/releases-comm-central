@@ -1168,8 +1168,8 @@ function updateRange() {
      * @param {calIDateTime} to - The end of a time period to query.
      */
     updateFreeBusy(from, to) {
-      let addresses = MailServices.headerParser.parseEncodedHeader(this.input.value);
-      if (!addresses || addresses.length === 0) {
+      let addresses = MailServices.headerParser.makeFromDisplayAddress(this.input.value);
+      if (addresses.length === 0) {
         return;
       }
 

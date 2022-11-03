@@ -55,7 +55,7 @@ var gTestArray = [
     // operation was a move
     Assert.equal(folderCount(localAccountUtils.inboxFolder), 0);
 
-    let msgs = [...gMoveFolder.msgDatabase.EnumerateMessages()];
+    let msgs = [...gMoveFolder.msgDatabase.enumerateMessages()];
     let firstMsgHdr = msgs[0];
     let secondMsgHdr = msgs[1];
     // Check that the messages have content
@@ -71,7 +71,7 @@ var gTestArray = [
     );
   },
   async function copyMovedMessages() {
-    let msgs = [...gMoveFolder.msgDatabase.EnumerateMessages()];
+    let msgs = [...gMoveFolder.msgDatabase.enumerateMessages()];
     let firstMsgHdr = msgs[0];
     let secondMsgHdr = msgs[1];
     let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
@@ -93,7 +93,7 @@ var gTestArray = [
   function verifyFolders2() {
     Assert.equal(folderCount(gMoveFolder2), 2);
 
-    let msgs = [...gMoveFolder2.msgDatabase.EnumerateMessages()];
+    let msgs = [...gMoveFolder2.msgDatabase.enumerateMessages()];
     let firstMsgHdr = msgs[0];
     let secondMsgHdr = msgs[1];
     // Check that the messages have content
@@ -115,7 +115,7 @@ var gTestArray = [
 ];
 
 function folderCount(folder) {
-  return [...folder.msgDatabase.EnumerateMessages()].length;
+  return [...folder.msgDatabase.enumerateMessages()].length;
 }
 
 function run_test() {

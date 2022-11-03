@@ -36,13 +36,13 @@ var SearchSupport = {
    */
   __lastFolderIndexedUri: null,
   set _lastFolderIndexedUri(uri) {
-    this._prefBranch.setCharPref("lastFolderIndexedUri", uri);
+    this._prefBranch.setStringPref("lastFolderIndexedUri", uri);
     this.__lastFolderIndexedUri = uri;
   },
   get _lastFolderIndexedUri() {
     // If we don't know about it, get it from the pref branch
     if (this.__lastFolderIndexedUri === null) {
-      this.__lastFolderIndexedUri = this._prefBranch.getCharPref(
+      this.__lastFolderIndexedUri = this._prefBranch.getStringPref(
         "lastFolderIndexedUri",
         ""
       );

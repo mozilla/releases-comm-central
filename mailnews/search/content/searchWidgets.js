@@ -1397,7 +1397,7 @@
           // so that we skip this identity.
           if (msgFolder && !foldersScanned.includes(msgFolder)) {
             foldersScanned.push(msgFolder);
-            enumerator = msgFolder.msgDatabase.EnumerateMessages();
+            enumerator = msgFolder.msgDatabase.enumerateMessages();
           }
 
           if (!enumerator) {

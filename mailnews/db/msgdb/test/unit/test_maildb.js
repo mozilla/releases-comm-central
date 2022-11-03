@@ -23,14 +23,14 @@ var gTestArray = [
     let db = dbService.openFolderDB(gTestFolder, true);
     Assert.notEqual(db, null);
     db.dBFolderInfo.highWater = 10;
-    db.Close(true);
+    db.close(true);
     db = dbService.openFolderDB(gTestFolder, true);
     Assert.notEqual(db, null);
     Assert.equal(db.dBFolderInfo.highWater, 10);
     db.dBFolderInfo.onKeyAdded(15);
     Assert.equal(db.dBFolderInfo.highWater, 15);
-    db.Close(true);
-    db.ForceClosed();
+    db.close(true);
+    db.forceClosed();
     db = null;
     doTest(++gCurTestNum);
   },

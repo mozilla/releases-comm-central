@@ -124,7 +124,7 @@ var tests = [
 
     // test the headers in the inbox
     let count = 0;
-    for (let message of db.EnumerateMessages()) {
+    for (let message of db.enumerateMessages()) {
       count++;
       message instanceof Ci.nsIMsgDBHdr;
       dump(
@@ -196,7 +196,7 @@ var tests = [
     // test the db headers in folder1
     db = gFolder1.msgDatabase;
     let count = 0;
-    for (let message of db.EnumerateMessages()) {
+    for (let message of db.enumerateMessages()) {
       count++;
       message instanceof Ci.nsIMsgDBHdr;
       dump(
@@ -238,7 +238,7 @@ var tests = [
   },
   function moveMessagesToSubfolder() {
     let db = IMAPPump.inbox.msgDatabase;
-    let messages = [...db.EnumerateMessages()];
+    let messages = [...db.enumerateMessages()];
     Assert.ok(messages.length > 0);
     // this is sync, I believe?
     MailServices.copy.copyMessages(
@@ -252,7 +252,7 @@ var tests = [
     );
 
     // the inbox should now be empty
-    Assert.ok([...db.EnumerateMessages()].length == 0);
+    Assert.ok([...db.enumerateMessages()].length == 0);
 
     // maildir should also delete the files.
     if (IMAPPump.inbox.msgStore.storeType == "maildir") {

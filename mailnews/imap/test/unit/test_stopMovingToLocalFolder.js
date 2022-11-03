@@ -48,7 +48,7 @@ add_task(async function setup_messages() {
 });
 
 add_task(async function move_messages() {
-  let msg = IMAPPump.inbox.msgDatabase.GetMsgHdrForKey(
+  let msg = IMAPPump.inbox.msgDatabase.getMsgHdrForKey(
     IMAPPump.mailbox.uidnext - 1
   );
   let copyListener = new PromiseTestUtils.PromiseCopyListener({

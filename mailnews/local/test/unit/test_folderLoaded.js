@@ -63,7 +63,7 @@ add_setup(async function() {
 add_task(async function firstUpdate() {
   // Get message headers for the target folder.
   var msgCount = 0;
-  for (let hdr of gTargetFolder.msgDatabase.EnumerateMessages()) {
+  for (let hdr of gTargetFolder.msgDatabase.enumerateMessages()) {
     msgCount++;
     Assert.equal(hdr.subject, testSubjects[msgCount - 1]);
   }

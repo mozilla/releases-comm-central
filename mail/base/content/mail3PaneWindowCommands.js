@@ -230,10 +230,10 @@ function ShowIgnoredMessageNotification(aMsgs, aSubthreadOnly) {
         aMsgs.forEach(function(msg) {
           let msgDb = msg.folder.msgDatabase;
           if (aSubthreadOnly) {
-            msgDb.MarkHeaderKilled(msg, false, gDBView);
+            msgDb.markHeaderKilled(msg, false, gDBView);
           } else {
-            let thread = msgDb.GetThreadContainingMsgHdr(msg);
-            msgDb.MarkThreadIgnored(thread, thread.threadKey, false, gDBView);
+            let thread = msgDb.getThreadContainingMsgHdr(msg);
+            msgDb.markThreadIgnored(thread, thread.threadKey, false, gDBView);
           }
         });
         return false; // close notification

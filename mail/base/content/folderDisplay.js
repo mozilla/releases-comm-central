@@ -536,7 +536,7 @@ FolderDisplayWidget.prototype = {
       this.PERSISTED_COLUMN_PROPERTY_NAME,
       JSON.stringify(aState)
     );
-    msgDatabase.Commit(Ci.nsMsgDBCommitType.kLargeCommit);
+    msgDatabase.commit(Ci.nsMsgDBCommitType.kLargeCommit);
   },
 
   /**
@@ -2048,7 +2048,7 @@ FolderDisplayWidget.prototype = {
     return Boolean(
       message &&
         message.folder &&
-        message.folder.msgDatabase.IsIgnored(message.messageKey)
+        message.folder.msgDatabase.isIgnored(message.messageKey)
     );
   },
 
@@ -2072,7 +2072,7 @@ FolderDisplayWidget.prototype = {
     return Boolean(
       message &&
         message.folder &&
-        message.folder.msgDatabase.IsWatched(message.messageKey)
+        message.folder.msgDatabase.isWatched(message.messageKey)
     );
   },
 

@@ -44,6 +44,7 @@ tasktype_map:
     repackage: repackage
     repackage-signing: repackage
     repackage-signing-msi: repackage
+    repackage-signing-shippable-l10n-msix: signing
 platform_names:
     filename_platform:
         by-platform:
@@ -367,6 +368,21 @@ mapping:
                 default:
                     - ${year}/${month}/${upload_date}-${branch}-l10n
                     - latest-${branch}-l10n
+    target.installer.msix:
+        <<: *default
+        description: "Windows MSIX installer"
+        all_locales: true
+        from:
+            - repackage-signing-shippable-l10n-msix
+        only_for_platforms:
+            - win64-shippable
+            - win32-shippable
+        pretty_name: thunderbird-${version}.multi.${filename_platform}.installer.msix
+        checksums_path: thunderbird-${version}.multi.${filename_platform}.installer.msix
+        destinations:
+            - ${year}/${month}/${upload_date}-${branch}
+            - latest-${branch}
+            - latest-${branch}-l10n
     target.complete.mar:
         <<: *default
         description: "The main installer we ship our mobile products baked within"

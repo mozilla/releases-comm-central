@@ -308,7 +308,7 @@ SearchIntegration = {
           SearchIntegration._hdrIndexedProperty,
           this._reindexTime
         );
-        folder.msgDatabase.Commit(MSG_DB_LARGE_COMMIT);
+        folder.msgDatabase.commit(MSG_DB_LARGE_COMMIT);
 
         this._message = "";
         SearchIntegration._log.info("Successfully written file");

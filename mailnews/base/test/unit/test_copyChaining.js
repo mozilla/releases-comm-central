@@ -20,7 +20,7 @@ var gCurTestNum = 1;
 
 var gTestArray = [
   function copyMsg1() {
-    gMessages = [...gCopySource.msgDatabase.EnumerateMessages()];
+    gMessages = [...gCopySource.msgDatabase.enumerateMessages()];
     CopyNextMessage();
   },
   function copyMsg2() {

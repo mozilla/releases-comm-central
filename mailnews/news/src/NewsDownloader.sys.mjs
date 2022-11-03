@@ -30,7 +30,7 @@ export class NewsDownloader {
    * Actually start the download process.
    */
   async start() {
-    this._logger.debug("Start downloading all articles for offline");
+    this._logger.debug("Start downloading articles for offline use");
     let servers = MailServices.accounts.allServers.filter(
       x => x.type == "nntp"
     );
@@ -39,13 +39,18 @@ export class NewsDownloader {
       servers.map(async server => {
         let folders = server.rootFolder.descendants;
         for (let folder of folders) {
-          // Download newsgroups in a server one by one.
-          await this._downloadFolder(folder);
+          if (folder.flags & Ci.nsMsgFolderFlags.Offline) {
+            // Download newsgroups set for offline use in a server one by one.
+            await this._downloadFolder(folder);
+          }
         }
       })
     );
 
     this._urlListener.OnStopRunningUrl(null, Cr.NS_OK);
+
+    this._logger.debug("Finished downloading articles for offline use");
+    this._msgWindow.statusFeedback.showStatusString("");
   }
 
   /**

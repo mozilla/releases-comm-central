@@ -94,7 +94,7 @@ add_task(async function downloadForOffline() {
 });
 
 add_task(async function deleteOneMsg() {
-  let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
+  let enumerator = IMAPPump.inbox.msgDatabase.enumerateMessages();
   let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
   let copyListener = new PromiseTestUtils.PromiseCopyListener();
   IMAPPump.inbox.deleteMessages(
@@ -109,7 +109,7 @@ add_task(async function deleteOneMsg() {
 });
 
 add_task(async function compactOneFolder() {
-  let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
+  let enumerator = IMAPPump.inbox.msgDatabase.enumerateMessages();
   let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
   gStreamedHdr = msgHdr;
   // Mark the message as not being offline, and then we'll make sure that
@@ -117,7 +117,7 @@ add_task(async function compactOneFolder() {
   //  message being marked for offline use.
   //  Luckily, compaction compacts the offline store first, so it should
   //  lock the offline store.
-  IMAPPump.inbox.msgDatabase.MarkOffline(msgHdr.messageKey, false, null);
+  IMAPPump.inbox.msgDatabase.markOffline(msgHdr.messageKey, false, null);
   let msgURI = msgHdr.folder.getUriForMsg(msgHdr);
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
     Ci.nsIMessenger
@@ -143,7 +143,7 @@ add_task(async function compactOneFolder() {
 });
 
 add_task(async function deleteAnOtherMsg() {
-  let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
+  let enumerator = IMAPPump.inbox.msgDatabase.enumerateMessages();
   let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
   let copyListener = new PromiseTestUtils.PromiseCopyListener();
   IMAPPump.inbox.deleteMessages(
@@ -181,7 +181,7 @@ add_task(async function testOfflineBodyCopy() {
   // hard to test because of the half-second delay.
   IMAPPump.server.stop();
   Services.io.offline = true;
-  let enumerator = gIMAPTrashFolder.msgDatabase.EnumerateMessages();
+  let enumerator = gIMAPTrashFolder.msgDatabase.enumerateMessages();
   let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
   gMovedMsgId = msgHdr.messageId;
   let compactionListener = new PromiseTestUtils.PromiseUrlListener();

@@ -40,7 +40,7 @@ add_task(async function setupTest() {
 
 add_task(function checkBccs() {
   // locate the new message by enumerating through the database
-  for (let hdr of IMAPPump.inbox.msgDatabase.EnumerateMessages()) {
+  for (let hdr of IMAPPump.inbox.msgDatabase.enumerateMessages()) {
     Assert.ok(hdr.bccList.includes("Another Person"));
     Assert.ok(hdr.bccList.includes("<u1@example.com>"));
     Assert.ok(!hdr.bccList.includes("IDoNotExist"));
