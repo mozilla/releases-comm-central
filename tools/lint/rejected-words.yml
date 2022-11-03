@@ -12,20 +12,21 @@ avoid-blacklist-and-whitelist:
     ignore-case: true
     # same as codespell
     extensions:
+        - c
+        - configure
+        - cpp
+        - ftl
+        - h
+        - html
+        - idl
         - js
         - jsm
-        - mjs
         - jxs
-        - xml
-        - html
-        - xhtml
-        - cpp
-        - c
-        - h
-        - configure
-        - py
-        - properties
-        - rst
         - md
-        - ftl
+        - mjs
+        - properties
+        - py
+        - rst
+        - xhtml
+        - xml
         - yml
