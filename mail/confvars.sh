@@ -13,8 +13,8 @@ fi
 
 BROWSER_CHROME_URL=chrome://messenger/content/extensionPopup.xhtml
 
-MOZ_BRANDING_DIRECTORY=$commreltopsrcdir/mail/branding/nightly
-MOZ_OFFICIAL_BRANDING_DIRECTORY=$commreltopsrcdir/mail/branding/thunderbird
+MOZ_BRANDING_DIRECTORY=comm/mail/branding/nightly
+MOZ_OFFICIAL_BRANDING_DIRECTORY=comm/mail/branding/thunderbird
 
 MOZ_APP_ID={3550f703-e582-4d05-9a08-453d09bdfdc6}
 
