@@ -81,7 +81,6 @@ add_task(async function testClientIdentityExtension() {
     {},
     {}
   );
-  server.performTest();
 
   await asyncUrlListener.promise;
 
@@ -122,7 +121,6 @@ add_task(async function testDeduplicateRecipients() {
     {},
     {}
   );
-  server.performTest();
 
   await asyncUrlListener.promise;
 

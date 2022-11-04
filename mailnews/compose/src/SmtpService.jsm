@@ -91,111 +91,113 @@ class SmtpService {
       server.password = password;
     }
     let runningUrl = this._getRunningUri(server);
-    let client = new lazy.SmtpClient(server);
-    deliveryListener?.OnStartRunningUrl(runningUrl, 0);
-    client.connect();
-    let fresh = true;
-    client.onidle = () => {
-      // onidle can be emitted multiple times, but we should not init sending
-      // process again.
-      if (!fresh) {
-        return;
-      }
-      fresh = false;
-      let from = sender;
-      let to = MailServices.headerParser
-        .parseEncodedHeaderW(decodeURIComponent(recipients))
-        .map(rec => rec.email);
-
-      if (
-        !Services.prefs.getBoolPref("mail.smtp.useSenderForSmtpMailFrom", false)
-      ) {
-        from = userIdentity.email;
-      }
-      if (!messageId) {
-        messageId = Cc["@mozilla.org/messengercompose/computils;1"]
-          .createInstance(Ci.nsIMsgCompUtils)
-          .msgGenerateMessageId(userIdentity);
-      }
-      client.useEnvelope({
-        from: MailServices.headerParser.parseEncodedHeaderW(
-          decodeURIComponent(from)
-        )[0].email,
-        to,
-        size: messageFile.fileSize,
-        requestDSN,
-        messageId,
-      });
-    };
-    let socketOnDrain;
-    client.onready = async () => {
-      let fstream = Cc[
-        "@mozilla.org/network/file-input-stream;1"
-      ].createInstance(Ci.nsIFileInputStream);
-      // PR_RDONLY
-      fstream.init(messageFile, 0x01, 0, 0);
-
-      let sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-        Ci.nsIScriptableInputStream
-      );
-      sstream.init(fstream);
-
-      let sentSize = 0;
-      let totalSize = messageFile.fileSize;
-      let progressListener = statusListener?.QueryInterface(
-        Ci.nsIWebProgressListener
-      );
-
-      while (sstream.available()) {
-        let chunk = sstream.read(65536);
-        let canSendMore = client.send(chunk);
-        if (!canSendMore) {
-          // Socket buffer is full, wait for the ondrain event.
-          await new Promise(resolve => (socketOnDrain = resolve));
+    server.wrappedJSObject.withClient(client => {
+      deliveryListener?.OnStartRunningUrl(runningUrl, 0);
+      let fresh = true;
+      client.onidle = () => {
+        // onidle can be emitted multiple times, but we should not init sending
+        // process again.
+        if (!fresh) {
+          return;
         }
-        // In practice, chunks are buffered by TCPSocket, progress reaches 100%
-        // almost immediately.
-        sentSize += chunk.length;
-        progressListener?.onProgressChange(
-          null,
-          null,
-          sentSize,
-          totalSize,
-          sentSize,
-          totalSize
-        );
-      }
-      sstream.close();
-      fstream.close();
-      client.end();
-    };
-    client.ondrain = () => {
-      // Socket buffer is empty, safe to continue sending.
-      socketOnDrain();
-    };
-    client.ondone = exitCode => {
-      if (!AppConstants.MOZ_SUITE) {
-        Services.telemetry.scalarAdd("tb.mails.sent", 1);
-      }
-      deliveryListener?.OnStopRunningUrl(runningUrl, exitCode);
-      client.quit();
-    };
-    client.onerror = (nsError, errorMessage, secInfo) => {
-      runningUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
-      if (secInfo) {
-        // TODO(emilio): Passing the failed security info as part of the URI is
-        // quite a smell, but monkey see monkey do...
-        runningUrl.failedSecInfo = secInfo;
-      }
-      runningUrl.errorMessage = errorMessage;
-      deliveryListener?.OnStopRunningUrl(runningUrl, nsError);
-    };
+        fresh = false;
+        let from = sender;
+        let to = MailServices.headerParser
+          .parseEncodedHeaderW(decodeURIComponent(recipients))
+          .map(rec => rec.email);
 
-    outRequest.value = {
-      cancel() {
-        client.close(true);
-      },
-    };
+        if (
+          !Services.prefs.getBoolPref(
+            "mail.smtp.useSenderForSmtpMailFrom",
+            false
+          )
+        ) {
+          from = userIdentity.email;
+        }
+        if (!messageId) {
+          messageId = Cc["@mozilla.org/messengercompose/computils;1"]
+            .createInstance(Ci.nsIMsgCompUtils)
+            .msgGenerateMessageId(userIdentity);
+        }
+        client.useEnvelope({
+          from: MailServices.headerParser.parseEncodedHeaderW(
+            decodeURIComponent(from)
+          )[0].email,
+          to,
+          size: messageFile.fileSize,
+          requestDSN,
+          messageId,
+        });
+      };
+      let socketOnDrain;
+      client.onready = async () => {
+        let fstream = Cc[
+          "@mozilla.org/network/file-input-stream;1"
+        ].createInstance(Ci.nsIFileInputStream);
+        // PR_RDONLY
+        fstream.init(messageFile, 0x01, 0, 0);
+
+        let sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+          Ci.nsIScriptableInputStream
+        );
+        sstream.init(fstream);
+
+        let sentSize = 0;
+        let totalSize = messageFile.fileSize;
+        let progressListener = statusListener?.QueryInterface(
+          Ci.nsIWebProgressListener
+        );
+
+        while (sstream.available()) {
+          let chunk = sstream.read(65536);
+          let canSendMore = client.send(chunk);
+          if (!canSendMore) {
+            // Socket buffer is full, wait for the ondrain event.
+            await new Promise(resolve => (socketOnDrain = resolve));
+          }
+          // In practice, chunks are buffered by TCPSocket, progress reaches 100%
+          // almost immediately.
+          sentSize += chunk.length;
+          progressListener?.onProgressChange(
+            null,
+            null,
+            sentSize,
+            totalSize,
+            sentSize,
+            totalSize
+          );
+        }
+        sstream.close();
+        fstream.close();
+        client.end();
+      };
+      client.ondrain = () => {
+        // Socket buffer is empty, safe to continue sending.
+        socketOnDrain();
+      };
+      client.ondone = exitCode => {
+        if (!AppConstants.MOZ_SUITE) {
+          Services.telemetry.scalarAdd("tb.mails.sent", 1);
+        }
+        deliveryListener?.OnStopRunningUrl(runningUrl, exitCode);
+      };
+      client.onerror = (nsError, errorMessage, secInfo) => {
+        runningUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
+        if (secInfo) {
+          // TODO(emilio): Passing the failed security info as part of the URI is
+          // quite a smell, but monkey see monkey do...
+          runningUrl.failedSecInfo = secInfo;
+        }
+        runningUrl.errorMessage = errorMessage;
+        deliveryListener?.OnStopRunningUrl(runningUrl, nsError);
+      };
+
+      outRequest.value = {
+        cancel() {
+          client.close(true);
+        },
+      };
+    });
   }
 
   /**

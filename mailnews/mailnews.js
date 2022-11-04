@@ -520,6 +520,7 @@ pref("mail.smtpserver.default.clientid", "");
 //  https://bugzilla.mozilla.org/show_bug.cgi?id=1565379
 pref("mail.server.default.clientidEnabled", false);
 pref("mail.smtpserver.default.clientidEnabled", false);
+pref("mail.smtpserver.default.max_cached_connections", 3);
 
 pref("mail.smtpservers", "");
 pref("mail.accountmanager.accounts", "");

@@ -66,9 +66,6 @@ class SmtpClient {
 
     // Private properties
 
-    // Indicates if the connection has been closed and can't be used anymore
-    this._destroyed = false;
-
     this._server = server;
     this._authenticator = new SmtpAuthenticator(server);
     this._authenticating = false;
@@ -109,30 +106,31 @@ class SmtpClient {
     this.onidle = () => {}; // The connection is established and idle, you can send mail now
     this.onready = failedRecipients => {}; // Waiting for mail body, lists addresses that were not accepted as recipients
     this.ondone = success => {}; // The mail has been sent. Wait for `onidle` next. Indicates if the message was queued by the server.
+    // Callback when this client is ready to be reused.
+    this.onFree = () => {};
   }
 
   /**
    * Initiate a connection to the server
    */
   connect() {
-    let hostname = this._server.hostname.toLowerCase();
-    let port = this._server.port || (this.options.requireTLS ? 465 : 587);
-    this.logger.debug(`Connecting to smtp://${hostname}:${port}`);
-    this._secureTransport = this.options.requireTLS;
-    this.socket = new TCPSocket(hostname, port, {
-      binaryType: "arraybuffer",
-      useSecureTransport: this._secureTransport,
-    });
+    if (this.socket?.readyState == "open") {
+      this.logger.debug("Reusing a connection");
+      this.onidle();
+    } else {
+      let hostname = this._server.hostname.toLowerCase();
+      let port = this._server.port || (this.options.requireTLS ? 465 : 587);
+      this.logger.debug(`Connecting to smtp://${hostname}:${port}`);
+      this._secureTransport = this.options.requireTLS;
+      this.socket = new TCPSocket(hostname, port, {
+        binaryType: "arraybuffer",
+        useSecureTransport: this._secureTransport,
+      });
 
-    // allows certificate handling for platform w/o native tls support
-    // oncert is non standard so setting it might throw if the socket object is immutable
-    try {
-      this.socket.oncert = this.oncert;
-    } catch (E) {}
-    this.socket.onerror = this._onError;
-    this.socket.onopen = this._onOpen;
-
-    this._destroyed = false;
+      this.socket.onerror = this._onError;
+      this.socket.onopen = this._onOpen;
+    }
+    this._freed = false;
   }
 
   /**
@@ -140,7 +138,7 @@ class SmtpClient {
    */
   quit() {
     this._authenticating = false;
-    this._destroyed = true;
+    this._freed = true;
     this._sendCommand("QUIT");
     this._currentAction = this.close;
   }
@@ -155,7 +153,7 @@ class SmtpClient {
     if (this.socket && this.socket.readyState === "open") {
       immediately ? this.socket.closeImmediately() : this.socket.close();
     } else {
-      this._destroy();
+      this._free();
     }
   }
 
@@ -433,10 +431,12 @@ class SmtpClient {
    */
   _onError = e => {
     this.logger.error(e);
-    if (this._destroyed) {
-      // Ignore socket errors if already destroyed.
+    if (this._freed) {
+      // Ignore socket errors if already freed.
       return;
     }
+    this._free();
+
     this.quit();
     let nsError = Cr.NS_ERROR_FAILURE;
     let secInfo = null;
@@ -497,7 +497,7 @@ class SmtpClient {
    */
   _onClose = () => {
     this.logger.debug("Socket closed.");
-    this._destroy();
+    this._free();
     if (this._authenticating) {
       // In some cases, socket is closed for invalid username/password.
       this._onAuthFailed({ data: "Socket closed." });
@@ -523,12 +523,12 @@ class SmtpClient {
   }
 
   /**
-   * Ensures that the connection is closed and such
+   * This client has finished the current process and ready to be reused.
    */
-  _destroy() {
-    if (!this._destroyed) {
-      this._destroyed = true;
-      this.onclose();
+  _free() {
+    if (!this._freed) {
+      this._freed = true;
+      this.onFree();
     }
   }
 
@@ -577,9 +577,11 @@ class SmtpClient {
    */
   _sendCommand(str, suppressLogging = false) {
     if (this.socket.readyState !== "open") {
-      this.logger.warn(
-        `Failed to send "${str}" because socket state is ${this.socket.readyState}`
-      );
+      if (str != "QUIT") {
+        this.logger.warn(
+          `Failed to send "${str}" because socket state is ${this.socket.readyState}`
+        );
+      }
       return;
     }
     // "C: " is used to denote that this is data from the Client.
@@ -699,7 +701,7 @@ class SmtpClient {
 
   _onAuthFailed(command) {
     this.logger.error(`Authentication failed: ${command.data}`);
-    if (!this._destroyed) {
+    if (!this._freed) {
       if (this._nextAuthMethod) {
         // Try the next auth method.
         this._authenticateUser();
@@ -748,7 +750,7 @@ class SmtpClient {
       this._authenticator.forgetPassword();
     }
 
-    if (this._destroyed) {
+    if (this._freed) {
       // If connection is lost, reconnect.
       this.connect();
       return;
@@ -1259,11 +1261,7 @@ class SmtpClient {
       }
     }
 
-    // If the client wanted to do something else (eg. to quit), do not force idle
-    if (this._currentAction === this._actionIdle) {
-      // Waiting for new connections
-      this.logger.debug("Idling while waiting for new connections...");
-      this.onidle();
-    }
+    this._freed = true;
+    this.onFree();
   }
 }

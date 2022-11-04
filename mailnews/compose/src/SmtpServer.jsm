@@ -4,9 +4,18 @@
 
 const EXPORTED_SYMBOLS = ["SmtpServer"];
 
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
+  SmtpClient: "resource:///modules/SmtpClient.jsm",
+});
 
 /**
  * This class represents a single SMTP server.
@@ -158,6 +167,18 @@ class SmtpServer {
 
   get serverURI() {
     return this._getServerURI(true);
+  }
+
+  get maximumConnectionsNumber() {
+    let maxConnections = this._getIntPrefWithDefault(
+      "max_cached_connections",
+      3
+    );
+    return maxConnections > 1 ? maxConnections : 1;
+  }
+
+  set maximumConnectionsNumber(value) {
+    this._prefs.setIntPref("max_cached_connections", value);
   }
 
   get password() {
@@ -355,5 +376,70 @@ class SmtpServer {
     } catch (e) {
       return this._defaultPrefs.getIntPref(name, defaultValue);
     }
+  }
+
+  get wrappedJSObject() {
+    return this;
+  }
+
+  // @type {SmtpClient[]} - An array of connections can be used.
+  _freeConnections = [];
+  // @type {SmtpClient[]} - An array of connections in use.
+  _busyConnections = [];
+  // @type {Function[]} - An array of Promise.resolve functions.
+  _connectionWaitingQueue = [];
+
+  closeCachedConnections() {
+    // Close all connections.
+    for (let client of [...this._freeConnections, ...this._busyConnections]) {
+      client.quit();
+    }
+    // Cancel all waitings in queue.
+    for (let resolve of this._connectionWaitingQueue) {
+      resolve(false);
+    }
+    this._freeConnections = [];
+    this._busyConnections = [];
+  }
+
+  /**
+   * Get an idle connection that can be used.
+   * @returns {SmtpClient}
+   */
+  async _getNextClient() {
+    // The newest connection is the least likely to have timed out.
+    let client = this._freeConnections.pop();
+    if (client) {
+      this._busyConnections.push(client);
+      return client;
+    }
+    if (
+      this._freeConnections.length + this._busyConnections.length <
+      this.maximumConnectionsNumber
+    ) {
+      // Create a new client if the pool is not full.
+      client = new lazy.SmtpClient(this);
+      this._busyConnections.push(client);
+      return client;
+    }
+    // Wait until a connection is available.
+    await new Promise(resolve => this._connectionWaitingQueue.push(resolve));
+    return this._getNextClient();
+  }
+  /**
+   * Do some actions with a connection.
+   * @param {Function} handler - A callback function to take a SmtpClient
+   *   instance, and do some actions.
+   */
+  async withClient(handler) {
+    let client = await this._getNextClient();
+    client.onFree = () => {
+      this._busyConnections = this._busyConnections.filter(c => c != client);
+      this._freeConnections.push(client);
+      // Resovle the first waiting in queue.
+      this._connectionWaitingQueue.shift()?.();
+    };
+    handler(client);
+    client.connect();
   }
 }

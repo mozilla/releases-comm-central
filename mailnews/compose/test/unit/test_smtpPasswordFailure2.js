@@ -13,6 +13,9 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 /* import-globals-from ../../../test/resources/passwordStorage.js */
@@ -124,13 +127,14 @@ add_task(async function() {
 
     dump("Send\n");
 
+    let urlListener = new PromiseTestUtils.PromiseUrlListener();
     MailServices.smtp.sendMailMessage(
       testFile,
       kTo,
       identity,
       kSender,
       null,
-      null,
+      urlListener,
       null,
       null,
       false,
@@ -139,7 +143,7 @@ add_task(async function() {
       {}
     );
 
-    server.performTest();
+    await urlListener.promise;
 
     dump("End Send\n");
 

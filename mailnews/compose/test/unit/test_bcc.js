@@ -7,6 +7,9 @@
  * mail, but should exist in the mail copy (e.g. Sent folder).
  */
 
+var { PromiseUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/PromiseUtils.sys.mjs"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -24,7 +27,7 @@ function cleanUpSent() {
 /**
  * Load local mail account and start fake SMTP server.
  */
-add_task(async function setup() {
+add_setup(async function setup() {
   localAccountUtils.loadLocalMailAccount();
   gServer = setupServerDaemon();
   gServer.start();
@@ -78,7 +81,6 @@ add_task(async function testBcc() {
     progress
   );
   await promise;
-  gServer.performTest();
 
   let expectedBody = `\r\n\r\n${fields.body}`;
   // Should not contain extra \r\n between head and body.
@@ -153,7 +155,6 @@ add_task(async function testBccWithNonUtf8EmlAttachment() {
     progress
   );
   await promise;
-  gServer.performTest();
 
   Assert.ok(
     gServer._daemon.post.includes(
@@ -208,6 +209,7 @@ add_task(async function testBccWithSendLater() {
   );
   await promise;
 
+  let onStopSendingPromise = PromiseUtils.defer();
   let msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
     Ci.nsIMsgSendLater
   );
@@ -239,6 +241,7 @@ add_task(async function testBccWithSendLater() {
       Assert.ok(!msgData.includes(notExpectedBody));
 
       msgSendLater.removeListener(sendLaterListener);
+      onStopSendingPromise.resolve();
     },
   };
 
@@ -246,7 +249,7 @@ add_task(async function testBccWithSendLater() {
 
   // Actually send the message.
   msgSendLater.sendUnsentMessages(identity);
-  gServer.performTest();
+  await onStopSendingPromise.promise;
 });
 
 /**
@@ -296,6 +299,7 @@ add_task(async function testBccOnlyWithSendLater() {
   );
   await promise;
 
+  let onStopSendingPromise = PromiseUtils.defer();
   let msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
     Ci.nsIMsgSendLater
   );
@@ -314,6 +318,7 @@ add_task(async function testBccOnlyWithSendLater() {
       ]);
 
       msgSendLater.removeListener(sendLaterListener);
+      onStopSendingPromise.resolve();
     },
   };
 
@@ -321,5 +326,5 @@ add_task(async function testBccOnlyWithSendLater() {
 
   // Actually send the message.
   msgSendLater.sendUnsentMessages(identity);
-  gServer.performTest();
+  await onStopSendingPromise.promise;
 });

@@ -51,6 +51,7 @@ class SMTP_RFC2821_handler {
     this._nextAuthFunction = undefined;
     this._multiline = false;
     this.expectingData = false;
+    this._daemon.post = "";
   }
   EHLO(args) {
     var capa = "250-fakeserver greets you";

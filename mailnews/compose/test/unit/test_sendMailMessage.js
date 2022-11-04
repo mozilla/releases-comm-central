@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /**
  * Protocol tests for SMTP.
  *
@@ -9,6 +8,9 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 var server;
 
@@ -18,7 +20,7 @@ var kTo = "to@foo.invalid";
 var kUsername = "testsmtp";
 var kPassword = "smtptest";
 
-function test_RFC2821() {
+async function test_RFC2821() {
   // Test file
   var testFile = do_get_file("data/message1.eml");
 
@@ -38,13 +40,14 @@ function test_RFC2821() {
     // First do test with identity email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", false);
 
+    let urlListener = new PromiseTestUtils.PromiseUrlListener();
     MailServices.smtp.sendMailMessage(
       testFile,
       kTo,
       identity,
       kSender,
       null,
-      null,
+      urlListener,
       null,
       null,
       false,
@@ -53,7 +56,7 @@ function test_RFC2821() {
       {}
     );
 
-    server.performTest();
+    await urlListener.promise;
 
     var transaction = server.playTransaction();
     do_check_transaction(transaction, [
@@ -63,18 +66,20 @@ function test_RFC2821() {
       "DATA",
     ]);
 
+    smtpServer.closeCachedConnections();
     server.resetTest();
 
     // Now do the same test with sender's email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", true);
 
+    urlListener = new PromiseTestUtils.PromiseUrlListener();
     MailServices.smtp.sendMailMessage(
       testFile,
       kTo,
       identity,
       kSender,
       null,
-      null,
+      urlListener,
       null,
       null,
       false,
@@ -83,7 +88,7 @@ function test_RFC2821() {
       {}
     );
 
-    server.performTest();
+    await urlListener.promise;
 
     transaction = server.playTransaction();
     do_check_transaction(transaction, [
@@ -93,6 +98,7 @@ function test_RFC2821() {
       "DATA",
     ]);
 
+    smtpServer.closeCachedConnections();
     server.resetTest();
 
     // This time with auth.
@@ -106,13 +112,14 @@ function test_RFC2821() {
     // First do test with identity email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", false);
 
+    urlListener = new PromiseTestUtils.PromiseUrlListener();
     MailServices.smtp.sendMailMessage(
       testFile,
       kTo,
       identity,
       kSender,
       null,
-      null,
+      urlListener,
       null,
       null,
       false,
@@ -121,7 +128,7 @@ function test_RFC2821() {
       {}
     );
 
-    server.performTest();
+    await urlListener.promise;
 
     transaction = server.playTransaction();
     do_check_transaction(transaction, [
@@ -132,18 +139,20 @@ function test_RFC2821() {
       "DATA",
     ]);
 
+    smtpServer.closeCachedConnections();
     server.resetTest();
 
     // Now do the same test with sender's email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", true);
 
+    urlListener = new PromiseTestUtils.PromiseUrlListener();
     MailServices.smtp.sendMailMessage(
       testFile,
       kTo,
       identity,
       kSender,
       null,
-      null,
+      urlListener,
       null,
       null,
       false,
@@ -152,7 +161,7 @@ function test_RFC2821() {
       {}
     );
 
-    server.performTest();
+    await urlListener.promise;
 
     transaction = server.playTransaction();
     do_check_transaction(transaction, [
@@ -174,8 +183,7 @@ function test_RFC2821() {
   }
 }
 
-function run_test() {
+add_task(async function run() {
   server = setupServerDaemon();
-
-  test_RFC2821();
-}
+  await test_RFC2821();
+});

@@ -13,6 +13,9 @@ var { MailServices } = ChromeUtils.import(
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
+var { TestUtils } = ChromeUtils.import(
+  "resource://testing-common/TestUtils.jsm"
+);
 
 var gServer;
 
@@ -96,7 +99,7 @@ add_task(async function testFccReply() {
   fields.to = "Nobody <nobody@tinderbox.invalid>";
   fields.subject = "Test fcc reply";
   await sendReply(identity, fields, originalMsgURI, Ci.nsIMsgCompType.Reply);
-  gServer.performTest();
+  await TestUtils.waitForCondition(() => gServer._daemon.post);
   let msgData = mailTestUtils.loadMessageToString(
     localAccountUtils.inboxFolder,
     mailTestUtils.getMsgHdrN(localAccountUtils.inboxFolder, 1)
@@ -112,7 +115,7 @@ add_task(async function testFccReply() {
     originalMsgURI,
     Ci.nsIMsgCompType.ReplyToGroup
   );
-  gServer.performTest();
+  await TestUtils.waitForCondition(() => gServer._daemon.post);
   msgData = mailTestUtils.loadMessageToString(
     localAccountUtils.inboxFolder,
     mailTestUtils.getMsgHdrN(localAccountUtils.inboxFolder, 2)
@@ -128,7 +131,7 @@ add_task(async function testFccReply() {
     originalMsgURI,
     Ci.nsIMsgCompType.ReplyToList
   );
-  gServer.performTest();
+  await TestUtils.waitForCondition(() => gServer._daemon.post);
   msgData = mailTestUtils.loadMessageToString(
     localAccountUtils.inboxFolder,
     mailTestUtils.getMsgHdrN(localAccountUtils.inboxFolder, 3)
