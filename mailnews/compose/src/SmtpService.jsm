@@ -25,14 +25,13 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
  *
  * @implements {nsISmtpService}
  */
-function SmtpService() {
-  this._servers = [];
-  this._logger = lazy.MsgUtils.smtpLogger;
-}
+class SmtpService {
+  QueryInterface = ChromeUtils.generateQI(["nsISmtpService"]);
 
-SmtpService.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsISmtpService"]),
-  classID: Components.ID("{acda6039-8b17-46c1-a8ed-ad50aa80f412}"),
+  constructor() {
+    this._servers = [];
+    this._logger = lazy.MsgUtils.smtpLogger;
+  }
 
   /**
    * @see nsISmtpService
@@ -53,11 +52,11 @@ SmtpService.prototype = {
       return this.servers[0];
     }
     return null;
-  },
+  }
 
   set defaultServer(server) {
     Services.prefs.setCharPref("mail.smtp.defaultserver", server.key);
-  },
+  }
 
   get servers() {
     if (!this._servers.length) {
@@ -67,7 +66,7 @@ SmtpService.prototype = {
       );
     }
     return this._servers;
-  },
+  }
 
   /**
    * @see nsISmtpService
@@ -197,7 +196,7 @@ SmtpService.prototype = {
         client.close(true);
       },
     };
-  },
+  }
 
   /**
    * @see nsISmtpService
@@ -219,7 +218,7 @@ SmtpService.prototype = {
       client.close();
     };
     return runningUrl;
-  },
+  }
 
   /**
    * @see nsISmtpService
@@ -228,14 +227,14 @@ SmtpService.prototype = {
     return userIdentity.smtpServerKey
       ? this.getServerByKey(userIdentity.smtpServerKey)
       : this.defaultServer;
-  },
+  }
 
   /**
    * @see nsISmtpService
    */
   getServerByKey(key) {
     return this.servers.find(s => s.key == key);
-  },
+  }
 
   /**
    * @see nsISmtpService
@@ -252,7 +251,7 @@ SmtpService.prototype = {
     this._saveSmtpServerKeys(serverKeys);
     this._servers = []; // Reset to force repopulation of this.servers.
     return this.servers.at(-1);
-  },
+  }
 
   /**
    * @see nsISmtpService
@@ -261,7 +260,7 @@ SmtpService.prototype = {
     let serverKeys = this._getSmtpServerKeys().filter(k => k != server.key);
     this._servers = this.servers.filter(s => s.key != server.key);
     this._saveSmtpServerKeys(serverKeys);
-  },
+  }
 
   /**
    * @see nsISmtpService
@@ -278,7 +277,7 @@ SmtpService.prototype = {
       }
       return true;
     });
-  },
+  }
 
   /**
    * Get all SMTP server keys from prefs.
@@ -289,7 +288,7 @@ SmtpService.prototype = {
       .getCharPref("mail.smtpservers", "")
       .split(",")
       .filter(Boolean);
-  },
+  }
 
   /**
    * Save SMTP server keys to prefs.
@@ -297,7 +296,7 @@ SmtpService.prototype = {
    */
   _saveSmtpServerKeys(keys) {
     return Services.prefs.setCharPref("mail.smtpservers", keys.join(","));
-  },
+  }
 
   /**
    * Create an nsISmtpServer from a key.
@@ -313,7 +312,7 @@ SmtpService.prototype = {
     // reading them from the prefs.
     server.key = key;
     return server;
-  },
+  }
 
   /**
    * Get the server URI in the form of smtp://user@hostname:port.
@@ -323,5 +322,5 @@ SmtpService.prototype = {
   _getRunningUri(server) {
     let spec = server.serverURI + (server.port ? `:${server.port}` : "");
     return Services.io.newURI(spec);
-  },
-};
+  }
+}
