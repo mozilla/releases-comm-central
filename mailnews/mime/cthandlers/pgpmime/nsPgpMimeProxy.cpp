@@ -15,7 +15,6 @@
 #include "nsIURI.h"
 #include "mimexpcom.h"
 #include "nsMsgUtils.h"
-#include "nsNetUtil.h"
 
 #include "mimecth.h"
 #include "mimemoz2.h"
@@ -168,13 +167,6 @@ static void* MimePgpe_init(MimeObject* obj,
 
   nsCOMPtr<nsIURI> uri;
   if (channel) channel->GetURI(getter_AddRefs(uri));
-
-  if (!uri && obj && obj->options && obj->options->url) {
-    // Allow the PGP mime decrypt code to know what message we're
-    // working with, necessary for storing into the message DB
-    // (e.g. decrypted subject). Bug 1666005.
-    NS_NewURI(getter_AddRefs(uri), obj->options->url);
-  }
 
   // Initialise proxy object with MIME's output function, object and URI.
   if (NS_FAILED(
