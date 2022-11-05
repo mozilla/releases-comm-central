@@ -964,12 +964,12 @@ menulist[open="true"]:not([disabled="true"]) {
   list-style-image: var(--icon-folder);
 }
 
-#appMenu-uiDensity-controls {
-  list-style-image: var(--icon-spaces-menu);
+#appMenu-uiDensity-controls .toolbarbutton-icon {
+  content: var(--icon-spaces-menu);
 }
 
-#appMenu-fontSize-controls {
-  list-style-image: var(--icon-font);
+#appMenu-fontSize-controls .toolbarbutton-icon {
+  content: var(--icon-font);
 }
 
 #appmenu_newCard {
