@@ -6,8 +6,6 @@ from __future__ import absolute_import
 
 
 def test(mod, path, entity=None):
-    import re
-
     # ignore anything but Thunderbird
     if mod not in (
         "netwerk",
