@@ -29,9 +29,6 @@ var { MessageInjection } = ChromeUtils.import(
 var { PromiseUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/PromiseUtils.sys.mjs"
 );
-var { dump_view_contents } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 
 // Items used to add messages to the folder
 var gMessageGenerator = new MessageGenerator();
@@ -104,6 +101,31 @@ async function make_and_add_message(aMessageArgs) {
   await messageInjection.addSetsToFolders([gTestFolder], [msgSet]);
 
   return [synMsg, msgSet];
+}
+
+var WHITESPACE = "                                              ";
+/**
+ * Print out the current db view as best we can.
+ */
+function dump_view_contents() {
+  dump("********* Current View State\n");
+  for (let iViewIndex = 0; iViewIndex < gTreeView.rowCount; iViewIndex++) {
+    let level = gTreeView.getLevel(iViewIndex);
+    let flags = gDBView.getFlagsAt(iViewIndex);
+
+    let s = WHITESPACE.substr(0, level * 2);
+    if (gTreeView.isContainer(iViewIndex)) {
+      s += gTreeView.isContainerOpen(iViewIndex) ? "- " : "+ ";
+    } else {
+      s += ". ";
+    }
+    if (flags & MSG_VIEW_FLAG_DUMMY) {
+      s += "dummy: ";
+    }
+    s += gDBView.cellTextForColumn(iViewIndex, "subject");
+    dump(s + "\n");
+  }
+  dump("********* end view state\n");
 }
 
 function view_throw(why) {
