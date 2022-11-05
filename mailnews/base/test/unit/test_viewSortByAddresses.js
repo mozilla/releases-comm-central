@@ -19,6 +19,10 @@ var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.import(
 var { MessageInjection } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageInjection.jsm"
 );
+var { dump_view_contents } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+
 var gMessageGenerator = new MessageGenerator();
 var messageInjection = new MessageInjection({ mode: "local" });
 
@@ -104,36 +108,6 @@ add_task(function test_view_sort_by_addresses() {
     view_throw("expected recip 2 to be 3");
   }
 });
-
-var WHITESPACE = "                                              ";
-/**
- * Print out the current db view as best we can.
- */
-function dump_view_contents() {
-  dump("********* Current View State\n");
-  for (let iViewIndex = 0; iViewIndex < gTreeView.rowCount; iViewIndex++) {
-    let level = gTreeView.getLevel(iViewIndex);
-    let flags = gDBView.getFlagsAt(iViewIndex);
-
-    let s = WHITESPACE.substr(0, level * 2);
-    if (gTreeView.isContainer(iViewIndex)) {
-      s += gTreeView.isContainerOpen(iViewIndex) ? "- " : "+ ";
-    } else {
-      s += ". ";
-    }
-    let MSG_VIEW_FLAG_DUMMY = 0x20000000;
-    if (flags & MSG_VIEW_FLAG_DUMMY) {
-      s += "dummy: ";
-    }
-    s +=
-      gDBView.cellTextForColumn(iViewIndex, "subjectCol") +
-      " " +
-      gDBView.cellTextForColumn(iViewIndex, "senderCol");
-
-    dump(s + "\n");
-  }
-  dump("********* end view state\n");
-}
 
 function view_throw(why) {
   dump_view_contents();
