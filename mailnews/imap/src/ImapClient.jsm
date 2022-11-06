@@ -91,6 +91,7 @@ class ImapClient {
     this._urlListener = null;
     this._msgWindow = null;
     this._authenticating = false;
+    this.verifyLogon = false;
   }
 
   /**
@@ -935,6 +936,10 @@ class ImapClient {
   _actionAuthResponse = res => {
     this._authenticating = false;
 
+    if (this.verifyLogon) {
+      this._actionDone(res.status == "OK" ? Cr.NS_OK : Cr.NS_ERROR_FAILURE);
+      return;
+    }
     if (res.status == "OK") {
       this._serverSink.userAuthenticated = true;
       let actionId = () => {

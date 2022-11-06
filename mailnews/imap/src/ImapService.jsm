@@ -130,6 +130,7 @@ class ImapService {
     convertDataToText
   ) {
     imapUrl.imapAction = imapAction;
+    imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl).msgWindow = msgWindow;
     if (displayConsumer instanceof Ci.nsIDocShell) {
       imapUrl
         .QueryInterface(Ci.nsIMsgMailNewsUrl)
@@ -396,6 +397,14 @@ class ImapService {
       client.onReady = () => {
         client.getHeaders(folder, messageIds);
       };
+    });
+  }
+
+  verifyLogon(folder, urlListener, msgWindow) {
+    return this._withClient(folder, (client, runningUrl) => {
+      client.verifyLogon = true;
+      client.startRunningUrl(urlListener, msgWindow, runningUrl);
+      client.onReady = () => {};
     });
   }
 
