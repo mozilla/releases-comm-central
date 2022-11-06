@@ -141,7 +141,7 @@
   margin-inline: 4px;
 }
 
-.button-appmenu[badge-status="addon-alert"] {
+.button-appmenu[badge-status] {
   list-style-image: var(--icon-app-menu-badged);
 }
 

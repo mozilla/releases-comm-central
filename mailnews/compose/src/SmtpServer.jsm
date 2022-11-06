@@ -4,25 +4,34 @@
 
 const EXPORTED_SYMBOLS = ["SmtpServer"];
 
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
+  SmtpClient: "resource:///modules/SmtpClient.jsm",
+});
 
 /**
  * This class represents a single SMTP server.
  *
  * @implements {nsISmtpServer}
  */
-function SmtpServer() {
-  this._key = "";
-  this._loadPrefs();
 
-  Services.obs.addObserver(this, "passwordmgr-storage-changed");
-}
+class SmtpServer {
+  QueryInterface = ChromeUtils.generateQI(["nsISmtpServer"]);
 
-SmtpServer.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsISmtpServer"]),
-  classID: Components.ID("{3a75f5ea-651e-4696-9813-848c03da8bbd}"),
+  constructor() {
+    this._key = "";
+    this._loadPrefs();
+
+    Services.obs.addObserver(this, "passwordmgr-storage-changed");
+  }
 
   observe(subject, topic, data) {
     if (topic == "passwordmgr-storage-changed") {
@@ -37,16 +46,16 @@ SmtpServer.prototype = {
       // password from the cache in case the user just removed it.
       this.password = "";
     }
-  },
+  }
 
   get key() {
     return this._key;
-  },
+  }
 
   set key(key) {
     this._key = key;
     this._loadPrefs();
-  },
+  }
 
   get UID() {
     let uid = this._prefs.getStringPref("uid", "");
@@ -57,26 +66,26 @@ SmtpServer.prototype = {
       .generateUUID()
       .toString()
       .substring(1, 37));
-  },
+  }
 
   set UID(uid) {
     if (this._prefs.prefHasUserValue("uid")) {
       throw new Components.Exception("uid is already set", Cr.NS_ERROR_ABORT);
     }
     this._prefs.setStringPref("uid", uid);
-  },
+  }
 
   get description() {
     return this._prefs.getStringPref("description", "");
-  },
+  }
 
   set description(value) {
     this._prefs.setStringPref("description", value);
-  },
+  }
 
   get hostname() {
     return this._prefs.getStringPref("hostname", "");
-  },
+  }
 
   set hostname(value) {
     if (value.toLowerCase() != this.hostname.toLowerCase()) {
@@ -85,11 +94,11 @@ SmtpServer.prototype = {
       this.forgetPassword();
     }
     this._prefs.setStringPref("hostname", value);
-  },
+  }
 
   get port() {
     return this._prefs.getIntPref("port", 0);
-  },
+  }
 
   set port(value) {
     if (value) {
@@ -97,15 +106,15 @@ SmtpServer.prototype = {
     } else {
       this._prefs.clearUserPref("port");
     }
-  },
+  }
 
   get displayname() {
     return `${this.hostname}` + (this.port ? `:${this.port}` : "");
-  },
+  }
 
   get username() {
     return this._prefs.getCharPref("username", "");
-  },
+  }
 
   set username(value) {
     if (value != this.username) {
@@ -114,15 +123,15 @@ SmtpServer.prototype = {
       this.forgetPassword();
     }
     this._setCharPref("username", value);
-  },
+  }
 
   get clientid() {
     return this._getCharPrefWithDefault("clientid");
-  },
+  }
 
   set clientid(value) {
     this._setCharPref("clientid", value);
-  },
+  }
 
   get clientidEnabled() {
     try {
@@ -130,35 +139,47 @@ SmtpServer.prototype = {
     } catch (e) {
       return this._defaultPrefs.getBoolPref("clientidEnabled", false);
     }
-  },
+  }
 
   set clientidEnabled(value) {
     this._prefs.setBoolPref("clientidEnabled", value);
-  },
+  }
 
   get authMethod() {
     return this._getIntPrefWithDefault("authMethod", 3);
-  },
+  }
 
   set authMethod(value) {
     this._prefs.setIntPref("authMethod", value);
-  },
+  }
 
   get socketType() {
     return this._getIntPrefWithDefault("try_ssl", 0);
-  },
+  }
 
   set socketType(value) {
     this._prefs.setIntPref("try_ssl", value);
-  },
+  }
 
   get helloArgument() {
     return this._getCharPrefWithDefault("hello_argument");
-  },
+  }
 
   get serverURI() {
     return this._getServerURI(true);
-  },
+  }
+
+  get maximumConnectionsNumber() {
+    let maxConnections = this._getIntPrefWithDefault(
+      "max_cached_connections",
+      3
+    );
+    return maxConnections > 1 ? maxConnections : 1;
+  }
+
+  set maximumConnectionsNumber(value) {
+    this._prefs.setIntPref("max_cached_connections", value);
+  }
 
   get password() {
     if (this._password) {
@@ -210,11 +231,11 @@ SmtpServer.prototype = {
       }
     }
     return incomingServer?.password || "";
-  },
+  }
 
   set password(password) {
     this._password = password;
-  },
+  }
 
   getPasswordWithUI(promptMessage, promptTitle, prompt) {
     let password = this._getPasswordWithoutUI();
@@ -252,7 +273,7 @@ SmtpServer.prototype = {
       throw Components.Exception("Password dialog canceled", Cr.NS_ERROR_ABORT);
     }
     return this.password;
-  },
+  }
 
   forgetPassword() {
     let serverURI = this._getServerURI();
@@ -263,17 +284,17 @@ SmtpServer.prototype = {
       }
     }
     this.password = "";
-  },
+  }
 
   verifyLogon(urlListener, msgWindow) {
     return MailServices.smtp.verifyLogon(this, urlListener, msgWindow);
-  },
+  }
 
   clearAllValues() {
     for (let prefName of this._prefs.getChildList("")) {
       this._prefs.clearUserPref(prefName);
     }
-  },
+  }
 
   /**
    * @returns {string}
@@ -287,7 +308,7 @@ SmtpServer.prototype = {
       }
     }
     return null;
-  },
+  }
 
   /**
    * Get server URI in the form of smtp://[user@]hostname.
@@ -306,7 +327,7 @@ SmtpServer.prototype = {
         : "") +
       hostname
     );
-  },
+  }
 
   /**
    * Get the associated pref branch and the default SMTP server branch.
@@ -314,7 +335,7 @@ SmtpServer.prototype = {
   _loadPrefs() {
     this._prefs = Services.prefs.getBranch(`mail.smtpserver.${this._key}.`);
     this._defaultPrefs = Services.prefs.getBranch("mail.smtpserver.default.");
-  },
+  }
 
   /**
    * Set or clear a string preference.
@@ -327,7 +348,7 @@ SmtpServer.prototype = {
     } else {
       this._prefs.clearUserPref(name);
     }
-  },
+  }
 
   /**
    * Get the value of a string preference from this or default SMTP server.
@@ -341,7 +362,7 @@ SmtpServer.prototype = {
     } catch (e) {
       return this._defaultPrefs.getCharPref(name, defaultValue);
     }
-  },
+  }
 
   /**
    * Get the value of an integer preference from this or default SMTP server.
@@ -355,5 +376,70 @@ SmtpServer.prototype = {
     } catch (e) {
       return this._defaultPrefs.getIntPref(name, defaultValue);
     }
-  },
-};
+  }
+
+  get wrappedJSObject() {
+    return this;
+  }
+
+  // @type {SmtpClient[]} - An array of connections can be used.
+  _freeConnections = [];
+  // @type {SmtpClient[]} - An array of connections in use.
+  _busyConnections = [];
+  // @type {Function[]} - An array of Promise.resolve functions.
+  _connectionWaitingQueue = [];
+
+  closeCachedConnections() {
+    // Close all connections.
+    for (let client of [...this._freeConnections, ...this._busyConnections]) {
+      client.quit();
+    }
+    // Cancel all waitings in queue.
+    for (let resolve of this._connectionWaitingQueue) {
+      resolve(false);
+    }
+    this._freeConnections = [];
+    this._busyConnections = [];
+  }
+
+  /**
+   * Get an idle connection that can be used.
+   * @returns {SmtpClient}
+   */
+  async _getNextClient() {
+    // The newest connection is the least likely to have timed out.
+    let client = this._freeConnections.pop();
+    if (client) {
+      this._busyConnections.push(client);
+      return client;
+    }
+    if (
+      this._freeConnections.length + this._busyConnections.length <
+      this.maximumConnectionsNumber
+    ) {
+      // Create a new client if the pool is not full.
+      client = new lazy.SmtpClient(this);
+      this._busyConnections.push(client);
+      return client;
+    }
+    // Wait until a connection is available.
+    await new Promise(resolve => this._connectionWaitingQueue.push(resolve));
+    return this._getNextClient();
+  }
+  /**
+   * Do some actions with a connection.
+   * @param {Function} handler - A callback function to take a SmtpClient
+   *   instance, and do some actions.
+   */
+  async withClient(handler) {
+    let client = await this._getNextClient();
+    client.onFree = () => {
+      this._busyConnections = this._busyConnections.filter(c => c != client);
+      this._freeConnections.push(client);
+      // Resovle the first waiting in queue.
+      this._connectionWaitingQueue.shift()?.();
+    };
+    handler(client);
+    client.connect();
+  }
+}

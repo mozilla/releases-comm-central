@@ -609,7 +609,6 @@ async function testSentMessage() {
       {},
       []
     );
-    server.performTest();
     checkMessageHeaders(daemon.post, {
       From: "test@tinderbox.invalid",
       To: "Nobody <nobody@tinderbox.invalid>",
@@ -623,7 +622,6 @@ async function testSentMessage() {
     });
     server.resetTest();
     await sendMessage({ bcc: "Somebody <test@tinderbox.invalid" }, identity);
-    server.performTest();
     checkMessageHeaders(daemon.post, {
       To: "undisclosed-recipients: ;",
     });
@@ -636,7 +634,6 @@ async function testSentMessage() {
       },
       identity
     );
-    server.performTest();
     checkMessageHeaders(daemon.post, {
       "Disposition-Notification-To": "test@tinderbox.invalid",
       "Return-Receipt-To": "test@tinderbox.invalid",
@@ -655,7 +652,6 @@ async function testSentMessage() {
     await sendMessage({ to: "test@tinderbox.invalid" }, identity, {}, [
       cloudAttachment,
     ]);
-    server.performTest();
     checkMessageHeaders(
       daemon.post,
       {

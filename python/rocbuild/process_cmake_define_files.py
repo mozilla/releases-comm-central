@@ -8,7 +8,7 @@ import argparse
 import os
 import re
 import sys
-from buildconfig import topsrcdir, topobjdir
+from buildconfig import topobjdir
 from mozbuild.backend.configenvironment import PartialConfigEnvironment
 
 

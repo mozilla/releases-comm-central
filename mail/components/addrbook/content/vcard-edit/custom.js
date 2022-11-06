@@ -16,45 +16,38 @@ class VCardCustomComponent extends HTMLElement {
   /** @type {HTMLInputElement[]} */
   inputEls = null;
 
-  constructor() {
-    super();
+  connectedCallback() {
+    if (this.hasConnected) {
+      return;
+    }
+    this.hasConnected = true;
+
     let template = document.getElementById("template-vcard-edit-custom");
     let clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
-  }
 
-  connectedCallback() {
-    if (this.isConnected) {
-      this.inputEls = this.querySelectorAll("input");
-      let labelEls = this.querySelectorAll("label");
-      for (let i = 0; i < 4; i++) {
-        let inputId = vCardIdGen.next().value;
-        document.l10n.setAttributes(
-          labelEls[i],
-          `about-addressbook-entry-name-custom${i + 1}`
-        );
-        labelEls[i].htmlFor = inputId;
-        this.inputEls[i].id = inputId;
-      }
-      this.fromVCardPropertyEntryToUI();
-      this.querySelector(".remove-property-button").addEventListener(
-        "click",
-        () => {
-          document.getElementById("vcard-add-custom").hidden = false;
-          this.dispatchEvent(
-            new CustomEvent("vcard-remove-property", { bubbles: true })
-          );
-          this.remove();
-        }
+    this.inputEls = this.querySelectorAll("input");
+    let labelEls = this.querySelectorAll("label");
+    for (let i = 0; i < 4; i++) {
+      let inputId = vCardIdGen.next().value;
+      document.l10n.setAttributes(
+        labelEls[i],
+        `about-addressbook-entry-name-custom${i + 1}`
       );
+      labelEls[i].htmlFor = inputId;
+      this.inputEls[i].id = inputId;
     }
-  }
-
-  disconnectedCallback() {
-    if (!this.isConnected) {
-      this.inputEls = null;
-      this.vCardPropertyEntries = null;
-    }
+    this.fromVCardPropertyEntryToUI();
+    this.querySelector(".remove-property-button").addEventListener(
+      "click",
+      () => {
+        document.getElementById("vcard-add-custom").hidden = false;
+        this.dispatchEvent(
+          new CustomEvent("vcard-remove-property", { bubbles: true })
+        );
+        this.remove();
+      }
+    );
   }
 
   fromVCardPropertyEntryToUI() {

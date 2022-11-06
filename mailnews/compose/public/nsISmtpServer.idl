@@ -95,6 +95,12 @@ interface nsISmtpServer : nsISupports {
   /// Returns the URI of the server (smtp:///)
   readonly attribute AUTF8String serverURI;
 
+  /** Limit of concurrent connections to a server. */
+  attribute long maximumConnectionsNumber;
+
+  /** Close cached server connections. */
+  void closeCachedConnections();
+
   /**
    * Gets a password for this server, using a UI prompt if necessary.
    *

@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /**
  * Authentication tests for SMTP.
  */
@@ -10,6 +9,9 @@ load("../../../resources/passwordStorage.js");
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
+);
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
 var gNewPassword = null;
@@ -94,13 +96,14 @@ add_task(async function() {
     smtpServer.socketType = Ci.nsMsgSocketType.plain;
     smtpServer.username = kUsername;
 
+    let urlListener = new PromiseTestUtils.PromiseUrlListener();
     MailServices.smtp.sendMailMessage(
       testFile,
       kTo,
       identity,
       kSender,
       null,
-      null,
+      urlListener,
       null,
       null,
       false,
@@ -112,7 +115,7 @@ add_task(async function() {
     // Set the new password for when we get a prompt
     gNewPassword = kPasswordWrong;
 
-    server.performTest();
+    await urlListener.promise;
 
     var transaction = server.playTransaction();
     do_check_transaction(transaction, [

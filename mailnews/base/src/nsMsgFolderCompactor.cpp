@@ -95,10 +95,8 @@ class nsFolderCompactState : public nsIStreamListener,
   nsFolderCompactState(void);
 
   nsresult Compact(nsIMsgFolder* folder,
-                   std::function<void(nsresult)> completionFn,
+                   std::function<void(nsresult, uint64_t)> completionFn,
                    nsIMsgWindow* msgWindow);
-  // Upon completion, access the number of bytes expunged.
-  uint64_t ExpungedBytes() const { return m_totalExpungedBytes; }
 
  protected:
   virtual ~nsFolderCompactState(void);
@@ -152,8 +150,9 @@ class nsFolderCompactState : public nsIStreamListener,
   // Flag to indicate we're starting a new message, and that no data has
   // been written for it yet.
   bool m_startOfMsg;
-  //  Function which will be run when the folder compaction completes.
-  std::function<void(nsresult)> m_completionFn;
+  // Function which will be run when the folder compaction completes.
+  // Takes a result code and the number of bytes which were expunged.
+  std::function<void(nsresult, uint64_t)> m_completionFn;
   bool m_alreadyWarnedDiskSpace{false};
 };
 
@@ -218,7 +217,7 @@ nsresult nsFolderCompactState::InitDB(nsIMsgDatabase* db) {
 }
 
 nsresult nsFolderCompactState::Compact(
-    nsIMsgFolder* folder, std::function<void(nsresult)> completionFn,
+    nsIMsgFolder* folder, std::function<void(nsresult, uint64_t)> completionFn,
     nsIMsgWindow* msgWindow) {
   NS_ENSURE_ARG_POINTER(folder);
   m_completionFn = completionFn;
@@ -246,7 +245,7 @@ nsresult nsFolderCompactState::Compact(
       {
         folder->NotifyCompactCompleted();
         if (m_completionFn) {
-          m_completionFn(NS_OK);
+          m_completionFn(NS_OK, m_totalExpungedBytes);
         }
         return NS_OK;
       }
@@ -341,7 +340,7 @@ nsresult nsFolderCompactState::Compact(
   // Skipped folder, for whatever reason.
   folder->NotifyCompactCompleted();
   if (m_completionFn) {
-    m_completionFn(NS_OK);
+    m_completionFn(NS_OK, m_totalExpungedBytes);
   }
   return NS_OK;
 }
@@ -447,7 +446,7 @@ NS_IMETHODIMP nsFolderCompactState::OnStopRunningUrl(nsIURI* url,
   m_folder->SetMsgDatabase(nullptr);
 
   if (m_completionFn) {
-    m_completionFn(status);
+    m_completionFn(status, m_totalExpungedBytes);
   }
   return NS_OK;
 }
@@ -639,7 +638,7 @@ nsresult nsFolderCompactState::FinishCompact() {
 
   m_folder->NotifyCompactCompleted();
   if (m_completionFn) {
-    m_completionFn(rv);
+    m_completionFn(rv, m_totalExpungedBytes);
   }
 
   return NS_OK;
@@ -1051,7 +1050,7 @@ done:
     NS_RELEASE_THIS();  // kill self
 
     if (m_completionFn) {
-      m_completionFn(m_status);
+      m_completionFn(m_status, m_totalExpungedBytes);
     }
     return rv;
   }
@@ -1097,7 +1096,7 @@ nsresult nsOfflineStoreCompactState::FinishCompact() {
   ShowStatusMsg(EmptyString());
   m_folder->NotifyCompactCompleted();
   if (m_completionFn) {
-    m_completionFn(NS_OK);
+    m_completionFn(NS_OK, m_totalExpungedBytes);
   }
   return rv;
 }
@@ -1329,17 +1328,19 @@ void nsMsgFolderCompactor::NextFolder() {
     folder->GetURI(uri);
 
     // Callback for when a folder compaction completes.
-    RefPtr<nsMsgFolderCompactor> self(this);
-    auto completionFn = [self](nsresult status) {
-      RefPtr<nsFolderCompactState> compactor(self->mCompactor);
-      if (NS_FAILED(status)) {
-        // Make sure we return a failing code upon overall completion, for
-        // now try to keep going.
+    auto completionFn = [self = RefPtr<nsMsgFolderCompactor>(this),
+                         compactState = mCompactor](nsresult status,
+                                                    uint64_t expungedBytes) {
+      if (NS_SUCCEEDED(status)) {
+        self->mTotalBytesGained += expungedBytes;
+      } else {
+        // Failed. We want to keep going with the next folder, but make sure
+        // we return a failing code upon overall completion.
         self->mOverallStatus = status;
         NS_WARNING("folder compact failed.");
       }
+
       // Release our lock on the compactor - it's done.
-      self->mTotalBytesGained += compactor->ExpungedBytes();
       self->mCompactor = nullptr;
       self->NextFolder();
     };

@@ -203,7 +203,6 @@ async function sendUnsentMessages() {
 
     // Send the unsent message.
     msgSendLater.sendUnsentMessages(identity);
-    server.performTest();
   } catch (e) {
     throw new Error(e);
   }

@@ -543,10 +543,16 @@ add_task(async function testCustomProperties() {
   let otherInfoSection = abWindow.document.getElementById("otherInfo");
 
   Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+
   let items = otherInfoSection.querySelectorAll("li");
   Assert.equal(items.length, 3);
   // Custom 1 has no value, should not display.
   // Custom 2 has an old property value, should display that.
+
+  await TestUtils.waitForCondition(() => {
+    return items[0].children[0].textContent;
+  }, "text not created in time");
+
   Assert.equal(items[0].children[0].textContent, "Custom 2");
   Assert.equal(items[0].children[1].textContent, "custom two");
   // Custom 3 has a vCard property value, should display that.

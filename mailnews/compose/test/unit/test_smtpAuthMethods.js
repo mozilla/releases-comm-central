@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /**
  * Authentication tests for SMTP.
  *
@@ -7,6 +6,12 @@
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
+);
+const { TestUtils } = ChromeUtils.import(
+  "resource://testing-common/TestUtils.jsm"
+);
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
 var server;
@@ -90,13 +95,14 @@ function nextTest() {
   smtpServer.authMethod = curTest.clientAuthMethod;
 
   // Run test
+  let urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.smtp.sendMailMessage(
     testFile,
     kTo,
     identity,
     kSender,
     null,
-    null,
+    urlListener,
     null,
     null,
     false,
@@ -104,10 +110,13 @@ function nextTest() {
     {},
     {}
   );
-  server.performTest();
+  let resolved = false;
+  urlListener.promise.catch(e => {}).finally(() => (resolved = true));
+  Services.tm.spinEventLoopUntil("wait for sending", () => resolved);
 
   do_check_transaction(server.playTransaction(), curTest.transaction);
 
+  smtpServer.closeCachedConnections();
   nextTest();
 }
 
