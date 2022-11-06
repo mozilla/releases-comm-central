@@ -224,11 +224,6 @@ function GetSelectedMsgFolders() {
   return [];
 }
 
-function RestoreFocusAfterHdrButton() {
-  // set focus to the message pane
-  content.focus();
-}
-
 var preferenceObserver = {
   QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 

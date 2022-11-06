@@ -2833,7 +2833,6 @@ function OpenAttachmentFromBar(event) {
     if (event.detail == 1) {
       TryHandleAllAttachments("open");
     }
-    RestoreFocusAfterHdrButton();
     event.stopPropagation();
   }
 }

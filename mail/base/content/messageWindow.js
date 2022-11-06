@@ -1470,11 +1470,6 @@ function getMailToolbox() {
   return document.getElementById("mail-toolbox");
 }
 
-function RestoreFocusAfterHdrButton() {
-  // set focus to the message pane
-  window.content.focus();
-}
-
 function SelectFolder(aFolderUri) {
   gFolderDisplay.clearSelection();
   gFolderDisplay.treeSelection.currentIndex = -1;
