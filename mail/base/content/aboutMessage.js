@@ -166,6 +166,8 @@ function displayExternalMessage(uri) {
 
   let messageService = MailServices.messageServiceFromURI(uri);
   messageService.DisplayMessage(uri, content.docShell, null, null, null, {});
+
+  gMessage = top.messenger.msgHdrFromURI(uri);
 }
 
 function displayMessage(uri, viewWrapper) {

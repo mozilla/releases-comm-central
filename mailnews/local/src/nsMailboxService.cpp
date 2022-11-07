@@ -27,6 +27,7 @@
 #include "mozilla/LoadInfo.h"
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
+#include "nsMsgFileHdr.h"
 
 nsMailboxService::nsMailboxService() {}
 
@@ -587,6 +588,12 @@ NS_IMETHODIMP
 nsMailboxService::MessageURIToMsgHdr(const nsACString& uri,
                                      nsIMsgDBHdr** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
+
+  if (StringBeginsWith(uri, "file:"_ns)) {
+    nsCOMPtr<nsIMsgDBHdr> msgHdr = new nsMsgFileHdr(uri);
+    msgHdr.forget(_retval);
+    return NS_OK;
+  }
 
   nsresult rv = NS_OK;
 

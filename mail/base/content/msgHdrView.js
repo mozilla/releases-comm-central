@@ -3657,7 +3657,7 @@ const gMessageHeader = {
   setTags() {
     let msgHdr = gFolderDisplay.selectedMessage;
     // Bail out if we don't have a message selected.
-    if (!msgHdr) {
+    if (!msgHdr || !gFolder) {
       return;
     }
 

@@ -342,9 +342,7 @@ Enigmail.msg = {
         msgUri = this.getOriginalMsgUri();
       }
       if (msgUri) {
-        return MailServices.messageServiceFromURI(msgUri).messageURIToMsgHdr(
-          msgUri
-        );
+        return gMessenger.msgHdrFromURI(msgUri);
       }
     } catch (ex) {
       // See also bug 1635648

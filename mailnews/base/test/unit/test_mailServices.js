@@ -51,12 +51,7 @@ add_task(function test_message_services() {
     );
   }
 
-  // Special case for files, requires the application/x-message-display.
-  // I'm not sure if this really should be this way, but it is.
-  check_message_service(
-    "file://it.does.not.matter/?type=application/x-message-display"
-  );
-
+  check_message_service("file://it.does.not.matter/");
   check_message_service("imap://it.does.not.matter/");
   check_message_service("imap-message://it.does.not.matter/");
   check_message_service("mailbox://it.does.not.matter/");

@@ -26,7 +26,7 @@ var MailServices = {
     }
 
     let protocol = uri.substring(0, index);
-    if (protocol == "file" && uri.includes("application/x-message-display")) {
+    if (protocol == "file") {
       protocol = "mailbox";
     }
     return Cc[
