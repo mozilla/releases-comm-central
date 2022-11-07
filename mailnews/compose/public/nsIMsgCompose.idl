@@ -272,10 +272,8 @@ interface nsIMsgCompose : nsIMsgSendListener {
 
   attribute boolean deleteDraft;
 
-  /* true when the compose window is in the process of inserting quoted content
-     (i.e. via reply, forward inline or a quoting operation) into the document
-   */
-  attribute boolean insertingQuotedContent;
+  /** Set to true when remote content can load in the editor. E.g for pasting. */
+  attribute boolean allowRemoteContent;
 
   /* for easier use of nsIMsgSendListener */
   void addMsgSendListener(in nsIMsgSendListener sendListener);

@@ -156,7 +156,7 @@ function ValidateData() {
 function onAccept(event) {
   // Use this now (default = false) so Advanced Edit button dialog doesn't trigger error message
   gDoAltTextError = true;
-
+  window.opener.gMsgCompose.allowRemoteContent = true;
   if (ValidateData()) {
     if ("arguments" in window && window.arguments[0]) {
       SaveWindowLocation();

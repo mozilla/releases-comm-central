@@ -349,26 +349,6 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
     return NS_OK;
   }
 
-  // Handle compose windows separately from mail. Work out if we're in a compose
-  // window or not.
-  nsCOMPtr<nsIMsgCompose> msgCompose =
-      GetMsgComposeForBrowsingContext(targetContext);
-  if (msgCompose) {
-    ComposeShouldLoad(msgCompose, aRequestingContext, originatorLocation,
-                      aContentLocation, aDecision);
-    return NS_OK;
-  }
-
-  // Allow content when using a remote page.
-  bool isHttp;
-  bool isHttps;
-  rv = originatorLocation->SchemeIs("http", &isHttp);
-  nsresult rv2 = originatorLocation->SchemeIs("https", &isHttps);
-  if (NS_SUCCEEDED(rv) && NS_SUCCEEDED(rv2) && (isHttp || isHttps)) {
-    *aDecision = nsIContentPolicy::ACCEPT;
-    return NS_OK;
-  }
-
   uint32_t permission;
   mozilla::OriginAttributes attrs;
   RefPtr<mozilla::BasePrincipal> principal =
@@ -388,6 +368,26 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
       *aDecision = nsIContentPolicy::REJECT_REQUEST;
       return NS_OK;
     }
+  }
+
+  // Handle compose windows separately from mail. Work out if we're in a compose
+  // window or not.
+  nsCOMPtr<nsIMsgCompose> msgCompose =
+      GetMsgComposeForBrowsingContext(targetContext);
+  if (msgCompose) {
+    ComposeShouldLoad(msgCompose, aRequestingContext, originatorLocation,
+                      aContentLocation, aDecision);
+    return NS_OK;
+  }
+
+  // Allow content when using a remote page.
+  bool isHttp;
+  bool isHttps;
+  rv = originatorLocation->SchemeIs("http", &isHttp);
+  nsresult rv2 = originatorLocation->SchemeIs("https", &isHttps);
+  if (NS_SUCCEEDED(rv) && NS_SUCCEEDED(rv2) && (isHttp || isHttps)) {
+    *aDecision = nsIContentPolicy::ACCEPT;
+    return NS_OK;
   }
 
   // The default decision is still to reject.
@@ -716,19 +716,7 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose* aMsgCompose,
   nsresult rv = aMsgCompose->GetOriginalMsgURI(originalMsgURI);
   NS_ENSURE_SUCCESS_VOID(rv);
 
-  MSG_ComposeType composeType;
-  rv = aMsgCompose->GetType(&composeType);
-  NS_ENSURE_SUCCESS_VOID(rv);
-
-  // Only allow remote content for new mail compositions or mailto
-  // Block remote content for all other types (drafts, templates, forwards,
-  // replies, etc) unless there is an associated msgHdr which allows the load,
-  // or unless the image is being added by the user and not the quoted message
-  // content...
-  if (composeType == nsIMsgCompType::New ||
-      composeType == nsIMsgCompType::MailToUrl)
-    *aDecision = nsIContentPolicy::ACCEPT;
-  else if (!originalMsgURI.IsEmpty()) {
+  if (!originalMsgURI.IsEmpty()) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     rv = GetMsgDBHdrFromURI(originalMsgURI, getter_AddRefs(msgHdr));
     NS_ENSURE_SUCCESS_VOID(rv);
@@ -739,36 +727,23 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose* aMsgCompose,
             "about:blank?compose")) {
       return;
     }
+  }
 
-    // Special case image elements. When replying to a message, we want to allow
-    // the user to add remote images to the message. But we don't want remote
-    // images that are a part of the quoted content to load. Hence we block them
-    // while the reply is created (insertingQuotedContent==true), but allow them
-    // later when the user inserts them.
-    if (*aDecision == nsIContentPolicy::REJECT_REQUEST) {
-      bool insertingQuotedContent = true;
-      aMsgCompose->GetInsertingQuotedContent(&insertingQuotedContent);
-      nsCOMPtr<mozilla::dom::Element> element =
-          do_QueryInterface(aRequestingContext);
-      RefPtr<mozilla::dom::HTMLImageElement> image =
-          mozilla::dom::HTMLImageElement::FromNodeOrNull(element);
-      if (image) {
-        if (!insertingQuotedContent) {
-          *aDecision = nsIContentPolicy::ACCEPT;
-          return;
-        }
-
-        // Test whitelist.
-        uint32_t permission;
-        mozilla::OriginAttributes attrs;
-        RefPtr<mozilla::BasePrincipal> principal =
-            mozilla::BasePrincipal::CreateContentPrincipal(aContentLocation,
-                                                           attrs);
-        mPermissionManager->TestPermissionFromPrincipal(principal, "image"_ns,
-                                                        &permission);
-        if (permission == nsIPermissionManager::ALLOW_ACTION)
-          *aDecision = nsIContentPolicy::ACCEPT;
-      }
+  // We want to allow the user to add remote content, but do that only when
+  // the allowRemoteContent was set. This way quoted remoted content won't
+  // automatically load, but e.g. pasted content will load because the UI
+  // code toggles the flag.
+  nsCOMPtr<mozilla::dom::Element> element =
+      do_QueryInterface(aRequestingContext);
+  RefPtr<mozilla::dom::HTMLImageElement> image =
+      mozilla::dom::HTMLImageElement::FromNodeOrNull(element);
+  if (image) {
+    // Special case image elements.
+    bool allowRemoteContent = false;
+    aMsgCompose->GetAllowRemoteContent(&allowRemoteContent);
+    if (allowRemoteContent) {
+      *aDecision = nsIContentPolicy::ACCEPT;
+      return;
     }
   }
 }

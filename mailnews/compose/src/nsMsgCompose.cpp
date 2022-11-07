@@ -164,7 +164,7 @@ static void GetTopmostMsgWindowCharacterSet(nsCString& charset,
 
 nsMsgCompose::nsMsgCompose() {
   mQuotingToFollow = false;
-  mInsertingQuotedContent = false;
+  mAllowRemoteContent = false;
   mWhatHolder = 1;
   m_window = nullptr;
   m_editor = nullptr;
@@ -367,15 +367,15 @@ nsresult nsMsgCompose::TagEmbeddedObjects(nsIEditor* aEditor) {
 }
 
 NS_IMETHODIMP
-nsMsgCompose::GetInsertingQuotedContent(bool* aInsertingQuotedText) {
-  NS_ENSURE_ARG_POINTER(aInsertingQuotedText);
-  *aInsertingQuotedText = mInsertingQuotedContent;
+nsMsgCompose::GetAllowRemoteContent(bool* aAllowRemoteContent) {
+  NS_ENSURE_ARG_POINTER(aAllowRemoteContent);
+  *aAllowRemoteContent = mAllowRemoteContent;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgCompose::SetInsertingQuotedContent(bool aInsertingQuotedText) {
-  mInsertingQuotedContent = aInsertingQuotedText;
+nsMsgCompose::SetAllowRemoteContent(bool aAllowRemoteContent) {
+  mAllowRemoteContent = aAllowRemoteContent;
   return NS_OK;
 }
 
@@ -517,7 +517,6 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
       mozilla::Preferences::GetBool("mail.compose.default_to_paragraph", false);
 
   if (aQuoted) {
-    mInsertingQuotedContent = true;
     if (!aPrefix.IsEmpty()) {
       if (!aHTMLEditor) aPrefix.AppendLiteral("\n");
 
@@ -563,8 +562,6 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
       }
     }
 
-    mInsertingQuotedContent = false;
-
     (void)TagEmbeddedObjects(htmlEditor);
 
     if (!aSignature.IsEmpty()) {
@@ -583,7 +580,6 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
     }
   } else {
     if (aHTMLEditor) {
-      mInsertingQuotedContent = true;
       if (isForwarded &&
           Substring(aBuf, 0, sizeof(MIME_FORWARD_HTML_PREFIX) - 1)
               .EqualsLiteral(MIME_FORWARD_HTML_PREFIX)) {
@@ -610,8 +606,6 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
       } else {
         htmlEditor->RebuildDocumentFromSource(aBuf);
       }
-
-      mInsertingQuotedContent = false;
 
       // When forwarding a message as inline, or editing as new (which could
       // contain unsanitized remote content), tag any embedded objects
@@ -2611,7 +2605,7 @@ nsresult QuotingOutputStreamListener::InsertToCompose(nsIEditor* aEditor,
 
   nsCOMPtr<nsIMsgCompose> compose = do_QueryReferent(mWeakComposeObj);
   if (!mMsgBody.IsEmpty() && compose) {
-    compose->SetInsertingQuotedContent(true);
+    compose->SetAllowRemoteContent(true);
     if (!mCitePrefix.IsEmpty()) {
       if (!aHTMLEditor) mCitePrefix.AppendLiteral("\n");
       aEditor->InsertText(mCitePrefix);
@@ -2626,7 +2620,7 @@ nsresult QuotingOutputStreamListener::InsertToCompose(nsIEditor* aEditor,
     } else {
       htmlEditor->InsertAsQuotation(mMsgBody, getter_AddRefs(nodeInserted));
     }
-    compose->SetInsertingQuotedContent(false);
+    compose->SetAllowRemoteContent(false);
   }
 
   RefPtr<Selection> selection;
