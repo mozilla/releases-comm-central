@@ -11,17 +11,6 @@ interface nsIMsgDBHdr;
 interface nsIURI;
 interface nsIWritablePropertyBag2;
 
-[scriptable, uuid(4644FB25-5255-11d3-82B8-444553540002)]
-interface nsIMimeMiscStatus : nsISupports{
-
-    string  GetWindowXULandJS();
-    string  GetGlobalXULandJS();
-    string  GetIndividualXUL(in string aName, in string aHeader, in string aEmail);
-
-    long    GetMiscStatus(in string aName, in string aEmail);
-    string  GetImageURL(in long aStatus);
-};
-
 // this is a simple interface which allows someone to listen to all the headers
 // that are discovered by mime. We can use this when displaying a message to update
 // the msg header in JS.
