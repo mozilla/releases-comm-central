@@ -44,15 +44,6 @@ interface nsIMsgHeaderSink : nsISupports
 
   attribute nsISupports securityInfo;
 
-  /**
-   * onMsgHasRemoteContent is called each time content policy encounters remote
-   * content that it will block from loading.
-   * @param aMsgHdr header of the message the content is located in
-   * @param aContentURI location that will be blocked.
-   * @param aCanOverride can the blocking be overridden or not
-   */
-  void onMsgHasRemoteContent(in nsIMsgDBHdr aMsgHdr, in nsIURI aContentURI, in boolean aCanOverride);
-
   readonly attribute nsIMsgDBHdr dummyMsgHeader;
 
   // used as a hook for extension mime content handlers to store data that can later

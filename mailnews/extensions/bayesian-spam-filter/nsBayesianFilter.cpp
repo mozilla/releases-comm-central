@@ -1028,12 +1028,6 @@ NS_IMETHODIMP TokenStreamListener::OnEndMsgDownload(nsIMsgMailNewsUrl* url) {
   return NS_OK;
 }
 
-NS_IMETHODIMP TokenStreamListener::OnMsgHasRemoteContent(nsIMsgDBHdr* aMsgHdr,
-                                                         nsIURI* aContentURI,
-                                                         bool aCanOverride) {
-  return NS_OK;
-}
-
 NS_IMETHODIMP TokenStreamListener::OnEndMsgHeaders(nsIMsgMailNewsUrl* url) {
   return NS_OK;
 }

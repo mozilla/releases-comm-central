@@ -69,9 +69,10 @@ class nsMsgContentPolicy : public nsIContentPolicy,
   int16_t ShouldAcceptRemoteContentForMsgHdr(nsIMsgDBHdr* aMsgHdr,
                                              nsIURI* aRequestingLocation,
                                              nsIURI* aContentLocation);
-  void NotifyContentWasBlocked(nsIURI* aOriginatorLocation,
-                               nsIURI* aContentLocation, bool aCanOverride);
-  void ShouldAcceptContentForPotentialMsg(nsIURI* aOriginatorLocation,
+  void NotifyContentWasBlocked(uint64_t aBrowsingContextId,
+                               nsIURI* aContentLocation);
+  void ShouldAcceptContentForPotentialMsg(uint64_t aBrowsingContextId,
+                                          nsIURI* aOriginatorLocation,
                                           nsIURI* aContentLocation,
                                           int16_t* aDecision);
   void ComposeShouldLoad(nsIMsgCompose* aMsgCompose,

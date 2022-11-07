@@ -55,6 +55,12 @@ XPCOMUtils.defineLazyServiceGetter(
   "@mozilla.org/uriloader/handler-service;1",
   "nsIHandlerService"
 );
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "gEncryptedSMIMEURIsService",
+  "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1",
+  Ci.nsIEncryptedSMIMEURIsService
+);
 
 // Warning: It's critical that the code in here for displaying the message
 // headers for a selected message remain as fast as possible. In particular,
@@ -397,7 +403,7 @@ async function OnLoadMsgHeaderPane() {
     "mailnews.headers.showReferences"
   );
 
-  // listen to the
+  Services.obs.addObserver(MsgHdrViewObserver, "remote-content-blocked");
   Services.prefs.addObserver("mail.showCondensedAddresses", MsgHdrViewObserver);
   Services.prefs.addObserver(
     "mailnews.headers.showReferences",
@@ -455,6 +461,7 @@ function OnUnloadMsgHeaderPane() {
     return;
   }
 
+  Services.obs.removeObserver(MsgHdrViewObserver, "remote-content-blocked");
   Services.prefs.removeObserver(
     "mail.showCondensedAddresses",
     MsgHdrViewObserver
@@ -474,20 +481,29 @@ function OnUnloadMsgHeaderPane() {
 }
 
 var MsgHdrViewObserver = {
-  observe(subject, topic, prefName) {
+  observe(subject, topic, data) {
     // verify that we're changing the mail pane config pref
     if (topic == "nsPref:changed") {
-      if (prefName == "mail.showCondensedAddresses") {
+      if (data == "mail.showCondensedAddresses") {
         gShowCondensedEmailAddresses = Services.prefs.getBoolPref(
           "mail.showCondensedAddresses"
         );
         ReloadMessage();
-      } else if (prefName == "mailnews.headers.showReferences") {
+      } else if (data == "mailnews.headers.showReferences") {
         gHeadersShowReferences = Services.prefs.getBoolPref(
           "mailnews.headers.showReferences"
         );
         ReloadMessage();
       }
+    } else if (
+      topic == "remote-content-blocked" &&
+      content.browsingContext.id == data
+    ) {
+      gMessageNotificationBar.setRemoteContentMsg(
+        null,
+        subject,
+        !gEncryptedSMIMEURIsService.isEncrypted(content.currentURI.spec)
+      );
     }
   },
 };
@@ -885,19 +901,6 @@ var messageHeaderSink = {
       // Should not mark a message as read if failed to load.
       OnMsgLoaded(url);
     }
-  },
-
-  onMsgHasRemoteContent(aMsgHdr, aContentURI, aCanOverride) {
-    // This always runs in the context of the top chrome window, so we have to
-    // find the right message display. Hopefully it's the current tab.
-    // TODO: Check this works properly or fix it.
-    let tabmail = document.getElementById("tabmail");
-    let aboutMessage = tabmail ? tabmail.currentAboutMessage : window;
-    aboutMessage.gMessageNotificationBar.setRemoteContentMsg(
-      aMsgHdr,
-      aContentURI,
-      aCanOverride
-    );
   },
 
   mSecurityInfo: null,

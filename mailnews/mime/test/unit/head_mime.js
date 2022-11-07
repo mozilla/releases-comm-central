@@ -76,7 +76,6 @@ function apply_mime_conversion(msgUri, headerSink = {}, msgWindow = undefined) {
     onEndMsgHeaders(url) {},
     onEndMsgDownload(url) {},
     securityInfo: null,
-    onMsgHasRemoteContent(aMsgHdr, aContentURI) {},
     dummyMsgHeader: new DummyMsgHeader(),
     get properties() {
       return null;
