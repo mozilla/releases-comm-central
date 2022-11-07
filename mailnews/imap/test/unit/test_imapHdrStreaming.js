@@ -61,10 +61,7 @@ add_task(async function setup_test() {
 add_task(async function test_streamHeaders() {
   let newMsgHdr = IMAPPump.inbox.GetMessageHeader(1);
   let msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
-  let msgServ = messenger.messageServiceFromURI(msgURI);
+  let msgServ = MailServices.messageServiceFromURI(msgURI);
   // We use this as a display consumer
   let streamListener = new PromiseTestUtils.PromiseStreamListener();
   msgServ.streamHeaders(msgURI, streamListener, null, true);

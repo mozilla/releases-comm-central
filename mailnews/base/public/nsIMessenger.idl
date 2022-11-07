@@ -147,7 +147,6 @@ interface nsIMessenger : nsISupports {
 
     readonly attribute AUTF8String lastDisplayedMessageUri;
 
-    nsIMsgMessageService messageServiceFromURI(in AUTF8String aUri);
     nsIMsgDBHdr msgHdrFromURI(in AUTF8String aUri);
     // For back forward history, we need a list of visited messages,
     // and where we are in the list.

@@ -46,12 +46,9 @@ function continueTest() {
 }
 
 function streamNextMessage() {
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
   let msghdr = gMsgHdrs[gHdrIndex];
   let msgURI = msghdr.folder.getUriForMsg(msghdr);
-  let msgServ = messenger.messageServiceFromURI(msgURI);
+  let msgServ = MailServices.messageServiceFromURI(msgURI);
   msgServ.streamMessage(msgURI, gStreamListener, null, null, false, "", true);
 }
 

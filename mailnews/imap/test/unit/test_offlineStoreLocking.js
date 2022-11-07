@@ -119,10 +119,7 @@ add_task(async function compactOneFolder() {
   //  lock the offline store.
   IMAPPump.inbox.msgDatabase.markOffline(msgHdr.messageKey, false, null);
   let msgURI = msgHdr.folder.getUriForMsg(msgHdr);
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
-  let msgServ = messenger.messageServiceFromURI(msgURI);
+  let msgServ = MailServices.messageServiceFromURI(msgURI);
   // UrlListener will get called when both expunge and offline store
   //  compaction are finished. dummyMsgWindow is required to make the backend
   //  compact the offline store.

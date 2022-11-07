@@ -1224,15 +1224,12 @@ commandController.registerCallback("cmd_goStartPage", () =>
   displayWebPage(Services.urlFormatter.formatURLPref("mailnews.start_page.url"))
 );
 commandController.registerCallback("cmd_print", async () => {
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
   let PrintUtils = top.PrintUtils;
   let uris = gViewWrapper.dbView.getURIsForSelection();
   if (uris.length == 1) {
     if (messageBrowser.hidden) {
       // Load the only message in a hidden browser, then use the print preview UI.
-      let messageService = messenger.messageServiceFromURI(uris[0]);
+      let messageService = MailServices.messageServiceFromURI(uris[0]);
       await PrintUtils.loadPrintBrowser(
         messageService.getUrlForUri(uris[0]).spec
       );
@@ -1258,7 +1255,7 @@ commandController.registerCallback("cmd_print", async () => {
   ps.printSilent = true;
 
   for (let uri of uris) {
-    let messageService = messenger.messageServiceFromURI(uri);
+    let messageService = MailServices.messageServiceFromURI(uri);
     await PrintUtils.loadPrintBrowser(messageService.getUrlForUri(uri).spec);
     await PrintUtils.printBrowser.browsingContext.print(ps);
   }

@@ -31,15 +31,6 @@ var LOG = console.createInstance({
   maxLogLevelPref: "gloda.loglevel",
 });
 
-// Make it lazy.
-var gMessenger;
-function getMessenger() {
-  if (!gMessenger) {
-    gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-  }
-  return gMessenger;
-}
-
 /**
  * @class Represents a gloda attribute definition's DB form.  This class
  *  stores the information in the database relating to this attribute
@@ -1077,7 +1068,7 @@ GlodaAttachment.prototype = {
         "The message doesn't exist anymore, unable to rebuild attachment URL"
       );
     }
-    let msgService = getMessenger().messageServiceFromURI(uri);
+    let msgService = MailServices.messageServiceFromURI(uri);
     let neckoURL = msgService.getUrlForUri(uri);
     let url = neckoURL.spec;
     let hasParamAlready = url.match(/\?[a-z]+=[^\/]+$/);

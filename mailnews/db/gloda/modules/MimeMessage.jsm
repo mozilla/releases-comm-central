@@ -11,6 +11,10 @@ const EXPORTED_SYMBOLS = [
   "MimeMessageAttachment",
 ];
 
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+
 /**
  * The URL listener is surplus because the CallbackStreamListener ends up
  *  getting the same set of events, effectively.
@@ -138,8 +142,6 @@ CallbackStreamListener.prototype = {
   },
 };
 
-var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-
 function stripEncryptedParts(aPart) {
   if (aPart.parts && aPart.isEncrypted) {
     aPart.parts = []; // Show an empty container.
@@ -197,7 +199,7 @@ function MsgHdrToMimeMessage(
     ? aMsgHdr.folder.getUriForMsg(aMsgHdr)
     : aMsgHdr.getStringProperty("dummyMsgUrl");
 
-  let msgService = gMessenger.messageServiceFromURI(msgURI);
+  let msgService = MailServices.messageServiceFromURI(msgURI);
 
   MsgHdrToMimeMessage.OPTION_TUNNEL = aOptions;
   let partsOnDemandStr =

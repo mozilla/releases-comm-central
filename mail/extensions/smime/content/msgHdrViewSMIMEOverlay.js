@@ -18,9 +18,7 @@ var gEncryptionStatusForURI = null;
 
 // Get the necko URL for the message URI.
 function neckoURLForMessageURI(aMessageURI) {
-  let msgSvc = Cc["@mozilla.org/messenger;1"]
-    .createInstance(Ci.nsIMessenger)
-    .messageServiceFromURI(aMessageURI);
+  let msgSvc = MailServices.messageServiceFromURI(aMessageURI);
   let neckoURI = msgSvc.getUrlForUri(aMessageURI);
   return neckoURI.spec;
 }

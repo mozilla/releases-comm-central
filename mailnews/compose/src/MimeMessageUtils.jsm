@@ -223,10 +223,9 @@ var MsgUtils = {
       ) {
         let msgHdr;
         try {
-          msgHdr = Cc["@mozilla.org/messenger;1"]
-            .createInstance(Ci.nsIMessenger)
-            .messageServiceFromURI(originalMsgURI)
-            .messageURIToMsgHdr(originalMsgURI);
+          msgHdr = MailServices.messageServiceFromURI(
+            originalMsgURI
+          ).messageURIToMsgHdr(originalMsgURI);
         } catch (e) {
           console.warn(
             `messageServiceFromURI failed for ${originalMsgURI}\n${e.stack}`

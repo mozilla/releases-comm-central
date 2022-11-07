@@ -10,6 +10,9 @@ const EXPORTED_SYMBOLS = ["EnigmailVerify"];
  *  Module for handling PGP/MIME signed messages implemented as JS module.
  */
 
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
@@ -171,8 +174,7 @@ MimeVerify.prototype = {
     this.msgWindow = msgWindow;
     this.msgUriSpec = msgUriSpec;
     this.window = window;
-    var messenger = Cc["@mozilla.org/messenger;1"].getService(Ci.nsIMessenger);
-    var msgSvc = messenger.messageServiceFromURI(this.msgUriSpec);
+    let msgSvc = MailServices.messageServiceFromURI(this.msgUriSpec);
 
     msgSvc.streamMessage(
       this.msgUriSpec,

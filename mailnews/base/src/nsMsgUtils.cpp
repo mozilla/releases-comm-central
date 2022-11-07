@@ -127,6 +127,7 @@ nsresult GetMessageServiceContractIDForURI(const char* uri,
   return rv;
 }
 
+// Note: This function is also implemented in JS, see MailServices.jsm.
 nsresult GetMessageServiceFromURI(const nsACString& uri,
                                   nsIMsgMessageService** aMessageService) {
   nsresult rv;

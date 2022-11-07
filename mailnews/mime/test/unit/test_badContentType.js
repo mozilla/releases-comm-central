@@ -76,7 +76,7 @@ async function test_message_attachments(info) {
   await messageInjection.addSetsToFolders([inbox], [synSet]);
 
   let msgURI = synSet.getMsgURI(0);
-  let msgService = messenger.messageServiceFromURI(msgURI);
+  let msgService = MailServices.messageServiceFromURI(msgURI);
 
   let msgHeaderSinkProm = new MsgHeaderSinkHandleAttachments();
   msgWindow.msgHeaderSink = msgHeaderSinkProm;

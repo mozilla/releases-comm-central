@@ -114,9 +114,10 @@ async function openMessageInWindow(msgHdr) {
 
 async function promiseMessageLoaded(browser, msgHdr) {
   let messageURI = msgHdr.folder.getUriForMsg(msgHdr);
-  messageURI = window.messenger
-    .messageServiceFromURI(messageURI)
-    .getUrlForUri(messageURI, null);
+  messageURI = MailServices.messageServiceFromURI(messageURI).getUrlForUri(
+    messageURI,
+    null
+  );
 
   if (
     browser.webProgress?.isLoadingDocument ||

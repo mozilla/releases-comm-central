@@ -7,6 +7,7 @@
 
 var { Extractor } = ChromeUtils.import("resource:///modules/calendar/calExtract.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -89,7 +90,6 @@ var calendarExtract = {
 
     let content = "";
     await new Promise((resolve, reject) => {
-      let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
       let listener = {
         QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
         onDataAvailable(request, inputStream, offset, count) {
@@ -112,7 +112,7 @@ var calendarExtract = {
         },
       };
       let uri = message.folder.getUriForMsg(message);
-      messenger.messageServiceFromURI(uri).streamMessage(uri, listener, null, null, false, "");
+      MailServices.messageServiceFromURI(uri).streamMessage(uri, listener, null, null, false, "");
     });
 
     cal.LOG("[calExtract] Original email content: \n" + title + "\r\n" + content);

@@ -7575,7 +7575,7 @@ async function messageAttachmentToFile(attachment) {
   ].getService(Ci.nsPIExternalAppLauncher);
   extAppLauncher.deleteTemporaryFileOnExit(tempFile);
 
-  let service = gMessenger.messageServiceFromURI(attachment.url);
+  let service = MailServices.messageServiceFromURI(attachment.url);
   let bytes = await new Promise((resolve, reject) => {
     let streamlistener = {
       _data: [],
@@ -8731,9 +8731,9 @@ function OpenSelectedAttachment() {
   let messagePrefix = /^mailbox-message:|^imap-message:|^news-message:/i;
   if (messagePrefix.test(attachmentUrl)) {
     // we must be dealing with a forwarded attachment, treat this special
-    let msgHdr = gMessenger
-      .messageServiceFromURI(attachmentUrl)
-      .messageURIToMsgHdr(attachmentUrl);
+    let msgHdr = MailServices.messageServiceFromURI(
+      attachmentUrl
+    ).messageURIToMsgHdr(attachmentUrl);
     if (msgHdr) {
       MailUtils.openMessageInNewWindow(msgHdr);
     }
@@ -9447,9 +9447,9 @@ var envelopeDragObserver = {
 
         case "text/x-moz-message":
           isValidAttachment = true;
-          let msgHdr = gMessenger
-            .messageServiceFromURI(data)
-            .messageURIToMsgHdr(data);
+          let msgHdr = MailServices.messageServiceFromURI(
+            data
+          ).messageURIToMsgHdr(data);
           prettyName = msgHdr.mime2DecodedSubject + ".eml";
           size = msgHdr.messageSize;
           break;
@@ -10643,9 +10643,7 @@ function InitEditor() {
         return;
       }
       if (gOriginalMsgURI) {
-        let msgSvc = Cc["@mozilla.org/messenger;1"]
-          .createInstance(Ci.nsIMessenger)
-          .messageServiceFromURI(gOriginalMsgURI);
+        let msgSvc = MailServices.messageServiceFromURI(gOriginalMsgURI);
         let originalMsgNeckoURI = msgSvc.getUrlForUri(gOriginalMsgURI);
         if (
           src.startsWith(
@@ -10691,9 +10689,7 @@ function InitEditor() {
   let background = editor.document.body.background;
   if (background && gOriginalMsgURI) {
     // Check that background has the same URL as the message itself.
-    let msgSvc = Cc["@mozilla.org/messenger;1"]
-      .createInstance(Ci.nsIMessenger)
-      .messageServiceFromURI(gOriginalMsgURI);
+    let msgSvc = MailServices.messageServiceFromURI(gOriginalMsgURI);
     let originalMsgNeckoURI = msgSvc.getUrlForUri(gOriginalMsgURI);
     if (
       background.startsWith(

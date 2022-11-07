@@ -110,7 +110,7 @@ function ThreadPaneOnDragStart(aEvent) {
   let maxCutNameLength = maxUncutNameLength - longSubjectTruncator.length;
   let messages = new Map();
   for (let [index, msgUri] of messageUris.entries()) {
-    let msgService = messenger.messageServiceFromURI(msgUri);
+    let msgService = MailServices.messageServiceFromURI(msgUri);
     let msgHdr = msgService.messageURIToMsgHdr(msgUri);
     let subject = msgHdr.mime2DecodedSubject || "";
     if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe) {

@@ -819,9 +819,7 @@ var SearchSupport = {
           SearchIntegration._log.debug("file path = " + file.path);
           file.create(0, PERM_FILE);
           let uri = folder.getUriForMsg(msgHdr);
-          let msgService = SearchIntegration._messenger.messageServiceFromURI(
-            uri
-          );
+          let msgService = MailServices.messageServiceFromURI(uri);
           this._msgHdr = msgHdr;
           this._outputFile = file;
           this._reindexTime = reindexTime;

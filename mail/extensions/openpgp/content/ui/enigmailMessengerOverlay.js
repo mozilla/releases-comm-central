@@ -2101,7 +2101,7 @@ Enigmail.msg = {
     };
 
     let streamListener = new PromiseStreamListener();
-    let msgSvc = messenger.messageServiceFromURI(msgUriSpec);
+    let msgSvc = MailServices.messageServiceFromURI(msgUriSpec);
     msgSvc.streamMessage(
       msgUriSpec,
       streamListener,

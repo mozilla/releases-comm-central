@@ -58,6 +58,10 @@ var { TestUtils } = ChromeUtils.import(
   "resource://testing-common/TestUtils.jsm"
 );
 
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+
 var kTextNodeType = 3;
 
 /**
@@ -785,9 +789,6 @@ function assert_previous_text(aStart, aText) {
 async function get_msg_source(aMsgHdr, aCharset = "") {
   let msgUri = aMsgHdr.folder.getUriForMsg(aMsgHdr);
 
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
   let content = await new Promise((resolve, reject) => {
     let streamListener = {
       QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
@@ -809,9 +810,15 @@ async function get_msg_source(aMsgHdr, aCharset = "") {
         }
       },
     };
-    messenger
-      .messageServiceFromURI(msgUri)
-      .streamMessage(msgUri, streamListener, null, null, false, "", false);
+    MailServices.messageServiceFromURI(msgUri).streamMessage(
+      msgUri,
+      streamListener,
+      null,
+      null,
+      false,
+      "",
+      false
+    );
   });
 
   if (!aCharset) {

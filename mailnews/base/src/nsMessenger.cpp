@@ -1460,13 +1460,6 @@ nsresult nsMessenger::Alert(const char* stringName) {
 }
 
 NS_IMETHODIMP
-nsMessenger::MessageServiceFromURI(const nsACString& aUri,
-                                   nsIMsgMessageService** aMsgService) {
-  NS_ENSURE_ARG_POINTER(aMsgService);
-  return GetMessageServiceFromURI(aUri, aMsgService);
-}
-
-NS_IMETHODIMP
 nsMessenger::MsgHdrFromURI(const nsACString& aUri, nsIMsgDBHdr** aMsgHdr) {
   NS_ENSURE_ARG_POINTER(aMsgHdr);
   nsCOMPtr<nsIMsgMessageService> msgService;

@@ -309,13 +309,14 @@ function processFolderForJunk(aAll) {
       return;
     }
   }
-  var totalMessages = aAll ? count : indices.length;
+  let totalMessages = aAll ? count : indices.length;
 
   // retrieve server and its spam settings via the header of an arbitrary message
+  let tmpMsgURI;
   for (let i = 0; i < totalMessages; i++) {
     let index = aAll ? i : indices[i];
     try {
-      var tmpMsgURI = gDBView.getURIForViewIndex(index);
+      tmpMsgURI = gDBView.getURIForViewIndex(index);
       break;
     } catch (e) {
       // dummy headers will fail, so look for another
@@ -326,21 +327,21 @@ function processFolderForJunk(aAll) {
     return;
   }
 
-  var tmpMsgHdr = messenger
-    .messageServiceFromURI(tmpMsgURI)
-    .messageURIToMsgHdr(tmpMsgURI);
-  var spamSettings = tmpMsgHdr.folder.server.spamSettings;
+  let tmpMsgHdr = MailServices.messageServiceFromURI(
+    tmpMsgURI
+  ).messageURIToMsgHdr(tmpMsgURI);
+  let spamSettings = tmpMsgHdr.folder.server.spamSettings;
 
   // create a classifier instance to classify messages in the folder.
-  var msgClassifier = new MessageClassifier(tmpMsgHdr.folder, totalMessages);
+  let msgClassifier = new MessageClassifier(tmpMsgHdr.folder, totalMessages);
 
   for (let i = 0; i < totalMessages; i++) {
     let index = aAll ? i : indices[i];
     try {
-      var msgURI = gDBView.getURIForViewIndex(index);
-      var msgHdr = messenger
-        .messageServiceFromURI(msgURI)
-        .messageURIToMsgHdr(msgURI);
+      let msgURI = gDBView.getURIForViewIndex(index);
+      let msgHdr = MailServices.messageServiceFromURI(
+        msgURI
+      ).messageURIToMsgHdr(msgURI);
       msgClassifier.analyzeMessage(msgHdr, spamSettings);
     } catch (ex) {
       // blow off errors here - dummy headers will fail
@@ -430,9 +431,9 @@ function deleteJunkInFolder() {
     } catch (ex) {
       continue; // blow off errors for dummy rows
     }
-    let msgHdr = messenger
-      .messageServiceFromURI(messageUri)
-      .messageURIToMsgHdr(messageUri);
+    let msgHdr = MailServices.messageServiceFromURI(
+      messageUri
+    ).messageURIToMsgHdr(messageUri);
     let junkScore = msgHdr.getStringProperty("junkscore");
     var isJunk = junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE;
     // if the message is junk, select it.

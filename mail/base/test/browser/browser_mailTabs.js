@@ -235,9 +235,7 @@ async function ensureBrowserLoaded(browser) {
 }
 
 function messageToURL(message) {
-  let messageService = window.messenger.messageServiceFromURI(
-    "mailbox-message://"
-  );
+  let messageService = MailServices.messageServiceFromURI("mailbox-message://");
   let uri = message.folder.getUriForMsg(message);
   return messageService.getUrlForUri(uri).spec;
 }

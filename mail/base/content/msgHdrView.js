@@ -724,9 +724,9 @@ var messageHeaderSink = {
 
   handleAttachment(contentType, url, displayName, uri, isExternalAttachment) {
     if (!this.mSaveHdr) {
-      this.mSaveHdr = messenger
-        .messageServiceFromURI(uri)
-        .messageURIToMsgHdr(uri);
+      this.mSaveHdr = MailServices.messageServiceFromURI(
+        uri
+      ).messageURIToMsgHdr(uri);
     }
 
     let newAttachment = new AttachmentInfo(

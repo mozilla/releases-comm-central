@@ -46,9 +46,7 @@ add_task(async function loadMessages() {
 add_task(async function goodStreaming() {
   // Try to stream the headers of the last message.
   let uri = gHdr.folder.getUriForMsg(gHdr);
-  let messageService = Cc["@mozilla.org/messenger;1"]
-    .createInstance(Ci.nsIMessenger)
-    .messageServiceFromURI(uri);
+  let messageService = MailServices.messageServiceFromURI(uri);
   let streamListener = new PromiseTestUtils.PromiseStreamListener();
   messageService.streamHeaders(uri, streamListener, null, true);
   // The message contains this header.
@@ -74,9 +72,7 @@ add_task(async function badStreaming() {
   dbFile.remove(false);
   folder.msgDatabase = null;
 
-  let messageService = Cc["@mozilla.org/messenger;1"]
-    .createInstance(Ci.nsIMessenger)
-    .messageServiceFromURI(uri);
+  let messageService = MailServices.messageServiceFromURI(uri);
   let haveError = false;
   try {
     let streamListener = new PromiseTestUtils.PromiseStreamListener();

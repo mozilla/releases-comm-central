@@ -6,6 +6,7 @@
  * Tests for drag and drop on the today pane.
  */
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {
   add_message_to_folder,
   be_in_folder,
@@ -48,7 +49,7 @@ add_task(async function testDropMozMessage() {
   let about3PaneTab = document.getElementById("tabmail").currentTabInfo;
   let msg = about3PaneTab.message;
   let msgStr = about3PaneTab.folder.getUriForMsg(msg);
-  let msgUrl = window.messenger.messageServiceFromURI(msgStr).getUrlForUri(msgStr);
+  let msgUrl = MailServices.messageServiceFromURI(msgStr).getUrlForUri(msgStr);
 
   // Setup a DataTransfer to mimic what ThreadPaneOnDragStart sends.
   let dataTransfer = new DataTransfer();

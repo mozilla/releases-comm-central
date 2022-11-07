@@ -483,7 +483,9 @@ function SaveAsFile(uris) {
   let filenames = [];
 
   for (let uri of uris) {
-    let msgHdr = messenger.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
+    let msgHdr = MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(
+      uri
+    );
     let nameBase = GenerateFilenameFromMsgHdr(msgHdr);
     let name = GenerateValidFilename(nameBase, ".eml");
 

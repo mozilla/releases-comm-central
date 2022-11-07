@@ -283,7 +283,7 @@ async function test_message_attachments(info) {
   await messageInjection.addSetsToFolders([inbox], [synSet]);
 
   let msgURI = synSet.getMsgURI(0);
-  let msgService = messenger.messageServiceFromURI(msgURI);
+  let msgService = MailServices.messageServiceFromURI(msgURI);
   let msgHdrSinkProm = new MsgHeaderSinkAddAttachmentField();
   msgWindow.msgHeaderSink = msgHdrSinkProm;
   await PromiseTestUtils.promiseDelay(200);

@@ -65,9 +65,6 @@ function getMsgHeaders(aMsgHdr, aGetText = false) {
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
   let handler = {
     _done: false,
     _data: new Map(),
@@ -86,9 +83,15 @@ function getMsgHeaders(aMsgHdr, aGetText = false) {
   let streamListener = MimeParser.makeStreamListenerParser(handler, {
     strformat: "unicode",
   });
-  messenger
-    .messageServiceFromURI(msgUri)
-    .streamMessage(msgUri, streamListener, null, null, false, "", false);
+  MailServices.messageServiceFromURI(msgUri).streamMessage(
+    msgUri,
+    streamListener,
+    null,
+    null,
+    false,
+    "",
+    false
+  );
   utils.waitFor(() => handler._done);
   return aGetText ? handler._text : handler._data;
 }

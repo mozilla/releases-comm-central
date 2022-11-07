@@ -10,12 +10,18 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-function check_service(aService, aInterface) {
-  Assert.ok(aService in MailServices);
-  Assert.ok(MailServices[aService] instanceof aInterface);
-}
+add_task(function test_services() {
+  function check_service(service, interface) {
+    Assert.ok(
+      service in MailServices,
+      `${service} should be a member of MailServices`
+    );
+    Assert.ok(
+      MailServices[service] instanceof interface,
+      `MailServices.${service} should implement Ci.${interface.name}`
+    );
+  }
 
-function check_services() {
   check_service("mailSession", Ci.nsIMsgMailSession);
   check_service("accounts", Ci.nsIMsgAccountManager);
   check_service("pop3", Ci.nsIPop3Service);
@@ -31,8 +37,36 @@ function check_services() {
   check_service("tags", Ci.nsIMsgTagService);
   check_service("filters", Ci.nsIMsgFilterService);
   check_service("junk", Ci.nsIJunkMailPlugin);
-}
+});
 
-function run_test() {
-  check_services();
-}
+add_task(function test_message_services() {
+  function check_message_service(uri) {
+    let service = MailServices.messageServiceFromURI(uri);
+    Assert.ok(
+      service instanceof Ci.nsIMsgMessageService,
+      `message service for ${uri.substring(
+        0,
+        uri.indexOf(":")
+      )} URIs should exist`
+    );
+  }
+
+  // Special case for files, requires the application/x-message-display.
+  // I'm not sure if this really should be this way, but it is.
+  check_message_service(
+    "file://it.does.not.matter/?type=application/x-message-display"
+  );
+
+  check_message_service("imap://it.does.not.matter/");
+  check_message_service("imap-message://it.does.not.matter/");
+  check_message_service("mailbox://it.does.not.matter/");
+  check_message_service("mailbox-message://it.does.not.matter/");
+  check_message_service("news://it.does.not.matter/");
+  check_message_service("news-message://it.does.not.matter/");
+
+  Assert.throws(
+    () => MailServices.messageServiceFromURI("fake://not.going.to.work/"),
+    () => true, // Accept any exception.
+    "message service for other URIs should not exist"
+  );
+});

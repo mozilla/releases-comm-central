@@ -42,10 +42,7 @@ function run_test() {
     let msgHdr = folder.firstNewMessage;
     let messageUri = folder.getUriForMsg(msgHdr);
     // Convert this to a URI that necko can run
-    let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-      Ci.nsIMessenger
-    );
-    let messageService = messenger.messageServiceFromURI(messageUri);
+    let messageService = MailServices.messageServiceFromURI(messageUri);
     let neckoURL = messageService.getUrlForUri(messageUri);
     // Don't use the necko URL directly. Instead, get the spec and create a new
     // URL using the IO service

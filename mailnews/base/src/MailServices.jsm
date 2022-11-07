@@ -8,7 +8,32 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-var MailServices = {};
+var MailServices = {
+  /**
+   * Gets the `nsIMsgMessageService` for a given message URI. This should have
+   * the same behaviour as `GetMessageServiceFromURI` (nsMsgUtils.cpp).
+   *
+   * @param {string} uri - The URI of a folder or message.
+   * @returns {nsIMsgMessageService}
+   */
+  messageServiceFromURI(uri) {
+    let index = uri.indexOf(":");
+    if (index == -1) {
+      throw new Components.Exception(
+        `Bad message URI: ${uri}`,
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+
+    let protocol = uri.substring(0, index);
+    if (protocol == "file" && uri.includes("application/x-message-display")) {
+      protocol = "mailbox";
+    }
+    return Cc[
+      `@mozilla.org/messenger/messageservice;1?type=${protocol}`
+    ].getService(Ci.nsIMsgMessageService);
+  },
+};
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,

@@ -26,6 +26,10 @@ var {
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+
 var folder = null;
 var gMsgNo = 0;
 
@@ -102,9 +106,7 @@ function addMsgToFolder(folder) {
   // We also want to return the url of the message, so save that here.
   let msgSimpleURL = msgHdr.folder.getUriForMsg(msgHdr);
 
-  let msgService = Cc["@mozilla.org/messenger;1"]
-    .createInstance(Ci.nsIMessenger)
-    .messageServiceFromURI(msgSimpleURL);
+  let msgService = MailServices.messageServiceFromURI(msgSimpleURL);
 
   let neckoURL = msgService.getUrlForUri(msgSimpleURL);
 

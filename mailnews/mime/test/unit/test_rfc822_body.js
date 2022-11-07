@@ -74,7 +74,7 @@ async function help_test_rfc822_body(info) {
   await messageInjection.addSetsToFolders([inbox], [synSet]);
 
   let msgURI = synSet.getMsgURI(0);
-  let msgService = messenger.messageServiceFromURI(msgURI);
+  let msgService = MailServices.messageServiceFromURI(msgURI);
 
   let countObject = { count: 0 };
   let msgHeaderSink = new MsgHeaderSinkHandleAttachments(countObject);

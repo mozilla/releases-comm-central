@@ -205,10 +205,7 @@ add_task(async function test_queuedOfflineDownload() {
   gImapInboxOfflineStoreSize = IMAPPump.inbox.filePath.fileSize + gFirstMsgSize;
   let newMsgHdr = IMAPPump.inbox.GetMessageHeader(gFirstNewMsg);
   let msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
-  let msgServ = messenger.messageServiceFromURI(msgURI);
+  let msgServ = MailServices.messageServiceFromURI(msgURI);
   let listener = new PromiseTestUtils.PromiseStreamListener();
   msgServ.streamMessage(msgURI, listener, null, null, false, "", false);
   await listener.promise;

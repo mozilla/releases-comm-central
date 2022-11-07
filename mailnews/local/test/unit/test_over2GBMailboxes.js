@@ -111,12 +111,9 @@ add_task(async function copyHugeMessage() {
 // Read out the smaller message beyond the 2 GiB offset and make sure
 // it matches what we expect.
 add_task(async function verifySmallMessage() {
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
   let msghdr = findHugeMessageHdr(gInbox);
   let msgURI = msghdr.folder.getUriForMsg(msghdr);
-  let msgServ = messenger.messageServiceFromURI(msgURI);
+  let msgServ = MailServices.messageServiceFromURI(msgURI);
 
   let streamListener = new PromiseTestUtils.PromiseStreamListener();
   msgServ.streamMessage(msgURI, streamListener, null, null, false, "", true);

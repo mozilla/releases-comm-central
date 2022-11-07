@@ -103,10 +103,7 @@ function apply_mime_conversion(msgUri, headerSink = {}, msgWindow = undefined) {
 
   msgWindow.msgHeaderSink = fullHeaderSink;
 
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
-  let service = messenger.messageServiceFromURI(msgUri);
+  let service = MailServices.messageServiceFromURI(msgUri);
 
   // This is what we listen on in the end.
   let listener = new PromiseTestUtils.PromiseStreamListener();

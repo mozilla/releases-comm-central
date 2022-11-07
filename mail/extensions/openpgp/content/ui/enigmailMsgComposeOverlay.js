@@ -342,12 +342,9 @@ Enigmail.msg = {
         msgUri = this.getOriginalMsgUri();
       }
       if (msgUri) {
-        let messenger = Cc["@mozilla.org/messenger;1"].getService(
-          Ci.nsIMessenger
+        return MailServices.messageServiceFromURI(msgUri).messageURIToMsgHdr(
+          msgUri
         );
-        return messenger
-          .messageServiceFromURI(msgUri)
-          .messageURIToMsgHdr(msgUri);
       }
     } catch (ex) {
       // See also bug 1635648

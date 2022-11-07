@@ -106,10 +106,7 @@ function ReloadMessage() {
 }
 
 function MailSetCharacterSet() {
-  let protocol = new URL(gMessageURI).protocol.replace(/:$/, "");
-  let messageService = Cc[
-    `@mozilla.org/messenger/messageservice;1?type=${protocol}`
-  ].getService(Ci.nsIMsgMessageService);
+  let messageService = MailServices.messageServiceFromURI(gMessageURI);
   gMessage = messageService.messageURIToMsgHdr(gMessageURI);
   messageService.DisplayMessage(
     gMessageURI,
@@ -218,10 +215,7 @@ function displayMessage(uri, viewWrapper) {
     return;
   }
 
-  let protocol = new URL(uri).protocol.replace(/:$/, "");
-  let messageService = Cc[
-    `@mozilla.org/messenger/messageservice;1?type=${protocol}`
-  ].getService(Ci.nsIMsgMessageService);
+  let messageService = MailServices.messageServiceFromURI(uri);
   gMessage = messageService.messageURIToMsgHdr(uri);
 
   if (gMessage) {

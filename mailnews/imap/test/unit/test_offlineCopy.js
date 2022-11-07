@@ -225,10 +225,7 @@ var tests = [
       let newMsgHdr = gFolder1.msgDatabase.getMsgHdrForMessageID(msgId);
       Assert.ok(newMsgHdr.flags & Ci.nsMsgMessageFlags.Offline);
       let msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
-      let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-        Ci.nsIMessenger
-      );
-      let msgServ = messenger.messageServiceFromURI(msgURI);
+      let msgServ = MailServices.messageServiceFromURI(msgURI);
       let promiseStreamListener = new PromiseTestUtils.PromiseStreamListener();
       msgServ.streamHeaders(msgURI, promiseStreamListener, null, true);
       let data = await promiseStreamListener.promise;
