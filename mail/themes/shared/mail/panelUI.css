@@ -856,15 +856,23 @@ menulist[open="true"]:not([disabled="true"]) {
 #appmenu_signin,
 #appmenu_sync,
 #syncSeparator {
-  display: none;
+ /* display: none;*/
 }
 
 #appmenu_signin {
   list-style-image: var(--icon-sync);
 }
 
-#appmenu-sync-icon {
-  content: var(--icon-sync);
+#appmenu-submenu-sync-now{
+  list-style-image: var(--icon-sync);
+}
+
+#appmenu-submenu-sync-settings {
+  list-style-image: var(--icon-settings);
+}
+
+#appmenu-submenu-sync-sign-out{
+  list-style-image: var(--icon-quit);
 }
 
 #syncSeparator {

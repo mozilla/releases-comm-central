@@ -22,6 +22,18 @@ appmenu-sync-manage =
 appmenu-sync-account =
   .value = example@example.com
 
+appmenu-sync-now =
+  .label = Sync Now
+  .accesskey = N
+
+appmenu-sync-settings =
+  .label = Sync Settings
+  .accesskey = S
+
+appmenu-sync-sign-out =
+  .label = Sign Out…
+  .accesskey = O
+
 ## New Account
 
 appmenu-new-account-panel-title =
