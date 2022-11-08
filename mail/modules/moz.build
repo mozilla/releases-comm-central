@@ -8,7 +8,6 @@ EXTRA_JS_MODULES += [
     "AttachmentChecker.jsm",
     "BrowserWindowTracker.jsm",
     "ConversationOpener.jsm",
-    "CustomElementLoader.sys.mjs",
     "DBViewWrapper.jsm",
     "DisplayNameUtils.jsm",
     "DNS.jsm",
