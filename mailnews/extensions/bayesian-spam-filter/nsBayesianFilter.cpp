@@ -25,6 +25,7 @@
 #include "nsIStringEnumerator.h"
 #include "nsIObserverService.h"
 #include "nsIChannel.h"
+#include "nsIMailChannel.h"
 #include "nsDependentSubstring.h"
 #include "nsMemory.h"
 #include "nsUnicodeProperties.h"
@@ -394,32 +395,31 @@ void Tokenizer::addTokenForHeader(const char* aTokenPrefix, nsACString& aValue,
   }
 }
 
-void Tokenizer::tokenizeAttachment(const char* aContentType,
-                                   const char* aFileName) {
-  nsAutoCString contentType;
-  nsAutoCString fileName;
-  fileName.Assign(aFileName);
-  contentType.Assign(aContentType);
+void Tokenizer::tokenizeAttachments(
+    nsTArray<RefPtr<nsIPropertyBag2>>& attachments) {
+  for (auto attachment : attachments) {
+    nsCString contentType;
+    ToLowerCase(contentType);
+    attachment->GetPropertyAsAUTF8String(u"contentType"_ns, contentType);
+    addTokenForHeader("attachment/content-type", contentType);
 
-  // normalize the content type and the file name
-  ToLowerCase(fileName);
-  ToLowerCase(contentType);
-  addTokenForHeader("attachment/filename", fileName);
-
-  addTokenForHeader("attachment/content-type", contentType);
+    nsCString displayName;
+    attachment->GetPropertyAsAUTF8String(u"displayName"_ns, displayName);
+    ToLowerCase(displayName);
+    addTokenForHeader("attachment/filename", displayName);
+  }
 }
 
-void Tokenizer::tokenizeHeaders(nsIUTF8StringEnumerator* aHeaderNames,
-                                nsIUTF8StringEnumerator* aHeaderValues) {
+void Tokenizer::tokenizeHeaders(nsTArray<nsCString>& aHeaderNames,
+                                nsTArray<nsCString>& aHeaderValues) {
   nsCString headerValue;
   nsAutoCString
       headerName;  // we'll be normalizing all header names to lower case
-  bool hasMore;
 
-  while (NS_SUCCEEDED(aHeaderNames->HasMore(&hasMore)) && hasMore) {
-    aHeaderNames->GetNext(headerName);
+  for (uint32_t i = 0; i < aHeaderNames.Length(); i++) {
+    headerName = aHeaderNames[i];
     ToLowerCase(headerName);
-    aHeaderValues->GetNext(headerValue);
+    headerValue = aHeaderValues[i];
 
     bool headerProcessed = false;
     if (mCustomHeaderTokenization) {
@@ -966,12 +966,11 @@ class TokenAnalyzer {
  * any of the valid token separators would do. This could be a further
  * refinement.
  */
-class TokenStreamListener : public nsIStreamListener, nsIMsgHeaderSink {
+class TokenStreamListener : public nsIStreamListener {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIREQUESTOBSERVER
   NS_DECL_NSISTREAMLISTENER
-  NS_DECL_NSIMSGHEADERSINK
 
   explicit TokenStreamListener(TokenAnalyzer* analyzer);
 
@@ -999,57 +998,7 @@ TokenStreamListener::~TokenStreamListener() {
   delete mAnalyzer;
 }
 
-NS_IMPL_ISUPPORTS(TokenStreamListener, nsIRequestObserver, nsIStreamListener,
-                  nsIMsgHeaderSink)
-
-NS_IMETHODIMP TokenStreamListener::ProcessHeaders(
-    nsIUTF8StringEnumerator* aHeaderNames,
-    nsIUTF8StringEnumerator* aHeaderValues, bool dontCollectAddress) {
-  mTokenizer.tokenizeHeaders(aHeaderNames, aHeaderValues);
-  return NS_OK;
-}
-
-NS_IMETHODIMP TokenStreamListener::HandleAttachment(
-    const char* contentType, const nsACString& url, const char16_t* displayName,
-    const nsACString& uri, bool aIsExternalAttachment) {
-  mTokenizer.tokenizeAttachment(contentType,
-                                NS_ConvertUTF16toUTF8(displayName).get());
-  return NS_OK;
-}
-
-NS_IMETHODIMP TokenStreamListener::AddAttachmentField(const char* field,
-                                                      const char* value) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP TokenStreamListener::OnEndAllAttachments() { return NS_OK; }
-
-NS_IMETHODIMP TokenStreamListener::OnEndMsgDownload(nsIMsgMailNewsUrl* url) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP TokenStreamListener::OnEndMsgHeaders(nsIMsgMailNewsUrl* url) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP TokenStreamListener::GetSecurityInfo(
-    nsISupports** aSecurityInfo) {
-  return NS_OK;
-}
-NS_IMETHODIMP TokenStreamListener::SetSecurityInfo(nsISupports* aSecurityInfo) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP TokenStreamListener::GetDummyMsgHeader(nsIMsgDBHdr** aMsgDBHdr) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP TokenStreamListener::ResetProperties() { return NS_OK; }
-
-NS_IMETHODIMP TokenStreamListener::GetProperties(
-    nsIWritablePropertyBag2** aProperties) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
+NS_IMPL_ISUPPORTS(TokenStreamListener, nsIRequestObserver, nsIStreamListener)
 
 /* void onStartRequest (in nsIRequest aRequest); */
 NS_IMETHODIMP TokenStreamListener::OnStartRequest(nsIRequest* aRequest) {
@@ -1057,18 +1006,6 @@ NS_IMETHODIMP TokenStreamListener::OnStartRequest(nsIRequest* aRequest) {
   if (!mBuffer) {
     mBuffer = new char[mBufferSize];
     NS_ENSURE_TRUE(mBuffer, NS_ERROR_OUT_OF_MEMORY);
-  }
-
-  // get the url for the channel and set our nsIMsgHeaderSink on it so we get
-  // notified about the headers and attachments
-
-  nsCOMPtr<nsIChannel> channel(do_QueryInterface(aRequest));
-  if (channel) {
-    nsCOMPtr<nsIURI> uri;
-    channel->GetURI(getter_AddRefs(uri));
-    nsCOMPtr<nsIMsgMailNewsUrl> mailUrl = do_QueryInterface(uri);
-    if (mailUrl)
-      mailUrl->SetMsgHeaderSink(static_cast<nsIMsgHeaderSink*>(this));
   }
 
   return NS_OK;
@@ -1151,6 +1088,19 @@ NS_IMETHODIMP TokenStreamListener::OnDataAvailable(nsIRequest* aRequest,
 /* void onStopRequest (in nsIRequest aRequest, in nsresult aStatusCode); */
 NS_IMETHODIMP TokenStreamListener::OnStopRequest(nsIRequest* aRequest,
                                                  nsresult aStatusCode) {
+  nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(aRequest);
+  if (mailChannel) {
+    nsTArray<nsCString> headerNames;
+    nsTArray<nsCString> headerValues;
+    mailChannel->GetHeaderNames(headerNames);
+    mailChannel->GetHeaderValues(headerValues);
+    mTokenizer.tokenizeHeaders(headerNames, headerValues);
+
+    nsTArray<RefPtr<nsIPropertyBag2>> attachments;
+    mailChannel->GetAttachments(attachments);
+    mTokenizer.tokenizeAttachments(attachments);
+  }
+
   if (mLeftOverCount) {
     /* assume final buffer is complete. */
     mBuffer[mLeftOverCount] = '\0';

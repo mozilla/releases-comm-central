@@ -4,11 +4,14 @@
 
 const EXPORTED_SYMBOLS = ["NntpChannel"];
 
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
+const { MailChannel } = ChromeUtils.importESModule(
+  "resource:///modules/MailChannel.sys.mjs"
 );
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
+);
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
 const lazy = {};
@@ -24,8 +27,9 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
  * @implements {nsIRequest}
  * @implements {nsICacheEntryOpenCallback}
  */
-class NntpChannel {
+class NntpChannel extends MailChannel {
   QueryInterface = ChromeUtils.generateQI([
+    "nsIMailChannel",
     "nsIChannel",
     "nsIRequest",
     "nsICacheEntryOpenCallback",
@@ -38,6 +42,7 @@ class NntpChannel {
    * @param {nsILoadInfo} [loadInfo] - The loadInfo associated with the channel.
    */
   constructor(uri, loadInfo) {
+    super();
     this._server = lazy.NntpUtils.findServer(uri.asciiHost);
     if (!this._server) {
       this._server = MailServices.accounts

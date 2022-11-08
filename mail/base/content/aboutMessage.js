@@ -8,8 +8,8 @@
 /* globals commandController, dbViewWrapperListener */
 
 // msgHdrView.js
-/* globals AdjustHeaderView ClearPendingReadTimer gMessageListeners
-   HideMessageHeaderPane messageHeaderSink OnLoadMsgHeaderPane OnTagsChange
+/* globals AdjustHeaderView ClearPendingReadTimer
+   HideMessageHeaderPane OnLoadMsgHeaderPane OnTagsChange
    OnUnloadMsgHeaderPane */
 
 var { MailServices } = ChromeUtils.import(
@@ -111,7 +111,7 @@ function MailSetCharacterSet() {
   messageService.DisplayMessage(
     gMessageURI,
     content.docShell,
-    top.msgWindow,
+    null,
     null,
     true,
     {}
@@ -165,15 +165,7 @@ function displayExternalMessage(uri) {
   gDBView = gViewWrapper.dbView;
 
   let messageService = MailServices.messageServiceFromURI(uri);
-  messageService.DisplayMessage(
-    uri,
-    content.docShell,
-    top.msgWindow,
-    null,
-    null,
-    {}
-  );
-  gMessage = top.msgWindow.msgHeaderSink.dummyMsgHeader;
+  messageService.DisplayMessage(uri, content.docShell, null, null, null, {});
 }
 
 function displayMessage(uri, viewWrapper) {
@@ -227,17 +219,7 @@ function displayMessage(uri, viewWrapper) {
       Ci.nsIWebProgress.NOTIFY_ALL
     );
 
-  messageService.DisplayMessage(
-    uri,
-    content.docShell,
-    top.msgWindow,
-    null,
-    null,
-    {}
-  );
-  if (!gMessage) {
-    gMessage = top.msgWindow.msgHeaderSink.dummyMsgHeader;
-  }
+  messageService.DisplayMessage(uri, content.docShell, null, null, null, {});
 
   if (gMessage.flags & Ci.nsMsgMessageFlags.HasRe) {
     document.title = `Re: ${gMessage.mime2DecodedSubject}`;
@@ -249,16 +231,6 @@ function displayMessage(uri, viewWrapper) {
     new CustomEvent("messageURIChanged", { bubbles: true, detail: uri })
   );
 }
-
-gMessageListeners.push({
-  onStartHeaders() {},
-  onEndHeaders() {
-    if (gMessageDisplay.isDummy) {
-      document.title = messageHeaderSink.dummyMsgHeader.mime2DecodedSubject;
-    }
-  },
-  onEndAttachments() {},
-});
 
 function GetSelectedMsgFolders() {
   if (gFolderDisplay.displayedFolder) {

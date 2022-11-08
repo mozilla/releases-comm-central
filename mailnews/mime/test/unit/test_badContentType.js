@@ -22,9 +22,6 @@ var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 var messageGenerator = new MessageGenerator();
 var messageInjection = new MessageInjection({ mode: "local" });
 var inbox = messageInjection.getInboxFolder();
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
 
 const IMAGE_ATTACHMENT =
   "iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABHNCSVQICAgIfAhkiAAAAAlwS" +
@@ -74,23 +71,26 @@ async function test_message_attachments(info) {
   let msgURI = synSet.getMsgURI(0);
   let msgService = MailServices.messageServiceFromURI(msgURI);
 
-  let msgHeaderSinkProm = new MsgHeaderSinkHandleAttachments();
-  msgWindow.msgHeaderSink = msgHeaderSinkProm;
-  let streamListener = new PromiseTestUtils.PromiseStreamListener();
+  let streamListener = new PromiseTestUtils.PromiseStreamListener({
+    onStopRequest(request, statusCode) {
+      request.QueryInterface(Ci.nsIMailChannel);
+      let msgHdrSinkContentType = request.attachments[0].getProperty(
+        "contentType"
+      );
+      Assert.equal(msgHdrSinkContentType, info.testContentType);
+    },
+  });
   msgService.streamMessage(
     msgURI,
     streamListener,
-    msgWindow,
+    null,
     null,
     true, // have them create the converter
     // additional uri payload, note that "header=" is prepended automatically
     "filter",
     false
   );
-
   await streamListener.promise;
-  let msgHdrSinkContentType = await msgHeaderSinkProm.promise;
-  Assert.equal(msgHdrSinkContentType, info.testContentType);
 }
 
 function MsgHeaderSinkHandleAttachments() {

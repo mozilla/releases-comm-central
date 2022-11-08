@@ -211,13 +211,6 @@ function CreateMailWindowGlobals() {
     Ci.nsIMsgWindow
   );
   msgWindow.msgHeaderSink = {
-    processHeaders(headerNames, headerValues, dontCollectAddress) {},
-    handleAttachment(contentType, url, displayName, uri, notDownloaded) {},
-    addAttachmentField(field, value) {},
-    onEndAllAttachments() {},
-    onEndMsgHeaders(url) {},
-    onEndMsgDownload(url) {},
-    onMsgHasRemoteContent(msgHdr, contentURI, canOverride) {},
     resetProperties() {
       delete this.mProperties;
     },

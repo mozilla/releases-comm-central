@@ -25,6 +25,7 @@
 #include "nsString.h"
 #include "nsWeakReference.h"
 #include "nsHashPropertyBag.h"
+#include "nsMailChannel.h"
 
 class nsIMsgWindow;
 class nsIPrompt;
@@ -41,6 +42,7 @@ class nsICancelable;
 class nsMsgProtocol : public nsIStreamListener,
                       public nsIChannel,
                       public nsITransportEventSink,
+                      public nsMailChannel,
                       public nsHashPropertyBag {
  public:
   nsMsgProtocol(nsIURI* aURL);

@@ -178,11 +178,14 @@ add_task(async () => {
 
   // Web mode.
 
-  loadedPromise = BrowserTestUtils.browserLoaded(messagePane);
+  loadedPromise = BrowserTestUtils.browserLoaded(
+    messagePane,
+    false,
+    "https://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/article.html"
+  );
   window.FeedMessageHandler.onSelectPref = 0;
   await loadedPromise;
 
-  Assert.notEqual(messagePane.currentURI.spec, "about:blank");
   await SpecialPowers.spawn(messagePane, [], () => {
     let doc = content.document;
 

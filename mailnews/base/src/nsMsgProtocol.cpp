@@ -48,9 +48,9 @@
 
 using namespace mozilla;
 
-NS_IMPL_ISUPPORTS_INHERITED(nsMsgProtocol, nsHashPropertyBag, nsIChannel,
-                            nsIStreamListener, nsIRequestObserver, nsIRequest,
-                            nsITransportEventSink)
+NS_IMPL_ISUPPORTS_INHERITED(nsMsgProtocol, nsHashPropertyBag, nsIMailChannel,
+                            nsIChannel, nsIStreamListener, nsIRequestObserver,
+                            nsIRequest, nsITransportEventSink)
 
 static char16_t* FormatStringWithHostNameByName(const char16_t* stringName,
                                                 nsIMsgMailNewsUrl* msgUri);

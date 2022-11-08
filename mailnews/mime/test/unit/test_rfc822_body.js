@@ -20,9 +20,6 @@ var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 var msgGen = new MessageGenerator();
 var messageInjection = new MessageInjection({ mode: "local" });
 var inbox = messageInjection.getInboxFolder();
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
 
 add_task(async function test_rfc822_body_display_inline() {
   Services.prefs.setBoolPref("mail.inline_attachments", true);
@@ -76,14 +73,16 @@ async function help_test_rfc822_body(info) {
   let msgURI = synSet.getMsgURI(0);
   let msgService = MailServices.messageServiceFromURI(msgURI);
 
-  let countObject = { count: 0 };
-  let msgHeaderSink = new MsgHeaderSinkHandleAttachments(countObject);
-  msgWindow.msgHeaderSink = msgHeaderSink;
-  let streamListener = new PromiseTestUtils.PromiseStreamListener();
+  let streamListener = new PromiseTestUtils.PromiseStreamListener({
+    onStopRequest(request, statusCode) {
+      request.QueryInterface(Ci.nsIMailChannel);
+      Assert.equal(request.attachments.length, info.attachmentCount);
+    },
+  });
   msgService.streamMessage(
     msgURI,
     streamListener,
-    msgWindow,
+    null,
     null,
     true, // have them create the converter
     // additional uri payload, note that "header=" is prepended automatically
@@ -92,21 +91,4 @@ async function help_test_rfc822_body(info) {
   );
 
   await streamListener.promise;
-  Assert.equal(countObject.count, info.attachmentCount);
 }
-
-function MsgHeaderSinkHandleAttachments(countObject) {
-  this.countObject = countObject;
-}
-
-MsgHeaderSinkHandleAttachments.prototype = {
-  handleAttachment(
-    aContentType,
-    aUrl,
-    aDisplayName,
-    aUri,
-    aIsExternalAttachment
-  ) {
-    this.countObject.count++;
-  },
-};

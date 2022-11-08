@@ -17,31 +17,6 @@ interface nsIWritablePropertyBag2;
 [scriptable, uuid(e0e821f0-cecf-4cb3-be5b-ee58b6868343)]
 interface nsIMsgHeaderSink : nsISupports
 {
-  // You must finish consuming the iterators before returning from processHeaders. aHeaderNames and aHeaderValues will ALWAYS have the same
-  // number of elements in them
-  void processHeaders(in nsIUTF8StringEnumerator aHeaderNames, in nsIUTF8StringEnumerator aHeaderValues, in boolean dontCollectAddress);
-
-  void handleAttachment(in string contentType, in AUTF8String url,
-                        in wstring displayName, in AUTF8String uri,
-                        in boolean aNotDownloaded);
-
-  /**
-   * Add a metadata field to the current attachment, e.g. "X-Mozilla-PartSize".
-   *
-   * @param field The field to add
-   * @param value The value of the field
-   */
-  void addAttachmentField(in string field, in string value);
-  void onEndAllAttachments();
-
-  // onEndMsgHeaders is called after libmime is done processing a message. At this point it is safe for
-  // elements like the UI to update junk status, process return receipts, etc.
-  void onEndMsgHeaders(in nsIMsgMailNewsUrl url);
-
-  // onEndMsgDownload is triggered when layout says it is actually done rendering
-  // the message body in the UI.
-  void onEndMsgDownload(in nsIMsgMailNewsUrl url);
-
   attribute nsISupports securityInfo;
 
   readonly attribute nsIMsgDBHdr dummyMsgHeader;

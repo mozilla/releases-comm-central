@@ -109,10 +109,6 @@ var attachedMessage2 = msgGen.makeMessage({
   ],
 });
 
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
-
 add_task(async function test_text_attachment() {
   await test_message_attachments({
     attachments: [
@@ -280,14 +276,24 @@ async function test_message_attachments(info) {
 
   let msgURI = synSet.getMsgURI(0);
   let msgService = MailServices.messageServiceFromURI(msgURI);
-  let msgHdrSinkProm = new MsgHeaderSinkAddAttachmentField();
-  msgWindow.msgHeaderSink = msgHdrSinkProm;
   await PromiseTestUtils.promiseDelay(200);
-  let streamListener = new PromiseTestUtils.PromiseStreamListener();
+  let streamListener = new PromiseTestUtils.PromiseStreamListener({
+    onStopRequest(request) {
+      request.QueryInterface(Ci.nsIMailChannel);
+      for (let attachment of request.attachments) {
+        let attachmentSize = parseInt(attachment.get("X-Mozilla-PartSize"));
+        dump(
+          "*** Size is " + attachmentSize + " (expecting " + info.size + ")\n"
+        );
+        Assert.ok(Math.abs(attachmentSize - info.size) <= EPSILON);
+        break;
+      }
+    },
+  });
   msgService.streamMessage(
     msgURI,
     streamListener,
-    msgWindow,
+    null,
     null,
     true, // have them create the converter
     // additional uri payload, note that "header=" is prepended automatically
@@ -295,11 +301,7 @@ async function test_message_attachments(info) {
     false
   );
 
-  let headerSinkSize = await msgHdrSinkProm.promise;
   await streamListener.promise;
-
-  dump("*** Size is " + headerSinkSize + " (expecting " + info.size + ")\n");
-  Assert.ok(Math.abs(headerSinkSize - info.size) <= EPSILON);
 }
 
 /**
@@ -318,23 +320,3 @@ function get_message_size(message) {
   }
   return messageString.replace(/\r\n/g, "\n").length;
 }
-
-function MsgHeaderSinkAddAttachmentField() {
-  this._promise = new Promise(resolve => {
-    this._resolve = resolve;
-  });
-}
-
-MsgHeaderSinkAddAttachmentField.prototype = {
-  addAttachmentField(aName, aValue) {
-    // Only record the information for the first attachment.
-    if (aName == "X-Mozilla-PartSize" && this.size == null) {
-      let parsedValue = parseInt(aValue);
-      this._resolve(parsedValue);
-    }
-  },
-
-  get promise() {
-    return this._promise;
-  },
-};

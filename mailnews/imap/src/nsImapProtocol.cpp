@@ -8939,9 +8939,9 @@ nsImapCacheStreamListener::OnDataAvailable(nsIRequest* request,
 }
 
 NS_IMPL_ISUPPORTS_INHERITED(nsImapMockChannel, nsHashPropertyBag,
-                            nsIImapMockChannel, nsIChannel, nsIRequest,
-                            nsICacheEntryOpenCallback, nsITransportEventSink,
-                            nsISupportsWeakReference)
+                            nsIImapMockChannel, nsIMailChannel, nsIChannel,
+                            nsIRequest, nsICacheEntryOpenCallback,
+                            nsITransportEventSink, nsISupportsWeakReference)
 
 nsImapMockChannel::nsImapMockChannel()
     : mSuspendedMonitor("nsImapMockChannel"), mSuspended(false) {

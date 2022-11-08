@@ -95,14 +95,6 @@ nsMsgStatusFeedback::OnStateChange(nsIWebProgress* aWebProgress,
                                  &messageDisplayUrl);
 
           if (messageDisplayUrl) {
-            // get the header sink
-            nsCOMPtr<nsIMsgWindow> msgWindow;
-            mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow));
-            if (msgWindow) {
-              nsCOMPtr<nsIMsgHeaderSink> hdrSink;
-              msgWindow->GetMsgHeaderSink(getter_AddRefs(hdrSink));
-              if (hdrSink) hdrSink->OnEndMsgDownload(mailnewsUrl);
-            }
             // get the folder and notify that the msg has been loaded. We're
             // using NotifyPropertyFlagChanged. To be completely consistent,
             // we'd send a similar notification that the old message was

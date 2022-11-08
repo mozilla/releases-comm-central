@@ -15,6 +15,7 @@
 #include "nsString.h"
 #include "nsWeakReference.h"
 #include "nsIObserver.h"
+#include "nsHashPropertyBag.h"
 #include "mozilla/intl/WordBreaker.h"
 
 #include "mozilla/ArenaAllocator.h"
@@ -120,10 +121,10 @@ class Tokenizer : public TokenHash {
    *  Creates specific tokens based on the mime headers for the message being
    * tokenized
    */
-  void tokenizeHeaders(nsIUTF8StringEnumerator* aHeaderNames,
-                       nsIUTF8StringEnumerator* aHeaderValues);
+  void tokenizeHeaders(nsTArray<nsCString>& aHeaderNames,
+                       nsTArray<nsCString>& aHeaderValues);
 
-  void tokenizeAttachment(const char* aContentType, const char* aFileName);
+  void tokenizeAttachments(nsTArray<RefPtr<nsIPropertyBag2>>& attachments);
 
   nsCString mBodyDelimiters;    // delimiters for body tokenization
   nsCString mHeaderDelimiters;  // delimiters for header tokenization

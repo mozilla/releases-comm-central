@@ -45,12 +45,10 @@ class nsMimeHtmlDisplayEmitter : public nsMimeBaseEmitter {
   nsCOMPtr<nsIMsgHeaderSink> mHeaderSink;
 
   nsresult GetHeaderSink(nsIMsgHeaderSink** aHeaderSink);
-  bool BroadCastHeadersAndAttachments();
   nsresult StartAttachmentInBody(const nsACString& name,
                                  const char* contentType, const char* url);
 
-  nsresult BroadcastHeaders(nsIMsgHeaderSink* aHeaderSink, int32_t aHeaderMode,
-                            bool aFromNewsgroup);
+  nsresult BroadcastHeaders(int32_t aHeaderMode);
 };
 
 #endif /* _nsMimeHtmlEmitter_h_ */

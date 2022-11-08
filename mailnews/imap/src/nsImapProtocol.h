@@ -50,6 +50,7 @@
 #include "nsIProtocolProxyCallback.h"
 #include "nsIStringBundle.h"
 #include "nsHashPropertyBag.h"
+#include "nsMailChannel.h"
 
 #include "mozilla/Monitor.h"
 
@@ -784,6 +785,7 @@ class nsImapMockChannel : public nsIImapMockChannel,
                           public nsICacheEntryOpenCallback,
                           public nsITransportEventSink,
                           public nsSupportsWeakReference,
+                          public nsMailChannel,
                           public nsHashPropertyBag {
  public:
   friend class nsImapProtocol;

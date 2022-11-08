@@ -453,6 +453,11 @@ async function OnLoadMsgHeaderPane() {
 
   top.controllers.appendController(AttachmentMenuController);
 
+  content.addProgressListener(
+    messageHeaderSink2,
+    Ci.nsIWebProgress.NOTIFY_STATE_ALL
+  );
+
   gHeaderCustomize.init();
 }
 
@@ -511,14 +516,53 @@ var MsgHdrViewObserver = {
 };
 
 /**
- * The messageHeaderSink is the class that gets notified of a message's headers
+ * The messageHeaderSink2 is the class that gets notified of a message's headers
  * as we display the message through our mime converter.
  */
-var messageHeaderSink = {
-  QueryInterface: ChromeUtils.generateQI(["nsIMsgHeaderSink"]),
+var messageHeaderSink2 = {
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIWebProgressListener",
+    "nsISupportsWeakReference",
+  ]),
+
+  onStateChange(webProgress, request, stateFlags) {
+    if (request instanceof Ci.nsIMailChannel) {
+      if (stateFlags & Ci.nsIWebProgressListener.STATE_START) {
+        this.onStartHeaders();
+      } else if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+        request.QueryInterface(Ci.nsIChannel);
+        request.QueryInterface(Ci.nsIMailChannel);
+        this.processHeaders(request.headerNames, request.headerValues);
+        for (let attachment of request.attachments) {
+          this.handleAttachment(
+            attachment.getProperty("contentType"),
+            attachment.getProperty("url"),
+            attachment.getProperty("displayName"),
+            attachment.getProperty("uri"),
+            attachment.getProperty("notDownloaded")
+          );
+          for (let key of [
+            "X-Mozilla-PartURL",
+            "X-Mozilla-PartSize",
+            "X-Mozilla-PartDownloaded",
+            "Content-Description",
+            "Content-Type",
+            "Content-Encoding",
+          ]) {
+            if (attachment.hasKey(key)) {
+              this.addAttachmentField(key, attachment.getProperty(key));
+            }
+          }
+        }
+        this.onEndAllAttachments();
+        let uri = request.URI.QueryInterface(Ci.nsIMsgMailNewsUrl);
+        this.onEndMsgHeaders(uri);
+        this.onEndMsgDownload(uri);
+      }
+    }
+  },
 
   onStartHeaders() {
-    this.mSaveHdr = null;
     // Every time we start to redisplay a message, check the view all headers
     // pref...
     let showAllHeadersPref = Services.prefs.getIntPref("mail.show_headers");
@@ -595,19 +639,14 @@ var messageHeaderSink = {
     }
   },
 
-  processHeaders(
-    headerNameEnumerator,
-    headerValueEnumerator,
-    dontCollectAddress
-  ) {
-    this.onStartHeaders();
-
+  processHeaders(headerNames, headerValues) {
     const kMailboxSeparator = ", ";
     var index = 0;
-    while (headerNameEnumerator.hasMore()) {
-      var header = {};
-      header.headerValue = headerValueEnumerator.getNext();
-      header.headerName = headerNameEnumerator.getNext();
+    for (let i = 0; i < headerNames.length; i++) {
+      let header = {
+        headerName: headerNames[i],
+        headerValue: headerValues[i],
+      };
 
       // For consistency's sake, let us force all header names to be lower
       // case so we don't have to worry about looking for: Cc and CC, etc.
@@ -742,12 +781,6 @@ var messageHeaderSink = {
   },
 
   handleAttachment(contentType, url, displayName, uri, isExternalAttachment) {
-    if (!this.mSaveHdr) {
-      this.mSaveHdr = MailServices.messageServiceFromURI(
-        uri
-      ).messageURIToMsgHdr(uri);
-    }
-
     let newAttachment = new AttachmentInfo(
       contentType,
       url,
@@ -835,37 +868,6 @@ var messageHeaderSink = {
   onEndMsgDownload(url) {
     gMessageDisplay.onLoadCompleted();
 
-    if (!this.mSaveHdr) {
-      var messageUrl = url.QueryInterface(Ci.nsIMsgMessageUrl);
-      this.mSaveHdr = top.messenger.msgHdrFromURI(messageUrl.uri);
-    }
-
-    // If we have no attachments, we hide the attachment icon in the message
-    // tree.
-    // PGP key attachments do not count as attachments for the purposes of the
-    // message tree, even though we still show them in the attachment list.
-    // Otherwise the attachment icon becomes less useful when someone receives
-    // lots of signed messages.
-    // We do the same if we only have text/vcard attachments because we
-    // *assume* the vcard attachment is a personal vcard (rather than an
-    // addressbook, or a shared contact) that is attached to every message.
-    // NOTE: There would be some obvious give-aways in the vcard content that
-    // this personal vcard assumption is incorrect (multiple contacts, or a
-    // contact with an address that is different from the sender address) but we
-    // do not have easy access to the attachment content here, so we just stick
-    // to the assumption.
-    // NOTE: If the message contains two vcard attachments (or more) then this
-    // would hint that one of the vcards is not personal, but we won't make an
-    // exception here to keep the implementation simple.
-    this.mSaveHdr.markHasAttachments(
-      currentAttachments.some(
-        att =>
-          att.contentType != "text/vcard" &&
-          att.contentType != "text/x-vcard" &&
-          att.contentType != "application/pgp-keys"
-      )
-    );
-
     let browser = getMessagePaneBrowser();
     if (
       currentAttachments.length &&
@@ -904,42 +906,6 @@ var messageHeaderSink = {
       // Should not mark a message as read if failed to load.
       OnMsgLoaded(url);
     }
-  },
-
-  mSecurityInfo: null,
-  mSaveHdr: null,
-  get securityInfo() {
-    return this.mSecurityInfo;
-  },
-  set securityInfo(aSecurityInfo) {
-    this.mSecurityInfo = aSecurityInfo;
-  },
-
-  mDummyMsgHeader: null,
-
-  get dummyMsgHeader() {
-    if (!this.mDummyMsgHeader) {
-      this.mDummyMsgHeader = new nsDummyMsgHeader();
-    }
-    // The URI resolution will never work on the dummy header;
-    // save it now... we know it will be needed eventually.
-    // (And save it every time we come through here, not just when
-    // we create it; the onStartHeaders might come after creation!)
-    this.mSaveHdr = this.mDummyMsgHeader;
-    return this.mDummyMsgHeader;
-  },
-  mProperties: null,
-  get properties() {
-    if (!this.mProperties) {
-      this.mProperties = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
-        Ci.nsIWritablePropertyBag2
-      );
-    }
-    return this.mProperties;
-  },
-
-  resetProperties() {
-    this.mProperties = null;
   },
 };
 

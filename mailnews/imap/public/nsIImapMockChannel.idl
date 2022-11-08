@@ -35,7 +35,6 @@ interface nsIURI;
 interface nsIImapProtocol;
 
 [scriptable, uuid(e0178cd5-d37b-4bde-9ab8-752083536225)]
-
 interface nsIImapMockChannel : nsIChannel
 {
   attribute nsIProgressEventSink progressEventSink;

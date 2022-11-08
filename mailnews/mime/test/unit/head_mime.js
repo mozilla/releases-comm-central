@@ -69,12 +69,6 @@ class DummyMsgHeader {
 
 function apply_mime_conversion(msgUri, headerSink = {}, msgWindow = undefined) {
   let stubHeaderSink = {
-    processHeaders(aHeaderNames, aHeaderValues, dontCollectAddress) {},
-    handleAttachment(contentType, url, displayName, uri, aNotDownloaded) {},
-    addAttachmentField(field, value) {},
-    onEndAllAttachments() {},
-    onEndMsgHeaders(url) {},
-    onEndMsgDownload(url) {},
     securityInfo: null,
     dummyMsgHeader: new DummyMsgHeader(),
     get properties() {
