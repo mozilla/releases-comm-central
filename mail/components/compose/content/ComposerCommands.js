@@ -32,6 +32,7 @@
 /* import-globals-from ../../../base/content/utilityOverlay.js */
 /* import-globals-from editor.js */
 /* import-globals-from editorUtilities.js */
+/* import-globals-from MsgComposeCommands.js */
 
 var gComposerJSCommandControllerID = 0;
 
@@ -1522,6 +1523,7 @@ var nsInsertHTMLWithDialogCommand = {
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
+    gMsgCompose.allowRemoteContent = true;
     window.openDialog(
       "chrome://messenger/content/messengercompose/EdInsSrc.xhtml",
       "_blank",
@@ -1615,6 +1617,7 @@ var nsObjectPropertiesCommand = {
       var name = element.nodeName.toLowerCase();
       switch (name) {
         case "img":
+          gMsgCompose.allowRemoteContent = true;
           goDoCommand("cmd_image");
           break;
         case "hr":

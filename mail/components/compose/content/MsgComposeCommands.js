@@ -895,6 +895,7 @@ var defaultController = {
         return !gWindowLocked;
       },
       doCommand() {
+        gMsgCompose.allowRemoteContent = true;
         AttachPage();
       },
     },
@@ -1515,6 +1516,7 @@ function goOpenNewMessage(aEvent) {
 function QuoteSelectedMessage() {
   var selectedURIs = GetSelectedMessages();
   if (selectedURIs) {
+    gMsgCompose.allowRemoteContent = false;
     for (let i = 0; i < selectedURIs.length; i++) {
       gMsgCompose.quoteMessage(selectedURIs[i]);
     }
@@ -2726,6 +2728,7 @@ async function UpdateAttachment(attachmentItem, updateSettings = {}) {
 }
 
 function attachToCloud(event) {
+  gMsgCompose.allowRemoteContent = true;
   if (event.target.cloudFileUpload) {
     attachToCloudRepeat(
       event.target.cloudFileUpload,
@@ -2744,6 +2747,7 @@ function attachToCloud(event) {
  * @param {Object} account - the cloudFileAccount of the already uploaded file
  */
 async function attachToCloudRepeat(upload, account) {
+  gMsgCompose.allowRemoteContent = true;
   let file = FileUtils.File(upload.path);
   let attachment = FileToAttachment(file);
   attachment.name = upload.name;
@@ -2818,6 +2822,7 @@ async function attachToCloudNew(aAccount) {
  * @param aAccount the cloud account to upload the files to
  */
 async function convertListItemsToCloudAttachment(aItems, aAccount) {
+  gMsgCompose.allowRemoteContent = true;
   let promises = [];
   for (let item of aItems) {
     // Bail out, if we would convert to the current account.
@@ -3987,6 +3992,7 @@ function onPasteOrDrop(e) {
     // We're in the plain text editor. Nothing to do here.
     return;
   }
+  gMsgCompose.allowRemoteContent = true;
 
   // For paste use e.clipboardData, for drop use e.dataTransfer.
   let dataTransfer = "clipboardData" in e ? e.clipboardData : e.dataTransfer;

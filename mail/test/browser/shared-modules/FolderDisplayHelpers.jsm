@@ -187,6 +187,9 @@ var { MessageInjection } = ChromeUtils.import(
 var { SmimeUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/smimeUtils.jsm"
 );
+var { dump_view_state } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ViewHelpers.jsm"
+);
 
 /**
  * Server hostname as set in runtest.py
@@ -3202,7 +3205,7 @@ function throw_and_dump_view_state(aMessage, aController) {
   }
 
   dump("******** " + aMessage + "\n");
-  testHelperModule.dump_view_state(aController.folderDisplay.view);
+  dump_view_state(aController.folderDisplay.view);
   throw new Error(aMessage);
 }
 

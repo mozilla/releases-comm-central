@@ -141,7 +141,7 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
   nsTObserverArray<nsCOMPtr<nsIMsgComposeStateListener> > mStateListeners;
   nsTObserverArray<nsCOMPtr<nsIMsgSendListener> > mExternalSendListeners;
 
-  bool mInsertingQuotedContent;
+  bool mAllowRemoteContent;
   MSG_DeliverMode mDeliverMode;  // nsIMsgCompDeliverMode long.
 
   friend class QuotingOutputStreamListener;

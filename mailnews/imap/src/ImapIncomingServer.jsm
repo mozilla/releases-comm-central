@@ -87,6 +87,10 @@ class ImapIncomingServer extends MsgIncomingServer {
     return !this._userAuthenticated;
   }
 
+  performBiff(msgWindow) {
+    this.performExpand(msgWindow);
+  }
+
   performExpand(msgWindow) {
     this.hasDiscoveredFolders = false;
     MailServices.imap.discoverAllFolders(this.rootFolder, this, msgWindow);
@@ -103,6 +107,14 @@ class ImapIncomingServer extends MsgIncomingServer {
     }
     this._freeConnections = [];
     this._busyConnections = [];
+  }
+
+  verifyLogon(urlListener, msgWindow) {
+    return MailServices.imap.verifyLogon(
+      this.rootFolder,
+      urlListener,
+      msgWindow
+    );
   }
 
   /** @see nsIImapServerSink */
