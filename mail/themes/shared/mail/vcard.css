@@ -95,7 +95,7 @@ vcard-edit select:not([size]):dir(rtl) {
 }
 
 vcard-edit select:not([size], [multiple]) {
-  padding-inline: 6px 15px;
+  padding-inline: 6px 22px;
   padding-block: 0;
   margin-block-end: 0;
 }
