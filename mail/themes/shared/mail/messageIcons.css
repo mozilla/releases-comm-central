@@ -279,7 +279,7 @@ treechildren::-moz-tree-image(subjectCol, replied, forwarded, redirected) {
 treechildren::-moz-tree-image(subjectCol, new) {
   list-style-image: var(--icon-notify);
   fill: var(--color-yellow-50) !important; /* override the selected, focus rule */
-  stroke: var(--color-orange-40) !important; /* override the selected, focus rule */
+  stroke: var(--color-orange-50) !important; /* override the selected, focus rule */
 }
 
 treechildren::-moz-tree-image(subjectCol, selected, focus) {
@@ -301,6 +301,46 @@ treechildren::-moz-tree-image(subjectCol, selected, focus) {
   treechildren::-moz-tree-image(junkStatusCol, junk) {
     fill: var(--color-red-40) !important; /* override the selected, focus rule */
     stroke: var(--color-red-50) !important; /* override the selected, focus rule */
+  }
+
+  /* ..... subject column, dark color scheme ..... */
+
+  treechildren::-moz-tree-image(subjectCol, replied) {
+    fill: var(--color-purple-40);
+    stroke: var(--color-purple-40);
+  }
+
+  treechildren::-moz-tree-image(subjectCol, forwarded) {
+    fill: var(--color-blue-40);
+  }
+
+  treechildren::-moz-tree-image(subjectCol, redirected) {
+    fill: var(--color-orange-40);
+  }
+
+  treechildren::-moz-tree-image(subjectCol, replied, forwarded) {
+    fill: var(--color-blue-40);
+    stroke: var(--color-purple-40);
+  }
+
+  treechildren::-moz-tree-image(subjectCol, replied, redirected) {
+    fill: var(--color-orange-40);
+    stroke: var(--color-purple-40);
+  }
+
+  treechildren::-moz-tree-image(subjectCol, forwarded, redirected) {
+    fill: var(--color-blue-40);
+    stroke: var(--color-orange-40);
+  }
+
+  treechildren::-moz-tree-image(subjectCol, replied, forwarded, redirected) {
+    fill: var(--color-blue-40);
+    stroke: var(--color-purple-40);
+  }
+
+  treechildren::-moz-tree-image(subjectCol, selected, focus) {
+    fill: var(--select-focus-text-color);
+    stroke: var(--select-focus-text-color);
   }
 
   treechildren::-moz-tree-image(subjectCol, new) {
