@@ -4,7 +4,9 @@
 
 /* import-globals-from preferences.js */
 
-var { Downloads } = ChromeUtils.import("resource://gre/modules/Downloads.jsm");
+var { Downloads } = ChromeUtils.importESModule(
+  "resource://gre/modules/Downloads.sys.mjs"
+);
 var { FileUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/FileUtils.sys.mjs"
 );

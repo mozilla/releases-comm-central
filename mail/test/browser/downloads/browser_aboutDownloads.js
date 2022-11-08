@@ -30,7 +30,9 @@ var { wait_for_browser_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var downloads = ChromeUtils.import("resource://gre/modules/Downloads.jsm");
+var downloads = ChromeUtils.importESModule(
+  "resource://gre/modules/Downloads.sys.mjs"
+);
 var downloadsTab;
 
 var attachmentFileNames = [
