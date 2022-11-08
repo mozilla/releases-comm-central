@@ -19,3 +19,7 @@ jobs-from:
     - clang.yml
     - mozlint.yml
     - python.yml
+
+job-defaults:
+    attributes:
+        retrigger: true

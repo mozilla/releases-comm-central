@@ -6,11 +6,13 @@ job-defaults:
     always-target: true
     platform: linux64/debug
     worker-type: t-linux-xlarge-source
+    attributes:
+        code-review: true
     worker:
         docker-image: {in-tree: static-analysis-build}
         max-run-time: 5400
     treeherder:
-        kind: test
+        kind: other
         tier: 2
     run:
         using: run-task
