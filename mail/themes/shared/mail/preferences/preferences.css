@@ -163,7 +163,8 @@ menulist::part(dropmarker-icon) {
 
 .paneDeckContainer {
   display: block;
-  width: 800px;
+  width: min(100%, 800px);
+  min-width: min-content;
 }
 
 .sticky-container {
