@@ -15,7 +15,11 @@ const { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
  * @implements {nsIRequest}
  */
 class ImapChannel {
-  QueryInterface = ChromeUtils.generateQI(["nsIChannel", "nsIRequest"]);
+  QueryInterface = ChromeUtils.generateQI([
+    "nsIChannel",
+    "nsIRequest",
+    "nsIWritablePropertyBag",
+  ]);
 
   _logger = ImapUtils.logger;
 
@@ -71,7 +75,20 @@ class ImapChannel {
 
   asyncOpen(listener) {
     this._logger.debug(`asyncOpen ${this.URI.spec}`);
+    let url = new URL(this.URI.spec);
     this._listener = listener;
+    if (url.searchParams.get("part")) {
+      let converter = Cc["@mozilla.org/streamConverters;1"].getService(
+        Ci.nsIStreamConverterService
+      );
+      this._listener = converter.asyncConvertData(
+        "message/rfc822",
+        "*/*",
+        listener,
+        this
+      );
+    }
+
     let msgIds = this.URI.QueryInterface(Ci.nsIImapUrl).QueryInterface(
       Ci.nsIMsgMailNewsUrl
     ).listOfMessageIds;
@@ -166,5 +183,18 @@ class ImapChannel {
         this._listener.onStopRequest(this, status);
       };
     });
+  }
+
+  /** @see nsIWritablePropertyBag */
+  getProperty(key) {
+    return this[key];
+  }
+
+  setProperty(key, value) {
+    this[key] = value;
+  }
+
+  deleteProperty(key) {
+    delete this[key];
   }
 }
