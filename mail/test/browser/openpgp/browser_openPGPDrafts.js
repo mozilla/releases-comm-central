@@ -32,6 +32,7 @@ const { MailServices } = ChromeUtils.import(
 function waitForComposeWindow() {
   return BrowserTestUtils.domWindowOpened(null, async win => {
     await BrowserTestUtils.waitForEvent(win, "load");
+    await BrowserTestUtils.waitForEvent(win, "focus", true);
     return (
       win.document.documentURI ===
       "chrome://messenger/content/messengercompose/messengercompose.xhtml"
@@ -117,6 +118,7 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
     "data/eml/signed-by-0xfbfcc82a015e7330-encrypted-to-0xf231550c4f47e38e.eml",
     "data/eml/unsigned-encrypted-to-0xf231550c4f47e38e-from-0xfbfcc82a015e7330.eml",
   ];
+  let wantedRow = 0;
 
   for (let msg of msgFiles) {
     let mc = await open_message_from_file(
@@ -128,7 +130,6 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
     close_window(mc);
 
     let replyWindow = await replyWindowPromise;
-    await BrowserTestUtils.waitForEvent(replyWindow, "focus", true);
     await save_compose_message(replyWindow);
     replyWindow.close();
 
@@ -138,11 +139,11 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
     );
 
     let draftWindowPromise = waitForComposeWindow();
-    select_click_row(0);
+    select_click_row(wantedRow);
+    ++wantedRow;
     open_selected_message();
 
     let draftWindow = await draftWindowPromise;
-    await BrowserTestUtils.waitForEvent(draftWindow, "focus", true);
 
     Assert.ok(
       draftWindow.document.querySelector("#msgSubject").value.startsWith("Re:"),
