@@ -7,5 +7,5 @@ messenger.jar:
   content/messenger/accountcreation/accountSetup.js       (content/accountSetup.js)
   content/messenger/accountcreation/accountSetup.xhtml    (content/accountSetup.xhtml)
 # Custom elements
-  content/messenger/accountcreation/views/container.mjs   (views/container.mjs)
-  content/messenger/accountcreation/views/start.mjs       (views/start.mjs)
+  content/messenger/accountcreation/views/container.js    (views/container.js)
+  content/messenger/accountcreation/views/start.js        (views/start.js)
