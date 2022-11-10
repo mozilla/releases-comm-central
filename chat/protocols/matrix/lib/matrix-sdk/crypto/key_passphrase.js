@@ -6,11 +6,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.deriveKey = deriveKey;
 exports.keyFromAuthData = keyFromAuthData;
 exports.keyFromPassphrase = keyFromPassphrase;
-
 var _randomstring = require("../randomstring");
-
-var _utils = require("../utils");
-
+var _crypto = require("./crypto");
 /*
 Copyright 2018 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -26,28 +23,25 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const subtleCrypto = typeof window !== "undefined" && window.crypto ? window.crypto.subtle || window.crypto.webkitSubtle : null;
+
 const DEFAULT_ITERATIONS = 500000;
 const DEFAULT_BITSIZE = 256;
+
 /* eslint-disable camelcase */
 
 function keyFromAuthData(authData, password) {
   if (!global.Olm) {
     throw new Error("Olm is not available");
   }
-
   if (!authData.private_key_salt || !authData.private_key_iterations) {
     throw new Error("Salt and/or iterations not found: " + "this backup cannot be restored with a passphrase");
   }
-
   return deriveKey(password, authData.private_key_salt, authData.private_key_iterations, authData.private_key_bits || DEFAULT_BITSIZE);
 }
-
 async function keyFromPassphrase(password) {
   if (!global.Olm) {
     throw new Error("Olm is not available");
   }
-
   const salt = (0, _randomstring.randomString)(32);
   const key = await deriveKey(password, salt, DEFAULT_ITERATIONS, DEFAULT_BITSIZE);
   return {
@@ -56,37 +50,18 @@ async function keyFromPassphrase(password) {
     iterations: DEFAULT_ITERATIONS
   };
 }
-
 async function deriveKey(password, salt, iterations, numBits = DEFAULT_BITSIZE) {
-  return subtleCrypto ? deriveKeyBrowser(password, salt, iterations, numBits) : deriveKeyNode(password, salt, iterations, numBits);
-}
-
-async function deriveKeyBrowser(password, salt, iterations, numBits) {
-  const subtleCrypto = global.crypto.subtle;
-  const TextEncoder = global.TextEncoder;
-
-  if (!subtleCrypto || !TextEncoder) {
-    throw new Error("Password-based backup is not avaiable on this platform");
+  if (!_crypto.subtleCrypto || !_crypto.TextEncoder) {
+    throw new Error("Password-based backup is not available on this platform");
   }
-
-  const key = await subtleCrypto.importKey('raw', new TextEncoder().encode(password), {
+  const key = await _crypto.subtleCrypto.importKey('raw', new _crypto.TextEncoder().encode(password), {
     name: 'PBKDF2'
   }, false, ['deriveBits']);
-  const keybits = await subtleCrypto.deriveBits({
+  const keybits = await _crypto.subtleCrypto.deriveBits({
     name: 'PBKDF2',
-    salt: new TextEncoder().encode(salt),
+    salt: new _crypto.TextEncoder().encode(salt),
     iterations: iterations,
     hash: 'SHA-512'
   }, key, numBits);
   return new Uint8Array(keybits);
-}
-
-async function deriveKeyNode(password, salt, iterations, numBits) {
-  const crypto = (0, _utils.getCrypto)();
-
-  if (!crypto) {
-    throw new Error("No usable crypto implementation");
-  }
-
-  return crypto.pbkdf2Sync(password, Buffer.from(salt, 'binary'), iterations, numBits, 'sha512');
 }

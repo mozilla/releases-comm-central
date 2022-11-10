@@ -1,12 +1,11 @@
 This directory contains the Matrix Client-Server SDK for Javascript available
-at https://github.com/matrix-org/matrix-js-sdk/. Current version is v20.0.0.
+at https://github.com/matrix-org/matrix-js-sdk/. Current version is v21.1.0.
 
 The following npm dependencies are included:
 
-* @matrix-org/olm: https://gitlab.matrix.org/matrix-org/olm/-/packages/10 v3.2.12
+* @matrix-org/olm: https://gitlab.matrix.org/matrix-org/olm/-/packages/10 v3.2.13
 * another-json: https://www.npmjs.com/package/another-json/ v0.2.0
 * base-x: https://www.npmjs.com/package/base-x v4.0.0
-* browser-request: https://www.npmjs.com/package/browser-request v0.3.3
 * bs58: https://www.npmjs.com/package/bs58 v5.0.0
 * content-type: https://www.npmjs.com/package/content-type v1.0.4
 * events: https://www.npmjs.com/package/events v3.3.0
@@ -21,7 +20,6 @@ The following npm dependencies are shimmed:
 * loglevel: The chat framework's logging methods are used internally.
 * safe-buffer: A buffer shim, initially modeled after the safe-buffer NPM package,
     now used to provide a Buffer object to the crypto stack.
-* url: The global URL object is used directly.
 
 There is not any automated way to update the libraries.
 
@@ -96,11 +94,6 @@ another-json, base-x, bs58 and content-type all have a single file
 named for the package or named index.js. This should get copied to the proper
 sub-directory.
 
-### Updating browser-request
-
-Follow the directions for updating single file dependencies, then modify the
-index.js file so that the `is_crossDomain` always returns `false`.
-
 ### Updating events
 
 The events package is included as a shim for the native node `events` module.
@@ -124,7 +117,7 @@ file, so we prefer that one.
 This is simlar to the single file dependencies, but also has a JSON data file.
 Both of these files should be copied to the unhomoglyph directory.
 
-### Updating loglevel, safe-buffer, url
+### Updating loglevel, safe-buffer
 
 These packages have an alternate implementation in the `../shims` directory and
 thus are not included here.

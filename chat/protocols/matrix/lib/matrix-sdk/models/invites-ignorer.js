@@ -4,15 +4,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.PolicyScope = exports.POLICIES_ACCOUNT_EVENT_TYPE = exports.IgnoredInvites = exports.IGNORE_INVITES_ACCOUNT_EVENT_KEY = void 0;
-
 var _matrixEventsSdk = require("matrix-events-sdk");
-
 var _eventTimeline = require("./event-timeline");
-
 var _partials = require("../@types/partials");
-
 var _utils = require("../utils");
-
 /*
 Copyright 2022 The Matrix.org Foundation C.I.C.
 
@@ -28,26 +23,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 /// The event type storing the user's individual policies.
 ///
 /// Exported for testing purposes.
-const POLICIES_ACCOUNT_EVENT_TYPE = new _matrixEventsSdk.UnstableValue("m.policies", "org.matrix.msc3847.policies"); /// The key within the user's individual policies storing the user's ignored invites.
+const POLICIES_ACCOUNT_EVENT_TYPE = new _matrixEventsSdk.UnstableValue("m.policies", "org.matrix.msc3847.policies");
+
+/// The key within the user's individual policies storing the user's ignored invites.
 ///
 /// Exported for testing purposes.
-
 exports.POLICIES_ACCOUNT_EVENT_TYPE = POLICIES_ACCOUNT_EVENT_TYPE;
-const IGNORE_INVITES_ACCOUNT_EVENT_KEY = new _matrixEventsSdk.UnstableValue("m.ignore.invites", "org.matrix.msc3847.ignore.invites"); /// The types of recommendations understood.
+const IGNORE_INVITES_ACCOUNT_EVENT_KEY = new _matrixEventsSdk.UnstableValue("m.ignore.invites", "org.matrix.msc3847.ignore.invites");
 
+/// The types of recommendations understood.
 exports.IGNORE_INVITES_ACCOUNT_EVENT_KEY = IGNORE_INVITES_ACCOUNT_EVENT_KEY;
 var PolicyRecommendation;
 /**
  * The various scopes for policies.
  */
-
 (function (PolicyRecommendation) {
   PolicyRecommendation["Ban"] = "m.ban";
 })(PolicyRecommendation || (PolicyRecommendation = {}));
-
 let PolicyScope;
 /**
  * A container for ignored invites.
@@ -59,19 +55,17 @@ let PolicyScope;
  * applications turn out to require longer lists, we may need to rework
  * our data structures.
  */
-
 exports.PolicyScope = PolicyScope;
-
 (function (PolicyScope) {
   PolicyScope["User"] = "m.policy.user";
   PolicyScope["Room"] = "m.policy.room";
   PolicyScope["Server"] = "m.policy.server";
 })(PolicyScope || (exports.PolicyScope = PolicyScope = {}));
-
 class IgnoredInvites {
   constructor(client) {
     this.client = client;
   }
+
   /**
    * Add a new rule.
    *
@@ -80,8 +74,6 @@ class IgnoredInvites {
    * @param reason A human-readable reason for introducing this new rule.
    * @return The event id for the new rule.
    */
-
-
   async addRule(scope, entity, reason) {
     const target = await this.getOrCreateTargetRoom();
     const response = await this.client.sendStateEvent(target.roomId, scope, {
@@ -91,14 +83,14 @@ class IgnoredInvites {
     });
     return response.event_id;
   }
+
   /**
    * Remove a rule.
    */
-
-
   async removeRule(event) {
     await this.client.redactEvent(event.getRoomId(), event.getId());
   }
+
   /**
    * Add a new room to the list of sources. If the user isn't a member of the
    * room, attempt to join it.
@@ -115,27 +107,25 @@ class IgnoredInvites {
    * This rewrite is inherently racy and could overwrite or be overwritten by
    * other concurrent rewrites of the same object.
    */
-
-
   async addSource(roomId) {
     // We attempt to join the room *before* calling
     // `await this.getOrCreateSourceRooms()` to decrease the duration
     // of the racy section.
-    await this.client.joinRoom(roomId); // Race starts.
-
+    await this.client.joinRoom(roomId);
+    // Race starts.
     const sources = (await this.getOrCreateSourceRooms()).map(room => room.roomId);
-
     if (sources.includes(roomId)) {
       return false;
     }
-
     sources.push(roomId);
     await this.withIgnoreInvitesPolicies(ignoreInvitesPolicies => {
       ignoreInvitesPolicies.sources = sources;
-    }); // Race ends.
+    });
 
+    // Race ends.
     return true;
   }
+
   /**
    * Find out whether an invite should be ignored.
    *
@@ -143,8 +133,6 @@ class IgnoredInvites {
    * @param roomId The room to which the user is invited.
    * @returns A rule matching the entity, if any was found, `null` otherwise.
    */
-
-
   async getRuleForInvite({
     sender,
     roomId
@@ -162,10 +150,8 @@ class IgnoredInvites {
     const policyRooms = await this.getOrCreateSourceRooms();
     const senderServer = sender.split(":")[1];
     const roomServer = roomId.split(":")[1];
-
     for (const room of policyRooms) {
       const state = room.getUnfilteredTimelineSet().getLiveTimeline().getState(_eventTimeline.EventTimeline.FORWARDS);
-
       for (const {
         scope,
         entities
@@ -180,43 +166,37 @@ class IgnoredInvites {
         entities: [senderServer, roomServer]
       }]) {
         const events = state.getStateEvents(scope);
-
         for (const event of events) {
           const content = event.getContent();
-
           if (content?.recommendation != PolicyRecommendation.Ban) {
             // Ignoring invites only looks at `m.ban` recommendations.
             continue;
           }
-
           const glob = content?.entity;
-
           if (!glob) {
             // Invalid event.
             continue;
           }
-
           let regexp;
-
           try {
             regexp = new RegExp((0, _utils.globToRegexp)(glob, false));
           } catch (ex) {
             // Assume invalid event.
             continue;
           }
-
           for (const entity of entities) {
             if (entity && regexp.test(entity)) {
               return event;
             }
-          } // No match.
-
+          }
+          // No match.
         }
       }
     }
 
     return null;
   }
+
   /**
    * Get the target room, i.e. the room in which any new rule should be written.
    *
@@ -231,39 +211,36 @@ class IgnoredInvites {
    * This rewrite is inherently racy and could overwrite or be overwritten by
    * other concurrent rewrites of the same object.
    */
-
-
   async getOrCreateTargetRoom() {
     const ignoreInvitesPolicies = this.getIgnoreInvitesPolicies();
-    let target = ignoreInvitesPolicies.target; // Validate `target`. If it is invalid, trash out the current `target`
+    let target = ignoreInvitesPolicies.target;
+    // Validate `target`. If it is invalid, trash out the current `target`
     // and create a new room.
-
     if (typeof target !== "string") {
       target = null;
     }
-
     if (target) {
       // Check that the room exists and is valid.
       const room = this.client.getRoom(target);
-
       if (room) {
         return room;
       } else {
         target = null;
       }
-    } // We need to create our own policy room for ignoring invites.
-
-
+    }
+    // We need to create our own policy room for ignoring invites.
     target = (await this.client.createRoom({
       name: "Individual Policy Room",
       preset: _partials.Preset.PrivateChat
     })).room_id;
     await this.withIgnoreInvitesPolicies(ignoreInvitesPolicies => {
       ignoreInvitesPolicies.target = target;
-    }); // Since we have just called `createRoom`, `getRoom` should not be `null`.
+    });
 
+    // Since we have just called `createRoom`, `getRoom` should not be `null`.
     return this.client.getRoom(target);
   }
+
   /**
    * Get the list of source rooms, i.e. the rooms from which rules need to be read.
    *
@@ -278,28 +255,24 @@ class IgnoredInvites {
    * This rewrite is inherently racy and could overwrite or be overwritten by
    * other concurrent rewrites of the same object.
    */
-
-
   async getOrCreateSourceRooms() {
     const ignoreInvitesPolicies = this.getIgnoreInvitesPolicies();
-    let sources = ignoreInvitesPolicies.sources; // Validate `sources`. If it is invalid, trash out the current `sources`
+    let sources = ignoreInvitesPolicies.sources;
+
+    // Validate `sources`. If it is invalid, trash out the current `sources`
     // and create a new list of sources from `target`.
-
     let hasChanges = false;
-
     if (!Array.isArray(sources)) {
       // `sources` could not be an array.
       hasChanges = true;
       sources = [];
     }
-
-    let sourceRooms = sources // `sources` could contain non-string / invalid room ids
+    let sourceRooms = sources
+    // `sources` could contain non-string / invalid room ids
     .filter(roomId => typeof roomId === "string").map(roomId => this.client.getRoom(roomId)).filter(room => !!room);
-
     if (sourceRooms.length != sources.length) {
       hasChanges = true;
     }
-
     if (sourceRooms.length == 0) {
       // `sources` could be empty (possibly because we've removed
       // invalid content)
@@ -307,7 +280,6 @@ class IgnoredInvites {
       hasChanges = true;
       sourceRooms = [target];
     }
-
     if (hasChanges) {
       // Reload `policies`/`ignoreInvitesPolicies` in case it has been changed
       // during or by our call to `this.getTargetRoom()`.
@@ -315,9 +287,9 @@ class IgnoredInvites {
         ignoreInvitesPolicies.sources = sources;
       });
     }
-
     return sourceRooms;
   }
+
   /**
    * Fetch the `IGNORE_INVITES_POLICIES` object from account data.
    *
@@ -328,16 +300,13 @@ class IgnoredInvites {
    *
    * @returns A non-null object.
    */
-
-
   getIgnoreInvitesPolicies() {
     return this.getPoliciesAndIgnoreInvitesPolicies().ignoreInvitesPolicies;
   }
+
   /**
    * Modify in place the `IGNORE_INVITES_POLICIES` object from account data.
    */
-
-
   async withIgnoreInvitesPolicies(cb) {
     const {
       policies,
@@ -347,55 +316,43 @@ class IgnoredInvites {
     policies[IGNORE_INVITES_ACCOUNT_EVENT_KEY.name] = ignoreInvitesPolicies;
     await this.client.setAccountData(POLICIES_ACCOUNT_EVENT_TYPE.name, policies);
   }
+
   /**
    * As `getIgnoreInvitesPolicies` but also return the `POLICIES_ACCOUNT_EVENT_TYPE`
    * object.
    */
-
-
   getPoliciesAndIgnoreInvitesPolicies() {
     let policies = {};
-
     for (const key of [POLICIES_ACCOUNT_EVENT_TYPE.name, POLICIES_ACCOUNT_EVENT_TYPE.altName]) {
       if (!key) {
         continue;
       }
-
       const value = this.client.getAccountData(key)?.getContent();
-
       if (value) {
         policies = value;
         break;
       }
     }
-
     let ignoreInvitesPolicies = {};
     let hasIgnoreInvitesPolicies = false;
-
     for (const key of [IGNORE_INVITES_ACCOUNT_EVENT_KEY.name, IGNORE_INVITES_ACCOUNT_EVENT_KEY.altName]) {
       if (!key) {
         continue;
       }
-
       const value = policies[key];
-
       if (value && typeof value == "object") {
         ignoreInvitesPolicies = value;
         hasIgnoreInvitesPolicies = true;
         break;
       }
     }
-
     if (!hasIgnoreInvitesPolicies) {
       policies[IGNORE_INVITES_ACCOUNT_EVENT_KEY.name] = ignoreInvitesPolicies;
     }
-
     return {
       policies,
       ignoreInvitesPolicies
     };
   }
-
 }
-
 exports.IgnoredInvites = IgnoredInvites;

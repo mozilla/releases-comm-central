@@ -12,9 +12,9 @@ EXTRA_JS_MODULES.matrix.matrix_sdk += [
     "matrix-sdk/content-repo.js",
     "matrix-sdk/errors.js",
     "matrix-sdk/event-mapper.js",
+    "matrix-sdk/feature.js",
     "matrix-sdk/filter-component.js",
     "matrix-sdk/filter.js",
-    "matrix-sdk/http-api.js",
     "matrix-sdk/indexeddb-helpers.js",
     "matrix-sdk/indexeddb-worker.js",
     "matrix-sdk/interactive-auth.js",
@@ -42,6 +42,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.crypto += [
     "matrix-sdk/crypto/api.js",
     "matrix-sdk/crypto/backup.js",
     "matrix-sdk/crypto/CrossSigning.js",
+    "matrix-sdk/crypto/crypto.js",
     "matrix-sdk/crypto/dehydration.js",
     "matrix-sdk/crypto/deviceinfo.js",
     "matrix-sdk/crypto/DeviceList.js",
@@ -76,12 +77,23 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.verification += [
     "matrix-sdk/crypto/verification/IllegalMethod.js",
     "matrix-sdk/crypto/verification/QRCode.js",
     "matrix-sdk/crypto/verification/SAS.js",
+    "matrix-sdk/crypto/verification/SASDecimal.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.verification.request += [
     "matrix-sdk/crypto/verification/request/InRoomChannel.js",
     "matrix-sdk/crypto/verification/request/ToDeviceChannel.js",
     "matrix-sdk/crypto/verification/request/VerificationRequest.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.http_api += [
+    "matrix-sdk/http-api/errors.js",
+    "matrix-sdk/http-api/fetch.js",
+    "matrix-sdk/http-api/index.js",
+    "matrix-sdk/http-api/interface.js",
+    "matrix-sdk/http-api/method.js",
+    "matrix-sdk/http-api/prefix.js",
+    "matrix-sdk/http-api/utils.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
@@ -94,6 +106,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
     "matrix-sdk/models/invites-ignorer.js",
     "matrix-sdk/models/MSC3089Branch.js",
     "matrix-sdk/models/MSC3089TreeSpace.js",
+    "matrix-sdk/models/read-receipt.js",
     "matrix-sdk/models/related-relations.js",
     "matrix-sdk/models/relations-container.js",
     "matrix-sdk/models/relations.js",
@@ -105,6 +118,24 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
     "matrix-sdk/models/thread.js",
     "matrix-sdk/models/typed-event-emitter.js",
     "matrix-sdk/models/user.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous += [
+    "matrix-sdk/rendezvous/index.js",
+    "matrix-sdk/rendezvous/MSC3906Rendezvous.js",
+    "matrix-sdk/rendezvous/RendezvousError.js",
+    "matrix-sdk/rendezvous/RendezvousFailureReason.js",
+    "matrix-sdk/rendezvous/RendezvousIntent.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous.channels += [
+    "matrix-sdk/rendezvous/channels/index.js",
+    "matrix-sdk/rendezvous/channels/MSC3903ECDHv1RendezvousChannel.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous.transports += [
+    "matrix-sdk/rendezvous/transports/index.js",
+    "matrix-sdk/rendezvous/transports/MSC3886SimpleHttpRendezvousTransport.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.store += [
@@ -127,6 +158,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.types += [
     "matrix-sdk/@types/PushRules.js",
     "matrix-sdk/@types/read_receipts.js",
     "matrix-sdk/@types/search.js",
+    "matrix-sdk/@types/sync.js",
     "matrix-sdk/@types/threepids.js",
     "matrix-sdk/@types/topic.js",
 ]
@@ -151,10 +183,6 @@ EXTRA_JS_MODULES.matrix += [
 
 EXTRA_JS_MODULES.matrix.base_x += [
     "base-x/index.js",
-]
-
-EXTRA_JS_MODULES.matrix.browser_request += [
-    "browser-request/index.js",
 ]
 
 EXTRA_JS_MODULES.matrix.bs58 += [

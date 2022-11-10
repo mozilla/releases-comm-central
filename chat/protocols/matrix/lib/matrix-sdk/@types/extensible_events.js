@@ -4,9 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.TEXT_NODE_TYPE = void 0;
-
 var _NamespacedValue = require("../NamespacedValue");
-
 /*
 Copyright 2021 The Matrix.org Foundation C.I.C.
 
@@ -22,6 +20,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 // Types for MSC1767: Extensible events in Matrix
+
 const TEXT_NODE_TYPE = new _NamespacedValue.UnstableValue("m.text", "org.matrix.msc1767.text");
 exports.TEXT_NODE_TYPE = TEXT_NODE_TYPE;

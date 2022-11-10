@@ -4,9 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.FilterComponent = void 0;
-
 var _thread = require("./models/thread");
-
 /*
 Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -42,8 +40,8 @@ function matchesWildcard(actualValue, filterValue) {
     return actualValue === filterValue;
   }
 }
-/* eslint-disable camelcase */
 
+/* eslint-disable camelcase */
 
 /* eslint-enable camelcase */
 
@@ -63,34 +61,30 @@ class FilterComponent {
     this.filterJson = filterJson;
     this.userId = userId;
   }
+
   /**
    * Checks with the filter component matches the given event
    * @param {MatrixEvent} event event to be checked against the filter
    * @return {boolean} true if the event matches the filter
    */
-
-
   check(event) {
     const bundledRelationships = event.getUnsigned()?.["m.relations"] || {};
-    const relations = Object.keys(bundledRelationships); // Relation senders allows in theory a look-up of any senders
+    const relations = Object.keys(bundledRelationships);
+    // Relation senders allows in theory a look-up of any senders
     // however clients can only know about the current user participation status
     // as sending a whole list of participants could be proven problematic in terms
     // of performance
     // This should be improved when bundled relationships solve that problem
-
     const relationSenders = [];
-
     if (this.userId && bundledRelationships?.[_thread.THREAD_RELATION_TYPE.name]?.current_user_participated) {
       relationSenders.push(this.userId);
     }
-
     return this.checkFields(event.getRoomId(), event.getSender(), event.getType(), event.getContent() ? event.getContent().url !== undefined : false, relations, relationSenders);
   }
+
   /**
    * Converts the filter component into the form expected over the wire
    */
-
-
   toJSON() {
     return {
       "types": this.filterJson.types || null,
@@ -104,6 +98,7 @@ class FilterComponent {
       [_thread.FILTER_RELATED_BY_REL_TYPES.name]: this.filterJson[_thread.FILTER_RELATED_BY_REL_TYPES.name] || []
     };
   }
+
   /**
    * Checks whether the filter component matches the given event fields.
    * @param {String} roomId        the roomId for the event being checked
@@ -114,8 +109,6 @@ class FilterComponent {
    * @param {boolean} relationSenders whether one of the relation is sent by the user listed
    * @return {boolean} true if the event fields match the filter
    */
-
-
   checkFields(roomId, sender, eventType, containsUrl, relationTypes, relationSenders) {
     const literalKeys = {
       "rooms": function (v) {
@@ -128,75 +121,59 @@ class FilterComponent {
         return matchesWildcard(eventType, v);
       }
     };
-
     for (let n = 0; n < Object.keys(literalKeys).length; n++) {
       const name = Object.keys(literalKeys)[n];
       const matchFunc = literalKeys[name];
       const notName = "not_" + name;
       const disallowedValues = this.filterJson[notName];
-
       if (disallowedValues?.some(matchFunc)) {
         return false;
       }
-
       const allowedValues = this.filterJson[name];
-
       if (allowedValues && !allowedValues.some(matchFunc)) {
         return false;
       }
     }
-
     const containsUrlFilter = this.filterJson.contains_url;
-
     if (containsUrlFilter !== undefined && containsUrlFilter !== containsUrl) {
       return false;
     }
-
     const relationTypesFilter = this.filterJson[_thread.FILTER_RELATED_BY_REL_TYPES.name];
-
     if (relationTypesFilter !== undefined) {
       if (!this.arrayMatchesFilter(relationTypesFilter, relationTypes)) {
         return false;
       }
     }
-
     const relationSendersFilter = this.filterJson[_thread.FILTER_RELATED_BY_SENDERS.name];
-
     if (relationSendersFilter !== undefined) {
       if (!this.arrayMatchesFilter(relationSendersFilter, relationSenders)) {
         return false;
       }
     }
-
     return true;
   }
-
   arrayMatchesFilter(filter, values) {
     return values.length > 0 && filter.every(value => {
       return values.includes(value);
     });
   }
+
   /**
    * Filters a list of events down to those which match this filter component
    * @param {MatrixEvent[]} events  Events to be checked against the filter component
    * @return {MatrixEvent[]} events which matched the filter component
    */
-
-
   filter(events) {
     return events.filter(this.check, this);
   }
+
   /**
    * Returns the limit field for a given filter component, providing a default of
    * 10 if none is otherwise specified. Cargo-culted from Synapse.
    * @return {Number} the limit for this filter component.
    */
-
-
   limit() {
     return this.filterJson.limit !== undefined ? this.filterJson.limit : 10;
   }
-
 }
-
 exports.FilterComponent = FilterComponent;

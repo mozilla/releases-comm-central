@@ -10,5 +10,4 @@ EXTRA_JS_MODULES.matrix += [
     "empty.js",
     "loglevel.js",
     "safe-buffer.js",
-    "url.js",
 ]

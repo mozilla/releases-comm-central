@@ -3,118 +3,98 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ThreadFilterType = exports.ThreadEvent = exports.Thread = exports.THREAD_RELATION_TYPE = exports.FILTER_RELATED_BY_SENDERS = exports.FILTER_RELATED_BY_REL_TYPES = void 0;
-
+exports.ThreadFilterType = exports.ThreadEvent = exports.Thread = exports.THREAD_RELATION_TYPE = exports.FeatureSupport = exports.FILTER_RELATED_BY_SENDERS = exports.FILTER_RELATED_BY_REL_TYPES = void 0;
+exports.determineFeatureSupport = determineFeatureSupport;
+exports.threadFilterTypeToFilter = threadFilterTypeToFilter;
 var _matrix = require("../matrix");
-
 var _ReEmitter = require("../ReEmitter");
-
 var _event = require("./event");
-
 var _eventTimeline = require("./event-timeline");
-
 var _eventTimelineSet = require("./event-timeline-set");
-
-var _typedEventEmitter = require("./typed-event-emitter");
-
 var _NamespacedValue = require("../NamespacedValue");
-
 var _logger = require("../logger");
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
+var _readReceipt = require("./read-receipt");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 let ThreadEvent;
 exports.ThreadEvent = ThreadEvent;
-
 (function (ThreadEvent) {
   ThreadEvent["New"] = "Thread.new";
   ThreadEvent["Update"] = "Thread.update";
   ThreadEvent["NewReply"] = "Thread.newReply";
   ThreadEvent["ViewThread"] = "Thread.viewThread";
+  ThreadEvent["Delete"] = "Thread.delete";
 })(ThreadEvent || (exports.ThreadEvent = ThreadEvent = {}));
+let FeatureSupport;
+exports.FeatureSupport = FeatureSupport;
+(function (FeatureSupport) {
+  FeatureSupport[FeatureSupport["None"] = 0] = "None";
+  FeatureSupport[FeatureSupport["Experimental"] = 1] = "Experimental";
+  FeatureSupport[FeatureSupport["Stable"] = 2] = "Stable";
+})(FeatureSupport || (exports.FeatureSupport = FeatureSupport = {}));
+function determineFeatureSupport(stable, unstable) {
+  if (stable) {
+    return FeatureSupport.Stable;
+  } else if (unstable) {
+    return FeatureSupport.Experimental;
+  } else {
+    return FeatureSupport.None;
+  }
+}
 
 /**
  * @experimental
  */
-class Thread extends _typedEventEmitter.TypedEventEmitter {
+class Thread extends _readReceipt.ReadReceipt {
   /**
    * A reference to all the events ID at the bottom of the threads
    */
+
   constructor(id, rootEvent, opts) {
     super();
     this.id = id;
     this.rootEvent = rootEvent;
-
     _defineProperty(this, "timelineSet", void 0);
-
     _defineProperty(this, "_currentUserParticipated", false);
-
     _defineProperty(this, "reEmitter", void 0);
-
     _defineProperty(this, "lastEvent", void 0);
-
     _defineProperty(this, "replyCount", 0);
-
     _defineProperty(this, "room", void 0);
-
     _defineProperty(this, "client", void 0);
-
     _defineProperty(this, "initialEventsFetched", !Thread.hasServerSideSupport);
-
     _defineProperty(this, "onBeforeRedaction", (event, redaction) => {
-      if (event?.isRelation(THREAD_RELATION_TYPE.name) && this.room.eventShouldLiveIn(event).threadId === this.id && event.getId() !== this.id && // the root event isn't counted in the length so ignore this redaction
+      if (event?.isRelation(THREAD_RELATION_TYPE.name) && this.room.eventShouldLiveIn(event).threadId === this.id && event.getId() !== this.id &&
+      // the root event isn't counted in the length so ignore this redaction
       !redaction.status // only respect it when it succeeds
       ) {
         this.replyCount--;
         this.emit(ThreadEvent.Update, this);
       }
     });
-
-    _defineProperty(this, "onRedaction", event => {
+    _defineProperty(this, "onRedaction", async event => {
       if (event.threadRootId !== this.id) return; // ignore redactions for other timelines
-
-      const events = [...this.timelineSet.getLiveTimeline().getEvents()].reverse();
-      this.lastEvent = events.find(e => !e.isRedacted() && e.isRelation(THREAD_RELATION_TYPE.name)) ?? this.rootEvent;
-      this.emit(ThreadEvent.Update, this);
-    });
-
-    _defineProperty(this, "onEcho", event => {
-      if (event.threadRootId !== this.id) return; // ignore echoes for other timelines
-
-      if (this.lastEvent === event) return;
-      if (!event.isRelation(THREAD_RELATION_TYPE.name)) return; // There is a risk that the `localTimestamp` approximation will not be accurate
-      // when threads are used over federation. That could result in the reply
-      // count value drifting away from the value returned by the server
-
-      const isThreadReply = event.isRelation(THREAD_RELATION_TYPE.name);
-
-      if (!this.lastEvent || this.lastEvent.isRedacted() || isThreadReply && event.getId() !== this.lastEvent.getId() && event.localTimestamp > this.lastEvent.localTimestamp) {
-        this.lastEvent = event;
-
-        if (this.lastEvent.getId() !== this.id) {
-          // This counting only works when server side support is enabled as we started the counting
-          // from the value returned within the bundled relationship
-          if (Thread.hasServerSideSupport) {
-            this.replyCount++;
-          }
-
-          this.emit(ThreadEvent.NewReply, this, event);
+      if (this.replyCount <= 0) {
+        for (const threadEvent of this.events) {
+          this.clearEventMetadata(threadEvent);
         }
+        this.lastEvent = this.rootEvent;
+        this._currentUserParticipated = false;
+        this.emit(ThreadEvent.Delete, this);
+      } else {
+        await this.initialiseThread();
       }
-
-      this.emit(ThreadEvent.Update, this);
     });
-
+    _defineProperty(this, "onEcho", async event => {
+      if (event.threadRootId !== this.id) return; // ignore echoes for other timelines
+      if (this.lastEvent === event) return;
+      if (!event.isRelation(THREAD_RELATION_TYPE.name)) return;
+      await this.initialiseThread();
+      this.emit(ThreadEvent.NewReply, this, event);
+    });
     if (!opts?.room) {
       // Logging/debugging for https://github.com/vector-im/element-web/issues/22141
       // Hope is that we end up with a more obvious stack trace.
       throw new Error("element-web#22141: A thread requires a room in order to function");
     }
-
     this.room = opts.room;
     this.client = opts.client;
     this.timelineSet = new _eventTimelineSet.EventTimelineSet(this.room, {
@@ -128,48 +108,40 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
     this.room.on(_matrix.RoomEvent.LocalEchoUpdated, this.onEcho);
     this.timelineSet.on(_matrix.RoomEvent.Timeline, this.onEcho);
 
-    if (opts.initialEvents) {
-      this.addEvents(opts.initialEvents, false);
-    } // even if this thread is thought to be originating from this client, we initialise it as we may be in a
+    // even if this thread is thought to be originating from this client, we initialise it as we may be in a
     // gappy sync and a thread around this event may already exist.
-
-
     this.initialiseThread();
-    this.rootEvent?.setThread(this);
+    this.setEventMetadata(this.rootEvent);
   }
-
   async fetchRootEvent() {
-    this.rootEvent = this.room.findEventById(this.id); // If the rootEvent does not exist in the local stores, then fetch it from the server.
-
+    this.rootEvent = this.room.findEventById(this.id);
+    // If the rootEvent does not exist in the local stores, then fetch it from the server.
     try {
       const eventData = await this.client.fetchRoomEvent(this.roomId, this.id);
       const mapper = this.client.getEventMapper();
       this.rootEvent = mapper(eventData); // will merge with existing event object if such is known
     } catch (e) {
       _logger.logger.error("Failed to fetch thread root to construct thread with", e);
-    } // The root event might be not be visible to the person requesting it.
-    // If it wasn't fetched successfully the thread will work in "limited" mode and won't
-    // benefit from all the APIs a homeserver can provide to enhance the thread experience
-
-
-    this.rootEvent?.setThread(this);
-    this.emit(ThreadEvent.Update, this);
+    }
+    await this.processEvent(this.rootEvent);
   }
-
-  static setServerSideSupport(hasServerSideSupport, useStable) {
-    Thread.hasServerSideSupport = hasServerSideSupport;
-
-    if (!useStable) {
+  static setServerSideSupport(status) {
+    Thread.hasServerSideSupport = status;
+    if (status !== FeatureSupport.Stable) {
       FILTER_RELATED_BY_SENDERS.setPreferUnstable(true);
       FILTER_RELATED_BY_REL_TYPES.setPreferUnstable(true);
       THREAD_RELATION_TYPE.setPreferUnstable(true);
     }
   }
-
+  static setServerSideListSupport(status) {
+    Thread.hasServerSideListSupport = status;
+  }
+  static setServerSideFwdPaginationSupport(status) {
+    Thread.hasServerSideFwdPaginationSupport = status;
+  }
   get roomState() {
     return this.room.getLiveTimeline().getState(_eventTimeline.EventTimeline.FORWARDS);
   }
-
   addEventToTimeline(event, toStartOfTimeline) {
     if (!this.findEventById(event.getId())) {
       this.timelineSet.addEventToTimeline(event, this.liveTimeline, {
@@ -179,11 +151,11 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
       });
     }
   }
-
   addEvents(events, toStartOfTimeline) {
     events.forEach(ev => this.addEvent(ev, toStartOfTimeline, false));
-    this.emit(ThreadEvent.Update, this);
+    this.initialiseThread();
   }
+
   /**
    * Add an event to the thread and updates
    * the tail/root references if needed
@@ -193,16 +165,12 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
    * to the start (and not the end) of the timeline.
    * @param {boolean} emit whether to emit the Update event if the thread was updated or not.
    */
+  async addEvent(event, toStartOfTimeline, emit = true) {
+    this.setEventMetadata(event);
+    const lastReply = this.lastReply();
+    const isNewestReply = !lastReply || event.localTimestamp > lastReply.localTimestamp;
 
-
-  addEvent(event, toStartOfTimeline, emit = true) {
-    event.setThread(this);
-
-    if (!this._currentUserParticipated && event.getSender() === this.client.getUserId()) {
-      this._currentUserParticipated = true;
-    } // Add all incoming events to the thread's timeline set when there's  no server support
-
-
+    // Add all incoming events to the thread's timeline set when there's  no server support
     if (!Thread.hasServerSideSupport) {
       // all the relevant membership info to hydrate events with a sender
       // is held in the main room timeline
@@ -210,59 +178,73 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
       // timeline set to let it reconcile an event with its relevant RoomMember
       this.addEventToTimeline(event, toStartOfTimeline);
       this.client.decryptEventIfNeeded(event, {});
-    } else if (!toStartOfTimeline && this.initialEventsFetched && event.localTimestamp > this.lastReply()?.localTimestamp) {
-      this.fetchEditsWhereNeeded(event);
+    } else if (!toStartOfTimeline && this.initialEventsFetched && isNewestReply) {
+      await this.fetchEditsWhereNeeded(event);
       this.addEventToTimeline(event, false);
     } else if (event.isRelation(_matrix.RelationType.Annotation) || event.isRelation(_matrix.RelationType.Replace)) {
       // Apply annotations and replace relations to the relations of the timeline only
-      this.timelineSet.relations.aggregateParentEvent(event);
-      this.timelineSet.relations.aggregateChildEvent(event, this.timelineSet);
+      this.timelineSet.relations?.aggregateParentEvent(event);
+      this.timelineSet.relations?.aggregateChildEvent(event, this.timelineSet);
       return;
-    } // If no thread support exists we want to count all thread relation
+    }
+
+    // If no thread support exists we want to count all thread relation
     // added as a reply. We can't rely on the bundled relationships count
-
-
     if ((!Thread.hasServerSideSupport || !this.rootEvent) && event.isRelation(THREAD_RELATION_TYPE.name)) {
       this.replyCount++;
     }
-
     if (emit) {
-      this.emit(ThreadEvent.Update, this);
+      this.emit(ThreadEvent.NewReply, this, event);
+      this.initialiseThread();
     }
   }
-
+  async processEvent(event) {
+    if (event) {
+      this.setEventMetadata(event);
+      await this.fetchEditsWhereNeeded(event);
+    }
+  }
   getRootEventBundledRelationship(rootEvent = this.rootEvent) {
     return rootEvent?.getServerAggregatedRelation(THREAD_RELATION_TYPE.name);
   }
-
   async initialiseThread() {
     let bundledRelationship = this.getRootEventBundledRelationship();
-
-    if (Thread.hasServerSideSupport && !bundledRelationship) {
+    if (Thread.hasServerSideSupport) {
       await this.fetchRootEvent();
       bundledRelationship = this.getRootEventBundledRelationship();
     }
-
     if (Thread.hasServerSideSupport && bundledRelationship) {
       this.replyCount = bundledRelationship.count;
-      this._currentUserParticipated = bundledRelationship.current_user_participated;
-      const event = new _event.MatrixEvent(_objectSpread({
-        room_id: this.rootEvent.getRoomId()
-      }, bundledRelationship.latest_event));
-      this.setEventMetadata(event);
-      event.setThread(this);
-      this.lastEvent = event;
-      this.fetchEditsWhereNeeded(event);
+      this._currentUserParticipated = !!bundledRelationship.current_user_participated;
+      const mapper = this.client.getEventMapper();
+      this.lastEvent = mapper(bundledRelationship.latest_event);
+      await this.processEvent(this.lastEvent);
     }
-
+    if (!this.initialEventsFetched) {
+      this.initialEventsFetched = true;
+      // fetch initial event to allow proper pagination
+      try {
+        // if the thread has regular events, this will just load the last reply.
+        // if the thread is newly created, this will load the root event.
+        await this.client.paginateEventTimeline(this.liveTimeline, {
+          backwards: true,
+          limit: 1
+        });
+        // just to make sure that, if we've created a timeline window for this thread before the thread itself
+        // existed (e.g. when creating a new thread), we'll make sure the panel is force refreshed correctly.
+        this.emit(_matrix.RoomEvent.TimelineReset, this.room, this.timelineSet, true);
+      } catch (e) {
+        _logger.logger.error("Failed to load start of newly created thread: ", e);
+        this.initialEventsFetched = false;
+      }
+    }
     this.emit(ThreadEvent.Update, this);
-  } // XXX: Workaround for https://github.com/matrix-org/matrix-spec-proposals/pull/2676/files#r827240084
+  }
 
-
+  // XXX: Workaround for https://github.com/matrix-org/matrix-spec-proposals/pull/2676/files#r827240084
   async fetchEditsWhereNeeded(...events) {
     return Promise.all(events.filter(e => e.isEncrypted()).map(event => {
       if (event.isRelation()) return; // skip - relations don't get edits
-
       return this.client.relations(this.roomId, event.getId(), _matrix.RelationType.Replace, event.getType(), {
         limit: 1
       }).then(relations => {
@@ -274,123 +256,87 @@ class Thread extends _typedEventEmitter.TypedEventEmitter {
       });
     }));
   }
-
-  async fetchInitialEvents() {
-    if (this.initialEventsFetched) return;
-    await this.fetchEvents();
-    this.initialEventsFetched = true;
-  }
-
   setEventMetadata(event) {
-    _eventTimeline.EventTimeline.setEventMetadata(event, this.roomState, false);
-
-    event.setThread(this);
+    if (event) {
+      _eventTimeline.EventTimeline.setEventMetadata(event, this.roomState, false);
+      event.setThread(this);
+    }
   }
+  clearEventMetadata(event) {
+    if (event) {
+      event.setThread(undefined);
+      delete event.event?.unsigned?.["m.relations"]?.[THREAD_RELATION_TYPE.name];
+    }
+  }
+
   /**
    * Finds an event by ID in the current thread
    */
-
-
   findEventById(eventId) {
     // Check the lastEvent as it may have been created based on a bundled relationship and not in a timeline
     if (this.lastEvent?.getId() === eventId) {
       return this.lastEvent;
     }
-
     return this.timelineSet.findEventById(eventId);
   }
+
   /**
    * Return last reply to the thread, if known.
    */
-
-
   lastReply(matches = () => true) {
     for (let i = this.events.length - 1; i >= 0; i--) {
       const event = this.events[i];
-
       if (matches(event)) {
         return event;
       }
     }
-
     return null;
   }
-
   get roomId() {
     return this.room.roomId;
   }
+
   /**
    * The number of messages in the thread
    * Only count rel_type=m.thread as we want to
    * exclude annotations from that number
    */
-
-
   get length() {
     return this.replyCount;
   }
+
   /**
    * A getter for the last event added to the thread, if known.
    */
-
-
   get replyToEvent() {
     return this.lastEvent ?? this.lastReply();
   }
-
   get events() {
     return this.liveTimeline.getEvents();
   }
-
   has(eventId) {
     return this.timelineSet.findEventById(eventId) instanceof _event.MatrixEvent;
   }
-
   get hasCurrentUserParticipated() {
     return this._currentUserParticipated;
   }
-
   get liveTimeline() {
     return this.timelineSet.getLiveTimeline();
   }
-
-  async fetchEvents(opts = {
-    limit: 20,
-    direction: _eventTimeline.Direction.Backward
-  }) {
-    let {
-      originalEvent,
-      events,
-      prevBatch,
-      nextBatch
-    } = await this.client.relations(this.room.roomId, this.id, THREAD_RELATION_TYPE.name, null, opts); // When there's no nextBatch returned with a `from` request we have reached
-    // the end of the thread, and therefore want to return an empty one
-
-    if (!opts.to && !nextBatch) {
-      events = [...events, originalEvent];
-    }
-
-    await this.fetchEditsWhereNeeded(...events);
-    await Promise.all(events.map(event => {
-      this.setEventMetadata(event);
-      return this.client.decryptEventIfNeeded(event);
-    }));
-    const prependEvents = (opts.direction ?? _eventTimeline.Direction.Backward) === _eventTimeline.Direction.Backward;
-    this.timelineSet.addEventsToTimeline(events, prependEvents, this.liveTimeline, prependEvents ? nextBatch : prevBatch);
-    return {
-      originalEvent,
-      events,
-      prevBatch,
-      nextBatch
-    };
+  getUnfilteredTimelineSet() {
+    return this.timelineSet;
   }
-
+  get timeline() {
+    return this.events;
+  }
+  addReceipt(event, synthetic) {
+    throw new Error("Unsupported function on the thread model");
+  }
 }
-
 exports.Thread = Thread;
-
-_defineProperty(Thread, "hasServerSideSupport", void 0);
-
+_defineProperty(Thread, "hasServerSideSupport", FeatureSupport.None);
+_defineProperty(Thread, "hasServerSideListSupport", FeatureSupport.None);
+_defineProperty(Thread, "hasServerSideFwdPaginationSupport", FeatureSupport.None);
 const FILTER_RELATED_BY_SENDERS = new _NamespacedValue.ServerControlledNamespacedValue("related_by_senders", "io.element.relation_senders");
 exports.FILTER_RELATED_BY_SENDERS = FILTER_RELATED_BY_SENDERS;
 const FILTER_RELATED_BY_REL_TYPES = new _NamespacedValue.ServerControlledNamespacedValue("related_by_rel_types", "io.element.relation_types");
@@ -399,8 +345,15 @@ const THREAD_RELATION_TYPE = new _NamespacedValue.ServerControlledNamespacedValu
 exports.THREAD_RELATION_TYPE = THREAD_RELATION_TYPE;
 let ThreadFilterType;
 exports.ThreadFilterType = ThreadFilterType;
-
 (function (ThreadFilterType) {
   ThreadFilterType[ThreadFilterType["My"] = 0] = "My";
   ThreadFilterType[ThreadFilterType["All"] = 1] = "All";
 })(ThreadFilterType || (exports.ThreadFilterType = ThreadFilterType = {}));
+function threadFilterTypeToFilter(type) {
+  switch (type) {
+    case ThreadFilterType.My:
+      return 'participated';
+    default:
+      return 'all';
+  }
+}

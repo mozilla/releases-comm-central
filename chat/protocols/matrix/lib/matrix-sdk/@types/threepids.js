@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.ThreepidMedium = void 0;
-
 /*
 Copyright 2021 The Matrix.org Foundation C.I.C.
 
@@ -21,9 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 let ThreepidMedium; // TODO: Are these types universal, or specific to just /account/3pid?
-
 exports.ThreepidMedium = ThreepidMedium;
-
 (function (ThreepidMedium) {
   ThreepidMedium["Email"] = "email";
   ThreepidMedium["Phone"] = "msisdn";

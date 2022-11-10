@@ -4,30 +4,25 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.TimelineWindow = exports.TimelineIndex = void 0;
-
 var _eventTimeline = require("./models/event-timeline");
-
 var _logger = require("./logger");
-
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 /**
  * @private
  */
 const DEBUG = false;
+
 /**
  * @private
  */
-
 const debuglog = DEBUG ? _logger.logger.log.bind(_logger.logger) : function () {};
+
 /**
  * the number of times we ask the server for more events before giving up
  *
  * @private
  */
-
 const DEFAULT_PAGINATE_LOOP_LIMIT = 5;
-
 class TimelineWindow {
   // these will be TimelineIndex objects; they delineate the 'start' and
   // 'end' of the window.
@@ -66,17 +61,13 @@ class TimelineWindow {
   constructor(client, timelineSet, opts = {}) {
     this.client = client;
     this.timelineSet = timelineSet;
-
     _defineProperty(this, "windowLimit", void 0);
-
-    _defineProperty(this, "start", null);
-
-    _defineProperty(this, "end", null);
-
+    _defineProperty(this, "start", void 0);
+    _defineProperty(this, "end", void 0);
     _defineProperty(this, "eventCount", 0);
-
     this.windowLimit = opts.windowLimit || 1000;
   }
+
   /**
    * Initialise the window to point at a given event, or the live timeline
    *
@@ -86,51 +77,44 @@ class TimelineWindow {
    *
    * @return {Promise}
    */
-
-
   load(initialEventId, initialWindowSize = 20) {
     // given an EventTimeline, find the event we were looking for, and initialise our
     // fields so that the event in question is in the middle of the window.
     const initFields = timeline => {
+      if (!timeline) {
+        throw new Error("No timeline given to initFields");
+      }
       let eventIndex;
       const events = timeline.getEvents();
-
       if (!initialEventId) {
         // we were looking for the live timeline: initialise to the end
         eventIndex = events.length;
       } else {
         eventIndex = events.findIndex(e => e.getId() === initialEventId);
-
         if (eventIndex < 0) {
           throw new Error("getEventTimeline result didn't include requested event");
         }
       }
-
       const endIndex = Math.min(events.length, eventIndex + Math.ceil(initialWindowSize / 2));
       const startIndex = Math.max(0, endIndex - initialWindowSize);
       this.start = new TimelineIndex(timeline, startIndex - timeline.getBaseIndex());
       this.end = new TimelineIndex(timeline, endIndex - timeline.getBaseIndex());
       this.eventCount = endIndex - startIndex;
-    }; // We avoid delaying the resolution of the promise by a reactor tick if we already have the data we need,
+    };
+
+    // We avoid delaying the resolution of the promise by a reactor tick if we already have the data we need,
     // which is important to keep room-switching feeling snappy.
-
-
-    if (initialEventId) {
-      const timeline = this.timelineSet.getTimelineForEvent(initialEventId);
-
-      if (timeline) {
-        // hot-path optimization to save a reactor tick by replicating the sync check getTimelineForEvent does.
-        initFields(timeline);
-        return Promise.resolve();
-      }
-
+    if (this.timelineSet.getTimelineForEvent(initialEventId)) {
+      initFields(this.timelineSet.getTimelineForEvent(initialEventId));
+      return Promise.resolve();
+    } else if (initialEventId) {
       return this.client.getEventTimeline(this.timelineSet, initialEventId).then(initFields);
     } else {
-      const tl = this.timelineSet.getLiveTimeline();
-      initFields(tl);
+      initFields(this.timelineSet.getLiveTimeline());
       return Promise.resolve();
     }
   }
+
   /**
    * Get the TimelineIndex of the window in the given direction.
    *
@@ -141,17 +125,16 @@ class TimelineWindow {
    * @return {TimelineIndex} The requested timeline index if one exists, null
    * otherwise.
    */
-
-
   getTimelineIndex(direction) {
     if (direction == _eventTimeline.EventTimeline.BACKWARDS) {
-      return this.start;
+      return this.start ?? null;
     } else if (direction == _eventTimeline.EventTimeline.FORWARDS) {
-      return this.end;
+      return this.end ?? null;
     } else {
       throw new Error("Invalid direction '" + direction + "'");
     }
   }
+
   /**
    * Try to extend the window using events that are already in the underlying
    * TimelineIndex.
@@ -162,33 +145,26 @@ class TimelineWindow {
    *
    * @return {boolean} true if the window was extended, false otherwise.
    */
-
-
   extend(direction, size) {
     const tl = this.getTimelineIndex(direction);
-
     if (!tl) {
       debuglog("TimelineWindow: no timeline yet");
       return false;
     }
-
     const count = direction == _eventTimeline.EventTimeline.BACKWARDS ? tl.retreat(size) : tl.advance(size);
-
     if (count) {
       this.eventCount += count;
-      debuglog("TimelineWindow: increased cap by " + count + " (now " + this.eventCount + ")"); // remove some events from the other end, if necessary
-
+      debuglog("TimelineWindow: increased cap by " + count + " (now " + this.eventCount + ")");
+      // remove some events from the other end, if necessary
       const excess = this.eventCount - this.windowLimit;
-
       if (excess > 0) {
         this.unpaginate(excess, direction != _eventTimeline.EventTimeline.BACKWARDS);
       }
-
       return true;
     }
-
     return false;
   }
+
   /**
    * Check if this window can be extended
    *
@@ -202,16 +178,12 @@ class TimelineWindow {
    *
    * @return {boolean} true if we can paginate in the given direction
    */
-
-
   canPaginate(direction) {
     const tl = this.getTimelineIndex(direction);
-
     if (!tl) {
       debuglog("TimelineWindow: no timeline yet");
       return false;
     }
-
     if (direction == _eventTimeline.EventTimeline.BACKWARDS) {
       if (tl.index > tl.minIndex()) {
         return true;
@@ -221,9 +193,11 @@ class TimelineWindow {
         return true;
       }
     }
-
-    return Boolean(tl.timeline.getNeighbouringTimeline(direction) || tl.timeline.getPaginationToken(direction) !== null);
+    const hasNeighbouringTimeline = tl.timeline.getNeighbouringTimeline(direction);
+    const paginationToken = tl.timeline.getPaginationToken(direction);
+    return Boolean(hasNeighbouringTimeline) || Boolean(paginationToken);
   }
+
   /**
    * Attempt to extend the window
    *
@@ -246,54 +220,47 @@ class TimelineWindow {
    * @return {Promise} Resolves to a boolean which is true if more events
    *    were successfully retrieved.
    */
-
-
-  paginate(direction, size, makeRequest = true, requestLimit = DEFAULT_PAGINATE_LOOP_LIMIT) {
+  async paginate(direction, size, makeRequest = true, requestLimit = DEFAULT_PAGINATE_LOOP_LIMIT) {
     // Either wind back the message cap (if there are enough events in the
     // timeline to do so), or fire off a pagination request.
     const tl = this.getTimelineIndex(direction);
-
     if (!tl) {
       debuglog("TimelineWindow: no timeline yet");
-      return Promise.resolve(false);
+      return false;
     }
-
     if (tl.pendingPaginate) {
       return tl.pendingPaginate;
-    } // try moving the cap
-
-
-    if (this.extend(direction, size)) {
-      return Promise.resolve(true);
     }
 
+    // try moving the cap
+    if (this.extend(direction, size)) {
+      return true;
+    }
     if (!makeRequest || requestLimit === 0) {
       // todo: should we return something different to indicate that there
       // might be more events out there, but we haven't found them yet?
-      return Promise.resolve(false);
-    } // try making a pagination request
-
-
-    const token = tl.timeline.getPaginationToken(direction);
-
-    if (token === null) {
-      debuglog("TimelineWindow: no token");
-      return Promise.resolve(false);
+      return false;
     }
 
+    // try making a pagination request
+    const token = tl.timeline.getPaginationToken(direction);
+    if (!token) {
+      debuglog("TimelineWindow: no token");
+      return false;
+    }
     debuglog("TimelineWindow: starting request");
     const prom = this.client.paginateEventTimeline(tl.timeline, {
       backwards: direction == _eventTimeline.EventTimeline.BACKWARDS,
       limit: size
     }).finally(function () {
-      tl.pendingPaginate = null;
+      tl.pendingPaginate = undefined;
     }).then(r => {
       debuglog("TimelineWindow: request completed with result " + r);
-
       if (!r) {
-        // end of timeline
-        return false;
-      } // recurse to advance the index into the results.
+        return this.paginate(direction, size, false, 0);
+      }
+
+      // recurse to advance the index into the results.
       //
       // If we don't get any new events, we want to make sure we keep asking
       // the server for events for as long as we have a valid pagination
@@ -305,13 +272,12 @@ class TimelineWindow {
       // server to make its mind up about whether there are other events,
       // because it gives a bad user experience
       // (https://github.com/vector-im/vector-web/issues/1204).
-
-
       return this.paginate(direction, size, true, requestLimit - 1);
     });
     tl.pendingPaginate = prom;
     return prom;
   }
+
   /**
    * Remove `delta` events from the start or end of the timeline.
    *
@@ -319,48 +285,48 @@ class TimelineWindow {
    * @param {boolean} startOfTimeline if events should be removed from the start
    *     of the timeline.
    */
-
-
   unpaginate(delta, startOfTimeline) {
-    const tl = startOfTimeline ? this.start : this.end; // sanity-check the delta
-
-    if (delta > this.eventCount || delta < 0) {
-      throw new Error("Attemting to unpaginate " + delta + " events, but " + "only have " + this.eventCount + " in the timeline");
+    const tl = startOfTimeline ? this.start : this.end;
+    if (!tl) {
+      throw new Error(`Attempting to unpaginate startOfTimeline=${startOfTimeline} but don't have this direction`);
     }
 
+    // sanity-check the delta
+    if (delta > this.eventCount || delta < 0) {
+      throw new Error(`Attemting to unpaginate ${delta} events, but only have ${this.eventCount} in the timeline`);
+    }
     while (delta > 0) {
       const count = startOfTimeline ? tl.advance(delta) : tl.retreat(delta);
-
       if (count <= 0) {
         // sadness. This shouldn't be possible.
         throw new Error("Unable to unpaginate any further, but still have " + this.eventCount + " events");
       }
-
       delta -= count;
       this.eventCount -= count;
       debuglog("TimelineWindow.unpaginate: dropped " + count + " (now " + this.eventCount + ")");
     }
   }
+
   /**
    * Get a list of the events currently in the window
    *
    * @return {MatrixEvent[]} the events in the window
    */
-
-
   getEvents() {
     if (!this.start) {
       // not yet loaded
       return [];
     }
+    const result = [];
 
-    const result = []; // iterate through each timeline between this.start and this.end
+    // iterate through each timeline between this.start and this.end
     // (inclusive).
-
-    let timeline = this.start.timeline; // eslint-disable-next-line no-constant-condition
-
+    let timeline = this.start.timeline;
+    // eslint-disable-next-line no-constant-condition
     while (true) {
-      const events = timeline.getEvents(); // For the first timeline in the chain, we want to start at
+      const events = timeline.getEvents();
+
+      // For the first timeline in the chain, we want to start at
       // this.start.index. For the last timeline in the chain, we want to
       // stop before this.end.index. Otherwise, we want to copy all of the
       // events in the timeline.
@@ -368,34 +334,29 @@ class TimelineWindow {
       // (Note that both this.start.index and this.end.index are relative
       // to their respective timelines' BaseIndex).
       //
-
       let startIndex = 0;
       let endIndex = events.length;
-
       if (timeline === this.start.timeline) {
         startIndex = this.start.index + timeline.getBaseIndex();
       }
-
-      if (timeline === this.end.timeline) {
+      if (timeline === this.end?.timeline) {
         endIndex = this.end.index + timeline.getBaseIndex();
       }
-
       for (let i = startIndex; i < endIndex; i++) {
         result.push(events[i]);
-      } // if we're not done, iterate to the next timeline.
+      }
 
-
-      if (timeline === this.end.timeline) {
+      // if we're not done, iterate to the next timeline.
+      if (timeline === this.end?.timeline) {
         break;
       } else {
         timeline = timeline.getNeighbouringTimeline(_eventTimeline.EventTimeline.FORWARDS);
       }
     }
-
     return result;
   }
-
 }
+
 /**
  * a thing which contains a timeline reference, and an index into it.
  *
@@ -404,54 +365,46 @@ class TimelineWindow {
  * @param {number} index
  * @private
  */
-
-
 exports.TimelineWindow = TimelineWindow;
-
 class TimelineIndex {
   // index: the indexes are relative to BaseIndex, so could well be negative.
   constructor(timeline, index) {
     this.timeline = timeline;
     this.index = index;
-
     _defineProperty(this, "pendingPaginate", void 0);
   }
+
   /**
    * @return {number} the minimum possible value for the index in the current
    *    timeline
    */
-
-
   minIndex() {
     return this.timeline.getBaseIndex() * -1;
   }
+
   /**
    * @return {number} the maximum possible value for the index in the current
    *    timeline (exclusive - ie, it actually returns one more than the index
    *    of the last element).
    */
-
-
   maxIndex() {
     return this.timeline.getEvents().length - this.timeline.getBaseIndex();
   }
+
   /**
    * Try move the index forward, or into the neighbouring timeline
    *
    * @param {number} delta  number of events to advance by
    * @return {number} number of events successfully advanced by
    */
-
-
   advance(delta) {
     if (!delta) {
       return 0;
-    } // first try moving the index in the current timeline. See if there is room
+    }
+
+    // first try moving the index in the current timeline. See if there is room
     // to do so.
-
-
     let cappedDelta;
-
     if (delta < 0) {
       // we want to wind the index backwards.
       //
@@ -459,7 +412,6 @@ class TimelineIndex {
       // is the amount of room we have to wind back the index in the current
       // timeline. We cap delta to this quantity.
       cappedDelta = Math.max(delta, this.minIndex() - this.index);
-
       if (cappedDelta < 0) {
         this.index += cappedDelta;
         return cappedDelta;
@@ -471,46 +423,39 @@ class TimelineIndex {
       // is the amount of room we have to wind forward the index in the current
       // timeline. We cap delta to this quantity.
       cappedDelta = Math.min(delta, this.maxIndex() - this.index);
-
       if (cappedDelta > 0) {
         this.index += cappedDelta;
         return cappedDelta;
       }
-    } // the index is already at the start/end of the current timeline.
+    }
+
+    // the index is already at the start/end of the current timeline.
     //
     // next see if there is a neighbouring timeline to switch to.
-
-
     const neighbour = this.timeline.getNeighbouringTimeline(delta < 0 ? _eventTimeline.EventTimeline.BACKWARDS : _eventTimeline.EventTimeline.FORWARDS);
-
     if (neighbour) {
       this.timeline = neighbour;
-
       if (delta < 0) {
         this.index = this.maxIndex();
       } else {
         this.index = this.minIndex();
       }
+      debuglog("paginate: switched to new neighbour");
 
-      debuglog("paginate: switched to new neighbour"); // recurse, using the next timeline
-
+      // recurse, using the next timeline
       return this.advance(delta);
     }
-
     return 0;
   }
+
   /**
    * Try move the index backwards, or into the neighbouring timeline
    *
    * @param {number} delta  number of events to retreat by
    * @return {number} number of events successfully retreated by
    */
-
-
   retreat(delta) {
     return this.advance(delta * -1) * -1;
   }
-
 }
-
 exports.TimelineIndex = TimelineIndex;

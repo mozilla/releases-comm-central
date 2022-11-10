@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.SearchOrderBy = void 0;
-
 /*
 Copyright 2021 The Matrix.org Foundation C.I.C.
 
@@ -21,18 +20,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 // Types relating to the /search API
-
 /* eslint-disable camelcase */
 var GroupKey;
-
 (function (GroupKey) {
   GroupKey["RoomId"] = "room_id";
   GroupKey["Sender"] = "sender";
 })(GroupKey || (GroupKey = {}));
-
 let SearchOrderBy;
 exports.SearchOrderBy = SearchOrderBy;
-
 (function (SearchOrderBy) {
   SearchOrderBy["Recent"] = "recent";
   SearchOrderBy["Rank"] = "rank";

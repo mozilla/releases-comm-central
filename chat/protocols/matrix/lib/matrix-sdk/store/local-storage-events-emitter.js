@@ -4,9 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.localStorageErrorsEventsEmitter = exports.LocalStorageErrors = void 0;
-
 var _typedEventEmitter = require("../models/typed-event-emitter");
-
 /*
 Copyright 2021 The Matrix.org Foundation C.I.C.
 
@@ -24,7 +22,6 @@ limitations under the License.
 */
 let LocalStorageErrors;
 exports.LocalStorageErrors = LocalStorageErrors;
-
 (function (LocalStorageErrors) {
   LocalStorageErrors["Global"] = "Global";
   LocalStorageErrors["SetItemError"] = "setItem";
@@ -33,7 +30,6 @@ exports.LocalStorageErrors = LocalStorageErrors;
   LocalStorageErrors["ClearError"] = "clear";
   LocalStorageErrors["QuotaExceededError"] = "QuotaExceededError";
 })(LocalStorageErrors || (exports.LocalStorageErrors = LocalStorageErrors = {}));
-
 /**
  * Used in element-web as a temporary hack to handle all the localStorage errors on the highest level possible
  * As of 15.11.2021 (DD/MM/YYYY) we're not properly handling local storage exceptions anywhere.
@@ -43,6 +39,5 @@ exports.LocalStorageErrors = LocalStorageErrors;
  * See: https://github.com/vector-im/element-web/issues/18423
  */
 class LocalStorageErrorsEventsEmitter extends _typedEventEmitter.TypedEventEmitter {}
-
 const localStorageErrorsEventsEmitter = new LocalStorageErrorsEventsEmitter();
 exports.localStorageErrorsEventsEmitter = localStorageErrorsEventsEmitter;

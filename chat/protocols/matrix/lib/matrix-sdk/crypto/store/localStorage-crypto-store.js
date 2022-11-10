@@ -4,11 +4,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.LocalStorageCryptoStore = void 0;
-
 var _logger = require("../../logger");
-
 var _memoryCryptoStore = require("./memory-crypto-store");
-
 /*
 Copyright 2017 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -34,6 +31,7 @@ limitations under the License.
  *
  * @module
  */
+
 const E2E_PREFIX = "crypto.";
 const KEY_END_TO_END_ACCOUNT = E2E_PREFIX + "account";
 const KEY_CROSS_SIGNING_KEYS = E2E_PREFIX + "cross_signing_keys";
@@ -43,65 +41,56 @@ const KEY_INBOUND_SESSION_PREFIX = E2E_PREFIX + "inboundgroupsessions/";
 const KEY_INBOUND_SESSION_WITHHELD_PREFIX = E2E_PREFIX + "inboundgroupsessions.withheld/";
 const KEY_ROOMS_PREFIX = E2E_PREFIX + "rooms/";
 const KEY_SESSIONS_NEEDING_BACKUP = E2E_PREFIX + "sessionsneedingbackup";
-
 function keyEndToEndSessions(deviceKey) {
   return E2E_PREFIX + "sessions/" + deviceKey;
 }
-
 function keyEndToEndSessionProblems(deviceKey) {
   return E2E_PREFIX + "session.problems/" + deviceKey;
 }
-
 function keyEndToEndInboundGroupSession(senderKey, sessionId) {
   return KEY_INBOUND_SESSION_PREFIX + senderKey + "/" + sessionId;
 }
-
 function keyEndToEndInboundGroupSessionWithheld(senderKey, sessionId) {
   return KEY_INBOUND_SESSION_WITHHELD_PREFIX + senderKey + "/" + sessionId;
 }
-
 function keyEndToEndRoomsPrefix(roomId) {
   return KEY_ROOMS_PREFIX + roomId;
 }
+
 /**
  * @implements {module:crypto/store/base~CryptoStore}
  */
-
-
 class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
   static exists(store) {
     const length = store.length;
-
     for (let i = 0; i < length; i++) {
-      if (store.key(i).startsWith(E2E_PREFIX)) {
+      if (store.key(i)?.startsWith(E2E_PREFIX)) {
         return true;
       }
     }
-
     return false;
   }
-
   constructor(store) {
     super();
     this.store = store;
-  } // Olm Sessions
+  }
 
+  // Olm Sessions
 
   countEndToEndSessions(txn, func) {
     let count = 0;
-
     for (let i = 0; i < this.store.length; ++i) {
-      if (this.store.key(i).startsWith(keyEndToEndSessions(''))) ++count;
+      if (this.store.key(i)?.startsWith(keyEndToEndSessions(''))) ++count;
     }
-
     func(count);
-  } // eslint-disable-next-line @typescript-eslint/naming-convention
+  }
 
-
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   _getEndToEndSessions(deviceKey) {
     const sessions = getJsonItem(this.store, keyEndToEndSessions(deviceKey));
-    const fixedSessions = {}; // fix up any old sessions to be objects rather than just the base64 pickle
+    const fixedSessions = {};
 
+    // fix up any old sessions to be objects rather than just the base64 pickle
     for (const [sid, val] of Object.entries(sessions || {})) {
       if (typeof val === 'string') {
         fixedSessions[sid] = {
@@ -111,38 +100,30 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
         fixedSessions[sid] = val;
       }
     }
-
     return fixedSessions;
   }
-
   getEndToEndSession(deviceKey, sessionId, txn, func) {
     const sessions = this._getEndToEndSessions(deviceKey);
-
     func(sessions[sessionId] || {});
   }
-
   getEndToEndSessions(deviceKey, txn, func) {
     func(this._getEndToEndSessions(deviceKey) || {});
   }
-
   getAllEndToEndSessions(txn, func) {
     for (let i = 0; i < this.store.length; ++i) {
-      if (this.store.key(i).startsWith(keyEndToEndSessions(''))) {
+      if (this.store.key(i)?.startsWith(keyEndToEndSessions(''))) {
         const deviceKey = this.store.key(i).split('/')[1];
-
         for (const sess of Object.values(this._getEndToEndSessions(deviceKey))) {
           func(sess);
         }
       }
     }
   }
-
   storeEndToEndSession(deviceKey, sessionId, sessionInfo, txn) {
     const sessions = this._getEndToEndSessions(deviceKey) || {};
     sessions[sessionId] = sessionInfo;
     setJsonItem(this.store, keyEndToEndSessions(deviceKey), sessions);
   }
-
   async storeEndToEndSessionProblem(deviceKey, type, fixed) {
     const key = keyEndToEndSessionProblems(deviceKey);
     const problems = getJsonItem(this.store, key) || [];
@@ -156,17 +137,13 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
     });
     setJsonItem(this.store, key, problems);
   }
-
   async getEndToEndSessionProblem(deviceKey, timestamp) {
     const key = keyEndToEndSessionProblems(deviceKey);
     const problems = getJsonItem(this.store, key) || [];
-
     if (!problems.length) {
       return null;
     }
-
     const lastProblem = problems[problems.length - 1];
-
     for (const problem of problems) {
       if (problem.time > timestamp) {
         return Object.assign({}, problem, {
@@ -174,24 +151,20 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
         });
       }
     }
-
     if (lastProblem.fixed) {
       return null;
     } else {
       return lastProblem;
     }
   }
-
   async filterOutNotifiedErrorDevices(devices) {
     const notifiedErrorDevices = getJsonItem(this.store, KEY_NOTIFIED_ERROR_DEVICES) || {};
     const ret = [];
-
     for (const device of devices) {
       const {
         userId,
         deviceInfo
       } = device;
-
       if (userId in notifiedErrorDevices) {
         if (!(deviceInfo.deviceId in notifiedErrorDevices[userId])) {
           ret.push(device);
@@ -204,25 +177,24 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
         };
       }
     }
-
     setJsonItem(this.store, KEY_NOTIFIED_ERROR_DEVICES, notifiedErrorDevices);
     return ret;
-  } // Inbound Group Sessions
+  }
 
+  // Inbound Group Sessions
 
   getEndToEndInboundGroupSession(senderCurve25519Key, sessionId, txn, func) {
     func(getJsonItem(this.store, keyEndToEndInboundGroupSession(senderCurve25519Key, sessionId)), getJsonItem(this.store, keyEndToEndInboundGroupSessionWithheld(senderCurve25519Key, sessionId)));
   }
-
   getAllEndToEndInboundGroupSessions(txn, func) {
     for (let i = 0; i < this.store.length; ++i) {
       const key = this.store.key(i);
-
-      if (key.startsWith(KEY_INBOUND_SESSION_PREFIX)) {
+      if (key?.startsWith(KEY_INBOUND_SESSION_PREFIX)) {
         // we can't use split, as the components we are trying to split out
         // might themselves contain '/' characters. We rely on the
         // senderKey being a (32-byte) curve25519 key, base64-encoded
         // (hence 43 characters long).
+
         func({
           senderKey: key.slice(KEY_INBOUND_SESSION_PREFIX.length, KEY_INBOUND_SESSION_PREFIX.length + 43),
           sessionId: key.slice(KEY_INBOUND_SESSION_PREFIX.length + 44),
@@ -230,58 +202,44 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
         });
       }
     }
-
     func(null);
   }
-
   addEndToEndInboundGroupSession(senderCurve25519Key, sessionId, sessionData, txn) {
     const existing = getJsonItem(this.store, keyEndToEndInboundGroupSession(senderCurve25519Key, sessionId));
-
     if (!existing) {
       this.storeEndToEndInboundGroupSession(senderCurve25519Key, sessionId, sessionData, txn);
     }
   }
-
   storeEndToEndInboundGroupSession(senderCurve25519Key, sessionId, sessionData, txn) {
     setJsonItem(this.store, keyEndToEndInboundGroupSession(senderCurve25519Key, sessionId), sessionData);
   }
-
   storeEndToEndInboundGroupSessionWithheld(senderCurve25519Key, sessionId, sessionData, txn) {
     setJsonItem(this.store, keyEndToEndInboundGroupSessionWithheld(senderCurve25519Key, sessionId), sessionData);
   }
-
   getEndToEndDeviceData(txn, func) {
     func(getJsonItem(this.store, KEY_DEVICE_DATA));
   }
-
   storeEndToEndDeviceData(deviceData, txn) {
     setJsonItem(this.store, KEY_DEVICE_DATA, deviceData);
   }
-
   storeEndToEndRoom(roomId, roomInfo, txn) {
     setJsonItem(this.store, keyEndToEndRoomsPrefix(roomId), roomInfo);
   }
-
   getEndToEndRooms(txn, func) {
     const result = {};
     const prefix = keyEndToEndRoomsPrefix('');
-
     for (let i = 0; i < this.store.length; ++i) {
       const key = this.store.key(i);
-
-      if (key.startsWith(prefix)) {
+      if (key?.startsWith(prefix)) {
         const roomId = key.slice(prefix.length);
         result[roomId] = getJsonItem(this.store, key);
       }
     }
-
     func(result);
   }
-
   getSessionsNeedingBackup(limit) {
     const sessionsNeedingBackup = getJsonItem(this.store, KEY_SESSIONS_NEEDING_BACKUP) || {};
     const sessions = [];
-
     for (const session in sessionsNeedingBackup) {
       if (Object.prototype.hasOwnProperty.call(sessionsNeedingBackup, session)) {
         // see getAllEndToEndInboundGroupSessions for the magic number explanations
@@ -294,104 +252,83 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
             sessionData: sessionData
           });
         });
-
         if (limit && sessions.length >= limit) {
           break;
         }
       }
     }
-
     return Promise.resolve(sessions);
   }
-
   countSessionsNeedingBackup() {
     const sessionsNeedingBackup = getJsonItem(this.store, KEY_SESSIONS_NEEDING_BACKUP) || {};
     return Promise.resolve(Object.keys(sessionsNeedingBackup).length);
   }
-
   unmarkSessionsNeedingBackup(sessions) {
     const sessionsNeedingBackup = getJsonItem(this.store, KEY_SESSIONS_NEEDING_BACKUP) || {};
-
     for (const session of sessions) {
       delete sessionsNeedingBackup[session.senderKey + '/' + session.sessionId];
     }
-
     setJsonItem(this.store, KEY_SESSIONS_NEEDING_BACKUP, sessionsNeedingBackup);
     return Promise.resolve();
   }
-
   markSessionsNeedingBackup(sessions) {
     const sessionsNeedingBackup = getJsonItem(this.store, KEY_SESSIONS_NEEDING_BACKUP) || {};
-
     for (const session of sessions) {
       sessionsNeedingBackup[session.senderKey + '/' + session.sessionId] = true;
     }
-
     setJsonItem(this.store, KEY_SESSIONS_NEEDING_BACKUP, sessionsNeedingBackup);
     return Promise.resolve();
   }
+
   /**
    * Delete all data from this store.
    *
    * @returns {Promise} Promise which resolves when the store has been cleared.
    */
-
-
   deleteAllData() {
     this.store.removeItem(KEY_END_TO_END_ACCOUNT);
     return Promise.resolve();
-  } // Olm account
+  }
 
+  // Olm account
 
   getAccount(txn, func) {
     const accountPickle = getJsonItem(this.store, KEY_END_TO_END_ACCOUNT);
     func(accountPickle);
   }
-
   storeAccount(txn, accountPickle) {
     setJsonItem(this.store, KEY_END_TO_END_ACCOUNT, accountPickle);
   }
-
   getCrossSigningKeys(txn, func) {
     const keys = getJsonItem(this.store, KEY_CROSS_SIGNING_KEYS);
     func(keys);
   }
-
   getSecretStorePrivateKey(txn, func, type) {
     const key = getJsonItem(this.store, E2E_PREFIX + `ssss_cache.${type}`);
     func(key);
   }
-
   storeCrossSigningKeys(txn, keys) {
     setJsonItem(this.store, KEY_CROSS_SIGNING_KEYS, keys);
   }
-
   storeSecretStorePrivateKey(txn, type, key) {
     setJsonItem(this.store, E2E_PREFIX + `ssss_cache.${type}`, key);
   }
-
   doTxn(mode, stores, func) {
     return Promise.resolve(func(null));
   }
-
 }
-
 exports.LocalStorageCryptoStore = LocalStorageCryptoStore;
-
 function getJsonItem(store, key) {
   try {
     // if the key is absent, store.getItem() returns null, and
     // JSON.parse(null) === null, so this returns null.
     return JSON.parse(store.getItem(key));
   } catch (e) {
-    _logger.logger.log("Error: Failed to get key %s: %s", key, e.stack || e);
-
+    _logger.logger.log("Error: Failed to get key %s: %s", key, e.message);
     _logger.logger.log(e.stack);
   }
-
   return null;
 }
-
 function setJsonItem(store, key, val) {
   store.setItem(key, JSON.stringify(val));
 }

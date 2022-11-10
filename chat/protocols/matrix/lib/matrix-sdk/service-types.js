@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.SERVICE_TYPES = void 0;
-
 /*
 Copyright 2019 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -22,7 +21,6 @@ limitations under the License.
 */
 let SERVICE_TYPES;
 exports.SERVICE_TYPES = SERVICE_TYPES;
-
 (function (SERVICE_TYPES) {
   SERVICE_TYPES["IS"] = "SERVICE_TYPE_IS";
   SERVICE_TYPES["IM"] = "SERVICE_TYPE_IM";

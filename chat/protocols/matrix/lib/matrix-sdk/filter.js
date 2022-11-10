@@ -4,11 +4,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Filter = void 0;
-
+var _sync = require("./@types/sync");
 var _filterComponent = require("./filter-component");
-
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 /**
  * @param {Object} obj
  * @param {string} keyNesting
@@ -17,19 +17,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 function setProp(obj, keyNesting, val) {
   const nestedKeys = keyNesting.split(".");
   let currentObj = obj;
-
   for (let i = 0; i < nestedKeys.length - 1; i++) {
     if (!currentObj[nestedKeys[i]]) {
       currentObj[nestedKeys[i]] = {};
     }
-
     currentObj = currentObj[nestedKeys[i]];
   }
-
   currentObj[nestedKeys[nestedKeys.length - 1]] = val;
 }
-/* eslint-disable camelcase */
 
+/* eslint-disable camelcase */
 
 /* eslint-enable camelcase */
 
@@ -55,43 +52,39 @@ class Filter {
     filter.setDefinition(jsonObj);
     return filter;
   }
-
   constructor(userId, filterId) {
     this.userId = userId;
     this.filterId = filterId;
-
     _defineProperty(this, "definition", {});
-
     _defineProperty(this, "roomFilter", void 0);
-
     _defineProperty(this, "roomTimelineFilter", void 0);
   }
+
   /**
    * Get the ID of this filter on your homeserver (if known)
    * @return {?string} The filter ID
    */
-
-
   getFilterId() {
     return this.filterId;
   }
+
   /**
    * Get the JSON body of the filter.
    * @return {Object} The filter definition
    */
-
-
   getDefinition() {
     return this.definition;
   }
+
   /**
    * Set the JSON body of the filter
    * @param {Object} definition The filter definition
    */
-
-
   setDefinition(definition) {
-    this.definition = definition; // This is all ported from synapse's FilterCollection()
+    this.definition = definition;
+
+    // This is all ported from synapse's FilterCollection()
+
     // definitions look something like:
     // {
     //   "room": {
@@ -123,22 +116,22 @@ class Filter {
     //   "event_fields": ["type", "content", "sender"]
     // }
 
-    const roomFilterJson = definition.room; // consider the top level rooms/not_rooms filter
+    const roomFilterJson = definition.room;
 
+    // consider the top level rooms/not_rooms filter
     const roomFilterFields = {};
-
     if (roomFilterJson) {
       if (roomFilterJson.rooms) {
         roomFilterFields.rooms = roomFilterJson.rooms;
       }
-
       if (roomFilterJson.rooms) {
         roomFilterFields.not_rooms = roomFilterJson.not_rooms;
       }
     }
-
     this.roomFilter = new _filterComponent.FilterComponent(roomFilterFields, this.userId);
-    this.roomTimelineFilter = new _filterComponent.FilterComponent(roomFilterJson?.timeline || {}, this.userId); // don't bother porting this from synapse yet:
+    this.roomTimelineFilter = new _filterComponent.FilterComponent(roomFilterJson?.timeline || {}, this.userId);
+
+    // don't bother porting this from synapse yet:
     // this._room_state_filter =
     //     new FilterComponent(roomFilterJson.state || {});
     // this._room_ephemeral_filter =
@@ -150,54 +143,66 @@ class Filter {
     // this._account_data_filter =
     //     new FilterComponent(definition.account_data || {});
   }
+
   /**
    * Get the room.timeline filter component of the filter
    * @return {FilterComponent} room timeline filter component
    */
-
-
   getRoomTimelineFilterComponent() {
     return this.roomTimelineFilter;
   }
+
   /**
    * Filter the list of events based on whether they are allowed in a timeline
    * based on this filter
    * @param {MatrixEvent[]} events  the list of events being filtered
    * @return {MatrixEvent[]} the list of events which match the filter
    */
-
-
   filterRoomTimeline(events) {
-    return this.roomTimelineFilter.filter(this.roomFilter.filter(events));
+    if (this.roomFilter) {
+      events = this.roomFilter.filter(events);
+    }
+    if (this.roomTimelineFilter) {
+      events = this.roomTimelineFilter.filter(events);
+    }
+    return events;
   }
+
   /**
    * Set the max number of events to return for each room's timeline.
    * @param {Number} limit The max number of events to return for each room.
    */
-
-
   setTimelineLimit(limit) {
     setProp(this.definition, "room.timeline.limit", limit);
   }
 
-  setLazyLoadMembers(enabled) {
-    setProp(this.definition, "room.state.lazy_load_members", !!enabled);
+  /**
+   * Enable threads unread notification
+   * @param {boolean} enabled
+   */
+  setUnreadThreadNotifications(enabled) {
+    this.definition = _objectSpread(_objectSpread({}, this.definition), {}, {
+      room: _objectSpread(_objectSpread({}, this.definition?.room), {}, {
+        timeline: _objectSpread(_objectSpread({}, this.definition?.room?.timeline), {}, {
+          [_sync.UNREAD_THREAD_NOTIFICATIONS.name]: enabled
+        })
+      })
+    });
   }
+  setLazyLoadMembers(enabled) {
+    setProp(this.definition, "room.state.lazy_load_members", enabled);
+  }
+
   /**
    * Control whether left rooms should be included in responses.
    * @param {boolean} includeLeave True to make rooms the user has left appear
    * in responses.
    */
-
-
   setIncludeLeaveRooms(includeLeave) {
     setProp(this.definition, "room.include_leave", includeLeave);
   }
-
 }
-
 exports.Filter = Filter;
-
 _defineProperty(Filter, "LAZY_LOADING_MESSAGES_FILTER", {
   lazy_load_members: true
 });

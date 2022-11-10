@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.CrossSigningKey = void 0;
-
 /*
 Copyright 2021 The Matrix.org Foundation C.I.C.
 
@@ -23,7 +22,6 @@ limitations under the License.
 // TODO: Merge this with crypto.js once converted
 let CrossSigningKey;
 exports.CrossSigningKey = CrossSigningKey;
-
 (function (CrossSigningKey) {
   CrossSigningKey["Master"] = "master";
   CrossSigningKey["SelfSigning"] = "self_signing";

@@ -4,9 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.SearchResult = void 0;
-
 var _eventContext = require("./event-context");
-
 /*
 Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -26,6 +24,7 @@ limitations under the License.
 /**
  * @module models/search-result
  */
+
 class SearchResult {
   /**
    * Create a SearchResponse from the response to /search
@@ -34,12 +33,14 @@ class SearchResult {
    * @param {function} eventMapper
    * @return {SearchResult}
    */
+
   static fromJson(jsonObj, eventMapper) {
     const jsonContext = jsonObj.context || {};
     let eventsBefore = (jsonContext.events_before || []).map(eventMapper);
     let eventsAfter = (jsonContext.events_after || []).map(eventMapper);
-    const context = new _eventContext.EventContext(eventMapper(jsonObj.result)); // Filter out any contextual events which do not correspond to the same timeline (thread or room)
+    const context = new _eventContext.EventContext(eventMapper(jsonObj.result));
 
+    // Filter out any contextual events which do not correspond to the same timeline (thread or room)
     const threadRootId = context.ourEvent.threadRootId;
     eventsBefore = eventsBefore.filter(e => e.threadRootId === threadRootId);
     eventsAfter = eventsAfter.filter(e => e.threadRootId === threadRootId);
@@ -49,6 +50,7 @@ class SearchResult {
     context.setPaginateToken(jsonContext.end, false);
     return new SearchResult(jsonObj.rank, context);
   }
+
   /**
    * Construct a new SearchResult
    *
@@ -58,13 +60,9 @@ class SearchResult {
    *
    * @constructor
    */
-
-
   constructor(rank, context) {
     this.rank = rank;
     this.context = context;
   }
-
 }
-
 exports.SearchResult = SearchResult;

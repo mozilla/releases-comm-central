@@ -4,14 +4,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.UserEvent = exports.User = void 0;
-
 var _typedEventEmitter = require("./typed-event-emitter");
-
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 let UserEvent;
 exports.UserEvent = UserEvent;
-
 (function (UserEvent) {
   UserEvent["DisplayName"] = "User.displayName";
   UserEvent["AvatarUrl"] = "User.avatarUrl";
@@ -19,7 +15,6 @@ exports.UserEvent = UserEvent;
   UserEvent["CurrentlyActive"] = "User.currentlyActive";
   UserEvent["LastPresenceTs"] = "User.lastPresenceTs";
 })(UserEvent || (exports.UserEvent = UserEvent = {}));
-
 class User extends _typedEventEmitter.TypedEventEmitter {
   // XXX these should be read-only
 
@@ -48,35 +43,21 @@ class User extends _typedEventEmitter.TypedEventEmitter {
   constructor(userId) {
     super();
     this.userId = userId;
-
-    _defineProperty(this, "modified", void 0);
-
+    _defineProperty(this, "modified", -1);
     _defineProperty(this, "displayName", void 0);
-
     _defineProperty(this, "rawDisplayName", void 0);
-
     _defineProperty(this, "avatarUrl", void 0);
-
-    _defineProperty(this, "presenceStatusMsg", null);
-
+    _defineProperty(this, "presenceStatusMsg", void 0);
     _defineProperty(this, "presence", "offline");
-
     _defineProperty(this, "lastActiveAgo", 0);
-
     _defineProperty(this, "lastPresenceTs", 0);
-
     _defineProperty(this, "currentlyActive", false);
-
-    _defineProperty(this, "events", {
-      presence: null,
-      profile: null
-    });
-
+    _defineProperty(this, "events", {});
     this.displayName = userId;
     this.rawDisplayName = userId;
-    this.avatarUrl = null;
     this.updateModifiedTime();
   }
+
   /**
    * Update this User with the given presence event. May fire "User.presence",
    * "User.avatarUrl" and/or "User.displayName" if this event updates this user's
@@ -86,137 +67,107 @@ class User extends _typedEventEmitter.TypedEventEmitter {
    * @fires module:client~MatrixClient#event:"User.displayName"
    * @fires module:client~MatrixClient#event:"User.avatarUrl"
    */
-
-
   setPresenceEvent(event) {
     if (event.getType() !== "m.presence") {
       return;
     }
-
     const firstFire = this.events.presence === null;
     this.events.presence = event;
     const eventsToFire = [];
-
     if (event.getContent().presence !== this.presence || firstFire) {
       eventsToFire.push(UserEvent.Presence);
     }
-
     if (event.getContent().avatar_url && event.getContent().avatar_url !== this.avatarUrl) {
       eventsToFire.push(UserEvent.AvatarUrl);
     }
-
     if (event.getContent().displayname && event.getContent().displayname !== this.displayName) {
       eventsToFire.push(UserEvent.DisplayName);
     }
-
     if (event.getContent().currently_active !== undefined && event.getContent().currently_active !== this.currentlyActive) {
       eventsToFire.push(UserEvent.CurrentlyActive);
     }
-
     this.presence = event.getContent().presence;
     eventsToFire.push(UserEvent.LastPresenceTs);
-
     if (event.getContent().status_msg) {
       this.presenceStatusMsg = event.getContent().status_msg;
     }
-
     if (event.getContent().displayname) {
       this.displayName = event.getContent().displayname;
     }
-
     if (event.getContent().avatar_url) {
       this.avatarUrl = event.getContent().avatar_url;
     }
-
     this.lastActiveAgo = event.getContent().last_active_ago;
     this.lastPresenceTs = Date.now();
     this.currentlyActive = event.getContent().currently_active;
     this.updateModifiedTime();
-
     for (let i = 0; i < eventsToFire.length; i++) {
       this.emit(eventsToFire[i], event, this);
     }
   }
+
   /**
    * Manually set this user's display name. No event is emitted in response to this
    * as there is no underlying MatrixEvent to emit with.
    * @param {string} name The new display name.
    */
-
-
   setDisplayName(name) {
     const oldName = this.displayName;
-
-    if (typeof name === "string") {
-      this.displayName = name;
-    } else {
-      this.displayName = undefined;
-    }
-
+    this.displayName = name;
     if (name !== oldName) {
       this.updateModifiedTime();
     }
   }
+
   /**
    * Manually set this user's non-disambiguated display name. No event is emitted
    * in response to this as there is no underlying MatrixEvent to emit with.
    * @param {string} name The new display name.
    */
-
-
   setRawDisplayName(name) {
-    if (typeof name === "string") {
-      this.rawDisplayName = name;
-    } else {
-      this.rawDisplayName = undefined;
-    }
+    this.rawDisplayName = name;
   }
+
   /**
    * Manually set this user's avatar URL. No event is emitted in response to this
    * as there is no underlying MatrixEvent to emit with.
    * @param {string} url The new avatar URL.
    */
-
-
   setAvatarUrl(url) {
     const oldUrl = this.avatarUrl;
     this.avatarUrl = url;
-
     if (url !== oldUrl) {
       this.updateModifiedTime();
     }
   }
+
   /**
    * Update the last modified time to the current time.
    */
-
-
   updateModifiedTime() {
     this.modified = Date.now();
   }
+
   /**
    * Get the timestamp when this User was last updated. This timestamp is
    * updated when this User receives a new Presence event which has updated a
    * property on this object. It is updated <i>before</i> firing events.
    * @return {number} The timestamp
    */
-
-
   getLastModifiedTime() {
     return this.modified;
   }
+
   /**
    * Get the absolute timestamp when this User was last known active on the server.
    * It is *NOT* accurate if this.currentlyActive is true.
    * @return {number} The timestamp
    */
-
-
   getLastActiveTs() {
     return this.lastPresenceTs - this.lastActiveAgo;
   }
-
 }
+
 /**
  * Fires whenever any user's lastPresenceTs changes,
  * ie. whenever any presence event is received for a user.
@@ -272,6 +223,4 @@ class User extends _typedEventEmitter.TypedEventEmitter {
  *   var newUrl = user.avatarUrl;
  * });
  */
-
-
 exports.User = User;
