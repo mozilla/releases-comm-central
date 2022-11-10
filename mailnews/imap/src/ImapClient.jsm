@@ -1447,13 +1447,13 @@ class ImapClient {
       this._nextAction = this._actionUidFetchResponse;
       this._sendTagged(`UID FETCH ${highestUid + 1}:* (FLAGS)`);
     } else {
-      if (!res.exists) {
+      if (res.exists == 0) {
         this._messageUids = [];
         this._messages.clear();
+        this.folder
+          .QueryInterface(Ci.nsIImapMailFolderSink)
+          .UpdateImapMailboxInfo(this, this._getMailboxSpec());
       }
-      this.folder
-        .QueryInterface(Ci.nsIImapMailFolderSink)
-        .UpdateImapMailboxInfo(this, this._getMailboxSpec());
       this._actionDone();
     }
   }

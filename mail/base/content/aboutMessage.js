@@ -19,9 +19,12 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  DownloadPaths: "resource://gre/modules/DownloadPaths.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   DBViewWrapper: "resource:///modules/DBViewWrapper.jsm",
-  DownloadPaths: "resource://gre/modules/DownloadPaths.jsm",
   JSTreeSelection: "resource:///modules/JsTreeSelection.jsm",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
 });

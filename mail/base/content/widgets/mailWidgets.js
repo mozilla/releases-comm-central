@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../components/compose/content/addressingWidgetOverlay.js */
+/* import-globals-from ../../../components/compose/content/MsgComposeCommands.js */
 
 /* global MozElements */
 /* global MozXULElement */

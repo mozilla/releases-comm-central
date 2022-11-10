@@ -8,10 +8,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-ChromeUtils.defineESModuleGetters(this, {
-  loadCustomElement: "resource:///modules/CustomElementLoader.sys.mjs",
-});
-
 /**
  * Holds the main controller class.
  * @type {?AccountHubControllerClass}
@@ -49,7 +45,11 @@ class AccountHubControllerClass {
   };
 
   constructor() {
-    this.#loadScript("container");
+    this.ready = this.#init();
+  }
+
+  async #init() {
+    await this.#loadScript("container");
     const element = document.createElement("account-hub-container");
     document.body.appendChild(element);
     this.#modal = element.modal;
@@ -95,10 +95,12 @@ class AccountHubControllerClass {
    * @returns {Promise<void>} Resolves when custom element of the view is usable.
    */
   #loadScript(view) {
-    return loadCustomElement(
-      `account-hub-${view}`,
-      `chrome://messenger/content/accountcreation/views/${view}.js`,
-      window
+    if (customElements.get(`account-hub-${view}`)) {
+      return Promise.resolve();
+    }
+    // eslint-disable-next-line no-unsanitized/method
+    return import(
+      `chrome://messenger/content/accountcreation/views/${view}.mjs`
     );
   }
 
@@ -193,9 +195,10 @@ class AccountHubControllerClass {
  * @param {?string} type - The type of view that should be loaded when the modal
  *   is showed. See AccountHubController::#accounts for a list references.
  */
-function openAccountHub(type) {
+async function openAccountHub(type) {
   if (!AccountHubController) {
     AccountHubController = new AccountHubControllerClass();
   }
+  await AccountHubController.ready;
   AccountHubController.open(type);
 }

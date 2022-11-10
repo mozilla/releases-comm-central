@@ -10,7 +10,7 @@
 add_task(async function test_account_hub_opening() {
   // TODO: Use an actual button once it's implemented in the UI.
   // Open the dialog.
-  window.openAccountHub();
+  await window.openAccountHub();
 
   const hub = document.querySelector("account-hub-container");
   await TestUtils.waitForCondition(
@@ -28,7 +28,7 @@ add_task(async function test_account_hub_opening() {
   );
 
   // Open the dialog again.
-  window.openAccountHub();
+  await window.openAccountHub();
   Assert.ok(dialog.open, "The dialog element was opened");
 
   // We already have a tinderbox account, so the default header should be

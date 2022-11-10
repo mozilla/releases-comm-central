@@ -237,8 +237,8 @@ function onLoadCalendarItemPanel(aIframeId, aUrl) {
           body.style.width = "fit-content";
           body.style.height = "fit-content";
           let { scrollHeight, scrollWidth } = body;
-          iframe.style.height = iframe.style.minHeight = `${scrollHeight}px`;
-          iframe.style.width = iframe.style.minWidth = `${scrollWidth}px`;
+          iframe.style.minHeight = `${scrollHeight}px`;
+          iframe.style.minWidth = `${scrollWidth}px`;
           // Reset the body.
           body.style.width = null;
           body.style.height = null;

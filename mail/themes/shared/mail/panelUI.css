@@ -856,7 +856,7 @@ menulist[open="true"]:not([disabled="true"]) {
 #appmenu_signin,
 #appmenu_sync,
 #syncSeparator {
- /* display: none;*/
+  display: none;
 }
 
 #appmenu_signin {

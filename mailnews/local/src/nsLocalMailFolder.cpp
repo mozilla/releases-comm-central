@@ -2423,11 +2423,13 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
 
   // I think this is always true for online to offline copy
   mCopyState->m_dummyEnvelopeNeeded = true;
-  rv = FinishNewLocalMessage(mCopyState->m_fileStream, mCopyState->m_newHdr,
-                             mCopyState->m_msgStore,
-                             mCopyState->m_parseMsgState);
-  mCopyState->m_fileStream->Close();
-  mCopyState->m_fileStream = nullptr;  // all done with the file stream
+  if (mCopyState->m_fileStream) {
+    rv = FinishNewLocalMessage(mCopyState->m_fileStream, mCopyState->m_newHdr,
+                               mCopyState->m_msgStore,
+                               mCopyState->m_parseMsgState);
+    mCopyState->m_fileStream->Close();
+    mCopyState->m_fileStream = nullptr;  // all done with the file stream
+  }
 
   // CopyFileMessage() and CopyMessages() from servers other than mailbox
   if (mCopyState->m_parseMsgState) {

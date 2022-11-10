@@ -22,8 +22,8 @@ codespell:
     description: Checks for misspellings in text files
     treeherder:
         symbol: text(spell)
-        # We don't want patches to be backed out because of a typo, a follow up bug will be
-        # good enough
+        # We don't want patches to be backed out because of a typo, a follow-up
+        # bug will be good enough
         tier: 2
     run:
         mach: >
@@ -59,8 +59,8 @@ file-perm:
     platform: lint/opt
     treeherder:
         symbol: pedantic(file-perm)
-        # We don't want patches to be backed out because of this, a follow up bug will be
-        # good enough
+        # We don't want patches to be backed out because of this, a follow-up
+        # bug will be good enough
         tier: 2
     run:
         mach: >
@@ -73,14 +73,13 @@ file-perm:
             root-path: comm
             mozlint-config: file-perm.yml
 
-
 file-whitespace:
     description: Check for trailing whitespaces and Windows CR
     platform: lint/opt
     treeherder:
         symbol: pedantic(file-whitespace)
-        # We don't want patches to be backed out because of this, a follow up bug will be
-        # good enough
+        # We don't want patches to be backed out because of this, a follow-up
+        # bug will be good enough
         tier: 2
     run:
         mach: >
@@ -100,13 +99,13 @@ fluent-lint:
     run:
         mach: >
             lint -l fluent-lint -f treeherder
+            -f json:/builds/worker/mozlint.json
             --config-path=comm/tools/lint
             comm/*
     optimization:
         skip-unless-mozlint:
             root-path: comm
             mozlint-config: fluent-lint.yml
-
 
 license:
     description: Check for license blocks in source files.
@@ -123,7 +122,6 @@ license:
             root-path: comm
             mozlint-config: license.yml
 
-
 l10n-conflicts:
     description: l10n tests for strings with errors and conflicts with cross-channel
     treeherder:
@@ -133,6 +131,7 @@ l10n-conflicts:
     run:
         mach: >
             lint -W -l l10n -f treeherder
+            -f json:/builds/worker/mozlint.json
             --config-path=comm/tools/lint
             comm/*
     optimization:
@@ -210,7 +209,7 @@ py-flake8:
             lint -v -l flake8 -f treeherder
             -f json:/builds/worker/mozlint.json
             --config-path=comm/tools/lint
-            comm/taskcluster
+            comm/*
     optimization:
         skip-unless-mozlint:
             root-path: comm

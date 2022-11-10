@@ -4,6 +4,12 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+#calendar-event-window,
+#calendar-task-window {
+  min-width: 43em;
+  min-height: 46em;
+}
+
 #calendar-event-dialog:-moz-lwtheme,
 #calendar-task-dialog:-moz-lwtheme {
   background-color: transparent;
@@ -155,7 +161,6 @@ label.label {
   padding-inline-start: 8px;
   padding-inline-end: 10px;
   border-spacing: 0;
-  height: 100%;
 }
 
 #event-grid > tr > th {
@@ -288,6 +293,7 @@ label.label {
 }
 
 #event-grid-tab-vbox {
+  width: 100%;
   padding-bottom: 10px;
   padding-inline-start: 8px;
   padding-inline-end: 10px;
