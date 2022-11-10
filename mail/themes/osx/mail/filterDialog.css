@@ -53,6 +53,6 @@ hbox > .small-button + .small-button {
   background-color: inherit;
 }
 
-toolbarbutton[type="menu-button"] > toolbarbutton {
+toolbarbutton[is="toolbarbutton-menu-button"] > toolbarbutton {
   min-height: 0;
 }

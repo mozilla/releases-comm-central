@@ -87,7 +87,7 @@ checkbox:not([label]) .checkbox-label-box {
   padding: 2px 4px;
 }
 
-toolbarbutton[type="menu-button"] {
+toolbarbutton[is="toolbarbutton-menu-button"] {
   appearance: none;
   min-height: 24px;
   margin: 4px;
@@ -97,7 +97,7 @@ toolbarbutton[type="menu-button"] {
   border-radius: var(--button-border-radius);
 }
 
-toolbarbutton[type="menu-button"] > toolbarbutton {
+toolbarbutton[is="toolbarbutton-menu-button"] > toolbarbutton {
   appearance: none;
   margin-block: 0;
   padding-block: 0 !important;
@@ -107,17 +107,17 @@ toolbarbutton[type="menu-button"] > toolbarbutton {
   border-inline-end: 1px solid var(--button-border-color);
 }
 
-toolbarbutton[type="menu-button"]:hover,
-toolbarbutton[type="menu-button"] > toolbarbutton:hover {
+toolbarbutton[is="toolbarbutton-menu-button"]:hover,
+toolbarbutton[is="toolbarbutton-menu-button"] > toolbarbutton:hover {
   background-color: var(--button-hover-bgcolor);
 }
 
-toolbarbutton[type="menu-button"]:hover:active,
-toolbarbutton[type="menu-button"] > toolbarbutton:hover:active {
+toolbarbutton[is="toolbarbutton-menu-button"]:hover:active,
+toolbarbutton[is="toolbarbutton-menu-button"] > toolbarbutton:hover:active {
   background-color: var(--button-active-bgcolor);
 }
 
-toolbarbutton[type="menu-button"] > dropmarker {
+toolbarbutton[is="toolbarbutton-menu-button"] > dropmarker {
   appearance: none;
   list-style-image: var(--icon-nav-down-sm);
   -moz-context-properties: stroke;

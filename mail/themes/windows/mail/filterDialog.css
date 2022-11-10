@@ -41,6 +41,6 @@
   margin-inline: 0 4px;
 }
 
-toolbarbutton[type="menu-button"] > toolbarbutton {
+toolbarbutton[is="toolbarbutton-menu-button"] > toolbarbutton {
   min-height: 22px;
 }

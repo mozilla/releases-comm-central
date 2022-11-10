@@ -4,7 +4,7 @@
 
   <toolbarpalette id="MailToolbarPalette">
     <toolbarbutton is="toolbarbutton-menu-button" id="button-getmsg"
-                   type="menu-button"
+                   type="menu"
                    class="toolbarbutton-1"
                    label="&getMsgButton1.label;"
                    tooltiptext="&getMsgButton.tooltip;"
@@ -47,7 +47,7 @@
                    observes="button_replylist"
                    command="cmd_replylist"/>
     <toolbarbutton is="toolbarbutton-menu-button" id="button-forward"
-                   type="menu-button"
+                   type="menu"
                    class="toolbarbutton-1"
                    label="&forwardButton.label;"
                    tooltiptext="&forwardButton.tooltip;"
@@ -96,7 +96,7 @@
                    observes="button_showconversation"
                    oncommand="new ConversationOpener(window).openConversationForMessages(gFolderDisplay.selectedMessages)"/>
     <toolbarbutton is="toolbarbutton-menu-button" id="button-goback"
-                   type="menu-button"
+                   type="menu"
                    class="toolbarbutton-1"
                    label="&backButton1.label;"
                    oncommand="goDoCommand('cmd_goBack')"
@@ -108,7 +108,7 @@
       </menupopup>
     </toolbarbutton>
     <toolbarbutton is="toolbarbutton-menu-button" id="button-goforward"
-                   type="menu-button"
+                   type="menu"
                    class="toolbarbutton-1"
                    label="&goForwardButton1.label;"
                    oncommand="goDoCommand('cmd_goForward')"
@@ -176,7 +176,7 @@
                    oncommand="goDoCommand('cmd_print')"
                    tooltiptext="&printButton.tooltip;"/>
     <toolbarbutton is="toolbarbutton-menu-button" id="button-mark"
-                   type="menu-button"
+                   type="menu"
                    class="toolbarbutton-1"
                    label="&markButton.label;"
                    oncommand="goDoCommand('button_mark')"

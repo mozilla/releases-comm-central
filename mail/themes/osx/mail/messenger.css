@@ -71,7 +71,7 @@
 
 /* ::::: toolbarbutton menu-button ::::: */
 
-toolbarbutton[type="menu-button"] {
+toolbarbutton[is="toolbarbutton-menu-button"] {
   -moz-box-align: stretch;
   -moz-box-orient: horizontal !important;
   background-color: transparent;
@@ -102,18 +102,18 @@ toolbarbutton[type="menu-button"] {
   background: transparent !important;
 }
 
-.toolbarbutton-1[type="menu-button"] {
+.toolbarbutton-1[is="toolbarbutton-menu-button"] {
   padding: 0;
 }
 
 .toolbarbutton-1[disabled="true"] .toolbarbutton-text,
-.toolbarbutton-1[type="menu-button"] > .toolbarbutton-menubutton-button[disabled="true"]
+.toolbarbutton-1[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled="true"]
   > .toolbarbutton-icon {
   opacity: .4;
 }
 
 .toolbarbutton-1[disabled="true"] .toolbarbutton-icon,
-.toolbarbutton-1[type="menu-button"]
+.toolbarbutton-1[is="toolbarbutton-menu-button"]
   > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon,
 .toolbarbutton-1[disabled="true"] > .toolbarbutton-menu-dropmarker,
 .toolbarbutton-1[disabled="true"] > .toolbarbutton-menubutton-dropmarker,
@@ -126,7 +126,7 @@ toolbarbutton[type="menu-button"] {
 }
 
 .toolbarbutton-1:-moz-window-inactive[disabled="true"] > .toolbarbutton-icon,
-.toolbarbutton-1:-moz-window-inactive[type="menu-button"]
+.toolbarbutton-1:-moz-window-inactive[is="toolbarbutton-menu-button"]
   > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon {
   opacity: .25;
 }
@@ -331,11 +331,11 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
   display: none;
 }
 
-button.notification-button[type="menu-button"] {
+button.notification-button[is="toolbarbutton-menu-button"] {
   margin: 0 6px;
 }
 
-button[type="menu-button"] > .button-box > button {
+button[is="toolbarbutton-menu-button"] > .button-box > button {
   margin-block: -4px;
   margin-inline: -7px 2px;
 }

@@ -322,7 +322,7 @@ toolbarpaletteitem[place="toolbar"] > toolbarspacer {
 
 /* ::::: toolbarbutton menu-button ::::: */
 
-toolbarbutton[type="menu-button"] {
+toolbarbutton[is="toolbarbutton-menu-button"] {
   -moz-box-align: stretch;
   appearance: auto;
   -moz-default-appearance: dualbutton;
@@ -343,7 +343,7 @@ toolbarbutton[type="menu-button"] {
 
 .toolbarbutton-1,
 .toolbarbutton-menubutton-button,
-.toolbarbutton-1[type="menu-button"],
+.toolbarbutton-1[is="toolbarbutton-menu-button"],
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
   appearance: none;
@@ -369,7 +369,7 @@ toolbar[mode="text"] .toolbarbutton-text {
   display: none;
 }
 
-button[type="menu-button"] > .button-box > button {
+button[is="toolbarbutton-menu-button"] > .button-box > button {
   margin-block: -5px;
 }
 

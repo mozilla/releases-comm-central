@@ -303,7 +303,7 @@ button:-moz-locale-dir(rtl).button-menu-list {
   background-position-x: left 4px;
 }
 
-toolbarbutton.notification-button[type="menu-button"] {
+toolbarbutton.notification-button[is="toolbarbutton-menu-button"] {
   -moz-box-align: center;
   margin: 4px 6px;
   padding-block: 0;
@@ -311,7 +311,7 @@ toolbarbutton.notification-button[type="menu-button"] {
   background-color: var(--in-content-button-background);
 }
 
-toolbarbutton[type="menu-button"] > toolbarbutton {
+toolbarbutton[is="toolbarbutton-menu-button"] > toolbarbutton {
   margin-block: 0;
   margin-inline: 0 2px;
   min-height: 22px;
@@ -326,15 +326,15 @@ toolbarbutton[type="menu-button"] > toolbarbutton {
   border-inline-end: 1px solid var(--in-content-button-border);
 }
 
-toolbarbutton.notification-button[type="menu-button"]:hover,
-toolbarbutton.notification-button[type="menu-button"] > toolbarbutton:hover {
+toolbarbutton.notification-button[is="toolbarbutton-menu-button"]:hover,
+toolbarbutton.notification-button[is="toolbarbutton-menu-button"] > toolbarbutton:hover {
   background-color: var(--in-content-button-background-hover);
   color: var(--in-content-button-text-color-hover);
   border-color: var(--in-content-button-border-color-hover);
 }
 
-toolbarbutton.notification-button[type="menu-button"]:hover:active,
-toolbarbutton.notification-button[type="menu-button"] > toolbarbutton:hover:active {
+toolbarbutton.notification-button[is="toolbarbutton-menu-button"]:hover:active,
+toolbarbutton.notification-button[is="toolbarbutton-menu-button"] > toolbarbutton:hover:active {
   background-color: var(--in-content-button-background-active);
   color: var(--in-content-button-text-color-active);
   border-color: var(--in-content-button-border-color-active);
