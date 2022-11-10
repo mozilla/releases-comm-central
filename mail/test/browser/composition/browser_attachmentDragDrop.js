@@ -262,7 +262,7 @@ add_task(async function test_message_drag() {
   );
   select_click_row(0);
 
-  let [msgStr] = get_about_message().gFolderDisplay.selectedMessageUris;
+  let msgStr = get_about_message().gMessageURI;
   let msgUrl = MailServices.messageServiceFromURI(msgStr).getUrlForUri(msgStr);
 
   let cwc = open_compose_new_mail();

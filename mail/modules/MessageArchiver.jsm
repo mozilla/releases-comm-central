@@ -20,7 +20,6 @@ function MessageArchiver() {
   this._dstFolderParent = null;
   this._dstFolderName = null;
 
-  this.folderDisplay = null;
   this.msgWindow = null;
   this.oncomplete = null;
 }
@@ -93,9 +92,6 @@ MessageArchiver.prototype = {
     }
     gIsArchiving = true;
 
-    if (this.folderDisplay) {
-      this.folderDisplay.hintMassMoveStarting();
-    }
     for (let i = 0; i < aMsgHdrs.length; i++) {
       let msgHdr = aMsgHdrs[i];
 
@@ -183,9 +179,6 @@ MessageArchiver.prototype = {
     }
     // All done!
     this._batches = null;
-    if (this.folderDisplay) {
-      this.folderDisplay.hintMassMoveCompleted();
-    }
     MailServices.mfn.removeListener(this);
 
     if (typeof this.oncomplete == "function") {

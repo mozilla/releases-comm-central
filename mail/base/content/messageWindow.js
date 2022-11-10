@@ -165,7 +165,7 @@ function actuallyLoadMessage() {
   if (window.arguments && window.arguments.length) {
     let contentWindow = messageBrowser.contentWindow;
     if (window.arguments[0] instanceof Ci.nsIURI) {
-      contentWindow.displayExternalMessage(window.arguments[0].spec);
+      contentWindow.displayMessage(window.arguments[0].spec);
       return;
     }
 

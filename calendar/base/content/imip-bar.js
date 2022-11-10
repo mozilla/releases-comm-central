@@ -96,7 +96,7 @@ var calImipBar = {
     //      It initialises `itipItem` and sets it on the channel.
     // 4. msgHdrView.js gathers `itipItem` and `imipMethod` from the channel.
 
-    cal.itip.initItemFromMsgData(itipItem, imipMethod, gMessageDisplay.displayedMessage);
+    cal.itip.initItemFromMsgData(itipItem, imipMethod, gMessage);
 
     if (Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
       window.dispatchEvent(new CustomEvent("onItipItemCreation", { detail: itipItem }));
@@ -285,7 +285,7 @@ var calImipBar = {
 
     // We override the bar label for sent out invitations and in case the event does not exist
     // anymore, we also clear the buttons if any to avoid e.g. accept/decline buttons
-    if (isOutgoing(gMessageDisplay.displayedMessage)) {
+    if (isOutgoing(gMessage)) {
       if (calImipBar.foundItems && calImipBar.foundItems[0]) {
         data.label = cal.l10n.getLtnString("imipBarSentText");
       } else {

@@ -209,7 +209,7 @@ class FolderDBListener {
   /** @implements {nsIDBChangeListener} */
   onHdrFlagsChanged(hdrChanged, oldFlags, newFlags, instigator) {
     // Bail out if the changed message isn't the one currently displayed.
-    if (hdrChanged != gFolderDisplay.selectedMessage) {
+    if (hdrChanged != gMessage) {
       return;
     }
 
@@ -263,13 +263,12 @@ class FolderDBListener {
  * listen for any flags change happening in the currently displayed messages.
  */
 function initFolderDBListener() {
-  let messageFolder = gMessageDisplay.displayedMessage?.folder;
   // Bail out if we don't have a selected message, or we already have a
   // DBListener initialized and the folder didn't change.
   if (
-    !messageFolder ||
+    !gFolder ||
     (gFolderDBListener?.isRegistered &&
-      gFolderDBListener.selectedFolder == messageFolder)
+      gFolderDBListener.selectedFolder == gFolder)
   ) {
     return;
   }
@@ -278,7 +277,7 @@ function initFolderDBListener() {
   // any remaining of the old DBListener.
   clearFolderDBListener();
 
-  gFolderDBListener = new FolderDBListener(messageFolder);
+  gFolderDBListener = new FolderDBListener(gFolder);
   gFolderDBListener.register();
 }
 
@@ -616,13 +615,8 @@ var messageHeaderSink2 = {
     // Load feed web page if so configured. This entry point works for
     // messagepane loads in 3pane folder tab, 3pane message tab, and the
     // standalone message window.
-    if (
-      !FeedMessageHandler.shouldShowSummary(
-        gMessageDisplay.displayedMessage,
-        false
-      )
-    ) {
-      FeedMessageHandler.setContent(gMessageDisplay.displayedMessage, false);
+    if (!FeedMessageHandler.shouldShowSummary(gMessage, false)) {
+      FeedMessageHandler.setContent(gMessage, false);
     }
 
     ShowMessageHeaderPane();
@@ -746,7 +740,7 @@ var messageHeaderSink2 = {
     }
 
     let expandedfromLabel = document.getElementById("expandedfromLabel");
-    if (gFolderDisplay.selectedMessageIsFeed) {
+    if (FeedUtils.isFeedMessage(gMessage)) {
       expandedfromLabel.value = expandedfromLabel.getAttribute("valueAuthor");
     } else {
       expandedfromLabel.value = expandedfromLabel.getAttribute("valueFrom");
@@ -841,13 +835,11 @@ var messageHeaderSink2 = {
    * corresponds to the end of the streaming process.
    */
   onEndMsgDownload(url) {
-    gMessageDisplay.onLoadCompleted();
-
     let browser = getMessagePaneBrowser();
     if (
       currentAttachments.length &&
       Services.prefs.getBoolPref("mail.inline_attachments") &&
-      gFolderDisplay.selectedMessageIsFeed &&
+      FeedUtils.isFeedMessage(gMessage) &&
       browser &&
       browser.contentDocument &&
       browser.contentDocument.body
@@ -888,8 +880,7 @@ var messageHeaderSink2 = {
  * Update the flagged (starred) state of the currently selected message.
  */
 function updateStarButton() {
-  let msgHdr = gFolderDisplay.selectedMessage;
-  if (!msgHdr || gMessageDisplay.isDummy) {
+  if (!gMessage || !gFolder) {
     // No msgHdr to update, or we're dealing with an .eml.
     document.getElementById("starMessageButton").hidden = true;
     return;
@@ -898,7 +889,7 @@ function updateStarButton() {
   let flagButton = document.getElementById("starMessageButton");
   flagButton.hidden = false;
 
-  let isFlagged = msgHdr.isFlagged;
+  let isFlagged = gMessage.isFlagged;
   flagButton.classList.toggle("flagged", isFlagged);
   flagButton.setAttribute("aria-checked", isFlagged);
 }
@@ -1206,7 +1197,7 @@ function UpdateExpandedMessageHeaders() {
         !(
           gViewAllHeaders ||
           gHeadersShowReferences ||
-          gFolderDisplay.view.isNewsFolder
+          gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)
         )
       ) {
         // Hide references header if view all headers mode isn't selected, the
@@ -1398,7 +1389,7 @@ function outputEmailAddresses(headerEntry, emailAddresses) {
  *                                         attachment.
  */
 function AttachmentInfo(contentType, url, name, uri, isExternalAttachment) {
-  this.message = gFolderDisplay.selectedMessage;
+  this.message = gMessage;
   this.contentType = contentType;
   this.name = name;
   this.url = url;
@@ -1432,7 +1423,7 @@ AttachmentInfo.prototype = {
    * Save this attachment to a file.
    */
   async save() {
-    if (!this.hasFile || this.message != gFolderDisplay.selectedMessage) {
+    if (!this.hasFile || this.message != gMessage) {
       return;
     }
 
@@ -1454,7 +1445,7 @@ AttachmentInfo.prototype = {
    * Open this attachment.
    */
   async open() {
-    if (!this.hasFile || this.message != gFolderDisplay.selectedMessage) {
+    if (!this.hasFile || this.message != gMessage) {
       return;
     }
 
@@ -1914,9 +1905,10 @@ AttachmentInfo.prototype = {
  */
 function CanDetachAttachments() {
   var canDetach =
-    !gFolderDisplay.selectedMessageIsNews &&
-    (!gFolderDisplay.selectedMessageIsImap || MailOfflineMgr.isOnline()) &&
-    !gMessageDisplay.isDummy; // We can't detach from loaded eml files yet.
+    !gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false) &&
+    (!gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.ImapBox, false) ||
+      MailOfflineMgr.isOnline()) &&
+    gFolder; // We can't detach from loaded eml files yet.
   if (canDetach && "content-type" in currentHeaderData) {
     canDetach = !ContentTypeIsSMIME(
       currentHeaderData["content-type"].headerValue
@@ -2188,9 +2180,6 @@ var AttachmentMenuController = {
   },
 
   supportsCommand(aCommand) {
-    if (!gFolderDisplay) {
-      return false;
-    }
     return aCommand in this.commands;
   },
 
@@ -2449,7 +2438,7 @@ function updateAttachmentsDisplay(attachmentInfo, isFetching) {
       return;
     }
 
-    if (attachmentInfo.message != gFolderDisplay.selectedMessage) {
+    if (attachmentInfo.message != gMessage) {
       // The user changed messages while fetching, reset the bar and exit;
       // the listitems are torn down/rebuilt on each message load.
       attachmentIcon.setAttribute(
@@ -2867,7 +2856,7 @@ function HandleSelectedAttachments(action) {
 function HandleMultipleAttachments(attachments, action) {
   // Feed message link attachments save handling.
   if (
-    gFolderDisplay.selectedMessageIsFeed &&
+    FeedUtils.isFeedMessage(gMessage) &&
     (action == "save" || action == "saveAs")
   ) {
     saveLinkAttachmentsToFile(attachments);
@@ -2991,10 +2980,7 @@ function HandleMultipleAttachments(attachments, action) {
  */
 async function saveLinkAttachmentsToFile(aAttachmentInfoArray) {
   for (let attachment of aAttachmentInfoArray) {
-    if (
-      !attachment.hasFile ||
-      attachment.message != gFolderDisplay.selectedMessage
-    ) {
+    if (!attachment.hasFile || attachment.message != gMessage) {
       continue;
     }
 
@@ -3080,9 +3066,7 @@ function onShowOtherActionsPopup() {
   // Check because this menuitem element is not present in messageWindow.xhtml.
   if (openConversation) {
     openConversation.disabled = !(
-      glodaEnabled &&
-      gFolderDisplay?.selectedCount > 0 &&
-      Gloda.isMessageIndexed(gFolderDisplay.selectedMessage)
+      glodaEnabled && Gloda.isMessageIndexed(gMessage)
     );
   }
 
@@ -3097,7 +3081,7 @@ function onShowOtherActionsPopup() {
   }
 
   // Check if the current message is feed or not.
-  let isFeed = FeedUtils.isFeedMessage(gFolderDisplay.selectedMessage);
+  let isFeed = FeedUtils.isFeedMessage(gMessage);
   document.getElementById("otherActionsMessageBodyAs").hidden = isFeed;
   document.getElementById("otherActionsFeedBodyAs").hidden = !isFeed;
 }
@@ -3349,10 +3333,8 @@ const gMessageHeader = {
    * @returns {?nsISubscribableServer} The server for the newsgroup, or null.
    */
   get newsgroupServer() {
-    if (gFolderDisplay.selectedMessageIsNews) {
-      return gFolderDisplay.selectedMessage.folder.server?.QueryInterface(
-        Ci.nsISubscribableServer
-      );
+    if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)) {
+      return gFolder.server?.QueryInterface(Ci.nsISubscribableServer);
     }
 
     return null;
@@ -3468,13 +3450,13 @@ const gMessageHeader = {
     // We don't want to show "Open Message For ID" for the same message
     // we're viewing.
     document.getElementById("messageIdContext-openMessageForMsgId").hidden =
-      `<${gFolderDisplay.selectedMessage.messageId}>` == element.id;
+      `<${gMessage.messageId}>` == element.id;
 
     // We don't want to show "Open Browser With Message-ID" for non-nntp
     // messages.
     document.getElementById(
       "messageIdContext-openBrowserWithMsgId"
-    ).hidden = !gFolderDisplay.selectedMessageIsNews;
+    ).hidden = !gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false);
 
     let popup = document.getElementById("messageIdContext");
     popup.headerField = element;
@@ -3541,9 +3523,9 @@ const gMessageHeader = {
       ? Ci.nsIMsgCompFormat.OppositeOfDefault
       : Ci.nsIMsgCompFormat.Default;
 
-    if (gFolderDisplay.displayedFolder) {
+    if (gFolder) {
       params.identity = MailServices.accounts.getFirstIdentityForServer(
-        gFolderDisplay.displayedFolder.server
+        gFolder.server
       );
     }
     params.composeFields = fields;
@@ -3640,7 +3622,7 @@ const gMessageHeader = {
     let element = event.currentTarget.parentNode.headerField;
     top.MsgFilters(
       element.emailAddress || element.value.textContent,
-      gMessageDisplay?.displayedMessage?.folder,
+      gFolder,
       element.dataset.headerName
     );
   },
@@ -3658,14 +3640,13 @@ const gMessageHeader = {
    * Set the tags to the message header tag element.
    */
   setTags() {
-    let msgHdr = gFolderDisplay.selectedMessage;
     // Bail out if we don't have a message selected.
-    if (!msgHdr || !gFolder) {
+    if (!gMessage || !gFolder) {
       return;
     }
 
     // Extract the tag keys from the message header.
-    let msgKeyArray = msgHdr.getStringProperty("keywords").split(" ");
+    let msgKeyArray = gMessage.getStringProperty("keywords").split(" ");
 
     // Get the list of known tags.
     let tagsArray = MailServices.tags.getAllTags().filter(t => t.tag);
@@ -3834,7 +3815,7 @@ function AdjustHeaderView(headermode) {
 function IsReplyEnabled() {
   // If we're in an rss item, we never want to Reply, because there's
   // usually no-one useful to reply to.
-  return !gFolderDisplay.selectedMessageIsFeed;
+  return !FeedUtils.isFeedMessage(gMessage);
 }
 
 /**
@@ -3843,20 +3824,19 @@ function IsReplyEnabled() {
  * @return whether the reply-all command/button should be enabled.
  */
 function IsReplyAllEnabled() {
-  if (gFolderDisplay.selectedMessageIsNews) {
+  if (gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)) {
     // If we're in a news item, we always want ReplyAll, because we can
     // reply to the sender and the newsgroup.
     return true;
   }
-  if (gFolderDisplay.selectedMessageIsFeed) {
+  if (FeedUtils.isFeedMessage(gMessage)) {
     // If we're in an rss item, we never want to ReplyAll, because there's
     // usually no-one useful to reply to.
     return false;
   }
 
-  let msgHdr = gFolderDisplay.selectedMessage;
-
-  let addresses = msgHdr.author + "," + msgHdr.recipients + "," + msgHdr.ccList;
+  let addresses =
+    gMessage.author + "," + gMessage.recipients + "," + gMessage.ccList;
 
   // If we've got any BCCed addresses (because we sent the message), add
   // them as well.
@@ -3865,7 +3845,7 @@ function IsReplyAllEnabled() {
   }
 
   // Check to see if my email address is in the list of addresses.
-  let [myIdentity] = MailUtils.getIdentityForHeader(msgHdr);
+  let [myIdentity] = MailUtils.getIdentityForHeader(gMessage);
   let myEmail = myIdentity ? myIdentity.email : null;
   // We aren't guaranteed to have an email address, so guard against that.
   let imInAddresses =
@@ -3919,15 +3899,15 @@ function UpdateReplyButtons() {
   // If we have no message, because we're being called from
   // MailToolboxCustomizeDone before someone selected a message, then just
   // return.
-  if (!gFolderDisplay.selectedMessage) {
+  if (!gMessage) {
     return;
   }
 
   let buttonToShow;
-  if (gFolderDisplay.selectedMessageIsNews) {
+  if (gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)) {
     // News messages always default to the "followup" dual-button.
     buttonToShow = "followup";
-  } else if (gFolderDisplay.selectedMessageIsFeed) {
+  } else if (FeedUtils.isFeedMessage(gMessage)) {
     // RSS items hide all the reply buttons.
     buttonToShow = null;
   } else if (IsReplyListEnabled()) {
@@ -3955,7 +3935,7 @@ function UpdateReplyButtons() {
 
   let replyToSenderButton = document.getElementById("hdrReplyToSenderButton");
   if (replyToSenderButton) {
-    if (gFolderDisplay.selectedMessageIsFeed) {
+    if (FeedUtils.isFeedMessage(gMessage)) {
       replyToSenderButton.hidden = true;
     } else if (smartReplyButton) {
       replyToSenderButton.hidden = buttonToShow == "reply";
@@ -3972,9 +3952,7 @@ function UpdateReplyButtons() {
 
 function SelectedMessagesAreJunk() {
   try {
-    var junkScore = gFolderDisplay.selectedMessage.getStringProperty(
-      "junkscore"
-    );
+    let junkScore = gMessage.getStringProperty("junkscore");
     return junkScore != "" && junkScore != "0";
   } catch (ex) {
     return false;
@@ -3982,44 +3960,15 @@ function SelectedMessagesAreJunk() {
 }
 
 function SelectedMessagesAreRead() {
-  let messages = gFolderDisplay.selectedMessages;
-  if (messages.length == 0) {
-    return undefined;
-  }
-  if (
-    messages.every(function(msg) {
-      return msg.isRead;
-    })
-  ) {
-    return true;
-  }
-  if (
-    messages.every(function(msg) {
-      return !msg.isRead;
-    })
-  ) {
-    return false;
-  }
-  return undefined;
+  return gMessage?.isRead;
 }
 
 function SelectedMessagesAreFlagged() {
-  let message;
-
-  let tab = document.getElementById("tabmail")?.currentTabInfo;
-  if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
-    message = tab.message;
-  } else if (tab?.mode.tabType.name == "mail") {
-    message = tab.folderDisplay.selectedMessage;
-  } else {
-    message = gFolderDisplay.selectedMessage;
-  }
-
-  return message?.isFlagged;
+  return gMessage?.isFlagged;
 }
 
 function MsgReplyMessage(event) {
-  if (gFolderDisplay.selectedMessageIsNews) {
+  if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)) {
     MsgReplyGroup(event);
   } else {
     MsgReplySender(event);
@@ -4049,9 +3998,8 @@ function MsgReplyToListMessage(event) {
  */
 function MsgArchiveSelectedMessages(event) {
   let archiver = new MessageArchiver();
-  archiver.folderDisplay = gFolderDisplay;
   archiver.msgWindow = top.msgWindow;
-  archiver.archiveMessages(gFolderDisplay.selectedMessages);
+  archiver.archiveMessages([gMessage]);
 }
 
 function MsgForwardMessage(event) {
@@ -4102,8 +4050,8 @@ function MsgComposeDraftMessage() {
   top.ComposeMessage(
     Ci.nsIMsgCompType.Draft,
     Ci.nsIMsgCompFormat.Default,
-    gFolderDisplay.displayedFolder,
-    gFolderDisplay.selectedMessageUris
+    gFolder,
+    [gMessageURI]
   );
 }
 
@@ -4113,15 +4061,14 @@ function MsgComposeDraftMessage() {
 function UpdateJunkButton() {
   // The junk message should slave off the selected message, as the preview pane
   //  may not be visible
-  let hdr = gFolderDisplay.selectedMessage;
   // But only the message display knows if we are dealing with a dummy.
-  if (!hdr || gMessageDisplay.isDummy) {
+  if (!gMessage || !gFolder) {
     // .eml file
     return;
   }
-  let junkScore = hdr.getStringProperty("junkscore");
+  let junkScore = gMessage.getStringProperty("junkscore");
   let hideJunk = junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE;
-  if (!gFolderDisplay.getCommandStatus(Ci.nsMsgViewCommandType.junk)) {
+  if (!commandController._getViewCommandStatus(Ci.nsMsgViewCommandType.junk)) {
     hideJunk = true;
   }
   if (document.getElementById("hdrJunkButton")) {
@@ -4136,9 +4083,7 @@ function UpdateJunkButton() {
  * @return true if the chosen operation can be performed
  */
 function CanMarkMsgAsRead(markingRead) {
-  return (
-    gFolderDisplay.selectedCount > 0 && SelectedMessagesAreRead() != markingRead
-  );
+  return gMessage && SelectedMessagesAreRead() != markingRead;
 }
 
 /**
@@ -4149,7 +4094,7 @@ function CanMarkMsgAsRead(markingRead) {
  */
 function MsgMarkMsgAsRead(read) {
   if (read == undefined) {
-    read = !gFolderDisplay.selectedMessage.isRead;
+    read = !gMessage.isRead;
   }
   MarkSelectedMessagesRead(read);
 }
@@ -4491,12 +4436,11 @@ var gMessageNotificationBar = {
   },
 
   setDraftEditMessage() {
-    let msgHdr = gFolderDisplay.selectedMessage;
-    if (!msgHdr || !msgHdr.folder) {
+    if (!gMessage || !gFolder) {
       return;
     }
 
-    if (msgHdr.folder.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)) {
+    if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)) {
       let draftMsgNote = this.stringBundle.getString("draftMessageMsg");
 
       let buttons = [
@@ -4546,9 +4490,7 @@ function LoadMsgWithRemoteContent() {
 function onRemoteContentOptionsShowing(aEvent) {
   let origins = aEvent.target.value ? aEvent.target.value.split(" ") : [];
 
-  let addresses = MailServices.headerParser.parseEncodedHeader(
-    gMessageDisplay.displayedMessage.author
-  );
+  let addresses = MailServices.headerParser.parseEncodedHeader(gMessage.author);
   addresses = addresses.slice(0, 1);
   // If there is an author's email, put it also in the menu.
   let adrCount = addresses.length;
@@ -4669,9 +4611,8 @@ function OpenPhishingSettings() {
 function setMsgHdrPropertyAndReload(aProperty, aValue) {
   // we want to get the msg hdr for the currently selected message
   // change the appropriate property on it then reload the message
-  var msgHdr = gMessageDisplay.displayedMessage;
-  if (msgHdr) {
-    msgHdr.setUint32Property(aProperty, aValue);
+  if (gMessage) {
+    gMessage.setUint32Property(aProperty, aValue);
     ReloadMessage();
   }
 }
@@ -4708,19 +4649,16 @@ function OnMsgParsed(aUrl) {
   let browser = getMessagePaneBrowser();
   // Run the phishing detector on the message if it hasn't been marked as not
   // a scam already.
-  var msgHdr = gMessageDisplay.displayedMessage;
   if (
-    msgHdr &&
-    !msgHdr.getUint32Property("notAPhishMessage") &&
+    gMessage &&
+    !gMessage.getUint32Property("notAPhishMessage") &&
     PhishingDetector.analyzeMsgForPhishingURLs(aUrl, browser)
   ) {
     gMessageNotificationBar.setPhishingMsg();
   }
 
   // Notify anyone (e.g., extensions) who's interested in when a message is loaded.
-  let selectedMessageUris = gFolderDisplay.selectedMessageUris;
-  let msgURI = selectedMessageUris ? selectedMessageUris[0] : null;
-  Services.obs.notifyObservers(null, "MsgMsgDisplayed", msgURI);
+  Services.obs.notifyObservers(null, "MsgMsgDisplayed", gMessageURI);
 
   let doc = browser && browser.contentDocument ? browser.contentDocument : null;
 
@@ -4786,12 +4724,11 @@ function OnMsgLoaded(aUrl) {
     return;
   }
 
-  let msgHdr = gMessageDisplay.displayedMessage;
   window.dispatchEvent(
-    new CustomEvent("MsgLoaded", { detail: msgHdr, bubbles: true })
+    new CustomEvent("MsgLoaded", { detail: gMessage, bubbles: true })
   );
 
-  if (gMessageDisplay.isDummy) {
+  if (!gFolder) {
     return;
   }
 
@@ -4801,7 +4738,7 @@ function OnMsgLoaded(aUrl) {
       : window;
   let wintype = win.document.documentElement.getAttribute("windowtype");
 
-  gMessageNotificationBar.setJunkMsg(msgHdr);
+  gMessageNotificationBar.setJunkMsg(gMessage);
 
   goUpdateCommand("button_delete");
 
@@ -4812,7 +4749,7 @@ function OnMsgLoaded(aUrl) {
   // We just finished loading a message. If messages are to be marked as read
   // automatically, set a timer to mark the message is read after n seconds
   // where n can be configured by the user.
-  if (msgHdr && !msgHdr.isRead && markReadAutoMode) {
+  if (gMessage && !gMessage.isRead && markReadAutoMode) {
     let markReadOnADelay = Services.prefs.getBoolPref(
       "mailnews.mark_message_read.delay"
     );
@@ -4826,17 +4763,17 @@ function OnMsgLoaded(aUrl) {
         "mailnews.mark_message_read.delay.interval"
       );
       if (markReadDelayTime == 0) {
-        MarkMessageAsRead(msgHdr);
+        MarkMessageAsRead(gMessage);
       } else {
         gMarkViewedMessageAsReadTimer = setTimeout(
           MarkMessageAsRead,
           markReadDelayTime * 1000,
-          msgHdr
+          gMessage
         );
       }
     } else {
       // standalone msg window
-      MarkMessageAsRead(msgHdr);
+      MarkMessageAsRead(gMessage);
     }
   }
 
@@ -4859,8 +4796,11 @@ function HandleMDNResponse(aUrl) {
   }
 
   var msgFolder = aUrl.folder;
-  var msgHdr = gFolderDisplay.selectedMessage;
-  if (!msgFolder || !msgHdr || gFolderDisplay.selectedMessageIsNews) {
+  if (
+    !msgFolder ||
+    !gMessage ||
+    gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)
+  ) {
     return;
   }
 
@@ -4881,17 +4821,17 @@ function HandleMDNResponse(aUrl) {
   // If we didn't get the message id when we downloaded the message header,
   // we cons up an md5: message id. If we've done that, we'll try to extract
   // the message id out of the mime headers for the whole message.
-  var msgId = msgHdr.messageId;
+  let msgId = gMessage.messageId;
   if (msgId.startsWith("md5:")) {
     var mimeMsgId = mimeHdr.extractHeader("Message-Id", false);
     if (mimeMsgId) {
-      msgHdr.messageId = mimeMsgId;
+      gMessage.messageId = mimeMsgId;
     }
   }
 
   // After a msg is downloaded it's already marked READ at this point so we must check if
   // the msg has a "Disposition-Notification-To" header and no MDN report has been sent yet.
-  if (msgHdr.flags & Ci.nsMsgMessageFlags.MDNReportSent) {
+  if (gMessage.flags & Ci.nsMsgMessageFlags.MDNReportSent) {
     return;
   }
 
@@ -4910,12 +4850,12 @@ function HandleMDNResponse(aUrl) {
     MDN_DISPOSE_TYPE_DISPLAYED,
     top.msgWindow,
     msgFolder,
-    msgHdr.messageKey,
+    gMessage.messageKey,
     mimeHdr,
     false
   );
   if (askUser) {
-    gMessageNotificationBar.setMDNMsg(mdnGenerator, msgHdr, mimeHdr);
+    gMessageNotificationBar.setMDNMsg(mdnGenerator, gMessage, mimeHdr);
   }
 }
 

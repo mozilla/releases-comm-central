@@ -36,57 +36,6 @@ const messengerBundle = Services.strings.createBundle(
 var gFolder, gViewWrapper, gDBView, gMessage, gMessageURI;
 
 var content;
-var gFolderDisplay = {
-  get displayedFolder() {
-    return this.selectedMessage?.folder;
-  },
-  get selectedMessage() {
-    return gMessage;
-  },
-  get selectedMessages() {
-    if (gMessage) {
-      return [gMessage];
-    }
-    return [];
-  },
-  get selectedMessageUris() {
-    if (gMessageURI) {
-      return [gMessageURI];
-    }
-    return [];
-  },
-  getCommandStatus(commandType) {
-    // no view means not enabled
-    if (!gViewWrapper?.dbView) {
-      return false;
-    }
-
-    let enabledObj = {};
-    let checkStatusObj = {};
-    gViewWrapper.dbView.getCommandStatus(
-      commandType,
-      enabledObj,
-      checkStatusObj
-    );
-
-    return enabledObj.value;
-  },
-  selectedMessageIsNews: false,
-  selectedMessageIsFeed: false,
-  view: {
-    isNewsFolder: false,
-  },
-};
-
-var gMessageDisplay = {
-  get displayedMessage() {
-    return gMessage;
-  },
-  get isDummy() {
-    return !gFolder;
-  },
-  onLoadCompleted() {},
-};
 
 function getMessagePaneBrowser() {
   return content;
@@ -96,13 +45,7 @@ function ReloadMessage() {
   if (!gMessageURI) {
     return;
   }
-  // If the current message was loaded from a file or attachment, the dbView
-  // can't handle reloading it. Let's do it ourselves, instead.
-  if (gMessageDisplay.isDummy) {
-    displayExternalMessage(gMessageURI);
-  } else {
-    displayMessage(gMessageURI, gViewWrapper);
-  }
+  displayMessage(gMessageURI, gViewWrapper);
 }
 
 function MailSetCharacterSet() {
@@ -159,20 +102,6 @@ window.addEventListener("keypress", event => {
   }
 });
 
-function displayExternalMessage(uri) {
-  // This should just happen as part of displayMessage.
-  gFolder = null;
-  gMessageURI = uri;
-  gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
-  gViewWrapper.openSearchView();
-  gDBView = gViewWrapper.dbView;
-
-  let messageService = MailServices.messageServiceFromURI(uri);
-  messageService.DisplayMessage(uri, content.docShell, null, null, null, {});
-
-  gMessage = top.messenger.msgHdrFromURI(uri);
-}
-
 function displayMessage(uri, viewWrapper) {
   ClearPendingReadTimer();
   gMessageURI = uri;
@@ -194,24 +123,26 @@ function displayMessage(uri, viewWrapper) {
 
   let messageService = MailServices.messageServiceFromURI(uri);
   gMessage = messageService.messageURIToMsgHdr(uri);
+  gFolder = gMessage.folder;
 
-  if (gMessage) {
-    if (gFolder != gMessage.folder) {
-      gFolder = gMessage.folder;
-    }
+  if (gFolder) {
     if (viewWrapper) {
       gViewWrapper = viewWrapper.clone(dbViewWrapperListener);
     } else {
       gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
-      gViewWrapper._viewFlags = 1;
+      gViewWrapper._viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
       gViewWrapper.open(gFolder);
     }
+
     gViewWrapper.dbView.selection = new JSTreeSelection();
     gViewWrapper.dbView.selection.select(
       gViewWrapper.dbView.findIndexOfMsgHdr(gMessage, true)
     );
-    gDBView = gViewWrapper.dbView;
+  } else {
+    gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
+    gViewWrapper.openSearchView();
   }
+  gDBView = gViewWrapper.dbView;
 
   MailE10SUtils.changeRemoteness(content, null);
   content.docShell.allowAuth = false;
@@ -237,8 +168,8 @@ function displayMessage(uri, viewWrapper) {
 }
 
 function GetSelectedMsgFolders() {
-  if (gFolderDisplay.displayedFolder) {
-    return [gFolderDisplay.displayedFolder];
+  if (gFolder) {
+    return [gFolder];
   }
   return [];
 }

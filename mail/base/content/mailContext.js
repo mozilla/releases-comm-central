@@ -251,7 +251,6 @@ var mailContextMenu = {
     let message = isDummyMessage
       ? top.messenger.msgHdrFromURI(window.gMessageURI)
       : gDBView.hdrForFirstSelectedMessage;
-    let folder = gViewWrapper.displayedFolder;
     let numSelectedMessages = isDummyMessage ? 1 : gDBView.numSelected;
     let isNewsgroup = gFolder?.isSpecialFolder(
       Ci.nsMsgFolderFlags.Newsgroup,
@@ -299,15 +298,15 @@ var mailContextMenu = {
 
     checkItem(
       "mailContext-ignoreThread",
-      folder?.msgDatabase.isIgnored(message?.messageKey)
+      gFolder?.msgDatabase.isIgnored(message?.messageKey)
     );
     checkItem(
       "mailContext-ignoreSubthread",
-      folder && message.flags & Ci.nsMsgMessageFlags.Ignored
+      gFolder && message.flags & Ci.nsMsgMessageFlags.Ignored
     );
     checkItem(
       "mailContext-watchThread",
-      folder?.msgDatabase.isWatched(message?.messageKey)
+      gFolder?.msgDatabase.isWatched(message?.messageKey)
     );
 
     showItem(
