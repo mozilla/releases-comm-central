@@ -117,7 +117,7 @@ window.addEventListener("DOMContentLoaded", event => {
   });
 
   splitter2.addEventListener("splitter-resized", () => {
-    if (splitter2.orientation == "vertical") {
+    if (splitter2.resizeDirection == "vertical") {
       Services.xulStore.setValue(
         "chrome://messenger/content/messenger.xhtml",
         "messagepaneboxwrapper",
