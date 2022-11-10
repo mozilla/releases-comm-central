@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-"use strict";
-
 /**
  * Custom Element containing the main account hub dialog. Used to append the
  * needed CSS files to the shadowDom to prevent style leakage.
