@@ -17,14 +17,14 @@ export class ContextMenuParent extends JSWindowActorParent {
     let tabmail = win.document.getElementById("tabmail");
     if (tabmail) {
       let chromeBrowser = tabmail.currentTabInfo.chromeBrowser;
-      if (chromeBrowser) {
-        chromeBrowser.contentWindow.openContextMenu(message, browser, this);
+      if (
+        chromeBrowser?.contentWindow.openContextMenu(message, browser, this)
+      ) {
         return;
       }
     }
     let messageBrowser = win.document.getElementById("messageBrowser");
-    if (messageBrowser) {
-      messageBrowser.contentWindow.openContextMenu(message, browser, this);
+    if (messageBrowser?.contentWindow.openContextMenu(message, browser, this)) {
       return;
     }
 

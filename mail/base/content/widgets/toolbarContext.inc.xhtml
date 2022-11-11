@@ -1,0 +1,19 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, you can obtain one at http://mozilla.org/MPL/2.0/.
+
+<menupopup id="toolbar-context-menu"
+           onpopupshowing="calendarOnToolbarsPopupShowing(event); ToolbarContextMenu.updateExtension(this);">
+  <menuseparator id="customizeMailToolbarMenuSeparator"/>
+  <menuitem id="CustomizeMailToolbar"
+            command="cmd_CustomizeMailToolbar"
+            label="&customizeToolbar.label;"
+            accesskey="&customizeToolbar.accesskey;"/>
+  <menuseparator id="extensionsMailToolbarMenuSeparator"/>
+  <menuitem oncommand="ToolbarContextMenu.openAboutAddonsForContextAction(this.parentElement)"
+            data-l10n-id="toolbar-context-menu-manage-extension"
+            class="customize-context-manageExtension"/>
+  <menuitem oncommand="ToolbarContextMenu.removeExtensionForContextAction(this.parentElement)"
+            data-l10n-id="toolbar-context-menu-remove-extension"
+            class="customize-context-removeExtension"/>
+</menupopup>

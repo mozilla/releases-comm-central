@@ -259,7 +259,7 @@ class BasePopup {
     browser.setAttribute("class", "webextension-popup-browser");
     browser.setAttribute("webextension-view-type", "popup");
     browser.setAttribute("tooltip", "aHTMLTooltip");
-    browser.setAttribute("context", "mailContext");
+    browser.setAttribute("context", "browserContext");
     browser.setAttribute("autocompletepopup", "PopupAutoComplete");
     browser.setAttribute("selectmenulist", "ContentSelectDropdown");
     browser.setAttribute("selectmenuconstrained", "false");

@@ -1,11 +1,8 @@
-/**
- * This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from mailTabs.js */
-/* import-globals-from mailWindow.js */
-/* import-globals-from utilityOverlay.js */
+/* import-globals-from ../utilityOverlay.js */
 
 var { InlineSpellChecker, SpellCheckHelper } = ChromeUtils.importESModule(
   "resource://gre/modules/InlineSpellChecker.sys.mjs"
@@ -28,6 +25,7 @@ var { E10SUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/E10SUtils.sys.mjs"
 );
 
+var gContextMenu;
 var gSpellChecker = new InlineSpellChecker();
 
 /** Called by ContextMenuParent.sys.mjs */
@@ -83,9 +81,9 @@ function openContextMenu({ data }, browser, actor) {
     webExtContextData: data.webExtContextData,
   };
 
-  let popup = browser.ownerDocument.getElementById(
-    browser.getAttribute("context")
-  );
+  // Note: `popup` must be in `document`, but `browser` might be in a
+  // different document, such as about:3pane.
+  let popup = document.getElementById(browser.getAttribute("context"));
   let context = nsContextMenu.contentData.context;
 
   // We don't have access to the original event here, as that happened in
@@ -108,7 +106,7 @@ function openContextMenu({ data }, browser, actor) {
     false,
     false,
     false,
-    0,
+    2,
     null,
     0,
     context.mozInputSource
@@ -116,7 +114,35 @@ function openContextMenu({ data }, browser, actor) {
   popup.openPopupAtScreen(newEvent.screenX, newEvent.screenY, true, newEvent);
 }
 
-/** Called by a popupshowing event via fillMailContextMenu x3. */
+/**
+ * Function to set the global nsContextMenu. Called by popupshowing on browserContext.
+ *
+ * @param {Event} event - The onpopupshowing event.
+ * @returns {boolean}
+ */
+function browserContextOnShowing(event) {
+  if (event.target.id != "browserContext") {
+    return true;
+  }
+
+  gContextMenu = new nsContextMenu(event.target, event.shiftKey);
+  return gContextMenu.shouldDisplay;
+}
+
+/**
+ * Function to clear out the global nsContextMenu.
+ *
+ * @param {Event} event - The onpopuphiding event.
+ */
+function browserContextOnHiding(event) {
+  if (event.target.id != "browserContext") {
+    return;
+  }
+
+  gContextMenu.hiding();
+  gContextMenu = null;
+}
+
 class nsContextMenu {
   constructor(aXulMenu, aIsShift) {
     this.xulMenu = aXulMenu;
@@ -178,7 +204,7 @@ class nsContextMenu {
 
     // If all items in the menu are hidden, set this.shouldDisplay to false
     // so that the callers know to not even display the empty menu.
-    let contextPopup = document.getElementById("mailContext");
+    let contextPopup = document.getElementById("browserContext");
     for (let item of contextPopup.children) {
       if (!item.hidden) {
         return;
@@ -300,8 +326,8 @@ class nsContextMenu {
         this.actor.manager
       );
       let canSpell = gSpellChecker.canSpellCheck && this.canSpellCheck;
-      this.showItem("mailContext-spell-check-enabled", canSpell);
-      this.showItem("mailContext-spell-separator", canSpell);
+      this.showItem("browserContext-spell-check-enabled", canSpell);
+      this.showItem("browserContext-spell-separator", canSpell);
     }
   }
 
@@ -335,62 +361,68 @@ class nsContextMenu {
     let showDictionaries = canSpell && gSpellChecker.enabled;
     let onMisspelling = gSpellChecker.overMisspelling;
     let showUndo = canSpell && gSpellChecker.canUndo();
-    this.showItem("mailContext-spell-check-enabled", canSpell);
-    this.showItem("mailContext-spell-separator", canSpell);
+    this.showItem("browserContext-spell-check-enabled", canSpell);
+    this.showItem("browserContext-spell-separator", canSpell);
     document
-      .getElementById("mailContext-spell-check-enabled")
+      .getElementById("browserContext-spell-check-enabled")
       .setAttribute("checked", canSpell && gSpellChecker.enabled);
 
-    this.showItem("mailContext-spell-add-to-dictionary", onMisspelling);
-    this.showItem("mailContext-spell-undo-add-to-dictionary", showUndo);
+    this.showItem("browserContext-spell-add-to-dictionary", onMisspelling);
+    this.showItem("browserContext-spell-undo-add-to-dictionary", showUndo);
 
     // suggestion list
     this.showItem(
-      "mailContext-spell-suggestions-separator",
+      "browserContext-spell-suggestions-separator",
       onMisspelling || showUndo
     );
     if (onMisspelling) {
       let addMenuItem = document.getElementById(
-        "mailContext-spell-add-to-dictionary"
+        "browserContext-spell-add-to-dictionary"
       );
       let suggestionCount = gSpellChecker.addSuggestionsToMenu(
         addMenuItem.parentNode,
         addMenuItem,
         this.spellSuggestions
       );
-      this.showItem("mailContext-spell-no-suggestions", suggestionCount == 0);
+      this.showItem(
+        "browserContext-spell-no-suggestions",
+        suggestionCount == 0
+      );
     } else {
-      this.showItem("mailContext-spell-no-suggestions", false);
+      this.showItem("browserContext-spell-no-suggestions", false);
     }
 
     // dictionary list
-    this.showItem("mailContext-spell-dictionaries", showDictionaries);
+    this.showItem("browserContext-spell-dictionaries", showDictionaries);
     if (canSpell) {
       let dictMenu = document.getElementById(
-        "mailContext-spell-dictionaries-menu"
+        "browserContext-spell-dictionaries-menu"
       );
       let dictSep = document.getElementById(
-        "mailContext-spell-language-separator"
+        "browserContext-spell-language-separator"
       );
       let count = gSpellChecker.addDictionaryListToMenu(dictMenu, dictSep);
       this.showItem(dictSep, count > 0);
-      this.showItem("mailContext-spell-add-dictionaries-main", false);
+      this.showItem("browserContext-spell-add-dictionaries-main", false);
     } else if (this.onSpellcheckable) {
       // when there is no spellchecker but we might be able to spellcheck
       // add the add to dictionaries item. This will ensure that people
       // with no dictionaries will be able to download them
-      this.showItem("mailContext-spell-language-separator", showDictionaries);
       this.showItem(
-        "mailContext-spell-add-dictionaries-main",
+        "browserContext-spell-language-separator",
+        showDictionaries
+      );
+      this.showItem(
+        "browserContext-spell-add-dictionaries-main",
         showDictionaries
       );
     } else {
-      this.showItem("mailContext-spell-add-dictionaries-main", false);
+      this.showItem("browserContext-spell-add-dictionaries-main", false);
     }
   }
   initSaveItems() {
-    this.showItem("mailContext-savelink", this.onSaveableLink);
-    this.showItem("mailContext-saveimage", this.onLoadedImage);
+    this.showItem("browserContext-savelink", this.onSaveableLink);
+    this.showItem("browserContext-saveimage", this.onLoadedImage);
   }
   initClipboardItems() {
     // Copy depends on whether there is selected text.
@@ -399,33 +431,31 @@ class nsContextMenu {
 
     goUpdateGlobalEditMenuItems();
 
-    this.showItem("mailContext-cut", this.onTextInput);
+    this.showItem("browserContext-cut", this.onTextInput);
     this.showItem(
-      "mailContext-copy",
+      "browserContext-copy",
       !this.onPlayableMedia && (this.isContentSelected || this.onTextInput)
     );
-    this.showItem("mailContext-paste", this.onTextInput);
+    this.showItem("browserContext-paste", this.onTextInput);
 
-    this.showItem("mailContext-undo", this.onTextInput);
+    this.showItem("browserContext-undo", this.onTextInput);
     // Select all not available in the thread pane or on playable media.
-    this.showItem("mailContext-selectall", !this.onPlayableMedia);
-    this.showItem("mailContext-copyemail", this.onMailtoLink);
-    this.showItem("mailContext-copylink", this.onLink && !this.onMailtoLink);
-    this.showItem("mailContext-copyimage", this.onImage);
+    this.showItem("browserContext-selectall", !this.onPlayableMedia);
+    this.showItem("browserContext-copyemail", this.onMailtoLink);
+    this.showItem("browserContext-copylink", this.onLink && !this.onMailtoLink);
+    this.showItem("browserContext-copyimage", this.onImage);
 
-    this.showItem("mailContext-composeemailto", this.onMailtoLink);
-    this.showItem("mailContext-addemail", this.onMailtoLink);
+    this.showItem("browserContext-composeemailto", this.onMailtoLink);
+    this.showItem("browserContext-addemail", this.onMailtoLink);
 
-    let searchTheWeb = document.getElementById("mailContext-searchTheWeb");
+    let searchTheWeb = document.getElementById("browserContext-searchTheWeb");
     this.showItem(
       searchTheWeb,
       !this.onPlayableMedia && this.isContentSelected
     );
 
     if (!searchTheWeb.hidden) {
-      let selection = document.commandDispatcher.focusedWindow
-        .getSelection()
-        .toString();
+      let selection = this.textSelected;
 
       let bundle = document.getElementById("bundle_messenger");
       let key = "openSearch.label";
@@ -447,18 +477,18 @@ class nsContextMenu {
   initMediaPlayerItems() {
     let onMedia = this.onVideo || this.onAudio;
     // Several mutually exclusive items.... play/pause, mute/unmute, show/hide
-    this.showItem("mailContext-media-play", onMedia && this.target.paused);
-    this.showItem("mailContext-media-pause", onMedia && !this.target.paused);
-    this.showItem("mailContext-media-mute", onMedia && !this.target.muted);
-    this.showItem("mailContext-media-unmute", onMedia && this.target.muted);
+    this.showItem("browserContext-media-play", onMedia && this.target.paused);
+    this.showItem("browserContext-media-pause", onMedia && !this.target.paused);
+    this.showItem("browserContext-media-mute", onMedia && !this.target.muted);
+    this.showItem("browserContext-media-unmute", onMedia && this.target.muted);
     if (onMedia) {
       let hasError =
         this.target.error != null ||
         this.target.networkState == this.target.NETWORK_NO_SOURCE;
-      this.setItemAttr("mailContext-media-play", "disabled", hasError);
-      this.setItemAttr("mailContext-media-pause", "disabled", hasError);
-      this.setItemAttr("mailContext-media-mute", "disabled", hasError);
-      this.setItemAttr("mailContext-media-unmute", "disabled", hasError);
+      this.setItemAttr("browserContext-media-play", "disabled", hasError);
+      this.setItemAttr("browserContext-media-pause", "disabled", hasError);
+      this.setItemAttr("browserContext-media-mute", "disabled", hasError);
+      this.setItemAttr("browserContext-media-unmute", "disabled", hasError);
     }
   }
   initBrowserItems() {
@@ -480,8 +510,8 @@ class nsContextMenu {
     }
 
     // These only needs showing if we're not on something special.
-    this.showItem("mailContext-stop", notOnSpecialItem);
-    this.showItem("mailContext-reload", notOnSpecialItem);
+    this.showItem("browserContext-stop", notOnSpecialItem);
+    this.showItem("browserContext-reload", notOnSpecialItem);
 
     let loadedProtocol = "";
     if (this.target && this.target.ownerGlobal?.top.location) {
@@ -493,14 +523,14 @@ class nsContextMenu {
     // unlikely to show the same thing as we do (if at all), so therefore don't
     // offer the option.
     this.showItem(
-      "mailContext-openInBrowser",
+      "browserContext-openInBrowser",
       notOnSpecialItem && ["http:", "https:"].includes(loadedProtocol)
     );
 
-    // Only show mailContext-openLinkInBrowser if we're on a link and it isn't
+    // Only show browserContext-openLinkInBrowser if we're on a link and it isn't
     // a mailto link.
     this.showItem(
-      "mailContext-openLinkInBrowser",
+      "browserContext-openLinkInBrowser",
       this.onLink && ["http", "https"].includes(this.linkProtocol)
     );
   }

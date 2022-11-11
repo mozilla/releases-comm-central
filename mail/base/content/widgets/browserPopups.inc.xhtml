@@ -2,175 +2,131 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef NO_MAILCONTEXT
-  <!-- "Please keep all items and separators up to date in nsContextMenu.js when making changes here" -->
-  <menupopup id="mailContext"
-             onpopupshowing="return fillMailContextMenu(event);"
-             onpopuphiding="mailContextOnPopupHiding(event);">
+#ifndef NO_BROWSERCONTEXT
+  <menupopup id="browserContext"
+             onpopupshowing="return browserContextOnShowing(event);"
+             onpopuphiding="browserContextOnHiding(event);">
     <!-- Spellchecking suggestions -->
-    <menuitem id="mailContext-spell-no-suggestions"
+    <menuitem id="browserContext-spell-no-suggestions"
               disabled="true"
               data-l10n-id="text-action-spell-no-suggestions"/>
-    <menuitem id="mailContext-spell-add-to-dictionary"
+    <menuitem id="browserContext-spell-add-to-dictionary"
               data-l10n-id="text-action-spell-add-to-dictionary"
               oncommand="gSpellChecker.addToDictionary();"/>
-    <menuitem id="mailContext-spell-undo-add-to-dictionary"
+    <menuitem id="browserContext-spell-undo-add-to-dictionary"
               data-l10n-id="text-action-spell-undo-add-to-dictionary"
               oncommand="gSpellChecker.undoAddToDictionary();" />
-    <menuseparator id="mailContext-spell-suggestions-separator"/>
+    <menuseparator id="browserContext-spell-suggestions-separator"/>
 
-    <menuitem id="mailContext-openInBrowser"
+    <menuitem id="browserContext-openInBrowser"
               label="&openInBrowser.label;"
               accesskey="&openInBrowser.accesskey;"
               oncommand="gContextMenu.openInBrowser();"/>
-    <menuitem id="mailContext-openLinkInBrowser"
+    <menuitem id="browserContext-openLinkInBrowser"
               label="&openLinkInBrowser.label;"
               accesskey="&openLinkInBrowser.accesskey;"
               oncommand="gContextMenu.openLinkInBrowser();"/>
-    <menuseparator id="mailContext-sep-open-browser"/>
-    <menuitem id="mailContext-reload"
+    <menuseparator id="browserContext-sep-open-browser"/>
+    <menuitem id="browserContext-reload"
               label="&reloadCmd.label;"
               accesskey="&reloadCmd.accesskey;"
               command="cmd_reload"/>
-    <menuitem id="mailContext-stop"
+    <menuitem id="browserContext-stop"
               label="&stopCmd.label;"
               accesskey="&stopCmd.accesskey;"
               command="cmd_stop"/>
-    <menuseparator id="mailContext-sep-link"/>
-    <menuitem id="mailContext-undo"
+    <menuseparator id="browserContext-sep-link"/>
+    <menuitem id="browserContext-undo"
               label="&undoDefaultCmd.label;"
               accesskey="&undoDefaultCmd.accesskey;"
               command="cmd_undo"/>
-    <menuseparator id="mailContext-sep-undo"/>
-    <menuitem id="mailContext-cut"
+    <menuseparator id="browserContext-sep-undo"/>
+    <menuitem id="browserContext-cut"
               data-l10n-id="text-action-cut"
               command="cmd_copy"/>
-    <menuitem id="mailContext-copy"
+    <menuitem id="browserContext-copy"
               data-l10n-id="text-action-copy"
               command="cmd_copy"/>
-    <menuitem id="mailContext-paste"
+    <menuitem id="browserContext-paste"
               data-l10n-id="text-action-paste"
               command="cmd_paste"/>
-    <menuitem id="mailContext-selectall"
+    <menuitem id="browserContext-selectall"
               data-l10n-id="text-action-select-all"
               command="cmd_selectAll"/>
-    <menuseparator id="mailContext-sep-clipboard"/>
+    <menuseparator id="browserContext-sep-clipboard"/>
 
-    <menuitem id="mailContext-searchTheWeb"
+    <menuitem id="browserContext-searchTheWeb"
               label="[glodaComplete.webSearch1.label]"
               oncommand="openWebSearch(event.target.value)"/>
 
     <!-- Spellchecking general menu items (enable, add dictionaries...) -->
-    <menuseparator id="mailContext-spell-separator"/>
-    <menuitem id="mailContext-spell-check-enabled"
+    <menuseparator id="browserContext-spell-separator"/>
+    <menuitem id="browserContext-spell-check-enabled"
               data-l10n-id="text-action-spell-check-toggle"
               type="checkbox"
               oncommand="gSpellChecker.toggleEnabled();"/>
-    <menuitem id="mailContext-spell-add-dictionaries-main"
+    <menuitem id="browserContext-spell-add-dictionaries-main"
               label="&spellAddDictionaries.label;"
               accesskey="&spellAddDictionaries.accesskey;"
               oncommand="gContextMenu.addDictionaries();"/>
-    <menu id="mailContext-spell-dictionaries"
+    <menu id="browserContext-spell-dictionaries"
           data-l10n-id="text-action-spell-dictionaries">
-        <menupopup id="mailContext-spell-dictionaries-menu">
-            <menuseparator id="mailContext-spell-language-separator"/>
-            <menuitem id="mailContext-spell-add-dictionaries"
+        <menupopup id="browserContext-spell-dictionaries-menu">
+            <menuseparator id="browserContext-spell-language-separator"/>
+            <menuitem id="browserContext-spell-add-dictionaries"
                       label="&spellAddDictionaries.label;"
                       accesskey="&spellAddDictionaries.accesskey;"
                       oncommand="gContextMenu.addDictionaries();"/>
         </menupopup>
     </menu>
 
-    <menuitem id="mailContext-media-play"
+    <menuitem id="browserContext-media-play"
               label="&contextPlay.label;"
               accesskey="&contextPlay.accesskey;"
               oncommand="gContextMenu.mediaCommand('play');"/>
-    <menuitem id="mailContext-media-pause"
+    <menuitem id="browserContext-media-pause"
               label="&contextPause.label;"
               accesskey="&contextPause.accesskey;"
               oncommand="gContextMenu.mediaCommand('pause');"/>
-    <menuitem id="mailContext-media-mute"
+    <menuitem id="browserContext-media-mute"
               label="&contextMute.label;"
               accesskey="&contextMute.accesskey;"
               oncommand="gContextMenu.mediaCommand('mute');"/>
-    <menuitem id="mailContext-media-unmute"
+    <menuitem id="browserContext-media-unmute"
               label="&contextUnmute.label;"
               accesskey="&contextUnmute.accesskey;"
               oncommand="gContextMenu.mediaCommand('unmute');"/>
-    <menuseparator id="mailContext-sep-edit"/>
-    <menuitem id="mailContext-copylink"
+    <menuseparator id="browserContext-sep-edit"/>
+    <menuitem id="browserContext-copylink"
               label="&copyLinkCmd.label;"
               accesskey="&copyLinkCmd.accesskey;"
               command="cmd_copyLink"/>
-    <menuitem id="mailContext-copyimage"
+    <menuitem id="browserContext-copyimage"
               label="&copyImageAllCmd.label;"
               accesskey="&copyImageAllCmd.accesskey;"
               command="cmd_copyImage"/>
-    <menuitem id="mailContext-addemail"
+    <menuitem id="browserContext-addemail"
               label="&AddToAddressBook.label;"
               accesskey="&AddToAddressBook.accesskey;"
               oncommand="addEmail();"/>
-    <menuitem id="mailContext-composeemailto"
+    <menuitem id="browserContext-composeemailto"
               label="&SendMessageTo.label;"
               accesskey="&SendMessageTo.accesskey;"
               oncommand="composeEmailTo(gContextMenu.linkURL);"/>
-    <menuitem id="mailContext-copyemail"
+    <menuitem id="browserContext-copyemail"
               label="&copyEmailCmd.label;"
               accesskey="&copyEmailCmd.accesskey;"
               oncommand="gContextMenu.copyEmail();"/>
-    <menuseparator id="mailContext-sep-copy"/>
-    <menuitem id="mailContext-savelink"
+    <menuseparator id="browserContext-sep-copy"/>
+    <menuitem id="browserContext-savelink"
               label="&saveLinkAsCmd.label;"
               accesskey="&saveLinkAsCmd.accesskey;"
               oncommand="gContextMenu.saveLink();"/>
-    <menuitem id="mailContext-saveimage"
+    <menuitem id="browserContext-saveimage"
               label="&saveImageAsCmd.label;"
               accesskey="&saveImageAsCmd.accesskey;"
               oncommand="gContextMenu.saveImage();"/>
   </menupopup>
-#endif
-#ifndef BROWSER_POPUPS_ONLY
-  <menupopup id="aboutPagesContext"
-             onpopupshowing="goUpdateCommand('cmd_copy'); goUpdateCommand('cmd_paste'); goUpdateCommand('cmd_selectAll');">
-    <menuitem id="aboutPagesContext-copy"
-              data-l10n-id="text-action-copy"
-              command="cmd_copy"/>
-    <menuitem id="aboutPagesContext-paste"
-              data-l10n-id="text-action-paste"
-              command="cmd_paste"/>
-    <menuitem id="aboutPagesContext-selectall"
-              data-l10n-id="text-action-select-all"
-              command="cmd_selectAll"/>
-  </menupopup>
-
-  <menupopup id="toolbar-context-menu"
-             onpopupshowing="calendarOnToolbarsPopupShowing(event); ToolbarContextMenu.updateExtension(this);">
-    <menuseparator id="customizeMailToolbarMenuSeparator"/>
-    <menuitem id="CustomizeMailToolbar"
-              command="cmd_CustomizeMailToolbar"
-              label="&customizeToolbar.label;"
-              accesskey="&customizeToolbar.accesskey;"/>
-    <menuseparator id="extensionsMailToolbarMenuSeparator"/>
-    <menuitem oncommand="ToolbarContextMenu.openAboutAddonsForContextAction(this.parentElement)"
-              data-l10n-id="toolbar-context-menu-manage-extension"
-              class="customize-context-manageExtension"/>
-    <menuitem oncommand="ToolbarContextMenu.removeExtensionForContextAction(this.parentElement)"
-              data-l10n-id="toolbar-context-menu-remove-extension"
-              class="customize-context-removeExtension"/>
-  </menupopup>
-
-  <tooltip id="qfb-text-search-upsell"
-           level="parent">
-    <vbox>
-      <label id="qfb-upsell-line-one"
-             class="header"
-             fmt="&quickFilterBar.glodaUpsell.continueSearch;"
-             value=""/>
-      <label id="qfb-upsell-line-two"
-             fmt="&quickFilterBar.glodaUpsell.pressEnterAndCurrent;"
-             value=""/>
-    </vbox>
-  </tooltip>
 #endif
   <panel id="DateTimePickerPanel"
          type="arrow"

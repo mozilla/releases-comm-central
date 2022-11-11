@@ -8,10 +8,10 @@
 /* import-globals-from ../../../base/content/contentAreaClick.js */
 /* import-globals-from ../../../base/content/mailCore.js */
 /* import-globals-from ../../../base/content/messenger-customization.js */
-/* import-globals-from ../../../base/content/nsContextMenu.js */
 /* import-globals-from ../../../base/content/toolbarIconColor.js */
 /* import-globals-from ../../../base/content/utilityOverlay.js */
 /* import-globals-from ../../../base/content/viewZoomOverlay.js */
+/* import-globals-from ../../../base/content/widgets/browserPopups.js */
 /* import-globals-from ../../../extensions/openpgp/content/ui/keyAssistant.js */
 /* import-globals-from addressingWidgetOverlay.js */
 /* import-globals-from cloudAttachmentLinkManager.js */
@@ -1869,7 +1869,11 @@ function showMessageComposeSecurityStatus(isSending = false) {
   }
 }
 
-function openEditorContextMenu(popup) {
+function msgComposeContextOnShowing(event) {
+  if (event.target.id != "msgComposeContext") {
+    return;
+  }
+
   // gSpellChecker handles all spell checking related to the context menu,
   // except whether or not spell checking is enabled. We need the editor's
   // spell checker for that.
@@ -1980,7 +1984,7 @@ function openEditorContextMenu(popup) {
   }
 
   let subject = {
-    menu: popup,
+    menu: event.target,
     tab: window,
     isContentSelected,
     isTextSelected,
@@ -2001,7 +2005,11 @@ function openEditorContextMenu(popup) {
   Services.obs.notifyObservers(subject, "on-build-contextmenu");
 }
 
-function closeEditorContextMenu() {
+function msgComposeContextOnHiding(event) {
+  if (event.target.id != "msgComposeContext") {
+    return;
+  }
+
   if (nsContextMenu.contentData.actor) {
     nsContextMenu.contentData.actor.hiding();
   }
@@ -11117,16 +11125,6 @@ function loadBlockedImage(aURL, aReturnDataURL = false) {
 
   return null;
 }
-
-function mailContextOnContextMenu(event) {
-  document.getElementById("mailContext").target =
-    event.composedTarget || event.target;
-}
-function fillMailContextMenu(event) {
-  gContextMenu = new nsContextMenu(event.target, event.shiftKey);
-  return gContextMenu.shouldDisplay;
-}
-function mailContextOnPopupHiding() {}
 
 function showSendEncryptedAndSigned() {
   let encToggle = document.getElementById("button-encryption");

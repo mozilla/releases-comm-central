@@ -46,17 +46,19 @@ window.addEventListener("DOMContentLoaded", event => {
 /**
  * Called by ContextMenuParent if this window is about:3pane, or is
  * about:message but not contained by about:3pane.
+ *
+ * @returns {boolean} true if this function opened the context menu
  */
 function openContextMenu({ data, target }) {
   if (window.browsingContext.parent != window.browsingContext.top) {
     // Not sure how we'd get here, but let's not continue if we do.
-    return;
+    return false;
   }
 
   // TODO we'll want the context menu in non-mail pages, when they work.
   const MESSAGE_PROTOCOLS = ["imap", "mailbox", "news", "nntp", "snews"];
   if (!MESSAGE_PROTOCOLS.includes(target.browsingContext.currentURI.scheme)) {
-    return;
+    return false;
   }
 
   mailContextMenu.fillMessageContextMenu(data, target.browsingContext);
@@ -64,6 +66,8 @@ function openContextMenu({ data, target }) {
   let screenY = data.context.screenYDevPx / window.devicePixelRatio;
   let popup = document.getElementById("mailContext");
   popup.openPopupAtScreen(screenX, screenY, true);
+
+  return true;
 }
 
 var mailContextMenu = {
@@ -115,7 +119,7 @@ var mailContextMenu = {
     let mailContext = document.getElementById("mailContext");
     mailContext.addEventListener("popupshowing", event => {
       if (event.target == mailContext) {
-        this.fillMailContextMenu();
+        this.fillMailContextMenu(event);
       }
     });
     mailContext.addEventListener("command", event =>
@@ -233,7 +237,6 @@ var mailContextMenu = {
     for (let id of [
       "mailContext-openInBrowser",
       "mailContext-savelink",
-      "mailContext-openContainingFolder",
       "mailContext-recalculateJunkScore",
       "mailContext-copyMessageUrl",
       "mailContext-calendar-convert-menu",
@@ -249,6 +252,10 @@ var mailContextMenu = {
       enableItem(id, commandController.isCommandEnabled(command));
     }
 
+    let inAbout3Pane = !!window.threadTree;
+    let inThreadTree = window.threadTree?.contains(
+      event.explicitOriginalTarget
+    );
     let isDummyMessage = !gFolder;
     let message = isDummyMessage
       ? window.messageHeaderSink.dummyMsgHeader
@@ -263,10 +270,16 @@ var mailContextMenu = {
       numSelectedMessages >= 1 && !isNewsgroup && gFolder?.canDeleteMessages;
     let canCopy = numSelectedMessages >= 1;
 
-    setSingleSelection("mailContext-openNewTab");
-    setSingleSelection("mailContext-openNewWindow");
-    // setSingleSelection("mailContext-openContainingFolder");
+    setSingleSelection("mailContext-openNewTab", inThreadTree);
+    setSingleSelection("mailContext-openNewWindow", inThreadTree);
+    setSingleSelection("mailContext-openContainingFolder", !inAbout3Pane);
     setSingleSelection("mailContext-forwardAsMenu");
+    showItem(
+      "mailContext-multiForwardAsAttachment",
+      numSelectedMessages > 1 &&
+        commandController.isCommandEnabled("cmd_forwardAttachment")
+    );
+
     if (isDummyMessage) {
       enableItem("mailContext-tags", false);
     } else {
@@ -430,9 +443,11 @@ var mailContextMenu = {
           gViewWrapper
         );
         break;
-      // case "mailContext-openContainingFolder":
-      //   MailUtils.displayMessageInFolderTab(gMessage);
-      //   break;
+      case "mailContext-openContainingFolder":
+        LazyModules.MailUtils.displayMessageInFolderTab(
+          gDBView.hdrForFirstSelectedMessage
+        );
+        break;
 
       // Move/copy/archive/convert/delete
       // (Move and Copy sub-menus are handled in the default case.)

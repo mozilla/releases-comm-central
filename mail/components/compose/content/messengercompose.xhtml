@@ -75,7 +75,7 @@
   <script defer="defer" src="chrome://messenger/content/messengercompose/cloudAttachmentLinkManager.js"></script>
   <script defer="defer" src="chrome://messenger/content/messenger-customization.js"></script>
   <script defer="defer" src="chrome://messenger/content/customizable-toolbar.js"></script>
-  <script defer="defer" src="chrome://messenger/content/nsContextMenu.js"></script>
+  <script defer="defer" src="chrome://messenger/content/browserPopups.js"></script>
   <script defer="defer" src="chrome://messenger/content/addressbook/abDragDrop.js"></script>
   <script defer="defer" src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
@@ -527,8 +527,7 @@
 </keyset>
 
 <popupset id="mainPopupSet">
-#define BROWSER_POPUPS_ONLY
-#include ../../../base/content/mainPopupSet.inc.xhtml
+#include ../../../base/content/widgets/browserPopups.inc.xhtml
 </popupset>
 
 <!-- Reorder Attachments Panel -->
@@ -620,8 +619,8 @@
 </menupopup>
 
 <menupopup id="msgComposeContext"
-           onpopupshowing="if (event.target != this) { return true; } openEditorContextMenu(this);"
-           onpopuphiding="if (event.target != this) { return true; } closeEditorContextMenu();">
+           onpopupshowing="msgComposeContextOnShowing(event);"
+           onpopuphiding="msgComposeContextOnHiding(event);">
 
   <!-- Spellchecking menu items -->
   <menuitem id="spellCheckNoSuggestions"

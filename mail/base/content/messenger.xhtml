@@ -107,8 +107,7 @@
   <script defer="defer" src="chrome://messenger/content/searchBar.js"></script>
   <script defer="defer" src="chrome://messenger/content/mail3PaneWindowCommands.js"></script>
   <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
-  <script defer="defer" src="chrome://messenger/content/nsContextMenu.js"></script>
-  <script defer="defer" src="chrome://messenger/content/mailContextMenus.js"></script>
+  <script defer="defer" src="chrome://messenger/content/browserPopups.js"></script>
   <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
   <script defer="defer" src="chrome://messenger/content/folderPane.js"></script>
   <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
@@ -332,7 +331,33 @@
 #include ../../../calendar/base/content/calendar-keys.inc.xhtml
 
 <popupset id="mainPopupSet">
-#include mainPopupSet.inc.xhtml
+#include widgets/browserPopups.inc.xhtml
+#include widgets/toolbarContext.inc.xhtml
+  <menupopup id="aboutPagesContext"
+             onpopupshowing="goUpdateCommand('cmd_copy'); goUpdateCommand('cmd_paste'); goUpdateCommand('cmd_selectAll');">
+    <menuitem id="aboutPagesContext-copy"
+              data-l10n-id="text-action-copy"
+              command="cmd_copy"/>
+    <menuitem id="aboutPagesContext-paste"
+              data-l10n-id="text-action-paste"
+              command="cmd_paste"/>
+    <menuitem id="aboutPagesContext-selectall"
+              data-l10n-id="text-action-select-all"
+              command="cmd_selectAll"/>
+  </menupopup>
+
+  <tooltip id="qfb-text-search-upsell" level="parent">
+    <vbox>
+      <label id="qfb-upsell-line-one"
+             class="header"
+             fmt="&quickFilterBar.glodaUpsell.continueSearch;"
+             value=""/>
+      <label id="qfb-upsell-line-two"
+             fmt="&quickFilterBar.glodaUpsell.pressEnterAndCurrent;"
+             value=""/>
+    </vbox>
+  </tooltip>
+
 <!-- The panelUI is for the appmenu. -->
 #include ../../components/customizableui/content/panelUI.inc.xhtml
 #include ../../components/unifiedToolbar/content/unifiedToolbarPopups.inc.xhtml

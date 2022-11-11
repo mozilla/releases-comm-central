@@ -4,7 +4,6 @@
 
 /* import-globals-from commandglue.js */
 /* import-globals-from mail3PaneWindowCommands.js */
-/* import-globals-from mailContextMenus.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from mailWindowOverlay.js */
 /* import-globals-from msgMail3PaneWindow.js */

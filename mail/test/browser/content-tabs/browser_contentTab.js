@@ -77,11 +77,11 @@ add_task(async function test_spellcheck_in_content_tabs() {
     { type: "contextmenu" },
     mc.tabmail.selectedTab.browser
   );
-  let mailContext = mc.e("mailContext");
-  await wait_for_popup_to_open(mailContext);
-  assert_element_visible("mailContext-spell-dictionaries");
-  assert_element_visible("mailContext-spell-check-enabled");
-  await close_popup(mc, mailContext);
+  let browserContext = mc.e("browserContext");
+  await wait_for_popup_to_open(browserContext);
+  assert_element_visible("browserContext-spell-dictionaries");
+  assert_element_visible("browserContext-spell-check-enabled");
+  await close_popup(mc, browserContext);
 
   // Different test
   BrowserTestUtils.synthesizeMouseAtCenter(
@@ -89,11 +89,10 @@ add_task(async function test_spellcheck_in_content_tabs() {
     { type: "contextmenu" },
     mc.tabmail.selectedTab.browser
   );
-  mailContext = mc.e("mailContext");
-  await wait_for_popup_to_open(mailContext);
-  assert_element_not_visible("mailContext-spell-dictionaries");
-  assert_element_not_visible("mailContext-spell-check-enabled");
-  await close_popup(mc, mailContext);
+  await wait_for_popup_to_open(browserContext);
+  assert_element_not_visible("browserContext-spell-dictionaries");
+  assert_element_not_visible("browserContext-spell-check-enabled");
+  await close_popup(mc, browserContext);
 
   // Right-click on "zombocom" and add to dictionary
   BrowserTestUtils.synthesizeMouse(
@@ -103,14 +102,13 @@ add_task(async function test_spellcheck_in_content_tabs() {
     { type: "contextmenu", button: 2 },
     mc.tabmail.selectedTab.browser
   );
-  mailContext = mc.e("mailContext");
-  await wait_for_popup_to_open(mailContext);
+  await wait_for_popup_to_open(browserContext);
   let suggestions = mc.window.document.getElementsByClassName(
     "spell-suggestion"
   );
   Assert.ok(suggestions.length > 0, "What, is zombocom a registered word now?");
-  mc.click(mc.e("mailContext-spell-add-to-dictionary"));
-  await close_popup(mc, mailContext);
+  mc.click(mc.e("browserContext-spell-add-to-dictionary"));
+  await close_popup(mc, browserContext);
 
   // Now check we don't have any suggestionss
   BrowserTestUtils.synthesizeMouse(
@@ -120,11 +118,10 @@ add_task(async function test_spellcheck_in_content_tabs() {
     { type: "contextmenu", button: 2 },
     mc.tabmail.selectedTab.browser
   );
-  mailContext = mc.e("mailContext");
-  await wait_for_popup_to_open(mailContext);
+  await wait_for_popup_to_open(browserContext);
   suggestions = mc.window.document.getElementsByClassName("spell-suggestion");
   Assert.ok(suggestions.length == 0, "But I just taught you this word!");
-  await close_popup(mc, mailContext);
+  await close_popup(mc, browserContext);
 });
 
 add_task(function test_content_tab_default_favicon() {
