@@ -162,6 +162,27 @@ var gAccountList = [
       },
     ],
   },
+  // Microsoft IMAP account
+  {
+    type: "imap",
+    port: 993,
+    user: "msimap",
+    password: "abc",
+    hostname: "outlook.office365.com",
+    socketType: Ci.nsMsgSocketType.SSL,
+    authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+    smtpServers: [
+      {
+        port: 587,
+        user: "msimap",
+        password: "abc",
+        isDefault: true,
+        hostname: "smtp.office365.com",
+        socketType: Ci.nsMsgAuthMethod.alwaysSTARTTLS,
+        authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+      },
+    ],
+  },
 ];
 
 // An array of the incoming servers created from the setup_accounts() method.
@@ -216,7 +237,7 @@ function setup_accounts() {
   }
 }
 
-function test_oauth_migration() {
+add_task(function test_oauth_migration() {
   setup_accounts();
 
   for (let server of gIncomingServers) {
@@ -246,7 +267,8 @@ function test_oauth_migration() {
     if (
       !server.hostName.endsWith("mail.yahoo.com") &&
       !server.hostName.endsWith("aol.com") &&
-      !server.hostName.endsWith("gmail.com")
+      !server.hostName.endsWith("gmail.com") &&
+      !server.hostName.endsWith("office365.com")
     ) {
       Assert.notEqual(
         server.authMethod,
@@ -268,7 +290,8 @@ function test_oauth_migration() {
     if (
       !server.hostname.endsWith("mail.yahoo.com") &&
       !server.hostname.endsWith("aol.com") &&
-      !server.hostname.endsWith("gmail.com")
+      !server.hostname.endsWith("gmail.com") &&
+      !server.hostname.endsWith("office365.com")
     ) {
       Assert.notEqual(
         server.authMethod,
@@ -293,8 +316,4 @@ function test_oauth_migration() {
   for (let server of gOutgoingServers) {
     MailServices.smtp.deleteServer(server);
   }
-}
-
-function run_test() {
-  test_oauth_migration();
-}
+});
