@@ -11,7 +11,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-add_task(async function setupTest() {
+add_setup(async function() {
   setupIMAPPump();
   Services.prefs.setBoolPref(
     "mail.server.default.autosync_offline_stores",

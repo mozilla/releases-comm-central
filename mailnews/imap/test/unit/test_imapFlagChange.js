@@ -18,7 +18,7 @@ var gMessage;
 var gSecondFolder;
 var gSynthMessage;
 
-add_task(async function setupTest() {
+add_setup(async function() {
   Services.prefs.setBoolPref(
     "mail.server.default.autosync_offline_stores",
     false

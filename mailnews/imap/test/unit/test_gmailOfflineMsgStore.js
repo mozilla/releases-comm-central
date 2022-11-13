@@ -45,7 +45,7 @@ var gImapInboxOfflineStoreSizeFinal;
 var gFooOfflineStoreSizeInitial;
 var gFooOfflineStoreSizeFinal;
 
-add_task(async function setupTest() {
+add_setup(async function() {
   // We aren't interested in downloading messages automatically.
   Services.prefs.setBoolPref(
     "mail.server.server1.autosync_offline_stores",

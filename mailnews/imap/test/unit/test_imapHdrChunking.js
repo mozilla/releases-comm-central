@@ -62,7 +62,7 @@ var gFolderListener = new FolderIntPropertyChangedListener();
 /** Used to store a listener between tasks for inspecting chunking behaviour. */
 var gListener = new PromiseTestUtils.PromiseUrlListener();
 
-add_task(async function setupTest() {
+add_setup(async function() {
   Assert.equal(
     OVERALL_MESSAGES % CHUNKING_SIZE !== 0,
     true,

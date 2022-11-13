@@ -18,7 +18,7 @@ var messageInjection = new MessageInjection({ mode: "local" });
 var inbox = messageInjection.getInboxFolder();
 var msgHdr;
 
-add_task(async function setupTest() {
+add_setup(async function() {
   // Create a message with a p7m attachment.
   let synMsg = messageGenerator.makeMessage({
     attachments: [

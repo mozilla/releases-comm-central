@@ -32,7 +32,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
 var gEmptyLocal1, gEmptyLocal2;
 var gFiles = ["../../../data/bugmail1", "../../../data/draft1"];
 
-add_task(async function setupTest() {
+add_setup(async function() {
   setupIMAPPump();
   let emptyFolder1Listener = PromiseTestUtils.promiseFolderAdded("empty 1");
   gEmptyLocal1 = localAccountUtils.rootFolder.createLocalSubfolder("empty 1");
