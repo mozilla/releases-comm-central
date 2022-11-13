@@ -12,7 +12,7 @@
  * upstream first.
  *
  * Current ical.js git revision:
- * https://github.com/darktrojan/ical.js/commit/79049911ba13e6be8e57a82151fa52d598dbf883
+ * https://github.com/darktrojan/ical.js/commit/8d6c9047424fde8f78062a52da57e1a6fab8d2e7
  */
 
 var EXPORTED_SYMBOLS = ["ICAL", "unwrap", "unwrapSetter", "unwrapSingle", "wrapGetter"];
@@ -7326,12 +7326,6 @@ ICAL.RecurIterator = (function() {
       } while (!this.check_contracting_rules() ||
                this.last.compare(this.dtstart) < 0 ||
                !valid);
-
-      // TODO is this valid?
-      if (this.last.compare(before) == 0) {
-        throw new Error("Same occurrence found twice, protecting " +
-                        "you from death by recursion");
-      }
 
       if (this.rule.until && this.last.compare(this.rule.until) > 0) {
         this.completed = true;
