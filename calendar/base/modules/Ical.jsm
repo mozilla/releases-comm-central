@@ -3,15 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * This is ical.js from <https://github.com/mozilla-comm/ical.js>.
+ * This is ical.js from <https://github.com/kewisch/ical.js>.
+ *
+ * A maintenance branch is used as this version doesn't use ES6 modules,
+ * so that changes can be easily backported to Thunderbird 102 ESR.
  *
  * If you would like to change anything in ical.js, it is required to do so
  * upstream first.
  *
- * Current ical.js git revision: 7fb7b51f1b36d49b576a359ee178d85e6d4b192a
- * plus https://github.com/kewisch/ical.js/pull/542
- * plus https://github.com/kewisch/ical.js/pull/541
- * plus https://github.com/kewisch/ical.js/pull/531
+ * Current ical.js git revision:
+ * https://github.com/darktrojan/ical.js/commit/79049911ba13e6be8e57a82151fa52d598dbf883
  */
 
 var EXPORTED_SYMBOLS = ["ICAL", "unwrap", "unwrapSetter", "unwrapSingle", "wrapGetter"];
@@ -615,7 +616,7 @@ ICAL.design = (function() {
 
   var icalParams = {
     // Although the syntax is DQUOTE uri DQUOTE, I don't think we should
-    // enfoce anything aside from it being a valid content line.
+    // enforce anything aside from it being a valid content line.
     //
     // At least some params require - if multi values are used - DQUOTEs
     // for each of its values - e.g. delegated-from="uri1","uri2"
@@ -1169,6 +1170,18 @@ ICAL.design = (function() {
     timestamp: icalValues['date-time'],
     "language-tag": {
       matches: /^[a-zA-Z0-9-]+$/ // Could go with a more strict regex here
+    },
+    "phone-number": {
+      fromICAL: function(aValue) {
+        return Array.from(aValue).filter(function(c) {
+            return c === '\\' ? undefined : c;
+          }).join('');
+      },
+      toICAL: function(aValue) {
+        return Array.from(aValue).map(function(c) {
+          return c === ',' || c === ";" ? '\\' + c : c;
+        }).join('');
+      }
     }
   });
 
@@ -1225,10 +1238,7 @@ ICAL.design = (function() {
     binary: icalValues.binary,
     date: vcardValues.date,
     "date-time": vcardValues["date-time"],
-    "phone-number": {
-      // TODO
-      /* ... */
-    },
+    "phone-number": vcardValues["phone-number"],
     uri: icalValues.uri,
     text: icalValues.text,
     time: icalValues.time,
@@ -1577,23 +1587,24 @@ ICAL.stringify = (function() {
       }
 
       var value = params[paramName];
+      var paramDesign = designSet.param[paramName];
 
       /* istanbul ignore else */
       if (params.hasOwnProperty(paramName)) {
-        var multiValue = (paramName in designSet.param) && designSet.param[paramName].multiValue;
+        var multiValue = paramDesign && paramDesign.multiValue;
         if (multiValue && Array.isArray(value)) {
-          if (designSet.param[paramName].multiValueSeparateDQuote) {
-            multiValue = '"' + multiValue + '"';
-          }
-          value = value.map(stringify._rfc6868Unescape);
+          value = value.map(function(val) {
+            val = stringify._rfc6868Unescape(val);
+            val = stringify.paramPropertyValue(val, paramDesign.multiValueSeparateDQuote);
+            return val;
+          });
           value = stringify.multiValue(value, multiValue, "unknown", null, designSet);
         } else {
           value = stringify._rfc6868Unescape(value);
+          value = stringify.paramPropertyValue(value);
         }
 
-
-        line += ';' + paramName.toUpperCase();
-        line += '=' + stringify.propertyValue(value);
+        line += ';' + paramName.toUpperCase() + '=' + value;
       }
     }
 
@@ -1671,13 +1682,14 @@ ICAL.stringify = (function() {
    * If any of the above are present the result is wrapped
    * in double quotes.
    *
-   * @function ICAL.stringify.propertyValue
+   * @function ICAL.stringify.paramPropertyValue
    * @param {String} value      Raw property value
+   * @param {boolean} force     If value should be escaped even when unnecessary
    * @return {String}           Given or escaped value when needed
    */
-  stringify.propertyValue = function(value) {
-
-    if ((helpers.unescapedIndexOf(value, ',') === -1) &&
+  stringify.paramPropertyValue = function(value, force) {
+    if (!force &&
+        (helpers.unescapedIndexOf(value, ',') === -1) &&
         (helpers.unescapedIndexOf(value, ':') === -1) &&
         (helpers.unescapedIndexOf(value, ';') === -1)) {
 

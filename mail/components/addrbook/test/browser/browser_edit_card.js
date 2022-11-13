@@ -3327,7 +3327,7 @@ add_task(async function testGoogleEscaping() {
     title: [
       { value: "title:title;title,title\\title\\:title\\;title\\,title\\\\" },
     ],
-    tel: [{ value: "tel:0123\\4567" }],
+    tel: [{ value: "tel:01234567" }],
     email: [{ value: "test\\test@invalid" }],
     note: [{ value: "notes:\nnotes;\nnotes,\nnotes\\" }],
     url: [{ value: "https://host/url:url;url,url\\url" }],
