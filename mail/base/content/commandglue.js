@@ -8,7 +8,7 @@
 
 /* import-globals-from folderPane.js */
 /* import-globals-from mailWindow.js */
-/* import-globals-from msgMail3PaneWindow.js */
+/* import-globals-from messenger.js */
 /* global BigInt */
 
 var { MailViewConstants } = ChromeUtils.import(

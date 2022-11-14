@@ -6,7 +6,7 @@
 /* import-globals-from mail3PaneWindowCommands.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from mailWindowOverlay.js */
-/* import-globals-from msgMail3PaneWindow.js */
+/* import-globals-from messenger.js */
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   FolderUtils: "resource:///modules/FolderUtils.jsm",

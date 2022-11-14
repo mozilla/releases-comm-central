@@ -10,7 +10,7 @@
 /* import-globals-from mail-offline.js */
 /* import-globals-from mailCore.js */
 /* import-globals-from mailWindowOverlay.js */
-/* import-globals-from msgMail3PaneWindow.js */
+/* import-globals-from messenger.js */
 /* import-globals-from utilityOverlay.js */
 
 var { XPCOMUtils } = ChromeUtils.importESModule(

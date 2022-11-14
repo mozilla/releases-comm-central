@@ -54,6 +54,7 @@ messenger.jar:
     content/messenger/messageWindow.js              (content/messageWindow.js)
 *   content/messenger/messageWindow.xhtml           (content/messageWindow.xhtml)
     content/messenger/messenger-customization.js    (content/messenger-customization.js)
+    content/messenger/messenger.js                  (content/messenger.js)
 *   content/messenger/messenger.xhtml               (content/messenger.xhtml)
     content/messenger/webextensions.css             (content/webextensions.css)
 #ifdef XP_WIN
@@ -62,7 +63,6 @@ messenger.jar:
     content/messenger/migrationProgress.js          (content/migrationProgress.js)
     content/messenger/migrationProgress.xhtml       (content/migrationProgress.xhtml)
     content/messenger/msgHdrView.js                 (content/msgHdrView.js)
-    content/messenger/msgMail3PaneWindow.js         (content/msgMail3PaneWindow.js)
     content/messenger/msgSecurityPane.js            (content/msgSecurityPane.js)
     content/messenger/msgViewNavigation.js          (content/msgViewNavigation.js)
     content/messenger/multimessageview.js           (content/multimessageview.js)

@@ -4,7 +4,7 @@
 
 /* import-globals-from AccountManager.js */
 /* globals openTab */ // From utilityOverlay.js
-/* globals SelectFolder */ // From messageWindow.js or msgMail3PaneWindow.js.
+/* globals SelectFolder */ // From messageWindow.js or messenger.js.
 /* globals MsgGetMessage */ // From mailWindowOverlay.js.
 
 var { MailServices } = ChromeUtils.import(
