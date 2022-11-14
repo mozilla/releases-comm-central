@@ -1481,7 +1481,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
   } else
     rv = NS_OK;
 
-  //### why is this stuff const?
+  // ### why is this stuff const?
   char* tmp = (char*)to.value;
   PR_Free(tmp);
   tmp = (char*)cc.value;
