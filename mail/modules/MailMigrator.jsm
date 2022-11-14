@@ -61,7 +61,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 34;
+    const UI_VERSION = 35;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -664,6 +664,12 @@ var MailMigrator = {
             break;
         }
         Services.prefs.setIntPref("mail.default_send_format", sendFormat);
+      }
+
+      if (currentUIVersion < 35) {
+        // Both IMAP and POP settings currently use this domain
+        this._migrateIncomingToOAuth2("outlook.office365.com");
+        this._migrateSMTPToOAuth2("smtp.office365.com");
       }
 
       MigrationTasks.runTasks();

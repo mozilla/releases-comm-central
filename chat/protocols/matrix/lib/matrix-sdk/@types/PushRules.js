@@ -5,7 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.TweakName = exports.RuleId = exports.PushRuleKind = exports.PushRuleActionName = exports.DMMemberCountCondition = exports.ConditionOperator = exports.ConditionKind = void 0;
 exports.isDmMemberCountCondition = isDmMemberCountCondition;
-
 /*
 Copyright 2021 The Matrix.org Foundation C.I.C.
 
@@ -22,28 +21,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 // allow camelcase as these are things that go onto the wire
-
 /* eslint-disable camelcase */
 let PushRuleActionName;
 exports.PushRuleActionName = PushRuleActionName;
-
 (function (PushRuleActionName) {
   PushRuleActionName["DontNotify"] = "dont_notify";
   PushRuleActionName["Notify"] = "notify";
   PushRuleActionName["Coalesce"] = "coalesce";
 })(PushRuleActionName || (exports.PushRuleActionName = PushRuleActionName = {}));
-
 let TweakName;
 exports.TweakName = TweakName;
-
 (function (TweakName) {
   TweakName["Highlight"] = "highlight";
   TweakName["Sound"] = "sound";
 })(TweakName || (exports.TweakName = TweakName = {}));
-
 let ConditionOperator;
 exports.ConditionOperator = ConditionOperator;
-
 (function (ConditionOperator) {
   ConditionOperator["ExactEquals"] = "==";
   ConditionOperator["LessThan"] = "<";
@@ -51,27 +44,23 @@ exports.ConditionOperator = ConditionOperator;
   ConditionOperator["GreaterThanOrEqual"] = ">=";
   ConditionOperator["LessThanOrEqual"] = "<=";
 })(ConditionOperator || (exports.ConditionOperator = ConditionOperator = {}));
-
 const DMMemberCountCondition = "2";
 exports.DMMemberCountCondition = DMMemberCountCondition;
-
 function isDmMemberCountCondition(condition) {
   return condition === "==2" || condition === "2";
 }
-
 let ConditionKind;
 exports.ConditionKind = ConditionKind;
-
 (function (ConditionKind) {
   ConditionKind["EventMatch"] = "event_match";
   ConditionKind["ContainsDisplayName"] = "contains_display_name";
   ConditionKind["RoomMemberCount"] = "room_member_count";
   ConditionKind["SenderNotificationPermission"] = "sender_notification_permission";
+  ConditionKind["CallStarted"] = "call_started";
+  ConditionKind["CallStartedPrefix"] = "org.matrix.msc3914.call_started";
 })(ConditionKind || (exports.ConditionKind = ConditionKind = {}));
-
 let PushRuleKind;
 exports.PushRuleKind = PushRuleKind;
-
 (function (PushRuleKind) {
   PushRuleKind["Override"] = "override";
   PushRuleKind["ContentSpecific"] = "content";
@@ -79,10 +68,8 @@ exports.PushRuleKind = PushRuleKind;
   PushRuleKind["SenderSpecific"] = "sender";
   PushRuleKind["Underride"] = "underride";
 })(PushRuleKind || (exports.PushRuleKind = PushRuleKind = {}));
-
 let RuleId;
 exports.RuleId = RuleId;
-
 (function (RuleId) {
   RuleId["Master"] = ".m.rule.master";
   RuleId["ContainsDisplayName"] = ".m.rule.contains_display_name";

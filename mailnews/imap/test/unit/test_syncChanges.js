@@ -19,7 +19,7 @@ var gMessage;
 var gSecondFolder;
 var gSynthMessage;
 
-add_task(async function setupTest() {
+add_setup(async function() {
   /*
    * Set up an IMAP server.
    */

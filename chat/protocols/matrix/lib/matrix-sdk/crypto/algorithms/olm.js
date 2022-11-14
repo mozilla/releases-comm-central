@@ -1,21 +1,13 @@
 "use strict";
 
 var _logger = require("../../logger");
-
 var olmlib = _interopRequireWildcard(require("../olmlib"));
-
 var _deviceinfo = require("../deviceinfo");
-
 var _base = require("./base");
-
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 const DeviceVerification = _deviceinfo.DeviceInfo.DeviceVerification;
-
 /**
  * Olm encryption implementation
  *
@@ -28,12 +20,9 @@ const DeviceVerification = _deviceinfo.DeviceInfo.DeviceVerification;
 class OlmEncryption extends _base.EncryptionAlgorithm {
   constructor(...args) {
     super(...args);
-
     _defineProperty(this, "sessionPrepared", false);
-
     _defineProperty(this, "prepPromise", null);
   }
-
   /**
    * @private
     * @param {string[]} roomMembers list of currently-joined users in the room
@@ -44,12 +33,10 @@ class OlmEncryption extends _base.EncryptionAlgorithm {
       // prep already in progress
       return this.prepPromise;
     }
-
     if (this.sessionPrepared) {
       // prep already done
       return Promise.resolve();
     }
-
     this.prepPromise = this.crypto.downloadKeys(roomMembers).then(() => {
       return this.crypto.ensureOlmSessionsForUsers(roomMembers);
     }).then(() => {
@@ -59,6 +46,7 @@ class OlmEncryption extends _base.EncryptionAlgorithm {
     });
     return this.prepPromise;
   }
+
   /**
    * @inheritdoc
    *
@@ -68,13 +56,12 @@ class OlmEncryption extends _base.EncryptionAlgorithm {
    *
    * @return {Promise} Promise which resolves to the new event body
    */
-
-
   async encryptMessage(room, eventType, content) {
     // pick the list of recipients based on the membership list.
     //
     // TODO: there is a race condition here! What if a new user turns up
     // just as you are sending a secret message?
+
     const members = await room.getEncryptionTargetMembers();
     const users = members.map(function (u) {
       return u.userId;
@@ -91,33 +78,27 @@ class OlmEncryption extends _base.EncryptionAlgorithm {
       ciphertext: {}
     };
     const promises = [];
-
     for (let i = 0; i < users.length; ++i) {
       const userId = users[i];
       const devices = this.crypto.getStoredDevicesForUser(userId) || [];
-
       for (let j = 0; j < devices.length; ++j) {
         const deviceInfo = devices[j];
         const key = deviceInfo.getIdentityKey();
-
         if (key == this.olmDevice.deviceCurve25519Key) {
           // don't bother sending to ourself
           continue;
         }
-
         if (deviceInfo.verified == DeviceVerification.BLOCKED) {
           // don't bother setting up sessions with blocked users
           continue;
         }
-
         promises.push(olmlib.encryptMessageForDevice(encryptedContent.ciphertext, this.userId, this.deviceId, this.olmDevice, userId, deviceInfo, payloadFields));
       }
     }
-
     return Promise.all(promises).then(() => encryptedContent);
   }
-
 }
+
 /**
  * Olm decryption implementation
  *
@@ -126,8 +107,6 @@ class OlmEncryption extends _base.EncryptionAlgorithm {
  * @param {object} params parameters, as per
  *     {@link module:crypto/algorithms/DecryptionAlgorithm}
  */
-
-
 class OlmDecryption extends _base.DecryptionAlgorithm {
   /**
    * @inheritdoc
@@ -143,18 +122,14 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
     const content = event.getWireContent();
     const deviceKey = content.sender_key;
     const ciphertext = content.ciphertext;
-
     if (!ciphertext) {
       throw new _base.DecryptionError("OLM_MISSING_CIPHERTEXT", "Missing ciphertext");
     }
-
     if (!(this.olmDevice.deviceCurve25519Key in ciphertext)) {
       throw new _base.DecryptionError("OLM_NOT_INCLUDED_IN_RECIPIENTS", "Not included in recipients");
     }
-
     const message = ciphertext[this.olmDevice.deviceCurve25519Key];
     let payloadString;
-
     try {
       payloadString = await this.decryptMessage(deviceKey, message);
     } catch (e) {
@@ -163,53 +138,50 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
         err: e
       });
     }
+    const payload = JSON.parse(payloadString);
 
-    const payload = JSON.parse(payloadString); // check that we were the intended recipient, to avoid unknown-key attack
+    // check that we were the intended recipient, to avoid unknown-key attack
     // https://github.com/vector-im/vector-web/issues/2483
-
     if (payload.recipient != this.userId) {
       throw new _base.DecryptionError("OLM_BAD_RECIPIENT", "Message was intented for " + payload.recipient);
     }
-
     if (payload.recipient_keys.ed25519 != this.olmDevice.deviceEd25519Key) {
       throw new _base.DecryptionError("OLM_BAD_RECIPIENT_KEY", "Message not intended for this device", {
         intended: payload.recipient_keys.ed25519,
         our_key: this.olmDevice.deviceEd25519Key
       });
-    } // check that the device that encrypted the event belongs to the user
+    }
+
+    // check that the device that encrypted the event belongs to the user
     // that the event claims it's from.  We need to make sure that our
     // device list is up-to-date.  If the device is unknown, we can only
     // assume that the device logged out.  Some event handlers, such as
     // secret sharing, may be more strict and reject events that come from
     // unknown devices.
-
-
     await this.crypto.deviceList.downloadKeys([event.getSender()], false);
     const senderKeyUser = this.crypto.deviceList.getUserByIdentityKey(olmlib.OLM_ALGORITHM, deviceKey);
-
-    if (senderKeyUser !== event.getSender() && senderKeyUser !== undefined) {
+    if (senderKeyUser !== event.getSender() && senderKeyUser != undefined) {
       throw new _base.DecryptionError("OLM_BAD_SENDER", "Message claimed to be from " + event.getSender(), {
         real_sender: senderKeyUser
       });
-    } // check that the original sender matches what the homeserver told us, to
+    }
+
+    // check that the original sender matches what the homeserver told us, to
     // avoid people masquerading as others.
     // (this check is also provided via the sender's embedded ed25519 key,
     // which is checked elsewhere).
-
-
     if (payload.sender != event.getSender()) {
       throw new _base.DecryptionError("OLM_FORWARDED_MESSAGE", "Message forwarded from " + payload.sender, {
         reported_sender: event.getSender()
       });
-    } // Olm events intended for a room have a room_id.
+    }
 
-
+    // Olm events intended for a room have a room_id.
     if (payload.room_id !== event.getRoomId()) {
       throw new _base.DecryptionError("OLM_BAD_ROOM", "Message intended for room " + payload.room_id, {
         reported_room: event.getRoomId() || "ROOM_ID_UNDEFINED"
       });
     }
-
     const claimedKeys = payload.keys || {};
     return {
       clearEvent: payload,
@@ -217,6 +189,7 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
       claimedEd25519Key: claimedKeys.ed25519 || null
     };
   }
+
   /**
    * Attempt to decrypt an Olm message
    *
@@ -225,8 +198,6 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
    *
    * @return {string} payload, if decrypted successfully.
    */
-
-
   decryptMessage(theirDeviceIdentityKey, message) {
     // This is a wrapper that serialises decryptions of prekey messages, because
     // otherwise we race between deciding we have no active sessions for the message
@@ -237,68 +208,58 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
     } else {
       const myPromise = this.olmDevice.olmPrekeyPromise.then(() => {
         return this.reallyDecryptMessage(theirDeviceIdentityKey, message);
-      }); // we want the error, but don't propagate it to the next decryption
-
+      });
+      // we want the error, but don't propagate it to the next decryption
       this.olmDevice.olmPrekeyPromise = myPromise.catch(() => {});
       return myPromise;
     }
   }
-
   async reallyDecryptMessage(theirDeviceIdentityKey, message) {
-    const sessionIds = await this.olmDevice.getSessionIdsForDevice(theirDeviceIdentityKey); // try each session in turn.
+    const sessionIds = await this.olmDevice.getSessionIdsForDevice(theirDeviceIdentityKey);
 
+    // try each session in turn.
     const decryptionErrors = {};
-
     for (let i = 0; i < sessionIds.length; i++) {
       const sessionId = sessionIds[i];
-
       try {
         const payload = await this.olmDevice.decryptMessage(theirDeviceIdentityKey, sessionId, message.type, message.body);
-
         _logger.logger.log("Decrypted Olm message from " + theirDeviceIdentityKey + " with session " + sessionId);
-
         return payload;
       } catch (e) {
         const foundSession = await this.olmDevice.matchesSession(theirDeviceIdentityKey, sessionId, message.type, message.body);
-
         if (foundSession) {
           // decryption failed, but it was a prekey message matching this
           // session, so it should have worked.
           throw new Error("Error decrypting prekey message with existing session id " + sessionId + ": " + e.message);
-        } // otherwise it's probably a message for another session; carry on, but
+        }
+
+        // otherwise it's probably a message for another session; carry on, but
         // keep a record of the error
-
-
         decryptionErrors[sessionId] = e.message;
       }
     }
-
     if (message.type !== 0) {
       // not a prekey message, so it should have matched an existing session, but it
       // didn't work.
+
       if (sessionIds.length === 0) {
         throw new Error("No existing sessions");
       }
-
       throw new Error("Error decrypting non-prekey message with existing sessions: " + JSON.stringify(decryptionErrors));
-    } // prekey message which doesn't match any existing sessions: make a new
+    }
+
+    // prekey message which doesn't match any existing sessions: make a new
     // session.
 
-
     let res;
-
     try {
       res = await this.olmDevice.createInboundSession(theirDeviceIdentityKey, message.type, message.body);
     } catch (e) {
       decryptionErrors["(new)"] = e.message;
       throw new Error("Error decrypting prekey message: " + JSON.stringify(decryptionErrors));
     }
-
     _logger.logger.log("created new inbound Olm session ID " + res.session_id + " with " + theirDeviceIdentityKey);
-
     return res.payload;
   }
-
 }
-
 (0, _base.registerAlgorithm)(olmlib.OLM_ALGORITHM, OlmEncryption, OlmDecryption);

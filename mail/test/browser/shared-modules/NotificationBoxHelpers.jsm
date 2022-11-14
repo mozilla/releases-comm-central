@@ -191,10 +191,7 @@ function get_notification_button(aWindow, aBoxId, aValue, aMatch) {
       let value = aMatch[name];
       let matched = false;
       if (name == "popup") {
-        if (
-          button.getAttribute("type") == "menu-button" ||
-          button.getAttribute("type") == "menu"
-        ) {
+        if (button.getAttribute("type") == "menu") {
           // The button contains a menupopup as the first child.
           matched = button.querySelector("menupopup#" + value);
         } else {

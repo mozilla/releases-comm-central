@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.EventStatus = void 0;
-
 /*
 Copyright 2015 - 2022 The Matrix.org Foundation C.I.C.
 
@@ -20,7 +19,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 /**
  * Enum for event statuses.
  * @readonly
@@ -28,7 +26,6 @@ limitations under the License.
  */
 let EventStatus;
 exports.EventStatus = EventStatus;
-
 (function (EventStatus) {
   EventStatus["NOT_SENT"] = "not_sent";
   EventStatus["ENCRYPTING"] = "encrypting";

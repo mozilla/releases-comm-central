@@ -17,7 +17,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
 const folderName1 = "I18N box\u00E1"; // I18N boxá
 const folderName2 = "test \u00E4"; // test ä
 
-add_task(async function setupTest() {
+add_setup(async function() {
   setupIMAPPump();
 
   IMAPPump.daemon.createMailbox(folderName1, { subscribed: true });

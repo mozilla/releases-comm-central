@@ -244,7 +244,7 @@ var calImipBar = {
       if (button.type == "menu" && items.length == 0) {
         // hide non functional buttons
         button.hidden = true;
-      } else if (button.type == "menu-button") {
+      } else if (button.type == "menu") {
         if (
           items.length == 0 ||
           (items.length == 1 &&

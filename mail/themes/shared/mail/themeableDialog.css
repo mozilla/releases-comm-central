@@ -274,7 +274,7 @@ button[default]:not([disabled="true"]):hover:active {
   background-color: var(--primary-background-active);
 }
 
-button[type="menu-button"] > .button-box > button {
+button[is="toolbarbutton-menu-button"] > .button-box > button {
   border-inline-end-color: var(--button-border-color);
 }
 

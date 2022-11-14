@@ -4,9 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.TypedReEmitter = exports.ReEmitter = void 0;
-
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 /*
 Copyright 2015, 2016 OpenMarket Ltd
 Copyright 2017 Vector Creations Ltd
@@ -24,23 +22,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 // eslint-disable-next-line no-restricted-imports
+
 class ReEmitter {
   constructor(target) {
     this.target = target;
-
     _defineProperty(this, "reEmitters", new Map());
-  } // Map from emitter to event name to re-emitter
+  }
 
+  // Map from emitter to event name to re-emitter
 
   reEmit(source, eventNames) {
     let reEmittersByEvent = this.reEmitters.get(source);
-
     if (!reEmittersByEvent) {
       reEmittersByEvent = new Map();
       this.reEmitters.set(source, reEmittersByEvent);
     }
-
     for (const eventName of eventNames) {
       // We include the source as the last argument for event handlers which may need it,
       // such as read receipt listeners on the client class which won't have the context
@@ -59,12 +57,10 @@ class ReEmitter {
         if (eventName === 'error' && this.target.listenerCount('error') === 0) return;
         this.target.emit(eventName, ...args, source);
       };
-
       source.on(eventName, forSource);
       reEmittersByEvent.set(eventName, forSource);
     }
   }
-
   stopReEmitting(source, eventNames) {
     const reEmittersByEvent = this.reEmitters.get(source);
     if (!reEmittersByEvent) return; // We were never re-emitting these events in the first place
@@ -73,27 +69,19 @@ class ReEmitter {
       source.off(eventName, reEmittersByEvent.get(eventName));
       reEmittersByEvent.delete(eventName);
     }
-
     if (reEmittersByEvent.size === 0) this.reEmitters.delete(source);
   }
-
 }
-
 exports.ReEmitter = ReEmitter;
-
 class TypedReEmitter extends ReEmitter {
   constructor(target) {
     super(target);
   }
-
   reEmit(source, eventNames) {
     super.reEmit(source, eventNames);
   }
-
   stopReEmitting(source, eventNames) {
     super.stopReEmitting(source, eventNames);
   }
-
 }
-
 exports.TypedReEmitter = TypedReEmitter;

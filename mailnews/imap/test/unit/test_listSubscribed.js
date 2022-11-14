@@ -16,7 +16,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-add_task(async function setupTest() {
+add_setup(async function() {
   // Zimbra is one of the servers that supports LIST-EXTENDED
   // it also has a bug that causes a server crash in certain setups
   setupIMAPPump("Zimbra");

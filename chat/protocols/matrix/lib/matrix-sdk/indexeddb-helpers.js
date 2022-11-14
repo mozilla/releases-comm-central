@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.exists = exists;
-
 /*
 Copyright 2019 New Vector Ltd
 
@@ -33,19 +32,15 @@ function exists(indexedDB, dbName) {
   return new Promise((resolve, reject) => {
     let exists = true;
     const req = indexedDB.open(dbName);
-
     req.onupgradeneeded = () => {
       // Since we did not provide an explicit version when opening, this event
       // should only fire if the DB did not exist before at any version.
       exists = false;
     };
-
     req.onblocked = () => reject(req.error);
-
     req.onsuccess = () => {
       const db = req.result;
       db.close();
-
       if (!exists) {
         // The DB did not exist before, but has been created as part of this
         // existence check. Delete it now to restore previous state. Delete can
@@ -54,10 +49,8 @@ function exists(indexedDB, dbName) {
         // properly set up the DB.
         indexedDB.deleteDatabase(dbName);
       }
-
       resolve(exists);
     };
-
     req.onerror = ev => reject(req.error);
   });
 }

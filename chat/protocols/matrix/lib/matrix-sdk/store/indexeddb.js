@@ -4,27 +4,19 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.IndexedDBStore = void 0;
-
 var _memory = require("./memory");
-
 var _indexeddbLocalBackend = require("./indexeddb-local-backend");
-
 var _indexeddbRemoteBackend = require("./indexeddb-remote-backend");
-
 var _user = require("../models/user");
-
 var _event = require("../models/event");
-
 var _logger = require("../logger");
-
 var _typedEventEmitter = require("../models/typed-event-emitter");
-
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 /**
  * This is an internal module. See {@link IndexedDBStore} for the public class.
  * @module store/indexeddb
  */
+
 // If this value is too small we'll be writing very often which will cause
 // noticeable stop-the-world pauses. If this value is too big we'll be writing
 // so infrequently that the /sync size gets bigger on reload. Writing more
@@ -36,7 +28,6 @@ class IndexedDBStore extends _memory.MemoryStore {
   static exists(indexedDB, dbName) {
     return _indexeddbLocalBackend.LocalIndexedDBStoreBackend.exists(indexedDB, dbName);
   }
-
   /**
    * Construct a new Indexed Database store, which extends MemoryStore.
    *
@@ -81,135 +72,106 @@ class IndexedDBStore extends _memory.MemoryStore {
    */
   constructor(opts) {
     super(opts);
-
     _defineProperty(this, "backend", void 0);
-
     _defineProperty(this, "startedUp", false);
-
     _defineProperty(this, "syncTs", 0);
-
     _defineProperty(this, "userModifiedMap", {});
-
     _defineProperty(this, "emitter", new _typedEventEmitter.TypedEventEmitter());
-
     _defineProperty(this, "on", this.emitter.on.bind(this.emitter));
-
     _defineProperty(this, "getSavedSync", this.degradable(() => {
       return this.backend.getSavedSync();
     }, "getSavedSync"));
-
     _defineProperty(this, "isNewlyCreated", this.degradable(() => {
       return this.backend.isNewlyCreated();
     }, "isNewlyCreated"));
-
     _defineProperty(this, "getSavedSyncToken", this.degradable(() => {
       return this.backend.getNextBatchToken();
     }, "getSavedSyncToken"));
-
     _defineProperty(this, "deleteAllData", this.degradable(() => {
       super.deleteAllData();
       return this.backend.clearDatabase().then(() => {
         _logger.logger.log("Deleted indexeddb data.");
       }, err => {
         _logger.logger.error(`Failed to delete indexeddb data: ${err}`);
-
         throw err;
       });
     }));
-
     _defineProperty(this, "reallySave", this.degradable(() => {
       this.syncTs = Date.now(); // set now to guard against multi-writes
+
       // work out changed users (this doesn't handle deletions but you
       // can't 'delete' users as they are just presence events).
-
       const userTuples = [];
-
       for (const u of this.getUsers()) {
         if (this.userModifiedMap[u.userId] === u.getLastModifiedTime()) continue;
         if (!u.events.presence) continue;
-        userTuples.push([u.userId, u.events.presence.event]); // note that we've saved this version of the user
+        userTuples.push([u.userId, u.events.presence.event]);
 
+        // note that we've saved this version of the user
         this.userModifiedMap[u.userId] = u.getLastModifiedTime();
       }
-
       return this.backend.syncToDatabase(userTuples);
     }));
-
     _defineProperty(this, "setSyncData", this.degradable(syncData => {
       return this.backend.setSyncData(syncData);
     }, "setSyncData"));
-
     _defineProperty(this, "getOutOfBandMembers", this.degradable(roomId => {
       return this.backend.getOutOfBandMembers(roomId);
     }, "getOutOfBandMembers"));
-
     _defineProperty(this, "setOutOfBandMembers", this.degradable((roomId, membershipEvents) => {
       super.setOutOfBandMembers(roomId, membershipEvents);
       return this.backend.setOutOfBandMembers(roomId, membershipEvents);
     }, "setOutOfBandMembers"));
-
     _defineProperty(this, "clearOutOfBandMembers", this.degradable(roomId => {
       super.clearOutOfBandMembers(roomId);
       return this.backend.clearOutOfBandMembers(roomId);
     }, "clearOutOfBandMembers"));
-
     _defineProperty(this, "getClientOptions", this.degradable(() => {
       return this.backend.getClientOptions();
     }, "getClientOptions"));
-
     _defineProperty(this, "storeClientOptions", this.degradable(options => {
       super.storeClientOptions(options);
       return this.backend.storeClientOptions(options);
     }, "storeClientOptions"));
-
     if (!opts.indexedDB) {
       throw new Error('Missing required option: indexedDB');
     }
-
     if (opts.workerFactory) {
       this.backend = new _indexeddbRemoteBackend.RemoteIndexedDBStoreBackend(opts.workerFactory, opts.dbName);
     } else {
       this.backend = new _indexeddbLocalBackend.LocalIndexedDBStoreBackend(opts.indexedDB, opts.dbName);
     }
   }
-
   /**
    * @return {Promise} Resolved when loaded from indexed db.
    */
   startup() {
     if (this.startedUp) {
       _logger.logger.log(`IndexedDBStore.startup: already started`);
-
       return Promise.resolve();
     }
-
     _logger.logger.log(`IndexedDBStore.startup: connecting to backend`);
-
     return this.backend.connect().then(() => {
       _logger.logger.log(`IndexedDBStore.startup: loading presence events`);
-
       return this.backend.getUserPresenceEvents();
     }).then(userPresenceEvents => {
       _logger.logger.log(`IndexedDBStore.startup: processing presence events`);
-
       userPresenceEvents.forEach(([userId, rawEvent]) => {
         const u = new _user.User(userId);
-
         if (rawEvent) {
           u.setPresenceEvent(new _event.MatrixEvent(rawEvent));
         }
-
         this.userModifiedMap[u.userId] = u.getLastModifiedTime();
         this.storeUser(u);
       });
     });
   }
+
   /**
    * @return {Promise} Resolves with a sync response to restore the
    * client state to where it was at the last save, or null if there
    * is no saved sync data.
    */
-
 
   /**
    * Whether this store would like to save its data
@@ -224,6 +186,7 @@ class IndexedDBStore extends _memory.MemoryStore {
     const now = Date.now();
     return now - this.syncTs > WRITE_DELAY_MS;
   }
+
   /**
    * Possibly write data to the database.
    *
@@ -231,16 +194,12 @@ class IndexedDBStore extends _memory.MemoryStore {
    * @return {Promise} Promise resolves after the write completes
    *     (or immediately if no write is performed)
    */
-
-
   save(force = false) {
     if (force || this.wantsSave()) {
       return this.reallySave();
     }
-
     return Promise.resolve();
   }
-
   /**
    * All member functions of `IndexedDBStore` that access the backend use this wrapper to
    * watch for failures after initial store startup, including `QuotaExceededError` as
@@ -254,49 +213,43 @@ class IndexedDBStore extends _memory.MemoryStore {
    * @returns {Function} A wrapped member function.
    */
   degradable(func, fallback) {
-    const fallbackFn = super[fallback];
+    const fallbackFn = fallback ? super[fallback] : null;
     return async (...args) => {
       try {
         return await func.call(this, ...args);
       } catch (e) {
         _logger.logger.error("IndexedDBStore failure, degrading to MemoryStore", e);
-
         this.emitter.emit("degraded", e);
-
         try {
           // We try to delete IndexedDB after degrading since this store is only a
           // cache (the app will still function correctly without the data).
           // It's possible that deleting repair IndexedDB for the next app load,
           // potentially by making a little more space available.
           _logger.logger.log("IndexedDBStore trying to delete degraded data");
-
           await this.backend.clearDatabase();
-
           _logger.logger.log("IndexedDBStore delete after degrading succeeded");
         } catch (e) {
           _logger.logger.warn("IndexedDBStore delete after degrading failed", e);
-        } // Degrade the store from being an instance of `IndexedDBStore` to instead be
+        }
+        // Degrade the store from being an instance of `IndexedDBStore` to instead be
         // an instance of `MemoryStore` so that future API calls use the memory path
         // directly and skip IndexedDB entirely. This should be safe as
         // `IndexedDBStore` already extends from `MemoryStore`, so we are making the
         // store become its parent type in a way. The mutator methods of
         // `IndexedDBStore` also maintain the state that `MemoryStore` uses (many are
         // not overridden at all).
-
-
         if (fallbackFn) {
           return fallbackFn.call(this, ...args);
         }
       }
     };
-  } // XXX: ideally these would be stored in indexeddb as part of the room but,
+  }
+
+  // XXX: ideally these would be stored in indexeddb as part of the room but,
   // we don't store rooms as such and instead accumulate entire sync responses atm.
-
-
   async getPendingEvents(roomId) {
     if (!this.localStorage) return super.getPendingEvents(roomId);
     const serialized = this.localStorage.getItem(pendingEventsKey(roomId));
-
     if (serialized) {
       try {
         return JSON.parse(serialized);
@@ -304,41 +257,32 @@ class IndexedDBStore extends _memory.MemoryStore {
         _logger.logger.error("Could not parse persisted pending events", e);
       }
     }
-
     return [];
   }
-
   async setPendingEvents(roomId, events) {
     if (!this.localStorage) return super.setPendingEvents(roomId, events);
-
     if (events.length > 0) {
       this.localStorage.setItem(pendingEventsKey(roomId), JSON.stringify(events));
     } else {
       this.localStorage.removeItem(pendingEventsKey(roomId));
     }
   }
-
   saveToDeviceBatches(batches) {
     return this.backend.saveToDeviceBatches(batches);
   }
-
   getOldestToDeviceBatch() {
     return this.backend.getOldestToDeviceBatch();
   }
-
   removeToDeviceBatch(id) {
     return this.backend.removeToDeviceBatch(id);
   }
-
 }
+
 /**
  * @param {string} roomId ID of the current room
  * @returns {string} Storage key to retrieve pending events
  */
-
-
 exports.IndexedDBStore = IndexedDBStore;
-
 function pendingEventsKey(roomId) {
   return `mx_pending_events_${roomId}`;
 }

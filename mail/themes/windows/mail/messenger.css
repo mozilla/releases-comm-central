@@ -128,7 +128,7 @@ toolbarpaletteitem[place="toolbar"] > toolbarspacer {
 
 /* ::::: toolbarbutton menu-button ::::: */
 
-toolbarbutton[type="menu-button"] {
+toolbarbutton[is="toolbarbutton-menu-button"] {
   -moz-box-align: stretch;
   -moz-box-orient: horizontal !important;
   padding: 0 !important;
@@ -342,11 +342,11 @@ menulist.folderMenuItem::part(label) {
   margin-inline-start: 2px !important;
 }
 
-button[type="menu-button"] > .button-box > button {
+button[is="toolbarbutton-menu-button"] > .button-box > button {
   margin-block: -1px;
 }
 
-button.notification-button[type="menu-button"] {
+button.notification-button[is="toolbarbutton-menu-button"] {
   padding-inline-end: 1px;
 }
 

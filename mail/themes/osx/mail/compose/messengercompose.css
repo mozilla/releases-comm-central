@@ -98,11 +98,11 @@ toolbar[nowindowdrag="true"] {
 
 /* ::::: attachment reminder ::::: */
 
-.notification-button[type="menu-button"] {
+.notification-button[is="toolbarbutton-menu-button"] {
   padding-top: 0;
 }
 
-.notification-button[type="menu-button"] > button {
+.notification-button[is="toolbarbutton-menu-button"] > button {
   appearance: none;
   margin-bottom: -1px;
   margin-inline-start: -3px;

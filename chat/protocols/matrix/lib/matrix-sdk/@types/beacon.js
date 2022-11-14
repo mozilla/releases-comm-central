@@ -4,9 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.M_BEACON_INFO = exports.M_BEACON = void 0;
-
 var _NamespacedValue = require("../NamespacedValue");
-
 /*
 Copyright 2022 The Matrix.org Foundation C.I.C.
 

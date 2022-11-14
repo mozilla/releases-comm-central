@@ -35,13 +35,13 @@ let { TelemetryTestUtils } = ChromeUtils.import(
   "resource://testing-common/TelemetryTestUtils.jsm"
 );
 
-// Collect all added accounts to be cleaned up at the end.
-let addedAccounts = [];
-
 /**
  * Check that we are counting account types.
  */
 add_task(async function test_account_types() {
+  // Collect all added accounts to be cleaned up at the end.
+  let addedAccounts = [];
+
   Services.telemetry.clearScalars();
 
   const NUM_IMAP = 3;
@@ -83,6 +83,12 @@ add_task(async function test_account_types() {
     addedAccounts.push(account);
   }
 
+  registerCleanupFunction(() => {
+    for (let account of addedAccounts) {
+      MailServices.accounts.removeAccount(account);
+    }
+  });
+
   MailTelemetryForTests.reportAccountTypes();
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
 
@@ -107,10 +113,6 @@ add_task(async function test_account_types() {
     undefined,
     "Should not report Local Folders account"
   );
-
-  for (let account of addedAccounts) {
-    MailServices.accounts.removeAccount(account);
-  }
 });
 
 /**
@@ -181,5 +183,98 @@ add_task(async function test_account_sizes() {
     scalars["tb.account.size_on_disk"].Total,
     873 + 618,
     "Size of all folders must be correct"
+  );
+});
+
+/**
+ * Verify counting of OAuth2 providers
+ */
+add_task(async function test_account_oauth_providers() {
+  // Collect all added accounts to be cleaned up at the end
+  const addedAccounts = [];
+
+  Services.telemetry.clearScalars();
+
+  const EXPECTED_GOOGLE_COUNT = 2;
+  const EXPECTED_MICROSOFT_COUNT = 1;
+  const EXPECTED_YAHOO_AOL_COUNT = 2;
+  const EXPECTED_OTHER_COUNT = 2;
+
+  const hostnames = [
+    "imap.googlemail.com",
+    "imap.gmail.com",
+    "imap.mail.ru",
+    "imap.yandex.com",
+    "imap.mail.yahoo.com",
+    "imap.aol.com",
+    "outlook.office365.com",
+    "something.totally.unexpected",
+  ];
+
+  function createIncomingImapServer(username, hostname, authMethod) {
+    const incoming = MailServices.accounts.createIncomingServer(
+      username,
+      hostname,
+      "imap"
+    );
+
+    incoming.authMethod = authMethod;
+
+    const account = MailServices.accounts.createAccount();
+    account.incomingServer = incoming;
+
+    const identity = MailServices.accounts.createIdentity();
+    account.addIdentity(identity);
+
+    addedAccounts.push(account);
+  }
+
+  // Add incoming servers
+  let i = 0;
+  const otherAuthMethods = [
+    Ci.nsMsgAuthMethod.none,
+    Ci.nsMsgAuthMethod.passwordCleartext,
+    Ci.nsMsgAuthMethod.passwordEncrypted,
+    Ci.nsMsgAuthMethod.secure,
+  ];
+
+  for (const hostname of hostnames) {
+    // Create one with OAuth2
+    createIncomingImapServer("nobody", hostname, Ci.nsMsgAuthMethod.OAuth2);
+
+    // Create one with an arbitrary method from our list
+    createIncomingImapServer("somebody_else", hostname, otherAuthMethods[i]);
+    i = i + (1 % otherAuthMethods.length);
+  }
+
+  registerCleanupFunction(() => {
+    for (const account of addedAccounts) {
+      MailServices.accounts.removeAccount(account);
+    }
+  });
+
+  MailTelemetryForTests.reportAccountTypes();
+  const scalars = TelemetryTestUtils.getProcessScalars("parent", true);
+
+  // Check if we count account types correctly.
+  Assert.equal(
+    scalars["tb.account.oauth2_provider_count"].google,
+    EXPECTED_GOOGLE_COUNT,
+    "should have expected number of Google accounts"
+  );
+  Assert.equal(
+    scalars["tb.account.oauth2_provider_count"].microsoft,
+    EXPECTED_MICROSOFT_COUNT,
+    "should have expected number of Microsoft accounts"
+  );
+  Assert.equal(
+    scalars["tb.account.oauth2_provider_count"].yahoo_aol,
+    EXPECTED_YAHOO_AOL_COUNT,
+    "should have expected number of Yahoo/AOL accounts"
+  );
+  Assert.equal(
+    scalars["tb.account.oauth2_provider_count"].other,
+    EXPECTED_OTHER_COUNT,
+    "should have expected number of other accounts"
   );
 });

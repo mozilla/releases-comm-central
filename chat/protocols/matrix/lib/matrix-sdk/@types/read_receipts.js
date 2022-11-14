@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.ReceiptType = void 0;
-
 /*
 Copyright 2022 Šimon Brandner <simon.bra.ag@gmail.com>
 
@@ -22,7 +21,6 @@ limitations under the License.
 */
 let ReceiptType;
 exports.ReceiptType = ReceiptType;
-
 (function (ReceiptType) {
   ReceiptType["Read"] = "m.read";
   ReceiptType["FullyRead"] = "m.fully_read";

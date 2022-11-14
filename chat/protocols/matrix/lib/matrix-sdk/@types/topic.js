@@ -4,9 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.M_TOPIC = void 0;
-
 var _NamespacedValue = require("../NamespacedValue");
-
 /*
 Copyright 2022 The Matrix.org Foundation C.I.C.
 
@@ -50,8 +48,8 @@ limitations under the License.
  * The event type for an m.topic event (in content)
  */
 const M_TOPIC = new _NamespacedValue.UnstableValue("m.topic", "org.matrix.msc3765.topic");
+
 /**
  * The event content for an m.topic event (in content)
  */
-
 exports.M_TOPIC = M_TOPIC;

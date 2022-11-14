@@ -40,6 +40,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   MailMigrator: "resource:///modules/MailMigrator.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   MailUsageTelemetry: "resource:///modules/MailUsageTelemetry.jsm",
+  OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
   PdfJs: "resource://pdf.js/PdfJs.jsm",
   RemoteSecuritySettings:
     "resource://gre/modules/psm/RemoteSecuritySettings.jsm",
@@ -871,27 +872,78 @@ function reportAccountTypes() {
     im_matrix: 0,
     im_odnoklassniki: 0,
   };
+
+  const providerReport = {
+    google: 0,
+    microsoft: 0,
+    yahoo_aol: 0,
+    other: 0,
+  };
+
   for (let account of lazy.MailServices.accounts.accounts) {
-    let type = account.incomingServer.type;
+    const incomingServer = account.incomingServer;
+
+    let type = incomingServer.type;
     if (type == "none") {
       // Reporting one Local Folders account is not that useful. Skip it.
       continue;
     }
+
     if (type === "im") {
       let protocol =
-        account.incomingServer.wrappedJSObject.imAccount.protocol
-          .normalizedName;
+        incomingServer.wrappedJSObject.imAccount.protocol.normalizedName;
       type = `im_${protocol}`;
     }
+
     // It's still possible to report other types not explicitly specified due to
     // account types that used to exist, but no longer -- e.g. im_yahoo.
     if (!report[type]) {
       report[type] = 0;
     }
+
     report[type]++;
+
+    // Collect a rough understanding of the frequency of various OAuth
+    // providers.
+    if (incomingServer.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
+      const hostnameDetails = lazy.OAuth2Providers.getHostnameDetails(
+        incomingServer.hostName
+      );
+
+      if (!hostnameDetails || hostnameDetails.length == 0) {
+        // Not a valid OAuth2 configuration; skip it
+        continue;
+      }
+
+      const host = hostnameDetails[0];
+
+      switch (host) {
+        case "accounts.google.com":
+          providerReport.google++;
+          break;
+        case "login.microsoftonline.com":
+          providerReport.microsoft++;
+          break;
+        case "login.yahoo.com":
+        case "login.aol.com":
+          providerReport.yahoo_aol++;
+          break;
+        default:
+          providerReport.other++;
+      }
+    }
   }
+
   for (let [type, count] of Object.entries(report)) {
     Services.telemetry.keyedScalarSet("tb.account.count", type, count);
+  }
+
+  for (const [provider, count] of Object.entries(providerReport)) {
+    Services.telemetry.keyedScalarSet(
+      "tb.account.oauth2_provider_count",
+      provider,
+      count
+    );
   }
 }
 

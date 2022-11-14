@@ -3,8 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.SSOAction = exports.IdentityProviderBrand = void 0;
-
+exports.SSOAction = exports.IdentityProviderBrand = exports.DELEGATED_OIDC_COMPATIBILITY = void 0;
+var _NamespacedValue = require("../NamespacedValue");
 /*
 Copyright 2022 The Matrix.org Foundation C.I.C.
 
@@ -20,26 +20,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-// disable lint because these are wire responses
 
-/* eslint-disable camelcase */
-
-/**
- * Represents a response to the CSAPI `/refresh` endpoint.
- */
-
-/* eslint-enable camelcase */
+const DELEGATED_OIDC_COMPATIBILITY = new _NamespacedValue.UnstableValue("delegated_oidc_compatibility", "org.matrix.msc3824.delegated_oidc_compatibility");
 
 /**
- * Response to GET login flows as per https://spec.matrix.org/latest/client-server-api/#get_matrixclientv3login
+ * Representation of SSO flow as per https://spec.matrix.org/v1.3/client-server-api/#client-login-via-sso
  */
-
-/**
- * Representation of SSO flow as per https://spec.matrix.org/latest/client-server-api/#client-login-via-sso
- */
+exports.DELEGATED_OIDC_COMPATIBILITY = DELEGATED_OIDC_COMPATIBILITY;
 let IdentityProviderBrand;
 exports.IdentityProviderBrand = IdentityProviderBrand;
-
 (function (IdentityProviderBrand) {
   IdentityProviderBrand["Gitlab"] = "gitlab";
   IdentityProviderBrand["Github"] = "github";
@@ -48,11 +37,14 @@ exports.IdentityProviderBrand = IdentityProviderBrand;
   IdentityProviderBrand["Facebook"] = "facebook";
   IdentityProviderBrand["Twitter"] = "twitter";
 })(IdentityProviderBrand || (exports.IdentityProviderBrand = IdentityProviderBrand = {}));
-
 /* eslint-enable camelcase */
 let SSOAction;
+/**
+ * The result of a successful [MSC3882](https://github.com/matrix-org/matrix-spec-proposals/pull/3882)
+ * `m.login.token` issuance request.
+ * Note that this is UNSTABLE and subject to breaking changes without notice.
+ */
 exports.SSOAction = SSOAction;
-
 (function (SSOAction) {
   SSOAction["LOGIN"] = "login";
   SSOAction["REGISTER"] = "register";
