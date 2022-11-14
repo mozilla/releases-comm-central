@@ -46,6 +46,7 @@ messenger.jar:
     content/messenger/mail-offline.js               (content/mail-offline.js)
     content/messenger/mail3PaneWindowCommands.js    (content/mail3PaneWindowCommands.js)
     content/messenger/mailCommands.js               (content/mailCommands.js)
+    content/messenger/mailCommon.js                 (content/mailCommon.js)
     content/messenger/mailContext.js                (content/mailContext.js)
     content/messenger/mailCore.js                   (content/mailCore.js)
     content/messenger/mailTabs.js                   (content/mailTabs.js)

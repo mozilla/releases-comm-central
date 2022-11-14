@@ -33,6 +33,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
   GlodaUtils: "resource:///modules/gloda/GlodaUtils.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
+  MessageArchiver: "resource:///modules/MessageArchiver.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
 });
@@ -4171,7 +4172,7 @@ function MsgReplyToListMessage(event) {
  * @param event the event that caused us to call this function
  */
 function MsgArchiveSelectedMessages(event) {
-  let archiver = new LazyModules.MessageArchiver();
+  let archiver = new MessageArchiver();
   archiver.folderDisplay = gFolderDisplay;
   archiver.msgWindow = msgWindow;
   archiver.archiveMessages(gFolderDisplay.selectedMessages);
@@ -4835,7 +4836,7 @@ function OnMsgParsed(aUrl) {
   if (
     msgHdr &&
     !msgHdr.getUint32Property("notAPhishMessage") &&
-    LazyModules.PhishingDetector.analyzeMsgForPhishingURLs(aUrl, browser)
+    PhishingDetector.analyzeMsgForPhishingURLs(aUrl, browser)
   ) {
     gMessageNotificationBar.setPhishingMsg();
   }

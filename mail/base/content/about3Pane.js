@@ -2,10 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals commandController, dbViewWrapperListener, mailContextMenu
-     nsMsgViewIndex_None */ // mailContext.js
-/* globals goDoCommand */ // globalOverlay.js
-/* globals MailOfflineMgr */ // mail-offline.js
+// mailCommon.js
+/* globals commandController, dbViewWrapperListener, nsMsgViewIndex_None */
+
+// mailContext.js
+/* globals mailContextMenu */
+
+// globalOverlay.js
+/* globals goDoCommand */
+
+// mail-offline.js
+/* globals MailOfflineMgr */
+
 // junkCommands.js
 /* globals analyzeMessagesForJunk deleteJunkInFolder filterFolderForJunk */
 

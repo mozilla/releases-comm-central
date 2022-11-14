@@ -4,7 +4,7 @@
 
 /* globals MailE10SUtils */
 
-// mailContext.js
+// mailCommon.js
 /* globals commandController, dbViewWrapperListener */
 
 // msgHdrView.js
