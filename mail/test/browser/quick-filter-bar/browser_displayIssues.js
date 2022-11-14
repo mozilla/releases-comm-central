@@ -68,7 +68,7 @@ add_setup(async function() {
 
   // Store folder pane width that we will change temporarily.
   let folderPaneBox = mc.e("folderPaneBox");
-  gOriginalPaneWidth = folderPaneBox.style.width;
+  gOriginalPaneWidth = folderPaneBox.getAttribute("width");
 
   // Hide Lightning's Today pane as it takes up too much room in the
   // small TB window our tests run in.
@@ -202,7 +202,7 @@ registerCleanupFunction(function() {
   restore_default_window_size();
   collapse_panes(mc.e("folderpane_splitter"), false);
   let folderPaneBox = mc.e("folderPaneBox");
-  folderPaneBox.style.width = gOriginalPaneWidth;
+  folderPaneBox.setAttribute("width", gOriginalPaneWidth);
 
   if (gTodayPane && gTodayPane.collapsed) {
     EventUtils.synthesizeKey("VK_F11", {});
