@@ -111,35 +111,46 @@ add_task(async function testDetach() {
   // Get the message header
   let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
-  let messageContent = getContentFromMessage(msgHdr);
+  let messageContent = await getContentFromMessage(msgHdr);
   Assert.ok(messageContent.includes("AttachmentDetached"));
 });
 
-/*
+/**
  * Get the full message content.
  *
- * aMsgHdr: nsIMsgDBHdr object whose text body will be read
- *          returns: string with full message contents
+ * @param aMsgHdr - nsIMsgDBHdr object whose text body will be read.
+ * @returns {Promise<string>} full message contents.
  */
 function getContentFromMessage(aMsgHdr) {
-  const MAX_MESSAGE_LENGTH = 65536;
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
     Ci.nsIMessenger
   );
-  let streamListener = Cc[
-    "@mozilla.org/network/sync-stream-listener;1"
-  ].createInstance(Ci.nsISyncStreamListener);
-  messenger
-    .messageServiceFromURI(msgUri)
-    .streamMessage(msgUri, streamListener, null, null, false, "", false);
-  let sis = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-    Ci.nsIScriptableInputStream
-  );
-  sis.init(streamListener.inputStream);
-  let content = sis.read(MAX_MESSAGE_LENGTH);
-  sis.close();
-  return content;
+  return new Promise((resolve, reject) => {
+    let streamListener = {
+      QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
+      sis: Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      ),
+      content: "",
+      onDataAvailable(request, inputStream, offset, count) {
+        this.sis.init(inputStream);
+        this.content += this.sis.read(count);
+      },
+      onStartRequest(request) {},
+      onStopRequest(request, statusCode) {
+        this.sis.close();
+        if (Components.isSuccessCode(statusCode)) {
+          resolve(this.content);
+        } else {
+          reject(new Error(statusCode));
+        }
+      },
+    };
+    messenger
+      .messageServiceFromURI(msgUri)
+      .streamMessage(msgUri, streamListener, null, null, false, "", false);
+  });
 }

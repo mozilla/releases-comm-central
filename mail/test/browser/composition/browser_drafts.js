@@ -239,7 +239,7 @@ add_task(async function test_content_language_header() {
 
   be_in_folder(draftsFolder);
   let draftMsg = select_click_row(0);
-  let draftMsgContent = get_msg_source(draftMsg);
+  let draftMsgContent = await get_msg_source(draftMsg);
 
   // Check for a single line that contains our header.
   if (
@@ -280,7 +280,7 @@ add_task(async function test_content_language_header_suppression() {
 
   be_in_folder(draftsFolder);
   let draftMsg = select_click_row(0);
-  let draftMsgContent = get_msg_source(draftMsg);
+  let draftMsgContent = await get_msg_source(draftMsg);
 
   // Check no line contains our Content-Language.
   Assert.ok(

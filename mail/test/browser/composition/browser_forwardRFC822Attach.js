@@ -52,7 +52,7 @@ async function forwardDirect(aFilePath, aExpectedText) {
   be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
 
-  let draftMsgContent = get_msg_source(draftMsg);
+  let draftMsgContent = await get_msg_source(draftMsg);
 
   Assert.ok(
     draftMsgContent.includes(aExpectedText),

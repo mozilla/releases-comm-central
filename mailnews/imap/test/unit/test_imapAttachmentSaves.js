@@ -132,7 +132,7 @@ add_task(async function startDetach() {
 });
 
 // test that the detachment was successful
-add_task(function testDetach() {
+add_task(async function testDetach() {
   // Check that the file attached to the message now exists in the profile
   // directory.
   let checkFile = do_get_profile().clone();
@@ -145,7 +145,7 @@ add_task(function testDetach() {
   // Get the message header - detached copy has UID 2.
   let msgHdr = IMAPPump.inbox.GetMessageHeader(2);
   Assert.ok(msgHdr !== null);
-  let messageContent = getContentFromMessage(msgHdr);
+  let messageContent = await getContentFromMessage(msgHdr);
   Assert.ok(messageContent.includes("AttachmentDetached"));
 });
 
@@ -154,32 +154,43 @@ add_task(function endTest() {
   teardownIMAPPump();
 });
 
-/*
+/**
  * Get the full message content.
  *
- * aMsgHdr: nsIMsgDBHdr object whose text body will be read
- *          returns: string with full message contents
+ * @param aMsgHdr - nsIMsgDBHdr object whose text body will be read.
+ * @returns {Promise<string>} full message contents.
  */
 function getContentFromMessage(aMsgHdr) {
-  const MAX_MESSAGE_LENGTH = 65536;
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
     Ci.nsIMessenger
   );
-  let streamListener = Cc[
-    "@mozilla.org/network/sync-stream-listener;1"
-  ].createInstance(Ci.nsISyncStreamListener);
-  // Pass true for aLocalOnly since message should be in offline store.
-  messenger
-    .messageServiceFromURI(msgUri)
-    .streamMessage(msgUri, streamListener, null, null, false, "", true);
-  let sis = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-    Ci.nsIScriptableInputStream
-  );
-  sis.init(streamListener.inputStream);
-  let content = sis.read(MAX_MESSAGE_LENGTH);
-  sis.close();
-  return content;
+  return new Promise((resolve, reject) => {
+    let streamListener = {
+      QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
+      sis: Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      ),
+      content: "",
+      onDataAvailable(request, inputStream, offset, count) {
+        this.sis.init(inputStream);
+        this.content += this.sis.read(count);
+      },
+      onStartRequest(request) {},
+      onStopRequest(request, statusCode) {
+        this.sis.close();
+        if (Components.isSuccessCode(statusCode)) {
+          resolve(this.content);
+        } else {
+          reject(new Error(statusCode));
+        }
+      },
+    };
+    // Pass true for aLocalOnly since message should be in offline store.
+    messenger
+      .messageServiceFromURI(msgUri)
+      .streamMessage(msgUri, streamListener, null, null, false, "", true);
+  });
 }

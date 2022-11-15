@@ -63,7 +63,7 @@ async function subtest_reply_format_flowed(aFlowed) {
   let msgLoaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   let message = select_click_row(0);
   await msgLoaded;
-  let messageContent = get_msg_source(message);
+  let messageContent = await get_msg_source(message);
 
   // Check for a single line that contains text and make sure there is a
   // space at the end for a flowed reply.
