@@ -200,17 +200,23 @@ with only_when(in_tree_librnp):
         set_config("MZLA_BZIP2_LIBS", bzip2_flags.ldflags)
 
     # librnp crypto backend selection
+    @depends(target_is_linux)
+    def librnp_backend_choices(is_linux):
+        if is_linux:
+            return ("botan", "openssl")
+        else:
+            return ("botan",)
+
     option("--with-librnp-backend",
-           help="Build librnp with the selected backend: {botan, openssl}",
+           help="Build librnp with the selected backend",
+           choices=librnp_backend_choices,
+           nargs=1,
            default="botan")
 
     @depends("--with-librnp-backend")
     def librnp_backend(backend):
-        allowed = ("botan", "openssl")
-        if backend[0] in allowed:
+        if backend:
             return backend[0]
-        else:
-            die(f"Unsupported librnp backend {backend[0]}.")
 
     set_config("MZLA_LIBRNP_BACKEND", librnp_backend)
 
@@ -275,6 +281,7 @@ with only_when(in_tree_librnp):
 
         @depends(c_compiler, openssl_flags)
         @imports(_from="textwrap", _import="dedent")
+        @imports(_from="__builtin__", _import="chr")
         def openssl_version(compiler, openssl_flags):
             log.info("Checking for OpenSSL >= 1.1.1")
             if openssl_flags is None:
