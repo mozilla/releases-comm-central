@@ -1,0 +1,6 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Surname;Name;;;
+FN:Name Surname
+EMAIL;type=INTERNET;type=HOME:example@gmail.com
+END:VCARD

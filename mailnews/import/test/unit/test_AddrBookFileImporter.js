@@ -110,6 +110,15 @@ add_task(async function test_importVCardFile() {
   );
 });
 
+/** Test importing .vcf file with \r\r\n as line breaks works. */
+add_task(async function test_importDosVCardFile() {
+  return test_importAbFile(
+    "vcard",
+    "resources/dos_vcard_addressbook.vcf",
+    "dos_vcard_import"
+  );
+});
+
 /** Test importing .ldif file works. */
 add_task(async function test_importLdifFile() {
   return test_importAbFile(
