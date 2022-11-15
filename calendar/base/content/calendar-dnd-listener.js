@@ -36,7 +36,7 @@ var calendarTaskButtonDNDObserver;
      * @param {Object} aItem - The target calIItemBase.
      * @param {Object} aMsgHdr - The nsIMsgHdr to convert from.
      */
-    calendarItemFromMessage(aItem, aMsgHdr) {
+    async calendarItemFromMessage(aItem, aMsgHdr) {
       let msgFolder = aMsgHdr.folder;
       let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
@@ -47,24 +47,34 @@ var calendarTaskButtonDNDObserver;
       cal.dtz.setDefaultStartEndHour(aItem);
       cal.alarms.setDefaultValues(aItem);
 
-      let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-      let streamListener = Cc["@mozilla.org/network/sync-stream-listener;1"].createInstance(
-        Ci.nsISyncStreamListener
-      );
-      messenger
-        .messageServiceFromURI(msgUri)
-        .streamMessage(msgUri, streamListener, null, null, false, "", false);
-
       let plainTextMessage = "";
-      plainTextMessage = msgFolder.getMsgTextFromStream(
-        streamListener.inputStream,
-        aMsgHdr.Charset,
-        65536,
-        32768,
-        false,
-        true,
-        {}
-      );
+      await new Promise((resolve, reject) => {
+        let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+        let streamListener = {
+          QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
+          onDataAvailable(request, inputStream, offset, count) {
+            plainTextMessage = msgFolder.getMsgTextFromStream(
+              inputStream,
+              aMsgHdr.Charset,
+              65536,
+              32768,
+              false,
+              true,
+              {}
+            );
+          },
+          onStartRequest(request) {},
+          onStopRequest(request, statusCode) {
+            if (!Components.isSuccessCode(statusCode)) {
+              reject(new Error(statusCode));
+            }
+            resolve();
+          },
+        };
+        messenger
+          .messageServiceFromURI(msgUri)
+          .streamMessage(msgUri, streamListener, null, null, false, "", false);
+      });
       aItem.setProperty("DESCRIPTION", plainTextMessage);
     },
 
@@ -721,9 +731,9 @@ var calendarTaskButtonDNDObserver;
      *
      * @param {nsIMsgHdr} msgHdr
      */
-    onDropMessage(msgHdr) {
+    async onDropMessage(msgHdr) {
       let newItem = new CalEvent();
-      itemConversion.calendarItemFromMessage(newItem, msgHdr);
+      await itemConversion.calendarItemFromMessage(newItem, msgHdr);
       createEventWithDialog(null, null, null, null, newItem);
     }
 
@@ -816,9 +826,9 @@ var calendarTaskButtonDNDObserver;
      *
      * @param {nsIMsgHdr} msgHdr
      */
-    onDropMessage(msgHdr) {
+    async onDropMessage(msgHdr) {
       let todo = new CalTodo();
-      itemConversion.calendarItemFromMessage(todo, msgHdr);
+      await itemConversion.calendarItemFromMessage(todo, msgHdr);
       createTodoWithDialog(null, null, null, todo);
     }
 
