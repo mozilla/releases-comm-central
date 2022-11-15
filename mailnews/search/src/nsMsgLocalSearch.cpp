@@ -661,8 +661,8 @@ nsresult nsMsgSearchOfflineMail::Search(bool* aDone) {
         nsCOMPtr<nsIMsgDBHdr> msgDBHdr;
         dbErr = m_listContext->GetNext(getter_AddRefs(msgDBHdr));
         if (NS_FAILED(dbErr))
-          *aDone = true;  //###phil dbErr is dropped on the floor. just note
-                          // that we did have an error so we'll clean up later
+          *aDone = true;  // ###phil dbErr is dropped on the floor. just note
+                          //  that we did have an error so we'll clean up later
         else {
           bool match = false;
           nsAutoString nullCharset, folderCharset;
