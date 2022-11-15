@@ -13,12 +13,14 @@ const { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
  * A channel to interact with IMAP server.
  * @implements {nsIChannel}
  * @implements {nsIRequest}
+ * @implements {nsICacheEntryOpenCallback}
  */
 class ImapChannel {
   QueryInterface = ChromeUtils.generateQI([
     "nsIChannel",
     "nsIRequest",
     "nsIWritablePropertyBag",
+    "nsICacheEntryOpenCallback",
   ]);
 
   _logger = ImapUtils.logger;
@@ -49,6 +51,39 @@ class ImapChannel {
    */
   get status() {
     return Cr.NS_OK;
+  }
+
+  /**
+   * @see nsICacheEntryOpenCallback
+   */
+  onCacheEntryAvailable(entry, isNew, status) {
+    if (!Components.isSuccessCode(status)) {
+      // If memory cache doesn't work, read from the server.
+      this._readFromServer();
+      return;
+    }
+
+    if (isNew) {
+      // It's a new entry, needs to read from the server.
+      let tee = Cc["@mozilla.org/network/stream-listener-tee;1"].createInstance(
+        Ci.nsIStreamListenerTee
+      );
+      let outStream = entry.openOutputStream(0, -1);
+      // When the tee stream receives data from the server, it writes to both
+      // the original listener and outStream (memory cache).
+      tee.init(this._listener, outStream, null);
+      this._listener = tee;
+      this._cacheEntry = entry;
+      this._readFromServer();
+      return;
+    }
+
+    // It's an old entry, read from the memory cache.
+    this._readFromCacheStream(entry.openInputStream(0));
+  }
+
+  onCacheEntryCheck(entry) {
+    return Ci.nsICacheEntryOpenCallback.ENTRY_WANTED;
   }
 
   /**
@@ -103,7 +138,28 @@ class ImapChannel {
       this._logger.warn(e);
     }
 
-    this._readFromServer();
+    try {
+      let uri = this.URI;
+      if (this.URI.spec.includes("?")) {
+        uri = uri
+          .mutate()
+          .setQuery("")
+          .finalize();
+      }
+      // Check if a memory cache is available for the current URI.
+      MailServices.imap.cacheStorage.asyncOpenURI(
+        uri,
+        "",
+        this.URI.QueryInterface(Ci.nsIImapUrl).storeResultsOffline
+          ? // Don't write to the memory cache if storing offline.
+            Ci.nsICacheStorage.OPEN_READONLY
+          : Ci.nsICacheStorage.OPEN_NORMALLY,
+        this
+      );
+    } catch (e) {
+      this._logger.warn(e);
+      this._readFromServer();
+    }
   }
 
   /**
@@ -122,6 +178,15 @@ class ImapChannel {
 
     let hdr = this.URI.folder.GetMessageHeader(this._msgKey);
     let stream = this.URI.folder.getLocalMsgStream(hdr);
+    this._readFromCacheStream(stream);
+    return true;
+  }
+
+  /**
+   * Read the message from the a stream.
+   * @param {nsIInputStream} cacheStream - The input stream to read.
+   */
+  _readFromCacheStream(stream) {
     let pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
       Ci.nsIInputStreamPump
     );
@@ -149,7 +214,6 @@ class ImapChannel {
         } catch (e) {}
       },
     });
-    return true;
   }
 
   /**

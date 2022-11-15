@@ -28,6 +28,15 @@ class ImapService {
     Cc["@mozilla.org/imap/autosyncmgr;1"].getService(Ci.nsIAutoSyncManager);
   }
 
+  get cacheStorage() {
+    if (!this._cacheStorage) {
+      this._cacheStorage = Services.cache2.memoryCacheStorage(
+        Services.loadContextInfo.custom(false, {})
+      );
+    }
+    return this._cacheStorage;
+  }
+
   selectFolder(folder, urlListener, msgWindow) {
     let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
       .imapIncomingServer;
