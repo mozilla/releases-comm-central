@@ -226,7 +226,7 @@ class ImapChannel {
     let inputStream = pipe.inputStream;
     let outputStream = pipe.outputStream;
 
-    this._server.wrappedJSObject.withClient(client => {
+    this._server.wrappedJSObject.withClient(this.URI.folder, client => {
       client.startRunningUrl(null, null, this.URI);
       client.channel = this;
       this._listener.onStartRequest(this);

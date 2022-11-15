@@ -38,12 +38,7 @@ class ImapService {
   }
 
   selectFolder(folder, urlListener, msgWindow) {
-    let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
-      .imapIncomingServer;
-    let runningUrl = Services.io
-      .newURI(`imap://${server.hostName}:${server.port}`)
-      .QueryInterface(Ci.nsIMsgMailNewsUrl);
-    server.wrappedJSObject.withClient(client => {
+    return this._withClient(folder, (client, runningUrl) => {
       client.startRunningUrl(
         urlListener || folder.QueryInterface(Ci.nsIUrlListener),
         msgWindow,
@@ -54,7 +49,6 @@ class ImapService {
         client.selectFolder(folder);
       };
     });
-    return runningUrl;
   }
 
   liteSelectFolder(folder, urlListener, msgWindow) {
@@ -68,7 +62,7 @@ class ImapService {
       return;
     }
     server.wrappedJSObject.hasDiscoveredFolders = true;
-    server.wrappedJSObject.withClient(client => {
+    this._withClient(folder, client => {
       client.startRunningUrl(urlListener, msgWindow);
       client.onReady = () => {
         client.discoverAllFolders(folder);
@@ -102,9 +96,7 @@ class ImapService {
   }
 
   _updateMessageFlags(action, folder, urlListener, messageIds, flags) {
-    let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
-      .imapIncomingServer;
-    server.wrappedJSObject.withClient(client => {
+    this._withClient(folder, client => {
       client.onReady = () => {
         client.updateMesageFlags(
           action,
@@ -118,9 +110,7 @@ class ImapService {
   }
 
   renameLeaf(folder, newName, urlListener, msgWindow) {
-    let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
-      .imapIncomingServer;
-    server.wrappedJSObject.withClient(client => {
+    this._withClient(folder, client => {
       client.startRunningUrl(urlListener, msgWindow);
       client.onReady = () => {
         client.renameFolder(folder, newName);
@@ -429,7 +419,9 @@ class ImapService {
     let runningUrl = Services.io
       .newURI(`imap://${server.hostName}:${server.port}`)
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
-    server.wrappedJSObject.withClient(client => handler(client, runningUrl));
+    server.wrappedJSObject.withClient(folder, client =>
+      handler(client, runningUrl)
+    );
     return runningUrl;
   }
 }

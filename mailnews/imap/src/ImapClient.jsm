@@ -25,6 +25,8 @@ var { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
 // unique prefix.
 let loggerInstanceId = 0;
 
+const PR_UINT32_MAX = 0xffffffff;
+
 /**
  * A class to interact with IMAP server.
  */
@@ -92,16 +94,17 @@ class ImapClient {
     this._msgWindow = null;
     this._authenticating = false;
     this.verifyLogon = false;
+    this._idling = false;
   }
 
   /**
    * Initiate a connection to the server
    */
   connect() {
-    this._idling = false;
     if (this._socket?.readyState == "open") {
       // Reuse the connection.
       this.onReady();
+      this._setSocketTimeout(this._prefs.tcpTimeout);
     } else {
       let hostname = this._server.hostName.toLowerCase();
       this._logger.debug(`Connecting to ${hostname}:${this._server.port}`);
@@ -114,6 +117,17 @@ class ImapClient {
       this._socket.onopen = this._onOpen;
       this._socket.onerror = this._onError;
     }
+  }
+
+  /**
+   * Set socket timeout in seconds.
+   * @param {number} timeout - The timeout in seconds.
+   */
+  _setSocketTimeout(timeout) {
+    this._socket.transport.setTimeout(
+      Ci.nsISocketTransport.TIMEOUT_READ_WRITE,
+      timeout
+    );
   }
 
   /**
@@ -601,31 +615,28 @@ class ImapClient {
    * Send IDLE command to the server.
    */
   idle() {
-    this._idling = true;
+    if (!this.folder) {
+      this._actionDone();
+      return;
+    }
     this._nextAction = res => {
       if (res.tag == "*") {
-        if (!this.folder) {
-          this._actionDone();
-          return;
-        }
-        if (!this._folderSink) {
-          this._folderSink = this.folder.QueryInterface(
-            Ci.nsIImapMailFolderSink
-          );
-        }
-        this._folderSink.OnNewIdleMessages();
+        this._actionNoopResponse(res);
       }
     };
     this._sendTagged("IDLE");
+    this._idling = true;
+    this._logger.debug(`Idling in ${this.folder.URI}`);
   }
 
   /**
    * Send DONE to end the IDLE command.
+   * @param {Function} nextAction - Callback function after IDLE is ended.
    */
-  endIdle() {
-    this._idling = false;
-    this._nextAction = this._actionDone;
+  endIdle(nextAction) {
+    this._nextAction = nextAction;
     this._send("DONE");
+    this._idling = false;
   }
 
   /**
@@ -645,10 +656,7 @@ class ImapClient {
     this._socket.onclose = this._onClose;
     this._nextAction = this._actionCapabilityResponse;
 
-    this._socket.transport.setTimeout(
-      Ci.nsISocketTransport.TIMEOUT_READ_WRITE,
-      this._prefs.tcpTimeout
-    );
+    this._setSocketTimeout(this._prefs.tcpTimeout);
   };
 
   /**
@@ -709,6 +717,8 @@ class ImapClient {
    */
   _onClose = () => {
     this._logger.debug("Connection closed.");
+    this._reset();
+    this.folder = null;
   };
 
   /**
@@ -745,7 +755,15 @@ class ImapClient {
    * Same as _send, but prepend a tag to the command.
    */
   _sendTagged(str, suppressLogging) {
-    this._send(`${this._getNextTag()} ${str}`, suppressLogging);
+    if (this._idling) {
+      let nextAction = this._nextAction;
+      this.endIdle(() => {
+        this._nextAction = nextAction;
+        this._sendTagged(str, suppressLogging);
+      });
+    } else {
+      this._send(`${this._getNextTag()} ${str}`, suppressLogging);
+    }
   }
 
   /**
@@ -1357,7 +1375,9 @@ class ImapClient {
         },
       };
       this._folderSink.parseMsgHdrs(this, hdrXferInfo);
-      this.onData?.(msg.body);
+      if (msg.body) {
+        this.onData?.(msg.body);
+      }
     }
     this._folderSink.headerFetchCompleted(this);
     if (this._bodysToDownload.length) {
@@ -1384,8 +1404,9 @@ class ImapClient {
         shouldStoreMsgOffline = this.folder.shouldStoreMsgOffline(msg.uid);
       } catch (e) {}
       if (
-        shouldStoreMsgOffline ||
-        this.runningUrl.QueryInterface(Ci.nsIImapUrl).storeResultsOffline
+        (shouldStoreMsgOffline ||
+          this.runningUrl.QueryInterface(Ci.nsIImapUrl).storeResultsOffline) &&
+        msg.body
       ) {
         this._folderSink.StartMessage(this.runningUrl);
         this._msgSink.parseAdoptedMsgLine(msg.body, msg.uid, this.runningUrl);
@@ -1397,7 +1418,9 @@ class ImapClient {
         );
         this._folderSink.EndMessage(this.runningUrl, msg.uid);
       }
-      this.onData?.(msg.body);
+      if (msg.body) {
+        this.onData?.(msg.body);
+      }
     }
     this._folderSink.headerFetchCompleted(this);
     this._actionDone();
@@ -1454,7 +1477,9 @@ class ImapClient {
           .QueryInterface(Ci.nsIImapMailFolderSink)
           .UpdateImapMailboxInfo(this, this._getMailboxSpec());
       }
-      this._actionDone();
+      if (!this._idling) {
+        this._actionDone();
+      }
     }
   }
 
@@ -1488,6 +1513,7 @@ class ImapClient {
     this._reset();
     // Tell ImapIncomingServer this client can be reused now.
     this.onFree?.();
+    this._setSocketTimeout(PR_UINT32_MAX);
   };
 
   /** @see nsIImapProtocol */
