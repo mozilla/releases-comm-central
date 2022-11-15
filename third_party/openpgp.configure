@@ -199,16 +199,136 @@ with only_when(in_tree_librnp):
         set_config("MZLA_BZIP2_CFLAGS", bzip2_flags.cflags)
         set_config("MZLA_BZIP2_LIBS", bzip2_flags.ldflags)
 
-    # BOTAN --with-system-botan
-    system_lib_option(
-        "--with-system-botan",
-        help="Use system Botan for librnp (located with pkgconfig)",
-    )
+    # librnp crypto backend selection
+    option("--with-librnp-backend",
+           help="Build librnp with the selected backend: {botan, openssl}",
+           default="botan")
 
-    botan_pkg = pkg_check_modules(
-        "MZLA_BOTAN", "botan-2 >= 2.8.0", when="--with-system-botan"
-    )
-    set_config("MZLA_SYSTEM_BOTAN", depends_if(botan_pkg)(lambda _: True))
+    @depends("--with-librnp-backend")
+    def librnp_backend(backend):
+        allowed = ("botan", "openssl")
+        if backend[0] in allowed:
+            return backend[0]
+        else:
+            die(f"Unsupported librnp backend {backend[0]}.")
+
+    set_config("MZLA_LIBRNP_BACKEND", librnp_backend)
+
+    @depends(librnp_backend)
+    def rnp_botan(backend):
+        return backend == "botan"
+
+    @depends(librnp_backend)
+    def rnp_openssl(backend):
+        return backend == "openssl"
+
+    # Botan backend (--with-system-botan)
+    with only_when(rnp_botan):
+        system_lib_option(
+            "--with-system-botan",
+            help="Use system Botan for librnp (located with pkgconfig)",
+        )
+
+        botan_pkg = pkg_check_modules(
+            "MZLA_BOTAN", "botan-2 >= 2.8.0", when="--with-system-botan"
+        )
+        set_config("MZLA_SYSTEM_BOTAN", depends_if(botan_pkg)(lambda _: True))
+
+
+    # OpenSSL backend
+    with only_when(rnp_openssl):
+        option(
+            "--with-openssl",
+            nargs=1,
+            help="OpenSSL library prefix (when not found by pkgconfig)"
+        )
+        openssl_pkg = pkg_check_modules(
+            "MZLA_LIBRNP_OPENSSL",
+            "openssl > 1.1.1",
+            allow_missing=True,
+            config=False
+        )
+        @depends_if("--with-openssl", openssl_pkg)
+        @imports(_from="os.path", _import="isdir")
+        @imports(_from="os.path", _import="join")
+        def openssl_flags(openssl_prefix, openssl_pkg):
+            if openssl_prefix:
+                openssl_prefix = openssl_prefix[0]
+                include = join(openssl_prefix, "include")
+                lib = join(openssl_prefix, "lib")
+                if not isdir(lib):
+                    lib = join(openssl_prefix, "lib64")
+                if isdir(include) and isdir(lib):
+                    log.info(f"Using OpenSSL at {openssl_prefix}.")
+                    return namespace(
+                        cflags=(f"-I{include}",),
+                        ldflags=(f"-L{lib}", "-lssl", "-lcrypto"),
+                    )
+            if openssl_pkg:
+                return namespace(
+                    cflags=openssl_pkg.cflags,
+                    ldflags=openssl_pkg.libs,
+                )
+        set_config("MZLA_LIBRNP_OPENSSL_CFLAGS", openssl_flags.cflags)
+        set_config("MZLA_LIBRNP_OPENSSL_LIBS", openssl_flags.ldflags)
+
+
+        @depends(c_compiler, openssl_flags)
+        @imports(_from="textwrap", _import="dedent")
+        def openssl_version(compiler, openssl_flags):
+            log.info("Checking for OpenSSL >= 1.1.1")
+            if openssl_flags is None:
+                die("OpenSSL not found. Must be locatable with pkg-config or use --with-openssl.")
+
+            def ossl_hexver(hex_str):
+                # See opensshlv.h for description of OPENSSL_VERSION_NUMBER
+                MIN_OSSL_VER = 0x1010100f  # Version 1.1.1
+                ver_as_int = int(hex_str[:-1], 16)
+                ossl_major = (ver_as_int & 0xf0000000) >> 28
+                ossl_minor = (ver_as_int & 0x0ff00000) >> 20
+                ossl_fix = (ver_as_int & 0x000ff000) >> 12
+                ossl_patch = chr(96 + (ver_as_int & 0x00000ff0) >> 4)  # as a letter a-z
+                ver_as_str = f"{ossl_major}.{ossl_minor}.{ossl_fix}{ossl_patch}"
+                if ver_as_int < MIN_OSSL_VER:
+                    die(f"OpenSSL version {ver_as_str} is too old.")
+                return ver_as_str
+
+            check = dedent(
+                """\
+            #include <openssl/opensslv.h>
+            #ifdef OPENSSL_VERSION_STR
+            OPENSSL_VERSION_STR
+            #elif defined(OPENSSL_VERSION_NUMBER)
+            OPENSSL_VERSION_NUMBER
+            #else
+            #error Unable to determine OpenSSL version.
+            #endif
+                """
+            )
+            result = try_preprocess(
+                compiler.wrapper
+                + [compiler.compiler]
+                + compiler.flags
+                + list(openssl_flags.cflags),
+                "C",
+                check
+            )
+            if result:
+                openssl_ver = result.splitlines()[-1]
+                if openssl_ver.startswith("0x"):
+                    # OpenSSL 1.x.x - like 0x1010107fL
+                    openssl_ver = ossl_hexver(openssl_ver)
+                else:
+                    # OpenSSL 3.x.x - quoted version like "3.0.7"
+                    openssl_ver = openssl_ver.replace('"', "")
+                    major_version = openssl_ver.split(".")[0]
+                    if major_version != "3":
+                        die("Unrecognized OpenSSL version {openssl_version} found. Require >= 1.1.1 or 3.x.x")
+
+                log.info(f"Found OpenSSL {openssl_ver}.")
+                return openssl_ver
+
+        set_config("MZLA_LIBRNP_OPENSSL_VERSION", openssl_version)
 
     # Checks for building librnp itself
     # =================================

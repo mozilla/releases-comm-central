@@ -11,9 +11,11 @@ if CONFIG["TB_LIBOTR_PREBUILT"]:
 
 if CONFIG["MZLA_LIBRNP"]:
     DIRS += [
-        "botan",
         "bzip2",
         "json-c",
         "rnp",
         "zlib",
     ]
+    if CONFIG["MZLA_LIBRNP_BACKEND"] == "botan":
+        DIRS += [ "botan" ]
+
