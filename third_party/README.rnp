@@ -17,14 +17,15 @@ You may pass a git revision to update_rnp.sh to update to that revision. Running
 without parameters updates to the latest master.
 
 The following files and directories are removed by update_rnp.sh:
+.cirrus.yml
+.clang-format
+.codespellrc
+.github
+.gitignore
+_config.yml
 ci
 cmake
 git-hooks
-.github
-.cirrus.yml
-.clang-format
-.gitignore
-_config.yml
 docker.sh
 travis.sh
 vcpkg.txt
@@ -38,11 +39,6 @@ with mozbuild:
 moz.build
 module.ver
 rnp.symbols
-src/lib/config.h.in
 src/lib/rnp/rnp_export.h
 src/version.h
 
-The following patches were applied:
-Bug 1641720 - patches/rnp/disable_obsolete_ciphers.patch
-Bug 1763641 - patches/rnp/bug_1763641.patch
-Bug 1768424 - patches/rnp/bug_1768424.patch
