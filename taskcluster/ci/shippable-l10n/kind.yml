@@ -8,6 +8,7 @@ group-by: platform
 
 transforms:
     - gecko_taskgraph.transforms.l10n:transforms
+    - comm_taskgraph.transforms.l10n:transforms
     - gecko_taskgraph.transforms.job:transforms
     - gecko_taskgraph.transforms.task:transforms
 
@@ -15,6 +16,7 @@ kind-dependencies:
     - build
     - build-signing
     - fetch
+    - shippable-l10n-pre
     - repackage
     - toolchain
 
@@ -29,7 +31,7 @@ only-for-build-platforms:
 
 job-template:
     description: Localization
-    locales-file: comm/mail/locales/l10n-changesets.json
+    locales-file: comm/mail/locales/shipped-locales
     locales-per-chunk: 5
     run-on-projects: ['release']
     attributes:
@@ -37,13 +39,15 @@ job-template:
     ignore-locales:
         by-build-platform:
             # OSX has a special locale for japanese
-            macosx64.*: [ja]
-            default: [ja-JP-mac]
+            macosx64.*: [ja, en-US]
+            default: [ja-JP-mac, en-US]
     run-time:
         by-build-platform:
             default: 900
             win.*: 1800
     secrets: false
+    dependencies:
+        shippable-l10n-pre: shippable-l10n-pre
     fetches:
         toolchain:
             by-build-platform:
@@ -60,6 +64,8 @@ job-template:
                 default: []
                 win.*:
                     - upx-3.95-win
+        shippable-l10n-pre:
+            - strings_all.tar.zst
     tooltool:
         by-build-platform:
             default: internal
@@ -137,6 +143,6 @@ job-template:
                     - single_locale/tc_win64.py
                     - single_locale/thunderbird.py
                     - taskcluster_nightly.py
-        actions: ['clone-locales', 'list-locales', 'setup', 'repack',
+        actions: ['list-locales', 'setup', 'repack',
                   'summary']
         script: mozharness/scripts/desktop_l10n.py
