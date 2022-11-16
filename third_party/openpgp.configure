@@ -207,11 +207,13 @@ with only_when(in_tree_librnp):
         else:
             return ("botan",)
 
-    option("--with-librnp-backend",
-           help="Build librnp with the selected backend",
-           choices=librnp_backend_choices,
-           nargs=1,
-           default="botan")
+    option(
+        "--with-librnp-backend",
+        help="Build librnp with the selected backend",
+        choices=librnp_backend_choices,
+        nargs=1,
+        default="botan",
+    )
 
     @depends("--with-librnp-backend")
     def librnp_backend(backend):
@@ -240,20 +242,17 @@ with only_when(in_tree_librnp):
         )
         set_config("MZLA_SYSTEM_BOTAN", depends_if(botan_pkg)(lambda _: True))
 
-
     # OpenSSL backend
     with only_when(rnp_openssl):
         option(
             "--with-openssl",
             nargs=1,
-            help="OpenSSL library prefix (when not found by pkgconfig)"
+            help="OpenSSL library prefix (when not found by pkgconfig)",
         )
         openssl_pkg = pkg_check_modules(
-            "MZLA_LIBRNP_OPENSSL",
-            "openssl > 1.1.1",
-            allow_missing=True,
-            config=False
+            "MZLA_LIBRNP_OPENSSL", "openssl > 1.1.1", allow_missing=True, config=False
         )
+
         @depends_if("--with-openssl", openssl_pkg)
         @imports(_from="os.path", _import="isdir")
         @imports(_from="os.path", _import="join")
@@ -275,9 +274,9 @@ with only_when(in_tree_librnp):
                     cflags=openssl_pkg.cflags,
                     ldflags=openssl_pkg.libs,
                 )
+
         set_config("MZLA_LIBRNP_OPENSSL_CFLAGS", openssl_flags.cflags)
         set_config("MZLA_LIBRNP_OPENSSL_LIBS", openssl_flags.ldflags)
-
 
         @depends(c_compiler, openssl_flags)
         @imports(_from="textwrap", _import="dedent")
@@ -285,16 +284,18 @@ with only_when(in_tree_librnp):
         def openssl_version(compiler, openssl_flags):
             log.info("Checking for OpenSSL >= 1.1.1")
             if openssl_flags is None:
-                die("OpenSSL not found. Must be locatable with pkg-config or use --with-openssl.")
+                die(
+                    "OpenSSL not found. Must be locatable with pkg-config or use --with-openssl."
+                )
 
             def ossl_hexver(hex_str):
                 # See opensshlv.h for description of OPENSSL_VERSION_NUMBER
-                MIN_OSSL_VER = 0x1010100f  # Version 1.1.1
+                MIN_OSSL_VER = 0x1010100F  # Version 1.1.1
                 ver_as_int = int(hex_str[:-1], 16)
-                ossl_major = (ver_as_int & 0xf0000000) >> 28
-                ossl_minor = (ver_as_int & 0x0ff00000) >> 20
-                ossl_fix = (ver_as_int & 0x000ff000) >> 12
-                ossl_patch = chr(96 + (ver_as_int & 0x00000ff0) >> 4)  # as a letter a-z
+                ossl_major = (ver_as_int & 0xF0000000) >> 28
+                ossl_minor = (ver_as_int & 0x0FF00000) >> 20
+                ossl_fix = (ver_as_int & 0x000FF000) >> 12
+                ossl_patch = chr(96 + (ver_as_int & 0x00000FF0) >> 4)  # as a letter a-z
                 ver_as_str = f"{ossl_major}.{ossl_minor}.{ossl_fix}{ossl_patch}"
                 if ver_as_int < MIN_OSSL_VER:
                     die(f"OpenSSL version {ver_as_str} is too old.")
@@ -318,7 +319,7 @@ with only_when(in_tree_librnp):
                 + compiler.flags
                 + list(openssl_flags.cflags),
                 "C",
-                check
+                check,
             )
             if result:
                 openssl_ver = result.splitlines()[-1]
@@ -330,7 +331,9 @@ with only_when(in_tree_librnp):
                     openssl_ver = openssl_ver.replace('"', "")
                     major_version = openssl_ver.split(".")[0]
                     if major_version != "3":
-                        die("Unrecognized OpenSSL version {openssl_version} found. Require >= 1.1.1 or 3.x.x")
+                        die(
+                            "Unrecognized OpenSSL version {openssl_version} found. Require >= 1.1.1 or 3.x.x"
+                        )
 
                 log.info(f"Found OpenSSL {openssl_ver}.")
                 return openssl_ver

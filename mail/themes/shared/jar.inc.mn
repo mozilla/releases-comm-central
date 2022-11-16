@@ -198,6 +198,7 @@
   skin/classic/messenger/icons/message-signed-unverified.svg (../shared/mail/icons/message-signed-unverified.svg)
   skin/classic/messenger/icons/message-signed-verified.svg (../shared/mail/icons/message-signed-verified.svg)
   skin/classic/messenger/icons/exclude.svg                    (../shared/mail/icons/exclude.svg)
+  skin/classic/messenger/icons/empty-search-results.svg       (../shared/mail/icons/empty-search-results.svg)
   skin/classic/messenger/icons/encryption-key.svg             (../shared/mail/icons/encryption-key.svg)
   skin/classic/messenger/icons/feeds.svg                      (../shared/mail/icons/feeds.svg)
   skin/classic/messenger/icons/feeds-folder.svg               (../shared/mail/icons/feeds-folder.svg)
