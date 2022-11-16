@@ -44,11 +44,9 @@ GCRYPT_SRC="${BUILD}/libgcrypt"
 OTR_SRC="${BUILD}/libotr"
 
 # Set environment variables needed for all dependencies
-_BASE_CONFIGURE="--build=x86_64-pc-linux --prefix=${_PREFIX} --disable-silent-rules"
+_BASE_CONFIGURE=(--build=x86_64-pc-linux --prefix="${_PREFIX}" --disable-silent-rules)
 
-_OS_CONFIGURE_FLAGS="" # May be overridden per target OS
-_BASE_MAKE_FLAGS="-j$(nproc)"
-_OS_MAKE_FLAGS="" # May be overridden per target OS
+_OS_CONFIGURE_FLAGS=() # May be overridden per target OS
 
 
 function clang_cfg() {
@@ -60,7 +58,7 @@ function clang_cfg() {
     _clang_cfg_dir="${THIRD_PARTY_SRC}/clang"
     _clang_dir="${MOZ_FETCHES_DIR}/clang/bin"
 
-    cp -a ${_clang_cfg_dir}/*.cfg "${_clang_dir}"
+    cp -a "${_clang_cfg_dir}"/*.cfg "${_clang_dir}"
     for _i in x86_64-apple-darwin aarch64-apple-darwin aarch64-linux-gnu i686-linux-gnu; do
       ln -s clang "${_clang_dir}/${_i}-clang"
     done
@@ -80,18 +78,18 @@ function build_libgpg-error() {
     echo "Building libgpg-error"
     cd "${GPG_ERROR_SRC}"
 
-    ./configure ${_CONFIGURE_FLAGS} ${_CONF_STATIC} \
+    ./configure "${_CONFIGURE_FLAGS[@]}" "${_CONF_STATIC[@]}" \
         --disable-tests --disable-doc --with-pic
 
     # Hack... *sigh*
-    if [[ ${_TARGET_OS} == "linux-aarch64" ]]; then
+    if [[ "${_TARGET_OS}" == "linux-aarch64" ]]; then
       cp src/syscfg/lock-obj-pub.aarch64-unknown-linux-gnu.h src/lock-obj-pub.native.h
     fi
 
-    make ${_MAKE_FLAGS} -C src code-to-errno.h
-    make ${_MAKE_FLAGS} -C src code-from-errno.h
-    make ${_MAKE_FLAGS} -C src gpg-error.h
-    make ${_MAKE_FLAGS} -C src libgpg-error.la
+    make "${_MAKE_FLAGS}" -C src code-to-errno.h
+    make "${_MAKE_FLAGS}" -C src code-from-errno.h
+    make "${_MAKE_FLAGS}" -C src gpg-error.h
+    make "${_MAKE_FLAGS}" -C src libgpg-error.la
 
     make -C src install-nodist_includeHEADERS install-pkgconfigDATA \
         install-m4dataDATA install-binSCRIPTS install-libLTLIBRARIES
@@ -101,16 +99,16 @@ function build_libgpg-error() {
 function build_libgcrypt() {
     echo "Building libgcrypt"
     cd "${GCRYPT_SRC}"
-    ./configure ${_CONFIGURE_FLAGS} ${_CONF_STATIC} \
+    ./configure "${_CONFIGURE_FLAGS[@]}" "${_CONF_STATIC[@]}" \
         --disable-doc --with-pic "${_GCRYPT_CONF_FLAGS}" \
         --with-libgpg-error-prefix="${_PREFIX}"
 
-    make ${_MAKE_FLAGS} -C cipher libcipher.la
-    make ${_MAKE_FLAGS} -C random librandom.la
-    make ${_MAKE_FLAGS} -C mpi libmpi.la
-    make ${_MAKE_FLAGS} -C compat libcompat.la
+    make "${_MAKE_FLAGS}" -C cipher libcipher.la
+    make "${_MAKE_FLAGS}" -C random librandom.la
+    make "${_MAKE_FLAGS}" -C mpi libmpi.la
+    make "${_MAKE_FLAGS}" -C compat libcompat.la
 
-    make ${_MAKE_FLAGS} -C src libgcrypt.la
+    make "${_MAKE_FLAGS}" -C src libgcrypt.la
 
     make -C src install-nodist_includeHEADERS \
         install-m4dataDATA install-binSCRIPTS install-libLTLIBRARIES
@@ -127,28 +125,28 @@ function build_libotr() {
     autoconf
     automake
 
-    ./configure ${_CONFIGURE_FLAGS} --enable-shared --with-pic \
+    ./configure "${_CONFIGURE_FLAGS[@]}" --enable-shared --with-pic \
         --with-libgcrypt-prefix="${_PREFIX}"
 
     # libtool archive (*.la) files are the devil's work
-    rm -f ${_PREFIX}/lib/*.la
+    rm -f "${_PREFIX}"/lib/*.la
     sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
     sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 
-    make ${_MAKE_FLAGS} -C src
+    make "${_MAKE_FLAGS}" -C src
 
     case "${_TARGET_OS}" in
         win*)
             cd src
-            "${CC}" -static-libgcc -s -shared -Wl,-no-undefined ${LDFLAGS} -o libotr.dll \
-                *.o \
+            "${CC}" -static-libgcc -s -shared -Wl,-no-undefined "${LDFLAGS[@]}" -o libotr.dll \
+                ./*.o \
                 -L"${_PREFIX}/lib" "${_PREFIX}/lib/libgcrypt.a" "${_PREFIX}/lib/libgpg-error.a" \
                 -L"${_LIBDIR}" -lws2_32 -lssp
             cp libotr.dll "${_PREFIX}/bin"
             ;;
         linux*)
             cd src
-            "${CC}" -shared ${LDFLAGS} -Wl,-soname -Wl,libotr.so \
+            "${CC}" -shared "${LDFLAGS[@]}" -Wl,-soname -Wl,libotr.so \
               .libs/*.o \
               -L"${_PREFIX}/lib" "${_PREFIX}/lib/libgcrypt.a" "${_PREFIX}/lib/libgpg-error.a" \
               --sysroot="${MOZ_FETCHES_DIR}/${SYSROOT}" \
@@ -172,23 +170,23 @@ function build_libotr() {
 function package_libotr_artifact() {
     local _f
 
-    cd ${BUILD}
+    cd "${BUILD}"
     rm -rf "${_ARTIFACT_STAGEDIR}"
 
-    mkdir ${_ARTIFACT_STAGEDIR}
+    mkdir "${_ARTIFACT_STAGEDIR}"
 
     for _f in ${_TARGET_LIBS}; do
-        install "${_INSTDIR}/${_f}" ${_ARTIFACT_STAGEDIR}
+        install "${_INSTDIR}/${_f}" "${_ARTIFACT_STAGEDIR}"
     done
     case "${_TARGET_OS}" in
         win*)
-            install "${_LIBDIR}/libssp-0.dll" ${_ARTIFACT_STAGEDIR}
+            install "${_LIBDIR}/libssp-0.dll" "${_ARTIFACT_STAGEDIR}"
             ;;
     esac
 
-    rm -rf ${UPLOAD_DIR} && mkdir -p "${UPLOAD_DIR}"
+    rm -rf "${UPLOAD_DIR}" && mkdir -p "${UPLOAD_DIR}"
     TARFILE="${UPLOAD_DIR}/libotr.tar.${COMPRESS_EXT}"
-    tar -acf "${TARFILE}" -C ${_ARTIFACT_STAGEDIR} .
+    tar -acf "${TARFILE}" -C "${_ARTIFACT_STAGEDIR}" .
 
     return 0
 }
@@ -201,8 +199,8 @@ case "${_TARGET_OS}" in
         export CC="${_TARGET_TRIPLE}-gcc"
         _LIBDIR="/usr/lib/gcc/${_TARGET_TRIPLE}/10-win32"
         export LDFLAGS="-L${_LIBDIR}"
-        _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
-        _CONF_STATIC="--enable-static --enable-shared"
+        _OS_CONFIGURE_FLAGS=(--host="${_TARGET_TRIPLE}" --target="${_TARGET_TRIPLE}")
+        _CONF_STATIC=(--enable-static --enable-shared)
 
         _TARGET_LIBS="bin/libotr.dll"
         ;;
@@ -212,8 +210,8 @@ case "${_TARGET_OS}" in
         export CC="${_TARGET_TRIPLE}-gcc"
         _LIBDIR="/usr/lib/gcc/${_TARGET_TRIPLE}/10-win32"
         export LDFLAGS="-L${_LIBDIR}"
-        _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
-        _CONF_STATIC="--enable-static --enable-shared"
+        _OS_CONFIGURE_FLAGS=(--host="${_TARGET_TRIPLE}" --target="${_TARGET_TRIPLE}")
+        _CONF_STATIC=(--enable-static --enable-shared)
 
         _TARGET_LIBS="bin/libotr.dll"
         ;;
@@ -234,9 +232,9 @@ case "${_TARGET_OS}" in
         export LDFLAGS="-isysroot ${CROSS_SYSROOT}"
         export DSYMUTIL="${MOZ_FETCHES_DIR}/llvm-dsymutil/llvm-dsymutil"
 
-        _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
+        _OS_CONFIGURE_FLAGS=(--host="${_TARGET_TRIPLE}" --target="${_TARGET_TRIPLE}")
         _GCRYPT_CONF_FLAGS="--disable-asm"
-        _CONF_STATIC="--enable-static --disable-shared"
+        _CONF_STATIC=(--enable-static --disable-shared)
 
         _TARGET_LIBS="lib/libotr.dylib"
         ;;
@@ -253,13 +251,13 @@ case "${_TARGET_OS}" in
 
         export CC="${_TARGET_TRIPLE}-clang"
         export LD="${_TARGET_TRIPLE}-ld"
-        export CFLAGS="-isysroot ${CROSS_SYSROOT}"
+        export CFLAGS="-isysroot ${CROSS_SYSROOT} -mmacosx-version-min=11.0"
         export LDFLAGS="-isysroot ${CROSS_SYSROOT}"
         export DSYMUTIL="${MOZ_FETCHES_DIR}/llvm-dsymutil/llvm-dsymutil"
 
-        _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
+        _OS_CONFIGURE_FLAGS=(--host="${_TARGET_TRIPLE}" --target="${_TARGET_TRIPLE}")
         _GCRYPT_CONF_FLAGS="--disable-asm"
-        _CONF_STATIC="--enable-static --disable-shared"
+        _CONF_STATIC=(--enable-static --disable-shared)
 
         _TARGET_LIBS="lib/libotr.dylib"
         ;;
@@ -272,7 +270,7 @@ case "${_TARGET_OS}" in
         SYSROOT="sysroot-i686-linux-gnu"
         export _TARGET_TRIPLE="i686-pc-linux"
         export CC="i686-linux-gnu-clang"
-        export CFLAGS=" --sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
+        export CFLAGS="--sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
         export CCASFLAGS="--sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
         export LDFLAGS="--target=${_TARGET_TRIPLE} -m32 -march=pentium-m -msse -msse2 -mfpmath=sse -fuse-ld=lld"
 
@@ -281,9 +279,9 @@ case "${_TARGET_OS}" in
         export NM=llvm-nm
         export STRIP=llvm-strip
 
-        _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
-        _OS_CONFIGURE_FLAGS+=" --with-sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
-        _CONF_STATIC="--enable-static --disable-shared"
+        _OS_CONFIGURE_FLAGS=(--host="${_TARGET_TRIPLE}" --target="${_TARGET_TRIPLE}")
+        _OS_CONFIGURE_FLAGS+=(--with-sysroot="${MOZ_FETCHES_DIR}/${SYSROOT}")
+        _CONF_STATIC=(--enable-static --disable-shared)
         _TARGET_LIBS="lib/libotr.so"
         ;;
     linux64)
@@ -303,9 +301,9 @@ case "${_TARGET_OS}" in
         export NM=llvm-nm
         export STRIP=llvm-strip
 
-        _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
-        _OS_CONFIGURE_FLAGS+=" --with-sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
-        _CONF_STATIC="--enable-static --disable-shared"
+        _OS_CONFIGURE_FLAGS=(--host="${_TARGET_TRIPLE}" --target="${_TARGET_TRIPLE}")
+        _OS_CONFIGURE_FLAGS+=(--with-sysroot="${MOZ_FETCHES_DIR}/${SYSROOT}")
+        _CONF_STATIC=(--enable-static --disable-shared)
         _TARGET_LIBS="lib/libotr.so"
         ;;
     linux-aarch64)
@@ -318,7 +316,7 @@ case "${_TARGET_OS}" in
         export _TARGET_TRIPLE="aarch64-pc-linux"
         export CC="aarch64-linux-gnu-clang"
         export CFLAGS="--sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
-        export CCASFLAGS="--sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
+        export CASFLAGS="--sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
         export LDFLAGS="-fuse-ld=lld"
         export AR=llvm-ar
         export RANLIB=llvm-ranlib
@@ -326,9 +324,9 @@ case "${_TARGET_OS}" in
         export OBJDUMP=llvm-objdump
         export STRIP=llvm-strip
 
-        _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
-        _OS_CONFIGURE_FLAGS+=" --with-sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
-        _CONF_STATIC="--enable-static --disable-shared"
+        _OS_CONFIGURE_FLAGS=(--host="${_TARGET_TRIPLE}" --target="${_TARGET_TRIPLE}")
+        _OS_CONFIGURE_FLAGS+=(--with-sysroot="${MOZ_FETCHES_DIR}/${SYSROOT}")
+        _CONF_STATIC=(--enable-static --disable-shared)
         _TARGET_LIBS="lib/libotr.so"
         ;;
     *)
@@ -337,8 +335,8 @@ case "${_TARGET_OS}" in
         ;;
 esac
 
-_CONFIGURE_FLAGS="${_BASE_CONFIGURE} ${_OS_CONFIGURE_FLAGS}"
-_MAKE_FLAGS="${_BASE_MAKE_FLAGS} ${_OS_MAKE_FLAGS}"
+_CONFIGURE_FLAGS=("${_BASE_CONFIGURE[@]}" "${_OS_CONFIGURE_FLAGS[@]}")
+_MAKE_FLAGS="-j$(nproc)"
 
 # Basic dependency structure.
 # Build block, followed by packaging block.
