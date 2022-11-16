@@ -249,7 +249,7 @@ var mailContextMenu = {
     );
     let isDummyMessage = !gFolder;
     let message = isDummyMessage
-      ? window.messageHeaderSink.dummyMsgHeader
+      ? top.msgWindow.msgHeaderSink.dummyMsgHeader
       : gDBView.hdrForFirstSelectedMessage;
     let folder = gViewWrapper.displayedFolder;
     let numSelectedMessages = isDummyMessage ? 1 : gDBView.numSelected;

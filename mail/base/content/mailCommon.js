@@ -166,7 +166,7 @@ var commandController = {
      * @param {nsIMsgFolder} destFolder - the destination folder
      */
     cmd_copyMessage(destFolder) {
-      if (window.messageHeaderSink?.dummyMsgHeader) {
+      if (window.gMessageURI.startsWith("file:")) {
         let file = Services.io
           .newURI(window.gMessageURI)
           .QueryInterface(Ci.nsIFileURL).file;
@@ -178,7 +178,7 @@ var commandController = {
           Ci.nsMsgMessageFlags.Read,
           "",
           null,
-          window.msgWindow
+          top.msgWindow
         );
       } else {
         gViewWrapper.dbView.doCommandWithFolder(
@@ -242,7 +242,7 @@ var commandController = {
       top.SaveAsTemplate(gDBView.getURIsForSelection()[0]);
     },
     cmd_applyFilters() {
-      let curFilterList = gFolder.getFilterList(window.msgWindow);
+      let curFilterList = gFolder.getFilterList(top.msgWindow);
       // Create a new filter list and copy over the enabled filters to it.
       // We do this instead of having the filter after the fact code ignore
       // disabled filters because the Filter Dialog filter after the fact
@@ -269,7 +269,7 @@ var commandController = {
       MailServices.filters.applyFiltersToFolders(
         tempFilterList,
         [gFolder],
-        window.msgWindow
+        top.msgWindow
       );
     },
     cmd_applyFiltersToSelection() {
@@ -279,7 +279,7 @@ var commandController = {
           Ci.nsMsgFilterType.Manual,
           selectedMessages,
           gFolder,
-          window.msgWindow
+          top.msgWindow
         );
       }
     },
@@ -538,7 +538,7 @@ var commandController = {
     // If we're the hidden window, then we're not going to have a gFolderDisplay
     // to work out existing folders, so just use null.
     let msgFolder = gFolder;
-    let msgUris = window.messageHeaderSink?.dummyMsgHeader
+    let msgUris = top.msgWindow.msgHeaderSink.dummyMsgHeader
       ? [window.gMessageURI]
       : gDBView?.getURIsForSelection();
 

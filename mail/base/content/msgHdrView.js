@@ -516,6 +516,7 @@ var MsgHdrViewObserver = {
  */
 var messageHeaderSink = {
   QueryInterface: ChromeUtils.generateQI(["nsIMsgHeaderSink"]),
+
   onStartHeaders() {
     this.mSaveHdr = null;
     // Every time we start to redisplay a message, check the view all headers
@@ -836,7 +837,7 @@ var messageHeaderSink = {
 
     if (!this.mSaveHdr) {
       var messageUrl = url.QueryInterface(Ci.nsIMsgMessageUrl);
-      this.mSaveHdr = messenger.msgHdrFromURI(messageUrl.uri);
+      this.mSaveHdr = top.messenger.msgHdrFromURI(messageUrl.uri);
     }
 
     // If we have no attachments, we hide the attachment icon in the message
@@ -1499,7 +1500,7 @@ AttachmentInfo.prototype = {
       return;
     }
 
-    messenger.saveAttachment(
+    top.messenger.saveAttachment(
       this.contentType,
       this.url,
       encodeURIComponent(this.name),
@@ -1524,7 +1525,7 @@ AttachmentInfo.prototype = {
           ? "externalAttachmentNotFound"
           : "emptyAttachment"
       );
-      msgWindow.promptDialog.alert(null, prompt);
+      top.msgWindow.promptDialog.alert(null, prompt);
     } else {
       // @see MsgComposeCommands.js which has simililar opening functionality
       let dotPos = this.name.lastIndexOf(".");
@@ -1570,7 +1571,7 @@ AttachmentInfo.prototype = {
       // Just use the old method for handling messages, it works.
 
       if (this.contentType == "message/rfc822") {
-        window.browsingContext.topChromeWindow.messenger.openAttachment(
+        top.messenger.openAttachment(
           this.contentType,
           this.url,
           encodeURIComponent(this.name),
@@ -1774,7 +1775,7 @@ AttachmentInfo.prototype = {
    *                               before detaching, false otherwise.
    */
   detach(aSaveFirst) {
-    messenger.detachAttachment(
+    top.messenger.detachAttachment(
       this.contentType,
       this.url,
       encodeURIComponent(this.name),
@@ -2386,19 +2387,18 @@ function displayAttachmentsForExpandedViewExternal() {
     "tooltiptextexternalnotfound",
     externalAttachmentNotFound
   );
-  attachmentName.setAttribute(
-    "onmouseover",
-    `MsgStatusFeedback.setOverLink("${displayUrl}")`
+  attachmentName.addEventListener("mouseover", () =>
+    top.MsgStatusFeedback.setOverLink(displayUrl)
   );
-  attachmentName.setAttribute(
-    "onmouseout",
-    "MsgStatusFeedback.setOverLink('')"
+  attachmentName.addEventListener("mouseout", () =>
+    top.MsgStatusFeedback.setOverLink("")
   );
-  attachmentName.setAttribute(
-    "onfocus",
-    `MsgStatusFeedback.setOverLink("${displayUrl}")`
+  attachmentName.addEventListener("focus", () =>
+    top.MsgStatusFeedback.setOverLink(displayUrl)
   );
-  attachmentName.setAttribute("onblur", "MsgStatusFeedback.setOverLink('')");
+  attachmentName.addEventListener("blur", () =>
+    top.MsgStatusFeedback.setOverLink("")
+  );
   attachmentName.classList.remove("text-link");
   attachmentName.classList.remove("notfound");
 
@@ -2426,21 +2426,17 @@ function displayAttachmentsForExpandedViewExternal() {
     if (attachment.isExternalAttachment) {
       displayUrl = attachment.displayUrl;
       attachmentitem.setAttribute("tooltiptext", "");
-      attachmentitem.setAttribute(
-        "onmouseover",
-        `MsgStatusFeedback.setOverLink("${displayUrl}")`
+      attachmentitem.addEventListener("mouseover", () =>
+        top.MsgStatusFeedback.setOverLink(displayUrl)
       );
-      attachmentitem.setAttribute(
-        "onmouseout",
-        "MsgStatusFeedback.setOverLink('')"
+      attachmentitem.addEventListener("mouseout", () =>
+        top.MsgStatusFeedback.setOverLink("")
       );
-      attachmentitem.setAttribute(
-        "onfocus",
-        `MsgStatusFeedback.setOverLink("${displayUrl}")`
+      attachmentitem.addEventListener("focus", () =>
+        top.MsgStatusFeedback.setOverLink(displayUrl)
       );
-      attachmentitem.setAttribute(
-        "onblur",
-        "MsgStatusFeedback.setOverLink('')"
+      attachmentitem.addEventListener("blur", () =>
+        top.MsgStatusFeedback.setOverLink("")
       );
 
       attachmentitem
@@ -2539,7 +2535,7 @@ function updateAttachmentsDisplay(attachmentInfo, isFetching) {
     if (attachmentInfo.size < 1) {
       sizeStr = bundle.getString("attachmentSizeUnknown");
     } else {
-      sizeStr = messenger.formatFileSize(attachmentInfo.size);
+      sizeStr = top.messenger.formatFileSize(attachmentInfo.size);
     }
 
     // The attachment listitem.
@@ -2611,7 +2607,7 @@ function getAttachmentsTotalSizeStr() {
     }
   }
 
-  let sizeStr = messenger.formatFileSize(totalSize);
+  let sizeStr = top.messenger.formatFileSize(totalSize);
   if (unknownSize) {
     if (totalSize == 0) {
       sizeStr = bundle.getString("attachmentSizeUnknown");
@@ -2964,7 +2960,7 @@ function HandleMultipleAttachments(attachments, action) {
   // The list has been built. Now call our action code...
   switch (action) {
     case "save":
-      messenger.saveAllAttachments(
+      top.messenger.saveAllAttachments(
         attachmentContentTypeArray,
         attachmentUrlArray,
         attachmentDisplayNameArray,
@@ -2978,7 +2974,7 @@ function HandleMultipleAttachments(attachments, action) {
       if (attachments.length == 1) {
         attachments[0].detach(true);
       } else {
-        messenger.detachAllAttachments(
+        top.messenger.detachAllAttachments(
           attachmentContentTypeArray,
           attachmentUrlArray,
           attachmentDisplayNameArray,
@@ -2988,7 +2984,7 @@ function HandleMultipleAttachments(attachments, action) {
       }
       return;
     case "delete":
-      messenger.detachAllAttachments(
+      top.messenger.detachAllAttachments(
         attachmentContentTypeArray,
         attachmentUrlArray,
         attachmentDisplayNameArray,
@@ -3884,7 +3880,7 @@ function OpenBrowserWithMessageId(messageId) {
   ).data;
   browserURL = browserURL.replace(/%mid/, messageId);
   try {
-    messenger.launchExternalURL(browserURL);
+    top.messenger.launchExternalURL(browserURL);
   } catch (ex) {
     Cu.reportError(
       "Failed to open message-id in browser; browserURL=" + browserURL
@@ -3900,7 +3896,7 @@ function OpenBrowserWithMessageId(messageId) {
  * @param messageId the message id to open
  */
 function OpenMessageForMessageId(messageId) {
-  let startServer = msgWindow.openFolder.server;
+  let startServer = gFolder?.server;
 
   window.setCursor("wait");
   let { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
@@ -4174,7 +4170,7 @@ function MsgReplyToListMessage(event) {
 function MsgArchiveSelectedMessages(event) {
   let archiver = new MessageArchiver();
   archiver.folderDisplay = gFolderDisplay;
-  archiver.msgWindow = msgWindow;
+  archiver.msgWindow = top.msgWindow;
   archiver.archiveMessages(gFolderDisplay.selectedMessages);
 }
 
@@ -4845,7 +4841,7 @@ function OnMsgParsed(aUrl) {
   let selectedMessageUris = gFolderDisplay.selectedMessageUris;
   let msgURI = selectedMessageUris ? selectedMessageUris[0] : null;
   Services.obs.notifyObservers(
-    msgWindow.msgHeaderSink,
+    top.msgWindow.msgHeaderSink,
     "MsgMsgDisplayed",
     msgURI
   );
@@ -5036,7 +5032,7 @@ function HandleMDNResponse(aUrl) {
   const MDN_DISPOSE_TYPE_DISPLAYED = 0;
   let askUser = mdnGenerator.process(
     MDN_DISPOSE_TYPE_DISPLAYED,
-    msgWindow,
+    top.msgWindow,
     msgFolder,
     msgHdr.messageKey,
     mimeHdr,
