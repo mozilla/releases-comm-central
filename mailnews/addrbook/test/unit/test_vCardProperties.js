@@ -832,7 +832,7 @@ add_task(function testGoogleEscaping() {
     N:test;en\\\\c:oding;;;
     FN:en\\\\c:oding test
     TITLE:title:title\\;title\\,title\\\\title\\\\:title\\\\\\;title\\\\\\,title\\\\\\\\
-    TEL:tel:0123\\4567
+    TEL:tel:01234567
     EMAIL:test\\\\test@invalid
     NOTE:notes:\\nnotes\\;\\nnotes\\,\\nnotes\\\\
     URL:http://host/url:url;url,url\\url
@@ -867,7 +867,7 @@ add_task(function testGoogleEscaping() {
       name: "tel",
       params: {},
       type: "phone-number",
-      value: "tel:0123\\4567",
+      value: "tel:01234567",
     },
     {
       name: "email",

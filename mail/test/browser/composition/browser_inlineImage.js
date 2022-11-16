@@ -100,7 +100,7 @@ add_task(async function test_send_inline_image() {
   );
   let outMsg = select_click_row(0);
   await msgLoaded;
-  let outMsgContent = get_msg_source(outMsg);
+  let outMsgContent = await get_msg_source(outMsg);
 
   ok(
     outMsgContent.includes('id="inline-img" src="cid:'),

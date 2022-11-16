@@ -92,6 +92,14 @@
       "PrimaryEmail": "jane.doe@genericemail.invalid"
     }
   ],
+  "dos_vcard_import": [
+    {
+      "DisplayName": "Name Surname",
+      "FirstName": "Name",
+      "LastName": "Surname",
+      "PrimaryEmail": "example@gmail.com"
+    }
+  ],
   "csv_import": [
     {
       "DisplayName": "John Doe",

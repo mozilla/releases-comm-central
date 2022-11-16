@@ -810,10 +810,7 @@ add_task(async function testGoogleEscaping() {
   Assert.equal(items.length, 1);
 
   Assert.equal(items[0].querySelector(".entry-type").textContent, "");
-  Assert.equal(
-    items[0].querySelector(".entry-value").textContent,
-    "0123\\4567"
-  );
+  Assert.equal(items[0].querySelector(".entry-value").textContent, "01234567");
 
   // Addresses section.
   Assert.ok(BrowserTestUtils.is_hidden(addressesSection));

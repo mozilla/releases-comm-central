@@ -98,15 +98,14 @@ class ImapIncomingServer extends MsgIncomingServer {
 
   closeCachedConnections() {
     // Close all connections.
-    for (let client of [...this._freeConnections, ...this._busyConnections]) {
+    for (let client of this._connections) {
       client.logout();
     }
     // Cancel all waitings in queue.
     for (let resolve of this._connectionWaitingQueue) {
       resolve(false);
     }
-    this._freeConnections = [];
-    this._busyConnections = [];
+    this._connections = [];
   }
 
   verifyLogon(urlListener, msgWindow) {
@@ -413,7 +412,7 @@ class ImapIncomingServer extends MsgIncomingServer {
   }
 
   CloseConnectionForFolder(folder) {
-    for (let client of this._busyConnections) {
+    for (let client of this._connections) {
       if (client.folder == folder) {
         client.logout();
       }
@@ -426,78 +425,113 @@ class ImapIncomingServer extends MsgIncomingServer {
     this._capabilities = value;
   }
 
-  // @type {ImapClient[]} - An array of connections can be used.
-  _freeConnections = [];
-  // @type {ImapClient[]} - An array of connections in use.
-  _busyConnections = [];
+  // @type {ImapClient[]} - An array of connections.
+  _connections = [];
   // @type {Function[]} - An array of Promise.resolve functions.
   _connectionWaitingQueue = [];
 
   /**
-   * Get an free connection that can be used.
+   * Wait for a free connection.
+   * @param {nsIMsgFolder} folder - The folder to operate on.
    * @returns {ImapClient}
    */
-  async _getNextClient() {
-    if (this._idling) {
-      // End IDLE because we are sending a new request.
-      this._idling = false;
-      this._busyConnections[0].endIdle();
-    }
-
-    // The newest connection is the least likely to have timed out.
-    let client = this._freeConnections.pop();
-    if (client) {
-      this._busyConnections.push(client);
-      return client;
-    }
-    if (
-      this._freeConnections.length + this._busyConnections.length <
-      this.maximumConnectionsNumber
-    ) {
-      // Create a new client if the pool is not full.
-      client = new lazy.ImapClient(this);
-      this._busyConnections.push(client);
-      return client;
-    }
+  async _waitForNextClient(folder) {
     // Wait until a connection is available. canGetNext is false when
     // closeCachedConnections is called.
     let canGetNext = await new Promise(resolve =>
       this._connectionWaitingQueue.push(resolve)
     );
     if (canGetNext) {
-      return this._getNextClient();
+      return this._getNextClient(folder);
     }
     return null;
   }
 
   /**
+   * Get a free connection that can be used.
+   * @param {nsIMsgFolder} folder - The folder to operate on.
+   * @returns {ImapClient}
+   */
+  async _getNextClient(folder) {
+    let client;
+
+    for (client of this._connections) {
+      if (folder && client.folder == folder) {
+        if (client.busy) {
+          // Prevent operating on the same folder in two connections.
+          return this._waitForNextClient(folder);
+        }
+        // If we're idling in the target folder, reuse it.
+        client.busy = true;
+        return client;
+      }
+    }
+
+    // Create a new client if the pool is not full.
+    if (this._connections.length < this.maximumConnectionsNumber) {
+      client = new lazy.ImapClient(this);
+      this._connections.push(client);
+      client.busy = true;
+      return client;
+    }
+
+    let freeConnections = this._connections.filter(c => !c.busy);
+
+    // Wait if no free connection.
+    if (!freeConnections.length) {
+      return this._waitForNextClient(folder);
+    }
+
+    // Reuse any free connection available.
+    if (this.maximumConnectionsNumber <= 1) {
+      freeConnections[0].busy = true;
+      return freeConnections[0];
+    }
+
+    // Reuse non-inbox free connection.
+    client = freeConnections.find(
+      c => c.folder?.onlineName.toUpperCase() != "INBOX"
+    );
+    if (client) {
+      client.busy = true;
+      return client;
+    }
+    return this._waitForNextClient(folder);
+  }
+
+  /**
    * Do some actions with a connection.
+   * @param {nsIMsgFolder} folder - The folder to operate on.
    * @param {Function} handler - A callback function to take a ImapClient
    *   instance, and do some actions.
    */
-  async withClient(handler) {
-    let client = await this._getNextClient();
+  async withClient(folder, handler) {
+    let client = await this._getNextClient(folder);
     if (!client) {
       return;
     }
     client.onFree = async () => {
-      this._busyConnections = this._busyConnections.filter(c => c != client);
-      this._freeConnections.push(client);
+      let alreadyIdling =
+        client.folder &&
+        this._connections.find(
+          c => c != client && !c.busy && c.folder == client.folder
+        );
+      if (
+        this.useIdle &&
+        this._capabilities.includes("IDLE") &&
+        client.folder &&
+        !alreadyIdling
+      ) {
+        // IDLE is configed and supported, use IDLE to receive server pushes.
+        client.idle();
+      } else if (alreadyIdling) {
+        client.folder = null;
+      }
+      client.busy = false;
       let resolve = this._connectionWaitingQueue.shift();
       if (resolve) {
         // Resovle the first waiting in queue.
         resolve(true);
-      } else if (
-        !this._busyConnections.length &&
-        this.useIdle &&
-        this._capabilities.includes("IDLE")
-      ) {
-        // Nothing in queue and IDLE is configed and supported, use IDLE to
-        // receive server pushes.
-        this._idling = true;
-        this._freeConnections = this._freeConnections.filter(c => c != client);
-        this._busyConnections.push(client);
-        client.idle();
       }
     };
     handler(client);

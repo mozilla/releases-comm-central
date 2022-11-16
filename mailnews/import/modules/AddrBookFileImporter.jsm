@@ -233,10 +233,9 @@ class AddrBookFileImporter {
     ].getService(Ci.nsIMsgVCardService);
 
     let content = await IOUtils.readUTF8(this._sourceFile.path);
-    let lines = content
-      .trim()
-      .replaceAll("\r\n", "\n")
-      .split("\n");
+    // According to rfc6350, \r\n should be used as line break.
+    let sep = content.includes("\r\n") ? "\r\n" : "\n";
+    let lines = content.trim().split(sep);
 
     let totalLines = lines.length;
     let currentLine = 0;
@@ -248,7 +247,7 @@ class AddrBookFileImporter {
         continue;
       }
 
-      if (line.toLowerCase() == "begin:vcard") {
+      if (line.toLowerCase().trimEnd() == "begin:vcard") {
         if (record.length) {
           throw Components.Exception(
             "Expecting END:VCARD but got BEGIN:VCARD",
@@ -266,7 +265,7 @@ class AddrBookFileImporter {
 
       record.push(line);
 
-      if (line.toLowerCase() == "end:vcard") {
+      if (line.toLowerCase().trimEnd() == "end:vcard") {
         this._targetDirectory.addCard(
           vcardService.vCardToAbCard(record.join("\n") + "\n")
         );
