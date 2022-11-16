@@ -44,6 +44,12 @@ include $(moztopsrcdir)/config/rules.mk
 
 include $(moztopsrcdir)/toolkit/locales/l10n.mk
 
+ifeq ($(VCS_CHECKOUT_TYPE),hg)
+L10N_CO = $(PYTHON3) $(moztopsrcdir)/comm/python/l10n/l10n_clone/l10n_clone.py $(AB_CD) $(L10NBASEDIR)
+else
+L10N_CO = $(error You need to use hg)
+endif
+
 l10n-%: AB_CD=$*
 l10n-%:
 # merge if we're not en-US. Conditional function because
