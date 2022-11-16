@@ -70,7 +70,6 @@ classic.jar:
   skin/classic/messenger/icons/identity.png                      (mail/icons/identity.png)
   skin/classic/messenger/icons/identity@2x.png                   (mail/icons/identity@2x.png)
   skin/classic/messenger/icons/error.png                         (mail/icons/error.png)
-  skin/classic/messenger/icons/empty-search-results.png          (mail/icons/empty-search-results.png)
   skin/classic/messenger/icons/connecting.png                    (mail/icons/connecting.png)
   skin/classic/messenger/icons/arrow/arrow-left.png              (mail/icons/arrow/arrow-left.png)
   skin/classic/messenger/icons/arrow/arrow-right.png             (mail/icons/arrow/arrow-right.png)

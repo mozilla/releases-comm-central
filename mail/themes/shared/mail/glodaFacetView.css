@@ -683,6 +683,8 @@ span.empty {
   border: none;
   font-size: large;
   color: #729fcf;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 #facet-date {
