@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals MailE10SUtils */
+/* globals Enigmail, MailE10SUtils */
 
 // mailCommon.js
 /* globals commandController, dbViewWrapperListener */
@@ -125,6 +125,9 @@ window.addEventListener("DOMContentLoaded", event => {
 
   content = document.querySelector("browser");
   OnLoadMsgHeaderPane();
+
+  Enigmail.msg.messengerStartup();
+  Enigmail.hdrView.hdrViewLoad();
 
   // The folder listener only does something interesting if this is a
   // standalone window or tab, so don't add it if we're inside about:3pane.

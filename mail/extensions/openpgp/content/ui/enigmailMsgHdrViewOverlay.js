@@ -567,10 +567,7 @@ Enigmail.hdrView = {
 
         try {
           Enigmail.hdrView.statusBarHide();
-          EnigmailVerify.setMsgWindow(
-            msgWindow,
-            Enigmail.msg.getCurrentMsgUriSpec()
-          );
+          EnigmailVerify.setWindow(window, Enigmail.msg.getCurrentMsgUriSpec());
 
           let msgFrame = document.getElementById("messagepane").contentDocument;
 
@@ -600,6 +597,7 @@ Enigmail.hdrView = {
         );
 
         try {
+          EnigmailVerify.setWindow(null, null);
           Enigmail.hdrView.statusBarHide();
         } catch (ex) {}
       },

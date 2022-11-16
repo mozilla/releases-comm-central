@@ -10,9 +10,6 @@ const EXPORTED_SYMBOLS = ["EnigmailVerify"];
  *  Module for handling PGP/MIME signed messages implemented as JS module.
  */
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
 const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
@@ -55,7 +52,7 @@ function MimeVerify(protocol) {
 
 var EnigmailVerify = {
   _initialized: false,
-  lastMsgWindow: null,
+  lastWindow: null,
   lastMsgUri: null,
   manualMsgUri: null,
 
@@ -76,10 +73,10 @@ var EnigmailVerify = {
     }
   },
 
-  setMsgWindow(msgWindow, msgUriSpec) {
-    LOCAL_DEBUG("mimeVerify.jsm: setMsgWindow: " + msgUriSpec + "\n");
+  setWindow(window, msgUriSpec) {
+    LOCAL_DEBUG("mimeVerify.jsm: setWindow: " + msgUriSpec + "\n");
 
-    this.lastMsgWindow = msgWindow;
+    this.lastWindow = window;
     this.lastMsgUri = msgUriSpec;
   },
 
@@ -154,46 +151,15 @@ MimeVerify.prototype = {
   dataCount: 0,
   foundMsg: false,
   startMsgStr: "",
-  msgWindow: null,
+  window: null,
   msgUriSpec: null,
   statusDisplayed: false,
-  window: null,
   inStream: null,
   sigFile: null,
   sigData: "",
   mimePartNumber: "",
 
   QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
-
-  startStreaming(window, msgWindow, msgUriSpec) {
-    LOCAL_DEBUG("mimeVerify.jsm: startStreaming\n");
-
-    this.msgWindow = msgWindow;
-    this.msgUriSpec = msgUriSpec;
-    this.window = window;
-    let msgSvc = MailServices.messageServiceFromURI(this.msgUriSpec);
-
-    msgSvc.streamMessage(
-      this.msgUriSpec,
-      this,
-      this.msgWindow,
-      null,
-      false,
-      null,
-      false
-    );
-  },
-
-  verifyData(window, msgWindow, msgUriSpec, data) {
-    LOCAL_DEBUG("mimeVerify.jsm: streamFromChannel\n");
-
-    this.msgWindow = msgWindow;
-    this.msgUriSpec = msgUriSpec;
-    this.window = window;
-    this.onStartRequest();
-    this.onTextData(data);
-    this.onStopRequest();
-  },
 
   parseContentType() {
     let contentTypeLine = this.mimeSvc.contentType;
@@ -495,7 +461,7 @@ MimeVerify.prototype = {
   onStopRequest() {
     lazy.EnigmailLog.DEBUG("mimeVerify.jsm: onStopRequest\n");
 
-    this.msgWindow = EnigmailVerify.lastMsgWindow;
+    this.window = EnigmailVerify.lastWindow;
     this.msgUriSpec = EnigmailVerify.lastMsgUri;
 
     this.backgroundJob = false;
@@ -610,8 +576,7 @@ MimeVerify.prototype = {
     }
 
     if (this.protocol === PGPMIME_PROTO) {
-      var windowManager = Services.wm;
-      var win = windowManager.getMostRecentWindow(null);
+      let win = this.window;
 
       if (!lazy.EnigmailDecryption.isReady(win)) {
         return;
@@ -678,13 +643,11 @@ MimeVerify.prototype = {
     this.mimeSvc.outputDecryptedData(data, data.length);
   },
 
-  setMsgWindow(msgWindow, msgUriSpec) {
-    lazy.EnigmailLog.DEBUG(
-      "mimeVerify.jsm: setMsgWindow: " + msgUriSpec + "\n"
-    );
+  setWindow(window, msgUriSpec) {
+    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: setWindow: " + msgUriSpec + "\n");
 
-    if (!this.msgWindow) {
-      this.msgWindow = msgWindow;
+    if (!this.window) {
+      this.window = window;
       this.msgUriSpec = msgUriSpec;
     }
   },
@@ -693,7 +656,7 @@ MimeVerify.prototype = {
     lazy.EnigmailLog.DEBUG("mimeVerify.jsm: displayStatus\n");
     if (
       this.exitCode === null ||
-      this.msgWindow === null ||
+      this.window === null ||
       this.statusDisplayed ||
       this.backgroundJob
     ) {

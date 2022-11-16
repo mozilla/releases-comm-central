@@ -4,8 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../mailnews/extensions/smime/msgReadSMIMEOverlay.js */
-/* import-globals-from ../../../base/content/folderDisplay.js */
-/* import-globals-from ../../../base/content/mailWindow.js */
 /* import-globals-from ../../../base/content/msgHdrView.js */
 
 var gEncryptedURIService = null;
@@ -291,21 +289,22 @@ var smimeHeaderSink = {
           .GetStringFromName("CantDecryptBody")
           .replace(/%brand%/g, brand);
 
-        // insert our message
-        msgWindow.displayHTMLInMessagePane(
-          title,
-          "<html>\n" +
-            '<body bgcolor="#fafaee">\n' +
-            "<center><br><br><br>\n" +
-            "<table>\n" +
-            "<tr><td>\n" +
-            '<center><strong><font size="+3">\n' +
-            title +
-            "</font></center><br>\n" +
-            body +
-            "\n" +
-            "</td></tr></table></center></body></html>",
-          false
+        // TODO: This should be replaced with a real page, and made not ugly.
+        HideMessageHeaderPane();
+        MailE10SUtils.loadURI(
+          content,
+          "data:text/html;base64," +
+            btoa(
+              `<html>
+              <head>
+                <title>${title}</title>
+              </head>
+              <body>
+                <h1>${title}</h1>
+                ${body}
+              </body>
+            </html>`
+            )
         );
         break;
     }
@@ -386,7 +385,7 @@ function msgHdrViewSMIMEOnLoad(event) {
 
   // we want to register our security header sink as an opaque nsISupports
   // on the msgHdrSink used by mail.....
-  msgWindow.msgHeaderSink.securityInfo = smimeHeaderSink;
+  top.msgWindow.msgHeaderSink.securityInfo = smimeHeaderSink;
 
   // Add ourself to the list of message display listeners so we get notified
   // when we are about to display a message.

@@ -295,11 +295,11 @@ window.addEventListener("DOMContentLoaded", event => {
     }
 
     if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)) {
-      commandController.doCommand("cmd_editDraftMsg");
+      commandController.doCommand("cmd_editDraftMsg", event);
     } else if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)) {
-      commandController.doCommand("cmd_newMsgFromTemplate");
+      commandController.doCommand("cmd_newMsgFromTemplate", event);
     } else {
-      commandController.doCommand("cmd_openMessage");
+      commandController.doCommand("cmd_openMessage", event);
     }
   });
 

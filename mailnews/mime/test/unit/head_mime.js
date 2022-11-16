@@ -31,37 +31,14 @@ registerCleanupFunction(function() {
   load(gDEPTH + "mailnews/resources/mailShutdown.js");
 });
 
-function apply_mime_conversion(msgUri, headerSink = {}, msgWindow = undefined) {
-  let stubHeaderSink = {
-    securityInfo: null,
-    QueryInterface: ChromeUtils.generateQI(["nsIMsgHeaderSink"]),
-  };
-
-  // Copy the descriptors from headerSink to stubHeaderSink.
-  let fullHeaderSink = Object.create(headerSink);
-  for (let name of Object.getOwnPropertyNames(stubHeaderSink)) {
-    if (!(name in headerSink)) {
-      Object.defineProperty(
-        fullHeaderSink,
-        name,
-        Object.getOwnPropertyDescriptor(stubHeaderSink, name)
-      );
-    }
-  }
-
-  msgWindow =
-    msgWindow ||
-    Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(Ci.nsIMsgWindow);
-
-  msgWindow.msgHeaderSink = fullHeaderSink;
-
+function apply_mime_conversion(msgUri, smimeHeaderSink) {
   let service = MailServices.messageServiceFromURI(msgUri);
 
   // This is what we listen on in the end.
   let listener = new PromiseTestUtils.PromiseStreamListener();
 
   // Make the underlying channel--we need this for the converter parameter.
-  let url = service.getUrlForUri(msgUri, msgWindow);
+  let url = service.getUrlForUri(msgUri);
 
   let channel = Services.io.newChannelFromURI(
     url,

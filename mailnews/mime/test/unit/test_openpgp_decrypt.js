@@ -322,25 +322,15 @@ add_task(async function testMimeDecryptOpenPGPMessages() {
     let uri = hdr.folder.getUriForMsg(hdr);
     let sinkPromise = headerSink.expectResults(expectedResultCount);
 
-    let msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-      Ci.nsIMsgWindow
-    );
-
     // Set the message window so displayStatus() invokes the hooks we are
     // interested in.
-    EnigmailVerify.lastMsgWindow = msgWindow;
+    EnigmailVerify.lastWindow = {};
 
     // Stub this function so verifyDetached() can get the correct email.
     EnigmailDecryption.getFromAddr = () => test.from;
 
     // Trigger the actual mime work.
-    let conversion = apply_mime_conversion(
-      uri,
-      {
-        securityInfo: headerSink,
-      },
-      msgWindow
-    );
+    let conversion = apply_mime_conversion(uri, headerSink);
 
     await conversion.promise;
 
