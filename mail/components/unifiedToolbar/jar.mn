@@ -3,6 +3,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
+    content/messenger/unifiedtoolbar/customizable-element.mjs          (content/customizable-element.mjs)
+    content/messenger/unifiedtoolbar/customization-palette.mjs         (content/customization-palette.mjs)
+    content/messenger/unifiedtoolbar/customization-target.mjs          (content/customization-target.mjs)
+    content/messenger/unifiedtoolbar/list-box-selection.mjs            (content/list-box-selection.mjs)
     content/messenger/unifiedtoolbar/search-bar.mjs                    (content/search-bar.mjs)
     content/messenger/unifiedtoolbar/unified-toolbar.mjs               (content/unified-toolbar.mjs)
     content/messenger/unifiedtoolbar/unified-toolbar-customization.mjs (content/unified-toolbar-customization.mjs)

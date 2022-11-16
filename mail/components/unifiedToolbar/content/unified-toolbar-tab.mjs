@@ -5,8 +5,8 @@
 /**
  * Template ID: unifiedToolbarTabTemplate
  * Attributes:
- *  - selected: If the tab is active.
- *  - aria-controls: The ID of the tab pane this controls.
+ * - selected: If the tab is active.
+ * - aria-controls: The ID of the tab pane this controls.
  */
 class UnifiedToolbarTab extends HTMLElement {
   /**
@@ -48,7 +48,6 @@ class UnifiedToolbarTab extends HTMLElement {
   }
 
   #handleKey = event => {
-    let markEventHandled = true;
     const rightIsForward = document.dir === "ltr";
     const rightSibling =
       (rightIsForward ? "next" : "previous") + "ElementSibling";
@@ -68,14 +67,11 @@ class UnifiedToolbarTab extends HTMLElement {
         this.parentNode.lastElementChild?.focus();
         break;
       default:
-        markEventHandled = false;
-        break;
+        return;
     }
 
-    if (markEventHandled) {
-      event.stopPropagation();
-      event.preventDefault();
-    }
+    event.stopPropagation();
+    event.preventDefault();
   };
 
   #toggleTabPane(visible) {

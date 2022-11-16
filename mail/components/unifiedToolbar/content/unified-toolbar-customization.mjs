@@ -71,6 +71,7 @@ class UnifiedToolbarCustomization extends HTMLElement {
       "unified-toolbar-customization-pane"
     );
     tabPane.id = paneId;
+    tabPane.setAttribute("space", space.name);
     tabPane.setAttribute("aria-labelledby", tabId);
     tabPane.hidden = !activeSpace;
     return { tab, tabPane };

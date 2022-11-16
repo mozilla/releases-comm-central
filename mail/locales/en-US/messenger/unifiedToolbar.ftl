@@ -57,3 +57,38 @@ customize-search-bar =
 
 customize-spaces-tabs =
   .aria-label = Spaces
+
+customize-main-toolbar-target =
+  .aria-label = Main toolbar
+
+customize-palette-generic-title = Available for all Spaces
+
+customize-palette-mail-specific-title = Available for Mail Space only
+
+customize-palette-addressbook-specific-title = Available for Address Book Space only
+
+customize-palette-calendar-specific-title = Available for Calendar Space only
+
+customize-palette-tasks-specific-title = Available for Tasks Space only
+
+customize-palette-chat-specific-title = Available for Chat Space only
+
+customize-palette-settings-specific-title = Available for Settings Space only
+
+## Unified toolbar customization palette context menu
+
+# Variables:
+# $target (String) - Name of the target the item should be added to.
+customize-palette-add-to =
+  .label = Add to { $target }
+
+## Unified toolbar customization target context menu
+
+customize-target-forward =
+  .label = Move forward
+
+customize-target-backward =
+  .label = Move backward
+
+customize-target-remove =
+  .label = Remove

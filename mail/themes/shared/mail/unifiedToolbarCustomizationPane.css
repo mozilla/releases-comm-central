@@ -12,3 +12,49 @@ search-bar {
   max-width: 50ch;
   height: 2em;
 }
+
+[is="customization-target"],
+[is="customization-palette"] {
+  display: flex;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.toolbar-target {
+  /* TODO this should match actual titlebar dimensions */
+  background: grey;
+  border-radius: 6px;
+  padding-block: 0.5rem;
+  margin-block: 1rem;
+  height: 2em;
+  align-items: center;
+}
+
+[is="customization-palette"] {
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem;
+}
+
+h2 {
+  margin-inline: 1rem;
+}
+
+[is="customizable-element"] {
+  margin: 0;
+  padding: 0;
+  /* TODO: children should have no mouse interactions/pointer events */
+}
+
+[is="customizable-element"][aria-selected=true] {
+  outline: 2px dotted var(--primary);
+}
+
+[is="customization-palette"] [is="customizable-element"] {
+  width: 4em;
+  height: 3em;
+  background: lightgrey;
+  padding: 0.5rem;
+  border-radius: 6px;
+}

@@ -99,11 +99,19 @@
 
 <html:template id="unifiedToolbarCustomizationPaneTemplate"
                xmlns="http://www.w3.org/1999/xhtml">
-  <ul role="listbox"></ul>
+  <ul is="customization-target"
+      data-l10n-id="customize-main-toolbar-target"
+      class="toolbar-target"></ul>
   <search-bar data-l10n-id="customize-search-bar" data-l10n-attrs="label">
     <img data-l10n-id="search-bar-button"
          slot="button"
          class="search-button-icon" />
   </search-bar>
-  <ul role="listbox"></ul>
+  <h2 class="space-specific-title"></h2>
+  <ul is="customization-palette" class="space-specific-palette">
+  </ul>
+  <h2 data-l10n-id="customize-palette-generic-title"
+      class="generic-palette-title"></h2>
+  <ul is="customization-palette" space="all" class="generic-palette">
+  </ul>
 </html:template>
