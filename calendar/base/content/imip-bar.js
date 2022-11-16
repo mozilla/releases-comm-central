@@ -5,6 +5,8 @@
 /* import-globals-from ../../../mail/base/content/msgHdrView.js */
 /* import-globals-from item-editing/calendar-item-editing.js */
 
+/* globals msgWindow */
+
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /**
@@ -91,7 +93,7 @@ var calImipBar = {
       let itipItem = null;
       try {
         if (!subject) {
-          let sinkProps = top.msgWindow.msgHeaderSink.properties;
+          let sinkProps = msgWindow.msgHeaderSink.properties;
           // This property was set by CalMimeConverter.jsm.
           itipItem = sinkProps.getPropertyAsInterface("itipItem", Ci.calIItipItem);
         }
