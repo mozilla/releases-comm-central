@@ -17,5 +17,4 @@ if CONFIG["MZLA_LIBRNP"]:
         "zlib",
     ]
     if CONFIG["MZLA_LIBRNP_BACKEND"] == "botan":
-        DIRS += [ "botan" ]
-
+        DIRS += ["botan"]
