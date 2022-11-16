@@ -390,6 +390,10 @@ class SmtpClient {
     this.socket.ondrain = this._onDrain;
 
     this._currentAction = this._actionGreeting;
+    this.socket.transport.setTimeout(
+      Ci.nsISocketTransport.TIMEOUT_READ_WRITE,
+      Services.prefs.getIntPref("mailnews.tcptimeout")
+    );
   };
 
   /**
