@@ -72,6 +72,9 @@ add_setup(async function() {
   // Show the Folder Pane header toolbar.
   mc.e("folderPaneHeader").removeAttribute("collapsed");
 
+  Services.xulStore.removeDocument(
+    "chrome://messenger/content/messenger.xhtml"
+  );
   Services.telemetry.clearScalars();
 });
 

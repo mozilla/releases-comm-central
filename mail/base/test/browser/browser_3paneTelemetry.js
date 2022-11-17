@@ -23,6 +23,10 @@ add_setup(async function() {
   }
   rootFolder.createSubfolder("just a folder", null);
   folders.Other = rootFolder.getChildNamed("just a folder");
+
+  registerCleanupFunction(function() {
+    MailServices.accounts.removeAccount(account, true);
+  });
 });
 
 add_task(async function testFolderOpen() {
