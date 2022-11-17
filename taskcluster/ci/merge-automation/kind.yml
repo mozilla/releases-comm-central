@@ -6,6 +6,7 @@ loader: gecko_taskgraph.loader.transform:loader
 
 transforms:
     - gecko_taskgraph.transforms.merge_automation:transforms
+    - comm_taskgraph.transforms.merge_automation:transforms
     - gecko_taskgraph.transforms.task:transforms
 
 

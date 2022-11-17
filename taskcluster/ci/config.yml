@@ -127,7 +127,13 @@ merge-automation:
                 - filename: "mail/config/version_display.txt"
                   version-bump: "major"
                   new-suffix: 'a1'
-            replacements: []
+            replacements:
+                - - suite/config/version.txt
+                  - '{old_suite_version}'
+                  - '{new_suite_version}'
+                - - suite/config/version_display.txt
+                  - '{old_suite_version}'
+                  - '{new_suite_version}'
             merge-old-head: false
             end-tag: 'NIGHTLY_{major_version}_END'
             to-repo: 'https://hg.mozilla.org/comm-central'
