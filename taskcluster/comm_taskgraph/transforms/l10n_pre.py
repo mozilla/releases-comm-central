@@ -5,7 +5,6 @@
 Create a strings build artifact to be consumed by shippable-l10n.
 """
 
-import copy
 import json
 import os
 
@@ -87,13 +86,13 @@ transforms.add_validate(l10n_description_schema)
 @transforms.add
 def handle_keyed_by(config, jobs):
     """Resolve fields that can be keyed by platform, etc."""
-    fields = [
-        "locale-list",
-    ]
     for job in jobs:
-        job = copy.deepcopy(job)  # don't overwrite dict values here
-        for field in fields:
-            resolve_keyed_by(item=job, field=field, item_name=job["name"])
+        resolve_keyed_by(
+            job,
+            "locale-list",
+            item_name=job["name"],
+            **{"release-type": config.params["release_type"]},
+        )
         yield job
 
 
