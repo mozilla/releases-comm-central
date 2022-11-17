@@ -27,6 +27,11 @@ xul|menulist > xul|menupopup xul|menuitem {
   padding-inline-end: 34px;
 }
 
+xul|menulist > xul|menupopup xul|menuitem::after,
+xul|menulist > xul|menupopup xul|menuitem::before {
+  display: none;
+}
+
 xul|*.checkbox-icon,
 xul|*.radio-icon {
   margin-inline-end: 0;
