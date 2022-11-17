@@ -749,6 +749,22 @@ var mailTabType = {
     } else {
       messagePaneToggleKey.setAttribute("disabled", "true");
     }
+
+    // If all panes are legal report which ones are visible. Doing it this way
+    // means the telemetry reflects the state of the last folder tab that was
+    // shown, but not if the state changed since it was shown.
+    if (aLegalStates.folder && aLegalStates.thread && aLegalStates.message) {
+      Services.telemetry.keyedScalarSet(
+        "tb.ui.configuration.pane_visibility",
+        "folderPane",
+        aVisibleStates.folder
+      );
+      Services.telemetry.keyedScalarSet(
+        "tb.ui.configuration.pane_visibility",
+        "messagePane",
+        aVisibleStates.message
+      );
+    }
   },
 
   showTab(aTab) {

@@ -794,6 +794,24 @@ DBViewWrapper.prototype = {
       return;
     }
 
+    let typeForTelemetry =
+      [
+        "Inbox",
+        "Drafts",
+        "Trash",
+        "SentMail",
+        "Templates",
+        "Junk",
+        "Archive",
+        "Queue",
+        "Virtual",
+      ].find(x => aFolder.getFlag(Ci.nsMsgFolderFlags[x])) || "Other";
+    Services.telemetry.keyedScalarAdd(
+      "tb.mails.folder_opened",
+      typeForTelemetry,
+      1
+    );
+
     this.beginViewUpdate();
     let msgDatabase;
     try {

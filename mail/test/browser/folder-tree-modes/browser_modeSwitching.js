@@ -18,6 +18,12 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+var { MailTelemetryForTests } = ChromeUtils.import(
+  "resource:///modules/MailGlue.jsm"
+);
+var { TelemetryTestUtils } = ChromeUtils.import(
+  "resource://testing-common/TelemetryTestUtils.jsm"
+);
 
 var rootFolder;
 var unreadFolder;
@@ -65,6 +71,8 @@ add_setup(async function() {
 
   // Show the Folder Pane header toolbar.
   mc.e("folderPaneHeader").removeAttribute("collapsed");
+
+  Services.telemetry.clearScalars();
 });
 
 /**
@@ -73,7 +81,11 @@ add_setup(async function() {
  * @param {string} aMode - The name of the expected mode.
  */
 async function assert_mode_selected(aMode) {
-  Assert.ok(tree.activeModes.includes(aMode));
+  if (aMode != "compact") {
+    // "compact" isn't really a mode, we're just using this function because
+    // it tests everything we want to test.
+    Assert.ok(tree.activeModes.includes(aMode));
+  }
 
   // We need to open the menu because only then the right mode is set in them.
   if (["linux", "win"].includes(AppConstants.platform)) {
@@ -272,17 +284,61 @@ async function subtest_toggle_smart_folders(show) {
 }
 
 /**
+ * Toggle the compact mode.
+ */
+async function subtest_toggle_compact(compact) {
+  let mode = "compact";
+  select_mode_in_menu(mode);
+
+  if (compact) {
+    await assert_mode_selected(mode);
+  } else {
+    await assert_mode_not_selected(mode);
+  }
+}
+
+/**
+ * Check that the current mode(s) are accurately recorded in telemetry.
+ * Note that `reportUIConfiguration` usually only runs at start-up.
+ */
+function check_scalars(expected) {
+  MailTelemetryForTests.reportUIConfiguration();
+  let scalarName = "tb.ui.configuration.folder_tree_modes";
+  let scalars = TelemetryTestUtils.getProcessScalars("parent");
+  if (expected) {
+    TelemetryTestUtils.assertScalar(scalars, scalarName, expected);
+  } else {
+    TelemetryTestUtils.assertScalarUnset(scalars, scalarName);
+  }
+}
+
+/**
  * Toggle folder modes through different means and sequences.
  */
 add_task(async function test_toggling_modes() {
+  check_scalars();
+
   await subtest_toggle_all_folders(true);
   await subtest_toggle_smart_folders(true);
+  check_scalars("all,smart");
+
   await subtest_toggle_unread_folders(true);
   await subtest_toggle_favorite_folders(true);
   await subtest_toggle_recent_folders(true);
+  check_scalars("all,smart,unread,favorite,recent");
+
+  await subtest_toggle_compact(true);
+  check_scalars("all,smart,unread,favorite,recent (compact)");
 
   await subtest_toggle_unread_folders(false);
+  check_scalars("all,smart,favorite,recent (compact)");
+
+  await subtest_toggle_compact(false);
+  check_scalars("all,smart,favorite,recent");
+
   await subtest_toggle_favorite_folders(false);
+  check_scalars("all,smart,recent");
+
   await subtest_toggle_all_folders(false);
   await subtest_toggle_recent_folders(false);
   await subtest_toggle_smart_folders(false);
@@ -290,6 +346,7 @@ add_task(async function test_toggling_modes() {
   // Confirm that the all folders mode is visible even after all the modes have
   // been deselected in order to ensure that the Folder Pane is never empty.
   await assert_mode_selected("all");
+  check_scalars("all");
 });
 
 registerCleanupFunction(function() {

@@ -798,7 +798,8 @@ MailGlue.prototype = {
         reportAddressBookTypes();
         reportAccountSizes();
         await reportCalendars();
-        reportBooleanPreferences();
+        reportPreferences();
+        reportUIConfiguration();
       },
     ];
 
@@ -951,6 +952,22 @@ function reportAccountTypes() {
  * Report size on disk and messages count of each type of folder to telemetry.
  */
 function reportAccountSizes() {
+  let keys = [
+    "Inbox",
+    "Drafts",
+    "Trash",
+    "SentMail",
+    "Templates",
+    "Junk",
+    "Archive",
+    "Queue",
+  ];
+  for (let key of keys) {
+    Services.telemetry.keyedScalarSet("tb.account.total_messages", key, 0);
+  }
+  Services.telemetry.keyedScalarSet("tb.account.total_messages", "Other", 0);
+  Services.telemetry.keyedScalarSet("tb.account.total_messages", "Total", 0);
+
   for (let server of lazy.MailServices.accounts.allServers) {
     if (
       server instanceof Ci.nsIPop3IncomingServer &&
@@ -962,37 +979,31 @@ function reportAccountSizes() {
 
     for (let folder of server.rootFolder.descendants) {
       let key =
-        [
-          "Inbox",
-          "Drafts",
-          "Trash",
-          "SentMail",
-          "Templates",
-          "Junk",
-          "Archive",
-          "Queue",
-        ].find(x => folder.getFlag(Ci.nsMsgFolderFlags[x])) || "Other";
+        keys.find(x => folder.getFlag(Ci.nsMsgFolderFlags[x])) || "Other";
       let totalMessages = folder.getTotalMessages(false);
       if (totalMessages > 0) {
         Services.telemetry.keyedScalarAdd(
-          "tb.account.size_on_disk",
-          key,
-          folder.sizeOnDisk
-        );
-        Services.telemetry.keyedScalarAdd(
           "tb.account.total_messages",
           key,
-          folder.getTotalMessages(false)
-        );
-        Services.telemetry.keyedScalarAdd(
-          "tb.account.size_on_disk",
-          "Total",
-          folder.sizeOnDisk
+          totalMessages
         );
         Services.telemetry.keyedScalarAdd(
           "tb.account.total_messages",
           "Total",
-          folder.getTotalMessages(false)
+          totalMessages
+        );
+      }
+      let sizeOnDisk = folder.sizeOnDisk;
+      if (sizeOnDisk > 0) {
+        Services.telemetry.keyedScalarAdd(
+          "tb.account.size_on_disk",
+          key,
+          sizeOnDisk
+        );
+        Services.telemetry.keyedScalarAdd(
+          "tb.account.size_on_disk",
+          "Total",
+          sizeOnDisk
         );
       }
     }
@@ -1087,7 +1098,7 @@ async function reportCalendars() {
   }
 }
 
-function reportBooleanPreferences() {
+function reportPreferences() {
   let booleanPrefs = [
     // General
     "browser.cache.disk.smart_size.enabled",
@@ -1197,6 +1208,14 @@ function reportBooleanPreferences() {
     "calendar.alarms.showmissed",
   ];
 
+  let integerPrefs = [
+    // Mail UI
+    "mail.pane_config.dynamic",
+    "mail.ui.display.dateformat.default",
+    "mail.ui.display.dateformat.thisweek",
+    "mail.ui.display.dateformat.today",
+  ];
+
   // Platform-specific preferences
   if (AppConstants.platform === "win") {
     booleanPrefs.push("mail.biff.show_tray_icon", "mail.minimizeToTray");
@@ -1245,6 +1264,55 @@ function reportBooleanPreferences() {
       prefValue
     );
   }
+
+  for (let prefName of integerPrefs) {
+    let prefValue = Services.prefs.getIntPref(prefName, 0);
+
+    Services.telemetry.keyedScalarSet(
+      "tb.preferences.integer",
+      prefName,
+      prefValue
+    );
+  }
+}
+
+function reportUIConfiguration() {
+  let docURL = "chrome://messenger/content/messenger.xhtml";
+
+  let folderTreeMode = Services.xulStore.getValue(docURL, "folderTree", "mode");
+  if (folderTreeMode) {
+    let folderTreeCompact = Services.xulStore.getValue(
+      docURL,
+      "folderTree",
+      "compact"
+    );
+    if (folderTreeCompact === "true") {
+      folderTreeMode += " (compact)";
+    }
+    Services.telemetry.scalarSet(
+      "tb.ui.configuration.folder_tree_modes",
+      folderTreeMode
+    );
+  }
+
+  let headerLayout = Services.xulStore.getValue(
+    docURL,
+    "messageHeader",
+    "layout"
+  );
+  if (headerLayout) {
+    headerLayout = JSON.parse(headerLayout);
+    for (let [key, value] of Object.entries(headerLayout)) {
+      if (key == "buttonStyle") {
+        value = { default: 0, "only-icons": 1, "only-text": 2 }[value];
+      }
+      Services.telemetry.keyedScalarSet(
+        "tb.ui.configuration.message_header",
+        key,
+        value
+      );
+    }
+  }
 }
 
 /**
@@ -1256,5 +1324,6 @@ var MailTelemetryForTests = {
   reportAccountSizes,
   reportAddressBookTypes,
   reportCalendars,
-  reportBooleanPreferences,
+  reportPreferences,
+  reportUIConfiguration,
 };

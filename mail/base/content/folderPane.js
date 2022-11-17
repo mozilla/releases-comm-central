@@ -429,6 +429,12 @@ var gFolderTreeView = {
     // is disabled since we don't require a full restart.
     this._activeModes = this._activeModes.filter(mode => mode in this._modes);
 
+    // If we end up with an empty array, add the default mode.
+    if (!this._activeModes.length) {
+      this._activeModes.push(kDefaultMode);
+      this._updateMenuItems(kDefaultMode);
+    }
+
     // Store the current mode as a tree attribute.
     this._treeElement.setAttribute("mode", this._activeModes);
     // Build the folder pane.
