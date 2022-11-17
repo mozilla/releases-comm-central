@@ -7,8 +7,9 @@ loader: gecko_taskgraph.loader.multi_dep:loader
 group-by: platform
 
 transforms:
+    - comm_taskgraph.transforms.l10n:transforms_pregecko
     - gecko_taskgraph.transforms.l10n:transforms
-    - comm_taskgraph.transforms.l10n:transforms
+    - comm_taskgraph.transforms.l10n:transforms_postgecko
     - gecko_taskgraph.transforms.job:transforms
     - gecko_taskgraph.transforms.task:transforms
 
@@ -31,7 +32,10 @@ only-for-build-platforms:
 
 job-template:
     description: Localization
-    locales-file: comm/mail/locales/shipped-locales
+    locales-file:
+        by-release-type:
+            beta|release: comm/mail/locales/shipped-locales
+            default: comm/mail/locales/all-locales
     locales-per-chunk: 5
     run-on-projects: ['release']
     attributes:
