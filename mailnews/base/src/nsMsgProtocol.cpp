@@ -12,7 +12,7 @@
 #include "nsIStreamTransportService.h"
 #include "nsISocketTransportService.h"
 #include "nsISocketTransport.h"
-#include "nsISSLSocketControl.h"
+#include "nsITLSSocketControl.h"
 #include "nsITransportSecurityInfo.h"
 #include "nsILoadGroup.h"
 #include "nsILoadInfo.h"
@@ -656,7 +656,7 @@ NS_IMETHODIMP nsMsgProtocol::GetSecurityInfo(
   if (m_transport) {
     nsCOMPtr<nsISocketTransport> strans = do_QueryInterface(m_transport);
     if (strans) {
-      nsCOMPtr<nsISSLSocketControl> tlsSocketControl;
+      nsCOMPtr<nsITLSSocketControl> tlsSocketControl;
       if (NS_SUCCEEDED(
               strans->GetTlsSocketControl(getter_AddRefs(tlsSocketControl)))) {
         nsCOMPtr<nsITransportSecurityInfo> transportSecInfo =

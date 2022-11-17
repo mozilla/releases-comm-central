@@ -261,7 +261,7 @@ export var Socket = {
 
   startTLS() {
     this.transport.tlsSocketControl
-      .QueryInterface(Ci.nsISSLSocketControl)
+      .QueryInterface(Ci.nsITLSSocketControl)
       .StartTLS();
   },
 

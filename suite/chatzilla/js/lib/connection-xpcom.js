@@ -348,7 +348,7 @@ function bc_starttls()
         return;
 
     var secInfo = this._transport.securityInfo;
-    var sockControl = secInfo.QueryInterface(Ci.nsISSLSocketControl);
+    var sockControl = secInfo.QueryInterface(Ci.nsITLSSocketControl);
     sockControl.StartTLS();
 }
 
