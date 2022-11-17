@@ -621,9 +621,14 @@ var MailUtils = {
 
     // Search in folder.
     if (!folder.isServer) {
-      msgHdr = folder.msgDatabase.getMsgHdrForMessageID(msgId);
-      if (msgHdr) {
-        return msgHdr;
+      try {
+        msgHdr = folder.msgDatabase.getMsgHdrForMessageID(msgId);
+        if (msgHdr) {
+          return msgHdr;
+        }
+        folder.closeDBIfFolderNotOpen(true);
+      } catch (ex) {
+        Cu.reportError(`Database for ${folder.name} not accessible`);
       }
     }
 
