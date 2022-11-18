@@ -40,6 +40,70 @@ static void PRTimeToLocalDateString(PRTime time, nsAString& result) {
       style, &explodedTime, result);
 }
 
+NS_IMETHODIMP nsSMimeJSHelper::GetRecipients(
+    nsIMsgCompFields* compFields, nsTArray<nsString>& emailAddresses) {
+  nsTArray<nsCString> mailboxes;
+  nsresult rv = getMailboxList(compFields, mailboxes);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  uint32_t mailbox_count = mailboxes.Length();
+
+  emailAddresses.ClearAndRetainStorage();
+  emailAddresses.SetCapacity(mailbox_count);
+
+  rv = NS_OK;
+
+  for (uint32_t i = 0; i < mailbox_count; ++i) {
+    const nsCString& email = mailboxes[i];
+
+    nsCString email_lowercase;
+    ToLowerCase(email, email_lowercase);
+
+    emailAddresses.AppendElement(NS_ConvertUTF8toUTF16(email));
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsSMimeJSHelper::GetValidCertInfo(const nsAString& email,
+                                                nsAString& certIssuedInfo,
+                                                nsAString& certExpiresInfo,
+                                                nsIX509Cert** cert) {
+  nsCOMPtr<nsIX509CertDB> certdb = do_GetService(NS_X509CERTDB_CONTRACTID);
+
+  *cert = nullptr;
+  nsresult rv = NS_OK;
+
+  nsCOMPtr<nsIMsgComposeSecure> composeSecure =
+      do_CreateInstance("@mozilla.org/messengercompose/composesecure;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  NS_ConvertUTF16toUTF8 emailC(email);
+
+  nsCString email_lowercase;
+  ToLowerCase(emailC, email_lowercase);
+
+  // Find only valid certificate.
+  if (NS_SUCCEEDED(
+          composeSecure->FindCertByEmailAddress(email_lowercase, true, cert))) {
+    nsCOMPtr<nsIX509CertValidity> validity;
+    rv = (*cert)->GetValidity(getter_AddRefs(validity));
+    if (NS_SUCCEEDED(rv)) {
+      PRTime notBefore;
+      rv = validity->GetNotBefore(&notBefore);
+      if (NS_SUCCEEDED(rv)) {
+        PRTimeToLocalDateString(notBefore, certIssuedInfo);
+      }
+      PRTime notAfter;
+      rv = validity->GetNotAfter(&notAfter);
+      if (NS_SUCCEEDED(rv)) {
+        PRTimeToLocalDateString(notAfter, certExpiresInfo);
+      }
+    }
+  }
+
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
     nsIMsgCompFields* compFields, nsTArray<nsString>& emailAddresses,
     nsTArray<nsString>& certIssuedInfos, nsTArray<nsString>& certExpiresInfos,
@@ -79,6 +143,7 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
     nsCString email_lowercase;
     ToLowerCase(email, email_lowercase);
 
+    // Find certificate regardless of validity.
     if (NS_SUCCEEDED(composeSecure->FindCertByEmailAddress(
             email_lowercase, false, getter_AddRefs(cert)))) {
       nsCOMPtr<nsIX509CertValidity> validity;
