@@ -7,6 +7,13 @@ from pathlib import Path
 from .l10n_merge import COMM_STRINGS_QUARANTINE, COMM_STRINGS_QUARANTINE_PUSH
 
 
+TB_XC_NOTIFICATION_TMPL = """\
+**Thunderbird L10n Cross Channel**
+
+Changes pushed to `comm-strings-quarantine`: {rev_url}
+"""
+
+
 def get_thunderbird_xc_config(topsrcdir, strings_path):
     assert isinstance(topsrcdir, Path)
     assert isinstance(strings_path, Path)

@@ -22,6 +22,38 @@ def _positive_int(value):
     return value
 
 
+def _retry_run_process(command_context, *args, error_msg=None, **kwargs):
+    try:
+        return command_context.run_process(*args, **kwargs)
+    except Exception as exc:
+        raise Exception(error_msg or str(exc)) from exc
+
+
+def _get_rev(command_context, strings_path):
+    result = []
+
+    def save_output(line):
+        result.append(line)
+
+    status = _retry_run_process(
+        command_context,
+        [
+            "hg",
+            "--cwd",
+            str(strings_path),
+            "log",
+            "-r",
+            ".",
+            "--template",
+            "'{node}\n'",
+        ],
+        line_handler=save_output,
+    )
+    if status == 0:
+        return "\n".join(result)
+    raise Exception(f"Failed to get head revision: {status}")
+
+
 @Command(
     "tb-l10n-x-channel",
     category="thunderbird",
@@ -75,7 +107,9 @@ def tb_cross_channel(
     **kwargs,
 ):
     """Run Thunderbird's l10n cross-channel content generation."""
-    from tbxchannel import get_thunderbird_xc_config
+    from tbxchannel import get_thunderbird_xc_config, TB_XC_NOTIFICATION_TMPL
+    from tbxchannel.l10n_merge import COMM_STRINGS_QUARANTINE
+    from rocbuild.notify import email_notification
 
     kwargs.update(
         {
@@ -90,6 +124,14 @@ def tb_cross_channel(
     command_context._mach_context.commands.dispatch(
         "l10n-cross-channel", command_context._mach_context, **kwargs
     )
+    if os.path.exists(outgoing_path):
+        head_rev = _get_rev(command_context, strings_path)
+        rev_url = f"{COMM_STRINGS_QUARANTINE}/rev/{head_rev}"
+
+        notification_body = TB_XC_NOTIFICATION_TMPL.format(rev_url=rev_url)
+        email_notification(
+            "X-channel comm-strings-quarantine updated", notification_body
+        )
 
 
 @Command(
