@@ -7,8 +7,8 @@ requestLongerTimeout(2);
 var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
-var { MockRegistrar } = ChromeUtils.import(
-  "resource://testing-common/MockRegistrar.jsm"
+var { MockRegistrar } = ChromeUtils.importESModule(
+  "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
 var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");

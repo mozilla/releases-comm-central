@@ -24,12 +24,12 @@ var { ImapMessage } = ChromeUtils.import(
 var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
   "resource://testing-common/mailnews/IMAPpump.jsm"
 );
-var { TestUtils } = ChromeUtils.import(
-  "resource://testing-common/TestUtils.jsm"
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
 );
 
-var { FileTestUtils } = ChromeUtils.import(
-  "resource://testing-common/FileTestUtils.jsm"
+var { FileTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/FileTestUtils.sys.mjs"
 );
 
 var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);

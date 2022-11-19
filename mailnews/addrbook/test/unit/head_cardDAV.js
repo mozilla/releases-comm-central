@@ -8,8 +8,8 @@ const { CardDAVDirectory } = ChromeUtils.import(
 const { CardDAVServer } = ChromeUtils.import(
   "resource://testing-common/CardDAVServer.jsm"
 );
-const { TestUtils } = ChromeUtils.import(
-  "resource://testing-common/TestUtils.jsm"
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
 );
 Cu.importGlobalProperties(["fetch"]);
 

@@ -1,7 +1,9 @@
 // This file needs to contain glue to rephrase the Mocha testsuite framework in
 // a way that the xpcshell test suite can understand.
 
-var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+var { Assert } = ChromeUtils.importESModule(
+  "resource://testing-common/Assert.sys.mjs"
+);
 var requireCache = new Map();
 
 // Preload an assert module

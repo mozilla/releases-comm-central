@@ -4,8 +4,8 @@
 const { InteractiveBrowser, CancelledError } = ChromeUtils.importESModule(
   "resource:///modules/InteractiveBrowser.sys.mjs"
 );
-const { TestUtils } = ChromeUtils.import(
-  "resource://testing-common/TestUtils.jsm"
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
 );
 
 add_task(async function test_waitForRedirectOnLocationChange() {

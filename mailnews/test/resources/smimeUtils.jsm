@@ -8,8 +8,8 @@
 
 var EXPORTED_SYMBOLS = ["SmimeUtils"];
 
-var { MockRegistrar } = ChromeUtils.import(
-  "resource://testing-common/MockRegistrar.jsm"
+var { MockRegistrar } = ChromeUtils.importESModule(
+  "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
 const gCertDialogs = {

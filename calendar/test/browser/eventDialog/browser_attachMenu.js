@@ -8,7 +8,9 @@
 
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 const { cloudFileAccounts } = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
-const { MockFilePicker } = ChromeUtils.import("resource://specialpowers/MockFilePicker.jsm");
+const { MockFilePicker } = ChromeUtils.importESModule(
+  "resource://specialpowers/MockFilePicker.sys.mjs"
+);
 
 let calendar = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
 calendar.name = "Attachments";

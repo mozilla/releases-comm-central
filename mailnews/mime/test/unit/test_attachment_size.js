@@ -23,8 +23,8 @@ var { PromiseTestUtils } = ChromeUtils.import(
 );
 
 // Somehow we hit the blocklist service, and that needs appInfo defined
-const { updateAppInfo } = ChromeUtils.import(
-  "resource://testing-common/AppInfo.jsm"
+const { updateAppInfo } = ChromeUtils.importESModule(
+  "resource://testing-common/AppInfo.sys.mjs"
 );
 updateAppInfo();
 

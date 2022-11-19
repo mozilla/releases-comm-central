@@ -12,10 +12,12 @@ const EXPORTED_SYMBOLS = [
   "closeAllEventDialogs",
 ];
 
-var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
-var { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
+var { Assert } = ChromeUtils.importESModule("resource://testing-common/Assert.sys.mjs");
+var { BrowserTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/BrowserTestUtils.sys.mjs"
+);
 var EventUtils = ChromeUtils.import("resource://testing-common/mozmill/EventUtils.jsm");
-var { TestUtils } = ChromeUtils.import("resource://testing-common/TestUtils.jsm");
+var { TestUtils } = ChromeUtils.importESModule("resource://testing-common/TestUtils.sys.mjs");
 
 const lazy = {};
 

@@ -9,7 +9,7 @@ var { CalendarTestUtils } = ChromeUtils.import(
 var { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
 var { PromiseUtils } = ChromeUtils.importESModule("resource://gre/modules/PromiseUtils.sys.mjs");
 
-var { updateAppInfo } = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
+var { updateAppInfo } = ChromeUtils.importESModule("resource://testing-common/AppInfo.sys.mjs");
 updateAppInfo();
 
 // The tests in this directory each do the same thing, with slight variations as needed for each

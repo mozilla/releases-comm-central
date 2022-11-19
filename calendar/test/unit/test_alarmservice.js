@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
-var { TestUtils } = ChromeUtils.import("resource://testing-common/TestUtils.jsm");
+var { TestUtils } = ChromeUtils.importESModule("resource://testing-common/TestUtils.sys.mjs");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalAlarm: "resource:///modules/CalAlarm.jsm",

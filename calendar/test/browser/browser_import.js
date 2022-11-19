@@ -7,7 +7,9 @@
 
 /* globals loadEventsFromFile */
 
-const { MockFilePicker } = ChromeUtils.import("resource://specialpowers/MockFilePicker.jsm");
+const { MockFilePicker } = ChromeUtils.importESModule(
+  "resource://specialpowers/MockFilePicker.sys.mjs"
+);
 const ChromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(Ci.nsIChromeRegistry);
 
 add_task(async () => {

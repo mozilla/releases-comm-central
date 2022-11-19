@@ -18,7 +18,9 @@ var { CalItipDefaultEmailTransport } = ChromeUtils.import(
 var { FileUtils } = ChromeUtils.importESModule("resource://gre/modules/FileUtils.sys.mjs");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var { FileTestUtils } = ChromeUtils.import("resource://testing-common/FileTestUtils.jsm");
+var { FileTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/FileTestUtils.sys.mjs"
+);
 var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );

@@ -23,8 +23,8 @@ var { gThreadManager, nsMailServer } = ChromeUtils.import(
   "resource://testing-common/mailnews/Maild.jsm"
 );
 var Imapd = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
-var { updateAppInfo } = ChromeUtils.import(
-  "resource://testing-common/AppInfo.jsm"
+var { updateAppInfo } = ChromeUtils.importESModule(
+  "resource://testing-common/AppInfo.sys.mjs"
 );
 
 // define globals
