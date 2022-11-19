@@ -4,10 +4,9 @@
 
 <!-- Mac window menu -->
       <menu id="windowMenu"
-            label="&windowMenu.label;"
-            onpopupshowing="macWindowMenuDidShow();"
-            onpopuphidden="macWindowMenuDidHide();">
+            label="&windowMenu.label;">
         <menupopup id="windowPopup">
+          <menuseparator/>
           <menuitem id="minimizeWindow"
                     label="&minimizeWindow.label;"
                     oncommand="window.minimize();"
