@@ -433,7 +433,7 @@ class SmtpClient {
    *
    * @param {Error|TCPSocketErrorEvent} e - An Error or TCPSocketErrorEvent object.
    */
-  _onError = e => {
+  _onError = async e => {
     this.logger.error(e);
     if (this._freed) {
       // Ignore socket errors if already freed.
@@ -446,7 +446,7 @@ class SmtpClient {
     let secInfo = null;
     if (TCPSocketErrorEvent.isInstance(e)) {
       nsError = e.errorCode;
-      secInfo = e.target.transport?.tlsSocketControl;
+      secInfo = await e.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
     }
     // Use nsresult to integrate with other parts of sending process, e.g.
     // MessageSend.jsm will show an error message depending on the nsresult.

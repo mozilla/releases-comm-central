@@ -706,7 +706,7 @@ class ImapClient {
    * The error event handler.
    * @param {TCPSocketErrorEvent} event - The error event.
    */
-  _onError = event => {
+  _onError = async event => {
     this._logger.error(event, event.name, event.message, event.errorCode);
     if (event.errorCode == Cr.NS_ERROR_NET_TIMEOUT) {
       this._actionError("imapNetTimeoutError");
@@ -714,7 +714,7 @@ class ImapClient {
       return;
     }
     this.logout();
-    let secInfo = event.target.transport?.tlsSocketControl;
+    let secInfo = await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
     if (secInfo) {
       this.runningUrl.failedSecInfo = secInfo;
     }

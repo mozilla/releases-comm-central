@@ -659,9 +659,11 @@ NS_IMETHODIMP nsMsgProtocol::GetSecurityInfo(
       nsCOMPtr<nsITLSSocketControl> tlsSocketControl;
       if (NS_SUCCEEDED(
               strans->GetTlsSocketControl(getter_AddRefs(tlsSocketControl)))) {
-        nsCOMPtr<nsITransportSecurityInfo> transportSecInfo =
-            do_QueryInterface(tlsSocketControl);
-        transportSecInfo.forget(secInfo);
+        nsCOMPtr<nsITransportSecurityInfo> transportSecInfo;
+        if (NS_SUCCEEDED(tlsSocketControl->GetSecurityInfo(
+                getter_AddRefs(transportSecInfo)))) {
+          transportSecInfo.forget(secInfo);
+        }
       }
     }
   }
