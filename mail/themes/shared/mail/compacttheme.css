@@ -23,34 +23,11 @@
     --autocomplete-popup-highlight-background: #0060DF;
   }
 
-  /* Make the unread mail indicator better visible on dark theme */
-  #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-cell-text(hasUnreadMessages-true),
-  #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-cell-text(closed, subfoldersHaveUnreadMessages-true),
-  #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
-  #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
-    color: #fff !important;
-  }
-
-  /* Make the new mail indicator better visible on dark theme */
-  #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
-  #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
-  #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
-    color: #45b1ff !important;
-  }
-
   #folderTree:-moz-lwtheme
     treechildren::-moz-tree-image(folderNameCol, newMessages-true),
   #folderTree:-moz-lwtheme
     treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail) {
-    fill: color-mix(in srgb, #45b1ff 20%, transparent) !important;
-    stroke: #45b1ff !important;
+    --new-folder-color: var(--color-blue-40);
   }
 
   #folderTree:-moz-lwtheme
@@ -58,13 +35,5 @@
   #folderTree:-moz-lwtheme
     treechildren::-moz-tree-cell-text(closed, subfoldersHaveUnreadMessages-true, selected, focus) {
     color: var(--sidebar-highlight-text-color) !important;
-  }
-
-  #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-image(closed, subfoldersHaveUnreadMessages-true, selected, focus),
-  #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-image(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
-    fill: color-mix(in srgb, var(--sidebar-highlight-text-color) 20%, transparent) !important;
-    stroke: var(--sidebar-highlight-text-color) !important;
   }
 }
