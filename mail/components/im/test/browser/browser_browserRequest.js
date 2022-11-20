@@ -79,6 +79,8 @@ add_task(async function testCancelWaitForRedirect() {
   const requestWindow = await windowPromise;
   is(requestWindow.document.title, promptText, "set window title");
 
+  await new Promise(resolve => setTimeout(resolve));
+
   const closeEvent = new Event("close");
   requestWindow.dispatchEvent(closeEvent);
   await BrowserTestUtils.closeWindow(requestWindow);
