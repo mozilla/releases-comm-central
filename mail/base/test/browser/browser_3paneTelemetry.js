@@ -24,8 +24,17 @@ add_setup(async function() {
   rootFolder.createSubfolder("just a folder", null);
   folders.Other = rootFolder.getChildNamed("just a folder");
 
+  let folderPaneVisibleAtStart = window.gFolderDisplay.folderPaneVisible;
+  let messagePaneVisibleAtStart = window.gMessageDisplay.visible;
+
   registerCleanupFunction(function() {
     MailServices.accounts.removeAccount(account, true);
+    if (window.gFolderDisplay.folderPaneVisible != folderPaneVisibleAtStart) {
+      goDoCommand("cmd_toggleFolderPane");
+    }
+    if (window.gMessageDisplay.visible != messagePaneVisibleAtStart) {
+      goDoCommand("cmd_toggleMessagePane");
+    }
   });
 });
 
