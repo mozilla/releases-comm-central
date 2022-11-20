@@ -1264,7 +1264,7 @@
      * @param {String} address - An email address.
      */
     isValidAddress(address) {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address);
+      return /^[^\s@]+@[^\s@]+$/.test(address);
     }
 
     /**
