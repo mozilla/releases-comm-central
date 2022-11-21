@@ -93,7 +93,7 @@ interface nsIImapIncomingServer : nsISupports {
                                         in nsIMsgWindow aWindow,
                                         in boolean forceAllFolders,
                                         in boolean performingBiff);
-  void getCapability(out unsigned long long capability);
+  unsigned long long getCapability();
 
   /**
    * Get the password from the nsIMsgIncomingServer. May prompt the user

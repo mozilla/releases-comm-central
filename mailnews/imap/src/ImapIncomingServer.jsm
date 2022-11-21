@@ -18,6 +18,7 @@ const lazy = {};
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   ImapClient: "resource:///modules/ImapClient.jsm",
+  ImapCapFlags: "resource:///modules/ImapUtils.jsm",
   ImapUtils: "resource:///modules/ImapUtils.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
 });
@@ -85,6 +86,15 @@ class ImapIncomingServer extends MsgIncomingServer {
   /** @see nsIMsgIncomingServer */
   get serverRequiresPasswordForBiff() {
     return !this._userAuthenticated;
+  }
+
+  get offlineSupportLevel() {
+    const OFFLINE_SUPPORT_LEVEL_UNDEFINED = -1;
+    const OFFLINE_SUPPORT_LEVEL_REGULAR = 10;
+    let level = this.getIntValue("offline_support_level");
+    return level != OFFLINE_SUPPORT_LEVEL_UNDEFINED
+      ? level
+      : OFFLINE_SUPPORT_LEVEL_REGULAR;
   }
 
   performBiff(msgWindow) {
@@ -337,7 +347,18 @@ class ImapIncomingServer extends MsgIncomingServer {
 
   abortQueuedUrls() {}
 
+  setCapability(capabilityFlags) {
+    this._capabilityFlags = capabilityFlags;
+    if (capabilityFlags & lazy.ImapCapFlags.Gmail) {
+      this.isGMailServer = true;
+    }
+  }
+
   /** @see nsIImapIncomingServer */
+  getCapability() {
+    return this._capabilityFlags;
+  }
+
   get deleteModel() {
     return this.getIntValue("delete_model");
   }
@@ -423,6 +444,7 @@ class ImapIncomingServer extends MsgIncomingServer {
 
   set capabilities(value) {
     this._capabilities = value;
+    this.setCapability(lazy.ImapCapFlags.stringsToFlags(value));
   }
 
   // @type {ImapClient[]} - An array of connections.
