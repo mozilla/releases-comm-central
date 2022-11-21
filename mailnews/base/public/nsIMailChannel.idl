@@ -5,6 +5,7 @@
 #include "nsISupports.idl"
 #include "calIItipItem.idl"
 #include "nsIPropertyBag2.idl"
+#include "nsIMsgSMIMEHeaderSink.idl"
 
 /**
  * An interface that email-streaming channels can use to provide access to
@@ -63,4 +64,9 @@ interface nsIMailChannel : nsISupports {
    * Not to be set after onStopRequest.
    */
   attribute calIItipItem imipItem;
+
+  /**
+   * Set this in onStartRequest to receive security status notifications.
+   */
+  attribute nsIMsgSMIMEHeaderSink smimeHeaderSink;
 };

@@ -211,7 +211,6 @@ function CreateMailWindowGlobals() {
     Ci.nsIMsgWindow
   );
   msgWindow.msgHeaderSink = {
-    securityInfo: null,
   };
 }
 

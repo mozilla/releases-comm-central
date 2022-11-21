@@ -676,9 +676,7 @@ add_task(async function check_smime_message() {
     let uri = hdr.folder.getUriForMsg(hdr);
     let sinkPromise = smimeHeaderSink.expectResults(eventsExpected);
 
-    let conversion = apply_mime_conversion(uri, {
-      securityInfo: smimeHeaderSink,
-    });
+    let conversion = apply_mime_conversion(uri, smimeHeaderSink);
     await conversion.promise;
 
     let contents = conversion._data;

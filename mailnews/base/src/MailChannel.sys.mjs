@@ -9,6 +9,7 @@ export class MailChannel {
   _headerNames = [];
   _headerValues = [];
   _attachments = [];
+  _smimeHeaderSink = null;
 
   addHeaderFromMIME(name, value) {
     this._headerNames.push(name);
@@ -42,5 +43,13 @@ export class MailChannel {
 
   get attachments() {
     return this._attachments.slice();
+  }
+
+  get smimeHeaderSink() {
+    return this._smimeHeaderSink;
+  }
+
+  set smimeHeaderSink(value) {
+    this._smimeHeaderSink = value;
   }
 }

@@ -12,6 +12,7 @@
 /* import-globals-from ../../../calendar/base/content/imip-bar.js */
 /* import-globals-from ../../../mailnews/extensions/newsblog/newsblogOverlay.js */
 /* import-globals-from ../../extensions/openpgp/content/ui/enigmailMsgHdrViewOverlay.js */
+/* import-globals-from ../../extensions/smime/content/msgHdrViewSMIMEOverlay.js */
 /* import-globals-from aboutMessage.js */
 /* import-globals-from editContactPanel.js */
 /* import-globals-from mailContext.js */
@@ -528,11 +529,13 @@ var messageHeaderSink2 = {
 
   onStateChange(webProgress, request, stateFlags) {
     if (request instanceof Ci.nsIMailChannel) {
+      request.QueryInterface(Ci.nsIMailChannel);
       if (stateFlags & Ci.nsIWebProgressListener.STATE_START) {
+        request.smimeHeaderSink = smimeHeaderSink;
         this.onStartHeaders();
       } else if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
         request.QueryInterface(Ci.nsIChannel);
-        request.QueryInterface(Ci.nsIMailChannel);
+        request.smimeHeaderSink = null;
         this.processHeaders(request.headerNames, request.headerValues);
         if (request.imipItem) {
           calImipBar.showImipBar(request.imipItem, request.imipMethod);

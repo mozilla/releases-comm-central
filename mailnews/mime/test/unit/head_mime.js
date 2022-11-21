@@ -48,6 +48,7 @@ function apply_mime_conversion(msgUri, smimeHeaderSink) {
     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
     Ci.nsIContentPolicy.TYPE_OTHER
   );
+  channel.QueryInterface(Ci.nsIMailChannel).smimeHeaderSink = smimeHeaderSink;
 
   // Make the MIME converter, using the listener we first set up.
   let converter = Cc["@mozilla.org/streamConverters;1"]

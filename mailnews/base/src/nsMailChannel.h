@@ -21,6 +21,7 @@ class nsMailChannel : public nsIMailChannel {
   nsTArray<RefPtr<nsIWritablePropertyBag2>> mAttachments;
   nsCString mImipMethod;
   nsCOMPtr<calIItipItem> mImipItem;
+  nsCOMPtr<nsIMsgSMIMEHeaderSink> mSmimeHeaderSink;
 };
 
 #endif /* nsMailChannel_h__ */

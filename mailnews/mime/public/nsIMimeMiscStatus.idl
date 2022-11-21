@@ -17,5 +17,4 @@ interface nsIWritablePropertyBag2;
 [scriptable, uuid(e0e821f0-cecf-4cb3-be5b-ee58b6868343)]
 interface nsIMsgHeaderSink : nsISupports
 {
-  attribute nsISupports securityInfo;
 };

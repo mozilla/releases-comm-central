@@ -83,3 +83,15 @@ nsMailChannel::SetImipItem(calIItipItem* aImipItem) {
   mImipItem = aImipItem;
   return NS_OK;
 }
+
+NS_IMETHODIMP
+nsMailChannel::GetSmimeHeaderSink(nsIMsgSMIMEHeaderSink** aSmimeHeaderSink) {
+  NS_IF_ADDREF(*aSmimeHeaderSink = mSmimeHeaderSink);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMailChannel::SetSmimeHeaderSink(nsIMsgSMIMEHeaderSink* aSmimeHeaderSink) {
+  mSmimeHeaderSink = aSmimeHeaderSink;
+  return NS_OK;
+}

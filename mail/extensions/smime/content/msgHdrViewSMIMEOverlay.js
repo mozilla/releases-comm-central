@@ -383,10 +383,6 @@ function msgHdrViewSMIMEOnLoad(event) {
     );
   }
 
-  // we want to register our security header sink as an opaque nsISupports
-  // on the msgHdrSink used by mail.....
-  top.msgWindow.msgHeaderSink.securityInfo = smimeHeaderSink;
-
   // Add ourself to the list of message display listeners so we get notified
   // when we are about to display a message.
   var listener = {};
