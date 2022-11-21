@@ -35,21 +35,6 @@ const SORT_ORDER_MAP = new Map(
 );
 
 /**
- * Sets the displayed folder in the given tab.
- *
- * @param {Tab} tab - The tab where the displayed folder should be set.
- * @param {nsIMsgFolder} folder - The folder to be displayed.
- */
-function setDisplayedFolder(tab, folder) {
-  if (tab.active) {
-    let treeView = Cu.getGlobalForObject(tab.nativeTab).gFolderTreeView;
-    treeView.selectFolder(folder);
-  } else {
-    tab.nativeTab.folderDisplay.showFolderUri(folder.URI);
-  }
-}
-
-/**
  * Converts a mail tab to a simle object for use in messages.
  *
  * @returns {object}
@@ -97,35 +82,49 @@ var uiListener = new (class extends EventEmitter {
   }
 
   handleEvent(event) {
-    let tab = tabTracker.activeTab;
-    if (event.target.id == "folderTree") {
-      let folder = tab.folderDisplay.displayedFolder;
+    let browser = event.target.browsingContext.embedderElement;
+    let tabmail = browser.ownerGlobal.top.document.getElementById("tabmail");
+    let nativeTab = tabmail.tabInfo.find(
+      t =>
+        t.chromeBrowser == browser ||
+        t.chromeBrowser == browser.browsingContext.parent.embedderElement
+    );
+
+    if (nativeTab.mode.name != "mail3PaneTab") {
+      return;
+    }
+
+    let tabId = tabTracker.getId(nativeTab);
+    let tab = tabTracker.getTab(tabId);
+
+    if (event.type == "folderURIChanged") {
+      let folderURI = event.detail;
+      let folder = MailServices.folderLookup.getFolderForURL(folderURI);
       if (this.lastSelected.get(tab) == folder) {
         return;
       }
       this.lastSelected.set(tab, folder);
       this.emit("folder-changed", tab, folder);
-      return;
-    }
-    if (event.target.id == "threadTree") {
-      this.emit(
-        "messages-changed",
-        tab,
-        tab.folderDisplay.view.dbView.getSelectedMsgHdrs()
-      );
+    } else if (event.type == "messageURIChanged") {
+      let messages = nativeTab.chromeBrowser.contentWindow.gDBView?.getSelectedMsgHdrs();
+      if (messages) {
+        this.emit("messages-changed", tab, messages);
+      }
     }
   }
 
   incrementListeners() {
     this.listenerCount++;
     if (this.listenerCount == 1) {
-      windowTracker.addListener("select", this);
+      windowTracker.addListener("folderURIChanged", this);
+      windowTracker.addListener("messageURIChanged", this);
     }
   }
   decrementListeners() {
     this.listenerCount--;
     if (this.listenerCount == 0) {
-      windowTracker.removeListener("select", this);
+      windowTracker.removeListener("folderURIChanged", this);
+      windowTracker.removeListener("messageURIChanged", this);
       this.lastSelected = new WeakMap();
     }
   }
@@ -284,7 +283,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
                   `"${displayedFolder.accountId}" not found.`
               );
             }
-            setDisplayedFolder(tab, folder);
+            tab.nativeTab.folder = folder;
           }
 
           if (sortType) {
@@ -368,9 +367,13 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           }
 
           if (refFolder) {
-            setDisplayedFolder(tab, refFolder);
+            tab.nativeTab.folder = refFolder;
           }
-          tab.nativeTab.folderDisplay.selectMessages(msgHdrs, true);
+          let about3Pane = tab.nativeTab.chromeBrowser.contentWindow;
+          about3Pane.threadTree.selectedIndices = msgHdrs.map(
+            about3Pane.gViewWrapper.getViewIndexForMsgHdr,
+            about3Pane.gViewWrapper
+          );
         },
 
         async setQuickFilter(tabId, state) {
