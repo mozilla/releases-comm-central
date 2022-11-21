@@ -172,6 +172,8 @@ var gBodyFromArgs;
 // gSMFields separate allows switching as needed.
 var gSMFields = null;
 
+var gSMCertsMap = new Map();
+
 var gSelectedTechnologyIsPGP = false;
 
 // The initial flags store the value we used at composer open time.
@@ -3466,36 +3468,35 @@ async function checkRecipientKeys() {
     ].createInstance(Ci.nsISMimeJSHelper);
 
     let outEmailAddresses = {};
-    let outCertIssuedInfos = {};
-    let outCertExpiresInfos = {};
-    let outCerts = {};
-    let outCanEncrypt = {};
 
-    helper.getRecipientCertsInfo(
-      compFields,
-      outEmailAddresses,
-      outCertIssuedInfos,
-      outCertExpiresInfos,
-      outCerts,
-      outCanEncrypt
-    );
+    helper.getRecipients(compFields, outEmailAddresses);
 
-    let checks = [];
     for (let i = 0; i < outEmailAddresses.value.length; i++) {
-      if (!outCerts.value[i]) {
-        emailsWithMissingCerts.push(outEmailAddresses.value[i]);
+      let email = outEmailAddresses.value[i];
+
+      let certFromCache = gSMCertsMap.get(email);
+      if (certFromCache) {
         continue;
       }
 
-      checks.push(
-        verifyCertUsable(outCerts.value[i])
-          .then(usage => {})
-          .catch(error => {
-            emailsWithMissingCerts.push(outEmailAddresses.value[i]);
-          })
+      let outCertIssuedInfo = {};
+      let outCertExpiresInfo = {};
+      let outCert = {};
+
+      helper.getValidCertInfo(
+        email,
+        outCertIssuedInfo,
+        outCertExpiresInfo,
+        outCert
       );
+
+      if (outCert.value) {
+        gSMCertsMap.set(email, outCert.value);
+      } else {
+        emailsWithMissingCerts.push(email);
+        continue;
+      }
     }
-    await Promise.all(checks);
 
     if (!emailsWithMissingCerts.length) {
       haveAllCerts = true;

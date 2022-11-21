@@ -27,8 +27,8 @@ const { wait_for_frame_load } = ChromeUtils.import(
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { MockFilePicker } = ChromeUtils.import(
-  "resource://specialpowers/MockFilePicker.jsm"
+const { MockFilePicker } = ChromeUtils.importESModule(
+  "resource://specialpowers/MockFilePicker.sys.mjs"
 );
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"

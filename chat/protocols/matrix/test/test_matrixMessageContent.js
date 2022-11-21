@@ -4,8 +4,8 @@
 var { MatrixMessageContent } = ChromeUtils.importESModule(
   "resource:///modules/matrixMessageContent.sys.mjs"
 );
-const { XPCShellContentUtils } = ChromeUtils.import(
-  "resource://testing-common/XPCShellContentUtils.jsm"
+const { XPCShellContentUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/XPCShellContentUtils.sys.mjs"
 );
 var { getMatrixTextForEvent } = ChromeUtils.importESModule(
   "resource:///modules/matrixTextForEvent.sys.mjs"

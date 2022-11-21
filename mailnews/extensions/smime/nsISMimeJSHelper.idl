@@ -19,6 +19,7 @@ interface nsISMimeJSHelper : nsISupports
   /**
    * Obtains detailed information about the certificate availability
    * status of email recipients.
+   * The returned certificates have NOT been checked for validity yet
    *
    * @param compFields - Attributes of the composed message.
    * @param emailAddresses - The list of all recipient email addresses
@@ -33,6 +34,17 @@ interface nsISMimeJSHelper : nsISupports
                              out Array<AString> certExpiresInfos,
                              out Array<nsIX509Cert> certs,
                              out boolean canEncrypt);
+
+  void getRecipients(in nsIMsgCompFields compFields,
+                     out Array<AString> emailAddresses);
+
+  /**
+   * Only a VALID certificate will be returned.
+   */
+  void getValidCertInfo(in AString email,
+                        out AString certIssuedInfo,
+                        out AString certExpiresInfo,
+                        out nsIX509Cert cert);
 
   /**
    * Obtains a list of email addresses where valid email recipient certificates

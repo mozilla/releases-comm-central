@@ -473,7 +473,7 @@ class ImapClient {
         : "COPY ";
     command += messageIds + ` "${this._getServerFolderName(dstFolder)}"`;
     this._actionFolderCommand(folder, () => {
-      this._nextAction = () => this._actionDone();
+      this._nextAction = this._actionNoopResponse;
       this._sendTagged(command);
     });
   }
@@ -498,6 +498,11 @@ class ImapClient {
       this._nextAction = res => {
         this._folderSink = dstFolder.QueryInterface(Ci.nsIImapMailFolderSink);
         this._actionDone();
+        if (res.exists) {
+          // FIXME: _actionNoopResponse should be enough here, but it breaks
+          // test_imapAttachmentSaves.js.
+          this.folder = null;
+        }
         try {
           this._folderSink.copyNextStreamMessage(true, copyState);
         } catch (e) {
@@ -634,7 +639,11 @@ class ImapClient {
    * @param {Function} nextAction - Callback function after IDLE is ended.
    */
   endIdle(nextAction) {
-    this._nextAction = nextAction;
+    this._nextAction = res => {
+      if (res.status == "OK") {
+        nextAction();
+      }
+    };
     this._send("DONE");
     this._idling = false;
   }
@@ -697,7 +706,7 @@ class ImapClient {
    * The error event handler.
    * @param {TCPSocketErrorEvent} event - The error event.
    */
-  _onError = event => {
+  _onError = async event => {
     this._logger.error(event, event.name, event.message, event.errorCode);
     if (event.errorCode == Cr.NS_ERROR_NET_TIMEOUT) {
       this._actionError("imapNetTimeoutError");
@@ -705,7 +714,7 @@ class ImapClient {
       return;
     }
     this.logout();
-    let secInfo = event.target.transport?.tlsSocketControl;
+    let secInfo = await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
     if (secInfo) {
       this.runningUrl.failedSecInfo = secInfo;
     }
@@ -1459,6 +1468,10 @@ class ImapClient {
       this._folderState.exists = res.exists;
       this._actionAfterSelectFolder = this._actionUidFetch;
       this._nextAction = this._actionSelectResponse;
+      if (res.expunged.length) {
+        this._messageUids = [];
+        this._messages.clear();
+      }
       this._sendTagged(`SELECT "${this.folder.name}"`);
     } else if (res.messages.length || res.exists) {
       let outFolderInfo = {};

@@ -7,9 +7,11 @@
 const EXPORTED_SYMBOLS = ["CalendarTestUtils"];
 
 const EventUtils = ChromeUtils.import("resource://testing-common/mozmill/EventUtils.jsm");
-const { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
-const { TestUtils } = ChromeUtils.import("resource://testing-common/TestUtils.jsm");
-const { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+const { BrowserTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/BrowserTestUtils.sys.mjs"
+);
+const { TestUtils } = ChromeUtils.importESModule("resource://testing-common/TestUtils.sys.mjs");
+const { Assert } = ChromeUtils.importESModule("resource://testing-common/Assert.sys.mjs");
 const { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );

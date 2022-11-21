@@ -1,0 +1,58 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: gecko_taskgraph.loader.single_dep:loader
+
+transforms:
+    - comm_taskgraph.transforms.l10n_pre:transforms
+    - gecko_taskgraph.transforms.job:transforms
+    - gecko_taskgraph.transforms.task:transforms
+
+kind-dependencies:
+    - build
+
+only-for-attributes:
+    - shippable
+
+only-for-build-platforms:
+    - linux64-shippable/opt
+
+job-template:
+    name: shippable-l10n-pre
+    description: Pre-Localization artifact build
+    run-on-projects: ['release']
+    build-platform: linux64-shippable
+    attributes:
+        shipping_phase: promote
+    run-time: 900
+    worker-type: b-linux
+    docker-image: {in-tree: debian11-amd64-build}
+    treeherder:
+        symbol: L10n-pre
+        tier: 1
+        platform: linux64-shippable/opt
+    worker:
+        env:
+            MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE: system
+    locale-list:
+        by-release-type:
+            beta|release: comm/mail/locales/shipped-locales
+            default: comm/mail/locales/all-locales
+    comm-locales-file: comm/mail/locales/l10n-changesets.json
+    browser-locales-file: browser/locales/l10n-changesets.json
+    mozharness:
+        comm-checkout: true
+        config-paths:
+            - comm/testing/mozharness/configs
+        config:
+            - single_locale/linux64.py
+            - single_locale/tc_common.py
+            - single_locale/thunderbird_split_l10n.py
+            - taskcluster_nightly.py
+        actions:
+            - clone-gecko-locales
+            - clone-monorepo
+            - merge-repos
+            - pack-merged
+        script: comm/taskcluster/scripts/desktop_comm_l10n.py

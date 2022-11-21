@@ -63,7 +63,7 @@
 #include "nsImapUtils.h"
 #include "nsIStreamConverterService.h"
 #include "nsIProxyInfo.h"
-#include "nsISSLSocketControl.h"
+#include "nsITLSSocketControl.h"
 #include "nsITransportSecurityInfo.h"
 #include "nsProxyRelease.h"
 #include "nsDebug.h"
@@ -1810,7 +1810,7 @@ bool nsImapProtocol::ProcessCurrentURL() {
           m_socketType == nsMsgSocketType::alwaysSTARTTLS) {
         StartTLS();
         if (GetServerStateParser().LastCommandSuccessful()) {
-          nsCOMPtr<nsISSLSocketControl> tlsSocketControl;
+          nsCOMPtr<nsITLSSocketControl> tlsSocketControl;
 
           NS_ENSURE_TRUE(m_transport, false);
           rv = m_transport->GetTlsSocketControl(
@@ -2349,10 +2349,13 @@ nsresult nsImapProtocol::LoadImapUrlInternal() {
                             readWriteTimeout);
     // set the security info for the mock channel to be the security status for
     // our underlying transport.
-    nsCOMPtr<nsISSLSocketControl> tlsSocketControl;
-    m_transport->GetTlsSocketControl(getter_AddRefs(tlsSocketControl));
-    nsCOMPtr<nsITransportSecurityInfo> transportSecInfo =
-        do_QueryInterface(tlsSocketControl);
+    nsCOMPtr<nsITLSSocketControl> tlsSocketControl;
+    nsCOMPtr<nsITransportSecurityInfo> transportSecInfo;
+    if (NS_SUCCEEDED(m_transport->GetTlsSocketControl(
+            getter_AddRefs(tlsSocketControl))) &&
+        tlsSocketControl) {
+      tlsSocketControl->GetSecurityInfo(getter_AddRefs(transportSecInfo));
+    }
     m_mockChannel->SetSecurityInfo(transportSecInfo);
 
     SetSecurityCallbacksFromChannel(m_transport, m_mockChannel);
@@ -2374,10 +2377,11 @@ nsresult nsImapProtocol::LoadImapUrlInternal() {
     if (mailnewsUrl) {
       nsCOMPtr<nsICacheEntry> cacheEntry;
       mailnewsUrl->GetMemCacheEntry(getter_AddRefs(cacheEntry));
-      if (cacheEntry) {
-        nsCOMPtr<nsITransportSecurityInfo> tsi =
-            do_QueryInterface(tlsSocketControl);
-        if (tsi) {
+      if (cacheEntry && tlsSocketControl) {
+        nsCOMPtr<nsITransportSecurityInfo> tsi;
+        if (NS_SUCCEEDED(
+                tlsSocketControl->GetSecurityInfo(getter_AddRefs(tsi))) &&
+            tsi) {
           cacheEntry->SetSecurityInfo(tsi);
         }
       }
@@ -5035,12 +5039,13 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
           if (m_runningUrl) {
             nsCOMPtr<nsIMsgMailNewsUrl> mailNewsUrl =
                 do_QueryInterface(m_runningUrl);
-            nsCOMPtr<nsISSLSocketControl> tlsSocketControl;
+            nsCOMPtr<nsITLSSocketControl> tlsSocketControl;
             if (mailNewsUrl && NS_SUCCEEDED(m_transport->GetTlsSocketControl(
                                    getter_AddRefs(tlsSocketControl)))) {
-              nsCOMPtr<nsITransportSecurityInfo> transportSecInfo =
-                  do_QueryInterface(tlsSocketControl);
-              if (transportSecInfo) {
+              nsCOMPtr<nsITransportSecurityInfo> transportSecInfo;
+              if (NS_SUCCEEDED(tlsSocketControl->GetSecurityInfo(
+                      getter_AddRefs(transportSecInfo))) &&
+                  transportSecInfo) {
                 mailNewsUrl->SetFailedSecInfo(transportSecInfo);
               }
             }

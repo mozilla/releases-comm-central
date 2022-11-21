@@ -26,7 +26,9 @@ ChromeUtils.defineModuleGetter(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
-var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+var { Assert } = ChromeUtils.importESModule(
+  "resource://testing-common/Assert.sys.mjs"
+);
 
 /**
  * This function takes either a string or an elementlibs.Elem, and returns

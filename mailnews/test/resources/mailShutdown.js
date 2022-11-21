@@ -4,8 +4,8 @@
 
 /* Provides methods to make sure our test shuts down mailnews properly. */
 
-var { MockRegistrar } = ChromeUtils.import(
-  "resource://testing-common/MockRegistrar.jsm"
+var { MockRegistrar } = ChromeUtils.importESModule(
+  "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
 // Notifies everyone that the we're shutting down. This is needed to make sure

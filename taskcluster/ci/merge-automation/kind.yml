@@ -6,6 +6,7 @@ loader: gecko_taskgraph.loader.transform:loader
 
 transforms:
     - gecko_taskgraph.transforms.merge_automation:transforms
+    - comm_taskgraph.transforms.merge_automation:transforms
     - gecko_taskgraph.transforms.task:transforms
 
 
@@ -34,15 +35,8 @@ jobs:
                         name: Thunderbird l10n changesets
                         path: mail/locales/l10n-changesets.json
                         version-path: mail/config/version.txt
-                        l10n-repo-url: "https://hg.mozilla.org/l10n-central/%(locale)s/json-pushes?version=2&tipsonly=1"
-                        ignore-config:
-                            ja:
-                                - macosx64
-                            ja-JP-mac:
-                                - linux
-                                - linux64
-                                - win32
-                                - win64
+                        l10n-repo-url: "https://hg.mozilla.org/projects/comm-l10n/json-pushes?version=2&tipsonly=1"
+                        ignore-config: {}
                         platform-configs: [{
                             "platforms": [
                                 "linux",
@@ -51,7 +45,7 @@ jobs:
                                 "win32",
                                 "win64",
                             ],
-                            "path": "mail/locales/shipped-locales",
+                            "path": "mail/locales/fake-locales",
                         }]
                     default: null
         run-on-projects: []

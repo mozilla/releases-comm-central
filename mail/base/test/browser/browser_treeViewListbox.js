@@ -139,8 +139,8 @@ async function subtestKeyboardAndMouse() {
 
   // Click on some individual rows.
 
-  const { TestUtils } = ChromeUtils.import(
-    "resource://testing-common/TestUtils.jsm"
+  const { TestUtils } = ChromeUtils.importESModule(
+    "resource://testing-common/TestUtils.sys.mjs"
   );
 
   async function clickOnRow(index, modifiers = {}, expectEvent = true) {

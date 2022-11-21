@@ -302,17 +302,58 @@ tb.mails:
     record_in_processes:
       - 'main'
 
+  folder_opened:
+    bug_numbers:
+      - 1800775
+    description: How many times folders of each type are opened.
+    release_channel_collection: opt-out
+    expires: never
+    products:
+      - 'thunderbird'
+    kind: uint
+    keyed: true
+    keys:
+      - Inbox
+      - Drafts
+      - Trash
+      - SentMail
+      - Templates
+      - Junk
+      - Archive
+      - Queue
+      - Virtual
+      - Other
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    record_in_processes:
+      - 'main'
+
 tb.preferences:
   boolean:
     bug_numbers:
       - 1757993
-    description: Values of checkboxes or boolean radio buttons.
+    description: Values of boolean preferences.
     release_channel_collection: opt-out
     expires: never
     products:
       - 'thunderbird'
     keyed: true
     kind: boolean
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    record_in_processes:
+      - 'main'
+
+  integer:
+    bug_numbers:
+      - 1800775
+    description: Values of integer preferences.
+    release_channel_collection: opt-out
+    expires: never
+    products:
+      - 'thunderbird'
+    keyed: true
+    kind: uint
     notification_emails:
       - "telemetry-client-dev@thunderbird.net"
     record_in_processes:
@@ -391,6 +432,60 @@ tb.calendar:
       - 'thunderbird'
     keyed: true
     kind: uint
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    record_in_processes:
+      - 'main'
+
+tb.ui.configuration:
+  folder_tree_modes:
+    bug_numbers:
+      - 1800775
+    description: Configuration of the folder tree.
+    release_channel_collection: opt-out
+    expires: never
+    products:
+      - 'thunderbird'
+    kind: string
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    record_in_processes:
+      - 'main'
+
+  pane_visibility:
+    bug_numbers:
+      - 1800775
+    description: Configuration of the folder and message panes.
+    release_channel_collection: opt-out
+    expires: never
+    products:
+      - 'thunderbird'
+    kind: boolean
+    keyed: true
+    keys:
+      - folderPane
+      - messagePane
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    record_in_processes:
+      - 'main'
+
+  message_header:
+    bug_numbers:
+      - 1800775
+    description: Configuration of the message header display.
+    release_channel_collection: opt-out
+    expires: never
+    products:
+      - 'thunderbird'
+    kind: uint
+    keyed: true
+    keys:
+      - subjectLarge
+      - buttonStyle
+      - hideLabels
+      - showAvatar
+      - showFullAddress
     notification_emails:
       - "telemetry-client-dev@thunderbird.net"
     record_in_processes:

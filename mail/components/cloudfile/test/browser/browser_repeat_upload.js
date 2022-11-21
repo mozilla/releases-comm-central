@@ -4,8 +4,8 @@
 
 /* import-globals-from ../../../../base/content/mailWindowOverlay.js */
 
-const { BrowserTestUtils } = ChromeUtils.import(
-  "resource://testing-common/BrowserTestUtils.jsm"
+const { BrowserTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/BrowserTestUtils.sys.mjs"
 );
 
 let { cloudFileAccounts } = ChromeUtils.import(

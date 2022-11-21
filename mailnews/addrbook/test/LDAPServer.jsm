@@ -5,7 +5,9 @@
 const EXPORTED_SYMBOLS = ["LDAPServer"];
 const PRINT_DEBUG = false;
 
-const { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+const { Assert } = ChromeUtils.importESModule(
+  "resource://testing-common/Assert.sys.mjs"
+);
 
 /**
  * This is a partial implementation of an LDAP server as defined by RFC 4511.

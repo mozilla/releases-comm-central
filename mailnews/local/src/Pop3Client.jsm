@@ -346,11 +346,11 @@ class Pop3Client {
    * The error event handler.
    * @param {TCPSocketErrorEvent} event - The error event.
    */
-  _onError = event => {
+  _onError = async event => {
     this._logger.error(`${event.name}: a ${event.message} error occurred`);
     this._server.serverBusy = false;
     this.quit();
-    let secInfo = event.target.transport?.tlsSocketControl;
+    let secInfo = await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
     if (secInfo) {
       this.runningUri.failedSecInfo = secInfo;
     }

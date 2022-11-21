@@ -250,10 +250,13 @@ class LDAPClient {
    * The error event handler.
    * @param {TCPSocketErrorEvent} event - The error event.
    */
-  _onError = event => {
+  _onError = async event => {
     this._logger.error(event);
     this._socket.close();
-    this.onError(event.errorCode, event.target.transport?.tlsSocketControl);
+    this.onError(
+      event.errorCode,
+      await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo()
+    );
   };
 
   /**

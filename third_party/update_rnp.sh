@@ -38,16 +38,16 @@ if [[ -n "${CHECKOUT_REV}" ]]; then
 fi
 
 # Get the latest release from the list of tags
-TAGLIST=$(git -C "${RNPgit}" tag --list v[0-9]*)
+mapfile -t TAGLIST < <(git -C "${RNPgit}" tag --list v[0-9]*)
 
-LATEST_VERSION=$($THIRDROC latest_version $TAGLIST)
+LATEST_VERSION=$($THIRDROC latest_version "${TAGLIST[@]}")
 REVISION=$(git -C "${RNPgit}" rev-parse --verify HEAD)
 TIMESTAMP=$(git -C "${RNPgit}" show -s --format=%ct)
 
 # Cleanup rnp checkout
-rm -rf ${RNPgit}/{.git,.github,.cirrus.yml,.clang-format,.gitignore,.codespellrc}
-rm -rf ${RNPgit}/{_config.yml,docker.sh,ci,cmake,git-hooks,travis.sh,vcpkg.txt}
-rm -rf ${RNPgit}/{Brewfile,CMakeLists.txt,CMakeSettings.json}
+rm -rf "${RNPgit}"/{.git,.github,.cirrus.yml,.clang-format,.gitignore,.codespellrc}
+rm -rf "${RNPgit}"/{_config.yml,docker.sh,ci,cmake,git-hooks,travis.sh,vcpkg.txt}
+rm -rf "${RNPgit}"/{Brewfile,CMakeLists.txt,CMakeSettings.json}
 
 # Do the switch
 rm -rf rnp

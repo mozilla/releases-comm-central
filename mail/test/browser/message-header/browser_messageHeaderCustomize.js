@@ -31,12 +31,20 @@ var {
 let about3Pane = get_about_3pane();
 let aboutMessage = get_about_message();
 
+var { MailTelemetryForTests } = ChromeUtils.import(
+  "resource:///modules/MailGlue.jsm"
+);
+var { TelemetryTestUtils } = ChromeUtils.import(
+  "resource://testing-common/TelemetryTestUtils.jsm"
+);
+
 var gFolder;
 
 add_setup(async function() {
   Services.xulStore.removeDocument(
     "chrome://messenger/content/messenger.xhtml"
   );
+  Services.telemetry.clearScalars();
 
   let account = createAccount();
   gFolder = await createSubfolder(account.incomingServer.rootFolder, "test0");
@@ -111,6 +119,11 @@ add_task(async function test_customize_toolbar_buttons() {
     !header.classList.contains("message-header-buttons-only-text"),
     "The message header buttons aren't showing only text"
   );
+
+  MailTelemetryForTests.reportUIConfiguration();
+  let scalarName = "tb.ui.configuration.message_header";
+  let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
+  TelemetryTestUtils.assertScalarUnset(scalars, scalarName);
 
   let popup = aboutMessage.document.getElementById("otherActionsPopup");
   let popupShown = BrowserTestUtils.waitForEvent(popup, "popupshown");
@@ -296,6 +309,19 @@ add_task(async function test_customize_toolbar_buttons() {
     "The customization data was saved"
   );
 
+  MailTelemetryForTests.reportUIConfiguration();
+  scalars = TelemetryTestUtils.getProcessScalars("parent", true);
+  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "subjectLarge", 1);
+  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "buttonStyle", 1);
+  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "hideLabels", 1);
+  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "showAvatar", 1);
+  TelemetryTestUtils.assertKeyedScalar(
+    scalars,
+    scalarName,
+    "showFullAddress",
+    1
+  );
+
   popupShown = BrowserTestUtils.waitForEvent(popup, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreBtn, {}, aboutMessage);
   await popupShown;
@@ -345,4 +371,17 @@ add_task(async function test_customize_toolbar_buttons() {
     "The first label has a min-width value"
   );
   await assertVisibility(firstLabel, true, "The labels column is visible");
+
+  MailTelemetryForTests.reportUIConfiguration();
+  scalars = TelemetryTestUtils.getProcessScalars("parent", true);
+  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "subjectLarge", 0);
+  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "buttonStyle", 0);
+  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "hideLabels", 0);
+  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "showAvatar", 0);
+  TelemetryTestUtils.assertKeyedScalar(
+    scalars,
+    scalarName,
+    "showFullAddress",
+    0
+  );
 });

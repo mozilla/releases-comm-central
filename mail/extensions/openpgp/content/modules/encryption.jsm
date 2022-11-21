@@ -71,12 +71,6 @@ var EnigmailEncryption = {
       "encryption.jsm: getCryptParams: hashAlgorithm=" + hashAlgorithm + "\n"
     );
 
-    console.debug(
-      `getCryptParams parameters: from=${fromMailAddr}, to=${toMailAddr}, bcc=${bccMailAddr}, hash=${hashAlgorithm}, flags=${sendFlags}, ascii=${isAscii}, errorObj=%o, logObj=%o`,
-      errorMsgObj,
-      logFileObj
-    );
-
     try {
       fromMailAddr = lazy.EnigmailFuncs.stripEmail(fromMailAddr);
       toMailAddr = lazy.EnigmailFuncs.stripEmail(toMailAddr);
@@ -110,8 +104,6 @@ var EnigmailEncryption = {
     if (result.bcc.length == 1 && result.bcc[0].length == 0) {
       result.bcc.splice(0, 1); // remove the single empty entry
     }
-
-    console.debug(`getCryptParams, got: to=${result.to}, bcc=${result.bcc}`);
 
     if (/^0x[0-9a-f]+$/i.test(fromMailAddr)) {
       result.sender = fromMailAddr;
@@ -191,8 +183,6 @@ var EnigmailEncryption = {
       result.sign = true;
     }
 
-    console.debug(`getCryptParams returning:`);
-    console.debug(result);
     return result;
   },
 
@@ -458,11 +448,6 @@ var EnigmailEncryption = {
     } else if (encrypted) {
       listener.addCryptoOutput(encrypted);
     }
-
-    console.debug(
-      "sendFlags=" +
-        lazy.EnigmailData.bytesToHex(lazy.EnigmailData.pack(sendFlags, 4))
-    );
 
     if (resultStatus.exitCode === 0 && !listener.getCryptoOutputLength()) {
       resultStatus.exitCode = -1;

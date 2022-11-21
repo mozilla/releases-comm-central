@@ -261,7 +261,7 @@ export var Socket = {
 
   startTLS() {
     this.transport.tlsSocketControl
-      .QueryInterface(Ci.nsISSLSocketControl)
+      .QueryInterface(Ci.nsITLSSocketControl)
       .StartTLS();
   },
 
@@ -463,9 +463,7 @@ export var Socket = {
       let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
         Ci.nsINSSErrorsService
       );
-      this.securityInfo = this.transport.tlsSocketControl.QueryInterface(
-        Ci.nsITransportSecurityInfo
-      );
+      this.securityInfo = this.transport.tlsSocketControl.securityInfo;
       this.onConnectionSecurityError(
         aStatus,
         nssErrorsService.getErrorMessage(aStatus)

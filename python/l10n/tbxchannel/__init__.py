@@ -4,6 +4,8 @@
 
 from pathlib import Path
 
+from .l10n_merge import COMM_STRINGS_QUARANTINE, COMM_STRINGS_QUARANTINE_PUSH
+
 
 def get_thunderbird_xc_config(topsrcdir, strings_path):
     assert isinstance(topsrcdir, Path)
@@ -11,10 +13,10 @@ def get_thunderbird_xc_config(topsrcdir, strings_path):
     return {
         "strings": {
             "path": strings_path,
-            "url": "https://hg.mozilla.org/projects/comm-strings-quarantine/",
+            "url": COMM_STRINGS_QUARANTINE,
             "heads": {"default": "default"},
             "update_on_pull": True,
-            "push_url": "ssh://hg.mozilla.org/projects/comm-strings-quarantine/",
+            "push_url": COMM_STRINGS_QUARANTINE_PUSH,
         },
         "source": {
             "comm-central": {

@@ -14,7 +14,7 @@ const NAMESPACE_STRING = Object.entries(PREFIX_BINDINGS)
   .map(([prefix, url]) => `xmlns:${prefix}="${url}"`)
   .join(" ");
 
-const { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+const { Assert } = ChromeUtils.importESModule("resource://testing-common/Assert.sys.mjs");
 const { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
 const { HttpServer } = ChromeUtils.import("resource://testing-common/httpd.js");
 

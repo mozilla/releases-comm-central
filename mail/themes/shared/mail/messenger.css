@@ -212,18 +212,6 @@ treechildren::-moz-tree-twisty(selected, focus) {
   border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.3));
 }
 
-/* Make the new mail indicator better visible on dark theme */
-@media (prefers-color-scheme: dark) {
-  :root[lwt-default-theme-in-dark-mode] #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
-  :root[lwt-default-theme-in-dark-mode] #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
-  :root[lwt-default-theme-in-dark-mode] #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
-    color: #0aa5ff !important;
-  }
-}
-
 :root[lwt-tree] #threadTree treechildren::-moz-tree-row(untagged, selected, focus, current),
 :root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-row(selected, focus, current) {
   border-color: var(--sidebar-highlight-border-color, var(--item-focus-selected-border-color));
@@ -1547,22 +1535,6 @@ panel[type="arrow"].panel-block-padding::part(content) {
 
 #viewSource-toolbox {
   appearance: none;
-}
-
-/* Frame used for rendering the DevTools inspector highlighters */
-iframe.devtools-highlighter-renderer {
-  border: none;
-  pointer-events: none;
-}
-
-/* Highlighter for the Developer Toolbox */
-:root iframe.devtools-highlighter-renderer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
 }
 
 /* Print UI, mostly from browser.css */

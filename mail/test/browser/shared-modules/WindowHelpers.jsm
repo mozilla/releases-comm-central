@@ -26,9 +26,11 @@ var controller = ChromeUtils.import(
 );
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
-var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
-var { BrowserTestUtils } = ChromeUtils.import(
-  "resource://testing-common/BrowserTestUtils.jsm"
+var { Assert } = ChromeUtils.importESModule(
+  "resource://testing-common/Assert.sys.mjs"
+);
+var { BrowserTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/BrowserTestUtils.sys.mjs"
 );
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 

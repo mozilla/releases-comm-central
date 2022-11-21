@@ -11,9 +11,11 @@ const EXPORTED_SYMBOLS = [
   "setData",
 ];
 
-var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
-var { TestUtils } = ChromeUtils.import("resource://testing-common/TestUtils.jsm");
-var { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
+var { Assert } = ChromeUtils.importESModule("resource://testing-common/Assert.sys.mjs");
+var { TestUtils } = ChromeUtils.importESModule("resource://testing-common/TestUtils.sys.mjs");
+var { BrowserTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/BrowserTestUtils.sys.mjs"
+);
 var { sendString, synthesizeKey, synthesizeMouseAtCenter } = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
