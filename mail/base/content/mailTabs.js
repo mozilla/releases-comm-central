@@ -64,7 +64,6 @@ var newMailTabType = {
 
   closeTab(tab) {},
   saveTabState(tab) {},
-  showTab(tab) {},
 
   modes: {
     mail3PaneTab: {
@@ -152,6 +151,27 @@ var newMailTabType = {
           },
         });
 
+        if (!args.background) {
+          tab.chromeBrowser.contentWindow.addEventListener(
+            "load",
+            () => {
+              // Update telemetry once the tab has loaded and decided if the
+              // panes are visible.
+              Services.telemetry.keyedScalarSet(
+                "tb.ui.configuration.pane_visibility",
+                "folderPane",
+                tab.folderPaneVisible
+              );
+              Services.telemetry.keyedScalarSet(
+                "tb.ui.configuration.pane_visibility",
+                "messagePane",
+                tab.messagePaneVisible
+              );
+            },
+            { once: true }
+          );
+        }
+
         tab.canClose = !tab.first;
         return tab;
       },
@@ -185,6 +205,21 @@ var newMailTabType = {
         } else {
           tabmail.openTab("mail3PaneTab", persistedState);
         }
+      },
+      showTab(tab) {
+        // Update telemetry when switching to a 3-pane tab. The telemetry
+        // reflects the state of the last 3-pane tab that was shown, but not
+        // if the state changed since it was shown.
+        Services.telemetry.keyedScalarSet(
+          "tb.ui.configuration.pane_visibility",
+          "folderPane",
+          tab.folderPaneVisible
+        );
+        Services.telemetry.keyedScalarSet(
+          "tb.ui.configuration.pane_visibility",
+          "messagePane",
+          tab.messagePaneVisible
+        );
       },
       supportsCommand(command, tab) {
         return tab.chromeBrowser?.contentWindow.commandController?.supportsCommand(
@@ -253,6 +288,7 @@ var newMailTabType = {
       restoreTab(tabmail, persistedState) {
         tabmail.openTab("mailMessageTab", persistedState);
       },
+      showTab(tab) {},
       supportsCommand(command, tab) {
         return tab.chromeBrowser?.contentWindow.commandController?.supportsCommand(
           command

@@ -9,6 +9,7 @@ var { TelemetryTestUtils } = ChromeUtils.import(
   "resource://testing-common/TelemetryTestUtils.jsm"
 );
 
+var tabmail = document.getElementById("tabmail");
 var folders = {};
 
 add_setup(async function() {
@@ -24,15 +25,17 @@ add_setup(async function() {
   rootFolder.createSubfolder("just a folder", null);
   folders.Other = rootFolder.getChildNamed("just a folder");
 
-  let folderPaneVisibleAtStart = window.gFolderDisplay.folderPaneVisible;
-  let messagePaneVisibleAtStart = window.gMessageDisplay.visible;
+  let tab = tabmail.currentTabInfo;
+  let folderPaneVisibleAtStart = tab.folderPaneVisible;
+  let messagePaneVisibleAtStart = tab.messagePaneVisible;
 
   registerCleanupFunction(function() {
     MailServices.accounts.removeAccount(account, true);
-    if (window.gFolderDisplay.folderPaneVisible != folderPaneVisibleAtStart) {
+    tabmail.closeOtherTabs(tab);
+    if (tab.folderPaneVisible != folderPaneVisibleAtStart) {
       goDoCommand("cmd_toggleFolderPane");
     }
-    if (window.gMessageDisplay.visible != messagePaneVisibleAtStart) {
+    if (tab.messagePaneVisible != messagePaneVisibleAtStart) {
       goDoCommand("cmd_toggleMessagePane");
     }
   });
@@ -41,31 +44,32 @@ add_setup(async function() {
 add_task(async function testFolderOpen() {
   Services.telemetry.clearScalars();
 
-  window.gFolderTreeView.selectFolder(folders.Other);
+  let about3Pane = tabmail.currentAbout3Pane;
+  about3Pane.displayFolder(folders.Other.URI);
 
   let scalarName = "tb.mails.folder_opened";
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Other", 1);
 
-  window.gFolderTreeView.selectFolder(folders.Templates);
-  window.gFolderTreeView.selectFolder(folders.Other);
+  about3Pane.displayFolder(folders.Templates.URI);
+  about3Pane.displayFolder(folders.Other.URI);
 
   scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Other", 2);
   TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Templates", 1);
 
-  window.gFolderTreeView.selectFolder(folders.Junk);
-  window.gFolderTreeView.selectFolder(folders.Other);
+  about3Pane.displayFolder(folders.Junk.URI);
+  about3Pane.displayFolder(folders.Other.URI);
 
   scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Other", 3);
   TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Templates", 1);
   TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Junk", 1);
 
-  window.gFolderTreeView.selectFolder(folders.Junk);
-  window.gFolderTreeView.selectFolder(folders.Templates);
-  window.gFolderTreeView.selectFolder(folders.Archive);
-  window.gFolderTreeView.selectFolder(folders.Other);
+  about3Pane.displayFolder(folders.Junk.URI);
+  about3Pane.displayFolder(folders.Templates.URI);
+  about3Pane.displayFolder(folders.Archive.URI);
+  about3Pane.displayFolder(folders.Other.URI);
 
   scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Other", 4);
@@ -75,12 +79,13 @@ add_task(async function testFolderOpen() {
 });
 
 add_task(async function testPaneVisibility() {
-  window.gFolderTreeView.selectFolder(folders.Other);
+  let tab = tabmail.currentTabInfo;
+  tabmail.currentAbout3Pane.displayFolder(folders.Other.URI);
   // Make the folder pane and message pane visible initially.
-  if (!window.gFolderDisplay.folderPaneVisible) {
+  if (!tab.folderPaneVisible) {
     goDoCommand("cmd_toggleFolderPane");
   }
-  if (!window.gMessageDisplay.visible) {
+  if (!tab.messagePaneVisible) {
     goDoCommand("cmd_toggleMessagePane");
   }
   // The scalar is updated by switching to the folder tab, so open another tab.
@@ -88,7 +93,6 @@ add_task(async function testPaneVisibility() {
 
   Services.telemetry.clearScalars();
 
-  let tabmail = document.getElementById("tabmail");
   tabmail.switchToTab(0);
 
   let scalarName = "tb.ui.configuration.pane_visibility";
