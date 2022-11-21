@@ -655,11 +655,11 @@ var GlodaMsgIndexer = {
       }
       // we get an nsIMsgDatabase out of this (unsurprisingly) which
       //  explicitly inherits from nsIDBChangeAnnouncer, which has the
-      //  AddListener call we want.
+      //  addListener call we want.
       if (this._indexingDatabase == null) {
         this._indexingDatabase = this._indexingFolder.msgDatabase;
       }
-      this._indexingDatabase.AddListener(this._databaseAnnouncerListener);
+      this._indexingDatabase.addListener(this._databaseAnnouncerListener);
     } catch (ex) {
       this._log.error(
         "Problem entering folder: " +
@@ -693,7 +693,7 @@ var GlodaMsgIndexer = {
    */
   _indexerCompletePendingFolderEntry() {
     this._indexingDatabase = this._indexingFolder.msgDatabase;
-    this._indexingDatabase.AddListener(this._databaseAnnouncerListener);
+    this._indexingDatabase.addListener(this._databaseAnnouncerListener);
     this._log.debug("...Folder Loaded!");
 
     // the load is no longer pending; we certainly don't want more notifications
@@ -909,7 +909,7 @@ var GlodaMsgIndexer = {
       if (this._indexingDatabase) {
         this._indexingDatabase.commit(Ci.nsMsgDBCommitType.kLargeCommit);
         // remove our listener!
-        this._indexingDatabase.RemoveListener(this._databaseAnnouncerListener);
+        this._indexingDatabase.removeListener(this._databaseAnnouncerListener);
       }
       // let the gloda folder know we are done indexing
       this._indexingGlodaFolder.indexing = false;
@@ -2984,7 +2984,7 @@ var GlodaMsgIndexer = {
    *
    * This is an nsIDBChangeListener listening to an nsIDBChangeAnnouncer.  To
    *  add ourselves, we get us a nice nsMsgDatabase, query it to the announcer,
-   *  then call AddListener.
+   *  then call addListener.
    */
   _databaseAnnouncerListener: {
     indexer: null,

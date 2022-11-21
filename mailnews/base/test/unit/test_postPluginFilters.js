@@ -142,7 +142,7 @@ var classifyListener = {
   },
 };
 
-// nsIDBChangeListener implementation.
+/** @implements {nsIDBChangeListener} */
 function DBListener() {}
 
 DBListener.prototype = {
@@ -159,7 +159,7 @@ DBListener.prototype = {
   onAnnouncerGoingAway(instigator) {
     if (gInboxListener) {
       try {
-        POP3Pump.inbox.msgDatabase.RemoveListener(gInboxListener);
+        POP3Pump.inbox.msgDatabase.removeListener(gInboxListener);
       } catch (e) {
         dump("listener not found\n");
       }
