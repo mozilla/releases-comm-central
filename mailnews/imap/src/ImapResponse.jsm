@@ -117,6 +117,17 @@ class ImapResponse {
           // * LIST (\Subscribed \NoInferiors \UnMarked \Sent) "/" Sent
           this.mailboxes.push(new MailboxData(tokens));
           break;
+        case "QUOTAROOT":
+          // * QUOTAROOT Sent INBOX
+          this.quotaRoots = tokens.slice(3);
+          break;
+        case "QUOTA":
+          // S: * QUOTA INBOX (STORAGE 95295 97656832)
+          if (!this.quotas) {
+            this.quotas = [];
+          }
+          this.quotas.push([tokens[2], ...tokens[3]]);
+          break;
         case "STATUS":
           // * STATUS \"folder 2\" (UIDNEXT 2 MESSAGES 1 UNSEEN 1)
           this.attributes = new StatusData(tokens).attributes;

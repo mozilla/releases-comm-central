@@ -1258,7 +1258,38 @@ class ImapClient {
   _actionSelectResponse(res) {
     this._supportedFlags = res.permanentflags || res.flags;
     this._folderState = res;
-    this._actionAfterSelectFolder();
+    if (this._capabilities.includes("QUOTA")) {
+      this._actionGetQuotaData();
+    } else {
+      this._actionAfterSelectFolder();
+    }
+  }
+
+  /**
+   * Send GETQUOTAROOT command and handle the response.
+   */
+  _actionGetQuotaData() {
+    this._folderSink = this.folder.QueryInterface(Ci.nsIImapMailFolderSink);
+    this._nextAction = res => {
+      const INVALIDATE_QUOTA = 0;
+      const STORE_QUOTA = 1;
+      const VALIDATE_QUOTA = 2;
+      for (let root of res.quotaRoots || []) {
+        this._folderSink.setFolderQuotaData(INVALIDATE_QUOTA, root, 0, 0);
+      }
+      for (let [mailbox, resource, usage, limit] of res.quotas || []) {
+        this._folderSink.setFolderQuotaData(
+          STORE_QUOTA,
+          `${mailbox} / ${resource}`,
+          usage,
+          limit
+        );
+      }
+      this._folderSink.setFolderQuotaData(VALIDATE_QUOTA, "", 0, 0);
+      this._actionAfterSelectFolder();
+    };
+    this._sendTagged(`GETQUOTAROOT ${this._getServerFolderName(this.folder)}`);
+    this._folderSink.folderQuotaCommandIssued = true;
   }
 
   /**
