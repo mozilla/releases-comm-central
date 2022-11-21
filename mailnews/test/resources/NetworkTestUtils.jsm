@@ -39,8 +39,8 @@ const STATE_WAIT_SOCKS5_REQUEST = 2;
  * This doesn't implement all of SOCKSv5, just enough to get a simple proxy
  * working for the test code.
  *
- * @param client_in The nsIInputStream of the socket.
- * @param client_out The nsIOutputStream of the socket.
+ * @param {nsIInputStream} client_in - The nsIInputStream of the socket.
+ * @param {nsIOutputStream} client_out - The nsIOutputStream of the socket.
  */
 function SocksClient(client_in, client_out) {
   this.client_in = client_in;
@@ -230,9 +230,9 @@ var NetworkTestUtils = {
    * starting up a server, it does behoove you to call shutdownServers when you
    * no longer need to use the proxy server.
    *
-   * @param hostName          The DNS name to use for the client.
-   * @param hostPort          The port number to use for the client.
-   * @param localRemappedPort The port number on which the real server sits.
+   * @param {string} hostName - The DNS name to use for the client.
+   * @param {integer} hostPort - The port number to use for the client.
+   * @param {integer} localRemappedPort - The port number on which the real server sits.
    */
   configureProxy(hostName, hostPort, localRemappedPort) {
     if (gSocksServer == null) {

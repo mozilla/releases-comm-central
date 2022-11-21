@@ -46,8 +46,8 @@ var kNormalPropertiesURI =
  * This version is for JS/SQLite address books, if you create a new type,
  * replace this function to test them.
  *
- * @param {String} source  Path to the source data, without extension
- * @param {String} dest    Final file name in the profile, with extension
+ * @param {string} source - Path to the source data, without extension
+ * @param {string} dest - Final file name in the profile, with extension
  */
 function loadABFile(source, dest) {
   let sourceFile = do_get_file(`${source}.sql`);
