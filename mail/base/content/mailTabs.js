@@ -207,6 +207,13 @@ var newMailTabType = {
         }
       },
       showTab(tab) {
+        if (
+          tab.chromeBrowser.currentURI.spec != "about:3pane" ||
+          tab.chromeBrowser.contentDocument.readyState != "complete"
+        ) {
+          return;
+        }
+
         // Update telemetry when switching to a 3-pane tab. The telemetry
         // reflects the state of the last 3-pane tab that was shown, but not
         // if the state changed since it was shown.
