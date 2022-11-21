@@ -199,8 +199,7 @@ NS_IMETHODIMP nsMailDatabase::GetOfflineOpForKey(
 }
 
 NS_IMETHODIMP nsMailDatabase::ListAllOfflineOpIds(
-    nsTArray<nsMsgKey>* offlineOpIds) {
-  NS_ENSURE_ARG(offlineOpIds);
+    nsTArray<nsMsgKey>& offlineOpIds) {
   nsresult rv = GetAllOfflineOpsTable();
   NS_ENSURE_SUCCESS(rv, rv);
   nsIMdbTableRowCursor* rowCursor;
@@ -216,7 +215,7 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineOpIds(
       // is this right? Mork is returning a 0 id, but that should valid.
       if (outPos < 0 || outOid.mOid_Id == (mdb_id)-1) break;
       if (NS_SUCCEEDED(err)) {
-        offlineOpIds->AppendElement(outOid.mOid_Id);
+        offlineOpIds.AppendElement(outOid.mOid_Id);
         if (MOZ_LOG_TEST(IMAPOffline, LogLevel::Info)) {
           nsCOMPtr<nsIMsgOfflineImapOperation> offlineOp;
           GetOfflineOpForKey(outOid.mOid_Id, false, getter_AddRefs(offlineOp));
@@ -234,13 +233,12 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineOpIds(
     rowCursor->Release();
   }
 
-  offlineOpIds->Sort();
+  offlineOpIds.Sort();
   return rv;
 }
 
 NS_IMETHODIMP nsMailDatabase::ListAllOfflineDeletes(
-    nsTArray<nsMsgKey>* offlineDeletes) {
-  NS_ENSURE_ARG_POINTER(offlineDeletes);
+    nsTArray<nsMsgKey>& offlineDeletes) {
 
   nsresult rv = GetAllOfflineOpsTable();
   NS_ENSURE_SUCCESS(rv, rv);
@@ -268,7 +266,7 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineDeletes(
         if (opType & nsIMsgOfflineImapOperation::kMsgMoved ||
             ((opType & nsIMsgOfflineImapOperation::kFlagsChanged) &&
              (newFlags & nsIMsgOfflineImapOperation::kMsgMarkedDeleted)))
-          offlineDeletes->AppendElement(outOid.mOid_Id);
+          offlineDeletes.AppendElement(outOid.mOid_Id);
 
         offlineOpRow->Release();
       }

@@ -3951,18 +3951,15 @@ NS_IMETHODIMP nsMsgDatabase::ListAllOfflineMsgs(nsTArray<nsMsgKey>& keys) {
 }
 
 NS_IMETHODIMP nsMsgDatabase::ListAllOfflineOpIds(
-    nsTArray<nsMsgKey>* offlineOpIds) {
+    nsTArray<nsMsgKey>& offlineOpIds) {
   NS_ASSERTION(false, "overridden by nsMailDatabase");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsMsgDatabase::ListAllOfflineDeletes(
-    nsTArray<nsMsgKey>* offlineDeletes) {
-  nsresult ret = NS_OK;
-  if (!offlineDeletes) return NS_ERROR_NULL_POINTER;
-
+    nsTArray<nsMsgKey>& offlineDeletes) {
   // technically, notimplemented, but no one's putting offline ops in anyway.
-  return ret;
+  return NS_OK;
 }
 NS_IMETHODIMP nsMsgDatabase::GetHighWaterArticleNum(nsMsgKey* key) {
   if (!m_dbFolderInfo) return NS_ERROR_NULL_POINTER;
