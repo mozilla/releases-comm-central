@@ -55,7 +55,7 @@ job-template:
         by-build-platform:
             linux-.*: [mar]
             linux64.*: [mar]
-            macosx64.*: [mar, dmg]
+            macosx64.*: [mar, dmg, pkg]
             win32.*: [mar, installer]
             win64.*: [mar, installer]
     fetches:
