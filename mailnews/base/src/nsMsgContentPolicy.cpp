@@ -12,7 +12,6 @@
 #include "nsIAbDirectory.h"
 #include "nsIAbCard.h"
 #include "nsIMsgWindow.h"
-#include "nsIMimeMiscStatus.h"
 #include "nsIMsgHdr.h"
 #include "nsIEncryptedSMIMEURIsSrvc.h"
 #include "nsNetUtil.h"

@@ -113,32 +113,6 @@ nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTMLPostfix() {
     return NS_OK;
 }
 
-nsresult nsMimeHtmlDisplayEmitter::GetHeaderSink(
-    nsIMsgHeaderSink** aHeaderSink) {
-  nsresult rv = NS_OK;
-  if ((mChannel) && (!mHeaderSink)) {
-    nsCOMPtr<nsIURI> uri;
-    mChannel->GetURI(getter_AddRefs(uri));
-    if (uri) {
-      nsCOMPtr<nsIMsgMailNewsUrl> msgurl(do_QueryInterface(uri));
-      if (msgurl) {
-        msgurl->GetMsgHeaderSink(getter_AddRefs(mHeaderSink));
-        if (!mHeaderSink)  // if the url is not overriding the header sink, then
-                           // just get the one from the msg window
-        {
-          nsCOMPtr<nsIMsgWindow> msgWindow;
-          msgurl->GetMsgWindow(getter_AddRefs(msgWindow));
-          if (msgWindow)
-            msgWindow->GetMsgHeaderSink(getter_AddRefs(mHeaderSink));
-        }
-      }
-    }
-  }
-
-  NS_IF_ADDREF(*aHeaderSink = mHeaderSink);
-  return rv;
-}
-
 nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(int32_t aHeaderMode) {
   // two string enumerators to pass out to the header sink
   RefPtr<nsMimeStringEnumerator> headerNameEnumerator =

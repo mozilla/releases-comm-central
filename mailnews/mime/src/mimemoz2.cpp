@@ -39,7 +39,6 @@
 #include "nsIURI.h"
 #include "nsNetCID.h"
 #include "nsIMsgWindow.h"
-#include "nsIMimeMiscStatus.h"
 #include "nsMsgUtils.h"
 #include "nsIChannel.h"
 #include "mimeebod.h"

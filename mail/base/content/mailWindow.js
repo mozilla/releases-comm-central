@@ -54,7 +54,6 @@ function OnMailWindowUnload() {
 
   msgWindow.closeWindow();
 
-  msgWindow.msgHeaderSink = null;
   msgWindow.notificationCallbacks = null;
   gDBView = null; // eslint-disable-line no-global-assign
   window.MsgStatusFeedback.unload();
@@ -210,8 +209,6 @@ function CreateMailWindowGlobals() {
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
     Ci.nsIMsgWindow
   );
-  msgWindow.msgHeaderSink = {
-  };
 }
 
 function toggleCaretBrowsing() {
@@ -276,7 +273,7 @@ function toggleCaretBrowsing() {
 }
 
 function InitMsgWindow() {
-  // set the domWindow before setting the status feedback and header sink objects
+  // Set the domWindow before setting the status feedback object.
   msgWindow.domWindow = window;
   msgWindow.statusFeedback = statusFeedback;
   MailServices.mailSession.AddMsgWindow(msgWindow);

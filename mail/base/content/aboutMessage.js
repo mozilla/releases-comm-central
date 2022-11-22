@@ -180,7 +180,6 @@ function displayMessage(uri, viewWrapper) {
     gMessage = null;
     gViewWrapper = null;
     gDBView = null;
-    messageHeaderSink.mSaveHdr = null;
     HideMessageHeaderPane();
     // Don't use MailE10SUtils.loadURI here, it will try to change remoteness
     // and we don't want that.

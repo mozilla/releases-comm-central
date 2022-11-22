@@ -148,17 +148,6 @@ NS_IMETHODIMP nsMsgWindow::GetWindowCommands(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetMsgHeaderSink(nsIMsgHeaderSink** aMsgHdrSink) {
-  NS_ENSURE_ARG_POINTER(aMsgHdrSink);
-  NS_IF_ADDREF(*aMsgHdrSink = mMsgHeaderSink);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::SetMsgHeaderSink(nsIMsgHeaderSink* aMsgHdrSink) {
-  mMsgHeaderSink = aMsgHdrSink;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgWindow::GetTransactionManager(
     nsITransactionManager** aTransactionManager) {
   NS_ENSURE_ARG_POINTER(aTransactionManager);

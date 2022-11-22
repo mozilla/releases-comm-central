@@ -62,8 +62,6 @@ nsMsgMailNewsUrl::~nsMsgMailNewsUrl() {
                          mMimeHeaders.forget());
   NS_ReleaseOnMainThread("nsMsgMailNewsUrl::m_searchSession",
                          m_searchSession.forget());
-  NS_ReleaseOnMainThread("nsMsgMailNewsUrl::mMsgHeaderSink",
-                         mMsgHeaderSink.forget());
 
   nsTObserverArray<nsCOMPtr<nsIUrlListener>>::ForwardIterator iter(
       mUrlListeners);
@@ -1037,19 +1035,6 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetFolder(nsIMsgFolder* /* aFolder */) {
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetFolder(nsIMsgFolder** /* aFolder */) {
   return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMsgMailNewsUrl::GetMsgHeaderSink(
-    nsIMsgHeaderSink** aMsgHdrSink) {
-  NS_ENSURE_ARG_POINTER(aMsgHdrSink);
-  NS_IF_ADDREF(*aMsgHdrSink = mMsgHeaderSink);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgMailNewsUrl::SetMsgHeaderSink(
-    nsIMsgHeaderSink* aMsgHdrSink) {
-  mMsgHeaderSink = aMsgHdrSink;
-  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetIsMessageUri(bool* aIsMessageUri) {

@@ -43,7 +43,6 @@ CalMimeConverter.prototype = {
     itipItem.init(data);
 
     // this.uri is the message URL that we are processing.
-    // We use it to get the nsMsgHeaderSink to store the calItipItem.
     if (this.uri) {
       try {
         let msgUrl = this.uri.QueryInterface(Ci.nsIMsgMailNewsUrl);

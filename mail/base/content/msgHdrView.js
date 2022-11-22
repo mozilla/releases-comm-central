@@ -4728,11 +4728,7 @@ function OnMsgParsed(aUrl) {
   // Notify anyone (e.g., extensions) who's interested in when a message is loaded.
   let selectedMessageUris = gFolderDisplay.selectedMessageUris;
   let msgURI = selectedMessageUris ? selectedMessageUris[0] : null;
-  Services.obs.notifyObservers(
-    top.msgWindow.msgHeaderSink,
-    "MsgMsgDisplayed",
-    msgURI
-  );
+  Services.obs.notifyObservers(null, "MsgMsgDisplayed", msgURI);
 
   let doc = browser && browser.contentDocument ? browser.contentDocument : null;
 

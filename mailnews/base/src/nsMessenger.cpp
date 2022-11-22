@@ -57,7 +57,6 @@
 #include "nsIMsgMessageService.h"
 
 #include "nsIMsgHdr.h"
-#include "nsIMimeMiscStatus.h"
 // compose
 #include "nsNativeCharsetUtils.h"
 

@@ -19,7 +19,6 @@
 #include "nsIMIMEHeaderParam.h"
 #include "nsNetCID.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIMimeMiscStatus.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsIStringEnumerator.h"

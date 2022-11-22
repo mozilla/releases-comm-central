@@ -14,7 +14,6 @@
 #include "nsIChannel.h"
 #include "prinrval.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIMimeMiscStatus.h"
 #include "nsIMsgWindow.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgHdr.h"

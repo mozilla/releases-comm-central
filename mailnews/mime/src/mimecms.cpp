@@ -15,7 +15,6 @@
 #include "nsIURI.h"
 #include "nsIMsgWindow.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIMimeMiscStatus.h"
 #include "nsIMsgSMIMEHeaderSink.h"
 #include "nsCOMPtr.h"
 #include "nsIX509Cert.h"
