@@ -243,7 +243,7 @@ function onAccept(event) {
         if (anchorNode) {
           anchorNode.name = href.substr(1);
           // Remember to use editor method so it is undoable!
-          editor.insertNode(anchorNode, gHNodeArray[href], 0, false);
+          editor.insertNode(anchorNode, gHNodeArray[href], 0);
         }
       }
       // All values are valid - copy to actual element in doc or
