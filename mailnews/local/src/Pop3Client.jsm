@@ -259,10 +259,11 @@ class Pop3Client {
 
   /**
    * Send `QUIT` request to the server.
+   * @param {Function} [nextAction] - Callback function after QUIT response.
    */
-  quit() {
+  quit(nextAction = this.close) {
     this._send("QUIT");
-    this._nextAction = this.close;
+    this._nextAction = nextAction;
   }
 
   /**
@@ -349,7 +350,6 @@ class Pop3Client {
   _onError = async event => {
     this._logger.error(`${event.name}: a ${event.message} error occurred`);
     this._server.serverBusy = false;
-    this.quit();
     let secInfo = await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
     if (secInfo) {
       this.runningUri.failedSecInfo = secInfo;
@@ -1422,6 +1422,10 @@ class Pop3Client {
     this._msgWindow.promptDialog.alert(errorTitle, errorMsg);
   }
 
+  /**
+   * Save popstate.dat when necessary, send QUIT.
+   * @param {nsresult} status - Indicate if the last action succeeded.
+   */
   _actionDone = (status = Cr.NS_OK) => {
     this._logger.debug(`Done with status=${status}`);
     this._authenticating = false;
@@ -1439,11 +1443,26 @@ class Pop3Client {
       this._messagesToHandle.unshift(this._currentMessage);
     }
     this._writeUidlState(true);
+    // Normally we clean up after QUIT response.
+    this.quit(() => this._cleanUp(status));
+    // If we didn't receive QUIT response after 3 seconds, clean up anyway.
+    setTimeout(() => {
+      if (!this._cleanedUp) {
+        this._cleanUp(status);
+      }
+    }, 3000);
+  };
+
+  /**
+   * Notify listeners, close the socket and rest states.
+   * @param {nsresult} status - Indicate if the last action succeeded.
+   */
+  _cleanUp = status => {
+    this._cleanedUp = true;
+    this.close();
     this.urlListener?.OnStopRunningUrl(this.runningUri, status);
-    this.quit();
     this.runningUri.SetUrlState(false, Cr.NS_OK);
     this.onDone?.(status);
-
     if (this._folderLocked) {
       this._sink.abortMailDelivery(this);
       this._folderLocked = false;
