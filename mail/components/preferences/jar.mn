@@ -12,6 +12,7 @@ messenger.jar:
 *   content/messenger/preferences/dockoptions.xhtml
 #endif
     content/messenger/preferences/chat.js
+    content/messenger/preferences/sync.js
     content/messenger/preferences/messagestyle.js
     content/messenger/preferences/messengerLanguages.js
     content/messenger/preferences/messengerLanguages.xhtml

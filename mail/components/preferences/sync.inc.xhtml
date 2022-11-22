@@ -1,0 +1,41 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<script src="chrome://messenger/content/preferences/sync.js"/>
+
+<html:template id="paneSync">
+  <html:div id="syncPaneCategory"
+            class="subcategory"
+            data-category="paneSync"
+            xmlns="http://www.w3.org/1999/xhtml">
+    <h1 data-l10n-id="sync-pane-header"></h1>
+
+    <!-- TODO: Sync Account Not Signed In View -->
+
+    <section id="syncAccountSignedIn">
+      <div id="syncAccountSection">
+        <div id="photoInput">
+          <button type="button" id="photoButton"
+                  class="plain-button"
+                  data-l10n-id="sync-pane-edit-photo">
+            <img class="contact-photo" src="" alt="" />
+            <div id="photoOverlay"></div>
+          </button>
+        </div>
+        <div id="syncAccountInfo">
+          <span id="syncAccountName">Jane Doe</span>
+          <span id="syncAccountMail">example@example.com</span>
+          <a href="#" data-l10n-id="sync-pane-manage-account"></a>
+        </div>
+        <button id="syncAccountSignOut"
+                data-l10n-id="sync-pane-sign-out"
+                type="button">
+        </button>
+      </div>
+
+      <!-- TODO: Device Name section -->
+
+      <!-- TODO: Section to show what is being synced -->
+    </section>
+  </html:div>
+</html:template>

@@ -147,6 +147,18 @@
                       alt="" />
             <label class="category-name" flex="1" data-l10n-id="pane-calendar-title"/>
           </richlistitem>
+
+          <richlistitem id="category-sync"
+                        class="category"
+                        value="paneSync"
+                        hidden="true"
+                        data-l10n-id="category-sync"
+                        align="center">
+            <html:img class="category-icon"
+                      src="chrome://messenger/skin/icons/new/touch/sync.svg"
+                      alt="" />
+            <label class="category-name" flex="1" data-l10n-id="pane-sync-title"/>
+          </richlistitem>
         </richlistbox>
 
         <spacer flex="1"/>
@@ -188,6 +200,7 @@
 #include privacy.inc.xhtml
 #include chat.inc.xhtml
 #include ../../../calendar/base/content/preferences/calendar-preferences.inc.xhtml
+#include sync.inc.xhtml
           </vbox>
         </vbox>
       </vbox>

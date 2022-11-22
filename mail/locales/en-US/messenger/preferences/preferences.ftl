@@ -30,6 +30,10 @@ pane-calendar-title = Calendar
 category-calendar =
     .tooltiptext = Calendar
 
+pane-sync-title = Sync
+category-sync =
+    .tooltiptext = Sync
+
 general-language-and-appearance-header = Language & Appearance
 
 general-incoming-mail-header = Incoming Mails
@@ -908,3 +912,14 @@ search-results-empty-message2 = { PLATFORM() ->
 }
 
 search-results-help-link = Need help? Visit <a data-l10n-name="url">{ -brand-short-name } Support</a>
+
+## Sync Tab
+
+sync-pane-header = Sync
+
+sync-pane-edit-photo =
+  .title = Change profile picture
+
+sync-pane-manage-account = Manage account
+
+sync-pane-sign-out = Sign out…

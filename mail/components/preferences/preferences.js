@@ -8,6 +8,7 @@
 /* import-globals-from downloads.js */
 /* import-globals-from privacy.js */
 /* import-globals-from chat.js */
+/* import-globals-from sync.js */
 /* import-globals-from findInPage.js */
 /* globals gCalendarPane */
 
@@ -133,6 +134,7 @@ function init() {
   register_module("paneCompose", gComposePane);
   register_module("panePrivacy", gPrivacyPane);
   register_module("paneCalendar", gCalendarPane);
+  register_module("paneSync", gSyncPane);
   register_module("paneSearchResults", gSearchResultsPane);
   if (Services.prefs.getBoolPref("mail.chat.enabled")) {
     register_module("paneChat", gChatPane);
