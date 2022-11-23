@@ -444,7 +444,7 @@ class ImapClient {
     let getCommand = () => {
       // _supportedFlags is available after _actionSelectResponse.
       let flagsStr = ImapUtils.flagsToString(flags, this._supportedFlags);
-      return `UID STORE ${messageIds} ${action}FLAGS ${flagsStr}`;
+      return `UID STORE ${messageIds} ${action}FLAGS (${flagsStr})`;
     };
     if (this.folder == folder) {
       this._nextAction = () => this._actionDone();
@@ -529,7 +529,15 @@ class ImapClient {
       };
       this._send(content);
     };
-    this._sendTagged(`APPEND "${mailbox}" {${content.length}}`);
+    let outKeywords = {};
+    let flags = dstFolder
+      .QueryInterface(Ci.nsIImapMessageSink)
+      .getCurMoveCopyMessageInfo(this.runningUrl, {}, outKeywords);
+    let flagString = ImapUtils.flagsToString(flags, this._supportedFlags);
+    if (outKeywords.value) {
+      flagString += " " + outKeywords.value;
+    }
+    this._sendTagged(`APPEND "${mailbox}" (${flagString}) {${content.length}}`);
   }
 
   /**
@@ -1319,7 +1327,7 @@ class ImapClient {
       for (let [mailbox, resource, usage, limit] of res.quotas || []) {
         this._folderSink.setFolderQuotaData(
           STORE_QUOTA,
-          `${mailbox} / ${resource}`,
+          mailbox ? `${mailbox} / ${resource}` : resource,
           usage,
           limit
         );

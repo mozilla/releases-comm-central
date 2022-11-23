@@ -220,6 +220,7 @@ class ImapService {
       .QueryInterface(Ci.nsIImapUrl);
     imapUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
       Ci.nsIImapUrl.nsImapAppendMsgFromFile;
+    imapUrl.copyState = copyState;
     if (Services.io.offline) {
       this._offlineAppendMessageFile(file, imapUrl, dstFolder, urlListener);
       return;
