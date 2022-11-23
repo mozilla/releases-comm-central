@@ -20,6 +20,7 @@
   class BaseInvitationElement extends HTMLElement {
     /**
      * The id of the <template> tag to initialize the element with.
+     *
      * @param {string?} id
      */
     constructor(id) {
@@ -57,12 +58,14 @@
     /**
      * mode determines how the UI should display the received invitation. It
      * must be set to one of the MODE_* constants, defaults to MODE_NEW.
+     *
      * @type {string}
      */
     mode = this.MODE_NEW;
 
     /**
      * The event item to be displayed.
+     *
      * @type {calIEvent?}
      */
     item;
@@ -104,6 +107,7 @@
 
     /**
      * Setting the item will populate the header with information.
+     *
      * @type {calIEvent}
      */
     set item(item) {
@@ -126,6 +130,7 @@
 
     /**
      * Provides the value of the title displayed as a string.
+     *
      * @type {string}
      */
     get fullTitle() {
@@ -152,6 +157,7 @@
     /**
      * Setting the item will populate the table that displays the event
      * properties.
+     *
      * @type {calIEvent}
      */
     set item(item) {
@@ -194,6 +200,7 @@
 
     /**
      * The item whose interval to show.
+     *
      * @type {calIEvent}
      */
     set item(value) {
@@ -222,6 +229,7 @@
 
     /**
      * Setting this property will trigger an update of the text displayed.
+     *
      * @type {calIAttendee[]}
      */
     set attendees(attendees) {
@@ -277,6 +285,7 @@
 
     /**
      * Setting this property will trigger rendering of the attendees list.
+     *
      * @type {calIAttendee[]}
      */
     set attendees(value) {
@@ -303,6 +312,7 @@
 
     /**
      * Setting this property will trigger rendering of the attachments list.
+     *
      * @type {calIAttachment[]}
      */
     set attachments(value) {
@@ -326,6 +336,7 @@
     /**
      * Settings this property will set up the attachment to be displayed as a
      * link with appropriate icon. Links are opened externally.
+     *
      * @type {calIAttachment[]}
      */
     set attachment(value) {

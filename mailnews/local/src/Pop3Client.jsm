@@ -26,7 +26,8 @@ var { Pop3Authenticator } = ChromeUtils.import(
 /**
  * A structure to represent a response received from the server. A response can
  * be a single status line of a multi-line data block.
- * @typedef {Object} Pop3Response
+ *
+ * @typedef {object} Pop3Response
  * @property {boolean} success - True for a positive status indicator ("+OK","+").
  * @property {string} status - The status indicator, can be "+OK", "-ERR" or "+".
  * @property {string} statusText - The status line of the response excluding the
@@ -155,6 +156,7 @@ class Pop3Client {
 
   /**
    * Check and fetch new mails.
+   *
    * @param {boolean} downloadMail - Whether to download mails using TOP/RETR.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    * @param {nsIMsgFolder} folder - The folder to save the messages to.
@@ -172,6 +174,7 @@ class Pop3Client {
 
   /**
    * Verify that we can logon to the server. Exit after auth success/failure.
+   *
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
   verifyLogon(msgWindow) {
@@ -183,6 +186,7 @@ class Pop3Client {
 
   /**
    * Fetch the full message of a uidl.
+   *
    * @param {nsIPop3Sink} sink - The sink to use for this request.
    * @param {string} uidl - The uidl of the message to fetch.
    */
@@ -230,6 +234,7 @@ class Pop3Client {
 
   /**
    * Mark uidl status by a passed in Map, then write to popstate.dat.
+   *
    * @param {Map<string, UidlStatus>} uidlsToMark - A Map from uidl to status.
    */
   async markMessages(uidlsToMark) {
@@ -297,6 +302,7 @@ class Pop3Client {
 
   /**
    * Parse the server response.
+   *
    * @param {string} str - Response received from the server.
    * @returns {Pop3Response}
    */
@@ -317,6 +323,7 @@ class Pop3Client {
 
   /**
    * The data event handler.
+   *
    * @param {TCPSocketEvent} event - The data event.
    */
   _onData = async event => {
@@ -345,6 +352,7 @@ class Pop3Client {
 
   /**
    * The error event handler.
+   *
    * @param {TCPSocketErrorEvent} event - The error event.
    */
   _onError = async event => {
@@ -411,6 +419,7 @@ class Pop3Client {
 
   /**
    * Write this._uidlMap into popstate.dat.
+   *
    * @param {boolean} [resetFlag] - If true, reset _uidlMapChanged to false.
    */
   async _writeUidlState(resetFlag) {
@@ -450,6 +459,7 @@ class Pop3Client {
 
   /**
    * Send a command to the server.
+   *
    * @param {string} str - The command string to send.
    * @param {boolean} [suppressLogging=false] - Whether to suppress logging the str.
    */
@@ -489,6 +499,7 @@ class Pop3Client {
 
   /**
    * Handle `CAPA` response.
+   *
    * @param {Pop3Response} res - CAPA response received from the server.
    */
   _actionCapaResponse = res => {
@@ -594,6 +605,7 @@ class Pop3Client {
 
   /**
    * Handle STLS response. STLS is the POP3 command to init STARTTLS.
+   *
    * @param {Pop3Response} res - STLS response received from the server.
    */
   _actionStlsResponse = res => {
@@ -698,6 +710,7 @@ class Pop3Client {
 
   /**
    * Handle authentication response.
+   *
    * @param {Pop3Response} res - Authentication response received from the server.
    */
   _actionAuthResponse = res => {
@@ -815,6 +828,7 @@ class Pop3Client {
 
   /**
    * The second step of CRAM-MD5 auth, send a HMAC-MD5 signature to the server.
+   *
    * @param {Pop3Response} res - AUTH response received from the server.
    */
   _actionAuthCramMd5 = async res => {
@@ -834,6 +848,7 @@ class Pop3Client {
 
   /**
    * The second and next step of GSSAPI auth.
+   *
    * @param {Pop3Response} res - AUTH response received from the server.
    * @param {string} firstToken - The first GSSAPI token to send.
    */
@@ -863,6 +878,7 @@ class Pop3Client {
 
   /**
    * The second and next step of NTLM auth.
+   *
    * @param {Pop3Response} res - AUTH response received from the server.
    * @param {string} firstToken - The first NTLM token to send.
    */
@@ -892,6 +908,7 @@ class Pop3Client {
 
   /**
    * The second step of XOAUTH2 auth.
+   *
    * @param {Pop3Response} res - AUTH response received from the server.
    */
   _actionAuthXoauth = async res => {
@@ -914,6 +931,7 @@ class Pop3Client {
 
   /**
    * Handle `STAT` response.
+   *
    * @param {Pop3Response} res - STAT response received from the server.
    */
   _actionStatResponse = res => {
@@ -978,6 +996,7 @@ class Pop3Client {
 
   /**
    * Handle `LIST` response.
+   *
    * @param {Pop3Response} res - LIST response received from the server.
    */
   _actionListResponse = res => {
@@ -1009,6 +1028,7 @@ class Pop3Client {
 
   /**
    * Handle `UIDL` response.
+   *
    * @param {Pop3Response} res - UIDL response received from the server.
    */
   _actionUidlResponse = ({ status, success, data }) => {
@@ -1222,6 +1242,7 @@ class Pop3Client {
 
   /**
    * Handle `TOP` response.
+   *
    * @param {Pop3Response} res - TOP response received from the server.
    */
   _actionTopResponse = res => {
@@ -1302,6 +1323,7 @@ class Pop3Client {
 
   /**
    * Handle `RETR` response.
+   *
    * @param {Pop3Response} res - RETR response received from the server.
    */
   _actionRetrResponse = res => {
@@ -1374,6 +1396,7 @@ class Pop3Client {
 
   /**
    * Handle `DELE` response.
+   *
    * @param {Pop3Response} res - DELE response received from the server.
    */
   _actionDeleteResponse = res => {
@@ -1386,6 +1409,7 @@ class Pop3Client {
 
   /**
    * Show an error prompt.
+   *
    * @param {string} errorName - An error name corresponds to an entry of
    *   localMsgs.properties.
    * @param {string[]} errorParams - Params to construct the error message.
@@ -1473,6 +1497,7 @@ class Pop3Client {
 
   /**
    * Show a status message in the status bar.
+   *
    * @param {string} statusName - A string name in localMsgs.properties.
    * @param {string[]} [params] - Params to format the string.
    */

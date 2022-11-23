@@ -2795,6 +2795,7 @@ Enigmail.msg = {
 
   /**
    * Process key data from a message.
+   *
    * @param {string} keyData - The key data.
    * @param {boolean} isBinaryAutocrypt - false if ASCII armored data.
    * @param {string} [description] - Key source description, if any.

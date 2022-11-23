@@ -715,7 +715,7 @@ var SearchSupport = {
    * _getSupportFile method below.
    *
    * @param aFile the file passed in by the command line
-   * @return the nsIMsgDBHdr corresponding to the file passed in
+   * @returns the nsIMsgDBHdr corresponding to the file passed in
    */
   handleResult(aFile) {
     // The file path has two components -- the search path, which needs to be

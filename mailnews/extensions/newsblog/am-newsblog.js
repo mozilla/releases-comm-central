@@ -18,6 +18,7 @@ var gAccount,
 /**
  * Initialize am-newsblog account settings page when it gets shown.
  * Update an account's main settings title etc.
+ *
  * @returns {void}
  */
 function onInit() {
@@ -70,6 +71,7 @@ function serverPrettyNameOnBlur(event) {
 
 /**
  * Update an account's main settings title with the account name if applicable.
+ *
  * @returns {void}
  */
 function setAccountTitle() {

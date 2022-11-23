@@ -77,6 +77,7 @@ function getStorageCal() {
 
 /**
  * Return an item property as string.
+ *
  * @param aItem
  * @param string aProp possible item properties: start, end, duration,
  *                     generation, title,
@@ -174,7 +175,7 @@ function compareItemsSpecific(aLeftItem, aRightItem, aPropArray) {
  * (space or htab).
  *
  * @param aLine     The line to unfold
- * @return          The unfolded line
+ * @returns The unfolded line
  */
 function ics_unfoldline(aLine) {
   return aLine.replace(/\r?\n[ \t]/g, "");
@@ -191,7 +192,7 @@ function ics_unfoldline(aLine) {
  *
  * @param strings       The string fragments from the template string
  * @param ...values     The interpolated values
- * @return              The interpolated, dedented string
+ * @returns The interpolated, dedented string
  */
 function dedent(strings, ...values) {
   let parts = [];
@@ -318,9 +319,9 @@ function monkeyPatch(obj, x, func) {
  * Asserts the properties of an actual extract parser result to what was
  * expected.
  *
- * @param {object} actual   - Mostly the actual output of parse().
+ * @param {object} actual - Mostly the actual output of parse().
  * @param {object} expected - The expected output.
- * @param {string} level    - The variable name to refer to report on.
+ * @param {string} level - The variable name to refer to report on.
  */
 function compareExtractResults(actual, expected, level = "") {
   for (let [key, value] of Object.entries(expected)) {

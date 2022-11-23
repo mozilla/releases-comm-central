@@ -40,6 +40,7 @@ class ProfileExporter {
 
   /**
    * Callback for progress updates.
+   *
    * @param {number} current - Current imported items count.
    * @param {number} total - Total items count.
    */
@@ -47,6 +48,7 @@ class ProfileExporter {
 
   /**
    * Export the current profile to the specified target zip file.
+   *
    * @param {nsIFile} targetFile - A target zip file to write to.
    */
   async startExport(targetFile) {
@@ -85,6 +87,7 @@ class ProfileExporter {
 
   /**
    * Recursively collect files to be zipped, save the entries into zipEntryMap.
+   *
    * @param {Map<string, nsIFile>} zipEntryMap - Collection of files to be zipped.
    * @param {number} rootPathCount - The count of rootPath parts.
    * @param {nsIFile} folder - The folder to search for files to zip.

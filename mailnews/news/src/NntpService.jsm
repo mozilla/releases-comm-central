@@ -219,6 +219,7 @@ class NntpService {
 
   /**
    * Find the hostname of a NNTP server from a group name.
+   *
    * @param {string} groupName - The group name.
    * @returns {string} The corresponding server host.
    */

@@ -16,11 +16,11 @@ ChromeUtils.defineModuleGetter(
 );
 
 /**
- * @typedef {Object} Prompt
+ * @typedef {object} Prompt
  * @property {Function} resolver
  *           The resolve function to be called with the data from the Prompt
  *           after the user closes it.
- * @property {Object} tabModalPrompt
+ * @property {object} tabModalPrompt
  *           The TabModalPrompt being shown to the user.
  */
 
@@ -44,13 +44,13 @@ class PromptParent extends JSWindowActorParent {
    * We need to track a Prompt so that we can, for example, force-close the
    * TabModalPrompt if the originating subframe or tab unloads or crashes.
    *
-   * @param {Object} tabModalPrompt
+   * @param {object} tabModalPrompt
    *        The TabModalPrompt that will be shown to the user.
    * @param {string} id
    *        A unique ID to differentiate multiple Prompts coming from the same
    *        BrowsingContext.
-   * @return {Promise}
-   * @resolves {Object}
+   * @returns {Promise}
+   * @resolves {object}
    *           Resolves with the arguments returned from the TabModalPrompt when it
    *           is dismissed.
    */
@@ -113,12 +113,12 @@ class PromptParent extends JSWindowActorParent {
    * Opens a window prompt for a BrowsingContext, and puts the associated
    * browser in the modal state until the prompt is closed.
    *
-   * @param {Object} args
+   * @param {object} args
    *        The arguments passed up from the BrowsingContext to be passed
    *        directly to the modal window.
-   * @return {Promise}
+   * @returns {Promise}
    *         Resolves when the window prompt is dismissed.
-   * @resolves {Object}
+   * @resolves {object}
    *           The arguments returned from the window prompt.
    */
   async openWindowPrompt(args) {

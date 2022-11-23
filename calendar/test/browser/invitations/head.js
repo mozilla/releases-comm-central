@@ -114,7 +114,7 @@ async function openMessageFromFile(file) {
  * Opens an iMIP message file and waits for the imip-bar to appear.
  *
  * @param {nsIFile} file
- * @return {Window}
+ * @returns {Window}
  */
 async function openImipMessage(file) {
   let win = await openMessageFromFile(file);
@@ -161,7 +161,8 @@ const unpromotedProps = ["location", "description", "sequence", "x-moz-received-
 /**
  * An object where the keys are paths and the values the values they lead to
  * in an object we want to test for correctness.
- * @typedef {Object} Comparable
+ *
+ * @typedef {object} Comparable
  */
 
 /**
@@ -228,7 +229,7 @@ async function doReplyTest(transport, identity, partStat) {
 }
 
 /**
- * @typedef {Object} ImipBarActionTestConf
+ * @typedef {object} ImipBarActionTestConf
  *
  * @property {calICalendar} calendar The calendar used for the test.
  * @property {calIItipTranport} transport The transport used for the test.

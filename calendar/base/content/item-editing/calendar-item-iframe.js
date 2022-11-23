@@ -213,8 +213,8 @@ var eventDialogCalendarObserver = {
  * Checks if the given calendar supports notifying attendees. The item is needed
  * since calendars may support notifications for only some types of items.
  *
- * @param {calICalendar} aCalendar  The calendar to check
- * @param {calIItemBase} aItem      The item to check support for
+ * @param {calICalendar} aCalendar - The calendar to check
+ * @param {calIItemBase} aItem - The item to check support for
  */
 function canNotifyAttendees(aCalendar, aItem) {
   try {
@@ -230,8 +230,8 @@ function canNotifyAttendees(aCalendar, aItem) {
  * iframe. Additional properties of aMessage are generally arguments
  * that will be passed to the function named in aMessage.command.
  *
- * @param {Object} aMessage           The message to pass to the parent context
- * @param {string} aMessage.command   The name of a function to call
+ * @param {object} aMessage - The message to pass to the parent context
+ * @param {string} aMessage.command - The name of a function to call
  */
 function sendMessage(aMessage) {
   parent.postMessage(aMessage, "*");
@@ -240,7 +240,7 @@ function sendMessage(aMessage) {
 /**
  * Receives asynchronous messages from the parent context that contains the iframe.
  *
- * @param {MessageEvent} aEvent  Contains the message being received
+ * @param {MessageEvent} aEvent - Contains the message being received
  */
 function receiveMessage(aEvent) {
   let validOrigin = gTabmail ? "chrome://messenger" : "chrome://calendar";
@@ -457,7 +457,7 @@ function onEventDialogUnload() {
 /**
  * Handler function to be called when the accept button is pressed.
  *
- * @return      Returns true if the window should be closed
+ * @returns Returns true if the window should be closed
  */
 function onAccept() {
   dispose();
@@ -474,7 +474,7 @@ function onAccept() {
  *
  * XXX Could possibly be consolidated into onCancel()
  *
- * @return    Returns true if the window should be closed.
+ * @returns Returns true if the window should be closed.
  */
 function onCommandCancel() {
   // Allow closing if the item has not changed and no warning dialog has to be showed.
@@ -534,7 +534,7 @@ function onCommandCancel() {
  *
  * @param  {string}  aIframeId      (optional) iframe id of the tab to be closed
  * @param  {boolean} aPreventClose  (optional) True means don't close, just ask about saving
- * @return {boolean}                True if the tab or window should be closed
+ * @returns {boolean} True if the tab or window should be closed
  */
 function onCancel(aIframeId, aPreventClose) {
   // The datepickers need to remove the focus in order to trigger the
@@ -573,7 +573,7 @@ function cancelItem() {
 /**
  * Get the currently selected calendar from the menulist of calendars.
  *
- * @return      The currently selected calendar.
+ * @returns The currently selected calendar.
  */
 function getCurrentCalendar() {
   return document.getElementById("item-calendar").selectedItem.calendar;
@@ -887,7 +887,7 @@ function updateCategoryMenulist() {
  * Updates the categories menulist label and decides if the popup should close
  *
  * @param aItem     The popuphiding event
- * @return          Whether the popup should close
+ * @returns Whether the popup should close
  */
 function categoryPopupHiding(event) {
   updateCategoryMenulist();
@@ -1314,8 +1314,8 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
 /**
  * Get the item's recurrence information for displaying in dialog controls.
  *
- * @param {Object} aItem  The calendar item
- * @return {string[]}     An array of two strings: [repeatType, untilDate]
+ * @param {object} aItem - The calendar item
+ * @returns {string[]} An array of two strings: [repeatType, untilDate]
  */
 function getRepeatTypeAndUntilDate(aItem) {
   let recurrenceInfo = window.recurrenceInfo;
@@ -1464,9 +1464,9 @@ function getRepeatTypeAndUntilDate(aItem) {
 /**
  * Updates the XUL UI with the repeat type and the until date.
  *
- * @param {string} aRepeatType  The type of repeat
- * @param {string} aUntilDate   The until date
- * @param {Object} aItem        The calendar item
+ * @param {string} aRepeatType - The type of repeat
+ * @param {string} aUntilDate - The until date
+ * @param {object} aItem - The calendar item
  */
 function loadRepeat(aRepeatType, aUntilDate, aItem) {
   document.getElementById("item-repeat").value = aRepeatType;
@@ -2002,11 +2002,11 @@ function editAttendees() {
  * selected calendar does not support them, or only supports certain
  * values, these are removed from the UI.
  *
- * @param {Object} aArg             Container
- * @param {string} aArg.privacy     (optional) The new privacy value
- * @param {short} aArg.priority     (optional) The new priority value
- * @param {string} aArg.status      (optional) The new status value
- * @param {string} aArg.showTimeAs  (optional) The new transparency value
+ * @param {object} aArg - Container
+ * @param {string} aArg.privacy - (optional) The new privacy value
+ * @param {short} aArg.priority - (optional) The new priority value
+ * @param {string} aArg.status - (optional) The new status value
+ * @param {string} aArg.showTimeAs - (optional) The new transparency value
  */
 function updateConfigState(aArg) {
   // We include additional info for priority and privacy.
@@ -2134,7 +2134,7 @@ function attachURL() {
 /**
  * Attach a file using a cloud provider, identified by its accountKey.
  *
- * @param {string} aAccountKey  The accountKey for a cloud provider
+ * @param {string} aAccountKey - The accountKey for a cloud provider
  */
 function attachFileByAccountKey(aAccountKey) {
   for (let cloudProvider of cloudFileAccounts.configuredAccounts) {
@@ -2206,7 +2206,7 @@ function attachFile(cloudProvider) {
  * @param aFileUri    (optional) If passed, the last directory will be set and
  *                                 returned. If null, the last chosen directory
  *                                 will be returned.
- * @return            The last directory that was set with this function.
+ * @returns The last directory that was set with this function.
  */
 function lastDirectory(aFileUri) {
   if (aFileUri) {
@@ -2226,7 +2226,7 @@ function lastDirectory(aFileUri) {
  * - For a http:// url, removes protocol and trailing slash
  *
  * @param aUri    The uri to parse.
- * @return        A string that can be used in UI.
+ * @returns A string that can be used in UI.
  */
 function makePrettyName(aUri) {
   let name = aUri.spec;
@@ -2442,6 +2442,7 @@ function deleteAllAttachments() {
 
 /**
  * Opens the selected attachment using the external protocol service.
+ *
  * @see nsIExternalProtocolService
  */
 function openAttachment() {
@@ -2558,7 +2559,7 @@ function notifyUser(aMessage, aValue, aPriority, aImage, aButtonset, aCallback) 
 /**
  * Remove a notification from the notifiactionBox
  *
- * @param {string} aValue    string identifying the notification to remove
+ * @param {string} aValue - string identifying the notification to remove
  */
 function removeNotification(aValue) {
   let notification = gEventNotification.getNotificationWithValue(aValue);
@@ -2975,10 +2976,10 @@ function updateUntildateRecRule(recRule) {
 /**
  * Updates the UI controls related to a task's completion status.
  *
- * @param {string} aStatus       The item's completion status or a string
+ * @param {string} aStatus - The item's completion status or a string
  *                               that allows to identify a change in the
  *                               percent-complete's textbox.
- * @param {Date} aCompletedDate  The item's completed date (as a JSDate).
+ * @param {Date} aCompletedDate - The item's completed date (as a JSDate).
  */
 function updateToDoStatus(aStatus, aCompletedDate = null) {
   // RFC2445 doesn't support completedDates without the todo's status
@@ -3068,7 +3069,7 @@ function updateToDoStatus(aStatus, aCompletedDate = null) {
 /**
  * Saves all dialog controls back to the item.
  *
- * @return      a copy of the original item with changes made.
+ * @returns a copy of the original item with changes made.
  */
 function saveItem() {
   // we need to clone the item in order to apply the changes.
@@ -3301,7 +3302,7 @@ function onCommandDeleteItem() {
  * use this format intentionally instead of a calIDuration object because
  * those objects cannot be serialized for message passing with iframes.)
  *
- * @param {string} aDuration  A duration in ISO 8601 format
+ * @param {string} aDuration - A duration in ISO 8601 format
  */
 function postponeTask(aDuration) {
   let duration = cal.createDuration(aDuration);
@@ -3679,7 +3680,7 @@ function updateAttachment() {
  * (rfc2445 URL property).
  *
  * @param {string} aUrl - The url in question.
- * @return {boolean} true for show and false for hide
+ * @returns {boolean} true for show and false for hide
  */
 function showOrHideItemURL(url) {
   if (!url) {
@@ -3704,8 +3705,8 @@ function showOrHideItemURL(url) {
 /**
  * Updates the related link on the dialog (rfc2445 URL property).
  *
- * @param {boolean} aShow  Show the link (true) or not (false)
- * @param {string} aUrl    The url
+ * @param {boolean} aShow - Show the link (true) or not (false)
+ * @param {string} aUrl - The url
  */
 function updateItemURL(aShow, aUrl) {
   // Hide or show the link
@@ -3849,7 +3850,7 @@ function updateRepeatDetails() {
  * TENTATIVE, but also if he hasn't responded.
  *
  * @param aAttendee     The attendee to check.
- * @return              True, if the attendee hasn't responded.
+ * @returns True, if the attendee hasn't responded.
  */
 function isAttendeeUndecided(aAttendee) {
   return (
@@ -3929,6 +3930,7 @@ function setAttendeeContext(aEvent) {
 
 /**
  * Removes the selected attendee from the window
+ *
  * @param aAttendee
  */
 function removeAttendee(aAttendee) {
@@ -4016,7 +4018,7 @@ function capSupported(aCap) {
  * Return the values for a certain capability.
  *
  * @param aCap      The capability from "capabilities.<aCap>.values"
- * @return          The values for this capability
+ * @returns The values for this capability
  */
 function capValues(aCap, aDefault) {
   let calendar = getCurrentCalendar();
@@ -4175,7 +4177,7 @@ function displayCounterProposal() {
  * the dialog
  *
  * @param   {JSObject}     aProperty  The property to check for a label
- * @returns {String|null}             The label to display or null if no such label
+ * @returns {string | null} The label to display or null if no such label
  */
 function lookupCounterLabel(aProperty) {
   let nodeIds = getPropertyMap();
@@ -4201,7 +4203,7 @@ function lookupCounterLabel(aProperty) {
  * Get the property value to display for a counterproposal as currently supported
  *
  * @param   {JSObject}     aProperty  The property to check for a label
- * @returns {String|null}             The value to display or null if the property is not supported
+ * @returns {string | null} The value to display or null if the property is not supported
  */
 function formatCounterValue(aProperty) {
   const dateProps = ["DTSTART", "DTEND"];
@@ -4242,7 +4244,7 @@ function getPropertyMap() {
 /**
  * Applies the proposal or original data to the respective dialog fields
  *
- * @param {String} aType Either 'proposed' or 'original'
+ * @param {string} aType Either 'proposed' or 'original'
  */
 function applyValues(aType) {
   if (!window.counterProposal || (aType != "proposed" && aType != "original")) {
@@ -4274,7 +4276,7 @@ function applyValues(aType) {
 
 /**
  * Opens the context menu for the editor element.
- * *
+ *
  * Since its content is, well, content, its contextmenu event is
  * eaten by the context menu actor before the element's default
  * context menu processing. Since we know that the editor runs

@@ -161,7 +161,7 @@ function dumpWhitelistItem(item) {
  * objects defined in whitelist
  *
  * @param aErrorObject the error to check
- * @return true if the error should be ignored, false otherwise.
+ * @returns true if the error should be ignored, false otherwise.
  */
 function ignoredError(aErrorObject) {
   for (let list of [whitelist, thunderbirdWhitelist]) {

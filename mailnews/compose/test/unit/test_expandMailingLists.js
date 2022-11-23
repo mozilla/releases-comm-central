@@ -19,6 +19,7 @@ var { MailServices } = ChromeUtils.import(
 
 /**
  * Helper to check population worked as expected.
+ *
  * @param aTo - text in the To field
  * @param aCheckTo - the expected To addresses (after possible list population)
  */

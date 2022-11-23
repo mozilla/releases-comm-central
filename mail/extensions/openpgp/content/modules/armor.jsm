@@ -64,7 +64,7 @@ var EnigmailArmor = {
    * @param endIndexObj:   Object - o.value will contain offset of last character of block (newline)
    * @param indentStrObj:  Object - o.value will contain indent of 1st line
    *
-   * @return String - type of block found (e.g. MESSAGE, PUBLIC KEY)
+   * @returns String - type of block found (e.g. MESSAGE, PUBLIC KEY)
    *           If no block is found, an empty String is returned;
    */
   locateArmoredBlock(
@@ -175,7 +175,7 @@ var EnigmailArmor = {
    *
    * @param text: String - text containing ASCII armored block(s)
    *
-   * @return Array of objects with the following structure:
+   * @returns Array of objects with the following structure:
    *        obj.begin:     Number
    *        obj.end:       Number
    *        obj.indent:    String
@@ -279,7 +279,7 @@ var EnigmailArmor = {
    * @param armorText: String - ASCII armored message
    * @param headers:   Object - key/value pairs of new headers to insert
    *
-   * @return String - new armored message
+   * @returns String - new armored message
    */
   replaceArmorHeaders(armorText, headers) {
     let text = armorText.replace(/\r\n/g, "\n");
@@ -308,7 +308,7 @@ var EnigmailArmor = {
    *
    * @param text String - ASCII armored message
    *
-   * @return Object: key/value pairs of headers. All keys are in lowercase.
+   * @returns Object: key/value pairs of headers. All keys are in lowercase.
    */
   getArmorHeaders(text) {
     let headers = {};

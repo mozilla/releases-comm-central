@@ -25,6 +25,7 @@ var {
 class LDAPMessage {
   /**
    * Encode the current message by Basic Encoding Rules (BER).
+   *
    * @param {number} messageId - The id of the current message.
    * @returns {ArrayBuffer} BER encoded message.
    */
@@ -40,6 +41,7 @@ class LDAPMessage {
 
   /**
    * Get the idBlock of [APPLICATION n].
+   *
    * @param {number} tagNumber - The tag number of this block.
    */
   _getApplicationId(tagNumber) {
@@ -51,6 +53,7 @@ class LDAPMessage {
 
   /**
    * Get the idBlock of context-specific [n].
+   *
    * @param {number} tagNumber - The tag number of this block.
    */
   _getContextId(tagNumber) {
@@ -62,6 +65,7 @@ class LDAPMessage {
 
   /**
    * Create a string block with context-specific [n].
+   *
    * @param {number} tagNumber - The tag number of this block.
    * @param {string} value - The string value of this block.
    * @returns {LocalBaseBlock}
@@ -83,7 +87,7 @@ class BindRequest extends LDAPMessage {
   /**
    * @param {string} dn - The name to bind.
    * @param {string} password - The password.
-   * @param {Object} sasl - The SASL configs.
+   * @param {object} sasl - The SASL configs.
    * @param {string} sasl.mechanism - The SASL mechanism e.g. sasl-gssapi.
    * @param {Uint8Array} sasl.credentials - The credential token for the request.
    */
@@ -212,6 +216,7 @@ class SearchRequest extends LDAPMessage {
 
   /**
    * Parse a single filter value "key=value" to [filterId, key, value].
+   *
    * @param {string} filter - A single filter value without parentheses.
    * @returns {[number, string, string]}
    */
@@ -248,9 +253,10 @@ class SearchRequest extends LDAPMessage {
 
   /**
    * Parse a full filter string to an array of tokens.
+   *
    * @param {string} filter - The full filter string to parse.
    * @param {number} depth - The depth of a token.
-   * @param {Object[]} tokens - The tokens to return.
+   * @param {object[]} tokens - The tokens to return.
    * @param {"op"|"field"} tokens[].type - The token type.
    * @param {number} tokens[].depth - The token depth.
    * @param {string|string[]} tokens[].value - The token value.
@@ -301,6 +307,7 @@ class SearchRequest extends LDAPMessage {
 
   /**
    * Parse a filter string to a LocalBaseBlock.
+   *
    * @param {string} filter - The filter string to parse.
    * @returns {LocalBaseBlock}
    */
@@ -507,6 +514,7 @@ class LDAPResponse extends LDAPMessage {
 
   /**
    * Find the corresponding response class name from a tag number.
+   *
    * @param {number} tagNumber - The tag number of a block.
    * @returns {LDAPResponse}
    */
@@ -522,6 +530,7 @@ class LDAPResponse extends LDAPMessage {
 
   /**
    * Decode a raw server response to LDAPResponse instance.
+   *
    * @param {ArrayBuffer} buffer - The raw message received from the server.
    * @returns {LDAPResponse} A concrete instance of LDAPResponse subclass.
    */

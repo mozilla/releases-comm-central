@@ -66,7 +66,7 @@ function mailingListExists(listname) {
  * @param {nsIAbDirectory} mailList - The mailing list object to update. When
  *   creating a new list it will be newly created and empty.
  * @param {boolean} isNewList - Whether we are populating a new list.
- * @return {boolean} - Whether the operation succeeded or not.
+ * @returns {boolean} - Whether the operation succeeded or not.
  */
 function updateMailList(mailList, isNewList) {
   let bundle = Services.strings.createBundle(
@@ -443,8 +443,8 @@ function awDeleteRow(rowToDelete) {
 /**
  * Append a new row.
  *
- * @param {boolean} setFocus  Whether to set the focus on the new row.
- * @return {Element?}         The input element from the new row.
+ * @param {boolean} setFocus - Whether to set the focus on the new row.
+ * @returns {Element?} The input element from the new row.
  */
 function awAppendNewRow(setFocus) {
   let body = document.getElementById("addressingWidget");
@@ -487,7 +487,7 @@ function awAppendNewRow(setFocus) {
  * Returns the recipient inputbox for a row.
  *
  * @param row  Index of the recipient row to return. Starts at 1.
- * @return     This returns the input element.
+ * @returns This returns the input element.
  */
 function awGetInputElement(row) {
   return document.getElementById("addressCol1#" + row);
@@ -509,7 +509,7 @@ function awGetListItem(row) {
 
 /**
  * @param inputElement  The recipient input element.
- * @return              The row index (starting from 1) where the input element
+ * @returns The row index (starting from 1) where the input element
  *                      is found. 0 if the element is not found.
  */
 function awGetRowByInputElement(inputElement) {
@@ -592,8 +592,8 @@ function DropListAddress(target, address) {
  * add a new blank row on "Enter" key. On "Tab" key focus moves to the "Cancel"
  * button.
  *
- * @param {KeyboardEvent} event  The DOM keypress event.
- * @param {Element} element      The element that triggered the keypress event.
+ * @param {KeyboardEvent} event - The DOM keypress event.
+ * @param {Element} element - The element that triggered the keypress event.
  */
 function awAbRecipientKeyPress(event, element) {
   if (event.key != "Enter" && event.key != "Tab") {
@@ -670,7 +670,7 @@ function awAbRecipientKeyPress(event, element) {
  * autocomplete as user enters a recipient text.
  *
  * @param {keydown event} event  the keydown event fired on a recipient input
- * @param {<html:input>} inputElement  the recipient input element
+ * @param {<html:input>} inputElement - the recipient input element
  *                                     on which the event fired (textbox-addressingWidget)
  */
 function awRecipientKeyDown(event, inputElement) {
@@ -721,10 +721,10 @@ function awRecipientKeyDown(event, inputElement) {
 /**
  * Delete recipient row (addressingWidgetItem) from UI.
  *
- * @param {<html:input>} inputElement  the recipient input element
+ * @param {<html:input>} inputElement - the recipient input element
  *                                     (textbox-addressingWidget) whose parent
  *                                     row (addressingWidgetItem) will be deleted.
- * @param {boolean} deleteForward  true: focus next row after deleting the row
+ * @param {boolean} deleteForward - true: focus next row after deleting the row
  *                                 false: focus previous row after deleting the row
  */
 function awDeleteHit(inputElement, deleteForward = false) {

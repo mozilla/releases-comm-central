@@ -48,6 +48,7 @@ const {
  * Final verification is not done here, but in verifyConfig().
  *
  * This function is async.
+ *
  * @param domain {String} the domain part of the email address
  * @param progressCallback {function(type, hostname, port, ssl, done)}
  *   Called when we try a new hostname/port.
@@ -756,7 +757,7 @@ HostDetector.prototype = {
 /**
  * @param authMethods @see return value of _advertisesAuthMethods()
  *    Note: the returned auth method will be removed from the array.
- * @return one of them, the preferred one
+ * @returns one of them, the preferred one
  * Note: this might be Kerberos, which might not actually work,
  * so you might need to try the others, too.
  */
@@ -847,6 +848,7 @@ CMDS[SMTP] = ["EHLO we-guess.mozilla.org\r\n", "QUIT\r\n"];
 
 /**
  * Sort by preference of SSL, IMAP etc.
+ *
  * @param tries {Array of {HostTry}}
  * @returns {Array of {HostTry}}
  */

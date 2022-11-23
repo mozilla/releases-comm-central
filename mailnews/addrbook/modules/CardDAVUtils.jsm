@@ -58,8 +58,8 @@ var CardDAVUtils = {
    * userContextId is set on a principal, this allows the use of multiple
    * usernames on the same server without the networking code causing issues.
    *
-   * @param {String} username
-   * @return {integer}
+   * @param {string} username
+   * @returns {integer}
    */
   contextForUsername(username) {
     if (username && CardDAVUtils._contextMap.has(username)) {
@@ -77,19 +77,19 @@ var CardDAVUtils = {
    * Make an HTTP request. If the request needs a username and password, the
    * given authPrompt is called.
    *
-   * @param {String}  uri
-   * @param {Object}  details
-   * @param {String}  [details.method]
-   * @param {Object}  [details.headers]
-   * @param {String}  [details.body]
-   * @param {String}  [details.contentType]
+   * @param {string}  uri
+   * @param {object}  details
+   * @param {string}  [details.method]
+   * @param {object}  [details.headers]
+   * @param {string}  [details.body]
+   * @param {string}  [details.contentType]
    * @param {msgIOAuth2Module}  [details.oAuth] - If this is present the
    *     request will use OAuth2 authorization.
    * @param {NotificationCallbacks} [details.callbacks] - Handles usernames
    *     and passwords for this request.
    * @param {integer} [details.userContextId] - See _contextForUsername.
    *
-   * @return {Promise<Object>} - Resolves to an object with getters for:
+   * @returns {Promise<object>} - Resolves to an object with getters for:
    *    - status, the HTTP response code
    *    - statusText, the HTTP response message
    *    - text, the returned data as a String
@@ -249,7 +249,7 @@ var CardDAVUtils = {
    * @typedef foundBook
    * @property {URL} url - The address for this address book.
    * @param {string} name - The name of this address book on the server.
-   * @param {function} create - A callback to add this address book locally.
+   * @param {Function} create - A callback to add this address book locally.
    */
 
   /**
@@ -582,8 +582,8 @@ var CardDAVUtils = {
  */
 class NotificationCallbacks {
   /**
-   * @param {String}  [username] - Used to pre-fill any auth dialogs.
-   * @param {String}  [password] - Used to pre-fill any auth dialogs.
+   * @param {string}  [username] - Used to pre-fill any auth dialogs.
+   * @param {string}  [password] - Used to pre-fill any auth dialogs.
    * @param {boolean} [forcePrompt] - Skips checking the password manager for
    *     a password, even if username is given. The user will be prompted.
    */
@@ -676,7 +676,7 @@ class NotificationCallbacks {
     /**
      * Copy the given header from the old channel to the new one, ignoring missing headers
      *
-     * @param {String} header - The header to copy
+     * @param {string} header - The header to copy
      */
     function copyHeader(header) {
       try {

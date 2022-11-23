@@ -196,6 +196,7 @@ var notificationCallbacks = {
 /**
  * Listener object to pass to `channel.asyncOpen()`. A reference to the current dialog window
  * passed to the constructor provides access to the dialog once the request is done.
+ *
  * @implements {nsIStreamListener}
  */
 class PublishingListener {

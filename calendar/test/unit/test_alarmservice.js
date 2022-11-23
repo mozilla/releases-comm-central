@@ -484,6 +484,7 @@ add_task(async function test_modifyItems() {
 
 /**
  * Test an array of timers has expected delay values.
+ *
  * @param {nsITimer[]} timers - An array of nsITimer.
  * @param {number[]} expected - Expected delays in seconds.
  */

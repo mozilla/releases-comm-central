@@ -312,6 +312,7 @@ class SmtpServer {
 
   /**
    * Get server URI in the form of smtp://[user@]hostname.
+   *
    * @param {boolean} includeUsername - Whether to include the username.
    * @returns {string}
    */
@@ -339,6 +340,7 @@ class SmtpServer {
 
   /**
    * Set or clear a string preference.
+   *
    * @param {string} name - The preference name.
    * @param {string} value - The preference value.
    */
@@ -352,6 +354,7 @@ class SmtpServer {
 
   /**
    * Get the value of a string preference from this or default SMTP server.
+   *
    * @param {string} name - The preference name.
    * @param {number} [defaultValue=""] - The default value to return.
    * @returns {string}
@@ -366,6 +369,7 @@ class SmtpServer {
 
   /**
    * Get the value of an integer preference from this or default SMTP server.
+   *
    * @param {string} name - The preference name.
    * @param {number} defaultValue - The default value to return.
    * @returns {number}
@@ -404,6 +408,7 @@ class SmtpServer {
 
   /**
    * Get an idle connection that can be used.
+   *
    * @returns {SmtpClient}
    */
   async _getNextClient() {
@@ -428,6 +433,7 @@ class SmtpServer {
   }
   /**
    * Do some actions with a connection.
+   *
    * @param {Function} handler - A callback function to take a SmtpClient
    *   instance, and do some actions.
    */

@@ -279,6 +279,7 @@ class Pop3IncomingServer extends MsgIncomingServer {
 
   /**
    * Get all the servers that defer to the passed in server.
+   *
    * @param {nsIMsgIncomingServer} dstServer - The server that others servers
    *   are deferred to.
    */

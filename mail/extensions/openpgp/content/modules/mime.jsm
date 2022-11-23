@@ -194,7 +194,7 @@ var EnigmailMime = {
    *
    * @param msgBody - String: message body
    *
-   * @return
+   * @returns
    * if subject is found:
    *  Object:
    *    - messageBody - String: message body without subject
@@ -384,7 +384,7 @@ var EnigmailMime = {
    *
    * @param spec: String - the URI spec to inspect
    *
-   * @return String: the mime part number (or "" if none found)
+   * @returns String: the mime part number (or "" if none found)
    */
   getMimePartNumber(spec) {
     let m = spec.match(/([\?&]part=)(\d+(\.\d+)*)/);
@@ -403,7 +403,7 @@ var EnigmailMime = {
    * @param mimePartNumber: String - the MIME part we are requested to decrypt
    * @param uriSpec:        String - the URI spec of the message (or msg part) loaded by TB
    *
-   * @return Boolean: true: regular message structure, MIME part is safe to be decrypted
+   * @returns Boolean: true: regular message structure, MIME part is safe to be decrypted
    *                  false: otherwise
    */
   isRegularMimeStructure(mimePartNumber, uriSpec, acceptSubParts = false) {
@@ -454,7 +454,7 @@ var EnigmailMime = {
    *                                when parsing is complete.
    *                                Function signature: callBackFunc(TreeObject)
    *
-   * @return undefined
+   * @returns undefined
    */
   getMimeTreeFromUrl(url, getBody = false, callbackFunc) {
     function onData(data) {
@@ -480,10 +480,10 @@ var EnigmailMime = {
  *     - body: String, if getBody == true
  *     - subParts: Array of TreeObject
  *
- * @param mimeStr: String  - a MIME structure to parse
+ * @param mimeStr: String - a MIME structure to parse
  * @param getBody: Boolean - if true, delivers the body text of each MIME part
  *
- * @return TreeObject, or NULL in case of failure
+ * @returns TreeObject, or NULL in case of failure
  */
 function getMimeTree(mimeStr, getBody = false) {
   let mimeTree = {
@@ -518,7 +518,7 @@ function getMimeTree(mimeStr, getBody = false) {
       };
     },
 
-    /** JSMime API **/
+    /** JSMime API */
     startMessage() {
       currentPart = mimeTree;
     },

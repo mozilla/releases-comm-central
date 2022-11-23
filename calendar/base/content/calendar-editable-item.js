@@ -15,7 +15,7 @@
    * and the category type color. It gets displayed in the header container of
    * the respective view of the calendar.
    *
-   * @extends MozXULElement
+   * @augments MozXULElement
    */
   class MozCalendarEditableItem extends MozXULElement {
     static get inheritedAttributes() {

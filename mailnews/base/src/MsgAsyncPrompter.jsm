@@ -431,7 +431,7 @@ class MsgAuthPrompt {
    *        Contains the initial checked state of the checkbox when this method
    *        is called and the final checked state after this method returns.
    *
-   * @return true for OK, false for Cancel.
+   * @returns true for OK, false for Cancel.
    */
   promptPassword2(dialogTitle, text, password, checkMsg, checkValue) {
     return nsIPrompt_promptPassword(
@@ -463,7 +463,7 @@ class MsgAuthPrompt {
    *        Contains the initial checked state of the checkbox when this method
    *        is called and the final checked state after this method returns.
    *
-   * @return true for OK, false for Cancel.
+   * @returns true for OK, false for Cancel.
    */
   promptAuth(channel, level, authInfo, checkboxLabel, checkValue) {
     let title = lazy.dialogsBundle.formatStringFromName(
@@ -523,7 +523,7 @@ class MsgAuthPrompt {
  *        Contains the initial checked state of the checkbox when this method
  *        is called and the final checked state after this method returns.
  *
- * @return true for OK, false for Cancel.
+ * @returns true for OK, false for Cancel.
  */
 function nsIPrompt_promptUsernameAndPassword(
   dialogTitle,
@@ -593,7 +593,7 @@ function nsIPrompt_promptUsernameAndPassword(
  *        Contains the initial checked state of the checkbox when this method
  *        is called and the final checked state after this method returns.
  *
- * @return true for OK, false for Cancel.
+ * @returns true for OK, false for Cancel.
  */
 function nsIPrompt_promptPassword(
   dialogTitle,

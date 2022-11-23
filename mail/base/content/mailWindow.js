@@ -402,7 +402,7 @@ nsMsgStatusFeedback.prototype = {
   /*
    * Set the statusbar display for hovered links, from browser.js.
    *
-   * @param {String} url        - The href to display.
+   * @param {String} url - The href to display.
    * @param {Element} anchorElt - Element.
    */
   setOverLink(url, anchorElt) {

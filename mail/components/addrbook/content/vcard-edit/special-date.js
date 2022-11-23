@@ -14,10 +14,10 @@ const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
 
 /**
  * ANNIVERSARY and BDAY both have a cardinality of
- * *1 ("Exactly one instance per vCard MAY be present.").
+ * 1 ("Exactly one instance per vCard MAY be present.").
  *
  * For Anniversary we changed the cardinality to
- * * ("One or more instances per vCard MAY be present.")".
+ * ("One or more instances per vCard MAY be present.")".
  *
  * @implements {VCardPropertyEntryView}
  * @see RFC6350 ANNIVERSARY and BDAY
@@ -38,7 +38,7 @@ class VCardSpecialDateComponent extends HTMLElement {
   /**
    * Object containing the available days for each month.
    *
-   * @type {Object}
+   * @type {object}
    */
   monthDays = {
     "1": 31,
@@ -186,6 +186,7 @@ class VCardSpecialDateComponent extends HTMLElement {
   /**
    * Check if the specified year is a leap year in order to add or remove the
    * extra day to February.
+   *
    * @returns {boolean} True if the currently specified year is a leap year,
    *   or if no valid year value is available.
    */

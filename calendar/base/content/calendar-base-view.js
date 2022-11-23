@@ -22,7 +22,7 @@
     /**
      * Constructor for CalendarViewObserver.
      *
-     * @param {CalendarBaseView} calendarView    A calendar view.
+     * @param {CalendarBaseView} calendarView - A calendar view.
      */
     constructor(calendarView) {
       this.calView = calendarView.calICalendarView;
@@ -425,7 +425,7 @@
     /**
      * Return a date object representing the current day.
      *
-     * @return {calIDateTime}    A date object.
+     * @returns {calIDateTime} A date object.
      */
     today() {
       const date = cal.dtz.jsDateToDateTime(new Date()).getInTimezone(this.mTimezone);
@@ -436,7 +436,7 @@
     /**
      * Return whether this view is currently active and visible in the UI.
      *
-     * @return {boolean}
+     * @returns {boolean}
      */
     isVisible() {
       return this == currentView();
@@ -478,8 +478,8 @@
     /**
      * Create and fire an event.
      *
-     * @param {string} eventName      Name of the event.
-     * @param {Object} eventDetail    The details to add to the event.
+     * @param {string} eventName - Name of the event.
+     * @param {object} eventDetail - The details to add to the event.
      */
     fireEvent(eventName, eventDetail) {
       this.dispatchEvent(
@@ -491,9 +491,9 @@
      * A preference handler typically called by a preferences observer when a preference
      * changes. Handles common preferences while other preferences are handled in subclasses.
      *
-     * @param {Object} subject       A subject, a prefs object.
-     * @param {string} topic         A topic.
-     * @param {string} preference    A preference that has changed.
+     * @param {object} subject - A subject, a prefs object.
+     * @param {string} topic - A topic.
+     * @param {string} preference - A preference that has changed.
      */
     handleCommonPreference(subject, topic, preference) {
       switch (preference) {

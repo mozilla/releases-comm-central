@@ -136,7 +136,7 @@ var TodayPane = {
   /**
    * Updates the applied filter and show completed view of the unifinder todo.
    *
-   * @param {String} [filter] - The filter name to set.
+   * @param {string} [filter] - The filter name to set.
    */
   updateCalendarToDoUnifinder(filter) {
     let tree = document.getElementById("unifinder-todo-tree");

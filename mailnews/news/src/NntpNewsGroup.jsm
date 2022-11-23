@@ -34,6 +34,7 @@ class NntpNewsGroup {
   /**
    * Get the articles range to fetch, depending on server setting and user
    * selection.
+   *
    * @type {nsIMsgWindow} msgWindow - The associated msg window.
    * @type {number} firstPossible - The first article that can be fetched.
    * @type {number} lastPossible - The last article that can be fetched.
@@ -125,6 +126,7 @@ class NntpNewsGroup {
 
   /**
    * Parse an XOVER line to a msg hdr.
+   *
    * @param {string} line - An XOVER response line.
    */
   processXOverLine(line) {
@@ -183,6 +185,7 @@ class NntpNewsGroup {
 
   /**
    * Update msgHdr according to XHDR line.
+   *
    * @param {string} header - The requested header.
    * @param {string} line - A XHDR response line.
    */
@@ -196,6 +199,7 @@ class NntpNewsGroup {
 
   /**
    * Init a msgHdr to prepare to take HEAD response.
+   *
    * @param {number} articleNumber - The article number.
    */
   initHdr(articleNumber) {
@@ -210,6 +214,7 @@ class NntpNewsGroup {
 
   /**
    * Update msgHdr according to HEAD line.
+   *
    * @param {string} line - A HEAD response line.
    */
   processHeadLine(line) {
@@ -302,6 +307,7 @@ class NntpNewsGroup {
 
   /**
    * Callback of nsIMsgFilterList.applyFiltersToHdr.
+   *
    * @see nsIMsgFilterHitNotify
    */
   applyFilterHit(filter, msgWindow) {

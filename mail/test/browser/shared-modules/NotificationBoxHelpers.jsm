@@ -25,7 +25,7 @@ const EXPORTED_SYMBOLS = [
  *                       notification element out of this function in its
  *                       'notification' property
  *
- * @return  True/false depending on the state of the notification.
+ * @returns True/false depending on the state of the notification.
  */
 function check_notification_displayed(
   aController,
@@ -60,7 +60,7 @@ function check_notification_displayed(
  * @param aValue the value of the notification to look for
  * @param aDisplayed true if the notification should be displayed, false
  *                   otherwise
- * @return  the notification if we're asserting that the notification is
+ * @returns the notification if we're asserting that the notification is
  *          displayed, and it actually shows up. Throws otherwise.
  */
 function assert_notification_displayed(

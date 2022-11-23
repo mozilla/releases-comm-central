@@ -206,11 +206,11 @@ add_task(function test_add_tag_with_really_long_label() {
 /**
  * Data and methods for a space.
  *
- * @typedef {Object} HeaderInfo
+ * @typedef {object} HeaderInfo
  * @property {string} name - Used for pretty-printing in exceptions.
- * @property {function} element - A callback returning the DOM
+ * @property {Function} element - A callback returning the DOM
  *   element with the data.
- * @property {function} expectedName - A callback returning the expected value
+ * @property {Function} expectedName - A callback returning the expected value
  *   of the accessible name of the DOM element.
  */
 /**
@@ -619,8 +619,9 @@ add_task(async function test_that_msg_without_date_clears_previous_headers() {
 
 /**
  * Get the number of lines in one of the multi-recipient-row fields.
- * @param {HTMLOListElement} node  - The recipients container of a header row.
- * @return {int} - The number of rows.
+ *
+ * @param {HTMLOListElement} node - The recipients container of a header row.
+ * @returns {int} - The number of rows.
  */
 function help_get_num_lines(node) {
   let style = getComputedStyle(node.firstElementChild);

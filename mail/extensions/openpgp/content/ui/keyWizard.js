@@ -315,7 +315,7 @@ function backToStart(event) {
 /**
  * Create a new inline notification to append to the import warning container.
  *
- * @return {XULElement} - The description element inside the notification.
+ * @returns {XULElement} - The description element inside the notification.
  */
 async function addImportWarningNotification() {
   let notification = document.createXULElement("hbox");
@@ -1064,9 +1064,9 @@ function openPgpImportComplete() {
 /**
  * Opens a prompt asking the user to enter the passphrase for a given key id.
  *
- * @param {Object} win - The current window.
+ * @param {object} win - The current window.
  * @param {string} keyId - The ID of the imported key.
- * @param {Object} resultFlags - Keep track of the cancelled action.
+ * @param {object} resultFlags - Keep track of the cancelled action.
  *
  * @returns {string} - The entered passphrase or empty.
  */

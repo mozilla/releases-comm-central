@@ -29,10 +29,11 @@ var gTxtConverter = null;
 var EnigmailFuncs = {
   /**
    * get a list of plain email addresses without name or surrounding <>
+   *
    * @param mailAddrs |string| - address-list encdoded in Unicode as specified in RFC 2822, 3.4
    *                             separated by , or ;
    *
-   * @return |string|          - list of pure email addresses separated by ","
+   * @returns |string|          - list of pure email addresses separated by ","
    */
   stripEmail(mailAddresses) {
     // EnigmailLog.DEBUG("funcs.jsm: stripEmail(): mailAddresses=" + mailAddresses + "\n");
@@ -103,10 +104,11 @@ var EnigmailFuncs = {
 
   /**
    * get an array of email object (email, name) from an address string
+   *
    * @param mailAddrs |string| - address-list as specified in RFC 2822, 3.4
    *                             separated by ","; encoded according to RFC 2047
    *
-   * @return |array| of msgIAddressObject
+   * @returns |array| of msgIAddressObject
    */
   parseEmails(mailAddrs, encoded = true) {
     try {
@@ -277,9 +279,10 @@ var EnigmailFuncs = {
   /**
    * extract the data fields following a header.
    * e.g. ContentType: xyz; Aa=b; cc=d
+   *
    * @data: |string| containing a single header
    *
-   * @return |array| of |arrays| containing pairs of aa/b and cc/d
+   * @returns |array| of |arrays| containing pairs of aa/b and cc/d
    */
   getHeaderData(data) {
     lazy.EnigmailLog.DEBUG(
@@ -365,7 +368,7 @@ var EnigmailFuncs = {
    *
    * @param  mime1, mime2 - String the two mime part numbers to compare.
    *
-   * @return Number (one of -2, -1, 0, 1 , 2)
+   * @returns Number (one of -2, -1, 0, 1 , 2)
    *        - Negative number if mime1 is before mime2
    *        - Positive number if mime1 is after mime2
    *        - 0 if mime1 and mime2 are equal
@@ -511,7 +514,7 @@ var EnigmailFuncs = {
    *
    * @param {string} uriSpec - URL spec of the desired message.
    *
-   * @return {nsIURL|nsIMsgMailNewsUrl|null} The necko url.
+   * @returns {nsIURL|nsIMsgMailNewsUrl|null} The necko url.
    */
   getUrlFromUriSpec(uriSpec) {
     try {

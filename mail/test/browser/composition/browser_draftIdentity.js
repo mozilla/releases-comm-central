@@ -80,7 +80,7 @@ add_setup(async function() {
 /**
  * Create a new templated draft message in the drafts folder.
  *
- * @return {integer}  The index (position) of the created message in the drafts folder.
+ * @returns {integer} The index (position) of the created message in the drafts folder.
  */
 function create_draft(aFrom, aIdKey) {
   let msgCount = gDrafts.getTotalMessages(false);

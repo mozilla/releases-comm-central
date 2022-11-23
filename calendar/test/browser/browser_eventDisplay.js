@@ -20,7 +20,7 @@ registerCleanupFunction(() => {
  * @param {string} start - The date time string for the start of the event.
  * @param {string} end - The date time string for the end of the event.
  *
- * @return {CalEvent} - The created event.
+ * @returns {CalEvent} - The created event.
  */
 async function createEvent(name, start, end) {
   let event = new CalEvent();
@@ -33,11 +33,11 @@ async function createEvent(name, start, end) {
 /**
  * Assert that there is an event shown on the given date in the day-view.
  *
- * @param {Object} date - The date to move to.
+ * @param {object} date - The date to move to.
  * @param {number} date.day - The day.
  * @param {number} date.week - The week.
  * @param {number} date.year - The year.
- * @param {Object} expect - Details about the expected event.
+ * @param {object} expect - Details about the expected event.
  * @param {string} expect.name - The event name.
  * @param {boolean} expect.startInView - Whether the event starts within the
  *   view on the given date.
@@ -65,11 +65,11 @@ async function assertDayEvent(date, expect, message) {
  * Assert that there is a an event in the week-view between the expected range,
  * and no events on the other days.
  *
- * @param {Object} date - The date to move to.
+ * @param {object} date - The date to move to.
  * @param {number} date.day - The day.
  * @param {number} date.week - The week.
  * @param {number} date.year - The year.
- * @param {Object} expect - Details about the expected event.
+ * @param {object} expect - Details about the expected event.
  * @param {string} expect.name - The event name.
  * @param {number} expect.start - The day that the event should start in the
  *   week. Between 1 and 7.
@@ -120,11 +120,11 @@ async function assertWeekEvents(date, expect, message) {
  *
  * @param {"multiweek"|"month"} viewName - The view to test.
  * @param {number} numWeeks - The number of weeks shown in the view.
- * @param {Object} date - The date to move to.
+ * @param {object} date - The date to move to.
  * @param {number} date.day - The day.
  * @param {number} date.week - The week.
  * @param {number} date.year - The year.
- * @param {Object} expect - Details about the expected event.
+ * @param {object} expect - Details about the expected event.
  * @param {string} expect.name - The event name.
  * @param {number} expect.start - The day that the event should start in the
  *   week. Between 1 and 7.

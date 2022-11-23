@@ -7,6 +7,7 @@ const EXPORTED_SYMBOLS = ["MailCryptoUtils"];
 var MailCryptoUtils = {
   /**
    * Converts a binary string into a Uint8Array.
+   *
    * @param {BinaryString} str - The string to convert.
    * @returns {Uint8Array}.
    */

@@ -78,7 +78,7 @@ function prettyFolderName(aTargetFolder) {
  * @param aTargetURI  the URI specification to check
  * @param aIsServer   true if the URI specifies only a server (without folder)
  *
- * @return  the value of aTargetURI if it is valid (usable), otherwise null
+ * @returns the value of aTargetURI if it is valid (usable), otherwise null
  */
 function checkJunkTargetFolder(aTargetURI, aIsServer) {
   try {
@@ -108,7 +108,7 @@ function checkJunkTargetFolder(aTargetURI, aIsServer) {
  * @param aTargetURI  the URI of a server or folder to try first
  * @param aIsServer   true if the URI specifies only a server (without folder)
  *
- * @return  the server/folder URI of a usable target for storing Junk
+ * @returns the server/folder URI of a usable target for storing Junk
  */
 function chooseJunkTargetFolder(aTargetURI, aIsServer) {
   let server = null;
@@ -143,7 +143,7 @@ function chooseJunkTargetFolder(aTargetURI, aIsServer) {
  *                                  (used just for the MOVE_TARGET_MODE_* constants).
  * @param aMoveOnSpam               The server.*.moveOnSpam pref value (bool).
  *
- * @return  an array containing:
+ * @returns an array containing:
  *          newTargetAccount new safe junk target account
  *          newTargetAccount new safe junk target folder
  *          newMoveOnSpam    new moveOnSpam value
@@ -247,8 +247,8 @@ function accountNameExists(aAccountName, aAccountKey) {
 /**
  * Open a dialog to edit properties of an SMTP server.
  *
- * @param aServer {nsISmtpServer}  The server to edit.
- * @return {object}                Object with result member to indicate whether 'OK'
+ * @param aServer {nsISmtpServer} - The server to edit.
+ * @returns {object} Object with result member to indicate whether 'OK'
  *                                 was clicked and addSmtpServer with key of newly created server.
  */
 function editSMTPServer(aServer) {

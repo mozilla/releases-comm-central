@@ -27,16 +27,19 @@ var selectionModels = ["focus", "browse", "browse-multi"];
 
 /**
  * The selection widget.
+ *
  * @type {HTMLElement}
  */
 var widget;
 /**
  * A focusable item before the widget.
+ *
  * @type {HTMLElement}
  */
 var before;
 /**
  * A focusable item after the widget.
+ *
  * @type {HTMLElement}
  */
 var after;
@@ -47,7 +50,7 @@ var after;
  * The "widget", "before" and "after" variables will be reset to the new
  * elements.
  *
- * @param {Object} options - Options to set.
+ * @param {object} options - Options to set.
  * @param {string} options.model - The selection model to use.
  * @param {string} [options.direction="right-to-left"] - The direction of the
  *   widget.  Choosing "top-to-bottom" will layout items from top to bottom.
@@ -97,7 +100,7 @@ function reset(options) {
  * @param {number} start - The starting integer.
  * @param {number} num - The number of integers.
  *
- * @return {number[]} - Array of integers between start and (start + num - 1).
+ * @returns {number[]} - Array of integers between start and (start + num - 1).
  */
 function range(start, num) {
   return Array.from({ length: num }, (_, i) => start + i);
@@ -135,7 +138,7 @@ function assertSelection(indices, msg) {
 /**
  * Assert that the given element is focused.
  *
- * @param {Object} expect - The expected focused element.
+ * @param {object} expect - The expected focused element.
  * @param {HTMLElement} [expect.element] - The expected element that will
  *   have focus.
  * @param {number} [expect.index] - If the `element` property is not given, this
@@ -174,7 +177,7 @@ function assertFocus(expect, msg) {
  * element.
  *
  * @param {boolean} forward - Whether to move the focus forward.
- * @param {Object} expect - The expected focused element after pressing tab.
+ * @param {object} expect - The expected focused element after pressing tab.
  *   Same as passed to {@link assertFocus}.
  * @param {string} msg - A message to use for the assertion.
  */
@@ -187,7 +190,7 @@ function stepFocus(forward, expect, msg) {
 }
 
 /**
- * @typedef {Object} ItemState
+ * @typedef {object} ItemState
  * @property {string} text - The text content of the item.
  * @property {boolean} [selected=false] - Whether the item is selected.
  * @property {boolean} [focused=false] - Whether the item is focused.
@@ -235,7 +238,7 @@ function assertState(expected, msg) {
 /**
  * Click the empty space of the widget.
  *
- * @param {Object} mouseEvent - Properties for the click event.
+ * @param {object} mouseEvent - Properties for the click event.
  */
 function clickWidgetEmptySpace(mouseEvent) {
   let widgetRect = widget.getBoundingClientRect();
@@ -273,7 +276,7 @@ function clickWidgetEmptySpace(mouseEvent) {
  * Click the specified widget item.
  *
  * @param {number} index - The index of the item to click.
- * @param {Object} mouseEvent - Properties for the click event.
+ * @param {object} mouseEvent - Properties for the click event.
  */
 function clickWidgetItem(index, mouseEvent) {
   EventUtils.synthesizeMouseAtCenter(
@@ -755,7 +758,7 @@ add_task(function test_set_item_selected_method() {
  *
  * @param {string} model - The selection model to use.
  * @param {string} direction - The layout direction of the widget.
- * @param {Object} keys - Navigation keys.
+ * @param {object} keys - Navigation keys.
  * @param {string} keys.forward - The key to move forward.
  * @param {string} keys.backward - The key to move backward.
  */
@@ -911,7 +914,7 @@ add_task(function test_keyboard_navigation() {
 /**
  * The position of an element, relative to the layout of the widget.
  *
- * @typedef {Object} StartEndPositions
+ * @typedef {object} StartEndPositions
  * @property {number} start - The starting position of the element in the
  *   direction of the widget's layout. The value should be a pixel offset
  *   from some fixed point, such that a higher value indicates an element
@@ -936,13 +939,13 @@ add_task(function test_keyboard_navigation() {
  *
  * @callback GetStartEndMethod
  * @param {DOMRect} rect - The rectangle to get the positions of.
- * @return {Object} positions
+ * @returns {object} positions
 /**
  * Test page navigation for the given direction.
  *
  * @param {string} model - The selection model to use on the widget.
  * @param {string} direction - The direction of the widget layout.
- * @param {Object} details - Details about the direction.
+ * @param {object} details - Details about the direction.
  * @param {string} details.sizeName - The CSS style name that controls the
  *   widget size in the direction of widget layout.
  * @param {string} details.forwardKey - The key to press to move forward one
@@ -2870,11 +2873,11 @@ add_task(function test_add_items_to_nonempty() {
  * Test that pressing a key on a non-empty widget that has focus on itself will
  * move to the expected index.
  *
- * @param {Object} initialState - The initial state of the widget to set up.
+ * @param {object} initialState - The initial state of the widget to set up.
  * @param {string} initialState.model - The selection model to use.
  * @param {string} initialState.direction - The layout direction of the widget.
  * @param {number} initialState.numItems - The number of items in the widget.
- * @param {function} [initialState.scroll] - A method to call to scroll the
+ * @param {Function} [initialState.scroll] - A method to call to scroll the
  *   widget.
  * @param {string} key - The key to press once the widget is set up.
  * @param {number} index - The expected index for the item that will receive

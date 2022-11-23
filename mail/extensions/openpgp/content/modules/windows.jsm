@@ -249,7 +249,7 @@ var EnigmailWindows = {
    * @userIdArr  - |array| of |strings| containing the User IDs
    * @keyIdArr   - |array| of |strings| containing the key IDs (eg. "0x12345678") to change
    *
-   * @return  Boolean - true if expiry date was changed; false otherwise
+   * @returns Boolean - true if expiry date was changed; false otherwise
    */
   editKeyExpiry(win, userIdArr, keyIdArr) {
     const inputObj = {
@@ -276,7 +276,7 @@ var EnigmailWindows = {
    * @userIdArr  - |array| of |strings| containing the User IDs
    * @keyIdArr   - |array| of |strings| containing the key IDs (eg. "0x12345678") to change
    *
-   * @return  Boolean - true if key trust was changed; false otherwise
+   * @returns Boolean - true if key trust was changed; false otherwise
    */
   editKeyTrust(win, userIdArr, keyIdArr) {
     const inputObj = {
@@ -303,7 +303,7 @@ var EnigmailWindows = {
    * @userId     - |string| containing the User ID (for displaing in the dialog only)
    * @keyId      - |string| containing the key ID (eg. "0x12345678")
    *
-   * @return  Boolean - true if key was signed; false otherwise
+   * @returns Boolean - true if key was signed; false otherwise
    */
   signKey(win, userId, keyId) {
     const inputObj = {
@@ -330,7 +330,7 @@ var EnigmailWindows = {
    * @keyId      - |string| containing the key ID (eg. "0x12345678")
    * @refresh    - |boolean| if true, cache is cleared and the key data is loaded from GnuPG
    *
-   * @return  Boolean - true:  keylist needs to be refreshed
+   * @returns Boolean - true:  keylist needs to be refreshed
    *                  - false: no need to refresh keylist
    */
   async openKeyDetails(win, keyId, refresh) {
@@ -456,7 +456,7 @@ var EnigmailWindows = {
    * @param passwdType:    String - type of password ("numeric9x4" / "generic")
    * @param password:      String - password or initial two digits of password
    *
-   * @return String entered password (in input mode) or NULL
+   * @returns String entered password (in input mode) or NULL
    */
   autocryptSetupPasswd(window, dlgMode, passwdType = "numeric9x4", password) {
     if (!window) {

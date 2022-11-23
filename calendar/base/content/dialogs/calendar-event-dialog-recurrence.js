@@ -44,7 +44,8 @@ const RecurrencePreview = {
   },
   /**
    * Setter for mDateTime property.
-   * @param {date} val - The date value that is to be set.
+   *
+   * @param {Date} val - The date value that is to be set.
    */
   set dateTime(val) {
     this.mDateTime = val.clone();
@@ -598,7 +599,7 @@ function initializeControls(rule) {
  * item.
  *
  * @param item    The item to save back to.
- * @return        The saved recurrence info.
+ * @returns The saved recurrence info.
  */
 function onSave(item) {
   // Always return 'null' if this item is an occurrence.

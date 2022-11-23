@@ -366,10 +366,10 @@ AccountConfig.kSourceExchange = "exchange"; // from Microsoft Exchange AutoDisco
  * Some fields on the account config accept placeholders (when coming from XML).
  *
  * These are the predefined ones
- * * %EMAILADDRESS% (full email address of the user, usually entered by user)
- * * %EMAILLOCALPART% (email address, part before @)
- * * %EMAILDOMAIN% (email address, part after @)
- * * %REALNAME%
+ * %EMAILADDRESS% (full email address of the user, usually entered by user)
+ * %EMAILLOCALPART% (email address, part before @)
+ * %EMAILDOMAIN% (email address, part after @)
+ * %REALNAME%
  * as well as those defined in account.inputFields.*.varname, with % added
  * before and after.
  *

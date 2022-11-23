@@ -14,6 +14,7 @@ var { SQLiteDirectory } = ChromeUtils.import(
 
 /**
  * A service to replicate a LDAP directory to a local SQLite db.
+ *
  * @implements {nsIAbLDAPReplicationService}
  * @implements {nsILDAPMessageListener}
  */
@@ -121,6 +122,7 @@ class LDAPReplicationService extends LDAPListenerBase {
 
   /**
    * Handler of nsILDAPMessage.RES_SEARCH_ENTRY message.
+   *
    * @param {nsILDAPMessage} msg - The received LDAP message.
    */
   async _onLDAPSearchEntry(msg) {
@@ -152,6 +154,7 @@ class LDAPReplicationService extends LDAPListenerBase {
 
   /**
    * Handler of nsILDAPMessage.RES_SEARCH_RESULT message.
+   *
    * @param {nsILDAPMessage} msg - The received LDAP message.
    */
   async _onLDAPSearchResult(msg) {
@@ -194,6 +197,7 @@ class LDAPReplicationService extends LDAPListenerBase {
   /**
    * Clean up depending on whether replication succeeded or failed, emit
    * STATE_STOP event.
+   *
    * @param {bool} success - Replication succeeded or failed.
    */
   async _done(success) {

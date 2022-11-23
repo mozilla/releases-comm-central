@@ -44,7 +44,7 @@ const API_PROXY_PREFS = [
 /**
  * Get the addon extension that is controlling the proxy settings.
  *
- * @return - The found addon, or undefined if none was found.
+ * @returns - The found addon, or undefined if none was found.
  */
 async function getControllingProxyExtensionAddon() {
   await ExtensionSettingsStore.initialize();
@@ -59,7 +59,7 @@ async function getControllingProxyExtensionAddon() {
  * Show or hide the proxy extension message depending on whether or not the
  * proxy settings are controlled by an extension.
  *
- * @return {boolean} - Whether the proxy settings are controlled by an
+ * @returns {boolean} - Whether the proxy settings are controlled by an
  *   extension.
  */
 async function handleControllingProxyExtension() {
@@ -75,7 +75,7 @@ async function handleControllingProxyExtension() {
 /**
  * Show the proxy extension message.
  *
- * @param {Object} addon - The addon extension that is currently controlling the
+ * @param {object} addon - The addon extension that is currently controlling the
  *   proxy settings.
  * @param {string} addon.name - The addon name.
  * @param {string} [addon.iconUrl] - The addon icon source.
@@ -114,7 +114,7 @@ function disableControllingProxyExtension() {
 /**
  * Start listening to the proxy settings, and update the UI accordingly.
  *
- * @param {Object} container - The proxy container.
+ * @param {object} container - The proxy container.
  * @param {Function} container.updateProxySettingsUI - A callback to call
  *   whenever the proxy settings change.
  */

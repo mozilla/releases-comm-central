@@ -49,7 +49,7 @@ class SmtpClient {
    * Call `connect` method to inititate the actual connection, the constructor only
    * defines the properties but does not actually connect.
    *
-   * @constructor
+   * @class
    *
    * @param {nsISmtpServer} server - The associated nsISmtpServer instance.
    */
@@ -145,6 +145,7 @@ class SmtpClient {
 
   /**
    * Closes the connection to the server
+   *
    * @param {boolean} [immediately] - Close the socket without waiting for
    *   unsent data.
    */
@@ -254,8 +255,8 @@ class SmtpClient {
    * Send ASCII data to the server. Works only in data mode (after `onready` event), ignored
    * otherwise
    *
-   * @param {String} chunk ASCII string (quoted-printable, base64 etc.) to be sent to the server
-   * @return {Boolean} If true, it is safe to send more data, if false, you *should* wait for the ondrain event before sending more
+   * @param {string} chunk ASCII string (quoted-printable, base64 etc.) to be sent to the server
+   * @returns {boolean} If true, it is safe to send more data, if false, you *should* wait for the ondrain event before sending more
    */
   send(chunk) {
     // works only in data mode
@@ -317,7 +318,7 @@ class SmtpClient {
   /**
    * Queue some data from the server for parsing.
    *
-   * @param {String} chunk Chunk of data received from the server
+   * @param {string} chunk Chunk of data received from the server
    */
   _parse(chunk) {
     // Lines should always end with <CR><LF> but you never know, might be only <LF> as well
@@ -513,7 +514,7 @@ class SmtpClient {
    * so this data is safe to use as it is always complete (server might send partial chunks)
    *
    * @event
-   * @param {Object} command Parsed data
+   * @param {object} command Parsed data
    */
   _onCommand(command) {
     if (command.statusCode < 200 || command.statusCode >= 400) {
@@ -539,8 +540,8 @@ class SmtpClient {
   /**
    * Sends a string to the socket.
    *
-   * @param {String} chunk ASCII string (quoted-printable, base64 etc.) to be sent to the server
-   * @return {Boolean} If true, it is safe to send more data, if false, you *should* wait for the ondrain event before sending more
+   * @param {string} chunk ASCII string (quoted-printable, base64 etc.) to be sent to the server
+   * @returns {boolean} If true, it is safe to send more data, if false, you *should* wait for the ondrain event before sending more
    */
   _sendString(chunk) {
     // escape dots
@@ -608,6 +609,7 @@ class SmtpClient {
 
   /**
    * Intitiate authentication sequence if needed
+   *
    * @param {boolean} forceNewPassword - Discard cached password.
    */
   async _authenticateUser(forceNewPassword) {
@@ -792,7 +794,7 @@ class SmtpClient {
   /**
    * Initial response from the server, must have a status 220
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionGreeting(command) {
     if (command.statusCode !== 220) {
@@ -812,7 +814,7 @@ class SmtpClient {
   /**
    * Response to LHLO
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionLHLO(command) {
     if (!command.success) {
@@ -827,7 +829,7 @@ class SmtpClient {
   /**
    * Response to EHLO. If the response is an error, try HELO instead
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionEHLO(command) {
     if ([500, 502].includes(command.statusCode)) {
@@ -903,7 +905,7 @@ class SmtpClient {
    * try HELO instead, otherwise initiate TLS upgrade. If the upgrade
    * succeeds restart the EHLO
    *
-   * @param {String} str Message from the server
+   * @param {string} str Message from the server
    */
   _actionSTARTTLS(command) {
     if (!command.success) {
@@ -922,7 +924,7 @@ class SmtpClient {
   /**
    * Response to HELO
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionHELO(command) {
     if (!command.success) {
@@ -936,7 +938,7 @@ class SmtpClient {
    * Handles server response for CLIENTID command. If successful then will
    * initiate the authenticateUser process.
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionCLIENTID(command) {
     if (!command.success) {
@@ -949,6 +951,7 @@ class SmtpClient {
   /**
    * Returns the saved/cached server password, or show a password dialog. If the
    * user cancels the dialog, abort sending.
+   *
    * @returns {string} The server password.
    */
   _getPassword() {
@@ -968,7 +971,7 @@ class SmtpClient {
   /**
    * Response to AUTH LOGIN, if successful expects base64 encoded username
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionAUTH_LOGIN_USER(command) {
     if (command.statusCode !== 334 || command.data !== "VXNlcm5hbWU6") {
@@ -983,7 +986,7 @@ class SmtpClient {
   /**
    * Response to AUTH LOGIN username, if successful expects base64 encoded password
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionAUTH_LOGIN_PASS(command) {
     if (command.statusCode !== 334 || command.data !== "UGFzc3dvcmQ6") {
@@ -1012,7 +1015,7 @@ class SmtpClient {
   /**
    * Response to AUTH CRAM, if successful expects base64 encoded challenge.
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   async _actionAUTH_CRAM(command) {
     if (command.statusCode !== 334) {
@@ -1029,7 +1032,7 @@ class SmtpClient {
   /**
    * Response to AUTH XOAUTH2 token, if error occurs send empty response
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionAUTH_XOAUTH2(command) {
     if (!command.success) {
@@ -1044,7 +1047,7 @@ class SmtpClient {
   /**
    * Response to AUTH GSSAPI, if successful expects a base64 encoded challenge.
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionAUTH_GSSAPI(command) {
     // GSSAPI auth can be multiple steps. We exchange tokens with the server
@@ -1065,7 +1068,7 @@ class SmtpClient {
   /**
    * Response to AUTH NTLM, if successful expects a base64 encoded challenge.
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionAUTH_NTLM(command) {
     // NTLM auth can be multiple steps. We exchange tokens with the server
@@ -1087,7 +1090,7 @@ class SmtpClient {
    * Checks if authentication succeeded or not. If successfully authenticated
    * emit `idle` to indicate that an e-mail can be sent using this connection
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionAUTHComplete(command) {
     this._authenticating = false;
@@ -1105,7 +1108,7 @@ class SmtpClient {
   /**
    * Used when the connection is idle, not expecting anything from the server.
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionIdle(command) {
     this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
@@ -1114,7 +1117,7 @@ class SmtpClient {
   /**
    * Response to MAIL FROM command. Proceed to defining RCPT TO list if successful
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionMAIL(command) {
     if (!command.success) {
@@ -1174,7 +1177,7 @@ class SmtpClient {
    * Response to a RCPT TO command. If the command is unsuccessful, emit an
    * error to abort the sending.
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionRCPT(command) {
     if (!command.success) {
@@ -1204,7 +1207,7 @@ class SmtpClient {
   /**
    * Response to the DATA command. Server is now waiting for a message, so emit `onready`
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionDATA(command) {
     // response should be 354 but according to this issue https://github.com/eleith/emailjs/issues/24
@@ -1223,7 +1226,7 @@ class SmtpClient {
    * Response from the server, once the message stream has ended with <CR><LF>.<CR><LF>
    * Emits `ondone`.
    *
-   * @param {Object} command Parsed command from the server {statusCode, data}
+   * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionStream(command) {
     var rcpt;

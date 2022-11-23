@@ -186,21 +186,22 @@ class TabDialogBox {
 
   /**
    * Open a dialog on tab or content level.
-   * @param {String} aURL - URL of the dialog to load in the tab box.
-   * @param {Object} [aOptions]
-   * @param {String} [aOptions.features] - Comma separated list of window
+   *
+   * @param {string} aURL - URL of the dialog to load in the tab box.
+   * @param {object} [aOptions]
+   * @param {string} [aOptions.features] - Comma separated list of window
    *   features.
-   * @param {Boolean} [aOptions.allowDuplicateDialogs] - Whether to allow
+   * @param {boolean} [aOptions.allowDuplicateDialogs] - Whether to allow
    *   showing multiple dialogs with aURL at the same time. If false calls for
    *   duplicate dialogs will be dropped.
-   * @param {String} [aOptions.sizeTo] - Pass "available" to stretch dialog to
+   * @param {string} [aOptions.sizeTo] - Pass "available" to stretch dialog to
    *   roughly content size.
-   * @param {Boolean} [aOptions.keepOpenSameOriginNav] - By default dialogs are
+   * @param {boolean} [aOptions.keepOpenSameOriginNav] - By default dialogs are
    *   aborted on any navigation.
    *   Set to true to keep the dialog open for same origin navigation.
-   * @param {Number} [aOptions.modalType] - The modal type to create the dialog for.
+   * @param {number} [aOptions.modalType] - The modal type to create the dialog for.
    *   By default, we show the dialog for tab prompts.
-   * @returns {Object} [result] Returns an object { closedPromise, dialog }.
+   * @returns {object} [result] Returns an object { closedPromise, dialog }.
    * @returns {Promise} [result.closedPromise] Resolves once the dialog has been closed.
    * @returns {SubDialog} [result.dialog] A reference to the opened SubDialog.
    */

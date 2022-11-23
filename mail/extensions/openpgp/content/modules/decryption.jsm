@@ -150,7 +150,7 @@ var EnigmailDecryption = {
    *out @blockSeparationObj
    *out @encToDetailsObj  returns in details, which keys the message was encrypted for (ENC_TO entries)
    *
-   * @return string plaintext ("" if error)
+   * @returns string plaintext ("" if error)
    *
    */
   decryptMessage(

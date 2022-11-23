@@ -342,7 +342,7 @@ function toggleFilter(aFilterItem, aSetForEvent) {
  *
  * @param aFilter  The nsIMsgFilter to select.
  *
- * @return  true/false indicating whether the filter was found and selected.
+ * @returns true/false indicating whether the filter was found and selected.
  */
 function selectFilter(aFilter) {
   if (currentFilter() == aFilter) {
@@ -1024,7 +1024,7 @@ function onFilterListKeyPress(aEvent) {
  * @param  aFilter   nsIMsgFilter to check
  * @param  aKeyword  the string to find in the filter name
  *
- * @return  True if the filter name contains the searched keyword.
+ * @returns True if the filter name contains the searched keyword.
             Otherwise false. In the future this may be extended to match
             other filter attributes.
  */
@@ -1034,7 +1034,8 @@ function filterSearchMatch(aFilter, aKeyword) {
 
 /**
  * Called from rebuildFilterList when the list needs to be redrawn.
- * @return  Uses the search term in search box, to produce an array of
+ *
+ * @returns Uses the search term in search box, to produce an array of
  *          row (filter) numbers (indexes) that match the search term.
  */
 function onFindFilter() {

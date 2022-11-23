@@ -120,6 +120,7 @@ const headerSink = {
 
 /**
  * All the tests we are going to run.
+ *
  * @type Test[]
  */
 const tests = [

@@ -11,6 +11,7 @@ const EXPORTED_SYMBOLS = ["QueryStringToExpression"];
  * (OP1(FIELD1,COND1,VALUE1)..(FIELDn,CONDn,VALUEn)(BOOL2(FIELD1,COND1,VALUE1)..)..)
  *
  * OPn     A boolean operator joining subsequent terms delimited by ().
+ *
  *         @see {nsIAbBooleanOperationTypes}.
  * FIELDn  An addressbook card data field.
  * CONDn   A condition to compare FIELDn with VALUEn.
@@ -22,6 +23,7 @@ const EXPORTED_SYMBOLS = ["QueryStringToExpression"];
 var QueryStringToExpression = {
   /**
    * Convert a query string to a nsIAbBooleanExpression.
+   *
    * @param {string} qs - The query string to convert.
    * @returns {nsIAbBooleanExpression}
    */
@@ -61,9 +63,10 @@ var QueryStringToExpression = {
 
   /**
    * Parse a query string to an array of tokens.
+   *
    * @param {string} qs - The query string to parse.
    * @param {number} depth - The depth of a token.
-   * @param {Object[]} tokens - The tokens to return.
+   * @param {object[]} tokens - The tokens to return.
    * @param {"op"|"field"} tokens[].type - The token type.
    * @param {number} tokens[].depth - The token depth.
    * @param {string|string[]} tokens[].value - The token value.
@@ -113,6 +116,7 @@ var QueryStringToExpression = {
 
   /**
    * Create a nsIAbBooleanExpression from a string.
+   *
    * @param {string} operation - The operation string.
    * @returns {nsIAbBooleanExpression}
    */
@@ -137,6 +141,7 @@ var QueryStringToExpression = {
 
   /**
    * Create a nsIAbBooleanConditionString.
+   *
    * @param {string} field - The field name.
    * @param {nsIAbBooleanConditionTypes} condition - The condition.
    * @param {string} value - The value string.

@@ -27,7 +27,7 @@ var kMaxPort = 65535;
  *
  * @param aHostName                The string to check for validity.
  * @param aAllowExtendedIPFormats  Allow hex/octal formats in addition to decimal.
- * @return  Unobscured host name if aHostName is valid.
+ * @returns Unobscured host name if aHostName is valid.
  *          Returns null if it's not.
  */
 function isLegalHostNameOrIP(aHostName, aAllowExtendedIPFormats) {
@@ -49,7 +49,7 @@ function isLegalHostNameOrIP(aHostName, aAllowExtendedIPFormats) {
 /**
  * Check if aHostName is a valid hostname.
  *
- * @return  The host name if it is valid.
+ * @returns The host name if it is valid.
  *          Returns null if it's not.
  */
 function isLegalHostName(aHostName) {
@@ -102,7 +102,7 @@ function isLegalHostName(aHostName) {
  * @param aAllowExtendedIPFormats  If false, only IPv4 addresses in the common
                                    decimal format (4 components, each up to 255)
  *                                 will be accepted, no hex/octal formats.
- * @return  Unobscured canonicalized address if aHostName is an IPv4 address.
+ * @returns Unobscured canonicalized address if aHostName is an IPv4 address.
  *          Returns null if it's not.
  */
 function isLegalIPv4Address(aHostName, aAllowExtendedIPFormats) {
@@ -128,7 +128,7 @@ function isLegalIPv4Address(aHostName, aAllowExtendedIPFormats) {
    *
    * @param aValue  The component string.
    * @param aWidth  How many components does this string cover.
-   * @return        The value of the component in decimal if it is valid.
+   * @returns The value of the component in decimal if it is valid.
    *                Returns null if it's not.
    */
   const kPowersOf256 = [1, 256, 65536, 16777216, 4294967296];
@@ -187,7 +187,7 @@ function isLegalIPv4Address(aHostName, aAllowExtendedIPFormats) {
  * Check if aHostName is a valid IPv6 address.
  *
  * @param aHostName  The string to check for validity.
- * @return  Unobscured canonicalized address if aHostName is an IPv6 address.
+ * @returns Unobscured canonicalized address if aHostName is an IPv6 address.
  *          Returns null if it's not.
  */
 function isLegalIPv6Address(aHostName) {
@@ -283,7 +283,7 @@ function isLegalIPv6Address(aHostName) {
  *
  * @param aHostName                The string to check for validity.
  * @param aAllowExtendedIPFormats  Allow hex/octal formats in addition to decimal.
- * @return  Unobscured canonicalized IPv4 or IPv6 address if it is valid,
+ * @returns Unobscured canonicalized IPv4 or IPv6 address if it is valid,
  *          otherwise null.
  */
 function isLegalIPAddress(aHostName, aAllowExtendedIPFormats) {
@@ -297,7 +297,7 @@ function isLegalIPAddress(aHostName, aAllowExtendedIPFormats) {
  * Check if aIPAddress is a local or private IP address.
  *
  * @param aIPAddress  A valid IP address literal in canonical (unobscured) form.
- * @return            True if it is a local/private IPv4 or IPv6 address,
+ * @returns True if it is a local/private IPv4 or IPv6 address,
  *                    otherwise false.
  *
  * Note: if the passed in address is not in canonical (unobscured form),

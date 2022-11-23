@@ -6,6 +6,7 @@ const EXPORTED_SYMBOLS = ["MailtoProtocolHandler"];
 
 /**
  * Protocol handler for mailto: url.
+ *
  * @implements {nsIProtocolHandler}
  */
 class MailtoProtocolHandler {

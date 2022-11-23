@@ -8,6 +8,7 @@ const EXPORTED_SYMBOLS = ["ImapCapFlags", "ImapUtils"];
  * The purpose here is not to convert all capabilities to flag number, but to
  * interact with nsImapMailFolder through nsIImapIncomingServer.getCapability
  * interface.
+ *
  * @see nsImapCore.h
  */
 var ImapCapFlags = {
@@ -52,6 +53,7 @@ var ImapCapFlags = {
   /**
    * Convert an array of capability string to an internal flag number, for example,
    *   ["QUOTA", "X-GM-EXT-1"] will become 0x400040000.
+   *
    * @param {string[]} arr - An array of flag string.
    * @returns {number} An internal flag number.
    */
@@ -128,6 +130,7 @@ var ImapUtils = {
   /**
    * Convert internal flag number to flag string, for example,
    *   0x3 will become "(\\Seen \\Answered)".
+   *
    * @param {number} flags - Internal flag number.
    * @param {number} supportedFlags - Server supported flags.
    * @returns {string} Flags string that can be sent to the server.
@@ -154,6 +157,7 @@ var ImapUtils = {
   /**
    * Convert a flag string to an internal flag number, for example,
    *   "\\Seen" will become 0x1.
+   *
    * @param {string} str - A single flag string.
    * @returns {number} An internal flag number.
    */
@@ -179,6 +183,7 @@ var ImapUtils = {
   /**
    * Convert an array of flag string to an internal flag number, for example,
    *   ["\\Seen", "\\Answered"] will become 0x3.
+   *
    * @param {string[]} arr - An array of flag string.
    * @returns {number} An internal flag number.
    */

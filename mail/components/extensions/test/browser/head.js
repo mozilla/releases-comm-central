@@ -378,7 +378,7 @@ async function promiseMessageLoaded(browser, msgHdr) {
 /**
  * Check the headers of an open compose window against expected values.
  *
- * @param {Object} expected - A dictionary of expected headers.
+ * @param {object} expected - A dictionary of expected headers.
  *    Omit headers that should have no value.
  * @param {string[]} [fields.to]
  * @param {string[]} [fields.cc]
@@ -725,9 +725,9 @@ function contentTabOpenPromise(tabmail, url) {
  * @property {boolean} [use_default_popup] - select if the default_popup should be
  *  used for the test
  * @property {boolean} [disable_button] - select if the button should be disabled
- * @property {function} [backend_script] - custom backend script to be used for the
+ * @property {Function} [backend_script] - custom backend script to be used for the
  *  test, will override the default backend_script of the selected test
- * @property {function} [background_script] - custom background script to be used for the
+ * @property {Function} [background_script] - custom background script to be used for the
  *  test, will override the default background_script of the selected test
  * @property {[string]} [permissions] - custom permissions to be used for the test,
  *  must not be specified together with testType

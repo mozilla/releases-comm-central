@@ -47,6 +47,7 @@ const IgnoredAlarmsStore = {
 
   /**
    * Adds an item to the store. No alarms will be created for this item again.
+   *
    * @param {calIItemBase} item
    */
   add(item) {
@@ -64,8 +65,9 @@ const IgnoredAlarmsStore = {
 
   /**
    * Returns true if the item's hashId is in the store.
+   *
    * @param {calIItemBase} item
-   * @return {boolean}
+   * @returns {boolean}
    */
   has(item) {
     return this._getCache(item).includes(item.parentItem.hashId);
@@ -509,6 +511,7 @@ CalAlarmService.prototype = {
 
   /**
    * Get the timeouts before notifications are fired for an item.
+   *
    * @param {calIItemBase} item - A calendar item instance.
    * @returns {number[]} Timeouts of notifications in milliseconds in ascending order.
    */
@@ -563,6 +566,7 @@ CalAlarmService.prototype = {
 
   /**
    * Set up notification timers for an item.
+   *
    * @param {calIItemBase} item - A calendar item instance.
    */
   addNotificationForItem(item) {
@@ -587,6 +591,7 @@ CalAlarmService.prototype = {
 
   /**
    * Remove notification timers for an item.
+   *
    * @param {calIItemBase} item - A calendar item instance.
    */
   removeNotificationForItem(item) {
@@ -611,6 +616,7 @@ CalAlarmService.prototype = {
 
   /**
    * Remove the first notification timers for an item to release some memory.
+   *
    * @param {calIItemBase} item - A calendar item instance.
    */
   removeFiredNotificationTimer(item) {

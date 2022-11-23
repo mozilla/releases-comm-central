@@ -50,7 +50,7 @@ class BinaryServer {
    * @async
    * @callback handlerFn
    * @param {Connection} conn
-   * @param {Object} daemon
+   * @param {object} daemon
    *
    * The handler function runs as long as it wants - reading and writing bytes
    * (via methods on conn) until it is finished with the connection.
@@ -65,7 +65,7 @@ class BinaryServer {
    * Construct a new BinaryServer.
    *
    * @param {handlerFn} handlerFn - Function to call to handle each new connection.
-   * @param {Object} daemon - Object to pass on to the handler, to share state
+   * @param {object} daemon - Object to pass on to the handler, to share state
    *                 and functionality between across connections.
    */
   constructor(handlerFn, daemon) {
@@ -167,7 +167,7 @@ class Connection {
   }
 
   /**
-   * @return true if close() has been called.
+   * @returns true if close() has been called.
    */
   isClosed() {
     return this._transport === null;
@@ -194,7 +194,7 @@ class Connection {
    * Read exactly nBytes from the connection.
    *
    * @param {number} nBytes - The number of bytes required.
-   * @return {Array.<number>} - An array containing the requested bytes.
+   * @returns {Array.<number>} - An array containing the requested bytes.
    */
   async read(nBytes) {
     let conn = this;

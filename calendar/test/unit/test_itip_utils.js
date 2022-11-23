@@ -23,11 +23,11 @@ do_get_profile();
 /*
  * Helper function to get an ics for testing sequence and stamp comparison
  *
- * @param {String} aAttendee              A serialized ATTENDEE property
- * @param {String} aSequence              A serialized SEQUENCE property
- * @param {String} aDtStamp               A serialized DTSTAMP property
- * @param {String} aXMozReceivedSequence  A serialized X-MOZ-RECEIVED-SEQUENCE property
- * @param {String} aXMozReceivedDtStamp   A serialized X-MOZ-RECEIVED-STAMP property
+ * @param {String} aAttendee - A serialized ATTENDEE property
+ * @param {String} aSequence - A serialized SEQUENCE property
+ * @param {String} aDtStamp - A serialized DTSTAMP property
+ * @param {String} aXMozReceivedSequence - A serialized X-MOZ-RECEIVED-SEQUENCE property
+ * @param {String} aXMozReceivedDtStamp - A serialized X-MOZ-RECEIVED-STAMP property
  */
 function getSeqStampTestIcs(aProperties) {
   // we make sure to have a dtstamp property to get a valid ics

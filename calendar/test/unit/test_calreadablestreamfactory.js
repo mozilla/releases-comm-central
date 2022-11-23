@@ -13,7 +13,7 @@ var { CalReadableStreamFactory } = ChromeUtils.import(
 );
 
 /**
- * @type {Object} BoundedReadableStreamTestSpec
+ * @type {object} BoundedReadableStreamTestSpec
  * @property {number}   maxTotalItems
  * @property {number}   maxQueuedItems
  * @property {number}   actualTotalItems
@@ -23,6 +23,7 @@ var { CalReadableStreamFactory } = ChromeUtils.import(
 
 /**
  * Common test for the BoundedReadableStream.
+ *
  * @param {BoundedReadableStreamTestSpec} spec
  */
 async function doBoundedReadableStreamTest({

@@ -75,6 +75,7 @@ add_setup(async function() {
 
 /**
  * Ensures that all messages have a particular read status
+ *
  * @param messages an array of nsIMsgDBHdrs to check
  * @param read true if the messages should be marked read, false otherwise
  */
@@ -96,6 +97,7 @@ function check_read_status(messages, read) {
 
 /**
  * Ensures that the mark read/unread menu items are enabled/disabled properly
+ *
  * @param index the row in the thread pane of the message to query
  * @param canMarkRead true if the mark read item should be enabled
  * @param canMarkUnread true if the mark unread item should be enabled
@@ -136,6 +138,7 @@ function enable_archiving(enabled) {
 
 /**
  * Mark a message read or unread via the context menu
+ *
  * @param index the row in the thread pane of the message to mark read/unread
  * @param read true the message should be marked read, false otherwise
  */

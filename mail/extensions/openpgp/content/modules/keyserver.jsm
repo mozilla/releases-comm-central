@@ -78,7 +78,7 @@ function createError(errId) {
  * @param keyserver: String - name of keyserver with optional protocol and port.
  *                       E.g. keys.gnupg.net, hkps://keys.gnupg.net:443
  *
- * @return Object: {port, host, protocol} (all Strings)
+ * @returns Object: {port, host, protocol} (all Strings)
  */
 function parseKeyserverUrl(keyserver) {
   if (keyserver.length > 1024) {
@@ -217,6 +217,7 @@ const accessHkpInternal = {
 
   /**
    * Upload, search or download keys from a keyserver
+   *
    * @param actionFlag:  Number  - Keyserver Action Flags: from EnigmailConstants
    * @param keyId:      String  - space-separated list of search terms or key IDs
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
@@ -386,6 +387,7 @@ const accessHkpInternal = {
 
   /**
    * Download keys from a keyserver
+   *
    * @param keyIDs:      String  - space-separated list of search terms or key IDs
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
@@ -442,7 +444,8 @@ const accessHkpInternal = {
 
   /**
    * Upload keys to a keyserver
-   * @param keyIDs: String  - space-separated list of search terms or key IDs
+   *
+   * @param keyIDs: String - space-separated list of search terms or key IDs
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
    *
@@ -488,6 +491,7 @@ const accessHkpInternal = {
 
   /**
    * Search for keys on a keyserver
+   *
    * @param searchTerm:  String  - search term
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
@@ -615,6 +619,7 @@ const accessKeyBase = {
 
   /**
    * Upload, search or download keys from a keyserver
+   *
    * @param actionFlag:  Number  - Keyserver Action Flags: from EnigmailConstants
    * @param keyId:      String  - space-separated list of search terms or key IDs
    * @param listener:    optional Object implementing the KeySrvListener API (above)
@@ -759,6 +764,7 @@ const accessKeyBase = {
 
   /**
    * Download keys from a KeyBase
+   *
    * @param keyIDs:      String  - space-separated list of search terms or key IDs
    * @param keyserver:   (not used for keybase)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
@@ -802,6 +808,7 @@ const accessKeyBase = {
 
   /**
    * Search for keys on a keyserver
+   *
    * @param searchTerm:  String  - search term
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
@@ -1012,6 +1019,7 @@ const accessVksServer = {
 
   /**
    * Upload, search or download keys from a keyserver
+   *
    * @param actionFlag:  Number  - Keyserver Action Flags: from EnigmailConstants
    * @param keyId:       String  - space-separated list of search terms or key IDs
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
@@ -1191,6 +1199,7 @@ const accessVksServer = {
 
   /**
    * Download keys from a keyserver
+   *
    * @param keyIDs:      String  - space-separated list of search terms or key IDs
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
@@ -1287,7 +1296,8 @@ const accessVksServer = {
 
   /**
    * Upload keys to a keyserver
-   * @param keyIDs: String  - space-separated list of search terms or key IDs
+   *
+   * @param keyIDs: String - space-separated list of search terms or key IDs
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
    *
@@ -1348,6 +1358,7 @@ const accessVksServer = {
 
   /**
    * Search for keys on a keyserver
+   *
    * @param searchTerm:  String  - search term
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
@@ -1429,6 +1440,7 @@ const accessVksServer = {
 var EnigmailKeyServer = {
   /**
    * Download keys from a keyserver
+   *
    * @param keyIDs:      String  - space-separated list of FPRs or key IDs
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
@@ -1459,6 +1471,7 @@ var EnigmailKeyServer = {
 
   /**
    * Upload keys to a keyserver
+   *
    * @param keyIDs:      String  - space-separated list of key IDs or FPR
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
@@ -1475,6 +1488,7 @@ var EnigmailKeyServer = {
 
   /**
    * Search keys on a keyserver
+   *
    * @param searchString: String - search term. Multiple email addresses can be search by spaces
    * @param keyserver:    String - keyserver URL (optionally incl. protocol)
    * @param listener:     optional Object implementing the KeySrvListener API (above)

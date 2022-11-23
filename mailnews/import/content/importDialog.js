@@ -655,7 +655,8 @@ function attachStrings(aNode, aString) {
 
 /**
  * Show the file picker.
- * @return {Promise} the selected file, or null
+ *
+ * @returns {Promise} the selected file, or null
  */
 function promptForFile(fp) {
   return new Promise(resolve => {

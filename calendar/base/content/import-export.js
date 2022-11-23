@@ -19,7 +19,7 @@ var MODE_TRUNCATE = 0x20;
  * the user is asked to pick a file.
  *
  * @param {nsIFile} [fileArg] - Optional, a file to load events from.
- * @return {Promise<boolean>} True if the import dialog was opened, false if
+ * @returns {Promise<boolean>} True if the import dialog was opened, false if
  *                              not (e.g. on cancel of file picker dialog).
  */
 async function loadEventsFromFile(fileArg) {
@@ -46,7 +46,7 @@ async function loadEventsFromFile(fileArg) {
 /**
  * Show a file picker dialog and return the file.
  *
- * @return {Promise<nsIFile | undefined>} The picked file or undefined if the
+ * @returns {Promise<nsIFile | undefined>} The picked file or undefined if the
  *                                        user cancels the dialog.
  */
 function pickFileToImport() {
@@ -90,7 +90,7 @@ function pickFileToImport() {
  * Given an ICS file, return an array of calendar items parsed from it.
  *
  * @param {nsIFile} file - File to get items from.
- * @return {calIItemBase[]} Array of calendar items.
+ * @returns {calIItemBase[]} Array of calendar items.
  */
 function getItemsFromIcsFile(file) {
   let importer = Cc["@mozilla.org/calendar/import;1?type=ics"].getService(Ci.calIImporter);
@@ -134,29 +134,30 @@ function getItemsFromIcsFile(file) {
 
 /**
  * @callback onError
- * @param {calIItemBase} item          The item which failed to import.
- * @param {Number|nsIException} error  The error number from Components.results, or
+ * @param {calIItemBase} item - The item which failed to import.
+ * @param {number | nsIException} error  The error number from Components.results, or
  *                                     the exception which contains the error number.
  */
 
 /**
  * Listener for the stages of putItemsIntoCal().
+ *
  * @typedef PutItemsIntoCalListener
- * @property {function}   onStart
+ * @property {Function}   onStart
  * @property {onError}    onDuplicate
  * @property {onError}    onError
  * @property {onProgress} onProgress
- * @property {function}   onEnd
+ * @property {Function}   onEnd
  */
 
 /**
  * Put items into a certain calendar, catching errors and showing them to the
  * user.
  *
- * @param {calICalendar} destCal    The destination calendar.
- * @param {calIItemBase[]} aItems   An array of items to put into the calendar.
- * @param {string} aFilePath        The original file path, for error messages.
- * @param {PutItemsIntoCalListener} [aListener]  Optional listener.
+ * @param {calICalendar} destCal - The destination calendar.
+ * @param {calIItemBase[]} aItems - An array of items to put into the calendar.
+ * @param {string} aFilePath - The original file path, for error messages.
+ * @param {PutItemsIntoCalListener} [aListener] - Optional listener.
  */
 async function putItemsIntoCal(destCal, aItems, aListener) {
   async function callListener(method, ...args) {

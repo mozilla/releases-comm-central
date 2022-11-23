@@ -93,7 +93,7 @@ add_task(async function test_account_dot_IDs() {
  * of the element contains multiple dots (not used in standard TB yet
  * but extensions may want it).
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_check_account_dot_IDs(tab) {
   let accountRow = get_account_tree_row(
@@ -186,7 +186,7 @@ add_task(async function test_account_locked_prefs() {
  * Check that the LDAP server selection elements (radio group) are properly
  * disabled when their attached pref (prefstring attribute) is locked.
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_check_locked_prefs_addressing(tab) {
   let accountRow = get_account_tree_row(
@@ -266,7 +266,7 @@ function subtest_check_locked_prefs_addressing(tab) {
  * checkboxes + textbox) are properly disabled when their attached pref
  * (prefstring attribute) is locked.
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_check_locked_prefs_server(tab) {
   let accountRow = get_account_tree_row(
@@ -367,7 +367,7 @@ add_task(async function test_replyTo_leak() {
 });
 
 /**
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_check_replyTo_leak(tab) {
   let accountRow = get_account_tree_row(gPopAccount.key, null, tab);
@@ -413,7 +413,7 @@ add_task(async function test_account_onchange_handler() {
 /**
  * Check if onchange handlers are properly executed when panes are switched.
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_check_onchange_handler(tab) {
   let accountRow = get_account_tree_row(

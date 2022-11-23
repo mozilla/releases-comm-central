@@ -62,6 +62,7 @@ function onAccept() {
 
 /** marks all headers in the database, whose time is between the two
   given times, as read.
+ *
   @param lower
     PRTime for the lower bound - this boundary is inclusive
   @param upper

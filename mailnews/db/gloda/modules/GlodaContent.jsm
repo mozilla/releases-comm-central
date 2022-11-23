@@ -14,7 +14,7 @@ const EXPORTED_SYMBOLS = [
  *
  * @param aMimeMsg: the MimeMessage instance
  * @param folder: the nsIMsgDBFolder
- * @return an array containing the GlodaContent instance, and the meta dictionary
+ * @returns an array containing the GlodaContent instance, and the meta dictionary
  * that the Gloda content providers may have filled with useful data.
  */
 
@@ -39,7 +39,7 @@ function mimeMsgToContentAndMeta(aMimeMsg, folder) {
  * @param length: optional number of characters to trim the whittled content.
  * If the actual length of the message is greater than |length|, then the return
  * value is the first (length-1) characters with an ellipsis appended.
- * @return an array containing the text of the snippet, and the meta dictionary
+ * @returns an array containing the text of the snippet, and the meta dictionary
  * that the Gloda content providers may have filled with useful data.
  */
 

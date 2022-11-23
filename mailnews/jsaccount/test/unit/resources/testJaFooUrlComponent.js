@@ -5,7 +5,7 @@
   One of the goals of JsAccount is to be able to incrementally extend a base
   implementation, possibly adding a new interface. This code demonstrates
   a mailnews URL extended for a hypthetical account type "foo".
-**/
+*/
 
 const { JSAccountUtils } = ChromeUtils.import(
   "resource:///modules/jsaccount/JSAccountUtils.jsm"

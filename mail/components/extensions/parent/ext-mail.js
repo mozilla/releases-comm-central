@@ -148,7 +148,7 @@ global.openOptionsPage = extension => {
  * Returns a real file for the given DOM File.
  *
  * @param {File} file - the DOM File
- * @return {nsIFile}
+ * @returns {nsIFile}
  */
 async function getRealFileForFile(file) {
   if (file.mozFullPath) {
@@ -186,7 +186,7 @@ async function getRealFileForFile(file) {
  * Gets the window for a tabmail tabInfo.
  *
  * @param {NativeTabInfo} nativeTabInfo - The tabInfo object to get the browser for
- * @return {Window} - The browser element for the tab
+ * @returns {Window} - The browser element for the tab
  */
 function getTabWindow(nativeTabInfo) {
   return Cu.getGlobalForObject(nativeTabInfo);
@@ -197,7 +197,7 @@ global.getTabWindow = getTabWindow;
  * Gets the tabmail for a tabmail tabInfo.
  *
  * @param {NativeTabInfo} nativeTabInfo - The tabInfo object to get the browser for
- * @return {?XULElement} - The browser element for the tab
+ * @returns {?XULElement} - The browser element for the tab
  */
 function getTabTabmail(nativeTabInfo) {
   return getTabWindow(nativeTabInfo).document.getElementById("tabmail");
@@ -207,8 +207,8 @@ global.getTabTabmail = getTabTabmail;
 /**
  * Gets the tab browser for the tabmail tabInfo.
  *
- * @param {NativeTabInfo} nativeTabInfo     The tabInfo object to get the browser for
- * @return {?XULElement}                    The browser element for the tab
+ * @param {NativeTabInfo} nativeTabInfo - The tabInfo object to get the browser for
+ * @returns {?XULElement} The browser element for the tab
  */
 function getTabBrowser(nativeTabInfo) {
   if (!nativeTabInfo) {
@@ -255,7 +255,7 @@ global.TabContext = class extends EventEmitter {
    *
    * @param {XULElement|ChromeWindow} keyObject
    *        Browser tab or browser chrome window.
-   * @returns {Object}
+   * @returns {object}
    */
   get(keyObject) {
     if (!this.tabData.has(keyObject)) {
@@ -382,8 +382,8 @@ class WindowTracker extends WindowTrackerBase {
   /**
    * Adds a tab progress listener to the given mail window.
    *
-   * @param {DOMWindow} window      The mail window to which to add the listener.
-   * @param {Object} listener       The listener to add
+   * @param {DOMWindow} window - The mail window to which to add the listener.
+   * @param {object} listener - The listener to add
    */
   addProgressListener(window, listener) {
     let tabmail = window.document.getElementById("tabmail");
@@ -395,8 +395,8 @@ class WindowTracker extends WindowTrackerBase {
   /**
    * Removes a tab progress listener from the given mail window.
    *
-   * @param {DOMWindow} window      The mail window from which to remove the listener.
-   * @param {Object} listener       The listener to remove
+   * @param {DOMWindow} window - The mail window from which to remove the listener.
+   * @param {object} listener - The listener to remove
    */
   removeProgressListener(window, listener) {
     let tabmail = window.document.getElementById("tabmail");
@@ -409,8 +409,8 @@ class WindowTracker extends WindowTrackerBase {
    * Determines if the passed window object is a mail window. The function name is for base class
    * compatibility with gecko.
    *
-   * @param {DOMWindow} window      The window to check
-   * @return {Boolean}              True, if the window is a mail window
+   * @param {DOMWindow} window - The window to check
+   * @returns {boolean} True, if the window is a mail window
    */
   isBrowserWindow(window) {
     let { documentElement } = window.document;
@@ -517,8 +517,8 @@ class TabTracker extends TabTrackerBase {
   /**
    * Returns the numeric ID for the given native tab.
    *
-   * @param {NativeTabInfo} nativeTabInfo       The tabmail tabInfo for which to return an ID
-   * @return {Integer}                          The tab's numeric ID
+   * @param {NativeTabInfo} nativeTabInfo - The tabmail tabInfo for which to return an ID
+   * @returns {Integer} The tab's numeric ID
    */
   getId(nativeTabInfo) {
     let id = this._tabs.get(nativeTabInfo);
@@ -536,8 +536,8 @@ class TabTracker extends TabTrackerBase {
   /**
    * Returns the tab id corresponding to the given browser element.
    *
-   * @param {XULElement} browser        The <browser> element to retrieve for
-   * @return {Integer}                  The tab's numeric ID
+   * @param {XULElement} browser - The <browser> element to retrieve for
+   * @returns {Integer} The tab's numeric ID
    */
   getBrowserTabId(browser) {
     let id = this._browsers.get(`${browser.browserId}#${browser._activeTabId}`);
@@ -561,8 +561,8 @@ class TabTracker extends TabTrackerBase {
   /**
    * Records the tab information for the given tabInfo object.
    *
-   * @param {NativeTabInfo} nativeTabInfo       The tab info to record for
-   * @param {Integer} id                        The tab id to record
+   * @param {NativeTabInfo} nativeTabInfo - The tab info to record for
+   * @param {Integer} id - The tab id to record
    */
   setId(nativeTabInfo, id) {
     this._tabs.set(nativeTabInfo, id);
@@ -576,8 +576,8 @@ class TabTracker extends TabTrackerBase {
   /**
    * Function to call when a tab was close, deletes tab information for the tab.
    *
-   * @param {Event} event                  The event triggering the detroyal
-   * @param {{ nativeTabInfo:NativeTabInfo}}  The object containing tab info
+   * @param {Event} event - The event triggering the detroyal
+   * @param {{ nativeTabInfo:NativeTabInfo}} - The object containing tab info
    */
   _handleTabDestroyed(event, { nativeTabInfo }) {
     let id = this._tabs.get(nativeTabInfo);
@@ -597,9 +597,9 @@ class TabTracker extends TabTrackerBase {
   /**
    * Returns the native tab with the given numeric ID.
    *
-   * @param {Integer} tabId     The numeric ID of the tab to return.
-   * @param {*} default_        The value to return if no tab exists with the given ID.
-   * @return {NativeTabInfo}    The tab information for the given id.
+   * @param {Integer} tabId - The numeric ID of the tab to return.
+   * @param {*} default_ - The value to return if no tab exists with the given ID.
+   * @returns {NativeTabInfo} The tab information for the given id.
    */
   getTab(tabId, default_ = undefined) {
     let nativeTabInfo = this._tabIds.get(tabId);
@@ -616,7 +616,7 @@ class TabTracker extends TabTrackerBase {
    * Handles load events for recently-opened windows, and adds additional
    * listeners which may only be safely added when the window is fully loaded.
    *
-   * @param {Event} event       A DOM event to handle.
+   * @param {Event} event - A DOM event to handle.
    */
   handleEvent(event) {
     let nativeTabInfo = event.detail.tabInfo;
@@ -668,7 +668,7 @@ class TabTracker extends TabTrackerBase {
    * A private method which is called whenever a new mail window is opened, and dispatches the
    * necessary events for it.
    *
-   * @param {DOMWindow} window      The window being opened.
+   * @param {DOMWindow} window - The window being opened.
    */
   _handleWindowOpen(window) {
     if (
@@ -700,7 +700,7 @@ class TabTracker extends TabTrackerBase {
    * A private method which is called whenever a mail window is closed, and dispatches the necessary
    * events for it.
    *
-   * @param {DOMWindow} window      The window being closed.
+   * @param {DOMWindow} window - The window being closed.
    */
   _handleWindowClose(window) {
     if (
@@ -733,7 +733,7 @@ class TabTracker extends TabTrackerBase {
   /**
    * Emits a "tab-activated" event for the given tab info.
    *
-   * @param {NativeTabInfo} nativeTabInfo   The tab info which has been activated.
+   * @param {NativeTabInfo} nativeTabInfo - The tab info which has been activated.
    */
   emitActivated(nativeTabInfo) {
     this.emit("tab-activated", {
@@ -745,7 +745,7 @@ class TabTracker extends TabTrackerBase {
   /**
    * Emits a "tab-attached" event for the given tab info.
    *
-   * @param {NativeTabInfo} nativeTabInfo   The tab info which is being attached.
+   * @param {NativeTabInfo} nativeTabInfo - The tab info which is being attached.
    */
   emitAttached(nativeTabInfo) {
     let tabId = this.getId(nativeTabInfo);
@@ -765,7 +765,7 @@ class TabTracker extends TabTrackerBase {
   /**
    * Emits a "tab-detached" event for the given tab info.
    *
-   * @param {NativeTabInfo} nativeTabInfo   The tab info which is being detached.
+   * @param {NativeTabInfo} nativeTabInfo - The tab info which is being detached.
    */
   emitDetached(nativeTabInfo) {
     let tabId = this.getId(nativeTabInfo);
@@ -785,8 +785,8 @@ class TabTracker extends TabTrackerBase {
   /**
    * Emits a "tab-created" event for the given tab info.
    *
-   * @param {NativeTabInfo} nativeTabInfo   The tab info which is being created.
-   * @param {?NativeTab} currentTab         The tab info for the currently active tab.
+   * @param {NativeTabInfo} nativeTabInfo - The tab info which is being created.
+   * @param {?NativeTab} currentTab - The tab info for the currently active tab.
    */
   emitCreated(nativeTabInfo, currentTab) {
     this.emit("tab-created", { nativeTabInfo, currentTab });
@@ -795,9 +795,9 @@ class TabTracker extends TabTrackerBase {
   /**
    * Emits a "tab-removed" event for the given tab info.
    *
-   * @param {NativeTabInfo} nativeTabInfo   The tab info in the window to which the tab is being
+   * @param {NativeTabInfo} nativeTabInfo - The tab info in the window to which the tab is being
    *                                          removed
-   * @param {Boolean} isWindowClosing       If true, the window with these tabs is closing
+   * @param {boolean} isWindowClosing - If true, the window with these tabs is closing
    */
   emitRemoved(nativeTabInfo, isWindowClosing) {
     this.emit("tab-removed", {
@@ -811,8 +811,8 @@ class TabTracker extends TabTrackerBase {
   /**
    * Returns tab id and window id for the given browser element.
    *
-   * @param {Element} browser                       The browser element to check
-   * @return {{ tabId:Integer, windowId:Integer }}  The browsing data for the element
+   * @param {Element} browser - The browser element to check
+   * @returns {{ tabId:Integer, windowId:Integer }} The browsing data for the element
    */
   getBrowserData(browser) {
     return {
@@ -1199,7 +1199,7 @@ class Window extends WindowBase {
   /**
    * Update the geometry of the mail window.
    *
-   * @param {Object} options
+   * @param {object} options
    *        An object containing new values for the window's geometry.
    * @param {integer} [options.left]
    *        The new pixel distance of the left side of the mail window from
@@ -1246,7 +1246,7 @@ class Window extends WindowBase {
   /**
    * Sets the title preface of the window.
    *
-   * @param {String} titlePreface       The title preface to set
+   * @param {string} titlePreface - The title preface to set
    */
   setTitlePreface(titlePreface) {
     this.window.document.documentElement.setAttribute(
@@ -1298,8 +1298,8 @@ class Window extends WindowBase {
   /**
    * Returns the window state for the given window.
    *
-   * @param {DOMWindow} window      The window to check
-   * @return {String}               "maximized", "minimized", "normal" or "fullscreen"
+   * @param {DOMWindow} window - The window to check
+   * @returns {string} "maximized", "minimized", "normal" or "fullscreen"
    */
   static getState(window) {
     const STATES = {
@@ -1322,7 +1322,7 @@ class Window extends WindowBase {
   /**
    * Sets the window state for this speific window.
    *
-   * @param {String} state          "maximized", "minimized", "normal" or "fullscreen"
+   * @param {string} state - "maximized", "minimized", "normal" or "fullscreen"
    */
   set state(state) {
     let { window } = this;
@@ -1393,8 +1393,8 @@ class Window extends WindowBase {
   /**
    * Retrieves the tab at the given index.
    *
-   * @param {Number} index      The index to look at
-   * @return {Tab}              The wrapped tab at the index
+   * @param {number} index - The index to look at
+   * @returns {Tab} The wrapped tab at the index
    */
   getTabAtIndex(index) {
     let { tabManager } = this.extension;
@@ -1438,8 +1438,8 @@ class TabmailWindow extends Window {
   /**
    * Retrieves the tab at the given index.
    *
-   * @param {Number} index      The index to look at
-   * @return {Tab}              The wrapped tab at the index
+   * @param {number} index - The index to look at
+   * @returns {Tab} The wrapped tab at the index
    */
   getTabAtIndex(index) {
     let { tabManager } = this.extension;
@@ -1462,9 +1462,9 @@ class TabManager extends TabManagerBase {
   /**
    * Returns a Tab wrapper for the tab with the given ID.
    *
-   * @param {integer} tabId     The ID of the tab for which to return a wrapper.
-   * @param {*} default_        The value to return if no tab exists with the given ID.
-   * @return {Tab|*}            The wrapped tab, or the default value
+   * @param {integer} tabId - The ID of the tab for which to return a wrapper.
+   * @param {*} default_ - The value to return if no tab exists with the given ID.
+   * @returns {Tab|*} The wrapped tab, or the default value
    */
   get(tabId, default_ = undefined) {
     let nativeTabInfo = tabTracker.getTab(tabId, default_);
@@ -1479,7 +1479,7 @@ class TabManager extends TabManagerBase {
    * If the extension has requested activeTab permission, grant it those permissions for the current
    * inner window in the given native tab.
    *
-   * @param {NativeTabInfo} nativeTabInfo       The native tab for which to grant permissions.
+   * @param {NativeTabInfo} nativeTabInfo - The native tab for which to grant permissions.
    */
   addActiveTabPermission(nativeTabInfo = tabTracker.activeTab) {
     super.addActiveTabPermission(nativeTabInfo);
@@ -1489,7 +1489,7 @@ class TabManager extends TabManagerBase {
    * Revoke the extension's activeTab permissions for the current inner window of the given native
    * tab.
    *
-   * @param {NativeTabInfo} nativeTabInfo       The native tab for which to revoke permissions.
+   * @param {NativeTabInfo} nativeTabInfo - The native tab for which to revoke permissions.
    */
   revokeActiveTabPermission(nativeTabInfo = tabTracker.activeTab) {
     super.revokeActiveTabPermission(nativeTabInfo);
@@ -1510,8 +1510,8 @@ class TabManager extends TabManagerBase {
   /**
    * Returns a new Tab instance wrapping the given native tab info.
    *
-   * @param {NativeTabInfo} nativeTabInfo       The native tab for which to return a wrapper.
-   * @return {Tab}                              The wrapped native tab
+   * @param {NativeTabInfo} nativeTabInfo - The native tab for which to return a wrapper.
+   * @returns {Tab} The wrapped native tab
    */
   wrapTab(nativeTabInfo) {
     let tabClass = TabmailTab;
@@ -1533,10 +1533,10 @@ class WindowManager extends WindowManagerBase {
   /**
    * Returns a Window wrapper for the mail window with the given ID.
    *
-   * @param {Integer} windowId      The ID of the browser window for which to return a wrapper.
-   * @param {BaseContext} context   The extension context for which the matching is being performed.
+   * @param {Integer} windowId - The ID of the browser window for which to return a wrapper.
+   * @param {BaseContext} context - The extension context for which the matching is being performed.
    *                                  Used to determine the current window for relevant properties.
-   * @return {Window}               The wrapped window
+   * @returns {Window} The wrapped window
    */
   get(windowId, context) {
     let window = windowTracker.getWindow(windowId, context);
@@ -1557,8 +1557,8 @@ class WindowManager extends WindowManagerBase {
   /**
    * Returns a new Window instance wrapping the given mail window.
    *
-   * @param {DOMWindow} window      The mail window for which to return a wrapper.
-   * @returns {Window}              The wrapped window
+   * @param {DOMWindow} window - The mail window for which to return a wrapper.
+   * @returns {Window} The wrapped window
    */
   wrapWindow(window) {
     let windowClass = Window;
@@ -1602,8 +1602,9 @@ function getNormalWindowReady(context, windowId) {
 
 /**
  * Converts an nsIMsgAccount to a simple object
+ *
  * @param {nsIMsgAccount} account
- * @return {Object}
+ * @returns {object}
  */
 function convertAccount(account, includeFolders = true) {
   if (!account) {
@@ -1635,9 +1636,10 @@ function convertAccount(account, includeFolders = true) {
 
 /**
  * Converts an nsIMsgIdentity to a simple object for use in messages.
+ *
  * @param {nsIMsgAccount} account
  * @param {nsIMsgIdentity} identity
- * @return {Object}
+ * @returns {object}
  */
 function convertMailIdentity(account, identity) {
   if (!account || !identity) {
@@ -1665,7 +1667,8 @@ function convertMailIdentity(account, identity) {
 
 /**
  * Convert a folder URI to a human-friendly path.
- * @return {String}
+ *
+ * @returns {string}
  */
 function folderURIToPath(accountId, uri) {
   let server = MailServices.accounts.getAccount(accountId).incomingServer;
@@ -1690,7 +1693,8 @@ function folderURIToPath(accountId, uri) {
 /**
  * Convert a human-friendly path to a folder URI. This function does not assume
  * that the folder referenced exists.
- * @return {String}
+ *
+ * @returns {string}
  */
 function folderPathToURI(accountId, path) {
   let server = MailServices.accounts.getAccount(accountId).incomingServer;
@@ -1735,7 +1739,7 @@ const folderTypeMap = new Map([
  * @param {nsIMsgFolder} folder - The folder to convert.
  * @param {string} [accountId] - An optimization to avoid looking up the
  *     account. The value from nsIMsgHdr.accountKey must not be used here.
- * @return {MailFolder}
+ * @returns {MailFolder}
  * @see mail/components/extensions/schemas/folders.json
  */
 function convertFolder(folder, accountId) {
@@ -1770,7 +1774,7 @@ function convertFolder(folder, accountId) {
  * @param {nsIMsgFolder} folder - The folder to convert.
  * @param {string} [accountId] - An optimization to avoid looking up the
  *     account. The value from nsIMsgHdr.accountKey must not be used here.
- * @return {MailFolder}
+ * @returns {MailFolder}
  * @see mail/components/extensions/schemas/folders.json
  */
 function traverseSubfolders(folder, accountId) {
@@ -1825,7 +1829,8 @@ function isAttachedMessage(msgHdr) {
 /**
  * Converts an nsIMsgHdr to a simple object for use in messages.
  * This function WILL change as the API develops.
- * @return {Object}
+ *
+ * @returns {object}
  */
 function convertMessage(msgHdr, extension) {
   if (!msgHdr) {
@@ -1999,7 +2004,8 @@ var messageTracker = new (class extends EventEmitter {
 
   /**
    * Finds a message in the messageTracker or adds it.
-   * @return {int} The messageTracker id of the message
+   *
+   * @returns {int} The messageTracker id of the message
    */
   getId(msgHdr) {
     let msgIdentifier;
@@ -2042,7 +2048,7 @@ var messageTracker = new (class extends EventEmitter {
    * Check if the provided msgIdentifier belongs to a modified file message.
    *
    * @param {*} msgIdentifier - the msgIdentifier object of the message
-   * @returns {Boolean}
+   * @returns {boolean}
    */
   isModifiedFileMsg(msgIdentifier) {
     if (!msgIdentifier.dummyMsgUrl?.startsWith("file://")) {
@@ -2072,7 +2078,8 @@ var messageTracker = new (class extends EventEmitter {
   /**
    * Retrieves a message from the messageTracker. If the message no longer,
    * exists it is removed from the messageTracker.
-   * @return {nsIMsgHdr} The identifier of the message
+   *
+   * @returns {nsIMsgHdr} The identifier of the message
    */
   getMessage(id) {
     let msgIdentifier = this._messages.get(id);
@@ -2285,7 +2292,8 @@ var messageListTracker = {
 
   /**
    * Takes an array or enumerator of messages and returns the first chunk.
-   * @returns {Object}
+   *
+   * @returns {object}
    */
   startList(messages, extension) {
     let messageList = this.createList(extension);
@@ -2314,7 +2322,8 @@ var messageListTracker = {
 
   /**
    * Creates and returns a new messageList object.
-   * @returns {Object}
+   *
+   * @returns {object}
    */
   createList(extension) {
     let messageListId = Services.uuid.generateUUID().number.substring(1, 37);
@@ -2330,7 +2339,8 @@ var messageListTracker = {
 
   /**
    * Returns the messageList object for a given id.
-   * @returns {Object}
+   *
+   * @returns {object}
    */
   getList(messageListId, extension) {
     let lists = this._contextLists.get(extension);
@@ -2345,7 +2355,8 @@ var messageListTracker = {
 
   /**
    * Returns the first/next message page of the given messageList.
-   * @returns {Object}
+   *
+   * @returns {object}
    */
   async getNextPage(messageList) {
     let messageListId = messageList.id;

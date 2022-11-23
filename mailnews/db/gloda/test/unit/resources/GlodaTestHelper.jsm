@@ -379,6 +379,7 @@ class GlodaIndexerData {
    * Applies data shallow.
    * Only the first level of keys are applied and replaced complete
    *  if given via param data. No deep merge.
+   *
    * @param {*} data
    */
   applyData(data) {
@@ -600,7 +601,7 @@ class GlodaCollectionListener {
  *     of message moves, gloda may generate an onItemsModified notification but
  *     not reindex the message.  This attribute allows the tests to distinguish
  *     between the two cases.
- * @return {[true, string]}
+ * @returns {[true, string]}
  */
 function assertExpectedMessagesIndexed(aSynMessageSets, aConfig) {
   indexMessageState.synMessageSets = aSynMessageSets;
@@ -774,6 +775,7 @@ function assertExpectedMessagesIndexed(aSynMessageSets, aConfig) {
 
 /**
  * Resets the IndexMessageState
+ *
  * @TODO more docs
  */
 function resetIndexMessageState() {

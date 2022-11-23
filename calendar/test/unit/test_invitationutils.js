@@ -22,7 +22,8 @@ Services.prefs.setStringPref("calendar.timezone.local", "Europe/Berlin");
 
 /**
  * typedef {Object} FullIcsValue
- * @property {Object.<string, string>} params - Parameters for the ics property,
+ *
+ * @property {Object<string, string>} params - Parameters for the ics property,
  *   mapping from the parameter name to its value. Each name should be in camel
  *   case. For example, to set "PARTSTAT=ACCEPTED" on the "attendee" property,
  *   use `{ partstat: "ACCEPTED" }`.
@@ -37,7 +38,7 @@ Services.prefs.setStringPref("calendar.timezone.local", "Europe/Berlin");
 /**
  * Get a ics string for an event.
  *
- * @param {Object.<string, (IcsValue|IcsValue[])>} [eventProperties] - Object
+ * @param {Object<string, (IcsValue | IcsValue[])>} [eventProperties] - Object
  *   used to set the event properties, mapping from the ics property name to its
  *   value. The property name should be in camel case, so "propertyName" should
  *   be used for the "PROPERTY-NAME" property. The value can either be a single
@@ -52,7 +53,7 @@ Services.prefs.setStringPref("calendar.timezone.local", "Europe/Berlin");
  *   the object. Note that to avoid a property with a default value, you must
  *   pass an empty value for the property.
  *
- * @return {string} - The ics string.
+ * @returns {string} - The ics string.
  */
 function getIcs(eventProperties) {
   // we use an unfolded ics blueprint here to make replacing of properties easier

@@ -24,6 +24,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 /**
  * Controller for the views
+ *
  * @see calIcalendarViewController
  */
 var calendarViewController = {
@@ -31,6 +32,7 @@ var calendarViewController = {
 
   /**
    * Creates a new event
+   *
    * @see calICalendarViewController
    */
   createNewEvent(calendar, startTime, endTime, forceAllday) {
@@ -56,6 +58,7 @@ var calendarViewController = {
 
   /**
    * Modifies the given occurrence
+   *
    * @see calICalendarViewController
    */
   modifyOccurrence(occurrence, newStartTime, newEndTime, newTitle) {
@@ -101,6 +104,7 @@ var calendarViewController = {
 
   /**
    * Deletes the given occurrences
+   *
    * @see calICalendarViewController
    */
   deleteOccurrences(occurrencesArg, useParentItems, doNotConfirm, extResponseArg = null) {
@@ -313,7 +317,7 @@ function switchToView(viewType) {
 /**
  * Returns the calendar view box element.
  *
- * @return      The view-box element.
+ * @returns The view-box element.
  */
 function getViewBox() {
   return document.getElementById("view-box");
@@ -322,7 +326,7 @@ function getViewBox() {
 /**
  * Returns the currently selected calendar view.
  *
- * @return      The selected calendar view
+ * @returns The selected calendar view
  */
 function currentView() {
   for (let element of getViewBox().children) {
@@ -396,7 +400,7 @@ function minimonthPick(aNewDate) {
 /**
  * Provides a neutral way to get the minimonth.
  *
- * @return          The XUL minimonth element.
+ * @returns The XUL minimonth element.
  */
 function getMinimonth() {
   return document.getElementById("calMinimonth");
@@ -485,7 +489,7 @@ var gLastShownCalendarView = {
    * Returns the calendar view that was selected before restart, or the current
    * calendar view if it has already been set in this session.
    *
-   * @return {string} The last calendar view.
+   * @returns {string} The last calendar view.
    */
   get() {
     if (!this._lastView) {

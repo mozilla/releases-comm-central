@@ -229,7 +229,7 @@ export var GenericIRCConversation = {
   /**
    * @param {string} aWho - Message author's username.
    * @param {string} aMessage - Message text.
-   * @param {Object} aObject - Other properties to set on the imMessage.
+   * @param {object} aObject - Other properties to set on the imMessage.
    */
   handleTags(aWho, aMessage, aObject) {
     let messageProps = aObject;

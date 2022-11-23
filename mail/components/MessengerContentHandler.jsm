@@ -696,6 +696,7 @@ var gMessengerContentHandler = new MailDefaultHandler();
 
 /**
  * Open a message/rfc822 or eml file in a new msg window.
+ *
  * @implements {nsIContentHandler}
  */
 class MessageDisplayContentHandler {

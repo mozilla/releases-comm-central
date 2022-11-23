@@ -34,7 +34,7 @@ class CalItipOutgoingMessage {
    *
    * @param {calIItipTransport} transport - The transport to use when sending.
    *
-   * @return {boolean} - True, if the message could be sent
+   * @returns {boolean} - True, if the message could be sent
    */
   send(transport) {
     if (this.item.calendar && this.item.calendar.supportsScheduling) {

@@ -732,6 +732,7 @@ var DB_SCHEMA_ACCEPT_LEAVE_LOW = 31,
  *  states of attributes to accomplish this, but that is not desirable.)  This
  *  needs to be addressed, and may be best addressed at layers above
  *  GlodaDatastore.jsm.
+ *
  * @namespace
  */
 var GlodaDatastore = {
@@ -1321,7 +1322,7 @@ var GlodaDatastore = {
   /**
    * Generates and returns a UUID.
    *
-   * @return a UUID as a string, ex: "c4dd0159-9287-480f-a648-a4613e147fdb"
+   * @returns a UUID as a string, ex: "c4dd0159-9287-480f-a648-a4613e147fdb"
    */
   _generateDatastoreID() {
     let uuid = Services.uuid.generateUUID().toString();
@@ -1984,7 +1985,7 @@ var GlodaDatastore = {
    *  to the caller since they know much more than actually needs to go in the
    *  database.
    *
-   * @return The attribute id allocated to this attribute.
+   * @returns The attribute id allocated to this attribute.
    */
   _createAttributeDef(aAttrType, aExtensionName, aAttrName, aParameter) {
     let attributeId = this._nextAttributeId++;
@@ -2152,7 +2153,7 @@ var GlodaDatastore = {
    *
    * @param {nsIMsgFolder} aFolder
    * @param {boolean} aAllowSpecialFolderIndexing
-   * @returns {Number}
+   * @returns {number}
    */
   getDefaultIndexingPriority(aFolder, aAllowSpecialFolderIndexing) {
     let indexingPriority = GlodaFolder.prototype.kIndexingDefaultPriority;
@@ -2252,7 +2253,7 @@ var GlodaDatastore = {
    *
    * @param aFolderID The known valid gloda folder ID for which you would like
    *     a GlodaFolder instance.
-   * @return The GlodaFolder instance with the given id.  If no such instance
+   * @returns The GlodaFolder instance with the given id.  If no such instance
    *     exists, we will throw an exception.
    */
   _mapFolderID(aFolderID) {

@@ -45,6 +45,7 @@ add_setup(async function() {
 
 /**
  * Runs the test using the provided FREQ value.
+ *
  * @param {string} freq Either "SECONDLY" or "MINUTELY"
  */
 async function doFreqTest(freq) {

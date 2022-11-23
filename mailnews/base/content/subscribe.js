@@ -426,7 +426,7 @@ function InvalidateSearchTree() {
 /**
  * Toggle the tree panel in the dialog between search view and subscribe view.
  *
- * @param {Boolean} toggle - If true, show the search view else show the
+ * @param {boolean} toggle - If true, show the search view else show the
  *  subscribe view.
  */
 function toggleSubscriptionView(toggle) {

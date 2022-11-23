@@ -17,7 +17,7 @@
  *        The API name of the event manager, e.g.,"runtime.onMessage".
  * @param {string} event
  *        The name of the DOM event to listen for.
- * @param {function} listener
+ * @param {Function} listener
  *        The listener function to call when a DOM event is received.
  *
  * @returns {object} An injectable api for the new event.

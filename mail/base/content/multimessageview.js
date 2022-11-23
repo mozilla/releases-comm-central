@@ -213,7 +213,7 @@ MultiMessageSummary.prototype = {
    *                        should be shown; defaults to false
    *                      snippetLength: the length in bytes of the message
    *                        snippet; defaults to undefined (let Gloda decide)
-   * @return A DOM node for the summary item.
+   * @returns A DOM node for the summary item.
    */
   makeSummaryItem(aMsgOrThread, aOptions) {
     let message, thread, numUnread, isStarred, tags;
@@ -375,7 +375,7 @@ MultiMessageSummary.prototype = {
    * be a good candidate for a utility library.
    *
    * @param aMsgHdr The msgHdr whose tags we want.
-   * @return An array of nsIMsgTag objects.
+   * @returns An array of nsIMsgTag objects.
    */
   _getTagsForMsg(aMsgHdr) {
     let keywords = new Set(aMsgHdr.getStringProperty("keywords").split(" "));
@@ -548,7 +548,7 @@ ThreadSummarizer.prototype = {
    * Summarize a list of messages.
    *
    * @param aMessages A LimitIterator of the messages to summarize.
-   * @return An array of the messages actually summarized.
+   * @returns An array of the messages actually summarized.
    */
   summarize(aMessages, aDBView) {
     let messageList = document.getElementById("message_list");
@@ -711,7 +711,7 @@ MultipleSelectionSummarizer.prototype = {
    * Group all the messages to be summarized into threads.
    *
    * @param aMessages The messages to group.
-   * @return An array of arrays of messages, grouped by thread.
+   * @returns An array of arrays of messages, grouped by thread.
    */
   _buildThreads(aMessages, aDBView) {
     // First, we group the messages in threads and count the threads.

@@ -21,7 +21,7 @@
     /**
      * Creates and connects the new observer to a CalendarTaskTree and sets up Query Interface.
      *
-     * @param {CalendarTaskTree} taskTree    The tree to observe.
+     * @param {CalendarTaskTree} taskTree - The tree to observe.
      */
     constructor(taskTree) {
       this.tree = taskTree;
@@ -114,7 +114,7 @@
   /**
    * Custom element for table-style display of tasks (rows and columns).
    *
-   * @extends {MozTree}
+   * @augments {MozTree}
    */
   class CalendarTaskTree extends customElements.get("tree") {
     connectedCallback() {
@@ -423,8 +423,8 @@
      * Calculates the text to display in the "Due In" column for the given task,
      * the amount of time between now and when the task is due.
      *
-     * @param {Object} task    A task object.
-     * @return {string}        A formatted string for the "Due In" column for the task.
+     * @param {object} task - A task object.
+     * @returns {string} A formatted string for the "Due In" column for the task.
      */
     duration(task) {
       const noValidDueDate = !(task && task.dueDate && task.dueDate.isValid);
@@ -466,8 +466,8 @@
     /**
      * Return the task object at a given row.
      *
-     * @param {number} row        The index number identifying the row.
-     * @return {Object | null}    A task object or null if none found.
+     * @param {number} row - The index number identifying the row.
+     * @returns {object | null} A task object or null if none found.
      */
     getTaskAtRow(row) {
       return row > -1 ? this.mTaskArray[row] : null;
@@ -476,8 +476,8 @@
     /**
      * Return the task object related to a given event.
      *
-     * @param {Event} event        The event.
-     * @return {Object | false}    The task object related to the event or false if none found.
+     * @param {Event} event - The event.
+     * @returns {object | false} The task object related to the event or false if none found.
      */
     getTaskFromEvent(event) {
       return this.mTreeView.getItemFromEvent(event);

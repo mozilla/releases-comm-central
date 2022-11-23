@@ -120,7 +120,7 @@ function poke_and_verify_msf_closure(aSynthMessage, aGlodaMessage) {
 }
 
 /**
- * @return {number} the number of live gloda folders tracked by
+ * @returns {number} the number of live gloda folders tracked by
  *     GlodaDatastore._liveGlodaFolders.
  */
 function getLiveFolderCount() {

@@ -69,6 +69,7 @@ function goUpdateFindTypeMenuItems() {
 
 /**
  * Gather all descendent text under given node.
+ *
  * @param {Node} root - The root node to gather text from.
  * @returns {string} The text data under the node.
  */
@@ -285,10 +286,10 @@ function openTab(tabType, tabParams, where) {
 /**
  * Open the specified URL as a content tab (or window)
  *
- * @param {String} url - The location to open.
- * @param {String} [where="tab"] - 'tab' to open in a new tab or 'window' to
+ * @param {string} url - The location to open.
+ * @param {string} [where="tab"] - 'tab' to open in a new tab or 'window' to
  *     open in a new window
- * @param {String} [linkHandler] - See specialTabs.contentTabType.openTab.
+ * @param {string} [linkHandler] - See specialTabs.contentTabType.openTab.
  */
 function openContentTab(url, where, linkHandler) {
   return openTab("contentTab", { url, linkHandler }, where);

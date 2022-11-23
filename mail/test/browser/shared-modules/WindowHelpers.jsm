@@ -243,7 +243,7 @@ var WindowWatcher = {
   /**
    * Wait for the given windowType to open and finish loading.
    *
-   * @return The window wrapped in a MozMillController.
+   * @returns The window wrapped in a MozMillController.
    */
   waitForWindowOpen(aWindowType) {
     this.waitingForOpen = aWindowType;
@@ -431,7 +431,7 @@ var WindowWatcher = {
    * Used by waitForWindowOpen to check all of the windows we are monitoring and
    *  then check if we have any results.
    *
-   * @return true if we found what we were |waitingForOpen|, false otherwise.
+   * @returns true if we found what we were |waitingForOpen|, false otherwise.
    */
   monitorizeOpen() {
     for (let iWin = this.monitoringList.length - 1; iWin >= 0; iWin--) {
@@ -451,7 +451,7 @@ var WindowWatcher = {
    * Used by waitForWindowClose to check if the window we are waiting to close
    *  actually closed yet.
    *
-   * @return true if it closed.
+   * @returns true if it closed.
    */
   monitorizeClose() {
     return this.waitingList.get(this.waitingForClose) == null;
@@ -502,7 +502,7 @@ var WindowWatcher = {
   /**
    * Consider if the given window is something in our |waitingList|.
    *
-   * @return true if we were able to fully consider the object, false if we were
+   * @returns true if we were able to fully consider the object, false if we were
    *     not and need to be called again on the window later.  This has no
    *     relation to whether the window was one in our waitingList or not.
    *     Check the waitingList structure for that.
@@ -550,7 +550,7 @@ var WindowWatcher = {
  *     the value of the "windowtype" attribute on the window.  The values tend
  *     to look like "app:windowname", for example "mailnews:search".
  *
- * @return The loaded window of the given type wrapped in a MozmillController
+ * @returns The loaded window of the given type wrapped in a MozmillController
  *     that is augmented using augment_controller.
  */
 function wait_for_existing_window(aWindowType) {
@@ -587,7 +587,7 @@ function plan_for_new_window(aWindowType) {
  *  previously told us about via |plan_for_new_window|), returning it wrapped
  *  in a MozmillController.
  *
- * @return The loaded window of the given type wrapped in a MozmillController
+ * @returns The loaded window of the given type wrapped in a MozmillController
  *     that is augmented using augment_controller.
  */
 function wait_for_new_window(aWindowType) {
@@ -865,7 +865,7 @@ var AugmentEverybodyWith = {
      *  // example:
      *  e("threadTree", {tagName: "treechildren"});
      *
-     * @return the element with the given id on the window's document
+     * @returns the element with the given id on the window's document
      */
     e(aId, aQuery) {
       let elem = this.window.document.getElementById(aId);
@@ -917,9 +917,9 @@ var AugmentEverybodyWith = {
      * Nodes that are obvious containers are skipped, and their children
      * will be used to recursively find a match instead.
      *
-     * @param {Element} node      The node to check.
-     * @param {Object} actionObj  Contains attribute-value pairs to match.
-     * @return {Element|null}     The matched node or null if no match.
+     * @param {Element} node - The node to check.
+     * @param {object} actionObj - Contains attribute-value pairs to match.
+     * @returns {Element|null} The matched node or null if no match.
      */
     findMatch(node, actionObj) {
       // Ignore some elements and just use their children instead.
@@ -957,7 +957,7 @@ var AugmentEverybodyWith = {
      *     we find. We throw if the element being asked for is not found.
      * @param aKeepOpen  If set to true the popups are not closed after last click.
      *
-     * @return  An array of popup elements that were left open. It will be
+     * @returns An array of popup elements that were left open. It will be
      *          an empty array if aKeepOpen was set to false.
      */
     async click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
@@ -1045,13 +1045,13 @@ var AugmentEverybodyWith = {
      * is returned. Callers will then need to close the appmenu when they are
      * done with it.
      *
-     * @param {Object[]} navTargets  Array of objects that contain
+     * @param {object[]} navTargets - Array of objects that contain
      *     attribute->value pairs. We pick the menu item whose DOM node matches
      *     all the attribute->value pairs. We click whatever we find. We throw
      *     if the element being asked for is not found.
-     * @param {Object} [nonNavTarget]  Contains attribute->value pairs used
+     * @param {object} [nonNavTarget] - Contains attribute->value pairs used
      *                                 to identify a final menu item to click.
-     * @return {Element}  The <vbox class="panel-subview-body"> element inside
+     * @returns {Element} The <vbox class="panel-subview-body"> element inside
      *                    the last shown <panelview>.
      */
     click_appmenu_in_sequence(navTargets, nonNavTarget) {
@@ -1130,11 +1130,11 @@ var AugmentEverybodyWith = {
      * and concise for the most common case while still allowing for tests that
      * open the appmenu via keyboard before calling `click_appmenu_in_sequence`.
      *
-     * @param {Object[]} navTargets  Array of objects that contain
+     * @param {object[]} navTargets - Array of objects that contain
      *     attribute->value pairs to be used to identify menu items to click.
-     * @param {Object} [nonNavTarget]  Contains attribute->value pairs used
+     * @param {object} [nonNavTarget] - Contains attribute->value pairs used
      *                                 to identify a final menu item to click.
-     * @return {Element}  The <vbox class="panel-subview-body"> element inside
+     * @returns {Element} The <vbox class="panel-subview-body"> element inside
      *                    the last shown <panelview>.
      */
     click_through_appmenu(navTargets, nonNavTarget) {

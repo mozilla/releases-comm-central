@@ -17,7 +17,8 @@
 
   /**
    * The MozTabs widget holds all the tabs for the main tab UI.
-   * @extends {MozTabs}
+   *
+   * @augments {MozTabs}
    */
   class MozTabmailTabs extends customElements.get("tabs") {
     constructor() {

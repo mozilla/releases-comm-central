@@ -84,6 +84,7 @@ function setup_messages() {
 
 /**
  * Sets gTestFolder with msgSet. Ensure that gTestFolder is clean for each test.
+ *
  * @param {SyntheticMessageSet} msgSet
  */
 async function set_gTestFolder(msgSet) {

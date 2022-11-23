@@ -783,15 +783,15 @@ var FeedSubscriptions = {
    * (to avoid position/toggle state loss).
    *
    * @param {nsIMsgFolder} aFolder - The folder to find.
-   * @param {Object} aParms        - The params object, containing:
+   * @param {object} aParms - The params object, containing:
    *
    * {Integer} parentIndex    - index of folder to start the search; if
    *                            null (default), the index of the folder's
    *                            rootFolder will be used.
-   * {Boolean} select         - if true (default) the folder's ancestors
+   * {boolean} select         - if true (default) the folder's ancestors
    *                            will be opened and the folder selected.
-   * {Boolean} open           - if true (default) the folder is opened.
-   * {Boolean} remove         - delete the item from tree row cache if true,
+   * {boolean} open           - if true (default) the folder is opened.
+   * {boolean} remove         - delete the item from tree row cache if true,
    *                            false (default) otherwise.
    * {nsIMsgFolder} newFolder - if not null (default) the new folder,
    *                            for add or rename.
@@ -1001,7 +1001,7 @@ var FeedSubscriptions = {
    * Find the feed in the tree.  The search first gets the feed's folder,
    * then selects the child feed.
    *
-   * @param {Feed} aFeed           - The feed to find.
+   * @param {Feed} aFeed - The feed to find.
    * @param {Integer} aParentIndex - Index to start the folder search.
    *
    * @returns {Boolean} found - true if found, false if not.
@@ -1598,14 +1598,14 @@ var FeedSubscriptions = {
    * though the url were entered manually.  This allows a user to see the dnd
    * url better in case of errors.
    *
-   * @param {String} aFeedLocation     - the feed url; get the url from the
+   * @param {String} aFeedLocation - the feed url; get the url from the
    *                                     input field if null.
-   * @param {nsIMsgFolder} aFolder     - folder to subscribe, current selected
+   * @param {nsIMsgFolder} aFolder - folder to subscribe, current selected
    *                                     folder if null.
-   * @param {Boolean} aParse           - if true (default) parse and download
+   * @param {Boolean} aParse - if true (default) parse and download
    *                                     the feed's articles.
-   * @param {Object} aParams           - additional params.
-   * @param {Integer} aMode            - action mode (default is kSubscribeMode)
+   * @param {Object} aParams - additional params.
+   * @param {Integer} aMode - action mode (default is kSubscribeMode)
    *                                     of the add.
    *
    * @returns {Boolean} success        - true if edit checks passed and an
@@ -1774,9 +1774,9 @@ var FeedSubscriptions = {
   /**
    * Moves or copies a feed to another folder or account.
    *
-   * @param {Integer} aOldFeedIndex   - Index in tree of target feed item.
+   * @param {Integer} aOldFeedIndex - Index in tree of target feed item.
    * @param {Integer} aNewParentIndex - Index in tree of target parent folder item.
-   * @param {String} aMoveCopy        - Either "move" or "copy".
+   * @param {String} aMoveCopy - Either "move" or "copy".
    *
    * @returns {void}
    */
@@ -2794,12 +2794,12 @@ var FeedSubscriptions = {
    * Import opml file into a feed account.  Used by the Subscribe dialog and
    * the Import wizard.
    *
-   * @param {nsIFile} aFile                - The opml file.
-   * @param {String} aFileUrl              - The opml file url.
+   * @param {nsIFile} aFile - The opml file.
+   * @param {string} aFileUrl - The opml file url.
    * @param {nsIMsgIncomingServer} aServer - The account server.
-   * @param {Function} aCallback           - Callback function.
+   * @param {Function} aCallback - Callback function.
    *
-   * @returns {Boolean}                    - false if error.
+   * @returns {Boolean} - false if error.
    */
   async importOPMLFile(aFile, aFileUrl, aServer, aCallback) {
     if (aServer && aServer instanceof Ci.nsIMsgIncomingServer) {

@@ -41,7 +41,7 @@ var DEFAULT_ICON = "chrome://messenger/content/extension.svg";
 /**
  * Get icon properties for updating the UI.
  *
- * @param {Object} icons
+ * @param {object} icons
  *        Contains the icon information, typically the extension manifest
  */
 function getIconData(icons, extension) {
@@ -114,7 +114,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
   /**
    * Called when the extension is enabled.
    *
-   * @param {String} entryName
+   * @param {string} entryName
    *        The name of the property in the extension manifest
    */
   async onManifestEntry(entryName) {
@@ -211,7 +211,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
    * May return null to append new buttons to the end of the toolbar.
    *
    * @param {DOMElement} toolbar - a toolbar node
-   * @return {DOMElement} a node which is to be used as insertion point, or null
+   * @returns {DOMElement} a node which is to be used as insertion point, or null
    */
   getNonCustomizableToolbarInsertionPoint(toolbar) {
     return null;
@@ -221,8 +221,8 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
    * Rectify the currentSet of a customizable toolbar (if needed). Called on each
    * paint request of extension buttons in customizable toolbars.
    *
-   * @param {String} currentSet - comma separated list of button ids
-   * @returns {String} the updated currentSet
+   * @param {string} currentSet - comma separated list of button ids
+   * @returns {string} the updated currentSet
    */
   rectifyCustomizableToolbarSet(currentSet) {
     return currentSet;
@@ -507,7 +507,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
    *
    * @param {XULElement} node
    *        XUL toolbarbutton to update
-   * @param {Object} tabData
+   * @param {object} tabData
    *        Properties to set
    * @param {boolean} sync
    *        Whether to perform the update immediately
@@ -630,7 +630,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
    * Gets the target object corresponding to the `details` parameter of the various
    * get* and set* API methods.
    *
-   * @param {Object} details
+   * @param {object} details
    *        An object with optional `tabId` or `windowId` properties.
    * @throws if `windowId` is specified, this is not valid in Thunderbird.
    * @returns {XULElement|ChromeWindow|null}
@@ -653,7 +653,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
    *
    * @param {XULElement|ChromeWindow|null} target
    *        A XULElement tab, a ChromeWindow, or null for the global data.
-   * @returns {Object}
+   * @returns {object}
    *        The icon, title, badge, etc. associated with the target.
    */
   getContextData(target) {
@@ -666,7 +666,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
   /**
    * Set a global, window specific or tab specific property.
    *
-   * @param {Object} details
+   * @param {object} details
    *        An object with optional `tabId` or `windowId` properties.
    * @param {string} prop
    *        String property to set. Should should be one of "icon", "title", "label",
@@ -689,7 +689,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
   /**
    * Retrieve the value of a global, window specific or tab specific property.
    *
-   * @param {Object} details
+   * @param {object} details
    *        An object with optional `tabId` or `windowId` properties.
    * @param {string} prop
    *        String property to retrieve. Should should be one of "icon", "title", "label",
@@ -704,7 +704,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
   /**
    * WebExtension API.
    *
-   * @param {Object} context
+   * @param {object} context
    */
   getAPI(context) {
     let { extension } = context;

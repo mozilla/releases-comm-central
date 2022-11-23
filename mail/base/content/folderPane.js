@@ -138,6 +138,7 @@ var gFolderTreeView = {
   /**
    * Called when the window is initially loaded. This function initializes the
    * folder-pane to the view last shown before the application was closed.
+   *
    * @param {XULTreeElement} aTree - the tree to load
    * @param {string} [aJSONFile] - name of JSON file to load data from.
    */
@@ -213,6 +214,7 @@ var gFolderTreeView = {
   /**
    * Called when the window is being torn down. Here we undo everything we did
    * onload. That means removing our listener and serializing our JSON.
+   *
    * @param {string} [filename] - Name of the file to serialize to.
    */
   async unload(filename = null) {
@@ -251,6 +253,7 @@ var gFolderTreeView = {
   /**
    * Unregisters a previously registered mode. Since common-names must be unique
    * this is all that need be provided to unregister.
+   *
    * @param aCommonName  the common-name with which the mode was previously
    *                     registered
    */
@@ -268,6 +271,7 @@ var gFolderTreeView = {
 
   /**
    * Retrieves a specific mode object
+   *
    * @param aCommonName  the common-name with which the mode was previously
    *                     registered
    */
@@ -313,6 +317,7 @@ var gFolderTreeView = {
 
   /**
    * Toggle displaying the headers of columns in the folder pane.
+   *
    * @param aSetup  Set to true if the columns should be set up according
    *                to the pref, not toggle them.
    */
@@ -1990,7 +1995,7 @@ var gFolderTreeView = {
    *
    * @param  nsIMsgFolder aFolder   - folder.
    * @param  string aProperty       - property key.
-   * @return value or null          - null indicates uninitialized.
+   * @returns value or null          - null indicates uninitialized.
    */
   getFolderCacheProperty(aFolder, aProperty) {
     if (!aFolder || !aProperty) {
@@ -3480,7 +3485,7 @@ var gFolderTreeController = {
    * Opens the dialog to rename a particular folder, and does the renaming if
    * the user clicks OK in that dialog
    *
-   * @param aFolder (optional)  the folder to rename, if different than the
+   * @param aFolder (optional) - the folder to rename, if different than the
    *                            currently selected one
    */
   renameFolder(aFolder) {
@@ -3581,7 +3586,7 @@ var gFolderTreeController = {
    * Prompts the user to confirm and empties the trash for the selected folder.
    * The folder and its children are only emptied if it has the proper Trash flag.
    *
-   * @param aFolder (optional)  The trash folder to empty. If unspecified or not
+   * @param aFolder (optional) - The trash folder to empty. If unspecified or not
    *                            a trash folder, the currently selected server's
    *                            trash folder is used.
    */
@@ -3619,7 +3624,7 @@ var gFolderTreeController = {
    * Deletes everything (folders and messages) in the selected folder.
    * The folder is only emptied if it has the proper Junk flag.
    *
-   * @param aFolder (optional)  The folder to empty. If unspecified, the currently
+   * @param aFolder (optional) - The folder to empty. If unspecified, the currently
    *                            selected folder is used, if it is junk.
    */
   emptyJunk(aFolder) {
@@ -3983,8 +3988,8 @@ function sortFolderItems(aFtvItems) {
  * Note: for css styling using nsITreeView pseudo elements, the name property
  * is returned with all spaces removed, eg |specialFolder-MySmartFolder|.
  *
- * @param nsIMsgFolder aFolder  - The folder.
- * @return property || null     - Cached property value, or null if not set.
+ * @param nsIMsgFolder aFolder - The folder.
+ * @returns property || null     - Cached property value, or null if not set.
  */
 function getSmartFolderName(aFolder) {
   return gFolderTreeView.getFolderCacheProperty(aFolder, "smartFolderName");
@@ -4107,7 +4112,7 @@ var gFolderStatsHelpers = {
    * @param aSize  The size in bytes to format.
    * @param aUnit  Optional unit to use for the format.
    *               Possible values are "KB" or "MB".
-   * @return       An array with 2 values. First is the resulting formatted strings.
+   * @returns An array with 2 values. First is the resulting formatted strings.
    *               The second one is the final unit used to format the string.
    */
   formatFolderSize(aSize, aUnit = gFolderStatsHelpers.sizeUnits) {

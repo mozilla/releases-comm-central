@@ -214,14 +214,14 @@ var RNP = {
    * If onlyKeys is given: only returns keys in that array.
    *
    * @param {rnp_ffi_t} ffi - RNP library handle to key storage area
-   * @param {Boolean} forListing - Request additional attributes
+   * @param {boolean} forListing - Request additional attributes
    *   in the returned objects, for backwards compatibility.
-   * @param {String[]} onlyKeys - An array of key IDs or fingerprints.
+   * @param {string[]} onlyKeys - An array of key IDs or fingerprints.
    *   If non-null, only the given elements will be returned.
    *   If null, all elements are returned.
-   * @param {Boolean} onlySecret - If true, only information for
+   * @param {boolean} onlySecret - If true, only information for
    *   available secret keys is returned.
-   * @param {Boolean} withPubKey - If true, an additional attribute
+   * @param {boolean} withPubKey - If true, an additional attribute
    *   "pubKey" will be added to each returned KeyObj, which will
    *   contain an ascii armor copy of the public key.
    * @returns {KeyObj[]} - An array of KeyObj objects that describe the
@@ -2895,7 +2895,7 @@ var RNP = {
 
   /**
    * @param {number} expiryTime - Time to check, in seconds from the epoch.
-   * @return {Boolean} - true if the given time is after now.
+   * @returns {boolean} - true if the given time is after now.
    */
   isExpiredTime(expiryTime) {
     if (!expiryTime) {
@@ -3253,14 +3253,14 @@ var RNP = {
   /**
    * Export one or multiple public keys.
    *
-   * @param {String[]} idArrayFull - an array of key IDs or fingerprints
+   * @param {string[]} idArrayFull - an array of key IDs or fingerprints
    *   that should be exported as full keys including all attributes.
-   * @param {String[]} idArrayReduced - an array of key IDs or
+   * @param {string[]} idArrayReduced - an array of key IDs or
    *   fingerprints that should be exported with all self-signatures,
    *   but without signatures from others.
-   * @param {String[]} idArrayMinimal - an array of key IDs or
+   * @param {string[]} idArrayMinimal - an array of key IDs or
    *   fingerprints that should be exported as minimized keys.
-   * @return {String} - An ascii armored key block containing all
+   * @returns {string} - An ascii armored key block containing all
    *   requested (available) keys.
    */
   getMultiplePublicKeys(idArrayFull, idArrayReduced, idArrayMinimal) {

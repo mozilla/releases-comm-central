@@ -87,6 +87,7 @@ var gMessageListeners = [];
  * describing how you want that header field to be presented. We'll then use
  * this static table to dynamically generate header view entries which
  * manipulate the UI.
+ *
  * @param {string} name - The name of the header. i.e. "to", "subject". This
  *   must be in lower case and the name of the header is used to help
  *   dynamically generate ids for objects in the document.
@@ -1101,9 +1102,9 @@ function updateHeaderValue(aHeaderEntry, aHeaderValue) {
  * Create the DOM nodes (aka "View") for a non-standard header and insert them
  * into the grid.  Create and return the corresponding headerEntry object.
  *
- * @param {String} headerName  name of the header we're adding, used to
+ * @param {string} headerName - name of the header we're adding, used to
  *                             construct the element IDs (in lower case)
- * @param {String} label       name of the header as displayed in the UI
+ * @param {string} label - name of the header as displayed in the UI
  */
 class HeaderView {
   constructor(headerName, label) {
@@ -1408,12 +1409,12 @@ function outputEmailAddresses(headerEntry, emailAddresses) {
  * Create a new attachment object which goes into the data attachment array.
  * This method checks whether the passed attachment is empty or not.
  *
- * @param {String} contentType - The attachment's mimetype.
- * @param {String} url         - The URL for the attachment.
- * @param {String} name        - The name to be displayed for this attachment
+ * @param {string} contentType - The attachment's mimetype.
+ * @param {string} url - The URL for the attachment.
+ * @param {string} name - The name to be displayed for this attachment
  *                               (usually the filename).
- * @param {String} uri         - The URI for the message containing the attachment.
- * @param {Boolean} isExternalAttachment - True if the attachment has been
+ * @param {string} uri - The URI for the message containing the attachment.
+ * @param {boolean} isExternalAttachment - True if the attachment has been
  *                                         detached to file or is a link
  *                                         attachment.
  */
@@ -1732,7 +1733,7 @@ AttachmentInfo.prototype = {
   /**
    * Detach this attachment from the message.
    *
-   * @param {Boolean} aSaveFirst - true if the attachment should be saved
+   * @param {boolean} aSaveFirst - true if the attachment should be saved
    *                               before detaching, false otherwise.
    */
   detach(aSaveFirst) {
@@ -1791,7 +1792,7 @@ AttachmentInfo.prototype = {
    * Return display url, decoded and converted to utf8 from IDN punycode ascii,
    * if the attachment is external (http or file schemes).
    *
-   * @returns {String} url.
+   * @returns {string} url.
    */
   get displayUrl() {
     if (this.isExternalAttachment) {
@@ -2450,7 +2451,7 @@ function updateSaveAllAttachmentsButton() {
  * existence has been verified.
  *
  * @param {AttachmentInfo} attachmentInfo
- * @param {Boolean} isFetching
+ * @param {boolean} isFetching
  */
 function updateAttachmentsDisplay(attachmentInfo, isFetching) {
   if (attachmentInfo.isExternalAttachment) {
@@ -2546,7 +2547,7 @@ function updateAttachmentsDisplay(attachmentInfo, isFetching) {
  * Calculate the total size of all attachments in the message as emitted to
  * |currentAttachments| and return a pretty string.
  *
- * @returns {String} - Description of the attachment size (e.g. 123 KB or 3.1MB)
+ * @returns {string} - Description of the attachment size (e.g. 123 KB or 3.1MB)
  */
 function getAttachmentsTotalSizeStr() {
   let bundle = document.getElementById("bundle_messenger");
@@ -2647,6 +2648,7 @@ function toggleAttachmentList(expanded, updateFocus) {
 
 /**
  * Pick out a nice icon for the attachment.
+ *
  * @param attachment  the nsIMsgAttachment object to show icon for
  */
 function getIconForAttachment(attachment) {
@@ -3188,7 +3190,7 @@ const gHeaderCustomize = {
   /**
    * The object storing all saved customization options.
    *
-   * @type {Object}
+   * @type {object}
    * @property {boolean} showAvatar - If the profile picutre of the sender
    *   should be showed.
    * @property {boolean} showFullAddress - If the sender recipient should always
@@ -3417,7 +3419,7 @@ const gMessageHeader = {
   /**
    * Get the newsgroup server corresponding to the currently selected message.
    *
-   * @return {?nsISubscribableServer} The server for the newsgroup, or null.
+   * @returns {?nsISubscribableServer} The server for the newsgroup, or null.
    */
   get newsgroupServer() {
     if (gFolderDisplay.selectedMessageIsNews) {

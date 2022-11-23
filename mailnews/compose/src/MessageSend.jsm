@@ -554,6 +554,7 @@ MessageSend.prototype = {
 
   /**
    * Handle the exit code of message delivery.
+   *
    * @param {nsIURI} url - The delivered message uri.
    * @param {boolean} isNewsDelivery - The message was delivered to newsgroup.
    * @param {nsreault} exitCode - The exit code of message delivery.
@@ -780,6 +781,7 @@ MessageSend.prototype = {
 
   /**
    * Strip Bcc header, create the file to be actually delivered.
+   *
    * @returns {nsIFile}
    */
   async _createDeliveryFile() {
@@ -822,6 +824,7 @@ MessageSend.prototype = {
   /**
    * Create the file to be copied to the Sent folder, add X-Mozilla-Status and
    * X-Mozilla-Status2 if needed.
+   *
    * @returns {nsIFile}
    */
   async _createCopyFile() {
@@ -872,6 +875,7 @@ MessageSend.prototype = {
   /**
    * Copy a message to a folder, or fallback to a folder depending on pref and
    * deliverMode, usually Drafts/Sent.
+   *
    * @param {string} [fccHeader=this._fcc] - The target folder uri to copy the
    * message to.
    * @param {boolean} [throwOnError=false] - By default notifyListenerOnStopCopy
@@ -1117,6 +1121,7 @@ MessageSend.prototype = {
 
   /**
    * Collect outgoing addresses to address book.
+   *
    * @param {string[]} recipients - Outgoing addresses including to/cc/bcc.
    */
   _collectAddressesToAddressBook(recipients) {
@@ -1135,6 +1140,7 @@ MessageSend.prototype = {
 
   /**
    * Check if link text is equivalent to the href.
+   *
    * @param {string} text - The innerHTML of a <a> element.
    * @param {string} href - The href of a <a> element.
    * @returns {boolean} true if text is equivalent to href.
@@ -1154,6 +1160,7 @@ MessageSend.prototype = {
 
   /**
    * Collect embedded objects as attachments.
+   *
    * @returns {{embeddedAttachments: nsIMsgAttachment[], embeddedObjects: []}}
    */
   _gatherEmbeddedAttachments(editor) {
@@ -1259,6 +1266,7 @@ MessageSend.prototype = {
 
   /**
    * Restore embedded objects in editor to their original urls.
+   *
    * @param {{element: Element, url: string}[]} - An array of embedded objects.
    */
   _restoreEditorContent(embeddedObjects) {
@@ -1308,6 +1316,7 @@ MessageSend.prototype = {
 
   /**
    * Get the first account key of an identity.
+   *
    * @param {nsIMsgIdentity} identity - The identity.
    * @returns {string}
    */

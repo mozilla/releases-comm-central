@@ -18,6 +18,7 @@ var USE_SHEET_PREF = "toolbar.customization.usesheet";
 
 /**
  * Initialize the help for a customization dialog
+ *
  * @param {} aToolbarId
  *   the ID of the toolbar to be customized
  * @param {} aOpenElementId
@@ -35,6 +36,7 @@ function CustomizeDialogHelper(aToolbarId, aOpenElementId, aWindowType) {
 CustomizeDialogHelper.prototype = {
   /**
    * Open a customization dialog by clicking on a given XUL element.
+   *
    * @param {} aController
    *   the controller object of the window for which the customization
    *   dialog should be opened
@@ -59,6 +61,7 @@ CustomizeDialogHelper.prototype = {
 
   /**
    * Close the customization dialog.
+   *
    * @param {} aCtc
    *   the controller object of the customization dialog which should be closed
    */
@@ -80,6 +83,7 @@ CustomizeDialogHelper.prototype = {
    *  Restore the default buttons in the header pane toolbar
    *  by clicking the corresponding button in the palette dialog
    *  and check if it worked.
+   *
    * @param {} aController
    *   the controller object of the window for which the customization
    *   dialog should be opened

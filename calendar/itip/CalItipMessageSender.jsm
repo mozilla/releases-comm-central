@@ -45,7 +45,7 @@ class CalItipMessageSender {
    *
    * This method should be called before send().
    *
-   * @param {Number} opType - Type of operation - (e.g. ADD, MODIFY or DELETE)
+   * @param {number} opType - Type of operation - (e.g. ADD, MODIFY or DELETE)
    * @param {calIItemBase} item - The updated item.
    * @param {?object} extResponse - An object to provide additional
    *  parameters for sending itip messages as response mode, comments or a
@@ -357,7 +357,7 @@ class CalItipMessageSender {
    * @param {calIItipTransport} [transport] - An optional transport to use
    *  instead of the one provided by the item's calendar.
    *
-   * @return {boolean} - True, if the message could be sent.
+   * @returns {boolean} - True, if the message could be sent.
    */
   send(transport) {
     return this.pendingMessages.every(msg => msg.send(transport));
@@ -368,7 +368,7 @@ class CalItipMessageSender {
  * Strips user specific data, e.g. categories and alarm settings and returns the stripped item.
  *
  * @param {calIItemBase} item_ - The item to strip data from
- * @return {calIItemBase} - The stripped item
+ * @returns {calIItemBase} - The stripped item
  */
 function stripUserData(item_) {
   let item = item_.clone();

@@ -13,7 +13,7 @@ const EXPORTED_SYMBOLS = [
 /**
  * CalExtractOptions holds configuration options used by CalExtractParser.
  *
- * @typedef {Object} CalExtractOptions
+ * @typedef {object} CalExtractOptions
  * @property {RegExp} sentenceBoundary - A pattern used to split text at the
  *                                       sentence boundary. This should capture
  *                                       the boundary only and not any other
@@ -46,24 +46,28 @@ const flagBits = new Map([
 class CalExtractToken {
   /**
    * Identifies the token. Should be in uppercase with no spaces for consistency.
+   *
    * @type {string}
    */
   type = "";
 
   /**
    * The text captured by this token.
+   *
    * @type {string[]}
    */
   text = [];
 
   /**
    * Indicates which sentence in the source text the token was found.
+   *
    * @type {number}
    */
   sentence = -1;
 
   /**
    * Indicates the position with the sentence the token occurs.
+   *
    * @type {number}
    */
   position = -1;
@@ -84,6 +88,7 @@ class CalExtractToken {
 
 /**
  * Function used to produce a value when a CalExtractParseRule is matched.
+ *
  * @callback CallExtractParseRuleAction
  * @param {any[]} args - An array containing all the values produced from each
  *                       pattern in the rule when they are matched or the
@@ -103,7 +108,7 @@ class CalExtractToken {
  * Flags must be specified as the last character of the pattern name, example:
  * ["subject", "text?", "MEET", "text*", "time+"]
  *
- * @typedef {Object} CalExtractParseRule
+ * @typedef {object} CalExtractParseRule
  *
  * @property {string} name                      - The name of the rule that can
  *                                                be used in other patterns.
@@ -155,6 +160,7 @@ class CalExtractParseNode {
 
   /**
    * Contains each possible descendant node of this node.
+   *
    * @type {CalExtractParseNode[]}
    */
   descendants = null;
@@ -164,8 +170,8 @@ class CalExtractParseNode {
   static FLAG_NONEMPTY = FLAG_NONEMPTY;
 
   /**
-   * @param {string} symbol                     - The pattern this node represents.
-   * @param {number} flags                      - The computed flags assigned to the pattern.
+   * @param {string} symbol - The pattern this node represents.
+   * @param {number} flags - The computed flags assigned to the pattern.
    * @param {CalExtractParseNode[]} descendants - Descendant nodes of this node.
    */
   constructor(symbol, flags, descendants = []) {
@@ -187,7 +193,7 @@ class CalExtractParseNode {
    *
    * @param {CalExtractParseNode} node - The node to append.
    *
-   * @return {CalExtractParseNode} The appended node.
+   * @returns {CalExtractParseNode} The appended node.
    */
   append(node) {
     this.descendants.push(node);
@@ -204,7 +210,7 @@ class CalExtractParseNode {
    * 3) If none of the above produce a node, null is returned which means this
    *    graph cannot be traversed any further.
    *
-   * @return {CalExtractParseNode|null}
+   * @returns {CalExtractParseNode|null}
    */
   getDescendant(name) {
     // It is important the direct descendants are checked first.
@@ -289,6 +295,7 @@ class CalExtractParser {
 
   /**
    * Use the static createInstance() method instead of this constructor directly.
+   *
    * @param {[RegExp, string?][]} tokenRules
    * @param {CalExtractExtParseRule[]} parseRules
    * @param {CalExtractOptions} [options] - Configuration object.
@@ -384,7 +391,7 @@ class CalExtractParser {
    *
    * @param {string} str
    *
-   * @return {any[]}
+   * @returns {any[]}
    */
   parse(str) {
     return this.tokenize(str).map(tokens => {
@@ -420,7 +427,7 @@ class CalExtractParser {
    * rules. If successful, the stack will be modified to contain the matched
    * rule at the location it was found. This methods modifies the stack given.
    *
-   * @return {boolean} - True if the stack was reduced false if otherwise.
+   * @returns {boolean} - True if the stack was reduced false if otherwise.
    */
   reduceStack(stack, lookahead) {
     for (let i = 0; i < stack.length; i++) {
@@ -452,7 +459,7 @@ class CalExtractParser {
  *
  * @param {CalExtractParseRule} rule
  *
- * @return {CalExtractExtParseRule}
+ * @returns {CalExtractExtParseRule}
  */
 function extendParseRule(rule) {
   let { name, action } = rule;
@@ -501,7 +508,7 @@ function extendParseRule(rule) {
  * an optional pattern is unmatched.
  *
  * @param {CalExtractExtRule} rule - The rule the action belongs to.
- * @param {string[]} matched       - An sub-array of the stack containing what
+ * @param {string[]} matched - An sub-array of the stack containing what
  *                                   was actually matched. This array will be
  *                                   modified to match the full rule (inclusive
  *                                   of optional patterns).

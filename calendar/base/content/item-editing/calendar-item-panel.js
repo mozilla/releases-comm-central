@@ -88,7 +88,7 @@ var gConfig = {
 /**
  * Receive an asynchronous message from the iframe.
  *
- * @param {MessageEvent} aEvent  Contains the message being received
+ * @param {MessageEvent} aEvent - Contains the message being received
  */
 function receiveMessage(aEvent) {
   if (aEvent.origin !== "chrome://calendar") {
@@ -147,9 +147,9 @@ window.addEventListener("message", receiveMessage);
  * named in aMessage.command.  If aIframeId is omitted, the message will
  * be sent to the iframe of the current tab.
  *
- * @param {Object} aMessage          Contains the message being sent
- * @param {string} aMessage.command  The name of a function to call
- * @param {string} aIframeId         (optional) id of an iframe to send the message to
+ * @param {object} aMessage - Contains the message being sent
+ * @param {string} aMessage.command - The name of a function to call
+ * @param {string} aIframeId - (optional) id of an iframe to send the message to
  */
 function sendMessage(aMessage, aIframeId) {
   let iframeId = gTabmail
@@ -165,7 +165,7 @@ function sendMessage(aMessage, aIframeId) {
  * window, or not if 'cancel' was clicked.  Requires sending and receiving
  * async messages from the iframes of all open item tabs.
  *
- * @param {boolean} aResponse  The response from the tab's iframe
+ * @param {boolean} aResponse - The response from the tab's iframe
  */
 function handleWindowClose(aResponse) {
   if (!aResponse) {
@@ -186,7 +186,7 @@ function handleWindowClose(aResponse) {
  * closing, then for each open tab we prompt the user to save any
  * unsaved changes with handleWindowClose.
  *
- * @param {Object} aEvent  The window close event
+ * @param {object} aEvent - The window close event
  */
 function windowCloseListener(aEvent) {
   aEvent.preventDefault();
@@ -197,8 +197,8 @@ function windowCloseListener(aEvent) {
 /**
  * Load handler for the outer parent context that contains the iframe.
  *
- * @param {string} aIframeId  (optional) Id of the iframe in this tab
- * @param {string} aUrl       (optional) The url to load in the iframe
+ * @param {string} aIframeId - (optional) Id of the iframe in this tab
+ * @param {string} aUrl - (optional) The url to load in the iframe
  */
 function onLoadCalendarItemPanel(aIframeId, aUrl) {
   let iframe;
@@ -322,7 +322,7 @@ function onUnloadCalendarItemPanel() {
  * data for that event/task.  We pass the full tab state object to the
  * update functions and they just use the properties they need from it.
  *
- * @param {Object} aArg  Its properties hold data about the event/task
+ * @param {object} aArg - Its properties hold data about the event/task
  */
 function updateItemTabState(aArg) {
   const lookup = {
@@ -346,8 +346,8 @@ function updateItemTabState(aArg) {
 /**
  * When in a window, set Item-Menu label to Event or Task.
  *
- * @param {string} aLabel      The new name for the menu
- * @param {string} aAccessKey  The access key for the menu
+ * @param {string} aLabel - The new name for the menu
+ * @param {string} aAccessKey - The access key for the menu
  */
 function initializeItemMenu(aLabel, aAccessKey) {
   let menuItem = document.getElementById("item-menu");
@@ -358,7 +358,7 @@ function initializeItemMenu(aLabel, aAccessKey) {
 /**
  * Handler for when tab is cancelled. (calendar.item.editInTab = true)
  *
- * @param {string} aIframeId  The id of the iframe
+ * @param {string} aIframeId - The id of the iframe
  */
 function onCancel(aIframeId) {
   sendMessage({ command: "onCancel", iframeId: aIframeId }, aIframeId);
@@ -370,7 +370,7 @@ function onCancel(aIframeId) {
 /**
  * Closes tab or window. Called after prompting to save any unsaved changes.
  *
- * @param {string} aIframeId  The id of the iframe
+ * @param {string} aIframeId - The id of the iframe
  */
 function closeWindowOrTab(iframeId) {
   if (gTabmail) {
@@ -391,7 +391,7 @@ function closeWindowOrTab(iframeId) {
 /**
  * Handler for saving the event or task.
  *
- * @param {boolean} aIsClosing  Is the tab or window closing
+ * @param {boolean} aIsClosing - Is the tab or window closing
  */
 function onCommandSave(aIsClosing) {
   sendMessage({ command: "onCommandSave", isClosing: aIsClosing });
@@ -477,11 +477,11 @@ function editAttendees() {
 /**
  * Sends a message to set the gConfig values in the iframe.
  *
- * @param {Object} aArg             Container
- * @param {string} aArg.privacy     (optional) New privacy value
- * @param {short} aArg.priority     (optional) New priority value
- * @param {string} aArg.status      (optional) New status value
- * @param {string} aArg.showTimeAs  (optional) New showTimeAs / transparency value
+ * @param {object} aArg - Container
+ * @param {string} aArg.privacy - (optional) New privacy value
+ * @param {short} aArg.priority - (optional) New priority value
+ * @param {string} aArg.status - (optional) New status value
+ * @param {string} aArg.showTimeAs - (optional) New showTimeAs / transparency value
  */
 function editConfigState(aArg) {
   sendMessage({ command: "editConfigState", argument: aArg });
@@ -492,7 +492,7 @@ function editConfigState(aArg) {
  * event-privacy-menupopup in the Privacy toolbar button.
  *
  * @param {Node}       aTarget      Has the new privacy in its "value" attribute
- * @param {XULCommandEvent} aEvent  (optional) the UI element selection event
+ * @param {XULCommandEvent} aEvent - (optional) the UI element selection event
  */
 function editPrivacy(aTarget, aEvent) {
   if (aEvent) {
@@ -509,7 +509,7 @@ function editPrivacy(aTarget, aEvent) {
  * certain values, these are removed from the UI. This function should
  * be called any time that privacy setting is updated.
  *
- * @param {Object}    aArg                Contains privacy properties
+ * @param {object}    aArg                Contains privacy properties
  * @param {string}    aArg.privacy        The new privacy value
  * @param {boolean}   aArg.hasPrivacy     Whether privacy is supported
  * @param {string}    aArg.calendarType   The type of calendar
@@ -623,7 +623,7 @@ function updatePrivacy(aArg) {
 /**
  * Handler to change the priority.
  *
- * @param {Node} aTarget  Has the new priority in its "value" attribute
+ * @param {Node} aTarget - Has the new priority in its "value" attribute
  */
 function editPriority(aTarget) {
   let newPriority = parseInt(aTarget.getAttribute("value"), 10);
@@ -633,9 +633,9 @@ function editPriority(aTarget) {
 /**
  * Updates the dialog controls related to priority.
  *
- * @param {Object}  aArg              Contains priority properties
+ * @param {object}  aArg              Contains priority properties
  * @param {string}  aArg.priority     The new priority value
- * @param {boolean} aArg.hasPriority  Whether priority is supported
+ * @param {boolean} aArg.hasPriority - Whether priority is supported
  */
 function updatePriority(aArg) {
   // Set up capabilities
@@ -690,7 +690,7 @@ function updatePriority(aArg) {
 /**
  * Handler for changing the status.
  *
- * @param {Node} aTarget  Has the new status in its "value" attribute
+ * @param {Node} aTarget - Has the new status in its "value" attribute
  */
 function editStatus(aTarget) {
   let newStatus = aTarget.getAttribute("value");
@@ -700,8 +700,8 @@ function editStatus(aTarget) {
 /**
  * Update the dialog controls related to status.
  *
- * @param {Object} aArg         Contains the new status value
- * @param {string} aArg.status  The new status value
+ * @param {object} aArg - Contains the new status value
+ * @param {string} aArg.status - The new status value
  */
 function updateStatus(aArg) {
   const statusLabels = [
@@ -741,7 +741,7 @@ function updateStatus(aArg) {
 /**
  * Handler for changing the transparency.
  *
- * @param {Node} aTarget  Has the new transparency in its "value" attribute
+ * @param {Node} aTarget - Has the new transparency in its "value" attribute
  */
 function editShowTimeAs(aTarget) {
   let newValue = aTarget.getAttribute("value");
@@ -751,8 +751,8 @@ function editShowTimeAs(aTarget) {
 /**
  * Update the dialog controls related to transparency.
  *
- * @param {Object} aArg             Contains the new transparency value
- * @param {string} aArg.showTimeAs  The new transparency value
+ * @param {object} aArg - Contains the new transparency value
+ * @param {string} aArg.showTimeAs - The new transparency value
  */
 function updateShowTimeAs(aArg) {
   let showAsBusy = document.getElementById("cmd_showtimeas_busy");
@@ -770,7 +770,7 @@ function updateShowTimeAs(aArg) {
 /**
  * Change the task percent complete (and thus task status).
  *
- * @param {short} aPercentComplete  The new percent complete value
+ * @param {short} aPercentComplete - The new percent complete value
  */
 function editToDoStatus(aPercentComplete) {
   sendMessage({ command: "editToDoStatus", value: aPercentComplete });
@@ -780,8 +780,8 @@ function editToDoStatus(aPercentComplete) {
  * Check or uncheck the "Mark updated" menu item in "Events and Tasks"
  * menu based on the percent complete value.
  *
- * @param {Object} aArg                 Container
- * @param {short} aArg.percentComplete  The percent complete value
+ * @param {object} aArg - Container
+ * @param {short} aArg.percentComplete - The percent complete value
  */
 function updateMarkCompletedMenuItem(aArg) {
   // Command only for tab case, function only to be executed in dialog windows.
@@ -798,7 +798,7 @@ function updateMarkCompletedMenuItem(aArg) {
  * use this format intentionally instead of a calIDuration object because
  * those objects cannot be serialized for message passing with iframes.)
  *
- * @param {string} aDuration  A duration in ISO 8601 format
+ * @param {string} aDuration - A duration in ISO 8601 format
  */
 function postponeTask(aDuration) {
   sendMessage({ command: "postponeTask", value: aDuration });
@@ -807,7 +807,7 @@ function postponeTask(aDuration) {
 /**
  * Get the timezone button state.
  *
- * @return {boolean}  True is active/checked and false is inactive/unchecked
+ * @returns {boolean} True is active/checked and false is inactive/unchecked
  */
 function getTimezoneCommandState() {
   let cmdTimezone = document.getElementById("cmd_timezone");
@@ -818,8 +818,8 @@ function getTimezoneCommandState() {
  * Set the timezone button state.  Used to keep the toolbar button in
  * sync when switching tabs.
  *
- * @param {Object} aArg                    Contains timezones property
- * @param {boolean} aArg.timezonesEnabled  Are timezones enabled?
+ * @param {object} aArg - Contains timezones property
+ * @param {boolean} aArg.timezonesEnabled - Are timezones enabled?
  */
 function updateTimezoneCommand(aArg) {
   let cmdTimezone = document.getElementById("cmd_timezone");
@@ -848,8 +848,8 @@ function attachURL() {
 /**
  * Updates dialog controls related to item attachments.
  *
- * @param {Object}  aArg                   Container
- * @param {boolean} aArg.attachUrlCommand  Enable the attach url command?
+ * @param {object}  aArg                   Container
+ * @param {boolean} aArg.attachUrlCommand - Enable the attach url command?
  */
 function updateAttachment(aArg) {
   document.getElementById("cmd_attach_url").setAttribute("disabled", !aArg.attachUrlCommand);
@@ -858,8 +858,8 @@ function updateAttachment(aArg) {
 /**
  * Updates attendees command enabled/disabled state.
  *
- * @param {Object}  aArg                   Container
- * @param {boolean} aArg.attendeesCommand  Enable the attendees command?
+ * @param {object}  aArg                   Container
+ * @param {boolean} aArg.attendeesCommand - Enable the attendees command?
  */
 function updateAttendeesCommand(aArg) {
   document.getElementById("cmd_attendees").setAttribute("disabled", !aArg.attendeesCommand);
@@ -869,7 +869,7 @@ function updateAttendeesCommand(aArg) {
  * Enables/disables the commands cmd_accept and cmd_save related to the
  * save operation.
  *
- * @param {boolean} aEnable  Enable the commands?
+ * @param {boolean} aEnable - Enable the commands?
  */
 function enableAcceptCommand(aEnable) {
   document.getElementById("cmd_accept").setAttribute("disabled", !aEnable);
@@ -894,8 +894,8 @@ function removeDisableAndCollapseOnReadonly() {
 /**
  * Handler to toggle toolbar visibility.
  *
- * @param {string} aToolbarId   The id of the toolbar node to toggle
- * @param {string} aMenuitemId  The corresponding menuitem in the view menu
+ * @param {string} aToolbarId - The id of the toolbar node to toggle
+ * @param {string} aMenuitemId - The corresponding menuitem in the view menu
  */
 function onCommandViewToolbar(aToolbarId, aMenuItemId) {
   let toolbar = document.getElementById(aToolbarId);
@@ -922,7 +922,7 @@ function onCommandViewToolbar(aToolbarId, aMenuItemId) {
  * user. We need to restore the state of all buttons and commands of
  * all customizable toolbars.
  *
- * @param {boolean} aToolboxChanged  When true the toolbox has changed
+ * @param {boolean} aToolboxChanged - When true the toolbox has changed
  */
 function dialogToolboxCustomizeDone(aToolboxChanged) {
   // Re-enable menu items (disabled during toolbar customization).
@@ -981,7 +981,7 @@ function onCommandCustomize() {
 /**
  * Add menu items to the UI for attaching files using a cloud provider.
  *
- * @param {Object[]} aItemObjects  Array of objects that each contain
+ * @param {object[]} aItemObjects - Array of objects that each contain
  *                                 data to create a menuitem
  */
 function loadCloudProviders(aItemObjects) {
@@ -989,7 +989,7 @@ function loadCloudProviders(aItemObjects) {
    * Deletes any existing menu items in aParentNode that have a
    * cloudProviderAccountKey attribute.
    *
-   * @param {Node} aParentNode  A menupopup containing menu items
+   * @param {Node} aParentNode - A menupopup containing menu items
    */
   function deleteAlreadyExisting(aParentNode) {
     for (let node of aParentNode.children) {
@@ -1042,7 +1042,7 @@ function loadCloudProviders(aItemObjects) {
  * Send a message to attach a file using a given cloud provider,
  * to be identified by the cloud provider's accountKey.
  *
- * @param {string} aAccountKey  The accountKey for a cloud provider
+ * @param {string} aAccountKey - The accountKey for a cloud provider
  */
 function attachFileByAccountKey(aAccountKey) {
   sendMessage({ command: "attachFileByAccountKey", accountKey: aAccountKey });
@@ -1050,6 +1050,7 @@ function attachFileByAccountKey(aAccountKey) {
 
 /**
  * Updates the save controls depending on whether the event has attendees
+ *
  * @param {boolean} aSendNotSave
  */
 function updateSaveControls(aSendNotSave) {

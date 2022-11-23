@@ -58,10 +58,10 @@ var EnigmailMimeDecrypt = {
   /**
    * Wrap the decrypted output into a message/rfc822 attachment
    *
-   * @param {String} decryptingMimePartNum: requested MIME part number
-   * @param {Object} uri: nsIURI object of the decrypted message
+   * @param {string} decryptingMimePartNum: requested MIME part number
+   * @param {object} uri: nsIURI object of the decrypted message
    *
-   * @return {String}: prefix for message data
+   * @returns {string}: prefix for message data
    */
   pretendAttachment(decryptingMimePartNum, uri) {
     if (decryptingMimePartNum === "1" || !uri) {
@@ -331,7 +331,7 @@ MimeDecryptHandler.prototype = {
   /**
    * Determine if we are reloading the same message as the previous one
    *
-   * @return Boolean
+   * @returns Boolean
    */
   isReloadingLastMessage() {
     if (!this.uri) {

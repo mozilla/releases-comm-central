@@ -246,7 +246,7 @@ MessageDisplayWidget.prototype = {
    *  not enabled (mail.operate_on_msgs_in_collapsed_threads), and there is a
    *  multi-selection, we just clear the display.
    *
-   * @return true if we handled the selection notification and the nsMsgDBView
+   * @returns true if we handled the selection notification and the nsMsgDBView
    *  should do nothing, false if we did not and the nsMsgDBView should use its
    *  logic to display a message.
    */
@@ -278,7 +278,7 @@ MessageDisplayWidget.prototype = {
    * we can decide whether we want to handle it here, e.g. by closing the
    * window/tab.
    *
-   * @return true if the MessageDisplayWidget handled this event and the
+   * @returns true if the MessageDisplayWidget handled this event and the
    *         FolderDisplayWidget should stop processing
    */
   onMessagesRemoved() {},
@@ -290,6 +290,7 @@ MessageDisplayWidget.prototype = {
    * Unit tests know about this variable and poke at it, so don't change the name
    *  without making sure you update the unit tests.  (Not that you would commit
    *  code without first running all tests yourself...)
+   *
    * @private
    */
   SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS: 100,
@@ -323,7 +324,7 @@ MessageDisplayWidget.prototype = {
    *
    * @param aIsCallback Is this a callback to ourselves?  Callers should not set
    *     this, leaving it undefined.
-   * @return true if we handled the selection notification and the nsMsgDBView
+   * @returns true if we handled the selection notification and the nsMsgDBView
    *  should do nothing, false if we did not and the nsMsgDBView should use its
    *  logic to display a message.
    */
@@ -385,7 +386,7 @@ MessageDisplayWidget.prototype = {
 
   /**
    * @name Activity Control
-   * @protected FolderDisplayWidget
+   * @protected
    */
   // @{
 

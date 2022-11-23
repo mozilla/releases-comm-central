@@ -20,6 +20,7 @@ class LineReader {
 
   /**
    * Read a multi-line response, emit each line through a callback.
+   *
    * @param {string} data - A multi-line response received from the server.
    * @param {Function} lineCallback - A line will be passed to the callback each
    *   time.

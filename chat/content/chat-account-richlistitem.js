@@ -20,7 +20,7 @@
    * configured account: i.e. icon, state, name, error, checkbox for
    * auto sign in and buttons for disconnect and properties.
    *
-   * @extends {MozElements.MozRichlistitem}
+   * @augments {MozElements.MozRichlistitem}
    */
   class MozChatAccountRichlistitem extends MozElements.MozRichlistitem {
     static get inheritedAttributes() {

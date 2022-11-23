@@ -31,7 +31,7 @@ Sanitizer.prototype = {
   /**
    * Deletes privacy sensitive data in a batch, according to user preferences
    *
-   * @returns  null if everything's fine;  an object in the form
+   * @returns null if everything's fine;  an object in the form
    *           { itemName: error, ... } on (partial) failure
    */
   sanitize() {

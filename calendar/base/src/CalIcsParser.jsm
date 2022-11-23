@@ -312,7 +312,7 @@ parserState.prototype = {
    * Checks if the processing of all events has completed. If a join function
    * has been set, this function is called.
    *
-   * @return      True, if all tasks have been completed
+   * @returns True, if all tasks have been completed
    */
   checkCompletion() {
     if (this.joinFunc && this.threadCount == 0) {

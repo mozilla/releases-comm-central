@@ -16,9 +16,9 @@ var calunifinder = {
    * Retrieves the value that is used for comparison for the item with the given
    * property.
    *
-   * @param {calIItemBaes} aItem      The item to retrieve the sort key for
-   * @param {String} aKey             The property name that should be sorted
-   * @return {*}                      The value used in sort comparison
+   * @param {calIItemBaes} aItem - The item to retrieve the sort key for
+   * @param {string} aKey - The property name that should be sorted
+   * @returns {*} The value used in sort comparison
    */
   getItemSortKey(aItem, aKey) {
     const taskStatus = ["NEEDS-ACTION", "IN-PROCESS", "COMPLETED", "CANCELLED"];
@@ -65,8 +65,8 @@ var calunifinder = {
   /**
    * Returns a sort function for the given sort type.
    *
-   * @param {String} aSortKey             The sort key to get the compare function for
-   * @return {Function}                   The function to be used for sorting values of the type
+   * @param {string} aSortKey - The sort key to get the compare function for
+   * @returns {Function} The function to be used for sorting values of the type
    */
   sortEntryComparer(aSortKey) {
     switch (aSortKey) {
@@ -97,9 +97,9 @@ var calunifinder = {
    * Sort the unifinder items by the given sort key, using the modifier to flip direction. The
    * items are sorted in place.
    *
-   * @param {calIItemBase[]} aItems           The items to sort
-   * @param {String} aSortKey                 The item sort key
-   * @param {?Number} aModifier               Either 1 or -1, to indicate sort direction
+   * @param {calIItemBase[]} aItems - The items to sort
+   * @param {string} aSortKey - The item sort key
+   * @param {?number} aModifier - Either 1 or -1, to indicate sort direction
    */
   sortItems(aItems, aSortKey, aModifier = 1) {
     let comparer = calunifinder.sortEntryComparer(aSortKey);
@@ -119,10 +119,10 @@ const sortCompare = (calunifinder.sortEntryComparer._sortCompare = {
   /**
    * Compare two things as if they were numbers.
    *
-   * @param {*} a                 The first thing to compare
-   * @param {*} b                 The second thing to compare
-   * @param {Number} modifier     -1 to flip direction, or 1
-   * @return {Number}             Either -1, 0, or 1
+   * @param {*} a - The first thing to compare
+   * @param {*} b - The second thing to compare
+   * @param {number} modifier - -1 to flip direction, or 1
+   * @returns {number} Either -1, 0, or 1
    */
   number(a, b, modifier = 1) {
     return sortCompare.general(Number(a), Number(b), modifier);
@@ -131,10 +131,10 @@ const sortCompare = (calunifinder.sortEntryComparer._sortCompare = {
   /**
    * Compare two things as if they were dates.
    *
-   * @param {*} a                 The first thing to compare
-   * @param {*} b                 The second thing to compare
-   * @param {Number} modifier     -1 to flip direction, or 1
-   * @return {Number}             Either -1, 0, or 1
+   * @param {*} a - The first thing to compare
+   * @param {*} b - The second thing to compare
+   * @param {number} modifier - -1 to flip direction, or 1
+   * @returns {number} Either -1, 0, or 1
    */
   date(a, b, modifier = 1) {
     return sortCompare.general(a, b, modifier);
@@ -143,10 +143,10 @@ const sortCompare = (calunifinder.sortEntryComparer._sortCompare = {
   /**
    * Compare two things generally, using the typical ((a > b) - (a < b))
    *
-   * @param {*} a                 The first thing to compare
-   * @param {*} b                 The second thing to compare
-   * @param {Number} modifier     -1 to flip direction, or 1
-   * @return {Number}             Either -1, 0, or 1
+   * @param {*} a - The first thing to compare
+   * @param {*} b - The second thing to compare
+   * @param {number} modifier - -1 to flip direction, or 1
+   * @returns {number} Either -1, 0, or 1
    */
   general(a, b, modifier = 1) {
     return ((a > b) - (a < b)) * modifier;
@@ -155,10 +155,10 @@ const sortCompare = (calunifinder.sortEntryComparer._sortCompare = {
   /**
    * Compare two dates, keeping the nativeTime zero date in mind.
    *
-   * @param {*} a                 The first date to compare
-   * @param {*} b                 The second date to compare
-   * @param {Number} modifier     -1 to flip direction, or 1
-   * @return {Number}             Either -1, 0, or 1
+   * @param {*} a - The first date to compare
+   * @param {*} b - The second date to compare
+   * @param {number} modifier - -1 to flip direction, or 1
+   * @returns {number} Either -1, 0, or 1
    */
   date_filled(a, b, modifier = 1) {
     const NULL_DATE = -62168601600000000;
@@ -176,10 +176,10 @@ const sortCompare = (calunifinder.sortEntryComparer._sortCompare = {
   /**
    * Compare two strings, sorting empty values to the end by default
    *
-   * @param {*} a                 The first string to compare
-   * @param {*} b                 The second string to compare
-   * @param {Number} modifier     -1 to flip direction, or 1
-   * @return {Number}             Either -1, 0, or 1
+   * @param {*} a - The first string to compare
+   * @param {*} b - The second string to compare
+   * @param {number} modifier - -1 to flip direction, or 1
+   * @returns {number} Either -1, 0, or 1
    */
   string(a, b, modifier = 1) {
     if (a.length == 0 || b.length == 0) {
@@ -195,10 +195,10 @@ const sortCompare = (calunifinder.sortEntryComparer._sortCompare = {
   /**
    * Catch-all function to compare two unknown values. Will return 0.
    *
-   * @param {*} a                 The first thing to compare
-   * @param {*} b                 The second thing to compare
-   * @param {Number} modifier     Provided for consistency, but unused
-   * @return {Number}             Will always return 0
+   * @param {*} a - The first thing to compare
+   * @param {*} b - The second thing to compare
+   * @param {number} modifier - Provided for consistency, but unused
+   * @returns {number} Will always return 0
    */
   unknown(a, b, modifier = 1) {
     return 0;

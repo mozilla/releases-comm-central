@@ -59,6 +59,7 @@
 
     /**
      * Setting the date property will trigger the rendering of this widget.
+     *
      * @type {calIDateTime}
      */
     set date(value) {
@@ -71,6 +72,7 @@
     /**
      * Provides the displayed date as a string in the format
      * "month day year".
+     *
      * @type {string}
      */
     get fullDate() {

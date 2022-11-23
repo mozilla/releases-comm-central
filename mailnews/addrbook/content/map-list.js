@@ -12,7 +12,7 @@
    * The MozMapList widget behaves as a popup menu showing available map options
    * for an address. It is a part of the card view in the addressbook.
    *
-   * @extends {MozElements.MozMenuPopup}
+   * @augments {MozElements.MozMenuPopup}
    */
   class MozMapList extends MozElements.MozMenuPopup {
     connectedCallback() {
@@ -39,7 +39,8 @@
 
     /**
      * Initializes the necessary address data from an addressbook card.
-     * @param {nsIAbCard} card   - the card to get the address data from
+     *
+     * @param {nsIAbCard} card - the card to get the address data from
      * @param {string} addPrefix - card property prefix: "Home" or "Work",
      *                             to make the map use either HomeAddress
      *                             or WorkAddress
@@ -70,6 +71,7 @@
     /**
      * Returns the Map service URL from localized pref. Returns null if there
      * is none at the given index.
+     *
      * @param integer [index=0] - the index of the service to return. 0 is the default service.
      */
     _getMapURLPref(index = 0) {
@@ -173,6 +175,7 @@
 
     /**
      * Save user selected mapping service.
+     *
      * @param item  The chosen menuitem with map service.
      */
     _chooseMapService(item) {
@@ -190,6 +193,7 @@
 
     /**
      * Generate the map URL used to open the link on clicking the menulist button.
+     *
      * @returns {urlFormat} - the map url generated from the address.
      */
     _createMapItURL() {

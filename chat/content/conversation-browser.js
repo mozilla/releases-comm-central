@@ -36,6 +36,7 @@
 
   /**
    * The chat conversation browser, i.e. the main content on the chat tab.
+   *
    * @augments {MozBrowser}
    */
   class MozConversationBrowser extends customElements.get("browser") {
@@ -671,7 +672,7 @@
      * and removes any unwanted formatting.
      *
      * @param {imIMessage} message - Raw message.
-     * @return {string} Message content ready for insertion.
+     * @returns {string} Message content ready for insertion.
      */
     prepareMessageContent(message) {
       let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(

@@ -10,7 +10,7 @@
  * that gloda has successfully loaded.  Our only historical screw-up here was
  * very blatant (and was actually a result of trying to avoid complexity in
  * the nuke path! oh the irony!) so we don't need to get all hardcore.
- **/
+ */
 
 /**
  * The DB version to use.  We set this as a non-const variable so that

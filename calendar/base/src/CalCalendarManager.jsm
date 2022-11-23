@@ -201,10 +201,10 @@ CalCalendarManager.prototype = {
    * cached calendars. If the provider doesn't exist, returns a dummy calendar that is
    * force-disabled.
    *
-   * @param {string} id     The calendar id.
-   * @param {string} ctype  The calendar type. See {@link calICalendar#type}.
-   * @param {string} uri    The calendar uri.
-   * @return {calICalendar} The initialized calendar or dummy calendar.
+   * @param {string} id - The calendar id.
+   * @param {string} ctype - The calendar type. See {@link calICalendar#type}.
+   * @param {string} uri - The calendar uri.
+   * @returns {calICalendar} The initialized calendar or dummy calendar.
    */
   initializeCalendar(id, ctype, uri) {
     let calendar = this.createCalendar(ctype, uri);
@@ -235,8 +235,8 @@ CalCalendarManager.prototype = {
    * Update calendar registrations for the given type. If the provider is missing then the calendars
    * are replaced with a dummy calendar, and vice versa.
    *
-   * @param {string} type                 The calendar type to update. See {@link calICalendar#type}.
-   * @param {boolean} [clearCache=false]  If true, the calendar cache is also cleared.
+   * @param {string} type - The calendar type to update. See {@link calICalendar#type}.
+   * @param {boolean} [clearCache=false] - If true, the calendar cache is also cleared.
    */
   updateDummyCalendarRegistration(type, clearCache = false) {
     let hasImplementation = !!this.providerImplementations[type];
@@ -255,8 +255,8 @@ CalCalendarManager.prototype = {
    * the calendar, then sets it up again using id, type and uri. This is similar to what happens on
    * startup.
    *
-   * @param {calICalendar[]} calendars    The calendars to update.
-   * @param {boolean} [clearCache=false]  If true, the calendar cache is also cleared.
+   * @param {calICalendar[]} calendars - The calendars to update.
+   * @param {boolean} [clearCache=false] - If true, the calendar cache is also cleared.
    */
   updateCalendarRegistration(calendars, clearCache = false) {
     let sortOrderPref = Services.prefs.getStringPref("calendar.list.sortOrder", "").split(" ");
@@ -293,8 +293,8 @@ CalCalendarManager.prototype = {
   /**
    * Register a calendar provider with the given JavaScript implementation.
    *
-   * @param {string} type         The calendar type string, see {@link calICalendar#type}.
-   * @param {Object} impl         The class that implements calICalendar.
+   * @param {string} type - The calendar type string, see {@link calICalendar#type}.
+   * @param {object} impl - The class that implements calICalendar.
    */
   registerCalendarProvider(type, impl) {
     this.assureCache();
@@ -313,8 +313,8 @@ CalCalendarManager.prototype = {
    * Unregister a calendar provider by type. Already registered calendars will be replaced by a
    * dummy calendar that is force-disabled.
    *
-   * @param {string} type         The calendar type string, see {@link calICalendar#type}.
-   * @param {boolean} temporary   If true, cached calendars will not be cleared.
+   * @param {string} type - The calendar type string, see {@link calICalendar#type}.
+   * @param {boolean} temporary - If true, cached calendars will not be cleared.
    */
   unregisterCalendarProvider(type, temporary = false) {
     cal.ASSERT(
@@ -330,8 +330,8 @@ CalCalendarManager.prototype = {
    * Checks if a calendar provider has been dynamically registered with the given type. This does
    * not check for the built-in XPCOM providers.
    *
-   * @param {string} type         The calendar type string, see {@link calICalendar#type}.
-   * @return {boolean}            True, if the calendar provider type is registered.
+   * @param {string} type - The calendar type string, see {@link calICalendar#type}.
+   * @returns {boolean} True, if the calendar provider type is registered.
    */
   hasCalendarProvider(type) {
     return !!this.providerImplementations[type];
@@ -367,7 +367,7 @@ CalCalendarManager.prototype = {
    * Sets up a calendar, this is the initialization required during calendar registration. See
    * {@link #unsetupCalendar} to revert these steps.
    *
-   * @param {calICalendar} calendar   The calendar to set up.
+   * @param {calICalendar} calendar - The calendar to set up.
    */
   setupCalendar(calendar) {
     this.mCache[calendar.id] = calendar;
@@ -393,8 +393,8 @@ CalCalendarManager.prototype = {
   /**
    * Reverts the calendar registration setup steps from {@link #setupCalendar}.
    *
-   * @param {calICalendar} calendar         The calendar to undo setup for.
-   * @param {boolean} [clearCache=false]    If true, the cache is cleared for this calendar.
+   * @param {calICalendar} calendar - The calendar to undo setup for.
+   * @param {boolean} [clearCache=false] - If true, the cache is cleared for this calendar.
    */
   unsetupCalendar(calendar, clearCache = false) {
     if (this.mCache) {
@@ -928,7 +928,7 @@ function deletePrefBranch(id) {
 /**
  * Helper to refresh a calendar, if it can be refreshed and isn't disabled.
  *
- * @param {calICalendar} calendar     The calendar to refresh.
+ * @param {calICalendar} calendar - The calendar to refresh.
  */
 function maybeRefreshCalendar(calendar) {
   if (!calendar.getProperty("disabled") && calendar.canRefresh) {
@@ -943,8 +943,8 @@ function maybeRefreshCalendar(calendar) {
  * Wrap a calendar using {@link calCachedCalendar}, if the cache is supported and enabled.
  * Otherwise just return the passed in calendar.
  *
- * @param {calICalendar} calendar     The calendar to potentially wrap.
- * @return {calICalendar}             The potentially wrapped calendar.
+ * @param {calICalendar} calendar - The calendar to potentially wrap.
+ * @returns {calICalendar} The potentially wrapped calendar.
  */
 function maybeWrapCachedCalendar(calendar) {
   if (

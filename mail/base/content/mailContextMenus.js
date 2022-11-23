@@ -19,6 +19,7 @@ var { MailServices } = ChromeUtils.import(
  * outline/dotted without loading the contents of either rows. This is
  * triggered when the context menu for a given row is hidden/closed
  * (onpopuphiding).
+ *
  * @param tree the tree element to restore selection for
  */
 function RestoreSelectionWithoutContentLoad(tree) {
@@ -46,6 +47,7 @@ function RestoreSelectionWithoutContentLoad(tree) {
  * Function to clear out the global nsContextMenu, and in the case when we
  * were a threadpane context menu, restore the selection so that a right-click
  * on a non-selected row doesn't move the selection.
+ *
  * @param event the onpopuphiding event
  */
 function mailContextOnPopupHiding(aEvent) {
@@ -113,6 +115,7 @@ function fillMailContextMenu(event) {
  * Take the message id from the messageIdNode and use the url defined in the
  * hidden pref "mailnews.messageid_browser.url" to open it in a browser window
  * (%mid is replaced by the message id).
+ *
  * @param messageId the message id to open
  */
 function OpenBrowserWithMessageId(messageId) {
@@ -135,6 +138,7 @@ function OpenBrowserWithMessageId(messageId) {
  * message in all folders starting with the current selected folder, then the
  * current account followed by the other accounts and open corresponding
  * message if found.
+ *
  * @param messageId the message id to open
  */
 function OpenMessageForMessageId(messageId) {

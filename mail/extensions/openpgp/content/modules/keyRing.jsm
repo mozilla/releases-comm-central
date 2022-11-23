@@ -76,7 +76,7 @@ var EnigmailKeyRing = {
    *                            userid, keyid, keyidshort, fpr, keytype, validity, trust, created, expiry
    * @param  sortDirection - |number| 1 = ascending / -1 = descending
    *
-   * @return keyListObj    - |object| { keyList, keySortList } (see above)
+   * @returns keyListObj    - |object| { keyList, keySortList } (see above)
    */
   getAllKeys(win, sortColumn, sortDirection) {
     if (gKeyListObj.keySortList.length === 0) {
@@ -105,7 +105,7 @@ var EnigmailKeyRing = {
    *                             Optionally preceded with "0x"
    * @param noLoadKeys - Boolean [optional]: do not try to load the key list first
    *
-   * @return Object - found KeyObject or null if key not found
+   * @returns Object - found KeyObject or null if key not found
    */
   getKeyById(keyId, noLoadKeys) {
     lazy.EnigmailLog.DEBUG("keyRing.jsm: getKeyById: " + keyId + "\n");
@@ -153,7 +153,7 @@ var EnigmailKeyRing = {
    *
    * @param allowExpired - Boolean: if true, expired keys are matched.
    *
-   * @return Array of KeyObjects with the found keys (array length is 0 if no key found)
+   * @returns Array of KeyObjects with the found keys (array length is 0 if no key found)
    */
   getKeysByEmail(email, onlyValidUid = true, allowExpired = false) {
     lazy.EnigmailLog.DEBUG("keyRing.jsm: getKeysByEmail: '" + email + "'\n");
@@ -249,7 +249,7 @@ var EnigmailKeyRing = {
    * @param emailAddr: String - email address to search for without any angulars
    *                            or names
    *
-   * @return KeyObject with the found key, or null if no key found
+   * @returns KeyObject with the found key, or null if no key found
    */
   async getSecretKeyByEmail(emailAddr) {
     let result = {};
@@ -477,7 +477,7 @@ var EnigmailKeyRing = {
   /**
    * Check if the cache is empty
    *
-   * @return  Boolean: true: cache cleared
+   * @returns Boolean: true: cache cleared
    */
   getCacheEmpty() {
     return gKeyIndex.length === 0;
@@ -489,7 +489,7 @@ var EnigmailKeyRing = {
    *
    * @param  String  keyId   key, optionally preceded with 0x
    *
-   * @return Array of String: list of UserIds
+   * @returns Array of String: list of UserIds
    */
   getValidUids(keyId) {
     let keyObj = this.getKeyById(keyId);
@@ -541,17 +541,17 @@ var EnigmailKeyRing = {
   /**
    * Export public key(s) to a file
    *
-   * @param {String[]} idArrayFull - array of key IDs or fingerprints
+   * @param {string[]} idArrayFull - array of key IDs or fingerprints
    *   to export (full keys).
-   * @param {String[]} idArrayReduced - array of key IDs or fingerprints
+   * @param {string[]} idArrayReduced - array of key IDs or fingerprints
    *   to export (reduced keys, non-self signatures stripped).
    * @param {String[]] idArrayMinimal - array of key IDs or fingerprints
    *   to export (minimal keys, user IDs and non-self signatures stripped).
    * @param {String or nsIFile} outputFile - output file name or Object - or NULL
-   * @param {Object} exitCodeObj - o.value will contain exit code
-   * @param {Object} errorMsgObj - o.value will contain error message
+   * @param {object} exitCodeObj - o.value will contain exit code
+   * @param {object} errorMsgObj - o.value will contain error message
    *
-   * @return String - if outputFile is NULL, the key block data; "" if a file is written
+   * @returns String - if outputFile is NULL, the key block data; "" if a file is written
    */
   async extractPublicKeys(
     idArrayFull,
@@ -677,7 +677,7 @@ var EnigmailKeyRing = {
    *
    * @param {string} password - The declared password to protect the keys.
    * @param {Array} fprArray - The array of fingerprint of the selected keys.
-   * @param {Object} file - The file where the keys should be saved.
+   * @param {object} file - The file where the keys should be saved.
    * @param {boolean} confirmed - If the password was properly typed in the
    *   prompt.
    */
@@ -722,7 +722,7 @@ var EnigmailKeyRing = {
    * @param keyBlock        String   - data containing key
    * @param keyId           String   - key ID expected to import (no meaning)
    * @param errorMsgObj     Object   - o.value will contain error message from GnuPG
-   * @param importedKeysObj Object   - [OPTIONAL] o.value will contain an array of the FPRs imported
+   * @param importedKeysObj Object - [OPTIONAL] o.value will contain an array of the FPRs imported
    * @param minimizeKey     Boolean  - [OPTIONAL] minimize key for importing
    * @param limitedUids     Array<String> - [OPTIONAL] restrict importing the key(s) to a given set of UIDs
    * @param importSecret    Boolean  - By default and traditionally, function imports public, only.
@@ -732,10 +732,10 @@ var EnigmailKeyRing = {
    *                                                    permissive import attempt.
    * @param passCB          Function - Password callback function
    *                        TODO: After 78, callback should be moved to last parameter
-   * @param {string} acceptance      - Acceptance for the keys to import,
+   * @param {string} acceptance - Acceptance for the keys to import,
    *                                   which are new, or still have acceptance "undecided".
    *
-   * @return Integer -  exit code:
+   * @returns Integer -  exit code:
    *      ExitCode == 0  => success
    *      ExitCode > 0   => error
    *      ExitCode == -1 => Cancelled by user
@@ -783,7 +783,7 @@ var EnigmailKeyRing = {
    * @param keyBlock        String   - data containing key
    * @param keyId           String   - key ID expected to import (no meaning)
    * @param errorMsgObj     Object   - o.value will contain error message from GnuPG
-   * @param importedKeysObj Object   - [OPTIONAL] o.value will contain an array of the FPRs imported
+   * @param importedKeysObj Object - [OPTIONAL] o.value will contain an array of the FPRs imported
    * @param minimizeKey     Boolean  - [OPTIONAL] minimize key for importing
    * @param limitedUids     Array<String> - [OPTIONAL] restrict importing the key(s) to a given set of UIDs
    * @param importSecret    Boolean  - By default and traditionally, function imports public, only.
@@ -796,7 +796,7 @@ var EnigmailKeyRing = {
    * @param acceptance      String   - The new acceptance value for the imported keys,
    *                                   which are new, or still have acceptance "undecided".
    *
-   * @return Integer -  exit code:
+   * @returns Integer -  exit code:
    *      ExitCode == 0  => success
    *      ExitCode > 0   => error
    *      ExitCode == -1 => Cancelled by user
@@ -1130,9 +1130,9 @@ var EnigmailKeyRing = {
    * If an email address is provided by the caller, the function
    * also requires that a matching user id is available.
    *
-   * @param {Object} keyObj - the key to check
-   * @param {String} [emailAddr] - optional email address
-   * @return {Integer} - validity level, negative for invalid,
+   * @param {object} keyObj - the key to check
+   * @param {string} [emailAddr] - optional email address
+   * @returns {Integer} - validity level, negative for invalid,
    *                     0 if no problem were found (neutral)
    */
   _getValidityLevelIgnoringAcceptance(keyObj, emailAddr, allowExpired) {
@@ -1381,14 +1381,14 @@ var EnigmailKeyRing = {
   /**
    *  Determine the key ID for a set of given addresses
    *
-   * @param {Array<String>} addresses: email addresses
-   * @param {Object} details:          holds details for invalid keys:
+   * @param {Array<string>} addresses: email addresses
+   * @param {object} details: - holds details for invalid keys:
    *                                   - errArray: {
-   *                                       * addr {String}: email addresses
-   *                                       * msg {String}:  related error
+   *                                       addr {String}: email addresses
+   *                                       msg {String}:  related error
    *                                       }
    *
-   * @return {Boolean}: true if at least one key missing; false otherwise
+   * @returns {boolean}: true if at least one key missing; false otherwise
    */
   async getValidKeysForAllRecipients(addresses, details) {
     if (!addresses) {
@@ -1530,7 +1530,7 @@ var EnigmailKeyRing = {
    * an alias rule that matches the domain.
    *
    * @param {string} email - The email address to look up
-   * @return {[]} - An array with alias key identifiers found for the
+   * @returns {[]} - An array with alias key identifiers found for the
    *                input, or null if no alias matches the address.
    */
   getAliasKeyList(email) {
@@ -1546,8 +1546,8 @@ var EnigmailKeyRing = {
    * Return the fingerprint of each usable alias key for the given
    * email address.
    *
-   * @param {String[]} keyList - Array of key identifiers
-   * @return {String[]} An array with fingerprints of all alias keys,
+   * @param {string[]} keyList - Array of key identifiers
+   * @returns {string[]} An array with fingerprints of all alias keys,
    *                    or an empty array on failure.
    */
   getAliasKeys(keyList) {
@@ -1703,7 +1703,7 @@ var EnigmailKeyRing = {
   },
 
   /**
-   * @typedef {Object} EncryptionKeyMeta
+   * @typedef {object} EncryptionKeyMeta
    * @property {string} readiness - one of
    *   "accepted", "expiredAccepted",
    *   "otherAccepted", "expiredOtherAccepted",
@@ -1729,7 +1729,7 @@ var EnigmailKeyRing = {
    * If readiness is "collected" it's an unexpired key that hasn't
    * been imported into permanent storage (keyring) yet.
    *
-   * @param {String} email - email address
+   * @param {string} email - email address
    *
    * @returns {EncryptionKeyMeta[]} - meta information for an encryption key
    *
@@ -2104,7 +2104,7 @@ function updateSortList() {
  *
  * @param keyList: Array of Strings: key IDs (or fpr) to delete
  *
- * @return Array of deleted key objects
+ * @returns Array of deleted key objects
  */
 
 function deleteKeysFromCache(keyList) {

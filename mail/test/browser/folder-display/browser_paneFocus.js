@@ -44,7 +44,7 @@ add_setup(async function() {
  * Get the currently-focused pane in the 3pane. One of the folder pane, thread
  * pane, or message pane (single- or multi-message).
  *
- * @return the focused pane
+ * @returns the focused pane
  */
 function get_focused_pane() {
   let panes = [

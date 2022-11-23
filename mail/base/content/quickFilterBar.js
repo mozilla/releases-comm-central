@@ -91,6 +91,7 @@ var QuickFilterBarMuxer = {
   /**
    * Sets quickfilter related UI items (menuitems and toolbarbuttons)
    * to appropriate checked state.
+   *
    * @param {boolean} checked - True when the the UI items should be checked.
    */
   _setupToggleChecks(checked) {

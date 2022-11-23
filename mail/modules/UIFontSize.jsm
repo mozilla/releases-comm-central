@@ -288,6 +288,7 @@ var UIFontSize = {
    * because that method triggers again the `resizeCallback` and `dialogopen`
    * Event, which we use to detect the opening of a dialog, therefore calling
    * the `resizeDialog()` method would cause an infinite loop.
+   *
    * @param {SubDialog} dialog - The dialog prototype.
    */
   resizeSubDialog(dialog) {

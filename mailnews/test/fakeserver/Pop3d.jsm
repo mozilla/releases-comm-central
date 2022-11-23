@@ -264,6 +264,7 @@ class POP3_RFC1939_handler {
 
 /**
  * This implements CAPA
+ *
  * @see RFC 2449
  */
 class POP3_RFC2449_handler extends POP3_RFC1939_handler {
@@ -284,6 +285,7 @@ class POP3_RFC2449_handler extends POP3_RFC1939_handler {
 
 /**
  * This implements the AUTH command, i.e. authentication using CRAM-MD5 etc.
+ *
  * @see RFC 5034
  * @author Ben Bucksch <ben.bucksch beonex.com> <http://business.beonex.com>
  */

@@ -34,7 +34,7 @@
     /**
      * The array of all the recipients that need to be shown in this widget.
      *
-     * @type {Array<Object>}
+     * @type {Array<object>}
      */
     #recipients = [];
 
@@ -194,10 +194,10 @@
      * Add a recipient to be shown in this widget. The recipient won't be shown
      * until the row view is built.
      *
-     * @param {Object} recipient - The recipient element.
-     * @param {String} recipient.displayName - The recipient display name.
-     * @param {String} [recipient.emailAddress] - The recipient email address.
-     * @param {String} [recipient.fullAddress] - The recipient full address.
+     * @param {object} recipient - The recipient element.
+     * @param {string} recipient.displayName - The recipient display name.
+     * @param {string} [recipient.emailAddress] - The recipient email address.
+     * @param {string} [recipient.fullAddress] - The recipient full address.
      */
     addRecipient(recipient) {
       this.#recipients.push(recipient);
@@ -341,20 +341,20 @@
     /**
      * The object holding the recipient information.
      *
-     * @type {Object}
-     * @property {String} displayName - The recipient display name.
-     * @property {String} [emailAddress] - The recipient email address.
-     * @property {String} [fullAddress] - The recipient full address.
+     * @type {object}
+     * @property {string} displayName - The recipient display name.
+     * @property {string} [emailAddress] - The recipient email address.
+     * @property {string} [fullAddress] - The recipient full address.
      */
     #recipient = {};
 
     /**
      * The Card object if the recipients is saved in the address book.
      *
-     * @type {Object}
-     * @property {?Object} book - The address book in which the contact is
+     * @type {object}
+     * @property {?object} book - The address book in which the contact is
      *   saved, if we have a card.
-     * @property {?Object} card - The saved contact card, if present.
+     * @property {?object} card - The saved contact card, if present.
      */
     cardDetails = {};
 
@@ -695,7 +695,7 @@
     /**
      * The array of all the newsgroups that need to be shown in this row.
      *
-     * @type {Array<Object>}
+     * @type {Array<object>}
      */
     #newsgroups = [];
 
@@ -847,7 +847,7 @@
     /**
      * The array of all the IDs that need to be shown in this row.
      *
-     * @type {Array<Object>}
+     * @type {Array<object>}
      */
     #ids = [];
 

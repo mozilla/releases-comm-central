@@ -59,7 +59,7 @@ DateFacetVis.prototype = {
    * @param aPixels The number of linear content pixels we have to work with.
    *     You are in charge of the borders and such, so you subtract that off
    *     before you pass it in.
-   * @return An object with attributes:
+   * @returns An object with attributes:
    */
   makeIdealScaleGivenSpace(aPixels) {
     let facet = this.faceter;

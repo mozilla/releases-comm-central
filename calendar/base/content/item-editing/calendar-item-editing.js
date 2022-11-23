@@ -23,12 +23,14 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 /**
  * The global calendar transaction manager.
+ *
  * @type {CalTransactionManager}
  */
 var gCalTransactionMgr = CalTransactionManager.getInstance();
 
 /**
  * If a batch transaction is active, it is stored here.
+ *
  * @type {CalBatchTransaction?}
  */
 var gCalBatchTransaction = null;
@@ -416,21 +418,21 @@ function modifyEventWithDialog(aItem, aPromptOccurrence, initialDate = null, aCo
  * @param {calICalendar} calendar
  * @param {calIItemBase} originalItem
  * @param {?calIOperationListener} listener
- * @param {?Object} extresponse
+ * @param {?object} extresponse
  */
 
 /**
  * Opens the event dialog with the given item (task OR event).
  *
- * @param {calIItemBase} calendarItem    The item to open the dialog with.
- * @param {calICalendar} calendar        The calendar to open the dialog with.
- * @param {string} mode                  The operation the dialog should do
+ * @param {calIItemBase} calendarItem - The item to open the dialog with.
+ * @param {calICalendar} calendar - The calendar to open the dialog with.
+ * @param {string} mode - The operation the dialog should do
  *                                       ("new", "view", "modify").
- * @param {onDialogComplete} callback    The callback to call when the dialog
+ * @param {onDialogComplete} callback - The callback to call when the dialog
  *                                       has completed.
- * @param {?calIDateTime} initialDate    The initial date for new task
+ * @param {?calIDateTime} initialDate - The initial date for new task
  *                                       datepickers.
- * @param {?Object} counterProposal      An object representing the
+ * @param {?object} counterProposal - An object representing the
  *                                       counterproposal - see description
  *                                       for modifyEventWithDialog().
  */
@@ -583,7 +585,7 @@ function openEventDialog(
  *                                        false if a deletion is being made.
  * @param aAction                       Either "edit" or "delete". Sets up
  *                                          the labels in the occurrence prompt
- * @return [modifiedItem, futureItem, promptResponse]
+ * @returns [modifiedItem, futureItem, promptResponse]
  *                                      modifiedItem is a single item or array
  *                                        of items depending on the past aItem
  *
@@ -777,7 +779,7 @@ function setContextPartstat(aTarget, aItems) {
    * Provides the participation representing the user for a provided item
    *
    * @param   {calEvent|calTodo}  aItem  The calendar item to inspect
-   * @returns {?calIAttendee}            An calIAttendee object or null if no
+   * @returns {?calIAttendee} An calIAttendee object or null if no
    *                                       participant was detected
    */
   function getParticipant(aItem) {

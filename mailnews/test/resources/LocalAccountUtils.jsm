@@ -175,7 +175,7 @@ var localAccountUtils = {
    *
    * @param {nsIMsgAccount} aIncoming - The account to associate.
    * @param {nsISmtpServer} aOutgoingServer - The outgoing server to associate.
-   * @param {bool} aSetAsDefault  Whether to set the outgoing server as the
+   * @param {bool} aSetAsDefault - Whether to set the outgoing server as the
    *   default for the account.
    */
   associate_servers(aIncoming, aOutgoingServer, aSetAsDefault = false) {

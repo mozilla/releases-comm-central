@@ -45,7 +45,7 @@ add_setup(async function() {
  * Helper to get the full message content.
  *
  * @param aMsgHdr: nsIMsgDBHdr object whose text body will be read
- * @return {Map(partnum -> message headers), Map(partnum -> message text)}
+ * @returns {Map(partnum -> message headers), Map(partnum -> message text)}
  */
 function getMsgHeaders(aMsgHdr) {
   let msgFolder = aMsgHdr.folder;

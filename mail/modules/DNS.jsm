@@ -465,7 +465,7 @@ if (typeof Components === "undefined") {
      *
      * @param aName           The aName to look up.
      * @param aTypeID         The RR type to look up as a constant.
-     * @return                A promise resolved when completed.
+     * @returns A promise resolved when completed.
      */
     lookup(aName, aTypeID) {
       let worker = new BasePromiseWorker(LOCATION);

@@ -351,7 +351,7 @@ function SwitchToValidatePanel() {
 }
 
 /**
- * @return {Promise} URL spec of the file chosen, or null
+ * @returns {Promise} URL spec of the file chosen, or null
  */
 function GetLocalFileURL(filterType) {
   var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);

@@ -262,7 +262,7 @@ SearchSpec.prototype = {
     this.owner._applyViewChanges();
   },
   /**
-   * @return the view terms currently in effect.  Do not mutate this.
+   * @returns the view terms currently in effect.  Do not mutate this.
    */
   get viewTerms() {
     return this._viewTerms;
@@ -288,7 +288,7 @@ SearchSpec.prototype = {
     this.owner._applyViewChanges();
   },
   /**
-   * @return the Virtual folder terms currently in effect.  Do not mutate this.
+   * @returns the Virtual folder terms currently in effect.  Do not mutate this.
    */
   get virtualFolderTerms() {
     return this._virtualFolderTerms;
@@ -313,7 +313,7 @@ SearchSpec.prototype = {
     this.owner._applyViewChanges();
   },
   /**
-   * @return the user terms currently in effect as set via the |userTerms|
+   * @returns the user terms currently in effect as set via the |userTerms|
    *     attribute or via the |quickSearch| method.  Do not mutate this.
    */
   get userTerms() {

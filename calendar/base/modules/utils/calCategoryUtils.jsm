@@ -18,7 +18,7 @@ var calcategory = {
   /**
    * Sets up the default categories from the localized string
    *
-   * @return      The default set of categories as a comma separated string.
+   * @returns The default set of categories as a comma separated string.
    */
   setupDefaultCategories() {
     let defaultBranch = Services.prefs.getDefaultBranch("");
@@ -45,7 +45,7 @@ var calcategory = {
    * Get array of category names from preferences or locale default,
    * unescaping any commas in each category name.
    *
-   * @return                      array of category names
+   * @returns array of category names
    */
   fromPrefs() {
     let categories = Services.prefs.getStringPref("calendar.categories.names", null);
@@ -66,7 +66,7 @@ var calcategory = {
    *
    * @param aCategoriesPrefValue  string from "calendar.categories.names" pref,
    *                                which may contain escaped commas (\,) in names.
-   * @return                      list of category names
+   * @returns list of category names
    */
   stringToArray(aCategories) {
     if (!aCategories) {

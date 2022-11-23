@@ -31,10 +31,10 @@ const EXPORTED_SYMBOLS = [
  * "too complex" string by getting that string using the arguments provided.
  *
  * @param {calIEvent | calITodo} item   A calendar item.
- * @param {string} bundleName           Name of the properties file, e.g. "calendar-event-dialog".
- * @param {string} stringName           Name of the string within the properties file.
- * @param {string[]} [params]           (optional) Parameters to format the string.
- * @return {string | null}              A string describing the recurrence
+ * @param {string} bundleName - Name of the properties file, e.g. "calendar-event-dialog".
+ * @param {string} stringName - Name of the string within the properties file.
+ * @param {string[]} [params] - (optional) Parameters to format the string.
+ * @returns {string | null} A string describing the recurrence
  *                                        pattern or null if the item has no
  *                                        recurrence info.
  */
@@ -69,7 +69,7 @@ function recurrenceStringFromItem(item, bundleName, stringName, params) {
  * @param startDate         The start date to base rules on.
  * @param endDate           The end date to base rules on.
  * @param allDay            If true, the pattern should assume an allday item.
- * @return                  A human readable string describing the recurrence.
+ * @returns A human readable string describing the recurrence.
  */
 function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
   function getRString(name, args) {
@@ -441,7 +441,7 @@ function hasUnsupported(recurrenceInfo) {
  * Split rules into negative and positive rules.
  *
  * @param recurrenceInfo    An item's recurrence info to parse.
- * @return                  An array with two elements: an array of positive
+ * @returns An array with two elements: an array of positive
  *                            rules and an array of negative rules.
  */
 function splitRecurrenceRules(recurrenceInfo) {
@@ -464,7 +464,7 @@ function splitRecurrenceRules(recurrenceInfo) {
  * @see                     calIRecurrenceRule
  * @param aRule             The recurrence rule to check.
  * @param aArray            An array of component names to check.
- * @return                  Returns true if the rule is valid.
+ * @returns Returns true if the rule is valid.
  */
 function checkRecurrenceRule(aRule, aArray) {
   for (let comp of aArray) {
@@ -480,7 +480,7 @@ function checkRecurrenceRule(aRule, aArray) {
  * Counts the occurrences of the parent item if any of a provided item
  *
  * @param  {(calIEvent|calIToDo)}  aItem  item to count for
- * @returns {(number|null)}               number of occurrences or null if the
+ * @returns {(number|null)} number of occurrences or null if the
  *                                          passed item's parent item isn't a
  *                                          recurring item or its recurrence is
  *                                          infinite

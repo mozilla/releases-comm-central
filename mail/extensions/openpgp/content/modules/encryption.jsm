@@ -191,7 +191,7 @@ var EnigmailEncryption = {
    *
    * @param {string} keyId - key ID
    *
-   * @return {string} The reason(s) as message to display to the user, or
+   * @returns {string} The reason(s) as message to display to the user, or
    *   an empty string in case the key is valid.
    */
   determineInvSignReason(keyId) {
@@ -218,7 +218,7 @@ var EnigmailEncryption = {
    *
    * @param {string} keyId - key ID
    *
-   * @return {string} The reason(s) as message to display to the user, or
+   * @returns {string} The reason(s) as message to display to the user, or
    *   an empty string in case the key is valid.
    */
   determineInvRcptReason(keyId) {
@@ -246,7 +246,7 @@ var EnigmailEncryption = {
    * @param sendFlags:    Number  - the send Flags; need to contain SEND_SIGNED and/or SEND_ENCRYPTED
    * @param fromKeyId:    String  - the sender key ID
    *
-   * @return Object:
+   * @returns Object:
    *         - keyId:    String - the found key ID, or null if fromMailAddr is not valid
    *         - errorMsg: String - the error message if key not valid, or null if key is valid
    */

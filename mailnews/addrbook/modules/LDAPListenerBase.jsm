@@ -50,6 +50,7 @@ class LDAPListenerBase {
 
   /**
    * Handler of nsILDAPMessage.RES_BIND message.
+   *
    * @param {nsILDAPMessage} msg - The received LDAP message.
    */
   _onLDAPBind(msg) {
@@ -92,6 +93,7 @@ class LDAPListenerBase {
 
   /**
    * Callback when BindResponse succeeded.
+   *
    * @abstract
    */
   _actionOnBindSuccess() {
@@ -103,6 +105,7 @@ class LDAPListenerBase {
 
   /**
    * Callback when BindResponse failed.
+   *
    * @abstract
    */
   _actionOnBindFailure() {

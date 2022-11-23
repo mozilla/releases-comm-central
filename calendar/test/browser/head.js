@@ -88,7 +88,7 @@ async function closeChatTab() {
  * Opens a new calendar event or task tab.
  *
  * @param {string} tabMode - Mode of the new tab, either `calendarEvent` or `calendarTask`.
- * @return {string} - The id of the new tab's panel element.
+ * @returns {string} - The id of the new tab's panel element.
  */
 async function _openNewCalendarItemTab(tabMode) {
   let tabmail = document.getElementById("tabmail");
@@ -241,17 +241,18 @@ async function closeAddonsTab() {
 /**
  * Create a calendar using the "Create New Calendar" dialog.
  *
- * @param {string} name                     Name for the new calendar.
- * @param {Object} [data]                   Data to enter into the dialog.
- * @param {boolean} [data.showReminders]    False to disable reminders.
- * @param {string} [data.email]             An email address.
- * @param {Object} [data.network]           Data for network calendars.
- * @param {string} [data.network.location]  A URI (leave undefined for local ICS file).
- * @param {boolean} [data.network.offline]  False to disable the cache.
+ * @param {string} name - Name for the new calendar.
+ * @param {object} [data] - Data to enter into the dialog.
+ * @param {boolean} [data.showReminders] - False to disable reminders.
+ * @param {string} [data.email] - An email address.
+ * @param {object} [data.network] - Data for network calendars.
+ * @param {string} [data.network.location] - A URI (leave undefined for local ICS file).
+ * @param {boolean} [data.network.offline] - False to disable the cache.
  */
 async function createCalendarUsingDialog(name, data = {}) {
   /**
    * Callback function to interact with the dialog.
+   *
    * @param {nsIDOMWindow} win - The dialog window.
    */
   async function useDialog(win) {

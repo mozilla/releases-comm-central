@@ -54,7 +54,7 @@ CalRecurrenceRule.prototype = {
    * Tests whether the "FREQ" value for this rule is supported or not. A warning
    * is logged if an unsupported value ("SECONDLY"|"MINUTELY") is encountered.
    *
-   * @return {boolean}
+   * @returns {boolean}
    */
   freqSupported() {
     let { freq } = this.innerObject;

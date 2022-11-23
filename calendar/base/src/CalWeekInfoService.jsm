@@ -85,7 +85,7 @@ CalWeekInfoService.prototype = {
    * of the preference setting "calendar.week.start"
    *
    * @param aDate     a date time object
-   * @return          a dateTime-object denoting the first day of the week
+   * @returns a dateTime-object denoting the first day of the week
    */
   getStartOfWeek(aDate) {
     let date = aDate.clone();
@@ -103,7 +103,7 @@ CalWeekInfoService.prototype = {
    * of the preference setting "calendar.week.start"
    *
    * @param aDate     a date time object
-   * @return          a dateTime-object denoting the last day of the week
+   * @returns a dateTime-object denoting the last day of the week
    */
   getEndOfWeek(aDate) {
     let date = this.getStartOfWeek(aDate);

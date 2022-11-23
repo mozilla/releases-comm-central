@@ -198,9 +198,9 @@ class CardDAVDirectory extends SQLiteDirectory {
    * URL, and providing a mechanism to give a username and password specific
    * to this directory.
    *
-   * @param {String} path - A path relative to the server URL.
-   * @param {Object} details - See CardDAVUtils.makeRequest.
-   * @return {Promise<Object>} - See CardDAVUtils.makeRequest.
+   * @param {string} path - A path relative to the server URL.
+   * @param {object} details - See CardDAVUtils.makeRequest.
+   * @returns {Promise<object>} - See CardDAVUtils.makeRequest.
    */
   async _makeRequest(path, details = {}) {
     let serverURI = Services.io.newURI(this._serverURL);
@@ -261,7 +261,7 @@ class CardDAVDirectory extends SQLiteDirectory {
    * already exist on the server have this value in the _href property.
    *
    * @param {nsIAbCard} card
-   * @return {String}
+   * @returns {string}
    */
   _getCardHref(card) {
     let href = card.getProperty("_href", "");
@@ -298,7 +298,7 @@ class CardDAVDirectory extends SQLiteDirectory {
    * Performs a multiget request for the provided hrefs, and adds each response
    * to the directory, adding or modifying as necessary.
    *
-   * @param {String[]} hrefsToFetch - The href of each card to be requested.
+   * @param {string[]} hrefsToFetch - The href of each card to be requested.
    */
   async _fetchAndStore(hrefsToFetch) {
     if (hrefsToFetch.length == 0) {
@@ -345,7 +345,7 @@ class CardDAVDirectory extends SQLiteDirectory {
    * Reads a multistatus response, yielding once for each response element.
    *
    * @param {Document} dom - as returned by CardDAVUtils.makeRequest.
-   * @yields {Object} - An object representing a single <response> element
+   * @yields {object} - An object representing a single <response> element
    *     from the document:
    *     - href, the href of the object represented
    *     - notFound, if a 404 status applies to this response

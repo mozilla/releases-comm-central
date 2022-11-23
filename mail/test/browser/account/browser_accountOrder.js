@@ -68,7 +68,7 @@ add_task(async function test_account_open_state() {
 /**
  * Check the order of the accounts.
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_check_account_order(tab) {
   let accountRow = get_account_tree_row(gPopAccount.key, null, tab);

@@ -77,7 +77,7 @@ class BERValue {
   /**
    * Encode the BERValue to an array of bytes, ready to be written to the wire.
    *
-   * @return {Array.<number>} - The encoded bytes.
+   * @returns {Array.<number>} - The encoded bytes.
    */
   encode() {
     let bytes = [];
@@ -114,7 +114,7 @@ class BERValue {
   }
 
   /**
-   * @return {number} - The tag number of the type (the lower 5 bits).
+   * @returns {number} - The tag number of the type (the lower 5 bits).
    */
   tag() {
     return this.type & 0x1f;
@@ -216,6 +216,7 @@ class BERValue {
 
   /**
    * Create a new sequence
+   *
    * @param {number} type - BER type byte
    * @param {Array.<BERValue>} children - The contents of the sequence.
    */
@@ -306,7 +307,7 @@ class BERParser {
   /**
    * Helper to fetch the next byte in the stream.
    *
-   * @return {number} - The byte.
+   * @returns {number} - The byte.
    */
   async _nextByte() {
     let buf = await this._conn.read(1);
@@ -316,7 +317,7 @@ class BERParser {
   /**
    * Helper to read a BER length field from the connection.
    *
-   * @return {Array.<number>} - 2 elements: [length, bytesconsumed].
+   * @returns {Array.<number>} - 2 elements: [length, bytesconsumed].
    */
   async _readLength() {
     let n = await this._nextByte();
@@ -335,7 +336,7 @@ class BERParser {
   /**
    * Reads a single BERValue from the connection (including any children).
    *
-   * @return {Array.<number>} - 2 elements: [value, bytesconsumed].
+   * @returns {Array.<number>} - 2 elements: [value, bytesconsumed].
    */
   async decodeBERValue() {
     // BER values always encoded as TLV (type, length, value) triples,
@@ -425,7 +426,7 @@ class LDAPDaemon {
    * Find entries in our LDAP db.
    *
    * @param {BERValue} berFilter - BERValue containing the filter to apply.
-   * @return {Array} - The matching entries.
+   * @returns {Array} - The matching entries.
    */
   search(berFilter) {
     let f = this.buildFilter(berFilter);
@@ -438,7 +439,7 @@ class LDAPDaemon {
    * returns a bool to say if it passes the filter or not.
    *
    * @param {BERValue} ber - The filter.
-   * @return {function} - A function to test an entry against the filter.
+   * @returns {Function} - A function to test an entry against the filter.
    */
   buildFilter(ber) {
     if (!ber.isContextSpecific()) {

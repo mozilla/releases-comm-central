@@ -87,6 +87,7 @@
   /**
    * Class extending treecols. This features a customized treecolpicker that
    * features a menupopup with more items than the standard one.
+   *
    * @augments {MozTreecols}
    */
   class MozThreadPaneTreecols extends customElements.get("treecols") {
@@ -129,6 +130,7 @@
   /**
    * Class extending treecolpicker. This implements UI to apply column settings
    * of the current thread pane to other mail folders too.
+   *
    * @augments {MozTreecolPicker}
    */
   class MozThreadPaneTreeColpicker extends customElements.get("treecolpicker") {
@@ -353,7 +355,8 @@
      * for instance, a description of a menu item.
      * It is typically used e.g. for the "Custom From Address..." feature to let the user chose and
      * edit the address to send from.
-     * @extends {MozMenuList}
+     *
+     * @augments {MozMenuList}
      */
     class MozMenulistEditable extends customElements.get("menulist") {
       static get markup() {
@@ -550,7 +553,7 @@
    * The MozAttachmentlist widget lists attachments for a mail. This is typically used to show
    * attachments while writing a new mail as well as when reading mails.
    *
-   * @extends {MozElements.RichListBox}
+   * @augments {MozElements.RichListBox}
    */
   class MozAttachmentlist extends MozElements.RichListBox {
     constructor() {
@@ -1039,7 +1042,7 @@
    * The MailAddressPill widget is used to display the email addresses in the
    * messengercompose.xhtml window.
    *
-   * @extends {MozXULElement}
+   * @augments {MozXULElement}
    */
   class MailAddressPill extends MozXULElement {
     static get inheritedAttributes() {
@@ -1050,12 +1053,14 @@
 
     /**
      * Indicates whether the address of this pill is for a mail list.
+     *
      * @type {boolean}
      */
     isMailList = false;
 
     /**
      * If this pill is for a mail list, this provides the URI.
+     *
      * @type {?string}
      */
     listURI = null;
@@ -1063,6 +1068,7 @@
     /**
      * If this pill is for a mail list, this provides the total count of
      * its addresses.
+     *
      * @type {number}
      */
     listAddressCount = 0;
@@ -1176,7 +1182,7 @@
      * Check if the pill is currently in "Edit Mode", meaning the label is
      * hidden and the html:input field is visible.
      *
-     * @return {boolean} true if the pill is currently being edited.
+     * @returns {boolean} true if the pill is currently being edited.
      */
     get isEditing() {
       return !this.emailInput.hasAttribute("hidden");
@@ -1261,7 +1267,7 @@
     /**
      * Simple email address validation.
      *
-     * @param {String} address - An email address.
+     * @param {string} address - An email address.
      */
     isValidAddress(address) {
       return /^[^\s@]+@[^\s@]+$/.test(address);
@@ -1439,7 +1445,7 @@
      *
      * @param {("next"|"previous")} [siblingsType="next"] - Iterate next or
      *   previous siblings.
-     * @return {HTMLElement} - The nearest unselected sibling element, or null.
+     * @returns {HTMLElement} - The nearest unselected sibling element, or null.
      */
     getUnselectedSiblingPill(siblingsType = "next") {
       if (siblingsType == "next") {
@@ -1481,7 +1487,7 @@
    * The MailRecipientsArea widget is used to display the recipient rows in the
    * header area of the messengercompose.xul window.
    *
-   * @extends {MozXULElement}
+   * @augments {MozXULElement}
    */
   class MailRecipientsArea extends MozXULElement {
     connectedCallback() {
@@ -1743,9 +1749,9 @@
     /**
      * Create a new address row and a menuitem for revealing it.
      *
-     * @param {Object} recipient - An object for various element attributes.
+     * @param {object} recipient - An object for various element attributes.
      * @param {boolean} rawInput - A flag to disable pills and autocompletion.
-     * @return {Object} - The newly created elements.
+     * @returns {object} - The newly created elements.
      * @property {Element} row - The address row.
      * @property {Element} showRowMenuItem - The menu item that shows the row.
      */
@@ -1889,7 +1895,7 @@
      * @param {HTMLElement} element - The original autocomplete input that
      *   generated the pill.
      * @param {Array} address - The array containing the recipient's info.
-     * @return {Element} The newly created pill.
+     * @returns {Element} The newly created pill.
      */
     createRecipientPill(element, address) {
       let pill = document.createXULElement("mail-address-pill");
@@ -2394,7 +2400,7 @@
      *
      * @param {Element} pill - A <mail-address-pill> element. All pills in the
      *   same .address-container will be returned.
-     * @return {NodeList} NodeList of <mail-address-pill> elements in same field.
+     * @returns {NodeList} NodeList of <mail-address-pill> elements in same field.
      */
     getSiblingPills(pill) {
       return pill
@@ -2405,7 +2411,7 @@
     /**
      * Return all pills of the <mail-recipients-area> element.
      *
-     * @return {NodeList} NodeList of all <mail-address-pill> elements.
+     * @returns {NodeList} NodeList of all <mail-address-pill> elements.
      */
     getAllPills() {
       return this.querySelectorAll("mail-address-pill");
@@ -2414,7 +2420,7 @@
     /**
      * Return all currently selected pills in the <mail-recipients-area>.
      *
-     * @return {NodeList} NodeList of all selected <mail-address-pill> elements.
+     * @returns {NodeList} NodeList of all selected <mail-address-pill> elements.
      */
     getAllSelectedPills() {
       return this.querySelectorAll("mail-address-pill[selected]");
@@ -2423,7 +2429,7 @@
     /**
      * Check if any pill in the <mail-recipients-area> is selected.
      *
-     * @return {boolean} true if any pill is selected.
+     * @returns {boolean} true if any pill is selected.
      */
     hasSelectedPills() {
       return Boolean(this.querySelector("mail-address-pill[selected]"));

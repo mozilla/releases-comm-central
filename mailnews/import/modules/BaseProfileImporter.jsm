@@ -10,12 +10,13 @@ var { setTimeout } = ChromeUtils.importESModule(
 
 /**
  * An object to represent a source profile to import from.
- * @typedef {Object} SourceProfile
+ *
+ * @typedef {object} SourceProfile
  * @property {string} name - The profile name.
  * @property {nsIFile} dir - The profile location.
  *
  * An object to represent items to import.
- * @typedef {Object} ImportItems
+ * @typedef {object} ImportItems
  * @property {boolean} accounts - Whether to import accounts and settings.
  * @property {boolean} addressBooks - Whether to import address books.
  * @property {boolean} calendars - Whether to import calendars.
@@ -24,6 +25,7 @@ var { setTimeout } = ChromeUtils.importESModule(
 
 /**
  * Common interfaces shared by profile importers.
+ *
  * @abstract
  */
 class BaseProfileImporter {
@@ -43,6 +45,7 @@ class BaseProfileImporter {
 
   /**
    * Callback for progress updates.
+   *
    * @param {number} current - Current imported items count.
    * @param {number} total - Total items count.
    */
@@ -60,6 +63,7 @@ class BaseProfileImporter {
 
   /**
    * Actually start importing things to the current profile.
+   *
    * @param {nsIFile} sourceProfileDir - The source location to import from.
    * @param {ImportItems} items - The items to import.
    * @returns {boolean} Returns true when accounts have been imported, which

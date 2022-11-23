@@ -30,6 +30,7 @@ class ThunderbirdImportMail {
 
   /**
    * Create a nsIImportMailboxDescriptor instance.
+   *
    * @param {string} path - The mailbox path.
    * @param {string} name - The mailbox name.
    * @param {number} depth - The depth of the mailbox folder.
@@ -50,6 +51,7 @@ class ThunderbirdImportMail {
 
   /**
    * Recursively find mailboxes in a directory.
+   *
    * @param {nsIFile} directory - The directory to find mailboxes.
    * @param {number} depth - The depth of the current directory.
    * @returns {nsIImportMailboxDescriptor[]} - All mailboxes found.

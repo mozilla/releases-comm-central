@@ -25,7 +25,7 @@ ChromeUtils.defineModuleGetter(
 /**
  * The feed parser. Depends on FeedItem.js, Feed.js.
  *
- * @constructor
+ * @class
  */
 function FeedParser() {
   this.parsedItems = [];
@@ -38,8 +38,8 @@ FeedParser.prototype = {
    * currently a synchronous operation.  If there is an error parsing the feed,
    * parseFeed returns an empty feed in addition to calling aFeed.onParseError.
    *
-   * @param {Feed} aFeed         - The Feed object.
-   * @param {XMLDocument} aDOM   - The document to parse.
+   * @param {Feed} aFeed - The Feed object.
+   * @param {XMLDocument} aDOM - The document to parse.
    * @returns {Array} - array of items, or empty array for error returns or
    *                    nothing to do condition.
    */
@@ -393,8 +393,8 @@ FeedParser.prototype = {
    * pretty shakey on their RDF encoding too. So we just treat it as raw
    * XML and pick out the bits we want.
    *
-   * @param {Feed} feed        - The Feed object.
-   * @param {XMLDocument} doc  - The document to parse.
+   * @param {Feed} feed - The Feed object.
+   * @param {XMLDocument} doc - The document to parse.
    * @returns {Array} - array of FeedItems or empty array for error returns or
    *                    nothing to do condition (ie unset feed.parseItems).
    */
@@ -1193,8 +1193,8 @@ FeedParser.prototype = {
   /**
    * Return a cleaned up author name value.
    *
-   * @param {String} authorString  - A string.
-   * @returns {String}             - A clean string value.
+   * @param {string} authorString - A string.
+   * @returns {String} - A clean string value.
    */
   cleanAuthorName(authorString) {
     if (!authorString) {
@@ -1221,8 +1221,8 @@ FeedParser.prototype = {
    * multiline and not formatted. A sequence of tab or newline is converted to
    * a space and unprintable ascii is removed.
    *
-   * @param {Node} node  - A DOM node.
-   * @returns {String}   - A clean string value or null.
+   * @param {Node} node - A DOM node.
+   * @returns {String} - A clean string value or null.
    */
   getNodeValue(node) {
     let nodeValue = this.getNodeValueRaw(node);
@@ -1239,8 +1239,8 @@ FeedParser.prototype = {
    * while all other unprintable ascii is removed. This is intended for values
    * that are multiline and formatted, such as content or description tags.
    *
-   * @param {Node} node  - A DOM node.
-   * @returns {String}   - A clean string value or null.
+   * @param {Node} node - A DOM node.
+   * @returns {String} - A clean string value or null.
    */
   getNodeValueFormatted(node) {
     let nodeValue = this.getNodeValueRaw(node);
@@ -1255,8 +1255,8 @@ FeedParser.prototype = {
    * Return a raw node value, as received. This should be sanitized as
    * appropriate.
    *
-   * @param {Node} node  - A DOM node.
-   * @returns {String}   - A string value or null.
+   * @param {Node} node - A DOM node.
+   * @returns {String} - A string value or null.
    */
   getNodeValueRaw(node) {
     if (node && node.textContent) {
@@ -1300,10 +1300,10 @@ FeedParser.prototype = {
   /**
    * Returns first matching descendent of element, or null.
    *
-   * @param {Element} element  - DOM element to search.
-   * @param {String} namespace - Namespace of the search tag.
-   * @param {String} tagName   - Tag to search for.
-   * @returns {Element|null}   - Matching element, or null.
+   * @param {Element} element - DOM element to search.
+   * @param {string} namespace - Namespace of the search tag.
+   * @param {String} tagName - Tag to search for.
+   * @returns {Element|null} - Matching element, or null.
    */
   childByTagNameNS(element, namespace, tagName) {
     if (!element) {
@@ -1318,8 +1318,8 @@ FeedParser.prototype = {
    * for values stored in mail headers (content-base and remote enclosures),
    * particularly to prevent data: uris, javascript, and other spoofing.
    *
-   * @param {String} link  - An intended http url string.
-   * @returns {String}     - A clean string starting with http, ftp or magnet,
+   * @param {string} link - An intended http url string.
+   * @returns {String} - A clean string starting with http, ftp or magnet,
    *                         else null.
    */
   validLink(link) {
@@ -1337,9 +1337,9 @@ FeedParser.prototype = {
    * and will be the |baseURI| for <entry> child <link>s if there is no further
    * xml:base, which may be an attribute of any element.
    *
-   * @param {String} linkRel         - the <link> rel attribute value to find.
-   * @param {NodeList} linkElements  - the nodelist of <links> to search in.
-   * @param {String} baseURI         - the url to use when resolving relative
+   * @param {string} linkRel - the <link> rel attribute value to find.
+   * @param {NodeList} linkElements - the nodelist of <links> to search in.
+   * @param {string} baseURI - the url to use when resolving relative
    *                                   links to absolute values.
    * @returns {String} or null       - absolute url for a <link>, or null if the
    *                                   rel type is not found.
@@ -1375,8 +1375,8 @@ FeedParser.prototype = {
    * Find RSS Syndication extension tags.
    * http://web.resource.org/rss/1.0/modules/syndication/
    *
-   * @param {Feed} aFeed            - the feed object.
-   * @param {Node|String} aChannel  - dom node for the <channel>.
+   * @param {Feed} aFeed - the feed object.
+   * @param {Node | String} aChannel  - dom node for the <channel>.
    * @returns {void}
    */
   findSyUpdateTags(aFeed, aChannel) {
@@ -1434,7 +1434,7 @@ FeedParser.prototype = {
   /**
    * Remove unprintable ascii, particularly CR/LF, for non formatted tag values.
    *
-   * @param {String} s - String to clean.
+   * @param {string} s - String to clean.
    * @returns {String} - Cleaned string.
    */
   removeUnprintableASCII(s) {
@@ -1445,7 +1445,7 @@ FeedParser.prototype = {
   /**
    * Remove unprintable ascii, except CR/LF/TAB, for formatted tag values.
    *
-   * @param {String} s - String to clean.
+   * @param {string} s - String to clean.
    * @returns {String} - Cleaned string.
    */
   removeUnprintableASCIIexCRLFTAB(s) {

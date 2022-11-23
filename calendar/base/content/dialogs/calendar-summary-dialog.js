@@ -130,6 +130,7 @@ function reply(aResponseMode, aPartStat) {
 /**
  * Stores the event in the calendar, sends a notification if requested and
  * closes the dialog.
+ *
  * @param {string} aResponseMode - a literal of one of the response modes defined
  *                                 in calIItipItem (like 'NONE')
  */
@@ -275,6 +276,7 @@ function onEditAllOccurrences() {
 
 /**
  * Switch to the "modify" mode dialog so the user can make changes to the event.
+ *
  * @param {calIItemBase} item
  */
 function useEditDialog(item) {

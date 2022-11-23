@@ -325,7 +325,7 @@ function showContextMenu(aContextMenuID, aEvent, aPositionArray) {
 /**
  * Get the URI of the selected directory.
  *
- * @return The URI of the currently selected directory
+ * @returns The URI of the currently selected directory
  */
 function getSelectedDirectoryURI() {
   return document.getElementById("addressbookList").value;

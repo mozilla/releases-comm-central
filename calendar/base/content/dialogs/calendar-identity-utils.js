@@ -22,7 +22,7 @@ XPCOMUtils.defineLazyGetter(this, "gIdentityNotification", () => {
  * Initialize the email identity row. Shared between the calendar creation
  * dialog and the calendar properties dialog.
  *
- * @param {calICalendar} aCalendar    The calendar being created or edited.
+ * @param {calICalendar} aCalendar - The calendar being created or edited.
  */
 function initMailIdentitiesRow(aCalendar) {
   if (!aCalendar) {
@@ -73,8 +73,8 @@ function initMailIdentitiesRow(aCalendar) {
  * Returns the selected email identity. Shared between the calendar creation
  * dialog and the calendar properties dialog.
  *
- * @param {calICalendar} aCalendar    The calendar for the identity selection.
- * @returns {string}                  The key of the selected nsIMsgIdentity or 'none'.
+ * @param {calICalendar} aCalendar - The calendar for the identity selection.
+ * @returns {string} The key of the selected nsIMsgIdentity or 'none'.
  */
 function getMailIdentitySelection(aCalendar) {
   let sel = "none";
@@ -92,7 +92,7 @@ function getMailIdentitySelection(aCalendar) {
  * Persists the selected email identity. Shared between the calendar creation
  * dialog and the calendar properties dialog.
  *
- * @param {calICalendar} aCalendar    The calendar for the identity selection.
+ * @param {calICalendar} aCalendar - The calendar for the identity selection.
  */
 function saveMailIdentitySelection(aCalendar) {
   if (aCalendar) {
@@ -108,7 +108,7 @@ function saveMailIdentitySelection(aCalendar) {
  * calendar. Shared between the calendar creation dialog and the calendar
  * properties dialog.
  *
- * @param {calICalendar} aCalendar    The calendar for the identity selection.
+ * @param {calICalendar} aCalendar - The calendar for the identity selection.
  */
 function notifyOnIdentitySelection(aCalendar) {
   gIdentityNotification.removeAllNotifications();

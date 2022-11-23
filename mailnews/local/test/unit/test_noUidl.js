@@ -27,6 +27,7 @@ registerCleanupFunction(() => {
 
 /**
  * Inject a message to the server and do a GetNewMail for the incomingServer.
+ *
  * @param {nsIPop3IncomingServer} incomingServer
  */
 async function getNewMail(incomingServer) {

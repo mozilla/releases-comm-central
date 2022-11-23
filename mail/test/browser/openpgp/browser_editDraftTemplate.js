@@ -43,7 +43,7 @@ let templatesFolder;
 /**
  * Helper function to wait for a compose window to get opened.
  *
- * @return The opened window.
+ * @returns The opened window.
  */
 async function waitForComposeWindow() {
   return BrowserTestUtils.domWindowOpened(null, async win => {

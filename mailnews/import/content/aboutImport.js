@@ -19,14 +19,15 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 /**
  * An object to represent a source profile to import from.
- * @typedef {Object} SourceProfile
+ *
+ * @typedef {object} SourceProfile
  * @property {string} [name] - The profile name.
  * @property {nsIFile} dir - The profile location.
  */
 
 /**
- * @typedef {Object} Step
- * @property {function} returnTo - Function that resets to this step. Should end
+ * @typedef {object} Step
+ * @property {Function} returnTo - Function that resets to this step. Should end
  *  up calling |updateSteps()| with this step again.
  */
 
@@ -153,6 +154,7 @@ class ImporterController {
 
   /**
    * Show a specific pane, hide all the others.
+   *
    * @param {string} id - The pane id to show.
    */
   showPane(id) {
@@ -213,6 +215,7 @@ class ImporterController {
 
   /**
    * Update the progress bar.
+   *
    * @param {number} value - A number between 0 and 1 to represent the progress.
    */
   updateProgress(value) {
@@ -228,6 +231,7 @@ class ImporterController {
 
   /**
    * Show the finish text.
+   *
    * @param {boolean} [restartNeeded=false] - Whether restart is needed to
    *  finish the importing.
    */
@@ -244,6 +248,7 @@ class ImporterController {
 
   /**
    * Show the error pane, with an error message.
+   *
    * @param {string} msgId - The error message fluent id.
    */
   showError(msgId) {
@@ -384,6 +389,7 @@ class ProfileImporterController extends ImporterController {
 
   /**
    * Show the profiles pane, with a list of profiles and optional file pickers.
+   *
    * @param {SourceProfile[]} profiles - An array of profiles.
    * @param {boolean} useFilePicker - Whether to render file pickers.
    */
@@ -466,6 +472,7 @@ class ProfileImporterController extends ImporterController {
 
   /**
    * Open a file picker to select a folder or a zip file.
+   *
    * @param {'dir' | 'zip'} type - Whether to pick a folder or a zip file.
    */
   async _openFilePicker(type) {
@@ -503,6 +510,7 @@ class ProfileImporterController extends ImporterController {
 
   /**
    * Show the items pane, with a list of items to import.
+   *
    * @param {SourceProfile} profile - The profile to import from.
    */
   _showItems(profile) {
@@ -561,6 +569,7 @@ class ProfileImporterController extends ImporterController {
 
   /**
    * Set checkbox states according to an ImportItems object.
+   *
    * @param {ImportItems} items.
    */
   _setItemsChecked(items) {
@@ -1001,6 +1010,7 @@ class CalendarImporterController extends ImporterController {
 
   /**
    * When filter changes, re-render the item list.
+   *
    * @param {HTMLInputElement} filterInput - The filter input.
    */
   onFilterChange(filterInput) {
@@ -1019,6 +1029,7 @@ class CalendarImporterController extends ImporterController {
 
   /**
    * Select or deselect all visible items.
+   *
    * @param {boolean} selected - Select all if true, otherwise deselect all.
    */
   selectAllItems(selected) {
@@ -1438,6 +1449,7 @@ class StartController extends ImporterController {
 
 /**
  * Show a specific importing tab.
+ *
  * @param {"tab-app"|"tab-addressBook"|"tab-calendar"|"tab-export"|"tab-start"} tabId -
  *  Tab to show.
  * @param {boolean} [reset=false] - If the state should be reset as if this was

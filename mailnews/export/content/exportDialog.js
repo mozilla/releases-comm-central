@@ -76,6 +76,7 @@ document.addEventListener("dialogaccept", async event => {
 
 /**
  * Export the current profile to the specified target zip file.
+ *
  * @param {nsIFile} targetFile - A target zip file to write to.
  */
 async function exportCurrentProfile(targetFile) {
@@ -129,6 +130,7 @@ async function exportCurrentProfile(targetFile) {
 
 /**
  * Recursively collect files to be zipped, save the entries into zipEntryMap.
+ *
  * @param {Map<string, nsIFile>} zipEntryMap - Collection of files to be zipped.
  * @param {string} rootPath - The rootPath to zip from.
  * @param {nsIFile} folder - The folder to search for files to zip.

@@ -42,7 +42,7 @@ var KeyLookupHelper = {
    *    be imported. New keys will only be added to CollectedKeysDB.
    * @param {nsIWindow} window - parent window
    * @param {string} identifier - search value, either key ID or fingerprint or email address.
-   * @returns {Object} flags
+   * @returns {object} flags
    * @returns {boolean} flags.keyImported - At least one key was imported.
    * @returns {boolean} flags.foundUpdated - At least one update for a local existing key was found and imported.
    * @returns {boolean} flags.foundUnchanged - All found keys are identical to already existing local keys.
@@ -151,7 +151,7 @@ var KeyLookupHelper = {
    * @param {string} keyId - the key ID to search for.
    * @param {boolean} giveFeedbackToUser - false to be silent,
    *    true to show feedback to user after search and import is complete.
-   * @return {boolean} - true if at least one key was imported.
+   * @returns {boolean} - true if at least one key was imported.
    */
   async lookupAndImportByKeyID(mode, window, keyId, giveFeedbackToUser) {
     if (!/^0x/i.test(keyId)) {
@@ -192,7 +192,7 @@ var KeyLookupHelper = {
    * @param {string} email - the email address to search for.
    * @param {boolean} giveFeedbackToUser - false to be silent,
    *    true to show feedback to user after search and import is complete.
-   * @return {boolean} - true if at least one key was imported.
+   * @returns {boolean} - true if at least one key was imported.
    */
   async lookupAndImportByEmail(mode, window, email, giveFeedbackToUser) {
     let resultKeyImported = false;
@@ -329,7 +329,7 @@ var KeyLookupHelper = {
    * @param {string[]} keyIds - KeyIDs that should be updated.
    *                            (parameter allowed to be null or empty)
    *
-   * @return {Boolean} - Returns true if at least one key was imported.
+   * @returns {boolean} - Returns true if at least one key was imported.
    */
   async fullOnlineDiscovery(mode, window, email, keyIds) {
     // Try to get updates for all existing keys from keyserver,

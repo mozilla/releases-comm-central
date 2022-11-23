@@ -288,6 +288,7 @@ class ImapIncomingServer extends MsgIncomingServer {
 
   /**
    * Find local folders that do not exist on the server.
+   *
    * @param {nsIMsgFolder} parentFolder - The folder to check.
    * @returns {nsIMsgFolder[]}
    */
@@ -305,6 +306,7 @@ class ImapIncomingServer extends MsgIncomingServer {
 
   /**
    * Returns true if all sub folders are unverified.
+   *
    * @param {nsIMsgFolder} parentFolder - The folder to check.
    * @returns {nsIMsgFolder[]}
    */
@@ -338,6 +340,7 @@ class ImapIncomingServer extends MsgIncomingServer {
 
   /**
    * Given a canonical folder name, returns the corresponding msg folder.
+   *
    * @param {string} name - The canonical folder name, e.g. a/b/c.
    * @returns {nsIMsgFolder} The corresponding msg folder.
    */
@@ -454,6 +457,7 @@ class ImapIncomingServer extends MsgIncomingServer {
 
   /**
    * Wait for a free connection.
+   *
    * @param {nsIMsgFolder} folder - The folder to operate on.
    * @returns {ImapClient}
    */
@@ -471,6 +475,7 @@ class ImapIncomingServer extends MsgIncomingServer {
 
   /**
    * Get a free connection that can be used.
+   *
    * @param {nsIMsgFolder} folder - The folder to operate on.
    * @returns {ImapClient}
    */
@@ -523,6 +528,7 @@ class ImapIncomingServer extends MsgIncomingServer {
 
   /**
    * Do some actions with a connection.
+   *
    * @param {nsIMsgFolder} folder - The folder to operate on.
    * @param {Function} handler - A callback function to take a ImapClient
    *   instance, and do some actions.

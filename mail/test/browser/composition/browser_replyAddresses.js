@@ -75,6 +75,7 @@ add_setup(function() {
 /**
  * Helper to open a reply, check the fields are as expected, and close the
  * reply window.
+ *
  * @param aReplyFunction which reply function to call
  * @param aExpectedFields the fields expected
  */
@@ -665,6 +666,7 @@ add_task(async function testReplyToListWhenReplyToSet() {
 /**
  * Test that addresses get set properly for Mail-Reply-To. Mail-Reply-To should
  * be used for reply to author, if present.
+ *
  * @see http://cr.yp.to/proto/replyto.html
  */
 add_task(async function testMailReplyTo() {
@@ -707,6 +709,7 @@ add_task(async function testMailReplyTo() {
 /**
  * Test that addresses get set properly Mail-Followup-To. Mail-Followup-To
  * should be the default recipient list for reply-all, if present.
+ *
  * @see http://cr.yp.to/proto/replyto.html
  */
 add_task(async function testMailFollowupTo() {

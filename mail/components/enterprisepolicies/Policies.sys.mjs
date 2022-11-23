@@ -1413,9 +1413,9 @@ export var PoliciesUtils = {
  *
  * @param {string} permissionName
  *        The name of the permission to change
- * @param {array} allowList
+ * @param {Array} allowList
  *        The list of URLs to be set as ALLOW_ACTION for the chosen permission.
- * @param {array} blockList
+ * @param {Array} blockList
  *        The list of URLs to be set as DENY_ACTION for the chosen permission.
  */
 function addAllowDenyPermissions(permissionName, allowList, blockList) {

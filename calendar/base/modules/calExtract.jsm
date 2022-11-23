@@ -248,7 +248,7 @@ Extractor.prototype = {
    * @param sel   selection object of email content, when defined times
    *                  outside selection are discarded
    * @param title email title
-   * @return      sorted list of extracted datetime objects
+   * @returns sorted list of extracted datetime objects
    */
   extract(title, body, now, sel) {
     let initial = {};
@@ -887,7 +887,7 @@ Extractor.prototype = {
    * Guesses start time from list of guessed datetimes
    *
    * @param isTask    whether start time should be guessed for task or event
-   * @return          datetime object for start time
+   * @returns datetime object for start time
    */
   guessStart(isTask) {
     let startTimes = this.collected.filter(val => val.relation == "start");
@@ -963,7 +963,7 @@ Extractor.prototype = {
    *
    * @param start         start time to consider when guessing
    * @param doGuessStart  whether start time should be guessed for task or event
-   * @return              datetime object for end time
+   * @returns datetime object for end time
    */
   guessEnd(start, doGuessStart) {
     let guess = {};

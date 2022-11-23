@@ -55,6 +55,7 @@ export class NewsDownloader {
 
   /**
    * Download articles in a newsgroup one by one.
+   *
    * @param {nsIMsgFolder} folder - The newsgroup folder.
    */
   async _downloadFolder(folder) {
@@ -89,6 +90,7 @@ export class NewsDownloader {
   /**
    * Use a search session to find articles that match the download settings
    * and we don't already have.
+   *
    * @param {nsIMsgFolder} folder - The newsgroup folder.
    * @returns {Set<number>}
    */

@@ -22,8 +22,8 @@ const EXPORTED_SYMBOLS = [
 /**
  * Creates an xmlns string with the requested namespace prefixes
  *
- * @param {...String} aRequested        The requested namespace prefixes
- * @return {String}                     An xmlns string that can be inserted into xml documents
+ * @param {...string} aRequested - The requested namespace prefixes
+ * @returns {string} An xmlns string that can be inserted into xml documents
  */
 function CalDavXmlns(...aRequested) {
   let namespaces = [];
@@ -41,8 +41,8 @@ function CalDavXmlns(...aRequested) {
  * Helper function to gather namespaces from QNames or namespace prefixes, plus a few extra for the
  * remaining request.
  *
- * @param {...String} aTags     Either QNames, or just namespace prefixes to be resolved.
- * @return {String}             The complete namespace string
+ * @param {...string} aTags - Either QNames, or just namespace prefixes to be resolved.
+ * @returns {string} The complete namespace string
  */
 function CalDavTagsToXmlns(...aTags) {
   let namespaces = new Set(aTags.map(tag => tag.split(":")[0]));
@@ -52,8 +52,8 @@ function CalDavTagsToXmlns(...aTags) {
 /**
  * Resolve the namespace URI to one of the prefixes used in our codebase
  *
- * @param {String} aNamespace       The namespace URI to resolve
- * @return {?String}                The namespace prefix we use
+ * @param {string} aNamespace - The namespace URI to resolve
+ * @returns {?string} The namespace prefix we use
  */
 function CalDavNsUnresolver(aNamespace) {
   const prefixes = {
@@ -68,8 +68,8 @@ function CalDavNsUnresolver(aNamespace) {
 /**
  * Resolve the namespace URI from one of the prefixes used in our codebase
  *
- * @param {String} aPrefix          The namespace prefix we use
- * @return {?String}                The namespace URI for the prefix
+ * @param {string} aPrefix - The namespace prefix we use
+ * @returns {?string} The namespace URI for the prefix
  */
 function CalDavNsResolver(aPrefix) {
   /* eslint-disable id-length */
@@ -87,10 +87,10 @@ function CalDavNsResolver(aPrefix) {
 /**
  * Run an xpath expression on the given node, using the caldav namespace resolver
  *
- * @param {Element} aNode           The context node to search from
- * @param {String} aExpr            The XPath expression to search for
- * @param {?XPathResult} aType      (optional) Force a result type, must be an XPathResult constant
- * @return {Element[]}              Array of found elements
+ * @param {Element} aNode - The context node to search from
+ * @param {string} aExpr - The XPath expression to search for
+ * @param {?XPathResult} aType - (optional) Force a result type, must be an XPathResult constant
+ * @returns {Element[]} Array of found elements
  */
 function CalDavXPath(aNode, aExpr, aType) {
   return cal.xml.evalXPath(aNode, aExpr, CalDavNsResolver, aType);
@@ -100,10 +100,10 @@ function CalDavXPath(aNode, aExpr, aType) {
  * Run an xpath expression on the given node, using the caldav namespace resolver. Returns the first
  * result.
  *
- * @param {Element} aNode           The context node to search from
- * @param {String} aExpr            The XPath expression to search for
- * @param {?XPathResult} aType      (optional) Force a result type, must be an XPathResult constant
- * @return {?Element}               The found element, or null.
+ * @param {Element} aNode - The context node to search from
+ * @param {string} aExpr - The XPath expression to search for
+ * @param {?XPathResult} aType - (optional) Force a result type, must be an XPathResult constant
+ * @returns {?Element} The found element, or null.
  */
 function CalDavXPathFirst(aNode, aExpr, aType) {
   return cal.xml.evalXPathFirst(aNode, aExpr, CalDavNsResolver, aType);

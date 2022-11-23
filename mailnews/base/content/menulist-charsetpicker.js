@@ -13,13 +13,15 @@ if (!customElements.get("menulist")) {
   /**
    * MozMenulistCharsetpicker is a menulist widget that is automatically
    * populated with charset selections.
-   * @extends {MozMenuList}
+   *
+   * @augments {MozMenuList}
    */
   class MozMenulistCharsetpickerViewing extends customElements.get("menulist") {
     /**
      * Get the charset values to show in the list.
+     *
      * @abstract
-     * @return {String[]} an array of character encoding names
+     * @returns {string[]} an array of character encoding names
      */
     get charsetValues() {
       return [

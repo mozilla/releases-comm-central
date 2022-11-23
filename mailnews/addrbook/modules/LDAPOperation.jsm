@@ -143,6 +143,7 @@ class LDAPOperation {
   /**
    * Decide what to do on bind success. When searching a reference url, trigger
    * a new search. Otherwise, emit a message to this._listener.
+   *
    * @param {number} errorCode - The result code of BindResponse.
    */
   _onBindSuccess(errorCode) {
@@ -158,6 +159,7 @@ class LDAPOperation {
 
   /**
    * Connect to a reference url and continue the search.
+   *
    * @param {string} urlStr - A url string we get from SearchResultReference.
    */
   _searchReference(urlStr) {

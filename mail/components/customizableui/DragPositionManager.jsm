@@ -144,6 +144,7 @@ AreaPositionManager.prototype = {
   /**
    * Reset all the transforms in this container, optionally without
    * transitioning them.
+   *
    * @param aContainer    the container in which to reset transforms
    * @param aNoTransition if truthy, adds a notransition attribute to the node
    *                      while resetting the transform.
@@ -215,6 +216,7 @@ AreaPositionManager.prototype = {
   /**
    * Helper function to find the transform a node if there isn't a next node
    * to base that on.
+   *
    * @param aNode           the node to transform
    * @param aNodeBounds     the bounding rect info of this node
    * @param aFirstNodeInRow the first node in aNode's row
@@ -240,8 +242,9 @@ AreaPositionManager.prototype = {
   /**
    * Get position details from our cache. If the node is not yet cached, get its position
    * information and cache it now.
+   *
    * @param aNode  the node whose position info we want
-   * @return the position info
+   * @returns the position info
    */
   _lazyStoreGet(aNode) {
     let rect = this._nodePositionStore.get(aNode);

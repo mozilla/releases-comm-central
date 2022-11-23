@@ -184,10 +184,10 @@ var AssociatedToNode = class {
   /**
    * Dispatches a custom event on this element.
    *
-   * @param  {String}    eventName Name of the event to dispatch.
-   * @param  {Object}    [detail]  Event detail object. Optional.
-   * @param  {Boolean}   cancelable If the event can be canceled.
-   * @return {Boolean} `true` if the event was canceled by an event handler, `false`
+   * @param  {string}    eventName Name of the event to dispatch.
+   * @param  {object}    [detail]  Event detail object. Optional.
+   * @param  {boolean}   cancelable If the event can be canceled.
+   * @returns {boolean} `true` if the event was canceled by an event handler, `false`
    *                   otherwise.
    */
   dispatchCustomEvent(eventName, detail, cancelable = false) {
@@ -885,9 +885,9 @@ var PanelMultiView = class extends AssociatedToNode {
    * @param {panelview} previousViewNode Node that is currently displayed, but
    *                                     is about to be transitioned away. This
    *                                     must be already inactive at this point.
-   * @param {panelview} viewNode         Node that will becode the active view,
+   * @param {panelview} viewNode - Node that will becode the active view,
    *                                     after the transition has finished.
-   * @param {Boolean}   reverse          Whether we're navigation back to a
+   * @param {boolean}   reverse          Whether we're navigation back to a
    *                                     previous view or forward to a next view.
    */
   async _transitionViews(previousViewNode, viewNode, reverse) {
@@ -1502,7 +1502,7 @@ var PanelView = class extends AssociatedToNode {
   /**
    * Make a TreeWalker for keyboard navigation.
    *
-   * @param {Boolean} arrowKey If `true`, elements only navigable with tab are
+   * @param {boolean} arrowKey If `true`, elements only navigable with tab are
    *        excluded.
    */
   _makeNavigableTreeWalker(arrowKey) {
@@ -1575,8 +1575,8 @@ var PanelView = class extends AssociatedToNode {
    * Focuses and moves keyboard selection to the first navigable element.
    * This is a no-op if there are no navigable elements.
    *
-   * @param {Boolean} homeKey   `true` if this is for the home key.
-   * @param {Boolean} skipBack   `true` if the Back button should be skipped.
+   * @param {boolean} homeKey - `true` if this is for the home key.
+   * @param {boolean} skipBack - `true` if the Back button should be skipped.
    */
   focusFirstNavigableElement(homeKey = false, skipBack = false) {
     // The home key is conceptually similar to the up/down arrow keys.
@@ -1600,7 +1600,7 @@ var PanelView = class extends AssociatedToNode {
    * Focuses and moves keyboard selection to the last navigable element.
    * This is a no-op if there are no navigable elements.
    *
-   * @param {Boolean} endKey   `true` if this is for the end key.
+   * @param {boolean} endKey - `true` if this is for the end key.
    */
   focusLastNavigableElement(endKey = false) {
     // The end key is conceptually similar to the up/down arrow keys.
@@ -1613,10 +1613,10 @@ var PanelView = class extends AssociatedToNode {
   /**
    * Based on going up or down, select the previous or next focusable element.
    *
-   * @param {Boolean} isDown   whether we're going down (true) or up (false).
-   * @param {Boolean} arrowKey   `true` if this is for the up/down arrow keys.
+   * @param {boolean} isDown - whether we're going down (true) or up (false).
+   * @param {boolean} arrowKey - `true` if this is for the up/down arrow keys.
    *
-   * @return {DOMNode} the element we selected.
+   * @returns {DOMNode} the element we selected.
    */
   moveSelection(isDown, arrowKey = false) {
     let walker = arrowKey

@@ -25,6 +25,7 @@ let { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 class MimeMessage {
   /**
    * Construct a MimeMessage.
+   *
    * @param {nsIMsgIdentity} userIdentity
    * @param {nsIMsgCompFields} compFields
    * @param {string} fcc - The FCC header value.
@@ -62,6 +63,7 @@ class MimeMessage {
 
   /**
    * Write a MimeMessage to a tmp file.
+   *
    * @returns {nsIFile}
    */
   async createMessageFile() {
@@ -95,6 +97,7 @@ class MimeMessage {
 
   /**
    * Create a top MimePart to represent the full message.
+   *
    * @returns {MimePart}
    */
   _initMimePart() {
@@ -285,6 +288,7 @@ class MimeMessage {
 
   /**
    * Determine if the message should include an HTML part, a plain part or both.
+   *
    * @returns {{plainPart: MimePart, htmlPart: MimePart}}
    */
   _gatherMainParts() {
@@ -370,6 +374,7 @@ class MimeMessage {
 
   /**
    * Collect local attachments.
+   *
    * @returns {MimePart[]}
    */
   _gatherAttachmentParts() {
@@ -411,6 +416,7 @@ class MimeMessage {
 
   /**
    * Collect embedded objects as attachments.
+   *
    * @returns {MimePart[]}
    */
   _gatherEmbeddedParts() {
@@ -423,6 +429,7 @@ class MimeMessage {
 
   /**
    * If crypto encapsulation is required, returns an nsIMsgComposeSecure instance.
+   *
    * @returns {nsIMsgComposeSecure}
    */
   _getComposeSecure() {
@@ -452,6 +459,7 @@ class MimeMessage {
   /**
    * Pass a stream and other params to this._composeSecure to start crypto
    * encapsulation.
+   *
    * @param {nsIOutputStream} stream - The stream to write to.
    */
   _startCryptoEncapsulation() {
@@ -477,6 +485,7 @@ class MimeMessage {
 
   /**
    * Recursively write an MimePart and its parts to a this._fstream.
+   *
    * @param {MimePart} curPart - The MimePart to write out.
    * @param {number} [depth=0] - Nested level of a part.
    */

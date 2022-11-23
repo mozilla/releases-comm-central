@@ -127,7 +127,7 @@ function onSetupComplete() {
  * Prompt a native HTML confirmation dialog for the Exchange auto discover.
  *
  * @param {string} domain - Text with the question.
- * @param {function} okCallback - Called when the user clicks OK.
+ * @param {Function} okCallback - Called when the user clicks OK.
  * @param {function(ex)} cancelCallback - Called when the user clicks Cancel
  *   or if you call `Abortable.cancel()`.
  * @returns {Abortable} - If `Abortable.cancel()` is called,
@@ -312,6 +312,7 @@ var gAccountSetup = {
   /**
    * Changes the window configuration to the different modes we have.
    * Shows/hides various window parts and buttons.
+   *
    * @param {string} modename
    *    "start" : Just the realname, email address, password fields
    *    "find-config" : detection step, adds the loading notification
@@ -1783,6 +1784,7 @@ var gAccountSetup = {
   /**
    * If the user changed the port manually, adjust the SSL value,
    * (only) if the new port is impossible with the old SSL value.
+   *
    * @param config {AccountConfig}
    */
   adjustIncomingSSLToPort(config) {
@@ -2843,7 +2845,7 @@ var gSecurityWarningDialog = {
    *
    * @param configSchema @see open()
    * @param configFilledIn @see open()
-   * @returns {Boolean} - True when the dialog should be shown
+   * @returns {boolean} - True when the dialog should be shown
    *   (call open()). if false, the dialog can and should be skipped.
    */
   needed(configSchema, configFilledIn) {
@@ -2895,7 +2897,7 @@ var gSecurityWarningDialog = {
    *      This object may be modified to store the user's confirmations, but
    *      currently that's not the case.
    * @param configFilledIn   The concrete config with placeholders replaced.
-   * @param onlyIfNeeded {Boolean}   If there is nothing to warn about,
+   * @param onlyIfNeeded {Boolean} - If there is nothing to warn about,
    *     call okCallback() immediately (and sync).
    * @param okCallback {function(config {AccountConfig})}
    *      Called when the user clicked OK and approved the config including

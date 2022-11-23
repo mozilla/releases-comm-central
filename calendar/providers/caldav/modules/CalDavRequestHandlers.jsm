@@ -80,6 +80,7 @@ class XMLResponseHandler {
 
   /**
    * Converts a binary string into a Uint8Array.
+   *
    * @param {BinaryString} str - The string to convert.
    * @returns {Uint8Array}.
    */
@@ -770,12 +771,12 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
  */
 class CalDavMultigetSyncHandler extends XMLResponseHandler {
   /**
-   * @param {String[]} aItemsNeedFetching - Array of items to fetch, an array of
+   * @param {string[]} aItemsNeedFetching - Array of items to fetch, an array of
    *                                        un-encoded paths.
    * @param {calDavCalendar} aCalendar - The (unwrapped) calendar this request belongs to.
    * @param {nsIURI} aBaseUri - The URI requested (i.e inbox or collection).
    * @param {*=} aNewSyncToken - (optional) New Sync token to set if operation successful.
-   * @param {Boolean=} aAdditionalSyncNeeded - (optional) If true, the passed sync token is not the
+   * @param {boolean=} aAdditionalSyncNeeded - (optional) If true, the passed sync token is not the
    *                                           latest, another webdav sync run should be
    *                                           done after completion.
    * @param {*=} aListener - (optional) The listener to notify.

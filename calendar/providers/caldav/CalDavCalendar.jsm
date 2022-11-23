@@ -801,7 +801,7 @@ CalDavCalendar.prototype = {
    * @param {boolean}       fromInbox  Delete from inbox rather than calendar.
    * @param {string}        uri        Uri of item to delete.
    *
-   * @return {Promise<void>}
+   * @returns {Promise<void>}
    */
   async doDeleteItem(item, ignoreEtag, fromInbox, uri) {
     let onError = async (status, detail) => {
@@ -1460,7 +1460,7 @@ CalDavCalendar.prototype = {
    * @param {PropfindResponse} response - Response to handle. Typically a
    *                                      PropfindResponse but could be any
    *                                      subclass of CalDavResponseBase.
-   * @return {boolean} True if the user accepted the redirect.
+   * @returns {boolean} True if the user accepted the redirect.
    *                   False, if the calendar should be disabled.
    */
   openUriRedirectDialog(response) {
@@ -2138,7 +2138,7 @@ CalDavCalendar.prototype = {
    *
    * @param {string} aString - Represents either a path
    *                           or a full uri that needs to be decoded.
-   * @return {string} A decoded path.
+   * @returns {string} A decoded path.
    */
   ensureDecodedPath(aString) {
     if (aString.charAt(0) != "/") {

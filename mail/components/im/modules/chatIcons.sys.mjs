@@ -9,7 +9,7 @@ export var ChatIcons = {
    * @param {prplIProtocol} protocol - The protocol to get the icon URI for.
    * @param {16|32|48} [size=16] - The width and height of the icon.
    *
-   * @return {string} - The icon's URI.
+   * @returns {string} - The icon's URI.
    */
   getProtocolIconURI(protocol, size = 16) {
     return `${protocol.iconBaseURI}icon${size === 16 ? "" : size}.png`;
@@ -66,7 +66,7 @@ export var ChatIcons = {
    *
    * @param {string} statusName - The name for the chat status.
    *
-   * @return {string|null} - The icon URI for the given status, or null if none
+   * @returns {string|null} - The icon URI for the given status, or null if none
    *   exists.
    */
   getStatusIconURI(statusName) {

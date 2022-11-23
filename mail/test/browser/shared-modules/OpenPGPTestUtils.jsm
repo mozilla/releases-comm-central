@@ -138,7 +138,7 @@ const OpenPGPTestUtils = {
    * @param {nsIWindow} parent - The parent window.
    * @param {nsIFile} file - A valid file containing a public OpenPGP key.
    * @param {string} [acceptance] - The acceptance setting for the key.
-   * @return {string[]} - List of imported key ids.
+   * @returns {string[]} - List of imported key ids.
    */
   async importPublicKey(
     parent,
@@ -158,7 +158,7 @@ const OpenPGPTestUtils = {
    * @param {nsIWindow} parent - The parent window.
    * @param {nsIFile} file - A valid file containing a private OpenPGP key.
    * @param {string} [acceptance] - The acceptance setting for the key.
-   * @return {string[]} - List of imported key ids.
+   * @returns {string[]} - List of imported key ids.
    */
   async importPrivateKey(
     parent,
@@ -215,8 +215,8 @@ const OpenPGPTestUtils = {
    * Updates the acceptance value of the provided key(s) in the database.
    *
    * @param {string|string[]} id - The id or list of ids to update.
-   * @param {string} acceptance  - The new acceptance level for the key id.
-   * @return {string[]} - A list of the key ids processed.
+   * @param {string} acceptance - The new acceptance level for the key id.
+   * @returns {string[]} - A list of the key ids processed.
    */
   async updateKeyIdAcceptance(id, acceptance) {
     let ids = Array.isArray(id) ? id : [id];

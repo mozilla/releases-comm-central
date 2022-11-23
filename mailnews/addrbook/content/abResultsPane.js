@@ -443,6 +443,7 @@ function updateDeleteControls(
 
 /**
  * Generate a comma separated list of addresses from the given cards.
+ *
  * @param {nsIAbCard[]} cards - The cards to get addresses for.
  * @returns {string} A string of comma separated mailboxes.
  */

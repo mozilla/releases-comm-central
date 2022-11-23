@@ -71,7 +71,7 @@ add_task(async function test_account_data_deletion() {
  * Bug 274452
  * Check if files of an account are preserved.
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_account_data_deletion1(tab) {
   let accountDir = gPopAccount.incomingServer.localPath;
@@ -91,7 +91,7 @@ function subtest_account_data_deletion1(tab) {
  * Bug 274452
  * Check if files of an account can be deleted.
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_account_data_deletion2(tab) {
   let accountDir = gImapAccount.incomingServer.localPath;

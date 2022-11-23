@@ -68,6 +68,7 @@ class LDAPSyncQuery {
 
   /**
    * Handler of nsILDAPMessage.RES_BIND message.
+   *
    * @param {nsILDAPMessage} msg - The received LDAP message.
    */
   _onLDAPBind(msg) {
@@ -89,6 +90,7 @@ class LDAPSyncQuery {
 
   /**
    * Handler of nsILDAPMessage.RES_SEARCH_ENTRY message.
+   *
    * @param {nsILDAPMessage} msg - The received LDAP message.
    */
   _onLDAPSearchEntry(msg) {
@@ -101,6 +103,7 @@ class LDAPSyncQuery {
 
   /**
    * Handler of nsILDAPMessage.RES_SEARCH_RESULT message.
+   *
    * @param {nsILDAPMessage} msg - The received LDAP message.
    */
   _onLDAPSearchResult(msg) {

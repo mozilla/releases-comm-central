@@ -89,7 +89,7 @@ window.addEventListener("load", onWindowLoad);
  * that can import items.
  *
  * @param {calICalendar[]} calendars - An array of calendars.
- * @return {calICalendar[]} Sorted array of calendars that can import items.
+ * @returns {calICalendar[]} Sorted array of calendars that can import items.
  */
 function getCalendarsThatCanImport(calendars) {
   let calendarsThatCanImport = calendars.filter(
@@ -304,7 +304,7 @@ function sortItemSummaries(event) {
 /**
  * Get the currently selected calendar.
  *
- * @return {calICalendar} The currently selected calendar.
+ * @returns {calICalendar} The currently selected calendar.
  */
 function getCurrentlySelectedCalendar() {
   let menulist = document.getElementById("calendar-ics-file-dialog-calendar-menu");

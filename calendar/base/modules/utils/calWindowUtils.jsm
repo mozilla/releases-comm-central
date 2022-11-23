@@ -38,7 +38,7 @@ var calwindow = {
   },
 
   /**
-   * @typedef {Object} OpenCalendarPropertiesArgs
+   * @typedef {object} OpenCalendarPropertiesArgs
    * @property {calICalendar} calendar - The calendar whose properties should be displayed.
    * @property {boolean} [canDisable=true] - Whether the user can disable the calendar.
    */
@@ -48,7 +48,7 @@ var calwindow = {
    *
    * @param {ChromeWindow | null} aWindow   The window to open the dialog on,
    *                                          or null for the main calendar window.
-   * @param {OpenCalendarPropertiesArgs} args   Passed directly to the window.
+   * @param {OpenCalendarPropertiesArgs} args - Passed directly to the window.
    */
   openCalendarProperties(aWindow, args) {
     let window = aWindow || calwindow.getCalendarWindow();
@@ -77,7 +77,7 @@ var calwindow = {
    * @param {calIItemBase|calItemBase[]} items - One or more items that will be deleted.
    * @param {boolean} byPassPref - If true the pref for this prompt will be ignored.
    *
-   * @return {boolean} True if the user confirms deletion, false if otherwise.
+   * @returns {boolean} True if the user confirms deletion, false if otherwise.
    */
   promptDeleteItems(items, byPassPref) {
     items = Array.isArray(items) ? items : [items];

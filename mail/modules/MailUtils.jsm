@@ -146,6 +146,7 @@ var MailUtils = {
   /**
    * Display the warning if the number of messages to be displayed is greater than
    * the limit set in preferences.
+   *
    * @param aNumMessages: number of messages to be displayed
    * @param aConfirmTitle: title ID
    * @param aConfirmMsg: message ID
@@ -348,6 +349,7 @@ var MailUtils = {
 
   /**
    * Open a message from a message id.
+   *
    * @param {string} msgId - The message id string without the brackets.
    */
   openMessageByMessageId(msgId) {
@@ -452,9 +454,10 @@ var MailUtils = {
 
   /**
    * Get the identity that most likely is the best one to use, given the hint.
+   *
    * @param {nsIMsgIdentity[]} identities - The candidates to pick from.
-   * @param {String} [optionalHint] - String containing comma separated mailboxes.
-   * @param {Boolean} useDefault - If true, use the default identity of the
+   * @param {string} [optionalHint] - String containing comma separated mailboxes.
+   * @param {boolean} useDefault - If true, use the default identity of the
    *   account as last choice. This is useful when all default account as last
    *   choice. This is useful when all identities are passed in. Otherwise, use
    *   the first entity in the list.
@@ -520,6 +523,7 @@ var MailUtils = {
 
   /**
    * Get the identity for the given header.
+   *
    * @param hdr nsIMsgHdr message header
    * @param type nsIMsgCompType compose type the identity is used for.
    * @returns {Array} - An array of two elements, [identity, matchingHint].
@@ -612,6 +616,7 @@ var MailUtils = {
   /**
    * Recursively search for message id in a given folder and its subfolders,
    * return the first one found.
+   *
    * @param {string} msgId - The message id to find.
    * @param {nsIMsgFolder} folder - The folder to check.
    * @returns {nsIMsgDBHdr}
@@ -645,6 +650,7 @@ var MailUtils = {
   /**
    * Recursively search for message id in all msg folders, return the first one
    * found.
+   *
    * @param {string} msgId - The message id to search for.
    * @param {nsIMsgIncomingServer} [startServer] - The server to check first.
    * @returns {nsIMsgDBHdr}

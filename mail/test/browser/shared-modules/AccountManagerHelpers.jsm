@@ -57,6 +57,7 @@ async function openAccountSettings() {
 
 /**
  * Opens the Account Manager.
+ *
  * @callback tabCallback
  *
  * @param {tabCallback} callback - The callback for the account manager tab that is opened.
@@ -87,8 +88,8 @@ async function openAccountProvisioner() {
 /**
  * Click a row in the account settings tree.
  *
- * @param {Object} tab - The account manager tab controller that opened.
- * @param {Number} rowIndex - The row to click.
+ * @param {object} tab - The account manager tab controller that opened.
+ * @param {number} rowIndex - The row to click.
  */
 function click_account_tree_row(tab, rowIndex) {
   utils.waitFor(
@@ -117,12 +118,12 @@ function click_account_tree_row(tab, rowIndex) {
  * Returns the index of the row in account tree corresponding to the wanted
  * account and its settings pane.
  *
- * @param {Number} accountKey - The key of the account to return.
+ * @param {number} accountKey - The key of the account to return.
  *                              If 'null', the SMTP pane is returned.
- * @param {Number} paneId - The ID of the account settings pane to select.
+ * @param {number} paneId - The ID of the account settings pane to select.
  *
  *
- * @returns {Number} The row index of the account and pane. If it was not found return -1.
+ * @returns {number} The row index of the account and pane. If it was not found return -1.
  *                   Do not throw as callers may intentionally just check if a row exists.
  *                   Just dump into the log so that a subsequent throw in
  *                   click_account_tree_row has a useful context.
@@ -141,8 +142,8 @@ function get_account_tree_row(accountKey, paneId, tab) {
 /**
  * Remove an account via the account manager UI.
  *
- * @param {Object} account - The account to remove.
- * @param {Object} tab - The account manager tab that opened.
+ * @param {object} account - The account to remove.
+ * @param {object} tab - The account manager tab that opened.
  * @param {boolean} removeAccount - Remove the account itself.
  * @param {boolean} removeData - Remove the message data of the account.
  */

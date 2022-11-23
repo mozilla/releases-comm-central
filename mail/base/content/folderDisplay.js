@@ -217,7 +217,7 @@ function FolderDisplayWidget(aTabInfo, aMessageDisplayWidget) {
 }
 FolderDisplayWidget.prototype = {
   /**
-   * @return the currently displayed folder.  This is just proxied from the
+   * @returns the currently displayed folder.  This is just proxied from the
    *     view wrapper.
    * @groupName Displayed
    */
@@ -226,7 +226,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @return true if the selection should be summarized for this folder. This
+   * @returns true if the selection should be summarized for this folder. This
    *     is based on the mail.operate_on_msgs_in_collapsed_threads pref and
    *     if we are in a newsgroup folder. XXX When bug 478167 is fixed, this
    *     should be limited to being disabled for newsgroups that are not stored
@@ -240,7 +240,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @return the nsITreeSelection object for our tree view.  This exists for
+   * @returns the nsITreeSelection object for our tree view.  This exists for
    *     the benefit of message tabs that haven't been switched to yet.
    *     We provide a fake tree selection in those cases.
    * @protected
@@ -265,7 +265,7 @@ FolderDisplayWidget.prototype = {
    * to the messagepanebox (doing both is required in order to blur the
    * previously-focused chrome element).
    *
-   * @return the focused pane
+   * @returns the focused pane
    */
   get focusedPane() {
     let panes = ["threadTree", "folderTree", "messagepanebox"].map(id =>
@@ -356,7 +356,7 @@ FolderDisplayWidget.prototype = {
    * Restore the view selection if we have a saved selection.  We must be
    *  active!
    *
-   * @return true if we were able to restore the selection and there was
+   * @returns true if we were able to restore the selection and there was
    *     a selection, false if there was no selection (anymore).
    */
   _restoreSelection() {
@@ -406,7 +406,7 @@ FolderDisplayWidget.prototype = {
 
   /**
    * @name Columns
-   * @protected Folder Display
+   * @protected
    */
   // @{
 
@@ -519,7 +519,7 @@ FolderDisplayWidget.prototype = {
   /**
    * Given a dbFolderInfo, extract the persisted state from it if there is any.
    *
-   * @return null if there was no persisted state, the persisted state in object
+   * @returns null if there was no persisted state, the persisted state in object
    *     form otherwise.  (Ideally the state conforms to the documentation on
    *     |_savedColumnStates| but we can't stop people from doing bad things.)
    */
@@ -818,6 +818,7 @@ FolderDisplayWidget.prototype = {
 
   /**
    * Invoked by showFolder when it turns out the folder is in fact a server.
+   *
    * @private
    */
   _showServer() {
@@ -908,7 +909,7 @@ FolderDisplayWidget.prototype = {
   // @{
 
   /**
-   * @return true if the mail view picker is visible.  This affects whether the
+   * @returns true if the mail view picker is visible.  This affects whether the
    *     DBViewWrapper will actually use the persisted mail view or not.
    */
   get shouldUseMailViews() {
@@ -920,7 +921,7 @@ FolderDisplayWidget.prototype = {
    *  want the user to connect to the server first so password authentication
    *  can occur.
    *
-   * @return true if the folder should be shown immediately, false if we should
+   * @returns true if the folder should be shown immediately, false if we should
    *     wait for updateFolder to complete.
    */
   get shouldDeferMessageDisplayUntilAfterServerConnect() {
@@ -938,7 +939,7 @@ FolderDisplayWidget.prototype = {
    * Let the viewWrapper know if it should mark the messages read when leaving
    *  the provided folder.
    *
-   * @return true if the preference is set for the folder's server type.
+   * @returns true if the preference is set for the folder's server type.
    */
   shouldMarkMessagesReadOnLeavingFolder(aMsgFolder) {
     return Services.prefs.getBoolPref(
@@ -1946,7 +1947,7 @@ FolderDisplayWidget.prototype = {
   // @{
 
   /**
-   * @return true if there is a db view and the command is enabled on the view.
+   * @returns true if there is a db view and the command is enabled on the view.
    *  This function hides some of the XPCOM-odditities of the getCommandStatus
    *  call.
    */
@@ -1988,7 +1989,7 @@ FolderDisplayWidget.prototype = {
   // @}
 
   /**
-   * @return true when account central is being displayed.
+   * @returns true when account central is being displayed.
    * @groupName Displayed
    */
   get isAccountCentralDisplayed() {
@@ -2008,10 +2009,10 @@ FolderDisplayWidget.prototype = {
    *  thread rather than just the root message in that thread.
    *
    * @param {nsMsgNavigationType} aNavType navigation command.
-   * @param {Boolean} [aSelect=true] should we select the message if we find
+   * @param {boolean} [aSelect=true] should we select the message if we find
    *     one?
    *
-   * @return true if the navigation constraint matched anything, false if not.
+   * @returns true if the navigation constraint matched anything, false if not.
    *     We will have navigated if true, we will have done nothing if false.
    */
   navigate(aNavType, aSelect) {
@@ -2085,7 +2086,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @return true if we are able to navigate using the given navigation type at
+   * @returns true if we are able to navigate using the given navigation type at
    *  this time.
    */
   navigateStatus(aNavType) {
@@ -2128,7 +2129,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @return true if there is a selected message and it's an RSS feed message;
+   * @returns true if there is a selected message and it's an RSS feed message;
    *  a feed message does not have to be in an rss account folder if stored in
    *  Tb15 and later.
    */
@@ -2137,7 +2138,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @return true if there is a selected message and it's an IMAP message.
+   * @returns true if there is a selected message and it's an IMAP message.
    */
   get selectedMessageIsImap() {
     let message = this.selectedMessage;
@@ -2149,7 +2150,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @return true if there is a selected message and it's a news message.  It
+   * @returns true if there is a selected message and it's a news message.  It
    *  would be great if messages knew this about themselves, but they don't.
    */
   get selectedMessageIsNews() {
@@ -2162,7 +2163,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @return true if there is a selected message and it's an external message,
+   * @returns true if there is a selected message and it's an external message,
    *  meaning it is loaded from an .eml file on disk or is an rfc822 attachment
    *  on a message.
    */
@@ -2179,7 +2180,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @return true if there is a selected message and the message belongs to an
+   * @returns true if there is a selected message and the message belongs to an
    *              ignored thread.
    */
   get selectedMessageThreadIgnored() {
@@ -2192,7 +2193,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @return true if there is a selected message and the message is the base
+   * @returns true if there is a selected message and the message is the base
    *              message for an ignored subthread.
    */
   get selectedMessageSubthreadIgnored() {
@@ -2203,7 +2204,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @return true if there is a selected message and the message belongs to a
+   * @returns true if there is a selected message and the message belongs to a
    *              watched thread.
    */
   get selectedMessageThreadWatched() {
@@ -2216,7 +2217,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @return the number of selected messages.  If summarizeSelectionInFolder is
+   * @returns the number of selected messages.  If summarizeSelectionInFolder is
    *  true, then any collapsed thread roots that are selected will also
    *  conceptually have all of the messages in that thread selected.
    */
@@ -2235,7 +2236,7 @@ FolderDisplayWidget.prototype = {
    * If the user has right-clicked on a message, this will return that message
    *  and not the selection prior to the right-click.
    *
-   * @return a list of the view indices that are currently selected
+   * @returns a list of the view indices that are currently selected
    */
   get selectedIndices() {
     if (!this.view.dbView) {
@@ -2255,7 +2256,7 @@ FolderDisplayWidget.prototype = {
    *  (and any collapsed children if so enabled) and not the selection prior to
    *  the right-click.
    *
-   * @return a list of the message headers for the currently selected messages.
+   * @returns a list of the message headers for the currently selected messages.
    *     If there are no selected messages, the result is an empty list.
    */
   get selectedMessages() {
@@ -2271,7 +2272,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @return a list of the URIs for the currently selected messages or null
+   * @returns a list of the URIs for the currently selected messages or null
    *     (instead of a list) if there are no selected messages.  Do not
    *     pass around URIs unless you have a good reason.  Legacy code is an
    *     ok reason.
@@ -2289,7 +2290,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @return true if all the selected messages can be archived, false otherwise.
+   * @returns true if all the selected messages can be archived, false otherwise.
    */
   get canArchiveSelectedMessages() {
     return MessageArchiver.canArchive(
@@ -2333,7 +2334,7 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * @return true if all the selected messages can be deleted from their
+   * @returns true if all the selected messages can be deleted from their
    * folders, false otherwise.
    */
   get canDeleteSelectedMessages() {

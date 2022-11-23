@@ -972,7 +972,7 @@ Enigmail.hdrView = {
      *
      * @param mimePartNumber String - the MIME part number that was authenticated
      *
-     * @return Boolean: true: there are siblings / false: no siblings
+     * @returns Boolean: true: there are siblings / false: no siblings
      */
     hasUnauthenticatedParts(mimePartNumber) {
       function hasSiblings(mimePart, searchPartNum, parentNum) {

@@ -26,6 +26,7 @@ class ImapResponse {
 
   /**
    * A server response can span multiple chunks, this function parses one chunk.
+   *
    * @param {string} str - A chunk of server response.
    */
   parse(str) {
@@ -49,6 +50,7 @@ class ImapResponse {
 
   /**
    * Drop n characters from _response.
+   *
    * @param {number} n - The number of characters to drop.
    */
   _advance(n) {
@@ -181,6 +183,7 @@ class ImapResponse {
 
   /**
    * Handle the tokens of a line in the form of "* NUM TYPE".
+   *
    * @params {Array<string|string[]>} tokens - The tokens of the line.
    */
   _parseNumbered(tokens) {
@@ -226,6 +229,7 @@ class ImapResponse {
    * Break a line into flat tokens array. For example,
    *   "(UID 24 FLAGS (NonJunk))" will be tokenized to
    *   ["(", "UID", "24", "FLAGS", "(", "NonJunk", ")", ")"].
+   *
    * @param {string} line - A single line of string.
    * @returns {string[]}
    */
@@ -276,6 +280,7 @@ class ImapResponse {
    * Parse a line into nested tokens array. For example,
    *   "(UID 24 FLAGS (NonJunk))" will be parsed to
    *   ["UID", "24", "FLAGS", ["NonJunk"]].
+   *
    * @param {string} line - A single line of string.
    * @returns {Array<string|string[]>}
    */
@@ -390,6 +395,7 @@ class MailboxData {
 
   /**
    * Convert an array of flag string to an internal flag number.
+   *
    * @param {string[]} arr - An array of flag string.
    * @returns {number} An internal flag number.
    */
@@ -428,7 +434,7 @@ class MailboxData {
 
 /**
  * A structure to represent STATUS data.
- *   * STATUS \"folder 2\" (UIDNEXT 2 MESSAGES 1 UNSEEN 1)
+ *   STATUS \"folder 2\" (UIDNEXT 2 MESSAGES 1 UNSEEN 1)
  */
 class StatusData {
   /**
@@ -453,6 +459,7 @@ class StatusData {
  * Following rfc3501 section-5.1 and section-9, this function does two things:
  *   1. Remove the wrapping DQUOTE.
  *   2. Unesacpe QUOTED-CHAR.
+ *
  * @params {string} name - E.g. `"a \"b\" c"` will become `a "b" c`.
  */
 function unwrapString(name) {

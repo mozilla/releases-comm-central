@@ -793,11 +793,12 @@ class nsContextMenu {
 
   /**
    * Get a computed style property for an element.
+   *
    * @param  aElem
    *         A DOM node
    * @param  aProp
    *         The desired CSS property
-   * @return the value of the property
+   * @returns the value of the property
    */
   getComputedStyle(aElem, aProp) {
     return aElem.ownerGlobal.getComputedStyle(aElem).getPropertyValue(aProp);
@@ -806,7 +807,8 @@ class nsContextMenu {
   /**
    * Determine whether the clicked-on link can be saved, and whether it
    * may be saved according to the ScriptSecurityManager.
-   * @return true if the protocol can be persisted and if the target has
+   *
+   * @returns true if the protocol can be persisted and if the target has
    *         permission to link to the URL, false if not
    */
   isLinkSaveable() {
@@ -908,6 +910,7 @@ class nsContextMenu {
   /**
    * Set a DOM node's hidden property by passing in the node's id or the
    * element itself.
+   *
    * @param aItemOrId
    *        a DOM node or the id of a DOM node
    * @param aShow
@@ -944,7 +947,7 @@ class nsContextMenu {
    * Exception: playable media is selected, in which case, don't show them.
    *
    * @param aID   the id of the element to display/enable
-   * @param aShow (optional)  an additional criteria to evaluate when we
+   * @param aShow (optional) - an additional criteria to evaluate when we
    *              decide whether to display the element. If false, we'll hide
    *              the item no matter what messages are selected.
    */
@@ -964,6 +967,7 @@ class nsContextMenu {
    * Set given attribute of specified context-menu item. If the
    * value is null, then it removes the attribute (which works
    * nicely for the disabled attribute).
+   *
    * @param  aId
    *         The id of an element
    * @param  aAttr
@@ -987,7 +991,8 @@ class nsContextMenu {
   /**
    * Get an absolute URL for clicked-on link, from the href property or by
    * resolving an XLink URL by hand.
-   * @return the string absolute URL for the clicked-on link
+   *
+   * @returns the string absolute URL for the clicked-on link
    */
   getLinkURL() {
     if (this.link.href) {
@@ -1005,7 +1010,8 @@ class nsContextMenu {
 
   /**
    * Generate a URI object from the linkURL spec
-   * @return an nsIURI if possible, or null if not
+   *
+   * @returns an nsIURI if possible, or null if not
    */
   getLinkURI() {
     try {
@@ -1018,7 +1024,8 @@ class nsContextMenu {
 
   /**
    * Get the scheme for the clicked-on linkURI, if present.
-   * @return a scheme, possibly undefined, or null if there's no linkURI
+   *
+   * @returns a scheme, possibly undefined, or null if there's no linkURI
    */
   getLinkProtocol() {
     if (this.linkURI) {
@@ -1030,6 +1037,7 @@ class nsContextMenu {
 
   /**
    * Get the text of the clicked-on link.
+   *
    * @returns {string}
    */
   linkText() {
@@ -1038,7 +1046,8 @@ class nsContextMenu {
 
   /**
    * Determines whether the focused window has something selected.
-   * @return true if there is a selection, false if not
+   *
+   * @returns true if there is a selection, false if not
    */
   isContentSelection() {
     return !document.commandDispatcher.focusedWindow.getSelection().isCollapsed;
@@ -1046,11 +1055,12 @@ class nsContextMenu {
 
   /**
    * Convert relative URL to absolute, using a provided <base>.
+   *
    * @param  aBase
    *         The URL string to use as the base
    * @param  aUrl
    *         The possibly-relative URL string
-   * @return The string absolute URL
+   * @returns The string absolute URL
    */
   makeURLAbsolute(aBase, aUrl) {
     // Construct nsIURL.
@@ -1061,9 +1071,10 @@ class nsContextMenu {
 
   /**
    * Determine whether a DOM node is a text or password input, or a textarea.
+   *
    * @param  aNode
    *         The DOM node to check
-   * @return true for textboxes, false for other elements
+   * @returns true for textboxes, false for other elements
    */
   isTargetATextBox(aNode) {
     if (HTMLInputElement.isInstance(aNode)) {
@@ -1076,8 +1087,9 @@ class nsContextMenu {
   /**
    * Determine whether a separator should be shown based on whether
    * there are any non-hidden items between it and the previous separator.
+   *
    * @param {DomElement} element - The separator element.
-   * @return {boolean} True if the separator should be shown, false if not.
+   * @returns {boolean} True if the separator should be shown, false if not.
    */
   shouldShowSeparator(element) {
     if (element) {

@@ -20,7 +20,7 @@
    * chat-groups, online contacts and offline contacts: i.e. icon and username.
    * On double clicking the element, it gets moved into the conversations.
    *
-   * @extends {MozElements.MozRichlistitem}
+   * @augments {MozElements.MozRichlistitem}
    */
   class MozChatContactRichlistitem extends MozElements.MozRichlistitem {
     static get inheritedAttributes() {

@@ -27,7 +27,7 @@ const { MailServices } = ChromeUtils.import(
  * Thunderbird backend (which also writes it to prefs).
  *
  * @param {AccountConfig} config - The account to create
- * @return {nsIMsgAccount} - the newly created account
+ * @returns {nsIMsgAccount} - the newly created account
  */
 function createAccountInBackend(config) {
   // incoming server
@@ -346,7 +346,7 @@ function rememberPassword(server, password) {
  * (We also check the email address as username.)
  *
  * @param config {AccountConfig} filled in (no placeholders)
- * @return {nsIMsgIncomingServer} If it already exists, the server
+ * @returns {nsIMsgIncomingServer} If it already exists, the server
  *     object is returned.
  *     If it's a new server, |null| is returned.
  */
@@ -379,7 +379,7 @@ function checkIncomingServerAlreadyExists(config) {
  * in the config.
  *
  * @param config {AccountConfig} filled in (no placeholders)
- * @return {nsISmtpServer} If it already exists, the server
+ * @returns {nsISmtpServer} If it already exists, the server
  *     object is returned.
  *     If it's a new server, |null| is returned.
  */

@@ -20,7 +20,7 @@ var EnigmailZBase32 = {
    *
    * @param str   String - input string
    *
-   * @return String - econded string
+   * @returns String - econded string
    */
   encode(str) {
     let a = this.a;

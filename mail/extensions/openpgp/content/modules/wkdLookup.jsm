@@ -208,9 +208,9 @@ var EnigmailWkdLookup = {
   /**
    * get the download URL for an email address for WKD or domain-specific locations
    *
-   * @param {String} email: email address
+   * @param {string} email: email address
    *
-   * @return {Promise<String>}: URL (or null if not possible)
+   * @returns {Promise<string>}: URL (or null if not possible)
    */
   async getDownloadUrlFromEmail(email, advancedMethod) {
     email = email.toLowerCase().trim();
@@ -265,10 +265,10 @@ var EnigmailWkdLookup = {
   /**
    * Download a key for an email address
    *
-   * @param {String} email: email address
-   * @param {String} url: url from getDownloadUrlFromEmail()
+   * @param {string} email: email address
+   * @param {string} url: url from getDownloadUrlFromEmail()
    *
-   * @return {Promise<String>}: Key data (or null if not possible)
+   * @returns {Promise<string>}: Key data (or null if not possible)
    */
   async downloadKey(url) {
     let padLen = (url.length % 512) + 1;
@@ -333,9 +333,9 @@ var EnigmailWkdLookup = {
  * Get special URLs for specific sites that don't use WKD, but still provide
  * public keys of their users in
  *
- * @param {String}: emailAddr: email address in lowercase
+ * @param {string}: emailAddr: email address in lowercase
  *
- * @return {Promise<String>}: URL or null of no URL relevant
+ * @returns {Promise<string>}: URL or null of no URL relevant
  */
 async function getSiteSpecificUrl(emailAddr) {
   let domain = emailAddr.replace(/^.+@/, "");

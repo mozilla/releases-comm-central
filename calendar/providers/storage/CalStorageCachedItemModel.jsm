@@ -20,36 +20,42 @@ const { CalStorageItemModel } = ChromeUtils.import(
 class CalStorageCachedItemModel extends CalStorageItemModel {
   /**
    * Cache for all items.
+   *
    * @type {Map<string, calIItemBase>}
    */
   itemCache = new Map();
 
   /**
    * Cache for recurring events.
+   *
    * @type {Map<string, calIEvent>}
    */
   recurringEventsCache = new Map();
 
   /**
    * Cache for recurring events offline flags.
+   *
    * @type {Map<string, number>}
    */
   recurringEventsOfflineFlagCache = new Map();
 
   /**
    * Cache for recurring todos.
+   *
    * @type {Map<string, calITodo>}
    */
   recurringTodosCache = new Map();
 
   /**
    * Cache for recurring todo offline flags.
+   *
    * @type {Map<string, number>}
    */
   recurringTodosOfflineCache = new Map();
 
   /**
    * Promise that resolves when the caches have been built up.
+   *
    * @type {Promise<void>}
    */
   recurringCachePromise = null;
@@ -86,9 +92,10 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
 
   /**
    * Overridden here to build the recurring item caches when needed.
+   *
    * @param {CalStorageQuery} query
    *
-   * @return {ReadableStream<calIItemBase>
+   * @returns {ReadableStream<calIItemBase>
    */
   getItems(query) {
     let self = this;

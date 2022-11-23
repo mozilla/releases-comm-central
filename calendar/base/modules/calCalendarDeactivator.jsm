@@ -58,7 +58,7 @@ var calendarDeactivator = {
   /**
    * Check the enabled state of all of the user's calendars.
    *
-   * @return {boolean} True if any calendars are enabled, false if all are disabled.
+   * @returns {boolean} True if any calendars are enabled, false if all are disabled.
    */
   checkCalendarsEnabled() {
     for (let calendar of this.calendars) {

@@ -34,6 +34,7 @@ collectedAddresses = MailServices.ab.getDirectory(
 
 /**
  * Make sure that there is a card for this email address
+ *
  * @param emailAddress the address that should have a card
  * @param displayName the display name the card should have
  * @param preferDisplayName |true| if the card display name should override the
@@ -47,6 +48,7 @@ function ensure_card_exists(emailAddress, displayName, preferDisplayName) {
 
 /**
  * Make sure that there is no card for this email address
+ *
  * @param emailAddress the address that should have no cards
  */
 function ensure_no_card_exists(emailAddress) {
@@ -62,6 +64,7 @@ function ensure_no_card_exists(emailAddress) {
 
 /**
  * Return all address book cards for a particular email address
+ *
  * @param aEmailAddress the address to search for
  */
 function get_cards_in_all_address_books_for_email(aEmailAddress) {
@@ -79,6 +82,7 @@ function get_cards_in_all_address_books_for_email(aEmailAddress) {
 
 /**
  * Creates and returns a SQLite-backed address book.
+ *
  * @param aName the name for the address book
  * @returns the nsIAbDirectory address book
  */
@@ -92,6 +96,7 @@ function create_address_book(aName) {
  * Creates and returns an LDAP-backed address book.
  * This function will automatically fill in a dummy
  * LDAP URI if no URI is supplied.
+ *
  * @param aName the name for the address book
  * @param aURI an optional URI for the address book
  * @returns the nsIAbDirectory address book
@@ -106,6 +111,7 @@ function create_ldap_address_book(aName, aURI) {
 
 /**
  * Creates and returns an address book contact
+ *
  * @param aEmailAddress the e-mail address for this contact
  * @param aDisplayName the display name for the contact
  * @param aPreferDisplayName set to true if the card display name should

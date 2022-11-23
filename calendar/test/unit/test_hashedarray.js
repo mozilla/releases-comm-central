@@ -20,7 +20,7 @@ function run_test() {
  * title identification.
  *
  * @param ident     The title to identify the item.
- * @return          The created item.
+ * @returns The created item.
  */
 function hashedCreateItem(ident) {
   let item = new CalEvent();
@@ -35,7 +35,7 @@ function hashedCreateItem(ident) {
  *
  * @param a         Object to compare.
  * @param b         Object to compare with.
- * @return          0, -1, or 1 (usual comptor meanings)
+ * @returns 0, -1, or 1 (usual comptor meanings)
  */
 function titleComptor(a, b) {
   if (a.title > b.title) {

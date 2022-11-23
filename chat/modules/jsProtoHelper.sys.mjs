@@ -92,7 +92,7 @@ export var GenericAccountPrototype = {
    * certificate exception dialog can access the information.
    *
    * @param {Socket} aSocket - Socket where the connection error occurred.
-   * @returns {Number} The prplIAccount error constant describing the problem.
+   * @returns {number} The prplIAccount error constant describing the problem.
    */
   handleConnectionSecurityError(aSocket) {
     // Stash away the connectionTarget and securityInfo.

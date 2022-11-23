@@ -264,7 +264,7 @@ export function removeGlobalAllowedStyleRule(aStyle) {
  *
  * @callback  ValueRule
  * @param {string} value - The attribute value.
- * @return {bool} - True if the attribute should be allowed.
+ * @returns {bool} - True if the attribute should be allowed.
  *
  * @example
  *
@@ -279,7 +279,7 @@ export function removeGlobalAllowedStyleRule(aStyle) {
  * returns a boolean of whether the attribute should be accepted or not.
  *
  * @typedef Ruleset
- * @type {Object.<string, (boolean|ValueRule)>}}
+ * @type {Object<string, (boolean | ValueRule)>}}
  */
 
 /**
@@ -289,7 +289,7 @@ export function removeGlobalAllowedStyleRule(aStyle) {
  * See kStrictMode, kStandardMode, kPermissiveMode for examples of Rulesets.
  *
  * @typedef CleanRules
- * @type {Object}
+ * @type {object}
  * @property {Ruleset} attrs
  *    An object whose properties are the allowed attributes for any tag.
  * @property {Object<string, (boolean|Ruleset)>} tags
@@ -323,15 +323,15 @@ export function removeGlobalAllowedStyleRule(aStyle) {
  *
  * @callback TextModifier
  * @param {Node} - The text node to modify.
- * @return {int} - The number of nodes added.
+ * @returns {int} - The number of nodes added.
  *
- *    * -1 if the current textnode was deleted
- *    * 0 if the node count is unchanged
- *    * positive value if nodes were added.
+ *    -1 if the current textnode was deleted
+ *    0 if the node count is unchanged
+ *    positive value if nodes were added.
  *
  *    For instance, adding an <img> tag for a smiley adds 2 nodes:
- *    * the img tag
- *    * the new text node after the img tag.
+ *    the img tag
+ *    the new text node after the img tag.
  */
 
 /**

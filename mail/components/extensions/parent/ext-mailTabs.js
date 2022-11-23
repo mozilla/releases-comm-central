@@ -51,7 +51,8 @@ function setDisplayedFolder(tab, folder) {
 
 /**
  * Converts a mail tab to a simle object for use in messages.
- * @return {Object}
+ *
+ * @returns {object}
  */
 function convertMailTab(tab, context) {
   let mailTabObject = {
@@ -157,8 +158,8 @@ this.mailTabs = class extends ExtensionAPI {
     /**
      * Gets the tab for the given tab id, or the active tab if the id is null.
      *
-     * @param {?Integer} tabId          The tab id to get
-     * @return {Tab}                    The matching tab, or the active tab
+     * @param {?Integer} tabId - The tab id to get
+     * @returns {Tab} The matching tab, or the active tab
      */
     function getTabOrActive(tabId) {
       let tab;

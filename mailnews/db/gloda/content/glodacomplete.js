@@ -14,7 +14,7 @@
    * The MozGlodacompleteRichResultPopup class creates the panel
    * to append all the results for the gloda search autocomplete.
    *
-   * @extends {MozPopupElement}
+   * @augments {MozPopupElement}
    */
   class MozGlodacompleteRichResultPopup extends MozPopupElement {
     constructor() {

@@ -209,7 +209,7 @@ function setupMaxReminders() {
  *                                   passed, a new listitem will be created.
  * @param aReminder     The calIAlarm to display in this listitem
  * @param aItem         The item the alarm is set up on.
- * @return              The  XUL listitem node showing the passed reminder, or
+ * @returns The  XUL listitem node showing the passed reminder, or
  *   null if no list item should be shown.
  */
 function setupListItem(aListItem, aReminder, aItem) {
@@ -405,7 +405,7 @@ function updateReminder(event) {
  * appends the item type, i.e |aPrefix + "Event"|.
  *
  * @param aPrefix       The prefix to prepend to the item type
- * @return              The full string name.
+ * @returns The full string name.
  */
 function getItemBundleStringName(aPrefix) {
   if (window.arguments[0].item.isEvent()) {

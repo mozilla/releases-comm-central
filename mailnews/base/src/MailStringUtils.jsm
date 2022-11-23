@@ -7,6 +7,7 @@ const EXPORTED_SYMBOLS = ["MailStringUtils"];
 var MailStringUtils = {
   /**
    * Convert a ByteString to a Uint8Array.
+   *
    * @param {ByteString} str - The input string.
    * @returns {Uint8Array} The output Uint8Array.
    */
@@ -20,6 +21,7 @@ var MailStringUtils = {
 
   /**
    * Convert a Uint8Array to a ByteString.
+   *
    * @param {Uint8Array} arr - The input Uint8Array.
    * @returns {ByteString} The output string.
    */
@@ -33,6 +35,7 @@ var MailStringUtils = {
 
   /**
    * Convert a ByteString to a string.
+   *
    * @param {ByteString} str - The ByteString to convert.
    * @returns {string} The converted string.
    */
@@ -42,6 +45,7 @@ var MailStringUtils = {
 
   /**
    * Convert a string to a ByteString.
+   *
    * @param {string} str - The string to convert.
    * @returns {ByteString} The converted ByteString.
    */
@@ -51,6 +55,7 @@ var MailStringUtils = {
 
   /**
    * Detect the text encoding of a ByteString.
+   *
    * @param {ByteString} str - The input string.
    * @returns {string} The output charset name.
    */
@@ -84,6 +89,7 @@ var MailStringUtils = {
    * Read and detect the charset of a file, then convert the file content to
    * DOMString. If you're absolutely sure it's a UTF-8 encoded file, use
    * IOUtils.readUTF8 instead.
+   *
    * @param {string} path - An absolute file path.
    * @returns {DOMString} The file content.
    */

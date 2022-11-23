@@ -15,7 +15,7 @@
    * menupopup will open. When clicking the main area of the button it works
    * like a normal toolbarbutton.
    *
-   * @extends MozToolbarbutton
+   * @augments MozToolbarbutton
    */
   class MozToolbarButtonMenuButton extends customElements.get("toolbarbutton") {
     static get inheritedAttributes() {

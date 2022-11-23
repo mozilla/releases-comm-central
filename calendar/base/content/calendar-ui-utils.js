@@ -121,7 +121,7 @@ function sortCalendarArray(calendars) {
  * @param aCalendarToUse        The default-calendar
  * @param aOnCommand            A string that is applied to the "oncommand"
  *                                attribute of each menuitem
- * @return                      The index of the calendar that matches the
+ * @returns The index of the calendar that matches the
  *                                default-calendar. By default 0 is returned.
  */
 function appendCalendarItems(aItem, aCalendarMenuParent, aCalendarToUse, aOnCommand) {
@@ -166,7 +166,7 @@ function appendCalendarItems(aItem, aCalendarMenuParent, aCalendarToUse, aOnComm
  * @param aLabel      The label string of the menuitem.
  * @param aValue      The value attribute of the menuitem.
  * @param aCommand    The oncommand attribute of the menuitem.
- * @return            The newly created menuitem
+ * @returns The newly created menuitem
  */
 function addMenuItem(aParent, aLabel, aValue, aCommand) {
   let item = null;
@@ -193,7 +193,7 @@ function addMenuItem(aParent, aLabel, aValue, aCommand) {
  * @param aUnit           The unit to find the plural form of
  * @param aIncludeLength  (optional) If true, the length will be included in the
  *                          result. If false, only the pluralized unit is returned.
- * @return                A string containing the pluralized version of the unit
+ * @returns A string containing the pluralized version of the unit
  */
 function unitPluralForm(aLength, aUnit, aIncludeLength = true) {
   let unitProp =
@@ -250,10 +250,11 @@ function updateMenuLabelsPlural(aLengthFieldId, aMenuId) {
  * It is required, that all css values can be converted to integers
  * see also
  * http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-CSSview-getComputedStyle
+ *
  * @param aXULElement   The xul element to be inspected.
  * @param aStyleProps   The css style properties for which values are to be retrieved
  *                        e.g. 'font-size', 'min-width" etc.
- * @return              An integer value denoting the optimal minimum width
+ * @returns An integer value denoting the optimal minimum width
  */
 function getSummarizedStyleValues(aXULElement, aStyleProps) {
   let retValue = 0;
@@ -270,7 +271,7 @@ function getSummarizedStyleValues(aXULElement, aStyleProps) {
  * and border of the box.
  *
  * @param aXULElement   The xul element to be inspected.
- * @return              An integer value denoting the optimal minimum width
+ * @returns An integer value denoting the optimal minimum width
  */
 function getOptimalMinimumWidth(aXULElement) {
   return getSummarizedStyleValues(aXULElement, [
@@ -291,7 +292,7 @@ function getOptimalMinimumWidth(aXULElement) {
  * by assuming that it's size is about one third of the size of the font-size
  *
  * @param aXULElement   The xul-element to be inspected.
- * @return              An integer value denoting the optimal minimum height
+ * @returns An integer value denoting the optimal minimum height
  */
 function getOptimalMinimumHeight(aXULElement) {
   // the following line of code presumes that the line-height is set to "normal"
@@ -313,7 +314,7 @@ function getOptimalMinimumHeight(aXULElement) {
  *
  * @param {Node}  aMenu   The context menu item containing the required
  *                          menu or menuitem elements
- * @param {Array} aItems  An array of the selected calEvent or calTodo
+ * @param {Array} aItems - An array of the selected calEvent or calTodo
  *                          items to display the context menu for
  */
 function setupAttendanceMenu(aMenu, aItems) {
@@ -411,9 +412,9 @@ function setupAttendanceMenu(aMenu, aItems) {
    * how we deal with that case at other places)
    *
    * @param {NodeList}  aMenuItems    A list of DOM nodes
-   * @param {String}    aScope        Either 'this-occurrence' or
+   * @param {string}    aScope        Either 'this-occurrence' or
    *                                    'all-occurrences'
-   * @param {String}    aPartStat     A valid participation status
+   * @param {string}    aPartStat     A valid participation status
    *                                    as per RfC 5545
    */
   function checkMenuItem(aMenuItems, aScope, aPartStat) {
@@ -475,7 +476,7 @@ function setupAttendanceMenu(aMenu, aItems) {
    * only the matching item will be hidden
    *
    * @param {NodeList}  aMenuItems    A list of DOM nodes
-   * @param {String}    aPartStat     [optional] A valid participation
+   * @param {string}    aPartStat     [optional] A valid participation
    *                                    status as per RfC 5545
    */
   function hideItems(aNodeList, aPartStat = null) {
@@ -491,7 +492,7 @@ function setupAttendanceMenu(aMenu, aItems) {
    * Provides the user's participation status for a provided item
    *
    * @param   {calEvent|calTodo}  aItem  The calendar item to inspect
-   * @returns {?String}                  The participation status string
+   * @returns {?string} The participation status string
    *                                       as per RfC 5545 or null if no
    *                                       participant was detected
    */

@@ -19,6 +19,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 
 /**
  * A channel to interact with POP3 server.
+ *
  * @implements {nsIChannel}
  * @implements {nsIRequest}
  */

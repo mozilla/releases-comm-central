@@ -20,6 +20,7 @@ registerCleanupFunction(() => {
 
 /**
  * Construct a MapiMessage, then send through MAPI.
+ *
  * @param {boolean} offline - Switch to offline mode if true.
  */
 function testMapiSendMail(offline) {

@@ -85,6 +85,7 @@ const SharedConversationPrototype = {
   },
   /**
    * Send an outgoing message.
+   *
    * @param {string} aMsg - Message to send.
    * @returns
    */
@@ -97,7 +98,7 @@ const SharedConversationPrototype = {
 
   /**
    *
-   * @param {Array<Object>} messages - Array of messages to add to the
+   * @param {Array<object>} messages - Array of messages to add to the
    * conversation. Expects an object with a |who|, |content| and |options|
    * properties, corresponding to the three params of |writeMessage|.
    */

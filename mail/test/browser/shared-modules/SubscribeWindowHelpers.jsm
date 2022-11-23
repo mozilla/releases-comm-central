@@ -63,7 +63,7 @@ function enter_text_in_search_box(swc, text) {
  *
  * @param swc A controller for the subscribe window
  * @param name Name of the newsgroup
- * @returns {Boolean} Result of the check
+ * @returns {boolean} Result of the check
  */
 function check_newsgroup_displayed(swc, name) {
   let tree = swc.e("searchTree");

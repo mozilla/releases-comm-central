@@ -396,6 +396,7 @@ function selectFile() {
  * Adjust the catch-all hint so that is removes stars from the allowed pattern.
  * We only allow to use stars for matching full domains *@example.com,
  * not *foo@example.com.
+ *
  * @param {Event} event - the oninput event of the catchAllHint input field.
  */
 function handleInputCatchAllHint(event) {

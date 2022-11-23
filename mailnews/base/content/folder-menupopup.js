@@ -39,9 +39,9 @@
    * attribute is used to determine which elements to remove when clearing
    * the menu.
    *
-   * @param {string} tagName    The tag name of the element to generate.
-   * @param {Object} [attributes]  Optional attributes to set on the element.
-   * @param {Object} [isObject]  The optional "is" object to use when creating
+   * @param {string} tagName - The tag name of the element to generate.
+   * @param {object} [attributes] - Optional attributes to set on the element.
+   * @param {object} [isObject] - The optional "is" object to use when creating
    *                             the element, typically `{is: "folder-menupopup"}`.
    */
   function generateElement(tagName, attributes, isObject) {
@@ -61,8 +61,8 @@
    * custom element. Takes a "Base" class, and returns a class that extends
    * the "Base" class.
    *
-   * @param {Class} Base  A class to be extended with shared functionality.
-   * @return {Class}      A class that extends the first class.
+   * @param {Class} Base - A class to be extended with shared functionality.
+   * @returns {Class} A class that extends the first class.
    */
   let FolderMenu = Base =>
     class extends Base {
@@ -302,9 +302,9 @@
            * Helper function to check and see whether we have a menuitem for this
            * particular nsIMsgFolder.
            *
-           * @param {nsIMsgFolder} item  The folder to check.
-           * @param {Element} [menu]     Optional menu to look in, defaults to this._menu.
-           * @returns {Element|null}     The menuitem for that folder, or null if no
+           * @param {nsIMsgFolder} item - The folder to check.
+           * @param {Element} [menu] - Optional menu to look in, defaults to this._menu.
+           * @returns {Element|null} The menuitem for that folder, or null if no
            *                             child for that folder exists.
            */
           _getChildForItem(item, menu = this._menu) {
@@ -411,9 +411,9 @@
       /**
        * Get the folders that will appear in the menu.
        *
-       * @param {Element} parentFolder       The parent menu popup/view element.
-       * @param {string[]} excludeServers    Server keys for the servers to exclude.
-       * @param {Function} [filterFunction]  Function for filtering the folders.
+       * @param {Element} parentFolder - The parent menu popup/view element.
+       * @param {string[]} excludeServers - Server keys for the servers to exclude.
+       * @param {Function} [filterFunction] - Function for filtering the folders.
        */
       _getFolders(parentFolder, excludeServers, filterFunction) {
         let folders;
@@ -447,8 +447,8 @@
       /**
        * Actually constructs the menu items based on the folders given.
        *
-       * @param {nsIMsgFolder[]} folders  An array of nsIMsgFolders to use for building.
-       * @param {string} [mode]  The filtering mode. See comment on _filters field.
+       * @param {nsIMsgFolder[]} folders - An array of nsIMsgFolders to use for building.
+       * @param {string} [mode] - The filtering mode. See comment on _filters field.
        */
       _build(folders, mode) {
         let globalInboxFolder = null;
@@ -517,9 +517,9 @@
        * Populate a "recent" or "favorites" special submenu with either the
        * recently used or favorite folders, to allow for easy access.
        *
-       * @param {Element} menu  The menu or toolbarbutton element for which one
+       * @param {Element} menu - The menu or toolbarbutton element for which one
        *                        wants to populate the special sub menu.
-       * @param {Element} submenu  The submenu element, typically a menupopup.
+       * @param {Element} submenu - The submenu element, typically a menupopup.
        */
       _populateSpecialSubmenu(menu, submenu) {
         let specialType = menu.getAttribute("special");
@@ -625,7 +625,7 @@
        *  label or if the attribute does not exist the name of the parent
        *  folder instead.
        *
-       * @param {string} mode  The mode attribute.
+       * @param {string} mode - The mode attribute.
        */
       _maybeAddParentFolderMenuItem(mode) {
         let folder = this._parentFolder;
@@ -667,9 +667,9 @@
       /**
        * Add menu items, one for each folder.
        *
-       * @param {nsIMsgFolder[]} folders          Array of folder objects.
-       * @param {string} mode                     The mode attribute.
-       * @param {nsIMsgFolder} globalInboxFolder  The root/global inbox folder.
+       * @param {nsIMsgFolder[]} folders - Array of folder objects.
+       * @param {string} mode - The mode attribute.
+       * @param {nsIMsgFolder} globalInboxFolder - The root/global inbox folder.
        */
       _addFoldersMenuItems(folders, mode, globalInboxFolder) {
         // disableServers attribute is a comma separated list of server keys.
@@ -754,10 +754,10 @@
       /**
        * Return the label to use for a folder.
        *
-       * @param {string} mode  The mode, e.g. "deferred".
-       * @param {nsIMsgFolder} globalInboxFolder  The root/global inbox folder.
-       * @param {nsIMsgFolder} folder  The folder for which we are getting a label.
-       * @return {string}  The label to use for the folder.
+       * @param {string} mode - The mode, e.g. "deferred".
+       * @param {nsIMsgFolder} globalInboxFolder - The root/global inbox folder.
+       * @param {nsIMsgFolder} folder - The folder for which we are getting a label.
+       * @returns {string} The label to use for the folder.
        */
       _getFolderLabel(mode, globalInboxFolder, folder) {
         if (
@@ -778,7 +778,7 @@
        * determines whether to show subfolders for a given account type, and an
        * object mapping account types to label names (may be null).
        *
-       * @return {[Function, Object|null]}  Array containing the shouldExpand
+       * @returns {[Function, Object|null]} Array containing the shouldExpand
        *                                    function and the labels object.
        */
       _getShouldExpandAndLabels() {
@@ -818,8 +818,8 @@
        * Set attributes on a menu, menuitem, or toolbarbutton element to allow
        * for CSS styling.
        *
-       * @param {nsIMsgFolder} folder  The folder that corresponds to the menu/menuitem.
-       * @param {Element} menuNode     The actual DOM node to set attributes on.
+       * @param {nsIMsgFolder} folder - The folder that corresponds to the menu/menuitem.
+       * @param {Element} menuNode - The actual DOM node to set attributes on.
        */
       _setCssSelectors(folder, menuNode) {
         const cssAttributes = this._getCssSelectorAttributes(folder);
@@ -833,8 +833,8 @@
        * Returns attributes to be set on a menu, menuitem, or toolbarbutton
        * element to allow for CSS styling.
        *
-       * @param {nsIMsgFolder} folder  The folder that corresponds to the menu item.
-       * @return {Object}              Contains the CSS selector attributes.
+       * @param {nsIMsgFolder} folder - The folder that corresponds to the menu item.
+       * @returns {object} Contains the CSS selector attributes.
        */
       _getCssSelectorAttributes(folder) {
         let attributes = {};
@@ -871,8 +871,8 @@
        * 'verbose'        - Folder on Account
        * 'path'           - Account/Folder/Subfolder
        *
-       * @param {nsIMsgFolder} folder  The folder that corresponds to the menu/menuitem.
-       * @return {string}              The display name.
+       * @param {nsIMsgFolder} folder - The folder that corresponds to the menu/menuitem.
+       * @returns {string} The display name.
        */
       getDisplayName(folder) {
         if (folder.isServer) {
@@ -900,8 +900,8 @@
        * TODO: This function does not work yet for the appmenu. However, as of
        * June 2019, this functionality is not used in the appmenu.
        *
-       * @param {nsIMsgFolder} inputFolder  The folder to select (if none, then Choose Folder).
-       * @return {boolean}                  Is true if any usable folder was found, otherwise false.
+       * @param {nsIMsgFolder} inputFolder - The folder to select (if none, then Choose Folder).
+       * @returns {boolean} Is true if any usable folder was found, otherwise false.
        * @note  If inputFolder is not in this popup, but is instead a descendant of
        *        a member of the popup, that ancestor will be selected.
        */
@@ -1029,7 +1029,7 @@
    * for each account. Each menu item gets displayed with the folder or
    * account name and icon.
    *
-   * @extends {MozElements.MozMenuPopup}
+   * @augments {MozElements.MozMenuPopup}
    */
   let MozFolderMenuPopup = FolderMenu(
     class extends MozElements.MozMenuPopup {
@@ -1107,8 +1107,8 @@
       /**
        * Given a menu item, return the menupopup that it opens.
        *
-       * @param {Element} menu   The menu item, typically a `menu` element.
-       * @return {Element|null}  The `menupopup` element or null if none found.
+       * @param {Element} menu - The menu item, typically a `menu` element.
+       * @returns {Element|null} The `menupopup` element or null if none found.
        */
       _getSubMenuForMenuItem(menu) {
         return menu.querySelector("menupopup");
@@ -1125,9 +1125,9 @@
        * Builds a menu item (`menuitem`) element that does not open a submenu
        * (i.e. not a `menu` element).
        *
-       * @param {Object} [attributes]  Attributes to set on the element.
-       * @param {nsIMsgFolder} folder  The folder associated with the menu item.
-       * @returns {Element}            A `menuitem`.
+       * @param {object} [attributes] - Attributes to set on the element.
+       * @param {nsIMsgFolder} folder - The folder associated with the menu item.
+       * @returns {Element} A `menuitem`.
        */
       _buildMenuItem(attributes, folder) {
         const menuitem = generateElement("menuitem", attributes);
@@ -1140,12 +1140,12 @@
        * Builds a menu item (`menu`) element and an associated submenu
        * (`menupopup`) element.
        *
-       * @param {Object} attributes         Attributes to set on the `menu` element.
-       * @param {boolean} folderSubmenu     Whether the submenu is to be a
+       * @param {object} attributes - Attributes to set on the `menu` element.
+       * @param {boolean} folderSubmenu - Whether the submenu is to be a
        *                                    `folder-menupopup` element.
-       * @param {nsIMsgFolder} [folder]     The folder associated with the menu item.
-       * @param {Object} submenuAttributes  Attributes to set on the `menupopup` element.
-       * @return {Element[]}       Array containing the `menu` and
+       * @param {nsIMsgFolder} [folder] - The folder associated with the menu item.
+       * @param {object} submenuAttributes - Attributes to set on the `menupopup` element.
+       * @returns {Element[]} Array containing the `menu` and
        *                                    `menupopup` elements.
        */
       _buildMenuItemWithSubmenu(
@@ -1187,8 +1187,8 @@
        * The submenu (`menupopup`) is just a standard element, not a custom
        * element (`folder-menupopup`).
        *
-       * @param {Object} [attributes]  Attributes to set on the menu item element.
-       * @return {Element}             The menu item (`menu`) element.
+       * @param {object} [attributes] - Attributes to set on the menu item element.
+       * @returns {Element} The menu item (`menu`) element.
        */
       _buildSpecialMenu(attributes) {
         const [menu, menupopup] = this._buildMenuItemWithSubmenu(attributes);

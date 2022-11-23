@@ -36,8 +36,8 @@ var formatter = {
   /**
    * Format a date in either short or long format, depending on the users preference.
    *
-   * @param {calIDateTime} aDate    The datetime to format.
-   * @return {string}               A string representing the date part of the datetime.
+   * @param {calIDateTime} aDate - The datetime to format.
+   * @returns {string} A string representing the date part of the datetime.
    */
   formatDate(aDate) {
     // Format the date using user's format preference (long or short)
@@ -47,8 +47,8 @@ var formatter = {
   /**
    * Format a date into a short format, for example "12/17/2005".
    *
-   * @param {calIDateTime} aDate    The datetime to format.
-   * @return {string}               A string representing the date part of the datetime.
+   * @param {calIDateTime} aDate - The datetime to format.
+   * @returns {string} A string representing the date part of the datetime.
    */
   formatDateShort(aDate) {
     return inTimezone(aDate, { dateStyle: "short" });
@@ -57,8 +57,8 @@ var formatter = {
   /**
    * Format a date into a long format, for example "Sat Dec 17 2005".
    *
-   * @param {calIDateTime} aDate    The datetime to format.
-   * @return {string}               A string representing the date part of the datetime.
+   * @param {calIDateTime} aDate - The datetime to format.
+   * @returns {string} A string representing the date part of the datetime.
    */
   formatDateLong(aDate) {
     return inTimezone(aDate, { dateStyle: "full" });
@@ -67,8 +67,8 @@ var formatter = {
   /**
    * Format a date into a short format without mentioning the year, for example "Dec 17"
    *
-   * @param {calIDateTime} aDate    The datetime to format.
-   * @return {string}               A string representing the date part of the datetime.
+   * @param {calIDateTime} aDate - The datetime to format.
+   * @returns {string} A string representing the date part of the datetime.
    */
   formatDateWithoutYear(aDate) {
     let dtOptions = { month: "short", day: "numeric" };
@@ -79,8 +79,8 @@ var formatter = {
    * Format a date into a long format without mentioning the year, for example
    * "Monday, December 17".
    *
-   * @param {calIDateTime} aDate    The datetime to format.
-   * @return {string}               A string representing the date part of the datetime.
+   * @param {calIDateTime} aDate - The datetime to format.
+   * @returns {string} A string representing the date part of the datetime.
    */
   formatDateLongWithoutYear(aDate) {
     return inTimezone(aDate, { weekday: "long", month: "long", day: "numeric" });
@@ -97,7 +97,7 @@ var formatter = {
    *   24-hour format, then this would show midnight as 24:00, rather than
    *   00:00.
    *
-   * @return {string} A string representing the time.
+   * @returns {string} A string representing the time.
    */
   formatTime(time, preferEndOfDay = false) {
     if (time.isDate) {
@@ -137,8 +137,8 @@ var formatter = {
    * Format a datetime into the format specified by the OS settings. Will omit the seconds from the
    * output.
    *
-   * @param {calIDateTime} aDate    The datetime to format.
-   * @return {string}               A string representing the datetime.
+   * @param {calIDateTime} aDate - The datetime to format.
+   * @returns {string} A string representing the datetime.
    */
   formatDateTime(aDate) {
     let formattedDate = this.formatDate(aDate);
@@ -153,9 +153,9 @@ var formatter = {
   /**
    * Format a time interval like formatInterval, but show only the time.
    *
-   * @param {calIDateTime} aStartDate   The start of the interval.
-   * @param {calIDateTime} aEndDate     The end of the interval.
-   * @return {string}                   The formatted time interval.
+   * @param {calIDateTime} aStartDate - The start of the interval.
+   * @param {calIDateTime} aEndDate - The end of the interval.
+   * @returns {string} The formatted time interval.
    */
   formatTimeInterval(aStartDate, aEndDate) {
     if (!aStartDate && aEndDate) {
@@ -180,8 +180,8 @@ var formatter = {
    * of the part string denoting the end date.
    *
    * @param {calIDateTime} startDate - The start of the interval.
-   * @param {calIDateTime} endDate   - The end of the interval.
-   * @return {string}                - A string describing the interval in a legible form.
+   * @param {calIDateTime} endDate - The end of the interval.
+   * @returns {string} - A string describing the interval in a legible form.
    */
   formatInterval(startDate, endDate) {
     let format = this.formatIntervalParts(startDate, endDate);
@@ -258,6 +258,7 @@ var formatter = {
 
   /**
    * Object used to describe the parts of a formatted interval.
+   *
    * @typedef {object} IntervalParts
    * @property {string} type
    *   Used to distinguish IntervalPart results.
@@ -294,9 +295,9 @@ var formatter = {
    * strings that describe the interval. This result may leave out some parts of
    * either date based on the closeness of the two.
    *
-   * @param {calIDateTime} startDate       The start of the interval.
-   * @param {calIDateTime} endDate         The end of the interval.
-   * @return {IntervalParts}               An object to be used to create an
+   * @param {calIDateTime} startDate - The start of the interval.
+   * @param {calIDateTime} endDate - The end of the interval.
+   * @returns {IntervalParts} An object to be used to create an
    *                                       interval string.
    */
   formatIntervalParts(startDate, endDate) {
@@ -431,8 +432,8 @@ var formatter = {
    * e.g.  monthday 1 -> 1st
    *       monthday 2 -> 2nd etc.
    *
-   * @param {number} aDay    A number from 1 to 31.
-   * @return {string}        The monthday number in ordinal format in the current locale.
+   * @param {number} aDay - A number from 1 to 31.
+   * @returns {string} The monthday number in ordinal format in the current locale.
    */
   formatDayWithOrdinal(aDay) {
     let ordinalSymbols = lazy.gDateStringBundle.GetStringFromName("dayOrdinalSymbol").split(",");
@@ -444,7 +445,7 @@ var formatter = {
    * Helper to get the start/end dates for a given item.
    *
    * @param {calIItemBase} item - The item to get the dates for.
-   * @return {[calIDateTime, calIDateTime]} An array with start and end date.
+   * @returns {[calIDateTime, calIDateTime]} An array with start and end date.
    */
   getItemDates(item) {
     let start = item[lazy.cal.dtz.startDateProp(item)];
@@ -469,8 +470,8 @@ var formatter = {
   /**
    * Format an interval that is defined by an item with the default timezone.
    *
-   * @param {calIItemBase} aItem      The item describing the interval.
-   * @return {string}                 The formatted item interval.
+   * @param {calIItemBase} aItem - The item describing the interval.
+   * @returns {string} The formatted item interval.
    */
   formatItemInterval(aItem) {
     return this.formatInterval(...this.getItemDates(aItem));
@@ -479,8 +480,8 @@ var formatter = {
   /**
    * Format a time interval like formatItemInterval, but only show times.
    *
-   * @param {calIItemBase} aItem      The item describing the interval.
-   * @return {string}                 The formatted item interval.
+   * @param {calIItemBase} aItem - The item describing the interval.
+   * @returns {string} The formatted item interval.
    */
   formatItemTimeInterval(aItem) {
     return this.formatTimeInterval(...this.getItemDates(aItem));
@@ -489,8 +490,8 @@ var formatter = {
   /**
    * Get the month name.
    *
-   * @param {number} aMonthIndex      Zero-based month number (0 is january, 11 is december).
-   * @return {string}                 The month name in the current locale.
+   * @param {number} aMonthIndex - Zero-based month number (0 is january, 11 is december).
+   * @returns {string} The month name in the current locale.
    */
   monthName(aMonthIndex) {
     let oneBasedMonthIndex = aMonthIndex + 1;
@@ -500,8 +501,8 @@ var formatter = {
   /**
    * Get the abbreviation of the month name.
    *
-   * @param {number} aMonthIndex      Zero-based month number (0 is january, 11 is december).
-   * @return {string}                 The abbreviated month name in the current locale.
+   * @param {number} aMonthIndex - Zero-based month number (0 is january, 11 is december).
+   * @returns {string} The abbreviated month name in the current locale.
    */
   shortMonthName(aMonthIndex) {
     let oneBasedMonthIndex = aMonthIndex + 1;
@@ -511,8 +512,8 @@ var formatter = {
   /**
    * Get the day name.
    *
-   * @param {number} aMonthIndex      Zero-based day number (0 is sunday, 6 is saturday).
-   * @return {string}                 The day name in the current locale.
+   * @param {number} aMonthIndex - Zero-based day number (0 is sunday, 6 is saturday).
+   * @returns {string} The day name in the current locale.
    */
   dayName(aDayIndex) {
     let oneBasedDayIndex = aDayIndex + 1;
@@ -522,8 +523,8 @@ var formatter = {
   /**
    * Get the abbreviation of the day name.
    *
-   * @param {number} aMonthIndex      Zero-based day number (0 is sunday, 6 is saturday).
-   * @return {string}                 The abbrevidated day name in the current locale.
+   * @param {number} aMonthIndex - Zero-based day number (0 is sunday, 6 is saturday).
+   * @returns {string} The abbrevidated day name in the current locale.
    */
   shortDayName(aDayIndex) {
     let oneBasedDayIndex = aDayIndex + 1;
@@ -537,9 +538,9 @@ var formatter = {
  *
  * NOTE: formatters are cached for future requests.
  *
- * @param {Object} formatOptions - Intl.DateTimeFormatter options.
+ * @param {object} formatOptions - Intl.DateTimeFormatter options.
  *
- * @return {DateTimeFormatter} - The formatter.
+ * @returns {DateTimeFormatter} - The formatter.
  */
 function getFormatter(formatOptions) {
   let cacheKey = JSON.stringify(formatOptions);
@@ -567,10 +568,10 @@ function getFormatter(formatOptions) {
  * timezone. NOTE: some timezones may be ignored if they are not properly
  * handled.
  *
- * @param {Object} formatOptions - The basis Intl.DateTimeFormatter options.
+ * @param {object} formatOptions - The basis Intl.DateTimeFormatter options.
  * @param {?calITimezone} timezone - The timezone to try and use.
  *
- * @return {DateTimeFormatter} - The formatter.
+ * @returns {DateTimeFormatter} - The formatter.
  */
 function getFormatterWithTimezone(formatOptions, timezone) {
   if (timezone && (timezone.isUTC || timezone.icalComponent)) {
@@ -590,10 +591,10 @@ function getFormatterWithTimezone(formatOptions, timezone) {
  * be shown in its timezone.
  *
  * @param {calIDateTime} date - The date or date-time to format.
- * @param {Object} formatOptions - The Intl.DateTimeFormatter options
+ * @param {object} formatOptions - The Intl.DateTimeFormatter options
  *   describing how to format the date.
  *
- * @return {string} - The date formatted as a string.
+ * @returns {string} - The date formatted as a string.
  */
 function inTimezone(date, formatOptions) {
   return getFormatterWithTimezone(formatOptions, date.isDate ? null : date.timezone).format(

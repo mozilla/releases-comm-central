@@ -15,9 +15,9 @@ const URL_BASE =
  * Right-click on something and wait for the context menu to appear.
  * For elements in the parent process only.
  *
- * @param {Element} menu     The <menu> that should appear.
- * @param {Element} element  The element to be clicked on.
- * @returns {Promise}        A promise that resolves when the menu appears.
+ * @param {Element} menu - The <menu> that should appear.
+ * @param {Element} element - The element to be clicked on.
+ * @returns {Promise} A promise that resolves when the menu appears.
  */
 function rightClick(menu, element, win) {
   let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
@@ -31,11 +31,11 @@ function rightClick(menu, element, win) {
  * @see mail/components/extensions/schemas/menus.json
  *
  * @param extension
- * @param {Object} expectedInfo
+ * @param {object} expectedInfo
  * @param {Array} expectedInfo.menuIds
  * @param {Array} expectedInfo.contexts
  * @param {Array?} expectedInfo.attachments
- * @param {Object} expectedTab
+ * @param {object} expectedTab
  * @param {boolean} expectedTab.active
  * @param {integer} expectedTab.index
  * @param {boolean} expectedTab.mailTab
@@ -76,10 +76,10 @@ async function checkShownEvent(extension, expectedInfo, expectedTab) {
  * @see mail/components/extensions/schemas/menus.json
  *
  * @param extension
- * @param {Object} expectedInfo
+ * @param {object} expectedInfo
  * @param {string?} expectedInfo.menuItemId
  * @param {Array?} expectedInfo.attachments
- * @param {Object} expectedTab
+ * @param {object} expectedTab
  * @param {boolean} expectedTab.active
  * @param {integer} expectedTab.index
  * @param {boolean} expectedTab.mailTab

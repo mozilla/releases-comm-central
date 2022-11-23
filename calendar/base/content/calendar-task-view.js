@@ -356,7 +356,7 @@ var taskDetailsView = {
  * Updates the currently applied filter for the task view and refreshes the task
  * tree.
  *
- * @param {String} [filter] - The filter name to set.
+ * @param {string} [filter] - The filter name to set.
  */
 function taskViewUpdate(filter) {
   if (!filter) {

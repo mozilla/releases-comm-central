@@ -33,7 +33,7 @@ var gForeignTimezonesCache = {};
  * object.
  *
  * @param text  The text to transform.
- * @return      The resulting calIDateTime.
+ * @returns The resulting calIDateTime.
  */
 function textToDate(text) {
   let textval;
@@ -65,7 +65,7 @@ function textToDate(text) {
  * Gets the timezone for the given definition or identifier
  *
  * @param aTimezone     The timezone data
- * @return              The calITimezone object
+ * @returns The calITimezone object
  */
 function getTimezone(aTimezone) {
   let timezone = null;

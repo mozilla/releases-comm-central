@@ -26,6 +26,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 /**
  * Utilities for working with vCard data. This file uses ICAL.js as parser and
  * formatter to avoid reinventing the wheel.
+ *
  * @see RFC 6350.
  */
 
@@ -119,7 +120,7 @@ var VCardUtils = {
    * read it without throwing an error.
    *
    * @param {string} vCard
-   * @return {string}
+   * @returns {string}
    */
   translateVCard21(vCard) {
     if (!/\bVERSION:2.1\b/i.test(vCard)) {
@@ -374,8 +375,8 @@ function singleTextProperty(
     /**
      * Parses a vCard value into properties usable by nsIAbCard.
      *
-     * @param {String} value - vCard string to map to an address book card property.
-     * @yields {String[]} - Any number of key, value pairs to set on the nsIAbCard.
+     * @param {string} value - vCard string to map to an address book card property.
+     * @yields {string[]} - Any number of key, value pairs to set on the nsIAbCard.
      */
     *toAbCard(value) {
       if (typeof value != "string") {
@@ -602,7 +603,7 @@ class VCardPropertyEntry {
   /**
    * Clone this object.
    *
-   * @return {VCardPropertyEntry}
+   * @returns {VCardPropertyEntry}
    */
   clone() {
     let cloneValue;
@@ -661,7 +662,7 @@ class VCardProperties {
    * Parse a vCard into a VCardProperties object.
    *
    * @param {string} vCard
-   * @return {VCardProperties}
+   * @returns {VCardProperties}
    */
   static fromVCard(vCard, { isGoogleCardDAV = false } = {}) {
     vCard = VCardUtils.translateVCard21(vCard);
@@ -700,7 +701,7 @@ class VCardProperties {
    *
    * @param {Map<string, string>} propertyMap
    * @param {string="4.0"} version
-   * @return {VCardProperties}
+   * @returns {VCardProperties}
    */
   static fromPropertyMap(propertyMap, version = "4.0") {
     let rv = new VCardProperties(version);
@@ -728,7 +729,7 @@ class VCardProperties {
    * Add an entry to this object.
    *
    * @param {VCardPropertyEntry}
-   * @return {boolean} - If the entry was added.
+   * @returns {boolean} - If the entry was added.
    */
   addEntry(entry) {
     if (entry.constructor.name != "VCardPropertyEntry") {
@@ -763,7 +764,7 @@ class VCardProperties {
    *
    * @param {string} name
    * @param {string} value
-   * @return {VCardPropertyEntry}
+   * @returns {VCardPropertyEntry}
    */
   addValue(name, value) {
     for (let entry of this.getAllEntries(name)) {
@@ -786,7 +787,7 @@ class VCardProperties {
    * Remove an entry from this object.
    *
    * @param {VCardPropertyEntry}
-   * @return {boolean} - If an entry was found and removed.
+   * @returns {boolean} - If an entry was found and removed.
    */
   removeEntry(entry) {
     if (entry.constructor.name != "VCardPropertyEntry") {
@@ -832,7 +833,7 @@ class VCardProperties {
    * Get the first value matching the given name, or null if no entry matches.
    *
    * @param {string} name
-   * @return {?vCardValue}
+   * @returns {?vCardValue}
    */
   getFirstValue(name) {
     let entry = this.entries.find(e => e.name == name);
@@ -846,7 +847,7 @@ class VCardProperties {
    * Get all values matching the given name.
    *
    * @param {string} name
-   * @return {vCardValue[]}
+   * @returns {vCardValue[]}
    */
   getAllValues(name) {
     return this.getAllEntries(name).map(e => e.value);
@@ -858,7 +859,7 @@ class VCardProperties {
    * the position in `entries`.
    *
    * @param {string} name
-   * @return {vCardValue[]}
+   * @returns {vCardValue[]}
    */
   getAllValuesSorted(name) {
     return this.getAllEntriesSorted(name).map(e => e.value);
@@ -868,7 +869,7 @@ class VCardProperties {
    * Get the first entry matching the given name, or null if no entry matches.
    *
    * @param {string} name
-   * @return {?VCardPropertyEntry}
+   * @returns {?VCardPropertyEntry}
    */
   getFirstEntry(name) {
     return this.entries.find(e => e.name == name) ?? null;
@@ -878,7 +879,7 @@ class VCardProperties {
    * Get all entries matching the given name.
    *
    * @param {string} name
-   * @return {VCardPropertyEntry[]}
+   * @returns {VCardPropertyEntry[]}
    */
   getAllEntries(name) {
     return this.entries.filter(e => e.name == name);
@@ -890,7 +891,7 @@ class VCardProperties {
    * the position in `entries`.
    *
    * @param {string} name
-   * @return {VCardPropertyEntry[]}
+   * @returns {VCardPropertyEntry[]}
    */
   getAllEntriesSorted(name) {
     let nextPref = 101;
@@ -905,7 +906,7 @@ class VCardProperties {
    * Get all entries matching the given group.
    *
    * @param {string} group
-   * @return {VCardPropertyEntry[]}
+   * @returns {VCardPropertyEntry[]}
    */
   getGroupedEntries(group) {
     return this.entries.filter(e => e.params.group == group);
@@ -914,7 +915,7 @@ class VCardProperties {
   /**
    * Clone this object.
    *
-   * @return {VCardProperties}
+   * @returns {VCardProperties}
    */
   clone() {
     let copy = new VCardProperties();
@@ -925,7 +926,7 @@ class VCardProperties {
   /**
    * Get a Map of Address Book properties from this object.
    *
-   * @return {Map<string, string>} propertyMap
+   * @returns {Map<string, string>} propertyMap
    */
   toPropertyMap() {
     let vPropMap = VCardUtils._parse(this.entries.map(e => e.clone()));
@@ -952,7 +953,7 @@ class VCardProperties {
   /**
    * Serialize this object into a vCard.
    *
-   * @return {string} vCard
+   * @returns {string} vCard
    */
   toVCard() {
     let jCal = this.entries.map(e => {

@@ -342,10 +342,10 @@ FeedItem.prototype = {
    * line length, create multiple folded lines (easier to parse than multiple
    * headers).
    *
-   * @param  {String} headerName          - Name of the header.
-   * @param  {String[]} headerItemsArray  - An Array of strings to concatenate.
+   * @param  {string} headerName          - Name of the header.
+   * @param  {string[]} headerItemsArray  - An Array of strings to concatenate.
    *
-   * @returns {String}                    - The header string.
+   * @returns {String} - The header string.
    */
   createHeaderStrFromArray(headerName, headerItemsArray) {
     let headerStr = "";

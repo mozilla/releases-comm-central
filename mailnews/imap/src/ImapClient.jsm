@@ -121,6 +121,7 @@ class ImapClient {
 
   /**
    * Set socket timeout in seconds.
+   *
    * @param {number} timeout - The timeout in seconds.
    */
   _setSocketTimeout(timeout) {
@@ -133,6 +134,7 @@ class ImapClient {
   /**
    * Construct an nsIMsgMailNewsUrl instance, setup urlListener to notify when
    * the current request is finished.
+   *
    * @param {nsIUrlListener} urlListener - Callback for the request.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    * @param {nsIMsgMailNewsUrl} [runningUrl] - The url to run, if provided.
@@ -156,6 +158,7 @@ class ImapClient {
 
   /**
    * Discover all folders.
+   *
    * @param {nsIMsgFolder} folder - The associated folder.
    */
   discoverAllFolders(folder) {
@@ -214,6 +217,7 @@ class ImapClient {
 
   /**
    * Select a folder.
+   *
    * @param {nsIMsgFolder} folder - The folder to select.
    */
   selectFolder(folder) {
@@ -230,6 +234,7 @@ class ImapClient {
 
   /**
    * Rename a folder.
+   *
    * @param {nsIMsgFolder} folder - The folder to rename.
    * @param {string} newName - The new folder name.
    */
@@ -250,6 +255,7 @@ class ImapClient {
 
   /**
    * Move a source folder to be a child of another folder.
+   *
    * @param {nsIMsgFolder} srcFolder - The source folder to move.
    * @param {nsIMsgFolder} dstFolder - The target parent folder.
    */
@@ -263,6 +269,7 @@ class ImapClient {
 
   /**
    * Send LIST command for a folder.
+   *
    * @param {nsIMsgFolder} folder - The folder to list.
    */
   listFolder(folder) {
@@ -274,6 +281,7 @@ class ImapClient {
 
   /**
    * Ensure a folder exists on the server. Create one if not already exists.
+   *
    * @param {nsIMsgFolder} parent - The parent folder to check.
    * @param {string} folderName - The folder name.
    */
@@ -296,6 +304,7 @@ class ImapClient {
 
   /**
    * Create a folder on the server.
+   *
    * @param {nsIMsgFolder} parent - The parent folder to check.
    * @param {string} folderName - The folder name.
    */
@@ -309,6 +318,7 @@ class ImapClient {
 
   /**
    * Fetch the attribute of messages.
+   *
    * @param {nsIMsgFolder} folder - The folder to check.
    * @param {string} uids - The message uids.
    * @param {string} attribute - The message attribute to fetch
@@ -333,6 +343,7 @@ class ImapClient {
   /**
    * Get the names of all ancestor folders. For example,
    *   folder a/b/c will return ['a', 'b'].
+   *
    * @param {nsIMsgFolder} folder - The input folder.
    * @returns {string[]}
    */
@@ -348,6 +359,7 @@ class ImapClient {
 
   /**
    * Get the server name of a msg folder.
+   *
    * @param {nsIMsgFolder} folder - The input folder.
    * @returns {string}
    */
@@ -370,6 +382,7 @@ class ImapClient {
   /**
    * Get the server name of a sub folder. The sub folder may or may not exist on
    * the server.
+   *
    * @param {nsIMsgFolder} parent - The parent folder.
    * @param {string} folderName - The sub folder name.
    * @returns {string}
@@ -391,6 +404,7 @@ class ImapClient {
 
   /**
    * Fetch the full content of a message by UID.
+   *
    * @param {nsIMsgFolder} folder - The associated folder.
    * @param {number} uid - The message uid.
    */
@@ -418,6 +432,7 @@ class ImapClient {
 
   /**
    * Add, remove or replace flags of specified messages.
+   *
    * @param {string} action - "+" means add, "-" means remove, "" means replace.
    * @param {nsIMsgFolder} folder - The target folder.
    * @param {nsIUrlListener} urlListener - Callback for the request.
@@ -447,6 +462,7 @@ class ImapClient {
 
   /**
    * Send EXPUNGE command to a folder.
+   *
    * @param {nsIMsgFolder} folder - The associated folder.
    */
   expunge(folder) {
@@ -458,6 +474,7 @@ class ImapClient {
 
   /**
    * Move or copy messages from a folder to another folder.
+   *
    * @param {nsIMsgFolder} folder - The source folder.
    * @param {nsIMsgFolder} folder - The target folder.
    * @param {string} messageIds - The message identifiers.
@@ -480,6 +497,7 @@ class ImapClient {
 
   /**
    * Upload a message file to a folder.
+   *
    * @param {nsIFile} file - The message file to upload.
    * @param {nsIMsgFolder} dstFolder - The target folder.
    * @param {nsImapMailCopyState} copyState - A state used by nsImapMailFolder.
@@ -516,6 +534,7 @@ class ImapClient {
 
   /**
    * Check the status of a folder.
+   *
    * @param {nsIMsgFolder} folder - The folder to check.
    */
   updateFolderStatus(folder) {
@@ -548,6 +567,7 @@ class ImapClient {
 
   /**
    * Update message flags.
+   *
    * @param {nsIMsgFolder} folder - The associated folder.
    * @param {string} flagsToAdd - The flags to add.
    * @param {string} flagsToSubtract - The flags to subtract.
@@ -599,6 +619,7 @@ class ImapClient {
 
   /**
    * Get message headers by the specified uids.
+   *
    * @param {nsIMsgFolder} folder - The folder of the messages.
    * @param {string[]} uids - The message uids.
    */
@@ -636,6 +657,7 @@ class ImapClient {
 
   /**
    * Send DONE to end the IDLE command.
+   *
    * @param {Function} nextAction - Callback function after IDLE is ended.
    */
   endIdle(nextAction) {
@@ -670,6 +692,7 @@ class ImapClient {
 
   /**
    * The data event handler.
+   *
    * @param {TCPSocketEvent} event - The data event.
    */
   _onData = async event => {
@@ -704,6 +727,7 @@ class ImapClient {
 
   /**
    * The error event handler.
+   *
    * @param {TCPSocketErrorEvent} event - The error event.
    */
   _onError = async event => {
@@ -732,6 +756,7 @@ class ImapClient {
 
   /**
    * Send a command to the server.
+   *
    * @param {string} str - The command string to send.
    * @param {boolean} [suppressLogging=false] - Whether to suppress logging the str.
    */
@@ -777,6 +802,7 @@ class ImapClient {
 
   /**
    * Get the next command tag.
+   *
    * @returns {number}
    */
   _getNextTag() {
@@ -794,6 +820,7 @@ class ImapClient {
 
   /**
    * Handle the capability response.
+   *
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionCapabilityResponse = res => {
@@ -863,6 +890,7 @@ class ImapClient {
 
   /**
    * Handle the STARTTLS response.
+   *
    * @param {ImapResponse} res - The server response.
    */
   _actionStarttlsResponse(res) {
@@ -1026,6 +1054,7 @@ class ImapClient {
   /**
    * Returns the saved/cached server password, or show a password dialog. If the
    * user cancels the dialog, stop the process.
+   *
    * @returns {string} The server password.
    */
   async _getPassword() {
@@ -1042,6 +1071,7 @@ class ImapClient {
 
   /**
    * The second step of PLAIN auth. Send the auth token to the server.
+   *
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionAuthPlain = async res => {
@@ -1051,6 +1081,7 @@ class ImapClient {
 
   /**
    * The second step of LOGIN auth. Send the username to the server.
+   *
    * @param {ImapResponse} res - The server response.
    */
   _actionAuthLoginUser = res => {
@@ -1060,6 +1091,7 @@ class ImapClient {
 
   /**
    * The third step of LOGIN auth. Send the password to the server.
+   *
    * @param {ImapResponse} res - The server response.
    */
   _actionAuthLoginPass = async res => {
@@ -1072,6 +1104,7 @@ class ImapClient {
 
   /**
    * The second step of CRAM-MD5 auth, send a HMAC-MD5 signature to the server.
+   *
    * @param {ImapResponse} res - The server response.
    */
   _actionAuthCramMd5 = async res => {
@@ -1085,6 +1118,7 @@ class ImapClient {
 
   /**
    * The second and next step of GSSAPI auth.
+   *
    * @param {ImapResponse} res - The server response.
    */
   _actionAuthGssapi = res => {
@@ -1107,6 +1141,7 @@ class ImapClient {
 
   /**
    * The second and next step of NTLM auth.
+   *
    * @param {ImapResponse} res - The server response.
    */
   _actionAuthNtlm = res => {
@@ -1129,8 +1164,9 @@ class ImapClient {
 
   /**
    * Execute an action with a folder selected.
+   *
    * @param {nsIMsgFolder} folder - The folder to select.
-   * @param {function} actionInFolder - The action to execute.
+   * @param {Function} actionInFolder - The action to execute.
    */
   _actionFolderCommand(folder, actionInFolder) {
     if (this.folder == folder) {
@@ -1163,6 +1199,7 @@ class ImapClient {
 
   /**
    * Handle LIST response.
+   *
    * @param {Function} actionAfterResponse - A callback after handling the response.
    * @param {ImapResponse} res - Response received from the server.
    */
@@ -1187,6 +1224,7 @@ class ImapClient {
 
   /**
    * Send LIST command.
+   *
    * @param {string} folderName - The name of the folder to list.
    * @param {Function} actionAfterResponse - A callback after handling the response.
    */
@@ -1238,6 +1276,7 @@ class ImapClient {
 
   /**
    * Create and subscribe to a folder.
+   *
    * @param {string} folderName - The folder name.
    * @param {Function} callbackAfterSubscribe - The action after the subscribe
    *   command.
@@ -1294,6 +1333,7 @@ class ImapClient {
 
   /**
    * Handle RENAME response. Three steps are involved.
+   *
    * @param {string} oldName - The old folder name.
    * @param {string} newName - The new folder name.
    * @param {ImapResponse} res - The server response.
@@ -1323,6 +1363,7 @@ class ImapClient {
 
   /**
    * Handle UID FETCH response.
+   *
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionUidFetchResponse(res) {
@@ -1373,6 +1414,7 @@ class ImapClient {
 
   /**
    * Make an nsIMailboxSpec instance to interact with nsIImapMailFolderSink.
+   *
    * @returns {nsIMailboxSpec}
    */
   _getMailboxSpec() {
@@ -1390,6 +1432,7 @@ class ImapClient {
 
   /**
    * Handle UID FETCH BODY.PEEK[HEADER] response.
+   *
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionUidFetchHeaderResponse(res) {
@@ -1433,6 +1476,7 @@ class ImapClient {
 
   /**
    * Handle UID FETCH BODY response.
+   *
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionUidFetchBodyResponse(res) {
@@ -1476,6 +1520,7 @@ class ImapClient {
 
   /**
    * Handle NOOP response.
+   *
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionNoopResponse(res) {
@@ -1529,6 +1574,7 @@ class ImapClient {
 
   /**
    * Show an error prompt.
+   *
    * @param {string} errorName - An error name corresponds to an entry of
    *   imapMsgs.properties.
    */

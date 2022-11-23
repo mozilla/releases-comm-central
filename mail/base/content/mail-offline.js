@@ -28,7 +28,7 @@ var MailOfflineMgr = {
   },
 
   /**
-   * @return true if we are online
+   * @returns true if we are online
    */
   isOnline() {
     return !Services.io.offline;
@@ -79,7 +79,7 @@ var MailOfflineMgr = {
   },
 
   /**
-   * @return true if there are unsent messages
+   * @returns true if there are unsent messages
    */
   haveUnsentMessages() {
     return Cc["@mozilla.org/messengercompose/sendlater;1"]
@@ -121,7 +121,7 @@ var MailOfflineMgr = {
    * Prompts the user to confirm sending of unsent messages. This is different from
    * goOnlineToSendMessages which involves going online to send unsent messages.
    *
-   * @return true if the user wants to send unsent messages
+   * @returns true if the user wants to send unsent messages
    */
   confirmSendUnsentMessages() {
     let alwaysAsk = { value: true };
@@ -153,7 +153,8 @@ var MailOfflineMgr = {
   /**
    * Should we send unsent messages? Based on the value of
    * offline.send.unsent_messages, this method may prompt the user.
-   * @return true if we should send unsent messages
+   *
+   * @returns true if we should send unsent messages
    */
   shouldSendUnsentMessages() {
     var sendUnsentWhenGoingOnlinePref = Services.prefs.getIntPref(
@@ -179,7 +180,7 @@ var MailOfflineMgr = {
    * Prompts the user to download messages for offline use before going offline.
    * May update the value of offline.download.download_messages
    *
-   * @return true if the user wants to download messages for offline use.
+   * @returns true if the user wants to download messages for offline use.
    */
   confirmDownloadMessagesForOfflineUse() {
     let alwaysAsk = { value: true };
@@ -212,7 +213,7 @@ var MailOfflineMgr = {
    *  Prompts the user about going online in order to download new messages.
    *  Based on the response, will move us back to online mode.
    *
-   * @return true if the user confirms going online.
+   * @returns true if the user confirms going online.
    */
   getNewMail() {
     let goOnline = Services.prompt.confirm(

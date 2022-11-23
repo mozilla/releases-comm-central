@@ -101,7 +101,7 @@ class CalStorageDatabase {
    * @param {nsIURI} uri
    * @param {string} calendarId
    *
-   * @return {CalStorageDatabase}
+   * @returns {CalStorageDatabase}
    */
   static connect(uri, calendarId) {
     if (uri.schemeIs("file")) {
@@ -212,7 +212,7 @@ class CalStorageDatabase {
    * Executes one or more SQL statemets.
    *
    * @param {mozIStorageAsyncStatement|mozIStorageAsyncStatement[]} aStmts
-   * @param {function} aCallback
+   * @param {Function} aCallback
    */
   executeAsync(aStmts, aCallback) {
     if (!Array.isArray(aStmts)) {

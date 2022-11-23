@@ -17,7 +17,7 @@ var gInvitationsManager = null;
 /**
  * Return a cached instance of the invitations manager
  *
- * @return      The invitations manager instance.
+ * @returns The invitations manager instance.
  */
 function getInvitationsManager() {
   if (!gInvitationsManager) {
@@ -78,7 +78,7 @@ function tearDownInvitationsManager() {
  *
  * XXX do we really need this to be an instance?
  *
- * @constructor
+ * @class
  */
 function InvitationsManager() {
   this.mItemList = [];
@@ -166,7 +166,7 @@ InvitationsManager.prototype = {
    * Retrieve invitations from all calendars. Notify all passed
    * operation listeners.
    *
-   * @return {ReadableStream<calIItemBase>}
+   * @returns {ReadableStream<calIItemBase>}
    */
   getInvitations() {
     this.updateStartDate();
@@ -289,7 +289,7 @@ InvitationsManager.prototype = {
    * XXXdbo       Please document these correctly.
    *
    * @param item      The item to look for.
-   * @return          A boolean value indicating if the item was found.
+   * @returns A boolean value indicating if the item was found.
    */
   hasItem(item) {
     let hid = item.hashId;
@@ -341,7 +341,7 @@ InvitationsManager.prototype = {
    * Helper function to create a start date to search from. This date is the
    * current time with hour/minute/second set to zero.
    *
-   * @return      Potential start date.
+   * @returns Potential start date.
    */
   getStartDate() {
     let date = cal.dtz.now();
@@ -373,7 +373,7 @@ InvitationsManager.prototype = {
    * invitation.
    *
    * @param item      The item to check
-   * @return          A boolean indicating if the item is a valid invitation.
+   * @returns A boolean indicating if the item is a valid invitation.
    */
   validateItem(item) {
     if (item.calendar instanceof Ci.calISchedulingSupport && !item.calendar.isInvitation(item)) {

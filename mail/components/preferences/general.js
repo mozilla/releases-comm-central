@@ -695,6 +695,7 @@ var gGeneralPane = {
 
   /**
    * Look up OpenSearch Description URL.
+   *
    * @param url - the url to use as basis for discovery
    */
   async lookupOpenSearch(url) {
@@ -1131,7 +1132,7 @@ var gGeneralPane = {
    * Bug 1693576), rather than maintaining a hardcoded list of RTL locales.
    *
    * @param {string} locale
-   * @return {"ltr" | "rtl"}
+   * @returns {"ltr" | "rtl"}
    */
   getLocaleDirection(locale) {
     if (
@@ -1864,7 +1865,7 @@ var gGeneralPane = {
    * object.
    *
    * @param aHandlerInfo {nsIHandlerInfo} the type to get the extensions for.
-   * @return {string} the extensions for the type
+   * @returns {string} the extensions for the type
    */
   _typeDetails(aHandlerInfo) {
     let exts = [];
@@ -1899,8 +1900,9 @@ var gGeneralPane = {
 
   /**
    * Whether or not the given handler app is valid.
+   *
    * @param aHandlerApp {nsIHandlerApp} the handler app in question
-   * @return {boolean} whether or not it's valid
+   * @returns {boolean} whether or not it's valid
    */
   isValidHandlerApp(aHandlerApp) {
     if (!aHandlerApp) {

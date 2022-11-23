@@ -103,7 +103,7 @@ function validProtocolsExist() {
  * This takes the specified keyservers and adds the relevant protocol and port.
  * When no specific protocol is defined by the user, 2 URIs will be built, for hkps and hkp.
  *
- * @return array of all URIs to try refreshing keys over
+ * @returns array of all URIs to try refreshing keys over
  */
 function buildKeyserverUris() {
   const uris = getUserDefinedKeyserverURIs()
@@ -128,7 +128,7 @@ function buildKeyserverUris() {
  * - may include a protocol from hkps, hkp or ldap
  * - may include the port
  *
- * @return true if keyservers exist and are valid, false otherwise.
+ * @returns true if keyservers exist and are valid, false otherwise.
  */
 function validKeyserversExist() {
   return (

@@ -212,7 +212,7 @@
       /**
        * Data for the rows in the DOM.
        *
-       * @typedef {Object} TreeRowData
+       * @typedef {object} TreeRowData
        * @property {HTMLLIElement} row - The row item.
        * @property {HTMLLIElement[]} ancestors - The ancestors of the row,
        *   ordered closest to furthest away.
@@ -397,7 +397,7 @@
        * Clamps `index` to a value between 0 and `rowCount - 1`.
        *
        * @param {integer} index
-       * @return {integer}
+       * @returns {integer}
        */
       _clampIndex(index) {
         if (index >= this.rowCount) {
@@ -422,7 +422,7 @@
        * Returns the row element at `index` or null if `index` is out of range.
        *
        * @param {integer} index
-       * @return {HTMLLIElement?}
+       * @returns {HTMLLIElement?}
        */
       getRowAtIndex(index) {
         return this.rows[index];
@@ -1412,7 +1412,7 @@
      * Clamps `index` to a value between 0 and `rowCount - 1`.
      *
      * @param {integer} index
-     * @return {integer}
+     * @returns {integer}
      */
     _clampIndex(index) {
       if (!this._view.rowCount) {
@@ -1455,7 +1455,7 @@
      * Returns the row element at `index` or null if `index` is out of range.
      *
      * @param {integer} index
-     * @return {HTMLLIElement}
+     * @returns {HTMLLIElement}
      */
     getRowAtIndex(index) {
       return this._rows.get(index) ?? null;

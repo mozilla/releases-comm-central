@@ -181,7 +181,7 @@ SearchIntegration = {
   /**
    * Add necessary hooks to Windows
    *
-   * @return false if registration did not succeed, because the elevation
+   * @returns false if registration did not succeed, because the elevation
    * request was denied
    */
   register() {
@@ -212,7 +212,7 @@ SearchIntegration = {
    * Remove integration from Windows. The only thing removed is the directory
    * from the index list. This will ask for elevation.
    *
-   * @return false if deregistration did not succeed, because the elevation
+   * @returns false if deregistration did not succeed, because the elevation
    * request was denied
    */
   deregister() {

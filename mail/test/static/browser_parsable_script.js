@@ -44,7 +44,7 @@ init();
  * objects defined in kWhitelist
  *
  * @param uri the uri to check against the whitelist
- * @return true if the uri should be skipped, false otherwise.
+ * @returns true if the uri should be skipped, false otherwise.
  */
 function uriIsWhiteListed(uri) {
   for (let whitelistItem of kWhitelist) {
@@ -59,7 +59,7 @@ function uriIsWhiteListed(uri) {
  * Check if a URI should be parsed as an ES module.
  *
  * @param uri the uri to check against the ES module list
- * @return true if the uri should be parsed as a module, otherwise parse it as a script.
+ * @returns true if the uri should be parsed as a module, otherwise parse it as a script.
  */
 function uriIsESModule(uri) {
   for (let whitelistItem of kESModuleList) {

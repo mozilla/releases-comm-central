@@ -13,7 +13,7 @@
    * expansion twisty for groups such as "Conversations",
    * "Online Contacts" and "Offline Contacts".
    *
-   * @extends {MozElements.MozRichlistitem}
+   * @augments {MozElements.MozRichlistitem}
    */
   class MozChatGroupRichlistitem extends MozElements.MozRichlistitem {
     static get inheritedAttributes() {

@@ -26,6 +26,7 @@ XPCOMUtils.defineLazyServiceGetters(lazy, {
 
 /**
  * Get an imgIContainer instance from a canvas element.
+ *
  * @param {HTMLCanvasElement} canvas - The canvas element.
  * @param {number} width - The width of the canvas to use.
  * @param {number} height - The height of the canvas to use.
@@ -66,6 +67,7 @@ function getCanvasAsImgContainer(canvas, width, height) {
 
 /**
  * Draw text centered in the middle of a CanvasRenderingContext2D.
+ *
  * @param {CanvasRenderingContext2D} ctx - The canvas context to operate on.
  * @param {string} text - The text to draw.
  */
@@ -100,6 +102,7 @@ function drawUnreadCountText(cxt, text) {
 
 /**
  * Create a flat badge, as is the Windows 8/10 style.
+ *
  * @param {HTMLCanvasElement} canvas - The canvas element to draw the badge.
  * @param {string} text - The text to draw in the badge.
  */
@@ -193,6 +196,7 @@ var WinUnreadBadge = {
 
   /**
    * Update the unread badge.
+   *
    * @param {number} unreadCount - Unread message count.
    * @param {number} unreadTooltip - Unread message count tooltip.
    */

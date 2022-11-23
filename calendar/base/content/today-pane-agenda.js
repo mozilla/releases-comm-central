@@ -218,7 +218,7 @@
      *
      * @param {AgendaListItem} a
      * @param {AgendaListItem} b
-     * @return {number}
+     * @returns {number}
      */
     _compareListItems(a, b) {
       let cmp = a.sortValue - b.sortValue;
@@ -232,7 +232,7 @@
     /**
      * Returns the calendar item of the selected row.
      *
-     * @return {calIEvent}
+     * @returns {calIEvent}
      */
     get selectedItem() {
       return this.getRowAtIndex(this.selectedIndex)?.item;

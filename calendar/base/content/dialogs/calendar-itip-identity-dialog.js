@@ -12,7 +12,7 @@ var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"
  */
 
 /**
- * @typdef {Object} CalendarItipIdentityDialogArgs
+ * @typdef {object} CalendarItipIdentityDialogArgs
  * @property {nsIMsgIdentity[]} identities - List of identities to select from.
  * @property {number} responseMode         - One of the response mode constants
  *                                           from calIItipItem indicating the

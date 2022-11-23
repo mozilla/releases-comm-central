@@ -118,7 +118,7 @@ var GlodaCollectionManager = {
    *     likely want to pass false if you are only updating in-memory
    *     representations rather than performing a new query.
    *
-   * @return [The number that were found, the number that were not found,
+   * @returns [The number that were found, the number that were not found,
    *          a dictionary whose keys are the ids of noun instances that
    *          were not found.]
    */
@@ -479,7 +479,7 @@ var GlodaCollectionManager = {
  *  the query, or existing objects have experienced a change in attributes that
  *  does not affect their ability to be present (but the listener may care about
  *  because it is exposing those attributes).
- * @constructor
+ * @class
  */
 function GlodaCollection(
   aNounDef,
@@ -685,7 +685,8 @@ GlodaCollection.prototype = {
 
 /**
  * Create an LRU cache collection for the given noun with the given size.
- * @constructor
+ *
+ * @class
  */
 function GlodaLRUCacheCollection(aNounDef, aCacheSize) {
   GlodaCollection.call(this, aNounDef, null, null, null);

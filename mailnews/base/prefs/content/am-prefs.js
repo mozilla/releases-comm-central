@@ -60,7 +60,7 @@ function substPrefTokens(aStr, aElement) {
  *
  * @param aElement  a xul element with the pref related attributes
  *                 (pref, preftype, prefstring)
- * @return  whether the prefstring specified in that element is
+ * @returns whether the prefstring specified in that element is
  *          locked (true/false).
  *          If it does not have a valid prefstring, a false is returned.
  */

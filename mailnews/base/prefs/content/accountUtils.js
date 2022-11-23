@@ -72,7 +72,7 @@ function showMailIntegrationDialog() {
 /**
  * Check that an account exists which requires Local Folders.
  *
- * @returns {Boolean} - true if at least 1 account exists that requires
+ * @returns {boolean} - true if at least 1 account exists that requires
  *                      Local Folders, else false.
  */
 function requireLocalFoldersAccount() {
@@ -272,7 +272,7 @@ function openAccountSetupTab() {
  * Open the account setup tab and switch to the success view to show the newly
  * created account, or show an error if the account wasn't created.
  *
- * @param {Object} account - A newly created account.
+ * @param {object} account - A newly created account.
  * @param {string} name - The account name defined in the provider's website.
  * @param {string} email - The newly created email address.
  */

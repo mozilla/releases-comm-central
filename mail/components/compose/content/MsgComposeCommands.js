@@ -133,6 +133,7 @@ var gAttachmentBucket;
 var gAttachmentCounter;
 /**
  * typedef {Object} FocusArea
+ *
  * @property {Element} root - The root of a given area of the UI.
  * @property {moveFocusWithin} focus - A method to move the focus within the
  *   root.
@@ -142,7 +143,7 @@ var gAttachmentCounter;
  *
  * @param {Element} root - The element to move the focus within.
  *
- * @return {boolean} - Whether the focus was successfully moved to within the
+ * @returns {boolean} - Whether the focus was successfully moved to within the
  *   given element.
  */
 /**
@@ -413,7 +414,7 @@ XPCOMUtils.defineLazyGetter(this, "gComposeNotification", () => {
  *  @param {HTMLElement} element - The source element whose sibling to look for.
  *  @param {string} [selector] - The CSS query selector to match.
  *
- *  @return {(HTMLElement|null)} - The first matching sibling element, or null.
+ *  @returns {(HTMLElement|null)} - The first matching sibling element, or null.
  */
 function getNextSibling(element, selector) {
   let sibling = element.nextElementSibling;
@@ -438,7 +439,7 @@ function getNextSibling(element, selector) {
  *  @param {HTMLElement} element - The source element whose sibling to look for.
  *  @param {string} [selector] - The CSS query selector to match.
  *
- *  @return {(HTMLElement|null)} - The first matching sibling element, or null.
+ *  @returns {(HTMLElement|null)} - The first matching sibling element, or null.
  */
 function getPreviousSibling(element, selector) {
   let sibling = element.previousElementSibling;
@@ -461,7 +462,7 @@ function getPreviousSibling(element, selector) {
  * Get a pretty, human-readable shortcut key string from a given <key> id.
  *
  * @param aKeyId   the ID of a <key> element
- * @return string  pretty, human-readable shortcut key string from the <key>
+ * @returns string  pretty, human-readable shortcut key string from the <key>
  */
 function getPrettyKey(aKeyId) {
   return ShortcutUtils.prettifyShortcut(document.getElementById(aKeyId));
@@ -2736,8 +2737,8 @@ function attachToCloud(event) {
 /**
  * Attach a file that has already been uploaded to a cloud provider.
  *
- * @param {Object} upload - the cloudFileUpload of the already uploaded file
- * @param {Object} account - the cloudFileAccount of the already uploaded file
+ * @param {object} upload - the cloudFileUpload of the already uploaded file
+ * @param {object} account - the cloudFileAccount of the already uploaded file
  */
 async function attachToCloudRepeat(upload, account) {
   gMsgCompose.allowRemoteContent = true;
@@ -5570,7 +5571,7 @@ function GetComposeDetails() {
 /**
  * Updates the UI to match newValues.
  *
- * @param {Object} newValues - New values to use. Values that should not change
+ * @param {object} newValues - New values to use. Values that should not change
  *    should be null or not present.
  * @param {string} [newValues.to]
  * @param {string} [newValues.cc]
@@ -7534,7 +7535,7 @@ function AttachFile() {
  * Convert an nsIFile instance into an nsIMsgAttachment.
  *
  * @param file the nsIFile
- * @return an attachment pointing to the file
+ * @returns an attachment pointing to the file
  */
 function FileToAttachment(file) {
   let fileHandler = Services.io
@@ -7617,7 +7618,7 @@ async function messageAttachmentToFile(attachment) {
  * be set.
  *
  * @param {nsIMsgAttachment[]} aAttachments - Objects to add as attachments.
- * @param {Boolean} [aContentChanged=true] - Optional value to assign gContentChanged
+ * @param {boolean} [aContentChanged=true] - Optional value to assign gContentChanged
  *   after adding attachments.
  */
 async function AddAttachments(aAttachments, aContentChanged = true) {
@@ -7765,7 +7766,7 @@ async function AddAttachments(aAttachments, aContentChanged = true) {
  * @param aSelectedOnly {boolean}: true: return array of selected items only.
  *                                 false (default): return array of all items.
  *
- * @return {array} an array of (all | selected) listItem elements in
+ * @returns {Array} an array of (all | selected) listItem elements in
  *                 attachmentBucket listbox, "non-live" and sorted by their index
  *                 in the list; [] if there are (no | no selected) attachments.
  */
@@ -7814,7 +7815,7 @@ function attachmentsGetSortedArray(aAscending = true, aSelectedOnly = false) {
  *
  * @param aAscending {boolean}: true (default): sort return array ascending
  *                              false         : sort return array descending
- * @return {array} an array of selected listitem elements in attachmentBucket
+ * @returns {Array} an array of selected listitem elements in attachmentBucket
  *                 listbox, "non-live" and sorted by their index in the list;
  *                 [] if no attachments selected
  */
@@ -7826,11 +7827,11 @@ function attachmentsSelectionGetSortedArray(aAscending = true) {
  * Return true if the selected attachment items are a coherent block in the list,
  * otherwise false.
  *
- * @param aListPosition (optional)  "top"   : Return true only if the block is
+ * @param aListPosition (optional) - "top"   : Return true only if the block is
  *                                            at the top of the list.
  *                                  "bottom": Return true only if the block is
  *                                            at the bottom of the list.
- * @return {boolean} true : The selected attachment items are a coherent block
+ * @returns {boolean} true : The selected attachment items are a coherent block
  *                          (at the list edge if/as specified by 'aListPosition'),
  *                          or only 1 item selected.
  *                   false: The selected attachment items are NOT a coherent block
@@ -7898,7 +7899,7 @@ function AttachPage() {
  * Check if the given attachment already exists in the attachment bucket.
  *
  * @param nsIMsgAttachment - the attachment to check
- * @return true if the attachment is already attached
+ * @returns true if the attachment is already attached
  */
 function DuplicateFileAlreadyAttached(attachment) {
   for (let item of gAttachmentBucket.itemChildren) {
@@ -8468,7 +8469,7 @@ function showReorderAttachmentsPanel() {
  * items by their names. We don't check if selected items form a coherent block
  * or not; use attachmentsSelectionIsBlock() to check on that.
  *
- * @return {string} "ascending" : Sort order is ascending.
+ * @returns {string} "ascending" : Sort order is ascending.
  *                  "descending": Sort order is descending.
  *                  "equivalent": The names of all selected items are equivalent.
  *                  ""          : There's no sort order, or only 1 item selected,
@@ -8486,7 +8487,7 @@ function attachmentsSelectionGetSortOrder() {
  * @param aSelectedOnly {boolean}: true: return sort order of selected items only.
  *                                 false (default): return sort order of all items.
  *
- * @return {string} "ascending" : Sort order is ascending.
+ * @returns {string} "ascending" : Sort order is ascending.
  *                  "descending": Sort order is descending.
  *                  "equivalent": The names of the items are equivalent.
  *                  ""          : There's no sort order, or no attachments,
@@ -8832,7 +8833,7 @@ nsAttachmentOpener.prototype = {
  * Determine the sending format depending on the selected format, or the content
  * of the message body.
  *
- * @return {nsIMsgCompSendFormat} The determined send format: either PlainText,
+ * @returns {nsIMsgCompSendFormat} The determined send format: either PlainText,
  *   HTML or Both (never Auto or Unset).
  */
 function determineSendFormat() {
@@ -9279,7 +9280,7 @@ var envelopeDragObserver = {
    * list items).
    *
    * @param {Event} event - The drag-and-drop event being performed.
-   * @return {attachmentitem|string} - the adjusted drop target:
+   * @returns {attachmentitem|string} - the adjusted drop target:
    *   - an attachmentitem node for inserting *before*
    *   - "none" if this isn't a valid insertion point
    *   - "afterLastItem" for appending at the bottom of the list.
@@ -9845,7 +9846,7 @@ var envelopeDragObserver = {
    *
    * @param {DataTransfer} dataTransfer - The dataTransfer object from the drag
    *   or drop event.
-   * @return {boolean} True if at least one file is not an image.
+   * @returns {boolean} True if at least one file is not an image.
    */
   isNotDraggingOnlyImages(dataTransfer) {
     for (let file of dataTransfer.files) {
@@ -9976,7 +9977,7 @@ function DisplaySaveFolderDlg(folderURI) {
  *
  * Note, this is used as a {@link moveFocusWithin} method.
  *
- * @return {boolean} - Whether the peopleSearchInput was focused.
+ * @returns {boolean} - Whether the peopleSearchInput was focused.
  */
 function focusContactsSidebarSearchInput() {
   if (document.getElementById("contactsSplitter").isCollapsed) {
@@ -9997,7 +9998,7 @@ function focusContactsSidebarSearchInput() {
  *
  * Note, this is used as a {@link moveFocusWithin} method.
  *
- * @return {true} - Always returns true.
+ * @returns {true} - Always returns true.
  */
 function focusMsgIdentity() {
   document.getElementById("msgIdentity").focus();
@@ -10011,7 +10012,7 @@ function focusMsgIdentity() {
  *
  * @param {Element} row - The address row to focus.
  *
- * @return {boolean} - Whether the input was focused.
+ * @returns {boolean} - Whether the input was focused.
  */
 function focusAddressRowInput(row) {
   if (row.classList.contains("hidden")) {
@@ -10026,7 +10027,7 @@ function focusAddressRowInput(row) {
  *
  * Note, this is used as a {@link moveFocusWithin} method.
  *
- * @return {true} - Always returns true.
+ * @returns {true} - Always returns true.
  */
 function focusSubjectInput() {
   document.getElementById("msgSubject").focus();
@@ -10038,7 +10039,7 @@ function focusSubjectInput() {
  *
  * Note, this is used as a {@link moveFocusWithin} method.
  *
- * @return {true} - Always returns true.
+ * @returns {true} - Always returns true.
  */
 function focusMsgBody() {
   // window.content.focus() fails to blur the currently focused element
@@ -10055,7 +10056,7 @@ function focusMsgBody() {
  *
  * @param {Element} attachmentArea - The attachment container.
  *
- * @return {boolean} - Whether the attachment bucket was focused.
+ * @returns {boolean} - Whether the attachment bucket was focused.
  */
 function focusAttachmentBucket(attachmentArea) {
   if (
@@ -10079,7 +10080,7 @@ function focusAttachmentBucket(attachmentArea) {
  *
  * Note, this is used as a {@link moveFocusWithin} method.
  *
- * @return {boolean} - Whether a notification received focused.
+ * @returns {boolean} - Whether a notification received focused.
  */
 function focusNotification() {
   let notification = gComposeNotification.allNotifications[0];
@@ -10103,7 +10104,7 @@ function focusNotification() {
  *
  * @param {Element} attachmentArea - The status bar.
  *
- * @return {boolean} - Whether a status bar descendant received focused.
+ * @returns {boolean} - Whether a status bar descendant received focused.
  */
 function focusStatusBar(statusBar) {
   let button = statusBar.querySelector("button:not([hidden])");
@@ -10366,7 +10367,7 @@ var gAttachmentNotifier = {
    *
    * @param async  Whether we should run the regex checker asynchronously or not.
    *
-   * @return  If async is true, attachmentWorker.message is called with the array
+   * @returns If async is true, attachmentWorker.message is called with the array
    *          of found keywords and this function returns null.
    *          If it is false, the array is returned from this function immediately.
    */
@@ -10511,7 +10512,7 @@ var gAttachmentNotifier = {
  *
  * @param aURL    the URL from which to remove the query part
  * @param aQuery  the query part to remove
- * @return        the URL with the query part removed
+ * @returns the URL with the query part removed
  */
 function removeQueryPart(aURL, aQuery) {
   // Quick pre-check.
@@ -11000,8 +11001,9 @@ function onBlockedContentOptionsShowing(aEvent) {
 
 /**
  * Handle clicking the "Load <url>" in the blocked content notification bar.
- * @param {String} aURL - the URL that was unblocked
- * @param {Node} aNode  - the node holding as value the URLs of the blocked
+ *
+ * @param {string} aURL - the URL that was unblocked
+ * @param {Node} aNode - the node holding as value the URLs of the blocked
  *                        resources in the message (space separated).
  */
 function onUnblockResource(aURL, aNode) {
@@ -11030,9 +11032,9 @@ function onUnblockResource(aURL, aNode) {
  * Convert the blocked content to a data URL and swap the src to that for the
  * elements that were using it.
  *
- * @param {String}  aURL - (necko) URL to unblock
+ * @param {string}  aURL - (necko) URL to unblock
  * @param {Bool}    aReturnDataURL - return data: URL instead of processing image
- * @return {String} the image as data: URL.
+ * @returns {string} the image as data: URL.
  * @throw Error()   if reading the data failed
  */
 function loadBlockedImage(aURL, aReturnDataURL = false) {

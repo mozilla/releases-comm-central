@@ -52,6 +52,7 @@ var gDeferredAccounts = [];
 var gOriginalOffline;
 /**
  * Place account name in migration dialog modal.
+ *
  * @param {nsIMsgIncomingServer} aServer - account server.
  */
 function placeAccountName(aServer) {
@@ -210,8 +211,9 @@ function placeAccountName(aServer) {
 
 /**
  * Start the conversion process.
- * @param {String} aSelectedStoreType - mailstore type selected by user.
- * @param {Object} aResponse - response from the migration dialog modal.
+ *
+ * @param {string} aSelectedStoreType - mailstore type selected by user.
+ * @param {object} aResponse - response from the migration dialog modal.
  */
 function startContinue(aSelectedStoreType, aResponse) {
   gResponse = aResponse;
@@ -254,7 +256,8 @@ function startContinue(aSelectedStoreType, aResponse) {
 
   /**
    * Called when promise returned by convertMailStoreTo() is rejected.
-   * @param {String} aReason - error because of which the promise was rejected.
+   *
+   * @param {string} aReason - error because of which the promise was rejected.
    */
   function promiseRejected(aReason) {
     log.error("Conversion to '" + aSelectedStoreType + "' failed: " + aReason);
@@ -280,7 +283,8 @@ function startContinue(aSelectedStoreType, aResponse) {
 
   /**
    * Called when promise returned by convertMailStoreTo() is resolved.
-   * @param {String} aVal - path of the new account root folder with which the
+   *
+   * @param {string} aVal - path of the new account root folder with which the
    * promise returned by convertMailStoreTo() is resolved.
    */
   function promiseResolved(aVal) {
@@ -305,6 +309,7 @@ function startContinue(aSelectedStoreType, aResponse) {
 
   /**
    * Check whether an mbox folder can be compacted or not.
+   *
    * @param {nsIMsgFolder} aFolder - mbox folder that is to be checked.
    */
   function canCompact(aFolder) {
@@ -367,7 +372,8 @@ function startContinue(aSelectedStoreType, aResponse) {
 
 /**
  * Cancel the conversion.
- * @param {Object} aResponse - response param from the migration dialog modal.
+ *
+ * @param {object} aResponse - response param from the migration dialog modal.
  */
 function cancelConversion(aResponse) {
   gResponse = aResponse;

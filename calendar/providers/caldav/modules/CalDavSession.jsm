@@ -27,8 +27,8 @@ class CalDavGoogleOAuth extends OAuth2 {
   /**
    * Constructs a new Google OAuth authentication provider
    *
-   * @param {String} sessionId    The session id, used in the password manager
-   * @param {String} name         The user-readable description of this session
+   * @param {string} sessionId - The session id, used in the password manager
+   * @param {string} name - The user-readable description of this session
    */
   constructor(sessionId, name) {
     /* eslint-disable no-undef */
@@ -101,7 +101,8 @@ class CalDavGoogleOAuth extends OAuth2 {
 
   /**
    * Saves the refresh token in the password manager
-   * @param {String} aVal   The value to set
+   *
+   * @param {string} aVal - The value to set
    */
   set refreshToken(aVal) {
     try {
@@ -126,7 +127,7 @@ class CalDavGoogleOAuth extends OAuth2 {
    * password prompt will show just the buttons and possibly hang. If we postpone until the window
    * is loaded, all is well.
    *
-   * @return {Promise}    A promise resolved without value when the window is loaded
+   * @returns {Promise} A promise resolved without value when the window is loaded
    */
   waitForCalendarWindow() {
     return new Promise(resolve => {
@@ -147,9 +148,9 @@ class CalDavGoogleOAuth extends OAuth2 {
    * Promisified version of |connect|, using all means necessary to gracefully display the
    * authentication prompt.
    *
-   * @param {Boolean} aWithUI       If UI should be shown for authentication
-   * @param {Boolean} aRefresh      Force refresh the token TODO default false
-   * @return {Promise}              A promise resolved when the OAuth process is completed
+   * @param {boolean} aWithUI - If UI should be shown for authentication
+   * @param {boolean} aRefresh - Force refresh the token TODO default false
+   * @returns {Promise} A promise resolved when the OAuth process is completed
    */
   promiseConnect(aWithUI = true, aRefresh = true) {
     return this.waitForCalendarWindow().then(() => {
@@ -191,7 +192,7 @@ class CalDavGoogleOAuth extends OAuth2 {
   /**
    * Prepare the given channel for an OAuth request
    *
-   * @param {nsIChannel} aChannel     The channel to prepare
+   * @param {nsIChannel} aChannel - The channel to prepare
    */
   async prepareRequest(aChannel) {
     if (!this.accessToken || this.tokenExpired) {
@@ -207,8 +208,8 @@ class CalDavGoogleOAuth extends OAuth2 {
   /**
    * Prepare the redirect, copying the auth header to the new channel
    *
-   * @param {nsIChannel} aOldChannel      The old channel that is being redirected
-   * @param {nsIChannel} aNewChannel      The new channel to prepare
+   * @param {nsIChannel} aOldChannel - The old channel that is being redirected
+   * @param {nsIChannel} aNewChannel - The new channel to prepare
    */
   async prepareRedirect(aOldChannel, aNewChannel) {
     try {
@@ -228,8 +229,8 @@ class CalDavGoogleOAuth extends OAuth2 {
   /**
    * Check for OAuth auth errors and restart the request without a token if necessary
    *
-   * @param {CalDavResponseBase} aResponse    The response to inspect for completion
-   * @return {Promise}                        A promise resolved when complete, with
+   * @param {CalDavResponseBase} aResponse - The response to inspect for completion
+   * @returns {Promise} A promise resolved when complete, with
    *                                            CalDavSession.RESTART_REQUEST or null
    */
   async completeRequest(aResponse) {
@@ -294,7 +295,8 @@ class CalDavSession {
 
   /**
    * Constant returned by |completeRequest| when the request should be restarted
-   * @return {Number}    The constant
+   *
+   * @returns {number} The constant
    */
   static get RESTART_REQUEST() {
     return 1;
@@ -303,8 +305,8 @@ class CalDavSession {
   /**
    * Creates a new caldav session
    *
-   * @param {String} aSessionId    The session id, used in the password manager
-   * @param {String} aName         The user-readable description of this session
+   * @param {string} aSessionId - The session id, used in the password manager
+   * @param {string} aName - The user-readable description of this session
    */
   constructor(aSessionId, aName) {
     this.id = aSessionId;
@@ -327,8 +329,8 @@ class CalDavSession {
    * Implement nsIInterfaceRequestor. The base class has no extra interfaces, but a subclass of
    * the session may.
    *
-   * @param {nsIIDRef} aIID       The IID of the interface being requested
-   * @return {?*}                 Either this object QI'd to the IID, or null.
+   * @param {nsIIDRef} aIID - The IID of the interface being requested
+   * @returns {?*} Either this object QI'd to the IID, or null.
    *                                Components.returnCode is set accordingly.
    */
   getInterface(aIID) {
@@ -347,10 +349,10 @@ class CalDavSession {
    * Calls the auth adapter for the given host in case it exists. This allows delegating auth
    * preparation based on the host, e.g. for OAuth.
    *
-   * @param {String} aHost        The host to check the auth adapter for
-   * @param {String} aMethod      The method to call
-   * @param {...*} aArgs          Remaining args specific to the adapted method
-   * @return {*}                  Return value specific to the adapter method
+   * @param {string} aHost - The host to check the auth adapter for
+   * @param {string} aMethod - The method to call
+   * @param {...*} aArgs - Remaining args specific to the adapted method
+   * @returns {*} Return value specific to the adapter method
    */
   async _callAdapter(aHost, aMethod, ...aArgs) {
     let adapter = this.authAdapters[aHost] || null;
@@ -363,8 +365,8 @@ class CalDavSession {
   /**
    * Prepare the channel for a request, e.g. setting custom authentication headers
    *
-   * @param {nsIChannel} aChannel     The channel to prepare
-   * @return {Promise}                A promise resolved when the preparations are complete
+   * @param {nsIChannel} aChannel - The channel to prepare
+   * @returns {Promise} A promise resolved when the preparations are complete
    */
   async prepareRequest(aChannel) {
     return this._callAdapter(aChannel.URI.host, "prepareRequest", aChannel);
@@ -373,9 +375,9 @@ class CalDavSession {
   /**
    * Prepare the given new channel for a redirect, e.g. copying headers.
    *
-   * @param {nsIChannel} aOldChannel      The old channel that is being redirected
-   * @param {nsIChannel} aNewChannel      The new channel to prepare
-   * @return {Promise}                    A promise resolved when the preparations are complete
+   * @param {nsIChannel} aOldChannel - The old channel that is being redirected
+   * @param {nsIChannel} aNewChannel - The new channel to prepare
+   * @returns {Promise} A promise resolved when the preparations are complete
    */
   async prepareRedirect(aOldChannel, aNewChannel) {
     return this._callAdapter(aNewChannel.URI.host, "prepareRedirect", aOldChannel, aNewChannel);
@@ -385,8 +387,8 @@ class CalDavSession {
    * Complete the request based on the results from the response. Allows restarting the session if
    * |CalDavSession.RESTART_REQUEST| is returned.
    *
-   * @param {CalDavResponseBase} aResponse    The response to inspect for completion
-   * @return {Promise}                        A promise resolved when complete, with
+   * @param {CalDavResponseBase} aResponse - The response to inspect for completion
+   * @returns {Promise} A promise resolved when complete, with
    *                                            CalDavSession.RESTART_REQUEST or null
    */
   async completeRequest(aResponse) {
@@ -413,9 +415,9 @@ class CalDavDetectionSession extends CalDavSession {
   /**
    * Create a new caldav detection session.
    *
-   * @param {string} aUserName        The username for the session.
-   * @param {string} aPassword        The password for the session.
-   * @param {boolean} aSavePassword   Whether to save the password.
+   * @param {string} aUserName - The username for the session.
+   * @param {string} aPassword - The password for the session.
+   * @param {boolean} aSavePassword - Whether to save the password.
    */
   constructor(aUserName, aPassword, aSavePassword) {
     super(aUserName, aUserName);
@@ -426,7 +428,7 @@ class CalDavDetectionSession extends CalDavSession {
   /**
    * Returns a plain (non-autodect) caldav session based on this session.
    *
-   * @return {CalDavSession}  A caldav session.
+   * @returns {CalDavSession} A caldav session.
    */
   toBaseSession() {
     return new CalDavSession(this.id, this.name);

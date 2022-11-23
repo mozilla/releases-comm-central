@@ -66,8 +66,8 @@ function getDataUrl(file) {
  * Returns the image type of the given contentType string, or throws if the
  * contentType is not an image type supported by the address book.
  *
- * @param {String} contentType - The contentType of a photo.
- * @returns {String} - Either "png" or "jpeg". Throws otherwise.
+ * @param {string} contentType - The contentType of a photo.
+ * @returns {string} - Either "png" or "jpeg". Throws otherwise.
  */
 function getImageType(contentType) {
   let typeParts = contentType.toLowerCase().split("/");
@@ -286,6 +286,7 @@ function addProperties(card, updateProperties, originalProperties) {
 
 /**
  * Address book that supports finding cards only for a search (like LDAP).
+ *
  * @implements {nsIAbDirectory}
  */
 class ExtSearchBook extends AddrBookDirectory {

@@ -10,6 +10,7 @@ const { LDAPListenerBase } = ChromeUtils.import(
 
 /**
  * Convert a nsIAbBooleanExpression to a filter string.
+ *
  * @param {nsIAbLDAPAttributeMap} attrMap - A mapping between address book
  *   properties and ldap attributes.
  * @param {nsIAbBooleanExpression} exp - The expression to convert.
@@ -40,6 +41,7 @@ function boolExpressionToFilter(attrMap, exp) {
 
 /**
  * Convert a nsIAbBooleanConditionString to a filter string.
+ *
  * @param {nsIAbLDAPAttributeMap} attrMap - A mapping between addressbook
  *   properties and ldap attributes.
  * @param {nsIAbBooleanConditionString} exp - The expression to convert.
@@ -179,6 +181,7 @@ class LDAPDirectoryQuery extends LDAPListenerBase {
 
   /**
    * Handler of nsILDAPMessage.RES_SEARCH_ENTRY message.
+   *
    * @param {nsILDAPMessage} msg - The received LDAP message.
    */
   _onLDAPSearchEntry(msg) {
@@ -192,6 +195,7 @@ class LDAPDirectoryQuery extends LDAPListenerBase {
 
   /**
    * Handler of nsILDAPMessage.RES_SEARCH_RESULT message.
+   *
    * @param {nsILDAPMessage} msg - The received LDAP message.
    */
   _onLDAPSearchResult(msg) {

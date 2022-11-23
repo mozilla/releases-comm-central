@@ -367,7 +367,7 @@ async function scrollAndHighlight(subcategory, category) {
  * If there is no visible second level header it will return first level header,
  * otherwise return second level header.
  *
- * @returns {Element}  The closest displayed header.
+ * @returns {Element} The closest displayed header.
  */
 function getClosestDisplayedHeader(element) {
   let header = element.closest("groupbox");

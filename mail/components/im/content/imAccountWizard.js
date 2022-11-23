@@ -170,7 +170,7 @@ var accountWizard = {
    *   append the new elements to.
    * @param {string} [aDefaultValue] - The initial value for the username.
    *
-   * @return {HTMLInputElement} - The newly created username input.
+   * @returns {HTMLInputElement} - The newly created username input.
    */
   insertUsernameField(aName, aLabel, grid, aDefaultValue) {
     var label = document.createXULElement("label");

@@ -9,7 +9,7 @@ var { SelectionWidgetController } = ChromeUtils.import(
 /**
  * Data for a selectable item.
  *
- * @typedef {Object} ItemData
+ * @typedef {object} ItemData
  * @property {HTMLElement} element - The DOM node for the item.
  * @property {boolean} selected - Whether the item is selected.
  */
@@ -189,7 +189,7 @@ class TestSelectionWidget extends HTMLElement {
   /**
    * Get the list of selected item's indices.
    *
-   * @return {number[]} - The indices for selected items.
+   * @returns {number[]} - The indices for selected items.
    */
   selectedIndices() {
     let indices = [];

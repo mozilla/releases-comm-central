@@ -37,9 +37,10 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   /**
    * Get the list of all knwn keys (including their secret keys)
+   *
    * @param {Array of String} onlyKeys: [optional] only load data for specified key IDs
    *
-   * @return {Promise<Array of Object>}
+   * @returns {Promise<Array of Object>}
    */
   async getKeys(onlyKeys = null) {
     throw new Error("Not implemented");
@@ -48,10 +49,10 @@ class GnuPGCryptoAPI extends CryptoAPI {
   /**
    * Obtain signatures for a given set of key IDs.
    *
-   * @param {String}  keyId:            space-separated list of key IDs
-   * @param {Boolean} ignoreUnknownUid: if true, filter out unknown signer's UIDs
+   * @param {string}  keyId:            space-separated list of key IDs
+   * @param {boolean} ignoreUnknownUid: if true, filter out unknown signer's UIDs
    *
-   * @return {Promise<Array of Object>} - see extractSignatures()
+   * @returns {Promise<Array of Object>} - see extractSignatures()
    */
   async getKeySignatures(keyId, ignoreUnknownUid = false) {
     lazy.EnigmailLog.DEBUG(`gnupg.js: getKeySignatures: ${keyId}\n`);
@@ -62,9 +63,9 @@ class GnuPGCryptoAPI extends CryptoAPI {
    * Obtain signatures for a given key.
    *
    * @param {KeyObj}  keyObj:           the signatures of this key will be returned
-   * @param {Boolean} ignoreUnknownUid: if true, filter out unknown signer's UIDs
+   * @param {boolean} ignoreUnknownUid: if true, filter out unknown signer's UIDs
    *
-   * @return {Promise<Array of Object>} - see extractSignatures()
+   * @returns {Promise<Array of Object>} - see extractSignatures()
    */
   async getKeyObjSignatures(keyObj, ignoreUnknownUid = false) {
     throw new Error("Not implemented");
@@ -74,12 +75,12 @@ class GnuPGCryptoAPI extends CryptoAPI {
    * Export the minimum key for the public key object:
    * public key, primary user ID, newest encryption subkey
    *
-   * @param {String} fpr:                a single FPR
-   * @param {String} email:              [optional] the email address of the desired user ID.
+   * @param {string} fpr: - a single FPR
+   * @param {string} email: - [optional] the email address of the desired user ID.
    *                                     If the desired user ID cannot be found or is not valid, use the primary UID instead
-   * @param {Array<Number>} subkeyDates: [optional] remove subkeys with specific creation Dates
+   * @param {Array<number>} subkeyDates: [optional] remove subkeys with specific creation Dates
    *
-   * @return {Promise<Object>}:
+   * @returns {Promise<object>}:
    *    - exitCode (0 = success)
    *    - errorMsg (if exitCode != 0)
    *    - keyData: BASE64-encded string of key data
@@ -92,10 +93,10 @@ class GnuPGCryptoAPI extends CryptoAPI {
   /**
    * Export secret key(s) to a file
    *
-   * @param {String}  keyId      Specification by fingerprint or keyID
-   * @param {Boolean} minimalKey  if true, reduce key to minimum required
+   * @param {string}  keyId      Specification by fingerprint or keyID
+   * @param {boolean} minimalKey - if true, reduce key to minimum required
    *
-   * @return {Object}:
+   * @returns {object}:
    *   - {Number} exitCode:  result code (0: OK)
    *   - {String} keyData:   ASCII armored key data material
    *   - {String} errorMsg:  error message in case exitCode !== 0
@@ -107,9 +108,9 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   /**
    *
-   * @param {byte} byteData    The encrypted data
+   * @param {byte} byteData - The encrypted data
    *
-   * @return {String or null} - the name of the attached file
+   * @returns {String or null} - the name of the attached file
    */
 
   async getFileName(byteData) {
@@ -119,10 +120,10 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   /**
    *
-   * @param {Path} filePath    The signed file
-   * @param {Path} sigPath       The signature to verify
+   * @param {Path} filePath - The signed file
+   * @param {Path} sigPath - The signature to verify
    *
-   * @return {Promise<String>} - A message from the verification.
+   * @returns {Promise<string>} - A message from the verification.
    *
    * Use Promise.catch to handle failed verifications.
    * The message will be an error message in this case.
@@ -137,7 +138,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    *
    * @param {Bytes}  encrypted     The encrypted data
    *
-   * @return {Promise<Object>} - Return object with decryptedData and
+   * @returns {Promise<object>} - Return object with decryptedData and
    * status information
    *
    * Use Promise.catch to handle failed decryption.
@@ -151,10 +152,10 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   /**
    *
-   * @param {String} encrypted     The encrypted data
-   * @param {Object} options       Decryption options
+   * @param {string} encrypted - The encrypted data
+   * @param {object} options - Decryption options
    *
-   * @return {Promise<Object>} - Return object with decryptedData and
+   * @returns {Promise<object>} - Return object with decryptedData and
    * status information
    *
    * Use Promise.catch to handle failed decryption.
@@ -168,10 +169,10 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   /**
    *
-   * @param {String} encrypted     The encrypted data
-   * @param {Object} options       Decryption options
+   * @param {string} encrypted - The encrypted data
+   * @param {object} options - Decryption options
    *
-   * @return {Promise<Object>} - Return object with decryptedData and
+   * @returns {Promise<object>} - Return object with decryptedData and
    * status information
    *
    * Use Promise.catch to handle failed decryption.
@@ -195,10 +196,10 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   /**
    *
-   * @param {String} signed        The signed data
-   * @param {Object} options       Decryption options
+   * @param {string} signed - The signed data
+   * @param {object} options - Decryption options
    *
-   * @return {Promise<Object>} - Return object with decryptedData and
+   * @returns {Promise<object>} - Return object with decryptedData and
    * status information
    *
    * Use Promise.catch to handle failed decryption.

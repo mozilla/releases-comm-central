@@ -18,7 +18,7 @@ class CalStorageOfflineModel extends CalStorageModelBase {
    *
    * @param {calIItemBase} item
    *
-   * @return {number}
+   * @returns {number}
    */
   async getItemOfflineFlag(item) {
     let flag = null;

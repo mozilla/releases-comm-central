@@ -28,6 +28,7 @@ function GetNextNMessages(folder) {
 
 /**
  * Figure out the message key from the message uri.
+ *
  * @param uri string defining internal storage
  */
 function GetMsgKeyFromURI(uri) {
@@ -46,8 +47,8 @@ function GetMsgKeyFromURI(uri) {
  * Compose a message.
  *
  * @param type   nsIMsgCompType    Type of composition (new message, reply, draft, etc.)
- * @param format nsIMsgCompFormat  Requested format (plain text, html, default)
- * @param folder nsIMsgFolder      Folder where the original message is stored
+ * @param format nsIMsgCompFormat - Requested format (plain text, html, default)
+ * @param folder nsIMsgFolder - Folder where the original message is stored
  * @param messageArray             Array of messages to process, often only holding one element.
  */
 async function ComposeMessage(type, format, folder, messageArray) {

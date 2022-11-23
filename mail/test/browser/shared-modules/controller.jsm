@@ -52,7 +52,7 @@ var sleep = utils.sleep;
 /**
  * Class to handle menus and context menus
  *
- * @constructor
+ * @class
  * @param {MozMillController} controller
  *        Mozmill controller of the window under test
  * @param {string} menuSelector
@@ -494,6 +494,7 @@ MozMillController.prototype.waitFor = function(
 
 /**
  * Wrapper function to create a new instance of a menu
+ *
  * @see Menu
  */
 MozMillController.prototype.getMenu = function(menuSelector, document) {

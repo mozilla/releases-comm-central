@@ -81,10 +81,10 @@ function sanitizeName(inputID) {
 /**
  * Replace occurrences of placeholder with the given node
  *
- * @param aTextContainer {Node}  DOM node containing the text child
- * @param aTextNode {Node}       Text node containing the text, child of the aTextContainer
- * @param aPlaceholder {String}  String to look for in aTextNode's textContent
- * @param aReplacement {Node}    DOM node to insert instead of the found replacement
+ * @param aTextContainer {Node} - DOM node containing the text child
+ * @param aTextNode {Node} - Text node containing the text, child of the aTextContainer
+ * @param aPlaceholder {String} - String to look for in aTextNode's textContent
+ * @param aReplacement {Node} - DOM node to insert instead of the found replacement
  */
 function insertHTMLReplacement(
   aTextContainer,
@@ -438,7 +438,7 @@ var gAccountProvisioner = {
    * Validate a provider fetched during an API request to be sure we have all
    * the necessary fields to complete a setup process.
    *
-   * @param {Object} provider - The fetched provider.
+   * @param {object} provider - The fetched provider.
    * @returns {boolean} - True if all the fields in the provider match the
    *   required fields.
    */
@@ -474,7 +474,7 @@ var gAccountProvisioner = {
    * Take the fetched providers, create checkboxes, icons and labels, and insert
    * them below the corresponding search input.
    *
-   * @param {?Object} data - The object containing all fetched providers.
+   * @param {?object} data - The object containing all fetched providers.
    */
   populateProvidersLists(data) {
     gAccountSetupLogger.debug("Populating the provider list");
@@ -653,7 +653,7 @@ var gAccountProvisioner = {
   /**
    * Update the UI to show the fetched address data.
    *
-   * @param {Object} data - The fetched data from an email or domain search.
+   * @param {object} data - The fetched data from an email or domain search.
    * @param {boolean} [isDomain=false] - If the fetched data comes from a domain
    *  search form.
    */
@@ -753,8 +753,8 @@ var gAccountProvisioner = {
   /**
    * Create the list item to show the suggested address returned from a search.
    *
-   * @param {Object} address - The address returned from the provider search.
-   * @param {Object} provider - The provider from which the address is
+   * @param {object} address - The address returned from the provider search.
+   * @param {object} provider - The provider from which the address is
    * @param {boolean} [isDomain=false] - If the fetched data comes from a domain
    *  search form.
    *   available.
@@ -826,7 +826,7 @@ var gAccountProvisioner = {
    *
    * @param {string} name - The search value typed by the user.
    * @param {Array} providers - Array of providers to search for.
-   * @returns {Object} - A list of available emails or domains.
+   * @returns {object} - A list of available emails or domains.
    */
   async submitFormRequest(name, providers) {
     // If the focused element is disabled by `updateSearchingState`, focus is

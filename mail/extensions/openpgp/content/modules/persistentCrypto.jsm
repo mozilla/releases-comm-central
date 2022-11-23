@@ -115,11 +115,11 @@ var EnigmailPersistentCrypto = {
    * Copies an email message to a folder, which is a modified copy of an
    * existing message, optionally creating a new message ID.
    *
-   * @param {nsIMsgDBHdr} originalMsgHdr   Header of the original message
-   * @param {string} targetFolderUri       Target folder URI
-   * @param {boolean} deleteOrigMsg        Should the original message be deleted?
-   * @param {string} content               New message content
-   * @param {string} newMessageIdPrefix    If this is non-null, create a new message ID
+   * @param {nsIMsgDBHdr} originalMsgHdr - Header of the original message
+   * @param {string} targetFolderUri - Target folder URI
+   * @param {boolean} deleteOrigMsg - Should the original message be deleted?
+   * @param {string} content - New message content
+   * @param {string} newMessageIdPrefix - If this is non-null, create a new message ID
    *                                       by adding this prefix.
    *
    * @returns {nsMsgKey} Message key of the new message

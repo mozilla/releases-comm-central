@@ -742,7 +742,7 @@
      * Fetches the table cell for the given date, or null if the date isn't displayed.
      *
      * @param {calIDateTime|Date} aDate
-     * @return {HTMLTableCellElement|null}
+     * @returns {HTMLTableCellElement|null}
      */
     getBoxForDate(aDate) {
       return this.dayBoxes.get(this._boxKeyForDate(aDate)) ?? null;

@@ -20,6 +20,7 @@ var kStateAuthenticated = 3;
 
 /**
  * This handler implements the bare minimum required by RFC 2821.
+ *
  * @see RFC 2821
  * If dropOnAuthFailure is set, the server will drop the connection
  * on authentication errors, to simulate servers that do the same.
@@ -139,6 +140,7 @@ class SMTP_RFC2821_handler {
 
   /**
    * AUTH implementations
+   *
    * @see RFC 4954
    */
   authPLAINStart(lineRest) {

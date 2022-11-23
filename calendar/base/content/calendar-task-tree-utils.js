@@ -48,9 +48,9 @@ function addCalendarNames(aEvent) {
  * For each child of an element (for example all menuitems in a menu), if it defines a command
  * set an attribute on the command, otherwise set it on the child node itself.
  *
- * @param aAttribute {string}       The attribute to set.
- * @param aValue {boolean|string}   The value to set.
- * @param aElement {Element}        The parent node.
+ * @param aAttribute {string} - The attribute to set.
+ * @param aValue {boolean|string} - The value to set.
+ * @param aElement {Element} - The parent node.
  */
 function setAttributeOnChildrenOrTheirCommands(aAttribute, aValue, aElement) {
   for (let child of aElement.children) {
@@ -167,7 +167,7 @@ function changeMenuForTask() {
  * Handler function to change the progress of all selected tasks, or of
  * the task loaded in the current tab.
  *
- * @param {short} aProgress         The new progress percentage
+ * @param {short} aProgress - The new progress percentage
  */
 function contextChangeTaskProgress(aProgress) {
   if (gTabmail && gTabmail.currentTabInfo.mode.type == "calendarTask") {
@@ -217,7 +217,7 @@ function contextChangeTaskCalendar(aEvent) {
  * Handler function to change the priority of the selected tasks, or of
  * the task loaded in the current tab.
  *
- * @param {short} aPriority         The priority to set on the task(s)
+ * @param {short} aPriority - The priority to set on the task(s)
  */
 function contextChangeTaskPriority(aPriority) {
   let tabType = gTabmail && gTabmail.currentTabInfo.mode.type;
@@ -242,7 +242,7 @@ function contextChangeTaskPriority(aPriority) {
  * format intentionally instead of a calIDuration object because those
  * objects cannot be serialized for message passing with iframes.)
  *
- * @param {string} aDuration        The duration to postpone in ISO 8601 format
+ * @param {string} aDuration - The duration to postpone in ISO 8601 format
  */
 function contextPostponeTask(aDuration) {
   let duration = cal.createDuration(aDuration);
@@ -294,7 +294,7 @@ function deleteToDoCommand(aDoNotConfirm) {
 /**
  * Gets the currently visible task tree
  *
- * @return    The XUL task tree element.
+ * @returns The XUL task tree element.
  */
 function getTaskTree() {
   if (gCurrentMode == "task") {

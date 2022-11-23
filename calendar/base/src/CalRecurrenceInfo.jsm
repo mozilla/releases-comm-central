@@ -151,7 +151,7 @@ CalRecurrenceInfo.prototype = {
    * Get the item ending date (end date for an event, due date or entry date if available for a task).
    *
    * @param {calIEvent | calITodo} item - The item.
-   * @return {calIDateTime | null} The ending date or null.
+   * @returns {calIDateTime | null} The ending date or null.
    */
   getItemEndingDate(item) {
     if (item.isEvent()) {

@@ -83,7 +83,8 @@
 
   /**
    * MozFacetResultsMessage shows the search results for the string entered in gloda-searchbox.
-   * @extends {HTMLElement}
+   *
+   * @augments {HTMLElement}
    */
   class MozFacetResultsMessage extends HTMLElement {
     connectedCallback() {

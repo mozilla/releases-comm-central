@@ -27,8 +27,8 @@ var EnigmailFixExchangeMsg = {
   /*
    * Fix a broken message from MS-Exchange and replace it with the original message
    *
-   * @param {nsIMsgDBHdr} hdr        Header of the message to fix (= pointer to message)
-   * @param {string} brokenByApp     Type of app that created the message. Currently one of
+   * @param {nsIMsgDBHdr} hdr - Header of the message to fix (= pointer to message)
+   * @param {string} brokenByApp - Type of app that created the message. Currently one of
    *                                 exchange, iPGMail
    * @param {string} [destFolderUri] optional destination Folder URI
    *

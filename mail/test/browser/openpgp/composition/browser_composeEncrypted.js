@@ -42,6 +42,7 @@ let l10n = new Localization(["messenger/openpgp/composeKeyStatus.ftl"]);
 
 /**
  * Closes a window with a <dialog> element by calling the acceptDialog().
+ *
  * @param {Window} win
  */
 async function closeDialog(win) {
