@@ -78,7 +78,7 @@ export function queueFileOperation(aPath, aOperation) {
 export function appendToFile(aPath, aString, aCreate) {
   return queueFileOperation(aPath, async function() {
     await IOUtils.makeDirectory(PathUtils.parent(aPath));
-    const mode = aCreate ? "create" : "append";
+    const mode = aCreate ? "overwrite" : "append";
     try {
       await IOUtils.writeUTF8(aPath, aString, {
         mode,
