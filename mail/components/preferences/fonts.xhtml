@@ -31,113 +31,100 @@
 
     <html:div>
     <html:fieldset>
-      <box style="display: grid; grid-template-columns: auto 1fr auto auto;">
-        <!-- title row -->
+      <!-- title row -->
+      <hbox>
         <hbox align="center" pack="end">
           <label id="fontsTitle" control="selectLangs"
                  data-l10n-id="fonts-language-legend"/>
         </hbox>
-        <hbox align="center">
-          <menulist id="selectLangs"
-                    preference="font.language.group">
-            <menupopup>
-              <menuitem value="ar" data-l10n-id="font-language-group-arabic"/>
-              <menuitem value="x-armn" data-l10n-id="font-language-group-armenian"/>
-              <menuitem value="x-beng" data-l10n-id="font-language-group-bengali"/>
-              <menuitem value="zh-CN" data-l10n-id="font-language-group-simpl-chinese"/>
-              <menuitem value="zh-HK" data-l10n-id="font-language-group-trad-chinese-hk"/>
-              <menuitem value="zh-TW" data-l10n-id="font-language-group-trad-chinese"/>
-              <menuitem value="x-cyrillic" data-l10n-id="font-language-group-cyrillic"/>
-              <menuitem value="x-devanagari" data-l10n-id="font-language-group-devanagari"/>
-              <menuitem value="x-ethi" data-l10n-id="font-language-group-ethiopic"/>
-              <menuitem value="x-geor" data-l10n-id="font-language-group-georgian"/>
-              <menuitem value="el" data-l10n-id="font-language-group-el"/>
-              <menuitem value="x-gujr" data-l10n-id="font-language-group-gujarati"/>
-              <menuitem value="x-guru" data-l10n-id="font-language-group-gurmukhi"/>
-              <menuitem value="he" data-l10n-id="font-language-group-hebrew"/>
-              <menuitem value="ja" data-l10n-id="font-language-group-japanese"/>
-              <menuitem value="x-knda" data-l10n-id="font-language-group-kannada"/>
-              <menuitem value="x-khmr" data-l10n-id="font-language-group-khmer"/>
-              <menuitem value="ko" data-l10n-id="font-language-group-korean"/>
-              <menuitem value="x-western" data-l10n-id="font-language-group-latin"/>
-              <menuitem value="x-mlym" data-l10n-id="font-language-group-malayalam"/>
-              <menuitem value="x-math" data-l10n-id="font-language-group-math"/>
-              <menuitem value="x-orya" data-l10n-id="font-language-group-odia"/>
-              <menuitem value="x-sinh" data-l10n-id="font-language-group-sinhala"/>
-              <menuitem value="x-tamil" data-l10n-id="font-language-group-tamil"/>
-              <menuitem value="x-telu" data-l10n-id="font-language-group-telugu"/>
-              <menuitem value="th" data-l10n-id="font-language-group-thai"/>
-              <menuitem value="x-tibt" data-l10n-id="font-language-group-tibetan"/>
-              <menuitem value="x-cans" data-l10n-id="font-language-group-canadian"/>
-              <menuitem value="x-unicode" data-l10n-id="font-language-group-other"/>
-            </menupopup>
-          </menulist>
-        </hbox>
-        <spacer/>
-        <spacer/>
-        <!-- separator row -->
-        <separator/>
-        <spacer/>
-        <spacer/>
-        <spacer/>
+        <menulist id="selectLangs"
+                  flex="1"
+                  preference="font.language.group">
+          <menupopup>
+            <menuitem value="ar" data-l10n-id="font-language-group-arabic"/>
+            <menuitem value="x-armn" data-l10n-id="font-language-group-armenian"/>
+            <menuitem value="x-beng" data-l10n-id="font-language-group-bengali"/>
+            <menuitem value="zh-CN" data-l10n-id="font-language-group-simpl-chinese"/>
+            <menuitem value="zh-HK" data-l10n-id="font-language-group-trad-chinese-hk"/>
+            <menuitem value="zh-TW" data-l10n-id="font-language-group-trad-chinese"/>
+            <menuitem value="x-cyrillic" data-l10n-id="font-language-group-cyrillic"/>
+            <menuitem value="x-devanagari" data-l10n-id="font-language-group-devanagari"/>
+            <menuitem value="x-ethi" data-l10n-id="font-language-group-ethiopic"/>
+            <menuitem value="x-geor" data-l10n-id="font-language-group-georgian"/>
+            <menuitem value="el" data-l10n-id="font-language-group-el"/>
+            <menuitem value="x-gujr" data-l10n-id="font-language-group-gujarati"/>
+            <menuitem value="x-guru" data-l10n-id="font-language-group-gurmukhi"/>
+            <menuitem value="he" data-l10n-id="font-language-group-hebrew"/>
+            <menuitem value="ja" data-l10n-id="font-language-group-japanese"/>
+            <menuitem value="x-knda" data-l10n-id="font-language-group-kannada"/>
+            <menuitem value="x-khmr" data-l10n-id="font-language-group-khmer"/>
+            <menuitem value="ko" data-l10n-id="font-language-group-korean"/>
+            <menuitem value="x-western" data-l10n-id="font-language-group-latin"/>
+            <menuitem value="x-mlym" data-l10n-id="font-language-group-malayalam"/>
+            <menuitem value="x-math" data-l10n-id="font-language-group-math"/>
+            <menuitem value="x-orya" data-l10n-id="font-language-group-odia"/>
+            <menuitem value="x-sinh" data-l10n-id="font-language-group-sinhala"/>
+            <menuitem value="x-tamil" data-l10n-id="font-language-group-tamil"/>
+            <menuitem value="x-telu" data-l10n-id="font-language-group-telugu"/>
+            <menuitem value="th" data-l10n-id="font-language-group-thai"/>
+            <menuitem value="x-tibt" data-l10n-id="font-language-group-tibetan"/>
+            <menuitem value="x-cans" data-l10n-id="font-language-group-canadian"/>
+            <menuitem value="x-unicode" data-l10n-id="font-language-group-other"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <separator/>
+      <box id="font-chooser-group">
         <!-- proportional row -->
         <hbox align="center" pack="end">
           <label data-l10n-id="fonts-proportional-label"/>
         </hbox>
-        <!-- This <hbox> is needed to position search tooltips correctly. -->
-        <hbox>
-          <menulist id="defaultFontType" flex="1" style="width: 0px;">
-            <menupopup>
-              <menuitem value="serif" data-l10n-id="default-font-serif"/>
-              <menuitem value="sans-serif" data-l10n-id="default-font-sans-serif"/>
-            </menupopup>
-          </menulist>
-        </hbox>
+        <menulist id="defaultFontType">
+          <menupopup>
+            <menuitem value="serif" data-l10n-id="default-font-serif"/>
+            <menuitem value="sans-serif" data-l10n-id="default-font-sans-serif"/>
+          </menupopup>
+        </menulist>
         <hbox align="center" pack="end">
           <label control="sizeVar"
                  data-l10n-id="font-size-proportional-label"
                  class="startSpacing"/>
         </hbox>
-        <!-- This <hbox> is needed to position search tooltips correctly. -->
-        <hbox>
-          <menulist id="sizeVar" delayprefsave="true">
-            <menupopup>
-              <menuitem value="9" label="9"/>
-              <menuitem value="10" label="10"/>
-              <menuitem value="11" label="11"/>
-              <menuitem value="12" label="12"/>
-              <menuitem value="13" label="13"/>
-              <menuitem value="14" label="14"/>
-              <menuitem value="15" label="15"/>
-              <menuitem value="16" label="16"/>
-              <menuitem value="17" label="17"/>
-              <menuitem value="18" label="18"/>
-              <menuitem value="20" label="20"/>
-              <menuitem value="22" label="22"/>
-              <menuitem value="24" label="24"/>
-              <menuitem value="26" label="26"/>
-              <menuitem value="28" label="28"/>
-              <menuitem value="30" label="30"/>
-              <menuitem value="32" label="32"/>
-              <menuitem value="34" label="34"/>
-              <menuitem value="36" label="36"/>
-              <menuitem value="40" label="40"/>
-              <menuitem value="44" label="44"/>
-              <menuitem value="48" label="48"/>
-              <menuitem value="56" label="56"/>
-              <menuitem value="64" label="64"/>
-              <menuitem value="72" label="72"/>
-            </menupopup>
-          </menulist>
-        </hbox>
+        <menulist id="sizeVar" delayprefsave="true">
+          <menupopup>
+            <menuitem value="9" label="9"/>
+            <menuitem value="10" label="10"/>
+            <menuitem value="11" label="11"/>
+            <menuitem value="12" label="12"/>
+            <menuitem value="13" label="13"/>
+            <menuitem value="14" label="14"/>
+            <menuitem value="15" label="15"/>
+            <menuitem value="16" label="16"/>
+            <menuitem value="17" label="17"/>
+            <menuitem value="18" label="18"/>
+            <menuitem value="20" label="20"/>
+            <menuitem value="22" label="22"/>
+            <menuitem value="24" label="24"/>
+            <menuitem value="26" label="26"/>
+            <menuitem value="28" label="28"/>
+            <menuitem value="30" label="30"/>
+            <menuitem value="32" label="32"/>
+            <menuitem value="34" label="34"/>
+            <menuitem value="36" label="36"/>
+            <menuitem value="40" label="40"/>
+            <menuitem value="44" label="44"/>
+            <menuitem value="48" label="48"/>
+            <menuitem value="56" label="56"/>
+            <menuitem value="64" label="64"/>
+            <menuitem value="72" label="72"/>
+          </menupopup>
+        </menulist>
 
         <!-- serif row -->
         <hbox align="center" pack="end">
           <label control="serif" data-l10n-id="font-serif-label"/>
         </hbox>
-        <hbox>
-          <menulist id="serif" flex="1" style="width: 0px;" delayprefsave="true"/>
-        </hbox>
+        <menulist id="serif" delayprefsave="true"/>
         <spacer/>
         <spacer/>
 
@@ -145,9 +132,7 @@
         <hbox align="center" pack="end">
           <label control="sans-serif" data-l10n-id="font-sans-serif-label"/>
         </hbox>
-        <hbox>
-          <menulist id="sans-serif" flex="1" style="width: 0px;" delayprefsave="true"/>
-        </hbox>
+        <menulist id="sans-serif" delayprefsave="true"/>
         <spacer/>
         <spacer/>
 
@@ -155,45 +140,41 @@
         <hbox align="center" pack="end">
           <label control="monospace" data-l10n-id="font-monospace-label"/>
         </hbox>
-        <hbox>
-          <menulist id="monospace" flex="1" style="width: 0px;" crop="right" delayprefsave="true"/>
-        </hbox>
+        <menulist id="monospace" crop="right" delayprefsave="true"/>
         <hbox align="center" pack="end">
           <label control="sizeMono"
                  data-l10n-id="font-size-monospace-label"
                  class="startSpacing"/>
         </hbox>
-        <hbox>
-          <menulist id="sizeMono" delayprefsave="true">
-            <menupopup>
-              <menuitem value="9" label="9"/>
-              <menuitem value="10" label="10"/>
-              <menuitem value="11" label="11"/>
-              <menuitem value="12" label="12"/>
-              <menuitem value="13" label="13"/>
-              <menuitem value="14" label="14"/>
-              <menuitem value="15" label="15"/>
-              <menuitem value="16" label="16"/>
-              <menuitem value="17" label="17"/>
-              <menuitem value="18" label="18"/>
-              <menuitem value="20" label="20"/>
-              <menuitem value="22" label="22"/>
-              <menuitem value="24" label="24"/>
-              <menuitem value="26" label="26"/>
-              <menuitem value="28" label="28"/>
-              <menuitem value="30" label="30"/>
-              <menuitem value="32" label="32"/>
-              <menuitem value="34" label="34"/>
-              <menuitem value="36" label="36"/>
-              <menuitem value="40" label="40"/>
-              <menuitem value="44" label="44"/>
-              <menuitem value="48" label="48"/>
-              <menuitem value="56" label="56"/>
-              <menuitem value="64" label="64"/>
-              <menuitem value="72" label="72"/>
-            </menupopup>
-          </menulist>
-        </hbox>
+        <menulist id="sizeMono" delayprefsave="true">
+          <menupopup>
+            <menuitem value="9" label="9"/>
+            <menuitem value="10" label="10"/>
+            <menuitem value="11" label="11"/>
+            <menuitem value="12" label="12"/>
+            <menuitem value="13" label="13"/>
+            <menuitem value="14" label="14"/>
+            <menuitem value="15" label="15"/>
+            <menuitem value="16" label="16"/>
+            <menuitem value="17" label="17"/>
+            <menuitem value="18" label="18"/>
+            <menuitem value="20" label="20"/>
+            <menuitem value="22" label="22"/>
+            <menuitem value="24" label="24"/>
+            <menuitem value="26" label="26"/>
+            <menuitem value="28" label="28"/>
+            <menuitem value="30" label="30"/>
+            <menuitem value="32" label="32"/>
+            <menuitem value="34" label="34"/>
+            <menuitem value="36" label="36"/>
+            <menuitem value="40" label="40"/>
+            <menuitem value="44" label="44"/>
+            <menuitem value="48" label="48"/>
+            <menuitem value="56" label="56"/>
+            <menuitem value="64" label="64"/>
+            <menuitem value="72" label="72"/>
+          </menupopup>
+        </menulist>
       </box>
 
       <separator class="thin"/>

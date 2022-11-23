@@ -539,8 +539,9 @@ checkbox {
  * Font dialog menulist fixes
  */
 
-#FontsDialog {
-  min-width: 40em;
+#font-chooser-group {
+  display: grid;
+  grid-template-columns: max-content 1fr max-content max-content;
 }
 
 #fontsTitle {
