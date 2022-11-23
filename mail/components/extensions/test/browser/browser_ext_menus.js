@@ -19,9 +19,9 @@ const treeClick = mailTestUtils.treeClick.bind(null, EventUtils, window);
  * Left-click on something and wait for the context menu to appear.
  * For elements in the parent process only.
  *
- * @param {Element} menu     The <menu> that should appear.
- * @param {Element} element  The element to be clicked on.
- * @returns {Promise}        A promise that resolves when the menu appears.
+ * @param {Element} menu - The <menu> that should appear.
+ * @param {Element} element - The element to be clicked on.
+ * @returns {Promise} A promise that resolves when the menu appears.
  */
 function leftClick(menu, element) {
   let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
@@ -32,9 +32,9 @@ function leftClick(menu, element) {
  * Right-click on something and wait for the context menu to appear.
  * For elements in the parent process only.
  *
- * @param {Element} menu     The <menu> that should appear.
- * @param {Element} element  The element to be clicked on.
- * @returns {Promise}        A promise that resolves when the menu appears.
+ * @param {Element} menu - The <menu> that should appear.
+ * @param {Element} element - The element to be clicked on.
+ * @returns {Promise} A promise that resolves when the menu appears.
  */
 function rightClick(menu, element) {
   let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
@@ -50,10 +50,10 @@ function rightClick(menu, element) {
  * Right-click on something in a content document and wait for the context
  * menu to appear.
  *
- * @param {Element} menu     The <menu> that should appear.
- * @param {string} selector  CSS selector of the element to be clicked on.
- * @param {Element} browser  <browser> containing the element.
- * @returns {Promise}        A promise that resolves when the menu appears.
+ * @param {Element} menu - The <menu> that should appear.
+ * @param {string} selector - CSS selector of the element to be clicked on.
+ * @param {Element} browser - <browser> containing the element.
+ * @returns {Promise} A promise that resolves when the menu appears.
  */
 async function rightClickOnContent(menu, selector, browser) {
   let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
@@ -71,16 +71,16 @@ async function rightClickOnContent(menu, selector, browser) {
  * @see mail/components/extensions/schemas/menus.json
  *
  * @param extension
- * @param {Object} expectedInfo
+ * @param {object} expectedInfo
  * @param {Array?} expectedInfo.menuIds
  * @param {Array?} expectedInfo.contexts
  * @param {Array?} expectedInfo.attachments
- * @param {Object?} expectedInfo.displayedFolder
- * @param {Object?} expectedInfo.selectedFolder
+ * @param {object?} expectedInfo.displayedFolder
+ * @param {object?} expectedInfo.selectedFolder
  * @param {Array?} expectedInfo.selectedMessages
  * @param {RegExp?} expectedInfo.pageUrl
  * @param {string?} expectedInfo.selectionText
- * @param {Object} expectedTab
+ * @param {object} expectedTab
  * @param {boolean} expectedTab.active
  * @param {integer} expectedTab.index
  * @param {boolean} expectedTab.mailTab
@@ -164,13 +164,13 @@ async function checkShownEvent(extension, expectedInfo, expectedTab) {
  * @see mail/components/extensions/schemas/menus.json
  *
  * @param extension
- * @param {Object} expectedInfo
+ * @param {object} expectedInfo
  * @param {string?} expectedInfo.selectionText
  * @param {string?} expectedInfo.linkText
  * @param {RegExp?} expectedInfo.pageUrl
  * @param {RegExp?} expectedInfo.linkUrl
  * @param {RegExp?} expectedInfo.srcUrl
- * @param {Object} expectedTab
+ * @param {object} expectedTab
  * @param {boolean} expectedTab.active
  * @param {integer} expectedTab.index
  * @param {boolean} expectedTab.mailTab

@@ -135,7 +135,7 @@ QuickFilterState.prototype = {
    *  added constraint (if any), second press (or if no last constraint) clears
    *  the state entirely.
    *
-   * @return true if we relaxed the state, false if there was nothing to relax.
+   * @returns true if we relaxed the state, false if there was nothing to relax.
    */
   userHitEscape() {
     if (this._lastFilterAttr) {
@@ -345,10 +345,10 @@ var QuickFilterManager = {
    * Filter states must always be JSON serializable.  A state of undefined means
    * that we are not persisting any state for your filter.
    *
-   * @param {String} aFilterDef.name The name of your filter.  This is the name
+   * @param {string} aFilterDef.name The name of your filter.  This is the name
    *     of the attribute we cram your state into the state dictionary as, so
    *     the key thing is that it doesn't conflict with other id's.
-   * @param {String} aFilterDef.domId The id of the DOM node that you have
+   * @param {string} aFilterDef.domId The id of the DOM node that you have
    *     overlaid into the quick filter bar.
    * @param {function(aTermCreator, aTerms, aState)} aFilterDef.appendTerms
    *     The function to invoke to contribute your terms to the list of
@@ -443,7 +443,7 @@ var QuickFilterManager = {
    *  propagation rules.  For use by QuickFilterState.
    *
    * @param aTemplValues A set of existing filterValues.
-   * @return The new filterValues state.
+   * @returns The new filterValues state.
    */
   propagateValues(aTemplValues) {
     let values = {};
@@ -472,7 +472,7 @@ var QuickFilterManager = {
   /**
    * Get the set of default filterValues for the current set of defined filters.
    *
-   * @return Thew new filterValues state.
+   * @returns Thew new filterValues state.
    */
   getDefaultValues() {
     let values = {};
@@ -490,7 +490,7 @@ var QuickFilterManager = {
   /**
    * Reset the state of a single filter given the provided values.
    *
-   * @return true if we actually cleared some state, false if there was nothing
+   * @returns true if we actually cleared some state, false if there was nothing
    *     to clear.
    */
   clearFilterValue(aFilterName, aValues) {
@@ -517,7 +517,7 @@ var QuickFilterManager = {
   /**
    * Reset the state of all filters given the provided values.
    *
-   * @return true if we actually cleared something, false if there was nothing
+   * @returns true if we actually cleared something, false if there was nothing
    *     to clear.
    */
   clearAllFilterValues(aFilterValues) {
@@ -666,7 +666,7 @@ var TagFacetingFilter = {
   domId: "qfb-tags",
 
   /**
-   * @return true if the constaint is only on has tags/does not have tags,
+   * @returns true if the constaint is only on has tags/does not have tags,
    *     false if there are specific tag constraints in play.
    */
   isSimple(aFilterValue) {
@@ -1002,7 +1002,7 @@ var MessageTextFilter = {
    * I did change the friendless quote situation, though.
    *
    * @param aSearchString The phrase to parse up.
-   * @return A list of terms.
+   * @returns A list of terms.
    */
   _parseSearchString(aSearchString) {
     aSearchString = aSearchString.trim();

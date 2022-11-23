@@ -77,7 +77,7 @@ NewsAutoCompleteSearch.prototype = {
    * Find the newsgroup server associated with the given accountKey.
    *
    * @param accountKey  The key of the account.
-   * @return            The incoming news server (or null if one does not exist).
+   * @returns The incoming news server (or null if one does not exist).
    */
   _findServer(accountKey) {
     let account = MailServices.accounts.getAccount(accountKey);

@@ -140,7 +140,7 @@ class AddrBookDirectory {
    *
    * @param {nsIAbCard} card
    * @param {?string} uid
-   * @return {Map<string, string>}
+   * @returns {Map<string, string>}
    */
   prepareToSaveCard(card, uid) {
     let propertyMap = new Map(

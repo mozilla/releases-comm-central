@@ -18,7 +18,7 @@ var bundle;
 /**
  * Get this window's currently selected calendar.
  *
- * @return      The currently selected calendar.
+ * @returns The currently selected calendar.
  */
 function getSelectedCalendar() {
   return cal.view.getCompositeCalendar(window).defaultCalendar;
@@ -437,7 +437,7 @@ function unloadCalendarManager() {
  * A handler called to set up the context menu on the calendar list.
  *
  * @param event         The DOM event that caused the context menu to open.
- * @return              Returns true if the context menu should be shown.
+ * @returns Returns true if the context menu should be shown.
  */
 function calendarListSetupContextMenu(event) {
   let calendar;

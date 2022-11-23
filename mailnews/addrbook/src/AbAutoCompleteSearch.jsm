@@ -157,7 +157,7 @@ AbAutoCompleteSearch.prototype = {
    * @param aCard - the card whose score is being decided
    * @param aAddress - full lower-cased address, including display name and address
    * @param aSearchString - search string provided by user
-   * @return a score; a higher score is better than a lower one
+   * @returns a score; a higher score is better than a lower one
    */
   _getScore(aCard, aAddress, aSearchString) {
     const BEST = 100;
@@ -252,7 +252,7 @@ AbAutoCompleteSearch.prototype = {
    * @param aCard        The card to check.
    * @param aEmailToUse  The email address to check against.
    * @param aSearchWords Array of words in the multi word search string.
-   * @return             True if the card matches the search parameters, false
+   * @returns True if the card matches the search parameters, false
    *                     otherwise.
    */
   _checkEntry(aCard, aEmailToUse, aSearchWords) {

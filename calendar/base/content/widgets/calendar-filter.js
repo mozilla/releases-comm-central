@@ -76,6 +76,7 @@ var { CalReadableStreamFactory } = ChromeUtils.import(
  *
  *                 The callback function will be called with the following parameters:
  *               - function(aItem, aResults, aFilterProperties, aFilter)
+ *
  *                   @param aItem               The item being tested.
  *                   @param aResults            The results of the test of the other specified
  *                                              filter properties.
@@ -337,7 +338,7 @@ calFilter.prototype = {
    * Returns the set of filter properties that were previously defined by a filter name.
    *
    * @param aFilter             The filter name of the defined filter properties.
-   * @return                    The properties defined by the filter name, or null if
+   * @returns The properties defined by the filter name, or null if
    *                            the filter name was not previously defined.
    */
   getDefinedFilterProperties(aFilter) {
@@ -351,7 +352,7 @@ calFilter.prototype = {
    * Returns the filter name that a set of filter properties were previously defined as.
    *
    * @param aFilterProperties   The filter properties previously defined.
-   * @return                    The name of the first filter name that the properties
+   * @returns The name of the first filter name that the properties
    *                            were defined as, or null if the filter properties were
    *                            not previously defined.
    */
@@ -368,7 +369,7 @@ calFilter.prototype = {
    * Checks if the item matches the current filter text
    *
    * @param aItem               The item to check.
-   * @return                    Returns true if the item matches the filter text or no
+   * @returns Returns true if the item matches the filter text or no
    *                            filter text has been set, false otherwise.
    */
   textFilter(aItem) {
@@ -397,7 +398,7 @@ calFilter.prototype = {
    * Checks if the item matches the current filter date range.
    *
    * @param aItem               The item to check.
-   * @return                    Returns true if the item falls within the date range
+   * @returns Returns true if the item falls within the date range
    *                            specified by mStartDate and mEndDate, false otherwise.
    */
   dateRangeFilter(aItem) {
@@ -409,7 +410,7 @@ calFilter.prototype = {
    * with a value of null or that are not applicable to the item's type are not tested.
    *
    * @param aItem               The item to check.
-   * @return                    Returns true if the item matches the filter properties
+   * @returns Returns true if the item matches the filter properties
    *                            currently applied, false otherwise.
    */
   propertyFilter(aItem) {
@@ -488,7 +489,7 @@ calFilter.prototype = {
    * Checks if the item matches the expected item type.
    *
    * @param {calIItemBase} aItem - The item to check.
-   * @return {boolean} - True if the item matches the item type, false otherwise.
+   * @returns {boolean} - True if the item matches the item type, false otherwise.
    */
   itemTypeFilter(aItem) {
     if (aItem.isTodo() && this.mItemType & Ci.calICalendar.ITEM_FILTER_TYPE_TODO) {
@@ -518,7 +519,7 @@ calFilter.prototype = {
    * @param start               If true, the function will return the date value for the
    *                            start of the relative date range, otherwise it will return the
    *                            date value for the end of the date range.
-   * @return                    The calculated date for the property.
+   * @returns The calculated date for the property.
    */
   getDateForProperty(prop, start) {
     let props = this.mFilterProperties || new calFilterProperties();
@@ -584,7 +585,7 @@ calFilter.prototype = {
   /**
    * Calculates the current start and end dates for the currently applied filter.
    *
-   * @return                    The current [startDate, endDate] for the applied filter.
+   * @returns The current [startDate, endDate] for the applied filter.
    */
   getDatesForFilter() {
     let startDate = null;
@@ -693,7 +694,7 @@ calFilter.prototype = {
   /**
    * Gets the currently applied filter properties.
    *
-   * @return                    The currently applied filter properties.
+   * @returns The currently applied filter properties.
    */
   get filterProperties() {
     return this.mFilterProperties ? this.mFilterProperties.clone() : null;
@@ -702,7 +703,7 @@ calFilter.prototype = {
   /**
    * Gets the name of the currently applied filter.
    *
-   * @return                    The current defined name of the currently applied filter
+   * @returns The current defined name of the currently applied filter
    *                            properties, or null if the current properties were not
    *                            previously defined.
    */
@@ -759,7 +760,7 @@ calFilter.prototype = {
    * the current filter start and end dates. This function can be used to update the date range
    * for date range filters that are relative to the selected date or current date and time.
    *
-   * @return                    The current [startDate, endDate] for the applied filter.
+   * @returns The current [startDate, endDate] for the applied filter.
    */
   updateFilterDates() {
     let [startDate, endDate] = this.getDatesForFilter();
@@ -784,7 +785,7 @@ calFilter.prototype = {
    * @param aItems              The array of items to check.
    * @param aCallback           An optional callback function to be called with each item and
    *                            the result of it's filter test.
-   * @return                    A new array containing the items that match the filters, or
+   * @returns A new array containing the items that match the filters, or
    *                            null if no filter has been applied.
    */
   filterItems(aItems, aCallback) {
@@ -807,7 +808,7 @@ calFilter.prototype = {
    * Checks if the item matches the currently applied filter properties and text filter.
    *
    * @param aItem               The item to check.
-   * @return                    Returns true if the item matches the filters,
+   * @returns Returns true if the item matches the filters,
    *                            false otherwise.
    */
   isItemInFilters(aItem) {
@@ -819,7 +820,7 @@ calFilter.prototype = {
    * filter properties.
    *
    * @param aItem               The parent item to find the next occurrence of.
-   * @return                    Returns the next occurrence that matches the filters,
+   * @returns Returns the next occurrence that matches the filters,
    *                            or null if no match is found.
    */
   getNextOccurrence(aItem) {
@@ -871,7 +872,7 @@ calFilter.prototype = {
    * filter properties and date range.
    *
    * @param aItem               The parent item to find occurrence of.
-   * @return                    Returns an array containing the occurrences that
+   * @returns Returns an array containing the occurrences that
    *                            match the filters, an empty array if there are no
    *                            matches, or null if the filter is not initialized.
    */
@@ -912,8 +913,8 @@ calFilter.prototype = {
   /**
    * Gets the items matching the currently applied filter properties from a calendar.
    *
-   * @param {calICalendar} aCalendar           The calendar to get items from.
-   * @return {ReadableStream<calIItemBase>}    A stream of returned values.
+   * @param {calICalendar} aCalendar - The calendar to get items from.
+   * @returns {ReadableStream<calIItemBase>} A stream of returned values.
    */
   getItems(aCalendar) {
     if (!this.mFilterProperties) {
@@ -1014,7 +1015,7 @@ let CalendarFilteredViewMixin = Base =>
      * An object representing the most recent refresh job.
      * This is used to check if a job that completes is still the most recent.
      *
-     * @type {?Object}
+     * @type {?object}
      */
     #currentRefresh = null;
 
@@ -1022,7 +1023,7 @@ let CalendarFilteredViewMixin = Base =>
      * The current PromiseUtils.jsm `Deferred` object (containing a Promise
      * and methods to resolve/reject it).
      *
-     * @type {Object}
+     * @type {object}
      */
     #deferred = PromiseUtils.defer();
 
@@ -1151,7 +1152,7 @@ let CalendarFilteredViewMixin = Base =>
      * and visible calendars.
      *
      * @param {boolean} force - Start refreshing again, even if a refresh is already in progress.
-     * @return {Promise} A Promise resolved when all calendars have refreshed. This is the same
+     * @returns {Promise} A Promise resolved when all calendars have refreshed. This is the same
      *   Promise as returned from the `ready` getter.
      */
     refreshItems(force = false) {
@@ -1206,7 +1207,7 @@ let CalendarFilteredViewMixin = Base =>
      * Checks if the given calendar is both enabled and visible.
      *
      * @param {calICalendar} calendar
-     * @return {boolean} True if both enabled and visible.
+     * @returns {boolean} True if both enabled and visible.
      */
     #isCalendarVisible(calendar) {
       if (!calendar) {
@@ -1224,7 +1225,7 @@ let CalendarFilteredViewMixin = Base =>
      * remove existing items first, use removeItemsFromCalendar for that.
      *
      * @param {calICalendar} calendar
-     * @return {Promise} A promise resolved when this calendar has refreshed.
+     * @returns {Promise} A promise resolved when this calendar has refreshed.
      */
     async #refreshCalendar(calendar) {
       if (!this.#isActive || !this.itemType || !this.#isCalendarVisible(calendar)) {

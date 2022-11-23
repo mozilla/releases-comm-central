@@ -104,9 +104,9 @@ function applyPersistedProperties(aDialog) {
  * Create a calIAlarm from the given menuitem. The menuitem must have the
  * following attributes: unit, length, origin, relation.
  *
- * @param {Element} aMenuitem          The menuitem to create the alarm from.
- * @param {calICalendar} aCalendar     The calendar for getting the default alarm type.
- * @return                             The calIAlarm with information from the menuitem.
+ * @param {Element} aMenuitem - The menuitem to create the alarm from.
+ * @param {calICalendar} aCalendar - The calendar for getting the default alarm type.
+ * @returns The calIAlarm with information from the menuitem.
  */
 function createReminderFromMenuitem(aMenuitem, aCalendar) {
   let reminder = aMenuitem.reminder || new CalAlarm();
@@ -242,7 +242,7 @@ function updateReminderDetails(reminderDetails, reminderList, calendar) {
  * @param {calIAlarm} reminder - The reminder to match to a menu item.
  * @param {Element} reminderList - The reminder menu element.
  * @param {calICalendar} calendar - The current calendar, to get the default alarm type.
- * @return {boolean} True if the reminder matches a menu item, false if not.
+ * @returns {boolean} True if the reminder matches a menu item, false if not.
  */
 function matchCustomReminderToMenuitem(reminder, reminderList, calendar) {
   let defaultAlarmType = getDefaultAlarmType(calendar);
@@ -291,10 +291,10 @@ function matchCustomReminderToMenuitem(reminder, reminderList, calendar) {
 /**
  * Load an item's reminders into the dialog.
  *
- * @param {calIAlarm[]} reminders     An array of alarms to load.
- * @param {Element} reminderList      The reminders menulist element.
- * @param {calICalendar} calendar     The calendar the item belongs to.
- * @return {number}                   Index of the selected item in reminders menu.
+ * @param {calIAlarm[]} reminders - An array of alarms to load.
+ * @param {Element} reminderList - The reminders menulist element.
+ * @param {calICalendar} calendar - The calendar the item belongs to.
+ * @returns {number} Index of the selected item in reminders menu.
  */
 function loadReminders(reminders, reminderList, calendar) {
   // Select 'no reminder' by default.
@@ -324,8 +324,8 @@ function loadReminders(reminders, reminderList, calendar) {
  * Save the selected reminder into the passed item.
  *
  * @param {calIEvent | calITodo} item   The calendar item to save the reminder into.
- * @param {calICalendar} calendar       The current calendar.
- * @param {Element} reminderList        The reminder menu element.
+ * @param {calICalendar} calendar - The current calendar.
+ * @param {Element} reminderList - The reminder menu element.
  */
 function saveReminder(item, calendar, reminderList) {
   // We want to compare the old alarms with the new ones. If these are not
@@ -403,7 +403,7 @@ function saveReminder(item, calendar, reminderList) {
  * first alarm action the calendar supports.
  *
  * @param {calICalendar} calendar - The calendar to use.
- * @return {string} The default alarm type.
+ * @returns {string} The default alarm type.
  */
 function getDefaultAlarmType(calendar) {
   let alarmCaps = calendar.getProperty("capabilities.alarms.actionValues") || ["DISPLAY"];
@@ -421,7 +421,7 @@ function getDefaultAlarmType(calendar) {
  * @param {calITimezone} timezone - The relevant timezone.
  * @param {boolean} suppressDialogs - If true, controls are updated without prompting
  *                                    for changes with the dialog
- * @return {number} Index of the item selected in the reminders menu.
+ * @returns {number} Index of the item selected in the reminders menu.
  */
 function commonUpdateReminder(
   reminderList,
@@ -574,7 +574,7 @@ function updateLink(itemUrlString, linkRow, urlLink) {
  * Adapts the scheduling responsibility for caldav servers according to RfC 6638
  * based on forceEmailScheduling preference for the respective calendar
  *
- * @param {calIEvent|calIToDo} aItem      Item to apply the change on
+ * @param {calIEvent|calIToDo} aItem - Item to apply the change on
  */
 function adaptScheduleAgent(aItem) {
   if (

@@ -13,7 +13,7 @@
  * @param {CalendarMultidayBaseView} view - The calendar view.
  * @param {number} numHours - The expected number of visible hours.
  *
- * @return {Promise} - Promise that resolves when the timebar has numHours
+ * @returns {Promise} - Promise that resolves when the timebar has numHours
  *   visible hours.
  */
 function waitForVisibleHours(view, numHours) {
@@ -37,7 +37,7 @@ function waitForVisibleHours(view, numHours) {
  * @param {CalendarMultidayBaseView} view - The calendar view.
  * @param {number} hour - The expected first visible hour.
  *
- * @return {Promise} - Promise that resolves when the timebar has the given
+ * @returns {Promise} - Promise that resolves when the timebar has the given
  *   first visible hour.
  */
 function waitForFirstVisibleHour(view, hour) {

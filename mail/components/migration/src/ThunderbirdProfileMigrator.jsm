@@ -63,6 +63,7 @@ const IGNORE_DIRS = [
 
 /**
  * A pref is represented as [type, name, value].
+ *
  * @typedef {["Bool"|"Char"|"Int", string, number|string|boolean]} PrefItem
  *
  * A map from source smtp server key to target smtp server key.
@@ -371,6 +372,7 @@ class ThunderbirdProfileMigrator {
 
   /**
    * Import SMTP servers.
+   *
    * @param {PrefItem[]} prefs - All source prefs in the SMTP_SERVER branch.
    * @param {string} sourceDefaultServer - The value of mail.smtp.defaultserver
    *   in the source profile.
@@ -412,6 +414,7 @@ class ThunderbirdProfileMigrator {
 
   /**
    * Import mail identites.
+   *
    * @param {PrefItem[]} prefs - All source prefs in the MAIL_IDENTITY branch.
    * @param {SmtpServerKeyMap} smtpServerKeyMap - A map from the source SMTP
    *   server key to new SMTP server key.
@@ -444,6 +447,7 @@ class ThunderbirdProfileMigrator {
 
   /**
    * Import IM accounts.
+   *
    * @param {Array<[string, string, number|string|boolean]>} prefs - All source
    *   prefs in the IM_ACCOUNT branch.
    * @returns {IMAccountKeyMap} A map from the source account key to new account
@@ -483,6 +487,7 @@ class ThunderbirdProfileMigrator {
 
   /**
    * Import incoming servers.
+   *
    * @param {PrefItem[]} prefs - All source prefs in the MAIL_SERVER branch.
    * @param {IMAccountKeyMap} imAccountKeyMap - A map from the source account
    *   key to new account key.
@@ -524,6 +529,7 @@ class ThunderbirdProfileMigrator {
 
   /**
    * Copy mail folders from this._sourceProfileDir to the current profile dir.
+   *
    * @param {PrefKeyMap} incomingServerKeyMap - A map from the source server key
    *   to new server key.
    */
@@ -611,6 +617,7 @@ class ThunderbirdProfileMigrator {
 
   /**
    * Import mail accounts.
+   *
    * @param {PrefItem[]} prefs - All source prefs in the MAIL_ACCOUNT branch.
    * @param {string} sourceAccounts - The value of mail.accountmanager.accounts
    *   in the source profile.
@@ -684,8 +691,9 @@ class ThunderbirdProfileMigrator {
 
   /**
    * Import address books.
+   *
    * @param {PrefItem[]} prefs - All source prefs in the ADDRESS_BOOK branch.
-   * @param {Object} ldapAutoComplete - Pref values of LDAP_AUTO_COMPLETE branch.
+   * @param {object} ldapAutoComplete - Pref values of LDAP_AUTO_COMPLETE branch.
    * @param {boolean} ldapAutoComplete.useDirectory
    * @param {string} ldapAutoComplete.directoryServer
    */
@@ -737,6 +745,7 @@ class ThunderbirdProfileMigrator {
 
   /**
    * Copy sqlite files from this._sourceProfileDir to the current profile dir.
+   *
    * @param {Map<string, string>} keyMap - A map from the source address
    *   book key to new address book key.
    */
@@ -774,6 +783,7 @@ class ThunderbirdProfileMigrator {
 
   /**
    * Copy a sqlite file from this._sourceProfileDir to the current profile dir.
+   *
    * @param {string} filename - The name of the sqlite file.
    */
   _importAddressBookDatabase(filename) {
@@ -834,6 +844,7 @@ class ThunderbirdProfileMigrator {
   /**
    * Import a pref from source only when this pref has no user value in the
    * current profile.
+   *
    * @param {PrefItem[]} prefs - All source prefs to try to import.
    */
   _importOtherPrefs(prefs) {
@@ -850,6 +861,7 @@ class ThunderbirdProfileMigrator {
    * For storage calendars, we need to import everything from the source
    * local.sqlite to the target local.sqlite, which is not implemented yet, see
    * bug 1719582.
+   *
    * @param {PrefItem[]} prefs - All source prefs in the CALENDAR branch.
    */
   _importCalendars(prefs) {

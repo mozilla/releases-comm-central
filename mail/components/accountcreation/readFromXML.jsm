@@ -34,9 +34,9 @@ ChromeUtils.defineModuleGetter(
  * The XML format is documented at
  * <https://wiki.mozilla.org/Thunderbird:Autoconfiguration:ConfigFileFormat>
  *
- * @param clientConfigXML {JXON}  The <clientConfig> node.
- * @param source {String}  Used for the subSource field of AccountConfig.
- * @return AccountConfig   object filled with the data from XML
+ * @param clientConfigXML {JXON} - The <clientConfig> node.
+ * @param source {String} - Used for the subSource field of AccountConfig.
+ * @returns AccountConfig   object filled with the data from XML
  */
 function readFromXML(clientConfigXML, subSource) {
   function array_or_undef(value) {

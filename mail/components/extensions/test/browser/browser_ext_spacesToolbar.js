@@ -9,7 +9,7 @@ const { AddonManager } = ChromeUtils.import(
 /**
  * Helper Function, creates a test extension to verify expected button states.
  *
- * @param {function} background - The background script executed by the test.
+ * @param {Function} background - The background script executed by the test.
  * @param {string} selectedTheme - The selected theme (default, light or dark),
  *   used to select the expected button/menuitem icon.
  * @param {?object} manifestIcons - The icons entry of the extension manifest.

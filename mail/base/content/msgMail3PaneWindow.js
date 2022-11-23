@@ -80,7 +80,7 @@ ChromeUtils.defineModuleGetter(
  * Gets the service pack and build information on Windows platforms. The initial version
  * was copied from nsUpdateService.js.
  *
- * @return An object containing the service pack major and minor versions, along with the
+ * @returns An object containing the service pack major and minor versions, along with the
  *         build number.
  */
 function getWindowsVersionInfo() {
@@ -701,7 +701,7 @@ function getWindowStateForSessionPersistence() {
  * @param {boolean} aDontRestoreFirstTab - If this is true, the first tab will
  *   not be restored, and will continue to retain focus at the end. This is
  *   needed if the window was opened with a folder or a message as an argument.
- * @return true if the restoration was successful, false otherwise.
+ * @returns true if the restoration was successful, false otherwise.
  */
 async function atStartupRestoreTabs(aDontRestoreFirstTab) {
   let state = await SessionStoreManager.loadingWindow(window);

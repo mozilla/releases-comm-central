@@ -78,12 +78,12 @@ var localAccountUtils = {
   /**
    * Create an nsIMsgIncomingServer and an nsIMsgAccount to go with it.
    *
-   * @param aType The type of the server (pop3, imap etc).
-   * @param aPort The port the server is on.
-   * @param aUsername The username for the server.
-   * @param aPassword The password for the server.
-   * @param aHostname The hostname for the server (defaults to localhost).
-   * @return The newly-created nsIMsgIncomingServer.
+   * @param {string} aType - The type of the server (pop3, imap etc).
+   * @param {integer} aPort - The port the server is on.
+   * @param {string} aUsername - The username for the server.
+   * @param {string} aPassword - The password for the server.
+   * @param {string} aHostname - The hostname for the server (defaults to localhost).
+   * @returns {nsIMsgIncomingServer} The newly-created nsIMsgIncomingServer.
    */
   create_incoming_server(
     aType,
@@ -106,14 +106,14 @@ var localAccountUtils = {
    * Create an nsIMsgIncomingServer and an nsIMsgAccount to go with it.
    * There are no identities created for the account.
    *
-   * @param aType The type of the server (pop3, imap etc).
-   * @param aPort The port the server is on.
-   * @param aUsername The username for the server.
-   * @param aPassword The password for the server.
-   * @param aHostname The hostname for the server (defaults to localhost).
-   * @return An object with the newly-created nsIMsgIncomingServer as the
-             "server" property and the newly-created nsIMsgAccount as the
-             "account" property.
+   * @param {string} aType - The type of the server (pop3, imap etc).
+   * @param {integer} aPort - The port the server is on.
+   * @param {string} aUsername - The username for the server.
+   * @param {string} aPassword - The password for the server.
+   * @param {string} aHostname - The hostname for the server (defaults to localhost).
+   * @returns {object} object
+   * @returns {nsIMsgIncomingServer} object.server Created server
+   * @returns {nsIMsgAccount} object.account Created account
    */
   create_incoming_server_and_account(
     aType,
@@ -154,11 +154,11 @@ var localAccountUtils = {
   /**
    * Create an outgoing nsISmtpServer with the given parameters.
    *
-   * @param aPort The port the server is on.
-   * @param aUsername The username for the server
-   * @param aPassword The password for the server
-   * @param aHostname The hostname for the server (defaults to localhost).
-   * @return The newly-created nsISmtpServer.
+   * @param {integer} aPort - The port the server is on.
+   * @param {string} aUsername - The username for the server
+   * @param {string} aPassword - The password for the server
+   * @param {string} [aHostname=localhost] - The hostname for the server.
+   * @returns {nsISmtpServer} The newly-created nsISmtpServer.
    */
   create_outgoing_server(aPort, aUsername, aPassword, aHostname = "localhost") {
     let server = MailServices.smtp.createServer();
@@ -173,10 +173,10 @@ var localAccountUtils = {
    * It does so by creating a new identity in the account using the given outgoing
    * server.
    *
-   * @param {nsIMsgAccount} aIncoming  The account to associate.
-   * @param {nsISmtpServer} aOutgoingServer  The outgoing server to associate.
-   * @param {bool} aSetAsDefault  Whether to set the outgoing server as the default for
-   *                              the account.
+   * @param {nsIMsgAccount} aIncoming - The account to associate.
+   * @param {nsISmtpServer} aOutgoingServer - The outgoing server to associate.
+   * @param {bool} aSetAsDefault - Whether to set the outgoing server as the
+   *   default for the account.
    */
   associate_servers(aIncoming, aOutgoingServer, aSetAsDefault = false) {
     if (!(aIncoming instanceof Ci.nsIMsgAccount)) {

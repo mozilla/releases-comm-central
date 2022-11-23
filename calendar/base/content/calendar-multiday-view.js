@@ -28,7 +28,7 @@
    *   equal), and "backward" will return the closest snap point that is lower
    *   (and not equal).
    *
-   * @return {number} - The nearest snap point.
+   * @returns {number} - The nearest snap point.
    */
   function snapMinute(minute, snapInterval, direction = "nearest") {
     switch (direction) {
@@ -48,7 +48,7 @@
    *
    * @param {calItemBase} eventItem - The event item.
    *
-   * @return {boolean} - Whether the given event can be edited by the user.
+   * @returns {boolean} - Whether the given event can be edited by the user.
    */
   function canEditEventItem(eventItem) {
     return (
@@ -207,7 +207,8 @@
 
       /**
        * An internal collection of data for events.
-       * @typedef {Object} EventData
+       *
+       * @typedef {object} EventData
        * @property {calItemBase} eventItem - The event item.
        * @property {Element} element - The displayed event in this column.
        * @property {boolean} selected - Whether the event is selected.
@@ -216,6 +217,7 @@
        */
       /**
        * Event data for all the events displayed in this column.
+       *
        * @type {Map<string, EventData} - A map from an event item's hashId to
        *   its data.
        */
@@ -247,6 +249,7 @@
     /**
      * The number of pixels that a one minute duration should occupy in the
      * column.
+     *
      * @type {number}
      */
     set pixelsPerMinute(val) {
@@ -314,7 +317,7 @@
      *
      * @param {calItemBase} eventItem - The event item.
      *
-     * @return {Element} - The corresponding element, or undefined if none.
+     * @returns {Element} - The corresponding element, or undefined if none.
      */
     findElementForEventItem(eventItem) {
       return this.eventDataMap.get(eventItem.hashId)?.element;
@@ -323,7 +326,7 @@
     /**
      * Return all the event items that are displayed in this columns.
      *
-     * @return {calItemBase[]} - An array of all the displayed event items.
+     * @returns {calItemBase[]} - An array of all the displayed event items.
      */
     getAllEventItems() {
       return Array.from(this.eventDataMap.values(), data => data.eventItem);
@@ -526,7 +529,7 @@
      * secondary-dimension which runs from 0 to 1. This object describes how
      * an event can be placed on these axes.
      *
-     * @typedef {Object} EventLayoutInfo
+     * @typedef {object} EventLayoutInfo
      * @property {MozCalendarEventBox} element - The displayed event.
      * @property {number} start - The number of minutes from the start of this
      *   column's day to when the event should start.
@@ -545,7 +548,7 @@
      *   should be *shown* to last. This should be large enough to ensure that
      *   events are readable in the layout.
      *
-     * @return {EventLayoutInfo[]} - An ordered list of event layout
+     * @returns {EventLayoutInfo[]} - An ordered list of event layout
      *   information.
      */
     computeEventLayoutInfo(minDuration) {
@@ -749,7 +752,7 @@
      *   the start of this column's day. This can go beyond the end of this day.
      *   This must be greater than 'start' and on this column's day or later.
      *
-     * @return {Object} - Data determining which columns are covered by the
+     * @returns {object} - Data determining which columns are covered by the
      *   interval. Each column that is in the given range is covered from the
      *   start of the day to the end, apart from the first and last columns.
      * @property {number} shadows - The number of columns that have some cover.
@@ -1232,8 +1235,8 @@
      * @param {"start"|"end"|"middle"} where - Whether to modify the starting
      *   time, ending time, or moving the entire event (modify the start and
      *   end, but preserve the duration).
-     * @param {Object} position - The mouse position of the event that
-     *   *initialized* the motion.
+     * @param {object} position - The mouse position of the event that
+     *   initialized* the motion.
      * @param {number} position.clientX - The client x position.
      * @param {number} position.clientY - The client y position.
      * @param {number} position.offsetStartMinute - The minute offset of the
@@ -1376,7 +1379,7 @@
      *   such that the returned minute is the number of minutes since the start
      *   of the day.
      *
-     * @return {number} - The number of minutes since the starting edge of
+     * @returns {number} - The number of minutes since the starting edge of
      *   'element' that this event points to.
      */
     getMouseMinute(mouseEvent, element = this) {
@@ -1398,7 +1401,7 @@
      *
      * @param {MouseEvent} mouseEvent - The pointer event.
      *
-     * @return {calDateTime} - A new datetime that the mouseEvent points to.
+     * @returns {calDateTime} - A new datetime that the mouseEvent points to.
      */
     getMouseDateTime(mouseEvent) {
       let clickMinute = this.getMouseMinute(mouseEvent);
@@ -1416,7 +1419,7 @@
   /**
    * Implements the Drag and Drop class for the Calendar Header Container.
    *
-   * @extends {MozElements.CalendarDnDContainer}
+   * @augments {MozElements.CalendarDnDContainer}
    */
   class CalendarHeaderContainer extends MozElements.CalendarDnDContainer {
     /**
@@ -1454,7 +1457,7 @@
      *
      * @param {calItemBase} eventItem - The event item.
      *
-     * @return {Element} - The corresponding element, or undefined if none.
+     * @returns {Element} - The corresponding element, or undefined if none.
      */
     findElementForEventItem(eventItem) {
       return this.eventElements.get(eventItem.hashId);
@@ -1463,7 +1466,7 @@
     /**
      * Return all the event items that are displayed in this columns.
      *
-     * @return {calItemBase[]} - An array of all the displayed event items.
+     * @returns {calItemBase[]} - An array of all the displayed event items.
      */
     getAllEventItems() {
       return Array.from(this.eventElements.values(), element => element.occurrence);
@@ -1611,7 +1614,7 @@
      *
      * @param {WheelEvent} - The wheel event.
      *
-     * @return {boolean} - True if this event is above a scrollable area and
+     * @returns {boolean} - True if this event is above a scrollable area and
      *   matches its scroll direction.
      */
     wheelOnScrollableArea(event) {
@@ -1632,7 +1635,7 @@
    * components on hovering over the event. It is used to change the event
    * timings.
    *
-   * @extends {MozElements.MozCalendarEditableItem}
+   * @augments {MozElements.MozCalendarEditableItem}
    */
   class MozCalendarEventBox extends MozElements.MozCalendarEditableItem {
     static get inheritedAttributes() {
@@ -1790,7 +1793,7 @@
      *
      * @param {"start"|"end"} side - The side the gripbar controls.
      *
-     * @return {Element} - A newly created gripbar.
+     * @returns {Element} - A newly created gripbar.
      */
     createGripbar(side) {
       let gripbar = document.createElement("div");
@@ -1811,7 +1814,7 @@
      *
      * @param {calIDateTime} day - The day that this event is shown on.
      *
-     * @return {Object} - The start and end time information.
+     * @returns {object} - The start and end time information.
      * @property {calIDateTime|undefined} startDate - The start date-time of the
      *   event in the timezone of the given day. Or the entry date-time for
      *   tasks, if they have one.
@@ -1909,7 +1912,7 @@
    * Abstract class used for the day and week calendar view elements. (Not month or multiweek.)
    *
    * @implements {calICalendarView}
-   * @extends {MozElements.CalendarBaseView}
+   * @augments {MozElements.CalendarBaseView}
    * @abstract
    */
   class CalendarMultidayBaseView extends MozElements.CalendarBaseView {
@@ -1918,7 +1921,8 @@
 
     /**
      * A column in the view representing a particular date.
-     * @typedef {Object} DayColumn
+     *
+     * @typedef {object} DayColumn
      * @property {calIDateTime} date - The day's date.
      * @property {Element} container - The container that holds the other
      *   elements.
@@ -1964,18 +1968,21 @@
     /**
      * The hour that a 'day' starts. Any time before this is considered
      * off-time.
+     *
      * @type {number}
      */
     dayStartHour = 0;
     /**
      * The hour that a 'day' ends. Any time equal to or after this is
      * considered off-time.
+     *
      * @type {number}
      */
     dayEndHour = 0;
 
     /**
      * How many hours to show in the scrollable area.
+     *
      * @type {number}
      */
     visibleHours = 9;
@@ -1983,6 +1990,7 @@
     /**
      * The number of pixels that a one minute duration should occupy in the
      * view.
+     *
      * @type {number}
      */
     pixelsPerMinute;
@@ -2246,7 +2254,7 @@
     /**
      * Set the preference for the time indicator interval.
      *
-     * @param {number} prefInterval    A time indicator interval preference value.
+     * @param {number} prefInterval - A time indicator interval preference value.
      */
     setTimeIndicatorInterval(prefInterval) {
       // If the preference just edited by the user is outside the valid
@@ -2293,9 +2301,9 @@
     /**
      * Update the position of the time indicator.
      *
-     * @param {boolean} updateTheTimer    Whether to update the timer.
-     * @param {boolean} ppmChanged        Whether the pixels per minute has changed.
-     * @param {boolean} viewChanged       Whether the view has changed.
+     * @param {boolean} updateTheTimer - Whether to update the timer.
+     * @param {boolean} ppmChanged - Whether the pixels per minute has changed.
+     * @param {boolean} viewChanged - Whether the view has changed.
      */
     updateTimeIndicatorPosition(updateTheTimer, ppmChanged, viewChanged) {
       const now = cal.dtz.now();
@@ -2353,9 +2361,9 @@
     /**
      * Handle preference changes. Typically called by a preference observer.
      *
-     * @param {Object} subject       The subject, a prefs object.
-     * @param {string} topic         The notification topic.
-     * @param {string} preference    The preference to handle.
+     * @param {object} subject - The subject, a prefs object.
+     * @param {string} topic - The notification topic.
+     * @param {string} preference - The preference to handle.
      */
     handlePreference(subject, topic, preference) {
       subject.QueryInterface(Ci.nsIPrefBranch);
@@ -2684,7 +2692,7 @@
      * Measure the total offset between the content width and border width of
      * the day headings.
      *
-     * @return {{inline: number, block: number}} - The offsets in their
+     * @returns {{inline: number, block: number}} - The offsets in their
      *   respective directions.
      */
     measureHeadingContentToBorderOffset() {
@@ -2712,8 +2720,8 @@
     /**
      * Make a calendar item flash or stop flashing. Called when the item's alarm fires.
      *
-     * @param {calIItemBase} item    The calendar item.
-     * @param {boolean} stop         Whether to stop the item from flashing.
+     * @param {calIItemBase} item - The calendar item.
+     * @param {boolean} stop - Whether to stop the item from flashing.
      */
     flashAlarm(item, stop) {
       function setFlashingAttribute(box) {
@@ -3000,8 +3008,8 @@
     /**
      * Return all the occurrences of a given item that are currently displayed in the view.
      *
-     * @param {calIItemBase} item    A calendar item.
-     * @return {calIItemBase[]}      An array of occurrences.
+     * @param {calIItemBase} item - A calendar item.
+     * @returns {calIItemBase[]} An array of occurrences.
      */
     getItemOccurrencesInView(item) {
       if (item.recurrenceInfo && item.recurrenceStartDate) {
@@ -3017,8 +3025,8 @@
     /**
      * Set an attribute on the view element, and do re-orientation and re-layout if needed.
      *
-     * @param {string} attr     The attribute to set.
-     * @param {string} value    The value to set.
+     * @param {string} attr - The attribute to set.
+     * @param {string} value - The value to set.
      */
     setAttribute(attr, value) {
       let rotated = attr == "orient" && this.getAttribute("orient") != value;
@@ -3040,7 +3048,7 @@
      * Note, changing the dates will wipe the columns of all events, otherwise
      * the current events are kept in place.
      *
-     * @param {Object} [changes] - The relevant changes to the view. Defaults to
+     * @param {object} [changes] - The relevant changes to the view. Defaults to
      *   all changes.
      * @property {boolean} dates - A change in the column dates.
      * @property {boolean} rotated - A change in the rotation.
@@ -3231,8 +3239,8 @@
     /**
      * Return the column object for a given date.
      *
-     * @param {calIDateTime} date    A date.
-     * @return {?DateColumn}         A column object.
+     * @param {calIDateTime} date - A date.
+     * @returns {?DateColumn} A column object.
      */
     findColumnForDate(date) {
       for (const col of this.dayColumns) {
@@ -3246,8 +3254,8 @@
     /**
      * Return the day box (column header) for a given date.
      *
-     * @param {calIDateTime} date    A date.
-     * @return {Element}             A `calendar-header-container` where "all day" events appear.
+     * @param {calIDateTime} date - A date.
+     * @returns {Element} A `calendar-header-container` where "all day" events appear.
      */
     findDayBoxForDate(date) {
       const col = this.findColumnForDate(date);
@@ -3257,8 +3265,8 @@
     /**
      * Return the column objects for a given calendar item.
      *
-     * @param {calIItemBase} item    A calendar item.
-     * @return {DateColumn[]}        An array of column objects.
+     * @param {calIItemBase} item - A calendar item.
+     * @returns {DateColumn[]} An array of column objects.
      */
     findColumnsForItem(item) {
       const columns = [];
@@ -3319,7 +3327,7 @@
      * Get an ordered list of all the calendar-event-column elements in this
      * view.
      *
-     * @return {MozCalendarEventColumn[]} - The columns in this view.
+     * @returns {MozCalendarEventColumn[]} - The columns in this view.
      */
     getEventColumns() {
       return Array.from(this.dayColumns, col => col.column);
@@ -3330,7 +3338,7 @@
      *
      * @param {Node} node - The node to search for.
      *
-     * @return {?MozCalendarEventColumn} - The column that contains the node, or
+     * @returns {?MozCalendarEventColumn} - The column that contains the node, or
      *   null if none do.
      */
     findEventColumnThatContains(node) {
@@ -3340,7 +3348,7 @@
     /**
      * Display a calendar item.
      *
-     * @param {calIItemBase} event    A calendar item.
+     * @param {calIItemBase} event - A calendar item.
      */
     doAddItem(event) {
       const cols = this.findColumnsForItem(event);
@@ -3362,7 +3370,7 @@
     /**
      * Remove a calendar item so it is no longer displayed.
      *
-     * @param {calIItemBase} event    A calendar item.
+     * @param {calIItemBase} event - A calendar item.
      */
     doRemoveItem(event) {
       const cols = this.findColumnsForItem(event);
@@ -3445,7 +3453,7 @@
      * @param {number} factor - The number of pixels to scroll by if touching
      *   the edge.
      *
-     * @return {number} - The number of pixels to scroll by scaled by the depth
+     * @returns {number} - The number of pixels to scroll by scaled by the depth
      *   within the scrollzone. Zero if outside the scrollzone, negative if
      *   we're closer to the starting edge and positive if we're closer to the
      *   ending edge.
@@ -3512,7 +3520,7 @@
      * Get the position of the view's scrollable area (the padding area minus
      * sticky headers and scrollbars) in the viewport.
      *
-     * @return {{top: number, bottom: number, left: number, right: number}} -
+     * @returns {{top: number, bottom: number, left: number, right: number}} -
      *   The viewport positions of the respective scrollable area edges.
      */
     getScrollAreaRect() {

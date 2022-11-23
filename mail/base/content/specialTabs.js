@@ -727,7 +727,7 @@ var specialTabs = {
    * @param  function successFunc - caller's success function.
    * @param  function errorFunc   - caller's error function.
    * @param  string iconUrl       - url to load.
-   * @return HTMLImageElement imageNode
+   * @returns HTMLImageElement imageNode
    */
   loadFaviconImageNode(successFunc, errorFunc, iconUrl) {
     let HTMLNS = "http://www.w3.org/1999/xhtml";
@@ -871,8 +871,8 @@ var specialTabs = {
      * This is the internal function used by content tabs to open a new tab. To
      * open a contentTab, use specialTabs.openTab("contentTab", aArgs)
      *
-     * @param {Object} aArgs - The options that content tabs accept.
-     * @param {String} aArgs.url - The URL that is to be opened
+     * @param {object} aArgs - The options that content tabs accept.
+     * @param {string} aArgs.url - The URL that is to be opened
      * @param {nsIOpenWindowInfo} [aArgs.openWindowInfo] - The opener window
      * @param {"single-site"|"single-page"|null} [aArgs.linkHandler="single-site"]
      *     Restricts navigation in the browser to be opened:
@@ -1080,6 +1080,7 @@ var specialTabs = {
   /**
    * Shows the what's new page in the system browser if we should.
    * Will update the mstone pref to a new version if needed.
+   *
    * @see {BrowserContentHandler.needHomepageOverride}
    */
   showWhatsNewPage() {
@@ -1114,6 +1115,7 @@ var specialTabs = {
   /**
    * Gets the override page for the first run after the application has been
    * updated.
+   *
    * @param {nsIUpdate} update - The nsIUpdate for the update that has been applied.
    * @param {string} defaultOverridePage - The default override page.
    * @returns {string} The override page.

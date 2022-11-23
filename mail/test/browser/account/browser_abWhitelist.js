@@ -54,7 +54,7 @@ registerCleanupFunction(function() {
  * we're not whitelisting any address books.  Then, we'll check all
  * address books and save.
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_check_whitelist_init_and_save(tab) {
   // Ok, the advanced settings window is open.  Let's choose
@@ -90,7 +90,7 @@ function subtest_check_whitelist_init_and_save(tab) {
  * subtest_check_whitelist_init_and_save were properly saved.
  * Then, we'll clear the address books and save.
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_check_whitelist_load_and_clear(tab) {
   let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
@@ -123,7 +123,8 @@ function subtest_check_whitelist_load_and_clear(tab) {
 /**
  * Finally, we'll make sure that the address books we cleared
  * were actually cleared.
- * @param {Object} tab - The account manager tab.
+ *
+ * @param {object} tab - The account manager tab.
  */
 function subtest_check_whitelist_load_cleared(tab) {
   let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);

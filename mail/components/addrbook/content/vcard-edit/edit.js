@@ -658,7 +658,7 @@ class VCardEdit extends HTMLElement {
    * Move focus to the first visible form element below the given element.
    *
    * @param {Element} element - The element to move focus into.
-   * @return {boolean} - If the focus was moved into the element.
+   * @returns {boolean} - If the focus was moved into the element.
    */
   moveFocusIntoElement(element) {
     for (let child of element.querySelectorAll(
@@ -846,6 +846,7 @@ class VCardEdit extends HTMLElement {
   /**
    * If one BDAY vCardPropertyEntry is present disable
    * the option to change an Anniversary to a BDAY.
+   *
    * @see VCardSpecialDateComponent
    */
   checkForBdayOccurrences() {
@@ -1049,6 +1050,7 @@ customElements.define("vcard-type", VCardTypeSelectionComponent);
 /**
  * Getter/Setter for rich data do not use HTMLAttributes for this.
  *  Keep the reference intact through vCardProperties for proper saving.
+ *
  * @property
  * @name VCardPropertyEntryView#vCardPropertyEntry
  */
@@ -1058,6 +1060,7 @@ customElements.define("vcard-type", VCardTypeSelectionComponent);
  *  through vCardPropertyEntry.
  * It's there for an action to read the user input values into the
  *  vCardPropertyEntry.
+ *
  * @function
  * @name VCardPropertyEntryView#fromUIToVCardPropertyEntry
  * @returns {void}
@@ -1073,6 +1076,7 @@ customElements.define("vcard-type", VCardTypeSelectionComponent);
 
 /**
  * Checks if the value of VCardPropertyEntry is empty.
+ *
  * @function
  * @name VCardPropertyEntryView#valueIsEmpty
  * @returns {boolean}
@@ -1080,6 +1084,7 @@ customElements.define("vcard-type", VCardTypeSelectionComponent);
 
 /**
  * Creates a new VCardPropertyEntry for usage in the a new Field.
+ *
  * @function
  * @name VCardPropertyEntryView#newVCardPropertyEntry
  * @static

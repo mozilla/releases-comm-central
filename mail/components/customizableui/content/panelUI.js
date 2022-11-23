@@ -54,7 +54,7 @@ ChromeUtils.defineModuleGetter(
  * Maintains the state and dispatches events for the main menu panel.
  */
 const PanelUI = {
-  /** Panel events that we listen for. **/
+  /** Panel events that we listen for. */
   get kEvents() {
     return [
       "popupshowing",
@@ -356,7 +356,7 @@ const PanelUI = {
    * When a ViewShowing event happens when a <panelview> element is shown,
    * do any required set up for that particular view.
    *
-   * @param {ViewShowingEvent} event  ViewShowing event.
+   * @param {ViewShowingEvent} event - ViewShowing event.
    */
   _handleViewShowingEvent(event) {
     // Typically event.target for "ViewShowing" is a <panelview> element.
@@ -402,8 +402,8 @@ const PanelUI = {
    * event listeners responding to a ViewShowing event. It calls a given refresh
    * function (that populates the view), passing appmenu-specific arguments.
    *
-   * @param {ViewShowingEvent} event    ViewShowing event.
-   * @param {Function} refreshFunction  Function that refreshes a particular view.
+   * @param {ViewShowingEvent} event - ViewShowing event.
+   * @param {Function} refreshFunction - Function that refreshes a particular view.
    */
   _refreshDynamicView(event, refreshFunction) {
     refreshFunction(
@@ -428,7 +428,7 @@ const PanelUI = {
    *        customization mode. If that's the case, we trust that customization
    *        mode will handle calling beginBatchUpdate and endBatchUpdate.
    *
-   * @return a Promise that resolves once the panel is ready to roll.
+   * @returns a Promise that resolves once the panel is ready to roll.
    */
   async ensureReady() {
     if (this._isReady) {
@@ -602,7 +602,7 @@ const PanelUI = {
    * Event handler for showing the Preferences/Layout view. Removes "checked"
    * from all layout menu items and then checks the current layout menu item.
    *
-   * @param {ViewShowingEvent} event  ViewShowing event.
+   * @param {ViewShowingEvent} event - ViewShowing event.
    */
   _onPreferencesLayoutViewShow(event) {
     event.target
@@ -615,7 +615,7 @@ const PanelUI = {
   /**
    * Event listener for showing the Folders view.
    *
-   * @param {ViewShowingEvent} event  ViewShowing event.
+   * @param {ViewShowingEvent} event - ViewShowing event.
    */
   _onFoldersViewShow(event) {
     event.target
@@ -836,7 +836,8 @@ XPCOMUtils.defineConstant(this, "PanelUI", PanelUI);
 
 /**
  * Gets the currently selected locale for display.
- * @return  the selected locale
+ *
+ * @returns the selected locale
  */
 function getLocale() {
   return Services.locale.appLocaleAsBCP47;

@@ -172,8 +172,8 @@ var calendarItemTabType = {
   /**
    * Opens an event tab or a task tab.
    *
-   * @param {Object} aTab   A tab info object
-   * @param {Object} aArgs  Contains data about the event/task
+   * @param {object} aTab - A tab info object
+   * @param {object} aArgs - Contains data about the event/task
    */
   openTab(aTab, aArgs) {
     // Create a clone to use for this tab. Remove the cloned toolbox
@@ -234,7 +234,7 @@ var calendarItemTabType = {
   /**
    * Saves a tab's state when it is deactivated / hidden.  The opposite of showTab.
    *
-   * @param {Object} aTab  A tab info object
+   * @param {object} aTab - A tab info object
    */
   saveTabState(aTab) {
     // save state
@@ -254,7 +254,7 @@ var calendarItemTabType = {
   /**
    * Called when a tab is activated / shown.  The opposite of saveTabState.
    *
-   * @param {Object} aTab  A tab info object
+   * @param {object} aTab - A tab info object
    */
   showTab(aTab) {
     // move toolbox into place then load state
@@ -270,7 +270,7 @@ var calendarItemTabType = {
    * we first prevent the tab from closing so we can prompt the user
    * about saving changes, then we allow the tab to close.
    *
-   * @param {Object} aTab  A tab info object
+   * @param {object} aTab - A tab info object
    */
   tryCloseTab(aTab) {
     if (aTab.allowTabClose) {
@@ -282,7 +282,7 @@ var calendarItemTabType = {
   /**
    * Closes a tab.
    *
-   * @param {Object} aTab  A tab info object
+   * @param {object} aTab - A tab info object
    */
   closeTab(aTab) {
     // Remove the iframe id from the array where they are stored.
@@ -305,7 +305,7 @@ var calendarItemTabType = {
    * Called when quitting the application (and/or closing the window).
    * Saves an open tab's state to be able to restore it later.
    *
-   * @param {Object} aTab  A tab info object
+   * @param {object} aTab - A tab info object
    */
   persistTab(aTab) {
     let args = aTab.iframe.contentWindow.arguments[0];
@@ -346,8 +346,8 @@ var calendarItemTabType = {
    * Called when starting the application (and/or opening the window).
    * Restores a tab that was open when the application was quit previously.
    *
-   * @param {Object} aTabmail  The tabmail interface
-   * @param {Object} aState    The state of the tab to restore
+   * @param {object} aTabmail - The tabmail interface
+   * @param {object} aState - The state of the tab to restore
    */
   restoreTab(aTabmail, aState) {
     // Sometimes restoreTab is called for tabs that were never saved
@@ -402,7 +402,7 @@ function switchCalendarView(aType, aShow) {
  * Move the event toolbox, containing the toolbar, into view for a tab
  * or back to its hiding place where it is accessed again for other tabs.
  *
- * @param {Node} aDestination  Destination where the toolbox will be moved
+ * @param {Node} aDestination - Destination where the toolbox will be moved
  */
 function moveEventToolbox(aDestination) {
   let toolbox = document.getElementById("event-toolbox");

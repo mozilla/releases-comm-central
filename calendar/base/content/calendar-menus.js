@@ -16,9 +16,9 @@
    * Get a property value for a group of tasks. If all the tasks have the same property value
    * then return that value, otherwise return null.
    *
-   * @param {string} propertyKey  The property key.
-   * @param {Object[]} tasks      The tasks.
-   * @returns {string|null}       The property value or null.
+   * @param {string} propertyKey - The property key.
+   * @param {object[]} tasks - The tasks.
+   * @returns {string|null} The property value or null.
    */
   const getPropertyValue = (propertyKey, tasks) => {
     let propertyValue = null;
@@ -39,8 +39,8 @@
    * When the propertyValue part of a command's name matches the propertyValue of the tasks,
    * set the command to 'checked=true', as long as the tasks all have the same propertyValue.
    *
-   * @param parent {Element}      Parent element that contains the menu items as direct children.
-   * @param propertyKey {string}  The property key, for example "priority" or "percentComplete".
+   * @param parent {Element} - Parent element that contains the menu items as direct children.
+   * @param propertyKey {string} - The property key, for example "priority" or "percentComplete".
    */
   const updateMenuItemsState = (parent, propertyKey) => {
     setAttributeOnChildrenOrTheirCommands("checked", false, parent);
@@ -65,7 +65,7 @@
    * A menupopup for changing the "progress" (percent complete) status for a task or tasks. It
    * indicates the current status by displaying a checkmark next to the menu item for that status.
    *
-   * @extends MozElements.MozMenuPopup
+   * @augments MozElements.MozMenuPopup
    */
   class CalendarTaskProgressMenupopup extends MozElements.MozMenuPopup {
     connectedCallback() {
@@ -124,7 +124,7 @@
    * A menupopup for changing the "priority" status for a task or tasks. It indicates the current
    * status by displaying a checkmark next to the menu item for that status.
    *
-   * @extends MozElements.MozMenuPopup
+   * @augments MozElements.MozMenuPopup
    */
   class CalendarTaskPriorityMenupopup extends MozElements.MozMenuPopup {
     connectedCallback() {

@@ -75,7 +75,7 @@ add_setup(async function() {
  * @param aCwc    A compose window controller.
  * @param aShown  True for expecting the bar to be shown, false otherwise.
  *
- * @return        If the bar is shown, return the notification object.
+ * @returns If the bar is shown, return the notification object.
  */
 function assert_automatic_reminder_state(aCwc, aShown) {
   return assert_notification_displayed(

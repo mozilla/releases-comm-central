@@ -256,7 +256,7 @@ MimeType.prototype = {
   },
 
   /**
-   * @return the category we believe this mime type belongs to.  This category
+   * @returns the category we believe this mime type belongs to.  This category
    *     name should never be shown directly to the user.  Instead, use
    *     |categoryLabel| to get the localized name for the category.  The
    *     category mapping comes from mimeTypesCategories.js.
@@ -265,7 +265,7 @@ MimeType.prototype = {
     return this._category;
   },
   /**
-   * @return The localized label for the category from gloda.properties in the
+   * @returns The localized label for the category from gloda.properties in the
    *     "gloda.mimetype.category.CATEGORY.label" definition using the value
    *     from |category|.
    */

@@ -19,6 +19,7 @@ registerCleanupFunction(() => {
 /**
  * Create a temporary dir to use as the source profile dir. Write a prefs.js
  * into it.
+ *
  * @param {Array<[string, string]>} prefs - An array of tuples, each tuple is
  *   a pref represented as [prefName, prefValue].
  */

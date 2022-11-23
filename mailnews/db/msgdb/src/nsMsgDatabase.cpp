@@ -1096,8 +1096,11 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
   } else if (err != NS_MSG_ERROR_FOLDER_SUMMARY_MISSING) {
     // No point declaring it out-of-date and trying to delete it
     // if it's missing.
+    // We get here with NS_ERROR_FAILURE when Mork can't open the
+    // file due to too many open files. In this case there is no
+    // point to blow away the MSF file.
     err = NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
-    deleteInvalidDB = true;
+    if (!m_leaveInvalidDB) deleteInvalidDB = true;
   }
 
   if (deleteInvalidDB) {
@@ -3951,18 +3954,15 @@ NS_IMETHODIMP nsMsgDatabase::ListAllOfflineMsgs(nsTArray<nsMsgKey>& keys) {
 }
 
 NS_IMETHODIMP nsMsgDatabase::ListAllOfflineOpIds(
-    nsTArray<nsMsgKey>* offlineOpIds) {
+    nsTArray<nsMsgKey>& offlineOpIds) {
   NS_ASSERTION(false, "overridden by nsMailDatabase");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsMsgDatabase::ListAllOfflineDeletes(
-    nsTArray<nsMsgKey>* offlineDeletes) {
-  nsresult ret = NS_OK;
-  if (!offlineDeletes) return NS_ERROR_NULL_POINTER;
-
+    nsTArray<nsMsgKey>& offlineDeletes) {
   // technically, notimplemented, but no one's putting offline ops in anyway.
-  return ret;
+  return NS_OK;
 }
 NS_IMETHODIMP nsMsgDatabase::GetHighWaterArticleNum(nsMsgKey* key) {
   if (!m_dbFolderInfo) return NS_ERROR_NULL_POINTER;

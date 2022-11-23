@@ -149,7 +149,7 @@ var SessionStoreManager = {
   },
 
   /**
-   * @return an empty state object that can be populated with window states.
+   * @returns an empty state object that can be populated with window states.
    */
   _createStateObject() {
     return {
@@ -208,7 +208,7 @@ var SessionStoreManager = {
   /**
    * Called by each 3pane window instance when it loads.
    *
-   * @return a window state object if aWindow was opened as a result of a
+   * @returns a window state object if aWindow was opened as a result of a
    *         session restoration, null otherwise.
    */
   async loadingWindow(aWindow) {

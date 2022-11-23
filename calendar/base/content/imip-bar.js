@@ -401,10 +401,10 @@ var calImipBar = {
   /**
    * Executes an action triggered by an imip bar button
    *
-   * @param   {String}  aParticipantStatus  A partstat string as per RfC 5545
-   * @param   {String}  aResponse           Either 'AUTO', 'NONE' or 'USER',
+   * @param   {string}  aParticipantStatus  A partstat string as per RfC 5545
+   * @param   {string}  aResponse           Either 'AUTO', 'NONE' or 'USER',
    *                                          see calItipItem interface
-   * @returns {Boolean}                     true, if the action succeeded
+   * @returns {boolean} true, if the action succeeded
    */
   executeAction(aParticipantStatus, aResponse) {
     // control to avoid processing _execAction on later user changes on the item
@@ -417,10 +417,10 @@ var calImipBar = {
      *                                         scheduling operation
      * @param   {calIItipItem} aItipItem     Scheduling item
      * @param   {nsIWindow}    aWindow       The current window
-     * @param   {String}       aPartStat     partstat string as per RFC 5545
-     * @param   {Object}       aExtResponse  JS object containing at least
+     * @param   {string}       aPartStat     partstat string as per RFC 5545
+     * @param   {object}       aExtResponse  JS object containing at least
      *                                         an responseMode property
-     * @returns {Boolean}                    true, if the action succeeded
+     * @returns {boolean} true, if the action succeeded
      */
     function _execAction(aActionFunc, aItipItem, aWindow, aPartStat, aExtResponse) {
       let method = aActionFunc.method;

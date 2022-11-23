@@ -46,6 +46,7 @@ class CollectedKeysDB {
 
   /**
    * Get a database instance.
+   *
    * @returns {CollectedKeysDB} a instance.
    */
   static async getInstance() {
@@ -81,7 +82,7 @@ class CollectedKeysDB {
   }
 
   /**
-   * @typedef {Object} CollectedKey - Key details.
+   * @typedef {object} CollectedKey - Key details.
    * @property {string[]} emails - Lowercase email addresses associated with this key
    * @property {string} fingerprint - Key fingerprint.
    * @property {string[]} userIds - UserIds for this key.
@@ -90,7 +91,7 @@ class CollectedKeysDB {
    * @property {Date} created - Key creation date.
    * @property {Date} expires - Key expiry date.
    * @property {Date} timestamp - Timestamp of last time this key was saved/updated.
-   * @property {Object[]} sources - List of sources we saw this key.
+   * @property {object[]} sources - List of sources we saw this key.
    * @property {string} sources.uri - URI of the source.
    * @property {string} sources.type - Type of source (e.g. attachment, wkd, keyserver)
    * @property {string} sources.description - Description of the source, if any. E.g. the attachment name.
@@ -98,6 +99,7 @@ class CollectedKeysDB {
 
   /**
    * Store a key.
+   *
    * @param {CollectedKey} key - the key to store.
    */
   async storeKey(key) {
@@ -126,6 +128,7 @@ class CollectedKeysDB {
 
   /**
    * Find key for fingerprint.
+   *
    * @param {string} fingerprint - Fingerprint to find key for.
    * @returns {CollectedKey} the key found, or null.
    */
@@ -153,6 +156,7 @@ class CollectedKeysDB {
 
   /**
    * Find keys for email.
+   *
    * @param {string} email - Email to find keys for.
    * @returns {CollectedKey[]} the keys found.
    */
@@ -186,11 +190,11 @@ class CollectedKeysDB {
    *
    * @param {EnigmailKeyOb} - key object
    * @param {string} keyBlock - public key to merge
-   * @param {Object} source - source of the information
+   * @param {object} source - source of the information
    * @param {string} source.type - source type
    * @param {string} source.uri - source uri
    * @param {string?} source.description - source description
-   * @return {CollectedKey} merged key - not yet stored in the database
+   * @returns {CollectedKey} merged key - not yet stored in the database
    */
   async mergeExisting(keyobj, keyBlock, source) {
     let fpr = keyobj.fpr;
@@ -256,6 +260,7 @@ class CollectedKeysDB {
 
   /**
    * Delete keys for email.
+   *
    * @param {string} email - Email to delete keys for.
    */
   async deleteKeysForEmail(email) {
@@ -288,6 +293,7 @@ class CollectedKeysDB {
 
   /**
    * Delete key by fingerprint.
+   *
    * @param {string} fingerprint - fingerprint of key to delete.
    */
   async deleteKey(fingerprint) {

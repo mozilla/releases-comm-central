@@ -27,6 +27,7 @@ var MailE10SUtils = {
 
   /**
    * Loads `uri` in `browser`, changing to a remote/local browser if necessary.
+   *
    * @see `nsIWebNavigation.loadURI`
    *
    * @param {nsIBrowser} browser
@@ -61,6 +62,7 @@ var MailE10SUtils = {
 
   /**
    * Force `browser` to be a remote/local browser.
+   *
    * @see E10SUtils.jsm for remote types.
    *
    * @param {nsIBrowser} browser

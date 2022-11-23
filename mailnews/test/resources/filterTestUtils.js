@@ -42,10 +42,10 @@ var ACTION_MAP = {
 /**
  * Creates a filter and appends it to the nsIMsgFilterList.
  *
- * @param list    An nsIMsgFilter to which the new filter will be appended.
- * @param trigger A key of ATTRIB_MAP that represents the filter trigger.
- * @param value   The value of the filter trigger.
- * @param action  A key of ACTION_MAP that represents the action to be taken.
+ * @param {nsIMsgFilter} list - An nsIMsgFilter to which the new filter will be appended.
+ * @param {string} trigger - A key of ATTRIB_MAP that represents the filter trigger.
+ * @param {string} value - The value of the filter trigger.
+ * @param {nsMsgFilterAction} action - A key of ACTION_MAP that represents the action to be taken.
  */
 function createFilter(list, trigger, value, action) {
   var filter = list.createFilter(trigger + action + "Test");

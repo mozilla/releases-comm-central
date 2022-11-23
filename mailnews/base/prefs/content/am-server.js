@@ -12,7 +12,8 @@ var gOriginalStoreType;
 
 /**
  * Called when the store type menu is clicked.
- * @param {Object} aStoreTypeElement - store type menu list element.
+ *
+ * @param {object} aStoreTypeElement - store type menu list element.
  */
 function clickStoreTypeMenu(aStoreTypeElement) {
   if (aStoreTypeElement.value == gOriginalStoreType) {
@@ -39,7 +40,8 @@ function clickStoreTypeMenu(aStoreTypeElement) {
  * Revert store type to the original store type if converter modal closes
  * before migration is complete, otherwise change original store type to
  * currently selected store type.
- * @param {Object} aResponse - response from migration dialog modal.
+ *
+ * @param {object} aResponse - response from migration dialog modal.
  */
 function changeStoreType(aResponse) {
   if (aResponse.newRootFolder) {

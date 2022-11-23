@@ -66,7 +66,7 @@ class CalendarDayViewTestUtils {
    *
    * @param {Window} win - The window the calendar is displayed in.
    *
-   * @return {MozCalendarEventColumn} - The column.
+   * @returns {MozCalendarEventColumn} - The column.
    */
   getEventColumn(win) {
     return this.#helper.getEventColumn(win, 1);
@@ -77,7 +77,7 @@ class CalendarDayViewTestUtils {
    *
    * @param {Window} win - The window the calendar is displayed in.
    *
-   * @return {MozCalendarEventBox[]} - The event boxes.
+   * @returns {MozCalendarEventBox[]} - The event boxes.
    */
   getEventBoxes(win) {
     return this.#helper.getEventBoxes(win, 1);
@@ -90,7 +90,7 @@ class CalendarDayViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} index - Indicates which event box to select.
    *
-   * @return {MozCalendarEventBox|undefined} - The event box, if it exists.
+   * @returns {MozCalendarEventBox|undefined} - The event box, if it exists.
    */
   getEventBoxAt(win, index) {
     return this.#helper.getEventBoxAt(win, 1, index);
@@ -142,7 +142,7 @@ class CalendarDayViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} index - Indicates which item to select (1-based).
    *
-   * @return {MozCalendarEventBox} - The event box.
+   * @returns {MozCalendarEventBox} - The event box.
    */
   async waitForEventBoxAt(win, index) {
     return this.#helper.waitForEventBoxAt(win, 1, index);
@@ -239,7 +239,7 @@ class CalendarWeekViewTestUtils {
    * @param {number} day - Must be between 1-7.
    *
    * @throws If the day parameter is out of range.
-   * @return {HTMLElement} - The column container element.
+   * @returns {HTMLElement} - The column container element.
    */
   getColumnContainer(win, day) {
     if (day < 1 || day > 7) {
@@ -261,7 +261,7 @@ class CalendarWeekViewTestUtils {
    * @param {number} day - Must be between 1-7.
    *
    * @throws If the day parameter is out of range.
-   * @return {HTMLElement} - The column heading container element.
+   * @returns {HTMLElement} - The column heading container element.
    */
   getColumnHeading(win, day) {
     let container = this.getColumnContainer(win, day);
@@ -275,7 +275,7 @@ class CalendarWeekViewTestUtils {
    * @param {number} day - Must be between 1-7
    *
    * @throws - If the day parameter is out of range.
-   * @return {MozCalendarEventColumn} - The column.
+   * @returns {MozCalendarEventColumn} - The column.
    */
   getEventColumn(win, day) {
     let container = this.getColumnContainer(win, day);
@@ -288,7 +288,7 @@ class CalendarWeekViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} day - Must be between 1-7.
    *
-   * @return {MozCalendarEventBox[]} - The event boxes.
+   * @returns {MozCalendarEventBox[]} - The event boxes.
    */
   getEventBoxes(win, day) {
     let container = this.getColumnContainer(win, day);
@@ -303,7 +303,7 @@ class CalendarWeekViewTestUtils {
    * @param {number} day - Must be between 1-7.
    * @param {number} index - Indicates which event box to select.
    *
-   * @return {MozCalendarEventBox|undefined} - The event box, if it exists.
+   * @returns {MozCalendarEventBox|undefined} - The event box, if it exists.
    */
   getEventBoxAt(win, day, index) {
     return this.getEventBoxes(win, day)[index - 1];
@@ -514,7 +514,7 @@ class CalendarMonthViewTestUtils {
    * @param {number} index - Indicates which item to select.
    *
    * @throws If the index, day or week parameters are out of range.
-   * @return {MozCalendarMonthDayBoxItem}
+   * @returns {MozCalendarMonthDayBoxItem}
    */
   getItemAt(win, week, day, index) {
     if (!(index >= 1)) {
@@ -534,7 +534,7 @@ class CalendarMonthViewTestUtils {
    * @param {number} day - Must be between 1-7.
    * @param {number} index - Indicates which item to select.
    *
-   * @return {MozCalendarMonthDayBoxItem}
+   * @returns {MozCalendarMonthDayBoxItem}
    */
   async waitForItemAt(win, week, day, index) {
     return TestUtils.waitForCondition(
@@ -668,7 +668,7 @@ const CalendarTestUtils = {
    *
    * @param strings       The string fragments from the template string
    * @param ...values     The interpolated values
-   * @return              The interpolated, dedented string
+   * @returns The interpolated, dedented string
    */
   dedent(strings, ...values) {
     let parts = [];
@@ -707,6 +707,7 @@ const CalendarTestUtils = {
   /**
    * Creates and registers a new calendar with the calendar manager. The
    * created calendar will be set as the default calendar.
+   *
    * @param {string} - name
    * @param {string} - type
    *
@@ -1123,7 +1124,7 @@ const CalendarTestUtils = {
    *
    * @param {Window} win - The window that contains the calendar views.
    *
-   * @return {Object} - An opaque object with data to pass to
+   * @returns {object} - An opaque object with data to pass to
    *   restoreCalendarViewsState.
    */
   saveCalendarViewsState(win) {
@@ -1142,7 +1143,7 @@ const CalendarTestUtils = {
    * state, and close the calendar tab.
    *
    * @param {Window} win - The window that contains the calendar views.
-   * @param {Object} data - The data returned by saveCalendarViewsState.
+   * @param {object} data - The data returned by saveCalendarViewsState.
    */
   async restoreCalendarViewsState(win, data) {
     for (let { view, viewName, scrollMinute } of data.multidayViewsData) {

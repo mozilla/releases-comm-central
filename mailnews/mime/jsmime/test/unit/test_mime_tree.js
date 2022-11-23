@@ -30,11 +30,12 @@ define(function(require) {
 
   /**
    * Read a file into a string (all line endings become CRLF).
+   *
    * @param file  The name of the file to read, relative to the data/ directory.
    * @param start The first line of the file to return, defaulting to 0
    * @param end   The last line of the file to return, defaulting to the number of
    *              lines in the file.
-   * @return      Promise<String> The contents of the file as a binary string.
+   * @returns Promise<String> The contents of the file as a binary string.
    */
   function read_file(file, start, end) {
     if (!(file in file_cache)) {
@@ -77,6 +78,7 @@ define(function(require) {
    *         are included in the output packets!
    * _eol: The CRLFs in the input file will be replaced with the given line
    *       ending instead.
+   *
    * @param test     The name of test
    * @param file     The name of the file to read (relative to mailnews/data)
    * @param opts     Options for the mime parser, as well as a few extras detailed
@@ -123,7 +125,7 @@ define(function(require) {
    *                 dictionary of part number -> header -> values (to check
    *                 headers), or an array of [partnum, partdata] for expected
    *                 results to deliverPartData, or a promise for the above.
-   * @return         A promise containing the results of the test.
+   * @returns A promise containing the results of the test.
    */
   function testParser(message, opts, results) {
     var uncheckedValues;

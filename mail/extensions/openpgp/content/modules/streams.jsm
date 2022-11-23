@@ -79,7 +79,7 @@ var EnigmailStreams = {
    * @data:           String - the data to feed to the stream
    * @loadInfo        nsILoadInfo - loadInfo (optional)
    *
-   * @return nsIChannel object
+   * @returns nsIChannel object
    */
   newStringChannel(uri, contentType, contentCharset, data, loadInfo) {
     if (!loadInfo) {

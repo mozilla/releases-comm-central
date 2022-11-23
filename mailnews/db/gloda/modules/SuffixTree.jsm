@@ -28,7 +28,7 @@ function MultiSuffixTree(aStrings, aItems) {
 }
 
 /**
- * @constructor
+ * @class
  */
 function State(aStartIndex, aEndIndex, aSuffix) {
   this.start = aStartIndex;
@@ -71,7 +71,8 @@ State.prototype = {
 
 /**
  * Suffix tree implemented using Ukkonen's algorithm.
- * @constructor
+ *
+ * @class
  */
 function SuffixTree(aStr) {
   this._construct(aStr);
@@ -247,7 +248,8 @@ dump("  bailing! (bail was: " + bail + ")\n");
    *  which we will perform the required splitting to make it explicit), test
    *  whether it already possesses a transition corresponding to the provided
    *  character.
-   * @return A list of: whether we had to make it explicit, the (potentially)
+   *
+   * @returns A list of: whether we had to make it explicit, the (potentially)
    *    new explicit state.
    */
   _testAndSplit(aState, aStart, aEnd, aChar) {

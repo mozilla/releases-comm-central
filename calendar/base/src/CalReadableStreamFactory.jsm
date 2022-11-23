@@ -10,15 +10,17 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /**
  * Function used to transform each value received from a stream.
+ *
  * @callback MapStreamFunction
  * @param {any} value
- * @return {Promise<any>|any}
+ * @returns {Promise<any>|any}
  */
 
 /**
  * A version of UnderlyingSource that accepts a CalBoundedReadableStreamController
  * as the controller argument.
- * @typedef {Object} CalBoundedReadableStreamUnderlyingSource
+ *
+ * @typedef {object} CalBoundedReadableStreamUnderlyingSource
  */
 
 /**
@@ -59,6 +61,7 @@ class CalBoundedReadableStreamController {
 
   /**
    * The count of items enqueued so far.
+   *
    * @type {number}
    */
   count = 0;
@@ -77,6 +80,7 @@ class CalBoundedReadableStreamController {
   /**
    * Indicates whether the maximum number of items have been added to the queue
    * after which no more will be allowed.
+   *
    * @type {number}
    */
   get maxTotalItemsReached() {
@@ -85,6 +89,7 @@ class CalBoundedReadableStreamController {
 
   /**
    * Indicates whether the queue is full or not.
+   *
    * @type {boolean}
    */
   get queueFull() {
@@ -94,6 +99,7 @@ class CalBoundedReadableStreamController {
   /**
    * Indicates how many more items can be enqueued based on the internal count
    * kept.
+   *
    * @type {number}
    */
   get remainingItemCount() {
@@ -102,6 +108,7 @@ class CalBoundedReadableStreamController {
 
   /**
    * Provides the value of the same property from the controller.
+   *
    * @type {number}
    */
   get desiredSize() {
@@ -111,6 +118,7 @@ class CalBoundedReadableStreamController {
   /**
    * Called by the ReadableStream to begin queueing items. This delegates to
    * the provided underlying source.
+   *
    * @param {ReadableStreamDefaultController} controller
    */
   async start(controller) {
@@ -132,6 +140,7 @@ class CalBoundedReadableStreamController {
 
   /**
    * Called by the ReadableStream when reading has been cancelled.
+   *
    * @param {string} reason
    */
   async cancel(reason) {
@@ -145,6 +154,7 @@ class CalBoundedReadableStreamController {
    * Called by start() of the underlying source to add items to the queue. Items
    * will only be added if maxTotalItemsReached returns false at which point
    * the stream is automatically closed.
+   *
    * @param {calIItemBase[]} items
    */
   enqueue(items) {
@@ -163,6 +173,7 @@ class CalBoundedReadableStreamController {
   /**
    * Flushes the internal buffer if the number of buffered items have reached
    * the threshold.
+   *
    * @param {boolean} [force] - If true, will flush all items regardless of the
    *                            threshold.
    */
@@ -223,7 +234,7 @@ class CalReadableStreamFactory {
    *
    * @param {UnderlyingSource} src
    *
-   * @return {ReadableStream}
+   * @returns {ReadableStream}
    */
   static createReadableStream(src) {
     return new ReadableStream(src);
@@ -238,7 +249,7 @@ class CalReadableStreamFactory {
    * @param {number} maxQueuedItems
    * @param {UnderlyingSource} src
    *
-   * @return {ReadableStream<calIItemBase>}
+   * @returns {ReadableStream<calIItemBase>}
    */
   static createBoundedReadableStream(maxTotalItems, maxQueuedItems, src) {
     return new ReadableStream(
@@ -248,7 +259,8 @@ class CalReadableStreamFactory {
 
   /**
    * Creates a ReadableStream that will provide no actual items.
-   * @return {ReadableStream<calIItemBase>}
+   *
+   * @returns {ReadableStream<calIItemBase>}
    */
   static createEmptyReadableStream() {
     return new ReadableStream({
@@ -265,7 +277,7 @@ class CalReadableStreamFactory {
    * with in an error state.
    *
    * @param {ReadableStream[]} streams
-   * @return {ReadableStream}
+   * @returns {ReadableStream}
    */
   static createCombinedReadableStream(streams) {
     return new ReadableStream({
@@ -283,10 +295,11 @@ class CalReadableStreamFactory {
   /**
    * Creates a ReadableStream from another stream where each chunk of the source
    * stream is passed to a MapStreamFunction before enqueuing in the final stream.
+   *
    * @param {ReadableStream}
    * @param {MapStreamFunction}
    *
-   * @return {ReadableStream}
+   * @returns {ReadableStream}
    */
   static createMappedReadableStream(stream, func) {
     return new ReadableStream({

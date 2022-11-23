@@ -3,7 +3,7 @@
  * a database too far from the future, and too far from the past.  This
  * one is the future one.  We must keep ourselves safe from time-traveling
  * grandchildren!
- **/
+ */
 
 /* import-globals-from test_nuke_migration.js */
 load("test_nuke_migration.js");

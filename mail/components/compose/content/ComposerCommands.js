@@ -566,7 +566,7 @@ function GetSuggestedFileName(aDocumentURLString, aMIMEType) {
 }
 
 /**
- * @return {Promise} dialogResult
+ * @returns {Promise} dialogResult
  */
 function PromptForSaveLocation(
   aDoSaveAsText,
@@ -666,7 +666,8 @@ function PromptForSaveLocation(
 /**
  * If needed, prompt for document title and set the document title to the
  * preferred value.
- * @return true if the title was set up successfully;
+ *
+ * @returns true if the title was set up successfully;
  *         false if the user cancelled the title prompt
  */
 function PromptAndSetTitleIfNone() {

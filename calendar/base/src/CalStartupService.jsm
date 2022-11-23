@@ -49,7 +49,7 @@ CalStartupService.prototype = {
    * Gets the startup order of services. This is an array of service objects
    * that should be called in order at startup.
    *
-   * @return      The startup order as an array.
+   * @returns The startup order as an array.
    */
   getStartupOrder() {
     let self = this;

@@ -26,7 +26,8 @@
    * The MozChatTooltip widget implements a custom tooltip for chat. This tooltip
    * is used to display a rich tooltip when you mouse over contacts, channels
    * etc. in the chat view.
-   * @extends {XULPopupElement}
+   *
+   * @augments {XULPopupElement}
    */
   class MozChatTooltip extends MozElements.MozElementMixin(XULPopupElement) {
     static get inheritedAttributes() {

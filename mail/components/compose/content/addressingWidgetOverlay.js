@@ -25,7 +25,7 @@ var gPreventRowDeletionKeysRepeat = false;
  * Convert all the written recipients into string and store them into the
  * msgCompFields array to be printed in the message header.
  *
- * @param {Object} msgCompFields - An object to receive the recipients.
+ * @param {object} msgCompFields - An object to receive the recipients.
  */
 function Recipients2CompFields(msgCompFields) {
   if (!msgCompFields) {
@@ -110,7 +110,7 @@ function setAddressRowFromCompField(
 /**
  * Convert all the recipients coming from a message header into pills.
  *
- * @param {Object} msgCompFields - An object containing all the recipients. If
+ * @param {object} msgCompFields - An object containing all the recipients. If
  *                                 any property is not a string, it is ignored.
  */
 function CompFields2Recipients(msgCompFields) {
@@ -253,7 +253,7 @@ function updateUIforMailAccount() {
  * matching. This is commonly used to clear previous Auto-CC/BCC recipients when
  * loading a new identity.
  *
- * @param {Object} msgCompFields - gMsgCompose.compFields, for helper functions.
+ * @param {object} msgCompFields - gMsgCompose.compFields, for helper functions.
  * @param {string} recipientType - The type of recipients to remove,
  *   e.g. "addr_to" (recipient label id).
  * @param {string} recipientsList - Comma-separated string containing recipients
@@ -1127,7 +1127,7 @@ function showAndFocusAddressRow(rowId) {
  * @param {Element} row - The address row.
  * @param {boolean} [show=true] - Whether to show the row or hide it.
  *
- * @return {boolean} - Whether the visibility was set.
+ * @returns {boolean} - Whether the visibility was set.
  */
 function addressRowSetVisibility(row, show) {
   let menuItem = document.getElementById(row.dataset.showSelfMenuitem);

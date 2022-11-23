@@ -24,6 +24,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 class CalendarFileImporter {
   /**
    * Callback for progress updates.
+   *
    * @param {number} current - Current imported items count.
    * @param {number} total - Total items count.
    */
@@ -37,6 +38,7 @@ class CalendarFileImporter {
 
   /**
    * Parse an ics file to an array of items.
+   *
    * @param {string} file - The file path of an ics file.
    * @returns {calIItemBase[]}
    */
@@ -70,6 +72,7 @@ class CalendarFileImporter {
 
   /**
    * Get all calendars that the current user can import items to.
+   *
    * @returns {calICalendar[]}
    */
   getTargetCalendars() {
@@ -93,6 +96,7 @@ class CalendarFileImporter {
 
   /**
    * Actually start importing items into a calendar.
+   *
    * @param {nsIFile} sourceFile - The source file to import from.
    * @param {calICalendar} targetCalendar - The calendar to import into.
    */

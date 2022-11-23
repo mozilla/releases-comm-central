@@ -35,6 +35,7 @@ class MsgKeySet {
 
   /**
    * Add a value to the set.
+   *
    * @param {number} value - The value to add.
    */
   add(value) {
@@ -43,6 +44,7 @@ class MsgKeySet {
 
   /**
    * Add a range to the set.
+   *
    * @param {number} low - The smallest value of the range.
    * @param {number} high - The largest value of the range.
    */
@@ -60,6 +62,7 @@ class MsgKeySet {
 
   /**
    * Check if a value is in the set.
+   *
    * @param {number} value - The value to check.
    * @returns {boolean}
    */
@@ -71,6 +74,7 @@ class MsgKeySet {
 
   /**
    * Get the last range that is in the input range, but not in the key set.
+   *
    * @param {number} low - The smallest value of the input range.
    * @param {number} high - The largest value of the input range.
    * @returns {[number, number]}
@@ -92,6 +96,7 @@ class MsgKeySet {
 
   /**
    * Get the string representation of the key set.
+   *
    * @returns {string}
    */
   toString() {

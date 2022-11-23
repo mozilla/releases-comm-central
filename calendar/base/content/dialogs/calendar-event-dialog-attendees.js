@@ -1109,7 +1109,7 @@ function updateRange() {
       this.freeBusyDiv.remove();
     }
 
-    /** @return {calIAttendee} - Attendee object for this row. */
+    /** @returns {calIAttendee} - Attendee object for this row. */
     get attendee() {
       if (!this.value) {
         return null;
@@ -1145,11 +1145,11 @@ function updateRange() {
       this._updateTooltip(this.userTypeIcon);
     }
 
-    /** @return {String} - The user-visible string representing this row's attendee. */
+    /** @returns {string} - The user-visible string representing this row's attendee. */
     get value() {
       return this.input.value;
     }
-    /** @param {String} value - The user-visible string representing this row's attendee. */
+    /** @param {string} value - The user-visible string representing this row's attendee. */
     set value(value) {
       this.input.value = value;
     }
@@ -1410,7 +1410,7 @@ function updateRange() {
       }
     }
 
-    /** @return {calIDateTime} - The day this group of columns represents. */
+    /** @returns {calIDateTime} - The day this group of columns represents. */
     get date() {
       return this.mDate;
     }

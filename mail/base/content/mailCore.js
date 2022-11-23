@@ -555,6 +555,7 @@ function showChatTab() {
 
 /**
  * Open about:import or importDialog.xhtml.
+ *
  * @param {"start"|"app"|"addressBook"|"calendar"|"export"} [tabId] - The tab
  *  to open in about:import.
  */
@@ -885,7 +886,7 @@ function getMostRecentMailWindow() {
  * dots and whitespace from filename extensions.
  *
  * @param aAttachment the AttachmentInfo object
- * @return a sanitized display name for the attachment
+ * @returns a sanitized display name for the attachment
  */
 function SanitizeAttachmentDisplayName(aAttachment) {
   let displayName = aAttachment.name.trim().replace(/\s+/g, " ");

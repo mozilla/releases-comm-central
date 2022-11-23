@@ -14,6 +14,7 @@ const MESSAGE_RFC822 = "message/rfc822";
 class MimeEncoder {
   /**
    * Create a MimeEncoder.
+   *
    * @param {string} charset
    * @param {string} contentType
    * @param {boolean} forceMsgEncoding

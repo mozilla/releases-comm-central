@@ -73,8 +73,9 @@ function run_test() {
 /**
  * Helper to create a server, account and inbox, and install an
  * mbox file.
- * @param {String} srvName - A unique server name to use for the test.
- * @param {String} mboxFilename - mbox file to install and convert.
+ *
+ * @param {string} srvName - A unique server name to use for the test.
+ * @param {string} mboxFilename - mbox file to install and convert.
  * @returns {nsIMsgIncomingServer} a server.
  */
 function setupServer(srvName, mboxFilename) {
@@ -105,9 +106,9 @@ function setupServer(srvName, mboxFilename) {
 /**
  * Perform an mbox->maildir conversion test.
  *
- * @param {String} srvName - A unique server name to use for the test.
- * @param {String} mboxFilename - mbox file to install and convert.
- * @param {Number} expectCnt - Number of messages expected.
+ * @param {string} srvName - A unique server name to use for the test.
+ * @param {string} mboxFilename - mbox file to install and convert.
+ * @param {number} expectCnt - Number of messages expected.
  * @returns {nsIMsgIncomingServer} a server.
  */
 async function doMboxTest(srvName, mboxFilename, expectCnt) {
@@ -149,9 +150,9 @@ async function doMboxTest(srvName, mboxFilename, expectCnt) {
 /**
  * Create a temporary directory. The caller is responsible for deleting it.
  *
- * @param {String} prefix - Generated dir name will be of the form:
+ * @param {string} prefix - Generated dir name will be of the form:
  *                          "<prefix><random_sequence>".
- * @returns {String} full path of new directory.
+ * @returns {string} full path of new directory.
  */
 async function tempDir(prefix) {
   if (!prefix) {
@@ -227,10 +228,10 @@ async function roundTripTest() {
 /**
  * Helper to adapt the callbacks from converterWorker into a promise.
  *
- * @param {String} srcType - type of source ("maildir", "mbox")
- * @param {String} srcRoot - root directory containing the src folders.
- * @param {String} destType - type of destination ("maildir", "mbox")
- * @param {String} destRoot - root directory to place converted store.
+ * @param {string} srcType - type of source ("maildir", "mbox")
+ * @param {string} srcRoot - root directory containing the src folders.
+ * @param {string} destType - type of destination ("maildir", "mbox")
+ * @param {string} destRoot - root directory to place converted store.
  * @returns {Promise} resolved when when conversion is complete.
  */
 function doConvert(srcType, srcRoot, destType, destRoot) {
@@ -258,8 +259,8 @@ function doConvert(srcType, srcRoot, destType, destRoot) {
  * Copy a list of email files (.eml) files into a maildir, creating "cur"
  * and "tmp" subdirs if required.
  *
- * @param {String} maildir           - Path to the maildir directory.
- * @param {Array<String>} emailFiles - paths of source .eml files to copy.
+ * @param {string} maildir - Path to the maildir directory.
+ * @param {Array<string>} emailFiles - paths of source .eml files to copy.
  */
 async function populateMaildir(maildir, emailFiles) {
   let cur = PathUtils.join(maildir, "cur");
@@ -313,8 +314,8 @@ async function md5Sum(fileName) {
  * The comparison is per-maildir, by looking at the checksums of their emails.
  * Asserts a test fail if any differences are found.
  *
- * @param {String} rootA - path to root of maildir store A.
- * @param {String} rootB - path to root of maildir store B.
+ * @param {string} rootA - path to root of maildir store A.
+ * @param {string} rootB - path to root of maildir store B.
  */
 async function recursiveMaildirCompare(rootA, rootB) {
   let subdirs = [];

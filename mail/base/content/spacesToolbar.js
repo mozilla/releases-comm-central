@@ -60,9 +60,9 @@ var gSpacesToolbar = {
 
   /**
    * @callback TabInSpace
-   * @param {Object} tabInfo - The tabInfo object (a member of tabmail.tabInfo)
+   * @param {object} tabInfo - The tabInfo object (a member of tabmail.tabInfo)
    *   for the tab.
-   * @return {0|1|2} - The relation between the tab and the space. 0 means it
+   * @returns {0|1|2} - The relation between the tab and the space. 0 means it
    *   does not belong to the space. 1 means it is a primary tab of the space.
    *   2 means it is a secondary tab of the space.
    */
@@ -70,13 +70,13 @@ var gSpacesToolbar = {
    * @callback OpenSpace
    * @param {"tab"|"window"} where - Where to open the space: in a new tab or in
    *   a new window.
-   * @return {?Object|Window} - The tabInfo for the newly opened tab, or the
+   * @returns {?object | Window} - The tabInfo for the newly opened tab, or the
    *   newly opened messenger window, or null if neither was created.
    */
   /**
    * Data and methods for a space.
    *
-   * @typedef {Object} SpaceInfo
+   * @typedef {object} SpaceInfo
    * @property {string} name - The name for this space.
    * @property {boolean} allowMultipleTabs - Whether to allow the user to open
    *   multiple tabs in this space.

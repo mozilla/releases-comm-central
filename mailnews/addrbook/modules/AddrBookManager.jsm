@@ -551,6 +551,7 @@ AddrBookManager.prototype = {
   },
   /**
    * Finds out if the directory name already exists.
+   *
    * @param {string} name - The name of a directory to check for.
    */
   directoryNameExists(name) {

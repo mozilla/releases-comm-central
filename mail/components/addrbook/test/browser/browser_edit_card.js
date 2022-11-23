@@ -653,7 +653,7 @@ async function setVCardInputValues(changes) {
  * Open the contact at the given index in the #cards element.
  *
  * @param {number} index - The index of the contact to edit.
- * @param {Object} options - Options for how the contact is selected for
+ * @param {object} options - Options for how the contact is selected for
  *   editing.
  * @param {boolean} options.useMouse - Whether to use mouse events to select the
  *   contact. Otherwise uses keyboard events.

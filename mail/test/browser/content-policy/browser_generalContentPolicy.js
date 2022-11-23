@@ -324,7 +324,8 @@ async function checkEMLMessageWindow(test, emlFile) {
 
 /**
  * Helper method to save one of the test files as an .eml file.
- * @return the file the message was safed to
+ *
+ * @returns the file the message was safed to
  */
 function saveAsEMLFile(msgNo) {
   let msgHdr = select_click_row(msgNo);

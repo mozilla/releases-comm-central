@@ -65,7 +65,7 @@ var calalarms = {
    *
    * @param aItem     The item used to calculate the alarm date.
    * @param aAlarm    The alarm to calculate the date for.
-   * @return          The alarm date.
+   * @returns The alarm date.
    */
   calculateAlarmDate(aItem, aAlarm) {
     if (aAlarm.related == Ci.calIAlarm.ALARM_RELATED_ABSOLUTE) {
@@ -111,7 +111,7 @@ var calalarms = {
    * @param aAlarm    The alarm to calculate the offset for.
    * @param aRelated  (optional) A relation constant from calIAlarm. If not
    *                    passed, ALARM_RELATED_START will be assumed.
-   * @return          The alarm offset.
+   * @returns The alarm offset.
    */
   calculateAlarmOffset(aItem, aAlarm, aRelated) {
     let offset = aAlarm.offset;

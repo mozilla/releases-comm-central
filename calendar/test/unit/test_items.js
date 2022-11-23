@@ -315,9 +315,9 @@ function test_isTodo() {
  * Function for testing that the "properties" property of each supplied
  * calItemBase occurrence includes those inherited from the parent.
  *
- * @param {calItemBase[]} items  - A list of item occurrences to test.
- * @param {calItemBase} parent   - The item to use as the parent.
- * @param {object} [overrides]   - A set of key value pairs than can be passed
+ * @param {calItemBase[]} items - A list of item occurrences to test.
+ * @param {calItemBase} parent - The item to use as the parent.
+ * @param {object} [overrides] - A set of key value pairs than can be passed
  *                                 to indicate what to expect for some properties.
  */
 function doPropertiesTest(items, parent, overrides = {}) {

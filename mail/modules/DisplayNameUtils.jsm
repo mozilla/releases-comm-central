@@ -40,7 +40,7 @@ function _getIdentityForAddress(aEmailAddress) {
  * @param {string} emailAddress - The email address to format.
  * @param {string} headerDisplayName - The display name from the header, if any.
  * @param {string} context - The field being formatted (e.g. "to", "from").
- * @return The formatted display name, or null.
+ * @returns The formatted display name, or null.
  */
 function formatDisplayName(emailAddress, headerDisplayName, context) {
   let displayName = null;
@@ -96,7 +96,7 @@ function formatDisplayName(emailAddress, headerDisplayName, context) {
  *
  * @param aHeaderValue  The decoded header value (e.g. mime2DecodedAuthor).
  * @param aContext      The context of the header field (e.g. "to", "from").
- * @return The formatted display name.
+ * @returns The formatted display name.
  */
 function formatDisplayNameList(aHeaderValue, aContext) {
   let addresses = MailServices.headerParser.parseDecodedHeader(aHeaderValue);

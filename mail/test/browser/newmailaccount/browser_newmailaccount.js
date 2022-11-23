@@ -90,7 +90,7 @@ function nAccounts() {
 /**
  * Helper function to wait for the load of the account providers.
  *
- * @param {Object} tab - The opened account provisioner tab.
+ * @param {object} tab - The opened account provisioner tab.
  */
 async function waitForLoadedProviders(tab) {
   let gProvisioner = await TestUtils.waitForCondition(

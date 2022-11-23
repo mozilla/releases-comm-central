@@ -222,14 +222,15 @@ function mark_test_end(aPopTo) {
 /**
  * For user test code and test support code to mark sub-regions of tests.
  *
- * @param aName The name of the (sub) test.
- * @param [aParameter=null] The parameter if the test is being parameterized.
- * @param [aNest=false] Should this nest inside other sub-tests?  If you omit or
- *     pass false, we will close out any existing sub-tests.  If you pass true,
- *     we nest inside the previous test/sub-test and rely on you to call
- *     |mark_sub_test_end|.  Sub tests can lost no longer than their parent.
- *     You should strongly consider using the aNest parameter if you are
- *     test support code.
+ * @param {string} aName The name of the (sub) test.
+ * @param {string} [aParameter=null] The parameter if the test is being parameterized.
+ * @param {boolean} [aNest=false] Should this nest inside other sub-tests?
+ *   If you omit orpass false, we will close out any existing sub-tests.
+ *   If you pass true, we nest inside the previous test/sub-test and rely on
+ *   you to call |mark_sub_test_end|.
+ *   Sub tests can lost no longer than their parent.
+ *   You should strongly consider using the aNest parameter if you are test
+ *   support code.
  */
 function mark_sub_test_start(aName, aParameter, aNest) {
   let depth = aNest ? _testLoggerContexts.length : 1;
@@ -290,9 +291,9 @@ function __value_copy(aObj, aDepthAllowed) {
  * Simple object copier to limit accidentally JSON-ing a ridiculously complex
  *  object graph or getting tripped up by prototypes.
  *
- * @param aObj Input object.
- * @param aDepthAllowed How many times we are allowed to recursively call
- *     ourselves.
+ * @param {object} aObj - Input object.
+ * @param {integer} aDepthAllowed - How many times we are allowed to recursively
+ *   call ourselves.
  */
 function __simple_obj_copy(aObj, aDepthAllowed) {
   let oot = {};
@@ -551,12 +552,12 @@ _MarkAction.prototype = {
  *  fails, but right now it means great fun for people who use logsploder and
  *  just nicely formatted text for people looking at the console output.
  *
- * @param aWho Think of this like a logger handle... it might be soon.
- * @param aWhat What did you do?
- * @param aArgs A list of arguments, which could each be something like an
- *     nsIMsgFolder or nsIMsgDBHdr or something like that.  It uses
- *     |_normalize_for_json| which can handle some native objects, be extended
- *     to handle more, and does a fair job on straight JS objects.
+ * @param {string} aWho - Think of this like a logger handle... it might be soon.
+ * @param {string} aWhat - What did you do?
+ * @param {*[]} aArgs A list of arguments, which could each be something like an
+ *   nsIMsgFolder or nsIMsgDBHdr or something like that.  It uses
+ *   |_normalize_for_json| which can handle some native objects, be extended
+ *   to handle more, and does a fair job on straight JS objects.
  */
 function mark_action(aWho, aWhat, aArgs) {
   let logger = console.createInstance({

@@ -18,7 +18,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
    * The MozTabmailAlltabsMenuPopup widget is used as a menupopup to list all the
    * currently opened tabs.
    *
-   * @extends {MozElements.MozMenuPopup}
+   * @augments {MozElements.MozMenuPopup}
    * @implements {EventListener}
    */
   class MozTabmailAlltabsMenuPopup extends MozElements.MozMenuPopup {
@@ -199,13 +199,13 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
    * Thunderbird's tab UI mechanism.
    *
    * We expect to be instantiated with the following children:
-   * * One "tabpanels" child element whose id must be placed in the
+   * One "tabpanels" child element whose id must be placed in the
    *   "panelcontainer" attribute on the element we are being bound to. We do
    *   this because it is important to allow overlays to contribute panels.
    *   When we attempted to have the immediate children of the bound element
    *   be propagated through use of the "children" tag, we found that children
    *   contributed by overlays did not propagate.
-   * * Any children you want added to the right side of the tab bar.  This is
+   * Any children you want added to the right side of the tab bar.  This is
    *   primarily intended to allow for "open a BLANK tab" buttons, namely
    *   calendar and tasks.  For reasons similar to the tabpanels case, we
    *   expect the instantiating element to provide a child hbox for overlays
@@ -218,7 +218,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
    * 3) Code that wants to monitor to know when the active tab changes.
    *
    * Consumer code should use the following methods:
-   * * openTab(aTabModeName, aArgs)
+   * openTab(aTabModeName, aArgs)
    *     Open a tab of the given "mode", passing the provided arguments as an
    *     object. The tab type author should tell you the modes they implement
    *     and the required/optional arguments.
@@ -226,13 +226,13 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
    *     Each tab type can define the set of arguments that it expects, but
    *     there are also a few common ones that all should obey, including:
    *
-   *     * "background": if this is true, the tab will be loaded in the
+   *     "background": if this is true, the tab will be loaded in the
    *       background.
-   *     * "disregardOpener": if this is true, then the tab opener will not
+   *     "disregardOpener": if this is true, then the tab opener will not
    *       be switched to automatically by tabmail if the new tab is immediately
    *       closed.
    *
-   * * closeTab(aOptionalTabIndexInfoOrTabNode, aNoUndo):
+   * closeTab(aOptionalTabIndexInfoOrTabNode, aNoUndo):
    *     If no argument is provided, the current tab is closed. The first
    *     argument specifies a specific tab to be closed. It can be a tab index,
    *     a tab info object, or a tab's DOM element. In case the second
@@ -240,19 +240,19 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
    *     undoCloseTab().
    *     Please note, some tabs cannot be closed. Trying to close such tab,
    *     will fail silently.
-   * * undoCloseTab():
+   * undoCloseTab():
    *     Restores the most recent tab closed by the user.
-   * * switchToTab(aTabIndexInfoOrTabNode):
+   * switchToTab(aTabIndexInfoOrTabNode):
    *     Switch to the tab by providing a tab index, tab info object, or tab
    *     node (tabmail-tab bound element.) Instead of calling this method,
    *     you can also just poke at tabmail.tabContainer and its selectedIndex
    *     and selectedItem properties.
-   * * replaceTabWithWindow(aTab):
+   * replaceTabWithWindow(aTab):
    *     Detaches a tab from this tabbar to new window. The argument "aTab" is
    *     required and can be a tab index, a tab info object or a tabs's
    *     DOM element. Calling this method works only for tabs implementing
    *     session restore.
-   * * moveTabTo(aTab, aIndex):
+   * moveTabTo(aTab, aIndex):
    *     moves the given tab to the given Index. The first argument can be
    *     a tab index, a tab info object or a tab's DOM element. The second
    *     argument specifies the tabs new absolute position within the tabbar.
@@ -448,7 +448,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
   /**
    * The MozTabmail widget handles the Tab UI mechanism.
    *
-   * @extends {MozXULElement}
+   * @augments {MozXULElement}
    */
   class MozTabmail extends MozXULElement {
     connectedCallback() {
@@ -1008,7 +1008,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
      *  In other cases, having an MRU order and choosing the MRU tab might
      *  be more appropriate.
      *
-     * @return the tab info object for the tab meeting the above criteria,
+     * @returns the tab info object for the tab meeting the above criteria,
      *     or null if no such tab exists.
      */
     getTabInfoForCurrentOrFirstModeInstance(aTabMode) {
@@ -1337,7 +1337,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
      *  safe to use in an auto-save style so that if we crash we can
      *  restore the (approximate) state at the time of the crash.
      *
-     * @return {Object} The persisted tab states.
+     * @returns {object} The persisted tab states.
      */
     persistTabs() {
       let state = {
@@ -1725,7 +1725,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
      * Note that the new favIconUrl is reported to the extension API's
      * tabs.onUpdated.
      *
-     * @param {Object} tabInfo - The tabInfo object for the tab.
+     * @param {object} tabInfo - The tabInfo object for the tab.
      * @param {string|null} favIconUrl - The favIconUrl to set for the given
      *   tab.
      * @param {string} fallbackSrc - The fallback icon src to display in case

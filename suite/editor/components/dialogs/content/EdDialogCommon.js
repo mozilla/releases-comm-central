@@ -520,8 +520,9 @@ function PrependHeadElement(element) {
     var editor = GetCurrentEditor();
     try {
       // Use editor's undoable transaction
-      // Last param "true" says "don't change the selection"
-      editor.insertNode(element, head, 0, true);
+      // XXX Here tried to prevent updating Selection with unknown 4th argument,
+      //     but nsIEditor.setShouldTxnSetSelection is not used for that.
+      editor.insertNode(element, head, 0);
     } catch (e) {}
   }
 }
@@ -537,8 +538,9 @@ function AppendHeadElement(element) {
     var editor = GetCurrentEditor();
     try {
       // Use editor's undoable transaction
-      // Last param "true" says "don't change the selection"
-      editor.insertNode(element, head, position, true);
+      // XXX Here tried to prevent updating Selection with unknown 4th argument,
+      //     but nsIEditor.setShouldTxnSetSelection is not used for that.
+      editor.insertNode(element, head, position);
     } catch (e) {}
   }
 }
@@ -766,7 +768,9 @@ function InsertElementAroundSelection(element) {
     }
 
     // Now insert the node
-    editor.insertNode(element, range.commonAncestorContainer, offset, true);
+    // XXX Here tried to prevent updating Selection with unknown 4th argument,
+    //     but nsIEditor.setShouldTxnSetSelection is not used for that.
+    editor.insertNode(element, range.commonAncestorContainer, offset);
     offset = element.childNodes.length;
     if (!editor.nodeIsBlock(element)) {
       editor.setShouldTxnSetSelection(false);

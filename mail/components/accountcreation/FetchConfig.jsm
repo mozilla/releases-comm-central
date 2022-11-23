@@ -79,12 +79,12 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback) {
  *   rely on insecure DNS and http, which means the results may be
  *   forged when under attack. The same is true for guessConfig(), though.
  *
- * @param domain {String}   The domain part of the user's email address
- * @param emailAddress {String}   The user's email address
+ * @param domain {String} - The domain part of the user's email address
+ * @param emailAddress {String} - The user's email address
  * @param successCallback {Function(config {AccountConfig}})}   A callback that
  *         will be called when we could retrieve a configuration.
  *         The AccountConfig object will be passed in as first parameter.
- * @param errorCallback {Function(ex)}   A callback that
+ * @param errorCallback {Function(ex)} - A callback that
  *         will be called when we could not retrieve a configuration,
  *         for whatever reason. This is expected (e.g. when there's no config
  *         for this domain at this location),
@@ -266,7 +266,7 @@ function fetchConfigForMX(domain, successCallback, errorCallback) {
  * only one of them is used.
  *
  * @param {string}  sanitizedDomain @see fetchConfigFromISP()
- * @param {function(hostname {string})}  successCallback
+ * @param {function(hostname {string})} - successCallback
  *   Called when we found an MX for the domain.
  *   For |hostname|, see description above.
  * @param {function({Exception|string})}  errorCallback @see fetchConfigFromISP()

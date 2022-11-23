@@ -51,7 +51,8 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 
 /**
  * Homeserver information in client .well-known payload.
- * @const {string}
+ *
+ * @constant {string}
  */
 const HOMESERVER_WELL_KNOWN = "m.homeserver";
 
@@ -501,12 +502,14 @@ MatrixRoom.prototype = {
 
   /**
    * ID of the most recent event written to the conversation.
+   *
    * @type {string}
    */
   _mostRecentEventId: null,
 
   /**
    * Event IDs that we showed a decryption error in the conversation for.
+   *
    * @type {Set<string>}
    */
   _eventsWaitingForDecryption: null,
@@ -932,6 +935,7 @@ MatrixRoom.prototype = {
 
   /**
    * Set the typing status to false if typing notifications are sent.
+   *
    * @returns {undefined}
    */
   finishedComposing() {
@@ -1052,6 +1056,7 @@ MatrixRoom.prototype = {
   },
   /**
    * If we should send typing notifications to the remote server.
+   *
    * @type {boolean}
    */
   get shouldSendTypingNotifications() {
@@ -1059,6 +1064,7 @@ MatrixRoom.prototype = {
   },
   /**
    * The ID of the room.
+   *
    * @type {string}
    */
   get normalizedName() {
@@ -1195,7 +1201,7 @@ MatrixRoom.prototype = {
   /**
    * Initialize the room after the response from the Matrix client.
    *
-   * @param {Object} room - associated room with the conversation.
+   * @param {object} room - associated room with the conversation.
    */
   async initRoomMuc(room) {
     let roomState = this.roomState;
@@ -1856,6 +1862,7 @@ MatrixAccount.prototype = {
 
   /**
    * If the |name| property of this account looks like a valid Matrix ID.
+   *
    * @type {boolean}
    */
   get nameIsMXID() {
@@ -1874,7 +1881,8 @@ MatrixAccount.prototype = {
   /**
    * Builds the options for the |createClient| call to the SDK including all
    * stores.
-   * @returns {Promise<Object>}
+   *
+   * @returns {Promise<object>}
    */
   async getClientOptions() {
     let dbName = "chat:matrix:" + this.imAccount.id;
@@ -2034,6 +2042,7 @@ MatrixAccount.prototype = {
   /**
    * Set of event IDs for events that have failed to send. Used to avoid
    * showing an error after resending a message fails again.
+   *
    * @type {Set<string>}
    */
   _failedEvents: null,
@@ -2908,7 +2917,7 @@ MatrixAccount.prototype = {
    *
    * @param {string} checkRoomId - ID of the room to check if it is direct
    *                               messaging room or not.
-   * @return {boolean} - If room is direct direct messaging room or not.
+   * @returns {boolean} - If room is direct direct messaging room or not.
    */
   isDirectRoom(checkRoomId) {
     for (let user of Object.keys(this._userToRoom)) {
@@ -2926,6 +2935,7 @@ MatrixAccount.prototype = {
 
   /**
    * Room aliases and their conversation that are currently being created.
+   *
    * @type {Map<string, MatrixRoom>}
    */
   _pendingRoomAliases: null,
@@ -2941,7 +2951,7 @@ MatrixAccount.prototype = {
    * @param {string} roomId - ID of the room.
    * @param {string} [roomName] - Name of the room.
    *
-   * @return {MatrixRoom?} - The resulted conversation.
+   * @returns {MatrixRoom?} - The resulted conversation.
    */
   getGroupConversation(roomId, roomName) {
     if (!roomId) {
@@ -3059,7 +3069,7 @@ MatrixAccount.prototype = {
    *
    * @param {string} roomId - ID of the user.
    *
-   * @return {string} - ID of the room.
+   * @returns {string} - ID of the room.
    */
   getDMRoomIdForUserId(userId) {
     // Check in the 'other' user's roomList for common m.direct rooms.
@@ -3217,6 +3227,7 @@ MatrixAccount.prototype = {
 
   /**
    * User IDs and their DM conversations which are being created.
+   *
    * @type {Map<string, MatrixRoom>}
    */
   _pendingDirectChats: null,
@@ -3234,7 +3245,7 @@ MatrixAccount.prototype = {
    * @param {string} [roomId] - ID of the room.
    * @param {string} [roomName] - Name of the room.
    *
-   * @return {MatrixRoom} - The resulted conversation.
+   * @returns {MatrixRoom} - The resulted conversation.
    */
   getDirectConversation(userId, roomID, roomName) {
     let DMRoomId = this.getDMRoomIdForUserId(userId);
@@ -3306,8 +3317,8 @@ MatrixAccount.prototype = {
    * @param {Map<string, MatrixRoom>} pendingMap - One of the lock maps.
    * @param {string} key - The key to lock with in the set.
    * @param {MatrixRoom} conversation - Conversation for the room.
-   * @param {Object} roomInit - Parameters for room creation.
-   * @param {function} [onCreated] - Callback to execute before room creation
+   * @param {object} roomInit - Parameters for room creation.
+   * @param {Function} [onCreated] - Callback to execute before room creation
    *  is finalized.
    * @returns {Promise} The returned promise should never reject.
    */

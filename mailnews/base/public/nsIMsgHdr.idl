@@ -84,9 +84,9 @@ interface nsIMsgDBHdr : nsISupports
     attribute string recipients;
 
     /* anything below here still has to be fixed */
-    void setReferences(in string references);
+    void setReferences(in AUTF8String references);
     readonly attribute unsigned short numReferences;
-    ACString getStringReference(in long refNum);
+    AUTF8String getStringReference(in long refNum);
 
     readonly attribute AString mime2DecodedAuthor;
     readonly attribute AString mime2DecodedSubject;

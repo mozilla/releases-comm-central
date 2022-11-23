@@ -33,8 +33,8 @@ var calendarTaskButtonDNDObserver;
     /**
      * Converts an email message to a calendar item.
      *
-     * @param {Object} aItem - The target calIItemBase.
-     * @param {Object} aMsgHdr - The nsIMsgHdr to convert from.
+     * @param {object} aItem - The target calIItemBase.
+     * @param {object} aMsgHdr - The nsIMsgHdr to convert from.
      */
     async calendarItemFromMessage(aItem, aMsgHdr) {
       let msgFolder = aMsgHdr.folder;
@@ -88,8 +88,8 @@ var calendarTaskButtonDNDObserver;
      * like title, location, description, priority, transparency, attendees,
      * categories, calendar, recurrence and possibly more.
      *
-     * @param {Object} aItem - The item to copy from.
-     * @param {Object} aTarget - The item to copy to.
+     * @param {object} aItem - The item to copy from.
+     * @param {object} aTarget - The item to copy to.
      */
     copyItemBase(aItem, aTarget) {
       const copyProps = ["SUMMARY", "LOCATION", "DESCRIPTION", "URL", "CLASS", "PRIORITY"];
@@ -125,8 +125,8 @@ var calendarTaskButtonDNDObserver;
      * Creates a task from the passed event. This function copies the base item
      * and a few event specific properties (dates, alarms, ...).
      *
-     * @param {Object} aEvent - The event to copy from.
-     * @return {Object} The resulting task.
+     * @param {object} aEvent - The event to copy from.
+     * @returns {object} The resulting task.
      */
     taskFromEvent(aEvent) {
       let item = new CalTodo();
@@ -163,8 +163,8 @@ var calendarTaskButtonDNDObserver;
      * and a few task specific properties (dates, alarms, ...). If the task has
      * no due date, the default event length is used.
      *
-     * @param {Object} aTask - The task to copy from.
-     * @return {Object} The resulting event.
+     * @param {object} aTask - The task to copy from.
+     * @returns {object} The resulting event.
      */
     eventFromTask(aTask) {
       let item = new CalEvent();
@@ -227,6 +227,7 @@ var calendarTaskButtonDNDObserver;
   class CalDNDTransferHandler {
     /**
      * List of mime types this class handles (Overridden by child class).
+     *
      * @type {string[]}
      */
     mimeTypes = [];
@@ -813,7 +814,7 @@ var calendarTaskButtonDNDObserver;
      * Gets called in case we're dropping an array of items on the
      * 'open tasks tab'-button.
      *
-     * @param {Object} items - An array of items to handle.
+     * @param {object} items - An array of items to handle.
      */
     onDropItems(items) {
       for (let item of items) {
@@ -864,8 +865,8 @@ var calendarTaskButtonDNDObserver;
  * Invoke a drag session for the passed item. The passed box will be used as a
  * source.
  *
- * @param {Object} aItem - The item to drag.
- * @param {Object} aXULBox - The XUL box to invoke the drag session from.
+ * @param {object} aItem - The item to drag.
+ * @param {object} aXULBox - The XUL box to invoke the drag session from.
  */
 function invokeEventDragSession(aItem, aXULBox) {
   let transfer = Cc["@mozilla.org/widget/transferable;1"].createInstance(Ci.nsITransferable);

@@ -105,7 +105,7 @@ var DB_SCHEMA_VERSION = 23;
  * @param alternateName (optional) The table or index name to be used in the
  *                        resulting CREATE statement. If not set, tblName will
  *                        be used.
- * @return              The SQL Statement for the given table or index and
+ * @returns The SQL Statement for the given table or index and
  *                        version as a string.
  */
 function getSql(tblName, tblData, alternateName) {
@@ -132,7 +132,7 @@ function getSql(tblName, tblData, alternateName) {
  *
  * @param version       The database schema version to retrieve. If null, the
  *                        latest schema version will be used.
- * @return              The SQL Statement for the given version as a string.
+ * @returns The SQL Statement for the given version as a string.
  */
 function getAllSql(version) {
   let tblData = getSqlTable(version);
@@ -150,7 +150,7 @@ function getAllSql(version) {
  *
  * @param schemaVersion       The schema version to get. If null, the latest
  *                              schema version will be used.
- * @return                    The javascript object containing the table
+ * @returns The javascript object containing the table
  *                              definition.
  */
 function getSqlTable(schemaVersion) {
@@ -329,7 +329,7 @@ function setDbVersionAndCommit(db, version) {
  * database. In addition, if no database is passed, the call is ignored.
  *
  * @param funcName      The function name to delegate.
- * @return              The delegate function for the passed named function.
+ * @returns The delegate function for the passed named function.
  */
 function createDBDelegate(funcName) {
   return function(db, ...args) {
@@ -358,7 +358,7 @@ function createDBDelegate(funcName) {
  * database is passed, no error is thrown but null is returned.
  *
  * @param getterAttr        The getter to delegate.
- * @return                  The function that delegates the getter.
+ * @returns The function that delegates the getter.
  */
 function createDBDelegateGetter(getterAttr) {
   return function(db) {
@@ -417,7 +417,7 @@ function LOGdb(db, msg) {
  *
  * @param db        The database to roll back on.
  * @param e         The exception to report
- * @return          The passed exception, for chaining.
+ * @returns The passed exception, for chaining.
  */
 function reportErrorAndRollback(db, e) {
   if (db && db.transactionInProgress) {
@@ -716,7 +716,7 @@ function migrateToIcalString(tblData, tblName, userFuncName, oldColumns, db) {
  * Maps a mozIStorageValueArray to a JS array, converting types correctly.
  *
  * @param storArgs      The storage value array to convert
- * @return              An array with the arguments as js values.
+ * @returns An array with the arguments as js values.
  */
 function mapStorageArgs(storArgs) {
   const mISVA = Ci.mozIStorageValueArray;

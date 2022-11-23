@@ -19,6 +19,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 
 /**
  * A channel to interact with NNTP server.
+ *
  * @implements {nsIChannel}
  * @implements {nsIRequest}
  * @implements {nsICacheEntryOpenCallback}
@@ -226,6 +227,7 @@ class NntpChannel {
 
   /**
    * Try to read the article from the offline storage.
+   *
    * @returns {boolean} True if successfully read from the offline storage.
    */
   _readFromOfflineStorage() {
@@ -243,6 +245,7 @@ class NntpChannel {
 
   /**
    * Read the article from the a stream.
+   *
    * @param {nsIInputStream} cacheStream - The input stream to read.
    */
   _readFromCacheStream(cacheStream) {
@@ -338,6 +341,7 @@ class NntpChannel {
   /**
    * Fetch all the article keys on the server, then remove expired keys from the
    * local folder.
+   *
    * @param {string} groupName - The group to check.
    */
   _removeExpired(groupName) {

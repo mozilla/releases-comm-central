@@ -35,7 +35,7 @@ var gUnifinderNeedsRefresh = true;
 /**
  * Checks if the unifinder is hidden
  *
- * @return      Returns true if the unifinder is hidden.
+ * @returns Returns true if the unifinder is hidden.
  */
 function isUnifinderHidden() {
   let tabmail = document.getElementById("tabmail");
@@ -48,7 +48,7 @@ function isUnifinderHidden() {
 /**
  * Returns the current filter applied to the unifinder.
  *
- * @return      The string name of the applied filter.
+ * @returns The string name of the applied filter.
  */
 function getCurrentUnifinderFilter() {
   return document.getElementById("event-filter-menulist").selectedItem.value;
@@ -139,7 +139,7 @@ var unifinderObserver = {
    * event. The functions will determine whether or not anything actually
    * needs to be done to the tree.
    *
-   * @return aItem        The item to add to the tree.
+   * @returns aItem        The item to add to the tree.
    */
   addItemToTree(aItem) {
     let items;
@@ -158,7 +158,7 @@ var unifinderObserver = {
    * event. The functions will determine whether or not anything actually
    * needs to be done to the tree.
    *
-   * @return aItem        The item to remove from the tree.
+   * @returns aItem        The item to remove from the tree.
    */
   removeItemFromTree(aItem) {
     let items;
@@ -285,7 +285,7 @@ function unifinderItemSelect(aEvent) {
  * Helper function to display event datetimes in the unifinder.
  *
  * @param aDatetime     A calIDateTime object to format.
- * @return              The passed date's formatted in the default timezone.
+ * @returns The passed date's formatted in the default timezone.
  */
 function formatUnifinderEventDateTime(aDatetime) {
   return cal.dtz.formatter.formatDateTime(aDatetime.getInTimezone(cal.dtz.defaultTimezone));
@@ -586,7 +586,7 @@ var unifinderTreeView = {
    * Get the index of the row associated with the passed item.
    *
    * @param item      The item to search for.
-   * @return          The row index of the passed item.
+   * @returns The row index of the passed item.
    */
   getItemRow(item) {
     if (this.eventIndexMap[item.hashId] === undefined) {
@@ -599,7 +599,7 @@ var unifinderTreeView = {
    * Get the item at the given row index.
    *
    * @param item      The row index to get the item for.
-   * @return          The item at the given row.
+   * @returns The item at the given row.
    */
   getItemAt(aRow) {
     return this.eventArray[aRow];
@@ -609,7 +609,7 @@ var unifinderTreeView = {
    * Get the calendar item from the given DOM event
    *
    * @param event     The DOM mouse event to get the item for.
-   * @return          The item under the mouse position.
+   * @returns The item under the mouse position.
    */
   getItemFromEvent(event) {
     let row = this.tree.getRowAt(event.clientX, event.clientY);
@@ -693,6 +693,7 @@ var unifinderTreeView = {
 
   /**
    * Tree View Implementation
+   *
    * @see nsITreeView
    */
   get rowCount() {

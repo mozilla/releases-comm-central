@@ -330,6 +330,7 @@
     /**
      * Clean up characters that could cause display problems since they
      * are not displayed.
+     *
      * @param {string} token - The string to be cleaned.
      * @returns {string} The cleaned string.
      */
@@ -457,17 +458,17 @@
      *    while the last comment is not, we assume it's the legacy form above and
      *    take the comment content as the display-name.
      *
-     * @param {String} value      The header value, post charset conversion but
+     * @param {string} value - The header value, post charset conversion but
      *                            before RFC 2047 decoding, to be parsed.
-     * @param {String} delimiters A set of delimiters to include as individual
+     * @param {string} delimiters A set of delimiters to include as individual
      *                            tokens.
-     * @param {Object} opts       A set of options selecting what to parse.
-     * @param {Boolean} [opts.qstring]  If true, recognize quoted strings.
-     * @param {Boolean} [opts.dliteral] If true, recognize domain literals.
-     * @param {Boolean} [opts.comments] If true, recognize comments.
-     * @param {Boolean} [opts.rfc2047]  If true, parse and decode RFC 2047
+     * @param {object} opts - A set of options selecting what to parse.
+     * @param {boolean} [opts.qstring] - If true, recognize quoted strings.
+     * @param {boolean} [opts.dliteral] If true, recognize domain literals.
+     * @param {boolean} [opts.comments] If true, recognize comments.
+     * @param {boolean} [opts.rfc2047] - If true, parse and decode RFC 2047
      *                                  encoded-words.
-     * @returns {(Token|String)[]} An array of Token objects (which have a toString
+     * @returns {(Token | string)[]} An array of Token objects (which have a toString
      *                             method returning their value) or String objects
      *                             (representing delimiters).
      */
@@ -681,11 +682,11 @@
      * or another legacy charset. If the header is valid UTF-8, it will be decoded
      * as UTF-8; if it is not, the fallbackCharset will be attempted instead.
      *
-     * @param {String} headerValue       The header (as a binary string) to attempt
+     * @param {string} headerValue - The header (as a binary string) to attempt
      *                                   to convert to UTF-16.
-     * @param {String} [fallbackCharset] The optional charset to try if UTF-8
+     * @param {string} [fallbackCharset] The optional charset to try if UTF-8
      *                                   doesn't work.
-     * @returns {String} The UTF-16 representation of the string above.
+     * @returns {string} The UTF-16 representation of the string above.
      */
     function convert8BitHeader(headerValue, fallbackCharset) {
       // Only attempt to convert the headerValue if it contains non-ASCII
@@ -721,9 +722,9 @@
      * necessarily have to contain any such words. This is useful, for example, for
      * parsing unstructured headers.
      *
-     * @param {String} headerValue The header which may contain RFC 2047 encoded-
+     * @param {string} headerValue The header which may contain RFC 2047 encoded-
      *                             words.
-     * @returns {String} A full UTF-16 string with all encoded words expanded.
+     * @returns {string} A full UTF-16 string with all encoded words expanded.
      */
     function decodeRFC2047Words(headerValue) {
       // Unfortunately, many implementations of RFC 2047 encoding are actually wrong
@@ -888,8 +889,8 @@
      *   group: An array of address object for members in the group.
      * }
      *
-     * @param {String} header     The MIME header text to be parsed
-     * @param {Boolean} doRFC2047 If true, decode RFC 2047 parameters found in the
+     * @param {string} header - The MIME header text to be parsed
+     * @param {boolean} doRFC2047 If true, decode RFC 2047 parameters found in the
      *                            header.
      * @returns {(Address|Group)[]} An array of the addresses found in the header,
      *                              where each element is of the form mentioned
@@ -945,8 +946,9 @@
        * Add the parsed mailbox object to the address list.
        * If it's in the legacy form above, correct the display-name.
        * Also reset any faked flags.
-       * @param {String} displayName   display-name as per RFC 5322
-       * @param {String} addrSpec      addr-spec as per RFC 5322
+       *
+       * @param {string} displayName - display-name as per RFC 5322
+       * @param {string} addrSpec - addr-spec as per RFC 5322
        */
       function addToAddrList(displayName, addrSpec) {
         // Keep the local-part quoted if it needs to be.
@@ -1133,10 +1135,10 @@
      * Extract parameters from a header which is a series of ;-separated
      * attribute=value tokens.
      *
-     * @param {String} headerValue The MIME header value to parse.
-     * @param {Boolean} doRFC2047  If true, decode RFC 2047 encoded-words.
-     * @param {Boolean} doRFC2231  If true, decode RFC 2231 encoded parameters.
-     * @return {Map(String -> String)} A map of parameter names to parameter values.
+     * @param {string} headerValue The MIME header value to parse.
+     * @param {boolean} doRFC2047 - If true, decode RFC 2047 encoded-words.
+     * @param {boolean} doRFC2231 - If true, decode RFC 2231 encoded parameters.
+     * @returns {Map(String -> String)} A map of parameter names to parameter values.
      *                                 The property preSemi is set to the token that
      *                                 precedes the first semicolon.
      */
@@ -1352,8 +1354,8 @@
      * Convert a RFC 2231-encoded string parameter into a Unicode version of the
      * string. This assumes that percent-decoding has already been applied.
      *
-     * @param {String} value The RFC 2231-encoded string to decode.
-     * @return The Unicode version of the string.
+     * @param {string} value The RFC 2231-encoded string to decode.
+     * @returns The Unicode version of the string.
      */
     function decode2231Value(value) {
       let quote1 = value.indexOf("'");
@@ -1417,8 +1419,8 @@
      * invalid dates produce a formulation that results in an invalid date,
      * detectable by having its .getTime() method return NaN.
      *
-     * @param {String} header The MIME header value to parse.
-     * @returns {Date}        The date contained within the header, as described
+     * @param {string} header The MIME header value to parse.
+     * @returns {Date} The date contained within the header, as described
      *                        above.
      */
     function parseDateHeader(header) {
@@ -1577,12 +1579,12 @@
      *
      * Content-Transfer-Encoding: the first value is converted to lower-case.
      *
-     * @param {String}       header The name of the header of the values.
-     * @param {String|Array} value  The value(s) of the headers, after charset
+     * @param {string}       header The name of the header of the values.
+     * @param {string | Array} value  The value(s) of the headers, after charset
      *                              conversion (if any) has been applied. If it is
      *                              an array, the headers are listed in the order
      *                              they appear in the message.
-     * @returns {Object} A structured representation of the header values.
+     * @returns {object} A structured representation of the header values.
      */
     function parseStructuredHeader(header, value) {
       // Enforce that the parameter is an array. If it's a string, make it a
@@ -1622,7 +1624,7 @@
      * attempting to replace them with a custom version will instead produce an
      * exception.
      *
-     * @param {String}                       header  The header name (in any case)
+     * @param {string}                       header  The header name (in any case)
      *                                               for which the decoder will be
      *                                               used.
      * @param {Function(String[] -> Object)} decoder The structured decoder
@@ -1828,11 +1830,13 @@
 
       /**
        * A map of header names to arrays of raw values found in this header block.
+       *
        * @private
        */
       this._rawHeaders = headers;
       /**
        * Cached results of structured header parsing.
+       *
        * @private
        */
       this._cachedHeaders = new Map();
@@ -1959,7 +1963,7 @@
      * Check if the message has the given header.
      *
      * @param headerName {String} The header name for which to get the header value.
-     * @returns {Boolean} True if the header is present in this header block.
+     * @returns {boolean} True if the header is present in this header block.
      */
     StructuredHeaders.prototype.has = function(headerName) {
       // Check for presence in the raw headers instead of cached headers.
@@ -2274,7 +2278,7 @@
      * Helper function to decide if a part's output will never be seen.
      *
      * @param part {String} The number of the part.
-     * @returns {Boolean} True if the emitter is not interested in this part.
+     * @returns {boolean} True if the emitter is not interested in this part.
      */
     MimeParser.prototype._willIgnorePart = function(part) {
       if (this._options.pruneat) {
@@ -2355,7 +2359,7 @@
      * @param partNum    {String}       The part number being currently parsed.
      * @param buffer     {BinaryString} The text (conditioned as mentioned above) to
      *                                  pass to the parser.
-     * @param checkSplit {Boolean}      If true, split the text using _splitRegex.
+     * @param checkSplit {Boolean} - If true, split the text using _splitRegex.
      *                                  This is set to false internally to handle
      *                                  low-level splitting details.
      */
@@ -2434,7 +2438,7 @@
      * needs extra data to be saved.
      *
      * @param buf  {BinaryString} The data to be sent to the output.
-     * @param type {String}       The type of the data to output. Valid values are
+     * @param type {String} - The type of the data to output. Valid values are
      *                            the same as the strformat option.
      * @returns Coerced and converted data that can be sent to the emitter or
      *          subparser.
@@ -2456,7 +2460,7 @@
      * @param type   {String}                  The type to convert the data to.
      * @param more   {boolean}                 If true, this function will never be
      *                                         called again.
-     * @returns {BinaryString|String|Uint8Array} The desired output format.
+     * @returns {BinaryString | string | Uint8Array} The desired output format.
      */
     // Coerces the buffer (a string or typedarray) into a given type
     MimeParser.prototype._coerceData = function(buffer, type, more) {
@@ -2716,7 +2720,7 @@
      * subparser state. This is meant to be used as a value for this._handleSplit.
      *
      * @param partNum    {String} The part number being currently parsed.
-     * @param lastResult {Array}  The result of the regular expression match.
+     * @param lastResult {Array} - The result of the regular expression match.
      */
     MimeParser.prototype._whenMultipart = function(partNum, lastResult) {
       // Fix up the part number (don't do '' -> '.4' and don't do '1' -> '14')
@@ -2856,9 +2860,9 @@
      * and trailing whitespace is trimmed from inputs.
      *
      * @param {StreamHandler} handler The handler to which all output is sent.
-     *   @param {Function(String)} handler.deliverData Receives encoded data.
+     *   @param {Function(string)} handler.deliverData Receives encoded data.
      *   @param {Function()} handler.deliverEOF Sent when all text is sent.
-     * @param {Object} options Options for the emitter.
+     * @param {object} options Options for the emitter.
      *   @param [options.softMargin=78] {30 <= Integer <= 900}
      *     The ideal maximum number of logical characters to include in a line, not
      *     including the final CRLF pair. Lines may exceed this margin if parameters
@@ -2996,7 +3000,7 @@
      *
      * @private
      * @param length {Integer} The number of characters to reserve space for.
-     * @return {Boolean} Whether or not there is enough space for length characters.
+     * @returns {boolean} Whether or not there is enough space for length characters.
      */
     HeaderEmitter.prototype._reserveTokenSpace = function(length) {
       // We are not going to do a sanity check that length is within the wrap
@@ -3044,8 +3048,8 @@
      * violating line length restrictions, an error is thrown instead.
      *
      * @protected
-     * @param {String}  text          The text to add to the output.
-     * @param {Boolean} mayBreakAfter If true, the end of this text is a preferred
+     * @param {string}  text          The text to add to the output.
+     * @param {boolean} mayBreakAfter If true, the end of this text is a preferred
      *                                breakpoint.
      */
     HeaderEmitter.prototype.addText = function(text, mayBreakAfter) {
@@ -3071,10 +3075,10 @@
      * instead.
      *
      * @protected
-     * @param {String}  text          The text to add to the output.
-     * @param {String}  qchars        The set of characters that cannot appear
+     * @param {string}  text          The text to add to the output.
+     * @param {string}  qchars        The set of characters that cannot appear
      *                                outside of a quoted string.
-     * @param {Boolean} mayBreakAfter If true, the end of this text is a preferred
+     * @param {boolean} mayBreakAfter If true, the end of this text is a preferred
      *                                breakpoint.
      */
     HeaderEmitter.prototype.addQuotable = function(
@@ -3114,10 +3118,10 @@
      * length, an error is thrown instead.
      *
      * @protected
-     * @param {String}  text          The text to add to the output.
-     * @param {String}  qchars        The set of characters that cannot appear
+     * @param {string}  text          The text to add to the output.
+     * @param {string}  qchars        The set of characters that cannot appear
      *                                outside of a quoted string.
-     * @param {Boolean} mayBreakAfter If true, the end of this text is a preferred
+     * @param {boolean} mayBreakAfter If true, the end of this text is a preferred
      *                                breakpoint.
      */
     HeaderEmitter.prototype.addPhrase = function(text, qchars, mayBreakAfter) {
@@ -3182,10 +3186,10 @@
      * split words if they are too long.
      *
      * @private
-     * @param {Uint8Array} encodedText   The octets to encode.
-     * @param {Boolean}    useQP         If true, use quoted-printable; if false,
+     * @param {Uint8Array} encodedText - The octets to encode.
+     * @param {boolean}    useQP         If true, use quoted-printable; if false,
      *                                   use base64.
-     * @param {Boolean}    mayBreakAfter If true, the end of this text is a
+     * @param {boolean}    mayBreakAfter If true, the end of this text is a
      *                                   preferred breakpoint.
      */
     HeaderEmitter.prototype._addRFC2047Word = function(
@@ -3222,8 +3226,8 @@
      * Add a block of text as potentially several RFC 2047 encoded-word tokens.
      *
      * @protected
-     * @param {String}  text          The text to add to the output.
-     * @param {Boolean} mayBreakAfter If true, the end of this text is a preferred
+     * @param {string}  text          The text to add to the output.
+     * @param {boolean} mayBreakAfter If true, the end of this text is a preferred
      *                                breakpoint.
      */
     HeaderEmitter.prototype.encodeRFC2047Phrase = function(
@@ -3308,7 +3312,7 @@
      * Add the header name, with the colon and trailing space, to the output.
      *
      * @public
-     * @param {String} name The name of the header.
+     * @param {string} name The name of the header.
      */
     HeaderEmitter.prototype.addHeaderName = function(name) {
       this._currentLine = this._currentLine.trimRight();
@@ -3328,7 +3332,7 @@
      * value is added as if {@link addUnstructured} were called.
      *
      * @public
-     * @param {String} name  The name of the header.
+     * @param {string} name - The name of the header.
      * @param          value The structured value of the header.
      */
     HeaderEmitter.prototype.addStructuredHeader = function(name, value) {
@@ -3355,8 +3359,8 @@
      *
      * @public
      * @param Address addr The address to be added.
-     * @param {String} addr.name  The (possibly-empty) name of the address to add.
-     * @param {String} addr.email The email of the address to add.
+     * @param {string} addr.name - The (possibly-empty) name of the address to add.
+     * @param {string} addr.email The email of the address to add.
      * @see headerparser.parseAddressingHeader
      */
     HeaderEmitter.prototype.addAddress = function(addr) {
@@ -3401,9 +3405,9 @@
      *
      * @public
      * @param {(Address|Group)[]} addrs A collection of addresses to add.
-     * @param {String}    addrs[i].name    The (possibly-empty) name of the
+     * @param {string}    addrs[i].name    The (possibly-empty) name of the
      *                                     address or the group to add.
-     * @param {String}    [addrs[i].email] The email of the address to add.
+     * @param {string}    [addrs[i].email] The email of the address to add.
      * @param {Address[]} [addrs[i].group] A list of email addresses in the group.
      * @see HeaderEmitter.addAddress
      * @see headerparser.parseAddressingHeader
@@ -3437,7 +3441,7 @@
      * necessary.
      *
      * @public
-     * @param {String} text The text to add to the output.
+     * @param {string} text The text to add to the output.
      */
     HeaderEmitter.prototype.addUnstructured = function(text) {
       if (text.length == 0) {
@@ -3548,7 +3552,7 @@
      * Signal that the current header has been finished encoding.
      *
      * @public
-     * @param {Boolean} deliverEOF If true, signal to the handler that no more text
+     * @param {boolean} deliverEOF If true, signal to the handler that no more text
      *                             will be arriving.
      */
     HeaderEmitter.prototype.finish = function(deliverEOF) {
@@ -3582,10 +3586,10 @@
      * Given a header name and its structured value, output a string containing its
      * MIME-encoded value. The trailing CRLF for the header is included.
      *
-     * @param {String} name    The name of the structured header.
+     * @param {string} name - The name of the structured header.
      * @param          value   The value of the structured header.
      * @param          options Options for the HeaderEmitter constructor.
-     * @returns {String} A MIME-encoded representation of the structured header.
+     * @returns {string} A MIME-encoded representation of the structured header.
      * @see HeaderEmitter.addStructuredHeader
      */
     function emitStructuredHeader(name, value, options) {
@@ -3608,7 +3612,7 @@
      *                                             of their structured values.
      * @param                         options      Options for the HeaderEmitter
      *                                             constructor.
-     * @returns {String} A MIME-encoded representation of the structured header.
+     * @returns {string} A MIME-encoded representation of the structured header.
      * @see HeaderEmitter.addStructuredHeader
      */
     function emitStructuredHeaders(headerValues, options) {
@@ -3637,7 +3641,7 @@
      * There is a large set of structured encoders built-in to the jsmime library
      * already.
      *
-     * @param {String}          header  The header name (in its preferred case) for
+     * @param {string}          header  The header name (in its preferred case) for
      *                                  which the encoder will be used.
      * @param {Function(Value)} encoder The structured encoder function.
      */

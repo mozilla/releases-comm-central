@@ -191,7 +191,6 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
 
   nsresult PerformBiffNotifications(
       void);  // if there are new, non spam messages, do biff
-  nsresult CloseDBIfFolderNotOpen();
 
   // Helper function for Move code to call to update the MRU and MRM time.
   void UpdateTimestamps(bool allowUndo);

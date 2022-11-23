@@ -135,10 +135,10 @@ add_task(async function test_opening_thread_in_tabs_closing_behaviour() {
 }).skip();
 
 /**
- * @typedef {Object} TestTab
+ * @typedef {object} TestTab
  * @property {Element} node - The tab's DOM node.
  * @property {number} index - The tab's index.
- * @property {Object} info - The tabInfo for this tab, as used in #tabmail.
+ * @property {object} info - The tabInfo for this tab, as used in #tabmail.
  */
 
 /**

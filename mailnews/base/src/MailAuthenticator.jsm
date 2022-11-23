@@ -25,6 +25,7 @@ var { MailStringUtils } = ChromeUtils.import(
 class MailAuthenticator {
   /**
    * Get the hostname for a connection.
+   *
    * @returns string
    */
   get hostname() {
@@ -36,6 +37,7 @@ class MailAuthenticator {
 
   /**
    * Get the username for a connection.
+   *
    * @returns string
    */
   get username() {
@@ -57,6 +59,7 @@ class MailAuthenticator {
 
   /**
    * Get the password for a connection.
+   *
    * @returns string
    */
   getPassword() {
@@ -68,6 +71,7 @@ class MailAuthenticator {
 
   /**
    * Get the CRAM-MD5 auth token for a connection.
+   *
    * @param {string} password - The password, used as HMAC-MD5 secret.
    * @param {string} challenge - The base64 encoded server challenge.
    * @returns string
@@ -85,6 +89,7 @@ class MailAuthenticator {
 
   /**
    * Get the OAuth token for a connection.
+   *
    * @returns string
    */
   async getOAuthToken() {
@@ -96,6 +101,7 @@ class MailAuthenticator {
 
   /**
    * Init a nsIMailAuthModule instance for GSSAPI auth.
+   *
    * @param {('smtp'|'imap')} protocol - The protocol name.
    */
   initGssapiAuth(protocol) {
@@ -114,6 +120,7 @@ class MailAuthenticator {
 
   /**
    * Get the next token in a sequence of GSSAPI auth steps.
+   *
    * @param {string} inToken - A base64 encoded string, usually server challenge.
    * @returns {string}
    */
@@ -140,6 +147,7 @@ class MailAuthenticator {
 
   /**
    * Get the next token in a sequence of NTLM auth steps.
+   *
    * @param {string} inToken - A base64 encoded string, usually server challenge.
    * @returns {string}
    */
@@ -149,6 +157,7 @@ class MailAuthenticator {
 
   /**
    * Show a dialog for authentication failure.
+   *
    * @returns {number} - 0: Retry; 1: Cancel; 2: New password.
    */
   promptAuthFailed() {
@@ -160,6 +169,7 @@ class MailAuthenticator {
 
   /**
    * Show a dialog for authentication failure.
+   *
    * @param {nsIMsgWindow} - The associated msg window.
    * @param {string} - A user defined account name or the server hostname.
    * @returns {number} - 0: Retry; 1: Cancel; 2: New password.
@@ -213,7 +223,8 @@ class MailAuthenticator {
 
 /**
  * Collection of helper functions for authenticating an SMTP connection.
- * @extends {MailAuthenticator}
+ *
+ * @augments {MailAuthenticator}
  */
 class SmtpAuthenticator extends MailAuthenticator {
   /**
@@ -277,6 +288,7 @@ class SmtpAuthenticator extends MailAuthenticator {
 
   /**
    * Get the ByteString form of the current password.
+   *
    * @returns string
    */
   getByteStringPassword() {
@@ -285,6 +297,7 @@ class SmtpAuthenticator extends MailAuthenticator {
 
   /**
    * Get the PLAIN auth token for a connection.
+   *
    * @returns string
    */
   getPlainToken() {
@@ -322,7 +335,8 @@ class SmtpAuthenticator extends MailAuthenticator {
 
 /**
  * Collection of helper functions for authenticating an incoming server.
- * @extends {MailAuthenticator}
+ *
+ * @augments {MailAuthenticator}
  */
 class IncomingServerAuthenticator extends MailAuthenticator {
   /**
@@ -347,6 +361,7 @@ class IncomingServerAuthenticator extends MailAuthenticator {
 
   /**
    * Get the ByteString form of the current password.
+   *
    * @returns string
    */
   async getByteStringPassword() {
@@ -355,6 +370,7 @@ class IncomingServerAuthenticator extends MailAuthenticator {
 
   /**
    * Get the PLAIN auth token for a connection.
+   *
    * @returns string
    */
   async getPlainToken() {
@@ -387,7 +403,8 @@ class IncomingServerAuthenticator extends MailAuthenticator {
 
 /**
  * Collection of helper functions for authenticating a NNTP connection.
- * @extends {IncomingServerAuthenticator}
+ *
+ * @augments {IncomingServerAuthenticator}
  */
 class NntpAuthenticator extends IncomingServerAuthenticator {
   /**
@@ -408,7 +425,8 @@ class NntpAuthenticator extends IncomingServerAuthenticator {
 
 /**
  * Collection of helper functions for authenticating a POP connection.
- * @extends {IncomingServerAuthenticator}
+ *
+ * @augments {IncomingServerAuthenticator}
  */
 class Pop3Authenticator extends IncomingServerAuthenticator {
   async getPassword() {
@@ -445,7 +463,8 @@ class Pop3Authenticator extends IncomingServerAuthenticator {
 
 /**
  * Collection of helper functions for authenticating an IMAP connection.
- * @extends {IncomingServerAuthenticator}
+ *
+ * @augments {IncomingServerAuthenticator}
  */
 class ImapAuthenticator extends IncomingServerAuthenticator {
   async getPassword() {

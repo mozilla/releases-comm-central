@@ -24,7 +24,7 @@ const ShortcutsManager = {
    * IDs in the shortcuts.ftl file. This is needed because the IDs are
    * dynamically generated.
    *
-   * @type {Object}
+   * @type {object}
    */
   fluentMapping: {
     "meta-shift-alt-shortcut-key": "meta-shift-alt-shortcut-key2",
@@ -35,14 +35,14 @@ const ShortcutsManager = {
   /**
    * Data set for a shortcut.
    *
-   * @typedef {Object} Shortcut
+   * @typedef {object} Shortcut
    * @property {string} id - The id for this shortcut.
    * @property {string} name - The name of this shortcut. TODO: This should use
    *   fluent to be translatable in the future, once we decide to expose this
    *   array and make it customizable.
    * @property {?string} key - The keyboard key used by this shortcut, or null
    *   if the shortcut is disabled.
-   * @property {Object} modifiers - The list of modifiers expected by this
+   * @property {object} modifiers - The list of modifiers expected by this
    *   shortcut in order to be triggered, organized per platform.
    * @property {string[]} context - An array of strings representing the context
    *   string to filter out duplicated shortcuts, if necessary.
@@ -288,7 +288,7 @@ const ShortcutsManager = {
    * represent the keyboard shortcut.
    *
    * @param {string} id - The ID of the requested shortcut.
-   * @returns {?Object} - An object containing the generate shortcut and aria
+   * @returns {?object} - An object containing the generate shortcut and aria
    *   string, if available.
    * @property {string} localizedShortcut - The shortcut in a human-readable,
    *   localized and platform-specific form.

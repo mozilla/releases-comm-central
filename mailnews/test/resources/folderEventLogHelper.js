@@ -49,6 +49,7 @@ function registerFolderEventLogHelper() {
 /**
  * nsIMsgFolderListener implementation to logHelper events that gloda cares
  *  about.
+ *
  * @implements {nsIMsgFolderListener}
  */
 var _folderEventLogHelper_msgFolderListener = {

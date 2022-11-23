@@ -40,7 +40,7 @@ cal.HashedArray.prototype = {
    * of calIItemBase.
    *
    * @param item      The item to get the hashId for
-   * @return          The hashId of the item
+   * @returns The hashId of the item
    */
   hashAccessor(item) {
     return item.hashId;
@@ -50,7 +50,7 @@ cal.HashedArray.prototype = {
    * Returns the item, given its index in the array
    *
    * @param index         The index of the item to retrieve.
-   * @return              The retrieved item.
+   * @returns The retrieved item.
    */
   itemByIndex(index) {
     return this.mArray[index];
@@ -60,7 +60,7 @@ cal.HashedArray.prototype = {
    * Returns the item, given its hashId
    *
    * @param id            The hashId of the item to retrieve.
-   * @return              The retrieved item.
+   * @returns The retrieved item.
    */
   itemById(id) {
     if (this.mBatch > 0) {
@@ -74,7 +74,7 @@ cal.HashedArray.prototype = {
    * wise, since it uses the hash
    *
    * @param item          The item to search for.
-   * @return              The index of the item.
+   * @returns The index of the item.
    */
   indexOf(item) {
     if (this.mBatch > 0) {
@@ -124,7 +124,7 @@ cal.HashedArray.prototype = {
    * Add the item to the array
    *
    * @param item          The item to add.
-   * @return              The index of the added item.
+   * @returns The index of the added item.
    */
   addItem(item) {
     let index = this.mArray.length;
@@ -139,7 +139,7 @@ cal.HashedArray.prototype = {
    * array.
    *
    * @param item          The item to modify.
-   * @return              The (new) index.
+   * @returns The (new) index.
    */
   modifyItem(item) {
     let hashId = this.hashAccessor(item);

@@ -17,15 +17,16 @@ var EXPORTED_SYMBOLS = ["AuthPLAIN", "AuthLOGIN", "AuthCRAM"];
 
 /**
  * Implements AUTH PLAIN
+ *
  * @see RFC 4616
  */
 var AuthPLAIN = {
   /**
    * Takes full PLAIN auth line, and decodes it.
    *
-   * @param line {String}
+   * @param line {string}
    * @returns {Object { username : value, password : value } }
-   * @throws {String}   error to return to client
+   * @throws {string}   error to return to client
    */
   decodeLine(line) {
     dump("AUTH PLAIN line -" + line + "-\n");
@@ -75,9 +76,9 @@ var AuthLOGIN = {
    * It may contain either username or password,
    * depending on state/step (first username, then pw).
    *
-   * @param line {String}
-   * @returns {String}   username or password
-   * @throws {String}   error to return to client
+   * @param line {string}
+   * @returns {string} username or password
+   * @throws {string}   error to return to client
    */
   decodeLine(line) {
     dump("AUTH LOGIN -" + atob(line) + "-\n");
@@ -87,6 +88,7 @@ var AuthLOGIN = {
 
 /**
  * Implements AUTH CRAM-MD5
+ *
  * @see RFC 2195, RFC 2104
  */
 var AuthCRAM = {
@@ -98,9 +100,9 @@ var AuthCRAM = {
    *
    * You need to store it, you'll need it to check the client response.
    *
-   * @param domain {String}   Your hostname or domain,
+   * @param domain {string} - Your hostname or domain,
    *    e.g. "example.com", "mx.example.com" or just "localhost".
-   * @returns {String}   The challenge.
+   * @returns {string} The challenge.
    *   It's already base64-encoded. Send it as-is to the client.
    */
   createChallenge(domain) {
@@ -116,9 +118,9 @@ var AuthCRAM = {
    * encodeCRAMMD5(). If they match, the |username|
    * returned here is authenticated.
    *
-   * @param line {String}
+   * @param line {string}
    * @returns {Object { username : value, digest : value } }
-   * @throws {String}   error to return to client
+   * @throws {string}   error to return to client
    */
   decodeLine(line) {
     dump("AUTH CRAM-MD5 line -" + line + "-\n");
@@ -134,9 +136,9 @@ var AuthCRAM = {
     return result;
   },
   /**
-   * @param text {String}   server challenge (base64-encoded)
-   * @param key {String}   user's password
-   * @return {String}   digest as hex string
+   * @param text {string} - server challenge (base64-encoded)
+   * @param key {string} - user's password
+   * @returns {string} digest as hex string
    */
   encodeCRAMMD5(text, key) {
     text = atob(text); // createChallenge() returns it already encoded

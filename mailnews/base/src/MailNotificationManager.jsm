@@ -140,6 +140,7 @@ class MailNotificationManager {
   onFolderPropertyChanged() {}
   /**
    * The only nsIFolderListener interface we care about.
+   *
    * @see nsIFolderListener
    */
   onFolderIntPropertyChanged(folder, property, oldValue, newValue) {
@@ -186,6 +187,7 @@ class MailNotificationManager {
 
   /**
    * Show an alert according to the changed folder.
+   *
    * @param {nsIMsgFolder} changedFolder - The folder that emitted the change
    *   event, can be a root folder or a real folder.
    */
@@ -223,6 +225,7 @@ class MailNotificationManager {
   /**
    * Iterate the subfolders of changedFolder, return the first real folder with
    * new mail.
+   *
    * @param {nsIMsgFolder} changedFolder - The folder that emitted the change event.
    * @returns {nsIMsgFolder} The first real folder.
    */
@@ -250,6 +253,7 @@ class MailNotificationManager {
 
   /**
    * Get the title for the alert.
+   *
    * @param {nsIMsgFolder} folder - The changed folder.
    * @param {number} numNewMessages - The count of new messages.
    * @returns {string} The alert title.
@@ -265,6 +269,7 @@ class MailNotificationManager {
 
   /**
    * Get the body for the alert.
+   *
    * @param {nsIMsgFolder} folder - The changed folder.
    * @param {nsIMsgHdr} msgHdr - The nsIMsgHdr of the first new messages.
    * @returns {string} The alert body.
@@ -324,6 +329,7 @@ class MailNotificationManager {
 
   /**
    * Show the alert.
+   *
    * @param {nsIMsgHdr} msgHdr - The nsIMsgHdr of the first new messages.
    * @param {string} title - The alert title.
    * @param {string} body - The alert body.
@@ -369,6 +375,7 @@ class MailNotificationManager {
    * Show a customized alert window (newmailalert.xhtml), if there is already
    * one showing, do not show another one, because the newer one will block the
    * older one. Instead, save the folder and newMsgKeys to this._pendingFolders.
+   *
    * @param {nsIMsgFolder} [folder] - The folder containing new messages.
    */
   _showCustomizedAlert(folder) {
@@ -412,6 +419,7 @@ class MailNotificationManager {
 
   /**
    * Get all NEW messages from a folder that we received after last biff time.
+   *
    * @param {nsIMsgFolder} folder - The message folder to check.
    * @returns {number[]} An array of message keys.
    */

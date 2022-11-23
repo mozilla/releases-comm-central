@@ -164,7 +164,7 @@ var gFolderTreeController = {
    * Opens the dialog to rename a particular folder, and does the renaming if
    * the user clicks OK in that dialog
    *
-   * @param aFolder (optional)  the folder to rename, if different than the
+   * @param aFolder (optional) - the folder to rename, if different than the
    *                            currently selected one
    */
   renameFolder(aFolder) {
@@ -256,7 +256,7 @@ var gFolderTreeController = {
    * Prompts the user to confirm and empties the trash for the selected folder.
    * The folder and its children are only emptied if it has the proper Trash flag.
    *
-   * @param aFolder (optional)  The trash folder to empty. If unspecified or not
+   * @param aFolder (optional) - The trash folder to empty. If unspecified or not
    *                            a trash folder, the currently selected server's
    *                            trash folder is used.
    */
@@ -292,7 +292,7 @@ var gFolderTreeController = {
    * Deletes everything (folders and messages) in the selected folder.
    * The folder is only emptied if it has the proper Junk flag.
    *
-   * @param aFolder (optional)  The folder to empty. If unspecified, the currently
+   * @param aFolder (optional) - The folder to empty. If unspecified, the currently
    *                            selected folder is used, if it is junk.
    */
   emptyJunk(aFolder) {

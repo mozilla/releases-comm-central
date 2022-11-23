@@ -20,8 +20,8 @@ let gConverterWorker = null;
  * Sets a server to use a different type of mailstore, converting
  * all the existing data.
  *
- * @param {String} aMailstoreContractId - XPCOM id of new mailstore type.
- * @param {nsIMsgServer} aServer        - server to migrate.
+ * @param {string} aMailstoreContractId - XPCOM id of new mailstore type.
+ * @param {nsIMsgServer} aServer - server to migrate.
  * @param aEventTarget                  - if set, element to send progress events.
  *
  * @returns {Promise} - Resolves with a string containing the new root
@@ -125,8 +125,9 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
 /**
  * Checks if Converter folder exists in tmp dir, removes it and creates a new
  * "Converter" folder.
- * @param {nsIFile} aFolder             - account root folder.
- * @param {String} aMailstoreContractId - XPCOM id of dest mailstore type
+ *
+ * @param {nsIFile} aFolder - account root folder.
+ * @param {string} aMailstoreContractId - XPCOM id of dest mailstore type
  *
  * @returns {nsIFile} - the new tmp directory to use as converter dest.
  */
@@ -196,11 +197,11 @@ function createTmpConverterFolder(aFolder, aMailstoreContractId) {
  * Switch server over to use the newly-converted directory tree.
  * Moves the converted directory into an appropriate place for the server.
  *
- * @param {nsIMsgServer} server   - server to migrate.
- * @param {String} dir            - dir of converted mailstore to install
+ * @param {nsIMsgServer} server - server to migrate.
+ * @param {string} dir - dir of converted mailstore to install
  *                                  (will be moved by this function).
- * @param {String} newStoreTypeID - XPCOM id of new mailstore type.
- * @returns {String} new location of dir.
+ * @param {string} newStoreTypeID - XPCOM id of new mailstore type.
+ * @returns {string} new location of dir.
  */
 function installNewRoot(server, dir, newStoreTypeID) {
   let accountRootFolder = server.rootFolder.filePath;

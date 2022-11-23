@@ -97,6 +97,7 @@ function AbNewMessage(address) {
 
 /**
  * Make a mailbox string from the card, for use in the UI.
+ *
  * @param {nsIAbCard} - The card to use.
  * @returns {string} A mailbox representation of the card.
  */

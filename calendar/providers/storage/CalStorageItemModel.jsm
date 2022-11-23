@@ -55,6 +55,7 @@ class CalStorageItemModel extends CalStorageModelBase {
   /**
    * calCachedCalendar modifies the superCalendar property so this is made
    * lazy.
+   *
    * @type {calISchedulingSupport}
    */
   get schedulingSupport() {
@@ -79,7 +80,8 @@ class CalStorageItemModel extends CalStorageModelBase {
 
   /**
    * Object containing the parameters for executing a DB query.
-   * @typedef {Object} CalStorageQuery
+   *
+   * @typedef {object} CalStorageQuery
    * @property {CalStorageQueryFilter} filter
    * @property {calIDateTime} rangeStart
    * @property {calIDateTime?} rangeEnd
@@ -88,7 +90,8 @@ class CalStorageItemModel extends CalStorageModelBase {
 
   /**
    * Object indicating types and state of items to return.
-   * @typedef {Object} CalStorageQueryFilter
+   *
+   * @typedef {object} CalStorageQueryFilter
    * @property {boolean} wantUnrespondedInvitations
    * @property {boolean} wantEvents
    * @property {boolean} wantTodos
@@ -103,9 +106,10 @@ class CalStorageItemModel extends CalStorageModelBase {
   /**
    * Retrieves one or more items from the database based on the query provided.
    * See the definition of CalStorageQuery for valid query parameters.
+   *
    * @param {CalStorageQuery} query
    *
-   * @return {ReadableStream<calIItemBase>}
+   * @returns {ReadableStream<calIItemBase>}
    */
   getItems(query) {
     let { filters, count } = query;
@@ -140,6 +144,7 @@ class CalStorageItemModel extends CalStorageModelBase {
   /**
    * Queries the database for calIEvent records providing them in a streaming
    * fashion.
+   *
    * @param {CalStorageQuery} query
    *
    * @returns {ReadableStream<calIEvent>}
@@ -230,6 +235,7 @@ class CalStorageItemModel extends CalStorageModelBase {
   /**
    * Queries the database for calITodo records providing them in a streaming
    * fashion.
+   *
    * @param {CalStorageQuery} query
    *
    * @returns {ReadableStream<calITodo>}
@@ -512,7 +518,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    *
    * @param {Map<string, calIItem>} itemMap
    *
-   * @return {Map<string, calIItem>} The original Map with items modified.
+   * @returns {Map<string, calIItem>} The original Map with items modified.
    */
   async getAdditionalDataForItemMap(itemsMap) {
     await startupPromise;

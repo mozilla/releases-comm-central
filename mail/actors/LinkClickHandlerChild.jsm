@@ -30,7 +30,7 @@ XPCOMUtils.defineLazyServiceGetter(
  * If the clicked element was a HTMLInputElement or HTMLButtonElement
  * we return the form action.
  *
- * @return the url and the text for the link being clicked.
+ * @returns the url and the text for the link being clicked.
  */
 function hRefForClickEvent(aEvent) {
   let target = aEvent.target;

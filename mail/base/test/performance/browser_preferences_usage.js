@@ -14,9 +14,9 @@ const DEFAULT_PROCESS_COUNT = Services.prefs
  * of stats was called more often than the max parameter.
  *
  * @param {Array}  stats - an array of [prefName, accessCount] tuples
- * @param {Number} max - the maximum number of times any of the prefs should
+ * @param {number} max - the maximum number of times any of the prefs should
  *                 have been called.
- * @param {Object} knownProblematicPrefs (optional) - an object that defines
+ * @param {object} knownProblematicPrefs (optional) - an object that defines
  *                 prefs that should be exempt from checking the
  *                 maximum access. It looks like the following:
  *

@@ -21,7 +21,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
  * request can be the msgtype of a normal message or its own event.
  *
  * @param {MatrixEvent} matrixEvent - Matrix Event this is handling.
- * @param {{ sender: string, content: Object}} param1 - handler context.
+ * @param {{sender: string, content: object}} param1 - handler context.
  * @returns {string}
  */
 const keyVerificationRequest = (matrixEvent, { sender, content }) => {

@@ -39,14 +39,14 @@ const TRUSTLEVELS_SORTED_IDX_UNKNOWN = 7; // index of '?'
 
 var EnigmailTrust = {
   /**
-   * @return - |string| containing the order of trust/validity values
+   * @returns - |string| containing the order of trust/validity values
    */
   trustLevelsSorted() {
     return TRUSTLEVELS_SORTED;
   },
 
   /**
-   * @return - |boolean| whether the flag is invalid (neither unknown nor valid)
+   * @returns - |boolean| whether the flag is invalid (neither unknown nor valid)
    */
   isInvalid(flag) {
     return TRUSTLEVELS_SORTED.indexOf(flag) < TRUSTLEVELS_SORTED_IDX_UNKNOWN;

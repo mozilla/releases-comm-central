@@ -71,7 +71,7 @@ var ExtractMimeMsgEmitter = {
     return false;
   },
 
-  /** JSMime API **/
+  /** JSMime API */
   startMessage() {
     this.mimeTree = {
       partName: "",

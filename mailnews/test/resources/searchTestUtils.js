@@ -7,23 +7,22 @@
 /**
  * TestSearch: Class to test number of search hits
  *
- * @param aFolder:   the folder to search
- * @param aValue:    value used for the search
+ * @param {nsIMsgFolder} aFolder - The folder to search
+ * @param {string|integer} aValue - value used for the search
  *                   The interpretation of aValue depends on aAttrib. It
  *                   defaults to string, but for certain attributes other
  *                   types are used.
  *                   WARNING: not all attributes have been tested.
  *
- * @param aAttrib:   attribute for the search (Ci.nsMsgSearchAttrib.Size, etc.)
- * @param aOp:       operation for the search (Ci.nsMsgSearchOp.Contains, etc.)
- * @param aHitCount: expected number of search hits
- * @param onDone:    function to call on completion of search
- * @param aCustomId: id string for the custom action, if aAttrib is Custom
- * @param aArbitraryHeader  for OtherHeader case, header.
- * @param aHdrProperty      for HdrProperty and Uint32HdrProperty case
+ * @param {nsMsgSearchAttrib} aAttrib - Attribute for the search (Ci.nsMsgSearchAttrib.Size, etc.)
+ * @param {nsMsgSearchOp} aOp - Operation for the search (Ci.nsMsgSearchOp.Contains, etc.)
+ * @param {integer} aHitCount - Expected number of search hits
+ * @param {Function} onDone - Function to call on completion of search
+ * @param {string} aCustomId - Id string for the custom action, if aAttrib is Custom
+ * @param {string} aArbitraryHeader - For OtherHeader case, header.
+ * @param {string|integer} aHdrProperty - For HdrProperty and Uint32HdrProperty case
  *
  */
-
 function TestSearch(
   aFolder,
   aValue,

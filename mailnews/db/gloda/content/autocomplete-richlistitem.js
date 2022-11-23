@@ -17,7 +17,7 @@
    * abstract base class for all the gloda autocomplete items.
    *
    * @abstract
-   * @extends {MozElements.MozRichlistitem}
+   * @augments {MozElements.MozRichlistitem}
    */
   class MozGlodacompleteBaseRichlistitem extends MozElements.MozRichlistitem {
     connectedCallback() {
@@ -207,7 +207,7 @@
    * The MozGlodaContactChunkRichlistitem widget displays an autocomplete item with
    * contact chunk: e.g. image, name and description of the contact.
    *
-   * @extends MozGlodacompleteBaseRichlistitem
+   * @augments MozGlodacompleteBaseRichlistitem
    */
   class MozGlodaContactChunkRichlistitem extends MozGlodacompleteBaseRichlistitem {
     static get inheritedAttributes() {
@@ -324,7 +324,7 @@
    * The MozGlodaFulltextAllRichlistitem widget displays an autocomplete full text of
    * all the items: e.g. full text explanation of the item.
    *
-   * @extends MozGlodacompleteBaseRichlistitem
+   * @augments MozGlodacompleteBaseRichlistitem
    */
   class MozGlodaFulltextAllRichlistitem extends MozGlodacompleteBaseRichlistitem {
     connectedCallback() {
@@ -366,7 +366,7 @@
    * The MozGlodaFulltextAllRichlistitem widget displays an autocomplete full text
    * of single item: e.g. full text explanation of the item.
    *
-   * @extends MozGlodacompleteBaseRichlistitem
+   * @augments MozGlodacompleteBaseRichlistitem
    */
   class MozGlodaFulltextSingleRichlistitem extends MozGlodacompleteBaseRichlistitem {
     connectedCallback() {
@@ -412,7 +412,7 @@
    * The MozGlodaMultiRichlistitem widget displays an autocomplete description of multiple
    * type items: e.g. explanation of the items.
    *
-   * @extends MozGlodacompleteBaseRichlistitem
+   * @augments MozGlodacompleteBaseRichlistitem
    */
   class MozGlodaMultiRichlistitem extends MozGlodacompleteBaseRichlistitem {
     connectedCallback() {
@@ -481,7 +481,7 @@
    * The MozGlodaSingleIdentityRichlistitem widget displays an autocomplete item with
    * single identity: e.g. image, name and description of the item.
    *
-   * @extends MozGlodacompleteBaseRichlistitem
+   * @augments MozGlodacompleteBaseRichlistitem
    */
   class MozGlodaSingleIdentityRichlistitem extends MozGlodacompleteBaseRichlistitem {
     static get inheritedAttributes() {
@@ -604,7 +604,7 @@
    * The MozGlodaSingleTagRichlistitem widget displays an autocomplete item with
    * single tag: e.g. explanation of the item.
    *
-   * @extends MozGlodacompleteBaseRichlistitem
+   * @augments MozGlodacompleteBaseRichlistitem
    */
   class MozGlodaSingleTagRichlistitem extends MozGlodacompleteBaseRichlistitem {
     connectedCallback() {

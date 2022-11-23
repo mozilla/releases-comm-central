@@ -175,7 +175,7 @@ const defaultRules = [
  * takes place in. It holds values used in various calculations. For example,
  * the current date.
  *
- * @typedef  {Object} CalExtractParserServiceContext
+ * @typedef  {object} CalExtractParserServiceContext
  * @property {Date} now - The Date to use when calculating start and relative
  *                       times.
  */
@@ -212,11 +212,11 @@ class CalExtractParserService {
 /**
  * Populates the missing values of the startTime and endTime.
  *
- * @param {Object?} guess - The result of CalExtractParserService.extract().
+ * @param {object?} guess - The result of CalExtractParserService.extract().
  * @param {Date}    now   - A Date object representing the contextual date and
  *                          time.
  *
- * @return {Object} The result with the populated startTime and endTime.
+ * @returns {object} The result with the populated startTime and endTime.
  */
 function populateTimes(guess, now) {
   return populateTime(populateTime(guess, now, "startTime"), now, "endTime");
@@ -226,11 +226,11 @@ function populateTimes(guess, now) {
  * Populates the missing values of the specified time property based on the Date
  * provided.
  *
- * @param {Object?} guess
+ * @param {object?} guess
  * @param {Date}    now
  * @param {string}  prop
  *
- * @return {Object}
+ * @returns {object}
  */
 function populateTime(guess, now, prop) {
   let time = guess[prop];
@@ -253,7 +253,7 @@ function populateTime(guess, now, prop) {
 /**
  * Coverts an hour using the Meridiem to a 24 hour value.
  *
- * @param {number} hour     - The hour value.
+ * @param {number} hour - The hour value.
  * @param {string} meridiem - "am" or "pm"
  *
  * @returns {number}
@@ -277,9 +277,9 @@ function normalizeHour(hour, meridiem) {
  * Takes care of converting an end duration to an actual time relative to the
  * start time detected (if any).
  *
- * @param {Object} guess - Results from CalExtractParserService#extract()
+ * @param {object} guess - Results from CalExtractParserService#extract()
  *
- * @returns {Object} The result with the endTime property expanded.
+ * @returns {object} The result with the endTime property expanded.
  */
 function convertDurationToEndTime(guess) {
   if (guess.startTime && guess.endTime && guess.endTime.type == "duration-time") {

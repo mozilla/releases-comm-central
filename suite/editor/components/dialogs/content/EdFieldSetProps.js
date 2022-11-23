@@ -171,7 +171,7 @@ function onAccept() {
 
       if (gDialog.legendText.value) {
         if (newLegend) {
-          editor.insertNode(legendElement, fieldsetElement, 0, true);
+          editor.insertNode(legendElement, fieldsetElement, 0);
         } else {
           while (legendElement.firstChild) {
             editor.deleteNode(legendElement.lastChild);

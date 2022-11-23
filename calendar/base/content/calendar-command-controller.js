@@ -21,6 +21,7 @@ var CalendarNewTasksCommandEnabled = false;
 
 /**
  * Command controller to execute calendar specific commands
+ *
  * @see nsICommandController
  */
 var calendarController = {
@@ -818,7 +819,7 @@ function removeCalendarCommandController() {
  *                                   triggered by opening the context menu
  * @param  {Array.<calIItemBase>}  aItems   An array of items (usually the selected
  *                                            items) to adapt the context menu for
- * @return {Boolean}                        True, to show the popup menu.
+ * @returns {boolean} True, to show the popup menu.
  */
 function setupContextItemType(aEvent, aItems) {
   function adaptModificationMenuItem(aMenuItemId, aItemType) {

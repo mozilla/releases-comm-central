@@ -22,6 +22,7 @@ var { Assert } = ChromeUtils.importESModule(
 
 /**
  * Execute a drag and drop session.
+ *
  * @param {XULElement} aDragObject
  *   the element from which the drag session should be started.
  * @param {} aDragWindow
@@ -62,12 +63,13 @@ function drag_n_drop_element(
 
 /**
  * Starts a drag new session.
+ *
  * @param {} aWindow
  * @param {XULElement} aDispatcher
  *   the element from which the drag session should be started.
  * @param {XULElement} aListener
  *   the element who's drop target should be captured and returned.
- * @return {nsIDataTransfer}
+ * @returns {nsIDataTransfer}
  *   returns the DataTransfer Object of captured by aListener.
  */
 function synthesize_drag_start(aWindow, aDispatcher, aListener) {
@@ -108,6 +110,7 @@ function synthesize_drag_start(aWindow, aDispatcher, aListener) {
 
 /**
  * Synthesizes a drag over event.
+ *
  * @param {} aWindow
  * @param {XULElement} aDispatcher
  *   the element from which the drag session should be started.
@@ -122,6 +125,7 @@ function synthesize_drag_over(aWindow, aDispatcher, aDt, aArgs) {
 
 /**
  * Synthesizes a drag end event.
+ *
  * @param {} aWindow
  * @param {XULElement} aDispatcher
  *   the element from which the drag session should be started.
@@ -147,6 +151,7 @@ function synthesize_drag_end(aWindow, aDispatcher, aListener, aDt, aArgs) {
 
 /**
  * Synthesizes a drop event.
+ *
  * @param {} aWindow
  * @param {XULElement} aDispatcher
  *   the element from which the drag session should be started.
@@ -172,6 +177,7 @@ function synthesize_drop(aWindow, aDispatcher, aDt, aArgs) {
 
 /**
  * Private function: Synthesizes a specified drag event.
+ *
  * @param {} aType
  *   the type of the drag event to be synthesiyzed.
  * @param {} aWindow

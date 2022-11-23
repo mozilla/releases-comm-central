@@ -147,8 +147,9 @@ var mailTestUtils = {
    * Returns the file system a particular file is on.
    * Currently supported on Windows only.
    *
-   * @param aFile The file to get the file system for.
-   * @return The file system a particular file is on, or 'null' if not on Windows.
+   * @param {nsIFile} aFile - The file to get the file system for.
+   * @returns {string} The file system a particular file is on, or 'null'
+   *   if not on Windows.
    */
   get_file_system(aFile) {
     if (!("@mozilla.org/windows-registry-key;1" in Cc)) {
@@ -243,14 +244,15 @@ var mailTestUtils = {
    * - Linux: As long as you seek to a position before writing, happens automatically
    *   on most file systems, so this function is a no-op.
    *
-   * @param aFile The file to mark as sparse.
-   * @param aRegionStart The start position of the sparse region, in bytes.
-   * @param aRegionBytes The number of bytes to mark as sparse.
-   * @return Whether the OS and file system supports marking files as sparse. If
-   *          this is true, then the file has been marked as sparse. If this is
-   *          false, then the underlying system doesn't support marking files as
-   *          sparse. If an exception is thrown, then the system does support
-   *          marking files as sparse, but an error occurred while doing so.
+   * @param {nsIFile} aFile - The file to mark as sparse.
+   * @param {integer} aRegionStart - The start position of the sparse region,
+   *   in bytes.
+   * @param {integer} aRegionBytes - The number of bytes to mark as sparse.
+   * @returns {boolean} Whether the OS and file system supports marking files as
+   *   sparse. If this is true, then the file has been marked as sparse.
+   *   If this isfalse, then the underlying system doesn't support marking files as
+   *   sparse. If an exception is thrown, then the system does support marking
+   *   files as sparse, but an error occurred while doing so.
    *
    */
   mark_file_region_sparse(aFile, aRegionStart, aRegionBytes) {
@@ -454,8 +456,8 @@ var mailTestUtils = {
    * Converts a size in bytes into its mebibytes string representation.
    * NB: 1 MiB = 1024 * 1024 = 1048576 B.
    *
-   * @param aSize The size in bytes.
-   * @return A string representing the size in medibytes.
+   * @param {integer} aSize - The size in bytes.
+   * @returns {string} A string representing the size in mebibytes.
    */
   toMiBString(aSize) {
     return aSize / 1048576 + " MiB";
@@ -466,10 +468,10 @@ var mailTestUtils = {
    *  requiring you to pass a string to evaluate.  If the function throws an
    *  exception when invoked, we will use do_throw to ensure that the test fails.
    *
-   * @param aDelayInMS The number of milliseconds to wait before firing the timer.
-   * @param aFunc The function to invoke when the timer fires.
-   * @param aFuncThis Optional 'this' pointer to use.
-   * @param aFuncArgs Optional list of arguments to pass to the function.
+   * @param {integer} aDelayInMS - The number of milliseconds to wait before firing the timer.
+   * @param {Function} aFunc - The function to invoke when the timer fires.
+   * @param {object} [aFuncThis] - Optional 'this' pointer to use.
+   * @param {*[]} aFuncArgs - Optional list of arguments to pass to the function.
    */
   _timer: null,
   do_timeout_function(aDelayInMS, aFunc, aFuncThis, aFuncArgs) {
@@ -495,25 +497,25 @@ var mailTestUtils = {
    *  callback once the folder has been loaded.  (This may be instantly or
    *  after a re-parse.)
    *
-   * @param aFolder The nsIMsgFolder whose database you want to ensure is
-   *     up-to-date.
-   * @param aCallback The callback function to invoke once the folder has been
-   *     loaded.
-   * @param aCallbackThis The 'this' to use when calling the callback.  Pass null
-   *     if your callback does not rely on 'this'.
-   * @param aCallbackArgs A list of arguments to pass to the callback via apply.
-   *     If you provide [1,2,3], we will effectively call:
-   *     aCallbackThis.aCallback(1,2,3);
-   * @param [aSomeoneElseWillTriggerTheUpdate=false] If this is true, we do not
-   *     trigger the updateFolder call and it is assumed someone else is taking
-   *     care of that.
+   * @param {nsIMsgFolder} aFolder - The nsIMsgFolder whose database you want
+   *   to ensure is up-to-date.
+   * @param {Function} aCallback - The callback function to invoke once the
+   *   folder has been loaded.
+   * @param {object} aCallbackThis - The 'this' to use when calling the callback.
+   *   Pass null if your callback does not rely on 'this'.
+   * @param {*[]} aCallbackArgs - A list of arguments to pass to the callback
+   *  via apply. If you provide [1,2,3], we will effectively call:
+   *  aCallbackThis.aCallback(1,2,3);
+   * @param {boolean} [aSomeoneElseWillTriggerTheUpdate=false] If this is true,
+   *  we do not trigger the updateFolder call and it is assumed someone else is
+   *  taking care of that.
    */
   updateFolderAndNotify(
     aFolder,
     aCallback,
     aCallbackThis,
     aCallbackArgs,
-    aSomeoneElseWillTriggerTheUpdate
+    aSomeoneElseWillTriggerTheUpdate = false
   ) {
     // register for the folder loaded notification ahead of time... even though
     //  we may not need it...
@@ -554,12 +556,12 @@ var mailTestUtils = {
    * `EventUtils` as an argument because importing it here does not work
    * because `window` is not defined.
    *
-   * @param {Object} EventUtils - The EventUtils object.
+   * @param {object} EventUtils - The EventUtils object.
    * @param {Window} win - The window the tree is in.
    * @param {Element} tree - The tree element.
    * @param {number} row - The tree row to click on.
    * @param {number} column - The tree column to click on.
-   * @param {Object} event - The mouse event to synthesize, e.g. `{ clickCount: 2 }`.
+   * @param {object} event - The mouse event to synthesize, e.g. `{ clickCount: 2 }`.
    */
   treeClick(EventUtils, win, tree, row, column, event) {
     let coords = tree.getCoordsForCellItem(row, tree.columns[column], "cell");
@@ -578,11 +580,11 @@ var mailTestUtils = {
    * `MutationObserver` as an argument because importing it here does not work
    * because `window` is not defined here.
    *
-   * @param {Object} MutationObserver - The MutationObserver object.
+   * @param {object} MutationObserver - The MutationObserver object.
    * @param {Document} doc - Document that contains the elements.
    * @param {string} observedNodeId - Id of the element to observe.
    * @param {string} awaitedNodeId - Id of the element that will soon exist.
-   * @return {Promise.<undefined>} - A promise fulfilled when the element exists.
+   * @returns {Promise.<undefined>} - A promise fulfilled when the element exists.
    */
   awaitElementExistence(MutationObserver, doc, observedNodeId, awaitedNodeId) {
     return new Promise(resolve => {

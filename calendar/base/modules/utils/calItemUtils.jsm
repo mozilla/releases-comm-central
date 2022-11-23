@@ -150,31 +150,31 @@ var calitem = {
         this.state = this.STATE_COMPLETED;
       },
 
-      /** @return a HashedArray containing the new version of the modified items */
+      /** @returns a HashedArray containing the new version of the modified items */
       get modifiedItems() {
         this._expectState(this.STATE_COMPLETED, "get modifiedItems");
         return this.mModifiedItems;
       },
 
-      /** @return a HashedArray containing the old version of the modified items */
+      /** @returns a HashedArray containing the old version of the modified items */
       get modifiedOldItems() {
         this._expectState(this.STATE_COMPLETED, "get modifiedOldItems");
         return this.mModifiedOldItems;
       },
 
-      /** @return a HashedArray containing added items */
+      /** @returns a HashedArray containing added items */
       get addedItems() {
         this._expectState(this.STATE_COMPLETED, "get addedItems");
         return this.mAddedItems;
       },
 
-      /** @return a HashedArray containing deleted items */
+      /** @returns a HashedArray containing deleted items */
       get deletedItems() {
         this._expectState(this.STATE_COMPLETED, "get deletedItems");
         return this.mDeletedItems;
       },
 
-      /** @return the number of loaded items */
+      /** @returns the number of loaded items */
       get count() {
         return Object.keys(this.mInitialItems).length;
       },
@@ -199,7 +199,7 @@ var calitem = {
    *
    * @param aCalendar the calendar
    * @param aItem the item either a task or an event
-   * @return true or false
+   * @returns true or false
    */
   isItemSupported(aItem, aCalendar) {
     if (aItem.isTodo()) {
@@ -421,7 +421,7 @@ var calitem = {
      * @param aIgnoreProps      (optional) An array of parameters to ignore.
      * @param aIgnoreParams     (optional) An object describing which parameters to
      *                                     ignore.
-     * @return                  True, if items match.
+     * @returns True, if items match.
      */
   compareContent(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams) {
     let ignoreProps = arr2hash(
@@ -524,7 +524,7 @@ var calitem = {
    *
    * @param aOldItem             The Item to be modified
    * @param aNewDate             The date at which the new item is going to start
-   * @return                     The modified item
+   * @returns The modified item
    */
   moveToDate(aOldItem, aNewDate) {
     let newItem = aOldItem.clone();
@@ -628,7 +628,7 @@ var calitem = {
    *
    * @param aItem         The Item to be modified
    * @param aIsDate       True or false indicating the new value of 'isDate'
-   * @return              The modified item
+   * @returns The modified item
    */
   setToAllDay(aItem, aIsDate) {
     let start = aItem[cal.dtz.startDateProp(aItem)];
@@ -655,7 +655,7 @@ var calitem = {
    * completed, overdue, duetoday, inprogress, future
    *
    * @param aTask     The task to check.
-   * @return          The progress atom.
+   * @returns The progress atom.
    */
   getProgressAtom(aTask) {
     let nowdate = new Date();

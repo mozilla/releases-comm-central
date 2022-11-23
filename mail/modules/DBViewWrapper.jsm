@@ -173,7 +173,7 @@ var FolderNotificationHelper = {
   },
 
   /**
-   * @return true if there are any listeners still registered.  This is intended
+   * @returns true if there are any listeners still registered.  This is intended
    *     to support debugging code.  If you are not debug code, you are a bad
    *     person/code.
    */
@@ -347,7 +347,7 @@ IDBViewWrapperListener.prototype = {
    *     mark all its messages read.  I pass the folder instead of the server
    *     type because having a crazy feature like this will inevitably lead to
    *     a more full-featured crazy feature (why not on a per-folder basis, eh?)
-   * @return true if we should mark all the dudes as read, false if not.
+   * @returns true if we should mark all the dudes as read, false if not.
    */
   shouldMarkMessagesReadOnLeavingFolder(aMsgFolder) {
     return false;
@@ -533,7 +533,7 @@ DBViewWrapper.prototype = {
   kUnderlyingSearchView: 4,
 
   /**
-   * @return true if the folder being displayed is backed by a single 'real'
+   * @returns true if the folder being displayed is backed by a single 'real'
    *     folder.  This folder can be a saved search on that folder or just
    *     an outright un-filtered display of that folder.
    */
@@ -542,7 +542,7 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @return true if the folder being displayed is a virtual folder backed by
+   * @returns true if the folder being displayed is a virtual folder backed by
    *     multiple 'real' folders or a search view.  This corresponds to a
    *     cross-folder saved search.
    */
@@ -554,7 +554,7 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @return true if the folder being displayed is not a real folder at all,
+   * @returns true if the folder being displayed is not a real folder at all,
    *     but rather the result of an un-scoped search, such as a gloda search.
    */
   get isSynthetic() {
@@ -562,7 +562,7 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @return true if the folder being displayed is not a real folder at all,
+   * @returns true if the folder being displayed is not a real folder at all,
    *         but rather the result of a search.
    */
   get isSearch() {
@@ -941,7 +941,7 @@ DBViewWrapper.prototype = {
    *
    * @pre this.folderDisplayed is the folder we are talking about.
    *
-   * @return true if the folder should be shown immediately, false if we should
+   * @returns true if the folder should be shown immediately, false if we should
    *     wait for updateFolder to complete.
    */
   shouldShowMessagesForFolderImmediately() {
@@ -1369,7 +1369,7 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @return the current set of viewFlags.  This may be:
+   * @returns the current set of viewFlags.  This may be:
    * - A modified set of flags that are pending application because a view
    *    update is in effect and we don't want to modify the view when it's just
    *    going to get destroyed.
@@ -1533,7 +1533,7 @@ DBViewWrapper.prototype = {
     Ci.nsMsgFolderFlags.Queue |
     Ci.nsMsgFolderFlags.Templates,
   /**
-   * @return true if the folder is an outgoing folder by virtue of being a
+   * @returns true if the folder is an outgoing folder by virtue of being a
    *     sent mail folder, drafts folder, queue folder, or template folder,
    *     or being a sub-folder of one of those types of folders.
    */
@@ -1544,7 +1544,7 @@ DBViewWrapper.prototype = {
     );
   },
   /**
-   * @return true if the folder is not known to be a special outgoing folder
+   * @returns true if the folder is not known to be a special outgoing folder
    *     or the descendent of a special outgoing folder.
    */
   get isIncomingFolder() {
@@ -1589,7 +1589,7 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @return the primary sort type (as one of the numeric constants from
+   * @returns the primary sort type (as one of the numeric constants from
    *      nsMsgViewSortType).
    */
   get primarySortType() {
@@ -1597,7 +1597,7 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @return the primary sort order (as one of the numeric constants from
+   * @returns the primary sort order (as one of the numeric constants from
    *     nsMsgViewSortOrder.)
    */
   get primarySortOrder() {
@@ -1605,7 +1605,7 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @return true if the dominant sort is ascending.
+   * @returns true if the dominant sort is ascending.
    */
   get isSortedAscending() {
     return (
@@ -1613,7 +1613,7 @@ DBViewWrapper.prototype = {
     );
   },
   /**
-   * @return true if the dominant sort is descending.
+   * @returns true if the dominant sort is descending.
    */
   get isSortedDescending() {
     return (
@@ -1623,7 +1623,7 @@ DBViewWrapper.prototype = {
   /**
    * Indicate if we are sorting by time or something correlated with time.
    *
-   * @return true if the dominant sort is by time.
+   * @returns true if the dominant sort is by time.
    */
   get sortImpliesTemporalOrdering() {
     if (!this._sort.length) {
@@ -1693,7 +1693,7 @@ DBViewWrapper.prototype = {
    * Logic that compensates for custom column identifiers being provided as
    *  sort types.
    *
-   * @return [sort type, sort order, sort custom column name]
+   * @returns [sort type, sort order, sort custom column name]
    */
   _getSortDetails(aIndex) {
     let [sortType, sortOrder] = this._sort[aIndex];
@@ -1908,7 +1908,7 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @return true if we are showing only unread messages.
+   * @returns true if we are showing only unread messages.
    */
   get showUnreadOnly() {
     return Boolean(this._viewFlags & Ci.nsMsgViewFlagsType.kUnreadOnly);
@@ -1976,7 +1976,7 @@ DBViewWrapper.prototype = {
     this.endViewUpdate();
   },
   /**
-   * @return true if the special view that shows threads with unread messages
+   * @returns true if the special view that shows threads with unread messages
    *     in them is active.
    */
   get specialViewThreadsWithUnread() {
@@ -1993,7 +1993,7 @@ DBViewWrapper.prototype = {
     this._setSpecialView(Ci.nsMsgViewType.eShowThreadsWithUnread);
   },
   /**
-   * @return true if the special view that shows watched threads with unread
+   * @returns true if the special view that shows watched threads with unread
    *     messages in them is active.
    */
   get specialViewWatchedThreadsWithUnread() {
@@ -2067,7 +2067,7 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @return true if the row at the given index contains a collapsed thread,
+   * @returns true if the row at the given index contains a collapsed thread,
    *     false if the row is a collapsed group or anything else.
    */
   isCollapsedThreadAtIndex(aViewIndex) {
@@ -2080,7 +2080,7 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @return true if the row at the given index is a grouped view dummy header
+   * @returns true if the row at the given index is a grouped view dummy header
    *     row, false if anything else.
    */
   isGroupedByHeaderAtIndex(aViewIndex) {
@@ -2199,7 +2199,7 @@ DBViewWrapper.prototype = {
    *  our semantics are limited to telling you about only the first one we find.
    *
    * @param aMessageId The message-id of the message you want.
-   * @return The first nsIMsgDBHdr found in any of the underlying folders with
+   * @returns The first nsIMsgDBHdr found in any of the underlying folders with
    *     the given message header, null if none are found.  The fact that we
    *     return something does not guarantee that it is actually visible in the
    *     view.  (The search may be filtering it out.)

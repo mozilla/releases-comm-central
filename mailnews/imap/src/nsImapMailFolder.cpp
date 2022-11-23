@@ -2529,7 +2529,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     rv = mDatabase->ListAllKeys(keys);
     NS_ENSURE_SUCCESS(rv, rv);
     existingKeys.AppendElements(keys);
-    mDatabase->ListAllOfflineDeletes(&existingKeys);
+    mDatabase->ListAllOfflineDeletes(existingKeys);
   }
   int32_t folderValidity;
   aSpec->GetFolder_UIDVALIDITY(&folderValidity);
@@ -3634,7 +3634,7 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& aMsgKeys,
       // header, so we just need to get the header for that key
       // from the dest db.
       nsTArray<nsMsgKey> offlineOps;
-      if (NS_SUCCEEDED(dstFolderDB->ListAllOfflineOpIds(&offlineOps))) {
+      if (NS_SUCCEEDED(dstFolderDB->ListAllOfflineOpIds(offlineOps))) {
         nsTArray<RefPtr<nsIMsgDBHdr>> messages;
         nsCString srcFolderUri;
         GetURI(srcFolderUri);

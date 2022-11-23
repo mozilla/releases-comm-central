@@ -182,7 +182,7 @@ class EnigmailKeyObj {
    * Get a formatted version of the fingerprint:
    * 1234 5678 90AB CDEF .... ....
    *
-   * @return String - the formatted fingerprint
+   * @returns String - the formatted fingerprint
    */
   get fprFormatted() {
     let f = lazy.EnigmailKey.formatFpr(this.fpr);
@@ -195,7 +195,7 @@ class EnigmailKeyObj {
   /**
    * Determine if the public key is valid. If not, return a description why it's not
    *
-   * @return Object:
+   * @returns Object:
    *   - keyValid: Boolean (true if key is valid)
    *   - reason: String (explanation of invalidity)
    */
@@ -229,7 +229,7 @@ class EnigmailKeyObj {
   /**
    * Check whether a key can be used for signing and return a description of why not
    *
-   * @return Object:
+   * @returns Object:
    *   - keyValid: Boolean (true if key is valid)
    *   - reason: String (explanation of invalidity)
    */
@@ -331,7 +331,7 @@ class EnigmailKeyObj {
    *                 If subId is non-null, only this subkey will be
    *                 checked.
    *
-   * @return Object:
+   * @returns Object:
    *   - keyValid: Boolean (true if key is valid)
    *   - reason: String (explanation of invalidity)
    */
@@ -430,7 +430,7 @@ class EnigmailKeyObj {
    * or the maximum expiry date of a signing or encryption subkey. I.e. this returns the next
    * date at which the key cannot be used for signing and/or encryption anymore
    *
-   * @return Number - The expiry date as seconds after 01/01/1970
+   * @returns Number - The expiry date as seconds after 01/01/1970
    */
   getKeyExpiry() {
     let expiryDate = Number.MAX_VALUE;
@@ -477,9 +477,9 @@ class EnigmailKeyObj {
    * Export the minimum key for the public key object:
    * public key, desired UID, newest signing/encryption subkey
    *
-   * @param {String} emailAddr: [optional] email address of UID to extract. Use primary UID if null .
+   * @param {string} emailAddr: [optional] email address of UID to extract. Use primary UID if null .
    *
-   * @return Object:
+   * @returns Object:
    *    - exitCode (0 = success)
    *    - errorMsg (if exitCode != 0)
    *    - keyData: BASE64-encded string of key data
@@ -567,7 +567,7 @@ class EnigmailKeyObj {
    * e.g. elliptic curve keys have small key sizes with high cryptographic strength
    *
    *
-   * @return Number: a virtual size
+   * @returns Number: a virtual size
    */
   getVirtualKeySize() {
     lazy.EnigmailLog.DEBUG(
@@ -587,9 +587,9 @@ class EnigmailKeyObj {
   }
 
   /**
-   * @param {Boolean} minimalKey  if true, reduce key to minimum required
+   * @param {boolean} minimalKey - if true, reduce key to minimum required
    *
-   * @return {Object}:
+   * @returns {object}:
    *   - {Number} exitCode:  result code (0: OK)
    *   - {String} keyData:   ASCII armored key data material
    *   - {String} errorMsg:  error message in case exitCode !== 0
@@ -628,9 +628,9 @@ class EnigmailKeyObj {
    * Obtain the list of alternative email addresses, except the one
    * that is given as the parameter.
    *
-   * @param {Boolean} exceptThisEmail - an email address that will
+   * @param {boolean} exceptThisEmail - an email address that will
    *   be excluded in the result array.
-   * @return {String[]} - an array of all email addresses found in all
+   * @returns {string[]} - an array of all email addresses found in all
    *   of the key's user IDs, excluding exceptThisEmail.
    */
   getAlternativeEmails(exceptThisEmail) {

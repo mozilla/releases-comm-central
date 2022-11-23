@@ -59,7 +59,7 @@ add_setup(async function() {
  *
  * @param aMsgHdr: nsIMsgDBHdr object whose text body will be read
  * @param aGetText: if true, return header objects. if false, return body data.
- * @return Map(partnum -> message headers)
+ * @returns Map(partnum -> message headers)
  */
 function getMsgHeaders(aMsgHdr, aGetText = false) {
   let msgFolder = aMsgHdr.folder;

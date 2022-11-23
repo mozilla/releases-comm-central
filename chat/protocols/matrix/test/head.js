@@ -19,6 +19,7 @@ function loadMatrix() {
 
 /**
  * Get a MatrixRoom instance with a mocked client.
+ *
  * @param {boolean} isMUC
  * @param {string} [name="#test:example.com"]
  * @param {(any, string) => any?|object} [clientHandler]
@@ -216,6 +217,7 @@ function makeProxyHandler(clientHandler) {
 
 /**
  * Build a MatrixEvent like object from a plain object.
+ *
  * @param {{ type: MatrixSDK.EventType, content: object, sender: string, id: number, redacted: boolean, time: Date }} eventSpec - Data the event holds.
  * @returns {MatrixEvent}
  */

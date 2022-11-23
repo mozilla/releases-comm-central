@@ -49,7 +49,7 @@ class CalTransactionManager {
   /**
    * Provides a singleton instance of the CalTransactionManager.
    *
-   * @return {CalTransactionManager}
+   * @returns {CalTransactionManager}
    */
   static getInstance() {
     if (!transactionManager) {
@@ -59,7 +59,7 @@ class CalTransactionManager {
   }
 
   /**
-   * @typedef {Object} ExtResponse
+   * @typedef {object} ExtResponse
    * @property {number} responseMode One of the calIItipItem.autoResponse values.
    */
 
@@ -84,7 +84,7 @@ class CalTransactionManager {
    * The created transaction is returned and can be used to combine multiple
    * transactions into one.
    *
-   * @return {CalBatchTrasaction}
+   * @returns {CalBatchTrasaction}
    */
   beginBatch() {
     let trn = new CalBatchTransaction();
@@ -96,7 +96,7 @@ class CalTransactionManager {
    * peekUndoStack provides the top transaction on the undo stack (if any)
    * without modifying the stack.
    *
-   * @return {CalTransaction?}
+   * @returns {CalTransaction?}
    */
   peekUndoStack() {
     return this.undoStack.at(-1);
@@ -123,7 +123,7 @@ class CalTransactionManager {
    * Returns true if it is possible to undo the transaction at the top of the
    * undo stack.
    *
-   * @return {boolean}
+   * @returns {boolean}
    */
   canUndo() {
     let trn = this.peekUndoStack();
@@ -134,7 +134,7 @@ class CalTransactionManager {
    * peekRedoStack provides the top transaction on the redo stack (if any)
    * without modifying the stack.
    *
-   * @return {CalTransaction?}
+   * @returns {CalTransaction?}
    */
   peekRedoStack() {
     return this.redoStack.at(-1);
@@ -161,7 +161,7 @@ class CalTransactionManager {
    * Returns true if it is possible to redo the transaction at the top of the
    * redo stack.
    *
-   * @return {boolean}
+   * @returns {boolean}
    */
   canRedo() {
     let trn = this.peekRedoStack();
@@ -178,7 +178,7 @@ class CalTransaction {
    * Indicates whether the calendar of the transaction's target item(s) can be
    * written to.
    *
-   * @return {boolean}
+   * @returns {boolean}
    */
   canWrite() {
     return false;
@@ -203,6 +203,7 @@ class CalTransaction {
 class CalBatchTransaction extends CalTransaction {
   /**
    * Stores the transactions that belong to the batch.
+   *
    * @type {CalTransaction[]}
    */
   transactions = [];

@@ -23,10 +23,6 @@
 #include "nsISupports.idl"
 #include "nsIDBChangeAnnouncer.idl"
 
-%{C++
-#include "nsTArray.h"
-%}
-
 interface nsIMsgDatabase;
 interface nsIDBChangeListener;
 interface nsIMsgDBHdr;
@@ -85,8 +81,6 @@ interface nsMsgDBCommitType : nsISupports
   const long kSessionCommit = 2;
   const long kCompressCommit = 3;
 };
-
-[ptr] native nsMsgKeyArrayPtr(nsTArray<nsMsgKey>);
 
 /**
  * A service to open mail databases and manipulate listeners automatically.
@@ -436,8 +430,8 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   // but it would have to be in nsMailDatabase, since local folders can be move destinations
   nsIMsgOfflineImapOperation getOfflineOpForKey(in nsMsgKey messageKey, in boolean create);
   void removeOfflineOp(in nsIMsgOfflineImapOperation op);
-  [noscript] void listAllOfflineOpIds(in nsMsgKeyArrayPtr offlineOpIds);
-  [noscript] void listAllOfflineDeletes(in nsMsgKeyArrayPtr offlineDeletes);
+  Array<nsMsgKey> listAllOfflineOpIds();
+  Array<nsMsgKey> listAllOfflineDeletes();
   Array<nsMsgKey> listAllOfflineMsgs();
 
   void setAttributeOnPendingHdr(in nsIMsgDBHdr pendingHdr, in string property,
@@ -509,4 +503,4 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   boolean hdrIsInCache(in AUTF8String aSearchFolderUri, in nsIMsgDBHdr aHdr);
 
 };
-/** @} */
+

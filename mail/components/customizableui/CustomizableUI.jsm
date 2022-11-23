@@ -3107,8 +3107,8 @@ var CustomizableUIInternal = {
   },
 
   /**
-   * @param {String|Node} aWidget - widget ID or a widget node (preferred for performance).
-   * @return {Boolean} whether the widget is removable
+   * @param {string | Node} aWidget - widget ID or a widget node (preferred for performance).
+   * @returns {boolean} whether the widget is removable
    */
   isWidgetRemovable(aWidget) {
     let widgetId;
@@ -3543,6 +3543,7 @@ var CustomizableUI = {
   },
   /**
    * Remove a listener added with addListener
+   *
    * @param aListener the listener object to remove
    */
   removeListener(aListener) {
@@ -3551,6 +3552,7 @@ var CustomizableUI = {
 
   /**
    * Register a customizable area with CustomizableUI.
+   *
    * @param aName   the name of the area to register. Can only contain
    *                alphanumeric characters, dashes (-) and underscores (_).
    * @param aProps  the properties of the area. The following properties are
@@ -3589,6 +3591,7 @@ var CustomizableUI = {
   /**
    * Register the menu panel node. This method should not be called by anyone
    * apart from the built-in PanelUI.
+   *
    * @param aPanelContents the panel contents DOM node being registered.
    * @param aArea the area for which to register this node.
    */
@@ -3800,7 +3803,7 @@ var CustomizableUI = {
    *                          mode (optional, default: true)
    *
    * @param aProperties the specifications for the widget.
-   * @return a wrapper around the created widget (see getWidget)
+   * @returns a wrapper around the created widget (see getWidget)
    */
   createWidget(aProperties) {
     return CustomizableUIInternal.wrapWidget(
@@ -3876,7 +3879,7 @@ var CustomizableUI = {
    *                  instead.
    *
    * @param aWidgetId the ID of the widget whose information you need
-   * @return a wrapper around the widget as described above, or null if the
+   * @returns a wrapper around the widget as described above, or null if the
    *         widget is known not to exist (anymore). NB: non-null return
    *         is no guarantee the widget exists because we cannot know in
    *         advance if a XUL widget exists or not.
@@ -3896,7 +3899,7 @@ var CustomizableUI = {
    *                       window (because of the showInPrivateBrowsing
    *                       property).
    *
-   * @return an array of widget wrappers (see getWidget)
+   * @returns an array of widget wrappers (see getWidget)
    */
   getUnusedWidgets(aWindowPalette) {
     return CustomizableUIInternal.getUnusedWidgets(aWindowPalette).map(
@@ -3909,7 +3912,7 @@ var CustomizableUI = {
    * Modifying the array will not affect CustomizableUI.
    *
    * @param aArea the ID of the area whose placements you want to obtain.
-   * @return an array containing the widget IDs that are in the area.
+   * @returns an array containing the widget IDs that are in the area.
    *
    * NB: will throw if called too early (before placements have been fetched)
    *     or if the area is not currently known to CustomizableUI.
@@ -3933,7 +3936,7 @@ var CustomizableUI = {
    * or items for which wrapper.forWindow(win) will return null.
    *
    * @param aArea the ID of the area whose widgets you want to obtain.
-   * @return an array of widget wrappers and/or null values for the widget IDs
+   * @returns an array of widget wrappers and/or null values for the widget IDs
    *         placed in an area.
    *
    * NB: will throw if called too early (before placements have been fetched)
@@ -3950,6 +3953,7 @@ var CustomizableUI = {
    * Ensure the customizable widget that matches up with this view node
    * will get the right subview showing/shown/hiding/hidden events when
    * they fire.
+   *
    * @param aViewNode the view node to add listeners to if they haven't
    *                  been added already.
    */
@@ -3971,7 +3975,7 @@ var CustomizableUI = {
    * property (areaType) for this purpose.
    *
    * @param aArea the ID of the area whose type you want to know
-   * @return TYPE_TOOLBAR or TYPE_MENU_PANEL depending on the area, null if
+   * @returns TYPE_TOOLBAR or TYPE_MENU_PANEL depending on the area, null if
    *         the area is unknown.
    */
   getAreaType(aArea) {
@@ -3982,7 +3986,7 @@ var CustomizableUI = {
    * Check if a toolbar is collapsed by default.
    *
    * @param aArea the ID of the area whose default-collapsed state you want to know.
-   * @return `true` or `false` depending on the area, null if the area is unknown,
+   * @returns `true` or `false` depending on the area, null if the area is unknown,
    *         or its collapsed state cannot normally be controlled by the user
    */
   isToolbarDefaultCollapsed(aArea) {
@@ -4011,7 +4015,7 @@ var CustomizableUI = {
    *
    * @param aArea   the ID of the area whose customize target you want to have
    * @param aWindow the window where you want to fetch the DOM node.
-   * @return the customize target DOM node for aArea in aWindow
+   * @returns the customize target DOM node for aArea in aWindow
    */
   getCustomizeTargetForArea(aArea, aWindow) {
     return CustomizableUIInternal.getCustomizeTargetForArea(aArea, aWindow);
@@ -4029,7 +4033,8 @@ var CustomizableUI = {
 
   /**
    * Undo the previous reset, can only be called immediately after a reset.
-   * @return a promise that will be resolved when the operation is complete.
+   *
+   * @returns a promise that will be resolved when the operation is complete.
    */
   undoReset() {
     CustomizableUIInternal.undoReset();
@@ -4040,6 +4045,7 @@ var CustomizableUI = {
    * an add-on. NB: only works on the customizable toolbars generated by
    * the toolbox itself. Intended for use from CustomizeMode, not by
    * other consumers.
+   *
    * @param aToolbarId the ID of the toolbar to remove
    */
   removeExtraToolbar(aToolbarId) {
@@ -4049,7 +4055,7 @@ var CustomizableUI = {
   /**
    * Can the last Restore Defaults operation be undone.
    *
-   * @return A boolean stating whether an undo of the
+   * @returns A boolean stating whether an undo of the
    *         Restore Defaults can be performed.
    */
   get canUndoReset() {
@@ -4069,7 +4075,7 @@ var CustomizableUI = {
    * has put your widget.
    *
    * @param aWidgetId the ID of the widget whose placement you want to know
-   * @return
+   * @returns
    *   {
    *     area: "somearea", // The ID of the area where the widget is placed
    *     position: 42 // the index in the placements array corresponding to
@@ -4102,7 +4108,7 @@ var CustomizableUI = {
    *     'proper' area automagically.
    *
    * @param aWidgetId a widget ID or DOM node to check
-   * @return true if the widget can be removed from its area,
+   * @returns true if the widget can be removed from its area,
    *          false otherwise.
    */
   isWidgetRemovable(aWidgetId) {
@@ -4115,7 +4121,7 @@ var CustomizableUI = {
    *
    * @param aWidgetId the widget ID or DOM node you want to move somewhere
    * @param aArea     the area ID you want to move it to.
-   * @return true if this is possible, false if it is not. The same caveats as
+   * @returns true if this is possible, false if it is not. The same caveats as
    *              for isWidgetRemovable apply, however, if no windows are open.
    */
   canWidgetMoveToArea(aWidgetId, aArea) {
@@ -4136,6 +4142,7 @@ var CustomizableUI = {
 
   /**
    * Set a toolbar's visibility state in all windows.
+   *
    * @param aToolbarId    the toolbar whose visibility should be adjusted
    * @param aIsVisible    whether the toolbar should be visible
    */
@@ -4160,7 +4167,7 @@ var CustomizableUI = {
    * @param aDef        (optional) the default to return if we don't find the
    *                    string in the stringbundle;
    *
-   * @return the localized string, or aDef if the string isn't in the bundle.
+   * @returns the localized string, or aDef if the string isn't in the bundle.
    *         If no default is provided,
    *           if aProp exists on aWidget, we'll return that,
    *           otherwise we'll return the empty string
@@ -4199,7 +4206,7 @@ var CustomizableUI = {
    * Check if a widget is a "special" widget: a spring, spacer or separator.
    *
    * @param aWidgetId the widget ID to check.
-   * @return true if the widget is 'special', false otherwise.
+   * @returns true if the widget is 'special', false otherwise.
    */
   isSpecialWidget(aWidgetId) {
     return CustomizableUIInternal.isSpecialWidget(aWidgetId);
@@ -4237,6 +4244,7 @@ var CustomizableUI = {
   /**
    * Notify listeners that a window is entering customize mode. For use from
    * Customize Mode only, do not use otherwise.
+   *
    * @param aWindow the window entering customize mode
    */
   notifyStartCustomizing(aWindow) {
@@ -4245,6 +4253,7 @@ var CustomizableUI = {
   /**
    * Notify listeners that a window is exiting customize mode. For use from
    * Customize Mode only, do not use otherwise.
+   *
    * @param aWindow the window exiting customize mode
    */
   notifyEndCustomizing(aWindow) {
@@ -4255,6 +4264,7 @@ var CustomizableUI = {
    * Notify toolbox(es) of a particular event. If you don't pass aWindow,
    * all toolboxes will be notified. For use from Customize Mode only,
    * do not use otherwise.
+   *
    * @param aEvent the name of the event to send.
    * @param aDetails optional, the details of the event.
    * @param aWindow optional, the window in which to send the event.
@@ -4267,7 +4277,7 @@ var CustomizableUI = {
    * Check whether an area is overflowable.
    *
    * @param aAreaId the ID of an area to check for overflowable-ness
-   * @return true if the area is overflowable, false otherwise.
+   * @returns true if the area is overflowable, false otherwise.
    */
   isAreaOverflowable(aAreaId) {
     let area = gAreas.get(aAreaId);
@@ -4281,7 +4291,7 @@ var CustomizableUI = {
    * instead, which is cheaper because it does not use the DOM.
    *
    * @param aElement the DOM node whose place we need to check
-   * @return "toolbar" if the node is in a toolbar, "panel" if it is in the
+   * @returns "toolbar" if the node is in a toolbar, "panel" if it is in the
    *         menu panel, "palette" if it is in the (visible!) customization
    *         palette, undefined otherwise.
    */
@@ -4304,6 +4314,7 @@ var CustomizableUI = {
 
   /**
    * Check if a toolbar is builtin or not.
+   *
    * @param aToolbarId the ID of the toolbar you want to check
    */
   isBuiltinToolbar(aToolbarId) {
@@ -4312,6 +4323,7 @@ var CustomizableUI = {
 
   /**
    * Create an instance of a spring, spacer or separator.
+   *
    * @param aId       the type of special widget (spring, spacer or separator)
    * @param aDocument the document in which to create it.
    */
@@ -4321,6 +4333,7 @@ var CustomizableUI = {
 
   /**
    * Fills a submenu with menu items.
+   *
    * @param aMenuItems the menu items to display.
    * @param aSubview   the subview to fill.
    */
@@ -4410,6 +4423,7 @@ var CustomizableUI = {
 
   /**
    * A helper function for clearing subviews.
+   *
    * @param aSubview the subview to clear.
    */
   clearSubview(aSubview) {
@@ -4938,6 +4952,7 @@ OverflowableToolbar.prototype = {
 
   /**
    * Handle overflow in the toolbar by moving items to the overflow menu.
+   *
    * @param {Event} aEvent
    *        The overflow event that triggered handling overflow. May be omitted
    *        in some cases (e.g. when we run this method after overflow handling
@@ -5022,6 +5037,7 @@ OverflowableToolbar.prototype = {
 
   /**
    * Try to move toolbar items back to the toolbar from the overflow menu.
+   *
    * @param {boolean} shouldMoveAllItems
    *        Whether we should move everything (e.g. because we're being disabled)
    * @param {number} targetWidth

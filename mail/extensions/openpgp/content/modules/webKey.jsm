@@ -34,7 +34,7 @@ var EnigmailWks = {
    * @param window  : Object - parent window for dialog display
    * @param cb      : Function(retValue) - callback function.
    *                   retValue: nsIFile Object to gpg-wks-client executable or NULL
-   * @return        : Object - NULL or a process handle
+   * @returns : Object - NULL or a process handle
    */
   getWksClientPathAsync(window, cb) {
     lazy.EnigmailLog.DEBUG("webKey.jsm: getWksClientPathAsync\n");
@@ -48,7 +48,7 @@ var EnigmailWks = {
    * @param window: Object - parent window of dialog display
    * @param cb    : Function(retValue) - callback function.
    *                   retValue: Boolean: true if WKS is supported / false otherwise
-   * @return      : Object - process handle
+   * @returns : Object - process handle
    */
   isWksSupportedAsync(email, window, cb) {
     lazy.EnigmailLog.DEBUG(
@@ -67,7 +67,7 @@ var EnigmailWks = {
    *    - onProgress: function(percentComplete) [only implemented for download()]
    *     - onCancel: function() - the body will be set by the callee
    *
-   * @return Promise<...>
+   * @returns Promise<...>
    */
   wksUpload(keys, win, observer = null) {
     lazy.EnigmailLog.DEBUG(`webKey.jsm: wksUpload(): keys = ${keys.length}\n`);
@@ -105,7 +105,7 @@ var EnigmailWks = {
    * @param window: Object - parent window of dialog display
    * @param cb    : Function(retValue) - callback function.
    *                   retValue: Boolean: true if submit was successful / false otherwise
-   * @return      : Object - process handle
+   * @returns : Object - process handle
    */
 
   submitKey(ident, key, window, cb) {
@@ -124,7 +124,7 @@ var EnigmailWks = {
    * @param window: Object - parent window of dialog display
    * @param cb    : Function(retValue) - callback function.
    *                   retValue: Boolean: true if submit was successful / false otherwise
-   * @return      : Object - process handle
+   * @returns : Object - process handle
    */
 
   confirmKey(ident, body, window, cb) {
@@ -141,7 +141,7 @@ var EnigmailWks = {
  * @param path:         String - directory name
  * @param execFileName: String - executable name
  *
- * @return Object - nsIFile if file exists; NULL otherwise
+ * @returns Object - nsIFile if file exists; NULL otherwise
  */
 
 function getWkdIdentities(keys) {

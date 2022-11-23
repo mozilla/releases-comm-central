@@ -77,11 +77,11 @@ registerCleanupFunction(function() {
 /**
  * Check that the account actions for the account are enabled or disabled appropriately.
  *
- * @param {Object} tab - The account manager tab.
- * @param {Number} accountKey - The key of the account to select.
+ * @param {object} tab - The account manager tab.
+ * @param {number} accountKey - The key of the account to select.
  * @param {boolean} isSetAsDefaultEnabled - True if the menuitem should be enabled, false otherwise.
  * @param {boolean} isRemoveEnabled - True if the menuitem should be enabled, false otherwise.
- * @param {boolean} isAddAccountEnabled  - True if the menuitems (Add Mail Account+Add Other Account)
+ * @param {boolean} isAddAccountEnabled - True if the menuitems (Add Mail Account+Add Other Account)
  *                                         should be enabled, false otherwise.
  */
 async function subtest_check_account_actions(

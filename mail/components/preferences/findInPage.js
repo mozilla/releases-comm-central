@@ -64,8 +64,8 @@ var gSearchResultsPane = {
   /**
    * Check that the text content contains the query string.
    *
-   * @param {String} content the text content to be searched.
-   * @param {String} query the query string.
+   * @param {string} content the text content to be searched.
+   * @param {string} query the query string.
    *
    * @returns {boolean} true when the text content contains the query string else false.
    */
@@ -134,6 +134,7 @@ var gSearchResultsPane = {
    * We pass in the nodeSizes to tell exactly where highlighting need be done.
    * When creating the range for highlighting, if the nodes are section is split
    * by an access key, it is important to have the size of each of the nodes summed.
+   *
    * @param {Node[]} textNodes List of DOM elements.
    * @param {Node[]} nodeSizes Running size of text nodes. This will contain the same
    *   number of elements as textNodes. The first element is the size of first textNode element.
@@ -142,12 +143,12 @@ var gSearchResultsPane = {
    *   textNodes = [[This is ], [a], [n example]]
    *   nodeSizes = [[8], [9], [18]]
    *   This is used to determine the offset when highlighting.
-   * @param {String} textSearch Concatenation of textNodes's text content.
+   * @param {string} textSearch Concatenation of textNodes's text content.
    *    Example:
    *    textNodes = [[This is ], [a], [n example]]
    *    nodeSizes = "This is an example"
    *    This is used when executing the regular expression.
-   * @param {String} searchPhrase word or words to search for.
+   * @param {string} searchPhrase word or words to search for.
    *
    * @returns {boolean} Returns true when atleast one instance of search phrase is found, otherwise false.
    */
@@ -203,7 +204,7 @@ var gSearchResultsPane = {
   /**
    * Get the selection instance from given window.
    *
-   * @param {Object} win The window object points to frame's window.
+   * @param {object} win The window object points to frame's window.
    */
   getFindSelection(win) {
     // Yuck. See bug 138068.
@@ -225,7 +226,7 @@ var gSearchResultsPane = {
   /**
    * Shows or hides content according to search input.
    *
-   * @param {Object} event to search for filted query in.
+   * @param {object} event to search for filted query in.
    */
   async searchFunction(event) {
     let query = event.target.value.trim().toLowerCase();
@@ -348,7 +349,7 @@ var gSearchResultsPane = {
    * It is a recursive function.
    *
    * @param {Node} nodeObject DOM Element.
-   * @param {String} searchPhrase
+   * @param {string} searchPhrase
    *
    * @returns {boolean} Returns true when found in at least one childNode, false otherwise.
    */
@@ -485,8 +486,8 @@ var gSearchResultsPane = {
    * Search for a phrase within a child node if it is visible.
    *
    * @param {Node} nodeObject The parent DOM Element.
-   * @param {Number} index The index for the childNode.
-   * @param {String} searchPhrase
+   * @param {number} index The index for the childNode.
+   * @param {string} searchPhrase
    *
    * @returns {boolean} Returns true when found the specific childNode, false otherwise
    */
@@ -512,7 +513,7 @@ var gSearchResultsPane = {
    * Search for a phrase in l10n messages associated with the element.
    *
    * @param {Node} nodeObject The parent DOM Element.
-   * @param {String} searchPhrase.
+   * @param {string} searchPhrase.
    * @returns {boolean} true when the text content contains the query string else false.
    */
   async matchesSearchL10nIDs(nodeObject, searchPhrase) {
@@ -582,7 +583,7 @@ var gSearchResultsPane = {
    * Then calculation the offsets to position the tooltip in the correct place.
    *
    * @param {Node} anchorNode DOM Element.
-   * @param {String} query Word or words that are being searched for.
+   * @param {string} query Word or words that are being searched for.
    */
   createSearchTooltip(anchorNode, query) {
     if (anchorNode.tooltipNode) {

@@ -15,6 +15,7 @@ var { CalStorageModelBase } = ChromeUtils.import(
 class CalStorageMetaDataModel extends CalStorageModelBase {
   /**
    * Adds meta data for an item.
+   *
    * @param {string} id
    * @param {string} value
    */

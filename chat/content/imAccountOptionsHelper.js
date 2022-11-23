@@ -41,7 +41,7 @@ var accountOptionsHelper = {
   /**
    * Create a new label and a corresponding menulist.
    *
-   * @param {Object[]} aList - The list of items to fill the menulist with.
+   * @param {object[]} aList - The list of items to fill the menulist with.
    * @param {string} aList[].label - The label for the menuitem.
    * @param {string} aList[].value - The value for the menuitem.
    * @param {string} aLabel - The text for the label.

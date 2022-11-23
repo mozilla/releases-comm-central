@@ -1347,10 +1347,10 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
         if (account_key != nullptr)
           m_newMsgHdr->SetAccountKey(account_key->value);
         // use in-reply-to header as references, if there's no references header
-        if (references != nullptr)
-          m_newMsgHdr->SetReferences(references->value);
-        else if (inReplyTo != nullptr)
-          m_newMsgHdr->SetReferences(inReplyTo->value);
+        if (references != nullptr) {
+          m_newMsgHdr->SetReferences(nsDependentCString(references->value));
+        } else if (inReplyTo != nullptr)
+          m_newMsgHdr->SetReferences(nsDependentCString(inReplyTo->value));
 
         // 'Received' should be as reliable an indicator of the receipt
         // date+time as possible, whilst always giving something *from

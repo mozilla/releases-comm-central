@@ -188,6 +188,7 @@ var DefaultController = {
 /**
  * Show a notification in the message pane footer, allowing the user to learn
  * more about the ignore thread feature, and also allowing undo ignore thread.
+ *
  * @param aMsgs the messages that were ignore
  * @param aSubThread only boolean indicating if it was ignore subthread or
  *                   ignore thread

@@ -659,7 +659,7 @@ var GlodaIMIndexer = {
   },
 
   /**
-   * @param {Object} aCache - An object mapping file names to their last
+   * @param {object} aCache - An object mapping file names to their last
    *   modified times at the time they were last indexed. The value for the file
    *   currently being indexed is updated to the aLastModifiedTime parameter's
    *   value once indexing is complete.

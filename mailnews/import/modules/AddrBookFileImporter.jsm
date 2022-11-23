@@ -45,6 +45,7 @@ class AddrBookFileImporter {
 
   /**
    * Callback for progress updates.
+   *
    * @param {number} current - Current imported items count.
    * @param {number} total - Total items count.
    */
@@ -58,6 +59,7 @@ class AddrBookFileImporter {
 
   /**
    * Actually start importing records into a directory.
+   *
    * @param {nsIFile} sourceFile - The source file to import from.
    * @param {nsIAbDirectory} targetDirectory - The directory to import into.
    */
@@ -97,6 +99,7 @@ class AddrBookFileImporter {
    * The first row is expected to contain field names. If we recognize all the
    * field names, return an empty array, which means everything is parsed fine.
    * Otherwise, return all the rows.
+   *
    * @param {nsIFile} sourceFile - The source file to import from.
    * @returns {string[][]}
    */
@@ -156,6 +159,7 @@ class AddrBookFileImporter {
 
   /**
    * Set the address book properties to use when importing.
+   *
    * @param {number[]} fieldIndexes - An array of indexes representing the
    *   mapping between the source fields and nsIAbCard fields. For example, [2,
    *   4] means the first field maps to the 2nd property, the second field maps

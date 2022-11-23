@@ -75,6 +75,7 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate) {
 
 /**
  * Check that conversion worked for the given source.
+ *
  * @param source - mbox source directory
  * @param target - maildir target directory
  */

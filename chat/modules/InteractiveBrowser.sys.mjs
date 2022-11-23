@@ -11,6 +11,7 @@ export class CancelledError extends Error {
 export var InteractiveBrowser = {
   /**
    * URL to redirect to for completion of the redirect.
+   *
    * @type {string}
    */
   COMPLETION_URL: "https://localhost",
@@ -20,7 +21,7 @@ export var InteractiveBrowser = {
    *
    * @param {string} url - URL to start the interaction from.
    * @param {string} promptText - Prompt for the user for context to the interaction.
-   * @return {Promise<Object>} Resolves when the redirect succeeds, else rejects.
+   * @returns {Promise<object>} Resolves when the redirect succeeds, else rejects.
    */
   waitForRedirect(url, promptText) {
     return this._browserRequest(url).then(({ window, webProgress, signal }) => {
@@ -37,7 +38,7 @@ export var InteractiveBrowser = {
    * Open a browser window to request an interaction from the user.
    *
    * @param {string} url - URL to load in the browser window
-   * @returns {Promise<Object>} If the url is loaded, resolves with an object
+   * @returns {Promise<object>} If the url is loaded, resolves with an object
    * containing the |window|, |webRequest| and a |signal|. The |signal| is an
    * AbortSignal that gets triggered, when the "request is cancelled", i.e. the
    * window is closed.

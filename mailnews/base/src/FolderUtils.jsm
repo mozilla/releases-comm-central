@@ -64,11 +64,11 @@ function getSpecialFolderString(aFolder) {
  * This function is meant to be used with trees. It returns the property list
  * for all of the common properties that css styling is based off of.
  *
- * @param nsIMsgFolder aFolder  the folder whose properties should be returned
+ * @param nsIMsgFolder aFolder - the folder whose properties should be returned
  *                               as a string
- * @param bool aOpen            true if the folder is open/expanded
+ * @param bool aOpen - true if the folder is open/expanded
  *
- * @return         A string of the property names, delimited by space.
+ * @returns A string of the property names, delimited by space.
  */
 function getFolderProperties(aFolder, aOpen) {
   const nsIMsgFolder = Ci.nsIMsgFolder;

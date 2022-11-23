@@ -28,7 +28,7 @@
    * The MozChatConversation widget displays the entire chat conversation
    * including status notifications
    *
-   * @extends {MozXULElement}
+   * @augments {MozXULElement}
    */
   class MozChatConversation extends MozXULElement {
     static get inheritedAttributes() {
@@ -1207,7 +1207,7 @@
     /**
      * Replace the current selection in the inputBox by the given string
      *
-     * @param {String} aString
+     * @param {string} aString
      */
     addString(aString) {
       let cursorPosition = this.inputBox.selectionStart + aString.length;
@@ -1240,7 +1240,7 @@
     /**
      * Set the attributes (flags) of a chat buddy
      *
-     * @param {Object} aItem
+     * @param {object} aItem
      */
     setBuddyAttributes(aItem) {
       let buddy = aItem.chatBuddy;
@@ -1273,7 +1273,7 @@
     /**
      * Compute color for a nick
      *
-     * @param {String} aName
+     * @param {string} aName
      */
     _computeColor(aName) {
       // Compute the color based on the nick
@@ -1310,7 +1310,7 @@
     /**
      * Create a buddy item to add in the visible list of participants
      *
-     * @param {Object} aBuddy
+     * @param {object} aBuddy
      */
     createBuddy(aBuddy) {
       let name = aBuddy.name;
@@ -1390,8 +1390,8 @@
     /**
      * Update a buddy in the visible list of participants
      *
-     * @param {Object} aBuddy
-     * @param {String} aOldName
+     * @param {object} aBuddy
+     * @param {string} aOldName
      */
     updateBuddy(aBuddy, aOldName) {
       let name = aBuddy.name;

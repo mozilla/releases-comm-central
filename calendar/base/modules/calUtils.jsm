@@ -134,8 +134,8 @@ var cal = {
    * nsIClassInfo, which causes xpconnect/xpcom to make all methods available, e.g. for an event
    * both calIItemBase and calIEvent.
    *
-   * @param {Array<String|nsIIDRef>} aInterfaces      The interfaces to generate QI for.
-   * @return {Function}                               The QueryInterface function
+   * @param {Array<string | nsIIDRef>} aInterfaces      The interfaces to generate QI for.
+   * @returns {Function} The QueryInterface function
    */
   generateQI(aInterfaces) {
     if (aInterfaces.length == 1) {
@@ -212,7 +212,7 @@ var cal = {
    * @param iface     The interface to adapt, either using
    *                    Components.interfaces or the name as a string.
    * @param template  (optional) A template object to extend
-   * @return          If passed the adapted template object, otherwise a
+   * @returns If passed the adapted template object, otherwise a
    *                    clean adapter.
    *
    * Currently supported interfaces are:
@@ -265,7 +265,7 @@ var cal = {
   /**
    * Make a UUID, without enclosing brackets, e.g. 0d3950fd-22e5-4508-91ba-0489bdac513f
    *
-   * @return {String}         The generated UUID
+   * @returns {string} The generated UUID
    */
   getUUID() {
     // generate uuids without braces to avoid problems with
@@ -335,7 +335,7 @@ var cal = {
    * passed object.
    *
    * @param aObj  The object under consideration
-   * @return      The possibly unwrapped object.
+   * @returns The possibly unwrapped object.
    */
   unwrapInstance(aObj) {
     return aObj && aObj.wrappedJSObject ? aObj.wrappedJSObject : aObj;
@@ -567,8 +567,8 @@ function shutdownCleanup(obj, prop) {
 /**
  * This is the makeQI function from XPCOMUtils.sys.mjs, it is separate to avoid leaks
  *
- * @param {Array<String|nsIIDRef>} aInterfaces      The interfaces to make QI for.
- * @return {Function}                               The QueryInterface function.
+ * @param {Array<string | nsIIDRef>} aInterfaces      The interfaces to make QI for.
+ * @returns {Function} The QueryInterface function.
  */
 function makeQI(aInterfaces) {
   return function(iid) {

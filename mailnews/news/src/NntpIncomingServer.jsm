@@ -31,6 +31,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 
 /**
  * A class to represent a NNTP server.
+ *
  * @implements {nsINntpIncomingServer}
  * @implements {nsIMsgIncomingServer}
  * @implements {nsISupportsWeakReference}
@@ -500,6 +501,7 @@ class NntpIncomingServer extends MsgIncomingServer {
 
   /**
    * startPopulating as an async function.
+   *
    * @see startPopulating
    */
   async _startPopulating(msgWindow, forceToServer, getOnlyNew) {
@@ -520,6 +522,7 @@ class NntpIncomingServer extends MsgIncomingServer {
 
   /**
    * Try to load groups from hostinfo.dat.
+   *
    * @returns {boolean} Returns false if hostinfo.dat doesn't exist or doesn't
    * contain any group.
    */
@@ -569,6 +572,7 @@ class NntpIncomingServer extends MsgIncomingServer {
 
   /**
    * Get an idle connection that can be used.
+   *
    * @returns {NntpClient}
    */
   async _getNextClient() {
@@ -594,6 +598,7 @@ class NntpIncomingServer extends MsgIncomingServer {
 
   /**
    * Do some actions with a connection.
+   *
    * @param {Function} handler - A callback function to take a NntpClient
    *   instance, and do some actions.
    */

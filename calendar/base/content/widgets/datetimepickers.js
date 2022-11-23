@@ -226,7 +226,7 @@
    * Typically it represents the popup content that let's the user select a time, in a
    * <timepicker> widget.
    *
-   * @extends MozXULElement
+   * @augments MozXULElement
    */
   class MozTimepickerGrids extends MozXULElement {
     constructor() {
@@ -411,7 +411,7 @@
     /**
      * Sets new mSelectedTime.
      *
-     * @param {String|Array} val        new mSelectedTime value
+     * @param {string | Array} val        new mSelectedTime value
      */
     set value(val) {
       if (typeof val == "string") {
@@ -426,7 +426,7 @@
     }
 
     /**
-     * @returns {Array}     An array containing mSelectedTime hours and mSelectedTime minutes
+     * @returns {Array} An array containing mSelectedTime hours and mSelectedTime minutes
      */
     get value() {
       return [this.mSelectedTime.getHours(), this.mSelectedTime.getMinutes()];
@@ -487,8 +487,8 @@
     /**
      * Selects the hour item which was clicked.
      *
-     * @param {Node} hourItem           Hour item which was clicked
-     * @param {Number} hourNumber       Hour value of the clicked hour item
+     * @param {Node} hourItem - Hour item which was clicked
+     * @param {number} hourNumber - Hour value of the clicked hour item
      */
     clickHour(hourItem, hourNumber) {
       // select the item
@@ -504,8 +504,8 @@
      * Called when one of the hour boxes is double clicked.
      * Sets the time to the selected hour, on the hour, and closes the popup.
      *
-     * @param {Node} hourItem           Hour item which was clicked
-     * @param {Number} hourNumber       Hour value of the clicked hour item
+     * @param {Node} hourItem - Hour item which was clicked
+     * @param {number} hourNumber - Hour value of the clicked hour item
      */
     doubleClickHour(hourItem, hourNumber) {
       // set the minutes to :00
@@ -518,8 +518,8 @@
      * Changes selectedTime's minute, calls the client's onchange and closes
      * the popup.
      *
-     * @param {Node} minuteItem         Minute item which was clicked
-     * @param {Number} minuteNumber     Minute value of the clicked minute item
+     * @param {Node} minuteItem - Minute item which was clicked
+     * @param {number} minuteNumber - Minute value of the clicked minute item
      */
     clickMinute(minuteItem, minuteNumber) {
       // set the minutes in the selected time
@@ -533,7 +533,7 @@
     /**
      * Helper function to switch between "one" and "five" minute views.
      *
-     * @param {Number} view      Number representing minute view
+     * @param {number} view - Number representing minute view
      */
     switchMinuteView(view) {
       let fiveMinuteBox = this.querySelector(".time-picker-five-minute-grid-box");
@@ -551,7 +551,7 @@
     /**
      * Selects an hour item.
      *
-     * @param {Node} hourItem      Hour item node to be selected
+     * @param {Node} hourItem - Hour item node to be selected
      */
     selectHourItem(hourItem) {
       // clear old selection, if there is one
@@ -567,7 +567,7 @@
     /**
      * Selects a minute item.
      *
-     * @param {Node} minuteItem        Minute item node to be selected
+     * @param {Node} minuteItem - Minute item node to be selected
      */
     selectMinuteItem(minuteItem) {
       // clear old selection, if there is one
@@ -584,7 +584,7 @@
      * Moves minute by the number passed and handle rollover cases where the minutes gets
      * greater than 59 or less than 60.
      *
-     * @param {Number} number       Moves minute by the number 'number'
+     * @param {number} number - Moves minute by the number 'number'
      */
     moveMinutes(number) {
       if (!this.mSelectedTime) {
@@ -630,7 +630,7 @@
      * Moves hours by the number passed and handle rollover cases where the hours gets greater
      * than 23 or less than 0.
      *
-     * @param {Number} number       Moves hours by the number 'number'
+     * @param {number} number - Moves hours by the number 'number'
      */
     moveHours(number) {
       if (!this.mSelectedTime) {
@@ -660,7 +660,7 @@
     /**
      * Calculates the nearest even five minutes.
      *
-     * @param {calDateTime} time     Time near to which nearest five minutes have to be found
+     * @param {calDateTime} time - Time near to which nearest five minutes have to be found
      */
     calcNearestFiveMinutes(time) {
       let minutes = time.getMinutes();
@@ -675,8 +675,8 @@
     /**
      * Changes to 12 hours format by showing am/pm label.
      *
-     * @param {String} amLabel     amLabelBox value
-     * @param {String} pmLabel     pmLabelBox value
+     * @param {string} amLabel - amLabelBox value
+     * @param {string} pmLabel - pmLabelBox value
      */
     changeTo12HoursFormat(amLabel, pmLabel) {
       if (!this.firstElementChild) {

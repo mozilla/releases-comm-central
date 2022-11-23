@@ -59,7 +59,7 @@ const PhishingDetector = new (class PhishingDetector {
    *   Url for the message being analyzed.
    * @param {Element} browser
    *   The browser element where the message is loaded.
-   * @return {boolean}
+   * @returns {boolean}
    *   Returns true if this does have phishing urls. Returns false if we
    *   do not check this message or the phishing message does not need to be
    *   displayed.
@@ -107,10 +107,10 @@ const PhishingDetector = new (class PhishingDetector {
   /**
    * Analyze the url contained in aLinkNode for phishing attacks.
    *
-   * @param {String} aHref - the url to be analyzed
-   * @param {String} [aLinkText] - user visible link text associated with aHref
+   * @param {string} aHref - the url to be analyzed
+   * @param {string} [aLinkText] - user visible link text associated with aHref
    *         in case we are dealing with a link node.
-   * @return true if link node contains phishing URL. false otherwise.
+   * @returns true if link node contains phishing URL. false otherwise.
    */
   #analyzeUrl(aUrl, aLinkText) {
     if (!aUrl) {
@@ -176,6 +176,7 @@ const PhishingDetector = new (class PhishingDetector {
   /**
    * Opens the default browser to a page where the user can submit the given url
    * as a phish.
+   *
    * @param aPhishingURL the url we want to report back as a phishing attack
    */
   reportPhishingURL(aPhishingURL) {
@@ -197,7 +198,7 @@ const PhishingDetector = new (class PhishingDetector {
    * taken to.
    * i.e. <a href="http://myevilsite.com">http://mozilla.org</a>
    *
-   * @return true if aHrefURL.host does NOT match the host of the link node text
+   * @returns true if aHrefURL.host does NOT match the host of the link node text
    */
   misMatchedHostWithLinkText(aHrefURL, aLinkNodeText) {
     // gatherTextUnder puts a space between each piece of text it gathers,
@@ -232,11 +233,11 @@ const PhishingDetector = new (class PhishingDetector {
    *
    * @param {DOMWindow} win
    *   The window the message is being displayed within.
-   * @param {String} aUrl
+   * @param {string} aUrl
    *   The url of the message
-   * @param {String} [aLinkText]
+   * @param {string} [aLinkText]
    *   User visible link text associated with the link
-   * @return {number}
+   * @returns {number}
    *   0 if the URL implied by aLinkText should be used instead.
    *   1 if the request should be blocked.
    *   2 if aUrl should be allowed to load.

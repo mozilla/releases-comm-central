@@ -11,6 +11,7 @@ var { MailServices } = ChromeUtils.import(
 /**
  * When hostname/username changes, update the corresponding entry in
  * nsILoginManager.
+ *
  * @param {string} localStoreType - The store type of the current server.
  * @param {string} oldHostname - The hostname before the change.
  * @param {string} oldUsername - The username before the change.
@@ -55,6 +56,7 @@ function migratePassword(
 /**
  * When hostname/username changes, update the folder attributes in related
  * identities.
+ *
  * @param {string} oldServerUri - The server uri before the change.
  * @param {string} newServerUri - The server uri after the change.
  */
@@ -81,6 +83,7 @@ function migrateIdentities(oldServerUri, newServerUri) {
 /**
  * When hostname/username changes, update .spamActionTargetAccount and
  * .spamActionTargetFolder prefs.
+ *
  * @param {string} oldServerUri - The server uri before the change.
  * @param {string} newServerUri - The server uri after the change.
  */
@@ -106,6 +109,7 @@ function migrateSpamActions(oldServerUri, newServerUri) {
 /**
  * When hostname/username changes, update targetFolderUri in related filters
  * to the new folder uri.
+ *
  * @param {string} oldServerUri - The server uri before the change.
  * @param {string} newServerUri - The server uri after the change.
  */
@@ -147,6 +151,7 @@ function migrateFilters(oldServerUri, newServerUri) {
 
 /**
  * Migrate server uris in LoginManager and various account/folder prefs.
+ *
  * @param {string} localStoreType - The store type of the current server.
  * @param {string} oldHostname - The hostname before the change.
  * @param {string} oldUsername - The username before the change.
@@ -203,6 +208,7 @@ function migrateServerUris(
 
 /**
  * A base class for incoming server, should not be used directly.
+ *
  * @implements {nsIMsgIncomingServer}
  * @implements {nsISupportsWeakReference}
  * @abstract
@@ -260,6 +266,7 @@ class MsgIncomingServer {
 
   /**
    * Set up getters/setters for attributes that map directly to pref values.
+   *
    * @param {string[]} - An array of attributes, each attribute is defined by
    *   its type, name and corresponding prefName.
    */
@@ -407,6 +414,7 @@ class MsgIncomingServer {
 
   /**
    * Get server URI in the form of localStoreType://[user@]hostname.
+   *
    * @param {boolean} includeUsername - Whether to include the username.
    * @returns {string}
    */
@@ -433,6 +441,7 @@ class MsgIncomingServer {
 
   /**
    * Construct a pretty name from username and hostname.
+   *
    * @param {string} username - The user name.
    * @param {string} hostname - The host name.
    * @returns {string}
@@ -801,6 +810,7 @@ class MsgIncomingServer {
 
   /**
    * Try to get the password from nsILoginManager.
+   *
    * @returns {string}
    */
   _getPasswordWithoutUI() {
@@ -1179,6 +1189,7 @@ class MsgIncomingServer {
 
   /**
    * Show a password prompt. If a prompt is currently shown, just wait for it.
+   *
    * @param {string} message - The text inside the prompt.
    * @param {string} title - The title of the prompt.
    * @param {nsIMsgWindow} - The associated msg window.

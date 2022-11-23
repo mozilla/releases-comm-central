@@ -379,7 +379,7 @@ InitMessageMenu = calInitMessageMenu;
 /**
  * Get the toolbox id for the current tab type.
  *
- * @return {string}  A toolbox id.
+ * @returns {string} A toolbox id.
  */
 function getToolboxIdForCurrentTabType() {
   // A mapping from calendar tab types to toolbox ids.
@@ -402,8 +402,8 @@ function getToolboxIdForCurrentTabType() {
  * Modify the contents of the "Toolbars" context menu for the current
  * tab type.  Menu items are inserted before (appear above) aInsertPoint.
  *
- * @param {MouseEvent} aEvent              The popupshowing event
- * @param {nsIDOMXULElement} aInsertPoint  (optional) menuitem node
+ * @param {MouseEvent} aEvent - The popupshowing event
+ * @param {nsIDOMXULElement} aInsertPoint - (optional) menuitem node
  */
 function calendarOnToolbarsPopupShowing(aEvent, aInsertPoint) {
   if (onViewToolbarsPopupShowing.length < 3) {

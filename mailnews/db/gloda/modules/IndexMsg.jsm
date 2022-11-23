@@ -224,7 +224,7 @@ var PendingCommitTracker = {
    *  looking at the header's properties because we defer setting those
    *  until the SQLite commit happens.
    *
-   * @return Tuple of [gloda id, dirty status].
+   * @returns Tuple of [gloda id, dirty status].
    */
   getGlodaState(aMsgHdr) {
     // If it's in the pending commit table, then the message is basically
@@ -603,7 +603,7 @@ var GlodaMsgIndexer = {
    *  cutting down on duplicate code, this ensures that we are listening on
    *  the folder in case it tries to go away when we are using it.
    *
-   * @return true when the folder was successfully entered, false when we need
+   * @returns true when the folder was successfully entered, false when we need
    *     to pend on notification of updating of the folder (due to re-parsing
    *     or what have you).  In the event of an actual problem, an exception
    *     will escape.
@@ -655,11 +655,11 @@ var GlodaMsgIndexer = {
       }
       // we get an nsIMsgDatabase out of this (unsurprisingly) which
       //  explicitly inherits from nsIDBChangeAnnouncer, which has the
-      //  AddListener call we want.
+      //  addListener call we want.
       if (this._indexingDatabase == null) {
         this._indexingDatabase = this._indexingFolder.msgDatabase;
       }
-      this._indexingDatabase.AddListener(this._databaseAnnouncerListener);
+      this._indexingDatabase.addListener(this._databaseAnnouncerListener);
     } catch (ex) {
       this._log.error(
         "Problem entering folder: " +
@@ -693,7 +693,7 @@ var GlodaMsgIndexer = {
    */
   _indexerCompletePendingFolderEntry() {
     this._indexingDatabase = this._indexingFolder.msgDatabase;
-    this._indexingDatabase.AddListener(this._databaseAnnouncerListener);
+    this._indexingDatabase.addListener(this._databaseAnnouncerListener);
     this._log.debug("...Folder Loaded!");
 
     // the load is no longer pending; we certainly don't want more notifications
@@ -909,7 +909,7 @@ var GlodaMsgIndexer = {
       if (this._indexingDatabase) {
         this._indexingDatabase.commit(Ci.nsMsgDBCommitType.kLargeCommit);
         // remove our listener!
-        this._indexingDatabase.RemoveListener(this._databaseAnnouncerListener);
+        this._indexingDatabase.removeListener(this._databaseAnnouncerListener);
       }
       // let the gloda folder know we are done indexing
       this._indexingGlodaFolder.indexing = false;
@@ -1650,7 +1650,7 @@ var GlodaMsgIndexer = {
    * @param aException The exception that is necessitating we attempt to
    *     recover.
    *
-   * @return 1 if we were able to recover (because we want the call stack
+   * @returns 1 if we were able to recover (because we want the call stack
    *     popped down to our worker), false if we can't.
    */
   _recover_indexMessage(aJob, aContextStack, aException) {
@@ -1905,7 +1905,7 @@ var GlodaMsgIndexer = {
    * or remove this folder from the existing index.
    *
    * @param {nsIMsgFolder} aFolder
-   * @param {Number} aPriority (one of the priority constants from GlodaFolder)
+   * @param {number} aPriority (one of the priority constants from GlodaFolder)
    */
   setFolderIndexingPriority(aFolder, aPriority) {
     let glodaFolder = GlodaDatastore._mapFolder(aFolder);
@@ -2008,7 +2008,7 @@ var GlodaMsgIndexer = {
    *     successfully, false if we had to abort for some reason.
    * @param [aOptions.force=false] Should we force the indexing of all messages
    *     in the folder (true) or just index what hasn't been indexed (false).
-   * @return true if we are going to index the folder, false if not.
+   * @returns true if we are going to index the folder, false if not.
    */
   indexFolder(aMsgFolder, aOptions) {
     if (!this.shouldIndexFolder(aMsgFolder)) {
@@ -2984,7 +2984,7 @@ var GlodaMsgIndexer = {
    *
    * This is an nsIDBChangeListener listening to an nsIDBChangeAnnouncer.  To
    *  add ourselves, we get us a nice nsMsgDatabase, query it to the announcer,
-   *  then call AddListener.
+   *  then call addListener.
    */
   _databaseAnnouncerListener: {
     indexer: null,

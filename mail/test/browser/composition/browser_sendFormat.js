@@ -126,7 +126,7 @@ const BOLD_MESSAGE_BODY_AS_PLAIN = `*${BOLD_MESSAGE_BODY}*`;
  *   a preference before opening the window.
  * @param {boolean} useBold - Whether to use bold text in the message's body.
  *
- * @return {Window} - The opened compose window, pre-filled with a message.
+ * @returns {Window} - The opened compose window, pre-filled with a message.
  */
 async function newMessage(preference, useBold) {
   Services.prefs.setIntPref("mail.default_send_format", preference);
@@ -210,7 +210,7 @@ async function setSendFormat(composeWindow, sendFormat) {
  *
  * @param {Window} composeWindow - The compose window that contains the message
  *   we want to send.
- * @param {Object} expectMessage - The expected sent message.
+ * @param {object} expectMessage - The expected sent message.
  * @param {boolean} expectMessage.isBold - Whether the message uses a bold
  *   message, rather than the plain message.
  * @param {boolean} expectMessage.plain - Whether the message has a plain part.

@@ -112,9 +112,9 @@ class CalDavDetector {
   /**
    * Create a new caldav detector.
    *
-   * @param {string} username         A username.
-   * @param {string} password         A password.
-   * @param {boolean} savePassword    Whether to save the password or not.
+   * @param {string} username - A username.
+   * @param {string} password - A password.
+   * @param {boolean} savePassword - Whether to save the password or not.
    */
   constructor(username, password, savePassword) {
     this.username = username;
@@ -124,8 +124,8 @@ class CalDavDetector {
   /**
    * Attempt to detect calendars at the given location.
    *
-   * @param {nsIURI} location                   The location to attempt.
-   * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
+   * @param {nsIURI} location - The location to attempt.
+   * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   attemptLocation(location) {
     if (location.filePath == "/") {
@@ -139,8 +139,8 @@ class CalDavDetector {
   /**
    * Attempt to detect calendars at the given location using DNS lookups.
    *
-   * @param {nsIURI} location                   The location to attempt.
-   * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
+   * @param {nsIURI} location - The location to attempt.
+   * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   async dnsSRV(location) {
     if (location.filePath != "/") {
@@ -206,8 +206,8 @@ class CalDavDetector {
   /**
    * Attempt to detect calendars using a `.well-known` URI.
    *
-   * @param {nsIURI} location                   The location to attempt.
-   * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
+   * @param {nsIURI} location - The location to attempt.
+   * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   async wellKnown(location) {
     let wellKnownUri = Services.io.newURI("/.well-known/caldav", null, location);
@@ -218,8 +218,8 @@ class CalDavDetector {
   /**
    * Attempt to detect calendars using a root ("/") URI.
    *
-   * @param {nsIURI} location                   The location to attempt.
-   * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
+   * @param {nsIURI} location - The location to attempt.
+   * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   attemptRoot(location) {
     let rootUri = Services.io.newURI("/", null, location);
@@ -230,7 +230,7 @@ class CalDavDetector {
    * Attempt to detect calendars using Google OAuth.
    *
    * @param {nsIURI} calURI - The location to attempt.
-   * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
+   * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   async attemptGoogleOauth(calURI) {
     let usesGoogleOAuth = cal.provider.detection.googleOAuthDomains.has(calURI.host);
@@ -258,8 +258,8 @@ class CalDavDetector {
    * Utility function to detect whether a calendar collection exists at a given
    * location and return it if it exists.
    *
-   * @param {nsIURI} location                   The location to attempt.
-   * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
+   * @param {nsIURI} location - The location to attempt.
+   * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   async detectCollection(location) {
     let props = [
@@ -317,8 +317,8 @@ class CalDavDetector {
    * previous PROPFIND results contained either "D:current-user-principal"
    * or "D:owner" props.
    *
-   * @param {nsIURI} location                   The location to attempt.
-   * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
+   * @param {nsIURI} location - The location to attempt.
+   * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   async handlePrincipal(location) {
     let props = ["D:resourcetype", "C:calendar-home-set"];
@@ -356,8 +356,8 @@ class CalDavDetector {
    * Utility function to make a new attempt to detect calendars after the
    * previous PROPFIND results contained a "C:calendar-home-set" prop.
    *
-   * @param {nsIURI} location                   The location to attempt.
-   * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
+   * @param {nsIURI} location - The location to attempt.
+   * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   async handleHomeSet(location) {
     let props = [
@@ -391,10 +391,10 @@ class CalDavDetector {
   /**
    * Set up and return a new caldav calendar object.
    *
-   * @param {nsIURI} uri              The location of the calendar.
-   * @param {Set} props               The calendar properties parsed from the
+   * @param {nsIURI} uri - The location of the calendar.
+   * @param {Set} props - The calendar properties parsed from the
    *                                  response.
-   * @return {calICalendar}           A new calendar.
+   * @returns {calICalendar} A new calendar.
    */
   handleCalendar(uri, props) {
     let displayName = props["D:displayname"];

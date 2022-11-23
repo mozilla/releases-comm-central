@@ -968,6 +968,7 @@ Enigmail.msg = {
 
   /**
     key function to process the final encrypt/sign/pgpmime state from all settings
+   *
     @param sendFlags: contains the sendFlags if the message is really processed. Optional, can be null
       - uses as INPUT:
          - this.sendMode
@@ -2749,9 +2750,9 @@ Enigmail.msg = {
   /**
    * Display a notification to the user at the bottom of the window
    *
-   * @param priority: Number    - Priority of the message [1 = high (error) ... 3 = low (info)]
-   * @param msgText: String     - Text to be displayed in notification bar
-   * @param messageId: String   - Unique message type identification
+   * @param priority: Number - Priority of the message [1 = high (error) ... 3 = low (info)]
+   * @param msgText: String - Text to be displayed in notification bar
+   * @param messageId: String - Unique message type identification
    * @param detailsText: String - optional text to be displayed by clicking on "Details" button.
    *                              if null or "", then the Detail button will no be displayed.
    */

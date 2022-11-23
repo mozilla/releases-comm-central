@@ -152,7 +152,7 @@ function addItemToDayboxNodate(document, item) {
  * Get time interval string for the given item. Returns an empty string for all-day items.
  *
  * @param aItem     The item providing the interval
- * @return          The string describing the interval
+ * @returns The string describing the interval
  */
 function getItemIntervalString(aItem, aBoxDate) {
   // omit time label for all-day items

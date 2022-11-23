@@ -113,7 +113,7 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
    * May return null to append new buttons to the end of the toolbar.
    *
    * @param {DOMElement} toolbar - a toolbar node
-   * @return {DOMElement} a node which is to be used as insertion point, or null
+   * @returns {DOMElement} a node which is to be used as insertion point, or null
    */
   getNonCustomizableToolbarInsertionPoint(toolbar) {
     return toolbar.querySelector("#otherActionsButton");

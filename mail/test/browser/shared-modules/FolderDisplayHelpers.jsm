@@ -366,9 +366,10 @@ function setupAccountStuff() {
 
 /**
  * Create a folder and rebuild the folder tree view.
- * @param {string} aFolderName  A folder name with no support for hierarchy at this time.
+ *
+ * @param {string} aFolderName - A folder name with no support for hierarchy at this time.
  * @param {nsMsgFolderFlags} [aSpecialFlags] An optional list of nsMsgFolderFlags bits to set.
- * @return {nsIMsgFolder}
+ * @returns {nsIMsgFolder}
  */
 async function create_folder(aFolderName, aSpecialFlags) {
   wait_for_message_display_completion();
@@ -383,8 +384,9 @@ async function create_folder(aFolderName, aSpecialFlags) {
 /**
  * Create a virtual folder by deferring to |MessageInjection.makeVirtualFolder| and making
  *  sure to rebuild the folder tree afterwards.
+ *
  * @see MessageInjection.makeVirtualFolder
- * @return {nsIMsgFolder}
+ * @returns {nsIMsgFolder}
  */
 function create_virtual_folder(...aArgs) {
   let folder = messageInjection.makeVirtualFolder(...aArgs);
@@ -435,8 +437,9 @@ async function get_special_folder(
 
 /**
  * Create a thread with the specified number of messages in it.
+ *
  * @param {number} aCount
- * @return {SyntheticMessageSet}
+ * @returns {SyntheticMessageSet}
  */
 function create_thread(aCount) {
   return new SyntheticMessageSet(msgGenFactory.directReply(aCount));
@@ -447,7 +450,7 @@ function create_thread(aCount) {
  *
  * @param {MakeMessageOptions} aArgs An arguments object to be passed to
  *                                   MessageGenerator.makeMessage()
- * @return {SyntheticMessage}
+ * @returns {SyntheticMessage}
  */
 function create_message(aArgs) {
   return msgGen.makeMessage(aArgs);
@@ -488,6 +491,7 @@ async function add_message_to_folder(aFolder, aMsg) {
 
 /**
  * Adds SyntheticMessageSets to a folder or folders.
+ *
  * @see MessageInjection.addSetsToFolders
  * @param {nsIMsgLocalMailFolder[]} aFolders
  * @param {SyntheticMessageSet[]} aMsg
@@ -500,7 +504,7 @@ async function add_message_sets_to_folders(aFolders, aMsg) {
  *
  * @param {nsIMsgFolder[]} aFolders
  * @param {MakeMessageOptions[]} aOptions
- * @return {SyntheticMessageSet[]}
+ * @returns {SyntheticMessageSet[]}
  */
 async function make_message_sets_in_folders(aFolders, aOptions) {
   return messageInjection.makeNewSetsInFolders(aFolders, aOptions);
@@ -541,7 +545,7 @@ async function enter_folder(aFolder) {
 /**
  * Make sure we are in the given folder, entering it if we were not.
  *
- * @return The tab info of the current tab (a more persistent identifier for
+ * @returns The tab info of the current tab (a more persistent identifier for
  *     tabs than the index, which will change as tabs open/close).
  */
 async function be_in_folder(aFolder) {
@@ -561,7 +565,7 @@ async function be_in_folder(aFolder) {
  * pane should be displayed, you should follow this up with
  * |wait_for_blank_content_pane()| instead.
  *
- * @return The tab info of the current tab (a more persistent identifier for
+ * @returns The tab info of the current tab (a more persistent identifier for
  *     tabs than the index, which will change as tabs open/close).
  */
 async function open_folder_in_new_tab(aFolder) {
@@ -584,7 +588,7 @@ async function open_folder_in_new_tab(aFolder) {
  * Open a new mail:3pane window displaying a folder.
  *
  * @param aFolder the folder to be displayed in the new window
- * @return the augmented controller for the new window
+ * @returns the augmented controller for the new window
  */
 function open_folder_in_new_window(aFolder) {
   windowHelper.plan_for_new_window("mail:3pane");
@@ -623,7 +627,7 @@ var open_selected_message = open_selected_messages;
  *                    background. If false or not given, then the tab is opened
  *                    in the foreground.
  *
- * @return The tab info of the new tab (a more persistent identifier for tabs
+ * @returns The tab info of the new tab (a more persistent identifier for tabs
  *     than the index, which will change as tabs open/close).
  */
 async function open_selected_message_in_new_tab(aBackground) {
@@ -664,7 +668,7 @@ async function open_selected_message_in_new_tab(aBackground) {
  * Create a new window displaying the currently selected message.  We do not
  *  return until the message has finished loading.
  *
- * @return The MozmillController-wrapped new window.
+ * @returns The MozmillController-wrapped new window.
  */
 async function open_selected_message_in_new_window() {
   let win = get_about_3pane();
@@ -722,7 +726,7 @@ function display_message_in_folder_tab(aMsgHdr, aExpectNew3Pane) {
  * return until the message has finished loading.
  *
  * @param file  An nsIFile to load the message from.
- * @return      The MozmillController-wrapped new window.
+ * @returns The MozmillController-wrapped new window.
  */
 async function open_message_from_file(file) {
   mark_action("fdh", "open_message_from_file", ["file", file.path]);
@@ -981,7 +985,7 @@ function _normalize_view_index(aViewIndex) {
  * Generic method to simulate a left click on a row in a <tree> element.
  *
  * @param {XULTreeElement} aTree - The tree element.
- * @param {Number} aRowIndex - Index of a row in the tree to click on.
+ * @param {number} aRowIndex - Index of a row in the tree to click on.
  * @param {MozMillController} aController - Controller object.
  * @see mailTestUtils.treeClick for another way.
  */
@@ -1020,7 +1024,7 @@ function click_tree_row(aTree, aRowIndex, aController) {
  * @param aController The controller in whose context to do this, defaults to
  *     |mc| if omitted.
  *
- * @return The message header selected.
+ * @returns The message header selected.
  */
 function select_click_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
@@ -1047,7 +1051,7 @@ function select_click_row(aViewIndex) {
  * @param aController  - The controller in whose context to do this, defaults to
  *     |mc| if omitted.
  *
- * @return The message header selected.
+ * @returns The message header selected.
  */
 function select_column_click_row(aViewIndex, aController) {
   if (aController == null) {
@@ -1118,7 +1122,7 @@ function toggle_thread_row(aViewIndex) {
  *     a view index counting from the last row in the tree.  -1 indicates the
  *     last message in the tree, -2 the second to last, etc.
  *
- * @return The message header of the affected message.
+ * @returns The message header of the affected message.
  */
 function select_control_click_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
@@ -1142,7 +1146,7 @@ function select_control_click_row(aViewIndex) {
  * @param aController The controller in whose context to do this, defaults to
  *     |mc| if omitted.
  *
- * @return The message headers for all messages that are now selected.
+ * @returns The message headers for all messages that are now selected.
  */
 function select_shift_click_row(aViewIndex, aController, aDoNotRequireLoad) {
   aViewIndex = _normalize_view_index(aViewIndex, aController);
@@ -1260,7 +1264,7 @@ function _row_click_helper(
  *  to do something with or close.  However, we have helpful popup function
  *  helpers because I'm so nice.
  *
- * @return The message header that you clicked on.
+ * @returns The message header that you clicked on.
  */
 async function right_click_on_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
@@ -1281,7 +1285,7 @@ async function right_click_on_row(aViewIndex) {
  * Middle-click on the tree-view in question, presumably opening a new message
  *  tab.
  *
- * @return [The new tab, the message that you clicked on.]
+ * @returns [The new tab, the message that you clicked on.]
  */
 function middle_click_on_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
@@ -1469,7 +1473,7 @@ function select_click_folder(aFolder) {
  * @param aFolder The folder to shift-click on. This needs to be present in the
  *     current folder tree view, of course.
  *
- * @return An array containing all the folders that are now selected.
+ * @returns An array containing all the folders that are now selected.
  */
 function select_shift_click_folder(aFolder) {
   wait_for_all_messages_to_load();
@@ -1502,7 +1506,7 @@ function select_shift_click_folder(aFolder) {
  *
  * @note The argument is a folder here, unlike in the message case, so beware.
  *
- * @return The view index that you clicked on.
+ * @returns The view index that you clicked on.
  */
 async function right_click_on_folder(aFolder) {
   let win = get_about_3pane();
@@ -1527,7 +1531,7 @@ async function right_click_on_folder(aFolder) {
  *
  * @note The argument is a folder here, unlike in the message case, so beware.
  *
- * @return [The new tab, the view index that you clicked on.]
+ * @returns [The new tab, the view index that you clicked on.]
  */
 function middle_click_on_folder(aFolder) {
   // Figure out the view index
@@ -2032,6 +2036,7 @@ function assert_messages_in_view(aSynSets, aController) {
 
 /**
  * Assert the the given message/messages are not present in the view.
+ *
  * @param aMessages Either a single nsIMsgDBHdr or a list of them.
  */
 function assert_messages_not_in_view(aMessages) {
@@ -2135,7 +2140,7 @@ function show_folder_pane() {
  * Helper function for use by assert_selected / assert_selected_and_displayed /
  *  assert_displayed.
  *
- * @return A list of two elements: [MozmillController, [list of view indices]].
+ * @returns A list of two elements: [MozmillController, [list of view indices]].
  */
 function _process_row_message_arguments(...aArgs) {
   let troller = mc;
@@ -2429,7 +2434,7 @@ function assert_selected_and_displayed(...aArgs) {
  * Use the internal archiving code for archiving any given set of messages
  *
  * @param aMsgHdrs a list of message headers
- * */
+ */
 function archive_messages(aMsgHdrs) {
   plan_to_wait_for_folder_events(
     "DeleteOrMoveMsgCompleted",
@@ -2450,7 +2455,7 @@ function archive_messages(aMsgHdrs) {
  * @param aSummarizedKeys An array of keys (messageKey + folder.URI) for the
  *     summarized messages.
  * @param aSelectedMessages An array of nsIMsgDBHdrs for the selected messages.
- * @return true is aSelectedMessages and aSummarizedKeys refer to the same set
+ * @returns true is aSelectedMessages and aSummarizedKeys refer to the same set
  *     of messages.
  */
 function _verify_summarized_message_set(aSummarizedKeys, aSelectedMessages) {
@@ -3285,10 +3290,11 @@ function toggle_main_menu(aEnabled = true) {
 /**
  * Load a file in its own 'module' (scope really), based on the effective
  * location of the staged FolderDisplayHelpers.jsm module.
- * @param {String} aPath - A path relative to the module (can be just a file name)
- * @param {Object} aScope - Scope to load the file into.
  *
- * @return An object that serves as the global scope for the loaded file.
+ * @param {string} aPath - A path relative to the module (can be just a file name)
+ * @param {object} aScope - Scope to load the file into.
+ *
+ * @returns An object that serves as the global scope for the loaded file.
  */
 function load_via_src_path(aPath, aScope) {
   let thisFileURL = Cc["@mozilla.org/network/protocol;1?name=resource"]

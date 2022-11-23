@@ -86,8 +86,9 @@ function closeStack(aStack) {
 
 /**
  * Convert a string from CTCP escaped formatting to HTML markup.
+ *
  * @param aString the string with CTCP formatting to parse
- * @return The HTML output string
+ * @returns The HTML output string
  */
 export function ctcpFormatToHTML(aString) {
   let next,

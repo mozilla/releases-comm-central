@@ -77,7 +77,7 @@ add_task(async function test_account_open_state() {
 /**
  * Check if the open state of accounts is in the wished state.
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  * @param {boolean} wishedState - The open state in which the account row should be found.
  */
 function subtest_check_account_open_state(tab, wishedState) {
@@ -131,7 +131,7 @@ add_task(async function test_default_account_highlight() {
 /**
  * Check if the default account is styled in bold and another account is not.
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_check_default_account_highlight(tab) {
   // Select the default account.
@@ -175,7 +175,7 @@ add_task(async function test_selection_after_account_deletion() {
 /**
  * Check if after deleting an account the next one is selected.
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_check_selection_after_account_deletion(tab) {
   let accountList = [];

@@ -173,7 +173,7 @@ var Gloda = {
    * with this getter. If the GlodaDatastore has not been
    * initialized, this value is null.
    *
-   * @return a UUID as a string, ex: "c4dd0159-9287-480f-a648-a4613e147fdb"
+   * @returns a UUID as a string, ex: "c4dd0159-9287-480f-a648-a4613e147fdb"
    */
   get datastoreID() {
     return GlodaDatastore._datastoreID;
@@ -192,7 +192,7 @@ var Gloda = {
    * @param aData The (optional) value to set as the data attribute on the
    *     collection.
    *
-   * @return The collection that will receive the results.
+   * @returns The collection that will receive the results.
    *
    * @testpoint gloda.ns.getMessageCollectionForHeader()
    */
@@ -216,7 +216,7 @@ var Gloda = {
    * @param aData The (optional) value to set as the data attribute on the
    *     collection.
    *
-   * @return The collection that will receive the results.
+   * @returns The collection that will receive the results.
    *
    * @testpoint gloda.ns.getMessageCollectionForHeaders()
    */
@@ -1786,6 +1786,7 @@ var Gloda = {
    *  towards using binding heavily, this doesn't really help, as the collisions
    *  will just occur on the attribute name instead.  Also, this can turn
    *  extensions into liars as name changes/moves to core/etc. happen.
+   *
    * @TODO consider removing the extension name argument parameter requirement
    */
   getAttrDef(aPluginName, aAttrName) {

@@ -297,7 +297,7 @@ DBListener.prototype = {
   onAnnouncerGoingAway(instigator) {
     if (gInboxListener) {
       try {
-        IMAPPump.inbox.msgDatabase.RemoveListener(gInboxListener);
+        IMAPPump.inbox.msgDatabase.removeListener(gInboxListener);
       } catch (e) {
         dump(" listener not found\n");
       }

@@ -150,7 +150,7 @@ var PeriodicFilterManager = {
    * Gets the periodic filter interval for the given server.
    * If the server's interval is not sane, clean it up.
    *
-   * @param {nsIMsgIncomingServer} server  The server to return interval for.
+   * @param {nsIMsgIncomingServer} server - The server to return interval for.
    */
   getServerPeriod(server) {
     const minimumPeriodMinutes = 1;

@@ -19,6 +19,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 
 /**
  * A message service for news-message://, mainly used for displaying messages.
+ *
  * @implements {nsIMsgMessageService}
  * @implements {nsIMsgMessageFetchPartService}
  */
@@ -181,6 +182,7 @@ class BaseMessageService {
 
   /**
    * Parse a message uri to folder and message key.
+   *
    * @param {string} uri - The news-message:// url to parse.
    * @returns {[nsIMsgFolder, string]} - The folder and message key.
    */
@@ -219,6 +221,7 @@ class BaseMessageService {
 
   /**
    * Create a news:// url from a news-message:// url.
+   *
    * @param {string} messageURI - The news-message:// url.
    * @returns {string} The news:// url.
    */

@@ -8,6 +8,7 @@ var { NntpChannel } = ChromeUtils.import("resource:///modules/NntpChannel.jsm");
 
 /**
  * A factory to create protocol handler.
+ *
  * @param {string} scheme - The scheme of the protocol.
  * @param {number} defaultPort - The default port of the protocol.
  * @param {string} cid - The interface id of the created protocol handler.

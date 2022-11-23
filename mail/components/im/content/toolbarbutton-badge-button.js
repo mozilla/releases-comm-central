@@ -14,7 +14,7 @@
    * for the button. It also shows a badge on top of the chat icon with a number.
    * That number is the count of unread messages in the chat.
    *
-   * @extends MozToolbarbutton
+   * @augments MozToolbarbutton
    */
   class MozBadgebutton extends customElements.get("toolbarbutton") {
     static get inheritedAttributes() {

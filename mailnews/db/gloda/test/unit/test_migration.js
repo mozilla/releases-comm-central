@@ -8,7 +8,7 @@
  *  the schema version so a second pass of the logic doesn't happen.  (As
  *  opposed to checking in an example of a broken database and running against
  *  that.)
- **/
+ */
 
 var {
   assertExpectedMessagesIndexed,

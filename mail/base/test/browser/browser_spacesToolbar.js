@@ -378,13 +378,13 @@ add_task(async function testSpacesToolbarContextMenu() {
    * Open the context menu, test its state, select an action and wait for it to
    * close.
    *
-   * @param {Object} input - Input data.
+   * @param {object} input - Input data.
    * @param {Element} input.button - The button whose context menu should be
    *   opened.
    * @param {Element} [input.item] - The context menu item to select. Either
    *   this or switchItem must be given.
    * @param {number} [input.switchItem] - The nth switch-to-tab item to select.
-   * @param {Object} expect - The expected state of the context menu when
+   * @param {object} expect - The expected state of the context menu when
    *   opened.
    * @param {boolean} [expect.settings=false] - Whether we expect the settings
    *   context menu. If this is true, the other values are ignored.
@@ -465,7 +465,7 @@ add_task(async function testSpacesToolbarContextMenu() {
    * This should be called every time a tab is created so the test can keep
    * track of the expected number of tabs.
    *
-   * @return {MozTabmailTab} - The last tab.
+   * @returns {MozTabmailTab} - The last tab.
    */
   async function waitForNewTab() {
     numTabs++;

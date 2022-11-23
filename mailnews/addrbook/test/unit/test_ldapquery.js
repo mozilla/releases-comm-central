@@ -47,7 +47,7 @@ class PromiseListener {
 /**
  * PromiseInitListener resolves the promise when onLDAPInit is called.
  *
- * @extends {PromiseListener}
+ * @augments {PromiseListener}
  */
 class PromiseInitListener extends PromiseListener {
   onLDAPInit() {
@@ -58,7 +58,7 @@ class PromiseInitListener extends PromiseListener {
 /**
  * PromiseBindListener resolves when a bind operation completes.
  *
- * @extends {PromiseListener}
+ * @augments {PromiseListener}
  */
 class PromiseBindListener extends PromiseListener {
   onLDAPMessage(message) {
@@ -77,7 +77,7 @@ class PromiseBindListener extends PromiseListener {
  * PromiseSearchListener collects search results, returning them via promise
  * when the search is complete.
  *
- * @extends {PromiseListener}
+ * @augments {PromiseListener}
  */
 class PromiseSearchListener extends PromiseListener {
   constructor() {

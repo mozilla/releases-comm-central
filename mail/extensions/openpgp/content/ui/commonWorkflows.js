@@ -91,6 +91,7 @@ async function getKeyBlockFromFile(file, wantSecret) {
 
 /**
  * import OpenPGP keys from file
+ *
  * @param {string} what - "rev" for revocation, "pub" for public keys, "sec" for secret keys.
  */
 async function EnigmailCommon_importObjectFromFile(what) {

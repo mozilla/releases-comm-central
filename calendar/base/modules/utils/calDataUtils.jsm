@@ -180,7 +180,7 @@ var caldata = {
    * @param itemArray             The array to search.
    * @param newItem               The item to search in the array.
    * @param comptor               A comparison function that can compare two items.
-   * @return                      The index of the new item.
+   * @returns The index of the new item.
    */
   binarySearch(itemArray, newItem, comptor) {
     function binarySearchInternal(low, high) {
@@ -259,7 +259,7 @@ var caldata = {
    * @param discardDuplicates     Use the comptor function to check if the item in
    *                                question is already in the array. If so, the
    *                                new item is not inserted.
-   * @return                      The index of the new item.
+   * @returns The index of the new item.
    */
   binaryInsert(itemArray, item, comptor, discardDuplicates) {
     let newIndex = caldata.binarySearch(itemArray, item, comptor);

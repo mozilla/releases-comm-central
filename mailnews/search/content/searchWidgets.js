@@ -254,7 +254,7 @@
    * This is an abstract class for search menulist general functionality.
    *
    * @abstract
-   * @extends MozXULElement
+   * @augments MozXULElement
    */
   class MozSearchMenulistAbstract extends MozXULElement {
     static get observedAttributes() {
@@ -500,7 +500,7 @@
    * The MozSearchAttribute widget is typically used in the search and filter dialogs to show a list
    * of possible message headers.
    *
-   * @extends MozSearchMenulistAbstract
+   * @augments MozSearchMenulistAbstract
    */
   class MozSearchAttribute extends MozSearchMenulistAbstract {
     constructor() {
@@ -595,7 +595,7 @@
    * MozSearchOperator contains a list of operators that can be applied on search-attribute and
    * search-value value.
    *
-   * @extends MozSearchMenulistAbstract
+   * @augments MozSearchMenulistAbstract
    */
   class MozSearchOperator extends MozSearchMenulistAbstract {
     constructor() {
@@ -664,7 +664,7 @@
    * MozSearchValue is a widget that allows selecting the value to search or filter on. It can be a
    * text entry, priority, status, junk status, tags, hasAttachment status, and addressbook etc.
    *
-   * @extends MozXULElement
+   * @augments MozXULElement
    */
   class MozSearchValue extends MozXULElement {
     static get observedAttributes() {
@@ -704,13 +704,13 @@
     /**
      * Create a menulist to be used as the input.
      *
-     * @param {Object[]} itemDataList - An ordered list of items to add to the
+     * @param {object[]} itemDataList - An ordered list of items to add to the
      *   menulist. Each entry must have a 'value' property to be used as the
      *   item value. If the entry has a 'label' property, it will be used
      *   directly as the item label, otherwise it must identify a bundle string
      *   using the 'stringId' property.
      *
-     * @return {MozMenuList} - The newly created menulist.
+     * @returns {MozMenuList} - The newly created menulist.
      */
     static _createMenulist(itemDataList) {
       let menulist = document.createXULElement("menulist");
@@ -907,7 +907,7 @@
     /**
      * Get the child input's value.
      *
-     * @return {string|number} - The value set in the input. For "date"
+     * @returns {string|number} - The value set in the input. For "date"
      *   inputs, this is the number of microseconds since the epoch.
      */
     getInputValue() {
@@ -939,7 +939,7 @@
     /**
      * Get the element's displayed value.
      *
-     * @return {string} - The value seen by the user.
+     * @returns {string} - The value seen by the user.
      */
     getReadableValue() {
       switch (this.inputType) {
@@ -1195,7 +1195,7 @@
      * The MozRuleactiontypeMenulist is a widget that allows selecting the actions from the given menulist for
      * the selected folder. It gets displayed in the message filter dialog box.
      *
-     * @extends {MozMenuList}
+     * @augments {MozMenuList}
      */
     class MozRuleactiontypeMenulist extends customElements.get("menulist") {
       connectedCallback() {
@@ -1314,7 +1314,7 @@
        * Returns a hash containing all of the filter actions which are currently
        * being used by other filteractionrows.
        *
-       * @return {Object} - a hash containing all of the filter actions which are
+       * @returns {object} - a hash containing all of the filter actions which are
        *                    currently being used by other filteractionrows.
        */
       usedActionsList() {
@@ -1369,7 +1369,8 @@
 
       /**
        * Check if there exist any templates in this account.
-       * @return {Object[]} - An array of template headers: each has a label and
+       *
+       * @returns {object[]} - An array of template headers: each has a label and
        *                      a value.
        */
       findTemplates() {
@@ -1431,7 +1432,7 @@
    * and button to add or remove the MozRuleactionRichlistitem. It gets added in the
    * filterActionList richlistbox in the Filter Editor dialog.
    *
-   * @extends {MozElements.MozRichlistitem}
+   * @augments {MozElements.MozRichlistitem}
    */
   class MozRuleactionRichlistitem extends MozElements.MozRichlistitem {
     static get inheritedAttributes() {
@@ -1638,7 +1639,7 @@
      * Function is used to check if the filter is valid or not. This routine
      * also prompts the user.
      *
-     * @return {boolean} - true if this row represents a valid filter action.
+     * @returns {boolean} - true if this row represents a valid filter action.
      */
     validateAction() {
       let filterActionString = this.getAttribute("value");
@@ -1699,7 +1700,7 @@
     /**
      * Create a new filter action, fill it in, and then append it to the filter.
      *
-     * @param {Object} aFilter - filter object to save.
+     * @param {object} aFilter - filter object to save.
      */
     saveToFilter(aFilter) {
       let filterAction = aFilter.createAction();

@@ -87,6 +87,7 @@ class CsvFieldMap extends HTMLElement {
   /**
    * When a <select> is disabled, we remove all its options. This function is to
    * add all available options back.
+   *
    * @param {HTMLSelectElement} select - The <select> element.
    */
   _enableSelect(select) {
@@ -107,6 +108,7 @@ class CsvFieldMap extends HTMLElement {
    * Update the options of all <select> elements. The result is if an option is
    * selected by a <select>, this option should no longer be shown as an option
    * for other <select>.
+   *
    * @param {HTMLSelectElement} [changedSelect] - This param is present only
    * when an option is selected, we don't need to update the options of this
    * <select> element.

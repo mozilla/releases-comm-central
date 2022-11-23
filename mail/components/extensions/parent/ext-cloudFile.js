@@ -168,12 +168,12 @@ class CloudFileAccount {
    * Initiate a WebExtension cloudFile upload by preparing a CloudFile object &
    * and triggering an onFileUpload event.
    *
-   * @param {Object} window Window object of the window, where the upload has
+   * @param {object} window Window object of the window, where the upload has
    *   been initiated. Must be null, if the window is not supported by the
    *   WebExtension windows/tabs API. Currently, this should only be set by the
    *   compose window.
    * @param {nsIFile} file File to be uploaded.
-   * @param {String} [name] Name of the file after it has been uploaded. Defaults
+   * @param {string} [name] Name of the file after it has been uploaded. Defaults
    *   to the original filename of the uploaded file.
    * @param {CloudFileUpload} relatedCloudFileUpload Information about an already
    *   uploaded file this upload is related to, e.g. renaming a repeatedly used
@@ -364,12 +364,12 @@ class CloudFileAccount {
   /**
    * Initiate a WebExtension cloudFile rename by triggering an onFileRename event.
    *
-   * @param {Object} window Window object of the window, where the upload has
+   * @param {object} window Window object of the window, where the upload has
    *   been initiated. Must be null, if the window is not supported by the
    *   WebExtension windows/tabs API. Currently, this should only be set by the
    *   compose window.
    * @param {Integer} uploadId Id of the uploaded file.
-   * @param {String} newName The requested new name of the file.
+   * @param {string} newName The requested new name of the file.
    * @returns {CloudFileUpload} Information about the renamed file.
    */
   async renameFile(window, uploadId, newName) {
@@ -436,7 +436,7 @@ class CloudFileAccount {
    * Cancel a WebExtension cloudFile upload by triggering an onFileUploadAbort
    * event.
    *
-   * @param {Object} window Window object of the window, where the upload has
+   * @param {object} window Window object of the window, where the upload has
    *   been initiated. Must be null, if the window is not supported by the
    *   WebExtension windows/tabs API. Currently, this should only be set by the
    *   compose window.
@@ -476,7 +476,7 @@ class CloudFileAccount {
   /**
    * Delete a WebExtension cloudFile upload by triggering an onFileDeleted event.
    *
-   * @param {Object} window Window object of the window, where the upload has
+   * @param {object} window Window object of the window, where the upload has
    *   been initiated. Must be null, if the window is not supported by the
    *   WebExtension windows/tabs API. Currently, this should only be set by the
    *   compose window.

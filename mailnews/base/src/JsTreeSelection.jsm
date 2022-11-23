@@ -97,7 +97,7 @@ JSTreeSelection.prototype = {
    *  "cell" (a single cell may be selected), or "text" (the row gets selected
    *  but only the primary column shows up as selected.)
    *
-   * @return false because we don't support single-selection.
+   * @returns false because we don't support single-selection.
    */
   get single() {
     return false;
@@ -458,6 +458,7 @@ JSTreeSelection.prototype = {
 
   /**
    * Helper method to adjust points in the face of row additions/removal.
+   *
    * @param aPoint The point, null if there isn't one, or an index otherwise.
    * @param aDeltaAt The row at which the change is happening.
    * @param aDelta The number of rows added if positive, or the (negative)
@@ -483,7 +484,7 @@ JSTreeSelection.prototype = {
    * Find the index of the range, if any, that contains the given index, and
    *  the index at which to insert a range if one does not exist.
    *
-   * @return A tuple containing: 1) the index if there is one, null otherwise,
+   * @returns A tuple containing: 1) the index if there is one, null otherwise,
    *     2) the index at which to insert a range that would contain the point.
    */
   _findRangeContainingRow(aIndex) {

@@ -936,7 +936,7 @@ dummyHooks.prototype = {
   },
 
   /**
-   * @return
+   * @returns
    *     a boolean, false if the previous data should be used (the datastore
    *     didn't change, there might be no data in this GET), true in all
    *     other cases
@@ -1115,7 +1115,7 @@ fileHooks.prototype = {
   },
 
   /**
-   * @return
+   * @returns
    *     a boolean, false if the previous data should be used (the datastore
    *     didn't change, there might be no data in this GET), true in all
    *     other cases

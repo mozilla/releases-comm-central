@@ -27,9 +27,9 @@ class CalStorageModelFactory {
    * Creates an instance of a CalStorageModel for the specified type.
    *
    * @param {"item"|"offline"|"metadata"} type - The model type desired.
-   * @param {mozIStorageAsyncConnection} db    - The database connection to use.
+   * @param {mozIStorageAsyncConnection} db - The database connection to use.
    * @param {CalStorageStatement} stmts
-   * @param {CalStorageCalendar} calendar      - The calendar associated with the
+   * @param {CalStorageCalendar} calendar - The calendar associated with the
    *                                             model.
    */
   static createInstance(type, db, stmts, calendar) {

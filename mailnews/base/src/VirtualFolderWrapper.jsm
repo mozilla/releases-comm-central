@@ -36,7 +36,7 @@ var VirtualFolderHelper = {
    * @param aOnlineSearch Should the search attempt to use the server's search
    *     capabilities when possible and appropriate?
    *
-   * @return The VirtualFolderWrapper wrapping the newly created folder.  You
+   * @returns The VirtualFolderWrapper wrapping the newly created folder.  You
    *     would probably only want this for its virtualFolder attribute which has
    *     the nsIMsgFolder we created.  Be careful about accessing any of the
    *     other attributes, as they will bring its message database back to life.
@@ -119,7 +119,7 @@ function VirtualFolderWrapper(aVirtualFolder) {
 }
 VirtualFolderWrapper.prototype = {
   /**
-   * @return the list of nsIMsgFolders that this virtual folder is a
+   * @returns the list of nsIMsgFolders that this virtual folder is a
    *     search over.
    */
   get searchFolders() {
@@ -145,7 +145,7 @@ VirtualFolderWrapper.prototype = {
   },
 
   /**
-   * @return a "|"-delimited string containing the URIs of the folders that back
+   * @returns a "|"-delimited string containing the URIs of the folders that back
    *     this virtual folder.
    */
   get searchFolderURIs() {
@@ -153,13 +153,13 @@ VirtualFolderWrapper.prototype = {
   },
 
   /**
-   * @return the list of search terms that define this virtual folder.
+   * @returns the list of search terms that define this virtual folder.
    */
   get searchTerms() {
     return this.searchTermsSession.searchTerms;
   },
   /**
-   * @return a newly created filter with the search terms loaded into it that
+   * @returns a newly created filter with the search terms loaded into it that
    *     define this virtual folder.  The filter is apparently useful as an
    *     nsIMsgSearchSession stand-in to some code.
    */
@@ -198,7 +198,7 @@ VirtualFolderWrapper.prototype = {
   },
 
   /**
-   * @return the set of search terms that define this virtual folder as a
+   * @returns the set of search terms that define this virtual folder as a
    *     string.  You may prefer to use |searchTerms| which converts them
    *     into a list of nsIMsgSearchTerms instead.
    */
@@ -214,7 +214,7 @@ VirtualFolderWrapper.prototype = {
   },
 
   /**
-   * @return whether the virtual folder is configured for online search.
+   * @returns whether the virtual folder is configured for online search.
    */
   get onlineSearch() {
     return this.dbFolderInfo.getBooleanProperty("searchOnline", false);
@@ -227,7 +227,7 @@ VirtualFolderWrapper.prototype = {
   },
 
   /**
-   * @return the dBFolderInfo associated with the virtual folder directly.  May
+   * @returns the dBFolderInfo associated with the virtual folder directly.  May
    *     be null.  Will cause the message database to be opened, which may have
    *     memory bloat/leak ramifications, so make sure the folder's database was
    *     already going to be opened anyways or that you call

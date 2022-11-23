@@ -910,9 +910,9 @@ function SetMenuItemLabel(menuItemId, customLabel) {
  * Refresh the contents of the tag popup menu/panel.
  * Used for example for appmenu/Message/Tag panel.
  *
- * @param {Element} parent          Parent element that will contain the menu items.
- * @param {string} [elementName]    Type of menu item, e.g. "menuitem", "toolbarbutton".
- * @param {string} [classes]        Classes to set on the menu items.
+ * @param {Element} parent - Parent element that will contain the menu items.
+ * @param {string} [elementName] - Type of menu item, e.g. "menuitem", "toolbarbutton".
+ * @param {string} [classes] - Classes to set on the menu items.
  */
 function InitMessageTags(parent, elementName = "menuitem", classes) {
   function SetMessageTagLabel(menuitem, index, name) {
@@ -1002,10 +1002,10 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
  * Refresh the contents of the recently closed tags popup menu/panel.
  * Used for example for appmenu/Go/Recently_Closed_Tabs panel.
  *
- * @param {Element} parent          Parent element that will contain the menu items.
- * @param {string} [elementName]    Type of menu item, e.g. "menuitem", "toolbarbutton".
- * @param {string} [classes]        Classes to set on the menu items.
- * @param {string} [separatorName]  Type of separator, e.g. "menuseparator", "toolbarseparator".
+ * @param {Element} parent - Parent element that will contain the menu items.
+ * @param {string} [elementName] - Type of menu item, e.g. "menuitem", "toolbarbutton".
+ * @param {string} [classes] - Classes to set on the menu items.
+ * @param {string} [separatorName] - Type of separator, e.g. "menuseparator", "toolbarseparator".
  */
 function InitRecentlyClosedTabsPopup(
   parent,
@@ -1386,8 +1386,9 @@ function MsgSubscribe(folder) {
 /**
  * Show a confirmation dialog - check if the user really want to unsubscribe
  * from the given newsgroup/s.
+ *
  * @folders an array of newsgroup folders to unsubscribe from
- * @return true if the user said it's ok to unsubscribe
+ * @returns true if the user said it's ok to unsubscribe
  */
 function ConfirmUnsubscribe(folders) {
   var bundle = document.getElementById("bundle_messenger");
@@ -1439,6 +1440,7 @@ function MsgOpenNewWindowForFolder(folderURI, msgKeyToSelect) {
 
 /**
  * UI-triggered command to open the currently selected folder(s) in new tabs.
+ *
  * @param {nsIMsgFolder[]} folders - Folders to open in new tabs.
  * @param {object} [tabParams] - Parameters to pass to the new tabs.
  */
@@ -1835,6 +1837,7 @@ function GetFolderMessages() {
 
 /**
  * Gets new messages for the given server, for the given folder.
+ *
  * @param server which nsIMsgIncomingServer to check for new messages
  * @param folder which nsIMsgFolder folder to check for new messages
  */
@@ -2114,10 +2117,10 @@ function initAppMenuPopup() {
  * Generate menu items that open a preferences dialog/tab for an installed addon,
  * and add them to a menu popup. E.g. in the appmenu or Tools menu > addon prefs.
  *
- * @param {Element} parent        The element (e.g. menupopup) to populate.
- * @param {string} [elementName]  The kind of menu item elements to create (e.g. "toolbarbutton").
- * @param {string} [classes]      Classes for menu item elements with no icon.
- * @param {string} [iconClasses]  Classes for menu item elements with an icon.
+ * @param {Element} parent - The element (e.g. menupopup) to populate.
+ * @param {string} [elementName] - The kind of menu item elements to create (e.g. "toolbarbutton").
+ * @param {string} [classes] - Classes for menu item elements with no icon.
+ * @param {string} [iconClasses] - Classes for menu item elements with an icon.
  */
 async function initAddonPrefsMenu(
   parent,

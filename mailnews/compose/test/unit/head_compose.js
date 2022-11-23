@@ -263,6 +263,7 @@ function getAttachmentFromContent(aContent) {
 
 /**
  * Get the body part of an MIME message.
+ *
  * @param {string} content - The message content.
  * @returns {string}
  */

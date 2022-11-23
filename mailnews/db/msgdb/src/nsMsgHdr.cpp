@@ -322,14 +322,14 @@ NS_IMETHODIMP nsMsgHdr::SetAuthor(const char* author) {
   return SetStringColumn(author, m_mdb->m_senderColumnToken);
 }
 
-NS_IMETHODIMP nsMsgHdr::SetReferences(const char* references) {
-  NS_ENSURE_ARG_POINTER(references);
+NS_IMETHODIMP nsMsgHdr::SetReferences(const nsACString& references) {
   m_references.Clear();
-  ParseReferences(references);
+  ParseReferences(PromiseFlatCString(references).get());
 
   m_initedValues |= REFERENCES_INITED;
 
-  return SetStringColumn(references, m_mdb->m_referencesColumnToken);
+  return SetStringColumn(PromiseFlatCString(references).get(),
+                         m_mdb->m_referencesColumnToken);
 }
 
 NS_IMETHODIMP nsMsgHdr::SetRecipients(const char* recipients) {

@@ -247,3 +247,17 @@ add_task(function test_StatusResponse() {
     recent: 0,
   });
 });
+
+/**
+ * Test GETQUOTAROOT response can be correctly parsed.
+ */
+add_task(function test_QuotaResponse() {
+  let response = new ImapResponse();
+  response.parse(
+    ["* QUOTAROOT Sent INBOX", "* QUOTA INBOX (STORAGE 123 456)", ""].join(
+      "\r\n"
+    )
+  );
+  deepEqual(response.quotaRoots, ["INBOX"]);
+  deepEqual(response.quotas, [["INBOX", "STORAGE", 123, 456]]);
+});

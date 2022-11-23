@@ -110,7 +110,7 @@ async function saveAndLoad(fileEnding) {
  *
  * @param {SyntheticMessage} synthMessage
  *        This message is the original message.
- * @returns {Object}
+ * @returns {object}
  */
 function checkedContent(synthMessage) {
   return {

@@ -139,8 +139,8 @@ var FeedUtils = {
   /**
    * Create rss account.
    *
-   * @param {String} aName     - Optional account name to override default.
-   * @returns {nsIMsgAccount}  - The creaged account.
+   * @param {String} aName - Optional account name to override default.
+   * @returns {nsIMsgAccount} - The creaged account.
    */
   createRssAccount(aName) {
     let userName = "nobody";
@@ -194,9 +194,9 @@ var FeedUtils = {
    * true if the url is already in our list.  This is used to prevent the
    * user from subscribing to the same feed multiple times for the same server.
    *
-   * @param {String} aUrl                  - The url.
+   * @param {string} aUrl - The url.
    * @param {nsIMsgIncomingServer} aServer - Account server.
-   * @returns {Boolean}                    - true if exists else false.
+   * @returns {Boolean} - true if exists else false.
    */
   feedAlreadyExists(aUrl, aServer) {
     let ds = this.getSubscriptionsDS(aServer);
@@ -218,10 +218,10 @@ var FeedUtils = {
   /**
    * Download a feed url on biff or get new messages.
    *
-   * @param {nsIMsgFolder} aFolder         - The folder.
-   * @param {nsIUrlListener} aUrlListener  - Feed url.
-   * @param {Boolean} aIsBiff              - true if biff, false if manual get.
-   * @param {nsIDOMWindow} aMsgWindow      - The window.
+   * @param {nsIMsgFolder} aFolder - The folder.
+   * @param {nsIUrlListener} aUrlListener - Feed url.
+   * @param {Boolean} aIsBiff - true if biff, false if manual get.
+   * @param {nsIDOMWindow} aMsgWindow - The window.
    *
    * @returns {void}
    */
@@ -428,9 +428,9 @@ var FeedUtils = {
   /**
    * Subscribe a new feed url.
    *
-   * @param {String} aUrl              - Feed url.
-   * @param {nsIMsgFolder} aFolder     - Folder.
-   * @param {nsIDOMWindow} aMsgWindow  - The window.
+   * @param {String} aUrl - Feed url.
+   * @param {nsIMsgFolder} aFolder - Folder.
+   * @param {nsIDOMWindow} aMsgWindow - The window.
    *
    * @returns {void}
    */
@@ -511,9 +511,9 @@ var FeedUtils = {
    * subscriptions in an account if the folder is the account folder.
    * A folder's subfolders' feeds are not included.
    *
-   * @param {nsIMsgFolder} aFolder     - Folder or account folder (server).
-   * @param {Boolean} aPause           - To pause or not to pause.
-   * @param {Boolean} aBiffNow         - If aPause is false, and aBiffNow is true
+   * @param {nsIMsgFolder} aFolder - Folder or account folder (server).
+   * @param {boolean} aPause - To pause or not to pause.
+   * @param {Boolean} aBiffNow - If aPause is false, and aBiffNow is true
    *                                     do the biff immediately.
    * @returns {void}
    */
@@ -617,10 +617,10 @@ var FeedUtils = {
   /**
    * Change an existing feed's url.
    *
-   * @param {Feed} aFeed      - The feed object.
-   * @param {String} aNewUrl  - New url.
+   * @param {Feed} aFeed - The feed object.
+   * @param {string} aNewUrl - New url.
    *
-   * @returns {Boolean}       - true if successful, else false.
+   * @returns {Boolean} - true if successful, else false.
    */
   changeUrlForFeed(aFeed, aNewUrl) {
     if (!aFeed || !aFeed.folder || !aNewUrl) {
@@ -739,8 +739,8 @@ var FeedUtils = {
   /**
    * Check if the folder's msgDatabase is openable, reparse if desired.
    *
-   * @param {nsIMsgFolder} aFolder        - The folder.
-   * @param {Boolean} aReparse            - Reparse if true.
+   * @param {nsIMsgFolder} aFolder - The folder.
+   * @param {boolean} aReparse - Reparse if true.
    * @param {nsIUrlListener} aUrlListener - Object implementing nsIUrlListener.
    *
    * @returns {Boolean} - true if msgDb is available, else false
@@ -783,9 +783,9 @@ var FeedUtils = {
    * folderpane or subscribe dialog tree.
    *
    * @param {nsIMsgFolder} aFolder - Folder or a feed url's parent folder.
-   * @param {String} aFeedUrl      - Feed url for a feed row, null for folder.
+   * @param {string} aFeedUrl - Feed url for a feed row, null for folder.
    *
-   * @returns {String}             - The properties.
+   * @returns {String} - The properties.
    */
   getFolderProperties(aFolder, aFeedUrl) {
     let folder = aFolder;
@@ -835,10 +835,10 @@ var FeedUtils = {
   /**
    * Update a folderpane cached property.
    *
-   * @param {nsIMsgFolder} aFolder   - Folder.
-   * @param {String} aProperty       - Property.
-   * @param {String} aValue          - Value.
-   * @param {String} aInvalidate     - "row" = folder's row.
+   * @param {nsIMsgFolder} aFolder - Folder.
+   * @param {string} aProperty - Property.
+   * @param {string} aValue - Value.
+   * @param {String} aInvalidate - "row" = folder's row.
    *                                  ."all" = all rows.
    * @returns {void}
    */
@@ -849,8 +849,8 @@ var FeedUtils = {
   /**
    * Get a cached feed or folder status.
    *
-   * @param {nsIMsgFolder} aFolder   - Folder.
-   * @param {String} aUrl            - Url key (feed url or folder URI).
+   * @param {nsIMsgFolder} aFolder - Folder.
+   * @param {string} aUrl - Url key (feed url or folder URI).
    *
    * @returns {String} aValue        - The value.
    */
@@ -891,10 +891,10 @@ var FeedUtils = {
   /**
    * Update a feed or folder status and refresh folderpane.
    *
-   * @param {nsIMsgFolder} aFolder   - Folder.
-   * @param {String} aUrl            - Url key (feed url or folder URI).
-   * @param {String} aProperty       - Url status property.
-   * @param {String} aValue          - Value.
+   * @param {nsIMsgFolder} aFolder - Folder.
+   * @param {String} aUrl - Url key (feed url or folder URI).
+   * @param {String} aProperty - Url status property.
+   * @param {String} aValue - Value.
    *
    * @returns {String} aValue        - The value.
    */
@@ -927,12 +927,12 @@ var FeedUtils = {
    * not enabled.
    *
    * @param {nsIMsgFolder} aFolder - The feed folder or null if aUrl.
-   * @param {String} aUrl          - A url (feed, message, other) or null if aFolder.
-   * @param {String} aIconUrl      - The icon url if already determined, else null.
+   * @param {string} aUrl - A url (feed, message, other) or null if aFolder.
+   * @param {string} aIconUrl - The icon url if already determined, else null.
    * @param {nsIDOMWindow} aWindow - Null if requesting url without setting it.
-   * @param {Function} aCallback   - Null or callback.
+   * @param {Function} aCallback - Null or callback.
    *
-   * @returns {String}             - The favicon url or empty string.
+   * @returns {String} - The favicon url or empty string.
    */
   getFavicon(aFolder, aUrl, aIconUrl, aWindow, aCallback) {
     // On any error, cache an empty string to show the default favicon, and
@@ -1026,10 +1026,10 @@ var FeedUtils = {
   /**
    * Update the feeds database for rename and move/copy folder name changes.
    *
-   * @param {nsIMsgFolder} aFolder      - The folder, new if rename or target of
+   * @param {nsIMsgFolder} aFolder - The folder, new if rename or target of
    *                                      move/copy folder (new parent).
-   * @param {nsIMsgFolder} aOrigFolder  - Original folder.
-   * @param {String} aAction            - "move" or "copy" or "rename".
+   * @param {nsIMsgFolder} aOrigFolder - Original folder.
+   * @param {String} aAction - "move" or "copy" or "rename".
    *
    * @returns {void}
    */
@@ -1086,10 +1086,10 @@ var FeedUtils = {
    * url exists in the new account, its active subscription will be switched to
    * the folder being copied, to enforce the one unique url per account design.
    *
-   * @param {nsIMsgFolder} aFolder      - New folder.
-   * @param {nsIMsgFolder} aOrigFolder  - Original folder.
-   * @param {String} aNewAncestorURI    - For subfolders, ancestor new folder.
-   * @param {String} aOrigAncestorURI   - For subfolders, ancestor original folder.
+   * @param {nsIMsgFolder} aFolder - New folder.
+   * @param {nsIMsgFolder} aOrigFolder - Original folder.
+   * @param {string} aNewAncestorURI - For subfolders, ancestor new folder.
+   * @param {String} aOrigAncestorURI - For subfolders, ancestor original folder.
    *
    * @returns {void}
    */
@@ -1169,7 +1169,7 @@ var FeedUtils = {
    *                                       blank, caller ensures sane value.
    * @param {Boolean}      aUnique       - If true, return a unique indexed name.
    *
-   * @returns {String}                   - Sanitized unique name.
+   * @returns {String} - Sanitized unique name.
    */
   getSanitizedFolderName(aParentFolder, aProposedName, aDefaultName, aUnique) {
     // Clean up the name for the strictest fs (fat) and to ensure portability.
@@ -1423,7 +1423,7 @@ var FeedUtils = {
   /**
    * Fetch an attribute for a subscribed feed.
    *
-   * @param {String} feedURL - URL of the feed.
+   * @param {string} feedURL - URL of the feed.
    * @param {nsIMsgIncomingServer} server - Server holding the subscription.
    * @param {String} attrName - Name of attribute to fetch.
    * @param {undefined} defaultValue - Value to return if not found.
@@ -1445,7 +1445,7 @@ var FeedUtils = {
    * NOTE: If the feed is not already in the store, it will be
    * added.
    *
-   * @param {String} feedURL - URL of the feed.
+   * @param {string} feedURL - URL of the feed.
    * @param {nsIMsgIncomingServer} server - server holding subscription.
    * @param {String} attrName - Name of attribute to fetch.
    * @param {undefined} value - Value to store.
@@ -1501,7 +1501,7 @@ var FeedUtils = {
    * browser or app that provides a less nice dataTransfer object in the event.
    * Extract the url and if it passes the scheme test, try to subscribe.
    *
-   * @param {nsISupports} aDataTransfer  - The dnd event's dataTransfer.
+   * @param {nsISupports} aDataTransfer - The dnd event's dataTransfer.
    *
    * @returns {nsIURI} or null           - A uri if valid, null if none.
    */
@@ -1693,7 +1693,7 @@ var FeedUtils = {
    *
    * @param {nsIURI} aUri or {String} aUrl  - The Uri/Url.
    *
-   * @returns {Boolean}                     - true if a valid scheme, false if not.
+   * @returns {boolean} - true if a valid scheme, false if not.
    */
   _validSchemes: ["http", "https", "file"],
   isValidScheme(aUri) {
@@ -1711,9 +1711,9 @@ var FeedUtils = {
   /**
    * Is a folder Trash or in Trash.
    *
-   * @param {nsIMsgFolder} aFolder   - The folder.
+   * @param {nsIMsgFolder} aFolder - The folder.
    *
-   * @returns {Boolean}              - true if folder is Trash else false.
+   * @returns {Boolean} - true if folder is Trash else false.
    */
   isInTrash(aFolder) {
     let trashFolder = aFolder.rootFolder.getFolderWithFlags(
@@ -1733,7 +1733,7 @@ var FeedUtils = {
    * Return a folder path string constructed from individual folder UTF8 names
    * stored as properties (not possible hashes used to construct disk foldername).
    *
-   * @param {nsIMsgFolder} aFolder         - The folder.
+   * @param {nsIMsgFolder} aFolder - The folder.
    *
    * @returns {String} prettyName or null  - Name or null if not a disk folder.
    */
@@ -1768,9 +1768,9 @@ var FeedUtils = {
   /**
    * Date validator for feeds.
    *
-   * @param {String} aDate - Date string.
+   * @param {string} aDate - Date string.
    *
-   * @returns {Boolean}      - true if passes regex test, false if not.
+   * @returns {Boolean} - true if passes regex test, false if not.
    */
   isValidRFC822Date(aDate) {
     const FZ_RFC822_RE =
@@ -1785,10 +1785,10 @@ var FeedUtils = {
   /**
    * Create rfc5322 date.
    *
-   * @param {String} aDateString - Optional date string; if null or invalid
+   * @param {string} aDateString - Optional date string; if null or invalid
    *                               date, get the current datetime.
    *
-   * @returns {String}           - An rfc5322 date string.
+   * @returns {String} - An rfc5322 date string.
    */
   getValidRFC5322Date(aDateString) {
     let d = new Date(aDateString || new Date().getTime());
@@ -1843,8 +1843,8 @@ var FeedUtils = {
      *
      * @param {Feed} feed - The Feed object, or a synthetic object that must
      *                      contain members {nsIMsgFolder folder, String url}.
-     * @param {Integer} aErrorCode  - The resolution code, a kNewsBlog* value.
-     * @param {Boolean} aDisable    - If true, disable/pause the feed.
+     * @param {Integer} aErrorCode - The resolution code, a kNewsBlog* value.
+     * @param {Boolean} aDisable - If true, disable/pause the feed.
      *
      * @returns {void}
      */
@@ -2043,9 +2043,9 @@ var FeedUtils = {
      * items have been downloaded so far. aMaxFeedItems is an integer
      * corresponding to the total number of feed items to download.
      *
-     * @param {Feed} feed                 - The Feed object.
+     * @param {Feed} feed - The Feed object.
      * @param {Integer} aCurrentFeedItems - Number downloaded so far.
-     * @param {Integer} aMaxFeedItems     - Total number to download.
+     * @param {Integer} aMaxFeedItems - Total number to download.
      *
      * @returns {void}
      */

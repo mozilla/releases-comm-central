@@ -23,7 +23,7 @@
    * contacts: i.e name and icon. It gets displayed under conversation expansion
    * twisty in the contactlist richlistbox.
    *
-   * @extends {MozElements.MozRichlistitem}
+   * @augments {MozElements.MozRichlistitem}
    */
   class MozChatConvRichlistitem extends MozElements.MozRichlistitem {
     static get inheritedAttributes() {

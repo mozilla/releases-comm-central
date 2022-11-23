@@ -139,7 +139,7 @@ function refreshSmimeMessageEncryptionStateButton() {
 
 var smimeHeaderSink = {
   /**
-   * @return the URI of the selected message, or null if the current
+   * @returns the URI of the selected message, or null if the current
    *         message displayed isn't in a folder, for example if the
    *         message is displayed in a separate window.
    */

@@ -33,6 +33,8 @@ reference-jobs:
     - linux64-liblowercase
     - linux64-llvm-symbolizer
     - linux64-makecab
+    - linux64-mkbom
+    - linux64-xar
     - linux64-mar-tools
     - linux64-minidump-stackwalk
     - linux64-msix-packaging

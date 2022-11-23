@@ -301,7 +301,7 @@ var HeaderHandlerBase = {
    * @param aHeaderName The header name to retrieve, case does not matter.
    * @param aDefaultValue The value to return if the header was not found, null
    *     if left unspecified.
-   * @return the value of the header if present, and the default value if not
+   * @returns the value of the header if present, and the default value if not
    *  (defaults to null).  If the header was present multiple times, the first
    *  instance of the header is returned.  Use getAll if you want all of the
    *  values for the multiply-defined header.
@@ -322,7 +322,7 @@ var HeaderHandlerBase = {
    *  that you only expect to be present at most once.
    *
    * @param aHeaderName The header name to retrieve, case does not matter.
-   * @return An array containing the values observed, which may mean a zero
+   * @returns An array containing the values observed, which may mean a zero
    *     length array.
    */
   getAll(aHeaderName) {
@@ -334,7 +334,7 @@ var HeaderHandlerBase = {
   },
   /**
    * @param aHeaderName Header name to test for its presence.
-   * @return true if the message has (at least one value for) the given header
+   * @returns true if the message has (at least one value for) the given header
    *     name.
    */
   has(aHeaderName) {
@@ -379,7 +379,7 @@ MimeMessage.prototype = {
   contentType: "message/rfc822",
 
   /**
-   * @return a list of all attachments contained in this message and all its
+   * @returns a list of all attachments contained in this message and all its
    *     sub-messages.  Only MimeMessageAttachment instances will be present in
    *     the list (no sub-messages).
    */
@@ -393,7 +393,7 @@ MimeMessage.prototype = {
   },
 
   /**
-   * @return a list of all attachments contained in this message and all its
+   * @returns a list of all attachments contained in this message and all its
    *     sub-messages, including the sub-messages.
    */
   get allInlineAttachments() {
@@ -407,7 +407,7 @@ MimeMessage.prototype = {
   },
 
   /**
-   * @return a list of all attachments contained in this message, with
+   * @returns a list of all attachments contained in this message, with
    *    included/forwarded messages treated as real attachments. Attachments
    *    contained in inner messages won't be shown.
    */
@@ -422,7 +422,7 @@ MimeMessage.prototype = {
   },
 
   /**
-   * @return the total size of this message, that is, the size of all subparts
+   * @returns the total size of this message, that is, the size of all subparts
    */
   get size() {
     return this.parts
@@ -445,7 +445,7 @@ MimeMessage.prototype = {
   /**
    * @param aMsgFolder A message folder, any message folder.  Because this is
    *    a hack.
-   * @return The concatenation of all of the body parts where parts
+   * @returns The concatenation of all of the body parts where parts
    *    available as text/plain are pulled as-is, and parts only available
    *    as text/html are converted to plaintext form first.  In other words,
    *    if we see a multipart/alternative with a text/plain, we take the

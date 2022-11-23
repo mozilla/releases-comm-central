@@ -14,11 +14,11 @@ const EXPORTED_SYMBOLS = ["call10n"];
 /**
  * Gets the value of a string in a .properties file.
  *
- * @param {String} aComponent       Stringbundle component name
- * @param {String} aBundleName      The name of the properties file
- * @param {String} aStringName      The name of the string within the properties file
- * @param {String[]} aParams        (optional) Parameters to format the string
- * @return {String}                 The formatted string
+ * @param {string} aComponent - Stringbundle component name
+ * @param {string} aBundleName - The name of the properties file
+ * @param {string} aStringName - The name of the string within the properties file
+ * @param {string[]} aParams - (optional) Parameters to format the string
+ * @returns {string} The formatted string
  */
 function _getString(aComponent, aBundleName, aStringName, aParams = []) {
   let propName = `chrome://${aComponent}/locale/${aBundleName}.properties`;
@@ -44,11 +44,11 @@ _getString._bundleCache = {};
 /**
  * Provides locale dependent parameters for displaying calendar views
  *
- * @param {String}  aLocale      The locale to get the info for, e.g. "en-US",
+ * @param {string}  aLocale      The locale to get the info for, e.g. "en-US",
  *                                 "de-DE" or null for the current locale
- * @param {Bollean} aResetCache  Whether to reset the internal cache - for test
+ * @param {Bollean} aResetCache - Whether to reset the internal cache - for test
  *                                 purposes only don't use it otherwise atm
- * @return {Object}              The getCalendarInfo object from mozIMozIntl
+ * @returns {object} The getCalendarInfo object from mozIMozIntl
  */
 function _calendarInfo(aLocale = null, aResetCache = false) {
   if (aResetCache) {
@@ -75,58 +75,58 @@ var call10n = {
   /**
    * Gets the value of a string in a .properties file.
    *
-   * @param {String} aComponent       Stringbundle component name
-   * @param {String} aBundleName      The name of the properties file
-   * @param {String} aStringName      The name of the string within the properties file
-   * @param {String[]} aParams        (optional) Parameters to format the string
-   * @return {String}                 The formatted string
+   * @param {string} aComponent - Stringbundle component name
+   * @param {string} aBundleName - The name of the properties file
+   * @param {string} aStringName - The name of the string within the properties file
+   * @param {string[]} aParams - (optional) Parameters to format the string
+   * @returns {string} The formatted string
    */
   getAnyString: _getString,
 
   /**
    * Gets a string from a bundle from chrome://calendar/
    *
-   * @param {String} aBundleName      The name of the properties file
-   * @param {String} aStringName      The name of the string within the properties file
-   * @param {String[]} aParams        (optional) Parameters to format the string
-   * @return {String}                 The formatted string
+   * @param {string} aBundleName - The name of the properties file
+   * @param {string} aStringName - The name of the string within the properties file
+   * @param {string[]} aParams - (optional) Parameters to format the string
+   * @returns {string} The formatted string
    */
   getString: _getString.bind(undefined, "calendar"),
 
   /**
    * Gets a string from chrome://calendar/locale/calendar.properties bundle
    *
-   * @param {String} aStringName      The name of the string within the properties file
-   * @param {String[]} aParams        (optional) Parameters to format the string
-   * @return {String}                 The formatted string
+   * @param {string} aStringName - The name of the string within the properties file
+   * @param {string[]} aParams - (optional) Parameters to format the string
+   * @returns {string} The formatted string
    */
   getCalString: _getString.bind(undefined, "calendar", "calendar"),
 
   /**
    * Gets a string from chrome://lightning/locale/lightning.properties
    *
-   * @param {String} aStringName      The name of the string within the properties file
-   * @param {String[]} aParams        (optional) Parameters to format the string
-   * @return {String}                 The formatted string
+   * @param {string} aStringName - The name of the string within the properties file
+   * @param {string[]} aParams - (optional) Parameters to format the string
+   * @returns {string} The formatted string
    */
   getLtnString: _getString.bind(undefined, "lightning", "lightning"),
 
   /**
    * Gets a date format string from chrome://calendar/locale/dateFormat.properties bundle
    *
-   * @param {String} aStringName      The name of the string within the properties file
-   * @param {String[]} aParams        (optional) Parameters to format the string
-   * @return {String}                 The formatted string
+   * @param {string} aStringName - The name of the string within the properties file
+   * @param {string[]} aParams - (optional) Parameters to format the string
+   * @returns {string} The formatted string
    */
   getDateFmtString: _getString.bind(undefined, "calendar", "dateFormat"),
 
   /**
    * Gets the month name string in the right form depending on a base string.
    *
-   * @param {Number} aMonthNum     The month number to get, 1-based.
-   * @param {String} aBundleName   The Bundle to get the string from
-   * @param {String} aStringBase   The base string name, .monthFormat will be appended
-   * @return {String}              The formatted month name
+   * @param {number} aMonthNum - The month number to get, 1-based.
+   * @param {string} aBundleName - The Bundle to get the string from
+   * @param {string} aStringBase - The base string name, .monthFormat will be appended
+   * @returns {string} The formatted month name
    */
   formatMonth(aMonthNum, aBundleName, aStringBase) {
     let monthForm = call10n.getString(aBundleName, aStringBase + ".monthFormat") || "nominative";
@@ -142,8 +142,8 @@ var call10n = {
   /**
    * Sort an array of strings in place, according to the current locale.
    *
-   * @param {String[]} aStringArray   The strings to sort
-   * @return {String[]}               The sorted strings, more specifically aStringArray
+   * @param {string[]} aStringArray - The strings to sort
+   * @returns {string[]} The sorted strings, more specifically aStringArray
    */
   sortArrayByLocaleCollator(aStringArray) {
     const collator = new Intl.Collator();
@@ -154,9 +154,9 @@ var call10n = {
   /**
    * Provides locale dependent parameters for displaying calendar views
    *
-   * @param {String} aLocale     The locale to get the info for, e.g. "en-US",
+   * @param {string} aLocale - The locale to get the info for, e.g. "en-US",
    *                               "de-DE" or null for the current locale
-   * @return {Object}            The getCalendarInfo object from mozIMozIntl
+   * @returns {object} The getCalendarInfo object from mozIMozIntl
    */
   calendarInfo: _calendarInfo,
 };

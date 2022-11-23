@@ -10,6 +10,7 @@ var { MailServices } = ChromeUtils.import(
 
 /**
  * Holds the main controller class.
+ *
  * @type {?AccountHubControllerClass}
  */
 var AccountHubController;
@@ -24,12 +25,14 @@ var AccountHubController;
 class AccountHubControllerClass {
   /**
    * The account hub main modal dialog.
+   *
    * @type {?HTMLElement}
    */
   #modal = null;
 
   /**
    * The currently visible view inside the dialog.
+   *
    * @type {?HTMLElement}
    */
   #currentView = null;

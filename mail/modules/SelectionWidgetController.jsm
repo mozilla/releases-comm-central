@@ -11,14 +11,14 @@ var { AppConstants } = ChromeUtils.importESModule(
 /**
  * @callback GetLayoutDirectionMethod
  *
- * @return {"horizontal"|"vertical"} - The direction in which the widget
+ * @returns {"horizontal"|"vertical"} - The direction in which the widget
  *   visually lays out its items. "vertical" for top to bottom, "horizontal" for
  *   following the text direction.
  */
 /**
  * Details about the sizing of the widget in the same direction as its layout.
  *
- * @typedef {Object} PageSizeDetails
+ * @typedef {object} PageSizeDetails
  * @param {number} viewSize - The size of the widget's "view" of its items. If
  *   the items are placed under a scrollable area with 0 padding, this would
  *   usually be the clientHeight or clientWidth, which exclude the border and
@@ -35,7 +35,7 @@ var { AppConstants } = ChromeUtils.importESModule(
 /**
  * @callback GetPageSizeDetailsMethod
  *
- * @return {?PageSizeDetails} Details about the currently visible items. Or null
+ * @returns {?PageSizeDetails} Details about the currently visible items. Or null
  *   if page navigation should not be allowed: either because the required
  *   conditions do not apply or PageUp and PageDown should be used for something
  *   else.
@@ -45,7 +45,7 @@ var { AppConstants } = ChromeUtils.importESModule(
  *
  * @param {EventTarget} target - An event target.
  *
- * @return {?number} - The index for the selectable item that contains the event
+ * @returns {?number} - The index for the selectable item that contains the event
  *   target, or null if there is none.
  */
 /**
@@ -152,7 +152,7 @@ class SelectionWidgetController {
   /**
    * A collection of methods passed to the controller at initialization.
    *
-   * @type {Object}
+   * @type {object}
    */
   #methods = null;
   /**
@@ -220,7 +220,7 @@ class SelectionWidgetController {
    * @param {widget} widget - The widget to control.
    * @param {"focus"|"browse"|"browse-multi"} model - The selection model to
    *   follow.
-   * @param {Object} methods - Methods for the controller to communicate with
+   * @param {object} methods - Methods for the controller to communicate with
    *   the widget.
    * @param {GetLayoutDirectionMethod} methods.getLayoutDirection - Used to
    *   get the layout direction of the widget.
@@ -529,7 +529,7 @@ class SelectionWidgetController {
    * @param {number} index - The index at which items are removed.
    * @param {number} number - The number of items that are removed.
    *
-   * @return {SelectionRange[]} - The removed SelectionRange objects. This will
+   * @returns {SelectionRange[]} - The removed SelectionRange objects. This will
    *   contain all the ranges that touched or overlapped the selected items.
    *   Owned by the caller.
    */
@@ -758,7 +758,7 @@ class SelectionWidgetController {
    * Note that the returned Array is static (it will not update as the selection
    * changes).
    *
-   * @return {SelectionRange[]} - An array of all non-overlapping selection
+   * @returns {SelectionRange[]} - An array of all non-overlapping selection
    * ranges, order by their start index.
    */
   getSelectionRanges() {
@@ -772,7 +772,7 @@ class SelectionWidgetController {
    *
    * @param {number} index - The index for the item to query.
    *
-   * @return {boolean} - Whether the item is selected.
+   * @returns {boolean} - Whether the item is selected.
    */
   itemIsSelected(index) {
     this.#assertIntegerInRange(index, 0, this.#numItems - 1, "index");
@@ -948,7 +948,7 @@ class SelectionWidgetController {
   /**
    * Determine whether the focus lies within the widget or elsewhere.
    *
-   * @return {boolean} - Whether the active element is the widget or one of its
+   * @returns {boolean} - Whether the active element is the widget or one of its
    *   descendants.
    */
   #focusInWidget() {

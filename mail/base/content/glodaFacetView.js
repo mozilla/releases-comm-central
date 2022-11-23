@@ -225,7 +225,7 @@ ActiveSingularConstraint.prototype = {
    *  just append the new values to the existing set of values.  If it is not
    *  the same, we replace them.
    *
-   * @return true if the caller needs to revalidate their understanding of the
+   * @returns true if the caller needs to revalidate their understanding of the
    *     constraint because we have flipped whether we are inclusive or
    *     exclusive and have thrown away some constraints as a result.
    */
@@ -247,7 +247,7 @@ ActiveSingularConstraint.prototype = {
    * Relax something we previously constrained.  Remove it, some might say.  It
    *  is possible after relaxing that we will no longer be an active constraint.
    *
-   * @return true if we are no longer constrained at all.
+   * @returns true if we are no longer constrained at all.
    */
   relax(aInclusive, aGroupValues) {
     if (aInclusive != this.inclusive) {
@@ -379,7 +379,7 @@ ActiveNonSingularConstraint.prototype = {
    * Relax something we previously constrained.  Remove it, some might say.  It
    *  is possible after relaxing that we will no longer be an active constraint.
    *
-   * @return true if we are no longer constrained at all.
+   * @returns true if we are no longer constrained at all.
    */
   relax(aInclusive, aGroupValues) {
     let groupIdAttr = this.attrDef.objectNounDef.isPrimitive
@@ -561,7 +561,7 @@ var FacetContext = {
    * Remove duplicate messages from search results.
    *
    * @param aItems the initial set of messages to deduplicate
-   * @return the subset of those, with duplicates removed.
+   * @returns the subset of those, with duplicates removed.
    *
    * Some IMAP servers (here's looking at you, Gmail) will create message
    * duplicates unbeknownst to the user.  We'd like to deal with them earlier
@@ -873,7 +873,7 @@ var FacetContext = {
    * @param aFaceter The faceter that is the source of this constraint.  We
    *     need to know this because once a facet has a constraint attached,
    *     the UI stops updating it.
-   * @param {Boolean} aInclusive Is this an inclusive (true) or exclusive
+   * @param {boolean} aInclusive Is this an inclusive (true) or exclusive
    *     (false) constraint?  The constraint instance is the one that deals with
    *     the nuances resulting from this.
    * @param aGroupValues A list of the group values this constraint covers.  In
@@ -891,7 +891,7 @@ var FacetContext = {
    *     a date constraint applied.)
    * @param [aCallback] The callback to call once (re-)faceting has completed.
    *
-   * @return true if the caller needs to revalidate because the constraint has
+   * @returns true if the caller needs to revalidate because the constraint has
    *     changed in a way other than explicitly requested.  This can occur if
    *     a singular constraint flips its inclusive state and throws away
    *     constraints.
@@ -953,7 +953,7 @@ var FacetContext = {
    * @param aGroupValues The list of group values to remove.
    * @param aCallback The callback to call once all facets have been updated.
    *
-   * @return true if the constraint has been completely removed.  Under the
+   * @returns true if the constraint has been completely removed.  Under the
    *     current regime, this will likely cause the binding that is calling us
    *     to be rebuilt, so be aware if you are trying to do any cool animation
    *     that might no longer make sense.
@@ -1018,7 +1018,7 @@ var FacetContext = {
    *
    * @param {glodaFacetBindings.xml#result-message} aResultMessage The
    *     result the user wants to see in more details.
-   * @param {Boolean} [aBackground] Whether it should be in the background.
+   * @param {boolean} [aBackground] Whether it should be in the background.
    */
   showConversationInTab(aResultMessage, aBackground) {
     let tabmail = this.rootWin.document.getElementById("tabmail");

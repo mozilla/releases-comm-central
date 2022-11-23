@@ -628,7 +628,7 @@ function onAccept() {
       if (itemArray[i].level > 1) {
         selectElement.lastChild.appendChild(itemArray[i].element);
       } else {
-        editor.insertNode(itemArray[i].element, selectElement, offset++, true);
+        editor.insertNode(itemArray[i].element, selectElement, offset++);
       }
     }
 

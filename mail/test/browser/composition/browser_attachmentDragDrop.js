@@ -342,7 +342,7 @@ add_task(async function test_link_drag() {
  * @param {Element} bucket - The element to search in for the attachment item.
  * @param {string} url - The url of the attachment to find.
  *
- * @return {Element?} - The item with the given attachment url, or null if none
+ * @returns {Element?} - The item with the given attachment url, or null if none
  *   was found.
  */
 function getAttachmentItem(bucket, url) {

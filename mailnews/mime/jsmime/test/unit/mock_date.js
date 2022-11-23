@@ -6,7 +6,8 @@ define(function(require) {
   /**
    * A class which appears to act like the Date class with customizable timezone
    * offsets.
-   * @param {String} iso8601String An ISO-8601 date/time string including a
+   *
+   * @param {string} iso8601String An ISO-8601 date/time string including a
    *                               timezone offset.
    */
   function MockDate(iso8601String) {

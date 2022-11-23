@@ -44,7 +44,7 @@ const {
  *
  * @param {string} url - URL of the server function.
  *    ATTENTION: The caller needs to make sure that the URL is secure to call.
- * @param {Object} args - Additional parameters as properties, see below
+ * @param {object} args - Additional parameters as properties, see below
  *
  * @param {Function({string} result)} successCallback
  *   Called when the server call worked (no errors).
@@ -82,7 +82,7 @@ const {
  *   like a HTML form post.
  *   The values will be urlComponentEncoded, so pass them unencoded.
  *   This cannot be used together with |uploadBody|.
- * @param {Object} uploadBody - Arbitrary object, which to use as
+ * @param {object} uploadBody - Arbitrary object, which to use as
  *   body of the HTTP request. Will also set the mimetype accordingly.
  *   Only supported object types, currently only JXON is supported
  *   (sending XML).

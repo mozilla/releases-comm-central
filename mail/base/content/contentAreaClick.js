@@ -34,7 +34,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
  * If the clicked element was a HTMLInputElement or HTMLButtonElement
  * we return the form action.
  *
- * @return [href, linkText] the url and the text for the link being clicked.
+ * @returns [href, linkText] the url and the text for the link being clicked.
  */
 function hRefForClickEvent(aEvent, aDontCheckInputElement) {
   let target =
@@ -109,7 +109,7 @@ function messagePaneOnResize(aEvent) {
  * points to an anchor on the page.
  *
  * @param HTMLElement aTargetNode - the element node.
- * @return                        - true if link pointing to anchor.
+ * @returns - true if link pointing to anchor.
  */
 function isLinkToAnchorOnPage(aTargetNode) {
   let url = aTargetNode.ownerDocument.URL;

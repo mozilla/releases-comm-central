@@ -141,7 +141,7 @@ var caldtz = {
    *
    * @param date1     The left date to compare
    * @param date2     The right date to compare
-   * @return          True, if dates are on the same day
+   * @returns True, if dates are on the same day
    */
   sameDay(date1, date2) {
     if (date1 && date2) {
@@ -173,7 +173,7 @@ var caldtz = {
    *
    * @param aDate     a javascript date
    * @param aTimezone (optional) a timezone that should be enforced
-   * @returns         a calIDateTime
+   * @returns a calIDateTime
    *
    * @warning  Use of this function is strongly discouraged.  calIDateTime should
    *           be used directly whenever possible.
@@ -213,7 +213,7 @@ var caldtz = {
    * replacement for the former .jsDate property.
    *
    * @param cdt       The calIDateTime instance
-   * @return          The Javascript date equivalent.
+   * @returns The Javascript date equivalent.
    */
   dateTimeToJsDate(cdt) {
     if (cdt.isDate) {
@@ -232,7 +232,7 @@ var caldtz = {
    *
    * @param aStr          The RFC3339 compliant Date String
    * @param aTimezone     The timezone this date string is most likely in
-   * @return              A calIDateTime object
+   * @returns A calIDateTime object
    */
   fromRFC3339(aStr, aTimezone) {
     // XXX I have not covered leapseconds (matches[8]), this might need to
@@ -312,7 +312,7 @@ var caldtz = {
    * Convert a calIDateTime to a RFC3339 compliant Date string
    *
    * @param aDateTime     The calIDateTime object
-   * @return              The RFC3339 compliant date string
+   * @returns The RFC3339 compliant date string
    */
   toRFC3339(aDateTime) {
     if (!aDateTime) {
@@ -362,7 +362,7 @@ var caldtz = {
    * calITimezones.
    *
    * @param aConvertZones     (optional) If true, return calITimezones instead
-   * @return                  An array of timezone ids or calITimezones.
+   * @returns An array of timezone ids or calITimezones.
    */
   getRecentTimezones(aConvertZones) {
     let recentTimezones = JSON.parse(
@@ -403,7 +403,7 @@ var caldtz = {
    * in the calendar item summary dialog.
    *
    * @param {calIDateTime} dateTime - Datetime to convert.
-   * @return {string} A string representation of the datetime.
+   * @returns {string} A string representation of the datetime.
    */
   getStringForDateTime(dateTime) {
     const kDefaultTimezone = lazy.cal.dtz.defaultTimezone;

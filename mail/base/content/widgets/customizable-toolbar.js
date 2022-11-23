@@ -11,7 +11,7 @@
   /**
    * Extends the built-in `toolbar` element to allow it to be customized.
    *
-   * @extends {MozXULElement}
+   * @augments {MozXULElement}
    */
   class CustomizableToolbar extends MozXULElement {
     connectedCallback() {
@@ -61,7 +61,7 @@
     /**
      * Get the toolbox element connected to this toolbar.
      *
-     * @return {Element?}  The toolbox element or null.
+     * @returns {Element?} The toolbox element or null.
      */
     get toolbox() {
       if (this._toolbox) {
@@ -95,8 +95,8 @@
     /**
      * Sets the current set of items in the toolbar.
      *
-     * @param {string} val  Comma-separated list of IDs or "__empty".
-     * @return {string}  Comma-separated list of IDs or "__empty".
+     * @param {string} val - Comma-separated list of IDs or "__empty".
+     * @returns {string} Comma-separated list of IDs or "__empty".
      */
     set currentSet(val) {
       if (val == this.currentSet) {
@@ -173,7 +173,7 @@
     /**
      * Gets the current set of items in the toolbar.
      *
-     * @return {string}  Comma-separated list of IDs or "__empty".
+     * @returns {string} Comma-separated list of IDs or "__empty".
      */
     get currentSet() {
       let node = this.firstElementChild;
@@ -193,8 +193,8 @@
      * Return the ID for a given toolbar item node, with special handling for
      * some cases.
      *
-     * @param {Element} node  Return the ID of this node.
-     * @return {string}  The ID of the node.
+     * @param {Element} node - Return the ID of this node.
+     * @returns {string} The ID of the node.
      */
     _idFromNode(node) {
       if (node.getAttribute("skipintoolbarset") == "true") {
@@ -211,8 +211,8 @@
     /**
      * Returns a toolbar item based on the given ID.
      *
-     * @param {string} id  The ID for the new toolbar item.
-     * @return {Element?}  The toolbar item corresponding to the ID, or null.
+     * @param {string} id - The ID for the new toolbar item.
+     * @returns {Element?} The toolbar item corresponding to the ID, or null.
      */
     _getToolbarItem(id) {
       // Handle special cases.
@@ -261,10 +261,10 @@
     /**
      * Insert an item into the toolbar.
      *
-     * @param {string} id  The ID of the item to insert.
-     * @param {Element?} beforeElt  Optional element to insert the item before.
-     * @param {Element?} wrapper  Optional wrapper element.
-     * @return {Element}  The inserted item.
+     * @param {string} id - The ID of the item to insert.
+     * @param {Element?} beforeElt - Optional element to insert the item before.
+     * @param {Element?} wrapper - Optional wrapper element.
+     * @returns {Element} The inserted item.
      */
     insertItem(id, beforeElt, wrapper) {
       let newItem = this._getToolbarItem(id);
@@ -295,8 +295,8 @@
      * Determine whether the current set of toolbar items has custom
      * interactive items or not.
      *
-     * @param {string} currentSet  Comma-separated list of IDs or "__empty".
-     * @return {boolean}  Whether the current set has custom interactive items.
+     * @param {string} currentSet - Comma-separated list of IDs or "__empty".
+     * @returns {boolean} Whether the current set has custom interactive items.
      */
     hasCustomInteractiveItems(currentSet) {
       if (currentSet == "__empty") {

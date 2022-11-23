@@ -148,8 +148,8 @@ class Theme {
   }
 
   /**
-   * @param {Object} details - Details
-   * @param {Object} styles - Styles object in which to store the colors.
+   * @param {object} details - Details
+   * @param {object} styles - Styles object in which to store the colors.
    */
   loadDetails(details, styles) {
     if (details.colors) {
@@ -170,8 +170,8 @@ class Theme {
   /**
    * Helper method for loading colors found in the extension's manifest.
    *
-   * @param {Object} colors - Dictionary mapping color properties to values.
-   * @param {Object} styles - Styles object in which to store the colors.
+   * @param {object} colors - Dictionary mapping color properties to values.
+   * @param {object} styles - Styles object in which to store the colors.
    */
   loadColors(colors, styles) {
     for (let color of Object.keys(colors)) {
@@ -262,8 +262,8 @@ class Theme {
   /**
    * Helper method for loading images found in the extension's manifest.
    *
-   * @param {Object} images - Dictionary mapping image properties to values.
-   * @param {Object} styles - Styles object in which to store the colors.
+   * @param {object} images - Dictionary mapping image properties to values.
+   * @param {object} styles - Styles object in which to store the colors.
    */
   loadImages(images, styles) {
     const { logger } = this.extension;
@@ -307,8 +307,8 @@ class Theme {
    * Properties are commonly used to specify more advanced behavior of colors,
    * images or icons.
    *
-   * @param {Object} - properties Dictionary mapping properties to values.
-   * @param {Object} - styles Styles object in which to store the colors.
+   * @param {object} - properties Dictionary mapping properties to values.
+   * @param {object} - styles Styles object in which to store the colors.
    */
   loadProperties(properties, styles) {
     let additionalBackgroundsCount =
@@ -389,8 +389,8 @@ class Theme {
    * Helper method for loading extension metadata required by downstream
    * consumers.
    *
-   * @param {Object} extension - Extension object.
-   * @param {Object} styles - Styles object in which to store the colors.
+   * @param {object} extension - Extension object.
+   * @param {object} styles - Styles object in which to store the colors.
    */
   loadMetadata(extension, styles) {
     styles.id = extension.id;

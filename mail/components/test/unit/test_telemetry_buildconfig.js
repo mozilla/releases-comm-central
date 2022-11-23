@@ -26,7 +26,7 @@ const BOOLEAN_SCALAR = "tb.test.boolean_kind";
  * Check that stored events correspond to expectations.
  *
  * @param {Array} summaries - Summary of the expected events.
- * @param {Boolean} clearScalars - Whether to clear out data after snapshotting.
+ * @param {boolean} clearScalars - Whether to clear out data after snapshotting.
  */
 function checkEventSummary(summaries, clearScalars) {
   let scalars = Telemetry.getSnapshotForKeyedScalars("main", clearScalars);

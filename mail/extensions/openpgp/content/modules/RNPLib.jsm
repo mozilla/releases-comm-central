@@ -588,7 +588,7 @@ function enableRNPLibJS() {
      * secret key).
      *
      * @param {rnp_key_handle_t} handle - handle of the key to query
-     * @return {boolean} - true if secret key material is available
+     * @returns {boolean} - true if secret key material is available
      *
      */
     isSecretKeyMaterialAvailable(handle) {
@@ -687,6 +687,7 @@ function enableRNPLibJS() {
 
     /**
      * Save keyring file to the given path.
+     *
      * @param {string} path - The file path to save to.
      * @param {number} keyRingFlag - RNP_LOAD_SAVE_PUBLIC_KEYS or
      *   RNP_LOAD_SAVE_SECRET_KEYS.

@@ -1323,7 +1323,7 @@ var gKeyListView = {
    * @param keyNum:  Number - index of key in gKeyList
    * @param realRow: Number - index of row in keyViewList (i.e. without filter)
    *
-   * @return Number: number of UIDs added
+   * @returns Number: number of UIDs added
    */
   appendUids(uidType, keyNum, realRow, parentRow) {
     let keyObj = gKeyList[keyNum];
@@ -1373,7 +1373,7 @@ var gKeyListView = {
   /**
    * If no search term is entered, decide which keys to display
    *
-   * @return array of keyNums (= display some keys) or null (= display ALL keys)
+   * @returns array of keyNums (= display some keys) or null (= display ALL keys)
    */
   showOrHideAllKeys() {
     var showInvalidKeys = gShowInvalidKeys.getAttribute("checked") == "true";
@@ -1398,7 +1398,7 @@ var gKeyListView = {
   /**
    * Search for keys that match filter criteria
    *
-   * @return array of keyNums (= display some keys) or null (= display ALL keys)
+   * @returns array of keyNums (= display some keys) or null (= display ALL keys)
    */
   getFilteredKeys() {
     let searchTxt = gSearchInput.value;
@@ -1540,7 +1540,7 @@ var gKeyListView = {
    * Determine the row object from the a filtered row number
    *
    * @param row: Number - row number of displayed (=filtered) list
-   * @return Object: keyViewList entry of corresponding row
+   * @returns Object: keyViewList entry of corresponding row
    */
   getFilteredRow(row) {
     let r = this.keyFilterList[row];

@@ -221,10 +221,10 @@ var EnigmailDialog = {
    * @param {mesg} - Mssage text
    * @param {pref} - Full name of preference to read/store the future display status.
    *
-   * @param {String} [okLabel] - Label for Ok button.
-   * @param {String} [cancelLabel] - Label for Cancel button.
+   * @param {string} [okLabel] - Label for Ok button.
+   * @param {string} [cancelLabel] - Label for Cancel button.
    *
-   * @return {integer} 1: Ok pressed / 0: Cancel pressed / -1: ESC pressed
+   * @returns {integer} 1: Ok pressed / 0: Cancel pressed / -1: ESC pressed
    *
    * If the dialog is not displayed:
    *  - if @prefText is type Boolean: return 1
@@ -452,10 +452,10 @@ var EnigmailDialog = {
    * User is allowed to automatically accept new/undecided keys.
    *
    * @param {nsIDOMWindow} parentWindow - Parent window.
-   * @param {Object[]} keyPreview - Key details. See EnigmailKey.getKeyListFromKeyBlock().
+   * @param {object[]} keyPreview - Key details. See EnigmailKey.getKeyListFromKeyBlock().
    * @param {EnigmailKeyObj[]} - Array of key objects.
-   * @param {Object} outputParams - Out parameters.
-   * @param {String} outputParams.acceptance contains the decision. If confirmed.
+   * @param {object} outputParams - Out parameters.
+   * @param {string} outputParams.acceptance contains the decision. If confirmed.
    * @returns {boolean} true if user confirms import
    *
    */

@@ -48,7 +48,7 @@ customElements.whenDefined("autocomplete-input").then(() => {
   /**
    * The MozGlodaAutocompleteInput widget is used to display the autocomplete search bar.
    *
-   * @extends {AutocompleteInput}
+   * @augments {AutocompleteInput}
    */
   class MozGlodaAutocompleteInput extends customElements.get(
     "autocomplete-input"

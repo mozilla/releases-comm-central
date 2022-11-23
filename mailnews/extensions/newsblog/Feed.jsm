@@ -63,8 +63,8 @@ var FeedCache = {
  * for the feed url is created otherwise the url will be subscribed to the
  * existing aFolder, upon successful download() completion.
  *
- * @constructor
- * @param  {String} aFeedUrl        - feed url.
+ * @class
+ * @param  {string} aFeedUrl        - feed url.
  * @param  {nsIMsgFolder} aFolder   - folder containing or to contain the feed
  *                                     subscription.
  */

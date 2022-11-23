@@ -23,7 +23,7 @@
   /**
    * The calendar view for viewing a single day.
    *
-   * @extends {MozElements.CalendarMultidayBaseView}
+   * @augments {MozElements.CalendarMultidayBaseView}
    * @implements {calICalendarView}
    */
   class CalendarDayView extends MozElements.CalendarMultidayBaseView {
@@ -63,7 +63,7 @@
   /**
    * The calendar view for viewing a single week.
    *
-   * @extends {MozElements.CalendarMultidayBaseView}
+   * @augments {MozElements.CalendarMultidayBaseView}
    * @implements {calICalendarView}
    */
   class CalendarWeekView extends MozElements.CalendarMultidayBaseView {
@@ -104,7 +104,7 @@
   /**
    * The calendar view for viewing multiple weeks.
    *
-   * @extends {MozElements.CalendarMonthBaseView}
+   * @augments {MozElements.CalendarMonthBaseView}
    * @implements {calICalendarView}
    */
   class CalendarMultiweekView extends MozElements.CalendarMonthBaseView {
@@ -204,7 +204,7 @@
   /**
    * The calendar view for viewing a single month.
    *
-   * @extends {MozElements.CalendarMonthBaseView}
+   * @augments {MozElements.CalendarMonthBaseView}
    * @implements {calICalendarView}
    */
   class CalendarMonthView extends MozElements.CalendarMonthBaseView {

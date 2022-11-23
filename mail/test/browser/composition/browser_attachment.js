@@ -97,6 +97,7 @@ add_setup(async function() {
 
 /**
  * Make sure that the attachment's size is what we expect
+ *
  * @param controller the controller for the compose window
  * @param index the attachment to examine, as an index into the listbox
  * @param expectedSize the expected size of the attachment, in bytes
@@ -135,6 +136,7 @@ function check_attachment_size(controller, index, expectedSize) {
 
 /**
  * Make sure that the attachment's size is not displayed
+ *
  * @param controller the controller for the compose window
  * @param index the attachment to examine, as an index into the listbox
  */
@@ -154,6 +156,7 @@ function check_no_attachment_size(controller, index) {
 
 /**
  * Make sure that the total size of all attachments is what we expect.
+ *
  * @param controller the controller for the compose window
  * @param count the expected number of attachments
  */
@@ -384,7 +387,7 @@ function check_attachment_names(aController, aNames) {
  *                            result: an array of attachment names in the new
  *                                    order that should result
  *                          }
- * @param openPanel {boolean}   Whether to open reorderAttachmentsPanel for the test
+ * @param openPanel {boolean} - Whether to open reorderAttachmentsPanel for the test
  */
 async function subtest_reordering(
   aCwc,

@@ -15,7 +15,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
  * can be pasted into Calendar. The data must be of type "text/calendar" or
  * "text/unicode".
  *
- * @return          If true, pasting is currently possible.
+ * @returns If true, pasting is currently possible.
  */
 function canPaste() {
   if (Services.prefs.getBoolPref("calendar.paste.intoSelectedCalendar", false)) {

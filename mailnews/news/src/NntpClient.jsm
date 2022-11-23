@@ -27,7 +27,8 @@ const NNTP_ERROR_MESSAGE = -304;
 /**
  * A structure to represent a response received from the server. A response can
  * be a single status line of a multi-line data block.
- * @typedef {Object} NntpResponse
+ *
+ * @typedef {object} NntpResponse
  * @property {number} status - The status code of the response.
  * @property {string} statusText - The status line of the response excluding the
  *   status code.
@@ -113,6 +114,7 @@ class NntpClient {
   /**
    * Construct an nsIMsgMailNewsUrl instance, setup urlListener to notify when
    * the current request is finished.
+   *
    * @param {nsIUrlListener} urlListener - Callback for the request.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    * @param {nsIMsgMailNewsUrl} [runningUrl] - The url to run, if provided.
@@ -153,6 +155,7 @@ class NntpClient {
 
   /**
    * The data event handler.
+   *
    * @param {TCPSocketEvent} event - The data event.
    */
   _onData = event => {
@@ -218,6 +221,7 @@ class NntpClient {
 
   /**
    * The error event handler.
+   *
    * @param {TCPSocketErrorEvent} event - The error event.
    */
   _onError = event => {
@@ -234,6 +238,7 @@ class NntpClient {
 
   /**
    * Parse the server response.
+   *
    * @param {string} str - Response received from the server.
    * @returns {NntpResponse}
    */
@@ -252,6 +257,7 @@ class NntpClient {
 
   /**
    * Send a command to the socket.
+   *
    * @param {string} str - The command string to send.
    * @param {boolean} [suppressLogging=false] - Whether to suppress logging the str.
    */
@@ -278,6 +284,7 @@ class NntpClient {
 
   /**
    * Send a string to the socket.
+   *
    * @param {string} str - The string to send.
    */
   send(str) {
@@ -294,6 +301,7 @@ class NntpClient {
 
   /**
    * Get new articles.
+   *
    * @param {string} groupName - The group to get new articles.
    * @param {boolean} getOld - Get old articles as well.
    */
@@ -310,6 +318,7 @@ class NntpClient {
 
   /**
    * Get a single article by group name and article number.
+   *
    * @param {string} groupName - The group name.
    * @param {string} articleNumber - The article number.
    */
@@ -323,6 +332,7 @@ class NntpClient {
 
   /**
    * Get a single article by the message id.
+   *
    * @param {string} messageId - The message id.
    */
   getArticleByMessageId(messageId) {
@@ -333,6 +343,7 @@ class NntpClient {
   /**
    * Send a `Control: cancel <msg-id>` message to cancel an article, not every
    * server supports it, see rfc5537.
+   *
    * @param {string} groupName - The group name.
    */
   cancelArticle(groupName) {
@@ -344,6 +355,7 @@ class NntpClient {
   /**
    * Send a `XPAT <header> <message-id> <pattern>` message, not every server
    * supports it, see rfc2980.
+   *
    * @param {string} groupName - The group name.
    * @param {string[]} xpatLines - An array of xpat lines to send.
    */
@@ -356,6 +368,7 @@ class NntpClient {
 
   /**
    * Load a news uri directly, see rfc5538 about supported news uri.
+   *
    * @param {string} uir - The news uri to load.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    * @param {nsIStreamListener} streamListener - The listener for the request.
@@ -398,6 +411,7 @@ class NntpClient {
 
   /**
    * Send LISTGROUP request to the server.
+   *
    * @param {string} groupName - The group to request.
    */
   listgroup(groupName) {
@@ -442,6 +456,7 @@ class NntpClient {
 
   /**
    * Get the news folder corresponding to a group name.
+   *
    * @param {string} groupName - The group name.
    * @returns {nsIMsgNewsFolder}
    */
@@ -453,6 +468,7 @@ class NntpClient {
 
   /**
    * Given a UTF-8 group name, return the underlying group name used by the server.
+   *
    * @param {string} groupName - The UTF-8 group name.
    * @returns {BinaryString} - The group name that can be sent to the server.
    */
@@ -506,6 +522,7 @@ class NntpClient {
 
   /**
    * Handle GROUP response.
+   *
    * @param {NntpResponse} res - GROUP response received from the server.
    */
   _actionGroupResponse = res => {
@@ -528,6 +545,7 @@ class NntpClient {
 
   /**
    * Consume the multi-line data of LISTGROUP response.
+   *
    * @param {NntpResponse} res - The server response.
    */
   _actionListgroupDataResponse = ({ data }) => {
@@ -565,6 +583,7 @@ class NntpClient {
 
   /**
    * A transient action to consume the status line of XOVER response.
+   *
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionXOverResponse(res) {
@@ -581,6 +600,7 @@ class NntpClient {
 
   /**
    * Handle XOVER response.
+   *
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionReadXOver({ data }) {
@@ -615,6 +635,7 @@ class NntpClient {
 
   /**
    * Handle XHDR response.
+   *
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionXHdrResponse({ status, data }) {
@@ -650,6 +671,7 @@ class NntpClient {
 
   /**
    * Handle HEAD response.
+   *
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionReadHead({ data }) {
@@ -677,6 +699,7 @@ class NntpClient {
 
   /**
    * Handle `ARTICLE` response.
+   *
    * @param {NntpResponse} res - ARTICLE response received from the server.
    */
   _actionArticleResponse = ({ data }) => {
@@ -702,6 +725,7 @@ class NntpClient {
   /**
    * Handle multi-line data blocks response, e.g. ARTICLE/LIST response. Emit
    * each line through onData.
+   *
    * @param {NntpResponse} res - Response received from the server.
    */
   _actionReadData({ data }) {
@@ -710,6 +734,7 @@ class NntpClient {
 
   /**
    * Handle POST response.
+   *
    * @param {NntpResponse} res - POST response received from the server.
    */
   _actionHandlePost({ status, statusText }) {
@@ -724,6 +749,7 @@ class NntpClient {
 
   /**
    * Send `AUTHINFO user <name>` to the server.
+   *
    * @param {boolean} [forcePrompt=false] - Whether to force showing an auth prompt.
    */
   _actionAuthUser(forcePrompt = false) {
@@ -758,6 +784,7 @@ class NntpClient {
 
   /**
    * Decide the next step according to the auth response.
+   *
    * @param {NntpResponse} res - Auth response received from the server.
    */
   _actionAuthResult({ status }) {
@@ -800,6 +827,7 @@ class NntpClient {
 
   /**
    * Handle XPAT response.
+   *
    * @param {NntpResponse} res - XPAT response received from the server.
    */
   _actionXPatResponse({ status, statusText, data }) {
@@ -812,6 +840,7 @@ class NntpClient {
 
   /**
    * Show an error prompt.
+   *
    * @param {number} errorId - An error name corresponds to an entry of
    *   news.properties.
    * @param {string} serverErrorMsg - Error message returned by the server.

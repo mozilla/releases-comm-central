@@ -51,7 +51,7 @@ class _BuiltInThemes {
 
   /**
    * @param {string} id An addon's id string.
-   * @return {boolean}
+   * @returns {boolean}
    *   True if the theme with id `id` is a monochromatic theme.
    */
   isMonochromaticTheme(id) {
@@ -61,7 +61,7 @@ class _BuiltInThemes {
   /**
    * @param {string} id
    *   The theme's id.
-   * @return {boolean}
+   * @returns {boolean}
    *   True if the theme with id `id` is both expired and retained. That is,
    *   the user has the ability to use it after its expiry date.
    *   Or it would - this is just a shim not to break assumptions...

@@ -26,6 +26,7 @@ const {
 class MockCalTransaction extends CalTransaction {
   /**
    * The number of times doTransaction() was called.
+   *
    * @type {number}
    */
   done = 0;
@@ -60,7 +61,7 @@ class MockCalTransaction extends CalTransaction {
  * values.
  *
  * @param {CalMockTransaction[][]} batches The transaction batches to check.
- * @param {number[][][]} expected          A 3 dimensional array containing
+ * @param {number[][][]} expected - A 3 dimensional array containing
  *  the expected "done" and "undone" values for each transaction in each batch
  *  to be tested.
  */

@@ -72,7 +72,7 @@ var kTextNodeType = 3;
  * @param aController the controller for the mail:3pane from which to spawn
  *                    the compose window.  If left blank, defaults to mc.
  *
- * @return The loaded window of type "msgcompose" wrapped in a MozmillController
+ * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
  *         that is augmented using augment_controller.
  *
  */
@@ -95,7 +95,7 @@ function open_compose_new_mail(aController) {
  * Opens the compose window by replying to a selected message and waits for it
  * to load.
  *
- * @return The loaded window of type "msgcompose" wrapped in a MozmillController
+ * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
  *         that is augmented using augment_controller.
  */
 function open_compose_with_reply(aController) {
@@ -117,7 +117,7 @@ function open_compose_with_reply(aController) {
  * Opens the compose window by replying to all for a selected message and waits
  * for it to load.
  *
- * @return The loaded window of type "msgcompose" wrapped in a MozmillController
+ * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
  *         that is augmented using augment_controller.
  */
 function open_compose_with_reply_to_all(aController) {
@@ -139,7 +139,7 @@ function open_compose_with_reply_to_all(aController) {
  * Opens the compose window by replying to list for a selected message and waits for it
  * to load.
  *
- * @return The loaded window of type "msgcompose" wrapped in a MozmillController
+ * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
  *         that is augmented using augment_controller.
  */
 function open_compose_with_reply_to_list(aController) {
@@ -161,7 +161,7 @@ function open_compose_with_reply_to_list(aController) {
  * Opens the compose window by forwarding the selected messages as attachments
  * and waits for it to load.
  *
- * @return The loaded window of type "msgcompose" wrapped in a MozmillController
+ * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
  *         that is augmented using augment_controller.
  */
 function open_compose_with_forward_as_attachments(aController) {
@@ -179,7 +179,7 @@ function open_compose_with_forward_as_attachments(aController) {
  * Opens the compose window by editing the selected message as new
  * and waits for it to load.
  *
- * @return The loaded window of type "msgcompose" wrapped in a MozmillController
+ * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
  *         that is augmented using augment_controller.
  */
 function open_compose_with_edit_as_new(aController) {
@@ -197,7 +197,7 @@ function open_compose_with_edit_as_new(aController) {
  * Opens the compose window by forwarding the selected message and waits for it
  * to load.
  *
- * @return The loaded window of type "msgcompose" wrapped in a MozmillController
+ * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
  *         that is augmented using augment_controller.
  */
 function open_compose_with_forward(aController) {
@@ -219,7 +219,7 @@ function open_compose_with_forward(aController) {
  * Open draft editing by clicking the "Edit" on the draft notification bar
  * of the selected message.
  *
- * @return The loaded window of type "msgcompose" wrapped in a MozmillController
+ * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
  *         that is augmented using augment_controller.
  */
 function open_compose_from_draft(win = get_about_message()) {
@@ -282,7 +282,7 @@ function close_compose_window(aController, aShouldPrompt) {
  * "windowHelper.plan_for_new_window("msgcompose");" and the command to open
  * the compose window itself.
  *
- * @return The loaded window of type "msgcompose" wrapped in a MozmillController
+ * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
  *         that is augmented using augment_controller.
  */
 async function async_wait_for_compose_window(aController, aPromise) {
@@ -375,6 +375,7 @@ function get_first_pill(aController) {
 
 /**
  * Create and return an nsIMsgAttachment for the passed URL.
+ *
  * @param aUrl the URL for this attachment (either a file URL or a web URL)
  * @param aSize (optional) the file size of this attachment, in bytes
  */
@@ -396,8 +397,8 @@ function create_msg_attachment(aUrl, aSize) {
  *
  * @param aController  the controller of the composition window in question
  * @param aUrl         the URL for this attachment (either a file URL or a web URL)
- * @param aSize (optional)  the file size of this attachment, in bytes
- * @param aWaitAdded (optional)  True to wait for the attachments to be fully added, false otherwise.
+ * @param aSize (optional) - the file size of this attachment, in bytes
+ * @param aWaitAdded (optional) - True to wait for the attachments to be fully added, false otherwise.
  */
 function add_attachments(aController, aUrls, aSizes, aWaitAdded = true) {
   if (!Array.isArray(aUrls)) {
@@ -495,7 +496,7 @@ function rename_selected_cloud_attachment(aController, aName) {
  *
  * @param aController    The controller of the composition window in question.
  * @param aProvider      The provider account to upload the selected attachment to.
- * @param aWaitUploaded (optional)  True to wait for the attachments to be uploaded, false otherwise.
+ * @param aWaitUploaded (optional) - True to wait for the attachments to be uploaded, false otherwise.
  */
 function convert_selected_to_cloud_attachment(
   aController,
@@ -691,6 +692,7 @@ function add_cloud_attachments(
 
 /**
  * Delete an attachment from the compose window
+ *
  * @param aComposeWindow the composition window in question
  * @param aIndex the index of the attachment in the attachment pane
  */
@@ -786,7 +788,7 @@ function assert_previous_text(aStart, aText) {
  * @param aMsgHdr  nsIMsgDBHdr addressing a message which will be returned as text.
  * @param aCharset Charset to use to decode the message.
  *
- * @return         String with the message source.
+ * @returns String with the message source.
  */
 async function get_msg_source(aMsgHdr, aCharset = "") {
   let msgUri = aMsgHdr.folder.getUriForMsg(aMsgHdr);
@@ -970,6 +972,7 @@ class FormatHelper {
      */
     /**
      * Data for the various text styles. Maps from the style name to its data.
+     *
      * @type {Map<string, StyleData>}
      */
     this.styleDataMap = styleDataMap;
@@ -977,6 +980,7 @@ class FormatHelper {
     /**
      * A list of common font families available in Thunderbird. Excludes the
      * Variable Width ("") and Fixed Width ("monospace") fonts.
+     *
      * @type {[string]}
      */
     this.commonFonts = [
@@ -1094,6 +1098,7 @@ class FormatHelper {
 
   /**
    * Tags that correspond to inline styling (in upper case).
+   *
    * @type {[string]}
    */
   static inlineStyleTags = [
@@ -1116,6 +1121,7 @@ class FormatHelper {
   ];
   /**
    * Tags that correspond to block scopes (in upper case).
+   *
    * @type {[string]}
    */
   static blockTags = [
@@ -1133,7 +1139,7 @@ class FormatHelper {
   /**
    * @param {Node} node - The node to test.
    *
-   * @return {boolean} Whether the node is considered a block.
+   * @returns {boolean} Whether the node is considered a block.
    */
   static isBlock(node) {
     return this.blockTags.includes(node.tagName);
@@ -1142,7 +1148,7 @@ class FormatHelper {
   /**
    * @param {Node} node - The node to test.
    *
-   * @return {boolean} Whether the node is considered inline styling.
+   * @returns {boolean} Whether the node is considered inline styling.
    */
   static isInlineStyle(node) {
     return this.inlineStyleTags.includes(node.tagName);
@@ -1151,7 +1157,7 @@ class FormatHelper {
   /**
    * @param {Node} node - The node to test.
    *
-   * @return {boolean} Whether the node is considered a font node.
+   * @returns {boolean} Whether the node is considered a font node.
    */
   static isFont(node) {
     return node.tagName === "FONT";
@@ -1160,7 +1166,7 @@ class FormatHelper {
   /**
    * @param {Node} node - The node to test.
    *
-   * @return {boolean} Whether the node is considered a break.
+   * @returns {boolean} Whether the node is considered a break.
    */
   static isBreak(node) {
     return node.tagName === "BR";
@@ -1188,7 +1194,7 @@ class FormatHelper {
    *
    * @param {Node} node - The node to fetch the first leaf of.
    *
-   * @return {Leaf} - The first leaf below the node.
+   * @returns {Leaf} - The first leaf below the node.
    */
   static firstLeaf(node) {
     while (true) {
@@ -1217,7 +1223,7 @@ class FormatHelper {
    * @param {Node} root - The root of the tree to find leaves from.
    * @param {Leaf} leaf - The leaf to search from.
    *
-   * @return {Leaf|null} - The next Leaf under the root that follows the given
+   * @returns {Leaf|null} - The next Leaf under the root that follows the given
    *   Leaf, or null if the given leaf was the last one.
    */
   static nextLeaf(root, leaf) {
@@ -1455,7 +1461,7 @@ class FormatHelper {
    * @param {Set<string>|undefined} tags - A set of tags.
    * @param {Set<string>|undefined} cmp - A set to compare against.
    *
-   * @return {boolean} - Whether the two sets are equal.
+   * @returns {boolean} - Whether the two sets are equal.
    */
   static equalTags(tags, cmp) {
     if (!tags || tags.size === 0) {
@@ -1484,7 +1490,7 @@ class FormatHelper {
    * + the start of a block, or
    * + the end of a block.
    *
-   * @return {(BlockSummary|StyledTextSummary)[]} - A summary of the body
+   * @returns {(BlockSummary|StyledTextSummary)[]} - A summary of the body
    *   content.
    */
   getMessageBodyContent() {
@@ -1810,7 +1816,7 @@ class FormatHelper {
    *
    * @param {MozMenuPopup} menu - The menu to show.
    *
-   * @return {boolean} Whether the menu was opened. Otherwise, the menu is still
+   * @returns {boolean} Whether the menu was opened. Otherwise, the menu is still
    *   closed.
    */
   async _openMenuOnce(menu) {
@@ -2042,7 +2048,7 @@ class FormatHelper {
    *
    * @param {string} state - A state.
    *
-   * @return {MozMenuItem} - The menu item used for selecting the given state.
+   * @returns {MozMenuItem} - The menu item used for selecting the given state.
    */
   getParagraphStateMenuItem(state) {
     return this.paragraphStateMenu.querySelector(`menuitem[value="${state}"]`);
@@ -2102,7 +2108,7 @@ class FormatHelper {
    *
    * @param {string} font - A font family.
    *
-   * @return {MozMenuItem} - The menu item used for selecting the given font
+   * @returns {MozMenuItem} - The menu item used for selecting the given font
    *   family.
    */
   getFontMenuItem(font) {
@@ -2197,7 +2203,7 @@ class FormatHelper {
    *
    * @param {number} size - A font size.
    *
-   * @return {MozMenuItem} - The menu item used for selecting the given font
+   * @returns {MozMenuItem} - The menu item used for selecting the given font
    *   size.
    */
   getSizeMenuItem(size) {
@@ -2210,9 +2216,9 @@ class FormatHelper {
    * Note, the dialog will have to be opened separately to this method. Normally
    * after this method, but before awaiting on the promise.
    *
-   * @prop {string|null} - The color to choose, or null to choose the default.
+   * @property {string|null} - The color to choose, or null to choose the default.
    *
-   * @return {Promise} - The promise to await on once the dialog is triggered.
+   * @returns {Promise} - The promise to await on once the dialog is triggered.
    */
   async selectColorInDialog(color) {
     return BrowserTestUtils.promiseAlertDialog(
@@ -2306,7 +2312,7 @@ class FormatHelper {
    *
    * @param {string} style - A style.
    *
-   * @return {MozMenuItem} - The menu item used for selecting the given style.
+   * @returns {MozMenuItem} - The menu item used for selecting the given style.
    */
   getStyleMenuItem(style) {
     return this.styleMenu.querySelector(`menuitem[observes="cmd_${style}"]`);

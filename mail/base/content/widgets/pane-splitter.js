@@ -247,7 +247,7 @@
      * Get the actual size of the resizeElement, regardless of the current
      * width or height property values.
      *
-     * @return {number} - The border area size of the resizeElement.
+     * @returns {number} - The border area size of the resizeElement.
      */
     _getActualResizeSize() {
       let resizeRect = this.resizeElement.getBoundingClientRect();
@@ -293,6 +293,7 @@
 
     /**
      * If the controlled pane is collapsed.
+     *
      * @type {boolean}
      */
     get isCollapsed() {

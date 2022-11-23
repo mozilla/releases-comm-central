@@ -11,6 +11,7 @@ const { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
 
 /**
  * A channel to interact with IMAP server.
+ *
  * @implements {nsIChannel}
  * @implements {nsIRequest}
  * @implements {nsICacheEntryOpenCallback}
@@ -164,6 +165,7 @@ class ImapChannel {
 
   /**
    * Try to read the message from the offline storage.
+   *
    * @returns {boolean} True if successfully read from the offline storage.
    */
   readFromLocalCache() {
@@ -184,6 +186,7 @@ class ImapChannel {
 
   /**
    * Read the message from the a stream.
+   *
    * @param {nsIInputStream} cacheStream - The input stream to read.
    */
   _readFromCacheStream(stream) {

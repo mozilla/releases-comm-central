@@ -234,6 +234,7 @@ class ImapService {
 
   /**
    * Append a message file to a folder locally.
+   *
    * @param {nsIFile} file - The message file to append.
    * @param {nsIURI} url - The imap url to run.
    * @param {nsIMsgFolder} dstFolder - The target message folder.
@@ -409,6 +410,7 @@ class ImapService {
 
   /**
    * Do some actions with a connection.
+   *
    * @param {nsIMsgFolder} folder - The associated folder.
    * @param {Function} handler - A callback function to take a ImapClient
    *   instance, and do some actions.

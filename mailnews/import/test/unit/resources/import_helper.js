@@ -16,7 +16,7 @@ var gGenericImportHelper;
  *                    value, LDIF, and tab-delimited files.
  * @param aFile       An instance of nsIFile to import.
  *
- * @constructor
+ * @class
  * @class
  */
 function GenericImportHelper(aModuleType, aModuleSearchString, aFile) {
@@ -60,7 +60,7 @@ GenericImportHelper.prototype = {
   /**
    * GenericImportHelper.getInterface
    *
-   * @return An nsIImportGeneric import interface.
+   * @returns An nsIImportGeneric import interface.
    */
   getInterface() {
     return this.mInterface;
@@ -139,7 +139,7 @@ GenericImportHelper.prototype = {
  *                  the extension).
  * @param aJsonName The name of the array in addressbook.json with the cards
  *                  to compare with the imported cards.
- * @constructor
+ * @class
  * @class
  */
 function AbImportHelper(aFile, aModuleSearchString, aAbName, aJsonName) {
@@ -216,7 +216,7 @@ AbImportHelper.prototype = {
    *
    * @param aSkipFirstRecord True if the first record of the text file should
    *                         be skipped.
-   * @return A default field map.
+   * @returns A default field map.
    */
   getDefaultFieldMap(aSkipFirstRecord) {
     var importService = Cc["@mozilla.org/import/import-service;1"].getService(
@@ -303,7 +303,7 @@ AbImportHelper.prototype = {
    * Returns the Address Book (if any) with the given name.
    *
    * @param aName The name of the Address Book to find.
-   * @return An nsIAbDirectory, if found.
+   * @returns An nsIAbDirectory, if found.
    *         null if the requested Address Book could not be found.
    */
   getAbByName(aName) {
@@ -354,7 +354,7 @@ AbImportHelper.prototype = {
    * See addressbook.json for an example and AB_README for more details.
    *
    * @param aName The name of the array in addressbook.json.
-   * @return An array of "cards".
+   * @returns An array of "cards".
    */
   getJsonCards(aName) {
     if (!aName) {
@@ -406,7 +406,7 @@ AbImportHelper.prototype = {
  * @param aExpected  An instance of nsIFile to compare with the imported
  *                   folders.
  *
- * @constructor
+ * @class
  * @class
  */
 function MailImportHelper(aFile, aModuleSearchString, aExpected) {
@@ -454,7 +454,7 @@ MailImportHelper.prototype = {
  * @param aExpected  An array of object which has incomingServer, identity
  *                   and smtpSever to compare with imported nsIMsgAccount.
  *
- * @constructor
+ * @class
  * @class
  */
 function SettingsImportHelper(aFile, aModuleSearchString, aExpected) {
@@ -592,7 +592,7 @@ SettingsImportHelper.prototype = {
  *                   "Outlook Express", etc.
  * @param aExpected  The number of filters that should exist after import.
  *
- * @constructor
+ * @class
  * @class
  */
 function FiltersImportHelper(aFile, aModuleSearchString, aExpected) {

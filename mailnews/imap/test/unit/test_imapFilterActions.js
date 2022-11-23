@@ -493,7 +493,7 @@ DBListener.prototype = {
   onAnnouncerGoingAway(instigator) {
     if (gInboxListener) {
       try {
-        IMAPPump.inbox.msgDatabase.RemoveListener(gInboxListener);
+        IMAPPump.inbox.msgDatabase.removeListener(gInboxListener);
       } catch (e) {
         dump(" listener not found\n");
       }
@@ -597,6 +597,7 @@ function testCounts(aHasNew, aUnreadDelta, aFolderNewDelta, aDbNewDelta) {
 
 /**
  * Test that Ci.nsMsgFilterAction.Forward works.
+ *
  * @param {number} mode - 0 means forward as attachment, 2 means forward inline.
  */
 async function testForward(mode) {

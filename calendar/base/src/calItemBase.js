@@ -34,7 +34,7 @@ XPCOMUtils.defineLazyServiceGetter(
  * calItemBase prototype definition
  *
  * @implements calIItemBase
- * @constructor
+ * @class
  */
 function calItemBase() {
   cal.ASSERT(false, "Inheriting objects call initItemBase()!");
@@ -1146,10 +1146,10 @@ makeMemberAttrProperty(calItemBase, "ALARMTIME", "alarmTime");
 /**
  * Adds a member attribute to the given prototype.
  *
- * @param {Function} ctor       The constructor function of the prototype.
- * @param {string} varname      The variable name to get/set.
- * @param {string} attr         The attribute name to be used.
- * @param {*} dflt              The default value in case none is set.
+ * @param {Function} ctor - The constructor function of the prototype.
+ * @param {string} varname - The variable name to get/set.
+ * @param {string} attr - The attribute name to be used.
+ * @param {*} dflt - The default value in case none is set.
  */
 function makeMemberAttr(ctor, varname, attr, dflt) {
   let getter = function() {
@@ -1173,9 +1173,9 @@ function makeMemberAttr(ctor, varname, attr, dflt) {
  * which makes it possible to e.g. iterate through `mProperties` when cloning
  * an object.
  *
- * @param {Function} ctor       The constructor function of the prototype.
- * @param {string} name         The property name to get/set.
- * @param {string} attr         The attribute name to be used.
+ * @param {Function} ctor - The constructor function of the prototype.
+ * @param {string} name - The property name to get/set.
+ * @param {string} attr - The attribute name to be used.
  */
 function makeMemberAttrProperty(ctor, name, attr) {
   let getter = function() {

@@ -50,6 +50,7 @@ add_task(async function testSTARTTLS() {
 
 /**
  * Test that depending on user prefs and message size, TOP or RETR should be used.
+ *
  * @param {nsIMsgIncomingServer} incomingServer - A server instance.
  * @param {string[]} transaction - The commands sent to the server.
  */

@@ -501,9 +501,9 @@ var mailContextMenu = {
    * Refresh the contents of the tag popup menu/panel.
    * Used for example for appmenu/Message/Tag panel.
    *
-   * @param {Element} parent          Parent element that will contain the menu items.
-   * @param {string} [elementName]    Type of menu item, e.g. "menuitem", "toolbarbutton".
-   * @param {string} [classes]        Classes to set on the menu items.
+   * @param {Element} parent - Parent element that will contain the menu items.
+   * @param {string} [elementName] - Type of menu item, e.g. "menuitem", "toolbarbutton".
+   * @param {string} [classes] - Classes to set on the menu items.
    */
   _initMessageTags() {
     let parent = document.getElementById("mailContext-tagpopup");

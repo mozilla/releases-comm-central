@@ -54,7 +54,7 @@ const _weekdayFormatter = new Services.intl.DateTimeFormat(undefined, {
  *
  * @param time {Date}
  *        the time (better be in the past!)
- * @return {string}  A "human-friendly" representation of that time
+ * @returns {string} A "human-friendly" representation of that time
  *                   relative to now.
  */
 function makeFriendlyDateAgo(time) {

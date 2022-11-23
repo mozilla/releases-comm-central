@@ -43,7 +43,7 @@ var gPopAccount, gOriginalAccountCount, gIdentitiesWin;
 /**
  * Load the identities dialog.
  *
- * @return {Window} The loaded window of the identities dialog.
+ * @returns {Window} The loaded window of the identities dialog.
  */
 async function identitiesListDialogLoaded(win) {
   let manageButton = win.document.getElementById(
@@ -59,8 +59,8 @@ async function identitiesListDialogLoaded(win) {
 /**
  * Load an identity listed in the identities dialog.
  *
- * @param {Number} identityIdx - The index of the identity, in the list.
- * @return {Window} The loaded window of the identities dialog.
+ * @param {number} identityIdx - The index of the identity, in the list.
+ * @returns {Window} The loaded window of the identities dialog.
  */
 async function identityDialogLoaded(identityIdx) {
   let identitiesList = gIdentitiesWin.document.getElementById("identitiesList");

@@ -48,7 +48,7 @@ var gAlarmsPane = {
    * Converts the given file url to a nsIFile
    *
    * @param aFileURL    A string with a file:// url.
-   * @return            The corresponding nsIFile.
+   * @returns The corresponding nsIFile.
    */
   convertURLToLocalFile(aFileURL) {
     // Convert the file url into a nsIFile

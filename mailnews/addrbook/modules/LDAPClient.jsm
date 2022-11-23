@@ -59,6 +59,7 @@ class LDAPClient {
 
   /**
    * Send a simple bind request to the server.
+   *
    * @param {string} dn - The name to bind.
    * @param {string} password - The password.
    * @param {Function} callback - Callback function when receiving BindResponse.
@@ -72,6 +73,7 @@ class LDAPClient {
 
   /**
    * Send a SASL bind request to the server.
+   *
    * @param {string} service - The service host name to bind.
    * @param {string} mechanism - The SASL mechanism to use, e.g. GSSAPI.
    * @param {string} authModuleType - The auth module type, @see nsIMailAuthModule.
@@ -122,6 +124,7 @@ class LDAPClient {
 
   /**
    * Send a search request to the server.
+   *
    * @param {string} dn - The name to search.
    * @param {number} scope - The scope to search.
    * @param {string} filter - The filter string.
@@ -139,6 +142,7 @@ class LDAPClient {
 
   /**
    * Send an abandon request to the server.
+   *
    * @param {number} messageId - The id of the message to abandon.
    */
   abandon(messageId) {
@@ -161,6 +165,7 @@ class LDAPClient {
   /**
    * The data event handler. Server may send multiple data events after a
    * search, we want to handle them asynchonosly and in sequence.
+   *
    * @param {TCPSocketEvent} event - The data event.
    */
   _onData = async event => {
@@ -248,6 +253,7 @@ class LDAPClient {
 
   /**
    * The error event handler.
+   *
    * @param {TCPSocketErrorEvent} event - The error event.
    */
   _onError = async event => {
@@ -261,6 +267,7 @@ class LDAPClient {
 
   /**
    * Send a message to the server.
+   *
    * @param {LDAPMessage} msg - The message to send.
    * @param {Function} callback - Callback function when receiving server responses.
    * @returns {number} The id of the sent message.

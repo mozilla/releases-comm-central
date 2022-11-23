@@ -36,7 +36,7 @@ var { Assert } = ChromeUtils.importESModule(
  * doesn't try to do anything smart, like is it not into view, or whatever.
  *
  * @param aElt The element to query.
- * @return Whether the element is visible or not.
+ * @returns Whether the element is visible or not.
  */
 function element_visible(aElt) {
   let e;
@@ -50,6 +50,7 @@ function element_visible(aElt) {
 
 /**
  * Assert that en element's visible.
+ *
  * @param aElt The element, an ID or an elementlibs.Elem
  * @param aWhy The error message in case of failure
  */
@@ -86,6 +87,7 @@ function element_visible_recursive(aElem) {
 
 /**
  * Assert that en element's not visible.
+ *
  * @param aElt The element, an ID or an elementlibs.Elem
  * @param aWhy The error message in case of failure
  */

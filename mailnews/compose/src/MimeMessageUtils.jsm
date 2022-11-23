@@ -108,6 +108,7 @@ var MsgUtils = {
 
   /**
    * NS_IS_MSG_ERROR in msgCore.h.
+   *
    * @param {nsresult} err - The nsresult value.
    * @returns {boolean}
    */
@@ -121,6 +122,7 @@ var MsgUtils = {
   /**
    * Convert html to text to form a multipart/alternative message. The output
    * depends on preference.
+   *
    * @param {string} input - The HTML text to convert.
    * @param {boolean} formatFlowed - A flag to enable OutputFormatFlowed.
    * @returns {string}
@@ -149,6 +151,7 @@ var MsgUtils = {
 
   /**
    * Get the list of default custom headers.
+   *
    * @param {nsIMsgIdentity} userIdentity - User identity.
    * @returns {{headerName: string, headerValue: string}[]}
    */
@@ -175,6 +178,7 @@ var MsgUtils = {
 
   /**
    * Get the fcc value.
+   *
    * @param {nsIMsgIdentity} userIdentity - The user identity.
    * @param {nsIMsgCompFields} compFields - The compose fields.
    * @param {string} originalMsgURI - The original message uri, can be null.
@@ -308,6 +312,7 @@ var MsgUtils = {
   /**
    * Get the Mail-Followup-To header value.
    * See bug #204339 and http://cr.yp.to/proto/replyto.html for details
+   *
    * @param {nsIMsgCompFields} compFields - The compose fields.
    * @param {nsIMsgIdentity} userIdentity - The user identity.
    * @returns {string}
@@ -343,6 +348,7 @@ var MsgUtils = {
   /**
    * Get the Mail-Reply-To header value.
    * See bug #204339 and http://cr.yp.to/proto/replyto.html for details
+   *
    * @param {nsIMsgCompFields} compFields - The compose fields.
    * @param {nsIMsgIdentity} userIdentity - The user identity.
    * @returns {string}
@@ -381,6 +387,7 @@ var MsgUtils = {
 
   /**
    * Get the X-Mozilla-Draft-Info header value.
+   *
    * @param {nsIMsgCompFields} compFields - The compose fields.
    * @returns {string}
    */
@@ -412,6 +419,7 @@ var MsgUtils = {
 
   /**
    * Get the X-Mozilla-Cloud-Part header value.
+   *
    * @param {nsMsgDeliverMode} deliverMode - The deliver mode.
    * @param {nsIMsgAttachment} attachment - The cloud attachment.
    * @returns {string}
@@ -505,6 +513,7 @@ var MsgUtils = {
 
   /**
    * Get the Disposition-Notification-To header value.
+   *
    * @param {nsIMsgCompFields} compFields - The compose fields.
    * @param {nsMsgDeliverMode} deliverMode - The deliver mode.
    * @returns {{dnt: string, rrt: string}}
@@ -523,6 +532,7 @@ var MsgUtils = {
 
   /**
    * Get the Return-Receipt-To header value.
+   *
    * @param {nsIMsgCompFields} compFields - The compose fields.
    * @param {nsMsgDeliverMode} deliverMode - The deliver mode.
    * @returns {{dnt: string, rrt: string}}
@@ -541,6 +551,7 @@ var MsgUtils = {
 
   /**
    * Get the value of X-Priority header.
+   *
    * @param {string} rawPriority - Raw X-Priority content.
    * @returns {string}
    */
@@ -593,6 +604,7 @@ var MsgUtils = {
 
   /**
    * Get the References header value.
+   *
    * @param {string} references - Raw References header content.
    * @returns {string}
    */
@@ -620,6 +632,7 @@ var MsgUtils = {
 
   /**
    * Get the In-Reply-To header value.
+   *
    * @param {string} references - Raw References header content.
    * @returns {string}
    */
@@ -634,6 +647,7 @@ var MsgUtils = {
 
   /**
    * Get the value of Newsgroups and X-Mozilla-News-Host header.
+   *
    * @param {nsMsgDeliverMode} deliverMode - Message deliver mode.
    * @param {string} newsgroups - Raw newsgroups header content.
    * @returns {{newsgroups: string, newshost: string}}
@@ -672,6 +686,7 @@ var MsgUtils = {
 
   /**
    * Get the Content-Location header value.
+   *
    * @param {string} baseUrl - The base url of an HTML attachment.
    * @returns {string}
    */
@@ -737,6 +752,7 @@ var MsgUtils = {
 
   /**
    * Encode parameter value according to RFC 2047.
+   *
    * @param {string} value - The parameter value.
    * @returns {string}
    */
@@ -757,6 +773,7 @@ var MsgUtils = {
 
   /**
    * Encode parameter value according to RFC 2231.
+   *
    * @param {string} paramName - The parameter name.
    * @param {string} paramValue - The parameter value.
    * @returns {string}
@@ -858,6 +875,7 @@ var MsgUtils = {
 
   /**
    * Get the target message folder to copy to.
+   *
    * @param {nsIMsgIdentity} userIdentity - The user identity.
    * @param {nsMsgDeliverMode} deliverMode - The deliver mode.
    * @returns {string}
@@ -890,6 +908,7 @@ var MsgUtils = {
   /**
    * Get the error string name of an exit code. The name will corresponds to an
    * entry in composeMsgs.properties.
+   *
    * @param {nsresult} exitCode - Exit code of sending mail process.
    * @returns {string}
    */
@@ -952,6 +971,7 @@ var MsgUtils = {
 
   /**
    * Format the error message that will be shown to the user.
+   *
    * @param {nsIMsgIdentity} userIdentity - User identity.
    * @param {nsIStringBundle} composeBundle - Localized string bundle.
    * @param {string} errorName - The error name derived from an exit code.
@@ -965,6 +985,7 @@ var MsgUtils = {
 
   /**
    * Generate random alphanumeric string.
+   *
    * @param {number} size - The length of generated string.
    * @returns {string}
    */
@@ -981,6 +1002,7 @@ var MsgUtils = {
 
   /**
    * Generate a content id to be used by embedded images.
+   *
    * @param {nsIMsgIdentity} userIdentity - User identity.
    * @param {number} partNum - The number of embedded MimePart.
    * @returns {string}
@@ -994,6 +1016,7 @@ var MsgUtils = {
 
   /**
    * Pick a file name from the file URL.
+   *
    * @param {string} url - The file URL.
    * @returns {string}
    */

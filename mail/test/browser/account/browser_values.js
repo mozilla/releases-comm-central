@@ -81,7 +81,7 @@ add_task(async function test_default_CC_address() {
  * Check that if the CC field is empty, enabling CC will automatically
  * prefill the currently default email address.
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_check_default_CC_address(tab) {
   let accountRow = get_account_tree_row(
@@ -207,10 +207,10 @@ add_task(async function test_account_name() {
 /**
  * Changes the user name and hostname to the supplied values.
  *
- * @param {Object} account - The account to change
+ * @param {object} account - The account to change
  * @param {string} newHostname - The hostname value to set
  * @param {string} newUsername - The username value to set
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_check_account_name(account, newHostname, newUsername, tab) {
   let accountRow = get_account_tree_row(account.key, "am-server.xhtml", tab);
@@ -277,7 +277,7 @@ add_task(async function test_invalid_junk_target() {
 /**
  * Just show the Junk settings pane and let it fix the values.
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_check_invalid_junk_target(tab) {
   let accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", tab);
@@ -310,7 +310,7 @@ add_task(async function test_invalid_hostname() {
 /**
  * Set the hostname to an invalid value and check if it gets fixed.
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  * @param {boolean} exitSettings - Attempt to close the Account settings dialog.
  * @param {string} originalHostname - Original hostname of this server.
  */
@@ -374,7 +374,7 @@ add_task(async function test_trailing_spaces() {
  * Check that the AM will trim user added spaces around text values
  * when storing them into the account.
  *
- * @param {Object} tab - The account manager tab.
+ * @param {object} tab - The account manager tab.
  */
 function subtest_check_trailing_spaces(tab) {
   let accountRow = get_account_tree_row(gPopAccount.key, null, tab);

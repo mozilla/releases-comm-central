@@ -65,7 +65,7 @@ var EnigmailURIs = {
    *
    * @param url - nsIURI object
    *
-   * @return Object:
+   * @returns Object:
    *    - msgNum: String - the message number, or "" if no URI Scheme fits
    *    - folder: String - the folder (or newsgroup) name
    */

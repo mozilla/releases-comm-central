@@ -16,7 +16,7 @@ class CalendarTaskTreeView {
   /**
    * Creates a new task tree view and connects it to a given task tree.
    *
-   * @param {CalendarTaskTree} taskTree    The task tree to connect the view to.
+   * @param {CalendarTaskTree} taskTree - The task tree to connect the view to.
    */
   constructor(taskTree) {
     this.tree = taskTree;
@@ -29,7 +29,7 @@ class CalendarTaskTreeView {
   /**
    * Get the selected column.
    *
-   * @return {Element}    A treecol element.
+   * @returns {Element} A treecol element.
    */
   get selectedColumn() {
     return this.mSelectedColumn;
@@ -38,7 +38,7 @@ class CalendarTaskTreeView {
   /**
    * Set the selected column and sort by that column.
    *
-   * @param {Element} column    A treecol element.
+   * @param {Element} column - A treecol element.
    */
   set selectedColumn(column) {
     const columnProperty = column.getAttribute("itemproperty");
@@ -61,8 +61,8 @@ class CalendarTaskTreeView {
   /**
    * Adds an array of items (tasks) to the list if they match the currently applied filter.
    *
-   * @param {Object[]} items         An array of task objects to add.
-   * @param {boolean} [doNotSort]    Whether to re-sort after adding the tasks.
+   * @param {object[]} items - An array of task objects to add.
+   * @param {boolean} [doNotSort] - Whether to re-sort after adding the tasks.
    */
   addItems(items, doNotSort) {
     this.modifyItems(items, [], doNotSort, true);
@@ -70,7 +70,7 @@ class CalendarTaskTreeView {
   /**
    * Removes an array of items (tasks) from the list.
    *
-   * @param {Object[]} items    An array of task objects to remove.
+   * @param {object[]} items - An array of task objects to remove.
    */
   removeItems(items) {
     this.modifyItems([], items, true, false);
@@ -80,10 +80,10 @@ class CalendarTaskTreeView {
    * Removes an array of old items from the list, and adds an array of new items if
    * they match the currently applied filter.
    *
-   * @param {Object[]} newItems      An array of new items to add.
-   * @param {Object[]} oldItems      An array of old items to remove.
-   * @param {boolean} [doNotSort]    Whether to re-sort the list after modifying it.
-   * @param {boolean} [selectNew]    Whether to select the new tasks.
+   * @param {object[]} newItems - An array of new items to add.
+   * @param {object[]} oldItems - An array of old items to remove.
+   * @param {boolean} [doNotSort] - Whether to re-sort the list after modifying it.
+   * @param {boolean} [selectNew] - Whether to select the new tasks.
    */
   modifyItems(newItems = [], oldItems = [], doNotSort, selectNew) {
     let selItem = this.tree.currentTask;
@@ -178,7 +178,7 @@ class CalendarTaskTreeView {
   /**
    * Refresh the display for a given task.
    *
-   * @param {Object} item    The task object to refresh.
+   * @param {object} item - The task object to refresh.
    */
   updateItem(item) {
     let index = this.tree.mHash2Index[item.hashId];
@@ -191,10 +191,10 @@ class CalendarTaskTreeView {
    * Return the item (task) object that's related to a given event. If passed a column and/or row
    * object, set their 'value' property to the column and/or row related to the event.
    *
-   * @param {Event} event        An event.
-   * @param {Object} [col]       A column object.
-   * @param {Object} [row]       A row object.
-   * @return {Object | false}    The task object related to the event or false if none found.
+   * @param {Event} event - An event.
+   * @param {object} [col] - A column object.
+   * @param {object} [row] - A row object.
+   * @returns {object | false} The task object related to the event or false if none found.
    */
   getItemFromEvent(event, col, row) {
     let { col: eventColumn, row: eventRow } = this.tree.getCellAt(event.clientX, event.clientY);
@@ -355,7 +355,7 @@ class CalendarTaskTreeView {
   /**
    * Called to link the task tree to the tree view.  A null argument un-sets/un-links the tree.
    *
-   * @param {Object | null} tree
+   * @param {object | null} tree
    */
   setTree(tree) {
     const hasOldTree = this.tree != null;
@@ -413,7 +413,7 @@ class CalendarTaskTreeView {
   /**
    * Handle double click events.
    *
-   * @param {Event} event    The double click event.
+   * @param {Event} event - The double click event.
    */
   onDoubleClick(event) {
     // Only handle left mouse button clicks.
@@ -440,7 +440,7 @@ class CalendarTaskTreeView {
   /**
    * Handle key press events.
    *
-   * @param {Event} event    The key press event.
+   * @param {Event} event - The key press event.
    */
   onKeyPress(event) {
     switch (event.key) {
@@ -471,7 +471,7 @@ class CalendarTaskTreeView {
   /**
    * Set the context menu on mousedown to change it before it is opened.
    *
-   * @param {Event} event    The mousedown event.
+   * @param {Event} event - The mousedown event.
    */
   onMouseDown(event) {
     if (!this.getItemFromEvent(event)) {
@@ -484,8 +484,8 @@ class CalendarTaskTreeView {
   /**
    * Format a datetime object for display.
    *
-   * @param {Object} dateTime    From a todo object, not a JavaScript date.
-   * @return {string}            Formatted string version of the datetime ("" if invalid).
+   * @param {object} dateTime - From a todo object, not a JavaScript date.
+   * @returns {string} Formatted string version of the datetime ("" if invalid).
    */
   _formatDateTime(dateTime) {
     return dateTime && dateTime.isValid

@@ -56,8 +56,9 @@ PromiseTestUtils.PromiseUrlListener.prototype = {
 /**
  * Copy listener that can wrap another listener and trigger a callback.
  *
- * @param [aWrapped] The nsIMsgCopyServiceListener to pass all notifications through to.
- *     This gets called prior to the callback (or async resumption).
+ * @param {nsIMsgCopyServiceListener} [aWrapped] - The nsIMsgCopyServiceListener
+ *   to pass all notifications through to. This gets called prior to the
+ *   callback (or async resumption).
  */
 PromiseTestUtils.PromiseCopyListener = function(aWrapped) {
   this.wrapped = aWrapped;
@@ -113,8 +114,9 @@ PromiseTestUtils.PromiseCopyListener.prototype = {
 /**
  * Stream listener that can wrap another listener and trigger a callback.
  *
- * @param [aWrapped] The nsIStreamListener to pass all notifications through to.
- *     This gets called prior to the callback (or async resumption).
+ * @param {nsIStreamListener} [aWrapped] - The nsIStreamListener to pass all
+ *   notifications through to. This gets called prior to the callback
+ *   (or async resumption).
  */
 PromiseTestUtils.PromiseStreamListener = function(aWrapped) {
   this.wrapped = aWrapped;
@@ -169,10 +171,10 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
 /**
  * Folder listener to resolve a promise when a certain folder event occurs.
  *
- * @param folder   nsIMsgFolder to listen to
- * @param event    string event name to listen for. Example event is
- *                 "DeleteOrMoveMsgCompleted".
- * @return         promise that resolves when the event occurs
+ * @param {nsIMsgFolder} folder - nsIMsgFolder to listen to
+ * @param {string} event - Event name to listen for. Example event is
+ *    "DeleteOrMoveMsgCompleted".
+ * @returns {Promise} Promise that resolves when the event occurs.
  */
 PromiseTestUtils.promiseFolderEvent = function(folder, event) {
   return new Promise((resolve, reject) => {
@@ -195,10 +197,10 @@ PromiseTestUtils.promiseFolderEvent = function(folder, event) {
 /**
  * Folder listener to resolve a promise when a certain folder event occurs.
  *
- * @param folder            nsIMsgFolder to listen to
- * @param listenerMethod    string listener method to listen for. Example listener
-                            method is "msgsClassified".
- * @return                  promise that resolves when the event occurs
+ * @param {nsIMsgFolder} folder - nsIMsgFolder to listen to.
+ * @param {string} listenerMethod - string listener method to listen for.
+ *   Example listener method is "msgsClassified".
+ * @returns {Promise} Promise that resolves when the event occurs.
  */
 PromiseTestUtils.promiseFolderNotification = function(folder, listenerMethod) {
   return new Promise((resolve, reject) => {
@@ -233,11 +235,10 @@ PromiseTestUtils.promiseFolderNotification = function(folder, listenerMethod) {
  * Folder listener to resolve a promise when a folder with a certain
  * name is added.
  *
- * @param name     folder name to listen for
- * @return         promise{folder} that resolves with the new folder when the
- *                 folder add completes
+ * @param {string} folderName - folder name to listen for
+ * @returns {Promise<nsIMsgFolder>} Promise that resolves with the new folder
+ *   when the folder add completes.
  */
-
 PromiseTestUtils.promiseFolderAdded = function(folderName) {
   return new Promise((resolve, reject) => {
     var listener = {
@@ -258,10 +259,9 @@ PromiseTestUtils.promiseFolderAdded = function(folderName) {
 /**
  * Timer to resolve a promise after a delay
  *
- * @param aDelay    delay in milliseconds
- * @return          promise that resolves after the delay
+ * @param {integer} aDelay - Delay in milliseconds
+ * @returns {Promise} Promise that resolves after the delay.
  */
-
 PromiseTestUtils.promiseDelay = function(aDelay) {
   return new Promise((resolve, reject) => {
     let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
@@ -272,11 +272,11 @@ PromiseTestUtils.promiseDelay = function(aDelay) {
 /**
  * Search listener to resolve a promise when a search completes
  *
- * @param [aSearchSession] The nsIMsgSearchSession to search
- * @param [aWrapped] The nsIMsgSearchNotify to pass all notifications through to.
- *     This gets called prior to the callback (or async resumption).
+ * @param {nsIMsgSearchSession} aSearchSession - The nsIMsgSearchSession to search
+ * @param {nsIMsgSearchNotify} aWrapped - The nsIMsgSearchNotify to pass all
+ *   notifications through to. This gets called prior to the callback
+ *   (or async resumption).
  */
-
 PromiseTestUtils.PromiseSearchNotify = function(aSearchSession, aWrapped) {
   this._searchSession = aSearchSession;
   this._searchSession.registerListener(this);

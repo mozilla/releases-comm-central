@@ -42,7 +42,7 @@ var calview = {
    *
    * @param aMouseEvent   The event eg. a 'mouseout' or 'mousedown' event
    * @param aXULBox       The xul element
-   * @return              true or false depending on whether the mouse pointer
+   * @returns true or false depending on whether the mouse pointer
    *                      resides over the xulelement
    */
   isMouseOverBox(aMouseEvent, aXULElement) {
@@ -65,7 +65,7 @@ var calview = {
    * @param aChildNode  The childnode.
    * @param aLocalName  The localName of the to-be-returned parent
    *                      that is looked for.
-   * @return            The parent with the given localName or the
+   * @returns The parent with the given localName or the
    *                      given childNode 'aChildNode'. If no appropriate
    *                      parent node with aLocalName could be
    *                      retrieved it is returned 'null'.
@@ -88,7 +88,7 @@ var calview = {
    * @param aChildNode      The childnode.
    * @param aAttibuteName   The name of the attribute that is to be compared with
    * @param aAttibuteValue  The value of the attribute that is to be compared with
-   * @return                The parent with the given attributeName set that has
+   * @returns The parent with the given attributeName set that has
    *                          the same value as the given given attributevalue
    *                          'aAttributeValue'. If no appropriate
    *                          parent node can be retrieved it is returned 'null'.
@@ -125,7 +125,7 @@ var calview = {
    *   http://www.w3.org/TR/CSS21/grammar.html#scanner
    *
    * @param aString       The unicode string to format
-   * @return              The formatted string using only chars [_a-zA-Z0-9-]
+   * @returns The formatted string using only chars [_a-zA-Z0-9-]
    */
   formatStringForCSSRule(aString) {
     function toReplacement(char) {
@@ -190,7 +190,7 @@ var calview = {
    * color picker.
    *
    * @param str           The string to hash into a color.
-   * @return              The hashed color.
+   * @returns The hashed color.
    */
   hashColor(str) {
     // This is the palette of colors in the current colorpicker implementation.
@@ -302,7 +302,7 @@ var calview = {
    *
    * @param a     The first item
    * @param b     The second item
-   * @return      The usual -1, 0, 1
+   * @returns The usual -1, 0, 1
    */
   compareItems(a, b) {
     if (!a) {
@@ -379,7 +379,7 @@ var calview = {
    * @param {string} text - The text to convert.
    * @param {Document} doc - The document where the fragment will be appended.
    * @param {string} html - HTML if it's already available.
-   * @return {DocumentFragment} An HTML document fragment.
+   * @returns {DocumentFragment} An HTML document fragment.
    */
   textToHtmlDocumentFragment(text, doc, html) {
     if (!html) {

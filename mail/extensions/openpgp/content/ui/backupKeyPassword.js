@@ -11,10 +11,10 @@
  */
 
 /**
- * @property {Boolean} confirmedPassword
+ * @property {boolean} confirmedPassword
  *           Set to true if the user entered two matching passwords and
  *           confirmed the dialog.
- * @property {String} password
+ * @property {string} password
  *           The password the user entered. Undefined value if
  *           |confirmedPassword| is not true.
  */
@@ -56,9 +56,9 @@ function onDialogAccept() {
  *   - Non-alphanumeric chars
  *   - Upper case characters
  *
- * @param {String} password
+ * @param {string} password
  *        The password to calculate the strength of.
- * @returns {Number}
+ * @returns {number}
  *          The strength of the password in the range [0, 100].
  */
 function getPasswordStrength(password) {
@@ -104,7 +104,7 @@ function getPasswordStrength(password) {
 /**
  * oninput() handler for both password textboxes.
  *
- * @param {Boolean} recalculatePasswordStrength
+ * @param {boolean} recalculatePasswordStrength
  *                  Whether to recalculate the strength of the first password.
  */
 function onPasswordInput(recalculatePasswordStrength) {

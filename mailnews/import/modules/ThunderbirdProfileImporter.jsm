@@ -16,6 +16,7 @@ var { AddrBookFileImporter } = ChromeUtils.import(
 
 /**
  * A pref is represented as [type, name, value].
+ *
  * @typedef {["Bool"|"Char"|"Int", string, number|string|boolean]} PrefItem
  *
  * A map from source smtp server key to target smtp server key.
@@ -256,8 +257,9 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
 
   /**
    * Collect an array of prefs to an object.
+   *
    * @param {PrefItem[]} prefs - An array of prefs.
-   * @returns {Object} An object mapping pref name to pref value.
+   * @returns {object} An object mapping pref name to pref value.
    */
   _collectPrefsToObject(prefs) {
     let obj = {};
@@ -269,6 +271,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
 
   /**
    * Import SMTP servers.
+   *
    * @param {PrefItem[]} prefs - All source prefs in the SMTP_SERVER branch.
    * @param {string} sourceDefaultServer - The value of mail.smtp.defaultserver
    *   in the source profile.
@@ -310,6 +313,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
 
   /**
    * Import mail identites.
+   *
    * @param {PrefItem[]} prefs - All source prefs in the MAIL_IDENTITY branch.
    * @param {SmtpServerKeyMap} smtpServerKeyMap - A map from the source SMTP
    *   server key to new SMTP server key.
@@ -342,6 +346,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
 
   /**
    * Import IM accounts.
+   *
    * @param {Array<[string, string, number|string|boolean]>} prefs - All source
    *   prefs in the IM_ACCOUNT branch.
    * @returns {IMAccountKeyMap} A map from the source account key to new account
@@ -381,6 +386,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
 
   /**
    * Import incoming servers.
+   *
    * @param {PrefItem[]} prefs - All source prefs in the MAIL_SERVER branch.
    * @param {IMAccountKeyMap} imAccountKeyMap - A map from the source account
    *   key to new account key.
@@ -434,6 +440,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
 
   /**
    * Import mail accounts.
+   *
    * @param {PrefItem[]} prefs - All source prefs in the MAIL_ACCOUNT branch.
    * @param {string} sourceAccounts - The value of mail.accountmanager.accounts
    *   in the source profile.
@@ -510,6 +517,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
   /**
    * Try to locate a file specified by the relative path, if not possible, use
    *   the absolute path.
+   *
    * @param {string} relValue - The pref value for the relative file path.
    * @param {string} absValue - The pref value for the absolute file path.
    * @returns {nsIFile}
@@ -539,6 +547,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
 
   /**
    * Copy mail folders from this._sourceProfileDir to the current profile dir.
+   *
    * @param {PrefKeyMap} incomingServerKeyMap - A map from the source server key
    *   to new server key.
    */
@@ -634,6 +643,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
 
   /**
    * Copy a source msg folder to a destination.
+   *
    * @param {nsIFile} sourceDir - The source msg folder location.
    * @param {nsIFile} targetDir - The target msg folder location.
    * @param {boolean} isTargetLocal - Whether the targetDir is a subfolder in
@@ -734,6 +744,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
   /**
    * Import a pref from source only when this pref has no user value in the
    * current profile.
+   *
    * @param {PrefItem[]} prefs - All source prefs to try to import.
    */
   _importOtherPrefs(prefs) {
@@ -793,8 +804,9 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
 
   /**
    * Import address books.
+   *
    * @param {PrefItem[]} prefs - All source prefs in the ADDRESS_BOOK branch.
-   * @param {Object} ldapAutoComplete - Pref values of LDAP_AUTO_COMPLETE branch.
+   * @param {object} ldapAutoComplete - Pref values of LDAP_AUTO_COMPLETE branch.
    * @param {boolean} ldapAutoComplete.useDirectory
    * @param {string} ldapAutoComplete.directoryServer
    */
@@ -855,6 +867,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
 
   /**
    * Copy sqlite files from this._sourceProfileDir to the current profile dir.
+   *
    * @param {Map<string, string>} keyMap - A map from the source address
    *   book key to new address book key.
    */
@@ -915,6 +928,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
 
   /**
    * Copy a sqlite file from this._sourceProfileDir to the current profile dir.
+   *
    * @param {string} filename - The name of the sqlite file.
    */
   async _importAddressBookDatabase(filename) {
@@ -938,6 +952,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
 
   /**
    * Migrate an address book .mab file to a .sqlite file.
+   *
    * @param {nsIFile} sourceMabFile - The source .mab file.
    * @param {nsIFile} targetSqliteFile - The target .sqlite file, should already
    *   exists in the profile dir.
@@ -957,6 +972,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
   /**
    * Import pab/history address book from mab file into the corresponding sqlite
    *   file.
+   *
    * @param {string} basename - The filename without extension, e.g. "abook".
    */
   async _importMorkDatabase(basename) {
@@ -988,8 +1004,9 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    * For storage calendars, we need to import everything from the source
    * local.sqlite to the target local.sqlite, which is not implemented yet, see
    * bug 1719582.
+   *
    * @param {PrefItem[]} prefs - All source prefs in the CALENDAR branch.
-   * @param {Object} calendarList - Pref values of CALENDAR_LIST branch.
+   * @param {object} calendarList - Pref values of CALENDAR_LIST branch.
    */
   _importCalendars(prefs, calendarList) {
     let branch = Services.prefs.getBranch(CALENDAR);

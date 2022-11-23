@@ -4,6 +4,7 @@
 
 /**
  * Provides OAuth 2.0 authentication.
+ *
  * @see RFC 6749
  */
 var EXPORTED_SYMBOLS = ["OAuth2"];
@@ -14,7 +15,7 @@ var gConnecting = {};
 /**
  * Constructor for the OAuth2 object.
  *
- * @constructor
+ * @class
  * @param {?string} scope - The scope as specified by RFC 6749 Section 3.3.
  *   Will not be included in the requests if falsy.
  * @param {string} issuerDetails.authorizationEndpoint - The authorization
@@ -219,6 +220,7 @@ OAuth2.prototype = {
 
   /**
    * Request a new access token, or refresh an existing one.
+   *
    * @param {string} aCode - The token issued to the client.
    * @param {boolean} aRefresh - Whether it's a refresh of a token or not.
    */

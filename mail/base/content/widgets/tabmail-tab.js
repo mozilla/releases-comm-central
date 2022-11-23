@@ -13,7 +13,7 @@
    * It is used to navigate between different views. It displays information
    * about the view: i.e. name and icon.
    *
-   * @extends {MozElements.MozTab}
+   * @augments {MozElements.MozTab}
    */
   class MozTabmailTab extends MozElements.MozTab {
     static get inheritedAttributes() {

@@ -13,6 +13,7 @@ var { AppConstants } = ChromeUtils.importESModule(
 
 /**
  * Create warning text to add to any private data.
+ *
  * @returns A HTML paragraph node containing the warning.
  */
 function createWarning() {

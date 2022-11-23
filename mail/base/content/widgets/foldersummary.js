@@ -17,7 +17,8 @@
   /**
    * MozFolderSummary displays a listing of NEW mails for the folder in question.
    * For each mail the subject, sender and a message preview can be included.
-   * @extends {MozXULElement}
+   *
+   * @augments {MozXULElement}
    */
   class MozFolderSummary extends MozXULElement {
     constructor() {
@@ -79,6 +80,7 @@
 
     /**
      * Check the given folder for NEW messages.
+     *
      * @param {nsIMsgFolder} folder - The folder to examine.
      * @param {nsIUrlListener} urlListener - Listener to notify if we run urls
      *   to fetch msgs.
@@ -244,6 +246,7 @@
 
     /**
      * Render NEW messages in a folder.
+     *
      * @param {nsIMsgFolder} folder - A real folder containing new messages.
      * @param {number[]} msgKeys - The keys of new messages.
      */

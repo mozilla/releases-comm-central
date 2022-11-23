@@ -22,7 +22,8 @@
    * e.g. the channel name and topic of an IRC channel, or nick, user image and
    * status of a conversation partner.
    * It is typically shown at the top right of the chat UI.
-   * @extends {MozXULElement}
+   *
+   * @augments {MozXULElement}
    */
   class MozChatConversationInfo extends MozXULElement {
     static get inheritedAttributes() {

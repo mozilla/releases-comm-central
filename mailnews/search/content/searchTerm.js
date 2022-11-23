@@ -444,6 +444,7 @@ function initializeTermFromIndex(index) {
 /**
  * Creates a <richlistitem> using the array children as the children
  * of each listcell.
+ *
  * @param aChildren  An array of XUL elements to put into the listitem.
  *                   Each array member is put into a separate listcell.
  *                   If the member itself is an array of elements,
@@ -515,8 +516,9 @@ function removeSearchRow(index) {
 
 /**
  * Save the search terms from the UI back to the actual search terms.
+ *
  * @param {nsIMsgSearchTerm[]} searchTerms - Array of terms
- * @param {Object} termOwner - Object which can contain and create the terms
+ * @param {object} termOwner - Object which can contain and create the terms
  *   e.g. a nsIMsgSearchSession (will be unnecessary if we just make terms
  *   creatable via XPCOM).
  * @returns {nsIMsgSearchTerm[]} The filtered searchTerms.

@@ -15,7 +15,7 @@
   /**
    * Implements the Drag and Drop class for the Month Day Box view.
    *
-   * @extends {MozElements.CalendarDnDContainer}
+   * @augments {MozElements.CalendarDnDContainer}
    */
   class CalendarMonthDayBox extends MozElements.CalendarDnDContainer {
     static get inheritedAttributes() {
@@ -297,7 +297,7 @@
    * Multiweek and Month views of the calendar. It displays the event name,
    * alarm icon and the category type color.
    *
-   * @extends {MozElements.MozCalendarEditableItem}
+   * @augments {MozElements.MozCalendarEditableItem}
    */
   class MozCalendarMonthDayBoxItem extends MozElements.MozCalendarEditableItem {
     static get inheritedAttributes() {
@@ -443,7 +443,7 @@
    * Abstract base class that is used for the month and multiweek calendar view custom elements.
    *
    * @implements {calICalendarView}
-   * @extends {MozElements.CalendarBaseView}
+   * @augments {MozElements.CalendarBaseView}
    * @abstract
    */
   class CalendarMonthBaseView extends MozElements.CalendarBaseView {
@@ -718,8 +718,8 @@
     /**
      * Set an attribute on the view element, and do re-layout if needed.
      *
-     * @param {string} attr     The attribute to set.
-     * @param {string} value    The value to set.
+     * @param {string} attr - The attribute to set.
+     * @param {string} value - The value to set.
      */
     setAttribute(attr, value) {
       const needsRelayout = attr == "context" || attr == "item-context";
@@ -736,9 +736,9 @@
     /**
      * Handle preference changes. Typically called by a preference observer.
      *
-     * @param {Object} subject       The subject, a prefs object.
-     * @param {string} topic         The notification topic.
-     * @param {string} preference    The preference to handle.
+     * @param {object} subject - The subject, a prefs object.
+     * @param {string} topic - The notification topic.
+     * @param {string} preference - The preference to handle.
      */
     handlePreference(subject, topic, preference) {
       subject.QueryInterface(Ci.nsIPrefBranch);
@@ -803,7 +803,7 @@
     /**
      * Handle resizing by adjusting the view to the new size.
      *
-     * @param {Element} viewElement    A calendar view element (calICalendarView).
+     * @param {Element} viewElement - A calendar view element (calICalendarView).
      */
     onResize() {
       let { width, height } = this.getBoundingClientRect();
@@ -1047,8 +1047,8 @@
     /**
      * Return the day box element for a given date.
      *
-     * @param {calIDateTime} date    A date.
-     * @return {?Element}            A `calendar-month-day-box` element.
+     * @param {calIDateTime} date - A date.
+     * @returns {?Element} A `calendar-month-day-box` element.
      */
     findDayBoxForDate(date) {
       if (!this.mDateBoxes) {
@@ -1065,8 +1065,8 @@
     /**
      * Return the day box elements for a given calendar item.
      *
-     * @param {calIItemBase} item    A calendar item.
-     * @return {Element[]}           An array of `calendar-month-day-box` elements.
+     * @param {calIItemBase} item - A calendar item.
+     * @returns {Element[]} An array of `calendar-month-day-box` elements.
      */
     findDayBoxesForItem(item) {
       let targetDate = null;
@@ -1137,7 +1137,7 @@
     /**
      * Display a calendar item.
      *
-     * @param {calIItemBase} item    A calendar item.
+     * @param {calIItemBase} item - A calendar item.
      */
     doAddItem(item) {
       this.findDayBoxesForItem(item).forEach(box => box.addItem(item));
@@ -1146,7 +1146,7 @@
     /**
      * Remove a calendar item so it is no longer displayed.
      *
-     * @param {calIItemBase} item    A calendar item.
+     * @param {calIItemBase} item - A calendar item.
      */
     doRemoveItem(item) {
       const boxes = this.findDayBoxesForItem(item);
@@ -1205,8 +1205,8 @@
     /**
      * Make a calendar item flash.  Used when an alarm goes off to make the related item flash.
      *
-     * @param {Object} item    The calendar item to flash.
-     * @param {boolean} stop        Whether to stop flashing that's already started.
+     * @param {object} item - The calendar item to flash.
+     * @param {boolean} stop - Whether to stop flashing that's already started.
      */
     flashAlarm(item, stop) {
       if (!this.mStartDate || !this.mEndDate) {

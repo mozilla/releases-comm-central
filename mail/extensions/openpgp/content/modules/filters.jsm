@@ -385,7 +385,7 @@ JsmimeEmitter.prototype = {
     return this.mimeTree.subParts[0];
   },
 
-  /** JSMime API **/
+  /** JSMime API */
   startMessage() {
     this.currentPart = this.mimeTree;
   },

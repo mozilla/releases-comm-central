@@ -440,6 +440,7 @@ MimeAddressParser.prototype = {
 
   /**
    * Construct a single email address from an |name <local@domain>| token.
+   *
    * @param {string} aInput - a string to be parsed to a mailbox object.
    * @returns {msgIAddressObject} the mailbox parsed from the input.
    */

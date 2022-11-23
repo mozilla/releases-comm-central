@@ -402,10 +402,10 @@ var PgpSqliteDb2 = {
  * it's possible that there will be an NS_ERROR_STORAGE_BUSY
  * so we're willing to retry for a little while.
  *
- * @param {function} resolve: function to call when promise succeeds
- * @param {function} reject:  function to call when promise fails
- * @param {Number}   waitms:  Integer - number of milliseconds to wait before trying again in case of NS_ERROR_STORAGE_BUSY
- * @param {Number}   maxtime: Integer - unix epoch (in milliseconds) of the point at which we should give up.
+ * @param {Function} resolve: function to call when promise succeeds
+ * @param {Function} reject: - function to call when promise fails
+ * @param {number}   waitms:  Integer - number of milliseconds to wait before trying again in case of NS_ERROR_STORAGE_BUSY
+ * @param {number}   maxtime: Integer - unix epoch (in milliseconds) of the point at which we should give up.
  */
 function openDatabaseConn(filename, resolve, reject, waitms, maxtime) {
   lazy.EnigmailLog.DEBUG("sqliteDb.jsm: openDatabaseConn()\n");

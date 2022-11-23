@@ -39,8 +39,8 @@ add_setup(function() {
 /**
  * Check that the archive options button is enabled or disabled appropriately.
  *
- * @param {Object} tab - The account manager tab.
- * @param {Number} accountKey - Key of the account the check.
+ * @param {object} tab - The account manager tab.
+ * @param {number} accountKey - Key of the account the check.
  * @param {boolean} isEnabled - True if the button should be enabled, false otherwise.
  */
 function subtest_check_archive_options_enabled(tab, accountKey, isEnabled) {

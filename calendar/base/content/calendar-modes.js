@@ -19,12 +19,14 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
  *  - 'calendarEvent'
  *  - 'calendarTask'
  *  - 'special' - For special tabs like preferences, add-ons manager, about:xyz, etc.
+ *
  * @global
  */
 var gCurrentMode = "mail";
 
 /**
  * Changes the mode (gCurrentMode) and adapts the UI to the new mode.
+ *
  * @param {string} [mode="mail"] - the new mode: 'mail', 'calendar', 'task', etc.
  */
 function changeMode(mode = "mail") {
@@ -53,7 +55,7 @@ function changeMode(mode = "mail") {
  * For switching to modes like "mail", "chat", "calendarEvent", "calendarTask", or "special".
  * (For "calendar" and "task" modes use calSwitchToCalendarMode and calSwitchToTaskMode.)
  *
- * @param {string} mode  The mode to switch to.
+ * @param {string} mode - The mode to switch to.
  */
 function calSwitchToMode(mode) {
   if (!["mail", "chat", "calendarEvent", "calendarTask", "special"].includes(mode)) {

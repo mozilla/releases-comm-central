@@ -20,8 +20,9 @@ const EXPORTED_SYMBOLS = ["calinvitation"];
 var calinvitation = {
   /**
    * Returns a header title for an ITIP item depending on the response method
+   *
    * @param  {calItipItem}     aItipItem  the itip item to check
-   * @return {String}          the header title
+   * @returns {string} the header title
    */
   getItipHeader(aItipItem) {
     let header;
@@ -96,7 +97,7 @@ var calinvitation = {
    * @param {calIAttendee[]} [attendeeList] - The previous list of attendees for
    *   this event. This is not optional if oldAttendee is given.
    *
-   * @return {HTMLDivElement} - The new attendee label.
+   * @returns {HTMLDivElement} - The new attendee label.
    */
   createAttendeeLabel(doc, attendee, attendeeList, oldAttendee, oldAttendeeList) {
     let userType = attendee.userType || "INDIVIDUAL";
@@ -164,6 +165,7 @@ var calinvitation = {
   /**
    * Create an new list item element for an attendee, to be used as a child of
    * an "attendee-list" element.
+   *
    * @param {Document} doc - The document the new list item will belong to.
    * @param {Element} attendeeLabel - The attendee label to place within the
    *   list item.
@@ -185,7 +187,7 @@ var calinvitation = {
    * @param {calIAttendee[]} [oldAttendees] - A list of attendees for a
    *   previous version of the event.
    *
-   * @return {HTMLUListElement} - The list of attendees.
+   * @returns {HTMLUListElement} - The list of attendees.
    */
   createAttendeesList(doc, attendees, oldAttendees) {
     let list = doc.createElement("ul");
@@ -282,7 +284,7 @@ var calinvitation = {
    *
    * @param {calIItemBase} event - The event to parse into html.
    * @param {calItipItem} itipItem - The itip item, which contains the event.
-   * @return {Document} The html representation of the event.
+   * @returns {Document} The html representation of the event.
    */
   createInvitationOverlay(event, itipItem) {
     // Creates HTML using the Node strings in the properties file
@@ -597,9 +599,10 @@ var calinvitation = {
 
   /**
    * Returns the header section for an invitation email.
-   * @param   {String}         aMessageId  the message id to use for that email
+   *
+   * @param   {string}         aMessageId  the message id to use for that email
    * @param   {nsIMsgIdentity} aIdentity   the identity to use for that email
-   * @returns {String}                     the source code of the header section of the email
+   * @returns {string} the source code of the header section of the email
    */
   getHeaderSection(aMessageId, aIdentity, aToList, aSubject) {
     let recipient = aIdentity.fullName + " <" + aIdentity.email + ">";
@@ -647,8 +650,9 @@ var calinvitation = {
 
   /**
    * Returns a datetime string according to section 3.3 of RfC5322
+   *
    * @param  {Date}   [optional] Js Date object to format; if not provided current DateTime is used
-   * @return {String}            Datetime string with a modified tz-offset notation compared to
+   * @returns {string} Datetime string with a modified tz-offset notation compared to
    *                             Date.toString() like "Fri, 20 Nov 2015 09:45:36 +0100"
    */
   getRfc5322FormattedDate(aDate = null) {
@@ -670,8 +674,9 @@ var calinvitation = {
 
   /**
    * Converts a given unicode text to utf-8 and normalizes line-breaks to \r\n
-   * @param  {String} aText   a unicode encoded string
-   * @return {String}         the converted uft-8 encoded string
+   *
+   * @param  {string} aText   a unicode encoded string
+   * @returns {string} the converted uft-8 encoded string
    */
   encodeUTF8(aText) {
     return calinvitation.convertFromUnicode("UTF-8", aText).replace(/(\r\n)|\n/g, "\r\n");
@@ -679,9 +684,10 @@ var calinvitation = {
 
   /**
    * Converts a given unicode text
-   * @param  {String} aCharset   target character set
-   * @param  {String} aSrc       unicode text to convert
-   * @return {String}            the converted string
+   *
+   * @param  {string} aCharset   target character set
+   * @param  {string} aSrc       unicode text to convert
+   * @returns {string} the converted string
    */
   convertFromUnicode(aCharset, aSrc) {
     let unicodeConverter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(
@@ -693,10 +699,11 @@ var calinvitation = {
 
   /**
    * Converts a header to a mime encoded header
-   * @param  {String}  aHeader   a header to encode
+   *
+   * @param  {string}  aHeader   a header to encode
    * @param  {boolean} aIsEmail  if enabled, only the CN but not the email address gets
    *                             converted - default value is false
-   * @return {String}            the encoded string
+   * @returns {string} the encoded string
    */
   encodeMimeHeader(aHeader, aIsEmail = false) {
     let fieldNameLen = aHeader.indexOf(": ") + 2;
@@ -710,14 +717,15 @@ var calinvitation = {
 
   /**
    * Parses a counterproposal to extract differences to the existing event
+   *
    * @param  {calIEvent|calITodo} aProposedItem  The counterproposal
    * @param  {calIEvent|calITodo} aExistingItem  The item to compare with
-   * @return {JSObject}                          Objcet of result and differences of parsing
-   * @return {String} JsObject.result.type       Parsing result: OK|OLDVERSION|ERROR|NODIFF
-   * @return {String} JsObject.result.descr      Parsing result description
-   * @return {Array}  JsObject.differences       Array of objects consisting of property, proposed
+   * @returns {JSObject} Objcet of result and differences of parsing
+   * @returns {string} JsObject.result.type       Parsing result: OK|OLDVERSION|ERROR|NODIFF
+   * @returns {string} JsObject.result.descr      Parsing result description
+   * @returns {Array} JsObject.differences       Array of objects consisting of property, proposed
    *                                                 and original properties.
-   * @return {String} JsObject.comment           A comment of the attendee, if any
+   * @returns {string} JsObject.comment           A comment of the attendee, if any
    */
   parseCounter(aProposedItem, aExistingItem) {
     let isEvent = aProposedItem.isEvent();

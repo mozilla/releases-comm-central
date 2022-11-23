@@ -42,12 +42,12 @@ class CalDavRequestBase {
   /**
    * Creates a new base response, this should mainly be done using the subclass constructor
    *
-   * @param {CalDavSession} aSession                  The session to use for this request
-   * @param {?calICalendar} aCalendar                 The calendar this request belongs to (can be null)
-   * @param {nsIURI} aUri                             The uri to request
-   * @param {?String} aUploadData                     The data to upload
-   * @param {?String} aContentType                    The MIME content type for the upload data
-   * @param {?Function<nsIChannel>} aOnSetupChannel   The function to call to set up the channel
+   * @param {CalDavSession} aSession - The session to use for this request
+   * @param {?calICalendar} aCalendar - The calendar this request belongs to (can be null)
+   * @param {nsIURI} aUri - The uri to request
+   * @param {?string} aUploadData - The data to upload
+   * @param {?string} aContentType - The MIME content type for the upload data
+   * @param {?Function<nsIChannel>} aOnSetupChannel - The function to call to set up the channel
    */
   constructor(
     aSession,
@@ -74,7 +74,7 @@ class CalDavRequestBase {
   }
 
   /**
-   * @return {Object}  The class of the response for this request
+   * @returns {object} The class of the response for this request
    */
   get responseClass() {
     return CalDavSimpleResponse;
@@ -97,8 +97,8 @@ class CalDavRequestBase {
   /**
    * Retrieves the given request header. Requires the request to be committed.
    *
-   * @param {String} aHeader      The header to retrieve
-   * @return {?String}            The requested header, or null if unavailable
+   * @param {string} aHeader - The header to retrieve
+   * @returns {?string} The requested header, or null if unavailable
    */
   getHeader(aHeader) {
     try {
@@ -111,7 +111,7 @@ class CalDavRequestBase {
   /**
    * Executes the request with the configuration set up in the constructor
    *
-   * @return {Promise}        A promise that resolves with a subclass of CalDavResponseBase
+   * @returns {Promise} A promise that resolves with a subclass of CalDavResponseBase
    *                            which is based on |responseClass|.
    */
   async commit() {
@@ -155,8 +155,8 @@ class CalDavRequestBase {
      * Attempt to call nsIInterfaceRequestor::getInterface on the given object, and return null
      * if it fails.
      *
-     * @param {Object} aObj     The object to call on.
-     * @return {?*}             The requested interface object, or null.
+     * @param {object} aObj - The object to call on.
+     * @returns {?*} The requested interface object, or null.
      */
     function tryGetInterface(aObj) {
       try {
@@ -187,7 +187,7 @@ class CalDavRequestBase {
     /**
      * Copy the given header from the old channel to the new one, ignoring missing headers
      *
-     * @param {String} aHdr         The header to copy
+     * @param {string} aHdr - The header to copy
      */
     function copyHeader(aHdr) {
       try {
@@ -248,7 +248,7 @@ class CalDavResponseBase {
   /**
    * Constructs a new caldav response
    *
-   * @param {CalDavRequestBase} aRequest      The request that initiated the response
+   * @param {CalDavRequestBase} aRequest - The request that initiated the response
    */
   constructor(aRequest) {
     this.request = aRequest;
@@ -268,17 +268,17 @@ class CalDavResponseBase {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
-  /** @return {nsIURI} The request URI **/
+  /** @returns {nsIURI} The request URI */
   get uri() {
     return this.nsirequest.URI;
   }
 
-  /** @return {Boolean} True, if the request was redirected */
+  /** @returns {boolean} True, if the request was redirected */
   get redirected() {
     return this.uri.spec != this.nsirequest.originalURI.spec;
   }
 
-  /** @return {Number} The http response status of the request */
+  /** @returns {number} The http response status of the request */
   get status() {
     try {
       return this.nsirequest.responseStatus;
@@ -343,7 +343,7 @@ class CalDavResponseBase {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
-  /** @return {DOMDocument} A DOM document with the response xml */
+  /** @returns {DOMDocument} A DOM document with the response xml */
   get xml() {
     if (this.text && !this._responseXml) {
       try {
@@ -359,8 +359,8 @@ class CalDavResponseBase {
   /**
    * Retrieve a request header
    *
-   * @param {String} aHeader      The header to retrieve
-   * @return {String}             The header value
+   * @param {string} aHeader - The header to retrieve
+   * @returns {string} The header value
    */
   getHeader(aHeader) {
     try {
@@ -459,13 +459,13 @@ class CalDavGenericRequest extends CalDavRequestBase {
   /**
    * Constructs the generic caldav request
    *
-   * @param {CalDavSession} aSession                  The session to use for this request
-   * @param {calICalendar} aCalendar                  The calendar this request belongs to
-   * @param {String} aMethod                          The HTTP method to use
-   * @param {nsIURI} aUri                             The uri to request
-   * @param {?Object} aHeaders                        An object with headers to set
-   * @param {?String} aUploadData                     Optional data to upload
-   * @param {?String} aUploadType                     Content type for upload data
+   * @param {CalDavSession} aSession - The session to use for this request
+   * @param {calICalendar} aCalendar - The calendar this request belongs to
+   * @param {string} aMethod - The HTTP method to use
+   * @param {nsIURI} aUri - The uri to request
+   * @param {?object} aHeaders - An object with headers to set
+   * @param {?string} aUploadData - Optional data to upload
+   * @param {?string} aUploadType - Content type for upload data
    */
   constructor(
     aSession,
@@ -495,16 +495,16 @@ class CalDavLegacySAXRequest extends CalDavRequestBase {
   /**
    * Constructs the legacy caldav request
    *
-   * @param {CalDavSession} aSession                  The session to use for this request
-   * @param {calICalendar} aCalendar                  The calendar this request belongs to
-   * @param {nsIURI} aUri                             The uri to request
-   * @param {?string} aUploadData                     Optional data to upload
-   * @param {?string} aUploadType                     Content type for upload data
-   * @param {?Object} aHandler                        The external request handler, e.g.
+   * @param {CalDavSession} aSession - The session to use for this request
+   * @param {calICalendar} aCalendar - The calendar this request belongs to
+   * @param {nsIURI} aUri - The uri to request
+   * @param {?string} aUploadData - Optional data to upload
+   * @param {?string} aUploadType - Content type for upload data
+   * @param {?object} aHandler - The external request handler, e.g.
    *                                                    CalDavEtagsHandler,
    *                                                    CalDavMultigetSyncHandler,
    *                                                    CalDavWebDavSyncHandler.
-   * @param {?Function<nsIChannel>} aOnSetupChannel   The function to call to set up the channel
+   * @param {?Function<nsIChannel>} aOnSetupChannel - The function to call to set up the channel
    */
   constructor(
     aSession,
@@ -520,7 +520,7 @@ class CalDavLegacySAXRequest extends CalDavRequestBase {
   }
 
   /**
-   * @return {Object}  The class of the response for this request
+   * @returns {object} The class of the response for this request
    */
   get responseClass() {
     return LegacySAXResponse;
@@ -534,7 +534,7 @@ class CalDavLegacySAXRequest extends CalDavRequestBase {
  * the promises for the response's "responded" and "completed" status.
  */
 class LegacySAXResponse extends CalDavResponseBase {
-  /** @return {nsIStreamListener} The listener passed to the channel's asyncOpen */
+  /** @returns {nsIStreamListener} The listener passed to the channel's asyncOpen */
   get listener() {
     if (!this._listener) {
       this._listener = {
@@ -566,7 +566,7 @@ class LegacySAXResponse extends CalDavResponseBase {
     return this._listener;
   }
 
-  /** @return {String} The text response of the request */
+  /** @returns {string} The text response of the request */
   get text() {
     return this.request._handler.logXML;
   }
@@ -579,11 +579,11 @@ class CalDavItemRequest extends CalDavRequestBase {
   /**
    * Constructs an item request
    *
-   * @param {CalDavSession} aSession                  The session to use for this request
-   * @param {calICalendar} aCalendar                  The calendar this request belongs to
-   * @param {nsIURI} aUri                             The uri to request
-   * @param {calIItemBase} aItem                      The item to send
-   * @param {?String} aEtag                           The etag to check. The special value "*"
+   * @param {CalDavSession} aSession - The session to use for this request
+   * @param {calICalendar} aCalendar - The calendar this request belongs to
+   * @param {nsIURI} aUri - The uri to request
+   * @param {calIItemBase} aItem - The item to send
+   * @param {?string} aEtag - The etag to check. The special value "*"
    *                                                    sets the If-None-Match header, otherwise
    *                                                    If-Match is set to the etag.
    */
@@ -605,7 +605,7 @@ class CalDavItemRequest extends CalDavRequestBase {
   }
 
   /**
-   * @return {Object}  The class of the response for this request
+   * @returns {object} The class of the response for this request
    */
   get responseClass() {
     return ItemResponse;
@@ -632,10 +632,10 @@ class CalDavDeleteItemRequest extends CalDavRequestBase {
   /**
    * Constructs an delete item request
    *
-   * @param {CalDavSession} aSession                  The session to use for this request
-   * @param {calICalendar} aCalendar                  The calendar this request belongs to
-   * @param {nsIURI} aUri                             The uri to request
-   * @param {?String} aEtag                           The etag to check, or null to
+   * @param {CalDavSession} aSession - The session to use for this request
+   * @param {calICalendar} aCalendar - The calendar this request belongs to
+   * @param {nsIURI} aUri - The uri to request
+   * @param {?string} aEtag - The etag to check, or null to
    *                                                    unconditionally delete
    */
   constructor(aSession, aCalendar, aUri, aEtag = null) {
@@ -648,7 +648,7 @@ class CalDavDeleteItemRequest extends CalDavRequestBase {
   }
 
   /**
-   * @return {Object}  The class of the response for this request
+   * @returns {object} The class of the response for this request
    */
   get responseClass() {
     return DeleteItemResponse;
@@ -673,12 +673,12 @@ class CalDavPropfindRequest extends CalDavRequestBase {
   /**
    * Constructs a propfind request
    *
-   * @param {CalDavSession} aSession                  The session to use for this request
-   * @param {calICalendar} aCalendar                  The calendar this request belongs to
-   * @param {nsIURI} aUri                             The uri to request
-   * @param {String[]} aProps                         The properties to request, including
+   * @param {CalDavSession} aSession - The session to use for this request
+   * @param {calICalendar} aCalendar - The calendar this request belongs to
+   * @param {nsIURI} aUri - The uri to request
+   * @param {string[]} aProps - The properties to request, including
    *                                                    namespace prefix.
-   * @param {Number} aDepth                           The depth for the request, defaults to 0
+   * @param {number} aDepth - The depth for the request, defaults to 0
    */
   constructor(aSession, aCalendar, aUri, aProps, aDepth = 0) {
     let xml =
@@ -696,7 +696,7 @@ class CalDavPropfindRequest extends CalDavRequestBase {
   }
 
   /**
-   * @return {Object}  The class of the response for this request
+   * @returns {object} The class of the response for this request
    */
   get responseClass() {
     return PropfindResponse;
@@ -711,8 +711,8 @@ class PropfindResponse extends CalDavSimpleResponse {
     /**
      * Retrieves the trimmed text content of the node, or null if empty
      *
-     * @param {Element} node        The node to get the text content of
-     * @return {?String}            The text content, or null if empty
+     * @param {Element} node - The node to get the text content of
+     * @returns {?string} The text content, or null if empty
      */
     function textContent(node) {
       let text = node.textContent;
@@ -722,8 +722,8 @@ class PropfindResponse extends CalDavSimpleResponse {
     /**
      * Returns an array of string with each href value within the node scope
      *
-     * @param {Element} parent      The node to get the href values in
-     * @return {String[]}           The array with trimmed text content values
+     * @param {Element} parent - The node to get the href values in
+     * @returns {string[]} The array with trimmed text content values
      */
     function href(parent) {
       return [...parent.querySelectorAll(":scope > href")].map(node => node.textContent.trim());
@@ -732,8 +732,8 @@ class PropfindResponse extends CalDavSimpleResponse {
     /**
      * Returns the single href value within the node scope
      *
-     * @param {Element} node        The node to get the href value in
-     * @return {?String}            The trimmed text content
+     * @param {Element} node - The node to get the href value in
+     * @returns {?string} The trimmed text content
      */
     function singleHref(node) {
       let hrefval = node.querySelector(":scope > href");
@@ -743,9 +743,9 @@ class PropfindResponse extends CalDavSimpleResponse {
     /**
      * Returns a Set with the respective element local names in the path
      *
-     * @param {String} path         The css path to search
-     * @param {Element} parent      The parent element to search in
-     * @return {Set<String>}        A set with the element names
+     * @param {string} path - The css path to search
+     * @param {Element} parent - The parent element to search in
+     * @returns {Set<string>} A set with the element names
      */
     function nodeNames(path, parent) {
       return new Set(
@@ -761,10 +761,10 @@ class PropfindResponse extends CalDavSimpleResponse {
      * status is detected, null is returned indicating the server does not
      * support this directive.
      *
-     * @param {string} path         The css path to search
-     * @param {Element} parent      The parent element to search in
-     * @param {string} status       The status of the enclosing <propstat>
-     * @return {Set<string>}
+     * @param {string} path - The css path to search
+     * @param {Element} parent - The parent element to search in
+     * @param {string} status - The status of the enclosing <propstat>
+     * @returns {Set<string>}
      */
     function privSet(path, parent, status = "") {
       return status.includes("404") ? null : nodeNames(path, parent);
@@ -773,10 +773,10 @@ class PropfindResponse extends CalDavSimpleResponse {
     /**
      * Returns a Set with the respective attribute values in the path
      *
-     * @param {String} path         The css path to search
-     * @param {String} attribute    The attribute name to retrieve for each node
-     * @param {Element} parent      The parent element to search in
-     * @return {Set<String>}        A set with the attribute values
+     * @param {string} path - The css path to search
+     * @param {string} attribute - The attribute name to retrieve for each node
+     * @param {Element} parent - The parent element to search in
+     * @returns {Set<string>} A set with the attribute values
      */
     function attributeValue(path, attribute, parent) {
       return new Set(
@@ -789,10 +789,10 @@ class PropfindResponse extends CalDavSimpleResponse {
     /**
      * Return the result of either function a or function b, passing the node
      *
-     * @param {Function} a      The first function to call
-     * @param {Function} b      The second function to call
-     * @param {Element} node    The node to call the functions with
-     * @return {*}              The return value of either a() or b()
+     * @param {Function} a - The first function to call
+     * @param {Function} b - The second function to call
+     * @param {Element} node - The node to call the functions with
+     * @returns {*} The return value of either a() or b()
      */
     function either(a, b, node) {
       return a(node) || b(node);
@@ -816,7 +816,7 @@ class PropfindResponse extends CalDavSimpleResponse {
    * Quick access to the properties of the PROPFIND request. Returns an object with the hrefs as
    * keys, and an object with the normalized properties as the value.
    *
-   * @return {Object}    The object
+   * @returns {object} The object
    */
   get data() {
     if (!this._data) {
@@ -864,9 +864,9 @@ class CalDavHeaderRequest extends CalDavRequestBase {
   /**
    * Constructs the options request
    *
-   * @param {CalDavSession} aSession                  The session to use for this request
-   * @param {calICalendar} aCalendar                  The calendar this request belongs to
-   * @param {nsIURI} aUri                             The uri to request
+   * @param {CalDavSession} aSession - The session to use for this request
+   * @param {calICalendar} aCalendar - The calendar this request belongs to
+   * @param {nsIURI} aUri - The uri to request
    */
   constructor(aSession, aCalendar, aUri) {
     super(aSession, aCalendar, aUri, channel => {
@@ -875,7 +875,7 @@ class CalDavHeaderRequest extends CalDavRequestBase {
   }
 
   /**
-   * @return {Object}  The class of the response for this request
+   * @returns {object} The class of the response for this request
    */
   get responseClass() {
     return DAVHeaderResponse;
@@ -915,13 +915,13 @@ class CalDavPrincipalPropertySearchRequest extends CalDavRequestBase {
   /**
    * Constructs a principal-property-search query.
    *
-   * @param {CalDavSession} aSession                  The session to use for this request
-   * @param {calICalendar} aCalendar                  The calendar this request belongs to
-   * @param {nsIURI} aUri                             The uri to request
-   * @param {String} aMatch                           The href to search in
-   * @param {String} aSearchProp                      The property to search for
-   * @param {String[]} aProps                         The properties to retrieve
-   * @param {Number} aDepth                           The depth of the query, defaults to 1
+   * @param {CalDavSession} aSession - The session to use for this request
+   * @param {calICalendar} aCalendar - The calendar this request belongs to
+   * @param {nsIURI} aUri - The uri to request
+   * @param {string} aMatch - The href to search in
+   * @param {string} aSearchProp - The property to search for
+   * @param {string[]} aProps - The properties to retrieve
+   * @param {number} aDepth - The depth of the query, defaults to 1
    */
   constructor(aSession, aCalendar, aUri, aMatch, aSearchProp, aProps, aDepth = 1) {
     let xml =
@@ -945,7 +945,7 @@ class CalDavPrincipalPropertySearchRequest extends CalDavRequestBase {
   }
 
   /**
-   * @return {Object}  The class of the response for this request
+   * @returns {object} The class of the response for this request
    */
   get responseClass() {
     return PropfindResponse;
@@ -959,13 +959,13 @@ class CalDavOutboxRequest extends CalDavRequestBase {
   /**
    * Constructs an outbox request
    *
-   * @param {CalDavSession} aSession                  The session to use for this request
-   * @param {calICalendar} aCalendar                  The calendar this request belongs to
-   * @param {nsIURI} aUri                             The uri to request
-   * @param {String} aOrganizer                       The organizer of the request
-   * @param {String} aRecipients                      The recipients of the request
-   * @param {String} aResponseMethod                  The itip response method, e.g. REQUEST,REPLY
-   * @param {calIItemBase} aItem                      The item to send
+   * @param {CalDavSession} aSession - The session to use for this request
+   * @param {calICalendar} aCalendar - The calendar this request belongs to
+   * @param {nsIURI} aUri - The uri to request
+   * @param {string} aOrganizer - The organizer of the request
+   * @param {string} aRecipients - The recipients of the request
+   * @param {string} aResponseMethod - The itip response method, e.g. REQUEST,REPLY
+   * @param {calIItemBase} aItem - The item to send
    */
   constructor(aSession, aCalendar, aUri, aOrganizer, aRecipients, aResponseMethod, aItem) {
     aItem = fixGoogleDescription(aItem, aUri);
@@ -995,7 +995,7 @@ class CalDavOutboxRequest extends CalDavRequestBase {
   }
 
   /**
-   * @return {Object}  The class of the response for this request
+   * @returns {object} The class of the response for this request
    */
   get responseClass() {
     return OutboxResponse;
@@ -1036,13 +1036,13 @@ class CalDavFreeBusyRequest extends CalDavRequestBase {
   /**
    * Creates a freebusy request, for the specified range
    *
-   * @param {CalDavSession} aSession                  The session to use for this request
-   * @param {calICalendar} aCalendar                  The calendar this request belongs to
-   * @param {nsIURI} aUri                             The uri to request
-   * @param {String} aOrganizer                       The organizer of the request
-   * @param {String} aRecipient                       The attendee to look up
-   * @param {calIDateTime} aRangeStart                The start of the range
-   * @param {calIDateTime} aRangeEnd                  The end of the range
+   * @param {CalDavSession} aSession - The session to use for this request
+   * @param {calICalendar} aCalendar - The calendar this request belongs to
+   * @param {nsIURI} aUri - The uri to request
+   * @param {string} aOrganizer - The organizer of the request
+   * @param {string} aRecipient - The attendee to look up
+   * @param {calIDateTime} aRangeStart - The start of the range
+   * @param {calIDateTime} aRangeEnd - The end of the range
    */
   constructor(aSession, aCalendar, aUri, aOrganizer, aRecipient, aRangeStart, aRangeEnd) {
     let vcalendar = cal.icsService.createIcalComponent("VCALENDAR");
@@ -1081,7 +1081,7 @@ class CalDavFreeBusyRequest extends CalDavRequestBase {
   }
 
   /**
-   * @return {Object}  The class of the response for this request
+   * @returns {object} The class of the response for this request
    */
   get responseClass() {
     return FreeBusyResponse;
@@ -1110,9 +1110,9 @@ class FreeBusyResponse extends CalDavSimpleResponse {
     /**
      * Helper to get the trimmed text content
      *
-     * @param {Element} aParent     The parent node to search in
-     * @param {String} aPath        The css query path to serch
-     * @return {String}             The trimmed text content
+     * @param {Element} aParent - The parent node to search in
+     * @param {string} aPath - The css query path to serch
+     * @returns {string} The trimmed text content
      */
     function querySelectorText(aParent, aPath) {
       let node = aParent.querySelector(aPath);

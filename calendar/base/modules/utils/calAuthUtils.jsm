@@ -39,11 +39,11 @@ class ContainerMap extends Map {
   /**
    * Create a container map with a given range of userContextIds.
    *
-   * @param {Number} min        The lower range limit of userContextIds to be
+   * @param {number} min - The lower range limit of userContextIds to be
    *                            used.
-   * @param {Number} max        The upper range limit of userContextIds to be
+   * @param {number} max - The upper range limit of userContextIds to be
    *                            used.
-   * @param {?Object} iterable  Optional parameter which is passed to the
+   * @param {?object} iterable - Optional parameter which is passed to the
    *                            constructor of Map. See definition of Map
    *                            for more details.
    */
@@ -77,8 +77,8 @@ class ContainerMap extends Map {
   /**
    * Add a new username to the map.
    *
-   * @param {String} username - The username to be added.
-   * @return {Number} The userContextId assigned to the given username.
+   * @param {string} username - The username to be added.
+   * @returns {number} The userContextId assigned to the given username.
    */
   _add(username) {
     let nextUserContextId;
@@ -101,9 +101,9 @@ class ContainerMap extends Map {
    * Look up the userContextId for the given username. Create a new one,
    * if the username is not yet known.
    *
-   * @param {String} username        The username for which the userContextId
+   * @param {string} username - The username for which the userContextId
    *                                 is to be looked up.
-   * @return {Number}                The userContextId which is assigned to
+   * @returns {number} The userContextId which is assigned to
    *                                 the provided username.
    */
   getUserContextIdForUsername(username) {
@@ -117,9 +117,9 @@ class ContainerMap extends Map {
    * Look up the username for the given userContextId. Return empty string
    * if not found.
    *
-   * @param {Number} userContextId        The userContextId for which the
+   * @param {number} userContextId - The userContextId for which the
    *                                      username is to be to looked up.
-   * @return {String}                     The username mapped to the given
+   * @returns {string} The username mapped to the given
    *                                      userContextId.
    */
   getUsernameForUserContextId(userContextId) {
@@ -149,18 +149,18 @@ var calauth = {
     }
 
     /**
-     * @typedef {Object} PasswordInfo
-     * @property {Boolean} found        True, if the password was found
-     * @property {?String} username     The found username
-     * @property {?String} password     The found password
+     * @typedef {object} PasswordInfo
+     * @property {boolean} found        True, if the password was found
+     * @property {?string} username     The found username
+     * @property {?string} password     The found password
      */
 
     /**
      * Retrieve password information from the login manager
      *
-     * @param {String} aPasswordRealm       The realm to retrieve password info for
-     * @param {String} aRequestedUser       The username to look up.
-     * @return {PasswordInfo}               The retrieved password information
+     * @param {string} aPasswordRealm - The realm to retrieve password info for
+     * @param {string} aRequestedUser - The username to look up.
+     * @returns {PasswordInfo} The retrieved password information
      */
     getPasswordInfo(aPasswordRealm, aRequestedUser) {
       // Prefill aRequestedUser, so it will be used in the prompter.
@@ -345,13 +345,13 @@ var calauth = {
    * Tries to get the username/password combination of a specific calendar name from the password
    * manager or asks the user.
    *
-   * @param {String} aTitle                   The dialog title.
-   * @param {String} aCalendarName            The calendar name or url to look up. Can be null.
-   * @param {{value:String}} aUsername        The username that belongs to the calendar.
-   * @param {{value:String}} aPassword        The password that belongs to the calendar.
-   * @param {{value:String}} aSavePassword    Should the password be saved?
-   * @param {Boolean} aFixedUsername          Whether the user name is fixed or editable
-   * @return {Boolean}                        Could a password be retrieved?
+   * @param {string} aTitle - The dialog title.
+   * @param {string} aCalendarName - The calendar name or url to look up. Can be null.
+   * @param {{value: string}} aUsername        The username that belongs to the calendar.
+   * @param {{value: string}} aPassword        The password that belongs to the calendar.
+   * @param {{value: string}} aSavePassword    Should the password be saved?
+   * @param {boolean} aFixedUsername - Whether the user name is fixed or editable
+   * @returns {boolean} Could a password be retrieved?
    */
   getCredentials(aTitle, aCalendarName, aUsername, aPassword, aSavePassword, aFixedUsername) {
     if (
@@ -396,8 +396,8 @@ var calauth = {
    * require it. This is a fallback for compatibility only and should be removed a few versions
    * after Lightning 6.2
    *
-   * @param {String} aOrigin      The hostname or origin to check
-   * @return {String}             The origin uri
+   * @param {string} aOrigin - The hostname or origin to check
+   * @returns {string} The origin uri
    */
   _ensureOrigin(aOrigin) {
     try {
@@ -414,10 +414,10 @@ var calauth = {
   /**
    * Helper to insert/update an entry to the password manager.
    *
-   * @param {String} aUsername    The username to insert
-   * @param {String} aPassword    The corresponding password
-   * @param {String} aOrigin      The corresponding origin
-   * @param {String} aRealm       The password realm (unused on branch)
+   * @param {string} aUsername - The username to insert
+   * @param {string} aPassword - The corresponding password
+   * @param {string} aOrigin - The corresponding origin
+   * @param {string} aRealm - The password realm (unused on branch)
    */
   passwordManagerSave(aUsername, aPassword, aOrigin, aRealm) {
     lazy.cal.ASSERT(aUsername);
@@ -456,11 +456,11 @@ var calauth = {
   /**
    * Helper to retrieve an entry from the password manager.
    *
-   * @param {String} aUsername    The username to search
-   * @param {String} aPassword    The corresponding password
-   * @param {String} aOrigin      The corresponding origin
-   * @param {String} aRealm       The password realm (unused on branch)
-   * @return {Boolean}            True, if an entry exists in the password manager
+   * @param {string} aUsername - The username to search
+   * @param {string} aPassword - The corresponding password
+   * @param {string} aOrigin - The corresponding origin
+   * @param {string} aRealm - The password realm (unused on branch)
+   * @returns {boolean} True, if an entry exists in the password manager
    */
   passwordManagerGet(aUsername, aPassword, aOrigin, aRealm) {
     lazy.cal.ASSERT(aUsername);
@@ -491,10 +491,10 @@ var calauth = {
   /**
    * Helper to remove an entry from the password manager
    *
-   * @param {String} aUsername    The username to remove
-   * @param {String} aOrigin      The corresponding origin
-   * @param {String} aRealm       The password realm (unused on branch)
-   * @return {Boolean}            Could the user be removed?
+   * @param {string} aUsername - The username to remove
+   * @param {string} aOrigin - The corresponding origin
+   * @param {string} aRealm - The password realm (unused on branch)
+   * @returns {boolean} Could the user be removed?
    */
   passwordManagerRemove(aUsername, aOrigin, aRealm) {
     lazy.cal.ASSERT(aUsername);
@@ -519,9 +519,9 @@ var calauth = {
    * A map which maps usernames to userContextIds, reserving a range
    * of 20000 - 29999 for userContextIds to be used within calendar.
    *
-   * @param {Number} min        The lower range limit of userContextIds to be
+   * @param {number} min - The lower range limit of userContextIds to be
    *                            used.
-   * @param {Number} max        The upper range limit of userContextIds to be
+   * @param {number} max - The upper range limit of userContextIds to be
    *                            used.
    */
   containerMap: new ContainerMap(20000, 29999),

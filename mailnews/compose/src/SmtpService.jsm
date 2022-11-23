@@ -283,6 +283,7 @@ class SmtpService {
 
   /**
    * Get all SMTP server keys from prefs.
+   *
    * @returns {string[]}
    */
   _getSmtpServerKeys() {
@@ -294,6 +295,7 @@ class SmtpService {
 
   /**
    * Save SMTP server keys to prefs.
+   *
    * @params {string[]} keys - The key list to save.
    */
   _saveSmtpServerKeys(keys) {
@@ -318,6 +320,7 @@ class SmtpService {
 
   /**
    * Get the server URI in the form of smtp://user@hostname:port.
+   *
    * @param {nsISmtpServer} server - The SMTP server.
    * @returns {nsIURI}
    */

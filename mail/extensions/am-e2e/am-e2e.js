@@ -1081,7 +1081,7 @@ function enigmailKeyDetails(keyId) {
 /**
  * Delete an OpenPGP Key.
  *
- * @param {Object} key - The selected OpenPGP Key.
+ * @param {object} key - The selected OpenPGP Key.
  */
 async function enigmailDeleteKey(key) {
   // Interrupt if the selected key is currently being used.
@@ -1117,7 +1117,7 @@ async function enigmailDeleteKey(key) {
 /**
  * Revoke the selected OpenPGP Key.
  *
- * @param {Object} key - The selected OpenPGP Key.
+ * @param {object} key - The selected OpenPGP Key.
  */
 async function openPgpRevokeKey(key) {
   // Interrupt if the selected key is currently being used.
@@ -1149,7 +1149,7 @@ async function openPgpRevokeKey(key) {
  * Open the subdialog to enable the user to edit the expiration date of the
  * selected OpenPGP Key.
  *
- * @param {Object} key - The selected OpenPGP Key.
+ * @param {object} key - The selected OpenPGP Key.
  */
 async function enigmailEditKeyDate(key) {
   if (!key.iSimpleOneSubkeySameExpiry()) {
@@ -1429,7 +1429,7 @@ async function openPgpExportSecretKey(keyId, keyFpr) {
  *
  * @param {string} password - The declared password to protect the keys.
  * @param {Array} fprArray - The array of fingerprint of the selected keys.
- * @param {Object} file - The file where the keys should be saved.
+ * @param {object} file - The file where the keys should be saved.
  * @param {boolean} confirmed - If the password was properly typed in the prompt.
  */
 async function exportSecretKey(password, fprArray, file, confirmed = false) {

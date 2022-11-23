@@ -31,7 +31,7 @@ async function getDisplayedMessages(tab, extension) {
 /**
  * Check the users preference on opening new messages in tabs or windows.
  *
- * @returns {String} - either "tab" or "window"
+ * @returns {string} - either "tab" or "window"
  */
 function getDefaultMessageOpenLocation() {
   let pref = Services.prefs.getIntPref("mail.openMessageBehavior");

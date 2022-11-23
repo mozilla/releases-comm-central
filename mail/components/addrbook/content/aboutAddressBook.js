@@ -472,7 +472,7 @@ function updateSharedSplitter(isTableLayout) {
 /**
  * The list of address books.
  *
- * @extends {TreeListbox}
+ * @augments {TreeListbox}
  */
 class AbTreeListbox extends customElements.get("tree-listbox") {
   connectedCallback() {
@@ -1248,7 +1248,7 @@ customElements.define("ab-card-search-input", AbCardSearchInput, {
 /**
  * A row in the list of cards.
  *
- * @extends {TreeViewListrow}
+ * @augments {TreeViewListrow}
  */
 class AbCardListrow extends customElements.get("tree-view-listrow") {
   static ROW_HEIGHT = 46;
@@ -2766,6 +2766,7 @@ var detailsPane = {
 
   /**
    * Is a card being edited?
+   *
    * @type {boolean}
    */
   get isEditing() {
@@ -2817,6 +2818,7 @@ var detailsPane = {
 
   /**
    * If a card is being edited, has any field changed?
+   *
    * @type {boolean}
    */
   get isDirty() {
@@ -4197,7 +4199,7 @@ var photoDialog = {
    * are no image files in the object.
    *
    * @param {DataTransfer} dataTransfer
-   * @return {File|null}
+   * @returns {File|null}
    */
   _getUseableFile(dataTransfer) {
     if (
@@ -4214,7 +4216,7 @@ var photoDialog = {
    * are no image files in the object.
    *
    * @param {DataTransfer} dataTransfer
-   * @return {string|null}
+   * @returns {string|null}
    */
   _getUseableURL(dataTransfer) {
     let data =

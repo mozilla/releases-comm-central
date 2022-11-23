@@ -22,7 +22,7 @@
    * date etc. for the activity widgets.
    *
    * @abstract
-   * @extends HTMLLIElement
+   * @augments HTMLLIElement
    */
   class ActivityItemBase extends HTMLLIElement {
     connectedCallback() {
@@ -120,6 +120,7 @@
 
     /**
      * The time the activity occurred.
+     *
      * @type {number} - The time in milliseconds since the epoch.
      */
     set dateTime(time) {
@@ -139,6 +140,7 @@
 
     /**
      * The text that describes additional information to the user.
+     *
      * @type {string}
      */
     set statusText(val) {
@@ -151,6 +153,7 @@
 
     /**
      * The text that describes the activity to the user.
+     *
      * @type {string}
      */
     set displayText(val) {
@@ -167,7 +170,7 @@
    * deleting or moving the message): e.g image, name, date and description.
    * It is typically used in Activity Manager window.
    *
-   * @extends ActivityItemBase
+   * @augments ActivityItemBase
    */
   class ActivityEventItem extends ActivityItemBase {
     static defaultIconSrc =
@@ -194,7 +197,7 @@
    * progress and icon. It is shown in Activity Manager window. It gets removed
    * when there is no activities from the group.
    *
-   * @extends HTMLLIElement
+   * @augments HTMLLIElement
    */
   class ActivityGroupItem extends HTMLLIElement {
     constructor() {
@@ -214,6 +217,7 @@
 
     /**
      * The text heading for the group, as seen by the user.
+     *
      * @type {string}
      */
     set contextDisplayText(val) {
@@ -238,7 +242,7 @@
    * process : e.g image, progress, name, date and description.
    * It is typically used in Activity Manager window.
    *
-   * @extends ActivityItemBase
+   * @augments ActivityItemBase
    */
   class ActivityProcessItem extends ActivityItemBase {
     static defaultIconSrc =
@@ -357,7 +361,7 @@
    * warnings : e.g image, name, date and description.
    * It is typically used in Activity Manager window.
    *
-   * @extends ActivityItemBase
+   * @augments ActivityItemBase
    */
   class ActivityWarningItem extends ActivityItemBase {
     static defaultIconSrc =

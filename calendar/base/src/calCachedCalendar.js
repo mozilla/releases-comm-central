@@ -23,7 +23,7 @@ var gNoOpListener = {
  * temporary error.
  *
  * @param result     The result code to check.
- * @return           True, if the result code means server unavailability.
+ * @returns True, if the result code means server unavailability.
  */
 function isUnavailableCode(result) {
   // Stolen from nserror.h
@@ -646,6 +646,7 @@ calCachedCalendar.prototype = {
   /**
    * The function form of calIOperationListener.onOperationComplete used where
    * the whole interface is not needed.
+   *
    * @callback OnOperationCompleteHandler
    *
    * @param {calICalendar} calendar
@@ -659,6 +660,7 @@ calCachedCalendar.prototype = {
    * Keeps track of pending callbacks injected into the uncached calendar during
    * adopt or modify operations. This is done to ensure we remove the correct
    * callback when multiple operations occur at once.
+   *
    * @type {OnOperationComplateHandler[]}
    */
   _injectedCallbacks: [],
@@ -731,7 +733,7 @@ calCachedCalendar.prototype = {
    * Adds an item to the cached (storage) calendar.
    *
    * @param {calIItem} item
-   * @return {calIItem}
+   * @returns {calIItem}
    */
   async adoptOfflineItem(item) {
     let adoptedItem = await this.mCachedCalendar.adoptItem(item);
@@ -838,7 +840,7 @@ calCachedCalendar.prototype = {
    *
    * @param {calIItem} newItem
    * @param {calIItem} oldItem
-   * @return {calIItem}
+   * @returns {calIItem}
    */
   async modifyOfflineItem(newItem, oldItem) {
     let modifiedItem = await this.mCachedCalendar.modifyItem(newItem, oldItem);

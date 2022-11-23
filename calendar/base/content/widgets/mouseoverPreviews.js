@@ -28,7 +28,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
  * PUBLIC: Displays a tooltip with details when hovering over an item in the views
  *
  * @param   {DOMEvent} occurrenceBoxMouseEvent  the triggering event
- * @returns {boolean}                           true, if the tooltip is displayed
+ * @returns {boolean} true, if the tooltip is displayed
  */
 function onMouseOverItem(occurrenceBoxMouseEvent) {
   if ("occurrence" in occurrenceBoxMouseEvent.currentTarget) {
@@ -45,7 +45,7 @@ function onMouseOverItem(occurrenceBoxMouseEvent) {
  *
  * @param  {Node}               aTooltip  the node to hold the tooltip
  * @param  {CalIEvent|calIToDo} aItem     the item to create the tooltip for
- * @returns {boolean}                     true, if the tooltip is displayed
+ * @returns {boolean} true, if the tooltip is displayed
  */
 function showToolTip(aToolTip, aItem) {
   if (aItem) {
@@ -65,7 +65,7 @@ function showToolTip(aToolTip, aItem) {
  * PUBLIC:  Called when a user hovers over a todo element and the text for the
  * mouse over is changed.
  *
- * @param {calIToDo} toDoItem    the item to create the preview for
+ * @param {calIToDo} toDoItem - the item to create the preview for
  * @param {boolean}  aIsTooltip  enabled if used for tooltip composition (default)
  */
 function getPreviewForItem(aItem, aIsTooltip = true) {
@@ -82,7 +82,7 @@ function getPreviewForItem(aItem, aIsTooltip = true) {
  * Cancelled for a given event
  *
  * @param   {calIEvent} aEvent The event
- * @returns {String}           The string for the status property of the event
+ * @returns {string} The string for the status property of the event
  */
 function getEventStatusString(aEvent) {
   switch (aEvent.status) {
@@ -103,7 +103,7 @@ function getEventStatusString(aEvent) {
  * Cancelled, orCompleted for a given ToDo
  *
  * @param   {calIToDo} aToDo   The ToDo
- * @returns {String}           The string for the status property of the event
+ * @returns {string} The string for the status property of the event
  */
 function getToDoStatusString(aToDo) {
   switch (aToDo.status) {
@@ -125,7 +125,7 @@ function getToDoStatusString(aToDo) {
  * PRIVATE: Called when a user hovers over a todo element and the text for the
  * mouse overis changed.
  *
- * @param {calIToDo} toDoItem    the item to create the preview for
+ * @param {calIToDo} toDoItem - the item to create the preview for
  * @param {boolean}  aIsTooltip  enabled if used for tooltip composition (default)
  */
 function getPreviewForTask(toDoItem, aIsTooltip = true) {
@@ -228,7 +228,7 @@ function getPreviewForTask(toDoItem, aIsTooltip = true) {
  * box (recurring or multiday events may be displayed by more than one event box
  * for different days), or null if should compute next instance from now.
  *
- * @param {calIEvent} aEvent       the item to create the preview for
+ * @param {calIEvent} aEvent - the item to create the preview for
  * @param {boolean}   aIsTooltip   enabled if used for tooltip composition (default)
  */
 function getPreviewForEvent(aEvent, aIsTooltip = true) {
@@ -302,9 +302,9 @@ function boxAppendBodySeparator(vbox) {
  * PRIVATE: Append description to box for body text. Rendered as HTML.
  * Indentation and line breaks are preserved.
  *
- * @param {Node} box              Box to which to append the body.
- * @param {string} textString     Text of the body.
- * @param {boolean} aIsTooltip    True for "tooltip" and false for "conflict-dialog" case.
+ * @param {Node} box - Box to which to append the body.
+ * @param {string} textString - Text of the body.
+ * @param {boolean} aIsTooltip - True for "tooltip" and false for "conflict-dialog" case.
  */
 function boxAppendBody(box, textString, aIsTooltip) {
   let type = aIsTooltip ? "description" : "vbox";
@@ -323,8 +323,8 @@ function boxAppendBody(box, textString, aIsTooltip) {
  * and to header table append a row containing localized Label: date.
  *
  * @param {Node}         box            The node to add the date label to
- * @param {String}       labelProperty  The label
- * @param {calIDateTime} date           The datetime object to format and add
+ * @param {string}       labelProperty  The label
+ * @param {calIDateTime} date - The datetime object to format and add
  */
 function boxAppendLabeledDateTime(box, labelProperty, date) {
   date = date.getInTimezone(cal.dtz.defaultTimezone);
@@ -378,8 +378,8 @@ function boxAppendLabeledText(box, labelProperty, textString) {
 /**
  * PRIVATE: Creates an element for field label (for header table)
  *
- * @param   {String} text  The text to display in the node
- * @returns {Node}         The node
+ * @param   {string} text  The text to display in the node
+ * @returns {Node} The node
  */
 function createTooltipHeaderLabel(text) {
   let labelCell = document.createElementNS("http://www.w3.org/1999/xhtml", "th");
@@ -391,8 +391,8 @@ function createTooltipHeaderLabel(text) {
 /**
  * PRIVATE: Creates an element for field value (for header table)
  *
- * @param   {String} text  The text to display in the node
- * @returns {Node}         The node
+ * @param   {string} text  The text to display in the node
+ * @returns {Node} The node
  */
 function createTooltipHeaderDescription(text) {
   let descriptionCell = document.createElementNS("http://www.w3.org/1999/xhtml", "td");
@@ -407,7 +407,7 @@ function createTooltipHeaderDescription(text) {
  * occurrence.
  *
  * @param   {calIEvent}  calendarEvent   The text to display in the node
- * @returns {mixed}                      Returns a calIDateTime for the detected
+ * @returns {mixed} Returns a calIDateTime for the detected
  *                                        occurrence or calIEvent, if this is a
  *                                        non-recurring event
  */

@@ -39,9 +39,9 @@
 /**
  * Merge all the messages in a maildir into a single mbox file.
  *
- * @param {String} maildir              - Path to the source maildir.
- * @param {String} mboxFilename         - Path of the mbox file to create.
- * @param {Function(Number)} progressFn - Function to be invoked regularly with
+ * @param {string} maildir - Path to the source maildir.
+ * @param {string} mboxFilename - Path of the mbox file to create.
+ * @param {Function(number)} progressFn - Function to be invoked regularly with
  *                                        progress updates. Param is number of
  *                                        "units" processed since last update.
  */
@@ -143,9 +143,9 @@ async function maildirToMBox(maildir, mboxFilename, progressFn) {
 /**
  * Split an mbox file up into a maildir.
  *
- * @param {String} mboxPath             - Path of the mbox file to split.
- * @param {String} maildirPath          - Path of the maildir to create.
- * @param {Function(Number)} progressFn - Function to be invoked regularly with
+ * @param {string} mboxPath - Path of the mbox file to split.
+ * @param {string} maildirPath - Path of the maildir to create.
+ * @param {Function(number)} progressFn - Function to be invoked regularly with
  *                                        progress updates. One parameter is
  *                                        passed - the number of "cost units"
  *                                        since the previous update.
@@ -287,8 +287,8 @@ async function mboxToMaildir(mboxPath, maildirPath, progressFn) {
 /**
  * Check if directory is a subfolder directory.
  *
- * @param {String} name     - Name of directory to check.
- * @returns {Boolean}       - true if subfolder.
+ * @param {string} name - Name of directory to check.
+ * @returns {boolean} - true if subfolder.
  */
 function isSBD(name) {
   return name.substr(-4) == ".sbd";
@@ -299,8 +299,8 @@ function isSBD(name) {
  * conversion.
  * See also: nsMsgLocalStoreUtils::nsShouldIgnoreFile().
  *
- * @param {String} name     - Name of file to check.
- * @returns {Boolean}       - true if file should be copied verbatim.
+ * @param {string} name - Name of file to check.
+ * @returns {boolean} - true if file should be copied verbatim.
  */
 function isFileToCopy(name) {
   let ext4 = name.substr(-4);
@@ -338,8 +338,8 @@ function isFileToCopy(name) {
  * (actually we can't really tell if it's an mbox or not just from the name.
  * we just assume it is, if it's not .msf or .dat).
  *
- * @param {String} name     - Name of file to check.
- * @returns {Boolean}       - true if file is an mbox
+ * @param {string} name - Name of file to check.
+ * @returns {boolean} - true if file is an mbox
  */
 function isMBoxName(name) {
   // If it's not a "special" file, assume it's mbox.
@@ -349,7 +349,7 @@ function isMBoxName(name) {
 /**
  * Check if directory is a maildir (by looking for a "cur" subdir).
  *
- * @param {string} dir         - Path of directory to check.
+ * @param {string} dir - Path of directory to check.
  * @returns {Promise<boolean>} - true if directory is a maildir.
  */
 async function isMaildir(dir) {
@@ -369,7 +369,7 @@ async function isMaildir(dir) {
 /**
  * Count the number of messages in the "cur" dir of maildir.
  *
- * @param {string} maildir    - Path of maildir.
+ * @param {string} maildir - Path of maildir.
  * @returns {Promise<number>} - number of messages found.
  */
 async function countMaildirMsgs(maildir) {
@@ -383,7 +383,7 @@ async function countMaildirMsgs(maildir) {
  * This is the figure used for progress updates.
  * For maildir, cost is 1 per message.
  *
- * @param {string} srcPath    - Path of root dir containing maildirs.
+ * @param {string} srcPath - Path of root dir containing maildirs.
  * @returns {Promise<number>} - calculated conversion cost.
  */
 async function calcMaildirCost(srcPath) {
@@ -413,7 +413,7 @@ async function calcMaildirCost(srcPath) {
  * the "From " lines which are not written into the maildir files. But it's
  * definitely close enough to give good user feedback.
  *
- * @param {string} srcPath    - Path of root dir containing maildirs.
+ * @param {string} srcPath - Path of root dir containing maildirs.
  * @returns {Promise<number>} - calculated conversion cost.
  */
 async function calcMBoxCost(srcPath) {
@@ -436,9 +436,9 @@ async function calcMBoxCost(srcPath) {
 /**
  * Recursively convert a tree of mbox-based folders to maildirs.
  *
- * @param {String} srcPath              - Root path containing mboxes.
- * @param {String} destPath             - Where to create destination root.
- * @param {Function(Number)} progressFn - Function to be invoked regularly with
+ * @param {string} srcPath - Root path containing mboxes.
+ * @param {string} destPath - Where to create destination root.
+ * @param {Function(number)} progressFn - Function to be invoked regularly with
  *                                        progress updates (called with number of
  *                                        cost "units" since last update)
  */
@@ -466,9 +466,9 @@ async function convertTreeMBoxToMaildir(srcPath, destPath, progressFn) {
 /**
  * Recursively convert a tree of maildir-based folders to mbox.
  *
- * @param {String} srcPath              - Root path containing maildirs.
- * @param {String} destPath             - Where to create destination root.
- * @param {Function(Number)} progressFn - Function to be invoked regularly with
+ * @param {string} srcPath - Root path containing maildirs.
+ * @param {string} destPath - Where to create destination root.
+ * @param {Function(number)} progressFn - Function to be invoked regularly with
  *                                        progress updates (called with number of
  *                                        cost "units" since last update)
  */

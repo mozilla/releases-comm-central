@@ -469,6 +469,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
 
 /**
  * Ask server which addons can handle this config.
+ *
  * @param {AccountConfig} config
  * @param {Function(config {AccountConfig})} successCallback
  * @returns {Abortable}

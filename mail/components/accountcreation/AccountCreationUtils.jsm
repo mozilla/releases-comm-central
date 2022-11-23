@@ -56,8 +56,8 @@ function runAsync(func) {
 /**
  * Reads UTF8 data from a URL.
  *
- * @param uri {nsIURI}   what you want to read
- * @return {Array of String}   the contents of the file, one string per line
+ * @param uri {nsIURI} - what you want to read
+ * @returns {Array of String} the contents of the file, one string per line
  */
 function readURLasUTF8(uri) {
   assert(uri instanceof Ci.nsIURI, "uri must be an nsIURI");
@@ -95,8 +95,8 @@ function readURLasUTF8(uri) {
 }
 
 /**
- * @param bundleURI {String}   chrome URL to properties file
- * @return nsIStringBundle
+ * @param bundleURI {String} - chrome URL to properties file
+ * @returns nsIStringBundle
  */
 function getStringBundle(bundleURI) {
   try {
@@ -195,7 +195,8 @@ PromiseAbortable.prototype.constructor = PromiseAbortable;
 /**
  * Utility implementation, for allowing to abort a setTimeout.
  * Use like: return new TimeoutAbortable(setTimeout(function(){ ... }, 0));
- * @param setTimeoutID {Integer}  Return value of setTimeout()
+ *
+ * @param setTimeoutID {Integer} - Return value of setTimeout()
  */
 function TimeoutAbortable(setTimeoutID) {
   Abortable.call(this); // call super constructor
@@ -210,7 +211,8 @@ TimeoutAbortable.prototype.cancel = function() {
 /**
  * Utility implementation, for allowing to abort a setTimeout.
  * Use like: return new TimeoutAbortable(setTimeout(function(){ ... }, 0));
- * @param setIntervalID {Integer}  Return value of setInterval()
+ *
+ * @param setIntervalID {Integer} - Return value of setInterval()
  */
 function IntervalAbortable(setIntervalID) {
   Abortable.call(this); // call super constructor
@@ -279,6 +281,7 @@ ParallelAbortable.prototype = {
   /**
    * Observers will be called once one of the functions
    * finishes, i.e. returns successfully or fails.
+   *
    * @param {Function({ParallelCall} call)} func
    */
   addOneFinishedObserver(func) {
@@ -289,6 +292,7 @@ ParallelAbortable.prototype = {
    * Will be called once *all* of the functions finished,
    * It gives you a list of all functions that succeeded or failed,
    * respectively.
+   *
    * @param {Function(
    *    {Array of ParallelCall} succeeded,
    *    {Array of ParallelCall} failed
@@ -326,6 +330,7 @@ ParallelAbortable.prototype = {
 /**
  * Returned by ParallelAbortable.addCall().
  * Do not create this object directly
+ *
  * @param {ParallelAbortable} parallelAbortable - The controlling ParallelAbortable
  */
 function ParallelCall(parallelAbortable) {
@@ -351,6 +356,7 @@ ParallelCall.prototype = {
   /**
    * Returns a successCallback(result) function that you pass
    * to your function that runs in parallel.
+   *
    * @returns {Function(result)} successCallback
    */
   successCallback() {
@@ -374,6 +380,7 @@ ParallelCall.prototype = {
   /**
    * Returns an errorCallback(e) function that you pass
    * to your function that runs in parallel.
+   *
    * @returns {Function(e)} errorCallback
    */
   errorCallback() {
@@ -401,6 +408,7 @@ ParallelCall.prototype = {
   /**
    * Call your function that needs to run in parallel
    * and pass the resulting |Abortable| of your function here.
+   *
    * @param {Abortable} abortable
    */
   setAbortable(abortable) {
@@ -499,7 +507,7 @@ NoLongerNeededException.prototype.constructor = NoLongerNeededException;
  * var installer = new AddonInstaller({ xpiURL : "https://...xpi", id: "...", ...});
  * installer.install();
  *
- * @param {Object} args - Contains parameters:
+ * @param {object} args - Contains parameters:
  * @param {string} name (Optional) - Name of the addon (not important)
  * @param {string} id (Optional) - Addon ID
  * If you pass an ID, and the addon is already installed (and the version matches),
@@ -530,8 +538,9 @@ AddonInstaller.prototype.constructor = AddonInstaller;
 /**
  * Checks whether the passed-in addon matches the
  * id and minVersion requested by the caller.
+ *
  * @param {nsIAddon} addon
- * @returns {Boolean} is OK
+ * @returns {boolean} is OK
  */
 AddonInstaller.prototype.matches = function(addon) {
   return (
@@ -544,6 +553,7 @@ AddonInstaller.prototype.matches = function(addon) {
 
 /**
  * Start the installation
+ *
  * @throws Exception in case of failure
  */
 AddonInstaller.prototype.install = async function() {
@@ -556,6 +566,7 @@ AddonInstaller.prototype.install = async function() {
 /**
  * Checks whether we already have an addon installed that matches the
  * id and minVersion requested by the caller.
+ *
  * @returns {boolean} is already installed and enabled
  */
 AddonInstaller.prototype.isInstalled = async function() {
@@ -568,6 +579,7 @@ AddonInstaller.prototype.isInstalled = async function() {
 
 /**
  * Checks whether we already have an addon but it is disabled.
+ *
  * @returns {boolean} is already installed but disabled
  */
 AddonInstaller.prototype.isDisabled = async function() {
@@ -604,6 +616,7 @@ AddonInstaller.prototype._installDirect = async function() {
 
 /**
  * Install confirmation. You may override this, if needed.
+ *
  * @throws Exception If you want to cancel install, then throw an exception.
  */
 AddonInstaller.prototype.prompt = async function(info) {

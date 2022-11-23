@@ -12,6 +12,7 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 
 /**
  * Implements nsIPromptCollection
+ *
  * @class PromptCollection
  */
 class PromptCollection {

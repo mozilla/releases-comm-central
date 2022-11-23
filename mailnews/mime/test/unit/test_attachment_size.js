@@ -312,7 +312,7 @@ async function test_message_attachments(info) {
  * bytes. Mac and Linux treats them as 1 byte.
  *
  * @param message a synthetic message from makeMessage()
- * @return the message's size in bytes
+ * @returns the message's size in bytes
  */
 function get_message_size(message) {
   let messageString = message.toMessageString();

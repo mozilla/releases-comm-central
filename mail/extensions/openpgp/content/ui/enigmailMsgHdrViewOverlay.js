@@ -826,7 +826,7 @@ Enigmail.hdrView = {
         let newFlags = oldFlags | Ci.nsMsgMessageFlags.HasRe;
         msgHdr.flags = newFlags;
         if (tree && tree.view) {
-          tree.view.db.NotifyHdrChangeAll(msgHdr, oldFlags, newFlags, {});
+          tree.view.db.notifyHdrChangeAll(msgHdr, oldFlags, newFlags, {});
         }
       } else if (tree && tree.view && tree.view.selection) {
         tree.invalidateRow(tree.view.selection.currentIndex);
@@ -974,7 +974,7 @@ Enigmail.hdrView = {
      *
      * @param mimePartNumber String - the MIME part number that was authenticated
      *
-     * @return Boolean: true: there are siblings / false: no siblings
+     * @returns Boolean: true: there are siblings / false: no siblings
      */
     hasUnauthenticatedParts(mimePartNumber) {
       function hasSiblings(mimePart, searchPartNum, parentNum) {

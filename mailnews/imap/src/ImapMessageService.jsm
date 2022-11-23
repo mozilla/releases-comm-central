@@ -240,6 +240,7 @@ class BaseMessageService {
 
   /**
    * Parse a message uri to hostname, folder and message key.
+   *
    * @param {string} uri - The imap-message:// url to parse.
    * @returns {host: string, folder: nsIMsgFolder, folderName: string, key: string}
    */

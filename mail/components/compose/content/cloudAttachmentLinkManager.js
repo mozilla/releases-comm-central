@@ -152,9 +152,9 @@ var gCloudAttachmentLinkManager = {
    *
    * @param {Document} aDocument - the document to append the link to - doesn't
    *   actually get appended, but is used to generate the anchor node
-   * @param {String} aContent - the textual content of the link
-   * @param {String} aHref - the HREF attribute for the generated link
-   * @param {String} aColor - the CSS color string for the link
+   * @param {string} aContent - the textual content of the link
+   * @param {string} aHref - the HREF attribute for the generated link
+   * @param {string} aColor - the CSS color string for the link
    */
   _generateLink(aDocument, aContent, aHref, aColor) {
     let link = aDocument.createElement("a");
@@ -288,7 +288,7 @@ var gCloudAttachmentLinkManager = {
    * id attribute to the empty string, freeing up the ids for later use.
    *
    * @param {Document} aDocument - the document to search for the elements
-   * @param {String[]} aIDs - an array of id strings
+   * @param {string[]} aIDs - an array of id strings
    */
   _resetNodeIDs(aDocument, aIDs) {
     for (let id of aIDs) {

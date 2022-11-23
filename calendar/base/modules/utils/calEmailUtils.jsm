@@ -22,10 +22,10 @@ var calemail = {
    * parameters. These parameters are mostly raw header fields, see #createRecipientList function
    * to create a recipient list string.
    *
-   * @param {String} aRecipient       The email recipients string.
-   * @param {String} aSubject         The email subject.
-   * @param {String} aBody            The encoded email body text.
-   * @param {nsIMsgIdentity} aIdentity    The email identity to use for sending
+   * @param {string} aRecipient - The email recipients string.
+   * @param {string} aSubject - The email subject.
+   * @param {string} aBody - The encoded email body text.
+   * @param {nsIMsgIdentity} aIdentity - The email identity to use for sending
    */
   sendTo(aRecipient, aSubject, aBody, aIdentity) {
     let msgParams = Cc["@mozilla.org/messengercompose/composeparams;1"].createInstance(
@@ -51,7 +51,7 @@ var calemail = {
    * Iterates all email identities and calls the passed function with identity and account.
    * If the called function returns false, iteration is stopped.
    *
-   * @param {Function} aFunc       The function to be called for each identity and account
+   * @param {Function} aFunc - The function to be called for each identity and account
    */
   iterateIdentities(aFunc) {
     for (let account of MailServices.accounts.accounts) {
@@ -66,8 +66,8 @@ var calemail = {
   /**
    * Prepends a mailto: prefix to an email address like string
    *
-   * @param  {String} aId     The string to prepend the prefix if not already there
-   * @return {String}         The string with prefix
+   * @param  {string} aId     The string to prepend the prefix if not already there
+   * @returns {string} The string with prefix
    */
   prependMailTo(aId) {
     return aId.replace(/^(?:mailto:)?(.*)@/i, "mailto:$1@");
@@ -76,8 +76,8 @@ var calemail = {
   /**
    * Removes an existing mailto: prefix from an attendee id
    *
-   * @param  {String} aId     The string to remove the prefix from if any
-   * @return {String}         The string without prefix
+   * @param  {string} aId     The string to remove the prefix from if any
+   * @returns {string} The string without prefix
    */
   removeMailTo(aId) {
     return aId.replace(/^mailto:/i, "");
@@ -87,7 +87,7 @@ var calemail = {
    * Provides a string to use in email "to" header for given attendees
    *
    * @param  {calIAttendee[]} aAttendees          Array of calIAttendee's to check
-   * @return {String}                             Valid string to use in a 'to' header of an email
+   * @returns {string} Valid string to use in a 'to' header of an email
    */
   createRecipientList(aAttendees) {
     let cbEmail = function(aVal) {
@@ -108,8 +108,8 @@ var calemail = {
    * 'Common Name <attendee@example.net>' or '"Name, Common" <attendee@example.net>'
    *
    * @param  {calIAttendee} aAttendee     The attendee to check
-   * @param  {Boolean} aIncludeCn         Whether or not to return also the CN if available
-   * @return {String}                     Valid email string or an empty string in case of error
+   * @param  {boolean} aIncludeCn         Whether or not to return also the CN if available
+   * @returns {string} Valid email string or an empty string in case of error
    */
   getAttendeeEmail(aAttendee, aIncludeCn) {
     // If the recipient id is of type urn, we need to figure out the email address, otherwise
@@ -134,8 +134,8 @@ var calemail = {
   /**
    * Returns a basically checked recipient list - malformed elements will be removed
    *
-   * @param {String} aRecipients      A comma-seperated list of e-mail addresses
-   * @return {String}                 A validated comma-seperated list of e-mail addresses
+   * @param {string} aRecipients - A comma-seperated list of e-mail addresses
+   * @returns {string} A validated comma-seperated list of e-mail addresses
    */
   validateRecipientList(aRecipients) {
     let compFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
@@ -191,9 +191,9 @@ var calemail = {
    * Check if the attendee object matches one of the addresses in the list. This
    * is useful to determine whether the current user acts as a delegate.
    *
-   * @param {calIAttendee} aRefAttendee   The reference attendee object
-   * @param {String[]} aAddresses         The list of addresses
-   * @return {Boolean}                    True, if there is a match
+   * @param {calIAttendee} aRefAttendee - The reference attendee object
+   * @param {string[]} aAddresses - The list of addresses
+   * @returns {boolean} True, if there is a match
    */
   attendeeMatchesAddresses(aRefAttendee, aAddresses) {
     let attId = aRefAttendee.id;

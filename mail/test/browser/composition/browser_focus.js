@@ -23,7 +23,7 @@ requestLongerTimeout(3);
  * Test the cycling of focus in the composition window through (Shift+)F6.
  *
  * @param {MozMillController} controller - Controller for the compose window.
- * @param {Object} options - Options to set for the test.
+ * @param {object} options - Options to set for the test.
  * @param {boolean} options.useTab - Whether to use Ctrl+Tab instead of F6.
  * @param {boolean} options.attachment - Whether to add an attachment.
  * @param {boolean} options.notifications - Whether to show notifications.

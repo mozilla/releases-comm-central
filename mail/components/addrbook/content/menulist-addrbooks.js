@@ -16,7 +16,8 @@ if (!customElements.get("menulist")) {
   /**
    * MozMenulistAddrbooks is a menulist widget that is automatically
    * populated with the complete address book list.
-   * @extends {MozMenuList}
+   *
+   * @augments {MozMenuList}
    */
   class MozMenulistAddrbooks extends customElements.get("menulist") {
     connectedCallback() {

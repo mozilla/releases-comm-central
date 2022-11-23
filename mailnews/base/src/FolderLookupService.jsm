@@ -16,6 +16,7 @@ var gCreated = false;
 /**
  * FolderLookupService maintains an index of folders and provides
  * lookup by folder URI.
+ *
  * @class
  */
 function FolderLookupService() {
@@ -34,7 +35,7 @@ FolderLookupService.prototype = {
    * Will only return folders which already exist and have a parent. If this
    * not the case then null is returned.
    *
-   * @param {String} uri - URI of folder to get.
+   * @param {string} uri - URI of folder to get.
    * @returns {nsIMsgFolder|null}
    */
   getFolderForURL(uri) {
@@ -53,7 +54,7 @@ FolderLookupService.prototype = {
    * A lot of code relies on this behaviour, but for new code this
    * call should probably be avoided.
    *
-   * @param {String} uri - URI of folder to get.
+   * @param {string} uri - URI of folder to get.
    * @returns {nsIMsgFolder}
    */
   getOrCreateFolderForURL(uri) {
@@ -122,7 +123,7 @@ FolderLookupService.prototype = {
   /**
    * Internal helper to find a folder (which may or may not be dangling).
    *
-   * @param {String} uri - URI of folder to look up.
+   * @param {string} uri - URI of folder to look up.
    *
    * @returns {nsIMsgFolder|null} - The folder, if in the index, else null.
    */
@@ -150,7 +151,7 @@ FolderLookupService.prototype = {
    * an exception if we attempted to create a server that doesn't exist, so we
    * need to guard for that error.
    *
-   * @returns {Boolean} - true if folder valid (and parented).
+   * @returns {boolean} - true if folder valid (and parented).
    */
   _isValidFolder(folder) {
     try {

@@ -91,6 +91,7 @@ add_task(async function test_sig_strip_false_nonff() {
 
 /**
  * Helper function to check signature stripping works as it should.
+ *
  * @param aRow the row index of the message to test
  * @param aShouldStrip true if the signature should be stripped
  */

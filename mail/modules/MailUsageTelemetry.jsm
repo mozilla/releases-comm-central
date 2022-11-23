@@ -325,6 +325,7 @@ let MailUsageTelemetry = {
 
   /**
    * Tracks the window count and registers the listeners for the tab count.
+   *
    * @param{Object} win The window object.
    */
   _onWindowOpen(win) {

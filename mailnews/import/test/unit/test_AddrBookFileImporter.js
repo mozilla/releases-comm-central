@@ -9,6 +9,7 @@ var { AddrBookFileImporter } = ChromeUtils.import(
 /**
  * Create a temporary address book, import a source file into it, then test the
  * cards are correct.
+ *
  * @param {string} type - A source file type supported by AddrBookFileImporter.
  * @param {string} filePath - The path of a source file.
  * @param {string} refDataKey - The key of an object in addressbook.json.

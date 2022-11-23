@@ -78,7 +78,7 @@ GlodaAttributeDBDef.prototype = {
    * Bind a parameter value to the attribute definition, allowing use of the
    *  attribute-parameter as an attribute.
    *
-   * @return
+   * @returns
    */
   bindParameter(aValue) {
     // people probably shouldn't call us with null, but handle it
@@ -450,7 +450,7 @@ GlodaFolder.prototype = {
    * @param aActivity One of the kActivity* constants.  If you pass
    *     kActivityIndexing, we will set indexing for you, but you will need to
    *     clear it when you are done.
-   * @return The nsIMsgFolder if available, null on failure.
+   * @returns The nsIMsgFolder if available, null on failure.
    */
   getXPCOMFolder(aActivity) {
     if (!this._xpcomFolder) {
@@ -479,7 +479,7 @@ GlodaFolder.prototype = {
   /**
    * Retrieve a GlodaAccount instance corresponding to this folder.
    *
-   * @return The GlodaAccount instance.
+   * @returns The GlodaAccount instance.
    */
   getAccount() {
     if (!this._account) {

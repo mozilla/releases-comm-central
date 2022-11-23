@@ -35,11 +35,11 @@ let tabListener = {
   /**
    * Web Progress listener method for the location change.
    *
-   * @param {Element} browser               The browser element that caused the change
-   * @param {nsIWebProgress} webProgress    The web progress for the location change
-   * @param {nsIRequest} request            The xpcom request for this change
-   * @param {nsIURI} locationURI            The target uri
-   * @param {Integer} flags                 The web progress flags for this change
+   * @param {Element} browser - The browser element that caused the change
+   * @param {nsIWebProgress} webProgress - The web progress for the location change
+   * @param {nsIRequest} request - The xpcom request for this change
+   * @param {nsIURI} locationURI - The target uri
+   * @param {Integer} flags - The web progress flags for this change
    */
   onLocationChange(browser, webProgress, request, locationURI, flags) {
     if (webProgress && webProgress.isTopLevel) {
@@ -62,7 +62,7 @@ let tabListener = {
    * Promise that the given tab completes loading.
    *
    * @param {NativeTabInfo} nativeTabInfo - the tabInfo describing the tab
-   * @return {Promise<NativeTabInfo>} - resolves when the tab completes loading
+   * @returns {Promise<NativeTabInfo>} - resolves when the tab completes loading
    */
   awaitTabReady(nativeTabInfo) {
     let deferred = this.tabReadyPromises.get(nativeTabInfo);
@@ -264,8 +264,8 @@ this.tabs = class extends ExtensionAPI {
     /**
      * Gets the tab for the given tab id, or the active tab if the id is null.
      *
-     * @param {?Integer} tabId          The tab id to get
-     * @return {Tab}                    The matching tab, or the active tab
+     * @param {?Integer} tabId - The tab id to get
+     * @returns {Tab} The matching tab, or the active tab
      */
     function getTabOrActive(tabId) {
       if (tabId) {
@@ -277,8 +277,8 @@ this.tabs = class extends ExtensionAPI {
     /**
      * Promise that the tab with the given tab id is ready.
      *
-     * @param {Integer} tabId       The tab id to check
-     * @return {Promise<NativeTabInfo>}     Resolved when the loading is complete
+     * @param {Integer} tabId - The tab id to check
+     * @returns {Promise<NativeTabInfo>} Resolved when the loading is complete
      */
     async function promiseTabWhenReady(tabId) {
       let tab;

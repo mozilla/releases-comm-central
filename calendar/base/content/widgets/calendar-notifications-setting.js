@@ -14,7 +14,8 @@
   /**
    * A calendar-notifications-setting provides controls to config notifications
    * times of a calendar.
-   * @extends {MozXULElement}
+   *
+   * @augments {MozXULElement}
    */
   class CalendarNotificationsSetting extends MozXULElement {
     connectedCallback() {
@@ -151,6 +152,7 @@
 
     /**
      * Render this_items to a list of rows.
+     *
      * @param {Array<[number, string, string]>} items - An array of count, unit and relation.
      */
     _render(items) {
