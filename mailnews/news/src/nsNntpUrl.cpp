@@ -331,12 +331,8 @@ NS_IMETHODIMP nsNntpUrl::SetMessageHeader(nsIMsgDBHdr* aMsgHdr) {
 NS_IMETHODIMP nsNntpUrl::GetMessageHeader(nsIMsgDBHdr** aMsgHdr) {
   nsresult rv;
 
-  nsCOMPtr<nsINntpService> nntpService =
-      do_GetService("@mozilla.org/messenger/nntpservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsCOMPtr<nsIMsgMessageService> msgService =
-      do_QueryInterface(nntpService, &rv);
+      do_GetService("@mozilla.org/messenger/messageservice;1?type=news", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString spec(mOriginalSpec);
