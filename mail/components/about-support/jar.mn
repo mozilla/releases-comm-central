@@ -10,3 +10,4 @@ messenger.jar:
     content/messenger/about-support/aboutSupport.js            (content/aboutSupport.js)
     content/messenger/about-support/calendars.js               (content/calendars.js)
     content/messenger/about-support/chat.js                    (content/chat.js)
+    content/messenger/about-support/libs.js                    (content/libs.js)

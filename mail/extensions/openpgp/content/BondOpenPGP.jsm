@@ -64,7 +64,8 @@ var BondOpenPGP = {
 
     let initDone = await lazy.RNP.init({});
     if (!initDone) {
-      return;
+      let { error } = this.getRNPLibStatus();
+      throw new Error(error);
     }
 
     if (Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg")) {
@@ -73,6 +74,10 @@ var BondOpenPGP = {
 
     // trigger service init
     await lazy.EnigmailCore.getService();
+  },
+
+  getRNPLibStatus() {
+    return lazy.RNP.getRNPLibStatus();
   },
 
   openKeyManager(window) {
