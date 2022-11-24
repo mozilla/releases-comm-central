@@ -78,7 +78,7 @@ export function queueFileOperation(aPath, aOperation) {
 export function appendToFile(aPath, aString, aCreate) {
   return queueFileOperation(aPath, async function() {
     await IOUtils.makeDirectory(PathUtils.parent(aPath));
-    const mode = aCreate ? "overwrite" : "append";
+    const mode = aCreate ? "create" : "append";
     try {
       await IOUtils.writeUTF8(aPath, aString, {
         mode,
@@ -87,7 +87,7 @@ export function appendToFile(aPath, aString, aCreate) {
       // Ignore existing file when adding the header.
       if (
         aCreate &&
-        error.name == "UnknownError" &&
+        error.name == "NoModificationAllowedError" &&
         error.message.startsWith("Refusing to overwrite the file")
       ) {
         return;
