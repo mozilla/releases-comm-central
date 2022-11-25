@@ -2131,7 +2131,6 @@ var gFolderTreeView = {
           folder.__defineGetter__("children", () => []);
           folder.addServerName = true;
         }
-        sortFolderItems(map);
 
         // Create the header only if multiple modes are currently displayed or
         // the "All Folder" modes is not part of the array.
@@ -2240,7 +2239,6 @@ var gFolderTreeView = {
           item.__defineGetter__("children", () => []);
           item.addServerName = dupeNames.has(name);
         }
-        sortFolderItems(faves);
 
         // Create the header only if multiple modes are currently displayed or
         // the "All Folder" modes is not part of the array.
@@ -2630,7 +2628,9 @@ var gFolderTreeView = {
   get _enumerateFolders() {
     let folders = [];
 
-    for (let server of MailServices.accounts.allServers) {
+    // The accounts list is in user-arranged order, which is what we want.
+    for (let acct of MailServices.accounts.accounts) {
+      let server = acct.incomingServer;
       // Skip deferred accounts
       if (
         server instanceof Ci.nsIPop3IncomingServer &&
