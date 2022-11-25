@@ -129,8 +129,6 @@ Enigmail.prototype = {
       return;
     }
 
-    //getEnigmailKeyRefreshService().start(getEnigmailKeyServer());
-
     this.initialized = true;
 
     lazy.EnigmailLog.DEBUG("core.jsm: Enigmail.initialize: END\n");

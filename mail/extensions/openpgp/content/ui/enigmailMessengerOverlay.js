@@ -2724,28 +2724,6 @@ Enigmail.msg = {
     );
   },
 
-  importKeyFromKeyserver() {
-    var pubKeyId = "0x" + Enigmail.msg.securityInfo.keyId;
-    var inputObj = {
-      searchList: [pubKeyId],
-      autoKeyServer: Services.prefs.getBoolPref(
-        "temp.openpgp.autoKeyServerSelection"
-      )
-        ? Services.prefs
-            .getCharPref("temp.openpgp.keyserver")
-            .split(/[ ,;]/g)[0]
-        : null,
-    };
-    var resultObj = {};
-    EnigmailWindows.downloadKeys(window, inputObj, resultObj);
-
-    if (resultObj.importedKeys > 0) {
-      return true;
-    }
-
-    return false;
-  },
-
   onUnloadEnigmail() {
     window.removeEventListener("unload", Enigmail.msg.messengerClose);
     window.removeEventListener(

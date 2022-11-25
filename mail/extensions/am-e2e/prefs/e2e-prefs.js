@@ -109,9 +109,6 @@ pref("temp.openpgp.logDirectory", "");
 // list of key servers to use (comma separated list)
 pref("mail.openpgp.keyserver_list", "vks://keys.openpgp.org, hkps://keys.mailvelope.com");
 
-// auto select the first keyserver in the key server list
-pref("temp.openpgp.autoKeyServerSelection", true);
-
 // keep passphrase for ... minutes
 pref("temp.openpgp.maxIdleMinutes", 5);
 
@@ -194,9 +191,6 @@ pref("temp.openpgp.warnDeprecatedGnuPG", true);
 // warn if gpg-agent is found and "remember passphrase for X minutes is active"
 pref("temp.openpgp.warnGpgAgentAndIdleTime", true);
 
-// display a warning when all keys are to be refreshed
-pref("temp.openpgp.warnRefreshAll", true);
-
 // display a warning when the keys for all contacts are downloaded
 pref("temp.openpgp.warnDownloadContactKeys", true);
 
@@ -218,21 +212,6 @@ pref("temp.openpgp.searchKeyWithTor", false);
 pref("temp.openpgp.searchKeyRequireTor", false);
 pref("temp.openpgp.uploadKeyWithTor", false);
 pref("temp.openpgp.uploadKeyRequireTor", false);
-pref("temp.openpgp.refreshAllKeysWithTor", false);
-pref("temp.openpgp.refreshAllKeysRequireTor", false);
-
-// Hours per week that Enigmail is available for refreshing keys
-// The smaller the hours available, the more often the refresh
-// will happen to accommodate.
-pref("temp.openpgp.hoursPerWeekEnigmailIsOn", 40);
-
-// The minimum number of seconds to wait between refreshing keys.
-// Applied if the refresh frequence from hoursPerWeekEnigmailIsOn
-// goes too low
-pref("temp.openpgp.refreshMinDelaySeconds", 300);
-
-// Toggle to have user keys continuously refreshed
-pref("temp.openpgp.keyRefreshOn", false);
 
 // enable experimental features.
 // WARNING: such features may unfinished functions or tests that can break
