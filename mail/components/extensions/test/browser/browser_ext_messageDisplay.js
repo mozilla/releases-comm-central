@@ -44,7 +44,7 @@ add_task(async function testGetDisplayedMessage() {
         );
 
         if (typeof action == "string") {
-          browser.test.sendMessage(action);
+          await window.sendMessage(action);
         } else {
           action();
         }
@@ -181,18 +181,23 @@ add_task(async function testGetDisplayedMessage() {
 
   await extension.awaitMessage("show message 1");
   window.gFolderDisplay.selectViewIndex(1);
+  extension.sendMessage();
 
   await extension.awaitMessage("show message 2");
   window.gFolderDisplay.selectViewIndex(2);
+  extension.sendMessage();
 
   await extension.awaitMessage("open message 0 in tab");
   await openMessageInTab(gMessages[0]);
+  extension.sendMessage();
 
   await extension.awaitMessage("open message 1 in window");
   await openMessageInWindow(gMessages[1]);
+  extension.sendMessage();
 
   await extension.awaitMessage("show messages 1 and 2");
   window.gFolderDisplay.selectMessages(gMessages.slice(1, 3));
+  extension.sendMessage();
 
   await extension.awaitFinish("finished");
   await extension.unload();
