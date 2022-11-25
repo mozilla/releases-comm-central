@@ -1375,3 +1375,8 @@ pref("services.sync.engine.creditcards", false);
 pref("services.sync.engine.identities", true);
 pref("services.sync.engine.prefs", false);
 #endif
+
+// End of year donation appeal.
+pref("app.donation.eoy.version", 1);
+pref("app.donation.eoy.version.viewed", 0);
+pref("app.donation.eoy.url", "https://www.thunderbird.net/thunderbird/102.0/eoy/");

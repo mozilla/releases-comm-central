@@ -734,6 +734,12 @@ var gMailInit = {
     // 3-pane window. We need to notify this even if the user didn't setup any
     // mail account in order to trigger all the other areas of the application.
     Services.obs.notifyObservers(window, "mail-startup-done");
+
+    // Show the end of year donation appeal page.
+    if (this.shouldShowEOYDonationAppeal()) {
+      // Add a timeout to prevent opening the browser immediately at startup.
+      setTimeout(this.showEOYDonationAppeal, 2000);
+    }
   },
 
   /**
@@ -769,6 +775,44 @@ var gMailInit = {
 
     UnloadPanes();
     OnMailWindowUnload();
+  },
+
+  /**
+   * Check if we can trigger the opening of the donation appeal page.
+   *
+   * @returns {boolean} - True if the donation appeal page should be opened.
+   */
+  shouldShowEOYDonationAppeal() {
+    let currentEOY = Services.prefs.getIntPref("app.donation.eoy.version", 1);
+    let viewedEOY = Services.prefs.getIntPref(
+      "app.donation.eoy.version.viewed",
+      0
+    );
+
+    // True if the user never saw the donation appeal, this is not a new
+    // profile (since users are already prompted to donate after downloading),
+    // and we're not running tests.
+    return (
+      viewedEOY < currentEOY &&
+      !specialTabs.shouldShowPolicyNotification() &&
+      !Cu.isInAutomation
+    );
+  },
+
+  /**
+   * Open the end of year appeal in a new web browser page. We don't open this
+   * in a tab due to the complexity of the donation site, and we don't want to
+   * handle that inside Thunderbird.
+   */
+  showEOYDonationAppeal() {
+    let url = Services.prefs.getStringPref("app.donation.eoy.url");
+    let messenger =
+      window.messenger ||
+      Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+    messenger.launchExternalURL(url);
+
+    let currentEOY = Services.prefs.getIntPref("app.donation.eoy.version", 1);
+    Services.prefs.setIntPref("app.donation.eoy.version.viewed", currentEOY);
   },
 };
 
