@@ -107,7 +107,7 @@ pref("temp.openpgp.inlineSigAttachExt", ".sig");
 pref("temp.openpgp.logDirectory", "");
 
 // list of key servers to use (comma separated list)
-pref("temp.openpgp.keyserver", "vks://keys.openpgp.org");
+pref("mail.openpgp.keyserver_list", "vks://keys.openpgp.org, hkps://keys.mailvelope.com");
 
 // auto select the first keyserver in the key server list
 pref("temp.openpgp.autoKeyServerSelection", true);

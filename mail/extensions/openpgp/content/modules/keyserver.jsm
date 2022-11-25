@@ -205,7 +205,7 @@ const accessHkpInternal = {
       url +=
         "/pks/lookup?search=" +
         escape(searchTerm) +
-        "&fingerprint=on&op=index&options=mr";
+        "&fingerprint=on&op=index&options=mr&exact=on";
     }
 
     return {
@@ -312,23 +312,31 @@ const accessHkpInternal = {
             } else {
               let errorMsgObj = {},
                 importedKeysObj = {};
-              let importMinimal = false;
-              let r = lazy.EnigmailKeyRing.importKey(
-                null,
-                false,
-                xmlReq.responseText,
-                false,
-                "",
-                errorMsgObj,
-                importedKeysObj,
-                importMinimal
-              );
-              if (r === 0) {
-                resolve(importedKeysObj.value);
-              } else {
-                reject(
-                  createError(lazy.EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR)
+
+              if (actionFlag === lazy.EnigmailConstants.DOWNLOAD_KEY) {
+                let importMinimal = false;
+                let r = lazy.EnigmailKeyRing.importKey(
+                  null,
+                  false,
+                  xmlReq.responseText,
+                  false,
+                  "",
+                  errorMsgObj,
+                  importedKeysObj,
+                  importMinimal
                 );
+                if (r === 0) {
+                  resolve(importedKeysObj.value);
+                } else {
+                  reject(
+                    createError(
+                      lazy.EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR
+                    )
+                  );
+                }
+              } else {
+                // DOWNLOAD_KEY_NO_IMPORT
+                resolve(xmlReq.responseText);
               }
             }
             return;
@@ -415,8 +423,14 @@ const accessHkpInternal = {
           keyIdArr[i],
           listener
         );
-        if (Array.isArray(r)) {
-          retObj.keyList = retObj.keyList.concat(r);
+        if (autoImport) {
+          if (Array.isArray(r)) {
+            retObj.keyList = retObj.keyList.concat(r);
+          }
+        } else if (typeof r == "string") {
+          retObj.keyData = r;
+        } else {
+          retObj.result = r;
         }
       } catch (ex) {
         retObj.result = ex.result;
@@ -626,7 +640,7 @@ const accessKeyBase = {
    *
    * @return:   Promise<Number (Status-ID)>
    */
-  accessKeyServer(actionFlag, keyId, listener) {
+  async accessKeyServer(actionFlag, keyId, listener) {
     lazy.EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: accessKeyServer()\n`);
 
     return new Promise((resolve, reject) => {
@@ -668,7 +682,7 @@ const accessKeyBase = {
           case lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
             if (xmlReq.status >= 400 && xmlReq.status < 500) {
               // key not found
-              resolve([]);
+              resolve(1);
             } else if (xmlReq.status >= 500) {
               lazy.EnigmailLog.DEBUG(
                 "keyserver.jsm: onload: " + xmlReq.responseText + "\n"
@@ -679,8 +693,6 @@ const accessKeyBase = {
             } else {
               try {
                 let resp = JSON.parse(xmlReq.responseText);
-                let imported = [];
-
                 if (resp.status.code === 0) {
                   for (let hit in resp.them) {
                     lazy.EnigmailLog.DEBUG(
@@ -690,22 +702,33 @@ const accessKeyBase = {
                     if (resp.them[hit] !== null) {
                       let errorMsgObj = {},
                         importedKeysObj = {};
-                      let r = lazy.EnigmailKeyRing.importKey(
-                        null,
-                        false,
-                        resp.them[hit].public_keys.primary.bundle,
-                        false,
-                        "",
-                        errorMsgObj,
-                        importedKeysObj
-                      );
-                      if (r === 0) {
-                        imported.push(importedKeysObj.value);
+
+                      if (actionFlag === lazy.EnigmailConstants.DOWNLOAD_KEY) {
+                        let r = lazy.EnigmailKeyRing.importKey(
+                          null,
+                          false,
+                          resp.them[hit].public_keys.primary.bundle,
+                          false,
+                          "",
+                          errorMsgObj,
+                          importedKeysObj
+                        );
+                        if (r === 0) {
+                          resolve(importedKeysObj.value);
+                        } else {
+                          reject(
+                            createError(
+                              lazy.EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR
+                            )
+                          );
+                        }
+                      } else {
+                        // DOWNLOAD_KEY_NO_IMPORT
+                        resolve(resp.them[hit].public_keys.primary.bundle);
                       }
                     }
                   }
                 }
-                resolve(imported);
               } catch (ex) {
                 reject(
                   createError(lazy.EnigmailConstants.KEYSERVER_ERR_UNKNOWN)
@@ -1449,12 +1472,12 @@ var EnigmailKeyServer = {
    *     Object: - result: Number           - result Code (0 = OK),
    *             - keyList: Array of String - imported key FPR
    */
-  download(keyIDs, keyserver = null, listener) {
+  async download(keyIDs, keyserver = null, listener) {
     let acc = getAccessType(keyserver);
     return acc.download(true, keyIDs, keyserver, listener);
   },
 
-  downloadNoImport(keyIDs, keyserver = null, listener) {
+  async downloadNoImport(keyIDs, keyserver = null, listener) {
     let acc = getAccessType(keyserver);
     return acc.download(false, keyIDs, keyserver, listener);
   },
@@ -1507,6 +1530,27 @@ var EnigmailKeyServer = {
   searchKeyserver(searchString, keyserver = null, listener) {
     let acc = getAccessType(keyserver);
     return acc.search(searchString, keyserver, listener);
+  },
+
+  async searchAndDownloadSingleResultNoImport(
+    searchString,
+    keyserver = null,
+    listener
+  ) {
+    let acc = getAccessType(keyserver);
+    let searchResult = await acc.searchKeyserver(
+      searchString,
+      keyserver,
+      listener
+    );
+    if (searchResult.result != 0 || searchResult.pubKeys.length != 1) {
+      return null;
+    }
+    return this.downloadNoImport(
+      searchResult.pubKeys[0].keyId,
+      keyserver,
+      listener
+    );
   },
 
   /**
