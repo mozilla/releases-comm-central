@@ -113,10 +113,6 @@ var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
   Ci.nsIMsgWindow
 );
 
-add_task(function setupTest() {
-  // Stub.
-});
-
 add_task(async function test_text_attachment() {
   await test_message_attachments({
     attachments: [

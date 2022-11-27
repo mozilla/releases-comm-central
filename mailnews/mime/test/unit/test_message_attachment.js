@@ -38,7 +38,7 @@ const TEXT_ATTACHMENT = "inline text attachment";
 const EMAIL_ATTACHMENT = "Subject: fake email\r\n\r\n";
 const HTML_ATTACHMENT = "<html><body></body></html>";
 
-add_task(function setupTest() {
+add_setup(function() {
   Services.prefs.setBoolPref("mail.inline_attachments.text", true);
 });
 

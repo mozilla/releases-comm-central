@@ -36,7 +36,7 @@ var kUserName = "testnews";
 var kInvalidPassword = "newstest";
 var kValidPassword = "notallama";
 
-add_task(function setupTest() {
+add_setup(function() {
   // Disable new mail notifications
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
   Services.prefs.setBoolPref("mail.biff.show_alert", false);

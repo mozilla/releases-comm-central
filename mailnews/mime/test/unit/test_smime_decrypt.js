@@ -56,7 +56,7 @@ function testCertValidity(cert, date) {
   return prom;
 }
 
-add_task(function setupTest() {
+add_setup(function() {
   let messageInjection = new MessageInjection({ mode: "local" });
   gInbox = messageInjection.getInboxFolder();
   SmimeUtils.ensureNSS();
