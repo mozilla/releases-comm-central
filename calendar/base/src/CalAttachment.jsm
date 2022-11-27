@@ -31,13 +31,7 @@ CalAttachment.prototype = {
   get hashId() {
     if (!this.mHashId) {
       let cryptoHash = Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash);
-
-      let converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(
-        Ci.nsIScriptableUnicodeConverter
-      );
-      converter.charset = "UTF-8";
-      let data = converter.convertToByteArray(this.rawData, {});
-
+      let data = new TextEncoder().encode(this.rawData);
       cryptoHash.init(cryptoHash.MD5);
       cryptoHash.update(data, data.length);
       this.mHashId = cryptoHash.finish(true);

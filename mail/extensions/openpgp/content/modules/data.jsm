@@ -61,7 +61,8 @@ var EnigmailData = {
     }
 
     // Encode plaintext
-    return converter(charset).ConvertToUnicode(text);
+    let buffer = Uint8Array.from(text, c => c.charCodeAt(0));
+    return new TextDecoder(charset).decode(buffer);
   },
 
   convertFromUnicode(text, charset) {

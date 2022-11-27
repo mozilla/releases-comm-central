@@ -113,11 +113,10 @@ var calprovider = {
         stream.seek(Ci.nsISeekableStream.NS_SEEK_SET, 0);
       } else {
         // Otherwise its something that should be a string, convert it.
-        let converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(
-          Ci.nsIScriptableUnicodeConverter
+        stream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
+          Ci.nsIStringInputStream
         );
-        converter.charset = "UTF-8";
-        stream = converter.convertToInputStream(aUploadData.toString());
+        stream.setData(aUploadData, aUploadData.length);
       }
 
       httpchannel.setUploadStream(stream, aContentType, -1);

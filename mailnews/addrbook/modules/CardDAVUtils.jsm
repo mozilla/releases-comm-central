@@ -146,11 +146,10 @@ var CardDAVUtils = {
         channel.setRequestHeader(name, value, false);
       }
       if (body !== null) {
-        let converter = Cc[
-          "@mozilla.org/intl/scriptableunicodeconverter"
-        ].createInstance(Ci.nsIScriptableUnicodeConverter);
-        converter.charset = "UTF-8";
-        let stream = converter.convertToInputStream(body.toString());
+        let stream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
+          Ci.nsIStringInputStream
+        );
+        stream.setData(body, body.length);
 
         channel.QueryInterface(Ci.nsIUploadChannel);
         channel.setUploadStream(stream, contentType, -1);

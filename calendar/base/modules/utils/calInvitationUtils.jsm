@@ -14,6 +14,7 @@ ChromeUtils.defineModuleGetter(
   "CalRecurrenceDate",
   "resource:///modules/CalRecurrenceDate.jsm"
 );
+ChromeUtils.defineModuleGetter(lazy, "MailStringUtils", "resource:///modules/MailStringUtils.jsm");
 
 const EXPORTED_SYMBOLS = ["calinvitation"];
 
@@ -679,22 +680,17 @@ var calinvitation = {
    * @returns {string} the converted uft-8 encoded string
    */
   encodeUTF8(aText) {
-    return calinvitation.convertFromUnicode("UTF-8", aText).replace(/(\r\n)|\n/g, "\r\n");
+    return calinvitation.convertFromUnicode(aText).replace(/(\r\n)|\n/g, "\r\n");
   },
 
   /**
    * Converts a given unicode text
    *
-   * @param  {string} aCharset   target character set
    * @param  {string} aSrc       unicode text to convert
    * @returns {string} the converted string
    */
-  convertFromUnicode(aCharset, aSrc) {
-    let unicodeConverter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(
-      Ci.nsIScriptableUnicodeConverter
-    );
-    unicodeConverter.charset = aCharset;
-    return unicodeConverter.ConvertFromUnicode(aSrc);
+  convertFromUnicode(aSrc) {
+    return lazy.MailStringUtils.stringToByteString(aSrc);
   },
 
   /**
