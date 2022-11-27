@@ -126,8 +126,13 @@ openpgp-key-man-backup-secret-keys =
 openpgp-key-man-discover-cmd =
     .label = Discover Keys Online
     .accesskey = D
+openpgp-key-man-publish-cmd =
+    .label = Publish
+    .accesskey = P
 openpgp-key-man-discover-prompt = To discover OpenPGP keys online, on keyservers or using the WKD protocol, enter either an email address or a key ID.
 openpgp-key-man-discover-progress = Searching…
+openpgp-key-publish-ok = The request to publish your public key was sent to "{ $keyserver }". The keyserver might send email that asks for confirmation.
+openpgp-key-publish-fail = Failed to send your public key to "{ $keyserver }".
 
 openpgp-key-copy-key =
     .label = Copy Public Key
