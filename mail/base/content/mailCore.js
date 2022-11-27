@@ -850,10 +850,7 @@ function safeModeRestart() {
     {}
   );
   if (rv == 0) {
-    let environment = Cc["@mozilla.org/process/environment;1"].getService(
-      Ci.nsIEnvironment
-    );
-    environment.set("MOZ_SAFE_MODE_RESTART", "1");
+    Services.env.set("MOZ_SAFE_MODE_RESTART", "1");
     let { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
     MailUtils.restartApplication();
   }

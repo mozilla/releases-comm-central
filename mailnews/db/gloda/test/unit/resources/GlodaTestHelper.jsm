@@ -87,12 +87,9 @@ var ENVIRON_MAPPINGS = [
 ];
 
 // Propagate environment variables to prefs as appropriate:
-var environ = Cc["@mozilla.org/process/environment;1"].getService(
-  Ci.nsIEnvironment
-);
 for (let { envVar, prefName } of ENVIRON_MAPPINGS) {
-  if (environ.exists(envVar)) {
-    Services.prefs.setCharPref(prefName, environ.get(envVar));
+  if (Services.env.exists(envVar)) {
+    Services.prefs.setCharPref(prefName, Services.env.get(envVar));
   }
 }
 

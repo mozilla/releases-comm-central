@@ -25,10 +25,7 @@ function openAndLoadSubDialog(
 }
 
 function promiseLoadSubDialog(aURL) {
-  let env = Cc["@mozilla.org/process/environment;1"].getService(
-    Ci.nsIEnvironment
-  );
-  if (env.get("MOZ_HEADLESS")) {
+  if (Services.env.get("MOZ_HEADLESS")) {
     throw new Error("promiseLoadSubDialog doesn't work in headless mode!");
   }
 

@@ -249,11 +249,8 @@ function LOCAL_DEBUG(str) {
 }
 
 function initModule() {
-  var env = Cc["@mozilla.org/process/environment;1"].getService(
-    Ci.nsIEnvironment
-  );
-  var nspr_log_modules = env.get("NSPR_LOG_MODULES");
-  var matches = nspr_log_modules.match(/wksMimeHandler:(\d+)/);
+  let nspr_log_modules = Services.env.get("NSPR_LOG_MODULES");
+  let matches = nspr_log_modules.match(/wksMimeHandler:(\d+)/);
 
   if (matches && matches.length > 1) {
     if (matches[1] > 2) {

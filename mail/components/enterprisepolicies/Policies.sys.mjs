@@ -33,10 +33,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 const PREF_LOGLEVEL = "browser.policies.loglevel";
 const ABOUT_CONTRACT = "@mozilla.org/network/protocol/about;1?what=";
 
-let env = Cc["@mozilla.org/process/environment;1"].getService(
-  Ci.nsIEnvironment
-);
-const isXpcshell = env.exists("XPCSHELL_TEST_PROFILE_DIR");
+const isXpcshell = Services.env.exists("XPCSHELL_TEST_PROFILE_DIR");
 
 XPCOMUtils.defineLazyGetter(lazy, "log", () => {
   let { ConsoleAPI } = ChromeUtils.importESModule(
