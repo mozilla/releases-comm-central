@@ -27,7 +27,7 @@ var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
   Ci.nsIMsgWindow
 );
 
-add_task(function setupTest() {
+add_setup(function() {
   inbox = messageInjection.getInboxFolder();
 });
 

@@ -143,6 +143,9 @@
   <script defer="defer" src="chrome://messenger/content/chat/toolbarbutton-badge-button.js"></script>
   <script defer="defer" src="chrome://messenger/content/messenger-customization.js"></script>
   <script defer="defer" src="chrome://messenger/content/customizable-toolbar.js"></script>
+#ifdef NIGHTLY_BUILD
+  <script defer="defer" src="chrome://messenger/content/sync.js"></script>
+#endif
   <!-- panelUI.js is for the appmenus. -->
   <script defer="defer" src="chrome://messenger/content/panelUI.js"></script>
 #ifdef XP_MACOSX

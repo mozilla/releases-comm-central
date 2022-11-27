@@ -98,6 +98,9 @@
   <script defer="defer" src="chrome://messenger/content/viewZoomOverlay.js"></script>
   <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
+#ifdef NIGHTLY_BUILD
+  <script defer="defer" src="chrome://messenger/content/sync.js"></script>
+#endif
   <script defer="defer" src="chrome://messenger/content/panelUI.js"></script>
   <script defer="defer" src="chrome://messenger/content/chat/toolbarbutton-badge-button.js"></script>
   <script defer="defer" src="chrome://messenger/content/messenger-customization.js"></script>

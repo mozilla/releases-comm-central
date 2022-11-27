@@ -29,34 +29,22 @@ var abi = ctypes.default_abi;
 // there first. If not, fallback to searching the standard locations.
 var librnp, librnpPath;
 
-var librnpLoadedFile;
-var librnpLoadedFrom;
-
 function tryLoadRNP(name, suffix) {
   let filename = ctypes.libraryName(name) + suffix;
   let binPath = Services.dirsvc.get("XpcomLib", Ci.nsIFile).path;
   let binDir = PathUtils.parent(binPath);
   librnpPath = PathUtils.join(binDir, filename);
 
-  let loadFromInfo;
-
   try {
-    loadFromInfo = librnpPath;
     librnp = ctypes.open(librnpPath);
   } catch (e) {}
 
   if (!librnp) {
     try {
-      loadFromInfo = "system's standard library locations";
       // look in standard locations
       librnpPath = filename;
       librnp = ctypes.open(librnpPath);
     } catch (e) {}
-  }
-
-  if (librnp) {
-    librnpLoadedFile = filename;
-    librnpLoadedFrom = loadFromInfo;
   }
 }
 
@@ -84,33 +72,64 @@ function loadExternalRNPLib() {
     // librnp.so.0
     tryLoadRNP("rnp", ".0");
   }
-
-  if (!librnp) {
-    throw new Error("Cannot load required RNP library");
-  }
 }
 
 var RNPLibLoader = {
   init() {
+    const required_version_str = `${MIN_RNP_VERSION[0]}.${MIN_RNP_VERSION[1]}.${MIN_RNP_VERSION[2]}`;
+
+    let dummyRNPLib = {
+      loaded: false,
+      loadedOfficial: false,
+      loadStatus: "libs-rnp-status-load-failed",
+      loadErrorReason: "RNP/OpenPGP library failed to load",
+      path: "",
+
+      getRNPLibStatus() {
+        return {
+          min_version: required_version_str,
+          loaded_version: "-",
+          status: this.loadStatus,
+          error: this.loadErrorReason,
+          path: this.path,
+        };
+      },
+    };
+
     loadExternalRNPLib();
-    if (librnp) {
-      enableRNPLibJS();
-      const rnp_version_str = RNPLib.rnp_version_string_full().readStringReplaceMalformed();
-      if (!RNPLib.check_required_version()) {
-        const required_version_str = `${MIN_RNP_VERSION[0]}.${MIN_RNP_VERSION[1]}.${MIN_RNP_VERSION[2]}`;
-        throw new Error(
-          `RNP version ${rnp_version_str} does not meet minimum required ${required_version_str}.`
-        );
-      }
-      console.debug(
-        "Successfully loaded OpenPGP library " +
-          librnpLoadedFile +
-          " version " +
-          rnp_version_str +
-          " from " +
-          librnpLoadedFrom
-      );
+    if (!librnp) {
+      return dummyRNPLib;
     }
+
+    try {
+      enableRNPLibJS();
+    } catch (e) {
+      console.log(e);
+      return dummyRNPLib;
+    }
+
+    const rnp_version_str = RNPLib.rnp_version_string_full().readStringReplaceMalformed();
+    RNPLib.loadedVersion = rnp_version_str;
+    RNPLib.expectedVersion = required_version_str;
+
+    let hasRequiredVersion = RNPLib.check_required_version();
+
+    if (!hasRequiredVersion) {
+      RNPLib.loadErrorReason = `RNP version ${rnp_version_str} does not meet minimum required ${required_version_str}.`;
+      RNPLib.loadStatus = "libs-rnp-status-incompatible";
+      return RNPLib;
+    }
+
+    RNPLib.loaded = true;
+
+    let hasOfficialVersion = rnp_version_str.includes(".MZLA");
+    if (!hasOfficialVersion) {
+      RNPLib.loadErrorReason = `RNP version is missing version string .MZLA and is assumed to be an unofficial version with unknown capabilities.`;
+      RNPLib.loadStatus = "libs-rnp-status-unofficial";
+    } else {
+      RNPLib.loadedOfficial = true;
+    }
+
     return RNPLib;
   },
 };
@@ -154,6 +173,26 @@ function enableRNPLibJS() {
   // this must be delayed until after "librnp" is initialized
 
   RNPLib = {
+    loaded: false,
+    loadedOfficial: false,
+    loadStatus: "",
+    loadErrorReason: "",
+    expectedVersion: "",
+    loadedVersion: "",
+
+    getRNPLibStatus() {
+      return {
+        min_version: this.expectedVersion,
+        loaded_version: this.loadedVersion,
+        status:
+          this.loaded && this.loadedOfficial
+            ? "libs-rnp-status-ok"
+            : this.loadStatus,
+        error: this.loadErrorReason,
+        path: this.path,
+      };
+    },
+
     path: librnpPath,
 
     // Handle to the RNP library and primary key data store.

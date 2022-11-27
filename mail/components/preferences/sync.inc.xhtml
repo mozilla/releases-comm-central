@@ -28,14 +28,40 @@
           <a href="#" data-l10n-id="sync-pane-manage-account"></a>
         </div>
         <button id="syncAccountSignOut"
+                class="place-self-end"
                 data-l10n-id="sync-pane-sign-out"
                 type="button">
         </button>
       </div>
 
-      <!-- TODO: Device Name section -->
+      <fieldset id="syncDeviceInfo">
+        <legend data-l10n-id="sync-pane-device-name-title"></legend>
+        <input id="syncDeviceNameInput" type="text" readonly="readonly"/>
+        <!-- Hidden by default, shown if #syncDeviceNameChangeDeviceName is
+           - pressed -->
+        <button id="syncDeviceNameCancel"
+                class="place-self-end"
+                data-l10n-id="sync-pane-cancel"
+                type="button"
+                hidden="hidden">
+        </button>
+        <button id="syncDeviceNameSave"
+                class="place-self-end"
+                data-l10n-id="sync-pane-save"
+                type="button"
+                hidden="hidden">
+        </button>
+        <!-- Disappear once pressed to allow the previous two buttons to take
+           - its place, reappears once cancel or save is pressed -->
+        <button id="syncDeviceNameChangeDeviceName"
+                class="place-self-end"
+                data-l10n-id="sync-pane-change-device-name"
+                type="button">
+        </button>
+      </fieldset>
 
       <!-- TODO: Section to show what is being synced -->
+
     </section>
   </html:div>
 </html:template>

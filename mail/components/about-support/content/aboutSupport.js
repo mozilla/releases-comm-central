@@ -6,7 +6,7 @@
    modifications for TB. */
 
 /* globals AboutSupportPlatform, populateAccountsSection, sendViaEmail
-    populateCalendarsSection, populateChatSection */
+    populateCalendarsSection, populateChatSection, populateLibrarySection */
 
 "use strict";
 
@@ -80,6 +80,7 @@ window.addEventListener("load", function onload(event) {
   populateAccountsSection();
   populateCalendarsSection();
   populateChatSection();
+  populateLibrarySection();
   document
     .getElementById("check-show-private-data")
     .addEventListener("change", () => onShowPrivateDataChange());

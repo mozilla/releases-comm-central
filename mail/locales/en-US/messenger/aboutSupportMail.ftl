@@ -18,3 +18,15 @@ identity-name = Identity
 send-via-email = Send via email
 
 app-basics-telemetry = Telemetry Data
+
+mail-libs-title = Libraries
+libs-table-heading-library = Library
+libs-table-heading-expected-version = Expected minimum version
+libs-table-heading-loaded-version = Version in use
+libs-table-heading-path = Path
+libs-table-heading-status = Status
+
+libs-rnp-status-ok = OK
+libs-rnp-status-load-failed = Failed to load. OpenPGP will not work.
+libs-rnp-status-incompatible = Incompatible version. OpenPGP will not work.
+libs-rnp-status-unofficial = Unofficial version. OpenPGP might not work as expected.

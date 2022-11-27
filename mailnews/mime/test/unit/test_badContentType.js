@@ -32,10 +32,6 @@ const IMAGE_ATTACHMENT =
   "A5SURBVCiRY/z//z8DKYCJJNXkaGBgYGD4D8NQ5zUgiTVAxeBqSLaBkVRPM0KtIhrQ3km0jwe" +
   "SNQAAlmAY+71EgFoAAAAASUVORK5CYII=";
 
-add_task(function setupTest() {
-  // Stub.
-});
-
 add_task(async function test_image_attachment_normal_content_type() {
   await test_message_attachments({
     attachments: [

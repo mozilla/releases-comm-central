@@ -208,8 +208,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
     @media (prefers-contrast) {
       :root {
-        appearance: auto;
-        -moz-default-appearance: -moz-win-glass;
         background-color: transparent;
       }
 

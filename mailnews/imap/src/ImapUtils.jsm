@@ -129,7 +129,7 @@ var ImapUtils = {
 
   /**
    * Convert internal flag number to flag string, for example,
-   *   0x3 will become "(\\Seen \\Answered)".
+   *   0x3 will become "\\Seen \\Answered".
    *
    * @param {number} flags - Internal flag number.
    * @param {number} supportedFlags - Server supported flags.
@@ -151,7 +151,7 @@ var ImapUtils = {
         arr.push(str);
       }
     }
-    return `(${arr.join(" ")})`;
+    return arr.join(" ");
   },
 
   /**

@@ -25,6 +25,14 @@ XPCOMUtils.defineLazyGetter(lazy, "gMailBundle", function() {
   );
 });
 
+if (AppConstants.NIGHTLY_BUILD) {
+  XPCOMUtils.defineLazyGetter(
+    lazy,
+    "WeaveService",
+    () => Cc["@mozilla.org/weave/service;1"].getService().wrappedJSObject
+  );
+}
+
 ChromeUtils.defineESModuleGetters(lazy, {
   ActorManagerParent: "resource://gre/modules/ActorManagerParent.sys.mjs",
   ChatCore: "resource:///modules/chatHandler.sys.mjs",
@@ -646,6 +654,14 @@ MailGlue.prototype = {
       AsanReporter.init();
     }
 
+    // Check if Sync is configured
+    if (
+      AppConstants.NIGHTLY_BUILD &&
+      Services.prefs.prefHasUserValue("services.sync.username")
+    ) {
+      lazy.WeaveService.init();
+    }
+
     this._scheduleStartupIdleTasks();
     this._lateTasksIdleObserver = (idleService, topic, data) => {
       if (topic == "idle") {
@@ -718,6 +734,34 @@ MailGlue.prototype = {
               Services.startup.trackStartupCrashEnd
             );
           }, STARTUP_CRASHES_END_DELAY_MS);
+        },
+      },
+      {
+        condition: AppConstants.NIGHTLY_BUILD,
+        task: async () => {
+          // Register our sync engines.
+          await lazy.WeaveService.whenLoaded();
+          let Weave = lazy.WeaveService.Weave;
+
+          for (let [moduleName, engineName] of [
+            ["accounts", "AccountsEngine"],
+            ["addressBooks", "AddressBooksEngine"],
+            ["calendars", "CalendarsEngine"],
+            ["identities", "IdentitiesEngine"],
+          ]) {
+            let ns = ChromeUtils.import(
+              `resource://services-sync/engines/${moduleName}.js`
+            );
+            await Weave.Service.engineManager.register(ns[engineName]);
+            Weave.Service.engineManager
+              .get(moduleName.toLowerCase())
+              .startTracking();
+          }
+
+          if (lazy.WeaveService.enabled) {
+            // Schedule a sync (if enabled).
+            Weave.Service.scheduler.autoConnect();
+          }
         },
       },
       {

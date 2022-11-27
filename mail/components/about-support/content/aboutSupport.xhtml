@@ -37,6 +37,7 @@
     <script src="chrome://messenger/content/about-support/accounts.js"/>
     <script src="chrome://messenger/content/about-support/calendars.js"/>
     <script src="chrome://messenger/content/about-support/chat.js"/>
+    <script src="chrome://messenger/content/about-support/libs.js"/>
     <script src="chrome://messenger/content/about-support/export.js"/>
 <!-- End of TB addition -->
   </head>
@@ -373,6 +374,32 @@
         </thead>
 
         <tbody id="accounts-tbody">
+        </tbody>
+      </table>
+
+      <h2 class="major-section" data-l10n-id="mail-libs-title"></h2>
+      <table class="mail-libs-table">
+        <caption></caption>
+        <thead>
+          <th data-l10n-id="libs-table-heading-library"></th>
+          <th data-l10n-id="libs-table-heading-status"></th>
+          <th data-l10n-id="libs-table-heading-expected-version"></th>
+          <th data-l10n-id="libs-table-heading-loaded-version"></th>
+          <th data-l10n-id="libs-table-heading-path"></th>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>RNP (OpenPGP)</td>
+            <td id="rnp-status">
+            </td>
+            <td id="rnp-expected-version">
+            </td>
+            <td id="rnp-loaded-version">
+            </td>
+            <td id="rnp-path">
+            </td>
+          </tr>
         </tbody>
       </table>
 

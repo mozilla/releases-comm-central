@@ -245,7 +245,7 @@ class BaseMessageService {
    * @returns {host: string, folder: nsIMsgFolder, folderName: string, key: string}
    */
   _decomposeMessageUri(messageUri) {
-    let matches = /imap-message:\/\/([^:]+)\/(.+)#(\d+)/.exec(messageUri);
+    let matches = /imap-message:\/\/([^:/]+)\/(.+)#(\d+)/.exec(messageUri);
     let [, host, folderName, key] = matches;
     let folder = lazy.MailUtils.getOrCreateFolder(
       `imap://${host}/${folderName}`

@@ -539,8 +539,9 @@ checkbox {
  * Font dialog menulist fixes
  */
 
-#FontsDialog {
-  min-width: 40em;
+#font-chooser-group {
+  display: grid;
+  grid-template-columns: max-content 1fr max-content max-content;
 }
 
 #fontsTitle {
@@ -823,6 +824,17 @@ calendar-notifications-setting .remove-button {
   margin-bottom: 6px
 }
 
-#syncAccountSignOut {
+.place-self-end {
   place-self: end;
+}
+
+#syncDeviceInfo {
+  display: flex;
+  gap: 6px;
+  margin: 24px 0;
+}
+
+#syncDeviceNameInput {
+  flex-grow: 1;
+  align-self: center;
 }

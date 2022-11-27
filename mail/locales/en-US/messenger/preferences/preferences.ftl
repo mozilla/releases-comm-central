@@ -923,3 +923,11 @@ sync-pane-edit-photo =
 sync-pane-manage-account = Manage account
 
 sync-pane-sign-out = Sign out…
+
+sync-pane-device-name-title = Device Name
+
+sync-pane-change-device-name = Change device name
+
+sync-pane-cancel = Cancel
+
+sync-pane-save = Save

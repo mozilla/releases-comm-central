@@ -87,7 +87,7 @@ export function appendToFile(aPath, aString, aCreate) {
       // Ignore existing file when adding the header.
       if (
         aCreate &&
-        error.name == "UnknownError" &&
+        error.name == "NoModificationAllowedError" &&
         error.message.startsWith("Refusing to overwrite the file")
       ) {
         return;

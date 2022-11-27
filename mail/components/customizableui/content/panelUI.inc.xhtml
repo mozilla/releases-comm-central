@@ -27,9 +27,11 @@
         <toolbarbutton id="appmenu_signin"
                        data-l10n-id="appmenu-signin-panel"
                        class="subviewbutton subviewbutton-iconic"
-                       oncommand=""/>
+                       hidden="true"
+                       oncommand="initFxA();"/>
         <toolbarbutton id="appmenu_sync"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
+                       hidden="true"
                        align="center"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-syncView', this)">
@@ -48,7 +50,7 @@
             </vbox>
           </hbox>
         </toolbarbutton>
-        <toolbarseparator id="syncSeparator"/>
+        <toolbarseparator id="syncSeparator" hidden="true"/>
         <toolbarbutton id="appmenu_new"
                        data-l10n-id="appmenu-new-account-panel"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
@@ -154,7 +156,7 @@
         <toolbarbutton id="appmenu_manageSyncAccountMenuItem"
                        class="subviewbutton subviewbutton-iconic"
                        align="center"
-                       oncommand="">
+                       oncommand="openFxAManagePage();">
           <hbox flex="1">
             <html:img id="appmenu-manage-sync-icon"
                       class="toolbarbutton-icon"
@@ -175,7 +177,7 @@
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-sync-now"
                        closemenu="none"
-                       oncommand=""/>
+                       oncommand="Weave.Service.sync({});"/>
         <toolbarbutton id="appmenu-submenu-sync-settings"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-sync-settings"
@@ -184,7 +186,7 @@
         <toolbarbutton id="appmenu-submenu-sync-sign-out"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-sync-sign-out"
-                       oncommand=""/>
+                       oncommand="disconnectFxaAndSync();"/>
       </vbox>
     </panelview>
 
