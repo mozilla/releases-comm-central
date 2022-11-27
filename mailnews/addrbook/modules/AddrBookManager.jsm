@@ -22,12 +22,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   compareAddressBooks: "resource:///modules/AddrBookUtils.jsm",
   MailGlue: "resource:///modules/MailGlue.jsm",
 });
-XPCOMUtils.defineLazyServiceGetter(
-  lazy,
-  "env",
-  "@mozilla.org/process/environment;1",
-  "nsIEnvironment"
-);
 
 /** Test for valid directory URIs. */
 const URI_REGEXP = /^([\w-]+):\/\/([\w\.-]*)([/:].*|$)/;
@@ -136,7 +130,11 @@ function ensureInitialized() {
 
         switch (dirType) {
           case Ci.nsIAbManager.MAPI_DIRECTORY_TYPE:
-            if (lazy.env.exists("MOZ_AUTOMATION")) {
+            if (
+              Cu.isInAutomation ||
+              Services.env.exists("XPCSHELL_TEST_PROFILE_DIR")
+            ) {
+              // Don't load the OS Address Book in tests.
               break;
             }
             if (Services.prefs.getIntPref(`${prefName}.position`, 1) < 1) {

@@ -132,8 +132,7 @@ XPCOMUtils.defineLazyGetter(lazy, "gLogLevels", function() {
   }
 
   // Let environment variables override prefs.
-  Cc["@mozilla.org/process/environment;1"]
-    .getService(Ci.nsIEnvironment)
+  Services.env
     .get("PRPL_LOG")
     .split(/[;,]/)
     .filter(n => n != "")
