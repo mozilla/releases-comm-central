@@ -11,8 +11,6 @@
   font: message-box;
   background-color: var(--color-white);
 
-  --address-book-book-label-color: var(--color-white);
-  --address-book-book-label-background: var(--color-gray-50);
   --address-book-card-min-height: 140px;
 
   --ab-card-line-height: 1.3em;
@@ -34,13 +32,8 @@
     background-color: transparent;
     color: currentColor;
 
-    --address-book-books-list-bg: transparent;
     --address-book-cards-list-bg: transparent;
-
     --address-book-icons-color: currentColor;
-
-    --address-book-section-border-color: currentColor;
-    --address-book-section-bg: transparent;
   }
 }
 
@@ -48,18 +41,8 @@
   :root {
     color: var(--color-gray-80);
 
-    --address-book-books-list-bg: var(--color-gray-10);
     --address-book-cards-list-bg: var(--color-gray-05);
-
     --address-book-icons-color: var(--color-ink-80);
-
-    --in-content-button-background-active: var(--grey-90-a30);
-    --in-content-categories-background: #ebebef;
-    --in-content-item-selected-unfocused: var(--grey-20);
-    --splitter-color: var(--in-content-border-color);
-
-    --address-book-section-border-color: var(--color-gray-30);
-    --address-book-section-bg: var(--color-gray-05);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -67,24 +50,8 @@
       background: var(--color-gray-90);
       color: var(--color-gray-05);
 
-      --address-book-books-list-bg: var(--color-gray-80);
       --address-book-cards-list-bg: var(--color-gray-80);
-
       --address-book-icons-color: var(--color-gray-30);
-
-      --in-content-categories-background: rgba(249, 249, 250, 0.1);
-      --in-content-item-selected-unfocused: rgba(249, 249, 250, 0.05);
-      --in-content-button-background-active: rgba(249, 249, 250, 0.2);
-      --in-content-primary-button-background: #45a1ff;
-      --in-content-primary-button-background-hover: #65c1ff;
-      --in-content-primary-button-background-active: #85e1ff;
-      --in-content-focus-outline-color: #45a1ff;
-
-      --address-book-book-label-color: var(--color-white);
-      --address-book-book-label-background: var(--color-gray-50);
-
-      --address-book-section-border-color: transparent;
-      --address-book-section-bg: var(--color-gray-80);
     }
   }
 }
@@ -168,7 +135,7 @@ body.layout-table {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  background-color: var(--address-book-books-list-bg);
+  background-color: var(--in-content-categories-background);
 }
 
 #booksSplitter {
@@ -863,8 +830,8 @@ body:not(.is-editing) #editContactForm {
 #detailsBody section {
   padding: 15px;
   border-radius: var(--in-content-button-border-radius);
-  border: 1px solid var(--address-book-section-border-color);
-  background-color: var(--address-book-section-bg);
+  border: 1px solid var(--in-content-box-info-border);
+  background-color: var(--in-content-box-info-background);
   font-size: 1.1rem;
   line-height: 1.2;
 }
@@ -1199,7 +1166,7 @@ input[type="number"]::-moz-number-spin-down {
 #cardCount {
   position: sticky;
   bottom: 0;
-  background-color: var(--address-book-books-list-bg);
+  background-color: var(--in-content-categories-background);
   border-top: 1px solid var(--splitter-color);
   color: color-mix(in srgb, currentColor 75%, transparent);
   padding: 9px;

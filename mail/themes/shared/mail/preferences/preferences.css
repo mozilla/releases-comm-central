@@ -452,6 +452,7 @@ checkbox {
 
 .updateSettingCrossUserWarningContainer {
   background: var(--in-content-box-info-background);
+  border: 1px solid var(--in-content-box-info-border);
   border-radius: 5px;
   padding: 2px 8px 8px;
   margin-block-end: 17px;

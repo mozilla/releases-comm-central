@@ -21,20 +21,25 @@
 @media not (prefers-contrast) {
   :host,
   :root {
+    --in-content-box-info-background: var(--color-gray-05);
+    --in-content-box-info-border: var(--color-gray-30);
     --in-content-button-background: var(--grey-90-a10);
     --in-content-button-background-hover: var(--grey-90-a20);
     --in-content-button-background-active: var(--grey-90-a30);
-    --in-content-categories-background: #ebebef;
+    --in-content-categories-background: var(--color-gray-10);
     --in-content-item-selected-unfocused: var(--grey-20);
     --in-content-item-hover: color-mix(in srgb, currentColor 12%, transparent);
     --in-content-item-selected: color-mix(in srgb, currentColor 20%, transparent);
     --in-content-item-selected-text: var(--in-content-page-color);
+    --splitter-color: var(--in-content-border-color);
   }
 
   @media (prefers-color-scheme: dark) {
     :host,
     :root {
-      --in-content-categories-background: rgba(249, 249, 250, 0.1);
+      --in-content-box-info-background: var(--color-gray-80);
+      --in-content-box-info-border: transparent;
+      --in-content-categories-background: var(--color-gray-80);
       --in-content-item-selected-unfocused: rgba(249, 249, 250, 0.05);
       --in-content-button-background: rgba(249, 249, 250, 0.1);
       --in-content-button-background-hover: rgba(249, 249, 250, 0.15);
@@ -49,6 +54,8 @@
 
 @media (prefers-contrast) {
   :root {
+    --in-content-box-info-background: transparent;
+    --in-content-box-info-border: currentColor;
     --in-content-categories-background: transparent;
   }
 }
