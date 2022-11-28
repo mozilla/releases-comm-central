@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { html } from "lit";
-import "mail/base/content/widgets/pane-splitter.js";
+import "mail/base/content/widgets/pane-splitter.js"; //eslint-disable-line import/no-unassigned-import
 
 export default {
   title: "Widgets/Pane Splitter",
