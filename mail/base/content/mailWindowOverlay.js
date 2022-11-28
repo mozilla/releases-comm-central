@@ -2042,29 +2042,6 @@ function openGlodaSearchTab() {
   document.getElementById("tabmail").openTab("glodaFacet");
 }
 
-/**
- * Opens a search window with the given folder, or the displayed one if none is
- * chosen.
- *
- * @param {nsIMsgFolder} folder - The folder to open the search window for, if
- *   different from the displayed one.
- */
-function MsgSearchMessages(folder) {
-  // Don't trigger anything if there are no accounts configured. This is to
-  // disable potential triggers via shortcuts.
-  if (MailServices.accounts.accounts.length == 0) {
-    return;
-  }
-
-  // We always open a new search dialog for each search command
-  window.openDialog(
-    "chrome://messenger/content/SearchDialog.xhtml",
-    "_blank",
-    "chrome,resizable,status,centerscreen,dialog=no",
-    { folder }
-  );
-}
-
 function MsgSearchAddresses() {
   var args = { directory: null };
   OpenOrFocusWindow(

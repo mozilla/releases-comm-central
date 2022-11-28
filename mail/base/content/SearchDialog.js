@@ -17,6 +17,9 @@ var { PluralForm } = ChromeUtils.importESModule(
 );
 var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
+var messenger;
+var msgWindow;
+
 var gCurrentFolder;
 
 var gFolderDisplay;

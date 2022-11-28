@@ -13,7 +13,6 @@ var {
   inboxFolder,
   make_message_sets_in_folders,
   mc,
-  select_no_folders,
   toggle_main_menu,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -63,8 +62,6 @@ add_setup(async function() {
   appmenu_popup = mc.e("appMenu-popup");
 
   tree = mc.folderTreeView;
-
-  select_no_folders();
 
   // Main menu is needed for this whole test file.
   menu_state = toggle_main_menu(true);

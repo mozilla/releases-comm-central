@@ -664,7 +664,7 @@ var folderPaneContextMenu = {
         topChromeWindow.MsgOpenNewWindowForFolder(gFolder.URI, -1);
         break;
       case "folderPaneContext-searchMessages":
-        topChromeWindow.gFolderTreeController.searchMessages(gFolder);
+        commandController.doCommand("cmd_searchMessages");
         break;
       case "folderPaneContext-subscribe":
         topChromeWindow.MsgSubscribe(gFolder);

@@ -14,7 +14,6 @@ var {
   assert_folder_selected,
   assert_folder_selected_and_displayed,
   assert_folders_selected_and_displayed,
-  assert_no_folders_selected,
   assert_selected_tab,
   be_in_folder,
   close_popup,
@@ -26,7 +25,6 @@ var {
   reset_context_menu_background_tabs,
   right_click_on_folder,
   select_click_folder,
-  select_no_folders,
   select_shift_click_folder,
   set_context_menu_background_tabs,
   switch_tab,
@@ -48,27 +46,6 @@ add_setup(async function() {
   await make_message_sets_in_folders([folderB], [{ count: 1 }]);
   await make_message_sets_in_folders([folderC], [{ count: 1 }]);
 });
-
-/**
- * Make sure that a right-click when there is nothing currently selected does
- *  not cause us to display something, as well as correctly causing a transient
- *  selection to occur.
- */
-add_task(async function test_right_click_folder_with_nothing_selected() {
-  // This should cause folderA to be displayed
-  await be_in_folder(folderA);
-
-  select_no_folders();
-  assert_no_folders_selected();
-
-  await right_click_on_folder(folderB);
-  assert_folder_selected(folderB);
-  // The displayed folder shouldn't change
-  assert_folder_displayed(folderA);
-
-  await close_popup(mc, getFoldersContext());
-  assert_no_folders_selected();
-}).skip();
 
 /**
  * One-thing selected, right-click on something else.
@@ -129,33 +106,6 @@ add_task(async function test_right_click_folder_on_existing_multi_selection() {
   await close_popup(mc, getFoldersContext());
   assert_folders_selected_and_displayed(folderB, folderC);
 }).skip();
-
-/**
- * Middle clicking should open a message in a tab, but not affect our selection.
- */
-async function _middle_click_folder_with_nothing_selected_helper(aBackground) {
-  // This should cause folderA to be displayed
-  await be_in_folder(folderA);
-
-  select_no_folders();
-  assert_no_folders_selected();
-
-  let originalTab = mc.tabmail.currentTabInfo;
-  let [newTab] = middle_click_on_folder(folderA);
-  if (aBackground) {
-    // Make sure we haven't switched to the new tab.
-    assert_selected_tab(originalTab);
-    // Now switch to the new tab and check
-    await switch_tab(newTab);
-  }
-  assert_folder_selected_and_displayed(folderA);
-  close_tab(newTab);
-
-  // XXX This is wrong, we shouldn't have anything selected. Since we don't
-  // have a special state for nothing selected, we're giving this a pass for
-  // now.
-  assert_folder_selected_and_displayed(folderA);
-}
 
 /**
  * One-thing selected, middle-click on something else.

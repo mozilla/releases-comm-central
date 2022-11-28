@@ -410,17 +410,6 @@ var gFolderTreeController = {
   },
 
   /**
-   * Opens a search window with the given folder, or the selected one if none
-   * is given.
-   *
-   * @param [aFolder] the folder to open the search window for, if different
-   *                  from the selected one
-   */
-  searchMessages(aFolder) {
-    MsgSearchMessages(aFolder);
-  },
-
-  /**
    * Prompts for confirmation, if the user hasn't already chosen the "don't ask
    * again" option.
    *

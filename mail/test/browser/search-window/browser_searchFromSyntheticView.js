@@ -10,6 +10,7 @@ const {
   create_folder,
   create_thread,
   delete_messages,
+  get_about_3pane,
   inboxFolder,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -60,7 +61,7 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
     GlodaMsgIndexer.indexFolder(folder, { callback, force: true });
   });
 
-  let dbView = window.gFolderDisplay.view.dbView;
+  let dbView = get_about_3pane().gDBView;
   await TestUtils.waitForCondition(
     () =>
       thread.synMessages.every((_, i) =>

@@ -73,19 +73,5 @@ add_task(
     // Clean up, close both windows
     close_search_window(swc1);
     close_search_window(swc2);
-
-    Assert.report(
-      false,
-      undefined,
-      undefined,
-      "Test ran to completion successfully"
-    );
   }
 );
-
-registerCleanupFunction(() => {
-  // Some tests that open new windows don't return focus to the main window
-  // in a way that satisfies mochitest, and the test times out.
-  Services.focus.focusedWindow = window;
-  window.gFolderDisplay.tree.focus();
-});

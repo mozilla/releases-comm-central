@@ -38,7 +38,6 @@ const EXPORTED_SYMBOLS = [
   "assert_messages_not_in_view",
   "assert_messages_summarized",
   "assert_multimessage_pane_focused",
-  "assert_no_folders_selected",
   "assert_not_selected_tab",
   "assert_not_showing_unread_only",
   "assert_not_shown",
@@ -123,7 +122,6 @@ const EXPORTED_SYMBOLS = [
   "select_click_row",
   "select_column_click_row",
   "select_control_click_row",
-  "select_no_folders",
   "select_none",
   "select_shift_click_folder",
   "select_shift_click_row",
@@ -1440,17 +1438,6 @@ function assert_folder_expanded(aFolder) {
 }
 
 /**
- * Clear the selection in the folder tree view.
- */
-function select_no_folders() {
-  wait_for_message_display_completion();
-  mc.folderTreeView.selection.clearSelection();
-  mark_action("fdh", "select_no_folder", []);
-  // give the event queue a chance to drain...
-  mc.sleep(0);
-}
-
-/**
  * Pretend we are clicking on a folder with our mouse.
  *
  * @param aFolder The folder to click on. This needs to be present in the
@@ -2249,7 +2236,7 @@ function assert_selected(...aArgs) {
   let [troller, desiredIndices] = _process_row_message_arguments(...aArgs);
 
   // - get the actual selection (already sorted by integer value)
-  let selectedIndices = get_about_3pane_or_about_message().gDBView.getIndicesForSelection();
+  let selectedIndices = get_db_view(troller.window).getIndicesForSelection();
 
   // - test selection equivalence
   // which is the same as string equivalence in this case. muah hah hah.
@@ -2946,7 +2933,6 @@ function assert_folders_selected_and_displayed(...aArgs) {
   }
 }
 
-var assert_no_folders_selected = assert_folders_selected_and_displayed;
 var assert_folder_selected_and_displayed = assert_folders_selected_and_displayed;
 
 /**

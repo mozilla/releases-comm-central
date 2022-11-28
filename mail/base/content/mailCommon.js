@@ -286,6 +286,15 @@ var commandController = {
     cmd_space() {
       // TODO: Implement
     },
+    cmd_searchMessages() {
+      // We always open a new search dialog for each search command.
+      top.openDialog(
+        "chrome://messenger/content/SearchDialog.xhtml",
+        "_blank",
+        "chrome,resizable,status,centerscreen,dialog=no",
+        { folder: gFolder }
+      );
+    },
   },
   _isCallbackEnabled: {},
 
@@ -463,6 +472,9 @@ var commandController = {
       }
       case "cmd_applyFilters": {
         return this._getViewCommandStatus(Ci.nsMsgViewCommandType.applyFilters);
+      }
+      case "cmd_searchMessages": {
+        return true;
       }
     }
 
