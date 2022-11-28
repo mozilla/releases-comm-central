@@ -143,7 +143,7 @@
              toolbarname="&compositionToolbarCmd.label;"
              accesskey="&compositionToolbarCmd.accesskey;"
              customizable="true"
-             defaultset="newButton,openButton,saveButton,print-button,separator,spellingButton"
+             defaultset="newButton,openButton,saveButton,print-button,separator,spellingButton,spring,throbber-box"
              context="toolbar-context-menu">
       <toolbarbutton id="newButton"/>
       <toolbarbutton id="openButton"/>
@@ -154,6 +154,7 @@
       <toolbarbutton id="print-button"/>
       <toolbarbutton id="findButton"/>
       <toolbarbutton id="spellingButton"/>
+      <toolbaritem id="throbber-box"/>
     </toolbar>
 
     <toolbarset id="customToolbars" context="toolbar-context-menu"/>
