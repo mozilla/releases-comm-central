@@ -513,7 +513,7 @@ var commandController = {
   },
 
   _getViewCommandStatus(commandType) {
-    if (!gViewWrapper.dbView) {
+    if (!gViewWrapper?.dbView) {
       return false;
     }
 

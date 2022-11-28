@@ -177,7 +177,7 @@ function PopupNotifications(tabbrowser, panel, iconBox, options = {}) {
   if (!tabbrowser) {
     throw new Error("Invalid tabbrowser");
   }
-  if (iconBox && ChromeUtils.getClassName(iconBox) != "XULElement") {
+  if (iconBox && ChromeUtils.getClassName(iconBox) != "HTMLDivElement") {
     throw new Error("Invalid iconBox");
   }
   if (ChromeUtils.getClassName(panel) != "XULPopupElement") {

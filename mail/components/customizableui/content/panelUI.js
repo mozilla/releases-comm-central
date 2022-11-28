@@ -908,7 +908,7 @@ var gExtensionsNotifications = {
         update.addon.name,
       ]);
       this._createAddonButton(text, update.addon.iconURL, evt => {
-        ExtensionsUI.showUpdate(tabmail.selectedBrowser, update);
+        ExtensionsUI.showUpdate(tabmail, update);
       });
     }
 
@@ -931,7 +931,7 @@ var gExtensionsNotifications = {
         // removed immediately while processing this event, and PanelUI is
         // unable to identify which panel should be closed automatically.
         PanelUI.hide();
-        ExtensionsUI.showSideloaded(tabmail.selectedBrowser, addon);
+        ExtensionsUI.showSideloaded(tabmail, addon);
       });
     }
   },
