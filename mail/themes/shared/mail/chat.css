@@ -218,6 +218,13 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
   color: GrayText;
 }
 
+.convDisplayName,
+.blistDisplayName,
+.contactDisplayName,
+richlistitem[is="chat-group-richlistitem"] > label {
+  display: inline-block;
+}
+
 .convUnreadCount,
 .contactDisplayName,
 .convDisplayName,
@@ -455,10 +462,15 @@ richlistitem:not([selected]) .protoIconDimmed {
 
 .displayName {
   font-size: larger;
+  display: block;
 }
 
 .nameAndStatusGrid > .displayName:empty + hr {
   display: none;
+}
+
+.statusMessage {
+  display: inline-block;
 }
 
 .statusMessage[noTopic] {
@@ -617,6 +629,7 @@ richlistitem:not([selected]) .protoIconDimmed {
   pointer-events: none;
   font-weight: bold;
   padding-inline-start: 1px;
+  display: inline-block;
 }
 
 .conv-nicklist-image {
@@ -789,7 +802,7 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 }
 
 .conv-header-label {
-  overflow: hidden;
+  display: inline-block;
 }
 
 #participantCount {
@@ -899,6 +912,11 @@ toolbar[mode="text"] .badgeButton-badge {
 
 .encryption-label {
   font-weight: 600;
+  text-overflow: ellipsis;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .encryption-not-private > image {
