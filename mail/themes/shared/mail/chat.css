@@ -788,8 +788,13 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   border-bottom-color: var(--sidebar-border-color, rgba(249,249,250,.2));
 }
 
+.conv-header-label {
+  overflow: hidden;
+}
+
 #participantCount {
   background: transparent;
+  width: 0;
 }
 
 :root[lwt-tree] #participantCount {
