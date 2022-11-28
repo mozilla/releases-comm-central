@@ -517,8 +517,3 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   background: transparent;
   border: none;
 }
-
-#notification-popup::part(content) {
-  margin: 4px;
-  box-shadow: var(--windows-panel-box-shadow);
-}
