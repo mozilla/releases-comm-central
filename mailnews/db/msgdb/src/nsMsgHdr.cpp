@@ -917,8 +917,14 @@ void nsMsgPropertyEnumerator::PrefetchNext(void) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NS_IMETHODIMP nsMsgHdr::GetPropertyEnumerator(
-    nsIUTF8StringEnumerator** _result) {
-  NS_ADDREF(*_result = new nsMsgPropertyEnumerator(this));
+NS_IMETHODIMP nsMsgHdr::GetProperties(nsTArray<nsCString>& headers) {
+  nsCOMPtr<nsIUTF8StringEnumerator> propertyEnumerator =
+      new nsMsgPropertyEnumerator(this);
+  bool hasMore;
+  while (NS_SUCCEEDED(propertyEnumerator->HasMore(&hasMore)) && hasMore) {
+    nsAutoCString property;
+    propertyEnumerator->GetNext(property);
+    headers.AppendElement(property);
+  }
   return NS_OK;
 }

@@ -103,8 +103,8 @@ interface nsIMsgDBHdr : nsISupports
     attribute string accountKey;
     readonly attribute nsIMsgFolder folder;
 
-    /// Enumerator for names of all database properties in the header.
-    readonly attribute nsIUTF8StringEnumerator propertyEnumerator;
+    /// Array of names of all database properties in the header.
+    readonly attribute Array<AUTF8String> properties;
 };
 /* *******************************************************************************/
 

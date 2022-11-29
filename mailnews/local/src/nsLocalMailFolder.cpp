@@ -2022,9 +2022,8 @@ void nsMsgLocalMailFolder::CopyPropertiesToMsgHdr(nsIMsgDBHdr* destHdr,
 
 void nsMsgLocalMailFolder::CopyHdrPropertiesWithSkipList(
     nsIMsgDBHdr* destHdr, nsIMsgDBHdr* srcHdr, const nsCString& skipList) {
-  nsCOMPtr<nsIUTF8StringEnumerator> propertyEnumerator;
-  nsresult rv =
-      srcHdr->GetPropertyEnumerator(getter_AddRefs(propertyEnumerator));
+  nsTArray<nsCString> properties;
+  nsresult rv = srcHdr->GetProperties(properties);
   NS_ENSURE_SUCCESS_VOID(rv);
 
   // We'll add spaces at beginning and end so we can search for space-name-space
@@ -2032,11 +2031,8 @@ void nsMsgLocalMailFolder::CopyHdrPropertiesWithSkipList(
   dontPreserveEx.Append(skipList);
   dontPreserveEx.Append(' ');
 
-  nsAutoCString property;
   nsCString sourceString;
-  bool hasMore;
-  while (NS_SUCCEEDED(propertyEnumerator->HasMore(&hasMore)) && hasMore) {
-    propertyEnumerator->GetNext(property);
+  for (auto property : properties) {
     nsAutoCString propertyEx(" "_ns);
     propertyEx.Append(property);
     propertyEx.Append(' ');

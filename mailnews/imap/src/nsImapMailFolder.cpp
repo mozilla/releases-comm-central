@@ -6891,17 +6891,12 @@ void nsImapMailFolder::SetPendingAttributes(
                                             keywords.get());
     }
 
-    // do this even if the server supports user-defined flags.
-    nsCOMPtr<nsIUTF8StringEnumerator> propertyEnumerator;
-    nsresult rv =
-        msgDBHdr->GetPropertyEnumerator(getter_AddRefs(propertyEnumerator));
+    nsTArray<nsCString> properties;
+    nsresult rv = msgDBHdr->GetProperties(properties);
     NS_ENSURE_SUCCESS_VOID(rv);
 
-    nsAutoCString property;
     nsCString sourceString;
-    bool hasMore;
-    while (NS_SUCCEEDED(propertyEnumerator->HasMore(&hasMore)) && hasMore) {
-      propertyEnumerator->GetNext(property);
+    for (auto property : properties) {
       nsAutoCString propertyEx(" "_ns);
       propertyEx.Append(property);
       propertyEx.Append(' ');
