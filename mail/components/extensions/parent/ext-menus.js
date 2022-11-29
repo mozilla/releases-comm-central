@@ -663,7 +663,7 @@ function getContextViewType(contextData) {
   ) {
     return contextData.webExtBrowserType;
   }
-  if (contextData.tab && contextData.menu.id === "mailContext") {
+  if (contextData.tab && contextData.menu.id === "browserContext") {
     return "tab";
   }
   return undefined;
@@ -1103,19 +1103,18 @@ const menuTracker = {
       case "tabContextMenu": {
         let triggerTab = trigger.closest("tab");
         const tab = triggerTab || tabTracker.activeTab;
-        const pageUrl = tab.linkedBrowser.currentURI.spec;
+        const pageUrl = tab.linkedBrowser?.currentURI?.spec;
         gMenuBuilder.build({ menu, tab, pageUrl, onTab: true });
         break;
       }
       case "folderPaneContext": {
-        const tab =
-          trigger.localName === "tab" ? trigger : tabTracker.activeTab;
-        const pageUrl = tab.linkedBrowser.currentURI.spec;
+        const tab = tabTracker.activeTab;
+        const pageUrl = tab.linkedBrowser?.currentURI?.spec;
         gMenuBuilder.build({
           menu,
           tab,
           pageUrl,
-          selectedFolder: trigger.ownerGlobal.gFolderTreeView.getSelectedFolders()[0],
+          selectedFolder: tab.folder,
         });
         break;
       }

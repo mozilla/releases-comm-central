@@ -327,6 +327,43 @@ var mailContextMenu = {
     if (lastItem.localName == "menuseparator") {
       lastItem.hidden = true;
     }
+
+    // The rest of this block sends menu information to WebExtensions.
+
+    let selectionInfo = this.selectionInfo;
+    let isContentSelected = selectionInfo
+      ? !selectionInfo.docSelectionIsCollapsed
+      : false;
+    let textSelected = selectionInfo ? selectionInfo.text : "";
+    let isTextSelected = !!textSelected.length;
+
+    let tabmail = top.document.getElementById("tabmail");
+    let subject = {
+      menu: event.target,
+      tab: tabmail ? tabmail.currentTabInfo : top,
+      isContentSelected,
+      isTextSelected,
+      onTextInput: this.context?.onTextInput,
+      onLink: this.context?.onLink,
+      onImage: this.context?.onImage,
+      onEditable: this.context?.onEditable,
+      srcUrl: this.context?.mediaURL,
+      linkText: this.context?.linkTextStr,
+      linkUrl: this.context?.linkURL,
+      selectionText: isTextSelected ? selectionInfo.fullText : undefined,
+      pageUrl: this.browsingContext?.currentURI?.spec,
+    };
+
+    if (inThreadTree) {
+      subject.displayedFolder = gFolder;
+      subject.selectedMessages = gDBView.getSelectedMsgHdrs();
+    }
+
+    subject.context = subject;
+    subject.wrappedJSObject = subject;
+
+    Services.obs.notifyObservers(subject, "on-prepare-contextmenu");
+    Services.obs.notifyObservers(subject, "on-build-contextmenu");
   },
 
   onMailContextMenuCommand(event) {

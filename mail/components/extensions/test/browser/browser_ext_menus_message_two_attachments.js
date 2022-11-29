@@ -11,6 +11,10 @@ const { mailTestUtils } = ChromeUtils.import(
 const URL_BASE =
   "http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data";
 
+var tabmail = document.getElementById("tabmail");
+var about3Pane = tabmail.currentAbout3Pane;
+var messagePane = about3Pane.messageBrowser.contentWindow.content;
+
 /**
  * Right-click on something and wait for the context menu to appear.
  * For elements in the parent process only.
@@ -159,7 +163,7 @@ function getExtensionDetails(...permissions) {
   };
 }
 
-add_task(async function set_up() {
+add_setup(async function() {
   await Services.search.init();
 
   gAccount = createAccount();
@@ -198,17 +202,12 @@ add_task(async function set_up() {
       },
     ],
   });
-  window.gFolderTreeView.selectFolder(gAccount.incomingServer.rootFolder);
-  if (
-    document.getElementById("folderpane_splitter").getAttribute("state") ==
-    "collapsed"
-  ) {
-    window.MsgToggleFolderPane();
-  }
-  window.gFolderTreeView.selectFolder(gFolders[0]);
-  if (window.IsMessagePaneCollapsed()) {
-    window.MsgToggleMessagePane();
-  }
+
+  about3Pane.restoreState({
+    folderPaneVisible: true,
+    folderURI: gFolders[0].URI,
+    messagePaneVisible: true,
+  });
 
   gExpectedAttachments = [
     {
@@ -333,7 +332,7 @@ async function subtest_message_panes(
   await extension.awaitMessage("menus-created");
   await subtest_attachments(
     extension,
-    window,
+    tabmail.currentAboutMessage,
     expectedContext,
     expectedAttachments
   );
@@ -347,13 +346,12 @@ async function subtest_message_panes(
   await extension.awaitMessage("menus-created");
   await subtest_attachments(
     extension,
-    window,
+    tabmail.currentAboutMessage,
     expectedContext,
     expectedAttachments
   );
   await extension.unload();
-  let tabmail = document.getElementById("tabmail");
-  tabmail.closeOtherTabs(tabmail.tabModes.folder.tabs[0]);
+  tabmail.closeOtherTabs(0);
 
   info("Test the message pane in a separate window.");
 
@@ -363,7 +361,7 @@ async function subtest_message_panes(
   await extension.awaitMessage("menus-created");
   await subtest_attachments(
     extension,
-    displayWindow,
+    displayWindow.messageBrowser.contentWindow,
     expectedContext,
     expectedAttachments
   );
@@ -374,13 +372,8 @@ async function subtest_message_panes(
 // Tests using a message with two attachment.
 add_task(async function test_message_panes() {
   gMessage = [...gFolders[0].messages][1];
-  window.gFolderDisplay.tree.view.selection.select(1);
-  let messagePane = document.getElementById("messagepane");
-  //await BrowserTestUtils.browserLoaded(messagePane);
-  await promiseMessageLoaded(
-    messagePane,
-    window.gFolderDisplay.selectedMessage
-  );
+  about3Pane.threadTree.selectedIndex = 1;
+  await promiseMessageLoaded(messagePane, gMessage);
 
   await subtest_message_panes(
     ["accountsRead", "messagesRead"],

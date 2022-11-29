@@ -3,7 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#define NO_MAILCONTEXT
 #filter substitution
 
 <?xml-stylesheet href="chrome://messenger/skin/messageWindow.css" type="text/css"?>
@@ -91,6 +90,8 @@
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailWindow.js"></script>
   <script defer="defer" src="chrome://messenger/content/messageWindow.js"></script>
+  <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/browserPopups.js"></script>
   <script defer="defer" src="chrome://messenger/content/toolbarIconColor.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCommands.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailWindowOverlay.js"></script>
@@ -159,7 +160,6 @@
   </keyset>
 
   <popupset id="mainPopupSet">
-#define NO_BROWSERCONTEXT
 #include widgets/browserPopups.inc.xhtml
 #include widgets/toolbarContext.inc.xhtml
 <!-- The panelUI is for the appmenu. -->

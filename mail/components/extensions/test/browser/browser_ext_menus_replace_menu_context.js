@@ -13,7 +13,7 @@ function checkIsDefaultMenuItemVisible(visibleMenuItemIds) {
   // In this whole test file, we open a menu on a link. Assume that all
   // default menu items are shown if one link-specific menu item is shown.
   ok(
-    visibleMenuItemIds.includes("mailContext-copylink"),
+    visibleMenuItemIds.includes("browserContext-copylink"),
     `The default 'Copy Link Location' menu item should be in ${visibleMenuItemIds}.`
   );
 }

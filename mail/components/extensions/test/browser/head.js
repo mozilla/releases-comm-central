@@ -520,7 +520,7 @@ async function checkComposeHeaders(expected) {
 }
 
 async function openContextMenu(selector = "#img1", win = window) {
-  let contentAreaContextMenu = win.document.getElementById("mailContext");
+  let contentAreaContextMenu = win.document.getElementById("browserContext");
   let popupShownPromise = BrowserTestUtils.waitForEvent(
     contentAreaContextMenu,
     "popupshown"
@@ -541,7 +541,9 @@ async function openContextMenu(selector = "#img1", win = window) {
 }
 
 async function openContextMenuInPopup(extension, selector, win = window) {
-  let contentAreaContextMenu = win.document.getElementById("mailContext");
+  let contentAreaContextMenu = win.top.document.getElementById(
+    "browserContext"
+  );
   let stack = getBrowserActionPopup(extension, win);
   let browser = stack.querySelector("browser");
   // Ensure that the document layout has been flushed before triggering the mouse event
@@ -570,7 +572,9 @@ async function closeExtensionContextMenu(
   modifiers = {},
   win = window
 ) {
-  let contentAreaContextMenu = win.document.getElementById("mailContext");
+  let contentAreaContextMenu = win.top.document.getElementById(
+    "browserContext"
+  );
   let popupHiddenPromise = BrowserTestUtils.waitForEvent(
     contentAreaContextMenu,
     "popuphidden"
@@ -596,7 +600,7 @@ async function openSubmenu(submenuItem, win = window) {
 
 async function closeContextMenu(contextMenu) {
   let contentAreaContextMenu =
-    contextMenu || document.getElementById("mailContext");
+    contextMenu || document.getElementById("browserContext");
   let popupHiddenPromise = BrowserTestUtils.waitForEvent(
     contentAreaContextMenu,
     "popuphidden"
