@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/contextMenu.css");
+@import url("chrome://messenger/skin/colors.css");
 
 :host {
   --icon-size: 16px;
@@ -20,6 +21,7 @@
 
 @media (prefers-contrast) {
   :host {
+    --in-content-box-info-background: -moz-Dialog;
     --in-content-button-color: ButtonText;
     --in-content-button-border: ThreeDLightShadow;
     --in-content-button-background: ButtonFace;
@@ -52,6 +54,10 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  :host {
+    --in-content-box-info-background: var(--color-gray-60);
+  }
+
   :host([type=warning]) {
     --message-bar-background-color: #ffe900;
   }

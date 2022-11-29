@@ -12,13 +12,7 @@ menuitem[disabled="true"]:not(.menuitem-iconic) {
 }
 
 menupopup:not([type="arrow"]) {
-  --windows-panel-box-shadow: 0 0 4px hsla(0, 0%, 0%, 0.2);
   margin: -4px;
-}
-
-menupopup:not([type="arrow"])::part(content) {
-  margin: 4px;
-  box-shadow: var(--windows-panel-box-shadow);
 }
 
 @media (prefers-contrast) {
@@ -50,6 +44,11 @@ menupopup:not([type="arrow"])::part(content) {
     border: none;
     /* Somehow the double border radius is needed to look correct. */
     border-radius: calc(2 * var(--arrowpanel-border-radius));
+  }
+
+  menupopup:not([type="arrow"])::part(content) {
+    --panel-shadow-margin: 4px;
+    --panel-shadow: 0 0 4px hsla(0, 0%, 0%, 0.2);
   }
 
   /* Override popup.css */

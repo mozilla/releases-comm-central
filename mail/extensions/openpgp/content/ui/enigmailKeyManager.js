@@ -57,6 +57,9 @@ var { EnigmailConstants } = ChromeUtils.import(
 var { EnigmailDialog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
 );
+var { EnigmailKeyserverURIs } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyserverUris.jsm"
+);
 
 const ENIG_KEY_EXPIRED = "e";
 const ENIG_KEY_REVOKED = "r";
@@ -117,8 +120,7 @@ function enigmailKeyManagerLoad() {
   });
 
   gUserList.addEventListener("click", onListClick, true);
-  document.l10n.setAttributes(
-    document.getElementById("statusText"),
+  document.getElementById("statusText").value = l10n.formatValueSync(
     "key-man-loading-keys"
   );
   document.getElementById("progressBar").style.visibility = "visible";
@@ -152,7 +154,7 @@ function loadkeyList() {
   sortTree();
   gKeyListView.applyFilter(0);
   document.getElementById("pleaseWait").hidePopup();
-  document.getElementById("statusText").value = " ";
+  document.getElementById("statusText").value = "";
   document.getElementById("progressBar").style.visibility = "collapse";
 }
 
@@ -261,6 +263,8 @@ function enigmailKeyMenu() {
     }
   }
 
+  let singleSecretSelected = keyList.length == 1 && haveSecretForAll;
+
   // Make the selected key count available to translations.
   for (let el of document.querySelectorAll(".enigmail-bulk-key-operation")) {
     el.setAttribute(
@@ -270,6 +274,7 @@ function enigmailKeyMenu() {
   }
 
   document.getElementById("backupSecretKey").disabled = !haveSecretForAll;
+  document.getElementById("uploadToServer").disabled = !singleSecretSelected;
 
   document.getElementById("revokeKey").disabled =
     keyList.length != 1 || !gKeyList[keyList[0]].secretAvailable;
@@ -701,22 +706,27 @@ async function enigmailSearchKey() {
   }
 }
 
-/*
-function enigmailUploadKeys() {
-  accessKeyServer(EnigmailConstants.UPLOAD_KEY, enigmailUploadKeysCb);
-}
-
-function enigmailUploadKeysCb(exitCode, errorMsg, msgBox) {
-  if (msgBox) {
-    if (exitCode !== 0) {
-      EnigmailDialog.alert(window, "Sending of keys failed" + "\n" + errorMsg);
-    }
-  } else {
-    return exitCode === 0 ? "Key(s) sent successfully" : "Sending of keys failed";
+async function enigmailUploadKey() {
+  /* Always upload to the first configured keyserver with a supported protocol */
+  let selKeyList = getSelectedKeys();
+  if (selKeyList.length != 1) {
+    return;
   }
-  return "";
+
+  let keyId = gKeyList[selKeyList[0]].keyId;
+  let ks = EnigmailKeyserverURIs.getUploadKeyServer();
+
+  let ok = await EnigmailKeyServer.upload(keyId, ks);
+  document.l10n
+    .formatValue(ok ? "openpgp-key-publish-ok" : "openpgp-key-publish-fail", {
+      keyserver: ks,
+    })
+    .then(value => {
+      EnigmailDialog.alert(window, value);
+    });
 }
 
+/*
 function enigmailUploadToWkd() {
   let selKeyList = getSelectedKeys();
   let keyList = [];
@@ -869,123 +879,6 @@ function determineHiddenKeys(keyObj, showInvalidKeys, showOthersKeys) {
   }
 
   return show;
-}
-
-//
-// ----- keyserver related functionality ----
-//
-function accessKeyServer(accessType, callbackFunc) {
-  const ioService = Services.io;
-  if (ioService && ioService.offline) {
-    document.l10n.formatValue("need-online").then(value => {
-      EnigmailDialog.alert(window, value);
-    });
-    return;
-  }
-
-  let inputObj = {};
-  let resultObj = {};
-  let selKeyList = getSelectedKeys();
-  let keyList = [];
-  for (let i = 0; i < selKeyList.length; i++) {
-    keyList.push(gKeyList[selKeyList[i]]);
-  }
-
-  if (accessType !== EnigmailConstants.REFRESH_KEY && selKeyList.length === 0) {
-    if (
-      EnigmailDialog.confirmDlg(
-        window,
-        l10n.formatValueSync("refresh-all-question"),
-        l10n.formatValueSync("key-man-button-refresh-all")
-      )
-    ) {
-      accessType = EnigmailConstants.DOWNLOAD_KEY;
-      EnigmailDialog.alertPref(
-        window,
-        l10n.formatValueSync("refresh-key-warn"),
-        "warnRefreshAll"
-      );
-    } else {
-      return;
-    }
-  }
-
-  let keyServer = Services.prefs.getBoolPref(
-    "temp.openpgp.autoKeyServerSelection"
-  )
-    ? Services.prefs.getCharPref("temp.openpgp.keyserver").split(/[ ,;]/g)[0]
-    : null;
-  if (!keyServer) {
-    switch (accessType) {
-      case EnigmailConstants.REFRESH_KEY:
-        inputObj.upload = false;
-        inputObj.keyId = "All keys";
-        break;
-      case EnigmailConstants.DOWNLOAD_KEY:
-        inputObj.upload = false;
-        inputObj.keyId = keyList
-          .map(k => {
-            try {
-              return EnigmailFuncs.stripEmail(k.userId);
-            } catch (x) {
-              return "0x" + k.fpr;
-            }
-          })
-          .join(", ");
-        break;
-      /*
-      case EnigmailConstants.UPLOAD_KEY:
-        inputObj.upload = true;
-        inputObj.keyId = keyList
-          .map(k => {
-            try {
-              return EnigmailFuncs.stripEmail(k.userId);
-            } catch (x) {
-              return "0x" + k.fpr;
-            }
-          })
-          .join(", ");
-        break;
-      */
-      default:
-        inputObj.upload = true;
-        inputObj.keyId = "";
-    }
-
-    window.openDialog(
-      "chrome://openpgp/content/ui/enigmailKeyserverDlg.xhtml",
-      "",
-      "dialog,modal,centerscreen",
-      inputObj,
-      resultObj
-    );
-    keyServer = resultObj.value;
-  }
-
-  if (keyServer.length === 0) {
-    return;
-  }
-
-  if (accessType !== EnigmailConstants.REFRESH_KEY) {
-    inputObj.keyServer = keyServer;
-    inputObj.accessType = accessType;
-    inputObj.keyId = keyList.map(k => {
-      return "0x" + k.fpr;
-    });
-    window.openDialog(
-      "chrome://openpgp/content/ui/enigRetrieveProgress.xhtml",
-      "",
-      "dialog,modal,centerscreen",
-      inputObj,
-      resultObj
-    );
-
-    if (resultObj.result) {
-      callbackFunc(resultObj.exitCode, resultObj.errorMsg, false);
-    }
-  } else {
-    EnigmailKeyServer.refresh(keyServer);
-  }
 }
 
 function getSortDirection() {

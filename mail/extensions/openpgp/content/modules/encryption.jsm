@@ -241,12 +241,13 @@ var EnigmailEncryption = {
   },
 
   /**
-   * Determine if the sender key ID or user ID can be used for signing and/or encryption
+   * Determine if the sender key ID or user ID can be used for signing and/or
+   * encryption
    *
-   * @param sendFlags:    Number  - the send Flags; need to contain SEND_SIGNED and/or SEND_ENCRYPTED
-   * @param fromKeyId:    String  - the sender key ID
+   * @param {integer} sendFlags - The send Flags; need to contain SEND_SIGNED and/or SEND_ENCRYPTED
+   * @param {string} fromKeyId - The sender key ID
    *
-   * @returns Object:
+   * @returns {object} object
    *         - keyId:    String - the found key ID, or null if fromMailAddr is not valid
    *         - errorMsg: String - the error message if key not valid, or null if key is valid
    */

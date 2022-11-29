@@ -79,7 +79,6 @@ module.exports = {
         "import/named": "error",
         "import/namespace": "error",
         "import/newline-after-import": "error",
-        "import/no-anonymous-default-export": "error",
         "import/no-duplicates": "error",
         "import/no-absolute-path": "error",
         "import/no-named-default": "error",
@@ -94,6 +93,12 @@ module.exports = {
           { ignore: ["chrome://", "resource://"] },
         ],
         "import/no-useless-path-segments": "error",
+      },
+    },
+    {
+      files: ["mail/components/storybook/**"],
+      rules: {
+        "import/no-unresolved": "off",
       },
     },
     {

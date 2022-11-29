@@ -48,92 +48,119 @@ var KeyLookupHelper = {
    * @returns {boolean} flags.foundUnchanged - All found keys are identical to already existing local keys.
    * @returns {boolean} flags.collectedForLater - At least one key was added to CollectedKeysDB.
    */
+
+  isExpiredOrRevoked(keyTrust) {
+    return keyTrust.match(/e/i) || keyTrust.match(/r/i);
+  },
+
   async _lookupAndImportOnKeyserver(mode, window, identifier) {
     let keyImported = false;
     let foundUpdated = false;
     let foundUnchanged = false;
     let collectedForLater = false;
 
-    let defKs = lazy.EnigmailKeyserverURIs.getDefaultKeyServer();
-    if (!defKs) {
+    let ksArray = lazy.EnigmailKeyserverURIs.getKeyServers();
+    if (!ksArray.length) {
       return false;
     }
 
-    let vks = await lazy.EnigmailKeyServer.downloadNoImport(identifier, defKs);
-    if (vks && "keyData" in vks) {
-      let errorInfo = {};
-      let keyList = await lazy.EnigmailKey.getKeyListFromKeyBlock(
-        vks.keyData,
-        errorInfo,
-        false,
-        true,
-        false
-      );
-      // We might get a zero length keyList, if we refuse to use the key
-      // that we received because of its properties.
-      if (keyList && keyList.length == 1) {
-        let oldKey = lazy.EnigmailKeyRing.getKeyById(keyList[0].fpr);
-        if (oldKey) {
-          await lazy.EnigmailKeyRing.importKeyDataSilent(
-            window,
-            vks.keyData,
-            true,
-            "0x" + keyList[0].fpr
-          );
-
-          let updatedKey = lazy.EnigmailKeyRing.getKeyById(keyList[0].fpr);
-          // If new imported/merged key is equal to old key,
-          // don't notify about new keys details.
-          if (JSON.stringify(oldKey) !== JSON.stringify(updatedKey)) {
-            foundUpdated = true;
-            keyImported = true;
-            if (mode == "interactive-import") {
-              lazy.EnigmailDialog.keyImportDlg(
-                window,
-                keyList.map(a => a.id)
-              );
-            }
-          } else {
-            foundUnchanged = true;
-          }
-        } else {
-          keyList = keyList.filter(k => k.userIds.length);
-          if (keyList.length && mode == "interactive-import") {
-            keyImported = await lazy.EnigmailKeyRing.importKeyDataWithConfirmation(
-              window,
-              keyList,
-              vks.keyData,
-              true
-            );
-          }
-          if (!keyImported) {
-            collectedForLater = true;
-            let db = await lazy.CollectedKeysDB.getInstance();
-            for (let newKey of keyList) {
-              // If key is known in the db: merge + update.
-              let key = await db.mergeExisting(newKey, vks.keyData, {
-                uri: lazy.EnigmailKeyServer.serverReqURL(
-                  `0x${newKey.fpr}`,
-                  defKs
-                ),
-                type: "keyserver",
-              });
-              await db.storeKey(key);
-            }
-          }
-        }
-      } else {
-        if (keyList.length > 1) {
-          throw new Error(
-            "Unexpected multiple results from verifying keyserver."
-          );
-        }
-        console.debug(
-          "failed to process data retrieved from keyserver: " + errorInfo.value
+    let continueSearching = true;
+    for (let ks of ksArray) {
+      let foundKey;
+      if (ks.startsWith("vks://")) {
+        foundKey = await lazy.EnigmailKeyServer.downloadNoImport(
+          identifier,
+          ks
+        );
+      } else if (ks.startsWith("hkp://") || ks.startsWith("hkps://")) {
+        foundKey = await lazy.EnigmailKeyServer.searchAndDownloadSingleResultNoImport(
+          identifier,
+          ks
         );
       }
-    } else {
-      console.debug("searchKeysOnInternet no data found on keyserver");
+      if (foundKey && "keyData" in foundKey) {
+        let errorInfo = {};
+        let keyList = await lazy.EnigmailKey.getKeyListFromKeyBlock(
+          foundKey.keyData,
+          errorInfo,
+          false,
+          true,
+          false
+        );
+        // We might get a zero length keyList, if we refuse to use the key
+        // that we received because of its properties.
+        if (keyList && keyList.length == 1) {
+          let oldKey = lazy.EnigmailKeyRing.getKeyById(keyList[0].fpr);
+          if (oldKey) {
+            await lazy.EnigmailKeyRing.importKeyDataSilent(
+              window,
+              foundKey.keyData,
+              true,
+              "0x" + keyList[0].fpr
+            );
+
+            let updatedKey = lazy.EnigmailKeyRing.getKeyById(keyList[0].fpr);
+            // If new imported/merged key is equal to old key,
+            // don't notify about new keys details.
+            if (JSON.stringify(oldKey) !== JSON.stringify(updatedKey)) {
+              foundUpdated = true;
+              keyImported = true;
+              if (mode == "interactive-import") {
+                lazy.EnigmailDialog.keyImportDlg(
+                  window,
+                  keyList.map(a => a.id)
+                );
+              }
+            } else {
+              foundUnchanged = true;
+            }
+          } else {
+            keyList = keyList.filter(k => k.userIds.length);
+            keyList = keyList.filter(k => !this.isExpiredOrRevoked(k.keyTrust));
+            if (keyList.length && mode == "interactive-import") {
+              keyImported = await lazy.EnigmailKeyRing.importKeyDataWithConfirmation(
+                window,
+                keyList,
+                foundKey.keyData,
+                true
+              );
+              if (keyImported) {
+                // In interactive mode, don't offer the user to import keys multiple times.
+                // When silently collecting keys, it's fine to discover everything we can.
+                continueSearching = false;
+              }
+            }
+            if (!keyImported) {
+              collectedForLater = true;
+              let db = await lazy.CollectedKeysDB.getInstance();
+              for (let newKey of keyList) {
+                // If key is known in the db: merge + update.
+                let key = await db.mergeExisting(newKey, foundKey.keyData, {
+                  uri: lazy.EnigmailKeyServer.serverReqURL(
+                    `0x${newKey.fpr}`,
+                    ks
+                  ),
+                  type: "keyserver",
+                });
+                await db.storeKey(key);
+              }
+            }
+          }
+        } else {
+          if (keyList && keyList.length > 1) {
+            throw new Error("Unexpected multiple results from keyserver " + ks);
+          }
+          console.log(
+            "failed to process data retrieved from keyserver " +
+              ks +
+              ": " +
+              errorInfo.value
+          );
+        }
+      }
+      if (!continueSearching) {
+        break;
+      }
     }
 
     return { keyImported, foundUpdated, foundUnchanged, collectedForLater };
@@ -269,6 +296,7 @@ var KeyLookupHelper = {
           wkdKeyImported = true;
         }
 
+        newKeys = newKeys.filter(k => !this.isExpiredOrRevoked(k.keyTrust));
         if (newKeys.length && mode == "interactive-import") {
           wkdKeyImported =
             wkdKeyImported ||

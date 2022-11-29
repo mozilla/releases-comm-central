@@ -10,6 +10,8 @@ from shlex import quote as shell_quote
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.schema import resolve_keyed_by
 
+from rocbuild.notify import TB_BUILD_ADDR
+
 transforms = TransformSequence()
 
 
@@ -35,6 +37,7 @@ def build_command(config, jobs):
         if ssh_key_secret:
             command.extend(["--ssh-secret", ssh_key_secret])
             job.setdefault("scopes", []).append(f"secrets:get:{ssh_key_secret}")
+            job["scopes"].append(f"notify:email:{TB_BUILD_ADDR}")
 
         command.extend(job["run"].pop("actions", []))
         job.setdefault("run", {}).update(
