@@ -117,8 +117,7 @@ function enigmailKeyManagerLoad() {
   });
 
   gUserList.addEventListener("click", onListClick, true);
-  document.l10n.setAttributes(
-    document.getElementById("statusText"),
+  document.getElementById("statusText").value = l10n.formatValueSync(
     "key-man-loading-keys"
   );
   document.getElementById("progressBar").style.visibility = "visible";
@@ -152,7 +151,7 @@ function loadkeyList() {
   sortTree();
   gKeyListView.applyFilter(0);
   document.getElementById("pleaseWait").hidePopup();
-  document.getElementById("statusText").value = " ";
+  document.getElementById("statusText").value = "";
   document.getElementById("progressBar").style.visibility = "collapse";
 }
 
