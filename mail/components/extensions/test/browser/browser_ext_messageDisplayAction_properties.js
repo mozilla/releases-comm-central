@@ -11,10 +11,18 @@ add_task(async () => {
   createMessages(folder, 1);
   let [message] = [...folder.messages];
 
-  let msgLoaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
-  window.gFolderTreeView.selectFolder(folder);
-  window.gFolderDisplay.selectViewIndex(0);
-  await msgLoaded;
+  let tabmail = document.getElementById("tabmail");
+  let about3Pane = tabmail.currentAbout3Pane;
+  about3Pane.restoreState({
+    folderPaneVisible: true,
+    folderURI: folder.URI,
+    messagePaneVisible: true,
+  });
+  about3Pane.threadTree.selectedIndex = 0;
+  await BrowserTestUtils.browserLoaded(
+    about3Pane.messageBrowser.contentWindow.content
+  );
+
   await openMessageInTab(message);
   await openMessageInWindow(message);
   await new Promise(resolve => executeSoon(resolve));
@@ -120,16 +128,11 @@ add_task(async () => {
 
   await extension.startup();
 
-  let tabmail = document.getElementById("tabmail");
   let mainWindowTabs = tabmail.tabInfo;
   is(mainWindowTabs.length, 2);
 
-  let mainWindowButton = document.getElementById(
-    "message_display_action_properties_mochi_test-messageDisplayAction-toolbarbutton"
-  );
-
   let messageWindow = Services.wm.getMostRecentWindow("mail:messageWindow");
-  let messageWindowButton = messageWindow.document.getElementById(
+  let messageWindowButton = messageWindow.messageBrowser.contentDocument.getElementById(
     "message_display_action_properties_mochi_test-messageDisplayAction-toolbarbutton"
   );
 
@@ -155,8 +158,17 @@ add_task(async () => {
 
     for (let i = 0; i < 2; i++) {
       tabmail.switchToTab(mainWindowTabs[i]);
-      await new Promise(resolve => requestAnimationFrame(resolve));
-      checkButton(mainWindowButton, i);
+      let aboutMessage = mainWindowTabs[i].chromeBrowser.contentWindow;
+      if (aboutMessage.location.href == "about:3pane") {
+        aboutMessage = aboutMessage.messageBrowser.contentWindow;
+      }
+      await new Promise(resolve => aboutMessage.requestAnimationFrame(resolve));
+      checkButton(
+        aboutMessage.document.getElementById(
+          "message_display_action_properties_mochi_test-messageDisplayAction-toolbarbutton"
+        ),
+        i
+      );
     }
     checkButton(messageWindowButton, 2);
 
@@ -167,6 +179,5 @@ add_task(async () => {
   await extension.unload();
 
   messageWindow.close();
-  tabmail.closeTab(mainWindowTabs[1]);
-  is(tabmail.tabInfo.length, 1);
+  tabmail.closeOtherTabs(0);
 });

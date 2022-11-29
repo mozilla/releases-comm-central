@@ -970,7 +970,7 @@ async function run_popup_test(configData) {
 
         ok(
           !Services.xulStore
-            .getValue(win.location.href, toolbarId, "currentset")
+            .getValue(win.top.location.href, toolbarId, "currentset")
             .split(",")
             .includes(buttonId),
           `Button should have been removed from currentset xulStore of toolbar ${toolbarId}`

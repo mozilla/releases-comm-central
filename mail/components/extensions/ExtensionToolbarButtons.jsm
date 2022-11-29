@@ -622,11 +622,18 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
    * @returns {XULElement|ChromeWindow}
    */
   getTargetFromWindow(window) {
-    let tabmail = window.document.getElementById("tabmail");
-    if (tabmail) {
+    let tabmail = window.top.document.getElementById("tabmail");
+    if (!tabmail) {
+      return window.top;
+    }
+
+    if (window == window.top) {
       return tabmail.currentTabInfo;
     }
-    return window;
+    if (window.parent != window.top) {
+      window = window.parent;
+    }
+    return tabmail.tabInfo.find(t => t.chromeBrowser?.contentWindow == window);
   }
 
   /**

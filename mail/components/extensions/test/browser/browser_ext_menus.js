@@ -1239,7 +1239,7 @@ add_task(async function test_message_display_action_menu_pane() {
   // No check for menu entries in nonActionButtonElements as the header-toolbar
   // does not have a context menu associated.
   await subtest_action_menu(
-    window,
+    tab.chromeBrowser.contentWindow,
     {
       menuId: "header-toolbar-context-menu",
       elementId: "menus_mochi_test-messageDisplayAction-toolbarbutton",
@@ -1252,7 +1252,7 @@ add_task(async function test_message_display_action_menu_pane() {
     { active: true, index: 1, mailTab: false }
   );
   window.document.getElementById("tabmail").closeTab(tab);
-}).skip(); // TODO
+});
 
 add_task(async function test_message_display_action_menu_window() {
   let testWindow = await openMessageInWindow(gMessage);
@@ -1260,7 +1260,7 @@ add_task(async function test_message_display_action_menu_window() {
   // No check for menu entries in nonActionButtonElements as the header-toolbar
   // does not have a context menu associated.
   await subtest_action_menu(
-    testWindow,
+    testWindow.messageBrowser.contentWindow,
     {
       menuId: "header-toolbar-context-menu",
       elementId: "menus_mochi_test-messageDisplayAction-toolbarbutton",
@@ -1273,7 +1273,7 @@ add_task(async function test_message_display_action_menu_window() {
     { active: true, index: 0, mailTab: false }
   );
   await BrowserTestUtils.closeWindow(testWindow);
-}).skip(); // TODO
+});
 
 add_task(async function test_compose_action_menu() {
   let testWindow = await openComposeWindow(gAccount);

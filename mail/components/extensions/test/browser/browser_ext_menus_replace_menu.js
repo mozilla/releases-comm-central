@@ -539,7 +539,7 @@ add_task(
 
     about3Pane.displayFolder(rootFolder);
   }
-).skip(); // TODO
+);
 
 add_task(
   async function overrideContext_in_extension_message_display_action_popup_of_window() {
@@ -558,7 +558,7 @@ add_task(
     );
     messageWindow.close();
   }
-).skip(); // TODO
+);
 
 add_task(
   async function overrideContext_in_extension_message_display_action_popup_of_tab() {
@@ -578,4 +578,4 @@ add_task(
     );
     tabmail.closeOtherTabs(0);
   }
-).skip(); // TODO
+);
