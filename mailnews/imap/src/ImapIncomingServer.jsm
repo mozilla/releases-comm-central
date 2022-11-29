@@ -474,6 +474,16 @@ class ImapIncomingServer extends MsgIncomingServer {
   }
 
   /**
+   * Check if INBOX folder is selected in a connection.
+   *
+   * @param {ImapClient} client - The client to check.
+   * @returns {boolean}
+   */
+  _isInboxConnection(client) {
+    return client.folder?.onlineName.toUpperCase() == "INBOX";
+  }
+
+  /**
    * Get a free connection that can be used.
    *
    * @param {nsIMsgFolder} folder - The folder to operate on.
@@ -509,16 +519,18 @@ class ImapIncomingServer extends MsgIncomingServer {
       return this._waitForNextClient(folder);
     }
 
-    // Reuse any free connection available.
-    if (this.maximumConnectionsNumber <= 1) {
+    // Reuse any free connection if only have one connection or IDLE not used.
+    if (
+      this.maximumConnectionsNumber <= 1 ||
+      !this.useIdle ||
+      !this._capabilities.includes("IDLE")
+    ) {
       freeConnections[0].busy = true;
       return freeConnections[0];
     }
 
     // Reuse non-inbox free connection.
-    client = freeConnections.find(
-      c => c.folder?.onlineName.toUpperCase() != "INBOX"
-    );
+    client = freeConnections.find(c => !this._isInboxConnection(c));
     if (client) {
       client.busy = true;
       return client;
@@ -539,27 +551,32 @@ class ImapIncomingServer extends MsgIncomingServer {
       return;
     }
     client.onFree = async () => {
-      let alreadyIdling =
-        client.folder &&
-        this._connections.find(
-          c => c != client && !c.busy && c.folder == client.folder
-        );
-      if (
-        this.useIdle &&
-        this._capabilities.includes("IDLE") &&
-        client.folder &&
-        !alreadyIdling
-      ) {
-        // IDLE is configed and supported, use IDLE to receive server pushes.
-        client.idle();
-      } else if (alreadyIdling) {
-        client.folder = null;
-      }
       client.busy = false;
       let resolve = this._connectionWaitingQueue.shift();
       if (resolve) {
-        // Resovle the first waiting in queue.
+        // Resolve the first waiting in queue.
         resolve(true);
+      } else {
+        let hasInboxConnection = this._connections.some(c =>
+          this._isInboxConnection(c)
+        );
+        let alreadyIdling =
+          client.folder &&
+          this._connections.find(
+            c => c != client && !c.busy && c.folder == client.folder
+          );
+        if (this.useIdle && this._capabilities.includes("IDLE")) {
+          // IDLE is configed and supported, use IDLE to receive server pushes.
+          if (!hasInboxConnection) {
+            client.selectFolder(
+              this.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox)
+            );
+          } else if (client.folder && !alreadyIdling) {
+            client.idle();
+          } else if (alreadyIdling) {
+            client.folder = null;
+          }
+        }
       }
     };
     handler(client);

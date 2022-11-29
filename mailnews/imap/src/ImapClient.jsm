@@ -369,14 +369,14 @@ class ImapClient {
     }
 
     if (folder.onlineName) {
-      return folder.onlineName;
+      return folder.onlineName.replaceAll('"', '\\"');
     }
     let delimiter =
       folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
     let names = this._getAncestorFolderNames(folder);
-    return this._charsetManager.unicodeToMutf7(
-      [...names, folder.name].join(delimiter)
-    );
+    return this._charsetManager
+      .unicodeToMutf7([...names, folder.name].join(delimiter))
+      .replaceAll('"', '\\"');
   }
 
   /**
@@ -669,11 +669,7 @@ class ImapClient {
    * @param {Function} nextAction - Callback function after IDLE is ended.
    */
   endIdle(nextAction) {
-    this._nextAction = res => {
-      if (res.status == "OK") {
-        nextAction();
-      }
-    };
+    this._nextAction = nextAction;
     this._send("DONE");
     this._idling = false;
   }
@@ -717,7 +713,6 @@ class ImapClient {
       this._response = new ImapResponse();
     }
     this._response.parse(stringPayload);
-    this._logger.debug("Parsed:", this._response);
     if (
       !this._authenticating &&
       this._response.done &&
@@ -1335,7 +1330,9 @@ class ImapClient {
       this._folderSink.setFolderQuotaData(VALIDATE_QUOTA, "", 0, 0);
       this._actionAfterSelectFolder();
     };
-    this._sendTagged(`GETQUOTAROOT ${this._getServerFolderName(this.folder)}`);
+    this._sendTagged(
+      `GETQUOTAROOT "${this._getServerFolderName(this.folder)}"`
+    );
     this._folderSink.folderQuotaCommandIssued = true;
   }
 
