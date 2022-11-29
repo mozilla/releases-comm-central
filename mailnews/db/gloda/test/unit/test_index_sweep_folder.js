@@ -73,7 +73,7 @@ GlodaMsgIndexer._indexerGetEnumerator = function(...aArgs) {
 
 var messageInjection;
 
-add_task(function setupTest() {
+add_setup(function() {
   let msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   // We do not want the event-driven indexer crimping our style.
