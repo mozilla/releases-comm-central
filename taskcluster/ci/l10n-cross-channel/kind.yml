@@ -13,7 +13,7 @@ jobs:
     quarantine:
         description: Push strings from all shipping trains to comm-strings-quarantine
         run-on-projects: []
-        worker-type: b-linux
+        worker-type: b-linux-gcp
         ssh-key-secret:
             by-level:
                 "3": project/comm/thunderbird/releng/build/level-3/l10n-cross-channel-quarantine-ssh
