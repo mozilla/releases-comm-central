@@ -123,7 +123,7 @@ var KeyLookupHelper = {
           }
         }
       } else {
-        if (keyList.length > 1) {
+        if (keyList && keyList.length > 1) {
           throw new Error(
             "Unexpected multiple results from verifying keyserver."
           );
