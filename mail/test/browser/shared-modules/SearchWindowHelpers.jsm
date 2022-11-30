@@ -94,6 +94,7 @@ function select_click_search_row(aViewIndex, aController) {
   }
 
   let tree = aController.threadTree;
+  tree.scrollToRow(aViewIndex);
   let coords = tree.getCoordsForCellItem(
     aViewIndex,
     tree.columns.subjectCol,
@@ -127,6 +128,7 @@ function select_shift_click_search_row(aViewIndex, aController) {
   }
 
   let tree = aController.threadTree;
+  tree.scrollToRow(aViewIndex);
   let coords = tree.getCoordsForCellItem(
     aViewIndex,
     tree.columns.subjectCol,
