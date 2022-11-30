@@ -98,7 +98,7 @@ function onCheckItem(aChangeElementId, aCheckElementIds) {
     } else if ("selected" in notifyElement) {
       notifyElementState = notifyElement.selected;
     } else {
-      Cu.reportError("Unknown type of control element: " + notifyElement.id);
+      console.error("Unknown type of control element: " + notifyElement.id);
     }
 
     if (!notifyElementState) {

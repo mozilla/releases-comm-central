@@ -3317,7 +3317,7 @@ export var XMPPAccountPrototype = {
           binval: btoa(data).replace(/.{74}/g, "$&\n"),
         };
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
         this._cachedUserIcon = null;
       }
       delete this._cachingUserIcon;

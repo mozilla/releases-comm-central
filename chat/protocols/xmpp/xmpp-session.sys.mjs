@@ -344,7 +344,7 @@ XMPPSession.prototype = {
     try {
       this._parser.onDataAvailable(aData);
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
       this.onXMLError("parser-exception", e);
     }
     delete this._lastReceivedData;

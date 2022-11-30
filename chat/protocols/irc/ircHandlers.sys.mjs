@@ -101,7 +101,7 @@ export var ircHandlers = {
   _registerHandler(aArray, aHandler) {
     // Protect ourselves from adding broken handlers.
     if (!("commands" in aHandler)) {
-      Cu.reportError(
+      console.error(
         new Error(
           'IRC handlers must have a "commands" property: ' + aHandler.name
         )
@@ -109,7 +109,7 @@ export var ircHandlers = {
       return false;
     }
     if (!("isEnabled" in aHandler)) {
-      Cu.reportError(
+      console.error(
         new Error(
           'IRC handlers must have a "isEnabled" property: ' + aHandler.name
         )

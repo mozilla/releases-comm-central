@@ -225,7 +225,7 @@ function getInfoPlistContent(aBaseURI) {
     }
     return plistToJSON(node);
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
     return null;
   }
 }
@@ -272,7 +272,7 @@ export function getCurrentTheme() {
     gCurrentTheme = getThemeByName(name);
     gCurrentTheme.variant = variant;
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
     gCurrentTheme = getThemeByName(DEFAULT_THEME);
     gCurrentTheme.variant = "default";
   }
@@ -535,7 +535,7 @@ function replaceKeywordsInHTML(aHTML, aReplacements, aReplacementArg) {
     if (match[1] in aReplacements) {
       content = aReplacements[match[1]](aReplacementArg, match[3]);
     } else {
-      Cu.reportError(
+      console.error(
         "Unknown replacement string %" + match[1] + "% in message styles."
       );
     }

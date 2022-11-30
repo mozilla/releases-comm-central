@@ -62,7 +62,7 @@ function run_test() {
   try {
     aboutLocale = testIni.getString("Global", "about.en-US");
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
 
   if (aboutLocale == undefined) {

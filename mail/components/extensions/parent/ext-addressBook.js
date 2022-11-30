@@ -133,7 +133,7 @@ async function getPhotoFile(id) {
     let blob = await result.blob();
     return new File([blob], `${id}.${type}`, { type: `image/${type}` });
   } catch (ex) {
-    Cu.reportError(`Failed to read photo information for ${id}: ` + ex);
+    console.error(`Failed to read photo information for ${id}: ` + ex);
   }
 
   return null;
@@ -188,7 +188,7 @@ async function setPhotoFile(id, file) {
         try {
           await IOUtils.remove(oldPhotoFile.path);
         } catch (ex) {
-          Cu.reportError(`Failed to delete old photo file for ${id}: ` + ex);
+          console.error(`Failed to delete old photo file for ${id}: ` + ex);
         }
       }
     } else {
@@ -591,7 +591,7 @@ var addressBookCache = new (class extends EventEmitter {
             let photoFile = await File.createFromNsIFile(realPhotoFile);
             await addVCardPhotoEntry(vCardProperties, photoFile);
           } catch (ex) {
-            Cu.reportError(
+            console.error(
               `Failed to read photo information for ${node.id}: ` + ex
             );
           }

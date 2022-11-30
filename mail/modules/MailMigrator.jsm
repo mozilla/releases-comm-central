@@ -162,7 +162,7 @@ var MailMigrator = {
             if (["NotFoundError"].includes(ex.name)) {
               IOUtils.writeJSON(spec, ["moz-abdirectory://?"]);
             } else {
-              Cu.reportError(ex);
+              console.error(ex);
             }
           });
       }
@@ -490,7 +490,7 @@ var MailMigrator = {
         try {
           MailServices.accounts.reorderAccounts(accountKeyList);
         } catch (error) {
-          Cu.reportError(
+          console.error(
             "Migrating account list order failed. Error message was: " +
               error +
               " -- Will not reattempt migration."
@@ -677,7 +677,7 @@ var MailMigrator = {
       // Update the migration version.
       Services.prefs.setIntPref(UI_VERSION_PREF, UI_VERSION);
     } catch (e) {
-      Cu.reportError(
+      console.error(
         "Migrating from UI version " +
           currentUIVersion +
           " to " +
@@ -760,7 +760,7 @@ var MailMigrator = {
     try {
       await this._migrateRSSSubscriptions(legacyFeedsFile, feedsFile);
     } catch (err) {
-      Cu.reportError(
+      console.error(
         "Failed to migrate '" +
           feedsFile.path +
           "' to '" +
@@ -777,7 +777,7 @@ var MailMigrator = {
     try {
       await this._migrateRSSItems(legacyItemsFile, itemsFile);
     } catch (err) {
-      Cu.reportError(
+      console.error(
         "Failed to migrate '" +
           itemsFile.path +
           "' to '" +

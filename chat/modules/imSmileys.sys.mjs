@@ -87,7 +87,7 @@ function getTheme(aName) {
       }
     }
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
   return theme;
 }
@@ -104,7 +104,7 @@ function getRegexp() {
   }
 
   if ("" in lazy.gTheme.iconsHash) {
-    Cu.reportError(
+    console.error(
       "Emoticon " +
         lazy.gTheme.iconsHash[""].filename +
         " matches the empty string!"

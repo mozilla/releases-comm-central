@@ -142,7 +142,7 @@ AbAutoCompleteSearch.prototype = {
         try {
           aDirectory.modifyCard(aCard);
         } catch (ex) {
-          Cu.reportError(ex);
+          console.error(ex);
         }
       }
     }
@@ -479,7 +479,7 @@ AbAutoCompleteSearch.prototype = {
             asyncDirectories.push(dir);
           }
         } catch (ex) {
-          Cu.reportError(
+          console.error(
             new Components.Exception(
               `Exception thrown by ${dir.URI}: ${ex.message}`,
               ex

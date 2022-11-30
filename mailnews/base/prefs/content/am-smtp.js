@@ -171,7 +171,7 @@ var gSmtpServerListWindow = {
         break;
       default:
         // leave empty
-        Cu.reportError(
+        console.error(
           "Warning: unknown value for smtpserver... authMethod: " +
             aServer.authMethod
         );

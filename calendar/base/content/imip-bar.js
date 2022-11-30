@@ -501,7 +501,7 @@ var calImipBar = {
         try {
           aActionFunc(opListener, aParticipantStatus, aExtResponse);
         } catch (exc) {
-          Cu.reportError(exc);
+          console.error(exc);
         }
         return true;
       }

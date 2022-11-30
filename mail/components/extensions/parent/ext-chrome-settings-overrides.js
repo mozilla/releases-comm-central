@@ -63,7 +63,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
           Services.search.defaultEngine = engine;
         }
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
       }
     }
   }
@@ -86,7 +86,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
     try {
       await Services.search.removeWebExtensionEngine(id);
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
   }
 
@@ -116,7 +116,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
   static async onUninstall(id) {
     let searchStartupPromise = pendingSearchSetupTasks.get(id);
     if (searchStartupPromise) {
-      await searchStartupPromise.catch(Cu.reportError);
+      await searchStartupPromise.catch(console.error);
     }
     // Note: We do not have to deal with homepage here as it is managed by
     // the ExtensionPreferencesManager.
@@ -194,7 +194,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
 
     await searchInitialized;
     if (!this.extension) {
-      Cu.reportError(
+      console.error(
         `Extension shut down before search provider was registered`
       );
       return;
@@ -303,7 +303,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
         );
       }
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
       return false;
     }
     return true;

@@ -126,7 +126,7 @@ var SessionStoreManager = {
    */
   _saveStateObject(aStateObj) {
     if (!this.store) {
-      Cu.reportError(
+      console.error(
         "SessionStoreManager: could not create data store from file"
       );
       return;

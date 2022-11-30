@@ -31,7 +31,7 @@ class ConversationOpener {
       this._msgHdr = messages[0];
       this._queries = [Gloda.getMessageCollectionForHeaders(messages, this)];
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
   }
   onItemsAdded(items) {}
@@ -40,7 +40,7 @@ class ConversationOpener {
   onQueryCompleted(collection) {
     try {
       if (!collection.items.length) {
-        Cu.reportError("Couldn't find a collection for msg: " + this._msgHdr);
+        console.error("Couldn't find a collection for msg: " + this._msgHdr);
       } else {
         let message = collection.items[0];
         this.window.browsingContext.topChromeWindow.document
@@ -53,7 +53,7 @@ class ConversationOpener {
           });
       }
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
   }
 }

@@ -209,7 +209,7 @@
           this.messagesNode.appendChild(msgNode);
         }
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
       }
     }
   }
@@ -1139,7 +1139,7 @@
 
         return false;
       } catch (e) {
-        return Cu.reportError(e);
+        return console.error(e);
       }
     }
 
@@ -1161,7 +1161,7 @@
 
         return false;
       } catch (e) {
-        return Cu.reportError(e);
+        return console.error(e);
       }
     }
   }
@@ -1317,7 +1317,7 @@
           );
         }
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
       }
     }
 
@@ -1334,7 +1334,7 @@
         event.preventDefault();
         event.stopPropagation();
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
       }
     }
 
@@ -1349,7 +1349,7 @@
           this.doUndo();
         }
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
       }
     }
 
@@ -1401,7 +1401,7 @@
           this.undoNode.focus();
         }
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
       }
     }
 
@@ -1413,7 +1413,7 @@
           this.node.focus();
         }
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
       }
     }
 
@@ -1422,7 +1422,7 @@
         this.facetNode.includeFacet(this.node);
         this.hide();
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
       }
     }
 
@@ -1619,7 +1619,7 @@
           }
         }
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
       }
 
       // - Starred

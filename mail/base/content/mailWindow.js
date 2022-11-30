@@ -706,7 +706,7 @@ function loadStartPage(aForce) {
       let { preferredURI } = Services.uriFixup.getFixupURIInfo(startpage, 0);
       MailE10SUtils.loadURI(messagePane, preferredURI.spec);
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
   } else {
     ClearMessagePane();

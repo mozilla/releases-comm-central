@@ -74,7 +74,7 @@ FolderLookupService.prototype = {
     let scheme = schemeMatch[1];
     let contractID = "@mozilla.org/mail/folder-factory;1?name=" + scheme;
     if (!(contractID in Cc)) {
-      Cu.reportError(
+      console.error(
         "getOrCreateFolderForURL: factory not registered for " + uri
       );
       return null;
@@ -85,7 +85,7 @@ FolderLookupService.prototype = {
       Ci.nsIFactory
     );
     if (!factory) {
-      Cu.reportError(
+      console.error(
         "getOrCreateFolderForURL: failed to get factory for " + uri
       );
       return null;

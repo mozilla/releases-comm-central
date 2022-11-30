@@ -124,7 +124,7 @@ function loadSmimeMessageSecurityInfo() {
       sigClass = "unverified";
       break;
     default:
-      Cu.reportError("Unexpected gSignatureStatus: " + gSignatureStatus);
+      console.error("Unexpected gSignatureStatus: " + gSignatureStatus);
   }
 
   document.getElementById("techLabel").textContent = "- S/MIME";
@@ -183,7 +183,7 @@ function loadSmimeMessageSecurityInfo() {
       encClass = "notok";
       break;
     default:
-      Cu.reportError("Unexpected gEncryptionStatus: " + gEncryptionStatus);
+      console.error("Unexpected gEncryptionStatus: " + gEncryptionStatus);
   }
 
   let encryptionLabel = document.getElementById("encryptionLabel");

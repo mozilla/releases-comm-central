@@ -212,7 +212,7 @@ function onAccept(event) {
       return;
     }
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
     event.preventDefault();
     return;
   }
@@ -473,7 +473,7 @@ function saveFilter() {
       );
       if (!customTerm) {
         invalidRule = true;
-        Cu.reportError(
+        console.error(
           "Filter not saved because custom search term '" +
             obj.searchattribute.value +
             "' in rule " +
@@ -484,7 +484,7 @@ function saveFilter() {
         !customTerm.getAvailable(obj.searchScope, obj.searchattribute.value)
       ) {
         invalidRule = true;
-        Cu.reportError(
+        console.error(
           "Filter not saved because custom search term '" +
             customTerm.name +
             "' in rule " +
@@ -505,7 +505,7 @@ function saveFilter() {
         )
       ) {
         invalidRule = true;
-        Cu.reportError(
+        console.error(
           "Filter not saved because standard search term '" +
             attribValue +
             "' in rule " +

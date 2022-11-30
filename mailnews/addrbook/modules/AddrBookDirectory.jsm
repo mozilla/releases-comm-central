@@ -378,7 +378,7 @@ class AddrBookDirectory {
           properties = card.vCardProperties.toPropertyMap();
         } catch (ex) {
           // Parsing failed. Skip the vCard and just use the other properties.
-          Cu.reportError(ex);
+          console.error(ex);
           properties = new Map();
         }
         for (let [key, value] of card._properties) {

@@ -124,7 +124,7 @@ var cal = {
       let rescode = aCritical === true ? Cr.NS_ERROR_UNEXPECTED : aCritical;
       throw new Components.Exception(string, rescode);
     } else {
-      Cu.reportError(string);
+      console.error(string);
     }
   },
 

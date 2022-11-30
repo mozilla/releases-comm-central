@@ -707,7 +707,7 @@ async function ImportSettings(module, newAccount, error) {
 
           file = await promptForFile(filePicker);
         } catch (ex) {
-          Cu.reportError(ex);
+          console.error(ex);
           error.value = null;
           return false;
         }
@@ -771,7 +771,7 @@ async function ImportMail(module, success, error) {
           }
           mailInterface.SetData("mailLocation", file);
         } catch (ex) {
-          Cu.reportError(ex);
+          console.error(ex);
           // don't show an error when we return!
           return false;
         }
@@ -854,7 +854,7 @@ async function ImportAddress(module, success, error) {
           fileIsDirectory = true;
         }
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
         file = null;
       }
     } else {
@@ -912,7 +912,7 @@ async function ImportAddress(module, success, error) {
 
         file = await promptForFile(filePicker);
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
         file = null;
       }
     }

@@ -193,7 +193,7 @@ function openUILink(url, event) {
           },
         ],
       })
-      .catch(Cu.reportError);
+      .catch(console.error);
     let messenger = Cc["@mozilla.org/messenger;1"].createInstance();
     messenger = messenger.QueryInterface(Ci.nsIMessenger);
     messenger.launchExternalURL(url);
@@ -520,7 +520,7 @@ function openLinkExternally(url) {
         },
       ],
     })
-    .catch(Cu.reportError);
+    .catch(console.error);
 
   Cc["@mozilla.org/uriloader/external-protocol-service;1"]
     .getService(Ci.nsIExternalProtocolService)

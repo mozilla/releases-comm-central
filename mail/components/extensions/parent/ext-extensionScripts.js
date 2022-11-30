@@ -176,7 +176,7 @@ this.extensionScripts = class extends ExtensionAPI {
         async unregister(scriptId) {
           const script = parentScriptsMap.get(scriptId);
           if (!script) {
-            Cu.reportError(new Error(`No such script ID: ${scriptId}`));
+            console.error(new Error(`No such script ID: ${scriptId}`));
 
             return;
           }

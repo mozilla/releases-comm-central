@@ -437,7 +437,7 @@ function onAccept(event) {
       return;
     }
   } catch (outer) {
-    Cu.reportError(
+    console.error(
       "Internal error in pref-directory-add.js:onAccept() " + outer
     );
   }

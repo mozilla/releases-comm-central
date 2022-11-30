@@ -229,7 +229,7 @@ var QuickFilterBarMuxer = {
             );
             QuickFilterBarMuxer.deferredUpdateSearch();
           } catch (ex) {
-            Cu.reportError(ex);
+            console.error(ex);
           }
         };
       } else {

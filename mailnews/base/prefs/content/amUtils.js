@@ -30,7 +30,7 @@ function BrowseForLocalFolders() {
     currentFolder.initWithPath(currentFolderTextBox.value);
     fp.displayDirectory = currentFolder;
   } catch (e) {
-    Cu.reportError(
+    console.error(
       `Failed to set folder path from value=${currentFolderTextBox.value}\n`
     );
   }

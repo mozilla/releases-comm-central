@@ -195,7 +195,7 @@ var mailTabType = {
           };
           return retval;
         } catch (e) {
-          Cu.reportError(e);
+          console.error(e);
           return null;
         }
       },
@@ -277,7 +277,7 @@ var mailTabType = {
             }
           }
         } catch (e) {
-          Cu.reportError(e);
+          console.error(e);
         }
       },
       onTitleChanged(aTab, aTabNode) {

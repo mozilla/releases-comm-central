@@ -76,7 +76,7 @@ var FolderDisplayListenerManager = {
         try {
           listener[aEventName].apply(listener, aArgs);
         } catch (e) {
-          Cu.reportError(
+          console.error(
             aEventName + " event listener FAILED; " + e + " at: " + e.stack
           );
         }
@@ -648,7 +648,7 @@ FolderDisplayWidget.prototype = {
           shouldShowColumn = this.COLUMN_DEFAULT_TESTERS[colId](this.view);
         } catch (ex) {
           shouldShowColumn = false;
-          Cu.reportError(ex);
+          console.error(ex);
         }
       }
       state[colId] = { visible: shouldShowColumn };
@@ -1051,7 +1051,7 @@ FolderDisplayWidget.prototype = {
           this._clearSavedSelection();
         }
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
       }
       gDBView = null; // eslint-disable-line no-global-assign
     }
@@ -2644,7 +2644,7 @@ FolderDisplayWidget.prototype = {
       // Something's gone wrong elsewhere, and we likely have bigger problems.
       topPadding = 0;
       bottomPadding = 0;
-      Cu.reportError("Unable to get height of folder pane (treeBox is null)");
+      console.error("Unable to get height of folder pane (treeBox is null)");
     }
 
     return [topPadding, bottomPadding];

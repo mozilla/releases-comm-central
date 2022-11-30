@@ -626,7 +626,7 @@ export var OTR = {
       req ? OTRLib.OTRL_POLICY_ALWAYS : OTRLib.OTRL_POLICY_OPPORTUNISTIC
     );
     if (query.isNull()) {
-      Cu.reportError(new Error("Sending query message failed."));
+      console.error(new Error("Sending query message failed."));
       return;
     }
     // Use the default msg to format the version.
@@ -1317,9 +1317,7 @@ export var OTR = {
 
     if (err) {
       om.cancelled = true;
-      Cu.reportError(
-        new Error("Failed to send message. Returned code: " + err)
-      );
+      console.error(new Error("Failed to send message. Returned code: " + err));
     } else if (!newMessage.isNull()) {
       msg = newMessage.readString();
       // https://bugs.otr.im/lib/libotr/issues/52

@@ -50,7 +50,7 @@ function initLocaleShortDateFormat() {
     // check the format option
     if (arrayOfStrings.length != 3) {
       // no successful split
-      Cu.reportError(
+      console.error(
         `initLocaleShortDateFormat: could not analyze date format of ${dateString}, defaulting to yyyy/mm/dd`
       );
     } else {
@@ -72,7 +72,7 @@ function initLocaleShortDateFormat() {
       }
     }
   } catch (e) {
-    Cu.reportError("initLocaleShortDateFormat: caught an exception: " + e);
+    console.error("initLocaleShortDateFormat: caught an exception: " + e);
     gSearchDateFormat = 0;
   }
 }
@@ -112,7 +112,7 @@ function initializeSearchDateFormat() {
         ).data == "true";
     }
   } catch (e) {
-    Cu.reportError("initializeSearchDateFormat: caught an exception: " + e);
+    console.error("initializeSearchDateFormat: caught an exception: " + e);
     gSearchDateFormat = 0;
   }
 

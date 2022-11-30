@@ -38,7 +38,7 @@ function resolveURIInternal(aCmdLine, aArgument) {
       return uri;
     }
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
 
   // We have interpreted the argument as a relative file URI, but the file
@@ -47,7 +47,7 @@ function resolveURIInternal(aCmdLine, aArgument) {
   try {
     uri = Services.uriFixup.getFixupURIInfo(aArgument, 0).preferredURI;
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
 
   return uri;

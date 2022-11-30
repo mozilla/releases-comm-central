@@ -2069,7 +2069,7 @@ var messageTracker = new (class extends EventEmitter {
         throw new Error("File has been modified");
       }
     } catch (ex) {
-      Cu.reportError(ex);
+      console.error(ex);
       return true;
     }
     return false;

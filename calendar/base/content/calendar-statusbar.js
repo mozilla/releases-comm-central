@@ -47,7 +47,7 @@ var gCalendarStatusFeedback = {
   startMeteors(aProgressMode, aCalendarCount) {
     if (aProgressMode != Ci.calIStatusObserver.NO_PROGRESS) {
       if (!this.mInitialized) {
-        Cu.reportError("StatusObserver has not been initialized!");
+        console.error("StatusObserver has not been initialized!");
         return;
       }
       this.mCalendars = {};

@@ -447,7 +447,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
 
       // else unknown or unsupported protocol
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
   }
 

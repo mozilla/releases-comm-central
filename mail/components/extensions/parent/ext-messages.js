@@ -561,7 +561,7 @@ this.messages = class extends ExtensionAPI {
         }
         await Promise.all(promises);
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
         throw new ExtensionError(
           `Error ${isMove ? "moving" : "copying"} message: ${ex.message}`
         );
@@ -717,7 +717,7 @@ this.messages = class extends ExtensionAPI {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
           return getRawMessage(msgHdr).catch(ex => {
-            Cu.reportError(ex);
+            console.error(ex);
             throw new ExtensionError(`Error reading message ${messageId}`);
           });
         },
@@ -1207,7 +1207,7 @@ this.messages = class extends ExtensionAPI {
               }
             }
           } catch (ex) {
-            Cu.reportError(ex);
+            console.error(ex);
             throw new ExtensionError(`Error updating message: ${ex.message}`);
           }
         },
@@ -1259,7 +1259,7 @@ this.messages = class extends ExtensionAPI {
             }
             await Promise.all(promises);
           } catch (ex) {
-            Cu.reportError(ex);
+            console.error(ex);
             throw new ExtensionError(`Error deleting message: ${ex.message}`);
           }
         },
@@ -1378,7 +1378,7 @@ this.messages = class extends ExtensionAPI {
             }
             return convertMessage(msgHeader, context.extension);
           } catch (ex) {
-            Cu.reportError(ex);
+            console.error(ex);
             throw new ExtensionError(`Error importing message: ${ex.message}`);
           }
         },
@@ -1400,7 +1400,7 @@ this.messages = class extends ExtensionAPI {
               archiver.archiveMessages(messages);
             });
           } catch (ex) {
-            Cu.reportError(ex);
+            console.error(ex);
             throw new ExtensionError(`Error archiving message: ${ex.message}`);
           }
         },

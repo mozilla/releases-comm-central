@@ -89,7 +89,7 @@ SummaryFrameManager.prototype = {
       if (
         this.pendingOrLoadedUrl != this.iframe.contentDocument.location.href
       ) {
-        Cu.reportError(
+        console.error(
           "Please do not load stuff in the multimessage browser directly, " +
             "use the SummaryFrameManager instead."
         );
@@ -97,7 +97,7 @@ SummaryFrameManager.prototype = {
         this.callback(true);
       }
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
   },
 };

@@ -130,7 +130,7 @@ function findTagColorSheet(aDocument) {
     }
   }
   if (!tagSheet) {
-    Cu.reportError("TagUtils.findTagColorSheet: tagColors.css not found");
+    console.error("TagUtils.findTagColorSheet: tagColors.css not found");
   }
   return tagSheet;
 }

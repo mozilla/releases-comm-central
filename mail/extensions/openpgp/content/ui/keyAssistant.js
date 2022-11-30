@@ -765,7 +765,7 @@ var gKeyAssistant = {
     }
 
     await PgpSqliteDb2.addAcceptedEmail(fingerprint, recipient).catch(
-      Cu.reportError
+      console.error
     );
 
     // Trigger the UI refresh of the compose window.

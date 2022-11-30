@@ -3249,7 +3249,7 @@ Enigmail.msg = {
         break;
 
       default:
-        Cu.reportError(
+        console.error(
           "Unexpected msgSignatureState: " + Enigmail.hdrView.msgSignatureState
         );
     }
@@ -3296,7 +3296,7 @@ Enigmail.msg = {
         break;
 
       default:
-        Cu.reportError(
+        console.error(
           "Unexpected msgEncryptionState: " +
             Enigmail.hdrView.msgEncryptionState
         );

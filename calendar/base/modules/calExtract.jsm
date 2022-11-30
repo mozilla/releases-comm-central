@@ -1113,7 +1113,7 @@ Extractor.prototype = {
       for (let idx = vals.length - 1; idx >= 0; idx--) {
         if (vals[idx].trim() == "") {
           vals.splice(idx, 1);
-          Cu.reportError("[calExtract] Faulty extraction pattern " + value + " for " + name);
+          console.error("[calExtract] Faulty extraction pattern " + value + " for " + name);
         }
       }
 
@@ -1163,7 +1163,7 @@ Extractor.prototype = {
       for (let idx = vals.length - 1; idx >= 0; idx--) {
         if (vals[idx].trim() == "") {
           vals.splice(idx, 1);
-          Cu.reportError("[calExtract] Faulty extraction pattern " + value + " for " + name);
+          console.error("[calExtract] Faulty extraction pattern " + value + " for " + name);
         }
       }
 
@@ -1225,7 +1225,7 @@ Extractor.prototype = {
     // correctness checking
     for (i = 1; i <= count; i++) {
       if (positions[i] === undefined) {
-        Cu.reportError(
+        console.error(
           "[calExtract] Faulty extraction pattern " + name + ", missing parameter #" + i
         );
       }

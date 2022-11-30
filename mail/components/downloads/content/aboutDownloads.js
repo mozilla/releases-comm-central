@@ -81,7 +81,7 @@ var DownloadsView = {
   onDownloadChanged(aDownload) {
     let item = this.items.get(aDownload);
     if (!item) {
-      Cu.reportError("No DownloadItem found for download");
+      console.error("No DownloadItem found for download");
       return;
     }
 
@@ -95,7 +95,7 @@ var DownloadsView = {
   onDownloadRemoved(aDownload) {
     let item = this.items.get(aDownload);
     if (!item) {
-      Cu.reportError("No DownloadItem found for download");
+      console.error("No DownloadItem found for download");
       return;
     }
 

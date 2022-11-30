@@ -489,7 +489,7 @@ var mailContextMenu = {
           },
         ],
       })
-      .catch(Cu.reportError);
+      .catch(console.error);
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
       .loadURI(Services.io.newURI(this.context.linkURL));

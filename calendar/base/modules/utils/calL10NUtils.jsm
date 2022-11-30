@@ -35,7 +35,7 @@ function _getString(aComponent, aBundleName, aStringName, aParams = []) {
     return props.GetStringFromName(aStringName);
   } catch (ex) {
     let msg = `Failed to read '${aStringName}' from ${propName}.`;
-    Cu.reportError(`${msg} Error: ${ex}`);
+    console.error(`${msg} Error: ${ex}`);
     return aStringName;
   }
 }

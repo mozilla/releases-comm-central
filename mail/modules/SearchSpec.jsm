@@ -440,7 +440,7 @@ SearchSpec.prototype = {
                 onlineAvailable = customTerm.getAvailable(serverScope, term.op);
               } else {
                 // maybe an extension with a custom term was unloaded?
-                Cu.reportError(
+                console.error(
                   "Custom search term " + term.customId + " missing"
                 );
               }
@@ -514,7 +514,7 @@ SearchSpecListener.prototype = {
     // searching should already be true by the time this happens.  if it's not,
     //  it means some code is poking at the search session.  bad!
     if (!this.searchSpec.owner.searching) {
-      Cu.reportError("Search originated from unknown initiator! Confusion!");
+      console.error("Search originated from unknown initiator! Confusion!");
       this.searchSpec.owner.searching = true;
     }
   },

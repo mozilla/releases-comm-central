@@ -67,13 +67,13 @@ function readFromXML(clientConfigXML, subSource) {
   try {
     d.displayName = lazy.Sanitizer.label(xml.displayName);
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
   for (var domain of xml.$domain) {
     try {
       d.domains.push(lazy.Sanitizer.hostname(domain));
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
       exception = e;
     }
   }
@@ -150,21 +150,21 @@ function readFromXML(clientConfigXML, subSource) {
             iO.owaURL = lazy.Sanitizer.url(iX.owaURL);
           }
         } catch (e) {
-          Cu.reportError(e);
+          console.error(e);
         }
         try {
           if ("ewsURL" in iX) {
             iO.ewsURL = lazy.Sanitizer.url(iX.ewsURL);
           }
         } catch (e) {
-          Cu.reportError(e);
+          console.error(e);
         }
         try {
           if ("easURL" in iX) {
             iO.easURL = lazy.Sanitizer.url(iX.easURL);
           }
         } catch (e) {
-          Cu.reportError(e);
+          console.error(e);
         }
         iO.oauthSettings = {
           issuer: iO.hostname,
@@ -185,14 +185,14 @@ function readFromXML(clientConfigXML, subSource) {
             );
           }
         } catch (e) {
-          Cu.reportError(e);
+          console.error(e);
         }
         try {
           if ("downloadOnBiff" in iX.pop3) {
             iO.downloadOnBiff = lazy.Sanitizer.boolean(iX.pop3.downloadOnBiff);
           }
         } catch (e) {
-          Cu.reportError(e);
+          console.error(e);
         }
       }
 
@@ -203,7 +203,7 @@ function readFromXML(clientConfigXML, subSource) {
           );
         }
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
       }
 
       // processed successfully, now add to result object
@@ -310,7 +310,7 @@ function readFromXML(clientConfigXML, subSource) {
           );
         }
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
       }
 
       // processed successfully, now add to result object
@@ -321,7 +321,7 @@ function readFromXML(clientConfigXML, subSource) {
         d.outgoingAlternatives.push(oO);
       }
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
       exception = e;
     }
   }
@@ -341,7 +341,7 @@ function readFromXML(clientConfigXML, subSource) {
       };
       d.inputFields.push(fieldset);
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
       // For now, don't throw,
       // because we don't support custom fields yet anyways.
     }

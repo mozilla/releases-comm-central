@@ -46,7 +46,7 @@ httpRequestObserver.prototype = {
     }
 
     if (!(aSubject instanceof Ci.nsIHttpChannel)) {
-      Cu.reportError(
+      console.error(
         "Failed to get a nsIHttpChannel when " +
           "observing http-on-examine-response"
       );
@@ -115,7 +115,7 @@ httpRequestObserver.prototype = {
         ).currentWindowContext.innerWindowId;
       }
     } catch (e) {
-      Cu.reportError(
+      console.error(
         "Could not find an associated window " +
           "for an HTTP request. Error: " +
           e
@@ -215,7 +215,7 @@ TracingListener.prototype = {
       // Something went wrong with account set up. Dump the error out to the
       // error console, reopen the account provisioner tab, and show an error
       // dialog to the user.
-      Cu.reportError("Problem interpreting provider XML:" + e);
+      console.error("Problem interpreting provider XML:" + e);
       openAccountProvisionerTab();
       Services.prompt.alert(window, null, e);
 

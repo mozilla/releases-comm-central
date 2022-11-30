@@ -72,7 +72,7 @@ var TBDistCustomizer = {
               break;
           }
         } catch (e) {
-          Cu.reportError(e);
+          console.error(e);
         }
       }
     }
@@ -97,7 +97,7 @@ var TBDistCustomizer = {
             localizedStr
           );
         } catch (e) {
-          Cu.reportError(e);
+          console.error(e);
         }
       }
     }
@@ -116,7 +116,7 @@ var TBDistCustomizer = {
             localizedStr
           );
         } catch (e) {
-          Cu.reportError(e);
+          console.error(e);
         }
       }
     }

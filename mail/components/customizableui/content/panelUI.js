@@ -274,7 +274,7 @@ const PanelUI = {
       await PanelMultiView.openPopup(this.panel, anchor, {
         triggerEvent: domEvent,
       });
-    })().catch(Cu.reportError);
+    })().catch(console.error);
   },
 
   /**
@@ -491,12 +491,12 @@ const PanelUI = {
     this._ensureEventListenersAdded();
     let viewNode = document.getElementById(aViewId);
     if (!viewNode) {
-      Cu.reportError("Could not show panel subview with id: " + aViewId);
+      console.error("Could not show panel subview with id: " + aViewId);
       return;
     }
 
     if (!aAnchor) {
-      Cu.reportError(
+      console.error(
         "Expected an anchor when opening subview with id: " + aViewId
       );
       return;
@@ -564,7 +564,7 @@ const PanelUI = {
           triggerEvent: domEvent,
         });
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
       }
 
       if (viewShown) {

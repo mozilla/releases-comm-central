@@ -126,7 +126,7 @@ Exception.prototype = {
 
 function NotReached(msg) {
   Exception.call(this, msg); // call super constructor
-  Cu.reportError(this);
+  console.error(this);
 }
 // Make NotReached extend Exception.
 NotReached.prototype = Object.create(Exception.prototype);

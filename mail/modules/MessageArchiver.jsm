@@ -209,7 +209,7 @@ MessageArchiver.prototype = {
 
   onStopOperation(aResult) {
     if (!Components.isSuccessCode(aResult)) {
-      Cu.reportError("Archive filter failed: " + aResult);
+      console.error("Archive filter failed: " + aResult);
       // We don't want to effectively disable archiving because a filter
       // failed, so we'll continue after reporting the error.
     }
@@ -352,7 +352,7 @@ MessageArchiver.prototype = {
     if (Components.isSuccessCode(exitCode)) {
       this.continueBatch();
     } else {
-      Cu.reportError("Archive failed to create folder: " + exitCode);
+      console.error("Archive failed to create folder: " + exitCode);
       this._batches = null;
       this.processNextBatch(); // for cleanup and exit
     }
@@ -370,7 +370,7 @@ MessageArchiver.prototype = {
       this.processNextBatch();
     } else {
       // stop on error
-      Cu.reportError("Archive failed to copy: " + aStatus);
+      console.error("Archive failed to copy: " + aStatus);
       this._batches = null;
       this.processNextBatch(); // for cleanup and exit
     }

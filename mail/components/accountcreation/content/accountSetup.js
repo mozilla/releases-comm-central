@@ -287,13 +287,13 @@ var gAccountSetup = {
     // slower because of one-time overheads like DNS and OCSP. Let's create some
     // dummy requests to prime the connections.
     let autoconfigURL = Services.prefs.getCharPref("mailnews.auto_config_url");
-    fetch(autoconfigURL, { method: "OPTIONS" }).catch(Cu.reportError);
+    fetch(autoconfigURL, { method: "OPTIONS" }).catch(console.error);
 
     let addonsURL = Services.prefs.getCharPref(
       "mailnews.auto_config.addons_url"
     );
     if (new URL(autoconfigURL).origin != new URL(addonsURL).origin) {
-      fetch(addonsURL, { method: "OPTIONS" }).catch(Cu.reportError);
+      fetch(addonsURL, { method: "OPTIONS" }).catch(console.error);
     }
 
     // The tab monitor will inform us when this tab is getting closed.
@@ -1469,7 +1469,7 @@ var gAccountSetup = {
         rows.lastChild.remove();
       }
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
       this.showErrorNotification(e, true);
       addonInfoArea.hidden = false;
     }

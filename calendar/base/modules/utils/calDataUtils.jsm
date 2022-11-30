@@ -38,7 +38,7 @@ class ListenerSet extends Set {
       try {
         observer[func](...args);
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
       }
     }
   }

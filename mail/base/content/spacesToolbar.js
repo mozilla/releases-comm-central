@@ -138,7 +138,7 @@ var gSpacesToolbar = {
     onTabSwitched(newTabInfo, oldTabInfo) {
       // Bail out if for whatever reason something went wrong.
       if (!newTabInfo) {
-        Cu.reportError(
+        console.error(
           "Spaces Toolbar: Missing new tab on monitored tab switching"
         );
         return;

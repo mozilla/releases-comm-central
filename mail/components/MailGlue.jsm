@@ -69,7 +69,7 @@ const listeners = {
       try {
         lazy[module].observe(subject, topic, data);
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
       }
     }
   },
@@ -804,7 +804,7 @@ MailGlue.prototype = {
             try {
               task.task();
             } catch (ex) {
-              Cu.reportError(ex);
+              console.error(ex);
             } finally {
               ChromeUtils.addProfilerMarker("startupIdleTask", startTime);
             }
@@ -854,7 +854,7 @@ MailGlue.prototype = {
           try {
             await task();
           } catch (ex) {
-            Cu.reportError(ex);
+            console.error(ex);
           } finally {
             ChromeUtils.addProfilerMarker("startupLateIdleTask", startTime);
           }

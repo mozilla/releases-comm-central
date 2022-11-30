@@ -396,7 +396,7 @@ function onLoad() {
         rule = cal.wrapInstance(rules[0], Ci.calIRecurrenceRule);
       }
     } catch (ex) {
-      Cu.reportError(ex);
+      console.error(ex);
     }
   }
   if (!rule) {
@@ -1139,7 +1139,7 @@ function changeOrderForElements(aPropKey, aPropParams) {
       "erties has incorrect number of params. Expected " +
       aPropParams.length +
       " params.";
-    Cu.reportError(msg + " " + ex);
+    console.error(msg + " " + ex);
     return;
   }
 

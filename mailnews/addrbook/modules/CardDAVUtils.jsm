@@ -541,7 +541,7 @@ var CardDAVUtils = {
               try {
                 Services.logins.addLogin(newLoginInfo);
               } catch (ex) {
-                Cu.reportError(ex);
+                console.error(ex);
               }
               oAuth._isNew = false;
             }
@@ -668,7 +668,7 @@ class NotificationCallbacks {
       try {
         Services.logins.addLogin(newLoginInfo);
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
       }
     }
   }

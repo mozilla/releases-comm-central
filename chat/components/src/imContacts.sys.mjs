@@ -1366,7 +1366,7 @@ Buddy.prototype = {
       }
       this._contact._observe(aSubject, aTopic, aData);
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
   },
   _notifyObservers(aTopic, aData) {
@@ -1518,7 +1518,7 @@ ContactsService.prototype = {
         let tagId = statement.getInt32(2);
 
         if (!BuddiesById.hasOwnProperty(buddyId)) {
-          Cu.reportError(
+          console.error(
             "Corrupted database: account_buddy entry for account " +
               accountId +
               " and tag " +
@@ -1531,7 +1531,7 @@ ContactsService.prototype = {
 
         let buddy = BuddiesById[buddyId];
         if (buddy._hasAccountBuddy(accountId, tagId)) {
-          Cu.reportError(
+          console.error(
             "Corrupted database: duplicated account_buddy entry: " +
               "account_id = " +
               accountId +
@@ -1548,7 +1548,7 @@ ContactsService.prototype = {
         try {
           buddy._addAccount(account.loadBuddy(buddy, tag), tag);
         } catch (e) {
-          Cu.reportError(e);
+          console.error(e);
           dump(e + "\n");
         }
       }
@@ -1651,7 +1651,7 @@ ContactsService.prototype = {
     let accountId = account.numericId;
     let tagId = aAccountBuddy.tag.id;
     if (buddy._hasAccountBuddy(accountId, tagId)) {
-      Cu.reportError(
+      console.error(
         "Attempting to store a duplicate account buddy " +
           normalizedName +
           ", account id = " +

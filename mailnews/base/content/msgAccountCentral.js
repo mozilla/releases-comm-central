@@ -152,7 +152,7 @@ function updateAccountCentralUI() {
 
   // Check if we collected any exception.
   while (exceptions.length) {
-    Cu.reportError(
+    console.error(
       "Error in setting AccountCentral Items: " + exceptions.pop() + "\n"
     );
   }
@@ -170,7 +170,7 @@ function readMessages() {
   try {
     window.browsingContext.topChromeWindow.OpenInboxForServer(gSelectedServer);
   } catch (ex) {
-    Cu.reportError("Error opening Inbox for server: " + ex + "\n");
+    console.error("Error opening Inbox for server: " + ex + "\n");
   }
 }
 

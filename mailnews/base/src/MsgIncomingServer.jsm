@@ -174,7 +174,7 @@ function migrateServerUris(
       newUsername
     );
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
 
   let oldAuth = oldUsername ? `${encodeURIComponent(oldUsername)}@` : "";
@@ -192,17 +192,17 @@ function migrateServerUris(
   try {
     migrateIdentities(oldServerUri, newServerUri);
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
   try {
     migrateSpamActions(oldServerUri, newServerUri);
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
   try {
     migrateFilters(oldServerUri, newServerUri);
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
 }
 
@@ -570,7 +570,7 @@ class MsgIncomingServer {
       try {
         this._spamSettings.initialize(this);
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
       }
     }
     return this._spamSettings;
@@ -909,7 +909,7 @@ class MsgIncomingServer {
           msgWindow
         );
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
         const NS_ERROR_FILE_FS_CORRUPTED = 0x80520016;
         if (e.result == NS_ERROR_FILE_FS_CORRUPTED && filterFile.exists()) {
           // OpenFilterList will create a new one next time.

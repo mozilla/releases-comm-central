@@ -204,7 +204,7 @@ export function l10nHelper(aChromeURL) {
         Array.prototype.slice.call(arguments, 1)
       );
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
       dump("Failed to get " + aStringId + "\n");
       return aStringId;
     }

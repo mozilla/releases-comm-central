@@ -414,7 +414,7 @@ function dateProperty(abCardPrefix, vPropName) {
         yield [`${abCardPrefix}Month`, String(dateValue.month ?? "")];
         yield [`${abCardPrefix}Day`, String(dateValue.day ?? "")];
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
       }
     },
   };

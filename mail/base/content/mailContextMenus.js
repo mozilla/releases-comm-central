@@ -127,7 +127,7 @@ function OpenBrowserWithMessageId(messageId) {
   try {
     messenger.launchExternalURL(browserURL);
   } catch (ex) {
-    Cu.reportError(
+    console.error(
       "Failed to open message-id in browser; browserURL=" + browserURL
     );
   }

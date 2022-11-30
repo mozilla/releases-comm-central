@@ -899,7 +899,7 @@ var gGeneralPane = {
           preference.setElementValue(element);
         }
       }
-    })().catch(Cu.reportError);
+    })().catch(console.error);
   },
 
   /**
@@ -1628,7 +1628,7 @@ var gGeneralPane = {
         radiogroup.value = enabled;
         radiogroup.disabled = false;
       } catch (error) {
-        Cu.reportError(error);
+        console.error(error);
       }
     }
   },
@@ -1649,7 +1649,7 @@ var gGeneralPane = {
         await UpdateUtils.setAppUpdateAutoEnabled(updateAutoValue);
         radiogroup.disabled = false;
       } catch (error) {
-        Cu.reportError(error);
+        console.error(error);
         await this.updateReadPrefs();
         await this.reportUpdatePrefWriteError();
         return;
@@ -2366,7 +2366,7 @@ class HandlerRow {
           if (internalMenuItem) {
             menu.selectedItem = internalMenuItem;
           } else {
-            Cu.reportError("No menu item defined to set!");
+            console.error("No menu item defined to set!");
           }
           break;
         case Ci.nsIHandlerInfo.useSystemDefault:

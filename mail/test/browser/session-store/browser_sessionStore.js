@@ -70,7 +70,7 @@ async function readFile2() {
     return await IOUtils.readJSON(SessionStoreManager.sessionFile.path);
   } catch (ex) {
     if (!["NotFoundError"].includes(ex.name)) {
-      Cu.reportError(ex);
+      console.error(ex);
     }
     // fall through and return null if the session file cannot be read
     // or is bad

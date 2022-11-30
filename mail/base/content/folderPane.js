@@ -181,7 +181,7 @@ var gFolderTreeView = {
         this._persistColorMap = data.colors;
       } catch (ex) {
         if (!["NotFoundError"].includes(ex.name)) {
-          Cu.reportError(
+          console.error(
             gFolderTreeView.messengerBundle.getFormattedString(
               "failedToReadFile",
               [aJSONFile, ex]
@@ -3428,7 +3428,7 @@ var gFolderTreeController = {
       if (folder.supportsOffline) {
         // Remove the offline store, if any.
         await IOUtils.remove(folder.filePath.path, { recursive: true }).catch(
-          Cu.reportError
+          console.error
         );
       }
 
@@ -3495,7 +3495,7 @@ var gFolderTreeController = {
     let controller = this;
     function renameCallback(aName, aUri) {
       if (aUri != folder.URI) {
-        Cu.reportError("got back a different folder to rename!");
+        console.error("got back a different folder to rename!");
       }
 
       controller._tree.view.selection.clearSelection();

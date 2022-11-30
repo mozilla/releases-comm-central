@@ -413,7 +413,7 @@ function initHomeCalendar() {
     try {
       gDataMigrator.checkAndMigrate();
     } catch (e) {
-      Cu.reportError("Migrator error: " + e);
+      console.error("Migrator error: " + e);
     }
   }
 

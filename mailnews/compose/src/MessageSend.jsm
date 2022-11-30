@@ -1035,15 +1035,15 @@ MessageSend.prototype = {
   _cleanup() {
     lazy.MsgUtils.sendLogger.debug("Clean up temporary files");
     if (this._copyFile && this._copyFile != this._messageFile) {
-      IOUtils.remove(this._copyFile.path).catch(Cu.reportError);
+      IOUtils.remove(this._copyFile.path).catch(console.error);
       this._copyFile = null;
     }
     if (this._deliveryFile && this._deliveryFile != this._messageFile) {
-      IOUtils.remove(this._deliveryFile.path).catch(Cu.reportError);
+      IOUtils.remove(this._deliveryFile.path).catch(console.error);
       this._deliveryFile = null;
     }
     if (this._messageFile && this._shouldRemoveMessageFile) {
-      IOUtils.remove(this._messageFile.path).catch(Cu.reportError);
+      IOUtils.remove(this._messageFile.path).catch(console.error);
       this._messageFile = null;
     }
   },

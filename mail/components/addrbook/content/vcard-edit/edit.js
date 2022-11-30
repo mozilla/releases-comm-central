@@ -83,7 +83,7 @@ class VCardEdit extends HTMLElement {
         this.vCardProperties = VCardProperties.fromVCard(value);
         return;
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
       }
     }
     this.vCardProperties = new VCardProperties("4.0");

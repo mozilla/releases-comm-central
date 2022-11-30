@@ -76,7 +76,7 @@ XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function() {
       { shouldSuppress }
     );
   } catch (ex) {
-    Cu.reportError(ex);
+    console.error(ex);
     return null;
   }
 });
@@ -919,7 +919,7 @@ async function loadPostAccountWizard() {
   try {
     accountManager.loadVirtualFolders();
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
   accountManager.addIncomingServerListener(gThreePaneIncomingServerListener);
 
@@ -1090,7 +1090,7 @@ async function atStartupRestoreTabs(aDontRestoreFirstTab) {
     try {
       tabmail.restoreTabs(tabsState, aDontRestoreFirstTab);
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
   }
 
@@ -1270,7 +1270,7 @@ async function loadStartFolder(initialUri) {
       return;
     }
 
-    Cu.reportError(ex);
+    console.error(ex);
   }
 
   MsgGetMessagesForAllServers(defaultServer);
@@ -1466,7 +1466,7 @@ function ClearMessagePane() {
       });
     }
   } catch (ex) {
-    Cu.reportError(ex); // error clearing message pane
+    console.error(ex); // error clearing message pane
   }
 }
 

@@ -136,7 +136,7 @@ class CardDAVDirectory extends SQLiteDirectory {
     try {
       await this._sendCardToServer(card);
     } catch (ex) {
-      Cu.reportError(ex);
+      console.error(ex);
     }
   }
   deleteCards(cards) {
@@ -148,7 +148,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       try {
         await this._deleteCardFromServer(card);
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
         break;
       }
     }
@@ -161,7 +161,7 @@ class CardDAVDirectory extends SQLiteDirectory {
     // Ideally, we'd not add the card until it was on the server, but we have
     // to return newCard synchronously.
     let newCard = super.dropCard(card, needToCopyCard);
-    this._sendCardToServer(newCard).catch(Cu.reportError);
+    this._sendCardToServer(newCard).catch(console.error);
     return newCard;
   }
   addMailList() {
@@ -593,7 +593,7 @@ class CardDAVDirectory extends SQLiteDirectory {
           abCards.push(abCard);
         } catch (ex) {
           log.error(`Error parsing: ${vCard}`);
-          Cu.reportError(ex);
+          console.error(ex);
         }
       }
 

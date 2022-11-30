@@ -419,7 +419,7 @@ var GlodaIMIndexer = {
     );
     return IOUtils.writeJSON(path, data, {
       tmpPath: path + ".tmp",
-    }).catch(aError => Cu.reportError("Failed to write cache file: " + aError));
+    }).catch(aError => console.error("Failed to write cache file: " + aError));
   },
 
   _knownConversations: {},
@@ -545,7 +545,7 @@ var GlodaIMIndexer = {
         GlodaIndexer.indexJob(job);
       }
       conv.logFileCount = logFiles.length;
-    })().catch(Cu.reportError);
+    })().catch(console.error);
 
     // Now clear the job, so we can index in the future.
     this._knownConversations[convId].scheduledIndex = null;
@@ -635,14 +635,14 @@ var GlodaIMIndexer = {
             return;
           }
           if (id || aResultSet.getNextRow()) {
-            Cu.reportError(
+            console.error(
               "Warning: found more than one gloda conv id for " + aPath + "\n"
             );
           }
           id = id || row.getInt64(0); // We use the first found id.
         },
         handleError: aError =>
-          Cu.reportError("Error finding gloda id from path:\n" + aError),
+          console.error("Error finding gloda id from path:\n" + aError),
         handleCompletion: () => {
           resolve(id);
         },
@@ -749,7 +749,7 @@ var GlodaIMIndexer = {
     );
 
     if (!aLastModifiedTime) {
-      Cu.reportError(
+      console.error(
         "indexIMConversation called without lastModifiedTime parameter."
       );
     }
@@ -908,7 +908,7 @@ var GlodaIMIndexer = {
             updateStatement.executeAsync({
               handleResult: () => {},
               handleError: aError =>
-                Cu.reportError("Error updating bad entry:\n" + aError),
+                console.error("Error updating bad entry:\n" + aError),
               handleCompletion: () => {},
             });
           }
@@ -916,7 +916,7 @@ var GlodaIMIndexer = {
       },
 
       handleError: aError =>
-        Cu.reportError("Error looking for bad entries:\n" + aError),
+        console.error("Error looking for bad entries:\n" + aError),
 
       handleCompletion: () => {
         store.runPostCommit(() => {

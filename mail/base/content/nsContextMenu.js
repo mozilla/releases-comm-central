@@ -1136,7 +1136,7 @@ class nsContextMenu {
           },
         ],
       })
-      .catch(Cu.reportError);
+      .catch(console.error);
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
       .loadURI(Services.io.newURI(url));
@@ -1152,7 +1152,7 @@ class nsContextMenu {
           },
         ],
       })
-      .catch(Cu.reportError);
+      .catch(console.error);
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
       .loadURI(this.linkURI);

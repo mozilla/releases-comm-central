@@ -1046,7 +1046,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
         return tab;
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
         return null;
       }
     }
@@ -1388,7 +1388,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         // Report this so that our unit testing framework sees this
         // error and (extension) developers likewise can see when their
         // extensions are ill-behaved.
-        Cu.reportError(ex);
+        console.error(ex);
       }
 
       if (!tabState) {
@@ -1922,7 +1922,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
               rv = false;
             }
           } catch (e) {
-            Cu.reportError(e);
+            console.error(e);
           }
         }
       }

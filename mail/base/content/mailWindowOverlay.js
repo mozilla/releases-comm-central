@@ -1785,7 +1785,7 @@ function GetFirstSelectedMsgFolder() {
   try {
     var selectedFolders = GetSelectedMsgFolders();
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
   return selectedFolders.length > 0 ? selectedFolders[0] : null;
 }
@@ -3030,7 +3030,7 @@ function SetupUndoRedoCommand(command) {
     }
   } catch (ex) {
     // If this fails, assume we can't undo or redo.
-    Cu.reportError(ex);
+    console.error(ex);
   }
 
   if (canUndoOrRedo) {

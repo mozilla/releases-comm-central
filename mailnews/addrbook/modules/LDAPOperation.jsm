@@ -171,7 +171,7 @@ class LDAPOperation {
     try {
       url = urlParser.parse(urlStr);
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
       return;
     }
     this._client = new lazy.LDAPClient(
