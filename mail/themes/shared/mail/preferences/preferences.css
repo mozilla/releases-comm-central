@@ -814,6 +814,7 @@ calendar-notifications-setting .remove-button {
   display: flex;
   flex-direction: column;
   align-self: center;
+  align-items: flex-start;
 }
 
 #syncAccountName {
@@ -823,6 +824,14 @@ calendar-notifications-setting .remove-button {
 
 #syncAccountMail {
   margin-bottom: 6px
+}
+
+.place-self-start {
+  place-self: start;
+}
+
+.place-self-center {
+  place-self: center;
 }
 
 .place-self-end {
@@ -838,4 +847,130 @@ calendar-notifications-setting .remove-button {
 #syncDeviceNameInput {
   flex-grow: 1;
   align-self: center;
+}
+
+.sync-section {
+  margin-bottom: 24px;
+}
+
+#showSyncedHeader,
+#showSyncedListHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/*
+* We usually use rem for font size but this header needs to match perfectly
+* the styling of the HTML legend coming from toolkit.
+*/
+.sync-header {
+  margin: 16px 0 4px;
+  font-size: 1.1em;
+  font-weight: 600;
+  line-height: 1.4em;
+}
+
+.sync-panel {
+  padding: 15px;
+  background-color: var(--in-content-box-info-background);
+  border-radius: 6px;
+}
+
+#syncConnected,
+#syncDisconnected {
+  display: grid;
+}
+
+#syncDisconnected {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+#syncDisconnected > p {
+  margin: 0;
+}
+
+#showSyncedListHeading {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.synced-list {
+  display: grid;
+  gap: 24px;
+  padding-inline-start: 12px;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
+.synced-item {
+  display: inline-flex;
+  align-items: center;
+  }
+
+.synced-item::before {
+  height: 16px;
+  width: 16px;
+  margin-inline-end: 6px;
+}
+
+ #showSyncedList {
+  grid-template-columns: 1fr 1fr;
+}
+
+#showSyncAccount {
+  display: grid;
+  gap: 12px;
+  grid-column: 1 / span 2;
+}
+
+#syncedAccounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+#syncedAccounts .synced-list {
+  gap: 9px;
+}
+
+#showSyncAccountLabel::before {
+  content: var(--icon-mail);
+}
+
+#showSyncAddress::before {
+  content: var(--icon-address-book);
+}
+
+#showSyncCalendar::before {
+  content: var(--icon-calendar);
+}
+
+#showSyncIdentity::before {
+  content: var(--icon-id);
+}
+
+.synced-account {
+  padding-inline-start: 18px;
+}
+
+.synced-account-name {
+  font-size: 1rem;
+  margin: 0;
+  margin-block-end: 9px;
+}
+
+.synced-account-server-config::before {
+  content: var(--icon-globe);
+}
+
+.synced-account-filters::before {
+  content: var(--icon-filter);
+}
+
+.synced-account-keys::before {
+  content: var(--icon-lock);
 }

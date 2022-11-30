@@ -931,3 +931,35 @@ sync-pane-change-device-name = Change device name
 sync-pane-cancel = Cancel
 
 sync-pane-save = Save
+
+sync-pane-show-synced-header-on = Syncing ON
+
+sync-pane-show-synced-header-off = Syncing OFF
+
+sync-pane-sync-now = Sync Now
+
+sync-panel-sync-now-syncing = Syncing…
+
+show-synced-list-heading = You are currently syncing these items:
+
+show-synced-learn-more = Learn more…
+
+show-synced-item-account = Email Accounts
+
+show-synced-item-address = Address Books
+
+show-synced-item-calendar = Calendars
+
+show-synced-item-identity = Identities
+
+show-synced-change = Change…
+
+synced-acount-item-server-config = Server configuration
+
+synced-acount-item-filters = Filters
+
+synced-acount-item-keys = OpenPGP - S/MIME
+
+sync-disconnected-text = Synchronize your email accounts, address books, calendars, and identities across all your devices.
+
+sync-disconnected-turn-on-sync = Turn on Syncing…
