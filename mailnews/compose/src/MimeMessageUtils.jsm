@@ -238,6 +238,7 @@ var MsgUtils = {
         if (msgHdr) {
           let folder = msgHdr.folder;
           if (
+            folder &&
             folder.canFileMessages &&
             folder.server &&
             folder.server.getCharValue("type") != "rss" &&
