@@ -15,6 +15,9 @@ const { EnigmailKeyRing } = ChromeUtils.import(
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
 );
+const { MailStringUtils } = ChromeUtils.import(
+  "resource:///modules/MailStringUtils.jsm"
+);
 
 const keyDir = "../../../../../test/browser/openpgp/data/keys";
 
@@ -79,4 +82,63 @@ add_task(async function testStripSignatures() {
 
   // The imported stripped key should have only the self signature.
   Assert.equal(sigs[0].sigList.length, 1);
+});
+
+add_task(async function testKeyWithUnicodeComment() {
+  let keyFile = do_get_file(
+    `${keyDir}/key-with-utf8-comment.asc`
+  );
+  let keyBlock = await IOUtils.readUTF8(keyFile.path);
+
+  let errorObj = {};
+  let fingerPrintObj = {};
+  let result = await EnigmailKeyRing.importKeyAsync(
+    null,
+    false,
+    keyBlock,
+    false,
+    null,
+    errorObj,
+    fingerPrintObj,
+    false,
+    [],
+    false,
+    false
+  );
+  Assert.equal(result, 0);
+
+  let fpr = "72514F43D0060FC588E80238852C55E6D2AFD7EF";
+  let foundKeys = await RNP.getKeys(["0x" + fpr]);
+
+  Assert.equal(foundKeys.length, 1);
+});
+
+add_task(async function testBinaryKey() {
+  let keyFile = do_get_file(
+    `${keyDir}/key-binary.gpg`
+  );
+  let keyData = await IOUtils.read(keyFile.path);
+  let keyBlock = MailStringUtils.uint8ArrayToByteString(keyData);
+
+  let errorObj = {};
+  let fingerPrintObj = {};
+  let result = await EnigmailKeyRing.importKeyAsync(
+    null,
+    false,
+    keyBlock,
+    true,
+    null,
+    errorObj,
+    fingerPrintObj,
+    false,
+    [],
+    false,
+    false
+  );
+  Assert.equal(result, 0);
+
+  let fpr = "683F775BA2E5F0ADEBB29697A2D1B914F722004E";
+  let foundKeys = await RNP.getKeys(["0x" + fpr]);
+
+  Assert.equal(foundKeys.length, 1);
 });
