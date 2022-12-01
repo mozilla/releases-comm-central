@@ -119,26 +119,26 @@
       </button>
     </div>
 
-    <tree-view id="addressBookTree"/>
-
-    <div id="cardsPlaceholder">
-      <div id="placeholderEmptyBook"
-           hidden="hidden"
-           data-l10n-id="about-addressbook-placeholder-empty-book"></div>
-      <button id="placeholderCreateContact"
-              class="icon-button"
-              hidden="hidden"
-              data-l10n-id="about-addressbook-placeholder-new-contact"></button>
-      <div id="placeholderSearchOnly"
-           hidden="hidden"
-           data-l10n-id="about-addressbook-placeholder-search-only"></div>
-      <div id="placeholderSearching"
-           hidden="hidden"
-           data-l10n-id="about-addressbook-placeholder-searching"></div>
-      <div id="placeholderNoSearchResults"
-           hidden="hidden"
-           data-l10n-id="about-addressbook-placeholder-no-search-results"></div>
-    </div>
+    <tree-view id="addressBookTree">
+      <slot name="placeholders">
+        <div id="placeholderEmptyBook"
+             hidden="hidden"
+             data-l10n-id="about-addressbook-placeholder-empty-book"></div>
+        <button id="placeholderCreateContact"
+                class="icon-button"
+                hidden="hidden"
+                data-l10n-id="about-addressbook-placeholder-new-contact"></button>
+        <div id="placeholderSearchOnly"
+             hidden="hidden"
+             data-l10n-id="about-addressbook-placeholder-search-only"></div>
+        <div id="placeholderSearching"
+             hidden="hidden"
+             data-l10n-id="about-addressbook-placeholder-searching"></div>
+        <div id="placeholderNoSearchResults"
+             hidden="hidden"
+             data-l10n-id="about-addressbook-placeholder-no-search-results"></div>
+      </slot>
+    </tree-view>
   </div>
   <!-- We will dynamically switch this splitter to be horizontal or vertical and
     affect the cardsPane or detailsPane based on the required layout. -->

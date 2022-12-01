@@ -92,6 +92,8 @@ table[is="tree-view-table"] {
   table-layout: fixed;
   flex: 1 0 100%;
   border-spacing: 0;
+  line-height: 1;
+  font-size: 1.05rem;
 }
 
 table[is="tree-view-table"] td {
@@ -228,6 +230,44 @@ table[is="tree-view-table"] td {
 table[is="tree-view-table"] td div {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Placeholder */
+
+slot[name="placeholders"] {
+  position: absolute;
+  display: none;
+  box-sizing: border-box;
+  inset: 120px 0 auto;
+  padding: 0 40px;
+  color: var(--in-content-deemphasized-text);
+  text-align: center;
+}
+
+slot[name="placeholders"].show {
+  display: block;
+}
+
+slot[name="placeholders"] > div{
+  font-size: 1.5rem;
+  line-height: 1.2;
+  font-weight: 600;
+  margin-block-end: 12px;
+  text-shadow: 0 1px 0px var(--in-content-page-background);
+}
+
+slot[name="placeholders"] div::before {
+  content: "";
+  display: block;
+  height: 32px;
+  margin-block-end: 9px;
+  background-position: center top;
+  background-size: contain;
+  background-repeat: no-repeat;
+  -moz-context-properties: fill, stroke, fill-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 /* Transitions and animations */

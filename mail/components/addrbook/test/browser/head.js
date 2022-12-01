@@ -206,7 +206,7 @@ async function createMailingListWithUI(mlParent, mlName) {
 function checkDirectoryDisplayed(directory) {
   let abWindow = getAddressBookWindow();
   let booksList = abWindow.document.getElementById("books");
-  let cardsList = abWindow.document.getElementById("cards");
+  let cardsList = abWindow.cardsPane.cardsList;
 
   if (directory) {
     Assert.equal(
@@ -249,7 +249,7 @@ function checkNamesListed(...expectedNames) {
 
 function checkPlaceholders(expectedVisible = []) {
   let abWindow = getAddressBookWindow();
-  let placeholder = abWindow.document.getElementById("cardsPlaceholder");
+  let placeholder = abWindow.cardsPane.cardsList.placeholder;
 
   if (!expectedVisible.length) {
     Assert.ok(
@@ -284,6 +284,28 @@ async function showSortMenu(name, value) {
   );
   if (name == "toggle") {
     sortContext.hidePopup();
+  }
+  await hiddenPromise;
+}
+
+async function showPickerMenu(name, value) {
+  let abWindow = getAddressBookWindow();
+  let cardsHeader = abWindow.cardsPane.table.header;
+  let pickerButton = cardsHeader.querySelector(
+    `th[is="tree-view-table-column-picker"] button`
+  );
+  let menupopup = cardsHeader.querySelector(
+    `th[is="tree-view-table-column-picker"] menupopup`
+  );
+  let shownPromise = BrowserTestUtils.waitForEvent(menupopup, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(pickerButton, {}, abWindow);
+  await shownPromise;
+  let hiddenPromise = BrowserTestUtils.waitForEvent(menupopup, "popuphidden");
+  menupopup.activateItem(
+    menupopup.querySelector(`[name="${name}"][value="${value}"]`)
+  );
+  if (name == "toggle") {
+    menupopup.hidePopup();
   }
   await hiddenPromise;
 }

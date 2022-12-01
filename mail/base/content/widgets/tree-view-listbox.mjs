@@ -21,6 +21,10 @@
       }
       this.hasConnected = true;
 
+      // Prevent this element from being part of the roving tab focus since we
+      // handle that independently for the TreeViewListbox and we don't want any
+      // interference from this.
+      this.tabIndex = -1;
       this.classList.add("tree-view-scrollable-container");
 
       this.table = document.createElement("table", { is: "tree-view-table" });
@@ -606,6 +610,9 @@
       this.setAttribute("aria-multiselectable", "true");
 
       this.scrollable = this.closest(".tree-view-scrollable-container");
+      this.placeholder = this.scrollable.querySelector(
+        `slot[name="placeholders"]`
+      );
 
       this.addEventListener("focus", event => {
         if (this._preventFocusHandler) {
@@ -972,7 +979,10 @@
      * here is important.
      */
     _ensureVisibleRowsAreDisplayed() {
-      if (!this.view || this.view.rowCount == 0) {
+      let hasRows = !this.view || this.view.rowCount == 0;
+      this.placeholder?.classList.toggle("show", hasRows);
+
+      if (hasRows) {
         return;
       }
 
@@ -1064,7 +1074,12 @@
         return;
       }
 
-      const bottomIndex = topIndex + this._rowElementClass.ROW_HEIGHT * 3;
+      // Account for the table header height in a sticky position above the
+      // listbox. If the list is not in a table layout, the thead height is 0.
+      const bottomIndex =
+        topIndex +
+        this._rowElementClass.ROW_HEIGHT +
+        this.closest("table").header.clientHeight;
       if (bottomIndex > scrollTop + clientHeight) {
         this.scrollable.scrollTo(0, bottomIndex - clientHeight);
       }
@@ -1366,6 +1381,17 @@
       }
 
       return selected;
+    }
+
+    /**
+     * Loop through all available child elements of the placeholder slot and
+     * show those that are needed.
+     * @param {array} idsToShow - Array of ids to show.
+     */
+    updatePlaceholders(idsToShow) {
+      for (let element of this.placeholder.children) {
+        element.hidden = !idsToShow.includes(element.id);
+      }
     }
   }
   customElements.define("tree-view-listbox", TreeViewListbox, {

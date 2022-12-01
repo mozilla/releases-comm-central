@@ -968,7 +968,7 @@ add_task(async function test_total_address_book_count() {
   // Delete a contact an check that the count updates.
   let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   let deletedPromise = TestUtils.topicObserved("addrbook-contact-deleted");
-  let cards = abDocument.getElementById("cards");
+  let cards = abWindow.cardsPane.cardsList;
   EventUtils.synthesizeMouseAtCenter(cards.getRowAtIndex(0), {}, abWindow);
   EventUtils.synthesizeKey("VK_DELETE", {}, abWindow);
   await promptPromise;

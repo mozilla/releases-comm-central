@@ -5,18 +5,12 @@
   <title>Test for the tree-view-listbox custom element</title>
   <link rel="stylesheet" href="chrome://messenger/skin/shared/tree-listbox.css" />
   <style>
-    #testList {
+    .tree-view-scrollable-container {
       height: 630px;
       scroll-behavior: unset;
-      --in-content-button-background: rgba(12, 12, 13, 0.1);
-      --in-content-focus-outline-color: #45a1ff;
-      --in-content-item-selected-text: highlighttext;
-      --in-content-item-selected: highlight;
     }
 
-    test-listrow {
-      height: 20px;
-      padding: 5px;
+    tr[is="test-listrow"] td > div {
       display: flex;
       align-items: center;
     }
@@ -26,19 +20,19 @@
       height: 1em;
     }
 
-    test-listrow.children div.twisty {
+    tr[is="test-listrow"].children div.twisty {
       background-color: green;
     }
 
-    test-listrow.children.collapsed div.twisty {
+    tr[is="test-listrow"].children.collapsed div.twisty {
       background-color: red;
     }
 
-    test-listrow.level1 .d2 {
+    tr[is="test-listrow"].level1 .d2 {
       padding-inline-start: 1em;
     }
 
-    test-listrow.level2 .d2 {
+    tr[is="test-listrow"].level2 .d2 {
       padding-inline-start: 2em;
     }
   </style>
@@ -47,6 +41,6 @@
   <script defer="defer" src="treeViewListbox2.js"></script>
 </head>
 <body>
-  <tree-view-listbox id="testList" tabindex="0" rows="test-listrow"></tree-view-listbox>
+  <tree-view id="testTree"/>
 </body>
 </html>

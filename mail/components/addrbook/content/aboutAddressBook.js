@@ -1350,6 +1350,11 @@ class AbCardListrow extends customElements.get("tree-view-listrow") {
 }
 customElements.define("ab-card-listrow", AbCardListrow, { extends: "tr" });
 
+/**
+ * A row in the table list of cards.
+ *
+ * @augments {TreeViewListrow}
+ */
 class AbTableCardListrow extends customElements.get("tree-view-listrow") {
   static ROW_HEIGHT = 22;
 
@@ -1861,9 +1866,7 @@ var cardsPane = {
         break;
     }
 
-    for (let element of document.getElementById("cardsPlaceholder").children) {
-      element.hidden = !idsToShow.includes(element.id);
-    }
+    this.cardsList.updatePlaceholders(idsToShow);
   },
 
   /**
@@ -2114,7 +2117,9 @@ var cardsPane = {
     if (event.target == this.cardsList) {
       row = this.cardsList.getRowAtIndex(this.cardsList.currentIndex);
     } else {
-      row = event.target.closest("ab-card-listrow, ab-table-card-listrow");
+      row = event.target.closest(
+        `tr[is="ab-card-listrow"], tr[is="ab-table-card-listrow"]`
+      );
     }
     if (!row) {
       return;
@@ -2320,7 +2325,9 @@ var cardsPane = {
     ) {
       return;
     }
-    let row = event.target.closest("ab-card-listrow, ab-table-card-listrow");
+    let row = event.target.closest(
+      `tr[is="ab-card-listrow"], tr[is="ab-table-card-listrow"]`
+    );
     if (row) {
       this._activateRow(row.index);
     }
@@ -2362,7 +2369,9 @@ var cardsPane = {
       return MailServices.headerParser.makeMimeAddress(card.displayName, email);
     }
 
-    let row = event.target.closest("ab-card-listrow, ab-table-card-listrow");
+    let row = event.target.closest(
+      `tr[is="ab-card-listrow"], tr[is="ab-table-card-listrow"]`
+    );
     if (!row) {
       event.preventDefault();
       return;
