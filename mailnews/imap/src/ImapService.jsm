@@ -250,7 +250,7 @@ class ImapService {
       );
     }
 
-    let db = dstFolder.msgDatabase;
+    let db = dstFolder.msgDatabase.QueryInterface(Ci.nsIMsgOfflineOpsDatabase);
     let fakeKey = db.nextFakeOfflineMsgKey;
     let op = db.getOfflineOpForKey(fakeKey, true);
     op.operation = Ci.nsIMsgOfflineImapOperation.kAppendDraft;

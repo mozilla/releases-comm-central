@@ -483,11 +483,13 @@ NS_IMETHODIMP nsImapOfflineTxn::UndoTransaction(void) {
       nsCOMPtr<nsIMsgDBHdr> firstHdr = m_srcHdrs[0];
       nsMsgKey hdrKey;
       firstHdr->GetMessageKey(&hdrKey);
-      rv = srcDB->GetOfflineOpForKey(hdrKey, false, getter_AddRefs(op));
+      nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb = do_QueryInterface(srcDB, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
+      rv = opsDb->GetOfflineOpForKey(hdrKey, false, getter_AddRefs(op));
       bool offlineOpPlayedBack = true;
       if (NS_SUCCEEDED(rv) && op) {
         op->GetPlayingBack(&offlineOpPlayedBack);
-        srcDB->RemoveOfflineOp(op);
+        opsDb->RemoveOfflineOp(op);
         op = nullptr;
       }
       if (!WeAreOffline() && offlineOpPlayedBack) {
@@ -551,11 +553,13 @@ NS_IMETHODIMP nsImapOfflineTxn::RedoTransaction(void) {
 
   switch (m_opType) {
     case nsIMsgOfflineImapOperation::kMsgMoved:
-    case nsIMsgOfflineImapOperation::kMsgCopy:
+    case nsIMsgOfflineImapOperation::kMsgCopy: {
+      nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb = do_QueryInterface(srcDB, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
       for (int32_t i = 0; i < m_srcHdrs.Count(); i++) {
         nsMsgKey hdrKey;
         m_srcHdrs[i]->GetMessageKey(&hdrKey);
-        rv = srcDB->GetOfflineOpForKey(hdrKey, false, getter_AddRefs(op));
+        rv = opsDb->GetOfflineOpForKey(hdrKey, false, getter_AddRefs(op));
         if (NS_SUCCEEDED(rv) && op) {
           nsCOMPtr<nsIMsgFolder> dstFolder = do_QueryReferent(m_dstFolder, &rv);
           if (dstFolder) {
@@ -577,10 +581,13 @@ NS_IMETHODIMP nsImapOfflineTxn::RedoTransaction(void) {
         }
       }
       break;
+    }
     case nsIMsgOfflineImapOperation::kAddedHeader: {
       nsCOMPtr<nsIMsgFolder> dstFolder = do_QueryReferent(m_dstFolder, &rv);
       rv = srcFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo),
                                            getter_AddRefs(destDB));
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb = do_QueryInterface(destDB, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
       for (int32_t i = 0; i < m_srcHdrs.Count(); i++) {
         nsCOMPtr<nsIMsgDBHdr> restoreHdr;
@@ -588,7 +595,7 @@ NS_IMETHODIMP nsImapOfflineTxn::RedoTransaction(void) {
         m_srcHdrs[i]->GetMessageKey(&msgKey);
         destDB->CopyHdrFromExistingHdr(msgKey, m_srcHdrs[i], true,
                                        getter_AddRefs(restoreHdr));
-        rv = destDB->GetOfflineOpForKey(msgKey, true, getter_AddRefs(op));
+        rv = opsDb->GetOfflineOpForKey(msgKey, true, getter_AddRefs(op));
         if (NS_SUCCEEDED(rv) && op) {
           nsCString folderURI;
           srcFolder->GetURI(folderURI);
@@ -612,11 +619,13 @@ NS_IMETHODIMP nsImapOfflineTxn::RedoTransaction(void) {
         srcDB->MarkImapDeleted(msgKey, true, nullptr);
       }
       break;
-    case nsIMsgOfflineImapOperation::kFlagsChanged:
+    case nsIMsgOfflineImapOperation::kFlagsChanged: {
+      nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb = do_QueryInterface(srcDB, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
       for (int32_t i = 0; i < m_srcHdrs.Count(); i++) {
         nsMsgKey msgKey;
         m_srcHdrs[i]->GetMessageKey(&msgKey);
-        rv = srcDB->GetOfflineOpForKey(msgKey, true, getter_AddRefs(op));
+        rv = opsDb->GetOfflineOpForKey(msgKey, true, getter_AddRefs(op));
         if (NS_SUCCEEDED(rv) && op) {
           imapMessageFlagsType newMsgFlags;
           op->GetNewFlags(&newMsgFlags);
@@ -627,6 +636,7 @@ NS_IMETHODIMP nsImapOfflineTxn::RedoTransaction(void) {
         }
       }
       break;
+    }
     default:
       break;
   }
