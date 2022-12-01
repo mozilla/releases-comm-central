@@ -535,7 +535,7 @@ interface nsIMsgFolder : nsISupports {
   void markAllMessagesRead(in nsIMsgWindow aMsgWindow);
   void markMessagesFlagged(in Array<nsIMsgDBHdr> messages, in boolean markFlagged);
   void markThreadRead(in nsIMsgThread thread);
-  void setLabelForMessages(in Array<nsIMsgDBHdr> messages, in nsMsgLabelValue label);
+
   /**
    * Gets the message database for the folder.
    *

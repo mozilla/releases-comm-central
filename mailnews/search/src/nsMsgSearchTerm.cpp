@@ -70,7 +70,6 @@ nsMsgSearchAttribEntry SearchAttribEntryTable[] = {
     {nsMsgSearchAttrib::ToOrCC, "to or cc"},
     {nsMsgSearchAttrib::AllAddresses, "all addresses"},
     {nsMsgSearchAttrib::AgeInDays, "age in days"},
-    {nsMsgSearchAttrib::Label, "label"},
     {nsMsgSearchAttrib::Keywords, "tag"},
     {nsMsgSearchAttrib::Size, "size"},
     // this used to be nsMsgSearchAttrib::SenderInAddressBook
@@ -420,10 +419,6 @@ nsresult nsMsgSearchTerm::OutputValue(nsCString& outputStr) {
         outputStr.AppendInt(m_value.u.age);
         break;
       }
-      case nsMsgSearchAttrib::Label: {
-        outputStr.AppendInt(m_value.u.label);
-        break;
-      }
       case nsMsgSearchAttrib::JunkStatus: {
         outputStr.AppendInt(
             m_value.u.junkStatus);  // only if we write to disk, right?
@@ -538,9 +533,6 @@ nsresult nsMsgSearchTerm::ParseValue(char* inStream) {
       case nsMsgSearchAttrib::AgeInDays:
         m_value.u.age = atoi(inStream);
         break;
-      case nsMsgSearchAttrib::Label:
-        m_value.u.label = atoi(inStream);
-        break;
       case nsMsgSearchAttrib::JunkStatus:
         m_value.u.junkStatus =
             atoi(inStream);  // only if we read from disk, right?
@@ -632,13 +624,6 @@ nsresult nsMsgSearchTerm::DeStreamNew(char* inStream, int16_t /*length*/) {
   NS_ENSURE_SUCCESS(rv, rv);
   // convert label filters and saved searches to keyword equivalents
   if (secondCommaSep) ParseValue(secondCommaSep + 1);
-  if (m_attribute == nsMsgSearchAttrib::Label) {
-    nsAutoCString keyword("$label");
-    m_value.attribute = m_attribute = nsMsgSearchAttrib::Keywords;
-    keyword.Append('0' + m_value.u.label);
-    m_value.utf8String = keyword;
-    CopyUTF8toUTF16(keyword, m_value.utf16String);
-  }
   return NS_OK;
 }
 
@@ -1312,28 +1297,6 @@ nsresult nsMsgSearchTerm::MatchJunkPercent(uint32_t aJunkPercent,
   return rv;
 }
 
-nsresult nsMsgSearchTerm::MatchLabel(nsMsgLabelValue aLabelValue,
-                                     bool* pResult) {
-  NS_ENSURE_ARG_POINTER(pResult);
-
-  nsresult rv = NS_OK;
-  bool result = false;
-  switch (m_operator) {
-    case nsMsgSearchOp::Is:
-      if (m_value.u.label == aLabelValue) result = true;
-      break;
-    case nsMsgSearchOp::Isnt:
-      if (m_value.u.label != aLabelValue) result = true;
-      break;
-    default:
-      rv = NS_ERROR_FAILURE;
-      NS_ERROR("invalid compare op for label value");
-  }
-
-  *pResult = result;
-  return rv;
-}
-
 // MatchStatus () is not only used for nsMsgMessageFlags but also for
 // nsMsgFolderFlags (both being 'unsigned long')
 nsresult nsMsgSearchTerm::MatchStatus(uint32_t statusToMatch, bool* pResult) {
@@ -1781,9 +1744,6 @@ nsresult nsMsgResultElement::AssignValues(nsIMsgSearchValue* src,
       break;
     case nsMsgSearchAttrib::AgeInDays:
       rv = src->GetAge(&dst->u.age);
-      break;
-    case nsMsgSearchAttrib::Label:
-      rv = src->GetLabel(&dst->u.label);
       break;
     case nsMsgSearchAttrib::JunkStatus:
       rv = src->GetJunkStatus(&dst->u.junkStatus);

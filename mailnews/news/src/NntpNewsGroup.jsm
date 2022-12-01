@@ -352,12 +352,6 @@ class NntpNewsGroup {
             action.strValue
           );
           break;
-        case Ci.nsMsgFilterAction.Label:
-          this._filteringHdr.setLabel(
-            this._filteringHdr.messageKey,
-            action.label
-          );
-          break;
         case Ci.nsMsgFilterAction.StopExecution:
           applyMore = false;
           break;

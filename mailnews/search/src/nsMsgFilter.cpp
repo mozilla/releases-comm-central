@@ -34,7 +34,6 @@ static const char* kWhitespace = "\b\t\r\n ";
 nsMsgRuleAction::nsMsgRuleAction()
     : m_type(nsMsgFilterAction::None),
       m_priority(nsMsgPriority::notSet),
-      m_label(0),
       m_junkScore(0) {}
 
 nsMsgRuleAction::~nsMsgRuleAction() {}
@@ -56,21 +55,6 @@ nsMsgRuleAction::GetPriority(nsMsgPriorityValue* aResult) {
   NS_ENSURE_TRUE(m_type == nsMsgFilterAction::ChangePriority,
                  NS_ERROR_ILLEGAL_VALUE);
   *aResult = m_priority;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgRuleAction::SetLabel(nsMsgLabelValue aLabel) {
-  NS_ENSURE_TRUE(m_type == nsMsgFilterAction::Label, NS_ERROR_ILLEGAL_VALUE);
-  m_label = aLabel;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgRuleAction::GetLabel(nsMsgLabelValue* aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-  NS_ENSURE_TRUE(m_type == nsMsgFilterAction::Label, NS_ERROR_ILLEGAL_VALUE);
-  *aResult = m_label;
   return NS_OK;
 }
 
@@ -765,12 +749,6 @@ nsresult nsMsgFilter::SaveRule(nsIOutputStream* aStream) {
         err = filterList->WriteStrAttr(nsIMsgFilterList::attribActionValue,
                                        priority.get(), aStream);
       } break;
-      case nsMsgFilterAction::Label: {
-        nsMsgLabelValue label;
-        action->GetLabel(&label);
-        err = filterList->WriteIntAttr(nsIMsgFilterList::attribActionValue,
-                                       label, aStream);
-      } break;
       case nsMsgFilterAction::JunkScore: {
         int32_t junkScore;
         action->GetJunkScore(&junkScore);
@@ -829,7 +807,6 @@ static struct RuleActionsTableEntry ruleActionsTable[] = {
     {nsMsgFilterAction::KillSubthread, "Ignore subthread"},
     {nsMsgFilterAction::WatchThread, "Watch thread"},
     {nsMsgFilterAction::MarkFlagged, "Mark flagged"},
-    {nsMsgFilterAction::Label, "Label"},
     {nsMsgFilterAction::Reply, "Reply"},
     {nsMsgFilterAction::Forward, "Forward"},
     {nsMsgFilterAction::StopExecution, "Stop execution"},

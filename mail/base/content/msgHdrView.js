@@ -3733,14 +3733,6 @@ const gMessageHeader = {
 
     // Extract the tag keys from the message header.
     let msgKeyArray = msgHdr.getStringProperty("keywords").split(" ");
-    // Attach legacy label to the front if not already there.
-    let label = msgHdr.label;
-    if (label) {
-      let labelKey = `$label${label}`;
-      if (!msgKeyArray.includes(labelKey)) {
-        msgKeyArray.unshift(labelKey);
-      }
-    }
 
     // Get the list of known tags.
     let tagsArray = MailServices.tags.getAllTags().filter(t => t.tag);

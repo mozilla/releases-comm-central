@@ -1602,7 +1602,6 @@ void nsImapServerResponseParser::text_mime2() { skip_to_CRLF(); }
 void nsImapServerResponseParser::text() { skip_to_CRLF(); }
 
 void nsImapServerResponseParser::parse_folder_flags(bool calledForFlags) {
-  uint16_t labelFlags = 0;
   uint16_t junkNotJunkFlags = 0;
 
   do {
@@ -1624,7 +1623,6 @@ void nsImapServerResponseParser::parse_folder_flags(bool calledForFlags) {
       fSupportsUserDefinedFlags |= kImapMsgSupportUserFlag;
       fSupportsUserDefinedFlags |= kImapMsgSupportForwardedFlag;
       fSupportsUserDefinedFlags |= kImapMsgSupportMDNSentFlag;
-      fSupportsUserDefinedFlags |= kImapMsgLabelFlags;
     }
     // Treat special and built-in $LabelX's as user defined and include
     // $Junk/$NotJunk too.
@@ -1632,23 +1630,11 @@ void nsImapServerResponseParser::parse_folder_flags(bool calledForFlags) {
       fSupportsUserDefinedFlags |= kImapMsgSupportMDNSentFlag;
     else if (!PL_strncasecmp(fNextToken, "$Forwarded", 10))
       fSupportsUserDefinedFlags |= kImapMsgSupportForwardedFlag;
-    else if (!PL_strncasecmp(fNextToken, "$Label1", 7))
-      labelFlags |= 1;
-    else if (!PL_strncasecmp(fNextToken, "$Label2", 7))
-      labelFlags |= 2;
-    else if (!PL_strncasecmp(fNextToken, "$Label3", 7))
-      labelFlags |= 4;
-    else if (!PL_strncasecmp(fNextToken, "$Label4", 7))
-      labelFlags |= 8;
-    else if (!PL_strncasecmp(fNextToken, "$Label5", 7))
-      labelFlags |= 16;
     else if (!PL_strncasecmp(fNextToken, "$Junk", 5))
       junkNotJunkFlags |= 1;
     else if (!PL_strncasecmp(fNextToken, "$NotJunk", 8))
       junkNotJunkFlags |= 2;
   } while (!fAtEndOfLine && ContinueParse());
-
-  if (labelFlags == 31) fSupportsUserDefinedFlags |= kImapMsgLabelFlags;
 
   if (fFlagState) fFlagState->OrSupportedUserFlags(fSupportsUserDefinedFlags);
 

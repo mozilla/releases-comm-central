@@ -26,7 +26,6 @@ NS_IMPL_GETSET(nsMsgSearchValueImpl, Age, int32_t, mValue.u.age)
 NS_IMPL_GETSET(nsMsgSearchValueImpl, Date, PRTime, mValue.u.date)
 NS_IMPL_GETSET(nsMsgSearchValueImpl, Attrib, nsMsgSearchAttribValue,
                mValue.attribute)
-NS_IMPL_GETSET(nsMsgSearchValueImpl, Label, nsMsgLabelValue, mValue.u.label)
 NS_IMPL_GETSET(nsMsgSearchValueImpl, JunkStatus, uint32_t, mValue.u.junkStatus)
 NS_IMPL_GETSET(nsMsgSearchValueImpl, JunkPercent, uint32_t,
                mValue.u.junkPercent)
@@ -79,7 +78,6 @@ nsMsgSearchValueImpl::ToString(nsAString& aResult) {
     case nsMsgSearchAttrib::Size:
     case nsMsgSearchAttrib::AgeInDays:
     case nsMsgSearchAttrib::FolderInfo:
-    case nsMsgSearchAttrib::Label:
     case nsMsgSearchAttrib::JunkStatus:
     case nsMsgSearchAttrib::JunkPercent: {
       nsAutoString tempInt;

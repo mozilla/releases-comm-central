@@ -271,8 +271,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
   NS_IMETHOD MarkMessagesFlagged(const nsTArray<RefPtr<nsIMsgDBHdr>>& messages,
                                  bool markFlagged) override;
   NS_IMETHOD MarkThreadRead(nsIMsgThread* thread) override;
-  NS_IMETHOD SetLabelForMessages(const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
-                                 nsMsgLabelValue aLabel) override;
   NS_IMETHOD SetJunkScoreForMessages(
       const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
       const nsACString& aJunkScore) override;

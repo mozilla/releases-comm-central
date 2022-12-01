@@ -48,7 +48,6 @@ interface nsMsgFilterAction : nsISupports {
     const long KillThread=5;
     const long WatchThread=6;
     const long MarkFlagged=7;
-    const long Label=8;
     const long Reply=9;
     const long Forward=10;
     const long StopExecution=11;

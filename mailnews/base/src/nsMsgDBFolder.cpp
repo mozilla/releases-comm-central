@@ -4375,21 +4375,6 @@ nsMsgDBFolder::MarkMessagesFlagged(
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::SetLabelForMessages(
-    const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages, nsMsgLabelValue aLabel) {
-  GetDatabase();
-  if (mDatabase) {
-    for (auto message : aMessages) {
-      nsMsgKey msgKey;
-      (void)message->GetMessageKey(&msgKey);
-      nsresult rv = mDatabase->SetLabel(msgKey, aLabel);
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-  }
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMsgDBFolder::SetJunkScoreForMessages(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
     const nsACString& junkScore) {
@@ -5366,17 +5351,6 @@ NS_IMETHODIMP nsMsgDBFolder::RemoveKeywordsFromMessages(
       rv = message->GetStringProperty("keywords", getter_Copies(keywords));
       uint32_t removeCount = 0;
       for (uint32_t j = 0; j < keywordArray.Length(); j++) {
-        bool keywordIsLabel = (StringBeginsWith(keywordArray[j], "$label"_ns) &&
-                               keywordArray[j].CharAt(6) >= '1' &&
-                               keywordArray[j].CharAt(6) <= '5');
-        if (keywordIsLabel) {
-          nsMsgLabelValue labelValue;
-          message->GetLabel(&labelValue);
-          // if we're removing the keyword that corresponds to a pre 2.0 label,
-          // we need to clear the old label attribute on the message.
-          if (labelValue == (nsMsgLabelValue)(keywordArray[j].CharAt(6) - '0'))
-            message->SetLabel((nsMsgLabelValue)0);
-        }
         int32_t startOffset, length;
         if (MsgFindKeyword(keywordArray[j], keywords, &startOffset, &length)) {
           // delete any leading space delimiters

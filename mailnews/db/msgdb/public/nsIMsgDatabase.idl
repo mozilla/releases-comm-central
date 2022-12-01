@@ -380,7 +380,6 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
                         in nsIDBChangeListener instigator);
   void markOffline(in nsMsgKey key, in boolean offline,
                          in nsIDBChangeListener instigator);
-  void setLabel(in nsMsgKey key, in nsMsgLabelValue label);
   void setStringProperty(in nsMsgKey aKey, in string aProperty, in string aValue);
   /**
    * Set the value of a string property in a message header

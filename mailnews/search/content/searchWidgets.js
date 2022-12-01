@@ -1609,9 +1609,6 @@
         case nsMsgFilterAction.Forward:
           actionItem.children[0].value = aFilterAction.strValue;
           break;
-        case nsMsgFilterAction.Label:
-          actionItem.children[0].value = aFilterAction.label;
-          break;
         case nsMsgFilterAction.ChangePriority:
           actionItem.children[0].value = aFilterAction.priority;
           break;
@@ -1708,9 +1705,6 @@
       let actionItem = actionTarget.ruleactiontargetElement;
       let nsMsgFilterAction = Ci.nsMsgFilterAction;
       switch (filterAction.type) {
-        case nsMsgFilterAction.Label:
-          filterAction.label = actionItem.children[0].getAttribute("value");
-          break;
         case nsMsgFilterAction.ChangePriority:
           filterAction.priority = actionItem.children[0].getAttribute("value");
           break;

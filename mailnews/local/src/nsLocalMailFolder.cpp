@@ -2046,10 +2046,6 @@ void nsMsgLocalMailFolder::CopyHdrPropertiesWithSkipList(
     srcHdr->GetStringProperty(property.get(), getter_Copies(sourceString));
     destHdr->SetStringProperty(property.get(), sourceString.get());
   }
-
-  nsMsgLabelValue label = 0;
-  srcHdr->GetLabel(&label);
-  destHdr->SetLabel(label);
 }
 
 MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP

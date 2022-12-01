@@ -1100,12 +1100,11 @@ function RemoveAllMessageTags() {
   // that spans folders, by coalescing consecutive messages in the selection
   // that happen to be in the same folder. nsMsgSearchDBView does this better,
   // but nsIMsgDBView doesn't handle commands with arguments, and untag takes a
-  // key argument. Furthermore, we only delete legacy labels and known tags,
+  // key argument. Furthermore, we only delete known tags,
   // keeping other keywords like (non)junk intact.
 
   for (var i = 0; i < selectedMessages.length; ++i) {
     var msgHdr = selectedMessages[i];
-    msgHdr.label = 0; // remove legacy label
     if (prevHdrFolder != msgHdr.folder) {
       if (prevHdrFolder) {
         prevHdrFolder.removeKeywordsFromMessages(messages, allKeys);
@@ -1140,9 +1139,6 @@ function ToggleMessageTagKey(keyNumber) {
 
   let key = tagArray[keyNumber - 1].key;
   let curKeys = msgHdr.getStringProperty("keywords").split(" ");
-  if (msgHdr.label) {
-    curKeys.push("$label" + msgHdr.label);
-  }
   let addKey = !curKeys.includes(key);
 
   ToggleMessageTag(key, addKey);
@@ -1166,13 +1162,6 @@ function ToggleMessageTag(key, addKey) {
   // and (un)tag takes a key argument.
   for (var i = 0; i < selectedMessages.length; ++i) {
     var msgHdr = selectedMessages[i];
-    if (msgHdr.label) {
-      // Since we touch all these messages anyway, migrate the label now.
-      // If we don't, the thread tree won't always show the correct tag state,
-      // because resetting a label doesn't update the tree anymore...
-      msgHdr.folder.addKeywordsToMessages([msgHdr], "$label" + msgHdr.label);
-      msgHdr.label = 0; // remove legacy label
-    }
     if (prevHdrFolder != msgHdr.folder) {
       if (prevHdrFolder) {
         prevHdrFolder[toggler](messages, key);
@@ -1273,8 +1262,7 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
   );
 
   // Rebuild the list.
-  const suffix = message.label ? " $label" + message.label : "";
-  const curKeys = message.getStringProperty("keywords") + suffix;
+  const curKeys = message.getStringProperty("keywords");
 
   tagArray.forEach((tagInfo, index) => {
     const removeKey = ` ${curKeys} `.includes(` ${tagInfo.key} `);

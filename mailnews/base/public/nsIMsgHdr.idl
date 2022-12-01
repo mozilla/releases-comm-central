@@ -100,7 +100,6 @@ interface nsIMsgDBHdr : nsISupports
      */
     readonly attribute ACString effectiveCharset;
 
-    attribute nsMsgLabelValue label;
     attribute string accountKey;
     readonly attribute nsIMsgFolder folder;
 

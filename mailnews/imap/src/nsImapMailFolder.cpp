@@ -1819,22 +1819,6 @@ nsImapMailFolder::MarkMessagesRead(
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::SetLabelForMessages(
-    const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages, nsMsgLabelValue aLabel) {
-  nsresult rv = nsMsgDBFolder::SetLabelForMessages(aMessages, aLabel);
-  if (NS_SUCCEEDED(rv)) {
-    nsAutoCString messageIds;
-    nsTArray<nsMsgKey> keysToLabel;
-    nsresult rv = BuildIdsAndKeyArray(aMessages, messageIds, keysToLabel);
-    NS_ENSURE_SUCCESS(rv, rv);
-    StoreImapFlags((aLabel << 9), true, keysToLabel, nullptr);
-    rv = GetDatabase();
-    if (NS_SUCCEEDED(rv)) mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
-  }
-  return rv;
-}
-
-NS_IMETHODIMP
 nsImapMailFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
   nsresult rv = GetDatabase();
   if (NS_SUCCEEDED(rv)) {
@@ -3439,13 +3423,6 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
           rv = mDatabase->SetUint32PropertyByHdr(
               msgHdr, "priority", static_cast<uint32_t>(filterPriority));
         } break;
-        case nsMsgFilterAction::Label: {
-          nsMsgLabelValue filterLabel;
-          filterAction->GetLabel(&filterLabel);
-          mDatabase->SetUint32PropertyByHdr(msgHdr, "label",
-                                            static_cast<uint32_t>(filterLabel));
-          rv = StoreImapFlags((filterLabel << 9), true, {msgKey}, nullptr);
-        } break;
         case nsMsgFilterAction::AddTag: {
           nsCString keyword;
           filterAction->GetStrValue(keyword);
@@ -4198,15 +4175,6 @@ void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol* aProtocol,
         newFlags |= nsMsgMessageFlags::IMAPDeleted;
       if (imap_flags & kImapMsgForwardedFlag)
         newFlags |= nsMsgMessageFlags::Forwarded;
-
-      // db label flags are 0x0E000000 and imap label flags are 0x0E00
-      // so we need to shift 16 bits to the left to convert them.
-      if (imap_flags & kImapMsgLabelFlags) {
-        // we need to set label attribute on header because the dbview code
-        // does msgHdr->GetLabel when asked to paint a row
-        tweakMe->SetLabel((imap_flags & kImapMsgLabelFlags) >> 9);
-        newFlags |= (imap_flags & kImapMsgLabelFlags) << 16;
-      }
       if (newFlags) tweakMe->OrFlags(newFlags, &dbHdrFlags);
       if (!customFlags.IsEmpty())
         (void)HandleCustomFlags(m_curMsgUid, tweakMe, userFlags, customFlags);
@@ -4671,16 +4639,6 @@ nsresult nsImapMailFolder::NotifyMessageFlagsFromHdr(nsIMsgDBHdr* dbHdr,
   if (supportedFlags & kImapMsgSupportForwardedFlag)
     database->MarkForwarded(msgKey, (flags & kImapMsgForwardedFlag) != 0,
                             nullptr);
-  // this turns on labels, but it doesn't handle the case where the user
-  // unlabels a message on one machine, and expects it to be unlabeled
-  // on their other machines. If I turn that on, I'll be removing all the labels
-  // that were assigned before we started storing them on the server, which will
-  // make some people very unhappy.
-  if (flags & kImapMsgLabelFlags)
-    database->SetLabel(msgKey, (flags & kImapMsgLabelFlags) >> 9);
-  else {
-    if (supportedFlags & kImapMsgLabelFlags) database->SetLabel(msgKey, 0);
-  }
   if (supportedFlags & kImapMsgSupportMDNSentFlag)
     database->MarkMDNSent(msgKey, (flags & kImapMsgMDNSentFlag) != 0, nullptr);
 
@@ -4851,12 +4809,7 @@ nsImapMailFolder::GetCurMoveCopyMessageInfo(nsIImapUrl* runningUrl,
         mailCopyState->m_curIndex < mailCopyState->m_messages.Length()) {
       nsIMsgDBHdr* message =
           mailCopyState->m_messages[mailCopyState->m_curIndex];
-      nsMsgLabelValue label;
       message->GetFlags(aResult);
-      if (supportedFlags & (kImapMsgSupportUserFlag | kImapMsgLabelFlags)) {
-        message->GetLabel(&label);
-        if (label != 0) *aResult |= label << 25;
-      }
       if (aDate) message->GetDate(aDate);
       if (supportedFlags & kImapMsgSupportUserFlag) {
         // setup the custom imap keywords, which includes the message keywords
@@ -6931,13 +6884,6 @@ void nsImapMailFolder::SetPendingAttributes(
   // that we need to set on the dest hdr
   for (auto msgDBHdr : messages) {
     if (!(supportedUserFlags & kImapMsgSupportUserFlag)) {
-      nsMsgLabelValue label;
-      msgDBHdr->GetLabel(&label);
-      if (label != 0) {
-        nsAutoCString labelStr;
-        labelStr.AppendInt(label);
-        mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "label", labelStr.get());
-      }
       nsCString keywords;
       msgDBHdr->GetStringProperty("keywords", getter_Copies(keywords));
       if (!keywords.IsEmpty())

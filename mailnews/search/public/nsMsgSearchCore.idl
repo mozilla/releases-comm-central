@@ -92,7 +92,6 @@ interface nsMsgSearchAttrib : nsISupports {
     const nsMsgSearchAttribValue JunkStatus = 45;
     const nsMsgSearchAttribValue JunkPercent = 46;
     const nsMsgSearchAttribValue JunkScoreOrigin = 47;
-    const nsMsgSearchAttribValue Label = 48; /* mail only...can search by label */
     const nsMsgSearchAttribValue HdrProperty = 49; // uses nsIMsgSearchTerm::hdrProperty
     const nsMsgSearchAttribValue FolderFlag = 50; // uses nsIMsgSearchTerm::status
     const nsMsgSearchAttribValue Uint32HdrProperty = 51; // uses nsIMsgSearchTerm::hdrProperty
@@ -180,7 +179,6 @@ typedef struct nsMsgSearchValue
       nsMsgKey key;
       int32_t age; /* in days */
       nsIMsgFolder *folder;
-      nsMsgLabelValue label;
       uint32_t junkStatus;
       uint32_t junkPercent;
     } u;
@@ -200,7 +198,7 @@ typedef struct nsMsgSearchValue
    _a == nsMsgSearchAttrib::MsgStatus || _a == nsMsgSearchAttrib::MessageKey || \
    _a == nsMsgSearchAttrib::Size || _a == nsMsgSearchAttrib::AgeInDays || \
    _a == nsMsgSearchAttrib::FolderInfo || _a == nsMsgSearchAttrib::Location || \
-   _a == nsMsgSearchAttrib::Label || _a == nsMsgSearchAttrib::JunkStatus || \
+   _a == nsMsgSearchAttrib::JunkStatus || \
    _a == nsMsgSearchAttrib::FolderFlag || _a == nsMsgSearchAttrib::Uint32HdrProperty || \
    _a == nsMsgSearchAttrib::JunkPercent || _a == nsMsgSearchAttrib::HasAttachmentStatus))
 %}

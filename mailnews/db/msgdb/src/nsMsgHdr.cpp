@@ -377,17 +377,6 @@ NS_IMETHODIMP nsMsgHdr::GetPriority(nsMsgPriorityValue* result) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgHdr::SetLabel(nsMsgLabelValue label) {
-  SetUInt32Column((uint32_t)label, m_mdb->m_labelColumnToken);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgHdr::GetLabel(nsMsgLabelValue* result) {
-  NS_ENSURE_ARG_POINTER(result);
-
-  return GetUInt32Column(m_mdb->m_labelColumnToken, result);
-}
-
 // I'd like to not store the account key, if the msg is in
 // the same account as it was received in, to save disk space and memory.
 // This might be problematic when a message gets moved...

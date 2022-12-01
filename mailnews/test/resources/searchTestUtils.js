@@ -82,8 +82,6 @@ function TestSearch(
     value.size = aValue;
   } else if (aAttrib == Ci.nsMsgSearchAttrib.AgeInDays) {
     value.age = aValue;
-  } else if (aAttrib == Ci.nsMsgSearchAttrib.Label) {
-    value.label = aValue;
   } else if (aAttrib == Ci.nsMsgSearchAttrib.JunkStatus) {
     value.junkStatus = aValue;
   } else if (aAttrib == Ci.nsMsgSearchAttrib.HasAttachmentStatus) {
