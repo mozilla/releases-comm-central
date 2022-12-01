@@ -97,33 +97,50 @@ about-addressbook-table-layout =
 ## Card column headers
 ## Each string is listed here twice, and the values should match.
 
-about-addressbook-column-header-generatedname = Name
-about-addressbook-column-label-generatedname =
-  .label = { about-addressbook-column-header-generatedname }
-about-addressbook-column-header-emailaddresses = Email Addresses
-about-addressbook-column-label-emailaddresses =
-  .label = { about-addressbook-column-header-emailaddresses }
-about-addressbook-column-header-nickname = Nickname
-about-addressbook-column-label-nickname =
-  .label = { about-addressbook-column-header-nickname }
-about-addressbook-column-header-phonenumbers = Phone Numbers
-about-addressbook-column-label-phonenumbers =
-  .label = { about-addressbook-column-header-phonenumbers }
-about-addressbook-column-header-addresses = Addresses
-about-addressbook-column-label-addresses =
-  .label = { about-addressbook-column-header-addresses }
-about-addressbook-column-header-title = Title
-about-addressbook-column-label-title =
-  .label = { about-addressbook-column-header-title }
-about-addressbook-column-header-department = Department
-about-addressbook-column-label-department =
-  .label = { about-addressbook-column-header-department }
-about-addressbook-column-header-organization = Organization
-about-addressbook-column-label-organization =
-  .label = { about-addressbook-column-header-organization }
-about-addressbook-column-header-addrbook = Address Book
-about-addressbook-column-label-addrbook =
-  .label = { about-addressbook-column-header-addrbook }
+about-addressbook-column-header-generatedname2 = Name
+  .title = Sort by name
+about-addressbook-column-label-generatedname2 =
+  .label = Name
+
+about-addressbook-column-header-emailaddresses2 = Email Addresses
+  .title = Sort by email addresses
+about-addressbook-column-label-emailaddresses2 =
+  .label = Email Addresses
+
+about-addressbook-column-header-nickname2 = Nickname
+  .title = Sort by nickname
+about-addressbook-column-label-nickname2 =
+  .label = Nickname
+
+about-addressbook-column-header-phonenumbers2 = Phone Numbers
+  .title = Sort by phone numbers
+about-addressbook-column-label-phonenumbers2 =
+  .label = Phone Numbers
+
+about-addressbook-column-header-addresses2 = Addresses
+  .title = Sort by addresses
+about-addressbook-column-label-addresses2 =
+  .label = Addresses
+
+about-addressbook-column-header-title2 = Title
+  .title = Sort by title
+about-addressbook-column-label-title2 =
+  .label = Title
+
+about-addressbook-column-header-department2 = Department
+  .title = Sort by department
+about-addressbook-column-label-department2 =
+  .label = Department
+
+about-addressbook-column-header-organization2 = Organization
+  .title = Sort by organization
+about-addressbook-column-label-organization2 =
+  .label = Organization
+
+about-addressbook-column-header-addrbook2 = Address Book
+  .title = Sort by address book
+about-addressbook-column-label-addrbook2 =
+  .label = Address Book
 
 about-addressbook-cards-context-write =
   .label = Write

@@ -373,10 +373,16 @@ body.layout-table {
   stroke: currentColor;
 }
 
-body:not(.layout-table) ~ menupopup#sortContext > menuitem[name="toggle"],
-body.layout-table ~ menupopup#sortContext > menuitem[name="sort"] {
-  /* Hide table items in list view, and list items in table view. */
+/* Hide list items for sorting in table view. */
+body.layout-table ~ menupopup#sortContext >
+  :where(menuitem:is([name="sort"], [value="addrbook"]), menuseparator:last-of-type) {
   display: none;
+}
+
+/* Show address book toggle in the list view if All Address Book is selected. */
+body:not(.layout-table).all-ab-selected ~ menupopup#sortContext >
+  :where(menuitem[value="addrbook"], menuseparator:last-of-type) {
+  display: initial;
 }
 
 .all-ab-selected .address-book-name {
@@ -384,12 +390,6 @@ body.layout-table ~ menupopup#sortContext > menuitem[name="sort"] {
   opacity: 0.8;
   flex-shrink: 0;
   font-weight: initial;
-}
-
-body:not(.layout-table).all-ab-selected ~ menupopup#sortContext > menuitem[value="addrbook"] {
-  /* Show address book toggle in the list view if All Address Book is
-     selected. */
-  display: initial;
 }
 
 #cards {
@@ -529,66 +529,10 @@ ab-card-listrow.selected .recipient-avatar.is-mail-list {
   color: currentColor;
 }
 
-#cardsHeader {
-  display: flex;
-  border-bottom: 1px solid var(--in-content-border-color);
-  border-top: 1px solid var(--in-content-border-color);
-}
-
-body:not(.layout-table) #cardsHeader {
-  display: none;
-}
-
-.table-header {
-  background-color: transparent;
-  background-position: right 6px center;
-  background-repeat: no-repeat;
-  -moz-context-properties: stroke;
-  stroke: currentColor;
-  border-radius: 0;
-}
-
-button.table-header:hover {
-  background-color: var(--in-content-button-background);
-}
-
-button.table-header:active,
-button.table-header:hover:active {
-  background-color: var(--in-content-button-background-hover);
-}
-
-.table-header:dir(rtl) {
-  background-position: 6px center;
-}
-
-.table-header:first-child {
-  padding-inline-start: 28px;
-}
-
-.table-header.descending {
-  background-image: var(--icon-nav-down-sm);
-}
-
-.table-header.ascending {
-  background-image: var(--icon-nav-up-sm);
-}
-
-@media (-moz-platform: linux) {
-  .table-header.ascending {
-    background-image: var(--icon-nav-down-sm);
-  }
-
-  .table-header.descending {
-    background-image: var(--icon-nav-up-sm);
-  }
-}
-
-.table-header:not([hidden]),
 ab-table-card-listrow > div:not([hidden]) {
   display: inline-block;
 }
 
-.table-header,
 ab-table-card-listrow > div {
   width: 0;
   min-width: unset;
@@ -603,7 +547,6 @@ ab-table-card-listrow > div {
   white-space: nowrap;
 }
 
-.table-header,
 ab-table-card-listrow {
   font-size: 1rem;
   height: var(--ab-card-table-row-height);
@@ -629,10 +572,6 @@ ab-table-card-listrow:dir(rtl) {
 
 ab-table-card-listrow > div.generatedname-column {
   font-size: 1.1rem;
-}
-
-.addresses-column {
-  flex: 1.5 !important;
 }
 
 /* Details pane */

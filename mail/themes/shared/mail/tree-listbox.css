@@ -11,6 +11,18 @@
   --listbox-selected-color: var(--color-white);
   --listbox-hover: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
   --listbox-selected-outline: none;
+  --tree-header-table-height: 30px;
+  --tree-header-cell-padding: 6px;
+}
+
+:root[uidensity="compact"] {
+  --tree-header-cell-padding: 3px;
+  --tree-header-table-height: 27px;
+}
+
+:root[uidensity="touch"] {
+  --tree-header-cell-padding: 9px;
+  --tree-header-table-height: 36px;
 }
 
 @media not (prefers-contrast) {
@@ -33,6 +45,13 @@
   }
 }
 
+.tree-view-scrollable-container {
+  display: flex;
+  align-items: start;
+  overflow-y: scroll;
+  height: 100%;
+}
+
 tree-view-listbox {
   overflow-y: auto;
   display: flex;
@@ -40,12 +59,7 @@ tree-view-listbox {
   position: relative;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  tree-view-listbox {
-    scroll-behavior: smooth;
-  }
-}
-
+[is="tree-view-listbox"]:focus,
 tree-view-listbox:focus {
   outline: none;
 }
@@ -57,28 +71,194 @@ tree-view-listbox > * {
   cursor: default;
 }
 
+[is="tree-view-listbox"] > * {
+  cursor: default;
+}
+
+[is="tree-view-listbox"] > *:hover,
 tree-view-listbox > *:hover {
   background-color: var(--listbox-hover);
 }
 
+[is="tree-view-listbox"] > .selected,
 tree-view-listbox > .selected {
   background-color: var(--listbox-selected-bg);
   outline: var(--listbox-selected-outline);
   outline-offset: -2px;
 }
 
+[is="tree-view-listbox"]:focus > .current,
 tree-view-listbox:focus > .current {
   outline: 2px dotted var(--listbox-selected-color);
   outline-offset: -2px;
   z-index: 1;
 }
 
+[is="tree-view-listbox"]:focus > .selected,
 tree-view-listbox:focus > .selected {
   color: var(--listbox-selected-color);
   background-color: var(--listbox-focused-selected-bg);
 }
 
+[is="tree-view-listbox"]:focus > .current.selected,
 tree-view-listbox:focus > .current.selected {
   outline: 1px dashed var(--listbox-selected-color);
   outline-offset: -1px;
+}
+
+/* Resizable table columns */
+
+table[is="tree-view-table"] {
+  table-layout: fixed;
+  flex: 1 0 100%;
+  border-spacing: 0;
+}
+
+table[is="tree-view-table"] td {
+  padding: 0;
+}
+
+body:not(.layout-table) thead[is="tree-view-table-header"] {
+  display: none;
+}
+
+thead[is="tree-view-table-header"] {
+  height: 30px;
+  position: sticky;
+  inset-inline: 0;
+  inset-block-start: 0;
+  background-color: var(--address-book-cards-list-bg);
+  z-index: 1;
+}
+
+/*
+ * Use pseudo elements to show top and bottom border due to a rendering issues
+ * with regular CSS borders and sticky table headers.
+ */
+thead[is="tree-view-table-header"] th:after,
+thead[is="tree-view-table-header"] th:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+thead[is="tree-view-table-header"] th:before {
+  border-top: 1px solid var(--in-content-border-color);
+}
+
+thead[is="tree-view-table-header"] th:after {
+  border-bottom: 1px solid var(--in-content-border-color);
+}
+
+thead[is="tree-view-table-header"] hr[is="pane-splitter"] {
+  position: absolute;
+  inset-inline-end: 5px;
+  inset-block: 3px;
+}
+
+thead[is="tree-view-table-header"] hr[is="pane-splitter"]:hover:not(:active) {
+  background-color: var(--color-blue-50);
+}
+
+th[is="tree-view-table-header-cell"] {
+  min-width: 5ch;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.tree-table-cell {
+  position: absolute;
+  inset-block: 0;
+  inset-inline: 0 5px;
+}
+
+.tree-table-cell-container button {
+  font-size: 1rem;
+  font-weight: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: start;
+  padding: var(--tree-header-cell-padding);
+  width: 100%;
+  height: 100%;
+  min-width: auto;
+  min-height: auto;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  background-position: right 6px center;
+  background-repeat: no-repeat;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+}
+
+.tree-table-cell-container button:hover {
+  background-color: var(--in-content-button-background);
+}
+
+.tree-table-cell-container button:active,
+.tree-table-cell-container button:hover:active {
+  background-color: var(--in-content-button-background-hover);
+}
+
+.tree-table-cell-container button.sorting {
+  background-image: var(--icon-nav-up-sm);
+}
+
+.tree-table-cell-container button.sorting.descending {
+  background-image: var(--icon-nav-down-sm);
+}
+
+@media (-moz-platform: linux) {
+  .tree-table-cell-container button.sorting {
+    background-image: var(--icon-nav-down-sm);
+  }
+
+  .tree-table-cell-container button.sorting.descending {
+    background-image: var(--icon-nav-up-sm);
+  }
+}
+
+th[is="tree-view-table-column-picker"] {
+  position: relative;
+  width: 25px;
+  padding: 0;
+}
+
+.button-column-picker img {
+  content: var(--icon-column-menu);
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
+/* Table body */
+
+tr[is="ab-table-card-listrow"] td {
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-inline: 6px;
+}
+
+tr[is="ab-table-card-listrow"] td div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Transitions and animations */
+
+@media (prefers-reduced-motion: no-preference) {
+  tree-view-listbox,
+  .tree-view-scrollable-container {
+    scroll-behavior: smooth;
+  }
+
+  thead[is="tree-view-table-header"] hr[is="pane-splitter"] {
+    transition: background-color 300ms ease;
+  }
 }
