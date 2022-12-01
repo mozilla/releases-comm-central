@@ -68,25 +68,27 @@ function tracksentMessages(aSubject, aTopic, aMsgID) {
 var gServer;
 var gOutbox;
 var gSentMessages = [];
+let gPopAccount;
+let gLocalAccount;
 
 add_setup(() => {
   gServer = setupServerDaemon();
   gServer.start();
 
   // Test needs a non-local default account to be able to send messages.
-  let popAccount = createAccount("pop3");
-  let localAccount = createAccount("local");
-  MailServices.accounts.defaultAccount = popAccount;
+  gPopAccount = createAccount("pop3");
+  gLocalAccount = createAccount("local");
+  MailServices.accounts.defaultAccount = gPopAccount;
 
   let identity = getSmtpIdentity(
     "identity@foo.invalid",
     getBasicSmtpServer(gServer.port)
   );
-  popAccount.addIdentity(identity);
-  popAccount.defaultIdentity = identity;
+  gPopAccount.addIdentity(identity);
+  gPopAccount.defaultIdentity = identity;
 
   // Test is using the Sent folder and Outbox folder of the local account.
-  let rootFolder = localAccount.incomingServer.rootFolder;
+  let rootFolder = gLocalAccount.incomingServer.rootFolder;
   rootFolder.createSubfolder("Sent", null);
   MailServices.accounts.setSpecialFolders();
   gOutbox = rootFolder.getChildNamed("Outbox");
@@ -637,5 +639,95 @@ add_task(async function test_onComposeStateChanged() {
 
   await extension.startup();
   await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+// Test onAfterSend for MV3
+add_task(async function test_onAfterSend_MV3_event_pages() {
+  let files = {
+    "background.js": async () => {
+      // Whenever the extension starts or wakes up, hasFired is set to false. In
+      // case of a wake-up, the first fired event is the one that woke up the background.
+      let hasFired = false;
+
+      browser.compose.onAfterSend.addListener(async (tab, sendInfo) => {
+        // Only send the first event after background wake-up, this should be
+        // the only one expected.
+        if (!hasFired) {
+          hasFired = true;
+          browser.test.sendMessage("onAfterSend received", sendInfo);
+        }
+      });
+
+      browser.test.sendMessage("background started");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      manifest_version: 3,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose"],
+      browser_specific_settings: {
+        gecko: { id: "compose.onAfterSend@xpcshell.test" },
+      },
+    },
+  });
+
+  function checkPersistentListeners({ primed }) {
+    // A persistent event is referenced by its moduleName as defined in
+    // ext-mails.json, not by its actual namespace.
+    const persistent_events = ["compose.onAfterSend"];
+
+    for (let event of persistent_events) {
+      let [moduleName, eventName] = event.split(".");
+      assertPersistentListeners(extension, moduleName, eventName, {
+        primed,
+      });
+    }
+  }
+
+  await extension.startup();
+  await extension.awaitMessage("background started");
+  // The listeners should be persistent, but not primed.
+  checkPersistentListeners({ primed: false });
+
+  // Trigger onAfterSend without terminating the background first.
+
+  let firstComposeWindow = await openComposeWindow(gPopAccount);
+  await focusWindow(firstComposeWindow);
+  firstComposeWindow.SetComposeDetails({ to: "first@invalid.net" });
+  firstComposeWindow.SetComposeDetails({ subject: "First message" });
+  firstComposeWindow.SendMessage();
+  let firstSaveInfo = await extension.awaitMessage("onAfterSend received");
+  Assert.equal(
+    "sendNow",
+    firstSaveInfo.mode,
+    "Returned SaveInfo should be correct"
+  );
+
+  // Terminate background and re-trigger onAfterSend.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  // The listeners should be primed.
+  checkPersistentListeners({ primed: true });
+  let secondComposeWindow = await openComposeWindow(gPopAccount);
+  await focusWindow(secondComposeWindow);
+  secondComposeWindow.SetComposeDetails({ to: "second@invalid.net" });
+  secondComposeWindow.SetComposeDetails({ subject: "Second message" });
+  secondComposeWindow.SendMessage();
+  let secondSaveInfo = await extension.awaitMessage("onAfterSend received");
+  Assert.equal(
+    "sendNow",
+    secondSaveInfo.mode,
+    "Returned SaveInfo should be correct"
+  );
+
+  // The background should have been restarted.
+  await extension.awaitMessage("background started");
+  // The listener should no longer be primed.
+  checkPersistentListeners({ primed: false });
+
   await extension.unload();
 });

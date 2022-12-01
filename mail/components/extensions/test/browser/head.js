@@ -16,6 +16,9 @@ var { ExtensionCommon } = ChromeUtils.import(
 );
 var { makeWidgetId } = ExtensionCommon;
 
+// Persistent Listener test functionality
+var { assertPersistentListeners } = ExtensionTestUtils.testAssertions;
+
 // There are shutdown issues for which multiple rejections are left uncaught.
 // This bug should be fixed, but for the moment this directory is whitelisted.
 //
@@ -125,8 +128,20 @@ function createAccount(type = "none") {
 }
 
 function cleanUpAccount(account) {
-  info(`Cleaning up account ${account.toString()}`);
+  let serverKey = account.incomingServer.key;
+  let serverType = account.incomingServer.type;
+  info(
+    `Cleaning up ${serverType} account ${account.key} and server ${serverKey}`
+  );
   MailServices.accounts.removeAccount(account, true);
+
+  try {
+    let server = MailServices.accounts.getIncomingServer(serverKey);
+    if (server) {
+      info(`Cleaning up leftover ${serverType} server ${serverKey}`);
+      MailServices.accounts.removeIncomingServer(server, false);
+    }
+  } catch (e) {}
 }
 
 function addIdentity(account, email = "mochitest@localhost") {
@@ -752,6 +767,9 @@ async function run_popup_test(configData) {
   configData.apiName = configData.actionType.replace(/_([a-z])/g, function(g) {
     return g[1].toUpperCase();
   });
+  configData.moduleName =
+    configData.actionType == "action" ? "browserAction" : configData.apiName;
+
   let backend_script = configData.backend_script;
 
   let extensionDetails = {
@@ -795,7 +813,8 @@ async function run_popup_test(configData) {
       },
     },
     manifest: {
-      applications: {
+      manifest_version: configData.manifest_version || 2,
+      browser_specific_settings: {
         gecko: {
           id: `${configData.actionType}@mochi.test`,
         },
@@ -816,7 +835,7 @@ async function run_popup_test(configData) {
         await new Promise(resolve => win.setTimeout(resolve));
         await extension.awaitMessage("ready");
 
-        let buttonId = `${configData.actionType}_mochi_test-${configData.apiName}-toolbarbutton`;
+        let buttonId = `${configData.actionType}_mochi_test-${configData.moduleName}-toolbarbutton`;
         let toolbarId;
         switch (configData.actionType) {
           case "compose_action":
@@ -825,6 +844,7 @@ async function run_popup_test(configData) {
               toolbarId = "FormatToolbar";
             }
             break;
+          case "action":
           case "browser_action":
             toolbarId = "mail-bar3";
             if (configData.default_area == "tabstoolbar") {
@@ -874,6 +894,38 @@ async function run_popup_test(configData) {
         let label = button.querySelector(".toolbarbutton-text");
         is(label.value, "This is a test", "Correct label");
 
+        if (
+          !configData.use_default_popup &&
+          configData?.manifest_version == 3
+        ) {
+          assertPersistentListeners(
+            extension,
+            configData.moduleName,
+            "onClicked",
+            {
+              primed: false,
+            }
+          );
+        }
+        if (configData.terminateBackground) {
+          await extension.terminateBackground({
+            disableResetIdleForTest: true,
+          });
+          if (
+            !configData.use_default_popup &&
+            configData?.manifest_version == 3
+          ) {
+            assertPersistentListeners(
+              extension,
+              configData.moduleName,
+              "onClicked",
+              {
+                primed: true,
+              }
+            );
+          }
+        }
+
         let clickedPromise;
         if (!configData.disable_button) {
           clickedPromise = extension.awaitMessage("actionButtonClicked");
@@ -883,13 +935,49 @@ async function run_popup_test(configData) {
           // We're testing that nothing happens. Give it time to potentially happen.
           // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
           await new Promise(resolve => win.setTimeout(resolve, 500));
+          // In case the background was terminated, it should not restart.
+          // If it does, we will get an extra "ready" message and fail.
+          // Listeners should still be primed.
+          if (
+            configData.terminateBackground &&
+            configData?.manifest_version == 3
+          ) {
+            assertPersistentListeners(
+              extension,
+              configData.moduleName,
+              "onClicked",
+              {
+                primed: true,
+              }
+            );
+          }
         } else {
-          await clickedPromise;
+          let hasFiredBefore = await clickedPromise;
           await promiseAnimationFrame(win);
           await new Promise(resolve => win.setTimeout(resolve));
           is(win.document.getElementById(buttonId), button);
           label = button.querySelector(".toolbarbutton-text");
           is(label.value, "New title", "Correct label");
+
+          if (configData.terminateBackground) {
+            // The onClicked event should have restarted the background script.
+            await extension.awaitMessage("ready");
+            // Could be undefined, but it must not be true
+            is(false, !!hasFiredBefore);
+          }
+          if (
+            !configData.use_default_popup &&
+            configData?.manifest_version == 3
+          ) {
+            assertPersistentListeners(
+              extension,
+              configData.moduleName,
+              "onClicked",
+              {
+                primed: false,
+              }
+            );
+          }
         }
 
         // Check the open state of the action button.
@@ -903,6 +991,7 @@ async function run_popup_test(configData) {
         await new Promise(resolve => win.setTimeout(resolve));
 
         ok(!win.document.getElementById(buttonId), "Button destroyed");
+
         ok(
           !Services.xulStore
             .getValue(win.location.href, toolbarId, "currentset")
@@ -936,6 +1025,7 @@ async function run_popup_test(configData) {
       } else {
         // Without popup.
         extensionDetails.files["background.js"] = async function() {
+          let hasFiredBefore = false;
           browser.test.log("nopopup background script ran");
           browser[window.apiName].onClicked.addListener(async (tab, info) => {
             browser.test.assertEq("object", typeof tab);
@@ -946,7 +1036,8 @@ async function run_popup_test(configData) {
             browser.test.log(`Tab ID is ${tab.id}`);
             await browser[window.apiName].setTitle({ title: "New title" });
             await new Promise(resolve => window.setTimeout(resolve));
-            browser.test.sendMessage("actionButtonClicked");
+            browser.test.sendMessage("actionButtonClicked", hasFiredBefore);
+            hasFiredBefore = true;
           });
           browser.test.sendMessage("ready");
         };
@@ -957,7 +1048,7 @@ async function run_popup_test(configData) {
       extensionDetails.manifest.permissions = ["menus"];
       backend_script = async function(extension, configData) {
         let win = configData.window;
-        let buttonId = `${configData.actionType}_mochi_test-${configData.apiName}-toolbarbutton`;
+        let buttonId = `${configData.actionType}_mochi_test-${configData.moduleName}-toolbarbutton`;
         let menuId = "toolbar-context-menu";
         if (
           configData.actionType == "compose_action" &&

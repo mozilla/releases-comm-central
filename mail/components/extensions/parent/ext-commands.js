@@ -12,7 +12,35 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/MailExtensionShortcuts.jsm"
 );
 
-this.commands = class extends ExtensionAPI {
+this.commands = class extends ExtensionAPIPersistent {
+  PERSISTENT_EVENTS = {
+    // For primed persistent events (deactivated background), the context is only
+    // available after fire.wakeup() has fulfilled (ensuring the convert() function
+    // has been called).
+
+    onCommand({ context, fire }) {
+      const { extension } = this;
+      const { tabManager } = extension;
+      async function listener(eventName, commandName) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        let tab = tabManager.convert(tabTracker.activeTab);
+        fire.async(commandName, tab);
+      }
+      this.on("command", listener);
+      return {
+        unregister: () => {
+          this.off("command", listener);
+        },
+        convert(_fire, _context) {
+          fire = _fire;
+          context = _context;
+        },
+      };
+    },
+  };
+
   static onUninstall(extensionId) {
     return MailExtensionShortcuts.removeCommandsFromStorage(extensionId);
   }
@@ -39,20 +67,10 @@ this.commands = class extends ExtensionAPI {
         reset: name => this.extension.shortcuts.resetCommand(name),
         onCommand: new EventManager({
           context,
-          name: "commands.onCommand",
+          module: "commands",
+          event: "onCommand",
           inputHandling: true,
-          register: fire => {
-            let listener = (eventName, commandName) => {
-              let tab = context.extension.tabManager.convert(
-                tabTracker.activeTab
-              );
-              fire.async(commandName, tab);
-            };
-            this.on("command", listener);
-            return () => {
-              this.off("command", listener);
-            };
-          },
+          extensionApi: this,
         }).api(),
       },
     };

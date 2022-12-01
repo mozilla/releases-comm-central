@@ -21,6 +21,9 @@ var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
+// Persistent Listener test functionality
+var { assertPersistentListeners } = ExtensionTestUtils.testAssertions;
+
 ExtensionTestUtils.init(this);
 
 var IS_IMAP = false;
@@ -76,8 +79,20 @@ function createAccount(type = "none") {
 }
 
 function cleanUpAccount(account) {
-  info(`Cleaning up account ${account.toString()}`);
+  let serverKey = account.incomingServer.key;
+  let serverType = account.incomingServer.type;
+  info(
+    `Cleaning up ${serverType} account ${account.key} and server ${serverKey}`
+  );
   MailServices.accounts.removeAccount(account, true);
+
+  try {
+    let server = MailServices.accounts.getIncomingServer(serverKey);
+    if (server) {
+      info(`Cleaning up leftover ${serverType} server ${serverKey}`);
+      MailServices.accounts.removeIncomingServer(server, false);
+    }
+  } catch (e) {}
 }
 
 registerCleanupFunction(() => {

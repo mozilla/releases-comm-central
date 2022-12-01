@@ -5,7 +5,7 @@
 let account = createAccount();
 let defaultIdentity = addIdentity(account);
 
-add_task(async function testDictionaries() {
+add_task(async function test_dictionaries() {
   let files = {
     "background.js": async () => {
       function verifyDictionaries(dictionaries, expected) {
@@ -102,4 +102,113 @@ add_task(async function testDictionaries() {
   await extension.startup();
   await extension.awaitFinish("finished");
   await extension.unload();
+});
+
+add_task(async function test_onActiveDictionariesChanged_MV3_event_pages() {
+  let files = {
+    "background.js": async () => {
+      // Whenever the extension starts or wakes up, hasFired is set to false. In
+      // case of a wake-up, the first fired event is the one that woke up the background.
+      let hasFired = false;
+
+      browser.compose.onActiveDictionariesChanged.addListener(
+        async (tab, dictionaries) => {
+          // Only send the first event after background wake-up, this should be
+          // the only one expected.
+          if (!hasFired) {
+            hasFired = true;
+            browser.test.sendMessage(
+              "onActiveDictionariesChanged received",
+              dictionaries
+            );
+          }
+        }
+      );
+
+      browser.test.sendMessage("background started");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      manifest_version: 3,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose"],
+      browser_specific_settings: {
+        gecko: { id: "compose.dictionary@xpcshell.test" },
+      },
+    },
+  });
+
+  function checkPersistentListeners({ primed }) {
+    // A persistent event is referenced by its moduleName as defined in
+    // ext-mails.json, not by its actual namespace.
+    const persistent_events = ["compose.onActiveDictionariesChanged"];
+
+    for (let event of persistent_events) {
+      let [moduleName, eventName] = event.split(".");
+      assertPersistentListeners(extension, moduleName, eventName, {
+        primed,
+      });
+    }
+  }
+
+  async function setActiveDictionaries(activeDictionaries) {
+    let installedDictionaries = Cc["@mozilla.org/spellchecker/engine;1"]
+      .getService(Ci.mozISpellCheckingEngine)
+      .getDictionaryList();
+
+    for (let dict of activeDictionaries) {
+      if (!installedDictionaries.includes(dict)) {
+        throw new Error(`Dictionary not found: ${dict}`);
+      }
+    }
+
+    await composeWindow.ComposeChangeLanguage(activeDictionaries);
+  }
+
+  let composeWindow = await openComposeWindow(account);
+  await focusWindow(composeWindow);
+
+  await extension.startup();
+  await extension.awaitMessage("background started");
+  // The listeners should be persistent, but not primed.
+  checkPersistentListeners({ primed: false });
+
+  // Trigger onActiveDictionariesChanged without terminating the background first.
+
+  setActiveDictionaries(["en-US"]);
+  let newActiveDictionary1 = await extension.awaitMessage(
+    "onActiveDictionariesChanged received"
+  );
+  Assert.equal(
+    newActiveDictionary1["en-US"],
+    true,
+    "Returned active dictionary should be correct"
+  );
+
+  // Terminate background and re-trigger onActiveDictionariesChanged.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  // The listeners should be primed.
+  checkPersistentListeners({ primed: true });
+
+  setActiveDictionaries([]);
+  let newActiveDictionary2 = await extension.awaitMessage(
+    "onActiveDictionariesChanged received"
+  );
+  Assert.equal(
+    newActiveDictionary2["en-US"],
+    false,
+    "Returned active dictionary should be correct"
+  );
+
+  // The background should have been restarted.
+  await extension.awaitMessage("background started");
+  // The listener should no longer be primed.
+  checkPersistentListeners({ primed: false });
+
+  await extension.unload();
+  composeWindow.close();
 });

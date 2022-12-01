@@ -11,63 +11,9 @@ const { AppConstants } = ChromeUtils.importESModule(
 
 let account;
 
-add_task(async () => {
+add_setup(async () => {
   account = createAccount();
   addIdentity(account);
-});
-
-// This test clicks on the action button to open the popup.
-add_task(async function test_popup_open_with_click() {
-  let composeWindow = await openComposeWindow(account);
-  await focusWindow(composeWindow);
-
-  await run_popup_test({
-    actionType: "compose_action",
-    testType: "open-with-mouse-click",
-    window: composeWindow,
-  });
-
-  await run_popup_test({
-    actionType: "compose_action",
-    testType: "open-with-mouse-click",
-    disable_button: true,
-    window: composeWindow,
-  });
-
-  await run_popup_test({
-    actionType: "compose_action",
-    testType: "open-with-mouse-click",
-    use_default_popup: true,
-    window: composeWindow,
-  });
-
-  await run_popup_test({
-    actionType: "compose_action",
-    testType: "open-with-mouse-click",
-    default_area: "formattoolbar",
-    window: composeWindow,
-  });
-
-  await run_popup_test({
-    actionType: "compose_action",
-    testType: "open-with-mouse-click",
-    default_area: "formattoolbar",
-    disable_button: true,
-    window: composeWindow,
-  });
-
-  await run_popup_test({
-    actionType: "compose_action",
-    testType: "open-with-mouse-click",
-    default_area: "formattoolbar",
-    use_default_popup: true,
-    window: composeWindow,
-  });
-
-  composeWindow.close();
-  Services.xulStore.removeDocument(
-    "chrome://messenger/content/messengercompose/messengercompose.xhtml"
-  );
 });
 
 // This test uses a command from the menus API to open the popup.
@@ -75,51 +21,26 @@ add_task(async function test_popup_open_with_menu_command() {
   let composeWindow = await openComposeWindow(account);
   await focusWindow(composeWindow);
 
-  await run_popup_test({
-    actionType: "compose_action",
-    testType: "open-with-menu-command",
-    use_default_popup: true,
-    default_area: "maintoolbar",
-    window: composeWindow,
-  });
+  for (let area of ["maintoolbar", "formattoolbar"]) {
+    let testConfig = {
+      actionType: "compose_action",
+      testType: "open-with-menu-command",
+      default_area: area,
+      window: composeWindow,
+    };
 
-  await run_popup_test({
-    actionType: "compose_action",
-    testType: "open-with-menu-command",
-    use_default_popup: true,
-    default_area: "formattoolbar",
-    window: composeWindow,
-  });
-
-  await run_popup_test({
-    actionType: "compose_action",
-    testType: "open-with-menu-command",
-    disable_button: true,
-    default_area: "maintoolbar",
-    window: composeWindow,
-  });
-
-  await run_popup_test({
-    actionType: "compose_action",
-    testType: "open-with-menu-command",
-    disable_button: true,
-    default_area: "formattoolbar",
-    window: composeWindow,
-  });
-
-  await run_popup_test({
-    actionType: "compose_action",
-    testType: "open-with-menu-command",
-    default_area: "maintoolbar",
-    window: composeWindow,
-  });
-
-  await run_popup_test({
-    actionType: "compose_action",
-    testType: "open-with-menu-command",
-    default_area: "formattoolbar",
-    window: composeWindow,
-  });
+    await run_popup_test({
+      ...testConfig,
+    });
+    await run_popup_test({
+      ...testConfig,
+      use_default_popup: true,
+    });
+    await run_popup_test({
+      ...testConfig,
+      disable_button: true,
+    });
+  }
 
   composeWindow.close();
 });

@@ -17,8 +17,22 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
 });
 
-add_task(async function setup() {
+var { AddonTestUtils } = ChromeUtils.import(
+  "resource://testing-common/AddonTestUtils.jsm"
+);
+
+ExtensionTestUtils.mockAppInfo();
+AddonTestUtils.maybeInit(this);
+
+add_setup(async () => {
   Services.prefs.setIntPref("ldap_2.servers.osx.dirType", -1);
+
+  registerCleanupFunction(() => {
+    // Make sure any open database is given a chance to close.
+    Services.startup.advanceShutdownPhase(
+      Services.startup.SHUTDOWN_PHASE_APPSHUTDOWNCONFIRMED
+    );
+  });
 });
 
 add_task(async function test_addressBooks() {
@@ -999,6 +1013,428 @@ add_task(async function test_addressBooks() {
   await extension.unload();
 });
 
+add_task(async function test_addressBooks_MV3_event_pages() {
+  await AddonTestUtils.promiseStartupManager();
+
+  let files = {
+    "background.js": async () => {
+      // Whenever the extension starts or wakes up, hasFired is set to false. In
+      // case of a wake-up, the first fired event is the one that woke up the background.
+      let hasFired = false;
+
+      // Create and register event listener.
+      for (let event of [
+        "addressBooks.onCreated",
+        "addressBooks.onUpdated",
+        "addressBooks.onDeleted",
+        "contacts.onCreated",
+        "contacts.onUpdated",
+        "contacts.onDeleted",
+        "mailingLists.onCreated",
+        "mailingLists.onUpdated",
+        "mailingLists.onDeleted",
+        "mailingLists.onMemberAdded",
+        "mailingLists.onMemberRemoved",
+      ]) {
+        let [apiName, eventName] = event.split(".");
+        browser[apiName][eventName].addListener((...args) => {
+          // Only send the first event after background wake-up, this should be
+          // the only one expected.
+          if (!hasFired) {
+            hasFired = true;
+            browser.test.sendMessage(`${apiName}.${eventName} received`, args);
+          }
+        });
+      }
+
+      browser.test.sendMessage("background started");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      manifest_version: 3,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["addressBooks"],
+      browser_specific_settings: { gecko: { id: "addressbook@xpcshell.test" } },
+    },
+  });
+
+  let parent = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
+  function findContact(id) {
+    for (let child of parent.childCards) {
+      if (child.UID == id) {
+        return child;
+      }
+    }
+    return null;
+  }
+  function findMailingList(id) {
+    for (let list of parent.childNodes) {
+      if (list.UID == id) {
+        return list;
+      }
+    }
+    return null;
+  }
+  function outsideEvent(action, ...args) {
+    switch (action) {
+      case "createAddressBook": {
+        let dirPrefId = MailServices.ab.newAddressBook(
+          "external add",
+          "",
+          Ci.nsIAbManager.JS_DIRECTORY_TYPE
+        );
+        let book = MailServices.ab.getDirectoryFromId(dirPrefId);
+        return [book, dirPrefId];
+      }
+      case "updateAddressBook": {
+        let book = MailServices.ab.getDirectoryFromId(args[0]);
+        book.dirName = "external edit";
+        return [];
+      }
+      case "deleteAddressBook": {
+        let book = MailServices.ab.getDirectoryFromId(args[0]);
+        MailServices.ab.deleteAddressBook(book.URI);
+        return [];
+      }
+      case "createContact": {
+        let contact = new AddrBookCard();
+        contact.firstName = "external";
+        contact.lastName = "add";
+        contact.primaryEmail = "test@invalid";
+
+        let newContact = parent.addCard(contact);
+        return [parent.UID, newContact.UID];
+      }
+      case "updateContact": {
+        let contact = findContact(args[0]);
+        if (contact) {
+          contact.firstName = "external";
+          contact.lastName = "edit";
+          parent.modifyCard(contact);
+          return [];
+        }
+        break;
+      }
+      case "deleteContact": {
+        let contact = findContact(args[0]);
+        if (contact) {
+          parent.deleteCards([contact]);
+          return [];
+        }
+        break;
+      }
+      case "createMailingList": {
+        let list = Cc[
+          "@mozilla.org/addressbook/directoryproperty;1"
+        ].createInstance(Ci.nsIAbDirectory);
+        list.isMailList = true;
+        list.dirName = "external add";
+
+        let newList = parent.addMailList(list);
+        return [parent.UID, newList.UID];
+      }
+      case "updateMailingList": {
+        let list = findMailingList(args[0]);
+        if (list) {
+          list.dirName = "external edit";
+          list.editMailListToDatabase(null);
+          return [];
+        }
+        break;
+      }
+      case "deleteMailingList": {
+        let list = findMailingList(args[0]);
+        if (list) {
+          parent.deleteDirectory(list);
+          return [];
+        }
+        break;
+      }
+      case "addMailingListMember": {
+        let list = findMailingList(args[0]);
+        let contact = findContact(args[1]);
+
+        if (list && contact) {
+          list.addCard(contact);
+          equal(1, list.childCards.length);
+          return [];
+        }
+        break;
+      }
+      case "removeMailingListMember": {
+        let list = findMailingList(args[0]);
+        let contact = findContact(args[1]);
+
+        if (list && contact) {
+          list.deleteCards([contact]);
+          equal(0, list.childCards.length);
+          ok(findContact(args[1]), "Contact was not removed");
+          return [];
+        }
+        break;
+      }
+    }
+    throw new Error(
+      `Message "${action}" passed to handler didn't do anything.`
+    );
+  }
+
+  function checkPersistentListeners({ primed }) {
+    // A persistent event is referenced by its moduleName as defined in
+    // ext-mails.json, not by its actual namespace.
+    const persistent_events = [
+      "addressBook.onAddressBookCreated",
+      "addressBook.onAddressBookUpdated",
+      "addressBook.onAddressBookDeleted",
+      "addressBook.onContactCreated",
+      "addressBook.onContactUpdated",
+      "addressBook.onContactDeleted",
+      "addressBook.onMailingListCreated",
+      "addressBook.onMailingListUpdated",
+      "addressBook.onMailingListDeleted",
+      "addressBook.onMemberAdded",
+      "addressBook.onMemberRemoved",
+    ];
+
+    for (let event of persistent_events) {
+      let [moduleName, eventName] = event.split(".");
+      assertPersistentListeners(extension, moduleName, eventName, {
+        primed,
+      });
+    }
+  }
+
+  await extension.startup();
+  await extension.awaitMessage("background started");
+  checkPersistentListeners({ primed: false });
+
+  // addressBooks.onCreated.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  let [newBook, dirPrefId] = outsideEvent("createAddressBook");
+  // The event should have restarted the background.
+  await extension.awaitMessage("background started");
+  Assert.deepEqual(
+    [
+      {
+        id: newBook.UID,
+        type: "addressBook",
+        name: "external add",
+        readOnly: false,
+        remote: false,
+      },
+    ],
+    await extension.awaitMessage("addressBooks.onCreated received"),
+    "The primed addressBooks.onCreated event should return the correct values"
+  );
+  checkPersistentListeners({ primed: false });
+
+  // addressBooks.onUpdated.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  outsideEvent("updateAddressBook", dirPrefId);
+  // The event should have restarted the background.
+  await extension.awaitMessage("background started");
+  Assert.deepEqual(
+    [
+      {
+        id: newBook.UID,
+        type: "addressBook",
+        name: "external edit",
+        readOnly: false,
+        remote: false,
+      },
+    ],
+    await extension.awaitMessage("addressBooks.onUpdated received"),
+    "The primed addressBooks.onUpdated event should return the correct values"
+  );
+  checkPersistentListeners({ primed: false });
+
+  // addressBooks.onDeleted.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  outsideEvent("deleteAddressBook", dirPrefId);
+  // The event should have restarted the background.
+  await extension.awaitMessage("background started");
+  Assert.deepEqual(
+    [newBook.UID],
+    await extension.awaitMessage("addressBooks.onDeleted received"),
+    "The primed addressBooks.onDeleted event should return the correct values"
+  );
+  checkPersistentListeners({ primed: false });
+
+  // contacts.onCreated.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  let [parentId1, contactId] = outsideEvent("createContact");
+  // The event should have restarted the background.
+  await extension.awaitMessage("background started");
+  let [createdNode] = await extension.awaitMessage(
+    "contacts.onCreated received"
+  );
+  Assert.deepEqual(
+    {
+      type: "contact",
+      parentId: parentId1,
+      id: contactId,
+    },
+    {
+      type: createdNode.type,
+      parentId: createdNode.parentId,
+      id: createdNode.id,
+    },
+    "The primed contacts.onCreated event should return the correct values"
+  );
+  checkPersistentListeners({ primed: false });
+
+  // contacts.onUpdated.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  outsideEvent("updateContact", contactId);
+  // The event should have restarted the background.
+  await extension.awaitMessage("background started");
+  let [updatedNode, changedProperties] = await extension.awaitMessage(
+    "contacts.onUpdated received"
+  );
+  Assert.deepEqual(
+    [
+      { type: "contact", parentId: parentId1, id: contactId },
+      { LastName: { oldValue: "add", newValue: "edit" } },
+    ],
+    [
+      {
+        type: updatedNode.type,
+        parentId: updatedNode.parentId,
+        id: updatedNode.id,
+      },
+      changedProperties,
+    ],
+    "The primed contacts.onUpdated event should return the correct values"
+  );
+  checkPersistentListeners({ primed: false });
+
+  // mailingLists.onCreated.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  let [parentId2, listId] = outsideEvent("createMailingList");
+  // The event should have restarted the background.
+  await extension.awaitMessage("background started");
+  Assert.deepEqual(
+    [
+      {
+        type: "mailingList",
+        parentId: parentId2,
+        id: listId,
+        name: "external add",
+        nickName: "",
+        description: "",
+        readOnly: false,
+        remote: false,
+      },
+    ],
+    await extension.awaitMessage("mailingLists.onCreated received"),
+    "The primed mailingLists.onCreated event should return the correct values"
+  );
+  checkPersistentListeners({ primed: false });
+
+  // mailingList.onUpdated.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  outsideEvent("updateMailingList", listId);
+  // The event should have restarted the background.
+  await extension.awaitMessage("background started");
+  Assert.deepEqual(
+    [
+      {
+        type: "mailingList",
+        parentId: parentId2,
+        id: listId,
+        name: "external edit",
+        nickName: "",
+        description: "",
+        readOnly: false,
+        remote: false,
+      },
+    ],
+    await extension.awaitMessage("mailingLists.onUpdated received"),
+    "The primed mailingLists.onUpdated event should return the correct values"
+  );
+  checkPersistentListeners({ primed: false });
+
+  // mailingList.onMemberAdded.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  outsideEvent("addMailingListMember", listId, contactId);
+  // The event should have restarted the background.
+  await extension.awaitMessage("background started");
+  let [addedNode] = await extension.awaitMessage(
+    "mailingLists.onMemberAdded received"
+  );
+  Assert.deepEqual(
+    { type: "contact", parentId: listId, id: contactId },
+    { type: addedNode.type, parentId: addedNode.parentId, id: addedNode.id },
+    "The primed mailingLists.onMemberAdded event should return the correct values"
+  );
+  checkPersistentListeners({ primed: false });
+
+  // mailingList.onMemberRemoved.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  outsideEvent("removeMailingListMember", listId, contactId);
+  // The event should have restarted the background.
+  await extension.awaitMessage("background started");
+  Assert.deepEqual(
+    [listId, contactId],
+    await extension.awaitMessage("mailingLists.onMemberRemoved received"),
+    "The primed mailingLists.onMemberRemoved event should return the correct values"
+  );
+  checkPersistentListeners({ primed: false });
+
+  // mailingList.onDeleted.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  outsideEvent("deleteMailingList", listId);
+  // The event should have restarted the background.
+  await extension.awaitMessage("background started");
+  Assert.deepEqual(
+    [parentId2, listId],
+    await extension.awaitMessage("mailingLists.onDeleted received"),
+    "The primed mailingLists.onDeleted event should return the correct values"
+  );
+  checkPersistentListeners({ primed: false });
+
+  // contacts.onDeleted.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  outsideEvent("deleteContact", contactId);
+  // The event should have restarted the background.
+  await extension.awaitMessage("background started");
+  Assert.deepEqual(
+    [parentId1, contactId],
+    await extension.awaitMessage("contacts.onDeleted received"),
+    "The primed contacts.onDeleted event should return the correct values"
+  );
+  checkPersistentListeners({ primed: false });
+
+  await extension.unload();
+
+  await AddonTestUtils.promiseShutdownManager();
+});
+
 add_task(async function test_photos() {
   async function background() {
     let events = [];
@@ -1604,11 +2040,4 @@ add_task(async function test_photos() {
   await extension.startup();
   await extension.awaitFinish("addressBooksPhotos");
   await extension.unload();
-});
-
-registerCleanupFunction(() => {
-  // Make sure any open database is given a chance to close.
-  Services.startup.advanceShutdownPhase(
-    Services.startup.SHUTDOWN_PHASE_APPSHUTDOWNCONFIRMED
-  );
 });

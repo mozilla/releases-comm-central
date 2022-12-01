@@ -1145,7 +1145,256 @@ windowTracker.addCloseListener(
 var composeWindowTracker = new Set();
 windowTracker.addCloseListener(window => composeWindowTracker.delete(window));
 
-this.compose = class extends ExtensionAPI {
+this.compose = class extends ExtensionAPIPersistent {
+  PERSISTENT_EVENTS = {
+    // For primed persistent events (deactivated background), the context is only
+    // available after fire.wakeup() has fulfilled (ensuring the convert() function
+    // has been called).
+
+    onBeforeSend({ context, fire }) {
+      const { extension } = this;
+      const { tabManager, windowManager } = extension;
+      let listener = {
+        async handler(window, details) {
+          if (fire.wakeup) {
+            await fire.wakeup();
+          }
+          let win = windowManager.wrapWindow(window);
+          return fire.async(
+            tabManager.convert(win.activeTab.nativeTab),
+            details
+          );
+        },
+        extension,
+      };
+
+      beforeSendEventTracker.addListener(listener);
+      return {
+        unregister: () => {
+          beforeSendEventTracker.removeListener(listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onAfterSend({ context, fire }) {
+      const { extension } = this;
+      const { tabManager, windowManager } = extension;
+      let listener = {
+        async onSuccess(window, mode, messages, headerMessageId) {
+          let win = windowManager.wrapWindow(window);
+          let tab = tabManager.convert(win.activeTab.nativeTab);
+          if (fire.wakeup) {
+            await fire.wakeup();
+          }
+          let sendInfo = { mode, messages };
+          if (mode == "sendNow") {
+            sendInfo.headerMessageId = headerMessageId;
+          }
+          return fire.async(tab, sendInfo);
+        },
+        async onFailure(window, mode, exception) {
+          let win = windowManager.wrapWindow(window);
+          let tab = tabManager.convert(win.activeTab.nativeTab);
+          if (fire.wakeup) {
+            await fire.wakeup();
+          }
+          return fire.async(tab, {
+            mode,
+            messages: [],
+            error: exception.message,
+          });
+        },
+        modes: ["sendNow", "sendLater"],
+        extension,
+      };
+      afterSaveSendEventTracker.addListener(listener);
+      return {
+        unregister: () => {
+          afterSaveSendEventTracker.removeListener(listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onAfterSave({ context, fire }) {
+      const { extension } = this;
+      const { tabManager, windowManager } = extension;
+      let listener = {
+        async onSuccess(window, mode, messages, headerMessageId) {
+          if (fire.wakeup) {
+            await fire.wakeup();
+          }
+          let win = windowManager.wrapWindow(window);
+          let saveInfo = { mode, messages };
+          return fire.async(
+            tabManager.convert(win.activeTab.nativeTab),
+            saveInfo
+          );
+        },
+        async onFailure(window, mode, exception) {
+          if (fire.wakeup) {
+            await fire.wakeup();
+          }
+          let win = windowManager.wrapWindow(window);
+          return fire.async(tabManager.convert(win.activeTab.nativeTab), {
+            mode,
+            messages: [],
+            error: exception.message,
+          });
+        },
+        modes: ["draft", "template"],
+        extension,
+      };
+      afterSaveSendEventTracker.addListener(listener);
+      return {
+        unregister: () => {
+          afterSaveSendEventTracker.removeListener(listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onAttachmentAdded({ context, fire }) {
+      const { extension } = this;
+      const { tabManager } = extension;
+      async function listener(event) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        for (let attachment of event.detail) {
+          attachment = composeAttachmentTracker.convert(
+            attachment,
+            event.target.ownerGlobal
+          );
+          fire.async(tabManager.convert(event.target.ownerGlobal), attachment);
+        }
+      }
+      windowTracker.addListener("attachments-added", listener);
+      return {
+        unregister: () => {
+          windowTracker.removeListener("attachments-added", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onAttachmentRemoved({ context, fire }) {
+      const { extension } = this;
+      const { tabManager } = extension;
+      async function listener(event) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        for (let attachment of event.detail) {
+          let attachmentId = composeAttachmentTracker.getId(
+            attachment,
+            event.target.ownerGlobal
+          );
+          fire.async(
+            tabManager.convert(event.target.ownerGlobal),
+            attachmentId
+          );
+          composeAttachmentTracker.forgetAttachment(attachment);
+        }
+      }
+      windowTracker.addListener("attachments-removed", listener);
+      return {
+        unregister: () => {
+          windowTracker.removeListener("attachments-removed", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onIdentityChanged({ context, fire }) {
+      const { extension } = this;
+      const { tabManager } = extension;
+      async function listener(event) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(
+          tabManager.convert(event.target.ownerGlobal),
+          event.target.getCurrentIdentityKey()
+        );
+      }
+      windowTracker.addListener("compose-from-changed", listener);
+      return {
+        unregister: () => {
+          windowTracker.removeListener("compose-from-changed", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onComposeStateChanged({ context, fire }) {
+      const { extension } = this;
+      const { tabManager } = extension;
+      async function listener(event) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(
+          tabManager.convert(event.target.ownerGlobal),
+          composeStates.convert(event.detail)
+        );
+      }
+      windowTracker.addListener("compose-state-changed", listener);
+      return {
+        unregister: () => {
+          windowTracker.removeListener("compose-state-changed", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onActiveDictionariesChanged({ context, fire }) {
+      const { extension } = this;
+      const { tabManager } = extension;
+      async function listener(event) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        let activeDictionaries = event.detail.split(",");
+        fire.async(
+          tabManager.convert(event.target.ownerGlobal),
+          Cc["@mozilla.org/spellchecker/engine;1"]
+            .getService(Ci.mozISpellCheckingEngine)
+            .getDictionaryList()
+            .reduce((list, dict) => {
+              list[dict] = activeDictionaries.includes(dict);
+              return list;
+            }, {})
+        );
+      }
+      windowTracker.addListener("active-dictionaries-changed", listener);
+      return {
+        unregister: () => {
+          windowTracker.removeListener("active-dictionaries-changed", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+  };
+
   getAPI(context) {
     function getComposeTab(tabId) {
       let tab = tabManager.get(tabId);
@@ -1160,206 +1409,60 @@ this.compose = class extends ExtensionAPI {
     }
 
     let { extension } = context;
-    let { tabManager, windowManager } = extension;
+    let { tabManager } = extension;
 
     return {
       compose: {
         onBeforeSend: new EventManager({
           context,
-          name: "compose.onBeforeSend",
+          module: "compose",
+          event: "onBeforeSend",
           inputHandling: true,
-          register: fire => {
-            let listener = {
-              handler(window, details) {
-                let win = windowManager.wrapWindow(window);
-                return fire.async(
-                  tabManager.convert(win.activeTab.nativeTab),
-                  details
-                );
-              },
-              extension,
-            };
-
-            beforeSendEventTracker.addListener(listener);
-            return () => {
-              beforeSendEventTracker.removeListener(listener);
-            };
-          },
+          extensionApi: this,
         }).api(),
         onAfterSend: new EventManager({
           context,
-          name: "compose.onAfterSend",
+          module: "compose",
+          event: "onAfterSend",
           inputHandling: true,
-          register: fire => {
-            let listener = {
-              onSuccess(window, mode, messages, headerMessageId) {
-                let win = windowManager.wrapWindow(window);
-                let sendInfo = { mode, messages };
-                if (mode == "sendNow") {
-                  sendInfo.headerMessageId = headerMessageId;
-                }
-                return fire.async(
-                  tabManager.convert(win.activeTab.nativeTab),
-                  sendInfo
-                );
-              },
-              onFailure(window, mode, exception) {
-                let win = windowManager.wrapWindow(window);
-                return fire.async(tabManager.convert(win.activeTab.nativeTab), {
-                  mode,
-                  messages: [],
-                  error: exception.message,
-                });
-              },
-              modes: ["sendNow", "sendLater"],
-              extension,
-            };
-
-            afterSaveSendEventTracker.addListener(listener);
-            return () => {
-              afterSaveSendEventTracker.removeListener(listener);
-            };
-          },
+          extensionApi: this,
         }).api(),
         onAfterSave: new EventManager({
           context,
-          name: "compose.onAfterSave",
+          module: "compose",
+          event: "onAfterSave",
           inputHandling: true,
-          register: fire => {
-            let listener = {
-              onSuccess(window, mode, messages, headerMessageId) {
-                let win = windowManager.wrapWindow(window);
-                let saveInfo = { mode, messages };
-                return fire.async(
-                  tabManager.convert(win.activeTab.nativeTab),
-                  saveInfo
-                );
-              },
-              onFailure(window, mode, exception) {
-                let win = windowManager.wrapWindow(window);
-                return fire.async(tabManager.convert(win.activeTab.nativeTab), {
-                  mode,
-                  messages: [],
-                  error: exception.message,
-                });
-              },
-              modes: ["draft", "template"],
-              extension,
-            };
-
-            afterSaveSendEventTracker.addListener(listener);
-            return () => {
-              afterSaveSendEventTracker.removeListener(listener);
-            };
-          },
+          extensionApi: this,
         }).api(),
         onAttachmentAdded: new ExtensionCommon.EventManager({
           context,
-          name: "compose.onAttachmentAdded",
-          register(fire) {
-            async function callback(event) {
-              for (let attachment of event.detail) {
-                attachment = composeAttachmentTracker.convert(
-                  attachment,
-                  event.target.ownerGlobal
-                );
-                fire.async(
-                  tabManager.convert(event.target.ownerGlobal),
-                  attachment
-                );
-              }
-            }
-
-            windowTracker.addListener("attachments-added", callback);
-            return function() {
-              windowTracker.removeListener("attachments-added", callback);
-            };
-          },
+          module: "compose",
+          event: "onAttachmentAdded",
+          extensionApi: this,
         }).api(),
         onAttachmentRemoved: new ExtensionCommon.EventManager({
           context,
-          name: "compose.onAttachmentRemoved",
-          register(fire) {
-            function callback(event) {
-              for (let attachment of event.detail) {
-                let attachmentId = composeAttachmentTracker.getId(
-                  attachment,
-                  event.target.ownerGlobal
-                );
-                fire.async(
-                  tabManager.convert(event.target.ownerGlobal),
-                  attachmentId
-                );
-                composeAttachmentTracker.forgetAttachment(attachment);
-              }
-            }
-
-            windowTracker.addListener("attachments-removed", callback);
-            return function() {
-              windowTracker.removeListener("attachments-removed", callback);
-            };
-          },
+          module: "compose",
+          event: "onAttachmentRemoved",
+          extensionApi: this,
         }).api(),
         onIdentityChanged: new ExtensionCommon.EventManager({
           context,
-          name: "compose.onIdentityChanged",
-          register(fire) {
-            function callback(event) {
-              fire.async(
-                tabManager.convert(event.target.ownerGlobal),
-                event.target.getCurrentIdentityKey()
-              );
-            }
-
-            windowTracker.addListener("compose-from-changed", callback);
-            return function() {
-              windowTracker.removeListener("compose-from-changed", callback);
-            };
-          },
+          module: "compose",
+          event: "onIdentityChanged",
+          extensionApi: this,
         }).api(),
         onComposeStateChanged: new ExtensionCommon.EventManager({
           context,
-          name: "compose.onComposeStateChanged",
-          register(fire) {
-            function callback(event) {
-              fire.async(
-                tabManager.convert(event.target.ownerGlobal),
-                composeStates.convert(event.detail)
-              );
-            }
-
-            windowTracker.addListener("compose-state-changed", callback);
-            return function() {
-              windowTracker.removeListener("compose-state-changed", callback);
-            };
-          },
+          module: "compose",
+          event: "onComposeStateChanged",
+          extensionApi: this,
         }).api(),
         onActiveDictionariesChanged: new ExtensionCommon.EventManager({
           context,
-          name: "compose.onActiveDictionariesChanged",
-          register(fire) {
-            function callback(event) {
-              let activeDictionaries = event.detail.split(",");
-              fire.async(
-                tabManager.convert(event.target.ownerGlobal),
-                Cc["@mozilla.org/spellchecker/engine;1"]
-                  .getService(Ci.mozISpellCheckingEngine)
-                  .getDictionaryList()
-                  .reduce((list, dict) => {
-                    list[dict] = activeDictionaries.includes(dict);
-                    return list;
-                  }, {})
-              );
-            }
-
-            windowTracker.addListener("active-dictionaries-changed", callback);
-            return function() {
-              windowTracker.removeListener(
-                "active-dictionaries-changed",
-                callback
-              );
-            };
-          },
+          module: "compose",
+          event: "onActiveDictionariesChanged",
+          extensionApi: this,
         }).api(),
         async beginNew(messageId, details) {
           let type = Ci.nsIMsgCompType.New;

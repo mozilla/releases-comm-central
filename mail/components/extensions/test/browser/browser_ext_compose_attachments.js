@@ -16,7 +16,8 @@ var { ExtensionSupport } = ChromeUtils.import(
   "resource:///modules/ExtensionSupport.jsm"
 );
 
-addIdentity(createAccount());
+let account = createAccount();
+let defaultIdentity = addIdentity(account);
 
 function findWindow(subject) {
   let windows = Array.from(Services.wm.getEnumerator("msgcompose"));
@@ -2111,4 +2112,162 @@ add_task(async function test_without_permission() {
   await extension.startup();
   await extension.awaitFinish("finished");
   await extension.unload();
+});
+
+add_task(async function test_attachment_MV3_event_pages() {
+  let files = {
+    "background.js": async () => {
+      // Whenever the extension starts or wakes up, the eventCounter is reset and
+      // allows to observe the order of events fired. In case of a wake-up, the
+      // first observed event is the one that woke up the background.
+      let eventCounter = 0;
+
+      browser.compose.onAttachmentAdded.addListener(async (tab, attachment) => {
+        browser.test.sendMessage("attachment added", {
+          eventCount: ++eventCounter,
+          attachment,
+        });
+      });
+
+      browser.compose.onAttachmentRemoved.addListener(
+        async (tab, attachmentId) => {
+          browser.test.sendMessage("attachment removed", {
+            eventCount: ++eventCounter,
+            attachmentId,
+          });
+        }
+      );
+
+      browser.test.sendMessage("background started");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      manifest_version: 3,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "compose", "messagesRead"],
+      browser_specific_settings: {
+        gecko: { id: "compose.attachment@mochi.test" },
+      },
+    },
+  });
+
+  async function addAttachment(ordinal) {
+    let attachment = Cc[
+      "@mozilla.org/messengercompose/attachment;1"
+    ].createInstance(Ci.nsIMsgAttachment);
+    attachment.name = `${ordinal}.txt`;
+    attachment.url = `data:text/plain,I'm the ${ordinal} attachment!`;
+    attachment.size = attachment.url.length - 16;
+
+    await composeWindow.AddAttachments([attachment]);
+    return attachment;
+  }
+
+  async function removeAttachment(attachment) {
+    let item = composeWindow.gAttachmentBucket.findItemForAttachment(
+      attachment
+    );
+    await composeWindow.RemoveAttachments([item]);
+  }
+
+  function checkPersistentListeners({ primed }) {
+    // A persistent event is referenced by its moduleName as defined in
+    // ext-mails.json, not by its actual namespace.
+    const persistent_events = [
+      "compose.onAttachmentAdded",
+      "compose.onAttachmentRemoved",
+    ];
+
+    for (let event of persistent_events) {
+      let [moduleName, eventName] = event.split(".");
+      assertPersistentListeners(extension, moduleName, eventName, {
+        primed,
+      });
+    }
+  }
+
+  let composeWindow = await openComposeWindow(account);
+  await focusWindow(composeWindow);
+
+  await extension.startup();
+  await extension.awaitMessage("background started");
+  // The listeners should be persistent, but not primed.
+  checkPersistentListeners({ primed: false });
+
+  // Trigger events without terminating the background first.
+
+  let rawFirstAttachment = await addAttachment("first");
+  let addedFirst = await extension.awaitMessage("attachment added");
+  Assert.equal(
+    "first.txt",
+    rawFirstAttachment.name,
+    "Created attachment should be correct"
+  );
+  Assert.equal(
+    "first.txt",
+    addedFirst.attachment.name,
+    "Attachment returned by onAttachmentAdded should be correct"
+  );
+  Assert.equal(1, addedFirst.eventCount, "Event counter should be correct");
+
+  await removeAttachment(rawFirstAttachment);
+
+  let removedFirst = await extension.awaitMessage("attachment removed");
+  Assert.equal(
+    addedFirst.attachment.id,
+    removedFirst.attachmentId,
+    "Attachment id returned by onAttachmentRemoved should be correct"
+  );
+  Assert.equal(2, removedFirst.eventCount, "Event counter should be correct");
+
+  // Terminate background and re-trigger onAttachmentAdded event.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  // The listeners should be primed.
+  checkPersistentListeners({ primed: true });
+
+  let rawSecondAttachment = await addAttachment("second");
+  let addedSecond = await extension.awaitMessage("attachment added");
+  Assert.equal(
+    "second.txt",
+    rawSecondAttachment.name,
+    "Created attachment should be correct"
+  );
+  Assert.equal(
+    "second.txt",
+    addedSecond.attachment.name,
+    "Attachment returned by onAttachmentAdded should be correct"
+  );
+  Assert.equal(1, addedSecond.eventCount, "Event counter should be correct");
+
+  // The background should have been restarted.
+  await extension.awaitMessage("background started");
+  // The listeners should no longer be primed.
+  checkPersistentListeners({ primed: false });
+
+  // Terminate background and re-trigger onAttachmentRemoved event.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  // The listeners should be primed.
+  checkPersistentListeners({ primed: true });
+
+  await removeAttachment(rawSecondAttachment);
+  let removedSecond = await extension.awaitMessage("attachment removed");
+  Assert.equal(
+    addedSecond.attachment.id,
+    removedSecond.attachmentId,
+    "Attachment id returned by onAttachmentRemoved should be correct"
+  );
+  Assert.equal(1, removedSecond.eventCount, "Event counter should be correct");
+
+  // The background should have been restarted.
+  await extension.awaitMessage("background started");
+  // The listeners should no longer be primed.
+  checkPersistentListeners({ primed: false });
+
+  await extension.unload();
+  composeWindow.close();
 });

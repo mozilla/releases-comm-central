@@ -452,11 +452,17 @@ class CloudFileAccount {
       }
     }
 
-    let result;
-    if (uploadId != -1) {
-      result = await this.extension.emit("uploadAbort", this, uploadId, window);
+    if (uploadId == -1) {
+      console.error(`No upload in progress for file ${file.path}`);
+      return false;
     }
 
+    let result = await this.extension.emit(
+      "uploadAbort",
+      this,
+      uploadId,
+      window
+    );
     if (result && result.length > 0) {
       return true;
     }
@@ -519,7 +525,7 @@ function convertCloudFileAccount(nativeAccount) {
   };
 }
 
-this.cloudFile = class extends ExtensionAPI {
+this.cloudFile = class extends ExtensionAPIPersistent {
   get providerType() {
     return `ext-${this.extension.id}`;
   }
@@ -555,128 +561,201 @@ this.cloudFile = class extends ExtensionAPI {
     cloudFileAccounts.unregisterProvider(this.providerType);
   }
 
+  PERSISTENT_EVENTS = {
+    // For primed persistent events (deactivated background), the context is only
+    // available after fire.wakeup() has fulfilled (ensuring the convert() function
+    // has been called).
+
+    onFileUpload({ context, fire }) {
+      const { extension } = this;
+      const { tabManager } = extension;
+      async function listener(
+        _event,
+        account,
+        { id, name, data },
+        tab,
+        relatedFileInfo
+      ) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        tab = tab ? tabManager.convert(tab) : null;
+        account = convertCloudFileAccount(account);
+        return fire.async(account, { id, name, data }, tab, relatedFileInfo);
+      }
+      extension.on("uploadFile", listener);
+      return {
+        unregister: () => {
+          extension.off("uploadFile", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+
+    onFileUploadAbort({ context, fire }) {
+      const { extension } = this;
+      const { tabManager } = extension;
+      async function listener(_event, account, id, tab) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        tab = tab ? tabManager.convert(tab) : null;
+        account = convertCloudFileAccount(account);
+        return fire.async(account, id, tab);
+      }
+      extension.on("uploadAbort", listener);
+      return {
+        unregister: () => {
+          extension.off("uploadAbort", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+
+    onFileRename({ context, fire }) {
+      const { extension } = this;
+      const { tabManager } = extension;
+      async function listener(_event, account, id, newName, tab) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        tab = tab ? tabManager.convert(tab) : null;
+        account = convertCloudFileAccount(account);
+        return fire.async(account, id, newName, tab);
+      }
+      extension.on("renameFile", listener);
+      return {
+        unregister: () => {
+          extension.off("renameFile", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+
+    onFileDeleted({ context, fire }) {
+      const { extension } = this;
+      const { tabManager } = extension;
+      async function listener(_event, account, id, tab) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        tab = tab ? tabManager.convert(tab) : null;
+        account = convertCloudFileAccount(account);
+        return fire.async(account, id, tab);
+      }
+      extension.on("deleteFile", listener);
+      return {
+        unregister: () => {
+          extension.off("deleteFile", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+
+    onAccountAdded({ context, fire }) {
+      const self = this;
+      async function listener(_event, nativeAccount) {
+        if (nativeAccount.type != self.providerType) {
+          return null;
+        }
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        return fire.async(convertCloudFileAccount(nativeAccount));
+      }
+      cloudFileAccounts.on("accountAdded", listener);
+      return {
+        unregister: () => {
+          cloudFileAccounts.off("accountAdded", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+
+    onAccountDeleted({ context, fire }) {
+      const self = this;
+      async function listener(_event, key, type) {
+        if (self.providerType != type) {
+          return null;
+        }
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        return fire.async(key);
+      }
+      cloudFileAccounts.on("accountDeleted", listener);
+      return {
+        unregister: () => {
+          cloudFileAccounts.off("accountDeleted", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+  };
+
   getAPI(context) {
     let self = this;
-    let { extension } = context;
-    let { tabManager } = extension;
 
     return {
       cloudFile: {
         onFileUpload: new EventManager({
           context,
-          name: "cloudFile.onFileUpload",
-          register: fire => {
-            let listener = (
-              event,
-              account,
-              { id, name, data },
-              tab,
-              relatedFileInfo
-            ) => {
-              tab = tab ? tabManager.convert(tab) : null;
-              account = convertCloudFileAccount(account);
-              return fire.async(
-                account,
-                { id, name, data },
-                tab,
-                relatedFileInfo
-              );
-            };
-
-            context.extension.on("uploadFile", listener);
-            return () => {
-              context.extension.off("uploadFile", listener);
-            };
-          },
+          module: "cloudFile",
+          event: "onFileUpload",
+          extensionApi: this,
         }).api(),
 
         onFileUploadAbort: new EventManager({
           context,
-          name: "cloudFile.onFileUploadAbort",
-          register: fire => {
-            let listener = (event, account, id, tab) => {
-              tab = tab ? tabManager.convert(tab) : null;
-              account = convertCloudFileAccount(account);
-              return fire.async(account, id, tab);
-            };
-
-            context.extension.on("uploadAbort", listener);
-            return () => {
-              context.extension.off("uploadAbort", listener);
-            };
-          },
+          module: "cloudFile",
+          event: "onFileUploadAbort",
+          extensionApi: this,
         }).api(),
 
         onFileRename: new EventManager({
           context,
-          name: "cloudFile.onFileRename",
-          register: fire => {
-            let listener = (event, account, id, newName, tab) => {
-              tab = tab ? tabManager.convert(tab) : null;
-              account = convertCloudFileAccount(account);
-              return fire.async(account, id, newName, tab);
-            };
-
-            context.extension.on("renameFile", listener);
-            return () => {
-              context.extension.off("renameFile", listener);
-            };
-          },
+          module: "cloudFile",
+          event: "onFileRename",
+          extensionApi: this,
         }).api(),
 
         onFileDeleted: new EventManager({
           context,
-          name: "cloudFile.onFileDeleted",
-          register: fire => {
-            let listener = (event, account, id, tab) => {
-              tab = tab ? tabManager.convert(tab) : null;
-              account = convertCloudFileAccount(account);
-              return fire.async(account, id, tab);
-            };
-
-            context.extension.on("deleteFile", listener);
-            return () => {
-              context.extension.off("deleteFile", listener);
-            };
-          },
+          module: "cloudFile",
+          event: "onFileDeleted",
+          extensionApi: this,
         }).api(),
 
         onAccountAdded: new EventManager({
           context,
-          name: "cloudFile.onAccountAdded",
-          register: fire => {
-            let listener = (event, nativeAccount) => {
-              if (nativeAccount.type != this.providerType) {
-                return null;
-              }
-
-              return fire.async(convertCloudFileAccount(nativeAccount));
-            };
-
-            cloudFileAccounts.on("accountAdded", listener);
-            return () => {
-              cloudFileAccounts.off("accountAdded", listener);
-            };
-          },
+          module: "cloudFile",
+          event: "onAccountAdded",
+          extensionApi: this,
         }).api(),
 
         onAccountDeleted: new EventManager({
           context,
-          name: "cloudFile.onAccountDeleted",
-          register: fire => {
-            let listener = (event, key, type) => {
-              if (this.providerType != type) {
-                return null;
-              }
-
-              return fire.async(key);
-            };
-
-            cloudFileAccounts.on("accountDeleted", listener);
-            return () => {
-              cloudFileAccounts.off("accountDeleted", listener);
-            };
-          },
+          module: "cloudFile",
+          event: "onAccountDeleted",
+          extensionApi: this,
         }).api(),
 
         async getAccount(accountId) {

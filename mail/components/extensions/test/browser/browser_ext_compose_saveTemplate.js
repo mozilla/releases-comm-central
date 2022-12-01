@@ -61,25 +61,27 @@ function getSmtpIdentity(senderName, smtpServer) {
 
 var gServer;
 var gLocalRootFolder;
+let gPopAccount;
+let gLocalAccount;
 
 add_setup(() => {
   gServer = setupServerDaemon();
   gServer.start();
 
   // Test needs a non-local default account to be able to send messages.
-  let popAccount = createAccount("pop3");
-  let localAccount = createAccount("local");
-  MailServices.accounts.defaultAccount = popAccount;
+  gPopAccount = createAccount("pop3");
+  gLocalAccount = createAccount("local");
+  MailServices.accounts.defaultAccount = gPopAccount;
 
   let identity = getSmtpIdentity(
     "identity@foo.invalid",
     getBasicSmtpServer(gServer.port)
   );
-  popAccount.addIdentity(identity);
-  popAccount.defaultIdentity = identity;
+  gPopAccount.addIdentity(identity);
+  gPopAccount.defaultIdentity = identity;
 
   // Test is using the Sent folder and Outbox folder of the local account.
-  gLocalRootFolder = localAccount.incomingServer.rootFolder;
+  gLocalRootFolder = gLocalAccount.incomingServer.rootFolder;
   gLocalRootFolder.createSubfolder("Sent", null);
   gLocalRootFolder.createSubfolder("Templates", null);
   gLocalRootFolder.createSubfolder("Fcc", null);
@@ -338,4 +340,93 @@ add_task(async function test_saveAsTemplate_with_additional_fcc() {
       fcc: ["Templates", "Fcc"],
     },
   });
+});
+
+// Test onAfterSave when saving templates for MV3
+add_task(async function test_onAfterSave_MV3_event_pages() {
+  let files = {
+    "background.js": async () => {
+      // Whenever the extension starts or wakes up, hasFired is set to false. In
+      // case of a wake-up, the first fired event is the one that woke up the background.
+      let hasFired = false;
+
+      browser.compose.onAfterSave.addListener((tab, saveInfo) => {
+        // Only send the first event after background wake-up, this should be
+        // the only one expected.
+        if (!hasFired) {
+          hasFired = true;
+          browser.test.sendMessage("onAfterSave received", saveInfo);
+        }
+      });
+
+      browser.test.sendMessage("background started");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      manifest_version: 3,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose"],
+      browser_specific_settings: {
+        gecko: { id: "compose.onAfterSave@xpcshell.test" },
+      },
+    },
+  });
+
+  function checkPersistentListeners({ primed }) {
+    // A persistent event is referenced by its moduleName as defined in
+    // ext-mails.json, not by its actual namespace.
+    const persistent_events = ["compose.onAfterSave"];
+
+    for (let event of persistent_events) {
+      let [moduleName, eventName] = event.split(".");
+      assertPersistentListeners(extension, moduleName, eventName, {
+        primed,
+      });
+    }
+  }
+
+  let composeWindow = await openComposeWindow(gPopAccount);
+  await focusWindow(composeWindow);
+
+  await extension.startup();
+  await extension.awaitMessage("background started");
+  // The listeners should be persistent, but not primed.
+  checkPersistentListeners({ primed: false });
+
+  // Trigger onAfterSave without terminating the background first.
+
+  composeWindow.SetComposeDetails({ to: "first@invalid.net" });
+  composeWindow.SaveAsTemplate();
+  let firstSaveInfo = await extension.awaitMessage("onAfterSave received");
+  Assert.equal(
+    "template",
+    firstSaveInfo.mode,
+    "Returned SaveInfo should be correct"
+  );
+
+  // Terminate background and re-trigger onAfterSave.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  // The listeners should be primed.
+  checkPersistentListeners({ primed: true });
+
+  composeWindow.SetComposeDetails({ to: "second@invalid.net" });
+  composeWindow.SaveAsTemplate();
+  let secondSaveInfo = await extension.awaitMessage("onAfterSave received");
+  Assert.equal(
+    "template",
+    secondSaveInfo.mode,
+    "Returned SaveInfo should be correct"
+  );
+
+  // The background should have been restarted.
+  await extension.awaitMessage("background started");
+  // The listener should no longer be primed.
+  checkPersistentListeners({ primed: false });
+
+  await extension.unload();
+  composeWindow.close();
 });

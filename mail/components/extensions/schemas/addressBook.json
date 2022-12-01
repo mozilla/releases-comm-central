@@ -634,10 +634,6 @@
           {
             "name": "node",
             "$ref": "ContactNode"
-          },
-          {
-            "name": "id",
-            "type": "string"
           }
         ]
       },

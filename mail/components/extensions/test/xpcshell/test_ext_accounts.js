@@ -859,7 +859,7 @@ add_task(async function test_accounts_events() {
         identity: "user@invalidImap",
       });
       let localAccountKey = await window.sendMessage("createAccount", {
-        type: "local",
+        type: "none",
         identity: "user@invalidLocal",
       });
       let popAccountKey = await window.sendMessage("createAccount", {
@@ -869,9 +869,9 @@ add_task(async function test_accounts_events() {
 
       // Update account identities.
       let accounts = await browser.accounts.list();
-      let imapAccount = accounts.find(a => a.type == "imap");
-      let localAccount = accounts.find(a => a.type == "none");
-      let popAccount = accounts.find(a => a.type == "pop3");
+      let imapAccount = accounts.find(a => a.id == imapAccountKey);
+      let localAccount = accounts.find(a => a.id == localAccountKey);
+      let popAccount = accounts.find(a => a.id == popAccountKey);
 
       let id1 = await browser.identities.create(imapAccount.id, {
         composeHtml: true,
@@ -954,7 +954,7 @@ add_task(async function test_accounts_events() {
               id: "account8",
               type: "none",
               identities: [],
-              name: "Local Folders",
+              name: "account8user on localhost",
               folders: null,
             },
           },
@@ -1077,7 +1077,7 @@ add_task(async function test_accounts_events() {
   });
   extension.onMessage("removeAccount", details => {
     let account = MailServices.accounts.getAccount(details.accountKey);
-    MailServices.accounts.removeAccount(account, true);
+    cleanUpAccount(account);
     extension.sendMessage();
   });
 

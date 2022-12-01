@@ -4,36 +4,75 @@
 
 // Functions for extensions to use, so that we avoid repeating ourselves.
 
-function assertDeepEqual(expected, actual) {
+function assertDeepEqual(
+  expected,
+  actual,
+  description = "Values should be equal",
+  options = {}
+) {
+  let ok;
+  let strict = !!options?.strict;
+  try {
+    ok = assertDeepEqualNested(expected, actual, strict);
+  } catch (e) {
+    ok = false;
+  }
+  if (!ok) {
+    browser.test.fail(
+      `Deep equal test. \n Expected value: ${JSON.stringify(
+        expected
+      )} \n Actual value: ${JSON.stringify(actual)},
+      ${description}`
+    );
+  }
+}
+
+function assertDeepEqualNested(expected, actual, strict) {
   if (expected === null) {
     browser.test.assertTrue(actual === null);
-    return;
+    return actual === null;
   }
 
   if (["boolean", "number", "string"].includes(typeof expected)) {
     browser.test.assertEq(typeof expected, typeof actual);
     browser.test.assertEq(expected, actual);
-    return;
+    return typeof expected == typeof actual && expected == actual;
   }
 
   if (Array.isArray(expected)) {
     browser.test.assertTrue(Array.isArray(actual));
     browser.test.assertEq(expected.length, actual.length);
+    let ok = 0;
+    let all = 0;
     for (let i = 0; i < expected.length; i++) {
-      assertDeepEqual(expected[i], actual[i]);
+      all++;
+      if (assertDeepEqualNested(expected[i], actual[i], strict)) {
+        ok++;
+      }
     }
-    return;
+    return (
+      Array.isArray(actual) && expected.length == actual.length && all == ok
+    );
   }
 
   let expectedKeys = Object.keys(expected);
   let actualKeys = Object.keys(actual);
-  // Ignore any extra keys on the actual object.
-  browser.test.assertTrue(expectedKeys.length <= actualKeys.length);
+  // Ignore any extra keys on the actual object in non-strict mode (default).
+  let lengthOk = strict
+    ? expectedKeys.length == actualKeys.length
+    : expectedKeys.length <= actualKeys.length;
+  browser.test.assertTrue(lengthOk);
 
+  let ok = 0;
+  let all = 0;
   for (let key of expectedKeys) {
+    all++;
     browser.test.assertTrue(actualKeys.includes(key), `Key ${key} exists`);
-    assertDeepEqual(expected[key], actual[key]);
+    if (assertDeepEqualNested(expected[key], actual[key], strict)) {
+      ok++;
+    }
   }
+  return all == ok && lengthOk;
 }
 
 function waitForMessage() {

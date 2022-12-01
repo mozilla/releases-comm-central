@@ -8,8 +8,7 @@ var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
 
-// Create some folders and populate them.
-add_task(async function setup() {
+add_task(async function test_query() {
   let account = createAccount();
 
   let textAttachment = {

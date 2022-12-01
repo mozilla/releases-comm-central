@@ -5,7 +5,7 @@
 let account, messages;
 let messagePane = document.getElementById("messagepane");
 
-add_task(async () => {
+add_setup(async () => {
   account = createAccount();
   let rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("messageDisplayScripts", null);
