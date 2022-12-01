@@ -306,6 +306,14 @@ var CardDAVUtils = {
           url.pathname = txtRecords[0].data.substr(5);
           log.log(`Found a DNS TXT record pointing to ${url.href}`);
         }
+      } else {
+        let mxRecords = await DNS.mx(url.hostname);
+        if (mxRecords.some(r => /\bgoogle\.com$/.test(r.host))) {
+          log.log(
+            `Found a DNS MX record for Google, using preset URL for ${url}`
+          );
+          url = new URL(PRESETS["gmail.com"]);
+        }
       }
     }
 
