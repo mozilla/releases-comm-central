@@ -463,6 +463,7 @@
   skin/classic/messenger/illustrations/form.svg               (../shared/mail/illustrations/form.svg)
   skin/classic/messenger/illustrations/octopus-setup.svg      (../shared/mail/illustrations/octopus-setup.svg)
   skin/classic/messenger/illustrations/sloth.svg              (../shared/mail/illustrations/sloth.svg)
+  skin/classic/messenger/illustrations/sync-devices.svg       (../shared/mail/illustrations/sync-devices.svg)
 
 # New design system
   skin/classic/messenger/avatars.css                          (../shared/mail/avatars.css)

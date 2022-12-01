@@ -731,9 +731,41 @@ calendar-notifications-setting .remove-button {
  * End connection dialog
  */
 
- /**
+/**
  * Sync Settings Page
  */
+
+#noFxaAccount {
+  display: flex;
+  gap: 24px;
+}
+
+#noFxaInfo {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  flex: 3;
+}
+
+#noFxaCaption {
+  margin-block: 0 4px;
+}
+
+#noFxaDescription {
+  padding-inline-end: 52px;
+  padding-bottom: 52px;
+}
+
+#noFxaSignIn {
+  margin-inline-start: 8px;
+  max-width: 151px;
+  margin: 4px 0;
+}
+
+#noFxaSyncIllustration {
+  width: 169px;
+  flex-grow: 2;
+}
 
 #syncAccountSection {
   display: grid;

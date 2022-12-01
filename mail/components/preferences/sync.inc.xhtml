@@ -10,7 +10,22 @@
             xmlns="http://www.w3.org/1999/xhtml">
     <h1 data-l10n-id="sync-pane-header"></h1>
 
-    <!-- TODO: Sync Account Not Signed In View -->
+    <section id="noFxaAccount">
+      <div id="noFxaInfo">
+        <h2 id="noFxaCaption" data-l10n-id="sync-signedout-caption"></h2>
+        <p id="noFxaDescription"
+           data-l10n-id="sync-signedout-description">
+        </p>
+        <button id="noFxaSignIn"
+                class="primary"
+                type="button"
+                data-l10n-id="sync-signedout-account-signin-btn">
+        </button>
+      </div>
+      <img id="noFxaSyncIllustration"
+           src="chrome://messenger/skin/illustrations/sync-devices.svg"
+           alt=""/>
+    </section>
 
     <section id="syncAccountSignedIn">
       <div id="syncAccountSection">
