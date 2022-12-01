@@ -687,20 +687,6 @@ img.invisible-on-broken:-moz-broken {
   list-style-image: url(chrome://messenger/skin/icons/addon-install-installed.svg);
 }
 
-.app-update-icon {
-  background-color: #74BF43;
-  border-radius: 50%;
-}
-
-.popup-notification-icon[popupid="app-update"] {
-  background: #74BF43 url("chrome://messenger/skin/icons/app-update.svg") no-repeat center;
-  border-radius: 50%;
-}
-
-.popup-notification-icon[popupid="app-update"].updates-unsupported {
-  background-color: #FFE900;
-}
-
 .popup-notification-body[popupid="addon-progress"],
 .popup-notification-body[popupid="addon-install-confirmation"] {
   width: 28em;
