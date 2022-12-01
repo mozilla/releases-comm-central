@@ -40,7 +40,7 @@ class nsMsgTagService final : public nsIMsgTagService {
  protected:
   nsresult SetUnicharPref(const char* prefName, const nsAString& prefValue);
   nsresult GetUnicharPref(const char* prefName, nsAString& prefValue);
-  nsresult MigrateLabelsToTags();
+  nsresult SetupLabelTags();
   nsresult RefreshKeyCache();
 
   nsCOMPtr<nsIPrefBranch> m_tagPrefBranch;

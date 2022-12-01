@@ -931,11 +931,11 @@ nsresult nsOfflineStoreCompactState::CopyNextMessage(bool& done) {
   while (m_curIndex < m_keys.Length()) {
     // Filter out msgs that have the "pendingRemoval" attribute set.
     nsCOMPtr<nsIMsgDBHdr> hdr;
-    nsString pendingRemoval;
+    nsCString pendingRemoval;
     nsresult rv =
         m_db->GetMsgHdrForKey(m_keys[m_curIndex], getter_AddRefs(hdr));
     NS_ENSURE_SUCCESS(rv, rv);
-    hdr->GetProperty("pendingRemoval", pendingRemoval);
+    hdr->GetStringProperty("pendingRemoval", getter_Copies(pendingRemoval));
     if (!pendingRemoval.IsEmpty()) {
       m_curIndex++;
       // Turn off offline flag for message, since after the compact is

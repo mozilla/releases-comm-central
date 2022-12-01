@@ -294,7 +294,7 @@ add_task(
     let message = [...subFolders.test0.messages][0];
     ok(!message.isFlagged);
     ok(!message.isRead);
-    equal(message.getProperty("keywords"), "testkeyword");
+    equal(message.getStringProperty("keywords"), "testkeyword");
 
     await extension.startup();
     extension.sendMessage({
@@ -320,11 +320,12 @@ add_task(
     if (IS_IMAP) {
       // Only IMAP sets the junk/nonjunk keyword.
       await TestUtils.waitForCondition(
-        () => message.getProperty("keywords") == "testkeyword junk $label1"
+        () =>
+          message.getStringProperty("keywords") == "testkeyword junk $label1"
       );
     } else {
       await TestUtils.waitForCondition(
-        () => message.getProperty("keywords") == "testkeyword $label1"
+        () => message.getStringProperty("keywords") == "testkeyword $label1"
       );
     }
     extension.sendMessage();
@@ -333,11 +334,13 @@ add_task(
     if (IS_IMAP) {
       await TestUtils.waitForCondition(
         () =>
-          message.getProperty("keywords") == "testkeyword junk $label2 $label3"
+          message.getStringProperty("keywords") ==
+          "testkeyword junk $label2 $label3"
       );
     } else {
       await TestUtils.waitForCondition(
-        () => message.getProperty("keywords") == "testkeyword $label2 $label3"
+        () =>
+          message.getStringProperty("keywords") == "testkeyword $label2 $label3"
       );
     }
     extension.sendMessage();
@@ -348,11 +351,13 @@ add_task(
     if (IS_IMAP) {
       await TestUtils.waitForCondition(
         () =>
-          message.getProperty("keywords") == "testkeyword junk $label2 $label3"
+          message.getStringProperty("keywords") ==
+          "testkeyword junk $label2 $label3"
       );
     } else {
       await TestUtils.waitForCondition(
-        () => message.getProperty("keywords") == "testkeyword $label2 $label3"
+        () =>
+          message.getStringProperty("keywords") == "testkeyword $label2 $label3"
       );
     }
     extension.sendMessage();
@@ -365,11 +370,11 @@ add_task(
     );
     if (IS_IMAP) {
       await TestUtils.waitForCondition(
-        () => message.getProperty("keywords") == "testkeyword nonjunk"
+        () => message.getStringProperty("keywords") == "testkeyword nonjunk"
       );
     } else {
       await TestUtils.waitForCondition(
-        () => message.getProperty("keywords") == "testkeyword"
+        () => message.getStringProperty("keywords") == "testkeyword"
       );
     }
     extension.sendMessage();

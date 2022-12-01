@@ -206,20 +206,6 @@ NS_IMETHODIMP nsMsgHdr::MarkFlagged(bool bFlagged) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgHdr::GetProperty(const char* propertyName,
-                                    nsAString& resultProperty) {
-  NS_ENSURE_ARG_POINTER(propertyName);
-  if (!m_mdb || !m_mdbRow) return NS_ERROR_NULL_POINTER;
-  return m_mdb->GetPropertyAsNSString(m_mdbRow, propertyName, resultProperty);
-}
-
-NS_IMETHODIMP nsMsgHdr::SetProperty(const char* propertyName,
-                                    const nsAString& propertyStr) {
-  NS_ENSURE_ARG_POINTER(propertyName);
-  if (!m_mdb || !m_mdbRow) return NS_ERROR_NULL_POINTER;
-  return m_mdb->SetPropertyFromNSString(m_mdbRow, propertyName, propertyStr);
-}
-
 NS_IMETHODIMP nsMsgHdr::SetStringProperty(const char* propertyName,
                                           const char* propertyValue) {
   NS_ENSURE_ARG_POINTER(propertyName);

@@ -3092,12 +3092,6 @@ function nsDummyMsgHeader() {}
 
 nsDummyMsgHeader.prototype = {
   mProperties: [],
-  getProperty(aProperty) {
-    return this.getStringProperty(aProperty);
-  },
-  setProperty(aProperty, aVal) {
-    return this.setStringProperty(aProperty, aVal);
-  },
   getStringProperty(aProperty) {
     if (aProperty in this.mProperties) {
       return this.mProperties[aProperty];

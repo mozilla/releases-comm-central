@@ -13,10 +13,6 @@ interface nsIUTF8StringEnumerator;
 [scriptable, uuid(3c11ddbe-c805-40c5-b9c9-d065fad5d0be)]
 interface nsIMsgDBHdr : nsISupports
 {
-    /* general property routines - I think this can retrieve any
-       header in the db */
-    AString getProperty(in string propertyName);
-    void setProperty(in string propertyName, in AString propertyStr);
     void setStringProperty(in string propertyName, in string propertyValue);
     string getStringProperty(in string propertyName);
     unsigned long getUint32Property(in string propertyName);

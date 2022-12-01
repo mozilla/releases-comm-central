@@ -312,7 +312,7 @@ add_task(async function testSearch() {
       // Test of a custom db header.
       let customValue = mailTestUtils
         .firstMsgHdr(IMAPPump.inbox)
-        .getProperty(test.dbHeader);
+        .getStringProperty(test.dbHeader);
       Assert.equal(customValue, test.testString);
     } else {
       await new Promise(resolve => {
