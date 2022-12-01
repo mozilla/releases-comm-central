@@ -91,14 +91,15 @@ interface nsIMsgDBHdr : nsISupports
     Array<octet> getSubjectCollationKey();
     Array<octet> getRecipientsCollationKey();
 
-    attribute string Charset;
+    attribute string charset;
+
     /**
-     * Returns the effective character set for the message (@ref Charset).
-     * If there is no specific set defined for the message or the
-     * characterSetOverride option is turned on for the folder it will return
-     * the effective character set of the folder instead.
+     * Returns the effective character set for the message (@ref charset).
+     * For NNTP, if there is no specific set defined for the message,
+     * the character set of the server instead.
      */
     readonly attribute ACString effectiveCharset;
+
     attribute nsMsgLabelValue label;
     attribute string accountKey;
     readonly attribute nsIMsgFolder folder;

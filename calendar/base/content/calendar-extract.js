@@ -95,7 +95,7 @@ var calendarExtract = {
         onDataAvailable(request, inputStream, offset, count) {
           content = folder.getMsgTextFromStream(
             inputStream,
-            message.Charset,
+            message.charset,
             65536,
             32768,
             false,
