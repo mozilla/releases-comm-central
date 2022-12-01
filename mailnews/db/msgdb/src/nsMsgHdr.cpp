@@ -448,16 +448,6 @@ NS_IMETHODIMP nsMsgHdr::GetLineCount(uint32_t* result) {
   return res;
 }
 
-NS_IMETHODIMP nsMsgHdr::SetPriorityString(const char* priority) {
-  nsMsgPriorityValue priorityVal = nsMsgPriority::Default;
-
-  // We can ignore |NS_MsgGetPriorityFromString()| return value,
-  // since we set a default value for |priorityVal|.
-  NS_MsgGetPriorityFromString(priority, priorityVal);
-
-  return SetPriority(priorityVal);
-}
-
 NS_IMETHODIMP nsMsgHdr::GetAuthor(char** resultAuthor) {
   return m_mdb->RowCellColumnToCharPtr(GetMDBRow(), m_mdb->m_senderColumnToken,
                                        resultAuthor);

@@ -32,7 +32,6 @@ interface nsIMsgDBHdr : nsISupports
     void markHasAttachments(in boolean hasAttachments);
 
     attribute nsMsgPriorityValue priority;
-    void setPriorityString(in string priority);
 
     /* flag handling routines */
     attribute unsigned long flags;

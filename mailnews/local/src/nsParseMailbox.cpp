@@ -1407,9 +1407,14 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
         }
         m_newMsgHdr->SetDate(datePRTime);
 
-        if (priority)
-          m_newMsgHdr->SetPriorityString(priority->value);
-        else if (priorityFlags == nsMsgPriority::notSet)
+        if (priority) {
+          nsMsgPriorityValue priorityVal = nsMsgPriority::Default;
+
+          // We can ignore |NS_MsgGetPriorityFromString()| return value,
+          // since we set a default value for |priorityVal|.
+          NS_MsgGetPriorityFromString(priority->value, priorityVal);
+          m_newMsgHdr->SetPriority(priorityVal);
+        } else if (priorityFlags == nsMsgPriority::notSet)
           m_newMsgHdr->SetPriority(nsMsgPriority::none);
         if (keywords) {
           // When there are many keywords, some may not have been written
