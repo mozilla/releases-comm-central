@@ -1438,41 +1438,6 @@
   });
 
   /**
-   * Class used to generate the td cell for the rows of TreeViewListbox.
-   */
-  class TreeViewTableCell extends HTMLTableCellElement {
-    connectedCallback() {
-      if (this.hasConnected) {
-        return;
-      }
-      this.hasConnected = true;
-      this.setAttribute("is", "tree-view-table-cell");
-    }
-
-    /**
-     * Add a text string to this table cell.
-     *
-     * @param {string} val - The text string to add.
-     */
-    setText(val) {
-      this.replaceChildren();
-      this.textContent = val;
-    }
-
-    /**
-     * Replaces all existing child elements with the new data.
-     *
-     * @param {HTMLElement} element - The element to add as child.
-     */
-    setContent(element) {
-      this.replaceChildren(element);
-    }
-  }
-  customElements.define("tree-view-table-cell", TreeViewTableCell, {
-    extends: "td",
-  });
-
-  /**
    * Simple tbody spacer used above and below the main listbox tbody for space
    * allocation and ensuring the correct scrollable height.
    */

@@ -52,56 +52,36 @@
   height: 100%;
 }
 
-tree-view-listbox {
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-[is="tree-view-listbox"]:focus,
-tree-view-listbox:focus {
+[is="tree-view-listbox"]:focus {
   outline: none;
-}
-
-tree-view-listbox > * {
-  position: absolute;
-  left: 0;
-  right: 0;
-  cursor: default;
 }
 
 [is="tree-view-listbox"] > * {
   cursor: default;
 }
 
-[is="tree-view-listbox"] > *:hover,
-tree-view-listbox > *:hover {
+[is="tree-view-listbox"] > *:hover {
   background-color: var(--listbox-hover);
 }
 
-[is="tree-view-listbox"] > .selected,
-tree-view-listbox > .selected {
+[is="tree-view-listbox"] > .selected {
   background-color: var(--listbox-selected-bg);
   outline: var(--listbox-selected-outline);
   outline-offset: -2px;
 }
 
-[is="tree-view-listbox"]:focus > .current,
-tree-view-listbox:focus > .current {
+[is="tree-view-listbox"]:focus > .current {
   outline: 2px dotted var(--listbox-selected-color);
   outline-offset: -2px;
   z-index: 1;
 }
 
-[is="tree-view-listbox"]:focus > .selected,
-tree-view-listbox:focus > .selected {
+[is="tree-view-listbox"]:focus > .selected {
   color: var(--listbox-selected-color);
   background-color: var(--listbox-focused-selected-bg);
 }
 
-[is="tree-view-listbox"]:focus > .current.selected,
-tree-view-listbox:focus > .current.selected {
+[is="tree-view-listbox"]:focus > .current.selected {
   outline: 1px dashed var(--listbox-selected-color);
   outline-offset: -1px;
 }
@@ -237,7 +217,7 @@ th[is="tree-view-table-column-picker"] {
 
 /* Table body */
 
-tr[is="ab-table-card-listrow"] td {
+table[is="tree-view-table"] td {
   max-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -245,7 +225,7 @@ tr[is="ab-table-card-listrow"] td {
   padding-inline: 6px;
 }
 
-tr[is="ab-table-card-listrow"] td div {
+table[is="tree-view-table"] td div {
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -253,12 +233,15 @@ tr[is="ab-table-card-listrow"] td div {
 /* Transitions and animations */
 
 @media (prefers-reduced-motion: no-preference) {
-  tree-view-listbox,
   .tree-view-scrollable-container {
     scroll-behavior: smooth;
   }
 
   thead[is="tree-view-table-header"] hr[is="pane-splitter"] {
     transition: background-color 300ms ease;
+  }
+
+  table[is="tree-view-table"] tbody tr {
+    transition: color 320ms ease, background-color 320ms ease, fill 320ms ease, stroke 320ms ease;
   }
 }

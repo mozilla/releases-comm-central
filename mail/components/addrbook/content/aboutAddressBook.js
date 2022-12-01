@@ -1257,9 +1257,14 @@ class AbCardListrow extends customElements.get("tree-view-listrow") {
 
     this.setAttribute("draggable", "true");
 
-    this.avatar = this.appendChild(document.createElement("div"));
+    this.cell = document.createElement("td");
+
+    let container = this.cell.appendChild(document.createElement("div"));
+    container.classList.add("card-container");
+
+    this.avatar = container.appendChild(document.createElement("div"));
     this.avatar.classList.add("recipient-avatar");
-    let dataContainer = this.appendChild(document.createElement("div"));
+    let dataContainer = container.appendChild(document.createElement("div"));
     dataContainer.classList.add("ab-card-listrow-data");
 
     let firstLine = dataContainer.appendChild(document.createElement("p"));
@@ -1271,12 +1276,17 @@ class AbCardListrow extends customElements.get("tree-view-listrow") {
     secondLine.classList.add("ab-card-second-line");
     this.address = secondLine.appendChild(document.createElement("span"));
     this.address.classList.add("address");
+
+    this.appendChild(this.cell);
   }
 
   get index() {
     return super.index;
   }
 
+  /**
+   * Override the row setter to generate the layout.
+   */
   set index(index) {
     if (this._index == index) {
       return;
@@ -1305,14 +1315,9 @@ class AbCardListrow extends customElements.get("tree-view-listrow") {
       let addressBookName = document.createElement("span");
       addressBookName.classList.add("address-book-name");
       let firstLine = this.querySelector(".ab-card-first-line");
-      if (card.isMailList) {
-        let dir = MailServices.ab.getDirectoryFromUID(card.directoryUID);
-        addressBookName.textContent = dir.dirName;
-      } else {
-        addressBookName.textContent = this.view.getCellText(index, {
-          id: "addrbook",
-        });
-      }
+      addressBookName.textContent = this.view.getCellText(index, {
+        id: "addrbook",
+      });
       firstLine.appendChild(addressBookName);
     }
 
@@ -1340,7 +1345,7 @@ class AbCardListrow extends customElements.get("tree-view-listrow") {
       this.avatar.classList.add("is-mail-list");
     }
 
-    this.setAttribute("aria-label", this.name.textContent);
+    this.cell.setAttribute("aria-label", this.name.textContent);
   }
 }
 customElements.define("ab-card-listrow", AbCardListrow, { extends: "tr" });
@@ -1358,9 +1363,9 @@ class AbTableCardListrow extends customElements.get("tree-view-listrow") {
     this.setAttribute("draggable", "true");
 
     for (let column of cardsPane.COLUMNS) {
-      this.appendChild(
-        document.createElement("td", { is: "tree-view-table-cell" })
-      ).classList.add(`${column.id.toLowerCase()}-column`);
+      this.appendChild(document.createElement("td")).classList.add(
+        `${column.id.toLowerCase()}-column`
+      );
     }
   }
 
@@ -1387,7 +1392,7 @@ class AbTableCardListrow extends customElements.get("tree-view-listrow") {
       cell.removeAttribute("colspan");
 
       if (!column.hidden) {
-        cell.setText(this.view.getCellText(index, { id: column.id }));
+        cell.textContent = this.view.getCellText(index, { id: column.id });
         continue;
       }
 
@@ -1530,6 +1535,7 @@ var cardsPane = {
     this.table.editable = true;
     this.table.setListBoxID("cards");
     this.cardsList = this.table.listbox;
+    this.cardsList.setAttribute("rows", "ab-card-listrow");
 
     if (
       Services.xulStore.getValue(cardsPane.URL, "cardsPane", "layout") ==
