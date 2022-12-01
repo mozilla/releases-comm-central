@@ -275,9 +275,12 @@ add_task(async function test_address_suppress_leading_comma_space() {
       input.SelectionEnd = 1;
       await TestUtils.waitForTick();
 
-      eventPromise = BrowserTestUtils.waitForEvent(input, "keydown");
-      EventUtils.synthesizeKey(key, {}, controller.window);
-      await eventPromise;
+      await BrowserTestUtils.synthesizeKey(
+        key,
+        {},
+        controller.window.browsingContext
+      );
+      await new Promise(resolve => requestAnimationFrame(resolve));
 
       Assert.equal(input.value, "z" + key);
 
@@ -297,9 +300,12 @@ add_task(async function test_address_suppress_leading_comma_space() {
         await TestUtils.waitForTick();
 
         // Type the key to replace the text.
-        eventPromise = BrowserTestUtils.waitForEvent(input, "keydown");
-        EventUtils.synthesizeKey(key, {}, controller.window);
-        await eventPromise;
+        await BrowserTestUtils.synthesizeKey(
+          key,
+          {},
+          controller.window.browsingContext
+        );
+        await new Promise(resolve => requestAnimationFrame(resolve));
 
         if (key === " " || key === ",") {
           // Key is suppressed and input is empty.
@@ -323,9 +329,12 @@ add_task(async function test_address_suppress_leading_comma_space() {
       input.selectionEnd = 5;
       await TestUtils.waitForTick();
 
-      eventPromise = BrowserTestUtils.waitForEvent(input, "keydown");
-      EventUtils.synthesizeKey(key, {}, controller.window);
-      await eventPromise;
+      await BrowserTestUtils.synthesizeKey(
+        key,
+        {},
+        controller.window.browsingContext
+      );
+      await new Promise(resolve => requestAnimationFrame(resolve));
       Assert.equal(input.value, " " + key + "t ");
     }
   }
