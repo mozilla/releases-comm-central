@@ -226,7 +226,7 @@ var folderListener = {
             if (msgHdr) {
               var hdrs = hdrParser.headers;
               if (hdrs && hdrs.includes("X-attachment-size:")) {
-                msgHdr.OrFlags(Ci.nsMsgMessageFlags.Attachment);
+                msgHdr.orFlags(Ci.nsMsgMessageFlags.Attachment);
               }
               if (hdrs && hdrs.includes("X-image-size:")) {
                 msgHdr.setStringProperty("imageSize", "1");

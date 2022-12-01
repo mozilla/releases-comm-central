@@ -281,7 +281,7 @@ class ImapService {
     }
     msgParser.FinishHeader();
 
-    newMsgHdr.OrFlags(Ci.nsMsgMessageFlags.Offline | Ci.nsMsgMessageFlags.Read);
+    newMsgHdr.orFlags(Ci.nsMsgMessageFlags.Offline | Ci.nsMsgMessageFlags.Read);
     newMsgHdr.offlineMessageSize = content.length;
     db.addNewHdrToDB(newMsgHdr, true);
     dstFolder.setFlag(Ci.nsMsgFolderFlags.OfflineEvents);

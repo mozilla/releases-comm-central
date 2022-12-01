@@ -35,8 +35,8 @@ interface nsIMsgDBHdr : nsISupports
 
     /* flag handling routines */
     attribute unsigned long flags;
-    unsigned long OrFlags(in unsigned long flags);
-    unsigned long AndFlags(in unsigned long flags);
+    unsigned long orFlags(in unsigned long flags);
+    unsigned long andFlags(in unsigned long flags);
 
     /* various threading stuff */
     attribute nsMsgKey threadId;

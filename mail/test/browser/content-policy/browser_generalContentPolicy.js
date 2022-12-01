@@ -409,7 +409,7 @@ function checkAllowFeedMsg(test) {
     msgBodyStart + test.body + msgBodyEnd,
     folder
   );
-  msgDbHdr.OrFlags(Ci.nsMsgMessageFlags.FeedMsg);
+  msgDbHdr.orFlags(Ci.nsMsgMessageFlags.FeedMsg);
 
   // select the newly created message
   let msgHdr = select_click_row(gMsgNo);
