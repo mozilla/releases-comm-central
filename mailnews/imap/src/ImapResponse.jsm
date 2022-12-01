@@ -82,8 +82,10 @@ class ImapResponse {
     this.status = tokens[1];
     if (this.tag == "+") {
       this.statusText = tokens.slice(1).join(" ");
-      this.done = true;
-      return;
+      if (!this._response) {
+        this.done = true;
+        return;
+      }
     }
 
     let parsed;

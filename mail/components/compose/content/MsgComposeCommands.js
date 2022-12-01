@@ -3671,7 +3671,7 @@ var attachmentWorker = new Worker("resource:///modules/AttachmentChecker.jsm");
 attachmentWorker.lastMessage = null;
 
 attachmentWorker.onerror = function(error) {
-  Cu.reportError("Attachment Notification Worker error!!! " + error.message);
+  console.error("Attachment Notification Worker error!!! " + error.message);
   throw error;
 };
 
@@ -4717,7 +4717,7 @@ async function ComposeStartup() {
     };
     editorElement.webNavigation.loadURI("about:blank?compose", loadURIOptions);
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
 
   gEditingDraft = gMsgCompose.compFields.draftId;
@@ -5086,7 +5086,7 @@ async function ComposeLoad() {
     SetupCommandUpdateHandlers();
     await ComposeStartup();
   } catch (ex) {
-    Cu.reportError(ex);
+    console.error(ex);
     Services.prompt.alert(
       window,
       getComposeBundle().getString("initErrorDlogTitle"),
@@ -5910,7 +5910,7 @@ async function GenericSendMessage(msgType) {
     await CompleteGenericSendMessage(msgType);
     window.dispatchEvent(new CustomEvent("compose-prepare-message-success"));
   } catch (exception) {
-    Cu.reportError(exception);
+    console.error(exception);
     window.dispatchEvent(
       new CustomEvent("compose-prepare-message-failure", {
         detail: { exception },
@@ -5999,7 +5999,7 @@ async function CompleteGenericSendMessage(msgType) {
       progress
     );
   } catch (ex) {
-    Cu.reportError("GenericSendMessage FAILED: " + ex);
+    console.error("GenericSendMessage FAILED: " + ex);
     ToggleWindowLock(false);
     sendError = ex;
   }
@@ -6570,10 +6570,10 @@ function Save() {
       SaveAsFile(false);
       break;
     case "template":
-      SaveAsTemplate(false).catch(Cu.reportError);
+      SaveAsTemplate(false).catch(console.error);
       break;
     default:
-      SaveAsDraft(false).catch(Cu.reportError);
+      SaveAsDraft(false).catch(console.error);
       break;
   }
 }
@@ -7414,7 +7414,7 @@ function ComposeCanClose() {
         // gets off by one and the app can close unexpectedly on os's that
         // shutdown the app when the last window is closed.
         GenericSendMessage(Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft).catch(
-          Cu.reportError
+          console.error
         );
         return false;
       case 1: // Cancel
@@ -7604,7 +7604,7 @@ async function messageAttachmentToFile(attachment) {
         if (aStatus == Cr.NS_OK) {
           resolve(this._data.join(""));
         } else {
-          Cu.reportError(aStatus);
+          console.error(aStatus);
           reject();
         }
       },
@@ -7675,7 +7675,7 @@ async function AddAttachments(aAttachments, aContentChanged = true) {
         attachment.contentLocation = attachment.url;
         attachment.url = Services.io.newFileURI(messageFile).spec;
       } catch (ex) {
-        Cu.reportError(
+        console.error(
           `Could not save message attachment ${attachment.url} as file: ${ex}`
         );
       }
@@ -9449,7 +9449,7 @@ var envelopeDragObserver = {
               .getURLSpecFromActualFile(data);
             isValidAttachment = true;
           } catch (e) {
-            Cu.reportError(
+            console.error(
               "Couldn't process the dragged file " + data.leafName + ":" + e
             );
           }
@@ -9914,7 +9914,7 @@ var envelopeDragObserver = {
         imageElement = editor.createElementWithDefaults("img");
       } catch (e) {
         dump("Failed to create a new image element!\n");
-        Cu.reportError(e);
+        console.error(e);
         continue;
       }
 
@@ -9928,7 +9928,7 @@ var envelopeDragObserver = {
         loadBlockedImage(src);
       } catch (e) {
         dump("Failed to load the appended image!\n");
-        Cu.reportError(e);
+        console.error(e);
         continue;
       }
     }
@@ -10297,7 +10297,7 @@ async function AutoSave() {
     try {
       await GenericSendMessage(Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft);
     } catch (ex) {
-      Cu.reportError(ex);
+      console.error(ex);
     }
     gAutoSaveKickedIn = true;
   }
@@ -10680,7 +10680,7 @@ function InitEditor() {
             loadBlockedImage(src);
           } catch (e) {
             // Couldn't load the referenced image.
-            Cu.reportError(e);
+            console.error(e);
           }
         } else {
           // Appears to reference a random message. Notify and keep blocking.
@@ -10713,7 +10713,7 @@ function InitEditor() {
         editor.document.body.background = loadBlockedImage(background, true);
       } catch (e) {
         // Couldn't load the referenced image.
-        Cu.reportError(e);
+        console.error(e);
       }
     }
   }
@@ -11024,7 +11024,7 @@ function onUnblockResource(aURL, aNode) {
     loadBlockedImage(aURL);
   } catch (e) {
     // Couldn't load the referenced image.
-    Cu.reportError(e);
+    console.error(e);
   } finally {
     // Remove it from the list on success and failure.
     let urls = aNode.value.split(" ");

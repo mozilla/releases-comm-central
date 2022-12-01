@@ -284,7 +284,7 @@ function setFilterFolder(msgFolder) {
             wantedFolder = null;
         }
       } catch (e) {
-        Cu.reportError(
+        console.error(
           "Failed to select a suitable folder to run filters on: " + e
         );
         wantedFolder = null;
@@ -467,7 +467,7 @@ function calculatePositionAndShowCreateFilterDialog(args) {
     // Select the new filter, it is at the position of previous selection.
     gFilterListbox.selectItem(gFilterListbox.getItemAtIndex(position));
     if (currentFilter() != args.newFilter) {
-      Cu.reportError("Filter created at an unexpected position!");
+      console.error("Filter created at an unexpected position!");
     }
   }
 }

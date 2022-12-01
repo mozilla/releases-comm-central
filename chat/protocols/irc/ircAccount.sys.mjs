@@ -826,11 +826,8 @@ ircSocket.prototype = {
   },
 
   _initCharsetConverter() {
-    this._converter = Cc[
-      "@mozilla.org/intl/scriptableunicodeconverter"
-    ].createInstance(Ci.nsIScriptableUnicodeConverter);
     try {
-      this._converter.charset = this._account._encoding;
+      this._converter = new TextDecoder(this._account._encoding);
     } catch (e) {
       delete this._converter;
       this.ERROR(
@@ -848,7 +845,8 @@ ircSocket.prototype = {
     let conversionWarning = "";
     if (this._converter) {
       try {
-        aRawMessage = this._converter.ConvertToUnicode(aRawMessage);
+        let buffer = Uint8Array.from(aRawMessage, c => c.charCodeAt(0));
+        aRawMessage = this._converter.decode(buffer);
       } catch (e) {
         conversionWarning =
           "\nThis message doesn't seem to be " +

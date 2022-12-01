@@ -181,7 +181,7 @@ async function putItemsIntoCal(destCal, aItems, aListener) {
       if (e == Ci.calIErrors.DUPLICATE_ID) {
         await callListener("onDuplicate", item, e);
       } else {
-        Cu.reportError(e);
+        console.error(e);
         await callListener("onError", item, e);
       }
     }

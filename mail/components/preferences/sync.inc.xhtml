@@ -60,8 +60,91 @@
         </button>
       </fieldset>
 
-      <!-- TODO: Section to show what is being synced -->
+      <div id="showSyncedHeader" class="sync-section">
+        <h2 id="syncShowSyncedHeader"
+            class="sync-header"
+            data-l10n-id="sync-pane-show-synced-header-on">
+        </h2>
+        <button id="syncShowSyncedSyncNow"
+                class="place-self-end"
+                data-l10n-id="sync-pane-sync-now"
+                type="button">
+        </button>
+      </div>
 
+      <div id="syncConnected" class="sync-panel sync-section">
+        <div id="showSyncedListHeader">
+          <h3 id="showSyncedListHeading" data-l10n-id="show-synced-list-heading"></h3>
+          <a href="" data-l10n-id="show-synced-learn-more"></a>
+        </div>
+
+        <ul id="showSyncedList" class="synced-list">
+          <li id="showSyncAccount">
+            <span id="showSyncAccountLabel"
+                  class="synced-item"
+                  data-l10n-id="show-synced-item-account">
+            </span>
+            <div id="syncedAccounts">
+
+              <div class="synced-account">
+                <h4 class="synced-account-name">nemo@thunderbird.net</h4>
+                <ul class="synced-list">
+                  <li class="synced-item synced-account-server-config"
+                      data-l10n-id="synced-acount-item-server-config">
+                  </li>
+                  <li class="synced-item synced-account-filters"
+                      data-l10n-id="synced-acount-item-filters">
+                  </li>
+                  <li class="synced-item synced-account-keys"
+                      data-l10n-id="synced-acount-item-keys">
+                  </li>
+                </ul>
+              </div>
+
+              <div class="synced-account">
+                <h4 class="synced-account-name">example@example.com</h4>
+                <ul class="synced-list">
+                  <li class="synced-item synced-account-server-config"
+                      data-l10n-id="synced-acount-item-server-config">
+                  </li>
+                  <li class="synced-item synced-account-filters"
+                      data-l10n-id="synced-acount-item-filters">
+                  </li>
+                  <li class="synced-item synced-account-keys"
+                      data-l10n-id="synced-acount-item-keys">
+                  </li>
+                </ul>
+              </div>
+
+            </div>
+          </li>
+          <li id="showSyncAddress"
+              class="synced-item"
+              data-l10n-id="show-synced-item-address">
+          </li>
+          <li id="showSyncCalendar"
+              class="synced-item"
+              data-l10n-id="show-synced-item-calendar">
+          </li>
+          <li id="showSyncIdentity"
+              class="synced-item"
+              data-l10n-id="show-synced-item-identity">
+          </li>
+        </ul>
+
+        <button class="place-self-end primary"
+                data-l10n-id="show-synced-change"
+                type="button">
+        </button>
+      </div>
+
+      <div id="syncDisconnected" class="sync-panel sync-section">
+        <p data-l10n-id="sync-disconnected-text"></p>
+        <button class="place-self-start"
+                data-l10n-id="sync-disconnected-turn-on-sync"
+                type="button">
+        </button>
+      </div>
     </section>
   </html:div>
 </html:template>

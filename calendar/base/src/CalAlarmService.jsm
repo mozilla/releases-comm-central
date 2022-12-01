@@ -759,7 +759,7 @@ CalAlarmService.prototype = {
                   this.removeAlarmsForItem(item);
                   this.addAlarmsForItem(item);
                 } catch (e) {
-                  Cu.reportError("Promise was rejected: " + e);
+                  console.error("Promise was rejected: " + e);
                   this.mLoadedCalendars[calendar.id] = true;
                   this.mObservers.notify("onAlarmsLoaded", [calendar]);
                   reject(e);

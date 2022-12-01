@@ -344,7 +344,7 @@ XMPPSession.prototype = {
     try {
       this._parser.onDataAvailable(aData);
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
       this.onXMLError("parser-exception", e);
     }
     delete this._lastReceivedData;
@@ -690,11 +690,7 @@ XMPPSession.prototype = {
         ch.init(ch.SHA1);
         // Non-US-ASCII characters MUST be encoded as UTF-8 since the
         // SHA-1 hashing algorithm operates on byte arrays.
-        let converter = Cc[
-          "@mozilla.org/intl/scriptableunicodeconverter"
-        ].createInstance(Ci.nsIScriptableUnicodeConverter);
-        converter.charset = "UTF-8";
-        let data = converter.convertToByteArray(hashBase);
+        let data = [...new TextEncoder().encode(hashBase)];
         ch.update(data, data.length);
         let hash = ch.finish(false);
         let toHexString = charCode => ("0" + charCode.toString(16)).slice(-2);

@@ -846,7 +846,7 @@ calMgrCalendarObserver.prototype = {
     // Log warnings in error console.
     // Report serious errors in both error console and in prompt window.
     if (aErrNo == calIErrors.MODIFICATION_FAILED) {
-      Cu.reportError(summary);
+      console.error(summary);
       this.announceParamBlock(paramBlock);
     } else {
       cal.WARN(summary);
@@ -867,7 +867,7 @@ calMgrCalendarObserver.prototype = {
           return !equalMessage(msg, paramBlock);
         });
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
       }
     };
 

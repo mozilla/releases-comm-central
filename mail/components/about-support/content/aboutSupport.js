@@ -72,7 +72,7 @@ window.addEventListener("load", function onload(event) {
       $("update-history-row").hidden = true;
     }
   } catch (e) {
-    Cu.reportError(
+    console.error(
       "stack of load error for about:support: " + e + ": " + e.stack
     );
   }
@@ -293,7 +293,7 @@ var snapshotFormatters = {
         profElem.appendChild(fsTextNode);
       }
     } catch (x) {
-      Cu.reportError(x);
+      console.error(x);
     }
     // end of TB addition
   },

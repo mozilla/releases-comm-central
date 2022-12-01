@@ -309,7 +309,7 @@ function monkeyPatch(obj, x, func) {
     try {
       return func.apply(obj, args);
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
       throw e;
     }
   };

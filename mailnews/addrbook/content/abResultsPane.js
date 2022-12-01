@@ -135,7 +135,7 @@ function GetNumSelectedCards() {
 function GetSelectedCardTypes() {
   var cards = GetSelectedAbCards();
   if (!cards) {
-    Cu.reportError("ERROR: GetSelectedCardTypes: |cards| is null.");
+    console.error("ERROR: GetSelectedCardTypes: |cards| is null.");
     return kNothingSelected; // no view
   }
   var count = cards.length;

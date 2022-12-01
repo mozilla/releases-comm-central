@@ -7,7 +7,7 @@ const EXPORTED_SYMBOLS = ["ImapClient"];
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { setTimeout } = ChromeUtils.importESModule(
+var { clearTimeout, setTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
 );
 var { MailStringUtils } = ChromeUtils.import(
@@ -95,6 +95,10 @@ class ImapClient {
     this._authenticating = false;
     this.verifyLogon = false;
     this._idling = false;
+    if (this._idleTimer) {
+      clearTimeout(this._idleTimer);
+      this._idleTimer = null;
+    }
   }
 
   /**
@@ -660,6 +664,13 @@ class ImapClient {
     };
     this._sendTagged("IDLE");
     this._idling = true;
+    this._idleTimer = setTimeout(() => {
+      this.endIdle(() => {
+        this._actionNoop();
+      });
+      // Per rfc2177, should terminate the IDLE and re-issue it at least every
+      // 29 minutes.
+    }, 20 * 60 * 1000);
     this._logger.debug(`Idling in ${this.folder.URI}`);
   }
 
@@ -669,9 +680,15 @@ class ImapClient {
    * @param {Function} nextAction - Callback function after IDLE is ended.
    */
   endIdle(nextAction) {
-    this._nextAction = nextAction;
+    this._nextAction = res => {
+      if (res.status == "OK") {
+        nextAction();
+      }
+    };
     this._send("DONE");
     this._idling = false;
+    clearTimeout(this._idleTimer);
+    this._idleTimer = null;
   }
 
   /**

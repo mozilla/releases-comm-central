@@ -225,7 +225,7 @@ var FolderNotificationHelper = {
             if (ex.stack) {
               dump("STACK: " + ex.stack + "\n");
             }
-            Cu.reportError(ex);
+            console.error(ex);
           }
         }
         delete this._pendingFolderUriToViewWrapperLists[folderURI];

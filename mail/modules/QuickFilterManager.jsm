@@ -268,7 +268,7 @@ QuickFilterSearchListener.prototype = {
     try {
       this.listener.onSearchMessage(this.scratch, aMsgHdr, aFolder);
     } catch (ex) {
-      Cu.reportError(ex);
+      console.error(ex);
     }
   },
 
@@ -552,7 +552,7 @@ var QuickFilterManager = {
           listeners.push([listener, filterDef]);
         }
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
       }
     }
     return searchTerms.length ? [searchTerms, listeners] : [null, listeners];

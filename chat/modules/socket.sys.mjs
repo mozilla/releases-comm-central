@@ -181,7 +181,7 @@ export var Socket = {
           this
         );
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
         // We had some error getting the proxy service, just don't use one.
         this._createTransport(null);
       }
@@ -238,7 +238,7 @@ export var Socket = {
     try {
       this._outputStream.write(aData, aData.length);
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
   },
 
@@ -253,7 +253,7 @@ export var Socket = {
       let stream = converter.convertToInputStream(aString);
       this._outputStream.writeFrom(stream, stream.available());
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
   },
 

@@ -430,13 +430,13 @@ var gConnectionsDialog = {
       try {
         providers = JSON.parse(rawValue);
       } catch (ex) {
-        Cu.reportError(
+        console.error(
           `Bad JSON data in pref network.trr.resolvers: ${rawValue}`
         );
       }
     }
     if (!Array.isArray(providers)) {
-      Cu.reportError(
+      console.error(
         `Expected a JSON array in network.trr.resolvers: ${rawValue}`
       );
       providers = [];

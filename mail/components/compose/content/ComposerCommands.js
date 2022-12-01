@@ -257,7 +257,7 @@ function goUpdateCommandState(command) {
         dump("no update for command: " + command + "\n");
     }
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
 }
 /* eslint-enable complexity */
@@ -310,7 +310,7 @@ function goDoCommandParams(command, paramValue) {
       }
     }
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
 }
 
@@ -1176,7 +1176,7 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
         doUpdateURI = true;
       }
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
       return false;
     }
   } // mustShowFileDialog

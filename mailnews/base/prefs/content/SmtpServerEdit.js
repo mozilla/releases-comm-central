@@ -54,7 +54,7 @@ function onAccept(event) {
 
     saveSmtpSettings(gSmtpServer);
   } catch (ex) {
-    Cu.reportError("Error saving smtp server: " + ex);
+    console.error("Error saving smtp server: " + ex);
   }
 
   window.arguments[0].result = true;
@@ -153,7 +153,7 @@ function onLockPreference() {
     disableIfLocked(allPrefElements);
   } catch (e) {
     // non-fatal
-    Cu.reportError("Error while getting locked prefs: " + e);
+    console.error("Error while getting locked prefs: " + e);
   }
 }
 

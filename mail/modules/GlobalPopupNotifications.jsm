@@ -799,7 +799,7 @@ PopupNotifications.prototype = {
           }
           popupnotification.setAttribute("origin", uri);
         } catch (e) {
-          Cu.reportError(e);
+          console.error(e);
           popupnotification.removeAttribute("origin");
         }
       } else {
@@ -1320,7 +1320,7 @@ PopupNotifications.prototype = {
     let other = otherBrowser.ownerGlobal.PopupNotifications;
     if (!other) {
       if (ourNotifications.length > 0) {
-        Cu.reportError(
+        console.error(
           "unable to swap notifications: otherBrowser doesn't support notifications"
         );
       }
@@ -1369,7 +1369,7 @@ PopupNotifications.prototype = {
         return n.options.eventCallback.call(n, event, ...args);
       }
     } catch (error) {
-      Cu.reportError(error);
+      console.error(error);
     }
     return undefined;
   },
@@ -1556,7 +1556,7 @@ PopupNotifications.prototype = {
           source,
         });
       } catch (error) {
-        Cu.reportError(error);
+        console.error(error);
       }
 
       if (action.dismiss) {
@@ -1588,7 +1588,7 @@ PopupNotifications.prototype = {
         source: "menucommand",
       });
     } catch (error) {
-      Cu.reportError(error);
+      console.error(error);
     }
 
     if (target.action.dismiss) {

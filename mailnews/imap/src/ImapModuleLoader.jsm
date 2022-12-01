@@ -12,7 +12,7 @@ function ImapModuleLoader() {
   try {
     this.loadModule();
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
 }
 

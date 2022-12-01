@@ -142,7 +142,7 @@ class VCardSpecialDateComponent extends HTMLElement {
         "date-and-or-time"
       );
     } catch (ex) {
-      Cu.reportError(ex);
+      console.error(ex);
     }
     // Always set the month first since that controls the available days.
     this.month.value = dateValue?.month || "";

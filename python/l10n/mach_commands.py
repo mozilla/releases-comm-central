@@ -45,7 +45,7 @@ def _get_rev(command_context, strings_path):
             "-r",
             ".",
             "--template",
-            "'{node}\n'",
+            "{node}\n",
         ],
         line_handler=save_output,
     )

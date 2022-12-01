@@ -1206,45 +1206,29 @@ add_task(async function convertFromUnicode_test() {
   let data = [
     {
       // test #1
-      input: {
-        charset: "UTF-8",
-        text: "müller",
-      },
+      input: "müller",
       expected: "mÃ¼ller",
     },
     {
       // test #2
-      input: {
-        charset: "UTF-8",
-        text: "muller",
-      },
+      input: "muller",
       expected: "muller",
     },
     {
       // test #3
-      input: {
-        charset: "UTF-8",
-        text: "müller\nmüller",
-      },
+      input: "müller\nmüller",
       expected: "mÃ¼ller\nmÃ¼ller",
     },
     {
       // test #4
-      input: {
-        charset: "UTF-8",
-        text: "müller\r\nmüller",
-      },
+      input: "müller\r\nmüller",
       expected: "mÃ¼ller\r\nmÃ¼ller",
     },
   ];
   let i = 0;
   for (let test of data) {
     i++;
-    equal(
-      cal.invitation.convertFromUnicode(test.input.charset, test.input.text),
-      test.expected,
-      "(test #" + i + ")"
-    );
+    equal(cal.invitation.convertFromUnicode(test.input), test.expected, "(test #" + i + ")");
   }
 });
 

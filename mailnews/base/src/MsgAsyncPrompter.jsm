@@ -77,7 +77,7 @@ runnablePrompter.prototype = {
     try {
       ok = await this._promiseAuthPrompt(prompter.first);
     } catch (ex) {
-      Cu.reportError("runnablePrompter:run: " + ex + "\n");
+      console.error("runnablePrompter:run: " + ex + "\n");
       prompter.first.onPromptCanceled();
     }
 
@@ -92,7 +92,7 @@ runnablePrompter.prototype = {
         }
       } catch (ex) {
         // Log the error for extension devs and others to pick up.
-        Cu.reportError(
+        console.error(
           "runnablePrompter:run: consumer.onPrompt* reported an exception: " +
             ex +
             "\n"

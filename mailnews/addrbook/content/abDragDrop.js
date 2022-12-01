@@ -80,7 +80,7 @@ let abResultsPaneObserver = {
           abFlavorDataProvider
         );
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
       }
     }
 

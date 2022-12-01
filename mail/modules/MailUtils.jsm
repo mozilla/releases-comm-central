@@ -634,7 +634,7 @@ var MailUtils = {
         }
         folder.closeDBIfFolderNotOpen(true);
       } catch (ex) {
-        Cu.reportError(`Database for ${folder.name} not accessible`);
+        console.error(`Database for ${folder.name} not accessible`);
       }
     }
 

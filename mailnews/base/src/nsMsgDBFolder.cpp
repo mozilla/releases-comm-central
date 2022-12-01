@@ -3381,21 +3381,18 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage,
   // and frees memory for the subfolders but NOT for _this_
   // and does not remove _this_ from the parent's list of children.
 
-  nsresult rv = NS_OK;
-
   nsCOMPtr<nsIFile> dbPath;
   // first remove the deleted folder from the folder cache;
-  nsresult result = GetFolderCacheKey(getter_AddRefs(dbPath));
-
-  nsCOMPtr<nsIMsgAccountManager> accountMgr =
-      do_GetService("@mozilla.org/messenger/account-manager;1", &result);
-  if (NS_SUCCEEDED(result)) {
+  nsresult rv = GetFolderCacheKey(getter_AddRefs(dbPath));
+  if (NS_SUCCEEDED(rv)) {
+    nsCOMPtr<nsIMsgAccountManager> accountMgr =
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
     nsCOMPtr<nsIMsgFolderCache> folderCache;
-    result = accountMgr->GetFolderCache(getter_AddRefs(folderCache));
-    if (NS_SUCCEEDED(result) && folderCache) {
+    rv = accountMgr->GetFolderCache(getter_AddRefs(folderCache));
+    if (NS_SUCCEEDED(rv) && folderCache) {
       nsCString persistentPath;
-      result = dbPath->GetPersistentDescriptor(persistentPath);
-      if (NS_SUCCEEDED(result)) folderCache->RemoveElement(persistentPath);
+      rv = dbPath->GetPersistentDescriptor(persistentPath);
+      if (NS_SUCCEEDED(rv)) folderCache->RemoveElement(persistentPath);
     }
   }
 

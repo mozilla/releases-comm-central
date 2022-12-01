@@ -139,7 +139,7 @@ Enigmail.msg = {
       true
     );
 
-    await OpenPGPAlias.load().catch(Cu.reportError);
+    await OpenPGPAlias.load().catch(console.error);
 
     Enigmail.msg.composeOpen();
     //Enigmail.msg.processFinalState();
@@ -2330,7 +2330,7 @@ Enigmail.msg = {
           event.stopPropagation();
         }
       } catch (ex) {
-        Cu.reportError("GenericSendMessage FAILED: " + ex);
+        console.error("GenericSendMessage FAILED: " + ex);
         this.resetUpdatedFields();
         event.preventDefault();
         event.stopPropagation();

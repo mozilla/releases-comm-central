@@ -229,7 +229,7 @@ function queueLogFileCleanup(path) {
           .join("\n");
         await IOUtils.writeUTF8(path, cleanedLog);
       } catch (error) {
-        Cu.reportError(
+        console.error(
           "Error cleaning up log file contents for " + path + ": " + error
         );
       } finally {
@@ -268,7 +268,7 @@ function initLogCleanup() {
   ChromeUtils.idleDispatch(() => {
     let pendingCleanupPaths = JSON.parse(pendingCleanupPathValue) ?? [];
     if (!Array.isArray(pendingCleanupPaths)) {
-      Cu.reportError(
+      console.error(
         "Pending chat log cleanup pref is not a valid array. " +
           "Assuming all chat logs are clean."
       );
@@ -332,7 +332,7 @@ LogWriter.prototype = {
     // Catch the error separately so that _initialized will stay rejected if
     // writing the header failed.
     this._initialized.catch(aError =>
-      Cu.reportError("Failed to initialize log file:\n" + aError)
+      console.error("Failed to initialize log file:\n" + aError)
     );
   },
   // We start a new log file in the following cases:
@@ -400,7 +400,7 @@ LogWriter.prototype = {
     try {
       await appendToFile(this.currentPath, lineToWrite);
     } catch (error) {
-      Cu.reportError("Failed to log message:\n" + error);
+      console.error("Failed to log message:\n" + error);
     }
     if (aMessage.deleted) {
       queueLogFileCleanup(this.currentPath);
@@ -450,7 +450,7 @@ function getDateFromFilename(aFilename) {
 
   let r = aFilename.match(kRegExp);
   if (!r) {
-    Cu.reportError(
+    console.error(
       "Found log file with name not matching YYYY-MM-DD.HHmmSS+ZZzz.format: " +
         aFilename
     );
@@ -587,7 +587,7 @@ Log.prototype = {
         let contents = await queueFileOperation(path, () => IOUtils.read(path));
         lines = decoder.decode(contents).split("\n");
       } catch (aError) {
-        Cu.reportError('Error reading log file "' + path + '":\n' + aError);
+        console.error('Error reading log file "' + path + '":\n' + aError);
         continue;
       }
       let nextLine = lines.shift();
@@ -759,7 +759,7 @@ Logger.prototype = {
         return await IOUtils.getChildren(path);
       }
     } catch (aError) {
-      Cu.reportError(
+      console.error(
         'Error getting directory entries for "' + path + '":\n' + aError
       );
     }
@@ -841,7 +841,7 @@ Logger.prototype = {
     try {
       entries = await IOUtils.getChildren(PathUtils.parent(log.path));
     } catch (aError) {
-      Cu.reportError(
+      console.error(
         'Error getting similar logs for "' + log.path + '":\n' + aError
       );
     }
@@ -861,7 +861,7 @@ Logger.prototype = {
     }
 
     if (aAccount.disconnecting) {
-      Cu.reportError(
+      console.error(
         "Account is still disconnecting while we attempt to remove logs."
       );
     }
@@ -881,7 +881,7 @@ Logger.prototype = {
         IOUtils.remove(logPath, { recursive: true });
       })
       .catch(aError =>
-        Cu.reportError("Failed to remove log folders:\n" + aError)
+        console.error("Failed to remove log folders:\n" + aError)
       );
   },
 
@@ -893,7 +893,7 @@ Logger.prototype = {
           entries = entries.concat(await IOUtils.getChildren(path));
         } catch (aError) {
           if (aErrorMsg) {
-            Cu.reportError(aErrorMsg + "\n" + aError);
+            console.error(aErrorMsg + "\n" + aError);
           }
         }
       }
@@ -934,7 +934,7 @@ Logger.prototype = {
         if (!DOMException.isInstance(aError)) {
           throw aError;
         }
-        Cu.reportError("Error sweeping log folder:\n" + aError);
+        console.error("Error sweeping log folder:\n" + aError);
       }
     }
   },

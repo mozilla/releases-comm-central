@@ -413,7 +413,7 @@ var TodayPane = {
         // As there's no known plausible explanation, just catch the exception and carry on.
         document.getElementById("today-minimonth").value = cal.dtz.dateTimeToJsDate(this.start);
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
       }
     }
     this.updatePeriod();

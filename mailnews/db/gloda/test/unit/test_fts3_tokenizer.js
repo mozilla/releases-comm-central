@@ -89,7 +89,7 @@ var intlPhrases = [
 var msgGen;
 var messageInjection;
 
-add_task(function setupTest() {
+add_setup(function() {
   msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   glodaTestHelperInitialize(messageInjection);

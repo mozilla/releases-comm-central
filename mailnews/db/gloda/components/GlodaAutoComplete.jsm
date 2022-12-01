@@ -534,7 +534,7 @@ function GlodaAutoComplete() {
     this.completers.push(new ContactTagCompleter()); // not async.
     this.completers.push(new MessageTagCompleter()); // not async.
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
 }
 
@@ -567,7 +567,7 @@ GlodaAutoComplete.prototype = {
 
       result.announceYourself();
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
   },
 

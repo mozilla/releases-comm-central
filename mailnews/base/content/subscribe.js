@@ -129,7 +129,7 @@ function SetUpTree(forceToServer, getOnlyNew) {
         gSubscribeBundle.getString("offlineState")
       );
     } else {
-      Cu.reportError("Failed to populate subscribe tree: " + e);
+      console.error("Failed to populate subscribe tree: " + e);
       gStatusFeedback.setStatusString(
         gSubscribeBundle.getString("errorPopulating")
       );

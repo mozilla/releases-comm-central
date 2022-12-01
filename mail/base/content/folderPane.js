@@ -116,7 +116,7 @@ var gFolderTreeController = {
       if (folder.supportsOffline) {
         // Remove the offline store, if any.
         await IOUtils.remove(folder.filePath.path, { recursive: true }).catch(
-          Cu.reportError
+          console.error
         );
       }
 
@@ -172,7 +172,7 @@ var gFolderTreeController = {
 
     function renameCallback(aName, aUri) {
       if (aUri != folder.URI) {
-        Cu.reportError("got back a different folder to rename!");
+        console.error("got back a different folder to rename!");
       }
 
       // Actually do the rename.

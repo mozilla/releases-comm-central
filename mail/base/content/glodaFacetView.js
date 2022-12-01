@@ -129,7 +129,7 @@ const QueryExplanation = {
       }
       label = label + constraintStrings.join(", "); // XXX l10n?
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
   },
 };
@@ -488,7 +488,7 @@ var FacetContext = {
       this._sortBy = val;
       this.build(this._sieveAll());
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
   },
   /**
@@ -652,7 +652,7 @@ var FacetContext = {
             try {
               explicitBinding.build(true);
             } catch (e) {
-              Cu.reportError(e);
+              console.error(e);
             }
             explicitBinding.removeAttribute("uninitialized");
           }
@@ -767,7 +767,7 @@ var FacetContext = {
         this._hideTimeline(false);
       }
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
   },
 

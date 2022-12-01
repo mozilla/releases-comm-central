@@ -60,7 +60,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
 var msgGen;
 var messageInjection;
 
-add_task(function setupTest() {
+add_setup(function() {
   /*
    * All the rest of the gloda tests (should) work with maildir, but this test
    * only works/makes sense with mbox, so force it to always use mbox.  This

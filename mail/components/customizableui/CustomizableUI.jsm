@@ -204,7 +204,7 @@ var CustomizableUIInternal = {
     try {
       this._updateForNewVersion();
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
     this._markObsoleteBuiltinButtonsSeen();
 
@@ -1932,7 +1932,7 @@ var CustomizableUIInternal = {
       try {
         aWidget.onClick.call(null, aEvent);
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
       }
     } else {
       // XXXunf Need to think this through more, and formalize.
@@ -2701,7 +2701,7 @@ var CustomizableUIInternal = {
           }
         },
         err => {
-          Cu.reportError(err);
+          console.error(err);
         }
       );
     }
@@ -2863,7 +2863,7 @@ var CustomizableUIInternal = {
           aArgs
         );
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
         return undefined;
       }
     };
@@ -4896,7 +4896,7 @@ OverflowableToolbar.prototype = {
       );
       lazy.PanelMultiView.openPopup(this._panel, anchor || this._chevron, {
         triggerEvent: aEvent,
-      }).catch(Cu.reportError);
+      }).catch(console.error);
       this._chevron.open = true;
 
       this._panel.addEventListener(

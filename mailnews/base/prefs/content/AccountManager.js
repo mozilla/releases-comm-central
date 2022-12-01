@@ -418,7 +418,7 @@ function checkDirectoryIsAllowed(aLocalPath) {
       try {
         testDir = Services.dirsvc.get(aDirToCheck.dirsvc, Ci.nsIFile);
       } catch (e) {
-        Cu.reportError(
+        console.error(
           "The special folder " +
             aDirToCheck.dirsvc +
             " cannot be retrieved on this platform: " +
@@ -436,7 +436,7 @@ function checkDirectoryIsAllowed(aLocalPath) {
         return true;
       }
     } else {
-      Cu.reportError("No directory to check?");
+      console.error("No directory to check?");
       return true;
     }
 
@@ -557,7 +557,7 @@ function checkDirectoryIsUsable(aLocalPath) {
       }
     } catch (e) {
       // The other account's path is seriously broken, so we can't compare it.
-      Cu.reportError(
+      console.error(
         "The Local Directory path of the account " +
           server.prettyName +
           " seems invalid."
@@ -719,7 +719,7 @@ function checkUserServerChanges(showAlert) {
   let dir = getFormElementValue(pathElem);
   if (!checkDirectoryIsUsable(dir)) {
     //          return false; // Temporarily disable this. Just show warning but do not block. See bug 921371.
-    Cu.reportError(
+    console.error(
       `Local directory ${dir.path} of account ${currentAccount.key} is not safe to use. Consider changing it.`
     );
   }
@@ -1563,7 +1563,7 @@ function getFormElementValue(formElement) {
     }
     return null;
   } catch (ex) {
-    Cu.reportError("getFormElementValue failed, ex=" + ex + "\n");
+    console.error("getFormElementValue failed, ex=" + ex + "\n");
   }
   return null;
 }
@@ -1861,7 +1861,7 @@ var gAccountTree = {
             // Fetching of this extension panel failed so do not show it,
             // just log error.
             let extName = data || "(unknown)";
-            Cu.reportError(
+            console.error(
               "Error accessing panel from extension '" + extName + "': " + e
             );
           }
@@ -1871,7 +1871,7 @@ var gAccountTree = {
         // Show only a placeholder in the account list saying this account
         // is broken, with no child panels.
         let accountID = accountName || accountKey;
-        Cu.reportError("Error accessing account " + accountID + ": " + e);
+        console.error("Error accessing account " + accountID + ": " + e);
         accountName = "Invalid account " + accountID;
         panelsToKeep.length = 0;
       }

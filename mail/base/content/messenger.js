@@ -65,7 +65,7 @@ XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function() {
       { shouldSuppress }
     );
   } catch (ex) {
-    Cu.reportError(ex);
+    console.error(ex);
     return null;
   }
 });
@@ -609,7 +609,7 @@ async function loadPostAccountWizard() {
   try {
     MailServices.accounts.loadVirtualFolders();
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
 
   // Restore the previous folder selection before shutdown, or select the first
@@ -757,7 +757,7 @@ async function atStartupRestoreTabs(aDontRestoreFirstTab) {
     try {
       tabmail.restoreTabs(tabsState, aDontRestoreFirstTab);
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
   }
 
@@ -926,7 +926,7 @@ async function loadStartFolder(initialUri) {
         );
       } catch (ex) {
         // This means we tried to select a folder that isn't in the current view.
-        Cu.reportError(ex);
+        console.error(ex);
       }
     }
   } catch (ex) {
@@ -936,7 +936,7 @@ async function loadStartFolder(initialUri) {
       return;
     }
 
-    Cu.reportError(ex);
+    console.error(ex);
   }
 
   MsgGetMessagesForAllServers(defaultServer);

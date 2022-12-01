@@ -486,7 +486,7 @@ XMPPParser.prototype = {
         try {
           this._listener.onXmppStanza(this._node);
         } catch (e) {
-          Cu.reportError(e);
+          console.error(e);
           dump(e + "\n");
         }
       } else {

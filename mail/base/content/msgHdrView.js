@@ -1061,7 +1061,7 @@ function updateExpandedView() {
   try {
     AdjustHeaderView(Services.prefs.getIntPref("mail.show_headers"));
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
 }
 
@@ -1606,7 +1606,7 @@ AttachmentInfo.prototype = {
           let externalFile = fileHandler.getFileFromURLSpec(this.displayUrl);
           this._openFile(mimeInfo, externalFile);
         } catch (ex) {
-          Cu.reportError(
+          console.error(
             "AttachmentInfo.open: file - " + this.displayUrl + ", " + ex
           );
         }
@@ -1901,7 +1901,7 @@ AttachmentInfo.prototype = {
     try {
       fileHandler.getFileFromURLSpec(this.displayUrl).reveal();
     } catch (ex) {
-      Cu.reportError(
+      console.error(
         "AttachmentInfo.openFolder: file - " + this.displayUrl + ", " + ex
       );
     }
@@ -2838,7 +2838,7 @@ function TryHandleAllAttachments(action) {
   try {
     HandleAllAttachments(action);
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
 }
 
@@ -3594,7 +3594,7 @@ const gMessageHeader = {
       let uri = Services.io.newURI(url);
       navigator.clipboard.writeText(decodeURI(uri.spec));
     } catch (e) {
-      Cu.reportError("Invalid URL: " + url);
+      console.error("Invalid URL: " + url);
     }
   },
 
@@ -3770,7 +3770,7 @@ function OpenBrowserWithMessageId(messageId) {
   try {
     top.messenger.launchExternalURL(browserURL);
   } catch (ex) {
-    Cu.reportError(
+    console.error(
       "Failed to open message-id in browser; browserURL=" + browserURL
     );
   }

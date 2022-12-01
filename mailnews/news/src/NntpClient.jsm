@@ -831,7 +831,7 @@ class NntpClient {
    * @param {NntpResponse} res - XPAT response received from the server.
    */
   _actionXPatResponse({ status, statusText, data }) {
-    if (status != XPAT_OK) {
+    if (status && status != XPAT_OK) {
       this._actionError(NNTP_ERROR_MESSAGE, statusText);
       return;
     }

@@ -353,7 +353,7 @@ FetchHTTP.prototype = {
         try {
           this._finishedCallback(this);
         } catch (e) {
-          Cu.reportError(e);
+          console.error(e);
         }
       }
     } catch (e) {
@@ -366,7 +366,7 @@ FetchHTTP.prototype = {
       this._errorCallback(e);
     } catch (e) {
       // error in errorCallback, too!
-      Cu.reportError(e);
+      console.error(e);
       alertPrompt("Error in errorCallback for fetchhttp", e);
     }
   },

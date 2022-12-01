@@ -170,7 +170,7 @@ function ensureInitialized() {
         }
       }
     } catch (ex) {
-      Cu.reportError(ex);
+      console.error(ex);
     }
   }
 

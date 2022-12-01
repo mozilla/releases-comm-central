@@ -2355,7 +2355,7 @@ var cardsPane = {
           this._flavorDataProvider
         );
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
       }
     }
 
@@ -3151,7 +3151,7 @@ var detailsPane = {
       try {
         date = ICAL.VCardTime.fromDateAndOrTimeString(date);
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
         return "";
       }
       if (date.year && date.month && date.day) {

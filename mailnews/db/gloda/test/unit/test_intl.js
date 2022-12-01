@@ -217,7 +217,7 @@ var intlPhrases = [
 var msgGen;
 var messageInjection;
 
-add_task(function setupTest() {
+add_setup(function() {
   msgGen = new MessageGenerator();
   // Use mbox injection because the fake server chokes sometimes right now.
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);

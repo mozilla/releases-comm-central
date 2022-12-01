@@ -829,11 +829,8 @@ async function get_msg_source(aMsgHdr, aCharset = "") {
     return content;
   }
 
-  let converter = Cc[
-    "@mozilla.org/intl/scriptableunicodeconverter"
-  ].createInstance(Ci.nsIScriptableUnicodeConverter);
-  converter.charset = aCharset;
-  return converter.ConvertToUnicode(content);
+  let buffer = Uint8Array.from(content, c => c.charCodeAt(0));
+  return new TextDecoder(aCharset).decode(buffer);
 }
 
 /**

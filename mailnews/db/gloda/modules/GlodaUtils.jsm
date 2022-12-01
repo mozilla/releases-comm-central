@@ -63,12 +63,7 @@ var GlodaUtils = {
    *  docs.
    */
   md5HashString(aString) {
-    let converter = Cc[
-      "@mozilla.org/intl/scriptableunicodeconverter"
-    ].createInstance(Ci.nsIScriptableUnicodeConverter);
-    let trash = {};
-    converter.charset = "UTF-8";
-    let data = converter.convertToByteArray(aString, trash);
+    let data = [...new TextEncoder().encode(aString)];
 
     let hasher = Cc["@mozilla.org/security/hash;1"].createInstance(
       Ci.nsICryptoHash

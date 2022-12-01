@@ -1226,7 +1226,7 @@ function GetFirstSelectedMsgFolder() {
   try {
     var selectedFolders = GetSelectedMsgFolders();
   } catch (e) {
-    Cu.reportError(e);
+    console.error(e);
   }
   return selectedFolders.length > 0 ? selectedFolders[0] : null;
 }

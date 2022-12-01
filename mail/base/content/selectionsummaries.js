@@ -66,7 +66,7 @@ function summarizeThread(aSelectedMessages, aMessageDisplay) {
         aMessageDisplay
       );
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
       throw e;
     }
   });
@@ -97,7 +97,7 @@ function summarizeMultipleSelection(aSelectedMessages, aMessageDisplay) {
         aMessageDisplay
       );
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
       throw e;
     }
   });

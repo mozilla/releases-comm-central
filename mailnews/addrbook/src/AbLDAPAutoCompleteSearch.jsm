@@ -198,7 +198,7 @@ AbLDAPAutoCompleteSearch.prototype = {
       try {
         identity = MailServices.accounts.getIdentity(params.idKey);
       } catch (ex) {
-        Cu.reportError(
+        console.error(
           "Couldn't get specified identity, " +
             "falling back to global settings"
         );

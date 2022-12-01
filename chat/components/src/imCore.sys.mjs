@@ -218,7 +218,7 @@ UserStatus.prototype = {
         }
       }
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
     }
 
     this._notifyObservers("user-icon-changed", newName);
@@ -383,7 +383,7 @@ CoreService.prototype = {
       // This is a real error, the protocol is registered and failed to init.
       let error = "failed to create an instance of " + cid + ": " + e;
       dump(error + "\n");
-      Cu.reportError(error);
+      console.error(error);
     }
     if (!proto) {
       return null;
@@ -392,7 +392,7 @@ CoreService.prototype = {
     try {
       proto.init(aPrplId);
     } catch (e) {
-      Cu.reportError("Could not initialize protocol " + aPrplId + ": " + e);
+      console.error("Could not initialize protocol " + aPrplId + ": " + e);
       return null;
     }
 

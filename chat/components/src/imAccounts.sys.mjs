@@ -445,7 +445,7 @@ imAccount.prototype = {
   _reconnectTimer: null,
   _startReconnectTimer() {
     if (Services.io.offline) {
-      Cu.reportError("_startReconnectTimer called while offline");
+      console.error("_startReconnectTimer called while offline");
       return;
     }
 
@@ -714,7 +714,7 @@ imAccount.prototype = {
     try {
       this.connect();
     } catch (e) {
-      Cu.reportError(e);
+      console.error(e);
       this._finishedAutoLogin();
     }
   },
@@ -989,7 +989,7 @@ AccountsService.prototype = {
         }
         new imAccount(account);
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
         dump(e + " " + e.toSource() + "\n");
       }
     }
@@ -1186,7 +1186,7 @@ AccountsService.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
     if (prpl.accountExists(aName)) {
-      Cu.reportError("Attempted to create a duplicate account!");
+      console.error("Attempted to create a duplicate account!");
       throw Components.Exception("", Cr.NS_ERROR_ALREADY_INITIALIZED);
     }
 

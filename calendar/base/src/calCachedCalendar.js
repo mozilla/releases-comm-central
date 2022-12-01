@@ -219,7 +219,7 @@ calCachedCalendar.prototype = {
         this.mCachedCalendar = cachedCalendar;
       }
     } catch (exc) {
-      Cu.reportError(exc);
+      console.error(exc);
     }
   },
 
@@ -275,7 +275,7 @@ calCachedCalendar.prototype = {
   mPendingSync: null,
   async synchronize() {
     if (!this.mPendingSync) {
-      this.mPendingSync = this._doSynchronize().catch(Cu.reportError);
+      this.mPendingSync = this._doSynchronize().catch(console.error);
     }
     return this.mPendingSync;
   },

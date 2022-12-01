@@ -360,7 +360,7 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
         // If the node is not allowed, either remove it completely (if
         // it is forbidden) or replace it with its children.
         if (nodeName in kForbiddenTags) {
-          Cu.reportError(
+          console.error(
             "removing a " + nodeName + " tag from a message before display"
           );
         } else {

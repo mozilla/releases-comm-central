@@ -644,7 +644,7 @@ var gCloudAttachmentLinkManager = {
           );
         } catch (e) {
           // Couldn't load the referenced image.
-          Cu.reportError(e);
+          console.error(e);
         }
       }
     }

@@ -30,7 +30,7 @@ class PromptCollection {
       );
       stayLabel = this.domBundle.GetStringFromName("OnBeforeUnloadStayButton");
     } catch (exception) {
-      Cu.reportError("Failed to get strings from dom.properties");
+      console.error("Failed to get strings from dom.properties");
       return false;
     }
 

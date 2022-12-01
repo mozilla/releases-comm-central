@@ -555,11 +555,12 @@ calIcalComponent.prototype = {
   },
 
   serializeToICSStream() {
-    let unicodeConverter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(
-      Ci.nsIScriptableUnicodeConverter
+    let data = this.innerObject.toString();
+    let stream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
+      Ci.nsIStringInputStream
     );
-    unicodeConverter.charset = "UTF-8";
-    return unicodeConverter.convertToInputStream(this.innerObject.toString());
+    stream.setData(data, data.length);
+    return stream;
   },
 };
 

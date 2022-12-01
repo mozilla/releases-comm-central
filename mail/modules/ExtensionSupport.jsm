@@ -34,12 +34,12 @@ var ExtensionSupport = {
    */
   registerWindowListener(aID, aExtensionHook) {
     if (!aID) {
-      Cu.reportError("No extension ID provided for the window listener");
+      console.error("No extension ID provided for the window listener");
       return false;
     }
 
     if (extensionHooks.has(aID)) {
-      Cu.reportError(
+      console.error(
         "Window listener for extension + '" + aID + "' already registered"
       );
       return false;
@@ -49,7 +49,7 @@ var ExtensionSupport = {
       !("onLoadWindow" in aExtensionHook) &&
       !("onUnloadWindow" in aExtensionHook)
     ) {
-      Cu.reportError(
+      console.error(
         "The extension + '" + aID + "' does not provide any callbacks"
       );
       return false;
@@ -95,13 +95,13 @@ var ExtensionSupport = {
    */
   unregisterWindowListener(aID) {
     if (!aID) {
-      Cu.reportError("No extension ID provided for the window listener");
+      console.error("No extension ID provided for the window listener");
       return false;
     }
 
     let windowListener = extensionHooks.get(aID);
     if (!windowListener) {
-      Cu.reportError(
+      console.error(
         "Couldn't remove window listener for extension + '" + aID + "'"
       );
       return false;
@@ -229,7 +229,7 @@ var ExtensionSupport = {
             break;
         }
       } catch (ex) {
-        Cu.reportError(ex);
+        console.error(ex);
       }
     }
   },

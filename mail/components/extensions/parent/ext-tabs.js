@@ -227,7 +227,7 @@ class TabsUpdateFilterEventManager extends EventManager {
       !extension.hasPermission("tabs") &&
       !extension.hasPermission("activeTab")
     ) {
-      Cu.reportError(
+      console.error(
         'Url filtering in tabs.onUpdated requires "tabs" or "activeTab" permission.'
       );
       return false;

@@ -32,14 +32,10 @@ var { MessageInjection } = ChromeUtils.import(
 var msgGen = new MessageGenerator();
 var messageInjection;
 
-add_task(function setupTest() {
+add_setup(function() {
   // Sanity check: figure out how many bytes the original text occupies in UTF-8 encoding
-  let converter = Cc[
-    "@mozilla.org/intl/scriptableunicodeconverter"
-  ].createInstance(Ci.nsIScriptableUnicodeConverter);
-  converter.charset = "UTF-8";
   Assert.equal(
-    converter.ConvertFromUnicode(originalText).length,
+    new TextEncoder().encode(originalText).length,
     originalTextByteCount
   );
 

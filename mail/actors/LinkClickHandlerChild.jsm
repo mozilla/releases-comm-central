@@ -113,7 +113,7 @@ class LinkClickHandlerChild extends JSWindowActorChild {
         }
       } catch (ex) {
         if (ex.result != Cr.NS_ERROR_HOST_IS_IP_ADDRESS) {
-          Cu.reportError(ex);
+          console.error(ex);
         }
       }
     } catch (ex) {

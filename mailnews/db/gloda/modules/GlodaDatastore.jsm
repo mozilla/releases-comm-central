@@ -450,7 +450,7 @@ QueryFromQueryCallback.prototype = {
           QueryFromQueryResolver.onQueryCompleted({ data: this.collection });
         }
       } catch (e) {
-        Cu.reportError(e);
+        console.error(e);
         QFQ_LOG.error("Exception:", e);
       }
     } finally {
@@ -608,7 +608,7 @@ ExplainedStatementProcessor.prototype = {
     }
   },
   handleError(aError) {
-    Cu.reportError("Unexpected error in EXPLAIN handler: " + aError);
+    console.error("Unexpected error in EXPLAIN handler: " + aError);
   },
   handleCompletion(aReason) {
     let obj = {

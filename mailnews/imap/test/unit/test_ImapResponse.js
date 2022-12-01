@@ -261,3 +261,19 @@ add_task(function test_QuotaResponse() {
   deepEqual(response.quotaRoots, ["INBOX"]);
   deepEqual(response.quotas, [["INBOX", "STORAGE", 123, 456]]);
 });
+
+/**
+ * Test IDLE and DONE response can be correctly parsed.
+ */
+add_task(function test_IdleDoneResponse() {
+  let response = new ImapResponse();
+  response.parse("+ idling\r\n");
+  deepEqual(
+    [response.tag, response.status, response.done],
+    ["+", "idling", true]
+  );
+
+  response = new ImapResponse();
+  response.parse(["+ idling", "75 OK Completed", ""].join("\r\n"));
+  deepEqual([response.tag, response.status, response.done], [75, "OK", true]);
+});
