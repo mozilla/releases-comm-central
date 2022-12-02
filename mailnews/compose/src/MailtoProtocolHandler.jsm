@@ -14,14 +14,6 @@ class MailtoProtocolHandler {
 
   scheme = "mailto";
   allowPort = false;
-  defaultPort = -1;
-  protocolFlags =
-    Ci.nsIProtocolHandler.URI_NORELATIVE |
-    Ci.nsIProtocolHandler.ALLOWS_PROXY |
-    Ci.nsIProtocolHandler.URI_LOADABLE_BY_ANYONE |
-    Ci.nsIProtocolHandler.URI_NON_PERSISTABLE |
-    Ci.nsIProtocolHandler.URI_DOES_NOT_RETURN_DATA |
-    Ci.nsIProtocolHandler.URI_FORBIDS_COOKIE_ACCESS;
 
   newChannel(uri, loadInfo) {
     // Create an empty pipe to get an inputStream.

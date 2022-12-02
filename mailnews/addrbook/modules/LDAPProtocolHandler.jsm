@@ -4,51 +4,38 @@
 
 var EXPORTED_SYMBOLS = ["LDAPProtocolHandler", "LDAPSProtocolHandler"];
 
-const nsIProtocolHandler = Ci.nsIProtocolHandler;
+/**
+ * @implements {nsIProtocolHandler}
+ */
+class LDAPProtocolHandler {
+  QueryInterface = ChromeUtils.generateQI(["nsIProtocolHandler"]);
 
-function makeProtocolHandler(aCID, aProtocol, aDefaultPort) {
-  return {
-    classID: Components.ID(aCID),
-    QueryInterface: ChromeUtils.generateQI([nsIProtocolHandler]),
+  scheme = "ldap";
 
-    scheme: aProtocol,
-    defaultPort: aDefaultPort,
-    protocolFlags:
-      nsIProtocolHandler.URI_NORELATIVE |
-      nsIProtocolHandler.URI_DANGEROUS_TO_LOAD |
-      nsIProtocolHandler.ALLOWS_PROXY,
+  newChannel(aURI, aLoadInfo) {
+    let channel = Cc["@mozilla.org/network/ldap-channel;1"].createInstance(
+      Ci.nsIChannel
+    );
+    channel.init(aURI);
+    channel.loadInfo = aLoadInfo;
+    return channel;
+  }
 
-    newChannel(aURI, aLoadInfo) {
-      if ("@mozilla.org/network/ldap-channel;1" in Cc) {
-        var channel = Cc["@mozilla.org/network/ldap-channel;1"].createInstance(
-          Ci.nsIChannel
-        );
-        channel.init(aURI);
-        channel.loadInfo = aLoadInfo;
-        return channel;
-      }
-
-      throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-    },
-
-    allowPort(port, scheme) {
-      return port == aDefaultPort;
-    },
-  };
+  allowPort(port, scheme) {
+    return port == 389;
+  }
 }
-
-function LDAPProtocolHandler() {}
-
-LDAPProtocolHandler.prototype = makeProtocolHandler(
-  "{b3de9249-b0e5-4c12-8d91-c9a434fd80f5}",
-  "ldap",
-  389
+LDAPProtocolHandler.prototype.classID = Components.ID(
+  "{b3de9249-b0e5-4c12-8d91-c9a434fd80f5}"
 );
 
-function LDAPSProtocolHandler() {}
+class LDAPSProtocolHandler extends LDAPProtocolHandler {
+  scheme = "ldaps";
 
-LDAPSProtocolHandler.prototype = makeProtocolHandler(
-  "{c85a5ef2-9c56-445f-b029-76889f2dd29b}",
-  "ldaps",
-  636
+  allowPort(port, scheme) {
+    return port == 636;
+  }
+}
+LDAPSProtocolHandler.prototype.classID = Components.ID(
+  "{c85a5ef2-9c56-445f-b029-76889f2dd29b}"
 );

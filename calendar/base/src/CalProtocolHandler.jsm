@@ -5,42 +5,30 @@
 var EXPORTED_SYMBOLS = ["CalProtocolHandlerWebcal", "CalProtocolHandlerWebcals"];
 
 /**
- * Generic webcal constructor
+ * CalProtocolHandler.
  *
- * @param scheme        The scheme to init for (webcal, webcals)
+ * @param {string} scheme - The scheme to init for (webcal, webcals).
+ * @implements {nsIProtocolHandler}
  */
-function calProtocolHandler(scheme) {
-  this.scheme = scheme;
-  this.mHttpProtocol = Services.io.getProtocolHandler(this.scheme == "webcal" ? "http" : "https");
-  this.wrappedJSObject = this;
-}
+class CalProtocolHandlerWebcal {
+  QueryInterface = ChromeUtils.generateQI(["nsIProtocolHandler"]);
 
-calProtocolHandler.prototype = {
-  get defaultPort() {
-    return this.mHttpProtocol.defaultPort;
-  },
-  get protocolFlags() {
-    return this.mHttpProtocol.protocolFlags;
-  },
+  scheme = "webcal";
+  httpScheme = "http";
+  httpPort = 80;
 
   newURI(aSpec, anOriginalCharset, aBaseURI) {
     return Cc["@mozilla.org/network/standard-url-mutator;1"]
       .createInstance(Ci.nsIStandardURLMutator)
-      .init(
-        Ci.nsIStandardURL.URLTYPE_STANDARD,
-        this.mHttpProtocol.defaultPort,
-        aSpec,
-        anOriginalCharset,
-        aBaseURI
-      )
+      .init(Ci.nsIStandardURL.URLTYPE_STANDARD, this.httpPort, aSpec, anOriginalCharset, aBaseURI)
       .finalize()
       .QueryInterface(Ci.nsIStandardURL);
-  },
+  }
 
   newChannel(aUri, aLoadInfo) {
     let uri = aUri
       .mutate()
-      .setScheme(this.mHttpProtocol.scheme)
+      .setScheme(this.httpScheme)
       .finalize();
 
     let channel;
@@ -58,32 +46,21 @@ calProtocolHandler.prototype = {
     }
     channel.originalURI = aUri;
     return channel;
-  },
+  }
 
-  // We are not overriding any special ports
   allowPort(aPort, aScheme) {
-    return false;
-  },
-};
-
-/** Constructor for webcal: protocol handler */
-function CalProtocolHandlerWebcal() {
-  calProtocolHandler.call(this, "webcal");
+    return false; // We are not overriding any special ports.
+  }
 }
-CalProtocolHandlerWebcal.prototype = {
-  __proto__: calProtocolHandler.prototype,
+CalProtocolHandlerWebcal.prototype.classID = Components.ID(
+  "{1153c73a-39be-46aa-9ba9-656d188865ca}"
+);
 
-  QueryInterface: ChromeUtils.generateQI(["nsIProtocolHandler"]),
-  classID: Components.ID("{1153c73a-39be-46aa-9ba9-656d188865ca}"),
-};
-
-/** Constructor for webcals: protocol handler */
-function CalProtocolHandlerWebcals() {
-  calProtocolHandler.call(this, "webcals");
+class CalProtocolHandlerWebcals extends CalProtocolHandlerWebcal {
+  scheme = "webcals";
+  httpScheme = "http";
+  httpPort = 443;
 }
-CalProtocolHandlerWebcals.prototype = {
-  __proto__: calProtocolHandler.prototype,
-
-  QueryInterface: ChromeUtils.generateQI(["nsIProtocolHandler"]),
-  classID: Components.ID("{bdf71224-365d-4493-856a-a7e74026f766}"),
-};
+CalProtocolHandlerWebcals.prototype.classID = Components.ID(
+  "{bdf71224-365d-4493-856a-a7e74026f766}"
+);

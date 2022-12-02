@@ -20,15 +20,6 @@ NS_IMETHODIMP nsCidProtocolHandler::GetScheme(nsACString& aScheme) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsCidProtocolHandler::GetDefaultPort(int32_t* aDefaultPort) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsCidProtocolHandler::GetProtocolFlags(uint32_t* aProtocolFlags) {
-  // XXXbz so why does this protocol handler exist, exactly?
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 nsresult nsCidProtocolHandler::NewURI(const nsACString& aSpec,
                                       const char* aOriginCharset,
                                       nsIURI* aBaseURI, nsIURI** _retval) {

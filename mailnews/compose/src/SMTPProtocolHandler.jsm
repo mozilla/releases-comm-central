@@ -4,43 +4,36 @@
 
 var EXPORTED_SYMBOLS = ["SMTPProtocolHandler", "SMTPSProtocolHandler"];
 
-var nsIProtocolHandler = Ci.nsIProtocolHandler;
+/**
+ * @implements {nsIProtocolHandler}
+ */
+class SMTPProtocolHandler {
+  QueryInterface = ChromeUtils.generateQI(["nsIProtocolHandler"]);
 
-function makeProtocolHandler(aProtocol, aDefaultPort, aClassID) {
-  return {
-    QueryInterface: ChromeUtils.generateQI(["nsIProtocolHandler"]),
+  scheme = "smtp";
 
-    scheme: aProtocol,
-    defaultPort: aDefaultPort,
-    protocolFlags:
-      nsIProtocolHandler.URI_NORELATIVE |
-      nsIProtocolHandler.URI_DANGEROUS_TO_LOAD |
-      nsIProtocolHandler.URI_NON_PERSISTABLE |
-      nsIProtocolHandler.ALLOWS_PROXY |
-      nsIProtocolHandler.URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT,
+  newChannel(aURI, aLoadInfo) {
+    throw Components.Exception(
+      `${this.constructor.name}.newChannel not implemented`,
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
+  }
 
-    newChannel(aURI, aLoadInfo) {
-      throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-    },
-
-    allowPort(port, scheme) {
-      return port == aDefaultPort;
-    },
-  };
+  allowPort(port, scheme) {
+    return port == Ci.nsISmtpUrl.DEFAULT_SMTP_PORT;
+  }
 }
-
-function SMTPProtocolHandler() {}
-
-SMTPProtocolHandler.prototype = makeProtocolHandler(
-  "smtp",
-  Ci.nsISmtpUrl.DEFAULT_SMTP_PORT,
-  "b14c2b67-8680-4c11-8d63-9403c7d4f757"
+SMTPProtocolHandler.prototype.classID = Components.ID(
+  "{b14c2b67-8680-4c11-8d63-9403c7d4f757}"
 );
 
-function SMTPSProtocolHandler() {}
+class SMTPSProtocolHandler extends SMTPProtocolHandler {
+  scheme = "smtps";
 
-SMTPSProtocolHandler.prototype = makeProtocolHandler(
-  "smtps",
-  Ci.nsISmtpUrl.DEFAULT_SMTPS_PORT,
-  "057d0997-9e3a-411e-b4ee-2602f53fe05f"
+  allowPort(port, scheme) {
+    return port == Ci.nsISmtpUrl.DEFAULT_SMTPS_PORT;
+  }
+}
+SMTPSProtocolHandler.prototype.classID = Components.ID(
+  "{057d0997-9e3a-411e-b4ee-2602f53fe05f}"
 );

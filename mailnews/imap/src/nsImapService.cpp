@@ -95,6 +95,18 @@ NS_IMPL_ISUPPORTS(nsImapService, nsIImapService, nsIMsgMessageService,
 nsImapService::nsImapService() {
   if (!gInitialized) {
     nsresult rv;
+
+    nsCOMPtr<nsIIOService> ioServ = do_GetIOService();
+    ioServ->RegisterProtocolHandler(
+        "imap"_ns, this,
+        nsIProtocolHandler::URI_NORELATIVE |
+            nsIProtocolHandler::URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT |
+            nsIProtocolHandler::URI_DANGEROUS_TO_LOAD |
+            nsIProtocolHandler::ALLOWS_PROXY |
+            nsIProtocolHandler::URI_FORBIDS_COOKIE_ACCESS |
+            nsIProtocolHandler::ORIGIN_IS_FULL_SPEC,
+        nsIImapUrl::DEFAULT_IMAP_PORT);
+
     nsCOMPtr<nsIPrefBranch> prefBranch(
         do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
     if (NS_SUCCEEDED(rv) && prefBranch) {
@@ -2308,22 +2320,6 @@ NS_IMETHODIMP nsImapService::GetScheme(nsACString& aScheme) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapService::GetDefaultPort(int32_t* aDefaultPort) {
-  NS_ENSURE_ARG_POINTER(aDefaultPort);
-  *aDefaultPort = nsIImapUrl::DEFAULT_IMAP_PORT;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsImapService::GetProtocolFlags(uint32_t* result) {
-  *result = URI_NORELATIVE | URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT |
-            URI_DANGEROUS_TO_LOAD | ALLOWS_PROXY | URI_FORBIDS_COOKIE_ACCESS
-#ifdef IS_ORIGIN_IS_FULL_SPEC_DEFINED
-            | ORIGIN_IS_FULL_SPEC
-#endif
-      ;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsImapService::AllowPort(int32_t port, const char* scheme,
                                        bool* aRetVal) {
   // allow imap to run on any port
@@ -2340,15 +2336,13 @@ NS_IMETHODIMP nsImapService::GetDefaultDoBiff(bool* aDoBiff) {
 
 NS_IMETHODIMP nsImapService::GetDefaultServerPort(bool isSecure,
                                                   int32_t* aDefaultPort) {
-  nsresult rv = NS_OK;
-
   // Return Secure IMAP Port if secure option chosen i.e., if isSecure is TRUE
   if (isSecure)
     *aDefaultPort = nsIImapUrl::DEFAULT_IMAPS_PORT;
   else
-    rv = GetDefaultPort(aDefaultPort);
+    *aDefaultPort = nsIImapUrl::DEFAULT_IMAP_PORT;
 
-  return rv;
+  return NS_OK;
 }
 
 // this method first tries to find an exact username and hostname match with the
