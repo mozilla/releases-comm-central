@@ -124,7 +124,7 @@ async function testExecuteComposeActionWithOptions(options = {}) {
   await extension.unload();
 }
 
-add_task(async function prepare_test() {
+add_setup(async () => {
   gAccount = createAccount();
   addIdentity(gAccount);
 });

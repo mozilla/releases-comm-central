@@ -724,9 +724,13 @@ nsImapOfflineSync::ProcessNextOperation() {
     // any folder with events should have nsMsgFolderFlags::OfflineEvents set.
     if (folderFlags &
         (nsMsgFolderFlags::OfflineEvents /* | nsMsgFolderFlags::Offline */)) {
+      nsCOMPtr<nsIMsgDatabase> db;
       m_currentFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo),
-                                            getter_AddRefs(m_currentDB));
-      if (m_currentDB) m_currentDB->AddListener(this);
+                                            getter_AddRefs(db));
+      if (db) {
+        m_currentDB = do_QueryInterface(db, &rv);
+        m_currentDB->AddListener(this);
+      }
     }
 
     if (m_currentDB) {

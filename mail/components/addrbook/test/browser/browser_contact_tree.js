@@ -40,7 +40,7 @@ add_task(async function test_additions_and_removals() {
   let contactB1 = bookB.addCard(createContact("contact", "B1"));
 
   let abWindow = await openAddressBookWindow();
-  let cardsList = abWindow.document.getElementById("cards");
+  let cardsList = abWindow.cardsPane.cardsList;
 
   await openAllAddressBooks();
   info("Performing check #1");
@@ -248,7 +248,7 @@ add_task(async function test_name_column() {
   book.addCard(createContact("echo", "november", "uniform"));
 
   let abWindow = await openAddressBookWindow();
-  let cardsList = abWindow.document.getElementById("cards");
+  let cardsList = abWindow.cardsPane.cardsList;
 
   // Check the format is display name, ascending.
   Assert.equal(
@@ -818,32 +818,32 @@ add_task(async function test_context_menu_delete() {
 
 add_task(async function test_layout() {
   function checkColumns(visibleColumns, sortColumn, sortDirection) {
-    let visibleHeaders = cardsHeader.querySelectorAll("button:not([hidden])");
+    let visibleHeaders = cardsHeader.querySelectorAll(
+      `th[is="tree-view-table-header-cell"]:not([hidden])`
+    );
     Assert.deepEqual(
-      Array.from(visibleHeaders, b => b.value),
+      Array.from(visibleHeaders, h => h.id),
       visibleColumns,
       "visible columns are correct"
     );
 
     for (let header of visibleHeaders) {
+      let button = header.querySelector("button");
       Assert.equal(
-        header.classList.contains("ascending"),
-        header.value == sortColumn && sortDirection == "ascending",
-        `${header.value} header is ascending`
+        button.classList.contains("ascending"),
+        header.id == sortColumn && sortDirection == "ascending",
+        `${header.id} header is ascending`
       );
       Assert.equal(
-        header.classList.contains("descending"),
-        header.value == sortColumn && sortDirection == "descending",
-        `${header.value} header is descending`
+        button.classList.contains("descending"),
+        header.id == sortColumn && sortDirection == "descending",
+        `${header.id} header is descending`
       );
     }
   }
 
   function checkRowHeight(height) {
     Assert.equal(cardsList.getRowAtIndex(0).clientHeight, height);
-    Assert.equal(cardsList.getRowAtIndex(0).style.top, "0px");
-    Assert.equal(cardsList.getRowAtIndex(1).clientHeight, height);
-    Assert.equal(cardsList.getRowAtIndex(1).style.top, `${height}px`);
   }
 
   Services.prefs.setIntPref("mail.uidensity", 0);
@@ -862,8 +862,8 @@ add_task(async function test_layout() {
 
   let abWindow = await openAddressBookWindow();
   let abDocument = abWindow.document;
-  let cardsHeader = abDocument.getElementById("cardsHeader");
-  let cardsList = abDocument.getElementById("cards");
+  let cardsList = abWindow.cardsPane.cardsList;
+  let cardsHeader = abWindow.cardsPane.table.header;
   let sharedSplitter = abDocument.getElementById("sharedSplitter");
 
   // Sanity check.
@@ -928,7 +928,7 @@ add_task(async function test_layout() {
   // Click the email addresses header to sort.
 
   EventUtils.synthesizeMouseAtCenter(
-    cardsHeader.querySelector(`[value="EmailAddresses"]`),
+    cardsHeader.querySelector(`[id="EmailAddressesButton"]`),
     {},
     abWindow
   );
@@ -947,7 +947,7 @@ add_task(async function test_layout() {
   // Click the email addresses header again to flip the sort.
 
   EventUtils.synthesizeMouseAtCenter(
-    cardsHeader.querySelector(`[value="EmailAddresses"]`),
+    cardsHeader.querySelector(`[id="EmailAddressesButton"]`),
     {},
     abWindow
   );
@@ -965,9 +965,9 @@ add_task(async function test_layout() {
 
   // Add a column.
 
-  await showSortMenu("toggle", "Title");
+  await showPickerMenu("toggle", "Title");
   await TestUtils.waitForCondition(
-    () => !cardsHeader.querySelector(`[value="Title"]`).hidden
+    () => !cardsHeader.querySelector(`[id="Title"]`).hidden
   );
   checkColumns(
     ["GeneratedName", "EmailAddresses", "PhoneNumbers", "Addresses", "Title"],
@@ -977,9 +977,9 @@ add_task(async function test_layout() {
 
   // Remove a column.
 
-  await showSortMenu("toggle", "Addresses");
+  await showPickerMenu("toggle", "Addresses");
   await TestUtils.waitForCondition(
-    () => cardsHeader.querySelector(`[value="Addresses"]`).hidden
+    () => cardsHeader.querySelector(`[id="Addresses"]`).hidden
   );
   checkColumns(
     ["GeneratedName", "EmailAddresses", "PhoneNumbers", "Title"],
@@ -1001,8 +1001,8 @@ add_task(async function test_layout() {
 
   abWindow = await openAddressBookWindow();
   abDocument = abWindow.document;
-  cardsHeader = abDocument.getElementById("cardsHeader");
-  cardsList = abDocument.getElementById("cards");
+  cardsList = abWindow.cardsPane.cardsList;
+  cardsHeader = abWindow.cardsPane.table.header;
   sharedSplitter = abDocument.getElementById("sharedSplitter");
 
   Assert.ok(
@@ -1149,17 +1149,16 @@ add_task(async function test_list_table_layout() {
   book.addMailList(list);
 
   let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
   let cardsList = abWindow.cardsPane.cardsList;
-  let cardsHeader = abDocument.getElementById("cardsHeader");
+  let cardsHeader = abWindow.cardsPane.table.header;
 
   // Switch layout to table.
 
   await toggleLayout();
 
-  await showSortMenu("toggle", "addrbook");
+  await showPickerMenu("toggle", "addrbook");
   await TestUtils.waitForCondition(
-    () => !cardsHeader.querySelector(`[value="addrbook"]`).hidden
+    () => !cardsHeader.querySelector(`[id="addrbook"]`).hidden
   );
 
   // Check for the contact that the column is shown.
@@ -1202,9 +1201,8 @@ add_task(async function test_list_all_address_book() {
   secondBook.addMailList(list);
 
   let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
   let cardsList = abWindow.cardsPane.cardsList;
-  let cardsHeader = abDocument.getElementById("cardsHeader");
+  let cardsHeader = abWindow.cardsPane.table.header;
 
   info("Check that no address book suffix is present.");
   Assert.ok(
@@ -1223,7 +1221,7 @@ add_task(async function test_list_all_address_book() {
   info("Toggle the option to show address books.");
   await showSortMenu("toggle", "addrbook");
   await TestUtils.waitForCondition(
-    () => !cardsHeader.querySelector(`[value="addrbook"]`).hidden
+    () => !cardsHeader.querySelector(`[id="addrbook"]`).hidden
   );
 
   Assert.ok(

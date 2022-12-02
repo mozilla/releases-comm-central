@@ -250,7 +250,7 @@ class ImapService {
       );
     }
 
-    let db = dstFolder.msgDatabase;
+    let db = dstFolder.msgDatabase.QueryInterface(Ci.nsIMsgOfflineOpsDatabase);
     let fakeKey = db.nextFakeOfflineMsgKey;
     let op = db.getOfflineOpForKey(fakeKey, true);
     op.operation = Ci.nsIMsgOfflineImapOperation.kAppendDraft;
@@ -281,7 +281,7 @@ class ImapService {
     }
     msgParser.FinishHeader();
 
-    newMsgHdr.OrFlags(Ci.nsMsgMessageFlags.Offline | Ci.nsMsgMessageFlags.Read);
+    newMsgHdr.orFlags(Ci.nsMsgMessageFlags.Offline | Ci.nsMsgMessageFlags.Read);
     newMsgHdr.offlineMessageSize = content.length;
     db.addNewHdrToDB(newMsgHdr, true);
     dstFolder.setFlag(Ci.nsMsgFolderFlags.OfflineEvents);

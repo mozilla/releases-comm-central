@@ -150,15 +150,78 @@ var accountsTracker = new (class extends EventEmitter {
   }
 })();
 
-this.accounts = class extends ExtensionAPI {
-  close() {
+this.accounts = class extends ExtensionAPIPersistent {
+  PERSISTENT_EVENTS = {
+    // For primed persistent events (deactivated background), the context is only
+    // available after fire.wakeup() has fulfilled (ensuring the convert() function
+    // has been called).
+
+    onCreated({ context, fire }) {
+      async function listener(_event, key, account) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.sync(key, account);
+      }
+      accountsTracker.on("account-added", listener);
+      return {
+        unregister: () => {
+          accountsTracker.off("account-added", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onUpdated({ context, fire }) {
+      async function listener(_event, key, changedValues) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.sync(key, changedValues);
+      }
+      accountsTracker.on("account-updated", listener);
+      return {
+        unregister: () => {
+          accountsTracker.off("account-updated", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onDeleted({ context, fire }) {
+      async function listener(_event, key) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.sync(key);
+      }
+      accountsTracker.on("account-removed", listener);
+      return {
+        unregister: () => {
+          accountsTracker.off("account-removed", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+  };
+
+  constructor(...args) {
+    super(...args);
+    accountsTracker.incrementListeners();
+  }
+
+  onShutdown() {
     accountsTracker.decrementListeners();
   }
 
   getAPI(context) {
-    context.callOnClose(this);
-    accountsTracker.incrementListeners();
-
     return {
       accounts: {
         async list(includeFolders) {
@@ -200,45 +263,21 @@ this.accounts = class extends ExtensionAPI {
         },
         onCreated: new EventManager({
           context,
-          name: "accounts.onCreated",
-          register: fire => {
-            let listener = (event, key, account) => {
-              fire.sync(key, account);
-            };
-
-            accountsTracker.on("account-added", listener);
-            return () => {
-              accountsTracker.off("account-added", listener);
-            };
-          },
+          module: "accounts",
+          event: "onCreated",
+          extensionApi: this,
         }).api(),
         onUpdated: new EventManager({
           context,
-          name: "accounts.onUpdated",
-          register: fire => {
-            let listener = (event, key, changedValues) => {
-              fire.sync(key, changedValues);
-            };
-
-            accountsTracker.on("account-updated", listener);
-            return () => {
-              accountsTracker.off("account-updated", listener);
-            };
-          },
+          module: "accounts",
+          event: "onUpdated",
+          extensionApi: this,
         }).api(),
         onDeleted: new EventManager({
           context,
-          name: "accounts.onDeleted",
-          register: fire => {
-            let listener = (event, key) => {
-              fire.sync(key);
-            };
-
-            accountsTracker.on("account-removed", listener);
-            return () => {
-              accountsTracker.off("account-removed", listener);
-            };
-          },
+          module: "accounts",
+          event: "onDeleted",
+          extensionApi: this,
         }).api(),
       },
     };

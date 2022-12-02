@@ -72,16 +72,6 @@ nsresult nsMsgFileHdr::ReadFile() {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::GetProperty(const char* propertyName,
-                                        nsAString& _retval) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgFileHdr::SetProperty(const char* propertyName,
-                                        const nsAString& propertyStr) {
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgFileHdr::SetStringProperty(const char* propertyName,
                                               const char* propertyValue) {
   return NS_OK;
@@ -122,10 +112,6 @@ NS_IMETHODIMP nsMsgFileHdr::GetPriority(nsMsgPriorityValue* aPriority) {
 }
 
 NS_IMETHODIMP nsMsgFileHdr::SetPriority(nsMsgPriorityValue aPriority) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgFileHdr::SetPriorityString(const char* priority) {
   return NS_OK;
 }
 
@@ -304,10 +290,6 @@ NS_IMETHODIMP nsMsgFileHdr::GetEffectiveCharset(nsACString& aEffectiveCharset) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::GetLabel(nsMsgLabelValue* aLabel) { return NS_OK; }
-
-NS_IMETHODIMP nsMsgFileHdr::SetLabel(nsMsgLabelValue aLabel) { return NS_OK; }
-
 NS_IMETHODIMP nsMsgFileHdr::GetAccountKey(char** aAccountKey) { return NS_OK; }
 
 NS_IMETHODIMP nsMsgFileHdr::SetAccountKey(const char* aAccountKey) {
@@ -316,7 +298,6 @@ NS_IMETHODIMP nsMsgFileHdr::SetAccountKey(const char* aAccountKey) {
 
 NS_IMETHODIMP nsMsgFileHdr::GetFolder(nsIMsgFolder** aFolder) { return NS_OK; }
 
-NS_IMETHODIMP nsMsgFileHdr::GetPropertyEnumerator(
-    nsIUTF8StringEnumerator** aPropertyEnumerator) {
+NS_IMETHODIMP nsMsgFileHdr::GetProperties(nsTArray<nsCString>& headers) {
   return NS_OK;
 }

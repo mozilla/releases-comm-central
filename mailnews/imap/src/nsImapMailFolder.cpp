@@ -1491,11 +1491,14 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIMsgWindow* aMsgWindow,
       nsCOMPtr<nsIMsgDatabase> trashDB;
       rv = trashFolder->GetMsgDatabase(getter_AddRefs(trashDB));
       if (trashDB) {
+        nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
+            do_QueryInterface(trashDB, &rv);
+        NS_ENSURE_SUCCESS(rv, rv);
         nsMsgKey fakeKey;
-        trashDB->GetNextFakeOfflineMsgKey(&fakeKey);
+        opsDb->GetNextFakeOfflineMsgKey(&fakeKey);
 
         nsCOMPtr<nsIMsgOfflineImapOperation> op;
-        rv = trashDB->GetOfflineOpForKey(fakeKey, true, getter_AddRefs(op));
+        rv = opsDb->GetOfflineOpForKey(fakeKey, true, getter_AddRefs(op));
         trashFolder->SetFlag(nsMsgFolderFlags::OfflineEvents);
         op->SetOperation(nsIMsgOfflineImapOperation::kDeleteAllMsgs);
       }
@@ -1812,22 +1815,6 @@ nsImapMailFolder::MarkMessagesRead(
     NS_ENSURE_SUCCESS(rv, rv);
 
     StoreImapFlags(kImapMsgSeenFlag, markRead, keysToMarkRead, nullptr);
-    rv = GetDatabase();
-    if (NS_SUCCEEDED(rv)) mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
-  }
-  return rv;
-}
-
-NS_IMETHODIMP
-nsImapMailFolder::SetLabelForMessages(
-    const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages, nsMsgLabelValue aLabel) {
-  nsresult rv = nsMsgDBFolder::SetLabelForMessages(aMessages, aLabel);
-  if (NS_SUCCEEDED(rv)) {
-    nsAutoCString messageIds;
-    nsTArray<nsMsgKey> keysToLabel;
-    nsresult rv = BuildIdsAndKeyArray(aMessages, messageIds, keysToLabel);
-    NS_ENSURE_SUCCESS(rv, rv);
-    StoreImapFlags((aLabel << 9), true, keysToLabel, nullptr);
     rv = GetDatabase();
     if (NS_SUCCEEDED(rv)) mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
   }
@@ -2529,7 +2516,10 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     rv = mDatabase->ListAllKeys(keys);
     NS_ENSURE_SUCCESS(rv, rv);
     existingKeys.AppendElements(keys);
-    mDatabase->ListAllOfflineDeletes(existingKeys);
+    nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
+        do_QueryInterface(mDatabase, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    opsDb->ListAllOfflineDeletes(existingKeys);
   }
   int32_t folderValidity;
   aSpec->GetFolder_UIDVALIDITY(&folderValidity);
@@ -3439,13 +3429,6 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
           rv = mDatabase->SetUint32PropertyByHdr(
               msgHdr, "priority", static_cast<uint32_t>(filterPriority));
         } break;
-        case nsMsgFilterAction::Label: {
-          nsMsgLabelValue filterLabel;
-          filterAction->GetLabel(&filterLabel);
-          mDatabase->SetUint32PropertyByHdr(msgHdr, "label",
-                                            static_cast<uint32_t>(filterLabel));
-          rv = StoreImapFlags((filterLabel << 9), true, {msgKey}, nullptr);
-        } break;
         case nsMsgFilterAction::AddTag: {
           nsCString keyword;
           filterAction->GetStrValue(keyword);
@@ -3625,7 +3608,10 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& aMsgKeys,
         static_cast<nsImapMailFolder*>(aDstFolder);
     nsCOMPtr<nsIMsgDatabase> dstFolderDB;
     aDstFolder->GetMsgDatabase(getter_AddRefs(dstFolderDB));
-    if (dstFolderDB) {
+    nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
+        do_QueryInterface(dstFolderDB, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (opsDb) {
       // find the fake header in the destination db, and use that to
       // set the pending attributes on the real headers. To do this,
       // we need to iterate over the offline ops in the destination db,
@@ -3634,14 +3620,14 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& aMsgKeys,
       // header, so we just need to get the header for that key
       // from the dest db.
       nsTArray<nsMsgKey> offlineOps;
-      if (NS_SUCCEEDED(dstFolderDB->ListAllOfflineOpIds(offlineOps))) {
+      if (NS_SUCCEEDED(opsDb->ListAllOfflineOpIds(offlineOps))) {
         nsTArray<RefPtr<nsIMsgDBHdr>> messages;
         nsCString srcFolderUri;
         GetURI(srcFolderUri);
         nsCOMPtr<nsIMsgOfflineImapOperation> currentOp;
         for (uint32_t opIndex = 0; opIndex < offlineOps.Length(); opIndex++) {
-          dstFolderDB->GetOfflineOpForKey(offlineOps[opIndex], false,
-                                          getter_AddRefs(currentOp));
+          opsDb->GetOfflineOpForKey(offlineOps[opIndex], false,
+                                    getter_AddRefs(currentOp));
           if (currentOp) {
             nsCString opSrcUri;
             currentOp->GetSourceFolderURI(opSrcUri);
@@ -3721,9 +3707,12 @@ NS_IMETHODIMP nsImapMailFolder::StoreImapFlags(int32_t flags, bool addFlags,
   } else {
     rv = GetDatabase();
     if (NS_SUCCEEDED(rv) && mDatabase) {
+      nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
+          do_QueryInterface(mDatabase, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
       for (auto key : keys) {
         nsCOMPtr<nsIMsgOfflineImapOperation> op;
-        rv = mDatabase->GetOfflineOpForKey(key, true, getter_AddRefs(op));
+        rv = opsDb->GetOfflineOpForKey(key, true, getter_AddRefs(op));
         SetFlag(nsMsgFolderFlags::OfflineEvents);
         if (NS_SUCCEEDED(rv) && op) {
           imapMessageFlagsType newFlags;
@@ -3731,8 +3720,7 @@ NS_IMETHODIMP nsImapMailFolder::StoreImapFlags(int32_t flags, bool addFlags,
           op->SetFlagOperation(addFlags ? newFlags | flags : newFlags & ~flags);
         }
       }
-      mDatabase->Commit(
-          nsMsgDBCommitType::kLargeCommit);  // flush offline flags
+      opsDb->Commit(nsMsgDBCommitType::kLargeCommit);  // flush offline flags
     }
   }
   return rv;
@@ -4198,15 +4186,6 @@ void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol* aProtocol,
         newFlags |= nsMsgMessageFlags::IMAPDeleted;
       if (imap_flags & kImapMsgForwardedFlag)
         newFlags |= nsMsgMessageFlags::Forwarded;
-
-      // db label flags are 0x0E000000 and imap label flags are 0x0E00
-      // so we need to shift 16 bits to the left to convert them.
-      if (imap_flags & kImapMsgLabelFlags) {
-        // we need to set label attribute on header because the dbview code
-        // does msgHdr->GetLabel when asked to paint a row
-        tweakMe->SetLabel((imap_flags & kImapMsgLabelFlags) >> 9);
-        newFlags |= (imap_flags & kImapMsgLabelFlags) << 16;
-      }
       if (newFlags) tweakMe->OrFlags(newFlags, &dbHdrFlags);
       if (!customFlags.IsEmpty())
         (void)HandleCustomFlags(m_curMsgUid, tweakMe, userFlags, customFlags);
@@ -4671,16 +4650,6 @@ nsresult nsImapMailFolder::NotifyMessageFlagsFromHdr(nsIMsgDBHdr* dbHdr,
   if (supportedFlags & kImapMsgSupportForwardedFlag)
     database->MarkForwarded(msgKey, (flags & kImapMsgForwardedFlag) != 0,
                             nullptr);
-  // this turns on labels, but it doesn't handle the case where the user
-  // unlabels a message on one machine, and expects it to be unlabeled
-  // on their other machines. If I turn that on, I'll be removing all the labels
-  // that were assigned before we started storing them on the server, which will
-  // make some people very unhappy.
-  if (flags & kImapMsgLabelFlags)
-    database->SetLabel(msgKey, (flags & kImapMsgLabelFlags) >> 9);
-  else {
-    if (supportedFlags & kImapMsgLabelFlags) database->SetLabel(msgKey, 0);
-  }
   if (supportedFlags & kImapMsgSupportMDNSentFlag)
     database->MarkMDNSent(msgKey, (flags & kImapMsgMDNSentFlag) != 0, nullptr);
 
@@ -4851,12 +4820,7 @@ nsImapMailFolder::GetCurMoveCopyMessageInfo(nsIImapUrl* runningUrl,
         mailCopyState->m_curIndex < mailCopyState->m_messages.Length()) {
       nsIMsgDBHdr* message =
           mailCopyState->m_messages[mailCopyState->m_curIndex];
-      nsMsgLabelValue label;
       message->GetFlags(aResult);
-      if (supportedFlags & (kImapMsgSupportUserFlag | kImapMsgLabelFlags)) {
-        message->GetLabel(&label);
-        if (label != 0) *aResult |= label << 25;
-      }
       if (aDate) message->GetDate(aDate);
       if (supportedFlags & kImapMsgSupportUserFlag) {
         // setup the custom imap keywords, which includes the message keywords
@@ -6462,10 +6426,13 @@ nsresult nsImapMailFolder::GetClearedOriginalOp(
   nsCOMPtr<nsIDBFolderInfo> folderInfo;
   sourceFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), originalDB);
   if (*originalDB) {
+    nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
+        do_QueryInterface(*originalDB, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
     nsMsgKey originalKey;
     op->GetMessageKey(&originalKey);
-    rv = (*originalDB)
-             ->GetOfflineOpForKey(originalKey, false, getter_AddRefs(returnOp));
+    rv =
+        opsDb->GetOfflineOpForKey(originalKey, false, getter_AddRefs(returnOp));
     if (NS_SUCCEEDED(rv) && returnOp) {
       nsCString moveDestination;
       nsCString thisFolderURI;
@@ -6493,10 +6460,13 @@ nsresult nsImapMailFolder::GetOriginalOp(
   nsCOMPtr<nsIDBFolderInfo> folderInfo;
   sourceFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), originalDB);
   if (*originalDB) {
+    nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
+        do_QueryInterface(*originalDB, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
     nsMsgKey originalKey;
     op->GetMessageKey(&originalKey);
-    rv = (*originalDB)
-             ->GetOfflineOpForKey(originalKey, false, getter_AddRefs(returnOp));
+    rv =
+        opsDb->GetOfflineOpForKey(originalKey, false, getter_AddRefs(returnOp));
   }
   returnOp.forget(originalOp);
   return rv;
@@ -6635,6 +6605,9 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
       EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false);
       nsCString originalSrcFolderURI;
       srcFolder->GetURI(originalSrcFolderURI);
+      nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
+          do_QueryInterface(sourceMailDB, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
       for (uint32_t sourceKeyIndex = 0;
            NS_SUCCEEDED(stopit) && (sourceKeyIndex < srcCount);
            sourceKeyIndex++) {
@@ -6648,8 +6621,8 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
           continue;
         }
         nsCOMPtr<nsIMsgOfflineImapOperation> sourceOp;
-        rv = sourceMailDB->GetOfflineOpForKey(originalKey, true,
-                                              getter_AddRefs(sourceOp));
+        rv = opsDb->GetOfflineOpForKey(originalKey, true,
+                                       getter_AddRefs(sourceOp));
         if (NS_SUCCEEDED(rv) && sourceOp) {
           srcFolder->SetFlag(nsMsgFolderFlags::OfflineEvents);
           nsCOMPtr<nsIMsgDatabase> originalDB;
@@ -6663,18 +6636,20 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
             // gracious me, we are moving something we already moved while
             // offline! find the original operation and clear it!
             nsCOMPtr<nsIMsgOfflineImapOperation> originalOp;
-            rv = GetClearedOriginalOp(sourceOp, getter_AddRefs(originalOp),
-                                      getter_AddRefs(originalDB));
+            GetClearedOriginalOp(sourceOp, getter_AddRefs(originalOp),
+                                 getter_AddRefs(originalDB));
+            nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDbOriginal =
+                do_QueryInterface(originalDB, &rv);
             if (NS_SUCCEEDED(rv) && originalOp) {
               nsCString srcFolderURI;
               srcFolder->GetURI(srcFolderURI);
               sourceOp->GetSourceFolderURI(originalSrcFolderURI);
               sourceOp->GetMessageKey(&originalKey);
-              if (isMove) sourceMailDB->RemoveOfflineOp(sourceOp);
+              if (isMove) opsDb->RemoveOfflineOp(sourceOp);
               sourceOp = originalOp;
               if (originalSrcFolderURI.Equals(srcFolderURI)) {
                 messageReturningHome = true;
-                originalDB->RemoveOfflineOp(originalOp);
+                opsDbOriginal->RemoveOfflineOp(originalOp);
               }
             }
           }
@@ -6743,14 +6718,18 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
               database->MarkOffline(fakeBase + sourceKeyIndex, false, nullptr);
             }
 
+            nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
+                do_QueryInterface(database, &rv);
+            NS_ENSURE_SUCCESS(rv, rv);
+
             nsCOMPtr<nsIMsgOfflineImapOperation> destOp;
-            database->GetOfflineOpForKey(fakeBase + sourceKeyIndex, true,
-                                         getter_AddRefs(destOp));
+            opsDb->GetOfflineOpForKey(fakeBase + sourceKeyIndex, true,
+                                      getter_AddRefs(destOp));
             if (destOp) {
               // check if this is a move back to the original mailbox, in which
               // case we just delete the offline operation.
               if (messageReturningHome) {
-                database->RemoveOfflineOp(destOp);
+                opsDb->RemoveOfflineOp(destOp);
               } else {
                 SetFlag(nsMsgFolderFlags::OfflineEvents);
                 destOp->SetSourceFolderURI(originalSrcFolderURI);
@@ -6931,13 +6910,6 @@ void nsImapMailFolder::SetPendingAttributes(
   // that we need to set on the dest hdr
   for (auto msgDBHdr : messages) {
     if (!(supportedUserFlags & kImapMsgSupportUserFlag)) {
-      nsMsgLabelValue label;
-      msgDBHdr->GetLabel(&label);
-      if (label != 0) {
-        nsAutoCString labelStr;
-        labelStr.AppendInt(label);
-        mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "label", labelStr.get());
-      }
       nsCString keywords;
       msgDBHdr->GetStringProperty("keywords", getter_Copies(keywords));
       if (!keywords.IsEmpty())
@@ -6945,17 +6917,12 @@ void nsImapMailFolder::SetPendingAttributes(
                                             keywords.get());
     }
 
-    // do this even if the server supports user-defined flags.
-    nsCOMPtr<nsIUTF8StringEnumerator> propertyEnumerator;
-    nsresult rv =
-        msgDBHdr->GetPropertyEnumerator(getter_AddRefs(propertyEnumerator));
+    nsTArray<nsCString> properties;
+    nsresult rv = msgDBHdr->GetProperties(properties);
     NS_ENSURE_SUCCESS_VOID(rv);
 
-    nsAutoCString property;
     nsCString sourceString;
-    bool hasMore;
-    while (NS_SUCCEEDED(propertyEnumerator->HasMore(&hasMore)) && hasMore) {
-      propertyEnumerator->GetNext(property);
+    for (auto property : properties) {
       nsAutoCString propertyEx(" "_ns);
       propertyEx.Append(property);
       propertyEx.Append(' ');
@@ -7715,7 +7682,9 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
   // msgHdr with one downloaded from the server, with possible additional
   // headers added.
   nsCOMPtr<nsIMsgOfflineImapOperation> op;
-  rv = mDatabase->GetOfflineOpForKey(msgKey, true, getter_AddRefs(op));
+  nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb = do_QueryInterface(mDatabase, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = opsDb->GetOfflineOpForKey(msgKey, true, getter_AddRefs(op));
   if (NS_SUCCEEDED(rv) && op) {
     nsCString destFolderUri;
     GetURI(destFolderUri);
@@ -8333,10 +8302,12 @@ nsImapMailFolder::StoreCustomKeywords(nsIMsgWindow* aMsgWindow,
   if (WeAreOffline()) {
     GetDatabase();
     if (!mDatabase) return NS_ERROR_UNEXPECTED;
+    nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
+        do_QueryInterface(mDatabase, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
     for (auto key : aKeysToStore) {
       nsCOMPtr<nsIMsgOfflineImapOperation> op;
-      nsresult rv2 =
-          mDatabase->GetOfflineOpForKey(key, true, getter_AddRefs(op));
+      nsresult rv2 = opsDb->GetOfflineOpForKey(key, true, getter_AddRefs(op));
       if (NS_FAILED(rv2)) rv = rv2;
       SetFlag(nsMsgFolderFlags::OfflineEvents);
       if (NS_SUCCEEDED(rv2) && op) {

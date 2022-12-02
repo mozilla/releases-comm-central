@@ -1123,7 +1123,6 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
 
   uint32_t flags = 0;
   nsMsgPriorityValue priorityFlags = nsMsgPriority::notSet;
-  uint32_t labelFlags = 0;
 
   if (!m_mailDB)  // if we don't have a valid db, skip the header.
     return NS_OK;
@@ -1252,12 +1251,6 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
       if (replyTo && (!sender || replyTo->length != sender->length ||
                       strncmp(replyTo->value, sender->value, sender->length)))
         m_newMsgHdr->SetStringProperty("replyTo", replyTo->value);
-      // convert the flag values (0xE000000) to label values (0-5)
-      if (mozstatus2)  // only do this if we have a mozstatus2 header
-      {
-        labelFlags = ((flags & nsMsgMessageFlags::Labels) >> 25);
-        m_newMsgHdr->SetLabel(labelFlags);
-      }
       if (sender) m_newMsgHdr->SetAuthor(sender->value);
       if (recipient == &m_newsgroups) {
         /* In the case where the recipient is a newsgroup, truncate the string
@@ -1407,9 +1400,14 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
         }
         m_newMsgHdr->SetDate(datePRTime);
 
-        if (priority)
-          m_newMsgHdr->SetPriorityString(priority->value);
-        else if (priorityFlags == nsMsgPriority::notSet)
+        if (priority) {
+          nsMsgPriorityValue priorityVal = nsMsgPriority::Default;
+
+          // We can ignore |NS_MsgGetPriorityFromString()| return value,
+          // since we set a default value for |priorityVal|.
+          NS_MsgGetPriorityFromString(priority->value, priorityVal);
+          m_newMsgHdr->SetPriority(priorityVal);
+        } else if (priorityFlags == nsMsgPriority::notSet)
           m_newMsgHdr->SetPriority(nsMsgPriority::none);
         if (keywords) {
           // When there are many keywords, some may not have been written
@@ -1934,11 +1932,6 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
           rv = m_downloadFolder->AddKeywordsToMessages({&*msgHdr}, keyword);
           break;
         }
-        case nsMsgFilterAction::Label: {
-          nsMsgLabelValue filterLabel;
-          filterAction->GetLabel(&filterLabel);
-          rv = m_mailDB->SetLabel(msgKey, filterLabel);
-        } break;
         case nsMsgFilterAction::JunkScore: {
           nsAutoCString junkScoreStr;
           int32_t junkScore;

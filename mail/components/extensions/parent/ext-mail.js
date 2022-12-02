@@ -1820,8 +1820,8 @@ function convertMessage(msgHdr, extension) {
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
 
-  let junkScore = parseInt(msgHdr.getProperty("junkscore"), 10) || 0;
-  let tags = (msgHdr.getProperty("keywords") || "")
+  let junkScore = parseInt(msgHdr.getStringProperty("junkscore"), 10) || 0;
+  let tags = (msgHdr.getStringProperty("keywords") || "")
     .split(" ")
     .filter(MailServices.tags.isValidKey);
 
@@ -2107,7 +2107,7 @@ var messageTracker = new (class extends EventEmitter {
         break;
       case "Keywords":
         {
-          let tags = item.getProperty("keywords");
+          let tags = item.getStringProperty("keywords");
           tags = tags ? tags.split(" ") : [];
           changes.tags = tags.filter(MailServices.tags.isValidKey);
         }
@@ -2173,7 +2173,7 @@ var messageTracker = new (class extends EventEmitter {
 
   msgsJunkStatusChanged(messages) {
     for (let msgHdr of messages) {
-      let junkScore = parseInt(msgHdr.getProperty("junkscore"), 10) || 0;
+      let junkScore = parseInt(msgHdr.getStringProperty("junkscore"), 10) || 0;
       this.emit("message-updated", msgHdr, {
         junk: junkScore >= gJunkThreshold,
       });

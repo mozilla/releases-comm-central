@@ -206,20 +206,6 @@ NS_IMETHODIMP nsMsgHdr::MarkFlagged(bool bFlagged) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgHdr::GetProperty(const char* propertyName,
-                                    nsAString& resultProperty) {
-  NS_ENSURE_ARG_POINTER(propertyName);
-  if (!m_mdb || !m_mdbRow) return NS_ERROR_NULL_POINTER;
-  return m_mdb->GetPropertyAsNSString(m_mdbRow, propertyName, resultProperty);
-}
-
-NS_IMETHODIMP nsMsgHdr::SetProperty(const char* propertyName,
-                                    const nsAString& propertyStr) {
-  NS_ENSURE_ARG_POINTER(propertyName);
-  if (!m_mdb || !m_mdbRow) return NS_ERROR_NULL_POINTER;
-  return m_mdb->SetPropertyFromNSString(m_mdbRow, propertyName, propertyStr);
-}
-
 NS_IMETHODIMP nsMsgHdr::SetStringProperty(const char* propertyName,
                                           const char* propertyValue) {
   NS_ENSURE_ARG_POINTER(propertyName);
@@ -391,17 +377,6 @@ NS_IMETHODIMP nsMsgHdr::GetPriority(nsMsgPriorityValue* result) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgHdr::SetLabel(nsMsgLabelValue label) {
-  SetUInt32Column((uint32_t)label, m_mdb->m_labelColumnToken);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgHdr::GetLabel(nsMsgLabelValue* result) {
-  NS_ENSURE_ARG_POINTER(result);
-
-  return GetUInt32Column(m_mdb->m_labelColumnToken, result);
-}
-
 // I'd like to not store the account key, if the msg is in
 // the same account as it was received in, to save disk space and memory.
 // This might be problematic when a message gets moved...
@@ -460,16 +435,6 @@ NS_IMETHODIMP nsMsgHdr::GetLineCount(uint32_t* result) {
   nsresult res = GetUInt32Column(m_mdb->m_numLinesColumnToken, &linecount);
   *result = linecount;
   return res;
-}
-
-NS_IMETHODIMP nsMsgHdr::SetPriorityString(const char* priority) {
-  nsMsgPriorityValue priorityVal = nsMsgPriority::Default;
-
-  // We can ignore |NS_MsgGetPriorityFromString()| return value,
-  // since we set a default value for |priorityVal|.
-  NS_MsgGetPriorityFromString(priority, priorityVal);
-
-  return SetPriority(priorityVal);
 }
 
 NS_IMETHODIMP nsMsgHdr::GetAuthor(char** resultAuthor) {
@@ -952,8 +917,14 @@ void nsMsgPropertyEnumerator::PrefetchNext(void) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NS_IMETHODIMP nsMsgHdr::GetPropertyEnumerator(
-    nsIUTF8StringEnumerator** _result) {
-  NS_ADDREF(*_result = new nsMsgPropertyEnumerator(this));
+NS_IMETHODIMP nsMsgHdr::GetProperties(nsTArray<nsCString>& headers) {
+  nsCOMPtr<nsIUTF8StringEnumerator> propertyEnumerator =
+      new nsMsgPropertyEnumerator(this);
+  bool hasMore;
+  while (NS_SUCCEEDED(propertyEnumerator->HasMore(&hasMore)) && hasMore) {
+    nsAutoCString property;
+    propertyEnumerator->GetNext(property);
+    headers.AppendElement(property);
+  }
   return NS_OK;
 }

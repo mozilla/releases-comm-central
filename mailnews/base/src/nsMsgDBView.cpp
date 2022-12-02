@@ -76,7 +76,6 @@ nsDateFormatSelectorComm nsMsgDBView::m_dateFormatToday = kDateFormatNone;
 
 nsString nsMsgDBView::m_connectorPattern;
 nsCOMPtr<nsIStringBundle> nsMsgDBView::mMessengerStringBundle;
-nsString nsMsgDBView::mLabelPrefDescriptions[PREF_LABELS_MAX];
 
 static const uint32_t kMaxNumSortColumns = 2;
 
@@ -106,7 +105,6 @@ class viewSortInfo {
 NS_IMPL_ISUPPORTS(nsMsgDBViewService, nsIMsgDBViewService)
 NS_IMETHODIMP nsMsgDBViewService::InitializeDBViewStrings() {
   nsMsgDBView::InitializeLiterals();
-  nsMsgDBView::InitLabelStrings();
   nsMsgDBView::m_connectorPattern.Truncate();
   nsMsgDBView::mMessengerStringBundle = nullptr;
   // Initialize date display format.
@@ -190,19 +188,6 @@ void nsMsgDBView::InitializeLiterals() {
 
 nsMsgDBView::~nsMsgDBView() {
   if (m_db) m_db->RemoveListener(this);
-}
-
-nsresult nsMsgDBView::InitLabelStrings() {
-  nsresult rv = NS_OK;
-  nsCString prefString;
-
-  for (int32_t i = 0; i < PREF_LABELS_MAX; i++) {
-    prefString.Assign(PREF_LABELS_DESCRIPTION);
-    prefString.AppendInt(i + 1);
-    rv = GetPrefLocalizedString(prefString.get(),
-                                nsMsgDBView::mLabelPrefDescriptions[i]);
-  }
-  return rv;
 }
 
 // Helper function used to fetch strings from the messenger string bundle
@@ -749,21 +734,8 @@ nsresult nsMsgDBView::FetchKeywords(nsIMsgDBHdr* aHdr,
     mTagService = do_GetService("@mozilla.org/messenger/tagservice;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
   }
-  nsMsgLabelValue label = 0;
-
-  rv = aHdr->GetLabel(&label);
   nsCString keywords;
   aHdr->GetStringProperty("keywords", getter_Copies(keywords));
-  if (label > 0) {
-    nsAutoCString labelStr("$label");
-    labelStr.Append((char)(label + '0'));
-    if (!FindInReadable(labelStr, keywords,
-                        nsCaseInsensitiveCStringComparator)) {
-      if (!keywords.IsEmpty()) keywords.Append(' ');
-      keywords.Append(labelStr);
-    }
-  }
-
   keywordString = keywords;
   return NS_OK;
 }
@@ -820,15 +792,6 @@ nsresult nsMsgDBView::FetchTags(nsIMsgDBHdr* aHdr, nsAString& aTagString) {
   nsCString keywords;
   aHdr->GetStringProperty("keywords", getter_Copies(keywords));
 
-  nsMsgLabelValue label = 0;
-  rv = aHdr->GetLabel(&label);
-  if (label > 0) {
-    nsAutoCString labelStr("$label");
-    labelStr.Append((char)(label + '0'));
-    if (!FindInReadable(labelStr, keywords, nsCaseInsensitiveCStringComparator))
-      FetchLabel(aHdr, tags);
-  }
-
   nsTArray<nsCString> keywordsArray;
   ParseString(keywords, ' ', keywordsArray);
   nsAutoString tag;
@@ -843,26 +806,6 @@ nsresult nsMsgDBView::FetchTags(nsIMsgDBHdr* aHdr, nsAString& aTagString) {
   }
 
   aTagString = tags;
-  return NS_OK;
-}
-
-nsresult nsMsgDBView::FetchLabel(nsIMsgDBHdr* aHdr, nsAString& aLabelString) {
-  nsresult rv = NS_OK;
-  nsMsgLabelValue label = 0;
-
-  NS_ENSURE_ARG_POINTER(aHdr);
-
-  rv = aHdr->GetLabel(&label);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // We don't care if label is not between 1 and PREF_LABELS_MAX inclusive.
-  if ((label < 1) || (label > PREF_LABELS_MAX)) {
-    aLabelString.Truncate();
-    return NS_OK;
-  }
-
-  // We need to subtract 1 because mLabelPrefDescriptions is 0 based.
-  aLabelString = nsMsgDBView::mLabelPrefDescriptions[label - 1];
   return NS_OK;
 }
 

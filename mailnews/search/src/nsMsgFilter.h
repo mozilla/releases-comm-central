@@ -27,7 +27,6 @@ class nsMsgRuleAction : public nsIMsgRuleAction {
   nsMsgRuleActionType m_type;
   // this used to be a union - why bother?
   nsMsgPriorityValue m_priority; /* priority to set rule to */
-  nsMsgLabelValue m_label;       /* label to set rule to */
   nsCString m_folderUri;
   int32_t m_junkScore; /* junk score (or arbitrary int value?) */
   // arbitrary string value. Currently, email address to forward to

@@ -23,7 +23,6 @@ interface nsIMsgSearchValue : nsISupports {
     attribute nsMsgKey msgKey;
     attribute long age; // in days
     attribute nsIMsgFolder folder;
-    attribute nsMsgLabelValue label;
     attribute nsMsgJunkStatus junkStatus;
     /*
      * junkPercent is set by the message filter plugin, and is approximately

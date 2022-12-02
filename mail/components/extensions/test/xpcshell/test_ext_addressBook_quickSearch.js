@@ -11,8 +11,16 @@ var { LDAPServer } = ChromeUtils.import(
   "resource://testing-common/LDAPServer.jsm"
 );
 
-add_task(async function setup() {
+add_setup(async () => {
   Services.prefs.setIntPref("ldap_2.servers.osx.dirType", -1);
+
+  registerCleanupFunction(() => {
+    LDAPServer.close();
+    // Make sure any open database is given a chance to close.
+    Services.startup.advanceShutdownPhase(
+      Services.startup.SHUTDOWN_PHASE_APPSHUTDOWNCONFIRMED
+    );
+  });
 });
 
 add_task(async function test_quickSearch() {
@@ -145,10 +153,6 @@ add_task(async function test_quickSearch_types() {
     Ci.nsIAbManager.LDAP_DIRECTORY_TYPE
   );
 
-  registerCleanupFunction(async () => {
-    LDAPServer.close();
-  });
-
   async function background() {
     function checkCards(cards, expectedNames) {
       browser.test.assertEq(expectedNames.length, cards.length);
@@ -231,12 +235,4 @@ add_task(async function test_quickSearch_types() {
   await startupPromise;
   await extension.awaitFinish("addressBooks");
   await extension.unload();
-});
-
-registerCleanupFunction(() => {
-  LDAPServer.close();
-  // Make sure any open database is given a chance to close.
-  Services.startup.advanceShutdownPhase(
-    Services.startup.SHUTDOWN_PHASE_APPSHUTDOWNCONFIRMED
-  );
 });

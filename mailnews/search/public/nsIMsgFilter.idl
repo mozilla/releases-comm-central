@@ -25,9 +25,6 @@ interface nsIMsgRuleAction : nsISupports {
   // target folder.. throws an exception if the action is not move to folder
   attribute AUTF8String targetFolderUri;
 
-  // target label. throws an exception if the action is not label
-  attribute nsMsgLabelValue label;
-
   attribute long junkScore;
 
   attribute AUTF8String strValue;

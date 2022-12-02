@@ -5,41 +5,7 @@
 // The ext-* files are imported into the same scopes.
 /* import-globals-from ext-mail.js */
 
-/**
- * An event manager API provider which listens for a DOM event in any browser
- * window, and calls the given listener function whenever an event is received.
- * That listener function receives a `fire` object, which it can use to dispatch
- * events to the extension, and a DOM event object.
- *
- * @param {BaseContext} context
- *        The extension context which the event manager belongs to.
- * @param {string} name
- *        The API name of the event manager, e.g.,"runtime.onMessage".
- * @param {string} event
- *        The name of the DOM event to listen for.
- * @param {Function} listener
- *        The listener function to call when a DOM event is received.
- *
- * @returns {object} An injectable api for the new event.
- */
-function WindowEventManager(context, name, event, listener) {
-  let register = fire => {
-    let listener2 = (window, ...args) => {
-      if (context.canAccessWindow(window)) {
-        listener(fire, window, ...args);
-      }
-    };
-
-    windowTracker.addListener(event, listener2);
-    return () => {
-      windowTracker.removeListener(event, listener2);
-    };
-  };
-
-  return new EventManager({ context, name, register }).api();
-}
-
-this.windows = class extends ExtensionAPI {
+this.windows = class extends ExtensionAPIPersistent {
   onShutdown(isAppShutdown) {
     if (isAppShutdown) {
       return;
@@ -52,62 +18,124 @@ this.windows = class extends ExtensionAPI {
     }
   }
 
+  windowEventRegistrar({ windowEvent, listener }) {
+    let { extension } = this;
+    return ({ context, fire }) => {
+      let listener2 = async (window, ...args) => {
+        if (!extension.canAccessWindow(window)) {
+          return;
+        }
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        listener({ context, fire, window }, ...args);
+      };
+      windowTracker.addListener(windowEvent, listener2);
+      return {
+        unregister() {
+          windowTracker.removeListener(windowEvent, listener2);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    };
+  }
+
+  PERSISTENT_EVENTS = {
+    // For primed persistent events (deactivated background), the context is only
+    // available after fire.wakeup() has fulfilled (ensuring the convert() function
+    // has been called) (handled by windowEventRegistrar).
+
+    onCreated: this.windowEventRegistrar({
+      windowEvent: "domwindowopened",
+      listener: ({ context, fire, window }) => {
+        fire.async(this.extension.windowManager.convert(window));
+      },
+    }),
+
+    onRemoved: this.windowEventRegistrar({
+      windowEvent: "domwindowclosed",
+      listener: ({ context, fire, window }) => {
+        fire.async(windowTracker.getId(window));
+      },
+    }),
+
+    onFocusChanged({ context, fire }) {
+      let { extension } = this;
+      // Keep track of the last windowId used to fire an onFocusChanged event
+      let lastOnFocusChangedWindowId;
+      let scheduledEvents = [];
+
+      let listener = async event => {
+        // Wait a tick to avoid firing a superfluous WINDOW_ID_NONE
+        // event when switching focus between two Thunderbird windows.
+        // Note: This is not working for Linux, where we still get the -1
+        await Promise.resolve();
+
+        let windowId = WindowBase.WINDOW_ID_NONE;
+        let window = Services.focus.activeWindow;
+        if (window) {
+          if (!extension.canAccessWindow(window)) {
+            return;
+          }
+          windowId = windowTracker.getId(window);
+        }
+
+        // Using a FIFO to keep order of events, in case the last one
+        // gets through without being placed on the async callback stack.
+        scheduledEvents.push(windowId);
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        let scheduledWindowId = scheduledEvents.shift();
+
+        if (scheduledWindowId !== lastOnFocusChangedWindowId) {
+          lastOnFocusChangedWindowId = scheduledWindowId;
+          fire.async(scheduledWindowId);
+        }
+      };
+      windowTracker.addListener("focus", listener);
+      windowTracker.addListener("blur", listener);
+      return {
+        unregister() {
+          windowTracker.removeListener("focus", listener);
+          windowTracker.removeListener("blur", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+  };
+
   getAPI(context) {
     const { extension } = context;
     const { windowManager } = extension;
 
     return {
       windows: {
-        onCreated: WindowEventManager(
+        onCreated: new EventManager({
           context,
-          "windows.onCreated",
-          "domwindowopened",
-          (fire, window) => {
-            fire.async(windowManager.convert(window));
-          }
-        ),
+          module: "windows",
+          event: "onCreated",
+          extensionApi: this,
+        }).api(),
 
-        onRemoved: WindowEventManager(
+        onRemoved: new EventManager({
           context,
-          "windows.onRemoved",
-          "domwindowclosed",
-          (fire, window) => {
-            fire.async(windowTracker.getId(window));
-          }
-        ),
+          module: "windows",
+          event: "onRemoved",
+          extensionApi: this,
+        }).api(),
 
         onFocusChanged: new EventManager({
           context,
-          name: "windows.onFocusChanged",
-          register: fire => {
-            // Keep track of the last windowId used to fire an onFocusChanged event
-            let lastOnFocusChangedWindowId;
-
-            let listener = event => {
-              // Wait a tick to avoid firing a superfluous WINDOW_ID_NONE
-              // event when switching focus between two Thunderbird windows.
-              Promise.resolve().then(() => {
-                let windowId = WindowBase.WINDOW_ID_NONE;
-                let window = Services.focus.activeWindow;
-                if (window) {
-                  if (!context.canAccessWindow(window)) {
-                    return;
-                  }
-                  windowId = windowTracker.getId(window);
-                }
-                if (windowId !== lastOnFocusChangedWindowId) {
-                  fire.async(windowId);
-                  lastOnFocusChangedWindowId = windowId;
-                }
-              });
-            };
-            windowTracker.addListener("focus", listener);
-            windowTracker.addListener("blur", listener);
-            return () => {
-              windowTracker.removeListener("focus", listener);
-              windowTracker.removeListener("blur", listener);
-            };
-          },
+          module: "windows",
+          event: "onFocusChanged",
+          extensionApi: this,
         }).api(),
 
         get(windowId, getInfo) {

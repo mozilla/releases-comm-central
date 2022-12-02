@@ -35,6 +35,7 @@ menupopup {
   --menu-background-color: var(--arrowpanel-background);
   font: menu;
   font-size: inherit;
+  text-align: start;
 }
 
 menubar:not(:-moz-lwtheme) > menu menupopup {

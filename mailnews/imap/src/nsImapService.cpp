@@ -1897,7 +1897,9 @@ nsresult nsImapService::OfflineAppendFromFile(
     destDB->GetNextFakeOfflineMsgKey(&fakeKey);
 
     nsCOMPtr<nsIMsgOfflineImapOperation> op;
-    rv = destDB->GetOfflineOpForKey(fakeKey, true, getter_AddRefs(op));
+    nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb = do_QueryInterface(destDB, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = opsDb->GetOfflineOpForKey(fakeKey, true, getter_AddRefs(op));
     if (NS_SUCCEEDED(rv) && op) {
       nsCString destFolderUri;
       aDstFolder->GetURI(destFolderUri);

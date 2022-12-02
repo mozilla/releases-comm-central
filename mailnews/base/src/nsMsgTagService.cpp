@@ -98,8 +98,7 @@ nsMsgTagService::nsMsgTagService() {
       do_GetService(NS_PREFSERVICE_CONTRACTID));
   if (prefService)
     prefService->GetBranch("mailnews.tags.", getter_AddRefs(m_tagPrefBranch));
-  // need to figure out how to migrate the tags only once.
-  MigrateLabelsToTags();
+  SetupLabelTags();
   RefreshKeyCache();
 }
 
@@ -399,54 +398,36 @@ nsresult nsMsgTagService::GetUnicharPref(const char* prefName,
   return rv;
 }
 
-nsresult nsMsgTagService::MigrateLabelsToTags() {
+nsresult nsMsgTagService::SetupLabelTags() {
   nsCString prefString;
 
   int32_t prefVersion = 0;
   nsresult rv = m_tagPrefBranch->GetIntPref(TAG_PREF_VERSION, &prefVersion);
-  if (NS_SUCCEEDED(rv) && prefVersion > 1)
+  if (NS_SUCCEEDED(rv) && prefVersion > 1) {
     return rv;
-  else if (prefVersion == 1) {
-    gMigratingKeys = true;
-    // need to convert the keys to lower case
-    nsTArray<RefPtr<nsIMsgTag>> tagArray;
-    GetAllTags(tagArray);
-    for (auto& tag : tagArray) {
-      nsAutoCString key, color, ordinal;
-      nsAutoString tagStr;
-      tag->GetKey(key);
-      tag->GetTag(tagStr);
-      tag->GetOrdinal(ordinal);
-      tag->GetColor(color);
-      DeleteKey(key);
-      ToLowerCase(key);
-      AddTagForKey(key, tagStr, color, ordinal);
-    }
-    gMigratingKeys = false;
-  } else {
-    nsCOMPtr<nsIPrefBranch> prefRoot(do_GetService(NS_PREFSERVICE_CONTRACTID));
-    nsCOMPtr<nsIPrefLocalizedString> pls;
-    nsString ucsval;
-    nsAutoCString labelKey("$label1");
-    for (int32_t i = 0; i < PREF_LABELS_MAX;) {
-      prefString.Assign(PREF_LABELS_DESCRIPTION);
-      prefString.AppendInt(i + 1);
-      rv = prefRoot->GetComplexValue(prefString.get(),
-                                     NS_GET_IID(nsIPrefLocalizedString),
-                                     getter_AddRefs(pls));
-      NS_ENSURE_SUCCESS(rv, rv);
-      pls->ToString(getter_Copies(ucsval));
+  }
+  nsCOMPtr<nsIPrefBranch> prefRoot(do_GetService(NS_PREFSERVICE_CONTRACTID));
+  nsCOMPtr<nsIPrefLocalizedString> pls;
+  nsString ucsval;
+  nsAutoCString labelKey("$label1");
+  for (int32_t i = 0; i < 5;) {
+    prefString.AssignLiteral("mailnews.labels.description.");
+    prefString.AppendInt(i + 1);
+    rv = prefRoot->GetComplexValue(prefString.get(),
+                                   NS_GET_IID(nsIPrefLocalizedString),
+                                   getter_AddRefs(pls));
+    NS_ENSURE_SUCCESS(rv, rv);
+    pls->ToString(getter_Copies(ucsval));
 
-      prefString.Assign(PREF_LABELS_COLOR);
-      prefString.AppendInt(i + 1);
-      nsCString csval;
-      rv = prefRoot->GetCharPref(prefString.get(), csval);
-      NS_ENSURE_SUCCESS(rv, rv);
+    prefString.AssignLiteral("mailnews.labels.color.");
+    prefString.AppendInt(i + 1);
+    nsCString csval;
+    rv = prefRoot->GetCharPref(prefString.get(), csval);
+    NS_ENSURE_SUCCESS(rv, rv);
 
-      rv = AddTagForKey(labelKey, ucsval, csval, EmptyCString());
-      NS_ENSURE_SUCCESS(rv, rv);
-      labelKey.SetCharAt(++i + '1', 6);
-    }
+    rv = AddTagForKey(labelKey, ucsval, csval, EmptyCString());
+    NS_ENSURE_SUCCESS(rv, rv);
+    labelKey.SetCharAt(++i + '1', 6);
   }
   m_tagPrefBranch->SetIntPref(TAG_PREF_VERSION, 2);
   return rv;

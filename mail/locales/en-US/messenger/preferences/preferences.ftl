@@ -915,6 +915,12 @@ search-results-help-link = Need help? Visit <a data-l10n-name="url">{ -brand-sho
 
 ## Sync Tab
 
+sync-signedout-caption = Take Your Web With You
+
+sync-signedout-description = Synchronize your accounts, address books, calendars, add-ons, and settings across all your devices.
+
+sync-signedout-account-signin-btn = Sign in to sync…
+
 sync-pane-header = Sync
 
 sync-pane-edit-photo =

@@ -9,7 +9,7 @@ const { AddonManager } = ChromeUtils.import(
 let account;
 let messages;
 
-add_task(async () => {
+add_setup(async () => {
   account = createAccount();
   let rootFolder = account.incomingServer.rootFolder;
   let subFolders = rootFolder.subFolders;
@@ -32,132 +32,76 @@ add_task(async () => {
   await BrowserTestUtils.browserLoaded(window.getMessagePaneBrowser());
 });
 
-// This test clicks on the action button to open the popup.
-add_task(async function test_popup_open_with_click() {
-  info("3-pane tab");
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-mouse-click",
-    window,
-  });
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-mouse-click",
-    disable_button: true,
-    window,
-  });
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-mouse-click",
-    use_default_popup: true,
-    window,
-  });
-
-  info("Message tab");
-  await openMessageInTab(messages.getNext());
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-mouse-click",
-    window,
-  });
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-mouse-click",
-    disable_button: true,
-    window,
-  });
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-mouse-click",
-    use_default_popup: true,
-    window,
-  });
-  document.getElementById("tabmail").closeTab();
-
-  info("Message window");
-  let messageWindow = await openMessageInWindow(messages.getNext());
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-mouse-click",
-    window: messageWindow,
-  });
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-mouse-click",
-    disable_button: true,
-    window: messageWindow,
-  });
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-mouse-click",
-    use_default_popup: true,
-    window: messageWindow,
-  });
-  messageWindow.close();
-});
-
 // This test uses a command from the menus API to open the popup.
 add_task(async function test_popup_open_with_menu_command() {
   info("3-pane tab");
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-menu-command",
-    window,
-  });
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-menu-command",
-    use_default_popup: true,
-    window,
-  });
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-menu-command",
-    disable_button: true,
-    window,
-  });
+  {
+    let testConfig = {
+      actionType: "message_display_action",
+      testType: "open-with-menu-command",
+      window,
+    };
+
+    await run_popup_test({
+      ...testConfig,
+    });
+    await run_popup_test({
+      ...testConfig,
+      use_default_popup: true,
+    });
+    await run_popup_test({
+      ...testConfig,
+      disable_button: true,
+    });
+  }
 
   info("Message tab");
-  await openMessageInTab(messages.getNext());
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-menu-command",
-    window,
-  });
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-menu-command",
-    use_default_popup: true,
-    window,
-  });
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-menu-command",
-    disable_button: true,
-    window,
-  });
-  document.getElementById("tabmail").closeTab();
+  {
+    await openMessageInTab(messages.getNext());
+    let testConfig = {
+      actionType: "message_display_action",
+      testType: "open-with-menu-command",
+      window,
+    };
+
+    await run_popup_test({
+      ...testConfig,
+    });
+    await run_popup_test({
+      ...testConfig,
+      use_default_popup: true,
+    });
+    await run_popup_test({
+      ...testConfig,
+      disable_button: true,
+    });
+
+    document.getElementById("tabmail").closeTab();
+  }
 
   info("Message window");
-  let messageWindow = await openMessageInWindow(messages.getNext());
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-menu-command",
-    window: messageWindow,
-  });
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-menu-command",
-    use_default_popup: true,
-    window: messageWindow,
-  });
-  await run_popup_test({
-    actionType: "message_display_action",
-    testType: "open-with-menu-command",
-    disable_button: true,
-    window: messageWindow,
-  });
-  messageWindow.close();
+  {
+    let messageWindow = await openMessageInWindow(messages.getNext());
+    let testConfig = {
+      actionType: "message_display_action",
+      testType: "open-with-menu-command",
+      window: messageWindow,
+    };
+
+    await run_popup_test({
+      ...testConfig,
+    });
+    await run_popup_test({
+      ...testConfig,
+      use_default_popup: true,
+    });
+    await run_popup_test({
+      ...testConfig,
+      disable_button: true,
+    });
+
+    messageWindow.close();
+  }
 });
 
 add_task(async function test_theme_icons() {

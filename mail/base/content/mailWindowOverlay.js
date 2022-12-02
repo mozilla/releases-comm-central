@@ -959,8 +959,7 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
   );
 
   // Rebuild the list.
-  const suffix = message.label ? " $label" + message.label : "";
-  const curKeys = message.getStringProperty("keywords") + suffix;
+  const curKeys = message.getStringProperty("keywords");
 
   tagArray.forEach((tagInfo, index) => {
     const removeKey = ` ${curKeys} `.includes(` ${tagInfo.key} `);

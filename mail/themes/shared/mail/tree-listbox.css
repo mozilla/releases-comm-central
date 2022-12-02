@@ -11,6 +11,18 @@
   --listbox-selected-color: var(--color-white);
   --listbox-hover: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
   --listbox-selected-outline: none;
+  --tree-header-table-height: 30px;
+  --tree-header-cell-padding: 6px;
+}
+
+:root[uidensity="compact"] {
+  --tree-header-cell-padding: 3px;
+  --tree-header-table-height: 27px;
+}
+
+:root[uidensity="touch"] {
+  --tree-header-cell-padding: 9px;
+  --tree-header-table-height: 36px;
 }
 
 @media not (prefers-contrast) {
@@ -33,52 +45,243 @@
   }
 }
 
-tree-view-listbox {
-  overflow-y: auto;
+.tree-view-scrollable-container {
   display: flex;
-  flex-direction: column;
-  position: relative;
+  align-items: start;
+  overflow-y: scroll;
+  height: 100%;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  tree-view-listbox {
-    scroll-behavior: smooth;
-  }
-}
-
-tree-view-listbox:focus {
+[is="tree-view-listbox"]:focus {
   outline: none;
 }
 
-tree-view-listbox > * {
-  position: absolute;
-  left: 0;
-  right: 0;
+[is="tree-view-listbox"] > * {
   cursor: default;
 }
 
-tree-view-listbox > *:hover {
+[is="tree-view-listbox"] > *:hover {
   background-color: var(--listbox-hover);
 }
 
-tree-view-listbox > .selected {
+[is="tree-view-listbox"] > .selected {
   background-color: var(--listbox-selected-bg);
   outline: var(--listbox-selected-outline);
   outline-offset: -2px;
 }
 
-tree-view-listbox:focus > .current {
+[is="tree-view-listbox"]:focus > .current {
   outline: 2px dotted var(--listbox-selected-color);
   outline-offset: -2px;
   z-index: 1;
 }
 
-tree-view-listbox:focus > .selected {
+[is="tree-view-listbox"]:focus > .selected {
   color: var(--listbox-selected-color);
   background-color: var(--listbox-focused-selected-bg);
 }
 
-tree-view-listbox:focus > .current.selected {
+[is="tree-view-listbox"]:focus > .current.selected {
   outline: 1px dashed var(--listbox-selected-color);
   outline-offset: -1px;
+}
+
+/* Resizable table columns */
+
+table[is="tree-view-table"] {
+  table-layout: fixed;
+  flex: 1 0 100%;
+  border-spacing: 0;
+  line-height: 1;
+  font-size: 1.05rem;
+}
+
+table[is="tree-view-table"] td {
+  padding: 0;
+}
+
+body:not(.layout-table) thead[is="tree-view-table-header"] {
+  display: none;
+}
+
+thead[is="tree-view-table-header"] {
+  height: 30px;
+  position: sticky;
+  inset-inline: 0;
+  inset-block-start: 0;
+  background-color: var(--address-book-cards-list-bg);
+  z-index: 1;
+}
+
+/*
+ * Use pseudo elements to show top and bottom border due to a rendering issues
+ * with regular CSS borders and sticky table headers.
+ */
+thead[is="tree-view-table-header"] th:after,
+thead[is="tree-view-table-header"] th:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+thead[is="tree-view-table-header"] th:before {
+  border-top: 1px solid var(--in-content-border-color);
+}
+
+thead[is="tree-view-table-header"] th:after {
+  border-bottom: 1px solid var(--in-content-border-color);
+}
+
+thead[is="tree-view-table-header"] hr[is="pane-splitter"] {
+  position: absolute;
+  inset-inline-end: 5px;
+  inset-block: 3px;
+}
+
+thead[is="tree-view-table-header"] hr[is="pane-splitter"]:hover:not(:active) {
+  background-color: var(--color-blue-50);
+}
+
+th[is="tree-view-table-header-cell"] {
+  min-width: 5ch;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.tree-table-cell {
+  position: absolute;
+  inset-block: 0;
+  inset-inline: 0 5px;
+}
+
+.tree-table-cell-container button {
+  font-size: 1rem;
+  font-weight: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: start;
+  padding: var(--tree-header-cell-padding);
+  width: 100%;
+  height: 100%;
+  min-width: auto;
+  min-height: auto;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  background-position: right 6px center;
+  background-repeat: no-repeat;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+}
+
+.tree-table-cell-container button:hover {
+  background-color: var(--in-content-button-background);
+}
+
+.tree-table-cell-container button:active,
+.tree-table-cell-container button:hover:active {
+  background-color: var(--in-content-button-background-hover);
+}
+
+.tree-table-cell-container button.sorting {
+  background-image: var(--icon-nav-up-sm);
+}
+
+.tree-table-cell-container button.sorting.descending {
+  background-image: var(--icon-nav-down-sm);
+}
+
+@media (-moz-platform: linux) {
+  .tree-table-cell-container button.sorting {
+    background-image: var(--icon-nav-down-sm);
+  }
+
+  .tree-table-cell-container button.sorting.descending {
+    background-image: var(--icon-nav-up-sm);
+  }
+}
+
+th[is="tree-view-table-column-picker"] {
+  position: relative;
+  width: 25px;
+  padding: 0;
+}
+
+.button-column-picker img {
+  content: var(--icon-column-menu);
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
+/* Table body */
+
+table[is="tree-view-table"] td {
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-inline: 6px;
+}
+
+table[is="tree-view-table"] td div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Placeholder */
+
+slot[name="placeholders"] {
+  position: absolute;
+  display: none;
+  box-sizing: border-box;
+  inset: 120px 0 auto;
+  padding: 0 40px;
+  color: var(--in-content-deemphasized-text);
+  text-align: center;
+}
+
+slot[name="placeholders"].show {
+  display: block;
+}
+
+slot[name="placeholders"] > div{
+  font-size: 1.5rem;
+  line-height: 1.2;
+  font-weight: 600;
+  margin-block-end: 12px;
+  text-shadow: 0 1px 0px var(--in-content-page-background);
+}
+
+slot[name="placeholders"] div::before {
+  content: "";
+  display: block;
+  height: 32px;
+  margin-block-end: 9px;
+  background-position: center top;
+  background-size: contain;
+  background-repeat: no-repeat;
+  -moz-context-properties: fill, stroke, fill-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+}
+
+/* Transitions and animations */
+
+@media (prefers-reduced-motion: no-preference) {
+  .tree-view-scrollable-container {
+    scroll-behavior: smooth;
+  }
+
+  thead[is="tree-view-table-header"] hr[is="pane-splitter"] {
+    transition: background-color 300ms ease;
+  }
+
+  table[is="tree-view-table"] tbody tr {
+    transition: color 320ms ease, background-color 320ms ease, fill 320ms ease, stroke 320ms ease;
+  }
 }

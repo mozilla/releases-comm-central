@@ -145,7 +145,7 @@ class NntpNewsGroup {
       lines,
     ] = parts;
     let msgHdr = this._db.createNewHdr(articleNumber);
-    msgHdr.OrFlags(Ci.nsMsgMessageFlags.New);
+    msgHdr.orFlags(Ci.nsMsgMessageFlags.New);
     msgHdr.subject = subject;
     msgHdr.author = from;
     msgHdr.date = new Date(date).valueOf() * 1000;
@@ -230,7 +230,7 @@ class NntpNewsGroup {
         break;
       case "subject":
         this._msgHdr.subject = value;
-        this._msgHdr.OrFlags(Ci.nsMsgMessageFlags.New);
+        this._msgHdr.orFlags(Ci.nsMsgMessageFlags.New);
         break;
       case "message-id":
         this._msgHdr.messageId = value;
@@ -335,10 +335,10 @@ class NntpNewsGroup {
           );
           break;
         case Ci.nsMsgFilterAction.KillSubthread:
-          this._filteringHdr.OrFlags(Ci.nsMsgMessageFlags.Ignored);
+          this._filteringHdr.orFlags(Ci.nsMsgMessageFlags.Ignored);
           break;
         case Ci.nsMsgFilterAction.WatchThread:
-          this._filteringHdr.OrFlags(Ci.nsMsgMessageFlags.Watched);
+          this._filteringHdr.orFlags(Ci.nsMsgMessageFlags.Watched);
           break;
         case Ci.nsMsgFilterAction.MarkFlagged:
           this._filteringHdr.markFlagged(true);
@@ -350,12 +350,6 @@ class NntpNewsGroup {
           this._folder.addKeywordsToMessages(
             [this._filteringHdr],
             action.strValue
-          );
-          break;
-        case Ci.nsMsgFilterAction.Label:
-          this._filteringHdr.setLabel(
-            this._filteringHdr.messageKey,
-            action.label
           );
           break;
         case Ci.nsMsgFilterAction.StopExecution:

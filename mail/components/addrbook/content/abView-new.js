@@ -462,6 +462,10 @@ abViewCard.prototype = {
         if (["NickName", "Notes"].includes(columnID)) {
           return getProperty(columnID, "");
         }
+        if (columnID == "addrbook") {
+          return MailServices.ab.getDirectoryFromUID(this.card.directoryUID)
+            .dirName;
+        }
         return "";
       }
 

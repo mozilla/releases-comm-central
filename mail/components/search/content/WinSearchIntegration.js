@@ -260,7 +260,7 @@ SearchIntegration = {
         let folder = this._msgHdr.folder;
         let text = folder.getMsgTextFromStream(
           stringStream,
-          this._msgHdr.Charset,
+          this._msgHdr.charset,
           65536,
           50000,
           false,

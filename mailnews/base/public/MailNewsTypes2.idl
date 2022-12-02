@@ -87,8 +87,6 @@ interface nsMsgAuthMethod : nsISupports {
     const nsMsgAuthMethodValue OAuth2 = 10;
 };
 
-typedef unsigned long nsMsgLabelValue;
-
 typedef long nsMsgViewSortOrderValue;
 typedef long nsMsgViewSortTypeValue;
 typedef long nsMsgViewTypeValue;

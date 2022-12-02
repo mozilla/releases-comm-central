@@ -131,7 +131,59 @@ var uiListener = new (class extends EventEmitter {
   }
 })();
 
-this.mailTabs = class extends ExtensionAPI {
+this.mailTabs = class extends ExtensionAPIPersistent {
+  PERSISTENT_EVENTS = {
+    // For primed persistent events (deactivated background), the context is only
+    // available after fire.wakeup() has fulfilled (ensuring the convert() function
+    // has been called).
+
+    onDisplayedFolderChanged({ context, fire }) {
+      const { extension } = this;
+      const { tabManager } = extension;
+      async function listener(event, tab, folder) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.sync(tabManager.convert(tab), convertFolder(folder));
+      }
+      uiListener.on("folder-changed", listener);
+      uiListener.incrementListeners();
+      return {
+        unregister: () => {
+          uiListener.off("folder-changed", listener);
+          uiListener.decrementListeners();
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onSelectedMessagesChanged({ context, fire }) {
+      const { extension } = this;
+      const { tabManager } = extension;
+      async function listener(event, tab, messages) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        let page = await messageListTracker.startList(messages, extension);
+        fire.sync(tabManager.convert(tab), page);
+      }
+      uiListener.on("messages-changed", listener);
+      uiListener.incrementListeners();
+      return {
+        unregister: () => {
+          uiListener.off("messages-changed", listener);
+          uiListener.decrementListeners();
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+  };
+
   getAPI(context) {
     let { extension } = context;
     let { tabManager } = extension;
@@ -395,40 +447,16 @@ this.mailTabs = class extends ExtensionAPI {
 
         onDisplayedFolderChanged: new EventManager({
           context,
-          name: "mailTabs.onDisplayedFolderChanged",
-          register: fire => {
-            let listener = (event, tab, folder) => {
-              fire.sync(tabManager.convert(tab), convertFolder(folder));
-            };
-
-            uiListener.on("folder-changed", listener);
-            uiListener.incrementListeners();
-            return () => {
-              uiListener.off("folder-changed", listener);
-              uiListener.decrementListeners();
-            };
-          },
+          module: "mailTabs",
+          event: "onDisplayedFolderChanged",
+          extensionApi: this,
         }).api(),
 
         onSelectedMessagesChanged: new EventManager({
           context,
-          name: "mailTabs.onSelectedMessagesChanged",
-          register: fire => {
-            let listener = async (event, tab, messages) => {
-              let page = await messageListTracker.startList(
-                messages,
-                extension
-              );
-              fire.sync(tabManager.convert(tab), page);
-            };
-
-            uiListener.on("messages-changed", listener);
-            uiListener.incrementListeners();
-            return () => {
-              uiListener.off("messages-changed", listener);
-              uiListener.decrementListeners();
-            };
-          },
+          module: "mailTabs",
+          event: "onSelectedMessagesChanged",
+          extensionApi: this,
         }).api(),
       },
     };

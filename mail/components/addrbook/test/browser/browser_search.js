@@ -60,7 +60,7 @@ add_task(async () => {
 
   let abDocument = abWindow.document;
   let searchBox = abDocument.getElementById("searchInput");
-  let cardsList = abDocument.getElementById("cards");
+  let cardsList = abWindow.cardsPane.cardsList;
 
   Assert.equal(
     abDocument.activeElement,

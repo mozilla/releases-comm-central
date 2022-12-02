@@ -214,7 +214,7 @@ async function testReply(aHrdIdx, aTemplateHdrIdx = 0) {
   // XXX: something's wrong with how the fake server gets the data.
   // The text gets converted to UTF-8 (regardless of what it is) at some point.
   // Suspect a bug with how BinaryInputStream handles the strings.
-  if (templateHdr.Charset == "windows-1252") {
+  if (templateHdr.charset == "windows-1252") {
     // XXX: should really check for "åäö xlatin1"
     if (!body.includes("Ã¥Ã¤Ã¶ xlatin1")) {
       // template-latin1 contains this
@@ -225,7 +225,7 @@ async function testReply(aHrdIdx, aTemplateHdrIdx = 0) {
           body
       );
     }
-  } else if (templateHdr.Charset == "utf-8") {
+  } else if (templateHdr.charset == "utf-8") {
     // XXX: should really check for "åäö xutf8"
     if (!body.includes("Ã¥Ã¤Ã¶ xutf8")) {
       // template-utf8 contains this
@@ -236,10 +236,10 @@ async function testReply(aHrdIdx, aTemplateHdrIdx = 0) {
           body
       );
     }
-  } else if (templateHdr.Charset) {
+  } else if (templateHdr.charset) {
     do_throw(
       "unexpected msg charset: " +
-        templateHdr.Charset +
+        templateHdr.charset +
         ", hdr msgid=" +
         templateHdr.messageId
     );

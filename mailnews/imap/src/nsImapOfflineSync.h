@@ -75,7 +75,7 @@ class nsImapOfflineSync : public nsIUrlListener,
   nsTArray<nsMsgKey> m_CurrentKeys;
   nsCOMArray<nsIMsgOfflineImapOperation> m_currentOpsToClear;
   uint32_t m_KeyIndex;
-  nsCOMPtr<nsIMsgDatabase> m_currentDB;
+  nsCOMPtr<nsIMsgOfflineOpsDatabase> m_currentDB;
   nsCOMPtr<nsIUrlListener> m_listener;
   int32_t mCurrentUIDValidity;
   int32_t mCurrentPlaybackOpType;  // kFlagsChanged -> kMsgCopy -> kMsgMoved

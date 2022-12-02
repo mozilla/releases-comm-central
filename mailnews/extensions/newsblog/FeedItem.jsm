@@ -331,7 +331,7 @@ FeedItem.prototype = {
     // char * cpp |string| as UTF-8 bytes. The source xml doc encoding is utf8.
     source = unescape(encodeURIComponent(source));
     let msgDBHdr = folder.addMessage(source);
-    msgDBHdr.OrFlags(Ci.nsMsgMessageFlags.FeedMsg);
+    msgDBHdr.orFlags(Ci.nsMsgMessageFlags.FeedMsg);
     msgFolder.gettingNewMessages = false;
     this.tagItem(msgDBHdr, this.keywords);
   },

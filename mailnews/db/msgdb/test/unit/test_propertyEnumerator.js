@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// tests propertyEnumerator in nsIMsgDBHdr;
+// tests properties in nsIMsgDBHdr;
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -42,7 +42,7 @@ var copyListener = {
 
 function continue_test() {
   // test some of the default properties
-  let properties = [...gHdr.propertyEnumerator];
+  let properties = gHdr.properties;
   Assert.ok(properties.includes("flags"));
   Assert.ok(properties.includes("size"));
   // this will be added in the next section, but does not exist yet
@@ -52,7 +52,7 @@ function continue_test() {
   gHdr.setStringProperty("iamnew", "somevalue");
 
   properties = [];
-  for (let property of gHdr.propertyEnumerator) {
+  for (let property of gHdr.properties) {
     // dump("\nProperty 2 is " + property);
     properties.push(property);
   }

@@ -51,7 +51,7 @@ var customTerm = {
   match(msgHdr, searchValue, searchOp) {
     switch (searchOp) {
       case Ci.nsMsgSearchOp.Is:
-        if (msgHdr.getProperty("theTestProperty") == searchValue) {
+        if (msgHdr.getStringProperty("theTestProperty") == searchValue) {
           return true;
         }
     }

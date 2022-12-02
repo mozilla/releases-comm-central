@@ -349,6 +349,9 @@ class ExtSearchBook extends AddrBookDirectory {
   setLocalizedStringValue(aName, aValue) {}
   async search(aQuery, aSearchString, aListener) {
     try {
+      if (this.fire.wakeup) {
+        await this.fire.wakeup();
+      }
       let { results, isCompleteResult } = await this.fire.async(
         await addressBookCache.convert(
           addressBookCache.addressBooks.get(this.UID)
@@ -829,15 +832,258 @@ var addressBookCache = new (class extends EventEmitter {
   }
 })();
 
-this.addressBook = class extends ExtensionAPI {
-  close() {
+this.addressBook = class extends ExtensionAPIPersistent {
+  PERSISTENT_EVENTS = {
+    // For primed persistent events (deactivated background), the context is only
+    // available after fire.wakeup() has fulfilled (ensuring the convert() function
+    // has been called).
+
+    // addressBooks.*
+    onAddressBookCreated({ context, fire }) {
+      let listener = async (event, node) => {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.sync(await addressBookCache.convert(node));
+      };
+      addressBookCache.on("address-book-created", listener);
+      return {
+        unregister: () => {
+          addressBookCache.off("address-book-created", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onAddressBookUpdated({ context, fire }) {
+      let listener = async (event, node) => {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.sync(await addressBookCache.convert(node));
+      };
+      addressBookCache.on("address-book-updated", listener);
+      return {
+        unregister: () => {
+          addressBookCache.off("address-book-updated", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onAddressBookDeleted({ context, fire }) {
+      let listener = async (event, itemUID) => {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.sync(itemUID);
+      };
+      addressBookCache.on("address-book-deleted", listener);
+      return {
+        unregister: () => {
+          addressBookCache.off("address-book-deleted", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+
+    // contacts.*
+    onContactCreated({ context, fire }) {
+      let listener = async (event, node) => {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.sync(await addressBookCache.convert(node));
+      };
+      addressBookCache.on("contact-created", listener);
+      return {
+        unregister: () => {
+          addressBookCache.off("contact-created", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onContactUpdated({ context, fire }) {
+      let listener = async (event, node, changes) => {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        let filteredChanges = {};
+        // Find changes in flat properties stored in the vCard.
+        if (changes.hasOwnProperty("_vCard")) {
+          let oldVCardProperties = VCardProperties.fromVCard(
+            changes._vCard.oldValue
+          ).toPropertyMap();
+          let newVCardProperties = VCardProperties.fromVCard(
+            changes._vCard.newValue
+          ).toPropertyMap();
+          for (let [name, value] of oldVCardProperties) {
+            if (newVCardProperties.get(name) != value) {
+              filteredChanges[name] = {
+                oldValue: value,
+                newValue: newVCardProperties.get(name) ?? null,
+              };
+            }
+          }
+          for (let [name, value] of newVCardProperties) {
+            if (
+              !filteredChanges.hasOwnProperty(name) &&
+              oldVCardProperties.get(name) != value
+            ) {
+              filteredChanges[name] = {
+                oldValue: oldVCardProperties.get(name) ?? null,
+                newValue: value,
+              };
+            }
+          }
+        }
+        for (let [name, value] of Object.entries(changes)) {
+          if (!filteredChanges.hasOwnProperty(name) && isCustomProperty(name)) {
+            filteredChanges[name] = value;
+          }
+        }
+        fire.sync(await addressBookCache.convert(node), filteredChanges);
+      };
+      addressBookCache.on("contact-updated", listener);
+      return {
+        unregister: () => {
+          addressBookCache.off("contact-updated", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onContactDeleted({ context, fire }) {
+      let listener = async (event, parentUID, itemUID) => {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.sync(parentUID, itemUID);
+      };
+      addressBookCache.on("contact-deleted", listener);
+      return {
+        unregister: () => {
+          addressBookCache.off("contact-deleted", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+
+    // mailingLists.*
+    onMailingListCreated({ context, fire }) {
+      let listener = async (event, node) => {
+        fire.sync(await addressBookCache.convert(node));
+      };
+      addressBookCache.on("mailing-list-created", listener);
+      return {
+        unregister: () => {
+          addressBookCache.off("mailing-list-created", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onMailingListUpdated({ context, fire }) {
+      let listener = async (event, node) => {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.sync(await addressBookCache.convert(node));
+      };
+      addressBookCache.on("mailing-list-updated", listener);
+      return {
+        unregister: () => {
+          addressBookCache.off("mailing-list-updated", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onMailingListDeleted({ context, fire }) {
+      let listener = async (event, parentUID, itemUID) => {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.sync(parentUID, itemUID);
+      };
+      addressBookCache.on("mailing-list-deleted", listener);
+      return {
+        unregister: () => {
+          addressBookCache.off("mailing-list-deleted", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onMemberAdded({ context, fire }) {
+      let listener = async (event, node) => {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.sync(await addressBookCache.convert(node));
+      };
+      addressBookCache.on("mailing-list-member-added", listener);
+      return {
+        unregister: () => {
+          addressBookCache.off("mailing-list-member-added", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onMemberRemoved({ context, fire }) {
+      let listener = async (event, parentUID, itemUID) => {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.sync(parentUID, itemUID);
+      };
+      addressBookCache.on("mailing-list-member-removed", listener);
+      return {
+        unregister: () => {
+          addressBookCache.off("mailing-list-member-removed", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+  };
+
+  constructor(...args) {
+    super(...args);
+    addressBookCache.incrementListeners();
+  }
+
+  onShutdown() {
     addressBookCache.decrementListeners();
   }
 
   getAPI(context) {
-    context.callOnClose(this);
-    addressBookCache.incrementListeners();
-
     return {
       addressBooks: {
         async openUI() {
@@ -894,47 +1140,24 @@ this.addressBook = class extends ExtensionAPI {
           await deletePromise;
         },
 
+        // The module name is addressBook as defined in ext-mail.json.
         onCreated: new EventManager({
           context,
-          name: "addressBooks.onCreated",
-          register: fire => {
-            let listener = async (event, node) => {
-              fire.sync(await addressBookCache.convert(node));
-            };
-
-            addressBookCache.on("address-book-created", listener);
-            return () => {
-              addressBookCache.off("address-book-created", listener);
-            };
-          },
+          module: "addressBook",
+          event: "onAddressBookCreated",
+          extensionApi: this,
         }).api(),
         onUpdated: new EventManager({
           context,
-          name: "addressBooks.onUpdated",
-          register: fire => {
-            let listener = async (event, node) => {
-              fire.sync(await addressBookCache.convert(node));
-            };
-
-            addressBookCache.on("address-book-updated", listener);
-            return () => {
-              addressBookCache.off("address-book-updated", listener);
-            };
-          },
+          module: "addressBook",
+          event: "onAddressBookUpdated",
+          extensionApi: this,
         }).api(),
         onDeleted: new EventManager({
           context,
-          name: "addressBooks.onDeleted",
-          register: fire => {
-            let listener = (event, itemUID) => {
-              fire.sync(itemUID);
-            };
-
-            addressBookCache.on("address-book-deleted", listener);
-            return () => {
-              addressBookCache.off("address-book-deleted", listener);
-            };
-          },
+          module: "addressBook",
+          event: "onAddressBookDeleted",
+          extensionApi: this,
         }).api(),
 
         provider: {
@@ -1208,84 +1431,24 @@ this.addressBook = class extends ExtensionAPI {
           parentNode.item.deleteCards([node.item]);
         },
 
+        // The module name is addressBook as defined in ext-mail.json.
         onCreated: new EventManager({
           context,
-          name: "contacts.onCreated",
-          register: fire => {
-            let listener = async (event, node) => {
-              fire.sync(await addressBookCache.convert(node));
-            };
-
-            addressBookCache.on("contact-created", listener);
-            return () => {
-              addressBookCache.off("contact-created", listener);
-            };
-          },
+          module: "addressBook",
+          event: "onContactCreated",
+          extensionApi: this,
         }).api(),
         onUpdated: new EventManager({
           context,
-          name: "contacts.onUpdated",
-          register: fire => {
-            let listener = async (event, node, changes) => {
-              let filteredChanges = {};
-              // Find changes in flat properties stored in the vCard.
-              if (changes.hasOwnProperty("_vCard")) {
-                let oldVCardProperties = VCardProperties.fromVCard(
-                  changes._vCard.oldValue
-                ).toPropertyMap();
-                let newVCardProperties = VCardProperties.fromVCard(
-                  changes._vCard.newValue
-                ).toPropertyMap();
-                for (let [name, value] of oldVCardProperties) {
-                  if (newVCardProperties.get(name) != value) {
-                    filteredChanges[name] = {
-                      oldValue: value,
-                      newValue: newVCardProperties.get(name) ?? null,
-                    };
-                  }
-                }
-                for (let [name, value] of newVCardProperties) {
-                  if (
-                    !filteredChanges.hasOwnProperty(name) &&
-                    oldVCardProperties.get(name) != value
-                  ) {
-                    filteredChanges[name] = {
-                      oldValue: oldVCardProperties.get(name) ?? null,
-                      newValue: value,
-                    };
-                  }
-                }
-              }
-              for (let [name, value] of Object.entries(changes)) {
-                if (
-                  !filteredChanges.hasOwnProperty(name) &&
-                  isCustomProperty(name)
-                ) {
-                  filteredChanges[name] = value;
-                }
-              }
-              fire.sync(await addressBookCache.convert(node), filteredChanges);
-            };
-
-            addressBookCache.on("contact-updated", listener);
-            return () => {
-              addressBookCache.off("contact-updated", listener);
-            };
-          },
+          module: "addressBook",
+          event: "onContactUpdated",
+          extensionApi: this,
         }).api(),
         onDeleted: new EventManager({
           context,
-          name: "contacts.onDeleted",
-          register: fire => {
-            let listener = (event, parentUID, itemUID) => {
-              fire.sync(parentUID, itemUID);
-            };
-
-            addressBookCache.on("contact-deleted", listener);
-            return () => {
-              addressBookCache.off("contact-deleted", listener);
-            };
-          },
+          module: "addressBook",
+          event: "onContactDeleted",
+          extensionApi: this,
         }).api(),
       },
       mailingLists: {
@@ -1375,75 +1538,36 @@ this.addressBook = class extends ExtensionAPI {
           node.item.deleteCards([contactNode.item]);
         },
 
+        // The module name is addressBook as defined in ext-mail.json.
         onCreated: new EventManager({
           context,
-          name: "mailingLists.onCreated",
-          register: fire => {
-            let listener = async (event, node) => {
-              fire.sync(await addressBookCache.convert(node));
-            };
-
-            addressBookCache.on("mailing-list-created", listener);
-            return () => {
-              addressBookCache.off("mailing-list-created", listener);
-            };
-          },
+          module: "addressBook",
+          event: "onMailingListCreated",
+          extensionApi: this,
         }).api(),
         onUpdated: new EventManager({
           context,
-          name: "mailingLists.onUpdated",
-          register: fire => {
-            let listener = async (event, node) => {
-              fire.sync(await addressBookCache.convert(node));
-            };
-
-            addressBookCache.on("mailing-list-updated", listener);
-            return () => {
-              addressBookCache.off("mailing-list-updated", listener);
-            };
-          },
+          module: "addressBook",
+          event: "onMailingListUpdated",
+          extensionApi: this,
         }).api(),
         onDeleted: new EventManager({
           context,
-          name: "mailingLists.onDeleted",
-          register: fire => {
-            let listener = (event, parentUID, itemUID) => {
-              fire.sync(parentUID, itemUID);
-            };
-
-            addressBookCache.on("mailing-list-deleted", listener);
-            return () => {
-              addressBookCache.off("mailing-list-deleted", listener);
-            };
-          },
+          module: "addressBook",
+          event: "onMailingListDeleted",
+          extensionApi: this,
         }).api(),
         onMemberAdded: new EventManager({
           context,
-          name: "mailingLists.onMemberAdded",
-          register: fire => {
-            let listener = async (event, node) => {
-              fire.sync(await addressBookCache.convert(node));
-            };
-
-            addressBookCache.on("mailing-list-member-added", listener);
-            return () => {
-              addressBookCache.off("mailing-list-member-added", listener);
-            };
-          },
+          module: "addressBook",
+          event: "onMemberAdded",
+          extensionApi: this,
         }).api(),
         onMemberRemoved: new EventManager({
           context,
-          name: "mailingLists.onMemberRemoved",
-          register: fire => {
-            let listener = (event, parentUID, itemUID) => {
-              fire.sync(parentUID, itemUID);
-            };
-
-            addressBookCache.on("mailing-list-member-removed", listener);
-            return () => {
-              addressBookCache.off("mailing-list-member-removed", listener);
-            };
-          },
+          module: "addressBook",
+          event: "onMemberRemoved",
+          extensionApi: this,
         }).api(),
       },
     };

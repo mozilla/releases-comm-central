@@ -501,22 +501,9 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
       err = aTerm->MatchAge(date, &result);
       break;
     }
-    case nsMsgSearchAttrib::Label: {
-      nsMsgLabelValue label;
-      msgToMatch->GetLabel(&label);
-      err = aTerm->MatchLabel(label, &result);
-      break;
-    }
     case nsMsgSearchAttrib::Keywords: {
       nsCString keywords;
-      nsMsgLabelValue label;
       msgToMatch->GetStringProperty("keywords", getter_Copies(keywords));
-      msgToMatch->GetLabel(&label);
-      if (label >= 1) {
-        if (!keywords.IsEmpty()) keywords.Append(' ');
-        keywords.AppendLiteral("$label");
-        keywords.Append(label + '0');
-      }
       err = aTerm->MatchKeyword(keywords, &result);
       break;
     }

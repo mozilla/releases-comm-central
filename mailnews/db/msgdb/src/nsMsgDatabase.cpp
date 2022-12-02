@@ -996,7 +996,8 @@ nsMsgDatabase::~nsMsgDatabase() {
   m_ChangeListeners.Clear();
 }
 
-NS_IMPL_ISUPPORTS(nsMsgDatabase, nsIMsgDatabase, nsIDBChangeAnnouncer)
+NS_IMPL_ISUPPORTS(nsMsgDatabase, nsIMsgDatabase, nsIMsgOfflineOpsDatabase,
+                  nsIDBChangeAnnouncer)
 
 nsresult nsMsgDatabase::GetMDBFactory(nsIMdbFactory** aMdbFactory) {
   if (!mMdbFactory) {
@@ -2231,25 +2232,6 @@ nsMsgDatabase::SetUint32PropertyByHdr(nsIMsgDBHdr* aMsgHdr,
   }
 
   return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgDatabase::SetLabel(nsMsgKey key, nsMsgLabelValue label) {
-  nsresult rv;
-  nsCOMPtr<nsIMsgDBHdr> msgHdr;
-
-  rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-  if (NS_FAILED(rv) || !msgHdr) return NS_MSG_MESSAGE_NOT_FOUND;
-  nsMsgLabelValue oldLabel;
-  msgHdr->GetLabel(&oldLabel);
-
-  msgHdr->SetLabel(label);
-  // clear old label
-  if (oldLabel != label) {
-    if (oldLabel != 0) rv = SetKeyFlag(key, false, oldLabel << 25, nullptr);
-    // set the flag in the x-mozilla-status2 line.
-    rv = SetKeyFlag(key, true, label << 25, nullptr);
-  }
-  return rv;
 }
 
 NS_IMETHODIMP nsMsgDatabase::MarkImapDeleted(nsMsgKey key, bool deleted,

@@ -635,13 +635,6 @@ var mailContextMenu = {
     // and (un)tag takes a key argument.
     for (let i = 0; i < selectedMessages.length; ++i) {
       let msgHdr = selectedMessages[i];
-      if (msgHdr.label) {
-        // Since we touch all these messages anyway, migrate the label now.
-        // If we don't, the thread tree won't always show the correct tag state,
-        // because resetting a label doesn't update the tree anymore...
-        msgHdr.folder.addKeywordsToMessages([msgHdr], "$label" + msgHdr.label);
-        msgHdr.label = 0; // remove legacy label
-      }
       if (prevHdrFolder != msgHdr.folder) {
         if (prevHdrFolder) {
           prevHdrFolder[toggler](messages, key);

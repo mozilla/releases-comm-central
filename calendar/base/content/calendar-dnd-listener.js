@@ -54,7 +54,7 @@ var calendarTaskButtonDNDObserver;
           onDataAvailable(request, inputStream, offset, count) {
             plainTextMessage = msgFolder.getMsgTextFromStream(
               inputStream,
-              aMsgHdr.Charset,
+              aMsgHdr.charset,
               65536,
               32768,
               false,

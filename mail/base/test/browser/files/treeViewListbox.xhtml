@@ -1,3 +1,8 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -5,46 +10,36 @@
   <title>Test for the tree-view-listbox custom element</title>
   <link rel="stylesheet" href="chrome://messenger/skin/shared/tree-listbox.css" />
   <style>
-    #testList {
+    .tree-view-scrollable-container {
       height: 630px;
       scroll-behavior: unset;
-      --in-content-button-background: rgba(12, 12, 13, 0.1);
-      --in-content-focus-outline-color: #45a1ff;
-      --in-content-item-selected-text: highlighttext;
-      --in-content-item-selected: highlight;
     }
 
-    test-listrow {
-      height: 36px;
-      padding: 7px;
+    tr[is="test-listrow"] td > div {
       display: flex;
       align-items: center;
       box-sizing: border-box;
     }
 
-    test-listrow div.d1 {
+    tr[is="test-listrow"] td div.d1 {
       flex: 1;
     }
 
-    test-listrow div.d1 > div.d2 {
-      line-height: 18px;
+    tr[is="test-listrow"] td div.d1 > div.d2 {
+      line-height: 1.2;
     }
 
-    test-listrow div.d1 > div.d3 {
-      line-height: 18px;
-      font-size: 13.333px;
-    }
-
-    alternative-listrow {
-      height: 80px;
+    tr[is="test-listrow"] td div.d1 > div.d3 {
+      line-height: 1.2;
+      font-size: 13px;
     }
   </style>
-  <script defer="defer" src="chrome://messenger/content/tree-listbox.js"></script>
-  <script defer="defer" src="treeViewListbox.js"></script>
+  <script type="module" src="chrome://messenger/content/tree-view-listbox.mjs"></script>
+  <script src="treeViewListbox.js"></script>
 </head>
 <body>
   <input id="before" placeholder="something to focus on" />
-  <tree-view-listbox id="testList" tabindex="0" rows="test-listrow"></tree-view-listbox>
+  <tree-view id="testTree"/>
   <input id="after" placeholder="something to focus on" />
 </body>
 </html>

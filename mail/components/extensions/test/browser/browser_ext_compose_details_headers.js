@@ -438,6 +438,168 @@ add_task(async function testHeaders() {
   await extension.unload();
 });
 
+add_task(async function test_onIdentityChanged_MV3_event_pages() {
+  let files = {
+    "background.js": async () => {
+      // Whenever the extension starts or wakes up, the eventCounter is reset and
+      // allows to observe the order of events fired. In case of a wake-up, the
+      // first observed event is the one that woke up the background.
+      let eventCounter = 0;
+
+      browser.compose.onIdentityChanged.addListener(async (tab, identityId) => {
+        browser.test.sendMessage("identity changed", {
+          eventCount: ++eventCounter,
+          identityId,
+        });
+      });
+
+      browser.compose.onComposeStateChanged.addListener(async (tab, state) => {
+        browser.test.sendMessage("compose state changed", {
+          eventCount: ++eventCounter,
+          state,
+        });
+      });
+
+      browser.test.sendMessage("background started");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      manifest_version: 3,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "addressBooks", "compose", "messagesRead"],
+      browser_specific_settings: { gecko: { id: "compose@mochi.test" } },
+    },
+  });
+
+  function changeIdentity(newIdentity) {
+    let composeDocument = composeWindow.document;
+
+    let identityList = composeDocument.getElementById("msgIdentity");
+    let identityItem = identityList.querySelector(
+      `[identitykey="${newIdentity}"]`
+    );
+    ok(identityItem);
+    identityList.selectedItem = identityItem;
+    composeWindow.LoadIdentity(false);
+  }
+
+  function setToAddr(to) {
+    composeWindow.SetComposeDetails({ to });
+  }
+
+  function checkPersistentListeners({ primed }) {
+    // A persistent event is referenced by its moduleName as defined in
+    // ext-mails.json, not by its actual namespace.
+    const persistent_events = [
+      "compose.onIdentityChanged",
+      "compose.onComposeStateChanged",
+    ];
+
+    for (let event of persistent_events) {
+      let [moduleName, eventName] = event.split(".");
+      assertPersistentListeners(extension, moduleName, eventName, {
+        primed,
+      });
+    }
+  }
+
+  let composeWindow = await openComposeWindow(account);
+  await focusWindow(composeWindow);
+
+  await extension.startup();
+  await extension.awaitMessage("background started");
+  // The listeners should be persistent, but not primed.
+  checkPersistentListeners({ primed: false });
+
+  // Trigger events without terminating the background first.
+
+  changeIdentity(nonDefaultIdentity.key);
+  {
+    let rv = await extension.awaitMessage("identity changed");
+    Assert.deepEqual(
+      {
+        eventCount: 1,
+        identityId: nonDefaultIdentity.key,
+      },
+      rv,
+      "The non-primed onIdentityChanged event should return the correct values"
+    );
+  }
+
+  setToAddr("user@invalid.net");
+  {
+    let rv = await extension.awaitMessage("compose state changed");
+    Assert.deepEqual(
+      {
+        eventCount: 2,
+        state: {
+          canSendNow: true,
+          canSendLater: true,
+        },
+      },
+      rv,
+      "The non-primed onComposeStateChanged should return the correct values"
+    );
+  }
+
+  // Terminate background and re-trigger onIdentityChanged event.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  // The listeners should be primed.
+  checkPersistentListeners({ primed: true });
+
+  changeIdentity(defaultIdentity.key);
+  {
+    let rv = await extension.awaitMessage("identity changed");
+    Assert.deepEqual(
+      {
+        eventCount: 1,
+        identityId: defaultIdentity.key,
+      },
+      rv,
+      "The primed onIdentityChanged event should return the correct values"
+    );
+  }
+
+  // The background should have been restarted.
+  await extension.awaitMessage("background started");
+  // The listeners should no longer be primed.
+  checkPersistentListeners({ primed: false });
+
+  // Terminate background and re-trigger onComposeStateChanged event.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  // The listeners should be primed.
+  checkPersistentListeners({ primed: true });
+
+  setToAddr("invalid");
+  {
+    let rv = await extension.awaitMessage("compose state changed");
+    Assert.deepEqual(
+      {
+        eventCount: 1,
+        state: {
+          canSendNow: false,
+          canSendLater: false,
+        },
+      },
+      rv,
+      "The primed onComposeStateChanged should return the correct values"
+    );
+  }
+
+  // The background should have been restarted.
+  await extension.awaitMessage("background started");
+  // The listeners should no longer be primed.
+  checkPersistentListeners({ primed: false });
+
+  await extension.unload();
+  composeWindow.close();
+});
+
 add_task(async function testCustomHeaders() {
   let files = {
     "background.js": async () => {

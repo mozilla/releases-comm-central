@@ -13,10 +13,6 @@ interface nsIUTF8StringEnumerator;
 [scriptable, uuid(3c11ddbe-c805-40c5-b9c9-d065fad5d0be)]
 interface nsIMsgDBHdr : nsISupports
 {
-    /* general property routines - I think this can retrieve any
-       header in the db */
-    AString getProperty(in string propertyName);
-    void setProperty(in string propertyName, in AString propertyStr);
     void setStringProperty(in string propertyName, in string propertyValue);
     string getStringProperty(in string propertyName);
     unsigned long getUint32Property(in string propertyName);
@@ -36,12 +32,11 @@ interface nsIMsgDBHdr : nsISupports
     void markHasAttachments(in boolean hasAttachments);
 
     attribute nsMsgPriorityValue priority;
-    void setPriorityString(in string priority);
 
     /* flag handling routines */
     attribute unsigned long flags;
-    unsigned long OrFlags(in unsigned long flags);
-    unsigned long AndFlags(in unsigned long flags);
+    unsigned long orFlags(in unsigned long flags);
+    unsigned long andFlags(in unsigned long flags);
 
     /* various threading stuff */
     attribute nsMsgKey threadId;
@@ -96,20 +91,20 @@ interface nsIMsgDBHdr : nsISupports
     Array<octet> getSubjectCollationKey();
     Array<octet> getRecipientsCollationKey();
 
-    attribute string Charset;
+    attribute string charset;
+
     /**
-     * Returns the effective character set for the message (@ref Charset).
-     * If there is no specific set defined for the message or the
-     * characterSetOverride option is turned on for the folder it will return
-     * the effective character set of the folder instead.
+     * Returns the effective character set for the message (@ref charset).
+     * For NNTP, if there is no specific set defined for the message,
+     * the character set of the server instead.
      */
     readonly attribute ACString effectiveCharset;
-    attribute nsMsgLabelValue label;
+
     attribute string accountKey;
     readonly attribute nsIMsgFolder folder;
 
-    /// Enumerator for names of all database properties in the header.
-    readonly attribute nsIUTF8StringEnumerator propertyEnumerator;
+    /// Array of names of all database properties in the header.
+    readonly attribute Array<AUTF8String> properties;
 };
 /* *******************************************************************************/
 

@@ -4,7 +4,7 @@
 
 let account, rootFolder, subFolders;
 
-add_task(async () => {
+add_setup(async () => {
   account = createAccount();
   rootFolder = account.incomingServer.rootFolder;
   subFolders = rootFolder.subFolders;
@@ -104,14 +104,14 @@ add_task(async () => {
   messages[8].markRead(true);
   messages[1].markFlagged(true);
   messages[6].markFlagged(true);
-  messages[0].setProperty("keywords", "$label1");
-  messages[1].setProperty("keywords", "$label2");
-  messages[3].setProperty("keywords", "$label1 $label2");
-  messages[5].setProperty("keywords", "$label2");
-  messages[6].setProperty("keywords", "$label1");
-  messages[7].setProperty("keywords", "$label2 $label3");
-  messages[8].setProperty("keywords", "$label3");
-  messages[9].setProperty("keywords", "$label1 $label2 $label3");
+  messages[0].setStringProperty("keywords", "$label1");
+  messages[1].setStringProperty("keywords", "$label2");
+  messages[3].setStringProperty("keywords", "$label1 $label2");
+  messages[5].setStringProperty("keywords", "$label2");
+  messages[6].setStringProperty("keywords", "$label1");
+  messages[7].setStringProperty("keywords", "$label2 $label3");
+  messages[8].setStringProperty("keywords", "$label3");
+  messages[9].setStringProperty("keywords", "$label1 $label2 $label3");
   messages[9].markHasAttachments(true);
 
   // Add an author to the address book.

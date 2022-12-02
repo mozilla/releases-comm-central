@@ -668,16 +668,6 @@ nsresult nsMsgFilterList::LoadTextFilters(
               currentFilterAction->SetPriority(outPriority);
             else
               NS_ASSERTION(false, "invalid priority in filter file");
-          } else if (type == nsMsgFilterAction::Label) {
-            // upgrade label to corresponding tag/keyword
-            nsresult res;
-            int32_t labelInt = value.ToInteger(&res);
-            if (NS_SUCCEEDED(res)) {
-              nsAutoCString keyword("$label");
-              keyword.Append('0' + labelInt);
-              currentFilterAction->SetType(nsMsgFilterAction::AddTag);
-              currentFilterAction->SetStrValue(keyword);
-            }
           } else if (type == nsMsgFilterAction::JunkScore) {
             nsresult res;
             int32_t junkScore = value.ToInteger(&res);

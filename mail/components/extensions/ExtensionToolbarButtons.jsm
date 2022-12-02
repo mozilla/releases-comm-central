@@ -30,7 +30,7 @@ const { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
 
-var { EventManager, ExtensionAPI, makeWidgetId } = ExtensionCommon;
+var { EventManager, ExtensionAPIPersistent, makeWidgetId } = ExtensionCommon;
 
 var { IconDetails, StartupCache } = ExtensionParent;
 
@@ -102,7 +102,7 @@ function getIconData(icons, extension) {
   return { style, legacy, realIcon };
 }
 
-var ToolbarButtonAPI = class extends ExtensionAPI {
+var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
   constructor(extension, global) {
     super(extension);
     this.global = global;
@@ -123,7 +123,10 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
     this.unpaint = this.unpaint.bind(this);
 
     this.widgetId = makeWidgetId(extension.id);
-    this.id = `${this.widgetId}-${this.manifestName}-toolbarbutton`;
+    this.id =
+      this.manifestName == "action"
+        ? `${this.widgetId}-browserAction-toolbarbutton`
+        : `${this.widgetId}-${this.manifestName}-toolbarbutton`;
 
     this.eventQueue = [];
 
@@ -442,7 +445,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
         if (!this.lastClickInfo) {
           this.lastClickInfo = { button: 0, modifiers: [] };
         }
-        this.emit("click", window);
+        this.emit("click", window, this.lastClickInfo);
       }
     }
     delete this.lastClickInfo;
@@ -701,6 +704,35 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
     return this.getContextData(this.getTargetFromDetails(details))[prop];
   }
 
+  PERSISTENT_EVENTS = {
+    onClicked({ context, fire }) {
+      const { extension } = this;
+      const { tabManager, windowManager } = extension;
+
+      async function listener(_event, window, clickInfo) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+
+        // TODO: We should double-check if the tab is already being closed by the time
+        // the background script got started and we converted the primed listener.
+
+        let win = windowManager.wrapWindow(window);
+        fire.sync(tabManager.convert(win.activeTab.nativeTab), clickInfo);
+      }
+      this.on("click", listener);
+      return {
+        unregister: () => {
+          this.off("click", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+  };
+
   /**
    * WebExtension API.
    *
@@ -708,7 +740,6 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
    */
   getAPI(context) {
     let { extension } = context;
-    let { tabManager, windowManager } = extension;
 
     let action = this;
 
@@ -716,21 +747,14 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
       [this.manifestName]: {
         onClicked: new EventManager({
           context,
-          name: `${this.manifestName}.onClicked`,
+          // browserAction was renamed to action in MV3, but its module name is
+          // still "browserAction" because that is the name used in ext-mail.json,
+          // independently from the manifest version.
+          module:
+            this.manifestName == "action" ? "browserAction" : this.manifestName,
+          event: "onClicked",
           inputHandling: true,
-          register: fire => {
-            let listener = (event, window) => {
-              let win = windowManager.wrapWindow(window);
-              fire.sync(
-                tabManager.convert(win.activeTab.nativeTab),
-                this.lastClickInfo
-              );
-            };
-            action.on("click", listener);
-            return () => {
-              action.off("click", listener);
-            };
-          },
+          extensionApi: this,
         }).api(),
 
         async enable(tabId) {

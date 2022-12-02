@@ -514,7 +514,7 @@ add_task(async function test_without_UI() {
  * cloudFile.onFileRename and cloudFile.onFileUploadAbort listeners with UI
  * interaction.
  */
-add_task(async function test_compose_window() {
+add_task(async function test_compose_window_MV2() {
   let testFiles = {
     cloudFile1: new FileUtils.File(getTestFilePath("data/cloudFile1.txt")),
     cloudFile2: new FileUtils.File(getTestFilePath("data/cloudFile2.txt")),
@@ -761,6 +761,359 @@ add_task(async function test_compose_window() {
 });
 
 /**
+ * Test persistent cloudFile.* events (onFileUpload, onFileDeleted, onFileRename,
+ * onFileUploadAbort, onAccountAdded, onAccountDeleted) with UI interaction and
+ * background terminations and background restarts.
+ */
+add_task(async function test_compose_window_MV3_event_page() {
+  let testFiles = {
+    cloudFile1: new FileUtils.File(getTestFilePath("data/cloudFile1.txt")),
+    cloudFile2: new FileUtils.File(getTestFilePath("data/cloudFile2.txt")),
+  };
+  let uploads = {};
+  let composeWindow;
+
+  async function background() {
+    let abortResolveCallback;
+    // Whenever the extension starts or wakes up, the eventCounter is reset and
+    // allows to observe the order of events fired. In case of a wake-up, the
+    // first observed event is the one that woke up the background.
+    let eventCounter = 0;
+
+    browser.cloudFile.onFileUpload.addListener(
+      async (uploadAccount, { id, name, data }, tab, relatedFileInfo) => {
+        eventCounter++;
+        browser.test.assertEq(
+          eventCounter,
+          1,
+          "onFileUpload should be the wake up event"
+        );
+        let [
+          { cloudAccountId, composeTabId, aborting },
+        ] = await window.sendMessage("getEnvironment");
+        browser.test.assertEq(tab.id, composeTabId);
+        browser.test.assertEq(uploadAccount.id, cloudAccountId);
+        browser.test.assertEq(name, "cloudFile1.txt");
+        // eslint-disable-next-line mozilla/use-isInstance
+        browser.test.assertTrue(data instanceof File);
+        let content = await data.text();
+        browser.test.assertEq(content, "you got the moves!\n");
+        browser.test.assertEq(undefined, relatedFileInfo);
+
+        if (aborting) {
+          let abortPromise = new Promise(resolve => {
+            abortResolveCallback = resolve;
+          });
+          browser.test.sendMessage("uploadStarted", id);
+          await abortPromise;
+          setTimeout(() => {
+            browser.test.sendMessage("uploadAborted");
+          });
+          return { aborted: true };
+        }
+
+        setTimeout(() => {
+          browser.test.sendMessage("uploadFinished", id);
+        });
+        return { url: "https://example.com/" + name };
+      }
+    );
+
+    browser.cloudFile.onFileRename.addListener(
+      async (account, id, newName, tab) => {
+        eventCounter++;
+        browser.test.assertEq(
+          eventCounter,
+          1,
+          "onFileRename should be the wake up event"
+        );
+        let [
+          { cloudAccountId, fileId, composeTabId },
+        ] = await window.sendMessage("getEnvironment");
+        browser.test.assertEq(tab.id, composeTabId);
+        browser.test.assertEq(account.id, cloudAccountId);
+        browser.test.assertEq(id, fileId);
+        browser.test.assertEq(newName, "cloudFile3.txt");
+        setTimeout(() => {
+          browser.test.sendMessage("renameFinished", id);
+        });
+        return { url: "https://example.com/" + newName };
+      }
+    );
+
+    browser.cloudFile.onFileDeleted.addListener(async (account, id, tab) => {
+      eventCounter++;
+      browser.test.assertEq(
+        eventCounter,
+        1,
+        "onFileDeleted should be the wake up event"
+      );
+      let [{ cloudAccountId, fileId, composeTabId }] = await window.sendMessage(
+        "getEnvironment"
+      );
+      browser.test.assertEq(tab.id, composeTabId);
+      browser.test.assertEq(account.id, cloudAccountId);
+      browser.test.assertEq(id, fileId);
+      setTimeout(() => {
+        browser.test.sendMessage("deleteFinished");
+      });
+    });
+
+    browser.cloudFile.onFileUploadAbort.addListener(
+      async (account, id, tab) => {
+        eventCounter++;
+        browser.test.assertEq(
+          eventCounter,
+          2,
+          "onFileUploadAbort should not be the wake up event"
+        );
+        let [
+          { cloudAccountId, fileId, composeTabId },
+        ] = await window.sendMessage("getEnvironment");
+        browser.test.assertEq(tab.id, composeTabId);
+        browser.test.assertEq(account.id, cloudAccountId);
+        browser.test.assertEq(id, fileId);
+        abortResolveCallback();
+      }
+    );
+
+    browser.cloudFile.onAccountAdded.addListener(account => {
+      eventCounter++;
+      browser.test.assertEq(
+        eventCounter,
+        1,
+        "onAccountAdded should be the wake up event"
+      );
+      browser.test.sendMessage("accountCreated", account.id);
+    });
+
+    browser.cloudFile.onAccountDeleted.addListener(async accountId => {
+      eventCounter++;
+      browser.test.assertEq(
+        eventCounter,
+        1,
+        "onAccountDeleted should be the wake up event"
+      );
+      let [{ cloudAccountId }] = await window.sendMessage("getEnvironment");
+      browser.test.assertEq(accountId, cloudAccountId);
+      browser.test.notifyPass("finished");
+    });
+
+    browser.runtime.onInstalled.addListener(async () => {
+      eventCounter++;
+      let [composeTab] = await browser.tabs.query({
+        windowType: "messageCompose",
+      });
+      await window.sendMessage("setEnvironment", {
+        composeTabId: composeTab.id,
+      });
+      browser.test.sendMessage("installed");
+    });
+
+    browser.test.sendMessage("background started");
+  }
+
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    useAddonManager: "permanent",
+    manifest: {
+      manifest_version: 3,
+      cloud_file: {
+        name: "mochitest",
+        management_url: "/content/management.html",
+      },
+      browser_specific_settings: { gecko: { id: "cloudfile@mochi.test" } },
+      background: { scripts: ["utils.js", "background.js"] },
+    },
+  });
+
+  function uploadFile(
+    id,
+    filename,
+    expectedErrorStatus = Cr.NS_OK,
+    expectedErrorMessage
+  ) {
+    let cloudFileAccount = cloudFileAccounts.getAccount(id);
+
+    if (typeof expectedErrorStatus == "string") {
+      expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
+    }
+
+    return cloudFileAccount.uploadFile(composeWindow, testFiles[filename]).then(
+      upload => {
+        Assert.equal(Cr.NS_OK, expectedErrorStatus);
+        uploads[filename] = upload;
+      },
+      status => {
+        Assert.equal(
+          status.result,
+          expectedErrorStatus,
+          `Error status should be correct for ${testFiles[filename].leafName}`
+        );
+        Assert.equal(
+          status.message,
+          expectedErrorMessage,
+          `Error message should be correct for ${testFiles[filename].leafName}`
+        );
+      }
+    );
+  }
+  function startUpload(id, filename) {
+    let cloudFileAccount = cloudFileAccounts.getAccount(id);
+    return cloudFileAccount
+      .uploadFile(composeWindow, testFiles[filename])
+      .catch(() => {});
+  }
+  function cancelUpload(id, filename) {
+    let cloudFileAccount = cloudFileAccounts.getAccount(id);
+    return cloudFileAccount.cancelFileUpload(
+      composeWindow,
+      testFiles[filename]
+    );
+  }
+  function renameFile(
+    id,
+    uploadId,
+    { newName, newUrl },
+    expectedErrorStatus = Cr.NS_OK,
+    expectedErrorMessage
+  ) {
+    let cloudFileAccount = cloudFileAccounts.getAccount(id);
+
+    if (typeof expectedErrorStatus == "string") {
+      expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
+    }
+
+    return cloudFileAccount.renameFile(composeWindow, uploadId, newName).then(
+      upload => {
+        Assert.equal(Cr.NS_OK, expectedErrorStatus);
+        Assert.equal(upload.name, newName, "New name should match.");
+        Assert.equal(upload.url, newUrl, "New url should match.");
+      },
+      status => {
+        Assert.equal(status.result, expectedErrorStatus);
+        Assert.equal(
+          status.message,
+          expectedErrorMessage,
+          `Error message should be correct.`
+        );
+      }
+    );
+  }
+  function deleteFile(id, uploadId) {
+    let cloudFileAccount = cloudFileAccounts.getAccount(id);
+    return cloudFileAccount.deleteFile(composeWindow, uploadId);
+  }
+
+  let environment = {};
+  extension.onMessage("setEnvironment", data => {
+    if (data.composeTabId) {
+      environment.composeTabId = data.composeTabId;
+    }
+    extension.sendMessage();
+  });
+  extension.onMessage("getEnvironment", () => {
+    extension.sendMessage(environment);
+  });
+
+  let account = createAccount();
+  addIdentity(account);
+
+  composeWindow = await openComposeWindow(account);
+  await focusWindow(composeWindow);
+
+  await extension.startup();
+  await extension.awaitMessage("installed");
+  await extension.awaitMessage("background started");
+
+  function checkPersistentListeners({ primed }) {
+    // A persistent event is referenced by its moduleName as defined in
+    // ext-mails.json, not by its actual namespace.
+    const persistent_events = [
+      "onFileUpload",
+      "onFileRename",
+      "onFileDeleted",
+      "onFileUploadAbort",
+      "onAccountAdded",
+      "onAccountDeleted",
+    ];
+    for (let eventName of persistent_events) {
+      assertPersistentListeners(extension, "cloudFile", eventName, {
+        primed,
+      });
+    }
+  }
+
+  // Verify persistent listener, not yet primed.
+  checkPersistentListeners({ primed: false });
+
+  // Create account.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  cloudFileAccounts.createAccount("ext-cloudfile@mochi.test");
+  await extension.awaitMessage("background started");
+  environment.cloudAccountId = await extension.awaitMessage("accountCreated");
+  checkPersistentListeners({ primed: false });
+
+  // Upload.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  uploadFile(environment.cloudAccountId, "cloudFile1");
+  await extension.awaitMessage("background started");
+  environment.fileId = await extension.awaitMessage("uploadFinished");
+  checkPersistentListeners({ primed: false });
+
+  // Rename.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  renameFile(environment.cloudAccountId, environment.fileId, {
+    newName: "cloudFile3.txt",
+    newUrl: "https://example.com/cloudFile3.txt",
+  });
+  await extension.awaitMessage("background started");
+  await extension.awaitMessage("renameFinished");
+  checkPersistentListeners({ primed: false });
+
+  // Delete.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  deleteFile(environment.cloudAccountId, environment.fileId);
+  await extension.awaitMessage("background started");
+  await extension.awaitMessage("deleteFinished");
+  checkPersistentListeners({ primed: false });
+
+  // Aborted upload.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  environment.aborting = true;
+  startUpload(environment.cloudAccountId, "cloudFile1");
+  await extension.awaitMessage("background started");
+  environment.fileId = await extension.awaitMessage("uploadStarted");
+  cancelUpload(environment.cloudAccountId, "cloudFile1");
+  await extension.awaitMessage("uploadAborted");
+  checkPersistentListeners({ primed: false });
+
+  // Remove account.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  cloudFileAccounts.removeAccount(environment.cloudAccountId);
+  await extension.awaitMessage("background started");
+  checkPersistentListeners({ primed: false });
+  await extension.awaitFinish("finished");
+  await extension.unload();
+  composeWindow.close();
+});
+
+/**
  * Test cloudFiles without accounts and removed local files.
  */
 add_task(async function test_incomplete_cloudFiles() {
@@ -834,8 +1187,8 @@ add_task(async function test_incomplete_cloudFiles() {
       browser.compose.updateAttachment(composerTab.id, attachmentId, {
         name: "cloudFile3",
       }),
-      `CloudFile Error: Account not found: account7`,
-      "browser.compose.updateAttachment() should reject, if the local file does not exist."
+      `CloudFile Error: Account not found: ${createdAccount.id}`,
+      "browser.compose.updateAttachment() should reject, if the account does not exist."
     );
 
     browser.test.notifyPass("finished");

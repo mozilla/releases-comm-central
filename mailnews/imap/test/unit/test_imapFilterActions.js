@@ -259,22 +259,6 @@ var gTestArray = [
     testCounts(true, 1, 1, 1);
     Assert.equal(Ci.nsMsgPriority.highest, gHeader.priority);
   },
-  async function Label() {
-    gAction.type = Ci.nsMsgFilterAction.Label;
-    gAction.label = 2;
-    await setupTest(gFilter, gAction);
-
-    testCounts(true, 1, 1, 1);
-    Assert.equal(2, gHeader.label);
-  },
-  async function LabelBody() {
-    gAction.type = Ci.nsMsgFilterAction.Label;
-    gAction.label = 3;
-    await setupTest(gBodyFilter, gAction);
-
-    testCounts(true, 1, 1, 1);
-    Assert.equal(3, gHeader.label);
-  },
   async function AddTag() {
     gAction.type = Ci.nsMsgFilterAction.AddTag;
     gAction.strValue = "TheTag";

@@ -52,7 +52,7 @@ class Theme {
     if (startupData && startupData.lwtData) {
       Object.assign(this, startupData);
     } else {
-      // TODO: Update this part after bug 1550090
+      // TODO: Update this part after bug 1550090.
       this.lwtStyles = {};
       this.lwtDarkStyles = null;
       if (darkDetails) {
@@ -418,8 +418,15 @@ class Theme {
 
 this.theme = class extends ExtensionAPIPersistent {
   PERSISTENT_EVENTS = {
+    // For primed persistent events (deactivated background), the context is only
+    // available after fire.wakeup() has fulfilled (ensuring the convert() function
+    // has been called).
+
     onUpdated({ fire, context }) {
-      let callback = (event, theme, windowId) => {
+      let callback = async (event, theme, windowId) => {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
         if (windowId) {
           // Force access validation for incognito mode by getting the window.
           if (windowTracker.getWindow(windowId, context, false)) {
@@ -435,9 +442,9 @@ this.theme = class extends ExtensionAPIPersistent {
         unregister() {
           onUpdatedEmitter.off("theme-updated", callback);
         },
-        convert(_fire, _context) {
-          fire = _fire;
-          context = _context;
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
         },
       };
     },

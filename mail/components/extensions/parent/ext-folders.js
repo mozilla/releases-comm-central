@@ -133,7 +133,13 @@ var folderTracker = new (class extends EventEmitter {
     this.emit("folder-created", convertFolder(childFolder));
   }
   folderDeleted(oldFolder) {
-    this.emit("folder-deleted", convertFolder(oldFolder));
+    // Deleting an account, will trigger delete notifications for its folders,
+    // but the account lookup fails, so skip them.
+    let server = oldFolder.server;
+    let account = MailServices.accounts.FindAccountForServer(server);
+    if (account) {
+      this.emit("folder-deleted", convertFolder(oldFolder, account.key));
+    }
   }
   folderMoveCopyCompleted(move, srcFolder, targetFolder) {
     // targetFolder is not the copied/moved folder, but its parent. Find the
@@ -321,91 +327,160 @@ function waitForOperation(flags, uri) {
   });
 }
 
-this.folders = class extends ExtensionAPI {
+this.folders = class extends ExtensionAPIPersistent {
+  PERSISTENT_EVENTS = {
+    // For primed persistent events (deactivated background), the context is only
+    // available after fire.wakeup() has fulfilled (ensuring the convert() function
+    // has been called).
+
+    onCreated({ context, fire }) {
+      async function listener(event, createdMailFolder) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(createdMailFolder);
+      }
+      folderTracker.on("folder-created", listener);
+      return {
+        unregister: () => {
+          folderTracker.off("folder-created", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onRenamed({ context, fire }) {
+      async function listener(event, originalMailFolder, renamedMailFolder) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(originalMailFolder, renamedMailFolder);
+      }
+      folderTracker.on("folder-renamed", listener);
+      return {
+        unregister: () => {
+          folderTracker.off("folder-renamed", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onMoved({ context, fire }) {
+      async function listener(event, srcMailFolder, dstMailFolder) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(srcMailFolder, dstMailFolder);
+      }
+      folderTracker.on("folder-moved", listener);
+      return {
+        unregister: () => {
+          folderTracker.off("folder-moved", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onCopied({ context, fire }) {
+      async function listener(event, srcMailFolder, dstMailFolder) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(srcMailFolder, dstMailFolder);
+      }
+      folderTracker.on("folder-copied", listener);
+      return {
+        unregister: () => {
+          folderTracker.off("folder-copied", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onDeleted({ context, fire }) {
+      async function listener(event, deletedMailFolder) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(deletedMailFolder);
+      }
+      folderTracker.on("folder-deleted", listener);
+      return {
+        unregister: () => {
+          folderTracker.off("folder-deleted", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onFolderInfoChanged({ context, fire }) {
+      async function listener(event, changedMailFolder, mailFolderInfo) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(changedMailFolder, mailFolderInfo);
+      }
+      folderTracker.on("folder-info-changed", listener);
+      return {
+        unregister: () => {
+          folderTracker.off("folder-info-changed", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+  };
+
   getAPI(context) {
     return {
       folders: {
         onCreated: new EventManager({
           context,
-          name: "folders.onCreated",
-          register: fire => {
-            let listener = async (event, createdMailFolder) => {
-              fire.async(createdMailFolder);
-            };
-            folderTracker.on("folder-created", listener);
-            return () => {
-              folderTracker.off("folder-created", listener);
-            };
-          },
+          module: "folders",
+          event: "onCreated",
+          extensionApi: this,
         }).api(),
         onRenamed: new EventManager({
           context,
-          name: "folders.onRenamed",
-          register: fire => {
-            let listener = async (
-              event,
-              originalMailFolder,
-              renamedMailFolder
-            ) => {
-              fire.async(originalMailFolder, renamedMailFolder);
-            };
-            folderTracker.on("folder-renamed", listener);
-            return () => {
-              folderTracker.off("folder-renamed", listener);
-            };
-          },
+          module: "folders",
+          event: "onRenamed",
+          extensionApi: this,
         }).api(),
         onMoved: new EventManager({
           context,
-          name: "folders.onMoved",
-          register: fire => {
-            let listener = async (event, srcMailFolder, dstMailFolder) => {
-              fire.async(srcMailFolder, dstMailFolder);
-            };
-            folderTracker.on("folder-moved", listener);
-            return () => {
-              folderTracker.off("folder-moved", listener);
-            };
-          },
+          module: "folders",
+          event: "onMoved",
+          extensionApi: this,
         }).api(),
         onCopied: new EventManager({
           context,
-          name: "folders.onCopied",
-          register: fire => {
-            let listener = async (event, srcMailFolder, dstMailFolder) => {
-              fire.async(srcMailFolder, dstMailFolder);
-            };
-            folderTracker.on("folder-copied", listener);
-            return () => {
-              folderTracker.off("folder-copied", listener);
-            };
-          },
+          module: "folders",
+          event: "onCopied",
+          extensionApi: this,
         }).api(),
         onDeleted: new EventManager({
           context,
-          name: "folders.onDeleted",
-          register: fire => {
-            let listener = async (event, deletedMailFolder) => {
-              fire.async(deletedMailFolder);
-            };
-            folderTracker.on("folder-deleted", listener);
-            return () => {
-              folderTracker.off("folder-deleted", listener);
-            };
-          },
+          module: "folders",
+          event: "onDeleted",
+          extensionApi: this,
         }).api(),
         onFolderInfoChanged: new EventManager({
           context,
-          name: "folders.onFolderInfoChanged",
-          register: fire => {
-            let listener = async (event, changedMailFolder, mailFolderInfo) => {
-              fire.async(changedMailFolder, mailFolderInfo);
-            };
-            folderTracker.on("folder-info-changed", listener);
-            return () => {
-              folderTracker.off("folder-info-changed", listener);
-            };
-          },
+          module: "folders",
+          event: "onFolderInfoChanged",
+          extensionApi: this,
         }).api(),
         async create(parent, childName) {
           // The schema file allows parent to be either a MailFolder or a

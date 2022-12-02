@@ -912,7 +912,6 @@ static struct {
     {nsMsgSearchAttrib::JunkPercent, "JunkPercent"},
     {nsMsgSearchAttrib::HasAttachmentStatus, "AttachmentStatus"},
     {nsMsgSearchAttrib::JunkStatus, "JunkStatus"},
-    {nsMsgSearchAttrib::Label, "Label"},
     {nsMsgSearchAttrib::OtherHeader, "Customize"},
     // the last id is -1 to denote end of table
     {-1, ""}};

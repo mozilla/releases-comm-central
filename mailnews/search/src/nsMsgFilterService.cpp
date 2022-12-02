@@ -833,12 +833,6 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
             BREAK_ACTION_IF_FAILURE(rv, "Setting message flags failed");
           }
         } break;
-        case nsMsgFilterAction::Label: {
-          nsMsgLabelValue filterLabel;
-          filterAction->GetLabel(&filterLabel);
-          rv = curFolder->SetLabelForMessages(m_searchHitHdrs, filterLabel);
-          BREAK_ACTION_IF_FAILURE(rv, "Setting message flags failed");
-        } break;
         case nsMsgFilterAction::AddTag: {
           nsCString keyword;
           filterAction->GetStrValue(keyword);

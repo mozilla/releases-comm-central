@@ -76,7 +76,71 @@ function getMsgHdr(properties) {
   return msgHdr;
 }
 
-this.messageDisplay = class extends ExtensionAPI {
+this.messageDisplay = class extends ExtensionAPIPersistent {
+  PERSISTENT_EVENTS = {
+    // For primed persistent events (deactivated background), the context is only
+    // available after fire.wakeup() has fulfilled (ensuring the convert() function
+    // has been called).
+
+    onMessageDisplayed({ context, fire }) {
+      const { extension } = this;
+      const { tabManager } = extension;
+      let listener = {
+        async handleEvent(event) {
+          if (fire.wakeup) {
+            await fire.wakeup();
+          }
+          // `event.target` is an about:message window.
+          let tabId = tabTracker.getBrowserTabId(
+            event.target.document.getElementById("messagepane")
+          );
+          let tab = tabManager.get(tabId).convert();
+          let msg = convertMessage(event.detail, extension);
+          fire.async(tab, msg);
+        },
+      };
+      windowTracker.addListener("MsgLoaded", listener);
+      return {
+        unregister: () => {
+          windowTracker.removeListener("MsgLoaded", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onMessagesDisplayed({ context, fire }) {
+      const { extension } = this;
+      const { tabManager } = extension;
+      let listener = {
+        async handleEvent(event) {
+          if (fire.wakeup) {
+            await fire.wakeup();
+          }
+          // `event.target` is an about:message window.
+          let tabId = tabTracker.getBrowserTabId(
+            event.target.document.getElementById("messagepane")
+          );
+          let tab = tabManager.get(tabId).convert();
+          getDisplayedMessages(tab, extension).then(msgs => {
+            fire.async(tab, msgs);
+          });
+        },
+      };
+      windowTracker.addListener("MsgsLoaded", listener);
+      return {
+        unregister: () => {
+          windowTracker.removeListener("MsgsLoaded", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+  };
+
   getAPI(context) {
     let { extension } = context;
     let { tabManager } = extension;
@@ -84,48 +148,15 @@ this.messageDisplay = class extends ExtensionAPI {
       messageDisplay: {
         onMessageDisplayed: new EventManager({
           context,
-          name: "messageDisplay.onMessageDisplayed",
-          register: fire => {
-            let listener = {
-              handleEvent(event) {
-                // `event.target` is an about:message window.
-                let tabId = tabTracker.getBrowserTabId(
-                  event.target.document.getElementById("messagepane")
-                );
-                let tab = tabManager.get(tabId).convert();
-                let msg = convertMessage(event.detail, extension);
-                fire.async(tab, msg);
-              },
-            };
-
-            windowTracker.addListener("MsgLoaded", listener);
-            return () => {
-              windowTracker.removeListener("MsgLoaded", listener);
-            };
-          },
+          module: "messageDisplay",
+          event: "onMessageDisplayed",
+          extensionApi: this,
         }).api(),
         onMessagesDisplayed: new EventManager({
           context,
-          name: "messageDisplay.onMessagesDisplayed",
-          register: fire => {
-            let listener = {
-              handleEvent(event) {
-                // `event.target` is an about:message window.
-                let tabId = tabTracker.getBrowserTabId(
-                  event.target.document.getElementById("messagepane")
-                );
-                let tab = tabManager.get(tabId).convert();
-                getDisplayedMessages(tab, extension).then(msgs => {
-                  fire.async(tab, msgs);
-                });
-              },
-            };
-
-            windowTracker.addListener("MsgsLoaded", listener);
-            return () => {
-              windowTracker.removeListener("MsgsLoaded", listener);
-            };
-          },
+          module: "messageDisplay",
+          event: "onMessagesDisplayed",
+          extensionApi: this,
         }).api(),
         async getDisplayedMessage(tabId) {
           let tab = tabManager.get(tabId);

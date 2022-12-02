@@ -602,7 +602,7 @@ function testSearch() {
     dump("testing dbHeader " + test.dbHeader + "\n");
     let customValue = mailTestUtils
       .firstMsgHdr(localAccountUtils.inboxFolder)
-      .getProperty(test.dbHeader);
+      .getStringProperty(test.dbHeader);
     Assert.equal(customValue, test.testString);
     do_timeout(0, testSearch);
   } else if (test) {

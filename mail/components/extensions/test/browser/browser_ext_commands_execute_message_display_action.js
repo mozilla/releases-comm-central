@@ -139,7 +139,7 @@ async function testExecuteMessageDisplayActionWithOptions(msg, options = {}) {
   await extension.unload();
 }
 
-add_task(async function prepare_test() {
+add_setup(async () => {
   let account = createAccount();
   let rootFolder = account.incomingServer.rootFolder;
   let subFolders = rootFolder.subFolders;

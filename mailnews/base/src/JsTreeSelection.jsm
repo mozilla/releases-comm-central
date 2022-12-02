@@ -138,10 +138,7 @@ JSTreeSelection.prototype = {
     this._count = 1;
     this._ranges = [[aViewIndex, aViewIndex]];
 
-    if (this._tree) {
-      this._tree.invalidate();
-    }
-
+    this.invalidateSelection();
     this._fireSelectionChanged();
   },
 
@@ -265,9 +262,7 @@ JSTreeSelection.prototype = {
     if (!aAugment) {
       this._count = aRangeEnd - aRangeStart + 1;
       this._ranges = [[aRangeStart, aRangeEnd]];
-      if (this._tree) {
-        this._tree.invalidate();
-      }
+      this.invalidateSelection();
       this._fireSelectionChanged();
       return;
     }
@@ -328,9 +323,7 @@ JSTreeSelection.prototype = {
     }
 
     this._updateCount();
-    if (this._tree) {
-      this._tree.invalidate();
-    }
+    this.invalidateSelection();
     this._fireSelectionChanged();
   },
 
@@ -394,9 +387,7 @@ JSTreeSelection.prototype = {
     this._ranges.splice.apply(this._ranges, args);
 
     this._updateCount();
-    if (this._tree) {
-      this._tree.invalidate();
-    }
+    this.invalidateSelection();
     // note! nsTreeSelection doesn't fire a selection changed event, so neither
     //  do we, but it seems like we should
   },
@@ -409,9 +400,7 @@ JSTreeSelection.prototype = {
     this._shiftSelectPivot = null;
     this._count = 0;
     this._ranges = [];
-    if (this._tree) {
-      this._tree.invalidate();
-    }
+    this.invalidateSelection();
     this._fireSelectionChanged();
   },
 
@@ -434,9 +423,7 @@ JSTreeSelection.prototype = {
     this._count = rowCount;
     this._ranges = [[0, rowCount - 1]];
 
-    if (this._tree) {
-      this._tree.invalidate();
-    }
+    this.invalidateSelection();
     this._fireSelectionChanged();
   },
 
@@ -574,9 +561,7 @@ JSTreeSelection.prototype = {
         this._ranges[iTrans] = [low + aCount, high + aCount];
       }
       // invalidate and fire selection change notice
-      if (this._tree) {
-        this._tree.invalidate();
-      }
+      this.invalidateSelection();
       this._fireSelectionChanged();
       return;
     }
@@ -610,9 +595,7 @@ JSTreeSelection.prototype = {
       this._ranges.splice(iTrans, 1);
     }
 
-    if (this._tree) {
-      this._tree.invalidate();
-    }
+    this.invalidateSelection();
     this.selectEventsSuppressed = saveSuppress;
   },
 
@@ -641,17 +624,10 @@ JSTreeSelection.prototype = {
     if (this.selectEventsSuppressed) {
       return;
     }
-    let view;
-    if (this._tree && this._tree.view) {
-      view = this._tree.view;
-    } else {
-      view = this._view;
-    }
+    let view = this._tree?.view ?? this._view;
 
     // We might not have a view if we're in the middle of setting up things
-    if (view) {
-      view.selectionChanged();
-    }
+    view?.selectionChanged();
   },
 
   get currentIndex() {

@@ -51,7 +51,6 @@ interface nsIMsgSearchTerm : nsISupports {
     boolean matchPriority(in nsMsgPriorityValue priority);
     boolean matchAge(in PRTime days);
     boolean matchSize(in unsigned long size);
-    boolean matchLabel(in nsMsgLabelValue aLabelValue);
     boolean matchJunkStatus(in string aJunkScore);
     /*
      * Test search term match for junkpercent

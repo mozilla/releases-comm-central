@@ -420,7 +420,136 @@ async function getMimeMessage(msgHdr, partName = "") {
     : mimeMsg;
 }
 
-this.messages = class extends ExtensionAPI {
+this.messages = class extends ExtensionAPIPersistent {
+  PERSISTENT_EVENTS = {
+    // For primed persistent events (deactivated background), the context is only
+    // available after fire.wakeup() has fulfilled (ensuring the convert() function
+    // has been called).
+
+    onNewMailReceived({ context, fire }) {
+      let listener = async (event, folder, newMessages) => {
+        let { extension } = this;
+        // The msgHdr could be gone after the wakeup, convert it early.
+        let page = await messageListTracker.startList(newMessages, extension);
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(convertFolder(folder), page);
+      };
+      messageTracker.on("messages-received", listener);
+      return {
+        unregister: () => {
+          messageTracker.off("messages-received", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onUpdated({ context, fire }) {
+      let listener = async (event, message, properties) => {
+        let { extension } = this;
+        // The msgHdr could be gone after the wakeup, convert it early.
+        let convertedMessage = convertMessage(message, extension);
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(convertedMessage, properties);
+      };
+      messageTracker.on("message-updated", listener);
+      return {
+        unregister: () => {
+          messageTracker.off("message-updated", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onMoved({ context, fire }) {
+      let listener = async (event, srcMessages, dstMessages) => {
+        let { extension } = this;
+        // The msgHdr could be gone after the wakeup, convert them early.
+        let srcPage = await messageListTracker.startList(
+          srcMessages,
+          extension
+        );
+        let dstPage = await messageListTracker.startList(
+          dstMessages,
+          extension
+        );
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(srcPage, dstPage);
+      };
+      messageTracker.on("messages-moved", listener);
+      return {
+        unregister: () => {
+          messageTracker.off("messages-moved", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onCopied({ context, fire }) {
+      let listener = async (event, srcMessages, dstMessages) => {
+        let { extension } = this;
+        // The msgHdr could be gone after the wakeup, convert them early.
+        let srcPage = await messageListTracker.startList(
+          srcMessages,
+          extension
+        );
+        let dstPage = await messageListTracker.startList(
+          dstMessages,
+          extension
+        );
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(srcPage, dstPage);
+      };
+      messageTracker.on("messages-copied", listener);
+      return {
+        unregister: () => {
+          messageTracker.off("messages-copied", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onDeleted({ context, fire }) {
+      let listener = async (event, deletedMessages) => {
+        let { extension } = this;
+        // The msgHdr could be gone after the wakeup, convert them early.
+        let deletedPage = await messageListTracker.startList(
+          deletedMessages,
+          extension
+        );
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(deletedPage);
+      };
+      messageTracker.on("messages-deleted", listener);
+      return {
+        unregister: () => {
+          messageTracker.off("messages-deleted", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+  };
+
   getAPI(context) {
     function collectMessagesInFolders(messageIds) {
       let folderMap = new DefaultMap(() => new Set());
@@ -572,96 +701,33 @@ this.messages = class extends ExtensionAPI {
       messages: {
         onNewMailReceived: new EventManager({
           context,
-          name: "messages.onNewMailReceived",
-          register: fire => {
-            let listener = async (event, folder, newMessages) => {
-              let page = await messageListTracker.startList(
-                newMessages,
-                context.extension
-              );
-              fire.async(convertFolder(folder), page);
-            };
-
-            messageTracker.on("messages-received", listener);
-            return () => {
-              messageTracker.off("messages-received", listener);
-            };
-          },
+          module: "messages",
+          event: "onNewMailReceived",
+          extensionApi: this,
         }).api(),
         onUpdated: new EventManager({
           context,
-          name: "messageDisplay.onUpdated",
-          register: fire => {
-            let listener = async (event, message, properties) => {
-              fire.async(
-                convertMessage(message, context.extension),
-                properties
-              );
-            };
-            messageTracker.on("message-updated", listener);
-            return () => {
-              messageTracker.off("message-updated", listener);
-            };
-          },
+          module: "messages",
+          event: "onUpdated",
+          extensionApi: this,
         }).api(),
         onMoved: new EventManager({
           context,
-          name: "messageDisplay.onMoved",
-          register: fire => {
-            let listener = async (event, srcMessages, dstMessages) => {
-              let srcPage = await messageListTracker.startList(
-                srcMessages,
-                context.extension
-              );
-              let dstPage = await messageListTracker.startList(
-                dstMessages,
-                context.extension
-              );
-              fire.async(srcPage, dstPage);
-            };
-            messageTracker.on("messages-moved", listener);
-            return () => {
-              messageTracker.off("messages-moved", listener);
-            };
-          },
+          module: "messages",
+          event: "onMoved",
+          extensionApi: this,
         }).api(),
         onCopied: new EventManager({
           context,
-          name: "messageDisplay.onCopied",
-          register: fire => {
-            let listener = async (event, srcMessages, dstMessages) => {
-              let srcPage = await messageListTracker.startList(
-                srcMessages,
-                context.extension
-              );
-              let dstPage = await messageListTracker.startList(
-                dstMessages,
-                context.extension
-              );
-              fire.async(srcPage, dstPage);
-            };
-            messageTracker.on("messages-copied", listener);
-            return () => {
-              messageTracker.off("messages-copied", listener);
-            };
-          },
+          module: "messages",
+          event: "onCopied",
+          extensionApi: this,
         }).api(),
         onDeleted: new EventManager({
           context,
-          name: "messageDisplay.onDeleted",
-          register: fire => {
-            let listener = async (event, deletedMessages) => {
-              let deletedPage = await messageListTracker.startList(
-                deletedMessages,
-                context.extension
-              );
-              fire.async(deletedPage);
-            };
-            messageTracker.on("messages-deleted", listener);
-            return () => {
-              messageTracker.off("messages-deleted", listener);
-            };
-          },
+          module: "messages",
+          event: "onDeleted",
+          extensionApi: this,
         }).api(),
         async list({ accountId, path }) {
           let uri = folderPathToURI(accountId, path);

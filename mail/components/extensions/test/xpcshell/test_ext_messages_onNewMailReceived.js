@@ -5,8 +5,80 @@
 var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
+var { AddonTestUtils } = ChromeUtils.import(
+  "resource://testing-common/AddonTestUtils.jsm"
+);
+
+ExtensionTestUtils.mockAppInfo();
+AddonTestUtils.maybeInit(this);
+
+registerCleanupFunction(async () => {
+  // Remove the temporary MozillaMailnews folder, which is not deleted in time when
+  // the cleanupFunction registered by AddonTestUtils.maybeInit() checks for left over
+  // files in the temp folder.
+  // Note: PathUtils.tempDir points to the system temp folder, which is different.
+  let path = PathUtils.join(
+    Services.dirsvc.get("TmpD", Ci.nsIFile).path,
+    "MozillaMailnews"
+  );
+  await IOUtils.remove(path, { recursive: true });
+});
+
+// Function to start an event page extension (MV3), which can be called whenever
+// the main test is about to trigger an event. The extension terminates its
+// background and listens for that single event, verifying it is waking up correctly.
+async function event_page_extension(eventName, actionCallback) {
+  let ext = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        // Whenever the extension starts or wakes up, hasFired is set to false. In
+        // case of a wake-up, the first fired event is the one that woke up the background.
+        let hasFired = false;
+        let _eventName = browser.runtime.getManifest().description;
+
+        browser.messages[_eventName].addListener(async (...args) => {
+          // Only send the first event after background wake-up, this should
+          // be the only one expected.
+          if (!hasFired) {
+            hasFired = true;
+            browser.test.sendMessage(`${_eventName} received`, args);
+          }
+        });
+        browser.test.sendMessage("background started");
+      },
+    },
+    manifest: {
+      manifest_version: 3,
+      description: eventName,
+      background: { scripts: ["background.js"] },
+      browser_specific_settings: {
+        gecko: { id: "event_page_extension@mochi.test" },
+      },
+      permissions: ["accountsRead", "messagesRead", "messagesMove"],
+    },
+  });
+  await ext.startup();
+  await ext.awaitMessage("background started");
+  // The listener should be persistent, but not primed.
+  assertPersistentListeners(ext, "messages", eventName, { primed: false });
+
+  await ext.terminateBackground({ disableResetIdleForTest: true });
+  // Verify the primed persistent listener.
+  assertPersistentListeners(ext, "messages", eventName, { primed: true });
+
+  await actionCallback();
+  let rv = await ext.awaitMessage(`${eventName} received`);
+  await ext.awaitMessage("background started");
+  // The listener should be persistent, but not primed.
+  assertPersistentListeners(ext, "messages", eventName, { primed: false });
+
+  await ext.unload();
+  return rv;
+}
 
 add_task(async function() {
+  await AddonTestUtils.promiseStartupManager();
+
   let account = createAccount();
   let inbox = await createSubfolder(account.incomingServer.rootFolder, "test1");
 
@@ -17,7 +89,10 @@ add_task(async function() {
           { accountId: "account1", name: "test1", path: "/test1" },
           folder
         );
-        browser.test.sendMessage("newMessages", messageList.messages);
+        browser.test.sendMessage("onNewMailReceived event received", [
+          folder,
+          messageList,
+        ]);
       });
     },
     "utils.js": await getUtilsJS(),
@@ -40,22 +115,37 @@ add_task(async function() {
   inbox.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NewMail;
 
   let inboxMessages = [...inbox.messages];
-  let newMessages = await extension.awaitMessage("newMessages");
-  equal(newMessages.length, 1);
-  equal(newMessages[0].subject, inboxMessages[0].subject);
+  let newMessages = await extension.awaitMessage(
+    "onNewMailReceived event received"
+  );
+  equal(newMessages[1].messages.length, 1);
+  equal(newMessages[1].messages[0].subject, inboxMessages[0].subject);
 
   // Create 2 more new messages.
 
-  await createMessages(inbox, 2);
-  inbox.hasNewMessages = true;
-  inbox.setNumNewMessages(2);
-  inbox.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NewMail;
+  let primedOnNewMailReceivedEventData = await event_page_extension(
+    "onNewMailReceived",
+    async () => {
+      await createMessages(inbox, 2);
+      inbox.hasNewMessages = true;
+      inbox.setNumNewMessages(2);
+      inbox.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NewMail;
+    }
+  );
 
   inboxMessages = [...inbox.messages];
-  newMessages = await extension.awaitMessage("newMessages");
-  equal(newMessages.length, 2);
-  equal(newMessages[0].subject, inboxMessages[1].subject);
-  equal(newMessages[1].subject, inboxMessages[2].subject);
+  newMessages = await extension.awaitMessage(
+    "onNewMailReceived event received"
+  );
+  Assert.deepEqual(
+    primedOnNewMailReceivedEventData,
+    newMessages,
+    "The primed and non-primed onNewMailReceived events should return the same values"
+  );
+  equal(newMessages[1].messages.length, 2);
+  equal(newMessages[1].messages[0].subject, inboxMessages[1].subject);
+  equal(newMessages[1].messages[1].subject, inboxMessages[2].subject);
 
   await extension.unload();
+  await AddonTestUtils.promiseShutdownManager();
 });

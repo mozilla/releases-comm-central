@@ -1019,7 +1019,7 @@ MenuItem.prototype = {
     if (targetPattern) {
       let targetUrls = [];
       if (contextData.onImage || contextData.onAudio || contextData.onVideo) {
-        // TODO: double check if srcUrl is always set when we need it
+        // TODO: Double check if srcUrl is always set when we need it.
         targetUrls.push(contextData.srcUrl);
       }
       if (contextData.onLink) {

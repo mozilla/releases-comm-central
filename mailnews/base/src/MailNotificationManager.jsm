@@ -319,7 +319,7 @@ class MailNotificationManager {
         "mail.biff.alert.preview_length",
         40
       );
-      let preview = msgHdr.getProperty("preview").slice(0, previewLength);
+      let preview = msgHdr.getStringProperty("preview").slice(0, previewLength);
       if (preview) {
         alertBody += (alertBody ? "\n" : "") + preview;
       }

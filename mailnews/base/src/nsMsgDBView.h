@@ -64,11 +64,6 @@ class MsgViewSortColumnInfo {
 #define MSG_VIEW_FLAG_OUTGOING 0x2000000
 #define MSG_VIEW_FLAG_INCOMING 0x1000000
 
-// There currently only 5 labels defined.
-#define PREF_LABELS_MAX 5
-#define PREF_LABELS_DESCRIPTION "mailnews.labels.description."
-#define PREF_LABELS_COLOR "mailnews.labels.color."
-
 // Helper struct for sorting by numeric fields.
 // Associates a message with a key for ordering it in the view.
 struct IdUint32 {
@@ -340,7 +335,6 @@ class nsMsgDBView : public nsIMsgDBView,
                                      nsTArray<nsMsgKey>& keysMarkedRead,
                                      bool read);
   nsresult SetFlaggedByIndex(nsMsgViewIndex index, bool mark);
-  nsresult SetLabelByIndex(nsMsgViewIndex index, nsMsgLabelValue label);
   nsresult OrExtraFlag(nsMsgViewIndex index, uint32_t orflag);
   nsresult AndExtraFlag(nsMsgViewIndex index, uint32_t andflag);
   nsresult SetExtraFlag(nsMsgViewIndex index, uint32_t extraflag);
@@ -494,10 +488,6 @@ class nsMsgDBView : public nsIMsgDBView,
   // We push command update notifications to the UI from this.
   nsCOMPtr<nsIMsgDBViewCommandUpdater> mCommandUpdater;
   static nsCOMPtr<nsIStringBundle> mMessengerStringBundle;
-
-  // Used for the preference labels.
-  static nsString mLabelPrefDescriptions[PREF_LABELS_MAX];
-  nsString mLabelPrefColors[PREF_LABELS_MAX];
 
   // Used to determine when to start and end junk plugin batches.
   uint32_t mNumMessagesRemainingInBatch;

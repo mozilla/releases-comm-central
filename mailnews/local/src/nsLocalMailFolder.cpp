@@ -2022,9 +2022,8 @@ void nsMsgLocalMailFolder::CopyPropertiesToMsgHdr(nsIMsgDBHdr* destHdr,
 
 void nsMsgLocalMailFolder::CopyHdrPropertiesWithSkipList(
     nsIMsgDBHdr* destHdr, nsIMsgDBHdr* srcHdr, const nsCString& skipList) {
-  nsCOMPtr<nsIUTF8StringEnumerator> propertyEnumerator;
-  nsresult rv =
-      srcHdr->GetPropertyEnumerator(getter_AddRefs(propertyEnumerator));
+  nsTArray<nsCString> properties;
+  nsresult rv = srcHdr->GetProperties(properties);
   NS_ENSURE_SUCCESS_VOID(rv);
 
   // We'll add spaces at beginning and end so we can search for space-name-space
@@ -2032,11 +2031,8 @@ void nsMsgLocalMailFolder::CopyHdrPropertiesWithSkipList(
   dontPreserveEx.Append(skipList);
   dontPreserveEx.Append(' ');
 
-  nsAutoCString property;
   nsCString sourceString;
-  bool hasMore;
-  while (NS_SUCCEEDED(propertyEnumerator->HasMore(&hasMore)) && hasMore) {
-    propertyEnumerator->GetNext(property);
+  for (auto property : properties) {
     nsAutoCString propertyEx(" "_ns);
     propertyEx.Append(property);
     propertyEx.Append(' ');
@@ -2046,10 +2042,6 @@ void nsMsgLocalMailFolder::CopyHdrPropertiesWithSkipList(
     srcHdr->GetStringProperty(property.get(), getter_Copies(sourceString));
     destHdr->SetStringProperty(property.get(), sourceString.get());
   }
-
-  nsMsgLabelValue label = 0;
-  srcHdr->GetLabel(&label);
-  destHdr->SetLabel(label);
 }
 
 MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP
