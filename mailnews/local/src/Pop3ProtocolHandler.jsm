@@ -13,12 +13,6 @@ class Pop3ProtocolHandler {
   QueryInterface = ChromeUtils.generateQI(["nsIProtocolHandler"]);
 
   scheme = "pop3";
-  defaultPort = Ci.nsIPop3URL.DEFAULT_POP3_PORT;
-  protocolFlags =
-    Ci.nsIProtocolHandler.URI_NORELATIVE |
-    Ci.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD |
-    Ci.nsIProtocolHandler.ALLOWS_PROXY |
-    Ci.nsIProtocolHandler.URI_FORBIDS_COOKIE_ACCESS;
 
   newChannel(uri, loadInfo) {
     let channel = new Pop3Channel(uri, loadInfo);

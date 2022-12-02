@@ -463,28 +463,11 @@ NS_IMETHODIMP nsMailboxService::GetScheme(nsACString& aScheme) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxService::GetDefaultPort(int32_t* aDefaultPort) {
-  NS_ENSURE_ARG_POINTER(aDefaultPort);
-  *aDefaultPort = -1;  // mailbox doesn't use a port!!!!!
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMailboxService::AllowPort(int32_t port, const char* scheme,
                                           bool* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   // don't override anything.
   *_retval = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMailboxService::GetProtocolFlags(uint32_t* result) {
-  NS_ENSURE_ARG_POINTER(result);
-  *result = URI_NORELATIVE | URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT |
-            URI_DANGEROUS_TO_LOAD | URI_FORBIDS_COOKIE_ACCESS
-#ifdef IS_ORIGIN_IS_FULL_SPEC_DEFINED
-            | ORIGIN_IS_FULL_SPEC
-#endif
-      ;
   return NS_OK;
 }
 

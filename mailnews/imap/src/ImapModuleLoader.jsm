@@ -82,6 +82,24 @@ ImapModuleLoader.prototype = {
       }
 
       dump("[ImapModuleLoader] Using ImapService.jsm\n");
+
+      const { ImapProtocolHandler } = ChromeUtils.import(
+        `resource:///modules/ImapProtocolHandler.jsm`
+      );
+      let protocolFlags =
+        Ci.nsIProtocolHandler.URI_NORELATIVE |
+        Ci.nsIProtocolHandler.URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT |
+        Ci.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD |
+        Ci.nsIProtocolHandler.ALLOWS_PROXY |
+        Ci.nsIProtocolHandler.URI_FORBIDS_COOKIE_ACCESS |
+        Ci.nsIProtocolHandler.ORIGIN_IS_FULL_SPEC;
+
+      Services.io.registerProtocolHandler(
+        "imap",
+        new ImapProtocolHandler(),
+        protocolFlags,
+        Ci.nsIImapUrl.DEFAULT_IMAP_PORT
+      );
     } else {
       dump("[ImapModuleLoader] Using nsImapService.cpp\n");
     }
