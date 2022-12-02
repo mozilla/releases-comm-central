@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://messenger/skin/shared/unifiedToolbarCustomizableItems.css");
+
 .search-button-icon {
   content: var(--icon-search);
 }
 
-search-bar {
+.palette-search {
   display: block;
   margin: 12px auto;
   max-width: 50ch;
@@ -29,6 +31,26 @@ search-bar {
   margin-block: 1rem;
   height: 2em;
   align-items: center;
+  justify-content: start;
+}
+
+/* TODO factor out stuff shared with real toolbar? */
+.toolbar-target .spacer {
+  flex: 1 1 auto;
+  height: 2em;
+  background: green;
+}
+
+.toolbar-target .search-bar {
+  flex: 1 0 33%;
+}
+
+[is="customization-target"] [is="customizable-element"] .live-content {
+  pointer-events: none;
+}
+
+[is="customization-target"] [is="customizable-element"] .preview {
+  display: none;
 }
 
 [is="customization-palette"] {
@@ -44,17 +66,44 @@ h2 {
 [is="customizable-element"] {
   margin: 0;
   padding: 0;
-  /* TODO: children should have no mouse interactions/pointer events */
 }
 
-[is="customizable-element"][aria-selected=true] {
+[is="customizable-element"][aria-selected="true"] {
   outline: 2px dotted var(--primary);
 }
 
 [is="customization-palette"] [is="customizable-element"] {
-  width: 4em;
-  height: 3em;
+  width: 8em;
+  height: 4em;
   background: lightgrey;
   padding: 0.5rem;
   border-radius: 6px;
+  overflow: hidden;
+}
+
+[is="customization-palette"] [is="customizable-element"] .live-content {
+  display: none;
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+  gap: 0.5rem;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
+.preview-icon {
+  height: 2em;
+  width: 2em;
+  object-fit: contain;
+}
+
+.preview-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

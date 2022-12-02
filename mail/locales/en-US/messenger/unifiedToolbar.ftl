@@ -4,8 +4,15 @@
 
 ### Unified Toolbar strings
 
+## Search bar
+
 search-bar-button =
   .alt = Search
+
+search-bar-item =
+  .label = Search:
+
+search-bar-placeholder = Search…
 
 ## Unified toolbar context menu
 

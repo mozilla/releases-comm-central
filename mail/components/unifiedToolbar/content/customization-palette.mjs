@@ -3,16 +3,39 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import ListBoxSelection from "./list-box-selection.mjs";
+import { getItemIdsForSpace } from "resource:///modules/CustomizableItems.mjs";
+import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned-import
 
 /**
  * Customization palette containing items that can be added to a customization
  * target.
  * Attributes:
  * - space: ID of the space the widgets are for. "all" for space agnostic
- *   widgets.
+ *   widgets. Not observed.
  */
 class CustomizationPalette extends ListBoxSelection {
   contextMenuId = "customizationPaletteMenu";
+
+  connectedCallback() {
+    if (super.connectedCallback()) {
+      return;
+    }
+
+    let space = this.getAttribute("space");
+    if (space === "all") {
+      space = undefined;
+    }
+    const items = getItemIdsForSpace(space);
+    this.replaceChildren(
+      ...items.map(itemId => {
+        const element = document.createElement("li", {
+          is: "customizable-element",
+        });
+        element.setAttribute("item-id", itemId);
+        return element;
+      })
+    );
+  }
 
   /**
    * Overwritten context menu handler. Before showing the menu, initializes the
@@ -65,11 +88,15 @@ class CustomizationPalette extends ListBoxSelection {
    *   Defaults to the first target in the root.
    */
   primaryAction(item, target) {
-    if (super.primaryAction(item)) {
-      return;
-    }
     if (!target) {
       target = this.getRootNode().querySelector('[is="customization-target"]');
+    }
+    if (item?.allowMultiple) {
+      target.addItem(item.cloneNode(true));
+      return;
+    }
+    if (super.primaryAction(item)) {
+      return;
     }
     target.addItem(item);
   }
@@ -80,7 +107,10 @@ class CustomizationPalette extends ListBoxSelection {
    * @param {CustomizableElement} item - Item to return to this palette.
    */
   returnItem(item) {
-    //TODO items should probably be sorted by something like a label.
+    if (item.allowMultiple) {
+      item.remove();
+      return;
+    }
     this.append(item);
   }
 }

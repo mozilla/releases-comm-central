@@ -5,7 +5,6 @@
 import "./search-bar.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./customization-palette.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./customization-target.mjs"; // eslint-disable-line import/no-unassigned-import
-import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned-import
 
 /**
  * Template ID: unifiedToolbarCustomizationPaneTemplate
@@ -43,6 +42,9 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
     );
     spaceSpecificPalette.id = `${space}Palette`;
     spaceSpecificPalette.setAttribute("aria-labelledby", spaceSpecificTitle.id);
+    spaceSpecificPalette.setAttribute("space", space);
+    // TODO hide space specific palette if there are no items in it (probably
+    // fairly like for extension spaces, hard to tell for the rest of the app)
     const genericTitle = template.querySelector(".generic-palette-title");
     genericTitle.id = `${space}GenericPaletteTitle`;
     const genericPalette = template.querySelector(".generic-palette");
@@ -50,28 +52,6 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
     genericPalette.setAttribute("aria-labelledby", genericTitle.id);
 
     shadowRoot.append(styles, template);
-
-    // Temporary example items added to palettes.
-    customElements.whenDefined("customizable-element").then(() => {
-      const item1 = document.createElement("li", {
-        is: "customizable-element",
-      });
-      item1.textContent = "lorem ipsum";
-      item1.setAttribute("palette", spaceSpecificPalette.id);
-      spaceSpecificPalette.append(item1);
-
-      const item2 = document.createElement("li", {
-        is: "customizable-element",
-      });
-      item2.textContent = "foo bar";
-      item2.setAttribute("palette", genericPalette.id);
-      const item3 = document.createElement("li", {
-        is: "customizable-element",
-      });
-      item3.textContent = "example item";
-      item3.setAttribute("palette", genericPalette.id);
-      genericPalette.append(item2, item3);
-    });
   }
 
   disconnectedCallback() {

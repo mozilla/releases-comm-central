@@ -28,6 +28,7 @@
 #unifiedToolbarContent {
   flex: 1 1 auto;
   display: flex;
+  justify-content: start;
 }
 
 .spacer {

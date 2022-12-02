@@ -2,8 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# Required for placing the window controls in the proper place without having
-# them inside the toolbar.
+#include ./unifiedToolbarCustomizableItems.inc.xhtml
 
 <html:template id="searchBarTemplate"
                xmlns="http://www.w3.org/1999/xhtml">
@@ -15,19 +14,12 @@
 </html:template>
 
 <html:template id="unifiedToolbarTemplate">
+# Required for placing the window controls in the proper place without having
+# them inside the toolbar.
   <html:div id="unifiedToolbarContainer">
     <html:div id="unifiedToolbar" role="toolbar">
 #include ../../../base/content/spacesToolbarPin.inc.xhtml
       <html:div id="unifiedToolbarContent">
-        <html:div class="spacer"></html:div>
-        <html:search-bar class="search-bar" label="Search:" aria-keyshortcuts="Control+K">
-          <html:span slot="placeholder">Search... <html:kbd>Ctrl</html:kbd> + <html:kbd>K</html:kbd></html:span>
-          <html:img data-l10n-id="search-bar-button"
-                    slot="button"
-                    class="search-button-icon"
-                    src="" />
-        </html:search-bar>
-        <html:div class="spacer"></html:div>
       </html:div>
       <html:div id="notification-popup-box" hidden="true">
         <html:img id="addons-notification-icon"
@@ -102,9 +94,10 @@
   <ul is="customization-target"
       data-l10n-id="customize-main-toolbar-target"
       class="toolbar-target"></ul>
-  <search-bar data-l10n-id="customize-search-bar" data-l10n-attrs="label">
+  <search-bar data-l10n-id="customize-search-bar" data-l10n-attrs="label" class="palette-search">
     <img data-l10n-id="search-bar-button"
          slot="button"
+         src=""
          class="search-button-icon" />
   </search-bar>
   <h2 class="space-specific-title"></h2>
@@ -114,4 +107,13 @@
       class="generic-palette-title"></h2>
   <ul is="customization-palette" space="all" class="generic-palette">
   </ul>
+</html:template>
+
+<html:template id="unifiedToolbarCustomizableElementTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <div class="live-content"></div>
+  <div class="preview">
+    <img src="" alt="" class="preview-icon" />
+    <span class="preview-label"></span>
+  </div>
 </html:template>

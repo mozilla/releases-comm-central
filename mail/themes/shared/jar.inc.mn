@@ -399,6 +399,7 @@
   skin/classic/messenger/shared/grid-layout.css               (../shared/mail/grid-layout.css)
   skin/classic/messenger/shared/input-fields.css              (../shared/mail/input-fields.css)
   skin/classic/messenger/shared/unifiedToolbar.css            (../shared/mail/unifiedToolbar.css)
+  skin/classic/messenger/shared/unifiedToolbarCustomizableItems.css (../shared/mail/unifiedToolbarCustomizableItems.css)
   skin/classic/messenger/shared/unifiedToolbarCustomizationPane.css (../shared/mail/unifiedToolbarCustomizationPane.css)
   skin/classic/messenger/shared/unifiedToolbarTab.css         (../shared/mail/unifiedToolbarTab.css)
   skin/classic/messenger/shared/variables.css                 (../shared/mail/variables.css)
