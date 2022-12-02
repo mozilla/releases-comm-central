@@ -11,7 +11,9 @@ button {
   appearance: none;
   border: none;
   background: none;
-  display: block;
+  display: flex;
+  align-content: center;
+  gap: 6px;
 }
 
 button[aria-selected="true"] {
