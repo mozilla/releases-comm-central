@@ -4,7 +4,7 @@
 
 import { html } from "lit";
 import { action } from "@storybook/addon-actions";
-import "mail/components/unifiedToolbar/content/search-bar.mjs";
+import "mail/components/unifiedToolbar/content/search-bar.mjs"; //eslint-disable-line import/no-unassigned-import
 
 export default {
   title: "Widgets/Search Bar",
