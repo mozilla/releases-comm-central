@@ -10,7 +10,7 @@ sed -e 's%^\([a-z]\)%comm/\1%' comm/.clang-format-ignore >> .clang-format-ignore
 
 # Update mozconfig file with Thunderbird build options
 cat <<EOT >> "$MOZCONFIG"
-ac_add_options --enable-project=comm/mail
+ac_add_options --enable-application=comm/mail
 EOT
 
 # Run mach clang-format

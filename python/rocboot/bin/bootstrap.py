@@ -382,7 +382,7 @@ def mozconfig(srcdir):
     """Build Thunderbird, not Firefox!"""
     mozconfig = os.path.join(srcdir, "mozconfig")
     with open(mozconfig, "a") as mfp:
-        mfp.write("ac_add_options --enable-project=comm/mail")
+        mfp.write("ac_add_options --enable-application=comm/mail")
     return True
 
 
