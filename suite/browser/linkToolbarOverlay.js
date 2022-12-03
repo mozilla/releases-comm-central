@@ -56,13 +56,13 @@ LinkToolbarUI.prototype.fullSlowRefresh =
 function()
 {
   var currentNode = getBrowser().contentDocument.documentElement;
-  if (!(currentNode instanceof Ci.nsIDOMHTMLHtmlElement))
+  if (!ChromeUtils.getClassName(currentNode) === "HTMLHtmlElement")
     return;
   currentNode = currentNode.firstChild;
 
   while(currentNode)
   {
-    if (currentNode instanceof Ci.nsIDOMHTMLHeadElement) {
+    if (ChromeUtils.getClassName(currentNode) === "HTMLHeadElement") {
       currentNode = currentNode.firstChild;
 
       while(currentNode)
