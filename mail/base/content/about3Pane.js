@@ -43,6 +43,7 @@ const messengerBundle = Services.strings.createBundle(
 var gFolder, gViewWrapper, gDBView;
 var folderTree,
   splitter1,
+  treeTable,
   threadTree,
   splitter2,
   webBrowser,
@@ -287,7 +288,17 @@ window.addEventListener("DOMContentLoaded", event => {
     folderPaneContextMenu.onCommand
   );
 
-  threadTree = document.getElementById("threadTree");
+  // TODO: Switch this dynamically like in the address book.
+  document.body.classList.add("layout-table");
+  let tree = document.getElementById("messageThreadTree");
+  treeTable = tree.table;
+  treeTable.selectable = true;
+  treeTable.editable = true;
+  threadTree = treeTable.listbox;
+  threadTree.id = "threadTree";
+  threadTree.setAttribute("rows", "thread-listrow");
+
+  treeTable.setColumns(ThreadListrow.COLUMNS);
 
   threadTree.addEventListener("keypress", event => {
     if (event.key != "Enter") {
@@ -855,7 +866,35 @@ var folderListener = {
 class ThreadListrow extends customElements.get("tree-view-listrow") {
   static ROW_HEIGHT = 22;
 
-  columns = ["senderCol", "subjectCol", "dateCol"];
+  /**
+   * The array of columns for the table layout.
+   *
+   * @type {Array}
+   */
+  static COLUMNS = [
+    {
+      id: "senderCol",
+      l10n: {
+        header: "about-threadpane-column-header-sender",
+        menuitem: "about-threadpane-column-label-sender",
+      },
+    },
+    {
+      id: "subjectCol",
+      l10n: {
+        header: "about-threadpane-column-header-subject",
+        menuitem: "about-threadpane-column-label-subject",
+      },
+      picker: false,
+    },
+    {
+      id: "dateCol",
+      l10n: {
+        header: "about-threadpane-column-header-date",
+        menuitem: "about-threadpane-column-label-date",
+      },
+    },
+  ];
 
   connectedCallback() {
     if (this.hasConnected) {
@@ -864,16 +903,23 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
 
     super.connectedCallback();
 
-    let twisty = this.appendChild(document.createElement("div"));
-    twisty.classList.add("twisty");
-    let twistyImage = twisty.appendChild(document.createElement("img"));
-    twistyImage.className = "twisty-icon";
-    twistyImage.src = "chrome://global/skin/icons/arrow-down-12.svg";
+    for (let column of ThreadListrow.COLUMNS) {
+      let cell = document.createElement("td");
+      if (column.id == "subjectCol") {
+        let container = cell.appendChild(document.createElement("div"));
+        container.classList.add("thread-container");
 
-    for (let i = 0; i < this.columns.length; i++) {
-      this.appendChild(document.createElement("span")).classList.add(
-        this.columns[i]
-      );
+        let twisty = container.appendChild(document.createElement("button"));
+        twisty.type = "button";
+        twisty.classList.add("button-flat", "button-reset", "twisty");
+
+        let twistyImage = twisty.appendChild(document.createElement("img"));
+        twistyImage.className = "twisty-icon";
+        twistyImage.src = "";
+        twistyImage.alt = "";
+      }
+
+      this.appendChild(cell).classList.add(`${column.id.toLowerCase()}-column`);
     }
 
     this.addEventListener("contextmenu", event => {
@@ -895,22 +941,38 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
   set index(index) {
     super.index = index;
     let rowProps = this.view.getRowProperties(index);
-    this.style.fontWeight = /\bunread\b/.test(rowProps) ? "bold" : null;
-
-    for (let i = 0; i < this.columns.length; i++) {
-      this.children[i + 1].textContent = this.view.cellTextForColumn(
-        index,
-        this.columns[i]
-      );
+    for (let prop of rowProps.split(" ").filter(Boolean)) {
+      this.classList.add(prop);
     }
-    this.setAttribute("aria-label", this.firstElementChild.textContent);
 
-    this.children[2].style.paddingInlineStart = `${this.view.getLevel(
-      index
-    )}em`;
+    for (let column of ThreadListrow.COLUMNS) {
+      let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
+      if (column.hidden) {
+        cell.hidden = true;
+        continue;
+      }
+
+      // Special case for the subject column.
+      if (column.id == "subjectCol") {
+        let span = document.createElement("span");
+        span.classList.add("subject-line");
+        span.textContent = this.view.cellTextForColumn(index, column.id);
+        cell.querySelector(".thread-container").appendChild(span);
+        // Indent child message of this thread.
+        span.style.setProperty("--thread-level", this.view.getLevel(index));
+        continue;
+      }
+
+      cell.textContent = this.view.cellTextForColumn(index, column.id);
+    }
+
+    this.setAttribute(
+      "aria-label",
+      this.view.cellTextForColumn(index, "subjectCol")
+    );
   }
 }
-customElements.define("thread-listrow", ThreadListrow);
+customElements.define("thread-listrow", ThreadListrow, { extends: "tr" });
 
 commandController.registerCallback("cmd_viewClassicMailLayout", () =>
   Services.prefs.setIntPref("mail.pane_config.dynamic", 0)

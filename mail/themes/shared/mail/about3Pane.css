@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://messenger/skin/shared/threadPane.css");
+
 :root {
   --in-content-button-border-radius: 3px;
 }
@@ -185,29 +187,29 @@ li > .container:hover {
   color: var(--in-content-item-selected-text);
 }
 
-:is(li, thread-listrow) .twisty {
+#folderTree li .twisty {
   width: 22px;
   height: 22px;
 }
 
-:is(li, thread-listrow):not(.children) .twisty-icon {
+#folderTree li:not(.children) .twisty-icon {
   display: none;
 }
 
-:is(li, thread-listrow) .twisty-icon {
+#folderTree li .twisty-icon {
   margin: 5px;
 }
 
-:is(li, thread-listrow).children.collapsed .twisty-icon {
+:is(li, [is="thread-listrow"]).children.collapsed .twisty-icon {
   transform: rotate(-90deg);
 }
 
-:is(li, thread-listrow).children.collapsed:dir(rtl) .twisty-icon {
+:is(li, [is="thread-listrow"]).children.collapsed:dir(rtl) .twisty-icon {
   transform: rotate(90deg);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  :is(li, thread-listrow) .twisty-icon {
+  :is(li, [is="thread-listrow"]) .twisty-icon {
     transition: transform 200ms ease;
   }
 }
@@ -250,45 +252,6 @@ li > .container:hover {
 ul:empty,
 li.collapsed > ul {
   display: none;
-}
-
-/* Thread tree pane. */
-
-#threadTreePane {
-  overflow: auto;
-  display: flex;
-}
-
-#threadTreePane > tree-view-listbox {
-  flex: 1;
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-thread-listrow {
-  line-height: 22px;
-  margin-inline: 6px;
-  display: flex;
-  border-radius: var(--in-content-button-border-radius);
-}
-
-thread-listrow > span {
-  padding-inline: 4px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
-thread-listrow > .senderCol {
-  width: 15%;
-}
-
-thread-listrow > .subjectCol {
-  flex: 1;
-}
-
-thread-listrow > .dateCol {
-  width: 10em;
 }
 
 /* Message browser pane. */

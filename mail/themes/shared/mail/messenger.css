@@ -134,10 +134,6 @@ p {
   color: color-mix(in srgb, currentColor 70%, transparent);
 }
 
-#threadTree {
-  -moz-box-flex: 2;
-}
-
 .tree-columnpicker-button {
   list-style-image: var(--icon-column-menu);
   padding-inline: 4px;

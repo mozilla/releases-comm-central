@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="chrome://messenger/skin/shared/tree-listbox.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/about3Pane.css" />
 
+  <link rel="localization" href="messenger/treeView.ftl" />
   <link rel="localization" href="messenger/messenger.ftl" />
   <link rel="localization" href="toolkit/global/textActions.ftl" />
 
@@ -38,6 +39,7 @@
   <script defer="defer" src="chrome://messenger/content/msgViewNavigation.js"></script>
   <script defer="defer" src="chrome://messenger/content/pane-splitter.js"></script>
   <script defer="defer" src="chrome://messenger/content/tree-listbox.js"></script>
+  <script defer="defer" type="module" src="chrome://messenger/content/tree-view-listbox.mjs"></script>
   <script defer="defer" src="chrome://messenger/content/jsTreeView.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailContext.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCommon.js"></script>
@@ -65,7 +67,7 @@
       resize-id="folderTreePane"
       collapse-width="200" />
   <div id="threadTreePane">
-    <tree-view-listbox id="threadTree" rows="thread-listrow"></tree-view-listbox>
+    <tree-view id="messageThreadTree"/>
   </div>
   <hr is="pane-splitter" id="splitter2"
       resize-id="messageBrowserPane"

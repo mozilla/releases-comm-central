@@ -507,6 +507,11 @@
       let columns = table.columns;
       let items = new DocumentFragment();
       for (let column of columns) {
+        // Skip those columns we don't want to allow hiding.
+        if (column.picker === false) {
+          continue;
+        }
+
         let menuitem = document.createXULElement("menuitem");
         items.append(menuitem);
         menuitem.setAttribute("type", "checkbox");
@@ -1447,6 +1452,24 @@
       this.classList.toggle("children", this.view.isContainer(index));
       this.classList.toggle("collapsed", !this.view.isContainerOpen(index));
       this._index = index;
+
+      let table = this.closest("table");
+      // Always clear the colspan when updating the columns.
+      for (let column of table.columns) {
+        this.querySelector(
+          `.${column.id.toLowerCase()}-column`
+        )?.removeAttribute("colspan");
+      }
+
+      // Account for the column picker in the last visible column if the table
+      // if editable.
+      if (table.editable) {
+        let last = table.columns.filter(c => !c.hidden).pop();
+        this.querySelector(`.${last.id.toLowerCase()}-column`)?.setAttribute(
+          "colspan",
+          "2"
+        );
+      }
     }
 
     /**

@@ -323,3 +323,20 @@ spaces-customize-button-restore = Restore Defaults
 
 customize-panel-button-save = Done
     .accesskey = D
+
+## Temporary strings for the message thread. These should be handled via fluent migration.
+
+about-threadpane-column-header-sender = From
+  .title = Sort by from
+about-threadpane-column-label-sender =
+  .label = From
+
+about-threadpane-column-header-subject = Subject
+  .title = Sort by subject
+about-threadpane-column-label-subject =
+  .label = Subject
+
+about-threadpane-column-header-date = Date
+  .title = Sort by date
+about-threadpane-column-label-date =
+  .label = Date

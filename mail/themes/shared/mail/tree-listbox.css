@@ -5,11 +5,6 @@
 @import url("chrome://messenger/skin/colors.css");
 
 :root {
-  --listbox-color: var(--color-gray-80);
-  --listbox-selected-bg: var(--color-gray-20);
-  --listbox-focused-selected-bg: var(--color-blue-50);
-  --listbox-selected-color: var(--color-white);
-  --listbox-hover: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
   --listbox-selected-outline: none;
   --tree-header-table-height: 30px;
   --tree-header-cell-padding: 6px;
@@ -26,11 +21,23 @@
 }
 
 @media not (prefers-contrast) {
+  :root {
+    --listbox-color: var(--color-gray-80);
+    --listbox-selected-bg: var(--color-gray-20);
+    --listbox-focused-selected-bg: var(--color-blue-50);
+    --listbox-selected-color: var(--color-white);
+    --listbox-hover: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
+
+    --tree-view-header-bg: var(--color-gray-05);
+  }
+
   @media (prefers-color-scheme: dark) {
     :root {
       --listbox-color: var(--color-gray-05);
       --listbox-selected-bg: var(--color-gray-70);
       --listbox-focused-selected-bg: var(--color-blue-60);
+
+      --tree-view-header-bg: var(--color-gray-80);
     }
   }
 }
@@ -42,6 +49,8 @@
     --listbox-selected-color: SelectedItemText;
     --listbox-focused-selected-bg: SelectedItem;
     --listbox-selected-outline: 2px solid SelectedItem;
+
+    --tree-view-header-bg: transparent;
   }
 }
 
@@ -96,10 +105,6 @@ table[is="tree-view-table"] {
   font-size: 1.05rem;
 }
 
-table[is="tree-view-table"] td {
-  padding: 0;
-}
-
 body:not(.layout-table) thead[is="tree-view-table-header"] {
   display: none;
 }
@@ -109,7 +114,7 @@ thead[is="tree-view-table-header"] {
   position: sticky;
   inset-inline: 0;
   inset-block-start: 0;
-  background-color: var(--address-book-cards-list-bg);
+  background-color: var(--tree-view-header-bg);
   z-index: 1;
 }
 
@@ -144,7 +149,7 @@ thead[is="tree-view-table-header"] hr[is="pane-splitter"]:hover:not(:active) {
 }
 
 th[is="tree-view-table-header-cell"] {
-  min-width: 5ch;
+  min-width: 7ch;
   padding: 0;
   position: relative;
   overflow: hidden;
@@ -164,6 +169,7 @@ th[is="tree-view-table-header-cell"] {
   white-space: nowrap;
   text-align: start;
   padding: var(--tree-header-cell-padding);
+  margin: 0;
   width: 100%;
   height: 100%;
   min-width: auto;
@@ -188,6 +194,7 @@ th[is="tree-view-table-header-cell"] {
 
 .tree-table-cell-container button.sorting {
   background-image: var(--icon-nav-up-sm);
+  padding-inline-end: 18px;
 }
 
 .tree-table-cell-container button.sorting.descending {
@@ -224,7 +231,8 @@ table[is="tree-view-table"] td {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding-inline: 6px;
+  padding: 0 6px;
+  position: relative;
 }
 
 table[is="tree-view-table"] td div {

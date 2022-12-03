@@ -25,13 +25,7 @@
 #folderUnreadCol,
 #folderTotalCol,
 #folderSizeCol {
-  text-align: right;
-}
-
-#folderUnreadCol:-moz-locale-dir(rtl),
-#folderTotalCol:-moz-locale-dir(rtl),
-#folderSizeCol:-moz-locale-dir(rtl) {
-  text-align: left;
+  text-align: end;
 }
 
 #folderNameCol {
