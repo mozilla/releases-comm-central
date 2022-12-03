@@ -107,8 +107,9 @@ add_task(async function startup() {
     // These are all similar values to Firefox, check with the equivalent
     // file in Firefox.
     "browser.startup.record": {
+      // This pref is accessed in Nighly and debug builds only.
       min: 200,
-      max: 390,
+      max: 400,
     },
     "network.loadinfo.skip_type_assertion": {
       // This is accessed in debug only.
