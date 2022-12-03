@@ -11037,7 +11037,7 @@ function onUnblockResource(aURL, aNode) {
  * @returns {string} the image as data: URL.
  * @throw Error()   if reading the data failed
  */
-async function loadBlockedImage(aURL, aReturnDataURL = false) {
+function loadBlockedImage(aURL, aReturnDataURL = false) {
   let filename;
   if (/^(file|chrome|moz-extension):/i.test(aURL)) {
     filename = aURL.substr(aURL.lastIndexOf("/") + 1);
@@ -11047,13 +11047,14 @@ async function loadBlockedImage(aURL, aReturnDataURL = false) {
   }
   filename = decodeURIComponent(filename);
   let uri = Services.io.newURI(aURL);
-  let contentType = "image/png"; // Assuming image/png is the best we can do.
+  let contentType;
   if (filename) {
     try {
       contentType = Cc["@mozilla.org/mime;1"]
         .getService(Ci.nsIMIMEService)
         .getTypeFromURI(uri);
     } catch (ex) {
+      contentType = "image/png";
     }
 
     if (!contentType.startsWith("image/")) {
@@ -11062,6 +11063,9 @@ async function loadBlockedImage(aURL, aReturnDataURL = false) {
         "Won't unblock; URL=" + aURL + ", contentType=" + contentType
       );
     }
+  } else {
+    // Assuming image/png is the best we can do.
+    contentType = "image/png";
   }
   let channel = Services.io.newChannelFromURI(
     uri,
