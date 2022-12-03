@@ -13,13 +13,15 @@
  * @typedef {object} CustomizableItemDetails
  * @property {string} id - The ID of the item. Will be set as a class on the
  *   outer wrapper.
- * @property {string} labelId
+ * @property {string} labelId - Fluent ID for the label shown while in the
+ *   palette.
  * @property {boolean} [allowMultiple] - If this item can be added more than
  *   once to a space.
  * @property {string[]} [spaces] - If empty or omitted, item is allowed in all
  *   spaces.
  * @property {string} [templateId] - ID of template defining the "live" markup.
- * @property {string[]} [requiredModules]
+ * @property {string[]} [requiredModules] - List of modules that must be loaded
+ *   for the template of this item.
  */
 
 /**
