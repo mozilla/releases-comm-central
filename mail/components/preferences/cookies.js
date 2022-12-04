@@ -771,18 +771,11 @@ var gCookiesWindow = {
       }
     }
 
-    var blockFutureCookies = false;
-    if (Services.prefs.prefHasUserValue("network.cookie.blockFutureCookies")) {
-      blockFutureCookies = Services.prefs.getBoolPref(
-        "network.cookie.blockFutureCookies"
-      );
-    }
     for (let item of deleteItems) {
       Services.cookies.remove(
         item.host,
         item.name,
         item.path,
-        blockFutureCookies,
         item.originAttributes
       );
     }

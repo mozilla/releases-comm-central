@@ -1114,6 +1114,24 @@ var RNP = {
     }
   },
 
+  getCharCodeArray(pgpData) {
+    return pgpData.split("").map(e => e.charCodeAt());
+  },
+
+  is8Bit(charCodeArray) {
+    for (let i = 0; i < charCodeArray.length; i++) {
+      if (charCodeArray[i] > 255) {
+        return false;
+      }
+    }
+    return true;
+  },
+
+  removeCommentLines(str) {
+    const commentLine = /^Comment:.*(\r?\n|\r)/gm;
+    return str.replace(commentLine, "");
+  },
+
   async decrypt(encrypted, options, alreadyDecrypted = false) {
     let input_from_memory = new RNPLib.rnp_input_t();
 
@@ -1835,10 +1853,21 @@ var RNP = {
       );
     }
 
-    let arr = [];
-    arr.length = keyBlockStr.length;
-    for (let i = 0; i < keyBlockStr.length; i++) {
-      arr[i] = keyBlockStr.charCodeAt(i);
+    // Input might be either plain text or binary data.
+    // If the input is binary, do not modify it.
+    // If the input contains characters with a multi-byte char code value,
+    // we know the input doesn't consist of binary 8-bit values. Rather,
+    // it contains text with multi-byte characters. The only scenario
+    // in which we can tolerate those are comment lines, which we can
+    // filter out.
+
+    let arr = this.getCharCodeArray(keyBlockStr);
+    if (!this.is8Bit(arr)) {
+      let trimmed = this.removeCommentLines(keyBlockStr);
+      arr = this.getCharCodeArray(trimmed);
+      if (!this.is8Bit(arr)) {
+        throw new Error(`Non-ascii key block: ${keyBlockStr}`);
+      }
     }
     var key_array = lazy.ctypes.uint8_t.array()(arr);
 
