@@ -782,7 +782,6 @@ var gCookiesWindow = {
         item.host,
         item.name,
         item.path,
-        blockFutureCookies,
         item.originAttributes
       );
     }
