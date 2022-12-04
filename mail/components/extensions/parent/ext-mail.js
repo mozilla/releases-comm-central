@@ -386,9 +386,8 @@ class WindowTracker extends WindowTrackerBase {
    * @param {object} listener - The listener to add
    */
   addProgressListener(window, listener) {
-    let tabmail = window.document.getElementById("tabmail");
-    if (tabmail) {
-      tabmail.addTabsProgressListener(listener);
+    if (window.contentProgress) {
+      window.contentProgress.addListener(listener);
     }
   }
 
@@ -399,9 +398,8 @@ class WindowTracker extends WindowTrackerBase {
    * @param {object} listener - The listener to remove
    */
   removeProgressListener(window, listener) {
-    let tabmail = window.document.getElementById("tabmail");
-    if (tabmail) {
-      tabmail.removeTabsProgressListener(listener);
+    if (window.contentProgress) {
+      window.contentProgress.removeListener(listener);
     }
   }
 

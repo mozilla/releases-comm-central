@@ -82,6 +82,10 @@ window.addEventListener("DOMContentLoaded", event => {
   }
 
   preferenceObserver.init();
+
+  window.dispatchEvent(
+    new CustomEvent("aboutMessageLoaded", { bubbles: true })
+  );
 });
 
 window.addEventListener("unload", () => {
@@ -147,12 +151,6 @@ function displayMessage(uri, viewWrapper) {
   MailE10SUtils.changeRemoteness(content, null);
   content.docShell.allowAuth = false;
   content.docShell.allowDNSPrefetch = false;
-  content.docShell
-    ?.QueryInterface(Ci.nsIWebProgress)
-    .addProgressListener(
-      top.msgWindow.statusFeedback,
-      Ci.nsIWebProgress.NOTIFY_ALL
-    );
 
   messageService.DisplayMessage(uri, content.docShell, null, null, null, {});
 

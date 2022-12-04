@@ -948,3 +948,107 @@ function switchToTabHavingURI(aURI, aOpenNew, aOpenParams = {}) {
 
   return false;
 }
+
+/**
+ * Combines all nsIWebProgress notifications from all content browsers in this
+ * window and reports them to the registered listeners.
+ *
+ * @see WindowTracker (ext-mail.js)
+ * @see StatusListener, WindowTrackerBase (ext-tabs-base.js)
+ */
+var contentProgress = {
+  _listeners: new Set(),
+
+  addListener(listener) {
+    this._listeners.add(listener);
+  },
+
+  removeListener(listener) {
+    this._listeners.delete(listener);
+  },
+
+  callListeners(method, args) {
+    for (let listener of this._listeners.values()) {
+      if (method in listener) {
+        try {
+          listener[method](...args);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  },
+
+  /**
+   * Ensure that `browser` has a ProgressListener attached to it.
+   *
+   * @param {Browser} browser
+   */
+  addProgressListenerToBrowser(browser) {
+    if (browser?.webProgress && !browser._progressListener) {
+      browser._progressListener = new contentProgress.ProgressListener(browser);
+      browser.webProgress.addProgressListener(
+        browser._progressListener,
+        Ci.nsIWebProgress.NOTIFY_ALL
+      );
+    }
+  },
+
+  // @implements {nsIWebProgressListener}
+  // @implements {nsIWebProgressListener2}
+  ProgressListener: class {
+    QueryInterface = ChromeUtils.generateQI([
+      "nsIWebProgressListener",
+      "nsIWebProgressListener2",
+      "nsISupportsWeakReference",
+    ]);
+
+    constructor(browser) {
+      this.browser = browser;
+    }
+
+    callListeners(method, args) {
+      args.unshift(this.browser);
+      contentProgress.callListeners(method, args);
+    }
+
+    onProgressChange(...args) {
+      this.callListeners("onProgressChange", args);
+    }
+
+    onProgressChange64(...args) {
+      this.callListeners("onProgressChange64", args);
+    }
+
+    onLocationChange(...args) {
+      this.callListeners("onLocationChange", args);
+    }
+
+    onStateChange(...args) {
+      this.callListeners("onStateChange", args);
+    }
+
+    onStatusChange(...args) {
+      this.callListeners("onStatusChange", args);
+    }
+
+    onSecurityChange(...args) {
+      this.callListeners("onSecurityChange", args);
+    }
+
+    onContentBlockingEvent(...args) {
+      this.callListeners("onContentBlockingEvent", args);
+    }
+
+    onRefreshAttempted(...args) {
+      return this.callListeners("onRefreshAttempted", args);
+    }
+  },
+};
+
+// Add a progress listener to any about:message content browser that comes
+// along. This often happens after the tab is opened so the usual mechanism
+// doesn't work. It also works for standalone message windows.
+window.addEventListener("aboutMessageLoaded", event =>
+  contentProgress.addProgressListenerToBrowser(event.target.content)
+);

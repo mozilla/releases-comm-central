@@ -226,20 +226,15 @@ function addMsgToFolderAndCheckContent(folder, test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been loaded
+  let messageDocument = get_about_message().content.contentDocument;
   if (test.checkDenied) {
-    if (
-      test.checkForAllowed(
-        mc.window.content.document.getElementById("testelement")
-      )
-    ) {
+    if (test.checkForAllowed(messageDocument.getElementById("testelement"))) {
       throw new Error(
         test.type + " has not been blocked in message content as expected."
       );
     }
   } else if (
-    !test.checkForAllowed(
-      mc.window.content.document.getElementById("testelement")
-    )
+    !test.checkForAllowed(messageDocument.getElementById("testelement"))
   ) {
     throw new Error(
       test.type + " has been unexpectedly blocked in message content."
@@ -431,11 +426,8 @@ function checkAllowFeedMsg(test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked
-  if (
-    !test.checkForAllowed(
-      mc.window.content.document.getElementById("testelement")
-    )
-  ) {
+  let messageDocument = get_about_message().content.contentDocument;
+  if (!test.checkForAllowed(messageDocument.getElementById("testelement"))) {
     throw new Error(
       test.type + " has been unexpectedly blocked in feed message content."
     );
@@ -470,11 +462,8 @@ function checkAllowForSenderWithPerms(test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked
-  if (
-    !test.checkForAllowed(
-      mc.window.content.document.getElementById("testelement")
-    )
-  ) {
+  let messageDocument = get_about_message().content.contentDocument;
+  if (!test.checkForAllowed(messageDocument.getElementById("testelement"))) {
     throw new Error(
       `${test.type} has been unexpectedly blocked for sender=${authorEmailAddress}`
     );
@@ -502,7 +491,9 @@ function checkAllowForHostsWithPerms(test) {
   Assert.equal(msgDbHdr, msgHdr);
   assert_selected_and_displayed(gMsgNo);
 
-  let src = mc.window.content.document.getElementById("testelement").src;
+  let aboutMessage = get_about_message();
+  let messageDocument = aboutMessage.content.contentDocument;
+  let src = messageDocument.getElementById("testelement").src;
 
   if (!src.startsWith("http")) {
     // Just test http in this test.
@@ -521,11 +512,8 @@ function checkAllowForHostsWithPerms(test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked.
-  if (
-    !test.checkForAllowed(
-      mc.window.content.document.getElementById("testelement")
-    )
-  ) {
+  messageDocument = aboutMessage.content.contentDocument;
+  if (!test.checkForAllowed(messageDocument.getElementById("testelement"))) {
     throw new Error(
       test.type + " has been unexpectedly blocked for url=" + uri.spec
     );
@@ -560,7 +548,8 @@ add_task(async function test_generalContentPolicy() {
         // We do the first test which is the one with the image.
 
         // Add the site to the whitelist.
-        let src = mc.window.content.document.getElementById("testelement").src;
+        let messageDocument = get_about_message().content.contentDocument;
+        let src = messageDocument.getElementById("testelement").src;
 
         let uri = Services.io.newURI(src);
         addPermission(uri, Services.perms.ALLOW_ACTION);

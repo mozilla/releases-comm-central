@@ -349,15 +349,13 @@ this.tabs = class extends ExtensionAPIPersistent {
       let statusListener = ({ browser, status, url }) => {
         let { extension } = this;
         let { tabManager } = extension;
-        let tabmail = browser.ownerDocument.getElementById("tabmail");
-        let nativeTabInfo = tabmail.getTabForBrowser(browser);
-        if (nativeTabInfo) {
+        let tabId = tabTracker.getBrowserTabId(browser);
+        if (tabId != -1) {
           let changed = { status };
           if (url) {
             changed.url = url;
           }
-
-          fireForTab(tabManager.getWrapper(nativeTabInfo), changed);
+          fireForTab(tabManager.get(tabId), changed);
         }
       };
 

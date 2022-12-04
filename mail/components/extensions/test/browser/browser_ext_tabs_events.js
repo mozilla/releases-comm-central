@@ -84,7 +84,7 @@ add_task(async () => {
             }
             return actualArgs;
           },
-          async pageLoad(tab) {
+          async pageLoad(tab, active = true) {
             while (true) {
               // Read the first event without consuming it.
               let [
@@ -114,7 +114,7 @@ add_task(async () => {
               {
                 id: tab,
                 windowId: initialWindow,
-                active: true,
+                active,
                 mailTab: false,
               }
             );
@@ -322,14 +322,6 @@ add_task(async () => {
           )
         );
 
-        // In some circumstances this onUpdated event and the onCreated event
-        // happen out of order. We're not interested in the onUpdated event
-        // so just throw it away.
-        let unwantedEvent = await listener.nextEvent();
-        if (unwantedEvent[0] == "onUpdated") {
-          listener.events.shift();
-        }
-
         let [{ id: messageTab1 }] = await listener.checkEvent("onCreated", {
           index: 6,
           windowId: initialWindow,
@@ -385,6 +377,7 @@ add_task(async () => {
             messageTab1,
           ].includes(messageTab2)
         );
+        await listener.pageLoad(messageTab2, false);
 
         browser.test.log(
           "Activate each of the tabs in a somewhat random order to test the onActivated event."
@@ -406,26 +399,10 @@ add_task(async () => {
               browser.tabs.update(tab, { active: true })
             )
           );
-          if ([messageTab1, messageTab2].includes(tab)) {
-            await listener.checkEvent(
-              "onUpdated",
-              tab,
-              { status: "loading" },
-              {
-                id: tab,
-                windowId: initialWindow,
-                active: true,
-                mailTab: false,
-              }
-            );
-          }
           await listener.checkEvent("onActivated", {
             tabId: tab,
             windowId: initialWindow,
           });
-          if ([messageTab1, messageTab2].includes(tab)) {
-            await listener.pageLoad(tab);
-          }
         }
 
         browser.test.log(
