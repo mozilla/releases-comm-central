@@ -59,7 +59,7 @@ set_defconf("commreltopsrcdir", comm_paths.commreltopsrcdir)
 set_defconf("commtopobjdir", comm_paths.commtopobjdir)
 
 
-@depends(build_environment, application)
+@depends(build_environment, build_project)
 @imports(_from="os.path", _import="exists")
 @imports(_from="__builtin__", _import="open")
 def thunderbird_version(build_env, app_path):

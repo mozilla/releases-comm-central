@@ -222,8 +222,7 @@ py-flake8:
             mozlint-config: flake8.yml
 
 shellcheck:
-    always-target: false
-    description: shellcheck run over the gecko codebase
+    description: shellcheck run over the Thunderbird codebase
     treeherder:
         symbol: misc(shell)
     run-on-projects: []
