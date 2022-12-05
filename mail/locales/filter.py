@@ -17,18 +17,10 @@ def test(mod, path, entity=None):
         "mail",
         "chat",
         "extensions/spellcheck",
-        "other-licenses/branding/thunderbird",
         "mail/branding/thunderbird",
     ):
         return "ignore"
 
-    # ignore MOZ_LANGPACK_CONTRIBUTORS
-    if (
-        mod == "mail"
-        and path == "defines.inc"
-        and entity == "MOZ_LANGPACK_CONTRIBUTORS"
-    ):
-        return "ignore"
     # ignore dictionaries
     if mod == "extensions/spellcheck":
         return "ignore"

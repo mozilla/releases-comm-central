@@ -108,16 +108,9 @@ locales = [
     reference = "{mozilla}/devtools/startup/locales/en-US/**"
     l10n = "{l}devtools/startup/**"
 
-# ignore MOZ_LANGPACK_CONTRIBUTORS
-[[filters]]
-    path = "{l}mail/defines.inc"
-    key = "MOZ_LANGPACK_CONTRIBUTORS"
-    action = "ignore"
-
-# defines.inc and all-l10n.js can be missing completely
+# all-l10n.js can be missing completely
 [[filters]]
     path = [
-        "{l}mail/defines.inc",
         "{l}mail/all-l10n.js",
     ]
     action = "ignore"
