@@ -85,9 +85,7 @@ add_task(async function testStripSignatures() {
 });
 
 add_task(async function testKeyWithUnicodeComment() {
-  let keyFile = do_get_file(
-    `${keyDir}/key-with-utf8-comment.asc`
-  );
+  let keyFile = do_get_file(`${keyDir}/key-with-utf8-comment.asc`);
   let keyBlock = await IOUtils.readUTF8(keyFile.path);
 
   let errorObj = {};
@@ -114,9 +112,7 @@ add_task(async function testKeyWithUnicodeComment() {
 });
 
 add_task(async function testBinaryKey() {
-  let keyFile = do_get_file(
-    `${keyDir}/key-binary.gpg`
-  );
+  let keyFile = do_get_file(`${keyDir}/key-binary.gpg`);
   let keyData = await IOUtils.read(keyFile.path);
   let keyBlock = MailStringUtils.uint8ArrayToByteString(keyData);
 
