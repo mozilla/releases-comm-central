@@ -57,9 +57,6 @@ var { EnigmailConstants } = ChromeUtils.import(
 var { EnigmailDialog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
 );
-var { EnigmailKeyserverURIs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyserverUris.jsm"
-);
 
 const ENIG_KEY_EXPIRED = "e";
 const ENIG_KEY_REVOKED = "r";
@@ -263,8 +260,6 @@ function enigmailKeyMenu() {
     }
   }
 
-  let singleSecretSelected = keyList.length == 1 && haveSecretForAll;
-
   // Make the selected key count available to translations.
   for (let el of document.querySelectorAll(".enigmail-bulk-key-operation")) {
     el.setAttribute(
@@ -274,7 +269,6 @@ function enigmailKeyMenu() {
   }
 
   document.getElementById("backupSecretKey").disabled = !haveSecretForAll;
-  document.getElementById("uploadToServer").disabled = !singleSecretSelected;
 
   document.getElementById("revokeKey").disabled =
     keyList.length != 1 || !gKeyList[keyList[0]].secretAvailable;
@@ -706,27 +700,22 @@ async function enigmailSearchKey() {
   }
 }
 
-async function enigmailUploadKey() {
-  /* Always upload to the first configured keyserver with a supported protocol */
-  let selKeyList = getSelectedKeys();
-  if (selKeyList.length != 1) {
-    return;
-  }
-
-  let keyId = gKeyList[selKeyList[0]].keyId;
-  let ks = EnigmailKeyserverURIs.getUploadKeyServer();
-
-  let ok = await EnigmailKeyServer.upload(keyId, ks);
-  document.l10n
-    .formatValue(ok ? "openpgp-key-publish-ok" : "openpgp-key-publish-fail", {
-      keyserver: ks,
-    })
-    .then(value => {
-      EnigmailDialog.alert(window, value);
-    });
+/*
+function enigmailUploadKeys() {
+  accessKeyServer(EnigmailConstants.UPLOAD_KEY, enigmailUploadKeysCb);
 }
 
-/*
+function enigmailUploadKeysCb(exitCode, errorMsg, msgBox) {
+  if (msgBox) {
+    if (exitCode !== 0) {
+      EnigmailDialog.alert(window, "Sending of keys failed" + "\n" + errorMsg);
+    }
+  } else {
+    return exitCode === 0 ? "Key(s) sent successfully" : "Sending of keys failed";
+  }
+  return "";
+}
+
 function enigmailUploadToWkd() {
   let selKeyList = getSelectedKeys();
   let keyList = [];
