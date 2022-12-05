@@ -14,6 +14,14 @@ import "./unified-toolbar-customization-pane.mjs"; // eslint-disable-line import
  * Template: #unifiedToolbarCustomizationTemplate.
  */
 class UnifiedToolbarCustomization extends HTMLElement {
+  /**
+   * Reference to the container where the space tabs go in. The tab panels will
+   * be placed after this element.
+   *
+   * @type {?HTMLDivElement}
+   */
+  #tabList = null;
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -24,7 +32,8 @@ class UnifiedToolbarCustomization extends HTMLElement {
     const template = document
       .getElementById("unifiedToolbarCustomizationTemplate")
       .content.cloneNode(true);
-    template.querySelector("form").addEventListener(
+    const form = template.querySelector("form");
+    form.addEventListener(
       "submit",
       event => {
         event.preventDefault();
@@ -34,22 +43,30 @@ class UnifiedToolbarCustomization extends HTMLElement {
         passive: false,
       }
     );
+    form.addEventListener("reset", event => {
+      this.#reset();
+    });
     template
       .querySelector("#unifiedToolbarCustomizationCancel")
       .addEventListener("click", () => {
         this.toggle(false);
       });
-    const tablist = template.querySelector("#customizationTabs");
-    const footer = template.querySelector("#customizationFooter");
-    // TODO: provide hook for extension API to add and remove spaces from this
-    // UI.
-    for (const space of gSpacesToolbar.spaces) {
-      const { tab, tabPane } = this.#makeSpaceTab(space);
-      tablist.appendChild(tab);
-      footer.parentNode.insertBefore(tabPane, footer);
-    }
+    this.addEventListener("itemchange", this.#updateResetToDefault, {
+      capture: true,
+    });
+    this.#tabList = template.querySelector("#customizationTabs");
+    this.initialize();
     this.append(template);
+    this.#updateResetToDefault();
   }
+
+  #updateResetToDefault = () => {
+    const tabPanes = Array.from(
+      this.querySelectorAll("unified-toolbar-customization-pane")
+    );
+    const isDefault = tabPanes.every(pane => pane.matchesDefaultState);
+    this.querySelector('button[type="reset"]').disabled = isDefault;
+  };
 
   /**
    * Generate a tab and tab pane that are linked together for the given space.
@@ -68,6 +85,7 @@ class UnifiedToolbarCustomization extends HTMLElement {
     if (activeSpace) {
       tab.setAttribute("selected", true);
     }
+    //TODO names of extension spaces won't work like this.
     document.l10n.setAttributes(tab, `customize-space-${space.name}`);
     const tabPane = document.createElement(
       "unified-toolbar-customization-pane"
@@ -80,6 +98,59 @@ class UnifiedToolbarCustomization extends HTMLElement {
   }
 
   /**
+   * Reset all the spaces to their default customization state.
+   */
+  #reset() {
+    const tabPanes = Array.from(
+      this.querySelectorAll("unified-toolbar-customization-pane")
+    );
+    for (const pane of tabPanes) {
+      pane.reset();
+    }
+  }
+
+  /**
+   * Initialize the contents of this from the current state. Specifically makes
+   * sure all the spaces have a tab, and all tabs still have a space.
+   *
+   * @param {boolean} [deep = false] - If true calls initialize on all tab
+   *   panes.
+   */
+  initialize(deep = false) {
+    const existingTabs = Array.from(this.#tabList.children);
+    const tabSpaces = existingTabs.map(tab => tab.id.split("-").pop());
+    const spaceNames = new Set(gSpacesToolbar.spaces.map(space => space.name));
+    const removedTabs = existingTabs.filter(
+      (tab, index) => !spaceNames.has(tabSpaces[index])
+    );
+    for (const tab of removedTabs) {
+      tab.pane.remove();
+      tab.remove();
+    }
+    const newTabs = gSpacesToolbar.spaces.map(space => {
+      if (tabSpaces.includes(space.name)) {
+        const tab = existingTabs[tabSpaces.indexOf(space.name)];
+        return [tab, tab.pane];
+      }
+      const { tab, tabPane } = this.#makeSpaceTab(space);
+      return [tab, tabPane];
+    });
+    this.#tabList.replaceChildren(...newTabs.map(([tab]) => tab));
+    let previousNode = this.#tabList;
+    for (const [, tabPane] of newTabs) {
+      previousNode.after(tabPane);
+      previousNode = tabPane;
+      if (deep) {
+        tabPane.initialize(deep);
+      }
+    }
+    // Update state of reset to default button only when updating tab panes too.
+    if (deep) {
+      this.#updateResetToDefault();
+    }
+  }
+
+  /**
    * Toggle unified toolbar customization.
    *
    * @param {boolean} [visible] - If passed, defines if customization should
@@ -87,6 +158,7 @@ class UnifiedToolbarCustomization extends HTMLElement {
    */
   toggle(visible) {
     if (visible && gSpacesToolbar.currentSpace) {
+      this.initialize(true);
       document
         .getElementById(
           `unified-toolbar-customization-tab-${gSpacesToolbar.currentSpace.name}`

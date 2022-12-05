@@ -3,7 +3,10 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import ListBoxSelection from "./list-box-selection.mjs";
-import { getItemIdsForSpace } from "resource:///modules/CustomizableItems.mjs";
+import {
+  getAvailableItemIdsForSpace,
+  MULTIPLE_ALLOWED_ITEM_IDS,
+} from "resource:///modules/CustomizableItems.mjs";
 import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned-import
 
 /**
@@ -12,6 +15,8 @@ import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned
  * Attributes:
  * - space: ID of the space the widgets are for. "all" for space agnostic
  *   widgets. Not observed.
+ * - items-in-use: Comma-separated IDs of items that are in a target at the time
+ *   this is initialized. When changed, initialize should be called.
  */
 class CustomizationPalette extends ListBoxSelection {
   contextMenuId = "customizationPaletteMenu";
@@ -21,11 +26,22 @@ class CustomizationPalette extends ListBoxSelection {
       return;
     }
 
+    this.initialize();
+  }
+
+  /**
+   * Initializes the contents of the palette from the current state. The
+   * relevant state is defined by the space and items-in-use attributes.
+   */
+  initialize() {
     let space = this.getAttribute("space");
     if (space === "all") {
       space = undefined;
     }
-    const items = getItemIdsForSpace(space);
+    const itemsInUse = new Set(this.getAttribute("items-in-use").split(","));
+    const items = getAvailableItemIdsForSpace(space).filter(
+      itemId => !itemsInUse.has(itemId) || MULTIPLE_ALLOWED_ITEM_IDS.has(itemId)
+    );
     this.replaceChildren(
       ...items.map(itemId => {
         const element = document.createElement("li", {

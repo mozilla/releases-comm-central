@@ -10,6 +10,7 @@ add_task(function test_format() {
   for (const item of CUSTOMIZABLE_ITEMS) {
     Assert.equal(typeof item, "object", "Customizable item is an object");
     Assert.equal(typeof item.id, "string", `id "${item.id}" is a string`);
+    Assert.ok(!item.id.includes(","), `id "${item.id}" may not contain commas`);
     Assert.greater(item.id.length, 0, `id "${item.id}" is not empty`);
     Assert.equal(
       typeof item.labelId,

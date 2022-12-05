@@ -3,11 +3,17 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import ListBoxSelection from "./list-box-selection.mjs";
+import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned-import
 
 /**
  * Customization target where items can be placed, rearranged and removed.
  * Attributes:
  * - aria-label: Name of the target area.
+ * - current-items: Comma separated item IDs currently in this area. When
+ *   changed initialize should be called.
+ * Events:
+ * - itemchange: Fired whenever the items inside the toolbar are added, moved or
+ *   removed.
  */
 class CustomizationTarget extends ListBoxSelection {
   contextMenuId = "customizationTargetMenu";
@@ -28,6 +34,29 @@ class CustomizationTarget extends ListBoxSelection {
     document
       .getElementById("customizationTargetRemove")
       .addEventListener("command", this.#handleMenuRemove);
+
+    this.initialize();
+  }
+
+  /**
+   * Initialize the contents of the target from the current state. The relevant
+   * state is passed in via the current-items attribute.
+   */
+  initialize() {
+    const hadChildren = this.children.length > 0;
+    const itemIds = this.getAttribute("current-items").split(",");
+    this.replaceChildren(
+      ...itemIds.map(itemId => {
+        const element = document.createElement("li", {
+          is: "customizable-element",
+        });
+        element.setAttribute("item-id", itemId);
+        return element;
+      })
+    );
+    if (hadChildren) {
+      this.#onChange();
+    }
   }
 
   /**
@@ -77,6 +106,29 @@ class CustomizationTarget extends ListBoxSelection {
   };
 
   /**
+   * Emit a change event. Should be called whenever items are added, moved or
+   * removed from the target.
+   */
+  #onChange() {
+    const changeEvent = new Event("itemchange", {
+      bubbles: true,
+      // Make sure this bubbles out of the pane shadow root.
+      composed: true,
+    });
+    this.dispatchEvent(changeEvent);
+  }
+
+  moveItemForward(...args) {
+    super.moveItemForward(...args);
+    this.#onChange();
+  }
+
+  moveItemBackward(...args) {
+    super.moveItemBackward(...args);
+    this.#onChange();
+  }
+
+  /**
    * Return the item to its palette, removing it from this target.
    *
    * @param {CustomizableElement} item - The item to remove.
@@ -86,6 +138,7 @@ class CustomizationTarget extends ListBoxSelection {
       return;
     }
     item.palette.returnItem(item);
+    this.#onChange();
   }
 
   /**
@@ -98,6 +151,19 @@ class CustomizationTarget extends ListBoxSelection {
       return;
     }
     this.append(item);
+    this.#onChange();
+  }
+
+  /**
+   * IDs of the items currently in this target, in correct order including
+   * duplicates.
+   *
+   * @type {string[]}
+   */
+  get itemIds() {
+    return Array.from(this.children, element =>
+      element.getAttribute("item-id")
+    );
   }
 }
 customElements.define("customization-target", CustomizationTarget, {

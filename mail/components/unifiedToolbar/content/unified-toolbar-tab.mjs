@@ -75,9 +75,7 @@ class UnifiedToolbarTab extends HTMLElement {
   };
 
   #toggleTabPane(visible) {
-    document.getElementById(
-      this.#tab.getAttribute("aria-controls")
-    ).hidden = !visible;
+    this.pane.hidden = !visible;
   }
 
   /**
@@ -106,6 +104,10 @@ class UnifiedToolbarTab extends HTMLElement {
 
   focus() {
     this.#tab.focus();
+  }
+
+  get pane() {
+    return document.getElementById(this.#tab.getAttribute("aria-controls"));
   }
 }
 customElements.define("unified-toolbar-tab", UnifiedToolbarTab);

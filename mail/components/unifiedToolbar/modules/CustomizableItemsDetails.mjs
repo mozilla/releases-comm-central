@@ -12,7 +12,7 @@
 /**
  * @typedef {object} CustomizableItemDetails
  * @property {string} id - The ID of the item. Will be set as a class on the
- *   outer wrapper.
+ *   outer wrapper. May not contain commas.
  * @property {string} labelId - Fluent ID for the label shown while in the
  *   palette.
  * @property {boolean} [allowMultiple] - If this item can be added more than
