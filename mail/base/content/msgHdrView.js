@@ -167,6 +167,11 @@ var currentHeaderData = {};
 var currentAttachments = [];
 
 /**
+ * The character set of the message, according to the MIME parser.
+ */
+var currentCharacterSet = "";
+
+/**
  * Folder database listener object. This is used alongside the
  * nsIDBChangeListener implementation in order to listen for the changes of the
  * messages' flags that don't trigger a messageHeaderSink.processHeaders().
@@ -533,6 +538,7 @@ var messageHeaderSink2 = {
         request.smimeHeaderSink = smimeHeaderSink;
         this.onStartHeaders();
       } else if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+        currentCharacterSet = request.mailCharacterSet;
         request.QueryInterface(Ci.nsIChannel);
         request.smimeHeaderSink = null;
         this.processHeaders(request.headerNames, request.headerValues);
@@ -1255,6 +1261,7 @@ function ClearCurrentHeaders() {
   currentHeaderData = {};
   // eslint-disable-next-line no-global-assign
   currentAttachments = [];
+  currentCharacterSet = "";
 }
 
 function ShowMessageHeaderPane() {

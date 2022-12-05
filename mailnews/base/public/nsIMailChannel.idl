@@ -54,6 +54,12 @@ interface nsIMailChannel : nsISupports {
   readonly attribute Array<nsIPropertyBag2> attachments;
 
   /**
+   * The character set of the message, according to the MIME parser. Not the
+   * character set of the channel, which should always be UTF-8.
+   */
+  attribute AUTF8String mailCharacterSet;
+
+  /**
    * The method property of iMIP attachments, as determined by the MIME parser.
    * Not to be set after onStopRequest.
    */

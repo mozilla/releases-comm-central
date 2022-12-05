@@ -1054,7 +1054,7 @@ Enigmail.msg = {
       return;
     }
 
-    var charset = msgWindow ? msgWindow.mailCharacterSet : "";
+    let charset = currentCharacterSet ?? "";
     if (charset != "UTF-8") {
       // Encode ciphertext to charset from unicode
       msgText = EnigmailData.convertFromUnicode(msgText, charset);

@@ -21,6 +21,10 @@ var { close_window } = ChromeUtils.import(
 var gReferenceTextContent;
 
 add_setup(async function() {
+  Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", false);
+  Services.prefs.setIntPref("mailnews.display.html_as", 0);
+  Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers", 0);
+
   let { textContent } = await extract_eml_body_textcontent(
     "./correctEncodingUTF8.eml",
     false
@@ -32,7 +36,7 @@ async function check_display_charset(eml, expectedCharset) {
   let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
   let msgc = await open_message_from_file(file);
   let aboutMessage = get_about_message(msgc.window);
-  is(aboutMessage.msgWindow.mailCharacterSet, expectedCharset);
+  is(aboutMessage.currentCharacterSet, expectedCharset);
   close_window(msgc);
 }
 
@@ -40,10 +44,6 @@ async function extract_eml_body_textcontent(eml, autodetect = true) {
   let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
   let msgc = await open_message_from_file(file);
   let aboutMessage = get_about_message(msgc.window);
-  let reloadPromise = BrowserTestUtils.browserLoaded(aboutMessage.content);
-  // Be sure to view message body as Original HTML
-  msgc.window.MsgBodyAllowHTML();
-  await reloadPromise;
 
   if (autodetect) {
     // Open other actions menu.
@@ -58,7 +58,7 @@ async function extract_eml_body_textcontent(eml, autodetect = true) {
 
     // Click on the "Repair Text Encoding" item.
     let hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
-    reloadPromise = BrowserTestUtils.browserLoaded(aboutMessage.content);
+    let reloadPromise = BrowserTestUtils.browserLoaded(aboutMessage.content);
     EventUtils.synthesizeMouseAtCenter(
       aboutMessage.document.getElementById("charsetRepairMenuitem"),
       {},
@@ -70,7 +70,7 @@ async function extract_eml_body_textcontent(eml, autodetect = true) {
 
   let textContent =
     aboutMessage.content.contentDocument.documentElement.textContent;
-  let charset = aboutMessage.msgWindow.mailCharacterSet;
+  let charset = aboutMessage.currentCharacterSet;
   close_window(msgc);
   return { textContent, charset };
 }

@@ -9,7 +9,7 @@ export class MailChannel {
   _headerNames = [];
   _headerValues = [];
   _attachments = [];
-  _smimeHeaderSink = null;
+  _mailCharacterSet = null;
 
   addHeaderFromMIME(name, value) {
     this._headerNames.push(name);
@@ -45,11 +45,18 @@ export class MailChannel {
     return this._attachments.slice();
   }
 
-  get smimeHeaderSink() {
-    return this._smimeHeaderSink;
+  get mailCharacterSet() {
+    return this._mailCharacterSet;
   }
 
-  set smimeHeaderSink(value) {
-    this._smimeHeaderSink = value;
+  set mailCharacterSet(value) {
+    let ccm = Cc["@mozilla.org/charset-converter-manager;1"].getService(
+      Ci.nsICharsetConverterManager
+    );
+    this._mailCharacterSet = ccm.getCharsetAlias(value);
   }
+
+  imipMethod = null;
+  imipItem = null;
+  smimeHeaderSink = null;
 }

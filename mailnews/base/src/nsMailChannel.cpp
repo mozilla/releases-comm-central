@@ -4,6 +4,8 @@
 
 #include "nsMailChannel.h"
 #include "nsHashPropertyBag.h"
+#include "nsServiceManagerUtils.h"
+#include "nsICharsetConverterManager.h"
 
 NS_IMETHODIMP
 nsMailChannel::AddHeaderFromMIME(const nsACString& name,
@@ -58,6 +60,28 @@ nsMailChannel::GetAttachments(
     aAttachments.AppendElement(static_cast<nsIPropertyBag2*>(attachment));
   }
   return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMailChannel::GetMailCharacterSet(nsACString& aMailCharacterSet) {
+  aMailCharacterSet = mMailCharacterSet;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMailChannel::SetMailCharacterSet(const nsACString& aMailCharacterSet) {
+  mMailCharacterSet = aMailCharacterSet;
+
+  // Convert to a canonical charset name instead of using the charset name from
+  // the message header as is. This is needed for charset menu item to have a
+  // check mark correctly.
+  nsresult rv;
+  nsCOMPtr<nsICharsetConverterManager> ccm =
+      do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return ccm->GetCharsetAlias(PromiseFlatCString(aMailCharacterSet).get(),
+                              mMailCharacterSet);
 }
 
 NS_IMETHODIMP
