@@ -11,6 +11,7 @@
 const {
   assert_selected_and_displayed,
   be_in_folder,
+  get_about_message,
   get_special_folder,
   select_click_row,
 } = ChromeUtils.import(
@@ -33,6 +34,8 @@ let bobAcct;
 let bobIdentity;
 let initialKeyIdPref = "";
 let gOutbox;
+
+let aboutMessage = get_about_message();
 
 /**
  * Setup a mail account with a private key and import the public key for the
@@ -101,18 +104,18 @@ add_task(async function testSignedMessageComposition() {
   assert_selected_and_displayed(0);
 
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(window.document, "ok"),
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "ok"),
     "message has signed icon"
   );
 
   Assert.equal(
-    window.document.querySelector("#attachmentList").itemChildren.length,
+    aboutMessage.document.querySelector("#attachmentList").itemChildren.length,
     0,
     "no keys attached to message"
   );
 
   Assert.ok(
-    !OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
 
@@ -145,11 +148,11 @@ add_task(async function testSignedMessageWithKeyComposition() {
   assert_selected_and_displayed(0);
 
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(window.document, "ok"),
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "ok"),
     "message has signed icon"
   );
 
-  let attachmentList = window.document.querySelector("#attachmentList");
+  let attachmentList = aboutMessage.document.querySelector("#attachmentList");
 
   Assert.equal(
     attachmentList.itemChildren.length,
@@ -165,7 +168,7 @@ add_task(async function testSignedMessageWithKeyComposition() {
   );
 
   Assert.ok(
-    !OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
 
@@ -199,17 +202,17 @@ add_task(async function testSignedEncryptedMessageComposition() {
   assert_selected_and_displayed(0);
 
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(window.document, "ok"),
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "ok"),
     "message has signed icon"
   );
 
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "message has encrypted icon"
   );
 
   Assert.equal(
-    window.document.querySelector("#attachmentList").itemChildren.length,
+    aboutMessage.document.querySelector("#attachmentList").itemChildren.length,
     0,
     "no keys attached to message"
   );
@@ -243,16 +246,16 @@ add_task(async function testSignedEncryptedMessageWithKeyComposition() {
   assert_selected_and_displayed(0);
 
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(window.document, "ok"),
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "ok"),
     "message has signed icon"
   );
 
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "message has encrypted icon"
   );
 
-  let attachmentList = window.document.querySelector("#attachmentList");
+  let attachmentList = aboutMessage.document.querySelector("#attachmentList");
 
   Assert.equal(
     attachmentList.itemChildren.length,

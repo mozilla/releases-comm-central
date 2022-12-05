@@ -8,7 +8,6 @@
 /* import-globals-from ../../components/customizableui/content/panelUI.js */
 /* import-globals-from ../../components/newmailaccount/content/provisionerCheckout.js */
 /* import-globals-from ../../components/preferences/preferencesTab.js */
-/* import-globals-from ../../extensions/openpgp/content/ui/enigmailMessengerOverlay.js */
 /* import-globals-from commandglue.js */
 /* import-globals-from folderPane.js */
 /* import-globals-from glodaFacetTab.js */
@@ -187,13 +186,6 @@ function verifyOpenAccountHubTab() {
 
 function initOpenPGPIfEnabled() {
   BondOpenPGP.init();
-
-  try {
-    Enigmail.msg.messengerStartup.bind(Enigmail.msg);
-    Enigmail.msg.messengerStartup();
-  } catch (ex) {
-    console.log(ex);
-  }
 }
 
 var gMailInit = {

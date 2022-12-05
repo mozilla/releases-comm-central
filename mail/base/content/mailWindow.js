@@ -29,6 +29,7 @@ XPCOMUtils.defineLazyScriptGetter(
 );
 
 // This file stores variables common to mail windows
+var messenger;
 var statusFeedback;
 var msgWindow;
 

@@ -4,7 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../mailnews/extensions/smime/msgReadSMIMEOverlay.js */
+/* import-globals-from ../../../base/content/aboutMessage.js */
 /* import-globals-from ../../../base/content/msgHdrView.js */
+/* import-globals-from ../../../base/content/msgSecurityPane.js */
 
 var gEncryptedURIService = null;
 var gMyLastEncryptedURI = null;
@@ -142,10 +144,10 @@ var smimeHeaderSink = {
    *         message is displayed in a separate window.
    */
   getSelectedMessageURI() {
-    if (!gFolderDisplay.selectedMessage) {
+    if (!gMessage) {
       return null;
     }
-    if (!gFolderDisplay.selectedMessage.folder) {
+    if (!gFolder) {
       // The folder should be absent only if the message gets opened
       // from an external file (.eml), which is opened in its own window.
       // That window won't get reused for other messages. We conclude
@@ -156,7 +158,7 @@ var smimeHeaderSink = {
       return null;
     }
 
-    return neckoURLForMessageURI(gFolderDisplay.selectedMessageUris[0]);
+    return neckoURLForMessageURI(gMessageURI);
   },
 
   signedStatus(aNestingLevel, aSignatureStatus, aSignerCert, aMsgNeckoURL) {
@@ -267,7 +269,7 @@ var smimeHeaderSink = {
 
     if (gEncryptedURIService) {
       // Remember the message URI and the corresponding necko URI.
-      gMyLastEncryptedURI = gFolderDisplay.selectedMessageUris[0];
+      gMyLastEncryptedURI = gMessageURI;
       gEncryptedURIService.rememberEncrypted(gMyLastEncryptedURI);
       gEncryptedURIService.rememberEncrypted(
         neckoURLForMessageURI(gMyLastEncryptedURI)

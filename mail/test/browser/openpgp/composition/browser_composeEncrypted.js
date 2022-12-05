@@ -11,6 +11,7 @@
 const {
   open_message_from_file,
   be_in_folder,
+  get_about_message,
   get_special_folder,
   select_click_row,
 } = ChromeUtils.import(
@@ -36,6 +37,8 @@ let bobAcct;
 let bobIdentity;
 let gOutbox;
 let gDrafts;
+
+let aboutMessage = get_about_message();
 
 // Used in some of the tests to verify key status display.
 let l10n = new Localization(["messenger/openpgp/composeKeyStatus.ftl"]);
@@ -119,18 +122,18 @@ add_task(async function testEncryptedMessageComposition() {
   select_click_row(0);
 
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "message should have encrypted icon"
   );
 
   Assert.equal(
-    window.document.querySelector("#attachmentList").itemChildren.length,
+    aboutMessage.document.querySelector("#attachmentList").itemChildren.length,
     0,
     "no keys should be attached to message"
   );
 
   Assert.ok(
-    OpenPGPTestUtils.hasNoSignedIconState(window.document),
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "message should have signed icon"
   );
 
@@ -164,11 +167,11 @@ add_task(async function testEncryptedMessageWithKeyComposition() {
   select_click_row(0);
 
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "message should have encrypted icon"
   );
 
-  let attachmentList = window.document.querySelector("#attachmentList");
+  let attachmentList = aboutMessage.document.querySelector("#attachmentList");
 
   await TestUtils.waitForCondition(
     () => attachmentList.itemChildren.length == 1,
@@ -183,7 +186,7 @@ add_task(async function testEncryptedMessageWithKeyComposition() {
   );
 
   Assert.ok(
-    OpenPGPTestUtils.hasNoSignedIconState(window.document),
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "message should have no signed icon"
   );
 
@@ -312,7 +315,7 @@ add_task(
     select_click_row(0);
 
     Assert.ok(
-      OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
+      OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
       "message should have encrypted icon"
     );
 
@@ -444,7 +447,7 @@ add_task(
     select_click_row(0);
 
     await TestUtils.waitForCondition(
-      () => OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
+      () => OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
       "message should have encrypted icon"
     );
 
@@ -475,11 +478,16 @@ add_task(async function testEncryptedMessageReplyIsEncrypted() {
     );
   });
 
-  mc.window.document.querySelector("#hdrReplyButton").click();
+  get_about_message(mc.window)
+    .document.querySelector("#hdrReplyButton")
+    .click();
   close_window(mc);
 
   let replyWindow = await replyWindowPromise;
-  await BrowserTestUtils.waitForEvent(replyWindow, "focus", true);
+  await Promise.all([
+    BrowserTestUtils.waitForEvent(replyWindow, "focus", true),
+    BrowserTestUtils.waitForEvent(replyWindow, "compose-editor-ready", true),
+  ]);
   replyWindow.document.querySelector("#button-save").click();
 
   await TestUtils.waitForCondition(
@@ -488,15 +496,11 @@ add_task(async function testEncryptedMessageReplyIsEncrypted() {
   );
   replyWindow.close();
 
-  if (Services.focus.activeWindow != window) {
-    await BrowserTestUtils.waitForEvent(window, "focus");
-  }
-
   await be_in_folder(gDrafts);
   select_click_row(0);
 
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon should be displayed"
   );
 });

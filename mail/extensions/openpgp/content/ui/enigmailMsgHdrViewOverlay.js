@@ -1,18 +1,12 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
-// aboutMessage.js
-/* global gFolderDisplay */
-/* global setMessageEncryptionStateButton */
-/* global currentAttachments: false */
-/* global gDBView: false, msgWindow: false, messageHeaderSink: false, gMessageListeners: false */
-/* global gExpandedHeaderView: false, CanDetachAttachments: true, gEncryptedURIService: false, FillAttachmentListPopup: false */
-/* global attachmentList: false, currentHeaderData: false */
+/* import-globals-from ../../../../base/content/aboutMessage.js */
+/* import-globals-from ../../../../base/content/msgHdrView.js */
+/* import-globals-from ../../../smime/content/msgHdrViewSMIMEOverlay.js */
 
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
@@ -35,10 +29,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
   // EnigmailWks: "chrome://openpgp/content/modules/webKey.jsm",
 });
-
-if (!Enigmail) {
-  var Enigmail = {};
-}
 
 Enigmail.hdrView = {
   lastEncryptedMsgKey: null,
@@ -79,6 +69,7 @@ Enigmail.hdrView = {
     if (!this.alreadyWrappedCDA) {
       this.alreadyWrappedCDA = true;
       this.origCanDetachAttachments = CanDetachAttachments;
+      // eslint-disable-next-line no-global-assign
       CanDetachAttachments = function() {
         return (
           Enigmail.hdrView.origCanDetachAttachments() &&
@@ -187,11 +178,8 @@ Enigmail.hdrView = {
     }
     */
 
-    if (
-      gFolderDisplay.selectedMessageUris &&
-      gFolderDisplay.selectedMessageUris.length > 0
-    ) {
-      this.lastEncryptedMsgKey = gFolderDisplay.selectedMessageUris[0];
+    if (gMessageURI) {
+      this.lastEncryptedMsgKey = gMessageURI;
     }
 
     if (!errorMsg) {
@@ -201,11 +189,8 @@ Enigmail.hdrView = {
     }
 
     var replaceUid = null;
-    if (keyId && gFolderDisplay.selectedMessage) {
-      replaceUid = EnigmailMsgRead.matchUidToSender(
-        keyId,
-        gFolderDisplay.selectedMessage.author
-      );
+    if (keyId && gMessage) {
+      replaceUid = EnigmailMsgRead.matchUidToSender(keyId, gMessage.author);
     }
 
     if (!replaceUid && userId) {
@@ -598,8 +583,9 @@ Enigmail.hdrView = {
 
         try {
           EnigmailVerify.setWindow(null, null);
-          Enigmail.hdrView.statusBarHide();
         } catch (ex) {}
+
+        Enigmail.hdrView.messageLoad();
       },
 
       beforeStartHeaders() {
@@ -735,7 +721,7 @@ Enigmail.hdrView = {
 
   updateMsgDb() {
     EnigmailLog.DEBUG("enigmailMsgHdrViewOverlay.js: this.updateMsgDb\n");
-    var msg = gFolderDisplay.selectedMessage;
+    var msg = gMessage;
     if (!msg || !msg.folder) {
       return;
     }
@@ -794,10 +780,7 @@ Enigmail.hdrView = {
   },
 
   setSubject(subject) {
-    if (
-      gFolderDisplay.selectedMessages.length === 1 &&
-      gFolderDisplay.selectedMessage
-    ) {
+    if (gMessage) {
       // Strip multiple localised Re: prefixes. This emulates NS_MsgStripRE().
       let newSubject = subject;
       let prefixes = Services.prefs.getStringPref("mailnews.localizedRe", "Re");
@@ -813,21 +796,14 @@ Enigmail.hdrView = {
       // Update the header pane.
       this.updateHdrBox("subject", hadRe ? "Re: " + newSubject : newSubject);
 
-      // Update the thread pane.
-      let tree = gFolderDisplay.tree;
-      let msgHdr = gFolderDisplay.selectedMessage;
+      // Update the message.
+      let msgHdr = gMessage;
       msgHdr.subject = EnigmailData.convertFromUnicode(newSubject, "utf-8");
 
-      // Set the corred HasRe flag and refresh the row.
       let oldFlags = msgHdr.flags;
       if (hadRe && !(oldFlags & Ci.nsMsgMessageFlags.HasRe)) {
         let newFlags = oldFlags | Ci.nsMsgMessageFlags.HasRe;
         msgHdr.flags = newFlags;
-        if (tree && tree.view) {
-          tree.view.db.notifyHdrChangeAll(msgHdr, oldFlags, newFlags, {});
-        }
-      } else if (tree && tree.view && tree.view.selection) {
-        tree.invalidateRow(tree.view.selection.currentIndex);
       }
     }
   },
@@ -861,45 +837,7 @@ Enigmail.hdrView = {
           "\n"
       );
 
-      if (!uriSpec) {
-        // We cannot compare if no URI, => assume it's the current message.
-        return true;
-      }
-
-      let msgUriSpec = Enigmail.msg.getCurrentMsgUriSpec();
-      let currUrl = EnigmailFuncs.getUrlFromUriSpec(msgUriSpec);
-      if (!currUrl) {
-        return false;
-      }
-
-      let currMsgId = EnigmailURIs.msgIdentificationFromUrl(currUrl);
-      let gotMsgId = EnigmailURIs.msgIdentificationFromUrl(uri);
-
-      if (!gotMsgId) {
-        return false;
-      }
-
-      EnigmailLog.DEBUG(
-        "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.isCurrentMessage: url=" +
-          currUrl.spec +
-          "\n"
-      );
-
-      if (
-        uri.host == currUrl.host &&
-        currMsgId.folder === gotMsgId.folder &&
-        currMsgId.msgNum === gotMsgId.msgNum
-      ) {
-        EnigmailLog.DEBUG(
-          "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.isCurrentMessage: true\n"
-        );
-        return true;
-      }
-
-      EnigmailLog.DEBUG(
-        "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.isCurrentMessage: false\n"
-      );
-      return false;
+      return true;
     },
 
     /**
@@ -1045,8 +983,7 @@ Enigmail.hdrView = {
         if (statusFlags & EnigmailConstants.DECRYPTION_OKAY) {
           if (gEncryptedURIService) {
             // remember encrypted message URI to enable TB prevention against EFAIL attack
-            Enigmail.hdrView.lastEncryptedUri =
-              gFolderDisplay.selectedMessageUris[0];
+            Enigmail.hdrView.lastEncryptedUri = gMessageURI;
             gEncryptedURIService.rememberEncrypted(
               Enigmail.hdrView.lastEncryptedUri
             );
@@ -1104,14 +1041,11 @@ Enigmail.hdrView = {
           "\n"
       );
 
-      let msg = gFolderDisplay.selectedMessage;
+      let msg = gMessage;
       if (!msg) {
         return;
       }
-      if (
-        !this.isCurrentMessage(uri) ||
-        gFolderDisplay.selectedMessages.length !== 1
-      ) {
+      if (!this.isCurrentMessage(uri)) {
         return;
       }
 
@@ -1150,7 +1084,7 @@ Enigmail.hdrView = {
         return;
       }
 
-      let msg = gFolderDisplay.selectedMessage;
+      let msg = gMessage;
 
       if ("subject" in hdr) {
         Enigmail.hdrView.setSubject(hdr.subject);

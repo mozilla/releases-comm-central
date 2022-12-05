@@ -1,24 +1,15 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
-// TODO: Fix undefined things in this file.
-/* eslint-disable no-undef */
+/* import-globals-from ../../../../base/content/aboutMessage.js */
+/* import-globals-from ../../../../base/content/msgHdrView.js */
+/* import-globals-from ../../../../base/content/msgSecurityPane.js */
 
 // TODO: check if this is safe
 /* eslint-disable no-unsanitized/property */
-
-/* Globals from Thunderbird: */
-/* global ReloadMessage: false, gDBView: false, gSignatureStatus: false, gEncryptionStatus: false, showMessageReadSecurityInfo: false */
-/* global messenger: false, currentAttachments: false, msgWindow: false, PanelUI: false */
-/* global currentHeaderData: false, gViewAllHeaders: false, gExpandedHeaderList: false, goDoCommand: false, HandleSelectedAttachments: false */
-/* global statusFeedback: false, displayAttachmentsForExpandedView: false, gExpandedHeaderView */
-/* global gSigKeyId:true, gEncKeyId:true */
-/* globals gMessageNotificationBar */
 
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
@@ -67,10 +58,7 @@ XPCOMUtils.defineLazyGetter(this, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 
-var Enigmail;
-if (!Enigmail) {
-  Enigmail = {};
-}
+var Enigmail = {};
 
 Enigmail.getEnigmailSvc = function() {
   return EnigmailCore.getService(window);
@@ -264,19 +252,7 @@ Enigmail.msg = {
   },
 
   getCurrentMsgUriSpec() {
-    try {
-      // Thunderbird
-      if (gFolderDisplay.selectedMessages.length != 1) {
-        return "";
-      }
-
-      var uriSpec = gFolderDisplay.selectedMessageUris[0];
-      //EnigmailLog.DEBUG("enigmailMessengerOverlay.js: getCurrentMsgUriSpec: uriSpec="+uriSpec+"\n");
-
-      return uriSpec;
-    } catch (ex) {
-      return "";
-    }
+    return gMessageURI || "";
   },
 
   getCurrentMsgUrl() {
@@ -344,40 +320,6 @@ Enigmail.msg = {
         menu.setAttribute("label", lbl);
       }
     }
-  },
-
-  prepareAppMenu() {
-    let menu = document.querySelector("#appMenu-mainView > vbox");
-    if (!menu) {
-      return;
-    }
-
-    // don't try to add Enigmail menu more than once
-    if (document.getElementById("appmenu-Enigmail")) {
-      return;
-    }
-
-    let tsk = document.getElementById("appmenu_toolsMenu");
-    let e = document.createXULElement("toolbarbutton");
-    e.setAttribute("label", "xxEnigmail");
-    e.id = "appmenu-Enigmail";
-    e.setAttribute(
-      "class",
-      "subviewbutton subviewbutton-nav subviewbutton-iconic"
-    );
-    e.setAttribute("closemenu", "none");
-    e.setAttribute(
-      "oncommand",
-      "Enigmail.msg.displayAppmenu('appMenu-enigmailView', this)"
-    );
-    e.setAttribute("overlay_source", "enigmail");
-    menu.insertBefore(e, tsk);
-  },
-
-  displayAppmenu(targetId, targetObj) {
-    let menuElem = document.getElementById("appmenu_enigmailMenuPlaceholder");
-    this.displayMainMenu(menuElem);
-    PanelUI.showSubView(targetId, targetObj);
   },
 
   displayMainMenu(menuPopup) {
@@ -862,7 +804,7 @@ Enigmail.msg = {
     );
 
     // Warn that we can't fix a message that was opened from a local file.
-    if (!gFolderDisplay.selectedMessage.folder) {
+    if (!gFolder) {
       Enigmail.msg.notificationBox.appendNotification(
         "brokenExchange",
         {
@@ -1708,7 +1650,7 @@ Enigmail.msg = {
       "subject" in currentHeaderData &&
       currentHeaderData.subject.headerValue === "pEp"
     ) {
-      if (gFolderDisplay.selectedMessage) {
+      if (gMessage) {
         let m = EnigmailMime.extractSubjectFromBody(bodyElement.textContent);
         if (m) {
           let node = bodyElement.firstChild;
@@ -1756,7 +1698,7 @@ Enigmail.msg = {
       null
     );
 
-    let msg = gFolderDisplay.messageDisplay.displayedMessage;
+    let msg = gMessage;
     EnigmailFixExchangeMsg.fixExchangeMessage(msg, this.buggyMailType)
       .then(msgKey => {
         // Display the new message which now has the key msgKey.
@@ -1765,7 +1707,9 @@ Enigmail.msg = {
             msgKey +
             "\n"
         );
-        gFolderDisplay.view.dbView.selectMsgByKey(msgKey);
+        // TODO: scope is about:message, and this doesn't work
+        // parent.gDBView.selectMsgByKey(msgKey);
+        // ReloadMessage();
       })
       .catch(async function(ex) {
         console.debug(ex);
@@ -1858,7 +1802,7 @@ Enigmail.msg = {
 
       if (includeHeaders) {
         try {
-          var msg = gFolderDisplay.selectedMessage;
+          var msg = gMessage;
           if (msg) {
             let msgHdr = {
               From: msg.author,
@@ -1871,10 +1815,11 @@ Enigmail.msg = {
               }).format(new Date(msg.dateInSeconds * 1000)),
             };
 
-            if (gFolderDisplay.selectedMessageIsNews) {
-              if (currentHeaderData.newsgroups) {
-                msgHdr.Newsgroups = currentHeaderData.newsgroups.headerValue;
-              }
+            if (
+              msg?.folder?.flags & Ci.nsMsgFolderFlags.Newsgroup &&
+              currentHeaderData.newsgroups
+            ) {
+              msgHdr.Newsgroups = currentHeaderData.newsgroups.headerValue;
             }
 
             for (let headerName in msgHdr) {
@@ -2105,7 +2050,7 @@ Enigmail.msg = {
     msgSvc.streamMessage(
       msgUriSpec,
       streamListener,
-      msgWindow,
+      top.msgWindow,
       null,
       false,
       null,
@@ -2574,7 +2519,7 @@ Enigmail.msg = {
   },
 
   loadExternalURL(url) {
-    messenger.launchExternalURL(url);
+    top.messenger.launchExternalURL(url);
   },
 
   // retrieves the most recent navigator window (opens one if need be)
@@ -2647,13 +2592,12 @@ Enigmail.msg = {
   // decrypted and copy/move all selected messages in a target folder
 
   async decryptToFolder(destFolder, move) {
-    let msgHdrs = gFolderDisplay ? gFolderDisplay.selectedMessages : null;
+    let msgHdrs = gDBView.getSelectedMsgHdrs();
     if (!msgHdrs || msgHdrs.length === 0) {
       return;
     }
 
-    let total = gFolderDisplay.selectedMessages.length;
-
+    let total = msgHdrs.length;
     let failures = 0;
     for (let msgHdr of msgHdrs) {
       await EnigmailPersistentCrypto.cryptMessage(
@@ -2718,6 +2662,7 @@ Enigmail.msg = {
       Enigmail.hdrView.onUnloadEnigmail();
     }
 
+    // eslint-disable-next-line no-global-assign
     Enigmail = undefined;
   },
 
@@ -2778,7 +2723,7 @@ Enigmail.msg = {
           let existing = await db.findKeyForFingerprint(newKey.fpr);
           if (existing) {
             let key = await db.mergeExisting(newKey, newKey.pubKey, {
-              uri: `mid:${gMessageDisplay.displayedMessage.messageId}`,
+              uri: `mid:${gMessage.messageId}`,
               type: isBinaryAutocrypt ? "autocrypt" : "attachment",
               description,
             });
@@ -2878,7 +2823,7 @@ Enigmail.msg = {
               ? RNP.enArmorString(newKey.pubKey, "public key")
               : newKey.pubKey;
             candidate.source = {
-              uri: `mid:${gMessageDisplay.displayedMessage.messageId}`,
+              uri: `mid:${gMessage.messageId}`,
               type: isBinaryAutocrypt ? "autocrypt" : "attachment",
               description,
             };
@@ -3063,21 +3008,19 @@ Enigmail.msg = {
     this.toAndCCSet = new Set();
 
     // This message may have already disappeared.
-    if (!gMessageDisplay.displayedMessage) {
+    if (!gMessage) {
       return;
     }
 
     let addresses = MailServices.headerParser.parseEncodedHeader(
-      gMessageDisplay.displayedMessage.author
+      gMessage.author
     );
     if (addresses.length) {
       this.authorEmail = addresses[0].email.toLowerCase();
     }
 
     addresses = MailServices.headerParser.parseEncodedHeader(
-      gMessageDisplay.displayedMessage.recipients +
-        "," +
-        gMessageDisplay.displayedMessage.ccList
+      gMessage.recipients + "," + gMessage.ccList
     );
     for (let addr of addresses) {
       this.toAndCCSet.add(addr.email.toLowerCase());

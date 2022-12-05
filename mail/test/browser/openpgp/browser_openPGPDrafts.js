@@ -10,6 +10,7 @@ const { save_compose_message } = ChromeUtils.import(
 const {
   open_message_from_file,
   be_in_folder,
+  get_about_message,
   get_special_folder,
   select_click_row,
   open_selected_message,
@@ -126,7 +127,9 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
     );
 
     let replyWindowPromise = waitForComposeWindow();
-    mc.window.document.querySelector("#hdrReplyButton").click();
+    get_about_message(mc.window)
+      .document.querySelector("#hdrReplyButton")
+      .click();
     close_window(mc);
 
     let replyWindow = await replyWindowPromise;
@@ -157,4 +160,5 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
 registerCleanupFunction(function tearDown() {
   aliceIdentity.setUnicharAttribute("openpgp_key_id", initialKeyIdPref);
   MailServices.accounts.removeIncomingServer(aliceAcct.incomingServer, true);
+  MailServices.accounts.removeAccount(aliceAcct);
 });

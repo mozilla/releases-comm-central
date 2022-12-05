@@ -211,7 +211,13 @@ NS_IMETHODIMP nsMsgFileHdr::GetBccList(char** aBccList) { return NS_OK; }
 
 NS_IMETHODIMP nsMsgFileHdr::SetBccList(const char* aBccList) { return NS_OK; }
 
-NS_IMETHODIMP nsMsgFileHdr::GetAuthor(char** aAuthor) { return NS_OK; }
+NS_IMETHODIMP nsMsgFileHdr::GetAuthor(char** aAuthor) {
+  nsresult rv = ReadFile();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  *aAuthor = strdup(mAuthor.get());
+  return NS_OK;
+}
 
 NS_IMETHODIMP nsMsgFileHdr::SetAuthor(const char* aAuthor) { return NS_OK; }
 

@@ -8,7 +8,7 @@
 
 "use strict";
 
-const { open_message_from_file } = ChromeUtils.import(
+const { get_about_message, open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 const { close_window } = ChromeUtils.import(
@@ -37,7 +37,7 @@ const { MailServices } = ChromeUtils.import(
 const MSG_TEXT = "Sundays are nothing without callaloo.";
 
 function getMsgBodyTxt(mc) {
-  let msgPane = mc.window.document.getElementById("messagepane");
+  let msgPane = get_about_message(mc.window).content;
   return msgPane.contentDocument.documentElement.textContent;
 }
 
@@ -147,12 +147,17 @@ add_task(async function testPartialInlinePGPDecrypt() {
     let mc = await open_message_from_file(
       new FileUtils.File(getTestFilePath("data/eml/" + test.filename))
     );
+    let aboutMessage = get_about_message(mc.window);
 
     let notificationBox = "mail-notification-top";
     let notificationValue = "decryptInlinePG";
 
     // Ensure the "partially encrypted notification" is visible.
-    wait_for_notification_to_show(mc, notificationBox, notificationValue);
+    wait_for_notification_to_show(
+      aboutMessage,
+      notificationBox,
+      notificationValue
+    );
 
     let body = getMsgBodyTxt(mc);
 
@@ -166,19 +171,19 @@ add_task(async function testPartialInlinePGPDecrypt() {
 
     // Click on the button to process the message subset.
     let processButton = get_notification_button(
-      mc,
+      aboutMessage,
       notificationBox,
       notificationValue,
       {
         popup: null,
       }
     );
-    EventUtils.synthesizeMouseAtCenter(processButton, {}, mc.window);
+    EventUtils.synthesizeMouseAtCenter(processButton, {}, aboutMessage);
 
     // Assert that the message was processed and the partial content reminder
     // notification is visible.
     wait_for_notification_to_show(
-      mc,
+      aboutMessage,
       notificationBox,
       "decryptInlinePGReminder"
     );
@@ -196,7 +201,7 @@ add_task(async function testPartialInlinePGPDecrypt() {
       if (test.expectSuccess) {
         Assert.ok(containsSecret, "secret decrypted content should be shown");
         Assert.ok(
-          OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+          OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
           "decryption success icon is shown"
         );
       } else {
@@ -205,19 +210,25 @@ add_task(async function testPartialInlinePGPDecrypt() {
           "secret decrypted content should not be shown"
         );
         Assert.ok(
-          OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "notok"),
+          OpenPGPTestUtils.hasEncryptedIconState(
+            aboutMessage.document,
+            "notok"
+          ),
           "decryption failure icon is shown"
         );
       }
     } else if (test.expectVerification) {
       if (test.expectSuccess) {
         Assert.ok(
-          OpenPGPTestUtils.hasSignedIconState(mc.window.document, "verified"),
+          OpenPGPTestUtils.hasSignedIconState(
+            aboutMessage.document,
+            "verified"
+          ),
           "ok verification icon is shown for " + test.filename
         );
       } else {
         Assert.ok(
-          OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unknown"),
+          OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
           "unknown verification icon is shown"
         );
       }

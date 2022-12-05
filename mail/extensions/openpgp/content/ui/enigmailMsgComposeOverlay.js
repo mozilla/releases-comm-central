@@ -77,9 +77,7 @@ var l10nOpenPGP = new Localization(["messenger/openpgp/openpgp.ftl"]);
 // const kEncryptionPolicy_IfPossible = 1;
 var kEncryptionPolicy_Always = 2;
 
-if (!Enigmail) {
-  var Enigmail = {};
-}
+var Enigmail = {};
 
 const IOSERVICE_CONTRACTID = "@mozilla.org/network/io-service;1";
 const LOCAL_FILE_CONTRACTID = "@mozilla.org/file/local;1";

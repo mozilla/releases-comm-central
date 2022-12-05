@@ -10,6 +10,8 @@
 
 const {
   be_in_folder,
+  get_about_3pane,
+  get_about_message,
   get_special_folder,
   mc,
   select_click_row,
@@ -38,7 +40,7 @@ var { AppConstants } = ChromeUtils.importESModule(
 const MSG_TEXT = "Sundays are nothing without callaloo.";
 
 function getMsgBodyTxt(mc) {
-  let msgPane = mc.window.document.getElementById("messagepane");
+  let msgPane = get_about_message(mc.window).content;
   return msgPane.contentDocument.documentElement.textContent;
 }
 
@@ -119,20 +121,22 @@ add_task(async function testPermanentDecrypt() {
   // Select the first row.
   select_click_row(0);
 
+  let aboutMessage = get_about_message();
   Assert.equal(
-    mc.window.document.getElementById("encryptionTechBtn").querySelector("span")
-      .textContent,
+    aboutMessage.document
+      .getElementById("encryptionTechBtn")
+      .querySelector("span").textContent,
     "OpenPGP"
   );
 
   Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
 
   // Get header of selected message
-  let hdr = window.gFolderDisplay.selectedMessages[0];
+  let hdr = get_about_3pane().gDBView.hdrForFirstSelectedMessage;
 
   await EnigmailPersistentCrypto.cryptMessage(hdr, gDecFolder.URI, false, null);
 
@@ -143,18 +147,15 @@ add_task(async function testPermanentDecrypt() {
   select_click_row(0);
   Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
-    !OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon NOT displayed"
   );
 });
 
-registerCleanupFunction(function tearDown() {
+registerCleanupFunction(function() {
   // Reset the OpenPGP key and delete the account.
   aliceIdentity.setUnicharAttribute("openpgp_key_id", initialKeyIdPref);
   MailServices.accounts.removeIncomingServer(aliceAcct.incomingServer, true);
   MailServices.accounts.removeAccount(aliceAcct);
   aliceAcct = null;
-
-  // Work around this test timing out at completion because of focus weirdness.
-  window.gFolderDisplay.tree.focus();
 });
