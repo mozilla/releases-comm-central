@@ -28,7 +28,6 @@ class UnifiedToolbarCustomization extends HTMLElement {
     }
     this.hasConnected = true;
 
-    document.l10n.addResourceIds(["messenger/unifiedToolbarItems.ftl"]);
     const template = document
       .getElementById("unifiedToolbarCustomizationTemplate")
       .content.cloneNode(true);

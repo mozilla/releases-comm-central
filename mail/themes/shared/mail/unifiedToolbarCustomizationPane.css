@@ -32,6 +32,8 @@
   height: 2em;
   align-items: center;
   justify-content: start;
+  overflow: hidden;
+  flex-wrap: nowrap;
 }
 
 /* TODO factor out stuff shared with real toolbar? */

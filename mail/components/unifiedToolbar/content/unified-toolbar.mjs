@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Temporary, should be dynamically loaded based on customiozation state.
-import "./search-bar.mjs"; // eslint-disable-line import/no-unassigned-import
+import { getDefaultItemIdsForSpace } from "resource:///modules/CustomizableItems.mjs";
+import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned-import
 
 /**
  * Unified toolbar container custom element. Used to contain the state
@@ -12,6 +12,13 @@ import "./search-bar.mjs"; // eslint-disable-line import/no-unassigned-import
  * document.
  */
 class UnifiedToolbar extends HTMLElement {
+  /**
+   * List containing the customizable content of the unified toolbar.
+   *
+   * @type {?HTMLUListElement}
+   */
+  #toolbarContent = null;
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -23,6 +30,8 @@ class UnifiedToolbar extends HTMLElement {
       .getElementById("unifiedToolbarTemplate")
       .content.cloneNode(true);
 
+    // TODO Don't show context menu when there is a native one, like for example
+    // in a search field.
     template
       .querySelector("#unifiedToolbarContainer")
       .addEventListener("contextmenu", event => {
@@ -30,6 +39,8 @@ class UnifiedToolbar extends HTMLElement {
           .getElementById("unifiedToolbarMenu")
           .openPopupAtScreen(event.screenX, event.screenY, true);
       });
+    this.#toolbarContent = template.querySelector("#unifiedToolbarContent");
+    this.initialize();
 
     this.append(template);
 
@@ -57,6 +68,22 @@ class UnifiedToolbar extends HTMLElement {
       "unified-toolbar-customization"
     );
     document.body.appendChild(customization);
+  }
+
+  /**
+   * Initialize the unified toolbar contents.
+   */
+  initialize() {
+    const defaultItems = getDefaultItemIdsForSpace();
+    this.#toolbarContent.replaceChildren(
+      ...defaultItems.map(itemId => {
+        const element = document.createElement("li", {
+          is: "customizable-element",
+        });
+        element.setAttribute("item-id", itemId);
+        return element;
+      })
+    );
   }
 }
 customElements.define("unified-toolbar", UnifiedToolbar);

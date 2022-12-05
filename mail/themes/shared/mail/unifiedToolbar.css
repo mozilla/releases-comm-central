@@ -29,17 +29,32 @@
   flex: 1 1 auto;
   display: flex;
   justify-content: start;
+  align-items: center;
+  list-style-type: none;
+  overflow: hidden;
+  flex-wrap: nowrap;
+  margin: 0;
+  padding: 0;
 }
 
-.spacer {
+#unifiedToolbarContent li {
+  padding: 0;
+  margin: 0;
+}
+
+#unifiedToolbarContent [is="customizable-element"] .preview {
+  display: none;
+}
+
+#unifiedToolbarContent .spacer {
   flex: 1 1 auto;
 }
 
-.search-bar {
+#unifiedToolbarContent .search-bar {
   flex: 1 0 33%;
 }
 
-.search-button-icon {
+#unifiedToolbarContent .search-button-icon {
   content: var(--icon-search);
 }
 
