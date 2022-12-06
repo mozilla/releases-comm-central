@@ -43,8 +43,18 @@ class CustomizationTarget extends ListBoxSelection {
    * state is passed in via the current-items attribute.
    */
   initialize() {
-    const hadChildren = this.children.length > 0;
     const itemIds = this.getAttribute("current-items").split(",");
+    this.setItems(itemIds);
+  }
+
+  /**
+   * Update the items in the target from an array of item IDs.
+   *
+   * @param {string[]} itemIds - ordered array of IDs of the items currently in
+   *   the target
+   */
+  setItems(itemIds) {
+    const childCount = this.children.length;
     this.replaceChildren(
       ...itemIds.map(itemId => {
         const element = document.createElement("li", {
@@ -54,7 +64,7 @@ class CustomizationTarget extends ListBoxSelection {
         return element;
       })
     );
-    if (hadChildren) {
+    if (childCount) {
       this.#onChange();
     }
   }

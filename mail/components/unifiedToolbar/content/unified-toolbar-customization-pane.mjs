@@ -11,6 +11,7 @@ import { getDefaultItemIdsForSpace } from "resource:///modules/CustomizableItems
  * Template ID: unifiedToolbarCustomizationPaneTemplate
  * Attributes:
  * - space: Identifier of the space this pane is for. Changes are not observed.
+ * - current-items: Currently used items in this space.
  */
 class UnifiedToolbarCustomizationPane extends HTMLElement {
   /**
@@ -105,7 +106,9 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
   initialize(deep = false) {
     const space = this.getAttribute("space");
     this.#defaultItemIds = getDefaultItemIdsForSpace(space);
-    const currentItems = this.#defaultItemIds.join(",");
+    const currentItems = this.hasAttribute("current-items")
+      ? this.getAttribute("current-items")
+      : this.#defaultItemIds.join(",");
     this.#toolbarTarget.setAttribute("current-items", currentItems);
     this.#spaceSpecificPalette.setAttribute("items-in-use", currentItems);
     this.#genericPalette.setAttribute("items-in-use", currentItems);
@@ -121,7 +124,9 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
    * Reset the items in the targets to the defaults.
    */
   reset() {
-    this.initialize(true);
+    this.#toolbarTarget.setItems(this.#defaultItemIds);
+    this.#spaceSpecificPalette.setItems(this.#defaultItemIds);
+    this.#genericPalette.setItems(this.#defaultItemIds);
   }
 
   /**

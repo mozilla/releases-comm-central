@@ -4,7 +4,10 @@
 
 /* import-globals-from ../../../base/content/spacesToolbar.js */
 
-import { storeState } from "resource:///modules/CustomizationState.mjs";
+import {
+  storeState,
+  getState,
+} from "resource:///modules/CustomizationState.mjs";
 import "./unified-toolbar-tab.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./unified-toolbar-customization-pane.mjs"; // eslint-disable-line import/no-unassigned-import
 
@@ -161,6 +164,7 @@ class UnifiedToolbarCustomization extends HTMLElement {
    *   panes.
    */
   initialize(deep = false) {
+    const state = getState();
     const existingTabs = Array.from(this.#tabList.children);
     const tabSpaces = existingTabs.map(tab => tab.id.split("-").pop());
     const spaceNames = new Set(gSpacesToolbar.spaces.map(space => space.name));
@@ -183,6 +187,10 @@ class UnifiedToolbarCustomization extends HTMLElement {
     let previousNode = this.#tabList;
     for (const [, tabPane] of newTabs) {
       previousNode.after(tabPane);
+      const space = tabPane.getAttribute("space");
+      if (state.hasOwnProperty(space)) {
+        tabPane.setAttribute("current-items", state[space].join(","));
+      }
       previousNode = tabPane;
       if (deep) {
         tabPane.initialize(deep);

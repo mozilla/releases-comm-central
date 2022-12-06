@@ -34,11 +34,23 @@ class CustomizationPalette extends ListBoxSelection {
    * relevant state is defined by the space and items-in-use attributes.
    */
   initialize() {
+    const itemIds = this.getAttribute("items-in-use").split(",");
+    this.setItems(itemIds);
+  }
+
+  /**
+   * Update the items currently removed from the palette with an array of item
+   * IDs.
+   *
+   * @param {string[]} itemIds - Array of item IDs currently being used in a
+   *   target.
+   */
+  setItems(itemIds) {
     let space = this.getAttribute("space");
     if (space === "all") {
       space = undefined;
     }
-    const itemsInUse = new Set(this.getAttribute("items-in-use").split(","));
+    const itemsInUse = new Set(itemIds);
     const items = getAvailableItemIdsForSpace(space).filter(
       itemId => !itemsInUse.has(itemId) || MULTIPLE_ALLOWED_ITEM_IDS.has(itemId)
     );
