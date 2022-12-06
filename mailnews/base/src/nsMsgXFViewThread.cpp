@@ -235,7 +235,7 @@ nsresult nsMsgXFViewThread::AddHdr(nsIMsgDBHdr* newHdr, bool reparentChildren,
   //  if (numChildren > 0 && !(newHdrFlags & nsMsgMessageFlags::HasRe)) {
   //    PRTime topLevelHdrDate;
   //    nsCOMPtr<nsIMsgDBHdr> topLevelHdr;
-  //    rv = GetRootHdr(nullptr, getter_AddRefs(topLevelHdr));
+  //    rv = GetRootHdr(getter_AddRefs(topLevelHdr));
   //    if (NS_SUCCEEDED(rv) && topLevelHdr) {
   //      topLevelHdr->GetDate(&topLevelHdrDate);
   //      if (newHdrDate < topLevelHdrDate) ?? and now ??
@@ -304,10 +304,8 @@ nsMsgXFViewThread::RemoveChildHdr(nsIMsgDBHdr* child,
 }
 
 NS_IMETHODIMP
-nsMsgXFViewThread::GetRootHdr(int32_t* aResultIndex, nsIMsgDBHdr** aResult) {
+nsMsgXFViewThread::GetRootHdr(nsIMsgDBHdr** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
-  if (aResultIndex) *aResultIndex = 0;
-
   return GetChildHdrAt(0, aResult);
 }
 

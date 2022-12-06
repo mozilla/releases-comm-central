@@ -395,8 +395,7 @@ nsresult nsMsgQuickSearchDBView::GetFirstMessageHdrToDisplayInThread(
   threadHdr->GetNumChildren(&numChildren);
   nsMsgKey threadRootKey;
   nsCOMPtr<nsIMsgDBHdr> rootParent;
-  int32_t rootIndex;
-  threadHdr->GetRootHdr(&rootIndex, getter_AddRefs(rootParent));
+  threadHdr->GetRootHdr(getter_AddRefs(rootParent));
   if (rootParent)
     rootParent->GetMessageKey(&threadRootKey);
   else
@@ -682,8 +681,7 @@ nsresult nsMsgQuickSearchDBView::ListIdsInThreadOrder(nsIMsgThread* threadHdr,
     nsCOMPtr<nsIMsgDBHdr> root;
     nsCOMPtr<nsIMsgDBHdr> rootParent;
     nsMsgKey rootKey;
-    int32_t rootIndex;
-    threadHdr->GetRootHdr(&rootIndex, getter_AddRefs(rootParent));
+    threadHdr->GetRootHdr(getter_AddRefs(rootParent));
     if (rootParent) {
       rootParent->GetMessageKey(&rootKey);
       if (rootKey != parentKey)

@@ -39,7 +39,6 @@ XPIDL_SOURCES += [
     "nsIMsgHdr.idl",
     "nsIMsgIdentity.idl",
     "nsIMsgIncomingServer.idl",
-    "nsIMsgKeyArray.idl",
     "nsIMsgMailNewsUrl.idl",
     "nsIMsgMailSession.idl",
     "nsIMsgMdnGenerator.idl",

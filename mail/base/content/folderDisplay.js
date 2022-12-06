@@ -2444,9 +2444,7 @@ FolderDisplayWidget.prototype = {
     let dbView = this.view.dbView;
     for (let index of selectedIndices) {
       let thread = dbView.getThreadContainingIndex(index);
-      // We use getChildHdrAt instead of getRootHdr because getRootHdr has
-      //  a useless out-param and just calls getChildHdrAt anyways.
-      newSelectedMessages.push(thread.getChildHdrAt(0));
+      newSelectedMessages.push(thread.getRootHdr());
     }
     this.selectMessages(newSelectedMessages);
   },

@@ -230,9 +230,8 @@ class ImapClient {
       this._actionNoop();
       return;
     }
-    this.folder = folder;
     this._actionAfterSelectFolder = this._actionUidFetch;
-    this._nextAction = this._actionSelectResponse;
+    this._nextAction = this._actionSelectResponse(folder);
     this._sendTagged(`SELECT "${this._getServerFolderName(folder)}"`);
   }
 
@@ -420,18 +419,10 @@ class ImapClient {
       this._actionDone();
       return;
     }
-    let fetchUid = () => {
+    this._actionInFolder(folder, () => {
       this._nextAction = this._actionUidFetchBodyResponse;
       this._sendTagged(`UID FETCH ${uid} (UID RFC822.SIZE FLAGS BODY.PEEK[])`);
-    };
-    if (this.folder != folder) {
-      this.folder = folder;
-      this._actionAfterSelectFolder = fetchUid;
-      this._nextAction = this._actionSelectResponse;
-      this._sendTagged(`SELECT "${this._getServerFolderName(folder)}"`);
-    } else {
-      fetchUid();
-    }
+    });
   }
 
   /**
@@ -445,23 +436,12 @@ class ImapClient {
    */
   updateMesageFlags(action, folder, urlListener, messageIds, flags) {
     this._urlListener = urlListener;
-    let getCommand = () => {
+    this._actionInFolder(folder, () => {
+      this._nextAction = this._actionDone;
       // _supportedFlags is available after _actionSelectResponse.
       let flagsStr = ImapUtils.flagsToString(flags, this._supportedFlags);
-      return `UID STORE ${messageIds} ${action}FLAGS (${flagsStr})`;
-    };
-    if (this.folder == folder) {
-      this._nextAction = () => this._actionDone();
-      this._sendTagged(getCommand());
-    } else {
-      this.folder = folder;
-      this._actionAfterSelectFolder = () => {
-        this._nextAction = () => this._actionDone();
-        this._sendTagged(getCommand());
-      };
-      this._nextAction = this._actionSelectResponse;
-      this._sendTagged(`SELECT "${folder.name}"`);
-    }
+      this._sendTagged(`UID STORE ${messageIds} ${action}FLAGS (${flagsStr})`);
+    });
   }
 
   /**
@@ -470,7 +450,7 @@ class ImapClient {
    * @param {nsIMsgFolder} folder - The associated folder.
    */
   expunge(folder) {
-    this._actionFolderCommand(folder, () => {
+    this._actionInFolder(folder, () => {
       this._nextAction = () => this._actionDone();
       this._sendTagged("EXPUNGE");
     });
@@ -493,7 +473,7 @@ class ImapClient {
         ? "MOVE " // rfc6851
         : "COPY ";
     command += messageIds + ` "${this._getServerFolderName(dstFolder)}"`;
-    this._actionFolderCommand(folder, () => {
+    this._actionInFolder(folder, () => {
       this._nextAction = this._actionNoopResponse;
       this._sendTagged(command);
     });
@@ -593,22 +573,9 @@ class ImapClient {
       flagsToSubtract,
       uids
     );
-    this._msgSink = this.folder.QueryInterface(Ci.nsIImapMessageSink);
-    let handleResponse = res => {
-      for (let msg of res.messages) {
-        let uid = this._messageUids[msg.sequence];
-        this._msgSink.notifyMessageFlags(
-          msg.flags,
-          msg.keywords,
-          uid,
-          this._folderState.highestmodseq
-        );
-      }
-    };
     let subtractFlags = () => {
       if (flagsToSubtract) {
-        this._nextAction = res => {
-          handleResponse(res);
+        this._nextAction = () => {
           this._actionDone();
         };
         this._sendTagged(`UID STORE ${uids} -FLAGS (${flagsToAdd})`);
@@ -616,10 +583,9 @@ class ImapClient {
         this._actionDone();
       }
     };
-    this._actionFolderCommand(folder, () => {
+    this._actionInFolder(folder, () => {
       if (flagsToAdd) {
-        this._nextAction = res => {
-          handleResponse(res);
+        this._nextAction = () => {
           subtractFlags();
         };
         this._sendTagged(`UID STORE ${uids} +FLAGS (${flagsToAdd})`);
@@ -637,7 +603,7 @@ class ImapClient {
    */
   getHeaders(folder, uids) {
     this._logger.debug("getHeaders", folder.URI, uids);
-    this._actionFolderCommand(folder, () => {
+    this._actionInFolder(folder, () => {
       this._nextAction = this._actionUidFetchHeaderResponse;
       let extraItems = "";
       if (this._server.isGMailServer) {
@@ -728,6 +694,7 @@ class ImapClient {
     this._logger.debug(`S: ${stringPayload}`);
     if (!this._response || this._idling || this._response.done) {
       this._response = new ImapResponse();
+      this._response.onMessage = this._onMessage;
     }
     this._response.parse(stringPayload);
     if (
@@ -1188,15 +1155,14 @@ class ImapClient {
    * @param {nsIMsgFolder} folder - The folder to select.
    * @param {Function} actionInFolder - The action to execute.
    */
-  _actionFolderCommand(folder, actionInFolder) {
+  _actionInFolder(folder, actionInFolder) {
     if (this.folder == folder) {
       // If already in the folder, execute the action now.
       actionInFolder();
     } else {
       // Send the SELECT command and queue the action.
-      this.folder = folder;
       this._actionAfterSelectFolder = actionInFolder;
-      this._nextAction = this._actionSelectResponse;
+      this._nextAction = this._actionSelectResponse(folder);
       this._sendTagged(`SELECT "${this._getServerFolderName(folder)}"`);
     }
   }
@@ -1314,7 +1280,10 @@ class ImapClient {
   /**
    * Handle SELECT response.
    */
-  _actionSelectResponse(res) {
+  _actionSelectResponse = folder => res => {
+    if (folder) {
+      this.folder = folder;
+    }
     this._supportedFlags = res.permanentflags || res.flags;
     this._folderState = res;
     if (this._capabilities.includes("QUOTA")) {
@@ -1322,7 +1291,7 @@ class ImapClient {
     } else {
       this._actionAfterSelectFolder();
     }
-  }
+  };
 
   /**
    * Send GETQUOTAROOT command and handle the response.
@@ -1395,18 +1364,6 @@ class ImapClient {
       "highestRecordedUID",
       0
     );
-    for (let msg of res.messages) {
-      this._messageUids[msg.sequence] = msg.uid;
-      this._messages.set(msg.uid, msg);
-      this.folder
-        .QueryInterface(Ci.nsIImapMessageSink)
-        .notifyMessageFlags(
-          msg.flags,
-          msg.keywords,
-          msg.uid,
-          this._folderState.highestmodseq
-        );
-    }
     this._folderSink = this.folder.QueryInterface(Ci.nsIImapMailFolderSink);
     this._folderSink.UpdateImapMailboxInfo(this, this._getMailboxSpec());
     let latestUid = this._messageUids.at(-1);
@@ -1458,33 +1415,9 @@ class ImapClient {
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionUidFetchHeaderResponse(res) {
-    this._msgSink = this.folder.QueryInterface(Ci.nsIImapMessageSink);
-    this._folderSink = this.folder.QueryInterface(Ci.nsIImapMailFolderSink);
-    for (let msg of res.messages) {
-      this._messageUids[msg.sequence] = msg.uid;
-      this._messages.set(msg.uid, msg);
-      this._folderSink.StartMessage(this.runningUrl);
-      let hdrXferInfo = {
-        numHeaders: 1,
-        getHeader() {
-          return {
-            msgUid: msg.uid,
-            msgSize: msg.size,
-            get msgHdrs() {
-              let sepIndex = msg.body.indexOf("\r\n\r\n");
-              return sepIndex == -1
-                ? msg.body + "\r\n"
-                : msg.body.slice(0, sepIndex + 2);
-            },
-          };
-        },
-      };
-      this._folderSink.parseMsgHdrs(this, hdrXferInfo);
-      if (msg.body) {
-        this.onData?.(msg.body);
-      }
-    }
-    this._folderSink.headerFetchCompleted(this);
+    this.folder
+      .QueryInterface(Ci.nsIImapMailFolderSink)
+      .headerFetchCompleted(this);
     if (this._bodysToDownload.length) {
       // nsImapMailFolder decides to fetch the full body by calling
       // NotifyBodysToDownload.
@@ -1502,35 +1435,94 @@ class ImapClient {
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionUidFetchBodyResponse(res) {
-    this._msgSink = this.folder.QueryInterface(Ci.nsIImapMessageSink);
-    this._folderSink = this.folder.QueryInterface(Ci.nsIImapMailFolderSink);
-    for (let msg of res.messages) {
-      let shouldStoreMsgOffline = false;
-      try {
-        shouldStoreMsgOffline = this.folder.shouldStoreMsgOffline(msg.uid);
-      } catch (e) {}
-      if (
-        (shouldStoreMsgOffline ||
-          this.runningUrl.QueryInterface(Ci.nsIImapUrl).storeResultsOffline) &&
-        msg.body
-      ) {
-        this._folderSink.StartMessage(this.runningUrl);
-        this._msgSink.parseAdoptedMsgLine(msg.body, msg.uid, this.runningUrl);
-        this._msgSink.normalEndMsgWriteStream(
-          msg.uid,
-          true,
-          this.runningUrl,
-          msg.body.length
-        );
-        this._folderSink.EndMessage(this.runningUrl, msg.uid);
-      }
-      if (msg.body) {
-        this.onData?.(msg.body);
-      }
-    }
-    this._folderSink.headerFetchCompleted(this);
+    this.folder
+      .QueryInterface(Ci.nsIImapMailFolderSink)
+      .headerFetchCompleted(this);
     this._actionDone();
   }
+
+  /**
+   * Handle a single message data response.
+   *
+   * @param {MessageData} msg - Message data parsed in ImapResponse.
+   */
+  _onMessage = msg => {
+    this._msgSink = this.folder.QueryInterface(Ci.nsIImapMessageSink);
+    this._folderSink = this.folder.QueryInterface(Ci.nsIImapMailFolderSink);
+
+    // Handle message flags.
+    if ((msg.uid || msg.sequence) && msg.flags != undefined) {
+      let uid = msg.uid;
+      if (uid && msg.sequence) {
+        this._messageUids[msg.sequence] = uid;
+        this._messages.set(uid, msg);
+      } else if (msg.sequence) {
+        uid = this._messageUids[msg.sequence];
+      }
+      if (uid) {
+        this.folder
+          .QueryInterface(Ci.nsIImapMessageSink)
+          .notifyMessageFlags(
+            msg.flags,
+            msg.keywords,
+            uid,
+            this._folderState.highestmodseq
+          );
+      }
+    }
+
+    if (msg.body) {
+      let sepIndex = msg.body.indexOf("\r\n\r\n");
+      if (sepIndex == -1 || msg.body.length == sepIndex + "\r\n\r\n".length) {
+        // Handle message headers.
+        this._messageUids[msg.sequence] = msg.uid;
+        this._messages.set(msg.uid, msg);
+        this._folderSink.StartMessage(this.runningUrl);
+        let hdrXferInfo = {
+          numHeaders: 1,
+          getHeader() {
+            return {
+              msgUid: msg.uid,
+              msgSize: msg.size,
+              get msgHdrs() {
+                let sepIndex = msg.body.indexOf("\r\n\r\n");
+                return sepIndex == -1
+                  ? msg.body + "\r\n"
+                  : msg.body.slice(0, sepIndex + 2);
+              },
+            };
+          },
+        };
+        this._folderSink.parseMsgHdrs(this, hdrXferInfo);
+      } else {
+        // Handle message body.
+        let shouldStoreMsgOffline = false;
+        try {
+          shouldStoreMsgOffline = this.folder.shouldStoreMsgOffline(msg.uid);
+        } catch (e) {}
+        if (
+          (shouldStoreMsgOffline ||
+            this.runningUrl.QueryInterface(Ci.nsIImapUrl)
+              .storeResultsOffline) &&
+          msg.body
+        ) {
+          this._folderSink.StartMessage(this.runningUrl);
+          this._msgSink.parseAdoptedMsgLine(msg.body, msg.uid, this.runningUrl);
+          this._msgSink.normalEndMsgWriteStream(
+            msg.uid,
+            true,
+            this.runningUrl,
+            msg.body.length
+          );
+          this._folderSink.EndMessage(this.runningUrl, msg.uid);
+        }
+
+        this.onData?.(msg.body);
+        // Release some memory.
+        msg.body = "";
+      }
+    }
+  };
 
   /**
    * Send NOOP command.
@@ -1546,18 +1538,6 @@ class ImapClient {
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionNoopResponse(res) {
-    for (let msg of res.messages) {
-      // Handle message flag changes.
-      let uid = this._messageUids[msg.sequence];
-      this.folder
-        .QueryInterface(Ci.nsIImapMessageSink)
-        .notifyMessageFlags(
-          msg.flags,
-          msg.keywords,
-          uid,
-          this._folderState.highestmodseq
-        );
-    }
     if (
       (res.exists && res.exists != this._folderState.exists) ||
       res.expunged.length
@@ -1565,7 +1545,7 @@ class ImapClient {
       // Handle messages number changes, re-sync the folder.
       this._folderState.exists = res.exists;
       this._actionAfterSelectFolder = this._actionUidFetch;
-      this._nextAction = this._actionSelectResponse;
+      this._nextAction = this._actionSelectResponse();
       if (res.expunged.length) {
         this._messageUids = [];
         this._messages.clear();

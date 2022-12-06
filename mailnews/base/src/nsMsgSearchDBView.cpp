@@ -210,7 +210,7 @@ nsMsgSearchDBView::OnHdrDeleted(nsIMsgDBHdr* aHdrDeleted, nsMsgKey aParentKey,
         // Remove the last child of a collapsed thread. Need to find the root,
         // and remove the thread flags on it.
         nsCOMPtr<nsIMsgDBHdr> rootHdr;
-        thread->GetRootHdr(nullptr, getter_AddRefs(rootHdr));
+        thread->GetRootHdr(getter_AddRefs(rootHdr));
         if (rootHdr) {
           nsMsgViewIndex threadIndex = GetThreadRootIndex(rootHdr);
           if (IsValidIndex(threadIndex))
@@ -221,7 +221,7 @@ nsMsgSearchDBView::OnHdrDeleted(nsIMsgDBHdr* aHdrDeleted, nsMsgKey aParentKey,
       } else if (savedFlags & MSG_VIEW_FLAG_HASCHILDREN) {
         if (savedFlags & nsMsgMessageFlags::Elided) {
           nsCOMPtr<nsIMsgDBHdr> rootHdr;
-          nsresult rv = thread->GetRootHdr(nullptr, getter_AddRefs(rootHdr));
+          nsresult rv = thread->GetRootHdr(getter_AddRefs(rootHdr));
           NS_ENSURE_SUCCESS(rv, rv);
           nsMsgKey msgKey;
           uint32_t msgFlags;

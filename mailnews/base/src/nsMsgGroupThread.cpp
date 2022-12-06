@@ -328,7 +328,7 @@ nsMsgGroupThreadEnumerator::nsMsgGroupThreadEnumerator(
   mNeedToPrefetch = true;
   mFirstMsgKey = nsMsgKey_None;
 
-  nsresult rv = mThread->GetRootHdr(nullptr, getter_AddRefs(mResultHdr));
+  nsresult rv = mThread->GetRootHdr(getter_AddRefs(mResultHdr));
   if (NS_SUCCEEDED(rv) && mResultHdr) mResultHdr->GetMessageKey(&mFirstMsgKey);
 
   uint32_t numChildren;
@@ -421,7 +421,7 @@ nsresult nsMsgGroupThreadEnumerator::Prefetch() {
   nsresult rv = NS_OK;  // XXX or should this default to an error?
   mResultHdr = nullptr;
   if (mThreadParentKey == nsMsgKey_None) {
-    rv = mThread->GetRootHdr(&mChildIndex, getter_AddRefs(mResultHdr));
+    rv = mThread->GetRootHdr(getter_AddRefs(mResultHdr));
     NS_ASSERTION(NS_SUCCEEDED(rv) && mResultHdr,
                  "better be able to get root hdr");
     mChildIndex = 0;  // since root can be anywhere, set mChildIndex to 0.
@@ -521,14 +521,14 @@ nsresult nsMsgGroupThread::ReparentMsgsWithInvalidParent(uint32_t numChildren, n
 }
 #endif
 
-NS_IMETHODIMP nsMsgGroupThread::GetRootHdr(int32_t* resultIndex,
-                                           nsIMsgDBHdr** result) {
+NS_IMETHODIMP nsMsgGroupThread::GetRootHdr(nsIMsgDBHdr** result) {
   NS_ENSURE_ARG_POINTER(result);
 
   *result = nullptr;
+  int32_t resultIndex = -1;
 
   if (m_threadRootKey != nsMsgKey_None) {
-    nsresult ret = GetChildHdrForKey(m_threadRootKey, result, resultIndex);
+    nsresult ret = GetChildHdrForKey(m_threadRootKey, result, &resultIndex);
     if (NS_SUCCEEDED(ret) && *result)
       return ret;
     else {
@@ -548,7 +548,6 @@ NS_IMETHODIMP nsMsgGroupThread::GetRootHdr(int32_t* resultIndex,
             NS_ASSERTION(!(*result), "two top level msgs, not good");
             curChild->GetMessageKey(&threadParentKey);
             m_threadRootKey = threadParentKey;
-            if (resultIndex) *resultIndex = childIndex;
             curChild.forget(result);
           }
         }
@@ -561,7 +560,6 @@ NS_IMETHODIMP nsMsgGroupThread::GetRootHdr(int32_t* resultIndex,
     // there's a bug where sometimes we weren't resetting the thread root key
     // when removing the thread root key.
   }
-  if (resultIndex) *resultIndex = 0;
   return GetChildHdrAt(0, result);
 }
 

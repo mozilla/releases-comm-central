@@ -32,7 +32,6 @@ interface nsIMsgThreadEnumerator;
 interface nsIDBFolderInfo;
 interface nsIMsgOfflineImapOperation;
 interface nsIMsgFolder;
-interface nsIMsgKeyArray;
 interface nsIFile;
 interface nsIMsgSearchTerm;
 

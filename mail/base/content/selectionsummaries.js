@@ -22,7 +22,7 @@ function summarizeSelection(aMessageDisplay) {
   let dbView = folderDisplay.view.dbView;
 
   let getThreadId = function(index) {
-    return dbView.getThreadContainingIndex(index).getChildHdrAt(0).messageKey;
+    return dbView.getThreadContainingIndex(index).getRootHdr().messageKey;
   };
 
   let firstThreadId = getThreadId(selectedIndices[0]);

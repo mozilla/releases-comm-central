@@ -22,6 +22,8 @@ class ImapResponse {
 
     // The remaining string to parse.
     this._response = "";
+
+    this.onMessage = () => {};
   }
 
   /**
@@ -38,6 +40,7 @@ class ImapResponse {
       if (remaining + ")\r\n".length <= this._response.length) {
         // Consume the message together with the ending ")\r\n".
         this._pendingMessage.body += this._response.slice(0, remaining);
+        this.onMessage(this._pendingMessage);
         this._pendingMessage = null;
         this._advance(remaining + ")\r\n".length);
       } else {
@@ -200,12 +203,15 @@ class ImapResponse {
           if (message.bodySize + ")\r\n".length <= this._response.length) {
             // Consume the message together with the ending ")\r\n".
             message.body = this._response.slice(0, message.bodySize);
+            this.onMessage(message);
           } else {
             message.body = this._response;
             this._pendingMessage = message;
             this.done = false;
           }
           this._advance(message.bodySize + ")\r\n".length);
+        } else {
+          this.onMessage(message);
         }
         break;
       case "EXISTS":
