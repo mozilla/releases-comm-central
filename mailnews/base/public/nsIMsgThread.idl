@@ -23,7 +23,7 @@ interface nsIMsgThread : nsISupports {
   nsMsgKey getChildKeyAt(in unsigned long index);
   nsIMsgDBHdr getChild(in nsMsgKey msgKey);
   nsIMsgDBHdr getChildHdrAt(in unsigned long index);
-  nsIMsgDBHdr getRootHdr(out long index);
+  nsIMsgDBHdr getRootHdr();
   void removeChildAt(in unsigned long index);
   void removeChildHdr(in nsIMsgDBHdr child, in nsIDBChangeAnnouncer announcer);
 

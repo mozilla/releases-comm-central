@@ -439,8 +439,7 @@ async function displayMessages(messages = []) {
   clearMessage();
 
   let getThreadId = function(message) {
-    return gDBView.getThreadContainingMsgHdr(message).getChildHdrAt(0)
-      .messageKey;
+    return gDBView.getThreadContainingMsgHdr(message).getRootHdr().messageKey;
   };
 
   let oneThread = true;

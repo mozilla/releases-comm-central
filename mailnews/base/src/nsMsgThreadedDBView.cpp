@@ -124,8 +124,7 @@ nsresult nsMsgThreadedDBView::InitThreadedView(int32_t& count) {
     if (unreadOnly) {
       rv = threadHdr->GetFirstUnreadChild(getter_AddRefs(msgHdr));
     } else {
-      int32_t unusedRootIndex;
-      rv = threadHdr->GetRootHdr(&unusedRootIndex, getter_AddRefs(msgHdr));
+      rv = threadHdr->GetRootHdr(getter_AddRefs(msgHdr));
     }
     NS_ENSURE_SUCCESS(rv, rv);
 

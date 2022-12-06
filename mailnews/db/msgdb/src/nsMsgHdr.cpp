@@ -741,9 +741,8 @@ void nsMsgHdr::ReparentInThread(nsIMsgThread* thread) {
     }
     // we didn't find it. So either the root header is our parent,
     // or we're the root.
-    int32_t rootIndex;
     nsCOMPtr<nsIMsgDBHdr> rootHdr;
-    thread->GetRootHdr(&rootIndex, getter_AddRefs(rootHdr));
+    thread->GetRootHdr(getter_AddRefs(rootHdr));
     NS_ASSERTION(rootHdr, "thread has no root hdr - shouldn't happen");
     if (rootHdr) {
       nsMsgKey rootKey;

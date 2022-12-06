@@ -323,7 +323,7 @@ NS_IMETHODIMP nsMsgThread::AddChild(nsIMsgDBHdr* child, nsIMsgDBHdr* inReplyTo,
     PRTime topLevelHdrDate;
 
     nsCOMPtr<nsIMsgDBHdr> topLevelHdr;
-    rv = GetRootHdr(nullptr, getter_AddRefs(topLevelHdr));
+    rv = GetRootHdr(getter_AddRefs(topLevelHdr));
     if (NS_SUCCEEDED(rv) && topLevelHdr) {
       topLevelHdr->GetDate(&topLevelHdrDate);
       if (newHdrDate < topLevelHdrDate) {
@@ -597,7 +597,7 @@ nsMsgThreadEnumerator::nsMsgThreadEnumerator(nsMsgThread* thread,
   mNeedToPrefetch = true;
   mFirstMsgKey = nsMsgKey_None;
 
-  nsresult rv = mThread->GetRootHdr(nullptr, getter_AddRefs(mResultHdr));
+  nsresult rv = mThread->GetRootHdr(getter_AddRefs(mResultHdr));
 
   if (NS_SUCCEEDED(rv) && mResultHdr) mResultHdr->GetMessageKey(&mFirstMsgKey);
 
@@ -700,7 +700,7 @@ nsresult nsMsgThreadEnumerator::Prefetch() {
   nsresult rv = NS_OK;  // XXX or should this default to an error?
   mResultHdr = nullptr;
   if (mThreadParentKey == nsMsgKey_None) {
-    rv = mThread->GetRootHdr(&mChildIndex, getter_AddRefs(mResultHdr));
+    rv = mThread->GetRootHdr(getter_AddRefs(mResultHdr));
     NS_ASSERTION(NS_SUCCEEDED(rv) && mResultHdr,
                  "better be able to get root hdr");
     mChildIndex = 0;  // since root can be anywhere, set mChildIndex to 0.
@@ -803,15 +803,15 @@ nsresult nsMsgThread::ReparentMsgsWithInvalidParent(uint32_t numChildren,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgThread::GetRootHdr(int32_t* resultIndex,
-                                      nsIMsgDBHdr** result) {
+NS_IMETHODIMP nsMsgThread::GetRootHdr(nsIMsgDBHdr** result) {
   NS_ENSURE_ARG_POINTER(result);
 
   *result = nullptr;
+  int32_t resultIndex = -1;
   nsresult rv = NS_OK;
 
   if (m_threadRootKey != nsMsgKey_None) {
-    rv = GetChildHdrForKey(m_threadRootKey, result, resultIndex);
+    rv = GetChildHdrForKey(m_threadRootKey, result, &resultIndex);
     if (NS_SUCCEEDED(rv) && *result) {
       // check that we're really the root key.
       nsMsgKey parentKey;
@@ -842,7 +842,6 @@ NS_IMETHODIMP nsMsgThread::GetRootHdr(int32_t* resultIndex,
             continue;
           }
           SetThreadRootKey(threadParentKey);
-          if (resultIndex) *resultIndex = childIndex;
           curChild.forget(result);
           ReparentMsgsWithInvalidParent(numChildren, threadParentKey);
         }
@@ -853,7 +852,6 @@ NS_IMETHODIMP nsMsgThread::GetRootHdr(int32_t* resultIndex,
     // if we can't get the thread root key, we'll just get the first hdr.
     // there's a bug where sometimes we weren't resetting the thread root key
     // when removing the thread root key.
-    if (resultIndex) *resultIndex = 0;
     rv = GetChildHdrAt(0, result);
   }
   if (!*result) return rv;
