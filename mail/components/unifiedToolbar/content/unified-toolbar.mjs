@@ -29,6 +29,23 @@ class UnifiedToolbar extends HTMLElement {
    */
   #state = null;
 
+  /**
+   * Observer triggered when the state for the unified toolbar is changed.
+   *
+   * @type {nsIObserver}
+   */
+  #stateObserver = {
+    observe: (subject, topic) => {
+      if (topic === "unified-toolbar-state-change") {
+        this.initialize();
+      }
+    },
+    QueryInterface: ChromeUtils.generateQI([
+      "nsIObserver",
+      "nsISupportsWeakReference",
+    ]),
+  };
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -63,6 +80,19 @@ class UnifiedToolbar extends HTMLElement {
     document
       .getElementById("spacesToolbar")
       .addEventListener("spacechange", this.#handleSpaceChange);
+
+    Services.obs.addObserver(
+      this.#stateObserver,
+      "unified-toolbar-state-change",
+      true
+    );
+  }
+
+  disconnectedCallback() {
+    Services.obs.removeObserver(
+      this.#stateObserver,
+      "unified-toolbar-state-change"
+    );
   }
 
   #handleContextMenu = event => {
