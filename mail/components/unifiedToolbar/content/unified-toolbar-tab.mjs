@@ -7,6 +7,8 @@
  * Attributes:
  * - selected: If the tab is active.
  * - aria-controls: The ID of the tab pane this controls.
+ * Events:
+ * - tabswitch: When the active tab is changed.
  */
 class UnifiedToolbarTab extends HTMLElement {
   /**
@@ -90,6 +92,10 @@ class UnifiedToolbarTab extends HTMLElement {
     this.#tab.tabIndex = 0;
     this.setAttribute("selected", true);
     this.#toggleTabPane(true);
+    const tabSwitchEvent = new Event("tabswitch", {
+      bubbles: true,
+    });
+    this.dispatchEvent(tabSwitchEvent);
   }
 
   /**

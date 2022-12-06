@@ -50,22 +50,53 @@ class UnifiedToolbarCustomization extends HTMLElement {
       .addEventListener("click", () => {
         this.toggle(false);
       });
-    this.addEventListener("itemchange", this.#updateResetToDefault, {
+    this.addEventListener("itemchange", this.#handleItemChange, {
       capture: true,
     });
     this.#tabList = template.querySelector("#customizationTabs");
+    this.#tabList.addEventListener("tabswitch", this.#handleTabSwitch, {
+      capture: true,
+    });
     this.initialize();
     this.append(template);
     this.#updateResetToDefault();
   }
 
-  #updateResetToDefault = () => {
+  #handleItemChange = event => {
+    event.stopPropagation();
+    this.#updateResetToDefault();
+    this.#updateUnsavedChangesState();
+  };
+
+  #handleTabSwitch = event => {
+    event.stopPropagation();
+    this.#updateUnsavedChangesState();
+  };
+
+  /**
+   * Update state of reset to default button.
+   */
+  #updateResetToDefault() {
     const tabPanes = Array.from(
       this.querySelectorAll("unified-toolbar-customization-pane")
     );
     const isDefault = tabPanes.every(pane => pane.matchesDefaultState);
     this.querySelector('button[type="reset"]').disabled = isDefault;
-  };
+  }
+
+  #updateUnsavedChangesState() {
+    const tabPanes = Array.from(
+      this.querySelectorAll("unified-toolbar-customization-pane")
+    );
+    const unsavedChanges = tabPanes.some(tabPane => tabPane.hasChanges);
+    const otherSpacesHaveUnsavedChanges =
+      unsavedChanges &&
+      tabPanes.some(tabPane => tabPane.hidden && tabPane.hasChanges);
+    this.querySelector('button[type="submit"]').disabled = !unsavedChanges;
+    document.getElementById(
+      "unifiedToolbarCustomizationUnsavedChanges"
+    ).hidden = !otherSpacesHaveUnsavedChanges;
+  }
 
   /**
    * Generate a tab and tab pane that are linked together for the given space.
@@ -146,6 +177,7 @@ class UnifiedToolbarCustomization extends HTMLElement {
     // Update state of reset to default button only when updating tab panes too.
     if (deep) {
       this.#updateResetToDefault();
+      this.#updateUnsavedChangesState();
     }
   }
 

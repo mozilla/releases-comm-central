@@ -133,6 +133,16 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
     const itemsInToolbar = this.#toolbarTarget.itemIds;
     return itemsInToolbar.join(",") === this.#defaultItemIds.join(",");
   }
+
+  /**
+   * If the customization state of this space matches the currently saved
+   * configuration.
+   *
+   * @type {boolean}
+   */
+  get hasChanges() {
+    return this.#toolbarTarget.hasChanges;
+  }
 }
 customElements.define(
   "unified-toolbar-customization-pane",

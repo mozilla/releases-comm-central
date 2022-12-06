@@ -165,6 +165,16 @@ class CustomizationTarget extends ListBoxSelection {
       element.getAttribute("item-id")
     );
   }
+
+  /**
+   * If the contents of this target differ from the currently saved
+   * configuration.
+   *
+   * @type {boolean}
+   */
+  get hasChanges() {
+    return this.itemIds.join(",") !== this.getAttribute("current-items");
+  }
 }
 customElements.define("customization-target", CustomizationTarget, {
   extends: "ul",
