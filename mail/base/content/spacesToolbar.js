@@ -153,6 +153,11 @@ var gSpacesToolbar = {
         gSpacesToolbar.currentSpace = tabSpace;
         gSpacesToolbar.currentSpace?.button.classList.add("current");
         gSpacesToolbar.currentSpace?.menuitem?.classList.add("current");
+
+        const spaceChangeEvent = new CustomEvent("spacechange", {
+          detail: tabSpace,
+        });
+        gSpacesToolbar.element.dispatchEvent(spaceChangeEvent);
       }
     },
   },
