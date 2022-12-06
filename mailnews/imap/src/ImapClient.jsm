@@ -230,9 +230,8 @@ class ImapClient {
       this._actionNoop();
       return;
     }
-    this.folder = folder;
     this._actionAfterSelectFolder = this._actionUidFetch;
-    this._nextAction = this._actionSelectResponse;
+    this._nextAction = this._actionSelectResponse(folder);
     this._sendTagged(`SELECT "${this._getServerFolderName(folder)}"`);
   }
 
@@ -420,18 +419,10 @@ class ImapClient {
       this._actionDone();
       return;
     }
-    let fetchUid = () => {
+    this._actionInFolder(folder, () => {
       this._nextAction = this._actionUidFetchBodyResponse;
       this._sendTagged(`UID FETCH ${uid} (UID RFC822.SIZE FLAGS BODY.PEEK[])`);
-    };
-    if (this.folder != folder) {
-      this.folder = folder;
-      this._actionAfterSelectFolder = fetchUid;
-      this._nextAction = this._actionSelectResponse;
-      this._sendTagged(`SELECT "${this._getServerFolderName(folder)}"`);
-    } else {
-      fetchUid();
-    }
+    });
   }
 
   /**
@@ -445,23 +436,12 @@ class ImapClient {
    */
   updateMesageFlags(action, folder, urlListener, messageIds, flags) {
     this._urlListener = urlListener;
-    let getCommand = () => {
+    this._actionInFolder(folder, () => {
+      this._nextAction = this._actionDone;
       // _supportedFlags is available after _actionSelectResponse.
       let flagsStr = ImapUtils.flagsToString(flags, this._supportedFlags);
-      return `UID STORE ${messageIds} ${action}FLAGS (${flagsStr})`;
-    };
-    if (this.folder == folder) {
-      this._nextAction = () => this._actionDone();
-      this._sendTagged(getCommand());
-    } else {
-      this.folder = folder;
-      this._actionAfterSelectFolder = () => {
-        this._nextAction = () => this._actionDone();
-        this._sendTagged(getCommand());
-      };
-      this._nextAction = this._actionSelectResponse;
-      this._sendTagged(`SELECT "${folder.name}"`);
-    }
+      this._sendTagged(`UID STORE ${messageIds} ${action}FLAGS (${flagsStr})`);
+    });
   }
 
   /**
@@ -470,7 +450,7 @@ class ImapClient {
    * @param {nsIMsgFolder} folder - The associated folder.
    */
   expunge(folder) {
-    this._actionFolderCommand(folder, () => {
+    this._actionInFolder(folder, () => {
       this._nextAction = () => this._actionDone();
       this._sendTagged("EXPUNGE");
     });
@@ -493,7 +473,7 @@ class ImapClient {
         ? "MOVE " // rfc6851
         : "COPY ";
     command += messageIds + ` "${this._getServerFolderName(dstFolder)}"`;
-    this._actionFolderCommand(folder, () => {
+    this._actionInFolder(folder, () => {
       this._nextAction = this._actionNoopResponse;
       this._sendTagged(command);
     });
@@ -603,7 +583,7 @@ class ImapClient {
         this._actionDone();
       }
     };
-    this._actionFolderCommand(folder, () => {
+    this._actionInFolder(folder, () => {
       if (flagsToAdd) {
         this._nextAction = () => {
           subtractFlags();
@@ -623,7 +603,7 @@ class ImapClient {
    */
   getHeaders(folder, uids) {
     this._logger.debug("getHeaders", folder.URI, uids);
-    this._actionFolderCommand(folder, () => {
+    this._actionInFolder(folder, () => {
       this._nextAction = this._actionUidFetchHeaderResponse;
       let extraItems = "";
       if (this._server.isGMailServer) {
@@ -1175,15 +1155,14 @@ class ImapClient {
    * @param {nsIMsgFolder} folder - The folder to select.
    * @param {Function} actionInFolder - The action to execute.
    */
-  _actionFolderCommand(folder, actionInFolder) {
+  _actionInFolder(folder, actionInFolder) {
     if (this.folder == folder) {
       // If already in the folder, execute the action now.
       actionInFolder();
     } else {
       // Send the SELECT command and queue the action.
-      this.folder = folder;
       this._actionAfterSelectFolder = actionInFolder;
-      this._nextAction = this._actionSelectResponse;
+      this._nextAction = this._actionSelectResponse(folder);
       this._sendTagged(`SELECT "${this._getServerFolderName(folder)}"`);
     }
   }
@@ -1301,7 +1280,10 @@ class ImapClient {
   /**
    * Handle SELECT response.
    */
-  _actionSelectResponse(res) {
+  _actionSelectResponse = folder => res => {
+    if (folder) {
+      this.folder = folder;
+    }
     this._supportedFlags = res.permanentflags || res.flags;
     this._folderState = res;
     if (this._capabilities.includes("QUOTA")) {
@@ -1309,7 +1291,7 @@ class ImapClient {
     } else {
       this._actionAfterSelectFolder();
     }
-  }
+  };
 
   /**
    * Send GETQUOTAROOT command and handle the response.
@@ -1563,7 +1545,7 @@ class ImapClient {
       // Handle messages number changes, re-sync the folder.
       this._folderState.exists = res.exists;
       this._actionAfterSelectFolder = this._actionUidFetch;
-      this._nextAction = this._actionSelectResponse;
+      this._nextAction = this._actionSelectResponse();
       if (res.expunged.length) {
         this._messageUids = [];
         this._messages.clear();
