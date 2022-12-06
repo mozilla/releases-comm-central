@@ -4,6 +4,7 @@
 
 /* import-globals-from ../../../base/content/spacesToolbar.js */
 
+import { storeState } from "resource:///modules/CustomizationState.mjs";
 import "./unified-toolbar-tab.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./unified-toolbar-customization-pane.mjs"; // eslint-disable-line import/no-unassigned-import
 
@@ -36,6 +37,7 @@ class UnifiedToolbarCustomization extends HTMLElement {
       "submit",
       event => {
         event.preventDefault();
+        this.#save();
         this.toggle(false);
       },
       {
@@ -137,6 +139,18 @@ class UnifiedToolbarCustomization extends HTMLElement {
     for (const pane of tabPanes) {
       pane.reset();
     }
+  }
+
+  #save() {
+    const tabPanes = Array.from(
+      this.querySelectorAll("unified-toolbar-customization-pane")
+    );
+    const state = Object.fromEntries(
+      tabPanes
+        .filter(pane => !pane.matchesDefaultState)
+        .map(pane => [pane.getAttribute("space"), pane.itemIds])
+    );
+    storeState(state);
   }
 
   /**

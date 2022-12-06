@@ -143,6 +143,15 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
   get hasChanges() {
     return this.#toolbarTarget.hasChanges;
   }
+
+  /**
+   * Current customization state for this space.
+   *
+   * @type {string[]}
+   */
+  get itemIds() {
+    return this.#toolbarTarget.itemIds;
+  }
 }
 customElements.define(
   "unified-toolbar-customization-pane",
