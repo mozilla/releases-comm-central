@@ -433,7 +433,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton
 }
 
 toolbox:not([labelalign="end"]) > toolbar[mode="full"]
-  .toolbarbutton-1:not(.button-appmenu)[type="menu"] {
+  .toolbarbutton-1:not(.button-appmenu,[is="toolbarbutton-menu-button"])[type="menu"] {
   padding-inline-end: 15px !important;
   background-image: var(--icon-nav-down-sm);
   background-size: 12px;
@@ -442,25 +442,28 @@ toolbox:not([labelalign="end"]) > toolbar[mode="full"]
 }
 
 toolbox:not([labelalign="end"]) > toolbar[mode="full"]
-  .toolbarbutton-1:not(.button-appmenu)[type="menu"]:-moz-locale-dir(rtl) {
+  .toolbarbutton-1:not(.button-appmenu,[is="toolbarbutton-menu-button"])[type="menu"]:-moz-locale-dir(rtl) {
   background-position: 4px center;
 }
 
 toolbox:not([labelalign="end"]) > toolbar[mode="full"]
-  .toolbarbutton-1:not(.button-appmenu)[type="menu"][disabled="true"] {
+  .toolbarbutton-1:not(.button-appmenu,[is="toolbarbutton-menu-button"])[type="menu"][disabled="true"] {
   opacity: 0.4;
 }
 
 /* Don't set a reduced opacity because we set it on the whole button. */
 toolbox:not([labelalign="end"]) > toolbar[mode="full"]
-  .toolbarbutton-1:not(.button-appmenu)[type="menu"][disabled="true"] .toolbarbutton-icon,
+  .toolbarbutton-1:not(.button-appmenu,[is="toolbarbutton-menu-button"])[type="menu"][disabled="true"]
+  .toolbarbutton-icon,
 toolbox:not([labelalign="end"]) > toolbar[mode="full"]
-  .toolbarbutton-1:not(.button-appmenu)[type="menu"][disabled="true"] .toolbarbutton-text {
+  .toolbarbutton-1:not(.button-appmenu,[is="toolbarbutton-menu-button"])[type="menu"][disabled="true"]
+  .toolbarbutton-text {
   opacity: 1;
 }
 
 toolbox:not([labelalign="end"]) > toolbar[mode="full"]
-  .toolbarbutton-1:not(.button-appmenu)[type="menu"] > .toolbarbutton-menu-dropmarker {
+  .toolbarbutton-1:not(.button-appmenu,[is="toolbarbutton-menu-button"])[type="menu"] >
+  .toolbarbutton-menu-dropmarker {
   display: none;
 }
 
