@@ -11,6 +11,12 @@ window.addEventListener("load", () => {
   class TestCardRow extends customElements.get("tree-view-listrow") {
     static ROW_HEIGHT = 30;
 
+    static COLUMNS = [
+      {
+        id: "testCol",
+      },
+    ];
+
     connectedCallback() {
       if (this.hasConnected) {
         return;
@@ -100,6 +106,7 @@ window.addEventListener("load", () => {
   let table = tree.table;
   table.setListBoxID("testList");
   table.listbox.setAttribute("rows", "test-listrow");
+  table.setColumns(TestCardRow.COLUMNS);
   table.listbox.addEventListener("select", () => {
     console.log(
       "select event, selected indices:",

@@ -908,11 +908,13 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
         let container = cell.appendChild(document.createElement("div"));
         container.classList.add("thread-container");
 
-        let twisty = container.appendChild(document.createElement("button"));
-        twisty.type = "button";
-        twisty.classList.add("button-flat", "button-reset", "twisty");
+        this.twisty = container.appendChild(document.createElement("button"));
+        this.twisty.type = "button";
+        this.twisty.classList.add("button-flat", "button-reset", "twisty");
 
-        let twistyImage = twisty.appendChild(document.createElement("img"));
+        let twistyImage = this.twisty.appendChild(
+          document.createElement("img")
+        );
         twistyImage.className = "twisty-icon";
         twistyImage.src = "";
         twistyImage.alt = "";
@@ -939,10 +941,7 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
 
   set index(index) {
     super.index = index;
-    let rowProps = this.view.getRowProperties(index);
-    for (let prop of rowProps.split(" ").filter(Boolean)) {
-      this.classList.add(prop);
-    }
+    this.dataset.properties = this.view.getRowProperties(index).trim();
 
     for (let column of ThreadListrow.COLUMNS) {
       let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
@@ -956,7 +955,9 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
         let span = document.createElement("span");
         span.classList.add("subject-line");
         span.textContent = this.view.cellTextForColumn(index, column.id);
-        cell.querySelector(".thread-container").appendChild(span);
+        cell
+          .querySelector(".thread-container")
+          .replaceChildren(this.twisty, span);
         // Indent child message of this thread.
         span.style.setProperty("--thread-level", this.view.getLevel(index));
         continue;

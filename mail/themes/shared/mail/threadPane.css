@@ -7,15 +7,19 @@
   fill: currentColor;
 }
 
-#threadTree .unread {
+#threadTree [data-properties~="unread"] {
   font-weight: bold;
 }
 
-#threadTree .children.collapsed.hasUnread.read {
+#threadTree .children.collapsed[data-properties~="hasUnread"][data-properties~="unread"] {
   text-decoration: underline;
 }
 
 /* Subject column variations */
+
+#subjectColButton {
+  padding-inline-start: 22px;
+}
 
 tr[is="thread-listrow"] td > .thread-container {
   position: absolute;
