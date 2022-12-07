@@ -767,11 +767,16 @@ calendar-notifications-setting .remove-button {
   flex-grow: 2;
 }
 
-#syncAccountSection {
+.sync-account-section {
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 24px;
   margin: 24px 0;
+}
+
+#syncAccountNotVerified {
+  display: flex;
+  align-items: center;
 }
 
 #photoInput {
@@ -787,8 +792,8 @@ calendar-notifications-setting .remove-button {
 }
 
 .contact-photo {
-  width: 80px;
-  height: 80px;
+  width: 78px;
+  height: 78px;
   margin: -1px;
   object-fit: cover;
   object-position: center;
@@ -800,6 +805,7 @@ calendar-notifications-setting .remove-button {
   border: none;
   -moz-context-properties: stroke;
   stroke: color-mix(in srgb, currentColor 30%, transparent);
+  border: 1px solid var(--in-content-button-background);
 }
 
 #photoButton {
