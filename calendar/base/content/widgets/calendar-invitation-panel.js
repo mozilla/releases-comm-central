@@ -19,6 +19,12 @@
    */
   class BaseInvitationElement extends HTMLElement {
     /**
+     * A previous copy of the event item if found on an existing calendar.
+     * @type {calIEvent?}
+     */
+    foundItem;
+
+    /**
      * The id of the <template> tag to initialize the element with.
      *
      * @param {string?} id
@@ -74,8 +80,14 @@
       if (this.item && this.mode) {
         let template = document.getElementById(`calendarInvitationPanel${this.mode}`);
         this.shadowRoot.appendChild(template.content.cloneNode(true));
-        this.shadowRoot.getElementById("wrapper").item = this.item;
-        this.shadowRoot.getElementById("header").item = this.item;
+
+        let header = this.shadowRoot.querySelector("calendar-invitation-panel-header");
+        header.foundItem = this.foundItem;
+        header.item = this.item;
+
+        let wrapper = this.shadowRoot.querySelector("calendar-invitation-panel-wrapper");
+        wrapper.foundItem = this.foundItem;
+        wrapper.item = this.item;
       }
     }
   }
@@ -91,8 +103,10 @@
     }
 
     set item(value) {
-      this.shadowRoot.getElementById("minidate").date = value.startDate;
-      this.shadowRoot.getElementById("properties").item = value;
+      this.shadowRoot.querySelector("calendar-minidate").date = value.startDate;
+      let props = this.shadowRoot.querySelector("calendar-invitation-panel-properties");
+      props.foundItem = this.foundItem;
+      props.item = value;
     }
   }
   customElements.define("calendar-invitation-panel-wrapper", InvitationPanelWrapper);
@@ -126,6 +140,10 @@
       for (let id of ["intro", "title"]) {
         this.shadowRoot.getElementById(id).setAttribute("data-l10n-args", l10nArgs);
       }
+
+      if (this.foundItem && this.foundItem.title != item.title) {
+        this.shadowRoot.querySelector("calendar-invitation-change-indicator").hidden = false;
+      }
     }
 
     /**
@@ -145,6 +163,11 @@
   }
   customElements.define("calendar-invitation-panel-header", InvitationPanelHeader);
 
+  const PROPERTY_REMOVED = -1;
+  const PROPERTY_UNCHANGED = 0;
+  const PROPERTY_ADDED = 1;
+  const PROPERTY_MODIFIED = 2;
+
   /**
    * InvitationPanelProperties renders the details of the most useful properties
    * of an invitation.
@@ -155,36 +178,136 @@
     }
 
     /**
+     * Used to retrieve a property value from an event.
+     * @callback GetValue
+     * @param {calIEvent} event
+     * @returns {string}
+     */
+
+    /**
+     * A function used to make a property value visible in to the user.
+     * @callback PropertyShow
+     * @param {HTMLElement} node  - The element responsible for displaying the
+     *                              value.
+     * @param {string} value      - The value of property to display.
+     * @param {string} oldValue   - The previous value of the property if the
+     *                              there is a prior copy of the event.
+     * @param {calIEvent} item    - The event item the property belongs to.
+     * @param {string} oldItem    - The prior version of the event if there is
+     *                              one.
+     */
+
+    /**
+     * @typedef {Object} InvitationPropertyDescriptor
+     * @property {string} id         - The id of the HTMLElement that displays
+     *                                 the property.
+     * @property {GetValue} getValue - Function used to retrieve the displayed
+     *                                 value of the property from the item.
+     * @property {PropertyShow} show - Function to use to display the property
+     *                                 value.
+     */
+
+    /**
+     * A static list of objects used in determining how to display each of the
+     * properties.
+     * @type {PropertyDescriptor[]}
+     */
+    static propertyDescriptors = [
+      {
+        id: "interval",
+        getValue(item) {
+          let tz = cal.dtz.defaultTimezone;
+          let startDate = item.startDate?.getInTimezone(tz) ?? null;
+          let endDate = item.endDate?.getInTimezone(tz) ?? null;
+          return `${startDate.icalString}-${endDate?.icalString}`;
+        },
+        show(intervalNode, newValue, oldValue, item) {
+          intervalNode.item = item;
+        },
+      },
+      {
+        id: "recurrence",
+        getValue(item) {
+          let parent = item.parentItem;
+          if (!parent.recurrenceInfo) {
+            return null;
+          }
+          return recurrenceRule2String(parent.recurrenceInfo, parent.recurrenceStartDate);
+        },
+        show(recurrence, value) {
+          recurrence.appendChild(document.createTextNode(value));
+        },
+      },
+      {
+        id: "location",
+        getValue(item) {
+          return item.getProperty("LOCATION");
+        },
+        show(location, value) {
+          location.appendChild(cal.view.textToHtmlDocumentFragment(value, document));
+        },
+      },
+      {
+        id: "description",
+        getValue(item) {
+          return item.descriptionText;
+        },
+        show(description, value) {
+          description.appendChild(cal.view.textToHtmlDocumentFragment(value, document));
+        },
+      },
+    ];
+
+    /**
      * Setting the item will populate the table that displays the event
      * properties.
      *
      * @type {calIEvent}
      */
     set item(item) {
-      let interval = this.shadowRoot.getElementById("interval");
-      interval.item = item;
-
-      if (item.recurrenceInfo || item.parentItem.recurrenceInfo) {
-        let parent = item.parentItem;
-        this.shadowRoot.getElementById("recurrence").textContent = recurrenceRule2String(
-          parent.recurrenceInfo,
-          parent.recurrenceStartDate
-        );
+      for (let prop of InvitationPanelProperties.propertyDescriptors) {
+        let el = this.shadowRoot.getElementById(prop.id);
+        let value = prop.getValue(item);
+        let oldValue;
+        let result = PROPERTY_UNCHANGED;
+        if (this.foundItem) {
+          oldValue = prop.getValue(this.foundItem);
+          result = this.compare(oldValue, value);
+          if (result) {
+            let indicator = this.shadowRoot.getElementById(`${prop.id}ChangeIndicator`);
+            if (indicator) {
+              indicator.type = result;
+              indicator.hidden = false;
+            }
+          }
+        }
+        if (value) {
+          prop.show(el, value, oldValue, item, this.foundItem, result);
+        }
       }
-
-      this.shadowRoot
-        .getElementById("location")
-        .appendChild(cal.view.textToHtmlDocumentFragment(item.getProperty("LOCATION"), document));
 
       let attendees = item.getAttendees();
       this.shadowRoot.getElementById("summary").attendees = attendees;
       this.shadowRoot.getElementById("attendees").attendees = attendees;
-
-      this.shadowRoot
-        .getElementById("description")
-        .appendChild(cal.view.textToHtmlDocumentFragment(item.descriptionText, document));
-
       this.shadowRoot.getElementById("attachments").attachments = item.getAttachments();
+    }
+
+    /**
+     * Compares two like property values, an old and a new one, to determine
+     * what type of change has been made (if any).
+     *
+     * @param {any} oldValue
+     * @param {any} newValue
+     * @returns {number} - One of the PROPERTY_* constants.
+     */
+    compare(oldValue, newValue) {
+      if (!oldValue && newValue) {
+        return PROPERTY_ADDED;
+      }
+      if (oldValue && !newValue) {
+        return PROPERTY_REMOVED;
+      }
+      return oldValue != newValue ? PROPERTY_MODIFIED : PROPERTY_UNCHANGED;
     }
   }
   customElements.define("calendar-invitation-panel-properties", InvitationPanelProperties);
@@ -370,6 +493,36 @@
   customElements.define("calendar-invitation-attachment-item", InvitationAttachmentItem, {
     extends: "li",
   });
+
+  /**
+   * InvitationChangeIndicator is a visual indicator for indicating some piece
+   * of data has changed.
+   */
+  class InvitationChangeIndicator extends HTMLElement {
+    constructor() {
+      super();
+      this.setAttribute("data-l10n-id", `calendar-invitation-change-indicator-modified`);
+      this.hidden = true;
+    }
+
+    _typeMap = {
+      [PROPERTY_REMOVED]: "removed",
+      [PROPERTY_ADDED]: "added",
+      [PROPERTY_MODIFIED]: "modified",
+    };
+
+    /**
+     * One of the PROPERTY_* constants that indicates what kind of change we
+     * are indicating (add/modify/delete) etc. Setting this will the text
+     * displayed.
+     * @type {number}
+     */
+    set type(value) {
+      let key = this._typeMap[value];
+      this.setAttribute("data-l10n-id", `calendar-invitation-change-indicator-${key}`);
+    }
+  }
+  customElements.define("calendar-invitation-change-indicator", InvitationChangeIndicator);
 
   /**
    * InvitationPanelFooter renders the footer for the details section of

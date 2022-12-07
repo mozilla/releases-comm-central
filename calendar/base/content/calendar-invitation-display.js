@@ -106,6 +106,7 @@
             } else {
               mode = panel.MODE_ALREADY_PROCESSED;
             }
+            panel.foundItem = foundItem;
           }
           break;
         case "CANCEL":

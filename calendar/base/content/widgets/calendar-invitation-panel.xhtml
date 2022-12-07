@@ -19,8 +19,8 @@
 <!-- Template for <calendar-invitation-panel/> when the invitation has already
      been processed. -->
 <template id="calendarInvitationPanelProcessed" xmlns="http://www.w3.org/1999/xhtml">
-  <calendar-invitation-panel-wrapper id="wrapper">
-    <calendar-invitation-panel-header id="header" slot="header">
+  <calendar-invitation-panel-wrapper>
+    <calendar-invitation-panel-header slot="header">
       <button id="actionButton"
               class="calendar-invitation-panel-action-button"
               data-l10n-id="calendar-invitation-panel-view-button"
@@ -84,11 +84,11 @@
 <!-- Template for <calendar-invitation-panel-wrapper/> -->
 <template id="calendarInvitationPanelWrapper" xmlns="http://www.w3.org/1999/xhtml">
     <div class="calendar-invitation-panel-preview">
-      <calendar-minidate id="minidate"/>
+      <calendar-minidate/>
     </div>
     <div class="calendar-invitation-panel-details">
       <slot name="header"></slot>
-      <calendar-invitation-panel-properties id="properties"/>
+      <calendar-invitation-panel-properties/>
     </div>
 </template>
 
@@ -99,6 +99,7 @@
          class="calendar-invitation-panel-intro" 
          data-l10n-id="calendar-invitation-panel-intro"></div>
     <div class="calendar-invitation-panel-summary">
+      <calendar-invitation-change-indicator/>
       <h1 id="title"
           class="calendar-invitation-panel-title" 
           data-l10n-id="calendar-invitation-panel-title"></h1>
@@ -113,17 +114,22 @@
     <tbody>
       <tr>
         <th data-l10n-id="calendar-invitation-panel-prop-title-when"></th>
-        <td id="when" class="calendar-invitation-when">
+        <td class="calendar-invitation-when">
+          <calendar-invitation-change-indicator id="intervalChangeIndicator"/>
           <calendar-invitation-interval id="interval"/>
         </td>
       </tr>
       <tr>
         <th data-l10n-id="calendar-invitation-panel-prop-title-recurrence"></th>
-        <td id="recurrence" class="calendar-invitation-recurrence"></td>
+        <td id="recurrence" class="calendar-invitation-recurrence">
+          <calendar-invitation-change-indicator id="recurrenceChangeIndicator"/>
+        </td>
       </tr>
       <tr>
         <th data-l10n-id="calendar-invitation-panel-prop-title-location"></th>
-        <td id="location" class="content"></td>
+        <td id="location" class="content">
+          <calendar-invitation-change-indicator id="locationChangeIndicator"/>
+        </td>
       </tr>
       <tr>
         <th data-l10n-id="calendar-invitation-panel-prop-title-attendees"></th>
@@ -134,7 +140,10 @@
       </tr>
       <tr>
         <th data-l10n-id="calendar-invitation-panel-prop-title-description"></th>
-        <td id="description" class="content"></td>
+        <td id="description" class="content">
+          <calendar-invitation-change-indicator id="descriptionChangeIndicator"/>
+
+        </td>
       </tr>
       <tr>
         <th data-l10n-id="calendar-invitation-panel-prop-title-attachments"></th>

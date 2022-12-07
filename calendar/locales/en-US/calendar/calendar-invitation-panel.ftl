@@ -114,3 +114,9 @@ calendar-invitation-panel-partstat-needs-action = { $count } pending
 calendar-invitation-panel-partstat-total = { $count } participants
 
 calendar-invitation-panel-prop-title-attachments = Attachments:
+
+calendar-invitation-change-indicator-removed = Removed
+
+calendar-invitation-change-indicator-added = New
+
+calendar-invitation-change-indicator-modified = Changed

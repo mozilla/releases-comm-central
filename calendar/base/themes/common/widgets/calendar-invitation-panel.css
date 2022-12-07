@@ -78,6 +78,7 @@
 
 .calendar-invitation-panel-props th, .calendar-invitation-panel-props td {
   vertical-align: top;
+  padding: 3px 0;
 }
 
 .calendar-invitation-panel-props th {
@@ -91,9 +92,8 @@
   word-break: break-word;
 }
 
-.calendar-invitation-when {
-  display: flex;
-  flex-direction: column;
+calendar-invitation-interval {
+  display: inline-block;
 }
 
 .calendar-invitation-panel-partstat-breakdown:before {
@@ -128,4 +128,14 @@
 .calendar-invitation-list li img {
   width: 16px;
   height: 16px;
+}
+
+calendar-invitation-change-indicator:not([hidden]) {
+  border-radius: var(--toolbarbutton-border-radius);
+  margin-inline-end: 3px;
+  margin-block: 2px;
+  padding-inline: 7px;
+  background-color: rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 0 0 1px transparent;
+  display: inline-block;
 }
