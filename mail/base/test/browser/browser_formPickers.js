@@ -35,13 +35,12 @@ async function checkABrowser(browser) {
   let picker = doc.getElementById(browser.getAttribute("datetimepicker"));
   Assert.ok(picker, "date/time picker exists");
 
-  // Click on the input box to open the popup.
+  // Open the popup.
   let shownPromise = BrowserTestUtils.waitForEvent(picker, "popupshown");
-  await BrowserTestUtils.synthesizeMouseAtCenter(
-    `input[type="date"]`,
-    {},
-    browser
-  );
+  await SpecialPowers.spawn(browser, [], function() {
+    content.document.notifyUserGestureActivation();
+    content.document.querySelector(`input[type="date"]`).showPicker();
+  });
   await shownPromise;
 
   // Allow the picker time to initialise.
@@ -50,7 +49,12 @@ async function checkABrowser(browser) {
   // Click in the middle of the picker. This should always land on a date and
   // close the picker.
   let hiddenPromise = BrowserTestUtils.waitForEvent(picker, "popuphidden");
-  EventUtils.synthesizeMouseAtCenter(picker, {}, win);
+  let frame = picker.querySelector("#dateTimePopupFrame");
+  EventUtils.synthesizeMouseAtCenter(
+    frame.contentDocument.querySelector(".days-view td"),
+    {},
+    frame.contentWindow
+  );
   await hiddenPromise;
 
   // Check the date was assigned to the input.
