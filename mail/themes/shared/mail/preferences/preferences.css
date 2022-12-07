@@ -1051,7 +1051,7 @@ calendar-notifications-setting .remove-button {
 
 .synced-account .config-list {
   gap: 0;
-  margin-inline-start: 21px
+  margin-inline-start: 21px;
 }
 
 .config-item {
@@ -1061,7 +1061,7 @@ calendar-notifications-setting .remove-button {
 }
 
 .config-item label::before {
-  display: inline-block
+  display: inline-block;
   height: 16px;
   width: 16px;
   margin-inline-end: 6px;
