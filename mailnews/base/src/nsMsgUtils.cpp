@@ -1896,3 +1896,15 @@ nsresult SyncCopyStream(nsIInputStream* src, nsIOutputStream* dest,
   }
   return NS_OK;
 }
+
+// Used for "@mozilla.org/network/sync-stream-listener;1".
+already_AddRefed<nsIStreamListener> SyncStreamListenerCreate() {
+  MOZ_ASSERT(NS_IsMainThread());
+
+  nsCOMPtr<nsIStreamListener> listener;
+  nsCOMPtr<nsIInputStream> stream;
+  nsresult rv = NS_NewSyncStreamListener(getter_AddRefs(listener),
+                                         getter_AddRefs(stream));
+  NS_ENSURE_SUCCESS(rv, nullptr);
+  return listener.forget();
+}

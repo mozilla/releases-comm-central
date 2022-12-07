@@ -919,9 +919,18 @@ sync-signedout-caption = Take Your Web With You
 
 sync-signedout-description = Synchronize your accounts, address books, calendars, add-ons, and settings across all your devices.
 
-sync-signedout-account-signin-btn = Sign in to sync…
+# Note: "Sync" represents the Firefox Sync product so it shouldn't be translated.
+sync-signedout-account-signin-btn = Sign in to Sync…
 
 sync-pane-header = Sync
+
+# Variables:
+# $userEmail (String) - The email logged into Sync.
+sync-pane-email-not-verified = “{ $userEmail }” is not verified.
+
+sync-pane-resend-verification = Resend verification
+
+sync-pane-remove-account = Remove account
 
 sync-pane-edit-photo =
   .title = Change profile picture

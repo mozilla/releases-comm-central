@@ -129,9 +129,9 @@ var msgDBCacheManager = {
     let numOpenInWindow = 0;
     let dbs = [];
     for (let db of cachedDBs) {
-      if (!db.folder.databaseOpen) {
+      if (!db.folder?.databaseOpen) {
         // The DB isn't really open anymore.
-        log.debug("Skipping, DB not open for folder: " + db.folder.name);
+        log.debug("Skipping, DB not open for folder: " + db.folder?.name);
         numClosing++;
         continue;
       }

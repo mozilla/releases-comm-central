@@ -24,12 +24,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
-      width="900">
+      scrolling="false"
+      style="height: 75vh; min-width: 800px;">
 <head>
   <title><!-- identityDialogTitleEdit --></title>
-  <style>
-   #identityTabsPanels &gt; vbox { overflow:auto; }
-  </style>
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/preferencesBindings.js"></script>
@@ -51,10 +49,7 @@
   <stringbundle id="bundle_messenger"
                 src="chrome://messenger/locale/messenger.properties"/>
 
-  <description>&identityListDesc.label;</description>
-  <separator class="thin"/>
-
-  <tabbox flex="1" style="overflow:hidden; height:50em;">
+  <tabbox flex="1" style="overflow: hidden;">
     <tabs id="identitySettings">
       <tab id="identitySettingsTab" label="&settingsTab.label;"/>
       <tab id="identityCopiesFoldersTab" label="&copiesFoldersTab.label;"/>

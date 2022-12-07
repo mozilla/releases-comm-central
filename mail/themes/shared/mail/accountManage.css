@@ -223,6 +223,19 @@ richlistitem[default="true"],
   height: 34px;
 }
 
+#identityDialog.doScroll {
+  margin-inline: 0;
+}
+
+#identityDialog.doScroll::part(content-box) {
+  contain: initial;
+}
+
+#identityTabsPanels > vbox {
+  overflow-y: auto;
+  height: calc(100vh - 7em); /* Don't include the tabbar and buttons. */
+}
+
 /* ::::: Server Settings :::::: */
 
 #amServerSetting {

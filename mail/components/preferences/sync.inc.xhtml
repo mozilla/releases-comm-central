@@ -28,7 +28,33 @@
     </section>
 
     <section id="syncAccountSignedIn">
-      <div id="syncAccountSection">
+      <!-- Account NOT Verified -->
+      <section id="syncAccountNotVerified" class="sync-account-section">
+        <div id="photoDisplay">
+          <img class="contact-photo" src="" alt="" />
+        </div>
+        <div id="syncAccountNotVerifiedInfo">
+          <span id="syncAccountMailNotVerified"
+                data-l10n-id="sync-pane-email-not-verified"
+                data-l10n-args='{"userEmail": ""}'>
+          </span>
+          <div id="syncUnverifiedButtonOptions">
+            <button id="syncResendVerification"
+                    class="place-self-end primary"
+                    data-l10n-id="sync-pane-resend-verification"
+                    type="button">
+            </button>
+            <button id="syncRemoveAccount"
+                    class="place-self-end"
+                    data-l10n-id="sync-pane-remove-account"
+                    type="button">
+            </button>
+         </div>
+        </div>
+      </section>
+
+      <!-- Account Verified -->
+      <section id="syncAccountVerified" class="sync-account-section">
         <div id="photoInput">
           <button type="button" id="photoButton"
                   class="plain-button"
@@ -47,7 +73,7 @@
                 data-l10n-id="sync-pane-sign-out"
                 type="button">
         </button>
-      </div>
+      </section>
 
       <fieldset id="syncDeviceInfo">
         <legend data-l10n-id="sync-pane-device-name-title"></legend>
@@ -149,7 +175,8 @@
 
         <button class="place-self-end primary"
                 data-l10n-id="show-synced-change"
-                type="button">
+                type="button"
+                onclick="gSyncPane.showSyncDialog();">
         </button>
       </div>
 
