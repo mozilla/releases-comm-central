@@ -26,7 +26,6 @@
 
     /**
      * The id of the <template> tag to initialize the element with.
-     *
      * @param {string?} id
      */
     constructor(id) {
@@ -64,14 +63,12 @@
     /**
      * mode determines how the UI should display the received invitation. It
      * must be set to one of the MODE_* constants, defaults to MODE_NEW.
-     *
      * @type {string}
      */
     mode = this.MODE_NEW;
 
     /**
      * The event item to be displayed.
-     *
      * @type {calIEvent?}
      */
     item;
@@ -121,7 +118,6 @@
 
     /**
      * Setting the item will populate the header with information.
-     *
      * @type {calIEvent}
      */
     set item(item) {
@@ -148,7 +144,6 @@
 
     /**
      * Provides the value of the title displayed as a string.
-     *
      * @type {string}
      */
     get fullTitle() {
@@ -261,7 +256,6 @@
     /**
      * Setting the item will populate the table that displays the event
      * properties.
-     *
      * @type {calIEvent}
      */
     set item(item) {
@@ -286,10 +280,20 @@
         }
       }
 
-      let attendees = item.getAttendees();
-      this.shadowRoot.getElementById("summary").attendees = attendees;
-      this.shadowRoot.getElementById("attendees").attendees = attendees;
-      this.shadowRoot.getElementById("attachments").attachments = item.getAttachments();
+      let attendeeValues = item.getAttendees();
+      this.shadowRoot.getElementById("summary").attendees = attendeeValues;
+
+      let attendees = this.shadowRoot.getElementById("attendees");
+      if (this.foundItem) {
+        attendees.oldValue = this.foundItem.getAttendees();
+      }
+      attendees.value = attendeeValues;
+
+      let attachments = this.shadowRoot.getElementById("attachments");
+      if (this.foundItem) {
+        attachments.oldValue = this.foundItem.getAttachments();
+      }
+      attachments.value = item.getAttachments();
     }
 
     /**
@@ -323,7 +327,6 @@
 
     /**
      * The item whose interval to show.
-     *
      * @type {calIEvent}
      */
     set item(value) {
@@ -352,7 +355,6 @@
 
     /**
      * Setting this property will trigger an update of the text displayed.
-     *
      * @type {calIAttendee[]}
      */
     set attendees(attendees) {
@@ -398,80 +400,223 @@
   customElements.define("calendar-invitation-partstat-summary", InvitationPartStatSummary);
 
   /**
-   * InvitationAttendeeList displays a list of all the attendees on
-   * an event's attendee list.
+   * BaseInvitationChangeList is a <ul> element that can visually show changes
+   * between elements of a list value.
+   * @template T
    */
-  class InvitationAttendeeList extends BaseInvitationElement {
-    constructor() {
-      super("calendarInvitationAttendeesList");
+  class BaseInvitationChangeList extends HTMLUListElement {
+    /**
+     * An array containing the old values to be compared against for changes.
+     * @type {T[]}
+     */
+    oldValue = [];
+
+    /**
+     * String indicating the type of list items to create. This is passed
+     * directly to the "is" argument of document.createElement().
+     * @abstract
+     */
+    listItem;
+
+    _createListItem(value, status) {
+      let li = document.createElement("li", { is: this.listItem });
+      li.changeStatus = status;
+      li.value = value;
+      return li;
     }
 
     /**
-     * Setting this property will trigger rendering of the attendees list.
-     *
-     * @type {calIAttendee[]}
+     * Setting this property will trigger rendering of the list. If no prior
+     * values are detected, change indicators are not touched.
+     * @type {T[]}
      */
-    set attendees(value) {
-      let ul = this.shadowRoot.getElementById("list");
-      for (let att of value) {
-        let li = document.createElement("li");
-        let span = document.createElement("span");
-        span.textContent = att;
-        li.appendChild(span);
-        ul.appendChild(li);
+    set value(list) {
+      if (!this.oldValue.length) {
+        for (let value of list) {
+          this.append(this._createListItem(value));
+        }
+        return;
+      }
+      for (let [value, status] of this.getChanges(this.oldValue, list)) {
+        this.appendChild(this._createListItem(value, status));
       }
     }
+
+    /**
+     * Implemented by sub-classes to generate a list of changes for each element
+     * of the new list.
+     *
+     * @param {T[]} oldValue
+     * @param {T[]} newValue
+     *
+     * @return {[T, number][]}
+     */
+    getChanges(oldValue, newValue) {
+      throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+    }
   }
-  customElements.define("calendar-invitation-attendee-list", InvitationAttendeeList);
 
   /**
-   * InvitationAttachmentList displays a list of all attachments in the
-   * invitation that have URIs. Binary attachments are not supported.
+   * BaseInvitationChangeListItem is the <li> element used for change lists.
+   * @template {T}
    */
-  class InvitationAttachmentList extends BaseInvitationElement {
-    constructor() {
-      super("calendarInvitationAttachmentList");
+  class BaseInvitationChangeListItem extends HTMLLIElement {
+    /**
+     * Indicates whether the item value has changed and should be displayed as
+     * such. Its value is one of the PROPERTY_* constants.
+     * @type {number}
+     */
+    changeStatus = PROPERTY_UNCHANGED;
+
+    /**
+     * Settings this property will render the list item including a change
+     * indicator if the changeStatus property != PROPERTY_UNCHANGED.
+     * @type {T}
+     */
+    set value(itemValue) {
+      this.build(itemValue);
+      if (this.changeStatus) {
+        let changeIndicator = document.createElement("calendar-invitation-change-indicator");
+        changeIndicator.type = this.changeStatus;
+        this.append(changeIndicator);
+      }
     }
 
     /**
-     * Setting this property will trigger rendering of the attachments list.
-     *
-     * @type {calIAttachment[]}
+     * Implemented by sub-classes to build the <li> inner DOM structure.
+     * @param {T} value
+     * @abstract
      */
-    set attachments(value) {
-      let ul = this.shadowRoot.getElementById("list");
-      for (let attachment of value) {
-        if (attachment.uri) {
-          let item = document.createElement("li", { is: "calendar-invitation-attachment-item" });
-          item.attachment = attachment;
-          ul.appendChild(item);
+    build(value) {
+      throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+    }
+  }
+
+  /**
+   * InvitationAttendeeList displays a list of all the attendees on an event's
+   * attendee list.
+   */
+  class InvitationAttendeeList extends BaseInvitationChangeList {
+    listItem = "calendar-invitation-panel-attendee-list-item";
+
+    getChanges(oldValue, newValue) {
+      let diff = [];
+      for (let att of newValue) {
+        let oldAtt = oldValue.find(oldAtt => oldAtt.id == att.id);
+        if (!oldAtt) {
+          diff.push([att, PROPERTY_ADDED]); // New attendee.
+        } else if (oldAtt.participationStatus != att.participationStatus) {
+          diff.push([att, PROPERTY_MODIFIED]); // Participation status changed.
+        } else {
+          diff.push([att, PROPERTY_UNCHANGED]); // No change.
         }
       }
+
+      // Insert removed attendees into the diff.
+      for (let [idx, att] of oldValue.entries()) {
+        let found = newValue.find(newAtt => newAtt.id == att.id);
+        if (!found) {
+          diff.splice(idx, 0, [att, PROPERTY_REMOVED]);
+        }
+      }
+      return diff;
     }
   }
-  customElements.define("calendar-invitation-panel-attachment-list", InvitationAttachmentList);
+  customElements.define("calendar-invitation-panel-attendee-list", InvitationAttendeeList, {
+    extends: "ul",
+  });
 
   /**
-   * InvitationAttachmentItem displays a link to an attachment attached to the
+   * InvitationAttendeeListItem displays a single attendee from the attendee
+   * list.
+   */
+  class InvitationAttendeeListItem extends BaseInvitationChangeListItem {
+    build(value) {
+      let span = document.createElement("span");
+      if (this.changeStatus == PROPERTY_REMOVED) {
+        span.setAttribute("class", "removed");
+      }
+      span.textContent = value;
+      this.appendChild(span);
+    }
+  }
+  customElements.define(
+    "calendar-invitation-panel-attendee-list-item",
+    InvitationAttendeeListItem,
+    {
+      extends: "li",
+    }
+  );
+
+  /**
+   * InvitationAttachmentList displays a list of all attachments in the invitation
+   * that have URIs. Binary attachments are not supported.
+   */
+  class InvitationAttachmentList extends BaseInvitationChangeList {
+    listItem = "calendar-invitation-panel-attachment-list-item";
+
+    getChanges(oldValue, newValue) {
+      let diff = [];
+      for (let attch of newValue) {
+        if (!attch.uri) {
+          continue;
+        }
+        let oldAttch = oldValue.find(
+          oldAttch => oldAttch.uri && oldAttch.uri.spec == attch.uri.spec
+        );
+
+        if (!oldAttch) {
+          // New attachment.
+          diff.push([attch, PROPERTY_ADDED]);
+          continue;
+        }
+        if (
+          attch.hashId != oldAttch.hashId ||
+          attch.getParameter("FILENAME") != oldAttch.getParameter("FILENAME")
+        ) {
+          // Contents changed or renamed.
+          diff.push([attch, PROPERTY_MODIFIED]);
+          continue;
+        }
+        // No change.
+        diff.push([attch, PROPERTY_UNCHANGED]);
+      }
+
+      // Insert removed attachments into the diff.
+      for (let [idx, attch] of oldValue.entries()) {
+        if (!attch.uri) {
+          continue;
+        }
+        let found = newValue.find(newAtt => newAtt.uri && newAtt.uri.spec == attch.uri.spec);
+        if (!found) {
+          diff.splice(idx, 0, [attch, PROPERTY_REMOVED]);
+        }
+      }
+      return diff;
+    }
+  }
+  customElements.define("calendar-invitation-panel-attachment-list", InvitationAttachmentList, {
+    extends: "ul",
+  });
+
+  /**
+   * InvitationAttachmentListItem displays a link to an attachment attached to the
    * event.
    */
-  class InvitationAttachmentItem extends HTMLLIElement {
+  class InvitationAttachmentListItem extends BaseInvitationChangeListItem {
     /**
-     * Settings this property will set up the attachment to be displayed as a
-     * link with appropriate icon. Links are opened externally.
-     *
-     * @type {calIAttachment[]}
+     * Indicates whether the attachment has changed and should be displayed as
+     * such. Its value is one of the PROPERTY_* constants.
+     * @type {number}
      */
-    set attachment(value) {
-      let title = value.getParameter("FILENAME") || value.uri.spec;
-      let link = document.createElement("a");
-      link.textContent = title;
-      link.setAttribute("href", value.uri.spec);
-      link.addEventListener("click", event => {
-        event.preventDefault();
-        openLinkExternally(event.target.href);
-      });
+    changeStatus = PROPERTY_UNCHANGED;
 
+    /**
+     * Sets up the attachment to be displayed as a link with appropriate icon.
+     * Links are opened externally.
+     * @param {calIAttachment}
+     */
+    build(value) {
       let icon = document.createElement("img");
       let iconSrc = value.uri.spec.length ? value.uri.spec : "dummy.html";
       if (!value.uri.schemeIs("file")) {
@@ -487,24 +632,39 @@
         }
       }
       icon.setAttribute("src", "moz-icon://" + iconSrc);
-      this.append(icon, link);
+      this.append(icon);
+
+      let title = value.getParameter("FILENAME") || value.uri.spec;
+      if (this.changeStatus == PROPERTY_REMOVED) {
+        let span = document.createElement("span");
+        span.setAttribute("class", "removed");
+        span.textContent = title;
+        this.append(span);
+      } else {
+        let link = document.createElement("a");
+        link.textContent = title;
+        link.setAttribute("href", value.uri.spec);
+        link.addEventListener("click", event => {
+          event.preventDefault();
+          openLinkExternally(event.target.href);
+        });
+        this.append(link);
+      }
     }
   }
-  customElements.define("calendar-invitation-attachment-item", InvitationAttachmentItem, {
-    extends: "li",
-  });
+  customElements.define(
+    "calendar-invitation-panel-attachment-list-item",
+    InvitationAttachmentListItem,
+    {
+      extends: "li",
+    }
+  );
 
   /**
    * InvitationChangeIndicator is a visual indicator for indicating some piece
    * of data has changed.
    */
   class InvitationChangeIndicator extends HTMLElement {
-    constructor() {
-      super();
-      this.setAttribute("data-l10n-id", `calendar-invitation-change-indicator-modified`);
-      this.hidden = true;
-    }
-
     _typeMap = {
       [PROPERTY_REMOVED]: "removed",
       [PROPERTY_ADDED]: "added",
@@ -513,12 +673,13 @@
 
     /**
      * One of the PROPERTY_* constants that indicates what kind of change we
-     * are indicating (add/modify/delete) etc. Setting this will the text
-     * displayed.
+     * are indicating (add/modify/delete) etc.
      * @type {number}
      */
-    set type(value) {
-      let key = this._typeMap[value];
+    type = PROPERTY_MODIFIED;
+
+    connectedCallback() {
+      let key = this._typeMap[this.type];
       this.setAttribute("data-l10n-id", `calendar-invitation-change-indicator-${key}`);
     }
   }

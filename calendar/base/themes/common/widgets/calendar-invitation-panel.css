@@ -113,21 +113,25 @@ calendar-invitation-interval {
   margin-inline-end: 0.5em;
 }
 
-.calendar-invitation-list {
+.calendar-invitation-panel-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.calendar-invitation-list li {
+.calendar-invitation-panel-list li {
   display: flex;
   align-items: center;
   gap: 3px;
 }
 
-.calendar-invitation-list li img {
+.calendar-invitation-panel-list li img {
   width: 16px;
   height: 16px;
+}
+
+.calendar-invitation-panel-list li span.removed {
+  text-decoration: line-through;
 }
 
 calendar-invitation-change-indicator:not([hidden]) {
