@@ -82,7 +82,10 @@
       if (this.item && this.mode) {
         let template = document.getElementById(`calendarInvitationPanel`);
         this.shadowRoot.appendChild(template.content.cloneNode(true));
-        this.shadowRoot.getElementById("title").textContent = this.item.title;
+
+        let title = this.shadowRoot.querySelector("calendar-invitation-panel-title");
+        title.foundItem = this.foundItem;
+        title.item = this.item;
 
         let statusBar = this.shadowRoot.querySelector("calendar-invitation-panel-status-bar");
         statusBar.status = this.mode;
@@ -97,9 +100,40 @@
   customElements.define("calendar-invitation-panel", InvitationPanel);
 
   /**
+   * InvitationPanelTitle displays the title of the event in a header element.
+   */
+  class InvitationPanelTitle extends HTMLElement {
+    /**
+     * A previous copy of the event, if specified it is used to determine if
+     * the title of the invitation has changed.
+     *
+     * @type {calIEvent?}
+     */
+    foundItem;
+
+    /**
+     * Setting this value will render the title as well as a change indicator
+     * if a change in title is detected.
+     *
+     * @type {calIEvent}
+     */
+    set item(value) {
+      let node = document.getElementById("calendarInvitationPanelTitle").content.cloneNode(true);
+      if (this.foundItem && this.foundItem.title != value.title) {
+        let indicator = node.querySelector("calendar-invitation-change-indicator");
+        indicator.status = PROPERTY_MODIFIED;
+        indicator.hidden = false;
+      }
+
+      node.querySelector("h1").textContent = value.title;
+      this.append(node);
+    }
+  }
+  customElements.define("calendar-invitation-panel-title", InvitationPanelTitle);
+
+  /**
    * Object used to describe relevant arguments to MozElements.NotificationBox.
    * appendNotification().
-   *
    * @type {Object} InvitationStatusBarDescriptor
    * @property {string} label - An l10n id used used to generate the notification
    *   bar text.

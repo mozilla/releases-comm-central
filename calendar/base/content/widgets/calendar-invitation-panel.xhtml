@@ -10,15 +10,18 @@
       <calendar-minidate/>
     </div>
     <div class="calendar-invitation-panel-details">
-      <div class="calendar-invitation-panel-details-header">
-        <calendar-invitation-change-indicator hidden="hidden"/>
-        <h1 id="title"
-            class="calendar-invitation-panel-title"></h1>
-      </div>
+      <calendar-invitation-panel-title/>
       <calendar-invitation-panel-properties/>
     </div>
   </div>
   <calendar-invitation-panel-footer/>
+</template>
+
+<!-- Template for <calendar-invitation-panel-title/> -->
+<template id="calendarInvitationPanelTitle" xmlns="http://www.w3.org/1999/xhtml">
+  <div class="calendar-invitation-panel-title">
+    <calendar-invitation-change-indicator hidden="hidden"/><h1></h1>
+  </div>
 </template>
 
 <!-- Template for <calendar-invitation-panel-properties/> -->

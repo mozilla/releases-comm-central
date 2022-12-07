@@ -29,18 +29,16 @@
   flex-direction: column;
 }
 
-.calendar-invitation-panel-details-header {
+.calendar-invitation-panel-title {
   margin-bottom: 5px;
-  text-align: center;
+  display: flex;
+  justify-content: center;
 }
 
-.calendar-invitation-panel-title {
+.calendar-invitation-panel-title > h1 {
   font-size: 1.4rem;
   font-weight: 800;
-  margin: 0 1em;
-  flex-grow: 2;
-  align-self: flex-end;
-  display: inline-block;
+  margin: 0;
 }
 
 .calendar-invitation-panel-response-buttons {
