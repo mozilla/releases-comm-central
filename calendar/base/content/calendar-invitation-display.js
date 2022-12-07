@@ -14,6 +14,13 @@
    */
   const CalInvitationDisplay = {
     /**
+     * The itipItem currently displayed.
+     *
+     * @type {calIItipItem}
+     */
+    currentItipItem: null,
+
+    /**
      * The XUL element that wraps the invitation.
      *
      * @type {XULElement}
@@ -91,29 +98,45 @@
      * @param {calIItipItem} itipItem
      */
     async show(itipItem) {
+      this.currentItipItem = itipItem;
       this.display.replaceChildren();
+
+      let [, rc, actionFunc, foundItems] = await new Promise(resolve =>
+        cal.itip.processItipItem(itipItem, (targetItipItem, rc, actionFunc, foundItems) =>
+          resolve([targetItipItem, rc, actionFunc, foundItems])
+        )
+      );
+
+      if (this.currentItipItem != itipItem || !Components.isSuccessCode(rc)) {
+        return;
+      }
+
       let [item] = itipItem.getItemList();
-      let foundItem = await itipItem.targetCalendar.getItem(item.id);
+      let [foundItem] = foundItems;
       let panel = document.createElement("calendar-invitation-panel");
-      let { mode } = panel;
-      switch (itipItem.receivedMethod) {
+      let method = actionFunc ? actionFunc.method : itipItem.receivedMethod;
+      switch (method) {
+        case "REQUEST:UPDATE":
+          panel.mode = panel.constructor.MODE_UPDATE_MAJOR;
+          break;
+        case "REQUEST:UPDATE-MINOR":
+          panel.mode = panel.constructor.MODE_UPDATE_MINOR;
+          break;
         case "REQUEST":
-          if (foundItem) {
-            if (cal.itip.compareSequence(foundItem, item) == 1) {
-              mode = panel.MODE_UPDATE_MAJOR;
-            } else if (cal.itip.compareStamp(foundItem, item) == 1) {
-              mode = panel.MODE_UPDATE_MINOR;
-            } else {
-              mode = panel.MODE_ALREADY_PROCESSED;
-            }
-            panel.foundItem = foundItem;
-          }
+          panel.mode = foundItem
+            ? panel.constructor.MODE_ALREADY_PROCESSED
+            : panel.constructor.MODE_NEW;
           break;
         case "CANCEL":
-          mode = foundItem ? panel.MODE_CANCELLED : panel.MODE_CANCELLED_NOT_FOUND;
+          panel.mode = foundItem
+            ? panel.constructor.MODE_CANCELLED
+            : panel.constructor.MODE_CANCELLED_NOT_FOUND;
+          break;
+        default:
+          panel.mode = panel.mode = panel.constructor.MODE_NEW;
           break;
       }
-      panel.mode = mode;
+      panel.foundItem = foundItem;
       panel.item = item;
       this.display.appendChild(panel);
       this.body.hidden = true;

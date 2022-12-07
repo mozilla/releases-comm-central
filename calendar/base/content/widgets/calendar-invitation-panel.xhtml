@@ -2,110 +2,23 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<!-- Template used by <calendar-invitation-panel/> when an item is first 
-     encountered -->
-<template id="calendarInvitationPanelNew" xmlns="http://www.w3.org/1999/xhtml">
-  <calendar-invitation-panel-wrapper id="wrapper">
-    <calendar-invitation-panel-header id="header" slot="header">
-      <button id="actionButton"
-              class="calendar-invitation-panel-action-button"
-              data-l10n-id="calendar-invitation-panel-save-button"
-              slot="action"></button>
-    </calendar-invitation-panel-header>
-  </calendar-invitation-panel-wrapper>
-  <calendar-invitation-panel-footer/>
-</template>
-
-<!-- Template for <calendar-invitation-panel/> when the invitation has already
-     been processed. -->
-<template id="calendarInvitationPanelProcessed" xmlns="http://www.w3.org/1999/xhtml">
-  <calendar-invitation-panel-wrapper>
-    <calendar-invitation-panel-header slot="header">
-      <button id="actionButton"
-              class="calendar-invitation-panel-action-button"
-              data-l10n-id="calendar-invitation-panel-view-button"
-              slot="action"></button>
-    </calendar-invitation-panel-header>
-  </calendar-invitation-panel-wrapper>
-  <calendar-invitation-panel-footer/>
-</template>
-
-<!-- Template for <calendar-invitation-panel/> when the invitation is a major
-     update. -->
-<template id="calendarInvitationPanelUpdateMajor" xmlns="http://www.w3.org/1999/xhtml">
-  <calendar-invitation-panel-wrapper id="wrapper">
-    <calendar-invitation-panel-header id="header" slot="header" actionType="update">
-      <button id="actionButton"
-              class="calendar-invitation-panel-action-button"
-              data-l10n-id="calendar-invitation-panel-view-button"
-              slot="action"></button>
-    </calendar-invitation-panel-header>
-  </calendar-invitation-panel-wrapper>
-  <calendar-invitation-panel-footer/>
-</template>
-
-<!-- Template for <calendar-invitation-panel/> when the invitation is a minor
-     update. -->
-<template id="calendarInvitationPanelUpdateMinor" xmlns="http://www.w3.org/1999/xhtml">
-  <calendar-invitation-panel-wrapper id="wrapper">
-    <calendar-invitation-panel-header id="header" slot="header" actionType="update">
-      <button id="actionButton"
-              class="calendar-invitation-panel-action-button"
-              data-l10n-id="calendar-invitation-panel-update-button"
-              slot="action"></button>
-    </calendar-invitation-panel-header>
-  </calendar-invitation-panel-wrapper>
-  <calendar-invitation-panel-footer/>
-</template>
-
-<!-- Template for <calendar-invitation-panel/> when the invitation is a 
-     cancellation of an existing event. -->
-<template id="calendarInvitationPanelCancelled" xmlns="http://www.w3.org/1999/xhtml">
-  <calendar-invitation-panel-wrapper id="wrapper">
-    <calendar-invitation-panel-header id="header" slot="header" actionType="cancel">
-      <button id="actionButton"
-              class="calendar-invitation-panel-action-button"
-              data-l10n-id="calendar-invitation-panel-delete-button"
-              slot="action"></button>
-    </calendar-invitation-panel-header>
-  </calendar-invitation-panel-wrapper>
-  <calendar-invitation-panel-footer/>
-</template>
-
-<!-- Template for <calendar-invitation-panel/> when the invitation is a 
-     cancellation of an unprocessed event. -->
-<template id="calendarInvitationPanelCancelledNotFound" xmlns="http://www.w3.org/1999/xhtml">
-  <calendar-invitation-panel-wrapper id="wrapper">
-    <calendar-invitation-panel-header id="header" slot="header" actionType="cancel"/>
-  </calendar-invitation-panel-wrapper>
-  <calendar-invitation-panel-footer/>
-</template>
-
-<!-- Template for <calendar-invitation-panel-wrapper/> -->
-<template id="calendarInvitationPanelWrapper" xmlns="http://www.w3.org/1999/xhtml">
+<!-- Template for <calendar-invitation-panel/> -->
+<template id="calendarInvitationPanel" xmlns="http://www.w3.org/1999/xhtml">
+  <calendar-invitation-panel-status-bar/>
+  <div class="calendar-invitation-panel-wrapper">
     <div class="calendar-invitation-panel-preview">
       <calendar-minidate/>
     </div>
     <div class="calendar-invitation-panel-details">
-      <slot name="header"></slot>
+      <div class="calendar-invitation-panel-details-header">
+        <calendar-invitation-change-indicator hidden="hidden"/>
+        <h1 id="title"
+            class="calendar-invitation-panel-title"></h1>
+      </div>
       <calendar-invitation-panel-properties/>
     </div>
-</template>
-
-<!-- Template for <calendar-invitation-panel-header/> -->
-<template id="calendarInvitationPanelHeader" xmlns="http://www.w3.org/1999/xhtml">
-  <div class="calendar-invitation-panel-details-header">
-    <div id="intro"
-         class="calendar-invitation-panel-intro" 
-         data-l10n-id="calendar-invitation-panel-intro"></div>
-    <div class="calendar-invitation-panel-summary">
-      <calendar-invitation-change-indicator hidden="hidden"/>
-      <h1 id="title"
-          class="calendar-invitation-panel-title" 
-          data-l10n-id="calendar-invitation-panel-title"></h1>
-      <slot name="action"></slot>
-    </div>
   </div>
+  <calendar-invitation-panel-footer/>
 </template>
 
 <!-- Template for <calendar-invitation-panel-properties/> -->
@@ -175,8 +88,6 @@
 <!-- Template for <calendar-invitation-panel-footer/> -->
 <template id="calendarInvitationPanelFooter" xmlns="http://www.w3.org/1999/xhtml">
   <div class="calendar-invitation-panel-details-footer">
-    <div id="status"
-              class="calendar-invitation-panel-reply-status"></div>
     <div id="actionButtons" class="calendar-invitation-panel-response-buttons">
       <button id="acceptButton"
               name="accept"
@@ -191,3 +102,6 @@
       </div>
     </div>
 </template>
+
+<!-- Menu for the "More" button in the invitation panel. Populated via JavaScript.-->
+<menupopup id="calendarInvitationPanelMoreMenu"></menupopup>

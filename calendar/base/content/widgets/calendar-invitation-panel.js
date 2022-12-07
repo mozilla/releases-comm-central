@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals cal openLinkExternally */
+/* globals cal, openLinkExternally, MozXULElement, MozElements */
 
 "use strict";
 
@@ -12,7 +12,8 @@
     "resource:///modules/calendar/calRecurrenceUtils.jsm"
   );
 
-  let l10n = new DOMLocalization(["calendar/calendar-invitation-panel.ftl"]);
+  // calendar-invitation-panel.ftl is not globally loaded until now.
+  MozXULElement.insertFTLIfNeeded("calendar/calendar-invitation-panel.ftl");
 
   /**
    * Base element providing boilerplate for shadow root initialisation.
@@ -20,18 +21,20 @@
   class BaseInvitationElement extends HTMLElement {
     /**
      * A previous copy of the event item if found on an existing calendar.
+     *
      * @type {calIEvent?}
      */
     foundItem;
 
     /**
      * The id of the <template> tag to initialize the element with.
+     *
      * @param {string?} id
      */
     constructor(id) {
       super();
       this.attachShadow({ mode: "open" });
-      l10n.connectRoot(this.shadowRoot);
+      document.l10n.connectRoot(this.shadowRoot);
 
       let link = document.createElement("link");
       link.rel = "stylesheet";
@@ -44,7 +47,7 @@
     }
 
     disconnectedCallback() {
-      l10n.disconnectRoot(this.shadowRoot);
+      document.l10n.disconnectRoot(this.shadowRoot);
     }
   }
 
@@ -53,110 +56,190 @@
    * interactive panel.
    */
   class InvitationPanel extends BaseInvitationElement {
-    MODE_NEW = "New";
-    MODE_ALREADY_PROCESSED = "Processed";
-    MODE_UPDATE_MAJOR = "UpdateMajor";
-    MODE_UPDATE_MINOR = "UpdateMinor";
-    MODE_CANCELLED = "Cancelled";
-    MODE_CANCELLED_NOT_FOUND = "CancelledNotFound";
+    static MODE_NEW = "New";
+    static MODE_ALREADY_PROCESSED = "Processed";
+    static MODE_UPDATE_MAJOR = "UpdateMajor";
+    static MODE_UPDATE_MINOR = "UpdateMinor";
+    static MODE_CANCELLED = "Cancelled";
+    static MODE_CANCELLED_NOT_FOUND = "CancelledNotFound";
 
     /**
      * mode determines how the UI should display the received invitation. It
      * must be set to one of the MODE_* constants, defaults to MODE_NEW.
+     *
      * @type {string}
      */
-    mode = this.MODE_NEW;
+    mode = InvitationPanel.MODE_NEW;
 
     /**
      * The event item to be displayed.
+     *
      * @type {calIEvent?}
      */
     item;
 
     connectedCallback() {
       if (this.item && this.mode) {
-        let template = document.getElementById(`calendarInvitationPanel${this.mode}`);
+        let template = document.getElementById(`calendarInvitationPanel`);
         this.shadowRoot.appendChild(template.content.cloneNode(true));
+        this.shadowRoot.getElementById("title").textContent = this.item.title;
 
-        let header = this.shadowRoot.querySelector("calendar-invitation-panel-header");
-        header.foundItem = this.foundItem;
-        header.item = this.item;
+        let statusBar = this.shadowRoot.querySelector("calendar-invitation-panel-status-bar");
+        statusBar.status = this.mode;
 
-        let wrapper = this.shadowRoot.querySelector("calendar-invitation-panel-wrapper");
-        wrapper.foundItem = this.foundItem;
-        wrapper.item = this.item;
+        this.shadowRoot.querySelector("calendar-minidate").date = this.item.startDate;
+        let props = this.shadowRoot.querySelector("calendar-invitation-panel-properties");
+        props.foundItem = this.foundItem;
+        props.item = this.item;
       }
     }
   }
   customElements.define("calendar-invitation-panel", InvitationPanel);
 
   /**
-   * InvitationPanelWrapper wraps the contents of the panel for formatting and
-   * provides the minidate to the left of the details.
+   * Object used to describe relevant arguments to MozElements.NotificationBox.
+   * appendNotification().
+   *
+   * @type {Object} InvitationStatusBarDescriptor
+   * @property {string} label - An l10n id used used to generate the notification
+   *   bar text.
+   * @property {number} priority - One of the notification box constants that
+   *   indicate the priority of a notification.
+   * @property {object[]} buttons - An array of objects corresponding to the
+   *   "buttons" argument of MozElements.NotificationBox.appendNotification().
+   *   See that method for details.
    */
-  class InvitationPanelWrapper extends BaseInvitationElement {
-    constructor() {
-      super("calendarInvitationPanelWrapper");
-    }
-
-    set item(value) {
-      this.shadowRoot.querySelector("calendar-minidate").date = value.startDate;
-      let props = this.shadowRoot.querySelector("calendar-invitation-panel-properties");
-      props.foundItem = this.foundItem;
-      props.item = value;
-    }
-  }
-  customElements.define("calendar-invitation-panel-wrapper", InvitationPanelWrapper);
 
   /**
-   * InvitationPanelHeader renders the header part of the invitation panel.
+   * InvitationStatusBar generates a notification bar that informs the user about
+   * the status of the received invitation and possible actions they may take.
    */
-  class InvitationPanelHeader extends BaseInvitationElement {
-    constructor() {
-      super("calendarInvitationPanelHeader");
+  class InvitationPanelStatusBar extends HTMLElement {
+    /**
+     * @type {NotificationBox}
+     */
+    get notificationBox() {
+      if (!this._notificationBox) {
+        this._notificationBox = new MozElements.NotificationBox(element => {
+          this.append(element);
+        });
+      }
+      return this._notificationBox;
     }
 
     /**
-     * Setting the item will populate the header with information.
-     * @type {calIEvent}
+     * Map-like object where each key is an InvitationPanel mode and the values
+     * are descriptors used to generate the notification bar for that mode.
+     *
+     * @type {Object.<string, InvitationStatusBarDescriptor>
      */
-    set item(item) {
-      let l10nArgs = JSON.stringify({
-        summary: item.getProperty("SUMMARY") || "",
-        organizer: item.organizer ? item.organizer?.commonName || item.organizer.toString() : "",
-      });
-
-      let action = this.getAttribute("actionType");
-      if (action) {
-        this.shadowRoot
-          .getElementById("intro")
-          .setAttribute("data-l10n-id", `calendar-invitation-panel-intro-${action}`);
-      }
-
-      for (let id of ["intro", "title"]) {
-        this.shadowRoot.getElementById(id).setAttribute("data-l10n-args", l10nArgs);
-      }
-
-      if (this.foundItem && this.foundItem.title != item.title) {
-        this.shadowRoot.querySelector("calendar-invitation-change-indicator").hidden = false;
-      }
-    }
+    notices = {
+      [InvitationPanel.MODE_NEW]: {
+        label: "calendar-invitation-panel-status-new",
+        buttons: [
+          {
+            "l10n-id": "calendar-invitation-panel-more-button",
+            callback: (notification, opts, button, event) =>
+              this._showMoreMenu(event, [
+                {
+                  l10nId: "calendar-invitation-panel-menu-item-save",
+                },
+              ]),
+          },
+        ],
+      },
+      [InvitationPanel.MODE_ALREADY_PROCESSED]: {
+        label: "calendar-invitation-panel-status-processed",
+        buttons: [
+          {
+            "l10n-id": "calendar-invitation-panel-view-button",
+          },
+        ],
+      },
+      [InvitationPanel.MODE_UPDATE_MINOR]: {
+        label: "calendar-invitation-panel-status-updateminor",
+        priority: this.notificationBox.PRIORITY_WARNING_LOW,
+        buttons: [
+          { "l10n-id": "calendar-invitation-panel-update-button" },
+          {
+            "l10n-id": "calendar-invitation-panel-more-button",
+            callback: (notification, opts, button, event) =>
+              this._showMoreMenu(event, [
+                {
+                  type: "checkbox",
+                  l10nId: "calendar-invitation-panel-menu-item-toggle-changes",
+                },
+              ]),
+          },
+        ],
+      },
+      [InvitationPanel.MODE_UPDATE_MAJOR]: {
+        label: "calendar-invitation-panel-status-updatemajor",
+        priority: this.notificationBox.PRIORITY_WARNING_LOW,
+        buttons: [
+          {
+            "l10n-id": "calendar-invitation-panel-more-button",
+            callback: (notification, opts, button, event) =>
+              this._showMoreMenu(event, [
+                {
+                  type: "checkbox",
+                  l10nId: "calendar-invitation-panel-menu-item-toggle-changes",
+                },
+              ]),
+          },
+        ],
+      },
+      [InvitationPanel.MODE_CANCELLED]: {
+        label: "calendar-invitation-panel-status-cancelled",
+        buttons: [{ "l10n-id": "calendar-invitation-panel-delete-button" }],
+        priority: this.notificationBox.PRIORITY_CRITICAL_LOW,
+      },
+      [InvitationPanel.MODE_CANCELLED_NOT_FOUND]: {
+        label: "calendar-invitation-panel-status-cancelled-notfound",
+        priority: this.notificationBox.PRIORITY_CRITICAL_LOW,
+      },
+    };
 
     /**
-     * Provides the value of the title displayed as a string.
-     * @type {string}
+     * status corresponds to one of the MODE_* constants and will trigger
+     * rendering of the notification box.
+     *
+     * @type {string} status
      */
-    get fullTitle() {
-      return [
-        ...this.shadowRoot.querySelectorAll(
-          ".calendar-invitation-panel-intro, .calendar-invitation-panel-title"
-        ),
-      ]
-        .map(node => node.textContent)
-        .join(" ");
+    set status(value) {
+      let opts = this.notices[value];
+      let priority = opts.priority || this.notificationBox.PRIORITY_INFO_LOW;
+      let buttons = opts.buttons || [];
+      let notification = this.notificationBox.appendNotification(
+        "invitationStatus",
+        {
+          label: { "l10n-id": opts.label },
+          priority,
+        },
+        buttons
+      );
+      notification.removeAttribute("dismissable");
+    }
+
+    _showMoreMenu(event, menuitems) {
+      let menu = document.getElementById("calendarInvitationPanelMoreMenu");
+      menu.replaceChildren();
+      for (let { type, l10nId, command } of menuitems) {
+        let menuitem = document.createXULElement("menuitem");
+        if (type) {
+          menuitem.type = type;
+        }
+        if (command) {
+          menuitem.addEventListener("command", command);
+        }
+        document.l10n.setAttributes(menuitem, l10nId);
+        menu.appendChild(menuitem);
+      }
+      menu.openPopup(event.originalTarget, "after_start", 0, 0, false, false, event);
+      return true;
     }
   }
-  customElements.define("calendar-invitation-panel-header", InvitationPanelHeader);
+  customElements.define("calendar-invitation-panel-status-bar", InvitationPanelStatusBar);
 
   const PROPERTY_REMOVED = -1;
   const PROPERTY_UNCHANGED = 0;
@@ -174,6 +257,7 @@
 
     /**
      * Used to retrieve a property value from an event.
+     *
      * @callback GetValue
      * @param {calIEvent} event
      * @returns {string}
@@ -181,6 +265,7 @@
 
     /**
      * A function used to make a property value visible in to the user.
+     *
      * @callback PropertyShow
      * @param {HTMLElement} node  - The element responsible for displaying the
      *                              value.
@@ -205,6 +290,7 @@
     /**
      * A static list of objects used in determining how to display each of the
      * properties.
+     *
      * @type {PropertyDescriptor[]}
      */
     static propertyDescriptors = [
@@ -256,6 +342,7 @@
     /**
      * Setting the item will populate the table that displays the event
      * properties.
+     *
      * @type {calIEvent}
      */
     set item(item) {
@@ -327,13 +414,14 @@
 
     /**
      * The item whose interval to show.
+     *
      * @type {calIEvent}
      */
     set item(value) {
       let [startDate, endDate] = cal.dtz.formatter.getItemDates(value);
       let timezone = startDate.timezone.displayName;
       let parts = cal.dtz.formatter.formatIntervalParts(startDate, endDate);
-      l10n.setAttributes(
+      document.l10n.setAttributes(
         this.shadowRoot.getElementById("interval"),
         `calendar-invitation-interval-${parts.type}`,
         { ...parts, timezone }
@@ -355,6 +443,7 @@
 
     /**
      * Setting this property will trigger an update of the text displayed.
+     *
      * @type {calIAttendee[]}
      */
     set attendees(attendees) {
@@ -374,7 +463,7 @@
           counts.OTHER++;
         }
       }
-      l10n.setAttributes(
+      document.l10n.setAttributes(
         this.shadowRoot.getElementById("total"),
         "calendar-invitation-panel-partstat-total",
         { count: counts.TOTAL }
@@ -390,9 +479,13 @@
         // calendar-invitation-panel-partstat-declined
         // calendar-invitation-panel-partstat-tentative
         // calendar-invitation-panel-partstat-needs-action
-        l10n.setAttributes(span, `calendar-invitation-panel-partstat-${partStat.toLowerCase()}`, {
-          count: counts[partStat],
-        });
+        document.l10n.setAttributes(
+          span,
+          `calendar-invitation-panel-partstat-${partStat.toLowerCase()}`,
+          {
+            count: counts[partStat],
+          }
+        );
         breakdown.appendChild(span);
       }
     }
@@ -402,11 +495,13 @@
   /**
    * BaseInvitationChangeList is a <ul> element that can visually show changes
    * between elements of a list value.
+   *
    * @template T
    */
   class BaseInvitationChangeList extends HTMLUListElement {
     /**
      * An array containing the old values to be compared against for changes.
+     *
      * @type {T[]}
      */
     oldValue = [];
@@ -414,6 +509,7 @@
     /**
      * String indicating the type of list items to create. This is passed
      * directly to the "is" argument of document.createElement().
+     *
      * @abstract
      */
     listItem;
@@ -428,6 +524,7 @@
     /**
      * Setting this property will trigger rendering of the list. If no prior
      * values are detected, change indicators are not touched.
+     *
      * @type {T[]}
      */
     set value(list) {
@@ -448,7 +545,6 @@
      *
      * @param {T[]} oldValue
      * @param {T[]} newValue
-     *
      * @return {[T, number][]}
      */
     getChanges(oldValue, newValue) {
@@ -458,12 +554,14 @@
 
   /**
    * BaseInvitationChangeListItem is the <li> element used for change lists.
+   *
    * @template {T}
    */
   class BaseInvitationChangeListItem extends HTMLLIElement {
     /**
      * Indicates whether the item value has changed and should be displayed as
      * such. Its value is one of the PROPERTY_* constants.
+     *
      * @type {number}
      */
     changeStatus = PROPERTY_UNCHANGED;
@@ -471,6 +569,7 @@
     /**
      * Settings this property will render the list item including a change
      * indicator if the changeStatus property != PROPERTY_UNCHANGED.
+     *
      * @type {T}
      */
     set value(itemValue) {
@@ -484,6 +583,7 @@
 
     /**
      * Implemented by sub-classes to build the <li> inner DOM structure.
+     *
      * @param {T} value
      * @abstract
      */
@@ -607,6 +707,7 @@
     /**
      * Indicates whether the attachment has changed and should be displayed as
      * such. Its value is one of the PROPERTY_* constants.
+     *
      * @type {number}
      */
     changeStatus = PROPERTY_UNCHANGED;
@@ -614,6 +715,7 @@
     /**
      * Sets up the attachment to be displayed as a link with appropriate icon.
      * Links are opened externally.
+     *
      * @param {calIAttachment}
      */
     build(value) {
@@ -674,13 +776,14 @@
     /**
      * One of the PROPERTY_* constants that indicates what kind of change we
      * are indicating (add/modify/delete) etc.
+     *
      * @type {number}
      */
     type = PROPERTY_MODIFIED;
 
     connectedCallback() {
       let key = this._typeMap[this.type];
-      this.setAttribute("data-l10n-id", `calendar-invitation-change-indicator-${key}`);
+      document.l10n.setAttributes(this, `calendar-invitation-change-indicator-${key}`);
     }
   }
   customElements.define("calendar-invitation-change-indicator", InvitationChangeIndicator);
@@ -692,13 +795,6 @@
   class InvitationPanelFooter extends BaseInvitationElement {
     constructor() {
       super("calendarInvitationPanelFooter");
-    }
-
-    connectedCallback() {
-      l10n.setAttributes(
-        this.shadowRoot.getElementById("status"),
-        "calendar-invitation-panel-reply-status"
-      );
     }
   }
   customElements.define("calendar-invitation-panel-footer", InvitationPanelFooter);

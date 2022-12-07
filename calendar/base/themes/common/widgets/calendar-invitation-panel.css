@@ -9,7 +9,16 @@
   border: 1px solid var(--splitter-color);
 }
 
-:host(calendar-invitation-panel-wrapper) {
+:host(calendar-invitation-panel) .notificationbox-stack {
+  width: 100%;
+  padding: 10px 20px;
+}
+
+:host(calendar-invitation-panel) .notificationbox-stack > notification-message {
+  margin: 0;
+}
+
+.calendar-invitation-panel-wrapper {
   display: flex;
   padding: 10px 20px;
 }
@@ -25,12 +34,6 @@
   text-align: center;
 }
 
-.calendar-invitation-panel-summary {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-}
-
 .calendar-invitation-panel-title {
   font-size: 1.4rem;
   font-weight: 800;
@@ -40,12 +43,10 @@
   display: inline-block;
 }
 
-.calendar-invitation-panel-action-button {
-  margin: 0;
+.calendar-invitation-panel-response-buttons {
   margin-inline-start: auto;
 }
 
-.calendar-invitation-panel-action-button,
 .calendar-invitation-panel-response-buttons button {
   min-height: 2.5em;
   font-size: .8em;
@@ -56,15 +57,6 @@
   display: flex;
   align-items: baseline;
   padding: 10px 20px;
-}
-
-.calendar-invitation-panel-reply-status {
-  margin-inline-end: 2rem;
-  font-size: .8rem;
-}
-
-.calendar-invitation-panel-response-buttons {
-  margin-inline-start: auto;
 }
 
 .calendar-invitation-panel-props {
