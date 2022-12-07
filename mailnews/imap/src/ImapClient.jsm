@@ -1472,8 +1472,7 @@ class ImapClient {
     }
 
     if (msg.body) {
-      let sepIndex = msg.body.indexOf("\r\n\r\n");
-      if (sepIndex == -1 || msg.body.length == sepIndex + "\r\n\r\n".length) {
+      if (msg.bodySection.length == 1 && msg.bodySection[0] == "HEADER") {
         // Handle message headers.
         this._messageUids[msg.sequence] = msg.uid;
         this._messages.set(msg.uid, msg);
