@@ -453,4 +453,7 @@ nsresult SyncCopyStream(nsIInputStream* src, nsIOutputStream* dest,
                         uint64_t& bytesCopied,
                         size_t bufSize = FILE_IO_BUFFER_SIZE);
 
+// Used for "@mozilla.org/network/sync-stream-listener;1".
+already_AddRefed<nsIStreamListener> SyncStreamListenerCreate();
+
 #endif
