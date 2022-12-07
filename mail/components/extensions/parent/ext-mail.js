@@ -406,8 +406,8 @@ class WindowTracker extends WindowTrackerBase {
   }
 
   /**
-   * Determines if the passed window object is a mail window. The function name is for base class
-   * compatibility with gecko.
+   * Determines if the passed window object is a mail window. The function
+   * name is for base class compatibility with toolkit.
    *
    * @param {DOMWindow} window - The window to check
    * @returns {boolean} True, if the window is a mail window
@@ -424,6 +424,25 @@ class WindowTracker extends WindowTrackerBase {
       "mail:messageWindow",
       "mail:extensionPopup",
     ].includes(documentElement.getAttribute("windowtype"));
+  }
+
+  /**
+   * Determines if the passed window object is a mail window but not the main
+   * window. This is useful to find windows where the window itself is the
+   * "nativeTab" object in API terms.
+   *
+   * @param {DOMWindow} window - The window to check
+   * @returns {boolean} True, if the window is a mail window but not the main window
+   */
+  isSecondaryWindow(window) {
+    let { documentElement } = window.document;
+    if (!documentElement) {
+      return false;
+    }
+
+    return ["msgcompose", "mail:messageWindow", "mail:extensionPopup"].includes(
+      documentElement.getAttribute("windowtype")
+    );
   }
 
   /**
@@ -545,17 +564,19 @@ class TabTracker extends TabTrackerBase {
       return id;
     }
 
-    let tabmail = browser.browsingContext.topChromeWindow.document.getElementById(
-      "tabmail"
-    );
+    let window = browser.browsingContext.topChromeWindow;
+    let tabmail = window.document.getElementById("tabmail");
     let tab = tabmail && tabmail.getTabForBrowser(browser);
 
     if (tab) {
-      let id = this.getId(tab);
+      id = this.getId(tab);
       this._browsers.set(browser.browserId, id);
       return id;
     }
-    return this.getId(browser.browsingContext.topChromeWindow);
+    if (windowTracker.isSecondaryWindow(window)) {
+      return this.getId(window);
+    }
+    return -1;
   }
 
   /**
@@ -669,11 +690,7 @@ class TabTracker extends TabTrackerBase {
    * @param {DOMWindow} window - The window being opened.
    */
   _handleWindowOpen(window) {
-    if (
-      ["msgcompose", "mail:messageWindow", "mail:extensionPopup"].includes(
-        window.document.documentElement.getAttribute("windowtype")
-      )
-    ) {
+    if (windowTracker.isSecondaryWindow(window)) {
       this.emit("tab-created", {
         nativeTabInfo: window,
         currentTab: window,
@@ -701,11 +718,7 @@ class TabTracker extends TabTrackerBase {
    * @param {DOMWindow} window - The window being closed.
    */
   _handleWindowClose(window) {
-    if (
-      ["msgcompose", "mail:messageWindow", "mail:extensionPopup"].includes(
-        window.document.documentElement.getAttribute("windowtype")
-      )
-    ) {
+    if (windowTracker.isSecondaryWindow(window)) {
       this.emit("tab-removed", {
         nativeTabInfo: window,
         tabId: this.getId(window),
