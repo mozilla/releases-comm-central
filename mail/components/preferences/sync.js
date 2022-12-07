@@ -10,4 +10,8 @@ var gSyncPane = {
   init() {
     /* TODO: hook up Sync backend to front-end */
   },
+
+  showSyncDialog() {
+    gSubDialog.open("chrome://messenger/content/preferences/syncDialog.xhtml");
+  },
 };

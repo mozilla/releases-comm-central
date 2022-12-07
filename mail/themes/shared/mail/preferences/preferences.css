@@ -943,23 +943,27 @@ calendar-notifications-setting .remove-button {
   align-items: center;
   }
 
-.synced-item::before {
+.synced-item::before,
+.synced-item-label::before {
   height: 16px;
   width: 16px;
   margin-inline-end: 6px;
 }
 
- #showSyncedList {
+ #showSyncedList,
+ #configSyncList {
   grid-template-columns: 1fr 1fr;
 }
 
-#showSyncAccount {
+#showSyncAccount,
+#configAccountsContainer {
   display: grid;
   gap: 12px;
   grid-column: 1 / span 2;
 }
 
-#syncedAccounts {
+#syncedAccounts,
+#configAccounts {
   display: flex;
   flex-wrap: wrap;
   gap: 24px;
@@ -969,28 +973,33 @@ calendar-notifications-setting .remove-button {
   gap: 9px;
 }
 
-#showSyncAccountLabel::before {
+#showSyncAccountLabel::before,
+#configSyncAccountLabel::before {
   content: var(--icon-mail);
 }
 
-#showSyncAddress::before {
+#showSyncAddress::before,
+#configSyncAddressLabel::before {
   content: var(--icon-address-book);
 }
 
-#showSyncCalendar::before {
+#showSyncCalendar::before,
+#configSyncCalendarLabel::before {
   content: var(--icon-calendar);
 }
 
-#showSyncIdentity::before {
+#showSyncIdentity::before,
+#configSyncIdentityLabel::before {
   content: var(--icon-id);
 }
 
 .synced-account {
-  padding-inline-start: 18px;
+  padding-inline-start: 21px;
 }
 
 .synced-account-name {
   font-size: 1rem;
+  font-weight: bold;
   margin: 0;
   margin-block-end: 9px;
 }
@@ -1005,4 +1014,50 @@ calendar-notifications-setting .remove-button {
 
 .synced-account-keys::before {
   content: var(--icon-lock);
+}
+
+#configSyncDialogHeading {
+  place-self: center;
+  margin: 0;
+}
+
+#configSyncList {
+  margin-block: 12px 24px;
+  margin-inline: 6px;
+}
+
+#configAccountsContainer {
+  gap: 9px;
+}
+
+.config-list {
+  display: grid;
+  gap: 24px;
+  padding-inline-start: 0;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
+.config-list li {
+  list-style: none;
+}
+
+.synced-account .config-list {
+  gap: 0;
+  margin-inline-start: 21px
+}
+
+.config-item {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.config-item label::before {
+  display: inline-block
+  height: 16px;
+  width: 16px;
+  margin-inline-end: 6px;
+  vertical-align: sub;
 }
