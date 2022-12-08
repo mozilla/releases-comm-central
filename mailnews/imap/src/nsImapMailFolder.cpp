@@ -8567,11 +8567,8 @@ NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
   *aAsyncResults = false;
   nsresult rv = NS_OK;
 
-  nsCOMPtr<nsIImapService> imapService =
-      do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgMessageService> msgService =
-      do_QueryInterface(imapService, &rv);
+      do_GetService("@mozilla.org/messenger/messageservice;1?type=imap", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (uint32_t i = 0; i < aKeysToFetch.Length(); i++) {
@@ -8611,8 +8608,12 @@ NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
     nsAutoCString messageIds;
     AllocateImapUidString(keysToFetchFromServer.Elements(), msgCount, nullptr,
                           messageIds);
+    nsCOMPtr<nsIImapService> imapService =
+        do_GetService("@mozilla.org/messenger/imapservice;1", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsIURI> outUri;
     rv = imapService->GetBodyStart(this, aUrlListener, messageIds, 2048,
-                                   nullptr);
+                                   getter_AddRefs(outUri));
     *aAsyncResults = true;  // the preview text will be available async...
   }
   return NS_OK;

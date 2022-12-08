@@ -410,8 +410,9 @@ class ImapClient {
    *
    * @param {nsIMsgFolder} folder - The associated folder.
    * @param {number} uid - The message uid.
+   * @param {number} [size] - The body size to fetch.
    */
-  fetchMessage(folder, uid) {
+  fetchMessage(folder, uid, size) {
     this._logger.debug(`fetchMessage folder=${folder.name} uid=${uid}`);
     if (folder.hasMsgOffline(uid, null, 10)) {
       this.onDone = () => {};
@@ -421,7 +422,13 @@ class ImapClient {
     }
     this._actionInFolder(folder, () => {
       this._nextAction = this._actionUidFetchBodyResponse;
-      this._sendTagged(`UID FETCH ${uid} (UID RFC822.SIZE FLAGS BODY.PEEK[])`);
+      let command;
+      if (size) {
+        command = `UID FETCH ${uid} (UID RFC822.SIZE FLAGS BODY.PEEK[HEADER.FIELDS (Content-Type Content-Transfer-Encoding)] BODY.PEEK[TEXT]<0.${size}>)`;
+      } else {
+        command = `UID FETCH ${uid} (UID RFC822.SIZE FLAGS BODY.PEEK[])`;
+      }
+      this._sendTagged(command);
     });
   }
 
@@ -625,6 +632,8 @@ class ImapClient {
     }
     this._nextAction = res => {
       if (res.tag == "*") {
+        this.busy = true;
+        this.folder.performingBiff = true;
         this._actionNoopResponse(res);
       }
     };
@@ -1549,7 +1558,9 @@ class ImapClient {
         this._messageUids = [];
         this._messages.clear();
       }
-      this._sendTagged(`SELECT "${this.folder.name}"`);
+      let folder = this.folder;
+      this.folder = null;
+      this.selectFolder(folder);
     } else if (res.messages.length || res.exists) {
       let outFolderInfo = {};
       this.folder.getDBFolderInfoAndDB(outFolderInfo);

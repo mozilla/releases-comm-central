@@ -401,6 +401,17 @@ class ImapService {
     });
   }
 
+  getBodyStart(folder, urlListener, messageIds, numBytes) {
+    return this._withClient(folder, (client, runningUrl) => {
+      runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
+        Ci.nsIImapUrl.nsImapMsgPreview;
+      client.startRunningUrl(urlListener, null, runningUrl);
+      client.onReady = () => {
+        client.fetchMessage(folder, messageIds, numBytes);
+      };
+    });
+  }
+
   verifyLogon(folder, urlListener, msgWindow) {
     return this._withClient(folder, (client, runningUrl) => {
       client.verifyLogon = true;
