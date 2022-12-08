@@ -44,7 +44,13 @@ class AccountHubControllerClass {
   #accounts = {
     START: () => this.#viewStart(),
     MAIL: () => this.#viewEmailSetup(),
-    // TODO: calendar, address book, chat, newsgroups, feeds.
+    NEW_MAIL: () => this.#viewNewEmailSetup(),
+    CALENDAR: () => this.#viewCalendarSetup(),
+    ADDRESS_BOOK: () => this.#viewAddressBookSetup(),
+    CHAT: () => this.#viewChatSetup(),
+    FEED: () => this.#viewFeedSetup(),
+    NNTP: () => this.#viewNNTPSetup(),
+    IMPORT: () => this.#viewImportSetup(),
   };
 
   constructor() {
@@ -60,6 +66,29 @@ class AccountHubControllerClass {
     let closeButton = this.#modal.querySelector("#closeButton");
     closeButton.hidden = !MailServices.accounts.accounts.length;
     closeButton.addEventListener("click", () => this.#modal.close());
+
+    // Listen from closing requests coming from child elements.
+    this.#modal.addEventListener(
+      "request-close",
+      event => {
+        event.stopPropagation();
+        this.#modal.close();
+      },
+      {
+        capture: true,
+      }
+    );
+
+    this.#modal.addEventListener(
+      "open-view",
+      event => {
+        event.stopPropagation();
+        this.open(event.explicitOriginalTarget.dataset.type);
+      },
+      {
+        capture: true,
+      }
+    );
 
     this.#modal.addEventListener("close", event => {
       // Don't allow the dialog to be closed if some operations are can't be
@@ -187,8 +216,58 @@ class AccountHubControllerClass {
    * TODO: Show the email setup view.
    */
   #viewEmailSetup() {
+    console.log("Email setup");
     // Trigger the specific setup view we need to load and defer the handling
     // of the setup flow to the dedicated module.
+  }
+
+  /**
+   * TODO: Show the new email setup view.
+   */
+  #viewNewEmailSetup() {
+    console.log("New Email setup");
+  }
+
+  /**
+   * TODO: Show the calendar setup view.
+   */
+  #viewCalendarSetup() {
+    console.log("Calendar setup");
+  }
+
+  /**
+   * TODO: Show the address book setup view.
+   */
+  #viewAddressBookSetup() {
+    console.log("Address Book setup");
+  }
+
+  /**
+   * TODO: Show the chat setup view.
+   */
+  #viewChatSetup() {
+    console.log("Chat setup");
+  }
+
+  /**
+   * TODO: Show the feed setup view.
+   */
+  #viewFeedSetup() {
+    console.log("Feed setup");
+  }
+
+  /**
+   * TODO: Show the newsgroup setup view.
+   */
+  #viewNNTPSetup() {
+    console.log("Newsgroup setup");
+  }
+
+  /**
+   * TODO: Show the import setup view.
+   */
+  #viewImportSetup() {
+    console.log("Import setup");
   }
 }
 
