@@ -1316,6 +1316,10 @@ toolbarpaletteitem[type="spring"][place="toolbar"] {
   -moz-box-align: center;
 }
 
+toolbarpaletteitem[type="spring"][place="toolbar"] {
+  -moz-box-flex: 1000;
+}
+
 toolbarpaletteitem[type="spacer"][place="toolbar"] toolbarspacer,
 toolbarpaletteitem[type="spring"][place="toolbar"] toolbarspring {
   height: 16px;
