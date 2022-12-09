@@ -139,13 +139,6 @@ interface nsIMsgNewsFolder : nsISupports {
   void notifyFinishedDownloadinghdrs();
 
   /**
-   * Retrieves the database, but does not cache it in mDatabase.
-   *
-   * This is useful for operations that shouldn't hold open the database.
-   */
-  nsIMsgDatabase getDatabaseWithoutCache();
-
-  /**
    * Requests that a message be canceled.
    *
    * Note that, before sending the news cancel, this method will check to make
