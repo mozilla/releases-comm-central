@@ -16,6 +16,8 @@ var EXPORTED_SYMBOLS = ["OAuth2Providers"];
 // up an address book/calendar without wanting mail.
 const GOOGLE_SCOPES =
   "https://mail.google.com/ https://www.googleapis.com/auth/carddav https://www.googleapis.com/auth/calendar";
+const FASTMAIL_SCOPES =
+  "https://www.fastmail.com/dev/protocol-imap https://www.fastmail.com/dev/protocol-pop https://www.fastmail.com/dev/protocol-smtp https://www.fastmail.com/dev/protocol-carddav https://www.fastmail.com/dev/protocol-caldav";
 
 /**
  * Map of hostnames to [issuer, scope].
@@ -61,12 +63,21 @@ var kHostnames = new Map([
     ],
   ],
 
+  ["imap.fastmail.com", ["www.fastmail.com", FASTMAIL_SCOPES]],
+  ["pop.fastmail.com", ["www.fastmail.com", FASTMAIL_SCOPES]],
+  ["smtp.fastmail.com", ["www.fastmail.com", FASTMAIL_SCOPES]],
+  [
+    "carddav.fastmail.com",
+    ["www.fastmail.com", "https://www.fastmail.com/dev/protocol-carddav"],
+  ],
+
   // For testing purposes.
   ["mochi.test", ["mochi.test", "test_scope"]],
 ]);
 
 /**
- * Map of issuers to clientId, clientSecret, authorizationEndpoint, tokenEndpoint.
+ * Map of issuers to clientId, clientSecret, authorizationEndpoint, tokenEndpoint,
+ *  and usePKCE (RFC7636).
  * Issuer is a unique string for the organization that a Thunderbird account
  * was registered at.
  *
@@ -139,6 +150,16 @@ var kIssuers = new Map([
     },
   ],
 
+  [
+    "www.fastmail.com",
+    {
+      clientId: "35f141ae",
+      authorizationEndpoint: "https://api.fastmail.com/oauth/authorize",
+      tokenEndpoint: "https://api.fastmail.com/oauth/refresh",
+      usePKCE: true,
+    },
+  ],
+
   // For testing purposes.
   [
     "mochi.test",
@@ -174,7 +195,34 @@ var OAuth2Providers = {
    *   - scope is an OAuth2 parameter describing the required access level
    */
   getHostnameDetails(hostname) {
-    return kHostnames.get(hostname);
+    // During CardDAV SRV autodiscovery, rfc6764#section-6 says:
+    //
+    // *  The client will need to make authenticated HTTP requests to
+    //    the service.  Typically, a "user identifier" is required for
+    //    some form of user/password authentication.  When a user
+    //    identifier is required, clients MUST first use the "mailbox"
+    //
+    // However macOS Contacts does not do this and just uses the "localpart"
+    // instead. To work around this bug, during SRV autodiscovery Fastmail
+    // returns SRV records of the form '0 1 443 d[0-9]+.carddav.fastmail.com.'
+    // which encodes the internal domainid of the queried SRV domain in the
+    // sub-domain of the Target (rfc2782) of the SRV result. This can
+    // then be extracted from the Host header on each DAV request, the
+    // original domain looked up and attached to the "localpart" to create
+    // a full "mailbox", allowing autodiscovery to just work for usernames
+    // in any domain including self hosted domains.
+    //
+    // So for this hostname -> issuer/scope lookup to work, we need to
+    // look not just at the hostname, but also any sub-domains of this
+    // hostname.
+    while (hostname.includes(".")) {
+      let foundHost = kHostnames.get(hostname);
+      if (foundHost) {
+        return foundHost;
+      }
+      hostname = hostname.replace(/^[^.]*[.]/, "");
+    }
+    return undefined;
   },
 
   /**
