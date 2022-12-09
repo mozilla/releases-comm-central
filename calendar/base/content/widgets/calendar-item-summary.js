@@ -599,7 +599,7 @@
         label.textContent = location;
         link.appendChild(label);
 
-        itemLocation.replaceWith(link);
+        itemLocation.replaceChildren(link);
       } else {
         itemLocation.textContent = location;
       }
