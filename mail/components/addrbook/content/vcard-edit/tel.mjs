@@ -2,27 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardEdit, VCardPropertyEntryView, vCardIdGen */
+import { vCardIdGen } from "./id-gen.mjs";
 
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "VCardPropertyEntry",
   "resource:///modules/VCardUtils.jsm"
 );
 
 /**
  * @implements {VCardPropertyEntryView}
- * @see RFC6350 URL
+ * @see RFC6350 TEL
+ *
+ * @TODO missing type-param-tel support.
+ * "text, voice, video, textphone"
  */
-class VCardURLComponent extends HTMLElement {
+export class VCardTelComponent extends HTMLElement {
   /** @type {VCardPropertyEntry} */
   vCardPropertyEntry;
 
   /** @type {HTMLInputElement} */
-  urlEl;
+  inputElement;
 
   static newVCardPropertyEntry() {
-    return new VCardPropertyEntry("url", {}, "uri", "");
+    return new lazy.VCardPropertyEntry("tel", {}, "text", "");
   }
 
   connectedCallback() {
@@ -31,32 +35,23 @@ class VCardURLComponent extends HTMLElement {
     }
     this.hasConnected = true;
 
-    let template = document.getElementById("template-vcard-edit-type-text");
+    let template = document.getElementById("template-vcard-edit-tel");
     let clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
 
-    this.urlEl = this.querySelector('input[type="text"]');
+    this.inputElement = this.querySelector('input[type="text"]');
     let urlId = vCardIdGen.next().value;
-    this.urlEl.id = urlId;
+    this.inputElement.id = urlId;
     let urlLabel = this.querySelector('label[for="text"]');
     urlLabel.htmlFor = urlId;
-    this.urlEl.type = "url";
-    document.l10n.setAttributes(urlLabel, "vcard-url-label");
+    document.l10n.setAttributes(urlLabel, "vcard-tel-label");
+    this.inputElement.type = "tel";
 
-    this.urlEl.addEventListener("input", () => {
-      // Auto add https:// if the url is missing scheme.
-      if (
-        this.urlEl.value.length > "https://".length &&
-        !/^https?:\/\//.test(this.urlEl.value)
-      ) {
-        this.urlEl.value = "https://" + this.urlEl.value;
-      }
-    });
-
-    // Create the url type selection.
+    // Create the tel type selection.
     this.vCardType = this.querySelector("vcard-type");
     this.vCardType.createTypeSelection(this.vCardPropertyEntry, {
       createLabel: true,
+      propertyType: "tel",
     });
 
     this.querySelector(".remove-property-button").addEventListener(
@@ -73,11 +68,11 @@ class VCardURLComponent extends HTMLElement {
   }
 
   fromVCardPropertyEntryToUI() {
-    this.urlEl.value = this.vCardPropertyEntry.value;
+    this.inputElement.value = this.vCardPropertyEntry.value;
   }
 
   fromUIToVCardPropertyEntry() {
-    this.vCardPropertyEntry.value = this.urlEl.value;
+    this.vCardPropertyEntry.value = this.inputElement.value;
   }
 
   valueIsEmpty() {
@@ -85,4 +80,4 @@ class VCardURLComponent extends HTMLElement {
   }
 }
 
-customElements.define("vcard-url", VCardURLComponent);
+customElements.define("vcard-tel", VCardTelComponent);

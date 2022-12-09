@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardPropertyEntryView, vCardIdGen */
+import { vCardIdGen } from "./id-gen.mjs";
 
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "VCardPropertyEntry",
   "resource:///modules/VCardUtils.jsm"
 );
@@ -14,7 +15,7 @@ ChromeUtils.defineModuleGetter(
  * @implements {VCardPropertyEntryView}
  * @see RFC6350 TITLE
  */
-class VCardTitleComponent extends HTMLElement {
+export class VCardTitleComponent extends HTMLElement {
   /** @type {VCardPropertyEntry} */
   vCardPropertyEntry;
 
@@ -22,7 +23,7 @@ class VCardTitleComponent extends HTMLElement {
   titleEl;
 
   static newVCardPropertyEntry() {
-    return new VCardPropertyEntry("title", {}, "text", "");
+    return new lazy.VCardPropertyEntry("title", {}, "text", "");
   }
 
   constructor() {
@@ -72,7 +73,7 @@ customElements.define("vcard-title", VCardTitleComponent);
  * @implements {VCardPropertyEntryView}
  * @see RFC6350 ROLE
  */
-class VCardRoleComponent extends HTMLElement {
+export class VCardRoleComponent extends HTMLElement {
   /** @type {VCardPropertyEntry} */
   vCardPropertyEntry;
 
@@ -80,7 +81,7 @@ class VCardRoleComponent extends HTMLElement {
   roleEl;
 
   static newVCardPropertyEntry() {
-    return new VCardPropertyEntry("role", {}, "text", "");
+    return new lazy.VCardPropertyEntry("role", {}, "text", "");
   }
 
   constructor() {
@@ -130,7 +131,7 @@ customElements.define("vcard-role", VCardRoleComponent);
  * @implements {VCardPropertyEntryView}
  * @see RFC6350 ORG
  */
-class VCardOrgComponent extends HTMLElement {
+export class VCardOrgComponent extends HTMLElement {
   /** @type {VCardPropertyEntry} */
   vCardPropertyEntry;
   /** @type {HTMLInputElement} */
@@ -139,7 +140,7 @@ class VCardOrgComponent extends HTMLElement {
   unitEl;
 
   static newVCardPropertyEntry() {
-    return new VCardPropertyEntry("org", {}, "text", ["", ""]);
+    return new lazy.VCardPropertyEntry("org", {}, "text", ["", ""]);
   }
 
   connectedCallback() {

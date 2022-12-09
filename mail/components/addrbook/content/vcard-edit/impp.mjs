@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardEdit, VCardPropertyEntryView, vCardIdGen */
+import { vCardIdGen } from "./id-gen.mjs";
 
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "VCardPropertyEntry",
   "resource:///modules/VCardUtils.jsm"
 );
@@ -14,7 +15,7 @@ ChromeUtils.defineModuleGetter(
  * @implements {VCardPropertyEntryView}
  * @see RFC6350 IMPP
  */
-class VCardIMPPComponent extends HTMLElement {
+export class VCardIMPPComponent extends HTMLElement {
   /** @type {VCardPropertyEntry} */
   vCardPropertyEntry;
 
@@ -24,7 +25,7 @@ class VCardIMPPComponent extends HTMLElement {
   protocolEl;
 
   static newVCardPropertyEntry() {
-    return new VCardPropertyEntry("impp", {}, "uri", "");
+    return new lazy.VCardPropertyEntry("impp", {}, "uri", "");
   }
 
   connectedCallback() {

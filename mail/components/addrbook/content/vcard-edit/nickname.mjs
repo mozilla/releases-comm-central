@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardPropertyEntryView */
-
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "VCardPropertyEntry",
   "resource:///modules/VCardUtils.jsm"
 );
@@ -14,7 +13,7 @@ ChromeUtils.defineModuleGetter(
  * @implements {VCardPropertyEntryView}
  * @see RFC6350 NICKNAME
  */
-class VCardNickNameComponent extends HTMLElement {
+export class VCardNickNameComponent extends HTMLElement {
   /** @type {VCardPropertyEntry} */
   vCardPropertyEntry;
   /** @type {HTMLElement} */
@@ -28,7 +27,7 @@ class VCardNickNameComponent extends HTMLElement {
   }
 
   static newVCardPropertyEntry() {
-    return new VCardPropertyEntry("nickname", {}, "text", "");
+    return new lazy.VCardPropertyEntry("nickname", {}, "text", "");
   }
 
   connectedCallback() {

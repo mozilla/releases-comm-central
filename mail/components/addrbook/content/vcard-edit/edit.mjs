@@ -2,19 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardAdrComponent, VCardCustomComponent, VCardEmailComponent,
-           VCardIMPPComponent, VCardNComponent, VCardFNComponent,
-           VCardNickNameComponent, VCardNoteComponent, VCardOrgComponent,
-           VCardRoleComponent, VCardSpecialDateComponent, VCardTelComponent,
-           VCardTitleComponent, VCardTZComponent, VCardURLComponent */
+import { vCardIdGen } from "./id-gen.mjs";
+import { VCardAdrComponent } from "./adr.mjs";
+import { VCardCustomComponent } from "./custom.mjs";
+import { VCardEmailComponent } from "./email.mjs";
+import { VCardIMPPComponent } from "./impp.mjs";
+import { VCardNComponent } from "./n.mjs";
+import { VCardFNComponent } from "./fn.mjs";
+import { VCardNickNameComponent } from "./nickname.mjs";
+import { VCardNoteComponent } from "./note.mjs";
+import {
+  VCardOrgComponent,
+  VCardRoleComponent,
+  VCardTitleComponent,
+} from "./org.mjs";
+import { VCardSpecialDateComponent } from "./special-date.mjs";
+import { VCardTelComponent } from "./tel.mjs";
+import { VCardTZComponent } from "./tz.mjs";
+import { VCardURLComponent } from "./url.mjs";
 
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "VCardProperties",
   "resource:///modules/VCardUtils.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "VCardPropertyEntry",
   "resource:///modules/VCardUtils.jsm"
 );
@@ -80,13 +94,13 @@ class VCardEdit extends HTMLElement {
   set vCardString(value) {
     if (value) {
       try {
-        this.vCardProperties = VCardProperties.fromVCard(value);
+        this.vCardProperties = lazy.VCardProperties.fromVCard(value);
         return;
       } catch (ex) {
         console.error(ex);
       }
     }
-    this.vCardProperties = new VCardProperties("4.0");
+    this.vCardProperties = new lazy.VCardProperties("4.0");
   }
 
   get vCardProperties() {
@@ -141,7 +155,7 @@ class VCardEdit extends HTMLElement {
     for (let i = 1; i <= 4; i++) {
       if (!this._vCardProperties.getFirstEntry(`x-custom${i}`)) {
         this._vCardProperties.addEntry(
-          new VCardPropertyEntry(`x-custom${i}`, {}, "text", "")
+          new lazy.VCardPropertyEntry(`x-custom${i}`, {}, "text", "")
         );
       }
     }
@@ -712,7 +726,7 @@ class VCardEdit extends HTMLElement {
     specialDatesFieldset.addEventListener(
       "vcard-bday-anniversary-change",
       event => {
-        let newVCardPropertyEntry = new VCardPropertyEntry(
+        let newVCardPropertyEntry = new lazy.VCardPropertyEntry(
           event.detail.name,
           event.target.vCardPropertyEntry.params,
           event.target.vCardPropertyEntry.type,
@@ -785,7 +799,7 @@ class VCardEdit extends HTMLElement {
       for (let i = 1; i <= 4; i++) {
         if (!this._vCardProperties.getFirstEntry(`x-custom${i}`)) {
           this._vCardProperties.addEntry(
-            new VCardPropertyEntry(`x-custom${i}`, {}, "text", "")
+            new lazy.VCardPropertyEntry(`x-custom${i}`, {}, "text", "")
           );
         }
       }
@@ -931,15 +945,6 @@ class VCardEdit extends HTMLElement {
   }
 }
 customElements.define("vcard-edit", VCardEdit);
-
-function* vCardHtmlIdGen() {
-  let internalId = 0;
-  while (true) {
-    yield `vcard-id-${internalId++}`;
-  }
-}
-
-let vCardIdGen = vCardHtmlIdGen();
 
 /**
  * Responsible for the type selection of a vCard property.
