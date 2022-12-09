@@ -363,9 +363,9 @@ void nsAutoSyncState::OnNewHeaderFetchCompleted(
     const nsTArray<nsMsgKey>& aMsgKeyList) {
   SetLastUpdateTime(PR_Now());
   if (!aMsgKeyList.IsEmpty()) PlaceIntoDownloadQ(aMsgKeyList);
-  MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-          ("%s: %zu msg keys put into download q", __func__,
-           aMsgKeyList.Length()));
+  MOZ_LOG(
+      gAutoSyncLog, LogLevel::Debug,
+      ("%s: %zu msg keys put into download q", __func__, aMsgKeyList.Length()));
 }
 
 NS_IMETHODIMP nsAutoSyncState::UpdateFolder() {
