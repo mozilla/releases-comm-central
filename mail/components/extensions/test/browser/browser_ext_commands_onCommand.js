@@ -90,6 +90,8 @@ var testCommands = [
       shiftKey: true,
     },
   },
+  // TODO: This results in multiple events fired. See bug 1805375.
+  /*
   {
     name: "toggle-alt-shift-a",
     shortcut: "Alt+Shift+A",
@@ -101,6 +103,7 @@ var testCommands = [
       shiftKey: true,
     },
   },
+  */
   {
     name: "toggle-alt-shift-right",
     shortcut: "Alt+Shift+Right",
