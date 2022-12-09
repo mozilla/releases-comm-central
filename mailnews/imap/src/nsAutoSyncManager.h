@@ -130,7 +130,6 @@ class nsAutoSyncManager final : public nsIObserver,
   static const uint32_t kGroupRetryCount = 3;
 
   enum IdleState { systemIdle, appIdle, notIdle };
-  enum UpdateState { initiated, completed };
 
  public:
   NS_DECL_ISUPPORTS
@@ -189,8 +188,10 @@ class nsAutoSyncManager final : public nsIObserver,
   // contains the folders that will be checked for new messages with STATUS,
   // and if there are any, we'll call UpdateFolder on them.
   nsCOMArray<nsIAutoSyncState> mUpdateQ;
-  // this is the update state for the current folder.
-  UpdateState mUpdateState;
+  // this is set true when autosync is initiated for a single folder. Its
+  // purpose is ensure that update for a folder finishes before the next one
+  // starts.
+  bool mUpdateInProgress;
 
   // This is set if auto sync has been completely paused.
   bool mPaused;
