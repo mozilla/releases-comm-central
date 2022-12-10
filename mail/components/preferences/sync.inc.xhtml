@@ -28,25 +28,35 @@
     </section>
 
     <section id="syncAccountSignedIn">
-      <!-- Account NOT Verified -->
+      <!-- Account NOT Verified & Server Rejected Credientials -->
       <section id="syncAccountNotVerified" class="sync-account-section">
         <div id="photoDisplay">
           <img class="contact-photo" src="" alt="" />
         </div>
         <div id="syncAccountNotVerifiedInfo">
+          <!-- swap data-l10n-id for "sync-signedin-login-failure" when logged
+             - in locally but server rejected credentials -->
           <span id="syncAccountMailNotVerified"
                 data-l10n-id="sync-pane-email-not-verified"
                 data-l10n-args='{"userEmail": ""}'>
           </span>
           <div id="syncUnverifiedButtonOptions">
+            <button id="syncRemoveAccount"
+                    class="place-self-end"
+                    data-l10n-id="sync-pane-remove-account"
+                    type="button">
+            </button>
+            <!-- only show when the account is not verified -->
             <button id="syncResendVerification"
                     class="place-self-end primary"
                     data-l10n-id="sync-pane-resend-verification"
                     type="button">
             </button>
-            <button id="syncRemoveAccount"
-                    class="place-self-end"
-                    data-l10n-id="sync-pane-remove-account"
+            <!-- only show when logged in locally but server rejected
+               - credentials -->
+            <button id="syncSignIn"
+                    class="place-self-end primary"
+                    data-l10n-id="sync-pane-sign-in"
                     type="button">
             </button>
          </div>
