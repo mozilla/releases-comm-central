@@ -173,7 +173,7 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
 
 /* Select column */
 
-.tree-view-header-select img {
+:is(.tree-view-header-select, .tree-view-row-select) img {
   content: var(--icon-checkbox);
   -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
   fill: currentColor;
@@ -185,7 +185,7 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
   stroke-opacity: 1;
 }
 
-.all-selected .tree-view-header-select img {
+:is(.all-selected, .selected) :is(.tree-view-header-select, .tree-view-row-select) img {
   fill-opacity: 1;
 }
 

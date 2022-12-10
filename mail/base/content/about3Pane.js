@@ -290,7 +290,6 @@ window.addEventListener("DOMContentLoaded", event => {
 
   let tree = document.getElementById("messageThreadTree");
   treeTable = tree.table;
-  treeTable.selectable = true;
   treeTable.editable = true;
   threadTree = treeTable.listbox;
   threadTree.id = "threadTree";
@@ -1001,6 +1000,12 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
           .replaceChildren(this.twisty, span);
         // Indent child message of this thread.
         span.style.setProperty("--thread-level", this.view.getLevel(index));
+        continue;
+      }
+
+      // No need to update the text of this cell if it's the selection or an
+      // icon column.
+      if (column.icon || column.select) {
         continue;
       }
 

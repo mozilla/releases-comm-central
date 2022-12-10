@@ -98,21 +98,6 @@
     }
 
     /**
-     * Tracks if the rows of this table are selectable through a checkbox
-     * column. Setting this to TRUE will automatically create a selection column
-     * with checkboxes for every row element.
-     *
-     * @type {boolean}
-     */
-    set selectable(val) {
-      this.dataset.selectable = val;
-    }
-
-    get selectable() {
-      return this.dataset.selectable === "true";
-    }
-
-    /**
      * Set the id attribute of the TreeViewListbox for selection and styling
      * purpose.
      *
@@ -255,11 +240,6 @@
      */
     setColumns() {
       this.row.replaceChildren();
-
-      // Create a checkbox column if the table is selectable.
-      if (this.parentNode.selectable) {
-        // TODO: Create the selection column.
-      }
 
       for (let column of this.parentNode.columns) {
         let cell = document.createElement("th", {
@@ -1528,11 +1508,21 @@
       this._index = index;
 
       let table = this.closest("table");
-      // Always clear the colspan when updating the columns.
       for (let column of table.columns) {
+        // Always clear the colspan when updating the columns.
         this.querySelector(
           `.${column.id.toLowerCase()}-column`
         )?.removeAttribute("colspan");
+
+        // Handle the special case for the selectable checkbox column.
+        if (column.select) {
+          let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
+          cell.classList.add("tree-view-row-select");
+          const img = document.createElement("img");
+          img.src = "";
+          document.l10n.setAttributes(img, "tree-list-view-row-select");
+          cell.replaceChildren(img);
+        }
       }
 
       // Account for the column picker in the last visible column if the table

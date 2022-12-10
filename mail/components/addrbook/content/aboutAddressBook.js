@@ -1524,7 +1524,6 @@ var cardsPane = {
 
     let tree = document.getElementById("addressBookTree");
     this.table = tree.table;
-    this.table.selectable = true;
     this.table.editable = true;
     this.table.setListBoxID("cards");
     this.cardsList = this.table.listbox;
