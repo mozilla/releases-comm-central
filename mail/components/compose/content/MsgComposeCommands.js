@@ -6992,9 +6992,9 @@ async function ComposeChangeLanguage(languages) {
   }
   // Update subject spell checker languages. If for some reason the spell
   // checker isn't ready yet, don't auto-create it, hence pass 'false'.
-  let subjectSpellChecker = document
-    .getElementById("msgSubject")
-    .editor.getInlineSpellChecker(false);
+  let subjectSpellChecker = checker?.spellChecker.canSpellCheck()
+    ? document.getElementById("msgSubject").editor.getInlineSpellChecker(false)
+    : null;
   if (subjectSpellChecker?.spellChecker) {
     await subjectSpellChecker.spellChecker.setCurrentDictionaries(languages);
   }
