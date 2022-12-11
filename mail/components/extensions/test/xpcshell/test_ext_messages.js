@@ -539,11 +539,24 @@ add_task(
 
         async function checkMessagesInFolder(expectedKeys, folder) {
           let expectedSubjects = expectedKeys.map(k => messages[k].subject);
+
           let { messages: actualMessages } = await browser.messages.list(
             folder
           );
+          browser.test.log("expect: " + expectedSubjects.sort());
+          browser.test.log(
+            "actual: " + actualMessages.map(m => m.subject).sort()
+          );
 
-          browser.test.assertEq(expectedSubjects.length, actualMessages.length);
+          browser.test.assertEq(
+            expectedSubjects.sort().toString(),
+            actualMessages
+              .map(m => m.subject)
+              .sort()
+              .toString(),
+            "Messages on server should be correct"
+          );
+
           for (let m of actualMessages) {
             browser.test.assertTrue(
               expectedSubjects.includes(m.subject),
@@ -821,8 +834,15 @@ add_task(
         browser.test.assertEq(0, listenerCalls);
 
         // Put everything back where it was at the start of the test.
+        movePromise = newMovePromise();
         await browser.messages.move(
           Object.values(messages).map(m => m.id),
+          testFolder1
+        );
+        await checkEventInformation(
+          movePromise,
+          ["Green", "My"],
+          messages,
           testFolder1
         );
         await checkMessagesInFolder(
@@ -962,10 +982,17 @@ add_task(
       extension.sendMessage(...primedEventData);
     });
 
+    // The sync between the IMAP Service and the fake IMAP Server is broken: It is
+    // not possible to re-move messages cleanly. The move commands are send to the
+    // server about 500ms after the local operation and the server will update the
+    // local state wrongly. Switching to offline mode to work with the cache only.
+    // See https://bugzilla.mozilla.org/show_bug.cgi?id=1797764#c24
+    Services.io.offline = true;
     await extension.startup();
     extension.sendMessage(account.key);
     await extension.awaitFinish("finished");
     await extension.unload();
+    Services.io.offline = false;
 
     Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
     await AddonTestUtils.promiseShutdownManager();
