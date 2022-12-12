@@ -149,11 +149,10 @@
                       alt="" />
             <label class="category-name" flex="1" data-l10n-id="pane-calendar-title"/>
           </richlistitem>
-
+#ifdef NIGHTLY_BUILD
           <richlistitem id="category-sync"
                         class="category"
                         value="paneSync"
-                        hidden="true"
                         data-l10n-id="category-sync"
                         align="center">
             <html:img class="category-icon"
@@ -161,6 +160,7 @@
                       alt="" />
             <label class="category-name" flex="1" data-l10n-id="pane-sync-title"/>
           </richlistitem>
+#endif
         </richlistbox>
 
         <spacer flex="1"/>
@@ -202,7 +202,9 @@
 #include privacy.inc.xhtml
 #include chat.inc.xhtml
 #include ../../../calendar/base/content/preferences/calendar-preferences.inc.xhtml
+#ifdef NIGHTLY_BUILD
 #include sync.inc.xhtml
+#endif
           </vbox>
         </vbox>
       </vbox>
