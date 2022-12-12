@@ -21,6 +21,7 @@
 
 var {
   close_compose_window,
+  open_compose_new_mail,
   open_compose_with_forward,
   open_compose_with_reply,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
@@ -628,6 +629,45 @@ add_task(async function test_imgAuth() {
   close_compose_window(fwc);
 
   Services.prefs.clearUserPref("mailnews.message_display.disable_remote_image");
+});
+
+/** Make sure remote images work in signatures. */
+add_task(async function test_sigPic() {
+  let identity = MailServices.accounts.allIdentities[0];
+  identity.htmlSigFormat = true;
+  identity.htmlSigText = `Tb remote! <img id='testelement' alt='[sigpic]' src='${url}pass.png' />`;
+
+  let wasAllowed = element => {
+    return !element.matches(":-moz-broken") && element.naturalWidth > 0;
+  };
+
+  be_in_folder(folder);
+  select_click_row(gMsgNo);
+
+  let nwc = open_compose_new_mail();
+  Assert.ok(
+    wasAllowed(
+      nwc.window.document
+        .getElementById("messageEditor")
+        .contentDocument.getElementById("testelement")
+    ),
+    "Should allow remote sig in new mail"
+  );
+  close_compose_window(nwc);
+
+  let rwc = open_compose_with_reply();
+  Assert.ok(
+    wasAllowed(
+      rwc.window.document
+        .getElementById("messageEditor")
+        .contentDocument.getElementById("testelement")
+    ),
+    "Should allow remote sig in reply"
+  );
+  close_compose_window(rwc);
+
+  identity.htmlSigFormat = false;
+  identity.htmlSigText = "";
 });
 
 // Copied from test-blocked-content.js.
