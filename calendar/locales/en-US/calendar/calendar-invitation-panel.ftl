@@ -4,7 +4,7 @@
 
 calendar-invitation-panel-status-new = You have been invited to this event.
 
-calendar-invitation-panel-status-processed = This event has already been added your calendar.
+calendar-invitation-panel-status-processed = This event has already been added to your calendar.
 
 calendar-invitation-panel-status-updateminor = This message contains an update for this event.
 
