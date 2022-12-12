@@ -569,9 +569,13 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
       // all images in the signature as "moz-do-not-send"
       if (sigOnTop) MoveToBeginningOfDocument();
 
-      if (aHTMLEditor)
+      if (aHTMLEditor) {
+        bool oldAllow;
+        GetAllowRemoteContent(&oldAllow);
+        SetAllowRemoteContent(true);
         htmlEditor->InsertHTML(aSignature);
-      else {
+        SetAllowRemoteContent(oldAllow);
+      } else {
         htmlEditor->InsertLineBreak();
         InsertDivWrappedTextAtSelection(aSignature, u"moz-signature"_ns);
       }
@@ -624,7 +628,13 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
           // into the <div class="moz-forward-container"> we've just created.
           MoveToEndOfDocument();
         }
+
+        bool oldAllow;
+        GetAllowRemoteContent(&oldAllow);
+        SetAllowRemoteContent(true);
         htmlEditor->InsertHTML(aSignature);
+        SetAllowRemoteContent(oldAllow);
+
         if (isForwarded && sigOnTop) htmlEditor->EndOfDocument();
       } else
         htmlEditor->EndOfDocument();
