@@ -61,6 +61,12 @@
   height: 100%;
 }
 
+[is="tree-view-table"] img {
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
 [is="tree-view-listbox"]:focus {
   outline: none;
 }
@@ -140,7 +146,7 @@ thead[is="tree-view-table-header"] th:after {
 
 thead[is="tree-view-table-header"] hr[is="pane-splitter"] {
   position: absolute;
-  inset-inline-end: 5px;
+  inset-inline-end: 4px;
   inset-block: 3px;
 }
 
@@ -155,10 +161,42 @@ th[is="tree-view-table-header-cell"] {
   overflow: hidden;
 }
 
+th[is="tree-view-table-header-cell"][data-type="icon"] {
+  width: 30px;
+  min-width: 30px;
+}
+
+th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
+  border-inline-start-style: none !important;
+  border-inline-end-style: solid;
+}
+
+/* Select column */
+
+.tree-view-header-select img {
+  content: var(--icon-checkbox);
+  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+  fill: currentColor;
+  fill-opacity: 0;
+  stroke-opacity: 0;
+}
+
+.some-selected .tree-view-header-select img {
+  stroke-opacity: 1;
+}
+
+.all-selected .tree-view-header-select img {
+  fill-opacity: 1;
+}
+
 .tree-table-cell {
   position: absolute;
   inset-block: 0;
-  inset-inline: 0 5px;
+  inset-inline: 0 1px;
+}
+
+th[data-resizable="false"] .tree-table-cell {
+  inset-inline: 0;
 }
 
 .tree-table-cell-container button {
@@ -219,9 +257,6 @@ th[is="tree-view-table-column-picker"] {
 
 .button-column-picker img {
   content: var(--icon-column-menu);
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
 }
 
 /* Table body */
@@ -233,6 +268,7 @@ table[is="tree-view-table"] td {
   white-space: nowrap;
   padding: 0 6px;
   position: relative;
+  user-select: none;
 }
 
 table[is="tree-view-table"] td div {

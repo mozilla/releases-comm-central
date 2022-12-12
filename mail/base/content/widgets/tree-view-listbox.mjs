@@ -341,13 +341,29 @@
       // Set a public ID so parent elements can loop through the available
       // columns after they're created.
       this.id = column.id;
-
       this.#button.id = `${column.id}Button`;
+
+      // Add custom classes if needed.
+      if (column.classes) {
+        this.#button.classList.add(...column.classes);
+      }
+
       if (column.l10n?.header) {
         document.l10n.setAttributes(this.#button, column.l10n.header);
       }
-      this.#resizable = column.resizable ?? true;
 
+      // Add an image if this is a table header that needs to display an icon,
+      // and set the column as icon.
+      if (column.icon) {
+        this.dataset.type = "icon";
+        const img = document.createElement("img");
+        img.src = "";
+        img.alt = "";
+        this.#button.appendChild(img);
+      }
+
+      this.#resizable = column.resizable ?? true;
+      this.dataset.resizable = this.#resizable;
       // Add a splitter if this is a resizable column.
       if (this.#resizable) {
         let splitter = document.createElement("hr", { is: "pane-splitter" });
@@ -373,9 +389,9 @@
         });
       }
 
-      this.#sortable = column.sortable ?? true;
       this.hidden = column.hidden;
 
+      this.#sortable = column.sortable ?? true;
       // Make the button clickable if the column can trigger a sorting of rows.
       if (this.#sortable) {
         this.#button.addEventListener("click", () => {
@@ -387,6 +403,14 @@
               },
             })
           );
+        });
+      }
+
+      // This is the column handling bulk selection.
+      if (column.select) {
+        this.#button.classList.add("tree-view-header-select");
+        this.#button.addEventListener("click", () => {
+          this.closest("table").listbox.toggleSelectAll();
         });
       }
     }
@@ -632,7 +656,7 @@
           }
           this.currentIndex = this.selectedIndex;
           if (selectionChanged) {
-            this.dispatchEvent(new CustomEvent("select"));
+            this.onSelectionChanged();
           }
         }
       });
@@ -1284,7 +1308,7 @@
       }
       this.currentIndex = index;
       if (changeSelection) {
-        this.dispatchEvent(new CustomEvent("select"));
+        this.onSelectionChanged();
       }
     }
 
@@ -1296,7 +1320,7 @@
     _selectRange(index) {
       this._selection.rangedSelect(-1, index, false);
       this.currentIndex = index;
-      this.dispatchEvent(new CustomEvent("select"));
+      this.onSelectionChanged();
     }
 
     /**
@@ -1310,7 +1334,26 @@
       // shiftSelectPivot.
       this._selection._shiftSelectPivot = null;
       this.currentIndex = index;
-      this.dispatchEvent(new CustomEvent("select"));
+      this.onSelectionChanged();
+    }
+
+    /**
+     * Toggle between selecting all rows or none, depending on the current
+     * selection state.
+     */
+    toggleSelectAll() {
+      if (!this.selectedIndices.length) {
+        const index = this._view.rowCount - 1;
+        this._selection.rangedSelect(0, index, true);
+        this.currentIndex = index;
+      } else {
+        this._selection.clearSelection();
+      }
+      // Make sure the listbox is focused when the selection is changed as
+      // clicking on the "select all" header button steals the focus.
+      this.focus();
+
+      this.onSelectionChanged();
     }
 
     /**
@@ -1363,7 +1406,7 @@
       for (let index of indices) {
         this._selection.toggleSelect(index);
       }
-      this.dispatchEvent(new CustomEvent("select"));
+      this.onSelectionChanged();
     }
 
     /**
@@ -1385,7 +1428,7 @@
         this._selection.toggleSelect(index);
 
         if (!suppressEvent) {
-          this.dispatchEvent(new CustomEvent("select"));
+          this.onSelectionChanged();
         }
       }
 
@@ -1401,6 +1444,37 @@
       for (let element of this.placeholder.children) {
         element.hidden = !idsToShow.includes(element.id);
       }
+    }
+
+    /**
+     * Update the classes on the table element to reflect the current selection
+     * state, and dispatch an event to allow implementations to handle the
+     * change in the selection state.
+     */
+    onSelectionChanged() {
+      const table = this.closest("table");
+      const selectedCount = this.selectedIndices.length;
+      const allSelected = selectedCount == this._view.rowCount;
+
+      table.classList.toggle("all-selected", allSelected);
+      table.classList.toggle("some-selected", !allSelected && selectedCount);
+
+      const selectButton = table.querySelector(".tree-view-header-select");
+      // Some implementations might not use a select header.
+      if (selectButton) {
+        // Only mark the `select` button as "checked" if all rows are selected.
+        selectButton.toggleAttribute("aria-checked", allSelected);
+        // The default action for the header button is to deselect all messages
+        // if even one message is currently selected.
+        document.l10n.setAttributes(
+          selectButton,
+          selectedCount
+            ? "about-threadpane-column-header-deselect-all"
+            : "about-threadpane-column-header-select-all"
+        );
+      }
+
+      this.dispatchEvent(new CustomEvent("select"));
     }
   }
   customElements.define("tree-view-listbox", TreeViewListbox, {

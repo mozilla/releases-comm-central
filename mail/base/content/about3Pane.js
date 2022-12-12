@@ -288,8 +288,6 @@ window.addEventListener("DOMContentLoaded", event => {
     folderPaneContextMenu.onCommand
   );
 
-  // TODO: Switch this dynamically like in the address book.
-  document.body.classList.add("layout-table");
   let tree = document.getElementById("messageThreadTree");
   treeTable = tree.table;
   treeTable.selectable = true;
@@ -298,7 +296,8 @@ window.addEventListener("DOMContentLoaded", event => {
   threadTree.id = "threadTree";
   threadTree.setAttribute("rows", "thread-listrow");
 
-  treeTable.setColumns(ThreadListrow.COLUMNS);
+  threadPane.init();
+  treeTable.setColumns(threadPane.COLUMNS);
 
   threadTree.addEventListener("keypress", event => {
     if (event.key != "Enter") {
@@ -361,6 +360,78 @@ window.addEventListener("keypress", event => {
       break;
   }
 });
+
+var threadPane = {
+  URL: "chrome://messenger/content/messenger.xhtml",
+
+  /**
+   * The array of columns for the table layout.
+   *
+   * @type {Array}
+   */
+  COLUMNS: [
+    {
+      id: "selectCol",
+      l10n: {
+        header: "about-threadpane-column-header-select",
+        menuitem: "about-threadpane-column-label-select",
+      },
+      select: true,
+      icon: true,
+      resizable: false,
+      sortable: false,
+      hidden: true,
+    },
+    {
+      id: "senderCol",
+      l10n: {
+        header: "about-threadpane-column-header-sender",
+        menuitem: "about-threadpane-column-label-sender",
+      },
+    },
+    {
+      id: "subjectCol",
+      l10n: {
+        header: "about-threadpane-column-header-subject",
+        menuitem: "about-threadpane-column-label-subject",
+      },
+      picker: false,
+    },
+    {
+      id: "dateCol",
+      l10n: {
+        header: "about-threadpane-column-header-date",
+        menuitem: "about-threadpane-column-label-date",
+      },
+    },
+  ],
+
+  init() {
+    // TODO: Switch this dynamically like in the address book.
+    document.body.classList.add("layout-table");
+
+    treeTable.addEventListener("columns-changed", event => {
+      this.onColumnsChanged(event.detail);
+    });
+  },
+
+  /**
+   * Update the list of visible columns based on the users' selection.
+   *
+   * @param {object} data - The detail object of the bubbled event.
+   */
+  onColumnsChanged(data) {
+    let column = data.value;
+    let checked = data.target.hasAttribute("checked");
+
+    let changedColumn = threadPane.COLUMNS.find(c => c.id == column);
+    changedColumn.hidden = !checked;
+
+    treeTable.updateColumns(threadPane.COLUMNS);
+    threadTree.invalidate();
+    // TODO: Store visible columns in xulStore once we have them all.
+  },
+};
 
 function restoreState({
   folderPaneVisible,
@@ -865,36 +936,6 @@ var folderListener = {
 class ThreadListrow extends customElements.get("tree-view-listrow") {
   static ROW_HEIGHT = 22;
 
-  /**
-   * The array of columns for the table layout.
-   *
-   * @type {Array}
-   */
-  static COLUMNS = [
-    {
-      id: "senderCol",
-      l10n: {
-        header: "about-threadpane-column-header-sender",
-        menuitem: "about-threadpane-column-label-sender",
-      },
-    },
-    {
-      id: "subjectCol",
-      l10n: {
-        header: "about-threadpane-column-header-subject",
-        menuitem: "about-threadpane-column-label-subject",
-      },
-      picker: false,
-    },
-    {
-      id: "dateCol",
-      l10n: {
-        header: "about-threadpane-column-header-date",
-        menuitem: "about-threadpane-column-label-date",
-      },
-    },
-  ];
-
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -902,7 +943,7 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
 
     super.connectedCallback();
 
-    for (let column of ThreadListrow.COLUMNS) {
+    for (let column of threadPane.COLUMNS) {
       let cell = document.createElement("td");
       if (column.id == "subjectCol") {
         let container = cell.appendChild(document.createElement("div"));
@@ -943,7 +984,7 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
     super.index = index;
     this.dataset.properties = this.view.getRowProperties(index).trim();
 
-    for (let column of ThreadListrow.COLUMNS) {
+    for (let column of threadPane.COLUMNS) {
       let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
       if (column.hidden) {
         cell.hidden = true;

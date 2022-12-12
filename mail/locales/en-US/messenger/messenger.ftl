@@ -326,6 +326,15 @@ customize-panel-button-save = Done
 
 ## Temporary strings for the message thread. These should be handled via fluent migration.
 
+about-threadpane-column-header-select =
+  .title = Toggle select all messages
+about-threadpane-column-header-select-all =
+  .title = Select all messages
+about-threadpane-column-header-deselect-all =
+  .title = Deselect all messages
+about-threadpane-column-label-select =
+  .label = Select Messages
+
 about-threadpane-column-header-sender = From
   .title = Sort by from
 about-threadpane-column-label-sender =
