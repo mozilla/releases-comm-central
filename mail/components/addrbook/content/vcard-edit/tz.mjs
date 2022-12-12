@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardEdit, VCardPropertyEntryView, vCardIdGen */
-
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "cal",
   "resource:///modules/calendar/calUtils.jsm"
 );
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "VCardPropertyEntry",
   "resource:///modules/VCardUtils.jsm"
 );
@@ -19,7 +18,7 @@ ChromeUtils.defineModuleGetter(
  * @implements {VCardPropertyEntryView}
  * @see RFC6350 URL
  */
-class VCardTZComponent extends HTMLElement {
+export class VCardTZComponent extends HTMLElement {
   /** @type {VCardPropertyEntry} */
   vCardPropertyEntry;
 
@@ -27,7 +26,7 @@ class VCardTZComponent extends HTMLElement {
   selectEl;
 
   static newVCardPropertyEntry() {
-    return new VCardPropertyEntry("tz", {}, "text", "");
+    return new lazy.VCardPropertyEntry("tz", {}, "text", "");
   }
 
   constructor() {
@@ -40,12 +39,14 @@ class VCardTZComponent extends HTMLElement {
   connectedCallback() {
     if (this.isConnected) {
       this.selectEl = this.querySelector("select");
-      for (let tzid of cal.timezoneService.timezoneIds) {
+      for (let tzid of lazy.cal.timezoneService.timezoneIds) {
         let option = this.selectEl.appendChild(
           document.createElement("option")
         );
         option.value = tzid;
-        option.textContent = cal.timezoneService.getTimezone(tzid).displayName;
+        option.textContent = lazy.cal.timezoneService.getTimezone(
+          tzid
+        ).displayName;
       }
 
       this.querySelector(".remove-property-button").addEventListener(

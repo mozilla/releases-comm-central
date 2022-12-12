@@ -184,6 +184,8 @@ var testCommands = [
   },
 ];
 
+requestLongerTimeout(2);
+
 add_task(async function test_user_defined_commands() {
   let win1 = await openNewMailWindow();
 
@@ -255,7 +257,11 @@ add_task(async function test_user_defined_commands() {
       if (testCommand.shortcutMac && !testCommand.shortcut && !isMac) {
         continue;
       }
-      EventUtils.synthesizeKey(testCommand.key, testCommand.modifiers, window);
+      await BrowserTestUtils.synthesizeKey(
+        testCommand.key,
+        testCommand.modifiers,
+        window.browsingContext
+      );
       let message = await extension.awaitMessage("oncommand event received");
       is(
         message.commandName,
@@ -447,18 +453,18 @@ add_task(async function test_commands_MV3_event_page() {
           assertPersistentListeners(extension, "commands", "onCommand", {
             primed: true,
           });
-          EventUtils.synthesizeKey(
+          await BrowserTestUtils.synthesizeKey(
             testCommand.key,
             testCommand.modifiers,
-            window
+            window.browsingContext
           );
           // Wait for background restart.
           await extension.awaitMessage("ready");
         } else {
-          EventUtils.synthesizeKey(
+          await BrowserTestUtils.synthesizeKey(
             testCommand.key,
             testCommand.modifiers,
-            window
+            window.browsingContext
           );
         }
 

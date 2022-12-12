@@ -2,15 +2,44 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://messenger/skin/colors.css");
+@import url("chrome://global/skin/in-content/common.css");
 @import url("chrome://messenger/skin/inContentDialog.css");
+
+dialog {
+  --hub-button-color: var(--color-gray-90);
+  --hub-button-background: var(--color-white);
+  --hub-account-button-background: var(--color-gray-10);
+  --hub-account-button-background-hover: var(--color-gray-05);
+}
+
+@media not (prefers-contrast) {
+  @media (prefers-color-scheme: dark) {
+    dialog {
+      --hub-button-color: var(--color-gray-20);
+      --hub-button-background: var(--color-gray-90);
+      --hub-account-button-background: var(--color-gray-90);
+      --hub-account-button-background-hover: var(--color-gray-80);
+    }
+  }
+}
+
+@media (prefers-contrast) {
+  dialog {
+    --hub-button-color: currentColor;
+    --hub-button-background: transparent;
+    --hub-account-button-background: transparent;
+    --hub-account-button-background-hover: transparent;
+  }
+}
 
 /* Dialog container */
 
 .account-hub-dialog {
   display: grid;
-  width: 600px;
-  height: 400px;
-  max-width: 70vw;
+  min-width: 660px;
+  min-height: 400px;
+  max-width: 900px;
   max-height: 70vh;
 }
 
@@ -72,7 +101,7 @@ dialog h1 {
   inset-block-start: 15px;
   appearance: none;
   border: none;
-  border-radius: 12px;
+  border-radius: 50%;
   width: 21px;
   height: 21px;
 }
@@ -130,6 +159,140 @@ dialog h1 {
 
 #hubBody {
   grid-area: body;
+  display: flex;
+  gap: 30px;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-inline: 30px;
+}
+
+.hub-body-grid {
+  display: flex;
+  gap: 21px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.button-account {
+  width: 170px;
+  min-height: 93px;
+  font-size: 1.2rem;
+  font-weight: normal;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  margin: 0;
+  padding: 12px;
+  border: none;
+  color: var(--hub-button-color);
+  background-color: var(--hub-account-button-background);
+  box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.3);
+}
+
+.button-account:hover {
+  color: var(--hub-button-color) !important;
+  background-color: var(--hub-account-button-background-hover) !important;
+  box-shadow: 0 12px 12px -6px rgba(0, 0, 0, 0.3);
+}
+
+.button-account:hover:active {
+  color: var(--hub-button-color) !important;
+  background-color: var(--hub-account-button-background-hover) !important;
+  box-shadow: 0 6px 6px -6px rgba(0, 0, 0, 0.3);
+}
+
+.button-account::before {
+  display: block;
+  content: '';
+  width: 24px;
+  height: 24px;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, var(--primary) 10%, transparent);
+  stroke: var(--primary);
+  background-size: 24px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+#emailButton::before {
+  background-image: var(--icon-mail-lg);
+}
+
+#newEmailButton::before {
+  background-image: var(--icon-new-mail);
+}
+
+#calendarButton::before {
+  background-image: var(--icon-calendar-lg);
+}
+
+#addressBookButton::before {
+  background-image: var(--icon-address-book-lg);
+}
+
+#chatButton::before {
+  background-image: var(--icon-chat-lg);
+}
+
+#feedButton::before {
+  background-image: var(--icon-rss);
+}
+
+#newsgroupButton::before {
+  background-image: var(--icon-newsletter);
+}
+
+#importButton::before {
+  background-image: var(--icon-import-lg);
+}
+
+#hubSyncButton {
+  align-self: center;
+  position: relative;
+  padding: 9px 12px;
+  font-weight: normal;
+  font-size: 1.2rem;
+  line-height: 1;
+  border: none;
+  color: var(--hub-button-color);
+  background-color: var(--hub-button-background);
+}
+
+#hubSyncButton:hover {
+  color: var(--hub-button-color);
+  background-color: var(--hub-account-button-background-hover);
+}
+
+#hubSyncButton::before {
+  content: var(--icon-account-sync);
+  display: inline-block;
+  margin-inline-end: 12px;
+  vertical-align: middle;
+}
+
+#hubSyncButton::after {
+  content: '';
+  position: absolute;
+  background: var(--color-blue-50);
+  background-image: linear-gradient(127deg, var(--color-teal-50), var(--color-magenta-50));
+  inset: -2px;
+  border-radius: 8px;
+  filter: blur(10px);
+  opacity: 0.6;
+  z-index: -1;
+  transform: scale(0.95) translateY(5px);
+}
+
+#hubSyncButton:hover::after {
+  transform: scale(0.85) translateY(8px);
+  filter: blur(15px);
+}
+
+#hubSyncButton:hover:active::after {
+  transform: scale(1) translateY(0px);
+  filter: blur(3px);
 }
 
 /* Footer */
@@ -148,4 +311,20 @@ dialog h1 {
 .footer-links li:not([hidden]) ~ li:not([hidden])::before {
   content: "·";
   margin-inline-end: 6px;
+}
+
+/* Animations */
+
+@media (prefers-reduced-motion: no-preference) {
+  .button-account {
+    transition: background 220ms ease, box-shadow 200ms ease;
+  }
+
+  #hubSyncButton {
+    transition: background 220ms ease;
+  }
+
+  #hubSyncButton::after {
+    transition: transform 200ms ease, filter 200ms ease;
+  }
 }

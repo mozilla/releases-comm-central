@@ -240,25 +240,6 @@ nsresult nsMsgNewsFolder::GetDatabase() {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetDatabaseWithoutCache(nsIMsgDatabase** db) {
-  NS_ENSURE_ARG_POINTER(db);
-
-  // The simplest way to perform this operation is to get the database normally
-  // and then clear our information about it if we didn't already hold it open.
-  bool wasCached = !!mDatabase;
-  nsresult rv = GetDatabase();
-  NS_IF_ADDREF(*db = mDatabase);
-
-  // If the DB was not open before, close our reference to it now.
-  if (!wasCached && mDatabase) {
-    mDatabase->RemoveListener(this);
-    mDatabase = nullptr;
-  }
-
-  return rv;
-}
-
-NS_IMETHODIMP
 nsMsgNewsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
   // Get news.get_messages_on_select pref
   nsresult rv;

@@ -14,7 +14,7 @@
     --in-content-button-background-hover: var(--grey-90-a20);
     --in-content-button-background-active: var(--grey-90-a30);
     --in-content-categories-background: #ebebef;
-    --in-content-item-selected-unfocused: var(--grey-20);
+    --in-content-item-selected-unfocused: var(--color-gray-20);
   }
 
   @media (prefers-color-scheme: dark) {

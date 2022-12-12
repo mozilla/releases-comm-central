@@ -133,8 +133,13 @@
   --icon-warning: url("chrome://messenger/skin/icons/new/compact/warning.svg");
   --icon-warning-sm: url("chrome://messenger/skin/icons/warning-12.svg");
 
-  --icon-import-lg : url("chrome://messenger/skin/icons/new/touch/import.svg");
-  --icon-export-lg : url("chrome://messenger/skin/icons/new/touch/export.svg");
+  /* Large variations, touch, 24px */
+  --icon-address-book-lg: url("chrome://messenger/skin/icons/new/touch/address-book.svg");
+  --icon-calendar-lg: url("chrome://messenger/skin/icons/new/touch/calendar.svg");
+  --icon-chat-lg: url("chrome://messenger/skin/icons/new/touch/chat.svg");
+  --icon-export-lg: url("chrome://messenger/skin/icons/new/touch/export.svg");
+  --icon-import-lg: url("chrome://messenger/skin/icons/new/touch/import.svg");
+  --icon-mail-lg: url("chrome://messenger/skin/icons/new/touch/mail.svg");
 
   --icon-calendar-empty: url("chrome://messenger/skin/icons/new/calendar-empty.svg");
   --icon-circle-small: url("chrome://messenger/skin/icons/new/circle-sm.svg");
@@ -236,6 +241,8 @@
   --addons-manager-site-permissions: url("chrome://messenger/skin/icons/new/touch/globe.svg");
   --addons-manager-available-updates: url("chrome://messenger/skin/icons/new/touch/extension-update-available.svg");
   --addons-manager-recent-updates: url("chrome://messenger/skin/icons/new/touch/extension-update-recent.svg");
+
+  --icon-account-sync: url("chrome://messenger/skin/icons/account-sync.svg");
 }
 
 :root[uidensity="compact"] {

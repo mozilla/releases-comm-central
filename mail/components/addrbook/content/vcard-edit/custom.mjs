@@ -2,15 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardEdit, VCardPropertyEntryView, vCardIdGen */
+import { vCardIdGen } from "./id-gen.mjs";
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "VCardPropertyEntry",
-  "resource:///modules/VCardUtils.jsm"
-);
-
-class VCardCustomComponent extends HTMLElement {
+export class VCardCustomComponent extends HTMLElement {
   /** @type {VCardPropertyEntry[]} */
   vCardPropertyEntries = null;
   /** @type {HTMLInputElement[]} */

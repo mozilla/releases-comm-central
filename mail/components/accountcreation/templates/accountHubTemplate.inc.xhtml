@@ -34,7 +34,16 @@
     </div>
   </header>
 
-  <div id="hubBody"></div>
+  <div id="hubBody">
+    <div class="hub-body-grid"></div>
+#ifdef NIGHTLY_BUILD
+    <button id="hubSyncButton"
+            data-l10n-id="account-hub-sync-button"
+            class="button-flat"
+            type="button"
+            hidden="hidden"></button>
+#endif
+  </div>
 
   <div id="hubFooter">
     <ul class="reset-list footer-links">

@@ -2,15 +2,66 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { AppConstants } = ChromeUtils.importESModule(
+/* import-globals-from ../../../base/content/sync.js */
+
+const { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { MailServices } = ChromeUtils.import(
+const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+const { UIState } = ChromeUtils.import("resource://services-sync/UIState.jsm");
 
 class AccountHubStart extends HTMLElement {
+  #accounts = [
+    {
+      id: "email",
+      l10n: "account-hub-email-button",
+      type: "MAIL",
+    },
+    {
+      id: "newEmail",
+      l10n: "account-hub-new-email-button",
+      type: "NEW_MAIL",
+    },
+    {
+      id: "calendar",
+      l10n: "account-hub-calendar-button",
+      type: "CALENDAR",
+    },
+    {
+      id: "addressBook",
+      l10n: "account-hub-address-book-button",
+      type: "ADDRESS_BOOK",
+    },
+    {
+      id: "chat",
+      l10n: "account-hub-chat-button",
+      type: "CHAT",
+    },
+    {
+      id: "feed",
+      l10n: "account-hub-feed-button",
+      type: "FEED",
+    },
+    {
+      id: "newsgroup",
+      l10n: "account-hub-newsgroup-button",
+      type: "NNTP",
+    },
+    {
+      id: "import",
+      l10n: "account-hub-import-button",
+      type: "IMPORT",
+    },
+  ];
+
   connectedCallback() {
+    if (this.hasConnected) {
+      return;
+    }
+    this.hasConnected = true;
+
     this.classList.add("account-hub-view");
 
     let template = document.getElementById("accountHubStart");
@@ -26,6 +77,9 @@ class AccountHubStart extends HTMLElement {
     const hasAccounts = MailServices.accounts.accounts.length;
     this.querySelector("#welcomeHeader").hidden = hasAccounts;
     this.querySelector("#defaultHeader").hidden = !hasAccounts;
+
+    this.setupAccountFlows();
+    this.setupFxAButton();
 
     // Hide the release notes link for nightly builds since we don't have any.
     if (AppConstants.NIGHTLY_BUILD) {
@@ -47,6 +101,50 @@ class AccountHubStart extends HTMLElement {
       // Hide the release notes link if we don't have a URL to add.
       this.querySelector("#hubReleaseNotes").closest("li").hidden = true;
     }
+  }
+
+  /**
+   * Populate the main container fo the start view with all the available
+   * account creation flows.
+   */
+  setupAccountFlows() {
+    const fragment = new DocumentFragment();
+    for (const account of this.#accounts) {
+      const button = document.createElement("button");
+      button.id = `${account.id}Button`;
+      button.dataset.type = account.type;
+      button.classList.add("button-flat", "button-account");
+      document.l10n.setAttributes(button, account.l10n);
+      button.addEventListener("click", () => {
+        this.dispatchEvent(new CustomEvent("open-view"), {
+          bubbles: true,
+          composed: true,
+        });
+      });
+      fragment.append(button);
+    }
+    this.querySelector(".hub-body-grid").replaceChildren(fragment);
+  }
+
+  /**
+   * Set up the Firefox Sync button.
+   */
+  setupFxAButton() {
+    const button = this.querySelector("#hubSyncButton");
+    const state = UIState.get();
+    // Bail out if the user is already signed in.
+    if (state.status == UIState.STATUS_SIGNED_IN) {
+      button.hidden = true;
+      return;
+    }
+
+    button.hidden = false;
+    button.addEventListener("click", () => {
+      // FIXME: Open this in a dialog or browser inside the modal, or find a
+      // way to close the account hub without an account and open it again in
+      // case the FxA login fails to set up accounts.
+      initFxA();
+    });
   }
 
   /**

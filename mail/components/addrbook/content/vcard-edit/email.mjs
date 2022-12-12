@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardEdit, VCardPropertyEntryView */
-
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "VCardPropertyEntry",
   "resource:///modules/VCardUtils.jsm"
 );
@@ -14,7 +13,7 @@ ChromeUtils.defineModuleGetter(
  * @implements {VCardPropertyEntryView}
  * @see RFC6350 EMAIL
  */
-class VCardEmailComponent extends HTMLTableRowElement {
+export class VCardEmailComponent extends HTMLTableRowElement {
   /** @type {VCardPropertyEntry} */
   vCardPropertyEntry;
 
@@ -24,7 +23,7 @@ class VCardEmailComponent extends HTMLTableRowElement {
   checkboxEl;
 
   static newVCardPropertyEntry() {
-    return new VCardPropertyEntry("email", {}, "text", "");
+    return new lazy.VCardPropertyEntry("email", {}, "text", "");
   }
 
   connectedCallback() {

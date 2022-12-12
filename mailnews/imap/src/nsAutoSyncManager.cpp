@@ -201,7 +201,7 @@ nsAutoSyncManager::nsAutoSyncManager() {
   mIdleState = notIdle;
   mStartupDone = false;
   mDownloadModel = dmChained;
-  mUpdateState = completed;
+  mUpdateInProgress = false;
   mPaused = false;
 
   nsresult rv;
@@ -290,7 +290,8 @@ void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
   }
 
   if (autoSyncMgr->mUpdateQ.Count() > 0) {
-    if (autoSyncMgr->mUpdateState == completed) {
+    if (!autoSyncMgr->mUpdateInProgress)  // Avoids possible overlap of updates
+    {
       nsCOMPtr<nsIAutoSyncState> autoSyncStateObj(autoSyncMgr->mUpdateQ[0]);
       if (autoSyncStateObj) {
         int32_t state;
@@ -305,7 +306,7 @@ void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
             NS_ENSURE_SUCCESS_VOID(rv);
             rv = imapFolder->InitiateAutoSync(autoSyncMgr);
             if (NS_SUCCEEDED(rv)) {
-              autoSyncMgr->mUpdateState = initiated;
+              autoSyncMgr->mUpdateInProgress = true;
               NOTIFY_LISTENERS_STATIC(autoSyncMgr, OnAutoSyncInitiated,
                                       (folder));
             }
@@ -323,7 +324,7 @@ void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
     // if initiation is not successful for some reason, or
     // if there is an on going download for this folder,
     // remove it from q and continue with the next one
-    if (autoSyncMgr->mUpdateState != initiated) {
+    if (!autoSyncMgr->mUpdateInProgress) {
       nsCOMPtr<nsIMsgFolder> folder;
       autoSyncMgr->mUpdateQ[0]->GetOwnerFolder(getter_AddRefs(folder));
 
@@ -491,9 +492,12 @@ NS_IMETHODIMP nsAutoSyncManager::OnStartRunningUrl(nsIURI* aUrl) {
   return NS_OK;
 }
 
+/**
+ * This is called when an update folder URL finishes. It is also called by
+ * nsAutoSyncState::OnStopRunningUrl when a folder status URL finishes.
+ */
 NS_IMETHODIMP nsAutoSyncManager::OnStopRunningUrl(nsIURI* aUrl,
                                                   nsresult aExitCode) {
-  mUpdateState = completed;
   if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
     nsCString uri;
     if (aUrl) uri = aUrl->GetSpecOrDefault();
@@ -501,11 +505,15 @@ NS_IMETHODIMP nsAutoSyncManager::OnStopRunningUrl(nsIURI* aUrl,
             ("nsAutoSyncManager::%s, count=%d, url=%s", __func__,
              mUpdateQ.Count(), uri.get()));
   }
+  mUpdateInProgress = false;  // Set false to allow next folder to update
   if (mUpdateQ.Count() > 0) mUpdateQ.RemoveObjectAt(0);
 
   return aExitCode;
 }
 
+/**
+ * This occurs on system sleep, hibernate or when TB is set offline or shutdown.
+ */
 NS_IMETHODIMP nsAutoSyncManager::Pause() {
   StopTimer();
   mPaused = true;
@@ -513,10 +521,19 @@ NS_IMETHODIMP nsAutoSyncManager::Pause() {
   return NS_OK;
 }
 
+/**
+ * This occurs on wakeup from sleep or hibernate and when TB is returned online.
+ */
 NS_IMETHODIMP nsAutoSyncManager::Resume() {
   mPaused = false;
   StartTimerIfNeeded();
-  MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("autosync resumed"));
+  // If mUpdateInProgress was true on resume it needs to be reset back to false
+  // to avoid inhibiting autosync until a restart. OnStopRunningUrl(), where it
+  // is normally reset, may not occur depending on timing and autosync will
+  // never be initiated in TimerCallback() for any folder.
+  MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+          ("autosync resumed, mUpdateInProgress=%d(bool)", mUpdateInProgress));
+  mUpdateInProgress = false;  // May already be false, that's OK
   return NS_OK;
 }
 
@@ -823,12 +840,12 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
                          __func__, folderName.get(), idx));
                 autoSyncState->SetState(nsAutoSyncState::stCompletedIdle);
 
-                // Usually this is already done by
+                // This should already be done by
                 // nsAutoSyncManager::OnStopRunningUrl() but set update state to
                 // completed and remove folder state object from update queue in
                 // case OnStopRunningUrl never occurred.
+                mUpdateInProgress = false;
                 if (idx > -1) {
-                  mUpdateState = completed;
                   mUpdateQ.RemoveObjectAt(idx);
                   idx = -1;  // re-q below
                 }
@@ -839,7 +856,7 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
                 if (idx > -1) {
                   // Download q not empty and folder still on update q, maybe it
                   // just needs more time so leave update q as it is to update
-                  // on next "span" interval. (Not sure this ever happens.)
+                  // on next "span" interval. (Never seen this happen.)
                   idx = 0;
                 }
               }

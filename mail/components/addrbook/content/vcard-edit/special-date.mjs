@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals VCardEdit, VCardPropertyEntryView, vCardIdGen */
+import { vCardIdGen } from "./id-gen.mjs";
 
+const lazy = {};
 ChromeUtils.defineModuleGetter(
-  this,
+  lazy,
   "VCardPropertyEntry",
   "resource:///modules/VCardUtils.jsm"
 );
@@ -22,7 +23,7 @@ const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
  * @implements {VCardPropertyEntryView}
  * @see RFC6350 ANNIVERSARY and BDAY
  */
-class VCardSpecialDateComponent extends HTMLElement {
+export class VCardSpecialDateComponent extends HTMLElement {
   /** @type {VCardPropertyEntry} */
   vCardPropertyEntry;
 
@@ -56,11 +57,11 @@ class VCardSpecialDateComponent extends HTMLElement {
   };
 
   static newAnniversaryVCardPropertyEntry() {
-    return new VCardPropertyEntry("anniversary", {}, "date", "");
+    return new lazy.VCardPropertyEntry("anniversary", {}, "date", "");
   }
 
   static newBdayVCardPropertyEntry() {
-    return new VCardPropertyEntry("bday", {}, "date", "");
+    return new lazy.VCardPropertyEntry("bday", {}, "date", "");
   }
 
   connectedCallback() {

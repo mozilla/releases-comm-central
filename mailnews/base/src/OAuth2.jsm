@@ -9,6 +9,8 @@
  */
 var EXPORTED_SYMBOLS = ["OAuth2"];
 
+var { CryptoUtils } = ChromeUtils.import("resource://services-crypto/utils.js");
+
 // Only allow one connecting window per endpoint.
 var gConnecting = {};
 
@@ -24,6 +26,8 @@ var gConnecting = {};
  *   6749 Section 2.3.1.
  * @param {string} issuerDetails.clientSecret - The client_secret as specified
  *   in RFC 6749 section 2.3.1. Will not be included in the requests if null.
+ * @param {boolean} issuerDetails.usePKCE - Whether to use PKCE as specified
+ *   in RFC 7636 during the oauth registration process
  * @param {string} issuerDetails.redirectionEndpoint - The redirect_uri as
  *   specified by RFC 6749 section 3.1.2.
  * @param {string} issuerDetails.tokenEndpoint - The token endpoint as defined
@@ -34,6 +38,7 @@ function OAuth2(scope, issuerDetails) {
   this.authorizationEndpoint = issuerDetails.authorizationEndpoint;
   this.clientId = issuerDetails.clientId;
   this.consumerSecret = issuerDetails.clientSecret || null;
+  this.usePKCE = issuerDetails.usePKCE;
   this.redirectionEndpoint =
     issuerDetails.redirectionEndpoint || "http://localhost";
   this.tokenEndpoint = issuerDetails.tokenEndpoint;
@@ -54,6 +59,8 @@ OAuth2.prototype = {
   requestWindowFeatures: "chrome,private,centerscreen,width=980,height=750",
   requestWindowTitle: "",
   scope: null,
+  usePKCE: false,
+  codeChallenge: null,
 
   accessToken: null,
   refreshToken: null,
@@ -99,6 +106,31 @@ OAuth2.prototype = {
     // The scope is optional.
     if (this.scope) {
       params.append("scope", this.scope);
+    }
+
+    // See rfc7636
+    if (this.usePKCE) {
+      // Convert base64 to base64url (rfc4648#section-5)
+      const to_b64url = b =>
+        b
+          .replace(/\+/g, "-")
+          .replace(/\//g, "_")
+          .replace(/=/g, "");
+
+      params.append("code_challenge_method", "S256");
+
+      // rfc7636#section-4.1
+      //  code_verifier = high-entropy cryptographic random STRING ... with a minimum
+      //  length of 43 characters and a maximum length of 128 characters.
+      const code_verifier = to_b64url(
+        btoa(CryptoUtils.generateRandomBytesLegacy(64))
+      );
+      this.codeVerifier = code_verifier;
+
+      // rfc7636#section-4.2
+      //  code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
+      const code_challenge = to_b64url(CryptoUtils.sha256Base64(code_verifier));
+      params.append("code_challenge", code_challenge);
     }
 
     for (let [name, value] of this.extraAuthParams) {
@@ -250,6 +282,9 @@ OAuth2.prototype = {
       data.append("grant_type", "authorization_code");
       data.append("code", aCode);
       data.append("redirect_uri", this.redirectionEndpoint);
+      if (this.usePKCE) {
+        data.append("code_verifier", this.codeVerifier);
+      }
     }
 
     fetch(this.tokenEndpoint, {

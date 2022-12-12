@@ -20,57 +20,7 @@ const EXPORTED_SYMBOLS = ["CalDavDetectionSession", "CalDavSession"];
 
 const OAUTH_GRACE_TIME = 30 * 1000;
 
-/**
- * Authentication provider for Google's OAuth.
- */
-class CalDavGoogleOAuth extends OAuth2 {
-  /**
-   * Constructs a new Google OAuth authentication provider
-   *
-   * @param {string} sessionId - The session id, used in the password manager
-   * @param {string} name - The user-readable description of this session
-   */
-  constructor(sessionId, name) {
-    /* eslint-disable no-undef */
-    super("https://www.googleapis.com/auth/calendar", {
-      authorizationEndpoint: "https://accounts.google.com/o/oauth2/auth",
-      tokenEndpoint: "https://www.googleapis.com/oauth2/v3/token",
-      clientId: OAUTH_CLIENT_ID,
-      clientSecret: OAUTH_HASH,
-    });
-    /*  eslint-enable no-undef */
-
-    this.id = sessionId;
-    this.origin = "oauth:" + sessionId;
-    this.pwMgrId = "Google CalDAV v2";
-
-    this._maybeUpgrade(name);
-
-    this.requestWindowTitle = cal.l10n.getAnyString(
-      "global",
-      "commonDialogs",
-      "EnterUserPasswordFor2",
-      [name]
-    );
-    this.extraAuthParams = [["login_hint", name]];
-  }
-
-  /**
-   * If no token is found for "Google CalDAV v2", this is either a new session (in which case
-   * it should use Thunderbird's credentials) or it's already using Thunderbird's credentials.
-   * Detect those situations and switch credentials if necessary.
-   */
-  _maybeUpgrade() {
-    if (!this.refreshToken) {
-      const issuerDetails = lazy.OAuth2Providers.getIssuerDetails("accounts.google.com");
-      this.clientId = issuerDetails.clientId;
-      this.consumerSecret = issuerDetails.clientSecret;
-
-      this.origin = "oauth://accounts.google.com";
-      this.pwMgrId = "https://www.googleapis.com/auth/calendar";
-    }
-  }
-
+class CalDavOAuth extends OAuth2 {
   /**
    * Returns true if the token has expired, or will expire within the grace time.
    */
@@ -213,9 +163,9 @@ class CalDavGoogleOAuth extends OAuth2 {
    */
   async prepareRedirect(aOldChannel, aNewChannel) {
     try {
-      let hdrValue = aOldChannel.getRequestHeader("WWW-Authenticate");
+      let hdrValue = aOldChannel.getRequestHeader("Authorization");
       if (hdrValue) {
-        aNewChannel.setRequestHeader("WWW-Authenticate", hdrValue, false);
+        aNewChannel.setRequestHeader("Authorization", hdrValue, false);
       }
     } catch (e) {
       if (e.result != Cr.NS_ERROR_NOT_AVAILABLE) {
@@ -242,6 +192,110 @@ class CalDavGoogleOAuth extends OAuth2 {
       return CalDavSession.RESTART_REQUEST;
     }
     return null;
+  }
+}
+
+/**
+ * Authentication provider for Google's OAuth.
+ */
+class CalDavGoogleOAuth extends CalDavOAuth {
+  /**
+   * Constructs a new Google OAuth authentication provider
+   *
+   * @param {string} sessionId - The session id, used in the password manager
+   * @param {string} name - The user-readable description of this session
+   */
+  constructor(sessionId, name) {
+    /* eslint-disable no-undef */
+    super("https://www.googleapis.com/auth/calendar", {
+      authorizationEndpoint: "https://accounts.google.com/o/oauth2/auth",
+      tokenEndpoint: "https://www.googleapis.com/oauth2/v3/token",
+      clientId: OAUTH_CLIENT_ID,
+      clientSecret: OAUTH_HASH,
+    });
+    /*  eslint-enable no-undef */
+
+    this.id = sessionId;
+    this.origin = "oauth:" + sessionId;
+    this.pwMgrId = "Google CalDAV v2";
+
+    this._maybeUpgrade(name);
+
+    this.requestWindowTitle = cal.l10n.getAnyString(
+      "global",
+      "commonDialogs",
+      "EnterUserPasswordFor2",
+      [name]
+    );
+    this.extraAuthParams = [["login_hint", name]];
+  }
+
+  /**
+   * If no token is found for "Google CalDAV v2", this is either a new session (in which case
+   * it should use Thunderbird's credentials) or it's already using Thunderbird's credentials.
+   * Detect those situations and switch credentials if necessary.
+   */
+  _maybeUpgrade() {
+    if (!this.refreshToken) {
+      const issuerDetails = lazy.OAuth2Providers.getIssuerDetails("accounts.google.com");
+      this.clientId = issuerDetails.clientId;
+      this.consumerSecret = issuerDetails.clientSecret;
+
+      this.origin = "oauth://accounts.google.com";
+      this.pwMgrId = "https://www.googleapis.com/auth/calendar";
+    }
+  }
+}
+
+/**
+ * Authentication provider for Fastmail's OAuth.
+ */
+class CalDavFastmailOAuth extends CalDavOAuth {
+  /**
+   * Constructs a new Fastmail OAuth authentication provider
+   *
+   * @param {string} sessionId - The session id, used in the password manager
+   * @param {string} name - The user-readable description of this session
+   */
+  constructor(sessionId, name) {
+    /* eslint-disable no-undef */
+    super("https://www.fastmail.com/dev/protocol-caldav", {
+      authorizationEndpoint: "https://api.fastmail.com/oauth/authorize",
+      tokenEndpoint: "https://api.fastmail.com/oauth/refresh",
+      clientId: OAUTH_CLIENT_ID,
+      clientSecret: OAUTH_HASH,
+      usePKCE: true,
+    });
+    /*  eslint-enable no-undef */
+
+    this.id = sessionId;
+    this.origin = "oauth:" + sessionId;
+    this.pwMgrId = "Fastmail CalDAV";
+
+    this._maybeUpgrade(name);
+
+    this.requestWindowTitle = cal.l10n.getAnyString(
+      "global",
+      "commonDialogs",
+      "EnterUserPasswordFor2",
+      [name]
+    );
+    this.extraAuthParams = [["login_hint", name]];
+  }
+
+  /**
+   * If no token is found for "Fastmail CalDAV", this is either a new session (in which case
+   * it should use Thunderbird's credentials) or it's already using Thunderbird's credentials.
+   * Detect those situations and switch credentials if necessary.
+   */
+  _maybeUpgrade() {
+    if (!this.refreshToken) {
+      const issuerDetails = lazy.OAuth2Providers.getIssuerDetails("www.fastmail.com");
+      this.clientId = issuerDetails.clientId;
+
+      this.origin = "oauth://www.fastmail.com";
+      this.pwMgrId = "https://www.fastmail.com/dev/protocol-caldav";
+    }
   }
 }
 
@@ -317,6 +371,11 @@ class CalDavSession {
       this.authAdapters,
       "apidata.googleusercontent.com",
       () => new CalDavGoogleOAuth(aSessionId, aName)
+    );
+    XPCOMUtils.defineLazyGetter(
+      this.authAdapters,
+      "caldav.fastmail.com",
+      () => new CalDavFastmailOAuth(aSessionId, aName)
     );
     XPCOMUtils.defineLazyGetter(
       this.authAdapters,

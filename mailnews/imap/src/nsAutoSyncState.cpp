@@ -362,11 +362,10 @@ NS_IMETHODIMP nsAutoSyncState::ProcessExistingHeaders(
 void nsAutoSyncState::OnNewHeaderFetchCompleted(
     const nsTArray<nsMsgKey>& aMsgKeyList) {
   SetLastUpdateTime(PR_Now());
-  if (!aMsgKeyList.IsEmpty())
-    PlaceIntoDownloadQ(aMsgKeyList);
-  else
-    MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-            ("%s: nothing to download", __func__));
+  if (!aMsgKeyList.IsEmpty()) PlaceIntoDownloadQ(aMsgKeyList);
+  MOZ_LOG(
+      gAutoSyncLog, LogLevel::Debug,
+      ("%s: %zu msg keys put into download q", __func__, aMsgKeyList.Length()));
 }
 
 NS_IMETHODIMP nsAutoSyncState::UpdateFolder() {
@@ -401,6 +400,10 @@ NS_IMETHODIMP nsAutoSyncState::OnStartRunningUrl(nsIURI* aUrl) {
   return autoSyncMgr->OnDownloadStarted(this, rv);
 }
 
+/**
+ * This is called when a folder status URL finishes. It is also called when
+ * needed message downloads (imap fetch) for a folder completes.
+ */
 NS_IMETHODIMP nsAutoSyncState::OnStopRunningUrl(nsIURI* aUrl,
                                                 nsresult aExitCode) {
   nsresult rv;
