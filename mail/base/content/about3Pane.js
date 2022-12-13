@@ -696,7 +696,7 @@ function clearMessages() {
   displayMessages();
 }
 
-function displayWebPage(url) {
+function displayWebPage(url, params) {
   if (!url) {
     MailE10SUtils.loadURI(webBrowser, "about:blank");
     webBrowser.hidden = true;
@@ -706,7 +706,7 @@ function displayWebPage(url) {
   clearMessage();
   clearMessages();
 
-  MailE10SUtils.loadURI(webBrowser, url);
+  MailE10SUtils.loadURI(webBrowser, url, params);
   webBrowser.hidden = false;
 }
 
@@ -771,6 +771,7 @@ async function displayMessages(messages = []) {
     }
   );
   multiMessageBrowser.hidden = false;
+  window.dispatchEvent(new CustomEvent("MsgsLoaded", { bubbles: true }));
 }
 
 var folderPaneContextMenu = {

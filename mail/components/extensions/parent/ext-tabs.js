@@ -43,8 +43,9 @@ let tabListener = {
    */
   onLocationChange(browser, webProgress, request, locationURI, flags) {
     if (webProgress && webProgress.isTopLevel) {
-      let tabmail = browser.ownerDocument.getElementById("tabmail");
-      let nativeTabInfo = tabmail.getTabForBrowser(browser);
+      let window = browser.ownerGlobal.top;
+      let tabmail = window.document.getElementById("tabmail");
+      let nativeTabInfo = tabmail ? tabmail.getTabForBrowser(browser) : window;
 
       // Now we are certain that the first page in the tab was loaded.
       this.initializingTabs.delete(nativeTabInfo);
@@ -539,29 +540,7 @@ this.tabs = class extends ExtensionAPIPersistent {
           let tabmail = getTabTabmail(nativeTabInfo);
 
           if (updateProperties.url) {
-            // Only supported for content tabs and active mail tabs.
-            let supportedTabs =
-              nativeTabInfo == tabmail.currentTabInfo
-                ? ["folder", "contentTab"]
-                : ["contentTab"];
-            if (supportedTabs.includes(nativeTabInfo.mode.name)) {
-              if (nativeTabInfo.messageDisplay) {
-                // Clear the selection before loading a content url into a mail
-                // tab, to reset the messageDisplay.
-                nativeTabInfo.folderDisplay.clearSelection();
-              }
-            } else {
-              throw new ExtensionError(
-                "Updating the displayed url is only supported for content tabs and active mail tabs."
-              );
-            }
-
-            let browser = getTabBrowser(nativeTabInfo);
-            if (!browser) {
-              throw new ExtensionError("Cannot set a URL for this tab.");
-            }
             let url = context.uri.resolve(updateProperties.url);
-
             if (!context.checkLoadURL(url, { dontReportErrors: true })) {
               return Promise.reject({ message: `Illegal URL: ${url}` });
             }
@@ -572,7 +551,24 @@ this.tabs = class extends ExtensionAPIPersistent {
                 : Ci.nsIWebNavigation.LOAD_FLAGS_NONE,
               triggeringPrincipal: context.principal,
             };
-            MailE10SUtils.loadURI(browser, url, options);
+
+            // Only supported for content tabs and mail tabs.
+            if (nativeTabInfo.mode.name == "contentTab") {
+              let browser = getTabBrowser(nativeTabInfo);
+              if (!browser) {
+                throw new ExtensionError("Cannot set a URL for this tab.");
+              }
+              MailE10SUtils.loadURI(browser, url, options);
+            } else if (nativeTabInfo.mode.name == "mail3PaneTab") {
+              nativeTabInfo.chromeBrowser.contentWindow.displayWebPage(
+                url,
+                options
+              );
+            } else {
+              throw new ExtensionError(
+                "Updating the displayed url is only supported for content tabs and mail tabs."
+              );
+            }
           }
 
           // The current tab can only be set to active. To set it inactive, another tab has to be set

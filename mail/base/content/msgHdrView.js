@@ -4734,6 +4734,9 @@ function OnMsgLoaded(aUrl) {
   window.dispatchEvent(
     new CustomEvent("MsgLoaded", { detail: gMessage, bubbles: true })
   );
+  window.dispatchEvent(
+    new CustomEvent("MsgsLoaded", { detail: [gMessage], bubbles: true })
+  );
 
   if (!gFolder) {
     return;
