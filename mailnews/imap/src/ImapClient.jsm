@@ -74,6 +74,13 @@ class ImapClient {
   }
 
   /**
+   * @type {boolean} - Whether the socket is open.
+   */
+  get isOnline() {
+    return this._socket?.readyState == "open";
+  }
+
+  /**
    * Load imap related preferences, many behaviors depend on these pref values.
    */
   _loadPrefs() {
@@ -105,7 +112,7 @@ class ImapClient {
    * Initiate a connection to the server
    */
   connect() {
-    if (this._socket?.readyState == "open") {
+    if (this.isOnline) {
       // Reuse the connection.
       this.onReady();
       this._setSocketTimeout(this._prefs.tcpTimeout);
@@ -129,7 +136,7 @@ class ImapClient {
    * @param {number} timeout - The timeout in seconds.
    */
   _setSocketTimeout(timeout) {
-    this._socket.transport.setTimeout(
+    this._socket.transport?.setTimeout(
       Ci.nsISocketTransport.TIMEOUT_READ_WRITE,
       timeout
     );
@@ -638,14 +645,16 @@ class ImapClient {
       }
     };
     this._sendTagged("IDLE");
+    this._setSocketTimeout(PR_UINT32_MAX);
     this._idling = true;
     this._idleTimer = setTimeout(() => {
       this.endIdle(() => {
         this._actionNoop();
       });
       // Per rfc2177, should terminate the IDLE and re-issue it at least every
-      // 29 minutes.
-    }, 20 * 60 * 1000);
+      // 29 minutes. But in practice many servers timeout before that. A noop
+      // every 5min is better than timeout.
+    }, 5 * 60 * 1000);
     this._logger.debug(`Idling in ${this.folder.URI}`);
   }
 
@@ -767,7 +776,7 @@ class ImapClient {
       this._logger.debug(`C: ${str}`);
     }
 
-    if (this._socket?.readyState != "open") {
+    if (!this.isOnline) {
       if (!str.includes("LOGOUT")) {
         this._logger.warn(
           `Failed to send because socket state is ${this._socket?.readyState}`
@@ -1615,7 +1624,6 @@ class ImapClient {
     this._reset();
     // Tell ImapIncomingServer this client can be reused now.
     this.onFree?.();
-    this._setSocketTimeout(PR_UINT32_MAX);
   };
 
   /** @see nsIImapProtocol */

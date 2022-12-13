@@ -550,33 +550,38 @@ class ImapIncomingServer extends MsgIncomingServer {
     if (!client) {
       return;
     }
-    client.onFree = async () => {
+    let startIdle = async () => {
+      if (!this.useIdle || !this._capabilities.includes("IDLE")) {
+        return;
+      }
+
+      // IDLE is configed and supported, use IDLE to receive server pushes.
+      let hasInboxConnection = this._connections.some(c =>
+        this._isInboxConnection(c)
+      );
+      let alreadyIdling =
+        client.folder &&
+        this._connections.find(
+          c => c != client && !c.busy && c.folder == client.folder
+        );
+      if (!hasInboxConnection) {
+        client.selectFolder(
+          this.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox)
+        );
+      } else if (client.folder && !alreadyIdling) {
+        client.idle();
+      } else if (alreadyIdling) {
+        client.folder = null;
+      }
+    };
+    client.onFree = () => {
       client.busy = false;
       let resolve = this._connectionWaitingQueue.shift();
       if (resolve) {
         // Resolve the first waiting in queue.
         resolve(true);
-      } else {
-        let hasInboxConnection = this._connections.some(c =>
-          this._isInboxConnection(c)
-        );
-        let alreadyIdling =
-          client.folder &&
-          this._connections.find(
-            c => c != client && !c.busy && c.folder == client.folder
-          );
-        if (this.useIdle && this._capabilities.includes("IDLE")) {
-          // IDLE is configed and supported, use IDLE to receive server pushes.
-          if (!hasInboxConnection) {
-            client.selectFolder(
-              this.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox)
-            );
-          } else if (client.folder && !alreadyIdling) {
-            client.idle();
-          } else if (alreadyIdling) {
-            client.folder = null;
-          }
-        }
+      } else if (client.isOnline) {
+        startIdle();
       }
     };
     handler(client);
