@@ -230,6 +230,7 @@ dialog input[type="radio"]:enabled:checked:hover {
 }
 
 .dialog-menu-container {
+  list-style-type: none;
   display: flex;
   align-items: center;
   margin-block-end: 0;

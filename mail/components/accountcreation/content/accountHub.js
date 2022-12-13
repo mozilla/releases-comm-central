@@ -83,7 +83,7 @@ class AccountHubControllerClass {
       "open-view",
       event => {
         event.stopPropagation();
-        this.open(event.explicitOriginalTarget.dataset.type);
+        this.open(event.detail.type);
       },
       {
         capture: true,
@@ -213,12 +213,11 @@ class AccountHubControllerClass {
   }
 
   /**
-   * TODO: Show the email setup view.
+   * Show the email setup view.
    */
-  #viewEmailSetup() {
-    console.log("Email setup");
-    // Trigger the specific setup view we need to load and defer the handling
-    // of the setup flow to the dedicated module.
+  async #viewEmailSetup() {
+    await this.#loadScript("email");
+    this.#loadView("account-hub-email");
   }
 
   /**
