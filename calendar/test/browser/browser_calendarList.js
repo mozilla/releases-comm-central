@@ -150,6 +150,10 @@ add_task(async () => {
     document.getElementById("list-calendars-context-showonly").label,
     "Show Only Mochitest 1"
   );
+  Assert.ok(
+    document.getElementById("list-calendar-context-reload").hidden,
+    "Local calendar should have reload menu showing"
+  );
   contextMenu.hidePopup();
 
   Assert.equal(document.activeElement, calendarList);

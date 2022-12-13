@@ -251,7 +251,8 @@
               accesskeyremove="&calendar.context.removeserver.accesskey;"
               accesskeyunsubscribe="&calendar.context.unsubscribeserver.accesskey;"
               command="calendar_delete_calendar_command"/>
-    <menuseparator id="list-calendars-context-itemops-menuseparator"/>
+    <menuseparator id="list-calendars-context-itemops-menuseparator"
+                   class="needs-calendar"/>
     <menuitem id="list-calendars-context-export"
               class="needs-calendar"
               label="&calendar.context.export.label;"
@@ -264,10 +265,10 @@
               command="calendar_publish_selected_calendar_command"/>
     <menuseparator id="list-calendars-context-export-menuseparator"
               class="needs-calendar"/>
-    <menuitem id="list-calendars-context-reload"
-              label="&calendar.context.synccalendars.label;"
-              accesskey="&calendar.context.synccalendars.accesskey;"
-              command="calendar_reload_remote_calendars"/>
+    <menuitem id="list-calendar-context-reload"
+              class="needs-calendar"
+              data-l10n-id="list-calendar-context-reload-menuitem"
+              oncommand="document.getElementById('list-calendars-context-menu').contextCalendar.refresh();"/>
     <menuseparator id="list-calendars-context-reload-menuseparator"
                    class="needs-calendar"/>
     <menuitem id="list-calendars-context-edit"

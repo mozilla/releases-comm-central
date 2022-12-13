@@ -328,10 +328,33 @@ let syncChangesTest = {
   },
 
   async runPart3() {
-    EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-synchronize-button"), {});
+    await calendarListContextMenu(
+      document.querySelector("#calendar-list > li:nth-child(2)"),
+      "list-calendar-context-reload"
+    );
     await CalendarTestUtils.multiweekView.waitForNoItemAt(window, 2, 3, 1);
     await CalendarTestUtils.multiweekView.waitForNoItemAt(window, 2, 4, 1);
 
     await TestUtils.waitForCondition(() => window.TodayPane.agenda.rowCount == 0);
   },
 };
+
+async function calendarListContextMenu(target, menuItem) {
+  await new Promise(r => setTimeout(r));
+  window.focus();
+  await TestUtils.waitForCondition(
+    () => Services.focus.focusedWindow == window,
+    "waiting for window to be focused"
+  );
+
+  let contextMenu = document.getElementById("list-calendars-context-menu");
+  let shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(target, { type: "contextmenu" });
+  await shownPromise;
+
+  if (menuItem) {
+    let hiddenPromise = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
+    contextMenu.activateItem(document.getElementById(menuItem));
+    await hiddenPromise;
+  }
+}

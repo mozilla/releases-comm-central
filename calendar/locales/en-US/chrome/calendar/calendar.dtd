@@ -274,8 +274,6 @@
 <!ENTITY calendar.context.removeserver.accesskey       "R">
 <!ENTITY calendar.context.unsubscribeserver.label      "Unsubscribe Calendar…">
 <!ENTITY calendar.context.unsubscribeserver.accesskey  "U">
-<!ENTITY calendar.context.synccalendars.label          "Synchronize Calendars">
-<!ENTITY calendar.context.synccalendars.accesskey      "S">
 <!ENTITY calendar.context.publish.label                "Publish Calendar…">
 <!ENTITY calendar.context.publish.accesskey            "b">
 <!ENTITY calendar.context.export.label                 "Export Calendar…">

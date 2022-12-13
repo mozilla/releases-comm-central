@@ -457,6 +457,9 @@ function calendarListSetupContextMenu(event) {
 
   document.getElementById("list-calendars-context-menu").contextCalendar = calendar;
 
+  for (let elem of event.target.querySelectorAll(".needs-calendar")) {
+    elem.hidden = !calendar;
+  }
   if (calendar) {
     let stringName = composite.getCalendarById(calendar.id) ? "hideCalendar" : "showCalendar";
     document.getElementById(
@@ -470,13 +473,10 @@ function calendarListSetupContextMenu(event) {
       "list-calendars-context-showonly"
     ).label = cal.l10n.getCalString("showOnlyCalendar", [calendar.name]);
     setupDeleteMenuitem("list-calendars-context-delete", calendar);
-    for (let elem of event.target.querySelectorAll(".needs-calendar")) {
-      elem.removeAttribute("collapsed");
-    }
-  } else {
-    for (let elem of event.target.querySelectorAll(".needs-calendar")) {
-      elem.setAttribute("collapsed", "true");
-    }
+    document.getElementById("list-calendar-context-reload").hidden = !calendar.canRefresh;
+    document.getElementById(
+      "list-calendars-context-reload-menuseparator"
+    ).hidden = !calendar.canRefresh;
   }
 }
 
