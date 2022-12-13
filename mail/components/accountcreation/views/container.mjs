@@ -29,14 +29,16 @@ class AccountHubContainer extends HTMLElement {
     shadowRoot.appendChild(style);
 
     let template = document.getElementById("accountHubDialog");
-    this.modal = template.content.firstElementChild.cloneNode(true);
-    shadowRoot.appendChild(this.modal);
+    let clonedNode = template.content.cloneNode(true);
+    shadowRoot.appendChild(clonedNode);
+    this.modal = shadowRoot.querySelector("dialog");
 
     // We need to create an internal DOM localization in order to let fluent
     // see the IDs inside our shadowRoot.
     this.l10n = new DOMLocalization([
       "branding/brand.ftl",
       "messenger/accountcreation/accountHub.ftl",
+      "messenger/accountcreation/accountSetup.ftl",
     ]);
     this.l10n.connectRoot(shadowRoot);
   }

@@ -68,6 +68,8 @@ class AccountHubStart extends HTMLElement {
     this.appendChild(template.content.cloneNode(true));
 
     this.initUI();
+
+    this.setupAccountFlows();
   }
 
   /**
@@ -78,8 +80,7 @@ class AccountHubStart extends HTMLElement {
     this.querySelector("#welcomeHeader").hidden = hasAccounts;
     this.querySelector("#defaultHeader").hidden = !hasAccounts;
 
-    this.setupAccountFlows();
-    this.setupFxAButton();
+    this.updateFxAButton();
 
     // Hide the release notes link for nightly builds since we don't have any.
     if (AppConstants.NIGHTLY_BUILD) {
@@ -112,39 +113,38 @@ class AccountHubStart extends HTMLElement {
     for (const account of this.#accounts) {
       const button = document.createElement("button");
       button.id = `${account.id}Button`;
-      button.dataset.type = account.type;
       button.classList.add("button-flat", "button-account");
       document.l10n.setAttributes(button, account.l10n);
       button.addEventListener("click", () => {
-        this.dispatchEvent(new CustomEvent("open-view"), {
-          bubbles: true,
-          composed: true,
-        });
+        this.dispatchEvent(
+          new CustomEvent("open-view", {
+            bubbles: true,
+            composed: true,
+            detail: {
+              type: account.type,
+            },
+          })
+        );
       });
       fragment.append(button);
     }
     this.querySelector(".hub-body-grid").replaceChildren(fragment);
-  }
 
-  /**
-   * Set up the Firefox Sync button.
-   */
-  setupFxAButton() {
-    const button = this.querySelector("#hubSyncButton");
-    const state = UIState.get();
-    // Bail out if the user is already signed in.
-    if (state.status == UIState.STATUS_SIGNED_IN) {
-      button.hidden = true;
-      return;
-    }
-
-    button.hidden = false;
-    button.addEventListener("click", () => {
+    this.querySelector("#hubSyncButton").addEventListener("click", () => {
       // FIXME: Open this in a dialog or browser inside the modal, or find a
       // way to close the account hub without an account and open it again in
       // case the FxA login fails to set up accounts.
       initFxA();
     });
+  }
+
+  /**
+   * Set up the Firefox Sync button.
+   */
+  updateFxAButton() {
+    const state = UIState.get();
+    this.querySelector("#hubSyncButton").hidden =
+      state.status == UIState.STATUS_SIGNED_IN;
   }
 
   /**

@@ -38,3 +38,15 @@ account-hub-import-button = Import profile
 
 # Note: "Sync" represents the Firefox Sync product so it shouldn't be translated.
 account-hub-sync-button = Sign in to Sync…
+
+## Email page
+
+account-hub-email-title = Set up your email account
+
+account-hub-email-cancel-button = Cancel
+
+account-hub-email-back-button = Back
+
+account-hub-email-continue-button = Continue
+
+account-hub-email-confirm-button = Confirm

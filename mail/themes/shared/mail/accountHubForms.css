@@ -1,0 +1,114 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+form {
+  grid-row: header / footer;
+}
+
+form .hub-body {
+  align-items: stretch;
+  justify-content: flex-start;
+  place-self: center;
+  gap: 0;
+  width: 100%;
+  max-width: 400px;
+  text-align: start;
+  margin-inline: 0;
+}
+
+form label {
+  font-size: 1.1rem;
+  line-height: 1;
+  margin-block-end: 3px;
+}
+
+.input-control {
+  display: flex;
+  align-items: center;
+  margin-block-end: 21px;
+}
+
+.input-control.vertical {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+form .input-field {
+  flex: 1;
+  margin-inline: 0;
+  padding-block: 0;
+  padding-inline-end: 33px;
+  min-height: var(--hub-input-height);
+  border-radius: var(--hub-input-border-radius);
+}
+
+.form-icon {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  -moz-context-properties: fill, fill-opacity, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+  fill-opacity: 0.7;
+  margin-inline: -26px 10px;
+}
+
+.form-toggle-button {
+  cursor: pointer;
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0 4px;
+  margin-inline: -30px 6px;
+  min-width: auto;
+  min-height: auto;
+  margin-block: 0;
+  line-height: 0;
+}
+
+.form-toggle-button:hover,
+.form-toggle-button:active {
+  background-color: transparent !important;
+}
+
+.form-toggle-button .form-icon {
+  pointer-events: none;
+  margin-inline: 0;
+}
+
+#password:placeholder-shown + .form-toggle-button {
+  display: none;
+}
+
+#password[type="password"] + .form-toggle-button .form-icon {
+  content: var(--icon-hidden);
+}
+
+#password[type="text"] + .form-toggle-button .form-icon {
+  content: var(--icon-eye);
+}
+
+#password[type="text"] + .form-toggle-button {
+  color: var(--in-content-primary-button-background);
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
+.icon-warning {
+  display: none;
+  color: var(--orange-50);
+  fill-opacity: 1;
+}
+
+input:user-invalid ~ .form-icon {
+  display: none;
+}
+
+input:user-invalid ~ .icon-warning {
+  display: inline-block;
+}
+
+.remember-button-container {
+  margin-block-start: -18px;
+}

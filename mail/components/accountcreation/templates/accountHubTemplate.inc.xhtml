@@ -16,7 +16,7 @@
 </html:template>
 
 <html:template id="accountHubStart" xmlns="http://www.w3.org/1999/xhtml">
-  <header id="hubHeader">
+  <header class="hub-header">
     <div id="welcomeHeader" class="start-header" hidden="hidden">
       <img src="chrome://branding/content/logo-gradient.svg" alt="" />
       <h1 data-l10n-id="account-hub-welcome-line">
@@ -34,7 +34,7 @@
     </div>
   </header>
 
-  <div id="hubBody">
+  <div class="hub-body">
     <div class="hub-body-grid"></div>
 #ifdef NIGHTLY_BUILD
     <button id="hubSyncButton"
@@ -45,24 +45,114 @@
 #endif
   </div>
 
-  <div id="hubFooter">
+  <footer class="hub-footer">
     <ul class="reset-list footer-links">
       <li>
         <a id="hubReleaseNotes"
-            data-l10n-id="account-hub-release-notes"></a>
+           data-l10n-id="account-hub-release-notes"></a>
       </li>
       <li>
         <a href="https://support.mozilla.org/products/thunderbird"
-            data-l10n-id="account-hub-support"
-            onclick="openLinkExternally(this.href);"></a>
+           data-l10n-id="account-hub-support"
+           onclick="openLinkExternally(this.href);"></a>
       </li>
       <li>
         <a href="https://give.thunderbird.net/?utm_source=thunderbird_account_hub&amp;utm_medium=referral&amp;utm_content=hub_footer"
-            data-l10n-id="account-hub-donate"
-            onclick="openLinkExternally(this.href);"></a>
+           data-l10n-id="account-hub-donate"
+           onclick="openLinkExternally(this.href);"></a>
       </li>
     </ul>
-  </div>
+  </footer>
 </html:template>
 
-<html:template id="accountHubEmailSetup" xmlns="http://www.w3.org/1999/xhtml"></html:template>
+<html:template id="accountHubEmailSetup" xmlns="http://www.w3.org/1999/xhtml">
+  <form id="emailForm" class="account-hub-form">
+    <header class="hub-header">
+      <h1 class="sub-view-title" data-l10n-id="account-hub-email-title"></h1>
+    </header>
+
+    <div class="hub-body">
+      <label for="realName"
+             data-l10n-id="account-setup-name-label"
+             data-l10n-attrs="accesskey">
+      </label>
+      <div class="input-control">
+        <input id="realName" type="text"
+               class="input-field"
+               data-l10n-id="account-setup-name-input"
+               required="required" />
+        <img src="chrome://messenger/skin/icons/new/compact/info.svg"
+             data-l10n-id="account-setup-name-info-icon"
+             alt=""
+             class="form-icon" />
+        <img src="chrome://messenger/skin/icons/new/compact/warning.svg"
+             data-l10n-id="account-setup-name-warning-icon"
+             alt=""
+             class="form-icon icon-warning" />
+      </div>
+
+      <label for="email"
+             data-l10n-id="account-setup-email-label"
+             data-l10n-attrs="accesskey">
+      </label>
+      <div class="input-control">
+        <input id="email" type="email"
+               data-l10n-id="account-setup-email-input"
+               class="input-field"
+               required="required" />
+        <img id="emailInfo"
+             src="chrome://messenger/skin/icons/new/compact/info.svg"
+             data-l10n-id="account-setup-email-info-icon"
+             alt=""
+             class="form-icon" />
+        <img id="emailWarning"
+             src="chrome://messenger/skin/icons/new/compact/warning.svg"
+             data-l10n-id="account-setup-email-warning-icon"
+             alt=""
+             class="form-icon icon-warning" />
+      </div>
+
+      <label for="password"
+             data-l10n-id="account-setup-password-label"
+             data-l10n-attrs="accesskey">
+      </label>
+      <div class="input-control">
+        <!-- Leave the placeholder empty for CSS visibility toggle of the
+             adjacent button. -->
+        <input id="password" type="password" class="input-field"
+               placeholder="" />
+        <button id="passwordToggleButton"
+                type="button"
+                data-l10n-id="account-setup-password-toggle-show"
+                class="form-toggle-button"
+                aria-pressed="false">
+          <img src="" alt="" class="form-icon" />
+        </button>
+      </div>
+
+      <div class="remember-button-container">
+        <label class="toggle-container-with-text">
+          <input id="rememberPassword" type="checkbox" checked="checked" />
+          <span data-l10n-id="account-setup-remember-password"
+                data-l10n-attrs="accesskey">
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <footer class="hub-footer">
+      <menu class="dialog-menu-container two-columns">
+        <li>
+          <button id="emailGoBackButton" type="button"
+                  data-l10n-id="account-hub-email-cancel-button"></button>
+        </li>
+        <li>
+          <button id="emailContinueButton" type="submit"
+                  data-l10n-id="account-hub-email-continue-button"
+                  class="primary"
+                  disabled="disabled"></button>
+        </li>
+      </menu>
+    </footer>
+  </form>
+</html:template>

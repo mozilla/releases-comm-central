@@ -5,12 +5,16 @@
 @import url("chrome://messenger/skin/colors.css");
 @import url("chrome://global/skin/in-content/common.css");
 @import url("chrome://messenger/skin/inContentDialog.css");
+@import url("chrome://messenger/skin/accountHubForms.css");
 
 dialog {
   --hub-button-color: var(--color-gray-90);
   --hub-button-background: var(--color-white);
   --hub-account-button-background: var(--color-gray-10);
   --hub-account-button-background-hover: var(--color-gray-05);
+
+  --hub-input-height: 33px;
+  --hub-input-border-radius: 3px;
 }
 
 @media not (prefers-contrast) {
@@ -43,7 +47,8 @@ dialog {
   max-height: 70vh;
 }
 
-.account-hub-view:not([hidden]) {
+.account-hub-view:not([hidden]),
+.account-hub-form {
   display: grid;
   grid-template: "header" min-content
                  "body" minmax(auto, 1fr)
@@ -59,6 +64,12 @@ dialog h1 {
   font-size: 1.8rem;
   line-height: 1em;
   margin-block: 0;
+}
+
+dialog h1.sub-view-title {
+  font-size: 1.7rem;
+  font-weight: 400;
+  margin-block-start: 9px;
 }
 
 /* Header */
@@ -151,17 +162,18 @@ dialog h1 {
   font-weight: 400;
 }
 
-#hubHeader {
+.hub-header {
   grid-area: header;
 }
 
 /* Body */
 
-#hubBody {
+.hub-body {
   grid-area: body;
   display: flex;
   gap: 30px;
   flex-direction: column;
+  align-items: center;
   justify-content: space-between;
   margin-inline: 30px;
 }
@@ -297,7 +309,7 @@ dialog h1 {
 
 /* Footer */
 
-#hubFooter {
+.hub-footer {
   grid-area: footer;
 }
 

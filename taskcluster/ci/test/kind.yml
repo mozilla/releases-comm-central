@@ -33,6 +33,8 @@ job-defaults:
                 skip-unless-backstop-no-suite: null
             default:
                 skip-suite-only: null
+    mozharness:
+        requires-signed-builds: false
     fetches:
         toolchain:
             by-test-platform:

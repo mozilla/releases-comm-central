@@ -58,6 +58,7 @@ linux1804-64-tsan-qr/opt:
 # win32
 windows10-32-2004-qr/opt:
     build-platform: win32/opt
+    build-signing-label: build-signing-win32/opt
     test-sets:
         - gtest-tests
         - marionette-tests
@@ -66,6 +67,7 @@ windows10-32-2004-qr/opt:
 
 windows10-32-2004-shippable-qr/opt:
     build-platform: win32-shippable/opt
+    build-signing-label: build-signing-win32-shippable/opt
     test-sets:
         - gtest-tests
         - marionette-tests
@@ -74,6 +76,7 @@ windows10-32-2004-shippable-qr/opt:
 
 windows10-32-2004-qr/debug:
     build-platform: win32/debug
+    build-signing-label: build-signing-win32/debug
     test-sets:
         - gtest-tests
         - marionette-tests
@@ -83,6 +86,7 @@ windows10-32-2004-qr/debug:
 # win64
 windows10-64-2004-qr/opt:
     build-platform: win64/opt
+    build-signing-label: build-signing-win64/opt
     test-sets:
         - gtest-tests
         - marionette-tests
@@ -91,6 +95,7 @@ windows10-64-2004-qr/opt:
 
 windows10-64-2004-shippable-qr/opt:
     build-platform: win64-shippable/opt
+    build-signing-label: build-signing-win64-shippable/opt
     test-sets:
         - gtest-tests
         - marionette-tests
@@ -99,6 +104,7 @@ windows10-64-2004-shippable-qr/opt:
 
 windows10-64-2004-qr/debug:
     build-platform: win64/debug
+    build-signing-label: build-signing-win64/debug
     test-sets:
         - gtest-tests
         - marionette-tests
