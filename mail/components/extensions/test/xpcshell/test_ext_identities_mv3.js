@@ -140,7 +140,7 @@ add_task(async function test_identities_MV3_event_pages() {
   checkPersistentListeners({ primed: false });
 
   await extension.unload();
-  cleanUpAccount(account1);
 
+  cleanUpAccount(account1);
   await AddonTestUtils.promiseShutdownManager();
 });
