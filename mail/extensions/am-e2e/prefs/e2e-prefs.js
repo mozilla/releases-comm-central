@@ -106,7 +106,8 @@ pref("temp.openpgp.inlineSigAttachExt", ".sig");
 // debug log directory (if set, also enabled debugging)
 pref("temp.openpgp.logDirectory", "");
 
-// list of key servers to use (comma separated list)
+// List of key servers to use (comma separated list), ordered by priority.
+// Only the first supported keyserver will be used for uploading keys.
 pref("mail.openpgp.keyserver_list", "vks://keys.openpgp.org, hkps://keys.mailvelope.com");
 
 // keep passphrase for ... minutes

@@ -159,10 +159,13 @@
 
       <menu id="keyserverMenu"
             data-l10n-id="openpgp-key-man-keyserver-menu">
-        <menupopup>
+        <menupopup onpopupshowing="enigmailKeyMenu()">
           <menuitem id="importFromServer"
                     data-l10n-id="openpgp-key-man-discover-cmd"
                     oncommand="enigmailSearchKey()"/>
+          <menuitem id="uploadToServer"
+                    data-l10n-id="openpgp-key-man-publish-cmd"
+                    oncommand="enigmailUploadKey()"/>
         </menupopup>
       </menu>
 
