@@ -32,12 +32,15 @@ add_setup(async () => {
   await BrowserTestUtils.browserLoaded(window.getMessagePaneBrowser());
 });
 
-// This test clicks on the action button to open the popup.
-add_task(async function test_popup_open_with_click() {
+async function subtest_popup_open_with_click_MV3_event_pages(
+  terminateBackground
+) {
   info("3-pane tab");
   {
     let testConfig = {
-      actionType: "browser_action",
+      manifest_version: 3,
+      terminateBackground,
+      actionType: "message_display_action",
       testType: "open-with-mouse-click",
       window,
     };
@@ -53,29 +56,42 @@ add_task(async function test_popup_open_with_click() {
       ...testConfig,
       use_default_popup: true,
     });
+  }
+
+  info("Message tab");
+  {
+    await openMessageInTab(messages.getNext());
+    let testConfig = {
+      manifest_version: 3,
+      terminateBackground,
+      actionType: "message_display_action",
+      testType: "open-with-mouse-click",
+      window,
+    };
+
     await run_popup_test({
       ...testConfig,
-      default_area: "tabstoolbar",
     });
     await run_popup_test({
       ...testConfig,
       disable_button: true,
-      default_area: "tabstoolbar",
     });
     await run_popup_test({
       ...testConfig,
       use_default_popup: true,
-      default_area: "tabstoolbar",
     });
+
+    document.getElementById("tabmail").closeTab();
   }
 
   info("Message window");
   {
     let messageWindow = await openMessageInWindow(messages.getNext());
     let testConfig = {
-      actionType: "browser_action",
+      manifest_version: 3,
+      terminateBackground,
+      actionType: "message_display_action",
       testType: "open-with-mouse-click",
-      default_windows: ["messageDisplay"],
       window: messageWindow,
     };
 
@@ -93,4 +109,12 @@ add_task(async function test_popup_open_with_click() {
 
     messageWindow.close();
   }
+}
+// This MV3 test clicks on the action button to open the popup.
+add_task(async function test_event_pages_without_background_termination() {
+  await subtest_popup_open_with_click_MV3_event_pages(false);
+});
+// This MV3 test clicks on the action button to open the popup (background termination).
+add_task(async function test_event_pages_with_background_termination() {
+  await subtest_popup_open_with_click_MV3_event_pages(true);
 });

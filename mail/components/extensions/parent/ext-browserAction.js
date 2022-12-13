@@ -125,12 +125,14 @@ this.browserAction = class extends ToolbarButtonAPI {
           // This needs to work in normal window and message window.
           let tab = tabTracker.activeTab;
           let browser = tab.linkedBrowser || tab.getBrowser();
+          const action =
+            this.extension.manifestVersion < 3 ? "onBrowserAction" : "onAction";
 
           global.actionContextMenu({
             tab,
             pageUrl: browser.currentURI.spec,
             extension: this.extension,
-            onBrowserAction: true,
+            [action]: true,
             menu,
           });
         }

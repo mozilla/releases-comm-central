@@ -117,16 +117,24 @@ class ContextMenusClickPropHandler {
 
 this.menus = class extends ExtensionAPI {
   getAPI(context) {
+    let { extension } = context;
     let onClickedProp = new ContextMenusClickPropHandler(context);
     let pendingMenuEvent;
 
     return {
       menus: {
         create(createProperties, callback) {
-          if (createProperties.id === null) {
+          let caller = context.getCaller();
+
+          if (extension.persistentBackground && createProperties.id === null) {
             createProperties.id = ++gNextMenuItemID;
           }
           let { onclick } = createProperties;
+          if (onclick && !context.extension.persistentBackground) {
+            throw new ExtensionError(
+              `Property "onclick" cannot be used in menus.create, replace with an "onClicked" event listener.`
+            );
+          }
           delete createProperties.onclick;
           context.childManager
             .callParentAsyncFunction("menus.create", [createProperties])
@@ -139,7 +147,7 @@ this.menus = class extends ExtensionAPI {
               }
             })
             .catch(error => {
-              context.withLastError(error, null, () => {
+              context.withLastError(error, caller, () => {
                 if (callback) {
                   context.runSafeWithoutClone(callback);
                 }
@@ -150,6 +158,11 @@ this.menus = class extends ExtensionAPI {
 
         update(id, updateProperties) {
           let { onclick } = updateProperties;
+          if (onclick && !context.extension.persistentBackground) {
+            throw new ExtensionError(
+              `Property "onclick" cannot be used in menus.update, replace with an "onClicked" event listener.`
+            );
+          }
           delete updateProperties.onclick;
           return context.childManager
             .callParentAsyncFunction("menus.update", [id, updateProperties])
@@ -253,6 +266,24 @@ this.menus = class extends ExtensionAPI {
           Services.obs.addObserver(pendingMenuEvent, "on-prepare-contextmenu");
           Services.tm.dispatchToMainThread(pendingMenuEvent);
         },
+
+        onClicked: new EventManager({
+          context,
+          name: "menus.onClicked",
+          register: fire => {
+            let listener = (info, tab) => {
+              withHandlingUserInput(context.contentWindow, () =>
+                fire.sync(info, tab)
+              );
+            };
+
+            let event = context.childManager.getParentEvent("menus.onClicked");
+            event.addListener(listener);
+            return () => {
+              event.removeListener(listener);
+            };
+          },
+        }).api(),
       },
     };
   }

@@ -33,7 +33,7 @@ add_setup(async () => {
 });
 
 // This test uses a command from the menus API to open the popup.
-add_task(async function test_popup_open_with_menu_command() {
+add_task(async function test_popup_open_with_menu_command_mv2() {
   info("3-pane tab");
   for (let area of [null, "tabstoolbar"]) {
     let testConfig = {
@@ -61,6 +61,56 @@ add_task(async function test_popup_open_with_menu_command() {
     let messageWindow = await openMessageInWindow(messages.getNext());
     let testConfig = {
       actionType: "browser_action",
+      testType: "open-with-menu-command",
+      default_windows: ["messageDisplay"],
+      window: messageWindow,
+    };
+
+    await run_popup_test({
+      ...testConfig,
+    });
+    await run_popup_test({
+      ...testConfig,
+      use_default_popup: true,
+    });
+    await run_popup_test({
+      ...testConfig,
+      disable_button: true,
+    });
+    messageWindow.close();
+  }
+});
+
+add_task(async function test_popup_open_with_menu_command_mv3() {
+  info("3-pane tab");
+  for (let area of [null, "tabstoolbar"]) {
+    let testConfig = {
+      manifest_version: 3,
+      actionType: "action",
+      testType: "open-with-menu-command",
+      default_area: area,
+      window,
+    };
+
+    await run_popup_test({
+      ...testConfig,
+    });
+    await run_popup_test({
+      ...testConfig,
+      use_default_popup: true,
+    });
+    await run_popup_test({
+      ...testConfig,
+      disable_button: true,
+    });
+  }
+
+  info("Message window");
+  {
+    let messageWindow = await openMessageInWindow(messages.getNext());
+    let testConfig = {
+      manifest_version: 3,
+      actionType: "action",
       testType: "open-with-menu-command",
       default_windows: ["messageDisplay"],
       window: messageWindow,
