@@ -707,7 +707,7 @@ async function enigmailSearchKey() {
 }
 
 async function enigmailUploadKey() {
-  /* Always upload to the first configured keyserver with a supported protocol */
+  // Always upload to the first configured keyserver with a supported protocol.
   let selKeyList = getSelectedKeys();
   if (selKeyList.length != 1) {
     return;

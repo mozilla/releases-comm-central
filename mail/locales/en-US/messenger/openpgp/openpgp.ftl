@@ -131,7 +131,13 @@ openpgp-key-man-publish-cmd =
     .accesskey = P
 openpgp-key-man-discover-prompt = To discover OpenPGP keys online, on keyservers or using the WKD protocol, enter either an email address or a key ID.
 openpgp-key-man-discover-progress = Searching…
-openpgp-key-publish-ok = The request to publish your public key was sent to "{ $keyserver }". The keyserver might send email that asks for confirmation.
+
+# Variables:
+# $keyserver (String) - The address of a server that contains a directory of OpenPGP public keys
+openpgp-key-publish-ok = Public key sent to "{ $keyserver }".
+
+# Variables:
+# $keyserver (String) - The address of a server that contains a directory of OpenPGP public keys
 openpgp-key-publish-fail = Failed to send your public key to "{ $keyserver }".
 
 openpgp-key-copy-key =
