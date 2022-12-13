@@ -295,7 +295,8 @@ with only_when(in_tree_librnp):
                 ossl_major = (ver_as_int & 0xF0000000) >> 28
                 ossl_minor = (ver_as_int & 0x0FF00000) >> 20
                 ossl_fix = (ver_as_int & 0x000FF000) >> 12
-                ossl_patch = chr(96 + ((ver_as_int & 0x00000FF0) >> 4))  # as a letter a-z
+                # as a letter a-z
+                ossl_patch = chr(96 + ((ver_as_int & 0x00000FF0) >> 4))
                 ver_as_str = f"{ossl_major}.{ossl_minor}.{ossl_fix}{ossl_patch}"
                 if ver_as_int < MIN_OSSL_VER:
                     die(f"OpenSSL version {ver_as_str} is too old.")
