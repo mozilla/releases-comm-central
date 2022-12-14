@@ -91,12 +91,10 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
             await fire.wakeup();
           }
           // `event.target` is an about:message window.
-          let tabId = tabTracker.getBrowserTabId(
-            event.target.document.getElementById("messagepane")
-          );
-          let tab = tabManager.get(tabId).convert();
+          let nativeTab = event.target.tabOrWindow;
+          let tab = tabManager.wrapTab(nativeTab);
           let msg = convertMessage(event.detail, extension);
-          fire.async(tab, msg);
+          fire.async(tab.convert(), msg);
         },
       };
       windowTracker.addListener("MsgLoaded", listener);
@@ -118,13 +116,11 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
           if (fire.wakeup) {
             await fire.wakeup();
           }
-          // `event.target` is an about:message window.
-          let tabId = tabTracker.getBrowserTabId(
-            event.target.document.getElementById("messagepane")
-          );
-          let tab = tabManager.get(tabId).convert();
+          // `event.target` is an about:message or about:3pane window.
+          let nativeTab = event.target.tabOrWindow;
+          let tab = tabManager.wrapTab(nativeTab);
           getDisplayedMessages(tab, extension).then(msgs => {
-            fire.async(tab, msgs);
+            fire.async(tab.convert(), msgs);
           });
         },
       };

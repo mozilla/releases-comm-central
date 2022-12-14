@@ -161,13 +161,9 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
         const contexts = ["header-toolbar-context-menu"];
 
         if (contexts.includes(menu.id) && node && node.contains(trigger)) {
-          // This needs to work in message tab and message window.
-          let browser = window.content;
-          let tab = tabTracker.getTab(tabTracker.getBrowserTabId(browser));
-
           global.actionContextMenu({
-            tab,
-            pageUrl: browser.currentURI.spec,
+            tab: window.tabOrWindow,
+            pageUrl: window.content.currentURI.spec,
             extension: this.extension,
             onMessageDisplayAction: true,
             menu,

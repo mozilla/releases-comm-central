@@ -45,6 +45,11 @@ window.addEventListener("DOMContentLoaded", event => {
   }
 
   messageBrowser = document.getElementById("messageBrowser");
+  messageBrowser.addEventListener(
+    "load",
+    event => (messageBrowser.contentWindow.tabOrWindow = window),
+    true
+  );
 });
 window.addEventListener("load", OnLoadMessageWindow);
 window.addEventListener("unload", OnUnloadMessageWindow);

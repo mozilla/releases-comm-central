@@ -70,9 +70,26 @@ var newMailTabType = {
       isDefault: true,
 
       openTab(tab, args = {}) {
-        newMailTabType._cloneTemplate("mail3PaneTabTemplate", tab, win =>
-          win.restoreState(args)
-        );
+        newMailTabType._cloneTemplate("mail3PaneTabTemplate", tab, win => {
+          win.tabOrWindow = tab;
+          // Can we be sure messageBrowser.contentWindow is loaded at this point?
+          win.messageBrowser.contentWindow.tabOrWindow = tab;
+          win.restoreState(args);
+          if (!args.background) {
+            // Update telemetry once the tab has loaded and decided if the
+            // panes are visible.
+            Services.telemetry.keyedScalarSet(
+              "tb.ui.configuration.pane_visibility",
+              "folderPane",
+              tab.folderPaneVisible
+            );
+            Services.telemetry.keyedScalarSet(
+              "tb.ui.configuration.pane_visibility",
+              "messagePane",
+              tab.messagePaneVisible
+            );
+          }
+        });
 
         // `browser` and `linkedBrowser` refer to the message display browser
         // within this tab. They may be null if the browser isn't visible.
@@ -159,27 +176,6 @@ var newMailTabType = {
           },
         });
 
-        if (!args.background) {
-          tab.chromeBrowser.contentWindow.addEventListener(
-            "load",
-            () => {
-              // Update telemetry once the tab has loaded and decided if the
-              // panes are visible.
-              Services.telemetry.keyedScalarSet(
-                "tb.ui.configuration.pane_visibility",
-                "folderPane",
-                tab.folderPaneVisible
-              );
-              Services.telemetry.keyedScalarSet(
-                "tb.ui.configuration.pane_visibility",
-                "messagePane",
-                tab.messagePaneVisible
-              );
-            },
-            { once: true }
-          );
-        }
-
         tab.canClose = !tab.first;
         return tab;
       },
@@ -256,9 +252,10 @@ var newMailTabType = {
     mailMessageTab: {
       _nextId: 1,
       openTab(tab, { messageURI, viewWrapper } = {}) {
-        newMailTabType._cloneTemplate("mailMessageTabTemplate", tab, win =>
-          win.displayMessage(messageURI, viewWrapper)
-        );
+        newMailTabType._cloneTemplate("mailMessageTabTemplate", tab, win => {
+          win.tabOrWindow = tab;
+          win.displayMessage(messageURI, viewWrapper);
+        });
 
         // `browser` and `linkedBrowser` refer to the message display browser
         // within this tab. They may be null if the browser isn't visible.

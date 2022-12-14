@@ -5,6 +5,7 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
@@ -41,7 +42,7 @@ add_setup(async function() {
   });
 });
 
-add_task(async function() {
+add_task(async function testTabs() {
   let tabmail = document.getElementById("tabmail");
   Assert.equal(tabmail.tabInfo.length, 1);
   Assert.equal(tabmail.currentTabInfo, tabmail.tabInfo[0]);
@@ -69,7 +70,7 @@ add_task(async function() {
   Assert.equal(firstTab.browser, null);
   Assert.equal(firstTab.linkedBrowser, null);
 
-  let { folderTree, threadTree } = tabmail.currentAbout3Pane;
+  let { folderTree, threadTree } = firstChromeBrowser.contentWindow;
 
   firstTab.folder = folderA;
   Assert.equal(firstTab.folder, folderA);
@@ -108,6 +109,9 @@ add_task(async function() {
   Assert.ok(BrowserTestUtils.is_visible(firstMessageBrowser));
   Assert.equal(firstTab.browser, firstMessagePane);
   Assert.equal(firstTab.linkedBrowser, firstMessagePane);
+
+  Assert.equal(firstChromeBrowser.contentWindow.tabOrWindow, firstTab);
+  Assert.equal(firstMessageBrowser.contentWindow.tabOrWindow, firstTab);
 
   // Open some more tabs. These should open in the background.
 
@@ -155,6 +159,9 @@ add_task(async function() {
 
   Assert.equal(secondTab.folder, folderB);
 
+  Assert.equal(secondChromeBrowser.contentWindow.tabOrWindow, secondTab);
+  Assert.equal(secondMessageBrowser.contentWindow.tabOrWindow, secondTab);
+
   // Check the third tab.
 
   tabmail.switchToTab(2);
@@ -180,6 +187,8 @@ add_task(async function() {
   Assert.equal(thirdTab.folder, folderB);
   Assert.equal(thirdTab.message, messagesB[0]);
   Assert.equal(thirdTab.messageURI, folderB.getUriForMsg(messagesB[0]));
+
+  Assert.equal(thirdChromeBrowser.contentWindow.tabOrWindow, thirdTab);
 
   // Check the fourth tab.
 
@@ -207,6 +216,8 @@ add_task(async function() {
   Assert.equal(fourthTab.message, messagesB[1]);
   Assert.equal(fourthTab.messageURI, folderB.getUriForMsg(messagesB[1]));
 
+  Assert.equal(fourthChromeBrowser.contentWindow.tabOrWindow, fourthTab);
+
   // Close tabs.
 
   tabmail.closeTab(3);
@@ -223,6 +234,23 @@ add_task(async function() {
   Assert.equal(tabmail.currentTabInfo, firstTab);
   Assert.equal(tabmail.currentAbout3Pane, firstChromeBrowser.contentWindow);
   Assert.equal(tabmail.currentAboutMessage, firstMessageBrowser.contentWindow);
+});
+
+add_task(async function testMessageWindow() {
+  let messageWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    undefined,
+    async win =>
+      win.document.documentURI ==
+      "chrome://messenger/content/messageWindow.xhtml"
+  );
+  MailUtils.openMessageInNewWindow(messagesB[0]);
+
+  let messageWindow = await messageWindowPromise;
+  let messageBrowser = messageWindow.messageBrowser;
+  await ensureBrowserLoaded(messageBrowser);
+  Assert.equal(messageBrowser.contentWindow.tabOrWindow, messageWindow);
+
+  await BrowserTestUtils.closeWindow(messageWindow);
 });
 
 async function ensureBrowserLoaded(browser) {

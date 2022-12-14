@@ -44,12 +44,13 @@ ExtensionSupport.registerWindowListener("ext-messageDisplayScripts", {
   onLoadWindow(win) {
     win.addEventListener("MsgLoaded", event => {
       // `event.target` is an about:message window.
-      let tabId = tabTracker.getBrowserTabId(
-        event.target.document.getElementById("messagepane")
-      );
+      let nativeTab = event.target.tabOrWindow;
       for (let script of scripts) {
         if (script.type == "messageDisplay") {
-          script.executeInWindow(win, script.extension.tabManager.get(tabId));
+          script.executeInWindow(
+            win,
+            script.extension.tabManager.wrapTab(nativeTab)
+          );
         }
       }
     });
