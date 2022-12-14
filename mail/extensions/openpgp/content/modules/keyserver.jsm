@@ -141,22 +141,20 @@ const accessHkpInternal = {
    */
   async buildHkpPayload(actionFlag, searchTerms) {
     switch (actionFlag) {
-      /*
-      case EnigmailConstants.UPLOAD_KEY:
-        let keyData = await EnigmailKeyRing.extractPublicKeys(
-          searchTerms, // TODO: confirm input is ID or fingerprint
+      case lazy.EnigmailConstants.UPLOAD_KEY:
+        let exitCodeObj = {};
+        let keyData = await lazy.EnigmailKeyRing.extractPublicKeys(
+          ["0x" + searchTerms], // TODO: confirm input is ID or fingerprint
           null,
           null,
-          {},
+          null,
+          exitCodeObj,
           {}
         );
-        if (keyData.length === 0) {
+        if (exitCodeObj.value !== 0 || keyData.length === 0) {
           return null;
         }
-
-        let payLoad = "keytext=" + encodeURIComponent(keyData);
-        return payLoad;
-      */
+        return 'keytext="' + encodeURIComponent(keyData) + '"';
 
       case lazy.EnigmailConstants.DOWNLOAD_KEY:
       case lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
@@ -463,18 +461,14 @@ const accessHkpInternal = {
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
    *
-   * @return:   Promise<...>
+   * @return {boolean} - Returns true if the key was sent successfully
    */
   async upload(keyIDs, keyserver, listener = null) {
     lazy.EnigmailLog.DEBUG(
       `keyserver.jsm: accessHkpInternal.upload(${keyIDs})\n`
     );
     let keyIdArr = keyIDs.split(/ +/);
-    let retObj = {
-      result: 0,
-      errorDetails: "",
-      keyList: [],
-    };
+    let rv = false;
 
     for (let i = 0; i < keyIdArr.length; i++) {
       try {
@@ -485,14 +479,15 @@ const accessHkpInternal = {
           listener
         );
         if (r === 0) {
-          retObj.keyList.push(keyIdArr[i]);
+          rv = true;
         } else {
-          retObj.result = r;
+          rv = false;
+          break;
         }
       } catch (ex) {
-        retObj.result = ex.result;
-        retObj.errorDetails = ex.errorDetails;
-        throw retObj;
+        console.log(ex.errorDetails);
+        rv = false;
+        break;
       }
 
       if (listener && "onProgress" in listener) {
@@ -500,7 +495,7 @@ const accessHkpInternal = {
       }
     }
 
-    return retObj;
+    return rv;
   },
 
   /**
@@ -947,32 +942,30 @@ const accessVksServer = {
    */
   async buildJsonPayload(actionFlag, searchTerms, locale) {
     switch (actionFlag) {
-      /*
-      case EnigmailConstants.UPLOAD_KEY:
-        let keyData = await EnigmailKeyRing.extractPublicKeys(
-          searchTerms, // must be id or fingerprint
+      case lazy.EnigmailConstants.UPLOAD_KEY:
+        let exitCodeObj = {};
+        let keyData = await lazy.EnigmailKeyRing.extractPublicKeys(
+          ["0x" + searchTerms], // must be id or fingerprint
           null,
           null,
-          {},
+          null,
+          exitCodeObj,
           {}
         );
-        if (keyData.length === 0) {
+        if (exitCodeObj.value !== 0 || keyData.length === 0) {
           return null;
         }
 
-        let payLoad = JSON.stringify({
+        return JSON.stringify({
           keytext: keyData,
         });
-        return payLoad;
-      */
 
       case lazy.EnigmailConstants.GET_CONFIRMATION_LINK:
-        let payLoad = JSON.stringify({
+        return JSON.stringify({
           token: searchTerms.token,
           addresses: searchTerms.addresses,
           locale: [locale],
         });
-        return payLoad;
 
       case lazy.EnigmailConstants.DOWNLOAD_KEY:
       case lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
@@ -1324,27 +1317,22 @@ const accessVksServer = {
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
    *
-   * @return:   Promise<...>
+   * @return {boolean} - Returns true if the key was sent successfully
    */
   async upload(keyIDs, keyserver, listener = null) {
     lazy.EnigmailLog.DEBUG(
       `keyserver.jsm: accessVksServer.upload(${keyIDs})\n`
     );
     let keyIdArr = keyIDs.split(/ +/);
-    let retObj = {
-      result: 0,
-      errorDetails: "",
-      keyList: [],
-    };
+    let rv = false;
 
     for (let i = 0; i < keyIdArr.length; i++) {
       let keyObj = lazy.EnigmailKeyRing.getKeyById(keyIdArr[i]);
 
       if (!keyObj.secretAvailable) {
-        // VKS keyservers only accept uploading own keys
-        retObj.result = 1;
-        retObj.errorDetails = "NO_SECRET_KEY_AVAILABLE";
-        throw retObj;
+        throw new Error(
+          "public keyserver uploading supported only for user's own keys"
+        );
       }
 
       try {
@@ -1355,20 +1343,18 @@ const accessVksServer = {
           listener
         );
         if (typeof r === "string") {
-          retObj.keyList.push(keyIdArr[i]);
           let req = await this.requestConfirmationLink(keyserver, r);
-
           if (req >= 0) {
-            retObj.result = 0;
-            retObj.numEmails = req;
+            rv = true;
           }
         } else {
-          retObj.result = r;
+          rv = false;
+          break;
         }
       } catch (ex) {
-        retObj.result = ex.result;
-        retObj.errorDetails = ex.errorDetails;
-        throw retObj;
+        console.log(ex.errorDetails);
+        rv = false;
+        break;
       }
 
       if (listener && "onProgress" in listener) {
@@ -1376,7 +1362,7 @@ const accessVksServer = {
       }
     }
 
-    return retObj;
+    return rv;
   },
 
   /**
@@ -1499,12 +1485,10 @@ var EnigmailKeyServer = {
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
    *
-   * @return:   Promise<Object>
-   *     Object: - result: Number           - result Code (0 = OK),
-   *             - keyList: Array of String - imported key FPR
+   * @return {boolean} - Returns true if the key was sent successfully
    */
 
-  upload(keyIDs, keyserver = null, listener) {
+  async upload(keyIDs, keyserver = null, listener) {
     let acc = getAccessType(keyserver);
     return acc.upload(keyIDs, keyserver, listener);
   },
@@ -1527,7 +1511,7 @@ var EnigmailKeyServer = {
    *           - status: String: one of ''=valid, r=revoked, e=expired
    *           - uid: Array of Strings with UIDs
    */
-  searchKeyserver(searchString, keyserver = null, listener) {
+  async searchKeyserver(searchString, keyserver = null, listener) {
     let acc = getAccessType(keyserver);
     return acc.search(searchString, keyserver, listener);
   },

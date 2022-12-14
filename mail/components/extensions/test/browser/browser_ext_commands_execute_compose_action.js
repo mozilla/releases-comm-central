@@ -64,11 +64,9 @@ async function testExecuteComposeActionWithOptions(options = {}) {
 
     browser.test.onMessage.addListener((message, withPopup) => {
       browser.commands.onCommand.addListener(commandName => {
-        if (commandName == "_execute_compose_action") {
-          browser.test.fail(
-            "The onCommand listener should never fire for _execute_compose_action."
-          );
-        }
+        browser.test.fail(
+          "The onCommand listener should never fire for a valid _execute_* command."
+        );
       });
 
       browser.composeAction.onClicked.addListener(() => {

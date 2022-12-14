@@ -28,6 +28,9 @@
             this.editSelectedItem();
             break;
           case "Delete":
+          case "Backspace":
+            // Fall through to "Backspace" to avoid deleting messages if the
+            // preferred deletion button is not "Delete".
             this.deleteSelectedItem();
             event.stopPropagation();
             event.preventDefault();

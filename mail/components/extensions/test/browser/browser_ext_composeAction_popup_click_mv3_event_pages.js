@@ -16,32 +16,30 @@ add_setup(async () => {
   addIdentity(account);
 });
 
-// This test clicks on the action button to open the popup.
-add_task(async function test_popup_open_with_click() {
+async function subtest_popup_open_with_click_MV3_event_pages(
+  terminateBackground
+) {
   for (let area of [null, "formattoolbar"]) {
     let composeWindow = await openComposeWindow(account);
     await focusWindow(composeWindow);
-
-    await run_popup_test({
+    let testConfig = {
+      manifest_version: 3,
+      terminateBackground,
       actionType: "compose_action",
       testType: "open-with-mouse-click",
       window: composeWindow,
       default_area: area,
+    };
+
+    await run_popup_test({
+      ...testConfig,
     });
-
     await run_popup_test({
-      actionType: "compose_action",
-      testType: "open-with-mouse-click",
-      window: composeWindow,
-      default_area: area,
+      ...testConfig,
       disable_button: true,
     });
-
     await run_popup_test({
-      actionType: "compose_action",
-      testType: "open-with-mouse-click",
-      window: composeWindow,
-      default_area: area,
+      ...testConfig,
       use_default_popup: true,
     });
 
@@ -50,4 +48,12 @@ add_task(async function test_popup_open_with_click() {
       "chrome://messenger/content/messengercompose/messengercompose.xhtml"
     );
   }
+}
+// This MV3 test clicks on the action button to open the popup.
+add_task(async function test_event_pages_without_background_termination() {
+  await subtest_popup_open_with_click_MV3_event_pages(false);
+});
+// This MV3 test clicks on the action button to open the popup (background termination).
+add_task(async function test_event_pages_with_background_termination() {
+  await subtest_popup_open_with_click_MV3_event_pages(true);
 });

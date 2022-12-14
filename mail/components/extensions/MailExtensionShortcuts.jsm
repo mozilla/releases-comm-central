@@ -32,6 +32,7 @@ XPCOMUtils.defineLazyGetter(lazy, "messageDisplayActionFor", () => {
   return lazy.ExtensionParent.apiManager.global.messageDisplayActionFor;
 });
 
+const EXECUTE_ACTION = "_execute_action";
 const EXECUTE_BROWSER_ACTION = "_execute_browser_action";
 const EXECUTE_MSG_DISPLAY_ACTION = "_execute_message_display_action";
 const EXECUTE_COMPOSE_ACTION = "_execute_compose_action";
@@ -60,7 +61,12 @@ class MailExtensionShortcuts extends ExtensionShortcuts {
     // therefore the listeners for these elements will be garbage collected.
     keyElement.addEventListener("command", event => {
       let action;
-      if (name == EXECUTE_BROWSER_ACTION) {
+      if (
+        name == EXECUTE_BROWSER_ACTION &&
+        this.extension.manifestVersion < 3
+      ) {
+        action = lazy.browserActionFor(this.extension);
+      } else if (name == EXECUTE_ACTION && this.extension.manifestVersion > 2) {
         action = lazy.browserActionFor(this.extension);
       } else if (name == EXECUTE_COMPOSE_ACTION) {
         action = lazy.composeActionFor(this.extension);

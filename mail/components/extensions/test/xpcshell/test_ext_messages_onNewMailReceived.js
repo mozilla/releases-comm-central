@@ -147,5 +147,7 @@ add_task(async function() {
   equal(newMessages[1].messages[1].subject, inboxMessages[2].subject);
 
   await extension.unload();
+
+  cleanUpAccount(account);
   await AddonTestUtils.promiseShutdownManager();
 });

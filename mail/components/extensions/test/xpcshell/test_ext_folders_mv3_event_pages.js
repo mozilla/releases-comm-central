@@ -332,17 +332,23 @@ add_task(
       );
     }
 
-    await extension.unload();
-
     // Rename.
-    // FIXME: It is not understood why the test crashes during the rename, if two
-    // extensions are listening for events. We therefore terminate the main extension
-    // and just check the correct event page behavior.
 
     {
       let primedRenameData = await event_page_extension("onRenamed", () => {
         rootFolder.getChildNamed("TestFolder").rename("TestFolder2", null);
       });
+      let renameData = await extension.awaitMessage("onRenamed received");
+      Assert.deepEqual(
+        primedRenameData,
+        renameData,
+        "The primed onRenamed event should return the correct values"
+      );
+      if (IS_IMAP) {
+        // IMAP server sends an additional onDeleted and onCreated.
+        await extension.awaitMessage("onDeleted received");
+        await extension.awaitMessage("onCreated received");
+      }
       Assert.deepEqual(
         [
           {
@@ -356,10 +362,12 @@ add_task(
             path: "/TestFolder2",
           },
         ],
-        primedRenameData,
-        "The primed onRenamed event should return the correct values"
+        renameData,
+        "The onRenamed event should return the correct values"
       );
     }
+
+    await extension.unload();
 
     cleanUpAccount(account);
     await AddonTestUtils.promiseShutdownManager();

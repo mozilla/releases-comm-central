@@ -8,7 +8,6 @@ const { AddonManager } = ChromeUtils.import(
 
 let account;
 let messages;
-let tabmail = document.getElementById("tabmail");
 
 add_setup(async () => {
   account = createAccount();
@@ -17,26 +16,33 @@ add_setup(async () => {
   createMessages(subFolders[0], 10);
   messages = subFolders[0].messages;
 
-  let about3Pane = tabmail.currentAbout3Pane;
-  about3Pane.restoreState({
-    folderPaneVisible: true,
-    folderURI: subFolders[0],
-    messagePaneVisible: true,
-  });
-  about3Pane.threadTree.selectedIndex = 0;
-  await BrowserTestUtils.browserLoaded(
-    about3Pane.messageBrowser.contentWindow.content
-  );
+  // This tests selects a folder, so make sure the folder pane is visible.
+  if (
+    document.getElementById("folderpane_splitter").getAttribute("state") ==
+    "collapsed"
+  ) {
+    window.MsgToggleFolderPane();
+  }
+  if (window.IsMessagePaneCollapsed()) {
+    window.MsgToggleMessagePane();
+  }
+
+  window.gFolderTreeView.selectFolder(subFolders[0]);
+  window.gFolderDisplay.selectViewIndex(0);
+  await BrowserTestUtils.browserLoaded(window.getMessagePaneBrowser());
 });
 
-// This test clicks on the action button to open the popup.
-add_task(async function test_popup_open_with_click() {
+async function subtest_popup_open_with_click_MV3_event_pages(
+  terminateBackground
+) {
   info("3-pane tab");
   {
     let testConfig = {
+      manifest_version: 3,
+      terminateBackground,
       actionType: "message_display_action",
       testType: "open-with-mouse-click",
-      window: tabmail.currentAboutMessage,
+      window,
     };
 
     await run_popup_test({
@@ -56,9 +62,11 @@ add_task(async function test_popup_open_with_click() {
   {
     await openMessageInTab(messages.getNext());
     let testConfig = {
+      manifest_version: 3,
+      terminateBackground,
       actionType: "message_display_action",
       testType: "open-with-mouse-click",
-      window: tabmail.currentAboutMessage,
+      window,
     };
 
     await run_popup_test({
@@ -80,9 +88,11 @@ add_task(async function test_popup_open_with_click() {
   {
     let messageWindow = await openMessageInWindow(messages.getNext());
     let testConfig = {
+      manifest_version: 3,
+      terminateBackground,
       actionType: "message_display_action",
       testType: "open-with-mouse-click",
-      window: messageWindow.messageBrowser.contentWindow,
+      window: messageWindow,
     };
 
     await run_popup_test({
@@ -99,4 +109,12 @@ add_task(async function test_popup_open_with_click() {
 
     messageWindow.close();
   }
+}
+// This MV3 test clicks on the action button to open the popup.
+add_task(async function test_event_pages_without_background_termination() {
+  await subtest_popup_open_with_click_MV3_event_pages(false);
+});
+// This MV3 test clicks on the action button to open the popup (background termination).
+add_task(async function test_event_pages_with_background_termination() {
+  await subtest_popup_open_with_click_MV3_event_pages(true);
 });

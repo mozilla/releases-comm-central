@@ -428,8 +428,7 @@ class ImapService {
    *   instance, and do some actions.
    */
   _withClient(folder, handler) {
-    let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
-      .imapIncomingServer;
+    let server = folder.server.QueryInterface(Ci.nsIMsgIncomingServer);
     let runningUrl = Services.io
       .newURI(`imap://${server.hostName}:${server.port}`)
       .QueryInterface(Ci.nsIMsgMailNewsUrl);

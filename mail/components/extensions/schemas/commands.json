@@ -17,7 +17,7 @@
           "commands": {
             "type": "object",
             "optional": true,
-            "description": "A <em>dictionary object</em> defining one or more commands as <em>name-value</em> pairs, the <em>name</em> being the name of the command and the <em>value</em> being a :ref:`commands.CommandsShortcut`. The <em>name</em> may also be one of the following built-in special shortcuts: \n * <value>_execute_browser_action</value> \n * <value>_execute_compose_action</value> \n * <value>_execute_message_display_action</value>\nExample: <literalinclude>includes/commands/manifest.json<lang>JSON</lang></literalinclude>",
+            "description": "A <em>dictionary object</em> defining one or more commands as <em>name-value</em> pairs, the <em>name</em> being the name of the command and the <em>value</em> being a :ref:`commands.CommandsShortcut`. The <em>name</em> may also be one of the following built-in special shortcuts: \n * <value>_execute_action</value> \n * <value>_execute_compose_action</value> \n * <value>_execute_message_display_action</value>\nExample: <literalinclude>includes/commands/manifest.json<lang>JSON</lang></literalinclude>",
             "additionalProperties": {
               "type": "object",
               "additionalProperties": {
