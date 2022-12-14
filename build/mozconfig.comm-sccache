@@ -3,6 +3,17 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # Must be included before M-C:build/mozconfig.cache
-if test -z "$aws_prefix" -a -z "$bucket" -a -z "$SCCACHE_DISABLE"; then
-  aws_prefix="comm-central"
+if test -z "$bucket" -a -z "$SCCACHE_DISABLE"; then
+  if test -n "$TASKCLUSTER_WORKER_LOCATION" -a -x "$(command -v jq)"; then
+    cloud=$(echo $TASKCLUSTER_WORKER_LOCATION | jq .cloud | tr -d \")
+
+    case $cloud in
+      google)
+        gcp_prefix="comm-sccache"
+        ;;
+      aws)
+        aws_prefix="comm-central"
+        ;;
+    esac
+  fi
 fi
