@@ -403,6 +403,18 @@ var threadPane = {
         menuitem: "about-threadpane-column-label-date",
       },
     },
+    {
+      id: "deleteCol",
+      l10n: {
+        header: "about-threadpane-column-header-delete",
+        menuitem: "about-threadpane-column-label-delete",
+      },
+      delete: true,
+      icon: true,
+      resizable: false,
+      sortable: false,
+      hidden: true,
+    },
   ],
 
   init() {
@@ -411,6 +423,9 @@ var threadPane = {
 
     treeTable.addEventListener("columns-changed", event => {
       this.onColumnsChanged(event.detail);
+    });
+    treeTable.addEventListener("request-delete", event => {
+      commandController.doCommand("cmd_delete", event);
     });
   },
 
@@ -950,6 +965,7 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
 
         this.twisty = container.appendChild(document.createElement("button"));
         this.twisty.type = "button";
+        this.twisty.tabIndex = -1;
         this.twisty.classList.add("button-flat", "button-reset", "twisty");
 
         let twistyImage = this.twisty.appendChild(
@@ -994,6 +1010,7 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
       if (column.id == "subjectCol") {
         let span = document.createElement("span");
         span.classList.add("subject-line");
+        span.tabIndex = -1;
         span.textContent = this.view.cellTextForColumn(index, column.id);
         cell
           .querySelector(".thread-container")

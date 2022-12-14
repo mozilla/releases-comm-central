@@ -349,3 +349,8 @@ about-threadpane-column-header-date = Date
   .title = Sort by date
 about-threadpane-column-label-date =
   .label = Date
+
+about-threadpane-column-header-delete =
+  .title = Delete
+about-threadpane-column-label-delete =
+  .label = Delete

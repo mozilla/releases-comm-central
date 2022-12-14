@@ -29,6 +29,8 @@
     --listbox-hover: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
 
     --tree-view-header-bg: var(--color-gray-05);
+
+    --tree-row-delete-button-color: var(--color-red-60);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -38,6 +40,8 @@
       --listbox-focused-selected-bg: var(--color-blue-60);
 
       --tree-view-header-bg: var(--color-gray-80);
+
+      --tree-row-delete-button-color: var(--color-red-40);
     }
   }
 }
@@ -187,6 +191,45 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
 
 :is(.all-selected, .selected) :is(.tree-view-header-select, .tree-view-row-select) img {
   fill-opacity: 1;
+}
+
+/* Delete column */
+
+.tree-table-cell-container button.tree-view-header-delete {
+  text-align: center;
+}
+
+.tree-view-row-delete button {
+  /* Don't center align this because it could be the last column, spanning for
+     2 columns to account for the picker, therefore a center alignment would be
+     wrong. */
+  margin-inline-start: 2px;
+  color: inherit;
+  opacity: 0.8;
+}
+
+.tree-view-row-delete button:hover {
+  opacity: 1;
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--tree-row-delete-button-color);
+}
+
+.tree-view-row-delete button:hover:active {
+  background-color: color-mix(in srgb, currentColor 20%, transparent);
+  border-color: transparent;
+  color: var(--tree-row-delete-button-color);
+}
+
+[is="tree-view-listbox"]:focus  .selected .tree-view-row-delete button:hover {
+  background-color: var(--tree-row-delete-button-color);
+  color: currentColor;
+}
+
+.tree-view-header-delete img,
+.tree-view-row-delete img {
+  content: var(--icon-trash-sm);
+  pointer-events: none;
 }
 
 .tree-table-cell {

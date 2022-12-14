@@ -67,3 +67,6 @@ tr[is="thread-listrow"] .twisty-icon {
   content: var(--icon-nav-down-sm);
   margin: 1px;
 }
+
+/* Delete column variations */
+/* TODO: Handle delete button color variations for tagged messages */

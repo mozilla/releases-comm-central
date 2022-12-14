@@ -393,6 +393,11 @@
           this.closest("table").listbox.toggleSelectAll();
         });
       }
+
+      // This is the column handling delete actions.
+      if (column.delete) {
+        this.#button.classList.add("tree-view-header-delete");
+      }
     }
 
     /**
@@ -696,6 +701,28 @@
         }
 
         if (event.ctrlKey && event.shiftKey) {
+          return;
+        }
+
+        // Handle the click as a CTRL extension if it happens on the checkbox
+        // image inside the selection column.
+        if (event.target.classList.contains("tree-view-row-select-checkbox")) {
+          if (event.shiftKey) {
+            this._selectRange(index);
+          } else {
+            this._toggleSelected(index);
+          }
+          return;
+        }
+
+        if (event.target.classList.contains("tree-button-delete")) {
+          // Enforce the selection of only one row.
+          this._selectSingle(index);
+          this.dispatchEvent(
+            new CustomEvent("request-delete", {
+              bubbles: true,
+            })
+          );
           return;
         }
 
@@ -1509,19 +1536,48 @@
 
       let table = this.closest("table");
       for (let column of table.columns) {
+        let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
         // Always clear the colspan when updating the columns.
-        this.querySelector(
-          `.${column.id.toLowerCase()}-column`
-        )?.removeAttribute("colspan");
+        cell?.removeAttribute("colspan");
+
+        // No need to do anything if this column is hidden.
+        if (cell.hidden) {
+          continue;
+        }
 
         // Handle the special case for the selectable checkbox column.
         if (column.select) {
-          let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
           cell.classList.add("tree-view-row-select");
           const img = document.createElement("img");
           img.src = "";
-          document.l10n.setAttributes(img, "tree-list-view-row-select");
+          img.classList.add("tree-view-row-select-checkbox");
+          document.l10n.setAttributes(
+            img,
+            this.list._selection.isSelected(index)
+              ? "tree-list-view-row-deselect"
+              : "tree-list-view-row-select"
+          );
           cell.replaceChildren(img);
+        }
+
+        // Handle the special case of the delete column.
+        if (column.delete) {
+          cell.classList.add("tree-view-row-delete");
+          const button = document.createElement("button");
+          button.type = "button";
+          button.tabIndex = -1;
+          button.classList.add(
+            "button-flat",
+            "button-reset",
+            "tree-button-delete"
+          );
+          document.l10n.setAttributes(button, "tree-list-view-row-delete");
+
+          const img = button.appendChild(document.createElement("img"));
+          img.src = "";
+          img.alt = "";
+
+          cell.replaceChildren(button);
         }
       }
 
