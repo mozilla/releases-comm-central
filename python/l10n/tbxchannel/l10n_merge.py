@@ -4,7 +4,7 @@
 
 L10N_CENTRAL = "https://hg.mozilla.org/l10n-central"
 COMM_L10N = "https://hg.mozilla.org/projects/comm-l10n"
-COMM_STRINGS_QUARANTINE = "https://hg.mozilla.org/projects/comm-strings-quarantine/"
+COMM_STRINGS_QUARANTINE = "https://hg.mozilla.org/projects/comm-strings-quarantine"
 COMM_STRINGS_QUARANTINE_PUSH = f"ssh{COMM_STRINGS_QUARANTINE[5:]}"
 
 
