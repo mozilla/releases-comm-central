@@ -183,12 +183,12 @@
         <toolbarbutton id="appmenu-submenu-sync-settings"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-sync-settings"
-                       oncommand=""/>
+                       oncommand="openPreferencesTab('sync');"/>
         <toolbarseparator/>
         <toolbarbutton id="appmenu-submenu-sync-sign-out"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-sync-sign-out"
-                       oncommand="disconnectFxaAndSync();"/>
+                       oncommand="disconnect({ confirm: true });"/>
       </vbox>
     </panelview>
 #endif
