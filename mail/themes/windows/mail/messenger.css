@@ -406,6 +406,19 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
     border-top: none;
     background-color: -moz-dialog;
   }
+
+  @media (-moz-platform: windows-win10) {
+    /* See bug 1715990 about why we do this ourselves on HCM */
+    @media (prefers-contrast) {
+      :root[tabsintitlebar]:not(:-moz-lwtheme) {
+        background-color: ActiveCaption;
+      }
+
+      :root[tabsintitlebar]:not(:-moz-lwtheme):-moz-window-inactive {
+        background-color: InactiveCaption;
+      }
+    }
+  }
 }
 
 .statusbarpanel {

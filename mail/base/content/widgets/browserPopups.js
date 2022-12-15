@@ -34,34 +34,39 @@ function openContextMenu({ data }, browser, actor) {
     return;
   }
 
-  let spellInfo = data.spellInfo;
+  let wgp = actor.manager;
+
+  if (!wgp.isCurrentGlobal) {
+    // Don't display context menus for unloaded documents
+    return;
+  }
+
+  // NOTE: We don't use `wgp.documentURI` here as we want to use the failed
+  // channel URI in the case we have loaded an error page.
+  let documentURIObject = wgp.browsingContext.currentURI;
+
   let frameReferrerInfo = data.frameReferrerInfo;
-  let linkReferrerInfo = data.linkReferrerInfo;
-  let principal = data.principal;
-  let storagePrincipal = data.storagePrincipal;
-
-  let documentURIObject = makeURI(
-    data.docLocation,
-    data.charSet,
-    makeURI(data.baseURI)
-  );
-
   if (frameReferrerInfo) {
     frameReferrerInfo = E10SUtils.deserializeReferrerInfo(frameReferrerInfo);
   }
 
+  let linkReferrerInfo = data.linkReferrerInfo;
   if (linkReferrerInfo) {
     linkReferrerInfo = E10SUtils.deserializeReferrerInfo(linkReferrerInfo);
   }
+
+  let frameID = nsContextMenu.WebNavigationFrames.getFrameId(
+    wgp.browsingContext
+  );
 
   nsContextMenu.contentData = {
     context: data.context,
     browser,
     actor,
     editFlags: data.editFlags,
-    spellInfo,
-    principal,
-    storagePrincipal,
+    spellInfo: data.spellInfo,
+    principal: wgp.documentPrincipal,
+    storagePrincipal: wgp.documentStoragePrincipal,
     documentURIObject,
     docLocation: data.docLocation,
     charSet: data.charSet,
@@ -70,21 +75,29 @@ function openContextMenu({ data }, browser, actor) {
     linkReferrerInfo,
     contentType: data.contentType,
     contentDisposition: data.contentDisposition,
-    frameID: data.frameID,
-    frameOuterWindowID: data.frameID,
-    frameBrowsingContext: BrowsingContext.get(data.frameBrowsingContextID),
+    frameID,
+    frameOuterWindowID: frameID,
+    frameBrowsingContext: wgp.browsingContext,
     selectionInfo: data.selectionInfo,
     disableSetDesktopBackground: data.disableSetDesktopBackground,
     loginFillInfo: data.loginFillInfo,
     parentAllowsMixedContent: data.parentAllowsMixedContent,
-    userContextId: data.userContextId,
+    userContextId: wgp.browsingContext.originAttributes.userContextId,
     webExtContextData: data.webExtContextData,
+    cookieJarSettings: wgp.cookieJarSettings,
   };
 
   // Note: `popup` must be in `document`, but `browser` might be in a
   // different document, such as about:3pane.
   let popup = document.getElementById(browser.getAttribute("context"));
   let context = nsContextMenu.contentData.context;
+
+  // Fill in some values in the context from the WindowGlobalParent actor.
+  context.principal = wgp.documentPrincipal;
+  context.storagePrincipal = wgp.documentStoragePrincipal;
+  context.frameID = frameID;
+  context.frameOuterWindowID = wgp.outerWindowId;
+  context.frameBrowsingContextID = wgp.browsingContext.id;
 
   // We don't have access to the original event here, as that happened in
   // another process. Therefore we synthesize a new MouseEvent to propagate the
@@ -925,3 +938,7 @@ class nsContextMenu {
     }
   }
 }
+
+XPCOMUtils.defineLazyModuleGetters(nsContextMenu, {
+  WebNavigationFrames: "resource://gre/modules/WebNavigationFrames.jsm",
+});
