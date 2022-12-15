@@ -220,9 +220,12 @@ toolbarbutton.formatting-button {
 }
 
 #titlebar-title {
-  text-align: center;
   /* Equalize  the titlebar-buttonbox width */
   padding-inline-end: 60px;
+}
+
+#titlebar-title-label {
+  -moz-box-pack: center;
 }
 
 /* Styles for the default system dark theme */

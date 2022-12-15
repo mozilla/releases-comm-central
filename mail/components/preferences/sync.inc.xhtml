@@ -10,7 +10,7 @@
             xmlns="http://www.w3.org/1999/xhtml">
     <h1 data-l10n-id="sync-pane-header"></h1>
 
-    <section id="noFxaAccount">
+    <section id="noFxaAccount" hidden="hidden">
       <div id="noFxaInfo">
         <h2 id="noFxaCaption" data-l10n-id="sync-signedout-caption"></h2>
         <p id="noFxaDescription"
@@ -27,76 +27,96 @@
            alt=""/>
     </section>
 
-    <section id="syncAccountSignedIn">
-      <!-- Account NOT Verified & Server Rejected Credientials -->
-      <section id="syncAccountNotVerified" class="sync-account-section">
+    <section id="hasFxaAccount" hidden="hidden">
+      <!-- Account NOT Verified -->
+      <section id="fxaLoginUnverified"
+               class="sync-account-section"
+               hidden="hidden">
         <div id="photoDisplay">
           <img class="contact-photo" src="" alt="" />
         </div>
-        <div id="syncAccountNotVerifiedInfo">
-          <!-- swap data-l10n-id for "sync-signedin-login-failure" when logged
-             - in locally but server rejected credentials -->
-          <span id="syncAccountMailNotVerified"
+        <div id="fxaLoginUnverifiedInfo">
+          <span id="fxaAccountMailNotVerified"
                 data-l10n-id="sync-pane-email-not-verified"
                 data-l10n-args='{"userEmail": ""}'>
           </span>
-          <div id="syncUnverifiedButtonOptions">
-            <button id="syncRemoveAccount"
-                    class="place-self-end"
-                    data-l10n-id="sync-pane-remove-account"
-                    type="button">
-            </button>
-            <!-- only show when the account is not verified -->
-            <button id="syncResendVerification"
+          <div id="fxaUnverifiedButtonOptions">
+            <button id="fxaResendVerification"
                     class="place-self-end primary"
                     data-l10n-id="sync-pane-resend-verification"
                     type="button">
             </button>
-            <!-- only show when logged in locally but server rejected
-               - credentials -->
-            <button id="syncSignIn"
+            <button id="fxaUnverifiedRemoveAccount"
+                    class="place-self-end"
+                    data-l10n-id="sync-pane-remove-account"
+                    type="button">
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Server Rejected Credientials -->
+      <section id="fxaLoginRejected"
+               class="sync-account-section"
+               hidden="hidden">
+        <div id="photoDisplay">
+          <img class="contact-photo" src="" alt="" />
+        </div>
+        <div id="fxaLoginRejectedInfo">
+          <span id="fxaAccountLoginRejected"
+                data-l10n-id="sync-signedin-login-failure"
+                data-l10n-args='{"userEmail": ""}'>
+          </span>
+          <div id="fxaRejectedButtonOptions">
+            <button id="fxaRejectedSignIn"
                     class="place-self-end primary"
                     data-l10n-id="sync-pane-sign-in"
                     type="button">
             </button>
-         </div>
+            <button id="fxaRejectedRemoveAccount"
+                    class="place-self-end"
+                    data-l10n-id="sync-pane-remove-account"
+                    type="button">
+            </button>
+          </div>
         </div>
       </section>
 
       <!-- Account Verified -->
-      <section id="syncAccountVerified" class="sync-account-section">
+      <section id="fxaLoginVerified"
+               class="sync-account-section"
+               hidden="hidden">
         <div id="photoInput">
           <button type="button" id="photoButton"
                   class="plain-button"
                   data-l10n-id="sync-pane-edit-photo">
-            <img class="contact-photo" src="" alt="" />
+            <img id="fxaAvatar" class="contact-photo" src="" alt="" />
             <div id="photoOverlay"></div>
           </button>
         </div>
-        <div id="syncAccountInfo">
-          <span id="syncAccountName">Jane Doe</span>
-          <span id="syncAccountMail">example@example.com</span>
-          <a href="#" data-l10n-id="sync-pane-manage-account"></a>
+        <div id="fxaAccountInfo">
+          <span id="fxaDisplayName"></span>
+          <span id="fxaEmailAddress"></span>
+          <a id="verifiedManage" href="#" data-l10n-id="sync-pane-manage-account"></a>
         </div>
-        <button id="syncAccountSignOut"
+        <button id="fxaAccountSignOut"
                 class="place-self-end"
                 data-l10n-id="sync-pane-sign-out"
                 type="button">
         </button>
       </section>
 
-      <fieldset id="syncDeviceInfo">
+      <fieldset id="fxaDeviceInfo" hidden="hidden">
         <legend data-l10n-id="sync-pane-device-name-title"></legend>
-        <input id="syncDeviceNameInput" type="text" readonly="readonly"/>
-        <!-- Hidden by default, shown if #syncDeviceNameChangeDeviceName is
-           - pressed -->
-        <button id="syncDeviceNameCancel"
+        <input id="fxaDeviceNameInput" type="text" readonly="readonly"/>
+        <!-- Hidden by default, shown if #fxaDeviceNameChangeDeviceName is pressed -->
+        <button id="fxaDeviceNameCancel"
                 class="place-self-end"
                 data-l10n-id="sync-pane-cancel"
                 type="button"
                 hidden="hidden">
         </button>
-        <button id="syncDeviceNameSave"
+        <button id="fxaDeviceNameSave"
                 class="place-self-end"
                 data-l10n-id="sync-pane-save"
                 type="button"
@@ -104,98 +124,115 @@
         </button>
         <!-- Disappear once pressed to allow the previous two buttons to take
            - its place, reappears once cancel or save is pressed -->
-        <button id="syncDeviceNameChangeDeviceName"
-                class="place-self-end"
+        <button id="fxaDeviceNameChangeDeviceName"
+                class="place-self-end needs-account-ready"
                 data-l10n-id="sync-pane-change-device-name"
                 type="button">
         </button>
       </fieldset>
 
-      <div id="showSyncedHeader" class="sync-section">
-        <h2 id="syncShowSyncedHeader"
-            class="sync-header"
-            data-l10n-id="sync-pane-show-synced-header-on">
-        </h2>
-        <button id="syncShowSyncedSyncNow"
-                class="place-self-end"
-                data-l10n-id="sync-pane-sync-now"
-                type="button">
-        </button>
-      </div>
-
-      <div id="syncConnected" class="sync-panel sync-section">
-        <div id="showSyncedListHeader">
-          <h3 id="showSyncedListHeading" data-l10n-id="show-synced-list-heading"></h3>
-          <a href="" data-l10n-id="show-synced-learn-more"></a>
+      <div id="syncConnected" class="sync-section" hidden="hidden">
+        <div id="showSyncedHeader">
+          <h2 class="sync-header"
+              data-l10n-id="sync-pane-show-synced-header-on">
+          </h2>
+          <button id="syncShowSyncedSyncNow"
+                  class="place-self-end needs-account-ready"
+                  data-l10n-id="sync-pane-sync-now"
+                  type="button">
+          </button>
         </div>
 
-        <ul id="showSyncedList" class="synced-list">
-          <li id="showSyncAccount">
-            <span id="showSyncAccountLabel"
-                  class="synced-item"
-                  data-l10n-id="show-synced-item-account">
-            </span>
-            <div id="syncedAccounts">
+        <div class="sync-panel">
+          <div id="showSyncedListHeader">
+            <h3 id="showSyncedListHeading" data-l10n-id="show-synced-list-heading"></h3>
+            <a id="enginesLearnMore" href="#" data-l10n-id="show-synced-learn-more"></a>
+          </div>
 
-              <div class="synced-account">
-                <h4 class="synced-account-name">nemo@thunderbird.net</h4>
-                <ul class="synced-list">
-                  <li class="synced-item synced-account-server-config"
-                      data-l10n-id="synced-acount-item-server-config">
-                  </li>
-                  <li class="synced-item synced-account-filters"
-                      data-l10n-id="synced-acount-item-filters">
-                  </li>
-                  <li class="synced-item synced-account-keys"
-                      data-l10n-id="synced-acount-item-keys">
-                  </li>
-                </ul>
+          <ul id="showSyncedList" class="synced-list">
+            <!-- For when we get per-account controls: -->
+            <!-- <li id="showSyncAccount">
+              <span id="showSyncAccountLabel"
+                    class="synced-item"
+                    data-l10n-id="show-synced-item-account">
+              </span>
+              <div id="syncedAccounts">
+
+                <div class="synced-account">
+                  <h4 class="synced-account-name">nemo@thunderbird.net</h4>
+                  <ul class="synced-list">
+                    <li class="synced-item synced-account-server-config"
+                        data-l10n-id="synced-acount-item-server-config">
+                    </li>
+                    <li class="synced-item synced-account-filters"
+                        data-l10n-id="synced-acount-item-filters">
+                    </li>
+                    <li class="synced-item synced-account-keys"
+                        data-l10n-id="synced-acount-item-keys">
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="synced-account">
+                  <h4 class="synced-account-name">example@example.com</h4>
+                  <ul class="synced-list">
+                    <li class="synced-item synced-account-server-config"
+                        data-l10n-id="synced-acount-item-server-config">
+                    </li>
+                    <li class="synced-item synced-account-filters"
+                        data-l10n-id="synced-acount-item-filters">
+                    </li>
+                    <li class="synced-item synced-account-keys"
+                        data-l10n-id="synced-acount-item-keys">
+                    </li>
+                  </ul>
+                </div>
+
               </div>
+            </li> -->
+            <li id="showSyncAccount"
+                class="synced-item"
+                data-l10n-id="show-synced-item-account">
+            </li>
+            <li id="showSyncIdentity"
+                class="synced-item"
+                data-l10n-id="show-synced-item-identity">
+            </li>
+            <li id="showSyncAddress"
+                class="synced-item"
+                data-l10n-id="show-synced-item-address">
+            </li>
+            <li id="showSyncCalendar"
+                class="synced-item"
+                data-l10n-id="show-synced-item-calendar">
+            </li>
+            <li id="showSyncPasswords"
+                class="synced-item"
+                data-l10n-id="show-synced-item-passwords">
+            </li>
+          </ul>
 
-              <div class="synced-account">
-                <h4 class="synced-account-name">example@example.com</h4>
-                <ul class="synced-list">
-                  <li class="synced-item synced-account-server-config"
-                      data-l10n-id="synced-acount-item-server-config">
-                  </li>
-                  <li class="synced-item synced-account-filters"
-                      data-l10n-id="synced-acount-item-filters">
-                  </li>
-                  <li class="synced-item synced-account-keys"
-                      data-l10n-id="synced-acount-item-keys">
-                  </li>
-                </ul>
-              </div>
-
-            </div>
-          </li>
-          <li id="showSyncAddress"
-              class="synced-item"
-              data-l10n-id="show-synced-item-address">
-          </li>
-          <li id="showSyncCalendar"
-              class="synced-item"
-              data-l10n-id="show-synced-item-calendar">
-          </li>
-          <li id="showSyncIdentity"
-              class="synced-item"
-              data-l10n-id="show-synced-item-identity">
-          </li>
-        </ul>
-
-        <button class="place-self-end primary"
-                data-l10n-id="show-synced-change"
-                type="button"
-                onclick="gSyncPane.showSyncDialog();">
-        </button>
+          <button id="syncChangeOptions"
+                  class="place-self-end primary"
+                  data-l10n-id="show-synced-change"
+                  type="button">
+          </button>
+        </div>
       </div>
 
-      <div id="syncDisconnected" class="sync-panel sync-section">
-        <p data-l10n-id="sync-disconnected-text"></p>
-        <button class="place-self-start"
-                data-l10n-id="sync-disconnected-turn-on-sync"
-                type="button">
-        </button>
+      <div id="syncDisconnected" class="sync-section" hidden="hidden">
+        <h2 class="sync-header"
+            data-l10n-id="sync-pane-show-synced-header-off">
+        </h2>
+
+        <div class="sync-panel">
+          <p data-l10n-id="sync-disconnected-text"></p>
+          <button id="syncSetup"
+                  class="place-self-start needs-account-ready"
+                  data-l10n-id="sync-disconnected-turn-on-sync"
+                  type="button">
+          </button>
+        </div>
       </div>
     </section>
   </html:div>

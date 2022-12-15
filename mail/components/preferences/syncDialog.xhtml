@@ -3,31 +3,26 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <head>
+    <title data-l10n-id="config-sync-dailog-title"></title>
 
-<?xml-stylesheet href="chrome://global/skin/global.css"?>
-<?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/preferences/preferences.css" />
 
-<window type="child"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        data-l10n-id="config-sync-dailog-title"
-        style="min-width: 49em;"
-        onload="onload();">
+    <link rel="localization" href="messenger/preferences/preferences.ftl"/>
+    <link rel="localization" href="messenger/preferences/sync-dialog.ftl"/>
 
-  <dialog id="configSyncDialog"
-          buttons="accept,cancel,extra2"
-          data-l10n-attrs="buttonlabelaccept, buttonaccesskeyaccept, buttonlabelextra2, buttonaccesskeyextra2"
-          data-l10n-id="sync-dialog">
-
-    <linkset>
-      <html:link rel="localization" href="messenger/preferences/preferences.ftl"/>
-      <html:link rel="localization" href="messenger/preferences/sync-dialog.ftl"/>
-    </linkset>
-
-    <script src="chrome://messenger/content/preferences/syncDialog.js"/>
-
-    <html:div xmlns="http://www.w3.org/1999/xhtml">
+    <script src="chrome://messenger/content/preferences/syncDialog.js"></script>
+  </head>
+  <body>
+    <xul:dialog id="configSyncDialog"
+                buttons="accept,cancel,extra2"
+                style="min-width: 49em;"
+                data-l10n-attrs="buttonlabelaccept, buttonaccesskeyaccept, buttonlabelextra2, buttonaccesskeyextra2"
+                data-l10n-id="sync-dialog">
       <div id="configSyncDialogContent">
         <ul id="configSyncList" class="config-list">
           <li id="configAccountsContainer">
@@ -40,7 +35,8 @@
                      data-l10n-id="show-synced-item-account">
               </label>
             </div>
-            <div id="configAccounts">
+            <!-- For when we get per-account controls: -->
+            <!-- <div id="configAccounts">
 
               <div class="synced-account">
                 <div class="config-item synced-account-name">
@@ -134,6 +130,17 @@
                 </ul>
               </div>
 
+            </div> -->
+          </li>
+          <li>
+            <div class="config-item">
+              <input type="checkbox"
+                     id="configSyncIdentity"
+                     name="configSynced"/>
+              <label id="configSyncIdentityLabel"
+                     for="configSyncIdentity"
+                     data-l10n-id="show-synced-item-identity">
+              </label>
             </div>
           </li>
           <li>
@@ -161,16 +168,16 @@
           <li>
             <div class="config-item">
               <input type="checkbox"
-                     id="configSyncIdentity"
+                     id="configSyncPasswords"
                      name="configSynced"/>
-              <label id="configSyncIdentityLabel"
-                     for="configSyncIdentity"
-                     data-l10n-id="show-synced-item-identity">
+              <label id="configSyncPasswordsLabel"
+                     for="configSyncPasswords"
+                     data-l10n-id="show-synced-item-passwords">
               </label>
             </div>
           </li>
         </ul>
       </div>
-    </html:div>
-  </dialog>
-</window>
+    </xul:dialog>
+  </body>
+</html>

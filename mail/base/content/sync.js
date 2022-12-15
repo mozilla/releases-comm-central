@@ -29,49 +29,142 @@ ChromeUtils.defineModuleGetter(
   "resource://services-sync/main.js"
 );
 
-window.addEventListener("load", () => {
-  updateFxAPanel();
-  Services.obs.addObserver(updateFxAPanel, UIState.ON_UPDATE);
-});
-window.addEventListener("unload", () => {
-  Services.obs.removeObserver(updateFxAPanel, UIState.ON_UPDATE);
-});
-
-function updateFxAPanel() {
-  let state = UIState.get();
-  let isSignedIn = state.status == UIState.STATUS_SIGNED_IN;
-  document.getElementById("appmenu_signin").hidden = isSignedIn;
-  document.getElementById("appmenu_sync").hidden = !isSignedIn;
-  document.getElementById("syncSeparator").hidden = false;
-  document.querySelectorAll(".appmenu-sync-account-email").forEach(el => {
-    el.value = state.email;
-    el.removeAttribute("data-l10n-id");
-  });
-  let button = document.getElementById("appmenu-submenu-sync-now");
-  if (button) {
-    if (state.syncing) {
-      button.setAttribute("syncstatus", "active");
-    } else {
-      button.removeAttribute("syncstatus");
+var gSync = {
+  handleEvent(event) {
+    if (event.type == "load") {
+      this.updateFxAPanel();
+      Services.obs.addObserver(this, UIState.ON_UPDATE);
+      window.addEventListener("unload", this, { once: true });
+    } else if (event.type == "unload") {
+      Services.obs.removeObserver(this, UIState.ON_UPDATE);
     }
-  }
-}
+  },
 
-async function initFxA() {
-  EnsureFxAccountsWebChannel();
-  let url = await FxAccounts.config.promiseConnectAccountURI("");
-  openContentTab(url);
-}
+  observe(subject, topic, data) {
+    this.updateFxAPanel();
+  },
 
-async function openFxAManagePage() {
-  const url = await FxAccounts.config.promiseManageURI("");
-  openContentTab(url);
-}
+  /**
+   * Update the app menu items to match the current state.
+   */
+  updateFxAPanel() {
+    let state = UIState.get();
+    let isSignedIn = state.status == UIState.STATUS_SIGNED_IN;
+    document.getElementById("appmenu_signin").hidden = isSignedIn;
+    document.getElementById("appmenu_sync").hidden = !isSignedIn;
+    document.getElementById("syncSeparator").hidden = false;
+    document.querySelectorAll(".appmenu-sync-account-email").forEach(el => {
+      el.value = state.email;
+      el.removeAttribute("data-l10n-id");
+    });
+    let button = document.getElementById("appmenu-submenu-sync-now");
+    if (button) {
+      if (state.syncing) {
+        button.setAttribute("syncstatus", "active");
+      } else {
+        button.removeAttribute("syncstatus");
+      }
+    }
+  },
 
-async function disconnectFxaAndSync() {
-  const { SyncDisconnect } = ChromeUtils.import(
-    "resource://services-sync/SyncDisconnect.jsm"
-  );
+  /**
+   * Opens the FxA log-in page in a tab.
+   *
+   * @param {string = ""} entryPoint
+   */
+  async initFxA() {
+    EnsureFxAccountsWebChannel();
+    let url = await FxAccounts.config.promiseConnectAccountURI("");
+    openContentTab(url);
+  },
 
-  await SyncDisconnect.disconnect(false);
-}
+  /**
+   * Opens the FxA account management page in a tab.
+   *
+   * @param {string = ""} entryPoint
+   */
+  async openFxAManagePage(entryPoint = "") {
+    EnsureFxAccountsWebChannel();
+    const url = await FxAccounts.config.promiseManageURI(entryPoint);
+    openContentTab(url);
+  },
+
+  /**
+   * Opens the FxA avatar management page in a tab.
+   *
+   * @param {string = ""} entryPoint
+   */
+  async openFxAAvatarPage(entryPoint = "") {
+    EnsureFxAccountsWebChannel();
+    const url = await FxAccounts.config.promiseChangeAvatarURI(entryPoint);
+    openContentTab(url);
+  },
+
+  /**
+   * Disconnect from sync, and optionally disconnect from the FxA account.
+   *
+   * @param {boolean} confirm - Should the user be asked to confirm the
+   *   disconnection?
+   * @param {boolean} disconnectAccount - If true, disconnect from FxA as well
+   *   as Sync. If false, just disconnect from Sync.
+   * @returns {boolean} - true if the disconnection happened (ie, if the user
+   *   didn't decline when asked to confirm)
+   */
+  async disconnect({ confirm = false, disconnectAccount = true }) {
+    if (confirm) {
+      let title, body, button;
+      if (disconnectAccount) {
+        [title, body, button] = await document.l10n.formatValues([
+          "fxa-signout-dialog-title",
+          "fxa-signout-dialog-body",
+          "fxa-signout-dialog-button",
+        ]);
+      } else {
+        [title, body, button] = await document.l10n.formatValues([
+          "sync-disconnect-dialog-title",
+          "sync-disconnect-dialog-body",
+          "sync-disconnect-dialog-button",
+        ]);
+      }
+
+      let flags =
+        Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
+        Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1;
+
+      // buttonPressed will be 0 for disconnect, 1 for cancel.
+      let buttonPressed = Services.prompt.confirmEx(
+        window,
+        title,
+        body,
+        flags,
+        button,
+        null,
+        null,
+        null,
+        {}
+      );
+      if (buttonPressed != 0) {
+        return false;
+      }
+    }
+
+    let fxAccounts = ChromeUtils.import(
+      "resource://gre/modules/FxAccounts.jsm"
+    ).getFxAccountsSingleton();
+
+    if (disconnectAccount) {
+      const { SyncDisconnect } = ChromeUtils.import(
+        "resource://services-sync/SyncDisconnect.jsm"
+      );
+      await fxAccounts.telemetry.recordDisconnection(null, "ui");
+      await SyncDisconnect.disconnect(false);
+      return true;
+    }
+
+    await fxAccounts.telemetry.recordDisconnection("sync", "ui");
+    await Weave.Service.promiseInitialized;
+    await Weave.Service.startOver();
+    return true;
+  },
+};
+window.addEventListener("load", gSync, { once: true });

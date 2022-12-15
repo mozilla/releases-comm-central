@@ -134,7 +134,7 @@ class AccountHubStart extends HTMLElement {
       // FIXME: Open this in a dialog or browser inside the modal, or find a
       // way to close the account hub without an account and open it again in
       // case the FxA login fails to set up accounts.
-      initFxA();
+      gSync.initFxA();
     });
   }
 

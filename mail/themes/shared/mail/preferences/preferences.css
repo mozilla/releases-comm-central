@@ -735,7 +735,7 @@ calendar-notifications-setting .remove-button {
  * Sync Settings Page
  */
 
-#noFxaAccount {
+#noFxaAccount:not([hidden]) {
   display: flex;
   gap: 24px;
 }
@@ -767,14 +767,15 @@ calendar-notifications-setting .remove-button {
   flex-grow: 2;
 }
 
-.sync-account-section {
+.sync-account-section:not([hidden]) {
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 24px;
   margin: 24px 0;
 }
 
-#syncAccountNotVerified {
+#fxaLoginUnverified:not([hidden]),
+#fxaLoginRejected:not([hidden]) {
   display: flex;
   align-items: center;
 }
@@ -794,26 +795,29 @@ calendar-notifications-setting .remove-button {
 .contact-photo {
   width: 78px;
   height: 78px;
-  margin: -1px;
   object-fit: cover;
   object-position: center;
+  border: 1px solid var(--in-content-button-background);
+}
+
+.contact-photo[src=""] {
   background-color: var(--in-content-button-background);
   background-image: var(--icon-user);
   background-size: 48px;
   background-position: calc(50% - 1px) calc(50% - 1px);
   background-repeat: no-repeat;
-  border: none;
   -moz-context-properties: stroke;
   stroke: color-mix(in srgb, currentColor 30%, transparent);
-  border: 1px solid var(--in-content-button-background);
 }
 
 #photoButton {
   position: relative;
-  width: 78px;
-  height: 78px;
-  min-width: 78px;
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
   overflow: hidden;
+  background-color: transparent;
+  border: none;
 }
 
 #photoButton:hover {
@@ -848,19 +852,19 @@ calendar-notifications-setting .remove-button {
   }
 }
 
-#syncAccountInfo {
+#fxaAccountInfo {
   display: flex;
   flex-direction: column;
   align-self: center;
   align-items: flex-start;
 }
 
-#syncAccountName {
+#fxaDisplayName {
   font-weight: bold;
   font-size: 1.3rem;
 }
 
-#syncAccountMail {
+#fxaEmailAddress {
   margin-bottom: 6px
 }
 
@@ -876,13 +880,13 @@ calendar-notifications-setting .remove-button {
   place-self: end;
 }
 
-#syncDeviceInfo {
+#fxaDeviceInfo {
   display: flex;
   gap: 6px;
   margin: 24px 0;
 }
 
-#syncDeviceNameInput {
+#fxaDeviceNameInput {
   flex-grow: 1;
   align-self: center;
 }
@@ -910,22 +914,19 @@ calendar-notifications-setting .remove-button {
 }
 
 .sync-panel {
+  display: grid;
+  margin-block-start: 15px;
   padding: 15px;
   background-color: var(--in-content-box-info-background);
   border-radius: 6px;
 }
 
-#syncConnected,
-#syncDisconnected {
-  display: grid;
-}
-
-#syncDisconnected {
+#syncDisconnected .sync-panel {
   grid-template-columns: 1fr auto;
   align-items: center;
 }
 
-#syncDisconnected > p {
+#syncDisconnected p {
   margin: 0;
 }
 
@@ -944,10 +945,10 @@ calendar-notifications-setting .remove-button {
   stroke: currentColor;
 }
 
-.synced-item {
+.synced-item:not([hidden]) {
   display: inline-flex;
   align-items: center;
-  }
+}
 
 .synced-item::before,
 .synced-item-label::before {
@@ -961,6 +962,7 @@ calendar-notifications-setting .remove-button {
   grid-template-columns: 1fr 1fr;
 }
 
+/* For when we get per-account controls:
 #showSyncAccount,
 #configAccountsContainer {
   display: grid;
@@ -979,7 +981,8 @@ calendar-notifications-setting .remove-button {
   gap: 9px;
 }
 
-#showSyncAccountLabel::before,
+#showSyncAccountLabel::before,*/
+#showSyncAccount::before,
 #configSyncAccountLabel::before {
   content: var(--icon-mail);
 }
@@ -997,6 +1000,11 @@ calendar-notifications-setting .remove-button {
 #showSyncIdentity::before,
 #configSyncIdentityLabel::before {
   content: var(--icon-id);
+}
+
+#showSyncPasswords::before,
+#configSyncPasswordsLabel::before {
+  content: var(--icon-key);
 }
 
 .synced-account {
