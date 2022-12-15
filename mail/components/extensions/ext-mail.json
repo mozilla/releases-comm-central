@@ -231,6 +231,7 @@
     "events": [
       "startup"
     ],
+    "permissions": ["menus"],
     "paths": [
       [
         "menus"
