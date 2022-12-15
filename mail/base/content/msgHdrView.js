@@ -477,7 +477,6 @@ var MsgHdrViewObserver = {
 var messageHeaderSink = {
   QueryInterface: ChromeUtils.generateQI(["nsIMsgHeaderSink"]),
   onStartHeaders() {
-    this.mSaveHdr = null;
     // Every time we start to redisplay a message, check the view all headers
     // pref...
     let showAllHeadersPref = Services.prefs.getIntPref("mail.show_headers");
@@ -698,12 +697,6 @@ var messageHeaderSink = {
   },
 
   handleAttachment(contentType, url, displayName, uri, isExternalAttachment) {
-    if (!this.mSaveHdr) {
-      this.mSaveHdr = messenger
-        .messageServiceFromURI(uri)
-        .messageURIToMsgHdr(uri);
-    }
-
     let newAttachment = new AttachmentInfo(
       contentType,
       url,
@@ -791,9 +784,12 @@ var messageHeaderSink = {
   onEndMsgDownload(url) {
     gMessageDisplay.onLoadCompleted();
 
-    if (!this.mSaveHdr) {
-      var messageUrl = url.QueryInterface(Ci.nsIMsgMessageUrl);
-      this.mSaveHdr = messenger.msgHdrFromURI(messageUrl.uri);
+    // The mDummyMsgHeader member exists only for messages not part of the message
+    // database.
+    let msgHdr = this.mDummyMsgHeader;
+    if (!msgHdr) {
+      let messageUrl = url.QueryInterface(Ci.nsIMsgMessageUrl);
+      msgHdr = messenger.msgHdrFromURI(messageUrl.uri);
     }
 
     // If we have no attachments, we hide the attachment icon in the message
@@ -813,7 +809,7 @@ var messageHeaderSink = {
     // NOTE: If the message contains two vcard attachments (or more) then this
     // would hint that one of the vcards is not personal, but we won't make an
     // exception here to keep the implementation simple.
-    this.mSaveHdr.markHasAttachments(
+    msgHdr.markHasAttachments(
       currentAttachments.some(
         att =>
           att.contentType != "text/vcard" &&
@@ -871,7 +867,6 @@ var messageHeaderSink = {
   },
 
   mSecurityInfo: null,
-  mSaveHdr: null,
   get securityInfo() {
     return this.mSecurityInfo;
   },
@@ -882,14 +877,12 @@ var messageHeaderSink = {
   mDummyMsgHeader: null,
 
   get dummyMsgHeader() {
+    // There is only one messageHeaderSink per window. Since local messages (with
+    // a dummyMsgHeader) can only be loaded into stand alone message windows and
+    // not into tabs, it is safe to use a single mDummyMsgHeader member.
     if (!this.mDummyMsgHeader) {
       this.mDummyMsgHeader = new nsDummyMsgHeader();
     }
-    // The URI resolution will never work on the dummy header;
-    // save it now... we know it will be needed eventually.
-    // (And save it every time we come through here, not just when
-    // we create it; the onStartHeaders might come after creation!)
-    this.mSaveHdr = this.mDummyMsgHeader;
     return this.mDummyMsgHeader;
   },
   mProperties: null,
