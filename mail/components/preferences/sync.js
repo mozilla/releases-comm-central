@@ -145,7 +145,7 @@ var gSyncPane = {
     }
 
     setEventListener("noFxaSignIn", "click", function() {
-      window.browsingContext.topChromeWindow.initFxA();
+      window.browsingContext.topChromeWindow.gSync.initFxA();
       return false;
     });
     setEventListener(
@@ -162,10 +162,14 @@ var gSyncPane = {
       gSyncPane.unlinkFirefoxAccount(true);
     });
     setEventListener("photoButton", "click", function(event) {
-      window.browsingContext.topChromeWindow.openFxAAvatarPage("preferences");
+      window.browsingContext.topChromeWindow.gSync.openFxAAvatarPage(
+        "preferences"
+      );
     });
     setEventListener("verifiedManage", "click", function(event) {
-      window.browsingContext.topChromeWindow.openFxAManagePage("preferences");
+      window.browsingContext.topChromeWindow.gSync.openFxAManagePage(
+        "preferences"
+      );
       event.preventDefault();
       // Stop attempts to open this link in an external browser.
       event.stopPropagation();
@@ -320,14 +324,14 @@ var gSyncPane = {
    * @param {boolean} confirm - If true, asks the user if they're sure.
    */
   unlinkFirefoxAccount(confirm) {
-    window.browsingContext.topChromeWindow.disconnect({ confirm });
+    window.browsingContext.topChromeWindow.gSync.disconnect({ confirm });
   },
 
   /**
    * Disconnect sync, leaving the FxA account connected.
    */
   disconnectSync() {
-    return window.browsingContext.topChromeWindow.disconnect({
+    return window.browsingContext.topChromeWindow.gSync.disconnect({
       confirm: true,
       disconnectAccount: false,
     });

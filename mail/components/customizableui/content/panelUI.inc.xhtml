@@ -29,7 +29,7 @@
                        data-l10n-id="appmenu-signin-panel"
                        class="subviewbutton subviewbutton-iconic"
                        hidden="true"
-                       oncommand="initFxA();"/>
+                       oncommand="gSync.initFxA();"/>
         <toolbarbutton id="appmenu_sync"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        hidden="true"
@@ -158,7 +158,7 @@
         <toolbarbutton id="appmenu_manageSyncAccountMenuItem"
                        class="subviewbutton subviewbutton-iconic"
                        align="center"
-                       oncommand="openFxAManagePage();">
+                       oncommand="gSync.openFxAManagePage();">
           <hbox flex="1">
             <html:img id="appmenu-manage-sync-icon"
                       class="toolbarbutton-icon"
@@ -188,7 +188,7 @@
         <toolbarbutton id="appmenu-submenu-sync-sign-out"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-sync-sign-out"
-                       oncommand="disconnect({ confirm: true });"/>
+                       oncommand="gSync.disconnect({ confirm: true });"/>
       </vbox>
     </panelview>
 #endif
