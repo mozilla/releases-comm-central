@@ -213,10 +213,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     }
 
     @media (prefers-contrast) {
-      :root {
-        background-color: transparent;
-      }
-
       #tabmail-container {
         appearance: auto;
         -moz-default-appearance: -moz-win-exclude-glass;
