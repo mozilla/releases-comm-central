@@ -435,7 +435,8 @@ checkbox:not([disabled="true"]):hover > .checkbox-check {
 }
 
 :root[lwt-tree] richlistbox:focus > richlistitem[selected="true"] {
-  background-color: var(--sidebar-highlight-background-color, hsla(0,0%,50%,.35));
+  background-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 50%, 0.35));
+  color: var(--sidebar-highlight-text-color, inherit);
   outline: 1px solid var(--highlight-color) !important;
   outline-offset: -1px;
 }
