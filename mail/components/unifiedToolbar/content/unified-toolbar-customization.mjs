@@ -10,6 +10,10 @@ import {
 } from "resource:///modules/CustomizationState.mjs";
 import "./unified-toolbar-tab.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./unified-toolbar-customization-pane.mjs"; // eslint-disable-line import/no-unassigned-import
+import {
+  BUTTON_STYLE_MAP,
+  BUTTON_STYLE_PREF,
+} from "resource:///modules/ButtonStyle.mjs";
 
 /**
  * Customization palette container for the unified toolbar. Contained in a
@@ -25,6 +29,8 @@ class UnifiedToolbarCustomization extends HTMLElement {
    * @type {?HTMLDivElement}
    */
   #tabList = null;
+
+  #buttonStyle = null;
 
   connectedCallback() {
     if (this.hasConnected) {
@@ -55,6 +61,11 @@ class UnifiedToolbarCustomization extends HTMLElement {
       .addEventListener("click", () => {
         this.toggle(false);
       });
+    this.#buttonStyle = template.querySelector("#buttonStyle");
+    this.#buttonStyle.addEventListener(
+      "command",
+      this.#handleButtonStyleChange
+    );
     this.addEventListener("itemchange", this.#handleItemChange, {
       capture: true,
     });
@@ -76,6 +87,13 @@ class UnifiedToolbarCustomization extends HTMLElement {
   #handleTabSwitch = event => {
     event.stopPropagation();
     this.#updateUnsavedChangesState();
+  };
+
+  #handleButtonStyleChange = event => {
+    Services.prefs.setIntPref(
+      BUTTON_STYLE_PREF,
+      BUTTON_STYLE_MAP.indexOf(event.target.value)
+    );
   };
 
   /**
@@ -196,6 +214,8 @@ class UnifiedToolbarCustomization extends HTMLElement {
         tabPane.initialize(deep);
       }
     }
+    this.#buttonStyle.value =
+      BUTTON_STYLE_MAP[Services.prefs.getIntPref(BUTTON_STYLE_PREF, 0)];
     // Update state of reset to default button only when updating tab panes too.
     if (deep) {
       this.#updateResetToDefault();

@@ -1368,3 +1368,11 @@ pref("services.sync.engine.prefs", false);
 pref("app.donation.eoy.version", 1);
 pref("app.donation.eoy.version.viewed", 0);
 pref("app.donation.eoy.url", "https://www.thunderbird.net/thunderbird/102.0/eoy/");
+
+// Unified toolbar
+
+// 0: icons beside text
+// 1: icons above text
+// 2: icons only
+// 3: text only
+pref("toolbar.unifiedtoolbar.buttonstyle", 0);

@@ -6,6 +6,14 @@ import "./search-bar.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./customization-palette.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./customization-target.mjs"; // eslint-disable-line import/no-unassigned-import
 import { getDefaultItemIdsForSpace } from "resource:///modules/CustomizableItems.mjs";
+import {
+  BUTTON_STYLE_MAP,
+  BUTTON_STYLE_PREF,
+} from "resource:///modules/ButtonStyle.mjs";
+
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
 
 /**
  * Template ID: unifiedToolbarCustomizationPaneTemplate
@@ -14,6 +22,24 @@ import { getDefaultItemIdsForSpace } from "resource:///modules/CustomizableItems
  * - current-items: Currently used items in this space.
  */
 class UnifiedToolbarCustomizationPane extends HTMLElement {
+  constructor() {
+    super();
+    XPCOMUtils.defineLazyPreferenceGetter(
+      this,
+      "buttonStyle",
+      BUTTON_STYLE_PREF,
+      0,
+      (preference, prevVal, newVal) => {
+        if (preference !== BUTTON_STYLE_PREF) {
+          return;
+        }
+        this.#toolbarTarget.classList.remove(prevVal);
+        this.#toolbarTarget.classList.add(newVal);
+      },
+      value => BUTTON_STYLE_MAP[value]
+    );
+  }
+
   /**
    * Reference to the customization target for the main toolbar area.
    *
@@ -64,6 +90,7 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
     );
 
     this.#toolbarTarget = template.querySelector(".toolbar-target");
+    this.#toolbarTarget.classList.add(this.buttonStyle);
 
     const spaceSpecificTitle = template.querySelector(".space-specific-title");
     document.l10n.setAttributes(

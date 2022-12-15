@@ -41,6 +41,18 @@
   overflow: hidden;
 }
 
+.icons-above-text .unified-toolbar-button {
+  flex-direction: column;
+}
+
+.icons-only .unified-toolbar-button .button-label {
+  display: none;
+}
+
+.text-only .unified-toolbar-button .button-icon {
+  display: none;
+}
+
 .unified-toolbar-button:not([disabled]):hover {
   background-color: var(--toolbarbutton-hover-background);
   border-color: var(--toolbarbutton-hover-bordercolor);

@@ -6,7 +6,15 @@
 
 import { getDefaultItemIdsForSpace } from "resource:///modules/CustomizableItems.mjs";
 import { getState } from "resource:///modules/CustomizationState.mjs";
+import {
+  BUTTON_STYLE_MAP,
+  BUTTON_STYLE_PREF,
+} from "resource:///modules/ButtonStyle.mjs";
 import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned-import
+
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
 
 /**
  * Unified toolbar container custom element. Used to contain the state
@@ -15,6 +23,24 @@ import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned
  * document.
  */
 class UnifiedToolbar extends HTMLElement {
+  constructor() {
+    super();
+    XPCOMUtils.defineLazyPreferenceGetter(
+      this,
+      "buttonStyle",
+      BUTTON_STYLE_PREF,
+      0,
+      (preference, prevVal, newVal) => {
+        if (preference !== BUTTON_STYLE_PREF) {
+          return;
+        }
+        this.classList.remove(prevVal);
+        this.classList.add(newVal);
+      },
+      value => BUTTON_STYLE_MAP[value]
+    );
+  }
+
   /**
    * List containing the customizable content of the unified toolbar.
    *
@@ -53,6 +79,7 @@ class UnifiedToolbar extends HTMLElement {
     // No shadow root so other stylesheets can style the contents of the
     // toolbar, like the window controls.
     this.hasConnected = true;
+    this.classList.add(this.buttonStyle);
     const template = document
       .getElementById("unifiedToolbarTemplate")
       .content.cloneNode(true);

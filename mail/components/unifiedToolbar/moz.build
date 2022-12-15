@@ -6,6 +6,7 @@
 JAR_MANIFESTS += ["jar.mn"]
 
 EXTRA_JS_MODULES += [
+    "modules/ButtonStyle.mjs",
     "modules/CustomizableItems.mjs",
     "modules/CustomizableItemsDetails.mjs",
     "modules/CustomizationState.mjs",
