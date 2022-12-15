@@ -391,6 +391,15 @@ function subtest_check_trailing_spaces(tab) {
   input_value(mc, badName, accountName);
   input_value(mc, badEmail, defaultAddress);
 
-  Assert.equal(accountName.value, badName);
-  Assert.equal(defaultAddress.value, badEmail);
+  Assert.equal(
+    accountName.value,
+    badName,
+    "accountName should have the correct value typed in"
+  );
+  // type="email" inputs are now automatically trimmed
+  Assert.equal(
+    defaultAddress.value,
+    badEmail.trim(),
+    "defaultAddress should have the correct value typed in"
+  );
 }
