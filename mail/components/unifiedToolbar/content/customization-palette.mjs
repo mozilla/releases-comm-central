@@ -21,6 +21,14 @@ import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned
 class CustomizationPalette extends ListBoxSelection {
   contextMenuId = "customizationPaletteMenu";
 
+  /**
+   * If this palette contains items (even if those items are currently all in a
+   * target).
+   *
+   * @type {boolean}
+   */
+  isEmpty = false;
+
   connectedCallback() {
     if (super.connectedCallback()) {
       return;
@@ -51,7 +59,9 @@ class CustomizationPalette extends ListBoxSelection {
       space = undefined;
     }
     const itemsInUse = new Set(itemIds);
-    const items = getAvailableItemIdsForSpace(space).filter(
+    const allAvailableItems = getAvailableItemIdsForSpace(space);
+    this.isEmpty = !allAvailableItems.length;
+    const items = allAvailableItems.filter(
       itemId => !itemsInUse.has(itemId) || MULTIPLE_ALLOWED_ITEM_IDS.has(itemId)
     );
     this.replaceChildren(

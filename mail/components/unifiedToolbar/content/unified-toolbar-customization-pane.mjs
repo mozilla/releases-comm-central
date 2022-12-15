@@ -48,6 +48,13 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
   #toolbarTarget = null;
 
   /**
+   * Reference to the title of the space specific palette.
+   *
+   * @type {?HTMLHeadingElement}
+   */
+  #spaceSpecificTitle = null;
+
+  /**
    * Reference to the palette for items only available in the current space.
    *
    * @type {?CustomizationPalette}
@@ -92,23 +99,21 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
     this.#toolbarTarget = template.querySelector(".toolbar-target");
     this.#toolbarTarget.classList.add(this.buttonStyle);
 
-    const spaceSpecificTitle = template.querySelector(".space-specific-title");
+    this.#spaceSpecificTitle = template.querySelector(".space-specific-title");
     document.l10n.setAttributes(
-      spaceSpecificTitle,
+      this.#spaceSpecificTitle,
       `customize-palette-${space}-specific-title`
     );
-    spaceSpecificTitle.id = `${space}PaletteTitle`;
+    this.#spaceSpecificTitle.id = `${space}PaletteTitle`;
     this.#spaceSpecificPalette = template.querySelector(
       ".space-specific-palette"
     );
     this.#spaceSpecificPalette.id = `${space}Palette`;
     this.#spaceSpecificPalette.setAttribute(
       "aria-labelledby",
-      spaceSpecificTitle.id
+      this.#spaceSpecificTitle.id
     );
     this.#spaceSpecificPalette.setAttribute("space", space);
-    // TODO hide space specific palette if there are no items in it (probably
-    // fairly likely for extension spaces, hard to tell for the rest of the app)
     const genericTitle = template.querySelector(".generic-palette-title");
     genericTitle.id = `${space}GenericPaletteTitle`;
     this.#genericPalette = template.querySelector(".generic-palette");
@@ -144,6 +149,8 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
       this.#toolbarTarget.initialize();
       this.#spaceSpecificPalette.initialize();
       this.#genericPalette.initialize();
+      this.#spaceSpecificTitle.hidden = this.#spaceSpecificPalette.isEmpty;
+      this.#spaceSpecificPalette.hidden = this.#spaceSpecificPalette.isEmpty;
     }
   }
 
