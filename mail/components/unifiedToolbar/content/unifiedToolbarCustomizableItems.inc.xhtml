@@ -3,11 +3,55 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 <html:template id="searchBarItemTemplate"
   xmlns="http://www.w3.org/1999/xhtml">
-  <search-bar class="search-bar" data-l10n-id="search-bar-item" data-l10n-attrs="label" aria-keyshortcuts="Control+K">
+  <search-bar class="search-bar"
+              data-l10n-id="search-bar-item"
+              data-l10n-attrs="label"
+              aria-keyshortcuts="Control+K">
     <span slot="placeholder" data-l10n-id="search-bar-placeholder"></span>
     <img data-l10n-id="search-bar-button"
          slot="button"
          class="search-button-icon"
          src="" />
   </search-bar>
+</html:template>
+
+<html:template id="writeMessageTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="cmd_newMessage"
+          label-id="toolbar-write-message-label"
+          data-l10n-id="toolbar-write-message"></button>
+</html:template>
+
+<html:template id="moveToTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          popup="toolbarMoveToPopup"
+          observes="cmd_moveMessage"
+          label-id="toolbar-move-to-label"
+          data-l10n-id="toolbar-move-to"></button>
+</html:template>
+
+<html:template id="calendarUnifinderTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="calendar_show_unifinder_command"
+          aria-pressed="false"
+          label-id="toolbar-unifinder-label"
+          data-l10n-id="toolbar-unifinder"></button>
+</html:template>
+
+<html:template id="folderLocationTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="folder-location-button"
+          popup="toolbarFolderLocationPopup"
+          data-l10n-id="toolbar-folder-location"></button>
+</html:template>
+
+<html:template id="editEventTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="calendar_modify_focused_item_command"
+          label-id="toolbar-edit-event-label"
+          data-l10n-id="toolbar-edit-event"></button>
 </html:template>

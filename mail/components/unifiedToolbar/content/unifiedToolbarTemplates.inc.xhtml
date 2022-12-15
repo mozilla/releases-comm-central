@@ -19,7 +19,7 @@
   <html:div id="unifiedToolbarContainer">
     <html:div id="unifiedToolbar" role="toolbar">
 #include ../../../base/content/spacesToolbarPin.inc.xhtml
-      <html:ul id="unifiedToolbarContent">
+      <html:ul id="unifiedToolbarContent" class="unified-toolbar">
       </html:ul>
       <html:div id="notification-popup-box" hidden="true">
         <html:img id="addons-notification-icon"
@@ -98,7 +98,7 @@
                xmlns="http://www.w3.org/1999/xhtml">
   <ul is="customization-target"
       data-l10n-id="customize-main-toolbar-target"
-      class="toolbar-target"></ul>
+      class="toolbar-target unified-toolbar"></ul>
   <search-bar data-l10n-id="customize-search-bar" data-l10n-attrs="label" class="palette-search">
     <img data-l10n-id="search-bar-button"
          slot="button"
@@ -121,4 +121,10 @@
     <img src="" alt="" class="preview-icon" />
     <span class="preview-label"></span>
   </div>
+</html:template>
+
+<html:template id="unifiedToolbarButtonTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <img class="button-icon" alt="" src="" />
+  <span class="button-label"></span>
 </html:template>

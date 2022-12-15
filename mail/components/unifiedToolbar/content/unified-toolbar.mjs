@@ -96,6 +96,11 @@ class UnifiedToolbar extends HTMLElement {
   }
 
   #handleContextMenu = event => {
+    if (!event.target.closest("#unifiedToolbarContent")) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
     document
       .getElementById("unifiedToolbarMenu")
       .openPopupAtScreen(event.screenX, event.screenY, true);

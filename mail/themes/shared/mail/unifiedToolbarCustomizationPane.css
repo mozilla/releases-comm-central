@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/unifiedToolbarCustomizableItems.css");
+@import url("chrome://messenger/skin/shared/unifiedToolbarShared.css");
 
 .search-button-icon {
   content: var(--icon-search);
@@ -30,21 +31,16 @@
   padding-block: 0.5rem;
   margin-block: 1rem;
   height: 2em;
-  align-items: center;
-  justify-content: start;
-  overflow: hidden;
-  flex-wrap: nowrap;
 }
 
-/* TODO factor out stuff shared with real toolbar? */
 .toolbar-target .spacer {
-  flex: 1 1 auto;
   height: 2em;
   background: green;
 }
 
-.toolbar-target .search-bar {
-  flex: 1 0 33%;
+/* buttons are disabled in the preview, but we want them to look active. */
+.toolbar-target .unified-toolbar-button[disabled] {
+  color: inherit;
 }
 
 [is="customization-target"] [is="customizable-element"] .live-content {

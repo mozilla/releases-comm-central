@@ -7,3 +7,28 @@
 spacer-label = Flexible Space
 
 search-bar-label = Search
+
+toolbar-write-message-label = Write
+
+toolbar-write-message =
+    .title = Create a new message
+
+toolbar-move-to-label = Move to
+
+toolbar-move-to =
+    .title = Move selected message
+
+toolbar-unifinder-label = Find Events
+
+toolbar-unifinder =
+    .title = Toggle the find events pane
+
+toolbar-folder-location-label = Folder Location
+
+toolbar-folder-location =
+    .title = Switch to folder
+
+toolbar-edit-event-label = Edit
+
+toolbar-edit-event =
+    .title = Edit selected event or task

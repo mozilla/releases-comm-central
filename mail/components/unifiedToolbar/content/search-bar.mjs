@@ -6,6 +6,7 @@
  * Search input with customizable search button and placeholder.
  * Attributes:
  * - label: Search field label for accessibility tree.
+ * - disabled: When present, disable the search field and button.
  * Slots in template (#searchBarTemplate):
  * - placeholder: Content displayed as placeholder. When not provided, the value
  *   of the label attribute is shown as placeholder.
@@ -18,7 +19,7 @@
  */
 class SearchBar extends HTMLElement {
   static get observedAttributes() {
-    return ["label"];
+    return ["label", "disabled"];
   }
 
   /**
@@ -27,6 +28,13 @@ class SearchBar extends HTMLElement {
    * @type {?HTMLInputElement}
    */
   #input = null;
+
+  /**
+   * Reference to the search button in the form.
+   *
+   * @type {?HTMLButtonElement}
+   */
+  #button = null;
 
   #onSubmit = event => {
     event.preventDefault();
@@ -61,6 +69,7 @@ class SearchBar extends HTMLElement {
       .getElementById("searchBarTemplate")
       .content.cloneNode(true);
     this.#input = template.querySelector("input");
+    this.#button = template.querySelector("button");
 
     template.querySelector("form").addEventListener("submit", this.#onSubmit, {
       passive: false,
@@ -82,11 +91,21 @@ class SearchBar extends HTMLElement {
   }
 
   attributeChangedCallback(attributeName, oldValue, newValue) {
-    if (attributeName === "label" && this.#input) {
-      this.#input.setAttribute("aria-label", newValue);
-      this.shadowRoot.querySelector(
-        "slot[name=placeholder]"
-      ).textContent = newValue;
+    if (!this.#input) {
+      return;
+    }
+    switch (attributeName) {
+      case "label":
+        this.#input.setAttribute("aria-label", newValue);
+        this.shadowRoot.querySelector(
+          "slot[name=placeholder]"
+        ).textContent = newValue;
+        break;
+      case "disabled": {
+        const isDisabled = this.hasAttribute("disabled");
+        this.#input.disabled = isDisabled;
+        this.#button.disabled = isDisabled;
+      }
     }
   }
 

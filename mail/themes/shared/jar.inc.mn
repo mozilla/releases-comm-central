@@ -403,6 +403,7 @@
   skin/classic/messenger/shared/unifiedToolbar.css            (../shared/mail/unifiedToolbar.css)
   skin/classic/messenger/shared/unifiedToolbarCustomizableItems.css (../shared/mail/unifiedToolbarCustomizableItems.css)
   skin/classic/messenger/shared/unifiedToolbarCustomizationPane.css (../shared/mail/unifiedToolbarCustomizationPane.css)
+  skin/classic/messenger/shared/unifiedToolbarShared.css      (../shared/mail/unifiedToolbarShared.css)
   skin/classic/messenger/shared/unifiedToolbarTab.css         (../shared/mail/unifiedToolbarTab.css)
   skin/classic/messenger/shared/variables.css                 (../shared/mail/variables.css)
   skin/classic/messenger/messengercompose/format-dropmarker.svg (../shared/mail/icons/format-dropmarker.svg)

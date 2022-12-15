@@ -1,0 +1,112 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Styles shared between the actual unfied toolbar and the replicat in the
+ * customization overlay */
+
+.unified-toolbar {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  list-style-type: none;
+  overflow: hidden;
+  flex-wrap: nowrap;
+}
+
+.unified-toolbar li {
+  padding: 0;
+  margin: 0;
+}
+
+.unified-toolbar [is="customizable-element"] .preview {
+  display: none;
+}
+
+.unified-toolbar-button {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  flex-wrap: nowrap;
+  border-radius: var(--toolbarbutton-border-radius);
+  background: none;
+  border: none;
+  min-width: initial;
+  border: 1px solid transparent;
+  transition: background-color .15s, border-color .15s;
+  -moz-context-properties: fill, stroke, fill-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+  overflow: hidden;
+}
+
+.unified-toolbar-button:not([disabled]):hover {
+  background-color: var(--toolbarbutton-hover-background);
+  border-color: var(--toolbarbutton-hover-bordercolor);
+}
+
+.unified-toolbar-button:not([disabled]):is(:active, [aria-pressed=true]) {
+  background-color: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+}
+
+.unified-toolbar-button:not([disabled])[aria-pressed="true"] {
+  background-color: var(--toolbarbutton-checked-background);
+}
+
+.unified-toolbar-button[popup] {
+  padding-inline-end: 20px;
+  background-image: var(--icon-nav-down-sm);
+  background-position: calc(100% - 4px) center;
+  background-repeat: no-repeat;
+}
+
+.unified-toolbar-button[popup]:dir(rtl) {
+  background-position-x: 4px;
+}
+
+.unified-toolbar-button .button-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  max-width: 50ch;
+}
+
+.unified-toolbar .spacer {
+  flex: 1 1 auto;
+}
+
+.unified-toolbar .search-bar {
+  flex: 1 0 33%;
+}
+
+.unified-toolbar .button-icon {
+  content: var(--icon-extension);
+}
+
+.unified-toolbar .search-button-icon {
+  content: var(--icon-search);
+}
+
+.unified-toolbar .write-message .button-icon {
+  content: var(--icon-new-mail);
+}
+
+.unified-toolbar .move-to .button-icon {
+  content: var(--icon-file);
+}
+
+.unified-toolbar .unifinder .button-icon {
+  content: var(--icon-search);
+}
+
+.unified-toolbar .folder-location .button-icon {
+  content: var(--icon-folder);
+}
+
+.unified-toolbar .edit-event .button-icon {
+  content: var(--icon-pencil);
+}

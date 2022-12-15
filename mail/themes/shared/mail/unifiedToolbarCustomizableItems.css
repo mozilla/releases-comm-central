@@ -6,10 +6,34 @@
  * CustomizableItemsDetails.mjs contains the definitions for the root class
  * names. */
 
+[is="customizable-element"] .preview-icon {
+  content: var(--icon-extension);
+}
+
 .spacer .preview-icon {
-  content: var(--icon-spaces-menu)
+  content: var(--icon-spaces-menu);
 }
 
 .search-bar .preview-icon {
   content: var(--icon-search);
+}
+
+.write-message .preview-icon {
+  content: var(--icon-new-mail);
+}
+
+.move-to .preview-icon {
+  content: var(--icon-file);
+}
+
+.unifinder .preview-icon {
+  content: var(--icon-search);
+}
+
+.folder-location .preview-icon {
+  content: var(--icon-folder);
+}
+
+.edit-event .preview-icon {
+  content: var(--icon-pencil);
 }

@@ -7,6 +7,9 @@
  * - unifiedToolbarItems.ftl for the labels associated with the labelId.
  * - unifiedToolbarCustomizableItems.inc.xhtml for the templates referenced with
  *   templateId.
+ * - unifiedToolbarShared.css contains styles for the template contents shared
+ *   between the customization preview and the actual toolbar.
+ * - unifiedToolbar/content/items contains all item specific custom elements.
  */
 
 /**
@@ -39,6 +42,50 @@ export default [
     templateId: "searchBarItemTemplate",
     requiredModules: [
       "chrome://messenger/content/unifiedtoolbar/search-bar.mjs",
+    ],
+  },
+  {
+    id: "write-message",
+    labelId: "toolbar-write-message",
+    templateId: "writeMessageTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
+    ],
+  },
+  {
+    id: "move-to",
+    labelId: "toolbar-move-to",
+    spaces: ["mail"],
+    templateId: "moveToTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
+    ],
+  },
+  {
+    id: "unifinder",
+    labelId: "toolbar-unifinder",
+    spaces: ["calendar"],
+    templateId: "calendarUnifinderTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
+    ],
+  },
+  {
+    id: "folder-location",
+    labelId: "toolbar-folder-location",
+    spaces: ["mail"],
+    templateId: "folderLocationTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/folder-location.mjs",
+    ],
+  },
+  {
+    id: "edit-event",
+    labelId: "toolbar-edit-event",
+    spaces: ["calendar", "tasks"],
+    templateId: "editEventTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
     ],
   },
 ];

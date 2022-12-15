@@ -10,8 +10,13 @@ import CUSTOMIZABLE_ITEMS from "resource:///modules/CustomizableItemsDetails.mjs
  * Template ID: #unifiedToolbarCustomizableElementTemplate
  * Attributes:
  * - item-id: ID of the customizable item this represents. Not observed.
+ * - disabled: Gets passed on to the live content.
  */
 export default class CustomizableElement extends HTMLLIElement {
+  static get observedAttributes() {
+    return ["disabled"];
+  }
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -34,6 +39,16 @@ export default class CustomizableElement extends HTMLLIElement {
     }
     this.append(template);
     this.#initializeFromDetails(details).catch(console.error);
+  }
+
+  attributeChangedCallback(attribute) {
+    if (attribute !== "disabled") {
+      return;
+    }
+    const isDisabled = this.hasAttribute("disabled");
+    for (const child of this.querySelector(".live-content")?.children ?? []) {
+      child.toggleAttribute("disabled", isDisabled);
+    }
   }
 
   /**
@@ -60,6 +75,9 @@ export default class CustomizableElement extends HTMLLIElement {
       this.querySelector(".live-content").append(
         contentTemplate.content.cloneNode(true)
       );
+      if (this.hasAttribute("disabled")) {
+        this.attributeChangedCallback("disabled");
+      }
     }
     document.l10n.setAttributes(
       this.querySelector(".preview-label"),

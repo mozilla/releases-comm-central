@@ -61,6 +61,7 @@ class CustomizationTarget extends ListBoxSelection {
           is: "customizable-element",
         });
         element.setAttribute("item-id", itemId);
+        element.setAttribute("disabled", "disabled");
         return element;
       })
     );
@@ -160,6 +161,7 @@ class CustomizationTarget extends ListBoxSelection {
     if (!item) {
       return;
     }
+    item.setAttribute("disabled", "disabled");
     this.append(item);
     this.#onChange();
   }

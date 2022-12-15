@@ -11,3 +11,14 @@
 </menupopup>
 <menupopup id="customizationPaletteMenu">
 </menupopup>
+<menupopup is="folder-menupopup" id="toolbarMoveToPopup"
+           mode="filing"
+           showRecent="true"
+           showFileHereLabel="true"
+           recentLabel="&moveCopyMsgRecentMenu.label;"
+           recentAccessKey="&moveCopyMsgRecentMenu.accesskey;"
+           oncommand="goPerformCommand('cmd_moveMessage', event.target._folder)"/>
+<menupopup is="folder-menupopup" id="toolbarFolderLocationPopup"
+           class="menulist-menupopup"
+           mode="notDeferred"
+           showFileHereLabel="true"/>

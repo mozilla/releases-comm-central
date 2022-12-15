@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://messenger/skin/shared/unifiedToolbarShared.css");
+
+unified-toolbar {
+  display: block;
+}
+
 #unifiedToolbarContainer {
   display: flex;
   justify-content: space-between;
@@ -27,35 +33,20 @@
 
 #unifiedToolbarContent {
   flex: 1 1 auto;
-  display: flex;
-  justify-content: start;
-  align-items: center;
-  list-style-type: none;
-  overflow: hidden;
-  flex-wrap: nowrap;
   margin: 0;
   padding: 0;
 }
 
 #unifiedToolbarContent li {
-  padding: 0;
-  margin: 0;
+  -moz-window-dragging: no-drag;
 }
 
-#unifiedToolbarContent [is="customizable-element"] .preview {
-  display: none;
+#unifiedToolbarContent .unified-toolbar-button[disabled] {
+  color: GrayText;
 }
 
 #unifiedToolbarContent .spacer {
-  flex: 1 1 auto;
-}
-
-#unifiedToolbarContent .search-bar {
-  flex: 1 0 33%;
-}
-
-#unifiedToolbarContent .search-button-icon {
-  content: var(--icon-search);
+  -moz-window-dragging: drag;
 }
 
 unified-toolbar-customization {
