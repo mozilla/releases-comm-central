@@ -79,12 +79,21 @@ var newMailTabType = {
         // Extension APIs refer to these properties.
         Object.defineProperty(tab, "browser", {
           get() {
-            let messageBrowser =
-              tab.chromeBrowser.contentWindow?.messageBrowser;
+            if (!tab.chromeBrowser.contentWindow) {
+              return null;
+            }
+
+            let {
+              messageBrowser,
+              webBrowser,
+            } = tab.chromeBrowser.contentWindow;
             if (messageBrowser && !messageBrowser.hidden) {
               return messageBrowser.contentDocument.getElementById(
                 "messagepane"
               );
+            }
+            if (webBrowser && !webBrowser.hidden) {
+              return webBrowser;
             }
             return null;
           },

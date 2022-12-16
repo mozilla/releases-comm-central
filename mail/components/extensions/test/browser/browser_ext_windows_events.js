@@ -117,8 +117,7 @@ add_task(async () => {
         let [
           { id: mainWindow },
         ] = await listener.checkEvent("windows.onCreated", { type: "normal" });
-        // let [{ id: mainTab }] =
-        await listener.checkEvent("tabs.onCreated", {
+        let [{ id: mainTab }] = await listener.checkEvent("tabs.onCreated", {
           index: 0,
           windowId: mainWindow,
           active: true,
@@ -258,10 +257,10 @@ add_task(async () => {
         );
         await listener.checkEvent("windows.onRemoved", mainWindow);
         // TODO: this doesn't fire because there's no content in that tab.
-        // await listener.checkEvent("tabs.onRemoved", mainTab, {
-        //   windowId: mainWindow,
-        //   isWindowClosing: true,
-        // });
+        await listener.checkEvent("tabs.onRemoved", mainTab, {
+          windowId: mainWindow,
+          isWindowClosing: true,
+        });
         window.assertDeepEqual([mainWindow], primedMainWindowRemoveInfo);
 
         browser.test.log("Close the compose window.");

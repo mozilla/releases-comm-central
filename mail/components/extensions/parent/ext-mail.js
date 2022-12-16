@@ -1472,7 +1472,9 @@ class TabManager extends TabManagerBase {
    * @param {NativeTabInfo} nativeTabInfo - The native tab for which to grant permissions.
    */
   addActiveTabPermission(nativeTabInfo = tabTracker.activeTab) {
-    super.addActiveTabPermission(nativeTabInfo);
+    if (nativeTabInfo.browser) {
+      super.addActiveTabPermission(nativeTabInfo);
+    }
   }
 
   /**
