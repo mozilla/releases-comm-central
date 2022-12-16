@@ -686,10 +686,6 @@ var gMailInit = {
 
     this.delayedStartupFinished = true;
     Services.obs.notifyObservers(window, "browser-delayed-startup-finished");
-    // Todo: Remove when bug 1797914 is completed and usage of
-    //       mail-delayed-startup-finished has been removed from
-    //       WindowManager.sys.mjs.
-    Services.obs.notifyObservers(window, "mail-delayed-startup-finished");
 
     // Notify observer to resolve the browserStartupPromise, which is used for the
     // delayed background startup of WebExtensions.
