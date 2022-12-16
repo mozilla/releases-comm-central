@@ -239,7 +239,6 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineOpIds(
 
 NS_IMETHODIMP nsMailDatabase::ListAllOfflineDeletes(
     nsTArray<nsMsgKey>& offlineDeletes) {
-
   nsresult rv = GetAllOfflineOpsTable();
   NS_ENSURE_SUCCESS(rv, rv);
   nsIMdbTableRowCursor* rowCursor;
