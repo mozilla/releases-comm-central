@@ -44,7 +44,6 @@ const EXPORTED_SYMBOLS = [
   "assert_nothing_selected",
   "assert_number_of_tabs_open",
   "assert_pane_layout",
-  "assert_row_visible",
   "assert_selected",
   "assert_selected_and_displayed",
   "assert_selected_tab",
@@ -710,11 +709,9 @@ function display_message_in_folder_tab(aMsgHdr, aExpectNew3Pane) {
     mc = windowHelper.wait_for_new_window("mail:3pane");
   }
 
-  wait_for_message_display_completion(mc, true);
-
   // Make sure that the tab we're returning is a folder tab
   let currentTab = mc.tabmail.currentTabInfo;
-  assert_tab_mode_name(currentTab, "folder");
+  assert_tab_mode_name(currentTab, "mail3PaneTab");
 
   return currentTab;
 }
@@ -1027,10 +1024,14 @@ function click_tree_row(aTree, aRowIndex, aController) {
 function select_click_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
+  // Make scrolling happen instantly so that we don't have to wait for it.
+  // Fortunately all of these tests are so old none of them test anything
+  // that depends on this preference, so we can set it and forget it.
+  Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
+
   let win = get_about_3pane();
   let tree = win.document.getElementById("threadTree");
   tree.scrollToIndex(aViewIndex);
-  mc.sleep(500); // f'n scrolling
   let row = tree.getRowAtIndex(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row, {}, win);
   mc.sleep();
@@ -1296,25 +1297,6 @@ function middle_click_on_row(aViewIndex) {
     mc.tabmail.tabInfo[mc.tabmail.tabContainer.allTabs.length - 1],
     win.gDBView.getMsgHdrAt(aViewIndex),
   ];
-}
-
-/**
- * Assert that the given row index is currently visible in the thread pane view.
- */
-function assert_row_visible(aViewIndex) {
-  let tree = mc.threadTree;
-
-  if (
-    tree.getFirstVisibleRow() > aViewIndex ||
-    tree.getLastVisibleRow() < aViewIndex
-  ) {
-    throw new Error(
-      "Row " +
-        aViewIndex +
-        " should currently be visible in " +
-        "the thread pane, but isn't."
-    );
-  }
 }
 
 /**
@@ -1789,8 +1771,8 @@ function plan_for_message_display(aControllerOrTab) {}
  */
 function wait_for_message_display_completion(aController, aLoadDemanded) {
   let win;
-  if (aController == null || aController == mc) {
-    win = get_about_message();
+  if (aController == null || aController?.tabmail) {
+    win = get_about_message(aController?.window);
   } else {
     win = aController.window.document.getElementById("messageBrowser")
       .contentWindow;
