@@ -10,7 +10,8 @@ async function subtest() {
   );
   CardDAVServer.putCardInternal(
     "change-me.vcf",
-    "BEGIN:VCARD\r\nUID:change-me\r\nFN:I'm going to be changed.\r\nEND:VCARD\r\n"
+    // This one includes a character encoded with UTF-8.
+    "BEGIN:VCARD\r\nUID:change-me\r\nFN:I'm going to be changed. \xCF\x9E\r\nEND:VCARD\r\n"
   );
   CardDAVServer.putCardInternal(
     "delete-me.vcf",
@@ -50,7 +51,7 @@ async function subtest() {
   ]);
   Assert.equal(
     cardMap.get("change-me").displayName,
-    "I'm going to be changed."
+    "I'm going to be changed. Ϟ"
   );
 
   // Make some changes on the server.
@@ -222,7 +223,7 @@ async function subtest() {
     let newCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
       Ci.nsIAbCard
     );
-    newCard.displayName = "I'm another new contact.";
+    newCard.displayName = "I'm another new contact. ϔ";
     newCard.UID = "another-new";
     newCard = directory.addCard(newCard);
     Assert.ok(!directory.readOnly, "read-only directory should throw.");
@@ -238,6 +239,11 @@ async function subtest() {
     );
 
     newCard = directory.childCards.find(c => c.UID == "another-new");
+    Assert.equal(
+      newCard.displayName,
+      "I'm another new contact. ϔ",
+      "non-ascii character survived the trip to the server"
+    );
 
     await checkCardsOnServer({
       "another-new": {

@@ -84,6 +84,10 @@ async function checkCardsOnServer(expectedCards) {
     info(baseName);
     Assert.equal(etag, expectedCards[baseName].etag);
     Assert.equal(href, expectedCards[baseName].href);
+    // Decode the vCard which is stored as UTF-8 on the server.
+    vCard = new TextDecoder().decode(
+      Uint8Array.from(vCard, c => c.charCodeAt(0))
+    );
     vCardEqual(vCard, expectedCards[baseName].vCard);
   }
 }

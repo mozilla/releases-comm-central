@@ -974,7 +974,15 @@ nsMsgLocalMailFolder::DeleteMessages(
   // shift delete case - (delete to trash is handled in EndMove)
   // this is also the case when applying retention settings.
   if (deleteStorage && !isMove) {
-    MarkMsgsOnPop3Server(msgHeaders, POP3_DELETE);
+    nsTArray<RefPtr<nsIMsgDBHdr>> hdrsToDelete;
+    for (auto msgHdr : msgHeaders) {
+      uint32_t attachmentDetached = 0;
+      msgHdr->GetUint32Property("attachmentDetached", &attachmentDetached);
+      if (!attachmentDetached) {
+        hdrsToDelete.AppendElement(msgHdr);
+      }
+    }
+    MarkMsgsOnPop3Server(hdrsToDelete, POP3_DELETE);
   }
 
   bool isTrashFolder = mFlags & nsMsgFolderFlags::Trash;
