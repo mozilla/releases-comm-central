@@ -382,11 +382,24 @@ var threadPane = {
       hidden: true,
     },
     {
+      id: "threadCol",
+      l10n: {
+        header: "about-threadpane-column-header-thread",
+        menuitem: "about-threadpane-column-label-thread",
+      },
+      thread: true,
+      icon: true,
+      resizable: false,
+      sortable: false,
+      hidden: true,
+    },
+    {
       id: "senderCol",
       l10n: {
         header: "about-threadpane-column-header-sender",
         menuitem: "about-threadpane-column-label-sender",
       },
+      sortKey: "byAuthor",
     },
     {
       id: "subjectCol",
@@ -395,6 +408,7 @@ var threadPane = {
         menuitem: "about-threadpane-column-label-subject",
       },
       picker: false,
+      sortKey: "bySubject",
     },
     {
       id: "dateCol",
@@ -402,6 +416,7 @@ var threadPane = {
         header: "about-threadpane-column-header-date",
         menuitem: "about-threadpane-column-label-date",
       },
+      sortKey: "byDate",
     },
     {
       id: "deleteCol",
@@ -421,8 +436,17 @@ var threadPane = {
     // TODO: Switch this dynamically like in the address book.
     document.body.classList.add("layout-table");
 
+    // TODO: Get the stored sort and direction from the xulStore after all the
+    // columns have been restored.
+
     treeTable.addEventListener("columns-changed", event => {
       this.onColumnsChanged(event.detail);
+    });
+    treeTable.addEventListener("sort-changed", event => {
+      this.onSortChanged(event.detail);
+    });
+    treeTable.addEventListener("thread-changed", () => {
+      sortController.toggleThreaded();
     });
     treeTable.addEventListener("request-delete", event => {
       commandController.doCommand("cmd_delete", event);
@@ -444,6 +468,50 @@ var threadPane = {
     treeTable.updateColumns(threadPane.COLUMNS);
     threadTree.invalidate();
     // TODO: Store visible columns in xulStore once we have them all.
+  },
+
+  /**
+   * Trigger a sort change when the user clicks on the table header.
+   *
+   * @param {object} data - The detail of the custom event.
+   */
+  onSortChanged(data) {
+    const sortColumn = sortController.convertSortTypeToColumnID(
+      gViewWrapper.primarySortType
+    );
+    const column = data.column;
+
+    // A click happened on the column that is already used to sort the list.
+    if (sortColumn == column) {
+      if (gViewWrapper.isSortedAscending) {
+        sortController.sortDescending();
+      } else {
+        sortController.sortAscending();
+      }
+      this.updateSortIndicator(column);
+      return;
+    }
+
+    const sortName = threadPane.COLUMNS.find(c => c.id == data.column).sortKey;
+    sortController.sortThreadPane(sortName);
+    this.updateSortIndicator(column);
+  },
+
+  /**
+   * Update the classes on the table header to reflect the sorting order.
+   *
+   * @param {string} column - The ID of column affecting the sorting order.
+   */
+  updateSortIndicator(column) {
+    treeTable
+      .querySelector(".sorting")
+      ?.classList.remove("sorting", "ascending", "descending");
+    treeTable
+      .querySelector(`#${column} button`)
+      ?.classList.add(
+        "sorting",
+        gViewWrapper.isSortedAscending ? "ascending" : "descending"
+      );
   },
 };
 
@@ -1266,6 +1334,95 @@ var sortController = {
     }
 
     gViewWrapper.sortDescending();
+  },
+  convertSortTypeToColumnID(sortKey) {
+    let columnID;
+
+    // Hack to turn this into an integer, if it was a string.
+    // It would be a string if it came from XULStore.json.
+    sortKey = sortKey - 0;
+
+    switch (sortKey) {
+      // In the case of None, we default to the date column. This appears to be
+      // the case in such instances as Global search, so don't complain about
+      // it.
+      case Ci.nsMsgViewSortType.byNone:
+      case Ci.nsMsgViewSortType.byDate:
+        columnID = "dateCol";
+        break;
+      case Ci.nsMsgViewSortType.byReceived:
+        columnID = "receivedCol";
+        break;
+      case Ci.nsMsgViewSortType.byAuthor:
+        columnID = "senderCol";
+        break;
+      case Ci.nsMsgViewSortType.byRecipient:
+        columnID = "recipientCol";
+        break;
+      case Ci.nsMsgViewSortType.bySubject:
+        columnID = "subjectCol";
+        break;
+      case Ci.nsMsgViewSortType.byLocation:
+        columnID = "locationCol";
+        break;
+      case Ci.nsMsgViewSortType.byAccount:
+        columnID = "accountCol";
+        break;
+      case Ci.nsMsgViewSortType.byUnread:
+        columnID = "unreadButtonColHeader";
+        break;
+      case Ci.nsMsgViewSortType.byStatus:
+        columnID = "statusCol";
+        break;
+      case Ci.nsMsgViewSortType.byTags:
+        columnID = "tagsCol";
+        break;
+      case Ci.nsMsgViewSortType.bySize:
+        columnID = "sizeCol";
+        break;
+      case Ci.nsMsgViewSortType.byPriority:
+        columnID = "priorityCol";
+        break;
+      case Ci.nsMsgViewSortType.byFlagged:
+        columnID = "flaggedCol";
+        break;
+      case Ci.nsMsgViewSortType.byThread:
+        columnID = "threadCol";
+        break;
+      case Ci.nsMsgViewSortType.byId:
+        columnID = "idCol";
+        break;
+      case Ci.nsMsgViewSortType.byJunkStatus:
+        columnID = "junkStatusCol";
+        break;
+      case Ci.nsMsgViewSortType.byAttachments:
+        columnID = "attachmentCol";
+        break;
+      case Ci.nsMsgViewSortType.byCustom:
+        // TODO: either change try() catch to if (property exists) or restore
+        // the getColumnHandler() check.
+        try {
+          // getColumnHandler throws an error when the ID is not handled
+          columnID = gDBView.curCustomColumn;
+        } catch (e) {
+          // error - means no handler
+          dump(
+            "ConvertSortTypeToColumnID: custom sort key but no handler for column '" +
+              columnID +
+              "'\n"
+          );
+          columnID = "dateCol";
+        }
+        break;
+      case Ci.nsMsgViewSortType.byCorrespondent:
+        columnID = "correspondentCol";
+        break;
+      default:
+        dump("unsupported sort key: " + sortKey + "\n");
+        columnID = "dateCol";
+        break;
+    }
+    return columnID;
   },
 };
 

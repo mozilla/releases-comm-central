@@ -386,6 +386,18 @@
         });
       }
 
+      // This is the column handling the thread toggling.
+      if (column.thread) {
+        this.#button.classList.add("tree-view-header-thread");
+        this.#button.addEventListener("click", () => {
+          this.dispatchEvent(
+            new CustomEvent("thread-changed", {
+              bubbles: true,
+            })
+          );
+        });
+      }
+
       // This is the column handling bulk selection.
       if (column.select) {
         this.#button.classList.add("tree-view-header-select");
@@ -1564,6 +1576,21 @@
               : "tree-list-view-row-select"
           );
           cell.replaceChildren(img);
+          continue;
+        }
+
+        // Handle the special case for the thread column.
+        if (column.thread) {
+          cell.classList.add("tree-view-row-thread");
+          if (this.view.isContainer(index)) {
+            const img = document.createElement("img");
+            img.src = "";
+            document.l10n.setAttributes(img, "tree-list-view-row-thread");
+            cell.replaceChildren(img);
+          } else {
+            cell.replaceChildren();
+          }
+          continue;
         }
 
         // Handle the special case of the delete column.

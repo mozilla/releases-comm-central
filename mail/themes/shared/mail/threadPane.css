@@ -19,6 +19,27 @@
   display: none;
 }
 
+/* Thread column */
+
+.tree-table-cell-container button.tree-view-header-thread {
+  text-align: center;
+}
+
+.tree-view-header-thread img {
+  content: var(--icon-thread-sm);
+  pointer-events: none;
+}
+
+.tree-view-row-thread img {
+  content: var(--icon-thread-sm);
+  color: inherit;
+  /* Don't center align this because it could be the last column, spanning for
+     2 columns to account for the picker, therefore a center alignment would be
+     wrong. */
+  margin-inline-start: 3px;
+  opacity: 0.7;
+}
+
 /* Subject column variations */
 
 #subjectColButton {

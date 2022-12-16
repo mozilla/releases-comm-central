@@ -17,3 +17,7 @@ tree-list-view-row-delete =
 
 tree-list-view-column-picker =
   .title = Select columns to display
+
+tree-list-view-row-thread =
+  .alt = Thread message indicator
+  .title = This is a threaded message

@@ -335,6 +335,11 @@ about-threadpane-column-header-deselect-all =
 about-threadpane-column-label-select =
   .label = Select Messages
 
+about-threadpane-column-header-thread =
+  .title = Toggle message threads
+about-threadpane-column-label-thread =
+  .label = Thread
+
 about-threadpane-column-header-sender = From
   .title = Sort by from
 about-threadpane-column-label-sender =
