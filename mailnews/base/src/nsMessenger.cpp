@@ -2490,6 +2490,7 @@ nsresult AttachmentDeleter::DeleteOriginalMessage() {
   QueryInterface(NS_GET_IID(nsIMsgCopyServiceListener),
                  getter_AddRefs(listenerCopyService));
 
+  mOriginalMessage->SetUint32Property("attachmentDetached", 1);
   RefPtr<nsIMsgDBHdr> doomed(mOriginalMessage);
   mOriginalMessage = nullptr;
   m_state = eDeletingOldMessage;
