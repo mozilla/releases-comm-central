@@ -1537,8 +1537,14 @@
       let table = this.closest("table");
       for (let column of table.columns) {
         let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
+        // No need to do anything if this cell doesn't exist. This can happen
+        // for non-table layouts.
+        if (!cell) {
+          continue;
+        }
+
         // Always clear the colspan when updating the columns.
-        cell?.removeAttribute("colspan");
+        cell.removeAttribute("colspan");
 
         // No need to do anything if this column is hidden.
         if (cell.hidden) {
