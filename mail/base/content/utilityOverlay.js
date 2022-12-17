@@ -393,42 +393,11 @@ function openWebLinkIn(url, where, params = {}) {
   openLinkIn(url, where, params);
 }
 
-/* openUILinkIn opens a URL in a place specified by the parameter |where|.
- *
- * |where| can be:
- *  "current"     current tab            (if there aren't any browser windows, then in a new window instead)
- *  "tab"         new tab                (if there aren't any browser windows, then in a new window instead)
- *  "tabshifted"  same as "tab" but in background if default is to select new tabs, and vice versa
- *  "window"      new window
- *  "save"        save to disk (with no filename hint!)
- *
- * DEPRECATION WARNING:
- * USE        -> openTrustedLinkIn(url, where, aParams) if the source is always
- *                     a user event on a user- or product-specified URL (as
- *                     opposed to URLs provided by a webpage)
- * USE        -> openWebLinkIn(url, where, aParams) if the URI should be loaded
- *                     with a specific triggeringPrincipal, for instance, if
- *                     the url was supplied by web content.
- * DEPRECATED -> openUILinkIn(url, where, AllowThirdPartyFixup, aPostData, ...)
- *
- *
- * allowThirdPartyFixup controls whether third party services such as Google's
- * I Feel Lucky are allowed to interpret this URL. This parameter may be
- * undefined, which is treated as false.
- *
- * Instead of aAllowThirdPartyFixup, you may also pass an object with any of
- * these properties:
- *   allowThirdPartyFixup (boolean)
- *   fromChrome           (boolean)
- *   postData             (nsIInputStream)
- *   referrerInfo         (nsIReferrerInfo)
- *   relatedToCurrent     (boolean)
- *   skipTabAnimation     (boolean)
- *   allowPinnedTabHostChange (boolean)
- *   allowPopups          (boolean)
- *   userContextId        (unsigned int)
- *   targetBrowser        (XUL browser)
- */
+// Thunderbird itself is not using this function. It is however called for the
+// "contribute" button for add-ons in the add-on manager. We ignore all additional
+// parameters including "where" and always open the link externally. We don't
+// want to open donation pages in a tab due to their complexity, and we don't
+// want to handle them inside Thunderbird.
 function openUILinkIn(
   url,
   where,
@@ -436,20 +405,7 @@ function openUILinkIn(
   aPostData,
   aReferrerInfo
 ) {
-  var params;
-
-  if (arguments.length == 3 && typeof arguments[2] == "object") {
-    params = aAllowThirdPartyFixup;
-  }
-  if (!params || !params.triggeringPrincipal) {
-    throw new Error(
-      "Required argument triggeringPrincipal missing within openUILinkIn"
-    );
-  }
-
-  params.fromChrome = params.fromChrome ?? true;
-
-  openLinkIn(url, where, params);
+  openLinkExternally(url);
 }
 
 /**
