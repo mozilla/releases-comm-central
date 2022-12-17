@@ -75,7 +75,7 @@ add_task(async function() {
   // Verify description and status in details pane.
   await TestUtils.waitForCondition(() => {
     let desc = document.getElementById("calendar-task-details-description");
-    return desc && desc.value == DESCRIPTION;
+    return desc && desc.contentDocument.body.innerText == DESCRIPTION;
   }, "Calendar task description");
   Assert.equal(document.getElementById("calendar-task-details-status").textContent, "Needs Action");
 
