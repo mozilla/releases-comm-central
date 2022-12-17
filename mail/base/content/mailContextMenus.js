@@ -220,6 +220,11 @@ function folderPaneOnPopupHiding() {
 
 /* eslint-disable complexity */
 function fillFolderPaneContextMenu(aEvent) {
+  // Bail out if this is triggered by opening submenus.
+  if (aEvent.target.parentNode.localName == "menu") {
+    return true;
+  }
+
   let target = aEvent.target.triggerNode;
   // If a column header was clicked, show the column picker.
   if (target.localName == "treecol") {
