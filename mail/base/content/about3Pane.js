@@ -17,6 +17,9 @@
 // junkCommands.js
 /* globals analyzeMessagesForJunk deleteJunkInFolder filterFolderForJunk */
 
+// quickFilterBar.js
+/* globals quickFilterBar */
+
 var { DBViewWrapper } = ChromeUtils.import(
   "resource:///modules/DBViewWrapper.jsm"
 );
@@ -323,6 +326,8 @@ window.addEventListener("DOMContentLoaded", async event => {
     "command",
     folderPaneContextMenu.onCommand
   );
+
+  quickFilterBar.init();
 
   threadTree.addEventListener("keypress", event => {
     if (event.key != "Enter") {

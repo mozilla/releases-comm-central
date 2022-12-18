@@ -112,7 +112,7 @@ table[is="tree-view-table"] {
   flex: 1 0 100%;
   border-spacing: 0;
   line-height: 1;
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 
 body:not(.layout-table) thead[is="tree-view-table-header"] {

@@ -13,6 +13,7 @@ var {
   assert_messages_in_view,
   be_in_folder,
   create_folder,
+  get_about_3pane,
   make_message_sets_in_folders,
   mc,
 } = ChromeUtils.import(
@@ -70,7 +71,7 @@ add_task(function test_control_shift_k_triggers_display() {
   assert_quick_filter_bar_visible(false);
 
   // focus explicitly on the thread pane so we know where the focus is.
-  mc.e("threadTree").focus();
+  get_about_3pane().threadTree.focus();
 
   // hit control-shift-k
   EventUtils.synthesizeKey("k", { accelKey: true, shiftKey: true });
@@ -101,15 +102,4 @@ add_task(function test_constraints_disappear_when_collapsed() {
 
 function teardownTest() {
   clear_constraints();
-  // make it visible if it's not
-  if (mc.e("quick-filter-bar").collapsed) {
-    toggle_quick_filter_bar();
-  }
-
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
-  );
 }

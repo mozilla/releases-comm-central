@@ -15,6 +15,7 @@ var {
   be_in_folder,
   create_folder,
   delete_messages,
+  get_about_3pane,
   make_message_sets_in_folders,
   mc,
 } = ChromeUtils.import(
@@ -441,9 +442,12 @@ add_task(async function test_results_label() {
   await be_in_folder(folder);
 
   // no filter, the label should not be visible
-  if (mc.e("qfb-results-label").visible) {
-    throw new Error("results label should not be visible, yo! mad impropah!");
-  }
+  Assert.ok(
+    BrowserTestUtils.is_hidden(
+      get_about_3pane().document.getElementById("qfb-results-label")
+    ),
+    "results label should not be visible"
+  );
 
   toggle_boolean_constraints("unread");
   assert_messages_in_view([setImmortal, setMortal, setGoldfish]);
@@ -462,15 +466,4 @@ add_task(async function test_results_label() {
 
 function teardownTest() {
   clear_constraints();
-  // make it visible if it's not
-  if (mc.e("quick-filter-bar").collapsed) {
-    toggle_quick_filter_bar();
-  }
-
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
-  );
 }

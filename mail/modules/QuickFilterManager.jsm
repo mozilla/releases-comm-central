@@ -9,12 +9,6 @@ const EXPORTED_SYMBOLS = [
   "QuickFilterSearchListener",
 ];
 
-const { PluralForm } = ChromeUtils.importESModule(
-  "resource://gre/modules/PluralForm.sys.mjs"
-);
-const { AppConstants } = ChromeUtils.importESModule(
-  "resource://gre/modules/AppConstants.sys.mjs"
-);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -217,25 +211,22 @@ QuickFilterState.prototype = {
  *     state as if it is a result of user action].
  *   This ends up looking exactly the same as the postFilterProcess handler
  *
- * @param aFolderDisplay The folder display we are working in service of.
  * @param aFilterer The QuickFilterState instance.
  * @param aListener The thing on which we invoke methods.
  */
 function QuickFilterSearchListener(
-  aFolderDisplay,
+  aViewWrapper,
   aFilterer,
   aFilterDef,
   aListener,
   aMuxer
 ) {
-  this.folderDisplay = aFolderDisplay;
   this.filterer = aFilterer;
   this.filterDef = aFilterDef;
   this.listener = aListener;
   this.muxer = aMuxer;
-  this.folderDisplay = aFolderDisplay;
 
-  this.session = aFolderDisplay.view.search.session;
+  this.session = aViewWrapper.search.session;
 
   this.scratch = null;
   this.count = 0;
@@ -295,12 +286,8 @@ QuickFilterSearchListener.prototype = {
       newState,
       !treatAsUserAction
     );
-    if (update && this.folderDisplay.active) {
-      this.muxer.reflectFiltererState(
-        this.filterer,
-        this.folderDisplay,
-        this.filterDef.name
-      );
+    if (update) {
+      this.muxer.reflectFiltererState(this.filterDef.name);
     }
   },
 };
@@ -570,7 +557,7 @@ QuickFilterManager.defineFilter({
    * This should not cause an update, otherwise default logic.
    */
   onCommand(aState, aNode, aEvent, aDocument) {
-    let checked = aNode.checked ? true : null;
+    let checked = aNode.pressed;
     return [checked, false];
   },
 });
@@ -837,9 +824,9 @@ var TagFacetingFilter = {
    * - We want to initiate a faceting pass if we just got checked.
    */
   onCommand(aState, aNode, aEvent, aDocument) {
-    let checked = aNode.checked ? true : null;
+    let checked = aNode.pressed ? true : null;
     if (!checked) {
-      aDocument.getElementById("quick-filter-bar-tab-bar").collapsed = true;
+      aDocument.getElementById("quick-filter-bar-tab-bar").hidden = true;
     }
 
     // return ourselves if we just got checked to have
@@ -862,11 +849,11 @@ var TagFacetingFilter = {
   },
 
   reflectInDOM(aNode, aFilterValue, aDocument, aMuxer) {
-    aNode.checked = !!aFilterValue;
+    aNode.pressed = aFilterValue;
     if (aFilterValue != null && typeof aFilterValue == "object") {
       this._populateTagBar(aFilterValue, aDocument, aMuxer);
     } else {
-      aDocument.getElementById("quick-filter-bar-tab-bar").collapsed = true;
+      aDocument.getElementById("quick-filter-bar-tab-bar").hidden = true;
     }
   },
 
@@ -884,31 +871,28 @@ var TagFacetingFilter = {
       aState.mode = qbm.value;
     }
 
-    function commandHandler(aEvent) {
-      let tagKey = aEvent.target.getAttribute("value");
+    function clickHandler(aEvent) {
+      let tagKey = this.getAttribute("value");
       let state = aMuxer.getFilterValueForMutation(TagFacetingFilter.name);
-      state.tags[tagKey] = aEvent.target.checked ? true : null;
-      aEvent.target.removeAttribute("inverted");
+      state.tags[tagKey] = this.pressed ? true : null;
+      this.removeAttribute("inverted");
       aMuxer.updateSearch();
     }
 
     function rightClickHandler(aEvent) {
-      // Only do something if this is a right-click, otherwise commandHandler
-      //  will pick up on it.
       if (aEvent.button == 2) {
-        // we need to toggle the checked state ourselves
-        aEvent.target.checked = !aEvent.target.checked;
+        // Toggle isn't triggered by a contextmenu event, so do it here.
+        this.pressed = !this.pressed;
 
-        let tagKey = aEvent.target.getAttribute("value");
+        let tagKey = this.getAttribute("value");
         let state = aMuxer.getFilterValueForMutation(TagFacetingFilter.name);
-        state.tags[tagKey] = aEvent.target.checked ? false : null;
-        if (aEvent.target.checked) {
-          aEvent.target.setAttribute("inverted", "true");
+        state.tags[tagKey] = this.pressed ? false : null;
+        if (this.pressed) {
+          this.setAttribute("inverted", "true");
         } else {
-          aEvent.target.removeAttribute("inverted");
+          this.removeAttribute("inverted");
         }
         aMuxer.updateSearch();
-        aEvent.stopPropagation();
         aEvent.preventDefault();
       }
     }
@@ -932,30 +916,29 @@ var TagFacetingFilter = {
         // Keep in mind that the XBL does not get built for dynamically created
         //  elements such as these until they get displayed, which definitely
         //  means not before we append it into the tree.
-        let button = aDocument.createXULElement("toolbarbutton");
+        let button = aDocument.createElement("button", { is: "toggle-button" });
 
         button.setAttribute("id", "qfb-tag-" + tag.key);
-        button.addEventListener("command", commandHandler);
-        button.addEventListener("click", rightClickHandler);
-        button.setAttribute("type", "checkbox");
+        button.addEventListener("click", clickHandler);
+        button.addEventListener("contextmenu", rightClickHandler);
         if (keywordMap[tag.key] !== null) {
-          button.setAttribute("checked", "true");
+          button.pressed = true;
           if (!keywordMap[tag.key]) {
             button.setAttribute("inverted", "true");
           }
         }
-        button.setAttribute("label", tag.tag);
+        button.textContent = tag.tag;
         button.setAttribute("value", tag.key);
         let color = tag.color;
         // everybody always gets to be an qfb-tag-button.
-        button.setAttribute("class", "toolbarbutton-1 qfb-tag-button");
+        button.setAttribute("class", "qfb-tag-button");
         if (color) {
           button.setAttribute("style", "color: " + color + " !important;");
         }
         tagbar.appendChild(button);
       }
     }
-    tagbar.collapsed = !addCount;
+    tagbar.hidden = !addCount;
   },
 };
 QuickFilterManager.defineFilter(TagFacetingFilter);
@@ -1115,30 +1098,12 @@ var MessageTextFilter = {
    *  thread pane.
    */
   domBindExtra(aDocument, aMuxer, aNode) {
-    // -- platform-dependent placeholder setup
-    aNode.setAttribute(
-      "placeholder",
-      aNode
-        .getAttribute("emptytextbase")
-        .replace(
-          "#1",
-          aNode.getAttribute(
-            AppConstants.platform == "macosx" ? "keyLabelMac" : "keyLabelNonMac"
-          )
-        )
-    );
-    // force an update of the emptytext now that we've updated it.
-    aNode.value = "";
-
     // -- Keypresses for focus transferral and upsell
     aNode.addEventListener("keypress", function(aEvent) {
       // - Down key into the thread pane
       if (aEvent.keyCode == aEvent.DOM_VK_DOWN) {
-        let threadPane = aDocument.getElementById("threadTree");
-        // focusing does not actually select the row...
-        threadPane.focus();
-        // ...so explicitly select the current index.
-        threadPane.view.selection.select(threadPane.currentIndex);
+        let threadTree = aDocument.getElementById("threadTree");
+        threadTree.focus();
         return false;
       }
       return true;
@@ -1163,8 +1128,8 @@ var MessageTextFilter = {
     // -- Expando Buttons!
     function commandHandler(aEvent) {
       let state = aMuxer.getFilterValueForMutation(MessageTextFilter.name);
-      let filterDef = MessageTextFilter.textFilterDefsByDomId[aEvent.target.id];
-      state.states[filterDef.name] = aEvent.target.checked;
+      let filterDef = MessageTextFilter.textFilterDefsByDomId[this.id];
+      state.states[filterDef.name] = this.pressed;
       aMuxer.updateSearch();
     }
 
@@ -1172,7 +1137,7 @@ var MessageTextFilter = {
       let textFilter = this.textFilterDefs[name];
       aDocument
         .getElementById(textFilter.domId)
-        .addEventListener("command", commandHandler);
+        .addEventListener("click", commandHandler);
     }
   },
 
@@ -1182,7 +1147,9 @@ var MessageTextFilter = {
       let upsell = aDocument.getElementById("qfb-text-search-upsell");
       if (upsell.state == "open") {
         upsell.hidePopup();
-        let tabmail = aDocument.getElementById("tabmail");
+        let tabmail = aDocument.ownerGlobal.top.document.getElementById(
+          "tabmail"
+        );
         tabmail.openTab("glodaFacet", {
           searcher: new lazy.GlodaMsgSearcher(null, aState.text),
         });
@@ -1191,7 +1158,7 @@ var MessageTextFilter = {
     }
 
     aState.text = text;
-    aDocument.getElementById("quick-filter-bar-filter-text-bar").collapsed =
+    aDocument.getElementById("quick-filter-bar-filter-text-bar").hidden =
       text == null;
     return [aState, true];
   },
@@ -1207,23 +1174,24 @@ var MessageTextFilter = {
     }
 
     if (aFromPFP == "upsell") {
-      let line1 = aDocument.getElementById("qfb-upsell-line-one");
       let line2 = aDocument.getElementById("qfb-upsell-line-two");
-      line1.value = line1.getAttribute("fmt").replace("#1", aFilterValue.text);
-      line2.value = line2.getAttribute("fmt").replace("#1", aFilterValue.text);
+      aDocument.l10n.setAttributes(
+        line2,
+        "quick-filter-bar-gloda-upsell-line2",
+        { text: aFilterValue.text }
+      );
 
-      if (
-        panel.state == "closed" &&
-        aDocument.commandDispatcher.focusedElement == aNode.inputField
-      ) {
-        panel.openPopup(
-          aDocument.getElementById("quick-filter-bar"),
-          "after_end",
-          -7,
-          7,
-          false,
-          true
-        );
+      if (panel.state == "closed" && aDocument.activeElement == aNode) {
+        aDocument.ownerGlobal.setTimeout(() => {
+          panel.openPopup(
+            aDocument.getElementById("quick-filter-bar"),
+            "after_end",
+            -7,
+            7,
+            false,
+            true
+          );
+        });
       }
       return;
     }
@@ -1245,12 +1213,12 @@ var MessageTextFilter = {
     let states = aFilterValue.states;
     for (let name in this.textFilterDefs) {
       let textFilter = this.textFilterDefs[name];
-      aDocument.getElementById(textFilter.domId).checked =
+      aDocument.getElementById(textFilter.domId).pressed =
         states[textFilter.name];
     }
 
     // Toggle the expanded filters visibility.
-    aDocument.getElementById("quick-filter-bar-filter-text-bar").collapsed =
+    aDocument.getElementById("quick-filter-bar-filter-text-bar").hidden =
       aFilterValue.text == null;
   },
 
@@ -1323,51 +1291,6 @@ MessageTextFilter.defineTextFilter({
 });
 
 /**
- * We need to be parameterized by folder/muxer to provide update notifications
- * and this is the cleanest way given the current FolderDisplayWidget assumption
- * that everyone knows the window they are in already.
- */
-function ResultsLabelFolderDisplayListener(aMuxer) {
-  this.muxer = aMuxer;
-}
-ResultsLabelFolderDisplayListener.prototype = {
-  _update(aFolderDisplay) {
-    let filterer = aFolderDisplay._tabInfo._ext.quickFilter;
-    if (!filterer) {
-      return;
-    }
-    let oldCount =
-      "results" in filterer.filterValues ? filterer.filterValues.results : null;
-    // (we only display the tally when the filter is active; don't change that)
-    if (oldCount == null) {
-      return;
-    }
-    let newCount = aFolderDisplay.view.dbView.numMsgsInView;
-    if (oldCount == newCount) {
-      return;
-    }
-    filterer.setFilterValue("results", newCount, true);
-    if (aFolderDisplay.active) {
-      this.muxer.reflectFiltererState(filterer, aFolderDisplay, "results");
-    }
-  },
-
-  // ---------------------
-  // FolderDisplayListener
-
-  // We want to make sure that anything that would change the count of displayed
-  //  messages causes us to update our displayed value.
-
-  onMessageCountsChanged(aFolderDisplay) {
-    this._update(aFolderDisplay);
-  },
-
-  onMessagesRemoved(aFolderDisplay) {
-    this._update(aFolderDisplay);
-  },
-};
-
-/**
  * The results label says whether there were any matches and, if so, how many.
  */
 QuickFilterManager.defineFilter({
@@ -1390,29 +1313,19 @@ QuickFilterManager.defineFilter({
     return null;
   },
 
-  /**
-   * Hook us up as a folder display listener so we can get information on when
-   * the counts change.
-   */
-  domBindExtra(aDocument, aMuxer, aNode) {
-    aDocument.defaultView.FolderDisplayListenerManager.registerListener(
-      new ResultsLabelFolderDisplayListener(aMuxer)
-    );
-  },
   reflectInDOM(aNode, aFilterValue, aDocument) {
     if (aFilterValue == null) {
-      aNode.value = "";
+      aNode.removeAttribute("data-l10n-id");
+      aNode.removeAttribute("data-l10n-attrs");
+      aNode.textContent = "";
       aNode.style.visibility = "hidden";
     } else if (aFilterValue == 0) {
-      aNode.value = aNode.getAttribute("noresultsstring");
+      aDocument.l10n.setAttributes(aNode, "quick-filter-bar-no-results");
       aNode.style.visibility = "visible";
     } else {
-      let fmtstring = aNode.getAttribute("somefmtstring");
-
-      aNode.value = PluralForm.get(aFilterValue, fmtstring).replace(
-        "#1",
-        aFilterValue.toString()
-      );
+      aDocument.l10n.setAttributes(aNode, "quick-filter-bar-results", {
+        count: aFilterValue,
+      });
       aNode.style.visibility = "visible";
     }
   },

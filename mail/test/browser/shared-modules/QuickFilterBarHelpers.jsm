@@ -22,7 +22,7 @@ const EXPORTED_SYMBOLS = [
   "clear_constraints",
 ];
 
-var fdh = ChromeUtils.import(
+var { get_about_3pane, mc, wait_for_all_messages_to_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var EventUtils = ChromeUtils.import(
@@ -32,11 +32,13 @@ var EventUtils = ChromeUtils.import(
 var { Assert } = ChromeUtils.importESModule(
   "resource://testing-common/Assert.sys.mjs"
 );
+var { BrowserTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/BrowserTestUtils.sys.mjs"
+);
 
-var mc = fdh.mc;
-// disable the deferred search processing!
-mc.window.QuickFilterBarMuxer.deferredUpdateSearch =
-  mc.window.QuickFilterBarMuxer.updateSearch;
+let about3Pane = get_about_3pane();
+about3Pane.quickFilterBar.deferredUpdateSearch =
+  about3Pane.quickFilterBar.updateSearch;
 
 /**
  * Maps names to bar DOM ids to simplify checking.
@@ -51,17 +53,25 @@ var nameToBarDomId = {
 };
 
 function assert_quick_filter_button_enabled(aEnabled) {
-  if (mc.e("qfb-show-filter-bar").disabled == aEnabled) {
-    throw new Error(
-      "Quick filter bar button should be " + (aEnabled ? "enabled" : "disabled")
-    );
-  }
+  // TODO: Reimplement this button.
+  // if (mc.e("qfb-show-filter-bar").disabled == aEnabled) {
+  //   throw new Error(
+  //     "Quick filter bar button should be " + (aEnabled ? "enabled" : "disabled")
+  //   );
+  // }
 }
 
 function assert_quick_filter_bar_visible(aVisible) {
-  if (mc.e("quick-filter-bar").getBoundingClientRect().height > 0 != aVisible) {
-    throw new Error(
-      "Quick filter bar should be " + (aVisible ? "visible" : "collapsed")
+  let bar = about3Pane.document.getElementById("quick-filter-bar");
+  if (aVisible) {
+    Assert.ok(
+      BrowserTestUtils.is_visible(bar),
+      "Quick filter bar should be visible"
+    );
+  } else {
+    Assert.ok(
+      BrowserTestUtils.is_hidden(bar),
+      "Quick filter bar should be hidden"
     );
   }
 }
@@ -70,12 +80,14 @@ function assert_quick_filter_bar_visible(aVisible) {
  * Toggle the state of the message filter bar as if by a mouse click.
  */
 function toggle_quick_filter_bar() {
-  EventUtils.synthesizeMouseAtCenter(
-    mc.e("qfb-show-filter-bar"),
-    { clickCount: 1 },
-    mc.window
-  );
-  fdh.wait_for_all_messages_to_load();
+  mc.window.goDoCommand("cmd_toggleQuickFilterBar");
+  // TODO: Reimplement this button.
+  // EventUtils.synthesizeMouseAtCenter(
+  //   mc.e("qfb-show-filter-bar"),
+  //   { clickCount: 1 },
+  //   mc.window
+  // );
+  wait_for_all_messages_to_load();
 }
 
 /**
@@ -87,10 +99,12 @@ function assert_constraints_expressed(aConstraints) {
   for (let name in nameToBarDomId) {
     let domId = nameToBarDomId[name];
     let expectedValue = name in aConstraints ? aConstraints[name] : false;
-    let domNode = mc.e(domId);
-    if (domNode.checked !== expectedValue) {
-      throw new Error(name + "'s checked state should be " + expectedValue);
-    }
+    let domNode = about3Pane.document.getElementById(domId);
+    Assert.equal(
+      domNode.pressed,
+      expectedValue,
+      name + "'s pressed state should be " + expectedValue
+    );
   }
 }
 
@@ -101,36 +115,32 @@ function assert_constraints_expressed(aConstraints) {
 function toggle_boolean_constraints(...aArgs) {
   aArgs.forEach(arg =>
     EventUtils.synthesizeMouseAtCenter(
-      mc.e(nameToBarDomId[arg]),
+      about3Pane.document.getElementById(nameToBarDomId[arg]),
       { clickCount: 1 },
-      mc.window
+      about3Pane
     )
   );
-  fdh.wait_for_all_messages_to_load(mc);
+  wait_for_all_messages_to_load(mc);
 }
 
 /**
  * Toggle the tag faceting buttons by tag key.  Wait for messages after.
  */
 function toggle_tag_constraints(...aArgs) {
-  let qfbButtons = mc.e("quick-filter-bar-tab-bar");
   aArgs.forEach(function(arg) {
     let tagId = "qfb-tag-" + arg;
-    qfbButtons.ensureElementIsVisible(mc.e(tagId));
-    EventUtils.synthesizeMouseAtCenter(
-      mc.e(tagId),
-      { clickCount: 1 },
-      mc.window
-    );
+    let button = about3Pane.document.getElementById(tagId);
+    button.scrollIntoView();
+    EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, about3Pane);
   });
-  fdh.wait_for_all_messages_to_load(mc);
+  wait_for_all_messages_to_load(mc);
 }
 
 /**
  * Set the tag filtering mode. Wait for messages after.
  */
 function toggle_tag_mode() {
-  let qbm = mc.e("qfb-boolean-mode");
+  let qbm = about3Pane.document.getElementById("qfb-boolean-mode");
   if (qbm.value === "AND") {
     qbm.selectedIndex--; // = move to "OR";
     Assert.equal(qbm.value, "OR", "qfb-boolean-mode has wrong state");
@@ -140,7 +150,7 @@ function toggle_tag_mode() {
   } else {
     throw new Error("qfb-boolean-mode value=" + qbm.value);
   }
-  fdh.wait_for_all_messages_to_load(mc);
+  wait_for_all_messages_to_load(mc);
 }
 
 /**
@@ -149,11 +159,17 @@ function toggle_tag_mode() {
  */
 function assert_tag_constraints_visible(...aArgs) {
   // the stupid bar should be visible if any arguments are specified
-  if (aArgs.length > 0 && mc.e("quick-filter-bar-tab-bar").collapsed) {
-    throw new Error("The tag bar should not be collapsed!");
+  let tabBar = get_about_3pane().document.getElementById(
+    "quick-filter-bar-tab-bar"
+  );
+  if (aArgs.length > 0) {
+    Assert.ok(
+      BrowserTestUtils.is_visible(tabBar),
+      "The tag bar should not be collapsed!"
+    );
   }
 
-  let kids = mc.e("quick-filter-bar-tab-bar").children;
+  let kids = tabBar.children;
   let tagLength = kids.length - 1; // -1 for the qfb-boolean-mode widget
   // this is bad error reporting in here for now.
   if (tagLength != aArgs.length) {
@@ -194,7 +210,7 @@ function assert_tag_constraints_checked(...aArgs) {
   let kids = mc.e("quick-filter-bar-tab-bar").children;
   for (let iNode = 0; iNode < kids.length; iNode++) {
     let node = kids[iNode];
-    if (node.checked != node.id in expected) {
+    if (node.pressed != node.id in expected) {
       throw new Error(
         "node " +
           node.id +
@@ -216,12 +232,12 @@ var nameToTextDomId = {
 function toggle_text_constraints(...aArgs) {
   aArgs.forEach(arg =>
     EventUtils.synthesizeMouseAtCenter(
-      mc.e(nameToTextDomId[arg]),
+      about3Pane.document.getElementById(nameToTextDomId[arg]),
       { clickCount: 1 },
-      mc.window
+      about3Pane
     )
   );
-  fdh.wait_for_all_messages_to_load(mc);
+  wait_for_all_messages_to_load(mc);
 }
 
 /**
@@ -235,13 +251,15 @@ function assert_text_constraints_checked(...aArgs) {
     expected[nodeId] = true;
   }
 
-  let kids = mc.e("quick-filter-bar-filter-text-bar").children;
+  let kids = about3Pane.document.querySelectorAll(
+    "#quick-filter-bar-filter-text-bar button"
+  );
   for (let iNode = 0; iNode < kids.length; iNode++) {
     let node = kids[iNode];
     if (node.tagName == "label") {
       continue;
     }
-    if (node.checked != node.id in expected) {
+    if (node.pressed != node.id in expected) {
       throw new Error(
         "node " +
           node.id +
@@ -260,17 +278,21 @@ function assert_text_constraints_checked(...aArgs) {
 function set_filter_text(aText) {
   // We're not testing the reliability of the textbox widget; just poke our text
   // in and trigger the command logic.
-  let textbox = mc.e("qfb-qs-textbox");
+  let textbox = about3Pane.document.getElementById("qfb-qs-textbox");
   textbox.value = aText;
   textbox.doCommand();
-  fdh.wait_for_all_messages_to_load(mc);
+  wait_for_all_messages_to_load(mc);
 }
 
 function assert_filter_text(aText) {
-  let textbox = mc.e("qfb-qs-textbox");
+  let textbox = get_about_3pane().document.getElementById("qfb-qs-textbox");
   if (textbox.value != aText) {
     throw new Error(
-      "Expected text filter value of '" + aText + "' but got '" + textbox.value
+      "Expected text filter value of '" +
+        aText +
+        "' but got '" +
+        textbox.value +
+        "'"
     );
   }
 }
@@ -280,21 +302,20 @@ function assert_filter_text(aText) {
  *  using the appropriate string.
  */
 function assert_results_label_count(aCount) {
-  let resultsLabel = mc.e("qfb-results-label");
+  let resultsLabel = about3Pane.document.getElementById("qfb-results-label");
+  let attributes = about3Pane.document.l10n.getAttributes(resultsLabel);
   if (aCount == 0) {
-    if (resultsLabel.value != resultsLabel.getAttribute("noresultsstring")) {
-      throw new Error(
-        "results label should be displaying the no messages case"
-      );
-    }
+    Assert.deepEqual(
+      attributes,
+      { id: "quick-filter-bar-no-results", args: null },
+      "results label should be displaying the no messages case"
+    );
   } else {
-    let s = resultsLabel.value;
-    s = s.substring(0, s.indexOf(" "));
-    if (parseInt(s) !== aCount) {
-      throw new Error(
-        "Result count is displaying " + s + " but should show " + aCount
-      );
-    }
+    Assert.deepEqual(
+      attributes,
+      { id: "quick-filter-bar-results", args: { count: aCount } },
+      `result count should show ${aCount}`
+    );
   }
 }
 
@@ -306,5 +327,5 @@ function assert_results_label_count(aCount) {
  * This is automatically called by the test teardown helper.
  */
 function clear_constraints() {
-  mc.window.QuickFilterBarMuxer._testHelperResetFilterState();
+  about3Pane.quickFilterBar._testHelperResetFilterState();
 }

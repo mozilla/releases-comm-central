@@ -42,6 +42,10 @@
   display: none;
 }
 
+#threadTree button {
+  border: none;
+}
+
 /* Thread column */
 
 .tree-view-header-thread img {

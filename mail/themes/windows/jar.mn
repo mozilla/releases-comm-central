@@ -37,7 +37,6 @@ classic.jar:
   skin/classic/messenger/tabmail.css                          (mail/tabmail.css)
   skin/classic/messenger/themeableDialog.css                  (mail/themeableDialog.css)
   skin/classic/messenger/popupPanel.css                       (mail/popupPanel.css)
-  skin/classic/messenger/quickFilterBar.css                   (mail/quickFilterBar.css)
   skin/classic/messenger/variables.css                        (mail/variables.css)
   skin/classic/messenger/activity/activity.css                (mail/activity/activity.css)
   skin/classic/messenger/activity/addItemIcon.png             (mail/activity/addItemIcon.png)

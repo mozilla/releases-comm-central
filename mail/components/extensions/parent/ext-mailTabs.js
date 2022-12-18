@@ -379,14 +379,9 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         async setQuickFilter(tabId, state) {
           let tab = getTabOrActive(tabId);
           let nativeTab = tab.nativeTab;
-          let window = Cu.getGlobalForObject(nativeTab);
+          let about3Pane = nativeTab.chromeBrowser.contentWindow;
 
-          let filterer;
-          if (tab.active) {
-            filterer = window.QuickFilterBarMuxer.activeFilterer;
-          } else {
-            filterer = nativeTab._ext.quickFilter;
-          }
+          let filterer = about3Pane.quickFilterBar.filterer;
           filterer.clear();
 
           // Map of QuickFilter state names to possible WebExtensions state names.
@@ -399,15 +394,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
 
           filterer.visible = state.show !== false;
           for (let [key, name] of Object.entries(stateMap)) {
-            let value = null;
-            if (state[name] !== null) {
-              value = state[name];
-            }
-            if (value === null) {
-              delete filterer.filterValues[key];
-            } else {
-              filterer.filterValues[key] = value;
-            }
+            filterer.setFilterValue(key, state[name]);
           }
 
           if (state.tags) {
@@ -438,14 +425,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
             };
           }
 
-          if (tab.active) {
-            window.QuickFilterBarMuxer.deferredUpdateSearch();
-            window.QuickFilterBarMuxer.reflectFiltererState(
-              filterer,
-              window.gFolderDisplay
-            );
-          }
-          // Inactive tabs are updated when they become active, except the search doesn't. :(
+          about3Pane.quickFilterBar.updateSearch();
         },
 
         onDisplayedFolderChanged: new EventManager({

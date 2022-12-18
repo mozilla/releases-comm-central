@@ -618,19 +618,26 @@ var dbViewWrapperListener = {
     }
   },
   onDestroyingView(folderIsComingBack) {},
-  onLoadingFolder(dbFolderInfo) {},
+  onLoadingFolder(dbFolderInfo) {
+    window.quickFilterBar?.onFolderChanged();
+  },
   onDisplayingFolder() {},
   onLeavingFolder() {},
   onMessagesLoaded(all) {
     if (all) {
       window.threadTree?.invalidate();
     }
+    window.quickFilterBar?.onMessagesChanged();
   },
   onMailViewChanged() {},
   onSortChanged() {
     window.threadTree?.invalidate();
   },
-  onMessagesRemoved() {},
+  onMessagesRemoved() {
+    window.quickFilterBar?.onMessagesChanged();
+  },
   onMessageRemovalFailed() {},
-  onMessageCountsChanged() {},
+  onMessageCountsChanged() {
+    window.quickFilterBar?.onMessagesChanged();
+  },
 };

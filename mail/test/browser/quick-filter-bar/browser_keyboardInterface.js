@@ -14,6 +14,7 @@
 var {
   be_in_folder,
   create_folder,
+  get_about_3pane,
   make_message_sets_in_folders,
   mc,
   select_click_row,
@@ -85,16 +86,18 @@ add_task(function test_escape_rules() {
     toggle_quick_filter_bar();
   }
 
+  let about3Pane = get_about_3pane();
+
   // 1) focus in the thread pane
-  mc.e("threadTree").focus();
+  about3Pane.document.getElementById("threadTree").focus();
   legwork();
 
   // 2) focus in the text box
-  mc.e("qfb-qs-textbox").focus();
+  about3Pane.document.getElementById("qfb-qs-textbox").focus();
   legwork();
 
   // 3) focus in the text box and pretend to type stuff...
-  mc.e("qfb-qs-textbox").focus();
+  about3Pane.document.getElementById("qfb-qs-textbox").focus();
   set_filter_text("qxqxqxqx");
 
   // Escape should clear the text constraint but the bar should still be
@@ -114,36 +117,17 @@ add_task(function test_escape_rules() {
 });
 
 /**
- * It's fairly important that the gloda search widget eats escape when people
- * press escape in there.  Because gloda is disabled by default, we need to
- * viciously uncollapse it ourselves and then cleanup afterwards...
- */
-add_task(function test_escape_does_not_reach_us_from_gloda_search() {
-  let glodaSearchWidget = mc.e("searchInput");
-  try {
-    // uncollapse and focus the gloda search widget
-    glodaSearchWidget.removeAttribute("hidden");
-    glodaSearchWidget.focus();
-
-    EventUtils.synthesizeKey("VK_ESCAPE", {});
-
-    assert_quick_filter_bar_visible(true);
-  } finally {
-    glodaSearchWidget.setAttribute("hidden", "hidden");
-  }
-  teardownTest();
-});
-
-/**
  * Control-shift-k expands the quick filter bar when it's collapsed. When
  * already expanded, it focuses the text box and selects its text.
  */
 add_task(function test_control_shift_k_shows_quick_filter_bar() {
+  let about3Pane = get_about_3pane();
+
   let dispatcha = mc.window.document.commandDispatcher;
-  let qfbTextbox = mc.e("qfb-qs-textbox");
+  let qfbTextbox = about3Pane.document.getElementById("qfb-qs-textbox");
 
   // focus explicitly on the thread pane so we know where the focus is.
-  mc.e("threadTree").focus();
+  about3Pane.document.getElementById("threadTree").focus();
   // select a message so we can find in message
   select_click_row(0);
 
@@ -186,15 +170,4 @@ add_task(function test_control_shift_k_shows_quick_filter_bar() {
 
 function teardownTest() {
   clear_constraints();
-  // make it visible if it's not
-  if (mc.e("quick-filter-bar").collapsed) {
-    toggle_quick_filter_bar();
-  }
-
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
-  );
 }

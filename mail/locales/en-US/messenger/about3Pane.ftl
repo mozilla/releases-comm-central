@@ -2,6 +2,26 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+## Quick Filter Bar
+
+quick-filter-bar-no-results = No results
+
+# Variables:
+# $count (Number) - The number of messages that match selected filters.
+quick-filter-bar-results =
+    { $count ->
+         [one] { $count } message
+        *[other] { $count } messages
+    }
+
+# The first line of the panel popup that tells the user we found no matches
+# but we can convert to a global search for them.
+quick-filter-bar-gloda-upsell-line1 = Continue this search across all folders
+# The second line of the panel popup that tells the user we found no matches.
+# Variables:
+# $text (String) - What the user has typed so far.
+quick-filter-bar-gloda-upsell-line2 = Press ‘Enter’ again to continue your search for: { $text }
+
 ## Message thread pane
 
 threadpane-column-header-select =

@@ -2007,7 +2007,7 @@ function assert_messages_in_view(aSynSets, aController) {
     let msgHdr = synMessageURIs[uri];
     if (msgHdr != null) {
       throw_and_dump_view_state(
-        "The view is should include the message header" + msgHdr.messageKey
+        "The view should include the message header" + msgHdr.messageKey
       );
     }
   }
@@ -3186,12 +3186,8 @@ function assert_summary_contains_N_elts(aSelector, aNumElts) {
 }
 
 function throw_and_dump_view_state(aMessage, aController) {
-  if (aController == null) {
-    aController = mc;
-  }
-
   dump("******** " + aMessage + "\n");
-  dump_view_state(aController.folderDisplay.view);
+  dump_view_state(get_db_view(aController?.window));
   throw new Error(aMessage);
 }
 

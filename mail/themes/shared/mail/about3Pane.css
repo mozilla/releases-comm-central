@@ -69,10 +69,14 @@ body {
 }
 
 #threadPane {
+  container-name: threadPane;
+  container-type: inline-size;
   grid-area: threads;
   box-sizing: border-box;
   min-height: 200px;
   min-width: 300px;
+  display: flex;
+  flex-direction: column;
 }
 
 #messagePaneSplitter {

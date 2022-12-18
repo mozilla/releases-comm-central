@@ -8,6 +8,8 @@
 <!DOCTYPE html [
 <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
 %messengerDTD;
+<!ENTITY % quickFilterBarDTD SYSTEM "chrome://messenger/locale/quickFilterBar.dtd">
+%quickFilterBarDTD;
 <!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd">
 %calendarDTD;
 ]>
@@ -27,9 +29,11 @@
   <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/folderColors.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/folderMenus.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/shared/quickFilterBar.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/shared/tree-listbox.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/about3Pane.css" />
 
+  <link rel="localization" href="messenger/about3Pane.ftl" />
   <link rel="localization" href="messenger/treeView.ftl" />
   <link rel="localization" href="messenger/messenger.ftl" />
   <link rel="localization" href="messenger/about3Pane.ftl" />
@@ -39,6 +43,7 @@
   <script defer="defer" src="chrome://messenger/content/junkCommands.js"></script>
   <script defer="defer" src="chrome://messenger/content/mail-offline.js"></script>
   <script defer="defer" src="chrome://messenger/content/msgViewNavigation.js"></script>
+  <script defer="defer" src="chrome://messenger/content/quickFilterBar.js"></script>
   <script defer="defer" src="chrome://messenger/content/pane-splitter.js"></script>
   <script defer="defer" src="chrome://messenger/content/tree-listbox.js"></script>
   <script defer="defer" type="module" src="chrome://messenger/content/tree-view-listbox.mjs"></script>
@@ -73,6 +78,7 @@
       resize-id="folderPane"
       collapse-width="200" />
   <div id="threadPane">
+#include quickFilterBar.inc.xhtml
     <tree-view id="messageThreadTree"/>
   </div>
   <hr is="pane-splitter" id="messagePaneSplitter"
@@ -193,6 +199,11 @@
               label="&folderContextSettings2.label;"
               accesskey="&folderContextSettings2.accesskey;"/>
   </menupopup>
+  <tooltip id="qfb-text-search-upsell">
+    <div id="qfb-upsell-line-one"
+         data-l10n-id="quick-filter-bar-gloda-upsell-line1"></div>
+    <div id="qfb-upsell-line-two"></div>
+  </tooltip>
 #include mailContext.inc.xhtml
 </popupset>
 </html>

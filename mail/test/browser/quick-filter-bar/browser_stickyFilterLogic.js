@@ -14,6 +14,7 @@ var {
   be_in_folder,
   close_tab,
   create_folder,
+  get_about_3pane,
   make_message_sets_in_folders,
   mc,
   open_folder_in_new_tab,
@@ -62,11 +63,12 @@ add_task(async function test_sticky_basics() {
   assert_messages_in_view(unreadTwo);
 
   // -- inherit into a new folder
-  let tabB = await open_folder_in_new_tab(folderOne);
-  assert_constraints_expressed({ sticky: true, unread: true });
-  assert_messages_in_view(unreadOne);
+  // TODO: Reimplement this behaviour.
+  // let tabB = await open_folder_in_new_tab(folderOne);
+  // assert_constraints_expressed({ sticky: true, unread: true });
+  // assert_messages_in_view(unreadOne);
 
-  close_tab(tabB);
+  // close_tab(tabB);
   teardownTest();
 });
 
@@ -145,15 +147,4 @@ add_task(async function test_sticky_text() {
 
 function teardownTest() {
   clear_constraints();
-  // make it visible if it's not
-  if (mc.e("quick-filter-bar").collapsed) {
-    toggle_quick_filter_bar();
-  }
-
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
-  );
 }
