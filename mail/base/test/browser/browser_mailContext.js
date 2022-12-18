@@ -78,7 +78,7 @@ add_task(async function testNoMessages() {
     "about:blank"
   );
   EventUtils.synthesizeMouseAtCenter(
-    about3Pane.document.getElementById("messageBrowserPane"),
+    about3Pane.document.getElementById("messagePane"),
     { type: "contextmenu" }
   );
   checkMenuitems(mailContext);
@@ -197,7 +197,7 @@ add_task(async function testMultipleMessages() {
   Assert.ok(BrowserTestUtils.is_hidden(about3Pane.messageBrowser));
   Assert.ok(BrowserTestUtils.is_visible(about3Pane.multiMessageBrowser));
   EventUtils.synthesizeMouseAtCenter(
-    about3Pane.document.getElementById("messageBrowserPane"),
+    about3Pane.document.getElementById("messagePane"),
     { type: "contextmenu" }
   );
   checkMenuitems(mailContext);

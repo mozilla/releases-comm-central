@@ -16,7 +16,7 @@
   }
 }
 
-#threadTreePane > tree-view {
+#threadPane > tree-view {
   -moz-context-properties: fill;
   fill: currentColor;
 }

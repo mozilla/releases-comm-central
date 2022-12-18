@@ -46,7 +46,7 @@
   <script defer="defer" src="chrome://messenger/content/about3Pane.js"></script>
 </head>
 <body class="layout-classic">
-  <div id="folderTreePane" tabindex="-1">
+  <div id="folderPane" tabindex="-1">
     <ul id="folderTree" is="tree-listbox" role="tree"></ul>
     <template id="folderTemplate">
       <li>
@@ -62,18 +62,18 @@
       </li>
     </template>
   </div>
-  <hr is="pane-splitter" id="splitter1"
+  <hr is="pane-splitter" id="folderPaneSplitter"
       resize-direction="horizontal"
-      resize-id="folderTreePane"
+      resize-id="folderPane"
       collapse-width="200" />
-  <div id="threadTreePane">
+  <div id="threadPane">
     <tree-view id="messageThreadTree"/>
   </div>
-  <hr is="pane-splitter" id="splitter2"
-      resize-id="messageBrowserPane"
+  <hr is="pane-splitter" id="messagePaneSplitter"
+      resize-id="messagePane"
       collapse-width="300"
       collapse-height="200" />
-  <div id="messageBrowserPane">
+  <div id="messagePane">
     <xul:browser id="webBrowser"
                  type="content"
                  hidden="true"

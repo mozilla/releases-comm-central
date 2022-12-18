@@ -42,10 +42,10 @@ const messengerBundle = Services.strings.createBundle(
 
 var gFolder, gViewWrapper, gDBView;
 var folderTree,
-  splitter1,
+  folderPaneSplitter,
   treeTable,
   threadTree,
-  splitter2,
+  messagePaneSplitter,
   webBrowser,
   messageBrowser,
   multiMessageBrowser,
@@ -56,33 +56,33 @@ window.addEventListener("DOMContentLoaded", event => {
     return;
   }
 
-  splitter1 = document.getElementById("splitter1");
-  let splitter1Width = Services.xulStore.getValue(
+  folderPaneSplitter = document.getElementById("folderPaneSplitter");
+  let folderPaneSplitterWidth = Services.xulStore.getValue(
     "chrome://messenger/content/messenger.xhtml",
     "folderPaneBox",
     "width"
   );
-  if (splitter1Width) {
-    splitter1.width = splitter1Width;
+  if (folderPaneSplitterWidth) {
+    folderPaneSplitter.width = folderPaneSplitterWidth;
   }
 
-  splitter2 = document.getElementById("splitter2");
-  let splitter2Height = Services.xulStore.getValue(
+  messagePaneSplitter = document.getElementById("messagePaneSplitter");
+  let messagePaneSplitterHeight = Services.xulStore.getValue(
     "chrome://messenger/content/messenger.xhtml",
     "messagepaneboxwrapper",
     "height"
   );
-  if (splitter2Height) {
-    splitter2.height = splitter2Height;
+  if (messagePaneSplitterHeight) {
+    messagePaneSplitter.height = messagePaneSplitterHeight;
   }
 
-  let splitter2Width = Services.xulStore.getValue(
+  let messagePaneSplitterWidth = Services.xulStore.getValue(
     "chrome://messenger/content/messenger.xhtml",
     "messagepaneboxwrapper",
     "width"
   );
-  if (splitter2Width) {
-    splitter2.width = splitter2Width;
+  if (messagePaneSplitterWidth) {
+    messagePaneSplitter.width = messagePaneSplitterWidth;
   }
 
   // Setting the pane config on a preference change may turn out to be a bad
@@ -92,17 +92,17 @@ window.addEventListener("DOMContentLoaded", event => {
       case 1:
         document.body.classList.remove("layout-classic", "layout-vertical");
         document.body.classList.add("layout-wide");
-        splitter2.resizeDirection = "vertical";
+        messagePaneSplitter.resizeDirection = "vertical";
         break;
       case 2:
         document.body.classList.remove("layout-classic", "layout-wide");
         document.body.classList.add("layout-vertical");
-        splitter2.resizeDirection = "horizontal";
+        messagePaneSplitter.resizeDirection = "horizontal";
         break;
       default:
         document.body.classList.remove("layout-wide", "layout-vertical");
         document.body.classList.add("layout-classic");
-        splitter2.resizeDirection = "vertical";
+        messagePaneSplitter.resizeDirection = "vertical";
         break;
     }
   }
@@ -116,34 +116,34 @@ window.addEventListener("DOMContentLoaded", event => {
   setLayout(this.layout);
   restoreState();
 
-  splitter1.addEventListener("splitter-resized", () => {
+  folderPaneSplitter.addEventListener("splitter-resized", () => {
     Services.xulStore.setValue(
       "chrome://messenger/content/messenger.xhtml",
       "folderPaneBox",
       "width",
-      splitter1.width
+      folderPaneSplitter.width
     );
   });
 
-  splitter2.addEventListener("splitter-resized", () => {
-    if (splitter2.resizeDirection == "vertical") {
+  messagePaneSplitter.addEventListener("splitter-resized", () => {
+    if (messagePaneSplitter.resizeDirection == "vertical") {
       Services.xulStore.setValue(
         "chrome://messenger/content/messenger.xhtml",
         "messagepaneboxwrapper",
         "height",
-        splitter2.height
+        messagePaneSplitter.height
       );
     } else {
       Services.xulStore.setValue(
         "chrome://messenger/content/messenger.xhtml",
         "messagepaneboxwrapper",
         "width",
-        splitter2.width
+        messagePaneSplitter.width
       );
     }
   });
 
-  splitter2.addEventListener("splitter-collapsed", () => {
+  messagePaneSplitter.addEventListener("splitter-collapsed", () => {
     // Clear any loaded page or messages.
     clearWebPage();
     clearMessage();
@@ -157,7 +157,7 @@ window.addEventListener("DOMContentLoaded", event => {
     );
   });
 
-  splitter2.addEventListener("splitter-expanded", () => {
+  messagePaneSplitter.addEventListener("splitter-expanded", () => {
     // Load the selected messages.
     threadTree.dispatchEvent(new CustomEvent("select"));
 
@@ -313,7 +313,7 @@ window.addEventListener("DOMContentLoaded", event => {
   });
 
   threadTree.addEventListener("select", async event => {
-    if (splitter2.isCollapsed || !gDBView) {
+    if (messagePaneSplitter.isCollapsed || !gDBView) {
       return;
     }
     clearWebPage();
@@ -647,7 +647,7 @@ function restoreState({
   if (folderPaneVisible === undefined) {
     folderPaneVisible = true;
   }
-  splitter1.isCollapsed = !folderPaneVisible;
+  folderPaneSplitter.isCollapsed = !folderPaneVisible;
 
   if (messagePaneVisible === undefined) {
     messagePaneVisible =
@@ -657,7 +657,7 @@ function restoreState({
         "collapsed"
       ) !== "true";
   }
-  splitter2.isCollapsed = !messagePaneVisible;
+  messagePaneSplitter.isCollapsed = !messagePaneVisible;
 
   if (folderURI) {
     displayFolder(folderURI);
@@ -942,8 +942,8 @@ var folderPaneContextMenu = {
       case "folderPaneContext-openNewTab":
         topChromeWindow.MsgOpenNewTabForFolders([gFolder], {
           event,
-          folderPaneVisible: !splitter1.isCollapsed,
-          messagePaneVisible: !splitter2.isCollapsed,
+          folderPaneVisible: !folderPaneSplitter.isCollapsed,
+          messagePaneVisible: !messagePaneSplitter.isCollapsed,
         });
         break;
       case "folderPaneContext-openNewWindow":
@@ -1248,10 +1248,10 @@ commandController.registerCallback("cmd_viewVerticalMailLayout", () =>
   Services.prefs.setIntPref("mail.pane_config.dynamic", 2)
 );
 commandController.registerCallback("cmd_toggleFolderPane", () => {
-  splitter1.isCollapsed = !splitter1.isCollapsed;
+  folderPaneSplitter.isCollapsed = !folderPaneSplitter.isCollapsed;
 });
 commandController.registerCallback("cmd_toggleMessagePane", () => {
-  splitter2.isCollapsed = !splitter2.isCollapsed;
+  messagePaneSplitter.isCollapsed = !messagePaneSplitter.isCollapsed;
 });
 
 function restoreThreadState() {

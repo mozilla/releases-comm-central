@@ -131,18 +131,20 @@ var newMailTabType = {
         });
         Object.defineProperty(tab, "folderPaneVisible", {
           get() {
-            return !tab.chromeBrowser.contentWindow.splitter1.isCollapsed;
+            return !tab.chromeBrowser.contentWindow.folderPaneSplitter
+              .isCollapsed;
           },
           set(visible) {
-            tab.chromeBrowser.contentWindow.splitter1.isCollapsed = !visible;
+            tab.chromeBrowser.contentWindow.folderPaneSplitter.isCollapsed = !visible;
           },
         });
         Object.defineProperty(tab, "messagePaneVisible", {
           get() {
-            return !tab.chromeBrowser.contentWindow.splitter2.isCollapsed;
+            return !tab.chromeBrowser.contentWindow.messagePaneSplitter
+              .isCollapsed;
           },
           set(visible) {
-            tab.chromeBrowser.contentWindow.splitter2.isCollapsed = !visible;
+            tab.chromeBrowser.contentWindow.messagePaneSplitter.isCollapsed = !visible;
           },
         });
         Object.defineProperty(tab, "sort", {

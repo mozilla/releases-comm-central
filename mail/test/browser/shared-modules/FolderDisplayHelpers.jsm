@@ -1784,7 +1784,7 @@ function wait_for_message_display_completion(aController, aLoadDemanded) {
       // Displaying multiple messages.
       return;
     }
-    if (about3Pane?.splitter2.isCollapsed) {
+    if (about3Pane?.messagePaneSplitter.isCollapsed) {
       // Message pane hidden.
       return;
     }
@@ -2031,7 +2031,7 @@ var assert_message_not_in_view = assert_messages_not_in_view;
 function assert_message_pane_visible() {
   let tab = mc.tabmail.currentTabInfo;
   let win = get_about_3pane();
-  let messagePane = win.document.getElementById("messageBrowserPane");
+  let messagePane = win.document.getElementById("messagePane");
 
   Assert.equal(
     tab.messagePaneVisible,
@@ -2043,7 +2043,7 @@ function assert_message_pane_visible() {
     "The message pane should not be collapsed!"
   );
   Assert.equal(
-    win.splitter2.isCollapsed,
+    win.messagePaneSplitter.isCollapsed,
     false,
     "The message pane splitter should not be collapsed!"
   );
@@ -2064,7 +2064,7 @@ function assert_message_pane_visible() {
 function assert_message_pane_hidden() {
   let tab = mc.tabmail.currentTabInfo;
   let win = get_about_3pane();
-  let messagePane = win.document.getElementById("messageBrowserPane");
+  let messagePane = win.document.getElementById("messagePane");
 
   Assert.equal(
     tab.messagePaneVisible,
@@ -2076,7 +2076,7 @@ function assert_message_pane_hidden() {
     "The message pane should be collapsed!"
   );
   Assert.equal(
-    win.splitter2.isCollapsed,
+    win.messagePaneSplitter.isCollapsed,
     true,
     "The message pane splitter should be collapsed!"
   );

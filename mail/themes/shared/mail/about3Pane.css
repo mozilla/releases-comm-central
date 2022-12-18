@@ -47,43 +47,46 @@ body {
   margin: 0;
 
   display: grid;
-  --splitter1-width: 18em;
-  --splitter2-width: 54em;
-  --splitter2-height: 36em;
+  --folderPaneSplitter-width: 18em;
+  --messagePaneSplitter-width: 54em;
+  --messagePaneSplitter-height: 36em;
 
   font: message-box;
 }
 
 /* Different layouts */
 
-#folderTreePane {
+#folderPane {
   grid-area: folders;
   box-sizing: border-box;
   /* Matches the collapse-width on the splitter. */
   min-width: 200px;
+  overflow: hidden auto;
 }
 
-#splitter1 {
-  grid-area: splitter1;
+#folderPaneSplitter {
+  grid-area: folderPaneSplitter;
 }
 
-#threadTreePane {
+#threadPane {
   grid-area: threads;
   box-sizing: border-box;
   min-height: 200px;
   min-width: 300px;
 }
 
-#splitter2 {
-  grid-area: splitter2;
+#messagePaneSplitter {
+  grid-area: messagePaneSplitter;
 }
 
-#messageBrowserPane {
+#messagePane {
   grid-area: message;
   box-sizing: border-box;
   /* Matches the collapse-height and collapse-width on the splitter. */
   min-height: 200px;
   min-width: 300px;
+  overflow: auto;
+  display: flex;
 }
 
 #accountCentralBrowser {
@@ -93,8 +96,8 @@ body {
 }
 
 :is(
-  #messageBrowserPane,
-  #folderTreePane
+  #messagePane,
+  #folderPane
 ).collapsed-by-splitter {
   /* NOTE: We use "display: none" rather than "visibility: collapse". In the
    * latter case, the min-width of min-height of the element would still
@@ -109,36 +112,36 @@ body {
 
 /* Classic layout: folder tree on the left, thread tree and message browser on the right. */
 body.layout-classic {
-  grid-template: "folders splitter1 threads" minmax(auto, 1fr)
-                 "folders splitter1 splitter2" min-content
-                 "folders splitter1 message" minmax(auto, var(--splitter2-height))
-                 / minmax(auto, var(--splitter1-width)) min-content minmax(auto, 1fr);
+  grid-template: "folders folderPaneSplitter threads" minmax(auto, 1fr)
+                 "folders folderPaneSplitter messagePaneSplitter" min-content
+                 "folders folderPaneSplitter message" minmax(auto, var(--messagePaneSplitter-height))
+                 / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr);
 }
 
 /* Vertical layout: three columns. */
 body.layout-vertical {
-  grid-template: "folders splitter1 threads splitter2 message" auto
-                 / minmax(auto, var(--splitter1-width)) min-content minmax(auto, 1fr) min-content minmax(auto, var(--splitter2-width));
+  grid-template: "folders folderPaneSplitter threads messagePaneSplitter message" auto
+                 / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr) min-content minmax(auto, var(--messagePaneSplitter-width));
 }
 
 /* Wide layout: folder tree and thread tree on the top, and message browser on the bottom. */
 body.layout-wide {
-  grid-template: "folders splitter1 threads" minmax(auto, 1fr)
-                 "splitter2 splitter2 splitter2" min-content
-                 "message message message" minmax(auto, var(--splitter2-height))
-                 / minmax(auto, var(--splitter1-width)) min-content minmax(auto, 1fr);
+  grid-template: "folders folderPaneSplitter threads" minmax(auto, 1fr)
+                 "messagePaneSplitter messagePaneSplitter messagePaneSplitter" min-content
+                 "message message message" minmax(auto, var(--messagePaneSplitter-height))
+                 / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr);
 }
 
 /* If Account Central is shown, it overrides the layout setting. */
 body.account-central {
-  grid-template: "folders splitter1 account-central" auto
-                 / minmax(auto, var(--splitter1-width)) min-content minmax(auto, 1fr);
+  grid-template: "folders folderPaneSplitter account-central" auto
+                 / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr);
 }
 
 body.account-central :is(
-  #threadTreePane,
-  #splitter2,
-  #messageBrowserPane,
+  #threadPane,
+  #messagePaneSplitter,
+  #messagePane,
 ) {
   display: none;
 }
@@ -148,10 +151,6 @@ body:not(.account-central) #accountCentralBrowser {
 }
 
 /* Folder tree pane. */
-
-#folderTreePane {
-  overflow: hidden auto;
-}
 
 #folderTree,
 #folderTree ul {
@@ -255,11 +254,6 @@ li.collapsed > ul {
 }
 
 /* Message browser pane. */
-
-#messageBrowserPane {
-  overflow: auto;
-  display: flex;
-}
 
 #webBrowser,
 #messageBrowser,

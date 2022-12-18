@@ -49,7 +49,7 @@ function assert_folder_pane_visible() {
     "The folder tree should not be collapsed!"
   );
   Assert.equal(
-    win.splitter1.isCollapsed,
+    win.folderPaneSplitter.isCollapsed,
     false,
     "The folder tree splitter should not be collapsed!"
   );
@@ -81,7 +81,7 @@ function assert_folder_pane_hidden() {
     "The folder tree should be collapsed!"
   );
   Assert.equal(
-    win.splitter1.isCollapsed,
+    win.folderPaneSplitter.isCollapsed,
     true,
     "The folder tree splitter should be collapsed!"
   );
