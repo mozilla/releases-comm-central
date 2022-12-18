@@ -30,8 +30,6 @@ only-for-build-platforms:
 
 job-template:
     worker-type: b-linux-gcp
-    worker:
-        docker-image: {"in-tree": "debian11-amd64-build"}
     mozharness:
         comm-checkout: true
         config-paths:
