@@ -444,14 +444,12 @@ class ImapClient {
    *
    * @param {string} action - "+" means add, "-" means remove, "" means replace.
    * @param {nsIMsgFolder} folder - The target folder.
-   * @param {nsIUrlListener} urlListener - Callback for the request.
    * @param {string} messageIds - Message UIDs, e.g. "23,30:33".
    * @param {number} flags - The internal flags number to update.
    */
-  updateMesageFlags(action, folder, urlListener, messageIds, flags) {
-    this._urlListener = urlListener;
+  updateMessageFlags(action, folder, messageIds, flags) {
     this._actionInFolder(folder, () => {
-      this._nextAction = this._actionDone;
+      this._nextAction = () => this._actionDone();
       // _supportedFlags is available after _actionSelectResponse.
       let flagsStr = ImapUtils.flagsToString(flags, this._supportedFlags);
       this._sendTagged(`UID STORE ${messageIds} ${action}FLAGS (${flagsStr})`);
@@ -499,8 +497,9 @@ class ImapClient {
    * @param {nsIFile} file - The message file to upload.
    * @param {nsIMsgFolder} dstFolder - The target folder.
    * @param {nsImapMailCopyState} copyState - A state used by nsImapMailFolder.
+   * @param {boolean} isDraft - Is the uploaded file a draft.
    */
-  async uploadMessageFromFile(file, dstFolder, copyState) {
+  async uploadMessageFromFile(file, dstFolder, copyState, isDraft) {
     this._logger.debug("uploadMessageFromFile", file.path, dstFolder.URI);
     let mailbox = this._getServerFolderName(dstFolder);
     let content = MailStringUtils.uint8ArrayToByteString(
@@ -513,6 +512,17 @@ class ImapClient {
       }
       this._nextAction = res => {
         this._folderSink = dstFolder.QueryInterface(Ci.nsIImapMailFolderSink);
+        if (
+          // See rfc4315.
+          this._capabilities.includes("UIDPLUS") &&
+          res.attributes.appenduid
+        ) {
+          // The response is like `<tag> OK [APPENDUID <uidvalidity> <uid>]`.
+          this._folderSink.setAppendMsgUid(
+            res.attributes.appenduid[1],
+            this.runningUrl
+          );
+        }
         this._actionDone();
         if (res.exists) {
           // FIXME: _actionNoopResponse should be enough here, but it breaks
@@ -532,10 +542,15 @@ class ImapClient {
       .QueryInterface(Ci.nsIImapMessageSink)
       .getCurMoveCopyMessageInfo(this.runningUrl, {}, outKeywords);
     let flagString = ImapUtils.flagsToString(flags, this._supportedFlags);
+    if (isDraft && !/\b\Draft\b/.test(flagString)) {
+      flagString += " \\Draft";
+    }
     if (outKeywords.value) {
       flagString += " " + outKeywords.value;
     }
-    this._sendTagged(`APPEND "${mailbox}" (${flagString}) {${content.length}}`);
+    this._sendTagged(
+      `APPEND "${mailbox}" (${flagString.trim()}) {${content.length}}`
+    );
   }
 
   /**
@@ -639,7 +654,6 @@ class ImapClient {
     }
     this._nextAction = res => {
       if (res.tag == "*") {
-        this.busy = true;
         this.folder.performingBiff = true;
         this._actionNoopResponse(res);
       }
@@ -671,6 +685,7 @@ class ImapClient {
     };
     this._send("DONE");
     this._idling = false;
+    this.busy = true;
     clearTimeout(this._idleTimer);
     this._idleTimer = null;
   }

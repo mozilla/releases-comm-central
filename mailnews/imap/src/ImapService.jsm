@@ -97,14 +97,9 @@ class ImapService {
 
   _updateMessageFlags(action, folder, urlListener, messageIds, flags) {
     this._withClient(folder, client => {
+      client.startRunningUrl(urlListener);
       client.onReady = () => {
-        client.updateMesageFlags(
-          action,
-          folder,
-          urlListener,
-          messageIds,
-          flags
-        );
+        client.updateMessageFlags(action, folder, messageIds, flags);
       };
     });
   }
@@ -228,7 +223,12 @@ class ImapService {
     this._withClient(dstFolder, client => {
       client.startRunningUrl(urlListener, msgWindow, imapUrl);
       client.onReady = () => {
-        client.uploadMessageFromFile(file, dstFolder, copyState);
+        client.uploadMessageFromFile(
+          file,
+          dstFolder,
+          copyState,
+          inSelectedState
+        );
       };
     });
   }
