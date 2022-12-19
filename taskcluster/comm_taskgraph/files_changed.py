@@ -83,9 +83,7 @@ def get_files_changed_extended(params):
             )
             return True
 
-        changed_files |= prefix_changed(
-            get_changed_files(repository, revision), repo_subdir
-        )
+        changed_files |= prefix_changed(get_changed_files(repository, revision), repo_subdir)
 
     return changed_files
 

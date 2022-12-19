@@ -5,9 +5,7 @@
 
 # Note that paths in this file are relative to the top directory (m-c)
 
-GENERATED_FILES[
-    "source-repo.h"
-].script = "comm/build/source_repos.py:source_repo_header"
+GENERATED_FILES["source-repo.h"].script = "comm/build/source_repos.py:source_repo_header"
 
 include("/%s/toolkit/toolkit.mozbuild" % CONFIG["mozreltopsrcdir"])
 

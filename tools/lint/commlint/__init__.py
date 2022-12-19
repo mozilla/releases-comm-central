@@ -38,9 +38,7 @@ def _apply_global_excludes(root, config):
 
     if os.environ.get("MOZLINT_NO_SUITE", None):
         # Ignore Seamonkey-only paths when run from Taskcluster
-        suite_excludes = [
-            mozpath.join(root, path) for path in TASKCLUSTER_EXCLUDE_PATHS
-        ]
+        suite_excludes = [mozpath.join(root, path) for path in TASKCLUSTER_EXCLUDE_PATHS]
         exclude.extend(suite_excludes)
 
     config["exclude"] = exclude

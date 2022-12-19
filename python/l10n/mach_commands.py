@@ -124,9 +124,7 @@ def tb_cross_channel(
         rev_url = f"{COMM_STRINGS_QUARANTINE}/rev/{head_rev}"
 
         notification_body = TB_XC_NOTIFICATION_TMPL.format(rev_url=rev_url)
-        email_notification(
-            "X-channel comm-strings-quarantine updated", notification_body
-        )
+        email_notification("X-channel comm-strings-quarantine updated", notification_body)
 
 
 @Command(

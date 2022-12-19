@@ -43,8 +43,7 @@ def changed_clang_format(config, jobs):
 
             match_patterns = get_patterns(job)
             changed_files = {
-                join_path("comm", file)
-                for file in get_changed_files(repository, revision)
+                join_path("comm", file) for file in get_changed_files(repository, revision)
             }
 
             cpp_files = []

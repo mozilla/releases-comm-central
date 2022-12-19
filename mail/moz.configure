@@ -63,9 +63,7 @@ set_defconf("commtopobjdir", comm_paths.commtopobjdir)
 @imports(_from="os.path", _import="exists")
 @imports(_from="__builtin__", _import="open")
 def thunderbird_version(build_env, app_path):
-    version_file = os.path.join(
-        build_env.topsrcdir, app_path[0], "config", "version.txt"
-    )
+    version_file = os.path.join(build_env.topsrcdir, app_path[0], "config", "version.txt")
     version_file_display = os.path.join(
         build_env.topsrcdir, app_path[0], "config", "version_display.txt"
     )
@@ -115,12 +113,8 @@ set_config(
     "MOZ_TELEMETRY_EXTRA_HISTOGRAM_FILES",
     ["/comm/mail/components/telemetry/Histograms.json"],
 )
-set_config(
-    "MOZ_TELEMETRY_EXTRA_SCALAR_FILES", ["/comm/mail/components/telemetry/Scalars.yaml"]
-)
-set_config(
-    "MOZ_TELEMETRY_EXTRA_EVENT_FILES", ["/comm/mail/components/telemetry/Events.yaml"]
-)
+set_config("MOZ_TELEMETRY_EXTRA_SCALAR_FILES", ["/comm/mail/components/telemetry/Scalars.yaml"])
+set_config("MOZ_TELEMETRY_EXTRA_EVENT_FILES", ["/comm/mail/components/telemetry/Events.yaml"])
 
 include("../build/moz.configure/gecko_source.configure")
 

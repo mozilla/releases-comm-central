@@ -33,9 +33,7 @@ def remove_widevine(config, jobs):
         task = job["task"]
         payload = task["payload"]
 
-        widevine_scope = (
-            "project:comm:thunderbird:releng:signing:format" ":autograph_widevine"
-        )
+        widevine_scope = "project:comm:thunderbird:releng:signing:format" ":autograph_widevine"
         if widevine_scope in task["scopes"]:
             task["scopes"].remove(widevine_scope)
         if "upstreamArtifacts" in payload:

@@ -94,9 +94,7 @@ with only_when(in_tree_librnp):
     @imports(_from="os.path", _import="join")
     def rnp_version_string(build_env, compiler):
         log.info("Determining librnp version from version.h.")
-        include_path = join(
-            build_env.topsrcdir, "comm", "third_party", "rnp", "src", "lib"
-        )
+        include_path = join(build_env.topsrcdir, "comm", "third_party", "rnp", "src", "lib")
         check = dedent(
             """\
         #include "version.h"
@@ -104,10 +102,7 @@ with only_when(in_tree_librnp):
         """
         )
         result = try_preprocess(
-            compiler.wrapper
-            + [compiler.compiler]
-            + compiler.flags
-            + ["-I", include_path],
+            compiler.wrapper + [compiler.compiler] + compiler.flags + ["-I", include_path],
             "C",
             check,
         )
@@ -126,9 +121,7 @@ with only_when(in_tree_librnp):
         help="Use system JSON-C for librnp (located with pkgconfig)",
     )
 
-    jsonc_pkg = pkg_check_modules(
-        "MZLA_JSONC", "json-c >= 0.11", when="--with-system-jsonc"
-    )
+    jsonc_pkg = pkg_check_modules("MZLA_JSONC", "json-c >= 0.11", when="--with-system-jsonc")
     set_config("MZLA_SYSTEM_JSONC", depends_if(jsonc_pkg)(lambda _: True))
 
     @depends("--with-system-jsonc")
@@ -177,9 +170,7 @@ with only_when(in_tree_librnp):
         check_symbol(
             "BZ2_bzread",
             flags=bzip2_flags.ldflags,
-            onerror=lambda: die(
-                "--with-system-bz2 requested but symbol " "BZ2_bzread not found."
-            ),
+            onerror=lambda: die("--with-system-bz2 requested but symbol " "BZ2_bzread not found."),
         )
         c_compiler.try_compile(
             includes=[
@@ -237,9 +228,7 @@ with only_when(in_tree_librnp):
             help="Use system Botan for librnp (located with pkgconfig)",
         )
 
-        botan_pkg = pkg_check_modules(
-            "MZLA_BOTAN", "botan-2 >= 2.8.0", when="--with-system-botan"
-        )
+        botan_pkg = pkg_check_modules("MZLA_BOTAN", "botan-2 >= 2.8.0", when="--with-system-botan")
         set_config("MZLA_SYSTEM_BOTAN", depends_if(botan_pkg)(lambda _: True))
 
     # OpenSSL backend
@@ -284,9 +273,7 @@ with only_when(in_tree_librnp):
         def openssl_version(compiler, openssl_flags):
             log.info("Checking for OpenSSL >= 1.1.1e")
             if openssl_flags is None:
-                die(
-                    "OpenSSL not found. Must be locatable with pkg-config or use --with-openssl."
-                )
+                die("OpenSSL not found. Must be locatable with pkg-config or use --with-openssl.")
 
             def ossl_hexver(hex_str):
                 # See opensshlv.h for description of OPENSSL_VERSION_NUMBER
@@ -389,9 +376,7 @@ with only_when(in_tree_librnp):
         set_define("HAVE_VSNPRINTF", check_symbol_exists("vsnprintf", "stdio.h"))
         set_define("HAVE_VPRINTF", check_symbol_exists("vprintf", "stdio.h"))
 
-        set_define(
-            "HAVE_OPEN", check_symbol_exists("open", "fcntl.h", when=have_fcntl_h)
-        )
+        set_define("HAVE_OPEN", check_symbol_exists("open", "fcntl.h", when=have_fcntl_h))
         set_define(
             "HAVE_REALLOC",
             check_symbol_exists("realloc", "stdlib.h", when=have_stdlib_h),
@@ -412,9 +397,7 @@ with only_when(in_tree_librnp):
             "HAVE_STRNCASECMP",
             check_symbol_exists("strncasecmp", "strings.h", when=have_strings_h),
         )
-        set_define(
-            "HAVE_STRDUP", check_symbol_exists("strdup", "string.h", when=have_string_h)
-        )
+        set_define("HAVE_STRDUP", check_symbol_exists("strdup", "string.h", when=have_string_h))
 
 
 @depends(c_compiler, target, when=compile_environment)

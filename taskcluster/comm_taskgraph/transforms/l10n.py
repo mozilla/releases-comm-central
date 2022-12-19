@@ -17,9 +17,7 @@ transforms_postgecko = TransformSequence()
 @transforms_postgecko.add
 def update_dependencies(config, jobs):
     for job in jobs:
-        job["dependencies"].update(
-            {"shippable-l10n-pre": "shippable-l10n-pre-shippable-l10n-pre"}
-        )
+        job["dependencies"].update({"shippable-l10n-pre": "shippable-l10n-pre-shippable-l10n-pre"})
         yield job
 
 

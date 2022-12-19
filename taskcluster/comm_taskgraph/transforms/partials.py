@@ -23,9 +23,7 @@ def update_scopes(config, jobs):
     if not config.params.get("release_history"):
         return
 
-    MBSDIFF_SCOPE = (
-        "auth:aws-s3:read-write:tc-gp-private-1d-us-east-1/releng/mbsdiff-cache/"
-    )
+    MBSDIFF_SCOPE = "auth:aws-s3:read-write:tc-gp-private-1d-us-east-1/releng/mbsdiff-cache/"
 
     for job in jobs:
         task = job["task"]

@@ -77,9 +77,7 @@ def loader(kind, path, config, params, loaded_tasks):
     if jobs is not None:
         jobs = set(jobs)
 
-        found_reference_jobs = [
-            job for job in inputs if (_get_aliases(kind, job, project) & jobs)
-        ]
+        found_reference_jobs = [job for job in inputs if (_get_aliases(kind, job, project) & jobs)]
 
         # Check for jobs listed as a reference job in Thunderbird's config
         # that do not exist in upstream.
@@ -89,9 +87,7 @@ def loader(kind, path, config, params, loaded_tasks):
         else:
             missing_jobs = jobs - reference_alias_names
             raise Exception(
-                "Reference jobs not found in kind {}: {}".format(
-                    kind, ", ".join(missing_jobs)
-                )
+                "Reference jobs not found in kind {}: {}".format(kind, ", ".join(missing_jobs))
             )
     else:
         return inputs

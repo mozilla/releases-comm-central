@@ -27,9 +27,7 @@ from tbxchannel.l10n_merge import (
     L10N_CENTRAL,
 )
 
-ALL_LOCALES = [
-    l.rstrip() for l in (COMM_PATH / "mail/locales/all-locales").open().readlines()
-]
+ALL_LOCALES = [l.rstrip() for l in (COMM_PATH / "mail/locales/all-locales").open().readlines()]
 
 
 def tb_locale(locale):
@@ -65,13 +63,9 @@ def get_strings_repos(locale, destination):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Download translated strings from comm-l10n"
-    )
+    parser = argparse.ArgumentParser(description="Download translated strings from comm-l10n")
     parser.add_argument("locale", help="The locale to download", type=tb_locale)
-    parser.add_argument(
-        "dest_path", help="Path where locale will be downloaded to.", type=Path
-    )
+    parser.add_argument("dest_path", help="Path where locale will be downloaded to.", type=Path)
 
     args = parser.parse_args()
     get_strings_repos(args.locale, args.dest_path)

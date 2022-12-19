@@ -96,9 +96,7 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
         abs_dirs = super(CommMultiLocale, self).query_abs_dirs()
         c = self.config
         dirs = {}
-        dirs["abs_checkout_dir"] = os.path.abspath(
-            os.path.join(abs_dirs["abs_src_dir"], "..")
-        )
+        dirs["abs_checkout_dir"] = os.path.abspath(os.path.join(abs_dirs["abs_src_dir"], ".."))
         dirs["abs_work_dir"] = os.path.join(c["base_work_dir"], c["work_dir"])
         # Needs to match abs_dirs["abs_l10n_dir"] set in mozharness.mozilla.l10n.locales
         dirs["abs_l10n_central_dir"] = os.path.abspath(

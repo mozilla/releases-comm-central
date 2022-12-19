@@ -96,14 +96,10 @@ def get_decision_parameters(graph_config, parameters):
             if _k not in parameters or not parameters[_k]
         ]
         parameters.update(update_parameters)
-        logger.info(
-            "project parameters set for project {} from {}.".format(project, __file__)
-        )
+        logger.info("project parameters set for project {} from {}.".format(project, __file__))
     else:
         # Projects without a target_tasks_method should not exist for Thunderbird CI
-        raise Exception(
-            "No target_tasks_method is defined for project {}.".format(project)
-        )
+        raise Exception("No target_tasks_method is defined for project {}.".format(project))
 
     del parameters["backstop"]
     parameters["backstop"] = is_backstop(
@@ -142,9 +138,7 @@ def get_decision_parameters(graph_config, parameters):
 
     parameters.setdefault("release_history", dict())
     if parameters.get("tasks_for", "") == "cron":
-        for key, _callable in CRON_OPTIONS.get(
-            parameters["target_tasks_method"], {}
-        ).items():
+        for key, _callable in CRON_OPTIONS.get(parameters["target_tasks_method"], {}).items():
             result = _callable(parameters, graph_config)
             parameters[key] = result
 
@@ -165,7 +159,5 @@ def get_existing_tasks(parameters, graph_config):
         logger.exception("Didn't find existing push task.")
         sys.exit(1)
 
-    _, task_graph = TaskGraph.from_json(
-        get_artifact(decision_task, "public/full-task-graph.json")
-    )
+    _, task_graph = TaskGraph.from_json(get_artifact(decision_task, "public/full-task-graph.json"))
     return find_existing_tasks_from_previous_kinds(task_graph, [decision_task], [])

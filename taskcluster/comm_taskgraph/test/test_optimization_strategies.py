@@ -42,11 +42,7 @@ def idfn(param):
 
 
 def generate_json_push_data(files_changed):
-    return {
-        "changesets": [
-            {"desc": "commit comment", "files": files_changed, "node": "cdefgh"}
-        ]
-    }
+    return {"changesets": [{"desc": "commit comment", "files": files_changed, "node": "cdefgh"}]}
 
 
 @pytest.fixture

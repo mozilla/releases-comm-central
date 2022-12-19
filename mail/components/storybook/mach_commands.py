@@ -12,9 +12,7 @@ def run_mach(command_context, cmd, **kwargs):
 
 
 def run_npm(command_context, args):
-    return run_mach(
-        command_context, "npm", args=[*args, "--prefix=mail/components/storybook"]
-    )
+    return run_mach(command_context, "npm", args=[*args, "--prefix=mail/components/storybook"])
 
 
 @Command(

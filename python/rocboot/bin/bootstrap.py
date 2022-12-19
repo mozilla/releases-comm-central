@@ -17,10 +17,7 @@ import sys
 
 major, minor = sys.version_info[:2]
 if (major < 3) or (major == 3 and minor < 5):
-    print(
-        "Bootstrap currently only runs on Python 3.5+."
-        "Please try re-running with python3.5+."
-    )
+    print("Bootstrap currently only runs on Python 3.5+." "Please try re-running with python3.5+.")
     sys.exit(1)
 
 import ctypes
@@ -208,12 +205,8 @@ def git_clone(git: Path, repo, dest: Path, watchman: Path):
             str(dest),
         ]
         subprocess.check_call(cmd, env=env)
-        subprocess.check_call(
-            [str(git), "config", "fetch.prune", "true"], cwd=str(dest), env=env
-        )
-        subprocess.check_call(
-            [str(git), "config", "pull.ff", "only"], cwd=str(dest), env=env
-        )
+        subprocess.check_call([str(git), "config", "fetch.prune", "true"], cwd=str(dest), env=env)
+        subprocess.check_call([str(git), "config", "pull.ff", "only"], cwd=str(dest), env=env)
 
         watchman_sample = dest / ".git/hooks/fsmonitor-watchman.sample"
         # Older versions of git didn't include fsmonitor-watchman.sample.
@@ -261,9 +254,7 @@ def add_microsoft_defender_antivirus_exclusions(dest, no_system_changes):
         return
 
     def print_attempt_exclusion(path):
-        print(
-            f"Attempting to add exclusion path to Microsoft Defender Antivirus for: {path}"
-        )
+        print(f"Attempting to add exclusion path to Microsoft Defender Antivirus for: {path}")
 
     powershell_exe = str(powershell_exe)
     paths = []

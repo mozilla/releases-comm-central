@@ -41,9 +41,7 @@ class TryCCOptionSyntax(TryOptionSyntax):
         all_platforms = test_platforms | build_platforms
         bad_platforms = set(results) - all_platforms
         if bad_platforms:
-            raise Exception(
-                "Unknown platform(s) [%s] specified for try" % ",".join(bad_platforms)
-            )
+            raise Exception("Unknown platform(s) [%s] specified for try" % ",".join(bad_platforms))
 
         return results
 

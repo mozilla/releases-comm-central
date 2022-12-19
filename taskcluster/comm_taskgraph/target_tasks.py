@@ -61,15 +61,12 @@ def target_tasks_ash(full_task_graph, parameters, graph_config):
     )
 
     def filter_source_test(task):
-        return task.kind == "source-test" and task.attributes.get(
-            "always_target", False
-        )
+        return task.kind == "source-test" and task.attributes.get("always_target", False)
 
     def _filter(task, _parameters):
         return all(
             [
-                filter_on_platforms(task, run_for_platforms)
-                or filter_source_test(task),
+                filter_on_platforms(task, run_for_platforms) or filter_source_test(task),
                 standard_filter(task, _parameters),
                 filter_out_shippable(task),
             ]
