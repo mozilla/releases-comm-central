@@ -48,6 +48,7 @@ Enigmail.hdrView = {
   msgSignatureState: EnigmailConstants.MSG_SIG_NONE,
   msgEncryptionState: EnigmailConstants.MSG_ENC_NONE,
   msgSignatureKeyId: "",
+  msgSignatureDate: null,
   msgEncryptionKeyId: null,
   msgEncryptionAllKeyIds: null,
   msgHasKeyAttached: false,
@@ -62,6 +63,7 @@ Enigmail.hdrView = {
     this.msgSignatureState = EnigmailConstants.MSG_SIG_NONE;
     this.msgEncryptionState = EnigmailConstants.MSG_ENC_NONE;
     this.msgSignatureKeyId = "";
+    this.msgSignatureDate = null;
     this.msgEncryptionKeyId = null;
     this.msgEncryptionAllKeyIds = null;
     this.msgHasKeyAttached = false;
@@ -290,6 +292,8 @@ Enigmail.hdrView = {
       this.msgEncryptionKeyId = encToDetails.myRecipKey;
       this.msgEncryptionAllKeyIds = encToDetails.allRecipKeys;
     }
+
+    this.msgSignatureDate = sigDetails?.sigDate;
 
     let tmp = {
       statusFlags,

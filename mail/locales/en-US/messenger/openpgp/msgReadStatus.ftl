@@ -22,8 +22,11 @@ openpgp-openpgp = OpenPGP
 openpgp-no-sig = No Digital Signature
 openpgp-no-sig-info = This message does not include the sender’s digital signature. The absence of a digital signature means that the message could have been sent by someone pretending to have this email address. It is also possible that the message has been altered while in transit over the network.
 openpgp-uncertain-sig = Uncertain Digital Signature
+openpgp-uncertain-sig-with-date = Uncertain Digital Signature - Signed on { $date }
 openpgp-invalid-sig = Invalid Digital Signature
+openpgp-invalid-sig-with-date = Invalid Digital Signature - Signed on { $date }
 openpgp-good-sig = Good Digital Signature
+openpgp-good-sig-with-date = Good Digital Signature - Signed on { $date }
 
 openpgp-sig-uncertain-no-key = This message contains a digital signature, but it is uncertain if it is correct. To verify the signature, you need to obtain a copy of the sender’s public key.
 openpgp-sig-uncertain-uid-mismatch = This message contains a digital signature, but a mismatch was detected. The message was sent from an email address that doesn’t match the signer’s public key.

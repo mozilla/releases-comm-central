@@ -1162,6 +1162,8 @@ var RNP = {
     result.encToDetails = {};
     result.encToDetails.myRecipKey = {};
     result.encToDetails.allRecipKeys = [];
+    result.sigDetails = {};
+    result.sigDetails.sigDate = null;
 
     if (alreadyDecrypted) {
       result.encToDetails = options.encToDetails;
@@ -1489,13 +1491,13 @@ var RNP = {
         throw new Error("rnp_op_verify_signature_get_times failed");
       }
 
-      let sigCreatedDate = new Date(created.value * 1000);
+      result.sigDetails.sigDate = new Date(created.value * 1000);
 
       let timeDelta;
-      if (sigCreatedDate > msgDate) {
-        timeDelta = sigCreatedDate - msgDate;
+      if (result.sigDetails.sigDate > msgDate) {
+        timeDelta = result.sigDetails.sigDate - msgDate;
       } else {
-        timeDelta = msgDate - sigCreatedDate;
+        timeDelta = msgDate - result.sigDetails.sigDate;
       }
 
       if (timeDelta > 1000 * 60 * 60 * 1) {
@@ -1637,6 +1639,8 @@ var RNP = {
     result.extStatusFlags = 0;
     result.userId = "";
     result.keyId = "";
+    result.sigDetails = {};
+    result.sigDetails.sigDate = null;
 
     let sig_arr = options.mimeSignatureData.split("").map(e => e.charCodeAt());
     var sig_array = lazy.ctypes.uint8_t.array()(sig_arr);

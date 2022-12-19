@@ -3189,10 +3189,15 @@ Enigmail.msg = {
    * Populate the message security popup panel with OpenPGP data.
    */
   async loadOpenPgpMessageSecurityInfo() {
+    let sigInfoWithDateLabel = null;
     let sigInfoLabel = null;
     let sigInfo = null;
     let sigClass = null;
+    let wantToShowDate = false;
 
+    // All scenarios that set wantToShowDate to true should set both
+    // sigInfoWithDateLabel and sigInfoLabel, to ensure we have a
+    // fallback label, if the date is unavailable.
     switch (Enigmail.hdrView.msgSignatureState) {
       case EnigmailConstants.MSG_SIG_NONE:
         sigInfoLabel = "openpgp-no-sig";
@@ -3208,18 +3213,24 @@ Enigmail.msg = {
 
       case EnigmailConstants.MSG_SIG_UNCERTAIN_UID_MISMATCH:
         sigInfoLabel = "openpgp-uncertain-sig";
+        sigInfoWithDateLabel = "openpgp-uncertain-sig-with-date";
+        wantToShowDate = true;
         sigClass = "mismatch";
         sigInfo = "openpgp-sig-uncertain-uid-mismatch";
         break;
 
       case EnigmailConstants.MSG_SIG_UNCERTAIN_KEY_NOT_ACCEPTED:
         sigInfoLabel = "openpgp-uncertain-sig";
+        sigInfoWithDateLabel = "openpgp-uncertain-sig-with-date";
+        wantToShowDate = true;
         sigClass = "unknown";
         sigInfo = "openpgp-sig-uncertain-not-accepted";
         break;
 
       case EnigmailConstants.MSG_SIG_INVALID_KEY_REJECTED:
         sigInfoLabel = "openpgp-invalid-sig";
+        sigInfoWithDateLabel = "openpgp-invalid-sig-with-date";
+        wantToShowDate = true;
         sigClass = "mismatch";
         sigInfo = "openpgp-sig-invalid-rejected";
         break;
@@ -3232,18 +3243,24 @@ Enigmail.msg = {
 
       case EnigmailConstants.MSG_SIG_VALID_KEY_UNVERIFIED:
         sigInfoLabel = "openpgp-good-sig";
+        sigInfoWithDateLabel = "openpgp-good-sig-with-date";
+        wantToShowDate = true;
         sigClass = "unverified";
         sigInfo = "openpgp-sig-valid-unverified";
         break;
 
       case EnigmailConstants.MSG_SIG_VALID_KEY_VERIFIED:
         sigInfoLabel = "openpgp-good-sig";
+        sigInfoWithDateLabel = "openpgp-good-sig-with-date";
+        wantToShowDate = true;
         sigClass = "verified";
         sigInfo = "openpgp-sig-valid-verified";
         break;
 
       case EnigmailConstants.MSG_SIG_VALID_SELF:
         sigInfoLabel = "openpgp-good-sig";
+        sigInfoWithDateLabel = "openpgp-good-sig-with-date";
+        wantToShowDate = true;
         sigClass = "ok";
         sigInfo = "openpgp-sig-valid-own-key";
         break;
@@ -3255,8 +3272,17 @@ Enigmail.msg = {
     }
 
     let signatureLabel = document.getElementById("signatureLabel");
-    // eslint-disable-next-line mozilla/prefer-formatValues
-    signatureLabel.textContent = await document.l10n.formatValue(sigInfoLabel);
+    if (wantToShowDate && Enigmail.hdrView.msgSignatureDate) {
+      let date = new Services.intl.DateTimeFormat(undefined, {
+        dateStyle: "short",
+        timeStyle: "short",
+      }).format(Enigmail.hdrView.msgSignatureDate);
+      document.l10n.setAttributes(signatureLabel, sigInfoWithDateLabel, {
+        date,
+      });
+    } else {
+      document.l10n.setAttributes(signatureLabel, sigInfoLabel);
+    }
 
     // Remove the second class to properly update the signature icon.
     signatureLabel.classList.remove(signatureLabel.classList.item(1));
