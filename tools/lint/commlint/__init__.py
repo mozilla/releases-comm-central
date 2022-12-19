@@ -8,6 +8,7 @@ from pathlib import Path
 
 from mozpack import path as mozpath
 from mozlint.types import supported_types
+from mozlint.pathutils import expand_exclusions
 
 COMM_EXCLUSION_FILES = [os.path.join("comm", "tools", "lint", "ThirdPartyPaths.txt")]
 
@@ -58,6 +59,23 @@ def eslint_wrapper(paths, config, **lintargs):
         rv = lint_wrapper(paths, config, **lintargs)
 
     return rv
+
+
+def black_lint(paths, config, fix=None, **lintargs):
+    from python.black import run_black
+
+    files = list(expand_exclusions(paths, config, lintargs["root"]))
+
+    # prepend "--line-length 99" to files, it will be processed as an argument
+    black_args = ["-l", "99"] + files
+
+    return run_black(
+        config,
+        black_args,
+        fix=fix,
+        log=lintargs["log"],
+        virtualenv_bin_path=lintargs.get("virtualenv_bin_path"),
+    )
 
 
 def lint_wrapper(paths, config, **lintargs):
