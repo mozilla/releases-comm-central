@@ -394,12 +394,41 @@ var threadPane = {
       hidden: true,
     },
     {
+      id: "flaggedCol",
+      l10n: {
+        header: "about-threadpane-column-header-flagged",
+        menuitem: "about-threadpane-column-label-flagged",
+      },
+      star: true,
+      icon: true,
+      resizable: false,
+      sortable: false,
+    },
+    {
       id: "senderCol",
       l10n: {
         header: "about-threadpane-column-header-sender",
         menuitem: "about-threadpane-column-label-sender",
       },
       sortKey: "byAuthor",
+    },
+    {
+      id: "recipientCol",
+      l10n: {
+        header: "about-threadpane-column-header-recipient",
+        menuitem: "about-threadpane-column-label-recipient",
+      },
+      sortKey: "byRecipient",
+      hidden: true,
+    },
+    {
+      id: "correspondentCol",
+      l10n: {
+        header: "about-threadpane-column-header-correspondents",
+        menuitem: "about-threadpane-column-label-correspondents",
+      },
+      sortKey: "byCorrespondent",
+      hidden: true,
     },
     {
       id: "subjectCol",
@@ -417,6 +446,96 @@ var threadPane = {
         menuitem: "about-threadpane-column-label-date",
       },
       sortKey: "byDate",
+    },
+    {
+      id: "receivedCol",
+      l10n: {
+        header: "about-threadpane-column-header-received",
+        menuitem: "about-threadpane-column-label-received",
+      },
+      sortKey: "byReceived",
+      hidden: true,
+    },
+    {
+      id: "statusCol",
+      l10n: {
+        header: "about-threadpane-column-header-status",
+        menuitem: "about-threadpane-column-label-status",
+      },
+      sortKey: "byStatus",
+      hidden: true,
+    },
+    {
+      id: "sizeCol",
+      l10n: {
+        header: "about-threadpane-column-header-size",
+        menuitem: "about-threadpane-column-label-size",
+      },
+      sortKey: "bySize",
+      hidden: true,
+    },
+    {
+      id: "tagsCol",
+      l10n: {
+        header: "about-threadpane-column-header-tags",
+        menuitem: "about-threadpane-column-label-tags",
+      },
+      sortKey: "byTags",
+      hidden: true,
+    },
+    {
+      id: "accountCol",
+      l10n: {
+        header: "about-threadpane-column-header-account",
+        menuitem: "about-threadpane-column-label-account",
+      },
+      sortKey: "byAccount",
+      hidden: true,
+    },
+    {
+      id: "priorityCol",
+      l10n: {
+        header: "about-threadpane-column-header-priority",
+        menuitem: "about-threadpane-column-label-priority",
+      },
+      sortKey: "byPriority",
+      hidden: true,
+    },
+    {
+      id: "unreadCol",
+      l10n: {
+        header: "about-threadpane-column-header-unread",
+        menuitem: "about-threadpane-column-label-unread",
+      },
+      sortable: false,
+      hidden: true,
+    },
+    {
+      id: "totalCol",
+      l10n: {
+        header: "about-threadpane-column-header-total",
+        menuitem: "about-threadpane-column-label-total",
+      },
+      sortable: false,
+      hidden: true,
+    },
+    {
+      id: "locationCol",
+      l10n: {
+        header: "about-threadpane-column-header-location",
+        menuitem: "about-threadpane-column-label-location",
+      },
+      sortKey: "byLocation",
+      hidden: true,
+    },
+    {
+      id: "idCol",
+      l10n: {
+        header: "about-threadpane-column-header-id",
+        menuitem: "about-threadpane-column-label-id",
+      },
+      sortKey: "byId",
+      hidden: true,
     },
     {
       id: "deleteCol",
@@ -444,6 +563,9 @@ var threadPane = {
     });
     treeTable.addEventListener("sort-changed", event => {
       this.onSortChanged(event.detail);
+    });
+    treeTable.addEventListener("toggle-flag", event => {
+      commandController.doCommand("cmd_markAsFlagged", event);
     });
     treeTable.addEventListener("thread-changed", () => {
       sortController.toggleThreaded();
@@ -1065,7 +1187,8 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
 
   set index(index) {
     super.index = index;
-    this.dataset.properties = this.view.getRowProperties(index).trim();
+    const properties = this.view.getRowProperties(index).trim();
+    this.dataset.properties = properties;
 
     for (let column of threadPane.COLUMNS) {
       let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
@@ -1086,6 +1209,15 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
         // Indent child message of this thread.
         span.style.setProperty("--thread-level", this.view.getLevel(index));
         continue;
+      }
+
+      if (column.id == "flaggedCol") {
+        document.l10n.setAttributes(
+          cell.querySelector("button"),
+          properties.split(" ").find(p => p == "flagged")
+            ? "tree-list-view-row-flagged"
+            : "tree-list-view-row-flag"
+        );
       }
 
       // No need to update the text of this cell if it's the selection or an

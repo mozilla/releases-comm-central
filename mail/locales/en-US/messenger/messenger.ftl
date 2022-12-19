@@ -340,10 +340,25 @@ about-threadpane-column-header-thread =
 about-threadpane-column-label-thread =
   .label = Thread
 
+about-threadpane-column-header-flagged =
+  .title = Sort by star
+about-threadpane-column-label-flagged =
+  .label = Starred
+
 about-threadpane-column-header-sender = From
   .title = Sort by from
 about-threadpane-column-label-sender =
   .label = From
+
+about-threadpane-column-header-recipient = Recipient
+  .title = Sort by recipient
+about-threadpane-column-label-recipient =
+  .label = Recipient
+
+about-threadpane-column-header-correspondents = Correspondents
+  .title = Sort by correspondents
+about-threadpane-column-label-correspondents =
+  .label = Correspondents
 
 about-threadpane-column-header-subject = Subject
   .title = Sort by subject
@@ -354,6 +369,56 @@ about-threadpane-column-header-date = Date
   .title = Sort by date
 about-threadpane-column-label-date =
   .label = Date
+
+about-threadpane-column-header-received = Received
+  .title = Sort by date received
+about-threadpane-column-label-received =
+  .label = Received
+
+about-threadpane-column-header-status = Status
+  .title = Sort by status
+about-threadpane-column-label-status =
+  .label = Status
+
+about-threadpane-column-header-size = Size
+  .title = Sort by size
+about-threadpane-column-label-size =
+  .label = Size
+
+about-threadpane-column-header-tags = Tags
+  .title = Sort by tags
+about-threadpane-column-label-tags =
+  .label = Tags
+
+about-threadpane-column-header-account = Account
+  .title = Sort by account
+about-threadpane-column-label-account =
+  .label = Account
+
+about-threadpane-column-header-priority = Priority
+  .title = Sort by priority
+about-threadpane-column-label-priority =
+  .label = Priority
+
+about-threadpane-column-header-unread = Unread
+  .title = Number of unread messages in thread
+about-threadpane-column-label-unread =
+  .label = Unread
+
+about-threadpane-column-header-total = Total
+  .title = Total number of messages in thread
+about-threadpane-column-label-total =
+  .label = Total
+
+about-threadpane-column-header-location = Location
+  .title = Sort by location
+about-threadpane-column-label-location =
+  .label = Location
+
+about-threadpane-column-header-id = Order Received
+  .title = Sort by order received
+about-threadpane-column-label-id =
+  .label = Order Received
 
 about-threadpane-column-header-delete =
   .title = Delete

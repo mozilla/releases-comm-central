@@ -221,7 +221,7 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
   color: var(--tree-row-delete-button-color);
 }
 
-[is="tree-view-listbox"]:focus  .selected .tree-view-row-delete button:hover {
+[is="tree-view-listbox"]:focus .selected .tree-view-row-delete button:hover {
   background-color: var(--tree-row-delete-button-color);
   color: currentColor;
 }

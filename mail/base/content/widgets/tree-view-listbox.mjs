@@ -738,6 +738,17 @@
           return;
         }
 
+        if (event.target.classList.contains("tree-button-flag")) {
+          // Enforce the selection of only one row.
+          this._selectSingle(index);
+          this.dispatchEvent(
+            new CustomEvent("toggle-flag", {
+              bubbles: true,
+            })
+          );
+          return;
+        }
+
         if (event.ctrlKey) {
           this._toggleSelected(index);
         } else if (event.shiftKey) {
@@ -1591,6 +1602,25 @@
             cell.replaceChildren();
           }
           continue;
+        }
+
+        // Handle the special case for the flagged star column.
+        if (column.star) {
+          cell.classList.add("tree-view-row-flag");
+          const button = document.createElement("button");
+          button.type = "button";
+          button.tabIndex = -1;
+          button.classList.add(
+            "button-flat",
+            "button-reset",
+            "tree-button-flag"
+          );
+
+          const img = button.appendChild(document.createElement("img"));
+          img.src = "";
+          img.alt = "";
+
+          cell.replaceChildren(button);
         }
 
         // Handle the special case of the delete column.

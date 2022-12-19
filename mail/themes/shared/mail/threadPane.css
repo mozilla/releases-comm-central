@@ -2,6 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@media not (prefers-contrast) {
+  :root {
+    --thread-pane-flag-fill: var(--color-orange-30);
+    --thread-pane-flag-stroke: var(--color-orange-60);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --thread-pane-flag-fill: var(--color-orange-40);
+      --thread-pane-flag-stroke: var(--color-orange-50);
+    }
+  }
+}
+
 #threadTreePane > tree-view {
   -moz-context-properties: fill;
   fill: currentColor;
@@ -21,7 +35,7 @@
 
 /* Thread column */
 
-.tree-table-cell-container button.tree-view-header-thread {
+#threadColButton {
   text-align: center;
 }
 
@@ -38,6 +52,53 @@
      wrong. */
   margin-inline-start: 3px;
   opacity: 0.7;
+}
+
+/* Starred column */
+
+#flaggedColButton {
+  text-align: center;
+}
+
+#flaggedColButton img {
+  content: var(--icon-star-sm);
+}
+
+.tree-view-row-flag button {
+  color: inherit;
+  opacity: 0.8;
+}
+
+.tree-view-row-flag img {
+  fill: color-mix(in srgb, currentColor 10%, transparent);
+  stroke: color-mix(in srgb, currentColor 30%, transparent);
+}
+
+#threadTree [data-properties~="flagged"] .tree-view-row-flag img {
+  fill: var(--thread-pane-flag-fill);
+  stroke: var(--thread-pane-flag-stroke);
+}
+
+.tree-view-row-flag button:hover {
+  opacity: 1;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.tree-view-row-flag button:hover:active {
+  background-color: color-mix(in srgb, currentColor 20%, transparent);
+  border-color: transparent;
+  color: currentColor;
+}
+
+[is="tree-view-listbox"]:focus .selected .tree-view-row-flag button:hover {
+  background-color: transparent;
+  color: currentColor;
+}
+
+.tree-view-row-flag img {
+  content: var(--icon-star);
+  pointer-events: none;
 }
 
 /* Subject column variations */

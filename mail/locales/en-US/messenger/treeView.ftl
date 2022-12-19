@@ -21,3 +21,11 @@ tree-list-view-column-picker =
 tree-list-view-row-thread =
   .alt = Thread message indicator
   .title = This is a threaded message
+
+tree-list-view-row-flagged =
+  .alt = Starred message indicator
+  .title = Message starred
+
+tree-list-view-row-flag =
+  .alt = Starred message indicator
+  .title = Message not starred
