@@ -2,16 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this,
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from __future__ import absolute_import, print_function, unicode_literals
-
 import argparse
-from pathlib import Path
 import os.path
+from pathlib import Path
 
-from mach.decorators import (
-    CommandArgument,
-    Command,
-)
+from mach.decorators import Command, CommandArgument
 
 
 # https://stackoverflow.com/a/14117511
@@ -107,9 +102,9 @@ def tb_cross_channel(
     **kwargs,
 ):
     """Run Thunderbird's l10n cross-channel content generation."""
-    from tbxchannel import get_thunderbird_xc_config, TB_XC_NOTIFICATION_TMPL
-    from tbxchannel.l10n_merge import COMM_STRINGS_QUARANTINE
     from rocbuild.notify import email_notification
+    from tbxchannel import TB_XC_NOTIFICATION_TMPL, get_thunderbird_xc_config
+    from tbxchannel.l10n_merge import COMM_STRINGS_QUARANTINE
 
     kwargs.update(
         {
@@ -158,7 +153,7 @@ def tb_add_missing_ftls(command_context, merge, locale):
     repositories in favor of creating the files during l10m-repackaging.
     This code assumes that mach compare-locales --merge has already run.
     """
-    from missing_ftl import get_source_ftls, get_lang_ftls, add_missing_ftls
+    from missing_ftl import add_missing_ftls, get_lang_ftls, get_source_ftls
 
     print("Checking for missing .ftl files in locale {}".format(locale))
     comm_src_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))

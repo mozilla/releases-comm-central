@@ -22,9 +22,9 @@ sys.path.insert(1, COMM_PYTHON_L10N)
 
 from tbxchannel.l10n_merge import (
     COMM_L10N,
-    L10N_CENTRAL,
     COMM_STRINGS_PATTERNS,
     GECKO_STRINGS_PATTERNS,
+    L10N_CENTRAL,
 )
 
 ALL_LOCALES = [

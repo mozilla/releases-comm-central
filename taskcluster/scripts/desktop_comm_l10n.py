@@ -13,6 +13,8 @@ COMM_PYTHON_L10N = os.path.join(GECKO_PATH, "comm/python/l10n")
 sys.path.insert(1, MOZHARNESS)
 sys.path.insert(1, COMM_PYTHON_L10N)
 
+from zstandard import ZstdCompressor
+
 from mozharness.base.script import BaseScript
 from mozharness.base.vcs.vcsbase import VCSMixin
 from mozharness.mozilla.automation import AutomationMixin
@@ -20,8 +22,8 @@ from mozharness.mozilla.l10n.locales import LocalesMixin
 from mozpack.archive import create_tar_from_files
 from mozpack.copier import FileRegistry
 from mozpack.files import FileFinder
+
 from tbxchannel.l10n_merge import COMM_STRINGS_PATTERNS, GECKO_STRINGS_PATTERNS
-from zstandard import ZstdCompressor
 
 
 class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):

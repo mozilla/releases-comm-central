@@ -8,13 +8,14 @@ Create a strings build artifact to be consumed by shippable-l10n.
 import json
 import os
 
+from taskgraph.transforms.base import TransformSequence
+from taskgraph.util.schema import optionally_keyed_by, resolve_keyed_by
+from voluptuous import Match, Optional, Required
+
 from gecko_taskgraph import GECKO
 from gecko_taskgraph.loader.single_dep import schema
 from gecko_taskgraph.transforms.job import job_description_schema
 from gecko_taskgraph.transforms.task import task_description_schema
-from taskgraph.transforms.base import TransformSequence
-from taskgraph.util.schema import optionally_keyed_by, resolve_keyed_by
-from voluptuous import Match, Optional, Required
 
 l10n_description_schema = schema.extend(
     {

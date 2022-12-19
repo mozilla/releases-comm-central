@@ -7,9 +7,8 @@ Do transforms specific to l10n kind
 
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.schema import resolve_keyed_by
-from gecko_taskgraph.util.attributes import (
-    task_name,
-)
+
+from gecko_taskgraph.util.attributes import task_name
 
 transforms_pregecko = TransformSequence()
 transforms_postgecko = TransformSequence()

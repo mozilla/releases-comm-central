@@ -4,11 +4,9 @@
 """
 Thunderbird modifications to partial update building
 """
-from __future__ import absolute_import, print_function, unicode_literals
+import logging
 
 from taskgraph.transforms.base import TransformSequence
-
-import logging
 
 logger = logging.getLogger(__name__)
 

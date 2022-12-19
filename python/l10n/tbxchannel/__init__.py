@@ -6,7 +6,6 @@ from pathlib import Path
 
 from .l10n_merge import COMM_STRINGS_QUARANTINE, COMM_STRINGS_QUARANTINE_PUSH
 
-
 TB_XC_NOTIFICATION_TMPL = """\
 **Thunderbird L10n Cross Channel**
 

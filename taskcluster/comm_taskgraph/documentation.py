@@ -3,12 +3,10 @@
 #  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-from __future__ import absolute_import, print_function, unicode_literals
-
 import os
 
-from . import COMM
-
 from gecko_taskgraph.util.verify import documentation_paths
+
+from . import COMM
 
 documentation_paths.add(os.path.join(COMM, "taskcluster", "docs"))

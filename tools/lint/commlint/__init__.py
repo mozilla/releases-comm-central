@@ -2,13 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from contextlib import contextmanager
 import os
+from contextlib import contextmanager
 from pathlib import Path
 
-from mozpack import path as mozpath
-from mozlint.types import supported_types
 from mozlint.pathutils import expand_exclusions
+from mozlint.types import supported_types
+from mozpack import path as mozpath
 
 COMM_EXCLUSION_FILES = [os.path.join("comm", "tools", "lint", "ThirdPartyPaths.txt")]
 

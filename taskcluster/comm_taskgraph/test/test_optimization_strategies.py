@@ -1,21 +1,19 @@
 # Any copyright is dedicated to the public domain.
 # http://creativecommons.org/publicdomain/zero/1.0/
 
-from __future__ import absolute_import
-
 import hashlib
 from datetime import datetime
 from time import mktime
 
-import responses
-import pytest
-from mozunit import main
-
 import conftest  # noqa: F401
+import pytest
+import responses
+from mozunit import main
+from taskgraph.task import Task
+
+from gecko_taskgraph.optimize import registry
 
 from comm_taskgraph.optimize import SkipSuiteOnly
-from gecko_taskgraph.optimize import registry
-from taskgraph.task import Task
 
 
 def generate_task():

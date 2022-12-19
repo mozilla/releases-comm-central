@@ -7,7 +7,6 @@ import os
 import sys
 
 from redo import retry
-
 from taskgraph.decision import (
     _determine_more_accurate_base_ref,
     _determine_more_accurate_base_rev,
@@ -23,6 +22,7 @@ from gecko_taskgraph.util.taskgraph import (
     find_decision_task,
     find_existing_tasks_from_previous_kinds,
 )
+
 from comm_taskgraph.parameters import get_defaults
 
 from . import COMM

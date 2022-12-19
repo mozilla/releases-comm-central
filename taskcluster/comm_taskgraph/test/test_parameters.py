@@ -2,14 +2,13 @@
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
 #  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from __future__ import absolute_import, print_function, unicode_literals
-
 import unittest
+
 import conftest  # noqa: F401
+from mozunit import main
+from taskgraph.parameters import Parameters
 
 from comm_taskgraph.parameters import register_parameters
-from taskgraph.parameters import Parameters
-from mozunit import main
 
 
 class TestCommParameters(unittest.TestCase):

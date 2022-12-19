@@ -2,18 +2,17 @@
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
 #  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from __future__ import absolute_import, print_function, unicode_literals
-
 import logging
 
 from gecko_taskgraph.target_tasks import (
     _target_task,
     _try_task_config,
     filter_on_platforms,
-    filter_out_shipping_phase,
     filter_out_shippable,
+    filter_out_shipping_phase,
     standard_filter,
 )
+
 from comm_taskgraph.try_option_syntax import _try_cc_option_syntax
 
 logger = logging.getLogger(__name__)

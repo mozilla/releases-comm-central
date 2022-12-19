@@ -29,9 +29,9 @@ Either path argument can be '-' to use stdin or stdout respectively.
 """
 
 import argparse
-import sys
 import os
 import re
+import sys
 
 HERE = os.path.dirname(__file__)
 TOPSRCDIR = os.path.abspath(os.path.join(HERE, "../../../../"))

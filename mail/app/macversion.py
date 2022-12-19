@@ -3,11 +3,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from __future__ import absolute_import, print_function, unicode_literals
 import io
-from optparse import OptionParser
-import sys
 import re
+import sys
+from optparse import OptionParser
 
 o = OptionParser()
 o.add_option("--buildid", dest="buildid")

@@ -5,27 +5,21 @@
 Thunderbird specific taskgraph optimizers.
 """
 
-from __future__ import absolute_import, print_function, unicode_literals
-
 import logging
 
+from taskgraph.optimize.base import Any, OptimizationStrategy, register_strategy
+from taskgraph.util.memoize import memoize
+from taskgraph.util.path import join as join_path
+from taskgraph.util.path import match as match_path
+from taskgraph.util.yaml import load_yaml
 from voluptuous import Optional, Required
 
-from taskgraph.optimize.base import (
-    register_strategy,
-    Any,
-    OptimizationStrategy,
-)
-from gecko_taskgraph import GECKO
-from gecko_taskgraph.optimize.schema import (
-    default_optimizations,
-)
-from taskgraph.util.memoize import memoize
-from taskgraph.util.path import join as join_path, match as match_path
-from taskgraph.util.yaml import load_yaml
-from comm_taskgraph import files_changed
-
 from mozlint.pathutils import filterpaths
+
+from gecko_taskgraph import GECKO
+from gecko_taskgraph.optimize.schema import default_optimizations
+
+from comm_taskgraph import files_changed
 
 logger = logging.getLogger(__name__)
 

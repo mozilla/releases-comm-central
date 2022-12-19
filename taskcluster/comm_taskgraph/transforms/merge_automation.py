@@ -8,8 +8,9 @@ Fix-ups for comm-central merge automation
 import os
 import re
 
-from comm_taskgraph import COMM
 from taskgraph.transforms.base import TransformSequence
+
+from comm_taskgraph import COMM
 
 transforms = TransformSequence()
 

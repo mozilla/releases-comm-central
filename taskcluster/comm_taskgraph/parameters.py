@@ -4,15 +4,11 @@
 
 import logging
 
-from voluptuous import (
-    Required,
-)
 from taskgraph.parameters import extend_parameters_schema
-from gecko_taskgraph.parameters import (
-    gecko_parameters_schema as comm_parameters_schema,
-    get_app_version,
-    get_version,
-)
+from voluptuous import Required
+
+from gecko_taskgraph.parameters import gecko_parameters_schema as comm_parameters_schema
+from gecko_taskgraph.parameters import get_app_version, get_version
 
 logger = logging.getLogger(__name__)
 
