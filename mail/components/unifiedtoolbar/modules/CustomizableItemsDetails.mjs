@@ -9,7 +9,7 @@
  *   templateId.
  * - unifiedToolbarShared.css contains styles for the template contents shared
  *   between the customization preview and the actual toolbar.
- * - unifiedToolbar/content/items contains all item specific custom elements.
+ * - unifiedtoolbar/content/items contains all item specific custom elements.
  */
 
 /**
