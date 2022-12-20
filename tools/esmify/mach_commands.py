@@ -2,8 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from __future__ import print_function, absolute_import
-
 import logging
 import os
 import pathlib
@@ -11,10 +9,7 @@ import re
 import subprocess
 import sys
 
-from mach.decorators import (
-    Command,
-    CommandArgument,
-)
+from mach.decorators import Command, CommandArgument
 
 
 def path_sep_to_native(path_str):
@@ -461,9 +456,7 @@ def try_rename_components_conf(command_context, path, jsm_name, esm_name):
     with open(target_path, "r") as f:
         content = f.read()
 
-    prop_re = re.compile(
-        "[\"']jsm[\"']:(.*)" + r"\b" + jsm_name.replace(".", r"\.") + r"\b"
-    )
+    prop_re = re.compile("[\"']jsm[\"']:(.*)" + r"\b" + jsm_name.replace(".", r"\.") + r"\b")
 
     if not prop_re.search(content):
         return False
@@ -525,9 +518,7 @@ def rename_single_file(command_context, vcs_utils, jsm_path, summary):
 
     renamed = False
     for target in target_files:
-        if try_rename_in(
-            command_context, jsm_path, target, jsm_name, esm_name, jsm_path
-        ):
+        if try_rename_in(command_context, jsm_path, target, jsm_name, esm_name, jsm_path):
             renamed = True
 
     if try_rename_components_conf(command_context, jsm_path, jsm_name, esm_name):

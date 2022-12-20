@@ -5,32 +5,21 @@
 Support for running toolchain-building jobs via dedicated scripts in comm-central
 """
 
-from __future__ import absolute_import, print_function, unicode_literals
-
-import os.path
 import json
+import os.path
 
-from voluptuous import Any, Optional, Required
-
+import taskgraph
 import taskgraph.util.path as util_path
 from taskgraph.util.taskcluster import find_task_id
+from voluptuous import Any, Optional, Required
 
-from gecko_taskgraph.transforms.job import (
-    configure_taskdesc_for_run,
-    run_job_using,
-)
-from gecko_taskgraph.transforms.job.toolchain import (
-    toolchain_defaults,
-    toolchain_run_schema,
-)
-from gecko_taskgraph.transforms.job.common import (
-    docker_worker_add_artifacts,
-)
+from gecko_taskgraph import GECKO
+from gecko_taskgraph.transforms.job import configure_taskdesc_for_run, run_job_using
+from gecko_taskgraph.transforms.job.common import docker_worker_add_artifacts
+from gecko_taskgraph.transforms.job.toolchain import toolchain_defaults, toolchain_run_schema
+from gecko_taskgraph.util.hash import hash_paths as hash_paths_gecko_root
 
 from comm_taskgraph.util.hash import hash_paths_extended
-from gecko_taskgraph.util.hash import hash_paths as hash_paths_gecko_root
-from gecko_taskgraph import GECKO
-import taskgraph
 
 CACHE_TYPE = "toolchains.v3"
 

@@ -2,13 +2,8 @@
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
 #  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from __future__ import absolute_import, print_function, unicode_literals
-
 from gecko_taskgraph.actions.registry import register_callback_action
-from gecko_taskgraph.actions.util import (
-    create_tasks,
-    fetch_graph_and_labels,
-)
+from gecko_taskgraph.actions.util import create_tasks, fetch_graph_and_labels
 from gecko_taskgraph.util.attributes import RELEASE_PROMOTION_PROJECTS
 
 
@@ -32,11 +27,7 @@ def l10n_bump_action(parameters, graph_config, _input, task_group_id, task_id):
     decision_task_id, full_task_graph, label_to_taskid = fetch_graph_and_labels(
         parameters, graph_config
     )
-    to_run = [
-        label
-        for label, entry in full_task_graph.tasks.items()
-        if "l10n-bump" in entry.kind
-    ]
+    to_run = [label for label, entry in full_task_graph.tasks.items() if "l10n-bump" in entry.kind]
     create_tasks(
         graph_config,
         to_run,

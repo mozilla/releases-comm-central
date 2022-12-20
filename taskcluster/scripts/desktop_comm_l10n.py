@@ -13,6 +13,8 @@ COMM_PYTHON_L10N = os.path.join(GECKO_PATH, "comm/python/l10n")
 sys.path.insert(1, MOZHARNESS)
 sys.path.insert(1, COMM_PYTHON_L10N)
 
+from zstandard import ZstdCompressor
+
 from mozharness.base.script import BaseScript
 from mozharness.base.vcs.vcsbase import VCSMixin
 from mozharness.mozilla.automation import AutomationMixin
@@ -20,8 +22,8 @@ from mozharness.mozilla.l10n.locales import LocalesMixin
 from mozpack.archive import create_tar_from_files
 from mozpack.copier import FileRegistry
 from mozpack.files import FileFinder
+
 from tbxchannel.l10n_merge import COMM_STRINGS_PATTERNS, GECKO_STRINGS_PATTERNS
-from zstandard import ZstdCompressor
 
 
 class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
@@ -94,9 +96,7 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
         abs_dirs = super(CommMultiLocale, self).query_abs_dirs()
         c = self.config
         dirs = {}
-        dirs["abs_checkout_dir"] = os.path.abspath(
-            os.path.join(abs_dirs["abs_src_dir"], "..")
-        )
+        dirs["abs_checkout_dir"] = os.path.abspath(os.path.join(abs_dirs["abs_src_dir"], ".."))
         dirs["abs_work_dir"] = os.path.join(c["base_work_dir"], c["work_dir"])
         # Needs to match abs_dirs["abs_l10n_dir"] set in mozharness.mozilla.l10n.locales
         dirs["abs_l10n_central_dir"] = os.path.abspath(

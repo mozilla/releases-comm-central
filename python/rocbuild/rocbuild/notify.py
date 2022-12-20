@@ -7,9 +7,8 @@ Notification utility functions
 """
 
 import os
-from taskcluster import Notify
-from taskcluster import optionsFromEnvironment
 
+from taskcluster import Notify, optionsFromEnvironment
 
 TB_BUILD_ADDR = "tb-builds@thunderbird.net"
 

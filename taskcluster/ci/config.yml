@@ -168,7 +168,7 @@ workers:
             provisioner: 'comm-{level}'
             implementation: generic-worker
             os: windows
-            worker-type: '{alias}'
+            worker-type: '{alias}-azure'
         images:
             provisioner: 'comm-{level}'
             implementation: docker-worker

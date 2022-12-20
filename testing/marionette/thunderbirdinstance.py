@@ -9,8 +9,6 @@
 # so please be careful and get review from a Testing :: Marionette peer
 # before you make any changes to this file.
 
-from __future__ import absolute_import
-
 
 thunderbird_prefs = {
     # Disable application updates

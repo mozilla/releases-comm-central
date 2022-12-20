@@ -5,12 +5,11 @@
 # Generate updater.ini by doing some light substitution on the localized updater.ini input,
 # and appending the contents of updater_ini_append on Windows.
 
-from __future__ import absolute_import, unicode_literals, print_function
-
-import buildconfig
 import codecs
 import re
 import shutil
+
+import buildconfig
 
 
 def main(output, ini, ini_append=None, locale=None):
@@ -19,9 +18,7 @@ def main(output, ini, ini_append=None, locale=None):
     with codecs.open(ini, "rb", "utf_8") as f:
         for line in f:
             line = fixup_re.sub(r"\1=", line)
-            line = line.replace(
-                "%MOZ_APP_DISPLAYNAME%", buildconfig.substs["MOZ_APP_DISPLAYNAME"]
-            )
+            line = line.replace("%MOZ_APP_DISPLAYNAME%", buildconfig.substs["MOZ_APP_DISPLAYNAME"])
             output.write(line)
     if ini_append and buildconfig.substs["OS_TARGET"] == "WINNT":
         # Also append the contents of `ini_append`.

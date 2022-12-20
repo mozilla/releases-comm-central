@@ -2,8 +2,6 @@
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
 #  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from __future__ import absolute_import, print_function, unicode_literals
-
 from taskgraph.transforms.base import TransformSequence
 
 from gecko_taskgraph.util.signed_artifacts import is_notarization_kind
@@ -35,9 +33,7 @@ def remove_widevine(config, jobs):
         task = job["task"]
         payload = task["payload"]
 
-        widevine_scope = (
-            "project:comm:thunderbird:releng:signing:format" ":autograph_widevine"
-        )
+        widevine_scope = "project:comm:thunderbird:releng:signing:format" ":autograph_widevine"
         if widevine_scope in task["scopes"]:
             task["scopes"].remove(widevine_scope)
         if "upstreamArtifacts" in payload:

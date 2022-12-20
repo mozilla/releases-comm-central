@@ -1,0 +1,16 @@
+---
+isort:
+    description: Sort python imports
+    level: warning
+    # Excludes should be added to topsrcdir/.flake8.
+    exclude: []
+    extensions: ['configure', 'py']
+    support-files:
+        - 'comm/.flake8'
+        - '**/.isort.cfg'
+        - 'tools/lint/python/isort*'
+    commroot: true
+    type: external
+    payload: commlint:lint_wrapper
+    wraps: python.isort:lint
+    setup: python.isort:setup

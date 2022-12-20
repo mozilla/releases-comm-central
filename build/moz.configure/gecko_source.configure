@@ -129,9 +129,7 @@ def comm_repo_heuristics(comm_environ, paths, hg, sourcestamp):
         comm_repo = comm_rev = None
         if hg:
             log.info("Determining COMM source information from Mercurial...")
-            comm_rev = hg_cmd_output(
-                hg, "-R", paths.commtopsrcdir, "parent", "--template={node}"
-            )
+            comm_rev = hg_cmd_output(hg, "-R", paths.commtopsrcdir, "parent", "--template={node}")
             comm_repo = hg_cmd_output(hg, "-R", paths.commtopsrcdir, "path", "default")
             if comm_repo:
                 comm_repo = comm_repo.strip()

@@ -47,11 +47,7 @@ def add_missing_ftls(l10n_path, source_files, locale_files):
             file_path = os.path.dirname(full_file_name)
             if not os.path.isdir(file_path):
                 # Create missing folder
-                print(
-                    "Creating missing folder: {}".format(
-                        os.path.relpath(file_path, l10n_path)
-                    )
-                )
+                print("Creating missing folder: {}".format(os.path.relpath(file_path, l10n_path)))
                 os.makedirs(file_path)
 
             print("Adding missing file: {}".format(file_name))

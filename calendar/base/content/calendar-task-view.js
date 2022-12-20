@@ -6,6 +6,7 @@
 
 /* import-globals-from ../../../mail/base/content/mailCore.js */
 /* import-globals-from item-editing/calendar-item-editing.js */
+/* import-globals-from ../src/calApplicationUtils.js */
 /* import-globals-from calendar-ui-utils.js */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
@@ -173,10 +174,27 @@ var taskDetailsView = {
           rpv.textContent = detailsString.split("\n").join(" ");
         }
       }
-      let textbox = document.getElementById("calendar-task-details-description");
-      let description = item.hasProperty("DESCRIPTION") ? item.getProperty("DESCRIPTION") : null;
-      textbox.value = description;
-      textbox.readOnly = true;
+      let iframe = document.getElementById("calendar-task-details-description");
+      let docFragment = cal.view.textToHtmlDocumentFragment(
+        item.descriptionText,
+        iframe.contentDocument,
+        item.descriptionHTML
+      );
+
+      // Make any links open in the user's default browser, not in Thunderbird.
+      for (let anchor of docFragment.querySelectorAll("a")) {
+        anchor.addEventListener("click", function(event) {
+          event.preventDefault();
+          if (event.isTrusted) {
+            launchBrowser(anchor.getAttribute("href"), event);
+          }
+        });
+      }
+      iframe.contentDocument.body.replaceChildren(docFragment);
+      let link = iframe.contentDocument.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "chrome://messenger/skin/shared/EditorContent.css";
+      iframe.contentDocument.head.replaceChildren(link);
       let attachmentRows = document.getElementById("calendar-task-details-attachment-rows");
       while (attachmentRows.lastChild) {
         attachmentRows.lastChild.remove();

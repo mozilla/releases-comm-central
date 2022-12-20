@@ -23,7 +23,6 @@ win32/opt:
         tier: 1
     worker-type: b-linux-gcp
     worker:
-        docker-image: {in-tree: debian11-amd64-build}
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
@@ -84,7 +83,6 @@ win32-shippable/opt:
         tier: 1
     worker-type: b-linux-gcp
     worker:
-        docker-image: {in-tree: debian11-amd64-build}
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
@@ -141,7 +139,6 @@ win32/debug:
         tier: 1
     worker-type: b-linux-gcp
     worker:
-        docker-image: {in-tree: debian11-amd64-build}
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
@@ -199,7 +196,6 @@ win64/opt:
         tier: 1
     worker-type: b-linux-gcp
     worker:
-        docker-image: {in-tree: debian11-amd64-build}
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
@@ -260,7 +256,6 @@ win64-shippable/opt:
         tier: 1
     worker-type: b-linux-gcp
     worker:
-        docker-image: {in-tree: debian11-amd64-build}
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
@@ -317,7 +312,6 @@ win64/debug:
         tier: 1
     worker-type: b-linux-gcp
     worker:
-        docker-image: {in-tree: debian11-amd64-build}
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
@@ -461,7 +455,6 @@ win64-asan/opt:
         tier: 1
     worker-type: b-linux-gcp
     worker:
-        docker-image: {in-tree: debian11-amd64-build}
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: "opt asan"
@@ -524,7 +517,6 @@ win64-asan-reporter-shippable/opt:
         symbol: BoR
     worker-type: b-linux-gcp
     worker:
-        docker-image: {in-tree: debian11-amd64-build}
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: "asan-reporter"

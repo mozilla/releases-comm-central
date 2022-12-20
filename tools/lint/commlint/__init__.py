@@ -2,12 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from contextlib import contextmanager
 import os
+from contextlib import contextmanager
 from pathlib import Path
 
-from mozpack import path as mozpath
+from mozlint.pathutils import expand_exclusions
 from mozlint.types import supported_types
+from mozpack import path as mozpath
 
 COMM_EXCLUSION_FILES = [os.path.join("comm", "tools", "lint", "ThirdPartyPaths.txt")]
 
@@ -37,9 +38,7 @@ def _apply_global_excludes(root, config):
 
     if os.environ.get("MOZLINT_NO_SUITE", None):
         # Ignore Seamonkey-only paths when run from Taskcluster
-        suite_excludes = [
-            mozpath.join(root, path) for path in TASKCLUSTER_EXCLUDE_PATHS
-        ]
+        suite_excludes = [mozpath.join(root, path) for path in TASKCLUSTER_EXCLUDE_PATHS]
         exclude.extend(suite_excludes)
 
     config["exclude"] = exclude
@@ -58,6 +57,23 @@ def eslint_wrapper(paths, config, **lintargs):
         rv = lint_wrapper(paths, config, **lintargs)
 
     return rv
+
+
+def black_lint(paths, config, fix=None, **lintargs):
+    from python.black import run_black
+
+    files = list(expand_exclusions(paths, config, lintargs["root"]))
+
+    # prepend "--line-length 99" to files, it will be processed as an argument
+    black_args = ["-l", "99"] + files
+
+    return run_black(
+        config,
+        black_args,
+        fix=fix,
+        log=lintargs["log"],
+        virtualenv_bin_path=lintargs.get("virtualenv_bin_path"),
+    )
 
 
 def lint_wrapper(paths, config, **lintargs):

@@ -16,8 +16,7 @@ if CONFIG["OS_ARCH"] == "WINNT":
         "nsWindowsShellService.cpp",
     ]
     LOCAL_INCLUDES += [
-        "/%s/other-licenses/nsis/Contrib/CityHash/cityhash"
-        % (CONFIG["mozreltopsrcdir"],),
+        "/%s/other-licenses/nsis/Contrib/CityHash/cityhash" % (CONFIG["mozreltopsrcdir"],),
     ]
 
 elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":

@@ -6,7 +6,8 @@ import logging
 import shlex
 
 from taskgraph.transforms.base import TransformSequence
-from taskgraph.util.path import match as match_path, join as join_path
+from taskgraph.util.path import join as join_path
+from taskgraph.util.path import match as match_path
 
 from gecko_taskgraph.files_changed import get_changed_files
 
@@ -42,8 +43,7 @@ def changed_clang_format(config, jobs):
 
             match_patterns = get_patterns(job)
             changed_files = {
-                join_path("comm", file)
-                for file in get_changed_files(repository, revision)
+                join_path("comm", file) for file in get_changed_files(repository, revision)
             }
 
             cpp_files = []

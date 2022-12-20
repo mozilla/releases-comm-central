@@ -2,11 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from __future__ import absolute_import, print_function, unicode_literals
-
 import hashlib
+
 import taskgraph.util.path as util_path
-from gecko_taskgraph.util.hash import hash_path, get_file_finder
+
+from gecko_taskgraph.util.hash import get_file_finder, hash_path
 
 
 def split_patterns_list(patterns):

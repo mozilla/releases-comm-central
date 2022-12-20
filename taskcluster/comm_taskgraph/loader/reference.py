@@ -2,14 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from __future__ import absolute_import, print_function, unicode_literals
-
-import os
 import logging
+import os
 
-from taskgraph.util.yaml import load_yaml
 from taskgraph.util.python_path import find_object
 from taskgraph.util.schema import resolve_keyed_by
+from taskgraph.util.yaml import load_yaml
 
 logger = logging.getLogger(__name__)
 
@@ -79,9 +77,7 @@ def loader(kind, path, config, params, loaded_tasks):
     if jobs is not None:
         jobs = set(jobs)
 
-        found_reference_jobs = [
-            job for job in inputs if (_get_aliases(kind, job, project) & jobs)
-        ]
+        found_reference_jobs = [job for job in inputs if (_get_aliases(kind, job, project) & jobs)]
 
         # Check for jobs listed as a reference job in Thunderbird's config
         # that do not exist in upstream.
@@ -91,9 +87,7 @@ def loader(kind, path, config, params, loaded_tasks):
         else:
             missing_jobs = jobs - reference_alias_names
             raise Exception(
-                "Reference jobs not found in kind {}: {}".format(
-                    kind, ", ".join(missing_jobs)
-                )
+                "Reference jobs not found in kind {}: {}".format(kind, ", ".join(missing_jobs))
             )
     else:
         return inputs

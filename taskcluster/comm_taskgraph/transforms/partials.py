@@ -4,11 +4,9 @@
 """
 Thunderbird modifications to partial update building
 """
-from __future__ import absolute_import, print_function, unicode_literals
+import logging
 
 from taskgraph.transforms.base import TransformSequence
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +23,7 @@ def update_scopes(config, jobs):
     if not config.params.get("release_history"):
         return
 
-    MBSDIFF_SCOPE = (
-        "auth:aws-s3:read-write:tc-gp-private-1d-us-east-1/releng/mbsdiff-cache/"
-    )
+    MBSDIFF_SCOPE = "auth:aws-s3:read-write:tc-gp-private-1d-us-east-1/releng/mbsdiff-cache/"
 
     for job in jobs:
         task = job["task"]

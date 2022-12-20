@@ -221,6 +221,20 @@ py-flake8:
             root-path: comm
             mozlint-config: flake8.yml
 
+py-isort:
+    description: isort run over the gecko codebase
+    treeherder:
+        symbol: py(isort)
+    run:
+        mach: >
+            commlint -v -l isort -f treeherder
+            -f json:/builds/worker/mozlint.json
+            comm/*
+    optimization:
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: flake8.yml
+
 shellcheck:
     description: shellcheck run over the Thunderbird codebase
     treeherder:

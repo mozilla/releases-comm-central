@@ -29,8 +29,7 @@ do_get_profile();
 
 var gDEPTH = "../../../../../";
 
-registerCleanupFunction(function() {
-  httpServer.stop(function() {
-    load(gDEPTH + "mailnews/resources/mailShutdown.js");
-  });
+registerCleanupFunction(async () => {
+  await httpServer.stop();
+  load(gDEPTH + "mailnews/resources/mailShutdown.js");
 });
