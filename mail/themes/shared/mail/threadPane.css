@@ -25,7 +25,8 @@
   font-weight: bold;
 }
 
-#threadTree .children.collapsed[data-properties~="hasUnread"][data-properties~="unread"] {
+#threadTree .children.collapsed[data-properties~="hasUnread"][data-properties~="read"]
+  :where(td, .subject-line) {
   text-decoration: underline;
 }
 
