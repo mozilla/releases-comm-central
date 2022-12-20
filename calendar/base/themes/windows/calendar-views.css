@@ -34,10 +34,6 @@ radio.calview[selected="true"] {
   background-color: Field;
 }
 
-.today-navigation-button {
-  padding-top: 0;
-}
-
 #calendar-view-box #calendar-view-splitter {
   border: none;
   border-bottom: 1px solid var(--splitter-color);

@@ -230,39 +230,14 @@ function switchToView(viewType) {
     }
   }
 
-  /**
-   * Sets up a node to use view specific attributes. If there is no view
-   * specific attribute, then <attr>-all is used instead.
-   *
-   * @param id        The id of the node to set up.
-   * @param attr      The view specific attribute to modify.
-   */
-  function setupViewNode(id, attr) {
-    let node = document.getElementById(id);
-    if (node) {
-      if (node.hasAttribute(attr + "-" + viewType)) {
-        node.setAttribute(attr, node.getAttribute(attr + "-" + viewType));
-      } else {
-        node.setAttribute(attr, node.getAttribute(attr + "-all"));
-      }
-    }
-  }
-
-  // Set up the labels and accesskeys for the context menu
-  let ids = [
-    "calendar-view-context-menu-next",
-    "calendar-view-context-menu-previous",
-    "calendar-go-menu-next",
-    "calendar-go-menu-previous",
-  ];
-  ids.forEach(x => {
-    setupViewNode(x, "label");
-    setupViewNode(x, "accesskey");
-  });
-
-  // Set up the labels for the view navigation
-  ids = ["previous-view-button", "today-view-button", "next-view-button"];
-  ids.forEach(x => setupViewNode(x, "tooltiptext"));
+  document.l10n.setAttributes(
+    document.getElementById("previousViewButton"),
+    `calendar-nav-button-prev-tooltip-${viewType}`
+  );
+  document.l10n.setAttributes(
+    document.getElementById("nextViewButton"),
+    `calendar-nav-button-next-tooltip-${viewType}`
+  );
 
   // These are hidden until the calendar is loaded.
   for (let node of document.querySelectorAll(".hide-before-calendar-loaded")) {
