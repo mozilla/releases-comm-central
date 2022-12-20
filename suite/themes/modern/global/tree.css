@@ -306,17 +306,6 @@ treechildren::-moz-tree-indentation {
   width: 16px;
 }
 
-/* ::::: gridline style ::::: */
-
-treechildren.gridlines::-moz-tree-cell {
-  border-right: 1px solid #CCCCCC;
-  border-bottom: 1px solid #CCCCCC;
-}
-
-treechildren.gridlines::-moz-tree-row {
-  border: none;
-}
-
 /* ::::: editable tree ::::: */
 
 treechildren::-moz-tree-row(selected, editing) {
