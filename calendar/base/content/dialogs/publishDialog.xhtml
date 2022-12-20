@@ -21,6 +21,7 @@
 <head>
   <title>&calendar.publish.dialog.title;</title>
   <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://calendar/content/publishDialog.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttons="accept,cancel"
@@ -35,6 +36,5 @@
     </hbox>
     <html:progress id="publish-progressmeter" value="0" max="100"></html:progress>
 </dialog>
-<html:script src="chrome://calendar/content/publishDialog.js">//see bug 1752288</html:script>
 </html:body>
 </html>

@@ -8,7 +8,6 @@
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/markByDate.dtd">
-
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
@@ -16,10 +15,12 @@
       scrolling="false">
 <head>
   <title>&messageMarkByDate.label;</title>
+  <link rel="localization" href="branding/brand.ftl" />
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
   <script defer="defer" src="chrome://messenger/content/dateFormat.js"></script>
+  <script defer="defer" src="chrome://messenger/content/markByDate.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttons="accept,cancel">
@@ -44,6 +45,5 @@
                 size="11"/>
   </hbox>
 </dialog>
-<html:script defer="defer" src="chrome://messenger/content/markByDate.js">//see bug 1752288</html:script>
 </html:body>
 </html>

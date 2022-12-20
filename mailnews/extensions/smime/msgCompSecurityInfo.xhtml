@@ -8,7 +8,6 @@
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE html SYSTEM "chrome://messenger-smime/locale/msgCompSecurityInfo.dtd">
-
 <html id="msgCompSecurityInfo" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
@@ -16,7 +15,9 @@
       scrolling="false">
 <head>
   <title>&title.label;</title>
+  <link rel="localization" href="branding/brand.ftl" />
   <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger-smime/content/msgCompSecurityInfo.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttons="accept">
@@ -56,6 +57,5 @@
             oncommand="viewSelectedCert();"/>
   </hbox>
 </dialog>
-<html:script src="chrome://messenger-smime/content/msgCompSecurityInfo.js">//see bug 1752288</html:script>
 </html:body>
 </html>
