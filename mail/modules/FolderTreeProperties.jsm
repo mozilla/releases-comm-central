@@ -14,7 +14,7 @@ const { JSONFile } = ChromeUtils.import("resource://gre/modules/JSONFile.jsm");
 var jsonFile = new JSONFile({
   path: PathUtils.join(PathUtils.profileDir, "folderTree.json"),
 });
-jsonFile.load();
+var readyPromise = jsonFile.load();
 
 function ensureReady() {
   if (!jsonFile.dataReady) {
@@ -23,6 +23,10 @@ function ensureReady() {
 }
 
 var FolderTreeProperties = {
+  get ready() {
+    return readyPromise;
+  },
+
   /**
    * Get the colour associated with a folder.
    *
@@ -31,8 +35,7 @@ var FolderTreeProperties = {
    */
   getColor(folderURI) {
     ensureReady();
-    jsonFile.data.colors = jsonFile.data.colors ?? {};
-    return jsonFile.data.colors[folderURI];
+    return jsonFile.data.colors?.[folderURI];
   },
 
   /**
@@ -45,6 +48,29 @@ var FolderTreeProperties = {
     ensureReady();
     jsonFile.data.colors = jsonFile.data.colors ?? {};
     jsonFile.data.colors[folderURI] = color;
+    jsonFile.saveSoon();
+  },
+
+  getIsExpanded(folderURI, mode) {
+    ensureReady();
+    if (!Array.isArray(jsonFile.data.open?.[mode])) {
+      return false;
+    }
+    return jsonFile.data.open[mode].includes(folderURI);
+  },
+
+  setIsExpanded(folderURI, mode, isExpanded) {
+    ensureReady();
+    jsonFile.data.open = jsonFile.data.open ?? {};
+    jsonFile.data.open[mode] = jsonFile.data.open[mode] ?? [];
+    let index = jsonFile.data.open[mode].indexOf(folderURI);
+    if (isExpanded) {
+      if (index < 0) {
+        jsonFile.data.open[mode].push(folderURI);
+      }
+    } else if (index >= 0) {
+      jsonFile.data.open[mode].splice(index, 1);
+    }
     jsonFile.saveSoon();
   },
 };

@@ -154,12 +154,16 @@ body:not(.account-central) #accountCentralBrowser {
 
 #folderTree,
 #folderTree ul {
-  flex: 1;
   margin: 0;
   padding: 0;
   list-style: none;
   --depth: 0;
   --indent: calc(16px * var(--depth));
+}
+
+#folderTree ul {
+  overflow: hidden;
+  height: auto;
 }
 
 .container {
@@ -213,13 +217,99 @@ li > .container:hover {
   }
 }
 
-.icon {
+#folderTree .icon {
   width: 16px;
   height: 16px;
+  background-image: var(--icon-folder);
   background-repeat: no-repeat;
+  --icon-color: var(--folder-color-folder);
   -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
+  fill: color-mix(in srgb, var(--icon-color, var(--folder-color-folder)) 20%, transparent);
+  stroke: var(--icon-color, var(--folder-color-folder));
+}
+
+#folderTree li[data-server-type] > .container > .icon {
+  --icon-color: var(--primary);
+}
+
+#folderTree li[data-server-type="nntp"] > .container > .icon {
+  background-image: var(--icon-newsletter);
+}
+
+#folderTree li[data-server-type="imap"] > .container > .icon,
+#folderTree li[data-server-type="pop3"] > .container > .icon {
+  background-image: var(--icon-mail);
+}
+
+#folderTree li[data-server-type="imap"][data-server-secure="true"] > .container > .icon,
+#folderTree li[data-server-type="pop3"][data-server-secure="true"] > .container > .icon {
+  background-image: var(--icon-mail-secure);
+}
+
+#folderTree li[data-server-type="none"] > .container > .icon {
+  background-image: var(--icon-folder);
+}
+
+#folderTree li[data-server-type="nntp"] > .container > .icon {
+  background-image: var(--icon-globe);
+}
+
+#folderTree li[data-server-type="nntp"][data-server-secure="true"] > .container > .icon {
+  background-image: var(--icon-globe-secure);
+}
+
+#folderTree li[data-server-type="rss"] > .container > .icon {
+  background-image: var(--icon-rss);
+}
+
+#folderTree li[data-folder-type="archive"] .icon {
+  background-image: var(--icon-archive);
+  --icon-color: var(--folder-color-archive);
+}
+
+#folderTree li[data-folder-type="drafts"] .icon {
+  background-image: var(--icon-draft);
+  --icon-color: var(--folder-color-draft);
+}
+
+#folderTree li[data-folder-type="inbox"] .icon {
+  background-image: var(--icon-inbox);
+  --icon-color: var(--folder-color-inbox);
+}
+
+#folderTree li[data-folder-type="junk"] .icon {
+  background-image: var(--icon-spam);
+  --icon-color: var(--folder-color-spam);
+}
+
+#folderTree li[data-folder-type="outbox"] .icon {
+  background-image: var(--icon-outbox);
+  --icon-color: var(--folder-color-outbox);
+}
+
+#folderTree li[data-folder-type="sent"] .icon {
+  background-image: var(--icon-sent);
+  --icon-color: var(--folder-color-sent);
+}
+
+#folderTree li[data-folder-type="templates"] .icon {
+  background-image: var(--icon-template);
+  --icon-color: var(--folder-color-template);
+}
+
+#folderTree li[data-folder-type="trash"] .icon {
+  background-image: var(--icon-trash);
+  --icon-color: var(--folder-color-trash);
+}
+
+#folderTree li[data-folder-type="virtual"] .icon {
+  background-image: var(--icon-folder-filter);
+  --icon-color: var(--folder-color-folder-filter);
+}
+
+#folderTree li[data-server-type="nntp"] ul .icon {
+  background-image: var(--icon-newsletter);
+  --icon-color: var(--folder-color-newsletter);
 }
 
 .name {
@@ -230,7 +320,16 @@ li > .container:hover {
   overflow-x: hidden;
 }
 
-.unreadCount {
+#folderTree li[data-server-type] > .container > .name {
+  font-weight: bold;
+}
+
+.new-messages > .container > .name {
+  font-weight: bold;
+  color: var(--new-folder-color);
+}
+
+.unread-count {
   display: none;
   padding: 1px 4px;
   border-radius: 12px;
@@ -244,13 +343,8 @@ li > .container:hover {
   margin-inline-end: 6px;
 }
 
-.unread > .container > .unreadCount {
+.unread > .container > .unread-count {
   display: unset;
-}
-
-ul:empty,
-li.collapsed > ul {
-  display: none;
 }
 
 /* Message browser pane. */

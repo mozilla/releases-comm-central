@@ -351,11 +351,6 @@
           }
         }
 
-        // Don't add any inline style if we don't need to animate.
-        if (reducedMotionMedia.matches) {
-          return;
-        }
-
         for (let childList of this.querySelectorAll(
           "li.collapsed > :is(ol, ul)"
         )) {
@@ -539,11 +534,15 @@
        * @param {HTMLLIElement} row - The parent row element.
        */
       _animateCollapseRow(row) {
+        let childList = row.querySelector("ol, ul");
+
         if (reducedMotionMedia.matches) {
+          if (childList) {
+            childList.style.height = "0";
+          }
           return;
         }
 
-        let childList = row.querySelector("ol, ul");
         let childListHeight = childList.scrollHeight;
 
         let animation = childList.animate(
@@ -566,11 +565,15 @@
        * @param {HTMLLIElement} row - The parent row element.
        */
       _animateExpandRow(row) {
+        let childList = row.querySelector("ol, ul");
+
         if (reducedMotionMedia.matches) {
+          if (childList) {
+            childList.style.height = null;
+          }
           return;
         }
 
-        let childList = row.querySelector("ol, ul");
         let childListHeight = childList.scrollHeight;
 
         let animation = childList.animate(

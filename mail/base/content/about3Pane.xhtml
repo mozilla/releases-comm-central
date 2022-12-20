@@ -25,6 +25,7 @@
   <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/folderColors.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/folderMenus.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/shared/tree-listbox.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/about3Pane.css" />
@@ -48,18 +49,22 @@
 <body class="layout-classic">
   <div id="folderPane" tabindex="-1">
     <ul id="folderTree" is="tree-listbox" role="tree"></ul>
-    <template id="folderTemplate">
+    <template id="modeTemplate">
       <li>
-        <div class="container">
-          <div class="twisty">
-            <img class="twisty-icon" src="chrome://global/skin/icons/arrow-down-12.svg" alt="" />
-          </div>
-          <div class="icon"></div>
-          <span class="name" tabindex="-1"></span>
-          <span class="unreadCount"></span>
-          <!-- <div class="menu"></div> -->
-        </div>
+        <div class="mode-name"></div>
+        <ul></ul>
       </li>
+    </template>
+    <template id="folderTemplate">
+      <div class="container">
+        <div class="twisty">
+          <img class="twisty-icon" src="chrome://global/skin/icons/arrow-down-12.svg" alt="" />
+        </div>
+        <div class="icon"></div>
+        <span class="name" tabindex="-1"></span>
+        <span class="unread-count"></span>
+      </div>
+      <ul></ul>
     </template>
   </div>
   <hr is="pane-splitter" id="folderPaneSplitter"

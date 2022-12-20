@@ -39,9 +39,9 @@ add_setup(async function() {
   let account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
   let rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("browserContextFolder", null);
+  rootFolder.createSubfolder("mailContextFolder", null);
   testFolder = rootFolder
-    .getChildNamed("browserContextFolder")
+    .getChildNamed("mailContextFolder")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   let message = await fetch(TEST_MESSAGE_URL).then(r => r.text());
   testFolder.addMessageBatch([message]);

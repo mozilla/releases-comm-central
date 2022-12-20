@@ -9,7 +9,6 @@
 /* import-globals-from ../../components/newmailaccount/content/provisionerCheckout.js */
 /* import-globals-from ../../components/preferences/preferencesTab.js */
 /* import-globals-from commandglue.js */
-/* import-globals-from folderPane.js */
 /* import-globals-from glodaFacetTab.js */
 /* import-globals-from mailCore.js */
 /* import-globals-from mail-offline.js */

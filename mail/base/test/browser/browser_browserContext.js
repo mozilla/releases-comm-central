@@ -177,6 +177,7 @@ add_setup(async function() {
 add_task(async function testMessagePane() {
   about3Pane.displayWebPage(TEST_DOCUMENT_URL);
   await checkABrowser(about3Pane.webBrowser, document);
+  about3Pane.clearWebPage();
 });
 
 add_task(async function testContentTab() {

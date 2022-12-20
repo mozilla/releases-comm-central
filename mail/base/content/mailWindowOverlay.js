@@ -393,11 +393,6 @@ function InitViewLayoutStyleMenu(event, appmenu) {
   }
 }
 
-/**
- * Initialize (check) appropriate folder mode under the View | Folder menu.
- */
-function InitViewFolderViewsMenu(event) {}
-
 function setSortByMenuItemCheckState(id, value) {
   var menuitem = document.getElementById(id);
   if (menuitem) {

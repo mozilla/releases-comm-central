@@ -1307,10 +1307,8 @@ function middle_click_on_row(aViewIndex) {
  *     |mc| if omitted.
  */
 function assert_folder_mode(aMode, aController) {
-  if (aController == null) {
-    aController = mc;
-  }
-  if (!aController.folderTreeView.activeModes.includes(aMode)) {
+  let about3Pane = get_about_3pane(aController?.window);
+  if (!about3Pane.folderPane.activeModes.includes(aMode)) {
     throw new Error(`The folder mode "${aMode}" is not visible`);
   }
 }
@@ -1321,15 +1319,18 @@ function assert_folder_mode(aMode, aController) {
  * should be a top-level folder.
  */
 function assert_folder_child_in_view(aChild, aParent) {
-  let actualParent = mc.folderTreeView.getParentOfFolder(aChild);
-  if (actualParent != aParent) {
+  let about3Pane = get_about_3pane();
+  let childRow = about3Pane.folderPane.getRowForFolder(aChild);
+  let parentRow = childRow.parentNode.closest("li");
+
+  if (parentRow?.uri != aParent.URI) {
     throw new Error(
       "Folder " +
         aChild.URI +
         " should be the child of " +
         (aParent && aParent.URI) +
         ", but is actually the child of " +
-        (actualParent && actualParent.URI)
+        parentRow?.uri
     );
   }
 }
@@ -1343,11 +1344,11 @@ function assert_folder_child_in_view(aChild, aParent) {
  * @returns The index of the folder, if it is visible.
  */
 function assert_folder_visible(aFolder, aController) {
-  if (aController == null) {
-    aController = mc;
-  }
-  let folderIndex = aController.folderTreeView.getIndexOfFolder(aFolder);
-  if (folderIndex == null) {
+  let about3Pane = get_about_3pane(aController?.window);
+  let folderIndex = about3Pane.folderTree.rows.findIndex(
+    row => row.uri == aFolder.URI
+  );
+  if (folderIndex == -1) {
     throw new Error("Folder: " + aFolder.URI + " should be visible, but isn't");
   }
 
@@ -1359,8 +1360,11 @@ function assert_folder_visible(aFolder, aController) {
  * or is not currently visible.
  */
 function assert_folder_not_visible(aFolder) {
-  let folderIndex = mc.folderTreeView.getIndexOfFolder(aFolder);
-  if (folderIndex != null) {
+  let about3Pane = get_about_3pane();
+  let folderIndex = about3Pane.folderTree.rows.findIndex(
+    row => row.uri == aFolder.URI
+  );
+  if (folderIndex != -1) {
     throw new Error(
       "Folder: " + aFolder.URI + " should not be visible, but is"
     );
@@ -1373,9 +1377,14 @@ function assert_folder_not_visible(aFolder) {
  */
 function collapse_folder(aFolder) {
   let folderIndex = assert_folder_visible(aFolder);
-  let folderFTVItem = mc.folderTreeView.getFTVItemForIndex(folderIndex);
-  if (folderFTVItem.open) {
-    mc.folderTreeView.toggleOpenState(folderIndex);
+  let about3Pane = get_about_3pane();
+  let folderRow = about3Pane.folderTree.getRowAtIndex(folderIndex);
+  if (!folderRow.classList.contains("collapsed")) {
+    EventUtils.synthesizeMouseAtCenter(
+      folderRow.querySelector(".twisty"),
+      {},
+      about3Pane
+    );
   }
 }
 
@@ -1385,9 +1394,14 @@ function collapse_folder(aFolder) {
  */
 function expand_folder(aFolder) {
   let folderIndex = assert_folder_visible(aFolder);
-  let folderFTVItem = mc.folderTreeView.getFTVItemForIndex(folderIndex);
-  if (!folderFTVItem.open) {
-    mc.folderTreeView.toggleOpenState(folderIndex);
+  let about3Pane = get_about_3pane();
+  let folderRow = about3Pane.folderTree.getRowAtIndex(folderIndex);
+  if (folderRow.classList.contains("collapsed")) {
+    EventUtils.synthesizeMouseAtCenter(
+      folderRow.querySelector(".twisty"),
+      {},
+      about3Pane
+    );
   }
 }
 
@@ -1429,9 +1443,7 @@ function assert_folder_expanded(aFolder) {
  */
 function select_click_folder(aFolder) {
   let win = get_about_3pane();
-  let index = win.folderTree.rows.findIndex(
-    row => row.dataset.uri == aFolder.URI
-  );
+  let index = win.folderTree.rows.findIndex(row => row.uri == aFolder.URI);
   let row = win.folderTree.rows[index];
   EventUtils.synthesizeMouseAtCenter(row.querySelector(".container"), {}, win);
 }
@@ -1479,9 +1491,7 @@ function select_shift_click_folder(aFolder) {
  */
 async function right_click_on_folder(aFolder) {
   let win = get_about_3pane();
-  let index = win.folderTree.rows.findIndex(
-    row => row.dataset.uri == aFolder.URI
-  );
+  let index = win.folderTree.rows.findIndex(row => row.uri == aFolder.URI);
   let shownPromise = BrowserTestUtils.waitForEvent(
     win.document.getElementById("folderPaneContext"),
     "popupshown"
@@ -2843,7 +2853,7 @@ function assert_folders_selected(...aArgs) {
 
   let win = get_about_3pane();
   // - get the actual selection (already sorted by integer value)
-  let uri = win.folderTree.rows[win.folderTree.selectedIndex]?.dataset.uri;
+  let uri = win.folderTree.rows[win.folderTree.selectedIndex]?.uri;
   let selectedFolders = [MailServices.folderLookup.getFolderForURL(uri)];
 
   // - test selection equivalence
@@ -2922,12 +2932,13 @@ var assert_folder_selected_and_displayed = assert_folders_selected_and_displayed
  * collapsed parents) in the folder tree view.
  */
 function assert_folder_tree_view_row_count(aCount) {
-  if (mc.folderTreeView.rowCount != aCount) {
+  let about3Pane = get_about_3pane();
+  if (about3Pane.folderTree.rowCount != aCount) {
     throw new Error(
       "The folder tree view's row count should be " +
         aCount +
         ", but is actually " +
-        mc.folderTreeView.rowCount
+        about3Pane.folderTree.rowCount
     );
   }
 }
