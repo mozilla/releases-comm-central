@@ -435,11 +435,11 @@ nsresult nsBeckyFilters::CreateFilter(bool aIncoming, nsIMsgFilter** _retval) {
   NS_ENSURE_STATE(mServer);
 
   nsCOMPtr<nsIMsgFilterList> filterList;
-  nsresult rv = mServer->GetFilterList(nullptr, getter_AddRefs(filterList));
-  NS_ENSURE_SUCCESS(rv, rv);
+  mServer->GetFilterList(nullptr, getter_AddRefs(filterList));
+  NS_ENSURE_STATE(filterList);
 
   nsCOMPtr<nsIMsgFilter> filter;
-  rv = filterList->CreateFilter(EmptyString(), getter_AddRefs(filter));
+  nsresult rv = filterList->CreateFilter(EmptyString(), getter_AddRefs(filter));
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (aIncoming)
@@ -458,11 +458,11 @@ nsresult nsBeckyFilters::AppendFilter(nsIMsgFilter* aFilter) {
   NS_ENSURE_STATE(mServer);
 
   nsCOMPtr<nsIMsgFilterList> filterList;
-  nsresult rv = mServer->GetFilterList(nullptr, getter_AddRefs(filterList));
-  NS_ENSURE_SUCCESS(rv, rv);
+  mServer->GetFilterList(nullptr, getter_AddRefs(filterList));
+  NS_ENSURE_STATE(filterList);
 
   uint32_t count;
-  rv = filterList->GetFilterCount(&count);
+  nsresult rv = filterList->GetFilterCount(&count);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return filterList->InsertFilterAt(count, aFilter);

@@ -1264,8 +1264,8 @@ NS_IMETHODIMP nsMsgFilterService::ApplyFilters(
   NS_ENSURE_ARG_POINTER(aFolder);
 
   nsCOMPtr<nsIMsgFilterList> filterList;
-  nsresult rv = aFolder->GetFilterList(aMsgWindow, getter_AddRefs(filterList));
-  NS_ENSURE_SUCCESS(rv, rv);
+  aFolder->GetFilterList(aMsgWindow, getter_AddRefs(filterList));
+  NS_ENSURE_STATE(filterList);
 
   uint32_t filterCount;
   filterList->GetFilterCount(&filterCount);
