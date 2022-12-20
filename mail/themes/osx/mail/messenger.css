@@ -291,11 +291,19 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
   #unifiedToolbarContainer:-moz-locale-dir(ltr) {
     flex-direction: row-reverse;
   }
+
+  .titlebar-buttonbox-container:-moz-locale-dir(ltr) {
+    -moz-box-ordinal-group: 0;
+  }
 }
 
 @media (-moz-mac-rtl) {
   #unifiedToolbarContainer:-moz-locale-dir(rtl) {
     flex-direction: row-reverse;
+  }
+
+  .titlebar-buttonbox-container:-moz-locale-dir(rtl) {
+    -moz-box-ordinal-group: 0;
   }
 }
 
