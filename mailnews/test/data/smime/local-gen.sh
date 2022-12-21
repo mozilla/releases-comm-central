@@ -52,8 +52,8 @@ Content-Transfer-Encoding: base64
 "
 
 certutil -d $TMPDIR -N --empty-password
-pk12util -d $TMPDIR -i Alice.p12 -W ''
-pk12util -d $TMPDIR -i Bob.p12 -W ''
+pk12util -d $TMPDIR -i Alice.p12 -W nss
+pk12util -d $TMPDIR -i Bob.p12 -W nss
 certutil -d $TMPDIR -M -n TestCA -t C,C,
 
 INPUT="Content-type: text/plain

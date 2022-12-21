@@ -297,8 +297,8 @@ function smimeUtils_loadPEMCertificate(file, certType, loadKey = false) {
   SmimeUtils.loadPEMCertificate(file, certType, loadKey);
 }
 
-function smimeUtils_loadCertificateAndKey(file) {
-  SmimeUtils.loadCertificateAndKey(file);
+function smimeUtils_loadCertificateAndKey(file, pw) {
+  SmimeUtils.loadCertificateAndKey(file, pw);
 }
 
 function setupAccountStuff() {

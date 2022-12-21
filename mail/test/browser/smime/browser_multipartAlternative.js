@@ -53,7 +53,7 @@ add_task(async function test_multipart_alternative() {
     Ci.nsIX509Cert.CA_CERT
   );
   smimeUtils_loadCertificateAndKey(
-    new FileUtils.File(getTestFilePath("data/Bob.p12"))
+    new FileUtils.File(getTestFilePath("data/Bob.p12"), "nss")
   );
 
   let msgc = await open_message_from_file(
