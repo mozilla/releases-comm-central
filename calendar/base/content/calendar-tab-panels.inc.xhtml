@@ -224,6 +224,20 @@
               </li>
             </template>
           </calendar-modevbox>
+          <html:div id="sideButtonsBottom" xmlns="http://www.w3.org/1999/xhtml">
+            <button id="importCalendar"
+                    class="calendar-sidebar-bottom-button"
+                    data-l10n-id="calendar-import-new-calendar"
+                    onclick="goDoCommand('calendar_new_calendar_command')"
+                    type="button">
+            </button>
+            <button id="refreshCalendar"
+                    class="calendar-sidebar-bottom-button"
+                    data-l10n-id="calendar-refresh-calendars"
+                    onclick="goDoCommand('calendar_reload_remote_calendars')"
+                    type="button">
+            </button>
+          </html:div>
         </calendar-modevbox>
       </vbox>
     </vbox>
