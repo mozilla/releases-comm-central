@@ -9,3 +9,7 @@ calendar-notifications-label = Show notifications for upcoming events
 
 calendar-add-notification-button =
   .label = Add notification
+
+calendar-new-event-primary-button = New Event
+
+calendar-new-task-primary-button = New Task

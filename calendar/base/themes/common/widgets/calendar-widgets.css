@@ -303,3 +303,34 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 #calendar-list > richlistitem {
   -moz-box-align: center;
 }
+
+/* Temporarily hidden until the enable/disable button logic is in place.
+ * See bug 1806882 */
+#primaryButtonSidePanel {
+  -moz-context-properties: fill, stroke;
+  margin-top: 3px;
+  /* display: flex; */
+  justify-content: center;
+  align-items: center;
+}
+
+.primary-button-side-panel:not([hidden]) {
+  background-color: var(--color-blue-50);
+  border-color: var(--color-blue-60);
+  color: var(--color-white);
+  gap: 6px;
+  padding: var( --calendar-primary-button-padding);
+  margin: var(--calendar-primary-button-margin);
+  display: inline-flex;
+  align-items: center;
+}
+
+.primary-button-side-panel:hover {
+  background-color: var(--color-blue-60);
+}
+
+.primary-button-side-panel::before {
+  content: var(--icon-add);
+  stroke: currentColor;
+  display: inline-flex;
+}
