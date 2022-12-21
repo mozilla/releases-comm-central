@@ -1191,6 +1191,12 @@ Enigmail.hdrView = {
     },
 
     handleSMimeMessage(uri) {
+      if (
+        Enigmail.hdrView.msgSignedStateString != null ||
+        Enigmail.hdrView.msgEncryptedStateString != null
+      ) {
+        return;
+      }
       if (this.isCurrentMessage(uri)) {
         EnigmailVerify.unregisterPGPMimeHandler();
         Enigmail.msg.messageReload(false);
