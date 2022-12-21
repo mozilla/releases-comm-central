@@ -1537,7 +1537,7 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIMsgWindow* aMsgWindow,
     // This is a little kludgy.
     rv = trashFolder->DeleteStorage();
     NS_ENSURE_SUCCESS(rv, rv);
-    trashFolder->SetDBTransferInfo(transferInfo);
+    if (transferInfo) trashFolder->SetDBTransferInfo(transferInfo);
     trashFolder->SetSizeOnDisk(0);
 
     // The trash folder has effectively been deleted.

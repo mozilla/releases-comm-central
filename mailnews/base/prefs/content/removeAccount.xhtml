@@ -18,6 +18,8 @@
       scrolling="false">
 <head>
   <title>&dialogTitle;</title>
+  <link rel="localization" href="branding/brand.ftl" />
+  <script defer="defer" src="chrome://messenger/content/removeAccount.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog id="removeAccountDialog"
@@ -78,6 +80,5 @@
     <label id="failure" hidden="true">&progressFailure;</label>
   </vbox>
 </dialog>
-<html:script src="chrome://messenger/content/removeAccount.js">//see bug 1752288</html:script>
 </html:body>
 </html>

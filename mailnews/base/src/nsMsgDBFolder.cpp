@@ -1993,8 +1993,8 @@ nsMsgDBFolder::GetDBTransferInfo(nsIDBFolderInfo** aTransferInfo) {
   nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
   nsCOMPtr<nsIMsgDatabase> db;
   GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo), getter_AddRefs(db));
-  if (dbFolderInfo) dbFolderInfo->GetTransferInfo(aTransferInfo);
-  return NS_OK;
+  NS_ENSURE_STATE(dbFolderInfo);
+  return dbFolderInfo->GetTransferInfo(aTransferInfo);
 }
 
 NS_IMETHODIMP

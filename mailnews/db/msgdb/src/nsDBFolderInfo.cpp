@@ -697,9 +697,9 @@ nsTransferDBFolderInfo::~nsTransferDBFolderInfo() {}
 /* void GetTransferInfo (out nsIDBFolderInfo transferInfo); */
 NS_IMETHODIMP nsDBFolderInfo::GetTransferInfo(nsIDBFolderInfo** transferInfo) {
   NS_ENSURE_ARG_POINTER(transferInfo);
+  NS_ENSURE_STATE(m_mdbRow);
 
-  nsTransferDBFolderInfo* newInfo = new nsTransferDBFolderInfo;
-  NS_ADDREF(*transferInfo = newInfo);
+  RefPtr<nsTransferDBFolderInfo> newInfo = new nsTransferDBFolderInfo;
 
   mdb_count numCells;
   mdbYarn cellYarn;
@@ -707,7 +707,6 @@ NS_IMETHODIMP nsDBFolderInfo::GetTransferInfo(nsIDBFolderInfo** transferInfo) {
   char columnName[100];
   mdbYarn cellName = {columnName, 0, sizeof(columnName), 0, 0, nullptr};
 
-  NS_ASSERTION(m_mdbRow, "null row in getTransferInfo");
   m_mdbRow->GetCount(m_mdb->GetEnv(), &numCells);
   // iterate over the cells in the dbfolderinfo remembering attribute names and
   // values.
@@ -729,6 +728,7 @@ NS_IMETHODIMP nsDBFolderInfo::GetTransferInfo(nsIDBFolderInfo** transferInfo) {
     }
   }
 
+  newInfo.forget(transferInfo);
   return NS_OK;
 }
 

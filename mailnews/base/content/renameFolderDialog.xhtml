@@ -8,7 +8,6 @@
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/renameFolderDialog.dtd">
-
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
@@ -16,9 +15,11 @@
       scrolling="false">
 <head>
   <title>&renameFolderDialog.title;</title>
+  <link rel="localization" href="branding/brand.ftl" />
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger/content/renameFolderDialog.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttonlabelaccept="&accept.label;"
@@ -34,6 +35,5 @@
               aria-labelledby="nameLabel"
               oninput="doEnabling();"/>
 </dialog>
-<html:script src="chrome://messenger/content/renameFolderDialog.js">//see bug 1752288</html:script>
 </html:body>
 </html>

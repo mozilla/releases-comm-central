@@ -618,7 +618,7 @@ nsresult nsFolderCompactState::FinishCompact() {
              ? NS_OK
              : rv;
     m_db->SetSummaryValid(true);
-    m_folder->SetDBTransferInfo(transferInfo);
+    if (transferInfo) m_folder->SetDBTransferInfo(transferInfo);
 
     // since we're transferring info from the old db, we need to reset the
     // expunged bytes
