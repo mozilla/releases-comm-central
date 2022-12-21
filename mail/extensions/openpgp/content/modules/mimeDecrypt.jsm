@@ -495,7 +495,8 @@ MimeDecryptHandler.prototype = {
         false
       )
     ) {
-      // ignore
+      EnigmailSingletons.addUriWithNestedEncryptedPart(this.msgUriSpec);
+      // ignore, do not display
       return;
     }
 

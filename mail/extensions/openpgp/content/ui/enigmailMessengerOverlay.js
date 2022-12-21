@@ -15,7 +15,7 @@
 /* global currentHeaderData: false, gViewAllHeaders: false, gExpandedHeaderList: false, goDoCommand: false, HandleSelectedAttachments: false */
 /* global statusFeedback: false, displayAttachmentsForExpandedView: false, gMessageListeners: false, gExpandedHeaderView */
 /* global gSigKeyId:true, gEncKeyId:true */
-/* globals gMessageNotificationBar, gMessageDisplay */
+/* globals gMessageNotificationBar, gMessageDisplay, viewEncryptedPart */
 
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
@@ -48,6 +48,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.jsm",
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.jsm",
+  EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   EnigmailTrust: "chrome://openpgp/content/modules/trust.jsm",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
@@ -207,9 +208,6 @@ Enigmail.msg = {
   */
 
   clearLastMessage() {
-    const { EnigmailSingletons } = ChromeUtils.import(
-      "chrome://openpgp/content/modules/singletons.jsm"
-    );
     EnigmailSingletons.clearLastDecryptedMessage();
   },
 
@@ -247,6 +245,7 @@ Enigmail.msg = {
       "decryptInlinePGReminder",
       "decryptInlinePG",
       "brokenExchangeProgress",
+      "hasNestedEncryptedParts",
     ]) {
       this.removeNotification(value);
     }
@@ -3076,6 +3075,36 @@ Enigmail.msg = {
           this.unhideImportKeyBox();
         }
       }
+    }
+
+    // Should we notify the user about available encrypted nested parts,
+    // which have not been automatically decrypted?
+    if (
+      EnigmailSingletons.isRecentUriWithNestedEncryptedPart(
+        Enigmail.msg.getCurrentMsgUriSpec()
+      )
+    ) {
+      let buttons = [
+        {
+          "l10n-id": "openpgp-show-encrypted-parts",
+          popup: null,
+          callback(notification, button) {
+            viewEncryptedPart(Enigmail.msg.getCurrentMsgUriSpec());
+            return true; // keep notification
+          },
+        },
+      ];
+
+      Enigmail.msg.notificationBox.appendNotification(
+        "hasNestedEncryptedParts",
+        {
+          label: await document.l10n.formatValue(
+            "openpgp-has-nested-encrypted-parts"
+          ),
+          priority: Enigmail.msg.notificationBox.PRIORITY_INFO_HIGH,
+        },
+        buttons
+      );
     }
 
     document.dispatchEvent(

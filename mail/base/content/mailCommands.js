@@ -16,6 +16,11 @@ ChromeUtils.defineModuleGetter(
   "MailUtils",
   "resource:///modules/MailUtils.jsm"
 );
+ChromeUtils.defineModuleGetter(
+  this,
+  "EnigmailMime",
+  "chrome://openpgp/content/modules/mime.jsm"
+);
 
 function GetNextNMessages(folder) {
   if (folder) {
@@ -617,4 +622,53 @@ function ViewPageSource(messages) {
     // Couldn't get mail session
     return false;
   }
+}
+
+function viewEncryptedPart(message) {
+  let url;
+  try {
+    url = MailServices.mailSession.ConvertMsgURIToMsgURL(message, msgWindow);
+  } catch (e) {
+    console.debug(e);
+    // Couldn't get mail session
+    return false;
+  }
+
+  // Strip out the message-display parameter to ensure that attached emails
+  // display the message source, not the processed HTML.
+  url = url.replace(/type=application\/x-message-display&/, "");
+
+  function recursiveEmitEncryptedParts(mimeTree) {
+    for (let part of mimeTree.subParts) {
+      const ct = part.headers.contentType.type;
+      if (ct == "multipart/encrypted") {
+        const boundary = part.headers.contentType.get("boundary");
+        let full = `${part.headers.rawHeaderText}\n\n`;
+        for (let subPart of part.subParts) {
+          full += `${boundary}\n${subPart.headers.rawHeaderText}\n\n${subPart.body}\n`;
+        }
+        full += `${boundary}--\n`;
+        MsgOpenMessageFromString(full);
+        continue;
+      }
+      recursiveEmitEncryptedParts(part);
+    }
+  }
+
+  EnigmailMime.getMimeTreeFromUrl(url, true, recursiveEmitEncryptedParts);
+  return true;
+}
+
+function viewEncryptedParts(messages) {
+  if (!messages?.length) {
+    dump("viewEncryptedParts(): No messages selected.\n");
+    return false;
+  }
+
+  if (messages.length > 1) {
+    dump("viewEncryptedParts(): Too many messages selected.\n");
+    return false;
+  }
+
+  return viewEncryptedPart(messages[0]);
 }
