@@ -26,7 +26,7 @@ then
   exit
 fi
 
-MILLDIR="`pwd`/../../../../mail/test/mozmill/smime"
+MILLDIR="`pwd`/../../../../mail/test/browser/smime/data"
 
 # When executing mozmill in the CI environment, the files from this
 # directory aren't available. Copy all files that mozmill requires to
