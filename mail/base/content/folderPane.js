@@ -164,8 +164,8 @@ var gFolderTreeController = {
    * Opens the dialog to rename a particular folder, and does the renaming if
    * the user clicks OK in that dialog
    *
-   * @param aFolder (optional) - the folder to rename, if different than the
-   *                            currently selected one
+   * @param [aFolder] - The folder to rename, if different than the currently
+   *   selected one.
    */
   renameFolder(aFolder) {
     let folder = aFolder;
@@ -194,7 +194,7 @@ var gFolderTreeController = {
    * Deletes a folder from its parent. Also handles unsubscribe from newsgroups
    * if the selected folder/s happen to be nntp.
    *
-   * @param aFolder (optional) the folder to delete, if not the selected one
+   * @param [aFolder] - The folder to delete, if not the selected one.
    */
   deleteFolder(aFolder) {
     let folders = [aFolder];
@@ -256,9 +256,8 @@ var gFolderTreeController = {
    * Prompts the user to confirm and empties the trash for the selected folder.
    * The folder and its children are only emptied if it has the proper Trash flag.
    *
-   * @param aFolder (optional) - The trash folder to empty. If unspecified or not
-   *                            a trash folder, the currently selected server's
-   *                            trash folder is used.
+   * @param [aFolder] - The trash folder to empty. If unspecified or not a trash
+   *   folder, the currently selected server's trash folder is used.
    */
   emptyTrash(aFolder) {
     let folder = aFolder;
@@ -292,8 +291,8 @@ var gFolderTreeController = {
    * Deletes everything (folders and messages) in the selected folder.
    * The folder is only emptied if it has the proper Junk flag.
    *
-   * @param aFolder (optional) - The folder to empty. If unspecified, the currently
-   *                            selected folder is used, if it is junk.
+   * @param [aFolder] - The folder to empty. If unspecified, the currently
+   *   selected folder is used, if it is junk.
    */
   emptyJunk(aFolder) {
     let folder = aFolder;
@@ -325,8 +324,8 @@ var gFolderTreeController = {
   /**
    * Compacts either particular folder/s, or selected folders.
    *
-   * @param aFolders (optional) the folders to compact, if different than the
-   *                            currently selected ones
+   * @param [aFolders] - The folders to compact, if different than the currently
+   *   selected ones.
    */
   compactFolders(aFolders) {
     let folders = aFolders;
@@ -344,9 +343,8 @@ var gFolderTreeController = {
    * Compacts all folders for accounts that the given folders belong
    * to, or all folders for accounts of the currently selected folders.
    *
-   * @param aFolders (optional) the folders for whose accounts we should compact
-   *                            all folders, if different than the currently
-   *                            selected ones
+   * @param aFolders - (optional) the folders for whose accounts we should
+   *   compact all folders, if different than the currently selected ones.
    */
   compactAllFoldersForAccount(aFolders) {
     let folders = aFolders;
@@ -358,9 +356,9 @@ var gFolderTreeController = {
   /**
    * Opens the dialog to create a new virtual folder
    *
-   * @param aName - the default name for the new folder
-   * @param aSearchTerms - the search terms associated with the folder
-   * @param aParent - the folder to run the search terms on
+   * @param aName - The default name for the new folder.
+   * @param aSearchTerms - The search terms associated with the folder.
+   * @param aParent - The folder to run the search terms on.
    */
   newVirtualFolder(aName, aSearchTerms, aParent) {
     let folder = aParent || GetDefaultAccountRootFolder();
@@ -413,8 +411,8 @@ var gFolderTreeController = {
    * Prompts for confirmation, if the user hasn't already chosen the "don't ask
    * again" option.
    *
-   * @param aCommand  the command to prompt for
-   * @param aFolder   The folder for which the confirmation is requested.
+   * @param aCommand - The command to prompt for.
+   * @param aFolder - The folder for which the confirmation is requested.
    */
   _checkConfirmationPrompt(aCommand, aFolder) {
     // If no folder was specified, reject the operation.
