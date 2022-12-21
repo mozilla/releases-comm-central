@@ -31,7 +31,7 @@ var kDefaultMode = "all";
  * The following definitions will be useful to know:
  *
  * gFolderTreeView - the controller for the folder tree.
- * FtvItem  - folder tree view item, representing a row in the tree
+ * FtvItem - folder tree view item, representing a row in the tree.
  * mode - folder view type, e.g., all folders, favorite folders, MRU...
  */
 
@@ -48,11 +48,11 @@ var IFolderTreeMode = {
   /**
    * Generates the folder map for this mode.
    *
-   * @param aFolderTreeView The gFolderTreeView for which this mode is being
-   *     activated.
+   * @param aFolderTreeView - The gFolderTreeView for which this mode is being
+   *   activated.
    *
    * @returns An array containing FtvItem instances representing the top-level
-   *     folders in this view.
+   *   folders in this view.
    */
   generateMap(aFolderTreeView) {
     return null;
@@ -67,12 +67,14 @@ var IFolderTreeMode = {
    * consider generating the entire FtvItem tree at once and using a map from
    * folders to FtvItems.
    *
-   * @returns an nsIMsgFolder representing the parent of the folder in the view,
-   *     or null if the folder is a top-level folder in the map. It is expected
-   *     that the returned parent will have the given folder as one of its
-   *     children.
+   * @param {nsIMsgFolder} aFolder - The folder to examine.
+   *
+   * @returns An nsIMsgFolder representing the parent of the folder in the view,
+   *   or null if the folder is a top-level folder in the map. It is expected
+   *   that the returned parent will have the given folder as one of its
+   *   children.
    * @note This function need not guarantee that either the folder or its parent
-   *       is actually in the view.
+   *   is actually in the view.
    */
   getParentOfFolder(aFolder) {
     return aFolder.parent;
@@ -86,15 +88,29 @@ var IFolderTreeMode = {
    * messages in any inbox.
    *
    * The folder returned doesn't need to be in the view.
-
+   *
+   * @param {nsIMsgDBHdr} aMsgHdr
+   *
    * @returns The folder the message header is considered to be contained in, in
-   *     this mode. The returned folder may or may not actually be in the view
-   *     -- however, given a valid nsIMsgDBHdr, it is expected that a) a
-   *     non-null folder is returned, and that b) the folder that is returned
-   *     actually does contain the message header.
+   *   this mode. The returned folder may or may not actually be in the view
+   *   -- however, given a valid nsIMsgDBHdr, it is expected that a) a non-null
+   *   folder is returned, and that b) the folder that is returned actually does
+   *   contain the message header.
    */
   getFolderForMsgHdr(aMsgHdr) {
     return aMsgHdr.folder;
+  },
+
+  /**
+   * Predict if we can select the given nsIMsgFolder in this mode.
+   *
+   * @param aFolderTreeView - The gFolderTreeView to examine in this mode.
+   * @param {nsIMsgFolder} aFolder - The folder to look for.
+   * @returns {boolean} true if we can likely select the folder in this mode
+   *   (regardless of whether it is displayed or not).
+   */
+  canFindFolder(aFolderTreeView, aFolder) {
+    return false;
   },
 
   /**
@@ -103,8 +119,8 @@ var IFolderTreeMode = {
    * example, combined views like Smart Folders add any new inbox as a child of
    * the smart inbox.
    *
-   * @param aParent The parent of the folder that was added.
-   * @param aFolder The folder that was added.
+   * @param aParent - The parent of the folder that was added.
+   * @param aFolder - The folder that was added.
    */
   onFolderAdded(aParent, aFolder) {
     gFolderTreeView.addFolder(aParent, aFolder);
@@ -116,10 +132,10 @@ var IFolderTreeMode = {
    * Returns true if the event was processed inside the function and no further
    * default handling should be done in the caller. Otherwise false.
    *
-   * @param aItem      The folder with a change.
-   * @param aProperty  The changed property string.
-   * @param aOld       The old value of the property.
-   * @param aNew       The new value of the property.
+   * @param aItem - The folder with a change.
+   * @param aProperty - The changed property string.
+   * @param aOld - The old value of the property.
+   * @param aNew - The new value of the property.
    */
   handleChangedIntProperty(aItem, aProperty, aOld, aNew) {
     return false;
@@ -138,9 +154,8 @@ var gFolderTreeView = {
   /**
    * Called when the window is initially loaded. This function initializes the
    * folder-pane to the view last shown before the application was closed.
-   *
-   * @param {XULTreeElement} aTree - the tree to load
-   * @param {string} [aJSONFile] - name of JSON file to load data from.
+   * @param {XULTreeElement} aTree - The tree to load.
+   * @param {string} [aJSONFile] - Name of JSON file to load data from.
    */
   async load(aTree, aJSONFile = null) {
     if (this.isInited) {
@@ -240,9 +255,9 @@ var gFolderTreeView = {
   /**
    * Extensions can use this function to add a new mode to the folder pane.
    *
-   * @param aCommonName  an internal name to identify this mode. Must be unique
-   * @param aMode An implementation of |IFolderTreeMode| for this mode.
-   * @param aDisplayName  a localized name for this mode
+   * @param aCommonName - An internal name to identify this mode. Must be unique.
+   * @param aMode - An implementation of |IFolderTreeMode| for this mode.
+   * @param aDisplayName - A localized name for this mode.
    */
   registerFolderTreeMode(aCommonName, aMode, aDisplayName) {
     this._modeNames.push(aCommonName);
@@ -253,9 +268,8 @@ var gFolderTreeView = {
   /**
    * Unregisters a previously registered mode. Since common-names must be unique
    * this is all that need be provided to unregister.
-   *
-   * @param aCommonName  the common-name with which the mode was previously
-   *                     registered
+   * @param aCommonName - The common-name with which the mode was previously
+   *   registered.
    */
   unregisterFolderTreeMode(aCommonName) {
     this._modeNames.splice(this._modeNames.indexOf(aCommonName), 1);
@@ -271,9 +285,8 @@ var gFolderTreeView = {
 
   /**
    * Retrieves a specific mode object
-   *
-   * @param aCommonName  the common-name with which the mode was previously
-   *                     registered
+   * @param aCommonName - The common-name with which the mode was previously
+   *   registered.
    */
   getFolderTreeMode(aCommonName) {
     return this._modes[aCommonName];
@@ -282,7 +295,7 @@ var gFolderTreeView = {
   /**
    * If the hidden pref is set, then double-clicking on a folder should open it
    *
-   * @param event  the double-click event
+   * @param event - The double-click event.
    */
   onDoubleClick(aEvent) {
     if (
@@ -317,9 +330,8 @@ var gFolderTreeView = {
 
   /**
    * Toggle displaying the headers of columns in the folder pane.
-   *
-   * @param aSetup  Set to true if the columns should be set up according
-   *                to the pref, not toggle them.
+   * @param aSetup - Set to true if the columns should be set up according
+   *   to the pref, not toggle them.
    */
   toggleCols(aSetup = false) {
     if (this._treeElement.getAttribute("simplelist") == "true") {
@@ -345,8 +357,8 @@ var gFolderTreeView = {
         column.removeAttribute("label");
         if (columnName != "folderNameCol") {
           if (!aSetup) {
-            // If user hides the columns store their visible state in a special attribute
-            // that is persisted by XUL.
+            // If user hides the columns store their visible state in a special
+            // attribute that is persisted by XUL.
             column.setAttribute("hiddeninactive", column.hidden);
           }
           column.setAttribute("hidden", "true");
@@ -415,7 +427,7 @@ var gFolderTreeView = {
   /**
    * The _activeModes setter.
    *
-   * @param mode - The name of the mode to add or remove.
+   * @param {string} mode - The name of the mode to add or remove.
    */
   set activeModes(mode) {
     // Ignore unknown modes.
@@ -607,26 +619,56 @@ var gFolderTreeView = {
   },
 
   /**
-   * Selects a given nsIMsgFolder in the tree.  This function will also ensure
-   * that the folder is actually being displayed (that is, that none of its
-   * ancestors are collapsed.
+   * Selects a given nsIMsgFolder in the tree.
    *
-   * @param aFolder  the nsIMsgFolder to select
-   * @param [aForceSelect] Whether we should switch to the default mode to
-   *      select the folder in case we didn't find the folder in the current
-   *      view. Defaults to false.
-   * @returns true if the folder selection was successful, false if it failed
-   *     (probably because the folder isn't in the view at all)
+   * @param {nsIMsgFolder} aFolder - The folder to select.
+   * @param {boolean} [aForceSelect] - Whether we should add the default mode to
+   *   select the folder in case we didn't find the folder in the current mode.
+   *   Defaults to false.
+   * @returns {boolean} true if the folder selection was successful, false if it
+   *   failed (probably because the folder does not appear in any mode of the
+   *   tree).
    */
   selectFolder(aFolder, aForceSelect = false) {
+    // Look at the active modes from top to bottom.
+    // When we encounter a mode that likely contains the given folder, perform
+    // select folder only in that mode.
+    for (let i = this.activeModes.length - 1; i >= 0; i--) {
+      let mode = this.activeModes[i];
+      if (this._modes[mode].canFindFolder(this, aFolder)) {
+        return this.selectFolderInSpecificMode(aFolder, mode);
+      }
+    }
+
+    // We couldn't select the given folder in active modes.
+    // If the aForceSelect option is specified and the "all" mode is not active,
+    // activate the "all" mode and perform select the folder there.
+    // The assumption here is that the "all" mode (default mode) can display
+    // every folder.
+    if (aForceSelect && !this.activeModes.includes(kDefaultMode)) {
+      this.activeModes = kDefaultMode;
+      return this.selectFolderInSpecificMode(aFolder, kDefaultMode);
+    }
+
+    return false;
+  },
+
+  /**
+   * Selects a given nsIMsgFolder in the specific folder tree mode.
+   *
+   * @param {nsIMsgFolder} aFolder - The folder to select.
+   * @param {string} aMode - The folder tree mode.
+   * @returns {boolean} true if the folder selection was successful, false if it
+   *   failed (probably because the folder isn't in the specified mode at all).
+   */
+  selectFolderInSpecificMode(aFolder, aMode) {
     // "this" inside the nested function refers to the function...
     // Also note that openIfNot is recursive.
     let tree = this;
-    let mode = this.getModeForIndex(this.getIndexOfFolder(aFolder));
-    let folderTreeMode = this._modes[mode];
+    let folderTreeMode = this._modes[aMode];
 
     function openIfNot(aFolderToOpen) {
-      let index = tree.getIndexOfFolder(aFolderToOpen);
+      let index = tree.getIndexOfFolderInSpecificMode(aFolderToOpen, aMode);
       if (index != null) {
         if (!tree._rowMap[index].open) {
           tree._toggleRow(index, false);
@@ -638,7 +680,7 @@ var gFolderTreeView = {
       let parent = folderTreeMode.getParentOfFolder(aFolderToOpen);
       if (parent && openIfNot(parent)) {
         // now our parent is open, so we can open ourselves
-        index = tree.getIndexOfFolder(aFolderToOpen);
+        index = tree.getIndexOfFolderInSpecificMode(aFolderToOpen, aMode);
         if (index != null) {
           tree._toggleRow(index, false);
           return true;
@@ -652,7 +694,7 @@ var gFolderTreeView = {
     // If the folder belongs to a currently active compact mode, return null
     // since this is a flat view and we don't have a parent folder.
     let parent =
-      ["favorite", "unread"].includes(mode) &&
+      ["favorite", "unread"].includes(aMode) &&
       gFolderTreeController._tree.getAttribute("compact") == "true"
         ? null
         : folderTreeMode.getParentOfFolder(aFolder);
@@ -660,16 +702,8 @@ var gFolderTreeView = {
       openIfNot(parent);
     }
 
-    let folderIndex = tree.getIndexOfFolder(aFolder);
+    let folderIndex = tree.getIndexOfFolderInSpecificMode(aFolder, aMode);
     if (folderIndex == null) {
-      if (aForceSelect) {
-        // Switch to the default mode. The assumption here is that the default
-        // mode can display every folder
-        this.activeModes = kDefaultMode;
-        // We don't want to get stuck in an infinite recursion, so pass in false
-        return this.selectFolder(aFolder, false);
-      }
-
       return false;
     }
 
@@ -681,10 +715,10 @@ var gFolderTreeView = {
   /**
    * Returns the index of a folder in the current display.
    *
-   * @param aFolder  the folder whose index should be returned.
-   * @returns The index of the folder in the view (a number).
+   * @param aFolder - The folder whose index should be returned.
+   * @returns {integer} The index of the folder in the view.
    * @note If the folder is not in the display (perhaps because one of its
-   *       anscetors is collapsed), this function returns null.
+   *   anscetors is collapsed), this function returns null.
    */
   getIndexOfFolder(aFolder) {
     for (let [iRow, row] of this._rowMap.entries()) {
@@ -696,9 +730,36 @@ var gFolderTreeView = {
   },
 
   /**
+   * Returns the index of a folder in the specific folder mode in the
+   * current display.
+   *
+   * @param {nsIMsgFolder} aFolder - The folder whose index should be returned.
+   * @param {string} aMode - The folder tree mode.
+   * @returns {integer} The index of the folder in the view.
+   * @note If the folder is not in the display (perhaps because one of its
+   *   anscetors is collapsed), this function returns null.
+   */
+  getIndexOfFolderInSpecificMode(aFolder, aMode) {
+    if (this.activeModes.length == 1) {
+      return this.activeModes[0] == aMode
+        ? this.getIndexOfFolder(aFolder)
+        : null;
+    }
+    let index = this._rowMap.findIndex(row => row.mode == aMode);
+    if (index >= 0) {
+      while (++index < this._rowMap.length && !this._rowMap[index].mode) {
+        if (this._rowMap[index].id == aFolder.URI) {
+          return index;
+        }
+      }
+    }
+    return null;
+  },
+
+  /**
    * Returns the folder for an index in the current display.
    *
-   * @param aIndex the index for which the folder should be returned.
+   * @param aIndex - The index for which the folder should be returned.
    * @note If the index is out of bounds, this function returns null.
    */
   getFolderForIndex(aIndex) {
@@ -718,7 +779,7 @@ var gFolderTreeView = {
    * @param {string} index - The selected folder position.
    * @returns The parent of the folder, or null if the parent wasn't found.
    * @note This function does not guarantee that either the folder or its parent
-   *       is actually in the view.
+   *   is actually in the view.
    */
   getParentOfFolder(aFolder, index) {
     let mode = this.getModeForIndex(index);
@@ -750,7 +811,7 @@ var gFolderTreeView = {
    * Returns the |FtvItem| for an index in the current display. Intended for use
    * by folder tree mode implementers.
    *
-   * @param aIndex The index for which the FtvItem should be returned.
+   * @param aIndex - The index for which the FtvItem should be returned.
    * @note If the index is out of bounds, this function returns null.
    */
   getFTVItemForIndex(aIndex) {
@@ -762,7 +823,7 @@ var gFolderTreeView = {
    * active mode if only one is available.
    *
    * @param {?string} index - The selected folder position or null.
-   * @returns {string} - The FtvItem mode.
+   * @returns {string} The FtvItem mode.
    */
   getModeForIndex(index) {
     // Return the first available mode if the user doesn't have more than one
@@ -814,10 +875,10 @@ var gFolderTreeView = {
    * Adds a new child |FtvItem| to the given parent |FtvItem|. Intended for use
    * by folder tree mode implementers.
    *
-   * @param aParentItem The parent FtvItem. It is assumed that this is visible
-   *     in the view.
-   * @param aParentIndex The index of the parent FtvItem in the view.
-   * @param aItem The item to add.
+   * @param aParentItem - The parent FtvItem. It is assumed that this is visible
+   *   in the view.
+   * @param aParentIndex - The index of the parent FtvItem in the view.
+   * @param aItem - The item to add.
    */
   addChildItem(aParentItem, aParentIndex, aItem) {
     this._addChildToView(aParentItem, aParentIndex, aItem);
@@ -1974,9 +2035,9 @@ var gFolderTreeView = {
   /**
    * Update a folder property in the session cache.
    *
-   * @param  nsIMsgFolder aFolder   - folder.
-   * @param  string aProperty       - property, currently in "favicon".
-   * @param  aValue                 - string or object value.
+   * @param {nsIMsgFolder} aFolder - folder.
+   * @param {string} aProperty - property, currently in "favicon".
+   * @param aValue - string or object value.
    */
   setFolderCacheProperty(aFolder, aProperty, aValue) {
     if (!aFolder || !aProperty) {
@@ -1993,9 +2054,9 @@ var gFolderTreeView = {
   /**
    * Get a folder property from the session cache.
    *
-   * @param  nsIMsgFolder aFolder   - folder.
-   * @param  string aProperty       - property key.
-   * @returns value or null          - null indicates uninitialized.
+   * @param {nsIMsgFolder} aFolder - folder.
+   * @param {string} aProperty - property key.
+   * @returns value or null - null indicates uninitialized.
    */
   getFolderCacheProperty(aFolder, aProperty) {
     if (!aFolder || !aProperty) {
@@ -2047,7 +2108,7 @@ var gFolderTreeView = {
 
       generateMap(ftv) {
         let accounts = gFolderTreeView._sortedAccounts();
-        // force each root folder to do its local subfolder discovery.
+        // Force each root folder to do its local subfolder discovery.
         MailUtils.discoverFolders();
 
         let map = accounts.map(
@@ -2060,6 +2121,10 @@ var gFolderTreeView = {
         }
 
         return map;
+      },
+
+      canFindFolder(ftv, aFolder) {
+        return true;
       },
     },
 
@@ -2091,7 +2156,7 @@ var gFolderTreeView = {
         let unreadRootFolders = [];
         for (let acct of accounts) {
           let rootFolder = acct.incomingServer.rootFolder;
-          // Add rootFolders of accounts that contain at least one Favorite folder.
+          // Add rootFolders of accounts that contain at least one Unread folder.
           if (rootFolder.getNumUnread(true) > 0) {
             unreadRootFolders.push(new FtvItem(rootFolder, filterUnread));
           }
@@ -2142,6 +2207,15 @@ var gFolderTreeView = {
         }
 
         return map;
+      },
+
+      canFindFolder(ftv, aFolder) {
+        for (let folder of ftv._enumerateFolders) {
+          if (folder == aFolder && folder.getNumUnread(false)) {
+            return true;
+          }
+        }
+        return false;
       },
 
       handleChangedIntProperty(aItem, aProperty, aOld, aNew) {
@@ -2252,6 +2326,23 @@ var gFolderTreeView = {
         return faves;
       },
 
+      canFindFolder(ftv, aFolder) {
+        let accounts = gFolderTreeView._sortedAccounts();
+        // Force each root folder to do its local subfolder discovery.
+        MailUtils.discoverFolders();
+
+        for (let acct of accounts) {
+          if (
+            acct.incomingServer.rootFolder
+              .getFoldersWithFlags(Ci.nsMsgFolderFlags.Favorite)
+              .find(folder => folder == aFolder)
+          ) {
+            return true;
+          }
+        }
+        return false;
+      },
+
       handleChangedIntProperty(aItem, aProperty, aOld, aNew) {
         // We want to rebuild if the favorite status of a folder changed.
         if (
@@ -2309,6 +2400,17 @@ var gFolderTreeView = {
         }
 
         return items;
+      },
+
+      canFindFolder(ftv, aFolder) {
+        // Get the most recently accessed folders.
+        let recentFolders = FolderUtils.getMostRecentFolders(
+          ftv._enumerateFolders,
+          Services.prefs.getIntPref("mail.folder_widget.max_recent"),
+          "MRUTime",
+          null
+        );
+        return recentFolders.find(folder => folder == aFolder);
       },
 
       getParentOfFolder(aFolder) {
@@ -2370,9 +2472,10 @@ var gFolderTreeView = {
        * support for addons to add special folder types, this must be called
        * prior to onload.
        *
-       * @param aFolderName  name of the folder
-       * @param isDeep  include subfolders
-       * @param folderOptions  object with searchStr and searchOnline options, or null
+       * @param aFolderName - name of the folder.
+       * @param isDeep - include subfolders.
+       * @param folderOptions - object with searchStr and searchOnline options,
+       *   or null.
        */
       addSmartFolderType(aFolderName, isDeep, isSearchFolder) {
         this._flagNameList.push([0, aFolderName, isDeep, isSearchFolder]);
@@ -2503,6 +2606,10 @@ var gFolderTreeView = {
         }
 
         return map;
+      },
+
+      canFindFolder(ftv, aFolder) {
+        return true;
       },
 
       /**
@@ -2650,8 +2757,8 @@ var gFolderTreeView = {
    * This is a recursive function to add all subfolders to the array. It
    * assumes that the passed in folder itself has already been added.
    *
-   * @param aFolder  the folder whose subfolders should be added
-   * @param folders  the array to add the folders to.
+   * @param aFolder - The folder whose subfolders should be added.
+   * @param folders - The array to add the folders to.
    */
   addSubFolders(folder, folders) {
     for (let f of folder.subFolders) {
@@ -3026,10 +3133,9 @@ var gFolderTreeView = {
 /**
  * The FtvItem constructor takes these arguments:
  *
- * @param aFolder        The folder attached to this row in the tree.
- * @param aFolderFilter  When showing children folders of this one,
- *                       only show those that pass this filter function.
- *                       If unset, show all subfolders.
+ * @param aFolder - The folder attached to this row in the tree.
+ * @param aFolderFilter - When showing children folders of this one, only show
+ *   those that pass this filter function. If unset, show all subfolders.
  */
 /**
  * The FtvItem constructor for the fodler row.
@@ -3394,8 +3500,8 @@ var gFolderTreeController = {
   /**
    * Opens the dialog to edit the properties for a folder
    *
-   * @param aTabID  (optional) the tab to show in the dialog
-   * @param aFolder (optional) the folder to edit, if not the selected one
+   * @param [aTabID] - The tab to show in the dialog.
+   * @param [aFolder] - The folder to edit, if not the selected one.
    */
   editFolder(aTabID, aFolder) {
     let folder = aFolder || gFolderTreeView.getSelectedFolders()[0];
@@ -3485,8 +3591,8 @@ var gFolderTreeController = {
    * Opens the dialog to rename a particular folder, and does the renaming if
    * the user clicks OK in that dialog
    *
-   * @param aFolder (optional) - the folder to rename, if different than the
-   *                            currently selected one
+   * @param [aFolder] - The folder to rename, if different than the currently
+   *   selected one.
    */
   renameFolder(aFolder) {
     let folder = aFolder || gFolderTreeView.getSelectedFolders()[0];
@@ -3520,7 +3626,7 @@ var gFolderTreeController = {
    * Deletes a folder from its parent. Also handles unsubscribe from newsgroups
    * if the selected folder/s happen to be nntp.
    *
-   * @param aFolder (optional) the folder to delete, if not the selected one
+   * @param [aFolder] - The folder to delete, if not the selected one.
    */
   deleteFolder(aFolder) {
     let folders = aFolder ? [aFolder] : gFolderTreeView.getSelectedFolders();
@@ -3586,9 +3692,8 @@ var gFolderTreeController = {
    * Prompts the user to confirm and empties the trash for the selected folder.
    * The folder and its children are only emptied if it has the proper Trash flag.
    *
-   * @param aFolder (optional) - The trash folder to empty. If unspecified or not
-   *                            a trash folder, the currently selected server's
-   *                            trash folder is used.
+   * @param [aFolder] - The trash folder to empty. If unspecified or not a trash
+   *   folder, the currently selected server's trash folder is used.
    */
   emptyTrash(aFolder) {
     let folder = aFolder || gFolderTreeView.getSelectedFolders()[0];
@@ -3624,8 +3729,8 @@ var gFolderTreeController = {
    * Deletes everything (folders and messages) in the selected folder.
    * The folder is only emptied if it has the proper Junk flag.
    *
-   * @param aFolder (optional) - The folder to empty. If unspecified, the currently
-   *                            selected folder is used, if it is junk.
+   * @param [aFolder] - The folder to empty. If unspecified, the currently
+   *   selected folder is used, if it is junk.
    */
   emptyJunk(aFolder) {
     let folder = aFolder || gFolderTreeView.getSelectedFolders()[0];
@@ -3659,8 +3764,8 @@ var gFolderTreeController = {
   /**
    * Compacts either particular folder/s, or selected folders.
    *
-   * @param aFolders (optional) the folders to compact, if different than the
-   *                            currently selected ones
+   * @param [aFolders] - The folders to compact, if different than the currently
+   *   selected ones.
    */
   compactFolders(aFolders) {
     let folders = aFolders || gFolderTreeView.getSelectedFolders();
@@ -3678,9 +3783,8 @@ var gFolderTreeController = {
    * Compacts all folders for accounts that the given folders belong
    * to, or all folders for accounts of the currently selected folders.
    *
-   * @param aFolders (optional) the folders for whose accounts we should compact
-   *                            all folders, if different than the currently
-   *                            selected ones
+   * @param aFolders - (optional) the folders for whose accounts we should
+   *   compact all folders, if different than the currently selected ones.
    */
   compactAllFoldersForAccount(aFolders) {
     let folders = aFolders || gFolderTreeView.getSelectedFolders();
@@ -3692,9 +3796,9 @@ var gFolderTreeController = {
   /**
    * Opens the dialog to create a new virtual folder
    *
-   * @param aName - the default name for the new folder
-   * @param aSearchTerms - the search terms associated with the folder
-   * @param aParent - the folder to run the search terms on
+   * @param aName - The default name for the new folder.
+   * @param aSearchTerms - The search terms associated with the folder.
+   * @param aParent - The folder to run the search terms on.
    */
   newVirtualFolder(aName, aSearchTerms, aParent) {
     let folder =
@@ -3760,8 +3864,8 @@ var gFolderTreeController = {
    * Opens a search window with the given folder, or the selected one if none
    * is given.
    *
-   * @param [aFolder] the folder to open the search window for, if different
-   *                  from the selected one
+   * @param [aFolder] - The folder to open the search window for, if different
+   *   from the selected one.
    */
   searchMessages(aFolder) {
     MsgSearchMessages(aFolder || gFolderTreeView.getSelectedFolders()[0]);
@@ -3771,8 +3875,8 @@ var gFolderTreeController = {
    * Prompts for confirmation, if the user hasn't already chosen the "don't ask
    * again" option.
    *
-   * @param aCommand  the command to prompt for
-   * @param aFolder   The folder for which the confirmation is requested.
+   * @param aCommand - The command to prompt for.
+   * @param aFolder - The folder for which the confirmation is requested.
    */
   _checkConfirmationPrompt(aCommand, aFolder) {
     // If no folder was specified, reject the operation.
@@ -3988,8 +4092,8 @@ function sortFolderItems(aFtvItems) {
  * Note: for css styling using nsITreeView pseudo elements, the name property
  * is returned with all spaces removed, eg |specialFolder-MySmartFolder|.
  *
- * @param nsIMsgFolder aFolder - The folder.
- * @returns property || null     - Cached property value, or null if not set.
+ * @param {nsIMsgFolder} aFolder - The folder.
+ * @returns property || null - Cached property value, or null if not set.
  */
 function getSmartFolderName(aFolder) {
   return gFolderTreeView.getFolderCacheProperty(aFolder, "smartFolderName");
@@ -4029,9 +4133,9 @@ var gFolderStatsHelpers = {
    * E.g. folder1 600bytes -> 1KB, folder2 700bytes -> 1KB
    * summarized at parent folder: 1300bytes -> 1KB
    *
-   * @param aValue                  The value to be displayed.
-   * @param aSubfoldersContributed  Boolean indicating whether subfolders
-   *                                contributed to the accumulated total value.
+   * @param aValue - The value to be displayed.
+   * @param aSubfoldersContributed - Boolean indicating whether subfolders
+   *   contributed to the accumulated total value.
    */
   addSummarizedPrefix(aValue, aSubfoldersContributed) {
     if (!this.sumSubfolders) {
@@ -4053,9 +4157,9 @@ var gFolderStatsHelpers = {
    * cases we indicate it to the user. The user has to open the folder
    * so that the property is initialized from the DB.
    *
-   * @param aNumber                 The number to translate for the user.
-   * @param aSubfoldersContributed  Boolean indicating whether subfolders
-   *                                contributed to the accumulated total value.
+   * @param aNumber - The number to translate for the user.
+   * @param aSubfoldersContributed - Boolean indicating whether subfolders
+   *   contributed to the accumulated total value.
    */
   fixNum(aNumber, aSubfoldersContributed) {
     if (aNumber < 0) {
@@ -4070,7 +4174,7 @@ var gFolderStatsHelpers = {
   /**
    * Get the size of the specified folder.
    *
-   * @param aFolder  The nsIMsgFolder to analyze.
+   * @param {nsIMsgFolder} aFolder - The folder to analyze.
    */
   getFolderSize(aFolder) {
     let folderSize = 0;
@@ -4088,7 +4192,7 @@ var gFolderStatsHelpers = {
   /**
    * Get the total size of all subfolders of the specified folder.
    *
-   * @param aFolder  The nsIMsgFolder to analyze.
+   * @param {nsIMsgFolder} aFolder - The folder to analyze.
    */
   getSubfoldersSize(aFolder) {
     let folderSize = 0;
@@ -4109,11 +4213,11 @@ var gFolderStatsHelpers = {
   /**
    * Format the given folder size into a string with an appropriate unit.
    *
-   * @param aSize  The size in bytes to format.
-   * @param aUnit  Optional unit to use for the format.
-   *               Possible values are "KB" or "MB".
+   * @param aSize - The size in bytes to format.
+   * @param aUnit - Optional unit to use for the format. Possible values are
+   *   "KB" or "MB".
    * @returns An array with 2 values. First is the resulting formatted strings.
-   *               The second one is the final unit used to format the string.
+   *   The second one is the final unit used to format the string.
    */
   formatFolderSize(aSize, aUnit = gFolderStatsHelpers.sizeUnits) {
     let size = Math.round(aSize / 1024);
