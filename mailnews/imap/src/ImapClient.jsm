@@ -770,7 +770,6 @@ class ImapClient {
    */
   _onClose = () => {
     this._logger.debug("Connection closed.");
-    this._reset();
     this.folder = null;
   };
 
