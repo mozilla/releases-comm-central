@@ -420,8 +420,8 @@ var threadPane = {
     {
       id: "unreadButtonColHeader",
       l10n: {
-        header: "about-threadpane-column-header-unread",
-        menuitem: "about-threadpane-column-label-unread",
+        header: "about-threadpane-column-header-unread-button",
+        menuitem: "about-threadpane-column-label-unread-button",
       },
       icon: true,
       resizable: false,

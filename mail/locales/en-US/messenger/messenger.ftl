@@ -355,9 +355,9 @@ about-threadpane-column-header-spam =
 about-threadpane-column-label-spam =
   .label = Spam
 
-about-threadpane-column-header-unread =
+about-threadpane-column-header-unread-button =
   .title = Sort by read status
-about-threadpane-column-label-unread =
+about-threadpane-column-label-unread-button =
   .label = Read status
 
 about-threadpane-column-header-sender = From
