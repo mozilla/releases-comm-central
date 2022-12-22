@@ -1,0 +1,483 @@
+%YAML 1.2
+---
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# See https://mots.readthedocs.io/en/latest/#quick-start for quick start
+# documentation and how to modify this file.
+
+# WARNING: Do not run mots clean on this file until bug 1803651 is resolved
+# to avoid data loss.
+
+repo: comm-central
+created_at: '2022-10-20T11:26:42.853013'
+updated_at: '2022-11-30T21:58:16.703636'
+hashes:
+  config: 5a1a68080fcc7ffb4e07e0772d28f5bf220c4734
+  export: f64089cd9928dba17d69a2c758627a29149bb56f
+export:
+  path: ./docs/mots/index.rst
+  format: rst
+  searchfox_enabled: false
+description: |
+  Thunderbird operates under Mozilla's `module ownership governance system
+  <https://www.mozilla.org/hacking/module-ownership.html>`_. A module is a
+  discrete unit of code or activity. An owner is the person in charge of a
+  module or sub-module. A peer is a person whom the owner has appointed to
+  help them. A module may have multiple peers and, very occasionally, multiple
+  owners.
+
+  The system is overseen by the owner and peers of the Module Ownership module.
+  For the modules that make up Thunderbird, oversight is provided by the
+  Thunderbird Council module. Owners may add and remove peers from their modules
+  as they wish, without reference to anyone else.
+
+people:
+  - &aceman
+    bmo_id: 97012
+    name: Aceman
+    nick: aceman
+  - &aleca
+    bmo_id: 634666
+    name: Alessandro Castellani
+    nick: aleca
+  - &aleth
+    bmo_id: 434808
+    name: aleth
+    nick: aleth
+  - &Alta88
+    bmo_id: 217596
+    name: Alta88
+    nick: Alta88
+  - &ba
+    bmo_id: 653537
+    name: Berna Alp
+    nick: ba
+  - &BenB
+    bmo_id: 22599
+    name: Ben Bucksch
+    nick: BenB
+  - &benediktp
+    bmo_id: 369370
+    name: Benedikt Pfeifer
+    nick: benediktp
+  - &bwinton
+    bmo_id: 339434
+    name: Blake Winton
+    nick: bwinton
+  - &Callek
+    bmo_id: 129968
+    name: Justin Wood
+    nick: Callek
+  - &clokep
+    bmo_id: 227224
+    name: Patrick Cloke
+    nick: clokep
+  - &darktrojan
+    bmo_id: 158464
+    name: Geoff Lankow
+    nick: darktrojan
+  - &Fallen
+    bmo_id: 253233
+    name: Philipp Kewisch
+    nick: Fallen
+  - &florian
+    bmo_id: 149052
+    name: Florian Quèze
+    nick: florian
+  - &freaktechnik
+    bmo_id: 381211
+    name: Martin Giger
+    nick: freaktechnik
+  - &gds
+    bmo_id: 28426
+    name: gene smith
+    nick: gds
+  - &henry-x
+    bmo_id: 680421
+    name: Henry Wilkes
+    nick: henry-x
+  - &jcranmer
+    bmo_id: 286107
+    name: Joshua Cranmer
+    nick: jcranmer
+  - &KaiE
+    bmo_id: 36541
+    name: Kai Engert
+    nick: KaiE
+  - &mconley
+    bmo_id: 403756
+    name: Mike Conley
+    nick: mconley
+  - &mkmelin
+    bmo_id: 101158
+    name: Magnus Melin
+    nick: mkmelin
+  - &neil
+    bmo_id: 14006
+    name: Neil Rashbrook
+    nick: neil
+  - &Paenglab
+    bmo_id: 282357
+    name: Richard Marti
+    nick: Paenglab
+  - &patrick
+    bmo_id: 100230
+    name: Patrick Brunschwig
+    nick: patrick
+  - &protz
+    bmo_id: 206599
+    name: Jonathan Protzenko
+    nick: protz
+  - &rsjtdrjgfuzkfg
+    bmo_id: 438708
+    name: Dirk Steinmetz
+    nick: rsjtdrjgfuzkfg
+  - &rjl
+    bmo_id: 63411
+    name: Rob Lemley
+    nick: rjl
+  - &rkent
+    bmo_id: 254728
+    name: Kent James
+    nick: rkent
+  - &rnons
+    bmo_id: 582219
+    name: Ping Chen
+    nick: rnons
+  - &sancus
+    bmo_id: 148348
+    name: Andrei Hajdukewycz
+    nick: sancus
+  - &squib
+    bmo_id: 352169
+    name: Jim Porter
+    nick: squib
+  - &standard8
+    bmo_id: 112088
+    name: Mark Banner
+    nick: standard8
+  - &TbSync
+    bmo_id: 550104
+    name: John Bieling
+    nick: TbSync
+  - &tomprince
+    bmo_id: 461658
+    name: Tom Prince
+    nick: tomprince
+  - &wsmwk
+    bmo_id: 29811
+    name: Wayne Mery
+    nick: wsmwk
+  - &benc
+    bmo_id: 621918
+    name: Ben Campbell
+    nick: benc
+modules:
+  - name: Thunderbird Council
+    machine_name: thunderbird_council
+    description: The Thunderbird Council is the elected governing body for the
+      Thunderbird Project, including the code modules that develop the code in
+      Thunderbird product(s). It is the top-level module of the project, and
+      Peers are members of the Council.
+    owners: [*ba]
+    peers: [*sancus, *BenB, *rsjtdrjgfuzkfg, *mkmelin, *clokep, *Fallen]
+    excludes:
+      - suite/**
+
+  - name: Thunderbird Desktop
+    machine_name: thunderbird_desktop
+    description: Standalone Mail Application.
+    includes:
+      - mail/**
+      - python/**
+      - other-licenses/**/thunderbird/**
+      - third_party/**
+      - tools/**
+    owners: [*mkmelin]
+    peers: [*darktrojan, *aceman, *Paenglab]
+    meta:
+      owners_emeritus:
+        - *standard8
+        - David Bienvenu
+        - Scott MacGregor
+      peers_emeritus:
+        - *bwinton
+        - *mconley
+        - *rkent
+        - Jorg K
+      url: https://developer.thunderbird.net/
+      components: [Thunderbird]
+    submodules:
+      - name: Addon Support
+        machine_name: addon_support
+        description: APIs to enable extensions, as well as their installation
+        includes:
+          - mail/components/extensions/**
+        owners: [*darktrojan]
+        peers: [*TbSync, *Fallen]
+        meta:
+          components:
+            - Thunderbird::Add-Ons Extensions API
+            - Thunderbird::Add-Ons General
+
+      - name: Build Config
+        machine_name: build_config
+        description: Build, CI, Release Engineering
+        includes:
+          - build/**
+          - mail/config/**
+          - taskcluster/**
+        owners: [*rjl]
+        peers: [*Fallen]
+        meta:
+          peers_emeritus:
+            - *standard8
+            - Siddharth Agarwal
+            - *Callek
+            - *jcranmer
+            - *tomprince
+          components: [Thunderbird::Build Config]
+
+      - name: Instant Messaging
+        machine_name: instant_messaging
+        description: The chat and instant messaging component of Thunderbird
+        includes:
+          - mail/components/im/**
+          - chat/**
+        owners: [*clokep]
+        peers: [*freaktechnik]
+        meta:
+          owners_emeritus:
+            - *florian
+          peers_emeritus:
+            - *aleth
+            - *benediktp
+          components:
+            - Thunderbird::Instant Messaging
+
+      - name: Message Security
+        machine_name: message_security
+        description: OpenPGP and S/MIME message security
+        includes:
+          - mail/extensions/openpgp/**
+          - mail/extensions/smime/**
+        owners: [*KaiE]
+        peers: [*patrick, *mkmelin]
+
+      - name: Theme
+        machine_name: theme
+        description: The interface of Thunderbird related to the OS and custom themes
+        includes:
+          - mail/themes/**
+        owners: [*Paenglab]
+        peers: [*aleca]
+        meta:
+          peers_emeritus:
+            - Josiah Bruner (:JosiahOne)
+            - *bwinton
+            - *mconley
+          components:
+            - Thunderbird::Theme
+
+      - name: UX (User Experience)
+        machine_name: user_experience
+        description: Usability and user journey, including User Interface and Accessibility
+        includes:
+          - mail/branding/**
+        owners: [*aleca]
+        peers: [*Paenglab, *henry-x, *mkmelin]
+        meta:
+          peers_emeritus:
+            - *bwinton
+          components:
+            - Thunderbird::General
+
+  - name: Calendar
+    machine_name: calendar
+    description: Calendaring components
+    includes:
+      - calendar/**
+    owners: [*Fallen]
+    peers: [*darktrojan]
+    meta:
+      components:
+        - Calendar
+    submodules:
+      - name: User Interface (UI)
+        machine_name: calendar_ui
+        includes:
+          - calendar/base/content/**
+          - calendar/base/themes/**
+        owners: [*Paenglab]
+        peers: [*aleca]
+        meta:
+          components:
+            - Calendar::Calendar Frontend
+
+  - name: Mail and News Core
+    machine_name: mailnews_core
+    includes:
+      - mailnews/**
+    owners: [*jcranmer]
+    peers: [*benc, *neil, *aceman, *mkmelin]
+    meta:
+      peers_emeritus:
+        - Karsten Düsterloh (mnyromyr)
+        - *KaiE
+        - David Bienvenu (bienvenu)
+        - *standard8
+        - *rkent
+      components:
+        - MailNews Core::Backend
+        - Thunderbird::Account Manager
+        - Thunderbird::Migration
+        - MailNews Core::Account Manager
+        - MailNews Core::Composition
+        - MailNews Core::Filters
+        - MailNews Core::Internationalization
+        - MailNews Core::Movemail
+        - MailNews Core::Networking
+        - MailNews Core::Networking - POP
+        - MailNews Core::Printing
+        - MailNews Core::Profile Migration
+        - MailNews Core::Search
+        - MailNews Core::Security
+        - MailNews Core::Simple MAPI
+
+    submodules:
+      - name: Addressbook
+        machine_name: addressbook
+        includes:
+          - mailnews/addrbook/**
+        owners: [*darktrojan]
+        peers: [*aceman, *mkmelin]
+        meta:
+          components:
+            - MailNews Core::Address Book
+          peers_emeritus:
+            - David Bienvenu (bienvenu)
+            - *standard8
+            - *mconley
+      - name: Feeds
+        machine_name: feeds
+        includes:
+          - mailnews/extensions/newsblog/**
+        peers: [*Alta88, *mkmelin]
+        meta:
+          components:
+            - MailNews Core::Feed Reader
+      - name: GloDa
+        machine_name: global_database
+        description: Global message database
+        includes:
+          - mailnews/db/gloda/**
+        meta:
+          peers_emeritus:
+            - *protz
+          notes:
+            - Ask a MailNews Core owner or peer for review
+      - name: IMAP handling code
+        machine_name: imap_protocol
+        includes:
+          - mailnews/imap/**
+        owners: [*gds]
+        meta:
+          components:
+            - 'MailNews Core::Networking: IMAP'
+          peers_emeritus:
+            - *rkent
+      - name: Import
+        machine_name: importing
+        includes:
+          - mailnews/import/**
+        peers: [*mkmelin]
+        meta:
+          components:
+            - MailNews Core::Import
+          peers_emeritus:
+            - David Bienvenu (bienvenu)
+            - *standard8
+            - Jorg K
+          notes:
+            - Ask a peer for review
+      - name: Localization
+        machine_name: localization
+        includes:
+          - calendar/locales/**
+          - chat/locales/**
+          - mail/locales/**
+        peers: [*Fallen]
+        meta:
+          components:
+            - MailNews Core::Localization
+          peers_emeritus: [*standard8]
+      - name: Message Database
+        machine_name: message_database
+        description: MSF files
+        includes:
+          - mailnews/db/**
+        peers: [*aceman, *jcranmer]
+        meta:
+          components:
+            - MailNews Core::Database
+          owners_emeritus: [David Bienvenu (bienvenu)]
+          peers_emeritus: [*rkent]
+      - name: MIME Parser
+        machine_name: mime_parser
+        description: RFC822 MIME Parser
+        includes:
+          - mailnews/mime/**
+        peers: [*squib, *jcranmer, *mkmelin]
+        meta:
+          components:
+            - MailNews Core::MIME
+            - MailNews Core::Attachments
+          owners_emeritus: [David Bienvenu (bienvenu)]
+          peers_emeritus: [*KaiE, Jorg K]
+      - name: News
+        machine_name: news_protocol
+        includes:
+          - mailnews/news/**
+        owners: [*jcranmer]
+        meta:
+          components:
+            - 'MailNews Core::Networking: NNTP'
+          peers_emeritus: [David Bienvenu (bienvenu)]
+      - name: S/MIME
+        machine_name: smime_encryption
+        description: S/MIME backend
+        includes:
+          - mailnews/extensions/smime/**
+        owners: [*KaiE]
+        meta:
+          components:
+            - 'MailNews Core::Security: S/MIME'
+      - name: SMTP
+        machine_name: smtp_protocol
+        description: Code responsible for sending messages over SMTP.
+        includes:
+          - mailnews/compose/**
+        owners: [*rnons]
+        meta:
+          components:
+            - 'MailNews Core::Networking: SMTP'
+      - name: Unit Testing Infrastructure
+        machine_name: unittesting
+        includes:
+          - mailnews/test/**
+          - mailnews/base/test/**
+        owners: [*darktrojan]
+        peers: [*jcranmer, *mkmelin]
+        meta:
+          components:
+            - MailNews Core::Testing Infrastructure
+          owners_emeritus: [*standard8]
+
+  - name: mots config
+    includes:
+      - mots.yaml
+    owners:
+      - *rjl
+    machine_name: mots

@@ -31,8 +31,9 @@ add_task(async function check_focus() {
       "focus.html": `<!DOCTYPE html>
       <html>
         <head>
-          <script src="focus.js"></script>
-          <title>Focus Test</title>
+        <script src="utils.js"></script>
+        <script src="focus.js"></script>
+        <title>Focus Test</title>
         </head>
         <body>
           <input id="email" type="text"/>
@@ -51,11 +52,9 @@ add_task(async function check_focus() {
 
           // Fails as expected if focus is not set in
           // https://searchfox.org/comm-central/rev/be2751632bd695d17732ff590a71acb9b1ef920c/mail/components/extensions/extensionPopup.js#126-130
-          await new Promise(r => window.setTimeout(r));
-          browser.test.assertEq(
-            expectedString,
-            email.value,
-            "Input field should have the correct value"
+          await window.waitForCondition(
+            () => email.value == expectedString,
+            `Input field should have the correct value. Expected: ${expectedString},  actual: ${email.value}`
           );
 
           window.close();

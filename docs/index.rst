@@ -7,8 +7,10 @@ Thunderbird Source Tree Documentation
 =====================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :caption: Project Information
+   :maxdepth: 1
+
+   mots/index
 
 
 
