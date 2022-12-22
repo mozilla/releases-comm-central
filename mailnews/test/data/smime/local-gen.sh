@@ -26,7 +26,7 @@ then
   exit
 fi
 
-MILLDIR="`pwd`/../../../../mail/test/mozmill/smime"
+MILLDIR="`pwd`/../../../../mail/test/browser/smime/data"
 
 # When executing mozmill in the CI environment, the files from this
 # directory aren't available. Copy all files that mozmill requires to
@@ -52,8 +52,8 @@ Content-Transfer-Encoding: base64
 "
 
 certutil -d $TMPDIR -N --empty-password
-pk12util -d $TMPDIR -i Alice.p12 -W ''
-pk12util -d $TMPDIR -i Bob.p12 -W ''
+pk12util -d $TMPDIR -i Alice.p12 -W nss
+pk12util -d $TMPDIR -i Bob.p12 -W nss
 certutil -d $TMPDIR -M -n TestCA -t C,C,
 
 INPUT="Content-type: text/plain

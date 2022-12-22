@@ -23,6 +23,7 @@
   --button-primary-hover-bgcolor: color-mix(in srgb, black 10%, AccentColor);
   --button-primary-active-bgcolor: color-mix(in srgb, black 20%, AccentColor);
   --button-primary-color: AccentColorText;
+  --button-sidebar-bottom-hover-color: var(--color-blue-60);
   --checkbox-border-color: var(--toolbar-field-border-color);
   --checkbox-unchecked-bgcolor: var(--toolbar-field-background-color);
   --checkbox-unchecked-hover-bgcolor: color-mix(in srgb, AccentColor 4%, var(--checkbox-unchecked-bgcolor));
@@ -116,6 +117,7 @@
   --item-focus-selected-border-color: #bebebf;
   --row-grouped-header-bg-color-selected: var(--sidebar-highlight-background-color,
                                               rgba(249, 249, 250, 0.3));
+  --button-sidebar-bottom-hover-color: var(--color-blue-40);
 }
 
 :root[lwt-popup-brighttext] {
@@ -151,6 +153,7 @@ toolbar[brighttext] {
     --button-primary-hover-bgcolor: rgb(2, 80, 187) !important;
     --button-primary-active-bgcolor: rgb(5, 62, 148) !important;
     --button-primary-color: rgb(251, 251, 254) !important;
+    --button-sidebar-bottom-hover-color: var(--color-blue-40);
     --lwt-accent-color: rgb(24, 24, 26) !important;
     --sidebar-border-color: #606064 !important;
     --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
@@ -172,6 +175,7 @@ toolbar[brighttext] {
     --lwt-selected-tab-background-color: #2a2a2e !important;
     --lwt-tab-line-color: #0a84ff !important;
     --sidebar-highlight-background-color: #0a84ff;
+    --button-sidebar-bottom-hover-color: var(--color-blue-40);
   }
 
   :root:-moz-lwtheme .themeable-brighttext {

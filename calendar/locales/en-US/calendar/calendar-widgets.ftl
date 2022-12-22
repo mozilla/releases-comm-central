@@ -9,3 +9,13 @@ calendar-notifications-label = Show notifications for upcoming events
 
 calendar-add-notification-button =
   .label = Add notification
+
+calendar-import-new-calendar = New Calendar…
+  .title = Create or subscribe to a new calendar
+
+calendar-refresh-calendars =
+  .title = Reload all calendars and synchronize changes
+
+calendar-new-event-primary-button = New Event
+
+calendar-new-task-primary-button = New Task

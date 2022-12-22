@@ -35,6 +35,18 @@
   --viewDragboxColor: -moz-dialogtext;
   --viewDragboxBackground: #45a1ff;
   --viewDropshadowBackground: #ffa47d;
+  --calendar-primary-button-margin: 6px;
+  --calendar-primary-button-padding: 6px;
+}
+
+:root[uidensity="compact"] {
+  --calendar-primary-button-margin: 0px;
+  --calendar-primary-button-padding: 3px 6px;
+}
+
+:root[uidensity="touch"] {
+  --calendar-primary-button-margin: 9px;
+  --calendar-primary-button-padding: 9px;
 }
 
 :root[lwt-tree]:not([lwt-tree-brighttext]) {

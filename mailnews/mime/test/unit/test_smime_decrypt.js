@@ -66,11 +66,16 @@ add_setup(function() {
     Ci.nsIX509Cert.CA_CERT
   );
   SmimeUtils.loadCertificateAndKey(
-    do_get_file(smimeDataDirectory + "Alice.p12")
+    do_get_file(smimeDataDirectory + "Alice.p12"),
+    "nss"
   );
-  SmimeUtils.loadCertificateAndKey(do_get_file(smimeDataDirectory + "Bob.p12"));
   SmimeUtils.loadCertificateAndKey(
-    do_get_file(smimeDataDirectory + "Dave.p12")
+    do_get_file(smimeDataDirectory + "Bob.p12"),
+    "nss"
+  );
+  SmimeUtils.loadCertificateAndKey(
+    do_get_file(smimeDataDirectory + "Dave.p12"),
+    "nss"
   );
 });
 

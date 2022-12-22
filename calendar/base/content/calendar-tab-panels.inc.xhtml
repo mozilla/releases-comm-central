@@ -126,6 +126,26 @@
     <vbox id="calSidebar"
           width="200"
           persist="collapsed width">
+      <!-- Temporarily hidden until the enable/disable button logic is in place.
+           See bug 1806882 -->
+      <html:div id="primaryButtonSidePanel"
+                hidden="hidden"
+                xmlns="http://www.w3.org/1999/xhtml">
+        <button id="sidePanelNewEvent"
+                data-l10n-id="calendar-new-event-primary-button"
+                class="primary-button-side-panel"
+                onclick="goDoCommand('calendar_new_event_command')"
+                hidden="hidden"
+                type="button">
+        </button>
+        <button id="sidePanelNewTask"
+                data-l10n-id="calendar-new-task-primary-button"
+                class="primary-button-side-panel"
+                onclick="goDoCommand('calendar_new_todo_command')"
+                hidden="hidden"
+                type="button">
+        </button>
+      </html:div>
       <calendar-modevbox id="minimonth-pane"
                          mode="calendar,task"
                          refcontrol="calendar_toggle_minimonthpane_command">
@@ -192,6 +212,20 @@
               </li>
             </template>
           </calendar-modevbox>
+          <html:div id="sideButtonsBottom" xmlns="http://www.w3.org/1999/xhtml">
+            <button id="importCalendar"
+                    class="calendar-sidebar-bottom-button"
+                    data-l10n-id="calendar-import-new-calendar"
+                    onclick="goDoCommand('calendar_new_calendar_command')"
+                    type="button">
+            </button>
+            <button id="refreshCalendar"
+                    class="calendar-sidebar-bottom-button"
+                    data-l10n-id="calendar-refresh-calendars"
+                    onclick="goDoCommand('calendar_reload_remote_calendars')"
+                    type="button">
+            </button>
+          </html:div>
         </calendar-modevbox>
       </vbox>
     </vbox>

@@ -83,6 +83,8 @@ function calSwitchToCalendarMode() {
     // display the calendar panel on the display deck
     document.getElementById("calendar-view-box").collapsed = false;
     document.getElementById("calendar-task-box").collapsed = true;
+    document.getElementById("sidePanelNewEvent").hidden = false;
+    document.getElementById("sidePanelNewTask").hidden = true;
 
     // show the last displayed type of calendar view
     switchToView(gLastShownCalendarView.get());
@@ -109,6 +111,8 @@ function calSwitchToTaskMode() {
     // display the task panel on the display deck
     document.getElementById("calendar-view-box").collapsed = true;
     document.getElementById("calendar-task-box").collapsed = false;
+    document.getElementById("sidePanelNewEvent").hidden = true;
+    document.getElementById("sidePanelNewTask").hidden = false;
 
     document.getElementById("calMinimonth").setAttribute("freebusy", "true");
 
