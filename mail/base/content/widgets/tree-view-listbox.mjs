@@ -663,6 +663,8 @@
           this == document.activeElement ||
           !event.target.closest(`tr[is="${this._rowElementName}"]`)
         ) {
+          // Prevent moving the focus to any clickable child element.
+          event.preventDefault();
           return;
         }
         // We prevent the focus handler because it can change the selection
@@ -728,7 +730,10 @@
         }
 
         if (event.target.classList.contains("tree-button-delete")) {
-          // Enforce the selection of only one row.
+          // Temporarily enforce the selection of only one row. We should extend
+          // this and allow interacting with this feature even if the specific
+          // row is not part of the selection.
+          // TODO: Implement a changeSelectionWithoutContentLoad method.
           this._selectSingle(index);
           this.dispatchEvent(
             new CustomEvent("request-delete", {
@@ -739,11 +744,48 @@
         }
 
         if (event.target.classList.contains("tree-button-flag")) {
-          // Enforce the selection of only one row.
+          // Temporarily enforce the selection of only one row. We should extend
+          // this and allow interacting with this feature even if the specific
+          // row is not part of the selection.
+          // TODO: Implement a changeSelectionWithoutContentLoad method.
           this._selectSingle(index);
           this.dispatchEvent(
             new CustomEvent("toggle-flag", {
               bubbles: true,
+            })
+          );
+          return;
+        }
+
+        if (event.target.classList.contains("tree-button-unread")) {
+          // Temporarily enforce the selection of only one row. We should extend
+          // this and allow interacting with this feature even if the specific
+          // row is not part of the selection.
+          // TODO: Implement a changeSelectionWithoutContentLoad method.
+          this._selectSingle(index);
+          this.dispatchEvent(
+            new CustomEvent("toggle-unread", {
+              bubbles: true,
+            })
+          );
+          return;
+        }
+
+        if (event.target.classList.contains("tree-button-spam")) {
+          // Temporarily enforce the selection of only one row. We should extend
+          // this and allow interacting with this feature even if the specific
+          // row is not part of the selection.
+          // TODO: Implement a changeSelectionWithoutContentLoad method.
+          this._selectSingle(index);
+          this.dispatchEvent(
+            new CustomEvent("toggle-spam", {
+              bubbles: true,
+              detail: {
+                isJunk: event.target
+                  .closest(`tr[is="${this._rowElementName}"]`)
+                  ?.dataset.properties.split(" ")
+                  .find(p => p == "junk"),
+              },
             })
           );
           return;
@@ -1593,14 +1635,10 @@
         // Handle the special case for the thread column.
         if (column.thread) {
           cell.classList.add("tree-view-row-thread");
-          if (this.view.isContainer(index)) {
-            const img = document.createElement("img");
-            img.src = "";
-            document.l10n.setAttributes(img, "tree-list-view-row-thread");
-            cell.replaceChildren(img);
-          } else {
-            cell.replaceChildren();
-          }
+          const img = document.createElement("img");
+          img.src = "";
+          document.l10n.setAttributes(img, "tree-list-view-row-thread");
+          cell.replaceChildren(img);
           continue;
         }
 
@@ -1614,6 +1652,44 @@
             "button-flat",
             "button-reset",
             "tree-button-flag"
+          );
+
+          const img = button.appendChild(document.createElement("img"));
+          img.src = "";
+          img.alt = "";
+
+          cell.replaceChildren(button);
+        }
+
+        // Handle the special case for the unread column.
+        if (column.unread) {
+          cell.classList.add("tree-view-row-unread");
+          const button = document.createElement("button");
+          button.type = "button";
+          button.tabIndex = -1;
+          button.classList.add(
+            "button-flat",
+            "button-reset",
+            "tree-button-unread"
+          );
+
+          const img = button.appendChild(document.createElement("img"));
+          img.src = "";
+          img.alt = "";
+
+          cell.replaceChildren(button);
+        }
+
+        // Handle the special case for the spam column.
+        if (column.spam) {
+          cell.classList.add("tree-view-row-spam");
+          const button = document.createElement("button");
+          button.type = "button";
+          button.tabIndex = -1;
+          button.classList.add(
+            "button-flat",
+            "button-reset",
+            "tree-button-spam"
           );
 
           const img = button.appendChild(document.createElement("img"));

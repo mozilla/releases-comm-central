@@ -120,7 +120,7 @@ body:not(.layout-table) thead[is="tree-view-table-header"] {
 }
 
 thead[is="tree-view-table-header"] {
-  height: 30px;
+  height: var(--tree-header-table-height);
   position: sticky;
   inset-inline: 0;
   inset-block-start: 0;
@@ -159,6 +159,7 @@ thead[is="tree-view-table-header"] hr[is="pane-splitter"]:hover:not(:active) {
 }
 
 th[is="tree-view-table-header-cell"] {
+  height: var(--tree-header-table-height);
   min-width: 7ch;
   padding: 0;
   position: relative;
@@ -168,6 +169,10 @@ th[is="tree-view-table-header-cell"] {
 th[is="tree-view-table-header-cell"][data-type="icon"] {
   width: 30px;
   min-width: 30px;
+}
+
+th[is="tree-view-table-header-cell"][data-type="icon"] button {
+  text-align: center;
 }
 
 th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
@@ -234,7 +239,7 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
 
 .tree-table-cell {
   position: absolute;
-  inset-block: 0;
+  inset-block: 0 1px;
   inset-inline: 0 1px;
 }
 
@@ -296,6 +301,11 @@ th[is="tree-view-table-column-picker"] {
   position: relative;
   width: 25px;
   padding: 0;
+}
+
+.button-column-picker {
+  position: absolute;
+  inset: 0;
 }
 
 .button-column-picker img {

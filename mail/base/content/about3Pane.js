@@ -26,6 +26,7 @@ var { FolderTreeProperties } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
@@ -35,6 +36,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   FolderUtils: "resource:///modules/FolderUtils.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
 });
+
+UIDensity.registerWindow(window);
 
 const messengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties"
@@ -405,6 +408,26 @@ var threadPane = {
       sortable: false,
     },
     {
+      id: "attachmentCol",
+      l10n: {
+        header: "about-threadpane-column-header-attachments",
+        menuitem: "about-threadpane-column-label-attachments",
+      },
+      icon: true,
+      resizable: false,
+      hidden: true,
+    },
+    {
+      id: "unreadButtonColHeader",
+      l10n: {
+        header: "about-threadpane-column-header-unread",
+        menuitem: "about-threadpane-column-label-unread",
+      },
+      icon: true,
+      resizable: false,
+      unread: true,
+    },
+    {
       id: "senderCol",
       l10n: {
         header: "about-threadpane-column-header-sender",
@@ -429,6 +452,17 @@ var threadPane = {
       },
       sortKey: "byCorrespondent",
       hidden: true,
+    },
+    {
+      id: "junkStatusCol",
+      l10n: {
+        header: "about-threadpane-column-header-spam",
+        menuitem: "about-threadpane-column-label-spam",
+      },
+      sortKey: "byJunkStatus",
+      spam: true,
+      icon: true,
+      resizable: false,
     },
     {
       id: "subjectCol",
@@ -551,7 +585,30 @@ var threadPane = {
     },
   ],
 
+  /**
+   * Make the list rows density aware.
+   */
+  densityChange() {
+    switch (UIDensity.prefValue) {
+      case UIDensity.MODE_COMPACT:
+        ThreadListrow.ROW_HEIGHT = 18;
+        break;
+      case UIDensity.MODE_TOUCH:
+        ThreadListrow.ROW_HEIGHT = 32;
+        break;
+      default:
+        ThreadListrow.ROW_HEIGHT = 22;
+        break;
+    }
+  },
+
   init() {
+    window.addEventListener("uidensitychange", () => {
+      this.densityChange();
+      threadTree.invalidate();
+    });
+    this.densityChange();
+
     // TODO: Switch this dynamically like in the address book.
     document.body.classList.add("layout-table");
 
@@ -566,6 +623,16 @@ var threadPane = {
     });
     treeTable.addEventListener("toggle-flag", event => {
       commandController.doCommand("cmd_markAsFlagged", event);
+    });
+    treeTable.addEventListener("toggle-unread", event => {
+      commandController.doCommand("cmd_toggleRead", event);
+    });
+    treeTable.addEventListener("toggle-spam", event => {
+      if (event.detail.isJunk) {
+        commandController.doCommand("cmd_markAsNotJunk", event);
+        return;
+      }
+      commandController.doCommand("cmd_markAsJunk", event);
     });
     treeTable.addEventListener("thread-changed", () => {
       sortController.toggleThreaded();
@@ -1219,6 +1286,22 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
             ? "tree-list-view-row-flagged"
             : "tree-list-view-row-flag"
         );
+      }
+
+      if (column.id == "junkStatusCol") {
+        document.l10n.setAttributes(
+          cell.querySelector("button"),
+          properties.split(" ").find(p => p == "junk")
+            ? "tree-list-view-row-spam"
+            : "tree-list-view-row-not-spam"
+        );
+      }
+
+      if (column.id == "attachmentCol") {
+        const img = document.createElement("img");
+        img.src = "";
+        document.l10n.setAttributes(img, "tree-list-view-row-attach");
+        cell.replaceChildren(img);
       }
 
       // No need to update the text of this cell if it's the selection or an

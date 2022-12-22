@@ -345,6 +345,21 @@ about-threadpane-column-header-flagged =
 about-threadpane-column-label-flagged =
   .label = Starred
 
+about-threadpane-column-header-attachments =
+  .title = Sort by attachments
+about-threadpane-column-label-attachments =
+  .label = Attachments
+
+about-threadpane-column-header-spam =
+  .title = Sort by spam status
+about-threadpane-column-label-spam =
+  .label = Spam
+
+about-threadpane-column-header-unread =
+  .title = Sort by read status
+about-threadpane-column-label-unread =
+  .label = Read status
+
 about-threadpane-column-header-sender = From
   .title = Sort by from
 about-threadpane-column-label-sender =

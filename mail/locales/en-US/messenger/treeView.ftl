@@ -29,3 +29,15 @@ tree-list-view-row-flagged =
 tree-list-view-row-flag =
   .alt = Starred message indicator
   .title = Message not starred
+
+tree-list-view-row-attach =
+  .alt = Attachment indicator
+  .title = Message contains attachments
+
+tree-list-view-row-spam =
+  .alt = Spam status indicator
+  .title = Message marked as spam
+
+tree-list-view-row-not-spam =
+  .alt = Spam status indicator
+  .title = Message not marked as spam

@@ -6,12 +6,20 @@
   :root {
     --thread-pane-flag-fill: var(--color-orange-30);
     --thread-pane-flag-stroke: var(--color-orange-60);
+    --thread-pane-unread-fill: var(--color-green-60);
+    --thread-pane-unread-stroke: var(--color-green-60);
+    --thread-pane-spam-fill: var(--color-red-50);
+    --thread-pane-spam-stroke: var(--color-red-70);
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
       --thread-pane-flag-fill: var(--color-orange-40);
       --thread-pane-flag-stroke: var(--color-orange-50);
+      --thread-pane-unread-fill: var(--color-green-50);
+      --thread-pane-unread-stroke: var(--color-green-50);
+      --thread-pane-spam-fill: var(--color-red-40);
+      --thread-pane-spam-stroke: var(--color-red-50);
     }
   }
 }
@@ -36,10 +44,6 @@
 
 /* Thread column */
 
-#threadColButton {
-  text-align: center;
-}
-
 .tree-view-header-thread img {
   content: var(--icon-thread-sm);
   pointer-events: none;
@@ -55,11 +59,11 @@
   opacity: 0.7;
 }
 
-/* Starred column */
-
-#flaggedColButton {
-  text-align: center;
+tr:not(.children) .tree-view-row-thread img {
+  display: none;
 }
+
+/* Starred column */
 
 #flaggedColButton img {
   content: var(--icon-star-sm);
@@ -71,11 +75,13 @@
 }
 
 .tree-view-row-flag img {
+  content: var(--icon-star);
+  pointer-events: none;
   fill: color-mix(in srgb, currentColor 10%, transparent);
   stroke: color-mix(in srgb, currentColor 30%, transparent);
 }
 
-#threadTree [data-properties~="flagged"] .tree-view-row-flag img {
+tr[data-properties~="flagged"] .tree-view-row-flag img {
   fill: var(--thread-pane-flag-fill);
   stroke: var(--thread-pane-flag-stroke);
 }
@@ -97,9 +103,65 @@
   color: currentColor;
 }
 
-.tree-view-row-flag img {
-  content: var(--icon-star);
+/* Attachment column variations */
+
+#attachmentColButton img {
+  content: var(--icon-attachment-sm);
+}
+
+.attachmentcol-column img {
+  content: var(--icon-attachment-sm);
+  color: inherit;
+  /* Don't center align this because it could be the last column, spanning for
+     2 columns to account for the picker, therefore a center alignment would be
+     wrong. */
+  margin-inline-start: 3px;
+  margin-top: 1px;
+  opacity: 0.7;
+}
+
+tr:not([data-properties~="attach"]) .attachmentcol-column img {
+  display: none;
+}
+
+/* Unread column variations */
+
+#unreadButtonColHeader img {
+  content: var(--icon-unread-sm);
+}
+
+.tree-view-row-unread button {
+  color: inherit;
+  opacity: 0.8;
+}
+
+.tree-view-row-unread img {
+  content: var(--icon-unread-dot);
   pointer-events: none;
+  fill: color-mix(in srgb, currentColor 10%, transparent);
+  stroke: color-mix(in srgb, currentColor 30%, transparent);
+}
+
+tr[data-properties~="unread"] .tree-view-row-unread img {
+  fill: color-mix(in srgb, var(--thread-pane-unread-fill) 50%, transparent);
+  stroke: var(--thread-pane-unread-stroke);
+}
+
+.tree-view-row-unread button:hover {
+  opacity: 1;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.tree-view-row-unread button:hover:active {
+  background-color: color-mix(in srgb, currentColor 20%, transparent);
+  border-color: transparent;
+  color: currentColor;
+}
+
+[is="tree-view-listbox"]:focus .selected .tree-view-row-unread button:hover {
+  background-color: transparent;
+  color: currentColor;
 }
 
 /* Subject column variations */
@@ -149,6 +211,46 @@ tr[is="thread-listrow"] .twisty-icon {
   height: 12px;
   content: var(--icon-nav-down-sm);
   margin: 1px;
+}
+
+/* Spam column variations */
+
+#junkStatusCol img {
+  content: var(--icon-spam-sm);
+}
+
+.tree-view-row-spam button {
+  color: inherit;
+  opacity: 0.8;
+}
+
+.tree-view-row-spam img {
+  content: var(--icon-spam);
+  pointer-events: none;
+  fill: color-mix(in srgb, currentColor 10%, transparent);
+  stroke: color-mix(in srgb, currentColor 30%, transparent);
+}
+
+tr[data-properties~="junk"] .tree-view-row-spam img {
+  fill: var(--thread-pane-spam-fill);
+  stroke: var(--thread-pane-spam-stroke);
+}
+
+.tree-view-row-spam button:hover {
+  opacity: 1;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.tree-view-row-spam button:hover:active {
+  background-color: color-mix(in srgb, currentColor 20%, transparent);
+  border-color: transparent;
+  color: currentColor;
+}
+
+[is="tree-view-listbox"]:focus .selected .tree-view-row-spam button:hover {
+  background-color: transparent;
+  color: currentColor;
 }
 
 /* Delete column variations */
