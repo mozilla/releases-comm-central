@@ -52,7 +52,18 @@ class ImapService {
   }
 
   liteSelectFolder(folder, urlListener, msgWindow) {
-    return this.selectFolder(folder, urlListener, msgWindow);
+    return this._withClient(folder, (client, runningUrl) => {
+      client.startRunningUrl(
+        urlListener || folder.QueryInterface(Ci.nsIUrlListener),
+        msgWindow,
+        runningUrl
+      );
+      runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
+        Ci.nsIImapUrl.nsImapLiteSelectFolder;
+      client.onReady = () => {
+        client.selectFolder(folder);
+      };
+    });
   }
 
   discoverAllFolders(folder, urlListener, msgWindow) {
@@ -92,12 +103,18 @@ class ImapService {
     flags,
     messageIdsAreUID
   ) {
-    this._updateMessageFlags("", folder, urlListener, messageIds, flags);
+    outURL.value = this._updateMessageFlags(
+      "",
+      folder,
+      urlListener,
+      messageIds,
+      flags
+    );
   }
 
   _updateMessageFlags(action, folder, urlListener, messageIds, flags) {
-    this._withClient(folder, client => {
-      client.startRunningUrl(urlListener);
+    return this._withClient(folder, (client, runningUrl) => {
+      client.startRunningUrl(urlListener, null, runningUrl);
       client.onReady = () => {
         client.updateMessageFlags(action, folder, messageIds, flags);
       };

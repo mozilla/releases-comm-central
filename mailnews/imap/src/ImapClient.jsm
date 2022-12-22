@@ -1380,7 +1380,11 @@ class ImapClient {
    * Send UID FETCH request to the server.
    */
   _actionUidFetch() {
-    this._nextAction = this._actionUidFetchResponse;
+    if (this.runningUrl.imapAction == Ci.nsIImapUrl.nsImapLiteSelectFolder) {
+      this._nextAction = () => this._actionDone();
+    } else {
+      this._nextAction = this._actionUidFetchResponse;
+    }
     this._sendTagged("UID FETCH 1:* (FLAGS)");
   }
 
