@@ -26,13 +26,13 @@ job-template:
     attributes:
         shipping_phase: promote
     run-time: 900
-    worker-type: b-linux-gcp
-    docker-image: {in-tree: debian11-amd64-build}
     treeherder:
         symbol: L10n-pre
         tier: 1
         platform: linux64-shippable/opt
+    worker-type: b-linux-gcp
     worker:
+        docker-image: {in-tree: debian11-amd64-build}
         env:
             MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE: system
     locale-list:
