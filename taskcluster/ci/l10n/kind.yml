@@ -15,29 +15,22 @@ kind-dependencies:
     - build
     - build-signing
     - fetch
-    - shippable-l10n-pre
+    - l10n-pre
     - repackage
     - toolchain
 
 primary-dependency: build
 
 only-for-build-platforms:
-    - linux64-shippable/opt
-    - linux-shippable/opt
-    - macosx64-shippable/opt
-    - win32-shippable/opt
-    - win64-shippable/opt
+    - linux64/opt
+    - linux/opt
+    - macosx64/opt
+    - win32/opt
+    - win64/opt
 
 job-template:
     description: Localization
-    locales-file:
-        by-release-type:
-            beta|release: comm/mail/locales/shipped-locales
-            default: comm/mail/locales/all-locales
-    locales-per-chunk: 5
-    run-on-projects: ['release']
-    attributes:
-        shipping_phase: promote
+    locales-file: comm/mail/locales/onchange-locales
     ignore-locales:
         by-build-platform:
             # OSX has a special locale for japanese
@@ -49,7 +42,7 @@ job-template:
             win.*: 1800
     secrets: false
     dependencies:
-        shippable-l10n-pre: shippable-l10n-pre-shippable-l10n-pre
+        l10n-pre: l10n-pre-l10n-pre
     fetches:
         toolchain:
             by-build-platform:
@@ -66,43 +59,44 @@ job-template:
                 default: []
                 win.*:
                     - upx-3.95-win
-        shippable-l10n-pre:
+        l10n-pre:
             - strings_all.tar.zst
     tooltool:
         by-build-platform:
             default: internal
             linux.*: public
     index:
-        type: shippable-l10n
+        type: l10n
         product: thunderbird
         job-name:
             by-build-platform:
-                linux-shippable: linux-opt
-                linux64-shippable: linux64-opt
-                macosx64-shippable: macosx64-opt
-                win32-shippable: win32-opt
-                win64-shippable: win64-opt
+                linux(?!64).*: linux-opt
+                linux64.*: linux64-opt
+                macosx64.*: macosx64-opt
+                win32.*: win32-opt
+                win64.*: win64-opt
+    run-on-projects: ['ash']
     worker-type: b-linux-gcp
     treeherder:
-        symbol: L10n(B)
+        symbol: L10n
         tier: 1
         platform:
             by-build-platform:
-                linux64-shippable: linux64-shippable/opt
-                linux-shippable: linux32-shippable/opt
-                macosx64-shippable: osx-shippable/opt
-                win32-shippable: windows2012-32-shippable/opt
-                win64-shippable: windows2012-64-shippable/opt
+                linux64: linux64/opt
+                linux: linux32/opt
+                macosx64: osx-cross/opt
+                win32: windows2012-32/opt
+                win64: windows2012-64/opt
     env:
         by-build-platform:
-            linux.*:   # linux64 and 32 get same treatment here
+            linux.*:    # linux64 and 32 get same treatment here
                 EN_US_PACKAGE_NAME: target.tar.bz2
                 EN_US_BINARY_URL:
-                    artifact-reference: <build-signing/{artifact_prefix}>
+                    artifact-reference: <build/{artifact_prefix}>
             macosx64.*:
                 EN_US_PACKAGE_NAME: target.dmg
                 EN_US_BINARY_URL:
-                    artifact-reference: <repackage/{artifact_prefix}>
+                    artifact-reference: <build/{artifact_prefix}>
             win.*:
                 EN_US_PACKAGE_NAME: target.zip
                 EN_US_BINARY_URL:
@@ -112,38 +106,44 @@ job-template:
         config-paths:
             - comm/testing/mozharness/configs
         config:
-            # no default, so we fail on new entries
             by-build-platform:
-                linux-shippable:
+                linux:
                     - single_locale/linux32.py
                     - single_locale/tc_common.py
                     - single_locale/tc_linux_common.py
                     - single_locale/thunderbird.py
-                    - taskcluster_nightly.py
-                linux64-shippable:
+                linux64:
                     - single_locale/linux64.py
                     - single_locale/tc_common.py
                     - single_locale/tc_linux_common.py
                     - single_locale/thunderbird.py
-                    - taskcluster_nightly.py
-                macosx64-shippable:
+                macosx64:
                     - single_locale/macosx64.py
                     - single_locale/tc_common.py
                     - single_locale/tc_macosx64.py
                     - single_locale/thunderbird.py
-                    - taskcluster_nightly.py
-                win32-shippable:
+                win32:
                     - single_locale/win32.py
                     - single_locale/tc_common.py
                     - single_locale/tc_win32.py
                     - single_locale/thunderbird.py
-                    - taskcluster_nightly.py
-                win64-shippable:
+                win64:
                     - single_locale/win64.py
                     - single_locale/tc_common.py
                     - single_locale/tc_win64.py
                     - single_locale/thunderbird.py
-                    - taskcluster_nightly.py
-        actions: ['list-locales', 'setup', 'repack',
-                  'summary']
+        # no default, so we fail on new entries
+        actions: ['list-locales', 'setup', 'repack', 'summary']
         script: mozharness/scripts/desktop_l10n.py
+    when:
+        files-changed:
+            - comm/calendar/locales/**
+            - comm/chat/locales/**
+            - comm/mail/locales/**
+            - comm/testing/mozharness/configs/single_locale/**
+            - testing/mozharness/configs/single_locale/**
+            - testing/mozharness/mozharness/mozilla/l10n/locales.py
+            - testing/mozharness/scripts/desktop_l10n.py
+            - third_party/python/compare-locales/**
+            - toolkit/locales/**
+            - toolkit/mozapps/installer/**

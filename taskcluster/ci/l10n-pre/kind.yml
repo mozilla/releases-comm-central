@@ -12,33 +12,25 @@ transforms:
 kind-dependencies:
     - build
 
-only-for-attributes:
-    - shippable
-
 only-for-build-platforms:
-    - linux64-shippable/opt
+    - linux64/opt
 
 job-template:
-    name: shippable-l10n-pre
+    name: l10n-pre
     description: Pre-Localization artifact build
-    run-on-projects: ['release']
-    build-platform: linux64-shippable
-    attributes:
-        shipping_phase: promote
+    run-on-projects: ['ash']
+    build-platform: linux64
     run-time: 900
     treeherder:
         symbol: L10n-pre
         tier: 1
-        platform: linux64-shippable/opt
+        platform: linux64/opt
     worker-type: b-linux-gcp
     worker:
         docker-image: {in-tree: debian11-amd64-build}
         env:
             MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE: system
-    locale-list:
-        by-release-type:
-            beta|release: comm/mail/locales/shipped-locales
-            default: comm/mail/locales/all-locales
+    locale-list: comm/mail/locales/onchange-locales
     comm-locales-file: comm/mail/locales/l10n-changesets.json
     browser-locales-file: browser/locales/l10n-changesets.json
     mozharness:

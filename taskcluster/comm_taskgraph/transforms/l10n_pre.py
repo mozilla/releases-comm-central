@@ -136,7 +136,6 @@ def make_job_description(config, jobs):
             "worker-type": job["worker-type"],
             "description": job["description"],
             "run": job["mozharness"],
-            "attributes": job["attributes"],
             "treeherder": {
                 "kind": "build",
                 "tier": job["treeherder"]["tier"],
@@ -147,16 +146,7 @@ def make_job_description(config, jobs):
             "worker": worker,
         }
 
-        if job.get("docker-image"):
-            job_description["worker"]["docker-image"] = job["docker-image"]
-
-        if job.get("dependencies"):
-            job_description["dependencies"] = job["dependencies"]
-
-        if "shipping-phase" in job:
-            job_description["shipping-phase"] = job["shipping-phase"]
-
-        if "shipping-product" in job:
-            job_description["shipping-product"] = job["shipping-product"]
+        if job.get("attributes"):
+            job_description["attributes"] = job["attributes"]
 
         yield job_description
