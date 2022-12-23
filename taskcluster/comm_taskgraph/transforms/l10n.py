@@ -5,34 +5,53 @@
 Do transforms specific to l10n kind
 """
 
-from taskgraph.transforms.base import TransformSequence
+from taskgraph.transforms.base import TransformSequence, ValidateSchema
 from taskgraph.util.schema import resolve_keyed_by
 
-from gecko_taskgraph.util.attributes import task_name
+from gecko_taskgraph.transforms.l10n import (
+    all_locales_attribute,
+    chunk_locales,
+    copy_in_useful_magic,
+    handle_artifact_prefix,
+    handle_keyed_by,
+    l10n_description_schema,
+    make_job_description,
+    set_extra_config,
+    setup_name,
+)
 
-transforms_pregecko = TransformSequence()
-transforms_postgecko = TransformSequence()
 
-
-@transforms_postgecko.add
-def update_dependencies(config, jobs):
+def setup_signing_dependency(config, jobs):
+    """Sets up a task dependency to the signing job this relates to"""
     for job in jobs:
-        job["dependencies"].update({"shippable-l10n-pre": "shippable-l10n-pre-shippable-l10n-pre"})
+        job["dependencies"].update(
+            {
+                "build": job["dependent-tasks"]["build"].label,
+            }
+        )
+
+        if job["attributes"]["build_platform"].startswith("win"):
+            job["dependencies"].update(
+                {
+                    "build-signing": job["dependent-tasks"]["build-signing"].label,
+                }
+            )
+
+        if "shippable" in job["attributes"]["build_platform"]:
+            if job["attributes"]["build_platform"].startswith("macosx"):
+                job["dependencies"].update(
+                    {"repackage": job["dependent-tasks"]["repackage"].label}
+                )
+            if job["attributes"]["build_platform"].startswith("linux"):
+                job["dependencies"].update(
+                    {
+                        "build-signing": job["dependent-tasks"]["build-signing"].label,
+                    }
+                )
         yield job
 
 
-@transforms_pregecko.add
-def setup_name(config, jobs):
-    for job in jobs:
-        dep = job["primary-dependency"]
-        # Set the name to the same as the dep task, without kind name.
-        # Label will get set automatically with this kinds name.
-        job["name"] = job.get("name", task_name(dep))
-        yield job
-
-
-@transforms_pregecko.add
-def handle_keyed_by(config, jobs):
+def handle_keyed_by_local(config, jobs):
     """Resolve fields that can be keyed by platform, etc."""
     for job in jobs:
         resolve_keyed_by(
@@ -42,3 +61,23 @@ def handle_keyed_by(config, jobs):
             **{"release-type": config.params["release_type"]},
         )
         yield job
+
+
+transforms = TransformSequence()
+
+
+for transform_func in (
+    setup_name,
+    copy_in_useful_magic,
+    handle_keyed_by_local,
+    ValidateSchema(l10n_description_schema),
+    setup_signing_dependency,
+    handle_keyed_by,
+    handle_artifact_prefix,
+    all_locales_attribute,
+    chunk_locales,
+    ValidateSchema(l10n_description_schema),
+    set_extra_config,
+    make_job_description,
+):
+    transforms.add(transform_func)
