@@ -73,10 +73,8 @@ class MailNotificationManager {
       Services.obs.addObserver(this, "new-directed-incoming-message");
     }
     if (AppConstants.platform == "win") {
-      Services.obs.addObserver(this, "profile-after-change");
       Services.obs.addObserver(this, "windows-refresh-badge-tray");
       Services.prefs.addObserver("mail.biff.show_badge", this);
-      Services.prefs.addObserver("mail.biff.show_tray_icon_always", this);
     }
 
     XPCOMUtils.defineLazyGetter(this, "_osIntegration", () => {
@@ -117,9 +115,6 @@ class MailNotificationManager {
       case "windows-refresh-badge-tray":
         this._updateUnreadCount();
         return;
-      case "profile-after-change":
-        this._updateUnreadCount();
-        return;
       case "profile-before-change":
         this._osIntegration?.onExit();
         return;
@@ -129,10 +124,7 @@ class MailNotificationManager {
         this._showCustomizedAlert();
         return;
       case "nsPref:changed":
-        if (
-          data == "mail.biff.show_badge" ||
-          data == "mail.biff.show_tray_icon_always"
-        ) {
+        if (data == "mail.biff.show_badge") {
           this._updateUnreadCount();
         }
     }

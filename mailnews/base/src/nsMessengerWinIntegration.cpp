@@ -23,7 +23,6 @@
 
 #define IDI_MAILBIFF 32576
 #define SHOW_TRAY_ICON_PREF "mail.biff.show_tray_icon"
-#define SHOW_TRAY_ICON_ALWAYS_PREF "mail.biff.show_tray_icon_always"
 
 // since we are including windows.h in this file, undefine get user name....
 #ifdef GetUserName
@@ -118,11 +117,7 @@ LRESULT CALLBACK nsMessengerWinIntegration::IconWindowProc(HWND msgWindow,
         bool showTrayIcon;
         rv = prefBranch->GetBoolPref(SHOW_TRAY_ICON_PREF, &showTrayIcon);
         NS_ENSURE_SUCCESS(rv, FALSE);
-        bool showTrayIconAlways;
-        rv = prefBranch->GetBoolPref(SHOW_TRAY_ICON_ALWAYS_PREF,
-                                     &showTrayIconAlways);
-        NS_ENSURE_SUCCESS(rv, FALSE);
-        if ((!showTrayIcon || !sUnreadCount) && !showTrayIconAlways) {
+        if (!showTrayIcon || !sUnreadCount) {
           ::Shell_NotifyIconW(NIM_DELETE, &sMailIconData);
           if (auto instance = reinterpret_cast<nsMessengerWinIntegration*>(
                   ::GetWindowLongPtrW(msgWindow, GWLP_USERDATA))) {
@@ -347,18 +342,9 @@ nsresult nsMessengerWinIntegration::UpdateTrayIcon() {
   rv = SetTooltip();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bool showTrayIconAlways;
-  rv =
-      mPrefBranch->GetBoolPref(SHOW_TRAY_ICON_ALWAYS_PREF, &showTrayIconAlways);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (sUnreadCount > 0 || showTrayIconAlways) {
-    auto idi = IDI_APPLICATION;
-    if (sUnreadCount > 0) {
-      // Only showing the new mail marker when there are actual unread mail
-      idi = MAKEINTRESOURCE(IDI_MAILBIFF);
-    }
-    sMailIconData.hIcon = ::LoadIcon(::GetModuleHandle(NULL), idi);
+  if (sUnreadCount > 0) {
+    sMailIconData.hIcon =
+        ::LoadIcon(::GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAILBIFF));
     if (mTrayIconShown) {
       // If the tray icon is already shown, just modify it.
       ::Shell_NotifyIconW(NIM_MODIFY, &sMailIconData);
@@ -379,7 +365,7 @@ nsresult nsMessengerWinIntegration::UpdateTrayIcon() {
       sMailIconData.hIcon =
           ::LoadIcon(::GetModuleHandle(NULL), IDI_APPLICATION);
       ::Shell_NotifyIconW(NIM_MODIFY, &sMailIconData);
-    } else if (!showTrayIconAlways) {
+    } else {
       // No unread, no need to show the tray icon.
       ::Shell_NotifyIconW(NIM_DELETE, &sMailIconData);
       mTrayIconShown = false;
