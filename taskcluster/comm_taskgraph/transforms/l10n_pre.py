@@ -136,7 +136,6 @@ def make_job_description(config, jobs):
             "worker-type": job["worker-type"],
             "description": job["description"],
             "run": job["mozharness"],
-            "attributes": job["attributes"],
             "treeherder": {
                 "kind": "build",
                 "tier": job["treeherder"]["tier"],
@@ -146,5 +145,8 @@ def make_job_description(config, jobs):
             "run-on-projects": job.get("run-on-projects", []),
             "worker": worker,
         }
+
+        if job.get("attributes"):
+            job_description["attributes"] = job["attributes"]
 
         yield job_description
