@@ -18,6 +18,10 @@ const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
 );
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
+const { Integration } = ChromeUtils.importESModule(
+  "resource://gre/modules/Integration.sys.mjs"
+);
+
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -28,10 +32,10 @@ import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 const lazy = {};
 
-ChromeUtils.defineModuleGetter(
+Integration.downloads.defineESModuleGetter(
   lazy,
   "AsyncShutdown",
-  "resource://gre/modules/AsyncShutdown.jsm"
+  "resource://gre/modules/AsyncShutdown.sys.mjs"
 );
 ChromeUtils.defineModuleGetter(
   lazy,
