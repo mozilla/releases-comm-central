@@ -2186,6 +2186,18 @@ export var XMPPAccountPrototype = {
       }
     }
     this.WARN(`Unhandled IQ ${type} stanza.`);
+    if (type == "get" || type == "set") {
+      // RFC 6120 (section 8.2.3): An entity that receives an IQ request of
+      // type "get" or "set" MUST reply with an IQ response of type "result"
+      // or "error".
+      let id = aStanza.attributes.id;
+      let from = aStanza.attributes.from;
+      let condition = Stanza.node("service-unavailable", Stanza.NS.stanzas, {
+        type: "cancel",
+      });
+      let error = Stanza.node("error", null, { type: "cancel" }, condition);
+      this.sendStanza(Stanza.iq("error", id, from, error));
+    }
   },
 
   /* Called when a presence stanza is received */
