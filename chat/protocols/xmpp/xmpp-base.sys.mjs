@@ -2133,9 +2133,7 @@ export var XMPPAccountPrototype = {
       // XEP-0199: XMPP server-to-client ping (XEP-0199)
       let ping = aStanza.getElement(["ping"]);
       if (ping && ping.uri == Stanza.NS.ping) {
-        if (from == this._jid.domain) {
-          this.sendStanza(Stanza.iq("result", id, this._jid.domain));
-        }
+        this.sendStanza(Stanza.iq("result", id, from));
         return;
       }
 
