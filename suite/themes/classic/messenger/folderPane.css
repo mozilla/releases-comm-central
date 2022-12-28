@@ -8,6 +8,16 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+/* ::::: Trees ::::: */
+
+treechildren::-moz-tree-row {
+  min-height: 18px;
+}
+
+treechildren::-moz-tree-twisty {
+  padding-bottom: 1px;
+}
+
 /* ::::: mail folder ::::: */
 
 treechildren::-moz-tree-image(folderNameCol) {

@@ -8,6 +8,10 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+treechildren::-moz-tree-row {
+  min-height: 18px;
+}
+
 treechildren::-moz-tree-image {
   margin-inline-end: 2px;
   list-style-image: url("chrome://communicator/skin/profile/profileicon-large.png");

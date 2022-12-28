@@ -92,7 +92,7 @@
 }
 
 #folderTree > treechildren::-moz-tree-row {
-  background-color: transparent;
+  min-height: 18px;
 }
 
 #folderTree > treechildren::-moz-tree-row(selected) {
@@ -105,69 +105,28 @@
   -moz-font-smoothing-background-color: -moz-mac-active-source-list-selection;
 }
 
+#folderTree > treechildren::-moz-tree-twisty(selected),
 #folderTree > treechildren::-moz-tree-cell-text(selected) {
   color: #FFFFFF;
+  fill-opacity: 1;
 }
 
 #folderTree > treechildren::-moz-tree-twisty {
-  -moz-appearance: none;
   width: 16px;
   padding-bottom: 1px;
-  padding-inline-end: 4px;
-  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed");
-}
-
-#folderTree > treechildren::-moz-tree-twisty(closed, selected) {
-  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-inverted");
-}
-
-#folderTree > treechildren::-moz-tree-twisty(open) {
-  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-expanded");
-}
-
-#folderTree > treechildren::-moz-tree-twisty(open, selected) {
-  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-expanded-inverted");
-}
-
-#folderTree > treechildren:-moz-locale-dir(rtl)::-moz-tree-twisty(closed) {
-  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-rtl");
-}
-
-#folderTree > treechildren:-moz-locale-dir(rtl)::-moz-tree-twisty(closed, selected) {
-  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-inverted-rtl");
 }
 
 @media (-moz-mac-yosemite-theme) {
+  #folderTree > treechildren::-moz-tree-twisty(selected),
   #folderTree > treechildren::-moz-tree-cell-text(selected) {
     color: -moz-dialogtext;
+    fill-opacity: 0.6;
   }
 
+  #folderTree > treechildren::-moz-tree-twisty(selected, focus),
   #folderTree > treechildren::-moz-tree-cell-text(selected, focus) {
     color: #FFFFFF;
-  }
-
-  #folderTree > treechildren::-moz-tree-twisty(closed, selected) {
-    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed");
-  }
-
-  #folderTree > treechildren::-moz-tree-twisty(closed, selected, focus) {
-    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-inverted");
-  }
-
-  #folderTree > treechildren::-moz-tree-twisty(open, selected) {
-    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-expanded");
-  }
-
-  #folderTree > treechildren::-moz-tree-twisty(open, selected, focus) {
-    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-expanded-inverted");
-  }
-
-  #folderTree > treechildren:-moz-locale-dir(rtl)::-moz-tree-twisty(closed, selected) {
-    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-rtl");
-  }
-
-  #folderTree > treechildren:-moz-locale-dir(rtl)::-moz-tree-twisty(closed, selected, focus) {
-    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-inverted-rtl")
+    fill-opacity: 1;
   }
 }
 

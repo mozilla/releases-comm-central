@@ -142,6 +142,12 @@ treecol {
     border: none;
 }
 
+/* ::::: Trees ::::: */
+
+treechildren::-moz-tree-row {
+  min-height: 18px;
+}
+
 /* we need to define both the : and :: versions of the treechildren selector
  *  so that we work on both 1.5 and pre 1.5 builds.
  *
