@@ -86,7 +86,6 @@ reference-jobs:
     - win64-nasm
     - win64-node
     - win64-rust
-    - win64-rust-toolchain
     - win64-rust-size
     - win64-sccache
     - win64-winchecksec
