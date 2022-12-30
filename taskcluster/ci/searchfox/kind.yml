@@ -135,9 +135,6 @@ jobs:
             tooltool-downloads: internal
             extra-config:
                 mozconfig_platform: win64
-                env:
-                    LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                    LOWERCASE_DIRS: "/builds/worker/fetches/vs"
         use-sccache: true
         fetches:
             toolchain:
@@ -145,7 +142,6 @@ jobs:
                 - linux64-cbindgen
                 - linux64-clang
                 - linux64-dump_syms
-                - linux64-liblowercase
                 - linux64-nasm
                 - linux64-node
                 - linux64-rust-cross

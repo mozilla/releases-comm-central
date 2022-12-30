@@ -30,7 +30,6 @@ reference-jobs:
     - linux64-fix-stacks
     - linux64-hfsplus
     - linux64-libdmg
-    - linux64-liblowercase
     - linux64-llvm-symbolizer
     - linux64-makecab
     - linux64-mkbom
