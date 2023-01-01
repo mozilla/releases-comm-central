@@ -67,7 +67,7 @@ var { MailServices } = ChromeUtils.import(
 );
 
 var folder = null;
-var gMsgNo = 0;
+var gMsgNo = -1; // msg index in folder
 
 var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/content-policy/html/";
@@ -90,7 +90,8 @@ var TESTS = [
   {
     type: "Image",
     description: "img served over http should be blocked",
-    checkDenied: true,
+    shouldBeBlocked: true,
+    checkRemoteImg: true,
     body: '<img id="testelement" src="' + url + 'pass.png"/>\n',
     webPage: "remoteimage.html",
     checkForAllowed: function img_checkAllowed(element) {
@@ -104,7 +105,7 @@ var TESTS = [
   {
     type: "Video",
     description: "video served over http should be blocked",
-    checkDenied: true,
+    shouldBeBlocked: true,
     body: '<video id="testelement" src="' + url + 'video.ogv"/>\n',
     webPage: "remotevideo.html",
     checkForAllowed: function video_checkAllowed(element) {
@@ -118,7 +119,7 @@ var TESTS = [
   {
     type: "Image-Data",
     description: "img from data url should be allowed",
-    checkDenied: false,
+    shouldBeBlocked: false,
     body:
       '<img id="testelement" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAC4UlEQVR42o2UW0gUURzGZ7Wa3fW2667XF/OyPQSmmZaZEYWRFN1QEYxeCi3CCCmxl6CHEMzQyAi1IAktLxSipkJghl0swswShbxFD+Hiquvqus7OzNf5T7uhslsN/OCc//f9vz17zpzhOM+PD2Mjg2doXPCumg/3H4+KzLcu++yvL+WeNZZxUy3lnEzQmGqkuQJVfwvRPrqhutd6Z4Mw+mY75qZzIcvFCjSmGmnkIa+nMFXmHs7YXK4aet0UhiXbGUjLpyHMZWLFnK5AY6qRRh7yUs/6MP5xmW/Hh44oQC6CuHAQw28TMdCzDc7ZNAX3nDTykLe+1LfNtXe/N7aiWHOss1Yji0IhpMUDEK2pOHdSj1MZgcp4/VzxMC/1lF/RHHEfAP/kprp7fCgFsjMP0tIuhey9/jiUqPY6Jy/1sN5O96oC2u/yM7b5PCZmQBZ2KhSfNeJ8jt7rnLzU01bFmymDgvTPazSiJF2CLLFfklIUrHNJsHw3QZiOwvJUGMyDBvz8qMficADsY0bYx0PhXMlGZ7XGQRkUFNz5wE90ChfYJrIgMRFOSwyWx4JhHwn0zqgeov04uu5rBcpQVtRd4z9vs+axE4mHgwU4vun/ifAjCgvmDHRXB1jcKwpoqdC9m/icAMmWiuprfqi6qsVEHzNPGtdANdLIQ96JwXg0V+j63HvEl+TrCnqbjLLI/vPiZDSKctUw+XF/OKrmkMVzKNzEKRp5yEs9JQW6fPep0TsQ/vR2yPuhVyZAyoFkNmGkJwS11wPxIi4OX9PYC8nojo5WNPKQt6XS2E+9qy8yH7dZm9JVGzo10BMDu+0EYN8HeXYr6vy0mI+MVGgIClK0Ty9jQV7qWf1muy+sPyPhYWloR29TmDjxZQesM4fREBEBISubkaWMSSMPeV09Ko+3nxFTkGu42FwZ3t9TF2pp321CY2ycQmvSFgdp5PF2+9d8jxgGhomRzEh3keyqGTx9j34B1t40GMHNFqwAAAAASUVORK5CYII="/>\n',
     webPage: "remoteimagedata.html",
@@ -128,6 +129,18 @@ var TESTS = [
     checkForAllowedRemote: function img_checkAllowed() {
       let element = content.document.getElementById("testelement");
       return !element.matches(":-moz-broken") && element.naturalWidth > 0;
+    },
+  },
+
+  {
+    type: "Iframe-srcdoc-Image",
+    description: "iframe srcdoc img served over http should be blocked",
+    shouldBeBlocked: true,
+
+    body: `<html><iframe id='testelement' srcdoc='<html><img src="${url}pass.png" alt="pichere"/>'></html>`,
+    checkForAllowed(element) {
+      let img = element.contentDocument.querySelector("img");
+      return !img.matches(":-moz-broken") && img.naturalWidth > 0;
     },
   },
 ];
@@ -177,6 +190,7 @@ function removePermission(aURI) {
 function addToFolder(aSubject, aBody, aFolder) {
   let msgId = Services.uuid.generateUUID() + "@mozillamessaging.invalid";
 
+  gMsgNo++;
   let source =
     "From - Sat Nov  1 12:39:54 2008\n" +
     "X-Mozilla-Status: 0001\n" +
@@ -191,6 +205,8 @@ function addToFolder(aSubject, aBody, aFolder) {
     "To: recipient@mozillamessaging.invalid\n" +
     "Subject: " +
     aSubject +
+    " #" +
+    gMsgNo +
     "\n" +
     "Content-Type: text/html; charset=ISO-8859-1\n" +
     "Content-Transfer-Encoding: 7bit\n" +
@@ -208,8 +224,9 @@ function addToFolder(aSubject, aBody, aFolder) {
 }
 
 function addMsgToFolderAndCheckContent(folder, test) {
+  info(`Checking msg in folder; test=${test.type}`);
   let msgDbHdr = addToFolder(
-    test.type + " test message " + gMsgNo,
+    test.type + " test message ",
     msgBodyStart + test.body + msgBodyEnd,
     folder
   );
@@ -226,7 +243,7 @@ function addMsgToFolderAndCheckContent(folder, test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been loaded
-  if (test.checkDenied) {
+  if (test.shouldBeBlocked) {
     if (
       test.checkForAllowed(
         mc.window.content.document.getElementById("testelement")
@@ -245,8 +262,6 @@ function addMsgToFolderAndCheckContent(folder, test) {
       test.type + " has been unexpectedly blocked in message content."
     );
   }
-
-  ++gMsgNo;
 }
 
 /**
@@ -258,6 +273,9 @@ function addMsgToFolderAndCheckContent(folder, test) {
  * @param loadAllowed Whether or not the load is expected to be allowed.
  */
 function checkComposeWindow(test, replyType, loadAllowed) {
+  info(
+    `Checking compose win; replyType=${replyType}, test=${test.type}; shouldLoad=${loadAllowed}`
+  );
   let replyWindow = replyType
     ? open_compose_with_reply()
     : open_compose_with_forward();
@@ -284,6 +302,9 @@ function checkComposeWindow(test, replyType, loadAllowed) {
  * Check remote content in stand-alone message window, and reload
  */
 async function checkStandaloneMessageWindow(test, loadAllowed) {
+  info(
+    `Checking standalong msg win; test=${test.type}; shouldLoad=${loadAllowed}`
+  );
   let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   // Open it
   set_open_message_behavior("NEW_WINDOW");
@@ -348,6 +369,7 @@ function saveAsEMLFile(msgNo) {
 }
 
 async function allowRemoteContentAndCheck(test) {
+  info(`Checking allow remote content; test=${test.type}`);
   addMsgToFolderAndCheckContent(folder, test);
 
   plan_for_message_display(mc);
@@ -379,6 +401,9 @@ async function allowRemoteContentAndCheck(test) {
 }
 
 async function checkContentTab(test) {
+  if (!test.webPage) {
+    return;
+  }
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
   let preCount = mc.tabmail.tabContainer.allTabs.length;
@@ -406,7 +431,7 @@ async function checkContentTab(test) {
  */
 function checkAllowFeedMsg(test) {
   let msgDbHdr = addToFolder(
-    test.type + " test feed message " + gMsgNo,
+    test.type + " test feed message",
     msgBodyStart + test.body + msgBodyEnd,
     folder
   );
@@ -428,8 +453,6 @@ function checkAllowFeedMsg(test) {
       test.type + " has been unexpectedly blocked in feed message content."
     );
   }
-
-  ++gMsgNo;
 }
 
 /**
@@ -437,7 +460,7 @@ function checkAllowFeedMsg(test) {
  */
 function checkAllowForSenderWithPerms(test) {
   let msgDbHdr = addToFolder(
-    test.type + " priv sender test message " + gMsgNo,
+    test.type + " priv sender test message ",
     msgBodyStart + test.body + msgBodyEnd,
     folder
   );
@@ -471,8 +494,6 @@ function checkAllowForSenderWithPerms(test) {
   // Clean up after ourselves, and make sure that worked as expected.
   removePermission(uri);
   Assert.equal(checkPermission(uri), Services.perms.UNKNOWN_ACTION);
-
-  ++gMsgNo;
 }
 
 /**
@@ -480,7 +501,7 @@ function checkAllowForSenderWithPerms(test) {
  */
 function checkAllowForHostsWithPerms(test) {
   let msgDbHdr = addToFolder(
-    test.type + " priv host test message " + gMsgNo,
+    test.type + " priv host test message ",
     msgBodyStart + test.body + msgBodyEnd,
     folder
   );
@@ -522,8 +543,6 @@ function checkAllowForHostsWithPerms(test) {
   // Clean up after ourselves, and make sure that worked as expected.
   removePermission(uri);
   Assert.equal(checkPermission(uri), Services.perms.UNKNOWN_ACTION);
-
-  ++gMsgNo;
 }
 
 add_task(async function test_generalContentPolicy() {
@@ -536,16 +555,16 @@ add_task(async function test_generalContentPolicy() {
     info("Doing test: " + TESTS[i].description + " ...\n");
     addMsgToFolderAndCheckContent(folder, TESTS[i]);
 
-    if (TESTS[i].checkDenied) {
+    if (TESTS[i].shouldBeBlocked) {
       // Check denied in reply window
       checkComposeWindow(TESTS[i], true, false);
 
       // Check denied in forward window
       checkComposeWindow(TESTS[i], false, false);
 
-      if (i == 0) {
+      if (TESTS[i].checkRemoteImg) {
         // Now check that image is visible after site is whitelisted.
-        // We do the first test which is the one with the image.
+        // Only want to do this for the test case which has the remote image.
 
         // Add the site to the whitelist.
         let src = mc.window.content.document.getElementById("testelement").src;
@@ -593,8 +612,8 @@ add_task(async function test_generalContentPolicy() {
     // Check per host privileges.
     checkAllowForHostsWithPerms(TESTS[i]);
 
-    // Only want to do this for the first test case, which is a remote image.
-    if (i == 0) {
+    // Only want to do this for the test case which has the remote image.
+    if (TESTS[i].checkRemoteImg) {
       let emlFile = saveAsEMLFile(i);
       await checkEMLMessageWindow(TESTS[i], emlFile);
       emlFile.remove(false);
@@ -605,11 +624,10 @@ add_task(async function test_generalContentPolicy() {
 /** Test that an image requiring auth won't ask for credentials in compose. */
 add_task(async function test_imgAuth() {
   addToFolder(
-    `Image auth test - msg ${gMsgNo}`,
+    `Image auth test - msg`,
     `${msgBodyStart}<img alt="[401!]" id="401img" src="${url}401.sjs"/>${msgBodyEnd}`,
     folder
   );
-  ++gMsgNo;
 
   // Allow loading remote, to be able to test.
   Services.prefs.setBoolPref(
@@ -695,7 +713,6 @@ function subtest_insertImageIntoReplyForward(aReplyType) {
     "Stand by for image insertion ;-)",
     folder
   );
-  gMsgNo++;
 
   // Select the newly created message.
   be_in_folder(folder);
