@@ -88,6 +88,33 @@ var url =
  */
 var TESTS = [
   {
+    type: "Iframe-Image",
+    description: "iframe img served over http should be blocked",
+    shouldBeBlocked: true,
+
+    // Blocked by other means. MsgContentPolicy accepts the iframe load since
+    // data: is not a mailnews url. No blocked content notification will show.
+    // Network request can still happen.
+    neverAllowed: true,
+    body: `<iframe id='testelement' src='${url}remoteimage.html' />\n`,
+    checkForAllowed(element) {
+      return element.contentDocument.readyState != "uninitialized";
+    },
+  },
+  {
+    type: "Iframe-datauri-Image",
+    description: "iframe datauri img served over http should be blocked",
+    shouldBeBlocked: true,
+
+    // Blocked by other means. MsgContentPolicy accepts the iframe load since
+    // data: is not a mailnews url. No blocked content notification will show.
+    neverAllowed: true,
+    body: `<iframe id='testelement' src='data:text/html,<html><p>data uri iframe with pic</p><img src='${url}pass.png' /></html>\n`,
+    checkForAllowed(element) {
+      return element.contentDocument.readyState != "uninitialized";
+    },
+  },
+  {
     type: "Image",
     description: "img served over http should be blocked",
     shouldBeBlocked: true,
@@ -131,7 +158,6 @@ var TESTS = [
       return !element.matches(":-moz-broken") && element.naturalWidth > 0;
     },
   },
-
   {
     type: "Iframe-srcdoc-Image",
     description: "iframe srcdoc img served over http should be blocked",
@@ -144,6 +170,8 @@ var TESTS = [
     },
   },
 ];
+
+// TESTS = [TESTS[0]]; // To test single tests.
 
 // These two constants are used to build the message body.
 var msgBodyStart =
@@ -273,6 +301,9 @@ function addMsgToFolderAndCheckContent(folder, test) {
  * @param loadAllowed Whether or not the load is expected to be allowed.
  */
 function checkComposeWindow(test, replyType, loadAllowed) {
+  if (loadAllowed && test.neverAllowed) {
+    return;
+  }
   info(
     `Checking compose win; replyType=${replyType}, test=${test.type}; shouldLoad=${loadAllowed}`
   );
@@ -302,6 +333,9 @@ function checkComposeWindow(test, replyType, loadAllowed) {
  * Check remote content in stand-alone message window, and reload
  */
 async function checkStandaloneMessageWindow(test, loadAllowed) {
+  if (loadAllowed && test.neverAllowed) {
+    return;
+  }
   info(
     `Checking standalong msg win; test=${test.type}; shouldLoad=${loadAllowed}`
   );
@@ -316,8 +350,9 @@ async function checkStandaloneMessageWindow(test, loadAllowed) {
       msgc.window.content.document.getElementById("testelement")
     ) != loadAllowed
   ) {
+    let expected = loadAllowed ? "allowed" : "blocked";
     throw new Error(
-      test.type + " has not been blocked in message content as expected."
+      `${test.type} was not ${expected} in standalone message content`
     );
   }
 
@@ -369,6 +404,9 @@ function saveAsEMLFile(msgNo) {
 }
 
 async function allowRemoteContentAndCheck(test) {
+  if (test.neverAllowed) {
+    return;
+  }
   info(`Checking allow remote content; test=${test.type}`);
   addMsgToFolderAndCheckContent(folder, test);
 
@@ -430,6 +468,9 @@ async function checkContentTab(test) {
  * nsMsgMessageFlags::FeedMsg)
  */
 function checkAllowFeedMsg(test) {
+  if (test.neverAllowed) {
+    return;
+  }
   let msgDbHdr = addToFolder(
     test.type + " test feed message",
     msgBodyStart + test.body + msgBodyEnd,
@@ -459,6 +500,9 @@ function checkAllowFeedMsg(test) {
  * Check remote content is not blocked for a sender with permissions.
  */
 function checkAllowForSenderWithPerms(test) {
+  if (test.neverAllowed) {
+    return;
+  }
   let msgDbHdr = addToFolder(
     test.type + " priv sender test message ",
     msgBodyStart + test.body + msgBodyEnd,
@@ -500,6 +544,9 @@ function checkAllowForSenderWithPerms(test) {
  * Check remote content is not blocked for a hosts with permissions.
  */
 function checkAllowForHostsWithPerms(test) {
+  if (test.neverAllowed) {
+    return;
+  }
   let msgDbHdr = addToFolder(
     test.type + " priv host test message ",
     msgBodyStart + test.body + msgBodyEnd,
