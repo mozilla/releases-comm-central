@@ -18,7 +18,9 @@ const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
 );
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
-import { Integration } from "resource://gre/modules/Integration.sys.mjs";
+const { Integration } = ChromeUtils.importESModule(
+  "resource://gre/modules/Integration.sys.mjs"
+);
 
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
