@@ -52,13 +52,6 @@ treechildren {
 }
 
 /* For Mac, who's theme sucks. */
-treechildren:-moz-tree-row(unselected),
-treechildren:-moz-tree-cell(unselected),
-treechildren:-moz-tree-cell-text(unselected) {
-    border-color: black !important;
-    background: black !important;
-    color: white !important;
-}
 treechildren::-moz-tree-row(unselected),
 treechildren::-moz-tree-cell(unselected),
 treechildren::-moz-tree-cell-text(unselected) {

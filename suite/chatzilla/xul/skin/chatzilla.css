@@ -148,25 +148,14 @@ treechildren::-moz-tree-row {
   min-height: 18px;
 }
 
-/* we need to define both the : and :: versions of the treechildren selector
- *  so that we work on both 1.5 and pre 1.5 builds.
- *
- * The userlist can be in one of two state.  In "symbol", the user's
+/* The userlist can be in one of two state.  In "symbol", the user's
  * channel mode is shown as a @ or + image, while in "graphic" mode, the
  * image is one of the LED images.
  */
 
 /* no mode */
-treechildren:-moz-tree-image {
-    list-style-image: url(chrome://chatzilla/skin/images/no-symbol.png);
-}
-
 treechildren::-moz-tree-image {
     list-style-image: url(chrome://chatzilla/skin/images/no-symbol.png);
-}
-
-#user-list[mode="graphic"] treechildren:-moz-tree-image {
-    list-style-image: url(chrome://chatzilla/skin/images/no-graphic.png);
 }
 
 #user-list[mode="graphic"] treechildren::-moz-tree-image {
@@ -174,16 +163,8 @@ treechildren::-moz-tree-image {
 }
 
 /* voice */
-treechildren:-moz-tree-image(voice-true) {
-    list-style-image: url(chrome://chatzilla/skin/images/voice-symbol.png);
-}
-
 treechildren::-moz-tree-image(voice-true) {
     list-style-image: url(chrome://chatzilla/skin/images/voice-symbol.png);
-}
-
-#user-list[mode="graphic"] treechildren:-moz-tree-image(voice-true) {
-    list-style-image: url(chrome://chatzilla/skin/images/voice-graphic.png);
 }
 
 #user-list[mode="graphic"] treechildren::-moz-tree-image(voice-true) {
@@ -191,16 +172,8 @@ treechildren::-moz-tree-image(voice-true) {
 }
 
 /* half-chanop */
-treechildren:-moz-tree-image(halfop-true) {
-    list-style-image: url(chrome://chatzilla/skin/images/halfop-symbol.png);
-}
-
 treechildren::-moz-tree-image(halfop-true) {
     list-style-image: url(chrome://chatzilla/skin/images/halfop-symbol.png);
-}
-
-#user-list[mode="graphic"] treechildren:-moz-tree-image(halfop-true) {
-    list-style-image: url(chrome://chatzilla/skin/images/halfop-graphic.png);
 }
 
 #user-list[mode="graphic"] treechildren::-moz-tree-image(halfop-true) {
@@ -208,16 +181,8 @@ treechildren::-moz-tree-image(halfop-true) {
 }
 
 /* chanop */
-treechildren:-moz-tree-image(op-true) {
-    list-style-image: url(chrome://chatzilla/skin/images/op-symbol.png);
-}
-
 treechildren::-moz-tree-image(op-true) {
     list-style-image: url(chrome://chatzilla/skin/images/op-symbol.png);
-}
-
-#user-list[mode="graphic"] treechildren:-moz-tree-image(op-true) {
-    list-style-image: url(chrome://chatzilla/skin/images/op-graphic.png);
 }
 
 #user-list[mode="graphic"] treechildren::-moz-tree-image(op-true) {
@@ -225,16 +190,8 @@ treechildren::-moz-tree-image(op-true) {
 }
 
 /* admin */
-treechildren:-moz-tree-image(admin-true) {
-    list-style-image: url(chrome://chatzilla/skin/images/admin-symbol.png);
-}
-
 treechildren::-moz-tree-image(admin-true) {
     list-style-image: url(chrome://chatzilla/skin/images/admin-symbol.png);
-}
-
-#user-list[mode="graphic"] treechildren:-moz-tree-image(admin-true) {
-    list-style-image: url(chrome://chatzilla/skin/images/admin-graphic.png);
 }
 
 #user-list[mode="graphic"] treechildren::-moz-tree-image(admin-true) {
@@ -242,16 +199,8 @@ treechildren::-moz-tree-image(admin-true) {
 }
 
 /* founder */
-treechildren:-moz-tree-image(founder-true) {
-    list-style-image: url(chrome://chatzilla/skin/images/founder-symbol.png);
-}
-
 treechildren::-moz-tree-image(founder-true) {
     list-style-image: url(chrome://chatzilla/skin/images/founder-symbol.png);
-}
-
-#user-list[mode="graphic"] treechildren:-moz-tree-image(founder-true) {
-    list-style-image: url(chrome://chatzilla/skin/images/founder-graphic.png);
 }
 
 #user-list[mode="graphic"] treechildren::-moz-tree-image(founder-true) {
@@ -259,17 +208,9 @@ treechildren::-moz-tree-image(founder-true) {
 }
 
 /* away */
-treechildren:-moz-tree-cell-text(away-true) {
-    color: GrayText;
-    font-style: italic;
-}
-
 treechildren::-moz-tree-cell-text(away-true) {
     color: GrayText;
     font-style: italic;
-}
-
-treechildren:-moz-tree-cell-text(away-false) {
 }
 
 treechildren::-moz-tree-cell-text(away-false) {
