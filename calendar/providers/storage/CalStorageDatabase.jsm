@@ -4,9 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["CalStorageDatabase"];
 
-const { AsyncShutdown } = ChromeUtils.importESModule(
-  "resource://gre/modules/AsyncShutdown.sys.mjs"
-);
+const { AsyncShutdown } = ChromeUtils.import("resource://gre/modules/AsyncShutdown.jsm");
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 let connections = new Map();
