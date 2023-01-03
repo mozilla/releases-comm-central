@@ -86,6 +86,8 @@
 // TLS alerts
 #include "NSSErrorsService.h"
 
+#include "mozilla/SyncRunnable.h"
+
 using namespace mozilla;
 
 LazyLogModule IMAP("IMAP");
@@ -1329,7 +1331,21 @@ void nsImapProtocol::TellThreadToDie() {
   // going to close the connection as if the user pressed stop.
   if (m_currentServerCommandTagNumber > 0 && !urlWritingData) {
     bool isAlive = false;
-    if (m_transport) rv = m_transport->IsAlive(&isAlive);
+    if (m_transport) {
+      auto GetIsAlive = [transport = nsCOMPtr{m_transport}, &rv, &isAlive]() mutable {
+        rv = transport->IsAlive(&isAlive);
+      };
+      nsCOMPtr<nsIEventTarget> socketThread(do_GetService(
+        NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
+      if (socketThread) {
+        mozilla::SyncRunnable::DispatchToThread(
+          socketThread,
+          NS_NewRunnableFunction("nsImapProtocol::TellThreadToDie->IsAlive",
+                                  GetIsAlive));
+      } else {
+        rv = NS_ERROR_NOT_AVAILABLE;
+      }
+    }
 
     if (TestFlag(IMAP_CONNECTION_IS_OPEN) && m_idle && isAlive) EndIdle(false);
 
@@ -1472,7 +1488,19 @@ void nsImapProtocol::ImapThreadMainLoop() {
     if (urlReadyToRun && m_runningUrl) {
       if (m_currentServerCommandTagNumber && m_transport) {
         bool isAlive;
-        rv = m_transport->IsAlive(&isAlive);
+        auto GetIsAlive = [transport = nsCOMPtr{m_transport}, &rv, &isAlive]() mutable {
+          rv = transport->IsAlive(&isAlive);
+        };
+        nsCOMPtr<nsIEventTarget> socketThread(do_GetService(
+          NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
+        if (socketThread) {
+          mozilla::SyncRunnable::DispatchToThread(
+            socketThread,
+            NS_NewRunnableFunction("nsImapProtocol::ImapThreadMainLoop->IsAlive",
+                                   GetIsAlive));
+        } else {
+          rv = NS_ERROR_NOT_AVAILABLE;
+        }
         // if the transport is not alive, and we've ever sent a command with
         // this connection, kill it. otherwise, we've probably just not finished
         // setting it so don't kill it!
@@ -2361,13 +2389,25 @@ nsresult nsImapProtocol::LoadImapUrlInternal() {
     // set the security info for the mock channel to be the security status for
     // our underlying transport.
     nsCOMPtr<nsITLSSocketControl> tlsSocketControl;
-    nsCOMPtr<nsITransportSecurityInfo> transportSecInfo;
+    nsCOMPtr<nsITransportSecurityInfo> securityInfo;
     if (NS_SUCCEEDED(m_transport->GetTlsSocketControl(
             getter_AddRefs(tlsSocketControl))) &&
         tlsSocketControl) {
-      tlsSocketControl->GetSecurityInfo(getter_AddRefs(transportSecInfo));
+      auto GetSecurityInfo = [&tlsSocketControl, &securityInfo]() mutable {
+        tlsSocketControl->GetSecurityInfo(getter_AddRefs(securityInfo));
+      };
+      nsCOMPtr<nsIEventTarget> socketThread(do_GetService(
+        NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
+      if (socketThread) {
+        mozilla::SyncRunnable::DispatchToThread(
+          socketThread,
+          NS_NewRunnableFunction("nsImapProtocol::LoadImapUrlInternal->GetSecurityInfo",
+                                 GetSecurityInfo));
+      }
     }
-    m_mockChannel->SetSecurityInfo(transportSecInfo);
+    if (securityInfo) {
+      m_mockChannel->SetSecurityInfo(securityInfo);
+    }
 
     SetSecurityCallbacksFromChannel(m_transport, m_mockChannel);
 
@@ -2385,16 +2425,11 @@ nsresult nsImapProtocol::LoadImapUrlInternal() {
     // security info on it too. since imap only uses the memory cache, passing
     // this on is the right thing to do.
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningUrl);
-    if (mailnewsUrl) {
+    if (mailnewsUrl && securityInfo) {
       nsCOMPtr<nsICacheEntry> cacheEntry;
       mailnewsUrl->GetMemCacheEntry(getter_AddRefs(cacheEntry));
-      if (cacheEntry && tlsSocketControl) {
-        nsCOMPtr<nsITransportSecurityInfo> tsi;
-        if (NS_SUCCEEDED(
-                tlsSocketControl->GetSecurityInfo(getter_AddRefs(tsi))) &&
-            tsi) {
-          cacheEntry->SetSecurityInfo(tsi);
-        }
+      if (cacheEntry) {
+        cacheEntry->SetSecurityInfo(securityInfo);
       }
     }
   }
