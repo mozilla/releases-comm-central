@@ -24,8 +24,8 @@ var { assertPersistentListeners } = ExtensionTestUtils.testAssertions;
 //
 // NOTE: Entire directory whitelisting should be kept to a minimum. Normally you
 //       should use "expectUncaughtRejection" to flag individual failures.
-const { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/PromiseTestUtils.jsm"
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/PromiseTestUtils.sys.mjs"
 );
 PromiseTestUtils.allowMatchingRejectionsGlobally(
   /Message manager disconnected/

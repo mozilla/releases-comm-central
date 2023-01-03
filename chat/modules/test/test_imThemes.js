@@ -11,8 +11,8 @@ const {
   removeMessage,
   isNextMessage,
 } = ChromeUtils.importESModule("resource:///modules/imThemes.sys.mjs");
-const { MockDocument } = ChromeUtils.import(
-  "resource://testing-common/MockDocument.jsm"
+const { MockDocument } = ChromeUtils.importESModule(
+  "resource://testing-common/MockDocument.sys.mjs"
 );
 
 const BASIC_CONV_DOCUMENT_HTML =
