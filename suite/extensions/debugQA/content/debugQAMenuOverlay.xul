@@ -134,10 +134,6 @@
                   oncommand="openQAUrl('https://hg.mozilla.org/releases/comm-esr102/pushloghtml?startdate=2+weeks+ago&amp;enddate=now');"/>
         <menuitem label="Recent mozilla-esr102 Checkins"
                   oncommand="openQAUrl('https://hg.mozilla.org/releases/mozilla-esr102/pushloghtml?startdate=2+weeks+ago&amp;enddate=now');"/>
-        <menuitem label="Recent comm-esr91 Checkins"
-                  oncommand="openQAUrl('https://hg.mozilla.org/releases/comm-esr91/pushloghtml?startdate=2+weeks+ago&amp;enddate=now');"/>
-        <menuitem label="Recent mozilla-esr91 Checkins"
-                  oncommand="openQAUrl('https://hg.mozilla.org/releases/mozilla-esr91/pushloghtml?startdate=2+weeks+ago&amp;enddate=now');"/>
         <menuitem label="Recent gitlab 2.53 comm Activity"
                   oncommand="openQAUrl('https://gitlab.com/seamonkey-project/seamonkey-2.53-comm/activity/');"/>
         <menuitem label="Recent gitlab 2.53 mozilla Activity"

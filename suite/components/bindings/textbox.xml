@@ -96,11 +96,11 @@
       <method name="reset">
         <body><![CDATA[
           this.value = this.defaultValue;
-          try {
-            this.editor.transactionManager.clear();
-            return true;
-          } catch (e) {}
-          return false;
+          if (!this.editor) {
+            return false;
+          }
+          this.editor.clearUndoRedo();
+          return true;
         ]]></body>
       </method>
 

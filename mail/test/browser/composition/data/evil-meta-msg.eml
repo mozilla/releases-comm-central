@@ -1,0 +1,11 @@
+From: Fuzz <fizz@example.org>
+To: contact@example.org
+Subject: test case 17
+Date: Wed, 11 May 2024 14:31:59 +0000
+Content-Type: text/html
+
+<html>
+<meta http-equiv="refresh" content="0;URL='http://localhost:8090'" />
+<meta http-equiv="refresh" content="1;URL='http://localhost:8091'" />
+<div id="demo">KABOOM!</demo>
+<object onerror="alert(1); document.getElementById('demo').innerHTML=parent.JSON.stringify(Object.getOwnPropertyNames(parent));" data="notarealaddress" width="400" height="300"></object>

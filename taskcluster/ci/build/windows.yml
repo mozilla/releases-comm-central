@@ -37,9 +37,6 @@ win32/opt:
         extra-config:
             stage_platform: win32
             mozconfig_platform: win32
-            env:
-                LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/fetches/vs"
     use-sccache: true
     optimization:
         skip-suite-only: null
@@ -49,7 +46,6 @@ win32/opt:
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
-            - linux64-liblowercase
             - linux64-nasm
             - linux64-node
             - linux64-rust-cross
@@ -98,9 +94,6 @@ win32-shippable/opt:
         extra-config:
             stage_platform: win32
             mozconfig_platform: win32
-            env:
-                LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/fetches/vs"
     run-on-projects: ['release']
     optimization:
         skip-suite-only: null
@@ -110,7 +103,6 @@ win32-shippable/opt:
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
-            - linux64-liblowercase
             - linux64-nasm
             - linux64-node
             - linux64-rust-cross
@@ -154,9 +146,6 @@ win32/debug:
         mozconfig-variant: debug
         extra-config:
             mozconfig_platform: win32
-            env:
-                LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/fetches/vs"
     use-sccache: true
     optimization:
         skip-suite-only: null
@@ -166,7 +155,6 @@ win32/debug:
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
-            - linux64-liblowercase
             - linux64-nasm
             - linux64-node
             - linux64-rust-cross
@@ -210,9 +198,6 @@ win64/opt:
         extra-config:
             stage_platform: win64
             mozconfig_platform: win64
-            env:
-                LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/fetches/vs"
     use-sccache: true
     optimization:
         skip-suite-only: null
@@ -222,7 +207,6 @@ win64/opt:
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
-            - linux64-liblowercase
             - linux64-nasm
             - linux64-node
             - linux64-rust-cross
@@ -271,9 +255,6 @@ win64-shippable/opt:
         extra-config:
             stage_platform: win64
             mozconfig_platform: win64
-            env:
-                LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/fetches/vs"
     run-on-projects: ['release']
     optimization:
         skip-suite-only: null
@@ -283,7 +264,6 @@ win64-shippable/opt:
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
-            - linux64-liblowercase
             - linux64-nasm
             - linux64-node
             - linux64-rust-cross
@@ -327,9 +307,6 @@ win64/debug:
         mozconfig-variant: debug
         extra-config:
             mozconfig_platform: win64
-            env:
-                LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/fetches/vs"
     use-sccache: true
     optimization:
         skip-suite-only: null
@@ -339,7 +316,6 @@ win64/debug:
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
-            - linux64-liblowercase
             - linux64-nasm
             - linux64-node
             - linux64-rust-cross
@@ -469,9 +445,6 @@ win64-asan/opt:
         extra-config:
             stage_platform: win64-asan
             mozconfig_platform: win64
-            env:
-                LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/fetches/vs"
         mozconfig-variant: nightly-asan
     run-on-projects: ['comm-central']
     use-sccache: true
@@ -483,7 +456,6 @@ win64-asan/opt:
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
-            - linux64-liblowercase
             - linux64-nasm
             - linux64-node
             - linux64-rust-cross
@@ -533,9 +505,6 @@ win64-asan-reporter-shippable/opt:
         extra-config:
             stage_platform: win64-asan-reporter
             mozconfig_platform: win64
-            env:
-                LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/fetches/vs"
         mozconfig-variant: nightly-asan-reporter
         mar-channel-id:
             thunderbird-comm-central-asan
@@ -550,7 +519,6 @@ win64-asan-reporter-shippable/opt:
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
-            - linux64-liblowercase
             - linux64-nasm
             - linux64-node
             - linux64-rust-cross

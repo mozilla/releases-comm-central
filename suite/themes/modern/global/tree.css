@@ -56,45 +56,17 @@ treechildren::-moz-tree-row(current, focus) {
   border-bottom-color: #000000;
 }
 
-tree[seltype="cell"] > treechildren::-moz-tree-row,
-tree[seltype="text"] > treechildren::-moz-tree-row {
-  background-color: transparent;
-  border: none;
-}
-
 /* ::::: tree cells ::::: */
 
 treechildren::-moz-tree-cell {
   padding: 0px 2px;
 }
 
-tree[seltype="cell"] > treechildren::-moz-tree-cell-text,
-tree[seltype="text"] > treechildren::-moz-tree-cell-text,
 treechildren::-moz-tree-cell-text {
   color: inherit;
 }
 
-tree[seltype="cell"] > treechildren::-moz-tree-cell {
-  border: 1px solid transparent;
-  padding: 0px 1px;
-}
-
-tree[seltype="text"] > treechildren::-moz-tree-cell-text {
-  border: 1px solid transparent;
-  padding: 0px 1px 1px;
-}
-
 treechildren::-moz-tree-cell-text(selected) {
-  color: #000000;
-}
-
-tree[seltype="cell"] > treechildren::-moz-tree-cell(active, selected) {
-  background-color: #C7D0D9;
-  color: #000000;
-}
-
-tree[seltype="text"] > treechildren::-moz-tree-cell-text(active, selected) {
-  background-color: #C7D0D9;
   color: #000000;
 }
 
@@ -102,35 +74,12 @@ treechildren::-moz-tree-cell-text(selected, focus) {
   color: #FFFFFF;
 }
 
-tree[seltype="cell"] > treechildren::-moz-tree-cell(active, selected, focus) {
-  background-color: #424F63;
-}
-tree[seltype="cell"] > treechildren::-moz-tree-cell-text(active, selected, focus) {
-  color: #FFFFFF;
-}
-
-tree[seltype="text"] > treechildren::-moz-tree-cell-text(active, selected, focus) {
-  background-color: #424F63;
-  color: #FFFFFF;
-}
-
-tree[seltype="cell"] > treechildren::-moz-tree-cell(active, current, focus) {
-  border-color: #000000;
-}
-
-tree[seltype="text"] > treechildren::-moz-tree-cell-text(active, current, focus) {
-  border-color: #000000;
-}
-
 /* ::::: lines connecting cells ::::: */
 
-tree[seltype="cell"] > treechildren::-moz-tree-line,
-tree[seltype="text"] > treechildren::-moz-tree-line,
 treechildren::-moz-tree-line {
   border: 1px dotted #808080;
 }
 
-tree[seltype="cell"] > treechildren::-moz-tree-line(active, selected, focus),
 treechildren::-moz-tree-line(selected, focus) {
   border: 1px dotted #FFFFFF;
 }
@@ -144,8 +93,6 @@ treechildren::-moz-tree-separator {
 
 /* ::::: drop feedback ::::: */
 
-tree[seltype="cell"] > treechildren::-moz-tree-cell-text(primary, dropOn),
-tree[seltype="text"] > treechildren::-moz-tree-cell-text(primary, dropOn),
 treechildren::-moz-tree-cell-text(primary, dropOn) {
   background-color: #424F63;
   color: #FFFFFF;
@@ -304,17 +251,6 @@ treechildren::-moz-tree-twisty(open) {
 
 treechildren::-moz-tree-indentation {
   width: 16px;
-}
-
-/* ::::: gridline style ::::: */
-
-treechildren.gridlines::-moz-tree-cell {
-  border-right: 1px solid #CCCCCC;
-  border-bottom: 1px solid #CCCCCC;
-}
-
-treechildren.gridlines::-moz-tree-row {
-  border: none;
 }
 
 /* ::::: editable tree ::::: */

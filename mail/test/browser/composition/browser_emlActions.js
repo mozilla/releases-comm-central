@@ -123,20 +123,10 @@ add_task(async function test_reply_to_base64_eml() {
   // Open an .eml file.
   let file = new FileUtils.File(getTestFilePath("data/base64-encoded-msg.eml"));
   let msgc = await open_message_from_file(file);
-
   let compWin = open_compose_with_reply(msgc);
-
   let bodyText = get_compose_body(compWin).textContent;
-  const message = "You have decoded this text from base64.";
-  if (!bodyText.includes(message)) {
-    throw new Error(
-      "body text didn't contain the decoded text; message=" +
-        message +
-        ", bodyText=" +
-        bodyText
-    );
-  }
-
+  const TXT = "You have decoded this text from base64.";
+  Assert.ok(bodyText.includes(TXT), "body should contain the decoded text");
   close_compose_window(compWin);
   close_window(msgc);
 });
@@ -148,21 +138,34 @@ add_task(async function test_forward_base64_eml() {
   // Open an .eml file.
   let file = new FileUtils.File(getTestFilePath("data/base64-encoded-msg.eml"));
   let msgc = await open_message_from_file(file);
-
   let compWin = open_compose_with_forward(msgc);
-
   let bodyText = get_compose_body(compWin).textContent;
-  const message = "You have decoded this text from base64.";
-  if (!bodyText.includes(message)) {
-    throw new Error(
-      "body text didn't contain the decoded text; message=" +
-        message +
-        ", bodyText=" +
-        bodyText
-    );
-  }
-
+  const TXT = "You have decoded this text from base64.";
+  Assert.ok(bodyText.includes(TXT), "body should contain the decoded text");
   close_compose_window(compWin);
+  close_window(msgc);
+});
+
+/**
+ * Test that replying and forwarding an evil meta msg works.
+ */
+add_task(async function test_reply_fwd_to_evil_meta() {
+  // Open an .eml file.
+  let file = new FileUtils.File(getTestFilePath("data/evil-meta-msg.eml"));
+  let msgc = await open_message_from_file(file);
+
+  const TXT = "KABOOM!";
+
+  let reWin = open_compose_with_reply(msgc);
+  let reText = get_compose_body(reWin).textContent;
+  Assert.ok(reText.includes(TXT), "re body should contain the text");
+  close_compose_window(reWin);
+
+  let fwdWin = open_compose_with_forward(msgc);
+  let fwdText = get_compose_body(fwdWin).textContent;
+  Assert.ok(fwdText.includes(TXT), "fwd body should contain the text");
+  close_compose_window(fwdWin);
+
   close_window(msgc);
 });
 

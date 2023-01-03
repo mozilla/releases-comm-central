@@ -16,6 +16,7 @@
 <!ENTITY insertTextCmd.label "Insert Text">
 <!ENTITY testSelectionCmd.label "Test Selection">
 <!ENTITY testDocumentCmd.label "Test Document">
+<!-- Unused after bug 1792764 but kept for 2.53 branch. -->
 <!ENTITY executeJSTransactionViaTxmgr.label "Execute JS Transaction Via Transaction Manager">
 <!ENTITY executeJSTransactionViaEditor.label "Execute JS Transaction Via Editor">
 <!ENTITY setFocusCmd.label "Set Focus">

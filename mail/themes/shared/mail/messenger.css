@@ -516,7 +516,8 @@ menulist[disabled="true"] {
 }
 
 menulist::part(label-box) {
- font-weight: inherit;
+  -moz-box-layout: flex;
+  font-weight: inherit;
 }
 
 menulist::part(dropmarker-icon) {

@@ -11,34 +11,31 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/dialogs/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/calendar-item-summary.css"?>
-<?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/dialogs/calendar-ics-file-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/contextMenu.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/dialogs/calendar-ics-file-dialog.css"?>
 
-<window id="calendar-ics-file-dialog"
-        windowtype="Calendar:ICSFile"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        data-l10n-id="calendar-ics-file-window-2"
-        lightweightthemes="true"
-        width="600"
-        height="600">
-
+<html id="calendar-ics-file-dialog" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      style="min-width:42em; min-height:42em;"
+      scrolling="false">
+<head>
+  <title data-l10n-id="calendar-ics-file-window-title"></title>
+  <link rel="localization" href="calendar/calendar-editable-item.ftl" />
+  <link rel="localization" href="calendar/calendar-ics-file-dialog.ftl" />
+  <script src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script src="chrome://calendar/content/import-export.js"></script>
+  <script src="chrome://calendar/content/widgets/calendar-item-summary.js"></script>
+  <script src="chrome://calendar/content/calendar-dialog-utils.js"></script>
+  <script src="chrome://calendar/content/calendar-ui-utils.js"></script>
+  <script src="chrome://calendar/content/calendar-ics-file-dialog.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <dialog buttons="accept,cancel"
           data-l10n-id="calendar-ics-file-dialog-2"
           data-l10n-attrs="buttonlabelaccept">
-
-    <linkset>
-      <html:link rel="localization" href="calendar/calendar-ics-file-dialog.ftl"/>
-      <html:link rel="localization" href="calendar/calendar-editable-item.ftl"/>
-    </linkset>
-
-    <script src="chrome://calendar/content/calendar-ics-file-dialog.js"></script>
-    <script src="chrome://calendar/content/import-export.js"></script>
-    <script src="chrome://calendar/content/widgets/calendar-item-summary.js"></script>
-    <script src="chrome://calendar/content/calendar-dialog-utils.js"></script>
-    <script src="chrome://calendar/content/calendar-ui-utils.js"></script>
-    <script src="chrome://messenger/content/dialogShadowDom.js"></script>
 
     <vbox id="calendar-ics-file-dialog-options-pane"
           flex="1">
@@ -117,6 +114,6 @@
       <description id="calendar-ics-file-dialog-duplicates-message"></description>
       <description id="calendar-ics-file-dialog-errors-message"></description>
     </vbox>
-
   </dialog>
-</window>
+</html:body>
+</html>

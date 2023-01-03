@@ -1851,9 +1851,7 @@ function SetEditMode(mode) {
       // Reduce the undo count so we don't use too much memory
       //   during multiple uses of source window
       //   (reinserting entire doc caches all nodes)
-      try {
-        editor.transactionManager.maxTransactionCount = 1;
-      } catch (e) {}
+      editor.clearUndoRedo();
 
       editor.beginTransaction();
       try {
@@ -1863,19 +1861,20 @@ function SetEditMode(mode) {
           .outputToString(kTextMimeType, kOutputLFLineBreak)
           .trim();
         if (editor.contentsMIMEType != kXHTMLMimeType) {
-          editor.rebuildDocumentFromSource(source);
+          editor.rebuildDocumentFromSource(source);  // This is undoable
         } else {
           /* eslint-disable-next-line no-unsanitized/method */
           var fragment = editor.document
             .createRange()
             .createContextualFragment(source);
-          editor.enableUndo(false);
           GetBodyElement().remove();
           editor.document.replaceChild(
             fragment.firstChild,
             editor.document.documentElement
           );
-          editor.enableUndo(true);
+          // We touched the DOM tree without a transaction here so that we
+          // broke undoable transactions. However, we cleared all undoable
+          // things above. Therefore nothing must be in the undo stack.
         }
 
         // Get the text for the <title> from the newly-parsed document
@@ -1885,12 +1884,11 @@ function SetEditMode(mode) {
       } catch (ex) {
         dump(ex);
       }
+      // If the MIME type is kXHTMLMimeType, we don't put any undoable
+      // transaction.  Then, this endTransaction() call does not allow to
+      // live empty transaction.  Therefore, the unnecessary empty transaction
+      // will be cleared here automatically.
       editor.endTransaction();
-
-      // Restore unlimited undo count
-      try {
-        editor.transactionManager.maxTransactionCount = -1;
-      } catch (e) {}
     }
 
     // Clear out the string buffers

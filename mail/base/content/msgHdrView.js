@@ -974,14 +974,14 @@ function showHeaderView(aHeaderTable) {
     // If we're hiding the To field, we need to hide the date inline and show
     // the duplicate on the subject line.
     if (headerEntry.enclosingRow.id == "expandedtoRow") {
-      let dataLabel = document.getElementById("dateLabel");
+      let dateLabel = document.getElementById("dateLabel");
       let dateLabelSubject = document.getElementById("dateLabelSubject");
       if (!headerEntry.valid) {
         dateLabelSubject.setAttribute(
           "datetime",
-          dataLabel.getAttribute("datetime")
+          dateLabel.getAttribute("datetime")
         );
-        dateLabelSubject.textContent = dataLabel.textContent;
+        dateLabelSubject.textContent = dateLabel.textContent;
         dateLabelSubject.hidden = false;
       } else {
         dateLabelSubject.removeAttribute("datetime");
@@ -1237,16 +1237,18 @@ function UpdateExpandedMessageHeaders() {
   }
 
   let dateLabel = document.getElementById("dateLabel");
-  if ("x-mozilla-localizeddate" in currentHeaderData) {
+  dateLabel.hidden = true;
+  if (
+    "x-mozilla-localizeddate" in currentHeaderData &&
+    currentHeaderData["x-mozilla-localizeddate"].headerValue
+  ) {
     dateLabel.textContent =
       currentHeaderData["x-mozilla-localizeddate"].headerValue;
-    dateLabel.setAttribute(
-      "datetime",
-      new Date(currentHeaderData.date.headerValue).toISOString()
-    );
-    dateLabel.hidden = false;
-  } else {
-    dateLabel.hidden = true;
+    let date = new Date(currentHeaderData.date.headerValue);
+    if (!isNaN(date)) {
+      dateLabel.setAttribute("datetime", date.toISOString());
+      dateLabel.hidden = false;
+    }
   }
 
   gBuiltExpandedView = true;

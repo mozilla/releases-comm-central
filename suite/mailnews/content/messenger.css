@@ -153,24 +153,6 @@ folderSummarySubfoldersSummary
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#folderSummary-subfoldersSummary");
 }
 
-.foldersTree
-{
-  margin: 0px;
-  border: none;
-  -moz-appearance: none;
-  -moz-user-focus: ignore;
-}
-
-.foldersTreeChildren
-{
-  -moz-binding: url("chrome://global/content/bindings/tree.xml#tree-base");
-}
-
-.foldersTreeChildren::-moz-tree-twisty
-{
-  width: 0px;
-}
-
 dummy.usesMailWidgets {
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#dummy");
 }
