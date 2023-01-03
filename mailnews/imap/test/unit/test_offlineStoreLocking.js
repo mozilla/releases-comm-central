@@ -132,7 +132,15 @@ add_task(async function compactOneFolder() {
   //  started more quickly, while the compact is still going on.
   let urlListener = new PromiseTestUtils.PromiseUrlListener({});
   await PromiseTestUtils.promiseDelay(100); // But don't be too fast.
-  msgServ.streamMessage(msgURI, null, null, urlListener, false, "", false);
+  msgServ.streamMessage(
+    msgURI,
+    new PromiseTestUtils.PromiseStreamListener(),
+    null,
+    urlListener,
+    false,
+    "",
+    false
+  );
   await compactUrlListener.promise;
 
   // Because we're streaming the message while compaction is going on,
@@ -222,7 +230,12 @@ add_task(async function test_checkAlert() {
   let alertText = await gGotAlert;
   Assert.ok(
     alertText.startsWith(
-      "The folder 'Inbox on Mail for ' cannot be compacted because another operation is in progress. Please try again later."
+      Services.prefs.getBoolPref("mailnews.imap.jsmodule")
+        ? // Not sure why, nsImapIncomingServer.cpp implemented its own
+          // GetConstructedPrettyName. imap-js just uses constructedPrettyName in
+          // MsgIncomingServer.jsm.
+          "The folder 'Inbox on user on localhost' cannot be compacted because another operation is in progress. Please try again later."
+        : "The folder 'Inbox on Mail for ' cannot be compacted because another operation is in progress. Please try again later."
     )
   );
 });

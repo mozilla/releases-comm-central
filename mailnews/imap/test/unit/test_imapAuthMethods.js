@@ -28,7 +28,7 @@ var tests = [
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
     serverAuthMethods: [],
     expectSuccess: true,
-    transaction: ["CAPABILITY", "LOGIN", "LSUB"],
+    transaction: ["CAPABILITY", "LOGIN", "CAPABILITY", "LIST", "LSUB"],
   },
   {
     // Just to make sure we clean up properly - in the test and in TB, e.g. don't cache stuff
@@ -37,7 +37,7 @@ var tests = [
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
     serverAuthMethods: [],
     expectSuccess: true,
-    transaction: ["CAPABILITY", "LOGIN", "LSUB"],
+    transaction: ["CAPABILITY", "LOGIN", "CAPABILITY", "LIST", "LSUB"],
   },
   {
     title:
@@ -45,21 +45,39 @@ var tests = [
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
     serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
     expectSuccess: true,
-    transaction: ["CAPABILITY", "AUTHENTICATE PLAIN", "LSUB"],
+    transaction: [
+      "CAPABILITY",
+      "AUTHENTICATE PLAIN",
+      "CAPABILITY",
+      "LIST",
+      "LSUB",
+    ],
   },
   {
     title: "Cleartext password, with server supporting only AUTH LOGIN",
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
     serverAuthMethods: ["LOGIN"],
     expectSuccess: true,
-    transaction: ["CAPABILITY", "AUTHENTICATE LOGIN", "LSUB"],
+    transaction: [
+      "CAPABILITY",
+      "AUTHENTICATE LOGIN",
+      "CAPABILITY",
+      "LIST",
+      "LSUB",
+    ],
   },
   {
     title: "Encrypted password, with server supporting PLAIN and CRAM",
     clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
     serverAuthMethods: ["PLAIN", "LOGIN", "CRAM-MD5"],
     expectSuccess: true,
-    transaction: ["CAPABILITY", "AUTHENTICATE CRAM-MD5", "LSUB"],
+    transaction: [
+      "CAPABILITY",
+      "AUTHENTICATE CRAM-MD5",
+      "CAPABILITY",
+      "LIST",
+      "LSUB",
+    ],
   },
   {
     title:
