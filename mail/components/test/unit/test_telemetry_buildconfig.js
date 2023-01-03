@@ -10,11 +10,9 @@
 // The probe names have been changed to probes that only exist in a Thunderbird build.
 // If this test begins to fail, check for recent changes in toolkit/components/telemetry.
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "TelemetryTestUtils",
-  "resource://testing-common/TelemetryTestUtils.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  TelemetryTestUtils: "resource://testing-common/TelemetryTestUtils.sys.mjs",
+});
 
 const Telemetry = Services.telemetry;
 
