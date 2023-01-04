@@ -7,8 +7,8 @@ var EXPORTED_SYMBOLS = ["MsgAsyncPrompter", "MsgAuthPrompt"];
 var { Deprecated } = ChromeUtils.importESModule(
   "resource://gre/modules/Deprecated.sys.mjs"
 );
-const { PromptUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/PromptUtils.sys.mjs"
+const { PromptUtils } = ChromeUtils.import(
+  "resource://gre/modules/SharedPromptUtils.jsm"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
