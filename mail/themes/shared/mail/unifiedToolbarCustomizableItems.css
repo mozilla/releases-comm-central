@@ -37,3 +37,67 @@
 .edit-event .preview-icon {
   content: var(--icon-pencil);
 }
+
+.get-messages .preview-icon {
+  content: var(--icon-get-mail);
+}
+
+.reply .preview-icon {
+  content: var(--icon-reply);
+}
+
+.reply-all .preview-icon {
+  content: var(--icon-reply-all);
+}
+
+.reply-to-list .preview-icon {
+  content: var(--icon-reply-list);
+}
+
+.redirect .preview-icon {
+  content: var(--icon-redirect);
+}
+
+.archive .preview-icon {
+  content: var(--icon-archive);
+}
+
+.conversation .preview-icon {
+  content: var(--icon-conversation);
+}
+
+.previous-unread .preview-icon {
+  content: var(--icon-nav-up-unread);
+}
+
+.previous .preview-icon {
+  content: var(--icon-nav-up);
+}
+
+.next-unread .preview-icon {
+  content: var(--icon-nav-down-unread);
+}
+
+.next .preview-icon {
+  content: var(--icon-nav-down);
+}
+
+.junk .preview-icon {
+  content: var(--icon-spam);
+}
+
+.delete .preview-icon {
+  content: var(--icon-trash);
+}
+
+.compact .preview-icon {
+  content: var(--icon-compress);
+}
+
+.add-as-event .preview-icon {
+  content: var(--icon-new-event);
+}
+
+.add-as-task .preview-icon {
+  content: var(--icon-new-task);
+}

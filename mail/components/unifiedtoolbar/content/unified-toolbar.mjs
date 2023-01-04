@@ -72,6 +72,33 @@ class UnifiedToolbar extends HTMLElement {
     ]),
   };
 
+  /**
+   * A MozTabmail tab monitor to listen for tab switch and close events. Calls
+   * onTabSwitched on currently visible toolbar content and onTabClosing on
+   * all toolbar content.
+   *
+   * @type {object}
+   */
+  #tabMonitor = {
+    monitorName: "UnifiedToolbar",
+    onTabTitleChanged() {},
+    onTabSwitched: (tab, oldTab) => {
+      for (const element of this.#toolbarContent.children) {
+        if (!element.hidden) {
+          element.onTabSwitched(tab, oldTab);
+        }
+      }
+    },
+    onTabOpened() {},
+    onTabClosing: tab => {
+      for (const element of this.#toolbarContent.children) {
+        element.onTabClosing(tab);
+      }
+    },
+    onTabPersist() {},
+    onTabRestored() {},
+  };
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -113,6 +140,8 @@ class UnifiedToolbar extends HTMLElement {
       "unified-toolbar-state-change",
       true
     );
+
+    document.getElementById("tabmail").registerTabMonitor(this.#tabMonitor);
   }
 
   disconnectedCallback() {
@@ -120,6 +149,16 @@ class UnifiedToolbar extends HTMLElement {
       this.#stateObserver,
       "unified-toolbar-state-change"
     );
+
+    document
+      .getElementById("unifiedToolbarCustomize")
+      .removeEventListener("command", this.#handleCustomizeCommand);
+
+    document
+      .getElementById("spacesToolbar")
+      .removeEventListener("spacechange", this.#handleSpaceChange);
+
+    document.getElementById("tabmail").unregisterTabMonitor(this.#tabMonitor);
   }
 
   #handleContextMenu = event => {
@@ -140,10 +179,8 @@ class UnifiedToolbar extends HTMLElement {
   };
 
   #handleSpaceChange = event => {
-    // Ensure we switched to a space, and not to null.
-    if (event.detail) {
-      this.#showToolbarForSpace(event.detail.name);
-    }
+    // Switch to the current space or show a generic default state toolbar.
+    this.#showToolbarForSpace(event.detail?.name ?? "default");
   };
 
   /**
@@ -167,7 +204,8 @@ class UnifiedToolbar extends HTMLElement {
    * Show the items for the specified space in the toolbar. Only creates
    * missing elements when not already created for another space.
    *
-   * @param {string} space - Name of the space to make visible.
+   * @param {string} space - Name of the space to make visible. May be "default"
+   *   to indicate that a generic default state should be shown instead.
    */
   #showToolbarForSpace(space) {
     if (!this.#state) {

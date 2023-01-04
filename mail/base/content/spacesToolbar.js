@@ -203,6 +203,7 @@ var gSpacesToolbar = {
           switch (tabInfo.mode.name) {
             case "folder":
             case "mail3PaneTab":
+            case "mailMessageTab":
               return 1;
             default:
               return 0;

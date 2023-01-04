@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { UnifiedToolbarButton } from "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs";
+import { MailTabButton } from "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs";
 
 const lazy = {};
 ChromeUtils.defineModuleGetter(
@@ -11,7 +11,7 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/FolderUtils.jsm"
 );
 
-class FolderLocationButton extends UnifiedToolbarButton {
+class FolderLocationButton extends MailTabButton {
   /**
    * Image element displaying the icon on the button.
    *
@@ -26,38 +26,50 @@ class FolderLocationButton extends UnifiedToolbarButton {
    */
   #addedListeners = false;
 
+  observed3PaneEvents = ["folderURIChanged"];
+
+  observedAboutMessageEvents = [];
+
   connectedCallback() {
     super.connectedCallback();
-    // We have to separately track if we added listeners, since
-    // currentAbout3Pane might not be set when the button is initially created.
     if (this.#addedListeners) {
       return;
     }
     this.#icon = this.querySelector(".button-icon");
-    this.#updateFromFolderPane();
-    const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-    if (about3Pane) {
-      this.#addedListeners = true;
-      about3Pane.addEventListener("folderURIChanged", () => {
-        this.#updateFromFolderPane();
-      });
+    this.onCommandContextChange();
+    this.#addedListeners = true;
+    const popup = document.getElementById(this.getAttribute("popup"));
+    popup.addEventListener("command", this.#handlePopupCommand);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this.#addedListeners) {
       const popup = document.getElementById(this.getAttribute("popup"));
-      popup.addEventListener("command", event => {
-        about3Pane.displayFolder(event.target._folder.folderURL);
-      });
+      popup.removeEventListener("command", this.#handlePopupCommand);
     }
   }
+
+  #handlePopupCommand = event => {
+    const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+    about3Pane.displayFolder(event.target._folder.folderURL);
+  };
 
   /**
    * Update the label and icon of the button from the currently selected folder
    * in the local 3pane.
    */
-  #updateFromFolderPane() {
+  onCommandContextChange() {
+    if (!this.#icon) {
+      return;
+    }
     const { gFolder } =
       document.getElementById("tabmail").currentAbout3Pane ?? {};
     if (!gFolder) {
+      this.disabled = true;
       return;
     }
+    this.disabled = false;
     this.label.textContent = gFolder.name;
     this.#icon.style = `content: url(${lazy.FolderUtils.getFolderIcon(
       gFolder

@@ -114,6 +114,33 @@ export default class CustomizableElement extends HTMLLIElement {
   get label() {
     return this.querySelector(".preview-label").textContent;
   }
+
+  /**
+   * Calls onTabSwitched on the first button contained in the live content.
+   * No-op if this item is disabled. Called by unified-toolbar's tab monitor.
+   *
+   * @param {TabInfo} tab - Tab that is now selected.
+   * @param {TabInfo} oldTab - Tab that was selected before.
+   */
+  onTabSwitched(tab, oldTab) {
+    if (this.disabled) {
+      return;
+    }
+    this.querySelector(".live-content button")?.onTabSwitched?.(tab, oldTab);
+  }
+
+  /**
+   * Calls onTabClosing on the first button contained in the live content.
+   * No-op if this item is disabled. Called by unified-toolbar's tab monitor.
+   *
+   * @param {TabInfo} tab - Tab that was closed.
+   */
+  onTabClosing(tab) {
+    if (this.disabled) {
+      return;
+    }
+    this.querySelector(".live-content button")?.onTabClosing?.(tab);
+  }
 }
 customElements.define("customizable-element", CustomizableElement, {
   extends: "li",

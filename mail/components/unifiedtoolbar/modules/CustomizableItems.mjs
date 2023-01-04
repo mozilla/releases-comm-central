@@ -28,6 +28,7 @@ export function getAvailableItemIdsForSpace(space) {
  * toolbar for a given space.
  *
  * @param {string} space - ID of the space to get the default items for.
+ *   "default" is passed to indicate a default state without any active space.
  * @returns {string[]} Array of item IDs to show by default in the space.
  */
 export function getDefaultItemIdsForSpace(space) {

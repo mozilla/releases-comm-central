@@ -25,7 +25,7 @@
 
 <html:template id="moveToTemplate"
                xmlns="http://www.w3.org/1999/xhtml">
-  <button is="unified-toolbar-button"
+  <button is="mail-tab-button"
           popup="toolbarMoveToPopup"
           observes="cmd_moveMessage"
           label-id="toolbar-move-to-label"
@@ -54,4 +54,130 @@
           command="calendar_modify_focused_item_command"
           label-id="toolbar-edit-event-label"
           data-l10n-id="toolbar-edit-event"></button>
+</html:template>
+
+<html:template id="getMessagesTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="cmd_getMsgsForAuthAccounts"
+          label-id="toolbar-get-messages-label"
+          data-l10n-id="toolbar-get-messages"></button>
+</html:template>
+
+<html:template id="replyTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_reply"
+          label-id="toolbar-reply-label"
+          data-l10n-id="toolbar-reply"></button>
+</html:template>
+
+<html:template id="replyAllTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_replyall"
+          label-id="toolbar-reply-all-label"
+          data-l10n-id="toolbar-reply-all"></button>
+</html:template>
+
+<html:template id="replyToListTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_replylist"
+          label-id="toolbar-reply-to-list-label"
+          data-l10n-id="toolbar-reply-to-list"></button>
+</html:template>
+
+<html:template id="redirectTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_redirect"
+          label-id="toolbar-redirect-label"
+          data-l10n-id="toolbar-redirect"></button>
+</html:template>
+
+<html:template id="archiveTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_archive"
+          label-id="toolbar-archive-label"
+          data-l10n-id="toolbar-archive"></button>
+</html:template>
+
+<html:template id="conversationTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_openConversation"
+          label-id="toolbar-conversation-label"
+          data-l10n-id="toolbar-conversation"></button>
+</html:template>
+
+<html:template id="previousUnreadTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_previousUnreadMsg"
+          label-id="toolbar-previous-unread-label"
+          data-l10n-id="toolbar-previous-unread"></button>
+</html:template>
+
+<html:template id="previousTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_previousMsg"
+          label-id="toolbar-previous-label"
+          data-l10n-id="toolbar-previous"></button>
+</html:template>
+
+<html:template id="nextUnreadTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_nextUnreadMsg"
+          label-id="toolbar-next-unread-label"
+          data-l10n-id="toolbar-next-unread"></button>
+</html:template>
+
+<html:template id="nextTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_nextMsg"
+          label-id="toolbar-next-label"
+          data-l10n-id="toolbar-next"></button>
+</html:template>
+
+<html:template id="junkTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_markAsJunk"
+          label-id="toolbar-junk-label"
+          data-l10n-id="toolbar-junk"></button>
+</html:template>
+
+<html:template id="deleteTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="delete-button"
+          label-id="toolbar-delete-label"
+          data-l10n-id="toolbar-delete"></button>
+</html:template>
+
+<html:template id="compactTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="compact-folder-button"
+          label-id="toolbar-compact-label"
+          data-l10n-id="toolbar-compact"></button>
+</html:template>
+
+<html:template id="addAsEventTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="add-to-calendar-button"
+          type="event"
+          label-id="toolbar-add-as-event-label"
+          data-l10n-id="toolbar-add-as-event"></button>
+</html:template>
+
+<html:template id="addAsTaskTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="add-to-calendar-button"
+          type="task"
+          label-id="toolbar-add-as-task-label"
+          data-l10n-id="toolbar-add-as-task"></button>
 </html:template>

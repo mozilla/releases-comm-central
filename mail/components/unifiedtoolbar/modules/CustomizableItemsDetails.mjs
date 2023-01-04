@@ -31,6 +31,7 @@
  * @type {CustomizableItemDetails[]}
  */
 export default [
+  // Universal items (all spaces)
   {
     id: "spacer",
     labelId: "spacer",
@@ -53,21 +54,156 @@ export default [
     ],
   },
   {
+    id: "get-messages",
+    labelId: "toolbar-get-messages",
+    templateId: "getMessagesTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
+    ],
+  },
+  // Mail space
+  {
     id: "move-to",
     labelId: "toolbar-move-to",
     spaces: ["mail"],
     templateId: "moveToTemplate",
     requiredModules: [
-      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
     ],
   },
   {
-    id: "unifinder",
-    labelId: "toolbar-unifinder",
-    spaces: ["calendar"],
-    templateId: "calendarUnifinderTemplate",
+    id: "reply",
+    labelId: "toolbar-reply",
+    spaces: ["mail"],
+    templateId: "replyTemplate",
     requiredModules: [
-      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "reply-all",
+    labelId: "toolbar-reply-all",
+    spaces: ["mail"],
+    templateId: "replyAllTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "reply-to-list",
+    labelId: "toolbar-reply-to-list",
+    spaces: ["mail"],
+    templateId: "replyToListTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "redirect",
+    labelId: "toolbar-redirect",
+    spaces: ["mail"],
+    templateId: "redirectTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "archive",
+    labelId: "toolbar-archive",
+    spaces: ["mail"],
+    templateId: "archiveTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "conversation",
+    labelId: "toolbar-conversation",
+    spaces: ["mail"],
+    templateId: "conversationTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "previous-unread",
+    labelId: "toolbar-previous-unread",
+    spaces: ["mail"],
+    templateId: "previousUnreadTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "previous",
+    labelId: "toolbar-previous",
+    spaces: ["mail"],
+    templateId: "previousTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "next-unread",
+    labelId: "toolbar-next-unread",
+    spaces: ["mail"],
+    templateId: "nextUnreadTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "next",
+    labelId: "toolbar-next",
+    spaces: ["mail"],
+    templateId: "nextTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "junk",
+    labelId: "toolbar-junk",
+    spaces: ["mail"],
+    templateId: "junkTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "delete",
+    labelId: "toolbar-delete",
+    spaces: ["mail"],
+    templateId: "deleteTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/delete-button.mjs",
+    ],
+  },
+  {
+    id: "compact",
+    labelId: "toolbar-compact",
+    spaces: ["mail"],
+    templateId: "compactTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/compact-folder-button.mjs",
+    ],
+  },
+  {
+    id: "add-as-event",
+    labelId: "toolbar-add-as-event",
+    spaces: ["mail"],
+    templateId: "addAsEventTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/add-to-calendar-button.mjs",
+    ],
+  },
+  {
+    id: "add-as-task",
+    labelId: "toolbar-add-as-task",
+    spaces: ["mail"],
+    templateId: "addAsTaskTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/add-to-calendar-button.mjs",
     ],
   },
   {
@@ -76,7 +212,17 @@ export default [
     spaces: ["mail"],
     templateId: "folderLocationTemplate",
     requiredModules: [
-      "chrome://messenger/content/unifiedtoolbar/folder-location.mjs",
+      "chrome://messenger/content/unifiedtoolbar/folder-location-button.mjs",
+    ],
+  },
+  // Calendar space
+  {
+    id: "unifinder",
+    labelId: "toolbar-unifinder",
+    spaces: ["calendar"],
+    templateId: "calendarUnifinderTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
     ],
   },
   {

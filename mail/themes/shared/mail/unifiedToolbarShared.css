@@ -92,7 +92,8 @@
 }
 
 .unified-toolbar .search-bar {
-  flex: 1 0 33%;
+  flex: 1 1 33%;
+  min-width: 5em;
 }
 
 .unified-toolbar .button-icon {
@@ -121,4 +122,68 @@
 
 .unified-toolbar .edit-event .button-icon {
   content: var(--icon-pencil);
+}
+
+.unified-toolbar .get-messages .button-icon {
+  content: var(--icon-get-mail);
+}
+
+.unified-toolbar .reply .button-icon {
+  content: var(--icon-reply);
+}
+
+.unified-toolbar .reply-all .button-icon {
+  content: var(--icon-reply-all);
+}
+
+.unified-toolbar .reply-to-list .button-icon {
+  content: var(--icon-reply-list);
+}
+
+.unified-toolbar .redirect .button-icon {
+  content: var(--icon-redirect);
+}
+
+.unified-toolbar .archive .button-icon {
+  content: var(--icon-archive);
+}
+
+.unified-toolbar .conversation .button-icon {
+  content: var(--icon-conversation);
+}
+
+.unified-toolbar .previous-unread .button-icon {
+  content: var(--icon-nav-up-unread);
+}
+
+.unified-toolbar .previous .button-icon {
+  content: var(--icon-nav-up);
+}
+
+.unified-toolbar .next-unread .button-icon {
+  content: var(--icon-nav-down-unread);
+}
+
+.unified-toolbar .next .button-icon {
+  content: var(--icon-nav-down);
+}
+
+.unified-toolbar .junk .button-icon {
+  content: var(--icon-spam);
+}
+
+.unified-toolbar .delete .button-icon {
+  content: var(--icon-trash);
+}
+
+.unified-toolbar .compact .button-icon {
+  content: var(--icon-compress);
+}
+
+.unified-toolbar .add-as-event .button-icon {
+  content: var(--icon-new-event);
+}
+
+.unified-toolbar .add-as-task .button-icon {
+  content: var(--icon-new-task);
 }

@@ -40,7 +40,7 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
    *
    * @type {string?}
    */
-  #observedCommand;
+  observedCommand;
 
   /**
    * The mutation observer observing the command this button follows the state
@@ -53,10 +53,10 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
   connectedCallback() {
     // We remove the mutation overserver when the element is disconnected, thus
     // we have to add it every time the element is connected.
-    this.#observedCommand =
+    this.observedCommand =
       this.getAttribute("observes") || this.getAttribute("command");
-    if (this.#observedCommand) {
-      const command = document.getElementById(this.#observedCommand);
+    if (this.observedCommand) {
+      const command = document.getElementById(this.observedCommand);
       if (command) {
         if (!this.#observer) {
           this.#observer = new MutationObserver(this.#handleCommandMutation);
@@ -78,10 +78,10 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
       }
       // Update the disabled state to match the current state of the command.
       const controller = document.commandDispatcher.getControllerForCommand(
-        this.#observedCommand
+        this.observedCommand
       );
       this.disabled = !(
-        controller?.isCommandEnabled(this.#observedCommand) ?? false
+        controller?.isCommandEnabled(this.observedCommand) ?? false
       );
     }
     if (this.hasConnected) {
@@ -96,7 +96,7 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
     this.label = template.querySelector("span");
     this.#updateLabel();
     this.appendChild(template);
-    this.addEventListener("click", this.#handleClick);
+    this.addEventListener("click", this.handleClick);
   }
 
   disconnectedCallback() {
@@ -117,7 +117,7 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
    *
    * @param {MouseEvent} event - Click event.
    */
-  #handleClick = event => {
+  handleClick = event => {
     if (this.hasAttribute("popup")) {
       event.preventDefault();
       event.stopPropagation();

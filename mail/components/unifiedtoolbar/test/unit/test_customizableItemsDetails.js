@@ -82,3 +82,13 @@ add_task(function test_format() {
     }
   }
 });
+
+add_task(function test_idsUnique() {
+  const allIds = CUSTOMIZABLE_ITEMS.map(item => item.id);
+  const idCounts = allIds.reduce((counts, id) => {
+    counts[id] = counts[id] ? counts[id] + 1 : 1;
+    return counts;
+  }, {});
+  const duplicateIds = Object.keys(idCounts).filter(id => idCounts[id] > 1);
+  Assert.deepEqual(duplicateIds, [], "All IDs should only be used once");
+});
