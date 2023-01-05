@@ -271,7 +271,8 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
         () => defaultEngine.name
       );
       await Services.search.setDefault(
-        Services.search.getEngineByName(item.value)
+        Services.search.getEngineByName(item.value),
+        Ci.nsISearchService.CHANGE_REASON_ADDON_INSTALL
       );
     } else if (extension.startupReason === "ADDON_ENABLE") {
       // We would be called for every extension being enabled, we should verify
@@ -283,7 +284,8 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
       );
       if (control === "controlled_by_this_extension") {
         await Services.search.setDefault(
-          Services.search.getEngineByName(engineName)
+          Services.search.getEngineByName(engineName),
+          Ci.nsISearchService.CHANGE_REASON_ADDON_INSTALL
         );
       }
     }
