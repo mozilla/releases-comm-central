@@ -87,6 +87,18 @@ add_task(async function testPlainTextBody() {
         await checkWindow(test.expected);
       }
 
+      browser.test.log("Replace plainTextBody with empty string");
+      await browser.compose.setComposeDetails(createdTab.id, {
+        isPlainText: true,
+        plainTextBody: "Lorem ipsum",
+      });
+      await checkWindow({ isPlainText: true, plainTextBody: "Lorem ipsum" });
+      await browser.compose.setComposeDetails(createdTab.id, {
+        isPlainText: true,
+        plainTextBody: "",
+      });
+      await checkWindow({ isPlainText: true, plainTextBody: "" });
+
       // Clean up.
 
       let removedWindowPromise = window.waitForEvent("windows.onRemoved");
