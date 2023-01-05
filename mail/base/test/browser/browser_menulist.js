@@ -78,24 +78,23 @@ add_task(async () => {
   is(testDocument.activeElement, menulists[0]);
 
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, testWindow);
-  is(testDocument.activeElement, beforeButton);
+  is(testDocument.activeElement, beforeButton, "focus back to the start");
 
+  let popup = menulists[2].menupopup;
   // The dropmarker should open and close the popup.
+  let openEvent = BrowserTestUtils.waitForEvent(popup, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     menulists[2]._dropmarker,
     { clickCount: 1 },
     testWindow
   );
-  await new Promise(resolve => setTimeout(resolve));
-  ok(menulists[2].hasAttribute("open"));
+  await openEvent;
+  ok(menulists[2].hasAttribute("open"), "popup open");
 
-  EventUtils.synthesizeMouseAtCenter(
-    menulists[2]._dropmarker,
-    { clickCount: 1 },
-    testWindow
-  );
-  await new Promise(resolve => setTimeout(resolve));
-  ok(!menulists[2].hasAttribute("open"));
+  let hiddenEvent = BrowserTestUtils.waitForEvent(popup, "popuphidden");
+  popup.hidePopup();
+  await hiddenEvent;
+  ok(!menulists[2].hasAttribute("open"), "closed again");
 
   // Open the popup and choose an item.
   EventUtils.synthesizeMouseAtCenter(
@@ -103,18 +102,14 @@ add_task(async () => {
     { clickCount: 1 },
     testWindow
   );
-  await new Promise(resolve => setTimeout(resolve));
-  ok(menulists[2].hasAttribute("open"));
+  await BrowserTestUtils.waitForEvent(popup, "popupshown");
+  ok(menulists[2].hasAttribute("open"), "open for item click");
 
   await new Promise(resolve => {
     menulists[2].addEventListener("select", () => setTimeout(resolve), {
       once: true,
     });
-    EventUtils.synthesizeMouseAtCenter(
-      menulists[2].querySelectorAll("menuitem")[0],
-      { clickCount: 1 },
-      testWindow
-    );
+    popup.activateItem(menulists[2].querySelectorAll("menuitem")[0]);
   });
   ok(!menulists[2].hasAttribute("open"));
   is(testDocument.activeElement, menulists[2]);
@@ -129,18 +124,14 @@ add_task(async () => {
     { clickCount: 1 },
     testWindow
   );
-  await new Promise(resolve => setTimeout(resolve));
+  await BrowserTestUtils.waitForEvent(popup, "popupshown");
   ok(menulists[2].hasAttribute("open"));
 
   await new Promise(resolve => {
     menulists[2].addEventListener("select", () => setTimeout(resolve), {
       once: true,
     });
-    EventUtils.synthesizeMouseAtCenter(
-      menulists[2].querySelectorAll("menuitem")[1],
-      { clickCount: 1 },
-      testWindow
-    );
+    popup.activateItem(menulists[2].querySelectorAll("menuitem")[1]);
   });
   ok(!menulists[2].hasAttribute("open"));
   is(testDocument.activeElement, menulists[2]);
@@ -173,18 +164,14 @@ add_task(async () => {
     { clickCount: 1 },
     testWindow
   );
-  await new Promise(resolve => setTimeout(resolve));
+  await BrowserTestUtils.waitForEvent(popup, "popupshown");
   ok(menulists[2].hasAttribute("open"));
 
   await new Promise(resolve => {
     menulists[2].addEventListener("select", () => setTimeout(resolve), {
       once: true,
     });
-    EventUtils.synthesizeMouseAtCenter(
-      menulists[2].querySelectorAll("menuitem")[0],
-      { clickCount: 1 },
-      testWindow
-    );
+    popup.activateItem(menulists[2].querySelectorAll("menuitem")[0]);
   });
   ok(!menulists[2].hasAttribute("open"));
   is(testDocument.activeElement, menulists[2]);

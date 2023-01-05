@@ -152,7 +152,7 @@ async function clickMenuAction(win, buttonId, actionId) {
   let menuShown = BrowserTestUtils.waitForEvent(actionMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(actionButton.querySelector("dropmarker"), {}, win);
   await menuShown;
-  EventUtils.synthesizeMouseAtCenter(win.document.getElementById(actionId), {}, win);
+  actionMenu.activateItem(win.document.getElementById(actionId));
   await TestUtils.waitForCondition(() => actionButton.hidden, `action menu "#${buttonId}" hidden`);
 }
 

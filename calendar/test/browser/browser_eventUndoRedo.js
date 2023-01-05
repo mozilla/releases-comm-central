@@ -36,9 +36,19 @@ async function isDisabled(element) {
 
   let hiddenPromise = BrowserTestUtils.waitForEvent(targetMenu, "popuphidden");
   let status = element.disabled;
-  EventUtils.synthesizeKey("VK_ESCAPE");
+  targetMenu.hidePopup();
   await hiddenPromise;
   return status;
+}
+
+async function clickItem(element) {
+  let targetMenu = document.getElementById("menu_EditPopup");
+
+  let shownPromise = BrowserTestUtils.waitForEvent(targetMenu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("menu_Edit"), {});
+  await shownPromise;
+
+  targetMenu.activateItem(element);
 }
 
 /**
@@ -81,7 +91,7 @@ async function testAddUndoRedoEvent(undoId, redoId) {
   Assert.ok(await isDisabled(redo), `#${redoId} is disabled`);
 
   // Test undo.
-  undo.doCommand();
+  await clickItem(undo);
   await TestUtils.waitForCondition(() => {
     eventItem = document.querySelector("calendar-month-day-box-item");
     return !eventItem;
@@ -90,7 +100,7 @@ async function testAddUndoRedoEvent(undoId, redoId) {
   Assert.ok(!eventItem, `#${undoId} reverses item creation`);
 
   // Test redo.
-  redo.doCommand();
+  await clickItem(redo);
   await TestUtils.waitForCondition(() => {
     eventItem = document.querySelector("calendar-month-day-box-item");
     return eventItem;
@@ -140,7 +150,7 @@ async function testModifyUndoRedoEvent(undoId, redoId) {
   Assert.ok(await isDisabled(redo), `#${redoId} is disabled`);
 
   // Test undo.
-  undo.doCommand();
+  await clickItem(undo);
   await TestUtils.waitForCondition(() => {
     eventItem = document.querySelector("calendar-month-day-box-item");
     return eventItem && eventItem.item.title == "Modifiable Event";
@@ -149,7 +159,7 @@ async function testModifyUndoRedoEvent(undoId, redoId) {
   Assert.equal(eventItem.item.title, "Modifiable Event", `#${undoId} reverses item modification`);
 
   // Test redo.
-  redo.doCommand();
+  await clickItem(redo);
   await TestUtils.waitForCondition(() => {
     eventItem = document.querySelector("calendar-month-day-box-item");
     return eventItem && eventItem.item.title == "Modified Event";
@@ -197,7 +207,7 @@ async function testDeleteUndoRedo(undoId, redoId) {
   Assert.ok(await isDisabled(redo), `#${redoId} is disabled`);
 
   // Test undo.
-  undo.doCommand();
+  await clickItem(undo);
   await TestUtils.waitForCondition(() => {
     eventItem = document.querySelector("calendar-month-day-box-item");
     return eventItem;
@@ -205,7 +215,7 @@ async function testDeleteUndoRedo(undoId, redoId) {
   Assert.ok(eventItem, `#${undoId} reverses item deletion`);
 
   // Test redo.
-  redo.doCommand();
+  await clickItem(redo);
   await TestUtils.waitForCondition(() => {
     eventItem = document.querySelector("calendar-month-day-box-item");
     return !eventItem;

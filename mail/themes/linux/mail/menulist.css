@@ -10,13 +10,10 @@ menulist::part(text-input) {
 }
 
 menulist[is="menulist-editable"][editable="true"] {
-  appearance: auto;
-  -moz-default-appearance: textfield;
-  margin-inline-end: 2.4em;
+  padding-inline-end: 2.4em;
 }
 
 menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
-  display: -moz-box;
   width: 2em;
   margin-top: -2px;
   margin-bottom: -2px;
