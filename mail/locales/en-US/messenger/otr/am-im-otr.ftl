@@ -23,4 +23,3 @@ otr-verify-nudge =
     .label = Always remind me to verify an unverified contact
 
 otr-not-yet-available = not yet available
-

@@ -40,7 +40,7 @@ interface calIOfflineStorage : calICalendar {
     Promise deleteOfflineItem(in calIItemBase aItem);
 
     /**
-     * Retrieves the offline flag for the given item. 
+     * Retrieves the offline flag for the given item.
      *
      * @param aItem       the item to reset
      * @return {Promise<number>}

@@ -80,4 +80,3 @@ interface nsIImapProtocol : nsISupports {
   // Reset folder connection to authenticated state
   void ResetToAuthenticatedState();
 };
-

@@ -95,4 +95,3 @@ interface nsIAbLDAPDirectory : nsISupports
   attribute ACString objectClasses;
 
 };
-

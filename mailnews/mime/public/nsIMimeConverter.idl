@@ -67,4 +67,3 @@ interface nsIMimeConverter : nsISupports {
                            in boolean override_charset,
                            in boolean eatContinuations);
 };
-

@@ -57,4 +57,3 @@ treechildren::-moz-tree-row(modeHeader) {
 :root[uidensity="touch"] #folderTree > treechildren::-moz-tree-row {
   min-height: 2.4rem;
 }
-

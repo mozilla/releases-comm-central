@@ -75,4 +75,3 @@ interface nsISMimeVerificationListener : nsISupports {
   void notify(in nsICMSMessage verifiedMessage,
               in nsresult verificationResultCode);
 };
-

@@ -123,6 +123,3 @@ interface nsIMapi : IUnknown
     HRESULT Logoff(unsigned long aSession);
     HRESULT CleanUp();
 };
-
-
-

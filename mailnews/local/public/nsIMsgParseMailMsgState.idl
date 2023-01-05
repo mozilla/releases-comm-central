@@ -44,4 +44,3 @@ interface nsIMsgParseMailMsgState : nsISupports {
      */
     void setNewKey(in nsMsgKey aKey);
 };
-

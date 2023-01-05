@@ -21,4 +21,3 @@ interface nsILocalMailIncomingServer : nsISupports
 
   nsIURI getNewMail(in nsIMsgWindow aMsgWindow, in nsIUrlListener aUrlListener, in nsIMsgFolder aInbox);
 };
-

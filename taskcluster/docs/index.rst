@@ -20,4 +20,3 @@ The documentation here describes Thunderbird specifics.
     loading
     transforms
     cron
-

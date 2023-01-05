@@ -173,4 +173,3 @@ https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/i
 There's a good summary of settings (both compile-time and run-time prefs):
 
 https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/internals/preferences.html
-

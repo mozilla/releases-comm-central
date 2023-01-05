@@ -52,4 +52,3 @@ interface nsIAbLDAPProcessReplicationData : nsISupports
      */
     void abort();
 };
-

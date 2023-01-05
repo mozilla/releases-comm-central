@@ -20,4 +20,3 @@ treechildren::-moz-tree-image(GeneratedName) {
 treechildren::-moz-tree-image(GeneratedName, MailList) {
   list-style-image: var(--icon-user-list);
 }
-

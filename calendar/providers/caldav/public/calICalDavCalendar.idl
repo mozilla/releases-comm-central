@@ -18,4 +18,3 @@ interface calICalDavCalendar : calICalendar
     readonly attribute AUTF8String authRealm;
 
 };
-

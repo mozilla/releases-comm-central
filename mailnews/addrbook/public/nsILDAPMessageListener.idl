@@ -46,4 +46,3 @@ interface nsILDAPMessageListener : nsISupports
      */
     void onLDAPError(in nsresult status, in nsITransportSecurityInfo secInfo, in ACString location);
 };
-

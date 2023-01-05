@@ -1467,4 +1467,3 @@ dialog .key-info-block {
 .comma-separated a:not(:last-child):after {
   content: ", ";
 }
-

@@ -38,4 +38,3 @@ interface nsINewsBlogFeedDownloader : nsISupports
                              in nsIMsgFolder aOrigFolder,
                              in string aAction);
 };
-

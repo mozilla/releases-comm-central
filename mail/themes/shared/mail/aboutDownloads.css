@@ -130,4 +130,3 @@ body {
 .downloadButton:hover:active > .button-box {
   background-color: var(--in-content-button-background-active);
 }
-

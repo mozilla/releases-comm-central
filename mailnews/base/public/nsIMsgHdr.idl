@@ -107,4 +107,3 @@ interface nsIMsgDBHdr : nsISupports
     readonly attribute Array<AUTF8String> properties;
 };
 /* *******************************************************************************/
-

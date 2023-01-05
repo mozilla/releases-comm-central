@@ -21,5 +21,3 @@ interface nsIPop3Protocol : nsISupports {
   [noscript] void markMessages(in Pop3UidlEntryArrayRef aUidl);
   boolean checkMessage(in string aUidl);
 };
-
-

@@ -255,7 +255,7 @@ treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessage
     treechildren::-moz-tree-cell-text(closed, subfoldersHaveUnreadMessages-true) {
     --sidebar-text-color: var(--color-white);
   }
-  
+
   #folderTree:-moz-lwtheme
     treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
   #folderTree:-moz-lwtheme

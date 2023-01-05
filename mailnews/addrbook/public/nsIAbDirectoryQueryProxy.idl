@@ -11,4 +11,3 @@ interface nsIAbDirectoryQueryProxy : nsIAbDirectoryQuery
 {
     void initiate();
 };
-

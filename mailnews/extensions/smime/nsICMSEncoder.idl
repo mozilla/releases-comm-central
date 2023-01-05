@@ -27,4 +27,3 @@ interface nsICMSEncoder : nsISupports
   void finish();
   void encode(in nsICMSMessage aMsg);
 };
-

@@ -115,4 +115,3 @@ interface calIErrors : nsISupports
   const unsigned long DAV_REMOVE_ERROR = DAV_ERROR_BASE + 4;
   const unsigned long DAV_REPORT_ERROR = DAV_ERROR_BASE + 5;
 };
-

@@ -21,4 +21,3 @@ compact-dialog-message = { -brand-short-name } needs to do regular file maintena
 compact-dialog-never-ask-checkbox =
     .label = Compact folders automatically in the future
     .accesskey = a
-

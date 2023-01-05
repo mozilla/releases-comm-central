@@ -54,4 +54,3 @@ an empty list as above.
 
 **Do not make the change on comm-central first.** `l10n-bump` will be
 re-enabled by merge day activities automatically.
-
