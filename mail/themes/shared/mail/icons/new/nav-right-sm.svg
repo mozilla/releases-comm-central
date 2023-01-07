@@ -4,5 +4,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" fill-opacity="context-fill-opacity" viewBox="0 0 12 12" height="12" width="12">
   <!-- Use both context-fill and context-stroke path to account for the styling coming from toolkit for those sections we can't override. -->
   <path d="M3.834 1.128a.5.5 0 0 0-.705.038.5.5 0 0 0 .037.705L7.754 6l-4.588 4.128a.5.5 0 0 0-.037.706.5.5 0 0 0 .705.037l5-4.5a.5.5 0 0 0 0-.743z" fill="context-fill transparent"/>
-  <path d="M3.834 1.128a.5.5 0 0 0-.705.038.5.5 0 0 0 .037.705L7.754 6l-4.588 4.128a.5.5 0 0 0-.037.706.5.5 0 0 0 .705.037l5-4.5a.5.5 0 0 0 0-.743z" fill="context-stroke"/>
+  <path d="M3.834 1.128a.5.5 0 0 0-.705.038.5.5 0 0 0 .037.705L7.754 6l-4.588 4.128a.5.5 0 0 0-.037.706.5.5 0 0 0 .705.037l5-4.5a.5.5 0 0 0 0-.743z" fill="context-stroke transparent"/>
 </svg>
