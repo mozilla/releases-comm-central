@@ -16,8 +16,8 @@ const { Assert } = ChromeUtils.importESModule(
  *
  * https://docs.ldap.com/specs/rfc4511.txt
  *
- * @implements nsIInputStreamCallback
- * @implements nsIServerSocketListener
+ * @implements {nsIInputStreamCallback}
+ * @implements {nsIServerSocketListener}
  */
 var LDAPServer = {
   BindRequest: 0x60,
@@ -117,7 +117,7 @@ var LDAPServer = {
    * Sends raw data to the application. Generally this shouldn't be used
    * directly but it may be useful for testing.
    *
-   * @param {byte array} Data
+   * @param {byte[]} data - The data to write.
    */
   write(data) {
     if (PRINT_DEBUG) {
@@ -146,10 +146,10 @@ var LDAPServer = {
    * Sends a SearchResultEntry to the application.
    * See section 4.5.2 of the RFC.
    *
-   * @param {object} An object representing a person. Keys of the object are:
-   *                 - dn         The LDAP DN of the person
-   *                 - attributes A key/value or key/array-of-values object
-   *                              representing the person
+   * @param {object} entry
+   * @param {string} entry.dn - The LDAP DN of the person.
+   * @param {string} entry.attributes - A key/value or key/array-of-values
+   *   object representing the person.
    */
   writeSearchResultEntry({ dn, attributes }) {
     let message = new Sequence(0x30, new IntegerValue(this._lastMessageID));
@@ -175,7 +175,7 @@ var LDAPServer = {
   },
   /**
    * Sends a SearchResultDone to the application.
-   * See section 4.5.2 of the RFC.
+   * See RFC 4511 section 4.5.2.
    */
   writeSearchResultDone() {
     let message = new Sequence(0x30, new IntegerValue(this._lastMessageID));

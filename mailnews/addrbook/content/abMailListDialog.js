@@ -486,8 +486,8 @@ function awAppendNewRow(setFocus) {
 /**
  * Returns the recipient inputbox for a row.
  *
- * @param row  Index of the recipient row to return. Starts at 1.
- * @returns This returns the input element.
+ * @param {integer} row - Index of the recipient row to return. Starts at 1.
+ * @returns {Element} This returns the input element.
  */
 function awGetInputElement(row) {
   return document.getElementById("addressCol1#" + row);
@@ -508,9 +508,9 @@ function awGetListItem(row) {
 }
 
 /**
- * @param inputElement  The recipient input element.
- * @returns The row index (starting from 1) where the input element
- *                      is found. 0 if the element is not found.
+ * @param {Element} inputElement - The recipient input element.
+ * @returns {integer} The row index (starting from 1) where the input element
+ *   is found. 0 if the element is not found.
  */
 function awGetRowByInputElement(inputElement) {
   if (!inputElement) {
@@ -669,9 +669,9 @@ function awAbRecipientKeyPress(event, element) {
  * Note that the keydown event fires for ALL keys, so this may affect
  * autocomplete as user enters a recipient text.
  *
- * @param {keydown event} event  the keydown event fired on a recipient input
- * @param {<html:input>} inputElement - the recipient input element
- *                                     on which the event fired (textbox-addressingWidget)
+ * @param {KeyboardEvent} event - The keydown event fired on a recipient input.
+ * @param {HTMLInputElement} inputElement - The recipient input element
+ *   on which the event fired (textbox-addressingWidget).
  */
 function awRecipientKeyDown(event, inputElement) {
   switch (event.key) {
@@ -721,11 +721,11 @@ function awRecipientKeyDown(event, inputElement) {
 /**
  * Delete recipient row (addressingWidgetItem) from UI.
  *
- * @param {<html:input>} inputElement - the recipient input element
- *                                     (textbox-addressingWidget) whose parent
- *                                     row (addressingWidgetItem) will be deleted.
+ * @param {HTMLInputElement} inputElement - The recipient input element.
+ *   textbox-addressingWidget) whose parent row (addressingWidgetItem) will be
+ *   deleted.
  * @param {boolean} deleteForward - true: focus next row after deleting the row
- *                                 false: focus previous row after deleting the row
+ *   false: focus previous row after deleting the row
  */
 function awDeleteHit(inputElement, deleteForward = false) {
   let row = awGetRowByInputElement(inputElement);
@@ -919,7 +919,7 @@ function awGetNextDummyRow() {
  * We do this asynchronously to allow other processes like adding or removing rows
  * to complete before shifting focus.
  *
- * @param element  the element to receive focus asynchronously
+ * @param {Element} element - The element to receive focus asynchronously.
  */
 function awSetFocusTo(element) {
   // Remember the (input) element to focus for asynchronous focusing, so that we
