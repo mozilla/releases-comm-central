@@ -92,4 +92,3 @@ interface nsIMsgThreadEnumerator : nsISupports {
    */
   nsIMsgThread getNext();
 };
-

@@ -27,4 +27,3 @@ interface nsICMSDecoder : nsISupports
   void update(in string aBuf, in long aLen);
   void finish(out nsICMSMessage msg);
 };
-

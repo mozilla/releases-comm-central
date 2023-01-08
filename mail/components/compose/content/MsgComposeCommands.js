@@ -5643,9 +5643,13 @@ function SetComposeDetails(newValues) {
     if (wasReadOnly) {
       gMsgCompose.editor.flags &= ~Ci.nsIEditor.eEditorReadonlyMask;
     }
-    mailEditor.insertTextWithQuotations(
-      newValues.plainTextBody.replaceAll("\r\n", "\n")
-    );
+    if (newValues.plainTextBody === "") {
+      editor.deleteSelection(editor.eNone, editor.eStrip);
+    } else {
+      mailEditor.insertTextWithQuotations(
+        newValues.plainTextBody.replaceAll("\r\n", "\n")
+      );
+    }
     if (wasReadOnly) {
       gMsgCompose.editor.flags |= Ci.nsIEditor.eEditorReadonlyMask;
     }

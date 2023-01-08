@@ -142,7 +142,7 @@ var QueryStringToExpression = {
   /**
    * Create a nsIAbBooleanConditionString.
    *
-   * @param {string} field - The field name.
+   * @param {string} name - The field name.
    * @param {nsIAbBooleanConditionTypes} condition - The condition.
    * @param {string} value - The value string.
    * @returns {nsIAbBooleanConditionString}

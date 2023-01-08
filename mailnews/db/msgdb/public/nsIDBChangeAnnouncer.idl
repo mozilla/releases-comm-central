@@ -40,4 +40,3 @@ interface nsIDBChangeAnnouncer  : nsISupports {
 
   void notifyAnnouncerGoingAway();
 };
-

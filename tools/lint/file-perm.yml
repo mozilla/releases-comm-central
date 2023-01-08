@@ -4,6 +4,7 @@ file-perm:
     include:
         - comm/
     extensions:
+        - .build
         - .c
         - .cc
         - .cpp
@@ -11,18 +12,23 @@ file-perm:
         - .h
         - .html
         - .idl
+        - .js
         - .jsm
         - .jsx
         - .m
+        - .md
         - .m4s
         - .mjs
         - .mm
+        - .mozbuild
         - .mp4
         - .png
         - .rs
+        - .rst
         - .svg
         - .ttf
         - .wasm
+        - .webidl
         - .xhtml
         - .xml
         - .xul

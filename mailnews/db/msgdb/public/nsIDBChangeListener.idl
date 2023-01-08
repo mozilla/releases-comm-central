@@ -115,4 +115,3 @@ interface  nsIDBChangeListener : nsISupports {
    */
   void onEvent(in nsIMsgDatabase aDB, in string aEvent);
 };
-

@@ -34,7 +34,7 @@ interface calIRecurrenceItem : nsISupports
   /**
    * Search for the next occurrence after aTime and return its recurrence id.
    * aRecurrenceId must be the recurrence id of an occurrence to search after.
-   * If this item has an unsupported FREQ value ("SECONDLY" or "MINUTELY"), null 
+   * If this item has an unsupported FREQ value ("SECONDLY" or "MINUTELY"), null
    * is returned.
    *
    * @require               (aTime >= aRecurrenceId)

@@ -25,7 +25,7 @@ class ImapProtocolInfo extends MsgProtocolInfo {
   canGetIncomingMessages = true;
   defaultDoBiff = true;
   showComposeMsgLink = true;
-  foldersCreatedAsync = false;
+  foldersCreatedAsync = true;
 
   getDefaultServerPort(isSecure) {
     return isSecure

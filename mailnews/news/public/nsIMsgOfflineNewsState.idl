@@ -20,4 +20,3 @@ interface nsIMsgOfflineNewsState : nsISupports {
   long Process(out string outputBuffer, in long bufferSize);
   long Interrupt();
 };
-

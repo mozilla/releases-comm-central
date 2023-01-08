@@ -5,11 +5,9 @@
  * Test telemetry related to message composition.
  */
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "TelemetryTestUtils",
-  "resource://testing-common/TelemetryTestUtils.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  TelemetryTestUtils: "resource://testing-common/TelemetryTestUtils.sys.mjs",
+});
 
 const HTML_SCALAR = "tb.compose.format_html";
 const PLAIN_TEXT_SCALAR = "tb.compose.format_plain_text";

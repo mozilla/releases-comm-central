@@ -86,5 +86,3 @@ interface nsIMsgFilterCustomAction : nsISupports
   /// Does this action need the message body?
   readonly attribute boolean needsBody;
 };
-
-

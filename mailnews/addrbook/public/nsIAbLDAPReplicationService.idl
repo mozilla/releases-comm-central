@@ -29,4 +29,3 @@ interface nsIAbLDAPReplicationService: nsISupports {
      */
     void done(in boolean aSuccess);
 };
-

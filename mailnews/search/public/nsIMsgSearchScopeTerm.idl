@@ -17,4 +17,3 @@ interface nsIMsgSearchScopeTerm : nsISupports {
   readonly attribute nsIMsgFolder folder;
   readonly attribute nsIMsgSearchSession searchSession;
 };
-

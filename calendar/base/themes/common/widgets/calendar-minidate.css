@@ -28,7 +28,7 @@
   font-weight: 700;
   font-size: 2rem;
   display: block;
-  color: var(--viewMonthDayBoxLabelColor); 
+  color: var(--viewMonthDayBoxLabelColor);
 }
 
 .calendar-minidate-year {

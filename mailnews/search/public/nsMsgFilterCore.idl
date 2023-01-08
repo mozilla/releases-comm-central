@@ -60,4 +60,3 @@ interface nsMsgFilterAction : nsISupports {
     const long KillSubthread=18;
     const long MarkUnread=19;
 };
-

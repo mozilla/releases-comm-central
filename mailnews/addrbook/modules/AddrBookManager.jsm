@@ -199,8 +199,8 @@ Services.prefs.addObserver("mail.displayname.version", () => {
 });
 
 /**
- * @implements nsIAbManager
- * @implements nsICommandLineHandler
+ * @implements {nsIAbManager}
+ * @implements {nsICommandLineHandler}
  */
 function AddrBookManager() {}
 AddrBookManager.prototype = {

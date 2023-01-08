@@ -39,4 +39,3 @@ interface nsIMsgSearchAdapter : nsISupports {
      */
     void clearScope();
 };
-

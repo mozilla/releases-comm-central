@@ -19,7 +19,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 );
 
 var kMockPromptServiceName = "Mock Prompt Service";
-var kPromptServiceContractID = "@mozilla.org/embedcomp/prompt-service;1";
+var kPromptServiceContractID = "@mozilla.org/prompter;1";
 var kPromptServiceName = "Prompt Service";
 
 var gMockAuthPromptReg = new MockObjectReplacer(

@@ -294,6 +294,10 @@ toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolb
   display: none;
 }
 
+.toolbarbutton-menubutton-dropmarker {
+  pointer-events: none;
+}
+
 .toolbarbutton-1:not([is="toolbarbutton-menu-button"]),
 .toolbarbutton-1 > .toolbarbutton-menubutton-button,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {

@@ -36,4 +36,3 @@ interface prplIPref: nsISupports {
   Array<prplIKeyValuePair> getList();
   AUTF8String getListDefault();
 };
-

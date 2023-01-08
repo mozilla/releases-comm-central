@@ -41,4 +41,3 @@ interface calITimezone : nsISupports
      */
     AUTF8String toString();
 };
-

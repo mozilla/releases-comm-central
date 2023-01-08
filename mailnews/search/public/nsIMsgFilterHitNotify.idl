@@ -24,4 +24,3 @@ interface nsIMsgWindow;
 interface nsIMsgFilterHitNotify : nsISupports {
     boolean applyFilterHit(in nsIMsgFilter filter, in nsIMsgWindow msgWindow);
 };
-

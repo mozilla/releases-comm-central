@@ -87,4 +87,3 @@ interface calIProviderListener : nsISupports
   void onDeleteCalendar(in calICalendar aCalendar, in nsresult aStatus,
                         in nsIVariant aDetail);
 };
-

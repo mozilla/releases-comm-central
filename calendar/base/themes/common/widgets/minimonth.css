@@ -18,7 +18,7 @@ calendar-minimonth {
   --mmDayOtherBackground: transparent;
   --mmDayOtherBorderColor: transparent;
   --mmDayTodayColor: var(--color-gray-90);
-  --mmDayTodayBackground: transparent;
+  --mmDayTodayBackground: color-mix(in srgb, var(--color-ink-40) 20%, transparent);
   --mmDayTodayBorderColor: transparent;
   --mmDaySelectedColor: var(--color-blue-60);
   --mmDaySelectedBackground: var(--color-blue-10);
@@ -40,7 +40,6 @@ calendar-minimonth {
   --mmBoxBackground: var(--sidebar-background-color, Field);
   --mmBoxBorderColor: var(--sidebar-background-color, Field);
   --mmDayTodayColor: var(--color-gray-90);
-  --mmDayTodayBackground: transparent;
   --mmDayTodayBorderColor: transparent;
   --mmDayColor: var(--color-gray-70);
   --mmDayBorderColor: transparent;
@@ -59,7 +58,6 @@ calendar-minimonth {
     --mmBoxBackground: var(--sidebar-background-color, Field);
     --mmBoxBorderColor: transparent;
     --mmDayTodayColor: var(--color-ink-10);
-    --mmDayTodayBackground: transparent;
     --mmDayTodayBorderColor: transparent;
     --mmDayColor: var(--color-gray-10);
     --mmDayBackground: transparent;

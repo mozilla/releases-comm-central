@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -8,19 +7,20 @@
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/messengercompose/sendProgress.dtd">
-
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
+      style="min-width:56ch;"
       lightweightthemes="true"
       scrolling="false">
 <head>
   <title>&sendDialog.title;</title>
-  <script defer="defer" src="chrome://messenger/content/messengercompose/sendProgress.js"></script>
+  <link rel="localization" href="branding/brand.ftl" />
   <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messengercompose/sendProgress.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <dialog id="sendProgress" buttons="cancel" style="width:56ch;">
+  <dialog id="sendProgress" buttons="cancel">
     <hbox flex="1">
       <vbox align="end">
         <hbox flex="1" align="center">

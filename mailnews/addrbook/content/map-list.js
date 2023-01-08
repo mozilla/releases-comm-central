@@ -40,10 +40,9 @@
     /**
      * Initializes the necessary address data from an addressbook card.
      *
-     * @param {nsIAbCard} card - the card to get the address data from
-     * @param {string} addPrefix - card property prefix: "Home" or "Work",
-     *                             to make the map use either HomeAddress
-     *                             or WorkAddress
+     * @param {nsIAbCard} card - The card to get the address data from.
+     * @param {string} addrPrefix - Card property prefix: "Home" or "Work",
+     *    to make the map use either HomeAddress or WorkAddress.
      */
     initMapAddressFromCard(card, addrPrefix) {
       let mapItURLFormat = this._getMapURLPref();
@@ -72,7 +71,8 @@
      * Returns the Map service URL from localized pref. Returns null if there
      * is none at the given index.
      *
-     * @param integer [index=0] - the index of the service to return. 0 is the default service.
+     * @param {integer} [index=0] - The index of the service to return.
+     *   0 is the default service.
      */
     _getMapURLPref(index = 0) {
       let url = null;
@@ -176,7 +176,7 @@
     /**
      * Save user selected mapping service.
      *
-     * @param item  The chosen menuitem with map service.
+     * @param {Element} item - The chosen menuitem with map service.
      */
     _chooseMapService(item) {
       // Save selected URL as the default.

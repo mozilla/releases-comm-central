@@ -198,4 +198,3 @@ interface nsIMsgHeaderParser : nsISupports {
    */
   /* @deprecated */ AString makeMimeAddress(in AString aName, in AString aEmail);
 };
-

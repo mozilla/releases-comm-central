@@ -49,6 +49,3 @@ interface nsINNTPNewsgroupPost : nsISupports {
 
     attribute nsIFile postMessageFile;
 };
-
-
-

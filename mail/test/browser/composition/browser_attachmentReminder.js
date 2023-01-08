@@ -366,11 +366,7 @@ async function click_manual_reminder(aCwc, aExpectedState) {
   );
   await shownPromise;
   let hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
-  EventUtils.synthesizeMouseAtCenter(
-    aCwc.e("button-attachPopup_remindLaterItem"),
-    {},
-    aCwc.window
-  );
+  popup.activateItem(aCwc.e("button-attachPopup_remindLaterItem"));
   await hiddenPromise;
   wait_for_window_focused(aCwc.window);
   assert_manual_reminder_state(aCwc, aExpectedState);

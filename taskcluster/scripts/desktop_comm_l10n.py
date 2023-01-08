@@ -85,7 +85,7 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
             self,
             config_options=self.config_options,
             require_config_file=require_config_file,
-            **buildscript_kwargs
+            **buildscript_kwargs,
         )
         self.upload_env = None
         self.file_registry = None
@@ -163,15 +163,22 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
         if locales_file.endswith(".json"):
             with open(locales_file) as fh:
                 locales_data = json.load(fh)
-        comm_l10n_revision = locales_data.get("all", {}).get("revision")
+        # would use en-US, but it's not in this file!
+        comm_l10n_revision = locales_data.get("en-GB", {}).get("revision")
 
-        self.mkdir_p(dirs["abs_checkout_dir"])
-        self.vcs_checkout(
-            dest=dirs["abs_comm_l10n_dir"],
-            repo=c["hg_comm_l10n_repo"],
-            branch=comm_l10n_revision,
-            vcs="hg",
-        )
+        if comm_l10n_revision:
+            self.mkdir_p(dirs["abs_checkout_dir"])
+            self.vcs_checkout(
+                dest=dirs["abs_comm_l10n_dir"],
+                repo=c["hg_comm_l10n_repo"],
+                branch=comm_l10n_revision,
+                vcs="hg",
+            )
+        else:
+            raise Exception(
+                f"Unable to find revision from comm-l10n repo using "
+                f"{c['hg_comm_locales_file']}."
+            )
 
     def merge_repos(self):
         dirs = self.query_abs_dirs()

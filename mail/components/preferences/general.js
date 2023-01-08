@@ -671,7 +671,10 @@ var gGeneralPane = {
       self.updateRemoveButton();
 
       engineList.addEventListener("command", async () => {
-        await Services.search.setDefault(engineList.selectedItem.engine);
+        await Services.search.setDefault(
+          engineList.selectedItem.engine,
+          Ci.nsISearchService.CHANGE_REASON_USER
+        );
         self.updateRemoveButton();
       });
     });
@@ -769,7 +772,10 @@ var gGeneralPane = {
     );
     engineList.selectedIndex =
       engineList.firstElementChild.childElementCount - 1;
-    await Services.search.setDefault(engineList.selectedItem.engine);
+    await Services.search.setDefault(
+      engineList.selectedItem.engine,
+      Ci.nsISearchService.CHANGE_REASON_USER
+    );
     this.updateRemoveButton();
   },
 
@@ -784,7 +790,10 @@ var gGeneralPane = {
         await Services.search.removeEngine(item.engine);
         item.remove();
         engineList.selectedIndex = 0;
-        await Services.search.setDefault(engineList.selectedItem.engine);
+        await Services.search.setDefault(
+          engineList.selectedItem.engine,
+          Ci.nsISearchService.CHANGE_REASON_USER
+        );
         this.updateRemoveButton();
         break;
       }

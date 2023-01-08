@@ -204,4 +204,3 @@ typedef struct nsMsgSearchValue
 %}
 
 [ptr] native nsSearchMenuItem(nsSearchMenuItem);
-

@@ -611,6 +611,7 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
   /* Compute the hash...
    */
 
+  NS_ENSURE_STATE(mDataHash);
   nsAutoCString hashString;
   rv = mDataHash->Finish(false, hashString);
   mDataHash = nullptr;

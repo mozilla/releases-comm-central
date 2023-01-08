@@ -218,7 +218,8 @@ class SearchRequest extends LDAPMessage {
    * Parse a single filter value "key=value" to [filterId, key, value].
    *
    * @param {string} filter - A single filter value without parentheses.
-   * @returns {[number, string, string]}
+   * @returns {(number|string)[]} An array [filterId, key, value] as
+   *   [number, string, string]
    */
   _parseFilterValue(filter) {
     for (let cond of [">=", "<=", "~=", ":=", "="]) {

@@ -179,11 +179,7 @@ add_task(async () => {
   let bucket = composeDocument.getElementById("attachmentBucket");
   await new Promise(resolve => {
     bucket.addEventListener("attachments-added", resolve, { once: true });
-    EventUtils.synthesizeMouseAtCenter(
-      menuitems[1],
-      { clickCount: 1 },
-      composeWindow
-    );
+    menu.menupopup.activateItem(menuitems[1]);
   });
   info("attachment added");
   await promiseAnimationFrame(composeWindow);

@@ -190,4 +190,3 @@ interface nsIAutoSyncManager : nsISupports {
 #define NS_AUTOSYNCMANAGER_CONTRACTID \
   "@mozilla.org/imap/autosyncmgr;1"
 %}
-

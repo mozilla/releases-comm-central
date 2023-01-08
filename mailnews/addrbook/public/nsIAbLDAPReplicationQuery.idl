@@ -61,4 +61,3 @@ interface nsIAbLDAPChangeLogQuery : nsISupports
    */
   void queryChangedEntries(in AUTF8String aChangedEntryDN);
 };
-

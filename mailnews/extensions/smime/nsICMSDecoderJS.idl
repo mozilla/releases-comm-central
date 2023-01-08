@@ -22,4 +22,3 @@ interface nsICMSDecoderJS : nsISupports
    */
   Array<uint8_t> decrypt(in Array<uint8_t> input);
 };
-

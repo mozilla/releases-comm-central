@@ -8,8 +8,8 @@
 let { MailTelemetryForTests } = ChromeUtils.import(
   "resource:///modules/MailGlue.jsm"
 );
-let { TelemetryTestUtils } = ChromeUtils.import(
-  "resource://testing-common/TelemetryTestUtils.jsm"
+let { TelemetryTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
 
 /**

@@ -5,8 +5,8 @@
  * Test telemetry related to filelink.
  */
 
-let { TelemetryTestUtils } = ChromeUtils.import(
-  "resource://testing-common/TelemetryTestUtils.jsm"
+let { TelemetryTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
 let { gMockFilePicker, gMockFilePickReg } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"

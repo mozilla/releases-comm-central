@@ -60,10 +60,6 @@ async function chooseIdentity(win, identityKey) {
   );
   await shownPromise;
   let hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
-  EventUtils.synthesizeMouseAtCenter(
-    popup.querySelector(`[identitykey="${identityKey}"]`),
-    {},
-    win
-  );
+  popup.activateItem(popup.querySelector(`[identitykey="${identityKey}"]`));
   await hiddenPromise;
 }

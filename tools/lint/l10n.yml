@@ -31,8 +31,8 @@ l10n:
         - comm/calendar/locales/l10n.toml
     type: external
     payload: commlint:lint_wrapper
-    wraps: python.l10n_lint:lint
-    setup: python.l10n_lint:gecko_strings_setup
+    wraps: commlint.l10n_lint:lint
+    setup: commlint.l10n_lint:comm_strings_setup
     support-files:
         - 'comm/calendar/locales/l10n.toml'
         - 'comm/mail/locales/l10n.toml'

@@ -33,7 +33,14 @@ job-defaults:
                     path: mail/locales/l10n-changesets.json
                     version-path: mail/config/version.txt
                     l10n-repo-url: "https://hg.mozilla.org/projects/comm-l10n/json-pushes?version=2&tipsonly=1"
-                    ignore-config: {}
+                    ignore-config:
+                        ja:
+                            - macosx64
+                        ja-JP-mac:
+                            - linux
+                            - linux64
+                            - win32
+                            - win64
                     platform-configs: [{
                         "platforms": [
                             "linux",
@@ -42,13 +49,20 @@ job-defaults:
                             "win32",
                             "win64",
                         ],
-                        "path": "mail/locales/fake-locales",
+                        "path": "mail/locales/shipped-locales",
                     }]
                 default:
                     name: Thunderbird l10n changesets
                     path: mail/locales/l10n-changesets.json
                     version-path: mail/config/version.txt
-                    ignore-config: {}
+                    ignore-config:
+                        ja:
+                            - macosx64
+                        ja-JP-mac:
+                            - linux
+                            - linux64
+                            - win32
+                            - win64
                     platform-configs: [{
                         "platforms": [
                             "linux",
@@ -57,7 +71,7 @@ job-defaults:
                             "win32",
                             "win64",
                         ],
-                        "path": "mail/locales/fake-locales",
+                        "path": "mail/locales/all-locales",
                     }]
 
 jobs:

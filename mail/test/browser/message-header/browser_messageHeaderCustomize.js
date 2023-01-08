@@ -34,8 +34,8 @@ let aboutMessage = get_about_message();
 var { MailTelemetryForTests } = ChromeUtils.import(
   "resource:///modules/MailGlue.jsm"
 );
-var { TelemetryTestUtils } = ChromeUtils.import(
-  "resource://testing-common/TelemetryTestUtils.jsm"
+var { TelemetryTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
 
 var gFolder;

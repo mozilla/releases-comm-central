@@ -466,7 +466,7 @@ class CardDAVDirectory extends SQLiteDirectory {
   /**
    * Deletes card from the server.
    *
-   * @param {nsIAbCard} card
+   * @param {nsIAbCard|string} cardOrHRef
    */
   async _deleteCardFromServer(cardOrHRef) {
     let href;

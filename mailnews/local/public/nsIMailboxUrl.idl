@@ -56,4 +56,3 @@ interface nsIMailboxUrl : nsISupports {
   const long ActionAppendMessageToDisk = 5;
   const long ActionFetchPart = 6;
 };
-

@@ -463,7 +463,7 @@ function GetAddressesForCards(cards) {
  * e.g. in scenarios where non-ASCII is used in the mailbox, or when then
  * display name include special characters such as comma.
  *
- * @param {nsIAbCard} - The card to use.
+ * @param {nsIAbCard} card - The card to use.
  * @returns {string} A MIME encoded mailbox representation of the card.
  */
 function makeMimeAddressFromCard(card) {

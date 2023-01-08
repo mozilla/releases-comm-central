@@ -3,15 +3,23 @@ file-whitespace:
     description: File content sanity check
     include:
         - comm/.
-    exclude:
-        - comm/calendar/libical/src/**
     extensions:
         - .c
         - .cc
         - .cpp
+        - .css
+        - .dtd
+        - .idl
+        - .ftl
         - .h
+        - .html
+        - .md
+        - .properties
         - .py
         - .rs
+        - .rst
+        - .webidl
+        - .xhtml
     support-files:
         - 'tools/lint/file-whitespace/**'
     type: external

@@ -163,10 +163,10 @@ var VCardUtils = {
   /**
    * Return a new AddrBookCard from the provided vCard string.
    *
-   * @param vCard - the vCard string
-   * @param [uid] - an optional UID to be used for the new card, overriding any
-   *   UID specified in the vCard string.
-   * @returns
+   * @param {string} vCard - The vCard string.
+   * @param {string} [uid] - An optional UID to be used for the new card,
+   *   overriding any UID specified in the vCard string.
+   * @returns {AddrBookCard}
    */
   vCardToAbCard(vCard, uid) {
     vCard = this.translateVCard21(vCard);
@@ -529,8 +529,7 @@ var typeMap = {
  * @see ICAL.design
  * @see RFC6350
  *
- * @typedef {vCardValue}
- * @type {boolean|number|string|vCardValue[]}
+ * @typedef {boolean|number|string|vCardValue[]} vCardValue
  */
 
 /**
@@ -701,7 +700,7 @@ class VCardProperties {
    * Parse a Map of Address Book properties into a VCardProperties object.
    *
    * @param {Map<string, string>} propertyMap
-   * @param {string="4.0"} version
+   * @param {string} [version="4.0"]
    * @returns {VCardProperties}
    */
   static fromPropertyMap(propertyMap, version = "4.0") {
@@ -729,7 +728,7 @@ class VCardProperties {
   /**
    * Add an entry to this object.
    *
-   * @param {VCardPropertyEntry}
+   * @param {VCardPropertyEntry} entry - The entry to add.
    * @returns {boolean} - If the entry was added.
    */
   addEntry(entry) {
@@ -787,7 +786,7 @@ class VCardProperties {
   /**
    * Remove an entry from this object.
    *
-   * @param {VCardPropertyEntry}
+   * @param {VCardPropertyEntry} entry - The entry to remove.
    * @returns {boolean} - If an entry was found and removed.
    */
   removeEntry(entry) {
