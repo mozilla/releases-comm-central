@@ -6,7 +6,7 @@
 
 "use strict";
 
-/* global setMessageEncryptionStateButton */
+/* global setMessageCryptoBox, setIgnoreStatusFromMimePart */
 /* global gFolderDisplay: false, currentAttachments: false */
 /* global gDBView: false, msgWindow: false, messageHeaderSink: false, gMessageListeners: false */
 /* global gExpandedHeaderView: false, CanDetachAttachments: true, gEncryptedURIService: false, FillAttachmentListPopup: false */
@@ -53,6 +53,8 @@ Enigmail.hdrView = {
   msgHasKeyAttached: false,
 
   alreadyWrappedCDA: false,
+  ignoreStatusFromMimePart: "",
+  receivedStatusFromParts: new Set(),
 
   reset() {
     this.msgSignedStateString = null;
@@ -66,6 +68,8 @@ Enigmail.hdrView = {
     for (let value of ["decryptionFailed", "brokenExchange"]) {
       Enigmail.msg.removeNotification(value);
     }
+    this.ignoreStatusFromMimePart = "";
+    this.receivedStatusFromParts = new Set();
   },
 
   hdrViewLoad() {
@@ -146,7 +150,7 @@ Enigmail.hdrView = {
     }
   },
 
-  updateHdrIcons(
+  updatePgpStatus(
     exitCode,
     statusFlags,
     extStatusFlags,
@@ -157,10 +161,10 @@ Enigmail.hdrView = {
     blockSeparation,
     encToDetails,
     xtraStatus,
-    encMimePartNumber
+    mimePartNumber
   ) {
     EnigmailLog.DEBUG(
-      "enigmailMsgHdrViewOverlay.js: this.updateHdrIcons: exitCode=" +
+      "enigmailMsgHdrViewOverlay.js: this.updatePgpStatus: exitCode=" +
         exitCode +
         ", statusFlags=" +
         statusFlags +
@@ -252,8 +256,9 @@ Enigmail.hdrView = {
       errorMsg = errorLines.join("\n") + "\n...\n" + lastLines;
     }
 
-    if (!(statusFlags & EnigmailConstants.PGP_MIME_ENCRYPTED)) {
-      encMimePartNumber = "";
+    let encryptedMimePart = "";
+    if (statusFlags & EnigmailConstants.PGP_MIME_ENCRYPTED) {
+      encryptedMimePart = mimePartNumber;
     }
 
     var msgSigned =
@@ -294,7 +299,7 @@ Enigmail.hdrView = {
       msgSigned,
       blockSeparation,
       xtraStatus,
-      encryptedMimePart: encMimePartNumber,
+      encryptedMimePart,
     };
     Enigmail.msg.securityInfo = tmp;
 
@@ -306,7 +311,7 @@ Enigmail.hdrView = {
     }
     */
 
-    this.displayStatusBar();
+    this.updateStatusFlags(mimePartNumber);
     this.updateMsgDb();
   },
 
@@ -367,7 +372,14 @@ Enigmail.hdrView = {
   },
   */
 
-  async displayStatusBar() {
+  /**
+   * Update the various variables that track the OpenPGP status of
+   * the current message.
+   *
+   * @param {string} triggeredByMimePartNumber - the MIME part that
+   *   was processed and has triggered this status update request.
+   */
+  async updateStatusFlags(triggeredByMimePartNumber) {
     let secInfo = Enigmail.msg.securityInfo;
     let statusFlags = secInfo.statusFlags;
     let extStatusFlags =
@@ -468,7 +480,7 @@ Enigmail.hdrView = {
     if (signed) {
       this.msgSignedStateString = signed;
     }
-    this.updateEncryptionStateButton();
+    this.updateVisibleSecurityStatus(triggeredByMimePartNumber);
 
     /*
     // special handling after trying to fix buggy mail format (see buggyExchangeEmailContent in code)
@@ -505,20 +517,25 @@ Enigmail.hdrView = {
    */
   notifyHasKeyAttached() {
     this.msgHasKeyAttached = true;
-    this.updateEncryptionStateButton();
+    this.updateVisibleSecurityStatus();
   },
 
   /**
    * Should be called whenever more information about the OpenPGP
    * message state became available, such as encryption or signature
    * status, or the availability of an attached key.
+   *
+   * @param {string} triggeredByMimePartNumber - optional number of the
+   *   MIME part that was processed and has triggered this status update
+   *   request.
    */
-  updateEncryptionStateButton() {
-    setMessageEncryptionStateButton(
+  updateVisibleSecurityStatus(triggeredByMimePartNumber = undefined) {
+    setMessageCryptoBox(
       "OpenPGP",
       this.msgEncryptedStateString,
       this.msgSignedStateString,
-      this.msgHasKeyAttached
+      this.msgHasKeyAttached,
+      triggeredByMimePartNumber
     );
   },
 
@@ -1030,6 +1047,23 @@ Enigmail.hdrView = {
       );
     },
 
+    /**
+     * Request that OpenPGP security status from the given MIME part
+     * shall be ignored (not shown in the UI). If status for that
+     * MIME part was already received, then reset the status.
+     *
+     * @param {string} originMimePartNumber - Ignore security status
+     *   of this MIME part.
+     */
+    ignoreStatusFrom(originMimePartNumber) {
+      Enigmail.hdrView.ignoreStatusFromMimePart = originMimePartNumber;
+      setIgnoreStatusFromMimePart(originMimePartNumber);
+      if (Enigmail.hdrView.receivedStatusFromParts.has(originMimePartNumber)) {
+        Enigmail.hdrView.reset();
+        Enigmail.hdrView.ignoreStatusFromMimePart = originMimePartNumber;
+      }
+    },
+
     async updateSecurityStatus(
       unusedUriSpec,
       exitCode,
@@ -1044,6 +1078,15 @@ Enigmail.hdrView = {
       extraDetails,
       mimePartNumber
     ) {
+      if (
+        Enigmail.hdrView.ignoreStatusFromMimePart != "" &&
+        mimePartNumber == Enigmail.hdrView.ignoreStatusFromMimePart
+      ) {
+        return;
+      }
+
+      Enigmail.hdrView.receivedStatusFromParts.add(mimePartNumber);
+
       // uriSpec is not used for Enigmail anymore. It is here because other addons and pEp rely on it
 
       EnigmailLog.DEBUG(
@@ -1089,7 +1132,7 @@ Enigmail.hdrView = {
           }
         }
 
-        Enigmail.hdrView.updateHdrIcons(
+        Enigmail.hdrView.updatePgpStatus(
           exitCode,
           statusFlags,
           extStatusFlags,

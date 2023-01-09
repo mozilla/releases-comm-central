@@ -25,6 +25,12 @@ function neckoURLForMessageURI(aMessageURI) {
   return neckoURI.spec;
 }
 
+var gIgnoreStatusFromMimePart = null;
+
+function setIgnoreStatusFromMimePart(mimePart) {
+  gIgnoreStatusFromMimePart = mimePart;
+}
+
 /**
  * Set the cryptoBox content according to the given encryption states of the
  * displayed message. null should be passed as a state if the message does not
@@ -37,13 +43,24 @@ function neckoURLForMessageURI(aMessageURI) {
  * @param {"ok"|"notok"|"verified"|"unverified"|"unknown"|"mismatch"|null}
  *   signedState - The signed state of the message.
  * @param {boolean} forceShow - Show the box if unsigned and unencrypted.
+ * @param {string} mimePartNumber - Should be set to the MIME part number
+ *   that triggers this status update. If the value matches a currently
+ *   ignored MIME part, then this function call will be ignored.
  */
-function setMessageEncryptionStateButton(
+function setMessageCryptoBox(
   tech,
   encryptedState,
   signedState,
-  forceShow
+  forceShow,
+  mimePartNumber
 ) {
+  if (
+    !!gIgnoreStatusFromMimePart &&
+    mimePartNumber == gIgnoreStatusFromMimePart
+  ) {
+    return;
+  }
+
   let container = document.getElementById("cryptoBox");
   let encryptedIcon = document.getElementById("encryptedHdrIcon");
   let signedIcon = document.getElementById("signedHdrIcon");
@@ -132,11 +149,14 @@ function smimeEncryptedStateToString(encryptedState) {
 /**
  * Refresh the cryptoBox content using the global gEncryptionStatus and
  * gSignatureStatus variables.
+ *
+ * @param {string} mimePartNumber - Should be set to the MIME part number
+ *   that triggers this status update.
  */
-function refreshSmimeMessageEncryptionStateButton() {
+function refreshSmimeMessageEncryptionStatus(mimePartNumber = undefined) {
   let signed = smimeSignedStateToString(gSignatureStatus);
   let encrypted = smimeEncryptedStateToString(gEncryptionStatus);
-  setMessageEncryptionStateButton("S/MIME", encrypted, signed, false);
+  setMessageCryptoBox("S/MIME", encrypted, signed, false, mimePartNumber);
 }
 
 var smimeHeaderSink = {
@@ -163,7 +183,20 @@ var smimeHeaderSink = {
     return neckoURLForMessageURI(gFolderDisplay.selectedMessageUris[0]);
   },
 
-  signedStatus(aNestingLevel, aSignatureStatus, aSignerCert, aMsgNeckoURL) {
+  signedStatus(
+    aNestingLevel,
+    aSignatureStatus,
+    aSignerCert,
+    aMsgNeckoURL,
+    aOriginMimePartNumber
+  ) {
+    if (
+      !!gIgnoreStatusFromMimePart &&
+      aOriginMimePartNumber == gIgnoreStatusFromMimePart
+    ) {
+      return;
+    }
+
     if (aNestingLevel > 1) {
       // we are not interested
       return;
@@ -186,7 +219,7 @@ var smimeHeaderSink = {
     gSignatureStatus = aSignatureStatus;
     gSignerCert = aSignerCert;
 
-    refreshSmimeMessageEncryptionStateButton();
+    refreshSmimeMessageEncryptionStatus(aOriginMimePartNumber);
 
     let signed = smimeSignedStateToString(aSignatureStatus);
     if (signed == "unknown" || signed == "mismatch") {
@@ -241,8 +274,16 @@ var smimeHeaderSink = {
     aNestingLevel,
     aEncryptionStatus,
     aRecipientCert,
-    aMsgNeckoURL
+    aMsgNeckoURL,
+    aOriginMimePartNumber
   ) {
+    if (
+      !!gIgnoreStatusFromMimePart &&
+      aOriginMimePartNumber == gIgnoreStatusFromMimePart
+    ) {
+      return;
+    }
+
     if (aNestingLevel > 1) {
       // we are not interested
       return;
@@ -265,7 +306,7 @@ var smimeHeaderSink = {
     gEncryptionStatus = aEncryptionStatus;
     gEncryptionCert = aRecipientCert;
 
-    refreshSmimeMessageEncryptionStateButton();
+    refreshSmimeMessageEncryptionStatus(aOriginMimePartNumber);
 
     if (gEncryptedURIService) {
       // Remember the message URI and the corresponding necko URI.
@@ -321,6 +362,10 @@ var smimeHeaderSink = {
     );
   },
 
+  ignoreStatusFrom(aOriginMimePartNumber) {
+    setIgnoreStatusFromMimePart(aOriginMimePartNumber);
+  },
+
   QueryInterface: ChromeUtils.generateQI(["nsIMsgSMIMEHeaderSink"]),
 };
 
@@ -344,7 +389,7 @@ function onSMIMEStartHeaders() {
   gSignerCert = null;
   gEncryptionCert = null;
 
-  setMessageEncryptionStateButton(null, null, null, false);
+  setMessageCryptoBox(null, null, null, false);
 
   forgetEncryptedURI();
   onMessageSecurityPopupHidden();
@@ -419,11 +464,11 @@ function msgHdrViewSMIMEOnUnload(event) {
 }
 
 function msgHdrViewSMIMEOnMessagePaneHide() {
-  setMessageEncryptionStateButton(null, null, null, false);
+  setMessageCryptoBox(null, null, null, false);
 }
 
 function msgHdrViewSMIMEOnMessagePaneUnhide() {
-  refreshSmimeMessageEncryptionStateButton();
+  refreshSmimeMessageEncryptionStatus();
 }
 
 addEventListener("messagepane-loaded", msgHdrViewSMIMEOnLoad, true);

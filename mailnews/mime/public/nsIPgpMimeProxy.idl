@@ -72,6 +72,15 @@ interface nsIPgpMimeProxy : nsIStreamListener
   attribute ACString mimePart;
 
   /**
+   * The application may restrict automatic decryption to the top level
+   * MIME part ("1"). In certain scenarios the application may allow
+   * a MIME part at another level ("nested") in the MIME tree to be
+   * decrypted, too. If the current MIME part is a nested MIME part,
+   * then this flag indicates whether automatic decryption is allowed.
+   */
+  attribute boolean allowNestedDecrypt;
+
+  /**
    * Pass the decrypted data back from the decryptor and onto to libMime.
    */
   void outputDecryptedData(in string buf, in unsigned long count);

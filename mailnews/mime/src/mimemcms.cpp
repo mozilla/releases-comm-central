@@ -112,8 +112,8 @@ extern void MimeCMSRequestAsyncSignatureVerification(
     nsICMSMessage* aCMSMsg, const char* aFromAddr, const char* aFromName,
     const char* aSenderAddr, const char* aSenderName,
     nsIMsgSMIMEHeaderSink* aHeaderSink, int32_t aMimeNestingLevel,
-    const nsCString& aMsgNeckoURL, const nsTArray<uint8_t>& aDigestData,
-    int16_t aDigestType);
+    const nsCString& aMsgNeckoURL, const nsCString& aOriginMimePartNumber,
+    const nsTArray<uint8_t>& aDigestData, int16_t aDigestType);
 extern char* MimeCMS_MakeSAURL(MimeObject* obj);
 extern char* IMAP_CreateReloadAllPartsUrl(const char* url);
 extern int MIMEGetRelativeCryptoNestLevel(MimeObject* obj);
@@ -185,9 +185,11 @@ static void* MimeMultCMS_init(MimeObject* obj) {
     // TODO: should we show all contents, without any signature info?
 
     if (data->smimeHeaderSink) {
+      nsAutoCString partnum;
+      partnum.Adopt(mime_part_address(data->self));
       data->smimeHeaderSink->SignedStatus(
           MIMEGetRelativeCryptoNestLevel(data->self),
-          nsICMSMessageErrors::GENERAL_ERROR, nullptr, data->url);
+          nsICMSMessageErrors::GENERAL_ERROR, nullptr, data->url, partnum);
     }
     delete data;
     PR_SetError(-1, 0);
@@ -383,9 +385,11 @@ static void MimeMultCMS_suppressed_child(void* crypto_closure) {
   // was suppressed, then I want my signature to be shown as invalid.
   MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
   if (data && data->smimeHeaderSink) {
+    nsAutoCString partnum;
+    partnum.Adopt(mime_part_address(data->self));
     data->smimeHeaderSink->SignedStatus(
         MIMEGetRelativeCryptoNestLevel(data->self),
-        nsICMSMessageErrors::GENERAL_ERROR, nullptr, data->url);
+        nsICMSMessageErrors::GENERAL_ERROR, nullptr, data->url, partnum);
   }
 }
 
@@ -403,6 +407,9 @@ static char* MimeMultCMS_generate(void* crypto_closure) {
     if (aRelativeNestLevel > 1) return nullptr;
   }
 
+  nsAutoCString partnum;
+  partnum.Adopt(mime_part_address(data->self));
+
   if (data->self->options->missing_parts) {
     // We were not given all parts of the message.
     // We are therefore unable to verify correctness of the signature.
@@ -410,7 +417,7 @@ static char* MimeMultCMS_generate(void* crypto_closure) {
     if (data->smimeHeaderSink) {
       data->smimeHeaderSink->SignedStatus(
           aRelativeNestLevel, nsICMSMessageErrors::VERIFY_NOT_YET_ATTEMPTED,
-          nullptr, data->url);
+          nullptr, data->url, partnum);
     }
     return nullptr;
   }
@@ -437,7 +444,7 @@ static char* MimeMultCMS_generate(void* crypto_closure) {
   MimeCMSRequestAsyncSignatureVerification(
       data->content_info, from_addr.get(), from_name.get(), sender_addr.get(),
       sender_name.get(), data->smimeHeaderSink, aRelativeNestLevel, data->url,
-      digest, data->hash_type);
+      partnum, digest, data->hash_type);
 
   if (data->content_info) {
 #if 0  // XXX Fix this. What do we do here? //

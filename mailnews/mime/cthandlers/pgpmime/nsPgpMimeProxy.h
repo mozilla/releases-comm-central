@@ -61,6 +61,7 @@ class nsPgpMimeProxy : public nsIPgpMimeProxy,
   nsCString mByteBuf;
   nsCString mContentType;
   nsCString mMimePart;
+  bool mAllowNestedDecrypt;
 
   nsCOMPtr<nsIURI> mMessageURI;
   nsresult Finalize();

@@ -844,7 +844,7 @@ Enigmail.msg = {
         if (isAuto && !Services.prefs.getBoolPref("temp.openpgp.autoDecrypt")) {
           if (EnigmailVerify.getManualUri() != this.getCurrentMsgUriSpec()) {
             // decryption set to manual
-            Enigmail.hdrView.updateHdrIcons(
+            Enigmail.hdrView.updatePgpStatus(
               EnigmailConstants.POSSIBLE_PGPMIME,
               0, // exitCode, statusFlags
               0,
@@ -1385,7 +1385,7 @@ Enigmail.msg = {
         }
       }
 
-      Enigmail.hdrView.updateHdrIcons(
+      Enigmail.hdrView.updatePgpStatus(
         exitCode,
         statusFlags,
         extStatusFlags,

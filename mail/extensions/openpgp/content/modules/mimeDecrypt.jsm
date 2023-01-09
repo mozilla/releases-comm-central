@@ -129,6 +129,7 @@ function MimeDecryptHandler() {
   this.backgroundJob = false;
   this.decryptedHeaders = {};
   this.mimePartNumber = "";
+  this.allowNestedDecrypt = false;
   this.dataIsBase64 = null;
   this.base64Cache = "";
 }
@@ -159,6 +160,26 @@ MimeDecryptHandler.prototype = {
       this.mimePartNumber = this.mimeSvc.mimePart;
     } else {
       this.mimePartNumber = "";
+    }
+
+    if ("allowNestedDecrypt" in this.mimeSvc) {
+      this.allowNestedDecrypt = this.mimeSvc.allowNestedDecrypt;
+    }
+
+    if (this.allowNestedDecrypt) {
+      // We want to ignore signature status of the top level part "1".
+      // Unfortunately, because of our streaming approach to process
+      // MIME content, the parent MIME part was already processed,
+      // and it could have already called into the header sink to set
+      // the signature status. Or, an async job could be currently
+      // running, and the call into the header sink could happen in
+      // the near future.
+      // That means, we must inform the header sink to forget status
+      // information it might have already received for MIME part "1",
+      // an in addition, remember that future information for "1" should
+      // be ignored.
+
+      EnigmailSingletons.messageReader.ignoreStatusFrom("1");
     }
 
     if ("messageURI" in this.mimeSvc) {
@@ -467,6 +488,7 @@ MimeDecryptHandler.prototype = {
     );
 
     if (
+      !this.allowNestedDecrypt &&
       !lazy.EnigmailMime.isRegularMimeStructure(
         this.mimePartNumber,
         spec,
