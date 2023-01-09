@@ -1,0 +1,82 @@
+X-Info: File is based on unsigned-encrypted-to-0xf231550c4f47e38e-from-0x3099ff1238852b9f.eml
+To: alice@openpgp.example
+From: Carol <carol@example.com>
+Message-ID: <de515a63-a4fe-022e-4a3c-96f07536dbf8@example.com>
+Date: Wed, 14 Oct 2020 14:57:39 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:83.0) Gecko/20100101
+ Thunderbird/83.0a1
+MIME-Version: 1.0
+Subject: ...
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------rvEyIV4on03ewe0w3mDNOC3U"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------rvEyIV4on03ewe0w3mDNOC3U
+Content-Type: multipart/encrypted;
+ protocol="application/pgp-encrypted";
+ boundary="INcRzoKbgw6NbXSE5JAUq7uEbtRvQ6Hp7"
+
+This is an OpenPGP/MIME encrypted message (RFC 4880 and 3156)
+--INcRzoKbgw6NbXSE5JAUq7uEbtRvQ6Hp7
+Content-Type: application/pgp-encrypted
+Content-Description: PGP/MIME version identification
+
+Version: 1
+
+--INcRzoKbgw6NbXSE5JAUq7uEbtRvQ6Hp7
+Content-Type: application/octet-stream; name="encrypted.asc"
+Content-Description: OpenPGP encrypted message
+Content-Disposition: inline; filename="encrypted.asc"
+
+-----BEGIN PGP MESSAGE-----
+
+wcFMA7L9So5P9bk9AQ//WTEFHnI2KYZJbgTfk8CaREcQpE/beaO1ysXdzCqpdRGWtU2UlbqmPxbu
+PmGDWg5f43qUEgO9mG2zsEvnGKlEoJmBFYaXXGhz/6+OoFY7VI+9DDtAWD5Oi8jzzKnUbyjPQO2a
+16PbLeOs/ydjt5eRNVaUVtnyTXMhp4JMLET1ISQF1FxjJJ00XRnaYzRRt/U6MHzIFLnZGBZYr+tY
+K1z+5vtsU6P0ZfWV/Hh8tFR6oqJ0Tiwji+zKwgUupKwC2QQIFy3j4GGrqJTejXiFfo5U/P4i5h4O
+X5qcnKzCX2spi7CTIJdx+uXKYAW2e9zsQIEQyIFoe8mZLgZcR0OLoH7ledfAeMBmVgS8GlM9uitj
+SWkiLa98gnudZbKiL7KXQ/e/TBLKVTPFtoorpGBmfYeJ6/YV42kQXPwK+ABHbxX52T7Tm7d12LRa
+Q27sp/SwnJYoi3hASA4NKViBi8B2gdV/DHzgsSfvHtEpMvN1LgaREolwESQ6U68yg/EDfohGdPdW
+eRiyo/p4jQ3Yo9v6n/boIxEb7xhkymhwQi2sZ9lyzU4HO18xrZ4sSpTjoMYyQV4ebA8nMqwbNpWn
+ACxWYeMtMdE4p6wJmMY232LlNtEAXkJbJbY+BDlKb9y6uMLBGHhXH4v7G9zaA3nDBWHNHAvP1cAg
+kgqURvqhxkgZqPz40cHBXgNHZva51fIethIBB0AykUD/87/8UHaKZX7MYUWr/CNBP+N68qFTgGp7
+UzMgSTAdpz+xzeC7S4BNoVh2IAg40r+ie38dJDxYJbEyvkhkr2wRhZf8A8z0/eGJczjEP/vSwW0B
+TkGuH9zZrlqH03jXZ0RUTGnA6oBq2wpGrBniHNZRJ7+ImS/cJT5D4uuITVDXl51EgTJQENxmSdyo
+YGe/lNoB4MVTxzmPfjWdOC2FqkGoc4jVzSwGaZ+OfLA/GviucholvaNz/LobZJ/AMXBvCbc3jh6y
+YvcZnjtDFFdUJHPCA4M8staEIVCz63UT5fdoXLWdr62H1NOhxWQDlyoZle+a2oM3FVEdyVKLt98b
+mTIP71YGhVXU4oRCujtiopVxQXzVugXXTEioebMw1+QLZLr663Xo1Kr+nlZlDDFBY9+NGLB7lX7g
+QqNkFUfw55jWFYWsj1N4U3/IzHplh/xGF9KH296ZKnzi66w6YRfp5QVKCT+fahOhxKWkKeTOl9Lf
+saUhPs93QMcVFRSW0igZrTh/fPZcplsgakpYchR9QcevkeHdCizk3CY5uULqMY6blUz3NU/aOMWw
+6fuLtwo1svBm1Vg0yh/mMA7HsRsIIB5xmkXEaP6PwM3WKLN4AZrcErQTwdvJ8HPGnIECCePugHOK
+EPB5JRj3aSp997Xwv+3z74bmp5GisjjtK3wFn8zYr0QI0hivRd9vz943rdh9iIMxCSAglawaqa0i
+BhUfhPIQyOfEWu5MBoIofW97oxnHaQ8/A/Bj2uvCIDUDPD2C50BHuVdtjsW9GlOmQ3ZUwj7llbuq
+O3oUeDzqaMdPgFt1QmfowXEkFAQcwRb0EbNboHX1q3F1QCXLklw3Dww/lw==
+=rZjL
+-----END PGP MESSAGE-----
+
+--INcRzoKbgw6NbXSE5JAUq7uEbtRvQ6Hp7--
+
+--------------rvEyIV4on03ewe0w3mDNOC3U
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEuPL29L060/gtxEaDMJn/EjiFK58FAmObKrAACgkQMJn/EjiF
+K59pjQ//bAJQpE1at9sRVUinYMxPLsbmwKhjmEms007hXYVNNivywDUi3Mc14l/p
+z7wOPs2iQeP2CSSBoJjzku3f8cjD75MEYnbDVLD48GJJU7vEIQtlXP4CJiK76dsV
+4WnjzLGbZd08pGr02ERgvgR+PdxppLtj8W7SVvVd60V8fwWQFpF87uFCrTGnfTZk
+wWQui6MqTsSXJ/dBeqjvkZ95cSlWjVqunmLNzJsesnf1k9iq68NqUzsRT8IEqFo7
+PttIK11hX3b6b71XGiP5XLz+ZXx+2O6lDo91TRZ7VzP/I2oJkxjwcTTI4Kqk6ypS
+ZkH9+0XZLpcesVIjYnrY0lBLjh+dxe63lw1BY3JmHOsAX6glwqLywTra1EVEdxw2
+0aqO2KJ9yJ4nSZj6kJiRwE/YOUX0gOOdJ64hL8G7ZCPkYA/xS8lfOQiUaMO3baS/
+lmtkymT6nkm3ub+U0VlEkvpmhw3Y6tfRQ/6aFhMDqB+GFLKDRP/UopHPWxPUmkRy
+j36eFqRTjKULmBAGwfQGB5A+By850tlQ9gtDyy7GcNDnsAAeVV5WC0Spqp/Hhm5A
+n/9VfYvyikTzBN07Of1JL2fNgH+/8WcaWnjDP1mlFGVNhZLqkTE/VsjKZN/LKKNM
+Z2VKNuhbe1PryrvR72M7QJ/ymGFkCx0k3vjOCcN+SuApCRBj38E=
+=/SQd
+-----END PGP SIGNATURE-----
+
+--------------rvEyIV4on03ewe0w3mDNOC3U--
