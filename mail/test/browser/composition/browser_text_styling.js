@@ -246,6 +246,7 @@ add_task(async function test_text_styling_whilst_typing() {
 
     // Start styling.
     await formatHelper.selectStyle(style);
+
     // See Bug 1716840.
     // await formatHelper.assertShownStyles(style, `${name} selected`);
     let text = `test-${name}`;
@@ -265,7 +266,18 @@ add_task(async function test_text_styling_whilst_typing() {
     );
     await formatHelper.assertShownStyles(null, `${name} unselected and typing`);
 
+    // Select these again to unselect for next loop cycle. Needs to be done
+    // before empty paragraph since they happen only after "typing".
+    if (style.linked) {
+      await formatHelper.selectStyle(style.linked);
+    }
+    if (style.implies) {
+      await formatHelper.selectStyle(style.implies);
+    }
     await formatHelper.emptyParagraph();
+
+    // Select again to unselect for next loop cycle.
+    await formatHelper.selectStyle(style);
   }
 
   close_compose_window(controller);
@@ -319,8 +331,15 @@ add_task(async function test_text_styling_update_on_selection_change() {
           `${forward ? "forwards" : "backwards"}`
       );
     }
-
+    if (style.linked) {
+      await formatHelper.selectStyle(style.linked);
+    }
+    if (style.implies) {
+      await formatHelper.selectStyle(style.implies);
+    }
     await formatHelper.emptyParagraph();
+    // Select again to unselect for next loop cycle.
+    await formatHelper.selectStyle(style);
   }
 
   close_compose_window(controller);
@@ -452,6 +471,15 @@ add_task(async function test_induced_text_styling() {
       formatHelper.assertMessageParagraph([text], `After unselecting ${desc}`);
       await formatHelper.assertShownStyles(null, `After unselecting ${desc}`);
     }
+
+    await formatHelper.emptyParagraph();
+    // Select again to unselect for next loop cycle.
+    if (style.linked) {
+      await formatHelper.selectStyle(style.linked);
+    }
+    if (style.implies) {
+      await formatHelper.selectStyle(style.implies);
+    }
     await formatHelper.emptyParagraph();
   }
 
@@ -569,6 +597,14 @@ add_task(async function test_fixed_width_text_styling_font_change() {
     //  `"${font}" when ${name} region has font set`
     //);
 
+    await formatHelper.emptyParagraph();
+    // Select again to unselect for next loop cycle.
+    if (style.linked) {
+      await formatHelper.selectStyle(style.linked);
+    }
+    if (style.implies) {
+      await formatHelper.selectStyle(style.implies);
+    }
     await formatHelper.emptyParagraph();
   }
 
