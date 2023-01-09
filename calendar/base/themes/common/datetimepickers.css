@@ -43,16 +43,16 @@ timepicker-grids {
 }
 
 /* menulist */
-datepicker > menulist {
-  width: 11em;
+datepicker > menulist::part(text-input) {
+  width: 9em;
 }
 
 /*-------------------------------------------------------------------
  *   Timepicker (text menulist with popup)
  *-------------------------------------------------------------------*/
 
-timepicker > menulist {
-  width: 8em;
+timepicker > menulist::part(text-input) {
+  width: 6em;
 }
 
 /*-------------------------------------------------------------------
