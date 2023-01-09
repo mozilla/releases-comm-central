@@ -968,19 +968,23 @@ Enigmail.hdrView = {
     },
 
     /**
-     * Determine if there are message parts that are not signed/encrypted
+     * Determine if there are message parts that are not encrypted
      *
      * @param mimePartNumber String - the MIME part number that was authenticated
      *
      * @returns Boolean: true: there are siblings / false: no siblings
      */
     hasUnauthenticatedParts(mimePartNumber) {
-      function hasSiblings(mimePart, searchPartNum, parentNum) {
-        if (mimePart.partNum === parentNum) {
-          // if we're a direct child of a PGP/MIME encrypted message, we know that everything
-          // is authenticated on this level
+      function hasUnauthenticatedSiblings(
+        mimeSubTree,
+        mimePartToCheck,
+        parentOfMimePartToCheck
+      ) {
+        if (mimeSubTree.partNum === parentOfMimePartToCheck) {
+          // If this is an encrypted message that is the parent of mimePartToCheck,
+          // then we know that all its childs (including mimePartToCheck) are authenticated.
           if (
-            mimePart.fullContentType.search(
+            mimeSubTree.fullContentType.search(
               /^multipart\/encrypted.{1,255}protocol="?application\/pgp-encrypted"?/i
             ) === 0
           ) {
@@ -988,14 +992,21 @@ Enigmail.hdrView = {
           }
         }
         if (
-          mimePart.partNum.indexOf(parentNum) == 0 &&
-          mimePart.partNum !== searchPartNum
+          mimeSubTree.partNum.indexOf(parentOfMimePartToCheck) == 0 &&
+          mimeSubTree.partNum !== mimePartToCheck
         ) {
+          // This is a sibling (same parent, different part number).
           return true;
         }
 
-        for (let i in mimePart.subParts) {
-          if (hasSiblings(mimePart.subParts[i], searchPartNum, parentNum)) {
+        for (let i in mimeSubTree.subParts) {
+          if (
+            hasUnauthenticatedSiblings(
+              mimeSubTree.subParts[i],
+              mimePartToCheck,
+              parentOfMimePartToCheck
+            )
+          ) {
             return true;
           }
         }
@@ -1003,18 +1014,20 @@ Enigmail.hdrView = {
         return false;
       }
 
-      let parentNum = mimePartNumber.replace(/\.\d+$/, "");
-      if (mimePartNumber.search(/\./) < 0) {
-        parentNum = "";
+      if (!mimePartNumber || !Enigmail.msg.mimeParts) {
+        return false;
       }
 
-      if (mimePartNumber && Enigmail.msg.mimeParts) {
-        if (hasSiblings(Enigmail.msg.mimeParts, mimePartNumber, parentNum)) {
-          return true;
-        }
+      let parentNum = "";
+      if (mimePartNumber.includes(".")) {
+        parentNum = mimePartNumber.replace(/\.\d+$/, "");
       }
 
-      return false;
+      return hasUnauthenticatedSiblings(
+        Enigmail.msg.mimeParts,
+        mimePartNumber,
+        parentNum
+      );
     },
 
     async updateSecurityStatus(
