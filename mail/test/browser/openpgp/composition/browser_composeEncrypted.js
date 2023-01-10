@@ -476,7 +476,8 @@ add_task(async function testEncryptedMessageReplyIsEncrypted() {
   });
 
   mc.window.document.querySelector("#hdrReplyButton").click();
-  close_window(mc);
+  // Do not close the window yet. If we close it early, waiting for
+  // the focus of the reply window isn't working reliably.
 
   let replyWindow = await replyWindowPromise;
   await BrowserTestUtils.waitForEvent(replyWindow, "focus", true);
@@ -488,6 +489,7 @@ add_task(async function testEncryptedMessageReplyIsEncrypted() {
   );
   replyWindow.close();
 
+  close_window(mc);
   if (Services.focus.activeWindow != window) {
     await BrowserTestUtils.waitForEvent(window, "focus");
   }
