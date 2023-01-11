@@ -112,3 +112,28 @@ toolbar-add-as-task-label = Add as Task
 
 toolbar-add-as-task =
     .title = Extract calendaring information from the message and add it to your calendar as a task
+
+toolbar-tag-message-label = Tag
+
+toolbar-tag-message =
+    .title = Tag messages
+
+toolbar-forward-inline-label = Forward
+
+toolbar-forward-inline =
+    .title = Forward selected message inline
+
+toolbar-forward-attachment-label = Forward as Attachment
+
+toolbar-forward-attachment =
+    .title = Forward selected message as attachment
+
+toolbar-mark-as-label = Mark
+
+toolbar-mark-as =
+    .title = Mark messages
+
+toolbar-view-picker-label = View
+
+toolbar-view-picker =
+    .title = Customize view of current folder

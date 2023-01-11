@@ -22,3 +22,82 @@
            class="menulist-menupopup"
            mode="notDeferred"
            showFileHereLabel="true"/>
+<menupopup id="toolbarTagPopup"
+           onpopupshowing="InitMessageTags(this);">
+  <menuitem id="button-addNewTag"
+            label="&addNewTag.label;"
+            accesskey="&addNewTag.accesskey;"
+            command="cmd_addTag"/>
+  <menuitem id="button-manageTags"
+            label="&manageTags.label;"
+            accesskey="&manageTags.accesskey;"
+            command="cmd_manageTags"/>
+  <menuseparator id="button-tagpopup-sep-afterTagAddNew"/>
+  <menuitem id="button-tagRemoveAll"
+            command="cmd_removeTags"/>
+  <menuseparator id="button-afterTagRemoveAllSeparator"/>
+</menupopup>
+<menupopup id="toolbarMarkPopup" onpopupshowing="InitMessageMark()">
+  <menuitem id="markReadToolbarItem"
+            label="&markAsReadCmd.label;"
+            accesskey="&markAsReadCmd.accesskey;"
+            key="key_toggleRead"
+            command="cmd_markAsRead"/>
+  <menuitem id="markUnreadToolbarItem"
+            label="&markAsUnreadCmd.label;"
+            accesskey="&markAsUnreadCmd.accesskey;"
+            key="key_toggleRead"
+            command="cmd_markAsUnread"/>
+  <menuitem id="button-markThreadAsRead"
+            label="&markThreadAsReadCmd.label;"
+            key="key_markThreadAsRead"
+            accesskey="&markThreadAsReadCmd.accesskey;"
+            command="cmd_markThreadAsRead"/>
+  <menuitem id="button-markReadByDate"
+            label="&markReadByDateCmd.label;"
+            key="key_markReadByDate"
+            accesskey="&markReadByDateCmd.accesskey;"
+            command="cmd_markReadByDate"/>
+  <menuitem id="button-markAllRead"
+            label="&markAllReadCmd.label;"
+            key="key_markAllRead"
+            accesskey="&markAllReadCmd.accesskey;"
+            command="cmd_markAllRead"/>
+  <menuseparator id="button-markAllReadSeparator"/>
+  <menuitem id="markFlaggedToolbarItem"
+            type="checkbox"
+            label="&markStarredCmd.label;"
+            accesskey="&markStarredCmd.accesskey;"
+            key="key_toggleFlagged"
+            command="cmd_markAsFlagged"/>
+</menupopup>
+<menupopup id="toolbarViewPickerPopup"
+            onpopupshowing="RefreshViewPopup(this);">
+  <menuitem id="viewPickerAll" value="0"
+            label="&viewAll.label;"
+            type="radio"/>
+  <menuitem id="viewPickerUnread" value="1"
+            label="&viewUnread.label;"
+            type="radio"/>
+  <menuitem id="viewPickerNotDeleted" value="3"
+            label="&viewNotDeleted.label;"
+            type="radio"/>
+  <menuseparator id="afterViewPickerUnreadSeparator"/>
+  <menu id="viewPickerTags" label="&viewTags.label;">
+    <menupopup id="viewPickerTagsPopup"
+                class="menulist-menupopup"
+                onpopupshowing="RefreshTagsPopup(this);"/>
+  </menu>
+  <menu id="viewPickerCustomViews" label="&viewCustomViews.label;">
+    <menupopup id="viewPickerCustomViewsPopup"
+                class="menulist-menupopup"
+                onpopupshowing="RefreshCustomViewsPopup(this);"/>
+  </menu>
+  <menuseparator id="afterViewPickerCustomViewsSeparator"/>
+  <menuitem id="viewPickerVirtualFolder"
+            value="7"
+            label="&viewVirtualFolder.label;"/>
+  <menuitem id="viewPickerCustomize"
+            value="8"
+            label="&viewCustomizeView.label;"/>
+</menupopup>

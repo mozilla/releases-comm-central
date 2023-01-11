@@ -181,3 +181,45 @@
           label-id="toolbar-add-as-task-label"
           data-l10n-id="toolbar-add-as-task"></button>
 </html:template>
+
+<html:template id="tagMessageTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          popup="toolbarTagPopup"
+          observes="cmd_tag"
+          label-id="toolbar-tag-message-label"
+          data-l10n-id="toolbar-tag-message"></button>
+</html:template>
+
+<html:template id="forwardInlineTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_forwardInline"
+          label-id="toolbar-forward-inline-label"
+          data-l10n-id="toolbar-forward-inline"></button>
+</html:template>
+
+<html:template id="forwardAttachmentTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_forwardAttachment"
+          label-id="toolbar-forward-attachment-label"
+          data-l10n-id="toolbar-forward-attachment"></button>
+</html:template>
+
+<html:template id="markAsTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          popup="toolbarMarkPopup"
+          observes="cmd_tag"
+          label-id="toolbar-mark-as-label"
+          data-l10n-id="toolbar-mark-as"></button>
+</html:template>
+
+<html:template id="viewPickerTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          popup="toolbarViewPickerPopup"
+          label-id="toolbar-view-picker-label"
+          data-l10n-id="toolbar-view-picker"></button>
+</html:template>

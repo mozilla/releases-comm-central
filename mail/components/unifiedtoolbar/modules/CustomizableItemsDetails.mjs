@@ -215,6 +215,51 @@ export default [
       "chrome://messenger/content/unifiedtoolbar/folder-location-button.mjs",
     ],
   },
+  {
+    id: "tag-message",
+    labelId: "toolbar-tag-message",
+    spaces: ["mail"],
+    templateId: "tagMessageTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "forward-inline",
+    labelId: "toolbar-forward-inline",
+    spaces: ["mail"],
+    templateId: "forwardInlineTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "forward-attachment",
+    labelId: "toolbar-forward-attachment",
+    spaces: ["mail"],
+    templateId: "forwardAttachmentTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "mark-as",
+    labelId: "toolbar-mark-as",
+    spaces: ["mail"],
+    templateId: "markAsTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "view-picker",
+    labelId: "toolbar-view-picker",
+    spaces: ["mail"],
+    templateId: "viewPickerTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
   // Calendar space
   {
     id: "unifinder",

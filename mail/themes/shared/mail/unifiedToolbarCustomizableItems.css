@@ -101,3 +101,24 @@
 .add-as-task .preview-icon {
   content: var(--icon-new-task);
 }
+
+.tag-message .preview-icon {
+  content: var(--icon-tag);
+}
+
+.forward-inline .preview-icon {
+  content: var(--icon-forward);
+}
+
+.forward-attachment .preview-icon {
+  /* TODO separate icon for forwarding as attachment */
+  content: var(--icon-forward);
+}
+
+.mark-as .preview-icon {
+  content: var(--icon-unread);
+}
+
+.view-picker .preview-icon {
+  content: var(--icon-eye);
+}
