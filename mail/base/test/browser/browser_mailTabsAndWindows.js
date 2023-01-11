@@ -38,7 +38,7 @@ add_setup(async function() {
   messagesB = [...folderB.messages];
 
   registerCleanupFunction(() => {
-    MailServices.accounts.removeAccount(account, true);
+    MailServices.accounts.removeAccount(account, false);
   });
 });
 

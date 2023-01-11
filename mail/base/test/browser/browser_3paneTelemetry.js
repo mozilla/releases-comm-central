@@ -30,7 +30,7 @@ add_setup(async function() {
   let messagePaneVisibleAtStart = tab.messagePaneVisible;
 
   registerCleanupFunction(function() {
-    MailServices.accounts.removeAccount(account, true);
+    MailServices.accounts.removeAccount(account, false);
     tabmail.closeOtherTabs(tab);
     if (tab.folderPaneVisible != folderPaneVisibleAtStart) {
       goDoCommand("cmd_toggleFolderPane");

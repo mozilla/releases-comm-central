@@ -170,7 +170,7 @@ add_setup(async function() {
   });
 
   registerCleanupFunction(() => {
-    MailServices.accounts.removeAccount(account, true);
+    MailServices.accounts.removeAccount(account, false);
   });
 });
 

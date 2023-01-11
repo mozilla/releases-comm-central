@@ -58,7 +58,7 @@ add_setup(async function() {
   threadTree = about3Pane.threadTree;
 
   registerCleanupFunction(() => {
-    MailServices.accounts.removeAccount(account, true);
+    MailServices.accounts.removeAccount(account, false);
   });
 });
 
