@@ -1448,6 +1448,13 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
     }
 
     restoreTab(aState) {
+      // Migrate new mail tabs to old mail tabs.
+      if (aState.mode == "mail3PaneTab") {
+        aState.mode = "folder";
+      } else if (aState.mode == "mailMessageTab") {
+        aState.mode = "message";
+      }
+
       // if we no longer know about the mode, we can't restore the tab
       let mode = this.tabModes[aState.mode];
       if (!mode) {
