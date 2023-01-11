@@ -1535,6 +1535,37 @@ function MsgOpenEMLFile(aFile, aURL) {
   }
 }
 
+/**
+ * Save the given string to a file, then open it as an .eml file.
+ *
+ * @param {string} data - The message
+ */
+function MsgOpenMessageFromString(data) {
+  let tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+  tempFile.append("subPart.eml");
+  tempFile.createUnique(0, 0o600);
+
+  let outputStream = Cc[
+    "@mozilla.org/network/file-output-stream;1"
+  ].createInstance(Ci.nsIFileOutputStream);
+  outputStream.init(tempFile, 2, 0x200, false); // open as "write only"
+  outputStream.write(data, data.length);
+  outputStream.close();
+
+  // Delete file on exit, because Windows locks the file
+  let extAppLauncher = Cc[
+    "@mozilla.org/uriloader/external-helper-app-service;1"
+  ].getService(Ci.nsPIExternalAppLauncher);
+  extAppLauncher.deleteTemporaryFileOnExit(tempFile);
+
+  let url = Services.io
+    .getProtocolHandler("file")
+    .QueryInterface(Ci.nsIFileProtocolHandler)
+    .newFileURI(tempFile);
+
+  MsgOpenEMLFile(tempFile, url);
+}
+
 function MsgOpenNewWindowForMessage(aMsgHdr, aView) {
   // We need to tell the window about our current view so that it can clone it.
   // This enables advancing through the messages, etc.

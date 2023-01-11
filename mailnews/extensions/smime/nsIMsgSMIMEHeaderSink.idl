@@ -19,9 +19,12 @@ interface nsIMsgSMIMEHeaderSink : nsISupports
   void signedStatus(in long aNestingLevel,
                     in long aSignatureStatus,
                     in nsIX509Cert aSignerCert,
-                    in AUTF8String aMsgNeckoURL);
+                    in AUTF8String aMsgNeckoURL,
+                    in ACString originMimePartNumber);
   void encryptionStatus(in long aNestingLevel,
                         in long aEncryptionStatus,
                         in nsIX509Cert aReceipientCert,
-                        in AUTF8String aMsgNeckoURL);
+                        in AUTF8String aMsgNeckoURL,
+                        in ACString originMimePartNumber);
+  void ignoreStatusFrom(in ACString originMimePartNumber);
 };

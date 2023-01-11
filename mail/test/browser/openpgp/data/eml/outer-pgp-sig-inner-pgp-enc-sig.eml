@@ -1,0 +1,106 @@
+X-Info: File is based on signed-by-0x3099ff1238852b9f-encrypted-to-0xf231550c4f47e38e.eml
+To: alice@openpgp.example
+From: Carol <carol@example.com>
+Message-ID: <1241106f-5ef5-ae8a-36ed-02d6f8f84d62@example.com>
+Date: Wed, 14 Oct 2020 14:29:03 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:83.0) Gecko/20100101
+ Thunderbird/83.0a1
+MIME-Version: 1.0
+Subject: ...
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------rvEyIV4on03ewe0w3mDNOC3U"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------rvEyIV4on03ewe0w3mDNOC3U
+Content-Type: multipart/encrypted;
+ protocol="application/pgp-encrypted";
+ boundary="PAOkQ1PqAvtLhLyHxuarNAvN1z6Qj8TMm"
+
+This is an OpenPGP/MIME encrypted message (RFC 4880 and 3156)
+--PAOkQ1PqAvtLhLyHxuarNAvN1z6Qj8TMm
+Content-Type: application/pgp-encrypted
+Content-Description: PGP/MIME version identification
+
+Version: 1
+
+--PAOkQ1PqAvtLhLyHxuarNAvN1z6Qj8TMm
+Content-Type: application/octet-stream; name="encrypted.asc"
+Content-Description: OpenPGP encrypted message
+Content-Disposition: inline; filename="encrypted.asc"
+
+-----BEGIN PGP MESSAGE-----
+
+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
+=d8b2
+-----END PGP MESSAGE-----
+
+--PAOkQ1PqAvtLhLyHxuarNAvN1z6Qj8TMm--
+
+--------------rvEyIV4on03ewe0w3mDNOC3U
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEuPL29L060/gtxEaDMJn/EjiFK58FAmObKoQACgkQMJn/EjiF
+K59Tyw//dahQthlNdE+XZjvpcGjyYzba8zdMCrjNb6bqlkzUKSAFBADwpuaMgukB
+o6z5LkUASuVBHl99bQgULij6KzMz/XoUqv+72xvTkYg2cbHtPK4KEuCQ2u18vMJ5
+ZGrnBa7ziHLsZRm7xc14sWvhjArPwpsqlaeEZxtNumGRdDPCMYAMD4cvYECfxF97
+lPzGEbKJUKRGC/XZRRonp3iz+v3vaVrt7ukNzuM3mSYvPK7ua7feYL0o/ov+u1Td
+1X9Zm8CJuYqpQYgvDtTjbw4QDOsP2GCnKcB2yZcEBVz7GWTe2Zkz3U8w2Qw+/B/g
+CHFN1tAP/CCsut/brkbbK9wHHdiAmTPNGe6DriB6QHiMzdr5WMiZvudnBYUIleaN
+Pat3K9zlHumHyQo7XjdOu8hZerqbyGRvimwQiNX6eOmtEFTECWk0pPMV0aSCul9O
+UTh0Hz2ZTquk3qBcJZaPyhK6ely2JcIxjJDHMfNgqOWzekcDhj96OvUuNQGS21jU
+d2aA9JbzikbmWws21lczkkHRob9zOCMVBJBsdsVuu+WxB854bXD2HJGtywFwsK6B
+9yLNV1FbqqTOvditrFTfXB9VJkhuGxIzZGBlX0biq2NfufCw9qJEwhwkEZZ/HJ/R
+9xtMVMGJFraPXABos7F8+Ixt5Hw3Ms9YAk+wrbJ3GDE/ngcZhYw=
+=rxUj
+-----END PGP SIGNATURE-----
+
+--------------rvEyIV4on03ewe0w3mDNOC3U--

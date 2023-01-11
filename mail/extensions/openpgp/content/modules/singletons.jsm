@@ -30,6 +30,24 @@ var EnigmailSingletons = {
       this.lastDecryptedMessage.mimePartNumber == mimePartNumber;
     return reval;
   },
+
+  urisWithNestedEncryptedParts: [],
+
+  maxRecentSubEncryptionUrisToRemember: 10,
+
+  addUriWithNestedEncryptedPart(uri) {
+    if (
+      this.urisWithNestedEncryptedParts.length >
+      this.maxRecentSubEncryptionUrisToRemember
+    ) {
+      this.urisWithNestedEncryptedParts.shift(); // remove oldest
+    }
+    this.urisWithNestedEncryptedParts.push(uri);
+  },
+
+  isRecentUriWithNestedEncryptedPart(uri) {
+    return this.urisWithNestedEncryptedParts.includes(uri);
+  },
 };
 
 EnigmailSingletons.clearLastDecryptedMessage();

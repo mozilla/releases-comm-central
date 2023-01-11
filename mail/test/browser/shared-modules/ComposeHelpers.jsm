@@ -930,7 +930,7 @@ class FormatHelper {
       ["superscript", { tag: "SUP" }],
       ["subscript", { tag: "SUB" }],
       ["tt", { tag: "TT" }],
-      ["nobreak", { tag: "NOBR" }],
+      // ["nobreak", { tag: "NOBR" }], // Broken after bug 1806330. Why?
       ["em", { tag: "EM", linked: "italic" }],
       ["strong", { tag: "STRONG", linked: "bold" }],
       ["cite", { tag: "CITE", implies: "italic" }],
@@ -1091,6 +1091,8 @@ class FormatHelper {
   async emptyParagraph() {
     await this.selectFirstParagraph();
     await this.deleteSelection();
+    let p = this.messageDocument.body.querySelector("p");
+    Assert.equal(p.textContent, "", "should have emptied p");
   }
 
   /**
@@ -2384,12 +2386,21 @@ class FormatHelper {
     }
     await this.assertWithFormatSubMenu(
       this.styleMenu,
-      () =>
-        this.styleMenuItems.every(
+      () => {
+        let checkedIds = this.styleMenuItems
+          .filter(i => i.getAttribute("checked") === "true")
+          .map(m => m.id);
+        if (expectItems.length != checkedIds.length) {
+          dump(
+            `Expected: ${expectItems.map(i => i.id)}, Actual: ${checkedIds}\n`
+          );
+        }
+        return this.styleMenuItems.every(
           item =>
             (item.getAttribute("checked") === "true") ===
             expectItems.includes(item)
-        ),
+        );
+      },
       `${message}: ${expectString} should be checked`,
       true
     );

@@ -162,6 +162,21 @@ static void* MimePgpe_init(MimeObject* obj,
   rv = data->mimeDecrypt->SetMimePart(mimePart);
   if (NS_FAILED(rv)) return nullptr;
 
+  if (mimePart.EqualsLiteral("1.1") && obj->parent &&
+      obj->parent->content_type &&
+      !strcmp(obj->parent->content_type, "multipart/signed") &&
+      ((MimeContainer*)obj->parent)->nchildren == 1) {
+    // Don't show status for the outer signature, it could be misleading,
+    // the signature could have been created by someone not knowing
+    // the contents of the inner encryption layer.
+    // Another reason is, we usually skip decrypting nested encrypted
+    // parts. However, we make an exception: If the outermost layer
+    // is a signature, and the signature wraps only a single encrypted
+    // message (no sibling MIME parts next to the encrypted part),
+    // then we allow decryption. (bug 1594253)
+    data->mimeDecrypt->SetAllowNestedDecrypt(true);
+  }
+
   mime_stream_data* msd =
       (mime_stream_data*)(data->self->options->stream_closure);
   nsIChannel* channel = msd->channel;
@@ -265,7 +280,8 @@ nsPgpMimeProxy::nsPgpMimeProxy()
       mOutputFun(nullptr),
       mOutputClosure(nullptr),
       mLoadFlags(LOAD_NORMAL),
-      mCancelStatus(NS_OK) {
+      mCancelStatus(NS_OK),
+      mAllowNestedDecrypt(false) {
 }
 
 nsPgpMimeProxy::~nsPgpMimeProxy() { Finalize(); }
@@ -404,6 +420,18 @@ nsPgpMimeProxy::GetMimePart(nsACString& aMimePart) {
 NS_IMETHODIMP
 nsPgpMimeProxy::SetMimePart(const nsACString& aMimePart) {
   mMimePart = aMimePart;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsPgpMimeProxy::SetAllowNestedDecrypt(bool aAllowNestedDecrypt) {
+  mAllowNestedDecrypt = aAllowNestedDecrypt;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsPgpMimeProxy::GetAllowNestedDecrypt(bool* aAllowNestedDecrypt) {
+  *aAllowNestedDecrypt = mAllowNestedDecrypt;
   return NS_OK;
 }
 

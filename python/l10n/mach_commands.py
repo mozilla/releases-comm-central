@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import argparse
+import logging
 import os.path
 from pathlib import Path
 
@@ -161,3 +162,54 @@ def tb_add_missing_ftls(command_context, merge, locale):
     locale_files = get_lang_ftls(l10n_path)
 
     add_missing_ftls(l10n_path, source_files, locale_files)
+
+
+@Command(
+    "tb-fluent-migration-test",
+    category="thunderbird",
+    description="Test Fluent migration recipes.",
+)
+@CommandArgument("test_paths", nargs="*", metavar="N", help="Recipe paths to test.")
+def run_migration_tests(command_context, test_paths=None, **kwargs):
+    if not test_paths:
+        test_paths = []
+    command_context.activate_virtualenv()
+    from test_fluent_migrations import fmt
+
+    from tbxchannel.tb_migration_test import prepare_object_dir, test_migration
+
+    rv = 0
+    with_context = []
+    for to_test in test_paths:
+        try:
+            context = fmt.inspect_migration(to_test)
+            for issue in context["issues"]:
+                command_context.log(
+                    logging.ERROR,
+                    "tb-fluent-migration-test",
+                    {
+                        "error": issue["msg"],
+                        "file": to_test,
+                    },
+                    "ERROR in {file}: {error}",
+                )
+            if context["issues"]:
+                continue
+            with_context.append(
+                {
+                    "to_test": to_test,
+                    "references": context["references"],
+                }
+            )
+        except Exception as e:
+            command_context.log(
+                logging.ERROR,
+                "tb-fluent-migration-test",
+                {"error": str(e), "file": to_test},
+                "ERROR in {file}: {error}",
+            )
+            rv |= 1
+    obj_dir = prepare_object_dir(command_context)
+    for context in with_context:
+        rv |= test_migration(command_context, obj_dir, **context)
+    return rv

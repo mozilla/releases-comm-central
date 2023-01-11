@@ -408,22 +408,27 @@ MimeVerify.prototype = {
       return true;
     }
 
-    if (queryMimePartNumber == "1.1") {
+    if (queryMimePartNumber == "1.1" || queryMimePartNumber == "1.1.1") {
       if (!this.uri) {
         // We aren't loading in message displaying, but some other
         // context, could be e.g. forwarding.
         return false;
       }
 
-      // We are processing "1.1", which means we're the child of the
+      // If we are processing "1.1", it means we're the child of the
       // top mime part. Don't process the signature unless the top
       // level mime part is an encryption layer.
+      // If we are processing "1.1.1", then potentially the top level
+      // mime part was a signature and has been ignored, and "1.1"
+      // might be an encrypted part that was allowed.
+
       let currMsg = lazy.EnigmailURIs.msgIdentificationFromUrl(this.uri);
+      let parentToCheck = queryMimePartNumber == "1.1.1" ? "1.1" : "1";
       if (
         lazy.EnigmailSingletons.isLastDecryptedMessagePart(
           currMsg.folder,
           currMsg.msgNum,
-          "1"
+          parentToCheck
         )
       ) {
         return true;

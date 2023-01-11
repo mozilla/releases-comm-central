@@ -243,7 +243,7 @@ PgpMimeHandler.prototype = {
     }
 
     let headerSink = lazy.EnigmailSingletons.messageReader;
-    headerSink.handleSMimeMessage(uri);
+    headerSink?.handleSMimeMessage(uri);
   },
 
   getMessengerWindow() {

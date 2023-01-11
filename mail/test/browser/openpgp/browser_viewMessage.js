@@ -8,10 +8,19 @@
 
 "use strict";
 
+/*
+ * This file contains S/MIME tests that should be enabled once
+ * bug 1806161 gets fixed.
+ */
+
 const {
   get_about_message,
   open_message_from_file,
   wait_for_message_display_completion,
+  // TODO: Enable for S/MIME test
+  //  smimeUtils_ensureNSS,
+  //  smimeUtils_loadCertificateAndKey,
+  //  smimeUtils_loadPEMCertificate,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -41,6 +50,8 @@ const { MailServices } = ChromeUtils.import(
 );
 
 const MSG_TEXT = "Sundays are nothing without callaloo.";
+// TODO: Enable for S/MIME test
+//const MSG_TEXT_SMIME = "This is a test message from Alice to Bob.";
 
 function getMsgBodyTxt(mc) {
   let msgPane = get_about_message(mc.window).content;
@@ -84,6 +95,18 @@ add_setup(async function() {
       )
     )
   );
+
+  // TODO: Enable for S/MIME test
+  /*
+  smimeUtils_ensureNSS();
+  smimeUtils_loadPEMCertificate(
+    new FileUtils.File(getTestFilePath("../smime/data/TestCA.pem")),
+    Ci.nsIX509Cert.CA_CERT
+  );
+  smimeUtils_loadCertificateAndKey(
+    new FileUtils.File(getTestFilePath("../smime/data/Bob.p12"))
+  );
+*/
 });
 
 /**
@@ -376,6 +399,133 @@ add_task(async function testOpenUnverifiedUnsignedEncrypted() {
 });
 
 /**
+ * -- FUNCTIONALITY NOT YET IMPLEMENTED --
+ * Test that we decrypt a nested S/MIME encrypted message
+ * (with outer S/MIME signature that is ignored).
+ */
+/*
+add_task(async function testOuterSmimeSigInnerSmimeUnsignedEncrypted() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath(
+        "data/eml/outer-smime-bad-sig-inner-smime-enc.eml"
+      )
+    )
+  );
+
+  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT_SMIME), "message text is in body");
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    "signed icon is not displayed"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is displayed"
+  );
+  close_window(mc);
+});
+*/
+
+/**
+ * Test that we decrypt a nested OpenPGP encrypted message
+ * (with outer S/MIME signature that is ignored).
+ */
+add_task(async function testOuterSmimeSigInnerPgpUnverifiedUnsignedEncrypted() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/outer-smime-bad-sig-inner-pgp-enc.eml")
+    )
+  );
+
+  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    "signed icon is not displayed"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is displayed"
+  );
+  close_window(mc);
+});
+
+/**
+ * -- FUNCTIONALITY NOT YET IMPLEMENTED --
+ * Test that we decrypt a nested S/MIME encrypted message
+ * (with outer OpenPGP signature that is ignored).
+ */
+/*
+add_task(async function testOuterPgpSigInnerSmimeUnsignedEncrypted() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath(
+        "data/eml/outer-pgp-sig-inner-smime-enc.eml"
+      )
+    )
+  );
+
+  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT_SMIME), "message text is in body");
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    "signed icon is not displayed"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is displayed"
+  );
+  close_window(mc);
+});
+*/
+
+/**
+ * Test that we decrypt a nested OpenPGP encrypted message
+ * (with outer OpenPGP signature that is ignored).
+ */
+add_task(async function testOuterPgpSigInnerPgpUnverifiedUnsignedEncrypted() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/outer-pgp-sig-inner-pgp-enc.eml")
+    )
+  );
+
+  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    "signed icon is not displayed"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is displayed"
+  );
+  close_window(mc);
+});
+
+/**
+ * Test that we DO NOT decrypt a nested OpenPGP encrypted message
+ * at MIME level 3, with an outer signature layer (level 1) and a
+ * multipart/mixed in between (level 2).
+ * We should not ignore the outer signature in this scenario.
+ */
+add_task(async function testOuterPgpSigInnerPgpEncryptedInsideMixed() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/outer-pgp-sig-inner-pgp-enc-with-mixed.eml")
+    )
+  );
+
+  Assert.ok(!getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unknown"),
+    "signed unknown icon is displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is not displayed"
+  );
+  close_window(mc);
+});
+
+/**
  * Test that opening an encrypted message signed by an unverified key is shown
  * as it should.
  */
@@ -396,6 +546,135 @@ add_task(async function testOpenSignedByUnverifiedEncrypted() {
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
+    "encrypted icon is displayed"
+  );
+  close_window(mc);
+});
+
+/**
+ * -- FUNCTIONALITY NOT YET IMPLEMENTED --
+ * Test that we decrypt a nested S/MIME encrypted+signed message
+ * (with outer S/MIME signature that is ignored).
+ */
+/*
+add_task(async function testOuterSmimeSigInnerSmimeSignedEncrypted() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath(
+        "data/eml/outer-smime-bad-sig-inner-smime-enc-sig.eml"
+      )
+    )
+  );
+
+  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT_SMIME), "message text is in body");
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unknown"),
+    "signed unknown icon is displayed"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is displayed"
+  );
+  close_window(mc);
+});
+*/
+
+/**
+ * Test that we decrypt a nested OpenPGP encrypted+signed message
+ * (with outer S/MIME signature that is ignored).
+ */
+add_task(async function testOuterSmimeSigInnerPgpSignedByUnverifiedEncrypted() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/outer-smime-bad-sig-inner-pgp-enc-sig.eml")
+    )
+  );
+
+  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unknown"),
+    "signed unknown icon is displayed"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is displayed"
+  );
+  close_window(mc);
+});
+
+/**
+ * Test that we DO NOT decrypt a nested OpenPGP encrypted message
+ * at MIME level 3, with an outer signature layer (level 1) and a
+ * multipart/mixed in between (level 2).
+ * We should not ignore the outer signature in this scenario.
+ */
+add_task(async function testOuterSmimeSigInnerPgpEncryptedInsideMixed() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath(
+        "data/eml/outer-smime-bad-sig-inner-pgp-enc-sig-with-mixed.eml"
+      )
+    )
+  );
+
+  Assert.ok(!getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    "signed icon is not displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is not displayed"
+  );
+  close_window(mc);
+});
+
+/**
+ * -- FUNCTIONALITY NOT YET IMPLEMENTED --
+ * Test that we decrypt a nested S/MIME encrypted+signed message
+ * (with outer OpenPGP signature that is ignored).
+ */
+/*
+add_task(async function testOuterPgpSigInnerSmimeSignedEncrypted() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath(
+        "data/eml/outer-pgp-sig-inner-smime-enc-sig.eml"
+      )
+    )
+  );
+
+  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT_SMIME), "message text is in body");
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unknown"),
+    "signed unknown icon is displayed"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is displayed"
+  );
+  close_window(mc);
+});
+*/
+
+/**
+ * Test that we decrypt a nested OpenPGP encrypted+signed message
+ * (with outer OpenPGP signature that is ignored).
+ */
+add_task(async function testOuterPgpSigOpenSignedByUnverifiedEncrypted() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/outer-pgp-sig-inner-pgp-enc-sig.eml")
+    )
+  );
+
+  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unknown"),
+    "signed unknown icon is displayed"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
     "encrypted icon is displayed"
   );
   close_window(mc);
