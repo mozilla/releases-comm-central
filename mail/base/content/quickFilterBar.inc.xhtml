@@ -5,79 +5,72 @@
     <div id="quick-filter-bar" class="themeable-brighttext">
       <div id="quick-filter-bar-main-bar">
         <button is="toggle-button" id="qfb-sticky"
-                title="&quickFilterBar.sticky.tooltip;">
+                data-l10n-id="quick-filter-bar-sticky">
           <img />
         </button>
         <button is="toggle-button" id="qfb-unread"
                 class="collapsible-button"
-                title="&quickFilterBar.unread.tooltip;">
+                data-l10n-id="quick-filter-bar-unread">
           <img />
-          <span>&quickFilterBar.unread.label;</span>
+          <span data-l10n-id="quick-filter-bar-unread-label"></span>
         </button>
         <button is="toggle-button" id="qfb-starred"
                 class="collapsible-button"
-                title="&quickFilterBar.starred.tooltip;">
+                data-l10n-id="quick-filter-bar-starred">
           <img />
-          <span>&quickFilterBar.starred.label;</span>
+          <span data-l10n-id="quick-filter-bar-starred-label"></span>
         </button>
         <button is="toggle-button" id="qfb-inaddrbook"
                 class="collapsible-button"
-                title="&quickFilterBar.inaddrbook.tooltip;">
+                data-l10n-id="quick-filter-bar-inaddrbook">
           <img />
-          <span>&quickFilterBar.inaddrbook.label;</span>
+          <span data-l10n-id="quick-filter-bar-inaddrbook-label"></span>
         </button>
         <button is="toggle-button" id="qfb-tags"
                 class="collapsible-button"
-                title="&quickFilterBar.tags.tooltip;">
+                data-l10n-id="quick-filter-bar-tags">
           <img />
-          <span>&quickFilterBar.tags.label;</span>
+          <span data-l10n-id="quick-filter-bar-tags-label"></span>
         </button>
         <button is="toggle-button" id="qfb-attachment"
                 class="collapsible-button"
-                title="&quickFilterBar.attachment.tooltip;">
+                data-l10n-id="quick-filter-bar-attachment">
           <img />
-          <span>&quickFilterBar.attachment.label;</span>
+          <span data-l10n-id="quick-filter-bar-attachment-label"></span>
         </button>
         <span id="qfb-results-label"></span>
         <xul:search-textbox id="qfb-qs-textbox"
                             class="themeableSearchBox"
-                            placeholder=""
-                            emptytextbase="&quickFilterBar.textbox.emptyText.base1;"
-                            keyLabelNonMac="&quickFilterBar.textbox.emptyText.keyLabel2.nonmac;"
-                            keyLabelMac="&quickFilterBar.textbox.emptyText.keyLabel2.mac;"
                             timeout="500"
-                            maxlength="192"/>
+                            maxlength="192"
+                            data-l10n-id="quick-filter-bar-textbox"
+                            data-l10n-attrs="placeholder"/>
       </div>
       <div id="quick-filter-bar-expando">
         <div id="quick-filter-bar-tab-bar" hidden="hidden">
           <select id="qfb-boolean-mode"
-                  tooltiptext="&quickFilterBar.booleanMode.tooltip;"
+                  data-l10n-id="quick-filter-bar-boolean-mode"
                   persist="value">
             <option id="qfb-boolean-mode-or"
                     value="OR"
-                    label="&quickFilterBar.booleanModeAny.label;"
-                    tooltiptext="&quickFilterBar.booleanModeAny.tooltip;"/>
+                    data-l10n-id="quick-filter-bar-boolean-mode-any"/>
             <option id="qfb-boolean-mode-and"
                     value="AND"
-                    label="&quickFilterBar.booleanModeAll.label;"
-                    tooltiptext="&quickFilterBar.booleanModeAll.tooltip;"/>
+                    data-l10n-id="quick-filter-bar-boolean-mode-all"/>
           </select>
         </div>
-        <div style="flex: 1"></div>
+        <div style="flex: 1;"></div>
         <div id="quick-filter-bar-filter-text-bar" hidden="hidden">
-          <xul:label id="qfb-qs-label" value="&quickFilterBar.textFilter.explanation.label;"/>
-          <button is="toggle-button" id="qfb-qs-sender">
-            &quickFilterBar.textFilter.sender.label;
-          </button>
-          <button is="toggle-button" id="qfb-qs-recipients">
-            &quickFilterBar.textFilter.recipients.label;
-          </button>
-          <button is="toggle-button" id="qfb-qs-subject">
-            &quickFilterBar.textFilter.subject.label;
-          </button>
-          <button is="toggle-button" id="qfb-qs-body">
-            &quickFilterBar.textFilter.body.label;
-          </button>
+          <span id="qfb-qs-label"
+                data-l10n-id="quick-filter-bar-text-filter-explanation"></span>
+          <button is="toggle-button" id="qfb-qs-sender"
+                  data-l10n-id="quick-filter-bar-text-filter-sender"></button>
+          <button is="toggle-button" id="qfb-qs-recipients"
+                  data-l10n-id="quick-filter-bar-text-filter-recipients"></button>
+          <button is="toggle-button" id="qfb-qs-subject"
+                  data-l10n-id="quick-filter-bar-text-filter-subject"></button>
+          <button is="toggle-button" id="qfb-qs-body"
+                  data-l10n-id="quick-filter-bar-text-filter-body"></button>
         </div>
       </div>
     </div>

@@ -6,6 +6,7 @@
 from fluent.migrate.helpers import transforms_from
 from fluent.migrate import COPY
 
+
 def migrate(ctx):
     """Bug 1803705 - Migrate thread tree strings to fluent, part {index}."""
 

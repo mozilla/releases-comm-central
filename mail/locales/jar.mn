@@ -122,7 +122,6 @@
   locale/@AB_CD@/messenger/templateUtils.properties                     (%chrome/messenger/templateUtils.properties)
   locale/@AB_CD@/messenger/glodaFacetView.properties                    (%chrome/messenger/glodaFacetView.properties)
   locale/@AB_CD@/messenger/glodaFacetView.dtd                           (%chrome/messenger/glodaFacetView.dtd)
-  locale/@AB_CD@/messenger/quickFilterBar.dtd                           (%chrome/messenger/quickFilterBar.dtd)
   locale/@AB_CD@/messenger/taskbar.properties                           (%chrome/messenger/taskbar.properties)
   locale/@AB_CD@/messenger/junkLog.dtd                                  (%chrome/messenger/junkLog.dtd)
   locale/@AB_CD@/messenger/addressbook/abMainWindow.dtd                 (%chrome/messenger/addressbook/abMainWindow.dtd)
