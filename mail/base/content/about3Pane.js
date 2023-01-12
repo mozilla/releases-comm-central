@@ -263,6 +263,7 @@ window.addEventListener("DOMContentLoaded", async event => {
           }
         },
       });
+      restoreSortIndicator();
     }
 
     window.dispatchEvent(
@@ -2104,6 +2105,7 @@ function restoreState({
 
   if (folderURI) {
     displayFolder(folderURI);
+    restoreSortIndicator();
   } else if (syntheticView) {
     // TODO: Move this.
     gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
@@ -2113,11 +2115,21 @@ function restoreState({
 
     document.body.classList.remove("account-central");
     accountCentralBrowser.hidden = true;
+    restoreSortIndicator();
   }
 
   if (first && Services.prefs.getBoolPref("mailnews.start_page.enabled")) {
     commandController.doCommand("cmd_goStartPage");
   }
+}
+
+/**
+ * Restore the chevron icon indicating the current sort order.
+ */
+function restoreSortIndicator() {
+  threadPane.updateSortIndicator(
+    sortController.convertSortTypeToColumnID(gViewWrapper.primarySortType)
+  );
 }
 
 function displayFolder(folderURI) {
