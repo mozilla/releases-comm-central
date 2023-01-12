@@ -59,7 +59,7 @@ def get_strings_repos(locale, destination):
         add_to_registry(l10n_central, GECKO_STRINGS_PATTERNS)
         add_to_registry(comm_l10n, COMM_STRINGS_PATTERNS)
 
-        file_copier.copy(destination / locale)
+        file_copier.copy(str(destination))
 
 
 def main():

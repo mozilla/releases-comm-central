@@ -4,15 +4,3 @@
 ---
 loader: comm_taskgraph.loader.reference:loader
 reference-base-path: taskcluster/ci
-
-reference-jobs:
-    - deb8-32-gcc-7
-    - deb8-gcc-7
-    - deb11-python-zstandard
-    - deb11-mercurial
-    - ub18-32-libc6
-    - ub18-libc6
-    - ub18-mercurial
-    - ub18-python-zstandard
-    - ub20-mercurial
-    - ub20-python-zstandard

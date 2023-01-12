@@ -52,6 +52,10 @@ richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .action-b
   display: -moz-box;
 }
 
+.alarm-location-description {
+  display: flex;
+}
+
 .alarm-details-label {
   color: inherit !important;
   text-decoration: underline;

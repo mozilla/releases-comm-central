@@ -191,10 +191,7 @@ async function loadCalendarManager() {
     let stringName = cal.view.getCompositeCalendar(window).getCalendarById(calendar.id)
       ? "hideCalendar"
       : "showCalendar";
-    displayedCheckbox.setAttribute(
-      "tooltiptext",
-      cal.l10n.getCalString(stringName, [calendar.name])
-    );
+    displayedCheckbox.setAttribute("title", cal.l10n.getCalString(stringName, [calendar.name]));
 
     calendarList.appendChild(item);
     if (calendar.getProperty("calendar-main-default")) {
@@ -240,7 +237,7 @@ async function loadCalendarManager() {
     }
 
     let stringName = event.target.checked ? "hideCalendar" : "showCalendar";
-    event.target.setAttribute("tooltiptext", cal.l10n.getCalString(stringName, [calendar.name]));
+    event.target.setAttribute("title", cal.l10n.getCalString(stringName, [calendar.name]));
 
     calendarList.focus();
   });
@@ -287,7 +284,7 @@ async function loadCalendarManager() {
           : "showCalendar";
         item
           .querySelector(".calendar-displayed")
-          .setAttribute("tooltiptext", cal.l10n.getCalString(stringName, [calendar.name]));
+          .setAttribute("title", cal.l10n.getCalString(stringName, [calendar.name]));
         break;
       }
     }
