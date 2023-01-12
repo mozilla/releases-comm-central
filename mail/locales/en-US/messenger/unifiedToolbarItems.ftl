@@ -167,3 +167,8 @@ toolbar-mail-label = Mail
 
 toolbar-mail =
     .title = Switch to the mail tab
+
+toolbar-print-label = Print
+
+toolbar-print =
+    .title = Print this message

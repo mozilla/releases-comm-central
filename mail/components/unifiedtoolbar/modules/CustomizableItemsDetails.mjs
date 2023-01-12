@@ -308,6 +308,15 @@ export default [
       "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
     ],
   },
+  {
+    id: "print",
+    labelId: "toolbar-print",
+    spaces: ["mail"],
+    templateId: "printTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
   // Calendar space
   {
     id: "unifinder",

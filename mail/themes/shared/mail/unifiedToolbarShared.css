@@ -232,3 +232,7 @@
 .unified-toolbar .mail .button-icon {
   content: var(--icon-mail);
 }
+
+.unified-toolbar .print .button-icon {
+  content: var(--icon-print);
+}
