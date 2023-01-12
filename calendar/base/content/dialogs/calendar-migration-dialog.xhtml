@@ -6,30 +6,27 @@
 <!-- Style sheets -->
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 
-<!DOCTYPE window
+<!DOCTYPE html
 [
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
   %brandDTD;
   <!ENTITY % migrationDtd SYSTEM "chrome://calendar/locale/migration.dtd">
   %migrationDtd;
 ]>
-
-<window id="migration-wizard"
-        title="&migration.title;"
-        windowtype="Calendar:MigrationWizard"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="gMigrateWizard.loadMigrators()"
-        branded="true"
-        persist="screenX screenY">
-  <linkset>
-    <html:link rel="localization" href="toolkit/global/wizard.ftl"/>
-  </linkset>
-
-  <script src="chrome://calendar/content/calendar-migration-dialog.js"/>
-  <script src="chrome://calendar/content/import-export.js"/>
-
-  <wizard>
+<html id="migration-wizard" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      branded="true"
+      windowtype="Calendar:MigrationWizard"
+      scrolling="false">
+<head>
+  <title>&migration.title;</title>
+  <link rel="localization" href="toolkit/global/wizard.ftl" />
+  <script defer="defer" src="chrome://calendar/content/import-export.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-migration-dialog.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <wizard style="width:100vw; height:100vh;">
     <wizardpage id="wizardPage1"
                 pageid="initialPage"
                 next="progressPage"
@@ -48,4 +45,5 @@
       </vbox>
     </wizardpage>
   </wizard>
-</window>
+</html:body>
+</html>
