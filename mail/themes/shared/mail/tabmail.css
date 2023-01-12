@@ -178,7 +178,6 @@ button.tab-close-button {
 .tab-background[selected=true] {
   border-top-color: var(--lwt-tabs-border-color);
   background-color: var(--toolbar-bgcolor);
-  background-image: var(--toolbar-bgimage);
   background-repeat: repeat-x;
 }
 
