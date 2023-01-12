@@ -10,7 +10,7 @@
   --glassShadowColor: hsla(240, 5%, 5%, 0.3);
   --new-folder-color: -moz-hyperlinktext;
   --noselect-folder-color: GrayText;
-  --toolbar-non-lwt-bgcolor: -moz-dialog;
+  --toolbar-non-lwt-bgcolor: color-mix(in srgb, -moz-dialog 85%, white);
   --toolbar-non-lwt-textcolor: -moz-dialogText;
   --toolbar-non-lwt-bgimage: linear-gradient(rgba(255, 255, 255, 0.15),
                                              rgba(255, 255, 255, 0.15));

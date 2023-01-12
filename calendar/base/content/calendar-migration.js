@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals MODE_RDONLY, putItemsIntoCal*/
-
-var FIREFOX_UID = "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}";
+/* globals putItemsIntoCal*/
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { AppConstants } = ChromeUtils.importESModule("resource://gre/modules/AppConstants.sys.mjs");
@@ -24,21 +22,6 @@ function dataMigrator(aTitle, aMigrateFunction, aArguments) {
 }
 
 var gDataMigrator = {
-  mIsInFirefox: false,
-  mPlatform: null,
-  mDirService: null,
-  mIoService: null,
-
-  /**
-   * Cached getter for the directory service.
-   */
-  get dirService() {
-    if (!this.mDirService) {
-      this.mDirService = Services.dirsvc;
-    }
-    return this.mDirService;
-  },
-
   /**
    * Call to do a general data migration (for a clean profile)  Will run
    * through all of the known migrator-checkers.  These checkers will return
@@ -47,20 +30,8 @@ var gDataMigrator = {
    * wizard, otherwise, we'll return silently.
    */
   checkAndMigrate() {
-    if (Services.appinfo.ID == FIREFOX_UID) {
-      this.mIsInFirefox = true;
-      // We can't handle Firefox Lightning yet
-      console.debug("Holy cow, you're Firefox-Lightning! sorry, can't help.");
-      return;
-    }
-
-    this.mPlatform = Services.appinfo.OS.toLowerCase();
-
-    console.debug("mPlatform is: " + this.mPlatform);
-
     let DMs = [];
     let migrators = [this.checkEvolution, this.checkWindowsMail, this.checkIcal];
-    // XXX also define a category and an interface here for pluggability
     for (let migrator of migrators) {
       let migs = migrator.call(this);
       for (let mig of migs) {
@@ -72,7 +43,6 @@ var gDataMigrator = {
       // No migration available
       return;
     }
-    console.debug("DMs: " + DMs.length);
 
     let url = "chrome://calendar/content/calendar-migration-dialog.xhtml";
     if (AppConstants.platform == "macosx") {
@@ -136,7 +106,7 @@ var gDataMigrator = {
           str = str.split(sub).join("");
           index = str.indexOf(";TZID=");
         }
-        let tempFile = gDataMigrator.dirService.get("TmpD", Ci.nsIFile);
+        let tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
         tempFile.append("icalTemp.ics");
         tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
 
@@ -161,7 +131,7 @@ var gDataMigrator = {
     }
 
     console.debug("Checking for ical data");
-    let profileDir = this.dirService.get("ProfD", Ci.nsIFile);
+    let profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
     let icalSpec = profileDir.path;
     let diverge = icalSpec.indexOf("Thunderbird");
     if (diverge == -1) {
@@ -207,7 +177,7 @@ var gDataMigrator = {
       aCallback();
     }
 
-    let evoDir = this.dirService.get("Home", Ci.nsIFile);
+    let evoDir = Services.dirsvc.get("Home", Ci.nsIFile);
     evoDir.append(".evolution");
     evoDir.append("calendar");
     evoDir.append("local");
@@ -247,12 +217,12 @@ var gDataMigrator = {
       aCallback();
     }
 
-    if (!this.dirService.has("LocalAppData")) {
+    if (!Services.dirsvc.has("LocalAppData")) {
       // We are probably not on windows
       return [];
     }
 
-    let maildir = this.dirService.get("LocalAppData", Ci.nsIFile);
+    let maildir = Services.dirsvc.get("LocalAppData", Ci.nsIFile);
 
     maildir.append("Microsoft");
     maildir.append("Windows Calendar");
@@ -302,6 +272,7 @@ var gDataMigrator = {
     calendar.id = cal.getUUID();
 
     try {
+      const MODE_RDONLY = 0x01;
       inputStream.init(icsFile, MODE_RDONLY, parseInt("0444", 8), {});
       items = icsImporter.importFromStream(inputStream);
     } catch (ex) {

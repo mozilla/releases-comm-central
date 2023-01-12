@@ -9,7 +9,6 @@
   --lwt-background-alignment: right top;
   --lwt-background-tiling: no-repeat;
   --toolbar-bgcolor: var(--toolbar-non-lwt-bgcolor);
-  --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
   --toolbar-color: var(--toolbar-non-lwt-textcolor);
   --panelui-subview-transition-duration: 150ms;
   --autocomplete-popup-highlight-background: SelectedItem;
@@ -74,7 +73,6 @@
   --panel-separator-color: hsla(210, 4%, 10%, 0.14);
   --toolbar-color: var(--lwt-text-color, inherit);
   --toolbar-bgcolor: rgba(255, 255, 255, .4);
-  --toolbar-bgimage: none;
   --toolbarbutton-icon-fill-opacity: 1;
   --autocomplete-popup-url-color: hsl(210, 77%, 47%);
   --toolbar-field-background-color: hsla(0, 0%, 100%, 0.8);

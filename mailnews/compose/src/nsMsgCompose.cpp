@@ -5052,7 +5052,11 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity* aIdentity) {
 
     if (NS_SUCCEEDED(rv)) {
       if (m_composeHTML) {
+        bool oldAllow;
+        GetAllowRemoteContent(&oldAllow);
+        SetAllowRemoteContent(true);
         rv = MOZ_KnownLive(editor->AsHTMLEditor())->InsertHTML(aSignature);
+        SetAllowRemoteContent(oldAllow);
       } else {
         rv = editor->InsertLineBreak();
         InsertDivWrappedTextAtSelection(aSignature, u"moz-signature"_ns);

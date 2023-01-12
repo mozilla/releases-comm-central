@@ -6,7 +6,7 @@
 
 :root {
   --tabline-color: AccentColor;
-  --toolbar-non-lwt-bgcolor: -moz-dialog;
+  --toolbar-non-lwt-bgcolor: color-mix(in srgb, -moz-dialog 85%, white);
   --toolbar-non-lwt-textcolor: -moz-dialogtext;
   --toolbar-non-lwt-bgimage: linear-gradient(rgba(255, 255, 255, 0.15),
                                              rgba(255, 255, 255, 0.15));

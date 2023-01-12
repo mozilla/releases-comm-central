@@ -96,6 +96,7 @@ class ImapClient {
     this.onData = () => {};
     this.onDone = () => {};
 
+    this._actionAfterDiscoverAllFolders = null;
     this.channel = null;
     this._urlListener = null;
     this._msgWindow = null;
@@ -165,6 +166,18 @@ class ImapClient {
       .QueryInterface(Ci.nsIMsgMailNewsUrl)
       .SetUrlState(true, Cr.NS_OK);
     return this.runningUrl;
+  }
+
+  /**
+   * Discover all folders if the current server hasn't already discovered.
+   */
+  _discoverAllFoldersIfNecessary() {
+    if (this._server.hasDiscoveredFolders) {
+      this.onReady();
+      return;
+    }
+    this._actionAfterDiscoverAllFolders = this.onReady;
+    this.discoverAllFolders(this._server.rootFolder);
   }
 
   /**
@@ -249,12 +262,11 @@ class ImapClient {
    * @param {string} newName - The new folder name.
    */
   renameFolder(folder, newName) {
+    this._logger.debug("renameFolder", folder.URI, newName);
     let delimiter =
       folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
     let names = this._getAncestorFolderNames(folder);
-    let oldName = this._charsetManager.unicodeToMutf7(
-      [...names, folder.name].join(delimiter)
-    );
+    let oldName = this._getServerFolderName(folder);
     newName = this._charsetManager.unicodeToMutf7(
       [...names, newName].join(delimiter)
     );
@@ -287,6 +299,40 @@ class ImapClient {
     this._actionList(this._getServerFolderName(folder), () => {
       this._actionDone();
     });
+  }
+
+  /**
+   * Send DELETE command for a folder and all subfolders.
+   *
+   * @param {nsIMsgFolder} folder - The folder to delete.
+   */
+  deleteFolder(folder) {
+    this._logger.debug("deleteFolder", folder.URI);
+    this._nextAction = res => {
+      // Leaves have longer names than parent mailbox, sort them by the name
+      // length, so that leaf mailbox will be deleted first.
+      let mailboxes = res.mailboxes.sort(
+        (x, y) => y.name.length - x.name.length
+      );
+      let selfName = this._getServerFolderName(folder);
+      let selfIncluded = false;
+      this._nextAction = () => {
+        let mailbox = mailboxes.shift();
+        if (mailbox) {
+          this._sendTagged(`DELETE "${mailbox.name}"`);
+          if (!selfIncluded && selfName == mailbox.name) {
+            selfIncluded = true;
+          }
+        } else if (!selfIncluded) {
+          this._nextAction = () => this._actionDone();
+          this._sendTagged(`DELETE "${this._getServerFolderName(folder)}"`);
+        } else {
+          this._actionDone();
+        }
+      };
+      this._nextAction();
+    };
+    this._sendTagged(`LIST "" "${this._getServerFolderName(folder)}"`);
   }
 
   /**
@@ -358,13 +404,8 @@ class ImapClient {
    * @returns {string[]}
    */
   _getAncestorFolderNames(folder) {
-    let ancestors = [];
-    let parent = folder.parent;
-    while (parent && parent != folder.rootFolder) {
-      ancestors.unshift(parent.name);
-      parent = parent.parent;
-    }
-    return ancestors;
+    let matches = /imap:\/\/[^/]+\/(.+)/.exec(folder.URI);
+    return matches[1].split("/").slice(0, -1);
   }
 
   /**
@@ -1020,13 +1061,13 @@ class ImapClient {
         if (this._capabilities.includes("ID") && Services.appinfo.name) {
           this._nextAction = res => {
             this._server.serverIDPref = res.id;
-            this.onReady();
+            this._discoverAllFoldersIfNecessary();
           };
           this._sendTagged(
             `ID ("name" "${Services.appinfo.name}" "version" "${Services.appinfo.version}")`
           );
         } else {
-          this.onReady();
+          this._discoverAllFoldersIfNecessary();
         }
       };
       if (res.capabilities) {
@@ -1237,7 +1278,7 @@ class ImapClient {
       );
     }
 
-    actionAfterResponse();
+    actionAfterResponse(res);
   };
 
   /**
@@ -1265,7 +1306,9 @@ class ImapClient {
       return;
     }
     this._serverSink.discoveryDone();
-    this._actionDone();
+    this._actionAfterDiscoverAllFolders
+      ? this._actionAfterDiscoverAllFolders()
+      : this._actionDone();
   };
 
   /**
@@ -1273,7 +1316,8 @@ class ImapClient {
    */
   _actionCreateTrashFolderIfNeeded() {
     let trashFolderName = this._server.trashFolderName;
-    this._actionList(trashFolderName, () => {
+    this._actionList(trashFolderName, res => {
+      this._hasTrash = res.mailboxes.length > 0;
       if (this._hasTrash) {
         // Trash folder exists.
         this._actionFinishFolderDiscovery();
@@ -1301,10 +1345,8 @@ class ImapClient {
    */
   _actionCreateAndSubscribe(folderName, callbackAfterSubscribe) {
     this._nextAction = res => {
-      this._actionList(folderName, () => {
-        this._nextAction = callbackAfterSubscribe;
-        this._sendTagged(`SUBSCRIBE "${folderName}"`);
-      });
+      this._nextAction = callbackAfterSubscribe;
+      this._sendTagged(`SUBSCRIBE "${folderName}"`);
     };
     this._sendTagged(`CREATE "${folderName}"`);
   }
@@ -1508,6 +1550,9 @@ class ImapClient {
     }
 
     if (msg.body) {
+      if (!msg.body.endsWith("\r\n")) {
+        msg.body += "\r\n";
+      }
       if (msg.bodySection.length == 1 && msg.bodySection[0] == "HEADER") {
         // Handle message headers.
         this._messageUids[msg.sequence] = msg.uid;

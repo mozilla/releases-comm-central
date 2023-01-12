@@ -8,7 +8,6 @@
 .contentTabToolbox {
   appearance: none;
   background-color: var(--toolbar-bgcolor);
-  background-image: var(--toolbar-bgimage);
 }
 
 .mail-toolbox:-moz-lwtheme,
