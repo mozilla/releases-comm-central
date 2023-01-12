@@ -213,7 +213,14 @@ class Pop3IncomingServer extends MsgIncomingServer {
     // Check if we are deferred to the local folders, and create INBOX if needed.
     let server = MailServices.accounts.getAccount(accountKey).incomingServer;
     if (server instanceof Ci.nsILocalMailIncomingServer) {
-      if (!server.rootFolder.containsChildNamed("Inbox")) {
+      // Check by URI instead of by name, because folder name can be localized.
+      if (
+        !this.rootFolder.getChildWithURI(
+          `${this.rootFolder.URI}/Inbox`,
+          false,
+          false
+        )
+      ) {
         server.rootFolder.createSubfolder("Inbox", null);
       }
     }
