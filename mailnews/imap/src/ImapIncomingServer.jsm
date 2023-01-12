@@ -164,7 +164,7 @@ class ImapIncomingServer extends MsgIncomingServer {
 
     folderPath = (/^inbox/i.test(token) ? "INBOX" : token) + rest;
 
-    let uri = this.serverURI;
+    let uri = this.rootFolder.URI;
     let parentName = folderPath;
     let parentUri = uri;
     let hasParent = false;
@@ -210,12 +210,9 @@ class ImapIncomingServer extends MsgIncomingServer {
           );
         }
       }
-      this.rootFolder.createClientSubfolderInfo(
-        folderPath,
-        delimiter,
-        boxFlags,
-        false
-      );
+      this.rootFolder
+        .QueryInterface(Ci.nsIMsgImapMailFolder)
+        .createClientSubfolderInfo(folderPath, delimiter, boxFlags, false);
       child = this.rootFolder.getChildWithURI(
         uri,
         true,
@@ -258,6 +255,7 @@ class ImapIncomingServer extends MsgIncomingServer {
   }
 
   discoveryDone() {
+    this.hasDiscoveredFolders = true;
     // No need to verify the root.
     this.rootFolder.QueryInterface(
       Ci.nsIMsgImapMailFolder

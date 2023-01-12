@@ -366,6 +366,15 @@ class ImapService {
     });
   }
 
+  deleteFolder(folder, urlListener, msgWindow) {
+    this._withClient(folder, client => {
+      client.startRunningUrl(urlListener, msgWindow);
+      client.onReady = () => {
+        client.deleteFolder(folder);
+      };
+    });
+  }
+
   storeCustomKeywords(folder, msgWindow, flagsToAdd, flagsToSubtract, uids) {
     return this._withClient(folder, (client, runningUrl) => {
       client.startRunningUrl(null, msgWindow, runningUrl);
