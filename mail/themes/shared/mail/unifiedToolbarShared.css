@@ -208,3 +208,27 @@
 .unified-toolbar .view-picker .button-icon {
   content: var(--icon-eye);
 }
+
+.unified-toolbar .address-book .button-icon {
+  content: var(--icon-address-book);
+}
+
+.unified-toolbar .chat .button-icon {
+  content: var(--icon-chat)
+}
+
+.unified-toolbar .add-ons-and-themes .button-icon {
+  content: var(--icon-extension);
+}
+
+.unified-toolbar .calendar .button-icon {
+  content: var(--icon-calendar);
+}
+
+.unified-toolbar .tasks .button-icon {
+  content: var(--icon-tasks)
+}
+
+.unified-toolbar .mail .button-icon {
+  content: var(--icon-mail);
+}

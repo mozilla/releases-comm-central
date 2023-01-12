@@ -61,6 +61,54 @@ export default [
       "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
     ],
   },
+  {
+    id: "address-book",
+    labelId: "toolbar-address-book",
+    templateId: "addressBookTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/space-button.mjs",
+    ],
+  },
+  {
+    id: "chat",
+    labelId: "toolbar-chat",
+    templateId: "chatTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/space-button.mjs",
+    ],
+  },
+  {
+    id: "add-ons-and-themes",
+    labelId: "toolbar-add-ons-and-themes",
+    templateId: "addOnsAndThemesTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/addons-button.mjs",
+    ],
+  },
+  {
+    id: "calendar",
+    labelId: "toolbar-calendar",
+    templateId: "calendarTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/space-button.mjs",
+    ],
+  },
+  {
+    id: "tasks",
+    labelId: "toolbar-tasks",
+    templateId: "tasksTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/space-button.mjs",
+    ],
+  },
+  {
+    id: "mail",
+    labelId: "toolbar-mail",
+    templateId: "mailTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/space-button.mjs",
+    ],
+  },
   // Mail space
   {
     id: "move-to",

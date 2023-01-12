@@ -122,3 +122,27 @@
 .view-picker .preview-icon {
   content: var(--icon-eye);
 }
+
+.address-book .preview-icon {
+  content: var(--icon-address-book);
+}
+
+.chat .preview-icon {
+  content: var(--icon-chat)
+}
+
+.add-ons-and-themes .preview-icon {
+  content: var(--icon-extension);
+}
+
+.calendar .preview-icon {
+  content: var(--icon-calendar);
+}
+
+.tasks .preview-icon {
+  content: var(--icon-tasks)
+}
+
+.mail .preview-icon {
+  content: var(--icon-mail);
+}

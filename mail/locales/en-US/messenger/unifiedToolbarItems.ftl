@@ -137,3 +137,33 @@ toolbar-view-picker-label = View
 
 toolbar-view-picker =
     .title = Customize view of current folder
+
+toolbar-address-book-label = Address Book
+
+toolbar-address-book =
+    .title = Go to the address book
+
+toolbar-chat-label = Chat
+
+toolbar-chat =
+    .title = Show the Chat tab
+
+toolbar-add-ons-and-themes-label = Add-ons and Themes
+
+toolbar-add-ons-and-themes =
+    .title = Manage your add-ons
+
+toolbar-calendar-label = Calendar
+
+toolbar-calendar =
+    .title = Switch to the calendar tab
+
+toolbar-tasks-label = Tasks
+
+toolbar-tasks =
+    .title = Switch to the tasks tab
+
+toolbar-mail-label = Mail
+
+toolbar-mail =
+    .title = Switch to the mail tab
