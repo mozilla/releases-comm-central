@@ -89,6 +89,8 @@ Preferences.addAll([
   { id: "browser.cache.disk.smart_size.enabled", inverted: true, type: "bool" },
   { id: "layers.acceleration.disabled", type: "bool", inverted: true },
   { id: "searchintegration.enable", type: "bool" },
+  { id: "mail.tabs.drawInTitlebar", type: "bool" },
+  { id: "mail.tabs.autoHide", type: "bool" },
 ]);
 if (AppConstants.platform == "win") {
   Preferences.add({ id: "mail.minimizeToTray", type: "bool" });

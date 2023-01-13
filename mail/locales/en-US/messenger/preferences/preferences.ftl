@@ -261,6 +261,17 @@ browsing-gtk-use-non-overlay-scrollbars =
     .label = Always show scrollbars
     .accesskey = c
 
+window-layout-legend = Window Layout
+
+draw-in-titlebar-label =
+    .label = Hide system window titlebar
+    .accesskey = H
+
+auto-hide-tabbar-label =
+    .label = Auto hide tab bar
+    .accesskey = A
+auto-hide-tabbar-description = Hide the tab bar when only a single tab is open
+
 system-integration-legend = System Integration
 always-check-default =
     .label = Always check to see if { -brand-short-name } is the default mail client on startup
