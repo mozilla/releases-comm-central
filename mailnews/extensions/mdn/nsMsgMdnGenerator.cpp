@@ -586,21 +586,57 @@ nsresult nsMsgMdnGenerator::CreateSecondPart() {
   nsCOMPtr<nsIHttpProtocolHandler> pHTTPHandler =
       do_GetService(NS_NETWORK_PROTOCOL_CONTRACTID_PREFIX "http", &rv);
   if (NS_SUCCEEDED(rv) && pHTTPHandler) {
-    nsAutoCString userAgentString;
-    // Ignore error since we're testing the return value.
-    mozilla::Unused << pHTTPHandler->GetUserAgent(userAgentString);
+    bool sendUserAgent = false;
+    nsCOMPtr<nsIPrefBranch> prefBranch(
+        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+    if (NS_SUCCEEDED(rv) && prefBranch) {
+      prefBranch->GetBoolPref("mailnews.headers.sendUserAgent", &sendUserAgent);
+    }
 
-    if (!userAgentString.IsEmpty()) {
-      // Prepend the product name with the dns name according to RFC 3798.
-      char hostName[256];
-      PR_GetSystemInfo(PR_SI_HOSTNAME_UNTRUNCATED, hostName, sizeof hostName);
-      if ((hostName[0] != '\0') && (strchr(hostName, '.') != NULL)) {
-        userAgentString.InsertLiteral("; ", 0);
-        userAgentString.Insert(nsDependentCString(hostName), 0);
+    if (sendUserAgent) {
+      bool useMinimalUserAgent = false;
+      if (prefBranch) {
+        prefBranch->GetBoolPref("mailnews.headers.useMinimalUserAgent",
+                                &useMinimalUserAgent);
       }
+      if (useMinimalUserAgent) {
+        nsCOMPtr<nsIStringBundleService> bundleService =
+            mozilla::components::StringBundle::Service();
+        if (bundleService) {
+          nsCOMPtr<nsIStringBundle> brandBundle;
+          rv = bundleService->CreateBundle(
+              "chrome://branding/locale/brand.properties",
+              getter_AddRefs(brandBundle));
+          if (NS_SUCCEEDED(rv)) {
+            nsString brandName;
+            brandBundle->GetStringFromName("brandFullName", brandName);
+            if (!brandName.IsEmpty()) {
+              NS_ConvertUTF16toUTF8 ua8(brandName);
+              tmpBuffer = PR_smprintf("Reporting-UA: %s" CRLF, ua8.get());
+              PUSH_N_FREE_STRING(tmpBuffer);
+            }
+          }
+        }
+      } else {
+        nsAutoCString userAgentString;
+        // Ignore error since we're testing the return value.
+        mozilla::Unused << pHTTPHandler->GetUserAgent(userAgentString);
 
-      tmpBuffer = PR_smprintf("Reporting-UA: %s" CRLF, userAgentString.get());
-      PUSH_N_FREE_STRING(tmpBuffer);
+        if (!userAgentString.IsEmpty()) {
+          // Prepend the product name with the dns name according to RFC 3798.
+          char hostName[256];
+          PR_GetSystemInfo(PR_SI_HOSTNAME_UNTRUNCATED, hostName,
+                           sizeof hostName);
+          if ((hostName[0] != '\0') && (strchr(hostName, '.') != NULL)) {
+            userAgentString.InsertLiteral("; ", 0);
+            userAgentString.Insert(nsDependentCString(hostName), 0);
+          }
+
+          tmpBuffer =
+              PR_smprintf("Reporting-UA: %s" CRLF, userAgentString.get());
+          PUSH_N_FREE_STRING(tmpBuffer);
+        }
+      }
     }
   }
 

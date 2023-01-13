@@ -40,6 +40,13 @@ pref("mail.ui.display.dateformat.default", 2);
 pref("mail.ui.display.dateformat.thisweek", 2);
 pref("mail.ui.display.dateformat.today", 0);
 
+// Is a user agent header sent in outgoing email messages?
+pref("mailnews.headers.sendUserAgent", true);
+
+// If sending the user agent header is enabled, 
+// should only a minimal header be sent?
+pref("mailnews.headers.useMinimalUserAgent", false);
+
 // hidden pref for controlling if the user agent string
 // is displayed in the message pane or not...
 pref("mailnews.headers.showUserAgent", false);

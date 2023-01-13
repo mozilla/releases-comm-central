@@ -162,13 +162,25 @@ class MimeMessage {
       ["message-id", messageId],
       ["date", new Date()],
       ["mime-version", "1.0"],
-      [
-        "user-agent",
-        Cc["@mozilla.org/network/protocol;1?name=http"].getService(
-          Ci.nsIHttpProtocolHandler
-        ).userAgent,
-      ],
     ]);
+
+    if (Services.prefs.getBoolPref("mailnews.headers.sendUserAgent")) {
+      if (Services.prefs.getBoolPref("mailnews.headers.useMinimalUserAgent")) {
+        headers.set(
+          "user-agent",
+          Services.strings
+            .createBundle("chrome://branding/locale/brand.properties")
+            .GetStringFromName("brandFullName")
+        );
+      } else {
+        headers.set(
+          "user-agent",
+          Cc["@mozilla.org/network/protocol;1?name=http"].getService(
+            Ci.nsIHttpProtocolHandler
+          ).userAgent
+        );
+      }
+    }
 
     for (let headerName of [...this._compFields.headerNames]) {
       let headerContent = this._compFields.getRawHeader(headerName);
