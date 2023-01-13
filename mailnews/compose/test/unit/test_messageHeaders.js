@@ -247,7 +247,15 @@ async function testDraftInfo() {
   });
 }
 
-async function testOtherHeaders() {
+async function testOtherHeadersAgentParam(sendAgent, minimalAgent) {
+  Services.prefs.setBoolPref("mailnews.headers.sendUserAgent", sendAgent);
+  if (sendAgent) {
+    Services.prefs.setBoolPref(
+      "mailnews.headers.useMinimalUserAgent",
+      minimalAgent
+    );
+  }
+
   let fields = new CompFields();
   let identity = getSmtpIdentity(
     "from@tinderbox.invalid",
@@ -260,11 +268,21 @@ async function testOtherHeaders() {
   let msgHdr = await richCreateMessage(fields, [], identity);
   let after = Date.now();
   let msgData = mailTestUtils.loadMessageToString(msgHdr.folder, msgHdr);
+  let expectedAgent = undefined; // !sendAgent
+  if (sendAgent) {
+    if (minimalAgent) {
+      expectedAgent = Services.strings
+        .createBundle("chrome://branding/locale/brand.properties")
+        .GetStringFromName("brandFullName");
+    } else {
+      expectedAgent = Cc[
+        "@mozilla.org/network/protocol;1?name=http"
+      ].getService(Ci.nsIHttpProtocolHandler).userAgent;
+    }
+  }
   checkMessageHeaders(msgData, {
     "Mime-Version": "1.0",
-    "User-Agent": Cc["@mozilla.org/network/protocol;1?name=http"].getService(
-      Ci.nsIHttpProtocolHandler
-    ).userAgent,
+    "User-Agent": expectedAgent,
     "X-Priority": "2 (High)",
     References: "<fake@tinderbox.invalid> <more@test.invalid>",
     "In-Reply-To": "<more@test.invalid>",
@@ -310,6 +328,18 @@ async function testOtherHeaders() {
     References: expected.join(" "),
     "In-Reply-To": references[references.length - 1],
   });
+}
+
+async function testOtherHeadersFullAgent() {
+  await testOtherHeadersAgentParam(true, false);
+}
+
+async function testOtherHeadersMinimalAgent() {
+  await testOtherHeadersAgentParam(true, true);
+}
+
+async function testOtherHeadersNoAgent() {
+  await testOtherHeadersAgentParam(false, undefined);
 }
 
 async function testNewsgroups() {
@@ -670,7 +700,9 @@ var tests = [
   testI18NEnvelope,
   testIDNEnvelope,
   testDraftInfo,
-  testOtherHeaders,
+  testOtherHeadersFullAgent,
+  testOtherHeadersMinimalAgent,
+  testOtherHeadersNoAgent,
   testNewsgroups,
   testSendHeaders,
   testContentHeaders,

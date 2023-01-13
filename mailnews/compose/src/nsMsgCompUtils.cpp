@@ -176,11 +176,6 @@ nsresult mime_sanity_check_fields(
   return mime_sanity_check_fields_recipients(to, cc, bcc, newsgroups);
 }
 
-//
-// Generate the message headers for the new RFC822 message
-//
-#define UA_PREF_PREFIX "general.useragent."
-
 // Helper macro for generating the X-Mozilla-Draft-Info header.
 #define APPEND_BOOL(method, param)         \
   do {                                     \
@@ -297,16 +292,44 @@ nsresult mime_generate_headers(nsIMsgCompFields* fields,
     finalHeaders->SetRawHeader(HEADER_X_MOZILLA_DRAFT_INFO, draftInfo);
   }
 
-  nsCOMPtr<nsIHttpProtocolHandler> pHTTPHandler =
-      do_GetService(NS_NETWORK_PROTOCOL_CONTRACTID_PREFIX "http", &rv);
-  if (NS_SUCCEEDED(rv) && pHTTPHandler) {
-    nsAutoCString userAgentString;
-    // Ignore error since we're testing the return value.
-    mozilla::Unused << pHTTPHandler->GetUserAgent(userAgentString);
+  bool sendUserAgent = false;
+  if (prefs) {
+    prefs->GetBoolPref("mailnews.headers.sendUserAgent", &sendUserAgent);
+  }
+  if (sendUserAgent) {
+    bool useMinimalUserAgent = false;
+    if (prefs) {
+      prefs->GetBoolPref("mailnews.headers.useMinimalUserAgent",
+                         &useMinimalUserAgent);
+    }
+    if (useMinimalUserAgent) {
+      nsCOMPtr<nsIStringBundleService> bundleService =
+          mozilla::components::StringBundle::Service();
+      if (bundleService) {
+        nsCOMPtr<nsIStringBundle> brandBundle;
+        rv = bundleService->CreateBundle(
+            "chrome://branding/locale/brand.properties",
+            getter_AddRefs(brandBundle));
+        if (NS_SUCCEEDED(rv)) {
+          nsString brandName;
+          brandBundle->GetStringFromName("brandFullName", brandName);
+          if (!brandName.IsEmpty())
+            finalHeaders->SetUnstructuredHeader("User-Agent", brandName);
+        }
+      }
+    } else {
+      nsCOMPtr<nsIHttpProtocolHandler> pHTTPHandler =
+          do_GetService(NS_NETWORK_PROTOCOL_CONTRACTID_PREFIX "http", &rv);
+      if (NS_SUCCEEDED(rv) && pHTTPHandler) {
+        nsAutoCString userAgentString;
+        // Ignore error since we're testing the return value.
+        mozilla::Unused << pHTTPHandler->GetUserAgent(userAgentString);
 
-    if (!userAgentString.IsEmpty())
-      finalHeaders->SetUnstructuredHeader(
-          "User-Agent", NS_ConvertUTF8toUTF16(userAgentString));
+        if (!userAgentString.IsEmpty())
+          finalHeaders->SetUnstructuredHeader(
+              "User-Agent", NS_ConvertUTF8toUTF16(userAgentString));
+      }
+    }
   }
 
   finalHeaders->SetUnstructuredHeader("MIME-Version", u"1.0"_ns);
