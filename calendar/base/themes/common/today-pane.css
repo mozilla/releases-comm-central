@@ -296,7 +296,7 @@
 #agenda-container {
   display: flex;
   flex-direction: column;
-  height: 0; /* Forces #agenda to scroll instead of being too big. */
+  min-height: 7em; /* Show at least the #agenda-toolbar and a part of the events. */
 }
 
 #agenda {
