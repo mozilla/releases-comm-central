@@ -73,6 +73,9 @@ class UnifiedToolbarCustomization extends HTMLElement {
     this.#tabList.addEventListener("tabswitch", this.#handleTabSwitch, {
       capture: true,
     });
+    template
+      .querySelector("#customizationToSettingsButton")
+      .addEventListener("click", this.#handleSettingsButton);
     this.initialize();
     this.append(template);
     this.#updateResetToDefault();
@@ -94,6 +97,12 @@ class UnifiedToolbarCustomization extends HTMLElement {
       BUTTON_STYLE_PREF,
       BUTTON_STYLE_MAP.indexOf(event.target.value)
     );
+  };
+
+  #handleSettingsButton = event => {
+    event.preventDefault();
+    openPreferencesTab("paneGeneral", "layoutGroup");
+    this.toggle(false);
   };
 
   /**
