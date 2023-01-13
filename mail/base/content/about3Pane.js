@@ -2127,6 +2127,9 @@ function restoreState({
  * Restore the chevron icon indicating the current sort order.
  */
 function restoreSortIndicator() {
+  if (!gDBView) {
+    return;
+  }
   threadPane.updateSortIndicator(
     sortController.convertSortTypeToColumnID(gViewWrapper.primarySortType)
   );
