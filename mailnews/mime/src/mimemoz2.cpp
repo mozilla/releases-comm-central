@@ -65,8 +65,7 @@ mime_stream_data::mime_stream_data()
       obj(nullptr),
       options(nullptr),
       headers(nullptr),
-      output_emitter(nullptr),
-      firstCheck(false) {}
+      output_emitter(nullptr) {}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Attachment handling routines
@@ -804,29 +803,6 @@ extern "C" int mime_display_stream_write(nsMIMESession* stream, const char* buf,
   MimeObject* obj = (msd ? msd->obj : 0);
   if (!obj) return -1;
 
-  //
-  // Ok, now check to see if this is a display operation for a MIME Parts on
-  // Demand enabled call.
-  //
-  if (msd->firstCheck) {
-    if (msd->channel) {
-      nsCOMPtr<nsIURI> aUri;
-      if (NS_SUCCEEDED(msd->channel->GetURI(getter_AddRefs(aUri)))) {
-        nsCOMPtr<nsIImapUrl> imapURL = do_QueryInterface(aUri);
-        if (imapURL) {
-          nsImapContentModifiedType cModified;
-          if (NS_SUCCEEDED(imapURL->GetContentModified(&cModified))) {
-            if (cModified !=
-                nsImapContentModifiedTypes::IMAP_CONTENT_NOT_MODIFIED)
-              msd->options->missing_parts = true;
-          }
-        }
-      }
-    }
-
-    msd->firstCheck = false;
-  }
-
   return obj->clazz->parse_buffer((char*)buf, size, obj);
 }
 
@@ -1247,7 +1223,6 @@ extern "C" void* mime_bridge_create_display_stream(
 
   // Assign the new mime emitter - will handle output operations
   msd->output_emitter = newEmitter;
-  msd->firstCheck = true;
 
   // Store the URL string for this decode operation
   nsAutoCString urlString;

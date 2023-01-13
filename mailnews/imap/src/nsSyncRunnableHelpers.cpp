@@ -388,8 +388,6 @@ NS_SYNCRUNNABLEMETHOD3(ImapMessageSink, NotifyMessageDeleted, const char*, bool,
                        const char*)
 NS_SYNCRUNNABLEMETHOD2(ImapMessageSink, GetMessageSizeFromDB, const char*,
                        uint32_t*)
-NS_SYNCRUNNABLEMETHOD2(ImapMessageSink, SetContentModified, nsIImapUrl*,
-                       nsImapContentModifiedType)
 NS_SYNCRUNNABLEMETHOD4(ImapMessageSink, GetCurMoveCopyMessageInfo, nsIImapUrl*,
                        PRTime*, nsACString&, uint32_t*)
 

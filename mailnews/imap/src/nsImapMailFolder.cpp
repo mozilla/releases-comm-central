@@ -4800,12 +4800,6 @@ nsImapMailFolder::GetMessageSizeFromDB(const char* id, uint32_t* size) {
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::SetContentModified(nsIImapUrl* aImapUrl,
-                                     nsImapContentModifiedType modified) {
-  return aImapUrl->SetContentModified(modified);
-}
-
-NS_IMETHODIMP
 nsImapMailFolder::GetCurMoveCopyMessageInfo(nsIImapUrl* runningUrl,
                                             PRTime* aDate,
                                             nsACString& aKeywords,

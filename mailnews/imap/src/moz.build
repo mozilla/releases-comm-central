@@ -10,7 +10,6 @@ EXPORTS += [
 SOURCES += [
     "nsAutoSyncManager.cpp",
     "nsAutoSyncState.cpp",
-    "nsImapBodyShell.cpp",
     "nsImapFlagAndUidState.cpp",
     "nsImapGenericParser.cpp",
     "nsImapHostSessionList.cpp",

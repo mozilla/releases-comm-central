@@ -1017,8 +1017,13 @@
                 oncommand="gGeneralPane.clearCache();"/>
       </hbox>
       <hbox>
-        <checkbox preference="browser.cache.disk.smart_size.enabled"
-                  id="allowSmartSize"
+        <checkbox id="clearCacheOnShutdown"
+                  preference="privacy.clearOnShutdown.cache"
+                  data-l10n-id="clear-cache-shutdown-label"/>
+      </hbox>
+      <hbox>
+        <checkbox id="allowSmartSize"
+                  preference="browser.cache.disk.smart_size.enabled"
                   data-l10n-id="smart-cache-label"/>
       </hbox>
       <hbox align="center" class="indent">

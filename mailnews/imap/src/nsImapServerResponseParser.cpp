@@ -8,7 +8,6 @@
 #include "nsImapCore.h"
 #include "nsImapProtocol.h"
 #include "nsImapServerResponseParser.h"
-#include "nsImapBodyShell.h"
 #include "nsIImapFlagAndUidState.h"
 #include "nsImapNamespace.h"
 #include "nsImapUtils.h"
@@ -400,40 +399,6 @@ void nsImapServerResponseParser::ProcessOkCommand(const char* commandToken) {
       fServerConnection.UpdateFolderQuotaData(kValidateQuota, str, 0, 0);
     }
   }
-  if (GetFillingInShell()) {
-    // There is a BODYSTRUCTURE response.  Now let's generate the stream...
-    // that is, if we're not doing it already
-    if (!m_shell->IsBeingGenerated()) {
-      nsImapProtocol* navCon = &fServerConnection;
-
-      char* imapPart = nullptr;
-
-      fServerConnection.GetCurrentUrl()->GetImapPartToFetch(&imapPart);
-      m_shell->Generate(&fServerConnection, imapPart);
-      PR_Free(imapPart);
-
-      if ((navCon && navCon->GetPseudoInterrupted()) ||
-          fServerConnection.DeathSignalReceived()) {
-        // we were pseudointerrupted or interrupted
-        // if it's not in the cache, then we were (pseudo)interrupted while
-        // generating for the first time. Release it.
-        if (!m_shell->IsShellCached()) m_shell = nullptr;
-        navCon->PseudoInterrupt(false);
-      } else if (m_shell->GetIsValid()) {
-        // If we have a valid shell that has not already been cached, then cache
-        // it.
-        if (!m_shell->IsShellCached() &&
-            fHostSessionList)  // cache is responsible for destroying it
-        {
-          MOZ_LOG(IMAP, mozilla::LogLevel::Info,
-                  ("BODYSHELL:  Adding shell to cache."));
-          const char* serverKey = fServerConnection.GetImapServerKey();
-          fHostSessionList->AddShellToCacheForHost(serverKey, m_shell);
-        }
-      }
-      m_shell = nullptr;
-    }
-  }
 }
 
 void nsImapServerResponseParser::ProcessBadCommand(const char* commandToken) {
@@ -447,7 +412,6 @@ void nsImapServerResponseParser::ProcessBadCommand(const char* commandToken) {
     fIMAPstate = kAuthenticated;  // nothing selected
   else if (!PL_strcasecmp(commandToken, "CLOSE"))
     fIMAPstate = kAuthenticated;  // nothing selected
-  if (GetFillingInShell() && !m_shell->IsBeingGenerated()) m_shell = nullptr;
 }
 
 // RFC3501:  response-data = "*" SP (resp-cond-state / resp-cond-bye /
@@ -1173,19 +1137,7 @@ void nsImapServerResponseParser::msg_fetch() {
     // I only fetch RFC822 so I should never see these BODY responses
     else if (!PL_strcasecmp(fNextToken, "BODY"))
       skip_to_CRLF();  // I never ask for this
-    else if (!PL_strcasecmp(fNextToken, "BODYSTRUCTURE")) {
-      if (fCurrentResponseUID == 0)
-        fFlagState->GetUidOfMessage(fFetchResponseIndex - 1,
-                                    &fCurrentResponseUID);
-      bodystructure_data();
-    } else if (!PL_strncasecmp(fNextToken, "BODY[TEXT", 9)) {
-      mime_data();
-    } else if (!PL_strncasecmp(fNextToken, "BODY[", 5) &&
-               PL_strncasecmp(fNextToken, "BODY[]", 6)) {
-      fDownloadingHeaders = false;
-      // A specific MIME part, or MIME part header
-      mime_data();
-    } else if (!PL_strcasecmp(fNextToken, "ENVELOPE")) {
+    else if (!PL_strcasecmp(fNextToken, "ENVELOPE")) {
       fDownloadingHeaders = true;
       bNeedEndMessageDownload = true;
       BeginMessageDownload(MESSAGE_RFC822);
@@ -1819,13 +1771,7 @@ void nsImapServerResponseParser::resp_cond_bye() {
 }
 
 void nsImapServerResponseParser::msg_fetch_headers(const char* partNum) {
-  if (GetFillingInShell()) {
-    char* headerData = CreateAstring();
-    AdvanceToNextToken();
-    m_shell->AdoptMessageHeaders(headerData, partNum);
-  } else {
-    msg_fetch_content(false, 0, MESSAGE_RFC822);
-  }
+  msg_fetch_content(false, 0, MESSAGE_RFC822);
 }
 
 /* nstring         ::= string / nil
@@ -1836,11 +1782,9 @@ nil             ::= "NIL"
 void nsImapServerResponseParser::msg_fetch_content(bool chunk, int32_t origin,
                                                    const char* content_type) {
   // setup the stream for downloading this message.
-  // Don't do it if we are filling in a shell or downloading a part.
-  // DO do it if we are downloading a whole message as a result of
-  // an invalid shell trying to generate.
-  if ((!chunk || (origin == 0)) && !GetDownloadingHeaders() &&
-      (GetFillingInShell() ? m_shell->GetGeneratingWholeMessage() : true)) {
+  // Note: no longer concerned with body shell issues since now we only fetch
+  // full message.
+  if ((!chunk || (origin == 0)) && !GetDownloadingHeaders()) {
     if (NS_FAILED(BeginMessageDownload(content_type))) return;
   }
 
@@ -1852,8 +1796,7 @@ void nsImapServerResponseParser::msg_fetch_content(bool chunk, int32_t origin,
   } else
     AdvanceToNextToken();  // eat "NIL"
 
-  if (fLastChunk &&
-      (GetFillingInShell() ? m_shell->GetGeneratingWholeMessage() : true)) {
+  if (fLastChunk) {
     // complete the message download
     if (ContinueParse()) {
       if (fReceivedHeaderOrSizeForUID == CurrentResponseUID()) {
@@ -2247,326 +2190,6 @@ void nsImapServerResponseParser::acl_data() {
   }
 }
 
-void nsImapServerResponseParser::mime_data() {
-  if (PL_strstr(fNextToken, "MIME"))
-    mime_header_data();
-  else
-    mime_part_data();
-}
-
-// mime_header_data should not be streamed out;  rather, it should be
-// buffered in the nsImapBodyShell.
-// This is because we are still in the process of generating enough
-// information from the server (such as the MIME header's size) so that
-// we can construct the final output stream.
-void nsImapServerResponseParser::mime_header_data() {
-  char* partNumber = PL_strdup(fNextToken);
-  if (partNumber) {
-    char *start = partNumber + 5,
-         *end = partNumber + 5;  // 5 == strlen("BODY[")
-    while (ContinueParse() && end && *end != 'M' && *end != 'm') {
-      end++;
-    }
-    if (end && (*end == 'M' || *end == 'm')) {
-      *(end - 1) = 0;
-      AdvanceToNextToken();
-      char* mimeHeaderData = CreateAstring();  // is it really this simple?
-      AdvanceToNextToken();
-      if (m_shell) {
-        m_shell->AdoptMimeHeader(start, mimeHeaderData);
-      }
-    } else {
-      SetSyntaxError(true);
-    }
-    PR_Free(partNumber);  // partNumber is not adopted by the body shell.
-  } else {
-    HandleMemoryFailure();
-  }
-}
-
-// Actual mime parts are filled in on demand (either from shell generation
-// or from explicit user download), so we need to stream these out.
-void nsImapServerResponseParser::mime_part_data() {
-  char* checkOriginToken = PL_strdup(fNextToken);
-  if (checkOriginToken) {
-    uint32_t origin = 0;
-    bool originFound = false;
-    char* whereStart = PL_strchr(checkOriginToken, '<');
-    if (whereStart) {
-      char* whereEnd = PL_strchr(whereStart, '>');
-      if (whereEnd) {
-        *whereEnd = 0;
-        whereStart++;
-        origin = atoi(whereStart);
-        originFound = true;
-      }
-    }
-    PR_Free(checkOriginToken);
-    AdvanceToNextToken();
-    msg_fetch_content(originFound, origin,
-                      MESSAGE_RFC822);  // keep content type as message/rfc822,
-                                        // even though the
-    // MIME part might not be, because then libmime will
-    // still handle and decode it.
-  } else
-    HandleMemoryFailure();
-}
-
-// parse FETCH BODYSTRUCTURE response, "a parenthesized list that describes
-// the [MIME-IMB] body structure of a message" [RFC 3501].
-void nsImapServerResponseParser::bodystructure_data() {
-  AdvanceToNextToken();
-  if (ContinueParse() && fNextToken &&
-      *fNextToken == '(')  // It has to start with an open paren.
-  {
-    // Turn the BODYSTRUCTURE response into a form that the
-    // nsIMAPBodypartMessage can be constructed from.
-    // FIXME: Follow up on bug 384210 to investigate why the caller has to
-    // duplicate the two in-param strings.
-    nsIMAPBodypartMessage* message = new nsIMAPBodypartMessage(
-        NULL, NULL, true, strdup("message"), strdup("rfc822"), NULL, NULL, NULL,
-        0, fServerConnection.GetPreferPlainText());
-    nsIMAPBodypart* body = bodystructure_part(PL_strdup("1"), message);
-    if (body)
-      message->SetBody(body);
-    else {
-      delete message;
-      message = nullptr;
-    }
-    bool showAttachmentsInline = fServerConnection.GetShowAttachmentsInline();
-    m_shell =
-        new nsImapBodyShell(message, CurrentResponseUID(), FolderUID(),
-                            GetSelectedMailboxName(), showAttachmentsInline);
-    // ignore syntax errors in parsing the body structure response. If there's
-    // an error we'll just fall back to fetching the whole message.
-    SetSyntaxError(false);
-  } else
-    SetSyntaxError(true);
-}
-
-// RFC3501:  body = "(" (body-type-1part / body-type-mpart) ")"
-nsIMAPBodypart* nsImapServerResponseParser::bodystructure_part(
-    char* partNum, nsIMAPBodypart* parentPart) {
-  // Check to see if this buffer is a leaf or container
-  // (Look at second character - if an open paren, then it is a container)
-  if (*fNextToken != '(') {
-    NS_ASSERTION(false, "bodystructure_part must begin with '('");
-    return NULL;
-  }
-
-  if (fNextToken[1] == '(') return bodystructure_multipart(partNum, parentPart);
-  return bodystructure_leaf(partNum, parentPart);
-}
-
-// RFC3501: body-type-1part = (body-type-basic / body-type-msg / body-type-text)
-//                            [SP body-ext-1part]
-nsIMAPBodypart* nsImapServerResponseParser::bodystructure_leaf(
-    char* partNum, nsIMAPBodypart* parentPart) {
-  // historical note: this code was originally in
-  // nsIMAPBodypartLeaf::ParseIntoObjects()
-  char *bodyType = nullptr, *bodySubType = nullptr, *bodyID = nullptr,
-       *bodyDescription = nullptr, *bodyEncoding = nullptr;
-  int32_t partLength = 0;
-  bool isValid = true;
-
-  // body type  ("application", "text", "image", etc.)
-  if (ContinueParse()) {
-    fNextToken++;  // eat the first '('
-    bodyType = CreateNilString();
-    if (ContinueParse()) AdvanceToNextToken();
-  }
-
-  // body subtype  ("gif", "html", etc.)
-  if (isValid && ContinueParse()) {
-    bodySubType = CreateNilString();
-    if (ContinueParse()) AdvanceToNextToken();
-  }
-
-  // body parameter: parenthesized list
-  if (isValid && ContinueParse()) {
-    if (fNextToken[0] == '(') {
-      fNextToken++;
-      skip_to_close_paren();
-    } else if (!PL_strcasecmp(fNextToken, "NIL"))
-      AdvanceToNextToken();
-  }
-
-  // body id
-  if (isValid && ContinueParse()) {
-    bodyID = CreateNilString();
-    if (ContinueParse()) AdvanceToNextToken();
-  }
-
-  // body description
-  if (isValid && ContinueParse()) {
-    bodyDescription = CreateNilString();
-    if (ContinueParse()) AdvanceToNextToken();
-  }
-
-  // body encoding
-  if (isValid && ContinueParse()) {
-    bodyEncoding = CreateNilString();
-    if (ContinueParse()) AdvanceToNextToken();
-  }
-
-  // body size
-  if (isValid && ContinueParse()) {
-    char* bodySizeString = CreateAtom();
-    if (!bodySizeString)
-      isValid = false;
-    else {
-      partLength = atoi(bodySizeString);
-      PR_Free(bodySizeString);
-      if (ContinueParse()) AdvanceToNextToken();
-    }
-  }
-
-  if (!isValid || !ContinueParse()) {
-    PR_FREEIF(partNum);
-    PR_FREEIF(bodyType);
-    PR_FREEIF(bodySubType);
-    PR_FREEIF(bodyID);
-    PR_FREEIF(bodyDescription);
-    PR_FREEIF(bodyEncoding);
-  } else {
-    if (PL_strcasecmp(bodyType, "message") ||
-        PL_strcasecmp(bodySubType, "rfc822")) {
-      skip_to_close_paren();
-      return new nsIMAPBodypartLeaf(
-          partNum, parentPart, bodyType, bodySubType, bodyID, bodyDescription,
-          bodyEncoding, partLength, fServerConnection.GetPreferPlainText());
-    }
-
-    // This part is of type "message/rfc822"  (probably a forwarded message)
-    nsIMAPBodypartMessage* message = new nsIMAPBodypartMessage(
-        partNum, parentPart, false, bodyType, bodySubType, bodyID,
-        bodyDescription, bodyEncoding, partLength,
-        fServerConnection.GetPreferPlainText());
-
-    // there are three additional fields: envelope structure, bodystructure, and
-    // size in lines historical note: this code was originally in
-    // nsIMAPBodypartMessage::ParseIntoObjects()
-
-    // envelope (ignored)
-    if (*fNextToken == '(') {
-      fNextToken++;
-      skip_to_close_paren();
-    } else
-      isValid = false;
-
-    // bodystructure
-    if (isValid && ContinueParse()) {
-      if (*fNextToken != '(')
-        isValid = false;
-      else {
-        char* bodyPartNum = PR_smprintf("%s.1", partNum);
-        if (bodyPartNum) {
-          nsIMAPBodypart* body = bodystructure_part(bodyPartNum, message);
-          if (body)
-            message->SetBody(body);
-          else
-            isValid = false;
-        }
-      }
-    }
-
-    // ignore "size in text lines"
-
-    if (isValid && ContinueParse()) {
-      skip_to_close_paren();
-      return message;
-    }
-    delete message;
-  }
-
-  // parsing failed, just move to the end of the parentheses group
-  if (ContinueParse()) skip_to_close_paren();
-  return nullptr;
-}
-
-// RFC3501:  body-type-mpart = 1*body SP media-subtype
-//                             [SP body-ext-mpart]
-nsIMAPBodypart* nsImapServerResponseParser::bodystructure_multipart(
-    char* partNum, nsIMAPBodypart* parentPart) {
-  nsIMAPBodypartMultipart* multipart =
-      new nsIMAPBodypartMultipart(partNum, parentPart);
-  bool isValid = multipart->GetIsValid();
-  // historical note: this code was originally in
-  // nsIMAPBodypartMultipart::ParseIntoObjects()
-  if (ContinueParse()) {
-    fNextToken++;  // eat the first '('
-    // Parse list of children
-    int childCount = 0;
-    while (isValid && fNextToken[0] == '(' && ContinueParse()) {
-      childCount++;
-      char* childPartNum = NULL;
-      // note: the multipart constructor does some magic on partNumber
-      if (PL_strcmp(multipart->GetPartNumberString(), "0"))  // not top-level
-        childPartNum =
-            PR_smprintf("%s.%d", multipart->GetPartNumberString(), childCount);
-      else  // top-level
-        childPartNum = PR_smprintf("%d", childCount);
-      if (!childPartNum)
-        isValid = false;
-      else {
-        nsIMAPBodypart* child = bodystructure_part(childPartNum, multipart);
-        if (child)
-          multipart->AppendPart(child);
-        else
-          isValid = false;
-      }
-    }
-
-    // RFC3501:  media-subtype   = string
-    // (multipart subtype: mixed, alternative, etc.)
-    if (isValid && ContinueParse()) {
-      char* bodySubType = CreateNilString();
-      multipart->SetBodySubType(bodySubType);
-      if (ContinueParse()) AdvanceToNextToken();
-    }
-
-    // clang-format off
-    // extension data:
-    // RFC3501:  body-ext-mpart = body-fld-param [SP body-fld-dsp [SP body-fld-lang
-    //                            [SP body-fld-loc *(SP body-extension)]]]
-
-    // body parameter parenthesized list (optional data), includes boundary parameter
-    // RFC3501:  body-fld-param  = "(" string SP string *(SP string SP string) ")" / nil
-    // clang-format on
-    char* boundaryData = nullptr;
-    if (isValid && ContinueParse() && *fNextToken == '(') {
-      fNextToken++;
-      while (ContinueParse() && *fNextToken != ')') {
-        char* attribute = CreateNilString();
-        if (ContinueParse()) AdvanceToNextToken();
-        if (ContinueParse() && !PL_strcasecmp(attribute, "BOUNDARY")) {
-          char* boundary = CreateNilString();
-          if (boundary) boundaryData = PR_smprintf("--%s", boundary);
-          PR_FREEIF(boundary);
-        } else if (ContinueParse()) {
-          char* value = CreateNilString();
-          PR_FREEIF(value);
-        }
-        PR_FREEIF(attribute);
-        if (ContinueParse()) AdvanceToNextToken();
-      }
-      if (ContinueParse()) fNextToken++;  // skip closing ')'
-    }
-    if (boundaryData)
-      multipart->SetBoundaryData(boundaryData);
-    else
-      isValid =
-          false;  // Actually, we should probably generate a boundary here.
-  }
-
-  // always move to closing ')', even if part was not successfully read
-  if (ContinueParse()) skip_to_close_paren();
-
-  if (isValid) return multipart;
-  delete multipart;
-  return nullptr;
-}
-
 // RFC2087:  quotaroot_response = "QUOTAROOT" SP astring *(SP astring)
 //           quota_response = "QUOTA" SP astring SP quota_list
 //           quota_list     = "(" [quota_resource *(SP quota_resource)] ")"
@@ -2638,22 +2261,8 @@ void nsImapServerResponseParser::id_data() {
   skip_to_CRLF();
 }
 
-bool nsImapServerResponseParser::GetFillingInShell() {
-  return (m_shell != nullptr);
-}
-
 bool nsImapServerResponseParser::GetDownloadingHeaders() {
   return fDownloadingHeaders;
-}
-
-// Tells the server state parser to use a previously cached shell.
-void nsImapServerResponseParser::UseCachedShell(nsImapBodyShell* cachedShell) {
-  // We shouldn't already have another shell we're dealing with.
-  if (m_shell && cachedShell) {
-    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("PARSER: Shell Collision"));
-    NS_ASSERTION(false, "shell collision");
-  }
-  m_shell = cachedShell;
 }
 
 void nsImapServerResponseParser::ResetCapabilityFlag() {}

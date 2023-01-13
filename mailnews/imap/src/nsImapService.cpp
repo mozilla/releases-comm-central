@@ -85,8 +85,6 @@ static const char sequenceString[] = "SEQUENCE";
 static const char uidString[] = "UID";
 
 static bool gInitialized = false;
-static int32_t gMIMEOnDemandThreshold = 15000;
-static bool gMIMEOnDemand = false;
 
 NS_IMPL_ISUPPORTS(nsImapService, nsIImapService, nsIMsgMessageService,
                   nsIProtocolHandler, nsIMsgProtocolInfo,
@@ -106,14 +104,6 @@ nsImapService::nsImapService() {
             nsIProtocolHandler::URI_FORBIDS_COOKIE_ACCESS |
             nsIProtocolHandler::ORIGIN_IS_FULL_SPEC,
         nsIImapUrl::DEFAULT_IMAP_PORT);
-
-    nsCOMPtr<nsIPrefBranch> prefBranch(
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-    if (NS_SUCCEEDED(rv) && prefBranch) {
-      prefBranch->GetBoolPref("mail.imap.mime_parts_on_demand", &gMIMEOnDemand);
-      prefBranch->GetIntPref("mail.imap.mime_parts_on_demand_threshold",
-                             &gMIMEOnDemandThreshold);
-    }
 
     // initialize auto-sync service
     nsCOMPtr<nsIAutoSyncManager> autoSyncMgr =
@@ -482,44 +472,16 @@ NS_IMETHODIMP nsImapService::DisplayMessage(const nsACString& aMessageURI,
       nsCOMPtr<nsIMsgI18NUrl> i18nurl(do_QueryInterface(imapUrl));
       i18nurl->SetAutodetectCharset(aAutodetectCharset);
 
-      uint32_t messageSize;
-      bool useMimePartsOnDemand = gMIMEOnDemand;
       bool shouldStoreMsgOffline = false;
       bool hasMsgOffline = false;
 
-      nsCOMPtr<nsIMsgIncomingServer> aMsgIncomingServer;
-
-      if (imapMessageSink)
-        imapMessageSink->GetMessageSizeFromDB(msgKey.get(), &messageSize);
-
       msgurl->SetMsgWindow(aMsgWindow);
-
-      rv = msgurl->GetServer(getter_AddRefs(aMsgIncomingServer));
-
-      if (NS_SUCCEEDED(rv) && aMsgIncomingServer) {
-        nsCOMPtr<nsIImapIncomingServer> aImapServer(
-            do_QueryInterface(aMsgIncomingServer, &rv));
-        if (NS_SUCCEEDED(rv) && aImapServer)
-          aImapServer->GetMimePartsOnDemand(&useMimePartsOnDemand);
-      }
-
-      nsAutoCString uriStr(aMessageURI);
-      int32_t keySeparator = uriStr.RFindChar('#');
-      if (keySeparator != -1) {
-        int32_t keyEndSeparator = MsgFindCharInSet(uriStr, "/?&", keySeparator);
-        int32_t mpodFetchPos =
-            uriStr.Find("fetchCompleteMessage=true", keyEndSeparator);
-        if (mpodFetchPos != -1) useMimePartsOnDemand = false;
-      }
 
       if (folder) {
         folder->ShouldStoreMsgOffline(key, &shouldStoreMsgOffline);
         folder->HasMsgOffline(key, &hasMsgOffline);
       }
       imapUrl->SetStoreResultsOffline(shouldStoreMsgOffline);
-      imapUrl->SetFetchPartsOnDemand(useMimePartsOnDemand &&
-                                     messageSize >=
-                                         (uint32_t)gMIMEOnDemandThreshold);
 
       if (hasMsgOffline) msgurl->SetMsgIsInLocalCache(true);
 
@@ -531,6 +493,7 @@ NS_IMETHODIMP nsImapService::DisplayMessage(const nsACString& aMessageURI,
       // flag on the msg, but a FETCH (BODY.PEEK[]) won't.
       bool forcePeek = false;
       if (NS_SUCCEEDED(rv) && prefBranch) {
+        nsAutoCString uriStr(aMessageURI);
         int32_t dontMarkAsReadPos = uriStr.Find("&markRead=false");
         bool markReadAuto = true;
         prefBranch->GetBoolPref("mailnews.mark_message_read.auto",
@@ -1130,16 +1093,9 @@ NS_IMETHODIMP nsImapService::StreamMessage(
   // streaming, for example, if we just want a quick look at some header,
   // without having to download all the attachments...
 
-  uint32_t messageSize = 0;
-  imapMessageSink->GetMessageSizeFromDB(msgKey.get(), &messageSize);
-  nsAutoCString additionalHeader(aAdditionalHeader);
-  bool fetchOnDemand =
-      additionalHeader.Find("&fetchCompleteMessage=false") != kNotFound &&
-      messageSize > (uint32_t)gMIMEOnDemandThreshold;
-  imapUrl->SetFetchPartsOnDemand(fetchOnDemand);
-
   // We need to add the fetch command here for the cache lookup to behave
   // correctly
+  nsAutoCString additionalHeader(aAdditionalHeader);
   rv = AddImapFetchToUrl(mailnewsurl, folder, msgKey, additionalHeader);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -2472,11 +2428,6 @@ nsresult nsImapService::NewURI(const nsACString& aSpec,
     }
   }
 
-  // if we are fetching a part, be sure to enable fetch parts on demand
-  bool mimePartSelectorDetected = false;
-  aImapUrl->GetMimePartSelectorDetected(&mimePartSelectorDetected);
-  if (mimePartSelectorDetected) aImapUrl->SetFetchPartsOnDemand(true);
-
   // we got an imap url, so be sure to return it...
   nsCOMPtr<nsIURI> imapUri = do_QueryInterface(aImapUrl);
 
@@ -3145,8 +3096,15 @@ NS_IMETHODIMP nsImapService::GetCacheStorage(nsICacheStorage** result) {
     RefPtr<MailnewsLoadContextInfo> lci =
         new MailnewsLoadContextInfo(false, false, mozilla::OriginAttributes());
 
-    rv = cacheStorageService->MemoryCacheStorage(lci,
+    // Determine if disk cache or memory cache is in use.
+    // Note: This is mozilla system cache, not offline storage (mbox, maildir)
+    // which is also sometimes referred to as cache at places in the code.
+    if (mozilla::Preferences::GetBool("mail.imap.use_disk_cache2", true))
+      rv = cacheStorageService->DiskCacheStorage(lci,
                                                  getter_AddRefs(mCacheStorage));
+    else
+      rv = cacheStorageService->MemoryCacheStorage(
+          lci, getter_AddRefs(mCacheStorage));
     NS_ENSURE_SUCCESS(rv, rv);
   }
 

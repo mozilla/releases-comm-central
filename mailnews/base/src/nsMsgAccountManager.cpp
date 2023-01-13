@@ -71,6 +71,7 @@
 #include "nsIOutputStream.h"
 #include "nsISafeOutputStream.h"
 #include "nsXULAppAPI.h"
+#include "nsICacheStorageService.h"
 
 #define PREF_MAIL_ACCOUNTMANAGER_ACCOUNTS "mail.accountmanager.accounts"
 #define PREF_MAIL_ACCOUNTMANAGER_DEFAULTACCOUNT \
@@ -1457,12 +1458,21 @@ nsMsgAccountManager::CleanupOnExit() {
 
   m_shutdownInProgress = true;
 
+  nsresult rv;
+  // If enabled, clear cache on shutdown. This is common to all accounts.
+  bool clearCache = false;
+  m_prefs->GetBoolPref("privacy.clearOnShutdown.cache", &clearCache);
+  if (clearCache) {
+    nsCOMPtr<nsICacheStorageService> cacheStorageService =
+        do_GetService("@mozilla.org/netwerk/cache-storage-service;1", &rv);
+    if (NS_SUCCEEDED(rv)) cacheStorageService->Clear();
+  }
+
   for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
     nsCOMPtr<nsIMsgIncomingServer>& server = iter.Data();
 
     bool emptyTrashOnExit = false;
     bool cleanupInboxOnExit = false;
-    nsresult rv;
 
     if (WeAreOffline()) break;
 

@@ -232,8 +232,6 @@ class nsImapProtocol : public nsIImapProtocol,
   void FetchTryChunking(const nsCString& messageIds,
                         nsIMAPeFetchFields whatToFetch, bool idIsUid,
                         char* part, uint32_t downloadSize, bool tryChunking);
-  virtual void PipelinedFetchMessageParts(
-      nsCString& uid, const nsTArray<nsIMAPMessagePartID>& parts);
   void FallbackToFetchWholeMsg(const nsCString& messageId,
                                uint32_t messageSize);
   // used when streaming a message fetch
@@ -257,7 +255,6 @@ class nsImapProtocol : public nsIImapProtocol,
   // Comment from 4.5: We really need to break out the thread synchronizer from
   // the connection class...Not sure what this means
   bool GetPseudoInterrupted();
-  void PseudoInterrupt(bool the_interrupt);
 
   uint32_t GetMessageSize(const nsACString& messageId);
   bool GetSubscribingNow();
@@ -338,8 +335,6 @@ class nsImapProtocol : public nsIImapProtocol,
   void MailboxData();
   void GetMyRightsForFolder(const char* mailboxName);
   void Bodystructure(const nsCString& messageId, bool idIsUid);
-  void PipelinedFetchMessageParts(const char* uid,
-                                  const nsTArray<nsIMAPMessagePartID>& parts);
 
   // this function does not ref count!!! be careful!!!
   nsIImapUrl* GetCurrentUrl() { return m_runningUrl; }
@@ -815,16 +810,14 @@ class nsImapMockChannel : public nsIImapMockChannel,
   nsCOMPtr<nsIInterfaceRequestor> mCallbacks;
   nsCOMPtr<nsISupports> mOwner;
   nsCOMPtr<nsITransportSecurityInfo> mSecurityInfo;
-  nsCOMPtr<nsIRequest>
-      mCacheRequest;  // the request associated with a read from the cache
   nsCString mContentType;
   nsCString mCharset;
   nsWeakPtr mProtocol;
 
   bool mChannelClosed;
   bool mReadingFromCache;
-  bool mTryingToReadPart;
   int64_t mContentLength;
+  bool mWritingToCache;
 
   mozilla::Monitor mSuspendedMonitor;
   bool mSuspended;
@@ -836,10 +829,8 @@ class nsImapMockChannel : public nsIImapMockChannel,
                               // cache entry for a url
   bool ReadFromLocalCache();  // attempts to read the url out of our local
                               // (offline) cache....
-  nsresult
-  ReadFromImapConnection();  // creates a new imap connection to read the url
-  nsresult ReadFromMemCache(nsICacheEntry* entry);  // attempts to read the url
-                                                    // out of our memory cache
+  nsresult ReadFromCache2(nsICacheEntry* entry);  // pipes message from cache2
+                                                  // entry to channel listener
   nsresult NotifyStartEndReadFromCache(bool start);
 
   // we end up daisy chaining multiple nsIStreamListeners into the load process.

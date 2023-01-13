@@ -150,8 +150,6 @@ pref("mail.imap.chunk_ideal", 4);
 pref("mail.imap.chunk_add", 8192);
 pref("mail.imap.hide_other_users", false);
 pref("mail.imap.hide_unused_namespaces", true);
-pref("mail.imap.mime_parts_on_demand", true);
-pref("mail.imap.mime_parts_on_demand_threshold", 500000);
 pref("mail.imap.use_literal_plus", true);
 pref("mail.imap.expunge_after_delete", false);
 pref("mail.imap.check_deleted_before_expunge", false);
@@ -557,7 +555,6 @@ pref("mail.server.default.deferred_to_account", "");
 
 pref("mail.server.default.delete_model", 1);
 pref("mail.server.default.fetch_by_chunks", true);
-pref("mail.server.default.mime_parts_on_demand", false);
 // Send IMAP RFC 2971 ID Info to server
 pref("mail.server.default.send_client_info", true);
 pref("mail.server.default.always_authenticate", false);
@@ -1134,3 +1131,7 @@ pref("mail.import.in_new_tab", false);
 pref("mail.import.loglevel", "Warn");
 
 pref("mail.export.loglevel", "Warn");
+
+// When true, disk cache is used for messages not in offline store. If false,
+// memory cache is used instead. Both use the cache2 implementation.
+pref("mail.imap.use_disk_cache2", true);

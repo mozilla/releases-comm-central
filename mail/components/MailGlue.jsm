@@ -1146,6 +1146,7 @@ function reportPreferences() {
   let booleanPrefs = [
     // General
     "browser.cache.disk.smart_size.enabled",
+    "privacy.clearOnShutdown.cache",
     "general.autoScroll",
     "general.smoothScroll",
     "intl.regional_prefs.use_os_locales",

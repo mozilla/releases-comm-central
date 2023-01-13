@@ -10,7 +10,6 @@
 #include "nsImapCore.h"
 #include "../src/nsImapNamespace.h"
 
-class nsImapBodyShell;
 class nsIImapIncomingServer;
 
 // f4d89e3e-77da-492c-962b-7835f0742c22
@@ -124,15 +123,6 @@ class nsIImapHostSessionList : public nsISupports {
   // Hierarchy Delimiters
   NS_IMETHOD SetNamespaceHierarchyDelimiterFromMailboxForHost(
       const char* serverKey, const char* boxName, char delimiter) = 0;
-
-  // Message Body Shells
-  NS_IMETHOD AddShellToCacheForHost(const char* serverKey,
-                                    nsImapBodyShell* shell) = 0;
-  NS_IMETHOD FindShellInCacheForHost(const char* serverKey,
-                                     const char* mailboxName, const char* UID,
-                                     IMAP_ContentModifiedType modType,
-                                     nsImapBodyShell** result) = 0;
-  NS_IMETHOD ClearShellCacheForHost(const char* serverKey) = 0;
 };
 
 NS_DEFINE_STATIC_IID_ACCESSOR(nsIImapHostSessionList,

@@ -76,6 +76,14 @@ interface nsIImapProtocol : nsISupports {
   void GetLastActiveTimeStamp(out PRTime aTimeStamp);
 
   void pseudoInterruptMsgLoad(in nsIMsgFolder imapFolder, in nsIMsgWindow aMsgWindow, out boolean interrupted);
+
+  /**
+   * Produce a pseudo-interrupt to trigger an abort of an imap mssage fetch.
+   *
+   * @param aInterrupt true to initiate a pseudo-interrupt; otherwise set false.
+   */
+  void pseudoInterrupt(in boolean aInterrupt);
+
   void GetSelectedMailboxName(out string folderName);
   // Reset folder connection to authenticated state
   void ResetToAuthenticatedState();

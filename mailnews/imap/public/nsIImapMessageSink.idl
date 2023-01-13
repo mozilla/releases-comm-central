@@ -73,8 +73,6 @@ interface nsIImapMessageSink : nsISupports {
 
   void getMessageSizeFromDB(in string aId, out unsigned long aSize);
 
-  void setContentModified(in nsIImapUrl aImapUrl, in nsImapContentModifiedType aModified);
-
   /**
    * For a message stored in a file, get the message metadata needed to copy
    * that message to an imap folder

@@ -92,7 +92,6 @@ class mime_stream_data { /* This object is the state we pass around
   MimeHeaders* headers;        /* Copy of outer most mime header */
 
   nsIMimeEmitter* output_emitter; /* Output emitter engine for libmime */
-  bool firstCheck; /* Is this the first look at the stream data */
 };
 
 //

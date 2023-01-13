@@ -371,6 +371,10 @@ clear-cache-button =
     .label = Clear Now
     .accesskey = C
 
+clear-cache-shutdown-label =
+    .label = Clear cache on shutdown
+    .accesskey = s
+
 fonts-legend = Fonts & Colors
 
 default-font-label =

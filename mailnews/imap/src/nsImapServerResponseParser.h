@@ -14,8 +14,6 @@
 #include "nsTArray.h"
 #include "nsImapUtils.h"
 
-class nsImapBodyShell;
-class nsIMAPBodypart;
 class nsImapSearchResultIterator;
 class nsIImapFlagAndUidState;
 
@@ -128,8 +126,6 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   virtual uint16_t SettablePermanentFlags() { return fSettablePermanentFlags; }
   void SetFlagState(nsIImapFlagAndUidState* state);
   bool GetDownloadingHeaders();
-  bool GetFillingInShell();
-  void UseCachedShell(nsImapBodyShell* cachedShell);
   void SetHostSessionList(nsIImapHostSessionList* aHostSession);
   char* fAuthChallenge;  // the challenge returned by the server in
                          // response to authenticate using CRAM-MD5 or NTLM
@@ -168,14 +164,6 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   virtual void namespace_data();
   virtual void myrights_data(bool unsolicited);
   virtual void acl_data();
-  virtual void bodystructure_data();
-  nsIMAPBodypart* bodystructure_part(char* partNum, nsIMAPBodypart* parentPart);
-  nsIMAPBodypart* bodystructure_leaf(char* partNum, nsIMAPBodypart* parentPart);
-  nsIMAPBodypart* bodystructure_multipart(char* partNum,
-                                          nsIMAPBodypart* parentPart);
-  virtual void mime_data();
-  virtual void mime_part_data();
-  virtual void mime_header_data();
   virtual void quota_data();
   virtual void msg_fetch();
   virtual void msg_obsolete();
@@ -275,9 +263,6 @@ class nsImapServerResponseParser : public nsImapGenericParser {
 
   // Flags split of \r and \n between chunks in msg_fetch_literal().
   bool fNextChunkStartsWithNewline;
-
-  // points to the current body shell, if any
-  RefPtr<nsImapBodyShell> m_shell;
 
   // The connection object
   nsImapProtocol& fServerConnection;

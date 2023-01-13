@@ -42,7 +42,6 @@ interface nsIImapIncomingServer : nsISupports {
   attribute boolean usingSubscription;
   attribute ACString manageMailAccountUrl;
   attribute boolean fetchByChunks;
-  attribute boolean mimePartsOnDemand;
   attribute boolean sendID;
   attribute boolean isAOLServer;
   attribute boolean useIdle;

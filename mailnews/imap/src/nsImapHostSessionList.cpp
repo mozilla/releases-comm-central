@@ -5,7 +5,6 @@
 
 #include "msgCore.h"
 #include "nsImapHostSessionList.h"
-#include "nsImapBodyShell.h"
 #include "nsImapNamespace.h"
 #include "nsIImapIncomingServer.h"
 #include "nsCOMPtr.h"
@@ -615,42 +614,4 @@ nsImapHostSessionList::SetNamespaceHierarchyDelimiterFromMailboxForHost(
   }
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host) ? NS_OK : NS_ERROR_ILLEGAL_VALUE;
-}
-
-NS_IMETHODIMP nsImapHostSessionList::AddShellToCacheForHost(
-    const char* serverKey, nsImapBodyShell* shell) {
-  nsresult rv = NS_OK;
-  PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo* host = FindHost(serverKey);
-  if (host) {
-    host->fShellCache.AddShellToCache(shell);
-  } else {
-    rv = NS_ERROR_ILLEGAL_VALUE;
-  }
-
-  PR_ExitMonitor(gCachedHostInfoMonitor);
-  return rv;
-}
-
-NS_IMETHODIMP nsImapHostSessionList::FindShellInCacheForHost(
-    const char* serverKey, const char* mailboxName, const char* UID,
-    IMAP_ContentModifiedType modType, nsImapBodyShell** shell) {
-  PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo* host = FindHost(serverKey);
-  if (host) {
-    NS_IF_ADDREF(*shell = host->fShellCache.FindShellForUID(
-                     nsDependentCString(UID), nsDependentCString(mailboxName),
-                     modType));
-  }
-  PR_ExitMonitor(gCachedHostInfoMonitor);
-  return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
-}
-
-NS_IMETHODIMP
-nsImapHostSessionList::ClearShellCacheForHost(const char* serverKey) {
-  PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo* host = FindHost(serverKey);
-  if (host) host->fShellCache.Clear();
-  PR_ExitMonitor(gCachedHostInfoMonitor);
-  return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }

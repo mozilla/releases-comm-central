@@ -87,6 +87,7 @@ Preferences.addAll([
   { id: "mail.purge_threshhold_mb", type: "int" },
   { id: "browser.cache.disk.capacity", type: "int" },
   { id: "browser.cache.disk.smart_size.enabled", inverted: true, type: "bool" },
+  { id: "privacy.clearOnShutdown.cache", type: "bool" },
   { id: "layers.acceleration.disabled", type: "bool", inverted: true },
   { id: "searchintegration.enable", type: "bool" },
   { id: "mail.tabs.drawInTitlebar", type: "bool" },

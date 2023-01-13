@@ -395,9 +395,6 @@ NS_IMPL_SERVERPREF_STR(nsImapIncomingServer, OtherUsersNamespace,
 
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, FetchByChunks, "fetch_by_chunks")
 
-NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, MimePartsOnDemand,
-                        "mime_parts_on_demand")
-
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, SendID, "send_client_info")
 
 NS_IMETHODIMP

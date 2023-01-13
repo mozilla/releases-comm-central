@@ -44,4 +44,6 @@ interface nsIImapMockChannel : nsIChannel
   [noscript] void setSecurityInfo(in nsITransportSecurityInfo securityInfo);
 
   void setURI(in nsIURI uri);
+  void readFromImapConnection();
+  attribute boolean writingToCache;
 };

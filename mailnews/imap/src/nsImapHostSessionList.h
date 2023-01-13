@@ -9,7 +9,6 @@
 #include "mozilla/Attributes.h"
 #include "nsImapCore.h"
 #include "../public/nsIImapHostSessionList.h"
-#include "nsImapBodyShell.h"
 #include "nsIObserver.h"
 #include "nsWeakReference.h"
 #include "nspr.h"
@@ -45,7 +44,6 @@ class nsIMAPHostInfo {
   bool fDeleteIsMoveToTrash;
   bool fShowDeletedMessages;
   bool fGotNamespaces;
-  nsImapBodyShellCache fShellCache;
 };
 
 // this is an interface to a linked list of host info's
@@ -163,14 +161,6 @@ class nsImapHostSessionList : public nsIImapHostSessionList,
   NS_IMETHOD SetNamespaceHierarchyDelimiterFromMailboxForHost(
       const char* serverKey, const char* boxName, char delimiter) override;
 
-  // Message Body Shells
-  NS_IMETHOD AddShellToCacheForHost(const char* serverKey,
-                                    nsImapBodyShell* shell) override;
-  NS_IMETHOD FindShellInCacheForHost(const char* serverKey,
-                                     const char* mailboxName, const char* UID,
-                                     IMAP_ContentModifiedType modType,
-                                     nsImapBodyShell** result) override;
-  NS_IMETHOD ClearShellCacheForHost(const char* serverKey) override;
   PRMonitor* gCachedHostInfoMonitor;
   nsIMAPHostInfo* fHostInfoList;
 
