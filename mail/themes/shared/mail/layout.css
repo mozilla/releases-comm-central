@@ -1,0 +1,76 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/colors.css");
+
+/* This file defines the colors used for the main layout of the application.
+ * Colors that define a containers for content or thier text color should go
+ *  here. Colors that define widgets or content should not */
+
+/* Background 0 should be used for the main content or page background */
+/* Background 1 should be used for center panes and secondary sidebars */
+/* Background 2 should be used for primary sidebars */
+/* Background 3 should be used for blocks of content inside the main content */
+
+/* Color 0 should be used when the text needs more emphasis */
+/* Color 1 should be used for the main text color */
+/* Color 2 should be used when the text needs less emphasis */
+/* Color 2 should be used when the text need even less emphasis */
+
+/* Border 0 should be used for separation from main layout sections */
+/* Border 1 should be used when the separation is part of the element */
+
+:host,
+:root {
+  --layout-background-0: var(--color-white);
+  --layout-background-1: var(--color-gray-05);
+  --layout-background-2: var(--color-gray-10);
+  --layout-background-3: var(--color-gray-20);
+
+  --layout-color-0: var(--color-ink-80);
+  --layout-color-1: var(--color-ink-70);
+  --layout-color-2: var(--color-ink-60);
+  --layout-color-3: var(--color-ink-50);
+
+  --layout-border-0: var(--color-gray-30);
+  --layout-border-1: var(--color-gray-40);
+}
+
+@media not (prefers-contrast) {
+  @media (prefers-color-scheme: dark) {
+    :host,
+    :root {
+      --layout-background-0: var(--color-gray-90);
+      --layout-background-1: var(--color-gray-80);
+      --layout-background-2: var(--color-gray-70);
+      --layout-background-3: var(--color-gray-60);
+
+      --layout-color-0: var(--color-white);
+      --layout-color-1: var(--color-ink-10);
+      --layout-color-2: var(--color-ink-30);
+      --layout-color-3: var(--color-ink-50);
+
+      --layout-border-0: var(--color-gray-50);
+      --layout-border-1: var(--color-gray-60);
+    }
+  }
+}
+
+@media (prefers-contrast) {
+  :host,
+  :root {
+    --layout-background-0: Window;
+    --layout-background-1: -moz-Dialog;
+    --layout-background-2: transparent;
+    --layout-background-3: transparent;
+
+    --layout-color-0: currentColor;
+    --layout-color-1: currentColor;
+    --layout-color-2: currentColor;
+    --layout-color-3: currentColor;
+
+    --layout-border-0: currentColor;
+    --layout-border-1: currentColor;
+  }
+}

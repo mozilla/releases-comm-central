@@ -25,6 +25,14 @@
   color: var(--sidebar-text-color);
 }
 
+#calSidebar {
+  background-color: var(--layout-background-2);
+}
+
+#calendarContent {
+  background-color: var(--layout-background-0);
+}
+
 /* Avoids contributing to the min width when Calendar is not selected. */
 #calendarTabPanel:not([selected]) {
   visibility: collapse;

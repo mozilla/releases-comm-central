@@ -9,7 +9,7 @@
 :root {
   appearance: none;
   font: message-box;
-  background-color: var(--color-white);
+  background-color: var(--layout-background-0);
 
   --address-book-card-min-height: 140px;
 
@@ -39,20 +39,11 @@
 
 @media not (prefers-contrast) {
   :root {
-    color: var(--color-gray-80);
+    background: var(--layout-background-0);
+    color: var(--layout-color-0);
 
-    --address-book-cards-list-bg: var(--color-gray-05);
-    --address-book-icons-color: var(--color-ink-80);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      background: var(--color-gray-90);
-      color: var(--color-gray-05);
-
-      --address-book-cards-list-bg: var(--color-gray-80);
-      --address-book-icons-color: var(--color-gray-30);
-    }
+    --address-book-cards-list-bg: var(--layout-background-1);
+    --address-book-icons-color: var(--layout-color-0);
   }
 }
 
@@ -135,7 +126,7 @@ body.layout-table {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  background-color: var(--in-content-categories-background);
+  background-color: var(--layout-background-2);
 }
 
 #booksSplitter {

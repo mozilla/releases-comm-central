@@ -4,11 +4,6 @@
 
 @import url(chrome://calendar/skin/shared/calendar.css);
 
-#calendarContent {
-  color: -moz-DialogText;
-  background-color: -moz-Dialog;
-}
-
 #calsidebar_splitter,
 #today-splitter {
   appearance: none;
@@ -29,11 +24,6 @@
 /* Calendar list rules */
 #calendar-panel {
   padding-bottom: 5px;
-}
-
-/* Calendar sidebar background in calendar and task mode. */
-#calSidebar {
-  background-color: Field;
 }
 
 /* Today pane button in status bar */

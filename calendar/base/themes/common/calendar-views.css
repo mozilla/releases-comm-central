@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://messenger/skin/layout.css");
+
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root {
-  --viewColor: #000;
-  --viewBackground: #fff;
-  --viewBorderColor: #d2d2d2;
+  --viewColor: var(--layout-color-1);
+  --viewBackground: var(--layout-background-0);
+  --viewBorderColor: var(--layout-border-0);
   --viewCalendarHeaderBackground: rgba(0, 0, 0, 0.03);
   --viewHighlightBorderColor: #67acd8;
   --viewTodayBorderColor: #7fb9ee;
@@ -67,9 +69,6 @@
   :root {
     --calview-border-color: var(--splitter-color);
     --calview-border-bottom-color: var(--splitter-color);
-    --viewColor: var(--sidebar-text-color);
-    --viewBackground: var(--sidebar-background-color, Field);
-    --viewBorderColor: var(--sidebar-border-color, var(--splitter-color));
     --viewTodayColor: var(--sidebar-highlight-text-color, SelectedItemText);
     --viewTodayBackground: var(--sidebar-highlight-background-color, SelectedItem);
     --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, SelectedItem);

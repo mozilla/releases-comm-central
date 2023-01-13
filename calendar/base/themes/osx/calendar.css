@@ -31,7 +31,6 @@
 
 /* Calendar sidebar background in calendar and task mode. */
 #calSidebar {
-  background-color: Field;
   border-inline-end: 1px solid #8B8B8B;
   margin-inline-end: -3px !important;
 }
