@@ -35,11 +35,11 @@ class BaseMessageService {
     outUrl
   ) {
     this._logger.debug("CopyMessage", messageUri, moveMessage);
-    let { host, folder, folderName, key } = this._decomposeMessageUri(
+    let { serverURI, folder, folderName, key } = this._decomposeMessageUri(
       messageUri
     );
     let imapUrl = Services.io
-      .newURI(`imap://${host}/fetch>UID>/${folderName}>${key}`)
+      .newURI(`${serverURI}/fetch>UID>/${folderName}>${key}`)
       .QueryInterface(Ci.nsIImapUrl);
 
     if (urlListener) {
@@ -72,11 +72,11 @@ class BaseMessageService {
     outURL
   ) {
     this._logger.debug("DisplayMessage", messageUri);
-    let { host, folder, folderName, key } = this._decomposeMessageUri(
+    let { serverURI, folder, folderName, key } = this._decomposeMessageUri(
       messageUri
     );
     let imapUrl = Services.io
-      .newURI(`imap://${host}/fetch>UID>/${folderName}>${key}`)
+      .newURI(`${serverURI}/fetch>UID>/${folderName}>${key}`)
       .QueryInterface(Ci.nsIImapUrl);
 
     let mailnewsUrl = imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
@@ -107,11 +107,11 @@ class BaseMessageService {
     msgWindow
   ) {
     this._logger.debug("SaveMessageToDisk", messageUri);
-    let { host, folder, folderName, key } = this._decomposeMessageUri(
+    let { serverURI, folder, folderName, key } = this._decomposeMessageUri(
       messageUri
     );
     let imapUrl = Services.io
-      .newURI(`imap://${host}/fetch>UID>/${folderName}>${key}`)
+      .newURI(`${serverURI}/fetch>UID>/${folderName}>${key}`)
       .QueryInterface(Ci.nsIImapUrl);
 
     let msgUrl = imapUrl.QueryInterface(Ci.nsIMsgMessageUrl);
@@ -140,14 +140,14 @@ class BaseMessageService {
       return Services.io.newURI(messageUri);
     }
 
-    let { host, folder, folderName, key } = this._decomposeMessageUri(
+    let { serverURI, folder, folderName, key } = this._decomposeMessageUri(
       messageUri
     );
     let delimiter =
       folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
     let imapUrl = Services.io
       .newURI(
-        `imap://${host}:${folder.server.port}/fetch>UID>${delimiter}${folderName}>${key}`
+        `${serverURI}:${folder.server.port}/fetch>UID>${delimiter}${folderName}>${key}`
       )
       .QueryInterface(Ci.nsIImapUrl);
 
@@ -164,10 +164,10 @@ class BaseMessageService {
     localOnly
   ) {
     this._logger.debug("streamMessage", messageUri);
-    let { host, folder, folderName, key } = this._decomposeMessageUri(
+    let { serverURI, folder, folderName, key } = this._decomposeMessageUri(
       messageUri
     );
-    let url = `imap://${host}/fetch>UID>/${folderName}>${key}`;
+    let url = `${serverURI}/fetch>UID>/${folderName}>${key}`;
     if (additionalHeader) {
       url += `?header=${additionalHeader}`;
     }
@@ -242,7 +242,7 @@ class BaseMessageService {
    * Parse a message uri to hostname, folder and message key.
    *
    * @param {string} uri - The imap-message:// url to parse.
-   * @returns {host: string, folder: nsIMsgFolder, folderName: string, key: string}
+   * @returns {serverURI: string, folder: nsIMsgFolder, folderName: string, key: string}
    */
   _decomposeMessageUri(messageUri) {
     let matches = /imap-message:\/\/([^:/]+)\/(.+)#(\d+)/.exec(messageUri);
@@ -251,7 +251,7 @@ class BaseMessageService {
       `imap://${host}/${folderName}`
     );
 
-    return { host, folder, folderName, key };
+    return { serverURI: folder.server.serverURI, folder, folderName, key };
   }
 }
 

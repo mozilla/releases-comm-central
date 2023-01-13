@@ -285,7 +285,7 @@ class ImapClient {
     this._logger.debug("moveFolder", srcFolder.URI, dstFolder.URI);
     let oldName = this._getServerFolderName(srcFolder);
     let newName = this._getServerSubFolderName(dstFolder, srcFolder.name);
-    this._nextAction = this._actionRenameResponse(oldName, newName);
+    this._nextAction = this._actionRenameResponse(oldName, newName, true);
     this._sendTagged(`RENAME "${oldName}" "${newName}"`);
   }
 
@@ -648,7 +648,7 @@ class ImapClient {
         this._nextAction = () => {
           this._actionDone();
         };
-        this._sendTagged(`UID STORE ${uids} -FLAGS (${flagsToAdd})`);
+        this._sendTagged(`UID STORE ${uids} -FLAGS (${flagsToSubtract})`);
       } else {
         this._actionDone();
       }
@@ -1242,13 +1242,15 @@ class ImapClient {
 
   /**
    * Send LSUB or LIST command depending on the server capabilities.
+   *
+   * @param {string} [mailbox="*"] - The mailbox to list, default to list all.
    */
-  _actionListOrLsub() {
+  _actionListOrLsub(mailbox = "*") {
     this._nextAction = this._actionListResponse();
     let command = this._capabilities.includes("LIST-EXTENDED")
       ? "LIST (SUBSCRIBED)" // rfc5258
       : "LSUB";
-    command += ' "" "*"';
+    command += ` "" "${mailbox}"`;
     if (this._capabilities.includes("SPECIAL-USE")) {
       command += " RETURN (SPECIAL-USE)"; // rfc6154
     }
@@ -1401,13 +1403,18 @@ class ImapClient {
    *
    * @param {string} oldName - The old folder name.
    * @param {string} newName - The new folder name.
+   * @param {boolean} [isMove] - Is it response to MOVE command.
    * @param {ImapResponse} res - The server response.
    */
-  _actionRenameResponse = (oldName, newName) => res => {
+  _actionRenameResponse = (oldName, newName, isMove) => res => {
     // Step 3: Rename the local folder and send LIST command to re-sync folders.
     let actionAfterUnsubscribe = () => {
       this._serverSink.onlineFolderRename(this._msgWindow, oldName, newName);
-      this._actionListOrLsub();
+      if (isMove) {
+        this._actionDone();
+      } else {
+        this._actionListOrLsub(newName);
+      }
     };
     // Step 2: unsubscribe to the oldName.
     this._nextAction = () => {
