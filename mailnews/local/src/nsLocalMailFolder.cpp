@@ -1718,22 +1718,6 @@ nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
   return rv;
 }
 
-nsresult nsMsgLocalMailFolder::DeleteMessage(nsISupports* message,
-                                             nsIMsgWindow* msgWindow,
-                                             bool deleteStorage, bool commit) {
-  nsresult rv = NS_OK;
-  if (deleteStorage) {
-    nsCOMPtr<nsIMsgDBHdr> msgDBHdr(do_QueryInterface(message, &rv));
-
-    if (NS_SUCCEEDED(rv)) {
-      GetDatabase();
-      if (mDatabase)
-        rv = mDatabase->DeleteHeader(msgDBHdr, nullptr, commit, true);
-    }
-  }
-  return rv;
-}
-
 NS_IMETHODIMP nsMsgLocalMailFolder::GetNewMessages(nsIMsgWindow* aWindow,
                                                    nsIUrlListener* aListener) {
   nsCOMPtr<nsIMsgIncomingServer> server;
