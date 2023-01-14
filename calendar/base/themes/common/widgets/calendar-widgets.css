@@ -347,12 +347,10 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   -moz-context-properties: fill, stroke;
 }
 
-/* Temporarily hidden until the enable/disable button logic is in place.
- * See bug 1806882 */
 #primaryButtonSidePanel {
   -moz-context-properties: fill, stroke;
   margin-top: 3px;
-  /* display: flex; */
+  display: flex;
   justify-content: center;
   align-items: center;
 }
@@ -368,8 +366,16 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   align-items: center;
 }
 
-.primary-button-side-panel:hover {
+.primary-button-side-panel:hover:enabled {
   background-color: var(--color-blue-60);
+}
+
+.primary-button-side-panel:hover:active:enabled {
+  background-color: var(--color-blue-70);
+}
+
+.primary-button-side-panel:disabled {
+  opacity: 0.4;
 }
 
 .primary-button-side-panel::before {
