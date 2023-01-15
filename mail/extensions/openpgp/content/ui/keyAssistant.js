@@ -540,10 +540,15 @@ var gKeyAssistant = {
       let sourceLinks = keyMeta.collectedKey.sources.map(source => {
         source.type = source.type.toLowerCase(); // Earlier "WKD" was "wkd".
         let a = document.createElement("a");
-        a.href = source.uri;
-        a.title = source.uri;
+        if (source.uri) {
+          a.href = source.uri;
+          a.title = source.uri;
+        }
         if (source.description) {
-          a.title += " - " + source.description;
+          if (a.title) {
+            a.title += " - ";
+          }
+          a.title += source.description;
         }
         let span = document.createElement("span");
         // openpgp-key-assistant-key-collected-attachment

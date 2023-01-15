@@ -24,6 +24,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailTrust: "chrome://openpgp/content/modules/trust.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
+  GPGME: "chrome://openpgp/content/modules/GPGME.jsm",
   newEnigmailKeyObj: "chrome://openpgp/content/modules/keyObj.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
@@ -1702,6 +1703,8 @@ var EnigmailKeyRing = {
     );
   },
 
+  alreadyCheckedGnuPG: new Set(),
+
   /**
    * @typedef {object} EncryptionKeyMeta
    * @property {string} readiness - one of
@@ -1875,6 +1878,36 @@ var EnigmailKeyRing = {
         }
       }
       result.push(keyMeta);
+    }
+
+    if (
+      Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg") &&
+      !this.alreadyCheckedGnuPG.has(email)
+    ) {
+      this.alreadyCheckedGnuPG.add(email);
+      let keysFromGnuPGMap = lazy.GPGME.getPublicKeysForEmail(email);
+      for (let aFpr of keysFromGnuPGMap.keys()) {
+        let oldKey = this.getKeyById(aFpr);
+        let gpgKeyData = keysFromGnuPGMap.get(aFpr);
+        if (oldKey) {
+          await this.importKeyDataSilent(null, gpgKeyData, false);
+        } else {
+          let k = await lazy.RNP.getKeyListFromKeyBlockImpl(gpgKeyData);
+          if (!k) {
+            continue;
+          }
+          if (k.length != 1) {
+            continue;
+          }
+          let db = await lazy.CollectedKeysDB.getInstance();
+          // If key is known in the db: merge + update.
+          let key = await db.mergeExisting(k[0], gpgKeyData, {
+            uri: "",
+            type: "gnupg",
+          });
+          await db.storeKey(key);
+        }
+      }
     }
 
     let collDB = await lazy.CollectedKeysDB.getInstance();

@@ -256,8 +256,23 @@ function enableGPGMELibJS() {
       return success;
     },
 
-    exportKeys(pattern, secret = false) {
-      let resultArray = [];
+    /**
+     * Export key blocks from GnuPG that match the given paramters.
+     *
+     * @param {string} pattern - A pattern given to GnuPG for listing keys.
+     * @param {boolean} secret - If true, retrieve secret keys.
+     *   If false, retrieve public keys.
+     * @param {function} keyFilterFunction - An optional test function that
+     *   will be called for each candidate key that GnuPG lists for the
+     *   given pattern. Allows the caller to decide whether a candidate
+     *   key is wanted or not. Function will be called with a
+     *   {gpgme_key_t} parameter, the candidate key returned by GPGME.
+     *
+     * @returns {Map} - a Map that contains ASCII armored key blocks
+     *   indexed by fingerprint.
+     */
+    exportKeys(pattern, secret = false, keyFilterFunction = undefined) {
+      let resultMap = new Map();
       let allFingerprints = [];
 
       let c1 = new gpgme_ctx_t();
@@ -279,8 +294,10 @@ function enableGPGMELibJS() {
         }
 
         if (key.contents.protocol == GPGMELib.GPGME_PROTOCOL_OpenPGP) {
-          let fpr = key.contents.fpr.readString();
-          allFingerprints.push(fpr);
+          if (!keyFilterFunction || keyFilterFunction(key)) {
+            let fpr = key.contents.fpr.readString();
+            allFingerprints.push(fpr);
+          }
         }
         this.gpgme_key_release(key);
       } while (true);
@@ -326,12 +343,12 @@ function enableGPGMELibJS() {
           ctypes.char.array(result_len.value).ptr
         ).contents;
 
-        resultArray.push(keyData.readString());
+        resultMap.set(aFpr, keyData.readString());
 
         this.gpgme_free(result_buf);
         this.gpgme_release(c2);
       }
-      return resultArray;
+      return resultMap;
     },
 
     gpgme_check_version: libgpgme.declare(
@@ -550,5 +567,11 @@ function enableGPGMELibJS() {
     GPGME_DECRYPT_UNWRAP: 128,
     GPGME_DATA_ENCODING_ARMOR: 3,
     GPGME_SIG_MODE_DETACH: 1,
+
+    gpgme_key_t_revoked: 1,
+    gpgme_key_t_expired: 2,
+    gpgme_key_t_disabled: 4,
+    gpgme_key_t_invalid: 8,
+    gpgme_key_t_can_encrypt: 16,
   };
 }

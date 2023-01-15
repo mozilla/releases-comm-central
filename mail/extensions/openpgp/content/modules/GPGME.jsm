@@ -50,6 +50,44 @@ var GPGME = {
     return GPGME.libLoaded;
   },
 
+  /**
+   * High level interface to retrieve public keys from GnuPG that
+   * contain a user ID that matches the given email address.
+   *
+   * @param {string} email - The email address to search for.
+   *
+   * @returns {Map} - a Map that contains ASCII armored key blocks
+   *   indexed by fingerprint.
+   */
+  getPublicKeysForEmail(email) {
+    function keyFilterFunction(key) {
+      if (
+        key.contents.bitfield & GPGMELib.gpgme_key_t_revoked ||
+        key.contents.bitfield & GPGMELib.gpgme_key_t_expired ||
+        key.contents.bitfield & GPGMELib.gpgme_key_t_disabled ||
+        key.contents.bitfield & GPGMELib.gpgme_key_t_invalid ||
+        !(key.contents.bitfield & GPGMELib.gpgme_key_t_can_encrypt)
+      ) {
+        return false;
+      }
+
+      let matchesEmail = false;
+      let nextUid = key.contents.uids;
+      while (nextUid) {
+        let uidEmail = nextUid.contents.email.readString();
+        // Variable email is provided by the outer scope.
+        if (uidEmail == email) {
+          matchesEmail = true;
+          break;
+        }
+        nextUid = nextUid.contents.next;
+      }
+      return matchesEmail;
+    }
+
+    return GPGMELib.exportKeys(email, false, keyFilterFunction);
+  },
+
   async decrypt(encrypted, enArmorCB) {
     let result = {};
     result.decryptedData = "";
