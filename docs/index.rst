@@ -12,6 +12,8 @@ Thunderbird Source Tree Documentation
 
    mots/index
 
+   l10n/index
+
 
 
 Indices and tables
