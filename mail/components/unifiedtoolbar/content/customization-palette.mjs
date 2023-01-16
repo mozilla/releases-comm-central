@@ -151,6 +151,20 @@ class CustomizationPalette extends ListBoxSelection {
     }
     this.append(item);
   }
+
+  /**
+   * Filter the items in the palette for the given string based on their label.
+   * The comparison is done on the lower cased label, and the filter string is
+   * lower cased as well.
+   *
+   * @param {string} filterString - String to filter the items by.
+   */
+  filterItems(filterString) {
+    const lowerFilterString = filterString.toLowerCase();
+    for (const item of this.children) {
+      item.hidden = !item.label.toLowerCase().includes(lowerFilterString);
+    }
+  }
 }
 customElements.define("customization-palette", CustomizationPalette, {
   extends: "ul",

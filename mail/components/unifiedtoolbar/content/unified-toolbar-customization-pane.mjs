@@ -75,6 +75,13 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
    */
   #defaultItemIds = [];
 
+  /**
+   * The search bar used to filter the items in the palettes.
+   *
+   * @type {?SearchBar}
+   */
+  #searchBar = null;
+
   connectedCallback() {
     if (this.shadowRoot) {
       document.l10n.connectRoot(this.shadowRoot);
@@ -119,6 +126,11 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
     this.#genericPalette = template.querySelector(".generic-palette");
     this.#genericPalette.id = `${space}GenericPalette`;
     this.#genericPalette.setAttribute("aria-labelledby", genericTitle.id);
+
+    this.#searchBar = template.querySelector("search-bar");
+    this.#searchBar.addEventListener("search", this.#handleSearch);
+    this.#searchBar.addEventListener("autocomplete", this.#handleFilter);
+
     this.initialize();
 
     shadowRoot.append(styles, template);
@@ -127,6 +139,16 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
   disconnectedCallback() {
     document.l10n.disconnectRoot(this.shadowRoot);
   }
+
+  #handleFilter = event => {
+    this.#spaceSpecificPalette.filterItems(event.detail);
+    this.#genericPalette.filterItems(event.detail);
+  };
+
+  #handleSearch = event => {
+    // Don't clear the search bar.
+    event.preventDefault();
+  };
 
   /**
    * Initialize the contents of this element from the state. The relevant state
@@ -146,6 +168,7 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
     this.#genericPalette.setAttribute("items-in-use", currentItems);
 
     if (deep) {
+      this.#searchBar.reset();
       this.#toolbarTarget.initialize();
       this.#spaceSpecificPalette.initialize();
       this.#genericPalette.initialize();

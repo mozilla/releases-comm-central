@@ -47,7 +47,7 @@ export class SearchBar extends HTMLElement {
       cancelable: true,
     });
     if (this.dispatchEvent(searchEvent)) {
-      this.#input.value = "";
+      this.reset();
     }
   };
 
@@ -111,6 +111,13 @@ export class SearchBar extends HTMLElement {
 
   focus() {
     this.#input.focus();
+  }
+
+  /**
+   * Reset the search bar to its empty state.
+   */
+  reset() {
+    this.#input.value = "";
   }
 }
 customElements.define("search-bar", SearchBar);
