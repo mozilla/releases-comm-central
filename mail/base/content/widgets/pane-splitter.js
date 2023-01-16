@@ -245,7 +245,9 @@
 
     /**
      * Get the actual size of the resizeElement, regardless of the current
-     * width or height property values.
+     * width or height property values. This causes a reflow, and it gets
+     * called on every mousemove event while dragging, so it's very expensive
+     * but practically unavoidable.
      *
      * @returns {number} - The border area size of the resizeElement.
      */
@@ -429,6 +431,8 @@
       document.documentElement.style.cursor = cursor;
     }
 
+    _mouseMoveBlocked = false;
+
     _onMouseMove(event) {
       if (event.buttons != 1) {
         // The button was released and we didn't get a mouseup event (e.g.
@@ -439,6 +443,14 @@
       }
 
       event.preventDefault();
+
+      // Ensure the expensive part of this function runs no more than once
+      // per frame. Doing it more frequently is just wasting CPU time.
+      if (this._mouseMoveBlocked) {
+        return;
+      }
+      this._mouseMoveBlocked = true;
+      requestAnimationFrame(() => (this._mouseMoveBlocked = false));
 
       let {
         wasCollapsed,
