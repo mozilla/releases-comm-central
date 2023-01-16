@@ -1696,6 +1696,7 @@ class FolderTreeRow extends HTMLLIElement {
   setServer(server) {
     this._setURI(server.rootFolder.URI);
     this.dataset.serverType = server.type;
+    this.dataset.serverSecure = server.isSecure;
     this.name = server.prettyName;
   }
 
