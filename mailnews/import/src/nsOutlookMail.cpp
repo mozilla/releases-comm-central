@@ -368,10 +368,7 @@ NS_IMETHODIMP ImportMailboxRunnable::Run() {
     }
 
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    bool reusable;
-
     rv = msgStore->GetNewMsgOutputStream(mDstFolder, getter_AddRefs(msgHdr),
-                                         &reusable,
                                          getter_AddRefs(outputStream));
     if (NS_FAILED(rv)) {
       IMPORT_LOG1("*** Error getting nsIOutputStream of mailbox: %S\n",
@@ -409,16 +406,15 @@ NS_IMETHODIMP ImportMailboxRunnable::Run() {
       if (NS_SUCCEEDED(rv)) {  // No errors & really imported
         (*mMsgCount)++;
         msgStore->FinishNewMessage(outputStream, msgHdr);
+        outputStream = nullptr;
       } else {
         IMPORT_LOG1("*** Error reading message from mailbox: %S\n",
                     (const wchar_t*)mName);
         msgStore->DiscardNewMessage(outputStream, msgHdr);
+        outputStream = nullptr;
       }
-      if (!reusable) outputStream->Close();
     }
   }
-
-  if (outputStream) outputStream->Close();
   return NS_OK;
 }
 

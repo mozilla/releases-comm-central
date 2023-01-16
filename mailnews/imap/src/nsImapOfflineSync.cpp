@@ -371,8 +371,7 @@ void nsImapOfflineSync::ProcessAppendMsgOperation(
     if (NS_WARN_IF(NS_FAILED(rv))) break;
 
     nsCOMPtr<nsIInputStream> offlineStoreInputStream;
-    bool reusable;
-    rv = destFolder->GetMsgInputStream(mailHdr, &reusable,
+    rv = destFolder->GetMsgInputStream(mailHdr,
                                        getter_AddRefs(offlineStoreInputStream));
     if (NS_WARN_IF((NS_FAILED(rv) || !offlineStoreInputStream))) break;
 

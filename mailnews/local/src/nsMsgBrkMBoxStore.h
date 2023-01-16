@@ -31,7 +31,6 @@ class nsMsgBrkMBoxStore final : public nsMsgLocalStoreUtils,
  protected:
   nsresult InternalGetNewMsgOutputStream(nsIMsgFolder* aFolder,
                                          nsIMsgDBHdr** aNewMsgHdr,
-                                         bool* aReusable,
                                          nsIOutputStream** aResult);
   nsresult AddSubFolders(nsIMsgFolder* parent, nsCOMPtr<nsIFile>& path,
                          bool deep);

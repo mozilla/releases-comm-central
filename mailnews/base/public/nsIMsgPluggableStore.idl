@@ -115,24 +115,23 @@ interface nsIMsgPluggableStore : nsISupports {
    *                needs to base any of this on the contents of the message,
    *                it will need remember the message header and hook into
    *                the output stream somehow to alter the message header.
-   * @param aReusable set to true on output if the caller can reuse the
-   *                  stream for multiple messages, e.g., mbox format.
-   *                  This means the caller will likely get the same stream
-   *                  back on multiple calls to this method, and shouldn't
-   *                  close the stream in between calls if they want reuse.
    *
    * @return The output stream to write to. The output stream will be positioned
    *         for writing (e.g., for berkeley mailbox, it will be at the end).
    */
   nsIOutputStream getNewMsgOutputStream(in nsIMsgFolder aFolder,
-                                        inout nsIMsgDBHdr aNewHdr,
-                                        out boolean aReusable);
+                                        inout nsIMsgDBHdr aNewHdr);
+
 
   /**
    * Called when the current message is discarded, e.g., it is moved
    * to an other folder as a filter action, or is deleted because it's
    * a duplicate. This gives the berkeley mailbox store a chance to simply
    * truncate the Inbox w/o leaving a deleted message in the store.
+   *
+   * discardNewMessage closes aOutputStream always unless the passed stream
+   * is nullptr due to error processing..
+   * (Clarification/Rationale in Bug 1121842, 1122698, 1242030)
    *
    * @param aOutputStream stream we were writing the message to be discarded to
    * @param aNewHdr header of message to discard
@@ -145,11 +144,15 @@ interface nsIMsgPluggableStore : nsISupports {
    * the process of storing a new message, if the new msg has not been
    * discarded. Could/should this be combined with discardNewMessage?
    *
+   * finishNewMessage closes aOutputStream always unless the passed stream
+   * is nullptr due to error processing.
+   * (Clarification/Rationale in Bug 1121842, 1122698, 1242030)
+   *
    * @param aOutputStream stream we were writing the message to.
    * @param aNewHdr header of message finished.
    */
   void finishNewMessage(in nsIOutputStream aOutputStream,
-                         in nsIMsgDBHdr aNewHdr);
+                        in nsIMsgDBHdr aNewHdr);
 
   /**
    * Called by pop3 message filters when a newly downloaded message is being
@@ -168,21 +171,15 @@ interface nsIMsgPluggableStore : nsISupports {
 
   /**
    * Get an input stream that we can read the contents of a message from.
-   * If the input stream is reusable, and the caller is going to ask
-   * for input streams for other messages in the folder, then the caller
-   * should not close the stream until it is done with its messages.
    *
    * @param aMsgFolder Folder containing the message
    * @param aMsgToken token that identifies message. This is store-dependent,
    *                  and must be set as a string property "storeToken" on the
    *                  message hdr by the store when the message is added
    *                  to the store.
-   * @param aReusable Is the returned stream re-usable for other
-   *                            messages' input streams?
    */
   nsIInputStream getMsgInputStream(in nsIMsgFolder aFolder,
-                                   in ACString aMsgToken,
-                                   out boolean aReusable);
+                                   in ACString aMsgToken);
 
   /**
    * This is a hack to expose to allow JsAccount folders to implement a

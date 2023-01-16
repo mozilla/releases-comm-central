@@ -598,11 +598,9 @@ interface nsIMsgFolder : nsISupports {
    * be positioned at the start of the message.
    *
    * @param aHdr hdr of message to get the input stream for.
-   * @param[out] aReusable set to true if the stream can be re-used, in which
-                           case the caller might not want to close it.
    * @returns an input stream to read the message from
    */
-  nsIInputStream getMsgInputStream(in nsIMsgDBHdr aHdr, out boolean aReusable);
+  nsIInputStream getMsgInputStream(in nsIMsgDBHdr aHdr);
 
   /**
    * Returns an input stream for reading a locally-stored message.

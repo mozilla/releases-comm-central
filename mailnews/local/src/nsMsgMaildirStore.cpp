@@ -550,14 +550,10 @@ NS_IMETHODIMP nsMsgMaildirStore::CopyFolder(
 NS_IMETHODIMP
 nsMsgMaildirStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
                                          nsIMsgDBHdr** aNewMsgHdr,
-                                         bool* aReusable,
                                          nsIOutputStream** aResult) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_ENSURE_ARG_POINTER(aNewMsgHdr);
-  NS_ENSURE_ARG_POINTER(aReusable);
   NS_ENSURE_ARG_POINTER(aResult);
-
-  *aReusable = false;  // message per file
 
   nsCOMPtr<nsIMsgDatabase> db;
   nsresult rv = aFolder->GetMsgDatabase(getter_AddRefs(db));
@@ -882,12 +878,9 @@ nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr* aHdr,
 NS_IMETHODIMP
 nsMsgMaildirStore::GetMsgInputStream(nsIMsgFolder* aMsgFolder,
                                      const nsACString& aMsgToken,
-                                     bool* aReusable,
                                      nsIInputStream** aResult) {
   NS_ENSURE_ARG_POINTER(aMsgFolder);
   NS_ENSURE_ARG_POINTER(aResult);
-
-  *aReusable = false;  // message per file
 
   // construct path to file
   nsCOMPtr<nsIFile> path;

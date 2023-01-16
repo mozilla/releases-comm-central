@@ -546,7 +546,6 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
 NS_IMETHODIMP
 nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
                                          nsIMsgDBHdr** aNewMsgHdr,
-                                         bool* aReusable,
                                          nsIOutputStream** aResult) {
   bool quarantining = false;
   nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
@@ -556,8 +555,7 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
 
   if (!quarantining) {
     // Caller will write directly to mbox.
-    return InternalGetNewMsgOutputStream(aFolder, aNewMsgHdr, aReusable,
-                                         aResult);
+    return InternalGetNewMsgOutputStream(aFolder, aNewMsgHdr, aResult);
   }
 
   // Quarantining is on, so we want to write the new message to a temp file
@@ -565,31 +563,27 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
   // We'll wrap the mboxStream with an nsQuarantinedOutputStream and return
   // that.
   nsCOMPtr<nsIOutputStream> mboxStream;
-  bool reusable;
-  nsresult rv = InternalGetNewMsgOutputStream(aFolder, aNewMsgHdr, &reusable,
+  nsresult rv = InternalGetNewMsgOutputStream(aFolder, aNewMsgHdr,
                                               getter_AddRefs(mboxStream));
   NS_ENSURE_SUCCESS(rv, rv);
 
   RefPtr<nsQuarantinedOutputStream> qStream =
       new nsQuarantinedOutputStream(mboxStream);
-  *aReusable = false;
   qStream.forget(aResult);
   return NS_OK;
 }
 
 nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
-    nsIMsgFolder* aFolder, nsIMsgDBHdr** aNewMsgHdr, bool* aReusable,
+    nsIMsgFolder* aFolder, nsIMsgDBHdr** aNewMsgHdr,
     nsIOutputStream** aResult) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_ENSURE_ARG_POINTER(aNewMsgHdr);
-  NS_ENSURE_ARG_POINTER(aReusable);
   NS_ENSURE_ARG_POINTER(aResult);
 
 #ifdef _DEBUG
   NS_ASSERTION(m_streamOutstandingFolder != aFolder, "didn't finish prev msg");
   m_streamOutstandingFolder = aFolder;
 #endif
-  *aReusable = true;
 
   nsresult rv;
   nsCOMPtr<nsIFile> mboxFile;
@@ -702,13 +696,11 @@ nsMsgBrkMBoxStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr* aNewHdr,
 NS_IMETHODIMP
 nsMsgBrkMBoxStore::GetMsgInputStream(nsIMsgFolder* aMsgFolder,
                                      const nsACString& aMsgToken,
-                                     bool* aReusable,
                                      nsIInputStream** aResult) {
   MOZ_ASSERT(aMsgFolder);
   MOZ_ASSERT(aResult);
   MOZ_ASSERT(!aMsgToken.IsEmpty());
 
-  *aReusable = true;
   uint64_t offset = ParseUint64Str(PromiseFlatCString(aMsgToken).get());
   nsCOMPtr<nsIFile> mboxFile;
   nsresult rv = aMsgFolder->GetFilePath(getter_AddRefs(mboxFile));

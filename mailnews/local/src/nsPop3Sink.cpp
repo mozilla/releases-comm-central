@@ -352,10 +352,8 @@ nsPop3Sink::IncorporateBegin(const char* uidlString, uint32_t flags) {
   if (!server) return NS_ERROR_UNEXPECTED;
 
   rv = server->GetMsgStore(getter_AddRefs(m_msgStore));
-  bool reusable;
   NS_ENSURE_SUCCESS(rv, rv);
   rv = m_msgStore->GetNewMsgOutputStream(m_folder, getter_AddRefs(newHdr),
-                                         &reusable,
                                          getter_AddRefs(m_outFileStream));
   NS_ENSURE_SUCCESS(rv, rv);
 

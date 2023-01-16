@@ -544,24 +544,22 @@ nsAppleMailImportMail::ImportMailbox(nsIImportMailboxDescriptor* aMailbox,
       if (!StringEndsWith(leafName, u".emlx"_ns)) continue;
 
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
-      bool reusable;
-      rv =
-          msgStore->GetNewMsgOutputStream(aDstFolder, getter_AddRefs(msgHdr),
-                                          &reusable, getter_AddRefs(outStream));
+      rv = msgStore->GetNewMsgOutputStream(aDstFolder, getter_AddRefs(msgHdr),
+                                           getter_AddRefs(outStream));
       if (NS_FAILED(rv)) break;
 
-      // add the data to the mbox stream
+      // Add the data to the mbox stream.
       if (NS_SUCCEEDED(nsEmlxHelperUtils::AddEmlxMessageToStream(currentEntry,
                                                                  outStream))) {
         mProgress++;
         msgStore->FinishNewMessage(outStream, msgHdr);
+        outStream = nullptr;
       } else {
         msgStore->DiscardNewMessage(outStream, msgHdr);
+        outStream = nullptr;
         break;
       }
-      if (!reusable) outStream->Close();
     }
-    if (outStream) outStream->Close();
   }
   // just indicate that we're done, using the same number that we used to
   // estimate number of messages earlier.

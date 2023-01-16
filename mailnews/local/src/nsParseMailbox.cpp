@@ -2191,8 +2191,7 @@ nsresult nsParseNewMailState::AppendMsgFromStream(nsIInputStream* fileStream,
   nsCOMPtr<nsIOutputStream> destOutputStream;
   nsresult rv = destFolder->GetMsgStore(getter_AddRefs(store));
   NS_ENSURE_SUCCESS(rv, rv);
-  bool reusable;
-  rv = store->GetNewMsgOutputStream(destFolder, &aHdr, &reusable,
+  rv = store->GetNewMsgOutputStream(destFolder, &aHdr,
                                     getter_AddRefs(destOutputStream));
   NS_ENSURE_SUCCESS(rv, rv);
 

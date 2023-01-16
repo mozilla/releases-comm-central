@@ -1844,9 +1844,8 @@ nsresult nsMsgLocalMailFolder::WriteStartOfNewMessage() {
 nsresult nsMsgLocalMailFolder::InitCopyMsgHdrAndFileStream() {
   nsresult rv = GetMsgStore(getter_AddRefs(mCopyState->m_msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
-  bool reusable;
   rv = mCopyState->m_msgStore->GetNewMsgOutputStream(
-      this, getter_AddRefs(mCopyState->m_newHdr), &reusable,
+      this, getter_AddRefs(mCopyState->m_newHdr),
       getter_AddRefs(mCopyState->m_fileStream));
   NS_ENSURE_SUCCESS(rv, rv);
   if (mCopyState->m_parseMsgState)
@@ -2784,9 +2783,8 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
   // It's a local folder - .messageSize holds the size.
   uint32_t size = 0;
   hdr->GetMessageSize(&size);
-  bool reusable;
   nsCOMPtr<nsIInputStream> fileStream;
-  nsresult rv = GetMsgInputStream(hdr, &reusable, getter_AddRefs(fileStream));
+  nsresult rv = GetMsgInputStream(hdr, getter_AddRefs(fileStream));
   NS_ENSURE_SUCCESS(rv, rv);
 
   RefPtr<mozilla::SlicedInputStream> slicedStream =
@@ -3262,9 +3260,8 @@ nsMsgLocalMailFolder::GetUidlFromFolder(nsLocalFolderScanState* aState,
   bool more = false;
   uint32_t size = 0, len = 0;
   const char* accountKey = nullptr;
-  bool reusable;
-  nsresult rv = GetMsgInputStream(aMsgDBHdr, &reusable,
-                                  getter_AddRefs(aState->m_inputStream));
+  nsresult rv =
+      GetMsgInputStream(aMsgDBHdr, getter_AddRefs(aState->m_inputStream));
   NS_ENSURE_SUCCESS(rv, rv);
 
   mozilla::UniquePtr<nsLineBuffer<char>> lineBuffer(new nsLineBuffer<char>);
@@ -3297,10 +3294,8 @@ nsMsgLocalMailFolder::GetUidlFromFolder(nsLocalFolderScanState* aState,
       }
     }
   }
-  if (!reusable) {
-    aState->m_inputStream->Close();
-    aState->m_inputStream = nullptr;
-  }
+  aState->m_inputStream->Close();
+  aState->m_inputStream = nullptr;
   return rv;
 }
 
@@ -3354,9 +3349,7 @@ nsMsgLocalMailFolder::AddMessageBatch(
       RefPtr<nsParseNewMailState> newMailParser = new nsParseNewMailState;
       NS_ENSURE_TRUE(newMailParser, NS_ERROR_OUT_OF_MEMORY);
       if (!mGettingNewMessages) newMailParser->DisableFilters();
-      bool reusable;
       rv = msgStore->GetNewMsgOutputStream(this, getter_AddRefs(newHdr),
-                                           &reusable,
                                            getter_AddRefs(outFileStream));
       NS_ENSURE_SUCCESS(rv, rv);
 
@@ -3441,8 +3434,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::FetchMsgPreviewText(
     msgHdr->GetStringProperty("preview", getter_Copies(prevBody));
     if (!prevBody.IsEmpty()) continue;
 
-    bool reusable;
-    rv = GetMsgInputStream(msgHdr, &reusable, getter_AddRefs(inputStream));
+    rv = GetMsgInputStream(msgHdr, getter_AddRefs(inputStream));
     NS_ENSURE_SUCCESS(rv, rv);
     rv = GetMsgPreviewTextFromStream(msgHdr, inputStream);
     NS_ENSURE_SUCCESS(rv, rv);

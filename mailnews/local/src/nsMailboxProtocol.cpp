@@ -135,10 +135,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
             if (NS_SUCCEEDED(rv) && folder) {
               nsCOMPtr<nsIInputStream> stream;
               int64_t offset = 0;
-              bool reusable = false;
-
-              rv = folder->GetMsgInputStream(msgHdr, &reusable,
-                                             getter_AddRefs(stream));
+              rv = folder->GetMsgInputStream(msgHdr, getter_AddRefs(stream));
               NS_ENSURE_SUCCESS(rv, rv);
               nsCOMPtr<nsISeekableStream> seekableStream(
                   do_QueryInterface(stream, &rv));
@@ -149,26 +146,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
                   do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
               if (NS_FAILED(rv)) return rv;
               m_readCount = msgSize;
-              // Save the stream for reuse, but only for multiple URLs.
-              if (reusable && RunningMultipleMsgUrl()) {
-                nsCOMPtr<nsIInputStream> clonedStream;
-                nsCOMPtr<nsIInputStream> replacementStream;
-                rv = NS_CloneInputStream(stream, getter_AddRefs(clonedStream),
-                                         getter_AddRefs(replacementStream));
-                NS_ENSURE_SUCCESS(rv, rv);
-                if (replacementStream) {
-                  // If stream is not clonable, NS_CloneInputStream
-                  // will clone it using a pipe. In order to keep the copy alive
-                  // and working, we have to replace the original stream with
-                  // the replacement.
-                  stream = replacementStream.forget();
-                }
-                // Keep the original and use the clone for the next operation.
-                m_multipleMsgMoveCopyStream = stream;
-                stream = clonedStream;
-              } else {
-                reusable = false;
-              }
+
               RefPtr<SlicedInputStream> slicedStream = new SlicedInputStream(
                   stream.forget(), offset, uint64_t(msgSize));
               // Always close the sliced stream when done, we still have the
@@ -306,12 +284,8 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest* request,
                   rv = OpenMultipleMsgTransport(msgOffset, msgSize);
                 } else {
                   nsCOMPtr<nsIInputStream> stream;
-                  bool reusable = false;
-                  rv = msgFolder->GetMsgInputStream(nextMsg, &reusable,
+                  rv = msgFolder->GetMsgInputStream(nextMsg,
                                                     getter_AddRefs(stream));
-                  NS_ASSERTION(!reusable,
-                               "We thought streams were not reusable!");
-
                   if (NS_SUCCEEDED(rv)) {
                     // create input stream transport
                     nsCOMPtr<nsIStreamTransportService> sts = do_GetService(

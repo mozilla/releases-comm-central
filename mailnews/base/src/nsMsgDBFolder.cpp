@@ -738,6 +738,10 @@ nsresult nsMsgDBFolder::GetOfflineFileStream(nsMsgKey msgKey, uint64_t* offset,
   *offset = 0;
   *size = 0;
 
+  // Initialise to nullptr since this is checked by some callers for the success
+  // of the function.
+  *aFileStream = nullptr;
+
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgDBHdr> hdr;
@@ -745,9 +749,20 @@ nsresult nsMsgDBFolder::GetOfflineFileStream(nsMsgKey msgKey, uint64_t* offset,
   NS_ENSURE_SUCCESS(rv, rv);
   hdr->GetOfflineMessageSize(size);
 
-  bool reusable;
-  rv = GetMsgInputStream(hdr, &reusable, aFileStream);
-  NS_ENSURE_SUCCESS(rv, rv);
+  rv = GetMsgInputStream(hdr, aFileStream);
+  if (NS_FAILED(rv)) {
+    NS_WARNING(nsPrintfCString(
+                   "(debug) nsMsgDBFolder::GetOfflineFileStream: "
+                   "GetMsgInputStream(hdr, aFileStream); rv=0x%" PRIx32 "\n",
+                   static_cast<uint32_t>(rv))
+                   .get());
+    // Return early: If we could not find an offline stream, clear the offline
+    // flag which will fall back to reading the message from the server.
+    if (mDatabase) mDatabase->MarkOffline(msgKey, false, nullptr);
+
+    return rv;
+  }
+
   // Check if the database has the correct offset into the offline store by
   // reading up to 300 bytes. If it is incorrect, clear the offline flag on the
   // message and return false. This will cause a fall back to reading the
@@ -827,6 +842,14 @@ nsresult nsMsgDBFolder::GetOfflineFileStream(nsMsgKey msgKey, uint64_t* offset,
               // Temporarily null terminate the bad header line for logging.
               save = startOfMsg[msgOffset - 1];  // should be \r or \n
               startOfMsg[msgOffset - 1] = 0;
+
+              // DEBUG: the error happened while checking network outage
+              // condition.
+              // XXX TODO We may need to check if dovecot and other imap
+              // servers are returning funny "From " line, etc.
+              NS_WARNING(
+                  nsPrintfCString("Strange startOfMsg: |%s|\n", startOfMsg)
+                      .get());
             }
             MOZ_LOG(DBLog, LogLevel::Info,
                     ("Invalid header line in offline store: %s",
@@ -898,18 +921,15 @@ nsMsgDBFolder::GetOfflineStoreOutputStream(nsIMsgDBHdr* aHdr,
   nsCOMPtr<nsIMsgPluggableStore> offlineStore;
   nsresult rv = GetMsgStore(getter_AddRefs(offlineStore));
   NS_ENSURE_SUCCESS(rv, rv);
-  bool reusable;
-  rv = offlineStore->GetNewMsgOutputStream(this, &aHdr, &reusable,
-                                           aOutputStream);
+  rv = offlineStore->GetNewMsgOutputStream(this, &aHdr, aOutputStream);
   NS_ENSURE_SUCCESS(rv, rv);
   return rv;
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::GetMsgInputStream(nsIMsgDBHdr* aMsgHdr, bool* aReusable,
+nsMsgDBFolder::GetMsgInputStream(nsIMsgDBHdr* aMsgHdr,
                                  nsIInputStream** aInputStream) {
   NS_ENSURE_ARG_POINTER(aMsgHdr);
-  NS_ENSURE_ARG_POINTER(aReusable);
   NS_ENSURE_ARG_POINTER(aInputStream);
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   nsresult rv = GetMsgStore(getter_AddRefs(msgStore));
@@ -936,7 +956,16 @@ nsMsgDBFolder::GetMsgInputStream(nsIMsgDBHdr* aMsgHdr, bool* aReusable,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  rv = msgStore->GetMsgInputStream(this, storeToken, aReusable, aInputStream);
+  rv = msgStore->GetMsgInputStream(this, storeToken, aInputStream);
+  if (NS_FAILED(rv)) {
+    NS_WARNING(nsPrintfCString(
+                   "(debug) nsMsgDBFolder::GetMsgInputStream: msgStore->"
+                   "GetMsgInputStream(this, ...) returned error rv=0x%" PRIx32
+                   "\n",
+                   static_cast<uint32_t>(rv))
+                   .get());
+  }
+
   NS_ENSURE_SUCCESS(rv, rv);
   return NS_OK;
 }
@@ -1020,6 +1049,13 @@ NS_IMETHODIMP
 nsMsgDBFolder::GetBackupMsgDatabase(nsIMsgDatabase** aMsgDatabase) {
   NS_ENSURE_ARG_POINTER(aMsgDatabase);
   nsresult rv = OpenBackupMsgDatabase();
+  if (NS_FAILED(rv)) {
+    NS_WARNING(nsPrintfCString(
+                   "(debug) OpenBackupMsgDatabase(); returns error=0x%" PRIx32
+                   "\n",
+                   static_cast<uint32_t>(rv))
+                   .get());
+  }
   NS_ENSURE_SUCCESS(rv, rv);
   if (!mBackupDatabase) return NS_ERROR_FAILURE;
 
@@ -1587,6 +1623,10 @@ nsresult nsMsgDBFolder::WriteStartOfNewLocalMessage() {
   result += ct;
   result += MSG_LINEBREAK;
   m_bytesAddedToLocalMsg = result.Length();
+
+  MOZ_ASSERT(m_tempMessageStream,
+             "Temporary message stream must not be nullptr");
+
   nsresult rv =
       m_tempMessageStream->Write(result.get(), result.Length(), &writeCount);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1637,6 +1677,7 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage(nsresult status) {
 
   nsMsgKey messageKey;
 
+  nsresult rv1, rv2;
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1691,9 +1732,19 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage(nsresult status) {
       mDatabase->MarkOffline(messageKey, false, nullptr);
       // we should truncate the offline store at messageOffset
       ReleaseSemaphore(static_cast<nsIMsgFolder*>(this));
-      // this closes the stream
-      msgStore->DiscardNewMessage(m_tempMessageStream, m_offlineHeader);
-      m_tempMessageStream = nullptr;
+      rv1 = rv2 = NS_OK;
+      if (msgStore) {
+        // DiscardNewMessage now closes the stream all the time.
+        rv1 = msgStore->DiscardNewMessage(m_tempMessageStream, m_offlineHeader);
+        m_tempMessageStream = nullptr;  // avoid accessing closed stream
+      } else {
+        rv2 = m_tempMessageStream->Close();
+        m_tempMessageStream = nullptr;  // ditto
+      }
+      // XXX We should check for errors of rv1 and rv2.
+      if (NS_FAILED(rv1)) NS_WARNING("DiscardNewMessage returned error");
+      if (NS_FAILED(rv2))
+        NS_WARNING("m_tempMessageStream->Close() returned error");
 #ifdef _DEBUG
       nsAutoCString message("Offline message too small: messageSize=");
       message.AppendInt(messageSize);
@@ -1708,7 +1759,7 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage(nsresult status) {
       m_offlineHeader = nullptr;
       return NS_ERROR_FAILURE;
     }
-  }
+  }  // seekable
 
   // Success! Finalise the message.
   mDatabase->MarkOffline(messageKey, true, nullptr);
@@ -1717,9 +1768,27 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage(nsresult status) {
 
   // (But remember, stream might be buffered and closing/flushing could still
   // fail!)
-  rv = msgStore->FinishNewMessage(m_tempMessageStream, m_offlineHeader);
+
+  rv1 = rv2 = NS_OK;
+  if (msgStore) {
+    rv1 = msgStore->FinishNewMessage(m_tempMessageStream, m_offlineHeader);
+    m_tempMessageStream = nullptr;
+  }
+
+  // We can not let this happen: I think the code assumes this.
+  // That is the if-expression above is always true.
+  NS_ASSERTION(msgStore, "msgStore is nullptr");
+
+  // Notify users of the errors for now, just use NS_WARNING.
+  if (NS_FAILED(rv1)) NS_WARNING("FinishNewMessage returned error");
+  if (NS_FAILED(rv2)) NS_WARNING("m_tempMessageStream->Close() returned error");
+
   m_tempMessageStream = nullptr;
   m_offlineHeader = nullptr;
+
+  if (NS_FAILED(rv1)) return rv1;
+  if (NS_FAILED(rv2)) return rv2;
+
   return rv;
 }
 

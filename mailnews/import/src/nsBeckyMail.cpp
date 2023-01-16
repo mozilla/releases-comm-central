@@ -442,11 +442,10 @@ NS_IMETHODIMP ImportMessageRunnable::Run() {
                                                 getter_AddRefs(lineStream));
   NS_ENSURE_SUCCESS(mResult, NS_OK);
 
-  bool reusable;
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsCOMPtr<nsIOutputStream> outputStream;
-  mResult = msgStore->GetNewMsgOutputStream(
-      mFolder, getter_AddRefs(msgHdr), &reusable, getter_AddRefs(outputStream));
+  mResult = msgStore->GetNewMsgOutputStream(mFolder, getter_AddRefs(msgHdr),
+                                            getter_AddRefs(outputStream));
   NS_ENSURE_SUCCESS(mResult, NS_OK);
 
   bool inHeader = true;
@@ -467,9 +466,9 @@ NS_IMETHODIMP ImportMessageRunnable::Run() {
     } else if (IsEndOfMessage(line)) {
       inHeader = true;
       mResult = msgStore->FinishNewMessage(outputStream, msgHdr);
-      if (!reusable) outputStream->Close();
+      // outputStream is closed by FinishNewMessage().
+      outputStream = nullptr;
       mResult = msgStore->GetNewMsgOutputStream(mFolder, getter_AddRefs(msgHdr),
-                                                &reusable,
                                                 getter_AddRefs(outputStream));
     } else if (IsBeckyIncludeLine(line)) {
       mResult = WriteAttachmentFile(mMessageFile, line, outputStream);
@@ -486,8 +485,11 @@ NS_IMETHODIMP ImportMessageRunnable::Run() {
   }
 
   if (outputStream) {
-    if (NS_FAILED(mResult)) msgStore->DiscardNewMessage(outputStream, msgHdr);
-    outputStream->Close();
+    // DiscardNewMessage() closes outputStream.
+    if (NS_FAILED(mResult))
+      msgStore->DiscardNewMessage(outputStream, msgHdr);
+    else
+      outputStream->Close(); /* No check? */
   }
 
   return NS_OK;
