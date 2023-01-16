@@ -17,7 +17,7 @@
  * @emits autocomplte: Auto complete update. detail holds the current search
  *  term.
  */
-class SearchBar extends HTMLElement {
+export class SearchBar extends HTMLElement {
   static get observedAttributes() {
     return ["label", "disabled"];
   }

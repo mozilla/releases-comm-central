@@ -4,6 +4,7 @@
 
 form {
   --padding-block: 6px;
+  --search-icon-clearance: 30px;
   position: relative;
   min-height: max(1.2em, calc(1em + 2 * var(--padding-block)));
   height: 100%;
@@ -17,7 +18,7 @@ input {
   height: 100%;
   border: 1px solid var(--color-gray-40);
   border-radius: var(--toolbarbutton-border-radius);
-  padding-inline: var(--padding-block) 30px;
+  padding-inline: var(--padding-block) var(--search-icon-clearance);
 }
 
 button {
@@ -41,7 +42,7 @@ div {
   color: GrayText;
   inset-block: var(--padding-block);
   inset-inline-start: 1ch;
-  inset-inline-end: 0;
+  inset-inline-end: var(--search-icon-clearance);
   flex-direction: column;
   justify-content: space-around;
   text-overflow: clip;

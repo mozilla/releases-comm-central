@@ -42,7 +42,7 @@ export default [
     labelId: "search-bar",
     templateId: "searchBarItemTemplate",
     requiredModules: [
-      "chrome://messenger/content/unifiedtoolbar/search-bar.mjs",
+      "chrome://messenger/content/unifiedtoolbar/global-search-bar.mjs",
     ],
   },
   {
