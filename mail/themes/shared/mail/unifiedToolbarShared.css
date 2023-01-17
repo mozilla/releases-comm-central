@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Styles shared between the actual unfied toolbar and the replicat in the
+/* Styles shared between the actual unfied toolbar and the replica in the
  * customization overlay */
 
 .unified-toolbar {
@@ -53,19 +53,23 @@
   display: none;
 }
 
-.unified-toolbar-button:not([disabled]):hover {
+.unified-toolbar-button:enabled:hover {
   background-color: var(--toolbarbutton-hover-background);
   border-color: var(--toolbarbutton-hover-bordercolor);
 }
 
-.unified-toolbar-button:not([disabled]):is(:active, [aria-pressed=true]) {
+.unified-toolbar-button:enabled:is(:active, [aria-pressed="true"], :hover:active) {
   background-color: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);
 }
 
-.unified-toolbar-button:not([disabled])[aria-pressed="true"] {
+.unified-toolbar-button:enabled[aria-pressed="true"] {
   background-color: var(--toolbarbutton-checked-background);
+}
+
+.unified-toolbar-button:disabled {
+  pointer-events: none;
 }
 
 .unified-toolbar-button[popup] {
