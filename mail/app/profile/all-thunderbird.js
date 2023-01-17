@@ -50,6 +50,44 @@ pref("app.update.timerFirstInterval", 30000);
 
 // Enables some extra Application Update Logging (can reduce performance)
 pref("app.update.log", false);
+// Causes Application Update Logging to be sent to a file in the profile
+// directory. This preference is automatically disabled on application start to
+// prevent it from being left on accidentally. Turning this pref on enables
+// logging, even if app.update.log is false.
+pref("app.update.log.file", false);
+
+// The number of general background check failures to allow before notifying the
+// user of the failure. User initiated update checks always notify the user of
+// the failure.
+pref("app.update.backgroundMaxErrors", 10);
+
+// Ids of the links to the "What's new" update documentation
+pref("app.update.link.updateAvailableWhatsNew", "update-available-whats-new");
+pref("app.update.link.updateManualWhatsNew", "update-manual-whats-new");
+
+// How many times we should let downloads fail before prompting the user to
+// download a fresh installer.
+pref("app.update.download.promptMaxAttempts", 2);
+
+// How many times we should let an elevation prompt fail before prompting the user to
+// download a fresh installer.
+pref("app.update.elevation.promptMaxAttempts", 2);
+
+#ifdef NIGHTLY_BUILD
+  // Whether to delay popup notifications when an update is available and
+  // suppress them when an update is installed and waiting for user to restart.
+  // If set to true, these notifications will immediately be shown as banners in
+  // the app menu and as badges on the app menu button. Update available
+  // notifications will not create popup prompts until a week has passed without
+  // the user installing the update. Update restart notifications will not
+  // create popup prompts at all. This doesn't affect update notifications
+  // triggered by errors/failures or manual install prompts.
+  pref("app.update.suppressPrompts", false);
+#endif
+
+// If set to true, a message will be displayed in the hamburger menu while
+// an update is being downloaded.
+pref("app.update.notifyDuringDownload", false);
 
 // If set to true, the Update Service will automatically download updates when
 // user can apply updates. This pref is no longer used on Windows, except as the
@@ -80,6 +118,8 @@ pref("app.update.service.enabled", true);
 // This pref prevents BITS from being used by Thunderbird to download updates.
 pref("app.update.BITS.enabled", false);
 #endif
+
+pref("app.update.langpack.enabled", true);
 
 // Release notes URL
 pref("app.releaseNotesURL", "https://live.thunderbird.net/%APP%/releasenotes?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%");

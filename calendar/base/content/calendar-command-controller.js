@@ -887,6 +887,10 @@ function deleteSelectedItems() {
   }
 }
 
+/**
+ * Checks if any calendar allows new events and tasks to be added, otherwise
+ * disables the creation buttons.
+ */
 function calendarUpdateNewItemsCommand() {
   // Re-calculate command status.
   let calendars = cal.manager
@@ -905,6 +909,9 @@ function calendarUpdateNewItemsCommand() {
     "calendar_new_todo_context_command",
     "calendar_new_todo_todaypane_command",
   ].forEach(goUpdateCommand);
+
+  document.getElementById("sidePanelNewEvent").disabled = !CalendarNewEventsCommandEnabled;
+  document.getElementById("sidePanelNewTask").disabled = !CalendarNewTasksCommandEnabled;
 }
 
 function calendarUpdateDeleteCommand(selectedItems) {

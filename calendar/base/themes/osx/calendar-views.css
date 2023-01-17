@@ -42,13 +42,8 @@ radio.calview[selected="true"] {
   background-color: white;
 }
 
-.view-navigation-button {
+.calendar-view-navigation-button {
   margin-top: 2px;
-}
-
-.today-navigation-button {
-  margin-top: 2px;
-  padding-top: 2px;
 }
 
 @media (prefers-color-scheme: dark) {

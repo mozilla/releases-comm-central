@@ -2,6 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+:root {
+  --calendar-view-nav-btn-padding: 4px;
+}
+
+:root[uidensity="compact"] {
+  --calendar-view-nav-btn-padding: 0px;
+}
+
+:root[uidensity="touch"] {
+  --calendar-view-nav-btn-padding: 6px;
+}
+
+/* Calendar Items */
+
 .calendar-list-header {
   background-color: var(--viewCalendarHeaderBackground);
   padding-block: 2px;
@@ -75,26 +91,37 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   border-bottom: 1px solid -moz-Dialog;
 }
 
-.view-navigation-button {
+#calendarControls {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.calendar-controls-icon {
+  -moz-context-properties: fill, stroke;
+  stroke: currentColor;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+}
+
+.calendar-view-navigation-button {
   appearance: none;
-  -moz-user-focus: normal;
   min-width: 22px;
   margin-inline: 2px;
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  padding: var(--calendar-view-nav-btn-padding);
   -moz-context-properties: stroke;
-  stroke: currentColor;
-  list-style-image: var(--icon-nav-right);
-  -moz-user-focus: normal;
 }
 
-.today-navigation-button:focus-visible:not(:hover),
-.view-navigation-button:focus-visible:not(:hover) {
+.calendar-view-navigation-button:focus-visible:not(:hover) {
   outline: 2px solid var(--focus-outline-color);
   outline-offset: -2px;
 }
 
-.view-navigation-button:not([disabled="true"]):hover {
+.calendar-view-navigation-button:not([disabled="true"]):hover {
   background: var(--toolbarbutton-hover-background);
   border-color: var(--toolbarbutton-hover-bordercolor);
   box-shadow: var(--toolbarbutton-hover-boxshadow);
@@ -102,35 +129,26 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   outline: none;
 }
 
-:root[lwt-tree-brighttext] .view-navigation-button:not([disabled="true"]):hover {
+:root[lwt-tree-brighttext] .calendar-view-navigation-button:not([disabled="true"]):hover {
   background: rgba(255, 255, 255, .25);
   border-color: rgba(255, 255, 255, .5);
 }
 
-.view-navigation-button:not([disabled="true"]):hover:active {
+.calendar-view-navigation-button:not([disabled="true"]):hover:active {
   background: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);
   transition-duration: 10ms;
 }
 
-:root[lwt-tree-brighttext] .view-navigation-button:not([disabled="true"]):hover:active {
+:root[lwt-tree-brighttext] .calendar-view-navigation-button:not([disabled="true"]):hover:active {
   background: rgba(255, 255, 255, .4);
   border-color: rgba(255, 255, 255, .7);
   box-shadow: 0 0 rgba(255, 255, 255, .4) inset;
 }
 
-.view-navigation-button[disabled="true"] {
+.calendar-view-navigation-button[disabled="true"] {
   opacity: .3;
-}
-
-.view-navigation-button:-moz-locale-dir(ltr)[type="prev"] > .toolbarbutton-icon,
-.view-navigation-button:-moz-locale-dir(rtl)[type="next"] > .toolbarbutton-icon {
-  list-style-image: var(--icon-nav-left-sm);
-}
-
-.view-navigation-button > .toolbarbutton-text  {
-  display: none;
 }
 
 .selected-text {
@@ -347,12 +365,10 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   -moz-context-properties: fill, stroke;
 }
 
-/* Temporarily hidden until the enable/disable button logic is in place.
- * See bug 1806882 */
 #primaryButtonSidePanel {
   -moz-context-properties: fill, stroke;
   margin-top: 3px;
-  /* display: flex; */
+  display: flex;
   justify-content: center;
   align-items: center;
 }
@@ -368,8 +384,16 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   align-items: center;
 }
 
-.primary-button-side-panel:hover {
+.primary-button-side-panel:hover:enabled {
   background-color: var(--color-blue-60);
+}
+
+.primary-button-side-panel:hover:active:enabled {
+  background-color: var(--color-blue-70);
+}
+
+.primary-button-side-panel:disabled {
+  opacity: 0.4;
 }
 
 .primary-button-side-panel::before {

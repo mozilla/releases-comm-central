@@ -76,13 +76,6 @@
 <!ENTITY calendar.nextmonth.accesskey           "x" >
 <!ENTITY calendar.prevmonth.accesskey           "s" >
 
-<!ENTITY calendar.navigation.nextday.tooltip    "One Day Forward" >
-<!ENTITY calendar.navigation.prevday.tooltip    "One Day Back" >
-<!ENTITY calendar.navigation.nextweek.tooltip   "One Week Forward" >
-<!ENTITY calendar.navigation.prevweek.tooltip   "One Week Back" >
-<!ENTITY calendar.navigation.nextmonth.tooltip  "One Month Forward" >
-<!ENTITY calendar.navigation.prevmonth.tooltip  "One Month Back" >
-
 <!ENTITY calendar.newevent.button.label         "New Event" >
 <!ENTITY calendar.newtask.button.label          "New Task" >
 

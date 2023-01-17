@@ -785,7 +785,7 @@ const CalendarTestUtils = {
    * @param {number} n - Number of times to move the view forward.
    */
   async calendarViewForward(win, n) {
-    let viewForwardButton = win.document.getElementById("next-view-button");
+    let viewForwardButton = win.document.getElementById("nextViewButton");
     for (let i = 0; i < n; i++) {
       await clickAndWait(win, viewForwardButton);
       await CalendarTestUtils.ensureViewLoaded(win);
@@ -799,7 +799,7 @@ const CalendarTestUtils = {
    * @param {number} n - Number of times to move the view backward.
    */
   async calendarViewBackward(win, n) {
-    let viewBackwardButton = win.document.getElementById("previous-view-button");
+    let viewBackwardButton = win.document.getElementById("previousViewButton");
     for (let i = 0; i < n; i++) {
       await clickAndWait(win, viewBackwardButton);
       await CalendarTestUtils.ensureViewLoaded(win);
@@ -1175,7 +1175,7 @@ const CalendarTestUtils = {
    * @returns {HTMLElement} - The today button.
    */
   getNavBarTodayButton(win) {
-    return win.document.getElementById("today-view-button");
+    return win.document.getElementById("todayViewButton");
   },
 
   /**
