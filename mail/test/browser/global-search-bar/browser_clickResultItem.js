@@ -31,9 +31,12 @@ let threads;
  */
 let tests = [
   {
-    selector: "#searchInput",
+    selector: ".search-bar",
     tabCountBefore: 1,
     tabCountAfter: 2,
+    // TODO: Disabled because the global search bar has no auto complete popup
+    // yet
+    skip: true,
   },
   {
     selector: "#IMSearchInput",
@@ -55,10 +58,10 @@ let tests = [
     tabCountBefore: 2,
     async before() {
       // Run a search so we can search from the results tab.
-      let input = document.querySelector("#searchInput");
-      input.value = "us";
+      let input = document.querySelector(".search-bar");
       EventUtils.synthesizeMouseAtCenter(input, {});
-      EventUtils.synthesizeKey("VK_RETURN", {});
+      EventUtils.sendString("us", window);
+      EventUtils.synthesizeKey("KEY_Enter", {});
 
       await BrowserTestUtils.waitForCondition(
         () =>
@@ -150,6 +153,7 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
 });
 
 registerCleanupFunction(async function() {
+  window.tabmail.selectTabByMode("mail3PaneTab");
   await be_in_folder(inboxFolder);
   folder.deleteSelf(null);
   while (window.tabmail.tabInfo.length > 1) {

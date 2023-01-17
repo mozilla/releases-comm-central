@@ -8,10 +8,10 @@
  * gains focus.
  */
 add_task(async function testGlobalSearchInputGainsFocus() {
-  let searchInput = document.querySelector("#searchInput");
-  searchInput.value = "Bugzilla";
+  let searchInput = document.querySelector(".search-bar");
   EventUtils.synthesizeMouseAtCenter(searchInput, {}, window);
-  EventUtils.synthesizeKey("VK_RETURN", {}, window);
+  EventUtils.sendString("Bugzilla", window);
+  EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
   let tabmail = document.querySelector("tabmail");
   Assert.equal(tabmail.tabInfo.length, 2);
