@@ -91,7 +91,7 @@ toolbar-next =
 toolbar-junk-label = Junk
 
 toolbar-junk =
-    .title = Mark selected message as junk
+    .title = Mark the selected messages as junk
 
 toolbar-delete-label = Delete
 
@@ -121,12 +121,12 @@ toolbar-tag-message =
 toolbar-forward-inline-label = Forward
 
 toolbar-forward-inline =
-    .title = Forward selected message inline
+    .title = Forward selected message as inline text
 
 toolbar-forward-attachment-label = Forward as Attachment
 
 toolbar-forward-attachment =
-    .title = Forward selected message as attachment
+    .title = Forward selected message as an attachment
 
 toolbar-mark-as-label = Mark
 
