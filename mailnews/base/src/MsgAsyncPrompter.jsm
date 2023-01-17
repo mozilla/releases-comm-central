@@ -4,12 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["MsgAsyncPrompter", "MsgAuthPrompt"];
 
-var { Deprecated } = ChromeUtils.importESModule(
-  "resource://gre/modules/Deprecated.sys.mjs"
-);
-const { PromptUtils } = ChromeUtils.import(
-  "resource://gre/modules/SharedPromptUtils.jsm"
-);
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
@@ -21,6 +15,11 @@ const LoginInfo = Components.Constructor(
 );
 
 const lazy = {};
+
+ChromeUtils.defineESModuleGetters(lazy, {
+  Deprecated: "resource://gre/modules/Deprecated.sys.mjs",
+  PromptUtils: "resource://gre/modules/PromptUtils.sys.mjs",
+});
 
 XPCOMUtils.defineLazyGetter(lazy, "dialogsBundle", function() {
   return Services.strings.createBundle(
@@ -56,7 +55,7 @@ runnablePrompter.prototype = {
       } catch (e) {
         if (e.result == Cr.NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED) {
           // Fall back to onPromptStart, for add-ons compat
-          Deprecated.warning(
+          lazy.Deprecated.warning(
             "onPromptStart has been replaced by onPromptStartAsync",
             "https://bugzilla.mozilla.org/show_bug.cgi?id=1176399"
           );
@@ -551,7 +550,7 @@ function nsIPrompt_promptUsernameAndPassword(
     ok: false,
   };
 
-  let propBag = PromptUtils.objectToPropBag(args);
+  let propBag = lazy.PromptUtils.objectToPropBag(args);
   Services.ww.openWindow(
     Services.ww.activeWindow,
     "chrome://global/content/commonDialog.xhtml",
@@ -559,7 +558,7 @@ function nsIPrompt_promptUsernameAndPassword(
     "centerscreen,chrome,modal,titlebar",
     propBag
   );
-  PromptUtils.propBagToObject(propBag, args);
+  lazy.PromptUtils.propBagToObject(propBag, args);
 
   // Did user click Ok or Cancel?
   let ok = args.ok;
@@ -619,7 +618,7 @@ function nsIPrompt_promptPassword(
     ok: false,
   };
 
-  let propBag = PromptUtils.objectToPropBag(args);
+  let propBag = lazy.PromptUtils.objectToPropBag(args);
   Services.ww.openWindow(
     Services.ww.activeWindow,
     "chrome://global/content/commonDialog.xhtml",
@@ -627,7 +626,7 @@ function nsIPrompt_promptPassword(
     "centerscreen,chrome,modal,titlebar",
     propBag
   );
-  PromptUtils.propBagToObject(propBag, args);
+  lazy.PromptUtils.propBagToObject(propBag, args);
 
   // Did user click Ok or Cancel?
   let ok = args.ok;

@@ -188,8 +188,8 @@ var gBigFileObserver = {
     } else if (accounts.length > 1) {
       // We once used Services.prompt.select for this UI, but it doesn't support displaying an
       // icon for each item. The following code does the same thing with a replacement dialog.
-      let { PromptUtils } = ChromeUtils.import(
-        "resource://gre/modules/SharedPromptUtils.jsm"
+      let { PromptUtils } = ChromeUtils.importESModule(
+        "resource://gre/modules/PromptUtils.sys.mjs"
       );
 
       let names = accounts.map(i => cloudFileAccounts.getDisplayName(i));
