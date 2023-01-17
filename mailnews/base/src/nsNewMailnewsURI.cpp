@@ -56,8 +56,8 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
       rv = nsImapService::NewURI(aSpec, aCharset, aBaseURI, aURI);
     };
     nsCOMPtr<nsIRunnable> task = NS_NewRunnableFunction("NewURI", NewURI);
-    mozilla::SyncRunnable::DispatchToThread(mozilla::GetMainThreadEventTarget(),
-                                            task);
+    mozilla::SyncRunnable::DispatchToThread(
+        mozilla::GetMainThreadSerialEventTarget(), task);
     return rv;
   }
   if (scheme.EqualsLiteral("smtp") || scheme.EqualsLiteral("smtps")) {
@@ -73,8 +73,8 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
       rv = nsMailtoUrl::NewMailtoURI(aSpec, aBaseURI, aURI);
     };
     nsCOMPtr<nsIRunnable> task = NS_NewRunnableFunction("NewURI", NewURI);
-    mozilla::SyncRunnable::DispatchToThread(mozilla::GetMainThreadEventTarget(),
-                                            task);
+    mozilla::SyncRunnable::DispatchToThread(
+        mozilla::GetMainThreadSerialEventTarget(), task);
     return rv;
   }
   if (scheme.EqualsLiteral("pop") || scheme.EqualsLiteral("pop3")) {
@@ -137,7 +137,7 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
       } else {
         nsCOMPtr<nsIRunnable> task = NS_NewRunnableFunction("NewURI", NewURI);
         mozilla::SyncRunnable::DispatchToThread(
-            mozilla::GetMainThreadEventTarget(), task);
+            mozilla::GetMainThreadSerialEventTarget(), task);
       }
     }
   }
