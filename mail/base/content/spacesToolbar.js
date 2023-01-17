@@ -5,6 +5,7 @@
 "use strict";
 
 /* import-globals-from mailCore.js */
+/* import-globals-from utilityOverlay.js */
 
 /**
  * Special vertical toolbar to organize all the buttons opening a tab.
