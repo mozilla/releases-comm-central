@@ -3,6 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../utilityOverlay.js */
+/* import-globals-from ../mailWindow.js */
 
 var { InlineSpellChecker, SpellCheckHelper } = ChromeUtils.importESModule(
   "resource://gre/modules/InlineSpellChecker.sys.mjs"

@@ -5,7 +5,6 @@
 "use strict";
 
 /* import-globals-from mailCore.js */
-/* import-globals-from messenger.js */
 
 /**
  * Special vertical toolbar to organize all the buttons opening a tab.
