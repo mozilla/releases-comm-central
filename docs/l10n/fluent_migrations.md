@@ -38,7 +38,7 @@ are doing.
 
 ```xml
 <radio id="calendar-day-view-button"
-       label="&calendar.day.button.label;"
+       label="&calendar.day.button.label;" 
        tooltiptext="&calendar.day.button.tooltip;" />
 ```
 
@@ -96,7 +96,7 @@ Migrations are Python modules, and implement
 a single `migrate(MigrationContext)` function. The `migrate()` function makes
 calls into `MigrationContext.add_transforms()`.
 
-The `add_transforms()` function takes three arguments:
+The `add_transforms()` function takes three arguments: 
 - `target_path`: Path to the target l10n file
 - `reference_path`: Path to the reference (en-US) file
 - A list of Transforms
@@ -104,7 +104,7 @@ The `add_transforms()` function takes three arguments:
 ```{note}
 For Thunderbird migrations, the target and reference path are the same.
 ```
-
+ 
 Transforms are rather dense AST nodes. See
 [Transforms](https://firefox-source-docs.mozilla.org/l10n/migrations/overview.html#transforms)
 for the exact details.

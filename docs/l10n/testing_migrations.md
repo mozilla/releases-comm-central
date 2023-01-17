@@ -22,7 +22,7 @@ and the bug number in the commit message matches the migration name.
 It will also show the diff between the migrated files and the reference, ignoring
 blank lines.
 
-You can inspect the generated repository further by looking in
+You can inspect the generated repository further by looking in 
 `$OBJDIR/comm/python/l10n/bug_1805746_calendar_view/en-US`.
 
 ## During Review
