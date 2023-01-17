@@ -215,8 +215,6 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   nsresult ConfirmFolderDeletion(nsIMsgWindow* aMsgWindow,
                                  nsIMsgFolder* aFolder, bool* aResult);
 
-  nsresult DeleteMessage(nsISupports* message, nsIMsgWindow* msgWindow,
-                         bool deleteStorage, bool commit);
   nsresult GetDatabase() override;
   // this will set mDatabase, if successful. It will also create a .msf file
   // for an empty local mail folder. It will leave invalid DBs in place, and

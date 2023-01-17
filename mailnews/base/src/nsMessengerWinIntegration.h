@@ -18,10 +18,7 @@ class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration {
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMESSENGERWINDOWSINTEGRATION
-
-  NS_IMETHOD UpdateUnreadCount(uint32_t unreadCount,
-                               const nsAString& unreadTooltip);
-  NS_IMETHOD OnExit();
+  NS_DECL_NSIMESSENGEROSINTEGRATION
 
  private:
   static LRESULT CALLBACK IconWindowProc(HWND msgWindow, UINT msg, WPARAM wp,
