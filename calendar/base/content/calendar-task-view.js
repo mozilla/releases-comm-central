@@ -193,7 +193,7 @@ var taskDetailsView = {
       iframe.contentDocument.body.replaceChildren(docFragment);
       let link = iframe.contentDocument.createElement("link");
       link.rel = "stylesheet";
-      link.href = "chrome://messenger/skin/shared/EditorContent.css";
+      link.href = "chrome://messenger/skin/shared/editorContent.css";
       iframe.contentDocument.head.replaceChildren(link);
       let attachmentRows = document.getElementById("calendar-task-details-attachment-rows");
       while (attachmentRows.lastChild) {

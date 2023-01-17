@@ -303,8 +303,9 @@
     enableMagicCopy() {
       this.contentWindow.controllers.insertControllerAt(0, this.copyController);
       this.autoCopyEnabled =
-        Services.clipboard.supportsSelectionClipboard() &&
-        Services.prefs.getBoolPref("clipboard.autocopy");
+        Services.clipboard.isClipboardTypeSupported(
+          Services.clipboard.kSelectionClipboard
+        ) && Services.prefs.getBoolPref("clipboard.autocopy");
       if (this.autoCopyEnabled) {
         let selection = this.contentWindow.getSelection();
         if (selection) {
