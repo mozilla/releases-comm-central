@@ -13,12 +13,15 @@ unified-toolbar {
   justify-content: space-between;
   align-items: center;
   -moz-window-dragging: drag;
+  width: 100vw;
 }
 
 #unifiedToolbar {
   flex: 1 1 auto;
   display: flex;
   padding-block: 6px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 #unifiedToolbarContainer .titlebar-buttonbox-container {

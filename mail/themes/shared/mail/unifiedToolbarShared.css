@@ -12,6 +12,7 @@
   list-style-type: none;
   overflow: hidden;
   flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .unified-toolbar li {
