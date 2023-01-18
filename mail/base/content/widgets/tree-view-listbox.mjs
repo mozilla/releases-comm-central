@@ -1535,8 +1535,8 @@ class TreeViewListbox extends HTMLTableSectionElement {
       document.l10n.setAttributes(
         selectButton,
         selectedCount
-          ? "about-threadpane-column-header-deselect-all"
-          : "about-threadpane-column-header-select-all"
+          ? "threadpane-column-header-deselect-all"
+          : "threadpane-column-header-select-all"
       );
     }
 

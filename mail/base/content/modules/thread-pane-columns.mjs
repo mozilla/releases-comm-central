@@ -11,8 +11,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "selectCol",
     l10n: {
-      header: "about-threadpane-column-header-select",
-      menuitem: "about-threadpane-column-label-select",
+      header: "threadpane-column-header-select",
+      menuitem: "threadpane-column-label-select",
     },
     ordinal: 1,
     select: true,
@@ -24,8 +24,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "threadCol",
     l10n: {
-      header: "about-threadpane-column-header-thread",
-      menuitem: "about-threadpane-column-label-thread",
+      header: "threadpane-column-header-thread",
+      menuitem: "threadpane-column-label-thread",
     },
     ordinal: 2,
     thread: true,
@@ -37,8 +37,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "flaggedCol",
     l10n: {
-      header: "about-threadpane-column-header-flagged",
-      menuitem: "about-threadpane-column-label-flagged",
+      header: "threadpane-column-header-flagged",
+      menuitem: "threadpane-column-label-flagged",
     },
     ordinal: 3,
     star: true,
@@ -49,8 +49,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "attachmentCol",
     l10n: {
-      header: "about-threadpane-column-header-attachments",
-      menuitem: "about-threadpane-column-label-attachments",
+      header: "threadpane-column-header-attachments",
+      menuitem: "threadpane-column-label-attachments",
     },
     ordinal: 4,
     icon: true,
@@ -60,8 +60,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "unreadButtonColHeader",
     l10n: {
-      header: "about-threadpane-column-header-unread-button",
-      menuitem: "about-threadpane-column-label-unread-button",
+      header: "threadpane-column-header-unread-button",
+      menuitem: "threadpane-column-label-unread-button",
     },
     ordinal: 5,
     icon: true,
@@ -71,8 +71,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "senderCol",
     l10n: {
-      header: "about-threadpane-column-header-sender",
-      menuitem: "about-threadpane-column-label-sender",
+      header: "threadpane-column-header-sender",
+      menuitem: "threadpane-column-label-sender",
     },
     ordinal: 6,
     sortKey: "byAuthor",
@@ -80,8 +80,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "recipientCol",
     l10n: {
-      header: "about-threadpane-column-header-recipient",
-      menuitem: "about-threadpane-column-label-recipient",
+      header: "threadpane-column-header-recipient",
+      menuitem: "threadpane-column-label-recipient",
     },
     ordinal: 7,
     sortKey: "byRecipient",
@@ -90,8 +90,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "correspondentCol",
     l10n: {
-      header: "about-threadpane-column-header-correspondents",
-      menuitem: "about-threadpane-column-label-correspondents",
+      header: "threadpane-column-header-correspondents",
+      menuitem: "threadpane-column-label-correspondents",
     },
     ordinal: 8,
     sortKey: "byCorrespondent",
@@ -100,8 +100,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "junkStatusCol",
     l10n: {
-      header: "about-threadpane-column-header-spam",
-      menuitem: "about-threadpane-column-label-spam",
+      header: "threadpane-column-header-spam",
+      menuitem: "threadpane-column-label-spam",
     },
     ordinal: 9,
     sortKey: "byJunkStatus",
@@ -112,8 +112,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "subjectCol",
     l10n: {
-      header: "about-threadpane-column-header-subject",
-      menuitem: "about-threadpane-column-label-subject",
+      header: "threadpane-column-header-subject",
+      menuitem: "threadpane-column-label-subject",
     },
     ordinal: 10,
     picker: false,
@@ -122,8 +122,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "dateCol",
     l10n: {
-      header: "about-threadpane-column-header-date",
-      menuitem: "about-threadpane-column-label-date",
+      header: "threadpane-column-header-date",
+      menuitem: "threadpane-column-label-date",
     },
     ordinal: 11,
     sortKey: "byDate",
@@ -131,8 +131,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "receivedCol",
     l10n: {
-      header: "about-threadpane-column-header-received",
-      menuitem: "about-threadpane-column-label-received",
+      header: "threadpane-column-header-received",
+      menuitem: "threadpane-column-label-received",
     },
     ordinal: 12,
     sortKey: "byReceived",
@@ -141,8 +141,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "statusCol",
     l10n: {
-      header: "about-threadpane-column-header-status",
-      menuitem: "about-threadpane-column-label-status",
+      header: "threadpane-column-header-status",
+      menuitem: "threadpane-column-label-status",
     },
     ordinal: 13,
     sortKey: "byStatus",
@@ -151,8 +151,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "sizeCol",
     l10n: {
-      header: "about-threadpane-column-header-size",
-      menuitem: "about-threadpane-column-label-size",
+      header: "threadpane-column-header-size",
+      menuitem: "threadpane-column-label-size",
     },
     ordinal: 14,
     sortKey: "bySize",
@@ -161,8 +161,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "tagsCol",
     l10n: {
-      header: "about-threadpane-column-header-tags",
-      menuitem: "about-threadpane-column-label-tags",
+      header: "threadpane-column-header-tags",
+      menuitem: "threadpane-column-label-tags",
     },
     ordinal: 15,
     sortKey: "byTags",
@@ -171,8 +171,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "accountCol",
     l10n: {
-      header: "about-threadpane-column-header-account",
-      menuitem: "about-threadpane-column-label-account",
+      header: "threadpane-column-header-account",
+      menuitem: "threadpane-column-label-account",
     },
     ordinal: 16,
     sortKey: "byAccount",
@@ -181,8 +181,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "priorityCol",
     l10n: {
-      header: "about-threadpane-column-header-priority",
-      menuitem: "about-threadpane-column-label-priority",
+      header: "threadpane-column-header-priority",
+      menuitem: "threadpane-column-label-priority",
     },
     ordinal: 17,
     sortKey: "byPriority",
@@ -191,8 +191,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "unreadCol",
     l10n: {
-      header: "about-threadpane-column-header-unread",
-      menuitem: "about-threadpane-column-label-unread",
+      header: "threadpane-column-header-unread",
+      menuitem: "threadpane-column-label-unread",
     },
     ordinal: 18,
     sortable: false,
@@ -201,8 +201,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "totalCol",
     l10n: {
-      header: "about-threadpane-column-header-total",
-      menuitem: "about-threadpane-column-label-total",
+      header: "threadpane-column-header-total",
+      menuitem: "threadpane-column-label-total",
     },
     ordinal: 19,
     sortable: false,
@@ -211,8 +211,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "locationCol",
     l10n: {
-      header: "about-threadpane-column-header-location",
-      menuitem: "about-threadpane-column-label-location",
+      header: "threadpane-column-header-location",
+      menuitem: "threadpane-column-label-location",
     },
     ordinal: 20,
     sortKey: "byLocation",
@@ -221,8 +221,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "idCol",
     l10n: {
-      header: "about-threadpane-column-header-id",
-      menuitem: "about-threadpane-column-label-id",
+      header: "threadpane-column-header-id",
+      menuitem: "threadpane-column-label-id",
     },
     ordinal: 21,
     sortKey: "byId",
@@ -231,8 +231,8 @@ export const DEFAULT_COLUMNS = [
   {
     id: "deleteCol",
     l10n: {
-      header: "about-threadpane-column-header-delete",
-      menuitem: "about-threadpane-column-label-delete",
+      header: "threadpane-column-header-delete",
+      menuitem: "threadpane-column-label-delete",
     },
     ordinal: 22,
     delete: true,
