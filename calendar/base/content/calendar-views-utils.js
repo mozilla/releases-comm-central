@@ -271,10 +271,6 @@ function switchToView(viewType) {
     }
   }
 
-  // Select the corresponding tab
-  let viewTabs = document.getElementById("view-tabs");
-  viewTabs.selectedIndex = viewBox.getAttribute("selectedIndex");
-
   view.ensureInitialized();
   if (!view.controller) {
     view.timezone = cal.dtz.defaultTimezone;
@@ -480,6 +476,9 @@ var gLastShownCalendarView = {
         }
         let viewNode = viewBox.children[selectedIndex];
         this._lastView = viewNode.id.replace(/-view/, "");
+        document
+          .querySelector(`.calview-toggle-item[aria-controls="${viewNode.id}"]`)
+          ?.setAttribute("aria-selected", true);
       } else {
         // No deck item was selected beforehand, default to week view.
         this._lastView = "week";
@@ -583,8 +582,6 @@ var calendarNavigationBar = {
         (docTitle ? docTitle + " - " : "") +
         cal.l10n.getAnyString("branding", "brand", "brandFullName");
     }
-    let viewTabs = document.getElementById("view-tabs");
-    viewTabs.selectedIndex = getViewBox().getAttribute("selectedIndex");
   },
 };
 

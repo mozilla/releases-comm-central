@@ -21,12 +21,14 @@
   padding-top: 1px;
 }
 
-radio.calview {
-  margin-bottom: 0;
+.calview-toggle button[role="tab"][aria-selected="true"] {
+  background-color: var(--calendar-nav-control-bg-color);
 }
 
-radio.calview[selected="true"] {
-  background-color: Field;
+button.calview-toggle-item:is(:not([disabled])):hover:active,
+button.calview-toggle-item[role="tab"][aria-selected="false"]:hover {
+  background-color: var(--calendar-nav-control-bg-color-hover);
+  color: var(--toolbar-color);
 }
 
 .navigation-bottombox {

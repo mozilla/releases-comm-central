@@ -39,9 +39,9 @@ add_task(async function testBasicFunctionality() {
   // There should be search field.
   Assert.ok(document.querySelector("#unifinder-search-field"), "unifinded search field exists");
 
-  let dayViewButton = document.querySelector("#calendar-day-view-button");
+  let dayViewButton = document.querySelector("#calTabDay");
   dayViewButton.click();
-  Assert.ok(dayViewButton.selected, "day view button is selected");
+  Assert.ok(dayViewButton.getAttribute("aria-selected"), "day view button is selected");
   await CalendarTestUtils.ensureViewLoaded(window);
 
   // Day view should have 09:00 box.
