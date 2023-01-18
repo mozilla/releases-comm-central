@@ -3,6 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../base/content/spacesToolbar.js */
+/* import-globals-from ../../../base/content/utilityOverlay.js */
 
 import {
   storeState,

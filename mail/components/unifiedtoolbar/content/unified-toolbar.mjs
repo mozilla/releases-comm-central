@@ -261,13 +261,13 @@ class UnifiedToolbar extends HTMLElement {
       );
       const allItems = new Set(Object.values(filledOutState).flat());
       const spaceCounts = Object.keys(filledOutState).map(space =>
-        filledOutState[space].reduce((spaceCounts, itemId) => {
-          if (spaceCounts[itemId]) {
-            ++spaceCounts[itemId];
+        filledOutState[space].reduce((counts, itemId) => {
+          if (counts[itemId]) {
+            ++counts[itemId];
           } else {
-            spaceCounts[itemId] = 1;
+            counts[itemId] = 1;
           }
-          return spaceCounts;
+          return counts;
         }, {})
       );
       const elementCounts = Object.fromEntries(

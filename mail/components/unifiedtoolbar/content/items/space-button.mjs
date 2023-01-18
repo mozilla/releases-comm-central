@@ -14,7 +14,9 @@ import { UnifiedToolbarButton } from "chrome://messenger/content/unifiedtoolbar/
 class SpaceButton extends UnifiedToolbarButton {
   handleClick = event => {
     const spaceId = this.getAttribute("space");
-    const space = gSpacesToolbar.spaces.find(space => space.name == spaceId);
+    const space = gSpacesToolbar.spaces.find(
+      spaceDetails => spaceDetails.name == spaceId
+    );
     gSpacesToolbar.openSpace(document.getElementById("tabmail"), space);
     event.preventDefault();
     event.stopPropagation();
