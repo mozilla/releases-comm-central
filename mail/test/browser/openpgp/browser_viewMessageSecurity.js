@@ -68,7 +68,8 @@ var gInbox;
 add_setup(async function() {
   SmimeUtils.ensureNSS();
   SmimeUtils.loadCertificateAndKey(
-    new FileUtils.File(getTestFilePath("data/smime/Bob.p12"))
+    new FileUtils.File(getTestFilePath("data/smime/Bob.p12")),
+    "nss"
   );
 
   aliceAcct = MailServices.accounts.createAccount();

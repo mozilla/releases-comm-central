@@ -27,7 +27,8 @@ let { TelemetryTestUtils } = ChromeUtils.importESModule(
 add_setup(function() {
   SmimeUtils.ensureNSS();
   SmimeUtils.loadCertificateAndKey(
-    new FileUtils.File(getTestFilePath("../openpgp/data/smime/Bob.p12"))
+    new FileUtils.File(getTestFilePath("../openpgp/data/smime/Bob.p12")),
+    "nss"
   );
 });
 
@@ -120,15 +121,15 @@ var smimeMessage = [
   "MIAGCSqGSIb3DQEHA6CAMIACAQAxggGFMIIBgQIBADBpMGQxCzAJBgNVBAYTAlVT",
   "MRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRIw",
   "EAYDVQQKEwlCT0dVUyBOU1MxFDASBgNVBAMTC05TUyBUZXN0IENBAgEoMA0GCSqG",
-  "SIb3DQEBAQUABIIBAGgZHxKKXrR3tMqJkkADZoYNqIJJXOXmrmXHHV830/RUW6gU",
-  "V3NNwsnl4L99kygitGe4X4gnjqPHs0FNxEL1DfxwyySfkcQge5BktBcBk448TUzz",
-  "WrS19L4UAfJkalu+stezAO0L4hs/kYaSrvFhuQ6vxfixHxGydwX008Ps16aua5zI",
-  "EYgiSoXxAUajtEh6phqAcC+FMhObZyEZXQKSgs3X0nYTQib8I6L7dWquYoQMVfsp",
-  "wpERLhEqtTghEW/CT8z6gQajkEgV9tFM0f2gLSH1672LRlHVAbk4ZceBmvxa02sr",
-  "PHW8gffMVWF6RX05rKzVnxm9IzJjHdWblc7SPJowgAYJKoZIhvcNAQcBMB0GCWCG",
-  "SAFlAwQBAgQQSSldfdzyN/cUjHJO2EXrGKCABIGglkOJOh25hjmvYeJtxlyih1CC",
-  "1tlMGVnct6Zuiy1y7jVIsJRSRFXsA4TQyFICPe4aq7ArNzT0Bizj8mzDXmJQNh5v",
-  "5bwmMwMrvW5p9NMasuFIaIqbvmVnLC5c/DcJoplx1eOG0OOfXevGLrepLzF9Yeya",
-  "TFli/xvLNSwTA+xSsFCxets7vknAXFBSqnRQP2fk2bnihfHdBh6JYIFKWStJlwQQ",
-  "Y0jCR94CgCHcP6Yi/0bwKQAAAAAAAAAAAAA=",
+  "SIb3DQEBAQUABIIBAByaXGnoQAgRiPjvcpotJWBQwXjAxYldgMaT/hEX0Hlnas6m",
+  "OcBIOJLB9CHhmBOSo/yryDOnRcl9l1cQYzSEpExYSGoVzPCpPOLKw5C/A+6NFzpe",
+  "44EUX5/gVbVeQ4fl2dOB3NbW5Cnx3Js7O1MFr8UPFOh31TBhvWjOMl+3CkMWndUi",
+  "G4C/srgdeuQRdKJcWoROtBjQuibVHfn0TcA7olIj8ysmJoTT3Irx625Sh5mDDVbJ",
+  "UyR2WWqw6wPAaCS2urUXtYrEuxsr7EmdcZc0P6oikzf/KoMvzBWBmWJXad1QSdeO",
+  "s5Bk2MYKXoM9Iqddr/n9mvg4jJNnFMzG0cFKCAgwgAYJKoZIhvcNAQcBMB0GCWCG",
+  "SAFlAwQBAgQQ2QrTbolonzr0vAfmGH2nJ6CABIGQKA2mKyOQShspbeDIf/QlYHg+",
+  "YbiqdhlENHHM5V5rICjM5LFzLME0TERDJGi8tATlqp3rFOswFDGiymK6XZrpQZiW",
+  "TBTEa2E519Mw86NEJ1d/iy4aLpPjATH2rhZLm3dix42mFI5ToszGNu9VuDWDiV4S",
+  "sA798v71TaSlFwh9C3VwODQ8lWwyci4aD3wdxevGBBC3fYMuEns+NIQhqpzlUADX",
+  "AAAAAAAAAAAAAA==",
 ].join("\n");
