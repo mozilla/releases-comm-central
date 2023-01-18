@@ -28,7 +28,6 @@ var {
   clear_constraints,
   set_filter_text,
   toggle_boolean_constraints,
-  toggle_quick_filter_bar,
   toggle_tag_constraints,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/QuickFilterBarHelpers.jsm"

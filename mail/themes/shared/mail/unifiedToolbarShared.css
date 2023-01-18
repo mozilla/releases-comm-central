@@ -241,3 +241,7 @@
 .unified-toolbar .print .button-icon {
   content: var(--icon-print);
 }
+
+.unified-toolbar .quick-filter-bar .button-icon {
+  content: var(--icon-filter);
+}

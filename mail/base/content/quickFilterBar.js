@@ -312,6 +312,7 @@ var quickFilterBar = {
       threadPane.focus();
     }
     this.reflectFiltererState();
+    window.dispatchEvent(new Event("qfbtoggle"));
   },
 
   /**

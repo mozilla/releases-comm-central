@@ -29,6 +29,7 @@ var {
   set_filter_text,
   toggle_boolean_constraints,
   toggle_quick_filter_bar,
+  cleanup_qfb_button,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/QuickFilterBarHelpers.jsm"
 );
@@ -54,11 +55,11 @@ add_setup(async function() {
  * 1) With the focus in the thread pane.
  * 2) With our focus in our text-box.
  */
-add_task(function test_escape_rules() {
+add_task(async function test_escape_rules() {
   assert_quick_filter_bar_visible(true); // (precondition)
 
   // the common logic for each bit...
-  function legwork() {
+  async function legwork() {
     // apply two...
     toggle_boolean_constraints("unread", "starred", "addrbook");
     assert_constraints_expressed({
@@ -83,18 +84,18 @@ add_task(function test_escape_rules() {
     assert_quick_filter_bar_visible(false);
 
     // bring the bar back for the next dude
-    toggle_quick_filter_bar();
+    await toggle_quick_filter_bar();
   }
 
   let about3Pane = get_about_3pane();
 
   // 1) focus in the thread pane
   about3Pane.document.getElementById("threadTree").focus();
-  legwork();
+  await legwork();
 
   // 2) focus in the text box
   about3Pane.document.getElementById("qfb-qs-textbox").focus();
-  legwork();
+  await legwork();
 
   // 3) focus in the text box and pretend to type stuff...
   about3Pane.document.getElementById("qfb-qs-textbox").focus();
@@ -166,6 +167,10 @@ add_task(function test_control_shift_k_shows_quick_filter_bar() {
   EventUtils.synthesizeKey("VK_ESCAPE", {});
   assert_quick_filter_bar_visible(false);
   teardownTest();
+});
+
+registerCleanupFunction(async () => {
+  await cleanup_qfb_button();
 });
 
 function teardownTest() {

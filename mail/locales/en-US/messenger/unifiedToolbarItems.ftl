@@ -172,3 +172,8 @@ toolbar-print-label = Print
 
 toolbar-print =
     .title = Print this message
+
+toolbar-quick-filter-bar-label = Quick Filter
+
+toolbar-quick-filter-bar =
+    .title = Filter messages

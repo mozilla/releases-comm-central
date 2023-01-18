@@ -150,3 +150,7 @@
 .print .preview-icon {
   content: var(--icon-print);
 }
+
+.quick-filter-bar .preview-icon {
+  content: var(--icon-filter);
+}

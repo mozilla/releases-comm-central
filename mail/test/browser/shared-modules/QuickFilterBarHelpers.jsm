@@ -20,6 +20,7 @@ const EXPORTED_SYMBOLS = [
   "assert_filter_text",
   "assert_results_label_count",
   "clear_constraints",
+  "cleanup_qfb_button",
 ];
 
 var { get_about_3pane, mc, wait_for_all_messages_to_load } = ChromeUtils.import(
@@ -34,6 +35,14 @@ var { Assert } = ChromeUtils.importESModule(
 );
 var { BrowserTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/BrowserTestUtils.sys.mjs"
+);
+
+const { getState, storeState } = ChromeUtils.importESModule(
+  "resource:///modules/CustomizationState.mjs"
+);
+
+const { getDefaultItemIdsForSpace } = ChromeUtils.importESModule(
+  "resource:///modules/CustomizableItems.mjs"
 );
 
 let about3Pane = get_about_3pane();
@@ -52,13 +61,61 @@ var nameToBarDomId = {
   attachments: "qfb-attachment",
 };
 
-function assert_quick_filter_button_enabled(aEnabled) {
-  // TODO: Reimplement this button.
-  // if (mc.e("qfb-show-filter-bar").disabled == aEnabled) {
-  //   throw new Error(
-  //     "Quick filter bar button should be " + (aEnabled ? "enabled" : "disabled")
-  //   );
-  // }
+async function ensure_qfb_unified_toolbar_button() {
+  const document = mc.window.document;
+
+  const state = getState();
+  if (state.mail?.includes("quick-filter-bar")) {
+    return;
+  }
+  if (!state.mail) {
+    state.mail = getDefaultItemIdsForSpace("mail");
+    if (state.mail.includes("quick-filter-bar")) {
+      return;
+    }
+  }
+  state.mail.push("quick-filter-bar");
+  storeState(state);
+  await BrowserTestUtils.waitForMutationCondition(
+    document.getElementById("unifiedToolbarContent"),
+    {
+      subtree: true,
+      childList: true,
+    },
+    () =>
+      document.querySelector("#unifiedToolbarContent .quick-filter-bar button")
+  );
+}
+
+async function cleanup_qfb_button() {
+  const document = mc.window.document;
+  const state = getState();
+  if (!state.mail?.includes("quick-filter-bar")) {
+    return;
+  }
+  state.mail = getDefaultItemIdsForSpace("mail");
+  storeState(state);
+  await BrowserTestUtils.waitForMutationCondition(
+    document.getElementById("unifiedToolbarContent"),
+    {
+      subtree: true,
+      childList: true,
+    },
+    () => !document.querySelector("#unifiedToolbarContent .quick-filter-bar")
+  );
+}
+
+async function assert_quick_filter_button_enabled(aEnabled) {
+  await ensure_qfb_unified_toolbar_button();
+  if (
+    mc.window.document.querySelector(
+      "#unifiedToolbarContent .quick-filter-bar button"
+    ).disabled == aEnabled
+  ) {
+    throw new Error(
+      "Quick filter bar button should be " + (aEnabled ? "enabled" : "disabled")
+    );
+  }
 }
 
 function assert_quick_filter_bar_visible(aVisible) {
@@ -79,14 +136,15 @@ function assert_quick_filter_bar_visible(aVisible) {
 /**
  * Toggle the state of the message filter bar as if by a mouse click.
  */
-function toggle_quick_filter_bar() {
-  mc.window.goDoCommand("cmd_toggleQuickFilterBar");
-  // TODO: Reimplement this button.
-  // EventUtils.synthesizeMouseAtCenter(
-  //   mc.e("qfb-show-filter-bar"),
-  //   { clickCount: 1 },
-  //   mc.window
-  // );
+async function toggle_quick_filter_bar() {
+  await ensure_qfb_unified_toolbar_button();
+  EventUtils.synthesizeMouseAtCenter(
+    mc.window.document.querySelector(
+      "#unifiedToolbarContent .quick-filter-bar"
+    ),
+    { clickCount: 1 },
+    mc.window
+  );
   wait_for_all_messages_to_load();
 }
 

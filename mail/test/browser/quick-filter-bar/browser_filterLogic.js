@@ -32,6 +32,7 @@ var {
   toggle_tag_constraints,
   toggle_tag_mode,
   toggle_text_constraints,
+  cleanup_qfb_button,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/QuickFilterBarHelpers.jsm"
 );
@@ -404,8 +405,8 @@ add_task(async function test_filter_text_constraints_propagate() {
   toggle_text_constraints("subject");
   assert_messages_in_view([setWhoFoo]);
 
-  toggle_quick_filter_bar();
-  toggle_quick_filter_bar();
+  await toggle_quick_filter_bar();
+  await toggle_quick_filter_bar();
 
   set_filter_text("foo");
   assert_messages_in_view([setWhoFoo]);
@@ -462,6 +463,10 @@ add_task(async function test_results_label() {
   await delete_messages(setImmortal);
   assert_results_label_count(0);
   teardownTest();
+});
+
+registerCleanupFunction(async () => {
+  await cleanup_qfb_button();
 });
 
 function teardownTest() {

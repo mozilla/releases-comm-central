@@ -317,6 +317,15 @@ export default [
       "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
     ],
   },
+  {
+    id: "quick-filter-bar",
+    labelId: "toolbar-quick-filter-bar",
+    spaces: ["mail"],
+    templateId: "quickFilterBarTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/quick-filter-bar-toggle.mjs",
+    ],
+  },
   // Calendar space
   {
     id: "unifinder",

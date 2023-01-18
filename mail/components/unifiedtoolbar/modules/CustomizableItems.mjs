@@ -33,7 +33,7 @@ export function getAvailableItemIdsForSpace(space) {
  */
 export function getDefaultItemIdsForSpace(space) {
   //TODO add extension actions
-  return DEFAULT_ITEMS;
+  return DEFAULT_ITEMS.slice();
 }
 
 export const MULTIPLE_ALLOWED_ITEM_IDS = new Set(
