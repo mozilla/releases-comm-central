@@ -15,53 +15,106 @@
   // calendar-invitation-panel.ftl is not globally loaded until now.
   MozXULElement.insertFTLIfNeeded("calendar/calendar-invitation-panel.ftl");
 
-  /**
-   * Base element providing boilerplate for shadow root initialisation.
-   */
-  class BaseInvitationElement extends HTMLElement {
-    /**
-     * A previous copy of the event item if found on an existing calendar.
-     *
-     * @type {calIEvent?}
-     */
-    foundItem;
-
-    /**
-     * The id of the <template> tag to initialize the element with.
-     *
-     * @param {string?} id
-     */
-    constructor(id) {
-      super();
-      this.attachShadow({ mode: "open" });
-      document.l10n.connectRoot(this.shadowRoot);
-
-      let link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = "chrome://calendar/skin/shared/widgets/calendar-invitation-panel.css";
-      this.shadowRoot.appendChild(link);
-
-      if (id) {
-        this.shadowRoot.appendChild(document.getElementById(id).content.cloneNode(true));
-      }
-    }
-
-    disconnectedCallback() {
-      document.l10n.disconnectRoot(this.shadowRoot);
-    }
-  }
+  const PROPERTY_REMOVED = -1;
+  const PROPERTY_UNCHANGED = 0;
+  const PROPERTY_ADDED = 1;
+  const PROPERTY_MODIFIED = 2;
 
   /**
    * InvitationPanel displays the details of an iTIP event invitation in an
    * interactive panel.
    */
-  class InvitationPanel extends BaseInvitationElement {
+  class InvitationPanel extends HTMLElement {
     static MODE_NEW = "New";
     static MODE_ALREADY_PROCESSED = "Processed";
     static MODE_UPDATE_MAJOR = "UpdateMajor";
     static MODE_UPDATE_MINOR = "UpdateMinor";
     static MODE_CANCELLED = "Cancelled";
     static MODE_CANCELLED_NOT_FOUND = "CancelledNotFound";
+
+    /**
+     * Used to retrieve a property value from an event.
+     *
+     * @callback GetValue
+     * @param {calIEvent} event
+     * @returns {string}
+     */
+
+    /**
+     * A function used to make a property value visible in to the user.
+     *
+     * @callback PropertyShow
+     * @param {HTMLElement} node  - The element responsible for displaying the
+     *                              value.
+     * @param {string} value      - The value of property to display.
+     * @param {string} oldValue   - The previous value of the property if the
+     *                              there is a prior copy of the event.
+     * @param {calIEvent} item    - The event item the property belongs to.
+     * @param {string} oldItem    - The prior version of the event if there is
+     *                              one.
+     */
+
+    /**
+     * @typedef {Object} InvitationPropertyDescriptor
+     * @property {string} id         - The id of the HTMLElement that displays
+     *                                 the property.
+     * @property {GetValue} getValue - Function used to retrieve the displayed
+     *                                 value of the property from the item.
+     * @property {PropertyShow} show - Function to use to display the property
+     *                                 value.
+     */
+
+    /**
+     * A static list of objects used in determining how to display each of the
+     * properties.
+     *
+     * @type {PropertyDescriptor[]}
+     */
+    static propertyDescriptors = [
+      {
+        id: "when",
+        getValue(item) {
+          let tz = cal.dtz.defaultTimezone;
+          let startDate = item.startDate?.getInTimezone(tz) ?? null;
+          let endDate = item.endDate?.getInTimezone(tz) ?? null;
+          return `${startDate.icalString}-${endDate?.icalString}`;
+        },
+        show(intervalNode, newValue, oldValue, item) {
+          intervalNode.item = item;
+        },
+      },
+      {
+        id: "recurrence",
+        getValue(item) {
+          let parent = item.parentItem;
+          if (!parent.recurrenceInfo) {
+            return null;
+          }
+          return recurrenceRule2String(parent.recurrenceInfo, parent.recurrenceStartDate);
+        },
+        show(recurrence, value) {
+          recurrence.appendChild(document.createTextNode(value));
+        },
+      },
+      {
+        id: "location",
+        getValue(item) {
+          return item.getProperty("LOCATION");
+        },
+        show(location, value) {
+          location.appendChild(cal.view.textToHtmlDocumentFragment(value, document));
+        },
+      },
+      {
+        id: "description",
+        getValue(item) {
+          return item.descriptionText;
+        },
+        show(description, value) {
+          description.appendChild(cal.view.textToHtmlDocumentFragment(value, document));
+        },
+      },
+    ];
 
     /**
      * mode determines how the UI should display the received invitation. It
@@ -72,64 +125,104 @@
     mode = InvitationPanel.MODE_NEW;
 
     /**
-     * The event item to be displayed.
-     *
-     * @type {calIEvent?}
-     */
-    item;
-
-    connectedCallback() {
-      if (this.item && this.mode) {
-        let template = document.getElementById(`calendarInvitationPanel`);
-        this.shadowRoot.appendChild(template.content.cloneNode(true));
-
-        let title = this.shadowRoot.querySelector("calendar-invitation-panel-title");
-        title.foundItem = this.foundItem;
-        title.item = this.item;
-
-        let statusBar = this.shadowRoot.querySelector("calendar-invitation-panel-status-bar");
-        statusBar.status = this.mode;
-
-        this.shadowRoot.querySelector("calendar-minidate").date = this.item.startDate;
-        let props = this.shadowRoot.querySelector("calendar-invitation-panel-properties");
-        props.foundItem = this.foundItem;
-        props.item = this.item;
-      }
-    }
-  }
-  customElements.define("calendar-invitation-panel", InvitationPanel);
-
-  /**
-   * InvitationPanelTitle displays the title of the event in a header element.
-   */
-  class InvitationPanelTitle extends HTMLElement {
-    /**
-     * A previous copy of the event, if specified it is used to determine if
-     * the title of the invitation has changed.
+     * A previous copy of the event item if found on an existing calendar.
      *
      * @type {calIEvent?}
      */
     foundItem;
 
     /**
-     * Setting this value will render the title as well as a change indicator
-     * if a change in title is detected.
+     * The event item to be displayed.
      *
-     * @type {calIEvent}
+     * @type {calIEvent?}
      */
-    set item(value) {
-      let node = document.getElementById("calendarInvitationPanelTitle").content.cloneNode(true);
-      if (this.foundItem && this.foundItem.title != value.title) {
-        let indicator = node.querySelector("calendar-invitation-change-indicator");
-        indicator.status = PROPERTY_MODIFIED;
-        indicator.hidden = false;
-      }
+    item;
 
-      node.querySelector("h1").textContent = value.title;
-      this.append(node);
+    constructor(id) {
+      super();
+      this.attachShadow({ mode: "open" });
+      document.l10n.connectRoot(this.shadowRoot);
+
+      let link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "chrome://calendar/skin/shared/widgets/calendar-invitation-panel.css";
+      this.shadowRoot.appendChild(link);
+    }
+
+    /**
+     * Compares two like property values, an old and a new one, to determine
+     * what type of change has been made (if any).
+     *
+     * @param {any} oldValue
+     * @param {any} newValue
+     * @returns {number} - One of the PROPERTY_* constants.
+     */
+    compare(oldValue, newValue) {
+      if (!oldValue && newValue) {
+        return PROPERTY_ADDED;
+      }
+      if (oldValue && !newValue) {
+        return PROPERTY_REMOVED;
+      }
+      return oldValue != newValue ? PROPERTY_MODIFIED : PROPERTY_UNCHANGED;
+    }
+
+    connectedCallback() {
+      if (this.item && this.mode) {
+        let template = document.getElementById(`calendarInvitationPanel`);
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
+
+        if (this.foundItem && this.foundItem.title != this.item.title) {
+          let indicator = this.shadowRoot.getElementById("titleChangeIndicator");
+          indicator.status = PROPERTY_MODIFIED;
+          indicator.hidden = false;
+        }
+        this.shadowRoot.getElementById("title").textContent = this.item.title;
+
+        let statusBar = this.shadowRoot.querySelector("calendar-invitation-panel-status-bar");
+        statusBar.status = this.mode;
+
+        this.shadowRoot.querySelector("calendar-minidate").date = this.item.startDate;
+
+        for (let prop of InvitationPanel.propertyDescriptors) {
+          let el = this.shadowRoot.getElementById(prop.id);
+          let value = prop.getValue(this.item);
+          let oldValue;
+          let result = PROPERTY_UNCHANGED;
+          if (this.foundItem) {
+            oldValue = prop.getValue(this.foundItem);
+            result = this.compare(oldValue, value);
+            if (result) {
+              let indicator = this.shadowRoot.getElementById(`${prop.id}ChangeIndicator`);
+              if (indicator) {
+                indicator.type = result;
+                indicator.hidden = false;
+              }
+            }
+          }
+          if (value) {
+            prop.show(el, value, oldValue, this.item, this.foundItem, result);
+          }
+        }
+
+        let attendeeValues = this.item.getAttendees();
+        this.shadowRoot.getElementById("summary").attendees = attendeeValues;
+
+        let attendees = this.shadowRoot.getElementById("attendees");
+        if (this.foundItem) {
+          attendees.oldValue = this.foundItem.getAttendees();
+        }
+        attendees.value = attendeeValues;
+
+        let attachments = this.shadowRoot.getElementById("attachments");
+        if (this.foundItem) {
+          attachments.oldValue = this.foundItem.getAttachments();
+        }
+        attachments.value = this.item.getAttachments();
+      }
     }
   }
-  customElements.define("calendar-invitation-panel-title", InvitationPanelTitle);
+  customElements.define("calendar-invitation-panel", InvitationPanel);
 
   /**
    * Object used to describe relevant arguments to MozElements.NotificationBox.
@@ -275,177 +368,11 @@
   }
   customElements.define("calendar-invitation-panel-status-bar", InvitationPanelStatusBar);
 
-  const PROPERTY_REMOVED = -1;
-  const PROPERTY_UNCHANGED = 0;
-  const PROPERTY_ADDED = 1;
-  const PROPERTY_MODIFIED = 2;
-
-  /**
-   * InvitationPanelProperties renders the details of the most useful properties
-   * of an invitation.
-   */
-  class InvitationPanelProperties extends BaseInvitationElement {
-    constructor() {
-      super("calendarInvitationPanelProperties");
-    }
-
-    /**
-     * Used to retrieve a property value from an event.
-     *
-     * @callback GetValue
-     * @param {calIEvent} event
-     * @returns {string}
-     */
-
-    /**
-     * A function used to make a property value visible in to the user.
-     *
-     * @callback PropertyShow
-     * @param {HTMLElement} node  - The element responsible for displaying the
-     *                              value.
-     * @param {string} value      - The value of property to display.
-     * @param {string} oldValue   - The previous value of the property if the
-     *                              there is a prior copy of the event.
-     * @param {calIEvent} item    - The event item the property belongs to.
-     * @param {string} oldItem    - The prior version of the event if there is
-     *                              one.
-     */
-
-    /**
-     * @typedef {Object} InvitationPropertyDescriptor
-     * @property {string} id         - The id of the HTMLElement that displays
-     *                                 the property.
-     * @property {GetValue} getValue - Function used to retrieve the displayed
-     *                                 value of the property from the item.
-     * @property {PropertyShow} show - Function to use to display the property
-     *                                 value.
-     */
-
-    /**
-     * A static list of objects used in determining how to display each of the
-     * properties.
-     *
-     * @type {PropertyDescriptor[]}
-     */
-    static propertyDescriptors = [
-      {
-        id: "interval",
-        getValue(item) {
-          let tz = cal.dtz.defaultTimezone;
-          let startDate = item.startDate?.getInTimezone(tz) ?? null;
-          let endDate = item.endDate?.getInTimezone(tz) ?? null;
-          return `${startDate.icalString}-${endDate?.icalString}`;
-        },
-        show(intervalNode, newValue, oldValue, item) {
-          intervalNode.item = item;
-        },
-      },
-      {
-        id: "recurrence",
-        getValue(item) {
-          let parent = item.parentItem;
-          if (!parent.recurrenceInfo) {
-            return null;
-          }
-          return recurrenceRule2String(parent.recurrenceInfo, parent.recurrenceStartDate);
-        },
-        show(recurrence, value) {
-          recurrence.appendChild(document.createTextNode(value));
-        },
-      },
-      {
-        id: "location",
-        getValue(item) {
-          return item.getProperty("LOCATION");
-        },
-        show(location, value) {
-          location.appendChild(cal.view.textToHtmlDocumentFragment(value, document));
-        },
-      },
-      {
-        id: "description",
-        getValue(item) {
-          return item.descriptionText;
-        },
-        show(description, value) {
-          description.appendChild(cal.view.textToHtmlDocumentFragment(value, document));
-        },
-      },
-    ];
-
-    /**
-     * Setting the item will populate the table that displays the event
-     * properties.
-     *
-     * @type {calIEvent}
-     */
-    set item(item) {
-      for (let prop of InvitationPanelProperties.propertyDescriptors) {
-        let el = this.shadowRoot.getElementById(prop.id);
-        let value = prop.getValue(item);
-        let oldValue;
-        let result = PROPERTY_UNCHANGED;
-        if (this.foundItem) {
-          oldValue = prop.getValue(this.foundItem);
-          result = this.compare(oldValue, value);
-          if (result) {
-            let indicator = this.shadowRoot.getElementById(`${prop.id}ChangeIndicator`);
-            if (indicator) {
-              indicator.type = result;
-              indicator.hidden = false;
-            }
-          }
-        }
-        if (value) {
-          prop.show(el, value, oldValue, item, this.foundItem, result);
-        }
-      }
-
-      let attendeeValues = item.getAttendees();
-      this.shadowRoot.getElementById("summary").attendees = attendeeValues;
-
-      let attendees = this.shadowRoot.getElementById("attendees");
-      if (this.foundItem) {
-        attendees.oldValue = this.foundItem.getAttendees();
-      }
-      attendees.value = attendeeValues;
-
-      let attachments = this.shadowRoot.getElementById("attachments");
-      if (this.foundItem) {
-        attachments.oldValue = this.foundItem.getAttachments();
-      }
-      attachments.value = item.getAttachments();
-    }
-
-    /**
-     * Compares two like property values, an old and a new one, to determine
-     * what type of change has been made (if any).
-     *
-     * @param {any} oldValue
-     * @param {any} newValue
-     * @returns {number} - One of the PROPERTY_* constants.
-     */
-    compare(oldValue, newValue) {
-      if (!oldValue && newValue) {
-        return PROPERTY_ADDED;
-      }
-      if (oldValue && !newValue) {
-        return PROPERTY_REMOVED;
-      }
-      return oldValue != newValue ? PROPERTY_MODIFIED : PROPERTY_UNCHANGED;
-    }
-  }
-  customElements.define("calendar-invitation-panel-properties", InvitationPanelProperties);
-
   /**
    * InvitationInterval displays the formatted interval of the event. Formatting
    * relies on cal.dtz.formatter.formatIntervalParts().
    */
-  class InvitationInterval extends BaseInvitationElement {
-    constructor() {
-      super("calendarInvitationInterval");
-    }
-
+  class InvitationInterval extends HTMLElement {
     /**
      * The item whose interval to show.
      *
@@ -455,11 +382,10 @@
       let [startDate, endDate] = cal.dtz.formatter.getItemDates(value);
       let timezone = startDate.timezone.displayName;
       let parts = cal.dtz.formatter.formatIntervalParts(startDate, endDate);
-      document.l10n.setAttributes(
-        this.shadowRoot.getElementById("interval"),
-        `calendar-invitation-interval-${parts.type}`,
-        { ...parts, timezone }
-      );
+      document.l10n.setAttributes(this, `calendar-invitation-interval-${parts.type}`, {
+        ...parts,
+        timezone,
+      });
     }
   }
   customElements.define("calendar-invitation-interval", InvitationInterval);
@@ -470,9 +396,12 @@
    * InvitationPartStatSummary generates text indicating the aggregated
    * participation status of each attendee in the event's attendees list.
    */
-  class InvitationPartStatSummary extends BaseInvitationElement {
+  class InvitationPartStatSummary extends HTMLElement {
     constructor() {
-      super("calendarInvitationPartStatSummary");
+      super();
+      this.appendChild(
+        document.getElementById("calendarInvitationPartStatSummary").content.cloneNode(true)
+      );
     }
 
     /**
@@ -498,13 +427,13 @@
         }
       }
       document.l10n.setAttributes(
-        this.shadowRoot.getElementById("total"),
+        this.querySelector("#partStatTotal"),
         "calendar-invitation-panel-partstat-total",
         { count: counts.TOTAL }
       );
 
       let shownPartStats = partStatOrder.filter(partStat => counts[partStat]);
-      let breakdown = this.shadowRoot.getElementById("breakdown");
+      let breakdown = this.querySelector("#partStatBreakdown");
       for (let partStat of shownPartStats) {
         let span = document.createElement("span");
         span.setAttribute("class", "calendar-invitation-panel-partstat-summary");
@@ -821,15 +750,4 @@
     }
   }
   customElements.define("calendar-invitation-change-indicator", InvitationChangeIndicator);
-
-  /**
-   * InvitationPanelFooter renders the footer for the details section of
-   * the invitation panel.
-   */
-  class InvitationPanelFooter extends BaseInvitationElement {
-    constructor() {
-      super("calendarInvitationPanelFooter");
-    }
-  }
-  customElements.define("calendar-invitation-panel-footer", InvitationPanelFooter);
 }

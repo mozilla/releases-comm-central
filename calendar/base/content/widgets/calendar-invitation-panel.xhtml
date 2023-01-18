@@ -10,86 +10,63 @@
       <calendar-minidate/>
     </div>
     <div class="calendar-invitation-panel-details">
-      <calendar-invitation-panel-title/>
-      <calendar-invitation-panel-properties/>
+      <div class="calendar-invitation-panel-title">
+        <calendar-invitation-change-indicator id="titleChangeIndicator"
+                                              hidden="hidden"/>
+        <h1 class="calendar-invitation-panel-title" id="title"></h1>
+      </div>
+       <table id="props" class="calendar-invitation-panel-props">
+         <tbody>
+           <tr>
+             <th data-l10n-id="calendar-invitation-panel-prop-title-when"></th>
+             <td class="calendar-invitation-when">
+               <calendar-invitation-change-indicator id="intervalChangeIndicator"
+                                                     hidden="hidden"/>
+               <calendar-invitation-interval id="when"/>
+             </td>
+           </tr>
+           <tr>
+             <th data-l10n-id="calendar-invitation-panel-prop-title-recurrence"></th>
+             <td id="recurrence" class="calendar-invitation-recurrence">
+               <calendar-invitation-change-indicator id="recurrenceChangeIndicator"
+                                                     hidden="hidden"/>
+             </td>
+           </tr>
+           <tr>
+             <th data-l10n-id="calendar-invitation-panel-prop-title-location"></th>
+             <td id="location" class="content">
+               <calendar-invitation-change-indicator id="locationChangeIndicator"
+                                                     hidden="hidden"/>
+             </td>
+           </tr>
+           <tr>
+             <th data-l10n-id="calendar-invitation-panel-prop-title-attendees"></th>
+             <td>
+               <calendar-invitation-partstat-summary id="summary"/>
+               <ul id="attendees"
+                   is="calendar-invitation-panel-attendee-list"
+                   class="calendar-invitation-panel-list"></ul>
+             </td>
+           </tr>
+           <tr>
+             <th data-l10n-id="calendar-invitation-panel-prop-title-description"></th>
+             <td id="description" class="content">
+               <calendar-invitation-change-indicator id="descriptionChangeIndicator"
+                                                     hidden="hidden"/>
+             </td>
+           </tr>
+           <tr>
+             <th data-l10n-id="calendar-invitation-panel-prop-title-attachments"></th>
+             <td class="content">
+               <ul id="attachments"
+                   is="calendar-invitation-panel-attachment-list"
+                   class="calendar-invitation-panel-list"></ul>
+             </td>
+           </tr>
+         </tbody>
+       </table>
     </div>
   </div>
-  <calendar-invitation-panel-footer/>
-</template>
-
-<!-- Template for <calendar-invitation-panel-title/> -->
-<template id="calendarInvitationPanelTitle" xmlns="http://www.w3.org/1999/xhtml">
-  <div class="calendar-invitation-panel-title">
-    <calendar-invitation-change-indicator hidden="hidden"/><h1></h1>
-  </div>
-</template>
-
-<!-- Template for <calendar-invitation-panel-properties/> -->
-<template id="calendarInvitationPanelProperties" xmlns="http://www.w3.org/1999/xhtml">
-  <table class="calendar-invitation-panel-props">
-    <tbody>
-      <tr>
-        <th data-l10n-id="calendar-invitation-panel-prop-title-when"></th>
-        <td class="calendar-invitation-when">
-          <calendar-invitation-change-indicator id="intervalChangeIndicator" hidden="hidden"/>
-          <calendar-invitation-interval id="interval"/>
-        </td>
-      </tr>
-      <tr>
-        <th data-l10n-id="calendar-invitation-panel-prop-title-recurrence"></th>
-        <td id="recurrence" class="calendar-invitation-recurrence">
-          <calendar-invitation-change-indicator id="recurrenceChangeIndicator" hidden="hidden"/>
-        </td>
-      </tr>
-      <tr>
-        <th data-l10n-id="calendar-invitation-panel-prop-title-location"></th>
-        <td id="location" class="content">
-          <calendar-invitation-change-indicator id="locationChangeIndicator" hidden="hidden"/>
-        </td>
-      </tr>
-      <tr>
-        <th data-l10n-id="calendar-invitation-panel-prop-title-attendees"></th>
-        <td>
-          <calendar-invitation-partstat-summary id="summary"/>
-          <ul id="attendees"
-              is="calendar-invitation-panel-attendee-list"
-              class="calendar-invitation-panel-list"></ul>
-        </td>
-      </tr>
-      <tr>
-        <th data-l10n-id="calendar-invitation-panel-prop-title-description"></th>
-        <td id="description" class="content">
-          <calendar-invitation-change-indicator id="descriptionChangeIndicator" hidden="hidden"/>
-        </td>
-      </tr>
-      <tr>
-        <th data-l10n-id="calendar-invitation-panel-prop-title-attachments"></th>
-        <td class="content">
-          <ul id="attachments"
-              is="calendar-invitation-panel-attachment-list"
-              class="calendar-invitation-panel-list"></ul>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</template>
-
-<!-- Template for <calendar-invitation-interval/> -->
-<template id="calendarInvitationInterval" xmlns="http://www.w3.org/1999/xhtml">
-  <div id="interval"></div>
-</template>
-
-<!-- Template for <calendar-invitation-partstat-summary/> -->
-<template id="calendarInvitationPartStatSummary" xmlns="http://www.w3.org/1999/xhtml">
-  <div id="summary" class="calendar-invitation-attendees-summary">
-    <span id="total"
-          class="calendar-invitation-panel-partstat-summary-total"></span>
-    <span id="breakdown" class="calendar-invitation-panel-partstat-breakdown"></span>
-  </div>
-</template>
-
-<!-- Template for <calendar-invitation-panel-footer/> -->
-<template id="calendarInvitationPanelFooter" xmlns="http://www.w3.org/1999/xhtml">
   <div class="calendar-invitation-panel-details-footer">
     <div id="actionButtons" class="calendar-invitation-panel-response-buttons">
       <button id="acceptButton"
@@ -104,6 +81,15 @@
               data-l10n-id="calendar-invitation-panel-tentative-button"></button>
       </div>
     </div>
+</template>
+
+<!-- Template for <calendar-invitation-partstat-summary/> -->
+<template id="calendarInvitationPartStatSummary" xmlns="http://www.w3.org/1999/xhtml">
+  <div class="calendar-invitation-attendees-summary">
+    <span id="partStatTotal"
+          class="calendar-invitation-panel-partstat-summary-total"></span>
+    <span id="partStatBreakdown" class="calendar-invitation-panel-partstat-breakdown"></span>
+  </div>
 </template>
 
 <!-- Menu for the "More" button in the invitation panel. Populated via JavaScript.-->
