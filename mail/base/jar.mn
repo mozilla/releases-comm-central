@@ -109,6 +109,7 @@ messenger.jar:
     content/messenger/toolbarbutton-menu-button.js  (content/widgets/toolbarbutton-menu-button.js)
     content/messenger/tree-listbox.js               (content/widgets/tree-listbox.js)
     content/messenger/tree-view-listbox.mjs         (content/widgets/tree-view-listbox.mjs)
+    content/messenger/thread-pane-columns.mjs       (content/modules/thread-pane-columns.mjs)
 
 # the following files are mail-specific overrides
 *   content/messenger/license.html                  (/@mozreltopsrcdir@/toolkit/content/license.html)

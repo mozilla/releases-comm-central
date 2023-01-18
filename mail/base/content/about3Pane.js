@@ -44,6 +44,10 @@ const messengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties"
 );
 
+const { DEFAULT_COLUMNS } = ChromeUtils.importESModule(
+  "chrome://messenger/content/thread-pane-columns.mjs"
+);
+
 var gFolder, gViewWrapper, gDBView;
 var folderTree,
   folderPaneSplitter,
@@ -175,6 +179,17 @@ window.addEventListener("DOMContentLoaded", async event => {
     );
   });
 
+  // Initialize the thread pane before the folder pane in order to have the UI
+  // ready when a folder is selected.
+  let tree = document.getElementById("messageThreadTree");
+  treeTable = tree.table;
+  treeTable.editable = true;
+  threadTree = treeTable.listbox;
+  threadTree.id = "threadTree";
+  threadTree.setAttribute("rows", "thread-listrow");
+  threadPane.init();
+
+  // Initialize the folder pane.
   folderTree = document.getElementById("folderTree");
   await folderPane.init();
 
@@ -263,7 +278,7 @@ window.addEventListener("DOMContentLoaded", async event => {
           }
         },
       });
-      restoreSortIndicator();
+      threadPane.restoreColumns();
     }
 
     window.dispatchEvent(
@@ -308,16 +323,6 @@ window.addEventListener("DOMContentLoaded", async event => {
     "command",
     folderPaneContextMenu.onCommand
   );
-
-  let tree = document.getElementById("messageThreadTree");
-  treeTable = tree.table;
-  treeTable.editable = true;
-  threadTree = treeTable.listbox;
-  threadTree.id = "threadTree";
-  threadTree.setAttribute("rows", "thread-listrow");
-
-  threadPane.init();
-  treeTable.setColumns(threadPane.COLUMNS);
 
   threadTree.addEventListener("keypress", event => {
     if (event.key != "Enter") {
@@ -1745,223 +1750,13 @@ customElements.define("folder-tree-row", FolderTreeRow, { extends: "li" });
 
 var threadPane = {
   /**
-   * The array of columns for the table layout.
+   * The map holding the current selection of the thread tree.
    *
-   * @type {Array}
+   * @type {?Map}
    */
-  COLUMNS: [
-    {
-      id: "selectCol",
-      l10n: {
-        header: "about-threadpane-column-header-select",
-        menuitem: "about-threadpane-column-label-select",
-      },
-      select: true,
-      icon: true,
-      resizable: false,
-      sortable: false,
-      hidden: true,
-    },
-    {
-      id: "threadCol",
-      l10n: {
-        header: "about-threadpane-column-header-thread",
-        menuitem: "about-threadpane-column-label-thread",
-      },
-      thread: true,
-      icon: true,
-      resizable: false,
-      sortable: false,
-      hidden: true,
-    },
-    {
-      id: "flaggedCol",
-      l10n: {
-        header: "about-threadpane-column-header-flagged",
-        menuitem: "about-threadpane-column-label-flagged",
-      },
-      star: true,
-      icon: true,
-      resizable: false,
-      sortable: false,
-    },
-    {
-      id: "attachmentCol",
-      l10n: {
-        header: "about-threadpane-column-header-attachments",
-        menuitem: "about-threadpane-column-label-attachments",
-      },
-      icon: true,
-      resizable: false,
-      hidden: true,
-    },
-    {
-      id: "unreadButtonColHeader",
-      l10n: {
-        header: "about-threadpane-column-header-unread-button",
-        menuitem: "about-threadpane-column-label-unread-button",
-      },
-      icon: true,
-      resizable: false,
-      unread: true,
-    },
-    {
-      id: "senderCol",
-      l10n: {
-        header: "about-threadpane-column-header-sender",
-        menuitem: "about-threadpane-column-label-sender",
-      },
-      sortKey: "byAuthor",
-    },
-    {
-      id: "recipientCol",
-      l10n: {
-        header: "about-threadpane-column-header-recipient",
-        menuitem: "about-threadpane-column-label-recipient",
-      },
-      sortKey: "byRecipient",
-      hidden: true,
-    },
-    {
-      id: "correspondentCol",
-      l10n: {
-        header: "about-threadpane-column-header-correspondents",
-        menuitem: "about-threadpane-column-label-correspondents",
-      },
-      sortKey: "byCorrespondent",
-      hidden: true,
-    },
-    {
-      id: "junkStatusCol",
-      l10n: {
-        header: "about-threadpane-column-header-spam",
-        menuitem: "about-threadpane-column-label-spam",
-      },
-      sortKey: "byJunkStatus",
-      spam: true,
-      icon: true,
-      resizable: false,
-    },
-    {
-      id: "subjectCol",
-      l10n: {
-        header: "about-threadpane-column-header-subject",
-        menuitem: "about-threadpane-column-label-subject",
-      },
-      picker: false,
-      sortKey: "bySubject",
-    },
-    {
-      id: "dateCol",
-      l10n: {
-        header: "about-threadpane-column-header-date",
-        menuitem: "about-threadpane-column-label-date",
-      },
-      sortKey: "byDate",
-    },
-    {
-      id: "receivedCol",
-      l10n: {
-        header: "about-threadpane-column-header-received",
-        menuitem: "about-threadpane-column-label-received",
-      },
-      sortKey: "byReceived",
-      hidden: true,
-    },
-    {
-      id: "statusCol",
-      l10n: {
-        header: "about-threadpane-column-header-status",
-        menuitem: "about-threadpane-column-label-status",
-      },
-      sortKey: "byStatus",
-      hidden: true,
-    },
-    {
-      id: "sizeCol",
-      l10n: {
-        header: "about-threadpane-column-header-size",
-        menuitem: "about-threadpane-column-label-size",
-      },
-      sortKey: "bySize",
-      hidden: true,
-    },
-    {
-      id: "tagsCol",
-      l10n: {
-        header: "about-threadpane-column-header-tags",
-        menuitem: "about-threadpane-column-label-tags",
-      },
-      sortKey: "byTags",
-      hidden: true,
-    },
-    {
-      id: "accountCol",
-      l10n: {
-        header: "about-threadpane-column-header-account",
-        menuitem: "about-threadpane-column-label-account",
-      },
-      sortKey: "byAccount",
-      hidden: true,
-    },
-    {
-      id: "priorityCol",
-      l10n: {
-        header: "about-threadpane-column-header-priority",
-        menuitem: "about-threadpane-column-label-priority",
-      },
-      sortKey: "byPriority",
-      hidden: true,
-    },
-    {
-      id: "unreadCol",
-      l10n: {
-        header: "about-threadpane-column-header-unread",
-        menuitem: "about-threadpane-column-label-unread",
-      },
-      sortable: false,
-      hidden: true,
-    },
-    {
-      id: "totalCol",
-      l10n: {
-        header: "about-threadpane-column-header-total",
-        menuitem: "about-threadpane-column-label-total",
-      },
-      sortable: false,
-      hidden: true,
-    },
-    {
-      id: "locationCol",
-      l10n: {
-        header: "about-threadpane-column-header-location",
-        menuitem: "about-threadpane-column-label-location",
-      },
-      sortKey: "byLocation",
-      hidden: true,
-    },
-    {
-      id: "idCol",
-      l10n: {
-        header: "about-threadpane-column-header-id",
-        menuitem: "about-threadpane-column-label-id",
-      },
-      sortKey: "byId",
-      hidden: true,
-    },
-    {
-      id: "deleteCol",
-      l10n: {
-        header: "about-threadpane-column-header-delete",
-        menuitem: "about-threadpane-column-label-delete",
-      },
-      delete: true,
-      icon: true,
-      resizable: false,
-      sortable: false,
-      hidden: true,
-    },
-  ],
+  _savedSelection: null,
+
+  columns: DEFAULT_COLUMNS.map(column => ({ ...column })),
 
   /**
    * Make the list rows density aware.
@@ -1981,6 +1776,10 @@ var threadPane = {
   },
 
   init() {
+    // No need to restore the columns state on first load since a folder hasn't
+    // been selected yet.
+    treeTable.setColumns(DEFAULT_COLUMNS);
+
     window.addEventListener("uidensitychange", () => {
       this.densityChange();
       threadTree.invalidate();
@@ -1990,11 +1789,8 @@ var threadPane = {
     // TODO: Switch this dynamically like in the address book.
     document.body.classList.add("layout-table");
 
-    // TODO: Get the stored sort and direction from the xulStore after all the
-    // columns have been restored.
-
     treeTable.addEventListener("columns-changed", event => {
-      this.onColumnsChanged(event.detail);
+      this.onColumnsVisibilityChanged(event.detail);
     });
     treeTable.addEventListener("sort-changed", event => {
       this.onSortChanged(event.detail);
@@ -2021,20 +1817,156 @@ var threadPane = {
   },
 
   /**
+   * Store the current thread tree selection.
+   */
+  saveSelection() {
+    this._savedSelection = threadTree.selectedIndices.map(gDBView.getKeyAt);
+  },
+
+  /**
+   * Restore the previously saved thread tree selection.
+   */
+  restoreSelection() {
+    threadTree.selectedIndices = this._savedSelection
+      .map(gDBView.findIndexFromKey)
+      .filter(i => i != nsMsgViewIndex_None);
+    this._savedSelection = null;
+  },
+
+  /**
+   * Restore the collapsed or expanded state of threads.
+   */
+  restoreThreadState() {
+    if (
+      gViewWrapper._threadExpandAll &&
+      !(gViewWrapper.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll)
+    ) {
+      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.expandAll);
+    }
+    if (
+      !gViewWrapper._threadExpandAll &&
+      gViewWrapper.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
+    ) {
+      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+    }
+  },
+
+  /**
+   * Restore the chevron icon indicating the current sort order.
+   */
+  restoreSortIndicator() {
+    if (!gDBView) {
+      return;
+    }
+    this.updateSortIndicator(
+      sortController.convertSortTypeToColumnID(gViewWrapper.primarySortType)
+    );
+  },
+
+  /**
+   * Update the columns object and force the refresh of the thread pane to apply
+   * the updated state. This is usually called when changing folders.
+   */
+  restoreColumns() {
+    this.restoreColumnsState();
+    this.updateColumns();
+  },
+
+  /**
+   * Restore the visibility and order of the columns for the current folder.
+   */
+  restoreColumnsState() {
+    // Avoid doing anything if no folder has been loaded yet.
+    if (!gFolder) {
+      return;
+    }
+
+    const stringState = gFolder.msgDatabase.dBFolderInfo.getCharProperty(
+      "columnStates"
+    );
+    if (!stringState) {
+      // If we don't have a previously saved state, make sure to enforce the
+      // default columns for the currently visible folder, otherwise the table
+      // layout will maintain whatever state is currently set from the previous
+      // folder, which it doesn't reflect reality.
+      this.columns = DEFAULT_COLUMNS.map(column => ({ ...column }));
+      return;
+    }
+
+    const columnStates = JSON.parse(stringState);
+    this.columns.forEach(c => {
+      c.hidden = !columnStates[c.id]?.visible;
+      c.ordinal = columnStates[c.id]?.ordinal ?? 0;
+    });
+    // Sort columns by ordinal.
+    this.columns.sort(function(a, b) {
+      return a.ordinal - b.ordinal;
+    });
+  },
+
+  /**
+   * Force an update of the thread tree to reflect the columns change.
+   *
+   * @param {boolean} isSimple - If the columns structure only requires a simple
+   *   update and not a full reset of the entire table header.
+   */
+  updateColumns(isSimple = false) {
+    if (isSimple) {
+      treeTable.updateColumns(this.columns);
+    } else {
+      // The order of the columns have changed, which warrants a rebuild of the
+      // full table header.
+      treeTable.setColumns(this.columns);
+    }
+    threadTree.invalidate();
+    this.restoreSortIndicator();
+  },
+
+  /**
    * Update the list of visible columns based on the users' selection.
    *
    * @param {object} data - The detail object of the bubbled event.
    */
-  onColumnsChanged(data) {
+  onColumnsVisibilityChanged(data) {
     let column = data.value;
     let checked = data.target.hasAttribute("checked");
 
-    let changedColumn = threadPane.COLUMNS.find(c => c.id == column);
+    let changedColumn = this.columns.find(c => c.id == column);
     changedColumn.hidden = !checked;
 
-    treeTable.updateColumns(threadPane.COLUMNS);
-    threadTree.invalidate();
-    // TODO: Store visible columns in xulStore once we have them all.
+    this.persistColumnStates();
+    this.updateColumns(true);
+  },
+
+  /**
+   * Save the current visibility of the columns in the folder database.
+   */
+  persistColumnStates() {
+    let newState = {};
+    for (const column of this.columns) {
+      newState[column.id] = {
+        visible: !column.hidden,
+        ordinal: column.ordinal,
+      };
+    }
+
+    if (gDBView.isSynthetic) {
+      let syntheticView = gDBView._syntheticView;
+      if ("setPersistedSetting" in syntheticView) {
+        syntheticView.setPersistedSetting("columns", newState);
+      }
+      return;
+    }
+
+    if (!gFolder?.msgDatabase) {
+      return;
+    }
+
+    gFolder.msgDatabase.dBFolderInfo.setCharProperty(
+      "columnStates",
+      JSON.stringify(newState)
+    );
+    gFolder.msgDatabase.commit(Ci.nsMsgDBCommitType.kLargeCommit);
   },
 
   /**
@@ -2059,7 +1991,7 @@ var threadPane = {
       return;
     }
 
-    const sortName = threadPane.COLUMNS.find(c => c.id == data.column).sortKey;
+    const sortName = this.columns.find(c => c.id == data.column).sortKey;
     sortController.sortThreadPane(sortName);
     this.updateSortIndicator(column);
   },
@@ -2106,7 +2038,7 @@ function restoreState({
 
   if (folderURI) {
     displayFolder(folderURI);
-    restoreSortIndicator();
+    threadPane.restoreColumns();
   } else if (syntheticView) {
     // TODO: Move this.
     gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
@@ -2116,24 +2048,12 @@ function restoreState({
 
     document.body.classList.remove("account-central");
     accountCentralBrowser.hidden = true;
-    restoreSortIndicator();
+    threadPane.restoreColumns();
   }
 
   if (first && Services.prefs.getBoolPref("mailnews.start_page.enabled")) {
     commandController.doCommand("cmd_goStartPage");
   }
-}
-
-/**
- * Restore the chevron icon indicating the current sort order.
- */
-function restoreSortIndicator() {
-  if (!gDBView) {
-    return;
-  }
-  threadPane.updateSortIndicator(
-    sortController.convertSortTypeToColumnID(gViewWrapper.primarySortType)
-  );
 }
 
 function displayFolder(folderURI) {
@@ -2296,7 +2216,7 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
 
     super.connectedCallback();
 
-    for (let column of threadPane.COLUMNS) {
+    for (let column of threadPane.columns) {
       let cell = document.createElement("td");
       if (column.id == "subjectCol") {
         let container = cell.appendChild(document.createElement("div"));
@@ -2339,7 +2259,7 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
     const properties = this.view.getRowProperties(index).trim();
     this.dataset.properties = properties;
 
-    for (let column of threadPane.COLUMNS) {
+    for (let column of threadPane.columns) {
       let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
       if (column.hidden) {
         cell.hidden = true;
@@ -2417,33 +2337,6 @@ commandController.registerCallback("cmd_toggleFolderPane", () => {
 commandController.registerCallback("cmd_toggleMessagePane", () => {
   messagePaneSplitter.isCollapsed = !messagePaneSplitter.isCollapsed;
 });
-
-function restoreThreadState() {
-  if (
-    gViewWrapper._threadExpandAll &&
-    !(gViewWrapper.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll)
-  ) {
-    gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.expandAll);
-  }
-  if (
-    !gViewWrapper._threadExpandAll &&
-    gViewWrapper.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
-  ) {
-    gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
-  }
-}
-
-var _savedSelection;
-function saveSelection() {
-  _savedSelection = threadTree.selectedIndices.map(gDBView.getKeyAt);
-}
-
-function restoreSelection() {
-  threadTree.selectedIndices = _savedSelection
-    .map(gDBView.findIndexFromKey)
-    .filter(i => i != nsMsgViewIndex_None);
-  _savedSelection = null;
-}
 
 commandController.registerCallback(
   "cmd_selectAll",
@@ -2526,7 +2419,7 @@ var sortController = {
     if (!grouped) {
       gViewWrapper.sort(sortType, Ci.nsMsgViewSortOrder.ascending);
       // Respect user's last expandAll/collapseAll choice, post sort direction change.
-      restoreThreadState();
+      threadPane.restoreThreadState();
       return;
     }
 
@@ -2563,7 +2456,7 @@ var sortController = {
     // Grouped By view is special for column click sort direction changes.
     if (grouped) {
       if (gDBView.selection.count) {
-        saveSelection();
+        threadPane.saveSelection();
       }
 
       if (gViewWrapper.isSingleFolder) {
@@ -2587,14 +2480,10 @@ var sortController = {
       if (gViewWrapper.isVirtual && gViewWrapper.isSingleFolder) {
         this.groupBySort();
       }
-
       // Restore Grouped By selection post sort direction change.
-      restoreSelection();
+      threadPane.restoreSelection();
     }
-
-    // Respect user's last expandAll/collapseAll choice, for both threaded and grouped
-    // views, post sort direction change.
-    restoreThreadState();
+    threadPane.restoreThreadState();
   },
   toggleThreaded() {
     if (gViewWrapper.showThreaded) {
@@ -2732,19 +2621,19 @@ commandController.registerCallback(
 commandController.registerCallback(
   "cmd_expandAllThreads",
   () => {
-    saveSelection();
+    threadPane.saveSelection();
     gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.expandAll);
-    restoreSelection();
+    threadPane.restoreSelection();
   },
   () => !!gViewWrapper
 );
 commandController.registerCallback(
   "cmd_collapseAllThreads",
   () => {
-    saveSelection();
+    threadPane.saveSelection();
     gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
     // TODO: this reopens threads containing a selected message.
-    restoreSelection();
+    threadPane.restoreSelection();
   },
   () => !!gViewWrapper
 );
