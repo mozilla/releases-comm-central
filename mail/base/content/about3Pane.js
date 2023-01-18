@@ -1881,7 +1881,15 @@ var threadPane = {
       return;
     }
 
-    const stringState = gFolder.msgDatabase.dBFolderInfo.getCharProperty(
+    // A missing folder database will throw an error so we need to handle that.
+    let msgDatabase;
+    try {
+      msgDatabase = gFolder.msgDatabase;
+    } catch {
+      return;
+    }
+
+    const stringState = msgDatabase.dBFolderInfo.getCharProperty(
       "columnStates"
     );
     if (!stringState) {
@@ -1958,15 +1966,23 @@ var threadPane = {
       return;
     }
 
-    if (!gFolder?.msgDatabase) {
+    if (!gFolder) {
       return;
     }
 
-    gFolder.msgDatabase.dBFolderInfo.setCharProperty(
+    // A missing folder database will throw an error so we need to handle that.
+    let msgDatabase;
+    try {
+      msgDatabase = gFolder.msgDatabase;
+    } catch {
+      return;
+    }
+
+    msgDatabase.dBFolderInfo.setCharProperty(
       "columnStates",
       JSON.stringify(newState)
     );
-    gFolder.msgDatabase.commit(Ci.nsMsgDBCommitType.kLargeCommit);
+    msgDatabase.commit(Ci.nsMsgDBCommitType.kLargeCommit);
   },
 
   /**
