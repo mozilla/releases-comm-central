@@ -141,7 +141,17 @@ class UnifiedToolbar extends HTMLElement {
       true
     );
 
-    document.getElementById("tabmail").registerTabMonitor(this.#tabMonitor);
+    if (document.readyState === "complete") {
+      document.getElementById("tabmail").registerTabMonitor(this.#tabMonitor);
+      return;
+    }
+    window.addEventListener(
+      "load",
+      () => {
+        document.getElementById("tabmail").registerTabMonitor(this.#tabMonitor);
+      },
+      { once: true }
+    );
   }
 
   disconnectedCallback() {
