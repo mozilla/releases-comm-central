@@ -155,7 +155,7 @@ add_task(async function testPermanentDecrypt() {
 registerCleanupFunction(function() {
   // Reset the OpenPGP key and delete the account.
   aliceIdentity.setUnicharAttribute("openpgp_key_id", initialKeyIdPref);
-  MailServices.accounts.removeIncomingServer(aliceAcct.incomingServer, true);
+  MailServices.accounts.removeIncomingServer(aliceAcct.incomingServer, false);
   MailServices.accounts.removeAccount(aliceAcct);
   aliceAcct = null;
 });
