@@ -412,14 +412,15 @@ add_task(async function testOuterSmimeSigInnerSmimeUnsignedEncrypted() {
       )
     )
   );
+  let aboutMessage = get_about_message(mc.window);
 
   Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT_SMIME), "message text is in body");
   Assert.ok(
-    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
   );
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
   close_window(mc);
@@ -436,14 +437,15 @@ add_task(async function testOuterSmimeSigInnerPgpUnverifiedUnsignedEncrypted() {
       getTestFilePath("data/eml/outer-smime-bad-sig-inner-pgp-enc.eml")
     )
   );
+  let aboutMessage = get_about_message(mc.window);
 
   Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
-    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
   );
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
   close_window(mc);
@@ -463,14 +465,15 @@ add_task(async function testOuterPgpSigInnerSmimeUnsignedEncrypted() {
       )
     )
   );
+  let aboutMessage = get_about_message(mc.window);
 
   Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT_SMIME), "message text is in body");
   Assert.ok(
-    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
   );
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
   close_window(mc);
@@ -487,14 +490,15 @@ add_task(async function testOuterPgpSigInnerPgpUnverifiedUnsignedEncrypted() {
       getTestFilePath("data/eml/outer-pgp-sig-inner-pgp-enc.eml")
     )
   );
+  let aboutMessage = get_about_message(mc.window);
 
   Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
-    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
   );
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
   close_window(mc);
@@ -512,14 +516,15 @@ add_task(async function testOuterPgpSigInnerPgpEncryptedInsideMixed() {
       getTestFilePath("data/eml/outer-pgp-sig-inner-pgp-enc-with-mixed.eml")
     )
   );
+  let aboutMessage = get_about_message(mc.window);
 
   Assert.ok(!getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unknown"),
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
     "signed unknown icon is displayed"
   );
   Assert.ok(
-    !OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
   close_window(mc);
@@ -565,14 +570,15 @@ add_task(async function testOuterSmimeSigInnerSmimeSignedEncrypted() {
       )
     )
   );
+  let aboutMessage = get_about_message(mc.window);
 
   Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT_SMIME), "message text is in body");
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unknown"),
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
     "signed unknown icon is displayed"
   );
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
   close_window(mc);
@@ -589,14 +595,15 @@ add_task(async function testOuterSmimeSigInnerPgpSignedByUnverifiedEncrypted() {
       getTestFilePath("data/eml/outer-smime-bad-sig-inner-pgp-enc-sig.eml")
     )
   );
+  let aboutMessage = get_about_message(mc.window);
 
   Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unknown"),
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
     "signed unknown icon is displayed"
   );
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
   close_window(mc);
@@ -616,14 +623,15 @@ add_task(async function testOuterSmimeSigInnerPgpEncryptedInsideMixed() {
       )
     )
   );
+  let aboutMessage = get_about_message(mc.window);
 
   Assert.ok(!getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
-    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
   );
   Assert.ok(
-    !OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
   close_window(mc);
@@ -643,14 +651,15 @@ add_task(async function testOuterPgpSigInnerSmimeSignedEncrypted() {
       )
     )
   );
+  let aboutMessage = get_about_message(mc.window);
 
   Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT_SMIME), "message text is in body");
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unknown"),
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
     "signed unknown icon is displayed"
   );
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
   close_window(mc);
@@ -667,14 +676,15 @@ add_task(async function testOuterPgpSigOpenSignedByUnverifiedEncrypted() {
       getTestFilePath("data/eml/outer-pgp-sig-inner-pgp-enc-sig.eml")
     )
   );
+  let aboutMessage = get_about_message(mc.window);
 
   Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unknown"),
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
     "signed unknown icon is displayed"
   );
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
   close_window(mc);
