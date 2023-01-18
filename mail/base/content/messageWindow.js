@@ -85,10 +85,14 @@ function OnLoadMessageWindow() {
 
   messageBrowser.addEventListener("DOMTitleChanged", () => {
     if (messageBrowser.contentTitle) {
-      document.title =
-        messageBrowser.contentTitle +
-        document.documentElement.getAttribute("titlemenuseparator") +
-        document.documentElement.getAttribute("titlemodifier");
+      if (AppConstants.platform == "macosx") {
+        document.title = messageBrowser.contentTitle;
+      } else {
+        document.title =
+          messageBrowser.contentTitle +
+          document.documentElement.getAttribute("titlemenuseparator") +
+          document.documentElement.getAttribute("titlemodifier");
+      }
     } else {
       document.title = document.documentElement.getAttribute("titlemodifier");
     }
