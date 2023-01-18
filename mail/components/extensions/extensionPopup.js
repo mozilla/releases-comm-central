@@ -110,6 +110,17 @@ function getBrowser() {
 
 var gBrowserInit = {
   onDOMContentLoaded() {
+    window.tryToClose = () => {
+      if (window.onclose()) {
+        window.close();
+      }
+    };
+
+    window.onclose = event => {
+      let { permitUnload } = gBrowser.selectedBrowser.permitUnload();
+      return permitUnload;
+    };
+
     let initiallyFocusedElement = document.commandDispatcher.focusedElement;
     let promise = gBrowser.selectedBrowser.isRemoteBrowser
       ? PromiseUtils.defer().promise

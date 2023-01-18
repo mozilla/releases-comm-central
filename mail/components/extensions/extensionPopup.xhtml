@@ -49,7 +49,7 @@
     <command id="cmd_stop" oncommand="document.getElementById('requestFrame').stop()"/>
     <command id="cmd_copyLink" oncommand="goDoCommand('cmd_copyLink')" disabled="false"/>
     <command id="cmd_copyImage" oncommand="goCopyImage()" disabled="false"/>
-    <command id="cmd_close" oncommand="window.close()"/>
+    <command id="cmd_close" oncommand="window.tryToClose()"/>
   </commandset>
 
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
