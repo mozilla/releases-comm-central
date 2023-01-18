@@ -394,7 +394,12 @@ function switchCalendarView(aType, aShow) {
     calSwitchToCalendarMode();
     return;
   }
-
+  document
+    .querySelector(`.calview-toggle-item[aria-selected="true"]`)
+    ?.setAttribute("aria-selected", false);
+  document
+    .querySelector(`.calview-toggle-item[aria-controls="${aType}-view"]`)
+    ?.setAttribute("aria-selected", true);
   switchToView(aType);
 }
 

@@ -54,3 +54,15 @@ calendar-nav-button-next-tooltip-month =
 
 calendar-today-button-tooltip =
   .title = Go to Today
+
+calendar-view-toggle-day = Day
+  .title = Switch to day view
+
+calendar-view-toggle-week = Week
+  .title = Switch to week view
+
+calendar-view-toggle-multiweek = Multiweek
+  .title = Switch to multiweek view
+
+calendar-view-toggle-month = Month
+  .title = Switch to month view

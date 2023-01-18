@@ -771,7 +771,9 @@ const CalendarTestUtils = {
     await CalendarTestUtils.openCalendarTab(win);
     await CalendarTestUtils.ensureViewLoaded(win);
 
-    let viewTabButton = win.document.getElementById(`calendar-${viewName}-view-button`);
+    let viewTabButton = win.document.querySelector(
+      `.calview-toggle-item[aria-controls="${viewName}-view"]`
+    );
     EventUtils.synthesizeMouseAtCenter(viewTabButton, { clickCount: 1 }, win);
     Assert.equal(win.currentView().id, `${viewName}-view`);
 

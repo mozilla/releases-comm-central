@@ -39,16 +39,28 @@
   --viewDropshadowBackground: #ffa47d;
   --calendar-primary-button-margin: 6px;
   --calendar-primary-button-padding: 6px;
+  --calendar-nav-control-bg-color: var(--color-white);
+  --calendar-nav-control-bg-color-hover: rgba(0, 0, 0, 0.1);
+  --calendar-view-toggle-background: var(--color-gray-20);
+  --calendar-view-toggle-margin: 6px 3px;
+  --calendar-view-toggle-padding: 3px;
+  --calendar-view-toggle-label-padding: 3px 15px;
 }
 
 :root[uidensity="compact"] {
   --calendar-primary-button-margin: 0px;
   --calendar-primary-button-padding: 3px 6px;
+  --calendar-view-toggle-margin: 3px;
+  --calendar-view-toggle-padding: 2px 3px;
+  --calendar-view-toggle-label-padding: 2px 12px;
 }
 
 :root[uidensity="touch"] {
   --calendar-primary-button-margin: 9px;
   --calendar-primary-button-padding: 9px;
+  --calendar-view-toggle-margin: 6px 3px;
+  --calendar-view-toggle-padding: 6px;
+  --calendar-view-toggle-label-padding: 6px 15px;
 }
 
 :root[lwt-tree]:not([lwt-tree-brighttext]) {
@@ -63,6 +75,8 @@
   --viewMonthDayOtherBackground: rgba(0, 0, 0, 0.2);
   --viewOffTimeBackground: rgba(0, 0, 0, 0.15);
   --viewTimeBoxColor: var(--sidebar-text-color, FieldText);
+  --calendar-nav-control-bg-color: var(--color-white);
+  --calendar-nav-control-bg-color-hover: rgba(0, 0, 0, 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -94,6 +108,9 @@
     --viewMonthDayBoxSelectedColor: #d7d7ec;
     --viewMonthDayOtherBackground: rgba(255, 255, 255, 0.3);
     --viewMonthDayOffLabelBackground: #4f5935;
+    --calendar-nav-control-bg-color: var(--color-black);
+    --calendar-nav-control-bg-color-hover: rgba(0, 0, 0, 0.3);
+    --calendar-view-toggle-background: var(--color-gray-50);
   }
 }
 
@@ -130,13 +147,12 @@
 }
 
 :root[lwt-tree] #calendar-nav-control {
-  background-color: var(--lwt-accent-color);
+  background-color: var(--calendar-nav-control-bg-color);
   background-image: var(--lwt-header-image);
   color: var(--lwt-text-color);
 
   --calview-tabline-color: var(--lwt-tab-line-color, --calview-tabline-color);
   --calview-border-color: var(--sidebar-border-color);
-  --calview-border-bottom-color: var(--sidebar-border-color);
 }
 
 /* Calendar Items */
@@ -1117,68 +1133,44 @@ calendar-editable-item[status="CANCELLED"],
   background-color: Field;
 }
 
-.navigation-inner-box {
-  border-bottom: 1px solid var(--calview-border-bottom-color);
+:root[lwt-tree] .navigation-bottombox {
+  background-color: var(--toolbar-bgcolor) !important;
 }
 
 .navigation-spacer-box {
   min-width: 15px;
-  border-bottom: 1px solid var(--calview-border-bottom-color);
 }
 
-radiogroup#view-tabs{
-  margin: 0;
+.calview-toggle {
+  border-radius: 3em;
+  background-color: var(--calendar-view-toggle-background);
+  box-shadow: inset 0 0 3px var(--color-gray-40);
+  display: flex;
+  margin: var(--calendar-view-toggle-margin);
 }
 
-radio.calview {
+.calview-toggle button {
   appearance: none;
   min-width: unset;
-  border-inline: 1px solid var(--calview-border-color);
-  border-bottom: 1px solid var(--calview-border-bottom-color);
-  margin: 0;
-  padding: 3px 6px;
-  -moz-user-focus: normal;
-  background-color: transparent;
+  border: none;
+  border-radius: 3em;
+  background-color: var(--calendar-view-toggle-background);
   color: inherit;
-  font-size: 14px;
+  padding: var(--calendar-view-toggle-label-padding);
 }
 
-radio.calview > image {
-  display: none;
+.calview-toggle-item {
+  margin-block: 3px;
 }
 
-radio.calview > hbox {
-  margin: 2px;
+.calview-toggle button[role="tab"][aria-selected="true"] {
+  background-color: var(--calendar-nav-control-bg-color);
 }
 
-radio.calview:not(:first-child) {
-  margin-inline-start: -1px;
-}
-
-
-radio.calview[selected="true"] {
-  background-image: linear-gradient(to bottom, var(--calview-tabline-color) 2px, transparent 2px);
-  border-bottom-width: 0;
-  padding-bottom: 4px;
-  color: ButtonText;
-  font-weight: bold;
-}
-
-radio.calview:not([selected=true]):hover {
-  background-color: rgba(0,0,0,.1);
-}
-
-:root[lwt-tree-brighttext] radio.calview:not([selected=true]):hover {
-  background-color: rgba(249,249,250,.3);
-}
-
-:root[lwt-tree] #view-tabs > radio.calview[selected="true"] {
-  background-color: var(--toolbar-bgcolor);
+button.calview-toggle-item:is(:not([disabled])):hover:active,
+button.calview-toggle-item[role="tab"][aria-selected="false"]:hover {
+  background-color: var(--calendar-nav-control-bg-color-hover);
   color: var(--toolbar-color);
-}
-
-:root[lwt-tree] .navigation-bottombox {
-  background-color: var(--toolbar-bgcolor) !important;
 }
 
 .view-header {
