@@ -180,24 +180,12 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
         :root[sizemode=normal][tabsintitlebar] {
           border-top: 1px solid AccentColor;
         }
-        :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme),
-        :root[tabsintitlebar]:not(:-moz-window-inactive)[lwt-default-theme-in-dark-mode] {
+        :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme) {
           background-color: AccentColor;
         }
 
-        :root[tabsintitlebar] #navigation-toolbox:not(:-moz-window-inactive,:-moz-lwtheme),
-        :root[tabsintitlebar] #navigation-toolbox:not(:-moz-window-inactive)[lwt-default-theme-in-dark-mode] {
+        :root[tabsintitlebar] #navigation-toolbox:not(:-moz-window-inactive,:-moz-lwtheme) {
           color: AccentColorText;
-        }
-
-        :root[tabsintitlebar][lwt-default-theme-in-dark-mode]:not(:-moz-window-inactive)
-          .titlebar-button {
-          stroke: AccentColorText;
-        }
-
-        :root[tabsintitlebar][lwt-default-theme-in-dark-mode]:not(:-moz-window-inactive) #tabs-toolbar {
-          --toolbarbutton-icon-fill: AccentColorText;
-          --toolbarbutton-icon-fill-opacity: .7;
         }
       }
 
