@@ -76,8 +76,8 @@ from fluent.migrate import COPY
 
 def migrate(ctx):
     """Bug 1805746 - Update Calendar View selection part {index}."""
-    target = "calendar/calendar/calendar-widgets.ftl"
-    reference = "calendar/calendar/calendar-widgets.ftl"
+    target = reference = "calendar/calendar/calendar-widgets.ftl"
+    source = "calendar/chrome/calendar/calendar.dtd"
 
     ctx.add_transforms(
         target,
@@ -87,7 +87,7 @@ def migrate(ctx):
 calendar-view-toggle-day = { COPY(from_path, "calendar.day.button.label") }
     .title = { COPY(from_path, "calendar.day.button.tooltip") }
 """,
-            from_path="calendar/chrome/calendar/calendar.dtd",
+            from_path=source,
         ),
     )
 ```
@@ -99,7 +99,8 @@ calls into `MigrationContext.add_transforms()`.
 The `add_transforms()` function takes three arguments:
 - `target_path`: Path to the target l10n file
 - `reference_path`: Path to the reference (en-US) file
-- A list of Transforms
+- A list of Transforms, the `source_path` (legacy translated strings file) is
+  set here
 
 ```{note}
 For Thunderbird migrations, the target and reference path are the same.
@@ -113,18 +114,21 @@ There are some helper functions that simplify creating the ASTs. The above examp
 `transforms_from()` helper function. It is equivalent to:
 
 ```python
+target = reference = "calendar/calendar/calendar-widgets.ftl"
+source = "calendar/chrome/calendar/calendar.dtd"
+
 ctx.add_transforms(
-    "calendar/calendar/calendar-widgets.ftl",
-    "calendar/calendar/calendar-widgets.ftl",
+    target,
+    reference,
     [
         FTL.Message(
             id=FTL.Identifier("calendar-view-toggle-day"),
-            value=COPY("calendar/chrome/calendar/calendar.dtd", "calendar.day.button.label"),
+            value=COPY(source, "calendar.day.button.label"),
             attributes=[
                 FTL.Attribute(
                     id=FTL.Identifier("title"),
                     value=COPY(
-                        "calendar/chrome/calendar/calendar.dtd",
+                        source,
                         "calendar.day.button.tooltip"
                     )
                 )
