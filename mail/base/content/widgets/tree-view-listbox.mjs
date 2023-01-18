@@ -2,9 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
+);
 const { JSTreeSelection } = ChromeUtils.import(
   "resource:///modules/JsTreeSelection.jsm"
 );
+
+// Account for the mac OS accelerator key variation.
+// Use these strings to check keyboard event properties.
+const accelKeyName = AppConstants.platform == "macosx" ? "metaKey" : "ctrlKey";
+const otherKeyName = AppConstants.platform == "macosx" ? "ctrlKey" : "metaKey";
 
 // Animation variables for expanding and collapsing child lists.
 let reducedMotionMedia = matchMedia("(prefers-reduced-motion)");
@@ -711,7 +719,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
         return;
       }
 
-      if (event.ctrlKey && event.shiftKey) {
+      if (event[accelKeyName] && event.shiftKey) {
         return;
       }
 
@@ -788,7 +796,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
         return;
       }
 
-      if (event.ctrlKey) {
+      if (event[accelKeyName]) {
         this._toggleSelected(index);
       } else if (event.shiftKey) {
         this._selectRange(index);
@@ -798,7 +806,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
     });
 
     this.addEventListener("keydown", event => {
-      if (event.altKey || event.metaKey) {
+      if (event.altKey || event[otherKeyName]) {
         return;
       }
 
@@ -883,11 +891,11 @@ class TreeViewListbox extends HTMLTableSectionElement {
 
       if (newIndex != undefined) {
         newIndex = this._clampIndex(newIndex);
-        if (newIndex != null && (!event.ctrlKey || !event.shiftKey)) {
+        if (newIndex != null && (!event[accelKeyName] || !event.shiftKey)) {
           // Else, if both modifiers pressed, do nothing.
           if (event.shiftKey) {
             this._selectRange(newIndex);
-          } else if (event.ctrlKey) {
+          } else if (event[accelKeyName]) {
             // Change focus, but not selection.
             this.currentIndex = newIndex;
           } else {
@@ -900,7 +908,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
 
       if (event.key == " ") {
         if (this.currentIndex != -1 && !event.shiftKey) {
-          if (event.ctrlKey) {
+          if (event[accelKeyName]) {
             this._toggleSelected(this.currentIndex);
           } else {
             this._selectSingle(this.currentIndex);

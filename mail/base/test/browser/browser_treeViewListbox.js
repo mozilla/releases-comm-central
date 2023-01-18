@@ -163,8 +163,7 @@ async function subtestKeyboardAndMouse() {
   async function clickOnRow(index, modifiers = {}, expectEvent = true) {
     if (modifiers.shiftKey) {
       info(`clicking on row ${index} with shift key`);
-    } else if (modifiers.ctrlKey) {
-      // XXX: On macOS instead this should use the metaKey?
+    } else if (modifiers.accelKey) {
       info(`clicking on row ${index} with ctrl key`);
     } else {
       info(`clicking on row ${index}`);
@@ -214,23 +213,23 @@ async function subtestKeyboardAndMouse() {
 
   // Select multiple rows by ctrl-clicking.
 
-  await clickOnRow(5, { ctrlKey: true });
+  await clickOnRow(5, { accelKey: true });
   checkCurrent(5);
   checkSelected(2, 5);
 
-  await clickOnRow(1, { ctrlKey: true });
+  await clickOnRow(1, { accelKey: true });
   checkCurrent(1);
   checkSelected(1, 2, 5);
 
-  await clickOnRow(5, { ctrlKey: true });
+  await clickOnRow(5, { accelKey: true });
   checkCurrent(5);
   checkSelected(1, 2);
 
-  await clickOnRow(1, { ctrlKey: true });
+  await clickOnRow(1, { accelKey: true });
   checkCurrent(1);
   checkSelected(2);
 
-  await clickOnRow(2, { ctrlKey: true });
+  await clickOnRow(2, { accelKey: true });
   checkCurrent(2);
   checkSelected();
 
@@ -239,6 +238,8 @@ async function subtestKeyboardAndMouse() {
   async function pressKey(key, modifiers = {}, expectEvent = true) {
     if (modifiers.shiftKey) {
       info(`pressing ${key} with shift key`);
+    } else if (modifiers.accelKey) {
+      info(`pressing ${key} with accel key`);
     } else {
       info(`pressing ${key}`);
     }
@@ -260,7 +261,7 @@ async function subtestKeyboardAndMouse() {
   checkCurrent(1);
   checkSelected(1);
 
-  await pressKey("VK_UP", { ctrlKey: true }, false);
+  await pressKey("VK_UP", { accelKey: true }, false);
   checkCurrent(0);
   checkSelected(1);
 
@@ -274,28 +275,28 @@ async function subtestKeyboardAndMouse() {
   checkCurrent(0);
   checkSelected(0);
 
-  await pressKey("VK_DOWN", { ctrlKey: true }, false);
+  await pressKey("VK_DOWN", { accelKey: true }, false);
   checkCurrent(1);
   checkSelected(0);
 
-  await pressKey("VK_DOWN", { ctrlKey: true }, false);
+  await pressKey("VK_DOWN", { accelKey: true }, false);
   checkCurrent(2);
   checkSelected(0);
 
   // Multi select with Ctrl+Space.
-  await pressKey(" ", { ctrlKey: true });
+  await pressKey(" ", { accelKey: true });
   checkCurrent(2);
   checkSelected(0, 2);
 
-  await pressKey("VK_DOWN", { ctrlKey: true }, false);
+  await pressKey("VK_DOWN", { accelKey: true }, false);
   checkCurrent(3);
   checkSelected(0, 2);
 
-  await pressKey("VK_DOWN", { ctrlKey: true }, false);
+  await pressKey("VK_DOWN", { accelKey: true }, false);
   checkCurrent(4);
   checkSelected(0, 2);
 
-  await pressKey(" ", { ctrlKey: true });
+  await pressKey(" ", { accelKey: true });
   checkCurrent(4);
   checkSelected(0, 2, 4);
 
@@ -305,7 +306,7 @@ async function subtestKeyboardAndMouse() {
   checkSelected(3);
 
   // Can select none using Ctrl+Space.
-  await pressKey(" ", { ctrlKey: true });
+  await pressKey(" ", { accelKey: true });
   checkCurrent(3);
   checkSelected();
 
@@ -313,7 +314,7 @@ async function subtestKeyboardAndMouse() {
   checkCurrent(4);
   checkSelected(4);
 
-  await pressKey("VK_HOME", { ctrlKey: true }, false);
+  await pressKey("VK_HOME", { accelKey: true }, false);
   checkCurrent(0);
   checkSelected(4);
 
@@ -341,16 +342,16 @@ async function subtestKeyboardAndMouse() {
   checkCurrent(1);
   checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 
-  await pressKey("VK_DOWN", { ctrlKey: true }, false);
+  await pressKey("VK_DOWN", { accelKey: true }, false);
   checkCurrent(2);
   checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 
-  await pressKey("VK_DOWN", { ctrlKey: true }, false);
+  await pressKey("VK_DOWN", { accelKey: true }, false);
   checkCurrent(3);
   checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 
   // Break the shift sequence by Ctrl+Space.
-  await pressKey(" ", { ctrlKey: true });
+  await pressKey(" ", { accelKey: true });
   checkCurrent(3);
   checkSelected(1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 
