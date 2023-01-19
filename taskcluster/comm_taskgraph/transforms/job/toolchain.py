@@ -9,12 +9,14 @@ import os.path
 
 import taskgraph
 import taskgraph.util.path as util_path
+from taskgraph.util.schema import resolve_keyed_by
 from voluptuous import Any, Optional, Required
 
 from gecko_taskgraph import GECKO
 from gecko_taskgraph.transforms.job import configure_taskdesc_for_run, run_job_using
 from gecko_taskgraph.transforms.job.common import docker_worker_add_artifacts
 from gecko_taskgraph.transforms.job.toolchain import toolchain_defaults, toolchain_run_schema
+from gecko_taskgraph.util.attributes import RELEASE_PROJECTS
 from gecko_taskgraph.util.hash import hash_paths as hash_paths_gecko_root
 
 from comm_taskgraph.util.hash import hash_paths_extended
@@ -84,18 +86,23 @@ def get_digest_data(config, run, taskdesc):
     if args:
         data.extend(args)
 
+    if taskdesc["attributes"].get("rebuild-on-release"):
+        # Add whether this is a release branch or not
+        data.append(str(config.params["project"] in RELEASE_PROJECTS))
     return data
+
+
+comm_toolchain_defaults = toolchain_defaults.copy().update({"comm-checkout": True})
 
 
 @run_job_using(
     "docker-worker",
     "comm-toolchain-script",
     schema=comm_toolchain_run_schema,
-    defaults=toolchain_defaults,
+    defaults=comm_toolchain_defaults,
 )
 def docker_worker_toolchain(config, job, taskdesc):
     run = job["run"]
-    run["comm-checkout"] = True
 
     worker = taskdesc["worker"] = job["worker"]
     worker["chain-of-trust"] = True
@@ -113,7 +120,7 @@ def docker_worker_toolchain(config, job, taskdesc):
     workspace = "{workdir}/workspace/build".format(**run)
     gecko_path = "{}/src".format(workspace)
 
-    env = worker["env"]
+    env = worker.setdefault("env", {})
     env.update(
         {
             "MOZ_BUILD_DATE": config.params["moz_build_date"],
@@ -125,15 +132,26 @@ def docker_worker_toolchain(config, job, taskdesc):
 
     attributes = taskdesc.setdefault("attributes", {})
     attributes["toolchain-artifact"] = run.pop("toolchain-artifact")
-    if "toolchain-alias" in run:
-        attributes["toolchain-alias"] = run.pop("toolchain-alias")
+    resolve_keyed_by(
+        run,
+        "toolchain-alias",
+        item_name=taskdesc["label"],
+        project=config.params["project"],
+    )
+    alias = run.pop("toolchain-alias", None)
+    if alias:
+        attributes["toolchain-alias"] = alias
+    if "toolchain-env" in run:
+        attributes["toolchain-env"] = run.pop("toolchain-env")
 
-    if not taskgraph.fast:
-        name = taskdesc["label"].replace("{}-".format(config.kind), "", 1)
+    digest_data = get_digest_data(config, run, taskdesc)
+
+    if job.get("attributes", {}).get("cached_task") is not False and not taskgraph.fast:
+        name = taskdesc["label"].replace(f"{config.kind}-", "", 1)
         taskdesc["cache"] = {
             "type": CACHE_TYPE,
             "name": name,
-            "digest-data": get_digest_data(config, run, taskdesc),
+            "digest-data": digest_data,
         }
 
     run["using"] = "run-task"
