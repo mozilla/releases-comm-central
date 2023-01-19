@@ -24,6 +24,7 @@ var { CloudFileTestProvider } = ChromeUtils.import(
 var {
   be_in_folder,
   get_special_folder,
+  get_about_message,
   mc,
   press_delete,
   select_click_row,
@@ -518,20 +519,33 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
   close_compose_window(cwc);
 
   // The draft message was saved into Local Folders/Drafts.
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
 
   return { upload, url, itemIcon, itemSize, totalSize };
 }
 
 function openDraft() {
   select_click_row(0);
+  let aboutMessage = get_about_message();
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(mc, "mail-notification-top", "draftMsgContent");
+  wait_for_notification_to_show(
+    aboutMessage,
+    "mail-notification-top",
+    "draftMsgContent"
+  );
   // Edit the draft again...
   plan_for_new_window("msgcompose");
-  let box = get_notification(mc, "mail-notification-top", "draftMsgContent");
+  let box = get_notification(
+    aboutMessage,
+    "mail-notification-top",
+    "draftMsgContent"
+  );
   // ... by clicking Edit in the draft message notification bar.
-  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
+  EventUtils.synthesizeMouseAtCenter(
+    box.buttonContainer.firstElementChild,
+    {},
+    aboutMessage
+  );
   return wait_for_compose_window();
 }
 

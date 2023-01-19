@@ -73,12 +73,12 @@ add_task(async function() {
   let tabmail = document.getElementById("tabmail");
   let calendarTabButton = document.getElementById("calendarButton");
 
-  let mailTabPanel = document.getElementById("mailContent");
+  let mailTabPanel = document.getElementById("mail3PaneTab1");
+  let mailTabBrowser = document.getElementById("mail3PaneTabBrowser1");
   let calendarTabPanel = document.getElementById("calendarTabPanel");
   let contentTab;
   let contentTabPanel;
 
-  let folderTree = document.getElementById("folderTree");
   let calendarList = document.getElementById("calendar-list");
 
   let eventPromise;
@@ -90,17 +90,14 @@ add_task(async function() {
   checkTabElements(1, 0);
   assertSelected(mailTabPanel, "mail tab's panel");
 
-  // Set the focus on the folder tree.
+  // Set the focus on the mail tab.
 
-  if (
-    document.getElementById("folderpane_splitter").getAttribute("state") ==
-    "collapsed"
-  ) {
-    window.MsgToggleFolderPane();
-  }
-
-  EventUtils.synthesizeMouseAtCenter(folderTree, {});
-  Assert.equal(document.activeElement, folderTree, "folder tree has focus");
+  EventUtils.synthesizeMouseAtCenter(mailTabBrowser, {});
+  Assert.equal(
+    document.activeElement,
+    mailTabBrowser,
+    "mail tab's browser has focus"
+  );
 
   // Switch to the calendar tab.
 
@@ -134,7 +131,11 @@ add_task(async function() {
   checkTabElements(2, 0);
   assertSelected(mailTabPanel, "mail tab's panel");
   assertNotSelected(calendarTabPanel, "calendar tab's panel");
-  Assert.equal(document.activeElement, folderTree, "folder tree has focus");
+  Assert.equal(
+    document.activeElement,
+    mailTabBrowser,
+    "mail tab's browser has focus"
+  );
 
   // Switch to the calendar tab.
 
@@ -175,7 +176,11 @@ add_task(async function() {
   checkTabElements(3, 0);
   assertSelected(mailTabPanel, "mail tab's panel");
   assertNotSelected(calendarTabPanel, "calendar tab's panel");
-  Assert.equal(document.activeElement, folderTree, "folder tree has focus");
+  Assert.equal(
+    document.activeElement,
+    mailTabBrowser,
+    "mail tab's browser has focus"
+  );
 
   // Switch to the calendar tab.
 
@@ -225,5 +230,9 @@ add_task(async function() {
   checkTabElements(1, 0);
   assertSelected(mailTabPanel, "mail tab's panel");
   assertNotSelected(calendarTabPanel, "calendar tab's panel");
-  Assert.equal(document.activeElement, folderTree, "folder tree has focus");
+  Assert.equal(
+    document.activeElement,
+    mailTabBrowser,
+    "mail tab's browser has focus"
+  );
 });

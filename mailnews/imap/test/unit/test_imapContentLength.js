@@ -60,10 +60,7 @@ add_task(async function verifyContentLength() {
   await msgAddedListener.promise;
   let messageUri = IMAPPump.inbox.getUriForMsg(gMsgHdr);
   // Convert this to a URI that necko can run
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
-  let messageService = messenger.messageServiceFromURI(messageUri);
+  let messageService = MailServices.messageServiceFromURI(messageUri);
   let neckoURL = messageService.getUrlForUri(messageUri);
   // Don't use the necko URL directly. Instead, get the spec and create a new
   // URL using the IO service

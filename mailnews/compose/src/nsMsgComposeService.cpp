@@ -29,7 +29,6 @@
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsIMsgAccountManager.h"
-#include "nsIMimeMiscStatus.h"
 #include "nsIStreamConverter.h"
 #include "nsToolkitCompsCID.h"
 #include "nsNetUtil.h"

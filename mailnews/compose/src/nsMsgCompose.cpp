@@ -2759,10 +2759,11 @@ nsresult nsMsgCompose::QuoteOriginalMessage()  // New template
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  bool fileUrl = StringBeginsWith(mOriginalMsgURI, "file:"_ns);
+  nsAutoCString msgUri(mOriginalMsgURI);
+  bool fileUrl = StringBeginsWith(msgUri, "file:"_ns);
   if (fileUrl) {
-    mOriginalMsgURI.Replace(0, 5, "mailbox:"_ns);
-    mOriginalMsgURI.AppendLiteral("?number=0");
+    msgUri.Replace(0, 5, "mailbox:"_ns);
+    msgUri.AppendLiteral("?number=0");
   }
 
   // Create the consumer output stream.. this will receive all the HTML from
@@ -2774,9 +2775,8 @@ nsresult nsMsgCompose::QuoteOriginalMessage()  // New template
 
   mQuoteStreamListener->SetComposeObj(this);
 
-  rv = mQuote->QuoteMessage(mOriginalMsgURI, mWhatHolder != 1,
-                            mQuoteStreamListener, mCharsetOverride, !bAutoQuote,
-                            originalMsgHdr);
+  rv = mQuote->QuoteMessage(msgUri, mWhatHolder != 1, mQuoteStreamListener,
+                            mCharsetOverride, !bAutoQuote, originalMsgHdr);
   return rv;
 }
 

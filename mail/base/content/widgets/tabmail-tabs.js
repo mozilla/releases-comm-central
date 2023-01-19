@@ -8,9 +8,6 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { AppConstants } = ChromeUtils.importESModule(
-    "resource://gre/modules/AppConstants.sys.mjs"
-  );
   const { XPCOMUtils } = ChromeUtils.importESModule(
     "resource://gre/modules/XPCOMUtils.sys.mjs"
   );
@@ -264,16 +261,6 @@
         ind.hidden = false;
 
         newMargin -= ind.clientWidth / 2;
-
-        // Account for the titlebar buttons container if we need to.
-        if (
-          AppConstants.platform == "macosx" &&
-          document.documentElement.getAttribute("tabsintitlebar") == "true"
-        ) {
-          newMargin += document.querySelector(
-            "#tabs-toolbar > .titlebar-buttonbox-container"
-          ).clientWidth;
-        }
 
         ind.style.insetInlineStart = `${Math.round(newMargin)}px`;
       });

@@ -21,6 +21,7 @@ var {
   make_display_threaded,
   mc,
   select_click_row,
+  wait_for_popup_to_open,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -36,7 +37,7 @@ add_setup(async function() {
   thread3 = create_thread(5);
   await add_message_sets_to_folders([folder], [thread1, thread2, thread3]);
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   make_display_threaded();
   expand_all_threads();
 
@@ -61,7 +62,7 @@ async function clickViewMessagesItem(id) {
 /**
  * Test that Ignore Thread works as expected.
  */
-add_task(function test_ignore_thread() {
+add_task(async function test_ignore_thread() {
   let t1root = thread1.getMsgHdr(0);
 
   let t1second = select_click_row(1);
@@ -78,8 +79,8 @@ add_task(function test_ignore_thread() {
   assert_visible(t1root);
 
   // Go to another folder then back. Ignored messages should now be hidden.
-  be_in_folder(inboxFolder);
-  be_in_folder(folder);
+  await be_in_folder(inboxFolder);
+  await be_in_folder(folder);
   select_click_row(0);
   assert_selected_and_displayed(t2root);
 });
@@ -94,12 +95,14 @@ add_task(async function test_view_threads_ignored_threads() {
 
   // Check "Ignored Threads" - the ignored messages should appear =>
   // the first row is the first message of the first thread.
-  await clickViewMessagesItem("viewIgnoredThreadsMenuItem");
+  // await clickViewMessagesItem("viewIgnoredThreadsMenuItem");
+  goDoCommand("cmd_viewIgnoredThreads");
   select_click_row(0);
   assert_selected_and_displayed(t1root);
 
   // Uncheck "Ignored Threads" - the ignored messages should get hidden.
-  await clickViewMessagesItem("viewIgnoredThreadsMenuItem");
+  // await clickViewMessagesItem("viewIgnoredThreadsMenuItem");
+  goDoCommand("cmd_viewIgnoredThreads");
   select_click_row(0);
   assert_selected_and_displayed(t2root);
   assert_not_shown(thread1.msgHdrList);
@@ -117,13 +120,16 @@ add_task(async function test_watch_thread() {
   EventUtils.synthesizeKey("W", { shiftKey: false, accelKey: false });
 
   // Choose "Watched Threads with Unread".
-  await clickViewMessagesItem("viewWatchedThreadsWithUnreadMenuItem");
+  // await clickViewMessagesItem("viewWatchedThreadsWithUnreadMenuItem");
+  goDoCommand("cmd_viewWatchedThreadsWithUnread");
+  select_click_row(1);
   assert_selected_and_displayed(t2second);
   assert_not_shown(thread1.msgHdrList);
   assert_not_shown(thread3.msgHdrList);
 
   // Choose "All Messages" again.
-  await clickViewMessagesItem("viewAllMessagesMenuItem");
+  // await clickViewMessagesItem("viewAllMessagesMenuItem");
+  goDoCommand("cmd_viewAllMsgs");
   assert_not_shown(thread1.msgHdrList); // still ignored (and now shown)
   select_click_row(thread2.msgHdrList.length);
   assert_selected_and_displayed(t3root);

@@ -21,6 +21,7 @@ add_setup(function() {
 add_task(async function test_ics_attachment() {
   let file = new FileUtils.File(getTestFilePath("data/message-containing-event.eml"));
   let msgWindow = await openMessageFromFile(file);
+  let aboutMessage = msgWindow.document.getElementById("messageBrowser").contentWindow;
   let promise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://mozapps/content/downloads/unknownContentType.xhtml",
@@ -60,9 +61,9 @@ add_task(async function test_ics_attachment() {
     }
   );
   EventUtils.synthesizeMouseAtCenter(
-    msgWindow.document.getElementById("attachmentName"),
+    aboutMessage.document.getElementById("attachmentName"),
     {},
-    msgWindow
+    aboutMessage
   );
   await promise;
 

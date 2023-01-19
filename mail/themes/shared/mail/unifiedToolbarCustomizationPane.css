@@ -1,0 +1,108 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/shared/unifiedToolbarCustomizableItems.css");
+@import url("chrome://messenger/skin/shared/unifiedToolbarShared.css");
+
+.search-button-icon {
+  content: var(--icon-search);
+}
+
+.palette-search {
+  display: block;
+  margin: 12px auto;
+  max-width: 50ch;
+  height: 2em;
+}
+
+[is="customization-target"],
+[is="customization-palette"] {
+  display: flex;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.toolbar-target {
+  /* TODO this should match actual titlebar dimensions */
+  background: grey;
+  border-radius: 6px;
+  padding-block: 0.5rem;
+  margin-block: 1rem;
+  height: 2em;
+  max-width: 100vw;
+}
+
+.toolbar-target .spacer {
+  height: 2em;
+  background: green;
+}
+
+/* buttons are disabled in the preview, but we want them to look active. */
+.toolbar-target .unified-toolbar-button[disabled] {
+  color: inherit;
+}
+
+[is="customization-target"] [is="customizable-element"] .live-content {
+  pointer-events: none;
+}
+
+[is="customization-target"] [is="customizable-element"] .preview {
+  display: none;
+}
+
+[is="customization-palette"] {
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem;
+}
+
+h2 {
+  margin-inline: 1rem;
+}
+
+[is="customizable-element"] {
+  margin: 0;
+  padding: 0;
+}
+
+[is="customizable-element"][aria-selected="true"] {
+  outline: 2px dotted var(--primary);
+}
+
+[is="customization-palette"] [is="customizable-element"] {
+  width: 8em;
+  height: 4em;
+  background: lightgrey;
+  padding: 0.5rem;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+[is="customization-palette"] [is="customizable-element"] .live-content {
+  display: none;
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+  gap: 0.5rem;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
+.preview-icon {
+  height: 2em;
+  width: 2em;
+  object-fit: contain;
+}
+
+.preview-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

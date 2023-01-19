@@ -5,8 +5,8 @@
 
 /**
  * This module handles migrating mail-specific preferences, etc. Migration has
- * traditionally been a part of msgMail3PaneWindow.js, but separating the code
- * out into a module makes unit testing much easier.
+ * traditionally been a part of messenger.js, but separating the code out into
+ * a module makes unit testing much easier.
  */
 
 const EXPORTED_SYMBOLS = ["MailMigrator", "MigrationTasks"];

@@ -13,6 +13,7 @@ var {
   assert_messages_in_view,
   be_in_folder,
   create_folder,
+  get_about_3pane,
   make_message_sets_in_folders,
   mc,
 } = ChromeUtils.import(
@@ -25,6 +26,7 @@ var {
   clear_constraints,
   toggle_boolean_constraints,
   toggle_quick_filter_bar,
+  cleanup_qfb_button,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/QuickFilterBarHelpers.jsm"
 );
@@ -41,36 +43,36 @@ add_setup(async function() {
   setStarred.setStarred(true);
 });
 
-add_task(function test_hidden_on_account_central() {
-  be_in_folder(folder.rootFolder);
-  assert_quick_filter_button_enabled(false);
+add_task(async function test_hidden_on_account_central() {
+  await be_in_folder(folder.rootFolder);
+  await assert_quick_filter_button_enabled(false);
   assert_quick_filter_bar_visible(false);
   teardownTest();
 });
 
-add_task(function test_visible_by_default() {
-  be_in_folder(folder);
-  assert_quick_filter_button_enabled(true);
+add_task(async function test_visible_by_default() {
+  await be_in_folder(folder);
+  await assert_quick_filter_button_enabled(true);
   assert_quick_filter_bar_visible(true);
   teardownTest();
 });
 
-add_task(function test_direct_toggle() {
+add_task(async function test_direct_toggle() {
   assert_quick_filter_bar_visible(true);
-  toggle_quick_filter_bar();
+  await toggle_quick_filter_bar();
   assert_quick_filter_bar_visible(false);
-  toggle_quick_filter_bar();
+  await toggle_quick_filter_bar();
   assert_quick_filter_bar_visible(true);
   teardownTest();
 });
 
-add_task(function test_control_shift_k_triggers_display() {
+add_task(async function test_control_shift_k_triggers_display() {
   // hide it
-  toggle_quick_filter_bar();
+  await toggle_quick_filter_bar();
   assert_quick_filter_bar_visible(false);
 
   // focus explicitly on the thread pane so we know where the focus is.
-  mc.e("threadTree").focus();
+  get_about_3pane().threadTree.focus();
 
   // hit control-shift-k
   EventUtils.synthesizeKey("k", { accelKey: true, shiftKey: true });
@@ -80,18 +82,18 @@ add_task(function test_control_shift_k_triggers_display() {
   teardownTest();
 });
 
-add_task(function test_constraints_disappear_when_collapsed() {
+add_task(async function test_constraints_disappear_when_collapsed() {
   // set some constraints
   toggle_boolean_constraints("starred");
   assert_constraints_expressed({ starred: true });
   assert_messages_in_view(setStarred);
 
   // collapse, now we should see them all again!
-  toggle_quick_filter_bar();
+  await toggle_quick_filter_bar();
   assert_messages_in_view([setUnstarred, setStarred]);
 
   // uncollapse, we should still see them all!
-  toggle_quick_filter_bar();
+  await toggle_quick_filter_bar();
   assert_messages_in_view([setUnstarred, setStarred]);
 
   // there better be no constraints left!
@@ -99,17 +101,10 @@ add_task(function test_constraints_disappear_when_collapsed() {
   teardownTest();
 });
 
+registerCleanupFunction(async () => {
+  await cleanup_qfb_button();
+});
+
 function teardownTest() {
   clear_constraints();
-  // make it visible if it's not
-  if (mc.e("quick-filter-bar").collapsed) {
-    toggle_quick_filter_bar();
-  }
-
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
-  );
 }

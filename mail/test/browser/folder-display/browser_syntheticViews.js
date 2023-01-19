@@ -147,7 +147,7 @@ add_task(async function testListViewMarkRead() {
   let thread = createThreadWithTerm(2, term);
 
   registerCleanupFunction(async () => {
-    be_in_folder(inboxFolder);
+    await be_in_folder(inboxFolder);
     await delete_messages(thread);
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
@@ -155,7 +155,7 @@ add_task(async function testListViewMarkRead() {
     trash.emptyTrash(null, null);
   });
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   await add_message_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {
@@ -188,14 +188,14 @@ add_task(async function testListViewMarkThreadAsRead() {
   let thread = createThreadWithTerm(3, term);
 
   registerCleanupFunction(async () => {
-    be_in_folder(inboxFolder);
+    await be_in_folder(inboxFolder);
     await delete_messages(thread);
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     folder.deleteSelf(null);
     trash.emptyTrash(null, null);
   });
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   await add_message_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {
@@ -227,7 +227,7 @@ add_task(async function testConversationViewMarkRead() {
   let thread = create_thread(2);
 
   registerCleanupFunction(async () => {
-    be_in_folder(inboxFolder);
+    await be_in_folder(inboxFolder);
     await delete_messages(thread);
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
@@ -235,7 +235,7 @@ add_task(async function testConversationViewMarkRead() {
     trash.emptyTrash(null, null);
   });
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   await add_message_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {
@@ -264,7 +264,7 @@ add_task(async function testConversationViewMarkThreadAsRead() {
   let thread = create_thread(3);
 
   registerCleanupFunction(async () => {
-    be_in_folder(inboxFolder);
+    await be_in_folder(inboxFolder);
     await delete_messages(thread);
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
@@ -272,7 +272,7 @@ add_task(async function testConversationViewMarkThreadAsRead() {
     trash.emptyTrash(null, null);
   });
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   await add_message_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {

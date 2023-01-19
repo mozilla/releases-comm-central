@@ -94,7 +94,7 @@ async function create_replyMsg(aTo, aEnvelopeTo) {
   });
   await add_message_to_folder([gFolder], msg0);
 
-  be_in_folder(gFolder);
+  await be_in_folder(gFolder);
   let msg = select_click_row(i++);
   assert_selected_and_displayed(mc, msg);
 }
@@ -225,13 +225,13 @@ add_task(async function test_reply_identity_selection() {
 
     if (test.warning) {
       wait_for_notification_to_show(
-        cwc,
+        cwc.window,
         "compose-notification-bottom",
         "identityWarning"
       );
     } else {
       assert_notification_displayed(
-        cwc,
+        cwc.window,
         "compose-notification-bottom",
         "identityWarning",
         false
@@ -263,12 +263,11 @@ function checkCompIdentity(cwc, identityKey, from) {
   );
 }
 
-registerCleanupFunction(function() {
-  be_in_folder(gFolder);
-  let count;
-  while ((count = gFolder.getTotalMessages(false)) > 0) {
+registerCleanupFunction(async function() {
+  await be_in_folder(gFolder);
+  while (gFolder.getTotalMessages(false) > 0) {
+    select_click_row(0);
     press_delete();
-    mc.waitFor(() => gFolder.getTotalMessages(false) < count);
   }
 
   gAccount.removeIdentity(identity2);

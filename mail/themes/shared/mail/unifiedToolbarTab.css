@@ -1,0 +1,21 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+button {
+  padding: 6px;
+  box-sizing: border-box;
+  border-radius: 2px;
+  cursor: default;
+  user-select: none;
+  appearance: none;
+  border: none;
+  background: none;
+  display: flex;
+  align-content: center;
+  gap: 6px;
+}
+
+button[aria-selected="true"] {
+  border-top: 2px solid var(--primary);
+}

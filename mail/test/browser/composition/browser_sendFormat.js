@@ -22,6 +22,7 @@ var {
   be_in_folder,
   empty_folder,
   get_special_folder,
+  get_about_message,
   open_message_from_file,
   select_click_row,
 } = ChromeUtils.import(
@@ -44,11 +45,11 @@ add_setup(async () => {
   outboxFolder = await get_special_folder(Ci.nsMsgFolderFlags.Queue, true);
 });
 
-registerCleanupFunction(() => {
+registerCleanupFunction(async function() {
   Services.prefs.setIntPref("mail.default_send_format", sendFormatPreference);
   Services.prefs.setIntPref("mailnews.display.html_as", htmlAsPreference);
-  empty_folder(draftsFolder);
-  empty_folder(outboxFolder);
+  await empty_folder(draftsFolder);
+  await empty_folder(outboxFolder);
 });
 
 async function checkMsgFile(aFilePath, aConvertibility) {
@@ -229,7 +230,7 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
   await closePromise;
 
   // Open the "sent" message.
-  be_in_folder(outboxFolder);
+  await be_in_folder(outboxFolder);
   // Should be the last message in the tree.
   select_click_row(-1);
 
@@ -237,7 +238,8 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
   // multipart/alternative.
   // TODO: Is there a better way to expose the content-type of the displayed
   // message?
-  let contentType = window.currentHeaderData["content-type"].headerValue;
+  let contentType = get_about_message().currentHeaderData["content-type"]
+    .headerValue;
   if (plain && html) {
     Assert.ok(
       contentType.startsWith("multipart/alternative"),
@@ -261,7 +263,8 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
   // NOTE: We have set the mailnews.display.html_as preference to show all parts
   // of the message, which means it will show both the plain text and html parts
   // if both were sent.
-  let messageBody = document.getElementById("messagepane").contentDocument.body;
+  let messageBody = get_about_message().document.getElementById("messagepane")
+    .contentDocument.body;
   let plainBody = messageBody.querySelector(".moz-text-flowed");
   let htmlBody = messageBody.querySelector(".moz-text-html");
   Assert.equal(
@@ -320,7 +323,7 @@ async function saveDraft(composeWindow) {
 }
 
 async function assertDraftFormat(expectSavedFormat) {
-  be_in_folder(draftsFolder);
+  await be_in_folder(draftsFolder);
   select_click_row(0);
 
   let newComposeWindow = open_compose_from_draft().window;

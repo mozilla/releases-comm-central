@@ -11,6 +11,7 @@
 const {
   open_message_from_file,
   be_in_folder,
+  get_about_message,
   get_special_folder,
   select_click_row,
 } = ChromeUtils.import(
@@ -36,6 +37,8 @@ let bobAcct;
 let bobIdentity;
 let gOutbox;
 let gDrafts;
+
+let aboutMessage = get_about_message();
 
 // Used in some of the tests to verify key status display.
 let l10n = new Localization(["messenger/openpgp/composeKeyStatus.ftl"]);
@@ -99,7 +102,7 @@ add_setup(async function() {
  * the Outbox.
  */
 add_task(async function testEncryptedMessageComposition() {
-  be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
   let composeWin = cwc.window;
@@ -115,22 +118,22 @@ add_task(async function testEncryptedMessageComposition() {
   await OpenPGPTestUtils.toggleMessageSigning(composeWin);
   await sendMessage(composeWin);
 
-  be_in_folder(gOutbox);
+  await be_in_folder(gOutbox);
   select_click_row(0);
 
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "message should have encrypted icon"
   );
 
   Assert.equal(
-    window.document.querySelector("#attachmentList").itemChildren.length,
+    aboutMessage.document.querySelector("#attachmentList").itemChildren.length,
     0,
     "no keys should be attached to message"
   );
 
   Assert.ok(
-    OpenPGPTestUtils.hasNoSignedIconState(window.document),
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "message should have signed icon"
   );
 
@@ -143,7 +146,7 @@ add_task(async function testEncryptedMessageComposition() {
  * enabled, shows as encrypted in the Outbox.
  */
 add_task(async function testEncryptedMessageWithKeyComposition() {
-  be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
   let composeWin = cwc.window;
@@ -160,15 +163,15 @@ add_task(async function testEncryptedMessageWithKeyComposition() {
   await OpenPGPTestUtils.toggleMessageKeyAttachment(composeWin);
   await sendMessage(composeWin);
 
-  be_in_folder(gOutbox);
+  await be_in_folder(gOutbox);
   select_click_row(0);
 
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "message should have encrypted icon"
   );
 
-  let attachmentList = window.document.querySelector("#attachmentList");
+  let attachmentList = aboutMessage.document.querySelector("#attachmentList");
 
   await TestUtils.waitForCondition(
     () => attachmentList.itemChildren.length == 1,
@@ -183,7 +186,7 @@ add_task(async function testEncryptedMessageWithKeyComposition() {
   );
 
   Assert.ok(
-    OpenPGPTestUtils.hasNoSignedIconState(window.document),
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "message should have no signed icon"
   );
 
@@ -197,7 +200,7 @@ add_task(async function testEncryptedMessageWithKeyComposition() {
  */
 add_task(
   async function testEncryptedRecipientKeyNotAvailabeMessageComposition() {
-    be_in_folder(bobAcct.incomingServer.rootFolder);
+    await be_in_folder(bobAcct.incomingServer.rootFolder);
 
     let cwc = open_compose_new_mail();
     let composeWin = cwc.window;
@@ -249,7 +252,7 @@ add_task(
         level
       );
 
-      be_in_folder(bobAcct.incomingServer.rootFolder);
+      await be_in_folder(bobAcct.incomingServer.rootFolder);
 
       let cwc = open_compose_new_mail();
       let composeWin = cwc.window;
@@ -293,7 +296,7 @@ add_task(
       OpenPGPTestUtils.ACCEPTANCE_UNVERIFIED
     );
 
-    be_in_folder(bobAcct.incomingServer.rootFolder);
+    await be_in_folder(bobAcct.incomingServer.rootFolder);
 
     let cwc = open_compose_new_mail();
     let composeWin = cwc.window;
@@ -308,11 +311,11 @@ add_task(
     await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
     await sendMessage(composeWin);
 
-    be_in_folder(gOutbox);
+    await be_in_folder(gOutbox);
     select_click_row(0);
 
     Assert.ok(
-      OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
+      OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
       "message should have encrypted icon"
     );
 
@@ -328,7 +331,7 @@ add_task(
  */
 add_task(
   async function testEncryptedOneRecipientKeyNotAvailableMessageComposition() {
-    be_in_folder(bobAcct.incomingServer.rootFolder);
+    await be_in_folder(bobAcct.incomingServer.rootFolder);
 
     let cwc = open_compose_new_mail();
     let composeWin = cwc.window;
@@ -380,7 +383,7 @@ add_task(
         level
       );
 
-      be_in_folder(bobAcct.incomingServer.rootFolder);
+      await be_in_folder(bobAcct.incomingServer.rootFolder);
 
       let cwc = open_compose_new_mail();
       let composeWin = cwc.window;
@@ -425,7 +428,7 @@ add_task(
       OpenPGPTestUtils.ACCEPTANCE_UNVERIFIED
     );
 
-    be_in_folder(bobAcct.incomingServer.rootFolder);
+    await be_in_folder(bobAcct.incomingServer.rootFolder);
 
     let cwc = open_compose_new_mail();
     let composeWin = cwc.window;
@@ -440,11 +443,11 @@ add_task(
     await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
     await sendMessage(composeWin);
 
-    be_in_folder(gOutbox);
+    await be_in_folder(gOutbox);
     select_click_row(0);
 
     await TestUtils.waitForCondition(
-      () => OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
+      () => OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
       "message should have encrypted icon"
     );
 
@@ -458,7 +461,7 @@ add_task(
  * Tests composing a reply to an encrypted message is encrypted by default.
  */
 add_task(async function testEncryptedMessageReplyIsEncrypted() {
-  be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(bobAcct.incomingServer.rootFolder);
   let mc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
@@ -475,12 +478,16 @@ add_task(async function testEncryptedMessageReplyIsEncrypted() {
     );
   });
 
-  mc.window.document.querySelector("#hdrReplyButton").click();
-  // Do not close the window yet. If we close it early, waiting for
-  // the focus of the reply window isn't working reliably.
+  get_about_message(mc.window)
+    .document.querySelector("#hdrReplyButton")
+    .click();
+  close_window(mc);
 
   let replyWindow = await replyWindowPromise;
-  await BrowserTestUtils.waitForEvent(replyWindow, "focus", true);
+  await Promise.all([
+    BrowserTestUtils.waitForEvent(replyWindow, "focus", true),
+    BrowserTestUtils.waitForEvent(replyWindow, "compose-editor-ready", true),
+  ]);
   replyWindow.document.querySelector("#button-save").click();
 
   await TestUtils.waitForCondition(
@@ -489,16 +496,11 @@ add_task(async function testEncryptedMessageReplyIsEncrypted() {
   );
   replyWindow.close();
 
-  close_window(mc);
-  if (Services.focus.activeWindow != window) {
-    await BrowserTestUtils.waitForEvent(window, "focus");
-  }
-
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
   select_click_row(0);
 
   Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon should be displayed"
   );
 });

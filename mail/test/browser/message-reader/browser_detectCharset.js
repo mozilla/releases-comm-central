@@ -11,7 +11,7 @@
 
 "use strict";
 
-var { open_message_from_file } = ChromeUtils.import(
+var { get_about_message, open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { close_window } = ChromeUtils.import(
@@ -21,6 +21,10 @@ var { close_window } = ChromeUtils.import(
 var gReferenceTextContent;
 
 add_setup(async function() {
+  Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", false);
+  Services.prefs.setIntPref("mailnews.display.html_as", 0);
+  Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers", 0);
+
   let { textContent } = await extract_eml_body_textcontent(
     "./correctEncodingUTF8.eml",
     false
@@ -31,45 +35,42 @@ add_setup(async function() {
 async function check_display_charset(eml, expectedCharset) {
   let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
   let msgc = await open_message_from_file(file);
-  is(msgc.window.msgWindow.mailCharacterSet, expectedCharset);
+  let aboutMessage = get_about_message(msgc.window);
+  is(aboutMessage.currentCharacterSet, expectedCharset);
   close_window(msgc);
 }
 
 async function extract_eml_body_textcontent(eml, autodetect = true) {
   let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
   let msgc = await open_message_from_file(file);
-  let reloadPromise = BrowserTestUtils.browserLoaded(msgc.contentPane);
-  // Be sure to view message body as Original HTML
-  msgc.window.MsgBodyAllowHTML();
-  await reloadPromise;
+  let aboutMessage = get_about_message(msgc.window);
 
   if (autodetect) {
     // Open other actions menu.
-    let popup = msgc.window.document.getElementById("otherActionsPopup");
+    let popup = aboutMessage.document.getElementById("otherActionsPopup");
     let popupShown = BrowserTestUtils.waitForEvent(popup, "popupshown");
     EventUtils.synthesizeMouseAtCenter(
-      msgc.window.document.getElementById("otherActionsButton"),
+      aboutMessage.document.getElementById("otherActionsButton"),
       {},
-      msgc.window
+      aboutMessage
     );
     await popupShown;
 
     // Click on the "Repair Text Encoding" item.
     let hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
-    reloadPromise = BrowserTestUtils.browserLoaded(msgc.contentPane);
+    let reloadPromise = BrowserTestUtils.browserLoaded(aboutMessage.content);
     EventUtils.synthesizeMouseAtCenter(
-      msgc.window.document.getElementById("charsetRepairMenuitem"),
+      aboutMessage.document.getElementById("charsetRepairMenuitem"),
       {},
-      msgc.window
+      aboutMessage
     );
     await hiddenPromise;
     await reloadPromise;
   }
 
   let textContent =
-    msgc.window.msgWindow.messageWindowDocShell.contentViewer.DOMDocument
-      .documentElement.textContent;
-  let charset = msgc.window.msgWindow.mailCharacterSet;
+    aboutMessage.content.contentDocument.documentElement.textContent;
+  let charset = aboutMessage.currentCharacterSet;
   close_window(msgc);
   return { textContent, charset };
 }

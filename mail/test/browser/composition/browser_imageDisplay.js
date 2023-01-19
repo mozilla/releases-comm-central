@@ -17,6 +17,7 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
+  get_about_message,
   mc,
   open_message_from_file,
   select_click_row,
@@ -95,7 +96,7 @@ add_task(async function test_cid_image_load() {
 
   // Our image should be in the loaded eml document.
   let msgc = await open_message_from_file(file);
-  let messageDoc = msgc.e("messagepane").contentDocument;
+  let messageDoc = msgc.window.content.document;
   let image = messageDoc.getElementById("cidImage");
   await check_image_size(msgc, image, "mailbox://");
   image = messageDoc.getElementById("cidImageOrigin");
@@ -104,11 +105,15 @@ add_task(async function test_cid_image_load() {
   // Copy the message to a folder.
   let documentChild = messageDoc.firstElementChild;
   msgc.rightClick(documentChild);
-  await msgc.click_menus_in_sequence(msgc.e("mailContext"), [
-    { id: "mailContext-copyMenu" },
-    { label: "Local Folders" },
-    { label: gImageFolder.prettyName },
-  ]);
+  let aboutMessage = get_about_message(msgc.window);
+  await msgc.click_menus_in_sequence(
+    aboutMessage.document.getElementById("mailContext"),
+    [
+      { id: "mailContext-copyMenu" },
+      { label: "Local Folders" },
+      { label: gImageFolder.prettyName },
+    ]
+  );
   close_window(msgc);
 });
 
@@ -118,12 +123,13 @@ add_task(async function test_cid_image_load() {
  */
 add_task(async function test_cid_image_view() {
   // Preview the message in the folder.
-  be_in_folder(gImageFolder);
+  await be_in_folder(gImageFolder);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
 
   // Check image in the preview.
-  let messageDoc = mc.e("messagepane").contentDocument;
+  let messageDoc = get_about_message().document.getElementById("messagepane")
+    .contentDocument;
   let image = messageDoc.getElementById("cidImage");
   await check_image_size(mc, image, gImageFolder.server.localStoreType + "://");
   image = messageDoc.getElementById("cidImageOrigin");

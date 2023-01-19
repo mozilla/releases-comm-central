@@ -12,7 +12,6 @@
 #include "nsIAbDirectory.h"
 #include "nsIAbCard.h"
 #include "nsIMsgWindow.h"
-#include "nsIMimeMiscStatus.h"
 #include "nsIMsgHdr.h"
 #include "nsIEncryptedSMIMEURIsSrvc.h"
 #include "nsNetUtil.h"
@@ -31,6 +30,7 @@
 #include "nsSandboxFlags.h"
 #include "nsQueryObject.h"
 #include "mozilla/dom/WindowGlobalParent.h"
+#include "nsIObserverService.h"
 
 static const char kBlockRemoteImages[] =
     "mailnews.message_display.disable_remote_image";
@@ -339,7 +339,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   NS_ENSURE_SUCCESS(rv, rv);
   if (isEncrypted) {
     *aDecision = nsIContentPolicy::REJECT_REQUEST;
-    NotifyContentWasBlocked(originatorLocation, aContentLocation, false);
+    NotifyContentWasBlocked(targetContext->Top()->Id(), aContentLocation);
     return NS_OK;
   }
 
@@ -391,7 +391,8 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   }
 
   // The default decision is still to reject.
-  ShouldAcceptContentForPotentialMsg(aRequestingLocation, aContentLocation,
+  ShouldAcceptContentForPotentialMsg(targetContext->Top()->Id(),
+                                     aRequestingLocation, aContentLocation,
                                      aDecision);
   return NS_OK;
 }
@@ -576,69 +577,35 @@ int16_t nsMsgContentPolicy::ShouldAcceptRemoteContentForMsgHdr(
 
 class RemoteContentNotifierEvent : public mozilla::Runnable {
  public:
-  RemoteContentNotifierEvent(nsIMsgWindow* aMsgWindow, nsIMsgDBHdr* aMsgHdr,
-                             nsIURI* aContentURI, bool aCanOverride = true)
+  RemoteContentNotifierEvent(uint64_t aBrowsingContextId, nsIURI* aContentURI)
       : mozilla::Runnable("RemoteContentNotifierEvent"),
-        mMsgWindow(aMsgWindow),
-        mMsgHdr(aMsgHdr),
-        mContentURI(aContentURI),
-        mCanOverride(aCanOverride) {}
+        mBrowsingContextId(aBrowsingContextId),
+        mContentURI(aContentURI) {}
 
   NS_IMETHOD Run() {
-    if (mMsgWindow) {
-      nsCOMPtr<nsIMsgHeaderSink> msgHdrSink;
-      (void)mMsgWindow->GetMsgHeaderSink(getter_AddRefs(msgHdrSink));
-      if (msgHdrSink)
-        msgHdrSink->OnMsgHasRemoteContent(mMsgHdr, mContentURI, mCanOverride);
-    }
+    nsAutoString data;
+    data.AppendInt(mBrowsingContextId);
+    nsCOMPtr<nsIObserverService> observerService =
+        mozilla::services::GetObserverService();
+    observerService->NotifyObservers(mContentURI, "remote-content-blocked",
+                                     data.get());
     return NS_OK;
   }
 
  private:
-  nsCOMPtr<nsIMsgWindow> mMsgWindow;
-  nsCOMPtr<nsIMsgDBHdr> mMsgHdr;
+  uint64_t mBrowsingContextId;
   nsCOMPtr<nsIURI> mContentURI;
-  bool mCanOverride;
 };
 
 /**
  * This function is used to show a blocked remote content notification.
  */
-void nsMsgContentPolicy::NotifyContentWasBlocked(nsIURI* aOriginatorLocation,
-                                                 nsIURI* aContentLocation,
-                                                 bool aCanOverride) {
-  // Is it a mailnews url?
-  nsresult rv;
-  nsCOMPtr<nsIMsgMessageUrl> msgUrl(
-      do_QueryInterface(aOriginatorLocation, &rv));
-  if (NS_FAILED(rv)) {
-    return;
-  }
-
-  nsCString resourceURI;
-  rv = msgUrl->GetUri(resourceURI);
-  NS_ENSURE_SUCCESS_VOID(rv);
-
-  // Get the window from the session since not all urls have a msgWindow.
-  nsCOMPtr<nsIMsgMailSession> mailSession(
-      do_GetService("@mozilla.org/messenger/services/session;1", &rv));
-  NS_ENSURE_SUCCESS_VOID(rv);
-  nsCOMPtr<nsIMsgWindow> msgWindow;
-  rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
-  NS_ENSURE_SUCCESS_VOID(rv);
-
-  nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  rv = GetMsgDBHdrFromURI(resourceURI, getter_AddRefs(msgHdr));
-  if (NS_FAILED(rv)) {
-    nsCOMPtr<nsIMsgHeaderSink> msgHdrSink;
-    msgWindow->GetMsgHeaderSink(getter_AddRefs(msgHdrSink));
-    if (msgHdrSink) msgHdrSink->GetDummyMsgHeader(getter_AddRefs(msgHdr));
-  }
-
+void nsMsgContentPolicy::NotifyContentWasBlocked(uint64_t aBrowsingContextId,
+                                                 nsIURI* aContentLocation) {
   // Post this as an event because it can cause dom mutations, and we
   // get called at a bad time to be causing dom mutations.
-  NS_DispatchToCurrentThread(new RemoteContentNotifierEvent(
-      msgWindow, msgHdr, aContentLocation, aCanOverride));
+  NS_DispatchToCurrentThread(
+      new RemoteContentNotifierEvent(aBrowsingContextId, aContentLocation));
 }
 
 /**
@@ -650,7 +617,8 @@ void nsMsgContentPolicy::NotifyContentWasBlocked(nsIURI* aOriginatorLocation,
  * determine if we are going to allow remote content.
  */
 void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
-    nsIURI* aRequestingLocation, nsIURI* aContentLocation, int16_t* aDecision) {
+    uint64_t aBrowsingContextId, nsIURI* aRequestingLocation,
+    nsIURI* aContentLocation, int16_t* aDecision) {
   NS_ASSERTION(
       *aDecision == nsIContentPolicy::REJECT_REQUEST,
       "AllowContentForPotentialMessage expects default decision to be reject!");
@@ -672,21 +640,6 @@ void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   rv = GetMsgDBHdrFromURI(resourceURI, getter_AddRefs(msgHdr));
-  if (NS_FAILED(rv)) {
-    // Maybe we can get a dummy header.
-    // Get the window from the session since not all urls have a msgWindow.
-    nsCOMPtr<nsIMsgMailSession> mailSession(
-        do_GetService("@mozilla.org/messenger/services/session;1"));
-    if (mailSession) {
-      nsCOMPtr<nsIMsgWindow> msgWindow;
-      mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
-      if (msgWindow) {
-        nsCOMPtr<nsIMsgHeaderSink> msgHdrSink;
-        msgWindow->GetMsgHeaderSink(getter_AddRefs(msgHdrSink));
-        if (msgHdrSink) msgHdrSink->GetDummyMsgHeader(getter_AddRefs(msgHdr));
-      }
-    }
-  }
 
   // Get a decision on whether or not to allow remote content for this message
   // header.
@@ -697,7 +650,7 @@ void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
   // this url that this is the case, so that the UI knows to show the remote
   // content header bar, so the user can override if they wish.
   if (*aDecision == nsIContentPolicy::REJECT_REQUEST) {
-    NotifyContentWasBlocked(aRequestingLocation, aContentLocation, true);
+    NotifyContentWasBlocked(aBrowsingContextId, aContentLocation);
   }
 }
 

@@ -23,6 +23,7 @@ var {
   be_in_folder,
   create_message,
   get_special_folder,
+  get_about_message,
   make_display_unthreaded,
   mc,
   press_delete,
@@ -45,6 +46,8 @@ var { MailServices } = ChromeUtils.import(
 );
 var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
+let aboutMessage = get_about_message();
+
 var gDrafts;
 
 add_setup(async function() {
@@ -62,9 +65,6 @@ function getMsgHeaders(aMsgHdr, aGetText = false) {
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
   let handler = {
     _done: false,
     _data: new Map(),
@@ -83,9 +83,15 @@ function getMsgHeaders(aMsgHdr, aGetText = false) {
   let streamListener = MimeParser.makeStreamListenerParser(handler, {
     strformat: "unicode",
   });
-  messenger
-    .messageServiceFromURI(msgUri)
-    .streamMessage(msgUri, streamListener, null, null, false, "", false);
+  MailServices.messageServiceFromURI(msgUri).streamMessage(
+    msgUri,
+    streamListener,
+    null,
+    null,
+    false,
+    "",
+    false
+  );
   utils.waitFor(() => handler._done);
   return aGetText ? handler._text : handler._data;
 }
@@ -102,7 +108,7 @@ add_task(async function test_wrong_reply_charset() {
     }),
   });
   await add_message_to_folder([folder], msg0);
-  await be_in_folder(folder);
+  await await be_in_folder(folder);
   // Make the folder unthreaded for easier message selection.
   make_display_unthreaded();
 
@@ -126,13 +132,25 @@ add_task(async function test_wrong_reply_charset() {
   msg = select_click_row(0);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(mc, "mail-notification-top", "draftMsgContent");
+  wait_for_notification_to_show(
+    aboutMessage,
+    "mail-notification-top",
+    "draftMsgContent"
+  );
 
   plan_for_new_window("msgcompose");
 
-  let box = get_notification(mc, "mail-notification-top", "draftMsgContent");
+  let box = get_notification(
+    aboutMessage,
+    "mail-notification-top",
+    "draftMsgContent"
+  );
   // Click on the "Edit" button in the draft notification.
-  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
+  EventUtils.synthesizeMouseAtCenter(
+    box.buttonContainer.firstElementChild,
+    {},
+    aboutMessage
+  );
   rwc = wait_for_compose_window();
   await save_compose_message(rwc.window);
   close_compose_window(rwc);
@@ -155,7 +173,7 @@ add_task(async function test_no_mojibake() {
     bodyPart: new SyntheticPartLeaf(UTF7, { charset: "utf-7" }),
   });
   await add_message_to_folder([folder], msg0);
-  be_in_folder(folder);
+  await be_in_folder(folder);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
   await TestUtils.waitForCondition(
@@ -195,12 +213,24 @@ add_task(async function test_no_mojibake() {
   msg = select_click_row(0);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(mc, "mail-notification-top", "draftMsgContent");
+  wait_for_notification_to_show(
+    aboutMessage,
+    "mail-notification-top",
+    "draftMsgContent"
+  );
 
   plan_for_new_window("msgcompose");
-  let box = get_notification(mc, "mail-notification-top", "draftMsgContent");
+  let box = get_notification(
+    aboutMessage,
+    "mail-notification-top",
+    "draftMsgContent"
+  );
   // Click on the "Edit" button in the draft notification.
-  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
+  EventUtils.synthesizeMouseAtCenter(
+    box.buttonContainer.firstElementChild,
+    {},
+    aboutMessage
+  );
   rwc = wait_for_compose_window();
   await save_compose_message(rwc.window);
   close_compose_window(rwc);

@@ -24,9 +24,6 @@ var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 var messageGenerator = new MessageGenerator();
 var messageInjection = new MessageInjection({ mode: "local" });
 var inbox = messageInjection.getInboxFolder();
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
 
 add_task(async function test_without_attachment() {
   await test_message_attachments({});
@@ -186,20 +183,33 @@ async function test_message_attachments(info) {
   await messageInjection.addSetsToFolders([inbox], [synSet]);
 
   let msgURI = synSet.getMsgURI(0);
-  let msgService = messenger.messageServiceFromURI(msgURI);
+  let msgService = MailServices.messageServiceFromURI(msgURI);
 
-  let showedAttachments = (info.attachments || []).filter(i => i.shouldShow);
-  let msgHdrSinkProm = new MsgHeaderSinkHandleAttachments(
-    showedAttachments.length
-  );
+  let streamListener = new PromiseTestUtils.PromiseStreamListener({
+    onStopRequest(request, status) {
+      request.QueryInterface(Ci.nsIMailChannel);
+      let expectedAttachments = (info.attachments || [])
+        .filter(i => i.shouldShow)
+        .map(i => i.filename);
+      Assert.equal(request.attachments.length, expectedAttachments.length);
 
-  msgWindow.msgHeaderSink = msgHdrSinkProm;
-
-  let streamListener = new PromiseTestUtils.PromiseStreamListener();
+      for (let i = 0; i < request.attachments.length; i++) {
+        // If the expected attachment's name is empty, we probably generated a
+        // name like "Part 1.2", so don't bother checking that the names match
+        // (they won't).
+        if (expectedAttachments[i]) {
+          Assert.equal(
+            request.attachments[i].getProperty("displayName"),
+            expectedAttachments[i]
+          );
+        }
+      }
+    },
+  });
   msgService.streamMessage(
     msgURI,
     streamListener,
-    msgWindow,
+    null,
     null,
     true, // have them create the converter
     // additional uri payload, note that "header=" is prepended automatically
@@ -208,50 +218,4 @@ async function test_message_attachments(info) {
   );
 
   await streamListener.promise;
-  let attachmentsHdrSink = await msgHdrSinkProm.waitForAttachmentCount();
-
-  let expectedAttachments = (info.attachments || [])
-    .filter(i => i.shouldShow)
-    .map(i => i.filename);
-  Assert.equal(expectedAttachments.length, attachmentsHdrSink.length);
-
-  for (let i = 0; i < attachmentsHdrSink.length; i++) {
-    // If the expected attachment's name is empty, we probably generated a
-    // name like "Part 1.2", so don't bother checking that the names match
-    // (they won't).
-    if (expectedAttachments[i]) {
-      Assert.equal(expectedAttachments[i], attachmentsHdrSink[i]);
-    }
-  }
 }
-
-function MsgHeaderSinkHandleAttachments(attachmentCountForResolve) {
-  this._attachmentCount = attachmentCountForResolve;
-  this._attachments = [];
-}
-
-MsgHeaderSinkHandleAttachments.prototype = {
-  handleAttachment(
-    aContentType,
-    aUrl,
-    aDisplayName,
-    aUri,
-    aIsExternalAttachment
-  ) {
-    this._attachments.push(aDisplayName);
-  },
-
-  /**
-   * Wait for the desired attachment counts.
-   * Works without any invoking of handleAttachment this way.
-   *
-   * @returns string[]
-   */
-  async waitForAttachmentCount() {
-    await TestUtils.waitForCondition(
-      () => this._attachments.length === this._attachmentCount,
-      "waiting for reaching the desired amount of attachments through the Message Header Sink"
-    );
-    return this._attachments;
-  },
-};

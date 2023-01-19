@@ -1,0 +1,247 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Styles shared between the actual unfied toolbar and the replica in the
+ * customization overlay */
+
+.unified-toolbar {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  list-style-type: none;
+  overflow: hidden;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.unified-toolbar li {
+  padding: 0;
+  margin: 0;
+}
+
+.unified-toolbar [is="customizable-element"] .preview {
+  display: none;
+}
+
+.unified-toolbar-button {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  flex-wrap: nowrap;
+  border-radius: var(--toolbarbutton-border-radius);
+  background: none;
+  border: none;
+  min-width: initial;
+  border: 1px solid transparent;
+  transition: background-color .15s, border-color .15s;
+  -moz-context-properties: fill, stroke, fill-opacity;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+  overflow: hidden;
+}
+
+.icons-above-text .unified-toolbar-button {
+  flex-direction: column;
+}
+
+.icons-only .unified-toolbar-button .button-label {
+  display: none;
+}
+
+.text-only .unified-toolbar-button .button-icon {
+  display: none;
+}
+
+.unified-toolbar-button:enabled:hover {
+  background-color: var(--toolbarbutton-hover-background);
+  border-color: var(--toolbarbutton-hover-bordercolor);
+}
+
+.unified-toolbar-button:enabled:is(:active, [aria-pressed="true"], :hover:active) {
+  background-color: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+}
+
+.unified-toolbar-button:enabled[aria-pressed="true"] {
+  background-color: var(--toolbarbutton-checked-background);
+}
+
+.unified-toolbar-button:disabled {
+  pointer-events: none;
+}
+
+.unified-toolbar-button[popup] {
+  padding-inline-end: 20px;
+  background-image: var(--icon-nav-down-sm);
+  background-position: calc(100% - 4px) center;
+  background-repeat: no-repeat;
+}
+
+.unified-toolbar-button[popup]:dir(rtl) {
+  background-position-x: 4px;
+}
+
+.unified-toolbar-button .button-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  max-width: 50ch;
+}
+
+.unified-toolbar .spacer {
+  flex: 1 1 auto;
+}
+
+.unified-toolbar .search-bar {
+  flex: 1 1 33%;
+  min-width: 5em;
+}
+
+.unified-toolbar .button-icon {
+  content: var(--icon-extension);
+}
+
+.unified-toolbar .search-button-icon {
+  content: var(--icon-search);
+}
+
+.unified-toolbar .write-message .button-icon {
+  content: var(--icon-new-mail);
+}
+
+.unified-toolbar .move-to .button-icon {
+  content: var(--icon-file);
+}
+
+.unified-toolbar .unifinder .button-icon {
+  content: var(--icon-search);
+}
+
+.unified-toolbar .folder-location .button-icon {
+  content: var(--icon-folder);
+}
+
+.unified-toolbar .edit-event .button-icon {
+  content: var(--icon-pencil);
+}
+
+.unified-toolbar .get-messages .button-icon {
+  content: var(--icon-get-mail);
+}
+
+.unified-toolbar .reply .button-icon {
+  content: var(--icon-reply);
+}
+
+.unified-toolbar .reply-all .button-icon {
+  content: var(--icon-reply-all);
+}
+
+.unified-toolbar .reply-to-list .button-icon {
+  content: var(--icon-reply-list);
+}
+
+.unified-toolbar .redirect .button-icon {
+  content: var(--icon-redirect);
+}
+
+.unified-toolbar .archive .button-icon {
+  content: var(--icon-archive);
+}
+
+.unified-toolbar .conversation .button-icon {
+  content: var(--icon-conversation);
+}
+
+.unified-toolbar .previous-unread .button-icon {
+  content: var(--icon-nav-up-unread);
+}
+
+.unified-toolbar .previous .button-icon {
+  content: var(--icon-nav-up);
+}
+
+.unified-toolbar .next-unread .button-icon {
+  content: var(--icon-nav-down-unread);
+}
+
+.unified-toolbar .next .button-icon {
+  content: var(--icon-nav-down);
+}
+
+.unified-toolbar .junk .button-icon {
+  content: var(--icon-spam);
+}
+
+.unified-toolbar .delete .button-icon {
+  content: var(--icon-trash);
+}
+
+.unified-toolbar .compact .button-icon {
+  content: var(--icon-compress);
+}
+
+.unified-toolbar .add-as-event .button-icon {
+  content: var(--icon-new-event);
+}
+
+.unified-toolbar .add-as-task .button-icon {
+  content: var(--icon-new-task);
+}
+
+.unified-toolbar .tag-message .button-icon {
+  content: var(--icon-tag);
+}
+
+.unified-toolbar .forward-inline .button-icon {
+  content: var(--icon-forward);
+}
+
+.unified-toolbar .forward-attachment .button-icon {
+  /* TODO separate icon for forwarding as attachment */
+  content: var(--icon-forward);
+}
+
+.unified-toolbar .mark-as .button-icon {
+  content: var(--icon-unread);
+}
+
+.unified-toolbar .view-picker .button-icon {
+  content: var(--icon-eye);
+}
+
+.unified-toolbar .address-book .button-icon {
+  content: var(--icon-address-book);
+}
+
+.unified-toolbar .chat .button-icon {
+  content: var(--icon-chat)
+}
+
+.unified-toolbar .add-ons-and-themes .button-icon {
+  content: var(--icon-extension);
+}
+
+.unified-toolbar .calendar .button-icon {
+  content: var(--icon-calendar);
+}
+
+.unified-toolbar .tasks .button-icon {
+  content: var(--icon-tasks)
+}
+
+.unified-toolbar .mail .button-icon {
+  content: var(--icon-mail);
+}
+
+.unified-toolbar .print .button-icon {
+  content: var(--icon-print);
+}
+
+.unified-toolbar .quick-filter-bar .button-icon {
+  content: var(--icon-filter);
+}

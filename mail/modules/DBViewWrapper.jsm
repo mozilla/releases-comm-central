@@ -735,6 +735,7 @@ DBViewWrapper.prototype = {
       this.listener.onDestroyingView(false);
       this.search.dissociateView(this.dbView);
       this.dbView.setTree(null);
+      this.dbView.setJSTree(null);
       this.dbView.selection = null;
       this.dbView.close();
       this.dbView = null;

@@ -1,0 +1,136 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/shared/unifiedToolbarShared.css");
+
+unified-toolbar {
+  display: block;
+}
+
+#unifiedToolbarContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  -moz-window-dragging: drag;
+  width: 100vw;
+}
+
+#unifiedToolbar {
+  flex: 1 1 auto;
+  display: flex;
+  padding-block: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+#unifiedToolbarContainer .titlebar-buttonbox-container {
+  flex: 0 0 auto;
+}
+
+@media (-moz-gtk-csd-reversed-placement) {
+  #unifiedToolbarContainer {
+    flex-direction: row-reverse;
+  }
+}
+
+#unifiedToolbarContent {
+  flex: 1 1 auto;
+  margin: 0;
+  padding: 0;
+}
+
+#unifiedToolbarContent li {
+  -moz-window-dragging: no-drag;
+}
+
+#unifiedToolbarContent .unified-toolbar-button[disabled] {
+  color: GrayText;
+}
+
+#unifiedToolbarContent .spacer {
+  -moz-window-dragging: drag;
+}
+
+unified-toolbar-customization {
+  display: none;
+}
+
+/* customizing unified toolbar */
+
+/* TODO this approach will have issues with spaces toolbar paddings */
+
+/* we still need the space to be taken up for correct alignment of window decorations */
+.customizingUnifiedToolbar #unifiedToolbar {
+  visibility: hidden;
+}
+
+.customizingUnifiedToolbar #unifiedToolbar > *,
+.customizingUnifiedToolbar #messengerBody,
+.customizingUnifiedToolbar #spacesToolbar,
+.customizingUnifiedToolbar #toolbar-menubar,
+.customizingUnifiedToolbar #tabs-toolbar {
+  display: none;
+}
+
+.customizingUnifiedToolbar unified-toolbar-customization {
+  display: flex;
+  height: 100%;
+  background: white;
+  -moz-box-flex: 1;
+}
+
+#unifiedToolbarCustomizationContainer {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#unifiedToolbarCustomizationContainer div[role="tabpanel"] {
+  flex-grow: 1;
+}
+
+#customizationFooter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#customizationTabs {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+unified-toolbar-customization-pane {
+  flex-grow: 1;
+}
+
+unified-toolbar-tab::part(icon) {
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
+#unified-toolbar-customization-tab-mail::part(icon) {
+  content: var(--icon-mail);
+}
+
+#unified-toolbar-customization-tab-calendar::part(icon) {
+  content: var(--icon-calendar);
+}
+
+#unified-toolbar-customization-tab-tasks::part(icon) {
+  content: var(--icon-tasks);
+}
+
+#unified-toolbar-customization-tab-addressbook::part(icon) {
+  content: var(--icon-address-book);
+}
+
+#unified-toolbar-customization-tab-chat::part(icon) {
+  content: var(--icon-chat);
+}
+
+#unified-toolbar-customization-tab-settings::part(icon) {
+  content: var(--icon-settings);
+}

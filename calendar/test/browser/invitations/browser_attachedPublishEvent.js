@@ -47,15 +47,16 @@ add_task(async function test_event_from_eml() {
   let file = new FileUtils.File(getTestFilePath("data/message-non-invite.eml"));
 
   let win = await openMessageFromFile(file);
-  let imipBar = win.document.getElementById("imip-bar");
+  let aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
+  let imipBar = aboutMessage.document.getElementById("imip-bar");
 
   await TestUtils.waitForCondition(() => !imipBar.collapsed);
   info("Ok, iMIP bar is showing");
 
-  let imipAddButton = win.document.getElementById("imipAddButton");
+  let imipAddButton = aboutMessage.document.getElementById("imipAddButton");
   Assert.ok(!imipAddButton.hidden, "Add button should show");
 
-  EventUtils.synthesizeMouseAtCenter(imipAddButton, {}, win);
+  EventUtils.synthesizeMouseAtCenter(imipAddButton, {}, aboutMessage);
 
   // Make sure the event got added, without showing the party crashing dialog.
   await TestUtils.waitForCondition(async () => {
@@ -65,7 +66,7 @@ add_task(async function test_event_from_eml() {
 
   await TestUtils.waitForCondition(() => imipAddButton.hidden, "Add button should hide");
 
-  let imipDetailsButton = win.document.getElementById("imipDetailsButton");
+  let imipDetailsButton = aboutMessage.document.getElementById("imipDetailsButton");
   Assert.ok(!imipDetailsButton.hidden, "Details button should show");
 
   await BrowserTestUtils.closeWindow(win);

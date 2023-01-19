@@ -36,6 +36,9 @@ async function check_eml_window_title(subject, eml) {
     expectedTitle += productName;
   }
 
+  await TestUtils.waitForCondition(
+    () => msgc.window.document.title == expectedTitle
+  );
   Assert.equal(msgc.window.document.title, expectedTitle);
   close_window(msgc);
 }

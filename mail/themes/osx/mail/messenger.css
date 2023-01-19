@@ -64,11 +64,6 @@
   visibility: collapse;
 }
 
-:root[tabsintitlebar] #toolbar-menubar[autohide=true]:not([inactive]) +
-  #tabs-toolbar > .titlebar-buttonbox-container {
-  visibility: visible;
-}
-
 /* ::::: toolbarbutton menu-button ::::: */
 
 toolbarbutton[is="toolbarbutton-menu-button"] {
@@ -293,12 +288,20 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
 }
 
 @media not (-moz-mac-rtl) {
+  #unifiedToolbarContainer:-moz-locale-dir(ltr) {
+    flex-direction: row-reverse;
+  }
+
   .titlebar-buttonbox-container:-moz-locale-dir(ltr) {
     -moz-box-ordinal-group: 0;
   }
 }
 
 @media (-moz-mac-rtl) {
+  #unifiedToolbarContainer:-moz-locale-dir(rtl) {
+    flex-direction: row-reverse;
+  }
+
   .titlebar-buttonbox-container:-moz-locale-dir(rtl) {
     -moz-box-ordinal-group: 0;
   }
@@ -313,18 +316,6 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
 .titlebar-buttonbox {
   appearance: auto;
   -moz-default-appearance: -moz-window-button-box;
-}
-
-@media (-moz-mac-rtl) {
-  .titlebar-buttonbox-container:-moz-locale-dir(rtl) {
-    -moz-box-ordinal-group: 0;
-  }
-}
-
-@media not (-moz-mac-rtl) {
-  .titlebar-buttonbox-container:-moz-locale-dir(ltr) {
-    -moz-box-ordinal-group: 0;
-  }
 }
 
 #messengerWindow[sizemode="fullscreen"] .titlebar-buttonbox-container {

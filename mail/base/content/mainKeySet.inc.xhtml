@@ -8,7 +8,7 @@
 #endif
 #endif
 
-  <key id="space" key=" " modifiers="shift any" oncommand="SpaceHit(event);"/>
+  <key id="space" key=" " modifiers="shift any" oncommand="goPerformCommand('cmd_space', event);"/>
 
   <!-- File Menu -->
   <key id="key_close" key="&closeCmd.key;" command="cmd_close" modifiers="accel"/>
@@ -177,8 +177,8 @@
   <!-- Tools Keys -->
   <key id="key_searchMail"
        key="&searchMailCmd.key;"
-       oncommand="MsgSearchMessages();"
-       modifiers="accel,shift"/>
+       modifiers="accel,shift"
+       command="cmd_searchMessages"/>
   <key id="key_errorConsole"
        key="&errorConsoleCmd.commandkey;"
        oncommand="toJavaScriptConsole();"
@@ -212,8 +212,9 @@
 
   <key id="key_qfb_escape" keycode="VK_ESCAPE"
        command="cmd_popQuickFilterBarStack"/>
-  <key id="key_qfb_show" key="&quickFilterBar.show.key2;"
+  <key id="key_qfb_show"
        modifiers="accel,shift"
+       data-l10n-id="quick-filter-bar-show"
        command="cmd_showQuickFilterBar"/>
 #ifdef XP_GNOME
 #define NUM_SELECT_TAB_MODIFIER alt

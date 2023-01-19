@@ -14,6 +14,8 @@ var {
   be_in_folder,
   create_folder,
   create_thread,
+  expand_all_threads,
+  get_about_3pane,
   make_display_threaded,
   mc,
   select_click_row,
@@ -42,11 +44,13 @@ add_setup(async function() {
 /**
  * Test archiving messages that are not currently selected.
  */
-add_task(function test_batch_archiver() {
-  be_in_folder(folder);
+add_task(async function test_batch_archiver() {
+  await be_in_folder(folder);
 
   select_none();
   assert_nothing_selected();
+
+  expand_all_threads();
 
   /* Select the first (expanded) thread */
   let root = select_click_row(0);
@@ -85,17 +89,24 @@ add_task(function test_batch_archiver() {
   assert_selected(root);
 
   /* Archive the first thread, now the second thread should be selected */
-  archive_messages(mc.folderDisplay.selectedMessages);
+  Assert.ok(
+    Services.prefs.getBoolPref("mail.operate_on_msgs_in_collapsed_threads")
+  );
+  Assert.greater(get_about_3pane().gDBView.getSelectedMsgHdrs().length, 1);
+  archive_messages(get_about_3pane().gDBView.getSelectedMsgHdrs());
+  select_click_row(0); // TODO This should be unnecessary.
   assert_selected(root2);
 
   /* We only have the first thread left */
   toggle_thread_row(0);
   assert_selected_and_displayed(root2);
+  expand_all_threads();
 
   /* Archive the head of the thread, check that it still works fine */
   let child1 = select_click_row(1);
   select_click_row(0);
   archive_messages([root2]);
+  select_click_row(0); // TODO This should be unnecessary.
   assert_selected_and_displayed(child1);
 
   /* Test archiving a partial selection */
@@ -109,6 +120,7 @@ add_task(function test_batch_archiver() {
 
   archive_messages([child1, child3]);
   assert_message_not_in_view([child1, child3]);
+  select_click_row(0); // TODO This should be unnecessary.
   assert_selected_and_displayed(child2);
 
   Assert.report(

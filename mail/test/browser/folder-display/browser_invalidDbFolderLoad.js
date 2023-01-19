@@ -15,6 +15,7 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
+  get_about_3pane,
   make_message_sets_in_folders,
   mc,
   select_click_row,
@@ -33,12 +34,12 @@ add_setup(async function() {
 /**
  * Check if the db of a folder assumed to be invalid can be restored.
  */
-add_task(function test_load_folder_with_invalidDB() {
+add_task(async function test_load_folder_with_invalidDB() {
   folder.msgDatabase.dBFolderInfo.sortType = Ci.nsMsgViewSortType.bySubject;
   folder.msgDatabase.summaryValid = false;
   folder.msgDatabase.forceClosed();
   folder.msgDatabase = null;
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   assert_messages_in_view(setA);
   var curMessage = select_click_row(0);
@@ -46,7 +47,8 @@ add_task(function test_load_folder_with_invalidDB() {
 });
 
 add_task(function test_view_sort_maintained() {
-  if (mc.dbView.sortType != Ci.nsMsgViewSortType.bySubject) {
+  let win = get_about_3pane();
+  if (win.gDBView.sortType != Ci.nsMsgViewSortType.bySubject) {
     throw new Error("view sort type not restored from invalid db");
   }
 

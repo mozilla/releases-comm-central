@@ -1254,18 +1254,13 @@ var PerWindowTypeAugmentations = {
      * Globals from the controller's windows global scope at augmentation time.
      */
     globalsToExposeAtStartup: {
-      folderTreeView: "gFolderTreeView",
       folderTreeController: "gFolderTreeController",
     },
     /**
      * Globals from the controller's windows global to retrieve on-demand
      *  through getters.
      */
-    globalsToExposeViaGetters: {
-      // all of these dudes
-      folderDisplay: "gFolderDisplay",
-      messageDisplay: "gMessageDisplay",
-    },
+    globalsToExposeViaGetters: {},
     /**
      * Custom getters whose |this| is the controller.
      */
@@ -1277,19 +1272,6 @@ var PerWindowTypeAugmentations = {
         return this.tabmail.getBrowserForSelectedTab();
       },
     },
-
-    /**
-     * Invoked when we are augmenting a controller.  This is a great time to
-     *  poke into the global namespace as required.
-     */
-    onAugment(aController) {
-      // -- turn off summarization's stabilization logic for now by setting the
-      //  timer interval to 0.  We do need to make sure that we drain the event
-      //  queue after performing anything that will summarize, but use of
-      //  assert_selected_and_displayed in test-folder-display-helpers should
-      //  handle that.
-      aController.window.MessageDisplayWidget.prototype.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS = 0;
-    },
   },
 
   /**
@@ -1300,10 +1282,7 @@ var PerWindowTypeAugmentations = {
       contentPane: "messagepane",
     },
     // the load is deferred, so use a getter.
-    globalsToExposeViaGetters: {
-      folderDisplay: "gFolderDisplay",
-      messageDisplay: "gMessageDisplay",
-    },
+    globalsToExposeViaGetters: {},
     getters: {
       dbView() {
         return this.folderDisplay.view.dbView;
@@ -1365,10 +1344,6 @@ function _augment_helper(aController, aAugmentDef) {
       let value = aAugmentDef.methods[key];
       aController[key] = value;
     }
-  }
-
-  if (aAugmentDef.onAugment) {
-    aAugmentDef.onAugment(aController);
   }
 }
 

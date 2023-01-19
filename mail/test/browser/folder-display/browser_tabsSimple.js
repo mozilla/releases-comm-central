@@ -57,8 +57,8 @@ var messageA, messageB;
 /**
  * Make sure the default tab works right.
  */
-add_task(function test_open_folder_a() {
-  tabFolderA = be_in_folder(folderA);
+add_task(async function test_open_folder_a() {
+  tabFolderA = await be_in_folder(folderA);
   assert_messages_in_view(setA);
   assert_nothing_selected();
   // Focus the folder tree here
@@ -68,8 +68,8 @@ add_task(function test_open_folder_a() {
 /**
  * Open tab b, make sure it works right.
  */
-add_task(function test_open_folder_b_in_tab() {
-  tabFolderB = open_folder_in_new_tab(folderB);
+add_task(async function test_open_folder_b_in_tab() {
+  tabFolderB = await open_folder_in_new_tab(folderB);
   wait_for_blank_content_pane();
   assert_messages_in_view(setB);
   assert_nothing_selected();
@@ -79,8 +79,8 @@ add_task(function test_open_folder_b_in_tab() {
 /**
  * Go back to tab/folder A and make sure we change correctly.
  */
-add_task(function test_switch_to_tab_folder_a() {
-  switch_tab(tabFolderA);
+add_task(async function test_switch_to_tab_folder_a() {
+  await switch_tab(tabFolderA);
   assert_messages_in_view(setA);
   assert_nothing_selected();
   assert_folder_tree_focused();
@@ -90,12 +90,12 @@ add_task(function test_switch_to_tab_folder_a() {
  * Select a message in folder A and open it in a new window, making sure that
  *  the displayed message is the right one.
  */
-add_task(function test_open_message_a_in_tab() {
+add_task(async function test_open_message_a_in_tab() {
   // (this focuses the thread tree for tabFolderA...)
   messageA = select_click_row(0);
   // (...refocus the folder tree for our sticky check below)
   focus_folder_tree();
-  tabMessageA = open_selected_message_in_new_tab();
+  tabMessageA = await open_selected_message_in_new_tab();
   assert_selected_and_displayed(messageA);
   assert_message_pane_focused();
 });
@@ -103,8 +103,8 @@ add_task(function test_open_message_a_in_tab() {
 /**
  * Go back to tab/folder B and make sure we change correctly.
  */
-add_task(function test_switch_to_tab_folder_b() {
-  switch_tab(tabFolderB);
+add_task(async function test_switch_to_tab_folder_b() {
+  await switch_tab(tabFolderB);
   assert_messages_in_view(setB);
   assert_nothing_selected();
   assert_thread_tree_focused();
@@ -114,11 +114,11 @@ add_task(function test_switch_to_tab_folder_b() {
  * Select a message in folder B and open it in a new window, making sure that
  *  the displayed message is the right one.
  */
-add_task(function test_open_message_b_in_tab() {
+add_task(async function test_open_message_b_in_tab() {
   messageB = select_click_row(0);
   // Let's focus the message pane now
   focus_message_pane();
-  tabMessageB = open_selected_message_in_new_tab();
+  tabMessageB = await open_selected_message_in_new_tab();
   assert_selected_and_displayed(messageB);
   assert_message_pane_focused();
 });
@@ -126,8 +126,8 @@ add_task(function test_open_message_b_in_tab() {
 /**
  * Switch to message tab A.
  */
-add_task(function test_switch_to_message_a() {
-  switch_tab(tabMessageA);
+add_task(async function test_switch_to_message_a() {
+  await switch_tab(tabMessageA);
   assert_selected_and_displayed(messageA);
   assert_message_pane_focused();
 });
@@ -143,17 +143,17 @@ add_task(function test_close_message_a() {
 /**
  * Make sure all the other tabs are still happy.
  */
-add_task(function test_tabs_are_still_happy() {
-  switch_tab(tabFolderB);
+add_task(async function test_tabs_are_still_happy() {
+  await switch_tab(tabFolderB);
   assert_messages_in_view(setB);
   assert_selected_and_displayed(messageB);
   assert_message_pane_focused();
 
-  switch_tab(tabMessageB);
+  await switch_tab(tabMessageB);
   assert_selected_and_displayed(messageB);
   assert_message_pane_focused();
 
-  switch_tab(tabFolderA);
+  await switch_tab(tabFolderA);
   assert_messages_in_view(setA);
   assert_selected_and_displayed(messageA);
   // focus restoration uses setTimeout(0) and so we need to give it a chance
@@ -175,8 +175,8 @@ add_task(function test_close_message_b() {
 /**
  * Switch to tab B, close it, make sure we end up on tab A.
  */
-add_task(function test_close_folder_b() {
-  switch_tab(tabFolderB);
+add_task(async function test_close_folder_b() {
+  await switch_tab(tabFolderB);
   assert_messages_in_view(setB);
   assert_selected_and_displayed(messageB);
   assert_message_pane_focused();

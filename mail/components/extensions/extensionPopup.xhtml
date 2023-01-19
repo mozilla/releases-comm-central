@@ -35,14 +35,13 @@
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/viewZoomOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/browserRequest.js"></script>
-  <script defer="defer" src="chrome://messenger/content/nsContextMenu.js"></script>
+  <script defer="defer" src="chrome://messenger/content/browserPopups.js"></script>
   <script defer="defer" src="chrome://messenger/content/extensionPopup.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <popupset>
-#define BROWSER_POPUPS_ONLY
-#include ../../base/content/mainPopupSet.inc.xhtml
+#include ../../base/content/widgets/browserPopups.inc.xhtml
   </popupset>
 
   <commandset>
@@ -71,7 +70,7 @@
              src="about:blank"
              flex="1"
              autocompletepopup="PopupAutoComplete"
-             context="mailContext"
+             context="browserContext"
              datetimepicker="DateTimePickerPanel"
              selectmenulist="ContentSelectDropdown"
              messagemanagergroup="browsers"/>

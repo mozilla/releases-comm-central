@@ -35,7 +35,7 @@ PromiseTestUtils.allowMatchingRejectionsGlobally(
   /Receiving end does not exist/
 );
 
-check3PaneInInitialState();
+add_setup(() => check3PaneState(true, true));
 registerCleanupFunction(() => {
   let tabmail = document.getElementById("tabmail");
   is(tabmail.tabInfo.length, 1);
@@ -54,55 +54,34 @@ registerCleanupFunction(() => {
   searchInput.blur();
 
   MailServices.accounts.accounts.forEach(cleanUpAccount);
-
-  // Put the 3-pane back how we found it.
-  document
-    .getElementById("folderpane_splitter")
-    .setAttribute("state", "collapsed");
-  if (window.IsMessagePaneCollapsed()) {
-    window.MsgToggleMessagePane();
-  }
-
-  check3PaneInInitialState();
+  check3PaneState(true, true);
 });
 
-function check3PaneInInitialState() {
-  check3PaneState(false, true);
-}
+async function check3PaneState(folderPaneOpen = null, messagePaneOpen = null) {
+  let tab = document.getElementById("tabmail").currentTabInfo;
+  if (tab.chromeBrowser.contentDocument.readyState != "complete") {
+    await BrowserTestUtils.waitForEvent(
+      tab.chromeBrowser.contentWindow,
+      "load"
+    );
+  }
 
-function check3PaneState(folderPaneOpen = null, messagePaneOpen = null) {
   if (folderPaneOpen !== null) {
     Assert.equal(
-      document.getElementById("folderpane_splitter").getAttribute("state") ==
-        "collapsed",
-      !folderPaneOpen,
+      tab.folderPaneVisible,
+      folderPaneOpen,
       "State of folder pane splitter is correct"
     );
-    Assert.equal(
-      document.getElementById("folderPaneBox").collapsed,
-      !folderPaneOpen,
-      "State of folder pane box is correct"
-    );
+    tab.folderPaneVisible = folderPaneOpen;
   }
 
   if (messagePaneOpen !== null) {
     Assert.equal(
-      document.getElementById("threadpane-splitter").getAttribute("state") ==
-        "collapsed",
-      !messagePaneOpen,
+      tab.messagePaneVisible,
+      messagePaneOpen,
       "State of message pane splitter is correct"
     );
-    if (!messagePaneOpen) {
-      Assert.ok(
-        document.getElementById("messagepaneboxwrapper").collapsed,
-        "State of message pane box is correct"
-      );
-    }
-    Assert.equal(
-      window.gMessageDisplay.visible,
-      messagePaneOpen,
-      "State of message display is correct"
-    );
+    tab.messagePaneVisible = messagePaneOpen;
   }
 }
 
@@ -342,9 +321,7 @@ async function openMessageInTab(msgHdr) {
 
   let win = Services.wm.getMostRecentWindow("mail:3pane");
   let tab = win.document.getElementById("tabmail").currentTabInfo;
-  let browser = tab.browser;
-
-  await promiseMessageLoaded(browser, msgHdr);
+  await BrowserTestUtils.waitForEvent(tab.chromeBrowser, "MsgLoaded");
   return tab;
 }
 
@@ -362,21 +339,16 @@ async function openMessageInWindow(msgHdr) {
   MailUtils.openMessageInNewWindow(msgHdr);
 
   let messageWindow = await messageWindowPromise;
-  let browser = messageWindow.document.getElementById("messagepane");
-
-  await promiseMessageLoaded(browser, msgHdr);
-  await TestUtils.waitForCondition(
-    () => Services.focus.activeWindow == messageWindow,
-    "waiting for message window to become active"
-  );
+  await BrowserTestUtils.waitForEvent(messageWindow, "MsgLoaded");
   return messageWindow;
 }
 
 async function promiseMessageLoaded(browser, msgHdr) {
   let messageURI = msgHdr.folder.getUriForMsg(msgHdr);
-  messageURI = window.messenger
-    .messageServiceFromURI(messageURI)
-    .getUrlForUri(messageURI, null);
+  messageURI = MailServices.messageServiceFromURI(messageURI).getUrlForUri(
+    messageURI,
+    null
+  );
 
   if (
     browser.webProgress?.isLoadingDocument ||
@@ -563,7 +535,7 @@ async function checkComposeHeaders(expected) {
 }
 
 async function openContextMenu(selector = "#img1", win = window) {
-  let contentAreaContextMenu = win.document.getElementById("mailContext");
+  let contentAreaContextMenu = win.document.getElementById("browserContext");
   let popupShownPromise = BrowserTestUtils.waitForEvent(
     contentAreaContextMenu,
     "popupshown"
@@ -584,7 +556,9 @@ async function openContextMenu(selector = "#img1", win = window) {
 }
 
 async function openContextMenuInPopup(extension, selector, win = window) {
-  let contentAreaContextMenu = win.document.getElementById("mailContext");
+  let contentAreaContextMenu = win.top.document.getElementById(
+    "browserContext"
+  );
   let stack = getBrowserActionPopup(extension, win);
   let browser = stack.querySelector("browser");
   // Ensure that the document layout has been flushed before triggering the mouse event
@@ -613,7 +587,9 @@ async function closeExtensionContextMenu(
   modifiers = {},
   win = window
 ) {
-  let contentAreaContextMenu = win.document.getElementById("mailContext");
+  let contentAreaContextMenu = win.top.document.getElementById(
+    "browserContext"
+  );
   let popupHiddenPromise = BrowserTestUtils.waitForEvent(
     contentAreaContextMenu,
     "popuphidden"
@@ -639,7 +615,7 @@ async function openSubmenu(submenuItem, win = window) {
 
 async function closeContextMenu(contextMenu) {
   let contentAreaContextMenu =
-    contextMenu || document.getElementById("mailContext");
+    contextMenu || document.getElementById("browserContext");
   let popupHiddenPromise = BrowserTestUtils.waitForEvent(
     contentAreaContextMenu,
     "popuphidden"
@@ -994,7 +970,7 @@ async function run_popup_test(configData) {
 
         ok(
           !Services.xulStore
-            .getValue(win.location.href, toolbarId, "currentset")
+            .getValue(win.top.location.href, toolbarId, "currentset")
             .split(",")
             .includes(buttonId),
           `Button should have been removed from currentset xulStore of toolbar ${toolbarId}`

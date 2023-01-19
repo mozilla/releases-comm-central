@@ -2,13 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../mail/base/content/folderPane.js */
+/* globals PROTO_TREE_VIEW */
 
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  FeedUtils: "resource:///modules/FeedUtils.jsm",
+  FolderUtils: "resource:///modules/FolderUtils.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
+});
 
 window.addEventListener("DOMContentLoaded", () => {
   gSelectVirtual.load();
 });
+
+var gFolderTreeView = new PROTO_TREE_VIEW();
 
 var gSelectVirtual = {
   _treeElement: null,
@@ -22,44 +35,20 @@ var gSelectVirtual = {
       }
     }
 
-    // Now tweak the folder tree for our purposes here.
-    let oldProps = FtvItem.prototype.getProperties;
-    FtvItem.prototype.getProperties = function(aColumn) {
-      if (!aColumn || aColumn.id != "selectedCol") {
-        return oldProps.call(this, aColumn);
+    for (let account of FolderUtils.allAccountsSorted(true)) {
+      let server = account.incomingServer;
+      if (
+        server instanceof Ci.nsIPop3IncomingServer &&
+        server.deferredToAccount
+      ) {
+        continue;
       }
 
-      let properties = "selectedColumn";
-      if (gSelectVirtual._selectedList.has(this._folder)) {
-        properties += " selected-true";
-      }
+      gFolderTreeView._rowMap.push(new FolderRow(server.rootFolder));
+    }
 
-      return properties;
-    };
-
-    let modeVirtual = {
-      __proto__: IFolderTreeMode,
-
-      generateMap(ftv) {
-        let accounts = gFolderTreeView._sortedAccounts();
-        // Force each root folder to do its local subfolder discovery.
-        MailUtils.discoverFolders();
-        let filterVirtual = function(aFolder) {
-          return !aFolder.getFlag(Ci.nsMsgFolderFlags.Virtual);
-        };
-        return accounts.map(
-          acct => new FtvItem(acct.incomingServer.rootFolder, filterVirtual)
-        );
-      },
-    };
     this._treeElement = document.getElementById("folderPickerTree");
-
-    gFolderTreeView.registerFolderTreeMode(
-      this._treeElement.getAttribute("mode"),
-      modeVirtual,
-      "Virtual Folders"
-    );
-    gFolderTreeView.load(this._treeElement);
+    this._treeElement.view = gFolderTreeView;
   },
 
   onKeyPress(aEvent) {
@@ -112,12 +101,10 @@ var gSelectVirtual = {
       this._selectedList.add(folder);
     }
 
-    gFolderTreeView.clearFolderCacheProperty(folder, "properties");
     gFolderTreeView._tree.invalidateRow(aRow);
   },
 
   onAccept() {
-    gFolderTreeView.unload();
     // XXX We should just pass the folder objects around...
     let uris = [...this._selectedList.values()]
       .map(folder => folder.URI)
@@ -127,11 +114,74 @@ var gSelectVirtual = {
       window.arguments[0].okCallback(uris);
     }
   },
-
-  onCancel() {
-    gFolderTreeView.unload();
-  },
 };
 
 document.addEventListener("dialogaccept", () => gSelectVirtual.onAccept());
-document.addEventListener("dialogcancel", () => gSelectVirtual.onCancel());
+
+/**
+ * A tree row representing a single folder.
+ */
+class FolderRow {
+  constructor(folder, parent = null) {
+    this._folder = folder;
+    this._open = false;
+    this._level = parent ? parent.level + 1 : 0;
+    this._parent = parent;
+    this._children = null;
+  }
+
+  get id() {
+    return this._folder.URI;
+  }
+
+  get text() {
+    return this.getText("folderNameCol");
+  }
+
+  getText(aColName) {
+    switch (aColName) {
+      case "folderNameCol":
+        return this._folder.abbreviatedName;
+      default:
+        return "";
+    }
+  }
+
+  get open() {
+    return this._open;
+  }
+
+  get level() {
+    return this._level;
+  }
+
+  getProperties(column) {
+    let properties = "";
+    switch (column?.id) {
+      case "folderNameCol":
+        // From folderUtils.jsm.
+        properties = FolderUtils.getFolderProperties(this._folder, this.open);
+        break;
+      case "selectedCol":
+        properties = "selectedColumn";
+        if (gSelectVirtual._selectedList.has(this._folder)) {
+          properties += " selected-true";
+        }
+        break;
+    }
+    return properties;
+  }
+
+  get children() {
+    if (this._children === null) {
+      this._children = [];
+      for (let subFolder of this._folder.subFolders) {
+        if (!subFolder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+          this._children.push(new FolderRow(subFolder, this));
+        }
+      }
+      this._children.sort((a, b) => a._folder.compareSortKeys(b._folder));
+    }
+    return this._children;
+  }
+}

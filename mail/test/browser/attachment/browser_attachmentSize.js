@@ -24,6 +24,7 @@ var {
   be_in_folder,
   create_folder,
   create_message,
+  get_about_message,
   mc,
   msgGen,
   select_click_row,
@@ -268,7 +269,8 @@ add_setup(async function() {
  * @param expectedSize the expected size of the attachment, in bytes
  */
 function check_attachment_size(index, expectedSize) {
-  let list = mc.e("attachmentList");
+  let win = get_about_message();
+  let list = win.document.getElementById("attachmentList");
   let node = list.querySelectorAll("richlistitem.attachmentItem")[index];
 
   // First, let's check that the attachment size is correct
@@ -293,7 +295,8 @@ function check_attachment_size(index, expectedSize) {
  * @param index the attachment's index, starting at 0
  */
 function check_no_attachment_size(index) {
-  let list = mc.e("attachmentList");
+  let win = get_about_message();
+  let list = win.document.getElementById("attachmentList");
   let node = list.querySelectorAll("richlistitem.attachmentItem")[index];
 
   Assert.equal(
@@ -319,9 +322,10 @@ function check_no_attachment_size(index) {
  * @param exact true if the size of all attachments is known, false otherwise
  */
 function check_total_attachment_size(count, expectedSize, exact) {
-  let list = mc.e("attachmentList");
+  let win = get_about_message();
+  let list = win.document.getElementById("attachmentList");
   let nodes = list.querySelectorAll("richlistitem.attachmentItem");
-  let sizeNode = mc.e("attachmentSize");
+  let sizeNode = win.document.getElementById("attachmentSize");
 
   Assert.equal(
     nodes.length,
@@ -379,14 +383,15 @@ function check_total_attachment_size(count, expectedSize, exact) {
  * @param index the index of the message to check in the thread pane
  */
 async function help_test_attachment_size(index) {
-  be_in_folder(folder);
+  await be_in_folder(folder);
   select_click_row(index);
   info(`Testing message ${index}: ${messages[index].name}`);
   let expectedSizes = messages[index].attachmentSizes;
 
-  mc.window.toggleAttachmentList(true);
+  let aboutMessage = get_about_message();
+  aboutMessage.toggleAttachmentList(true);
 
-  let attachmentList = mc.window.document.getElementById("attachmentList");
+  let attachmentList = aboutMessage.document.getElementById("attachmentList");
   await TestUtils.waitForCondition(
     () => !attachmentList.collapsed,
     "Attachment list is shown"

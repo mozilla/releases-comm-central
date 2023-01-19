@@ -5,11 +5,6 @@
 @import url("chrome://messenger/skin/colors.css");
 
 :root {
-  --listbox-color: var(--color-gray-80);
-  --listbox-selected-bg: var(--color-gray-20);
-  --listbox-focused-selected-bg: var(--color-blue-50);
-  --listbox-selected-color: var(--color-white);
-  --listbox-hover: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
   --listbox-selected-outline: none;
   --tree-header-table-height: 30px;
   --tree-header-cell-padding: 6px;
@@ -26,11 +21,27 @@
 }
 
 @media not (prefers-contrast) {
+  :root {
+    --listbox-color: var(--color-gray-80);
+    --listbox-selected-bg: var(--color-gray-20);
+    --listbox-focused-selected-bg: var(--color-blue-50);
+    --listbox-selected-color: var(--color-white);
+    --listbox-hover: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
+
+    --tree-view-header-bg: var(--color-gray-05);
+
+    --tree-row-delete-button-color: var(--color-red-60);
+  }
+
   @media (prefers-color-scheme: dark) {
     :root {
       --listbox-color: var(--color-gray-05);
       --listbox-selected-bg: var(--color-gray-70);
       --listbox-focused-selected-bg: var(--color-blue-60);
+
+      --tree-view-header-bg: var(--color-gray-80);
+
+      --tree-row-delete-button-color: var(--color-red-40);
     }
   }
 }
@@ -42,6 +53,8 @@
     --listbox-selected-color: SelectedItemText;
     --listbox-focused-selected-bg: SelectedItem;
     --listbox-selected-outline: 2px solid SelectedItem;
+
+    --tree-view-header-bg: transparent;
   }
 }
 
@@ -50,6 +63,12 @@
   align-items: start;
   overflow-y: scroll;
   height: 100%;
+}
+
+[is="tree-view-table"] img {
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 [is="tree-view-listbox"]:focus {
@@ -93,11 +112,7 @@ table[is="tree-view-table"] {
   flex: 1 0 100%;
   border-spacing: 0;
   line-height: 1;
-  font-size: 1.05rem;
-}
-
-table[is="tree-view-table"] td {
-  padding: 0;
+  font-size: 1rem;
 }
 
 body:not(.layout-table) thead[is="tree-view-table-header"] {
@@ -105,11 +120,11 @@ body:not(.layout-table) thead[is="tree-view-table-header"] {
 }
 
 thead[is="tree-view-table-header"] {
-  height: 30px;
+  height: var(--tree-header-table-height);
   position: sticky;
   inset-inline: 0;
   inset-block-start: 0;
-  background-color: var(--address-book-cards-list-bg);
+  background-color: var(--tree-view-header-bg);
   z-index: 1;
 }
 
@@ -135,7 +150,7 @@ thead[is="tree-view-table-header"] th:after {
 
 thead[is="tree-view-table-header"] hr[is="pane-splitter"] {
   position: absolute;
-  inset-inline-end: 5px;
+  inset-inline-end: 4px;
   inset-block: 3px;
 }
 
@@ -144,16 +159,92 @@ thead[is="tree-view-table-header"] hr[is="pane-splitter"]:hover:not(:active) {
 }
 
 th[is="tree-view-table-header-cell"] {
-  min-width: 5ch;
+  height: var(--tree-header-table-height);
+  min-width: 7ch;
   padding: 0;
   position: relative;
   overflow: hidden;
 }
 
+th[is="tree-view-table-header-cell"][data-type="icon"] {
+  width: 30px;
+  min-width: 30px;
+}
+
+th[is="tree-view-table-header-cell"][data-type="icon"] button {
+  text-align: center;
+}
+
+th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
+  border-inline-start-style: none !important;
+  border-inline-end-style: solid;
+}
+
+/* Select column */
+
+:is(.tree-view-header-select, .tree-view-row-select) img {
+  content: var(--icon-checkbox);
+  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+  fill: currentColor;
+  fill-opacity: 0;
+  stroke-opacity: 0;
+}
+
+.some-selected .tree-view-header-select img {
+  stroke-opacity: 1;
+}
+
+:is(.all-selected, .selected) :is(.tree-view-header-select, .tree-view-row-select) img {
+  fill-opacity: 1;
+}
+
+/* Delete column */
+
+.tree-table-cell-container button.tree-view-header-delete {
+  text-align: center;
+}
+
+.tree-view-row-delete button {
+  /* Don't center align this because it could be the last column, spanning for
+     2 columns to account for the picker, therefore a center alignment would be
+     wrong. */
+  margin-inline-start: 2px;
+  color: inherit;
+  opacity: 0.8;
+}
+
+.tree-view-row-delete button:hover {
+  opacity: 1;
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--tree-row-delete-button-color);
+}
+
+.tree-view-row-delete button:hover:active {
+  background-color: color-mix(in srgb, currentColor 20%, transparent);
+  border-color: transparent;
+  color: var(--tree-row-delete-button-color);
+}
+
+[is="tree-view-listbox"]:focus .selected .tree-view-row-delete button:hover {
+  background-color: var(--tree-row-delete-button-color);
+  color: currentColor;
+}
+
+.tree-view-header-delete img,
+.tree-view-row-delete img {
+  content: var(--icon-trash-sm);
+  pointer-events: none;
+}
+
 .tree-table-cell {
   position: absolute;
-  inset-block: 0;
-  inset-inline: 0 5px;
+  inset-block: 0 1px;
+  inset-inline: 0 1px;
+}
+
+th[data-resizable="false"] .tree-table-cell {
+  inset-inline: 0;
 }
 
 .tree-table-cell-container button {
@@ -164,6 +255,7 @@ th[is="tree-view-table-header-cell"] {
   white-space: nowrap;
   text-align: start;
   padding: var(--tree-header-cell-padding);
+  margin: 0;
   width: 100%;
   height: 100%;
   min-width: auto;
@@ -188,6 +280,7 @@ th[is="tree-view-table-header-cell"] {
 
 .tree-table-cell-container button.sorting {
   background-image: var(--icon-nav-up-sm);
+  padding-inline-end: 18px;
 }
 
 .tree-table-cell-container button.sorting.descending {
@@ -210,11 +303,13 @@ th[is="tree-view-table-column-picker"] {
   padding: 0;
 }
 
+.button-column-picker {
+  position: absolute;
+  inset: 0;
+}
+
 .button-column-picker img {
   content: var(--icon-column-menu);
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
 }
 
 /* Table body */
@@ -224,7 +319,9 @@ table[is="tree-view-table"] td {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding-inline: 6px;
+  padding: 0 6px;
+  position: relative;
+  user-select: none;
 }
 
 table[is="tree-view-table"] td div {

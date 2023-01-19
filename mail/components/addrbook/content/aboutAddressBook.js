@@ -1393,9 +1393,6 @@ class AbTableCardListrow extends customElements.get("tree-view-listrow") {
 
     for (let column of cardsPane.COLUMNS) {
       let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
-      // Always clear the colspan when updating the columns.
-      cell.removeAttribute("colspan");
-
       if (!column.hidden) {
         cell.textContent = this.view.getCellText(index, { id: column.id });
         continue;
@@ -1404,15 +1401,6 @@ class AbTableCardListrow extends customElements.get("tree-view-listrow") {
       cell.hidden = true;
     }
 
-    // Account for the column picker in the last visible column if the table
-    // if editable.
-    if (this.closest("table").editable) {
-      let last = cardsPane.COLUMNS.filter(c => !c.hidden).pop();
-      this.querySelector(`.${last.id.toLowerCase()}-column`)?.setAttribute(
-        "colspan",
-        "2"
-      );
-    }
     this.setAttribute("aria-label", this.firstElementChild.textContent);
   }
 }
@@ -1536,7 +1524,6 @@ var cardsPane = {
 
     let tree = document.getElementById("addressBookTree");
     this.table = tree.table;
-    this.table.selectable = true;
     this.table.editable = true;
     this.table.setListBoxID("cards");
     this.cardsList = this.table.listbox;

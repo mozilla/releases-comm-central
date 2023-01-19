@@ -17,7 +17,6 @@ interface nsICacheEntry;
 interface nsIMimeHeaders;
 interface nsIStreamListener;
 interface nsIMsgFolder;
-interface nsIMsgHeaderSink;
 interface nsIMsgDBHdr;
 interface nsIDocShell;
 interface nsITransportSecurityInfo;
@@ -133,10 +132,6 @@ interface nsIMsgMailNewsUrl : nsIURL {
   boolean IsUrlType(in unsigned long type);
   nsIStreamListener getSaveAsListener(in boolean addDummyEnvelope, in nsIFile aFile);
 
-  // typically the header sink is tied to the nsIMsgWindow, but in certain circumstances, a consumer
-  // may chose to provide its own header sink for this url
-  attribute nsIMsgHeaderSink msgHeaderSink;
-
   /// Returns true if the URI is for a message (e.g., imap-message://)
   readonly attribute boolean isMessageUri;
 
@@ -190,10 +185,10 @@ interface nsIMsgMessageUrl : nsISupports {
    *
    *  @note This attribute is not guaranteed to be set, so callers that
    *  actually require an nsIMsgDBHdr will need to use the uri attribute
-   *  on this interface to get the  appropriate nsIMsgMessageService and
+   *  on this interface to get the appropriate nsIMsgMessageService and
    *  then get the header from there.
    */
-  attribute nsIMsgDBHdr messageHeader;
+  readonly attribute nsIMsgDBHdr messageHeader;
 };
 
 //////////////////////////////////////////////////////////////////////////////////

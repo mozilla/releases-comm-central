@@ -77,12 +77,83 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
     }
   }
 
+  /**
+   * Overrides the super class to update every about:message in this window.
+   */
+  paint(window) {
+    window.addEventListener("aboutMessageLoaded", this);
+    for (let bc of window.browsingContext.getAllBrowsingContextsInSubtree()) {
+      if (bc.currentURI.spec == "about:message") {
+        super.paint(bc.window);
+      }
+    }
+  }
+
+  /**
+   * Overrides the super class to update every about:message in this window.
+   */
+  unpaint(window) {
+    window.removeEventListener("aboutMessageLoaded", this);
+    for (let bc of window.browsingContext.getAllBrowsingContextsInSubtree()) {
+      if (bc.currentURI.spec == "about:message") {
+        super.unpaint(bc.window);
+      }
+    }
+  }
+
+  /**
+   * Overrides the super class to update every about:message in this window.
+   */
+  async updateWindow(window) {
+    for (let bc of window.browsingContext.getAllBrowsingContextsInSubtree()) {
+      if (bc.currentURI.spec == "about:message") {
+        super.updateWindow(bc.window);
+      }
+    }
+  }
+
+  /**
+   * Overrides the super class where `target` is a tab, to update
+   * about:message instead of the window.
+   */
+  async updateOnChange(target) {
+    if (!target) {
+      await super.updateOnChange(target);
+      return;
+    }
+
+    let window = Cu.getGlobalForObject(target);
+    if (window == target) {
+      await super.updateOnChange(target);
+      return;
+    }
+
+    let tabmail = window.top.document.getElementById("tabmail");
+    if (!tabmail || target != tabmail.selectedTab) {
+      return;
+    }
+
+    switch (target.mode.name) {
+      case "mail3PaneTab":
+        await this.updateWindow(
+          target.chromeBrowser.contentWindow.messageBrowser.contentWindow
+        );
+        break;
+      case "mailMessageTab":
+        await this.updateWindow(target.chromeBrowser.contentWindow);
+        break;
+    }
+  }
+
   handleEvent(event) {
     super.handleEvent(event);
-    let { windowManager } = this.extension;
     let window = event.target.ownerGlobal;
 
     switch (event.type) {
+      case "aboutMessageLoaded":
+        // Add the toolbar button to any about:message that comes along.
+        super.paint(event.target);
+        break;
       case "popupshowing":
         const menu = event.target;
         const trigger = menu.triggerNode;
@@ -90,19 +161,32 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
         const contexts = ["header-toolbar-context-menu"];
 
         if (contexts.includes(menu.id) && node && node.contains(trigger)) {
-          // This needs to work in message tab and message window.
-          let tab = windowManager.wrapWindow(window).activeTab.nativeTab;
-          let browser = tab.linkedBrowser || tab.getBrowser();
-
           global.actionContextMenu({
-            tab,
-            pageUrl: browser.currentURI.spec,
+            tab: window.tabOrWindow,
+            pageUrl: window.content.currentURI.spec,
             extension: this.extension,
             onMessageDisplayAction: true,
             menu,
           });
         }
         break;
+    }
+  }
+
+  /**
+   * Overrides the super class to trigger the action in the current about:message.
+   */
+  async triggerAction(window) {
+    if (window.location.href == "about:message") {
+      await super.triggerAction(window);
+      return;
+    }
+
+    let tabmail = window.document.getElementById("tabmail");
+    if (tabmail?.currentAboutMessage) {
+      await super.triggerAction(tabmail.currentAboutMessage);
+    } else if (window.messageBrowser) {
+      await super.triggerAction(window.messageBrowser.contentWindow);
     }
   }
 

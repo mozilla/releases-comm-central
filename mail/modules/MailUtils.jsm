@@ -230,11 +230,12 @@ var MailUtils = {
         ) {
           return;
         }
+
         // Open all the tabs in the background, except for the last one
         for (let [i, msgHdr] of aMsgHdrs.entries()) {
-          aTabmail.openTab("message", {
-            msgHdr,
-            viewWrapperToClone: aViewWrapperToClone,
+          aTabmail.openTab("mailMessageTab", {
+            messageURI: msgHdr.folder.getUriForMsg(msgHdr),
+            viewWrapper: aViewWrapperToClone,
             background: i < aMsgHdrs.length - 1,
             disregardOpener: aMsgHdrs.length > 1,
           });

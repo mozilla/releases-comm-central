@@ -2,62 +2,68 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* :::: Filter Buttons :::: */
+#quick-filter-bar {
+  background-color: -moz-dialog;
+  padding: 3px;
+  border-bottom: 1px solid var(--chrome-content-separator-color);
+}
 
-#quick-filter-bar-main-bar toolbarbutton {
+#quick-filter-bar button[aria-pressed="true"] {
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  transition: all 150ms ease;
+}
+
+#quick-filter-bar button[aria-pressed] {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-width: unset;
+  min-height: unset;
+  margin: 3px;
+  padding: 3px 6px;
+  font-weight: unset;
+}
+
+#quick-filter-bar button[aria-pressed] > img {
+  padding: 0px;
+  width: 16px;
+  height: 16px;
+
   -moz-context-properties: fill, stroke, fill-opacity;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
 }
 
-/* TEMPORARY: styles for supernova icons */
-#quick-filter-bar-main-bar .toolbarbutton-icon {
-  padding: 0px;
-  width: 16px;
-  height: 16px;
-  margin-block-start: -1px;
+#qfb-sticky > img {
+  content: var(--icon-pin);
 }
 
-#quick-filter-bar-main-bar .toolbarbutton-text {
-  margin-inline-start: 3px;
+#qfb-unread > img {
+  content: var(--icon-unread);
 }
 
-#quick-filter-bar-main-bar .icon-only .toolbarbutton-text {
-  margin-inline-start: 0px;
+#qfb-starred > img {
+  content: var(--icon-star);
 }
 
-#qfb-sticky {
-  list-style-image: var(--icon-pin);
+#qfb-inaddrbook > img {
+  content: var(--icon-address-book);
 }
 
-#qfb-unread {
-  list-style-image: var(--icon-unread);
+#qfb-tags > img {
+  content: var(--icon-tag);
 }
 
-#qfb-starred {
-  list-style-image: var(--icon-star);
-}
-
-#qfb-inaddrbook {
-  list-style-image: var(--icon-address-book);
-}
-
-#qfb-tags {
-  list-style-image: var(--icon-tag);
-}
-
-#qfb-attachment {
-  list-style-image: var(--icon-attachment);
-}
-
-#quick-filter-bar[disabled="true"] {
-  visibility: collapse;
+#qfb-attachment > img {
+  content: var(--icon-attachment);
 }
 
 #qfb-results-label {
+  flex: 1;
+  margin: 3px;
   color: GrayText;
   text-align: end;
-  visibility: hidden;
 }
 
 #quick-filter-bar[filterActive="matches"] #qfb-results-label {
@@ -69,15 +75,36 @@
 }
 
 #qfb-qs-textbox {
-  -moz-box-flex: 3;
+  flex: 1;
+  min-height: unset;
+  margin: 3px;
+  padding-block: 3px;
 }
 
-#quick-filter-bar-tab-bar {
-  -moz-box-flex: 2;
+@media (-moz-platform: windows-win7) {
+  #qfb-qs-textbox {
+    margin-block: 4px;
+  }
 }
 
-#qfb-filter-bar-spacer {
-  min-width: 4px !important;
+@media (-moz-platform: windows-win8),
+       (-moz-platform: windows-win10) {
+  #qfb-qs-textbox {
+    margin-block: 5px;
+  }
+}
+
+#quick-filter-bar-tab-bar:not([hidden]) {
+  flex: 2;
+  display: flex;
+  align-items: center;
+}
+
+#qfb-boolean-mode {
+  line-height: unset;
+  min-height: 0;
+  margin: 3px;
+  padding-block: 3px;
 }
 
 .qfb-tag-button[inverted] {
@@ -85,23 +112,32 @@
 }
 
 #quick-filter-bar-main-bar {
+  display: flex;
+  align-items: center;
   overflow: hidden;
 }
 
 #quick-filter-bar-expando {
-  border-bottom: 1px solid var(--chrome-content-separator-color);
+  display: flex;
+  align-items: center;
 }
 
-#quick-filter-bar-collapsible-buttons[shrink="true"] toolbarbutton label.toolbarbutton-text {
-  display: none;
+@container threadPane (max-width: 999px) {
+  .collapsible-button span {
+    display: none;
+  }
 }
 
-.qfb-tag-button > .toolbarbutton-icon,
-#quick-filter-bar-filter-text-bar > toolbarbutton > .toolbarbutton-icon {
-  display: none;
+#quick-filter-bar-filter-text-bar:not([hidden]) {
+  display: flex;
+  align-items: center;
 }
 
-#threadTree[filterActive] {
+#qfb-upsell-line-one {
+  font-weight: bold;
+}
+
+/*#threadTree[filterActive] {
   background-repeat: no-repeat;
   background-position: center;
   -moz-context-properties: fill, fill-opacity;
@@ -115,4 +151,4 @@
 
 #threadTree[filterActive="searching"] {
   background-image: url("chrome://messenger/skin/icons/search-spinner.svg");
-}
+}*/

@@ -111,10 +111,7 @@ add_task(async function StreamMessageInbox() {
   // Stream message1 from inbox.
   let newMsgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
   let msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
-  let msgServ = messenger.messageServiceFromURI(msgURI);
+  let msgServ = MailServices.messageServiceFromURI(msgURI);
   let streamLister = new PromiseTestUtils.PromiseStreamListener();
   msgServ.streamMessage(msgURI, streamLister, null, null, false, "", false);
   gImapInboxOfflineStoreSizeInitial = IMAPPump.inbox.filePath.fileSize; // Initial Size of Inbox.
@@ -186,10 +183,7 @@ add_task(async function StreamMessageFoo() {
   // Stream message2 from fooFolder.
   let newMsgHdr = fooFolder.msgDatabase.getMsgHdrForMessageID(gMsgId2);
   let msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
-  let msgServ = messenger.messageServiceFromURI(msgURI);
+  let msgServ = MailServices.messageServiceFromURI(msgURI);
   let streamListener = new PromiseTestUtils.PromiseStreamListener();
   msgServ.streamMessage(msgURI, streamListener, null, null, false, "", false);
   gFooOfflineStoreSizeInitial = fooFolder.filePath.fileSize;
@@ -207,10 +201,7 @@ add_task(async function crossStreaming() {
   let msg2 = fooFolder.msgDatabase.getMsgHdrForMessageID(gMsgId1);
   Assert.ok(msg2 !== null);
   let msgURI = fooFolder.getUriForMsg(msg2);
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
-  let msgServ = messenger.messageServiceFromURI(msgURI);
+  let msgServ = MailServices.messageServiceFromURI(msgURI);
   // pass true for aLocalOnly since message should be in offline store of Inbox.
   let streamListener = new PromiseTestUtils.PromiseStreamListener();
   msgServ.streamMessage(msgURI, streamListener, null, null, false, "", true);

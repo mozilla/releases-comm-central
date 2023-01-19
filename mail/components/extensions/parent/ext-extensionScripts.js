@@ -21,25 +21,37 @@ ExtensionSupport.registerWindowListener("ext-composeScripts", {
   chromeURLs: [
     "chrome://messenger/content/messengercompose/messengercompose.xhtml",
   ],
-  onLoadWindow: async window => {
+  onLoadWindow: async win => {
     await new Promise(resolve =>
-      window.addEventListener("compose-editor-ready", resolve, { once: true })
+      win.addEventListener("compose-editor-ready", resolve, { once: true })
     );
     for (let script of scripts) {
-      script.executeInWindow(window, "compose");
+      if (script.type == "compose") {
+        script.executeInWindow(
+          win,
+          script.extension.tabManager.getWrapper(win)
+        );
+      }
     }
   },
 });
 
 ExtensionSupport.registerWindowListener("ext-messageDisplayScripts", {
   chromeURLs: [
-    "chrome://messenger/content/messenger.xhtml",
     "chrome://messenger/content/messageWindow.xhtml",
+    "chrome://messenger/content/messenger.xhtml",
   ],
-  onLoadWindow(window) {
-    window.addEventListener("MsgLoaded", () => {
+  onLoadWindow(win) {
+    win.addEventListener("MsgLoaded", event => {
+      // `event.target` is an about:message window.
+      let nativeTab = event.target.tabOrWindow;
       for (let script of scripts) {
-        script.executeInWindow(window, "messageDisplay");
+        if (script.type == "messageDisplay") {
+          script.executeInWindow(
+            win,
+            script.extension.tabManager.wrapTab(nativeTab)
+          );
+        }
       }
     });
   },
@@ -114,29 +126,12 @@ class ExtensionScriptParent {
     return options;
   }
 
-  async executeInWindow(window, type) {
-    if (this.type != type) {
-      return;
-    }
-
-    let { activeTab } = this.extension.windowManager.wrapWindow(window);
-    let activeURL = activeTab.browser?.currentURI;
-
-    if (type == "compose" && activeURL.spec != "about:blank?compose") {
-      return;
-    }
-    if (
-      type == "messageDisplay" &&
-      !MESSAGE_PROTOCOLS.includes(activeURL.scheme)
-    ) {
-      return;
-    }
-
+  async executeInWindow(window, tab) {
     for (let css of this.options.css) {
-      await activeTab.insertCSS(this.context, { ...css, frameId: null });
+      await tab.insertCSS(this.context, { ...css, frameId: null });
     }
     for (let js of this.options.js) {
-      await activeTab.executeScript(this.context, { ...js, frameId: null });
+      await tab.executeScript(this.context, { ...js, frameId: null });
     }
     window.dispatchEvent(new window.CustomEvent("extension-scripts-added"));
   }

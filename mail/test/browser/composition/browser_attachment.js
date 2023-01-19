@@ -314,8 +314,8 @@ add_task(function test_open_attachment() {
   close_compose_window(cwc);
 });
 
-add_task(function test_forward_raw_attachment() {
-  be_in_folder(folder);
+add_task(async function test_forward_raw_attachment() {
+  await be_in_folder(folder);
   select_click_row(1);
 
   let cwc = open_compose_with_forward();
@@ -325,8 +325,8 @@ add_task(function test_forward_raw_attachment() {
   close_compose_window(cwc);
 });
 
-add_task(function test_forward_b64_attachment() {
-  be_in_folder(folder);
+add_task(async function test_forward_b64_attachment() {
+  await be_in_folder(folder);
   select_click_row(2);
 
   let cwc = open_compose_with_forward();
@@ -336,8 +336,8 @@ add_task(function test_forward_b64_attachment() {
   close_compose_window(cwc);
 });
 
-add_task(function test_forward_message_as_attachment() {
-  be_in_folder(folder);
+add_task(async function test_forward_message_as_attachment() {
+  await be_in_folder(folder);
   let curMessage = select_click_row(0);
 
   let cwc = open_compose_with_forward_as_attachments();
@@ -347,8 +347,8 @@ add_task(function test_forward_message_as_attachment() {
   close_compose_window(cwc);
 });
 
-add_task(function test_forward_message_with_attachments_as_attachment() {
-  be_in_folder(folder);
+add_task(async function test_forward_message_with_attachments_as_attachment() {
+  await be_in_folder(folder);
   let curMessage = select_click_row(1);
 
   let cwc = open_compose_with_forward_as_attachments();

@@ -6,9 +6,7 @@
 /*  This file contains the js functions necessary to implement view navigation within the 3 pane. */
 
 /* import-globals-from commandglue.js */
-/* import-globals-from folderDisplay.js */
 /* import-globals-from mailWindow.js */
-/* import-globals-from messageDisplay.js */
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -185,13 +183,8 @@ function CrossFolderNavigation(type) {
           return;
         }
       }
-      if (gFolderDisplay) {
-        gFolderDisplay.pushNavigation(type, true);
-        SelectFolder(folder.URI);
-      } else {
-        // about:3pane
-        window.displayFolder(folder.URI);
-      }
+      // about:3pane
+      window.displayFolder(folder.URI);
     }
   } else {
     // if no message is loaded, relPos should be 0, to
@@ -199,7 +192,7 @@ function CrossFolderNavigation(type) {
     var relPos = 0;
     if (type == Ci.nsMsgNavigationType.forward) {
       relPos = 1;
-    } else if (gMessageDisplay.displayedMessage) {
+    } else {
       relPos = -1;
     }
     var folderUri = messenger.getFolderUriAtNavigatePos(relPos);
@@ -213,12 +206,4 @@ function CrossFolderNavigation(type) {
       window.displayFolder(folderUri);
     }
   }
-}
-
-function GoNextMessage(type, startFromBeginning) {
-  if (!gFolderDisplay.navigate(type)) {
-    CrossFolderNavigation(type);
-  }
-
-  SetFocusThreadPaneIfNotOnMessagePane();
 }

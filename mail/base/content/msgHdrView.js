@@ -7,12 +7,20 @@
  * message pane.
  */
 
+/* import-globals-from ../../../../toolkit/content/contentAreaUtils.js */
+/* import-globals-from ../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../calendar/base/content/imip-bar.js */
+/* import-globals-from ../../../mailnews/extensions/newsblog/newsblogOverlay.js */
+/* import-globals-from ../../extensions/openpgp/content/ui/enigmailMsgHdrViewOverlay.js */
+/* import-globals-from ../../extensions/smime/content/msgHdrViewSMIMEOverlay.js */
+/* import-globals-from aboutMessage.js */
 /* import-globals-from editContactPanel.js */
-/* import-globals-from folderDisplay.js */
+/* import-globals-from mailContext.js */
+/* import-globals-from mail-offline.js */
 /* import-globals-from mailCore.js */
-/* import-globals-from mailWindow.js */
-/* import-globals-from messageDisplay.js */
-/* global Enigmail, showMessageReadSecurityInfo, onMessageSecurityPopupShown, onMessageSecurityPopupHidden */
+/* import-globals-from msgSecurityPane.js */
+
+/* globals MozElements */
 
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
@@ -22,8 +30,14 @@ var { MailServices } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  Downloads: "resource://gre/modules/Downloads.jsm",
+  FileUtils: "resource://gre/modules/FileUtils.jsm",
+  Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
   GlodaUtils: "resource:///modules/gloda/GlodaUtils.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
+  MessageArchiver: "resource:///modules/MessageArchiver.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
+  PluralForm: "resource://gre/modules/PluralForm.jsm",
 });
 
 XPCOMUtils.defineLazyServiceGetter(
@@ -43,6 +57,12 @@ XPCOMUtils.defineLazyServiceGetter(
   "gHandlerService",
   "@mozilla.org/uriloader/handler-service;1",
   "nsIHandlerService"
+);
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "gEncryptedSMIMEURIsService",
+  "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1",
+  Ci.nsIEncryptedSMIMEURIsService
 );
 
 // Warning: It's critical that the code in here for displaying the message
@@ -147,6 +167,11 @@ var currentHeaderData = {};
 var currentAttachments = [];
 
 /**
+ * The character set of the message, according to the MIME parser.
+ */
+var currentCharacterSet = "";
+
+/**
  * Folder database listener object. This is used alongside the
  * nsIDBChangeListener implementation in order to listen for the changes of the
  * messages' flags that don't trigger a messageHeaderSink.processHeaders().
@@ -154,6 +179,18 @@ var currentAttachments = [];
  * extended to handle other flags changes and remove the full header reload.
  */
 var gFolderDBListener = null;
+
+// Timer to mark read, if the user has configured the app to mark a message as
+// read if it is viewed for more than n seconds.
+var gMarkViewedMessageAsReadTimer = null;
+
+// Per message header flags to keep track of whether the user is allowing remote
+// content for a particular message.
+// if you change or add more values to these constants, be sure to modify
+// the corresponding definitions in nsMsgContentPolicy.cpp
+var kNoRemoteContentPolicy = 0;
+var kBlockRemoteContent = 1;
+var kAllowRemoteContent = 2;
 
 class FolderDBListener {
   constructor(folder) {
@@ -177,7 +214,7 @@ class FolderDBListener {
   /** @implements {nsIDBChangeListener} */
   onHdrFlagsChanged(hdrChanged, oldFlags, newFlags, instigator) {
     // Bail out if the changed message isn't the one currently displayed.
-    if (hdrChanged != gFolderDisplay.selectedMessage) {
+    if (hdrChanged != gMessage) {
       return;
     }
 
@@ -231,13 +268,12 @@ class FolderDBListener {
  * listen for any flags change happening in the currently displayed messages.
  */
 function initFolderDBListener() {
-  let messageFolder = gMessageDisplay.displayedMessage?.folder;
   // Bail out if we don't have a selected message, or we already have a
   // DBListener initialized and the folder didn't change.
   if (
-    !messageFolder ||
+    !gFolder ||
     (gFolderDBListener?.isRegistered &&
-      gFolderDBListener.selectedFolder == messageFolder)
+      gFolderDBListener.selectedFolder == gFolder)
   ) {
     return;
   }
@@ -246,7 +282,7 @@ function initFolderDBListener() {
   // any remaining of the old DBListener.
   clearFolderDBListener();
 
-  gFolderDBListener = new FolderDBListener(messageFolder);
+  gFolderDBListener = new FolderDBListener(gFolder);
   gFolderDBListener.register();
 }
 
@@ -375,7 +411,7 @@ async function OnLoadMsgHeaderPane() {
     "mailnews.headers.showReferences"
   );
 
-  // listen to the
+  Services.obs.addObserver(MsgHdrViewObserver, "remote-content-blocked");
   Services.prefs.addObserver("mail.showCondensedAddresses", MsgHdrViewObserver);
   Services.prefs.addObserver(
     "mailnews.headers.showReferences",
@@ -423,6 +459,11 @@ async function OnLoadMsgHeaderPane() {
 
   top.controllers.appendController(AttachmentMenuController);
 
+  content.addProgressListener(
+    messageHeaderSink2,
+    Ci.nsIWebProgress.NOTIFY_STATE_ALL
+  );
+
   gHeaderCustomize.init();
 }
 
@@ -433,6 +474,7 @@ function OnUnloadMsgHeaderPane() {
     return;
   }
 
+  Services.obs.removeObserver(MsgHdrViewObserver, "remote-content-blocked");
   Services.prefs.removeObserver(
     "mail.showCondensedAddresses",
     MsgHdrViewObserver
@@ -452,35 +494,92 @@ function OnUnloadMsgHeaderPane() {
 }
 
 var MsgHdrViewObserver = {
-  observe(subject, topic, prefName) {
+  observe(subject, topic, data) {
     // verify that we're changing the mail pane config pref
     if (topic == "nsPref:changed") {
-      if (prefName == "mail.showCondensedAddresses") {
+      if (data == "mail.showCondensedAddresses") {
         gShowCondensedEmailAddresses = Services.prefs.getBoolPref(
           "mail.showCondensedAddresses"
         );
         ReloadMessage();
-      } else if (prefName == "mailnews.headers.showReferences") {
+      } else if (data == "mailnews.headers.showReferences") {
         gHeadersShowReferences = Services.prefs.getBoolPref(
           "mailnews.headers.showReferences"
         );
         ReloadMessage();
       }
+    } else if (
+      topic == "remote-content-blocked" &&
+      content.browsingContext.id == data
+    ) {
+      gMessageNotificationBar.setRemoteContentMsg(
+        null,
+        subject,
+        !gEncryptedSMIMEURIsService.isEncrypted(content.currentURI.spec)
+      );
     }
   },
 };
 
 /**
- * The messageHeaderSink is the class that gets notified of a message's headers
+ * The messageHeaderSink2 is the class that gets notified of a message's headers
  * as we display the message through our mime converter.
  */
-var messageHeaderSink = {
-  QueryInterface: ChromeUtils.generateQI(["nsIMsgHeaderSink"]),
+var messageHeaderSink2 = {
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIWebProgressListener",
+    "nsISupportsWeakReference",
+  ]),
+
+  onStateChange(webProgress, request, stateFlags) {
+    if (request instanceof Ci.nsIMailChannel) {
+      request.QueryInterface(Ci.nsIMailChannel);
+      if (stateFlags & Ci.nsIWebProgressListener.STATE_START) {
+        request.smimeHeaderSink = smimeHeaderSink;
+        this.onStartHeaders();
+      } else if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+        currentCharacterSet = request.mailCharacterSet;
+        request.QueryInterface(Ci.nsIChannel);
+        request.smimeHeaderSink = null;
+        this.processHeaders(request.headerNames, request.headerValues);
+        if (request.imipItem) {
+          calImipBar.showImipBar(request.imipItem, request.imipMethod);
+        }
+        for (let attachment of request.attachments) {
+          this.handleAttachment(
+            attachment.getProperty("contentType"),
+            attachment.getProperty("url"),
+            attachment.getProperty("displayName"),
+            attachment.getProperty("uri"),
+            attachment.getProperty("notDownloaded")
+          );
+          for (let key of [
+            "X-Mozilla-PartURL",
+            "X-Mozilla-PartSize",
+            "X-Mozilla-PartDownloaded",
+            "Content-Description",
+            "Content-Type",
+            "Content-Encoding",
+          ]) {
+            if (attachment.hasKey(key)) {
+              this.addAttachmentField(key, attachment.getProperty(key));
+            }
+          }
+        }
+        this.onEndAllAttachments();
+        let uri = request.URI.QueryInterface(Ci.nsIMsgMailNewsUrl);
+        this.onEndMsgHeaders(uri);
+        this.onEndMsgDownload(uri);
+      }
+    }
+  },
+
   onStartHeaders() {
     // Every time we start to redisplay a message, check the view all headers
     // pref...
     let showAllHeadersPref = Services.prefs.getIntPref("mail.show_headers");
     if (showAllHeadersPref == 2) {
+      // eslint-disable-next-line no-global-assign
       gViewAllHeaders = true;
     } else {
       if (gViewAllHeaders) {
@@ -489,13 +588,16 @@ var messageHeaderSink = {
         hideHeaderView(gExpandedHeaderView);
         RemoveNewHeaderViews(gExpandedHeaderView);
         gDummyHeaderIdIndex = 0;
+        // eslint-disable-next-line no-global-assign
         gExpandedHeaderView = {};
         initializeHeaderViewTables();
       }
 
+      // eslint-disable-next-line no-global-assign
       gViewAllHeaders = false;
     }
 
+    document.title = "";
     ClearCurrentHeaders();
     gBuiltExpandedView = false;
     gBuildAttachmentsForCurrentMsg = false;
@@ -519,13 +621,8 @@ var messageHeaderSink = {
     // Load feed web page if so configured. This entry point works for
     // messagepane loads in 3pane folder tab, 3pane message tab, and the
     // standalone message window.
-    if (
-      !FeedMessageHandler.shouldShowSummary(
-        gMessageDisplay.displayedMessage,
-        false
-      )
-    ) {
-      FeedMessageHandler.setContent(gMessageDisplay.displayedMessage, false);
+    if (!FeedMessageHandler.shouldShowSummary(gMessage, false)) {
+      FeedMessageHandler.setContent(gMessage, false);
     }
 
     ShowMessageHeaderPane();
@@ -550,19 +647,14 @@ var messageHeaderSink = {
     }
   },
 
-  processHeaders(
-    headerNameEnumerator,
-    headerValueEnumerator,
-    dontCollectAddress
-  ) {
-    this.onStartHeaders();
-
+  processHeaders(headerNames, headerValues) {
     const kMailboxSeparator = ", ";
     var index = 0;
-    while (headerNameEnumerator.hasMore()) {
-      var header = {};
-      header.headerValue = headerValueEnumerator.getNext();
-      header.headerName = headerNameEnumerator.getNext();
+    for (let i = 0; i < headerNames.length; i++) {
+      let header = {
+        headerName: headerNames[i],
+        headerValue: headerValues[i],
+      };
 
       // For consistency's sake, let us force all header names to be lower
       // case so we don't have to worry about looking for: Cc and CC, etc.
@@ -577,41 +669,8 @@ var messageHeaderSink = {
       // See RFC 5322 section 3.6 for min-max number for given header.
       // If multiple headers exist we need to make sure to use the first one.
 
-      if (this.mDummyMsgHeader) {
-        if (lowerCaseHeaderName == "from" && !this.mDummyMsgHeader.author) {
-          this.mDummyMsgHeader.author = header.headerValue;
-        } else if (lowerCaseHeaderName == "to") {
-          this.mDummyMsgHeader.recipients = header.headerValue;
-        } else if (lowerCaseHeaderName == "cc") {
-          this.mDummyMsgHeader.ccList = header.headerValue;
-        } else if (
-          lowerCaseHeaderName == "subject" &&
-          !this.mDummyMsgHeader.subject
-        ) {
-          this.mDummyMsgHeader.subject = header.headerValue;
-        } else if (
-          lowerCaseHeaderName == "reply-to" &&
-          !this.mDummyMsgHeader.replyTo
-        ) {
-          this.mDummyMsgHeader.replyTo = header.headerValue;
-        } else if (
-          lowerCaseHeaderName == "message-id" &&
-          !this.mDummyMsgHeader.messageId
-        ) {
-          this.mDummyMsgHeader.messageId = header.headerValue.replace(
-            /^<(.*)>$/,
-            "$1"
-          );
-        } else if (lowerCaseHeaderName == "list-post") {
-          this.mDummyMsgHeader.listPost = header.headerValue;
-        } else if (lowerCaseHeaderName == "delivered-to") {
-          this.mDummyMsgHeader.deliveredTo = header.headerValue;
-        } else if (
-          lowerCaseHeaderName == "date" &&
-          !this.mDummyMsgHeader.date
-        ) {
-          this.mDummyMsgHeader.date = Date.parse(header.headerValue) * 1000;
-        }
+      if (lowerCaseHeaderName == "subject" && !document.title) {
+        document.title = header.headerValue;
       }
       // according to RFC 2822, certain headers
       // can occur "unlimited" times
@@ -687,7 +746,7 @@ var messageHeaderSink = {
     }
 
     let expandedfromLabel = document.getElementById("expandedfromLabel");
-    if (gFolderDisplay.selectedMessageIsFeed) {
+    if (FeedUtils.isFeedMessage(gMessage)) {
       expandedfromLabel.value = expandedfromLabel.getAttribute("valueAuthor");
     } else {
       expandedfromLabel.value = expandedfromLabel.getAttribute("valueFrom");
@@ -782,47 +841,11 @@ var messageHeaderSink = {
    * corresponds to the end of the streaming process.
    */
   onEndMsgDownload(url) {
-    gMessageDisplay.onLoadCompleted();
-
-    // The mDummyMsgHeader member exists only for messages not part of the message
-    // database.
-    let msgHdr = this.mDummyMsgHeader;
-    if (!msgHdr) {
-      let messageUrl = url.QueryInterface(Ci.nsIMsgMessageUrl);
-      msgHdr = messenger.msgHdrFromURI(messageUrl.uri);
-    }
-
-    // If we have no attachments, we hide the attachment icon in the message
-    // tree.
-    // PGP key attachments do not count as attachments for the purposes of the
-    // message tree, even though we still show them in the attachment list.
-    // Otherwise the attachment icon becomes less useful when someone receives
-    // lots of signed messages.
-    // We do the same if we only have text/vcard attachments because we
-    // *assume* the vcard attachment is a personal vcard (rather than an
-    // addressbook, or a shared contact) that is attached to every message.
-    // NOTE: There would be some obvious give-aways in the vcard content that
-    // this personal vcard assumption is incorrect (multiple contacts, or a
-    // contact with an address that is different from the sender address) but we
-    // do not have easy access to the attachment content here, so we just stick
-    // to the assumption.
-    // NOTE: If the message contains two vcard attachments (or more) then this
-    // would hint that one of the vcards is not personal, but we won't make an
-    // exception here to keep the implementation simple.
-    msgHdr.markHasAttachments(
-      currentAttachments.some(
-        att =>
-          att.contentType != "text/vcard" &&
-          att.contentType != "text/x-vcard" &&
-          att.contentType != "application/pgp-keys"
-      )
-    );
-
     let browser = getMessagePaneBrowser();
     if (
       currentAttachments.length &&
       Services.prefs.getBoolPref("mail.inline_attachments") &&
-      gFolderDisplay.selectedMessageIsFeed &&
+      FeedUtils.isFeedMessage(gMessage) &&
       browser &&
       browser.contentDocument &&
       browser.contentDocument.body
@@ -857,55 +880,13 @@ var messageHeaderSink = {
       OnMsgLoaded(url);
     }
   },
-
-  onMsgHasRemoteContent(aMsgHdr, aContentURI, aCanOverride) {
-    gMessageNotificationBar.setRemoteContentMsg(
-      aMsgHdr,
-      aContentURI,
-      aCanOverride
-    );
-  },
-
-  mSecurityInfo: null,
-  get securityInfo() {
-    return this.mSecurityInfo;
-  },
-  set securityInfo(aSecurityInfo) {
-    this.mSecurityInfo = aSecurityInfo;
-  },
-
-  mDummyMsgHeader: null,
-
-  get dummyMsgHeader() {
-    // There is only one messageHeaderSink per window. Since local messages (with
-    // a dummyMsgHeader) can only be loaded into stand alone message windows and
-    // not into tabs, it is safe to use a single mDummyMsgHeader member.
-    if (!this.mDummyMsgHeader) {
-      this.mDummyMsgHeader = new nsDummyMsgHeader();
-    }
-    return this.mDummyMsgHeader;
-  },
-  mProperties: null,
-  get properties() {
-    if (!this.mProperties) {
-      this.mProperties = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
-        Ci.nsIWritablePropertyBag2
-      );
-    }
-    return this.mProperties;
-  },
-
-  resetProperties() {
-    this.mProperties = null;
-  },
 };
 
 /**
  * Update the flagged (starred) state of the currently selected message.
  */
 function updateStarButton() {
-  let msgHdr = gFolderDisplay.selectedMessage;
-  if (!msgHdr || gMessageDisplay.isDummy) {
+  if (!gMessage || !gFolder) {
     // No msgHdr to update, or we're dealing with an .eml.
     document.getElementById("starMessageButton").hidden = true;
     return;
@@ -914,7 +895,7 @@ function updateStarButton() {
   let flagButton = document.getElementById("starMessageButton");
   flagButton.hidden = false;
 
-  let isFlagged = msgHdr.isFlagged;
+  let isFlagged = gMessage.isFlagged;
   flagButton.classList.toggle("flagged", isFlagged);
   flagButton.setAttribute("aria-checked", isFlagged);
 }
@@ -1222,7 +1203,7 @@ function UpdateExpandedMessageHeaders() {
         !(
           gViewAllHeaders ||
           gHeadersShowReferences ||
-          gFolderDisplay.view.isNewsFolder
+          gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)
         )
       ) {
         // Hide references header if view all headers mode isn't selected, the
@@ -1277,9 +1258,12 @@ function UpdateExpandedMessageHeaders() {
 }
 
 function ClearCurrentHeaders() {
+  gSecureMsgProbe = {};
+  // eslint-disable-next-line no-global-assign
   currentHeaderData = {};
   // eslint-disable-next-line no-global-assign
   currentAttachments = [];
+  currentCharacterSet = "";
 }
 
 function ShowMessageHeaderPane() {
@@ -1414,7 +1398,7 @@ function outputEmailAddresses(headerEntry, emailAddresses) {
  *                                         attachment.
  */
 function AttachmentInfo(contentType, url, name, uri, isExternalAttachment) {
-  this.message = gFolderDisplay.selectedMessage;
+  this.message = gMessage;
   this.contentType = contentType;
   this.name = name;
   this.url = url;
@@ -1448,7 +1432,7 @@ AttachmentInfo.prototype = {
    * Save this attachment to a file.
    */
   async save() {
-    if (!this.hasFile || this.message != gFolderDisplay.selectedMessage) {
+    if (!this.hasFile || this.message != gMessage) {
       return;
     }
 
@@ -1457,7 +1441,7 @@ AttachmentInfo.prototype = {
       return;
     }
 
-    messenger.saveAttachment(
+    top.messenger.saveAttachment(
       this.contentType,
       this.url,
       encodeURIComponent(this.name),
@@ -1470,7 +1454,7 @@ AttachmentInfo.prototype = {
    * Open this attachment.
    */
   async open() {
-    if (!this.hasFile || this.message != gFolderDisplay.selectedMessage) {
+    if (!this.hasFile || this.message != gMessage) {
       return;
     }
 
@@ -1482,7 +1466,7 @@ AttachmentInfo.prototype = {
           ? "externalAttachmentNotFound"
           : "emptyAttachment"
       );
-      msgWindow.promptDialog.alert(null, prompt);
+      top.msgWindow.promptDialog.alert(null, prompt);
     } else {
       // @see MsgComposeCommands.js which has simililar opening functionality
       let dotPos = this.name.lastIndexOf(".");
@@ -1528,7 +1512,7 @@ AttachmentInfo.prototype = {
       // Just use the old method for handling messages, it works.
 
       if (this.contentType == "message/rfc822") {
-        messenger.openAttachment(
+        top.messenger.openAttachment(
           this.contentType,
           this.url,
           encodeURIComponent(this.name),
@@ -1646,7 +1630,7 @@ AttachmentInfo.prototype = {
               filePicker.defaultString = this.name;
               filePicker.defaultExtension = extension;
               filePicker.init(
-                window,
+                window.browsingContext.topChromeWindow,
                 bundleMessenger.getString("SaveAttachment"),
                 Ci.nsIFilePicker.modeSave
               );
@@ -1685,7 +1669,7 @@ AttachmentInfo.prototype = {
           promptForSaveDestination() {
             appLauncherDialog.promptForSaveToFileAsync(
               this,
-              window,
+              window.browsingContext.topChromeWindow,
               this.suggestedFileName,
               "." + extension, // Dot stripped by promptForSaveToFileAsync.
               false
@@ -1709,7 +1693,7 @@ AttachmentInfo.prototype = {
           contentLength: this.size,
           browsingContextId: getMessagePaneBrowser().browsingContext.id,
         },
-        window,
+        window.browsingContext.topChromeWindow,
         null
       );
     }
@@ -1732,7 +1716,7 @@ AttachmentInfo.prototype = {
    *                               before detaching, false otherwise.
    */
   detach(aSaveFirst) {
-    messenger.detachAttachment(
+    top.messenger.detachAttachment(
       this.contentType,
       this.url,
       encodeURIComponent(this.name),
@@ -1930,9 +1914,10 @@ AttachmentInfo.prototype = {
  */
 function CanDetachAttachments() {
   var canDetach =
-    !gFolderDisplay.selectedMessageIsNews &&
-    (!gFolderDisplay.selectedMessageIsImap || MailOfflineMgr.isOnline()) &&
-    !gMessageDisplay.isDummy; // We can't detach from loaded eml files yet.
+    !gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false) &&
+    (!gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.ImapBox, false) ||
+      MailOfflineMgr.isOnline()) &&
+    gFolder; // We can't detach from loaded eml files yet.
   if (canDetach && "content-type" in currentHeaderData) {
     canDetach = !ContentTypeIsSMIME(
       currentHeaderData["content-type"].headerValue
@@ -2230,10 +2215,13 @@ var AttachmentMenuController = {
 };
 
 function goUpdateAttachmentCommands() {
-  goUpdateCommand("cmd_openAllAttachments");
-  goUpdateCommand("cmd_saveAllAttachments");
-  goUpdateCommand("cmd_detachAllAttachments");
-  goUpdateCommand("cmd_deleteAllAttachments");
+  for (let action of ["open", "save", "detach", "delete"]) {
+    document.getElementById(
+      `context-${action}AllAttachments`
+    ).disabled = !AttachmentMenuController.isCommandEnabled(
+      `cmd_${action}AllAttachments`
+    );
+  }
 }
 
 async function displayAttachmentsForExpandedView() {
@@ -2338,19 +2326,18 @@ function displayAttachmentsForExpandedViewExternal() {
     "tooltiptextexternalnotfound",
     externalAttachmentNotFound
   );
-  attachmentName.setAttribute(
-    "onmouseover",
-    `MsgStatusFeedback.setOverLink("${displayUrl}")`
+  attachmentName.addEventListener("mouseover", () =>
+    top.MsgStatusFeedback.setOverLink(displayUrl)
   );
-  attachmentName.setAttribute(
-    "onmouseout",
-    "MsgStatusFeedback.setOverLink('')"
+  attachmentName.addEventListener("mouseout", () =>
+    top.MsgStatusFeedback.setOverLink("")
   );
-  attachmentName.setAttribute(
-    "onfocus",
-    `MsgStatusFeedback.setOverLink("${displayUrl}")`
+  attachmentName.addEventListener("focus", () =>
+    top.MsgStatusFeedback.setOverLink(displayUrl)
   );
-  attachmentName.setAttribute("onblur", "MsgStatusFeedback.setOverLink('')");
+  attachmentName.addEventListener("blur", () =>
+    top.MsgStatusFeedback.setOverLink("")
+  );
   attachmentName.classList.remove("text-link");
   attachmentName.classList.remove("notfound");
 
@@ -2378,21 +2365,17 @@ function displayAttachmentsForExpandedViewExternal() {
     if (attachment.isExternalAttachment) {
       displayUrl = attachment.displayUrl;
       attachmentitem.setAttribute("tooltiptext", "");
-      attachmentitem.setAttribute(
-        "onmouseover",
-        `MsgStatusFeedback.setOverLink("${displayUrl}")`
+      attachmentitem.addEventListener("mouseover", () =>
+        top.MsgStatusFeedback.setOverLink(displayUrl)
       );
-      attachmentitem.setAttribute(
-        "onmouseout",
-        "MsgStatusFeedback.setOverLink('')"
+      attachmentitem.addEventListener("mouseout", () =>
+        top.MsgStatusFeedback.setOverLink("")
       );
-      attachmentitem.setAttribute(
-        "onfocus",
-        `MsgStatusFeedback.setOverLink("${displayUrl}")`
+      attachmentitem.addEventListener("focus", () =>
+        top.MsgStatusFeedback.setOverLink(displayUrl)
       );
-      attachmentitem.setAttribute(
-        "onblur",
-        "MsgStatusFeedback.setOverLink('')"
+      attachmentitem.addEventListener("blur", () =>
+        top.MsgStatusFeedback.setOverLink("")
       );
 
       attachmentitem
@@ -2464,7 +2447,7 @@ function updateAttachmentsDisplay(attachmentInfo, isFetching) {
       return;
     }
 
-    if (attachmentInfo.message != gFolderDisplay.selectedMessage) {
+    if (attachmentInfo.message != gMessage) {
       // The user changed messages while fetching, reset the bar and exit;
       // the listitems are torn down/rebuilt on each message load.
       attachmentIcon.setAttribute(
@@ -2491,7 +2474,7 @@ function updateAttachmentsDisplay(attachmentInfo, isFetching) {
     if (attachmentInfo.size < 1) {
       sizeStr = bundle.getString("attachmentSizeUnknown");
     } else {
-      sizeStr = messenger.formatFileSize(attachmentInfo.size);
+      sizeStr = top.messenger.formatFileSize(attachmentInfo.size);
     }
 
     // The attachment listitem.
@@ -2563,7 +2546,7 @@ function getAttachmentsTotalSizeStr() {
     }
   }
 
-  let sizeStr = messenger.formatFileSize(totalSize);
+  let sizeStr = top.messenger.formatFileSize(totalSize);
   if (unknownSize) {
     if (totalSize == 0) {
       sizeStr = bundle.getString("attachmentSizeUnknown");
@@ -2636,7 +2619,7 @@ function toggleAttachmentList(expanded, updateFocus) {
     attachmentView.removeAttribute("height");
 
     if (updateFocus && document.activeElement == attachmentList) {
-      SetFocusMessagePane();
+      // TODO
     }
   }
 }
@@ -2882,7 +2865,7 @@ function HandleSelectedAttachments(action) {
 function HandleMultipleAttachments(attachments, action) {
   // Feed message link attachments save handling.
   if (
-    gFolderDisplay.selectedMessageIsFeed &&
+    FeedUtils.isFeedMessage(gMessage) &&
     (action == "save" || action == "saveAs")
   ) {
     saveLinkAttachmentsToFile(attachments);
@@ -2916,7 +2899,7 @@ function HandleMultipleAttachments(attachments, action) {
   // The list has been built. Now call our action code...
   switch (action) {
     case "save":
-      messenger.saveAllAttachments(
+      top.messenger.saveAllAttachments(
         attachmentContentTypeArray,
         attachmentUrlArray,
         attachmentDisplayNameArray,
@@ -2930,7 +2913,7 @@ function HandleMultipleAttachments(attachments, action) {
       if (attachments.length == 1) {
         attachments[0].detach(true);
       } else {
-        messenger.detachAllAttachments(
+        top.messenger.detachAllAttachments(
           attachmentContentTypeArray,
           attachmentUrlArray,
           attachmentDisplayNameArray,
@@ -2940,7 +2923,7 @@ function HandleMultipleAttachments(attachments, action) {
       }
       return;
     case "delete":
-      messenger.detachAllAttachments(
+      top.messenger.detachAllAttachments(
         attachmentContentTypeArray,
         attachmentUrlArray,
         attachmentDisplayNameArray,
@@ -3006,10 +2989,7 @@ function HandleMultipleAttachments(attachments, action) {
  */
 async function saveLinkAttachmentsToFile(aAttachmentInfoArray) {
   for (let attachment of aAttachmentInfoArray) {
-    if (
-      !attachment.hasFile ||
-      attachment.message != gFolderDisplay.selectedMessage
-    ) {
+    if (!attachment.hasFile || attachment.message != gMessage) {
       continue;
     }
 
@@ -3083,53 +3063,6 @@ let attachmentNameDNDObserver = {
   },
 };
 
-function nsDummyMsgHeader() {}
-
-nsDummyMsgHeader.prototype = {
-  mProperties: [],
-  getStringProperty(aProperty) {
-    if (aProperty in this.mProperties) {
-      return this.mProperties[aProperty];
-    }
-    return "";
-  },
-  setStringProperty(aProperty, aVal) {
-    this.mProperties[aProperty] = aVal;
-  },
-  getUint32Property(aProperty) {
-    if (aProperty in this.mProperties) {
-      return parseInt(this.mProperties[aProperty]);
-    }
-    return 0;
-  },
-  setUint32Property(aProperty, aVal) {
-    this.mProperties[aProperty] = aVal.toString();
-  },
-  markHasAttachments(hasAttachments) {},
-  messageSize: 0,
-  author: null,
-  get mime2DecodedAuthor() {
-    return this.author;
-  },
-  subject: "",
-  get mime2DecodedSubject() {
-    return this.subject;
-  },
-  recipients: null,
-  get mime2DecodedRecipients() {
-    return this.recipients;
-  },
-  ccList: null,
-  listPost: null,
-  messageId: null,
-  date: 0,
-  accountKey: "",
-  flags: 0,
-  // If you change us to return a fake folder, please update
-  // folderDisplay.js's FolderDisplayWidget's selectedMessageIsExternal getter.
-  folder: null,
-};
-
 function onShowOtherActionsPopup() {
   // Enable/disable the Open Conversation button.
   let glodaEnabled = Services.prefs.getBoolPref(
@@ -3142,9 +3075,7 @@ function onShowOtherActionsPopup() {
   // Check because this menuitem element is not present in messageWindow.xhtml.
   if (openConversation) {
     openConversation.disabled = !(
-      glodaEnabled &&
-      gFolderDisplay?.selectedCount > 0 &&
-      Gloda.isMessageIndexed(gFolderDisplay.selectedMessage)
+      glodaEnabled && Gloda.isMessageIndexed(gMessage)
     );
   }
 
@@ -3159,7 +3090,7 @@ function onShowOtherActionsPopup() {
   }
 
   // Check if the current message is feed or not.
-  let isFeed = FeedUtils.isFeedMessage(gFolderDisplay.selectedMessage);
+  let isFeed = FeedUtils.isFeedMessage(gMessage);
   document.getElementById("otherActionsMessageBodyAs").hidden = isFeed;
   document.getElementById("otherActionsFeedBodyAs").hidden = !isFeed;
 }
@@ -3411,10 +3342,8 @@ const gMessageHeader = {
    * @returns {?nsISubscribableServer} The server for the newsgroup, or null.
    */
   get newsgroupServer() {
-    if (gFolderDisplay.selectedMessageIsNews) {
-      return gFolderDisplay.selectedMessage.folder.server?.QueryInterface(
-        Ci.nsISubscribableServer
-      );
+    if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)) {
+      return gFolder.server?.QueryInterface(Ci.nsISubscribableServer);
     }
 
     return null;
@@ -3530,13 +3459,13 @@ const gMessageHeader = {
     // We don't want to show "Open Message For ID" for the same message
     // we're viewing.
     document.getElementById("messageIdContext-openMessageForMsgId").hidden =
-      `<${gFolderDisplay.selectedMessage.messageId}>` == element.id;
+      `<${gMessage.messageId}>` == element.id;
 
     // We don't want to show "Open Browser With Message-ID" for non-nntp
     // messages.
     document.getElementById(
       "messageIdContext-openBrowserWithMsgId"
-    ).hidden = !gFolderDisplay.selectedMessageIsNews;
+    ).hidden = !gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false);
 
     let popup = document.getElementById("messageIdContext");
     popup.headerField = element;
@@ -3603,9 +3532,9 @@ const gMessageHeader = {
       ? Ci.nsIMsgCompFormat.OppositeOfDefault
       : Ci.nsIMsgCompFormat.Default;
 
-    if (gFolderDisplay.displayedFolder) {
-      params.identity = accountManager.getFirstIdentityForServer(
-        gFolderDisplay.displayedFolder.server
+    if (gFolder) {
+      params.identity = MailServices.accounts.getFirstIdentityForServer(
+        gFolder.server
       );
     }
     params.composeFields = fields;
@@ -3700,9 +3629,9 @@ const gMessageHeader = {
    */
   createFilter(event) {
     let element = event.currentTarget.parentNode.headerField;
-    MsgFilters(
+    top.MsgFilters(
       element.emailAddress || element.value.textContent,
-      gMessageDisplay?.displayedMessage?.folder,
+      gFolder,
       element.dataset.headerName
     );
   },
@@ -3720,14 +3649,13 @@ const gMessageHeader = {
    * Set the tags to the message header tag element.
    */
   setTags() {
-    let msgHdr = gFolderDisplay.selectedMessage;
     // Bail out if we don't have a message selected.
-    if (!msgHdr) {
+    if (!gMessage || !gFolder) {
       return;
     }
 
     // Extract the tag keys from the message header.
-    let msgKeyArray = msgHdr.getStringProperty("keywords").split(" ");
+    let msgKeyArray = gMessage.getStringProperty("keywords").split(" ");
 
     // Get the list of known tags.
     let tagsArray = MailServices.tags.getAllTags().filter(t => t.tag);
@@ -3754,20 +3682,26 @@ const gMessageHeader = {
     let id = event.currentTarget.closest(".header-message-id").id;
     if (event.button == 0) {
       // Remove the < and > symbols.
-      OpenMessageForMessageId(id.substring(1, id.length - 1));
+      window.browsingContext.topChromeWindow.OpenMessageForMessageId(
+        id.substring(1, id.length - 1)
+      );
     }
   },
 
   openMessage(event) {
     let id = event.currentTarget.parentNode.headerField.id;
     // Remove the < and > symbols.
-    OpenMessageForMessageId(id.substring(1, id.length - 1));
+    window.browsingContext.topChromeWindow.OpenMessageForMessageId(
+      id.substring(1, id.length - 1)
+    );
   },
 
   openBrowser(event) {
     let id = event.currentTarget.parentNode.headerField.id;
     // Remove the < and > symbols.
-    OpenBrowserWithMessageId(id.substring(1, id.length - 1));
+    window.browsingContext.topChromeWindow.OpenBrowserWithMessageId(
+      id.substring(1, id.length - 1)
+    );
   },
 
   copyMessageId(event) {
@@ -3782,3 +3716,1191 @@ const gMessageHeader = {
     );
   },
 };
+
+function MarkSelectedMessagesRead(markRead) {
+  ClearPendingReadTimer();
+  gDBView.doCommand(
+    markRead
+      ? Ci.nsMsgViewCommandType.markMessagesRead
+      : Ci.nsMsgViewCommandType.markMessagesUnread
+  );
+  if (markRead) {
+    reportMsgRead({ isNewRead: true });
+  }
+}
+
+function MarkSelectedMessagesFlagged(markFlagged) {
+  gDBView.doCommand(
+    markFlagged
+      ? Ci.nsMsgViewCommandType.flagMessages
+      : Ci.nsMsgViewCommandType.unflagMessages
+  );
+}
+
+/**
+ * Take the message id from the messageIdNode and use the url defined in the
+ * hidden pref "mailnews.messageid_browser.url" to open it in a browser window
+ * (%mid is replaced by the message id).
+ * @param messageId the message id to open
+ */
+function OpenBrowserWithMessageId(messageId) {
+  var browserURL = Services.prefs.getComplexValue(
+    "mailnews.messageid_browser.url",
+    Ci.nsIPrefLocalizedString
+  ).data;
+  browserURL = browserURL.replace(/%mid/, messageId);
+  try {
+    top.messenger.launchExternalURL(browserURL);
+  } catch (ex) {
+    console.error(
+      "Failed to open message-id in browser; browserURL=" + browserURL
+    );
+  }
+}
+
+/**
+ * Take the message id from the messageIdNode, search for the corresponding
+ * message in all folders starting with the current selected folder, then the
+ * current account followed by the other accounts and open corresponding
+ * message if found.
+ * @param messageId the message id to open
+ */
+function OpenMessageForMessageId(messageId) {
+  let startServer = gFolder?.server;
+
+  window.setCursor("wait");
+  let { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+  let messageHeader = MailUtils.getMsgHdrForMsgId(messageId, startServer);
+  window.setCursor("auto");
+
+  // if message id was found open corresponding message
+  // else show error message
+  if (messageHeader) {
+    OpenMessageByHeader(
+      messageHeader,
+      Services.prefs.getBoolPref("mailnews.messageid.openInNewWindow")
+    );
+  } else {
+    let messageIdStr = "<" + messageId + ">";
+    let bundle = document.getElementById("bundle_messenger");
+    let errorTitle = bundle.getString("errorOpenMessageForMessageIdTitle");
+    let errorMessage = bundle.getFormattedString(
+      "errorOpenMessageForMessageIdMessage",
+      [messageIdStr]
+    );
+
+    Services.prompt.alert(window, errorTitle, errorMessage);
+  }
+}
+
+function OpenMessageByHeader(messageHeader, openInNewWindow) {
+  if (openInNewWindow) {
+    window.openDialog(
+      "chrome://messenger/content/messageWindow.xhtml",
+      "_blank",
+      "all,chrome,dialog=no,status,toolbar",
+      messageHeader
+    );
+  } else {
+    // TODO: Reimplement this?
+  }
+}
+
+/**
+ * @param headermode {Ci.nsMimeHeaderDisplayTypes}
+ */
+function AdjustHeaderView(headermode) {
+  const all = Ci.nsMimeHeaderDisplayTypes.AllHeaders;
+  document
+    .getElementById("messageHeader")
+    .setAttribute("show_header_mode", headermode == all ? "all" : "normal");
+}
+
+/**
+ * Should the reply command/button be enabled?
+ *
+ * @return whether the reply command/button should be enabled.
+ */
+function IsReplyEnabled() {
+  // If we're in an rss item, we never want to Reply, because there's
+  // usually no-one useful to reply to.
+  return !FeedUtils.isFeedMessage(gMessage);
+}
+
+/**
+ * Should the reply-all command/button be enabled?
+ *
+ * @return whether the reply-all command/button should be enabled.
+ */
+function IsReplyAllEnabled() {
+  if (gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)) {
+    // If we're in a news item, we always want ReplyAll, because we can
+    // reply to the sender and the newsgroup.
+    return true;
+  }
+  if (FeedUtils.isFeedMessage(gMessage)) {
+    // If we're in an rss item, we never want to ReplyAll, because there's
+    // usually no-one useful to reply to.
+    return false;
+  }
+
+  let addresses =
+    gMessage.author + "," + gMessage.recipients + "," + gMessage.ccList;
+
+  // If we've got any BCCed addresses (because we sent the message), add
+  // them as well.
+  if ("bcc" in currentHeaderData) {
+    addresses += currentHeaderData.bcc.headerValue;
+  }
+
+  // Check to see if my email address is in the list of addresses.
+  let [myIdentity] = MailUtils.getIdentityForHeader(gMessage);
+  let myEmail = myIdentity ? myIdentity.email : null;
+  // We aren't guaranteed to have an email address, so guard against that.
+  let imInAddresses =
+    myEmail && addresses.toLowerCase().includes(myEmail.toLowerCase());
+
+  // Now, let's get the number of unique addresses.
+  let uniqueAddresses = MailServices.headerParser.removeDuplicateAddresses(
+    addresses,
+    ""
+  );
+  let numAddresses = MailServices.headerParser.parseEncodedHeader(
+    uniqueAddresses
+  ).length;
+
+  // I don't want to count my address in the number of addresses to reply
+  // to, since I won't be emailing myself.
+  if (imInAddresses) {
+    numAddresses--;
+  }
+
+  // ReplyAll is enabled if there is more than 1 person to reply to.
+  return numAddresses > 1;
+}
+
+/**
+ * Should the reply-list command/button be enabled?
+ *
+ * @return whether the reply-list command/button should be enabled.
+ */
+function IsReplyListEnabled() {
+  // ReplyToList is enabled if there is a List-Post header
+  // with the correct format.
+  let listPost = currentHeaderData["list-post"];
+  if (!listPost) {
+    return false;
+  }
+
+  // XXX: Once Bug 496914 provides a parser, we should use that instead.
+  // Until then, we need to keep the following regex in sync with the
+  // listPost parsing in nsMsgCompose.cpp's
+  // QuotingOutputStreamListener::OnStopRequest.
+  return /<mailto:.+>/.test(listPost.headerValue);
+}
+
+/**
+ * Update the enabled/disabled states of the Reply, Reply-All, and
+ * Reply-List buttons.  (After this function runs, one of the buttons
+ * should be shown, and the others should be hidden.)
+ */
+function UpdateReplyButtons() {
+  // If we have no message, because we're being called from
+  // MailToolboxCustomizeDone before someone selected a message, then just
+  // return.
+  if (!gMessage) {
+    return;
+  }
+
+  let buttonToShow;
+  if (gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)) {
+    // News messages always default to the "followup" dual-button.
+    buttonToShow = "followup";
+  } else if (FeedUtils.isFeedMessage(gMessage)) {
+    // RSS items hide all the reply buttons.
+    buttonToShow = null;
+  } else if (IsReplyListEnabled()) {
+    // Mail messages show the "reply" button (not the dual-button) and
+    // possibly the "reply all" and "reply list" buttons.
+    buttonToShow = "replyList";
+  } else if (IsReplyAllEnabled()) {
+    buttonToShow = "replyAll";
+  } else {
+    buttonToShow = "reply";
+  }
+
+  let smartReplyButton = document.getElementById("hdrSmartReplyButton");
+  if (smartReplyButton) {
+    let replyButton = document.getElementById("hdrReplyButton");
+    let replyAllButton = document.getElementById("hdrReplyAllButton");
+    let replyListButton = document.getElementById("hdrReplyListButton");
+    let followupButton = document.getElementById("hdrFollowupButton");
+
+    replyButton.hidden = buttonToShow != "reply";
+    replyAllButton.hidden = buttonToShow != "replyAll";
+    replyListButton.hidden = buttonToShow != "replyList";
+    followupButton.hidden = buttonToShow != "followup";
+  }
+
+  let replyToSenderButton = document.getElementById("hdrReplyToSenderButton");
+  if (replyToSenderButton) {
+    if (FeedUtils.isFeedMessage(gMessage)) {
+      replyToSenderButton.hidden = true;
+    } else if (smartReplyButton) {
+      replyToSenderButton.hidden = buttonToShow == "reply";
+    } else {
+      replyToSenderButton.hidden = false;
+    }
+  }
+
+  goUpdateCommand("button_reply");
+  goUpdateCommand("button_replyall");
+  goUpdateCommand("button_replylist");
+  goUpdateCommand("button_followup");
+}
+
+function SelectedMessagesAreJunk() {
+  try {
+    let junkScore = gMessage.getStringProperty("junkscore");
+    return junkScore != "" && junkScore != "0";
+  } catch (ex) {
+    return false;
+  }
+}
+
+function SelectedMessagesAreRead() {
+  return gMessage?.isRead;
+}
+
+function SelectedMessagesAreFlagged() {
+  return gMessage?.isFlagged;
+}
+
+function MsgReplyMessage(event) {
+  if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)) {
+    MsgReplyGroup(event);
+  } else {
+    MsgReplySender(event);
+  }
+}
+
+function MsgReplySender(event) {
+  commandController._composeMsgByType(Ci.nsIMsgCompType.ReplyToSender, event);
+}
+
+function MsgReplyGroup(event) {
+  commandController._composeMsgByType(Ci.nsIMsgCompType.ReplyToGroup, event);
+}
+
+function MsgReplyToAllMessage(event) {
+  commandController._composeMsgByType(Ci.nsIMsgCompType.ReplyAll, event);
+}
+
+function MsgReplyToListMessage(event) {
+  commandController._composeMsgByType(Ci.nsIMsgCompType.ReplyToList, event);
+}
+
+/**
+ * Archives the selected messages
+ *
+ * @param event the event that caused us to call this function
+ */
+function MsgArchiveSelectedMessages(event) {
+  let archiver = new MessageArchiver();
+  archiver.msgWindow = top.msgWindow;
+  archiver.archiveMessages([gMessage]);
+}
+
+function MsgForwardMessage(event) {
+  var forwardType = Services.prefs.getIntPref("mail.forward_message_mode", 0);
+
+  // mail.forward_message_mode could be 1, if the user migrated from 4.x
+  // 1 (forward as quoted) is obsolete, so we treat is as forward inline
+  // since that is more like forward as quoted then forward as attachment
+  if (forwardType == 0) {
+    MsgForwardAsAttachment(event);
+  } else {
+    MsgForwardAsInline(event);
+  }
+}
+
+function MsgForwardAsAttachment(event) {
+  commandController._composeMsgByType(
+    Ci.nsIMsgCompType.ForwardAsAttachment,
+    event
+  );
+}
+
+function MsgForwardAsInline(event) {
+  commandController._composeMsgByType(Ci.nsIMsgCompType.ForwardInline, event);
+}
+
+function MsgRedirectMessage(event) {
+  commandController._composeMsgByType(Ci.nsIMsgCompType.Redirect, event);
+}
+
+function MsgEditMessageAsNew(aEvent) {
+  commandController._composeMsgByType(Ci.nsIMsgCompType.EditAsNew, aEvent);
+}
+
+function MsgEditDraftMessage(aEvent) {
+  commandController._composeMsgByType(Ci.nsIMsgCompType.Draft, aEvent);
+}
+
+function MsgNewMessageFromTemplate(aEvent) {
+  commandController._composeMsgByType(Ci.nsIMsgCompType.Template, aEvent);
+}
+
+function MsgEditTemplateMessage(aEvent) {
+  commandController._composeMsgByType(Ci.nsIMsgCompType.EditTemplate, aEvent);
+}
+
+function MsgComposeDraftMessage() {
+  top.ComposeMessage(
+    Ci.nsIMsgCompType.Draft,
+    Ci.nsIMsgCompFormat.Default,
+    gFolder,
+    [gMessageURI]
+  );
+}
+
+/**
+ * Update the "mark as junk" button in the message header area.
+ */
+function UpdateJunkButton() {
+  // The junk message should slave off the selected message, as the preview pane
+  //  may not be visible
+  // But only the message display knows if we are dealing with a dummy.
+  if (!gMessage || !gFolder) {
+    // .eml file
+    return;
+  }
+  let junkScore = gMessage.getStringProperty("junkscore");
+  let hideJunk = junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE;
+  if (!commandController._getViewCommandStatus(Ci.nsMsgViewCommandType.junk)) {
+    hideJunk = true;
+  }
+  if (document.getElementById("hdrJunkButton")) {
+    document.getElementById("hdrJunkButton").disabled = hideJunk;
+  }
+}
+
+/**
+ * Checks if the selected messages can be marked as read or unread
+ *
+ * @param markingRead true if trying to mark messages as read, false otherwise
+ * @return true if the chosen operation can be performed
+ */
+function CanMarkMsgAsRead(markingRead) {
+  return gMessage && SelectedMessagesAreRead() != markingRead;
+}
+
+/**
+ * Marks the selected messages as read or unread
+ *
+ * @param read true if trying to mark messages as read, false if marking unread,
+ *        undefined if toggling the read status
+ */
+function MsgMarkMsgAsRead(read) {
+  if (read == undefined) {
+    read = !gMessage.isRead;
+  }
+  MarkSelectedMessagesRead(read);
+}
+
+function MsgMarkAsFlagged() {
+  MarkSelectedMessagesFlagged(!SelectedMessagesAreFlagged());
+}
+
+/**
+ * Triggered by the onHdrPropertyChanged notification for a single message being
+ *  displayed. We handle updating the message display if our displayed message
+ *  might have had its junk status change. This primarily entails updating the
+ *  notification bar (that thing that appears above the message and says "this
+ *  message might be junk") and (potentially) reloading the message because junk
+ *  status affects the form of HTML display used (sanitized vs not).
+ * When our tab implementation is no longer multiplexed (reusing the same
+ *  display widget), this must be moved into the MessageDisplayWidget or
+ *  otherwise be scoped to the tab.
+ *
+ * @param {nsIMsgHdr} msgHdr - The nsIMsgHdr of the message with a junk status change.
+ */
+function HandleJunkStatusChanged(msgHdr) {
+  if (!msgHdr || !msgHdr.folder) {
+    return;
+  }
+
+  let junkBarStatus = gMessageNotificationBar.checkJunkMsgStatus(msgHdr);
+
+  // Only reload message if junk bar display state is changing and only if the
+  // reload is really needed.
+  if (junkBarStatus != 0) {
+    // We may be forcing junk mail to be rendered with sanitized html.
+    // In that scenario, we want to reload the message if the status has just
+    // changed to not junk.
+    var sanitizeJunkMail = Services.prefs.getBoolPref(
+      "mail.spam.display.sanitize"
+    );
+
+    // Only bother doing this if we are modifying the html for junk mail....
+    if (sanitizeJunkMail) {
+      let junkScore = msgHdr.getStringProperty("junkscore");
+      let isJunk = junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE;
+
+      // If the current row isn't going to change, reload to show sanitized or
+      // unsanitized. Otherwise we wouldn't see the reloaded version anyway.
+      // 1) When marking as non-junk from the Junk folder, the msg would move
+      //    back to the Inbox -> no reload needed
+      //    When marking as non-junk from a folder other than the Junk folder,
+      //    the message isn't moved back to Inbox -> reload needed
+      //    (see nsMsgDBView::DetermineActionsForJunkChange)
+      // 2) When marking as junk, the msg will move or delete, if manualMark is set.
+      // 3) Marking as junk in the junk folder just changes the junk status.
+      if (
+        (!isJunk && !msgHdr.folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk)) ||
+        (isJunk && !msgHdr.folder.server.spamSettings.manualMark) ||
+        (isJunk && msgHdr.folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk))
+      ) {
+        ReloadMessage();
+        return;
+      }
+    }
+  }
+
+  gMessageNotificationBar.setJunkMsg(msgHdr);
+}
+
+/**
+ * Object to handle message related notifications that are showing in a
+ * notificationbox above the message content.
+ */
+var gMessageNotificationBar = {
+  get stringBundle() {
+    delete this.stringBundle;
+    return (this.stringBundle = document.getElementById("bundle_messenger"));
+  },
+
+  get brandBundle() {
+    delete this.brandBundle;
+    return (this.brandBundle = document.getElementById("bundle_brand"));
+  },
+
+  get msgNotificationBar() {
+    if (!this._notificationBox) {
+      this._notificationBox = new MozElements.NotificationBox(element => {
+        element.setAttribute("notificationside", "top");
+        document.getElementById("mail-notification-top").append(element);
+      });
+    }
+    return this._notificationBox;
+  },
+
+  /**
+   * Check if the current status of the junk notification is correct or not.
+   *
+   * @param {nsIMsgDBHdr} aMsgHdr - Information about the message
+   * @returns {integer} Tri-state status information.
+   *    1: notification is missing
+   *    0: notification is correct
+   *   -1: notification must be removed
+   */
+  checkJunkMsgStatus(aMsgHdr) {
+    let junkScore = aMsgHdr ? aMsgHdr.getStringProperty("junkscore") : "";
+    let junkStatus = this.isShowingJunkNotification();
+
+    if (junkScore == "" || junkScore == Ci.nsIJunkMailPlugin.IS_HAM_SCORE) {
+      // This is not junk. The notification should not be shown.
+      return junkStatus ? -1 : 0;
+    }
+
+    // This is junk. The notification should be shown.
+    return junkStatus ? 0 : 1;
+  },
+
+  setJunkMsg(aMsgHdr) {
+    goUpdateCommand("button_junk");
+
+    let junkBarStatus = this.checkJunkMsgStatus(aMsgHdr);
+    if (junkBarStatus == -1) {
+      this.msgNotificationBar.removeNotification(
+        this.msgNotificationBar.getNotificationWithValue("junkContent"),
+        true
+      );
+    } else if (junkBarStatus == 1) {
+      let brandName = this.brandBundle.getString("brandShortName");
+      let junkBarMsg = this.stringBundle.getFormattedString("junkBarMessage", [
+        brandName,
+      ]);
+
+      let buttons = [
+        {
+          label: this.stringBundle.getString("junkBarInfoButton"),
+          accessKey: this.stringBundle.getString("junkBarInfoButtonKey"),
+          popup: null,
+          callback(aNotification, aButton) {
+            // TODO: This doesn't work in a message window.
+            top.openContentTab(
+              "https://support.mozilla.org/kb/thunderbird-and-junk-spam-messages"
+            );
+            return true; // keep notification open
+          },
+        },
+        {
+          label: this.stringBundle.getString("junkBarButton"),
+          accessKey: this.stringBundle.getString("junkBarButtonKey"),
+          popup: null,
+          callback(aNotification, aButton) {
+            // JunkSelectedMessages(false); TODO: This function vanished. Put it back I guess.
+            // Return true (=don't close) since changing junk status will fire a
+            // JunkStatusChanged notification which will make the junk bar go away
+            // for this message -> no notification to close anymore -> trying to
+            // close would just fail.
+            return true;
+          },
+        },
+      ];
+
+      this.msgNotificationBar.appendNotification(
+        "junkContent",
+        {
+          label: junkBarMsg,
+          image: "chrome://messenger/skin/icons/junk.svg",
+          priority: this.msgNotificationBar.PRIORITY_WARNING_HIGH,
+        },
+        buttons
+      );
+    }
+  },
+
+  isShowingJunkNotification() {
+    return !!this.msgNotificationBar.getNotificationWithValue("junkContent");
+  },
+
+  setRemoteContentMsg(aMsgHdr, aContentURI, aCanOverride) {
+    // update the allow remote content for sender string
+    let brandName = this.brandBundle.getString("brandShortName");
+    let remoteContentMsg = this.stringBundle.getFormattedString(
+      "remoteContentBarMessage",
+      [brandName]
+    );
+
+    let buttonLabel = this.stringBundle.getString(
+      AppConstants.platform == "win"
+        ? "remoteContentPrefLabel"
+        : "remoteContentPrefLabelUnix"
+    );
+    let buttonAccesskey = this.stringBundle.getString(
+      AppConstants.platform == "win"
+        ? "remoteContentPrefAccesskey"
+        : "remoteContentPrefAccesskeyUnix"
+    );
+
+    let buttons = [
+      {
+        label: buttonLabel,
+        accessKey: buttonAccesskey,
+        popup: "remoteContentOptions",
+        callback() {},
+      },
+    ];
+
+    // The popup value is a space separated list of all the blocked origins.
+    let popup = document.getElementById("remoteContentOptions");
+    let principal = Services.scriptSecurityManager.createContentPrincipal(
+      aContentURI,
+      {}
+    );
+    let origins = popup.value ? popup.value.split(" ") : [];
+    if (!origins.includes(principal.origin)) {
+      origins.push(principal.origin);
+    }
+    popup.value = origins.join(" ");
+
+    if (!this.isShowingRemoteContentNotification()) {
+      let notification = this.msgNotificationBar.appendNotification(
+        "remoteContent",
+        {
+          label: remoteContentMsg,
+          image: "chrome://messenger/skin/icons/remote-blocked.svg",
+          priority: this.msgNotificationBar.PRIORITY_WARNING_MEDIUM,
+        },
+        aCanOverride ? buttons : []
+      );
+
+      notification.buttonContainer.firstElementChild.classList.add(
+        "button-menu-list"
+      );
+    }
+  },
+
+  isShowingRemoteContentNotification() {
+    return !!this.msgNotificationBar.getNotificationWithValue("remoteContent");
+  },
+
+  setPhishingMsg() {
+    let phishingMsgNote = this.stringBundle.getString("phishingBarMessage");
+
+    let buttonLabel = this.stringBundle.getString(
+      AppConstants.platform == "win"
+        ? "phishingBarPrefLabel"
+        : "phishingBarPrefLabelUnix"
+    );
+    let buttonAccesskey = this.stringBundle.getString(
+      AppConstants.platform == "win"
+        ? "phishingBarPrefAccesskey"
+        : "phishingBarPrefAccesskeyUnix"
+    );
+
+    let buttons = [
+      {
+        label: buttonLabel,
+        accessKey: buttonAccesskey,
+        popup: "phishingOptions",
+        callback(aNotification, aButton) {},
+      },
+    ];
+
+    if (!this.isShowingPhishingNotification()) {
+      let notification = this.msgNotificationBar.appendNotification(
+        "maybeScam",
+        {
+          label: phishingMsgNote,
+          image: "chrome://messenger/skin/icons/phishing.svg",
+          priority: this.msgNotificationBar.PRIORITY_CRITICAL_MEDIUM,
+        },
+        buttons
+      );
+
+      notification.buttonContainer.firstElementChild.classList.add(
+        "button-menu-list"
+      );
+    }
+  },
+
+  isShowingPhishingNotification() {
+    return !!this.msgNotificationBar.getNotificationWithValue("maybeScam");
+  },
+
+  setMDNMsg(aMdnGenerator, aMsgHeader, aMimeHdr) {
+    this.mdnGenerator = aMdnGenerator;
+    // Return receipts can be RFC 3798 or not.
+    let mdnHdr =
+      aMimeHdr.extractHeader("Disposition-Notification-To", false) ||
+      aMimeHdr.extractHeader("Return-Receipt-To", false); // not
+    let fromHdr = aMimeHdr.extractHeader("From", false);
+
+    let mdnAddr = MailServices.headerParser.extractHeaderAddressMailboxes(
+      mdnHdr
+    );
+    let fromAddr = MailServices.headerParser.extractHeaderAddressMailboxes(
+      fromHdr
+    );
+
+    let authorName =
+      MailServices.headerParser.extractFirstName(
+        aMsgHeader.mime2DecodedAuthor
+      ) || aMsgHeader.author;
+
+    // If the return receipt doesn't go to the sender address, note that in the
+    // notification.
+    let mdnBarMsg =
+      mdnAddr != fromAddr
+        ? this.stringBundle.getFormattedString("mdnBarMessageAddressDiffers", [
+            authorName,
+            mdnAddr,
+          ])
+        : this.stringBundle.getFormattedString("mdnBarMessageNormal", [
+            authorName,
+          ]);
+
+    let buttons = [
+      {
+        label: this.stringBundle.getString("mdnBarSendReqButton"),
+        accessKey: this.stringBundle.getString("mdnBarSendReqButtonKey"),
+        popup: null,
+        callback(aNotification, aButton) {
+          SendMDNResponse();
+          return false; // close notification
+        },
+      },
+      {
+        label: this.stringBundle.getString("mdnBarIgnoreButton"),
+        accessKey: this.stringBundle.getString("mdnBarIgnoreButtonKey"),
+        popup: null,
+        callback(aNotification, aButton) {
+          IgnoreMDNResponse();
+          return false; // close notification
+        },
+      },
+    ];
+
+    this.msgNotificationBar.appendNotification(
+      "mdnRequested",
+      {
+        label: mdnBarMsg,
+        priority: this.msgNotificationBar.PRIORITY_INFO_MEDIUM,
+      },
+      buttons
+    );
+  },
+
+  setDraftEditMessage() {
+    if (!gMessage || !gFolder) {
+      return;
+    }
+
+    if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)) {
+      let draftMsgNote = this.stringBundle.getString("draftMessageMsg");
+
+      let buttons = [
+        {
+          label: this.stringBundle.getString("draftMessageButton"),
+          accessKey: this.stringBundle.getString("draftMessageButtonKey"),
+          popup: null,
+          callback(aNotification, aButton) {
+            MsgComposeDraftMessage();
+            return true; // keep notification open
+          },
+        },
+      ];
+
+      this.msgNotificationBar.appendNotification(
+        "draftMsgContent",
+        {
+          label: draftMsgNote,
+          priority: this.msgNotificationBar.PRIORITY_INFO_HIGH,
+        },
+        buttons
+      );
+    }
+  },
+
+  clearMsgNotifications() {
+    this.msgNotificationBar.removeAllNotifications(true);
+  },
+};
+
+/**
+ * LoadMsgWithRemoteContent
+ *   Reload the current message, allowing remote content
+ */
+function LoadMsgWithRemoteContent() {
+  // we want to get the msg hdr for the currently selected message
+  // change the "remoteContentBar" property on it
+  // then reload the message
+
+  setMsgHdrPropertyAndReload("remoteContentPolicy", kAllowRemoteContent);
+  window.content.focus();
+}
+
+/**
+ * Populate the remote content options for the current message.
+ */
+function onRemoteContentOptionsShowing(aEvent) {
+  let origins = aEvent.target.value ? aEvent.target.value.split(" ") : [];
+
+  let addresses = MailServices.headerParser.parseEncodedHeader(gMessage.author);
+  addresses = addresses.slice(0, 1);
+  // If there is an author's email, put it also in the menu.
+  let adrCount = addresses.length;
+  if (adrCount > 0) {
+    let authorEmailAddress = addresses[0].email;
+    let authorEmailAddressURI = Services.io.newURI(
+      "chrome://messenger/content/email=" + authorEmailAddress
+    );
+    let mailPrincipal = Services.scriptSecurityManager.createContentPrincipal(
+      authorEmailAddressURI,
+      {}
+    );
+    origins.push(mailPrincipal.origin);
+  }
+
+  let messengerBundle = document.getElementById("bundle_messenger");
+
+  // Out with the old...
+  let children = aEvent.target.children;
+  for (let i = children.length - 1; i >= 0; i--) {
+    if (children[i].getAttribute("class") == "allow-remote-uri") {
+      children[i].remove();
+    }
+  }
+
+  let urlSepar = document.getElementById("remoteContentAllMenuSeparator");
+
+  // ... and in with the new.
+  for (let origin of origins) {
+    let menuitem = document.createXULElement("menuitem");
+    menuitem.setAttribute(
+      "label",
+      messengerBundle.getFormattedString("remoteAllowResource", [
+        origin.replace("chrome://messenger/content/email=", ""),
+      ])
+    );
+    menuitem.setAttribute("value", origin);
+    menuitem.setAttribute("class", "allow-remote-uri");
+    menuitem.setAttribute("oncommand", "allowRemoteContentForURI(this.value);");
+    if (origin.startsWith("chrome://messenger/content/email=")) {
+      aEvent.target.appendChild(menuitem);
+    } else {
+      aEvent.target.insertBefore(menuitem, urlSepar);
+    }
+  }
+
+  let URLcount = origins.length - adrCount;
+  let allowAllItem = document.getElementById("remoteContentOptionAllowAll");
+  let allURLLabel = messengerBundle.getString("remoteAllowAll");
+  allowAllItem.label = PluralForm.get(URLcount, allURLLabel).replace(
+    "#1",
+    URLcount
+  );
+
+  allowAllItem.collapsed = URLcount < 2;
+  document.getElementById(
+    "remoteContentOriginsMenuSeparator"
+  ).collapsed = urlSepar.collapsed = allowAllItem.collapsed && adrCount == 0;
+}
+
+/**
+ * Add privileges to display remote content for the given uri.
+ *
+ * @param aUriSpec |String| uri for the site to add permissions for.
+ * @param aReload  Reload the message display after allowing the URI.
+ */
+function allowRemoteContentForURI(aUriSpec, aReload = true) {
+  let uri = Services.io.newURI(aUriSpec);
+  Services.perms.addFromPrincipal(
+    Services.scriptSecurityManager.createContentPrincipal(uri, {}),
+    "image",
+    Services.perms.ALLOW_ACTION
+  );
+  if (aReload) {
+    ReloadMessage();
+  }
+}
+
+/**
+ * Add privileges to display remote content for the given uri.
+ *
+ * @param aListNode  The menulist element containing the URIs to allow.
+ */
+function allowRemoteContentForAll(aListNode) {
+  let uriNodes = aListNode.querySelectorAll(".allow-remote-uri");
+  for (let uriNode of uriNodes) {
+    if (!uriNode.value.startsWith("chrome://messenger/content/email=")) {
+      allowRemoteContentForURI(uriNode.value, false);
+    }
+  }
+  ReloadMessage();
+}
+
+/**
+ * Displays fine-grained, per-site preferences for remote content.
+ */
+function editRemoteContentSettings() {
+  top.openOptionsDialog("panePrivacy", "privacyCategory");
+}
+
+/**
+ *  Set the msg hdr flag to ignore the phishing warning and reload the message.
+ */
+function IgnorePhishingWarning() {
+  // This property should really be called skipPhishingWarning or something
+  // like that, but it's too late to change that now.
+  // This property is used to suppress the phishing bar for the message.
+  setMsgHdrPropertyAndReload("notAPhishMessage", 1);
+}
+
+/**
+ *  Open the preferences dialog to allow disabling the scam feature.
+ */
+function OpenPhishingSettings() {
+  top.openOptionsDialog("panePrivacy", "privacySecurityCategory");
+}
+
+function setMsgHdrPropertyAndReload(aProperty, aValue) {
+  // we want to get the msg hdr for the currently selected message
+  // change the appropriate property on it then reload the message
+  if (gMessage) {
+    gMessage.setUint32Property(aProperty, aValue);
+    ReloadMessage();
+  }
+}
+
+/**
+ * Mark a specified message as read.
+ * @param msgHdr header (nsIMsgDBHdr) of the message to mark as read
+ */
+function MarkMessageAsRead(msgHdr) {
+  ClearPendingReadTimer();
+  msgHdr.folder.markMessagesRead([msgHdr], true);
+  reportMsgRead({ isNewRead: true });
+}
+
+function ClearPendingReadTimer() {
+  if (gMarkViewedMessageAsReadTimer) {
+    clearTimeout(gMarkViewedMessageAsReadTimer);
+    gMarkViewedMessageAsReadTimer = null;
+  }
+}
+
+// this is called when layout is actually finished rendering a
+// mail message. OnMsgLoaded is called when libmime is done parsing the message
+function OnMsgParsed(aUrl) {
+  // browser doesn't do this, but I thought it could be a useful thing to test out...
+  // If the find bar is visible and we just loaded a new message, re-run
+  // the find command. This means the new message will get highlighted and
+  // we'll scroll to the first word in the message that matches the find text.
+  var findBar = document.getElementById("FindToolbar");
+  if (!findBar.hidden) {
+    findBar.onFindAgainCommand(false);
+  }
+
+  let browser = getMessagePaneBrowser();
+  // Run the phishing detector on the message if it hasn't been marked as not
+  // a scam already.
+  if (
+    gMessage &&
+    !gMessage.getUint32Property("notAPhishMessage") &&
+    PhishingDetector.analyzeMsgForPhishingURLs(aUrl, browser)
+  ) {
+    gMessageNotificationBar.setPhishingMsg();
+  }
+
+  // Notify anyone (e.g., extensions) who's interested in when a message is loaded.
+  Services.obs.notifyObservers(null, "MsgMsgDisplayed", gMessageURI);
+
+  let doc = browser && browser.contentDocument ? browser.contentDocument : null;
+
+  // Rewrite any anchor elements' href attribute to reflect that the loaded
+  // document is a mailnews url. This will cause docShell to scroll to the
+  // element in the document rather than opening the link externally.
+  let links = doc && doc.links ? doc.links : [];
+  for (let linkNode of links) {
+    if (!linkNode.hash) {
+      continue;
+    }
+
+    // We have a ref fragment which may reference a node in this document.
+    // Ensure html in mail anchors work as expected.
+    let anchorId = linkNode.hash.replace("#", "");
+    // Continue if an id (html5) or name attribute value for the ref is not
+    // found in this document.
+    let selector = "#" + anchorId + ", [name='" + anchorId + "']";
+    try {
+      if (!linkNode.ownerDocument.querySelector(selector)) {
+        continue;
+      }
+    } catch (ex) {
+      continue;
+    }
+
+    // Then check if the href url matches the document baseURL.
+    if (
+      makeURI(linkNode.href).specIgnoringRef !=
+      makeURI(linkNode.baseURI).specIgnoringRef
+    ) {
+      continue;
+    }
+
+    // Finally, if the document url is a message url, and the anchor href is
+    // http, it needs to be adjusted so docShell finds the node.
+    let messageURI = makeURI(linkNode.ownerDocument.URL);
+    if (
+      messageURI instanceof Ci.nsIMsgMailNewsUrl &&
+      linkNode.href.startsWith("http")
+    ) {
+      linkNode.href = messageURI.specIgnoringRef + linkNode.hash;
+    }
+  }
+
+  // Scale any overflowing images, exclude http content.
+  let imgs = doc && !doc.URL.startsWith("http") ? doc.images : [];
+  for (let img of imgs) {
+    if (
+      img.clientWidth - doc.body.offsetWidth >= 0 &&
+      (img.clientWidth <= img.naturalWidth || !img.naturalWidth)
+    ) {
+      img.setAttribute("overflowing", "true");
+    }
+
+    // This is the default case for images when a message is loaded.
+    img.setAttribute("shrinktofit", "true");
+  }
+}
+
+function OnMsgLoaded(aUrl) {
+  if (!aUrl) {
+    return;
+  }
+
+  window.dispatchEvent(
+    new CustomEvent("MsgLoaded", { detail: gMessage, bubbles: true })
+  );
+  window.dispatchEvent(
+    new CustomEvent("MsgsLoaded", { detail: [gMessage], bubbles: true })
+  );
+
+  if (!gFolder) {
+    return;
+  }
+
+  let win =
+    location.href == "about:message"
+      ? window.browsingContext.topChromeWindow
+      : window;
+  let wintype = win.document.documentElement.getAttribute("windowtype");
+
+  gMessageNotificationBar.setJunkMsg(gMessage);
+
+  goUpdateCommand("button_delete");
+
+  let markReadAutoMode = Services.prefs.getBoolPref(
+    "mailnews.mark_message_read.auto"
+  );
+
+  // We just finished loading a message. If messages are to be marked as read
+  // automatically, set a timer to mark the message is read after n seconds
+  // where n can be configured by the user.
+  if (gMessage && !gMessage.isRead && markReadAutoMode) {
+    let markReadOnADelay = Services.prefs.getBoolPref(
+      "mailnews.mark_message_read.delay"
+    );
+
+    // Only use the timer if viewing using the 3-pane preview pane and the
+    // user has set the pref.
+    if (markReadOnADelay && wintype == "mail:3pane") {
+      // 3-pane window
+      ClearPendingReadTimer();
+      let markReadDelayTime = Services.prefs.getIntPref(
+        "mailnews.mark_message_read.delay.interval"
+      );
+      if (markReadDelayTime == 0) {
+        MarkMessageAsRead(gMessage);
+      } else {
+        gMarkViewedMessageAsReadTimer = setTimeout(
+          MarkMessageAsRead,
+          markReadDelayTime * 1000,
+          gMessage
+        );
+      }
+    } else {
+      // standalone msg window
+      MarkMessageAsRead(gMessage);
+    }
+  }
+
+  // See if MDN was requested but has not been sent.
+  HandleMDNResponse(aUrl);
+
+  // Reset the blocked hosts so we can populate it again for this message.
+  document.getElementById("remoteContentOptions").value = "";
+}
+
+/**
+ * This function handles all mdn response generation (ie, imap and pop).
+ * For pop the msg uid can be 0 (ie, 1st msg in a local folder) so no
+ * need to check uid here. No one seems to set mimeHeaders to null so
+ * no need to check it either.
+ */
+function HandleMDNResponse(aUrl) {
+  if (!aUrl) {
+    return;
+  }
+
+  var msgFolder = aUrl.folder;
+  if (
+    !msgFolder ||
+    !gMessage ||
+    gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)
+  ) {
+    return;
+  }
+
+  // if the message is marked as junk, do NOT attempt to process a return receipt
+  // in order to better protect the user
+  if (SelectedMessagesAreJunk()) {
+    return;
+  }
+
+  var mimeHdr;
+
+  try {
+    mimeHdr = aUrl.mimeHeaders;
+  } catch (ex) {
+    return;
+  }
+
+  // If we didn't get the message id when we downloaded the message header,
+  // we cons up an md5: message id. If we've done that, we'll try to extract
+  // the message id out of the mime headers for the whole message.
+  let msgId = gMessage.messageId;
+  if (msgId.startsWith("md5:")) {
+    var mimeMsgId = mimeHdr.extractHeader("Message-Id", false);
+    if (mimeMsgId) {
+      gMessage.messageId = mimeMsgId;
+    }
+  }
+
+  // After a msg is downloaded it's already marked READ at this point so we must check if
+  // the msg has a "Disposition-Notification-To" header and no MDN report has been sent yet.
+  if (gMessage.flags & Ci.nsMsgMessageFlags.MDNReportSent) {
+    return;
+  }
+
+  var DNTHeader = mimeHdr.extractHeader("Disposition-Notification-To", false);
+  var oldDNTHeader = mimeHdr.extractHeader("Return-Receipt-To", false);
+  if (!DNTHeader && !oldDNTHeader) {
+    return;
+  }
+
+  // Everything looks good so far, let's generate the MDN response.
+  var mdnGenerator = Cc[
+    "@mozilla.org/messenger-mdn/generator;1"
+  ].createInstance(Ci.nsIMsgMdnGenerator);
+  const MDN_DISPOSE_TYPE_DISPLAYED = 0;
+  let askUser = mdnGenerator.process(
+    MDN_DISPOSE_TYPE_DISPLAYED,
+    top.msgWindow,
+    msgFolder,
+    gMessage.messageKey,
+    mimeHdr,
+    false
+  );
+  if (askUser) {
+    gMessageNotificationBar.setMDNMsg(mdnGenerator, gMessage, mimeHdr);
+  }
+}
+
+function SendMDNResponse() {
+  gMessageNotificationBar.mdnGenerator.userAgreed();
+}
+
+function IgnoreMDNResponse() {
+  gMessageNotificationBar.mdnGenerator.userDeclined();
+}
+
+// An object to help collecting reading statistics of secure emails.
+var gSecureMsgProbe = {};
+
+/**
+ * Update gSecureMsgProbe and report to telemetry if necessary.
+ */
+function reportMsgRead({ isNewRead = false, key = null }) {
+  if (isNewRead) {
+    gSecureMsgProbe.isNewRead = true;
+  }
+  if (key) {
+    gSecureMsgProbe.key = key;
+  }
+  if (gSecureMsgProbe.key && gSecureMsgProbe.isNewRead) {
+    Services.telemetry.keyedScalarAdd(
+      "tb.mails.read_secure",
+      gSecureMsgProbe.key,
+      1
+    );
+  }
+}
+
+window.addEventListener("secureMsgLoaded", event => {
+  reportMsgRead({ key: event.detail.key });
+});

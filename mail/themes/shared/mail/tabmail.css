@@ -24,11 +24,6 @@
   --tabline-color: var(--lwt-tab-line-color, currentColor);
 }
 
-:root[tabsintitlebar] #toolbar-menubar[autohide=true] ~
-  #tabs-toolbar > #tabbar-toolbar {
-  margin-inline-start: 40px;
-}
-
 #tabmail-arrowscrollbox {
   min-height: var(--tab-min-height);
 }
@@ -163,15 +158,12 @@ button.tab-close-button {
   background-clip: padding-box;
 }
 
-:root[extradragspace],
-:root:not([tabsintitlebar]) #tabs-toolbar,
-#toolbar-menubar[toolbarname]:not([autohide=true]) ~ #tabs-toolbar {
+#tabs-toolbar {
   --tabs-top-border-width: 1px;
 }
 
-:root[extradragspace] .tab-background,
-:root:not([tabsintitlebar]) .tab-background,
-#toolbar-menubar[toolbarname]:not([autohide=true]) ~ #tabs-toolbar > #tabmail-tabs .tab-background {
+.tab-background,
+#tabs-toolbar > #tabmail-tabs .tab-background {
   border-top-style: solid;
 }
 
@@ -310,11 +302,7 @@ button.tab-close-button {
 /* Show full height tab separators on hover. */
 .tabmail-tab:not([selected=true]):last-child:hover::after,
 .tabmail-tab:not([selected]) + .tabmail-tab:not([selected]):hover::before,
-.tabmail-tab:not([selected]):hover + .tabmail-tab:not([selected])::before,
-:root[tabsintitlebar]:not([extradragspace]) #toolbar-menubar[autohide=true] ~
-  #tabs-toolbar > #tabmail-tabs > .tabmail-tab::after,
-:root[tabsintitlebar]:not([extradragspace]) #toolbar-menubar[autohide=true] ~
-  #tabs-toolbar > #tabmail-tabs > .tabmail-tab::before {
+.tabmail-tab:not([selected]):hover + .tabmail-tab:not([selected])::before {
   margin-top: var(--tabs-top-border-width);
   margin-bottom: var(--tabs-tabbar-border-size);
 }
@@ -509,13 +497,4 @@ button.tab-close-button {
 .back-btn:-moz-locale-dir(rtl),
 .forward-btn:-moz-locale-dir(ltr) {
   list-style-image: var(--icon-nav-forward);
-}
-
-/*
- Show the ::before pseudo element if the pinned button of the spaces toolbar is visible.
-*/
-#spacesPinnedButton:not([collapsed="true"]) + #tabmail-tabs .tabmail-tab:first-child::before {
-  content: '';
-  display: -moz-box;
-  margin-inline-start: 0;
 }

@@ -4,9 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../mailnews/extensions/smime/msgReadSMIMEOverlay.js */
-/* import-globals-from ../../../base/content/folderDisplay.js */
-/* import-globals-from ../../../base/content/mailWindow.js */
+/* import-globals-from ../../../base/content/aboutMessage.js */
 /* import-globals-from ../../../base/content/msgHdrView.js */
+/* import-globals-from ../../../base/content/msgSecurityPane.js */
 
 var gEncryptedURIService = null;
 var gMyLastEncryptedURI = null;
@@ -18,9 +18,7 @@ var gEncryptionStatusForURI = null;
 
 // Get the necko URL for the message URI.
 function neckoURLForMessageURI(aMessageURI) {
-  let msgSvc = Cc["@mozilla.org/messenger;1"]
-    .createInstance(Ci.nsIMessenger)
-    .messageServiceFromURI(aMessageURI);
+  let msgSvc = MailServices.messageServiceFromURI(aMessageURI);
   let neckoURI = msgSvc.getUrlForUri(aMessageURI);
   return neckoURI.spec;
 }
@@ -166,10 +164,10 @@ var smimeHeaderSink = {
    *         message is displayed in a separate window.
    */
   getSelectedMessageURI() {
-    if (!gFolderDisplay.selectedMessage) {
+    if (!gMessage) {
       return null;
     }
-    if (!gFolderDisplay.selectedMessage.folder) {
+    if (!gFolder) {
       // The folder should be absent only if the message gets opened
       // from an external file (.eml), which is opened in its own window.
       // That window won't get reused for other messages. We conclude
@@ -180,7 +178,7 @@ var smimeHeaderSink = {
       return null;
     }
 
-    return neckoURLForMessageURI(gFolderDisplay.selectedMessageUris[0]);
+    return neckoURLForMessageURI(gMessageURI);
   },
 
   signedStatus(
@@ -216,6 +214,7 @@ var smimeHeaderSink = {
     }
 
     gSignatureStatusForURI = aMsgNeckoURL;
+    // eslint-disable-next-line no-global-assign
     gSignatureStatus = aSignatureStatus;
     gSignerCert = aSignerCert;
 
@@ -303,6 +302,7 @@ var smimeHeaderSink = {
     }
 
     gEncryptionStatusForURI = aMsgNeckoURL;
+    // eslint-disable-next-line no-global-assign
     gEncryptionStatus = aEncryptionStatus;
     gEncryptionCert = aRecipientCert;
 
@@ -310,7 +310,7 @@ var smimeHeaderSink = {
 
     if (gEncryptedURIService) {
       // Remember the message URI and the corresponding necko URI.
-      gMyLastEncryptedURI = gFolderDisplay.selectedMessageUris[0];
+      gMyLastEncryptedURI = gMessageURI;
       gEncryptedURIService.rememberEncrypted(gMyLastEncryptedURI);
       gEncryptedURIService.rememberEncrypted(
         neckoURLForMessageURI(gMyLastEncryptedURI)
@@ -332,21 +332,22 @@ var smimeHeaderSink = {
           .GetStringFromName("CantDecryptBody")
           .replace(/%brand%/g, brand);
 
-        // insert our message
-        msgWindow.displayHTMLInMessagePane(
-          title,
-          "<html>\n" +
-            '<body bgcolor="#fafaee">\n' +
-            "<center><br><br><br>\n" +
-            "<table>\n" +
-            "<tr><td>\n" +
-            '<center><strong><font size="+3">\n' +
-            title +
-            "</font></center><br>\n" +
-            body +
-            "\n" +
-            "</td></tr></table></center></body></html>",
-          false
+        // TODO: This should be replaced with a real page, and made not ugly.
+        HideMessageHeaderPane();
+        MailE10SUtils.loadURI(
+          content,
+          "data:text/html;base64," +
+            btoa(
+              `<html>
+              <head>
+                <title>${title}</title>
+              </head>
+              <body>
+                <h1>${title}</h1>
+                ${body}
+              </body>
+            </html>`
+            )
         );
         break;
     }
@@ -380,7 +381,9 @@ function forgetEncryptedURI() {
 }
 
 function onSMIMEStartHeaders() {
+  // eslint-disable-next-line no-global-assign
   gEncryptionStatus = -1;
+  // eslint-disable-next-line no-global-assign
   gSignatureStatus = -1;
 
   gSignatureStatusForURI = null;
@@ -427,10 +430,6 @@ function msgHdrViewSMIMEOnLoad(event) {
     );
   }
 
-  // we want to register our security header sink as an opaque nsISupports
-  // on the msgHdrSink used by mail.....
-  msgWindow.msgHeaderSink.securityInfo = smimeHeaderSink;
-
   // Add ourself to the list of message display listeners so we get notified
   // when we are about to display a message.
   var listener = {};
@@ -439,6 +438,7 @@ function msgHdrViewSMIMEOnLoad(event) {
   listener.onBeforeShowHeaderPane = onSMIMEBeforeShowHeaderPane;
   gMessageListeners.push(listener);
 
+  // eslint-disable-next-line no-global-assign
   gEncryptedURIService = Cc[
     "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"
   ].getService(Ci.nsIEncryptedSMIMEURIsService);

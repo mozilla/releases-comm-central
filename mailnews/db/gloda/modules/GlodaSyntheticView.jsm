@@ -164,7 +164,9 @@ GlodaSyntheticView.prototype = {
   onItemsRemoved(aItems, aCollection) {},
   onQueryCompleted(aCollection) {
     this.completed = true;
-    this.searchListener.onSearchDone(Cr.NS_OK);
+    if (this.searchListener) {
+      this.searchListener.onSearchDone(Cr.NS_OK);
+    }
     if (this.completionCallback) {
       this.completionCallback();
     }

@@ -34,6 +34,7 @@ var {
   be_in_folder,
   close_message_window,
   create_folder,
+  get_about_message,
   mc,
   open_message_from_file,
   open_selected_message,
@@ -271,20 +272,15 @@ function addMsgToFolderAndCheckContent(folder, test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been loaded
+  let messageDocument = get_about_message().content.contentDocument;
   if (test.shouldBeBlocked) {
-    if (
-      test.checkForAllowed(
-        mc.window.content.document.getElementById("testelement")
-      )
-    ) {
+    if (test.checkForAllowed(messageDocument.getElementById("testelement"))) {
       throw new Error(
         test.type + " has not been blocked in message content as expected."
       );
     }
   } else if (
-    !test.checkForAllowed(
-      mc.window.content.document.getElementById("testelement")
-    )
+    !test.checkForAllowed(messageDocument.getElementById("testelement"))
   ) {
     throw new Error(
       test.type + " has been unexpectedly blocked in message content."
@@ -366,10 +362,11 @@ async function checkStandaloneMessageWindow(test, loadAllowed) {
  */
 async function checkEMLMessageWindow(test, emlFile) {
   let msgc = await open_message_from_file(emlFile);
-  if (!msgc.e("mail-notification-top")) {
+  let aboutMessage = get_about_message(msgc.window);
+  if (!aboutMessage.document.getElementById("mail-notification-top")) {
     throw new Error(test.type + " has no content notification bar.");
   }
-  if (msgc.e("mail-notification-top").collapsed) {
+  if (aboutMessage.document.getElementById("mail-notification-top").collapsed) {
     throw new Error(test.type + " content notification bar not shown.");
   }
 
@@ -410,26 +407,37 @@ async function allowRemoteContentAndCheck(test) {
   info(`Checking allow remote content; test=${test.type}`);
   addMsgToFolderAndCheckContent(folder, test);
 
-  plan_for_message_display(mc);
+  let aboutMessage = get_about_message();
 
   // Click on the allow remote content button
   const kBoxId = "mail-notification-top";
   const kNotificationValue = "remoteContent";
-  wait_for_notification_to_show(mc, kBoxId, kNotificationValue);
-  let prefButton = get_notification_button(mc, kBoxId, kNotificationValue, {
-    popup: "remoteContentOptions",
-  });
-  EventUtils.synthesizeMouseAtCenter(prefButton, { clickCount: 1 }, mc.window);
-  await mc.click_menus_in_sequence(mc.e("remoteContentOptions"), [
-    { id: "remoteContentOptionAllowForMsg" },
-  ]);
-  wait_for_notification_to_stop(mc, kBoxId, kNotificationValue);
+  wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
+  let prefButton = get_notification_button(
+    aboutMessage,
+    kBoxId,
+    kNotificationValue,
+    {
+      popup: "remoteContentOptions",
+    }
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    prefButton,
+    { clickCount: 1 },
+    aboutMessage
+  );
+  aboutMessage.document
+    .getElementById("remoteContentOptions")
+    .activateItem(
+      aboutMessage.document.getElementById("remoteContentOptionAllowForMsg")
+    );
+  wait_for_notification_to_stop(aboutMessage, kBoxId, kNotificationValue);
 
   wait_for_message_display_completion(mc, true);
 
   if (
     !test.checkForAllowed(
-      mc.window.content.document.getElementById("testelement")
+      aboutMessage.content.contentDocument.getElementById("testelement")
     )
   ) {
     throw new Error(
@@ -485,11 +493,8 @@ function checkAllowFeedMsg(test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked
-  if (
-    !test.checkForAllowed(
-      mc.window.content.document.getElementById("testelement")
-    )
-  ) {
+  let messageDocument = get_about_message().content.contentDocument;
+  if (!test.checkForAllowed(messageDocument.getElementById("testelement"))) {
     throw new Error(
       test.type + " has been unexpectedly blocked in feed message content."
     );
@@ -525,11 +530,8 @@ function checkAllowForSenderWithPerms(test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked
-  if (
-    !test.checkForAllowed(
-      mc.window.content.document.getElementById("testelement")
-    )
-  ) {
+  let messageDocument = get_about_message().content.contentDocument;
+  if (!test.checkForAllowed(messageDocument.getElementById("testelement"))) {
     throw new Error(
       `${test.type} has been unexpectedly blocked for sender=${authorEmailAddress}`
     );
@@ -558,7 +560,9 @@ function checkAllowForHostsWithPerms(test) {
   Assert.equal(msgDbHdr, msgHdr);
   assert_selected_and_displayed(gMsgNo);
 
-  let src = mc.window.content.document.getElementById("testelement").src;
+  let aboutMessage = get_about_message();
+  let messageDocument = aboutMessage.content.contentDocument;
+  let src = messageDocument.getElementById("testelement").src;
 
   if (!src.startsWith("http")) {
     // Just test http in this test.
@@ -577,11 +581,8 @@ function checkAllowForHostsWithPerms(test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked.
-  if (
-    !test.checkForAllowed(
-      mc.window.content.document.getElementById("testelement")
-    )
-  ) {
+  messageDocument = aboutMessage.content.contentDocument;
+  if (!test.checkForAllowed(messageDocument.getElementById("testelement"))) {
     throw new Error(
       test.type + " has been unexpectedly blocked for url=" + uri.spec
     );
@@ -593,7 +594,7 @@ function checkAllowForHostsWithPerms(test) {
 }
 
 add_task(async function test_generalContentPolicy() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   assert_nothing_selected();
 
@@ -614,7 +615,8 @@ add_task(async function test_generalContentPolicy() {
         // Only want to do this for the test case which has the remote image.
 
         // Add the site to the whitelist.
-        let src = mc.window.content.document.getElementById("testelement").src;
+        let messageDocument = get_about_message().content.contentDocument;
+        let src = messageDocument.getElementById("testelement").src;
 
         let uri = Services.io.newURI(src);
         addPermission(uri, Services.perms.ALLOW_ACTION);
@@ -683,7 +685,7 @@ add_task(async function test_imgAuth() {
   );
 
   // Select the newly created message.
-  be_in_folder(folder);
+  await be_in_folder(folder);
   select_click_row(gMsgNo);
 
   // Open reply/fwd. If we get a prompt the test will timeout.
@@ -754,7 +756,7 @@ function putHTMLOnClipboard(html) {
   Services.clipboard.setData(trans, null, Ci.nsIClipboard.kGlobalClipboard);
 }
 
-function subtest_insertImageIntoReplyForward(aReplyType) {
+async function subtest_insertImageIntoReplyForward(aReplyType) {
   let msgDbHdr = addToFolder(
     "Test insert image into reply or forward",
     "Stand by for image insertion ;-)",
@@ -762,7 +764,7 @@ function subtest_insertImageIntoReplyForward(aReplyType) {
   );
 
   // Select the newly created message.
-  be_in_folder(folder);
+  await be_in_folder(folder);
   let msgHdr = select_click_row(gMsgNo);
 
   if (msgDbHdr != msgHdr) {
@@ -849,10 +851,10 @@ function subtest_insertImageIntoReplyForward(aReplyType) {
   close_compose_window(replyWindow);
 }
 
-add_task(function test_insertImageIntoReply() {
-  subtest_insertImageIntoReplyForward(true);
+add_task(async function test_insertImageIntoReply() {
+  await subtest_insertImageIntoReplyForward(true);
 });
 
-add_task(function test_insertImageIntoForward() {
-  subtest_insertImageIntoReplyForward(false);
+add_task(async function test_insertImageIntoForward() {
+  await subtest_insertImageIntoReplyForward(false);
 });

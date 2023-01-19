@@ -50,7 +50,7 @@ add_setup(async function() {
   await make_message_sets_in_folders([gInbox], [{ count: 6 }]);
 
   // We delete the first message so that we have to compact anything.
-  be_in_folder(gInbox);
+  await be_in_folder(gInbox);
   let curMessage = select_click_row(0);
   press_delete(mc);
   Assert.notEqual(curMessage, select_click_row(0));
@@ -119,8 +119,9 @@ async function check_status(folder, offset, expectedStatus) {
 }
 
 add_task(async function test_mark_messages_read() {
+  be_in_folder(gOutbox); // TODO shouldn't have to swap folders
   // 5 messages in the folder
-  be_in_folder(gInbox);
+  await be_in_folder(gInbox);
   let curMessage = select_click_row(0);
   // Store the offset because it will be unavailable via the hdr
   // after the message is deleted.
@@ -141,10 +142,10 @@ add_task(async function test_mark_messages_read() {
   // Make sure we can mark all read with >0 messages unread.
   await right_click_on_row(0);
   let hiddenPromise = BrowserTestUtils.waitForEvent(
-    mc.e("mailContext"),
+    getMailContext(),
     "popuphidden"
   );
-  await mc.click_menus_in_sequence(mc.e("mailContext"), [
+  await mc.click_menus_in_sequence(getMailContext(), [
     { id: "mailContext-mark" },
     { id: "mailContext-markAllRead" },
   ]);
@@ -183,10 +184,10 @@ add_task(async function test_mark_messages_read() {
   // Let's have the last message unread.
   await right_click_on_row(3);
   hiddenPromise = BrowserTestUtils.waitForEvent(
-    mc.e("mailContext"),
+    getMailContext(),
     "popuphidden"
   );
-  await mc.click_menus_in_sequence(mc.e("mailContext"), [
+  await mc.click_menus_in_sequence(getMailContext(), [
     { id: "mailContext-mark" },
     { id: "mailContext-markUnread" },
   ]);
@@ -202,10 +203,10 @@ add_task(async function test_mark_messages_flagged() {
   let curMessage = select_click_row(1);
   await right_click_on_row(1);
   let hiddenPromise = BrowserTestUtils.waitForEvent(
-    mc.e("mailContext"),
+    getMailContext(),
     "popuphidden"
   );
-  await mc.click_menus_in_sequence(mc.e("mailContext"), [
+  await mc.click_menus_in_sequence(getMailContext(), [
     { id: "mailContext-mark" },
     { id: "mailContext-markFlagged" },
   ]);
@@ -222,7 +223,7 @@ add_task(async function test_mark_messages_flagged() {
 
 async function subtest_check_queued_message() {
   // Always check the last message in the Outbox for the correct flag.
-  be_in_folder(gOutbox);
+  await be_in_folder(gOutbox);
   let lastMsg = [...gOutbox.messages].pop();
   await check_status(
     gOutbox,
@@ -238,7 +239,7 @@ async function subtest_check_queued_message() {
  * @param aReply   true = reply, false = forward.
  */
 async function reply_forward_message(aMsgRow, aReply) {
-  be_in_folder(gInbox);
+  await be_in_folder(gInbox);
   select_click_row(aMsgRow);
   let cwc;
   if (aReply) {
@@ -273,7 +274,7 @@ async function reply_forward_message(aMsgRow, aReply) {
   // .addMessageDispositionState(). So call it directly and check the expected
   // flags were set. This is risky as the real code could change and call
   // a different function and the purpose of this test would be lost.
-  be_in_folder(gInbox);
+  await be_in_folder(gInbox);
   let curMessage = select_click_row(aMsgRow);
   let disposition = aReply
     ? gInbox.nsMsgDispositionState_Replied
@@ -292,7 +293,7 @@ add_task(async function test_mark_messages_replied() {
 });
 
 add_task(async function test_mark_messages_forwarded() {
-  be_in_folder(gInbox);
+  await be_in_folder(gInbox);
   // Forward a clean message.
   await reply_forward_message(3, false);
   let curMessage = select_click_row(3);
@@ -319,11 +320,11 @@ add_task(async function test_mark_messages_forwarded() {
   );
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(async function() {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", gAutoRead);
   // Clear all the created messages.
-  be_in_folder(gInbox.parent);
-  empty_folder(gInbox);
-  empty_folder(gOutbox);
+  await be_in_folder(gInbox.parent);
+  await empty_folder(gInbox);
+  // await empty_folder(gOutbox); TODO
   gInbox.server.rootFolder.emptyTrash(null, null);
 });

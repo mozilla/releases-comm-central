@@ -271,11 +271,6 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId) {
   var customizePopup = document.getElementById(customizePopupId);
   customizePopup.removeAttribute("disabled");
 
-  // make sure our toolbar buttons have the correct enabled state restored to them...
-  if (this.UpdateMailToolbar != undefined) {
-    UpdateMailToolbar(focus);
-  }
-
   let toolbox = document.querySelector('[doCustomization="true"]');
   if (toolbox) {
     toolbox.removeAttribute("doCustomization");

@@ -298,8 +298,16 @@ async function subtest_content(
     );
   }
 
-  let ownerDocument = browser.ownerDocument;
-  let menu = ownerDocument.getElementById(browser.getAttribute("context"));
+  let menuId = browser.getAttribute("context");
+  let ownerDocument;
+  if (browser.ownerGlobal.parent.location.href == "about:3pane") {
+    ownerDocument = browser.ownerGlobal.parent.document;
+  } else if (menuId == "browserContext") {
+    ownerDocument = browser.ownerGlobal.top.document;
+  } else {
+    ownerDocument = browser.ownerDocument;
+  }
+  let menu = ownerDocument.getElementById(menuId);
 
   await BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser);
 

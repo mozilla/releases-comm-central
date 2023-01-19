@@ -125,9 +125,6 @@ function getContentFromMessage(aMsgHdr) {
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
   return new Promise((resolve, reject) => {
     let streamListener = {
       QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
@@ -149,8 +146,14 @@ function getContentFromMessage(aMsgHdr) {
         }
       },
     };
-    messenger
-      .messageServiceFromURI(msgUri)
-      .streamMessage(msgUri, streamListener, null, null, false, "", false);
+    MailServices.messageServiceFromURI(msgUri).streamMessage(
+      msgUri,
+      streamListener,
+      null,
+      null,
+      false,
+      "",
+      false
+    );
   });
 }

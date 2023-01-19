@@ -23,8 +23,7 @@ var { close_window } = ChromeUtils.import(
  * @param aDontWantToSee  Content of other MIME parts we don't want to see.
  */
 function check_content(aWindow, aExpected, aDontWantToSee) {
-  let messagePane = aWindow.document.getElementById("messagepane");
-  let messageContent = messagePane.contentDocument.documentElement.textContent;
+  let messageContent = aWindow.content.document.documentElement.textContent;
 
   if (aExpected != aDontWantToSee) {
     Assert.ok(

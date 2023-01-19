@@ -482,7 +482,6 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       this.tabMonitors = [];
       this.recentlyClosedTabs = [];
       this.mLastTabOpener = null;
-      this.mTabsProgressListeners = new Set();
       this.unrestoredTabs = [];
 
       // @implements {nsIController}
@@ -738,89 +737,8 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       // event to ensure we have an accurate title.  We assume the tab
       // contents will set themselves up correctly.
       if (this.tabInfo.length == 0) {
-        if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
-          let tab = this.openTab("mail3PaneTab", { first: true });
-          this.tabs[0].linkedPanel = tab.panel.id;
-          return;
-        }
-
-        let firstTab = {
-          mode: this.defaultTabMode,
-          busy: false,
-          canClose: false,
-          thinking: false,
-          _ext: {},
-          get linkedBrowser() {
-            // This is a hack to make Marionette work. It needs a linkedBrowser
-            // from the first tab before it will start. Because linkedBrowser is
-            // implemented as a getter, it's ignored by anything that
-            // JSON-serializes this tab.
-            let browserFunc =
-              this.mode.getBrowser || this.mode.tabType.getBrowser;
-            let browser = browserFunc
-              ? browserFunc.call(this.mode.tabType, this)
-              : null;
-            if (browser && !("permanentKey" in browser)) {
-              // The permanentKey property is a unique Object, thus allowing this
-              // browser to be stored in a WeakMap.
-              // Use the JSM global to create the permanentKey, so that if the
-              // permanentKey is held by something after this window closes, it
-              // doesn't keep the window alive.
-              browser.permanentKey = new (Cu.getGlobalForObject(
-                Services
-              ).Object)();
-            }
-            return browser;
-          },
-        };
-
-        firstTab.tabNode = this.tabContainer.arrowScrollbox.firstElementChild;
-        firstTab.tabId = this.tabId++;
-
-        firstTab.mode.tabs.push(firstTab);
-        this.tabs[0].linkedPanel = "mailContent";
-        this.tabInfo[0] = this.currentTabInfo = firstTab;
-        let tabOpenFirstFunc =
-          firstTab.mode.openFirstTab || firstTab.mode.tabType.openFirstTab;
-        tabOpenFirstFunc.call(firstTab.mode.tabType, firstTab);
-        this.setTabTitle(null);
-
-        // Set the tabId after defining a <browser> and before notifications.
-        firstTab.browser = this.getBrowserForTab(firstTab);
-        firstTab.browser._activeTabId = firstTab.tabId;
-
-        // Register browser progress listeners. For firstTab, it is the shared
-        // #messagepane so only do it once.
-
-        for (let tabMonitor of this.tabMonitors) {
-          try {
-            if ("onTabOpened" in tabMonitor) {
-              tabMonitor.onTabOpened(firstTab, true);
-            }
-            tabMonitor.onTabSwitched(firstTab, null);
-          } catch (ex) {
-            console.error(ex);
-          }
-        }
-
-        let panel = document.getElementById(firstTab.tabNode.linkedPanel);
-        panel.setAttribute("selected", "true");
-
-        // Dispatch tab opening event
-        let evt = new CustomEvent("TabOpen", {
-          bubbles: true,
-          detail: { tabInfo: firstTab, moving: false },
-        });
-        firstTab.tabNode.dispatchEvent(evt);
-
-        firstTab.browser._progressListener = new TabProgressListener(
-          firstTab.browser,
-          this
-        );
-        firstTab.browser.webProgress.addProgressListener(
-          firstTab.browser._progressListener,
-          Ci.nsIWebProgress.NOTIFY_ALL
-        );
+        let tab = this.openTab("mail3PaneTab", { first: true });
+        this.tabs[0].linkedPanel = tab.panel.id;
       }
     }
 
@@ -979,9 +897,6 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
             tab.linkedBrowser = browser;
           }
         }
-        if (tab.browser && !background) {
-          tab.browser._activeTabId = tab.tabId;
-        }
 
         let restoreState = this._restoringTabState;
         for (let tabMonitor of this.tabMonitors) {
@@ -1016,9 +931,6 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
         if (!background) {
           this.setDocumentTitle(tab);
-          // Update the toolbar status - we don't need to do menus as they
-          // do themselves when we open them.
-          UpdateMailToolbar("tabmail");
           // Move the focus on the newly selected tab.
           this.panelContainer.selectedPanel.focus();
         }
@@ -1032,17 +944,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         t.dispatchEvent(evt);
         delete tab.beforeTabOpen;
 
-        // Register browser progress listeners
-        if (browser && browser.webProgress && !browser._progressListener) {
-          // It would probably be better to have the tabs register this listener, since the
-          // browser can change. This wasn't trivial to do while implementing basic WebExtension
-          // support, so let's assume one browser only for now.
-          browser._progressListener = new TabProgressListener(browser, this);
-          browser.webProgress.addProgressListener(
-            browser._progressListener,
-            Ci.nsIWebProgress.NOTIFY_ALL
-          );
-        }
+        contentProgress.addProgressListenerToBrowser(browser);
 
         return tab;
       } catch (e) {
@@ -1448,11 +1350,11 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
     }
 
     restoreTab(aState) {
-      // Migrate new mail tabs to old mail tabs.
-      if (aState.mode == "mail3PaneTab") {
-        aState.mode = "folder";
-      } else if (aState.mode == "mailMessageTab") {
-        aState.mode = "message";
+      // Migrate old mail tabs to new mail tabs. This can be removed after ESR 115.
+      if (aState.mode == "folder") {
+        aState.mode = "mail3PaneTab";
+      } else if (aState.mode == "message") {
+        aState.mode = "mailMessageTab";
       }
 
       // if we no longer know about the mode, we can't restore the tab
@@ -1524,6 +1426,35 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         let tab = this.tabInfo[i];
         let tabCloseFunc = tab.mode.closeTab || tab.mode.tabType.closeTab;
         tabCloseFunc.call(tab.mode.tabType, tab);
+      }
+    }
+
+    /**
+     * The content window of the current tab, if it is a 3-pane tab.
+     *
+     * @type {?Window}
+     */
+    get currentAbout3Pane() {
+      if (this.currentTabInfo.mode.name == "mail3PaneTab") {
+        return this.currentTabInfo.chromeBrowser.contentWindow;
+      }
+      return null;
+    }
+
+    /**
+     * The content window of the current tab, if it is a message tab, OR if it
+     * is a 3-pane tab, the content window of the message browser within.
+     *
+     * @type {?Window}
+     */
+    get currentAboutMessage() {
+      switch (this.currentTabInfo.mode.name) {
+        case "mail3PaneTab":
+          return this.currentAbout3Pane.messageBrowser.contentWindow;
+        case "mailMessageTab":
+          return this.currentTabInfo.chromeBrowser.contentWindow;
+        default:
+          return null;
       }
     }
 
@@ -1605,13 +1536,8 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
     }
 
     getTabForBrowser(aBrowser) {
-      // Tabs from the "mail" type share the same browser. Return the active
-      // one, if possible.
-      if (
-        aBrowser &&
-        aBrowser.id == "messagepane" &&
-        this.selectedTab.mode.tabType.name == "mail"
-      ) {
+      // Check the selected browser first, since that's the most likely.
+      if (this.getBrowserForSelectedTab() == aBrowser) {
         return this.currentTabInfo;
       }
       for (let tabInfo of this.tabInfo) {
@@ -1680,9 +1606,6 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
             tab.linkedBrowser = browser;
           }
         }
-        if (tab.browser) {
-          tab.browser._activeTabId = tab.tabId;
-        }
 
         for (let tabMonitor of this.tabMonitors) {
           try {
@@ -1701,10 +1624,6 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         // active tabs should not have the wasThinking attribute
         this.tabContainer.selectedItem.removeAttribute("wasThinking");
         this.setDocumentTitle(tab);
-
-        // Update the toolbar status - we don't need to do menus as they
-        // do themselves when we open them.
-        UpdateMailToolbar("tabmail");
 
         // We switched tabs, so we don't need to know the last tab
         // opener anymore.
@@ -1912,30 +1831,6 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       document.title = docTitle;
     }
 
-    addTabsProgressListener(aListener) {
-      this.mTabsProgressListeners.add(aListener);
-    }
-
-    removeTabsProgressListener(aListener) {
-      this.mTabsProgressListeners.delete(aListener);
-    }
-
-    _callTabListeners(aMethod, aArgs) {
-      let rv = true;
-      for (let listener of this.mTabsProgressListeners.values()) {
-        if (aMethod in listener) {
-          try {
-            if (!listener[aMethod](...aArgs)) {
-              rv = false;
-            }
-          } catch (e) {
-            console.error(e);
-          }
-        }
-      }
-      return rv;
-    }
-
     // Called by <browser>, unused by tabmail.
     finishBrowserRemotenessChange(browser, loadSwitchId) {}
 
@@ -1960,56 +1855,6 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
   }
 
   customElements.define("tabmail", MozTabmail);
-
-  // @implements {nsIWebProgressListener}
-  class TabProgressListener {
-    constructor(browser, tabmail) {
-      this.browser = browser;
-      this.tabmail = tabmail;
-    }
-
-    _callTabListeners(method, args) {
-      args.unshift(this.browser);
-      this.tabmail._callTabListeners(method, args);
-    }
-
-    onProgressChange(...args) {
-      this._callTabListeners("onProgressChange", args);
-    }
-
-    onProgressChange64(...args) {
-      this._callTabListeners("onProgressChange64", args);
-    }
-
-    onLocationChange(...args) {
-      this._callTabListeners("onLocationChange", args);
-    }
-
-    onStateChange(...args) {
-      this._callTabListeners("onStateChange", args);
-    }
-
-    onStatusChange(...args) {
-      this._callTabListeners("onStatusChange", args);
-    }
-
-    onSecurityChange(...args) {
-      this._callTabListeners("onSecurityChange", args);
-    }
-
-    onContentBlockingEvent(...args) {
-      this._callTabListeners("onContentBlockingEvent", args);
-    }
-
-    onRefreshAttempted(...args) {
-      return this._callTabListeners("onRefreshAttempted", args);
-    }
-  }
-  TabProgressListener.prototype.QueryInterface = ChromeUtils.generateQI([
-    "nsIWebProgressListener",
-    "nsIWebProgressListener2",
-    "nsISupportsWeakReference",
-  ]);
 }
 
 // Set up the tabContextMenu, which is used as the context menu for all tabmail

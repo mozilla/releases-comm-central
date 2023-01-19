@@ -88,11 +88,8 @@ async function testOpenMessages(testConfig) {
     },
   });
 
-  document
-    .getElementById("folderpane_splitter")
-    .setAttribute("state", "opened");
-
-  window.gFolderTreeView.selectFolder(gRootFolder.getChildNamed("otherFolder"));
+  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  about3Pane.displayFolder(gRootFolder.getChildNamed("otherFolder"));
 
   extension.onMessage("getTestConfig", async () => {
     extension.sendMessage(testConfig);
@@ -101,10 +98,6 @@ async function testOpenMessages(testConfig) {
   await extension.startup();
   await extension.awaitFinish();
   await extension.unload();
-
-  document
-    .getElementById("folderpane_splitter")
-    .setAttribute("state", "collapsed");
 }
 
 add_task(async function testHeaderMessageIdActiveDefault() {

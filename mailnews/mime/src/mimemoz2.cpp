@@ -38,10 +38,9 @@
 #include "nsIIOService.h"
 #include "nsIURI.h"
 #include "nsNetCID.h"
-#include "nsIMsgWindow.h"
-#include "nsIMimeMiscStatus.h"
 #include "nsMsgUtils.h"
 #include "nsIChannel.h"
+#include "nsIMailChannel.h"
 #include "mimeebod.h"
 #include "mimeeobj.h"
 // <for functions="HTML2Plaintext,HTMLSantinize">
@@ -702,43 +701,18 @@ extern "C" nsresult SetMailCharacterSetToMsgWindow(MimeObject* obj,
   if (obj && obj->options) {
     mime_stream_data* msd = (mime_stream_data*)(obj->options->stream_closure);
     if (msd) {
-      nsIChannel* channel = msd->channel;
-      if (channel) {
-        nsCOMPtr<nsIURI> uri;
-        channel->GetURI(getter_AddRefs(uri));
-        if (uri) {
-          nsCOMPtr<nsIMsgMailNewsUrl> msgurl(do_QueryInterface(uri));
-          if (msgurl) {
-            nsCOMPtr<nsIMsgWindow> msgWindow;
-            msgurl->GetMsgWindow(getter_AddRefs(msgWindow));
-            if (msgWindow)
-              rv = msgWindow->SetMailCharacterSet(
-                  !PL_strcasecmp(aCharacterSet, "us-ascii")
-                      ? static_cast<const nsCString&>("ISO-8859-1"_ns)
-                      : static_cast<const nsCString&>(
-                            nsDependentCString(aCharacterSet)));
-          }
+      nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(msd->channel);
+      if (mailChannel) {
+        if (!PL_strcasecmp(aCharacterSet, "us-ascii")) {
+          mailChannel->SetMailCharacterSet("ISO-8859-1"_ns);
+        } else {
+          mailChannel->SetMailCharacterSet(nsCString(aCharacterSet));
         }
       }
     }
   }
 
   return rv;
-}
-
-static void ResetMsgHeaderSinkProps(nsIURI* uri) {
-  nsCOMPtr<nsIMsgMailNewsUrl> msgurl(do_QueryInterface(uri));
-  if (!msgurl) return;
-
-  nsCOMPtr<nsIMsgWindow> msgWindow;
-  msgurl->GetMsgWindow(getter_AddRefs(msgWindow));
-  if (!msgWindow) return;
-
-  nsCOMPtr<nsIMsgHeaderSink> msgHeaderSink;
-  msgWindow->GetMsgHeaderSink(getter_AddRefs(msgHeaderSink));
-  if (!msgHeaderSink) return;
-
-  msgHeaderSink->ResetProperties();
 }
 
 static char* mime_file_type(const char* filename, void* stream_closure) {
@@ -1473,8 +1447,6 @@ extern "C" void* mime_bridge_create_display_stream(
     PR_Free(obj);
     return 0;
   }
-
-  ResetMsgHeaderSinkProps(uri);
 
   memset(stream, 0, sizeof(*stream));
   stream->name = "MIME Conversion Stream";

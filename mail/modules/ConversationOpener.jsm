@@ -5,6 +5,9 @@
 const EXPORTED_SYMBOLS = ["ConversationOpener"];
 
 const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
+const { GlodaSyntheticView } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaSyntheticView.jsm"
+);
 
 class ConversationOpener {
   static isMessageIndexed(message) {
@@ -13,7 +16,7 @@ class ConversationOpener {
     ) {
       return false;
     }
-    if (!message) {
+    if (!message || !message.folder) {
       return false;
     }
     return Gloda.isMessageIndexed(message);
@@ -45,9 +48,12 @@ class ConversationOpener {
         let message = collection.items[0];
         this.window.browsingContext.topChromeWindow.document
           .getElementById("tabmail")
-          .openTab("glodaList", {
-            conversation: message.conversation,
-            message,
+          .openTab("mail3PaneTab", {
+            folderPaneVisible: false,
+            syntheticView: new GlodaSyntheticView({
+              conversation: message.conversation,
+              message,
+            }),
             title: message.conversation.subject,
             background: false,
           });

@@ -55,14 +55,6 @@ add_setup(async function() {
   receiverAcct.addIdentity(receiverIdentity);
 
   calendar = CalendarTestUtils.createCalendar("Test");
-});
-
-/**
- * Tests that the identity prompt shows when accepting an invitation to an
- * event with an identity no calendar is configured to use.
- */
-add_task(async function testInvitationIdentityPrompt() {
-  window.gFolderTreeView.selectFolder(gInbox);
 
   let copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFileMessage(
@@ -76,8 +68,18 @@ add_task(async function testInvitationIdentityPrompt() {
     null
   );
   await copyListener.promise;
+});
 
-  window.gFolderDisplay.selectViewIndex(0);
+/**
+ * Tests that the identity prompt shows when accepting an invitation to an
+ * event with an identity no calendar is configured to use.
+ */
+add_task(async function testInvitationIdentityPrompt() {
+  let tabmail = document.getElementById("tabmail");
+  let about3Pane = tabmail.currentAbout3Pane;
+  let aboutMessage = tabmail.currentAboutMessage;
+  about3Pane.displayFolder(gInbox.URI);
+  about3Pane.threadTree.selectedIndex = 0;
 
   let dialogPromise = BrowserTestUtils.promiseAlertDialog(
     null,
@@ -113,12 +115,12 @@ add_task(async function testInvitationIdentityPrompt() {
     },
   });
 
-  let acceptButton = document.getElementById("imipAcceptButton");
+  let acceptButton = aboutMessage.document.getElementById("imipAcceptButton");
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.is_visible(acceptButton),
     "waiting for accept button to become visible"
   );
-  EventUtils.synthesizeMouseAtCenter(acceptButton, {});
+  EventUtils.synthesizeMouseAtCenter(acceptButton, {}, aboutMessage);
   await dialogPromise;
 
   let event;

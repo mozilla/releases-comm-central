@@ -21,6 +21,7 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_message,
+  get_about_message,
   mc,
   select_click_row,
 } = ChromeUtils.import(
@@ -171,14 +172,19 @@ add_task(async function testRedirectToMe() {
   });
   await add_message_to_folder([folder], msg0);
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   let msg = select_click_row(i++);
   assert_selected_and_displayed(mc, msg);
 
   // Open Other Actions.
-  let otherActionsButton = document.getElementById("otherActionsButton");
-  EventUtils.synthesizeMouseAtCenter(otherActionsButton, {}, mc.window);
-  let otherActionsPopup = document.getElementById("otherActionsPopup");
+  let aboutMessage = get_about_message();
+  let otherActionsButton = aboutMessage.document.getElementById(
+    "otherActionsButton"
+  );
+  EventUtils.synthesizeMouseAtCenter(otherActionsButton, {}, aboutMessage);
+  let otherActionsPopup = aboutMessage.document.getElementById(
+    "otherActionsPopup"
+  );
   let popupshown = BrowserTestUtils.waitForEvent(
     otherActionsPopup,
     "popupshown"
@@ -191,7 +197,7 @@ add_task(async function testRedirectToMe() {
   EventUtils.synthesizeMouseAtCenter(
     otherActionsPopup.firstElementChild,
     {},
-    mc.window
+    aboutMessage
   );
   let cwc = await async_wait_for_compose_window(mc, compWinPromise);
   Assert.equal(

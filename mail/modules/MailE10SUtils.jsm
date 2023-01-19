@@ -69,6 +69,10 @@ var MailE10SUtils = {
    * @param {string} remoteType
    */
   changeRemoteness(browser, remoteType) {
+    if (browser.remoteType == remoteType) {
+      return;
+    }
+
     browser.destroy();
 
     if (remoteType) {

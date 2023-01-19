@@ -1239,6 +1239,19 @@ nsMsgDBView::GetRowProperties(int32_t index, nsAString& properties) {
   else
     properties.AppendLiteral(" read");
 
+  if (flags & nsMsgMessageFlags::Replied) properties.AppendLiteral(" replied");
+
+  if (flags & nsMsgMessageFlags::Forwarded)
+    properties.AppendLiteral(" forwarded");
+
+  if (flags & nsMsgMessageFlags::Redirected)
+    properties.AppendLiteral(" redirected");
+
+  if (flags & nsMsgMessageFlags::New) properties.AppendLiteral(" new");
+
+  if (m_flags[index] & nsMsgMessageFlags::Marked)
+    properties.AppendLiteral(" flagged");
+
   // Give the custom column handlers a chance to style the row.
   for (int i = 0; i < m_customColumnHandlers.Count(); i++) {
     nsString extra;
@@ -1246,6 +1259,65 @@ nsMsgDBView::GetRowProperties(int32_t index, nsAString& properties) {
     if (!extra.IsEmpty()) {
       properties.Append(' ');
       properties.Append(extra);
+    }
+  }
+
+  // For threaded display add the ignoreSubthread property to the
+  // subthread top row (this row). For non-threaded add it to all rows.
+  if (!(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) &&
+      (flags & nsMsgMessageFlags::Ignored)) {
+    properties.AppendLiteral(" ignoreSubthread");
+  } else {
+    bool ignored;
+    msgHdr->GetIsKilled(&ignored);
+    if (ignored) properties.AppendLiteral(" ignoreSubthread");
+  }
+
+  nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(m_folder);
+
+  if ((flags & nsMsgMessageFlags::Offline) ||
+      (localFolder && !(flags & nsMsgMessageFlags::Partial)))
+    properties.AppendLiteral(" offline");
+
+  if (flags & nsMsgMessageFlags::Attachment)
+    properties.AppendLiteral(" attach");
+
+  if ((mDeleteModel == nsMsgImapDeleteModels::IMAPDelete) &&
+      (flags & nsMsgMessageFlags::IMAPDeleted))
+    properties.AppendLiteral(" imapdeleted");
+
+  nsCString imageSize;
+  msgHdr->GetStringProperty("imageSize", getter_Copies(imageSize));
+  if (!imageSize.IsEmpty()) properties.AppendLiteral(" hasimage");
+
+  nsCString junkScoreStr;
+  msgHdr->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
+  if (!junkScoreStr.IsEmpty()) {
+    if (junkScoreStr.ToInteger(&rv) == nsIJunkMailPlugin::IS_SPAM_SCORE)
+      properties.AppendLiteral(" junk");
+    else
+      properties.AppendLiteral(" notjunk");
+
+    NS_ASSERTION(NS_SUCCEEDED(rv), "Converting junkScore to integer failed.");
+  }
+
+  nsCOMPtr<nsIMsgThread> thread;
+  rv = GetThreadContainingIndex(index, getter_AddRefs(thread));
+  if (NS_SUCCEEDED(rv) && thread) {
+    uint32_t numUnreadChildren;
+    thread->GetNumUnreadChildren(&numUnreadChildren);
+    if (numUnreadChildren > 0) properties.AppendLiteral(" hasUnread");
+
+    // For threaded display add the ignore/watch properties to the
+    // thread top row. For non-threaded add it to all rows.
+    if (!(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) ||
+        ((m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) &&
+         (m_flags[index] & MSG_VIEW_FLAG_ISTHREAD))) {
+      thread->GetFlags(&flags);
+      if (flags & nsMsgMessageFlags::Watched)
+        properties.AppendLiteral(" watch");
+      if (flags & nsMsgMessageFlags::Ignored)
+        properties.AppendLiteral(" ignore");
     }
   }
 

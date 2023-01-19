@@ -386,9 +386,8 @@ class WindowTracker extends WindowTrackerBase {
    * @param {object} listener - The listener to add
    */
   addProgressListener(window, listener) {
-    let tabmail = window.document.getElementById("tabmail");
-    if (tabmail) {
-      tabmail.addTabsProgressListener(listener);
+    if (window.contentProgress) {
+      window.contentProgress.addListener(listener);
     }
   }
 
@@ -399,15 +398,14 @@ class WindowTracker extends WindowTrackerBase {
    * @param {object} listener - The listener to remove
    */
   removeProgressListener(window, listener) {
-    let tabmail = window.document.getElementById("tabmail");
-    if (tabmail) {
-      tabmail.removeTabsProgressListener(listener);
+    if (window.contentProgress) {
+      window.contentProgress.removeListener(listener);
     }
   }
 
   /**
-   * Determines if the passed window object is a mail window. The function name is for base class
-   * compatibility with gecko.
+   * Determines if the passed window object is a mail window. The function
+   * name is for base class compatibility with toolkit.
    *
    * @param {DOMWindow} window - The window to check
    * @returns {boolean} True, if the window is a mail window
@@ -424,6 +422,25 @@ class WindowTracker extends WindowTrackerBase {
       "mail:messageWindow",
       "mail:extensionPopup",
     ].includes(documentElement.getAttribute("windowtype"));
+  }
+
+  /**
+   * Determines if the passed window object is a mail window but not the main
+   * window. This is useful to find windows where the window itself is the
+   * "nativeTab" object in API terms.
+   *
+   * @param {DOMWindow} window - The window to check
+   * @returns {boolean} True, if the window is a mail window but not the main window
+   */
+  isSecondaryWindow(window) {
+    let { documentElement } = window.document;
+    if (!documentElement) {
+      return false;
+    }
+
+    return ["msgcompose", "mail:messageWindow", "mail:extensionPopup"].includes(
+      documentElement.getAttribute("windowtype")
+    );
   }
 
   /**
@@ -540,20 +557,22 @@ class TabTracker extends TabTrackerBase {
    * @returns {Integer} The tab's numeric ID
    */
   getBrowserTabId(browser) {
-    let id = this._browsers.get(`${browser.browserId}#${browser._activeTabId}`);
+    let id = this._browsers.get(browser.browserId);
     if (id) {
       return id;
     }
 
-    let tabmail = browser.ownerDocument.getElementById("tabmail");
-    let tab =
-      tabmail &&
-      tabmail.tabInfo.find(info => info.tabId == browser._activeTabId);
+    let window = browser.browsingContext.topChromeWindow;
+    let tabmail = window.document.getElementById("tabmail");
+    let tab = tabmail && tabmail.getTabForBrowser(browser);
 
     if (tab) {
       id = this.getId(tab);
-      this._browsers.set(`${browser.browserId}#${tab.tabId}`, id);
+      this._browsers.set(browser.browserId, id);
       return id;
+    }
+    if (windowTracker.isSecondaryWindow(window)) {
+      return this.getId(window);
     }
     return -1;
   }
@@ -568,7 +587,7 @@ class TabTracker extends TabTrackerBase {
     this._tabs.set(nativeTabInfo, id);
     let browser = getTabBrowser(nativeTabInfo);
     if (browser) {
-      this._browsers.set(`${browser.browserId}#${nativeTabInfo.tabId}`, id);
+      this._browsers.set(browser.browserId, id);
     }
     this._tabIds.set(id, nativeTabInfo);
   }
@@ -584,9 +603,7 @@ class TabTracker extends TabTrackerBase {
     if (id) {
       this._tabs.delete(nativeTabInfo);
       if (nativeTabInfo.browser) {
-        this._browsers.delete(
-          `${nativeTabInfo.browser.browserId}#${nativeTabInfo.tabId}`
-        );
+        this._browsers.delete(nativeTabInfo.browser.browserId);
       }
       if (this._tabIds.get(id) === nativeTabInfo) {
         this._tabIds.delete(id);
@@ -671,11 +688,7 @@ class TabTracker extends TabTrackerBase {
    * @param {DOMWindow} window - The window being opened.
    */
   _handleWindowOpen(window) {
-    if (
-      ["msgcompose", "mail:messageWindow", "mail:extensionPopup"].includes(
-        window.document.documentElement.getAttribute("windowtype")
-      )
-    ) {
+    if (windowTracker.isSecondaryWindow(window)) {
       this.emit("tab-created", {
         nativeTabInfo: window,
         currentTab: window,
@@ -703,11 +716,7 @@ class TabTracker extends TabTrackerBase {
    * @param {DOMWindow} window - The window being closed.
    */
   _handleWindowClose(window) {
-    if (
-      ["msgcompose", "mail:messageWindow", "mail:extensionPopup"].includes(
-        window.document.documentElement.getAttribute("windowtype")
-      )
-    ) {
+    if (windowTracker.isSecondaryWindow(window)) {
       this.emit("tab-removed", {
         nativeTabInfo: window,
         tabId: this.getId(window),
@@ -939,28 +948,7 @@ class Tab extends TabBase {
     if (this.type == "messageCompose") {
       return undefined;
     }
-
-    let url = this.browser?.currentURI?.spec;
-
-    // All message tabs and mail tabs in a window use the same messagepane browser,
-    // so inactive tabs always return the url of the currently active tab.
-    // Reconstruct the url from the messageDisplay.
-    if (!this.active && ["mail", "messageDisplay"].includes(this.type)) {
-      let messageDisplay = this.nativeTab.messageDisplay;
-      let msgHdr = messageDisplay?.displayedMessage;
-      if (msgHdr && msgHdr.folder) {
-        let msgUri = msgHdr.folder.getUriForMsg(msgHdr);
-        let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-          Ci.nsIMessenger
-        );
-        let service = messenger.messageServiceFromURI(msgUri);
-        url = service.getUrlForUri(msgUri).spec;
-      } else {
-        url = "about:blank";
-      }
-    }
-
-    return url;
+    return this.browser?.currentURI?.spec;
   }
 
   /** Returns the current title of this tab, without permission checks. */
@@ -1096,12 +1084,11 @@ class TabmailTab extends Tab {
   /** What sort of tab is this? */
   get type() {
     switch (this.nativeTab.mode.name) {
-      case "folder":
-      case "glodaList":
+      case "mail3PaneTab":
         return "mail";
       case "addressBookTab":
         return "addressBook";
-      case "message":
+      case "mailMessageTab":
         return "messageDisplay";
       case "contentTab": {
         let currentURI = this.nativeTab.browser.currentURI;
@@ -1163,6 +1150,9 @@ class TabmailTab extends Tab {
 
   /** Returns the title of the tab, without permission checks. */
   get _title() {
+    if (this.browser && this.browser.contentTitle) {
+      return this.browser.contentTitle;
+    }
     // Do we want to be using this.nativeTab.title instead? The difference is
     // that the tabNode label may use defaultTabTitle instead, but do we want to
     // send this out?
@@ -1482,7 +1472,9 @@ class TabManager extends TabManagerBase {
    * @param {NativeTabInfo} nativeTabInfo - The native tab for which to grant permissions.
    */
   addActiveTabPermission(nativeTabInfo = tabTracker.activeTab) {
-    super.addActiveTabPermission(nativeTabInfo);
+    if (nativeTabInfo.browser) {
+      super.addActiveTabPermission(nativeTabInfo);
+    }
   }
 
   /**

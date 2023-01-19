@@ -8,10 +8,10 @@
 /* import-globals-from ../../../base/content/contentAreaClick.js */
 /* import-globals-from ../../../base/content/mailCore.js */
 /* import-globals-from ../../../base/content/messenger-customization.js */
-/* import-globals-from ../../../base/content/nsContextMenu.js */
 /* import-globals-from ../../../base/content/toolbarIconColor.js */
 /* import-globals-from ../../../base/content/utilityOverlay.js */
 /* import-globals-from ../../../base/content/viewZoomOverlay.js */
+/* import-globals-from ../../../base/content/widgets/browserPopups.js */
 /* import-globals-from ../../../extensions/openpgp/content/ui/keyAssistant.js */
 /* import-globals-from addressingWidgetOverlay.js */
 /* import-globals-from cloudAttachmentLinkManager.js */
@@ -1528,7 +1528,16 @@ function QuoteSelectedMessage() {
 
 function GetSelectedMessages() {
   let mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
-  return mailWindow ? mailWindow.gFolderDisplay.selectedMessageUris : null;
+  if (!mailWindow) {
+    return null;
+  }
+  let tab = mailWindow.document.getElementById("tabmail").currentTabInfo;
+  if (tab.mode.name == "mail3PaneTab" && tab.message) {
+    return tab.chromeBrowser.contentWindow?.gDBView?.getURIsForSelection();
+  } else if (tab.mode.name == "mailMessageTab") {
+    return [tab.messageURI];
+  }
+  return null;
 }
 
 function SetupCommandUpdateHandlers() {
@@ -1860,7 +1869,11 @@ function showMessageComposeSecurityStatus(isSending = false) {
   }
 }
 
-function openEditorContextMenu(popup) {
+function msgComposeContextOnShowing(event) {
+  if (event.target.id != "msgComposeContext") {
+    return;
+  }
+
   // gSpellChecker handles all spell checking related to the context menu,
   // except whether or not spell checking is enabled. We need the editor's
   // spell checker for that.
@@ -1971,7 +1984,7 @@ function openEditorContextMenu(popup) {
   }
 
   let subject = {
-    menu: popup,
+    menu: event.target,
     tab: window,
     isContentSelected,
     isTextSelected,
@@ -1992,7 +2005,11 @@ function openEditorContextMenu(popup) {
   Services.obs.notifyObservers(subject, "on-build-contextmenu");
 }
 
-function closeEditorContextMenu() {
+function msgComposeContextOnHiding(event) {
+  if (event.target.id != "msgComposeContext") {
+    return;
+  }
+
   if (nsContextMenu.contentData.actor) {
     nsContextMenu.contentData.actor.hiding();
   }
@@ -7581,7 +7598,7 @@ async function messageAttachmentToFile(attachment) {
   ].getService(Ci.nsPIExternalAppLauncher);
   extAppLauncher.deleteTemporaryFileOnExit(tempFile);
 
-  let service = gMessenger.messageServiceFromURI(attachment.url);
+  let service = MailServices.messageServiceFromURI(attachment.url);
   let bytes = await new Promise((resolve, reject) => {
     let streamlistener = {
       _data: [],
@@ -8737,9 +8754,9 @@ function OpenSelectedAttachment() {
   let messagePrefix = /^mailbox-message:|^imap-message:|^news-message:/i;
   if (messagePrefix.test(attachmentUrl)) {
     // we must be dealing with a forwarded attachment, treat this special
-    let msgHdr = gMessenger
-      .messageServiceFromURI(attachmentUrl)
-      .messageURIToMsgHdr(attachmentUrl);
+    let msgHdr = MailServices.messageServiceFromURI(
+      attachmentUrl
+    ).messageURIToMsgHdr(attachmentUrl);
     if (msgHdr) {
       MailUtils.openMessageInNewWindow(msgHdr);
     }
@@ -9453,9 +9470,9 @@ var envelopeDragObserver = {
 
         case "text/x-moz-message":
           isValidAttachment = true;
-          let msgHdr = gMessenger
-            .messageServiceFromURI(data)
-            .messageURIToMsgHdr(data);
+          let msgHdr = MailServices.messageServiceFromURI(
+            data
+          ).messageURIToMsgHdr(data);
           prettyName = msgHdr.mime2DecodedSubject + ".eml";
           size = msgHdr.messageSize;
           break;
@@ -10649,9 +10666,7 @@ function InitEditor() {
         return;
       }
       if (gOriginalMsgURI) {
-        let msgSvc = Cc["@mozilla.org/messenger;1"]
-          .createInstance(Ci.nsIMessenger)
-          .messageServiceFromURI(gOriginalMsgURI);
+        let msgSvc = MailServices.messageServiceFromURI(gOriginalMsgURI);
         let originalMsgNeckoURI = msgSvc.getUrlForUri(gOriginalMsgURI);
         if (
           src.startsWith(
@@ -10697,9 +10712,7 @@ function InitEditor() {
   let background = editor.document.body.background;
   if (background && gOriginalMsgURI) {
     // Check that background has the same URL as the message itself.
-    let msgSvc = Cc["@mozilla.org/messenger;1"]
-      .createInstance(Ci.nsIMessenger)
-      .messageServiceFromURI(gOriginalMsgURI);
+    let msgSvc = MailServices.messageServiceFromURI(gOriginalMsgURI);
     let originalMsgNeckoURI = msgSvc.getUrlForUri(gOriginalMsgURI);
     if (
       background.startsWith(
@@ -11125,16 +11138,6 @@ function loadBlockedImage(aURL, aReturnDataURL = false) {
 
   return null;
 }
-
-function mailContextOnContextMenu(event) {
-  document.getElementById("mailContext").target =
-    event.composedTarget || event.target;
-}
-function fillMailContextMenu(event) {
-  gContextMenu = new nsContextMenu(event.target, event.shiftKey);
-  return gContextMenu.shouldDisplay;
-}
-function mailContextOnPopupHiding() {}
 
 function showSendEncryptedAndSigned() {
   let encToggle = document.getElementById("button-encryption");

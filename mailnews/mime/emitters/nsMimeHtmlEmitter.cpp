@@ -26,6 +26,7 @@
 #include "nsMsgUtils.h"
 #include "nsMemory.h"
 #include "mozilla/Components.h"
+#include "nsIMailChannel.h"
 
 #define VIEW_ALL_HEADERS 2
 
@@ -83,19 +84,9 @@ nsMimeHtmlDisplayEmitter::~nsMimeHtmlDisplayEmitter(void) {}
 
 nsresult nsMimeHtmlDisplayEmitter::Init() { return NS_OK; }
 
-bool nsMimeHtmlDisplayEmitter::BroadCastHeadersAndAttachments() {
-  // try to get a header sink if there is one....
-  nsCOMPtr<nsIMsgHeaderSink> headerSink;
-  nsresult rv = GetHeaderSink(getter_AddRefs(headerSink));
-  if (NS_SUCCEEDED(rv) && headerSink && mDocHeader)
-    return true;
-  else
-    return false;
-}
-
 nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTMLPrefix(
     const nsACString& name) {
-  if (!BroadCastHeadersAndAttachments() ||
+  if ((mFormat == nsMimeOutput::nsMimeMessageSaveAs) ||
       (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) ||
       (mFormat == nsMimeOutput::nsMimeMessageBodyDisplay))
     return nsMimeBaseEmitter::WriteHeaderFieldHTMLPrefix(name);
@@ -105,7 +96,7 @@ nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTMLPrefix(
 
 nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTML(const char* field,
                                                         const char* value) {
-  if (!BroadCastHeadersAndAttachments() ||
+  if ((mFormat == nsMimeOutput::nsMimeMessageSaveAs) ||
       (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) ||
       (mFormat == nsMimeOutput::nsMimeMessageBodyDisplay))
     return nsMimeBaseEmitter::WriteHeaderFieldHTML(field, value);
@@ -114,7 +105,7 @@ nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTML(const char* field,
 }
 
 nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTMLPostfix() {
-  if (!BroadCastHeadersAndAttachments() ||
+  if ((mFormat == nsMimeOutput::nsMimeMessageSaveAs) ||
       (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) ||
       (mFormat == nsMimeOutput::nsMimeMessageBodyDisplay))
     return nsMimeBaseEmitter::WriteHeaderFieldHTMLPostfix();
@@ -122,34 +113,7 @@ nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTMLPostfix() {
     return NS_OK;
 }
 
-nsresult nsMimeHtmlDisplayEmitter::GetHeaderSink(
-    nsIMsgHeaderSink** aHeaderSink) {
-  nsresult rv = NS_OK;
-  if ((mChannel) && (!mHeaderSink)) {
-    nsCOMPtr<nsIURI> uri;
-    mChannel->GetURI(getter_AddRefs(uri));
-    if (uri) {
-      nsCOMPtr<nsIMsgMailNewsUrl> msgurl(do_QueryInterface(uri));
-      if (msgurl) {
-        msgurl->GetMsgHeaderSink(getter_AddRefs(mHeaderSink));
-        if (!mHeaderSink)  // if the url is not overriding the header sink, then
-                           // just get the one from the msg window
-        {
-          nsCOMPtr<nsIMsgWindow> msgWindow;
-          msgurl->GetMsgWindow(getter_AddRefs(msgWindow));
-          if (msgWindow)
-            msgWindow->GetMsgHeaderSink(getter_AddRefs(mHeaderSink));
-        }
-      }
-    }
-  }
-
-  NS_IF_ADDREF(*aHeaderSink = mHeaderSink);
-  return rv;
-}
-
-nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
-    nsIMsgHeaderSink* aHeaderSink, int32_t aHeaderMode, bool aFromNewsgroup) {
+nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(int32_t aHeaderMode) {
   // two string enumerators to pass out to the header sink
   RefPtr<nsMimeStringEnumerator> headerNameEnumerator =
       new nsMimeStringEnumerator();
@@ -206,6 +170,8 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
       checkOtherHeaders = true;
     }
   }
+
+  nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(mChannel);
 
   for (size_t i = 0; i < mHeaderArray->Length(); i++) {
     headerInfoType* headerInfo = mHeaderArray->ElementAt(i);
@@ -269,6 +235,11 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
     headerNameEnumerator->Append(headerInfo->name);
     headerValueEnumerator->Append(headerValue);
 
+    if (mailChannel) {
+      mailChannel->AddHeaderFromMIME(nsCString(headerInfo->name),
+                                     nsCString(headerValue));
+    }
+
     // Add a localized version of the date header if we encounter it.
     if (!PL_strcasecmp("Date", headerInfo->name)) {
       headerNameEnumerator->Append("X-Mozilla-LocalizedDate");
@@ -277,51 +248,30 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
     }
   }
 
-  aHeaderSink->ProcessHeaders(headerNameEnumerator, headerValueEnumerator,
-                              aFromNewsgroup);
   return rv;
 }
 
 NS_IMETHODIMP nsMimeHtmlDisplayEmitter::WriteHTMLHeaders(
     const nsACString& name) {
-  if (!BroadCastHeadersAndAttachments() ||
+  if ((mFormat == nsMimeOutput::nsMimeMessageSaveAs) ||
       (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) ||
       (mFormat == nsMimeOutput::nsMimeMessageBodyDisplay)) {
     nsMimeBaseEmitter::WriteHTMLHeaders(name);
   }
 
-  if (!BroadCastHeadersAndAttachments() || !mDocHeader) {
+  if (!mDocHeader) {
     return NS_OK;
   }
 
-  mFirstHeaders = false;
-
-  bool bFromNewsgroups = false;
-  for (size_t j = 0; j < mHeaderArray->Length(); j++) {
-    headerInfoType* headerInfo = mHeaderArray->ElementAt(j);
-    if (!(headerInfo && headerInfo->name && *headerInfo->name)) continue;
-
-    if (!PL_strcasecmp("Newsgroups", headerInfo->name)) {
-      bFromNewsgroups = true;
-      break;
-    }
+  nsresult rv;
+  int32_t viewMode = 0;
+  nsCOMPtr<nsIPrefBranch> pPrefBranch(
+      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+  if (NS_SUCCEEDED(rv) && pPrefBranch) {
+    pPrefBranch->GetIntPref("mail.show_headers", &viewMode);
   }
 
-  // try to get a header sink if there is one....
-  nsCOMPtr<nsIMsgHeaderSink> headerSink;
-  nsresult rv = GetHeaderSink(getter_AddRefs(headerSink));
-
-  if (headerSink) {
-    int32_t viewMode = 0;
-    nsCOMPtr<nsIPrefBranch> pPrefBranch(
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-    if (pPrefBranch)
-      rv = pPrefBranch->GetIntPref("mail.show_headers", &viewMode);
-
-    rv = BroadcastHeaders(headerSink, viewMode, bFromNewsgroups);
-  }  // if header Sink
-
-  return NS_OK;
+  return BroadcastHeaders(viewMode);
 }
 
 nsresult nsMimeHtmlDisplayEmitter::EndHeader(const nsACString& name) {
@@ -358,10 +308,8 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
                                                    const char* url,
                                                    bool aIsExternalAttachment) {
   nsresult rv = NS_OK;
-  nsCOMPtr<nsIMsgHeaderSink> headerSink;
-  rv = GetHeaderSink(getter_AddRefs(headerSink));
 
-  if (NS_SUCCEEDED(rv) && headerSink) {
+  if (NS_SUCCEEDED(rv)) {
     nsCString uriString;
 
     nsCOMPtr<nsIMsgMessageUrl> msgurl(do_QueryInterface(mURL, &rv));
@@ -382,9 +330,12 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
     nsString unicodeHeaderValue;
     CopyUTF8toUTF16(name, unicodeHeaderValue);
 
-    headerSink->HandleAttachment(
-        contentType, nsDependentCString(url) /* was escapedUrl */,
-        unicodeHeaderValue.get(), uriString, aIsExternalAttachment);
+    nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(mChannel);
+    if (mailChannel) {
+      mailChannel->HandleAttachmentFromMIME(nsDependentCString(contentType),
+                                            nsDependentCString(url), name,
+                                            uriString, aIsExternalAttachment);
+    }
   }
 
   // List the attachments for printing.
@@ -468,10 +419,10 @@ nsresult nsMimeHtmlDisplayEmitter::AddAttachmentField(const char* field,
   // Don't output this ugly header...
   if (!strcmp(field, HEADER_X_MOZILLA_PART_URL)) return NS_OK;
 
-  nsCOMPtr<nsIMsgHeaderSink> headerSink;
-  nsresult rv = GetHeaderSink(getter_AddRefs(headerSink));
-  if (NS_SUCCEEDED(rv) && headerSink) {
-    headerSink->AddAttachmentField(field, value);
+  nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(mChannel);
+  if (mailChannel) {
+    mailChannel->AddAttachmentFieldFromMIME(nsDependentCString(field),
+                                            nsDependentCString(value));
   }
 
   // Currently, we only care about the part size.
@@ -479,7 +430,7 @@ nsresult nsMimeHtmlDisplayEmitter::AddAttachmentField(const char* field,
 
   uint64_t size = atoi(value);
   nsAutoString sizeString;
-  rv = FormatFileSize(size, false, sizeString);
+  FormatFileSize(size, false, sizeString);
   UtilityWrite("<td class=\"moz-mime-attachment-size\">");
   UtilityWrite(NS_ConvertUTF16toUTF8(sizeString).get());
   UtilityWrite("</td>");
@@ -497,15 +448,10 @@ nsresult nsMimeHtmlDisplayEmitter::EndAttachment() {
 }
 
 nsresult nsMimeHtmlDisplayEmitter::EndAllAttachments() {
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsIMsgHeaderSink> headerSink;
-  rv = GetHeaderSink(getter_AddRefs(headerSink));
-  if (headerSink) headerSink->OnEndAllAttachments();
-
   UtilityWrite("</table>");
   UtilityWrite("</div>");
 
-  return rv;
+  return NS_OK;
 }
 
 nsresult nsMimeHtmlDisplayEmitter::WriteBody(const nsACString& buf,
@@ -519,10 +465,6 @@ nsresult nsMimeHtmlDisplayEmitter::EndBody() {
     UtilityWriteCRLF("</body>");
     UtilityWriteCRLF("</html>");
   }
-  nsCOMPtr<nsIMsgHeaderSink> headerSink;
-  nsresult rv = GetHeaderSink(getter_AddRefs(headerSink));
-  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(do_QueryInterface(mURL, &rv));
-  if (headerSink) headerSink->OnEndMsgHeaders(mailnewsUrl);
 
   return NS_OK;
 }

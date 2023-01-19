@@ -82,19 +82,8 @@ var EnigmailDecryption = {
 
   getFromAddr(win) {
     var fromAddr;
-    if (
-      win &&
-      win.gFolderDisplay &&
-      win.gFolderDisplay.messageDisplay &&
-      win.gFolderDisplay.messageDisplay.displayedMessage
-    ) {
-      fromAddr = win.gFolderDisplay.messageDisplay.displayedMessage.author;
-    } else if (
-      win &&
-      win.gFolderDisplay &&
-      win.gFolderDisplay.selectedMessage
-    ) {
-      fromAddr = win.gFolderDisplay.selectedMessage.author;
+    if (win?.gMessage) {
+      fromAddr = win.gMessage.author;
     }
     if (fromAddr) {
       try {
@@ -115,21 +104,8 @@ var EnigmailDecryption = {
     // "date" appears to be available more reliably, and it appears
     // to be in microseconds (1/1000000 second). Convert
     // to milliseconds (1/1000 of a second) for conversion to Date.
-    if (
-      win &&
-      win.gFolderDisplay &&
-      win.gFolderDisplay.messageDisplay &&
-      win.gFolderDisplay.messageDisplay.displayedMessage
-    ) {
-      return new Date(
-        win.gFolderDisplay.messageDisplay.displayedMessage.date / 1000
-      );
-    } else if (
-      win &&
-      win.gFolderDisplay &&
-      win.gFolderDisplay.selectedMessage
-    ) {
-      return new Date(win.gFolderDisplay.selectedMessage.date / 1000);
+    if (win?.gMessage) {
+      return new Date(win.gMessage.date / 1000);
     }
     return null;
   },

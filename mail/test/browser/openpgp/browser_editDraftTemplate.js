@@ -13,14 +13,12 @@ var { open_compose_new_mail, setup_msg_contents } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
 
-var { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MailTestUtils.jsm"
-);
-
 var {
   be_in_folder,
+  get_about_3pane,
   get_special_folder,
   mc,
+  right_click_on_row,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -112,7 +110,7 @@ add_setup(async function() {
  * opening.
  */
 add_task(async function testDraftSec() {
-  be_in_folder(draftsFolder);
+  await be_in_folder(draftsFolder);
   await doTestSecState(true, false); // draft, not secure
   await doTestSecState(true, true); // draft, secure
 });
@@ -122,9 +120,9 @@ add_task(async function testDraftSec() {
  * opening.
  */
 add_task(async function testTemplSec() {
-  be_in_folder(templatesFolder);
-  await doTestSecState(true, false); // template, not secure
-  await doTestSecState(true, true); // template, secure
+  await be_in_folder(templatesFolder);
+  await doTestSecState(false, false); // template, not secure
+  await doTestSecState(false, true); // template, secure
 });
 
 /**
@@ -136,7 +134,7 @@ async function doTestSecState(isDraft, secure) {
   let inbox = aliceAcct.incomingServer.rootFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Inbox
   );
-  be_in_folder(inbox);
+  await be_in_folder(inbox);
 
   let cwc = open_compose_new_mail();
   let type = isDraft ? "draft" : "template";
@@ -169,15 +167,25 @@ async function doTestSecState(isDraft, secure) {
   info(`Saved as ${type} with secure=${secure}`);
   cwc.window.close();
 
-  be_in_folder(theFolder);
+  await be_in_folder(theFolder);
   select_click_row(0);
 
-  info(`Will double click to open the ${type}`);
+  info(`Will open the ${type}`);
   let draftWindowPromise = waitForComposeWindow();
-  let threadTree = mc.window.document.getElementById("threadTree");
-  mailTestUtils.treeClick(EventUtils, mc.window, threadTree, 0, 4, {
-    clickCount: 2,
-  });
+  select_click_row(0);
+  await right_click_on_row(0);
+
+  let about3Pane = get_about_3pane();
+  let mailContext = about3Pane.document.getElementById("mailContext");
+  if (isDraft) {
+    mailContext.activateItem(
+      about3Pane.document.getElementById("mailContext-editDraftMsg")
+    );
+  } else {
+    mailContext.activateItem(
+      about3Pane.document.getElementById("mailContext-newMsgFromTemplate")
+    );
+  }
 
   // The double click on col 4 (the subject) should bring up compose window
   // for editing this draft.

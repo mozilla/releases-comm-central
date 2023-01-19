@@ -121,7 +121,7 @@ async function testComposeFlags(
   expectAttachMyPublicPGPKey4GoneToOrigIdentity,
   expectEncryptSubject4GoneToOrigIdentity
 ) {
-  be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   bobIdentity.encryptionPolicy = prefEncryptionPolicy;
   bobIdentity.signMail = prefSignMail;

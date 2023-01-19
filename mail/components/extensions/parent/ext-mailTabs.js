@@ -35,21 +35,6 @@ const SORT_ORDER_MAP = new Map(
 );
 
 /**
- * Sets the displayed folder in the given tab.
- *
- * @param {Tab} tab - The tab where the displayed folder should be set.
- * @param {nsIMsgFolder} folder - The folder to be displayed.
- */
-function setDisplayedFolder(tab, folder) {
-  if (tab.active) {
-    let treeView = Cu.getGlobalForObject(tab.nativeTab).gFolderTreeView;
-    treeView.selectFolder(folder);
-  } else {
-    tab.nativeTab.folderDisplay.showFolderUri(folder.URI);
-  }
-}
-
-/**
  * Converts a mail tab to a simle object for use in messages.
  *
  * @returns {object}
@@ -68,38 +53,19 @@ function convertMailTab(tab, context) {
   };
 
   let nativeTab = tab.nativeTab;
-  let { folderDisplay, mode } = nativeTab;
-  if (mode.name == "folder" && folderDisplay.view.displayedFolder) {
-    let { folderPaneVisible, messagePaneVisible } = nativeTab.mode.persistTab(
-      nativeTab
-    );
-    mailTabObject.folderPaneVisible = folderPaneVisible;
-    mailTabObject.messagePaneVisible = messagePaneVisible;
-  } else if (mode.name == "glodaList") {
-    mailTabObject.folderPaneVisible = false;
-    mailTabObject.messagePaneVisible = true;
+  mailTabObject.folderPaneVisible = nativeTab.folderPaneVisible;
+  mailTabObject.messagePaneVisible = nativeTab.messagePaneVisible;
+  mailTabObject.sortType = SORT_TYPE_MAP.get(nativeTab.sort.type);
+  mailTabObject.sortOrder = SORT_ORDER_MAP.get(nativeTab.sort.order);
+  if (nativeTab.sort.grouped) {
+    mailTabObject.viewType = "groupedBySortType";
+  } else if (nativeTab.sort.threaded) {
+    mailTabObject.viewType = "groupedByThread";
+  } else {
+    mailTabObject.viewType = "ungrouped";
   }
-  if (mode.name == "glodaList" || folderDisplay.view.displayedFolder) {
-    mailTabObject.sortType = SORT_TYPE_MAP.get(
-      folderDisplay.view.primarySortType
-    );
-    mailTabObject.sortOrder = SORT_ORDER_MAP.get(
-      folderDisplay.view.primarySortOrder
-    );
-
-    if (folderDisplay.view.showGroupedBySort) {
-      mailTabObject.viewType = "groupedBySortType";
-    } else if (folderDisplay.view.showThreaded) {
-      mailTabObject.viewType = "groupedByThread";
-    } else {
-      mailTabObject.viewType = "ungrouped";
-    }
-  }
-
   if (context.extension.hasPermission("accountsRead")) {
-    mailTabObject.displayedFolder = convertFolder(
-      folderDisplay.displayedFolder
-    );
+    mailTabObject.displayedFolder = convertFolder(nativeTab.folder);
   }
   return mailTabObject;
 }
@@ -116,35 +82,49 @@ var uiListener = new (class extends EventEmitter {
   }
 
   handleEvent(event) {
-    let tab = tabTracker.activeTab;
-    if (event.target.id == "folderTree") {
-      let folder = tab.folderDisplay.displayedFolder;
+    let browser = event.target.browsingContext.embedderElement;
+    let tabmail = browser.ownerGlobal.top.document.getElementById("tabmail");
+    let nativeTab = tabmail.tabInfo.find(
+      t =>
+        t.chromeBrowser == browser ||
+        t.chromeBrowser == browser.browsingContext.parent.embedderElement
+    );
+
+    if (nativeTab.mode.name != "mail3PaneTab") {
+      return;
+    }
+
+    let tabId = tabTracker.getId(nativeTab);
+    let tab = tabTracker.getTab(tabId);
+
+    if (event.type == "folderURIChanged") {
+      let folderURI = event.detail;
+      let folder = MailServices.folderLookup.getFolderForURL(folderURI);
       if (this.lastSelected.get(tab) == folder) {
         return;
       }
       this.lastSelected.set(tab, folder);
       this.emit("folder-changed", tab, folder);
-      return;
-    }
-    if (event.target.id == "threadTree") {
-      this.emit(
-        "messages-changed",
-        tab,
-        tab.folderDisplay.view.dbView.getSelectedMsgHdrs()
-      );
+    } else if (event.type == "messageURIChanged") {
+      let messages = nativeTab.chromeBrowser.contentWindow.gDBView?.getSelectedMsgHdrs();
+      if (messages) {
+        this.emit("messages-changed", tab, messages);
+      }
     }
   }
 
   incrementListeners() {
     this.listenerCount++;
     if (this.listenerCount == 1) {
-      windowTracker.addListener("select", this);
+      windowTracker.addListener("folderURIChanged", this);
+      windowTracker.addListener("messageURIChanged", this);
     }
   }
   decrementListeners() {
     this.listenerCount--;
     if (this.listenerCount == 0) {
-      windowTracker.removeListener("select", this);
+      windowTracker.removeListener("folderURIChanged", this);
+      windowTracker.removeListener("messageURIChanged", this);
       this.lastSelected = new WeakMap();
     }
   }
@@ -271,7 +251,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         async update(tabId, args) {
           let tab = getTabOrActive(tabId);
           let { nativeTab } = tab;
-          let window = tab.window;
+          let about3Pane = nativeTab.chromeBrowser.contentWindow;
 
           let {
             displayedFolder,
@@ -293,6 +273,9 @@ this.mailTabs = class extends ExtensionAPIPersistent {
               displayedFolder.accountId,
               displayedFolder.path
             );
+            about3Pane.restoreState({
+              folderURI: uri,
+            });
             let folder = MailServices.folderLookup.getFolderForURL(uri);
             if (!folder) {
               throw new ExtensionError(
@@ -300,7 +283,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
                   `"${displayedFolder.accountId}" not found.`
               );
             }
-            setDisplayedFolder(tab, folder);
+            tab.nativeTab.folder = folder;
           }
 
           if (sortType) {
@@ -311,7 +294,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
               sortOrder &&
               sortOrder in Ci.nsMsgViewSortOrder
             ) {
-              nativeTab.folderDisplay.view.sort(
+              about3Pane.gViewWrapper.sort(
                 Ci.nsMsgViewSortType[sortType],
                 Ci.nsMsgViewSortOrder[sortOrder]
               );
@@ -320,13 +303,13 @@ this.mailTabs = class extends ExtensionAPIPersistent {
 
           switch (viewType) {
             case "groupedBySortType":
-              nativeTab.folderDisplay.view.showGroupedBySort = true;
+              about3Pane.gViewWrapper.showGroupedBySort = true;
               break;
             case "groupedByThread":
-              nativeTab.folderDisplay.view.showThreaded = true;
+              about3Pane.gViewWrapper.showThreaded = true;
               break;
             case "ungrouped":
-              nativeTab.folderDisplay.view.showUnthreaded = true;
+              about3Pane.gViewWrapper.showUnthreaded = true;
               break;
           }
 
@@ -338,45 +321,20 @@ this.mailTabs = class extends ExtensionAPIPersistent {
             );
           }
 
-          if (
-            typeof folderPaneVisible == "boolean" &&
-            nativeTab.mode.name == "folder"
-          ) {
-            if (tab.active) {
-              let document = window.document;
-              let folderPaneSplitter = document.getElementById(
-                "folderpane_splitter"
-              );
-              folderPaneSplitter.setAttribute(
-                "state",
-                folderPaneVisible ? "open" : "collapsed"
-              );
-            } else {
-              nativeTab.folderDisplay.folderPaneVisible = folderPaneVisible;
+          if (nativeTab.mode.name == "mail3PaneTab") {
+            if (typeof folderPaneVisible == "boolean") {
+              nativeTab.folderPaneVisible = folderPaneVisible;
             }
-          }
-
-          if (
-            typeof messagePaneVisible == "boolean" &&
-            nativeTab.mode.name == "folder"
-          ) {
-            if (tab.active) {
-              if (messagePaneVisible == window.IsMessagePaneCollapsed()) {
-                window.MsgToggleMessagePane();
-              }
-            } else {
-              nativeTab.messageDisplay._visible = messagePaneVisible;
-              if (!messagePaneVisible) {
-                // Prevent the messagePane from showing if a message is selected.
-                nativeTab.folderDisplay._aboutToSelectMessage = true;
-              }
+            if (typeof messagePaneVisible == "boolean") {
+              nativeTab.messagePaneVisible = messagePaneVisible;
             }
           }
         },
 
         async getSelectedMessages(tabId) {
           let tab = getTabOrActive(tabId);
-          let messageList = tab.nativeTab.folderDisplay.selectedMessages;
+          let dbView = tab.nativeTab.chromeBrowser.contentWindow?.gDBView;
+          let messageList = dbView ? dbView.getSelectedMsgHdrs() : [];
           return messageListTracker.startList(messageList, extension);
         },
 
@@ -409,22 +367,21 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           }
 
           if (refFolder) {
-            setDisplayedFolder(tab, refFolder);
+            tab.nativeTab.folder = refFolder;
           }
-          tab.nativeTab.folderDisplay.selectMessages(msgHdrs, true);
+          let about3Pane = tab.nativeTab.chromeBrowser.contentWindow;
+          about3Pane.threadTree.selectedIndices = msgHdrs.map(
+            about3Pane.gViewWrapper.getViewIndexForMsgHdr,
+            about3Pane.gViewWrapper
+          );
         },
 
         async setQuickFilter(tabId, state) {
           let tab = getTabOrActive(tabId);
           let nativeTab = tab.nativeTab;
-          let window = Cu.getGlobalForObject(nativeTab);
+          let about3Pane = nativeTab.chromeBrowser.contentWindow;
 
-          let filterer;
-          if (tab.active) {
-            filterer = window.QuickFilterBarMuxer.activeFilterer;
-          } else {
-            filterer = nativeTab._ext.quickFilter;
-          }
+          let filterer = about3Pane.quickFilterBar.filterer;
           filterer.clear();
 
           // Map of QuickFilter state names to possible WebExtensions state names.
@@ -437,15 +394,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
 
           filterer.visible = state.show !== false;
           for (let [key, name] of Object.entries(stateMap)) {
-            let value = null;
-            if (state[name] !== null) {
-              value = state[name];
-            }
-            if (value === null) {
-              delete filterer.filterValues[key];
-            } else {
-              filterer.filterValues[key] = value;
-            }
+            filterer.setFilterValue(key, state[name]);
           }
 
           if (state.tags) {
@@ -476,14 +425,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
             };
           }
 
-          if (tab.active) {
-            window.QuickFilterBarMuxer.deferredUpdateSearch();
-            window.QuickFilterBarMuxer.reflectFiltererState(
-              filterer,
-              window.gFolderDisplay
-            );
-          }
-          // Inactive tabs are updated when they become active, except the search doesn't. :(
+          about3Pane.quickFilterBar.updateSearch();
         },
 
         onDisplayedFolderChanged: new EventManager({

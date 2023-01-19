@@ -205,27 +205,31 @@ var ExtensionSupport = {
      *                                 has registered.
      */
     function checkAndRunExtensionCode(aExtensionHook) {
-      let windowChromeURL = aWindow.document.location.href;
-      // Check if extension applies to this document URL.
-      if (
-        "chromeURLs" in aExtensionHook &&
-        !aExtensionHook.chromeURLs.some(url => url == windowChromeURL)
-      ) {
-        return;
-      }
+      try {
+        let windowChromeURL = aWindow.document.location.href;
+        // Check if extension applies to this document URL.
+        if (
+          "chromeURLs" in aExtensionHook &&
+          !aExtensionHook.chromeURLs.some(url => url == windowChromeURL)
+        ) {
+          return;
+        }
 
-      // Run the relevant callback.
-      switch (aEventType) {
-        case "load":
-          if ("onLoadWindow" in aExtensionHook) {
-            aExtensionHook.onLoadWindow(aWindow);
-          }
-          break;
-        case "unload":
-          if ("onUnloadWindow" in aExtensionHook) {
-            aExtensionHook.onUnloadWindow(aWindow);
-          }
-          break;
+        // Run the relevant callback.
+        switch (aEventType) {
+          case "load":
+            if ("onLoadWindow" in aExtensionHook) {
+              aExtensionHook.onLoadWindow(aWindow);
+            }
+            break;
+          case "unload":
+            if ("onUnloadWindow" in aExtensionHook) {
+              aExtensionHook.onUnloadWindow(aWindow);
+            }
+            break;
+        }
+      } catch (ex) {
+        console.error(ex);
       }
     }
   },

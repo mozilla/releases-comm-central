@@ -4,12 +4,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from commandglue.js */
-/* import-globals-from folderDisplay.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
 
+/* globals currentHeaderData */ // TODO: this isn't real.
+
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "FeedUtils",
+  "resource:///modules/FeedUtils.jsm"
 );
 ChromeUtils.defineModuleGetter(
   this,
@@ -61,7 +67,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
     // This function reads from currentHeaderData, which is only useful if we're
     // looking at the currently-displayed message. Otherwise, just return
     // immediately so we don't waste time.
-    if (hdr != gMessageDisplay.displayedMessage) {
+    if (hdr != window.gMessageDisplay?.displayedMessage) {
       return "";
     }
 
@@ -99,7 +105,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
   let msgKey;
   if (messageArray && messageArray.length == 1) {
     msgKey = GetMsgKeyFromURI(messageArray[0]);
-    if (msgKey != gMessageDisplay.keyForCharsetOverride) {
+    if (msgKey != window.gMessageDisplay?.keyForCharsetOverride) {
       msgWindow.charsetOverride = false;
     }
     if (
@@ -110,11 +116,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
       type == Ci.nsIMsgCompType.ReplyToSenderAndGroup ||
       type == Ci.nsIMsgCompType.ReplyToList
     ) {
-      let displayKey =
-        gMessageDisplay.displayedMessage &&
-        "messageKey" in gMessageDisplay.displayedMessage
-          ? gMessageDisplay.displayedMessage.messageKey
-          : null;
+      let displayKey = null; // TODO
       if (msgKey != displayKey) {
         // Not replying to the displayed message, so remove the selection
         // in order not to quote from the wrong message.
@@ -260,7 +262,10 @@ async function ComposeMessage(type, format, folder, messageArray) {
             null
           );
           let email = fromAddrs[0]?.email;
-          if (type == Ci.nsIMsgCompType.ReplyToList) {
+          if (
+            type == Ci.nsIMsgCompType.ReplyToList &&
+            window.currentHeaderData
+          ) {
             // ReplyToList is only enabled for current message (if at all), so
             // using currentHeaderData is ok.
             // List-Post value is of the format <mailto:list@example.com>
@@ -484,7 +489,9 @@ function SaveAsFile(uris) {
   let filenames = [];
 
   for (let uri of uris) {
-    let msgHdr = messenger.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
+    let msgHdr = MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(
+      uri
+    );
     let nameBase = GenerateFilenameFromMsgHdr(msgHdr);
     let name = GenerateValidFilename(nameBase, ".eml");
 
@@ -569,26 +576,6 @@ function SaveAsTemplate(uri) {
     }
     messenger.saveAs(uri, false, identity, null);
   }
-}
-
-function MarkSelectedMessagesRead(markRead) {
-  ClearPendingReadTimer();
-  gDBView.doCommand(
-    markRead
-      ? Ci.nsMsgViewCommandType.markMessagesRead
-      : Ci.nsMsgViewCommandType.markMessagesUnread
-  );
-  if (markRead) {
-    reportMsgRead({ isNewRead: true });
-  }
-}
-
-function MarkSelectedMessagesFlagged(markFlagged) {
-  gDBView.doCommand(
-    markFlagged
-      ? Ci.nsMsgViewCommandType.flagMessages
-      : Ci.nsMsgViewCommandType.unflagMessages
-  );
 }
 
 function ViewPageSource(messages) {

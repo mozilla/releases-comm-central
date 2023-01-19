@@ -6,9 +6,6 @@
 /* import-globals-from ../../../../mailnews/addrbook/content/abResultsPane.js */
 /* import-globals-from ../../../../mailnews/base/content/dateFormat.js */
 /* import-globals-from ../../../../mailnews/search/content/searchTerm.js */
-/* import-globals-from ../../../base/content/commandglue.js */
-/* import-globals-from ../../../base/content/mailWindow.js */
-/* import-globals-from ../../../base/content/msgMail3PaneWindow.js */
 /* import-globals-from abCommon.js */
 
 var { encodeABTermValue } = ChromeUtils.import(

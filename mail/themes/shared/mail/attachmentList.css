@@ -125,13 +125,8 @@
   background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
 }
 
-#attachmentMenuList > menu:hover > .text-link {
-  text-decoration-line: underline;
-}
-
 #attachmentName.notfound,
-.attachmentItem.notfound,
-#attachmentMenuList > menu.notfound {
+.attachmentItem.notfound {
   text-decoration-line: line-through;
 }
 

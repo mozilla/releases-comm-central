@@ -4,10 +4,13 @@
 
 const EXPORTED_SYMBOLS = ["ImapChannel"];
 
+const { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
+const { MailChannel } = ChromeUtils.importESModule(
+  "resource:///modules/MailChannel.sys.mjs"
+);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
 
 /**
  * A channel to interact with IMAP server.
@@ -16,8 +19,9 @@ const { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
  * @implements {nsIRequest}
  * @implements {nsICacheEntryOpenCallback}
  */
-class ImapChannel {
+class ImapChannel extends MailChannel {
   QueryInterface = ChromeUtils.generateQI([
+    "nsIMailChannel",
     "nsIChannel",
     "nsIRequest",
     "nsIWritablePropertyBag",
@@ -31,6 +35,7 @@ class ImapChannel {
    * @param {nsILoadInfo} loadInfo - The loadInfo associated with the channel.
    */
   constructor(uri, loadInfo) {
+    super();
     this._server = MailServices.accounts
       .findServerByURI(uri)
       .QueryInterface(Ci.nsIImapIncomingServer);

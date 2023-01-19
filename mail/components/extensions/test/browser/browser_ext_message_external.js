@@ -301,8 +301,9 @@ add_task(async function testExternalMessage() {
     },
   });
 
-  window.gFolderTreeView.selectFolder(gFolder);
-  window.gFolderDisplay.selectViewIndex(0);
+  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  about3Pane.displayFolder(gFolder.URI);
+  about3Pane.threadTree.selectedIndex = 0;
 
   extension.onMessage("openExternalFileMessage", async () => {
     let messagePath = PathUtils.join(

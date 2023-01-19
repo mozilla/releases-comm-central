@@ -102,21 +102,3 @@ function summarizeMultipleSelection(aSelectedMessages, aMessageDisplay) {
     }
   });
 }
-
-/**
- * Summarize a message folder; this is mainly a stub function for extensions to
- * override.  It currently only shows the start page.
- *
- * @param aMessageDisplay The MessageDisplayWidget object responsible for
- *                        showing messages.
- */
-function summarizeFolder(aMessageDisplay) {
-  aMessageDisplay.clearDisplay();
-
-  // Once in our lifetime is plenty.
-  if (!aMessageDisplay._haveDisplayedStartPage) {
-    loadStartPage(false);
-    aMessageDisplay._haveDisplayedStartPage = true;
-  }
-  aMessageDisplay.singleMessageDisplay = true;
-}

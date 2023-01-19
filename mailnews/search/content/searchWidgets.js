@@ -3,8 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozXULElement */
+/* global MozElements MozXULElement */
 
+/* import-globals-from ../../base/content/dateFormat.js */
+// TODO: This is completely bogus. Only one use of this file also has FilterEditor.js.
 /* import-globals-from FilterEditor.js */
 
 // Wrap in a block to prevent leaking to window scope.

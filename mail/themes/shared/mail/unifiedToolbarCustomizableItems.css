@@ -1,0 +1,156 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Icon definitions for customizable item previews.
+ * CustomizableItemsDetails.mjs contains the definitions for the root class
+ * names. */
+
+[is="customizable-element"] .preview-icon {
+  content: var(--icon-extension);
+}
+
+.spacer .preview-icon {
+  content: var(--icon-spaces-menu);
+}
+
+.search-bar .preview-icon {
+  content: var(--icon-search);
+}
+
+.write-message .preview-icon {
+  content: var(--icon-new-mail);
+}
+
+.move-to .preview-icon {
+  content: var(--icon-file);
+}
+
+.unifinder .preview-icon {
+  content: var(--icon-search);
+}
+
+.folder-location .preview-icon {
+  content: var(--icon-folder);
+}
+
+.edit-event .preview-icon {
+  content: var(--icon-pencil);
+}
+
+.get-messages .preview-icon {
+  content: var(--icon-get-mail);
+}
+
+.reply .preview-icon {
+  content: var(--icon-reply);
+}
+
+.reply-all .preview-icon {
+  content: var(--icon-reply-all);
+}
+
+.reply-to-list .preview-icon {
+  content: var(--icon-reply-list);
+}
+
+.redirect .preview-icon {
+  content: var(--icon-redirect);
+}
+
+.archive .preview-icon {
+  content: var(--icon-archive);
+}
+
+.conversation .preview-icon {
+  content: var(--icon-conversation);
+}
+
+.previous-unread .preview-icon {
+  content: var(--icon-nav-up-unread);
+}
+
+.previous .preview-icon {
+  content: var(--icon-nav-up);
+}
+
+.next-unread .preview-icon {
+  content: var(--icon-nav-down-unread);
+}
+
+.next .preview-icon {
+  content: var(--icon-nav-down);
+}
+
+.junk .preview-icon {
+  content: var(--icon-spam);
+}
+
+.delete .preview-icon {
+  content: var(--icon-trash);
+}
+
+.compact .preview-icon {
+  content: var(--icon-compress);
+}
+
+.add-as-event .preview-icon {
+  content: var(--icon-new-event);
+}
+
+.add-as-task .preview-icon {
+  content: var(--icon-new-task);
+}
+
+.tag-message .preview-icon {
+  content: var(--icon-tag);
+}
+
+.forward-inline .preview-icon {
+  content: var(--icon-forward);
+}
+
+.forward-attachment .preview-icon {
+  /* TODO separate icon for forwarding as attachment */
+  content: var(--icon-forward);
+}
+
+.mark-as .preview-icon {
+  content: var(--icon-unread);
+}
+
+.view-picker .preview-icon {
+  content: var(--icon-eye);
+}
+
+.address-book .preview-icon {
+  content: var(--icon-address-book);
+}
+
+.chat .preview-icon {
+  content: var(--icon-chat)
+}
+
+.add-ons-and-themes .preview-icon {
+  content: var(--icon-extension);
+}
+
+.calendar .preview-icon {
+  content: var(--icon-calendar);
+}
+
+.tasks .preview-icon {
+  content: var(--icon-tasks)
+}
+
+.mail .preview-icon {
+  content: var(--icon-mail);
+}
+
+.print .preview-icon {
+  content: var(--icon-print);
+}
+
+.quick-filter-bar .preview-icon {
+  content: var(--icon-filter);
+}

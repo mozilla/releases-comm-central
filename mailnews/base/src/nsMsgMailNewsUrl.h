@@ -22,7 +22,6 @@
 #include "nsILoadGroup.h"
 #include "nsIMsgSearchSession.h"
 #include "nsICacheEntry.h"
-#include "nsIMimeMiscStatus.h"
 #include "nsIWeakReferenceUtils.h"
 #include "nsString.h"
 #include "nsIURIMutator.h"
@@ -112,7 +111,6 @@ class NS_MSG_BASE nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
   nsCOMPtr<nsIMimeHeaders> mMimeHeaders;
   nsCOMPtr<nsIMsgSearchSession> m_searchSession;
   nsCOMPtr<nsICacheEntry> m_memCacheEntry;
-  nsCOMPtr<nsIMsgHeaderSink> mMsgHeaderSink;
   nsCString m_errorCode;
   nsString m_errorMessage;
   nsString m_errorParameters;

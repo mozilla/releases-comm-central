@@ -38,8 +38,6 @@
   --input-border-color: color-mix(in srgb, currentColor 41%, transparent);
   --lwt-header-image: none;
 
-  /* Note: Setting this to 0 (without px) breaks CSS calculations for OSX. */
-  --space-above-tabbar: 0px;
   --tab-min-height: 33px;
   --lwt-tabs-border-color: rgba(0, 0, 0, .3);
   --tabs-tabbar-border-size: 1px;
@@ -239,10 +237,4 @@ toolbar[brighttext] {
 
 :root[uidensity="touch"] {
   --tab-min-height: 39px;
-}
-
-/* Space above the tab bar */
-
-:root[extradragspace][tabsintitlebar]:not([inFullscreen]) {
-  --space-above-tabbar: 8px;
 }

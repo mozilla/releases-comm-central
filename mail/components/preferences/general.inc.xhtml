@@ -126,6 +126,29 @@
       <html:h1 data-l10n-id="general-language-and-appearance-header"/>
     </hbox>
 
+    <!-- Window layout -->
+    <html:div data-category="paneGeneral">
+    <html:fieldset id="layoutGroup" data-category="paneGeneral">
+      <html:legend data-l10n-id="window-layout-legend"></html:legend>
+      <hbox>
+        <checkbox id="drawInTitlebar"
+                  data-l10n-id="draw-in-titlebar-label"
+                  preference="mail.tabs.drawInTitlebar"/>
+        <spacer flex="1"/>
+      </hbox>
+      <hbox>
+        <vbox>
+          <checkbox id="autoHideTabbar"
+                    data-l10n-id="auto-hide-tabbar-label"
+                    preference="mail.tabs.autoHide"/>
+          <description data-l10n-id="auto-hide-tabbar-description"
+                       class="tip-caption indent"/>
+        </vbox>
+        <spacer flex="1"/>
+      </hbox>
+    </html:fieldset>
+    </html:div>
+
     <!-- Fonts and Colors -->
     <html:div data-category="paneGeneral">
     <html:fieldset id="fontsGroup" data-category="paneGeneral">

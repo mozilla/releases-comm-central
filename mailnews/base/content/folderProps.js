@@ -5,9 +5,11 @@
 /* import-globals-from retention.js */
 /* global BigInt */
 
+var { FolderTreeProperties } = ChromeUtils.import(
+  "resource:///modules/FolderTreeProperties.jsm"
+);
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 
-var gFolderTreeView;
 var gMsgFolder;
 var gLockedPref = null;
 
@@ -182,13 +184,10 @@ function folderPropsOKButton(event) {
     ).checked;
     gMsgFolder.retentionSettings = retentionSettings;
 
-    // Check if the icon color was updated.
-    if (
-      gCurrentColor !=
-      gFolderTreeView.getFolderCacheProperty(gMsgFolder, "folderIconColor")
-    ) {
-      window.arguments[0].updateColorCallback(gMsgFolder);
-    }
+    FolderTreeProperties.setColor(
+      window.arguments[0].folder.URI,
+      document.getElementById("color").value
+    );
 
     restoreFolderSelection();
   }
@@ -258,12 +257,8 @@ function folderPropsOnLoad() {
   if (window.arguments[0].folder) {
     // Fill in folder name, based on what they selected in the folder pane.
     gMsgFolder = window.arguments[0].folder;
-    gFolderTreeView = window.arguments[0].treeView;
     // Store the current icon color to allow discarding edits.
-    gCurrentColor = gFolderTreeView.getFolderCacheProperty(
-      gMsgFolder,
-      "folderIconColor"
-    );
+    gCurrentColor = FolderTreeProperties.getColor(gMsgFolder.URI);
   }
 
   if (window.arguments[0].name) {

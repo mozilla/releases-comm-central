@@ -49,7 +49,6 @@ var calendarTaskButtonDNDObserver;
 
       let plainTextMessage = "";
       await new Promise((resolve, reject) => {
-        let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
         let streamListener = {
           QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
           onDataAvailable(request, inputStream, offset, count) {
@@ -71,9 +70,15 @@ var calendarTaskButtonDNDObserver;
             resolve();
           },
         };
-        messenger
-          .messageServiceFromURI(msgUri)
-          .streamMessage(msgUri, streamListener, null, null, false, "", false);
+        MailServices.messageServiceFromURI(msgUri).streamMessage(
+          msgUri,
+          streamListener,
+          null,
+          null,
+          false,
+          "",
+          false
+        );
       });
       aItem.setProperty("DESCRIPTION", plainTextMessage);
     },

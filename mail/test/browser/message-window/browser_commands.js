@@ -11,6 +11,7 @@ var { MailServices } = ChromeUtils.import(
 var {
   be_in_folder,
   create_folder,
+  get_about_message,
   make_message_sets_in_folders,
   mc,
   open_message_from_file,
@@ -35,7 +36,7 @@ add_task(async function test_copy_eml_message() {
   // First, copy an email to a folder and delete it immediately just so it shows
   // up in the recent folders list. This simplifies navigation of the copy
   // context menu.
-  be_in_folder(folder1);
+  await be_in_folder(folder1);
   let message = select_click_row(0);
   MailServices.copy.copyMessages(
     folder1,
@@ -46,17 +47,17 @@ add_task(async function test_copy_eml_message() {
     mc.window.msgWindow,
     true
   );
-  be_in_folder(folder2);
+  await be_in_folder(folder2);
   select_click_row(0);
   press_delete(mc);
 
   // Now, open a .eml file and copy it to our folder.
   let file = new FileUtils.File(getTestFilePath("data/evil.eml"));
   let msgc = await open_message_from_file(file);
+  let aboutMessage = get_about_message(msgc.window);
 
-  // First check the properties are correct when opening the .eml form file.
-  // @see nsDummyMsgHeader.
-  let emlMessage = msgc.window.gMessageDisplay.displayedMessage;
+  // First check the properties are correct when opening the .eml from file.
+  let emlMessage = aboutMessage.gMessage;
   Assert.equal(emlMessage.mime2DecodedSubject, "An email");
   Assert.equal(emlMessage.mime2DecodedAuthor, "from@example.com");
   Assert.equal(
@@ -68,13 +69,16 @@ add_task(async function test_copy_eml_message() {
     "11111111-bdfd-ca83-6479-3427940164a8@invalid"
   );
 
-  let documentChild = msgc.e("messagepane").contentDocument.firstElementChild;
+  let documentChild = msgc.window.content.document.documentElement;
   msgc.rightClick(documentChild);
-  await msgc.click_menus_in_sequence(msgc.e("mailContext"), [
-    { id: "mailContext-copyMenu" },
-    { label: "Recent" },
-    { label: "CopyToFolder" },
-  ]);
+  await msgc.click_menus_in_sequence(
+    aboutMessage.document.getElementById("mailContext"),
+    [
+      { id: "mailContext-copyMenu" },
+      { label: "Recent" },
+      { label: "CopyToFolder" },
+    ]
+  );
   close_window(msgc);
 
   // Make sure the copy worked. Make sure the first header is the one used,

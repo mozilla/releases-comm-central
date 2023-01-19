@@ -27,14 +27,6 @@ registerCleanupFunction(() => {
   let searchInput = document.getElementById("searchInput");
   searchInput.focus();
   searchInput.blur();
-
-  // Put the 3-pane back how we found it.
-  document
-    .getElementById("folderpane_splitter")
-    .setAttribute("state", "collapsed");
-  if (window.IsMessagePaneCollapsed()) {
-    window.MsgToggleMessagePane();
-  }
 });
 
 function createAccount(type = "none") {
@@ -122,9 +114,10 @@ async function openMessageInWindow(msgHdr) {
 
 async function promiseMessageLoaded(browser, msgHdr) {
   let messageURI = msgHdr.folder.getUriForMsg(msgHdr);
-  messageURI = window.messenger
-    .messageServiceFromURI(messageURI)
-    .getUrlForUri(messageURI, null);
+  messageURI = MailServices.messageServiceFromURI(messageURI).getUrlForUri(
+    messageURI,
+    null
+  );
 
   if (
     browser.webProgress?.isLoadingDocument ||

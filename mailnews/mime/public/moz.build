@@ -9,7 +9,6 @@ XPIDL_SOURCES += [
     "nsIMimeConverter.idl",
     "nsIMimeEmitter.idl",
     "nsIMimeHeaders.idl",
-    "nsIMimeMiscStatus.idl",
     "nsIMimeStreamConverter.idl",
     "nsIMsgHeaderParser.idl",
     "nsIPgpMimeProxy.idl",

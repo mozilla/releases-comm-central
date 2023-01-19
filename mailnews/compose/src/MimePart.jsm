@@ -9,6 +9,9 @@ let { MimeEncoder } = ChromeUtils.import("resource:///modules/MimeEncoder.jsm");
 let { MsgUtils } = ChromeUtils.import(
   "resource:///modules/MimeMessageUtils.jsm"
 );
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { MailStringUtils } = ChromeUtils.import(
   "resource:///modules/MailStringUtils.jsm"
 );
@@ -214,9 +217,9 @@ class MimePart {
    * @returns {string}
    */
   async _fetchMsgAttachment() {
-    let msgService = Cc["@mozilla.org/messenger;1"]
-      .createInstance(Ci.nsIMessenger)
-      .messageServiceFromURI(this._bodyAttachment.url);
+    let msgService = MailServices.messageServiceFromURI(
+      this._bodyAttachment.url
+    );
     return new Promise((resolve, reject) => {
       let streamListener = {
         _data: "",

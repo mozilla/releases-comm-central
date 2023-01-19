@@ -14,12 +14,8 @@
 %customizeToolbarDTD;
 <!ENTITY % tabMailDTD SYSTEM "chrome://messenger/locale/tabmail.dtd" >
 %tabMailDTD;
-<!ENTITY % quickFilterBarDTD SYSTEM "chrome://messenger/locale/quickFilterBar.dtd">
-%quickFilterBarDTD;
 <!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
 %utilityDTD;
-<!ENTITY % editContactOverlayDTD SYSTEM "chrome://messenger/locale/editContactOverlay.dtd">
-%editContactOverlayDTD;
 <!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
 %msgViewPickerDTD;
 <!ENTITY % baseMenuOverlayDTD SYSTEM "chrome://messenger/locale/baseMenuOverlay.dtd">

@@ -843,22 +843,7 @@ var FeedUtils = {
    * @returns {void}
    */
   setFolderPaneProperty(aFolder, aProperty, aValue, aInvalidate) {
-    let win = Services.wm.getMostRecentWindow("mail:3pane");
-    if (!aFolder || !aProperty || !win || !("gFolderTreeView" in win)) {
-      return;
-    }
-
-    win.gFolderTreeView.setFolderCacheProperty(aFolder, aProperty, aValue);
-
-    if (aInvalidate == "all") {
-      win.gFolderTreeView._tree.invalidate();
-    }
-
-    if (aInvalidate == "row") {
-      let row = win.gFolderTreeView.getIndexOfFolder(aFolder);
-      win.gFolderTreeView.clearFolderCacheProperty(aFolder, "properties");
-      win.gFolderTreeView._tree.invalidateRow(row);
-    }
+    // TODO: Something more sensible?
   },
 
   /**
@@ -928,18 +913,9 @@ var FeedUtils = {
 
     this[aFolder.server.serverURI][aUrl].status[aProperty] = aValue;
 
-    let win = Services.wm.getMostRecentWindow("mail:3pane");
-    if (win?.gFolderTreeView?.isInited) {
-      if (aFolder.isServer) {
-        win.gFolderTreeView._tree.invalidate();
-      } else {
-        let row = win.gFolderTreeView.getIndexOfFolder(aFolder);
-        win.gFolderTreeView.clearFolderCacheProperty(aFolder, "properties");
-        win.gFolderTreeView._tree.invalidateRow(row);
-      }
-    }
+    // TODO: Update three pane tabs.
 
-    win = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
+    let win = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
     if (win) {
       win.FeedSubscriptions.mView.tree.invalidate();
     }

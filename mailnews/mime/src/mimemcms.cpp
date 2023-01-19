@@ -17,12 +17,12 @@
 #include "nsIURI.h"
 #include "nsIMsgWindow.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIMimeMiscStatus.h"
 #include "nsIMsgSMIMEHeaderSink.h"
 #include "nsCOMPtr.h"
 #include "nsIX509Cert.h"
 #include "plstr.h"
 #include "nsComponentManagerUtils.h"
+#include "nsIMailChannel.h"
 
 #define MIME_SUPERCLASS mimeMultipartSignedClass
 MimeDefClass(MimeMultipartSignedCMS, MimeMultipartSignedCMSClass,
@@ -136,10 +136,6 @@ static void* MimeMultCMS_init(MimeObject* obj) {
     nsIChannel* channel = msd->channel;  // note the lack of ref counting...
     if (channel) {
       nsCOMPtr<nsIURI> uri;
-      nsCOMPtr<nsIMsgWindow> msgWindow;
-      nsCOMPtr<nsIMsgHeaderSink> headerSink;
-      nsCOMPtr<nsIMsgMailNewsUrl> msgurl;
-      nsCOMPtr<nsISupports> securityInfo;
       channel->GetURI(getter_AddRefs(uri));
       if (uri) {
         rv = uri->GetSpec(data->url);
@@ -160,14 +156,11 @@ static void* MimeMultCMS_init(MimeObject* obj) {
             !strstr(data->url.get(), "&header=filter") &&
             !strstr(data->url.get(), "?header=attach") &&
             !strstr(data->url.get(), "&header=attach")) {
-          msgurl = do_QueryInterface(uri);
-          if (msgurl) msgurl->GetMsgWindow(getter_AddRefs(msgWindow));
-          if (msgWindow)
-            msgWindow->GetMsgHeaderSink(getter_AddRefs(headerSink));
-          if (headerSink)
-            headerSink->GetSecurityInfo(getter_AddRefs(securityInfo));
-          if (securityInfo)
-            data->smimeHeaderSink = do_QueryInterface(securityInfo);
+          nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(channel);
+          if (mailChannel) {
+            mailChannel->GetSmimeHeaderSink(
+                getter_AddRefs(data->smimeHeaderSink));
+          }
         }
       }
     }  // if channel

@@ -14,8 +14,9 @@ gRootFolder.createSubfolder("test", null);
 let gTestFolder = gRootFolder.getChildNamed("test");
 createMessages(gTestFolder, 4);
 
-gRootFolder.createSubfolder("drafts", null);
-let gDraftsFolder = gRootFolder.getChildNamed("drafts");
+// TODO: Figure out why naming this folder drafts is problematic.
+gRootFolder.createSubfolder("something", null);
+let gDraftsFolder = gRootFolder.getChildNamed("something");
 gDraftsFolder.flags = Ci.nsMsgFolderFlags.Drafts;
 createMessages(gDraftsFolder, 2);
 let gDrafts = [...gDraftsFolder.messages];
@@ -146,7 +147,7 @@ add_task(async function testType() {
       let messages = (await browser.messages.list(testFolder)).messages;
       browser.test.assertEq(4, messages.length, "number of messages");
 
-      let draftFolder = accounts[0].folders.find(f => f.name == "drafts");
+      let draftFolder = accounts[0].folders.find(f => f.name == "something");
       let drafts = (await browser.messages.list(draftFolder)).messages;
       browser.test.assertEq(2, drafts.length, "number of drafts");
 
@@ -317,7 +318,7 @@ add_task(async function testFcc() {
 
       let [account] = await browser.accounts.list();
       let folder1 = account.folders.find(f => f.name == "Trash");
-      let folder2 = account.folders.find(f => f.name == "drafts");
+      let folder2 = account.folders.find(f => f.name == "something");
 
       // Start a new message.
 

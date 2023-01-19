@@ -75,7 +75,7 @@
                    label="&fileButton.label;"
                    tooltiptext="&fileButton.tooltip;"
                    observes="button_file"
-                   oncommand="MsgMoveMessage(event.target._folder)">
+                   oncommand="goPerformCommand('cmd_moveMessage', event.target._folder)">
       <menupopup is="folder-menupopup" id="button-filePopup"
                  mode="filing"
                  showRecent="true"
@@ -280,12 +280,6 @@
                    label="&stopButton.label;"
                    tooltiptext="&stopButton.tooltip;"
                    command="cmd_stop"/>
-    <toolbarbutton id="button-appmenu"
-                   type="menu"
-                   badged="true"
-                   class="toolbarbutton-1 button-appmenu"
-                   label="&appmenuButton.label;"
-                   tooltiptext="&appmenuButton1.tooltip;"/>
 #ifdef MAIN_WINDOW
     <!-- gloda search widget; provides global (message) searching.  -->
     <toolbaritem id="gloda-search" insertafter="button-stop"
@@ -331,8 +325,7 @@
                    class="menulist-menupopup"
                    flex="1"
                    mode="notDeferred"
-                   showFileHereLabel="true"
-                   oncommand="gFolderTreeView.selectFolder(event.target._folder, true);"/>
+                   showFileHereLabel="true"/>
       </menulist>
     </toolbaritem>
     <toolbaritem id="mailviews-container"

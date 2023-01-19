@@ -67,13 +67,13 @@ add_task(async function test_folder_names_in_recent_view_mode() {
 
   // Create some messages in the folders to make them recently used.
   await make_message_sets_in_folders([fUnique], [{ count: 1 }]);
-  be_in_folder(fUnique);
+  await be_in_folder(fUnique);
   await make_message_sets_in_folders([fDup1], [{ count: 1 }]);
-  be_in_folder(fDup1);
+  await be_in_folder(fDup1);
   await make_message_sets_in_folders([fDup2], [{ count: 2 }]);
-  be_in_folder(fDup2);
+  await be_in_folder(fDup2);
   await make_message_sets_in_folders([fDup3], [{ count: 3 }]);
-  be_in_folder(fDup3);
+  await be_in_folder(fDup3);
 
   // Enable the recent folder view.
   mc.window.gFolderTreeView.activeModes = "recent";

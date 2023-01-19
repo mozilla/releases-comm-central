@@ -23,6 +23,7 @@ var {
   be_in_folder,
   create_folder,
   create_message,
+  get_about_message,
   get_special_folder,
   mc,
   select_click_row,
@@ -232,8 +233,8 @@ add_task(function test_window_quit_state_reset_on_aborted_quit() {
  * Tests that we don't get a prompt to save if there has been no user input
  * into the message yet, when trying to close.
  */
-add_task(function test_no_prompt_on_close_for_unmodified() {
-  be_in_folder(folder);
+add_task(async function test_no_prompt_on_close_for_unmodified() {
+  await be_in_folder(folder);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
 
@@ -251,8 +252,8 @@ add_task(function test_no_prompt_on_close_for_unmodified() {
  * Tests that we get a prompt to save if the user made changes to the message
  * before trying to close it.
  */
-add_task(function test_prompt_on_close_for_modified() {
-  be_in_folder(folder);
+add_task(async function test_prompt_on_close_for_modified() {
+  await be_in_folder(folder);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
 
@@ -273,43 +274,47 @@ add_task(function test_prompt_on_close_for_modified() {
  * Test there's no prompt on close when no changes was made in reply/forward
  * windows - for the case the original msg had content type "text".
  */
-add_task(function test_no_prompt_on_close_for_unmodified_content_type_text() {
-  be_in_folder(folder);
-  let msg = select_click_row(1); // row 1 is the one with content type text
-  assert_selected_and_displayed(mc, msg);
+add_task(
+  async function test_no_prompt_on_close_for_unmodified_content_type_text() {
+    await be_in_folder(folder);
+    let msg = select_click_row(1); // row 1 is the one with content type text
+    assert_selected_and_displayed(mc, msg);
 
-  let rwc = open_compose_with_reply();
-  close_compose_window(rwc, false);
+    let rwc = open_compose_with_reply();
+    close_compose_window(rwc, false);
 
-  let fwc = open_compose_with_forward();
-  Assert.equal(
-    fwc.e("attachmentBucket").getRowCount(),
-    0,
-    "forwarding msg created attachment"
-  );
-  close_compose_window(fwc, false);
-});
+    let fwc = open_compose_with_forward();
+    Assert.equal(
+      fwc.e("attachmentBucket").getRowCount(),
+      0,
+      "forwarding msg created attachment"
+    );
+    close_compose_window(fwc, false);
+  }
+);
 
 /**
  * Test there's no prompt on close when no changes was made in reply/forward
  * windows - for the case the original msg had no content type.
  */
-add_task(function test_no_prompt_on_close_for_unmodified_no_content_type() {
-  be_in_folder(folder);
-  let msg = select_click_row(2); // row 2 is the one with no content type
-  assert_selected_and_displayed(mc, msg);
+add_task(
+  async function test_no_prompt_on_close_for_unmodified_no_content_type() {
+    await be_in_folder(folder);
+    let msg = select_click_row(2); // row 2 is the one with no content type
+    assert_selected_and_displayed(mc, msg);
 
-  let rwc = open_compose_with_reply();
-  close_compose_window(rwc, false);
+    let rwc = open_compose_with_reply();
+    close_compose_window(rwc, false);
 
-  let fwc = open_compose_with_forward();
-  Assert.equal(
-    fwc.e("attachmentBucket").getRowCount(),
-    0,
-    "forwarding msg created attachment"
-  );
-  close_compose_window(fwc, false);
-});
+    let fwc = open_compose_with_forward();
+    Assert.equal(
+      fwc.e("attachmentBucket").getRowCount(),
+      0,
+      "forwarding msg created attachment"
+    );
+    close_compose_window(fwc, false);
+  }
+);
 
 add_task(async function test_prompt_save_on_pill_editing() {
   cwc = open_compose_new_mail(mc);
@@ -346,18 +351,23 @@ add_task(async function test_prompt_save_on_pill_editing() {
   close_compose_window(cwc, false);
 
   // Move to the drafts folder and select the recently saved message.
-  be_in_folder(gDraftFolder);
+  await be_in_folder(gDraftFolder);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
 
   // Click on the "edit draft" notification.
+  let aboutMessage = get_about_message();
   let kBoxId = "mail-notification-top";
-  wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
-  let box = get_notification(mc, kBoxId, "draftMsgContent");
+  wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
+  let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
   // Click on the "Edit" button in the draft notification.
-  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
+  EventUtils.synthesizeMouseAtCenter(
+    box.buttonContainer.firstElementChild,
+    {},
+    aboutMessage
+  );
   cwc = wait_for_compose_window();
 
   // Make sure the address was saved correctly.

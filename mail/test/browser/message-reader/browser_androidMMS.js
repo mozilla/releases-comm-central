@@ -13,7 +13,7 @@
 
 "use strict";
 
-var { open_message_from_file } = ChromeUtils.import(
+var { get_about_message, open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { close_window } = ChromeUtils.import(
@@ -63,7 +63,8 @@ add_task(async function testMMS() {
     "Body should have the right text"
   );
 
-  let attachmentList = msgc.window.document.getElementById("attachmentList");
+  let aboutMessage = get_about_message(msgc.window);
+  let attachmentList = aboutMessage.document.getElementById("attachmentList");
   Assert.equal(
     attachmentList.childNodes.length,
     1,

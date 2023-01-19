@@ -15,6 +15,7 @@ var {
 var {
   be_in_folder,
   create_folder,
+  get_about_message,
   open_message_from_file,
   select_click_row,
 } = ChromeUtils.import(
@@ -31,18 +32,22 @@ add_setup(async function() {
 });
 
 add_task(async function test_quoteMessage() {
-  be_in_folder(folderToStoreMessages);
+  await be_in_folder(folderToStoreMessages);
 
   let file = new FileUtils.File(getTestFilePath("data/iso-2022-jp.eml"));
   let msgc = await open_message_from_file(file);
   // Copy the message to a folder, so that Quote Message menu item is enabled.
-  let documentChild = msgc.e("messagepane").contentDocument.documentElement;
+  let documentChild = msgc.window.content.document.documentElement;
   msgc.rightClick(documentChild);
-  await msgc.click_menus_in_sequence(msgc.e("mailContext"), [
-    { id: "mailContext-copyMenu" },
-    { label: "Local Folders" },
-    { label: "QuoteTestFolder" },
-  ]);
+  let aboutMessage = get_about_message(msgc.window);
+  await msgc.click_menus_in_sequence(
+    aboutMessage.document.getElementById("mailContext"),
+    [
+      { id: "mailContext-copyMenu" },
+      { label: "Local Folders" },
+      { label: "QuoteTestFolder" },
+    ]
+  );
   close_window(msgc);
 
   // Select message and click reply.

@@ -51,9 +51,6 @@ function getMsgHeaders(aMsgHdr) {
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
   let handler = {
     _done: false,
     _data: new Map(),
@@ -72,9 +69,15 @@ function getMsgHeaders(aMsgHdr) {
   let streamListener = MimeParser.makeStreamListenerParser(handler, {
     strformat: "unicode",
   });
-  messenger
-    .messageServiceFromURI(msgUri)
-    .streamMessage(msgUri, streamListener, null, null, false, "", false);
+  MailServices.messageServiceFromURI(msgUri).streamMessage(
+    msgUri,
+    streamListener,
+    null,
+    null,
+    false,
+    "",
+    false
+  );
   utils.waitFor(() => handler._done);
   return { headers: handler._data, text: handler._text };
 }
@@ -116,7 +119,7 @@ add_task(async function test_basic_multipart_related() {
   );
 
   // Make sure that the headers are right on this one.
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
   let { headers, text } = getMsgHeaders(draftMsg, true);
   Assert.equal(headers.get("").contentType.type, "multipart/related");

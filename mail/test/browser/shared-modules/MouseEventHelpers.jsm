@@ -50,7 +50,7 @@ function drag_n_drop_element(
   aListener
 ) {
   let dt = synthesize_drag_start(aDragWindow, aDragObject, aListener);
-  Assert.ok(dt, "Drag target was undefined");
+  Assert.ok(dt, "Drag data transfer was undefined");
 
   synthesize_drag_over(aDropWindow, aDropObject, dt);
 

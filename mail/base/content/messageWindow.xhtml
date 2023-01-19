@@ -17,7 +17,6 @@
 <?xml-stylesheet href="chrome://messenger/skin/contextMenu.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/calendar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/calendar-toolbar.css" type="text/css"?>
-<?xml-stylesheet href="chrome://calendar/skin/shared/calendar-invitation-display.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
 
 <!DOCTYPE html [
@@ -27,8 +26,6 @@
 %msgHdrViewOverlayDTD;
 <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
 %messengerDTD;
-<!ENTITY % editContactOverlayDTD SYSTEM "chrome://messenger/locale/editContactOverlay.dtd">
-%editContactOverlayDTD;
 <!ENTITY % customizeToolbarDTD SYSTEM "chrome://messenger/locale/customizeToolbar.dtd">
 %customizeToolbarDTD;
 <!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
@@ -41,8 +38,6 @@
 %utilityDTD;
 <!ENTITY % viewZoomOverlayDTD SYSTEM "chrome://messenger/locale/viewZoomOverlay.dtd">
 %viewZoomOverlayDTD;
-<!ENTITY % quickFilterBarDTD SYSTEM "chrome://messenger/locale/quickFilterBar.dtd">
-%quickFilterBarDTD;
 <!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
 %msgViewPickerDTD;
 <!ENTITY % lightningDTD SYSTEM "chrome://lightning/locale/lightning.dtd">
@@ -89,41 +84,19 @@
   <link rel="localization" href="messenger/appmenu.ftl" />
   <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
   <link rel="localization" href="messenger/openpgp/openpgp-frontend.ftl" />
-  <link rel="localization" href="messenger/openpgp/msgReadStatus.ftl" />
-  <link rel="localization" href="messenger/messageheader/headerFields.ftl" />
 
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/commandglue.js"></script>
-  <script defer="defer" src="chrome://messenger/content/folderDisplay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/messageDisplay.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailWindow.js"></script>
   <script defer="defer" src="chrome://messenger/content/messageWindow.js"></script>
-  <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
   <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
-  <script defer="defer" src="chrome://messenger/content/nsContextMenu.js"></script>
-  <script defer="defer" src="chrome://messenger/content/mailContextMenus.js"></script>
-  <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
-  <script defer="defer" src="chrome://messenger/content/msgViewNavigation.js"></script>
-  <script defer="defer" src="chrome://messenger/content/editContactPanel.js"></script>
+  <script defer="defer" src="chrome://messenger/content/browserPopups.js"></script>
   <script defer="defer" src="chrome://messenger/content/toolbarIconColor.js"></script>
-  <script defer="defer" src="chrome://messenger/content/header-fields.js"></script>
-  <script defer="defer" src="chrome://messenger/content/msgHdrView.js"></script>
-  <script defer="defer" src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"></script>
-  <script defer="defer" src="chrome://openpgp/content/ui/enigmailMessengerOverlay.js"></script>
-  <script defer="defer" src="chrome://openpgp/content/ui/enigmailMsgHdrViewOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/msgSecurityPane.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCommands.js"></script>
-  <script defer="defer" src="chrome://messenger/content/junkCommands.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailWindowOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/mailTabs.js"></script>
-  <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/mail-offline.js"></script>
-  <script defer="defer" src="chrome://messenger/content/msgViewPickerOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/viewZoomOverlay.js"></script>
   <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
-  <script defer="defer" src="chrome://messenger/content/quickFilterBar.js"></script>
 #ifdef NIGHTLY_BUILD
   <script defer="defer" src="chrome://messenger/content/sync.js"></script>
 #endif
@@ -133,22 +106,8 @@
 #ifdef XP_MACOSX
   <script defer="defer" src="chrome://global/content/macWindowMenu.js"></script>
 #endif
-  <script defer="defer" src="chrome://messenger/content/newmailaccount/uriListener.js"></script>
   <script defer="defer" src="chrome://messenger/content/customizable-toolbar.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-statusbar.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-item-editing.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-modes.js"></script>
   <script defer="defer" src="chrome://calendar/content/calendar-chrome-startup.js"></script>
-  <script defer="defer" src="chrome://calendar/content/imip-bar.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-invitation-display.js"></script>
-  <script defer="defer" src="chrome://calendar/content/widgets/calendar-invitation-panel.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-management.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
-  <script>
-    // FIXME: move to script file.
-    window.addEventListener("load", event => { OnLoadMessageWindow() });
-    window.addEventListener("unload", event => { OnUnloadMessageWindow() });
-  </script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
@@ -198,16 +157,12 @@
     </keyset>
   </keyset>
 
-  <!-- Popup menus provided by mailWindowOverlay.xhtml -->
   <popupset id="mainPopupSet">
-#include mainPopupSet.inc.xhtml
-
+#include widgets/browserPopups.inc.xhtml
+#include widgets/toolbarContext.inc.xhtml
 <!-- The panelUI is for the appmenu. -->
 #include ../../components/customizableui/content/panelUI.inc.xhtml
-
-#include msgHdrPopup.inc.xhtml
   </popupset>
-#include editContactPanel.inc.xhtml
 
   <toolbox id="mail-toolbox"
            class="mail-toolbox"
@@ -257,67 +212,16 @@
 #include mainMailToolbar.inc.xhtml
   </toolbox>
 
-  <vbox class="printPreviewStack" flex="1">
+  <stack flex="1">
+    <browser id="messageBrowser"
+             flex="1"
+             src="about:message"
+             autocompletepopup="PopupAutoComplete"
+             datetimepicker="DateTimePickerPanel"
+             selectmenulist="ContentSelectDropdown"
+             messagemanagergroup="single-page"/>
+  </stack>
 
-    <tooltip id="aHTMLTooltip" page="true"/>
-
-    <!-- msg header view -->
-    <!-- a convenience box for ease of extension overlaying -->
-    <hbox id="messagepaneboxwrapper" flex="1">
-      <vbox id="messagepanebox"
-            ondragover="messagepaneObserver.onDragOver(event);"
-            ondrop="messagepaneObserver.onDrop(event);"
-            ondragleave="messagepaneObserver.onDragLeave(event);">
-        <vbox id="singleMessage">
-          <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
-#include msgHdrView.inc.xhtml
-          </hbox>
-#include ../../../calendar/base/content/imip-bar-overlay.inc.xhtml
-        </vbox>
-        <!-- The msgNotificationBar appears on top of the message and displays
-             information like: junk, mdn, remote content and phishing warnings -->
-        <vbox id="mail-notification-top">
-          <!-- notificationbox will be added here lazily. -->
-        </vbox>
-
-#include ../../../calendar/base/content/widgets/calendar-invitation-panel.xhtml
-#include ../../../calendar/base/content/widgets/calendar-minidate.xhtml
-
-        <vbox id="calendarInvitationDisplayContainer"
-              flex="1"
-              hidden="true">
-          <html:div id="calendarInvitationDisplay">
-           <!-- The calendar invitation panel is displayed here. -->
-          </html:div>
-        </vbox>
-
-        <!-- message view -->
-        <browser id="messagepane"
-                 context="mailContext"
-                 tooltip="aHTMLTooltip"
-                 style="height: 0px; min-height: 1px"
-                 flex="1"
-                 name="messagepane"
-                 disablesecurity="true"
-                 disablehistory="true"
-                 type="content"
-                 primary="true"
-                 autofind="false"
-                 src="about:blank"
-                 messagemanagergroup="single-page"
-                 onclick="return contentAreaClick(event);"
-                 onresize="return messagePaneOnResize(event);"/>
-        <splitter id="attachment-splitter" orient="vertical"
-                  resizebefore="closest" resizeafter="closest"
-                  collapse="after" collapsed="true"/>
-        <vbox id="attachmentView" collapsed="true">
-#include msgAttachmentView.inc.xhtml
-        </vbox>
-        <findbar id="FindToolbar" browserid="messagepane"/>
-      </vbox>
-#include msgSecurityPane.inc.xhtml
-    </hbox>
-  </vbox>
   <panel id="customizeToolbarSheetPopup" noautohide="true">
     <iframe id="customizeToolbarSheetIFrame"
             style="&dialog.dimensions;"

@@ -23,6 +23,7 @@ var {
   be_in_folder,
   create_folder,
   create_message,
+  get_about_message,
   mc,
   msgGen,
   select_click_row,
@@ -209,7 +210,8 @@ add_setup(async function() {
  * @param expectedSize the URL of the expected icon of the attachment
  */
 function check_attachment_icon(index, expectedIcon) {
-  let list = mc.e("attachmentList");
+  let win = get_about_message();
+  let list = win.document.getElementById("attachmentList");
   let node = list.querySelectorAll("richlistitem.attachmentItem")[index];
 
   Assert.equal(
@@ -225,14 +227,15 @@ function check_attachment_icon(index, expectedIcon) {
  * @param index the index of the message to check in the thread pane
  */
 async function help_test_attachment_icon(index) {
-  be_in_folder(folder);
+  await be_in_folder(folder);
   select_click_row(index);
   info(`Testing message ${index}: ${messages[index].name}`);
   let attachments = messages[index].attachments;
 
-  mc.window.toggleAttachmentList(true);
+  let win = get_about_message();
+  win.toggleAttachmentList(true);
 
-  let attachmentList = mc.window.document.getElementById("attachmentList");
+  let attachmentList = win.document.getElementById("attachmentList");
   await TestUtils.waitForCondition(
     () => !attachmentList.collapsed,
     "Attachment list is shown"

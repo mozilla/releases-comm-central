@@ -46,7 +46,7 @@ add_task(async function testMarkedAsRead() {
     null
   );
   await promiseCopyListener.promise;
-  be_in_folder(folder);
+  await be_in_folder(folder);
   let msg = select_click_row(0);
   assert_selected_and_displayed(0);
   // Make sure it's the msg we want.
@@ -56,7 +56,7 @@ add_task(async function testMarkedAsRead() {
     () => msg.isRead,
     "should get marked as read"
   );
-  be_in_folder(inboxFolder);
+  await be_in_folder(inboxFolder);
   folder.deleteSelf(null);
   Services.prefs.clearUserPref("mailnews.mark_message_read.auto");
 });

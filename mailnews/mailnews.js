@@ -898,7 +898,7 @@ pref("mailnews.ui.junk.manualMarkAsJunkMarksRead", true);
 
 // for manual upgrades of certain UI features.
 // 1 -> 2 is for the folder pane tree landing, to hide the
-// unread and total columns, see msgMail3PaneWindow.js
+// unread and total columns, see messenger.js
 pref("mail.ui.folderpane.version", 1);
 
 // for manual upgrades of certain UI features.

@@ -23,11 +23,6 @@
   color: -moz-menubartext;
 }
 
-/* Add extra space to titlebar for dragging */
-:root[sizemode="normal"] #toolbar-menubar[autohide="true"][inactive] ~ #tabs-toolbar {
-  padding-top: var(--space-above-tabbar);
-}
-
 #tabpanelcontainer:-moz-lwtheme {
   color: inherit;
 }
@@ -49,23 +44,6 @@ tabpanels {
 
 .tabmail-tab[selected]:focus .tab-label-container {
   border-color: -moz-DialogText;
-}
-
-@media (-moz-gtk-csd-reversed-placement: 0) {
-  #tabmail-arrowscrollbox[overflow="true"] > .tabmail-tab:first-child::before {
-    content: '';
-    display: -moz-box;
-    margin-inline-start: 0;
-  }
-}
-
-@media (-moz-gtk-csd-reversed-placement) {
-  :root[tabsintitlebar] #toolbar-menubar[autohide=true] + #tabs-toolbar
-    .tabmail-tab:first-child::before {
-    content: '';
-    display: -moz-box;
-    margin-inline-start: 0;
-  }
 }
 
 /**

@@ -8,7 +8,6 @@
 #include "mozilla/Attributes.h"
 #include "prio.h"
 #include "nsMimeBaseEmitter.h"
-#include "nsIMimeMiscStatus.h"
 
 class nsMimeHtmlDisplayEmitter : public nsMimeBaseEmitter {
  public:
@@ -42,15 +41,10 @@ class nsMimeHtmlDisplayEmitter : public nsMimeBaseEmitter {
   bool mFirst;           // Attachment flag...
   bool mSkipAttachment;  // attachments we shouldn't show...
 
-  nsCOMPtr<nsIMsgHeaderSink> mHeaderSink;
-
-  nsresult GetHeaderSink(nsIMsgHeaderSink** aHeaderSink);
-  bool BroadCastHeadersAndAttachments();
   nsresult StartAttachmentInBody(const nsACString& name,
                                  const char* contentType, const char* url);
 
-  nsresult BroadcastHeaders(nsIMsgHeaderSink* aHeaderSink, int32_t aHeaderMode,
-                            bool aFromNewsgroup);
+  nsresult BroadcastHeaders(int32_t aHeaderMode);
 };
 
 #endif /* _nsMimeHtmlEmitter_h_ */

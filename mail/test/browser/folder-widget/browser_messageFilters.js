@@ -54,8 +54,8 @@ add_setup(async function() {
 /*
  * Test that the message filter list shows newsgroup servers.
  */
-add_task(function test_message_filter_shows_newsgroup_server() {
-  be_in_folder(folderA);
+add_task(async function test_message_filter_shows_newsgroup_server() {
+  await be_in_folder(folderA);
 
   // Open the "Tools » Message Filters…" window,
   // a.k.a. "tasksMenu » filtersCmd".
@@ -97,7 +97,7 @@ add_task(function test_message_filter_shows_newsgroup_server() {
  * the Get Mail menu.  (bug 520457)
  */
 add_task(async function test_customize_toolbar_doesnt_double_get_mail_menu() {
-  be_in_folder(folderA);
+  await be_in_folder(folderA);
 
   /**
    * Get the getAllNewMessages menu and check the number of items.

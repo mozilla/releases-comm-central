@@ -6,73 +6,19 @@
  * Command-specific code. This stuff should be called by the widgets
  */
 
-/* import-globals-from folderDisplay.js */
-/* import-globals-from folderPane.js */
 /* import-globals-from mailWindow.js */
-/* import-globals-from msgMail3PaneWindow.js */
+/* import-globals-from messenger.js */
 /* global BigInt */
 
 var { MailViewConstants } = ChromeUtils.import(
   "resource:///modules/MailViewManager.jsm"
 );
 
-function UpdateMailToolbar(caller) {
-  if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
-    return;
-  }
-
-  // If we have a transient selection, we shouldn't update the toolbar. We'll
-  // update it once we've restored the original selection.
-  if (
-    "gRightMouseButtonSavedSelection" in window &&
-    window.gRightMouseButtonSavedSelection
-  ) {
-    return;
-  }
-
-  // dump("XXX update mail-toolbar " + caller + "\n");
-  document.commandDispatcher.updateCommands("mail-toolbar");
-
-  // hook for extra toolbar items
-  Services.obs.notifyObservers(window, "mail:updateToolbarItems");
-}
-
 function isNewsURI(uri) {
   if (!uri) {
     return false;
   }
   return uri.startsWith("news:/") || uri.startsWith("news-message:/");
-}
-
-function SwitchView(command) {
-  // when switching thread views, we might be coming out of quick search
-  // or a message view.
-  // first set view picker to all
-  if (gFolderDisplay.view.mailViewIndex != MailViewConstants.kViewItemAll) {
-    gFolderDisplay.view.setMailView(MailViewConstants.kViewItemAll);
-  }
-
-  switch (command) {
-    // "All" threads and "Unread" threads don't change threading state
-    case "cmd_viewAllMsgs":
-      gFolderDisplay.view.showUnreadOnly = false;
-      break;
-    case "cmd_viewUnreadMsgs":
-      gFolderDisplay.view.showUnreadOnly = true;
-      break;
-    // "Threads with Unread" and "Watched Threads with Unread" force threading
-    case "cmd_viewWatchedThreadsWithUnread":
-      gFolderDisplay.view.specialViewWatchedThreadsWithUnread = true;
-      break;
-    case "cmd_viewThreadsWithUnread":
-      gFolderDisplay.view.specialViewThreadsWithUnread = true;
-      break;
-    // "Ignored Threads" toggles 'ignored' inclusion --
-    //   but it also resets 'With Unread' views to 'All'
-    case "cmd_viewIgnoredThreads":
-      gFolderDisplay.view.showIgnored = !gFolderDisplay.view.showIgnored;
-      break;
-  }
 }
 
 function SetNewsFolderColumns() {
@@ -113,7 +59,7 @@ function UpdateStatusMessageCounts(folder) {
   var unreadElement = document.getElementById("unreadMessageCount");
   var totalElement = document.getElementById("totalMessageCount");
   if (folder && !folder.isServer && unreadElement && totalElement) {
-    var numSelected = gFolderDisplay.selectedCount;
+    var numSelected = 0; // TODO
     var bundle = document.getElementById("bundle_messenger");
 
     var numUnread =
@@ -300,32 +246,6 @@ var gDBView = null;
 var gCurViewFlags;
 var gCurSortType;
 
-function ChangeMessagePaneVisibility(now_hidden) {
-  // We also have to disable the Message/Attachments menuitem.
-  // It will be enabled when loading a message with attachments
-  // (see messageHeaderSink.handleAttachment).
-  var node = document.getElementById("msgAttachmentMenu");
-  if (node && now_hidden) {
-    node.setAttribute("disabled", "true");
-  }
-
-  gMessageDisplay.visible = !now_hidden;
-
-  var event = document.createEvent("Events");
-  if (now_hidden) {
-    event.initEvent("messagepane-hide", false, true);
-  } else {
-    event.initEvent("messagepane-unhide", false, true);
-  }
-  document.getElementById("messengerWindow").dispatchEvent(event);
-}
-
-function OnMouseUpThreadAndMessagePaneSplitter() {
-  // The collapsed state is the state after we released the mouse,
-  // so we take it as it is.
-  ChangeMessagePaneVisibility(IsMessagePaneCollapsed());
-}
-
 /**
  * Our multiplexed tabbing model ends up sending synthetic folder pane
  *  selection change notifications.  We want to ignore these because the
@@ -334,43 +254,7 @@ function OnMouseUpThreadAndMessagePaneSplitter() {
  * The tabbing logic sets this global to help us out.
  */
 var gIgnoreSyntheticFolderPaneSelectionChange = false;
-function FolderPaneSelectionChange() {
-  let folders = GetSelectedMsgFolders();
-  if (!folders.length) {
-    clearFolderDBListener();
-    return;
-  }
-
-  let msgFolder = folders[0];
-  let locationItem = document.getElementById("locationFolders");
-  if (locationItem) {
-    locationItem.setAttribute("label", msgFolder.prettyName);
-    document
-      .getElementById("folderLocationPopup")
-      ._setCssSelectors(msgFolder, locationItem);
-  }
-
-  if (gIgnoreSyntheticFolderPaneSelectionChange) {
-    gIgnoreSyntheticFolderPaneSelectionChange = false;
-    return;
-  }
-
-  let folderSelection = gFolderTreeView.selection;
-
-  // This prevents a folder from being loaded in the case that the user
-  // has right-clicked on a folder different from the one that was
-  // originally highlighted.  On a right-click, the highlight (selection)
-  // of a row will be different from the value of currentIndex, thus if
-  // the currentIndex is not selected, it means the user right-clicked
-  // and we don't want to load the contents of the folder.
-  if (!folderSelection.isSelected(folderSelection.currentIndex)) {
-    return;
-  }
-
-  gFolderDisplay.show(folders.length ? folders[0] : null);
-  SetGetMsgButtonTooltip();
-  initFolderDBListener();
-}
+function FolderPaneSelectionChange() {}
 
 function Undo() {
   messenger.undo(msgWindow);

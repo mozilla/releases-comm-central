@@ -8,7 +8,7 @@
 
 "use strict";
 
-const { open_message_from_file } = ChromeUtils.import(
+const { get_about_message, open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 const { close_window } = ChromeUtils.import(
@@ -51,10 +51,7 @@ async function openpgpProcessed() {
   let [subject] = await TestUtils.topicObserved(
     "document-element-inserted",
     document => {
-      return (
-        document.ownerGlobal?.location ==
-        "chrome://messenger/content/messageWindow.xhtml"
-      );
+      return document.ownerGlobal?.location == "about:message";
     }
   );
 
@@ -102,13 +99,14 @@ add_task(async function testCollectKeyAttachment() {
     )
   );
   await opengpgprocessed;
+  let aboutMessage = get_about_message(mc.window);
 
   Assert.ok(
-    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
   );
   Assert.ok(
-    !OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
   await keycollected;
@@ -141,13 +139,14 @@ add_task(async function testSkipFakeOrUnrelatedKeys() {
     )
   );
   await opengpgprocessed;
+  let aboutMessage = get_about_message(mc.window);
 
   Assert.ok(
-    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
   );
   Assert.ok(
-    !OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
 
@@ -183,13 +182,14 @@ add_task(async function testSkipDuplicateKeys() {
     new FileUtils.File(getTestFilePath("data/eml/eve-duplicate.eml"))
   );
   await opengpgprocessed;
+  let aboutMessage = get_about_message(mc.window);
 
   Assert.ok(
-    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
   );
   Assert.ok(
-    !OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
 

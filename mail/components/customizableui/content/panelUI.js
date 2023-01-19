@@ -7,13 +7,13 @@
   getIconForAttachment goUpdateAttachmentCommands initAddonPrefsMenu
   initAppMenuPopup
   InitAppmenuViewMessagesMenu InitAppFolderViewsMenu InitAppViewSortByMenu
-  InitMessageTags InitRecentlyClosedTabsPopup InitViewFolderViewsMenu
+  InitMessageTags InitRecentlyClosedTabsPopup
   InitViewLayoutStyleMenu initSearchMessagesMenu
   MozXULElement msgWindow
   onViewToolbarsPopupShowing RefreshCustomViewsPopup RefreshTagsPopup
   RefreshViewPopup SanitizeAttachmentDisplayName
   updateEditUIVisibility UpdateFullZoomMenu
-  gFolderTreeView gSpacesToolbar MailServices
+  initUiDensityAppMenu gSpacesToolbar MailServices
    */
 
 var { CustomizableUI } = ChromeUtils.import(
@@ -618,12 +618,30 @@ const PanelUI = {
    * @param {ViewShowingEvent} event - ViewShowing event.
    */
   _onFoldersViewShow(event) {
-    event.target
-      .querySelectorAll('[name="viewmessages"]')
-      .forEach(item => item.removeAttribute("checked"));
+    let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+    if (about3Pane) {
+      let { activeModes, canBeCompact, isCompact } = about3Pane.folderPane;
+      if (isCompact) {
+        activeModes.push("compact");
+      }
+
+      for (let item of event.target.querySelectorAll('[name="viewmessages"]')) {
+        let mode = item.getAttribute("value");
+        if (activeModes.includes(mode)) {
+          item.setAttribute("checked", "true");
+          if (mode == "all") {
+            item.disabled = activeModes.length == 1;
+          }
+        } else {
+          item.removeAttribute("checked");
+        }
+        if (mode == "compact") {
+          item.disabled = !canBeCompact;
+        }
+      }
+    }
 
     InitAppFolderViewsMenu();
-    InitViewFolderViewsMenu(event);
   },
 
   _onToolsMenuShown(event) {
@@ -807,11 +825,33 @@ const PanelUI = {
   },
 
   folderViewMenuOnCommand(event) {
-    gFolderTreeView.activeModes = event.target.getAttribute("value");
+    let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+    if (!about3Pane) {
+      return;
+    }
+
+    let mode = event.target.getAttribute("value");
+    let activeModes = about3Pane.folderPane.activeModes;
+    let index = activeModes.indexOf(mode);
+    if (event.target.hasAttribute("checked")) {
+      if (index == -1) {
+        activeModes.push(mode);
+      }
+    } else if (index >= 0) {
+      activeModes.splice(index, 1);
+    }
+    about3Pane.folderPane.activeModes = activeModes;
+
+    this._onFoldersViewShow({ target: event.target.parentNode });
   },
 
   folderCompactMenuOnCommand(event) {
-    gFolderTreeView.toggleCompactMode(event.target.checked);
+    let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+    if (!about3Pane) {
+      return;
+    }
+
+    about3Pane.folderPane.isCompact = event.target.hasAttribute("checked");
   },
 
   setUIDensity(event) {
@@ -908,7 +948,7 @@ var gExtensionsNotifications = {
         update.addon.name,
       ]);
       this._createAddonButton(text, update.addon.iconURL, evt => {
-        ExtensionsUI.showUpdate(tabmail.selectedBrowser, update);
+        ExtensionsUI.showUpdate(tabmail, update);
       });
     }
 
@@ -931,7 +971,7 @@ var gExtensionsNotifications = {
         // removed immediately while processing this event, and PanelUI is
         // unable to identify which panel should be closed automatically.
         PanelUI.hide();
-        ExtensionsUI.showSideloaded(tabmail.selectedBrowser, addon);
+        ExtensionsUI.showSideloaded(tabmail, addon);
       });
     }
   },

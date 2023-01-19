@@ -356,7 +356,7 @@ function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
  * @param aFiles an array of filename strings for files located beneath
  *               the test directory.
  */
-function prepare_some_attachments_and_reply(aText, aFiles) {
+async function prepare_some_attachments_and_reply(aText, aFiles) {
   gMockFilePicker.returnFiles = collectFiles(aFiles);
 
   let provider = new MockCloudfileAccount();
@@ -367,7 +367,7 @@ function prepare_some_attachments_and_reply(aText, aFiles) {
     downloadLimit: 2,
   });
 
-  be_in_folder(gInbox);
+  await be_in_folder(gInbox);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
 
@@ -417,7 +417,7 @@ function prepare_some_attachments_and_reply(aText, aFiles) {
  * @param aFiles an array of filename strings for files located beneath
  *               the test directory.
  */
-function prepare_some_attachments_and_forward(aText, aFiles) {
+async function prepare_some_attachments_and_forward(aText, aFiles) {
   gMockFilePicker.returnFiles = collectFiles(aFiles);
 
   let provider = new MockCloudfileAccount();
@@ -428,7 +428,7 @@ function prepare_some_attachments_and_forward(aText, aFiles) {
     downloadExpiryDate: { timestamp: 1639827408073 },
   });
 
-  be_in_folder(gInbox);
+  await be_in_folder(gInbox);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
 
@@ -492,16 +492,19 @@ function prepare_some_attachments_and_forward(aText, aFiles) {
  * @param aText any text to be typed into the compose window, passed to
  *              aSpecialTest.
  */
-function try_with_and_without_signature_in_reply_or_fwd(aSpecialTest, aText) {
+async function try_with_and_without_signature_in_reply_or_fwd(
+  aSpecialTest,
+  aText
+) {
   // By default, we have a signature included in replies, so we'll start
   // with that.
   Services.prefs.setBoolPref(kSigOnReplyKey, true);
   Services.prefs.setBoolPref(kSigOnForwardKey, true);
-  aSpecialTest(aText, true);
+  await aSpecialTest(aText, true);
 
   Services.prefs.setBoolPref(kSigOnReplyKey, false);
   Services.prefs.setBoolPref(kSigOnForwardKey, false);
-  aSpecialTest(aText, false);
+  await aSpecialTest(aText, false);
 }
 
 /**
@@ -510,11 +513,11 @@ function try_with_and_without_signature_in_reply_or_fwd(aSpecialTest, aText) {
  *
  * @param aTest a test that takes no arguments.
  */
-function try_without_signature(aTest) {
+async function try_without_signature(aTest) {
   let oldSig = Services.prefs.getCharPref(kSigPrefKey);
   Services.prefs.setCharPref(kSigPrefKey, "");
 
-  try_with_plaintext_and_html_mail(aTest);
+  await try_with_plaintext_and_html_mail(aTest);
   Services.prefs.setCharPref(kSigPrefKey, oldSig);
 }
 
@@ -524,10 +527,10 @@ function try_without_signature(aTest) {
  *
  * @param aTest a test that takes no arguments.
  */
-function try_with_plaintext_and_html_mail(aTest) {
-  aTest();
+async function try_with_plaintext_and_html_mail(aTest) {
+  await aTest();
   Services.prefs.setBoolPref(kHtmlPrefKey, false);
-  aTest();
+  await aTest();
   Services.prefs.setBoolPref(kHtmlPrefKey, true);
 }
 
@@ -537,8 +540,8 @@ function try_with_plaintext_and_html_mail(aTest) {
  * the user to write before the attachment URLs.  This assumes the user
  * does not have a signature already inserted into the message body.
  */
-add_task(function test_inserts_linebreak_on_empty_compose() {
-  try_without_signature(subtest_inserts_linebreak_on_empty_compose);
+add_task(async function test_inserts_linebreak_on_empty_compose() {
+  await try_without_signature(subtest_inserts_linebreak_on_empty_compose);
 });
 
 /**
@@ -725,8 +728,8 @@ add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
 /**
  * Tests that removing all Filelinks causes the root node to be removed.
  */
-add_task(function test_removing_filelinks_removes_root_node() {
-  try_with_plaintext_and_html_mail(
+add_task(async function test_removing_filelinks_removes_root_node() {
+  await try_with_plaintext_and_html_mail(
     subtest_removing_filelinks_removes_root_node
   );
 });
@@ -735,8 +738,8 @@ add_task(function test_removing_filelinks_removes_root_node() {
  * Test for test_removing_filelinks_removes_root_node - can be executed
  * on both plaintext and HTML compose windows.
  */
-function subtest_removing_filelinks_removes_root_node() {
-  let [cw, root] = prepare_some_attachments_and_reply([], kFiles);
+async function subtest_removing_filelinks_removes_root_node() {
+  let [cw, root] = await prepare_some_attachments_and_reply([], kFiles);
 
   // Now select the attachments in the attachment bucket, and remove them.
   select_attachments(cw, 0, 1);
@@ -758,8 +761,8 @@ function subtest_removing_filelinks_removes_root_node() {
  * causes the attachment URL container to be separated from the text by
  * two br tags.
  */
-add_task(function test_adding_filelinks_to_written_message() {
-  try_without_signature(subtest_adding_filelinks_to_written_message);
+add_task(async function test_adding_filelinks_to_written_message() {
+  await try_without_signature(subtest_adding_filelinks_to_written_message);
 });
 
 /**
@@ -816,17 +819,17 @@ function subtest_adding_filelinks_to_written_message() {
  * Tests for inserting Filelinks into a reply, when we're configured to
  * reply above the quote.
  */
-add_task(function test_adding_filelinks_to_empty_reply_above() {
+add_task(async function test_adding_filelinks_to_empty_reply_above() {
   let oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnTop);
 
-  try_with_and_without_signature_in_reply_or_fwd(
+  await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_reply_above,
     []
   );
   // Now with HTML mail...
   Services.prefs.setBoolPref(kHtmlPrefKey, false);
-  try_with_and_without_signature_in_reply_or_fwd(
+  await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_reply_above_plaintext,
     []
   );
@@ -839,14 +842,14 @@ add_task(function test_adding_filelinks_to_empty_reply_above() {
  * Tests for inserting Filelinks into a reply, when we're configured to
  * reply above the quote, after entering some text.
  */
-add_task(function test_adding_filelinks_to_nonempty_reply_above() {
+add_task(async function test_adding_filelinks_to_nonempty_reply_above() {
   let oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnTop);
 
-  subtest_adding_filelinks_to_reply_above(kLines);
+  await subtest_adding_filelinks_to_reply_above(kLines);
 
   Services.prefs.setBoolPref(kHtmlPrefKey, false);
-  subtest_adding_filelinks_to_reply_above_plaintext(kLines);
+  await subtest_adding_filelinks_to_reply_above_plaintext(kLines);
   Services.prefs.setBoolPref(kHtmlPrefKey, true);
 
   Services.prefs.setIntPref(kReplyOnTopKey, oldReplyOnTop);
@@ -857,8 +860,11 @@ add_task(function test_adding_filelinks_to_nonempty_reply_above() {
  * Does some special casing for the weird br insertions that happens in
  * various cases.
  */
-function subtest_adding_filelinks_to_reply_above_plaintext(aText, aWithSig) {
-  let [cw, root] = prepare_some_attachments_and_reply(aText, kFiles);
+async function subtest_adding_filelinks_to_reply_above_plaintext(
+  aText,
+  aWithSig
+) {
+  let [cw, root] = await prepare_some_attachments_and_reply(aText, kFiles);
 
   let br;
   if (aText.length) {
@@ -905,8 +911,8 @@ function subtest_adding_filelinks_to_reply_above_plaintext(aText, aWithSig) {
 /**
  * Subtest for test_adding_filelinks_to_reply_above for the HTML composer.
  */
-function subtest_adding_filelinks_to_reply_above(aText) {
-  let [cw, root] = prepare_some_attachments_and_reply(aText, kFiles);
+async function subtest_adding_filelinks_to_reply_above(aText) {
+  let [cw, root] = await prepare_some_attachments_and_reply(aText, kFiles);
 
   // If there's any text written, then there's only a single break between the
   // end of the text and the reply. Otherwise, there are two breaks.
@@ -932,16 +938,16 @@ function subtest_adding_filelinks_to_reply_above(aText) {
  * Tests for inserting Filelinks into a reply, when we're configured to
  * reply below the quote.
  */
-add_task(function test_adding_filelinks_to_empty_reply_below() {
+add_task(async function test_adding_filelinks_to_empty_reply_below() {
   let oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnBottom);
 
-  try_with_and_without_signature_in_reply_or_fwd(
+  await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_reply_below,
     []
   );
   Services.prefs.setBoolPref(kHtmlPrefKey, false);
-  try_with_and_without_signature_in_reply_or_fwd(
+  await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_plaintext_reply_below,
     []
   );
@@ -954,17 +960,17 @@ add_task(function test_adding_filelinks_to_empty_reply_below() {
  * Tests for inserting Filelinks into a reply, when we're configured to
  * reply below the quote, after entering some text.
  */
-add_task(function test_adding_filelinks_to_nonempty_reply_below() {
+add_task(async function test_adding_filelinks_to_nonempty_reply_below() {
   let oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnBottom);
 
-  try_with_and_without_signature_in_reply_or_fwd(
+  await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_reply_below,
     kLines
   );
 
   Services.prefs.setBoolPref(kHtmlPrefKey, false);
-  try_with_and_without_signature_in_reply_or_fwd(
+  await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_plaintext_reply_below,
     kLines
   );
@@ -976,8 +982,8 @@ add_task(function test_adding_filelinks_to_nonempty_reply_below() {
 /**
  * Subtest for test_adding_filelinks_to_reply_below for the HTML composer.
  */
-function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
-  let [cw, root] = prepare_some_attachments_and_reply(aText, kFiles);
+async function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
+  let [cw, root] = await prepare_some_attachments_and_reply(aText, kFiles);
 
   // So, we should have the root, followed by a br
   let br = root.nextSibling;
@@ -1024,8 +1030,11 @@ function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
 /**
  * Subtest for test_adding_filelinks_to_reply_below for the plaintext composer.
  */
-function subtest_adding_filelinks_to_plaintext_reply_below(aText, aWithSig) {
-  let [cw, root] = prepare_some_attachments_and_reply(aText, kFiles);
+async function subtest_adding_filelinks_to_plaintext_reply_below(
+  aText,
+  aWithSig
+) {
+  let [cw, root] = await prepare_some_attachments_and_reply(aText, kFiles);
   let br, span;
 
   assert_next_nodes("br", root, 1);
@@ -1071,14 +1080,14 @@ function subtest_adding_filelinks_to_plaintext_reply_below(aText, aWithSig) {
  * Tests Filelink insertion on an inline-forward compose window with nothing
  * typed into it.
  */
-add_task(function test_adding_filelinks_to_empty_forward() {
+add_task(async function test_adding_filelinks_to_empty_forward() {
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnTop);
-  try_with_and_without_signature_in_reply_or_fwd(
+  await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_forward,
     []
   );
   Services.prefs.setBoolPref(kHtmlPrefKey, false);
-  try_with_and_without_signature_in_reply_or_fwd(
+  await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_forward,
     []
   );
@@ -1089,13 +1098,13 @@ add_task(function test_adding_filelinks_to_empty_forward() {
  * Tests Filelink insertion on an inline-forward compose window with some
  * text typed into it.
  */
-add_task(function test_adding_filelinks_to_forward() {
-  try_with_and_without_signature_in_reply_or_fwd(
+add_task(async function test_adding_filelinks_to_forward() {
+  await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_forward,
     kLines
   );
   Services.prefs.setBoolPref(kHtmlPrefKey, false);
-  try_with_and_without_signature_in_reply_or_fwd(
+  await try_with_and_without_signature_in_reply_or_fwd(
     subtest_adding_filelinks_to_forward,
     kLines
   );
@@ -1107,8 +1116,8 @@ add_task(function test_adding_filelinks_to_forward() {
  * test_adding_filelinks_to_forward - ensures that the inserted Filelinks
  * are positioned correctly.
  */
-function subtest_adding_filelinks_to_forward(aText, aWithSig) {
-  let [cw, root] = prepare_some_attachments_and_forward(aText, kFiles);
+async function subtest_adding_filelinks_to_forward(aText, aWithSig) {
+  let [cw, root] = await prepare_some_attachments_and_forward(aText, kFiles);
 
   let br = assert_next_nodes("br", root, 1);
   let forwardDiv = br.nextSibling;
@@ -1136,8 +1145,10 @@ function subtest_adding_filelinks_to_forward(aText, aWithSig) {
  * old Filelink is removed, and a new Filelink is added for the new provider.
  * We test this on both HTML and plaintext mail.
  */
-add_task(function test_converting_filelink_updates_urls() {
-  try_with_plaintext_and_html_mail(subtest_converting_filelink_updates_urls);
+add_task(async function test_converting_filelink_updates_urls() {
+  await try_with_plaintext_and_html_mail(
+    subtest_converting_filelink_updates_urls
+  );
 });
 
 /**
@@ -1220,8 +1231,10 @@ function subtest_converting_filelink_updates_urls() {
  * Test that if we rename a Filelink, that the old Filelink is removed, and a
  * new Filelink is added. We test this on both HTML and plaintext mail.
  */
-add_task(function test_renaming_filelink_updates_urls() {
-  try_with_plaintext_and_html_mail(subtest_renaming_filelink_updates_urls);
+add_task(async function test_renaming_filelink_updates_urls() {
+  await try_with_plaintext_and_html_mail(
+    subtest_renaming_filelink_updates_urls
+  );
 });
 
 /**
@@ -1331,8 +1344,8 @@ function subtest_renaming_filelink_updates_urls() {
  * Test that if we convert a Filelink to a normal attachment that the
  * Filelink is removed from the message body.
  */
-add_task(function test_converting_filelink_to_normal_removes_url() {
-  try_with_plaintext_and_html_mail(
+add_task(async function test_converting_filelink_to_normal_removes_url() {
+  await try_with_plaintext_and_html_mail(
     subtest_converting_filelink_to_normal_removes_url
   );
 });
@@ -1410,8 +1423,10 @@ function subtest_converting_filelink_to_normal_removes_url() {
  * that it doesn't break future Filelink insertions. Tests both HTML and
  * plaintext composers.
  */
-add_task(function test_filelinks_work_after_manual_removal() {
-  try_with_plaintext_and_html_mail(subtest_filelinks_work_after_manual_removal);
+add_task(async function test_filelinks_work_after_manual_removal() {
+  await try_with_plaintext_and_html_mail(
+    subtest_filelinks_work_after_manual_removal
+  );
 });
 
 /**
@@ -1481,8 +1496,10 @@ function subtest_filelinks_work_after_manual_removal() {
  * insertion occurs, that the caret does not move when the insertion is
  * complete. Tests both HTML and plaintext composers.
  */
-add_task(function test_insertion_restores_caret_point() {
-  try_with_plaintext_and_html_mail(subtest_insertion_restores_caret_point);
+add_task(async function test_insertion_restores_caret_point() {
+  await try_with_plaintext_and_html_mail(
+    subtest_insertion_restores_caret_point
+  );
 });
 
 /**

@@ -248,6 +248,7 @@ VCardMimeConverter.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsISimpleMimeConverter"]),
   classID: Components.ID("{dafab386-bd4c-4238-bb48-228fbc98ba29}"),
 
+  mailChannel: null,
   uri: null,
   convertToHTML(contentType, data) {
     function escapeHTML(template, ...parts) {

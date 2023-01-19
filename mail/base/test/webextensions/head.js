@@ -676,14 +676,14 @@ add_task(async function() {
   });
 });
 
-// Any opened tabs should be closed by the end of the test.
 registerCleanupFunction(() => {
-  let tabmail = document.getElementById("tabmail");
-  is(tabmail.tabInfo.length, 1);
+  // The appmenu should be closed by the end of the test.
+  ok(PanelUI.panel.state == "closed", "Main menu is closed.");
 
-  while (tabmail.tabInfo.length > 1) {
-    tabmail.closeTab(tabmail.tabInfo[1]);
-  }
+  // Any opened tabs should be closed by the end of the test.
+  let tabmail = document.getElementById("tabmail");
+  is(tabmail.tabInfo.length, 1, "All tabs are closed.");
+  tabmail.closeOtherTabs(0);
 });
 
 let collectedTelemetry = [];

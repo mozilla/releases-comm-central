@@ -6,8 +6,6 @@
  * Tests ExtensionSupport.jsm functions.
  */
 
-/* globals gFolderTreeView */
-
 var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
@@ -27,7 +25,6 @@ var { ExtensionSupport } = ChromeUtils.import(
  * Test ExtensionSupport.registerWindowListener and ExtensionSupport.unregisterWindowListener.
  */
 add_task(function test_windowListeners() {
-  gFolderTreeView.selectFolder(gFolderTreeView._enumerateFolders[1]);
   // There may be some pre-existing listeners already set up, e.g. mozmill ones.
   let originalListenerCount = ExtensionSupport.registeredWindowListenerCount;
 
@@ -171,11 +168,4 @@ add_task(function test_windowListeners() {
     ExtensionSupport.registeredWindowListenerCount,
     originalListenerCount
   );
-});
-
-registerCleanupFunction(() => {
-  // Some tests that open new windows don't return focus to the main window
-  // in a way that satisfies mochitest, and the test times out.
-  Services.focus.focusedWindow = window;
-  window.gFolderDisplay.tree.focus();
 });

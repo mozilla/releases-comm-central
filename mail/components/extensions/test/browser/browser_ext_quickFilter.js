@@ -2,16 +2,53 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let account, rootFolder, subFolders;
+let messages;
+let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
 
 add_setup(async () => {
-  account = createAccount();
-  rootFolder = account.incomingServer.rootFolder;
-  subFolders = rootFolder.subFolders;
+  let account = createAccount();
+  let rootFolder = account.incomingServer.rootFolder;
+  let subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
 
-  window.gFolderTreeView.selectFolder(rootFolder);
-  await new Promise(resolve => executeSoon(resolve));
+  // Modify the messages so the filters can be checked against them.
+
+  messages = [...subFolders[0].messages];
+  messages[0].markRead(true);
+  messages[2].markRead(true);
+  messages[4].markRead(true);
+  messages[6].markRead(true);
+  messages[8].markRead(true);
+  messages[1].markFlagged(true);
+  messages[6].markFlagged(true);
+  messages[0].setStringProperty("keywords", "$label1");
+  messages[1].setStringProperty("keywords", "$label2");
+  messages[3].setStringProperty("keywords", "$label1 $label2");
+  messages[5].setStringProperty("keywords", "$label2");
+  messages[6].setStringProperty("keywords", "$label1");
+  messages[7].setStringProperty("keywords", "$label2 $label3");
+  messages[8].setStringProperty("keywords", "$label3");
+  messages[9].setStringProperty("keywords", "$label1 $label2 $label3");
+  messages[9].markHasAttachments(true);
+
+  // Add an author to the address book.
+
+  let author = messages[7].author.replace(/["<>]/g, "").split(" ");
+  let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
+  card.setProperty("FirstName", author[0]);
+  card.setProperty("LastName", author[1]);
+  card.setProperty("DisplayName", `${author[0]} ${author[1]}`);
+  card.setProperty("PrimaryEmail", author[2]);
+  let ab = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
+  let addedCard = ab.addCard(card);
+
+  about3Pane.displayFolder(subFolders[0]);
+
+  registerCleanupFunction(() => {
+    ab.deleteCards([addedCard]);
+  });
 });
 
 add_task(async () => {
@@ -79,61 +116,17 @@ add_task(async () => {
   });
 
   extension.onMessage("checkVisible", async (...expected) => {
-    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-    await new Promise(resolve => setTimeout(resolve, 500));
-
     let actual = [];
-    let dbView = window.gFolderDisplay.view.dbView;
+    let dbView = about3Pane.gDBView;
     for (let i = 0; i < dbView.numMsgsInView; i++) {
       actual.push(messages.indexOf(dbView.getMsgHdrAt(i)));
     }
 
-    is(JSON.stringify(actual), JSON.stringify(expected));
+    Assert.deepEqual(actual, expected);
     extension.sendMessage();
-  });
-
-  window.gFolderTreeView.selectFolder(subFolders[0]);
-
-  // Modify the messages so the filters can be checked against them.
-
-  let messages = [...window.gFolderDisplay.displayedFolder.messages];
-  messages[0].markRead(true);
-  messages[2].markRead(true);
-  messages[4].markRead(true);
-  messages[6].markRead(true);
-  messages[8].markRead(true);
-  messages[1].markFlagged(true);
-  messages[6].markFlagged(true);
-  messages[0].setStringProperty("keywords", "$label1");
-  messages[1].setStringProperty("keywords", "$label2");
-  messages[3].setStringProperty("keywords", "$label1 $label2");
-  messages[5].setStringProperty("keywords", "$label2");
-  messages[6].setStringProperty("keywords", "$label1");
-  messages[7].setStringProperty("keywords", "$label2 $label3");
-  messages[8].setStringProperty("keywords", "$label3");
-  messages[9].setStringProperty("keywords", "$label1 $label2 $label3");
-  messages[9].markHasAttachments(true);
-
-  // Add an author to the address book.
-
-  let author = messages[7].author.replace(/["<>]/g, "").split(" ");
-  let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
-    Ci.nsIAbCard
-  );
-  card.setProperty("FirstName", author[0]);
-  card.setProperty("LastName", author[1]);
-  card.setProperty("DisplayName", `${author[0]} ${author[1]}`);
-  card.setProperty("PrimaryEmail", author[2]);
-  let ab = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
-  let addedCard = ab.addCard(card);
-
-  registerCleanupFunction(() => {
-    ab.deleteCards([addedCard]);
   });
 
   await extension.startup();
   await extension.awaitFinish("quickFilter");
   await extension.unload();
-
-  window.gFolderTreeView.selectFolder(rootFolder);
 });

@@ -224,7 +224,7 @@ add_task(async () => {
           primedPopupWindowInfo
         );
 
-        browser.test.log("Pause to lets windows load properly.");
+        browser.test.log("Pause to let windows load properly.");
         // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
         await new Promise(resolve => setTimeout(resolve, 2500));
 
@@ -256,6 +256,7 @@ add_task(async () => {
           () => browser.windows.remove(mainWindow)
         );
         await listener.checkEvent("windows.onRemoved", mainWindow);
+        // TODO: this doesn't fire because there's no content in that tab.
         await listener.checkEvent("tabs.onRemoved", mainTab, {
           windowId: mainWindow,
           isWindowClosing: true,

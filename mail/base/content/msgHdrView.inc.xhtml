@@ -218,7 +218,7 @@
                     class="menuitem-iconic"
                     label="&saveAsMenuItem1.label;"
                     accesskey="&saveAsMenuItem1.accesskey;"
-                    oncommand="MsgSaveAsFile();"/>
+                    oncommand="goDoCommand('cmd_saveAsFile')"/>
           <menuitem id="otherActionsPrint"
                     class="menuitem-iconic"
                     label="&otherActionsPrint1.label;"
@@ -247,7 +247,6 @@
                     class="menuitem-iconic"
                     label="&viewSourceMenuItem1.label;"
                     accesskey="&viewSourceMenuItem1.accesskey;"
-                    key="key_viewPageSource"
                     oncommand="ViewPageSource(gFolderDisplay.selectedMessageUris);"/>
           <menuitem id="charsetRepairMenuitem"
                     class="menuitem-iconic"
@@ -264,25 +263,25 @@
                         type="radio"
                         name="bodyPlaintextVsHTMLPref"
                         label="&bodyAllowHTML.label;"
-                        oncommand="MsgBodyAllowHTML()"/>
+                        oncommand="top.MsgBodyAllowHTML()"/>
               <menuitem id="otherActionsMenu_bodySanitized"
                         class="menuitem-iconic"
                         type="radio"
                         name="bodyPlaintextVsHTMLPref"
                         label="&bodySanitized.label;"
-                        oncommand="MsgBodySanitized()"/>
+                        oncommand="top.MsgBodySanitized()"/>
               <menuitem id="otherActionsMenu_bodyAsPlaintext"
                         class="menuitem-iconic"
                         type="radio"
                         name="bodyPlaintextVsHTMLPref"
                         label="&bodyAsPlaintext.label;"
-                        oncommand="MsgBodyAsPlaintext()"/>
+                        oncommand="top.MsgBodyAsPlaintext()"/>
               <menuitem id="otherActionsMenu_bodyAllParts"
                         class="menuitem-iconic"
                         type="radio"
                         name="bodyPlaintextVsHTMLPref"
                         label="&bodyAllParts.label;"
-                        oncommand="MsgBodyAllParts()"/>
+                        oncommand="top.MsgBodyAllParts()"/>
             </menupopup>
           </menu>
           <menu id="otherActionsFeedBodyAs"
@@ -318,19 +317,19 @@
                         type="radio"
                         name="viewFeedBodyHTMLGroup"
                         label="&bodyAllowHTML.label;"
-                        oncommand="MsgFeedBodyRenderPrefs(false, 0, 0)"/>
+                        oncommand="top.MsgFeedBodyRenderPrefs(false, 0, 0)"/>
               <menuitem id="otherActionsMenu_bodyFeedSummarySanitized"
                         class="menuitem-iconic"
                         type="radio"
                         name="viewFeedBodyHTMLGroup"
                         label="&bodySanitized.label;"
-                        oncommand="MsgFeedBodyRenderPrefs(false, 3, gDisallow_classes_no_html)"/>
+                        oncommand="top.MsgFeedBodyRenderPrefs(false, 3, gDisallow_classes_no_html)"/>
               <menuitem id="otherActionsMenu_bodyFeedSummaryAsPlaintext"
                         class="menuitem-iconic"
                         type="radio"
                         name="viewFeedBodyHTMLGroup"
                         label="&bodyAsPlaintext.label;"
-                        oncommand="MsgFeedBodyRenderPrefs(true, 1, gDisallow_classes_no_html)"/>
+                        oncommand="top.MsgFeedBodyRenderPrefs(true, 1, gDisallow_classes_no_html)"/>
             </menupopup>
           </menu>
           <menuseparator/>

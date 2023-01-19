@@ -12,6 +12,7 @@ SOURCES += [
     "nsMailboxService.cpp",
     "nsMailboxUrl.cpp",
     "nsMsgBrkMBoxStore.cpp",
+    "nsMsgFileHdr.cpp",
     "nsMsgLocalStoreUtils.cpp",
     "nsMsgMaildirStore.cpp",
     "nsNoIncomingServer.cpp",

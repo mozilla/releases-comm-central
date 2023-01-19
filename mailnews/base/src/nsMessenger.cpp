@@ -57,7 +57,6 @@
 #include "nsIMsgMessageService.h"
 
 #include "nsIMsgHdr.h"
-#include "nsIMimeMiscStatus.h"
 // compose
 #include "nsNativeCharsetUtils.h"
 
@@ -541,7 +540,6 @@ nsMessenger::LoadURL(mozIDOMWindowProxy* aWin, const nsACString& aURL) {
   NS_ENSURE_TRUE(!uriString.IsEmpty(), NS_ERROR_FAILURE);
 
   bool loadingFromFile = false;
-  bool getDummyMsgHdr = false;
   int64_t fileSize;
   int64_t lastModifiedTime = 0;
 
@@ -559,7 +557,6 @@ nsMessenger::LoadURL(mozIDOMWindowProxy* aWin, const nsACString& aURL) {
     uriString.Replace(0, 5, u"mailbox:"_ns);
     uriString.AppendLiteral(u"&number=0");
     loadingFromFile = true;
-    getDummyMsgHdr = true;
   } else if (StringBeginsWith(uriString, u"mailbox:"_ns) &&
              (CaseInsensitiveFindInReadable(u".eml?"_ns, uriString))) {
     // if we have a mailbox:// url that points to an .eml file, we have to read
@@ -576,10 +573,8 @@ nsMessenger::LoadURL(mozIDOMWindowProxy* aWin, const nsACString& aURL) {
     file->GetFileSize(&fileSize);
     uriString.Replace(0, 5, u"mailbox:"_ns);
     loadingFromFile = true;
-    getDummyMsgHdr = true;
   } else if (uriString.Find(u"type=application/x-message-display") !=
              kNotFound) {
-    getDummyMsgHdr = true;
   }
 
   nsCOMPtr<nsIURI> uri;
@@ -590,31 +585,9 @@ nsMessenger::LoadURL(mozIDOMWindowProxy* aWin, const nsACString& aURL) {
   nsCOMPtr<nsIMsgMailNewsUrl> msgurl = do_QueryInterface(uri);
   if (msgurl) {
     msgurl->SetMsgWindow(mMsgWindow);
-    if (loadingFromFile || getDummyMsgHdr) {
-      if (loadingFromFile) {
-        nsCOMPtr<nsIMailboxUrl> mailboxUrl = do_QueryInterface(msgurl, &rv);
-        mailboxUrl->SetMessageSize((uint32_t)fileSize);
-      }
-      if (getDummyMsgHdr) {
-        nsCOMPtr<nsIMsgHeaderSink> headerSink;
-        // need to tell the header sink to capture some headers to create a fake
-        // db header so we can do reply to a .eml file or a rfc822 msg
-        // attachment.
-        mMsgWindow->GetMsgHeaderSink(getter_AddRefs(headerSink));
-        if (headerSink) {
-          nsCOMPtr<nsIMsgDBHdr> dummyHeader;
-          headerSink->GetDummyMsgHeader(getter_AddRefs(dummyHeader));
-          if (dummyHeader) {
-            dummyHeader->SetUint32Property("dummyMsgLastModifiedTime",
-                                           (uint32_t)lastModifiedTime);
-            dummyHeader->SetStringProperty("dummyMsgUrl",
-                                           PromiseFlatCString(aURL).get());
-            if (loadingFromFile) {
-              dummyHeader->SetMessageSize((uint32_t)fileSize);
-            }
-          }
-        }
-      }
+    if (loadingFromFile) {
+      nsCOMPtr<nsIMailboxUrl> mailboxUrl = do_QueryInterface(msgurl, &rv);
+      mailboxUrl->SetMessageSize((uint32_t)fileSize);
     }
   }
 
@@ -1460,31 +1433,10 @@ nsresult nsMessenger::Alert(const char* stringName) {
 }
 
 NS_IMETHODIMP
-nsMessenger::MessageServiceFromURI(const nsACString& aUri,
-                                   nsIMsgMessageService** aMsgService) {
-  NS_ENSURE_ARG_POINTER(aMsgService);
-  return GetMessageServiceFromURI(aUri, aMsgService);
-}
-
-NS_IMETHODIMP
 nsMessenger::MsgHdrFromURI(const nsACString& aUri, nsIMsgDBHdr** aMsgHdr) {
   NS_ENSURE_ARG_POINTER(aMsgHdr);
   nsCOMPtr<nsIMsgMessageService> msgService;
   nsresult rv;
-
-  if (mMsgWindow && (StringBeginsWith(aUri, "file:"_ns) ||
-                     PromiseFlatCString(aUri).Find(
-                         "type=application/x-message-display") >= 0)) {
-    nsCOMPtr<nsIMsgHeaderSink> headerSink;
-    mMsgWindow->GetMsgHeaderSink(getter_AddRefs(headerSink));
-    if (headerSink) {
-      rv = headerSink->GetDummyMsgHeader(aMsgHdr);
-      // Is there a way to check if they're asking for the hdr currently
-      // displayed in a stand-alone msg window from a .eml file?
-      // (pretty likely if this is a file: uri)
-      return rv;
-    }
-  }
 
   rv = GetMessageServiceFromURI(aUri, getter_AddRefs(msgService));
   NS_ENSURE_SUCCESS(rv, rv);

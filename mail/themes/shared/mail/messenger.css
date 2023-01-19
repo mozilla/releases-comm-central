@@ -45,16 +45,6 @@ p {
   display: none;
 }
 
-:root[tabsintitlebar] #toolbar-menubar[autohide=true]:not([inactive]) +
-  #tabs-toolbar > .titlebar-buttonbox-container {
-  visibility: hidden;
-}
-
-:root[tabsintitlebar]:not([chromehidden~="menubar"]) #toolbar-menubar:not([autohide=true]) +
-  #tabs-toolbar > .titlebar-buttonbox-container {
-  display: none;
-}
-
 #toolbar-menubar[autohide="true"] {
   overflow: hidden;
 }
@@ -68,10 +58,6 @@ p {
 
 #titlebar-spacer {
   pointer-events: none;
-}
-
-.titlebar-buttonbox-container {
-  -moz-box-ordinal-group: 1000;
 }
 
 #navigation-toolbox:-moz-lwtheme,
@@ -146,10 +132,6 @@ p {
 #titlebar > #toolbar-menubar:-moz-window-inactive,
 #titlebar > #tabs-toolbar:-moz-window-inactive {
   color: color-mix(in srgb, currentColor 70%, transparent);
-}
-
-#threadTree {
-  -moz-box-flex: 2;
 }
 
 .tree-columnpicker-button {
@@ -640,6 +622,12 @@ img.invisible-on-broken:-moz-broken {
   border-radius: 0;
 }
 
+#notification-popup-box {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
 #notification-popup-box > .notification-anchor-icon {
   width: 16px;
   height: 16px;
@@ -653,7 +641,6 @@ img.invisible-on-broken:-moz-broken {
    notifications are */
 .notification-anchor-icon {
   -moz-user-focus: normal;
-  margin-inline-start: 9px;
 }
 
 .notification-anchor-icon:not([showing]) {

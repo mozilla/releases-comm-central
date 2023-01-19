@@ -104,7 +104,7 @@ add_task(async function test_autohidden_menubar_3pane() {
 });
 
 add_task(async function test_autohidden_menubar_message_window() {
-  be_in_folder(menuFolder);
+  await be_in_folder(menuFolder);
   select_click_row(0);
   let msgc = await open_selected_message_in_new_window();
   let menubar = msgc.e("toolbar-menubar");
@@ -113,8 +113,8 @@ add_task(async function test_autohidden_menubar_message_window() {
   close_message_window(msgc);
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(async function() {
   toggle_main_menu(menuState);
-  be_in_folder(inboxFolder);
+  await be_in_folder(inboxFolder);
   menuFolder.deleteSelf(null);
 });

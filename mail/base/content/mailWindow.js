@@ -10,12 +10,8 @@
 /* import-globals-from mail-offline.js */
 /* import-globals-from mailCore.js */
 /* import-globals-from mailWindowOverlay.js */
-/* import-globals-from msgHdrView.js */
-/* import-globals-from msgMail3PaneWindow.js */
+/* import-globals-from messenger.js */
 /* import-globals-from utilityOverlay.js */
-
-// From netError.js
-/* globals retryThis */
 
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
@@ -23,8 +19,6 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 XPCOMUtils.defineLazyModuleGetters(this, {
   appIdleManager: "resource:///modules/AppIdleManager.jsm",
   Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
-  MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
   UIDensity: "resource:///modules/UIDensity.jsm",
 });
 
@@ -39,10 +33,6 @@ var messenger;
 var statusFeedback;
 var msgWindow;
 
-var accountManager;
-
-var gContextMenu;
-
 UIDensity.registerWindow(window);
 
 /**
@@ -53,7 +43,6 @@ UIDensity.registerWindow(window);
  */
 function OnMailWindowUnload() {
   MailOfflineMgr.uninit();
-  ClearPendingReadTimer();
 
   // all dbview closing is handled by OnUnloadMessenger for the 3-pane (it closes
   //  the tabs which close their views) and OnUnloadMessageWindow for the
@@ -66,7 +55,6 @@ function OnMailWindowUnload() {
 
   msgWindow.closeWindow();
 
-  msgWindow.msgHeaderSink = null;
   msgWindow.notificationCallbacks = null;
   gDBView = null; // eslint-disable-line no-global-assign
   window.MsgStatusFeedback.unload();
@@ -190,6 +178,7 @@ function CreateMailWindowGlobals() {
   // get the messenger instance
   // eslint-disable-next-line no-global-assign
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+  messenger.setWindow(window, msgWindow);
 
   window.addEventListener("blur", appIdleManager.onBlur);
   window.addEventListener("focus", appIdleManager.onFocus);
@@ -206,6 +195,7 @@ function CreateMailWindowGlobals() {
 
   window.browserDOMWindow = new nsBrowserAccess();
 
+  // eslint-disable-next-line no-global-assign
   statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"].createInstance(
     Ci.nsIMsgStatusFeedback
   );
@@ -220,8 +210,6 @@ function CreateMailWindowGlobals() {
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
     Ci.nsIMsgWindow
   );
-
-  accountManager = MailServices.accounts;
 }
 
 function toggleCaretBrowsing() {
@@ -286,23 +274,10 @@ function toggleCaretBrowsing() {
 }
 
 function InitMsgWindow() {
-  msgWindow.windowCommands = new nsMsgWindowCommands();
-  // set the domWindow before setting the status feedback and header sink objects
+  // Set the domWindow before setting the status feedback object.
   msgWindow.domWindow = window;
   msgWindow.statusFeedback = statusFeedback;
-  msgWindow.msgHeaderSink = messageHeaderSink;
   MailServices.mailSession.AddMsgWindow(msgWindow);
-  let messagepane = getMessagePaneBrowser();
-  if (messagepane.docShell) {
-    messagepane.docShell.allowAuth = false;
-    messagepane.docShell.allowDNSPrefetch = false;
-  }
-  let multimessagepane = document.getElementById("multimessage");
-  // The multimessage pane is not available in the standalone message window.
-  if (multimessagepane?.docShell) {
-    multimessagepane.docShell.allowAuth = false;
-    multimessagepane.docShell.allowDNSPrefetch = false;
-  }
   msgWindow.rootDocShell.allowAuth = true;
   msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
   // Ensure we don't load xul error pages into the main window
@@ -310,19 +285,6 @@ function InitMsgWindow() {
 
   document.addEventListener("copy", onCopyOrDragStart, true);
   document.addEventListener("dragstart", onCopyOrDragStart, true);
-  // Override Retry button to prevent unwanted url loads, see bug 1411748.
-  messagepane.addEventListener("DOMContentLoaded", event => {
-    if (!event.target.documentURI.startsWith("about:neterror?")) {
-      return;
-    }
-    let button = event.target.getElementById("errorTryAgain");
-    button.removeEventListener("click", function() {
-      retryThis(this);
-    });
-    button.addEventListener("click", function() {
-      ReloadMessage();
-    });
-  });
 
   let keypressListener = {
     handleEvent: event => {
@@ -663,56 +625,6 @@ nsMsgStatusFeedback.prototype = {
   onHandlerChanged(aActivity) {},
 };
 
-function nsMsgWindowCommands() {}
-
-nsMsgWindowCommands.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIMsgWindowCommands"]),
-
-  selectFolder(folderUri) {
-    gFolderTreeView.selectFolder(MailUtils.getOrCreateFolder(folderUri));
-  },
-
-  selectMessage(messageUri) {
-    let msgHdr = messenger.msgHdrFromURI(messageUri);
-    gFolderDisplay.selectMessage(msgHdr);
-  },
-
-  clearMsgPane() {
-    // This call happens as part of a display decision made by the nsMsgDBView
-    //  instance.  Strictly speaking, we don't want this.  I think davida's
-    //  patch will change this, so we can figure it out after that lands if
-    //  there are issues.
-    ClearMessagePane();
-  },
-};
-
-/**
- * Loads the mail start page.
- */
-function loadStartPage(aForce) {
-  // If the preference isn't enabled, then don't load anything.
-  if (!aForce && !Services.prefs.getBoolPref("mailnews.start_page.enabled")) {
-    return;
-  }
-
-  let messagePane = getMessagePaneBrowser();
-  gMessageDisplay.singleMessageDisplay = true;
-  gMessageNotificationBar.clearMsgNotifications();
-  let startpage = Services.urlFormatter.formatURLPref(
-    "mailnews.start_page.url"
-  );
-  if (startpage) {
-    try {
-      let { preferredURI } = Services.uriFixup.getFixupURIInfo(startpage, 0);
-      MailE10SUtils.loadURI(messagePane, preferredURI.spec);
-    } catch (e) {
-      console.error(e);
-    }
-  } else {
-    ClearMessagePane();
-  }
-}
-
 /**
  * Returns the browser element of the current tab.
  * The zoom manager, view source and possibly some other functions still rely
@@ -720,52 +632,14 @@ function loadStartPage(aForce) {
  */
 function getBrowser() {
   let tabmail = document.getElementById("tabmail");
-  return tabmail ? tabmail.getBrowserForSelectedTab() : getMessagePaneBrowser();
-}
-
-/**
- * Returns the browser element of the message pane.
- */
-function getMessagePaneBrowser() {
-  return document.getElementById("messagepane");
-}
-
-/**
- * This function is global and expected by toolkit to get the notification box
- * for the browser for use with items like password manager.
- */
-function getNotificationBox(aWindow) {
-  var tabmail = document.getElementById("tabmail");
-  var tabInfo = tabmail.tabInfo;
-
-  for (var i = 0; i < tabInfo.length; ++i) {
-    var browserFunc =
-      tabInfo[i].mode.getBrowser || tabInfo[i].mode.tabType.getBrowser;
-    if (browserFunc) {
-      var possBrowser = browserFunc.call(tabInfo[i].mode.tabType, tabInfo[i]);
-      if (
-        possBrowser &&
-        possBrowser.contentWindow == aWindow &&
-        possBrowser.parentNode.tagName == "notificationbox"
-      ) {
-        return possBrowser.parentNode;
-      }
-    }
-  }
-  return null;
+  return tabmail ? tabmail.getBrowserForSelectedTab() : null;
 }
 
 // Given the server, open the twisty and the set the selection
 // on inbox of that server.
 // prompt if offline.
 function OpenInboxForServer(server) {
-  gFolderTreeView.selectFolder(MailUtils.getInboxFolder(server));
-
-  if (MailOfflineMgr.isOnline() || MailOfflineMgr.getNewMail()) {
-    if (server.type != "imap") {
-      GetMessagesForInboxOnServer(server);
-    }
-  }
+  // TODO: Reimplement this or fix the caller?
 }
 
 /** Update state of zoom type (text vs. full) menu item. */
@@ -1025,15 +899,6 @@ nsBrowserAccess.prototype = {
   },
 };
 
-function MailSetCharacterSet() {
-  msgWindow.charsetOverride = true;
-  gMessageDisplay.keyForCharsetOverride =
-    "messageKey" in gMessageDisplay.displayedMessage
-      ? gMessageDisplay.displayedMessage.messageKey
-      : null;
-  messenger.forceDetectDocumentCharset();
-}
-
 /**
  * Called from the extensions manager to open an add-on options XUL document.
  * Only the "open in tab" option is supported, so that's what we'll do here.
@@ -1083,3 +948,107 @@ function switchToTabHavingURI(aURI, aOpenNew, aOpenParams = {}) {
 
   return false;
 }
+
+/**
+ * Combines all nsIWebProgress notifications from all content browsers in this
+ * window and reports them to the registered listeners.
+ *
+ * @see WindowTracker (ext-mail.js)
+ * @see StatusListener, WindowTrackerBase (ext-tabs-base.js)
+ */
+var contentProgress = {
+  _listeners: new Set(),
+
+  addListener(listener) {
+    this._listeners.add(listener);
+  },
+
+  removeListener(listener) {
+    this._listeners.delete(listener);
+  },
+
+  callListeners(method, args) {
+    for (let listener of this._listeners.values()) {
+      if (method in listener) {
+        try {
+          listener[method](...args);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  },
+
+  /**
+   * Ensure that `browser` has a ProgressListener attached to it.
+   *
+   * @param {Browser} browser
+   */
+  addProgressListenerToBrowser(browser) {
+    if (browser?.webProgress && !browser._progressListener) {
+      browser._progressListener = new contentProgress.ProgressListener(browser);
+      browser.webProgress.addProgressListener(
+        browser._progressListener,
+        Ci.nsIWebProgress.NOTIFY_ALL
+      );
+    }
+  },
+
+  // @implements {nsIWebProgressListener}
+  // @implements {nsIWebProgressListener2}
+  ProgressListener: class {
+    QueryInterface = ChromeUtils.generateQI([
+      "nsIWebProgressListener",
+      "nsIWebProgressListener2",
+      "nsISupportsWeakReference",
+    ]);
+
+    constructor(browser) {
+      this.browser = browser;
+    }
+
+    callListeners(method, args) {
+      args.unshift(this.browser);
+      contentProgress.callListeners(method, args);
+    }
+
+    onProgressChange(...args) {
+      this.callListeners("onProgressChange", args);
+    }
+
+    onProgressChange64(...args) {
+      this.callListeners("onProgressChange64", args);
+    }
+
+    onLocationChange(...args) {
+      this.callListeners("onLocationChange", args);
+    }
+
+    onStateChange(...args) {
+      this.callListeners("onStateChange", args);
+    }
+
+    onStatusChange(...args) {
+      this.callListeners("onStatusChange", args);
+    }
+
+    onSecurityChange(...args) {
+      this.callListeners("onSecurityChange", args);
+    }
+
+    onContentBlockingEvent(...args) {
+      this.callListeners("onContentBlockingEvent", args);
+    }
+
+    onRefreshAttempted(...args) {
+      return this.callListeners("onRefreshAttempted", args);
+    }
+  },
+};
+
+// Add a progress listener to any about:message content browser that comes
+// along. This often happens after the tab is opened so the usual mechanism
+// doesn't work. It also works for standalone message windows.
+window.addEventListener("aboutMessageLoaded", event =>
+  contentProgress.addProgressListenerToBrowser(event.target.content)
+);

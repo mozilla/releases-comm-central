@@ -8,6 +8,7 @@ const { AddonManager } = ChromeUtils.import(
 
 let account;
 let messages;
+let tabmail = document.getElementById("tabmail");
 
 add_setup(async () => {
   account = createAccount();
@@ -16,20 +17,16 @@ add_setup(async () => {
   createMessages(subFolders[0], 10);
   messages = subFolders[0].messages;
 
-  // This tests selects a folder, so make sure the folder pane is visible.
-  if (
-    document.getElementById("folderpane_splitter").getAttribute("state") ==
-    "collapsed"
-  ) {
-    window.MsgToggleFolderPane();
-  }
-  if (window.IsMessagePaneCollapsed()) {
-    window.MsgToggleMessagePane();
-  }
-
-  window.gFolderTreeView.selectFolder(subFolders[0]);
-  window.gFolderDisplay.selectViewIndex(0);
-  await BrowserTestUtils.browserLoaded(window.getMessagePaneBrowser());
+  let about3Pane = tabmail.currentAbout3Pane;
+  about3Pane.restoreState({
+    folderPaneVisible: true,
+    folderURI: subFolders[0],
+    messagePaneVisible: true,
+  });
+  about3Pane.threadTree.selectedIndex = 0;
+  await BrowserTestUtils.browserLoaded(
+    about3Pane.messageBrowser.contentWindow.content
+  );
 });
 
 async function subtest_popup_open_with_click_MV3_event_pages(
@@ -42,7 +39,7 @@ async function subtest_popup_open_with_click_MV3_event_pages(
       terminateBackground,
       actionType: "message_display_action",
       testType: "open-with-mouse-click",
-      window,
+      window: tabmail.currentAboutMessage,
     };
 
     await run_popup_test({
@@ -66,7 +63,7 @@ async function subtest_popup_open_with_click_MV3_event_pages(
       terminateBackground,
       actionType: "message_display_action",
       testType: "open-with-mouse-click",
-      window,
+      window: tabmail.currentAboutMessage,
     };
 
     await run_popup_test({
@@ -81,7 +78,7 @@ async function subtest_popup_open_with_click_MV3_event_pages(
       use_default_popup: true,
     });
 
-    document.getElementById("tabmail").closeTab();
+    tabmail.closeTab();
   }
 
   info("Message window");
@@ -92,7 +89,7 @@ async function subtest_popup_open_with_click_MV3_event_pages(
       terminateBackground,
       actionType: "message_display_action",
       testType: "open-with-mouse-click",
-      window: messageWindow,
+      window: messageWindow.messageBrowser.contentWindow,
     };
 
     await run_popup_test({

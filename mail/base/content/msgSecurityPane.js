@@ -7,8 +7,9 @@
  * header to display S/MIME and OpenPGP encryption and signature info.
  */
 
-/* globals gFolderDisplay, gSignatureStatus, Enigmail, gDBView */
-/* globals showImapSignatureUnknown, loadSmimeMessageSecurityInfo */
+/* import-globals-from ../../../mailnews/extensions/smime/msgReadSMIMEOverlay.js */
+/* import-globals-from ../../extensions/openpgp/content/ui/enigmailMessengerOverlay.js */
+/* import-globals-from aboutMessage.js */
 
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
@@ -28,10 +29,7 @@ var gEncKeyId = null;
  */
 function showMessageReadSecurityInfo() {
   // Interrupt if no message is selected or no encryption technology was used.
-  if (
-    !gFolderDisplay.selectedMessage ||
-    document.getElementById("cryptoBox").hidden
-  ) {
+  if (!gMessage || document.getElementById("cryptoBox").hidden) {
     return;
   }
 

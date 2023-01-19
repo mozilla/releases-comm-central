@@ -5,21 +5,22 @@
 var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
-async function getDisplayedMessages(tab, extension) {
-  let displayedMessages;
-
+function _getDisplayedMessages(tab) {
+  let nativeTab = tab.nativeTab;
   if (tab instanceof TabmailTab) {
-    if (["folder", "glodaList", "message"].includes(tab.nativeTab.mode.name)) {
-      displayedMessages = tab.nativeTab.folderDisplay.selectedMessages;
+    if (nativeTab.mode.name == "mail3PaneTab") {
+      return nativeTab.chromeBrowser.contentWindow.gDBView.getSelectedMsgHdrs();
+    } else if (nativeTab.mode.name == "mailMessageTab") {
+      return [nativeTab.chromeBrowser.contentWindow.gMessage];
     }
-  } else if (tab.nativeTab.gMessageDisplay) {
-    displayedMessages = [tab.nativeTab.gMessageDisplay.displayedMessage];
+  } else if (nativeTab) {
+    return [nativeTab.messageBrowser.contentWindow.gMessage];
   }
+  return [];
+}
 
-  if (!displayedMessages) {
-    return [];
-  }
-
+function getDisplayedMessages(tab, extension) {
+  let displayedMessages = _getDisplayedMessages(tab);
   let result = [];
   for (let msg of displayedMessages) {
     let hdr = convertMessage(msg, extension);
@@ -86,16 +87,17 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
 
     onMessageDisplayed({ context, fire }) {
       const { extension } = this;
-      const { tabManager, windowManager } = extension;
+      const { tabManager } = extension;
       let listener = {
         async handleEvent(event) {
           if (fire.wakeup) {
             await fire.wakeup();
           }
-          let win = windowManager.wrapWindow(event.target);
-          let tab = tabManager.convert(win.activeTab.nativeTab);
+          // `event.target` is an about:message window.
+          let nativeTab = event.target.tabOrWindow;
+          let tab = tabManager.wrapTab(nativeTab);
           let msg = convertMessage(event.detail, extension);
-          fire.async(tab, msg);
+          fire.async(tab.convert(), msg);
         },
       };
       windowTracker.addListener("MsgLoaded", listener);
@@ -111,17 +113,17 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
     },
     onMessagesDisplayed({ context, fire }) {
       const { extension } = this;
-      const { tabManager, windowManager } = extension;
+      const { tabManager } = extension;
       let listener = {
         async handleEvent(event) {
           if (fire.wakeup) {
             await fire.wakeup();
           }
-          let win = windowManager.wrapWindow(event.target);
-          let tab = tabManager.convert(win.activeTab.nativeTab);
-          getDisplayedMessages(win.activeTab, extension).then(msgs => {
-            fire.async(tab, msgs);
-          });
+          // `event.target` is an about:message or about:3pane window.
+          let nativeTab = event.target.tabOrWindow;
+          let tab = tabManager.wrapTab(nativeTab);
+          let msgs = getDisplayedMessages(tab, extension);
+          fire.async(tab.convert(), msgs);
         },
       };
       windowTracker.addListener("MsgsLoaded", listener);
@@ -156,21 +158,11 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
         }).api(),
         async getDisplayedMessage(tabId) {
           let tab = tabManager.get(tabId);
-          let displayedMessage = null;
-
-          if (tab instanceof TabmailTab) {
-            if (
-              ["folder", "glodaList", "message"].includes(
-                tab.nativeTab.mode.name
-              )
-            ) {
-              displayedMessage = tab.nativeTab.messageDisplay.displayedMessage;
-            }
-          } else if (tab.nativeTab.gMessageDisplay) {
-            displayedMessage = tab.nativeTab.gMessageDisplay.displayedMessage;
+          let messages = _getDisplayedMessages(tab);
+          if (messages.length == 1) {
+            return convertMessage(messages[0], extension);
           }
-
-          return convertMessage(displayedMessage, extension);
+          return null;
         },
         async getDisplayedMessages(tabId) {
           return getDisplayedMessages(tabManager.get(tabId), extension);
@@ -208,18 +200,17 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
                 );
                 let tabmail = window.document.getElementById("tabmail");
                 let currentTab = tabmail.selectedTab;
-                let nativeTabInfo = tabmail.openTab("message", {
-                  msgHdr,
+                let nativeTabInfo = tabmail.openTab("mailMessageTab", {
+                  messageURI: msgHdr.folder.getUriForMsg(msgHdr),
                   background: !active,
                 });
-
-                // Only messages loaded into active tabs correctly set
-                // messageDisplay.displayedMessage.
-                // To have browser.messageDisplay.getDisplayedMessage() return the
-                // message in the inactive tab, manually set the msgHdr here.
-                if (!active) {
-                  nativeTabInfo.messageDisplay.displayedMessage = msgHdr;
-                }
+                await new Promise(resolve =>
+                  nativeTabInfo.chromeBrowser.addEventListener(
+                    "MsgLoaded",
+                    resolve,
+                    { once: true }
+                  )
+                );
                 tab = tabManager.convert(nativeTabInfo, currentTab);
               }
               break;
@@ -227,21 +218,12 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
             case "window":
               {
                 // Handle window location.
-                let msgWindow = null;
-                let messageLoadPromise = new Promise(resolve => {
-                  function msgLoadedListener(event) {
-                    if (msgWindow && msgWindow == event.target) {
-                      windowTracker.removeListener(
-                        "MsgLoaded",
-                        msgLoadedListener
-                      );
-                      resolve();
-                    }
-                  }
-                  windowTracker.addListener("MsgLoaded", msgLoadedListener);
-                });
-                msgWindow = MailUtils.openMessageInNewWindow(msgHdr);
-                await messageLoadPromise;
+                let msgWindow = MailUtils.openMessageInNewWindow(msgHdr);
+                await new Promise(resolve =>
+                  msgWindow.addEventListener("MsgLoaded", resolve, {
+                    once: true,
+                  })
+                );
                 tab = tabManager.convert(msgWindow);
               }
               break;

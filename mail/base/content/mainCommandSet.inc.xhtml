@@ -3,8 +3,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
   <command id="cmd_quitApplication" oncommand="goQuitApplication(event)"/>
-  <!--The cmd_createFilterFromPopup is used to notify the email context popup -->
-  <command id="cmd_createFilterFromPopup"/>
   <command id="cmd_CustomizeMailToolbar"
            oncommand="CustomizeMailToolbar('mail-toolbox', 'CustomizeMailToolbar')"/>
 
@@ -136,6 +134,7 @@
     <command id="cmd_findAgain" oncommand="goDoCommand('cmd_findAgain')" disabled="true"/>
     <command id="cmd_findPrevious" oncommand="goDoCommand('cmd_findPrevious')"
              disabled="true"/>
+    <command id="cmd_searchMessages" oncommand="goDoCommand('cmd_searchMessages');"/>
     <!-- Stop/abort current network activities. -->
     <command id="cmd_stop" oncommand="goDoCommand('cmd_stop')"/>
     <command id="cmd_reload" oncommand="goDoCommand('cmd_reload')"/>
@@ -162,7 +161,7 @@
     <command id="cmd_undoCloseTab" oncommand="goDoCommand('cmd_undoCloseTab');"/>
     <command id="cmd_goForward" oncommand="goDoCommand('cmd_goForward')" disabled="true"/>
     <command id="cmd_goBack" oncommand="goDoCommand('cmd_goBack')" disabled="true"/>
-    <command id="cmd_goFolder" oncommand="gFolderTreeView.selectFolder(event.target._folder, true);" disabled="true"/>
+    <command id="cmd_goFolder" oncommand="" disabled="true"/>
     <command id="cmd_chat" oncommand="goDoCommand('cmd_chat')" disabled="true"/>
   </commandset>
 
@@ -171,20 +170,20 @@
               events="create-menu-message"
               oncommandupdate="goUpdateMailMenuItems(this)">
     <command id="cmd_archive" oncommand="goDoCommand('cmd_archive')"/>
-    <command id="cmd_newMessage" oncommand="MsgNewMessage(event)"/>
-    <command id="cmd_reply" oncommand="MsgReplyMessage(event)"/>
-    <command id="cmd_replySender" oncommand="MsgReplySender(event);"/>
-    <command id="cmd_replyGroup" oncommand="MsgReplyGroup(event);"/>
-    <command id="cmd_replyall" oncommand="MsgReplyToAllMessage(event);"/>
-    <command id="cmd_replylist" oncommand="MsgReplyToListMessage(event);"/>
-    <command id="cmd_forward" oncommand="MsgForwardMessage(event);"/>
-    <command id="cmd_forwardInline" oncommand="MsgForwardAsInline(event)"/>
-    <command id="cmd_forwardAttachment" oncommand="MsgForwardAsAttachment(event);"/>
-    <command id="cmd_redirect" oncommand="MsgRedirectMessage(event);"/>
-    <command id="cmd_editAsNew" oncommand="MsgEditMessageAsNew(event);"/>
-    <command id="cmd_editDraftMsg" oncommand="MsgEditDraftMessage(event);"/>
-    <command id="cmd_newMsgFromTemplate" oncommand="MsgNewMessageFromTemplate(event);"/>
-    <command id="cmd_editTemplateMsg" oncommand="MsgEditTemplateMessage(event);"/>
+    <command id="cmd_newMessage" oncommand="goDoCommand('cmd_newMessage')"/>
+    <command id="cmd_reply" oncommand="goDoCommand('cmd_reply')"/>
+    <command id="cmd_replySender" oncommand="goDoCommand('cmd_replySender')"/>
+    <command id="cmd_replyGroup" oncommand="goDoCommand('cmd_replyGroup')"/>
+    <command id="cmd_replyall" oncommand="goDoCommand('cmd_replyall')"/>
+    <command id="cmd_replylist" oncommand="goDoCommand('cmd_replylist')"/>
+    <command id="cmd_forward" oncommand="goDoCommand('cmd_forward');"/>
+    <command id="cmd_forwardInline" oncommand="goDoCommand('cmd_forwardInline')"/>
+    <command id="cmd_forwardAttachment" oncommand="goDoCommand('cmd_forwardAttachment');"/>
+    <command id="cmd_redirect" oncommand="goDoCommand('cmd_redirect')"/>
+    <command id="cmd_editAsNew" oncommand="goDoCommand('cmd_editAsNew')"/>
+    <command id="cmd_editDraftMsg" oncommand="goDoCommand('cmd_editDraftMsg')"/>
+    <command id="cmd_newMsgFromTemplate" oncommand="goDoCommand('cmd_newMsgFromTemplate')"/>
+    <command id="cmd_editTemplateMsg" oncommand="goDoCommand('cmd_editTemplateMsg')"/>
     <command id="cmd_openMessage" oncommand="goDoCommand('cmd_openMessage')"/>
     <command id="cmd_openConversation" oncommand="goDoCommand('cmd_openConversation')"/>
     <command id="cmd_moveToFolderAgain" oncommand="goDoCommand('cmd_moveToFolderAgain')"/>

@@ -124,13 +124,13 @@ add_task(async function test_paste_file_urls() {
   }, "Timeout waiting for pasted tmp image to be loaded ok");
 
   // For the non-existent (non-accessible!) image we should get a notification.
-  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
+  wait_for_notification_to_show(cwc.window, kBoxId, kNotificationId);
 
   plan_for_window_close(cwc);
   cwc.window.goDoCommand("cmd_sendLater");
   wait_for_window_close();
 
-  be_in_folder(gOutboxFolder);
+  await be_in_folder(gOutboxFolder);
   let outMsg = select_click_row(0);
   let outMsgContent = await get_msg_source(outMsg);
 

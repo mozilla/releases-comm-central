@@ -29,11 +29,7 @@ registerCleanupFunction(async () => {
   // Some tests that open new windows don't return focus to the main window
   // in a way that satisfies mochitest, and the test times out.
   Services.focus.focusedWindow = window;
-  // Focus an element in the main window, then blur it again to avoid it
-  // hijacking key presses.
-  let searchInput = document.getElementById("searchInput");
-  searchInput.focus();
-  searchInput.blur();
+  document.body.focus();
 });
 
 class EmailTransport extends CalItipDefaultEmailTransport {
@@ -100,12 +96,7 @@ async function openMessageFromFile(file) {
     fileURL
   );
   let win = await winPromise;
-
-  let browser = win.document.getElementById("messagepane");
-  if (browser.webProgress?.isLoadingDocument || browser.currentURI?.spec == "about:blank") {
-    await BrowserTestUtils.browserLoaded(browser);
-  }
-
+  await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
   await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
   return win;
 }
@@ -118,7 +109,8 @@ async function openMessageFromFile(file) {
  */
 async function openImipMessage(file) {
   let win = await openMessageFromFile(file);
-  let imipBar = win.document.getElementById("imip-bar");
+  let aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
+  let imipBar = aboutMessage.document.getElementById("imip-bar");
   await TestUtils.waitForCondition(() => !imipBar.collapsed, "imip-bar shown");
   return win;
 }
@@ -130,10 +122,11 @@ async function openImipMessage(file) {
  * @param {string} id
  */
 async function clickAction(win, id) {
-  let action = win.document.getElementById(id);
+  let aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
+  let action = aboutMessage.document.getElementById(id);
   Assert.ok(!action.hidden, `button "#${id}" shown"`);
 
-  EventUtils.synthesizeMouseAtCenter(action, {}, win);
+  EventUtils.synthesizeMouseAtCenter(action, {}, aboutMessage);
   await TestUtils.waitForCondition(() => action.hidden, `button "#${id}" hidden`);
 }
 
@@ -145,14 +138,15 @@ async function clickAction(win, id) {
  * @param {string} actionId The id of the menu item to click.
  */
 async function clickMenuAction(win, buttonId, actionId) {
-  let actionButton = win.document.getElementById(buttonId);
+  let aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
+  let actionButton = aboutMessage.document.getElementById(buttonId);
   Assert.ok(!actionButton.hidden, `"${buttonId}" shown`);
 
   let actionMenu = actionButton.querySelector("menupopup");
   let menuShown = BrowserTestUtils.waitForEvent(actionMenu, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(actionButton.querySelector("dropmarker"), {}, win);
+  EventUtils.synthesizeMouseAtCenter(actionButton.querySelector("dropmarker"), {}, aboutMessage);
   await menuShown;
-  actionMenu.activateItem(win.document.getElementById(actionId));
+  actionMenu.activateItem(aboutMessage.document.getElementById(actionId));
   await TestUtils.waitForCondition(() => actionButton.hidden, `action menu "#${buttonId}" hidden`);
 }
 
@@ -332,9 +326,10 @@ async function doMinorUpdateTest(conf) {
 
   let updatePath = isRecurring ? "data/repeat-update-minor.eml" : "data/update-minor.eml";
   let win = await openImipMessage(new FileUtils.File(getTestFilePath(updatePath)));
-  let updateButton = win.document.getElementById("imipUpdateButton");
+  let aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
+  let updateButton = aboutMessage.document.getElementById("imipUpdateButton");
   Assert.ok(!updateButton.hidden, `#${updateButton.id} button shown`);
-  EventUtils.synthesizeMouseAtCenter(updateButton, {}, win);
+  EventUtils.synthesizeMouseAtCenter(updateButton, {}, aboutMessage);
 
   await TestUtils.waitForCondition(async () => {
     event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
@@ -536,9 +531,10 @@ async function doMinorExceptionTest(conf) {
   transport.reset();
 
   let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-minor.eml")));
-  let updateButton = win.document.getElementById("imipUpdateButton");
+  let aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
+  let updateButton = aboutMessage.document.getElementById("imipUpdateButton");
   Assert.ok(!updateButton.hidden, `#${updateButton.id} button shown`);
-  EventUtils.synthesizeMouseAtCenter(updateButton, {}, win);
+  EventUtils.synthesizeMouseAtCenter(updateButton, {}, aboutMessage);
 
   let exception;
   await TestUtils.waitForCondition(async () => {
@@ -824,9 +820,10 @@ async function doCancelTest({ transport, calendar, isRecurring, event, recurrenc
   }
 
   let win = await openImipMessage(cancelMsgFile);
-  let deleteButton = win.document.getElementById("imipDeleteButton");
+  let aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
+  let deleteButton = aboutMessage.document.getElementById("imipDeleteButton");
   Assert.ok(!deleteButton.hidden, `#${deleteButton.id} button shown`);
-  EventUtils.synthesizeMouseAtCenter(deleteButton, {}, win);
+  EventUtils.synthesizeMouseAtCenter(deleteButton, {}, aboutMessage);
 
   if (isRecurring && recurrenceId) {
     // Expects a single occurrence to be cancelled.

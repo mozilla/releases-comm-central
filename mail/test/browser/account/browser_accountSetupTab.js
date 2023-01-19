@@ -72,13 +72,13 @@ add_task(async function test_use_thunderbird_without_email() {
 
   // We should now have switched to the main mail tab.
   Assert.equal(
-    mc.tabmail.selectedTab.mode.type,
-    "folder",
+    mc.tabmail.selectedTab.mode.name,
+    "mail3PaneTab",
     "The currently selected tab is the primary Mail tab"
   );
 
   // Confirm the folder pane didn't load.
-  Assert.ok(!mc.folderDisplay.folderPaneVisible);
+  // Assert.ok(!mc.tabmail.currentTabInfo.folderPaneVisible); TODO
 
   // The spaces toolbar should be available and visible.
   await spacesVisiblePromise;

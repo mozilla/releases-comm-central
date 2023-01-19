@@ -54,12 +54,12 @@ add_task(function test_add_folder_toolbar() {
   );
 });
 
-add_task(function test_folder_toolbar_shows_correct_item() {
+add_task(async function test_folder_toolbar_shows_correct_item() {
   add_to_toolbar(mc.e("mail-bar3"), "folder-location-container");
   let folderLoc = mc.e("locationFolders");
 
   // Start in folder a.
-  let tabFolderA = be_in_folder(folderA);
+  let tabFolderA = await be_in_folder(folderA);
   assert_folder_selected_and_displayed(folderA);
   assert_nothing_selected();
   Assert.equal(
@@ -69,7 +69,7 @@ add_task(function test_folder_toolbar_shows_correct_item() {
   );
 
   // Open tab b, make sure it works right.
-  let tabFolderB = open_folder_in_new_tab(folderB);
+  let tabFolderB = await open_folder_in_new_tab(folderB);
   wait_for_blank_content_pane();
   assert_folder_selected_and_displayed(folderB);
   assert_nothing_selected();
@@ -80,7 +80,7 @@ add_task(function test_folder_toolbar_shows_correct_item() {
   );
 
   // Go back to tab/folder A and make sure we change correctly.
-  switch_tab(tabFolderA);
+  await switch_tab(tabFolderA);
   assert_folder_selected_and_displayed(folderA);
   assert_nothing_selected();
   Assert.equal(
@@ -90,7 +90,7 @@ add_task(function test_folder_toolbar_shows_correct_item() {
   );
 
   // Go back to tab/folder A and make sure we change correctly.
-  switch_tab(tabFolderB);
+  await switch_tab(tabFolderB);
   assert_folder_selected_and_displayed(folderB);
   assert_nothing_selected();
   Assert.equal(
@@ -101,9 +101,9 @@ add_task(function test_folder_toolbar_shows_correct_item() {
   close_tab(tabFolderB);
 });
 
-add_task(function test_folder_toolbar_disappears_on_message_tab() {
+add_task(async function test_folder_toolbar_disappears_on_message_tab() {
   add_to_toolbar(mc.e("mail-bar3"), "folder-location-container");
-  be_in_folder(folderB);
+  await be_in_folder(folderB);
   let folderLoc = mc.e("locationFolders");
   Assert.ok(folderLoc);
   Assert.equal(
@@ -116,7 +116,7 @@ add_task(function test_folder_toolbar_disappears_on_message_tab() {
   // Select one message
   select_click_row(0);
   // Open it
-  let messageTab = open_selected_message_in_new_tab();
+  let messageTab = await open_selected_message_in_new_tab();
 
   Assert.equal(
     mc.e("folder-location-container").collapsed,

@@ -1,0 +1,288 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<html:template id="searchBarItemTemplate"
+  xmlns="http://www.w3.org/1999/xhtml">
+  <global-search-bar class="search-bar"
+                     data-l10n-id="search-bar-item"
+                     data-l10n-attrs="label"
+                     aria-keyshortcuts="Control+K">
+    <span slot="placeholder" data-l10n-id="search-bar-placeholder"></span>
+    <img data-l10n-id="search-bar-button"
+         slot="button"
+         class="search-button-icon"
+         src="" />
+  </global-search-bar>
+</html:template>
+
+<html:template id="writeMessageTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="cmd_newMessage"
+          label-id="toolbar-write-message-label"
+          data-l10n-id="toolbar-write-message"></button>
+</html:template>
+
+<html:template id="moveToTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          popup="toolbarMoveToPopup"
+          observes="cmd_moveMessage"
+          label-id="toolbar-move-to-label"
+          data-l10n-id="toolbar-move-to"></button>
+</html:template>
+
+<html:template id="calendarUnifinderTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="calendar_show_unifinder_command"
+          aria-pressed="false"
+          label-id="toolbar-unifinder-label"
+          data-l10n-id="toolbar-unifinder"></button>
+</html:template>
+
+<html:template id="folderLocationTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="folder-location-button"
+          popup="toolbarFolderLocationPopup"
+          data-l10n-id="toolbar-folder-location"></button>
+</html:template>
+
+<html:template id="editEventTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="calendar_modify_focused_item_command"
+          label-id="toolbar-edit-event-label"
+          data-l10n-id="toolbar-edit-event"></button>
+</html:template>
+
+<html:template id="getMessagesTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="cmd_getMsgsForAuthAccounts"
+          label-id="toolbar-get-messages-label"
+          data-l10n-id="toolbar-get-messages"></button>
+</html:template>
+
+<html:template id="replyTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_reply"
+          label-id="toolbar-reply-label"
+          data-l10n-id="toolbar-reply"></button>
+</html:template>
+
+<html:template id="replyAllTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_replyall"
+          label-id="toolbar-reply-all-label"
+          data-l10n-id="toolbar-reply-all"></button>
+</html:template>
+
+<html:template id="replyToListTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_replylist"
+          label-id="toolbar-reply-to-list-label"
+          data-l10n-id="toolbar-reply-to-list"></button>
+</html:template>
+
+<html:template id="redirectTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_redirect"
+          label-id="toolbar-redirect-label"
+          data-l10n-id="toolbar-redirect"></button>
+</html:template>
+
+<html:template id="archiveTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_archive"
+          label-id="toolbar-archive-label"
+          data-l10n-id="toolbar-archive"></button>
+</html:template>
+
+<html:template id="conversationTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_openConversation"
+          label-id="toolbar-conversation-label"
+          data-l10n-id="toolbar-conversation"></button>
+</html:template>
+
+<html:template id="previousUnreadTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_previousUnreadMsg"
+          label-id="toolbar-previous-unread-label"
+          data-l10n-id="toolbar-previous-unread"></button>
+</html:template>
+
+<html:template id="previousTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_previousMsg"
+          label-id="toolbar-previous-label"
+          data-l10n-id="toolbar-previous"></button>
+</html:template>
+
+<html:template id="nextUnreadTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_nextUnreadMsg"
+          label-id="toolbar-next-unread-label"
+          data-l10n-id="toolbar-next-unread"></button>
+</html:template>
+
+<html:template id="nextTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_nextMsg"
+          label-id="toolbar-next-label"
+          data-l10n-id="toolbar-next"></button>
+</html:template>
+
+<html:template id="junkTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_markAsJunk"
+          label-id="toolbar-junk-label"
+          data-l10n-id="toolbar-junk"></button>
+</html:template>
+
+<html:template id="deleteTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="delete-button"
+          label-id="toolbar-delete-label"
+          data-l10n-id="toolbar-delete"></button>
+</html:template>
+
+<html:template id="compactTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="compact-folder-button"
+          label-id="toolbar-compact-label"
+          data-l10n-id="toolbar-compact"></button>
+</html:template>
+
+<html:template id="addAsEventTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="add-to-calendar-button"
+          type="event"
+          label-id="toolbar-add-as-event-label"
+          data-l10n-id="toolbar-add-as-event"></button>
+</html:template>
+
+<html:template id="addAsTaskTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="add-to-calendar-button"
+          type="task"
+          label-id="toolbar-add-as-task-label"
+          data-l10n-id="toolbar-add-as-task"></button>
+</html:template>
+
+<html:template id="tagMessageTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          popup="toolbarTagPopup"
+          observes="cmd_tag"
+          label-id="toolbar-tag-message-label"
+          data-l10n-id="toolbar-tag-message"></button>
+</html:template>
+
+<html:template id="forwardInlineTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_forwardInline"
+          label-id="toolbar-forward-inline-label"
+          data-l10n-id="toolbar-forward-inline"></button>
+</html:template>
+
+<html:template id="forwardAttachmentTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_forwardAttachment"
+          label-id="toolbar-forward-attachment-label"
+          data-l10n-id="toolbar-forward-attachment"></button>
+</html:template>
+
+<html:template id="markAsTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          popup="toolbarMarkPopup"
+          observes="cmd_tag"
+          label-id="toolbar-mark-as-label"
+          data-l10n-id="toolbar-mark-as"></button>
+</html:template>
+
+<html:template id="viewPickerTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          popup="toolbarViewPickerPopup"
+          label-id="toolbar-view-picker-label"
+          data-l10n-id="toolbar-view-picker"></button>
+</html:template>
+
+<html:template id="addressBookTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="space-button"
+          space="addressbook"
+          label-id="toolbar-address-book-label"
+          data-l10n-id="toolbar-address-book"></button>
+</html:template>
+
+<html:template id="chatTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="space-button"
+          space="chat"
+          label-id="toolbar-chat-label"
+          data-l10n-id="toolbar-chat"></button>
+</html:template>
+
+<html:template id="addOnsAndThemesTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="addons-button"
+          label-id="toolbar-add-ons-and-themes-label"
+          data-l10n-id="toolbar-add-ons-and-themes"></button>
+</html:template>
+
+<html:template id="calendarTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="space-button"
+          space="calendar"
+          label-id="toolbar-calendar-label"
+          data-l10n-id="toolbar-calendar"></button>
+</html:template>
+
+<html:template id="tasksTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="space-button"
+          space="tasks"
+          label-id="toolbar-tasks-label"
+          data-l10n-id="toolbar-tasks"></button>
+</html:template>
+
+<html:template id="mailTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="space-button"
+          space="mail"
+          label-id="toolbar-mail-label"
+          data-l10n-id="toolbar-mail"></button>
+</html:template>
+
+<html:template id="printTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="mail-tab-button"
+          command="cmd_print"
+          label-id="toolbar-print-label"
+          data-l10n-id="toolbar-print"></button>
+</html:template>
+
+<html:template id="quickFilterBarTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="quick-filter-bar-toggle"
+          command="cmd_toggleQuickFilterBar"
+          label-id="toolbar-quick-filter-bar-label"
+          data-l10n-id="toolbar-quick-filter-bar"></button>
+</html:template>

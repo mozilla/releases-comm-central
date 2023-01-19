@@ -126,23 +126,17 @@ add_task(async function testFirstTab() {
     };
   };
 
+  let tabmail = document.getElementById("tabmail");
   function getBrowser(expected) {
-    let tabmail = document.getElementById("tabmail");
     return tabmail.currentTabInfo.browser;
   }
 
-  if (
-    document.getElementById("folderpane_splitter").getAttribute("state") ==
-    "collapsed"
-  ) {
-    window.MsgToggleFolderPane();
-  }
-
   let gAccount = createAccount();
-  window.gFolderTreeView.selectFolder(
-    gAccount.incomingServer.rootFolder.subFolders[0]
-  );
-  window.ClearMessagePane();
+  tabmail.currentAbout3Pane.restoreState({
+    folderPaneVisible: true,
+    folderURI: gAccount.incomingServer.rootFolder.subFolders[0].URI,
+  });
+
   return subTest(createTab, getBrowser, false);
 });
 

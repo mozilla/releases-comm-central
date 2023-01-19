@@ -14,6 +14,7 @@ var {
   be_in_folder,
   create_folder,
   create_message,
+  get_about_3pane,
   mc,
   select_click_row,
 } = ChromeUtils.import(
@@ -39,15 +40,13 @@ add_setup(async function() {
   await add_message_to_folder([folder], mbmsg);
 });
 
-function _help_test_message_size(index, unit) {
-  be_in_folder(folder);
+async function _help_test_message_size(index, unit) {
+  await be_in_folder(folder);
 
   // Select the nth message
   let curMessage = select_click_row(index);
   // Look at the size column's data
-  let tree = mc.folderDisplay.tree;
-  let sizeCol = tree.columns.sizeCol;
-  let sizeStr = tree.view.getCellText(index, sizeCol);
+  let sizeStr = get_about_3pane().gDBView.cellTextForColumn(index, "sizeCol");
 
   // Note: this assumes that the numeric part of the size string is first
   let realSize = curMessage.messageSize;
@@ -61,16 +60,16 @@ function _help_test_message_size(index, unit) {
   }
 }
 
-add_task(function test_byte_message_size() {
-  _help_test_message_size(0, 1);
+add_task(async function test_byte_message_size() {
+  await _help_test_message_size(0, 1);
 });
 
-add_task(function test_kb_message_size() {
-  _help_test_message_size(1, 1);
+add_task(async function test_kb_message_size() {
+  await _help_test_message_size(1, 1);
 });
 
-add_task(function test_mb_message_size() {
-  _help_test_message_size(2, 2);
+add_task(async function test_mb_message_size() {
+  await _help_test_message_size(2, 2);
 
   Assert.report(
     false,

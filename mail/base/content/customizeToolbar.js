@@ -84,9 +84,6 @@ function initDialog() {
     document.getElementById(
       "showTitlebar"
     ).checked = !Services.prefs.getBoolPref("mail.tabs.drawInTitlebar");
-    document.getElementById(
-      "showDragSpace"
-    ).checked = Services.prefs.getBoolPref("mail.tabs.extraDragSpace");
     if (
       window.opener &&
       window.opener.document.documentElement.getAttribute("windowtype") ==
@@ -507,18 +504,6 @@ function updateTitlebar() {
   Services.prefs.setBoolPref(
     "mail.tabs.drawInTitlebar",
     !titlebarCheckbox.checked
-  );
-
-  // Bring the customizeToolbar window to front (on linux it's behind the main
-  // window). Otherwise the customization window gets left in the background.
-  setTimeout(() => window.focus(), 100);
-}
-
-function updateDragSpace() {
-  let dragSpaceCheckbox = document.getElementById("showDragSpace");
-  Services.prefs.setBoolPref(
-    "mail.tabs.extraDragSpace",
-    dragSpaceCheckbox.checked
   );
 
   // Bring the customizeToolbar window to front (on linux it's behind the main

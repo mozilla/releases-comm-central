@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Search bar element test</title>
+    <script type="module" src="chrome://messenger/content/unifiedtoolbar/unified-toolbar-tab.mjs"></script>
+  </head>
+  <body>
+    <template id="unifiedToolbarTabTemplate">
+      <button role="tab">
+        <img alt="" src="" />
+        <slot></slot>
+      </button>
+    </template>
+    <div role="tablist">
+      <unified-toolbar-tab selected="true" aria-controls="tabPane">Tab Title</unified-toolbar-tab>
+      <unified-toolbar-tab aria-controls="otherTabPane">Other Tab</unified-toolbar-tab>
+    </div>
+    <div id="tabPane" role="tabpanel">Panel 1</div>
+    <div id="otherTabPane" role="tabpanel" hidden="hidden">Panel 2</div>
+  </body>
+</html>

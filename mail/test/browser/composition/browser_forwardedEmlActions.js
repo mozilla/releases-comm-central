@@ -18,6 +18,7 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
+  get_about_message,
   mc,
   select_click_row,
   wait_for_message_display_completion,
@@ -102,16 +103,17 @@ add_setup(async function() {
  * properties of the composition content we get.
  */
 async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
 
+  let aboutMessage = get_about_message();
   let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   EventUtils.synthesizeMouseAtCenter(
-    mc.e("attachmentName"),
+    aboutMessage.document.getElementById("attachmentName"),
     { clickCount: 1 },
-    mc.window
+    aboutMessage
   );
   let msgWin = await newWindowPromise;
   wait_for_message_display_completion(msgWin, false);

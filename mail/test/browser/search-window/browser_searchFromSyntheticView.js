@@ -10,6 +10,7 @@ const {
   create_folder,
   create_thread,
   delete_messages,
+  get_about_3pane,
   inboxFolder,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -35,7 +36,7 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
   let term = "atermtosearchfor";
 
   registerCleanupFunction(async () => {
-    be_in_folder(inboxFolder);
+    await be_in_folder(inboxFolder);
     await delete_messages(thread);
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
@@ -53,14 +54,14 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
     msg.bodyPart = new SyntheticPartLeaf(term);
   }
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
   await add_message_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {
     GlodaMsgIndexer.indexFolder(folder, { callback, force: true });
   });
 
-  let dbView = window.gFolderDisplay.view.dbView;
+  let dbView = get_about_3pane().gDBView;
   await TestUtils.waitForCondition(
     () =>
       thread.synMessages.every((_, i) =>

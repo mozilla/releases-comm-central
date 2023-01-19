@@ -148,7 +148,7 @@ registerCleanupFunction(function() {
   searchInput.blur();
 });
 
-add_task(function test_periodic_session_persistence_simple() {
+add_task(async function test_periodic_session_persistence_simple() {
   // delete the session file if it exists
   let sessionFile = SessionStoreManager.sessionFile;
   if (sessionFile.exists()) {
@@ -159,7 +159,7 @@ add_task(function test_periodic_session_persistence_simple() {
 
   // change some state to guarantee the file will be recreated
   // if periodic session persistence works
-  be_in_folder(folderA);
+  await be_in_folder(folderA);
 
   // if periodic session persistence is working, the file should be
   // re-created
@@ -167,9 +167,9 @@ add_task(function test_periodic_session_persistence_simple() {
   waitForFileRefresh();
 });
 
-add_task(function test_periodic_nondirty_session_persistence() {
+add_task(async function test_periodic_nondirty_session_persistence() {
   // This changes state.
-  be_in_folder(folderB);
+  await be_in_folder(folderB);
 
   SessionStoreManager._saveState();
   waitForFileRefresh();
@@ -187,7 +187,7 @@ add_task(function test_periodic_nondirty_session_persistence() {
 });
 
 add_task(async function test_single_3pane_periodic_session_persistence() {
-  be_in_folder(folderA);
+  await be_in_folder(folderA);
 
   // get the state object. this assumes there is one and only one
   // 3pane window.
@@ -209,8 +209,8 @@ add_task(async function test_single_3pane_periodic_session_persistence() {
   );
 });
 
-function test_restore_single_3pane_persistence() {
-  be_in_folder(folderA);
+async function test_restore_single_3pane_persistence() {
+  await be_in_folder(folderA);
   toggle_message_pane();
   assert_message_pane_hidden();
 
@@ -229,7 +229,7 @@ function test_restore_single_3pane_persistence() {
 
   mc = open3PaneWindow();
   set_mc(mc);
-  be_in_folder(folderA);
+  await be_in_folder(folderA);
   assert_message_pane_hidden();
   // restore message pane.
   toggle_message_pane();
@@ -241,14 +241,14 @@ function test_restore_single_3pane_persistence() {
 }
 add_task(test_restore_single_3pane_persistence).skip(); // Bug 1753963.
 
-add_task(function test_restore_single_3pane_persistence_again() {
+add_task(async function test_restore_single_3pane_persistence_again() {
   // test that repeating the save w/o changing the state restores
   // correctly.
-  test_restore_single_3pane_persistence();
+  await test_restore_single_3pane_persistence();
 }).skip(); // Bug 1753963.
 
-add_task(function test_message_pane_height_persistence() {
-  be_in_folder(folderA);
+add_task(async function test_message_pane_height_persistence() {
+  await be_in_folder(folderA);
   assert_message_pane_visible();
   assert_pane_layout(kClassicMailLayout);
 
@@ -298,7 +298,7 @@ add_task(function test_message_pane_height_persistence() {
 
   mc = open3PaneWindow();
   set_mc(mc);
-  be_in_folder(folderA);
+  await be_in_folder(folderA);
   assert_message_pane_visible();
 
   actualHeight = mc.e("messagepaneboxwrapper").clientHeight;
@@ -324,7 +324,7 @@ add_task(function test_message_pane_height_persistence() {
 
   mc = open3PaneWindow();
   set_mc(mc);
-  be_in_folder(folderA);
+  await be_in_folder(folderA);
   assert_message_pane_visible();
 
   actualHeight = mc.e("messagepaneboxwrapper").clientHeight;
@@ -343,8 +343,8 @@ add_task(function test_message_pane_height_persistence() {
   wait_for_window_close();
 }).skip(); // Bug 1753963.
 
-add_task(function test_message_pane_width_persistence() {
-  be_in_folder(folderA);
+add_task(async function test_message_pane_width_persistence() {
+  await be_in_folder(folderA);
   assert_message_pane_visible();
 
   // At the beginning we are in classic layout.  We will switch to
@@ -406,7 +406,7 @@ add_task(function test_message_pane_width_persistence() {
 
   mc = open3PaneWindow();
   set_mc(mc);
-  be_in_folder(folderA);
+  await be_in_folder(folderA);
   assert_message_pane_visible();
   assert_pane_layout(kVerticalMailLayout);
 
@@ -446,7 +446,7 @@ add_task(function test_message_pane_width_persistence() {
 
   mc = open3PaneWindow();
   set_mc(mc);
-  be_in_folder(folderA);
+  await be_in_folder(folderA);
   assert_message_pane_visible();
   assert_pane_layout(kVerticalMailLayout);
 

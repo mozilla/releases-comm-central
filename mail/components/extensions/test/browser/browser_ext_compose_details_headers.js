@@ -11,12 +11,6 @@ gRootFolder.createSubfolder("test", null);
 let gTestFolder = gRootFolder.getChildNamed("test");
 createMessages(gTestFolder, 4);
 
-gRootFolder.createSubfolder("drafts", null);
-let gDraftsFolder = gRootFolder.getChildNamed("drafts");
-gDraftsFolder.flags = Ci.nsMsgFolderFlags.Drafts;
-createMessages(gDraftsFolder, 2);
-let gDrafts = [...gDraftsFolder.messages];
-
 add_task(async function testHeaders() {
   let files = {
     "background.js": async () => {

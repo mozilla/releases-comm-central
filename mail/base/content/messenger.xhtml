@@ -9,7 +9,6 @@
 <?xml-stylesheet href="chrome://messenger/skin/tagColors.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/shared/glodacomplete.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/tabmail.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/quickFilterBar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/popupPanel.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/chat.css" type="text/css"?>
 <?xml-stylesheet href="chrome://chat/skin/imtooltip.css" type="text/css"?>
@@ -24,6 +23,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/spacesToolbar.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/unifiedToolbar.css" type="text/css"?>
 
 <!-- Calendar CSS -->
 <?xml-stylesheet href="chrome://calendar/skin/calendar.css" type="text/css"?>
@@ -40,7 +40,6 @@
 
 <?xml-stylesheet href="chrome://calendar/skin/calendar-views.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/shared/calendar-alarms.css" type="text/css"?>
-<?xml-stylesheet href="chrome://calendar/skin/shared/calendar-invitation-display.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/shared/widgets/minimonth.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/widgets/calendar-widgets.css" type="text/css"?>
 
@@ -90,6 +89,8 @@
   <link rel="localization" href="messenger/chat.ftl" />
   <link rel="localization" href="messenger/messageheader/headerFields.ftl" />
   <link rel="localization" href="messenger/mailWidgets.ftl" />
+  <link rel="localization" href="messenger/unifiedToolbar.ftl" />
+  <link rel="localization" href="messenger/unifiedToolbarItems.ftl" />
 #ifdef NIGHTLY_BUILD
   <link rel="localization" href="messenger/firefoxAccounts.ftl" />
 #endif
@@ -99,10 +100,9 @@
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/commandglue.js"></script>
-  <script defer="defer" src="chrome://messenger/content/msgViewNavigation.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailWindow.js"></script>
   <script defer="defer" src="chrome://messenger/content/selectionsummaries.js"></script>
-  <script defer="defer" src="chrome://messenger/content/msgMail3PaneWindow.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messenger.js"></script>
   <script defer="defer" src="chrome://messenger/content/specialTabs.js"></script>
   <script defer="defer" src="chrome://messenger/content/spacesToolbar.js"></script>
   <script defer="defer" src="chrome://messenger/content/newmailaccount/provisionerCheckout.js"></script>
@@ -110,21 +110,11 @@
   <script defer="defer" src="chrome://messenger/content/searchBar.js"></script>
   <script defer="defer" src="chrome://messenger/content/mail3PaneWindowCommands.js"></script>
   <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
-  <script defer="defer" src="chrome://messenger/content/nsContextMenu.js"></script>
-  <script defer="defer" src="chrome://messenger/content/mailContextMenus.js"></script>
+  <script defer="defer" src="chrome://messenger/content/browserPopups.js"></script>
   <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
-  <script defer="defer" src="chrome://messenger/content/folderPane.js"></script>
   <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
-  <script defer="defer" src="chrome://messenger/content/editContactPanel.js"></script>
   <script defer="defer" src="chrome://messenger/content/toolbarIconColor.js"></script>
   <script defer="defer" src="chrome://messenger/content/jsTreeView.js"></script>
-  <script defer="defer" src="chrome://messenger/content/header-fields.js"></script>
-  <script defer="defer" src="chrome://messenger/content/msgHdrView.js"></script>
-  <script defer="defer" src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"></script>
-  <script defer="defer" src="chrome://openpgp/content/ui/enigmailMessengerOverlay.js"></script>
-  <script defer="defer" src="chrome://openpgp/content/ui/enigmailMsgHdrViewOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/msgSecurityPane.js"></script>
   <script defer="defer" src="chrome://messenger/content/chat/chat-messenger.js"></script>
   <script defer="defer" src="chrome://messenger/content/chat/imStatusSelector.js"></script>
   <script defer="defer" src="chrome://messenger/content/chat/imContextMenu.js"></script>
@@ -133,11 +123,8 @@
   <script defer="defer" src="chrome://messenger/content/preferences/preferencesTab.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCommands.js"></script>
-  <script defer="defer" src="chrome://messenger/content/junkCommands.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailWindowOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailTabs.js"></script>
-  <script defer="defer" src="chrome://messenger/content/messageDisplay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/folderDisplay.js"></script>
   <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/mail-offline.js"></script>
   <script defer="defer" src="chrome://messenger/content/msgViewPickerOverlay.js"></script>
@@ -169,13 +156,6 @@
 #ifdef XP_WIN
   <script defer="defer" src="chrome://messenger/content/minimizeToTray.js"></script>
 #endif
-
-  <script defer="defer" src="chrome://messenger/content/threadPane.js"></script>
-
-  <!-- calendar imip bar -->
-  <script defer="defer" src="chrome://calendar/content/imip-bar.js"></script>
-  <!-- calendar invitation display -->
-  <script defer="defer" src="chrome://calendar/content/calendar-invitation-display.js"></script>
   <!-- calendar-management.js also needed for multiple calendar support and today pane -->
   <script defer="defer" src="chrome://calendar/content/calendar-management.js"></script>
   <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
@@ -247,6 +227,9 @@
 
   <script defer="defer" src="chrome://messenger/content/accountcreation/accountHub.js"></script>
 
+  <!-- Unified toolbar -->
+  <script type="module" defer="defer" src="chrome://messenger/content/unifiedtoolbar/unified-toolbar.mjs"></script>
+
   <script>
     window.onload = gMailInit.onLoad.bind(gMailInit);
     window.onunload = gMailInit.onUnload.bind(gMailInit);
@@ -305,10 +288,6 @@
              oncommand="goDoCommand('cmd_deleteAllAttachments');"
              disabled="true"/>
   </commandset>
-  <commandset id="FocusRingUpdate_Mail"
-        commandupdater="true"
-        events="focus"
-        oncommandupdate="FocusRingUpdate_Mail()"/>
   <commandset id="tasksCommands">
     <command id="cmd_newMessage" oncommand="goOpenNewMessage();"/>
     <command id="cmd_newCard" oncommand="openNewCardDialog()"/>
@@ -355,14 +334,25 @@
 
 #include ../../../calendar/base/content/calendar-keys.inc.xhtml
 
-<!-- Popup menus provided by mailWindowOverlay.xhtml -->
 <popupset id="mainPopupSet">
-#include mainPopupSet.inc.xhtml
+#include widgets/browserPopups.inc.xhtml
+#include widgets/toolbarContext.inc.xhtml
+  <menupopup id="aboutPagesContext"
+             onpopupshowing="goUpdateCommand('cmd_copy'); goUpdateCommand('cmd_paste'); goUpdateCommand('cmd_selectAll');">
+    <menuitem id="aboutPagesContext-copy"
+              data-l10n-id="text-action-copy"
+              command="cmd_copy"/>
+    <menuitem id="aboutPagesContext-paste"
+              data-l10n-id="text-action-paste"
+              command="cmd_paste"/>
+    <menuitem id="aboutPagesContext-selectall"
+              data-l10n-id="text-action-select-all"
+              command="cmd_selectAll"/>
+  </menupopup>
 
 <!-- The panelUI is for the appmenu. -->
 #include ../../components/customizableui/content/panelUI.inc.xhtml
-
-#include msgHdrPopup.inc.xhtml
+#include ../../components/unifiedtoolbar/content/unifiedToolbarPopups.inc.xhtml
   <panel is="glodacomplete-rich-result-popup"
          id="PopupGlodaAutocomplete"
          noautofocus="true"/>
@@ -403,8 +393,6 @@
               label="&closeTabCmd2.label;"
               accesskey="&closeTabCmd2.accesskey;"/>
   </menupopup>
-
-  <tooltip is="folder-tooltip" id="folderpopup"/>
 
   <tooltip id="aHTMLTooltip" page="true"/>
 
@@ -453,7 +441,6 @@
     </popupnotificationcontent>
   </popupnotification>
 
-#include editContactPanel.inc.xhtml
 #include ../../components/im/content/chat-menu.inc.xhtml
 </popupset>
 #ifdef XP_MACOSX
@@ -470,6 +457,9 @@
 #endif
 
 #include ../../../calendar/base/content/calendar-context-menus-and-tooltips.inc.xhtml
+#include ../../components/unifiedtoolbar/content/unifiedToolbarTemplates.inc.xhtml
+
+#include spacesToolbar.inc.xhtml
 
 <!--
   GTK needs to draw behind the lightweight theme toolbox backgrounds, thus the
@@ -480,6 +470,7 @@
   <toolbox id="navigation-toolbox" flex="1" labelalign="end" defaultlabelalign="end">
 
     <vbox id="titlebar">
+      <html:unified-toolbar></html:unified-toolbar>
       <!-- Menu -->
       <toolbar is="customizable-toolbar" id="toolbar-menubar"
                class="chromeclass-menubar themeable-full"
@@ -505,11 +496,9 @@
 # can be shared with other top level windows.
 #include messenger-menubar.inc.xhtml
         </toolbaritem>
-#include messenger-titlebar-items.inc.xhtml
       </toolbar>
 
       <toolbar id="tabs-toolbar" class="chromeclass-toolbar">
-#include spacesToolbarPin.inc.xhtml
         <tabs is="tabmail-tabs" id="tabmail-tabs"
               flex="1"
               align="end"
@@ -532,14 +521,6 @@
           </arrowscrollbox>
         </tabs>
 
-        <box id="notification-popup-box" align="center" hidden="true">
-          <html:img id="addons-notification-icon"
-                    src="chrome://messenger/skin/icons/new/compact/extension.svg"
-                    alt=""
-                    class="notification-anchor-icon"
-                    role="button" />
-        </box>
-
         <toolbar is="customizable-toolbar" id="tabbar-toolbar"
                  toolboxid="mail-toolbox"
                  class="themeable-full"
@@ -560,8 +541,6 @@
                       tabcontainer="tabmail-tabs"/>
         </toolbarbutton>
 
-#include messenger-titlebar-items.inc.xhtml
-
       </toolbar>
 
     </vbox>
@@ -569,11 +548,7 @@
   </toolbox>
 </box>
 
-<!-- Primary container to properly align the spaces toolbar. -->
-<hbox id="messengerContainer">
-#include spacesToolbar.inc.xhtml
-
-  <vbox id="messengerBody">
+<vbox id="messengerBody">
   <!-- XXX This extension point (tabmail-container) is only temporary!
        Horizontal space shouldn't be wasted if it isn't absolutely critical.
        A mechanism for adding sidebar panes will be added in bug 476154. -->
@@ -610,192 +585,6 @@
                    defaultlabelalign="end">
 #include mainMailToolbar.inc.xhtml
           </toolbox>
-
-          <hbox id="messengerBox" flex="1" style="min-height:100px;" height="100" persist="height">
-            <vbox id="folderPaneBox" style="min-width:125px;" width="200" persist="width">
-              <hbox id="folderPaneHeader"
-                    data-l10n-id="folder-pane-toolbar"
-                    data-l10n-attrs="toolbarname"
-                    toolboxid="mail-toolbox"
-                    align="center">
-                <label data-l10n-id="folder-pane-header-label" flex="1"/>
-                <toolbarbutton id="folderPaneOptionsButton"
-                               data-l10n-id="folder-pane-toolbar-options-button"
-                               class="button-flat button-more"
-                               oncommand="gFolderTreeView.folderPaneOptionsButtonOnCommand(event);"
-                               tabindex="0"/>
-                <menupopup id="folderPaneOptionsPopup"
-                           onpopupshowing="gFolderTreeView.initFolderPaneOptionsPopup();">
-                </menupopup>
-              </hbox>
-              <tree id="folderTree" class="plain" flex="1"
-                    hidecolumnpicker="true" persist="mode" mode="all"
-                    keepcurrentinview="true"
-                    context="folderPaneContext"
-                    disableKeyNavigation="true"
-                    ondragstart="gFolderTreeView._onDragStart(event);"
-                    ondragover="gFolderTreeView._onDragOver(event);"
-                    ondrop="gFolderTreeView._onDragDrop(event);"
-                    ondblclick="gFolderTreeView.onDoubleClick(event);"
-                    onselect="FolderPaneSelectionChange();">
-                <treecols id="folderPaneCols"
-                          pickertooltiptext="&columnChooser2.tooltip;">
-                  <treecol id="folderNameCol"
-                           closemenu="none"
-                           label2="&folderNameColumn.label;"
-                           crop="center"
-                           persist="width"
-                           hideheader="true"
-                           ignoreincolumnpicker="true"
-                           primary="true"/>
-                  <splitter class="tree-splitter"/>
-                  <treecol id="folderUnreadCol"
-                           closemenu="none"
-                           label2="&folderUnreadColumn.label;"
-                           tooltiptext="&folderUnreadColumn.label;"
-                           hideheader="true"
-                           hidden="true"
-                           persist="width hidden hiddeninactive"
-                           width="50"
-                           selectable="false"/>
-                  <splitter class="tree-splitter"/>
-                  <treecol id="folderTotalCol"
-                           closemenu="none"
-                           label2="&folderTotalColumn.label;"
-                           tooltiptext="&folderTotalColumn.label;"
-                           hideheader="true"
-                           hidden="true"
-                           persist="width hidden hiddeninactive"
-                           width="50"
-                           selectable="false"/>
-                  <splitter class="tree-splitter"/>
-                  <treecol id="folderSizeCol"
-                           closemenu="none"
-                           label2="&folderSizeColumn.label;"
-                           tooltiptext="&folderSizeColumn.label;"
-                           hideheader="true"
-                           hidden="true"
-                           persist="width hidden hiddeninactive"
-                           width="50"
-                           selectable="false"/>
-                </treecols>
-                <treechildren tooltip="folderpopup"/>
-              </tree>
-            </vbox>
-
-            <splitter id="folderpane_splitter" collapse="before"/>
-
-            <vbox flex="1">
-              <box orient="vertical" id="messagesBox" flex="1">
-#include quickFilterBar.inc.xhtml
-                <hbox id="displayBox" flex="1"
-                      style="min-height:100px;" height="100" persist="height">
-                  <!-- first panel in displayBox is Account Central -->
-                  <vbox id="accountCentralBox" flex="1">
-                    <iframe name="accountCentralPane"
-                            tooltip="aHTMLTooltip"
-                            width="150" flex="1" src="about:blank"/>
-                  </vbox>
-                  <!-- The threadPaneBox is the basis for the vertical view and you
-                       should not put anything in it, because the messagepane will
-                       get transplanted in there. (In the vertical view, the elements
-                       end up being: threadPaneBox, threadpane-splitter, messagepanebox)
-                    -->
-                  <!-- second panel is the threadPane -->
-                  <hbox id="threadPaneBox" flex="1" collapsed="true">
-                    <!-- The threadContentArea was specially created to be a place for
-                         things that want to be above/below the thread pane, regardless
-                         of where the message reader ("messagepane") gets off to. -->
-                    <vbox id="threadContentArea" flex="1" persist="width">
-#include threadTree.inc.xhtml
-                    </vbox>
-                  </hbox>
-                <!-- extensions may overlay in additional panels; don't assume that there are only 2! -->
-                </hbox> <!-- displayBox -->
-
-                <!-- if you change this id, please change GetThreadAndMessagePaneSplitter() and MsgToggleMessagePane() -->
-                <splitter id="threadpane-splitter"
-                          orient="vertical"
-                          collapse="after"
-                          collapsed="true"
-                          onmouseup="OnMouseUpThreadAndMessagePaneSplitter()"/>
-
-                <!-- a convenience box for ease of extension overlaying -->
-                <hbox id="messagepaneboxwrapper"
-                      flex="1"
-                      style="min-height:100px; min-width:100px;"
-                      height="200" width="200">
-                  <vbox id="messagepanebox">
-                    <!-- This next iframe is used to display summaries of -->
-                    <!-- multiple selected messages or collapsed threads -->
-                    <browser id="multimessage"
-                             style="height: 0px; min-height: 1px"
-                             flex="1" name="multimessage"
-                             hidden="true"
-                             disablesecurity="true" disablehistory="true"
-                             tooltip="aHTMLTooltip"
-                             src="chrome://messenger/content/multimessageview.xhtml"
-                             type="content"
-                             autofind="false"/>
-                    <vbox id="singleMessage" flex="1">
-                      <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
-#include msgHdrView.inc.xhtml
-                      </hbox>
-#include ../../../calendar/base/content/imip-bar-overlay.inc.xhtml
-                      <!-- The msgNotificationBar appears on top of the message
-                           and displays information like: junk, contains remote
-                           images, or is a suspected phishing URL. -->
-                      <vbox id="mail-notification-top">
-                        <!-- notificationbox will be added here lazily. -->
-                      </vbox>
-                      <vbox id="calendarInvitationDisplayContainer"
-                            hidden="true"
-                            flex="1">
-                        <html:div id="calendarInvitationDisplay">
-                          <!-- The calendar invitation panel is displayed here. -->
-                        </html:div>
-                      </vbox>
-                      <!-- The messagepanewrapper hbox exists to allow
-                           extensions to add sidebars to the message. -->
-                      <hbox id="messagepanewrapper" flex="1">
-                        <stack flex="1">
-                          <browser id="messagepane"
-                                   context="mailContext"
-                                   autocompletepopup="PopupAutoComplete"
-                                   datetimepicker="DateTimePickerPanel"
-                                   selectmenulist="ContentSelectDropdown"
-                                   autofind="false"
-                                   style="min-height:1px;"
-                                   flex="1"
-                                   name="messagepane"
-                                   tooltip="aHTMLTooltip"
-                                   disablehistory="true"
-                                   type="content"
-                                   primary="true"
-                                   src="about:blank"
-                                   disablesecurity="true"
-                                   messagemanagergroup="single-page"
-                                   onclick="return contentAreaClick(event);"
-                                   onresize="return messagePaneOnResize(event);"/>
-                        </stack>
-                      </hbox>
-                      <splitter id="attachment-splitter" orient="vertical"
-                                resizebefore="closest" resizeafter="closest"
-                                collapse="after" collapsed="true"/>
-                      <vbox id="attachmentView" collapsed="true">
-#include msgAttachmentView.inc.xhtml
-                      </vbox>
-                    </vbox>
-                    <findbar id="FindToolbar" browserid="messagepane"/>
-                  </vbox>
-#include msgSecurityPane.inc.xhtml
-                </hbox>
-                <vbox id="messenger-notification-footer">
-                  <!-- notificationbox will be added here lazily. -->
-                </vbox>
-              </box>
-            </vbox>
-          </hbox>
         </box> <!-- end of mailContent -->
 #include ../../components/im/content/chat-messenger.inc.xhtml
 #include ../../../calendar/base/content/calendar-tab-panels.inc.xhtml
@@ -928,8 +717,7 @@
     </hbox>
 #include ../../../calendar/base/content/calendar-status-bar.inc.xhtml
   </hbox>
-  </vbox>
-</hbox><!-- Closing #messengerContainer. -->
+</vbox><!-- Closing #messengerBody. -->
 
 #include tabDialogs.inc.xhtml
 #include ../../components/accountcreation/templates/accountHubTemplate.inc.xhtml

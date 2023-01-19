@@ -2,203 +2,98 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from folderDisplay.js */
-/* import-globals-from mailWindow.js */
+/* import-globals-from about3Pane.js */
 
-var {
-  MessageTextFilter,
-  QuickFilterManager,
-  QuickFilterSearchListener,
-  QuickFilterState,
-} = ChromeUtils.import("resource:///modules/QuickFilterManager.jsm");
-var { SearchSpec } = ChromeUtils.import("resource:///modules/SearchSpec.jsm");
+var { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  MessageTextFilter: "resource:///modules/QuickFilterManager.jsm",
+  SearchSpec: "resource:///modules/SearchSpec.jsm",
+  QuickFilterManager: "resource:///modules/QuickFilterManager.jsm",
+  QuickFilterSearchListener: "resource:///modules/QuickFilterManager.jsm",
+  QuickFilterState: "resource:///modules/QuickFilterManager.jsm",
+});
 
-// -----------
-// Proper Code
+class ToggleButton extends HTMLButtonElement {
+  constructor() {
+    super();
+    this.addEventListener("click", () => {
+      this.pressed = !this.pressed;
+    });
+  }
+
+  connectedCallback() {
+    this.setAttribute("is", "toggle-button");
+    if (!this.hasAttribute("aria-pressed")) {
+      this.pressed = false;
+    }
+  }
+
+  get pressed() {
+    return this.getAttribute("aria-pressed") === "true";
+  }
+
+  set pressed(value) {
+    this.setAttribute("aria-pressed", value ? "true" : "false");
+  }
+}
+customElements.define("toggle-button", ToggleButton, { extends: "button" });
 
 /**
  * There is only one message filter bar widget; the muxer deals with tab
  *  changes and directing modifications to and reflecting the state of the
  *  actual filterer objects.
  */
-var QuickFilterBarMuxer = {
+var quickFilterBar = {
+  _filterer: null,
+
   /**
    * This gets called by OnLoadMessenger in order to ensure that the monitor
    *  gets registered prior to the first tab being opened.  This avoids
    *  complications about generating synthetic tab notifications.
    */
-  _init() {
-    // -- folder display hookup
-    FolderDisplayListenerManager.registerListener(this);
-
-    // -- tab monitor hookup
-    this.tabmail = document.getElementById("tabmail");
-    this.tabmail.registerTabMonitor(this);
-
-    // -- window hookups
-    let dis = this;
-    // know when a resize happens so we can expand things collapsed by our
-    //  overflow handler (registered by attribute in the XUL file).
-    window.addEventListener("resize", function() {
-      dis.onWindowResize();
-    });
-
+  init() {
     this._bindUI();
-  },
 
-  // ---------------------
-  // FolderDisplayListener
-
-  /**
-   * Decide whether to display the filter bar toggle button whenever a folder
-   *  display is made active.  makeActive is what triggers the display of
-   *  account central so this is the perfect spot to do so.
-   */
-  onMakeActive(aFolderDisplay) {
-    let tab = aFolderDisplay._tabInfo;
-    this._updateToggle(tab);
-    // The case in that previous aFolderDisplay is showing a normal folder is
-    // handled by onLoadingFolder. Here we handle the case where previous
-    // aFolderDisplay shows an account folder instead (this cannot be done
-    // in onLoadingFolder because that event is not raised).
-    if (
-      !aFolderDisplay.displayedFolder ||
-      aFolderDisplay.displayedFolder.isServer
-    ) {
-      let filterer = this.maybeActiveFilterer;
-      if (!filterer) {
-        return;
+    commandController.registerCallback("cmd_showQuickFilterBar", () => {
+      if (!this.filterer.visible) {
+        this._showFilterBar(true);
       }
-      // Clear displayedFolder to force next onLoadingFolder to recreate the view
-      filterer.displayedFolder = null;
-    }
-  },
-
-  /**
-   * Based on the passed in 3pane aTabInfo, determine whether or not the
-   * quickFilter toggle should be enabled, and set it appropriately.
-   */
-  _updateToggle(aTabInfo) {
-    let enabled = this.isCommandEnabled("cmd_toggleQuickFilterBar", aTabInfo);
-    if (!enabled) {
-      this._setupToggleChecks(false);
-    }
-    document.getElementById("quick-filter-bar").hidden = !enabled;
-
-    this._updateCommands();
-  },
-
-  /**
-   * Sets quickfilter related UI items (menuitems and toolbarbuttons)
-   * to appropriate checked state.
-   *
-   * @param {boolean} checked - True when the the UI items should be checked.
-   */
-  _setupToggleChecks(checked) {
-    document
-      .querySelectorAll(
-        `menuitem[type="checkbox"][command="cmd_toggleQuickFilterBar"],
-         toolbarbutton[type="checkbox"][command="cmd_toggleQuickFilterBar"]`
-      )
-      .forEach(item => {
-        item.setAttribute("checked", checked);
-      });
-  },
-
-  /**
-   * Update the commands associated with the quick filter bar.
-   */
-  _updateCommands() {
-    goUpdateCommand("cmd_popQuickFilterBarStack");
-    goUpdateCommand("cmd_showQuickFilterBar");
-    goUpdateCommand("cmd_toggleQuickFilterBar");
-  },
-
-  /**
-   * Clear out our state when notified the user has changed folders and re-apply
-   *  search constraints if we are in sticky mode.  It is important that we
-   *  re-apply search constraints here in onLoadingFolder as this is the only
-   *  notification we receive where we have a chance to avoid creating a view
-   *  just to nuke it and re-create it with our new search constraints shortly
-   *  afterwards.
-   */
-  onLoadingFolder(aFolderDisplay, aIsOutbound) {
-    let tab = aFolderDisplay._tabInfo;
-    let filterer = "quickFilter" in tab._ext ? tab._ext.quickFilter : null;
-    if (!filterer) {
-      return;
-    }
-
-    // check if there actually was a change (notification might not be for us)
-    if (tab.folderDisplay.displayedFolder != filterer.displayedFolder) {
-      // perform state propagation to a new filter state
-      tab._ext.quickFilter = filterer = new QuickFilterState(filterer);
-      this.updateSearch();
-      this.reflectFiltererState(filterer, tab.folderDisplay);
-    }
-  },
-
-  /**
-   * Once the view is fully populated:
-   * - Invoke postFilterProcess on all filter definitions that expose such a
-   *   method.  If they return a value, cram it in their state and (assuming
-   *   this is the current tab), call their reflectInDOM method so they can
-   *   update their state.
-   * - Update UI to reflect some/no matches.
-   */
-  onActiveMessagesLoaded(aFolderDisplay) {
-    let filterer = this.maybeActiveFilterer;
-    if (!filterer) {
-      return;
-    }
-
-    let filtering = aFolderDisplay.view.search.userTerms != null;
-
-    // - postFilterProcess everyone who cares
-    // This may need to be converted into an asynchronous process at some point.
-    for (let filterDef of QuickFilterManager.filterDefs) {
-      if ("postFilterProcess" in filterDef) {
-        let preState =
-          filterDef.name in filterer.filterValues
-            ? filterer.filterValues[filterDef.name]
-            : null;
-        let [newState, update, treatAsUserAction] = filterDef.postFilterProcess(
-          preState,
-          aFolderDisplay.view,
-          filtering
-        );
-        filterer.setFilterValue(filterDef.name, newState, !treatAsUserAction);
-        if (update) {
-          if (
-            aFolderDisplay._tabInfo == this.tabmail.currentTabInfo &&
-            "reflectInDOM" in filterDef
-          ) {
-            let domNode = document.getElementById(filterDef.domId);
-            // We are passing update as a super-secret data propagation channel
-            //  exclusively for one-off cases like the text filter gloda upsell.
-            filterDef.reflectInDOM(domNode, newState, document, this, update);
-          }
+      document.getElementById(QuickFilterManager.textBoxDomId).select();
+    });
+    commandController.registerCallback("cmd_toggleQuickFilterBar", () => {
+      let show = !this.filterer.visible;
+      this._showFilterBar(show);
+      if (show) {
+        document.getElementById(QuickFilterManager.textBoxDomId).select();
+      }
+    });
+    commandController.registerCallback(
+      "cmd_popQuickFilterBarStack",
+      () => {
+        // User hit the escape key; do our undo-ish thing.
+        if (this.filterer.userHitEscape()) {
+          this.updateSearch();
+          this.reflectFiltererState();
+        } else {
+          // Close the filter since there was nothing left to relax.
+          this._showFilterBar(false);
         }
-      }
-    }
-
-    // - Update match status.
-    this.reflectFiltererResults(filterer, aFolderDisplay);
+      },
+      () => this.filterer.visible
+    );
   },
 
-  /**
-   * If we're searching, update the filter results.  (If we stop searching,
-   *  we're going to end up in the onFolderDisplayMessagesLoaded
-   *  notification.  Mayhaps we should lose that vector and just use this one.)
-   */
-  onSearching(aFolderDisplay, aIsSearching) {
-    // we only care if we just started searching and we are active
-    if (!aIsSearching || !aFolderDisplay.active) {
-      return;
+  get filterer() {
+    if (!this._filterer) {
+      this._filterer = new QuickFilterState();
     }
+    return this._filterer;
+  },
 
-    // - Update match status.
-    this.reflectFiltererResults(this.activeFilterer, aFolderDisplay);
+  set filterer(value) {
+    this._filterer = value;
   },
 
   // ---------------------
@@ -215,47 +110,42 @@ var QuickFilterBarMuxer = {
   _bindUI() {
     for (let filterDef of QuickFilterManager.filterDefs) {
       let domNode = document.getElementById(filterDef.domId);
-      // the loop let binding does not latch, at least in 1.9.2
-      let latchedFilterDef = filterDef;
 
       let handler;
       if (!("onCommand" in filterDef)) {
-        handler = function(aEvent) {
+        handler = event => {
           try {
-            let postValue = domNode.checked ? true : null;
-            QuickFilterBarMuxer.activeFilterer.setFilterValue(
-              latchedFilterDef.name,
-              postValue
-            );
-            QuickFilterBarMuxer.deferredUpdateSearch();
+            let postValue = domNode.pressed ? true : null;
+            this.filterer.setFilterValue(filterDef.name, postValue);
+            this.deferredUpdateSearch();
           } catch (ex) {
             console.error(ex);
           }
         };
       } else {
-        handler = function(aEvent) {
-          let filterValues = QuickFilterBarMuxer.activeFilterer.filterValues;
+        handler = event => {
+          let filterValues = this.filterer.filterValues;
           let preValue =
-            latchedFilterDef.name in filterValues
-              ? filterValues[latchedFilterDef.name]
+            filterDef.name in filterValues
+              ? filterValues[filterDef.name]
               : null;
-          let [postValue, update] = latchedFilterDef.onCommand(
+          let [postValue, update] = filterDef.onCommand(
             preValue,
             domNode,
-            aEvent,
+            event,
             document
           );
-          QuickFilterBarMuxer.activeFilterer.setFilterValue(
-            latchedFilterDef.name,
-            postValue,
-            !update
-          );
+          this.filterer.setFilterValue(filterDef.name, postValue, !update);
           if (update) {
-            QuickFilterBarMuxer.deferredUpdateSearch();
+            this.deferredUpdateSearch();
           }
         };
       }
-      domNode.addEventListener("command", handler);
+      if (domNode.namespaceURI == document.documentElement.namespaceURI) {
+        domNode.addEventListener("click", handler);
+      } else {
+        domNode.addEventListener("command", handler);
+      }
 
       if ("domBindExtra" in filterDef) {
         filterDef.domBindExtra(document, this, domNode);
@@ -266,14 +156,12 @@ var QuickFilterBarMuxer = {
   /**
    * Update the UI to reflect the state of the filterer constraints.
    *
-   * @param aFilterer The active filterer.
-   * @param aFolderDisplay The active FolderDisplayWidget.
    * @param [aFilterName] If only a single filter needs to be updated, name it.
    */
-  reflectFiltererState(aFilterer, aFolderDisplay, aFilterName) {
+  reflectFiltererState(aFilterName) {
     // If we aren't visible then there is no need to update the widgets.
-    if (aFilterer.visible) {
-      let filterValues = aFilterer.filterValues;
+    if (this.filterer.visible) {
+      let filterValues = this.filterer.filterValues;
       for (let filterDef of QuickFilterManager.filterDefs) {
         // If we only need to update one state, check and skip as appropriate.
         if (aFilterName && filterDef.name != aFilterName) {
@@ -284,17 +172,16 @@ var QuickFilterBarMuxer = {
         let value =
           filterDef.name in filterValues ? filterValues[filterDef.name] : null;
         if (!("reflectInDOM" in filterDef)) {
-          domNode.checked = Boolean(value);
+          domNode.pressed = value;
         } else {
           filterDef.reflectInDOM(domNode, value, document, this);
         }
       }
     }
 
-    this.reflectFiltererResults(aFilterer, aFolderDisplay);
+    this.reflectFiltererResults();
 
-    document.getElementById("quick-filter-bar").collapsed = !aFilterer.visible;
-    this._setupToggleChecks(aFilterer.visible);
+    document.getElementById("quick-filter-bar").hidden = !this.filterer.visible;
   },
 
   /**
@@ -310,35 +197,28 @@ var QuickFilterBarMuxer = {
    * - A filter is active, completed searching, and we have no results;
    *   filterActive=nomatches.
    */
-  reflectFiltererResults(aFilterer, aFolderDisplay) {
-    let view = aFolderDisplay.view;
+  reflectFiltererResults() {
     let threadPane = document.getElementById("threadTree");
     let qfb = document.getElementById("quick-filter-bar");
 
     // bail early if the view is in the process of being created
-    if (!view.dbView) {
+    if (!gDBView) {
       return;
     }
 
     // no filter active
-    if (!view.search || !view.search.userTerms) {
+    if (!gViewWrapper.search || !gViewWrapper.search.userTerms) {
       threadPane.removeAttribute("filterActive");
       qfb.removeAttribute("filterActive");
-    } else if (view.searching) {
+    } else if (gViewWrapper.searching) {
       // filter active, still searching
       // Do not set this immediately; wait a bit and then only set this if we
       //  still are in this same state (and we are still the active tab...)
       setTimeout(function() {
-        if (
-          !view.searching ||
-          QuickFilterBarMuxer.maybeActiveFilterer != aFilterer
-        ) {
-          return;
-        }
         threadPane.setAttribute("filterActive", "searching");
         qfb.setAttribute("filterActive", "searching");
       }, 500);
-    } else if (view.dbView.numMsgsInView) {
+    } else if (gDBView.numMsgsInView) {
       // filter completed, results
       // some matches
       threadPane.setAttribute("filterActive", "matches");
@@ -351,254 +231,6 @@ var QuickFilterBarMuxer = {
     }
   },
 
-  // ----------------
-  // Resizing regimen
-
-  /**
-   * Are the button labels currently collapsed?
-   */
-  _buttonLabelsCollapsed: false,
-
-  /**
-   * The minimum width the bar must be before we can un-collapse the button
-   *  labels.
-   */
-  _minExpandedBarWidth: null,
-
-  /**
-   * Where we stash the minwidth for the text search box, if present, when
-   *  _buttonLabelsCollapsed.
-   */
-  _savedOffTextWidgetMinWidth: null,
-
-  /**
-   * Our general strategy is this:
-   * - All collapsible buttons are set to not flex and live in the
-   *   "quick-filter-bar-collapsible-buttons" hbox.  This provides us with a
-   *   nice minimum size.
-   * - All flexy widgets have some minimum size configured.
-   * - When the bar starts to overflow we save off the (minimum) size of the bar
-   *   so that once it gets large enough again we can restore the buttons.
-   * - On overflow we also lose the minwidth constraint on the search box so it
-   *   resizes down in a reasonable fashion.
-   *
-   * This method handles the overflow case where we transition to collapsed
-   * buttons.  Our onWindowResize logic handles detecting when it is time to
-   * un-collapse.
-   */
-  onOverflow() {
-    // If we are already collapsed, there is nothing more to do.
-    if (this._buttonLabelsCollapsed) {
-      return;
-    }
-
-    let quickFilterBarBox = document.getElementById(
-      "quick-filter-bar-main-bar"
-    );
-    let collapsibleButtonBox = document.getElementById(
-      "quick-filter-bar-collapsible-buttons"
-    );
-    // the scroll width is the actual size it wants to be...
-    this._minExpandedBarWidth = quickFilterBarBox.scrollWidth;
-    this._buttonLabelsCollapsed = true;
-
-    let textWidget = document.getElementById(QuickFilterManager.textBoxDomId);
-    if (textWidget) {
-      this._savedOffTextWidgetMinWidth = textWidget.getAttribute("minwidth");
-      textWidget.removeAttribute("minwidth");
-    }
-
-    collapsibleButtonBox.setAttribute("shrink", "true");
-  },
-
-  /**
-   * Counterpart to |onOverflow| un-collapses the buttons once the quick filter
-   *  bar gets wide enough to support the desired minimum widget of the bar when
-   *  the buttons are not collapsed.
-   */
-  onWindowResize() {
-    // nothing to do here if the buttons are not collapsed
-    if (!this._buttonLabelsCollapsed) {
-      return;
-    }
-
-    let quickFilterBarBox = document.getElementById(
-      "quick-filter-bar-main-bar"
-    );
-    // the client width is how big it actually is (thanks to overflow:hidden)
-    if (quickFilterBarBox.clientWidth < this._minExpandedBarWidth) {
-      return;
-    }
-
-    this._buttonLabelsCollapsed = false;
-    this._minExpandedBarWidth = null;
-
-    // restore the text widget's min width...
-    let textWidget = document.getElementById(QuickFilterManager.textBoxDomId);
-    if (textWidget && this._savedOffTextWidgetMinWidth) {
-      textWidget.setAttribute("minwidth", this._savedOffTextWidgetMinWidth);
-      this._savedOffTextWidgetMinWidth = null;
-    }
-
-    let collapsibleButtonBox = document.getElementById(
-      "quick-filter-bar-collapsible-buttons"
-    );
-    collapsibleButtonBox.removeAttribute("shrink");
-  },
-
-  // -----------------------
-  // Tab Monitor Interaction
-
-  monitorName: "quickFilter",
-
-  onTabTitleChanged(aTab) {
-    // nop
-  },
-
-  /**
-   * Whenever an appropriate new tab is opened, initialize its quick filter
-   *  state.
-   */
-  onTabOpened(aTab, aFirstTab, aOldTab) {
-    if (aTab.mode.name == "folder" || aTab.mode.name == "glodaList") {
-      let modelTab = this.tabmail.getTabInfoForCurrentOrFirstModeInstance(
-        aTab.mode
-      );
-      let oldFilterer =
-        modelTab && "quickFilter" in modelTab._ext
-          ? modelTab._ext.quickFilter
-          : undefined;
-      aTab._ext.quickFilter = new QuickFilterState(oldFilterer);
-      this.updateSearch(aTab);
-      this._updateToggle(aTab);
-    }
-  },
-
-  onTabRestored(aTab, aState, aFirstTab) {
-    let filterer = (aTab._ext.quickFilter = new QuickFilterState(null, aState));
-    this.updateSearch(aTab);
-    if (aTab == this.tabmail.currentTabInfo) {
-      this.reflectFiltererState(filterer, aTab.folderDisplay);
-    }
-  },
-
-  onTabPersist(aTab) {
-    let filterer = "quickFilter" in aTab._ext ? aTab._ext.quickFilter : null;
-    if (filterer) {
-      return filterer.persistToObj();
-    }
-    return null;
-  },
-
-  /**
-   * On tab switch we need to:
-   * - Restore state for already existing state
-   * - Create state if it's a new (to us) tab
-   */
-  onTabSwitched(aTab, aOldTab) {
-    // (Note: we used to explicitly handle the possibility that the user had
-    // typed something but an ontimeout had not yet fired in the textbox.
-    // We are bailing on that because it adds complexity without much functional
-    // gain.  Our UI will be consistent when we switch back to the tab, which
-    // is good enough.)
-
-    let filterer = this.maybeActiveFilterer;
-    if (filterer) {
-      this.reflectFiltererState(filterer, aTab.folderDisplay);
-    }
-    this._updateCommands();
-  },
-
-  supportsCommand(aCommand, aTab) {
-    // we are not active on tab types we do not support (message tabs)
-    if (!("quickFilter" in aTab._ext)) {
-      return null;
-    }
-
-    if (
-      aCommand == "cmd_popQuickFilterBarStack" ||
-      aCommand == "cmd_showQuickFilterBar" ||
-      aCommand == "cmd_toggleQuickFilterBar"
-    ) {
-      return true;
-    }
-    return null;
-  },
-  isCommandEnabled(aCommand, aTab) {
-    // we are not active on tab types we do not support (message tabs)
-    if (!("quickFilter" in aTab._ext)) {
-      return null;
-    }
-
-    let isFolderView =
-      aTab.mode.name == "folder" &&
-      aTab.folderDisplay.displayedFolder &&
-      !aTab.folderDisplay.displayedFolder.isServer;
-    let isGlodaList = aTab.mode.name == "glodaList";
-
-    if (!isFolderView && !isGlodaList) {
-      return null;
-    }
-
-    if (
-      aCommand == "cmd_popQuickFilterBarStack" ||
-      aCommand == "cmd_showQuickFilterBar" ||
-      aCommand == "cmd_toggleQuickFilterBar"
-    ) {
-      return true;
-    }
-    return null;
-  },
-  doCommand(aCommand, aTab) {
-    // we are not active on tab types we do not support (message tabs)
-    if (!("quickFilter" in aTab._ext)) {
-      return null;
-    }
-
-    if (aCommand == "cmd_popQuickFilterBarStack") {
-      QuickFilterBarMuxer.cmdEscapeFilterStack();
-      return true;
-    } else if (aCommand == "cmd_showQuickFilterBar") {
-      let textWidget = document.getElementById(QuickFilterManager.textBoxDomId);
-      if (!this.activeFilterer.visible) {
-        QuickFilterBarMuxer._showFilterBar(true);
-      }
-      textWidget.select();
-      return true;
-    } else if (aCommand == "cmd_toggleQuickFilterBar") {
-      let show = !this.activeFilterer.visible;
-      this._showFilterBar(show);
-      if (show) {
-        let textWidget = document.getElementById(
-          QuickFilterManager.textBoxDomId
-        );
-        textWidget.select();
-      }
-      return true;
-    }
-    return null;
-  },
-
-  get maybeActiveFilterer() {
-    if (
-      this.tabmail.currentTabInfo &&
-      "quickFilter" in this.tabmail.currentTabInfo._ext
-    ) {
-      return this.tabmail.currentTabInfo._ext.quickFilter;
-    }
-    return null;
-  },
-
-  get activeFilterer() {
-    if (
-      this.tabmail.currentTabInfo &&
-      "quickFilter" in this.tabmail.currentTabInfo._ext
-    ) {
-      return this.tabmail.currentTabInfo._ext.quickFilter;
-    }
-    throw new Error("There is no active filterer but we want one.");
-  },
-
   // ----------------------
   // Event Handling Support
 
@@ -608,7 +240,7 @@ var QuickFilterBarMuxer = {
    *  undo-ish purposes.
    */
   getFilterValueForMutation(aName) {
-    return this.activeFilterer.getFilterValue(aName);
+    return this.filterer.getFilterValue(aName);
   },
 
   /**
@@ -620,7 +252,7 @@ var QuickFilterBarMuxer = {
    * @param aValue The new filter state.
    */
   setFilterValue(aName, aValue) {
-    this.activeFilterer.setFilterValue(aName, aValue);
+    this.filterer.setFilterValue(aName, aValue);
   },
 
   /**
@@ -629,7 +261,7 @@ var QuickFilterBarMuxer = {
    *  to paint such.
    */
   deferredUpdateSearch() {
-    setTimeout(this._deferredInvocUpdateSearch, 10);
+    setTimeout(() => this._deferredInvocUpdateSearch(), 10);
   },
 
   /**
@@ -637,104 +269,109 @@ var QuickFilterBarMuxer = {
    *  that makes 'this' relevant.
    */
   _deferredInvocUpdateSearch() {
-    QuickFilterBarMuxer.updateSearch();
+    this.updateSearch();
   },
 
   /**
    * Update the user terms part of the search definition to reflect the active
    *  filterer's current state.
    */
-  updateSearch(aTab) {
-    let tab = aTab || this.tabmail.currentTabInfo;
-    // bail if things don't really exist yet
-    if (!tab.folderDisplay || !tab.folderDisplay.view.search) {
+  updateSearch() {
+    if (!this._filterer || !gViewWrapper?.search) {
       return;
     }
 
-    let filterer = tab._ext.quickFilter;
-    filterer.displayedFolder = tab.folderDisplay.displayedFolder;
+    this.filterer.displayedFolder = gFolder;
 
-    let [terms, listeners] = filterer.createSearchTerms(
-      tab.folderDisplay.view.search.session
+    let [terms, listeners] = this.filterer.createSearchTerms(
+      gViewWrapper.search.session
     );
 
     for (let [listener, filterDef] of listeners) {
       // it registers itself with the search session.
       new QuickFilterSearchListener(
-        tab.folderDisplay,
-        filterer,
+        gViewWrapper,
+        this.filterer,
         filterDef,
         listener,
-        QuickFilterBarMuxer
+        quickFilterBar
       );
     }
-    tab.folderDisplay.view.search.userTerms = terms;
+
+    gViewWrapper.search.userTerms = terms;
     // Uncomment to know what the search state is when we (try and) update it.
     // dump(tab.folderDisplay.view.search.prettyString());
   },
 
   _showFilterBar(aShow) {
-    this.activeFilterer.visible = aShow;
+    this.filterer.visible = aShow;
     if (!aShow) {
-      this.activeFilterer.clear();
+      this.filterer.clear();
       this.updateSearch();
       let threadPane = document.getElementById("threadTree");
       threadPane.focus();
     }
-    this.reflectFiltererState(
-      this.activeFilterer,
-      this.tabmail.currentTabInfo.folderDisplay
-    );
+    this.reflectFiltererState();
+    window.dispatchEvent(new Event("qfbtoggle"));
   },
 
   /**
-   * Invoked when the user chooses the popup from the gloda search box.
+   * Called by the view wrapper so we can update the results count.
    */
-  cmdGlodaSearchDownSell(aEvent) {
-    aEvent.stopPropagation();
-    this._showFilterBar(true);
-    let textWidget = document.getElementById(QuickFilterManager.textBoxDomId);
-    textWidget.select();
-  },
+  onMessagesChanged() {
+    let filtering = gViewWrapper.search?.userTerms != null;
+    let newCount = filtering ? gDBView.numMsgsInView : null;
+    this.filterer.setFilterValue("results", newCount, true);
 
-  /**
-   * User explicitly closed the filter bar.
-   */
-  cmdClose(aEvent) {
-    this._showFilterBar(false);
-  },
-
-  /**
-   * User hit the escape key; do our undo-ish thing keeping in mind that this
-   *  may be invoked in situations where the filter bar is not legal / enabled.
-   */
-  cmdEscapeFilterStack() {
-    let filterer = this.maybeActiveFilterer;
-    if (!filterer || !filterer.visible) {
-      return;
+    // - postFilterProcess everyone who cares
+    // This may need to be converted into an asynchronous process at some point.
+    for (let filterDef of QuickFilterManager.filterDefs) {
+      if ("postFilterProcess" in filterDef) {
+        let preState =
+          filterDef.name in this.filterer.filterValues
+            ? this.filterer.filterValues[filterDef.name]
+            : null;
+        let [newState, update, treatAsUserAction] = filterDef.postFilterProcess(
+          preState,
+          gViewWrapper,
+          filtering
+        );
+        this.filterer.setFilterValue(
+          filterDef.name,
+          newState,
+          !treatAsUserAction
+        );
+        if (update) {
+          let domNode = document.getElementById(filterDef.domId);
+          // We are passing update as a super-secret data propagation channel
+          //  exclusively for one-off cases like the text filter gloda upsell.
+          filterDef.reflectInDOM(domNode, newState, document, this, update);
+        }
+      }
     }
 
-    // update the search if we were relaxing something
-    if (filterer.userHitEscape()) {
+    // - Update match status.
+    this.reflectFiltererState();
+  },
+
+  /**
+   * The displayed folder changed. Reset or reapply the filter, depending on
+   * the sticky state.
+   */
+  onFolderChanged() {
+    this.filterer = new QuickFilterState(this.filterer);
+    this.reflectFiltererState();
+    if (this._filterer?.filterValues.sticky) {
       this.updateSearch();
-      this.reflectFiltererState(
-        filterer,
-        this.tabmail.currentTabInfo.folderDisplay
-      );
-    } else {
-      // close the filter since there was nothing left to relax
-      this.cmdClose();
     }
   },
 
   _testHelperResetFilterState() {
-    let filterer = this.maybeActiveFilterer;
-    if (!filterer) {
+    if (!this._filterer) {
       return;
     }
-    let tab = this.tabmail.currentTabInfo;
-    tab._ext.quickFilter = filterer = new QuickFilterState();
+    this._filterer = new QuickFilterState();
     this.updateSearch();
-    this.reflectFiltererState(filterer, tab.folderDisplay);
+    this.reflectFiltererState();
   },
 };

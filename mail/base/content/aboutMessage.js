@@ -2,18 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals MailE10SUtils */
+/* globals Enigmail, MailE10SUtils */
 
-// mailContext.js
-/* globals dbViewWrapperListener */
-
-// mailWindowOverlay.js
-/* globals ClearPendingReadTimer, gMessageNotificationBar */
+// mailCommon.js
+/* globals commandController, dbViewWrapperListener */
 
 // msgHdrView.js
-/* globals HideMessageHeaderPane, messageHeaderSink, gMessageListeners,
-   OnLoadMsgHeaderPane, OnTagsChange, OnUnloadMsgHeaderPane */
+/* globals AdjustHeaderView ClearPendingReadTimer
+   HideMessageHeaderPane OnLoadMsgHeaderPane OnTagsChange
+   OnUnloadMsgHeaderPane */
 
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
@@ -26,7 +27,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   DBViewWrapper: "resource:///modules/DBViewWrapper.jsm",
   JSTreeSelection: "resource:///modules/JsTreeSelection.jsm",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
-  PhishingDetector: "resource:///modules/PhishingDetector.jsm",
 });
 
 const messengerBundle = Services.strings.createBundle(
@@ -36,80 +36,30 @@ const messengerBundle = Services.strings.createBundle(
 var gFolder, gViewWrapper, gDBView, gMessage, gMessageURI;
 
 var content;
-var gFolderDisplay = {
-  get displayedFolder() {
-    return this.selectedMessage?.folder;
-  },
-  get selectedMessage() {
-    return gMessage;
-  },
-  get selectedMessages() {
-    if (gMessage) {
-      return [gMessage];
-    }
-    return [];
-  },
-  get selectedMessageUris() {
-    if (gMessageURI) {
-      return [gMessageURI];
-    }
-    return [];
-  },
-  getCommandStatus(commandType) {
-    // no view means not enabled
-    if (!gViewWrapper?.dbView) {
-      return false;
-    }
-
-    let enabledObj = {};
-    let checkStatusObj = {};
-    gViewWrapper.dbView.getCommandStatus(
-      commandType,
-      enabledObj,
-      checkStatusObj
-    );
-
-    return enabledObj.value;
-  },
-  selectedMessageIsNews: false,
-  selectedMessageIsFeed: false,
-  view: {
-    isNewsFolder: false,
-  },
-};
-
-var gMessageDisplay = {
-  get displayedMessage() {
-    return gMessage;
-  },
-  get isDummy() {
-    return !gFolder;
-  },
-  onLoadCompleted() {},
-};
 
 function getMessagePaneBrowser() {
   return content;
 }
 
-function reportMsgRead() {
-  // TODO: implement this telemetry function.
-}
-
 function ReloadMessage() {
+  if (!gMessageURI) {
+    return;
+  }
   displayMessage(gMessageURI, gViewWrapper);
 }
 
-var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-var MsgStatusFeedback =
-  window.browsingContext.topChromeWindow.MsgStatusFeedback;
-var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
-msgWindow.msgHeaderSink = window.messageHeaderSink;
-msgWindow.statusFeedback = Cc[
-  "@mozilla.org/messenger/statusfeedback;1"
-].createInstance(Ci.nsIMsgStatusFeedback);
+function MailSetCharacterSet() {
+  let messageService = MailServices.messageServiceFromURI(gMessageURI);
+  gMessage = messageService.messageURIToMsgHdr(gMessageURI);
+  messageService.DisplayMessage(
+    gMessageURI,
+    content.docShell,
+    null,
+    null,
+    true,
+    {}
+  );
+}
 
 window.addEventListener("DOMContentLoaded", event => {
   if (event.target != document) {
@@ -119,12 +69,31 @@ window.addEventListener("DOMContentLoaded", event => {
   content = document.querySelector("browser");
   OnLoadMsgHeaderPane();
 
+  Enigmail.msg.messengerStartup();
+  Enigmail.hdrView.hdrViewLoad();
+
+  // The folder listener only does something interesting if this is a
+  // standalone window or tab, so don't add it if we're inside about:3pane.
+  if (window.browsingContext.parent.currentURI.spec != "about:3pane") {
+    MailServices.mailSession.AddFolderListener(
+      folderListener,
+      Ci.nsIFolderListener.removed
+    );
+  }
+
   preferenceObserver.init();
+
+  window.dispatchEvent(
+    new CustomEvent("aboutMessageLoaded", { bubbles: true })
+  );
 });
 
 window.addEventListener("unload", () => {
+  ClearPendingReadTimer();
   OnUnloadMsgHeaderPane();
+  MailServices.mailSession.RemoveFolderListener(folderListener);
   preferenceObserver.cleanUp();
+  gViewWrapper?.close();
 });
 
 window.addEventListener("keypress", event => {
@@ -139,7 +108,11 @@ window.addEventListener("keypress", event => {
 
 function displayMessage(uri, viewWrapper) {
   ClearPendingReadTimer();
+  gMessageURI = uri;
   if (!uri) {
+    gMessage = null;
+    gViewWrapper = null;
+    gDBView = null;
     HideMessageHeaderPane();
     // Don't use MailE10SUtils.loadURI here, it will try to change remoteness
     // and we don't want that.
@@ -152,52 +125,34 @@ function displayMessage(uri, viewWrapper) {
     return;
   }
 
-  gMessageURI = uri;
-
-  let protocol = new URL(uri).protocol.replace(/:$/, "");
-  let messageService = Cc[
-    `@mozilla.org/messenger/messageservice;1?type=${protocol}`
-  ].getService(Ci.nsIMsgMessageService);
+  let messageService = MailServices.messageServiceFromURI(uri);
   gMessage = messageService.messageURIToMsgHdr(uri);
+  gFolder = gMessage.folder;
 
-  if (gMessage) {
-    if (gFolder != gMessage.folder) {
-      gFolder = gMessage.folder;
-    }
+  if (gFolder) {
     if (viewWrapper) {
       gViewWrapper = viewWrapper.clone(dbViewWrapperListener);
     } else {
       gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
-      gViewWrapper._viewFlags = 1;
+      gViewWrapper._viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
       gViewWrapper.open(gFolder);
     }
+
     gViewWrapper.dbView.selection = new JSTreeSelection();
     gViewWrapper.dbView.selection.select(
       gViewWrapper.dbView.findIndexOfMsgHdr(gMessage, true)
     );
-    gDBView = gViewWrapper.dbView;
   } else {
-    gMessage = messageHeaderSink.dummyMsgHeader;
+    gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
+    gViewWrapper.openSearchView();
   }
+  gDBView = gViewWrapper.dbView;
 
   MailE10SUtils.changeRemoteness(content, null);
-  content.docShell
-    ?.QueryInterface(Ci.nsIWebProgress)
-    .addProgressListener(
-      msgWindow.statusFeedback,
-      Ci.nsIWebProgress.NOTIFY_ALL
-    );
+  content.docShell.allowAuth = false;
+  content.docShell.allowDNSPrefetch = false;
 
-  // Ideally we'd do this without creating a msgWindow, and just pass the
-  // docShell to the message service, but that's not easy yet.
-  messageService.DisplayMessage(
-    uri,
-    content.docShell,
-    msgWindow,
-    null,
-    null,
-    {}
-  );
+  messageService.DisplayMessage(uri, content.docShell, null, null, null, {});
 
   if (gMessage.flags & Ci.nsMsgMessageFlags.HasRe) {
     document.title = `Re: ${gMessage.mime2DecodedSubject}`;
@@ -210,22 +165,34 @@ function displayMessage(uri, viewWrapper) {
   );
 }
 
-gMessageListeners.push({
-  onStartHeaders() {},
-  onEndHeaders() {
-    if (gMessageDisplay.isDummy) {
-      document.title = messageHeaderSink.dummyMsgHeader.mime2DecodedSubject;
-    }
-  },
-  onEndAttachments() {},
-});
-
 function GetSelectedMsgFolders() {
-  if (gFolderDisplay.displayedFolder) {
-    return [gFolderDisplay.displayedFolder];
+  if (gFolder) {
+    return [gFolder];
   }
   return [];
 }
+
+var folderListener = {
+  QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
+
+  onFolderRemoved(parentFolder, childFolder) {},
+  onMessageRemoved(parentFolder, msg) {
+    // Close the tab or window if the displayed message is deleted.
+    if (
+      Services.prefs.getBoolPref("mail.close_message_window.on_delete") &&
+      msg == gMessage
+    ) {
+      let topWindow = window.browsingContext.topChromeWindow;
+      let tabmail = topWindow.document.getElementById("tabmail");
+      if (tabmail) {
+        let tab = tabmail.getTabForBrowser(content);
+        tabmail.closeTab(tab);
+      } else {
+        topWindow.close();
+      }
+    }
+  },
+};
 
 var preferenceObserver = {
   QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
@@ -241,6 +208,8 @@ var preferenceObserver = {
     "rss.show.summary",
   ],
 
+  _reloadTimeout: null,
+
   init() {
     for (let topic of this._topics) {
       Services.prefs.addObserver(topic, this);
@@ -254,6 +223,28 @@ var preferenceObserver = {
   },
 
   observe(subject, topic, data) {
-    ReloadMessage();
+    if (data == "mail.show_headers") {
+      AdjustHeaderView(Services.prefs.getIntPref(data));
+    }
+    if (!this._reloadTimeout) {
+      // Clear the event queue before reloading the message. Several prefs may
+      // be changed at once.
+      this._reloadTimeout = setTimeout(() => {
+        this._reloadTimeout = null;
+        ReloadMessage();
+      });
+    }
   },
 };
+
+commandController.registerCallback(
+  "cmd_createFilterFromPopup",
+  () => {
+    // This does nothing because gMessageHeader.createfilter is invoked from
+    // the popupnode oncommand.
+  },
+  () => gFolder?.server.canHaveFilters
+);
+commandController.registerCallback("cmd_print", () => {
+  top.PrintUtils.startPrintWindow(content.browsingContext, {});
+});

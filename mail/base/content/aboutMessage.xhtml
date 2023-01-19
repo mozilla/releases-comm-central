@@ -4,7 +4,6 @@
    - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 #filter substitution
-#define NO_MAILCONTEXT
 
 <!DOCTYPE html [
 <!ENTITY % msgHdrViewOverlayDTD SYSTEM "chrome://messenger/locale/msgHdrViewOverlay.dtd">
@@ -13,8 +12,6 @@
 %messengerDTD;
 <!ENTITY % editContactOverlayDTD SYSTEM "chrome://messenger/locale/editContactOverlay.dtd">
 %editContactOverlayDTD;
-<!ENTITY % quickFilterBarDTD SYSTEM "chrome://messenger/locale/quickFilterBar.dtd">
-%quickFilterBarDTD;
 <!ENTITY % lightningDTD SYSTEM "chrome://lightning/locale/lightning.dtd">
 %lightningDTD;
 <!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd" >
@@ -27,13 +24,17 @@
       xmlns:html="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="utf-8" />
-  <title>about:message</title>
+  <title></title>
 
   <link rel="icon" href="chrome://messenger/skin/icons/new/compact/draft.svg" />
 
+  <link rel="stylesheet" href="chrome://calendar/skin/calendar.css" />
+  <link rel="stylesheet" href="chrome://calendar/skin/shared/calendar-invitation-display.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/messageWindow.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/popupPanel.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/messageHeader.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/folderMenus.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/attachmentList.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/searchBox.css" />
@@ -44,6 +45,7 @@
   <link rel="localization" href="messenger/messenger.ftl" />
   <link rel="localization" href="toolkit/main-window/findbar.ftl" />
   <link rel="localization" href="toolkit/global/textActions.ftl" />
+  <link rel="localization" href="calendar/calendar-invitation-panel.ftl" />
   <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
   <link rel="localization" href="messenger/openpgp/openpgp-frontend.ftl" />
   <link rel="localization" href="messenger/openpgp/msgReadStatus.ftl" />
@@ -51,20 +53,26 @@
 
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
-  <script defer="defer" src="chrome://messenger/content/mailContextMenus.js"></script>
+  <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
   <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
   <script defer="defer" src="chrome://messenger/content/msgViewNavigation.js"></script>
   <script defer="defer" src="chrome://messenger/content/editContactPanel.js"></script>
   <script defer="defer" src="chrome://messenger/content/header-fields.js"></script>
-  <script defer="defer" src="chrome://messenger/content/msgHdrView.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mail-offline.js"></script>
+  <script defer="defer" src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"></script>
   <script defer="defer" src="chrome://openpgp/content/ui/enigmailMessengerOverlay.js"></script>
   <script defer="defer" src="chrome://openpgp/content/ui/enigmailMsgHdrViewOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/msgSecurityPane.js"></script>
-  <script defer="defer" src="chrome://messenger/content/mailCommands.js"></script>
-  <script defer="defer" src="chrome://messenger/content/mailWindowOverlay.js"></script>
   <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messenger-customization.js"></script>
+  <script defer="defer" src="chrome://calendar/content/imip-bar.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-invitation-display.js"></script>
+  <script defer="defer" src="chrome://calendar/content/widgets/calendar-invitation-panel.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailContext.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailCommon.js"></script>
+  <script defer="defer" src="chrome://messenger/content/msgHdrView.js"></script>
   <script defer="defer" src="chrome://messenger/content/aboutMessage.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -73,7 +81,6 @@
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
   <popupset id="mainPopupSet">
-#include mainPopupSet.inc.xhtml
 #include mailContext.inc.xhtml
 #include msgHdrPopup.inc.xhtml
 #include editContactPanel.inc.xhtml
@@ -102,6 +109,17 @@
           <!-- notificationbox will be added here lazily. -->
         </vbox>
 
+#include ../../../calendar/base/content/widgets/calendar-invitation-panel.xhtml
+#include ../../../calendar/base/content/widgets/calendar-minidate.xhtml
+
+        <vbox id="calendarInvitationDisplayContainer"
+              flex="1"
+              hidden="true">
+          <html:div id="calendarInvitationDisplay">
+           <!-- The calendar invitation panel is displayed here. -->
+          </html:div>
+        </vbox>
+
         <!-- message view -->
         <browser id="messagepane"
                  context="mailContext"
@@ -117,7 +135,8 @@
                  src="about:blank"
                  forcemessagemanager="true"
                  maychangeremoteness="true"
-                 messagemanagergroup="single-page"/>
+                 messagemanagergroup="single-page"
+                 onclick="return contentAreaClick(event);"/>
         <splitter id="attachment-splitter" orient="vertical"
                   resizebefore="closest" resizeafter="closest"
                   collapse="after" collapsed="true"/>

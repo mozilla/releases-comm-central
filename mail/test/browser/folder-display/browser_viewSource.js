@@ -8,7 +8,13 @@
 
 "use strict";
 
-var { be_in_folder, create_folder, mc, select_click_row } = ChromeUtils.import(
+var {
+  be_in_folder,
+  create_folder,
+  get_about_message,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var {
@@ -37,7 +43,7 @@ add_setup(async function() {
   addToFolder("UTF-8 header/ISO-8859-1 body", "UTF-8", contentLatin1);
   addToFolder("UTF-8 header/UTF-8 body", "UTF-8", contentUTF8);
 
-  be_in_folder(folder);
+  await be_in_folder(folder);
 });
 
 registerCleanupFunction(() => {
@@ -98,13 +104,17 @@ function addToFolder(subject, charset, body) {
 async function subtest(row, expectedDisplayed, expectedSource) {
   select_click_row(row);
 
-  let displayContent = mc.e("messagepane").contentDocument.body.textContent;
+  let aboutMessage = get_about_message();
+  let displayContent = aboutMessage.content.contentDocument.body.textContent;
   Assert.stringContains(
     displayContent,
     expectedDisplayed,
     "Message content must include the readable text"
   );
-  Assert.equal(mc.e("messagepane").docShell.charset, "UTF-8");
+  Assert.equal(
+    aboutMessage.document.getElementById("messagepane").docShell.charset,
+    "UTF-8"
+  );
 
   plan_for_new_window("navigator:view-source");
   EventUtils.synthesizeKey("U", { shiftKey: false, accelKey: true });

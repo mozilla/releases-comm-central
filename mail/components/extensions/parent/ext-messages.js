@@ -277,7 +277,7 @@ async function getRawMessage(msgHdr) {
     ? msgHdr.folder.generateMessageURI(msgHdr.messageKey)
     : msgHdr.getStringProperty("dummyMsgUrl");
 
-  let service = messenger.messageServiceFromURI(msgUri);
+  let service = MailServices.messageServiceFromURI(msgUri);
   return new Promise((resolve, reject) => {
     let streamlistener = {
       _data: [],
@@ -388,7 +388,7 @@ async function getMimeMessage(msgHdr, partName = "") {
     // Re-build news:// URL, which is not provided by MimeParser.extractMimeMsg().
     let msgUri = msgHdr.folder.getUriForMsg(msgHdr);
     let baseUrl = new URL(
-      messenger.messageServiceFromURI(msgUri).getUrlForUri(msgUri).spec
+      MailServices.messageServiceFromURI(msgUri).getUrlForUri(msgUri).spec
     );
     if (partName) {
       baseUrl.searchParams.set("part", mimeMsg.partName);

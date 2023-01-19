@@ -102,8 +102,6 @@ nsresult nsMsgQuote::QuoteMessage(
     msgUri.Replace(0, 5, "mailbox:"_ns);
     msgUri.AppendLiteral("?number=0");
     rv = NS_NewURI(getter_AddRefs(newURI), msgUri);
-    nsCOMPtr<nsIMsgMessageUrl> mailUrl(do_QueryInterface(newURI));
-    if (mailUrl) mailUrl->SetMessageHeader(aMsgHdr);
   } else if (forwardedMessage)
     rv = NS_NewURI(getter_AddRefs(newURI), msgURI);
   else {

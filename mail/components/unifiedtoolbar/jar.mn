@@ -1,0 +1,24 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+messenger.jar:
+    content/messenger/unifiedtoolbar/customizable-element.mjs          (content/customizable-element.mjs)
+    content/messenger/unifiedtoolbar/customization-palette.mjs         (content/customization-palette.mjs)
+    content/messenger/unifiedtoolbar/customization-target.mjs          (content/customization-target.mjs)
+    content/messenger/unifiedtoolbar/add-to-calendar-button.mjs        (content/items/add-to-calendar-button.mjs)
+    content/messenger/unifiedtoolbar/addons-button.mjs                 (content/items/addons-button.mjs)
+    content/messenger/unifiedtoolbar/compact-folder-button.mjs         (content/items/compact-folder-button.mjs)
+    content/messenger/unifiedtoolbar/delete-button.mjs                 (content/items/delete-button.mjs)
+    content/messenger/unifiedtoolbar/folder-location-button.mjs        (content/items/folder-location-button.mjs)
+    content/messenger/unifiedtoolbar/global-search-bar.mjs             (content/items/global-search-bar.mjs)
+    content/messenger/unifiedtoolbar/quick-filter-bar-toggle.mjs       (content/items/quick-filter-bar-toggle.mjs)
+    content/messenger/unifiedtoolbar/space-button.mjs                  (content/items/space-button.mjs)
+    content/messenger/unifiedtoolbar/list-box-selection.mjs            (content/list-box-selection.mjs)
+    content/messenger/unifiedtoolbar/mail-tab-button.mjs               (content/mail-tab-button.mjs)
+    content/messenger/unifiedtoolbar/search-bar.mjs                    (content/search-bar.mjs)
+    content/messenger/unifiedtoolbar/unified-toolbar.mjs               (content/unified-toolbar.mjs)
+    content/messenger/unifiedtoolbar/unified-toolbar-button.mjs        (content/unified-toolbar-button.mjs)
+    content/messenger/unifiedtoolbar/unified-toolbar-customization.mjs (content/unified-toolbar-customization.mjs)
+    content/messenger/unifiedtoolbar/unified-toolbar-customization-pane.mjs (content/unified-toolbar-customization-pane.mjs)
+    content/messenger/unifiedtoolbar/unified-toolbar-tab.mjs           (content/unified-toolbar-tab.mjs)

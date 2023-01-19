@@ -229,6 +229,8 @@ add_task(async function test_sideloading() {
   addons = PanelUI.addonNotificationContainer;
   is(addons.children.length, 1, "Have 1 menu entry for sideloaded extensions");
 
+  PanelUI.hide();
+
   // Open the Add-Ons Manager
   win = await openAddonsMgr(`addons://detail/${encodeURIComponent(ID3)}`);
 

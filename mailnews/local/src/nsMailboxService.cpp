@@ -27,6 +27,7 @@
 #include "mozilla/LoadInfo.h"
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
+#include "nsMsgFileHdr.h"
 
 nsMailboxService::nsMailboxService() {}
 
@@ -165,15 +166,6 @@ nsresult nsMailboxService::FetchMessage(
       msgUrl->SetMsgWindow(aMsgWindow);
       nsCOMPtr<nsIMailboxUrl> mailboxUrl = do_QueryInterface(msgUrl, &rv);
       mailboxUrl->SetMessageSize((uint32_t)fileSize);
-      nsCOMPtr<nsIMsgHeaderSink> headerSink;
-      // need to tell the header sink to capture some headers to create a fake
-      // db header so we can do reply to a .eml file or a rfc822 msg attachment.
-      if (aMsgWindow) aMsgWindow->GetMsgHeaderSink(getter_AddRefs(headerSink));
-      if (headerSink) {
-        nsCOMPtr<nsIMsgDBHdr> dummyHeader;
-        headerSink->GetDummyMsgHeader(getter_AddRefs(dummyHeader));
-        if (dummyHeader) dummyHeader->SetMessageSize((uint32_t)fileSize);
-      }
     }
   } else {
     // this happens with forward inline of message/rfc822 attachment
@@ -579,6 +571,12 @@ NS_IMETHODIMP
 nsMailboxService::MessageURIToMsgHdr(const nsACString& uri,
                                      nsIMsgDBHdr** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
+
+  if (StringBeginsWith(uri, "file:"_ns)) {
+    nsCOMPtr<nsIMsgDBHdr> msgHdr = new nsMsgFileHdr(uri);
+    msgHdr.forget(_retval);
+    return NS_OK;
+  }
 
   nsresult rv = NS_OK;
 

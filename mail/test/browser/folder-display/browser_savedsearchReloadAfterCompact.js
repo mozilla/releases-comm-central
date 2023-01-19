@@ -17,6 +17,7 @@ var {
   be_in_folder,
   create_folder,
   create_virtual_folder,
+  get_about_3pane,
   inboxFolder,
   make_message_sets_in_folders,
   mc,
@@ -45,7 +46,7 @@ add_task(async function test_setup_virtual_folder_and_compact() {
    * selection on the compaction notification to fail. We test the saved search
    * view still gets rebuilt, such that there is a valid msg hdr at row 0.
    */
-  be_in_folder(otherFolder);
+  await be_in_folder(otherFolder);
   select_click_row(0);
   press_delete();
 
@@ -55,7 +56,8 @@ add_task(async function test_setup_virtual_folder_and_compact() {
     true,
     "SavedSearch"
   );
-  be_in_folder(folderVirtual);
+
+  await be_in_folder(folderVirtual);
   select_click_row(0);
   let urlListener = {
     compactDone: false,
@@ -78,7 +80,7 @@ add_task(async function test_setup_virtual_folder_and_compact() {
   // Let the event queue clear.
   mc.sleep(0);
   // Check view is still valid
-  mc.dbView.getMsgHdrAt(0);
+  get_about_3pane().gDBView.getMsgHdrAt(0);
 
   Assert.report(
     false,
@@ -96,7 +98,7 @@ add_task(async function endTest() {
     thread.processNextEvent(true);
   }
   // Cleanup dbView with force.
-  mc.dbView.close(true);
+  get_about_3pane().gDBView.close(true);
   folderVirtual.deleteSelf(null);
   otherFolder.deleteSelf(null);
 });

@@ -21,7 +21,7 @@ ChromeUtils.defineESModuleGetters(this, {
 
 var gContextMenu;
 
-/* globals nsContextMenu, reporterListener */
+/* globals reporterListener */
 
 function loadRequestedUrl() {
   let browser = document.getElementById("requestFrame");
@@ -107,11 +107,6 @@ this.__defineGetter__("browser", getBrowser);
 function getBrowser() {
   return gBrowser.selectedBrowser;
 }
-function fillMailContextMenu(event) {
-  gContextMenu = new nsContextMenu(event.target, event.shiftKey);
-  return gContextMenu.shouldDisplay;
-}
-function mailContextOnPopupHiding() {}
 
 var gBrowserInit = {
   onDOMContentLoaded() {

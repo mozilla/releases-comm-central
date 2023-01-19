@@ -19,6 +19,7 @@ var {
   be_in_folder,
   close_message_window,
   create_folder,
+  get_about_message,
   mc,
   open_selected_message,
   select_click_row,
@@ -129,7 +130,9 @@ async function addMsgToFolderAndCheckContent(loadAllowed) {
 
   // Now check that the content hasn't been loaded
   if (
-    (await isPluginLoaded(mc.window.getMessagePaneBrowser())) != loadAllowed
+    (await isPluginLoaded(
+      get_about_message().document.getElementById("messagepane")
+    )) != loadAllowed
   ) {
     throw new Error(
       loadAllowed
@@ -153,8 +156,11 @@ async function checkStandaloneMessageWindow(loadAllowed) {
   // for long enough in all situations, so this will have to do for now.
   mc.sleep(1000);
 
+  let aboutMessage = get_about_message(msgc.window);
   if (
-    (await isPluginLoaded(msgc.window.getMessagePaneBrowser())) != loadAllowed
+    (await isPluginLoaded(
+      aboutMessage.document.getElementById("messagepane")
+    )) != loadAllowed
   ) {
     throw new Error(
       loadAllowed
@@ -168,7 +174,7 @@ async function checkStandaloneMessageWindow(loadAllowed) {
 }
 
 add_task(async function test_3paneWindowDenied() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   assert_nothing_selected();
 
@@ -180,7 +186,7 @@ add_task(async function test_checkPluginsInNonMessageContent() {
   select_none();
 
   // load something non-message-like in the message pane
-  let browser = mc.window.getMessagePaneBrowser();
+  let browser = get_about_message().document.getElementById("messagepane");
   MailE10SUtils.loadURI(browser, url + "plugin.html");
   await BrowserTestUtils.browserLoaded(browser);
 
@@ -196,7 +202,7 @@ add_task(async function test_3paneWindowDeniedAgain() {
 
   assert_selected_and_displayed(0);
 
-  let browser = mc.window.getMessagePaneBrowser();
+  let browser = get_about_message().document.getElementById("messagepane");
   // Now check that the content hasn't been loaded
   if (await isPluginLoaded(browser)) {
     throw new Error("Plugin has not been blocked in message as expected");

@@ -35,7 +35,7 @@ const EXPORTED_SYMBOLS = [
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
-var folderDisplayHelper = ChromeUtils.import(
+var { get_about_message, mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { gMockCloudfileManager } = ChromeUtils.import(
@@ -60,9 +60,11 @@ var { TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TestUtils.sys.mjs"
 );
 
-var kTextNodeType = 3;
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
-var mc = folderDisplayHelper.mc;
+var kTextNodeType = 3;
 
 /**
  * Opens the compose window by starting a new message
@@ -168,7 +170,7 @@ function open_compose_with_forward_as_attachments(aController) {
   }
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.click(aController.e("menu_forwardAsAttachment"));
+  aController.window.goDoCommand("cmd_forwardAttachment");
 
   return wait_for_compose_window();
 }
@@ -186,7 +188,7 @@ function open_compose_with_edit_as_new(aController) {
   }
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.click(aController.e("menu_editMsgAsNew"));
+  aController.window.goDoCommand("cmd_editAsNew");
 
   return wait_for_compose_window();
 }
@@ -220,21 +222,13 @@ function open_compose_with_forward(aController) {
  * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
  *         that is augmented using augment_controller.
  */
-function open_compose_from_draft(aController) {
-  if (aController === undefined) {
-    aController = mc;
-  }
-
+function open_compose_from_draft(win = get_about_message()) {
   windowHelper.plan_for_new_window("msgcompose");
-  let box = get_notification(
-    aController,
-    "mail-notification-top",
-    "draftMsgContent"
-  );
+  let box = get_notification(win, "mail-notification-top", "draftMsgContent");
   EventUtils.synthesizeMouseAtCenter(
     box.buttonContainer.firstElementChild,
     {},
-    aController.window
+    win
   );
   return wait_for_compose_window();
 }
@@ -799,9 +793,6 @@ function assert_previous_text(aStart, aText) {
 async function get_msg_source(aMsgHdr, aCharset = "") {
   let msgUri = aMsgHdr.folder.getUriForMsg(aMsgHdr);
 
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-    Ci.nsIMessenger
-  );
   let content = await new Promise((resolve, reject) => {
     let streamListener = {
       QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
@@ -823,9 +814,15 @@ async function get_msg_source(aMsgHdr, aCharset = "") {
         }
       },
     };
-    messenger
-      .messageServiceFromURI(msgUri)
-      .streamMessage(msgUri, streamListener, null, null, false, "", false);
+    MailServices.messageServiceFromURI(msgUri).streamMessage(
+      msgUri,
+      streamListener,
+      null,
+      null,
+      false,
+      "",
+      false
+    );
   });
 
   if (!aCharset) {

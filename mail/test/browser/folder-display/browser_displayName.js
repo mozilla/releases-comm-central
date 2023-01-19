@@ -17,6 +17,7 @@ var {
   be_in_folder,
   create_folder,
   create_message,
+  get_about_3pane,
   mc,
   select_click_row,
 } = ChromeUtils.import(
@@ -209,9 +210,11 @@ add_setup(async function() {
   for (let contact of contacts) {
     ensure_card_exists(contact.email, contact.name, contact.pdn);
   }
+
+  await be_in_folder(folder);
 });
 
-function check_display_name(index, columnName, expectedName) {
+async function check_display_name(index, columnName, expectedName) {
   let columnId;
   switch (columnName) {
     case "from":
@@ -224,20 +227,18 @@ function check_display_name(index, columnName, expectedName) {
       throw new Error("unknown column name: " + columnName);
   }
 
-  // Select the nth message
-  be_in_folder(folder);
-  select_click_row(index);
-
-  let tree = mc.folderDisplay.tree;
-  let cellText = tree.view.getCellText(index, tree.columns[columnId]);
-
+  let cellText = get_about_3pane().gDBView.cellTextForColumn(index, columnId);
   Assert.equal(cellText, expectedName, columnName);
 }
 
 // Generate a test for each message in |messages|.
 for (let [i, message] of messages.entries()) {
-  this["test_" + message.name] = function(i, message) {
-    check_display_name(i, message.expected.column, message.expected.value);
+  this["test_" + message.name] = async function(i, message) {
+    await check_display_name(
+      i,
+      message.expected.column,
+      message.expected.value
+    );
   }.bind(this, i, message);
   add_task(this[`test_${message.name}`]);
 }

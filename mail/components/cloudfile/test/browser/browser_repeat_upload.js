@@ -74,7 +74,7 @@ add_task(async () => {
   );
 
   let composeWindowPromise = BrowserTestUtils.domWindowOpened();
-  composeMsgByType(Ci.nsIMsgCompType.New);
+  MsgNewMessage();
   let composeWindow = await composeWindowPromise;
   await BrowserTestUtils.waitForEvent(composeWindow, "compose-editor-ready");
   await TestUtils.waitForCondition(

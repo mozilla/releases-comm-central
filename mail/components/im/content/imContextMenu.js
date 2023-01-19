@@ -4,7 +4,7 @@
 
 // This file is loaded in messenger.xhtml.
 /* globals gatherTextUnder, goUpdateGlobalEditMenuItems, makeURLAbsolute, Services */
-/* import-globals-from ../../../base/content/nsContextMenu.js */
+/* import-globals-from ../../../base/content/widgets/browserPopups.js */
 
 var gChatContextMenu = null;
 

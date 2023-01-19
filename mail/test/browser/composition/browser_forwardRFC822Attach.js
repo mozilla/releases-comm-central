@@ -49,7 +49,7 @@ async function forwardDirect(aFilePath, aExpectedText) {
   close_compose_window(cwc);
   close_window(msgc);
 
-  be_in_folder(gDrafts);
+  await be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
 
   let draftMsgContent = await get_msg_source(draftMsg);

@@ -2,12 +2,241 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from commandglue.js */
 /* import-globals-from folderDisplay.js */
-/* import-globals-from mailWindow.js */
+/* import-globals-from SearchDialog.js */
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "JSTreeSelection",
+  "resource:///modules/JsTreeSelection.jsm"
+);
 
 var gLastMessageUriToLoad = null;
 var gThreadPaneCommandUpdater = null;
+/**
+ * Tracks whether the right mouse button changed the selection or not.  If the
+ * user right clicks on the selection, it stays the same.  If they click outside
+ * of it, we alter the selection (but not the current index) to be the row they
+ * clicked on.
+ *
+ * The value of this variable is an object with "view" and "selection" keys
+ * and values.  The view value is the view whose selection we saved off, and
+ * the selection value is the selection object we saved off.
+ */
+var gRightMouseButtonSavedSelection = null;
+
+/**
+ * When right-clicks happen, we do not want to corrupt the underlying
+ * selection.  The right-click is a transient selection.  So, unless the
+ * user is right-clicking on the current selection, we create a new
+ * selection object (thanks to JSTreeSelection) and set that as the
+ * current/transient selection.
+ *
+ * @param aSingleSelect Should the selection we create be a single selection?
+ *     This is relevant if the row being clicked on is already part of the
+ *     selection.  If it is part of the selection and !aSingleSelect, then we
+ *     leave the selection as is.  If it is part of the selection and
+ *     aSingleSelect then we create a transient single-row selection.
+ */
+function ChangeSelectionWithoutContentLoad(event, tree, aSingleSelect) {
+  var treeSelection = tree.view.selection;
+
+  var row = tree.getRowAt(event.clientX, event.clientY);
+  // Only do something if:
+  // - the row is valid
+  // - it's not already selected (or we want a single selection)
+  if (row >= 0 && (aSingleSelect || !treeSelection.isSelected(row))) {
+    // Check if the row is exactly the existing selection.  In that case
+    //  there is no need to create a bogus selection.
+    if (treeSelection.count == 1) {
+      let minObj = {};
+      treeSelection.getRangeAt(0, minObj, {});
+      if (minObj.value == row) {
+        event.stopPropagation();
+        return;
+      }
+    }
+
+    let transientSelection = new JSTreeSelection(tree);
+    transientSelection.logAdjustSelectionForReplay();
+
+    gRightMouseButtonSavedSelection = {
+      // Need to clear out this reference later.
+      view: tree.view,
+      realSelection: treeSelection,
+      transientSelection,
+    };
+
+    var saveCurrentIndex = treeSelection.currentIndex;
+
+    // tell it to log calls to adjustSelection
+    // attach it to the view
+    tree.view.selection = transientSelection;
+    // Don't generate any selection events! (we never set this to false, because
+    //  that would generate an event, and we never need one of those from this
+    //  selection object.
+    transientSelection.selectEventsSuppressed = true;
+    transientSelection.select(row);
+    transientSelection.currentIndex = saveCurrentIndex;
+    tree.ensureRowIsVisible(row);
+  }
+  event.stopPropagation();
+}
+
+function ThreadPaneOnDragStart(aEvent) {
+  if (aEvent.target.localName != "treechildren") {
+    return;
+  }
+
+  let messageUris = gFolderDisplay.selectedMessageUris;
+  if (!messageUris) {
+    return;
+  }
+
+  gFolderDisplay.hintAboutToDeleteMessages();
+  let messengerBundle = document.getElementById("bundle_messenger");
+  let noSubjectString = messengerBundle.getString(
+    "defaultSaveMessageAsFileName"
+  );
+  if (noSubjectString.endsWith(".eml")) {
+    noSubjectString = noSubjectString.slice(0, -4);
+  }
+  let longSubjectTruncator = messengerBundle.getString(
+    "longMsgSubjectTruncator"
+  );
+  // Clip the subject string to 124 chars to avoid problems on Windows,
+  // see NS_MAX_FILEDESCRIPTOR in m-c/widget/windows/nsDataObj.cpp .
+  const maxUncutNameLength = 124;
+  let maxCutNameLength = maxUncutNameLength - longSubjectTruncator.length;
+  let messages = new Map();
+  for (let [index, msgUri] of messageUris.entries()) {
+    let msgService = MailServices.messageServiceFromURI(msgUri);
+    let msgHdr = msgService.messageURIToMsgHdr(msgUri);
+    let subject = msgHdr.mime2DecodedSubject || "";
+    if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe) {
+      subject = "Re: " + subject;
+    }
+
+    let uniqueFileName;
+    // If there is no subject, use a default name.
+    // If subject needs to be truncated, add a truncation character to indicate it.
+    if (!subject) {
+      uniqueFileName = noSubjectString;
+    } else {
+      uniqueFileName =
+        subject.length <= maxUncutNameLength
+          ? subject
+          : subject.substr(0, maxCutNameLength) + longSubjectTruncator;
+    }
+    let msgFileName = validateFileName(uniqueFileName);
+    let msgFileNameLowerCase = msgFileName.toLocaleLowerCase();
+
+    while (true) {
+      if (!messages[msgFileNameLowerCase]) {
+        messages[msgFileNameLowerCase] = 1;
+        break;
+      } else {
+        let postfix = "-" + messages[msgFileNameLowerCase];
+        messages[msgFileNameLowerCase]++;
+        msgFileName = msgFileName + postfix;
+        msgFileNameLowerCase = msgFileNameLowerCase + postfix;
+      }
+    }
+
+    msgFileName = msgFileName + ".eml";
+
+    let msgUrl = msgService.getUrlForUri(msgUri);
+    let separator = msgUrl.spec.includes("?") ? "&" : "?";
+
+    aEvent.dataTransfer.mozSetDataAt("text/x-moz-message", msgUri, index);
+    aEvent.dataTransfer.mozSetDataAt("text/x-moz-url", msgUrl.spec, index);
+    aEvent.dataTransfer.mozSetDataAt(
+      "application/x-moz-file-promise-url",
+      msgUrl.spec + separator + "fileName=" + encodeURIComponent(msgFileName),
+      index
+    );
+    aEvent.dataTransfer.mozSetDataAt(
+      "application/x-moz-file-promise",
+      new messageFlavorDataProvider(),
+      index
+    );
+    aEvent.dataTransfer.mozSetDataAt(
+      "application/x-moz-file-promise-dest-filename",
+      msgFileName.replace(/(.{74}).*(.{10})$/u, "$1...$2"),
+      index
+    );
+  }
+  aEvent.dataTransfer.effectAllowed = "copyMove";
+  aEvent.dataTransfer.addElement(aEvent.target);
+}
+
+function ThreadPaneOnDragOver(aEvent) {
+  let ds = Cc["@mozilla.org/widget/dragservice;1"]
+    .getService(Ci.nsIDragService)
+    .getCurrentSession();
+  ds.canDrop = false;
+  if (!gFolderDisplay.displayedFolder.canFileMessages) {
+    return;
+  }
+
+  let dt = aEvent.dataTransfer;
+  if (Array.from(dt.mozTypesAt(0)).includes("application/x-moz-file")) {
+    let extFile = dt.mozGetDataAt("application/x-moz-file", 0);
+    if (!extFile) {
+      return;
+    }
+
+    extFile = extFile.QueryInterface(Ci.nsIFile);
+    if (extFile.isFile()) {
+      let len = extFile.leafName.length;
+      if (len > 4 && extFile.leafName.toLowerCase().endsWith(".eml")) {
+        ds.canDrop = true;
+      }
+    }
+  }
+}
+
+function ThreadPaneOnDrop(aEvent) {
+  let dt = aEvent.dataTransfer;
+  for (let i = 0; i < dt.mozItemCount; i++) {
+    let extFile = dt.mozGetDataAt("application/x-moz-file", i);
+    if (!extFile) {
+      continue;
+    }
+
+    extFile = extFile.QueryInterface(Ci.nsIFile);
+    if (extFile.isFile()) {
+      let len = extFile.leafName.length;
+      if (len > 4 && extFile.leafName.toLowerCase().endsWith(".eml")) {
+        MailServices.copy.copyFileMessage(
+          extFile,
+          gFolderDisplay.displayedFolder,
+          null,
+          false,
+          1,
+          "",
+          null,
+          msgWindow
+        );
+      }
+    }
+  }
+}
+
+function TreeOnMouseDown(event) {
+  // Detect right mouse click and change the highlight to the row
+  // where the click happened without loading the message headers in
+  // the Folder or Thread Pane.
+  // Same for middle click, which will open the folder/message in a tab.
+  if (event.button == 2 || event.button == 1) {
+    // We want a single selection if this is a middle-click (button 1)
+    ChangeSelectionWithoutContentLoad(
+      event,
+      event.target.parentNode,
+      event.button == 1
+    );
+  }
+}
 
 function ThreadPaneOnClick(event) {
   // We only care about button 0 (left click) events.
@@ -226,25 +455,10 @@ function handleDeleteColClick(event) {
 
   // Trigger the message deletion.
   goDoCommand("cmd_delete");
-
-  // Since a right click wasn't actually triggered, we need to call this method
-  // to restore the previous selection.
-  RestoreSelectionWithoutContentLoad(gFolderDisplay.tree);
 }
 
 function ThreadPaneDoubleClick() {
-  if (IsSpecialFolderSelected(Ci.nsMsgFolderFlags.Drafts, true)) {
-    MsgComposeDraftMessage();
-  } else if (IsSpecialFolderSelected(Ci.nsMsgFolderFlags.Templates, true)) {
-    ComposeMessage(
-      Ci.nsIMsgCompType.Template,
-      Ci.nsIMsgCompFormat.Default,
-      gFolderDisplay.displayedFolder,
-      gFolderDisplay.selectedMessageUris
-    );
-  } else {
-    MsgOpenSelectedMessages();
-  }
+  MsgOpenSelectedMessages();
 }
 
 function ThreadPaneKeyDown(event) {
@@ -453,21 +667,8 @@ function UpdateSortIndicators(sortType, sortOrder) {
   }
 }
 
-function IsSpecialFolderSelected(flags, checkAncestors) {
-  let folder = GetThreadPaneFolder();
-  return folder && folder.isSpecialFolder(flags, checkAncestors);
-}
-
 function GetThreadTree() {
   return document.getElementById("threadTree");
-}
-
-function GetThreadPaneFolder() {
-  try {
-    return gDBView.msgFolder;
-  } catch (ex) {
-    return null;
-  }
 }
 
 function ThreadPaneOnLoad() {

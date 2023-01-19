@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Search bar element test</title>
+    <script type="module" src="chrome://messenger/content/unifiedtoolbar/search-bar.mjs"></script>
+  </head>
+  <body>
+    <template id="searchBarTemplate">
+      <form>
+        <input type="search" placeholder="" required="required"/>
+        <div aria-hidden="true"><slot name="placeholder"></slot></div>
+        <button><slot name="button"></slot></button>
+      </form>
+    </template>
+    <search-bar label="Search">
+      <span slot="placeholder">Placeholder</span>
+      <img slot="button" src="chrome://messenger/skin/icons/new/compact/search.svg" alt="Search"/>
+    </search-bar>
+  </body>
+</html>

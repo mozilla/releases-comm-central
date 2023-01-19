@@ -95,8 +95,8 @@ function addIdentitiesAndFolder() {
   account.addIdentity(identity2);
 }
 
-add_task(function test_Reply_To_List_From_Address() {
-  be_in_folder(testFolder);
+add_task(async function test_Reply_To_List_From_Address() {
+  await be_in_folder(testFolder);
 
   let curMessage = select_click_row(0);
   assert_selected_and_displayed(mc, curMessage);

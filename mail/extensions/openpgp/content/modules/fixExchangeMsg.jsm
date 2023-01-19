@@ -8,6 +8,9 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailFixExchangeMsg"];
 
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
@@ -44,10 +47,7 @@ var EnigmailFixExchangeMsg = {
     this.brokenByApp = brokenByApp;
     this.destFolderUri = destFolderUri;
 
-    let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-      Ci.nsIMessenger
-    );
-    this.msgSvc = messenger.messageServiceFromURI(msgUriSpec);
+    this.msgSvc = MailServices.messageServiceFromURI(msgUriSpec);
 
     let fixedMsgData = await this.getMessageBody();
 

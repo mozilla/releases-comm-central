@@ -17,6 +17,7 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
+  get_about_message,
   mc,
   open_message_from_file,
   press_delete,
@@ -77,26 +78,33 @@ async function forwardDirect(aFilePath) {
 }
 
 async function forwardViaFolder(aFilePath) {
-  be_in_folder(folderToSendFrom);
+  await be_in_folder(folderToSendFrom);
 
   let file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
   let msgc = await open_message_from_file(file);
+  let aboutMessage = get_about_message(msgc.window);
 
   // Copy the message to a folder.
-  let documentChild = msgc.e("messagepane").contentDocument.documentElement;
+  let documentChild = aboutMessage.document.getElementById("messagepane")
+    .contentDocument.documentElement;
   msgc.rightClick(documentChild);
-  await msgc.click_menus_in_sequence(msgc.e("mailContext"), [
-    { id: "mailContext-copyMenu" },
-    { label: "Local Folders" },
-    { label: "FolderWithUTF8" },
-  ]);
+  await msgc.click_menus_in_sequence(
+    aboutMessage.document.getElementById("mailContext"),
+    [
+      { id: "mailContext-copyMenu" },
+      { label: "Local Folders" },
+      { label: "FolderWithUTF8" },
+    ]
+  );
   close_window(msgc);
 
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
 
   Assert.ok(
-    mc.e("messagepane").contentDocument.body.textContent.includes("áóúäöüß")
+    get_about_message()
+      .document.getElementById("messagepane")
+      .contentDocument.body.textContent.includes("áóúäöüß")
   );
 
   let fwdWin = open_compose_with_forward();

@@ -13,7 +13,6 @@
 #include "nsCOMPtr.h"
 #include "nsIDocShell.h"
 #include "nsIURIContentListener.h"
-#include "nsIMimeMiscStatus.h"
 #include "nsWeakReference.h"
 #include "nsIWeakReferenceUtils.h"
 #include "nsIInterfaceRequestor.h"
@@ -33,7 +32,6 @@ class nsMsgWindow : public nsIMsgWindow,
 
  protected:
   virtual ~nsMsgWindow();
-  nsCOMPtr<nsIMsgHeaderSink> mMsgHeaderSink;
   nsCOMPtr<nsIMsgStatusFeedback> mStatusFeedback;
   nsCOMPtr<nsITransactionManager> mTransactionManager;
   nsCOMPtr<nsIMsgFolder> mOpenFolder;

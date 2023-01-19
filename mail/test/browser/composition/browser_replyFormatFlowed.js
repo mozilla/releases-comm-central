@@ -17,9 +17,11 @@ var {
 var {
   be_in_folder,
   get_special_folder,
+  get_about_message,
   open_message_from_file,
   press_delete,
   select_click_row,
+  select_none,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -59,10 +61,8 @@ async function subtest_reply_format_flowed(aFlowed) {
   );
 
   // Now check the message content in the drafts folder.
-  be_in_folder(gDrafts);
-  let msgLoaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+  await be_in_folder(gDrafts);
   let message = select_click_row(0);
-  await msgLoaded;
   let messageContent = await get_msg_source(message);
 
   // Check for a single line that contains text and make sure there is a
@@ -77,6 +77,7 @@ async function subtest_reply_format_flowed(aFlowed) {
 
   // Delete the outgoing message.
   press_delete();
+  select_none(); // TODO This should be unnecessary.
 }
 
 add_task(async function test_reply_format_flowed() {

@@ -4,7 +4,7 @@
 
 /* import-globals-from AccountManager.js */
 /* globals openTab */ // From utilityOverlay.js
-/* globals SelectFolder */ // From messageWindow.js or msgMail3PaneWindow.js.
+/* globals SelectFolder */ // From messageWindow.js or messenger.js.
 /* globals MsgGetMessage */ // From mailWindowOverlay.js.
 
 var { MailServices } = ChromeUtils.import(
@@ -142,57 +142,54 @@ function showCalendarWizard() {
  */
 async function MsgAccountManager(selectPage, server) {
   let win = Services.wm.getMostRecentWindow("mail:3pane");
-  if (win) {
-    // If the server wasn't specified, and we have the window open, try
-    // and use the currently selected folder to work out the server to select.
-    if (!server && typeof win.GetSelectedMsgFolders === "function") {
-      let folders = win.GetSelectedMsgFolders();
-      if (folders.length > 0) {
-        server = folders[0].server;
-      }
-    }
-    // If the server is still not found, account settings will default to
-    // the first account.
-
-    // If Account settings tab is already open, change the server
-    // and the selected page, reload the tab and switch to the tab.
-    let tabmail = win.document.getElementById("tabmail");
-    for (let tabInfo of tabmail.tabInfo) {
-      let tab = tabmail.getTabForBrowser(tabInfo.browser);
-      if (tab?.urlbar?.value == "about:accountsettings") {
-        tab.browser.contentDocument.documentElement.server = server;
-        tab.browser.contentDocument.documentElement.selectPage = selectPage;
-        tab.browser.contentWindow.onLoad();
-        tabmail.switchToTab(tabInfo);
-        return;
-      }
-    }
-
-    // Else fallback to opening a new tab in the window.
-    tabmail.openTab("contentTab", {
-      url: "about:accountsettings",
-      onLoad(event, browser) {
-        browser.contentDocument.documentElement.server = server;
-        browser.contentDocument.documentElement.selectPage = selectPage;
-        browser.contentDocument.getElementById("accounttree").focus();
+  if (!win) {
+    // No window available, so force open a new one.
+    openTab(
+      "contentTab",
+      {
+        url: "about:accountsettings",
+        onLoad(event, browser) {
+          browser.contentDocument.documentElement.server = server;
+          browser.contentDocument.documentElement.selectPage = selectPage;
+          browser.contentDocument.getElementById("accounttree").focus();
+        },
       },
-    });
+      "window"
+    );
     return;
   }
 
-  // No window available, so force open a new one.
-  openTab(
-    "contentTab",
-    {
-      url: "about:accountsettings",
-      onLoad(event, browser) {
-        browser.contentDocument.documentElement.server = server;
-        browser.contentDocument.documentElement.selectPage = selectPage;
-        browser.contentDocument.getElementById("accounttree").focus();
-      },
+  let tabmail = win.document.getElementById("tabmail");
+  // If the server wasn't specified, and we have the window open, try
+  // and use the currently selected folder to work out the server to select.
+  if (!server) {
+    server = tabmail.currentAbout3Pane?.gFolder ?? null;
+  }
+  // If the server is still not found, account settings will default to
+  // the first account.
+
+  // If Account settings tab is already open, change the server
+  // and the selected page, reload the tab and switch to the tab.
+  for (let tabInfo of tabmail.tabInfo) {
+    let tab = tabmail.getTabForBrowser(tabInfo.browser);
+    if (tab?.urlbar?.value == "about:accountsettings") {
+      tab.browser.contentDocument.documentElement.server = server;
+      tab.browser.contentDocument.documentElement.selectPage = selectPage;
+      tab.browser.contentWindow.onLoad();
+      tabmail.switchToTab(tabInfo);
+      return;
+    }
+  }
+
+  // Else fallback to opening a new tab in the window.
+  tabmail.openTab("contentTab", {
+    url: "about:accountsettings",
+    onLoad(event, browser) {
+      browser.contentDocument.documentElement.server = server;
+      browser.contentDocument.documentElement.selectPage = selectPage;
+      browser.contentDocument.getElementById("accounttree").focus();
     },
-    "window"
-  );
+  });
 }
 
 function loadInboxForNewAccount() {
@@ -351,13 +348,10 @@ function updateMailPaneUI() {
   }
 
   let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
-  // Show the folder pane.
-  mail3Pane.document.getElementById("folderPaneBox").collapsed = false;
-  mail3Pane.document.getElementById("folderpane_splitter").collapsed = false;
   // Set the folderPaneVisible to true in the tabmail to prevent collapsing
   // on tab switch.
   let tabmail = mail3Pane.document.getElementById("tabmail");
-  tabmail.tabInfo[0].folderDisplay.folderPaneVisible = true;
+  tabmail.tabInfo[0].folderPaneVisible = true;
 }
 
 /**

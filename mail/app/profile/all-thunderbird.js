@@ -563,19 +563,11 @@ pref("mail.tabs.loadInBackground", true);
 pref("mail.tabs.tabMinWidth", 100);
 pref("mail.tabs.tabMaxWidth", 250);
 pref("mail.tabs.tabClipWidth", 140);
-pref("mail.tabs.autoHide", false);
+pref("mail.tabs.autoHide", true);
 pref("mail.tabs.closeWindowWithLastTab", true);
 
 // Allow the tabs to be in the titlebar on supported systems
-#ifdef UNIX_BUT_NOT_MAC
-pref("mail.tabs.drawInTitlebar", false);
-#else
 pref("mail.tabs.drawInTitlebar", true);
-#endif
-
-// Offer additional drag space to the user. The drag space
-// will only be shown if browser.tabs.drawInTitlebar is true.
-pref("mail.tabs.extraDragSpace", false);
 
 // The breakpad report server to link to in about:crashes
 pref("breakpad.reportURL", "https://crash-stats.mozilla.com/report/index/");
@@ -1367,10 +1359,6 @@ pref("mail.compose.warn_public_recipients.threshold", 15);
 // too many public recipients notification is shown.
 pref("mail.compose.warn_public_recipients.aggressive", false);
 
-// Temporary pref while both 3-pane UIs exist.
-// Opens folders in about:3pane and messages in about:message if true.
-pref("mail.useNewMailTabs", false);
-
 // The URL of most things that can be printed is useless information.
 // Hide it and move the title to the center.
 pref("print.print_headerleft", "");
@@ -1418,3 +1406,11 @@ pref("services.sync.engine.prefs", false);
 pref("app.donation.eoy.version", 1);
 pref("app.donation.eoy.version.viewed", 0);
 pref("app.donation.eoy.url", "https://www.thunderbird.net/thunderbird/102.0/eoy/");
+
+// Unified toolbar
+
+// 0: icons beside text
+// 1: icons above text
+// 2: icons only
+// 3: text only
+pref("toolbar.unifiedtoolbar.buttonstyle", 0);

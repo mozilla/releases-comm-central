@@ -5,8 +5,6 @@
 /* import-globals-from ../../../mail/base/content/msgHdrView.js */
 /* import-globals-from item-editing/calendar-item-editing.js */
 
-/* globals gMessageDisplay, msgWindow */
-
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /**
@@ -82,98 +80,80 @@ var calImipBar = {
     Services.obs.removeObserver(calImipBar, "onItipItemCreation");
   },
 
-  observe(subject, topic, state) {
-    if (topic == "onItipItemCreation") {
-      if (!Services.prefs.getBoolPref("calendar.itip.showImipBar", true)) {
-        // Do not show the imip bar if the user has opted out of seeing it.
-        return;
-      }
-      // NOTE: Itip item is *about* to be loaded into the #messagepane when this
-      // callback is triggered by CalMimeConverter.convertToHTML.
-      let itipItem = null;
-      try {
-        if (!subject) {
-          let sinkProps = msgWindow.msgHeaderSink.properties;
-          // This property was set by CalMimeConverter.jsm.
-          itipItem = sinkProps.getPropertyAsInterface("itipItem", Ci.calIItipItem);
-        }
-      } catch (e) {
-        // This will throw on every message viewed that doesn't have the
-        // itipItem property set on it. So we eat the errors and move on.
-        // XXX TODO: Only swallow the errors we need to. Throw all others.
-      }
-      if (!itipItem || !gMessageDisplay.displayedMessage) {
-        return;
-      }
-
-      let imipMethod = gMessageDisplay.displayedMessage.getStringProperty("imip_method");
-      cal.itip.initItemFromMsgData(itipItem, imipMethod, gMessageDisplay.displayedMessage);
-
-      if (Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
-        window.dispatchEvent(new CustomEvent("onItipItemCreation", { detail: itipItem }));
-      }
-
-      imipBar.collapsed = false;
-      imipBar.label = cal.itip.getMethodText(itipItem.receivedMethod);
-
-      // This is triggered by CalMimeConverter.convertToHTML, so we know that
-      // the message is not yet loaded with the invite. Keep track of this for
-      // displayModifications.
-      calImipBar.overlayLoaded = false;
-
-      if (!Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
-        document.getElementById("messagepane").addEventListener(
-          "DOMContentLoaded",
-          () => {
-            calImipBar.overlayLoaded = true;
-
-            let doc = document.getElementById("messagepane").contentDocument;
-            let details = doc.getElementById("imipHTMLDetails");
-            let msgbody = doc.querySelector("div.moz-text-html");
-            if (!msgbody) {
-              details.setAttribute("open", "open");
-            } else {
-              // The HTML representation can contain important notes.
-
-              // For consistent appearance, move the generated meeting details first.
-              msgbody.prepend(details);
-
-              if (Services.prefs.getBoolPref("calendar.itip.imipDetailsOpen", true)) {
-                // Expand the iMIP details if pref says so.
-                details.setAttribute("open", "open");
-              }
-            }
-          },
-          {
-            once: true,
-          }
-        );
-      }
-      // NOTE: processItipItem may call setupOptions asynchronously because the
-      // getItem method it triggers is async for *some* calendars. In theory,
-      // this could complete after a different item has been loaded, so we
-      // record the loading item now, and early exit setupOptions if the loading
-      // item has since changed.
-      // NOTE: loadingItipItem is reset on changing messages in resetBar.
-      calImipBar.loadingItipItem = itipItem;
-      cal.itip.processItipItem(itipItem, calImipBar.setupOptions);
-
-      // NOTE: At this point we essentially have two parallel async operations:
-      // 1. Load the CalMimeConverter.convertToHTML into the #messagepane and
-      //    then set overlayLoaded to true.
-      // 2. Find a corresponding event through processItipItem and then call
-      //    setupOptions. Note that processItipItem may be instantaneous for
-      //    some calendars.
-      //
-      // In the mean time, if we switch messages, then loadingItipItem will be
-      // set to some other value: either another item, or null by resetBar.
-      //
-      // Once setupOptions is called, if the message has since changed we do
-      // nothing and exit. Otherwise, if we found a corresponding item in the
-      // calendar, we proceed to displayModifications. If overlayLoaded is true
-      // we update the #messagepane immediately, otherwise we update it on
-      // DOMContentLoaded, which has not yet happened.
+  showImipBar(itipItem, imipMethod) {
+    if (!Services.prefs.getBoolPref("calendar.itip.showImipBar", true)) {
+      // Do not show the imip bar if the user has opted out of seeing it.
+      return;
     }
+
+    // How we get here:
+    //
+    // 1. `mime_find_class` finds the `CalMimeConverter` class matches the
+    //      content-type of an attachment.
+    // 2. `mime_find_class` extracts the method from the attachments headers
+    //      and sets `imipMethod` on the message's mail channel.
+    // 3. `CalMimeConverter` is called to generate the HTML in the message.
+    //      It initialises `itipItem` and sets it on the channel.
+    // 4. msgHdrView.js gathers `itipItem` and `imipMethod` from the channel.
+
+    cal.itip.initItemFromMsgData(itipItem, imipMethod, gMessage);
+
+    if (Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
+      window.dispatchEvent(new CustomEvent("onItipItemCreation", { detail: itipItem }));
+    }
+
+    imipBar.collapsed = false;
+    imipBar.label = cal.itip.getMethodText(itipItem.receivedMethod);
+
+    // This is triggered by CalMimeConverter.convertToHTML, so we know that
+    // the message is not yet loaded with the invite. Keep track of this for
+    // displayModifications.
+    calImipBar.overlayLoaded = false;
+
+    if (!Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
+      calImipBar.overlayLoaded = true;
+
+      let doc = document.getElementById("messagepane").contentDocument;
+      let details = doc.getElementById("imipHTMLDetails");
+      let msgbody = doc.querySelector("div.moz-text-html");
+      if (!msgbody) {
+        details.setAttribute("open", "open");
+      } else {
+        // The HTML representation can contain important notes.
+
+        // For consistent appearance, move the generated meeting details first.
+        msgbody.prepend(details);
+
+        if (Services.prefs.getBoolPref("calendar.itip.imipDetailsOpen", true)) {
+          // Expand the iMIP details if pref says so.
+          details.setAttribute("open", "open");
+        }
+      }
+    }
+    // NOTE: processItipItem may call setupOptions asynchronously because the
+    // getItem method it triggers is async for *some* calendars. In theory,
+    // this could complete after a different item has been loaded, so we
+    // record the loading item now, and early exit setupOptions if the loading
+    // item has since changed.
+    // NOTE: loadingItipItem is reset on changing messages in resetBar.
+    calImipBar.loadingItipItem = itipItem;
+    cal.itip.processItipItem(itipItem, calImipBar.setupOptions);
+
+    // NOTE: At this point we essentially have two parallel async operations:
+    // 1. Load the CalMimeConverter.convertToHTML into the #messagepane and
+    //    then set overlayLoaded to true.
+    // 2. Find a corresponding event through processItipItem and then call
+    //    setupOptions. Note that processItipItem may be instantaneous for
+    //    some calendars.
+    //
+    // In the mean time, if we switch messages, then loadingItipItem will be
+    // set to some other value: either another item, or null by resetBar.
+    //
+    // Once setupOptions is called, if the message has since changed we do
+    // nothing and exit. Otherwise, if we found a corresponding item in the
+    // calendar, we proceed to displayModifications. If overlayLoaded is true
+    // we update the #messagepane immediately, otherwise we update it on
+    // DOMContentLoaded, which has not yet happened.
   },
 
   /**
@@ -305,7 +285,7 @@ var calImipBar = {
 
     // We override the bar label for sent out invitations and in case the event does not exist
     // anymore, we also clear the buttons if any to avoid e.g. accept/decline buttons
-    if (isOutgoing(gMessageDisplay.displayedMessage)) {
+    if (isOutgoing(gMessage)) {
       if (calImipBar.foundItems && calImipBar.foundItems[0]) {
         data.label = cal.l10n.getLtnString("imipBarSentText");
       } else {

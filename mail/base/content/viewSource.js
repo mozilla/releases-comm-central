@@ -134,3 +134,32 @@ function ViewSourceSavePage() {
     Services.scriptSecurityManager.getSystemPrincipal()
   );
 }
+
+/** Called by ContextMenuParent.sys.mjs */
+function openContextMenu({ data }, browser, actor) {
+  let popup = browser.ownerDocument.getElementById("viewSourceContextMenu");
+
+  let newEvent = document.createEvent("MouseEvent");
+  let screenX = data.context.screenXDevPx / window.devicePixelRatio;
+  let screenY = data.context.screenYDevPx / window.devicePixelRatio;
+  newEvent.initNSMouseEvent(
+    "contextmenu",
+    true,
+    true,
+    null,
+    0,
+    screenX,
+    screenY,
+    0,
+    0,
+    false,
+    false,
+    false,
+    false,
+    2,
+    null,
+    0,
+    data.context.mozInputSource
+  );
+  popup.openPopupAtScreen(newEvent.screenX, newEvent.screenY, true, newEvent);
+}

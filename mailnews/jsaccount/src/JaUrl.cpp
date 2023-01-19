@@ -130,10 +130,6 @@ NS_IMETHODIMP JaBaseCppUrl::GetMessageHeader(nsIMsgDBHdr** aMessageHeader) {
   return NS_OK;
 }
 
-NS_IMETHODIMP JaBaseCppUrl::SetMessageHeader(nsIMsgDBHdr* aMsgHdr) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 // msgIJaUrl implementation
 NS_IMETHODIMP JaBaseCppUrl::SetUrlType(unsigned int type) {
   m_urlType = type;

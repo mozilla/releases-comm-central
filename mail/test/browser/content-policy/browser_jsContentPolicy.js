@@ -17,6 +17,7 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
+  get_about_message,
   select_click_row,
   select_none,
 } = ChromeUtils.import(
@@ -33,11 +34,15 @@ var { MailE10SUtils } = ChromeUtils.import(
   "resource:///modules/MailE10SUtils.jsm"
 );
 
+let aboutMessage = get_about_message();
+
 var folder;
 registerCleanupFunction(async () => {
   let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   folder.deleteSelf(window.msgWindow);
   await promptPromise;
+
+  Services.focus.focusedWindow = window;
 });
 
 var url =
@@ -134,7 +139,7 @@ var jsMsgBody =
 
 var gMsgNo = 0;
 
-var messagePane = document.getElementById("messagepane");
+var messagePane = aboutMessage.document.getElementById("messagepane");
 
 add_setup(async function() {
   folder = await create_folder("jsContentPolicy");
@@ -144,7 +149,7 @@ add_setup(async function() {
  * Check JavaScript is disabled when loading messages in the message pane.
  */
 add_task(async function testJsInMail() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   let msgDbHdr = addToFolder("JS test message " + gMsgNo, jsMsgBody, folder);
 
@@ -201,7 +206,7 @@ add_task(async function testJsInRemoteContent() {
  * after remote content has been displayed there.
  */
 add_task(async function testJsInMailAgain() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   let msgDbHdr = addToFolder("JS test message " + gMsgNo, jsMsgBody, folder);
 
@@ -241,7 +246,7 @@ function assertJSDisabledInEditor() {
  * Check JavaScript is disabled in the editor.
  */
 add_task(async function testJsInMailReply() {
-  be_in_folder(folder);
+  await be_in_folder(folder);
 
   var body = jsMsgBody.replace(
     "</body>",

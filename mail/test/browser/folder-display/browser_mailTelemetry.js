@@ -17,9 +17,20 @@ let {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+let { SmimeUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/smimeUtils.jsm"
+);
 let { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
+
+add_setup(function() {
+  SmimeUtils.ensureNSS();
+  SmimeUtils.loadCertificateAndKey(
+    new FileUtils.File(getTestFilePath("../openpgp/data/smime/Bob.p12")),
+    "nss"
+  );
+});
 
 /**
  * Check that we're counting secure mails read.
@@ -46,7 +57,10 @@ add_task(async function test_secure_mails_read() {
     await add_message_to_folder(
       [folder],
       create_encrypted_smime_message({
-        clobberHeaders: headers,
+        to: "Bob@example.com",
+        body: {
+          body: smimeMessage,
+        },
       })
     );
   }
@@ -60,7 +74,7 @@ add_task(async function test_secure_mails_read() {
   }
 
   // Select (read) all added mails.
-  be_in_folder(folder);
+  await be_in_folder(folder);
   for (
     let i = 0;
     i < NUM_PLAIN_MAILS + NUM_SMIME_MAILS + NUM_OPENPGP_MAILS;
@@ -102,3 +116,20 @@ add_task(async function test_secure_mails_read() {
     "Count of openpgp encrypted mails read must still be correct."
   );
 });
+
+var smimeMessage = [
+  "MIAGCSqGSIb3DQEHA6CAMIACAQAxggGFMIIBgQIBADBpMGQxCzAJBgNVBAYTAlVT",
+  "MRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRIw",
+  "EAYDVQQKEwlCT0dVUyBOU1MxFDASBgNVBAMTC05TUyBUZXN0IENBAgEoMA0GCSqG",
+  "SIb3DQEBAQUABIIBAByaXGnoQAgRiPjvcpotJWBQwXjAxYldgMaT/hEX0Hlnas6m",
+  "OcBIOJLB9CHhmBOSo/yryDOnRcl9l1cQYzSEpExYSGoVzPCpPOLKw5C/A+6NFzpe",
+  "44EUX5/gVbVeQ4fl2dOB3NbW5Cnx3Js7O1MFr8UPFOh31TBhvWjOMl+3CkMWndUi",
+  "G4C/srgdeuQRdKJcWoROtBjQuibVHfn0TcA7olIj8ysmJoTT3Irx625Sh5mDDVbJ",
+  "UyR2WWqw6wPAaCS2urUXtYrEuxsr7EmdcZc0P6oikzf/KoMvzBWBmWJXad1QSdeO",
+  "s5Bk2MYKXoM9Iqddr/n9mvg4jJNnFMzG0cFKCAgwgAYJKoZIhvcNAQcBMB0GCWCG",
+  "SAFlAwQBAgQQ2QrTbolonzr0vAfmGH2nJ6CABIGQKA2mKyOQShspbeDIf/QlYHg+",
+  "YbiqdhlENHHM5V5rICjM5LFzLME0TERDJGi8tATlqp3rFOswFDGiymK6XZrpQZiW",
+  "TBTEa2E519Mw86NEJ1d/iy4aLpPjATH2rhZLm3dix42mFI5ToszGNu9VuDWDiV4S",
+  "sA798v71TaSlFwh9C3VwODQ8lWwyci4aD3wdxevGBBC3fYMuEns+NIQhqpzlUADX",
+  "AAAAAAAAAAAAAA==",
+].join("\n");

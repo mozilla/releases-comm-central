@@ -1,0 +1,133 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+#include ./unifiedToolbarCustomizableItems.inc.xhtml
+
+<html:template id="searchBarTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <form>
+    <input type="search" placeholder="" required="required" />
+    <div aria-hidden="true"><slot name="placeholder"></slot></div>
+    <button><slot name="button"></slot></button>
+  </form>
+</html:template>
+
+<html:template id="unifiedToolbarTemplate">
+# Required for placing the window controls in the proper place without having
+# them inside the toolbar.
+  <html:div id="unifiedToolbarContainer">
+    <html:div id="unifiedToolbar" role="toolbar">
+#include ../../../base/content/spacesToolbarPin.inc.xhtml
+      <html:ul id="unifiedToolbarContent" class="unified-toolbar">
+      </html:ul>
+      <html:div id="notification-popup-box" hidden="true">
+        <html:img id="addons-notification-icon"
+                  src="chrome://messenger/skin/icons/new/compact/extension.svg"
+                  alt=""
+                  class="notification-anchor-icon"
+                  role="button" />
+      </html:div>
+      <toolbarbutton id="button-appmenu"
+                     type="menu"
+                     badged="true"
+                     class="toolbarbutton-1 button-appmenu"
+                     label="&appmenuButton.label;"
+                     tooltiptext="&appmenuButton1.tooltip;" />
+    </html:div>
+#include ../../../base/content/messenger-titlebar-items.inc.xhtml
+  </html:div>
+</html:template>
+
+<html:template id="unifiedToolbarCustomizationTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <form id="unifiedToolbarCustomizationContainer"
+        aria-labelledby="customizationHeading">
+    <h1 id="customizationHeading" data-l10n-id="customize-title"></h1>
+    <div role="tablist" id="customizationTabs" data-l10n-id="customize-spaces-tabs"></div>
+    <div id="customizationFooter">
+      <div>
+        <button type="reset" data-l10n-id="customize-restore-default"></button>
+        <button id="customizationToSettingsButton"
+                type="button"
+                class="link"
+                data-l10n-id="customize-change-appearance"></button>
+      </div>
+      <div>
+        <label>
+          <span data-l10n-id="customize-button-style-label"></span>
+          <xul:menulist id="buttonStyle" value="icons-beside-text">
+            <xul:menupopup>
+              <xul:menuitem value="icons-beside-text"
+                            data-l10n-id="customize-button-style-icons-beside-text"
+                            default="default" />
+              <xul:menuitem value="icons-above-text"
+                            data-l10n-id="customize-button-style-icons-above-text" />
+              <xul:menuitem value="icons-only"
+                            data-l10n-id="customize-button-style-icons-only" />
+              <xul:menuitem value="text-only"
+                            data-l10n-id="customize-button-style-text-only" />
+            </xul:menupopup>
+          </xul:menulist>
+        </label>
+      </div>
+      <div>
+        <button id="unifiedToolbarCustomizationCancel"
+                type="button"
+                data-l10n-id="customize-cancel"></button>
+        <button type="submit"
+                class="primary"
+                data-l10n-id="customize-save"
+                disabled="disabled"></button>
+      </div>
+    </div>
+    <small id="unifiedToolbarCustomizationUnsavedChanges"
+           data-l10n-id="customize-unsaved-changes"
+           hidden="hidden"></small>
+  </form>
+</html:template>
+
+<html:template id="unifiedToolbarTabTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button role="tab">
+    <img alt="" src="" part="icon" />
+    <slot></slot>
+  </button>
+</html:template>
+
+<html:template id="unifiedToolbarCustomizationPaneTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <ul is="customization-target"
+      data-l10n-id="customize-main-toolbar-target"
+      class="toolbar-target unified-toolbar"></ul>
+  <search-bar data-l10n-id="customize-search-bar"
+              data-l10n-attrs="label"
+              class="palette-search">
+    <img data-l10n-id="search-bar-button"
+         slot="button"
+         src=""
+         class="search-button-icon" />
+  </search-bar>
+  <h2 class="space-specific-title"></h2>
+  <ul is="customization-palette" class="space-specific-palette">
+  </ul>
+  <h2 data-l10n-id="customize-palette-generic-title"
+      class="generic-palette-title"></h2>
+  <ul is="customization-palette" space="all" class="generic-palette">
+  </ul>
+</html:template>
+
+<html:template id="unifiedToolbarCustomizableElementTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <div class="live-content"></div>
+  <div class="preview">
+    <img src="" alt="" class="preview-icon" />
+    <span class="preview-label"></span>
+  </div>
+</html:template>
+
+<html:template id="unifiedToolbarButtonTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <img class="button-icon" alt="" src="" />
+  <span class="button-label"></span>
+</html:template>

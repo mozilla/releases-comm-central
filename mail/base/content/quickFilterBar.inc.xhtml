@@ -2,104 +2,75 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-    <vbox id="quick-filter-bar" class="themeable-brighttext">
-      <hbox id="quick-filter-bar-main-bar" align="center"
-            onoverflow="QuickFilterBarMuxer.onOverflow();"
-            >
-        <toolbarbutton id="qfb-sticky" type="checkbox"
-                       class="toolbarbutton-1 icon-only" orient="horizontal"
-                       crop="none" style="min-width:16px;"
-                       tooltiptext="&quickFilterBar.sticky.tooltip;"
-                       />
-        <!-- Extensions, put your labeled buttons in the following box. -->
-        <hbox id="quick-filter-bar-collapsible-buttons">
-          <toolbarseparator id="qfb-separator"/>
-          <toolbarbutton id="qfb-unread" type="checkbox"
-                         class="toolbarbutton-1" orient="horizontal"
-                         crop="none" style="min-width:16px;"
-                         label="&quickFilterBar.unread.label;"
-                         tooltiptext="&quickFilterBar.unread.tooltip;"
-                         />
-          <toolbarbutton id="qfb-starred" type="checkbox"
-                         class="toolbarbutton-1" orient="horizontal"
-                         crop="none" style="min-width:16px;"
-                         label="&quickFilterBar.starred.label;"
-                         tooltiptext="&quickFilterBar.starred.tooltip;"
-                         />
-          <toolbarbutton id="qfb-inaddrbook" type="checkbox"
-                         class="toolbarbutton-1" orient="horizontal"
-                         crop="none" style="min-width:16px;"
-                         label="&quickFilterBar.inaddrbook.label;"
-                         tooltiptext="&quickFilterBar.inaddrbook.tooltip;"
-                         />
-          <toolbarbutton id="qfb-tags" type="checkbox"
-                         class="toolbarbutton-1" orient="horizontal"
-                         crop="none" style="min-width:16px;"
-                         label="&quickFilterBar.tags.label;"
-                         tooltiptext="&quickFilterBar.tags.tooltip;"
-                         />
-          <toolbarbutton id="qfb-attachment" type="checkbox"
-                         class="toolbarbutton-1" orient="horizontal"
-                         crop="none" style="min-width:16px;"
-                         label="&quickFilterBar.attachment.label;"
-                         tooltiptext="&quickFilterBar.attachment.tooltip;"/>
-        </hbox>
-        <toolbarspacer id="qfb-filter-bar-spacer" flex="1" align="end"/>
-        <!-- I added a minwidth and end text-align because otherwise the change
-             in dimensions causes ugly flex rearrangement of the textbox. -->
-        <label id="qfb-results-label"
-               style="min-width:&quickFilterBar.resultsLabel.minWidth;px"
-               value=""
-               somefmtstring="&quickFilterBar.resultsLabel.some.formatString;"
-               noresultsstring="&quickFilterBar.resultsLabel.none;"
-               />
-        <search-textbox id="qfb-qs-textbox"
-                        class="themeableSearchBox"
-                        placeholder=""
-                        emptytextbase="&quickFilterBar.textbox.emptyText.base1;"
-                        keyLabelNonMac="&quickFilterBar.textbox.emptyText.keyLabel2.nonmac;"
-                        keyLabelMac="&quickFilterBar.textbox.emptyText.keyLabel2.mac;"
-                        timeout="500"
-                        maxlength="192"
-                        width="320"
-                        style="min-width:280px;"/>
-      </hbox>
-      <hbox id="quick-filter-bar-expando">
-        <arrowscrollbox id="quick-filter-bar-tab-bar"
-                        orient="horizontal"
-                        collapsed="true">
-        <menulist id="qfb-boolean-mode"
-                  tooltiptext="&quickFilterBar.booleanMode.tooltip;"
+    <div id="quick-filter-bar" class="themeable-brighttext">
+      <div id="quick-filter-bar-main-bar">
+        <button is="toggle-button" id="qfb-sticky"
+                data-l10n-id="quick-filter-bar-sticky">
+          <img />
+        </button>
+        <button is="toggle-button" id="qfb-unread"
+                class="collapsible-button"
+                data-l10n-id="quick-filter-bar-unread">
+          <img />
+          <span data-l10n-id="quick-filter-bar-unread-label"></span>
+        </button>
+        <button is="toggle-button" id="qfb-starred"
+                class="collapsible-button"
+                data-l10n-id="quick-filter-bar-starred">
+          <img />
+          <span data-l10n-id="quick-filter-bar-starred-label"></span>
+        </button>
+        <button is="toggle-button" id="qfb-inaddrbook"
+                class="collapsible-button"
+                data-l10n-id="quick-filter-bar-inaddrbook">
+          <img />
+          <span data-l10n-id="quick-filter-bar-inaddrbook-label"></span>
+        </button>
+        <button is="toggle-button" id="qfb-tags"
+                class="collapsible-button"
+                data-l10n-id="quick-filter-bar-tags">
+          <img />
+          <span data-l10n-id="quick-filter-bar-tags-label"></span>
+        </button>
+        <button is="toggle-button" id="qfb-attachment"
+                class="collapsible-button"
+                data-l10n-id="quick-filter-bar-attachment">
+          <img />
+          <span data-l10n-id="quick-filter-bar-attachment-label"></span>
+        </button>
+        <span id="qfb-results-label"></span>
+        <xul:search-textbox id="qfb-qs-textbox"
+                            class="themeableSearchBox"
+                            timeout="500"
+                            maxlength="192"
+                            data-l10n-id="quick-filter-bar-textbox"
+                            data-l10n-attrs="placeholder"/>
+      </div>
+      <div id="quick-filter-bar-expando">
+        <div id="quick-filter-bar-tab-bar" hidden="hidden">
+          <select id="qfb-boolean-mode"
+                  data-l10n-id="quick-filter-bar-boolean-mode"
                   persist="value">
-          <menupopup id="qfb-boolean-mode-popup">
-            <menuitem id="qfb-boolean-mode-or" value="OR"
-                      label="&quickFilterBar.booleanModeAny.label;"
-                      tooltiptext="&quickFilterBar.booleanModeAny.tooltip;"/>
-            <menuitem id="qfb-boolean-mode-and" value="AND"
-                      label="&quickFilterBar.booleanModeAll.label;"
-                      tooltiptext="&quickFilterBar.booleanModeAll.tooltip;"/>
-          </menupopup>
-        </menulist>
-        </arrowscrollbox>
-        <hbox id="quick-filter-bar-filter-text-bar"
-              collapsed="true"
-              pack="end"
-              align="center"
-              flex="1">
-          <label id="qfb-qs-label"
-                 value="&quickFilterBar.textFilter.explanation.label;"/>
-          <toolbarbutton id="qfb-qs-sender" type="checkbox"
-                         class="toolbarbutton-1" orient="horizontal"
-                         label="&quickFilterBar.textFilter.sender.label;" />
-          <toolbarbutton id="qfb-qs-recipients" type="checkbox"
-                         class="toolbarbutton-1" orient="horizontal"
-                         label="&quickFilterBar.textFilter.recipients.label;" />
-          <toolbarbutton id="qfb-qs-subject" type="checkbox"
-                         class="toolbarbutton-1" orient="horizontal"
-                         label="&quickFilterBar.textFilter.subject.label;" />
-          <toolbarbutton id="qfb-qs-body" type="checkbox"
-                         class="toolbarbutton-1" orient="horizontal"
-                         label="&quickFilterBar.textFilter.body.label;" />
-        </hbox>
-      </hbox>
-    </vbox>
+            <option id="qfb-boolean-mode-or"
+                    value="OR"
+                    data-l10n-id="quick-filter-bar-boolean-mode-any"/>
+            <option id="qfb-boolean-mode-and"
+                    value="AND"
+                    data-l10n-id="quick-filter-bar-boolean-mode-all"/>
+          </select>
+        </div>
+        <div style="flex: 1;"></div>
+        <div id="quick-filter-bar-filter-text-bar" hidden="hidden">
+          <span id="qfb-qs-label"
+                data-l10n-id="quick-filter-bar-text-filter-explanation"></span>
+          <button is="toggle-button" id="qfb-qs-sender"
+                  data-l10n-id="quick-filter-bar-text-filter-sender"></button>
+          <button is="toggle-button" id="qfb-qs-recipients"
+                  data-l10n-id="quick-filter-bar-text-filter-recipients"></button>
+          <button is="toggle-button" id="qfb-qs-subject"
+                  data-l10n-id="quick-filter-bar-text-filter-subject"></button>
+          <button is="toggle-button" id="qfb-qs-body"
+                  data-l10n-id="quick-filter-bar-text-filter-body"></button>
+        </div>
+      </div>
+    </div>

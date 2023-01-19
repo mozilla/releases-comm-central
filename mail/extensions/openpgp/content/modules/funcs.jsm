@@ -522,11 +522,7 @@ var EnigmailFuncs = {
         return null;
       }
 
-      let messenger = Cc["@mozilla.org/messenger;1"].getService(
-        Ci.nsIMessenger
-      );
-      let msgService = messenger.messageServiceFromURI(uriSpec);
-
+      let msgService = MailServices.messageServiceFromURI(uriSpec);
       let url = msgService.getUrlForUri(uriSpec);
 
       if (url.scheme == "file") {

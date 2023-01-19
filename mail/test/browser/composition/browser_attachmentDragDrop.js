@@ -7,8 +7,6 @@
  * message compose window.
  */
 
-/* globals gFolderTreeView */
-
 "use strict";
 
 var { AppConstants } = ChromeUtils.importESModule(
@@ -27,14 +25,15 @@ var {
   add_attachments,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
-  mc,
+  add_message_to_folder,
+  be_in_folder,
   create_folder,
   create_message,
-  add_message_to_folder,
-  select_click_row,
-  be_in_folder,
-  inboxFolder,
   FAKE_SERVER_HOSTNAME,
+  get_about_message,
+  inboxFolder,
+  mc,
+  select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -55,8 +54,6 @@ const kFiles = [
 ];
 
 add_setup(async function() {
-  gFolderTreeView._tree.focus();
-
   // Prepare the mock file picker.
   gMockFilePickReg.register();
   gMockFilePicker.returnFiles = collectFiles(kFiles);
@@ -72,9 +69,6 @@ registerCleanupFunction(async function() {
   // Remove the cloudFile account and unregister the provider.
   await gCloudFileProvider.removeAccount(gCloudFileAccount);
   await gCloudFileProvider.unregister();
-
-  // Work around this test timing out at completion because of focus weirdness.
-  window.gFolderDisplay.tree.focus();
 });
 
 function getDragOverTarget(win) {
@@ -261,17 +255,15 @@ add_task(async function test_message_drag() {
   let folder = await create_folder("dragondrop");
   let subject = "Dragons don't drop from the sky";
   let body = "Dragons can fly after all.";
-  be_in_folder(folder);
+  await be_in_folder(folder);
   await add_message_to_folder(
     [folder],
     create_message({ subject, body: { body } })
   );
   select_click_row(0);
 
-  let [msgStr] = window.gFolderDisplay.selectedMessageUris;
-  let msgUrl = window.messenger
-    .messageServiceFromURI(msgStr)
-    .getUrlForUri(msgStr);
+  let msgStr = get_about_message().gMessageURI;
+  let msgUrl = MailServices.messageServiceFromURI(msgStr).getUrlForUri(msgStr);
 
   let cwc = open_compose_new_mail();
 
@@ -304,7 +296,7 @@ add_task(async function test_message_drag() {
   Assert.notEqual(attachment, 0, "Message is not 0 bytes");
 
   close_compose_window(cwc);
-  be_in_folder(inboxFolder);
+  await be_in_folder(inboxFolder);
   folder.deleteSelf(null);
 });
 
@@ -631,16 +623,19 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
       }),
     })
   );
-  be_in_folder(folder);
+  await be_in_folder(folder);
   select_click_row(0);
-  let srcAttachmentArea = mc.window.document.getElementById("attachmentView");
+  let aboutMessage = get_about_message();
+  let srcAttachmentArea = aboutMessage.document.getElementById(
+    "attachmentView"
+  );
   Assert.ok(!srcAttachmentArea.collapsed, "Attachment area is visible");
 
-  let srcBucket = mc.window.document.getElementById("attachmentList");
+  let srcBucket = aboutMessage.document.getElementById("attachmentList");
   EventUtils.synthesizeMouseAtCenter(
-    mc.window.document.getElementById("attachmentBar"),
+    aboutMessage.document.getElementById("attachmentBar"),
     {},
-    mc.window
+    aboutMessage
   );
   Assert.ok(!srcBucket.collapsed, "Attachment list is visible");
 

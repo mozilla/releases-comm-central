@@ -297,10 +297,12 @@ add_task(async function test_mail_account_setup() {
 
   // Confirm that we properly updated the folderPaneVisible attribute for the
   // tabmail when we created the account in the background.
-  Assert.ok(mc.folderDisplay.folderPaneVisible);
+  Assert.ok(mc.tabmail.currentTabInfo.folderPaneVisible);
 
   // Confirm that the folder pane is visible.
-  Assert.ok(!mc.e("folderPaneBox").collapsed);
+  Assert.ok(
+    BrowserTestUtils.is_visible(mc.tabmail.currentAbout3Pane.folderTree)
+  );
 
   let promptState = gMockPromptService.promptState;
   Assert.equal("confirm", promptState.method);
@@ -906,8 +908,8 @@ add_task(async function test_full_account_setup() {
 
   // Confirm the mail 3 pane is the currently selected tab.
   Assert.equal(
-    mc.tabmail.selectedTab.mode.type,
-    "folder",
+    mc.tabmail.selectedTab.mode.name,
+    "mail3PaneTab",
     "The currently selected tab is the primary Mail tab"
   );
 
