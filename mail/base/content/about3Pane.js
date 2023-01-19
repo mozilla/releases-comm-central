@@ -2287,24 +2287,39 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
         continue;
       }
 
+      const propertiesSet = new Set(properties.split(" "));
+
       // Special case for the subject column.
       if (column.id == "subjectCol") {
+        let div = document.createElement("div");
+        div.classList.add("subject-line");
+        div.tabIndex = -1;
+
+        let image = document.createElement("img");
+        image.src = "";
+        image.alt = "";
+        div.appendChild(image);
+
+        let imageFluentID = this.#getMessageIndicatorString(propertiesSet);
+        if (imageFluentID) {
+          document.l10n.setAttributes(image, imageFluentID);
+        }
+
         let span = document.createElement("span");
-        span.classList.add("subject-line");
-        span.tabIndex = -1;
         span.textContent = this.view.cellTextForColumn(index, column.id);
+        div.appendChild(span);
         cell
           .querySelector(".thread-container")
-          .replaceChildren(this.twisty, span);
+          .replaceChildren(this.twisty, div);
         // Indent child message of this thread.
-        span.style.setProperty("--thread-level", this.view.getLevel(index));
+        div.style.setProperty("--thread-level", this.view.getLevel(index));
         continue;
       }
 
       if (column.id == "flaggedCol") {
         document.l10n.setAttributes(
           cell.querySelector("button"),
-          properties.split(" ").find(p => p == "flagged")
+          propertiesSet.has("flagged")
             ? "tree-list-view-row-flagged"
             : "tree-list-view-row-flag"
         );
@@ -2313,7 +2328,7 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
       if (column.id == "junkStatusCol") {
         document.l10n.setAttributes(
           cell.querySelector("button"),
-          properties.split(" ").find(p => p == "junk")
+          propertiesSet.has("junk")
             ? "tree-list-view-row-spam"
             : "tree-list-view-row-not-spam"
         );
@@ -2339,6 +2354,53 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
       "aria-label",
       this.view.cellTextForColumn(index, "subjectCol")
     );
+  }
+
+  /**
+   * Find the fluent ID matching the current message state.
+   *
+   * @param {Set} propertiesSet - The Set() of properties for the row.
+   * @returns {?string} - The fluent ID string if we found one, otherwise null.
+   */
+  #getMessageIndicatorString(propertiesSet) {
+    // Bail out early if this is a new message since it can't be anything else.
+    if (propertiesSet.has("new")) {
+      return "threadpane-message-new";
+    }
+
+    const isReplied = propertiesSet.has("replied");
+    const isForwarded = propertiesSet.has("forwarded");
+    const isRedirected = propertiesSet.has("redirected");
+
+    if (isReplied && !isForwarded && !isRedirected) {
+      return "threadpane-message-replied";
+    }
+
+    if (isRedirected && !isForwarded && !isReplied) {
+      return "threadpane-message-redirected";
+    }
+
+    if (isForwarded && !isReplied && !isRedirected) {
+      return "threadpane-message-forwarded";
+    }
+
+    if (isReplied && isForwarded && !isRedirected) {
+      return "threadpane-message-replied-forwarded";
+    }
+
+    if (isReplied && isRedirected && !isForwarded) {
+      return "threadpane-message-replied-redirected";
+    }
+
+    if (isForwarded && isRedirected && !isReplied) {
+      return "threadpane-message-forwarded-redirected";
+    }
+
+    if (isReplied && isForwarded && isRedirected) {
+      return "threadpane-message-replied-forwarded-redirected";
+    }
+
+    return null;
   }
 }
 customElements.define("thread-listrow", ThreadListrow, { extends: "tr" });

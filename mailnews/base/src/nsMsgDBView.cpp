@@ -1219,6 +1219,8 @@ nsMsgDBView::GetRowProperties(int32_t index, nsAString& properties) {
     return NS_MSG_INVALID_DBVIEW_INDEX;
   }
 
+  if (IsOutgoingMsg(msgHdr)) properties.AppendLiteral(" outgoing");
+
   nsCString keywordProperty;
   FetchRowKeywords(index, msgHdr, keywordProperty);
   bool tagAdded = false;

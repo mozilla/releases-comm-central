@@ -100,6 +100,11 @@
   background-color: var(--listbox-focused-selected-bg);
 }
 
+[is="tree-view-listbox"]:focus > .selected img {
+  fill: color-mix(in srgb, currentColor 40%, transparent) !important;
+  stroke: currentColor !important;
+}
+
 [is="tree-view-listbox"]:focus > .current.selected {
   outline: 1px dashed var(--listbox-selected-color);
   outline-offset: -1px;

@@ -151,6 +151,10 @@ tr[data-properties~="unread"] .tree-view-row-unread img {
   stroke: var(--thread-pane-unread-stroke);
 }
 
+tr[data-properties~="unread"].selected .tree-view-row-unread button {
+  opacity: 1;
+}
+
 .tree-view-row-unread button:hover {
   opacity: 1;
   background-color: transparent;
@@ -197,6 +201,74 @@ tr[is="thread-listrow"] .subject-line {
 
 tr[is="thread-listrow"]:not(.children) .subject-line {
   padding-inline-start: 22px;
+}
+
+tr[is="thread-listrow"] .subject-line img {
+  visibility: hidden;
+  width: 16px;
+  height: 16px;
+  vertical-align: sub;
+  margin-inline-end: 6px;
+}
+
+/* Icons variations for message state in subject column */
+
+tr[data-properties~="new"] .subject-line img {
+  visibility: initial;
+  content: var(--icon-notify);
+  fill: var(--color-yellow-40) !important; /* override the selected, focus rule */
+  stroke: var(--color-orange-50) !important; /* override the selected, focus rule */
+}
+
+tr[data-properties~="replied"] .subject-line img {
+  visibility: initial;
+  content: var(--icon-reply-col);
+  fill: var(--color-purple-50);
+}
+
+tr[data-properties~="redirected"] .subject-line img {
+  visibility: initial;
+  content: var(--icon-redirect-col);
+  fill: var(--color-orange-50);
+}
+
+tr[data-properties~="forwarded"] .subject-line img {
+  visibility: initial;
+  content: var(--icon-forward-col);
+  fill: var(--color-blue-50);
+}
+
+tr[data-properties~="replied"][data-properties~="forwarded"] .subject-line img {
+  visibility: initial;
+  content: var(--icon-reply-forward-col);
+  fill: var(--color-blue-50);
+  stroke: var(--color-purple-50);
+}
+
+tr[data-properties~="replied"][data-properties~="redirected"] .subject-line img {
+  visibility: initial;
+  content: var(--icon-reply-redirect-col);
+  fill: var(--color-orange-50);
+  stroke: var(--color-purple-50);
+}
+
+tr[data-properties~="forwarded"][data-properties~="redirected"] .subject-line img {
+  visibility: initial;
+  content: var(--icon-forward-redirect-col);
+  fill: var(--color-blue-50);
+  stroke: var(--color-orange-50);
+}
+
+tr[data-properties~="replied"][data-properties~="forwarded"][data-properties~="redirected"] .subject-line img {
+  visibility: initial;
+  content: var(--icon-reply-forward-redirect-col);
+  fill: var(--color-blue-50);
+  stroke: var(--color-purple-50);
+}
+
+[is="tree-view-listbox"]:focus > .selected .subject-line img {
+  fill: currentColor !important;
+  stroke: currentColor !important;
 }
 
 tr[is="thread-listrow"] .twisty {

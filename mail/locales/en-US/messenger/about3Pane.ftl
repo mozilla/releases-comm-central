@@ -239,3 +239,37 @@ threadpane-column-header-delete =
   .title = Delete a message
 threadpane-column-label-delete =
   .label = Delete
+
+## Message state variations
+
+threadpane-message-new =
+  .alt = New message indicator
+  .title = New message
+
+threadpane-message-replied =
+  .alt = Replied indicator
+  .title = Message replied
+
+threadpane-message-redirected =
+  .alt = Redirected indicator
+  .title = Message redirected
+
+threadpane-message-forwarded =
+  .alt = Forwarded indicator
+  .title = Message forwarded
+
+threadpane-message-replied-forwarded =
+  .alt = Replied and forwarded indicator
+  .title = Message replied and forwarded
+
+threadpane-message-replied-redirected =
+  .alt = Replied and redirected indicator
+  .title = Message replied and redirected
+
+threadpane-message-forwarded-redirected =
+  .alt = Forwarded and redirected indicator
+  .title = Message forwarded and redirected
+
+threadpane-message-replied-forwarded-redirected =
+  .alt = Replied, forwarded, and redirected indicator
+  .title = Message replied, forwarded, and redirected
