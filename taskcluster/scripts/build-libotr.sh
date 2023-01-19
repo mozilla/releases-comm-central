@@ -12,6 +12,9 @@ GECKO_PATH=${GECKO_PATH:-"/builds/worker/workspace/build/src"}
 MOZ_FETCHES_DIR=${MOZ_FETCHES_DIR:-"/builds/worker/fetches"}
 UPLOAD_DIR=${UPLOAD_DIR:-"/builds/worker/artifacts"}
 WORKSPACE=${WORKSPACE:-"${HOME}/workspace"}
+MACOS_SDK_DIR=${MACOS_SDK_DIR:-"MacOSX11.3.sdk"}
+MACOS_TARGET_SDK=${MACOS_TARGET_SDK:-"10.12"}
+
 
 # Set $DEVEL_TESTING during script development on a local machine
 if [[ -n ${DEVEL_TESTING} ]]; then
@@ -222,13 +225,13 @@ case "${_TARGET_OS}" in
         export PATH
 
         export _TARGET_TRIPLE="x86_64-apple-darwin"
-        export MACOS_SDK_DIR="${MOZ_FETCHES_DIR}/MacOSX11.3.sdk"
+        export MACOS_SDK_DIR="${MOZ_FETCHES_DIR}/${MACOS_SDK_DIR}"
         export CROSS_PRIVATE_FRAMEWORKS="${MACOS_SDK_DIR}/System/Library/PrivateFrameworks"
         export CROSS_SYSROOT="${MACOS_SDK_DIR}"
 
         export CC="${_TARGET_TRIPLE}-clang"
         export LD="${_TARGET_TRIPLE}-ld"
-        export CFLAGS="-isysroot ${CROSS_SYSROOT} -mmacosx-version-min=10.12"
+        export CFLAGS="-isysroot ${CROSS_SYSROOT} -mmacosx-version-min=${MACOS_TARGET_SDK}"
         export LDFLAGS="-isysroot ${CROSS_SYSROOT}"
         export DSYMUTIL="${MOZ_FETCHES_DIR}/llvm-dsymutil/llvm-dsymutil"
 
@@ -245,13 +248,13 @@ case "${_TARGET_OS}" in
         export PATH
 
         export _TARGET_TRIPLE="aarch64-apple-darwin"
-        export MACOS_SDK_DIR="${MOZ_FETCHES_DIR}/MacOSX11.3.sdk"
+        export MACOS_SDK_DIR="${MOZ_FETCHES_DIR}/${MACOS_SDK_DIR}"
         export CROSS_PRIVATE_FRAMEWORKS="${MACOS_SDK_DIR}/System/Library/PrivateFrameworks"
         export CROSS_SYSROOT="${MACOS_SDK_DIR}"
 
         export CC="${_TARGET_TRIPLE}-clang"
         export LD="${_TARGET_TRIPLE}-ld"
-        export CFLAGS="-isysroot ${CROSS_SYSROOT} -mmacosx-version-min=11.0"
+        export CFLAGS="-isysroot ${CROSS_SYSROOT} -mmacosx-version-min=${MACOS_TARGET_SDK}"
         export LDFLAGS="-isysroot ${CROSS_SYSROOT}"
         export DSYMUTIL="${MOZ_FETCHES_DIR}/llvm-dsymutil/llvm-dsymutil"
 

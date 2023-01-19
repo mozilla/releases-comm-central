@@ -55,6 +55,10 @@ linux-aarch64-libotr:
 macosx64-x64-libotr:
     treeherder:
         symbol: TM(libotr)
+    worker:
+        env:
+            MACOS_SDK_DIR: "MacOSX13.0.sdk"
+            MACOS_TARGET_SDK: "10.12"
     run:
         arguments: ['macosx64']
     fetches:
@@ -62,11 +66,16 @@ macosx64-x64-libotr:
             - linux64-binutils
             - linux64-cctools-port
             - linux64-clang
+            # Uses the sdk for builds, not the -toolchain sdk
             - macosx64-sdk
 
 macosx64-aarch64-libotr:
     treeherder:
         symbol: TM(libotr-aarch64)
+    worker:
+        env:
+            MACOS_SDK_DIR: "MacOSX13.0.sdk"
+            MACOS_TARGET_SDK: "11.0"
     run:
         arguments: ['macosx64-aarch64']
     fetches:
