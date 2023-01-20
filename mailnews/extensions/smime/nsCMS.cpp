@@ -242,11 +242,14 @@ static SECStatus myExtraVerificationOnCert(CERTCertificate* cert,
 
   nsTArray<uint8_t> certBytes(cert->derCert.data, cert->derCert.len);
   nsTArray<nsTArray<uint8_t>> builtChain;
+  // This code is used when verifying incoming certificates, including
+  // a signature certificate. Performing OCSP is necessary.
+  // Allowing OCSP in blocking mode should be fine, because all our
+  // callers run this code on a separate thread, using
+  // SMimeVerificationTask/CryptoTask.
   mozilla::pkix::Result result = certVerifier->VerifyCert(
       certBytes, usageForPkix, Now(), nullptr /*XXX pinarg*/,
-      nullptr /*hostname*/, builtChain,
-      // Only local checks can run on the main thread.
-      CertVerifier::FLAG_LOCAL_ONLY);
+      nullptr /*hostname*/, builtChain);
   if (result != mozilla::pkix::Success) {
     return SECFailure;
   }
