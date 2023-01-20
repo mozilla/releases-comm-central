@@ -14,9 +14,6 @@ const { JSTreeSelection } = ChromeUtils.import(
 const accelKeyName = AppConstants.platform == "macosx" ? "metaKey" : "ctrlKey";
 const otherKeyName = AppConstants.platform == "macosx" ? "ctrlKey" : "metaKey";
 
-// Animation variables for expanding and collapsing child lists.
-let reducedMotionMedia = matchMedia("(prefers-reduced-motion)");
-
 /**
  * Main tree view container that takes care of generating the main scrollable
  * DIV and the tree table.
@@ -915,14 +912,13 @@ class TreeViewListbox extends HTMLTableSectionElement {
       }
     });
 
+    // Ensure that there are enough rows for scrolling/resizing to appear
+    // seamless, but don't do it more frequently than 10 times per second,
+    // as it's expensive.
     let lastTime = 0;
+    let lastHeight = 0;
     let timer = null;
-    this.scrollable.addEventListener("scroll", () => {
-      if (reducedMotionMedia.matches) {
-        this._ensureVisibleRowsAreDisplayed();
-        return;
-      }
-
+    let throttledUpdate = () => {
       let now = Date.now();
       let diff = now - lastTime;
 
@@ -936,10 +932,16 @@ class TreeViewListbox extends HTMLTableSectionElement {
           timer = null;
         }, 100 - diff);
       }
+    };
+    this.scrollable.addEventListener("scroll", () => throttledUpdate());
+    this.resizeObserver = new ResizeObserver(entries => {
+      // There's not much point in reducing the number of rows on resize.
+      if (this.scrollable.clientHeight > lastHeight) {
+        throttledUpdate();
+      }
+      lastHeight = this.scrollable.clientHeight;
     });
-
-    window.addEventListener("load", this);
-    window.addEventListener("resize", this);
+    this.resizeObserver.observe(this.scrollable);
   }
 
   disconnectedCallback() {
@@ -952,17 +954,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
       this.lastChild.remove();
     }
 
-    window.removeEventListener("load", this);
-    window.removeEventListener("resize", this);
-  }
-
-  handleEvent(event) {
-    switch (event.type) {
-      case "load":
-      case "resize":
-        this._ensureVisibleRowsAreDisplayed();
-        break;
-    }
+    this.resizeObserver.disconnect();
   }
 
   attributeChangedCallback(name, oldValue, newValue) {

@@ -1572,3 +1572,88 @@ async function subtestRowClassChange() {
     Assert.ok(!row.classList.contains("current"));
   }
 }
+
+/**
+ * Checks that resizing the widget automatically adds more rows if necessary.
+ */
+add_task(async function testResize() {
+  let tab = tabmail.openTab("contentTab", {
+    url:
+      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeViewListbox.xhtml",
+  });
+
+  await BrowserTestUtils.browserLoaded(tab.browser);
+  tab.browser.focus();
+
+  await SpecialPowers.spawn(tab.browser, [], subtestResize);
+
+  tabmail.closeTab(tab);
+});
+
+async function subtestResize() {
+  const { TestUtils } = ChromeUtils.importESModule(
+    "resource://testing-common/TestUtils.sys.mjs"
+  );
+
+  let doc = content.document;
+
+  let list = doc.querySelector(`[is="tree-view-listbox"]`);
+  Assert.ok(!!list, "the list exists");
+
+  let rowCount = function() {
+    return list.querySelectorAll(`tr[is="test-listrow"]`).length;
+  };
+
+  let originalHeight = list.scrollable.clientHeight;
+
+  // Start by scrolling to somewhere in the middle of the list, so that we
+  // don't have to think about buffer rows that don't exist at the ends.
+  list.scrollable.scrollBy(0, 650);
+
+  // The list has enough space for 13 visible rows, and 10 buffer rows should
+  // exist above and below.
+  await TestUtils.waitForCondition(
+    () => rowCount() == 33,
+    "the list should the right number of rows"
+  );
+
+  // Make the list shorter by 5 rows. This should not affect the number of rows,
+  // but this is a bit flaky, so check we have at least the minimum required.
+  list.scrollable.style.height = `${originalHeight - 250}px`;
+  await new Promise(resolve => content.setTimeout(resolve, 500));
+  Assert.greaterOrEqual(
+    rowCount(),
+    28,
+    "making the list shorter should not change the number of rows"
+  );
+
+  // Scrolling the list by any amount should remove excess rows.
+  list.scrollable.scrollBy(0, 50);
+  await TestUtils.waitForCondition(
+    () => rowCount() == 28,
+    "scrolling the list after resize should remove the excess rows"
+  );
+
+  // Return to the original height. More buffer rows should be added.
+  list.scrollable.style.height = `${originalHeight}px`;
+  await TestUtils.waitForCondition(
+    () => rowCount() == 33,
+    "making the list taller should change the number of rows"
+  );
+
+  // Make the list taller by 5 rows.
+  list.scrollable.style.height = `${originalHeight + 250}px`;
+  await TestUtils.waitForCondition(
+    () => rowCount() == 38,
+    "making the list taller should change the number of rows"
+  );
+
+  // Scrolling the list should not affect the number of rows.
+  list.scrollable.scrollBy(0, 50);
+  await new Promise(resolve => content.setTimeout(resolve, 1000));
+  Assert.equal(
+    rowCount(),
+    38,
+    "scrolling the list should not change the number of rows"
+  );
+}
