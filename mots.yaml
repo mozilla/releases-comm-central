@@ -12,10 +12,10 @@
 
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2022-11-30T21:58:16.703636'
+updated_at: '2023-01-19T21:00:49.590412'
 hashes:
-  config: 5a1a68080fcc7ffb4e07e0772d28f5bf220c4734
-  export: f64089cd9928dba17d69a2c758627a29149bb56f
+  config: 9b7660c4e584dc359bc2c9938f5701f2c74e1b37
+  export: 242eb0411176e3dd507d0be54865c26f6d432fcf
 export:
   path: ./docs/mots/index.rst
   format: rst
@@ -58,6 +58,10 @@ people:
     bmo_id: 22599
     name: Ben Bucksch
     nick: BenB
+  - &benc
+    bmo_id: 621918
+    name: Ben Campbell
+    nick: benc
   - &benediktp
     bmo_id: 369370
     name: Benedikt Pfeifer
@@ -166,14 +170,6 @@ people:
     bmo_id: 461658
     name: Tom Prince
     nick: tomprince
-  - &wsmwk
-    bmo_id: 29811
-    name: Wayne Mery
-    nick: wsmwk
-  - &benc
-    bmo_id: 621918
-    name: Ben Campbell
-    nick: benc
 modules:
   - name: Thunderbird Council
     machine_name: thunderbird_council
@@ -215,8 +211,8 @@ modules:
         description: APIs to enable extensions, as well as their installation
         includes:
           - mail/components/extensions/**
-        owners: [*darktrojan]
-        peers: [*TbSync, *Fallen]
+        owners: [*TbSync]
+        peers: [*darktrojan, *Fallen]
         meta:
           components:
             - Thunderbird::Add-Ons Extensions API

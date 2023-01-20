@@ -105,10 +105,10 @@ APIs to enable extensions, as well as their installation
 
     * - Owner(s)
       -
-        | `Geoff Lankow (darktrojan) <https://people.mozilla.org/s?query=darktrojan>`__
+        | `John Bieling (TbSync) <https://people.mozilla.org/s?query=TbSync>`__
     * - Peer(s)
       -
-        | `John Bieling (TbSync) <https://people.mozilla.org/s?query=TbSync>`__
+        | `Geoff Lankow (darktrojan) <https://people.mozilla.org/s?query=darktrojan>`__
         | `Philipp Kewisch (Fallen) <https://people.mozilla.org/s?query=Fallen>`__
     * - Includes
       -
