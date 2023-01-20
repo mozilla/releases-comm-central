@@ -71,9 +71,11 @@ const startupPhases = {
     denylist: {
       modules: new Set([
         "chrome://openpgp/content/BondOpenPGP.jsm",
+        "chrome://openpgp/content/modules/core.jsm",
         "resource:///modules/index_im.sys.mjs",
         "resource:///modules/MsgDBCacheManager.jsm",
         "resource:///modules/PeriodicFilterManager.jsm",
+        "resource://gre/modules/Blocklist.jsm",
         "resource://gre/modules/NewTabUtils.sys.mjs",
         "resource://gre/modules/Sqlite.sys.mjs",
         // Bug 1660907: These core modules shouldn't really be being loaded
@@ -95,7 +97,6 @@ const startupPhases = {
   "before handling user events": {
     denylist: {
       modules: new Set([
-        "chrome://openpgp/content/modules/core.jsm",
         "resource:///modules/gloda/Everybody.jsm",
         "resource:///modules/gloda/Gloda.jsm",
         "resource:///modules/gloda/GlodaContent.jsm",
@@ -117,7 +118,6 @@ const startupPhases = {
         "resource:///modules/jsmime.jsm",
         "resource:///modules/MimeJSComponents.jsm",
         "resource:///modules/mimeParser.jsm",
-        "resource://gre/modules/Blocklist.jsm",
         "resource://gre/modules/BookmarkHTMLUtils.sys.mjs",
         "resource://gre/modules/Bookmarks.sys.mjs",
         "resource://gre/modules/ContextualIdentityService.jsm",

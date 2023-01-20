@@ -89,6 +89,13 @@ var newMailTabType = {
               tab.messagePaneVisible
             );
           }
+
+          // The first tab has loaded and ready for the user to interact with
+          // it. We can let the rest of the start-up happen now without
+          // appearing to slow the program down.
+          if (tab.first) {
+            Services.obs.notifyObservers(window, "mail-startup-done");
+          }
         });
 
         // `browser` and `linkedBrowser` refer to the message display browser

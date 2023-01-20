@@ -430,11 +430,6 @@ var gMailInit = {
       gSpacesToolbar.onLoad();
     }
 
-    // All core modal dialogs are done, the user can now interact with the
-    // 3-pane window. We need to notify this even if the user didn't setup any
-    // mail account in order to trigger all the other areas of the application.
-    Services.obs.notifyObservers(window, "mail-startup-done");
-
     // Show the end of year donation appeal page.
     if (this.shouldShowEOYDonationAppeal()) {
       // Add a timeout to prevent opening the browser immediately at startup.
