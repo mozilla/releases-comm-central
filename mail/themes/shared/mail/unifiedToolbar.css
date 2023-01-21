@@ -45,7 +45,7 @@ unified-toolbar {
 }
 
 #unifiedToolbarContent .unified-toolbar-button[disabled] {
-  color: GrayText;
+  opacity: 0.4;
 }
 
 #unifiedToolbarContent .spacer {
