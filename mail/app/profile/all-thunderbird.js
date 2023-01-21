@@ -497,7 +497,6 @@ pref("dom.serviceWorkers.enabled", true);
 // Generic browser related prefs.
 /////////////////////////////////////////////////////////////////
 pref("browser.send_pings", false);
-pref("browser.chrome.toolbar_tips",         true);
 pref("browser.xul.error_pages.expert_bad_cert", false);
 
 // Attachment download manager settings
