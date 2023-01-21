@@ -175,7 +175,8 @@ tr[data-properties~="unread"].selected .tree-view-row-unread button {
 /* Subject column variations */
 
 #subjectColButton {
-  padding-inline-start: 22px;
+  /* TODO: make this density aware. */
+  padding-inline-start: 44px;
 }
 
 tr[is="thread-listrow"] td > .thread-container {
@@ -331,3 +332,35 @@ tr[data-properties~="junk"] .tree-view-row-spam img {
 
 /* Delete column variations */
 /* TODO: Handle delete button color variations for tagged messages */
+
+/* Correspondent column variations */
+
+#correspondentColButton,
+.correspondentcol-column {
+  text-indent: 18px;
+}
+
+.correspondentcol-column {
+  background-repeat: no-repeat;
+  background-position-x: 1px;
+  background-position-y: center;
+  -moz-context-properties: stroke, fill-opacity;
+  stroke: currentColor;
+  fill-opacity: 0.3;
+}
+
+.correspondentcol-column:dir(rtl) {
+  background-position-x: right 1px;
+}
+
+tr[data-properties~="outgoing"] .correspondentcol-column {
+  background-image: var(--icon-nav-forward);
+}
+
+tr[data-properties~="outgoing"] .correspondentcol-column:dir(rtl) {
+  background-image: var(--icon-nav-back);
+}
+
+tr[data-properties~="outgoing"].selected .correspondentcol-column {
+  fill-opacity: 0.6;
+}
