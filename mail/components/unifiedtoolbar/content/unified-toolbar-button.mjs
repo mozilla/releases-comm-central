@@ -80,9 +80,13 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
       const controller = document.commandDispatcher.getControllerForCommand(
         this.observedCommand
       );
-      this.disabled = !(
-        controller?.isCommandEnabled(this.observedCommand) ?? false
-      );
+      try {
+        this.disabled = !(
+          controller?.isCommandEnabled(this.observedCommand) ?? false
+        );
+      } catch {
+        this.disabled = true;
+      }
     }
     if (this.hasConnected) {
       return;

@@ -142,7 +142,11 @@ export class MailTabButton extends UnifiedToolbarButton {
     const controller = document.commandDispatcher.getControllerForCommand(
       this.observedCommand
     );
-    this.disabled = !controller?.isCommandEnabled(this.observedCommand);
+    try {
+      this.disabled = !controller?.isCommandEnabled(this.observedCommand);
+    } catch {
+      this.disabled = true;
+    }
   }
 }
 customElements.define("mail-tab-button", MailTabButton, {

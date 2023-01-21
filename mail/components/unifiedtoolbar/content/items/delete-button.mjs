@@ -36,9 +36,13 @@ class DeleteButton extends MailTabButton {
       "cmd_delete"
     );
     const tabmail = document.getElementById("tabmail");
-    this.disabled =
-      !controller?.isCommandEnabled("cmd_delete") &&
-      !canDeleteFolder(tabmail.currentAbout3Pane?.gFolder);
+    try {
+      this.disabled =
+        !controller?.isCommandEnabled("cmd_delete") &&
+        !canDeleteFolder(tabmail.currentAbout3Pane?.gFolder);
+    } catch {
+      this.disabled = true;
+    }
   }
 
   handleClick = event => {

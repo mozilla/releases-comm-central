@@ -18,7 +18,11 @@ class CompactFolderButton extends MailTabButton {
       this.disabled = true;
       return;
     }
-    this.disabled = !gFolder.isCommandEnabled("cmd_compactFolder");
+    try {
+      this.disabled = !gFolder.isCommandEnabled("cmd_compactFolder");
+    } catch {
+      this.disabled = true;
+    }
   }
 
   handleClick = event => {
