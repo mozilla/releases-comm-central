@@ -96,6 +96,7 @@ var kIssuers = new Map([
       clientSecret: "kSmqreRr0qwBWJgbf5Y-PjSU",
       authorizationEndpoint: "https://accounts.google.com/o/oauth2/auth",
       tokenEndpoint: "https://www.googleapis.com/oauth2/v3/token",
+      useCORS: true,
     },
   ],
   [
@@ -105,6 +106,7 @@ var kIssuers = new Map([
       clientSecret: "I0dCAXrcaNFujaaY",
       authorizationEndpoint: "https://o2.mail.ru/login",
       tokenEndpoint: "https://o2.mail.ru/token",
+      useCORS: true,
     },
   ],
   [
@@ -114,6 +116,7 @@ var kIssuers = new Map([
       clientSecret: "3ded85b4ec574c2187a55dc49d361280",
       authorizationEndpoint: "https://oauth.yandex.com/authorize",
       tokenEndpoint: "https://oauth.yandex.com/token",
+      useCORS: true,
     },
   ],
   [
@@ -124,6 +127,7 @@ var kIssuers = new Map([
       clientSecret: "f2de6a30ae123cdbc258c15e0812799010d589cc",
       authorizationEndpoint: "https://api.login.yahoo.com/oauth2/request_auth",
       tokenEndpoint: "https://api.login.yahoo.com/oauth2/get_token",
+      useCORS: true,
     },
   ],
   [
@@ -134,6 +138,7 @@ var kIssuers = new Map([
       clientSecret: "79c1c11991d148ddd02a919000d69879942fc278",
       authorizationEndpoint: "https://api.login.aol.com/oauth2/request_auth",
       tokenEndpoint: "https://api.login.aol.com/oauth2/get_token",
+      useCORS: true,
     },
   ],
 
@@ -147,6 +152,7 @@ var kIssuers = new Map([
       tokenEndpoint:
         "https://login.microsoftonline.com/common/oauth2/v2.0/token",
       redirectionEndpoint: "https://localhost",
+      useCORS: false,
     },
   ],
 
@@ -157,6 +163,7 @@ var kIssuers = new Map([
       authorizationEndpoint: "https://api.fastmail.com/oauth/authorize",
       tokenEndpoint: "https://api.fastmail.com/oauth/refresh",
       usePKCE: true,
+      useCORS: true,
     },
   ],
 
@@ -174,6 +181,7 @@ var kIssuers = new Map([
       // (the request is redirected to HTTPS, which we're not listening to).
       // Just use an HTTPS endpoint.
       redirectionEndpoint: "https://localhost",
+      useCORS: true,
     },
   ],
 ]);
