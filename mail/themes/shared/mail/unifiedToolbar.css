@@ -28,6 +28,12 @@ unified-toolbar {
   flex: 0 0 auto;
 }
 
+@media (-moz-platform: windows) {
+  #unifiedToolbarContainer .titlebar-buttonbox-container {
+    align-self: start;
+  }
+}
+
 @media (-moz-gtk-csd-reversed-placement) {
   #unifiedToolbarContainer {
     flex-direction: row-reverse;
