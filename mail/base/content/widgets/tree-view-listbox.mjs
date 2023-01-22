@@ -1108,7 +1108,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
     );
 
     for (
-      let i = this._firstRowIndex - 1, iTo = Math.max(first, 0);
+      let i = Math.min(this._firstRowIndex - 1, last), iTo = Math.max(first, 0);
       i >= iTo;
       i--
     ) {
@@ -1119,7 +1119,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
       this._addRowAtIndex(0);
     }
     for (
-      let i = this._lastRowIndex + 1,
+      let i = Math.max(this._lastRowIndex + 1, first),
         iTo = Math.min(last + 1, this._view.rowCount);
       i < iTo;
       i++
