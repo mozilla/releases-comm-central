@@ -1794,6 +1794,9 @@ var threadPane = {
     // TODO: Switch this dynamically like in the address book.
     document.body.classList.add("layout-table");
 
+    treeTable.addEventListener("column-resized", event => {
+      treeTable.setColumnsWidths(XULSTORE_URL, event);
+    });
     treeTable.addEventListener("columns-changed", event => {
       this.onColumnsVisibilityChanged(event.detail);
     });
@@ -1875,6 +1878,7 @@ var threadPane = {
   restoreColumns() {
     this.restoreColumnsState();
     this.updateColumns();
+    treeTable.restoreColumnsWidths(XULSTORE_URL);
   },
 
   /**
