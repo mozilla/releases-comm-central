@@ -24,12 +24,10 @@
   :root {
     --listbox-color: var(--color-gray-80);
     --listbox-selected-bg: var(--color-gray-20);
-    --listbox-focused-selected-bg: var(--color-blue-50);
-    --listbox-selected-color: var(--color-white);
+    --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--color-blue-50));
+    --listbox-selected-color: var(--sidebar-highlight-text-color, var(--color-white));
     --listbox-hover: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
-
     --tree-view-header-bg: var(--color-gray-05);
-
     --tree-row-delete-button-color: var(--color-red-60);
   }
 
@@ -37,10 +35,8 @@
     :root {
       --listbox-color: var(--color-gray-05);
       --listbox-selected-bg: var(--color-gray-70);
-      --listbox-focused-selected-bg: var(--color-blue-60);
-
+      --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--color-blue-60));
       --tree-view-header-bg: var(--color-gray-80);
-
       --tree-row-delete-button-color: var(--color-red-40);
     }
   }
@@ -53,9 +49,15 @@
     --listbox-selected-color: SelectedItemText;
     --listbox-focused-selected-bg: SelectedItem;
     --listbox-selected-outline: 2px solid SelectedItem;
-
+    --listbox-hover: transparent;
     --tree-view-header-bg: transparent;
   }
+}
+
+:root[lwt-tree] {
+  --tree-view-header-bg: transparent;
+  --listbox-selected-bg: color-mix(in srgb, transparent 70%, var(--sidebar-highlight-background-color));
+  --listbox-hover: color-mix(in srgb, transparent 80%, var(--sidebar-highlight-background-color));
 }
 
 .tree-view-scrollable-container {
@@ -81,6 +83,13 @@
 
 [is="tree-view-listbox"] > *:hover {
   background-color: var(--listbox-hover);
+}
+
+@media (prefers-contrast) {
+  [is="tree-view-listbox"] > *:hover {
+    outline: var(--listbox-selected-outline);
+    outline-offset: -2px;
+  }
 }
 
 [is="tree-view-listbox"] > .selected {
@@ -265,6 +274,7 @@ th[data-resizable="false"] .tree-table-cell {
   height: 100%;
   min-width: auto;
   min-height: auto;
+  color: inherit;
   border: none;
   border-radius: 0;
   background-color: transparent;

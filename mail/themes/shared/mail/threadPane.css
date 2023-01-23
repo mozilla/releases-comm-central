@@ -27,6 +27,8 @@
 #threadPane > tree-view {
   -moz-context-properties: fill;
   fill: currentColor;
+  background-color: var(--sidebar-background-color, inherit);
+  color: var(--sidebar-text-color, inherit);
 }
 
 #threadTree [data-properties~="unread"] {

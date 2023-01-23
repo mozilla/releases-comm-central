@@ -5,25 +5,32 @@
 @import url("chrome://messenger/skin/shared/threadPane.css");
 
 :root {
-  --in-content-button-border-radius: 3px;
+  --treeitem-border-radius: 3px;
 }
 
 @media not (prefers-contrast) {
   :root {
-    --in-content-button-background: var(--grey-90-a10);
-    --in-content-button-background-hover: var(--grey-90-a20);
-    --in-content-button-background-active: var(--grey-90-a30);
-    --in-content-categories-background: #ebebef;
+    --foldertree-background: var(--sidebar-background-color, var(--color-gray-05));
+    --folderpane-unread-count-background: var(--color-gray-40);
+    --folderpane-unread-count-text: var(--color-white);
+    --folderpane-unread-new-count-background: var(--color-blue-60);
+    --treeitem-background-selected: var(--color-gray-20);
+    --treeitem-background-hover: var(--color-gray-10);
+    --treeitem-text-active: var(--sidebar-highlight-text-color, var(--color-white));
+    --treeitem-background-active: var(--sidebar-highlight-background-color, var(--color-blue-50));
     --in-content-item-selected-unfocused: var(--color-gray-20);
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --in-content-categories-background: rgba(249, 249, 250, 0.1);
+      --foldertree-background: var(--sidebar-background-color, rgba(249, 249, 250, 0.1));
+      --folderpane-unread-count-background: var(--color-gray-50);
+      --folderpane-unread-count-text: var(--color-white);
+      --folderpane-unread-new-count-background: var(--color-blue-50);
+      --treeitem-background-selected: var(--color-gray-70);
+      --treeitem-background-hover: var(--color-gray-60);
+      --treeitem-background-active: var(--sidebar-highlight-background-color, var(--color-blue-60));
       --in-content-item-selected-unfocused: rgba(249, 249, 250, 0.05);
-      --in-content-button-background: rgba(249, 249, 250, 0.1);
-      --in-content-button-background-hover: rgba(249, 249, 250, 0.15);
-      --in-content-button-background-active: rgba(249, 249, 250, 0.2);
       --in-content-primary-button-background: #45a1ff;
       --in-content-primary-button-background-hover: #65c1ff;
       --in-content-primary-button-background-active: #85e1ff;
@@ -34,8 +41,21 @@
 
 @media (prefers-contrast) {
   :root {
-    --in-content-categories-background: transparent;
+    --foldertree-background: transparent;
+    --folderpane-unread-count-background: SelectedItem;
+    --folderpane-unread-count-text: SelectedItemText;
+    --folderpane-unread-new-count-background: ButtonShadow;
+    --treeitem-background-selected: transparent;
+    --treeitem-background-hover: transparent;
+    --treeitem-outline-hover: 2px solid SelectedItem;
+    --treeitem-text-active: SelectedItemText;
+    --treeitem-background-active: SelectedItem;
   }
+}
+
+:root[lwt-tree] {
+  --treeitem-background-selected: color-mix(in srgb, transparent 70%, var(--sidebar-highlight-background-color));
+  --treeitem-background-hover: color-mix(in srgb, transparent 80%, var(--sidebar-highlight-background-color));
 }
 
 html {
@@ -45,13 +65,13 @@ html {
 body {
   height: 100%;
   margin: 0;
+  font: message-box;
+  text-shadow: none;
 
   display: grid;
   --folderPaneSplitter-width: 18em;
   --messagePaneSplitter-width: 54em;
   --messagePaneSplitter-height: 36em;
-
-  font: message-box;
 }
 
 /* Different layouts */
@@ -62,6 +82,8 @@ body {
   /* Matches the collapse-width on the splitter. */
   min-width: 200px;
   overflow: hidden auto;
+  background-color: var(--sidebar-background-color, var(--foldertree-background));
+  color: var(--sidebar-text-color, inherit);
 }
 
 #folderPaneSplitter {
@@ -175,23 +197,30 @@ body:not(.account-central) #accountCentralBrowser {
   align-items: center;
   -moz-context-properties: fill;
   margin-inline: 6px;
-  border-radius: var(--in-content-button-border-radius);
+  border-radius: var(--treeitem-border-radius);
   fill: currentColor;
   cursor: default;
   padding-inline-start: var(--indent);
 }
 
 li.selected > .container {
-  background-color: var(--in-content-button-background);
+  background-color: var(--treeitem-background-selected);
 }
 
-li > .container:hover {
-  background-color: var(--in-content-item-hover);
+li:not(.selected) > .container:hover {
+  background-color: var(--treeitem-background-hover);
+}
+
+@media (prefers-contrast) {
+  li:not(:focus-visible) > .container:hover {
+    outline: var(--treeitem-outline-hover);
+    outline-offset: -2px;
+  }
 }
 
 #folderTree:focus-within li.selected > .container {
-  background-color: var(--in-content-item-selected);
-  color: var(--in-content-item-selected-text);
+  background-color: var(--treeitem-background-active);
+  color: var(--treeitem-text-active);
 }
 
 #folderTree li .twisty {
@@ -222,6 +251,7 @@ li > .container:hover {
 }
 
 #folderTree .icon {
+  position: relative;
   width: 16px;
   height: 16px;
   background-image: var(--icon-folder);
@@ -230,6 +260,17 @@ li > .container:hover {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, var(--icon-color, var(--folder-color-folder)) 20%, transparent);
   stroke: var(--icon-color, var(--folder-color-folder));
+}
+
+.new-messages:not([data-server-type]) > .container > .icon::after {
+  position: absolute;
+  content: url("chrome://messenger/skin/icons/folder-new-indicator.svg");
+  inset-inline-start: -2px;
+  inset-block-start: -2px;
+}
+
+#folderTree:focus-within li.selected > .container > .icon {
+  --icon-color: currentColor;
 }
 
 #folderTree li[data-server-type] > .container > .icon {
@@ -328,17 +369,24 @@ li > .container:hover {
   font-weight: bold;
 }
 
+.unread > .container > .name,
 .new-messages > .container > .name {
   font-weight: bold;
+}
+
+.new-messages > .container > .name {
   color: var(--new-folder-color);
+}
+
+#folderTree:focus-within li.selected.new-messages > .container > .name {
+  color: currentColor;
 }
 
 .unread-count {
   display: none;
   padding: 1px 4px;
-  border-radius: 12px;
-  background-color: var(--in-content-button-background);
-  color: white;
+  border-radius: 1000px;
+  color: var(--folderpane-unread-count-text);
   font-size: 0.85em;
   font-weight: bold;
   min-width: 16px;
@@ -349,6 +397,16 @@ li > .container:hover {
 
 .unread > .container > .unread-count {
   display: unset;
+  background-color: var(--folderpane-unread-count-background);
+}
+
+.new-messages > .container > .unread-count {
+  background-color: var(--folderpane-unread-new-count-background);
+}
+
+#folderTree:focus-within li.selected > .container > .unread-count {
+  background-color: var(--folderpane-unread-count-text);
+  color: var(--treeitem-background-active);
 }
 
 /* Message browser pane. */
