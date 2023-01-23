@@ -431,6 +431,12 @@
       document.documentElement.style.cursor = cursor;
     }
 
+    /**
+     * If `mousemove` events will be ignored because the screen hasn't been
+     * updated since the last one.
+     *
+     * @type {boolean}
+     */
     _mouseMoveBlocked = false;
 
     _onMouseMove(event) {
