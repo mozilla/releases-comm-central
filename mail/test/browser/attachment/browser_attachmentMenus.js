@@ -532,13 +532,8 @@ async function help_test_attachment_menus(index) {
   for (let attachment of aboutMessage.currentAttachments) {
     // Ensure all attachments are resolved; other than external they already
     // should be.
-    attachment.isEmpty();
+    await attachment.isEmpty();
   }
-
-  // Test funcs are generated in the global scope, and there isn't a way to
-  // do this async (like within an async add_task in xpcshell) so await can
-  // force serial execution of each test. Wait here for the fetch() to complete.
-  controller.sleep(1000);
 
   if (expectedStates.length == 1) {
     await check_toolbar_menu_states_single(messages[index].allMenuStates);
