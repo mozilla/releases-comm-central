@@ -216,6 +216,7 @@ window.addEventListener("DOMContentLoaded", async event => {
 
     // Clean up any existing view wrapper.
     gViewWrapper?.close();
+    threadTree.invalidate();
 
     if (gFolder.isServer) {
       document.title = gFolder.server.prettyName;
@@ -237,6 +238,8 @@ window.addEventListener("DOMContentLoaded", async event => {
       document.title = `${gFolder.name} - ${gFolder.server.prettyName}`;
       document.body.classList.remove("account-central");
       accountCentralBrowser.hidden = true;
+
+      threadPane.restoreColumns();
 
       gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
       gViewWrapper._viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
@@ -281,7 +284,8 @@ window.addEventListener("DOMContentLoaded", async event => {
           }
         },
       });
-      threadPane.restoreColumns();
+
+      threadPane.restoreSortIndicator();
     }
 
     window.dispatchEvent(
@@ -1935,8 +1939,6 @@ var threadPane = {
       // full table header.
       treeTable.setColumns(this.columns);
     }
-    threadTree.invalidate();
-    this.restoreSortIndicator();
   },
 
   /**
@@ -1953,6 +1955,7 @@ var threadPane = {
 
     this.persistColumnStates();
     this.updateColumns(true);
+    threadTree.invalidate();
   },
 
   /**
@@ -2063,7 +2066,6 @@ function restoreState({
 
   if (folderURI) {
     displayFolder(folderURI);
-    threadPane.restoreColumns();
   } else if (syntheticView) {
     // TODO: Move this.
     gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
@@ -2197,7 +2199,9 @@ var folderListener = {
     folderPane.removeFolder(parentFolder, childFolder);
   },
   onMessageRemoved(parentFolder, msg) {
-    threadTree.invalidate();
+    if (parentFolder == gFolder) {
+      threadTree.invalidate();
+    }
   },
   onFolderPropertyChanged(item, property, oldValue, newValue) {},
   onFolderIntPropertyChanged(item, property, oldValue, newValue) {

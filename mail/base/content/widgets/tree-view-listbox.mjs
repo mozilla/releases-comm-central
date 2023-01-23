@@ -1015,9 +1015,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
    * Clear all rows from the list and create them again.
    */
   invalidate() {
-    for (let row of this._rows.values()) {
-      row.remove();
-    }
+    this.replaceChildren();
     this._rows.clear();
     this._firstRowIndex = 0;
     this._lastRowIndex = 0;
