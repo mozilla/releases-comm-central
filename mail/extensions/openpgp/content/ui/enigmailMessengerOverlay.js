@@ -2984,7 +2984,7 @@ Enigmail.msg = {
           "l10n-id": "openpgp-show-encrypted-parts",
           popup: null,
           callback(notification, button) {
-            viewEncryptedPart(Enigmail.msg.getCurrentMsgUriSpec());
+            top.viewEncryptedPart(Enigmail.msg.getCurrentMsgUriSpec());
             return true; // keep notification
           },
         },
