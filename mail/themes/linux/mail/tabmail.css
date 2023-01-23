@@ -15,7 +15,6 @@
 
 #tabs-toolbar {
   -moz-window-dragging: drag;
-  appearance: none;
   padding: 0;
 }
 

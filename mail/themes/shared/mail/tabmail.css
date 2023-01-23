@@ -16,7 +16,8 @@
 }
 
 #tabs-toolbar {
-  --tabs-top-border-width: 0px;
+  appearance: none;
+  --tabs-top-border-width: 1px;
   box-shadow: 0 calc(-1 * var(--tabs-tabbar-border-size)) 0 var(--lwt-tabs-border-color) inset;
 }
 
@@ -156,10 +157,6 @@ button.tab-close-button {
 .tab-background {
   border: 1px none transparent;
   background-clip: padding-box;
-}
-
-#tabs-toolbar {
-  --tabs-top-border-width: 1px;
 }
 
 .tab-background,
