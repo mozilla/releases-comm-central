@@ -46,7 +46,7 @@ add_task(async function test_urlBar() {
   is(urlBar.value, browser.currentURI.spec, "Initial page is shown in URL bar");
 
   let redirect = BrowserTestUtils.browserLoaded(browser);
-  BrowserTestUtils.loadURI(browser, "about:blank");
+  BrowserTestUtils.loadURIString(browser, "about:blank");
   await redirect;
   is(urlBar.value, "about:blank", "URL bar value follows browser");
 

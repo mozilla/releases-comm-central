@@ -39,7 +39,7 @@ const expectErrorPage = async function(url) {
   let tab = tabmail.tabInfo[index];
   let browser = tab.browser;
 
-  BrowserTestUtils.loadURI(browser, url);
+  BrowserTestUtils.loadURIString(browser, url);
   await BrowserTestUtils.browserLoaded(browser, false, url, true);
   await SpecialPowers.spawn(browser, [url], async function() {
     ok(

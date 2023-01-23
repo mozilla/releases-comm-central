@@ -72,7 +72,7 @@ async function testPageBlockedByPolicy(policyJSON, page) {
   await EnterprisePolicyTesting.setupPolicyEngineWithJson(policyJSON);
 
   await withNewTab({ url: "about:blank" }, async browser => {
-    BrowserTestUtils.loadURI(browser, page);
+    BrowserTestUtils.loadURIString(browser, page);
     await BrowserTestUtils.browserLoaded(browser, false, page, true);
     await SpecialPowers.spawn(browser, [page], async function(innerPage) {
       ok(
