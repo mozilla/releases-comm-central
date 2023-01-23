@@ -355,7 +355,7 @@ var gXPInstallObserver = {
             "addonDomainBlockedByPolicy"
           );
         } else {
-          messageString = lazy.addonsBundle.getFormattedString(
+          messageString = lazy.addonsBundle.formatStringFromName(
             "xpinstallPromptMessage",
             [lazy.brandShortName]
           );
