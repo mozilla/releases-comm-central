@@ -44,24 +44,25 @@
      * A function used to make a property value visible in to the user.
      *
      * @callback PropertyShow
-     * @param {HTMLElement} node  - The element responsible for displaying the
-     *                              value.
-     * @param {string} value      - The value of property to display.
-     * @param {string} oldValue   - The previous value of the property if the
-     *                              there is a prior copy of the event.
-     * @param {calIEvent} item    - The event item the property belongs to.
-     * @param {string} oldItem    - The prior version of the event if there is
-     *                              one.
+     * @param {HTMLElement} node - The element responsible for displaying the
+     *   value.
+     * @param {string} value - The value of property to display.
+     * @param {string} oldValue - The previous value of the property if the
+     *   there is a prior copy of the event.
+     * @param {calIEvent} item - The event item the property belongs to.
+     * @param {string} oldItem - The prior version of the event if there is one.
      */
 
     /**
      * @typedef {Object} InvitationPropertyDescriptor
-     * @property {string} id         - The id of the HTMLElement that displays
-     *                                 the property.
+     * @property {string} id - The id of the HTMLElement that displays
+     *   the property.
      * @property {GetValue} getValue - Function used to retrieve the displayed
-     *                                 value of the property from the item.
-     * @property {PropertyShow} show - Function to use to display the property
-     *                                 value.
+     *   value of the property from the item.
+     * @property {boolean?} isList - Indicates the value of the property is a
+     *   list.
+     * @property {PropertyShow?} show - Function to use to display the property
+     *   value if it is not a list.
      */
 
     /**
@@ -103,6 +104,29 @@
         },
         show(location, value) {
           location.appendChild(cal.view.textToHtmlDocumentFragment(value, document));
+        },
+      },
+      {
+        id: "summary",
+        getValue(item) {
+          return item.getAttendees();
+        },
+        show(summary, value) {
+          summary.attendees = value;
+        },
+      },
+      {
+        id: "attendees",
+        isList: true,
+        getValue(item) {
+          return item.getAttendees();
+        },
+      },
+      {
+        id: "attachments",
+        isList: true,
+        getValue(item) {
+          return item.getAttachments();
         },
       },
       {
@@ -187,10 +211,20 @@
         for (let prop of InvitationPanel.propertyDescriptors) {
           let el = this.shadowRoot.getElementById(prop.id);
           let value = prop.getValue(this.item);
-          let oldValue;
           let result = PROPERTY_UNCHANGED;
+
+          if (prop.isList) {
+            let oldValue = this.foundItem ? prop.getValue(this.foundItem) : [];
+            if (value.length || oldValue.length) {
+              el.oldValue = oldValue;
+              el.value = value;
+              el.closest(".calendar-invitation-row").hidden = false;
+            }
+            continue;
+          }
+
+          let oldValue = this.foundItem ? prop.getValue(this.foundItem) : null;
           if (this.foundItem) {
-            oldValue = prop.getValue(this.foundItem);
             result = this.compare(oldValue, value);
             if (result) {
               let indicator = this.shadowRoot.getElementById(`${prop.id}ChangeIndicator`);
@@ -200,25 +234,11 @@
               }
             }
           }
-          if (value) {
+          if (value || oldValue) {
             prop.show(el, value, oldValue, this.item, this.foundItem, result);
+            el.closest(".calendar-invitation-row").hidden = false;
           }
         }
-
-        let attendeeValues = this.item.getAttendees();
-        this.shadowRoot.getElementById("summary").attendees = attendeeValues;
-
-        let attendees = this.shadowRoot.getElementById("attendees");
-        if (this.foundItem) {
-          attendees.oldValue = this.foundItem.getAttendees();
-        }
-        attendees.value = attendeeValues;
-
-        let attachments = this.shadowRoot.getElementById("attachments");
-        if (this.foundItem) {
-          attachments.oldValue = this.foundItem.getAttachments();
-        }
-        attachments.value = this.item.getAttachments();
       }
     }
   }
@@ -742,10 +762,8 @@
      *
      * @type {number}
      */
-    type = PROPERTY_MODIFIED;
-
-    connectedCallback() {
-      let key = this._typeMap[this.type];
+    set type(value) {
+      let key = this._typeMap[value];
       document.l10n.setAttributes(this, `calendar-invitation-change-indicator-${key}`);
     }
   }
