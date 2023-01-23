@@ -664,10 +664,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
     });
 
     this.addEventListener("mousedown", event => {
-      if (
-        this == document.activeElement ||
-        !event.target.closest(`tr[is="${this._rowElementName}"]`)
-      ) {
+      if (this == document.activeElement && event.target.closest("button")) {
         // Prevent moving the focus to any clickable child element.
         event.preventDefault();
         return;
