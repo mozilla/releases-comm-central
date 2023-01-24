@@ -182,6 +182,9 @@ window.addEventListener("DOMContentLoaded", async event => {
     );
   });
 
+  // Ensure TreeViewListbox and its classes are properly defined.
+  await customElements.whenDefined("tree-view-listrow");
+
   // Initialize the thread pane before the folder pane in order to have the UI
   // ready when a folder is selected.
   let tree = document.getElementById("messageThreadTree");
@@ -1771,15 +1774,18 @@ var threadPane = {
    * Make the list rows density aware.
    */
   densityChange() {
+    // The class ThreadListrow can't be referenced because it's declared in a
+    // different scope. But we can get it from customElements.
+    let rowClass = customElements.get("thread-listrow");
     switch (UIDensity.prefValue) {
       case UIDensity.MODE_COMPACT:
-        ThreadListrow.ROW_HEIGHT = 18;
+        rowClass.ROW_HEIGHT = 18;
         break;
       case UIDensity.MODE_TOUCH:
-        ThreadListrow.ROW_HEIGHT = 32;
+        rowClass.ROW_HEIGHT = 32;
         break;
       default:
-        ThreadListrow.ROW_HEIGHT = 22;
+        rowClass.ROW_HEIGHT = 22;
         break;
     }
   },
@@ -2235,190 +2241,194 @@ var folderListener = {
 /**
  * Custom element for rows in the thread tree.
  */
-class ThreadListrow extends customElements.get("tree-view-listrow") {
-  static ROW_HEIGHT = 22;
+customElements.whenDefined("tree-view-listrow").then(() => {
+  class ThreadListrow extends customElements.get("tree-view-listrow") {
+    static ROW_HEIGHT = 22;
 
-  connectedCallback() {
-    if (this.hasConnected) {
-      return;
-    }
-
-    super.connectedCallback();
-
-    for (let column of threadPane.columns) {
-      let cell = document.createElement("td");
-      if (column.id == "subjectCol") {
-        let container = cell.appendChild(document.createElement("div"));
-        container.classList.add("thread-container");
-
-        this.twisty = container.appendChild(document.createElement("button"));
-        this.twisty.type = "button";
-        this.twisty.tabIndex = -1;
-        this.twisty.classList.add("button-flat", "button-reset", "twisty");
-
-        let twistyImage = this.twisty.appendChild(
-          document.createElement("img")
-        );
-        twistyImage.className = "twisty-icon";
-        twistyImage.src = "";
-        twistyImage.alt = "";
-      }
-
-      this.appendChild(cell).classList.add(`${column.id.toLowerCase()}-column`);
-    }
-
-    this.addEventListener("contextmenu", event => {
-      if (threadTree.selectedIndex == -1) {
+    connectedCallback() {
+      if (this.hasConnected) {
         return;
       }
 
-      mailContextMenu.emptyMessageContextMenu();
-      let popup = document.getElementById("mailContext");
-      popup.openPopupAtScreen(event.screenX, event.screenY, true);
-      event.preventDefault();
-    });
-  }
+      super.connectedCallback();
 
-  get index() {
-    return super.index;
-  }
+      for (let column of threadPane.columns) {
+        let cell = document.createElement("td");
+        if (column.id == "subjectCol") {
+          let container = cell.appendChild(document.createElement("div"));
+          container.classList.add("thread-container");
 
-  set index(index) {
-    super.index = index;
-    const properties = this.view.getRowProperties(index).trim();
-    this.dataset.properties = properties;
+          this.twisty = container.appendChild(document.createElement("button"));
+          this.twisty.type = "button";
+          this.twisty.tabIndex = -1;
+          this.twisty.classList.add("button-flat", "button-reset", "twisty");
 
-    for (let column of threadPane.columns) {
-      let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
-      if (column.hidden) {
-        cell.hidden = true;
-        continue;
-      }
-
-      const propertiesSet = new Set(properties.split(" "));
-
-      // Special case for the subject column.
-      if (column.id == "subjectCol") {
-        let div = cell.querySelector(".thread-container .subject-line");
-        let image, span;
-        if (div) {
-          image = div.querySelector("img");
-          span = div.querySelector("span");
-        } else {
-          div = document.createElement("div");
-          div.classList.add("subject-line");
-          div.tabIndex = -1;
-
-          image = document.createElement("img");
-          image.src = "";
-          image.alt = "";
-          div.appendChild(image);
-
-          span = document.createElement("span");
-          div.appendChild(span);
-          cell
-            .querySelector(".thread-container")
-            .replaceChildren(this.twisty, div);
+          let twistyImage = this.twisty.appendChild(
+            document.createElement("img")
+          );
+          twistyImage.className = "twisty-icon";
+          twistyImage.src = "";
+          twistyImage.alt = "";
         }
 
-        // Indent child message of this thread.
-        div.style.setProperty("--thread-level", this.view.getLevel(index));
-        let imageFluentID = this.#getMessageIndicatorString(propertiesSet);
-        if (imageFluentID) {
-          document.l10n.setAttributes(image, imageFluentID);
-        }
-        span.textContent = this.view.cellTextForColumn(index, column.id);
-        continue;
-      }
-
-      if (column.id == "flaggedCol") {
-        document.l10n.setAttributes(
-          cell.querySelector("button"),
-          propertiesSet.has("flagged")
-            ? "tree-list-view-row-flagged"
-            : "tree-list-view-row-flag"
+        this.appendChild(cell).classList.add(
+          `${column.id.toLowerCase()}-column`
         );
       }
 
-      if (column.id == "junkStatusCol") {
-        document.l10n.setAttributes(
-          cell.querySelector("button"),
-          propertiesSet.has("junk")
-            ? "tree-list-view-row-spam"
-            : "tree-list-view-row-not-spam"
-        );
-      }
+      this.addEventListener("contextmenu", event => {
+        if (threadTree.selectedIndex == -1) {
+          return;
+        }
 
-      if (column.id == "attachmentCol") {
-        const img = document.createElement("img");
-        img.src = "";
-        document.l10n.setAttributes(img, "tree-list-view-row-attach");
-        cell.replaceChildren(img);
-      }
-
-      // No need to update the text of this cell if it's the selection or an
-      // icon column.
-      if (column.icon || column.select) {
-        continue;
-      }
-
-      cell.textContent = this.view.cellTextForColumn(index, column.id);
+        mailContextMenu.emptyMessageContextMenu();
+        let popup = document.getElementById("mailContext");
+        popup.openPopupAtScreen(event.screenX, event.screenY, true);
+        event.preventDefault();
+      });
     }
 
-    this.setAttribute(
-      "aria-label",
-      this.view.cellTextForColumn(index, "subjectCol")
-    );
+    get index() {
+      return super.index;
+    }
+
+    set index(index) {
+      super.index = index;
+      const properties = this.view.getRowProperties(index).trim();
+      this.dataset.properties = properties;
+
+      for (let column of threadPane.columns) {
+        let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
+        if (column.hidden) {
+          cell.hidden = true;
+          continue;
+        }
+
+        const propertiesSet = new Set(properties.split(" "));
+
+        // Special case for the subject column.
+        if (column.id == "subjectCol") {
+          let div = cell.querySelector(".thread-container .subject-line");
+          let image, span;
+          if (div) {
+            image = div.querySelector("img");
+            span = div.querySelector("span");
+          } else {
+            div = document.createElement("div");
+            div.classList.add("subject-line");
+            div.tabIndex = -1;
+
+            image = document.createElement("img");
+            image.src = "";
+            image.alt = "";
+            div.appendChild(image);
+
+            span = document.createElement("span");
+            div.appendChild(span);
+            cell
+              .querySelector(".thread-container")
+              .replaceChildren(this.twisty, div);
+          }
+
+          // Indent child message of this thread.
+          div.style.setProperty("--thread-level", this.view.getLevel(index));
+          let imageFluentID = this.#getMessageIndicatorString(propertiesSet);
+          if (imageFluentID) {
+            document.l10n.setAttributes(image, imageFluentID);
+          }
+          span.textContent = this.view.cellTextForColumn(index, column.id);
+          continue;
+        }
+
+        if (column.id == "flaggedCol") {
+          document.l10n.setAttributes(
+            cell.querySelector("button"),
+            propertiesSet.has("flagged")
+              ? "tree-list-view-row-flagged"
+              : "tree-list-view-row-flag"
+          );
+        }
+
+        if (column.id == "junkStatusCol") {
+          document.l10n.setAttributes(
+            cell.querySelector("button"),
+            propertiesSet.has("junk")
+              ? "tree-list-view-row-spam"
+              : "tree-list-view-row-not-spam"
+          );
+        }
+
+        if (column.id == "attachmentCol") {
+          const img = document.createElement("img");
+          img.src = "";
+          document.l10n.setAttributes(img, "tree-list-view-row-attach");
+          cell.replaceChildren(img);
+        }
+
+        // No need to update the text of this cell if it's the selection or an
+        // icon column.
+        if (column.icon || column.select) {
+          continue;
+        }
+
+        cell.textContent = this.view.cellTextForColumn(index, column.id);
+      }
+
+      this.setAttribute(
+        "aria-label",
+        this.view.cellTextForColumn(index, "subjectCol")
+      );
+    }
+
+    /**
+     * Find the fluent ID matching the current message state.
+     *
+     * @param {Set} propertiesSet - The Set() of properties for the row.
+     * @returns {?string} - The fluent ID string if we found one, otherwise null.
+     */
+    #getMessageIndicatorString(propertiesSet) {
+      // Bail out early if this is a new message since it can't be anything else.
+      if (propertiesSet.has("new")) {
+        return "threadpane-message-new";
+      }
+
+      const isReplied = propertiesSet.has("replied");
+      const isForwarded = propertiesSet.has("forwarded");
+      const isRedirected = propertiesSet.has("redirected");
+
+      if (isReplied && !isForwarded && !isRedirected) {
+        return "threadpane-message-replied";
+      }
+
+      if (isRedirected && !isForwarded && !isReplied) {
+        return "threadpane-message-redirected";
+      }
+
+      if (isForwarded && !isReplied && !isRedirected) {
+        return "threadpane-message-forwarded";
+      }
+
+      if (isReplied && isForwarded && !isRedirected) {
+        return "threadpane-message-replied-forwarded";
+      }
+
+      if (isReplied && isRedirected && !isForwarded) {
+        return "threadpane-message-replied-redirected";
+      }
+
+      if (isForwarded && isRedirected && !isReplied) {
+        return "threadpane-message-forwarded-redirected";
+      }
+
+      if (isReplied && isForwarded && isRedirected) {
+        return "threadpane-message-replied-forwarded-redirected";
+      }
+
+      return null;
+    }
   }
-
-  /**
-   * Find the fluent ID matching the current message state.
-   *
-   * @param {Set} propertiesSet - The Set() of properties for the row.
-   * @returns {?string} - The fluent ID string if we found one, otherwise null.
-   */
-  #getMessageIndicatorString(propertiesSet) {
-    // Bail out early if this is a new message since it can't be anything else.
-    if (propertiesSet.has("new")) {
-      return "threadpane-message-new";
-    }
-
-    const isReplied = propertiesSet.has("replied");
-    const isForwarded = propertiesSet.has("forwarded");
-    const isRedirected = propertiesSet.has("redirected");
-
-    if (isReplied && !isForwarded && !isRedirected) {
-      return "threadpane-message-replied";
-    }
-
-    if (isRedirected && !isForwarded && !isReplied) {
-      return "threadpane-message-redirected";
-    }
-
-    if (isForwarded && !isReplied && !isRedirected) {
-      return "threadpane-message-forwarded";
-    }
-
-    if (isReplied && isForwarded && !isRedirected) {
-      return "threadpane-message-replied-forwarded";
-    }
-
-    if (isReplied && isRedirected && !isForwarded) {
-      return "threadpane-message-replied-redirected";
-    }
-
-    if (isForwarded && isRedirected && !isReplied) {
-      return "threadpane-message-forwarded-redirected";
-    }
-
-    if (isReplied && isForwarded && isRedirected) {
-      return "threadpane-message-replied-forwarded-redirected";
-    }
-
-    return null;
-  }
-}
-customElements.define("thread-listrow", ThreadListrow, { extends: "tr" });
+  customElements.define("thread-listrow", ThreadListrow, { extends: "tr" });
+});
 
 commandController.registerCallback("cmd_viewClassicMailLayout", () =>
   Services.prefs.setIntPref("mail.pane_config.dynamic", 0)
