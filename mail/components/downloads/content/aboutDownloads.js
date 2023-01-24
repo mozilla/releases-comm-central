@@ -30,12 +30,12 @@ var DownloadsView = {
 
     Downloads.getList(Downloads.ALL)
       .then(list => list.addView(this))
-      .then(null, Cu.reportError);
+      .catch(console.error);
 
     window.addEventListener("unload", aEvent => {
       Downloads.getList(Downloads.ALL)
         .then(list => list.removeView(this))
-        .then(null, Cu.reportError);
+        .catch(console.error);
       window.controllers.removeController(this);
     });
   },
@@ -110,7 +110,7 @@ var DownloadsView = {
   clearDownloads() {
     Downloads.getList(Downloads.ALL)
       .then(list => list.removeFinished())
-      .then(null, Cu.reportError);
+      .catch(console.error);
   },
 
   searchDownloads() {
@@ -331,7 +331,7 @@ DownloadItem.prototype = {
 
   launch() {
     if (this.download.succeeded) {
-      this.download.launch().then(null, Cu.reportError);
+      this.download.launch().catch(console.error);
     }
   },
 
@@ -339,7 +339,7 @@ DownloadItem.prototype = {
     Downloads.getList(Downloads.ALL)
       .then(list => list.remove(this.download))
       .then(() => this.download.finalize(true))
-      .then(null, Cu.reportError);
+      .catch(console.error);
   },
 
   show() {

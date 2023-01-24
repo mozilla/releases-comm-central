@@ -87,7 +87,7 @@ add_setup(function() {
   }
 
   let finished = false;
-  buildFontList().then(() => (finished = true), Cu.reportError);
+  buildFontList().then(() => (finished = true), console.error);
   mc.waitFor(
     () => finished,
     "Timeout waiting for font enumeration to complete."

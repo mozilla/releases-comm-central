@@ -95,7 +95,7 @@ function open_about_support() {
   let l10nDone = false;
   tab.browser.contentDocument.l10n.ready.then(
     () => (l10nDone = true),
-    Cu.reportError
+    console.error
   );
   mc.waitFor(() => l10nDone, "Timeout waiting for L10n to complete.");
 

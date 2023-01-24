@@ -70,10 +70,7 @@ var downloadsView = {
       succeededPromises.push(succeededPromise);
     }
     let finished = false;
-    Promise.all(succeededPromises).then(
-      () => (finished = true),
-      Cu.reportError
-    );
+    Promise.all(succeededPromises).then(() => (finished = true), console.error);
     mc.waitFor(() => finished, "Timeout waiting for downloads to complete.");
   },
 };
@@ -119,7 +116,7 @@ function prepare_downloads_view() {
   let success = false;
   downloads.Downloads.getList(downloads.Downloads.ALL)
     .then(list => list.addView(downloadsView))
-    .then(() => (success = true), Cu.reportError);
+    .then(() => (success = true), console.error);
   mc.waitFor(() => success, "Timeout waiting for attaching our download view.");
 }
 
@@ -366,7 +363,7 @@ function teardownTest() {
         list.remove(download);
       }
     })
-    .then(null, Cu.reportError);
+    .catch(console.error);
   mc.waitFor(
     () => downloadsView.count == 0,
     "Timeout waiting for clearing all saved attachment files."
