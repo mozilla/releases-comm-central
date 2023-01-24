@@ -634,6 +634,10 @@ var messageHeaderSink2 = {
     // subject and the twisty.
     EnsureSubjectValue();
 
+    // Make sure there is a from value even if empty so the header toolbar
+    // will show up.
+    EnsureFromValue();
+
     // Only update the expanded view if it's actually selected and needs updating.
     if (!gBuiltExpandedView) {
       UpdateExpandedMessageHeaders();
@@ -905,6 +909,15 @@ function EnsureSubjectValue() {
     let foo = {};
     foo.headerValue = "";
     foo.headerName = "subject";
+    currentHeaderData[foo.headerName] = foo;
+  }
+}
+
+function EnsureFromValue() {
+  if (!("from" in currentHeaderData)) {
+    let foo = {};
+    foo.headerValue = "";
+    foo.headerName = "from";
     currentHeaderData[foo.headerName] = foo;
   }
 }
