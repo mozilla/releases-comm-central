@@ -642,12 +642,12 @@ class TreeViewListbox extends HTMLTableSectionElement {
       `slot[name="placeholders"]`
     );
 
-    this.addEventListener("focus", event => {
-      if (this._preventFocusHandler) {
-        this._preventFocusHandler = false;
-        return;
-      }
-      if (this.currentIndex == -1 && this._view?.rowCount) {
+    this.addEventListener("keyup", event => {
+      if (
+        ["Tab", "F6"].includes(event.key) &&
+        this.currentIndex == -1 &&
+        this._view?.rowCount
+      ) {
         let selectionChanged = false;
         if (this.selectedIndex == -1) {
           this._selection.select(0);
@@ -658,29 +658,6 @@ class TreeViewListbox extends HTMLTableSectionElement {
           this.onSelectionChanged();
         }
       }
-    });
-
-    this.addEventListener("mousedown", event => {
-      if (this == document.activeElement && event.target.closest("button")) {
-        // Prevent moving the focus to any clickable child element.
-        event.preventDefault();
-        return;
-      }
-      // We prevent the focus handler because it can change the selection
-      // state, which currently rebuilds the view. If this happens the mouseup
-      // event will be on a different element, which means it will not receive
-      // the "click" event.
-      // Instead, we let the click handler change the selection state instead
-      // of the focus handler.
-      // Ideally, instead of this hack, we would not rebuild the view when
-      // just the selection changes since it should be a light operation.
-      this._preventFocusHandler = true;
-      // We expect the property to be cleared in the focus handler, because
-      // the default mousedown will invoke it, but we clear the property at
-      // the next loop just in case.
-      setTimeout(() => {
-        this._preventFocusHandler = false;
-      });
     });
 
     this.addEventListener("click", event => {
@@ -710,6 +687,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
               )
           );
         }
+        this.focus();
         return;
       }
 
@@ -725,6 +703,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
         } else {
           this._toggleSelected(index);
         }
+        this.focus();
         return;
       }
 
@@ -739,6 +718,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
             bubbles: true,
           })
         );
+        this.focus();
         return;
       }
 
@@ -753,6 +733,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
             bubbles: true,
           })
         );
+        this.focus();
         return;
       }
 
@@ -767,6 +748,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
             bubbles: true,
           })
         );
+        this.focus();
         return;
       }
 
@@ -787,6 +769,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
             },
           })
         );
+        this.focus();
         return;
       }
 
@@ -797,6 +780,8 @@ class TreeViewListbox extends HTMLTableSectionElement {
       } else {
         this._selectSingle(index);
       }
+
+      this.focus();
     });
 
     this.addEventListener("keydown", event => {
@@ -1609,17 +1594,26 @@ class TreeViewListrow extends HTMLTableRowElement {
 
       // Handle the special case for the selectable checkbox column.
       if (column.select) {
-        cell.classList.add("tree-view-row-select");
-        const img = document.createElement("img");
-        img.src = "";
-        img.classList.add("tree-view-row-select-checkbox");
+        let img = cell.firstElementChild;
+        if (!img) {
+          cell.classList.add("tree-view-row-select");
+          img = document.createElement("img");
+          img.src = "";
+          img.classList.add("tree-view-row-select-checkbox");
+          cell.replaceChildren(img);
+        }
         document.l10n.setAttributes(
           img,
           this.list._selection.isSelected(index)
             ? "tree-list-view-row-deselect"
             : "tree-list-view-row-select"
         );
-        cell.replaceChildren(img);
+        continue;
+      }
+
+      // No need to do anything if an earlier call to this function already
+      // added the cell contents.
+      if (cell.firstElementChild) {
         continue;
       }
 

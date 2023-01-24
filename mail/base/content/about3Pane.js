@@ -2295,28 +2295,35 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
 
       // Special case for the subject column.
       if (column.id == "subjectCol") {
-        let div = document.createElement("div");
-        div.classList.add("subject-line");
-        div.tabIndex = -1;
+        let div = cell.querySelector(".thread-container .subject-line");
+        let image, span;
+        if (div) {
+          image = div.querySelector("img");
+          span = div.querySelector("span");
+        } else {
+          div = document.createElement("div");
+          div.classList.add("subject-line");
+          div.tabIndex = -1;
 
-        let image = document.createElement("img");
-        image.src = "";
-        image.alt = "";
-        div.appendChild(image);
+          image = document.createElement("img");
+          image.src = "";
+          image.alt = "";
+          div.appendChild(image);
 
+          span = document.createElement("span");
+          div.appendChild(span);
+          cell
+            .querySelector(".thread-container")
+            .replaceChildren(this.twisty, div);
+        }
+
+        // Indent child message of this thread.
+        div.style.setProperty("--thread-level", this.view.getLevel(index));
         let imageFluentID = this.#getMessageIndicatorString(propertiesSet);
         if (imageFluentID) {
           document.l10n.setAttributes(image, imageFluentID);
         }
-
-        let span = document.createElement("span");
         span.textContent = this.view.cellTextForColumn(index, column.id);
-        div.appendChild(span);
-        cell
-          .querySelector(".thread-container")
-          .replaceChildren(this.twisty, div);
-        // Indent child message of this thread.
-        div.style.setProperty("--thread-level", this.view.getLevel(index));
         continue;
       }
 
