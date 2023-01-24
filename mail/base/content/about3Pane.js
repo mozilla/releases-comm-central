@@ -38,6 +38,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   FeedUtils: "resource:///modules/FeedUtils.jsm",
   FolderUtils: "resource:///modules/FolderUtils.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
+  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
   VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.jsm",
 });
 
@@ -1694,7 +1695,9 @@ class FolderTreeRow extends HTMLLIElement {
    * @param {string} uri
    */
   _setURI(uri) {
-    this.id = `${this.modeName}-${btoa(uri)}`;
+    this.id = `${this.modeName}-${btoa(
+      MailStringUtils.stringToByteString(uri)
+    )}`;
     this.uri = uri;
     if (!FolderTreeProperties.getIsExpanded(uri, this.modeName)) {
       this.classList.add("collapsed");
