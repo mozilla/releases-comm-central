@@ -987,6 +987,10 @@ class TreeViewListbox extends HTMLTableSectionElement {
         }
       }
     }
+
+    // Clear the height of the top spacer to avoid confusing
+    // `_ensureVisibleRowsAreDisplayed`.
+    this.parentNode.spacerTop.setHeight(0);
     this.invalidate();
 
     this.dispatchEvent(new CustomEvent("viewchange"));
