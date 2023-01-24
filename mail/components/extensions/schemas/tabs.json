@@ -327,7 +327,7 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates a new content tab. Use the :ref:`messageDisplay_api` to open messages. Only supported in <value>normal</value> windows.",
+        "description": "Creates a new content tab. Use the :ref:`messageDisplay_api` to open messages. Only supported in <value>normal</value> windows. Same-site links in the loaded page are opened within Thunderbird, all other links are opened in the user's default browser. To override this behavior, add-ons have to register a `content script <https://bugzilla.mozilla.org/show_bug.cgi?id=1618828#c3>`__ , capture click events and handle them manually.",
         "async": "callback",
         "parameters": [
           {

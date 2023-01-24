@@ -12,17 +12,17 @@ let { MockRegistrar } = ChromeUtils.importESModule(
 /** @implements {nsIExternalProtocolService} */
 let mockExternalProtocolService = {
   _loadedURLs: [],
-  externalProtocolHandlerExists(aProtocolScheme) {},
-  getApplicationDescription(aScheme) {},
-  getProtocolHandlerInfo(aProtocolScheme) {},
-  getProtocolHandlerInfoFromOS(aProtocolScheme, aFound) {},
-  isExposedProtocol(aProtocolScheme) {},
-  loadURI(aURI, aWindowContext) {
-    this._loadedURLs.push(aURI.spec);
+  externalProtocolHandlerExists(protocolScheme) {},
+  getApplicationDescription(scheme) {},
+  getProtocolHandlerInfo(protocolScheme) {},
+  getProtocolHandlerInfoFromOS(protocolScheme, found) {},
+  isExposedProtocol(protocolScheme) {},
+  loadURI(uri, windowContext) {
+    this._loadedURLs.push(uri.spec);
   },
-  setProtocolHandlerDefaults(aHandlerInfo, aOSHandlerExists) {},
-  urlLoaded(aURL) {
-    return this._loadedURLs.includes(aURL);
+  setProtocolHandlerDefaults(handlerInfo, osHandlerExists) {},
+  urlLoaded(url) {
+    return this._loadedURLs.includes(url);
   },
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 };

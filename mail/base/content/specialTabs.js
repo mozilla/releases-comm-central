@@ -963,10 +963,7 @@ var specialTabs = {
 
       if (aArgs.linkHandler == "single-page") {
         aTab.browser.setAttribute("messagemanagergroup", "single-page");
-      } else if (
-        aArgs.linkHandler === null ||
-        aArgs.url.startsWith("moz-extension:")
-      ) {
+      } else if (aArgs.linkHandler === null) {
         aTab.browser.setAttribute("messagemanagergroup", "browsers");
       } else {
         aTab.browser.setAttribute("messagemanagergroup", "single-site");

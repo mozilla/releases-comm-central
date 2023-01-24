@@ -493,7 +493,7 @@ this.tabs = class extends ExtensionAPIPersistent {
 
           let nativeTabInfo = tabmail.openTab("contentTab", {
             url: url || "about:blank",
-            linkHandler: null,
+            linkHandler: "single-site",
             background: !active,
             initialBrowsingContextGroupId:
               context.extension.policy.browsingContextGroupId,
