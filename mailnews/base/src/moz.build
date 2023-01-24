@@ -111,7 +111,6 @@ EXTRA_JS_MODULES += [
     "FolderLookupService.jsm",
     "FolderUtils.jsm",
     "hostnameUtils.jsm",
-    "JsTreeSelection.jsm",
     "JXON.jsm",
     "LineReader.jsm",
     "MailAuthenticator.jsm",

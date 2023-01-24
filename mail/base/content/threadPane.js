@@ -5,11 +5,9 @@
 /* import-globals-from folderDisplay.js */
 /* import-globals-from SearchDialog.js */
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "JSTreeSelection",
-  "resource:///modules/JsTreeSelection.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  TreeSelection: "chrome://messenger/content/tree-selection.mjs",
+});
 
 var gLastMessageUriToLoad = null;
 var gThreadPaneCommandUpdater = null;
@@ -29,7 +27,7 @@ var gRightMouseButtonSavedSelection = null;
  * When right-clicks happen, we do not want to corrupt the underlying
  * selection.  The right-click is a transient selection.  So, unless the
  * user is right-clicking on the current selection, we create a new
- * selection object (thanks to JSTreeSelection) and set that as the
+ * selection object (thanks to TreeSelection) and set that as the
  * current/transient selection.
  *
  * @param aSingleSelect Should the selection we create be a single selection?
@@ -57,7 +55,7 @@ function ChangeSelectionWithoutContentLoad(event, tree, aSingleSelect) {
       }
     }
 
-    let transientSelection = new JSTreeSelection(tree);
+    let transientSelection = new TreeSelection(tree);
     transientSelection.logAdjustSelectionForReplay();
 
     gRightMouseButtonSavedSelection = {

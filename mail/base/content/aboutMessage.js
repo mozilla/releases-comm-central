@@ -22,11 +22,11 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   DownloadPaths: "resource://gre/modules/DownloadPaths.sys.mjs",
+  TreeSelection: "chrome://messenger/content/tree-selection.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   DBViewWrapper: "resource:///modules/DBViewWrapper.jsm",
-  JSTreeSelection: "resource:///modules/JsTreeSelection.jsm",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
 });
 
@@ -139,7 +139,7 @@ function displayMessage(uri, viewWrapper) {
       gViewWrapper.open(gFolder);
     }
 
-    gViewWrapper.dbView.selection = new JSTreeSelection();
+    gViewWrapper.dbView.selection = new TreeSelection();
     gViewWrapper.dbView.selection.select(
       gViewWrapper.dbView.findIndexOfMsgHdr(gMessage, true)
     );

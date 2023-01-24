@@ -167,7 +167,6 @@
   "resource:///modules/ImapUtils.jsm": "comm/mailnews/imap/src/ImapUtils.jsm",
   "resource:///modules/InteractiveBrowser.jsm": "comm/chat/modules/InteractiveBrowser.jsm",
   "resource:///modules/JXON.jsm": "comm/mailnews/base/src/JXON.jsm",
-  "resource:///modules/JsTreeSelection.jsm": "comm/mailnews/base/src/JsTreeSelection.jsm",
   "resource:///modules/LDAPClient.jsm": "comm/mailnews/addrbook/modules/LDAPClient.jsm",
   "resource:///modules/LDAPConnection.jsm": "comm/mailnews/addrbook/modules/LDAPConnection.jsm",
   "resource:///modules/LDAPDirectory.jsm": "comm/mailnews/addrbook/modules/LDAPDirectory.jsm",

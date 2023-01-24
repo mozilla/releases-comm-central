@@ -5,9 +5,7 @@
 const { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-const { JSTreeSelection } = ChromeUtils.import(
-  "resource:///modules/JsTreeSelection.jsm"
-);
+import { TreeSelection } from "chrome://messenger/content/tree-selection.mjs";
 
 // Account for the mac OS accelerator key variation.
 // Use these strings to check keyboard event properties.
@@ -1011,7 +1009,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
     this._view = view;
     if (view) {
       try {
-        this._selection = new JSTreeSelection();
+        this._selection = new TreeSelection();
         this._selection.tree = this;
         this._selection.view = view;
 
@@ -1390,7 +1388,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
   _selectSingle(index) {
     let changeSelection =
       this._selection.count != 1 || !this._selection.isSelected(index);
-    // Update the JSTreeSelection selection to trigger a tree invalidate().
+    // Update the TreeSelection selection to trigger a tree invalidate().
     if (changeSelection) {
       this._selection.select(index);
     }
@@ -1418,7 +1416,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
    */
   _toggleSelected(index) {
     this._selection.toggleSelect(index);
-    // We hack the internals of the JSTreeSelection to clear the
+    // We hack the internals of the TreeSelection to clear the
     // shiftSelectPivot.
     this._selection._shiftSelectPivot = null;
     this.currentIndex = index;

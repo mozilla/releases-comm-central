@@ -8,8 +8,8 @@
  *  James using test_nsMsgDBView.js as a base.
  */
 
-const { JSTreeSelection } = ChromeUtils.import(
-  "resource:///modules/JsTreeSelection.jsm"
+const { TreeSelection } = ChromeUtils.importESModule(
+  "chrome://messenger/content/tree-selection.mjs"
 );
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -31,7 +31,7 @@ var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 // calls to these objects in nsMsgDBView and friends, it will also
 // be necessary to add fake versions of those calls here.
 
-var gFakeSelection = new JSTreeSelection(null);
+var gFakeSelection = new TreeSelection(null);
 
 // Items used to add messages to the folder
 

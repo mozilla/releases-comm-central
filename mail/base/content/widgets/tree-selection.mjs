@@ -2,40 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["JSTreeSelection"];
-
 /**
- * Partial nsITreeSelection implementation so that we can have nsMsgDBViews that
- *  exist only for message display but do not need to be backed by a full
- *  tree view widget.  This could also hopefully be used for more xpcshell unit
- *  testing of the FolderDisplayWidget.  It might also be useful for creating
- *  transient selections when right-click selection happens.
- *
- * Our current limitations:
- * - We do not support any single selection modes.  This is mainly because we
- *   need to look at the box object for that and we don't want to do it.
- * - Timed selection.  Our expected consumers don't use it.
- *
- * Our current laziness:
- * - We aren't very precise about invalidation when it would be potentially
- *   complicated.  The theory is that if there is a tree box object, it's
- *   probably native and the XPConnect overhead is probably a lot more than
- *   any potential savings, at least for now when the tree display is
- *   generally C++ XPCOM backed rather than JS XPCOM backed.  Also, we
- *   aren't intended to actually be used with a real tree display; you should
- *   be using the C++ object in that case!
- *
- * If documentation is omitted for something, it is because we have little to
- *  add to the documentation of nsITreeSelection and really hope that our
- *  documentation tool will copy-down that documentation.
- *
  * This implementation attempts to mimic the behavior of nsTreeSelection.  In
  *  a few cases, this leads to potentially confusing actions.  I attempt to note
  *  when we are doing this and why we do it.
  *
- * Unit test is in mailnews/base/util/test_jsTreeSelection.js
+ * Unit test is in mail/base/test/unit/test_treeSelection.js
  */
-function JSTreeSelection(aTree) {
+export function TreeSelection(aTree) {
   this._tree = aTree;
 
   this._currentIndex = null;
@@ -45,7 +19,7 @@ function JSTreeSelection(aTree) {
 
   this._selectEventsSuppressed = false;
 }
-JSTreeSelection.prototype = {
+TreeSelection.prototype = {
   /**
    * The current XULTreeElement, appropriately QueryInterfaced. May be null.
    */

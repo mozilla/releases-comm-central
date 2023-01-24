@@ -20,8 +20,8 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-const { JSTreeSelection } = ChromeUtils.import(
-  "resource:///modules/JsTreeSelection.jsm"
+const { TreeSelection } = ChromeUtils.importESModule(
+  "chrome://messenger/content/tree-selection.mjs"
 );
 var { MessageInjection } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageInjection.jsm"
@@ -250,7 +250,7 @@ var ViewFlags = Ci.nsMsgViewFlagsType;
 
 var MSG_VIEW_FLAG_DUMMY = 0x20000000;
 
-var gFakeSelection = new JSTreeSelection(null);
+var gFakeSelection = new TreeSelection(null);
 
 function setup_view(aViewType, aViewFlags, aTestFolder) {
   let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=" + aViewType;

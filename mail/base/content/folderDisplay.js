@@ -10,9 +10,12 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  TreeSelection: "chrome://messenger/content/tree-selection.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   DBViewWrapper: "resource:///modules/DBViewWrapper.jsm",
-  JSTreeSelection: "resource:///modules/JsTreeSelection.jsm",
 });
 
 var nsMsgKey_None = 0xffffffff;
@@ -180,7 +183,7 @@ function FolderDisplayWidget() {
    * tab. We'll get rid of this as soon as we've switched to the tab for the
    * first time, and have a real tree selection.
    */
-  this._fakeTreeSelection = new JSTreeSelection(this._fakeTree);
+  this._fakeTreeSelection = new TreeSelection(this._fakeTree);
 
   this._mostRecentSelectionCounts = [];
   this._mostRecentCurrentIndices = [];
