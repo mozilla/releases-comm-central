@@ -327,6 +327,13 @@ function nsMsgStatusFeedback() {
   goUpdateCommand("cmd_stop");
 }
 
+/**
+ * @implements {nsIMsgStatusFeedback}
+ * @implements {nsIXULBrowserWindow}
+ * @implements {nsIActivityMgrListener}
+ * @implements {nsIActivityListener}
+ * @implements {nsISupportsWeakReference}
+ */
 nsMsgStatusFeedback.prototype = {
   // Document elements.
   _statusText: null,
@@ -391,6 +398,39 @@ nsMsgStatusFeedback.prototype = {
   // Called before links are navigated to to allow us to retarget them if needed.
   onBeforeLinkTraversal(originalTarget, linkURI, linkNode, isAppTab) {
     return originalTarget;
+  },
+
+  // Called by BrowserParent::RecvShowTooltip, needed for tooltips in content tabs.
+  showTooltip(xDevPix, yDevPix, tooltip, direction, browser) {
+    if (
+      Cc["@mozilla.org/widget/dragservice;1"]
+        .getService(Ci.nsIDragService)
+        .getCurrentSession()
+    ) {
+      return;
+    }
+
+    let elt = document.getElementById("remoteBrowserTooltip");
+    elt.label = tooltip;
+    elt.style.direction = direction;
+    elt.openPopupAtScreen(
+      xDevPix / window.devicePixelRatio,
+      yDevPix / window.devicePixelRatio,
+      false,
+      null
+    );
+  },
+
+  // Called by BrowserParent::RecvHideTooltip, needed for tooltips in content tabs.
+  hideTooltip() {
+    let elt = document.getElementById("remoteBrowserTooltip");
+    elt.hidePopup();
+  },
+
+  getTabCount() {
+    let tabmail = document.getElementById("tabmail");
+    // messageWindow.xhtml does not have multiple tabs.
+    return tabmail ? tabmail.tabs.length : 1;
   },
 
   QueryInterface: ChromeUtils.generateQI([
@@ -895,7 +935,9 @@ nsBrowserAccess.prototype = {
   },
 
   get tabCount() {
-    return document.getElementById("tabmail").tabInfo.length;
+    let tabmail = document.getElementById("tabmail");
+    // messageWindow.xhtml does not have multiple tabs.
+    return tabmail ? tabmail.tabInfo.length : 1;
   },
 };
 

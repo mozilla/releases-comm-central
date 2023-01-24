@@ -110,6 +110,11 @@ function getBrowser() {
 
 var gBrowserInit = {
   onDOMContentLoaded() {
+    // This needs setting up before we create the first remote browser.
+    window.docShell.treeOwner
+      .QueryInterface(Ci.nsIInterfaceRequestor)
+      .getInterface(Ci.nsIAppWindow).XULBrowserWindow = window.XULBrowserWindow;
+
     window.tryToClose = () => {
       if (window.onclose()) {
         window.close();
@@ -136,6 +141,52 @@ var gBrowserInit = {
       }
       loadRequestedUrl();
     });
+  },
+};
+
+/**
+ * @implements {nsIXULBrowserWindow}
+ */
+var XULBrowserWindow = {
+  // Used in mailWindows to show the link in the status bar, but popup windows
+  // do not have one. Do nothing here.
+  setOverLink(url, anchorElt) {},
+
+  // Called before links are navigated to to allow us to retarget them if needed.
+  onBeforeLinkTraversal(originalTarget, linkURI, linkNode, isAppTab) {
+    return originalTarget;
+  },
+
+  // Called by BrowserParent::RecvShowTooltip.
+  showTooltip(xDevPix, yDevPix, tooltip, direction, browser) {
+    if (
+      Cc["@mozilla.org/widget/dragservice;1"]
+        .getService(Ci.nsIDragService)
+        .getCurrentSession()
+    ) {
+      return;
+    }
+
+    let elt = document.getElementById("remoteBrowserTooltip");
+    elt.label = tooltip;
+    elt.style.direction = direction;
+    elt.openPopupAtScreen(
+      xDevPix / window.devicePixelRatio,
+      yDevPix / window.devicePixelRatio,
+      false,
+      null
+    );
+  },
+
+  // Called by BrowserParent::RecvHideTooltip.
+  hideTooltip() {
+    let elt = document.getElementById("remoteBrowserTooltip");
+    elt.hidePopup();
+  },
+
+  getTabCount() {
+    // Popup windows have a single tab.
+    return 1;
   },
 };
 

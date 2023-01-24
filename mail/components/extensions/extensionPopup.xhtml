@@ -40,7 +40,9 @@
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <popupset>
+  <popupset id="mainPopupSet">
+    <tooltip id="aHTMLTooltip" page="true"/>
+    <tooltip id="remoteBrowserTooltip"/>
 #include ../../base/content/widgets/browserPopups.inc.xhtml
   </popupset>
 
@@ -69,6 +71,7 @@
              type="content"
              src="about:blank"
              flex="1"
+             tooltip="aHTMLTooltip"
              autocompletepopup="PopupAutoComplete"
              context="browserContext"
              datetimepicker="DateTimePickerPanel"
