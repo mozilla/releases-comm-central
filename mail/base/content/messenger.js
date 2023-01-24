@@ -379,15 +379,6 @@ var gMailInit = {
     PeriodicFilterManager.setupFiltering();
     msgDBCacheManager.init();
 
-    requestIdleCallback(function() {
-      if (!window.closed) {
-        Services.obs.notifyObservers(
-          window,
-          "mail-idle-startup-tasks-finished"
-        );
-      }
-    });
-
     this.delayedStartupFinished = true;
     Services.obs.notifyObservers(window, "browser-delayed-startup-finished");
 
