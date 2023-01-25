@@ -49,7 +49,7 @@ add_task(async function testMinimonthsFillAvailableSpaceOnResize() {
         "chrome://calendar/content/calendar-event-dialog-recurrence.xhtml",
         {
           async callback(win) {
-            let container = win.document.querySelector("#recurrence-preview");
+            let container = win.document.querySelector("#recurrencePreview");
             let containerRect = container.getBoundingClientRect();
             let containerWidth = containerRect.width;
             let containerHeight = containerRect.height;

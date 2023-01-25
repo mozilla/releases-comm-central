@@ -620,6 +620,7 @@
 
       // Update the month and year title.
       this.setAttribute("year", aDate.getFullYear());
+      this.setAttribute("month", aDate.getMonth());
 
       let miniMonthName = this.querySelector(".minimonth-month-name");
       let dateString = cal.l10n.getDateFmtString(`month.${aDate.getMonth() + 1}.name`);

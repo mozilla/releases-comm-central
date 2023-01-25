@@ -29,6 +29,8 @@
         xmlns:html="http://www.w3.org/1999/xhtml">
 
 <dialog>
+  <!-- Localization -->
+  <html:link rel="localization" href="calendar/calendar-recurrence-dialog.ftl"/>
 
   <!-- Javascript includes -->
   <script src="chrome://calendar/content/calendar-event-dialog-recurrence.js"/>
@@ -771,17 +773,30 @@
   </html:fieldset>
 
   <!-- preview -->
-  <html:fieldset id="preview-border">
-    <html:legend id="recurrence-preview-label">&event.recurrence.preview.label;</html:legend>
-    <hbox id="recurrence-preview">
-      <vbox>
-        <hbox>
-            <calendar-minimonth readonly="true"/>
-            <calendar-minimonth readonly="true"/>
-            <calendar-minimonth readonly="true"/>
-        </hbox>
-      </vbox>
-    </hbox>
+  <html:fieldset id="previewBorder">
+    <html:legend id="recurrencePreviewLabel"
+                 data-l10n-id="calendar-recurrence-preview-label"></html:legend>
+    <html:div id="recurrencePreviewNavigation">
+      <html:button id="recurrencePrevious"
+                   data-l10n-id="calendar-recurrence-previous"></html:button>
+      <html:button id="recurrenceToday"
+                   data-l10n-id="calendar-recurrence-today"></html:button>
+      <html:button id="recurrenceNext"
+                   data-l10n-id="calendar-recurrence-next"></html:button>
+    </html:div>
+    <html:div id="recurrencePreviewCalendars">
+      <html:div id="recurrencePreview">
+        <calendar-minimonth readonly="true" hidden="false" active-month="true" initial-month="true"/>
+        <calendar-minimonth readonly="true" hidden="false"/>
+        <calendar-minimonth readonly="true" hidden="false"/>
+        <calendar-minimonth readonly="true" hidden="true"/>
+        <calendar-minimonth readonly="true" hidden="true"/>
+        <calendar-minimonth readonly="true" hidden="true"/>
+        <calendar-minimonth readonly="true" hidden="true"/>
+        <calendar-minimonth readonly="true" hidden="true"/>
+        <calendar-minimonth readonly="true" hidden="true"/>
+      </html:div>
+    </html:div>
   </html:fieldset>
 </dialog>
 </window>

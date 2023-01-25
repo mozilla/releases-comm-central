@@ -521,15 +521,41 @@ label.label {
 /*--------------------------------------------------------------------
  *   Recurrence dialog
  *-------------------------------------------------------------------*/
-.recurrence-pattern-hbox-label {
-    margin-top: 6px;
+
+#calendar-event-dialog-recurrence dialog {
+  overflow: scroll;
 }
 
-#preview-border {
+.recurrence-pattern-hbox-label {
+  margin-top: 6px;
+}
+
+#previewBorder {
   border: none;
   padding: 0;
+  display: block;
+}
+
+#recurrencePreviewCalendars {
+  display: block;
+  margin: 2px;
+}
+
+#recurrencePreview {
   display: flex;
-  -moz-box-flex: 1;
+}
+
+#recurrencePreview calendar-minimonth {
+  display: inline-block;
+  margin: 2px;
+}
+
+#recurrencePreview calendar-minimonth[hidden="true"] {
+  display: none;
+}
+
+#recurrencePreviewNavigation {
+  display: block;
 }
 
 #daypicker-weekday {
