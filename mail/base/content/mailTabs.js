@@ -22,7 +22,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 var newMailTabType = {
   name: "newMailTab",
   perTabPanel: "vbox",
-  _cloneTemplate(template, tab, onLoad) {
+  _cloneTemplate(template, tab, onDOMContentLoaded, onLoad) {
     let tabmail = document.getElementById("tabmail");
 
     let clone = document.getElementById(template).content.cloneNode(true);
@@ -46,10 +46,25 @@ var newMailTabType = {
         tabmail.setTabFavIcon(tab, event.target.href);
       }
     });
+    if (onDOMContentLoaded) {
+      browser.addEventListener(
+        "DOMContentLoaded",
+        event => {
+          if (!tab.closed) {
+            onDOMContentLoaded(event.target.ownerGlobal);
+          }
+        },
+        { capture: true, once: true }
+      );
+    }
     browser.addEventListener(
       "load",
-      event => onLoad(event.target.ownerGlobal),
-      true
+      event => {
+        if (!tab.closed) {
+          onLoad(event.target.ownerGlobal);
+        }
+      },
+      { capture: true, once: true }
     );
 
     tab.title = "";
@@ -70,47 +85,48 @@ var newMailTabType = {
       isDefault: true,
 
       openTab(tab, args = {}) {
-        newMailTabType._cloneTemplate("mail3PaneTabTemplate", tab, win => {
-          win.tabOrWindow = tab;
-          // Can we be sure messageBrowser.contentWindow is loaded at this point?
-          win.messageBrowser.contentWindow.tabOrWindow = tab;
-          win.restoreState(args);
-          if (!args.folderURI && !args.syntheticView) {
-            // Temporary fix: the select event listener is added after the
-            // folder tree is constructed, which selects the first item. We
-            // need to fire a select event if `restoreState` didn't cause one.
-            win.folderTree.dispatchEvent(new CustomEvent("select"));
-          }
-          if (!args.background) {
-            // Update telemetry once the tab has loaded and decided if the
-            // panes are visible.
-            Services.telemetry.keyedScalarSet(
-              "tb.ui.configuration.pane_visibility",
-              "folderPane",
-              tab.folderPaneVisible
-            );
-            Services.telemetry.keyedScalarSet(
-              "tb.ui.configuration.pane_visibility",
-              "messagePane",
-              tab.messagePaneVisible
-            );
-          }
+        newMailTabType._cloneTemplate(
+          "mail3PaneTabTemplate",
+          tab,
+          win => {
+            // Send the state to the page so it can restore immediately.
+            win.openingState = args;
+          },
+          win => {
+            win.tabOrWindow = tab;
+            // Can we be sure messageBrowser.contentWindow is loaded at this point?
+            win.messageBrowser.contentWindow.tabOrWindow = tab;
+            if (!args.background) {
+              // Update telemetry once the tab has loaded and decided if the
+              // panes are visible.
+              Services.telemetry.keyedScalarSet(
+                "tb.ui.configuration.pane_visibility",
+                "folderPane",
+                tab.folderPaneVisible
+              );
+              Services.telemetry.keyedScalarSet(
+                "tb.ui.configuration.pane_visibility",
+                "messagePane",
+                tab.messagePaneVisible
+              );
+            }
 
-          // The first tab has loaded and ready for the user to interact with
-          // it. We can let the rest of the start-up happen now without
-          // appearing to slow the program down.
-          if (tab.first) {
-            Services.obs.notifyObservers(window, "mail-startup-done");
-            requestIdleCallback(function() {
-              if (!window.closed) {
-                Services.obs.notifyObservers(
-                  window,
-                  "mail-idle-startup-tasks-finished"
-                );
-              }
-            });
+            // The first tab has loaded and ready for the user to interact with
+            // it. We can let the rest of the start-up happen now without
+            // appearing to slow the program down.
+            if (tab.first) {
+              Services.obs.notifyObservers(window, "mail-startup-done");
+              requestIdleCallback(function() {
+                if (!window.closed) {
+                  Services.obs.notifyObservers(
+                    window,
+                    "mail-idle-startup-tasks-finished"
+                  );
+                }
+              });
+            }
           }
-        });
+        );
 
         // `browser` and `linkedBrowser` refer to the message display browser
         // within this tab. They may be null if the browser isn't visible.
@@ -206,6 +222,9 @@ var newMailTabType = {
         return tab;
       },
       persistTab(tab) {
+        if (!tab.folder) {
+          return null;
+        }
         return {
           firstTab: tab.first,
           folderPaneVisible: tab.folderPaneVisible,
@@ -214,27 +233,46 @@ var newMailTabType = {
         };
       },
       restoreTab(tabmail, persistedState) {
-        if (persistedState.firstTab) {
-          let tab = tabmail.tabInfo[0];
-          if (
-            tab.chromeBrowser.currentURI.spec != "about:3pane" ||
-            tab.chromeBrowser.contentDocument.readyState != "complete"
-          ) {
-            tab.chromeBrowser.contentWindow.addEventListener(
-              "load",
-              () => {
-                tab.chromeBrowser.contentWindow.displayFolder(
-                  persistedState.folderURI
-                );
-              },
-              { once: true }
-            );
-          } else {
-            tab.chromeBrowser.contentWindow.restoreState(persistedState);
-          }
-        } else {
+        if (!persistedState.firstTab) {
           tabmail.openTab("mail3PaneTab", persistedState);
+          return;
         }
+
+        let { chromeBrowser, closed } = tabmail.tabInfo[0];
+        if (
+          chromeBrowser.contentDocument.readyState == "complete" &&
+          chromeBrowser.currentURI.spec == "about:3pane"
+        ) {
+          chromeBrowser.contentWindow.restoreState(persistedState);
+          return;
+        }
+
+        // Send the state to the page so it can restore immediately.
+        let sawDOMContentLoaded = false;
+        chromeBrowser.addEventListener(
+          "DOMContentLoaded",
+          event => {
+            if (!closed && event.target == chromeBrowser.contentDocument) {
+              event.target.ownerGlobal.openingState = persistedState;
+              sawDOMContentLoaded = true;
+            }
+          },
+          { capture: true, once: true }
+        );
+        // Didn't see DOMContentLoaded? Restore the state on load.
+        chromeBrowser.addEventListener(
+          "load",
+          event => {
+            if (
+              !closed &&
+              !sawDOMContentLoaded &&
+              event.target == chromeBrowser.contentDocument
+            ) {
+              chromeBrowser.contentWindow.restoreState(persistedState);
+            }
+          },
+          { capture: true, once: true }
+        );
       },
       showTab(tab) {
         if (
@@ -278,10 +316,15 @@ var newMailTabType = {
     mailMessageTab: {
       _nextId: 1,
       openTab(tab, { messageURI, viewWrapper } = {}) {
-        newMailTabType._cloneTemplate("mailMessageTabTemplate", tab, win => {
-          win.tabOrWindow = tab;
-          win.displayMessage(messageURI, viewWrapper);
-        });
+        newMailTabType._cloneTemplate(
+          "mailMessageTabTemplate",
+          tab,
+          undefined,
+          win => {
+            win.tabOrWindow = tab;
+            win.displayMessage(messageURI, viewWrapper);
+          }
+        );
 
         // `browser` and `linkedBrowser` refer to the message display browser
         // within this tab. They may be null if the browser isn't visible.

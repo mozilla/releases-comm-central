@@ -71,6 +71,34 @@ window.addEventListener("DOMContentLoaded", async event => {
 
   UIDensity.registerWindow(window);
 
+  // Initialize the folder pane.
+  folderTree = document.getElementById("folderTree");
+  await folderPane.init();
+
+  // Ensure TreeViewListbox and its classes are properly defined.
+  await customElements.whenDefined("tree-view-listrow");
+
+  // Initialize the thread pane before the folder pane in order to have the UI
+  // ready when a folder is selected.
+  let tree = document.getElementById("messageThreadTree");
+  treeTable = tree.table;
+  treeTable.editable = true;
+  threadTree = treeTable.listbox;
+  treeTable.setPopupMenuTemplates([
+    "threadPaneApplyColumnMenu",
+    "threadPaneApplyViewMenu",
+  ]);
+  threadTree.id = "threadTree";
+  threadTree.setAttribute("rows", "thread-listrow");
+  threadPane.init();
+
+  webBrowser = document.getElementById("webBrowser");
+  messageBrowser = document.getElementById("messageBrowser");
+  multiMessageBrowser = document.getElementById("multiMessageBrowser");
+  accountCentralBrowser = document.getElementById("accountCentralBrowser");
+
+  multiMessageBrowser.docShell.allowDNSPrefetch = false;
+
   folderPaneSplitter = document.getElementById("folderPaneSplitter");
   let folderPaneSplitterWidth = Services.xulStore.getValue(
     XULSTORE_URL,
@@ -129,7 +157,13 @@ window.addEventListener("DOMContentLoaded", async event => {
     (name, oldValue, newValue) => setLayout(newValue)
   );
   setLayout(this.layout);
-  restoreState();
+
+  // Set up the initial state using information which may have been provided
+  // by mailTabs.js, or the saved state from the XUL store, or the defaults.
+  // We do this *before* adding listeners, in particular the folderTree select
+  // listener, to avoid unnecessarily triggering them.
+  restoreState(window.openingState);
+  delete window.openingState;
 
   folderPaneSplitter.addEventListener("splitter-resized", () => {
     Services.xulStore.setValue(
@@ -183,27 +217,6 @@ window.addEventListener("DOMContentLoaded", async event => {
       false
     );
   });
-
-  // Ensure TreeViewListbox and its classes are properly defined.
-  await customElements.whenDefined("tree-view-listrow");
-
-  // Initialize the thread pane before the folder pane in order to have the UI
-  // ready when a folder is selected.
-  let tree = document.getElementById("messageThreadTree");
-  treeTable = tree.table;
-  treeTable.editable = true;
-  threadTree = treeTable.listbox;
-  treeTable.setPopupMenuTemplates([
-    "threadPaneApplyColumnMenu",
-    "threadPaneApplyViewMenu",
-  ]);
-  threadTree.id = "threadTree";
-  threadTree.setAttribute("rows", "thread-listrow");
-  threadPane.init();
-
-  // Initialize the folder pane.
-  folderTree = document.getElementById("folderTree");
-  await folderPane.init();
 
   MailServices.mailSession.AddFolderListener(
     folderListener,
@@ -374,12 +387,8 @@ window.addEventListener("DOMContentLoaded", async event => {
     }
   });
 
-  webBrowser = document.getElementById("webBrowser");
-  messageBrowser = document.getElementById("messageBrowser");
-  multiMessageBrowser = document.getElementById("multiMessageBrowser");
-  accountCentralBrowser = document.getElementById("accountCentralBrowser");
-
-  multiMessageBrowser.docShell.allowDNSPrefetch = false;
+  // Now that the listeners are ready, fire a select event on the folder tree.
+  folderTree.dispatchEvent(new CustomEvent("select"));
 });
 
 window.addEventListener("unload", () => {
@@ -2253,7 +2262,7 @@ function restoreState({
   first = false,
 } = {}) {
   if (folderPaneVisible === undefined) {
-    folderPaneVisible = true;
+    folderPaneVisible = folderURI || !syntheticView;
   }
   folderPaneSplitter.isCollapsed = !folderPaneVisible;
 

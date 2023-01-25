@@ -1087,6 +1087,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         }
       }
 
+      tab.closed = true;
       let closeFunc = tab.mode.closeTab || tab.mode.tabType.closeTab;
       closeFunc.call(tab.mode.tabType, tab);
       this.tabInfo.splice(iTab, 1);

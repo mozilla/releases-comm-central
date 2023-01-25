@@ -767,6 +767,11 @@ html|ul.addon-installed-list {
   margin-right: 1px;
 }
 
+#tabpanelcontainer {
+  /* While mail tab browsers load, the window goes transparent. Stop that. */
+  background-color: -moz-Dialog;
+}
+
 #folderPaneHeader {
   padding: 3px 6px;
   color: inherit;

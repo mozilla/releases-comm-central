@@ -621,18 +621,8 @@ add_task(async function testSpacesToolbarContextMenu() {
   let [, secondMailTabInfo] = tabmail._getTabContextForTabbyThing(
     secondMailTab
   );
-  if (
-    secondMailTabInfo.chromeBrowser.contentDocument.readyState != "complete"
-  ) {
-    await BrowserTestUtils.browserLoaded(secondMailTabInfo.chromeBrowser);
-    await BrowserTestUtils.waitForEvent(
-      secondMailTabInfo.chromeBrowser,
-      "folderURIChanged"
-    );
-  }
-  Assert.equal(
-    secondMailTabInfo.folder.URI,
-    folderB.URI,
+  await TestUtils.waitForCondition(
+    () => secondMailTabInfo.folder?.URI == folderB.URI,
     "Should display folder B in the second mail tab"
   );
 
@@ -650,16 +640,8 @@ add_task(async function testSpacesToolbarContextMenu() {
   // Displayed folder should be the same as in the mail tab that was in view
   // when the context menu was opened, rather than the folder in the first tab.
   let [, thirdMailTabInfo] = tabmail._getTabContextForTabbyThing(thirdMailTab);
-  if (thirdMailTabInfo.chromeBrowser.contentDocument.readyState != "complete") {
-    await BrowserTestUtils.browserLoaded(thirdMailTabInfo.chromeBrowser);
-    await BrowserTestUtils.waitForEvent(
-      thirdMailTabInfo.chromeBrowser,
-      "folderURIChanged"
-    );
-  }
-  Assert.equal(
-    thirdMailTabInfo.folder.URI,
-    folderA.URI,
+  await TestUtils.waitForCondition(
+    () => thirdMailTabInfo.folder?.URI == folderA.URI,
     "Should display folder A in the third mail tab"
   );
 
