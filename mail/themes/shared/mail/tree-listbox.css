@@ -312,6 +312,11 @@ th[data-resizable="false"] .tree-table-cell {
   }
 }
 
+th[data-type="icon"] .tree-table-cell-container button.sorting {
+  background-image: none;
+  padding-inline-end: var(--tree-header-cell-padding);
+}
+
 th[is="tree-view-table-column-picker"] {
   position: relative;
   width: 25px;
