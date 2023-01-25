@@ -482,6 +482,9 @@ var gLastShownCalendarView = {
       } else {
         // No deck item was selected beforehand, default to week view.
         this._lastView = "week";
+        document
+          .querySelector(`.calview-toggle-item[aria-controls="week-view"]`)
+          ?.setAttribute("aria-selected", true);
       }
     }
     return this._lastView;
