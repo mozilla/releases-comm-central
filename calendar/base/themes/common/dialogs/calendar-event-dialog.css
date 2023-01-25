@@ -597,7 +597,7 @@ label.label {
 
 /* Thunderbird Light Theme (not system theme) */
 @media (prefers-color-scheme: light) {
-  :root[lwt-tree]:not([lwt-tree-brighttext]) #recurrence-preview calendar-minimonth {
+  :root[lwt-tree]:not([lwt-tree-brighttext]) #recurrencePreview calendar-minimonth {
     background-color: var(--color-gray-05);
     border-color: var(--color-gray-30);
   }

@@ -321,7 +321,7 @@ calendar-minimonth :focus-visible:not(:hover) {
 /* Minimonth border */
 
 #minimonth-pane calendar-minimonth,
-#recurrence-preview calendar-minimonth {
+#recurrencePreview calendar-minimonth {
   border: 1px solid var(--mmMainBorderColor);
   border-radius: var(--mmMainBorderRadius);
 }
