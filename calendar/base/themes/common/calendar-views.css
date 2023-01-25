@@ -11,32 +11,31 @@
   --viewBackground: var(--layout-background-0);
   --viewBorderColor: var(--layout-border-0);
   --viewCalendarHeaderBackground: rgba(0, 0, 0, 0.03);
-  --viewHighlightBorderColor: #67acd8;
-  --viewTodayBorderColor: #7fb9ee;
+  --viewHighlightBorderColor: var(--color-blue-50);
   --viewTodayColor: inherit;
-  --viewTodayBackground: #e1f0fd;
-  --viewTodayLabelColor: #fff;
-  --viewTodayLabelBackground: var(--primary);
-  --viewTodayOffBackground: #d7e8f8;
-  --viewTodayDayLabelBackground: #d2e3f3;
-  --viewTodayWeekendBackground: #e1f0fd;
-  --viewWeekendBackground: #f7ffe3;
-  --viewHeaderSelectedBackground: #fffcd8;
-  --viewDayBoxSelectedBackground: #fffcd8;
-  --viewDayBoxOffSelectedBackground: #f2edb2;
-  --viewDayBoxOtherSelectedBackground: #fffcd8;
-  --viewMonthOtherBackground: #f3f3f3;
-  --viewMonthDayBoxSelectedColor: #616163;
-  --viewMonthDayBoxLabelColor: #616163;
-  --viewMonthDayOtherBackground: #e8e8e8;
-  --viewMonthDayOffLabelBackground: #eaf7ca;
-  --viewOffTimeBackground: #f0f0f0;
-  --viewTimeBoxColor: #6a6969;
-  --viewDayLabelSelectedColor: #000;
-  --viewDayLabelSelectedBackground: #fffabc;
-  --viewDragboxColor: -moz-dialogtext;
-  --viewDragboxBackground: #45a1ff;
-  --viewDropshadowBackground: #ffa47d;
+  --viewTodayBackground: var(--layout-background-1);
+  --viewTodayLabelColor: var(--color-blue-50);
+  --viewTodayLabelBackground: var(--color-blue-10);
+  --viewTodayOffBackground: color-mix(in srgb, var(--viewTodayBackground) 95%, black);
+  --viewTodayDayLabelBackground: var(--color-blue-10);
+  --viewTodayWeekendBackground: color-mix(in srgb, var(--color-blue-10) 20%, var(--viewWeekendBackground));
+  --viewWeekendBackground: var(--color-ink-10);
+  --viewHeaderSelectedBackground: color-mix(in srgb, var(--color-blue-10) 20%, var(--viewBackground));
+  --viewDayBoxSelectedBackground: color-mix(in srgb, var(--color-blue-10) 20%, var(--viewBackground));
+  --viewDayBoxOffSelectedBackground: color-mix(in srgb, var(--color-blue-20) 20%, var(--viewTodayOffBackground));
+  --viewDayBoxOtherSelectedBackground: color-mix(in srgb, var(--color-blue-10) 20%, var(--viewMonthOtherBackground));
+  --viewMonthOtherBackground: var(--layout-background-2);
+  --viewMonthDayBoxSelectedColor: var(--layout-color-1);
+  --viewMonthDayBoxLabelColor: var(--layout-color-1);
+  --viewMonthDayOtherBackground: color-mix(in srgb, var(--layout-background-2) 50%, var(--viewWeekendBackground));
+  --viewMonthDayOffLabelBackground: color-mix(in srgb, var(--viewWeekendBackground) 95%, black);
+  --viewOffTimeBackground: color-mix(in srgb, var(--viewBackground) 95%, black);
+  --viewTimeBoxColor: var(--layout-color-2);
+  --viewDayLabelSelectedColor: currentColor;
+  --viewDayLabelSelectedBackground: var(--color-blue-50);
+  --viewDragboxColor: currentColor;
+  --viewDragboxBackground: var(--color-blue-50);
+  --viewDropshadowBackground: var(--color-blue-50);
   --calendar-primary-button-margin: 6px;
   --calendar-primary-button-padding: 6px;
   --calendar-nav-control-bg-color: var(--color-white);
@@ -60,51 +59,19 @@
   --calendar-view-toggle-label-padding: 6px 15px;
 }
 
-:root[lwt-tree]:not([lwt-tree-brighttext]) {
-  --viewColor: var(--sidebar-text-color);
-  --viewBackground: var(--sidebar-background-color, Field);
-  --viewBorderColor: var(--sidebar-border-color, var(--splitter-color));
-  --viewTodayColor: var(--sidebar-highlight-text-color, SelectedItemText);
-  --viewTodayBackground: var(--sidebar-highlight-background-color, SelectedItem);
-  --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, SelectedItem);
-  --viewMonthOtherBackground: rgba(0, 0, 0, 0.1);
-  --viewMonthDayBoxLabelColor: var(--sidebar-text-color, FieldText);
-  --viewMonthDayOtherBackground: rgba(0, 0, 0, 0.2);
-  --viewOffTimeBackground: rgba(0, 0, 0, 0.15);
-  --viewTimeBoxColor: var(--sidebar-text-color, FieldText);
-  --calendar-nav-control-bg-color: var(--color-white);
-  --calendar-nav-control-bg-color-hover: rgba(0, 0, 0, 0.1);
-}
-
 @media (prefers-color-scheme: dark) {
   :root {
-    --calview-border-color: var(--splitter-color);
-    --calview-border-bottom-color: var(--splitter-color);
-    --viewTodayColor: var(--sidebar-highlight-text-color, SelectedItemText);
-    --viewTodayBackground: var(--sidebar-highlight-background-color, SelectedItem);
-    --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, SelectedItem);
-    --viewMonthOtherBackground: rgba(0, 0, 0, 0.1);
-    --viewMonthDayBoxLabelColor: var(--sidebar-text-color, FieldText);
-    --viewMonthDayOtherBackground: rgba(0, 0, 0, 0.2);
-    --viewOffTimeBackground: rgba(0, 0, 0, 0.15);
-    --viewTimeBoxColor: var(--sidebar-text-color, FieldText);
-    --viewCalendarHeaderBackground: rgba(255, 255, 255, 0.05);
-    --viewHighlightBorderColor: #9fa3d9;
-    --viewTodayColor: var(--sidebar-highlight-text-color, #fff);
-    --viewTodayBackground: var(--sidebar-highlight-background-color, #5358a4);
-    --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, #393b66);
-    --viewMonthOtherBackground: rgba(255, 255, 255, 0.3);
-    --viewOffTimeBackground: rgba(255, 255, 255, 0.05);
-    --viewTodayOffBackground: #5358a4;
-    --viewTodayWeekendBackground: #5358a4;
-    --viewWeekendBackground: #646a56;
-    --viewHeaderSelectedBackground: #8b8bbd;
-    --viewDayBoxSelectedBackground: #8b8bbd;
-    --viewDayBoxOffSelectedBackground: #676795;
-    --viewDayBoxOtherSelectedBackground: #fffcd8;
-    --viewMonthDayBoxSelectedColor: #d7d7ec;
-    --viewMonthDayOtherBackground: rgba(255, 255, 255, 0.3);
-    --viewMonthDayOffLabelBackground: #4f5935;
+    --viewTodayLabelBackground: color-mix(in srgb, var(--color-blue-90) 30%, var(--viewBackground));
+    --viewTodayDayLabelBackground: color-mix(in srgb, var(--color-blue-90) 30%, var(--viewBackground));
+    --viewHeaderSelectedBackground: color-mix(in srgb, var(--color-blue-90) 20%, var(--viewBackground));
+    --viewDayBoxSelectedBackground: color-mix(in srgb, var(--color-blue-90) 20%, var(--viewBackground));
+    --viewDayBoxOffSelectedBackground: color-mix(in srgb, var(--color-blue-80) 20%, var(--viewTodayOffBackground));
+    --viewDayBoxOtherSelectedBackground: color-mix(in srgb, var(--color-blue-90) 20%, var(--viewMonthOtherBackground));
+    --viewMonthDayOffLabelBackground: color-mix(in srgb, var(--viewWeekendBackground) 95%, var(--color-ink-30));
+    --viewOffTimeBackground: color-mix(in srgb, var(--viewBackground) 95%, var(--color-ink-30));
+    --viewWeekendBackground: color-mix(in srgb, var(--viewBackground) 80%, var(--color-ink-40));
+    --viewMonthOtherBackground: var(--layout-background-1);
+    --viewMonthDayOtherBackground: color-mix(in srgb, var(--layout-background-1) 50%, var(--viewWeekendBackground));
     --calendar-nav-control-bg-color: var(--color-black);
     --calendar-nav-control-bg-color-hover: rgba(0, 0, 0, 0.3);
     --calendar-view-toggle-background: var(--color-gray-50);
@@ -117,7 +84,6 @@
   --viewBorderColor: ThreeDShadow;
   --viewHighlightBorderColor: SelectedItem;
   --viewTodayColor: inherit;
-  --viewTodayBorderColor: SelectedItem;
   --viewTodayBackground: Field;
   --viewTodayLabelColor: SelectedItemText;
   --viewTodayLabelBackground: SelectedItem;
@@ -536,40 +502,6 @@ calendar-event-column,
   border-block: none;
 }
 
-/* If we have more than one day column, and one of them is today, we change the
- * border color. */
-.day-column-container:not(:only-of-type).day-column-today :is(
-  .day-column-heading,
-  calendar-header-container,
-  calendar-event-column,
-  .multiday-hour-box:last-child
-) {
-  border-color: var(--viewHighlightBorderColor);
-}
-
-/* If a column is after .day-column-today, we match its starting border. */
-.multiday-grid:not(.multiday-grid-rotated) :is(
-  .day-column-today + .day-column-container :is(
-    .day-column-heading,
-    calendar-header-container,
-    calendar-event-column
-  ),
-  .day-column-today + .multiday-end-border
-) {
-  border-inline-start-color: var(--viewHighlightBorderColor);
-}
-
-.multiday-grid.multiday-grid-rotated :is(
-  .day-column-today + .day-column-container :is(
-    .day-column-heading,
-    calendar-header-container,
-    calendar-event-column
-  ),
-  .day-column-today + .multiday-end-border
-) {
-  border-block-start-color: var(--viewHighlightBorderColor);
-}
-
 /* Background.
  * Styling priority, from lowest to highest:
  * + .day-column-weekend
@@ -599,6 +531,10 @@ calendar-event-column,
   background-color: var(--viewTodayBackground);
 }
 
+.day-column-today .day-column-heading {
+  color: var(--viewTodayLabelColor);
+}
+
 .day-column-today.day-column-weekend:not(.day-column-selected) :is(
   calendar-header-container,
   .multiday-hour-box
@@ -608,9 +544,11 @@ calendar-event-column,
 
 .day-column-selected :is(
   calendar-header-container,
-  .multiday-hour-box
+  .multiday-hour-box,
+  .day-column-heading
 ) {
   background-color: var(--viewHeaderSelectedBackground);
+  border-inline: 1px solid var(--viewHighlightBorderColor);
 }
 
 .multiday-hour-box.multiday-hour-box-off-time {
@@ -671,26 +609,28 @@ calendar-event-column,
 .multiday-grid:not(.multiday-grid-rotated) .timeIndicator {
   min-width: 1px;
   margin-inline: -1px;
-  border-block-start: 2px solid red;
+  border-block-start: 2px solid var(--color-red-50);
 }
 
 .multiday-grid.multiday-grid-rotated .timeIndicator {
   min-height: 1px;
   margin-block: -1px;
-  border-inline-start: 2px solid red;
+  border-inline-start: 2px solid var(--color-red-50);
 }
 
 .multiday-timebar-now-indicator {
-  background-color: red;
+  background-color: var(--viewBackground);
   position: absolute;
   display: block;
-  border-radius: 2px;
+  border: 2px solid var(--color-red-50);
+  border-radius: 50%;
 }
 
 .multiday-grid:not(.multiday-grid-rotated) .multiday-timebar-now-indicator {
-  margin-block-start: -1px;
-  height: 4px;
-  width: 8px;
+  margin-block-start: -4px;
+  margin-inline-end: -6px;
+  height: 6px;
+  width: 6px;
   inset-inline-end: 0;
 }
 
@@ -711,9 +651,9 @@ calendar-event-box:not([hidden]) {
 calendar-month-day-box-item[selected="true"].calendar-color-box,
 calendar-event-box[selected="true"].calendar-color-box,
 calendar-editable-item[selected="true"].calendar-color-box {
-  color: #000 !important;
-  background-color: #FDF5A0 !important;
-  box-shadow: 1px 2px 5px rgba(30, 20, 0, 0.6);
+  color: var(--color-white) !important;
+  background-color: var(--color-blue-50) !important;
+  box-shadow: 0 3px 8px -3px rgba(0, 0, 0, 0.3);
 }
 
 calendar-day-label {
@@ -787,36 +727,9 @@ calendar-multiweek-view[hidden] {
 .monthtable :is(td, th) > * {
   /* Every cell in the body gets a starting border, which acts as the end border
    * for the previous cell. */
+  border: 1px solid transparent;
   border-inline-start: 1px solid var(--viewBorderColor);
   border-block-start: 1px solid var(--viewBorderColor);
-}
-
-.monthtable td > :is(
-  .calendar-month-day-box-current-month[relation="today"],
-  .calendar-month-day-box-day-off[relation="today"],
-  .calendar-month-day-box-other-month[relation="today"],
-) {
-  border-color: var(--viewTodayBorderColor);
-}
-
-.monthtable th > calendar-day-label[relation="today"] {
-  border-color: var(--viewHighlightBorderColor);
-}
-
-.monthtable td > :is(
-  .calendar-month-day-box-current-month[relation="today"],
-  .calendar-month-day-box-day-off[relation="today"],
-  .calendar-month-day-box-other-month[relation="today"]
-),
-.monthtable th > calendar-day-label[relation="today"] {
-  /* Border on all sides. */
-  position: relative;
-  border-width: 1px;
-  border-style: solid;
-  /* Overlap the next cell's starting border,
-   * or the table's ending border if it is the last cell. */
-  margin-inline-end: -1px;
-  margin-block-end: -1px;
 }
 
 .monthtable calendar-day-label {
@@ -831,10 +744,15 @@ calendar-month-day-box {
 .calendar-month-day-box-dates {
   flex: 0 0 auto;
   overflow-x: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block-start: 2px;
+  padding-inline-end: 2px;
 }
 
-calendar-month-day-box[relation="today"] > .calendar-month-day-box-dates {
-  background-color: var(--viewTodayLabelBackground);
+.calendar-month-day-box-date-label[data-label="day"] {
+  margin-inline-start: auto;
 }
 
 .calendar-month-day-box-list {
@@ -874,8 +792,35 @@ calendar-month-day-box[relation="today"] > .calendar-month-day-box-dates {
 }
 
 .calendar-month-day-box-date-label[relation="today"] {
-  color: var(--viewTodayLabelColor);
-  font-weight: bold;
+  color: var(--color-white);
+  position: relative;
+  font-weight: 800;
+  line-height: 1.2;
+  width: 18px;
+  height: 18px;
+}
+
+.calendar-month-day-box-date-label[relation="today"]::after {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  width: 18px;
+  height: 18px;
+  content: '';
+  background-color: var(--viewTodayLabelColor);
+  border-radius: 100%;
+  z-index: 0;
+}
+
+.calendar-month-day-box-date-label[relation="today"]::before {
+    position: relative;
+    z-index: 1;
+}
+
+.calendar-month-day-box-current-month[selected="true"],
+.calendar-month-day-box-day-off[selected="true"],
+.calendar-month-day-box-other-month[selected="true"] {
+  border: 1px solid var(--viewHighlightBorderColor);
 }
 
 .calendar-month-day-box-current-month[selected="true"] {
@@ -895,7 +840,7 @@ calendar-month-day-box[relation="today"] > .calendar-month-day-box-dates {
 }
 
 .calendar-month-day-box-date-label[relation="today"][selected="true"] {
-  color: var(--viewTodayLabelColor);
+  color: var(--color-white);
 }
 
 .calendar-month-day-box-date-label {
@@ -931,8 +876,9 @@ calendar-month-day-box calendar-month-day-box-item[allday="true"].calendar-color
 
 .dropshadow {
   height: 1.2em;
-  background-color: var(--viewDropshadowBackground);
-  box-shadow: 1px 1px 3px rgba(68, 35, 0, 0.7) inset;
+  background-color: color-mix(in srgb, var(--viewDropshadowBackground) 30%, transparent);
+  border: 2px dashed var(--viewDropshadowBackground);
+  border-radius: 3px;
 }
 
 :is(.gripbar-start, .gripbar-end) {
