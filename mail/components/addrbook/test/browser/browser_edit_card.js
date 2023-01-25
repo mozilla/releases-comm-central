@@ -671,9 +671,9 @@ async function editContactAtIndex(index, options) {
   if (!options.useMouse) {
     cardsList.focus();
     if (cardsList.currentIndex != index) {
-      EventUtils.synthesizeKey("KEY_Home", { ctrlKey: true }, abWindow);
+      EventUtils.synthesizeKey("KEY_Home", { accelKey: true }, abWindow);
       for (let i = 0; i < index; i++) {
-        EventUtils.synthesizeKey("KEY_ArrowDown", { ctrlKey: true }, abWindow);
+        EventUtils.synthesizeKey("KEY_ArrowDown", { accelKey: true }, abWindow);
       }
     }
   }

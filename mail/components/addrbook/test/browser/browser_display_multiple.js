@@ -70,7 +70,7 @@ add_task(async function testDisplayMultiple() {
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   EventUtils.synthesizeMouseAtCenter(
     cardsList.getRowAtIndex(2),
-    { ctrlKey: true },
+    { accelKey: true },
     abWindow
   );
   await checkHeader({ selectionCount: 2, selectionType: "mixed" });
@@ -81,7 +81,7 @@ add_task(async function testDisplayMultiple() {
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   EventUtils.synthesizeMouseAtCenter(
     cardsList.getRowAtIndex(3),
-    { ctrlKey: true },
+    { accelKey: true },
     abWindow
   );
   await checkHeader({ selectionCount: 2, selectionType: "mixed" });
@@ -119,7 +119,7 @@ add_task(async function testDisplayMultiple() {
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(2), {}, abWindow);
   EventUtils.synthesizeMouseAtCenter(
     cardsList.getRowAtIndex(4),
-    { ctrlKey: true },
+    { accelKey: true },
     abWindow
   );
   await checkHeader({ selectionCount: 2, selectionType: "contacts" });

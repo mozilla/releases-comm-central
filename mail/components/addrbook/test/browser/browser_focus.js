@@ -49,7 +49,7 @@ add_task(async function test_f6_cycle() {
   // Check with no selection.
   EventUtils.synthesizeMouseAtCenter(
     cardsList.getRowAtIndex(0),
-    { ctrlKey: true },
+    { accelKey: true },
     abWindow
   );
   Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
