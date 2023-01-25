@@ -73,6 +73,9 @@
 
       for (let id of ids) {
         let menuitem = document.getElementById(id);
+        if (!menuitem.label) {
+          await document.l10n.translateElements([menuitem]);
+        }
         document.l10n.setAttributes(menuitem, "menuitem-shortcut-string", {
           label: menuitem.label,
           shortcut: shortcut.localizedShortcut,

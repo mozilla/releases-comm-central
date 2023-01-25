@@ -444,6 +444,7 @@ var gMailInit = {
     SessionStoreManager.unloadingWindow(window);
     TabsInTitlebar.uninit();
     ToolbarIconColor.uninit();
+    gSpacesToolbar.onUnload();
 
     document.getElementById("tabmail")._teardown();
 
