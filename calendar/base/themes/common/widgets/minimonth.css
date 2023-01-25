@@ -5,6 +5,8 @@
 calendar-minimonth {
   --mmMainColor: -moz-DialogText;
   --mmMainBackground: var(--color-gray-05);
+  --mmMainBorderColor: var(--color-gray-20);
+  --mmMainBorderRadius: 6px;
   --mmHighlightColor: SelectedItemText;
   --mmHighlightBackground: SelectedItem;
   --mmHighlightBorderColor: SelectedItem;
@@ -52,6 +54,7 @@ calendar-minimonth {
   calendar-minimonth {
     --mmMainColor: var(--sidebar-text-color, FieldText);
     --mmMainBackground: var(--color-gray-70);
+    --mmMainBorderColor: var(--color-gray-50);
     --mmHighlightColor: var(--sidebar-highlight-text-color, SelectedItemText);
     --mmHighlightBackground: var(--sidebar-highlight-background-color, SelectedItem);
     --mmHighlightBorderColor: var(--sidebar-highlight-background-color, SelectedItem);
@@ -313,4 +316,12 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
 calendar-minimonth :focus-visible:not(:hover) {
   outline: 2px solid var(--focus-outline-color);
   outline-offset: -2px;
+}
+
+/* Minimonth border */
+
+#minimonth-pane calendar-minimonth,
+#recurrence-preview calendar-minimonth {
+  border: 1px solid var(--mmMainBorderColor);
+  border-radius: var(--mmMainBorderRadius);
 }

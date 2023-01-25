@@ -595,6 +595,14 @@ label.label {
   display: none;
 }
 
+/* Thunderbird Light Theme (not system theme) */
+@media (prefers-color-scheme: light) {
+  :root[lwt-tree]:not([lwt-tree-brighttext]) #recurrence-preview calendar-minimonth {
+    background-color: var(--color-gray-05);
+    border-color: var(--color-gray-30);
+  }
+}
+
 /*--------------------------------------------------------------------
  *   Event summary dialog
  *-------------------------------------------------------------------*/
