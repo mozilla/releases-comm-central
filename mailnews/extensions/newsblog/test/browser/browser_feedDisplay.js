@@ -70,7 +70,7 @@ add_task(async () => {
   let rootFolder = account.incomingServer.rootFolder;
   about3Pane.displayFolder(rootFolder.URI);
   let index = about3Pane.folderTree.selectedIndex;
-  Assert.equal(index, 1);
+  Assert.equal(index, 0);
 
   let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   folderTreeClick(index, { type: "contextmenu" });

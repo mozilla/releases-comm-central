@@ -84,6 +84,7 @@ body {
   overflow: hidden auto;
   background-color: var(--sidebar-background-color, var(--foldertree-background));
   color: var(--sidebar-text-color, inherit);
+  user-select: none;
 }
 
 #folderPaneSplitter {

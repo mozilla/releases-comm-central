@@ -50,7 +50,7 @@ add_task(async function test_all_folders_toggle_folder_open_state() {
   // All folders mode should give us only 2 rows to start
   // (tinderbox account and local folders)
   let accounts = 2;
-  assert_folder_tree_view_row_count(1 + accounts);
+  assert_folder_tree_view_row_count(accounts);
 
   let inbox = 1;
   let trash = 1;
@@ -70,7 +70,7 @@ add_task(async function test_all_folders_toggle_folder_open_state() {
   folder.createStorageIfMissing(null);
   // After creating Archives, account should have expanded
   // so that we should have 5 rows visible
-  assert_folder_tree_view_row_count(1 + accounts + inbox + trash + archives);
+  assert_folder_tree_view_row_count(accounts + inbox + trash + archives);
   // close the tinderbox server.
   collapse_folder(pop3Server.rootFolder);
   let folderA = await create_folder("FolderPaneA");
@@ -78,7 +78,7 @@ add_task(async function test_all_folders_toggle_folder_open_state() {
 
   // After creating our first folder we should have 6 rows visible
   assert_folder_tree_view_row_count(
-    1 + accounts + inbox + trash + outbox + folderPaneA
+    accounts + inbox + trash + outbox + folderPaneA
   );
 
   let about3Pane = get_about_3pane();

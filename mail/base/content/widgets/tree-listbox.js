@@ -364,13 +364,15 @@
        * @type {HTMLLIElement[]}
        */
       get rows() {
-        return [...this.querySelectorAll("li")].filter(row => {
-          let collapsed = row.parentNode.closest("li.collapsed");
-          if (collapsed && this.contains(collapsed)) {
-            return false;
+        return [...this.querySelectorAll("li:not(.unselectable)")].filter(
+          row => {
+            let collapsed = row.parentNode.closest("li.collapsed");
+            if (collapsed && this.contains(collapsed)) {
+              return false;
+            }
+            return true;
           }
-          return true;
-        });
+        );
       }
 
       /**

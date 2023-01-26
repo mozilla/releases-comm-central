@@ -211,7 +211,10 @@ window.addEventListener("DOMContentLoaded", async event => {
   );
 
   folderTree.addEventListener("select", event => {
+    clearWebPage();
     clearMessage();
+    clearMessages();
+
     let uri = folderTree.rows[folderTree.selectedIndex]?.uri;
     if (!uri) {
       return;
@@ -230,10 +233,6 @@ window.addEventListener("DOMContentLoaded", async event => {
     if (gFolder.isServer) {
       document.title = gFolder.server.prettyName;
       gViewWrapper = gDBView = threadTree.view = null;
-
-      clearWebPage();
-      clearMessage();
-      clearMessages();
 
       MailE10SUtils.loadURI(
         accountCentralBrowser,
@@ -953,7 +952,9 @@ var folderPane = {
       this._toggleMode(name, modes.includes(name));
     }
     for (let name of modes) {
-      folderTree.appendChild(this._modes[name].container);
+      let { container, containerHeader } = this._modes[name];
+      containerHeader.hidden = modes.length == 1;
+      folderTree.appendChild(container);
     }
     Services.xulStore.setValue(
       XULSTORE_URL,
@@ -1014,13 +1015,12 @@ var folderPane = {
       true
     );
     container.dataset.mode = modeName;
-    container.querySelector(
-      ".mode-name"
-    ).textContent = messengerBundle.GetStringFromName(
-      `folderPaneModeHeader_${modeName}`
-    );
 
     mode.container = container;
+    mode.containerHeader = container.querySelector(".mode-name");
+    mode.containerHeader.textContent = messengerBundle.GetStringFromName(
+      `folderPaneModeHeader_${modeName}`
+    );
     mode.containerList = container.querySelector("ul");
     if (typeof mode.init == "function") {
       mode.init();
@@ -1032,7 +1032,6 @@ var folderPane = {
         }
       }
     }
-    folderTree.appendChild(container);
     mode.active = true;
   },
 
@@ -2316,8 +2315,8 @@ function clearMessages() {
 }
 
 function displayWebPage(url, params) {
-  if (!url) {
-    MailE10SUtils.loadURI(webBrowser, "about:blank");
+  if (!url || url == "about:blank") {
+    MailE10SUtils.loadAboutBlank(webBrowser);
     webBrowser.hidden = true;
     return;
   }

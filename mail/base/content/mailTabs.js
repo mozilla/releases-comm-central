@@ -75,6 +75,12 @@ var newMailTabType = {
           // Can we be sure messageBrowser.contentWindow is loaded at this point?
           win.messageBrowser.contentWindow.tabOrWindow = tab;
           win.restoreState(args);
+          if (!args.folderURI && !args.syntheticView) {
+            // Temporary fix: the select event listener is added after the
+            // folder tree is constructed, which selects the first item. We
+            // need to fire a select event if `restoreState` didn't cause one.
+            win.folderTree.dispatchEvent(new CustomEvent("select"));
+          }
           if (!args.background) {
             // Update telemetry once the tab has loaded and decided if the
             // panes are visible.
@@ -180,8 +186,11 @@ var newMailTabType = {
         // Content properties.
         Object.defineProperty(tab, "message", {
           get() {
-            return tab.chromeBrowser.contentWindow.gDBView
-              ?.hdrForFirstSelectedMessage;
+            let dbView = tab.chromeBrowser.contentWindow.gDBView;
+            if (dbView?.selection?.count) {
+              return dbView.hdrForFirstSelectedMessage;
+            }
+            return null;
           },
         });
         Object.defineProperty(tab, "folder", {
