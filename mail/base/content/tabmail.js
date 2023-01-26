@@ -804,7 +804,10 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         }
         tab.tabNode = t;
 
-        if (this.tabContainer.mCollapseToolbar.collapsed) {
+        if (
+          this.tabContainer.mCollapseToolbar.collapsed &&
+          (!this.tabContainer.mAutoHide || this.tabContainer.allTabs.length > 1)
+        ) {
           this.tabContainer.mCollapseToolbar.collapsed = false;
           this.tabContainer._updateCloseButtons();
           document.documentElement.removeAttribute("tabbarhidden");
@@ -1411,6 +1414,14 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         this.tabContainer.selectedIndex = indexToSelect;
       } else {
         this.tabContainer.selectedIndex = 0;
+      }
+
+      if (
+        this.tabContainer.allTabs.length == 1 &&
+        this.tabContainer.mAutoHide
+      ) {
+        this.tabContainer.mCollapseToolbar.collapsed = true;
+        document.documentElement.setAttribute("tabbarhidden", "true");
       }
     }
 
