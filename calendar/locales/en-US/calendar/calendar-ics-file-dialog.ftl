@@ -41,11 +41,17 @@ calendar-ics-file-import-success = Successfully imported!
 calendar-ics-file-import-error = An error occurred and the import failed.
 
 calendar-ics-file-import-complete = Import complete.
+
+# Variables:
+# $duplicatesCount (Number) - Number of items already existing in the target calendar.
 calendar-ics-file-import-duplicates =
   { $duplicatesCount ->
     [one] One item was ignored since it already exists in the destination calendar.
    *[other] { $duplicatesCount } items were ignored since they already exist in the destination calendar.
   }
+
+# Variables:
+# $errorsCount (Number) - Number of errors while importing ics file.
 calendar-ics-file-import-errors =
   { $errorsCount ->
     [one] One item failed to import. Check the Error Console for details.

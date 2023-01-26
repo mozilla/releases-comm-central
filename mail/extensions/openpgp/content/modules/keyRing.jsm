@@ -595,7 +595,7 @@ var EnigmailKeyRing = {
         .catch(async () => {
           exitCodeObj.value = -1;
           errorMsgObj.value = await lazy.l10n.formatValue("file-write-failed", {
-            output: outputFile,
+            output: outputFile.path,
           });
           return null;
         });
@@ -708,7 +708,7 @@ var EnigmailKeyRing = {
         Services.prompt.alert(
           null,
           await lazy.l10n.formatValue("file-write-failed", {
-            output: file,
+            output: file.path,
           })
         );
       });

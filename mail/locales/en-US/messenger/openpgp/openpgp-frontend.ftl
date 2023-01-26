@@ -20,6 +20,8 @@ openpgp-ctx-verify-att =
     .accesskey = V
 
 openpgp-has-sender-key = This message claims to contain the sender’s OpenPGP public key.
+# Variables:
+# $email (String) - Email address with the problematic public key.
 openpgp-be-careful-new-key =
     Warning: The new OpenPGP public key in this message differs from the public keys that you previously accepted for { $email }.
 

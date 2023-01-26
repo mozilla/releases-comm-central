@@ -82,6 +82,8 @@ openpgp-key-assistant-key-unaccepted-expired-many =
 
 openpgp-key-assistant-key-fingerprint = Fingerprint
 
+# Variables:
+# $count (Number) - Number of key sources.
 openpgp-key-assistant-key-source =
   { $count ->
       [one] Source
@@ -95,6 +97,8 @@ openpgp-key-assistant-key-collected-keyserver = keyserver
 # Web Key Directory (WKD) is a concept.
 openpgp-key-assistant-key-collected-wkd = Web Key Directory
 
+# Variables:
+# $count (Number) - Number of found keys.
 openpgp-key-assistant-keys-has-collected =
   { $count ->
       [one] A key was found, but it hasn’t been accepted yet.

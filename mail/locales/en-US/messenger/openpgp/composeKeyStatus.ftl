@@ -16,6 +16,8 @@ openpgp-recip-missing = no key available
 openpgp-recip-none-accepted = no accepted key
 openpgp-compose-general-info-alias = { -brand-short-name} normally requires that the recipient’s public key contains a user ID with a matching email address. This can be overridden by using OpenPGP recipient alias rules.
 openpgp-compose-general-info-alias-learn-more = Learn more
+# Variables:
+# $count (Number) - Number of alias keys for a recipient.
 openpgp-compose-alias-status-direct = { $count ->
                [one] mapped to an alias key
                *[other] mapped to {$count} alias keys

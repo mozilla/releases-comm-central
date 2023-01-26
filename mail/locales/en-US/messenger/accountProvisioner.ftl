@@ -70,6 +70,8 @@ account-provisioner-domain-results-caption = You can try to search for nicknames
 
 account-provisioner-free-account = Free
 
+# Variables:
+# $price (String) - Yearly fee for the mail account. For example "US $9.99".
 account-provision-price-per-year = { $price } a year
 
 account-provisioner-all-results-button = Show all results

@@ -22,10 +22,16 @@ openpgp-openpgp = OpenPGP
 openpgp-no-sig = No Digital Signature
 openpgp-no-sig-info = This message does not include the sender’s digital signature. The absence of a digital signature means that the message could have been sent by someone pretending to have this email address. It is also possible that the message has been altered while in transit over the network.
 openpgp-uncertain-sig = Uncertain Digital Signature
+# Variables:
+# $date (String) - Date with time the signature was made in a short format.
 openpgp-uncertain-sig-with-date = Uncertain Digital Signature - Signed on { $date }
 openpgp-invalid-sig = Invalid Digital Signature
+# Variables:
+# $date (String) - Date with time the signature was made in a short format.
 openpgp-invalid-sig-with-date = Invalid Digital Signature - Signed on { $date }
 openpgp-good-sig = Good Digital Signature
+# Variables:
+# $date (String) - Date with time the signature was made in a short format.
 openpgp-good-sig-with-date = Good Digital Signature - Signed on { $date }
 
 openpgp-sig-uncertain-no-key = This message contains a digital signature, but it is uncertain if it is correct. To verify the signature, you need to obtain a copy of the sender’s public key.
@@ -37,10 +43,20 @@ openpgp-sig-valid-unverified = This message includes a valid digital signature f
 openpgp-sig-valid-verified = This message includes a valid digital signature from a verified key.
 openpgp-sig-valid-own-key = This message includes a valid digital signature from your personal key.
 
+# Variables:
+# $key (String) - The ID of the OpenPGP key used to create the signature.
 openpgp-sig-key-id = Signer key ID: { $key }
+# Variables:
+# $key (String) - The primary ID of the OpenPGP key used to create the signature.
+# $subkey (String) - A subkey of the primary key was used to create the signature, and this is the ID of that subkey.
 openpgp-sig-key-id-with-subkey-id = Signer key ID: { $key } (Sub key ID: { $subkey })
 
+# Variables:
+# $key (String) - The ID of the user's OpenPGP key used to decrypt the message.
 openpgp-enc-key-id = Your decryption key ID: { $key }
+# Variables:
+# $key (String) - The primary ID of the user's OpenPGP key used to decrypt the message.
+# $subkey (String) - A subkey of the primary key was used to decrypt the message, and this is the ID of that subkey.
 openpgp-enc-key-with-subkey-id = Your decryption key ID: { $key } (Sub key ID: { $subkey })
 
 openpgp-enc-none = Message Is Not Encrypted

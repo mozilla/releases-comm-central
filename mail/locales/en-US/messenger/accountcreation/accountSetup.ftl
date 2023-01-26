@@ -410,6 +410,8 @@ account-setup-calendar-refresh-label = Refresh
 
 account-setup-calendar-refresh-manual = Manually
 
+# Variables:
+# $count (Number) - Number of minutes in the calendar refresh interval.
 account-setup-calendar-refresh-interval =
     { $count ->
         [one] Every minute

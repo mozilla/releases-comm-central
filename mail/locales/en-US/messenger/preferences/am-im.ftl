@@ -12,6 +12,8 @@ chat-encryption-generic = Generic
 chat-encryption-log =
     .label = Include end-to-end encrypted messages in conversation logs
 chat-encryption-label = Native End-to-end Encryption
+# Variables:
+# $protocol (String) - Name of the chat protocol. Example: Matrix
 chat-encryption-description = { $protocol } provides end-to-end encryption for chat messages. This prevents third parties from eavesdropping on a conversation. Additional setup might be required below for the encryption to be operational.
 chat-encryption-status = Encryption Status
 chat-encryption-placeholder = Encryption not initialized.

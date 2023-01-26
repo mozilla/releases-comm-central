@@ -104,7 +104,7 @@ openpgp-keygen-error-core = Unable to initialize OpenPGP Core Service
 
 openpgp-keygen-error-failed = OpenPGP Key generation unexpectedly failed
 
-#   $identity (String) - the newly generate OpenPGP Key
+#   $key (String) - the ID of the newly generated OpenPGP key
 openpgp-keygen-error-revocation = OpenPGP Key created successfully, but failed to obtain revocation for key { $key }
 
 openpgp-keygen-abort-title = Abort key generation?
@@ -135,7 +135,7 @@ openpgp-import-key-list-caption = Keys marked to be treated as Personal Keys wil
 
 openpgp-passphrase-prompt-title = Passphrase required
 
-#   $identity (String) - the id of the key being imported
+#   $key (String) - the id of the key being imported
 openpgp-passphrase-prompt = Please enter the passphrase to unlock the following key: { $key }
 
 openpgp-import-key-button =

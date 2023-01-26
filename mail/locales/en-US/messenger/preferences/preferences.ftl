@@ -180,6 +180,8 @@ add-opensearch-provider-title = Add OpenSearch Provider
 add-opensearch-provider-text = Enter the URL of the OpenSearch provider to add. Either use the direct URL of the OpenSearch Description file, or a URL where it can be auto-discovered.
 
 adding-opensearch-provider-failed-title = Adding OpenSearch Provider Failed
+# Variables:
+# $url (String) - URL an OpenSearch provider was requested for.
 adding-opensearch-provider-failed-text = Could not add OpenSearch Provider for { $url }.
 
 minimize-to-tray-label =

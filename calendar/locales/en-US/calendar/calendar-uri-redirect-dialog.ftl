@@ -5,6 +5,8 @@
 calendar-uri-redirect-window =
   .title = Calendar URI Redirect
 
+# Variables:
+# $calendarName (String) - Display name of the calendar.
 calendar-uri-redirect-description =
   The server is redirecting the URI for the calendar “{ $calendarName }”.
   Accept the redirect and start using the new URI for this calendar?

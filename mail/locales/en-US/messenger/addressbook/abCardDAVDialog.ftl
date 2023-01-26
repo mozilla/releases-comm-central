@@ -18,6 +18,9 @@ carddav-location =
     .default-placeholder = URL or host name of the address book server
 
 carddav-loading = Looking up configuration…
+
+# Variables:
+# $url (String) - CardDAV endpoint hostname. For example "example.com".
 carddav-known-incompatible = { $url } is known to be incompatible with { -brand-short-name }.
 carddav-connection-error = Failed to connect.
 carddav-none-found = Found no address books to add for the specified account.

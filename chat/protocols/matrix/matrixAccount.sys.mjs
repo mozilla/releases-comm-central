@@ -1618,7 +1618,7 @@ function getRoomName(roomId, state) {
           type: "conjunction",
         }).format(state.names);
       }
-      return lazy.l10n.formatValueSync("room-name-others", {
+      return lazy.l10n.formatValueSync("room-name-others2", {
         participant: state.names[0],
         otherParticipantCount: state.names.length - 1,
       });

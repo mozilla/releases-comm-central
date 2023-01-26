@@ -136,6 +136,9 @@ attachment-area-show =
 attachment-area-hide =
     .title = Hide the attachment pane ({ ctrl-cmd-shift-pretty-prefix }{ toggle-attachment-pane-key })
 
+## Variables:
+## $count (Number) - Number of files being dropped onto the composer.
+
 drop-file-label-attachment = { $count ->
     [one]   Add as attachment
    *[other] Add as attachments
@@ -215,13 +218,21 @@ menu-open-key-manager =
     .label = Key Manager
     .accesskey = M
 
+# Variables:
+# $addr (String) - Email address with key issues.
 openpgp-key-issue-notification-one =
     End-to-end encryption requires resolving key issues for { $addr }
+# Variables:
+# $count (Number) - Number of recipients with key issues.
 openpgp-key-issue-notification-many =
     End-to-end encryption requires resolving key issues for { $count } recipients.
 
+# Variables:
+# $addr (String) - Email address with certificate issues.
 smime-cert-issue-notification-one =
     End-to-end encryption requires resolving certificate issues for { $addr }.
+# Variables:
+# $count (Number) - Number of recipients with certificate issues.
 smime-cert-issue-notification-many =
     End-to-end encryption requires resolving certificate issues for { $count } recipients.
 
@@ -372,6 +383,8 @@ cloud-file-placeholder-intro = The file { $filename } was attached as a Filelink
 # A line of text describing how many uploaded files have been appended to this
 # message. Emphasis should be on sharing as opposed to attaching. This item is
 # used as a header to a list, hence the colon.
+# Variables:
+# $count (Number) - Number of files.
 cloud-file-count-header = { $count ->
   [one] I’ve linked { $count } file to this email:
   *[other] I’ve linked { $count } files to this email:
@@ -410,32 +423,42 @@ cloud-file-template-download-limit = Download Limit:
 
 # Messages
 
-# $provider (string) - name of the online storage service that reported the error
 cloud-file-connection-error-title = Connection Error
+# Variables:
+# $provider (string) - name of the online storage service that reported the error
 cloud-file-connection-error = { -brand-short-name } is offline. Could not connect to { $provider }.
 
+# Variables:
 # $provider (string) - name of the online storage service that reported the error
 # $filename (string) - name of the file that was uploaded and caused the error
 cloud-file-upload-error-with-custom-message-title = Uploading { $filename } to { $provider } Failed
 
+cloud-file-rename-error-title = Rename Error
+
+# Variables:
 # $provider (string) - name of the online storage service that reported the error
 # $filename (string) - name of the file that was renamed and caused the error
-cloud-file-rename-error-title = Rename Error
 cloud-file-rename-error = There was a problem renaming { $filename } on { $provider }.
 
+# Variables:
 # $provider (string) - name of the online storage service that reported the error
 # $filename (string) - name of the file that was renamed and caused the error
 cloud-file-rename-error-with-custom-message-title = Renaming { $filename } on { $provider } Failed
 
+# Variables:
 # $provider (string) - name of the online storage service that reported the error
 cloud-file-rename-not-supported = { $provider } does not support renaming already uploaded files.
 
-# $filename (string) - name of the file that was renamed and caused the error
 cloud-file-attachment-error-title = Filelink Attachment Error
+
+# Variables:
+# $filename (string) - name of the file that was renamed and caused the error
 cloud-file-attachment-error = Failed to update the Filelink attachment { $filename }, because its local file has been moved or deleted.
 
-# $filename (string) - name of the file that was renamed and caused the error
 cloud-file-account-error-title = Filelink Account Error
+
+# Variables:
+# $filename (string) - name of the file that was renamed and caused the error
 cloud-file-account-error = Failed to update the Filelink attachment { $filename }, because its Filelink account has been deleted.
 
 ## Link Preview

@@ -28,17 +28,27 @@ openpgp-key-undecided = Not accepted (undecided)
 openpgp-key-rejected = Not accepted (rejected)
 openpgp-key-expired = Expired
 
+# Variables:
+# $key (String) - Recipient email address.
 openpgp-intro = Available public keys for { $key }
 
+# Variables:
+# $kid (String) - Public key id to import.
 openpgp-pubkey-import-id = ID: { $kid }
+# Variables:
+# $fpr (String) - Fingerprint of the public key to import.
 openpgp-pubkey-import-fpr = Fingerprint: { $fpr }
 
+# Variables:
+# $num (Number) - Number of public keys contained in the key file.
 openpgp-pubkey-import-intro =
     { $num ->
       [one] The file contains one public key as shown below:
       *[other] The file contains {$num} public keys as shown below:
     }
 
+# Variables:
+# $num (Number) - Number of keys to accept.
 openpgp-pubkey-import-accept =
     { $num ->
       [one] Do you accept this key for verifying digital signatures and for encrypting messages, for all shown email addresses?
