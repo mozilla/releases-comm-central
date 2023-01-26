@@ -702,9 +702,6 @@ class TabTracker extends TabTrackerBase {
     }
 
     for (let nativeTabInfo of tabmail.tabInfo) {
-      if (!getTabBrowser(nativeTabInfo)) {
-        continue;
-      }
       this.emitCreated(nativeTabInfo);
     }
   }
@@ -732,9 +729,6 @@ class TabTracker extends TabTrackerBase {
     }
 
     for (let nativeTabInfo of tabmail.tabInfo) {
-      if (!getTabBrowser(nativeTabInfo)) {
-        continue;
-      }
       this.emitRemoved(nativeTabInfo, true);
     }
   }

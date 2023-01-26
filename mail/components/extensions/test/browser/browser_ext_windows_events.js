@@ -256,7 +256,6 @@ add_task(async () => {
           () => browser.windows.remove(mainWindow)
         );
         await listener.checkEvent("windows.onRemoved", mainWindow);
-        // TODO: this doesn't fire because there's no content in that tab.
         await listener.checkEvent("tabs.onRemoved", mainTab, {
           windowId: mainWindow,
           isWindowClosing: true,
