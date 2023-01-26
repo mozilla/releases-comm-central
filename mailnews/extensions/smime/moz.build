@@ -13,7 +13,6 @@ XPIDL_SOURCES += [
     "nsICMSSecureMessage.idl",
     "nsIEncryptedSMIMEURIsSrvc.idl",
     "nsIMsgSMIMEHeaderSink.idl",
-    "nsISMimeJSHelper.idl",
     "nsIUserCertPicker.idl",
 ]
 
@@ -25,7 +24,6 @@ SOURCES += [
     "nsCMSSecureMessage.cpp",
     "nsEncryptedSMIMEURIsService.cpp",
     "nsMsgComposeSecure.cpp",
-    "nsSMimeJSHelper.cpp",
 ]
 
 FINAL_LIBRARY = "mail"

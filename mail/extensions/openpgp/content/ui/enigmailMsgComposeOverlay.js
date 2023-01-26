@@ -974,61 +974,7 @@ Enigmail.msg = {
 
     no return value
   */
-  processFinalState(sendFlags) {
-    /*
-    EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.processFinalState()\n");
-
-    const SIGN = EnigmailConstants.SEND_SIGNED;
-    const ENCRYPT = EnigmailConstants.SEND_ENCRYPTED;
-
-
-    let encReason = "";
-    let signReason = "";
-    let pgpEnabled = Enigmail.msg.wasEnigmailEnabledForIdentity();
-    let smimeEnabled = Enigmail.msg.isSmimeEnabled();
-
-    // ------ 1. process OpenPGP status ------
-
-    //pgpEnabled
-    //smimeEnabled
-
-
-
-    // ------ 2. Process S/MIME status  ------
-    if (gSMFields) {
-
-        //gSMFields.requireEncryptMessage = false;
-        //gSMFields.signMessage = false;
-
-        if (!encryptSmime) {
-          if (autoSendEncrypted === 1) {
-            if (this.isSmimeEncryptionPossible()) {
-              if (this.mimePreferOpenPGP === 0) {
-                // S/MIME is preferred and encryption is possible
-                encryptSmime = true;
-              }
-            }
-          }
-        }
-        //gSMFields.requireEncryptMessage = true;
-        //gSMFields.signMessage = true;
-
-      // smime policy
-      //if (this.identity.encryptionPolicy > 0)
-
-      // update the S/MIME GUI elements
-      try {
-        setSecuritySettings("1");
-      }
-      catch (ex) {}
-
-      try {
-        setSecuritySettings("2");
-      }
-      catch (ex) {}
-    }
-    */
-  },
+  processFinalState(sendFlags) {},
 
   /* check if encryption is possible (have keys for everyone or not)
    */
@@ -1209,30 +1155,6 @@ Enigmail.msg = {
     return 1;
   },
   */
-
-  /**
-   * check if S/MIME encryption can be enabled
-   *
-   * @return: Boolean - true: keys for all recipients are available
-   */
-  isSmimeEncryptionPossible() {
-    if (!gCurrentIdentity.getUnicharAttribute("encryption_cert_name")) {
-      return false;
-    }
-
-    // Enable encryption if keys for all recipients are available.
-    try {
-      if (!gMsgCompose.compFields.hasRecipients) {
-        return false;
-      }
-      let addresses = Cc["@mozilla.org/messenger-smime/smimejshelper;1"]
-        .createInstance(Ci.nsISMimeJSHelper)
-        .getNoCertAddresses(gMsgCompose.compFields);
-      return addresses.length == 0;
-    } catch (e) {
-      return false;
-    }
-  },
 
   /* Manage the wrapping of inline signed mails
    *

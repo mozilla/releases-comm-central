@@ -12,7 +12,30 @@ interface nsIMsgIdentity;
 interface nsIOutputStream;
 interface nsIX509Cert;
 
-/* Security interface */
+/**
+ * Callback type for use with asyncFindCertByEmailAddr.
+ */
+[scriptable, function, uuid(6149d7d3-14bf-4280-8451-60fb48263894)]
+interface nsIDoneFindCertForEmailCallback : nsISupports {
+  /**
+   * Called after a searching for a certificate is done.
+   *
+   * @param emailAddress     - The email address that was used as the key
+   *                           to find this certificate.
+   * @param cert             - The valid certificate that was found,
+   *                           or null, if no valid cert was found.
+   */
+  void findCertDone(in AUTF8String emailAddress,
+                    in nsIX509Cert cert);
+};
+
+/**
+ * An instance of this type is related to exactly one email message
+ * while the user is composing it.
+ * Besides remembering flags and providing helper code, it is used to
+ * cache information about valid S/MIME encryption certificates that
+ * were found and which may be used at send time.
+ */
 [scriptable, uuid(245f2adc-410e-4bdb-91e2-a7bb42d61787)]
 interface nsIMsgComposeSecure : nsISupports
 {
@@ -73,21 +96,50 @@ interface nsIMsgComposeSecure : nsISupports
     void finishCryptoEncapsulation(in boolean aAbort, in nsIMsgSendReport sendReport);
 
     /**
-     *  Find a certificate by email address.
+     * Is information about a valid encryption certificate for the given
+     * email address already available in the cache?
      *
-     *  (Note: This function is used primarily for testing purposes. It runs
-     *   on the main thread, which may cause nested event loop spinning.)
-     *  (TODO: A better place for this might be nsISMimeJSHelper.idl,
-     *   but it would require to move the C++ implementation.)
+     * @param emailAddress     - The email address to check.
      *
-     *  @param aEmailAddress     - The email address to be used as the key
-     *                           - to find the certificate.
-     *  @param aRequireValidCert - Set to False, to search for any certificate with a matching email address.
-     *                             Set to True, if the returned certificate must be currently valid
-     *                                          and usable for email security.
+     * @return - True if a valid cert is known by the cache.
+     */
+    boolean haveValidCertForEmail(in AUTF8String emailAddress);
+
+    /**
+     * If a valid encryption certificate for the given email address
+     * is already known by the cache, then return the NSS database
+     * key of that certificate.
      *
-     *  @return The matching certificate if found.
+     * @param emailAddress     - The email address to check.
+     *
+     * @return - NSS db key of the valid cert.
+     */
+    ACString getCertDBKeyForEmail(in AUTF8String emailAddress);
+
+    /**
+     * Remember the given certificate database key in our cache. The
+     * given certDBey (as used with nsIX509CertDB) must reference a
+     * valid encryption certificate for the given email address.
+     *
+     * @param emailAddress     - The email address that is related to
+     *                           the given certDBKey.
+     * @param certDBKey        - The certificate database key.
+     */
+    void cacheValidCertForEmail(in AUTF8String emailAddress,
+                                in ACString certDBKey);
+
+    /*
+     * Asynchronously find an encryption certificate by email address. Calls
+     * `findCertDone` function on the provided `nsIDoneFindCertForEmailCallback`
+     * with the results of the operation.
+     *
+     *  @param emailAddress     - The email address to be used as the key
+     *                            to find the certificate.
+     *  @param callback         - A callback of type nsIDoneFindCertForEmailCallback,
+     *                            function findCertDone will be called with
+     *                            the result of the operation.
      */
     [must_use]
-    nsIX509Cert findCertByEmailAddress(in ACString aEmailAddress, in boolean aRequireValidCert);
+    void asyncFindCertByEmailAddr(in AUTF8String emailAddress,
+                                  in nsIDoneFindCertForEmailCallback callback);
 };

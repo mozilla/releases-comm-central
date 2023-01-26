@@ -173,7 +173,8 @@ var gBodyFromArgs;
 // gSMFields separate allows switching as needed.
 var gSMFields = null;
 
-var gSMCertsMap = new Map();
+var gSMPendingCertLookupSet = new Set();
+var gSMCertsAlreadyLookedUpInLDAP = new Set();
 
 var gSelectedTechnologyIsPGP = false;
 
@@ -319,13 +320,13 @@ const inputObserver = {
 };
 
 const keyObserver = {
-  observe: (subject, topic, data) => {
+  observe: async (subject, topic, data) => {
     switch (topic) {
       case "openpgp-key-change":
         EnigmailKeyRing.clearCache();
       // fall through
       case "openpgp-acceptance-change":
-        checkRecipientKeys();
+        await checkRecipientKeys();
         gKeyAssistant.onExternalKeyChange();
         break;
       default:
@@ -1864,6 +1865,7 @@ function showMessageComposeSecurityStatus(isSending = false) {
         isEncryptionCertAvailable:
           gCurrentIdentity.getUnicharAttribute("encryption_cert_name") != "",
         currentIdentity: gCurrentIdentity,
+        recipients: getEncryptionCompatibleRecipients(),
       }
     );
   }
@@ -3129,7 +3131,7 @@ function ComposeFieldsReady() {
 
   // Perform the initial checks.
   checkPublicRecipientsLimit();
-  checkRecipientKeys();
+  checkRecipientKeysAndCerts();
   checkEncryptedBccRecipients();
 }
 
@@ -3158,7 +3160,7 @@ function observeRecipientsChange() {
   });
   window.addEventListener("sendencryptedchange", checkEncryptedBccRecipients);
 
-  gRecipientKeysObserver = new MutationObserver(checkRecipientKeys);
+  gRecipientKeysObserver = new MutationObserver(checkRecipientKeysAndCerts);
   gRecipientKeysObserver.observe(document.getElementById("toAddrContainer"), {
     childList: true,
   });
@@ -3168,7 +3170,7 @@ function observeRecipientsChange() {
   gRecipientKeysObserver.observe(document.getElementById("bccAddrContainer"), {
     childList: true,
   });
-  window.addEventListener("sendencryptedchange", checkRecipientKeys);
+  window.addEventListener("sendencryptedchange", checkRecipientKeysAndCerts);
 }
 
 // checks if the passed in string is a mailto url, if it is, generates nsIMsgComposeParams
@@ -3424,14 +3426,16 @@ async function verifyCertUsable(cert) {
   });
 }
 
+async function checkRecipientKeysAndCerts() {
+  await checkRecipientKeys();
+  checkRecipientCerts();
+}
+
 async function checkRecipientKeys() {
-  let remindSMime = Services.prefs.getBoolPref(
-    "mail.smime.remind_encryption_possible"
-  );
   let remindOpenPGP = Services.prefs.getBoolPref(
     "mail.openpgp.remind_encryption_possible"
   );
-  if (!remindSMime && !remindOpenPGP) {
+  if (!remindOpenPGP) {
     return;
   }
 
@@ -3441,9 +3445,6 @@ async function checkRecipientKeys() {
   // If an email address has several invalid keys, we notify only about the 1st
   // undecided key, or the 1st expired key, or the 1st rejected key, in this
   // order.
-
-  let emailsWithMissingCerts = [];
-  let haveAllCerts = false;
 
   let emailsWithMissingKeys = [];
   let haveAllKeys = false;
@@ -3468,76 +3469,174 @@ async function checkRecipientKeys() {
     }
   }
 
-  if (remindSMime && (gSendEncrypted || isSmimeEncryptionConfigured())) {
-    let compFields = Cc[
-      "@mozilla.org/messengercompose/composefields;1"
-    ].createInstance(Ci.nsIMsgCompFields);
-    Recipients2CompFields(compFields);
-    let helper = Cc[
-      "@mozilla.org/messenger-smime/smimejshelper;1"
-    ].createInstance(Ci.nsISMimeJSHelper);
-
-    let outEmailAddresses = {};
-
-    helper.getRecipients(compFields, outEmailAddresses);
-
-    for (let i = 0; i < outEmailAddresses.value.length; i++) {
-      let email = outEmailAddresses.value[i];
-
-      let certFromCache = gSMCertsMap.get(email);
-      if (certFromCache) {
-        continue;
-      }
-
-      let outCertIssuedInfo = {};
-      let outCertExpiresInfo = {};
-      let outCert = {};
-
-      helper.getValidCertInfo(
-        email,
-        outCertIssuedInfo,
-        outCertExpiresInfo,
-        outCert
-      );
-
-      if (outCert.value) {
-        gSMCertsMap.set(email, outCert.value);
-      } else {
-        emailsWithMissingCerts.push(email);
-        continue;
-      }
-    }
-
-    if (!emailsWithMissingCerts.length) {
-      haveAllCerts = true;
-    }
-  }
-
   if (!gSendEncrypted) {
-    if (recipients.length && (haveAllCerts || haveAllKeys)) {
-      await updateEncryptionReminder(haveAllKeys, haveAllCerts);
+    if (recipients.length && haveAllKeys) {
+      updateEncryptionTechReminder("OpenPGP");
     } else {
-      await updateEncryptionReminder(false, false);
+      updateEncryptionTechReminder(null);
     }
 
     updateKeyNotifications([]);
     return;
   }
 
-  await updateEncryptionReminder(false, false);
-  updateKeyNotifications(
-    gSelectedTechnologyIsPGP ? emailsWithMissingKeys : emailsWithMissingCerts
-  );
+  if (gSelectedTechnologyIsPGP) {
+    updateEncryptionTechReminder(null);
+    updateKeyNotifications(emailsWithMissingKeys);
+  }
+}
+
+/**
+ * S/MIME. Callers cannot wait for this to complete. Cert verification
+ * involves OCSP, which must run on a background thread.
+ * Calling this function will result in a delayed UI update as soon
+ * as necessary background activity has been completed. Calling this
+ * function multiple times pending OCSP is safe, because we're tracking
+ * pending requests. As soon as all are done, processing will continue
+ * by calling continueCheckRecipientCerts().
+ */
+function checkRecipientCerts() {
+  async function continueCheckRecipientCerts() {
+    if (!Services.prefs.getBoolPref("mail.smime.remind_encryption_possible")) {
+      // No UI updates necessary, our processing did the necessary
+      // filling of the OCSP cache.
+      return;
+    }
+
+    let recipients = getEncryptionCompatibleRecipients();
+    let emailsWithMissingCerts = recipients.filter(
+      email => !gSMFields.haveValidCertForEmail(email)
+    );
+    let haveAllCerts = !emailsWithMissingCerts.length;
+
+    if (!gSendEncrypted) {
+      if (recipients.length && haveAllCerts) {
+        updateEncryptionTechReminder("SMIME");
+      } else {
+        updateEncryptionTechReminder(null);
+      }
+
+      updateKeyNotifications([]);
+      return;
+    }
+
+    if (!gSelectedTechnologyIsPGP) {
+      updateEncryptionTechReminder(null);
+      updateKeyNotifications(emailsWithMissingCerts);
+    }
+  }
+
+  if (!gLoadingComplete) {
+    // Let's not do this while we're still loading the composer window,
+    // it can have side effects, see bug 1777683.
+    // Also, if multiple recipients are added to an email automatically
+    // e.g. during reply-all, it doesn't make sense to execute this
+    // function every time after one of them gets added.
+    return;
+  }
+
+  if (!isSmimeEncryptionConfigured()) {
+    return;
+  }
+
+  let recipients = getEncryptionCompatibleRecipients();
+  // Calculate key notifications.
+  // 1 notification at most per email address that has no valid key.
+  // If an email address has several invalid keys, we notify only about the 1st
+  // undecided key, or the 1st expired key, or the 1st rejected key, in this
+  // order.
+
+  /** @implements {nsIDoneFindCertForEmailCallback} */
+  let doneFindCertForEmailCallback = {
+    QueryInterface: ChromeUtils.generateQI(["nsIDoneFindCertForEmailCallback"]),
+
+    findCertDone(email, cert) {
+      let isStaleResult = !gSMPendingCertLookupSet.has(email);
+      // isStaleResult true means, this recipient was removed by the
+      // user while we were looking for the cert in the background.
+      // Let's remember the result, but don't trigger any actions
+      // based on it.
+
+      if (cert) {
+        gSMFields.cacheValidCertForEmail(email, cert ? cert.dbKey : "");
+      }
+      if (isStaleResult) {
+        return;
+      }
+      gSMPendingCertLookupSet.delete(email);
+      if (!cert && !gSMCertsAlreadyLookedUpInLDAP.has(email)) {
+        let autocompleteLdap = Services.prefs.getBoolPref(
+          "ldap_2.autoComplete.useDirectory"
+        );
+
+        if (autocompleteLdap) {
+          gSMCertsAlreadyLookedUpInLDAP.add(email);
+
+          let autocompleteDirectory = null;
+          if (gCurrentIdentity.overrideGlobalPref) {
+            autocompleteDirectory = gCurrentIdentity.directoryServer;
+          } else {
+            autocompleteDirectory = Services.prefs.getCharPref(
+              "ldap_2.autoComplete.directoryServer"
+            );
+          }
+
+          if (autocompleteDirectory) {
+            window.openDialog(
+              "chrome://messenger-smime/content/certFetchingStatus.xhtml",
+              "",
+              "chrome,resizable=1,modal=1,dialog=1",
+              autocompleteDirectory,
+              [email]
+            );
+          }
+
+          gSMPendingCertLookupSet.add(email);
+          gSMFields.asyncFindCertByEmailAddr(
+            email,
+            doneFindCertForEmailCallback
+          );
+        }
+      }
+
+      if (gSMPendingCertLookupSet.size) {
+        // must continue to wait for more calls to this function
+        return;
+      }
+
+      // No more lookups pending.
+      continueCheckRecipientCerts();
+    },
+  };
+
+  for (let email of recipients) {
+    if (gSMFields.haveValidCertForEmail(email)) {
+      continue;
+    }
+
+    if (gSMPendingCertLookupSet.has(email)) {
+      // lookup already currently running for this email
+      continue;
+    }
+
+    gSMPendingCertLookupSet.add(email);
+    gSMFields.asyncFindCertByEmailAddr(email, doneFindCertForEmailCallback);
+  }
+
+  if (!gSMPendingCertLookupSet.size) {
+    // immediately continue
+    continueCheckRecipientCerts();
+  }
 }
 
 /**
  * Display (or hide) the notification that informs the user that
  * encryption is possible (but currently not enabled).
  *
- * @param {boolean} canEnableOpenPGP - If OpenPGP encryption is possible
- * @param {boolean} canEnableSMIME - If S/MIME encryption is possible
+ * @param {string} technology - The technology that is possible,
+ *   ("OpenPGP" or "SMIME"), or null if none is possible.
  */
-async function updateEncryptionReminder(canEnableOpenPGP, canEnableSMIME) {
+function updateEncryptionTechReminder(technology) {
   let enableNotification = gComposeNotification.getNotificationWithValue(
     "enableNotification"
   );
@@ -3545,13 +3644,14 @@ async function updateEncryptionReminder(canEnableOpenPGP, canEnableSMIME) {
     gComposeNotification.removeNotification(enableNotification);
   }
 
-  if (!canEnableOpenPGP && !canEnableSMIME) {
+  if (!technology || (technology != "OpenPGP" && technology != "SMIME")) {
     return;
   }
 
-  let labelId = canEnableOpenPGP
-    ? "can-encrypt-openpgp-notification"
-    : "can-encrypt-smime-notification";
+  let labelId =
+    technology == "OpenPGP"
+      ? "can-encrypt-openpgp-notification"
+      : "can-encrypt-smime-notification";
 
   gComposeNotification.appendNotification(
     "enableNotification",
@@ -3563,10 +3663,14 @@ async function updateEncryptionReminder(canEnableOpenPGP, canEnableSMIME) {
       {
         "l10n-id": "can-e2e-encrypt-button",
         callback() {
-          gSelectedTechnologyIsPGP = canEnableOpenPGP;
+          gSelectedTechnologyIsPGP = technology == "OpenPGP";
           updateE2eeOptions(true);
           updateEncryptionOptions();
-          checkRecipientKeys();
+          if (technology == "OpenPGP") {
+            checkRecipientKeys();
+          } else {
+            checkRecipientCerts();
+          }
           return true;
         },
       },
@@ -5383,7 +5487,7 @@ function onEncryptionChoice(value) {
         gSelectedTechnologyIsPGP = false;
         updateEncryptionOptions();
         updateEncryptedSubject();
-        checkRecipientKeys();
+        checkRecipientCerts();
       }
       break;
 
@@ -5528,9 +5632,11 @@ function onSendSMIME() {
       return;
     }
 
-    emailAddresses = Cc["@mozilla.org/messenger-smime/smimejshelper;1"]
-      .createInstance(Ci.nsISMimeJSHelper)
-      .getNoCertAddresses(gMsgCompose.compFields);
+    for (let email of getEncryptionCompatibleRecipients()) {
+      if (!gSMFields.haveValidCertForEmail(email)) {
+        emailAddresses.push(email);
+      }
+    }
   } catch (e) {
     return;
   }

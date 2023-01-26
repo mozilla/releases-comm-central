@@ -28,6 +28,7 @@
 #include "mozpkix/Result.h"
 #include "nsNSSCertificate.h"
 #include "nsNSSHelper.h"
+#include "CryptoTask.h"
 
 using namespace mozilla::mailnews;
 using namespace mozilla;
@@ -330,6 +331,16 @@ NS_IMETHODIMP nsMsgComposeSecure::BeginCryptoEncapsulation(
     nsIMsgSendReport* sendReport, bool aIsDraft) {
   mErrorAlreadyReported = false;
   nsresult rv = NS_OK;
+
+  // CryptoEncapsulation should be synchronous, therefore it must
+  // avoid cert verification or looking up certs, which often involves
+  // async OCSP. The message composer should already have looked up
+  // and verified certificates whenever the user modified the recipient
+  // list, and should have used CacheValidCertForEmail to make those
+  // certificates known to us.
+  // (That code may use the AsyncFindCertByEmailAddr API which allows
+  // lookup and validation to be performed on a background thread,
+  // which is required when using OCSP.)
 
   bool encryptMessages = false;
   bool signMessage = false;
@@ -816,6 +827,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
               certBytes, certificateUsageEmailRecipient, mozilla::pkix::Now(),
               nullptr, nullptr, builtChain,
               // Only local checks can run on the main thread.
+              // Skipping OCSP for the user's own cert seems accaptable.
               CertVerifier::FLAG_LOCAL_ONLY) != mozilla::pkix::Success) {
         // not suitable for encryption, so unset cert and clear pref
         mSelfEncryptionCert = nullptr;
@@ -839,6 +851,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
               certBytes, certificateUsageEmailSigner, mozilla::pkix::Now(),
               nullptr, nullptr, builtChain,
               // Only local checks can run on the main thread.
+              // Skipping OCSP for the user's own cert seems accaptable.
               CertVerifier::FLAG_LOCAL_ONLY) != mozilla::pkix::Success) {
         // not suitable for signing, so unset cert and clear pref
         mSelfSigningCert = nullptr;
@@ -885,15 +898,18 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
       nsCString mailbox_lowercase;
       ToLowerCase(mailboxes[i], mailbox_lowercase);
       nsCOMPtr<nsIX509Cert> cert;
-      // TODO: allow user to override and go ahead with an invalid certificate
-      res =
-          FindCertByEmailAddress(mailbox_lowercase, true, getter_AddRefs(cert));
-      if (NS_FAILED(res)) {
+
+      nsCString dbKey;
+      res = GetCertDBKeyForEmail(mailbox_lowercase, dbKey);
+      if (NS_SUCCEEDED(res)) {
+        res = certdb->FindCertByDBKey(dbKey, getter_AddRefs(cert));
+      }
+
+      if (NS_FAILED(res) || !cert) {
         // Failure to find a valid encryption cert is fatal.
         // Here I assume that mailbox is ascii rather than utf8.
         SetErrorWithParam(sendReport, "MissingRecipientEncryptionCert",
                           mailboxes[i].get());
-
         return res;
       }
 
@@ -1099,10 +1115,45 @@ static nsresult mime_nested_encoder_output_fn(const char* buf, int32_t size,
   return state->MimeCryptoWriteBlock(bufWithNull.get(), size);
 }
 
-NS_IMETHODIMP
-nsMsgComposeSecure::FindCertByEmailAddress(const nsACString& aEmailAddress,
-                                           bool aRequireValidCert,
-                                           nsIX509Cert** _retval) {
+class FindSMimeCertTask final : public CryptoTask {
+ public:
+  FindSMimeCertTask(const nsACString& email,
+                    nsIDoneFindCertForEmailCallback* listener)
+      : mEmail(email), mListener(listener) {
+    MOZ_ASSERT(NS_IsMainThread());
+  }
+
+ private:
+  virtual nsresult CalculateResult() override;
+
+  virtual void CallCallback(nsresult rv) override {
+    MOZ_ASSERT(NS_IsMainThread());
+    nsCOMPtr<nsIX509Cert> resultCert;
+    {
+      mozilla::StaticMutexAutoLock lock(sMutex);
+      resultCert = mCert;
+    }
+    mListener->FindCertDone(mEmail, resultCert);
+  }
+
+  const nsCString mEmail;
+  nsCOMPtr<nsIX509Cert> mCert;
+  nsCOMPtr<nsIDoneFindCertForEmailCallback> mListener;
+
+  static mozilla::StaticMutex sMutex;
+};
+
+mozilla::StaticMutex FindSMimeCertTask::sMutex;
+
+/*
+called by:
+  GetValidCertInfo
+  GetRecipientCertsInfo
+  GetNoCertAddresses
+*/
+nsresult FindSMimeCertTask::CalculateResult() {
+  MOZ_ASSERT(!NS_IsMainThread());
+
   nsresult rv = BlockUntilLoadableCertsLoaded();
   if (NS_FAILED(rv)) {
     return rv;
@@ -1111,7 +1162,7 @@ nsMsgComposeSecure::FindCertByEmailAddress(const nsACString& aEmailAddress,
   RefPtr<SharedCertVerifier> certVerifier(GetDefaultCertVerifier());
   NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
 
-  const nsCString& flatEmailAddress = PromiseFlatCString(aEmailAddress);
+  const nsCString& flatEmailAddress = PromiseFlatCString(mEmail);
   UniqueCERTCertList certlist(
       PK11_FindCertsFromEmailAddress(flatEmailAddress.get(), nullptr));
   if (!certlist) return NS_ERROR_FAILURE;
@@ -1132,24 +1183,52 @@ nsMsgComposeSecure::FindCertByEmailAddress(const nsACString& aEmailAddress,
 
     mozilla::pkix::Result result = certVerifier->VerifyCert(
         certBytes, certificateUsageEmailRecipient, mozilla::pkix::Now(),
-        nullptr /*XXX pinarg*/, nullptr /*hostname*/, unusedCertChain,
-        // Only local checks can run on the main thread.
-        CertVerifier::FLAG_LOCAL_ONLY);
+        nullptr /*XXX pinarg*/, nullptr /*hostname*/, unusedCertChain);
     if (result == mozilla::pkix::Success) {
+      mozilla::StaticMutexAutoLock lock(sMutex);
+      mCert = new nsNSSCertificate(node->cert);
       break;
     }
   }
 
-  if (CERT_LIST_END(node, certlist)) {  // no valid cert found
-    if (aRequireValidCert) return NS_ERROR_FAILURE;
-
-    // Get the first non-valid then.
-    node = CERT_LIST_HEAD(certlist);
-  }
-
-  // |node| now contains the first valid (if aRequireValidCert true)
-  // certificate with correct usage.
-  RefPtr<nsNSSCertificate> nssCert = new nsNSSCertificate(node->cert);
-  nssCert.forget(_retval);
   return NS_OK;
 }
+
+NS_IMETHODIMP
+nsMsgComposeSecure::CacheValidCertForEmail(const nsACString& email,
+                                           const nsACString& certDBKey) {
+  mozilla::StaticMutexAutoLock lock(sMutex);
+  mValidCertForEmailAddr.InsertOrUpdate(email, certDBKey);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgComposeSecure::HaveValidCertForEmail(const nsACString& email,
+                                          bool* _retval) {
+  mozilla::StaticMutexAutoLock lock(sMutex);
+  *_retval = mValidCertForEmailAddr.Get(email, nullptr);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgComposeSecure::GetCertDBKeyForEmail(const nsACString& email,
+                                         nsACString& _retval) {
+  mozilla::StaticMutexAutoLock lock(sMutex);
+  nsCString dbKey;
+  bool found = mValidCertForEmailAddr.Get(email, &dbKey);
+  if (found) {
+    _retval = dbKey;
+  } else {
+    _retval.Truncate();
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgComposeSecure::AsyncFindCertByEmailAddr(
+    const nsACString& email, nsIDoneFindCertForEmailCallback* callback) {
+  RefPtr<CryptoTask> task = new FindSMimeCertTask(email, callback);
+  return task->Dispatch();
+}
+
+mozilla::StaticMutex nsMsgComposeSecure::sMutex;

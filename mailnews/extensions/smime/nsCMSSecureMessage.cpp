@@ -70,6 +70,8 @@ nsresult nsCMSSecureMessage::CheckUsageOk(nsIX509Cert* aCert,
   NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
 
   nsTArray<nsTArray<uint8_t>> unusedBuiltChain;
+  // It's fine to skip OCSP, because this is called only from code
+  // for selecting the user's own configured cert.
   if (certVerifier->VerifyCert(certBytes, aUsage, mozilla::pkix::Now(), nullptr,
                                nullptr, unusedBuiltChain,
                                CertVerifier::FLAG_LOCAL_ONLY) ==

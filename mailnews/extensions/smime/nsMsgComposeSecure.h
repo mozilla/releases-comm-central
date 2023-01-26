@@ -14,8 +14,10 @@
 #include "nsICryptoHash.h"
 #include "nsICMSMessage.h"
 #include "nsString.h"
+#include "nsTHashMap.h"
 #include "nsIOutputStream.h"
 #include "mozilla/UniquePtr.h"
+#include "mozilla/StaticMutex.h"
 
 class nsIMsgCompFields;
 namespace mozilla {
@@ -80,6 +82,10 @@ class nsMsgComposeSecure : public nsIMsgComposeSecure {
   nsCOMPtr<nsICMSMessage> mEncryptionCinfo;
   nsCOMPtr<nsICMSEncoder> mEncryptionContext;
   nsCOMPtr<nsIStringBundle> mSMIMEBundle;
+
+  // Maps email address to nsIX509Cert.dbKey of a verified certificate.
+  nsTHashMap<nsCStringHashKey, nsCString> mValidCertForEmailAddr;
+  static mozilla::StaticMutex sMutex;
 
   mozilla::UniquePtr<MimeEncoder> mCryptoEncoder;
   bool mIsDraft;
