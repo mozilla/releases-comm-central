@@ -64,28 +64,6 @@
                              class="toolbarbutton-1"
                              label="&chatAccountsButton.label;"
                              oncommand="openIMAccountMgr()"/>
-
-              <toolbaritem id="gloda-im-search" insertafter="button-stop"
-                           title="&glodaSearch.title;"
-                           align="center"
-                           flex="1"
-                           class="gloda-search-widget chromeclass-toolbar-additional">
-                <html:img class="search-icon" alt=""
-                          src="chrome://global/skin/icons/search-textbox.svg" />
-                <html:input is="gloda-autocomplete-input" id="IMSearchInput"
-                            type="text"
-                            class="searchBox gloda-search"
-                            searchbutton="true"
-                            autocompletesearch="gloda"
-                            autocompletepopup="PopupGlodaAutocomplete"
-                            autocompletesearchparam="global"
-                            timeout="200"
-                            maxlength="192"
-                            placeholder=""
-                            emptytextbase="&search.label.base1;"
-                            keyLabelNonMac="&search.keyLabel.nonmac;"
-                            keyLabelMac="&search.keyLabel.mac;"/>
-              </toolbaritem>
             </toolbarpalette>
           </toolbox>
 

@@ -23,11 +23,7 @@ let threads;
 /**
  * Tests the 3 global search bars found in the UI:
  * 1) The one on the mail tab.
- * 2) The one on the chat tab.
- * 3) The one in the search result tab.
- *
- * 2 is skipped because their tab types currently cause an error to be
- * thrown when focused on. See bug 1680587 and bug 1649035.
+ * 2) The one in the search result tab.
  */
 let tests = [
   {
@@ -35,21 +31,6 @@ let tests = [
     isNewSearchBar: true,
     tabCountBefore: 1,
     tabCountAfter: 2,
-  },
-  {
-    selector: "#IMSearchInput",
-    tabCountBefore: 2,
-    skip: true,
-    before() {
-      // Make sure we are on the chat tab.
-      window.showChatTab();
-      Assert.equal(
-        window.tabmail.selectedTab,
-        window.gChatTab,
-        "chat tab is selected"
-      );
-    },
-    tabCountAfter: 3,
   },
   {
     selector: ".remote-gloda-search",
@@ -95,11 +76,6 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
   });
 
   for (let test of tests) {
-    if (test.skip) {
-      info(`Skipping "gloda-autocomplete-input${test.selector}"...`);
-      continue;
-    }
-
     while (window.tabmail.tabInfo.length > 1) {
       window.tabmail.closeTab(1);
     }

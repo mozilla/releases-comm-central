@@ -280,30 +280,6 @@
                    label="&stopButton.label;"
                    tooltiptext="&stopButton.tooltip;"
                    command="cmd_stop"/>
-#ifdef MAIN_WINDOW
-    <!-- gloda search widget; provides global (message) searching.  -->
-    <toolbaritem id="gloda-search" insertafter="button-stop"
-                 title="&glodaSearch.title;"
-                 align="center"
-                 flex="1"
-                 class="gloda-search-widget chromeclass-toolbar-additional">
-        <html:img class="search-icon" alt=""
-                  src="chrome://global/skin/icons/search-textbox.svg" />
-        <html:input is="gloda-autocomplete-input" id="searchInput"
-                    type="text"
-                    class="searchBox gloda-search"
-                    searchbutton="true"
-                    autocompletesearch="gloda"
-                    autocompletepopup="PopupGlodaAutocomplete"
-                    autocompletesearchparam="global"
-                    timeout="200"
-                    maxlength="192"
-                    placeholder=""
-                    emptytextbase="&search.label.base1;"
-                    keyLabelNonMac="&search.keyLabel.nonmac;"
-                    keyLabelMac="&search.keyLabel.mac;"/>
-    </toolbaritem>
-#endif
     <toolbarbutton id="button-compact" class="toolbarbutton-1"
                    insertafter="button-mark"
                    label="&compactButton.label;"
@@ -390,8 +366,8 @@
            context="toolbar-context-menu"
 #ifdef XP_MACOSX
            iconsize="small"
-           defaultset="button-getmsg,button-newmsg,spacer,button-tag,qfb-show-filter-bar,spring,gloda-search,button-appmenu">
+           defaultset="button-getmsg,button-newmsg,spacer,button-tag,qfb-show-filter-bar,spring">
 #else
-           defaultset="button-getmsg,button-newmsg,separator,button-tag,qfb-show-filter-bar,spring,gloda-search,button-appmenu">
+           defaultset="button-getmsg,button-newmsg,separator,button-tag,qfb-show-filter-bar,spring">
 #endif
   </toolbar>
