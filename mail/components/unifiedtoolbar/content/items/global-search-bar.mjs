@@ -100,6 +100,7 @@ class GlobalSearchBar extends SearchBar {
       capture: true,
     });
     this.addEventListener("focus", this.#handleFocus);
+    this.addEventListener("drop", this.#handleDrop, { capture: true });
   }
 
   #handleSearch = event => {
@@ -189,6 +190,15 @@ class GlobalSearchBar extends SearchBar {
         this.shadowRoot.querySelector("input")
       );
     }
+  };
+
+  #handleDrop = event => {
+    if (event.dataTransfer.types.includes("text/x-moz-address")) {
+      const searchTerm = event.dataTransfer.getData("text/unicode");
+      this.#handleSearch({ detail: searchTerm });
+    }
+    event.stopPropagation();
+    event.preventDefault();
   };
 }
 customElements.define("global-search-bar", GlobalSearchBar);
