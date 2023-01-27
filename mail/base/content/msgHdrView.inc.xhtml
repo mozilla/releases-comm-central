@@ -143,15 +143,15 @@
                      class="toolbarbutton-1 message-header-view-button hdrArchiveButton"/>
       <toolbarbutton id="hdrJunkButton" label="&hdrJunkButton1.label;"
                      tooltiptext="&hdrJunkButton1.tooltip;"
-                     observes="button_junk"
+                     observes="cmd_markAsJunk"
                      class="toolbarbutton-1 message-header-view-button hdrJunkButton"
-                     oncommand="goDoCommand('button_junk');"/>
+                     oncommand="goDoCommand('cmd_markAsJunk');"/>
       <toolbarbutton id="hdrTrashButton"
                      label="&hdrTrashButton1.label;"
                      tooltiptext="&hdrTrashButton1.tooltip;"
-                     observes="button_delete"
+                     observes="cmd_delete"
                      class="toolbarbutton-1 message-header-view-button hdrTrashButton"
-                     oncommand="goDoCommand(event.shiftKey ? 'button_shiftDelete' : 'button_delete');"/>
+                     oncommand="goDoCommand(event.shiftKey ? 'cmd_shiftDelete' : 'cmd_delete');"/>
       <toolbarbutton id="otherActionsButton"
                      type="menu"
                      wantdropmarker="true"
@@ -189,7 +189,7 @@
                 label="&tagMenu.label;"
                 accesskey="&tagMenu.accesskey;">
             <menupopup id="hdrTagDropdown"
-                       onpopupshowing="InitMessageTags(this);">
+                       onpopupshowing="window.top.InitMessageTags(this);">
               <menuitem id="hdrTagDropdown-addNewTag"
                         label="&addNewTag.label;"
                         accesskey="&addNewTag.accesskey;"
@@ -234,12 +234,12 @@
                         class="menuitem-iconic"
                         label="&calendar.context.convertmenu.event.label;"
                         accesskey="&calendar.context.convertmenu.event.accesskey;"
-                        oncommand="calendarExtract.extractFromEmail(true)"/>
+                        oncommand="window.top.calendarExtract.extractFromEmail(true)"/>
               <menuitem id="otherActions-calendar-convert-task-menuitem"
                         class="menuitem-iconic"
                         label="&calendar.context.convertmenu.task.label;"
                         accesskey="&calendar.context.convertmenu.task.accesskey;"
-                        oncommand="calendarExtract.extractFromEmail(false)"/>
+                        oncommand="window.top.calendarExtract.extractFromEmail(false)"/>
             </menupopup>
           </menu>
           <menuseparator id="otherActionsComposeSeparator"/>
@@ -247,7 +247,7 @@
                     class="menuitem-iconic"
                     label="&viewSourceMenuItem1.label;"
                     accesskey="&viewSourceMenuItem1.accesskey;"
-                    oncommand="ViewPageSource(gFolderDisplay.selectedMessageUris);"/>
+                    oncommand="goDoCommand('cmd_viewPageSource');"/>
           <menuitem id="charsetRepairMenuitem"
                     class="menuitem-iconic"
                     data-l10n-id="repair-text-encoding-button"

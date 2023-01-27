@@ -84,7 +84,11 @@ var calendarExtract = {
   async extractFromEmail(isEvent, fixedLang, fixedLocale) {
     // TODO would be nice to handle multiple selected messages,
     // though old conversion functionality didn't
-    let message = gFolderDisplay.selectedMessage;
+    let aboutMessage = document.getElementById("tabmail").currentAboutMessage;
+    if (!aboutMessage) {
+      return;
+    }
+    let message = aboutMessage.gMessage;
     let folder = message.folder;
     let title = message.mime2DecodedSubject;
 
@@ -127,7 +131,7 @@ var calendarExtract = {
     item.setProperty("URL", `mid:${message.messageId}`);
     cal.dtz.setDefaultStartEndHour(item);
     cal.alarms.setDefaultValues(item);
-    let sel = getMessagePaneBrowser().contentWindow?.getSelection();
+    let sel = aboutMessage.content.contentWindow.getSelection();
     // Thunderbird Conversations might be installed
     if (sel === null) {
       try {

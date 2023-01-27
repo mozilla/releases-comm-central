@@ -796,95 +796,6 @@ function InitViewBodyMenu() {
   }
 }
 
-function InitOtherActionsViewBodyMenu() {
-  let html_as = Services.prefs.getIntPref("mailnews.display.html_as");
-  let prefer_plaintext = Services.prefs.getBoolPref(
-    "mailnews.display.prefer_plaintext"
-  );
-  let disallow_classes = Services.prefs.getIntPref(
-    "mailnews.display.disallow_mime_handlers"
-  );
-  let isFeed = false; // TODO
-  const kDefaultIDs = [
-    "otherActionsMenu_bodyAllowHTML",
-    "otherActionsMenu_bodySanitized",
-    "otherActionsMenu_bodyAsPlaintext",
-    "otherActionsMenu_bodyAllParts",
-  ];
-  const kRssIDs = [
-    "otherActionsMenu_bodyFeedSummaryAllowHTML",
-    "otherActionsMenu_bodyFeedSummarySanitized",
-    "otherActionsMenu_bodyFeedSummaryAsPlaintext",
-  ];
-  let menuIDs = isFeed ? kRssIDs : kDefaultIDs;
-
-  if (disallow_classes > 0) {
-    gDisallow_classes_no_html = disallow_classes;
-  }
-  // else gDisallow_classes_no_html keeps its initial value (see top)
-
-  let AllowHTML_menuitem = document.getElementById(menuIDs[0]);
-  let Sanitized_menuitem = document.getElementById(menuIDs[1]);
-  let AsPlaintext_menuitem = document.getElementById(menuIDs[2]);
-  let AllBodyParts_menuitem = menuIDs[3]
-    ? document.getElementById(menuIDs[3])
-    : null;
-
-  document.getElementById(
-    "otherActionsMenu_bodyAllParts"
-  ).hidden = !Services.prefs.getBoolPref(
-    "mailnews.display.show_all_body_parts_menu"
-  );
-
-  // Clear all checkmarks.
-  AllowHTML_menuitem.removeAttribute("checked");
-  Sanitized_menuitem.removeAttribute("checked");
-  AsPlaintext_menuitem.removeAttribute("checked");
-  if (AllBodyParts_menuitem) {
-    AllBodyParts_menuitem.removeAttribute("checked");
-  }
-
-  if (
-    !prefer_plaintext &&
-    !html_as &&
-    !disallow_classes &&
-    AllowHTML_menuitem
-  ) {
-    AllowHTML_menuitem.setAttribute("checked", true);
-  } else if (
-    !prefer_plaintext &&
-    html_as == 3 &&
-    disallow_classes > 0 &&
-    Sanitized_menuitem
-  ) {
-    Sanitized_menuitem.setAttribute("checked", true);
-  } else if (
-    prefer_plaintext &&
-    html_as == 1 &&
-    disallow_classes > 0 &&
-    AsPlaintext_menuitem
-  ) {
-    AsPlaintext_menuitem.setAttribute("checked", true);
-  } else if (
-    !prefer_plaintext &&
-    html_as == 4 &&
-    !disallow_classes &&
-    AllBodyParts_menuitem
-  ) {
-    AllBodyParts_menuitem.setAttribute("checked", true);
-  }
-  // else (the user edited prefs/user.js) check none of the radio menu items
-
-  if (isFeed) {
-    AllowHTML_menuitem.hidden = !gShowFeedSummary;
-    Sanitized_menuitem.hidden = !gShowFeedSummary;
-    AsPlaintext_menuitem.hidden = !gShowFeedSummary;
-    document.getElementById(
-      "otherActionsMenu_viewFeedSummarySeparator"
-    ).hidden = !gShowFeedSummary;
-  }
-}
-
 function ShowMenuItem(id, showItem) {
   document.getElementById(id).hidden = !showItem;
 }
@@ -963,7 +874,7 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
       return;
     }
     // TODO We want to either remove or "check" the tags that already exist.
-    let item = document.createXULElement(elementName);
+    let item = parent.ownerDocument.createXULElement(elementName);
     SetMessageTagLabel(item, index + 1, tagInfo.tag);
 
     if (removeKey) {

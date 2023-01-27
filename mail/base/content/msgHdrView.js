@@ -233,22 +233,9 @@ class FolderDBListener {
   onReadChanged(instigator) {}
   onJunkScoreChanged(instigator) {}
   onHdrPropertyChanged(hdrToChange, property, preChange, status, instigator) {
-    // Since gMessageDisplay.displayedMessage is updated when switching to a
-    // different message and not when switching to a contentTab, manually check
-    // if the message is the one in the active tab.
-    let messageDisplay =
-      window.document.documentElement.getAttribute("windowtype") == "mail:3pane"
-        ? window.document.getElementById("tabmail").selectedTab.messageDisplay
-        : window.gMessageDisplay;
-
     // Not interested before a change, or if the message isn't the one displayed,
     // or an .eml file from disk or an attachment.
-    if (
-      preChange ||
-      !messageDisplay ||
-      messageDisplay.isDummy ||
-      messageDisplay.displayedMessage != hdrToChange
-    ) {
+    if (preChange || gMessage != hdrToChange) {
       return;
     }
     switch (property) {
@@ -3106,6 +3093,95 @@ function onShowOtherActionsPopup() {
   let isFeed = FeedUtils.isFeedMessage(gMessage);
   document.getElementById("otherActionsMessageBodyAs").hidden = isFeed;
   document.getElementById("otherActionsFeedBodyAs").hidden = !isFeed;
+}
+
+function InitOtherActionsViewBodyMenu() {
+  let html_as = Services.prefs.getIntPref("mailnews.display.html_as");
+  let prefer_plaintext = Services.prefs.getBoolPref(
+    "mailnews.display.prefer_plaintext"
+  );
+  let disallow_classes = Services.prefs.getIntPref(
+    "mailnews.display.disallow_mime_handlers"
+  );
+  let isFeed = false; // TODO
+  const kDefaultIDs = [
+    "otherActionsMenu_bodyAllowHTML",
+    "otherActionsMenu_bodySanitized",
+    "otherActionsMenu_bodyAsPlaintext",
+    "otherActionsMenu_bodyAllParts",
+  ];
+  const kRssIDs = [
+    "otherActionsMenu_bodyFeedSummaryAllowHTML",
+    "otherActionsMenu_bodyFeedSummarySanitized",
+    "otherActionsMenu_bodyFeedSummaryAsPlaintext",
+  ];
+  let menuIDs = isFeed ? kRssIDs : kDefaultIDs;
+
+  if (disallow_classes > 0) {
+    window.top.gDisallow_classes_no_html = disallow_classes;
+  }
+  // else gDisallow_classes_no_html keeps its initial value (see top)
+
+  let AllowHTML_menuitem = document.getElementById(menuIDs[0]);
+  let Sanitized_menuitem = document.getElementById(menuIDs[1]);
+  let AsPlaintext_menuitem = document.getElementById(menuIDs[2]);
+  let AllBodyParts_menuitem = menuIDs[3]
+    ? document.getElementById(menuIDs[3])
+    : null;
+
+  document.getElementById(
+    "otherActionsMenu_bodyAllParts"
+  ).hidden = !Services.prefs.getBoolPref(
+    "mailnews.display.show_all_body_parts_menu"
+  );
+
+  // Clear all checkmarks.
+  AllowHTML_menuitem.removeAttribute("checked");
+  Sanitized_menuitem.removeAttribute("checked");
+  AsPlaintext_menuitem.removeAttribute("checked");
+  if (AllBodyParts_menuitem) {
+    AllBodyParts_menuitem.removeAttribute("checked");
+  }
+
+  if (
+    !prefer_plaintext &&
+    !html_as &&
+    !disallow_classes &&
+    AllowHTML_menuitem
+  ) {
+    AllowHTML_menuitem.setAttribute("checked", true);
+  } else if (
+    !prefer_plaintext &&
+    html_as == 3 &&
+    disallow_classes > 0 &&
+    Sanitized_menuitem
+  ) {
+    Sanitized_menuitem.setAttribute("checked", true);
+  } else if (
+    prefer_plaintext &&
+    html_as == 1 &&
+    disallow_classes > 0 &&
+    AsPlaintext_menuitem
+  ) {
+    AsPlaintext_menuitem.setAttribute("checked", true);
+  } else if (
+    !prefer_plaintext &&
+    html_as == 4 &&
+    !disallow_classes &&
+    AllBodyParts_menuitem
+  ) {
+    AllBodyParts_menuitem.setAttribute("checked", true);
+  }
+  // else (the user edited prefs/user.js) check none of the radio menu items
+
+  if (isFeed) {
+    AllowHTML_menuitem.hidden = !gShowFeedSummary;
+    Sanitized_menuitem.hidden = !gShowFeedSummary;
+    AsPlaintext_menuitem.hidden = !gShowFeedSummary;
+    document.getElementById(
+      "otherActionsMenu_viewFeedSummarySeparator"
+    ).hidden = !gShowFeedSummary;
+  }
 }
 
 /**
