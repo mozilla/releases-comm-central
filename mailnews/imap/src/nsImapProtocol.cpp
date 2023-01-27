@@ -1855,7 +1855,21 @@ bool nsImapProtocol::ProcessCurrentURL() {
               getter_AddRefs(tlsSocketControl));
 
           if (NS_SUCCEEDED(rv) && tlsSocketControl) {
-            rv = tlsSocketControl->StartTLS();
+
+            auto CallStartTLS = [sockCon = nsCOMPtr{tlsSocketControl}, &rv]() mutable {
+              rv = sockCon->StartTLS();
+            };
+            nsCOMPtr<nsIEventTarget> socketThread(do_GetService(
+              NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
+            if (socketThread) {
+              mozilla::SyncRunnable::DispatchToThread(
+                socketThread,
+                NS_NewRunnableFunction("nsImapProtocol::ProcessCurrentURL->StartTLS",
+                                        CallStartTLS));
+            } else {
+              rv = NS_ERROR_NOT_AVAILABLE;
+            }
+
             if (NS_SUCCEEDED(rv)) {
               // Transition to secure state is now enabled but handshakes and
               // negotiation has not yet occurred. Make sure that
