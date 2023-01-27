@@ -689,7 +689,7 @@ async function subtest_compose(manifest) {
 
   let messagePane = composeWindow.GetCurrentEditorElement();
 
-  await subtest_content(
+  await subtest_compose_body(
     extension,
     manifest.permissions?.includes("compose"),
     messagePane,

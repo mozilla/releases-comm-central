@@ -225,6 +225,7 @@ async function getMenuExtension(manifest) {
           "message_list",
           "folder_pane",
           "compose_attachments",
+          "compose_body",
           "tools_menu",
         ];
         if (browser.runtime.getManifest().manifest_version > 2) {
@@ -440,6 +441,212 @@ async function subtest_content(
   // this doesn't happen.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(r => setTimeout(r, 250));
+}
+
+async function openExtensionSubMenu(menu) {
+  // The extension submenu ends with a number, which increases over time, but it
+  // does not have a underscore.
+  let submenu;
+  for (let item of menu.querySelectorAll("[id^=menus_mochi_test-menuitem-]")) {
+    if (!item.id.includes("-_")) {
+      submenu = item;
+      break;
+    }
+  }
+  Assert.ok(submenu, `Found submenu: ${submenu.id}`);
+
+  // Open submenu.
+  let submenuPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  submenu.openMenu(true);
+  await submenuPromise;
+
+  return submenu;
+}
+
+async function subtest_compose_body(
+  extension,
+  extensionHasPermission,
+  browser,
+  pageUrl,
+  tab
+) {
+  if (
+    browser.webProgress?.isLoadingDocument ||
+    !browser.currentURI ||
+    browser.currentURI?.spec == "about:blank"
+  ) {
+    await BrowserTestUtils.browserLoaded(
+      browser,
+      undefined,
+      url => url != "about:blank"
+    );
+  }
+
+  let ownerDocument = browser.ownerDocument;
+  let menu = ownerDocument.getElementById(browser.getAttribute("context"));
+
+  await BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser);
+
+  info("Test a part of the page with no content.");
+  {
+    await rightClickOnContent(menu, "body", browser);
+    Assert.ok(menu.querySelector(`#menus_mochi_test-menuitem-_compose_body`));
+    Assert.ok(menu.querySelector(`#menus_mochi_test-menuitem-_editable`));
+    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    menu.hidePopup();
+    await hiddenPromise;
+    // Sometimes, the popup will open then instantly disappear. It seems to
+    // still be hiding after the previous appearance. If we wait a little bit,
+    // this doesn't happen.
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(r => setTimeout(r, 250));
+
+    await checkShownEvent(
+      extension,
+      {
+        menuIds: ["editable", "compose_body"],
+        contexts: ["editable", "compose_body", "all"],
+        pageUrl: extensionHasPermission ? pageUrl : undefined,
+      },
+      tab
+    );
+  }
+
+  info("Test selection.");
+  {
+    await SpecialPowers.spawn(browser, [], () => {
+      let text = content.document.querySelector("p");
+      content.getSelection().selectAllChildren(text);
+    });
+
+    await rightClickOnContent(menu, "p", browser);
+    let submenu = await openExtensionSubMenu(menu);
+
+    await checkShownEvent(
+      extension,
+      {
+        pageUrl: extensionHasPermission ? pageUrl : undefined,
+        selectionText: extensionHasPermission ? "This is text." : undefined,
+        menuIds: ["editable", "selection", "compose_body"],
+        contexts: ["editable", "selection", "compose_body", "all"],
+      },
+      tab
+    );
+    Assert.ok(submenu.querySelector("#menus_mochi_test-menuitem-_selection"));
+    Assert.ok(
+      submenu.querySelector("#menus_mochi_test-menuitem-_compose_body")
+    );
+    Assert.ok(submenu.querySelector("#menus_mochi_test-menuitem-_editable"));
+
+    let hiddenPromise = BrowserTestUtils.waitForEvent(submenu, "popuphidden");
+    let clickedPromise = checkClickedEvent(
+      extension,
+      {
+        pageUrl,
+        selectionText: "This is text.",
+      },
+      tab
+    );
+    menu.activateItem(
+      submenu.querySelector("#menus_mochi_test-menuitem-_selection")
+    );
+    await clickedPromise;
+    await hiddenPromise;
+
+    // Sometimes, the popup will open then instantly disappear. It seems to
+    // still be hiding after the previous appearance. If we wait a little bit,
+    // this doesn't happen.
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(r => setTimeout(r, 250));
+    await BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser); // Select nothing.
+  }
+
+  info("Test link.");
+  {
+    await rightClickOnContent(menu, "a", browser);
+    let submenu = await openExtensionSubMenu(menu);
+
+    await checkShownEvent(
+      extension,
+      {
+        pageUrl: extensionHasPermission ? pageUrl : undefined,
+        menuIds: ["editable", "link", "compose_body"],
+        contexts: ["editable", "link", "compose_body", "all"],
+      },
+      tab
+    );
+    Assert.ok(submenu.querySelector("#menus_mochi_test-menuitem-_link"));
+    Assert.ok(submenu.querySelector("#menus_mochi_test-menuitem-_editable"));
+    Assert.ok(
+      submenu.querySelector("#menus_mochi_test-menuitem-_compose_body")
+    );
+
+    let hiddenPromise = BrowserTestUtils.waitForEvent(submenu, "popuphidden");
+    let clickedPromise = checkClickedEvent(
+      extension,
+      {
+        pageUrl,
+        linkUrl: "http://mochi.test:8888/",
+        linkText: "This is a link with text.",
+      },
+      tab
+    );
+    menu.activateItem(
+      submenu.querySelector("#menus_mochi_test-menuitem-_link")
+    );
+    await clickedPromise;
+    await hiddenPromise;
+
+    // Sometimes, the popup will open then instantly disappear. It seems to
+    // still be hiding after the previous appearance. If we wait a little bit,
+    // this doesn't happen.
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(r => setTimeout(r, 250));
+    await BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser); // Select nothing.
+  }
+
+  info("Test image.");
+  {
+    await rightClickOnContent(menu, "img", browser);
+    let submenu = await openExtensionSubMenu(menu);
+
+    await checkShownEvent(
+      extension,
+      {
+        pageUrl: extensionHasPermission ? pageUrl : undefined,
+        menuIds: ["editable", "image", "compose_body"],
+        contexts: ["editable", "image", "compose_body", "all"],
+      },
+      tab
+    );
+    Assert.ok(submenu.querySelector("#menus_mochi_test-menuitem-_image"));
+    Assert.ok(submenu.querySelector("#menus_mochi_test-menuitem-_editable"));
+    Assert.ok(
+      submenu.querySelector("#menus_mochi_test-menuitem-_compose_body")
+    );
+
+    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    let clickedPromise = checkClickedEvent(
+      extension,
+      {
+        pageUrl,
+        srcUrl: `${URL_BASE}/tb-logo.png`,
+      },
+      tab
+    );
+    menu.activateItem(
+      submenu.querySelector("#menus_mochi_test-menuitem-_image")
+    );
+    await clickedPromise;
+    await hiddenPromise;
+
+    // Sometimes, the popup will open then instantly disappear. It seems to
+    // still be hiding after the previous appearance. If we wait a little bit,
+    // this doesn't happen.
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(r => setTimeout(r, 250));
+    await BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser); // Select nothing.
+  }
 }
 
 // Test UI elements which have been made accessible for the menus API.

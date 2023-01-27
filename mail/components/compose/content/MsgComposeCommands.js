@@ -1955,7 +1955,10 @@ function msgComposeContextOnShowing(event) {
   // Set up early the right flags for editable / not editable.
   let editFlags = SpellCheckHelper.isEditable(target, window);
   let onTextInput = (editFlags & SpellCheckHelper.TEXTINPUT) !== 0;
-  let onEditable = (editFlags & SpellCheckHelper.EDITABLE) !== 0;
+  let onEditable =
+    (editFlags &
+      (SpellCheckHelper.EDITABLE | SpellCheckHelper.CONTENTEDITABLE)) !==
+    0;
 
   let onImage = false;
   let srcUrl = undefined;
@@ -1997,6 +2000,7 @@ function msgComposeContextOnShowing(event) {
     linkUrl,
     selectionText: isTextSelected ? selectionInfo.fullText : undefined,
     pageUrl: target.ownerGlobal.top.location.href,
+    onComposeBody: true,
   };
   subject.context = subject;
   subject.wrappedJSObject = subject;

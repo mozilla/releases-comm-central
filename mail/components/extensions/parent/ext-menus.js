@@ -630,6 +630,7 @@ const contextsMap = {
   onBrowserAction: "browser_action",
   onComposeAction: "compose_action",
   onMessageDisplayAction: "message_display_action",
+  onComposeBody: "compose_body",
   onTab: "tab",
   inToolsMenu: "tools_menu",
   selectedMessages: "message_list",
