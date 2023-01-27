@@ -43,14 +43,22 @@
   --tabs-tabbar-border-size: 1px;
   --toolbarbutton-border-radius: 3px;
   --toolbarbutton-icon-fill-opacity: .85;
-  --toolbarbutton-hover-background: rgba(0, 0, 0, .05);
-  --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .25);
-  --toolbarbutton-header-bordercolor: rgba(0, 0, 0, .25);
+  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
+                                        rgba(0, 0, 0, .05));
+  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background,
+                                         rgba(0, 0, 0, .25));
+  --toolbarbutton-header-bordercolor: var(--lwt-toolbarbutton-hover-background,
+                                         rgba(0, 0, 0, .25));
   --toolbarbutton-hover-boxshadow: none;
-  --toolbarbutton-active-background: rgba(0, 0, 0, .1);
-  --toolbarbutton-active-bordercolor: rgba(0, 0, 0, .3);
-  --toolbarbutton-active-boxshadow: 0 1px 1px rgba(0, 0, 0, .1) inset, 0 0 1px rgba(0, 0, 0, .3) inset;
-  --toolbarbutton-checked-background: rgba(200, 200, 200, .5);
+  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background,
+                                         rgba(0, 0, 0, .1));
+  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background,
+                                          rgba(0, 0, 0, .3));
+  --toolbarbutton-default-active-boxshadow: rgba(0, 0, 0, .1) inset, 0 0 1px rgba(0, 0, 0, .3);
+  --toolbarbutton-active-boxshadow: 0 1px 1px var(--lwt-toolbarbutton-active-background,
+                                                  var(--toolbarbutton-default-active-boxshadow)) inset;
+  --toolbarbutton-checked-background: var(--lwt-toolbarbutton-hover-background,
+                                                    rgba(200, 200, 200, .5));
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #0a84ff);
   --toolbarseparator-color: color-mix(in srgb, currentColor 20%, transparent);
   --toolbar-field-focus-border-color: AccentColor;
@@ -80,7 +88,6 @@
 }
 
 :root[lwt-tree] {
-  --splitter-color: var(--sidebar-border-color);
   --select-focus-background-color: var(--sidebar-highlight-background-color, SelectedItem);
   --select-focus-text-color: var(--sidebar-highlight-text-color,
                                  var(--sidebar-text-color));
@@ -88,23 +95,6 @@
   --row-grouped-header-bg-color: hsla(0, 0%, 50%, 0.15);
   --row-grouped-header-bg-color-selected: var(--sidebar-highlight-background-color,
                                               hsla(0, 0%, 80%, 0.6));
-}
-
-#FindToolbar:-moz-lwtheme,
-.themeable-full:-moz-lwtheme,
-.themeable-brighttext:-moz-lwtheme {
-  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
-                                        rgba(0, 0, 0, .1));
-  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background,
-                                         rgba(0, 0, 0, .1));
-  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background,
-                                         rgba(0, 0, 0, .15));
-  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background,
-                                          rgba(0, 0, 0, .15));
-  --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background,
-                                                  rgba(0, 0, 0, .15)) inset;
-  --toolbarbutton-checked-background: var(--lwt-toolbarbutton-hover-background,
-                                                    rgba(0, 0, 0, .15));
 }
 
 /* Dark themes enabled */
@@ -123,30 +113,8 @@
   --panel-separator-color: rgba(249, 249, 250, 0.1);
 }
 
-toolbar[brighttext] {
-  --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #45a1ff);
-}
-
-.themeable-full[brighttext],
-:root[lwtheme-brighttext] .themeable-full,
-:root[lwt-tree-brighttext] .themeable-brighttext {
-  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
-                                        rgba(255, 255, 255, .25));
-  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background,
-                                         rgba(255, 255, 255, .5));
-  --toolbarbutton-header-bordercolor: var(--lwt-toolbarbutton-hover-background,
-                                          rgba(255, 255, 255, .25));
-  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background,
-                                         rgba(255, 255, 255, .4));
-  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background,
-                                          rgba(255, 255, 255, .7));
-  --toolbarbutton-active-boxshadow: none;
-  --toolbarbutton-checked-background: rgba(0, 0, 0, .25);
-}
-
 @media (prefers-color-scheme: dark) {
-  :root:not([lwt-tree]):-moz-lwtheme,
-  :root[lwt-default-theme-in-dark-mode] {
+  :root {
     --button-primary-bgcolor: rgb(0, 97, 224) !important; /* override the default variable */
     --button-primary-hover-bgcolor: rgb(2, 80, 187) !important;
     --button-primary-active-bgcolor: rgb(5, 62, 148) !important;
@@ -154,10 +122,21 @@ toolbar[brighttext] {
     --button-sidebar-bottom-hover-color: var(--color-blue-40);
     --lwt-accent-color: rgb(24, 24, 26) !important;
     --sidebar-border-color: #606064 !important;
-    --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
-    --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
     --autocomplete-popup-highlight-background: #0060df;
     --toolbar-field-border-color: #5f5f6d !important;
+    --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
+                                          rgba(255, 255, 255, .25));
+    --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background,
+                                           rgba(255, 255, 255, .5));
+    --toolbarbutton-header-bordercolor: var(--lwt-toolbarbutton-hover-background,
+                                            rgba(255, 255, 255, .25));
+    --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background,
+                                           rgba(255, 255, 255, .4));
+    --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background,
+                                            rgba(255, 255, 255, .7));
+    --toolbarbutton-active-boxshadow: none;
+    --toolbarbutton-checked-background: rgba(0, 0, 0, .25);
+    --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #45a1ff);
   }
 
   :root:not([lwt-tree]):-moz-lwtheme {
@@ -174,20 +153,6 @@ toolbar[brighttext] {
     --lwt-tab-line-color: #0a84ff !important;
     --sidebar-highlight-background-color: #0a84ff;
     --button-sidebar-bottom-hover-color: var(--color-blue-40);
-  }
-
-  :root:-moz-lwtheme .themeable-brighttext {
-    --toolbarbutton-header-bordercolor: var(--lwt-toolbarbutton-hover-background,
-                                            rgba(255, 255, 255, .25));
-  }
-
-  :root[lwt-default-theme-in-dark-mode] #quick-filter-bar:-moz-lwtheme {
-    --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background);
-    --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background);
-    --toolbarbutton-checked-background: var(--lwt-toolbarbutton-hover-background);
-    --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background);
-    --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background);
-    --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background) inset;
   }
 }
 
