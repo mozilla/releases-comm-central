@@ -1935,11 +1935,11 @@ function QuickSearchFocus() {
         ".remote-gloda-search"
       );
       break;
-    case "chat":
-      searchInput = document.getElementById("IMSearchInput");
-      break;
     default:
-      searchInput = document.getElementById("searchInput");
+      searchInput = document.querySelector(
+        "#unifiedToolbarContent .search-bar global-search-bar"
+      );
+      break;
   }
 
   if (!searchInput) {
@@ -1964,7 +1964,11 @@ function QuickSearchFocus() {
 
   if (!newTab) {
     // Focus and select global search box on current tab.
-    searchInput.select();
+    if (searchInput.select) {
+      searchInput.select();
+    } else {
+      searchInput.focus();
+    }
   } else {
     // Open a new global search tab (with focus on its global search box)
     tabmail.openTab("glodaFacet");
