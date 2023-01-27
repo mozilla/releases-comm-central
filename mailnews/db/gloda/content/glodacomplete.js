@@ -377,6 +377,9 @@
 
     _appendCurrentResult() {
       let controller = this.mInput.controller;
+      let glodaCompleter = Cc[
+        "@mozilla.org/autocomplete/search;1?name=gloda"
+      ].getService(Ci.nsIAutoCompleteSearch).wrappedJSObject;
 
       // Process maxRows per chunk to improve performance and user experience
       for (let i = 0; i < this.maxRows; i++) {
@@ -388,10 +391,6 @@
 
         // trim the leading/trailing whitespace
         let trimmedSearchString = controller.searchString.trim();
-
-        let glodaCompleter = Cc[
-          "@mozilla.org/autocomplete/search;1?name=gloda"
-        ].getService(Ci.nsIAutoCompleteSearch).wrappedJSObject;
         let result = glodaCompleter.curResult;
 
         item = document.createXULElement("richlistitem", {

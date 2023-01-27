@@ -26,17 +26,15 @@ let threads;
  * 2) The one on the chat tab.
  * 3) The one in the search result tab.
  *
- * 1 and 2 are skipped because their tab types currently cause an error to be
+ * 2 is skipped because their tab types currently cause an error to be
  * thrown when focused on. See bug 1680587 and bug 1649035.
  */
 let tests = [
   {
-    selector: ".search-bar",
+    selector: "#unifiedToolbarContent .search-bar global-search-bar",
+    isNewSearchBar: true,
     tabCountBefore: 1,
     tabCountAfter: 2,
-    // TODO: Disabled because the global search bar has no auto complete popup
-    // yet
-    skip: true,
   },
   {
     selector: "#IMSearchInput",
@@ -58,7 +56,7 @@ let tests = [
     tabCountBefore: 2,
     async before() {
       // Run a search so we can search from the results tab.
-      let input = document.querySelector(".search-bar");
+      let input = document.querySelector("#unifiedToolbarContent .search-bar");
       EventUtils.synthesizeMouseAtCenter(input, {});
       EventUtils.sendString("us", window);
       EventUtils.synthesizeKey("KEY_Enter", {});
@@ -117,7 +115,11 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
     );
 
     let input = document.querySelector(test.selector);
-    input.value = "";
+    if (test.isNewSearchBar) {
+      input.reset();
+    } else {
+      input.value = "";
+    }
     input.focus();
 
     EventUtils.synthesizeKey("u", {});
