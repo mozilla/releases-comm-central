@@ -17,7 +17,7 @@ add_task(async function test_font_color() {
   let formatHelper = new FormatHelper(controller.window);
 
   let colorSet = [
-    { value: "blue", rgb: [0, 0, 255] },
+    { value: "#0000ff", rgb: [0, 0, 255] },
     { value: "#fb3e83", rgb: [251, 62, 131] },
   ];
 

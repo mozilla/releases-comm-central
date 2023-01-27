@@ -50,7 +50,7 @@ add_task(async function test_remove_text_styling() {
   let tags = new Set();
   styleSet.forEach(style => tags.add(style.tag));
 
-  let color = { value: "blue", rgb: [0, 0, 255] };
+  let color = { value: "#0000ff", rgb: [0, 0, 255] };
   let font = formatHelper.commonFonts[0];
   let size = 4;
 
