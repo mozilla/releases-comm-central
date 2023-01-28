@@ -75,12 +75,10 @@ add_task(async function testWeeklyNRecurrence() {
     );
     recurrenceDocument.getElementById("repeat-ntimes-count").value = "4";
 
+    let button = recurrenceDocument.querySelector("dialog").getButton("accept");
+    button.scrollIntoView();
     // Close dialog
-    EventUtils.synthesizeMouseAtCenter(
-      recurrenceDocument.querySelector("dialog").getButton("accept"),
-      {},
-      recurrenceWindow
-    );
+    EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
   }
 
   let calendar = CalendarTestUtils.createCalendar();
@@ -226,12 +224,10 @@ add_task(async function testRecurrenceAcrossWeekStart() {
     );
     recurrenceDocument.getElementById("repeat-ntimes-count").value = "6";
 
+    let button = recurrenceDocument.querySelector("dialog").getButton("accept");
+    button.scrollIntoView();
     // Close dialog
-    EventUtils.synthesizeMouseAtCenter(
-      recurrenceDocument.querySelector("dialog").getButton("accept"),
-      {},
-      recurrenceWindow
-    );
+    EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
   }
 
   let calendar = CalendarTestUtils.createCalendar();

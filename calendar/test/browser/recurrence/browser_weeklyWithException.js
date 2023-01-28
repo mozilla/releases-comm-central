@@ -224,12 +224,10 @@ async function setRecurrence(recurrenceWindow) {
   );
   Assert.ok(dayPicker.querySelector(`[label="${fri}"]`).checked, "fri checked");
 
+  let button = recurrenceDocument.querySelector("dialog").getButton("accept");
+  button.scrollIntoView();
   // Close dialog.
-  EventUtils.synthesizeMouseAtCenter(
-    recurrenceDocument.querySelector("dialog").getButton("accept"),
-    {},
-    recurrenceWindow
-  );
+  EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
 }
 
 async function changeRecurrence(recurrenceWindow) {
@@ -259,10 +257,8 @@ async function changeRecurrence(recurrenceWindow) {
   );
   Assert.ok(dayPicker.querySelector(`[label="${tue}"]`).checked, "tue checked");
 
+  let button = recurrenceDocument.querySelector("dialog").getButton("accept");
+  button.scrollIntoView();
   // Close dialog.
-  EventUtils.synthesizeMouseAtCenter(
-    recurrenceDocument.querySelector("dialog").getButton("accept"),
-    {},
-    recurrenceWindow
-  );
+  EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
 }
