@@ -180,7 +180,7 @@ registerCleanupFunction(function() {
 
   // Request focus on something in the main window so the test doesn't time
   // out waiting for focus.
-  document.getElementById("searchInput").focus();
+  document.getElementById("button-appmenu").focus();
 });
 
 function setupTest(test) {

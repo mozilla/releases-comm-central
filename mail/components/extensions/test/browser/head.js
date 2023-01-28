@@ -49,9 +49,9 @@ registerCleanupFunction(() => {
   Services.focus.focusedWindow = window;
   // Focus an element in the main window, then blur it again to avoid it
   // hijacking keypresses.
-  let searchInput = document.getElementById("searchInput");
-  searchInput.focus();
-  searchInput.blur();
+  let mainWindowElement = document.getElementById("button-appmenu");
+  mainWindowElement.focus();
+  mainWindowElement.blur();
 
   MailServices.accounts.accounts.forEach(cleanUpAccount);
   check3PaneState(true, true);
