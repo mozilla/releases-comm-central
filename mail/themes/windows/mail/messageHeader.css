@@ -9,8 +9,7 @@
 @import url("chrome://messenger/skin/shared/messageHeader.css");
 
 /* ::::: for the entire area ::::: */
-#singleMessage,
-#calendar-task-details-container {
+#singleMessage {
   color: WindowText;
   background-color: ButtonFace;
 }
