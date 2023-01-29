@@ -78,6 +78,58 @@
   <div id="threadPane">
 #include quickFilterBar.inc.xhtml
     <tree-view id="messageThreadTree"/>
+    <template id="threadPaneApplyColumnMenu">
+      <xul:menu class="applyTo-menu"
+                data-l10n-id="apply-columns-to-menu"
+                xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+        <menupopup>
+          <menu class="applyToFolder-menu"
+                data-l10n-id="apply-current-view-to-folder"
+                oncommand="threadPane.confirmApplyColumns(event.target._folder);">
+            <menupopup is="folder-menupopup"
+                       class="applyToFolder"
+                       showFileHereLabel="false"
+                       hideServer="true"
+                       position="start_before"></menupopup>
+          </menu>
+          <menu class="applyToFolderAndChildren-menu"
+                data-l10n-id="apply-current-view-to-folder-children"
+                oncommand="threadPane.confirmApplyColumns(event.target._folder, true);">
+            <menupopup is="folder-menupopup"
+                       class="applyToFolderAndChildren"
+                       showFileHereLabel="true"
+                       showAccountsFileHere="true"
+                       position="start_before"></menupopup>
+          </menu>
+        </menupopup>
+      </xul:menu>
+    </template>
+    <template id="threadPaneApplyViewMenu">
+      <xul:menu class="applyViewTo-menu"
+                data-l10n-id="apply-current-view-to-menu"
+                xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+        <menupopup>
+          <menu class="applyViewToFolder-menu"
+                data-l10n-id="apply-current-view-to-folder"
+                oncommand="threadPane.confirmApplyView(event.target._folder);">
+            <menupopup is="folder-menupopup"
+                       class="applyViewToFolder"
+                       showFileHereLabel="true"
+                       hideServer="true"
+                       position="start_before"></menupopup>
+          </menu>
+          <menu class="applyViewToFolderAndChildren-menu"
+                data-l10n-id="apply-current-view-to-folder-children"
+                oncommand="threadPane.confirmApplyView(event.target._folder, true);">
+            <menupopup is="folder-menupopup"
+                       class="applyViewToFolderAndChildren"
+                       showFileHereLabel="true"
+                       showAccountsFileHere="true"
+                       position="start_before"></menupopup>
+          </menu>
+        </menupopup>
+      </xul:menu>
+    </template>
   </div>
   <hr is="pane-splitter" id="messagePaneSplitter"
       resize-id="messagePane"

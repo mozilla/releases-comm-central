@@ -37,6 +37,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 XPCOMUtils.defineLazyModuleGetters(this, {
   FeedUtils: "resource:///modules/FeedUtils.jsm",
   FolderUtils: "resource:///modules/FolderUtils.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
   MailStringUtils: "resource:///modules/MailStringUtils.jsm",
   VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.jsm",
@@ -192,6 +193,10 @@ window.addEventListener("DOMContentLoaded", async event => {
   treeTable = tree.table;
   treeTable.editable = true;
   threadTree = treeTable.listbox;
+  treeTable.setPopupMenuTemplates([
+    "threadPaneApplyColumnMenu",
+    "threadPaneApplyViewMenu",
+  ]);
   threadTree.id = "threadTree";
   threadTree.setAttribute("rows", "thread-listrow");
   threadPane.init();
@@ -1816,6 +1821,9 @@ var threadPane = {
     treeTable.addEventListener("sort-changed", event => {
       this.onSortChanged(event.detail);
     });
+    treeTable.addEventListener("restore-columns", () => {
+      this.restoreDefaultColumns();
+    });
     treeTable.addEventListener("toggle-flag", event => {
       commandController.doCommand("cmd_markAsFlagged", event);
     });
@@ -1891,7 +1899,6 @@ var threadPane = {
   restoreColumns() {
     this.restoreColumnsState();
     this.updateColumns();
-    treeTable.restoreColumnsWidths(XULSTORE_URL);
   },
 
   /**
@@ -1948,6 +1955,17 @@ var threadPane = {
       // full table header.
       treeTable.setColumns(this.columns);
     }
+    treeTable.restoreColumnsWidths(XULSTORE_URL);
+  },
+
+  /**
+   * Restore the default columns visibility and order and save the change.
+   */
+  restoreDefaultColumns() {
+    this.columns = DEFAULT_COLUMNS.map(column => ({ ...column }));
+    this.updateColumns();
+    threadTree.invalidate();
+    this.persistColumnStates();
   },
 
   /**
@@ -2048,6 +2066,183 @@ var threadPane = {
         "sorting",
         gViewWrapper.isSortedAscending ? "ascending" : "descending"
       );
+  },
+
+  /**
+   * Prompt the user to confirm applying the current columns state to the chosen
+   * folder and its children.
+   *
+   * @param {nsIMsgFolder} folder - The chosen message folder.
+   * @param {boolean} [useChildren=false] - If the requested action should be
+   *   propagated to the child folders.
+   */
+  async confirmApplyColumns(folder, useChildren = false) {
+    const msgFluentID = useChildren
+      ? "apply-current-columns-to-folder-with-children-message"
+      : "apply-current-columns-to-folder-message";
+    let [title, message] = await document.l10n.formatValues([
+      "apply-changes-to-folder-title",
+      { id: msgFluentID, args: { name: folder.name } },
+    ]);
+    if (Services.prompt.confirm(null, title, message)) {
+      this._applyColumns(folder, useChildren);
+    }
+  },
+
+  /**
+   * Apply the current columns state to the chosen folder and its children,
+   * if specified.
+   *
+   * @param {nsIMsgFolder} destFolder - The chosen folder.
+   * @param {boolean} useChildren - True if the changes should affect the child
+   *   folders of the chosen folder.
+   */
+  _applyColumns(destFolder, useChildren) {
+    // Avoid doing anything if no folder has been loaded yet.
+    if (!gFolder || !destFolder) {
+      return;
+    }
+
+    // Get the current state from the columns array, not the saved state in the
+    // database in order to make sure we're getting the currently visible state.
+    let columnState = {};
+    for (const column of this.columns) {
+      columnState[column.id] = {
+        visible: !column.hidden,
+        ordinal: column.ordinal,
+      };
+    }
+
+    // Swaps "From" and "Recipient" if only one is shown. This is useful for
+    // copying an incoming folder's columns to and from an outgoing folder.
+    let columStateString = JSON.stringify(columnState);
+    let swappedColumnStateString;
+    if (columnState.senderCol.visible != columnState.recipientCol.visible) {
+      const backedSenderColumn = columnState.senderCol;
+      columnState.senderCol = columnState.recipientCol;
+      columnState.recipientCol = backedSenderColumn;
+      swappedColumnStateString = JSON.stringify(columnState);
+    } else {
+      swappedColumnStateString = columStateString;
+    }
+
+    /**
+     * Check if the current folder is a special Outgoing folder.
+     *
+     * @param {nsIMsgFolder} folder - The message folder.
+     * @returns {boolean} True if the folder is Outgoing.
+     */
+    const isOutgoing = folder => {
+      return folder.isSpecialFolder(
+        DBViewWrapper.prototype.OUTGOING_FOLDER_FLAGS,
+        true
+      );
+    };
+
+    const currentFolderIsOutgoing = isOutgoing(gFolder);
+
+    /**
+     * Update the columnStates property of the folder database and forget the
+     * reference to prevent memory bloat.
+     *
+     * @param {nsIMsgFolder} folder - The message folder.
+     */
+    const commitColumnsState = folder => {
+      // Check if the destination folder we're trying to update matches the same
+      // special state of the folder we're getting the column state from.
+      const colStateString =
+        isOutgoing(folder) == currentFolderIsOutgoing
+          ? columStateString
+          : swappedColumnStateString;
+
+      folder.msgDatabase.dBFolderInfo.setCharProperty(
+        "columnStates",
+        colStateString
+      );
+      folder.msgDatabase.commit(Ci.nsMsgDBCommitType.kLargeCommit);
+      // Force the reference to be forgotten.
+      folder.msgDatabase = null;
+    };
+
+    if (!useChildren) {
+      commitColumnsState(destFolder);
+      return;
+    }
+
+    // Loop through all the child folders and apply the same column state.
+    MailUtils.takeActionOnFolderAndDescendents(
+      destFolder,
+      commitColumnsState
+    ).then(() => {
+      Services.obs.notifyObservers(
+        gViewWrapper.displayedFolder,
+        "msg-folder-columns-propagated"
+      );
+    });
+  },
+
+  /**
+   * Prompt the user to confirm applying the current view sate to the chosen
+   * folder and its children.
+   *
+   * @param {nsIMsgFolder} folder - The chosen message folder.
+   * @param {boolean} [useChildren=false] - If the requested action should be
+   *   propagated to the child folders.
+   */
+  async confirmApplyView(folder, useChildren = false) {
+    const msgFluentID = useChildren
+      ? "apply-current-view-to-folder-with-children-message"
+      : "apply-current-view-to-folder-message";
+    let [title, message] = await document.l10n.formatValues([
+      { id: "apply-changes-to-folder-title" },
+      { id: msgFluentID, args: { name: folder.name } },
+    ]);
+    if (Services.prompt.confirm(null, title, message)) {
+      this._applyView(folder, useChildren);
+    }
+  },
+
+  /**
+   * Apply the current view flags, sorting key, and sorting order to another
+   * folder and its children, if specified.
+   *
+   * @param {nsIMsgFolder} destFolder - The chosen folder.
+   * @param {boolean} useChildren - True if the changes should affect the child
+   *   folders of the chosen folder.
+   */
+  _applyView(destFolder, useChildren) {
+    const viewFlags = gViewWrapper.dbView.viewFlags;
+    const sortType = gViewWrapper.dbView.sortType;
+    const sortOrder = gViewWrapper.dbView.sortOrder;
+
+    /**
+     * Update the view state flags of the folder database and forget the
+     * reference to prevent memory bloat.
+     *
+     * @param {nsIMsgFolder} folder - The message folder.
+     */
+    const commitViewState = folder => {
+      folder.msgDatabase.dBFolderInfo.viewFlags = viewFlags;
+      folder.msgDatabase.dBFolderInfo.sortType = sortType;
+      folder.msgDatabase.dBFolderInfo.sortOrder = sortOrder;
+      // Null out to avoid memory bloat.
+      folder.msgDatabase = null;
+    };
+
+    if (!useChildren) {
+      commitViewState(destFolder);
+      return;
+    }
+
+    MailUtils.takeActionOnFolderAndDescendents(
+      destFolder,
+      commitViewState
+    ).then(() => {
+      Services.obs.notifyObservers(
+        gViewWrapper.displayedFolder,
+        "msg-folder-views-propagated"
+      );
+    });
   },
 };
 

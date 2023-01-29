@@ -51,6 +51,13 @@ class TreeViewTable extends HTMLTableElement {
    */
   columns;
 
+  /**
+   * Array containing the IDs of templates holding menu items to dynamically add
+   * to the menupopup of the column picker.
+   * @type {Array}
+   */
+  popupMenuTemplates = [];
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -109,6 +116,10 @@ class TreeViewTable extends HTMLTableElement {
    */
   setListBoxID(id) {
     this.listbox.id = id;
+  }
+
+  setPopupMenuTemplates(array) {
+    this.popupMenuTemplates = array;
   }
 
   /**
@@ -496,9 +507,19 @@ class TreeViewTableColumnPicker extends HTMLTableCellElement {
     this.#button.appendChild(img);
 
     this.#context = document.createXULElement("menupopup");
+    this.#context.id = "columnPickerMenuPopup";
     this.#context.setAttribute("position", "bottomleft topleft");
     this.appendChild(this.#context);
-    this.#context.addEventListener("popupshowing", () => {
+    this.#context.addEventListener("popupshowing", event => {
+      // Bail out if we're opening a submenu.
+      if (event.target.id != this.#context.id) {
+        return;
+      }
+
+      if (!this.#context.hasChildNodes()) {
+        this.#initPopup();
+      }
+
       let columns = this.closest("table").columns;
       for (let column of columns) {
         let item = this.#context.querySelector(`[value="${column.id}"]`);
@@ -518,14 +539,12 @@ class TreeViewTableColumnPicker extends HTMLTableCellElement {
     this.#button.addEventListener("click", event => {
       this.#context.openPopup(event.target, { triggerEvent: event });
     });
-
-    this.initColumns();
   }
 
   /**
    * Add all toggable columns to the context menu popup of the picker button.
    */
-  initColumns() {
+  #initPopup() {
     let table = this.closest("table");
     let columns = table.columns;
     let items = new DocumentFragment();
@@ -558,7 +577,26 @@ class TreeViewTableColumnPicker extends HTMLTableCellElement {
       });
     }
 
-    this.#context.appendChild(items);
+    items.append(document.createXULElement("menuseparator"));
+    let restoreItem = document.createXULElement("menuitem");
+    restoreItem.addEventListener("command", () => {
+      this.dispatchEvent(
+        new CustomEvent("restore-columns", {
+          bubbles: true,
+        })
+      );
+    });
+    document.l10n.setAttributes(
+      restoreItem,
+      "tree-list-view-column-picker-restore"
+    );
+    items.append(restoreItem);
+
+    for (const templateID of table.popupMenuTemplates) {
+      items.append(document.getElementById(templateID).content.cloneNode(true));
+    }
+
+    this.#context.replaceChildren(items);
   }
 }
 customElements.define(
