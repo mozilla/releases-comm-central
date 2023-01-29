@@ -77,6 +77,11 @@ calendar-minimonth {
   }
 }
 
+/*
+ * Respect system themes when this setting is enabled and not enabled:
+ * Calendar: Optimize colors for accessibility
+*/
+:not(:root[lwtheme]) calendar-minimonth,
 :root[systemcolors] calendar-minimonth {
   --mmMainBackground: transparent;
   --mmDayColor: WindowText;
