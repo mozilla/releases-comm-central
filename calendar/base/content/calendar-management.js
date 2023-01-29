@@ -160,6 +160,11 @@ async function loadCalendarManager() {
       !Components.isSuccessCode(calendar.getProperty("currentStatus")) || forceDisabled
     );
     item.toggleAttribute("calendar-readonly", calendar.readOnly);
+    document.l10n.setAttributes(
+      item.querySelector(".calendar-more-button"),
+      "calendar-list-item-tooltip",
+      { calendarName: calendar.name }
+    );
 
     let cssSafeId = cal.view.formatStringForCSSRule(calendar.id);
     let colorMarker = item.querySelector(".calendar-color");
@@ -433,18 +438,18 @@ function unloadCalendarManager() {
 /**
  * A handler called to set up the context menu on the calendar list.
  *
- * @param event         The DOM event that caused the context menu to open.
- * @returns Returns true if the context menu should be shown.
+ * @param {Event} event - The click DOMEvent.
  */
+
 function calendarListSetupContextMenu(event) {
   let calendar;
   let composite = cal.view.getCompositeCalendar(window);
 
-  if (event.target.triggerNode.matches(".calendar-displayed")) {
+  if (event.target.matches(".calendar-displayed")) {
     return;
   }
 
-  let item = event.target.triggerNode.closest("li");
+  let item = event.target.closest("li");
   if (item) {
     let calendarList = document.getElementById("calendar-list");
     calendarList.selectedIndex = calendarList.rows.indexOf(item);
@@ -454,7 +459,7 @@ function calendarListSetupContextMenu(event) {
 
   document.getElementById("list-calendars-context-menu").contextCalendar = calendar;
 
-  for (let elem of event.target.querySelectorAll(".needs-calendar")) {
+  for (let elem of document.querySelectorAll("#list-calendars-context-menu .needs-calendar")) {
     elem.hidden = !calendar;
   }
   if (calendar) {
@@ -475,6 +480,22 @@ function calendarListSetupContextMenu(event) {
       "list-calendars-context-reload-menuseparator"
     ).hidden = !calendar.canRefresh;
   }
+}
+
+/**
+ * Trigger the opening of the calendar list item context menu.
+ *
+ * @param {Event} event - The click DOMEvent.
+ */
+function openCalendarListItemContext(event) {
+  calendarListSetupContextMenu(event);
+  let popUpCalListMenu = document.getElementById("list-calendars-context-menu");
+  if (event.type == "contextmenu" && event.button == 2) {
+    // This is a right-click. Open where it happened.
+    popUpCalListMenu.openPopupAtScreen(event.screenX, event.screenY, true);
+    return;
+  }
+  popUpCalListMenu.openPopup(event.target, "after_start", 0, 0, true);
 }
 
 /**

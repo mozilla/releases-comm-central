@@ -196,7 +196,7 @@
                              flex="1"
                              mode="calendar,task"
                              refcontrol="calendar-list-header"
-                             context="list-calendars-context-menu">
+                             oncontextmenu="openCalendarListItemContext(event);">
             <html:ol id="calendar-list" is="orderable-tree-listbox"
                      role="listbox"></html:ol>
             <template id="calendar-list-item" xmlns="http://www.w3.org/1999/xhtml">
@@ -205,7 +205,12 @@
                 <div class="calendar-name"></div>
                 <img class="calendar-readstatus" src="chrome://messenger/skin/icons/new/compact/lock.svg" />
                 <button class="calendar-enable-button"></button>
-                <input type="checkbox" class="calendar-displayed" />
+                <input type="checkbox"
+                       class="calendar-displayed" />
+                <button class="calendar-more-button"
+                        onclick="openCalendarListItemContext(event);"
+                        type="button">
+                </button>
               </li>
             </template>
           </calendar-modevbox>

@@ -16,5 +16,4 @@
 #calendar-list .calendar-color {
   /* Shift the color box closer to the name label */
   margin-inline-start: 1px;
-  margin-inline-end: -1px;
 }

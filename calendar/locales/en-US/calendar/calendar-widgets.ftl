@@ -10,6 +10,11 @@ calendar-notifications-label = Show notifications for upcoming events
 calendar-add-notification-button =
   .label = Add notification
 
+# Variables:
+#  $calendarName (String) - Calendar name as given by the user
+calendar-list-item-tooltip =
+  .title = { $calendarName } calendar option
+
 calendar-import-new-calendar = New Calendar…
   .title = Create or subscribe to a new calendar
 
