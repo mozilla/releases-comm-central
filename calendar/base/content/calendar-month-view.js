@@ -55,11 +55,7 @@
       weekLabel.setAttribute("crop", "end");
       weekLabel.setAttribute("hidden", "true");
       weekLabel.style.pointerEvents = "none";
-      weekLabel.classList.add(
-        "calendar-month-day-box-week-label",
-        "calendar-month-day-box-date-label",
-        "calendar-month-week-label"
-      );
+      weekLabel.classList.add("calendar-month-day-box-week-label", "calendar-month-week-label");
 
       let dayLabel = document.createXULElement("label");
       dayLabel.setAttribute("data-label", "day");

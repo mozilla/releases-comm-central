@@ -44,7 +44,3 @@ radio.calview[selected="true"] {
   position: relative;
   z-index: 10;
 }
-
-.calendar-month-day-box-date-label[relation="today"]::after {
-  inset-inline-start: -1px;
-}

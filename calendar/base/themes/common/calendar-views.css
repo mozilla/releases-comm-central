@@ -27,6 +27,7 @@
   --viewMonthOtherBackground: var(--layout-background-2);
   --viewMonthDayBoxSelectedColor: var(--layout-color-1);
   --viewMonthDayBoxLabelColor: var(--layout-color-1);
+  --viewMonthWeekLabelBackground: var(--color-ink-20);
   --viewMonthDayOtherBackground: color-mix(in srgb, var(--layout-background-2) 50%, var(--viewWeekendBackground));
   --viewMonthDayOffLabelBackground: color-mix(in srgb, var(--viewWeekendBackground) 95%, black);
   --viewOffTimeBackground: color-mix(in srgb, var(--viewBackground) 95%, black);
@@ -71,6 +72,7 @@
     --viewOffTimeBackground: color-mix(in srgb, var(--viewBackground) 95%, var(--color-ink-30));
     --viewWeekendBackground: color-mix(in srgb, var(--viewBackground) 80%, var(--color-ink-40));
     --viewMonthOtherBackground: var(--layout-background-1);
+    --viewMonthWeekLabelBackground: var(--color-ink-90);
     --viewMonthDayOtherBackground: color-mix(in srgb, var(--layout-background-1) 50%, var(--viewWeekendBackground));
     --calendar-nav-control-bg-color: var(--color-black);
     --calendar-nav-control-bg-color-hover: rgba(0, 0, 0, 0.3);
@@ -792,29 +794,21 @@ calendar-month-day-box {
 }
 
 .calendar-month-day-box-date-label[relation="today"] {
+  padding: 0;
   color: var(--color-white);
   position: relative;
-  font-weight: 800;
-  line-height: 1.2;
-  width: 18px;
-  height: 18px;
-}
-
-.calendar-month-day-box-date-label[relation="today"]::after {
-  position: absolute;
-  inset-block-start: 0;
-  inset-inline-start: 0;
-  width: 18px;
-  height: 18px;
-  content: '';
-  background-color: var(--viewTodayLabelColor);
-  border-radius: 100%;
-  z-index: 0;
+  font-weight: bold;
 }
 
 .calendar-month-day-box-date-label[relation="today"]::before {
-    position: relative;
-    z-index: 1;
+  background-color: var(--viewTodayLabelColor);
+  border-radius: 1000px;
+  text-align: center;
+  line-height: 1.5;
+  height: 1.5rem;
+  width: fit-content;
+  min-width: 1.5rem;
+  padding-inline: .5rem;
 }
 
 .calendar-month-day-box-current-month[selected="true"],
@@ -852,11 +846,23 @@ calendar-month-day-box {
 }
 
 .calendar-month-day-box-week-label {
-  text-align: left;
-  padding-inline-start: 2px;
-  font-weight: normal !important;
   color: var(--viewMonthDayBoxLabelColor);
+  font-size: 0.75em;
+  font-weight: bold;
+  text-align: left;
+  margin: 0;
   opacity: 0.6;
+}
+
+.calendar-month-day-box-week-label::before {
+  background-color: var(--viewMonthWeekLabelBackground);
+  border-radius: 1000px;
+  text-align: center;
+  line-height: 2;
+  height: 1.5rem;
+  width: fit-content;
+  min-width: 2.5rem;
+  padding-inline: .5rem;
 }
 
 .calendar-color-box {

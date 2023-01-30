@@ -72,7 +72,3 @@ radio.calview[selected="true"] {
     --calview-border-bottom-color: hsl(0, 0%, 85%);
   }
 }
-
-.calendar-month-day-box-date-label[relation="today"] {
-  line-height: 1.5em;
-}
