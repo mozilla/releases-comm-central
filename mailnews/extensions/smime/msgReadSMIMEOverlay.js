@@ -9,18 +9,6 @@ var gSignatureStatus = -1;
 var gSignerCert = null;
 var gEncryptionCert = null;
 
-addEventListener("load", smimeReadOnLoad, { capture: false, once: true });
-
-function smimeReadOnLoad() {
-  top.controllers.appendController(SecurityController);
-
-  addEventListener("unload", smimeReadOnUnload, { capture: false, once: true });
-}
-
-function smimeReadOnUnload() {
-  top.controllers.removeController(SecurityController);
-}
-
 function showImapSignatureUnknown() {
   let readSmimeBundle = Services.strings.createBundle(
     "chrome://messenger-smime/locale/msgReadSMIMEOverlay.properties"
@@ -260,19 +248,3 @@ function viewEncryptionCert() {
   let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
   mail3PaneWindow.switchToTabHavingURI(url, true, {});
 }
-
-var SecurityController = {
-  supportsCommand(command) {
-    switch (command) {
-      default:
-        return false;
-    }
-  },
-
-  isCommandEnabled(command) {
-    switch (command) {
-      default:
-        return false;
-    }
-  },
-};

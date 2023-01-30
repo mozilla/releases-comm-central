@@ -444,8 +444,6 @@ async function OnLoadMsgHeaderPane() {
     new Event("messagepane-loaded", { bubbles: false, cancelable: true })
   );
 
-  top.controllers.appendController(AttachmentMenuController);
-
   content.addProgressListener(
     messageHeaderSink2,
     Ci.nsIWebProgress.NOTIFY_STATE_ALL
@@ -762,11 +760,6 @@ var messageHeaderSink2 = {
 
     if (currentAttachments.length == 1) {
       // We also have to enable the Message/Attachments menuitem.
-      document.getElementById("msgAttachmentMenu").removeAttribute("disabled");
-      // we also do the same on appmenu
-      document
-        .getElementById("appmenu_msgAttachmentMenu")
-        ?.removeAttribute("disabled");
     }
   },
 
@@ -1280,14 +1273,6 @@ function HideMessageHeaderPane() {
   let header = document.getElementById("msgHeaderView");
   header.collapsed = true;
   document.getElementById("mail-notification-top").collapsed = true;
-
-  // Disable the Message/Attachments menuitem.
-  document.getElementById("msgAttachmentMenu").setAttribute("disabled", "true");
-
-  // Disable the app menu attachment menu in there as well.
-  document
-    .getElementById("appmenu_msgAttachmentMenu")
-    ?.setAttribute("disabled", "true");
 
   // Disable the attachment box.
   document.getElementById("attachmentView").collapsed = true;
@@ -3020,13 +3005,6 @@ async function saveLinkAttachmentsToFile(aAttachmentInfoArray) {
 }
 
 function ClearAttachmentList() {
-  // We also have to disable the Message/Attachments menuitem.
-  document.getElementById("msgAttachmentMenu").setAttribute("disabled", "true");
-  // Do the same on appmenu.
-  document
-    .getElementById("appmenu_msgAttachmentMenu")
-    ?.setAttribute("disabled", "true");
-
   // clear selection
   var list = document.getElementById("attachmentList");
   list.clearSelection();

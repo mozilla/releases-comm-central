@@ -2,13 +2,90 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+
 let manager = Cc["@mozilla.org/memory-reporter-manager;1"].getService(
   Ci.nsIMemoryReporterManager
 );
 
+let tabmail = document.getElementById("tabmail");
+let testFolder;
+let testMessages;
+
 add_setup(async function() {
+  let generator = new MessageGenerator();
+
+  MailServices.accounts.createLocalMailAccount();
+  let account = MailServices.accounts.accounts[0];
+  account.addIdentity(MailServices.accounts.createIdentity());
+  let rootFolder = account.incomingServer.rootFolder;
+  rootFolder.createSubfolder("detachedWindows", null);
+  testFolder = rootFolder
+    .getChildNamed("detachedWindows")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  testFolder.addMessageBatch(
+    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+  );
+  testMessages = [...testFolder.messages];
+
+  registerCleanupFunction(() => {
+    MailServices.accounts.removeAccount(account, false);
+  });
+
   info("Initial state:");
   await getWindows();
+});
+
+add_task(async function test3PaneTab() {
+  info("Opening a new 3-pane tab");
+  window.MsgOpenNewTabForFolders([testFolder], {
+    background: false,
+    folderPaneVisible: true,
+    messagePaneVisible: true,
+  });
+  let tab = tabmail.tabInfo[1];
+  await BrowserTestUtils.waitForEvent(
+    tab.chromeBrowser,
+    "aboutMessageLoaded",
+    true
+  );
+  await new Promise(resolve =>
+    tab.chromeBrowser.contentWindow.setTimeout(resolve, 500)
+  );
+
+  tab.chromeBrowser.contentWindow.threadTree.selectedIndex = 0;
+  await BrowserTestUtils.waitForEvent(tab.chromeBrowser, "MsgLoaded");
+  await new Promise(resolve =>
+    tab.chromeBrowser.contentWindow.setTimeout(resolve, 500)
+  );
+
+  info("Closing the tab");
+  tabmail.closeOtherTabs(0);
+  tab = null;
+
+  await assertNoDetachedWindows();
+});
+
+add_task(async function testMessageTab() {
+  info("Opening a new message tab");
+  window.OpenMessageInNewTab(testMessages[0], { background: false });
+  let tab = tabmail.tabInfo[1];
+  await BrowserTestUtils.waitForEvent(
+    tab.chromeBrowser,
+    "aboutMessageLoaded",
+    true
+  );
+  await new Promise(resolve =>
+    tab.chromeBrowser.contentWindow.setTimeout(resolve, 500)
+  );
+
+  info("Closing the tab");
+  tabmail.closeOtherTabs(0);
+  tab = null;
+
+  await assertNoDetachedWindows();
 });
 
 add_task(async function testMessageWindow() {
@@ -21,6 +98,26 @@ add_task(async function testMessageWindow() {
   info("Closing the window");
   await BrowserTestUtils.closeWindow(win);
   win = null;
+
+  await assertNoDetachedWindows();
+});
+
+add_task(async function testAddressBookTab() {
+  info("Opening the Address Book");
+  window.toAddressBook();
+  let tab = tabmail.tabInfo[1];
+  await BrowserTestUtils.waitForEvent(
+    tab.browser,
+    "about-addressbook-ready",
+    true
+  );
+  await new Promise(resolve =>
+    tab.browser.contentWindow.setTimeout(resolve, 500)
+  );
+
+  info("Closing the tab");
+  tabmail.closeOtherTabs(0);
+  tab = null;
 
   await assertNoDetachedWindows();
 });
