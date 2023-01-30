@@ -36,7 +36,7 @@ registerCleanupFunction(() => {
   MockRegistrar.unregister(mockExternalProtocolServiceCID);
 });
 
-add_task(async () => {
+add_task(async function test_openDefaultBrowser() {
   let extension = ExtensionTestUtils.loadExtension({
     async background() {
       const urls = {
@@ -77,7 +77,7 @@ add_task(async () => {
   await extension.unload();
 });
 
-add_task(async () => {
+add_task(async function test_focusWindows() {
   let extension = ExtensionTestUtils.loadExtension({
     async background() {
       let listener = {
@@ -308,5 +308,60 @@ add_task(async function checkTitlePreface() {
 
   await extension.startup();
   await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+add_task(async function test_popupLayoutProperties() {
+  let extension = ExtensionTestUtils.loadExtension({
+    async background() {
+      let testProps = [
+        { state: "minimized" },
+        { state: "maximized" },
+        { state: "fullscreen" },
+        { width: 210, height: 220, left: 30, top: 40 },
+      ];
+
+      // Test create.
+      for (let props of testProps) {
+        let win = await browser.windows.create({
+          type: "popup",
+          url: "test.html",
+          ...props,
+        });
+        let win2 = await browser.windows.get(win.id);
+        for (let [key, value] of Object.entries(props)) {
+          browser.test.assertEq(
+            value,
+            win2[key],
+            `Should find the correct value for ${key}`
+          );
+        }
+        await browser.windows.remove(win.id);
+      }
+
+      // Test update.
+      for (let props of testProps) {
+        let win = await browser.windows.create({
+          type: "popup",
+          url: "test.html",
+        });
+        await browser.windows.update(win.id, props);
+        let win2 = await browser.windows.get(win.id);
+        for (let [key, value] of Object.entries(props)) {
+          browser.test.assertEq(
+            value,
+            win2[key],
+            `Should find the correct value for ${key}`
+          );
+        }
+        await browser.windows.remove(win.id);
+      }
+
+      browser.test.notifyPass();
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish();
   await extension.unload();
 });

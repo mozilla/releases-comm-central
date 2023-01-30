@@ -5,6 +5,69 @@
 // The ext-* files are imported into the same scopes.
 /* import-globals-from ext-mail.js */
 
+function sanitizePositionParams(params, window = null, positionOffset = 0) {
+  if (params.left === null && params.top === null) {
+    return;
+  }
+
+  if (params.left === null) {
+    const baseLeft = window ? window.screenX : 0;
+    params.left = baseLeft + positionOffset;
+  }
+  if (params.top === null) {
+    const baseTop = window ? window.screenY : 0;
+    params.top = baseTop + positionOffset;
+  }
+
+  // boundary check: don't put window out of visible area
+  const baseWidth = window ? window.outerWidth : 0;
+  const baseHeight = window ? window.outerHeight : 0;
+  // Secure minimum size of an window should be same to the one
+  // defined at nsGlobalWindowOuter::CheckSecurityWidthAndHeight.
+  const minWidth = 100;
+  const minHeight = 100;
+  const width = Math.max(
+    minWidth,
+    params.width !== null ? params.width : baseWidth
+  );
+  const height = Math.max(
+    minHeight,
+    params.height !== null ? params.height : baseHeight
+  );
+  const screenManager = Cc["@mozilla.org/gfx/screenmanager;1"].getService(
+    Ci.nsIScreenManager
+  );
+  const screen = screenManager.screenForRect(
+    params.left,
+    params.top,
+    width,
+    height
+  );
+  const availDeviceLeft = {};
+  const availDeviceTop = {};
+  const availDeviceWidth = {};
+  const availDeviceHeight = {};
+  screen.GetAvailRect(
+    availDeviceLeft,
+    availDeviceTop,
+    availDeviceWidth,
+    availDeviceHeight
+  );
+  const factor = screen.defaultCSSScaleFactor;
+  const availLeft = Math.floor(availDeviceLeft.value / factor);
+  const availTop = Math.floor(availDeviceTop.value / factor);
+  const availWidth = Math.floor(availDeviceWidth.value / factor);
+  const availHeight = Math.floor(availDeviceHeight.value / factor);
+  params.left = Math.min(
+    availLeft + availWidth - width,
+    Math.max(availLeft, params.left)
+  );
+  params.top = Math.min(
+    availTop + availHeight - height,
+    Math.max(availTop, params.top)
+  );
+}
+
 this.windows = class extends ExtensionAPIPersistent {
   onShutdown(isAppShutdown) {
     if (isAppShutdown) {
@@ -179,23 +242,33 @@ this.windows = class extends ExtensionAPIPersistent {
           return Promise.resolve(windows);
         },
 
-        create(createData) {
+        async create(createData) {
+          if (createData.incognito) {
+            throw new ExtensionError("`incognito` is not supported");
+          }
+
           let needResize =
             createData.left !== null ||
             createData.top !== null ||
             createData.width !== null ||
             createData.height !== null;
-
           if (needResize) {
-            if (createData.state && createData.state != "normal") {
-              return Promise.reject({
-                message: `"state": "${createData.state}" may not be combined with "left", "top", "width", or "height"`,
-              });
+            if (createData.state !== null && createData.state != "normal") {
+              throw new ExtensionError(
+                `"state": "${createData.state}" may not be combined with "left", "top", "width", or "height"`
+              );
             }
             createData.state = "normal";
           }
 
-          let createWindowArgs = (urls, allowScriptsToClose = false) => {
+          // 10px offset is same to Chromium
+          sanitizePositionParams(createData, windowTracker.topNormalWindow, 10);
+
+          let createWindowArgs = createData => {
+            let allowScriptsToClose = !!createData.allowScriptsToClose;
+            let url = createData.url || "about:blank";
+            let urls = Array.isArray(url) ? url : [url];
+
             let args = Cc["@mozilla.org/array;1"].createInstance(
               Ci.nsIMutableArray
             );
@@ -219,27 +292,17 @@ this.windows = class extends ExtensionAPIPersistent {
           let features = ["chrome"];
           if (wantNormalWindow) {
             features.push("dialog=no", "all", "status", "toolbar");
-
-            if (createData.incognito) {
-              // A private mode mail window isn't useful for Thunderbird
-              return Promise.reject({
-                message:
-                  "`incognito` is currently not supported for normal windows",
-              });
-            }
           } else {
             // All other types create "popup"-type windows by default.
             features.push(
               "dialog",
               "resizable",
               "minimizable",
-              "centerscreen",
               "titlebar",
               "close"
             );
-
-            if (createData.incognito) {
-              features.push("private");
+            if (createData.left === null && createData.top === null) {
+              features.push("centerscreen");
             }
           }
 
@@ -266,32 +329,13 @@ this.windows = class extends ExtensionAPIPersistent {
             ).ownerDocument.getElementById("tabmail");
             let targetType = wantNormalWindow ? null : "popup";
             window = tabmail.replaceTabWithWindow(nativeTabInfo, targetType)[0];
-          } else if (createData.url) {
-            let uris = Array.isArray(createData.url)
-              ? createData.url
-              : [createData.url];
-            let args = createWindowArgs(uris, createData.allowScriptsToClose);
-            window = Services.ww.openWindow(
-              null,
-              windowURL,
-              "_blank",
-              features.join(","),
-              args
-            );
           } else {
-            let args = null;
-            if (!wantNormalWindow) {
-              args = createWindowArgs(
-                ["about:blank"],
-                createData.allowScriptsToClose
-              );
-            }
             window = Services.ww.openWindow(
               null,
               windowURL,
               "_blank",
               features.join(","),
-              args
+              wantNormalWindow ? null : createWindowArgs(createData)
             );
           }
 
@@ -300,7 +344,7 @@ this.windows = class extends ExtensionAPIPersistent {
 
           // TODO: focused, type
 
-          return new Promise(resolve => {
+          await new Promise(resolve => {
             window.addEventListener(
               "load",
               () => {
@@ -308,46 +352,53 @@ this.windows = class extends ExtensionAPIPersistent {
               },
               { once: true }
             );
-          }).then(() => {
-            if (
-              [
-                "minimized",
-                "fullscreen",
-                "docked",
-                "normal",
-                "maximized",
-              ].includes(createData.state)
-            ) {
-              win.state = createData.state;
-            }
-            if (createData.titlePreface !== null) {
-              win.setTitlePreface(createData.titlePreface);
-            }
-            return win.convert({ populate: true });
           });
+
+          // Updating the state fails if the window has not yet been drawn.
+          await new Promise(window.requestAnimationFrame);
+
+          if (
+            [
+              "minimized",
+              "fullscreen",
+              "docked",
+              "normal",
+              "maximized",
+            ].includes(createData.state)
+          ) {
+            await win.setState(createData.state);
+          }
+
+          if (createData.titlePreface !== null) {
+            win.setTitlePreface(createData.titlePreface);
+          }
+          return win.convert({ populate: true });
         },
 
-        update(windowId, updateInfo) {
-          if (updateInfo.state && updateInfo.state != "normal") {
+        async update(windowId, updateInfo) {
+          if (updateInfo.state !== null && updateInfo.state != "normal") {
             if (
               updateInfo.left !== null ||
               updateInfo.top !== null ||
               updateInfo.width !== null ||
               updateInfo.height !== null
             ) {
-              return Promise.reject({
-                message: `"state": "${updateInfo.state}" may not be combined with "left", "top", "width", or "height"`,
-              });
+              throw new ExtensionError(
+                `"state": "${updateInfo.state}" may not be combined with "left", "top", "width", or "height"`
+              );
             }
           }
 
           let win = windowManager.get(windowId, context);
+          if (!win) {
+            throw new ExtensionError(`Invalid window ID: ${windowId}`);
+          }
           if (updateInfo.focused) {
             win.window.focus();
           }
 
-          if (updateInfo.state) {
-            win.state = updateInfo.state;
+          if (updateInfo.state !== null) {
+            await win.setState(updateInfo.state);
           }
 
           if (updateInfo.drawAttention) {
@@ -368,7 +419,7 @@ this.windows = class extends ExtensionAPIPersistent {
 
           // TODO: All the other properties, focused=false...
 
-          return Promise.resolve(win.convert());
+          return win.convert();
         },
 
         remove(windowId) {
