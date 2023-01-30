@@ -1018,6 +1018,10 @@ statuspanel:not([label]) {
   -moz-box-align: end;
 }
 
+.statuspanel-label {
+  display: inline-block;
+}
+
 :root[lwt-tree] .statuspanel-label {
   background-color: var(--toolbar-field-background-color);
   color: var(--toolbar-field-color);
@@ -1059,6 +1063,7 @@ statuspanel:not([label]) {
 
 label.statusbarpanel {
   margin-block: 3px;
+  display: inline-block;
 }
 
 .statusbarpanel-progress {
