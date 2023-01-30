@@ -19,47 +19,54 @@
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-// gTabmail is null if we are in a dialog window and not in a tab.
-var gTabmail = document.getElementById("tabmail") || null;
+var gTabmail;
+window.addEventListener(
+  "DOMContentLoaded",
+  () => {
+    // gTabmail is null if we are in a dialog window and not in a tab.
+    gTabmail = document.getElementById("tabmail") || null;
 
-if (!gTabmail) {
-  // In a dialog window the following menu item functions need to be
-  // defined.  In a tab they are defined elsewhere.  To prevent errors in
-  // the log they are defined here (before the onLoad function is called).
-  /**
-   * Update menu items that rely on focus.
-   */
-  window.goUpdateGlobalEditMenuItems = () => {
-    goUpdateCommand("cmd_undo");
-    goUpdateCommand("cmd_redo");
-    goUpdateCommand("cmd_cut");
-    goUpdateCommand("cmd_copy");
-    goUpdateCommand("cmd_paste");
-    goUpdateCommand("cmd_selectAll");
-  };
-  /**
-   * Update menu items that rely on the current selection.
-   */
-  window.goUpdateSelectEditMenuItems = () => {
-    goUpdateCommand("cmd_cut");
-    goUpdateCommand("cmd_copy");
-    goUpdateCommand("cmd_delete");
-    goUpdateCommand("cmd_selectAll");
-  };
-  /**
-   * Update menu items that relate to undo/redo.
-   */
-  window.goUpdateUndoEditMenuItems = () => {
-    goUpdateCommand("cmd_undo");
-    goUpdateCommand("cmd_redo");
-  };
-  /**
-   * Update menu items that depend on clipboard contents.
-   */
-  window.goUpdatePasteMenuItems = () => {
-    goUpdateCommand("cmd_paste");
-  };
-}
+    if (!gTabmail) {
+      // In a dialog window the following menu item functions need to be
+      // defined.  In a tab they are defined elsewhere.  To prevent errors in
+      // the log they are defined here (before the onLoad function is called).
+      /**
+       * Update menu items that rely on focus.
+       */
+      window.goUpdateGlobalEditMenuItems = () => {
+        goUpdateCommand("cmd_undo");
+        goUpdateCommand("cmd_redo");
+        goUpdateCommand("cmd_cut");
+        goUpdateCommand("cmd_copy");
+        goUpdateCommand("cmd_paste");
+        goUpdateCommand("cmd_selectAll");
+      };
+      /**
+       * Update menu items that rely on the current selection.
+       */
+      window.goUpdateSelectEditMenuItems = () => {
+        goUpdateCommand("cmd_cut");
+        goUpdateCommand("cmd_copy");
+        goUpdateCommand("cmd_delete");
+        goUpdateCommand("cmd_selectAll");
+      };
+      /**
+       * Update menu items that relate to undo/redo.
+       */
+      window.goUpdateUndoEditMenuItems = () => {
+        goUpdateCommand("cmd_undo");
+        goUpdateCommand("cmd_redo");
+      };
+      /**
+       * Update menu items that depend on clipboard contents.
+       */
+      window.goUpdatePasteMenuItems = () => {
+        goUpdateCommand("cmd_paste");
+      };
+    }
+  },
+  { once: true }
+);
 
 // Stores the ids of the iframes of currently open event/task tabs, used
 // when window is closed to prompt for saving changes.
@@ -207,6 +214,12 @@ function onLoadCalendarItemPanel(aIframeId, aUrl) {
 
   if (!gTabmail) {
     gTabmail = document.getElementById("tabmail") || null;
+    // This should not happen.
+    if (gTabmail) {
+      console.warn(
+        "gTabmail was undefined on document load and is defined now, that should not happen."
+      );
+    }
   }
   if (gTabmail) {
     // tab case
