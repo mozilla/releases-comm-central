@@ -26,6 +26,8 @@ var gStatusBar = document.getElementById("statusbar-icon");
 var GlodaSearchBoxTabMonitor = {
   monitorName: "glodaSearchBox",
 
+  onTabSwitched(aTab, aOldTab) {},
+
   onTabTitleChanged() {},
 
   onTabOpened(aTab, aFirstTab, aOldTab) {
