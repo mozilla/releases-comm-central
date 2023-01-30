@@ -387,8 +387,7 @@ var mailContextMenu = {
       //   break;
       case "mailContext-openLinkInBrowser":
         // Only called in about:message.
-        // eslint-disable-next-line no-undef
-        openLinkExternally(this.context.linkURL);
+        topChromeWindow.openLinkExternally(this.context.linkURL);
         break;
       case "mailContext-copylink":
         goDoCommand("cmd_copyLink");
