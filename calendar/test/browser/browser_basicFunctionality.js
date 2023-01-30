@@ -39,6 +39,14 @@ add_task(async function testBasicFunctionality() {
   // There should be search field.
   Assert.ok(document.querySelector("#unifinder-search-field"), "unifinded search field exists");
 
+  // Make sure the week view is the default selected view.
+  Assert.ok(
+    document
+      .querySelector(`.calview-toggle-item[aria-selected="true"]`)
+      .getAttribute("aria-controls") == "week-view",
+    "week-view toggle is the current default"
+  );
+
   let dayViewButton = document.querySelector("#calTabDay");
   dayViewButton.click();
   Assert.ok(dayViewButton.getAttribute("aria-selected"), "day view button is selected");
