@@ -21,6 +21,28 @@ input {
   padding-inline: var(--padding-block) var(--search-icon-clearance);
 }
 
+input:-moz-lwtheme {
+  color: var(--toolbar-field-color);
+  background-color: var(--toolbar-field-background-color);
+  border-color: var(--toolbar-field-border-color);
+}
+
+input:focus-visible {
+  border-color: var(--toolbar-field-focus-border-color);
+  outline: 1px solid var(--toolbar-field-focus-border-color);
+}
+
+@media (-moz-windows-accent-color-in-titlebar) {
+  input:not(:-moz-lwtheme):focus-visible {
+    outline-color: accentColorText;
+  }
+}
+
+input:-moz-lwtheme:focus-visible {
+  color: var(--toolbar-field-focus-color);
+  background-color: var(--toolbar-field-focus-background-color);
+}
+
 button {
   position: absolute;
   inset-inline-end: 0;
@@ -39,7 +61,7 @@ div {
   display: none;
   position: absolute;
   pointer-events: none;
-  color: GrayText;
+  color: color-mix(in srgb, FieldText 50%, transparent);
   inset-block: var(--padding-block);
   inset-inline-start: 1ch;
   inset-inline-end: var(--search-icon-clearance);

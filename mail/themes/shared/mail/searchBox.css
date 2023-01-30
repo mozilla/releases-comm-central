@@ -93,6 +93,7 @@
 #PopupGlodaAutocomplete {
   appearance: none;
   margin-top: -1px;
+  margin-inline: 0;
   background-color: var(--arrowpanel-background);
   color: var(--arrowpanel-color);
   border: 1px solid var(--arrowpanel-border-color);
