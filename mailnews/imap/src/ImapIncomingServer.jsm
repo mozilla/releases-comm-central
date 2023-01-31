@@ -97,6 +97,23 @@ class ImapIncomingServer extends MsgIncomingServer {
       : OFFLINE_SUPPORT_LEVEL_REGULAR;
   }
 
+  get constructedPrettyName() {
+    let identity = MailServices.accounts.getFirstIdentityForServer(this);
+    let email;
+    if (identity) {
+      email = identity.email;
+    } else {
+      email = `${this.username}`;
+      if (this.hostName) {
+        email += `@${this.hostName}`;
+      }
+    }
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/imapMsgs.properties"
+    );
+    return bundle.formatStringFromName("imapDefaultAccountName", [email]);
+  }
+
   performBiff(msgWindow) {
     this.performExpand(msgWindow);
   }
@@ -330,7 +347,11 @@ class ImapIncomingServer extends MsgIncomingServer {
       index > 0 ? this._getFolder(newName.slice(0, index)) : this.rootFolder;
     folder.renameLocal(newName, parent);
     if (parent instanceof Ci.nsIMsgImapMailFolder) {
-      parent.renameClient(msgWindow, folder, oldName, newName);
+      try {
+        parent.renameClient(msgWindow, folder, oldName, newName);
+      } catch (e) {
+        this._logger.error("renameClient failed", e);
+      }
     }
 
     this._getFolder(newName).NotifyFolderEvent("RenameCompleted");

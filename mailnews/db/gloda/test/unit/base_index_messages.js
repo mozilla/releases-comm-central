@@ -619,7 +619,7 @@ function verify_attributes_fundamental(smsg, gmsg) {
 
       try {
         // Will throw if the URL is invalid.
-        channel.open();
+        channel.asyncOpen(new PromiseTestUtils.PromiseStreamListener());
       } catch (e) {
         do_throw(new Error("Invalid attachment URL"));
       }
@@ -675,7 +675,7 @@ async function test_moved_message_attributes() {
             contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER,
           });
           try {
-            channel.open();
+            channel.asyncOpen(new PromiseTestUtils.PromiseStreamListener());
           } catch (e) {
             new Error("Invalid attachment URL");
           }

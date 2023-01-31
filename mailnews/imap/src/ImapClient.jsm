@@ -439,6 +439,7 @@ class ImapClient {
    * @returns {string}
    */
   _getServerSubFolderName(parent, folderName) {
+    folderName = this._charsetManager.unicodeToMutf7(folderName);
     let mailboxName = this._getServerFolderName(parent);
     if (mailboxName) {
       let delimiter = parent.QueryInterface(Ci.nsIMsgImapMailFolder)
@@ -1520,9 +1521,6 @@ class ImapClient {
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionUidFetchBodyResponse(res) {
-    this.folder
-      .QueryInterface(Ci.nsIImapMailFolderSink)
-      .headerFetchCompleted(this);
     this._actionDone();
   }
 

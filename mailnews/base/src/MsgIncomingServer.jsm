@@ -805,6 +805,10 @@ class MsgIncomingServer {
       // If hostname changed and the pretty name has the old hostname after @,
       // update to the new hostname.
       this.prettyName = this.prettyName.slice(0, atIndex + 1) + newValue;
+    } else {
+      // Set the `name` pref anyway, to make tests happy.
+      // eslint-disable-next-line no-self-assign
+      this.prettyName = this.prettyName;
     }
   }
 

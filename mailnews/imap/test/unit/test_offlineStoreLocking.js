@@ -227,12 +227,7 @@ add_task(async function test_checkAlert() {
   let alertText = await gGotAlert;
   Assert.ok(
     alertText.startsWith(
-      Services.prefs.getBoolPref("mailnews.imap.jsmodule")
-        ? // Not sure why, nsImapIncomingServer.cpp implemented its own
-          // GetConstructedPrettyName. imap-js just uses constructedPrettyName in
-          // MsgIncomingServer.jsm.
-          "The folder 'Inbox on user on localhost' cannot be compacted because another operation is in progress. Please try again later."
-        : "The folder 'Inbox on Mail for ' cannot be compacted because another operation is in progress. Please try again later."
+      "The folder 'Inbox on Mail for ' cannot be compacted because another operation is in progress. Please try again later."
     )
   );
 });
