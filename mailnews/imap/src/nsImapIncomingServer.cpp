@@ -1772,6 +1772,7 @@ NS_IMETHODIMP nsImapIncomingServer::FEAlertFromServer(
 
   nsCString message(aServerString);
   message.Trim(" \t\b\r\n");
+  NS_ENSURE_TRUE(!message.IsEmpty(), NS_OK);
   if (message.Last() != '.') message.Append('.');
 
   // Skip over the first two words (the command tag and "NO").
