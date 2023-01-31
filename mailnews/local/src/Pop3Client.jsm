@@ -382,6 +382,8 @@ class Pop3Client {
     if (this._authenticating) {
       // In some cases, socket is closed for invalid username/password.
       this._actionAuthResponse({ success: false });
+    } else {
+      this._actionDone();
     }
   };
 
@@ -1458,6 +1460,10 @@ class Pop3Client {
    * @param {nsresult} status - Indicate if the last action succeeded.
    */
   _actionDone = (status = Cr.NS_OK) => {
+    if (this._done) {
+      return;
+    }
+    this._done = true;
     this._logger.debug(`Done with status=${status}`);
     this._authenticating = false;
     if (status == Cr.NS_OK) {
