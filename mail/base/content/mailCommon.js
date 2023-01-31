@@ -597,7 +597,7 @@ var commandController = {
  */
 var dbViewWrapperListener = {
   messenger: null,
-  msgWindow: null,
+  msgWindow: top.msgWindow,
   threadPaneCommandUpdater: null,
 
   get shouldUseMailViews() {
