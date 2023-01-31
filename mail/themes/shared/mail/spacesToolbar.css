@@ -10,8 +10,8 @@
   --spaces-button-text-color: currentColor;
   --spaces-button-active-text-color: SelectedItemText;
   --spaces-button-active-bg-color: SelectedItem;
-  --spaces-button-badge-text-color: #FFF;
-  --spaces-button-badge-bg-color: #E60202;
+  --spaces-button-badge-text-color: var(--color-white);
+  --spaces-button-badge-bg-color: var(--color-red-70);
   --spaces-button-opacity: 1;
   --spaces-border-color: color-mix(in srgb, var(--spaces-bg-color) 85%, black);
 }

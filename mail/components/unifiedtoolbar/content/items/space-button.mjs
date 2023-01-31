@@ -12,6 +12,20 @@ import { UnifiedToolbarButton } from "chrome://messenger/content/unifiedtoolbar/
  * - space: Space to open when the button is activated
  */
 class SpaceButton extends UnifiedToolbarButton {
+  connectedCallback() {
+    super.connectedCallback();
+    const spaceId = this.getAttribute("space");
+    const space = gSpacesToolbar.spaces.find(
+      spaceDetails => spaceDetails.name == spaceId
+    );
+    if (space.button.classList.contains("has-badge")) {
+      const badgeContainer = space.button.querySelector(
+        ".spaces-badge-container"
+      );
+      this.badge = badgeContainer.textContent;
+    }
+  }
+
   handleClick = event => {
     const spaceId = this.getAttribute("space");
     const space = gSpacesToolbar.spaces.find(

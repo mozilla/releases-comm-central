@@ -18,7 +18,7 @@
  * - label: Label text of the button. Observed for changes.
  * - label-id: A fluent ID for the label instead of the label attribute.
  *   Observed for changes.
- * - badge-text
+ * - badge: When set, the value of the attribute is shown as badge.
  * - badge-color
  * - aria-pressed: set to "false" to make the button behave like a toggle.
  */
@@ -191,6 +191,24 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
     if (this.hasAttribute("label-id")) {
       document.l10n.setAttributes(this.label, this.getAttribute("label-id"));
     }
+  }
+
+  /**
+   * Badge displayed on the button. To clear the badge, set to empty string or
+   * nullish value.
+   *
+   * @type {string}
+   */
+  set badge(badgeText) {
+    if (badgeText === "" || badgeText == null) {
+      this.removeAttribute("badge");
+      return;
+    }
+    this.setAttribute("badge", badgeText);
+  }
+
+  get badge() {
+    return this.getAttribute("badge");
   }
 }
 customElements.define("unified-toolbar-button", UnifiedToolbarButton, {

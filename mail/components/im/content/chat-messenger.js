@@ -576,6 +576,17 @@ var chatHandler = {
       gSpacesToolbar.updatePinnedBadgeState();
     }
 
+    let unifiedToolbarButtons = document.querySelectorAll(
+      "#unifiedToolbarContent .chat .unified-toolbar-button"
+    );
+    for (const button of unifiedToolbarButtons) {
+      if (unreadCount) {
+        button.badge = unreadCount;
+        continue;
+      }
+      button.badge = null;
+    }
+
     if (unreadCount != this._notifiedUnreadCount) {
       let unreadInt = Cc["@mozilla.org/supports-PRInt32;1"].createInstance(
         Ci.nsISupportsPRInt32

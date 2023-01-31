@@ -5,6 +5,13 @@
 /* Styles shared between the actual unfied toolbar and the replica in the
  * customization overlay */
 
+:root {
+  --toolbar-button-badge-text-color: var(--color-white);
+  --toolbar-button-badge-bg-color: var(--color-red-70);
+  --toolbar-button-badge-padding: 1px 3px;
+  --toolbar-button-badge-font: 0.8rem;
+}
+
 .unified-toolbar {
   display: flex;
   justify-content: start;
@@ -39,7 +46,6 @@
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
-  overflow: hidden;
 }
 
 .icons-above-text .unified-toolbar-button {
@@ -82,6 +88,50 @@
 
 .unified-toolbar-button[popup]:dir(rtl) {
   background-position-x: 4px;
+}
+
+.unified-toolbar-button[badge] {
+  position: relative;
+}
+
+.unified-toolbar-button[badge]::after {
+  content: attr(badge);
+  background-color: var(--toolbar-button-badge-bg-color);
+  border-radius: 12px;
+  padding: var(--toolbar-button-badge-padding);
+  font-weight: 600;
+  font-size: var(--toolbar-button-badge-font);
+  color: var(--toolbar-button-badge-text-color);
+  line-height: 1em;
+  position: absolute;
+  inset-inline-end: -3px;
+  inset-block-start: -2px;
+  max-width: 3ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-overflow: clip;
+}
+
+.unified-toolbar-button[badge]:-moz-window-inactive::after {
+  background-color: color-mix(in srgb, var(--toolbar-button-badge-bg-color) 50%, black);
+}
+
+/* If the text is shown after the icon, move the badge to be over the icon */
+.icons-beside-text .unified-toolbar-button[badge]::after {
+  inset-inline-end: unset;
+  inset-inline-start: 10px;
+}
+
+/* With text only, just show the badge after the label */
+.text-only .unified-toolbar-button[badge]::after {
+  position: static;
+}
+
+/* If we are showing the text below the icon, move the badge in toward the
+ * center of the button. */
+.icons-above-text .unified-toolbar-button[badge]::after {
+  inset-inline-end: 0;
+  inset-block-start: 8px;
 }
 
 .unified-toolbar-button .button-label {
