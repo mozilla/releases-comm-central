@@ -1510,10 +1510,10 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIMsgWindow* aMsgWindow,
     NS_ENSURE_SUCCESS(rv, rv);
 
     if (aListener)
-      rv = imapService->DeleteAllMessages(trashFolder, aListener, nullptr);
+      rv = imapService->DeleteAllMessages(trashFolder, aListener);
     else {
       nsCOMPtr<nsIUrlListener> urlListener = do_QueryInterface(trashFolder);
-      rv = imapService->DeleteAllMessages(trashFolder, urlListener, nullptr);
+      rv = imapService->DeleteAllMessages(trashFolder, urlListener);
     }
     // Return an error if this failed. We want the empty trash on exit code
     // to know if this fails so that it doesn't block waiting for empty trash to

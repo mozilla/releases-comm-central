@@ -128,8 +128,7 @@ interface nsIImapService : nsISupports
                       in boolean aMessageIdsAreUID);
 
   void deleteAllMessages(in nsIMsgFolder aImapMailFolder,
-                         in nsIUrlListener aUrlListener,
-                         out nsIURI aURL);
+                         in nsIUrlListener aUrlListener);
 
   void addMessageFlags(in nsIMsgFolder aImapMailFolder,
                        in nsIUrlListener aUrlListener,

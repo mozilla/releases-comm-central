@@ -135,6 +135,10 @@ class ImapResponse {
           }
           this.quotas.push([tokens[2], ...tokens[3]]);
           break;
+        case "SEARCH":
+          // * SEARCH 1 4 9
+          this.search = tokens.slice(2).map(x => Number(x));
+          break;
         case "STATUS":
           // * STATUS \"folder 2\" (UIDNEXT 2 MESSAGES 1 UNSEEN 1)
           this.attributes = new StatusData(tokens).attributes;

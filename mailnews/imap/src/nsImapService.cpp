@@ -1565,12 +1565,11 @@ NS_IMETHODIMP nsImapService::DeleteMessages(
 
 // Delete all messages in a folder, used to empty trash
 NS_IMETHODIMP nsImapService::DeleteAllMessages(nsIMsgFolder* aImapMailFolder,
-                                               nsIUrlListener* aUrlListener,
-                                               nsIURI** aURL) {
+                                               nsIUrlListener* aUrlListener) {
   NS_ENSURE_ARG_POINTER(aImapMailFolder);
 
   return FolderCommand(aImapMailFolder, aUrlListener, "/deleteallmsgs>",
-                       nsIImapUrl::nsImapSelectNoopFolder, nullptr, aURL);
+                       nsIImapUrl::nsImapSelectNoopFolder, nullptr, nullptr);
 }
 
 NS_IMETHODIMP nsImapService::AddMessageFlags(

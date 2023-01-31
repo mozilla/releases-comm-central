@@ -238,6 +238,25 @@ class BaseMessageService {
     return folder.GetMessageHeader(key);
   }
 
+  Search(searchSession, msgWindow, folder, searchUri) {
+    let server = folder.server.QueryInterface(Ci.nsIMsgIncomingServer);
+    server.wrappedJSObject.withClient(folder, client => {
+      client.startRunningUrl(
+        searchSession.QueryInterface(Ci.nsIUrlListener),
+        msgWindow
+      );
+      client.onReady = () => {
+        client.search(folder, searchUri);
+      };
+      client.onData = uids => {
+        for (let uid of uids) {
+          let msgHdr = folder.msgDatabase.getMsgHdrForKey(uid);
+          searchSession.runningAdapter.AddResultElement(msgHdr);
+        }
+      };
+    });
+  }
+
   /**
    * Parse a message uri to hostname, folder and message key.
    *

@@ -277,3 +277,12 @@ add_task(function test_IdleDoneResponse() {
   response.parse(["+ idling", "75 OK Completed", ""].join("\r\n"));
   deepEqual([response.tag, response.status, response.done], [75, "OK", true]);
 });
+
+/**
+ * Test SEARCH response can be correctly parsed.
+ */
+add_task(function test_SearchResponse() {
+  let response = new ImapResponse();
+  response.parse("* SEARCH 1 4 9\r\n90 OK SEARCH COMPLETED\r\n");
+  deepEqual(response.search, [1, 4, 9]);
+});

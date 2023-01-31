@@ -438,6 +438,15 @@ class ImapService {
     });
   }
 
+  deleteAllMessages(folder, urlListener) {
+    this._withClient(folder, client => {
+      client.startRunningUrl(urlListener);
+      client.onReady = () => {
+        client.deleteAllMessages(folder);
+      };
+    });
+  }
+
   verifyLogon(folder, urlListener, msgWindow) {
     return this._withClient(folder, (client, runningUrl) => {
       client.verifyLogon = true;

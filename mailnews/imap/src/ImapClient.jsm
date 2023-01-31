@@ -397,6 +397,42 @@ class ImapClient {
   }
 
   /**
+   * Delete all the messages in a folder.
+   *
+   * @param {nsIMsgFolder} folder - The folder to delete messages.
+   */
+  deleteAllMessages(folder) {
+    this._logger.debug("deleteAllMessages", folder.URI);
+    this._actionInFolder(folder, () => {
+      if (!this._messages.size) {
+        this._actionDone();
+        return;
+      }
+
+      this._nextAction = () => this.expunge(folder);
+      this._sendTagged("UID STORE 1:* +FLAGS.SILENT (\\Deleted)");
+    });
+  }
+
+  /**
+   * Search in a folder.
+   *
+   * @param {nsIMsgFolder} folder - The folder to delete messages.
+   * @param {string} searchCommand - The SEARCH command together with the search
+   *   criteria.
+   */
+  search(folder, searchCommand) {
+    this._logger.debug("search", folder.URI);
+    this._actionInFolder(folder, () => {
+      this._nextAction = res => {
+        this.onData(res.search);
+        this._actionDone();
+      };
+      this._sendTagged(`UID ${searchCommand}`);
+    });
+  }
+
+  /**
    * Get the names of all ancestor folders. For example,
    *   folder a/b/c will return ['a', 'b'].
    *
