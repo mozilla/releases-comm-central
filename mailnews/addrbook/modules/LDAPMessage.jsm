@@ -10,9 +10,7 @@ const EXPORTED_SYMBOLS = [
   "LDAPResponse",
 ];
 
-var {
-  asn1js: { asn1js },
-} = ChromeUtils.import("chrome://global/content/certviewer/asn1js_bundle.jsm");
+var { asn1js } = ChromeUtils.importESModule("resource:///modules/asn1js.mjs");
 
 /**
  * A base class for all LDAP request and response messages, see

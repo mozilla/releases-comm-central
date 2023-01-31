@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "bundle": "esbuild --bundle --format=esm --outfile=asn1js.mjs entry.js"
+  },
+  "dependencies": {
+    "asn1js": "3.0.5"
+  },
+  "devDependencies": {
+    "esbuild": "^0.17.5"
+  }
+}

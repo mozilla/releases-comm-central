@@ -48,3 +48,6 @@ mozilla
 # Ignore Storybook generated files
 ^mail/components/storybook/node_modules/
 ^mail/components/storybook/storybook-static/
+
+# Ignore third_party npm files
+third_party/asn1js/node_modules/

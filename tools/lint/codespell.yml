@@ -14,6 +14,7 @@ codespell:
         - comm/README.md
     exclude:
         - comm/mailnews/extensions/fts3/fts3_porter.c
+        - comm/third_party/asn1js/asn1js.mjs
     # List of extensions coming from:
     # tools/lint/{flake8,eslint}.yml
     # tools/mach_commands.py (clang-format)
