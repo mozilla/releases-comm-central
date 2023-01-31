@@ -948,11 +948,3 @@ async function printCalendar() {
   await PrintUtils.loadPrintBrowser("chrome://calendar/content/printing-template.html");
   PrintUtils.startPrintWindow(PrintUtils.printBrowser.browsingContext, {});
 }
-/**
- * Toggle the visibility of the calendars list.
- *
- * @param {Event} event - The click DOMEvent.
- */
-function toggleVisibilityCalendarsList(event) {
-  document.getElementById("calendar-list-inner-pane").togglePane(event);
-}
