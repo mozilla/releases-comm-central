@@ -313,54 +313,68 @@ add_task(async function checkTitlePreface() {
 
 add_task(async function test_popupLayoutProperties() {
   let extension = ExtensionTestUtils.loadExtension({
-    async background() {
-      let testProps = [
-        { state: "minimized" },
-        { state: "maximized" },
-        { state: "fullscreen" },
-        { width: 210, height: 220, left: 30, top: 40 },
-      ];
+    files: {
+      "test.html": `<!DOCTYPE HTML>
+        <html>
+        <head>
+          <title>TEST</title>
+          <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        </head>
+        <body>
+        <p>Test body</p>
+        </body>
+        </html>`,
+      "background.js": async () => {
+        let testProps = [
+          { state: "minimized" },
+          { state: "maximized" },
+          { state: "fullscreen" },
+          { width: 210, height: 220, left: 30, top: 40 },
+        ];
 
-      // Test create.
-      for (let props of testProps) {
-        let win = await browser.windows.create({
-          type: "popup",
-          url: "test.html",
-          ...props,
-        });
-        let win2 = await browser.windows.get(win.id);
-        for (let [key, value] of Object.entries(props)) {
-          browser.test.assertEq(
-            value,
-            win2[key],
-            `Should find the correct value for ${key}`
-          );
+        // Test create.
+        for (let props of testProps) {
+          let win = await browser.windows.create({
+            type: "popup",
+            url: "test.html",
+            ...props,
+          });
+          let win2 = await browser.windows.get(win.id);
+          for (let [key, value] of Object.entries(props)) {
+            browser.test.assertEq(
+              value,
+              win2[key],
+              `Should find the correct value for ${key}`
+            );
+          }
+          await browser.windows.remove(win.id);
         }
-        await browser.windows.remove(win.id);
-      }
 
-      // Test update.
-      for (let props of testProps) {
-        let win = await browser.windows.create({
-          type: "popup",
-          url: "test.html",
-        });
-        await browser.windows.update(win.id, props);
-        let win2 = await browser.windows.get(win.id);
-        for (let [key, value] of Object.entries(props)) {
-          browser.test.assertEq(
-            value,
-            win2[key],
-            `Should find the correct value for ${key}`
-          );
+        // Test update.
+        for (let props of testProps) {
+          let win = await browser.windows.create({
+            type: "popup",
+            url: "test.html",
+          });
+          await browser.windows.update(win.id, props);
+          let win2 = await browser.windows.get(win.id);
+          for (let [key, value] of Object.entries(props)) {
+            browser.test.assertEq(
+              value,
+              win2[key],
+              `Should find the correct value for ${key}`
+            );
+          }
+          await browser.windows.remove(win.id);
         }
-        await browser.windows.remove(win.id);
-      }
 
-      browser.test.notifyPass();
+        browser.test.notifyPass();
+      },
+    },
+    manifest: {
+      background: { scripts: ["background.js"] },
     },
   });
-
   await extension.startup();
   await extension.awaitFinish();
   await extension.unload();
