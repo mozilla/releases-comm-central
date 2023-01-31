@@ -167,7 +167,7 @@ async function subtest_folder_pane(manifest) {
   let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   let folderTree = about3Pane.document.getElementById("folderTree");
   let menu = about3Pane.document.getElementById("folderPaneContext");
-  await rightClick(menu, folderTree.rows[2].querySelector(".container"));
+  await rightClick(menu, folderTree.rows[1].querySelector(".container"));
   Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_folder_pane"));
   menu.hidePopup();
 
@@ -183,7 +183,7 @@ async function subtest_folder_pane(manifest) {
     { active: true, index: 0, mailTab: true }
   );
 
-  await rightClick(menu, folderTree.rows[1].querySelector(".container"));
+  await rightClick(menu, folderTree.rows[0].querySelector(".container"));
   Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_folder_pane"));
   menu.hidePopup();
 
