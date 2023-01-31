@@ -3470,6 +3470,9 @@ const gMessageHeader = {
   },
 
   openCopyPopup(event, element) {
+    document.getElementById("copyCreateFilterFrom").disabled = !gFolder?.server
+      .canHaveFilters;
+
     let popup = document.getElementById(
       element.matches(`:scope[is="url-header-row"]`)
         ? "copyUrlPopup"
@@ -3504,6 +3507,9 @@ const gMessageHeader = {
       discoverKeyMenuItem.hidden = hidden;
       discoverKeyMenuItem.nextElementSibling.hidden = hidden; // Hide separator.
     }
+
+    document.getElementById("createFilterFrom").disabled = !gFolder?.server
+      .canHaveFilters;
 
     let popup = document.getElementById("emailAddressPopup");
     popup.headerField = element;

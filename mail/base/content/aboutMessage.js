@@ -237,14 +237,6 @@ var preferenceObserver = {
   },
 };
 
-commandController.registerCallback(
-  "cmd_createFilterFromPopup",
-  () => {
-    // This does nothing because gMessageHeader.createfilter is invoked from
-    // the popupnode oncommand.
-  },
-  () => gFolder?.server.canHaveFilters
-);
 commandController.registerCallback("cmd_print", () => {
   top.PrintUtils.startPrintWindow(content.browsingContext, {});
 });

@@ -2,10 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-  <commandset>
-    <command id="cmd_createFilterFromPopup"/>
-  </commandset>
-
   <menupopup id="messageIdContext">
     <menuitem id="messageIdContext-messageIdTarget" disabled="true"/>
     <menuseparator id="messageIdContext-separator"/>
@@ -92,8 +88,7 @@
 
   <menupopup id="emailAddressPopup"
              position="after_start"
-             class="no-icon-menupopup"
-             popupshowing="goUpdateCommand('cmd_createFilterFromPopup');">
+             class="no-icon-menupopup">
     <menuitem id="emailAddressPlaceHolder"
               class="menuitem-iconic"
               disabled="true"/>
@@ -128,11 +123,10 @@
               class="menuitem-iconic"
               oncommand="Enigmail.msg.searchKeysOnInternet(event)"/>
     <menuseparator/>
-    <menuitem id="createFilterFromItem" label="&CreateFilterFrom.label;"
+    <menuitem id="createFilterFrom" label="&CreateFilterFrom.label;"
               accesskey="&CreateFilterFrom.accesskey;"
               class="menuitem-iconic"
-              oncommand="gMessageHeader.createFilter(event);"
-              observes="cmd_createFilterFromPopup"/>
+              oncommand="gMessageHeader.createFilter(event);"/>
   </menupopup>
 
   <menupopup id="copyPopup" class="no-icon-menupopup">
@@ -140,12 +134,11 @@
               data-l10n-id="text-action-copy"
               class="menuitem-iconic"
               oncommand="gMessageHeader.copyString(event);"/>
-    <menuitem id="createFilterFromMenuItem"
+    <menuitem id="copyCreateFilterFrom"
               label="&CreateFilterFrom.label;"
               accesskey="&CreateFilterFrom.accesskey;"
               class="menuitem-iconic"
-              oncommand="gMessageHeader.createFilter(event);"
-              observes="cmd_createFilterFromPopup"/>
+              oncommand="gMessageHeader.createFilter(event);"/>
   </menupopup>
 
   <menupopup id="copyUrlPopup"
@@ -164,8 +157,7 @@
 
   <menupopup id="newsgroupPopup"
              position="after_start"
-             class="newsgroupPopup no-icon-menupopup"
-             onpopupshowing="goUpdateCommand('cmd_createFilterFromPopup');">
+             class="newsgroupPopup no-icon-menupopup">
       <menuitem id="newsgroupPlaceHolder"
                 class="menuitem-iconic"
                 disabled="true"/>
