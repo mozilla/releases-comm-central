@@ -6,6 +6,7 @@
 
 :root {
   --calendar-view-nav-btn-padding: 6px;
+  --calendar-list-header-padding: 9px 12px;
   --calendar-list-item-padding: 3px;
   --calendar-list-item-margin: 3px;
   --calendar-list-item-dot-size: 9px;
@@ -14,14 +15,16 @@
 
 :root[uidensity="compact"] {
   --calendar-view-nav-btn-padding: 0px;
-  --calendar-list-item-padding: 0px;
-  --calendar-list-item-margin: 0px;
+  --calendar-list-header-padding: 6px 9px;
+  --calendar-list-item-padding: 1px;
+  --calendar-list-item-margin: 1px;
   --calendar-list-item-dot-size: 6px;
   --calendar-list-item-dot-gap: 3px;
 }
 
 :root[uidensity="touch"] {
   --calendar-view-nav-btn-padding: 6px;
+  --calendar-list-header-padding: 9px 15px;
   --calendar-list-item-padding: 6px;
   --calendar-list-item-margin: 6px;
   --calendar-list-item-dot-size: 9px;
@@ -31,8 +34,32 @@
 /* Calendar Items */
 
 .calendar-list-header {
-  background-color: var(--viewCalendarHeaderBackground);
-  padding-block: 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+  min-height: auto;
+  min-width: auto;
+  margin: 0;
+  background-color: transparent;
+  border-color: transparent;
+  border-radius: 0;
+  padding: var(--calendar-list-header-padding);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.calendar-list-header > * {
+  pointer-events: none;
+}
+
+.calendar-list-header:hover {
+  border-color: transparent !important;
+}
+
+#calendarListHeader[checked="false"] > img {
+  transform: rotate(-90deg);
 }
 
 .calendar-list-create {
@@ -83,6 +110,9 @@ checkbox.treenode-checkbox:not([checked="true"]):-moz-locale-dir(rtl) > .checkbo
 @media (prefers-reduced-motion: no-preference) {
   checkbox.treenode-checkbox > .checkbox-check {
     transition: transform 200ms ease;
+  }
+  #calendarListHeader > img {
+    transition: transform 150ms ease;
   }
   #calendar-list > li,
   #calendar-list > li > :is(.calendar-displayed,.calendar-more-button) {
@@ -359,6 +389,10 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 
 #calendar-list > richlistitem {
   -moz-box-align: center;
+}
+
+#calendarButtonsBottomSpacer {
+  -moz-box-flex: 1;
 }
 
 #sideButtonsBottom {

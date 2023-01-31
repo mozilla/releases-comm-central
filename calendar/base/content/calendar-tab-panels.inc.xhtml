@@ -182,20 +182,18 @@
                            flex="1"
                            mode="calendar,task"
                            refcontrol="calendar_toggle_calendarlist_command">
-          <hbox align="center" class="calendar-list-header">
-            <checkbox id="calendar-list-header"
-                      checked="true"
-                      class="treenode-checkbox"
-                      flex="1"
-                      label="&calendar.list.header.label;"/>
-            <toolbarbutton class="toolbarbutton-1 calendar-list-create themeable-brighttext"
-                           command="calendar_new_calendar_command"
-                           tooltiptext="&calendar.context.newserver.label;"/>
-          </hbox>
+          <html:button id="calendarListHeader"
+                       class="calendar-list-header button-flat"
+                       onclick="toggleVisibilityCalendarsList(event);">
+            <html:span data-l10n-id="calendar-list-header"></html:span>
+            <html:img id="toggleCalendarIcon"
+                      src="chrome://messenger/skin/icons/new/nav-down-sm.svg"
+                      alt="" />
+              </html:button>
           <calendar-modevbox id="calendar-list-inner-pane"
                              flex="1"
                              mode="calendar,task"
-                             refcontrol="calendar-list-header"
+                             refcontrol="calendarListHeader"
                              oncontextmenu="openCalendarListItemContext(event);">
             <html:ol id="calendar-list" is="orderable-tree-listbox"
                      role="listbox"></html:ol>
@@ -214,6 +212,7 @@
               </li>
             </template>
           </calendar-modevbox>
+          <div id="calendarButtonsBottomSpacer"></div>
           <html:div id="sideButtonsBottom" xmlns="http://www.w3.org/1999/xhtml">
             <button id="importCalendar"
                     class="calendar-sidebar-bottom-button"
