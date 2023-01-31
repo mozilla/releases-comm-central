@@ -37,8 +37,8 @@ as they wish, without reference to anyone else.
 Modules
 -------
 
-Thunderbird Council
-~~~~~~~~~~~~~~~~~~~
+Thunderbird Council - 2023
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 The Thunderbird Council is the elected governing body for the Thunderbird Project, including the code modules that develop the code in Thunderbird product(s). It is the top-level module of the project, and Peers are members of the Council.
 
 
@@ -52,9 +52,10 @@ The Thunderbird Council is the elected governing body for the Thunderbird Projec
     * - Peer(s)
       -
         | `Andrei Hajdukewycz (sancus) <https://people.mozilla.org/s?query=sancus>`__
+        | `micah (micah) <https://people.mozilla.org/s?query=micah>`__
+        | `Danny Colin (sdk) <https://people.mozilla.org/s?query=sdk>`__
+        | `John Bieling (TbSync) <https://people.mozilla.org/s?query=TbSync>`__
         | `Ben Bucksch (BenB) <https://people.mozilla.org/s?query=BenB>`__
-        | `Dirk Steinmetz (rsjtdrjgfuzkfg) <https://people.mozilla.org/s?query=rsjtdrjgfuzkfg>`__
-        | `Magnus Melin (mkmelin) <https://people.mozilla.org/s?query=mkmelin>`__
         | `Patrick Cloke (clokep) <https://people.mozilla.org/s?query=clokep>`__
         | `Philipp Kewisch (Fallen) <https://people.mozilla.org/s?query=Fallen>`__
     * - Excludes
@@ -347,7 +348,7 @@ Feeds
         |
     * - Peer(s)
       -
-        | `Alta88 (Alta88) <https://people.mozilla.org/s?query=Alta88>`__
+        | `alta88 (alta88) <https://people.mozilla.org/s?query=alta88>`__
         | `Magnus Melin (mkmelin) <https://people.mozilla.org/s?query=mkmelin>`__
     * - Includes
       -

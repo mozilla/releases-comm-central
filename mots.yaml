@@ -12,10 +12,10 @@
 
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2023-01-19T21:00:49.590412'
+updated_at: '2023-01-31T10:02:33.219664'
 hashes:
-  config: 9b7660c4e584dc359bc2c9938f5701f2c74e1b37
-  export: 242eb0411176e3dd507d0be54865c26f6d432fcf
+  config: 75913c17784dfa3f71b2d498de5c7ad129768be0
+  export: e5ab52e84c4b6c9ec1721d319d301bca93917328
 export:
   path: ./docs/mots/index.rst
   format: rst
@@ -46,10 +46,10 @@ people:
     bmo_id: 434808
     name: aleth
     nick: aleth
-  - &Alta88
+  - &alta88
     bmo_id: 217596
-    name: Alta88
-    nick: Alta88
+    name: alta88
+    nick: alta88
   - &ba
     bmo_id: 653537
     name: Berna Alp
@@ -98,7 +98,7 @@ people:
     bmo_id: 28426
     name: gene smith
     nick: gds
-  - &henry-x
+  - &henryx
     bmo_id: 680421
     name: Henry Wilkes
     nick: henry-x
@@ -114,6 +114,10 @@ people:
     bmo_id: 403756
     name: Mike Conley
     nick: mconley
+  - &micah
+    bmo_id: 704774
+    name: micah
+    nick: micah
   - &mkmelin
     bmo_id: 101158
     name: Magnus Melin
@@ -134,10 +138,6 @@ people:
     bmo_id: 206599
     name: Jonathan Protzenko
     nick: protz
-  - &rsjtdrjgfuzkfg
-    bmo_id: 438708
-    name: Dirk Steinmetz
-    nick: rsjtdrjgfuzkfg
   - &rjl
     bmo_id: 63411
     name: Rob Lemley
@@ -154,6 +154,10 @@ people:
     bmo_id: 148348
     name: Andrei Hajdukewycz
     nick: sancus
+  - &sdk
+    bmo_id: 598568
+    name: Danny Colin
+    nick: sdk
   - &squib
     bmo_id: 352169
     name: Jim Porter
@@ -171,14 +175,13 @@ people:
     name: Tom Prince
     nick: tomprince
 modules:
-  - name: Thunderbird Council
+  - name: Thunderbird Council - 2023
     machine_name: thunderbird_council
-    description: The Thunderbird Council is the elected governing body for the
-      Thunderbird Project, including the code modules that develop the code in
-      Thunderbird product(s). It is the top-level module of the project, and
-      Peers are members of the Council.
+    description: The Thunderbird Council is the elected governing body for the Thunderbird
+      Project, including the code modules that develop the code in Thunderbird product(s).
+      It is the top-level module of the project, and Peers are members of the Council.
     owners: [*ba]
-    peers: [*sancus, *BenB, *rsjtdrjgfuzkfg, *mkmelin, *clokep, *Fallen]
+    peers: [*sancus, *micah, *sdk, *TbSync, *BenB, *clokep, *Fallen]
     excludes:
       - suite/**
 
@@ -283,7 +286,7 @@ modules:
         includes:
           - mail/branding/**
         owners: [*aleca]
-        peers: [*Paenglab, *henry-x, *mkmelin]
+        peers: [*Paenglab, *henryx, *mkmelin]
         meta:
           peers_emeritus:
             - *bwinton
@@ -360,7 +363,7 @@ modules:
         machine_name: feeds
         includes:
           - mailnews/extensions/newsblog/**
-        peers: [*Alta88, *mkmelin]
+        peers: [*alta88, *mkmelin]
         meta:
           components:
             - MailNews Core::Feed Reader
