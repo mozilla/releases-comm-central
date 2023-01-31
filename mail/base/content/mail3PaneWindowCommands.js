@@ -44,7 +44,6 @@ var FolderPaneController = {
 
 // DefaultController object (handles commands when one of the trees does not have focus)
 var DefaultController = {
-  /* eslint-disable complexity */
   supportsCommand(command) {
     switch (command) {
       case "cmd_newMessage":
@@ -174,7 +173,6 @@ var DefaultController = {
         break;
     }
   },
-  /* eslint-enable complexity */
 
   onEvent(event) {
     // on blur events set the menu item texts back to the normal values

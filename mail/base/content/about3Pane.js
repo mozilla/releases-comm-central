@@ -68,6 +68,8 @@ window.addEventListener("DOMContentLoaded", async event => {
 
   UIDensity.registerWindow(window);
 
+  folderTree = document.getElementById("folderTree");
+
   paneLayout.init();
   folderPaneContextMenu.init();
   await folderPane.init();
@@ -179,19 +181,101 @@ var paneLayout = {
 };
 
 var folderPaneContextMenu = {
-  init() {
-    let folderPaneContext = document.getElementById("folderPaneContext");
-    folderPaneContext.addEventListener(
-      "popupshowing",
-      folderPaneContextMenu.onPopupShowing
-    );
-    folderPaneContext.addEventListener(
-      "command",
-      folderPaneContextMenu.onCommand
-    );
+  /**
+   * Commands handled by commandController.
+   *
+   * @type {Object.<string, string>}
+   */
+  _commands: {
+    "folderPaneContext-new": "cmd_newFolder",
+    "folderPaneContext-remove": "cmd_deleteFolder",
+    "folderPaneContext-rename": "cmd_renameFolder",
+    "folderPaneContext-compact": "cmd_compactFolder",
+    "folderPaneContext-emptyTrash": "cmd_emptyTrash",
   },
 
-  onPopupShowing(event) {
+  /**
+   * Current state of commandController commands. Set to null to invalidate
+   * the states.
+   *
+   * @type {Object.<string, boolean>|null}
+   */
+  _commandStates: null,
+
+  init() {
+    let folderPaneContext = document.getElementById("folderPaneContext");
+    folderPaneContext.addEventListener("popupshowing", this);
+    folderPaneContext.addEventListener("command", this);
+    folderTree.addEventListener("select", this);
+  },
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "popupshowing":
+        this.onPopupShowing(event);
+        break;
+      case "command":
+        this.onCommand(event);
+        break;
+      case "select":
+        this._commandStates = null;
+        break;
+    }
+  },
+
+  /**
+   * Gets the enabled state of a command. If the state is unknown (because the
+   * selected folder has changed) the states of all the commands are worked
+   * out together to save unnecessary work.
+   *
+   * @param {string} command
+   */
+  getCommandState(command) {
+    if (!gFolder) {
+      return false;
+    }
+    if (this._commandStates === null) {
+      let {
+        canCompact,
+        canCreateSubfolders,
+        canRename,
+        deletable,
+        flags,
+        isServer,
+        isSpecialFolder,
+        server,
+        URI,
+      } = gFolder;
+      let isJunk = flags & Ci.nsMsgFolderFlags.Junk;
+      let isTrash = isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true);
+      let isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
+      let serverType = server.type;
+      let showNewFolderItem =
+        (serverType != "nntp" && canCreateSubfolders) ||
+        flags & Ci.nsMsgFolderFlags.Inbox;
+
+      this._commandStates = {
+        cmd_newFolder: showNewFolderItem,
+        cmd_deleteFolder: isJunk
+          ? FolderUtils.canRenameDeleteJunkMail(URI)
+          : deletable,
+        cmd_renameFolder:
+          (!isServer &&
+            canRename &&
+            !(flags & Ci.nsMsgFolderFlags.SpecialUse)) ||
+          isVirtual ||
+          (isJunk && FolderUtils.canRenameDeleteJunkMail(URI)),
+        cmd_compactFolder:
+          !isVirtual &&
+          canCompact &&
+          gFolder.isCommandEnabled("cmd_compactFolder"),
+        cmd_emptyTrash: isTrash,
+      };
+    }
+    return this._commandStates[command];
+  },
+
+  onPopupShowing() {
     function showItem(id, show) {
       let item = document.getElementById(id);
       if (item) {
@@ -207,16 +291,17 @@ var folderPaneContextMenu = {
       }
     }
 
+    // Ask commandController about the commands it controls.
+    for (let [id, command] of Object.entries(this._commands)) {
+      showItem(id, commandController.isCommandEnabled(command));
+    }
+
     let {
-      canCompact,
       canCreateSubfolders,
-      canRename,
-      deletable,
       flags,
       isServer,
       isSpecialFolder,
       server,
-      URI,
     } = gFolder;
     let isJunk = flags & Ci.nsMsgFolderFlags.Junk;
     let isTrash = isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true);
@@ -264,7 +349,6 @@ var folderPaneContextMenu = {
     let showNewFolderItem =
       (serverType != "nntp" && canCreateSubfolders) ||
       flags & Ci.nsMsgFolderFlags.Inbox;
-    showItem("folderPaneContext-new", showNewFolderItem);
     if (showNewFolderItem) {
       document
         .getElementById("folderPaneContext-new")
@@ -277,25 +361,7 @@ var folderPaneContextMenu = {
           )
         );
     }
-    if (isJunk) {
-      showItem(
-        "folderPaneContext-remove",
-        FolderUtils.canRenameDeleteJunkMail(URI)
-      );
-    } else {
-      showItem("folderPaneContext-remove", deletable);
-    }
-    showItem(
-      "folderPaneContext-rename",
-      (!isServer && canRename && !(flags & Ci.nsMsgFolderFlags.SpecialUse)) ||
-        isVirtual ||
-        (isJunk && FolderUtils.canRenameDeleteJunkMail(URI))
-    );
 
-    showItem(
-      "folderPaneContext-compact",
-      !isVirtual && canCompact && gFolder.isCommandEnabled("cmd_compactFolder")
-    );
     showItem(
       "folderPaneContext-markMailFolderAllRead",
       isRealFolder && serverType != "nntp"
@@ -304,7 +370,6 @@ var folderPaneContextMenu = {
       "folderPaneContext-markNewsgroupAllRead",
       isRealFolder && serverType == "nntp"
     );
-    showItem("folderPaneContext-emptyTrash", isTrash);
     showItem("folderPaneContext-emptyJunk", isJunk);
     showItem(
       "folderPaneContext-sendUnsentMessages",
@@ -338,6 +403,12 @@ var folderPaneContextMenu = {
   },
 
   onCommand(event) {
+    // If commandController handles this command, ask it to do so.
+    if (event.target.id in this._commands) {
+      commandController.doCommand(this._commands[event.target.id], event);
+      return;
+    }
+
     let topChromeWindow = window.browsingContext.topChromeWindow;
     switch (event.target.id) {
       case "folderPaneContext-getMessages":
@@ -374,24 +445,9 @@ var folderPaneContextMenu = {
       case "folderPaneContext-newsUnsubscribe":
         topChromeWindow.MsgUnsubscribe([gFolder]);
         break;
-      case "folderPaneContext-new":
-        folderPane.newFolder(gFolder);
-        break;
-      case "folderPaneContext-remove":
-        folderPane.deleteFolder(gFolder);
-        break;
-      case "folderPaneContext-rename":
-        folderPane.renameFolder(gFolder);
-        break;
-      case "folderPaneContext-compact":
-        folderPane.compactFolders([gFolder]);
-        break;
       case "folderPaneContext-markMailFolderAllRead":
       case "folderPaneContext-markNewsgroupAllRead":
         topChromeWindow.MsgMarkAllRead([gFolder]);
-        break;
-      case "folderPaneContext-emptyTrash":
-        folderPane.emptyTrash(gFolder);
         break;
       case "folderPaneContext-emptyJunk":
         folderPane.emptyJunk(gFolder);
@@ -684,8 +740,6 @@ var folderPane = {
   },
 
   async init() {
-    folderTree = document.getElementById("folderTree");
-
     await FolderTreeProperties.ready;
 
     this._modeTemplate = document.getElementById("modeTemplate");
@@ -1123,7 +1177,7 @@ var folderPane = {
     let folder = aParent;
 
     // Make sure we actually can create subfolders.
-    if (!folder.canCreateSubfolders) {
+    if (!folder?.canCreateSubfolders) {
       // Check if we can create them at the root, otherwise use the default
       // account as root folder.
       let rootMsgFolder = folder.server.rootMsgFolder;
@@ -2619,6 +2673,35 @@ customElements.whenDefined("tree-view-listrow").then(() => {
   }
   customElements.define("thread-listrow", ThreadListrow, { extends: "tr" });
 });
+
+commandController.registerCallback(
+  "cmd_newFolder",
+  () => folderPane.newFolder(gFolder),
+  () => folderPaneContextMenu.getCommandState("cmd_newFolder")
+);
+commandController.registerCallback("cmd_newVirtualFolder", () =>
+  folderPane.newVirtualFolder(undefined, undefined, gFolder)
+);
+commandController.registerCallback(
+  "cmd_deleteFolder",
+  () => folderPane.deleteFolder(gFolder),
+  () => folderPaneContextMenu.getCommandState("cmd_deleteFolder")
+);
+commandController.registerCallback(
+  "cmd_renameFolder",
+  () => folderPane.renameFolder(gFolder),
+  () => folderPaneContextMenu.getCommandState("cmd_renameFolder")
+);
+commandController.registerCallback(
+  "cmd_compactFolder",
+  () => folderPane.compactFolders([gFolder]),
+  () => folderPaneContextMenu.getCommandState("cmd_compactFolder")
+);
+commandController.registerCallback(
+  "cmd_emptyTrash",
+  () => folderPane.emptyTrash(gFolder),
+  () => folderPaneContextMenu.getCommandState("cmd_emptyTrash")
+);
 
 commandController.registerCallback("cmd_viewClassicMailLayout", () =>
   Services.prefs.setIntPref("mail.pane_config.dynamic", 0)

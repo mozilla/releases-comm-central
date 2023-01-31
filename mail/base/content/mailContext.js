@@ -63,7 +63,7 @@ function openContextMenu({ data, target }) {
 
 var mailContextMenu = {
   // Commands handled by commandController.
-  _commandMap: {
+  _commands: {
     "mailContext-editDraftMsg": "cmd_editDraftMsg",
     "mailContext-newMsgFromTemplate": "cmd_newMsgFromTemplate",
     "mailContext-editTemplateMsg": "cmd_editTemplateMsg",
@@ -96,7 +96,7 @@ var mailContextMenu = {
 
   // More commands handled by commandController, except these ones get
   // disabled instead of hidden.
-  _alwaysVisibleCommandMap: {
+  _alwaysVisibleCommands: {
     "mailContext-markRead": "cmd_markAsRead",
     "mailContext-markUnread": "cmd_markAsUnread",
     "mailContext-markThreadAsRead": "cmd_markThreadAsRead",
@@ -236,10 +236,10 @@ var mailContextMenu = {
     }
 
     // Ask commandController about the commands it controls.
-    for (let [id, command] of Object.entries(this._commandMap)) {
+    for (let [id, command] of Object.entries(this._commands)) {
       showItem(id, commandController.isCommandEnabled(command));
     }
-    for (let [id, command] of Object.entries(this._alwaysVisibleCommandMap)) {
+    for (let [id, command] of Object.entries(this._alwaysVisibleCommands)) {
       enableItem(id, commandController.isCommandEnabled(command));
     }
 
@@ -367,13 +367,13 @@ var mailContextMenu = {
 
   onMailContextMenuCommand(event) {
     // If commandController handles this command, ask it to do so.
-    if (event.target.id in this._commandMap) {
-      commandController.doCommand(this._commandMap[event.target.id], event);
+    if (event.target.id in this._commands) {
+      commandController.doCommand(this._commands[event.target.id], event);
       return;
     }
-    if (event.target.id in this._alwaysVisibleCommandMap) {
+    if (event.target.id in this._alwaysVisibleCommands) {
       commandController.doCommand(
-        this._alwaysVisibleCommandMap[event.target.id],
+        this._alwaysVisibleCommands[event.target.id],
         event
       );
       return;

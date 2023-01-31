@@ -166,13 +166,6 @@ function displayMessage(uri, viewWrapper) {
   );
 }
 
-function GetSelectedMsgFolders() {
-  if (gFolder) {
-    return [gFolder];
-  }
-  return [];
-}
-
 var folderListener = {
   QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
 
