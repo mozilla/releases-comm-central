@@ -38,7 +38,6 @@ function OAuth2(scope, issuerDetails) {
   this.authorizationEndpoint = issuerDetails.authorizationEndpoint;
   this.clientId = issuerDetails.clientId;
   this.consumerSecret = issuerDetails.clientSecret || null;
-  this.useCORS = issuerDetails.useCORS;
   this.usePKCE = issuerDetails.usePKCE;
   this.redirectionEndpoint =
     issuerDetails.redirectionEndpoint || "http://localhost";
@@ -60,7 +59,6 @@ OAuth2.prototype = {
   requestWindowFeatures: "chrome,private,centerscreen,width=980,height=750",
   requestWindowTitle: "",
   scope: null,
-  useCORS: true,
   usePKCE: false,
   codeChallenge: null,
 
@@ -289,17 +287,11 @@ OAuth2.prototype = {
       }
     }
 
-    const fetchOptions = {
+    fetch(this.tokenEndpoint, {
       method: "POST",
       cache: "no-cache",
       body: data,
-    };
-
-    if (!this.useCORS) {
-      fetchOptions.mode = "no-cors";
-    }
-
-    fetch(this.tokenEndpoint, fetchOptions)
+    })
       .then(response => response.json())
       .then(result => {
         let resultStr = JSON.stringify(result, null, 2);
