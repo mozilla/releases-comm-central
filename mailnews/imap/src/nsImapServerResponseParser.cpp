@@ -2520,9 +2520,7 @@ nsImapServerResponseParser::CreateCurrentMailboxSpec(
   returnSpec->mNumOfMessages =
       (mailboxName) ? fStatusExistingMessages : fNumberOfExistingMessages;
   returnSpec->mNumOfUnseenMessages =
-      (mailboxName) ? fStatusUnseenMessages : fSeqNumOfFirstUnseenMsg;
-                                              // fSeqNumOfFirstUnseenMsg is
-                                              // wrong but causes no harm!
+      (mailboxName) ? fStatusUnseenMessages : -1;
   returnSpec->mNumOfRecentMessages =
       (mailboxName) ? fStatusRecentMessages : fNumberOfRecentMessages;
   returnSpec->mNextUID =

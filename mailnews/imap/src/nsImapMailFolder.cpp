@@ -2485,7 +2485,6 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   ChangeNumPendingTotalMessages(-mNumPendingTotalMessages);
   ChangeNumPendingUnread(-mNumPendingUnreadMessages);
   m_numServerRecentMessages = 0;  // clear this since we selected the folder.
-  m_numServerUnseenMessages = 0;  // clear this since we selected the folder.
 
   if (!mDatabase) GetDatabase();
 
@@ -2645,12 +2644,16 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   bool partialUIDFetch;
   flagState->GetPartialUIDFetch(&partialUIDFetch);
 
-  // For partial UID fetches, we can only trust the numUnread from the server.
+  // For partial UID fetches (i.e., occurs when CONDSTORE in effect), we can
+  // only trust the numUnread from the server. However, even that will only be
+  // correct if a recent imap STATUS occurred as indicated by
+  // numUnreadFromServer greater than -1.
   if (partialUIDFetch) numNewUnread = numUnreadFromServer;
 
   // If we are performing biff for this folder, tell the
   // stand-alone biff about the new high water mark
-  if (m_performingBiff && numNewUnread) {
+  if (m_performingBiff && numNewUnread &&
+      static_cast<int32_t>(numNewUnread) != -1) {
     // We must ensure that the server knows that we are performing biff.
     // Otherwise the stand-alone biff won't fire.
     nsCOMPtr<nsIMsgIncomingServer> server;
@@ -2659,8 +2662,9 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     SetNumNewMessages(numNewUnread);
   }
   SyncFlags(flagState);
-  if (mDatabase && (int32_t)(mNumUnreadMessages + m_keysToFetch.Length()) >
-                       numUnreadFromServer)
+  if (mDatabase && numUnreadFromServer > -1 &&
+      (int32_t)(mNumUnreadMessages + m_keysToFetch.Length()) >
+          numUnreadFromServer)
     mDatabase->SyncCounts();
 
   if (!m_keysToFetch.IsEmpty() && aProtocol)
@@ -2673,7 +2677,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     SetPerformingBiff(false);
   }
   aSpec->GetNumMessages(&m_numServerTotalMessages);
-  aSpec->GetNumUnseenMessages(&m_numServerUnseenMessages);
+  if (numUnreadFromServer > -1) m_numServerUnseenMessages = numUnreadFromServer;
   aSpec->GetNumRecentMessages(&m_numServerRecentMessages);
 
   // some servers don't return UIDNEXT on SELECT - don't crunch
@@ -2685,7 +2689,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   return rv;
 }
 
-/*
+/**
  * Called after successful imap STATUS response occurs. Have valid unseen value
  * if folderstatus URL produced an imap STATUS. If a NOOP occurs instead (doing
  * folderstatus from a connection SELECTed on the same folder) there is no
@@ -2712,6 +2716,14 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxStatus(
       (m_numServerUnseenMessages)
           ? m_numServerUnseenMessages
           : mNumPendingUnreadMessages + mNumUnreadMessages;
+  if (numUnread == -1) {
+    // A noop occurred so don't know server's UNSEEN number, keep using the
+    // previously known unread count.
+    MOZ_LOG(IMAP, mozilla::LogLevel::Debug,
+            ("%s: folder=%s, unread was -1, set numUnread to previousUnread=%d",
+             __func__, m_onlineFolderName.get(), previousUnreadMessages));
+    numUnread = previousUnreadMessages;
+  }
   if (numUnread != previousUnreadMessages || m_nextUID != prevNextUID) {
     int32_t unreadDelta =
         numUnread - (mNumPendingUnreadMessages + mNumUnreadMessages);

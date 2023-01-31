@@ -6568,6 +6568,7 @@ bool nsImapProtocol::FolderIsSelected(const char* mailboxName) {
 }
 
 void nsImapProtocol::OnStatusForFolder(const char* mailboxName) {
+  bool untaggedResponse;
   // RFC 3501 says:
   // "the STATUS command SHOULD NOT be used on the currently selected mailbox",
   // so use NOOP instead if mailboxName is the selected folder on this
@@ -6577,7 +6578,7 @@ void nsImapProtocol::OnStatusForFolder(const char* mailboxName) {
     // Did untagged responses occur during the NOOP response? If so, this
     // indicates new mail or other changes in the mailbox. Handle this like an
     // IDLE response which will cause a folder update.
-    if (GetServerStateParser().UntaggedResponse() &&
+    if ((untaggedResponse = GetServerStateParser().UntaggedResponse()) &&
         m_imapMailFolderSinkSelected) {
       Log("OnStatusForFolder", nullptr,
           "mailbox change on selected folder during noop");
@@ -6588,6 +6589,7 @@ void nsImapProtocol::OnStatusForFolder(const char* mailboxName) {
     // Imap connection is not in selected state or imap connection is selected
     // on a mailbox other than than the mailbox folderstatus URL is requesting
     // status for.
+    untaggedResponse = true;  // STATUS always produces an untagged response
     IncrementCommandTagNumber();
 
     nsAutoCString command(GetServerCommandTag());
@@ -6619,12 +6621,13 @@ void nsImapProtocol::OnStatusForFolder(const char* mailboxName) {
     MOZ_ASSERT(m_imapMailFolderSink != m_imapMailFolderSinkSelected);
   }
 
-  // Always do this to ensure autosync detects changes in server counts and thus
+  // Do this to ensure autosync detects changes in server counts and thus
   // triggers a full body fetch for when NOOP or STATUS is sent above.
+  // But if NOOP didn't produce an untagged response, no need to do this.
   // Note: For SELECTed noop() above, "folder sink" and "folder sink selected"
   // both reference the same folder but are not always equal. So OK to use
   // m_imapMailFolderSink below since it is correct for NOOP and STATUS cases.
-  if (GetServerStateParser().LastCommandSuccessful()) {
+  if (untaggedResponse && GetServerStateParser().LastCommandSuccessful()) {
     RefPtr<nsImapMailboxSpec> new_spec =
         GetServerStateParser().CreateCurrentMailboxSpec(mailboxName);
     if (new_spec && m_imapMailFolderSink)
