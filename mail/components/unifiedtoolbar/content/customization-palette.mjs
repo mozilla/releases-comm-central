@@ -29,6 +29,13 @@ class CustomizationPalette extends ListBoxSelection {
    */
   isEmpty = false;
 
+  /**
+   * Array of item IDs allowed to be in this palette.
+   *
+   * @type {string[]}
+   */
+  #allAvailableItems = [];
+
   connectedCallback() {
     if (super.connectedCallback()) {
       return;
@@ -59,9 +66,9 @@ class CustomizationPalette extends ListBoxSelection {
       space = undefined;
     }
     const itemsInUse = new Set(itemIds);
-    const allAvailableItems = getAvailableItemIdsForSpace(space);
-    this.isEmpty = !allAvailableItems.length;
-    const items = allAvailableItems.filter(
+    this.#allAvailableItems = getAvailableItemIdsForSpace(space);
+    this.isEmpty = !this.#allAvailableItems.length;
+    const items = this.#allAvailableItems.filter(
       itemId => !itemsInUse.has(itemId) || MULTIPLE_ALLOWED_ITEM_IDS.has(itemId)
     );
     this.replaceChildren(
@@ -70,6 +77,7 @@ class CustomizationPalette extends ListBoxSelection {
           is: "customizable-element",
         });
         element.setAttribute("item-id", itemId);
+        element.draggable = true;
         return element;
       })
     );
@@ -115,6 +123,28 @@ class CustomizationPalette extends ListBoxSelection {
         this.primaryAction(this.contextMenuFor, target);
       }
     };
+  }
+
+  handleDragSuccess(item) {
+    if (item.allowMultiple) {
+      return;
+    }
+    super.handleDragSuccess(item);
+  }
+
+  handleDrop(itemId, sibling, afterSibling) {
+    if (this.querySelector(`li[item-id="${itemId}"]`)?.allowMultiple) {
+      return;
+    }
+    super.handleDrop(itemId, sibling, afterSibling);
+  }
+
+  canAddElement(itemId) {
+    return (
+      this.#allAvailableItems.includes(itemId) &&
+      (super.canAddElement(itemId) ||
+        this.querySelector(`li[item-id="${itemId}"]`).allowMultiple)
+    );
   }
 
   /**

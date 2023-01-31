@@ -134,6 +134,8 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
     this.initialize();
 
     shadowRoot.append(styles, template);
+
+    this.addEventListener("dragover", this.#handleDragover);
   }
 
   disconnectedCallback() {
@@ -147,6 +149,17 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
 
   #handleSearch = event => {
     // Don't clear the search bar.
+    event.preventDefault();
+  };
+
+  /**
+   * Default handler to indicate nothing can be dropped in the customization,
+   * except for the dragging and dropping in the palettes and targets.
+   *
+   * @param {DragEvent} event - Drag over event.
+   */
+  #handleDragover = event => {
+    event.dataTransfer.dropEffect = "none";
     event.preventDefault();
   };
 

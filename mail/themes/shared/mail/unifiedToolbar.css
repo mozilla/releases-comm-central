@@ -100,6 +100,7 @@ unified-toolbar-customization {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  user-select: none;
 }
 
 #customizationTabs {

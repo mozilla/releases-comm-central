@@ -60,6 +60,7 @@
 
 h2 {
   margin-inline: 1rem;
+  user-select: none;
 }
 
 [is="customizable-element"] {
@@ -100,9 +101,25 @@ h2 {
   height: 2em;
   width: 2em;
   object-fit: contain;
+  pointer-events: none;
 }
 
 .preview-label {
   overflow: hidden;
   text-overflow: ellipsis;
+  user-select: none;
+}
+
+/* Drag and drop state styling */
+
+.drop-before {
+  border-inline-start: 1px solid currentColor;
+}
+
+.drop-after {
+  border-inline-end: 1px solid currentColor;
+}
+
+.dragging {
+  visibility: hidden;
 }

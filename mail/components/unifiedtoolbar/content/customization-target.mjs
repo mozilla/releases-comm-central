@@ -62,6 +62,7 @@ class CustomizationTarget extends ListBoxSelection {
         });
         element.setAttribute("item-id", itemId);
         element.setAttribute("disabled", "disabled");
+        element.draggable = true;
         return element;
       })
     );
@@ -129,6 +130,15 @@ class CustomizationTarget extends ListBoxSelection {
     this.dispatchEvent(changeEvent);
   }
 
+  /**
+   * Adopt an item from another list into this one.
+   *
+   * @param {?CustomizableElement} item - Item from another list.
+   */
+  #adoptItem(item) {
+    item?.setAttribute("disabled", "disabled");
+  }
+
   moveItemForward(...args) {
     super.moveItemForward(...args);
     this.#onChange();
@@ -136,6 +146,19 @@ class CustomizationTarget extends ListBoxSelection {
 
   moveItemBackward(...args) {
     super.moveItemBackward(...args);
+    this.#onChange();
+  }
+
+  handleDrop(itemId, sibling, afterSibling) {
+    const item = super.handleDrop(itemId, sibling, afterSibling);
+    if (item) {
+      this.#adoptItem(item);
+      this.#onChange();
+    }
+  }
+
+  handleDragSuccess(item) {
+    super.handleDragSuccess(item);
     this.#onChange();
   }
 
@@ -161,7 +184,7 @@ class CustomizationTarget extends ListBoxSelection {
     if (!item) {
       return;
     }
-    item.setAttribute("disabled", "disabled");
+    this.#adoptItem(item);
     this.append(item);
     this.#onChange();
   }
