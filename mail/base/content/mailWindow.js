@@ -781,12 +781,12 @@ nsBrowserAccess.prototype = {
     // and pass true for aSkipLoad to prevent loading of
     // about:blank
     return this.getContentWindowOrOpenURIInFrame(
-      aURI,
+      null,
       aParams,
       aWhere,
       aFlags,
       aName,
-      false
+      true
     );
   },
 
