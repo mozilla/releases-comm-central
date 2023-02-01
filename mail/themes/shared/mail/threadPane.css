@@ -27,8 +27,8 @@
 #threadPane > tree-view {
   -moz-context-properties: fill;
   fill: currentColor;
-  background-color: var(--sidebar-background-color, inherit);
-  color: var(--sidebar-text-color, inherit);
+  background-color: var(--tree-view-bg);
+  color: var(--tree-view-color);
 }
 
 #threadTree [data-properties~="unread"] {
@@ -45,6 +45,11 @@
 }
 
 #threadTree button {
+  min-height: auto;
+  min-width: auto;
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
   border: none;
 }
 
@@ -179,6 +184,7 @@ tr[data-properties~="unread"].selected .tree-view-row-unread button {
 #subjectColButton {
   /* TODO: make this density aware. */
   padding-inline-start: 44px;
+  text-indent: 0;
 }
 
 tr[is="thread-listrow"] td > .thread-container {

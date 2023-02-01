@@ -6,16 +6,19 @@
   --listbox-selected-outline: none;
   --tree-header-table-height: 30px;
   --tree-header-cell-padding: 6px;
+  --tree-header-cell-indent: 0;
 }
 
 :root[uidensity="compact"] {
-  --tree-header-cell-padding: 3px;
   --tree-header-table-height: 27px;
+  --tree-header-cell-padding: 3px;
+  --tree-header-cell-indent: 3px;
 }
 
 :root[uidensity="touch"] {
-  --tree-header-cell-padding: 9px;
   --tree-header-table-height: 36px;
+  --tree-header-cell-padding: 9px;
+  --tree-header-cell-indent: -3px;
 }
 
 @media not (prefers-contrast) {
@@ -25,7 +28,11 @@
     --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--color-blue-50));
     --listbox-selected-color: var(--sidebar-highlight-text-color, var(--color-white));
     --listbox-hover: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
+    --tree-view-bg: var(--color-white);
+    --tree-view-color: var(--color-ink-90);
     --tree-view-header-bg: var(--color-gray-05);
+    --tree-view-header-hover-bg: color-mix(in srgb, var(--color-black) 10%, transparent);
+    --tree-view-header-border-color: color-mix(in srgb, var(--splitter-color) 50%, transparent);
     --tree-row-delete-button-color: var(--color-red-60);
   }
 
@@ -34,7 +41,11 @@
       --listbox-color: var(--color-gray-05);
       --listbox-selected-bg: var(--color-gray-70);
       --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--color-blue-60));
+      --tree-view-bg: var(--color-gray-80);
+      --tree-view-color: var(--color-ink-10);
       --tree-view-header-bg: var(--color-gray-80);
+      --tree-view-header-hover-bg: color-mix(in srgb, var(--color-white) 20%, transparent);
+      --tree-view-header-border-color: var(--splitter-color);
       --tree-row-delete-button-color: var(--color-red-40);
     }
   }
@@ -48,12 +59,16 @@
     --listbox-focused-selected-bg: SelectedItem;
     --listbox-selected-outline: 2px solid SelectedItem;
     --listbox-hover: transparent;
-    --tree-view-header-bg: transparent;
+    --tree-view-bg: Field;
+    --tree-view-color: FieldText;
+    --tree-view-header-bg: Field;
+    --tree-view-header-hover-bg: color-mix(in srgb, Field 70%, hsl(0, 0%, 50%));
+    --tree-view-header-border-color: ThreeDShadow;
   }
 }
 
 :root[lwt-tree] {
-  --tree-view-header-bg: transparent;
+  --tree-view-header-bg: var(--sidebar-background-color, Field);
   --listbox-selected-bg: color-mix(in srgb, transparent 70%, var(--sidebar-highlight-background-color));
   --listbox-hover: color-mix(in srgb, transparent 80%, var(--sidebar-highlight-background-color));
 }
@@ -125,6 +140,8 @@ table[is="tree-view-table"] {
   border-spacing: 0;
   line-height: 1;
   font-size: 1rem;
+  background-color: var(--tree-view-bg);
+  color: var(--tree-view-color);
 }
 
 body:not(.layout-table) thead[is="tree-view-table-header"] {
@@ -136,7 +153,7 @@ thead[is="tree-view-table-header"] {
   position: sticky;
   inset-inline: 0;
   inset-block-start: 0;
-  background-color: var(--tree-view-header-bg);
+  background-color: var(--sidebar-background-color, var(--tree-view-header-bg));
   z-index: 1;
 }
 
@@ -153,11 +170,11 @@ thead[is="tree-view-table-header"] th:before {
 }
 
 thead[is="tree-view-table-header"] th:before {
-  border-top: 1px solid var(--in-content-border-color);
+  border-top: 1px solid var(--sidebar-border-color, var(--tree-view-header-border-color));
 }
 
 thead[is="tree-view-table-header"] th:after {
-  border-bottom: 1px solid var(--in-content-border-color);
+  border-bottom: 1px solid var(--sidebar-border-color, var(--tree-view-header-border-color));
 }
 
 thead[is="tree-view-table-header"] hr[is="pane-splitter"] {
@@ -264,6 +281,7 @@ th[data-resizable="false"] .tree-table-cell {
   font-weight: normal;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-indent: var(--tree-header-cell-indent);
   white-space: nowrap;
   text-align: start;
   padding: var(--tree-header-cell-padding);
@@ -283,12 +301,7 @@ th[data-resizable="false"] .tree-table-cell {
 }
 
 .tree-table-cell-container button:hover {
-  background-color: var(--in-content-button-background);
-}
-
-.tree-table-cell-container button:active,
-.tree-table-cell-container button:hover:active {
-  background-color: var(--in-content-button-background-hover);
+  background-color: var(--tree-view-header-hover-bg);
 }
 
 .tree-table-cell-container button.sorting {
@@ -355,7 +368,7 @@ slot[name="placeholders"] {
   box-sizing: border-box;
   inset: 120px 0 auto;
   padding: 0 40px;
-  color: var(--in-content-deemphasized-text);
+  opacity: 0.5;
   text-align: center;
 }
 
@@ -363,12 +376,12 @@ slot[name="placeholders"].show {
   display: block;
 }
 
-slot[name="placeholders"] > div{
+slot[name="placeholders"] > div {
   font-size: 1.5rem;
   line-height: 1.2;
   font-weight: 600;
   margin-block-end: 12px;
-  text-shadow: 0 1px 0px var(--in-content-page-background);
+  text-shadow: 0 1px 0 var(--sidebar-background-color, var(--tree-view-bg));
 }
 
 slot[name="placeholders"] div::before {

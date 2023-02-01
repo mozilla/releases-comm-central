@@ -2458,7 +2458,7 @@ customElements.whenDefined("tree-view-listrow").then(() => {
           this.twisty = container.appendChild(document.createElement("button"));
           this.twisty.type = "button";
           this.twisty.tabIndex = -1;
-          this.twisty.classList.add("button-flat", "button-reset", "twisty");
+          this.twisty.classList.add("button-flat", "twisty");
 
           let twistyImage = this.twisty.appendChild(
             document.createElement("img")

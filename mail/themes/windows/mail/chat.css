@@ -105,7 +105,7 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
 
 @media (-moz-windows-default-theme) {
   .conv-status-container {
-    border-bottom-color: #a9b7c9;
+    border-bottom-color: var(--color-gray-30);
   }
 
   #statusTypeIcon > .toolbarbutton-menu-dropmarker {

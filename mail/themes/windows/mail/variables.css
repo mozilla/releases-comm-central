@@ -30,7 +30,7 @@
     --toolbar-non-lwt-bgimage: none;
     --panel-separator-color: hsla(210, 4%, 10%, 0.14);
     --autocomplete-popup-url-color: hsl(210, 77%, 47%);
-    --splitter-color: #a9b7c9;
+    --splitter-color: var(--sidebar-border-color, var(--color-gray-30));
   }
 }
 

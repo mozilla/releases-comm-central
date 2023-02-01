@@ -1673,7 +1673,7 @@ class TreeViewListrow extends HTMLTableRowElement {
         const button = document.createElement("button");
         button.type = "button";
         button.tabIndex = -1;
-        button.classList.add("button-flat", "button-reset", "tree-button-flag");
+        button.classList.add("button-flat", "tree-button-flag");
 
         const img = button.appendChild(document.createElement("img"));
         img.src = "";
@@ -1688,11 +1688,7 @@ class TreeViewListrow extends HTMLTableRowElement {
         const button = document.createElement("button");
         button.type = "button";
         button.tabIndex = -1;
-        button.classList.add(
-          "button-flat",
-          "button-reset",
-          "tree-button-unread"
-        );
+        button.classList.add("button-flat", "tree-button-unread");
 
         const img = button.appendChild(document.createElement("img"));
         img.src = "";
@@ -1707,7 +1703,7 @@ class TreeViewListrow extends HTMLTableRowElement {
         const button = document.createElement("button");
         button.type = "button";
         button.tabIndex = -1;
-        button.classList.add("button-flat", "button-reset", "tree-button-spam");
+        button.classList.add("button-flat", "tree-button-spam");
 
         const img = button.appendChild(document.createElement("img"));
         img.src = "";
@@ -1722,11 +1718,7 @@ class TreeViewListrow extends HTMLTableRowElement {
         const button = document.createElement("button");
         button.type = "button";
         button.tabIndex = -1;
-        button.classList.add(
-          "button-flat",
-          "button-reset",
-          "tree-button-delete"
-        );
+        button.classList.add("button-flat", "tree-button-delete");
         document.l10n.setAttributes(button, "tree-list-view-row-delete");
 
         const img = button.appendChild(document.createElement("img"));

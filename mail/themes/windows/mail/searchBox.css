@@ -33,6 +33,13 @@
   margin-block: 2px;
 }
 
+@media (prefers-contrast) {
+  .searchBox,
+  .themeableSearchBox {
+    border-color: ThreeDDarkShadow;
+  }
+}
+
 .autocomplete-richlistitem[type^="gloda-"] {
   padding-inline-start: 12px;
 }
