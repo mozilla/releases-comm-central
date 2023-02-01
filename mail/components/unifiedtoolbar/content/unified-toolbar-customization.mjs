@@ -149,7 +149,7 @@ class UnifiedToolbarCustomization extends HTMLElement {
       tab.setAttribute("selected", true);
     }
     //TODO names of extension spaces won't work like this.
-    document.l10n.setAttributes(tab, `customize-space-${space.name}`);
+    document.l10n.setAttributes(tab, `customize-space-tab-${space.name}`);
     const tabPane = document.createElement(
       "unified-toolbar-customization-pane"
     );

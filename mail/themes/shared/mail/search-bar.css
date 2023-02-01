@@ -69,6 +69,7 @@ div {
   justify-content: space-around;
   text-overflow: clip;
   overflow: hidden;
+  white-space: nowrap;
 }
 
 input:placeholder-shown + div {

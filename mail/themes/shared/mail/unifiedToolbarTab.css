@@ -14,8 +14,16 @@ button {
   display: flex;
   align-content: center;
   gap: 6px;
+  width: 100%;
 }
 
 button[aria-selected="true"] {
   border-top: 2px solid var(--primary);
+}
+
+span {
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

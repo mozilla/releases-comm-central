@@ -32,17 +32,23 @@ customize-menu-customize =
 
 customize-title = Customize Toolbars
 
-customize-space-mail = Mail
+customize-space-tab-mail = Mail
+  .title = Mail
 
-customize-space-addressbook = Address Book
+customize-space-tab-addressbook = Address Book
+  .title = Address Book
 
-customize-space-calendar = Calendar
+customize-space-tab-calendar = Calendar
+  .title = Calendar
 
-customize-space-tasks = Tasks
+customize-space-tab-tasks = Tasks
+  .title = Tasks
 
-customize-space-chat = Chat
+customize-space-tab-chat = Chat
+  .title = Chat
 
-customize-space-settings = Settings
+customize-space-tab-settings = Settings
+  .title = Settings
 
 customize-restore-default = Restore default
 

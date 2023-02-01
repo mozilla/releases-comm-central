@@ -103,13 +103,27 @@ unified-toolbar-customization {
   user-select: none;
 }
 
+#customizationFooter div:last-child {
+  text-align: end;
+}
+
 #customizationTabs {
   display: flex;
   flex-wrap: nowrap;
+  max-width: 100vw;
 }
 
-unified-toolbar-customization-pane {
+unified-toolbar-customization-pane:not([hidden]) {
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+unified-toolbar-tab {
+  min-width: 28px;
+  overflow-x: hidden;
+  display: block;
 }
 
 unified-toolbar-tab::part(icon) {
