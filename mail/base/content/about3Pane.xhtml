@@ -78,6 +78,7 @@
   <div id="threadPane">
 #include quickFilterBar.inc.xhtml
     <tree-view id="messageThreadTree"/>
+    <!-- Thread pane templates -->
     <template id="threadPaneApplyColumnMenu">
       <xul:menu class="applyTo-menu"
                 data-l10n-id="apply-columns-to-menu"
@@ -129,6 +130,19 @@
           </menu>
         </menupopup>
       </xul:menu>
+    </template>
+    <template id="threadPaneSubjectCellTemplate">
+      <div class="thread-container">
+        <button type="button"
+                class="button-flat button-reset twisty"
+                tabindex="-1">
+          <img src="" alt="" class="twisty-icon" />
+        </button>
+        <div class="subject-line" tabindex="-1">
+          <img src="" alt="" />
+          <span></span>
+        </div>
+      </div>
     </template>
   </div>
   <hr is="pane-splitter" id="messagePaneSplitter"

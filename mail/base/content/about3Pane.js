@@ -2497,25 +2497,7 @@ customElements.whenDefined("tree-view-listrow").then(() => {
       super.connectedCallback();
 
       for (let column of threadPane.columns) {
-        let cell = document.createElement("td");
-        if (column.id == "subjectCol") {
-          let container = cell.appendChild(document.createElement("div"));
-          container.classList.add("thread-container");
-
-          this.twisty = container.appendChild(document.createElement("button"));
-          this.twisty.type = "button";
-          this.twisty.tabIndex = -1;
-          this.twisty.classList.add("button-flat", "twisty");
-
-          let twistyImage = this.twisty.appendChild(
-            document.createElement("img")
-          );
-          twistyImage.className = "twisty-icon";
-          twistyImage.src = "";
-          twistyImage.alt = "";
-        }
-
-        this.appendChild(cell).classList.add(
+        this.appendChild(document.createElement("td")).classList.add(
           `${column.id.toLowerCase()}-column`
         );
       }
@@ -2538,6 +2520,11 @@ customElements.whenDefined("tree-view-listrow").then(() => {
 
     set index(index) {
       super.index = index;
+
+      // Always set the subject line as aria-label even if the column is hidden.
+      const subjectLine = this.view.cellTextForColumn(index, "subjectCol");
+      this.setAttribute("aria-label", subjectLine);
+
       const properties = this.view.getRowProperties(index).trim();
       this.dataset.properties = properties;
 
@@ -2552,27 +2539,15 @@ customElements.whenDefined("tree-view-listrow").then(() => {
 
         // Special case for the subject column.
         if (column.id == "subjectCol") {
-          let div = cell.querySelector(".thread-container .subject-line");
-          let image, span;
-          if (div) {
-            image = div.querySelector("img");
-            span = div.querySelector("span");
-          } else {
-            div = document.createElement("div");
-            div.classList.add("subject-line");
-            div.tabIndex = -1;
-
-            image = document.createElement("img");
-            image.src = "";
-            image.alt = "";
-            div.appendChild(image);
-
-            span = document.createElement("span");
-            div.appendChild(span);
-            cell
-              .querySelector(".thread-container")
-              .replaceChildren(this.twisty, div);
-          }
+          // This cell warrants a template replacement.
+          cell.replaceChildren(
+            document
+              .getElementById("threadPaneSubjectCellTemplate")
+              .content.cloneNode(true)
+          );
+          const div = cell.querySelector(".subject-line");
+          const image = div.querySelector("img");
+          const span = div.querySelector("span");
 
           // Indent child message of this thread.
           div.style.setProperty("--thread-level", this.view.getLevel(index));
@@ -2580,7 +2555,7 @@ customElements.whenDefined("tree-view-listrow").then(() => {
           if (imageFluentID) {
             document.l10n.setAttributes(image, imageFluentID);
           }
-          span.textContent = this.view.cellTextForColumn(index, column.id);
+          span.textContent = subjectLine;
           continue;
         }
 
@@ -2617,11 +2592,6 @@ customElements.whenDefined("tree-view-listrow").then(() => {
 
         cell.textContent = this.view.cellTextForColumn(index, column.id);
       }
-
-      this.setAttribute(
-        "aria-label",
-        this.view.cellTextForColumn(index, "subjectCol")
-      );
     }
 
     /**
