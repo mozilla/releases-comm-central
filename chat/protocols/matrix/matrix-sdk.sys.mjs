@@ -10,10 +10,10 @@ import {
   setTimeout,
 } from "resource://gre/modules/Timer.sys.mjs";
 import { scriptError } from "resource:///modules/imXPCOMUtils.sys.mjs";
-
-const { Loader, Require } = ChromeUtils.import(
-  "resource://devtools/shared/loader/base-loader.js"
-);
+import {
+  Loader,
+  Require,
+} from "resource://devtools/shared/loader/base-loader.sys.mjs";
 
 /**
  * Set of packages that have a top level index.js. This makes it so we don't
