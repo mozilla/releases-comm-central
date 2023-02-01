@@ -40,14 +40,8 @@ const { SmimeUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/smimeUtils.jsm"
 );
 
-const { FileUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/FileUtils.sys.mjs"
-);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
-);
-const { AppConstants } = ChromeUtils.importESModule(
-  "resource://gre/modules/AppConstants.sys.mjs"
 );
 
 const MSG_TEXT = "Sundays are nothing without callaloo.";

@@ -6,9 +6,7 @@
  */
 
 let { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-let { FileUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/FileUtils.sys.mjs"
-);
+
 let { IMServices } = ChromeUtils.importESModule(
   "resource:///modules/IMServices.sys.mjs"
 );

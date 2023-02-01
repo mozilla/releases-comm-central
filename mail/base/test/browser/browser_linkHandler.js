@@ -7,9 +7,6 @@
 let { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
-let { PromiseUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/PromiseUtils.sys.mjs"
-);
 
 const TEST_DOMAIN = "http://example.org";
 const TEST_IP = "http://127.0.0.1:8888";

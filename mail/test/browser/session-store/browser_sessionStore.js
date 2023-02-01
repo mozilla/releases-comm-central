@@ -45,9 +45,6 @@ var {
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
-var { FileUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/FileUtils.sys.mjs"
-);
 var { SessionStoreManager } = ChromeUtils.import(
   "resource:///modules/SessionStoreManager.jsm"
 );

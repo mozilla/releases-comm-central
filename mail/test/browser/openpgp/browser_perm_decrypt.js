@@ -24,17 +24,12 @@ const { OpenPGPTestUtils } = ChromeUtils.import(
 const { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
-const { FileUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/FileUtils.sys.mjs"
-);
+
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 const { EnigmailPersistentCrypto } = ChromeUtils.import(
   "chrome://openpgp/content/modules/persistentCrypto.jsm"
-);
-var { AppConstants } = ChromeUtils.importESModule(
-  "resource://gre/modules/AppConstants.sys.mjs"
 );
 
 const MSG_TEXT = "Sundays are nothing without callaloo.";

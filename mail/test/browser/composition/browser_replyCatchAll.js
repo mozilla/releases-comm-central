@@ -30,10 +30,6 @@ var {
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
 
-var { Assert } = ChromeUtils.importESModule(
-  "resource://testing-common/Assert.sys.mjs"
-);
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

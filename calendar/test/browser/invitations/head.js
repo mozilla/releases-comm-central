@@ -15,7 +15,6 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { CalItipDefaultEmailTransport } = ChromeUtils.import(
   "resource:///modules/CalItipEmailTransport.jsm"
 );
-var { FileUtils } = ChromeUtils.importESModule("resource://gre/modules/FileUtils.sys.mjs");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var { FileTestUtils } = ChromeUtils.importESModule(

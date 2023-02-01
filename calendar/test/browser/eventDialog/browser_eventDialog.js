@@ -11,7 +11,6 @@ var { cancelItemDialog, formatTime, saveAndCloseItemDialog, setData } = ChromeUt
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",

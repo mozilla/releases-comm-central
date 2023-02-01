@@ -15,9 +15,6 @@ const gBrowserBundle = Services.strings.createBundle(
   "chrome://messenger/locale/addons.properties"
 );
 
-var { ExtensionsUI } = ChromeUtils.import(
-  "resource:///modules/ExtensionsUI.jsm"
-);
 ChromeUtils.defineModuleGetter(
   this,
   "Management",

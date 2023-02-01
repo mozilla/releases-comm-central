@@ -14,9 +14,7 @@ var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
 var { be_in_folder, FAKE_SERVER_HOSTNAME } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { AppConstants } = ChromeUtils.importESModule(
-  "resource://gre/modules/AppConstants.sys.mjs"
-);
+
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
