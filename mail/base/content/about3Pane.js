@@ -102,7 +102,7 @@ window.addEventListener("unload", () => {
   gViewWrapper?.close();
 });
 
-const paneLayout = {
+var paneLayout = {
   init() {
     this.folderPaneSplitter = document.getElementById("folderPaneSplitter");
     this.messagePaneSplitter = document.getElementById("messagePaneSplitter");
@@ -178,7 +178,7 @@ const paneLayout = {
   },
 };
 
-const folderPaneContextMenu = {
+var folderPaneContextMenu = {
   init() {
     let folderPaneContext = document.getElementById("folderPaneContext");
     folderPaneContext.addEventListener(
@@ -415,7 +415,7 @@ const folderPaneContextMenu = {
   },
 };
 
-const folderPane = {
+var folderPane = {
   _modes: {
     all: {
       active: false,
@@ -1700,7 +1700,7 @@ class FolderTreeRow extends HTMLLIElement {
 }
 customElements.define("folder-tree-row", FolderTreeRow, { extends: "li" });
 
-const threadPane = {
+var threadPane = {
   /**
    * The map holding the current selection of the thread tree.
    *
@@ -2385,7 +2385,7 @@ async function displayMessages(messages = []) {
   window.dispatchEvent(new CustomEvent("MsgsLoaded", { bubbles: true }));
 }
 
-const folderListener = {
+var folderListener = {
   QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
   onFolderAdded(parentFolder, childFolder) {
     folderPane.addFolder(parentFolder, childFolder);
@@ -2678,7 +2678,7 @@ commandController.registerCallback(
     gViewWrapper.dbView.selectedCount > 0
 );
 
-const sortController = {
+var sortController = {
   handleCommand(event) {
     switch (event.target.value) {
       case "ascending":
