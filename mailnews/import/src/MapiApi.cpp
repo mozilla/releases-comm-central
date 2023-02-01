@@ -1281,10 +1281,9 @@ void CMapiApi::ReportUIDProp(const char* pTag, LPSPropValue pVal) {
     } else {
       nsIID uid;
       memcpy(&uid, pVal->Value.bin.lpb, 16);
-      char* pStr = uid.ToString();
+      const char* pStr = uid.ToString().get();
       if (pStr) {
-        MAPI_TRACE2("%s %s\n", pTag, (const char*)pStr);
-        free(pStr);
+        MAPI_TRACE2("%s %s\n", pTag, pStr);
       }
     }
   } else if (pVal && (PROP_TYPE(pVal->ulPropTag) == PT_NULL)) {
