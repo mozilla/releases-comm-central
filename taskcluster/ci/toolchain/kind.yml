@@ -62,7 +62,6 @@ reference-jobs:
     - macosx64-fix-stacks
     - macosx64-minidump-stackwalk
     - macosx64-node
-    - macosx64-sdk-11.3
     - macosx64-sdk-13.0
     - macosx64-x64-compiler-rt-15
     - mingw32-rust
