@@ -958,6 +958,7 @@ NS_IMETHODIMP CreateSubfolderRunnable::Run() {
 }
 
 nsresult ProxyCreateSubfolder(nsIMsgFolder* aFolder, const nsAString& aName) {
+  NS_ENSURE_ARG_POINTER(aFolder);
   RefPtr<CreateSubfolderRunnable> createSubfolder =
       new CreateSubfolderRunnable(aFolder, aName);
   nsresult rv = NS_DispatchToMainThread(createSubfolder, NS_DISPATCH_SYNC);
