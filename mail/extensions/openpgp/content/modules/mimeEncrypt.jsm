@@ -84,8 +84,6 @@ PgpMimeEncrypt.prototype = {
     Ci.nsIScriptableInputStream
   ),
   msgCompFields: null,
-  smimeCompose: null,
-  useSmime: false,
   outStringStream: null,
 
   // 0: processing headers
@@ -107,7 +105,6 @@ PgpMimeEncrypt.prototype = {
   mimeStructure: 0,
   exitCode: -1,
   inspector: null,
-  checkSMime: true,
 
   // nsIStreamListener interface
   onStartRequest(request) {
@@ -126,30 +123,16 @@ PgpMimeEncrypt.prototype = {
     lazy.EnigmailLog.DEBUG("mimeEncrypt.js: onStopRequest\n");
   },
 
-  disableSMimeCheck() {
-    this.useSmime = false;
-    this.checkSMime = false;
-  },
-
   // nsIMsgComposeSecure interface
   requiresCryptoEncapsulation(msgIdentity, msgCompFields) {
     lazy.EnigmailLog.DEBUG("mimeEncrypt.js: requiresCryptoEncapsulation\n");
-    try {
-      // TB >= 64: we are not called for S/MIME
-      this.disableSMimeCheck();
-
-      return (
-        (this.sendFlags &
-          (lazy.EnigmailConstants.SEND_SIGNED |
-            lazy.EnigmailConstants.SEND_ENCRYPTED |
-            lazy.EnigmailConstants.SEND_VERBATIM)) !==
-        0
-      );
-    } catch (ex) {
-      console.debug(ex);
-      lazy.EnigmailLog.writeException("mimeEncrypt.js", ex);
-      throw ex;
-    }
+    return (
+      (this.sendFlags &
+        (lazy.EnigmailConstants.SEND_SIGNED |
+          lazy.EnigmailConstants.SEND_ENCRYPTED |
+          lazy.EnigmailConstants.SEND_VERBATIM)) !==
+      0
+    );
   },
 
   beginCryptoEncapsulation(
@@ -161,24 +144,6 @@ PgpMimeEncrypt.prototype = {
     isDraft
   ) {
     lazy.EnigmailLog.DEBUG("mimeEncrypt.js: beginCryptoEncapsulation\n");
-
-    if (this.checkSMime && !this.smimeCompose) {
-      LOCAL_DEBUG(
-        "mimeEncrypt.js: beginCryptoEncapsulation: ERROR MsgComposeSecure not instantiated\n"
-      );
-      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
-    }
-
-    if (this.useSmime) {
-      return this.smimeCompose.beginCryptoEncapsulation(
-        outStream,
-        recipientList,
-        msgCompFields,
-        msgIdentity,
-        sendReport,
-        isDraft
-      );
-    }
 
     if (!outStream) {
       throw Components.Exception("", Cr.NS_ERROR_NULL_POINTER);
@@ -487,15 +452,6 @@ PgpMimeEncrypt.prototype = {
   finishCryptoEncapsulation(abort, sendReport) {
     lazy.EnigmailLog.DEBUG("mimeEncrypt.js: finishCryptoEncapsulation\n");
 
-    if (this.checkSMime && !this.smimeCompose) {
-      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
-    }
-
-    if (this.useSmime) {
-      this.smimeCompose.finishCryptoEncapsulation(abort, sendReport);
-      return;
-    }
-
     if ((this.sendFlags & lazy.EnigmailConstants.SEND_VERBATIM) !== 0) {
       this.flushOutput();
       return;
@@ -604,14 +560,6 @@ PgpMimeEncrypt.prototype = {
   mimeCryptoWriteBlock(buffer, length) {
     if (gDebugLogLevel > 4) {
       LOCAL_DEBUG("mimeEncrypt.js: mimeCryptoWriteBlock: " + length + "\n");
-    }
-
-    if (this.checkSMime && !this.smimeCompose) {
-      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
-    }
-
-    if (this.useSmime) {
-      return this.smimeCompose.mimeCryptoWriteBlock(buffer, length);
     }
 
     try {
