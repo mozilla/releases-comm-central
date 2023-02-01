@@ -3050,43 +3050,52 @@ commandController.registerCallback(
 commandController.registerCallback("cmd_goStartPage", () =>
   displayWebPage(Services.urlFormatter.formatURLPref("mailnews.start_page.url"))
 );
-commandController.registerCallback("cmd_print", async () => {
-  let PrintUtils = top.PrintUtils;
-  let uris = gViewWrapper.dbView.getURIsForSelection();
-  if (uris.length == 1) {
-    if (messageBrowser.hidden) {
-      // Load the only message in a hidden browser, then use the print preview UI.
-      let messageService = MailServices.messageServiceFromURI(uris[0]);
-      await PrintUtils.loadPrintBrowser(
-        messageService.getUrlForUri(uris[0]).spec
-      );
-      PrintUtils.startPrintWindow(PrintUtils.printBrowser.browsingContext, {});
-    } else {
-      PrintUtils.startPrintWindow(
-        messageBrowser.contentWindow.content.browsingContext,
-        {}
-      );
+commandController.registerCallback(
+  "cmd_print",
+  async () => {
+    let PrintUtils = top.PrintUtils;
+    let uris = gViewWrapper.dbView.getURIsForSelection();
+    if (uris.length == 1) {
+      if (messageBrowser.hidden) {
+        // Load the only message in a hidden browser, then use the print preview UI.
+        let messageService = MailServices.messageServiceFromURI(uris[0]);
+        await PrintUtils.loadPrintBrowser(
+          messageService.getUrlForUri(uris[0]).spec
+        );
+        PrintUtils.startPrintWindow(
+          PrintUtils.printBrowser.browsingContext,
+          {}
+        );
+      } else {
+        PrintUtils.startPrintWindow(
+          messageBrowser.contentWindow.content.browsingContext,
+          {}
+        );
+      }
+      return;
     }
-    return;
-  }
 
-  // Multiple messages. Get the printer settings, then load the messages into
-  // a hidden browser and print them one at a time.
-  let ps = PrintUtils.getPrintSettings();
-  Cc["@mozilla.org/widget/printdialog-service;1"]
-    .getService(Ci.nsIPrintDialogService)
-    .showPrintDialog(window, false, ps);
-  if (ps.isCancelled) {
-    return;
-  }
-  ps.printSilent = true;
+    // Multiple messages. Get the printer settings, then load the messages into
+    // a hidden browser and print them one at a time.
+    let ps = PrintUtils.getPrintSettings();
+    Cc["@mozilla.org/widget/printdialog-service;1"]
+      .getService(Ci.nsIPrintDialogService)
+      .showPrintDialog(window, false, ps);
+    if (ps.isCancelled) {
+      return;
+    }
+    ps.printSilent = true;
 
-  for (let uri of uris) {
-    let messageService = MailServices.messageServiceFromURI(uri);
-    await PrintUtils.loadPrintBrowser(messageService.getUrlForUri(uri).spec);
-    await PrintUtils.printBrowser.browsingContext.print(ps);
+    for (let uri of uris) {
+      let messageService = MailServices.messageServiceFromURI(uri);
+      await PrintUtils.loadPrintBrowser(messageService.getUrlForUri(uri).spec);
+      await PrintUtils.printBrowser.browsingContext.print(ps);
+    }
+  },
+  () => {
+    return Boolean(gViewWrapper);
   }
-});
+);
 commandController.registerCallback(
   "cmd_recalculateJunkScore",
   () => analyzeMessagesForJunk(),
