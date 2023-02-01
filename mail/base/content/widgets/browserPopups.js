@@ -527,18 +527,14 @@ class nsContextMenu {
     this.showItem("browserContext-stop", notOnSpecialItem);
     this.showItem("browserContext-reload", notOnSpecialItem);
 
-    let loadedProtocol = "";
-    if (this.target && this.target.ownerGlobal?.top.location) {
-      loadedProtocol = this.target.ownerGlobal?.top.location.protocol;
-    }
-
     // Only show open in browser if we're not on a special item and we're not
     // on an about: or chrome: protocol - for these protocols the browser is
     // unlikely to show the same thing as we do (if at all), so therefore don't
     // offer the option.
     this.showItem(
       "browserContext-openInBrowser",
-      notOnSpecialItem && ["http:", "https:"].includes(loadedProtocol)
+      notOnSpecialItem &&
+        ["http", "https"].includes(this.contentData?.documentURIObject?.scheme)
     );
 
     // Only show browserContext-openLinkInBrowser if we're on a link and it isn't
@@ -886,7 +882,10 @@ class nsContextMenu {
   }
 
   openInBrowser() {
-    let url = this.target.ownerGlobal?.top.location.href;
+    let url = this.contentData?.documentURIObject?.spec;
+    if (!url) {
+      return;
+    }
     PlacesUtils.history
       .insert({
         url,
