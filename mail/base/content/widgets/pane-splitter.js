@@ -311,6 +311,13 @@
     }
 
     /**
+     * Collapse the splitter if it is expanded, or expand it if collapsed.
+     */
+    toggleCollapsed() {
+      this.isCollapsed = !this._isCollapsed;
+    }
+
+    /**
      * Update styling to reflect the current state.
      */
     _updateStyling() {

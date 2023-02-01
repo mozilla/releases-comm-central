@@ -6,6 +6,7 @@
 
 // mailCommon.js
 /* globals commandController, dbViewWrapperListener */
+/* globals gDBView: true, gFolder: true, gViewWrapper: true */
 
 // msgHdrView.js
 /* globals AdjustHeaderView ClearPendingReadTimer
@@ -33,7 +34,7 @@ const messengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties"
 );
 
-var gFolder, gViewWrapper, gDBView, gMessage, gMessageURI;
+var gMessage, gMessageURI;
 
 var content;
 

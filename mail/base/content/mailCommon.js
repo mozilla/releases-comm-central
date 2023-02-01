@@ -8,7 +8,7 @@
 // about:3pane and about:message must BOTH provide these:
 
 /* globals CrossFolderNavigation */ // msgViewNavigation.js
-/* globals displayMessage, gDBView, gFolder, gViewWrapper */
+/* globals displayMessage */
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -25,6 +25,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 const nsMsgViewIndex_None = 0xffffffff;
 const nsMsgKey_None = 0xffffffff;
+
+var gDBView, gFolder, gViewWrapper;
 
 var commandController = {
   _composeCommands: {

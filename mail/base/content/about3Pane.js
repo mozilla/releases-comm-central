@@ -4,6 +4,7 @@
 
 // mailCommon.js
 /* globals commandController, dbViewWrapperListener, nsMsgViewIndex_None */
+/* globals gDBView: true, gFolder: true, gViewWrapper: true */
 
 // mailContext.js
 /* globals mailContextMenu */
@@ -53,12 +54,8 @@ const { DEFAULT_COLUMNS } = ChromeUtils.importESModule(
   "chrome://messenger/content/thread-pane-columns.mjs"
 );
 
-var gFolder, gViewWrapper, gDBView;
 var folderTree,
-  folderPaneSplitter,
-  treeTable,
   threadTree,
-  messagePaneSplitter,
   webBrowser,
   messageBrowser,
   multiMessageBrowser,
@@ -71,26 +68,10 @@ window.addEventListener("DOMContentLoaded", async event => {
 
   UIDensity.registerWindow(window);
 
-  // Initialize the folder pane.
-  folderTree = document.getElementById("folderTree");
+  paneLayout.init();
+  folderPaneContextMenu.init();
   await folderPane.init();
-
-  // Ensure TreeViewListbox and its classes are properly defined.
-  await customElements.whenDefined("tree-view-listrow");
-
-  // Initialize the thread pane before the folder pane in order to have the UI
-  // ready when a folder is selected.
-  let tree = document.getElementById("messageThreadTree");
-  treeTable = tree.table;
-  treeTable.editable = true;
-  threadTree = treeTable.listbox;
-  treeTable.setPopupMenuTemplates([
-    "threadPaneApplyColumnMenu",
-    "threadPaneApplyViewMenu",
-  ]);
-  threadTree.id = "threadTree";
-  threadTree.setAttribute("rows", "thread-listrow");
-  threadPane.init();
+  await threadPane.init();
 
   webBrowser = document.getElementById("webBrowser");
   messageBrowser = document.getElementById("messageBrowser");
@@ -99,295 +80,20 @@ window.addEventListener("DOMContentLoaded", async event => {
 
   multiMessageBrowser.docShell.allowDNSPrefetch = false;
 
-  folderPaneSplitter = document.getElementById("folderPaneSplitter");
-  let folderPaneSplitterWidth = Services.xulStore.getValue(
-    XULSTORE_URL,
-    "folderPaneBox",
-    "width"
-  );
-  if (folderPaneSplitterWidth) {
-    folderPaneSplitter.width = folderPaneSplitterWidth;
-  }
-
-  messagePaneSplitter = document.getElementById("messagePaneSplitter");
-  let messagePaneSplitterHeight = Services.xulStore.getValue(
-    XULSTORE_URL,
-    "messagepaneboxwrapper",
-    "height"
-  );
-  if (messagePaneSplitterHeight) {
-    messagePaneSplitter.height = messagePaneSplitterHeight;
-  }
-
-  let messagePaneSplitterWidth = Services.xulStore.getValue(
-    XULSTORE_URL,
-    "messagepaneboxwrapper",
-    "width"
-  );
-  if (messagePaneSplitterWidth) {
-    messagePaneSplitter.width = messagePaneSplitterWidth;
-  }
-
-  // Setting the pane config on a preference change may turn out to be a bad
-  // idea now that we can have multiple tabs open. It'll do for now though.
-  function setLayout(layout) {
-    switch (layout) {
-      case 1:
-        document.body.classList.remove("layout-classic", "layout-vertical");
-        document.body.classList.add("layout-wide");
-        messagePaneSplitter.resizeDirection = "vertical";
-        break;
-      case 2:
-        document.body.classList.remove("layout-classic", "layout-wide");
-        document.body.classList.add("layout-vertical");
-        messagePaneSplitter.resizeDirection = "horizontal";
-        break;
-      default:
-        document.body.classList.remove("layout-wide", "layout-vertical");
-        document.body.classList.add("layout-classic");
-        messagePaneSplitter.resizeDirection = "vertical";
-        break;
-    }
-  }
-  XPCOMUtils.defineLazyPreferenceGetter(
-    this,
-    "layout",
-    "mail.pane_config.dynamic",
-    null,
-    (name, oldValue, newValue) => setLayout(newValue)
-  );
-  setLayout(this.layout);
-
-  // Set up the initial state using information which may have been provided
-  // by mailTabs.js, or the saved state from the XUL store, or the defaults.
-  // We do this *before* adding listeners, in particular the folderTree select
-  // listener, to avoid unnecessarily triggering them.
-  restoreState(window.openingState);
-  delete window.openingState;
-
-  folderPaneSplitter.addEventListener("splitter-resized", () => {
-    Services.xulStore.setValue(
-      XULSTORE_URL,
-      "folderPaneBox",
-      "width",
-      folderPaneSplitter.width
-    );
-  });
-
-  messagePaneSplitter.addEventListener("splitter-resized", () => {
-    if (messagePaneSplitter.resizeDirection == "vertical") {
-      Services.xulStore.setValue(
-        XULSTORE_URL,
-        "messagepaneboxwrapper",
-        "height",
-        messagePaneSplitter.height
-      );
-    } else {
-      Services.xulStore.setValue(
-        XULSTORE_URL,
-        "messagepaneboxwrapper",
-        "width",
-        messagePaneSplitter.width
-      );
-    }
-  });
-
-  messagePaneSplitter.addEventListener("splitter-collapsed", () => {
-    // Clear any loaded page or messages.
-    clearWebPage();
-    clearMessage();
-    clearMessages();
-
-    Services.xulStore.setValue(
-      XULSTORE_URL,
-      "messagepaneboxwrapper",
-      "collapsed",
-      true
-    );
-  });
-
-  messagePaneSplitter.addEventListener("splitter-expanded", () => {
-    // Load the selected messages.
-    threadTree.dispatchEvent(new CustomEvent("select"));
-
-    Services.xulStore.setValue(
-      XULSTORE_URL,
-      "messagepaneboxwrapper",
-      "collapsed",
-      false
-    );
-  });
-
   MailServices.mailSession.AddFolderListener(
     folderListener,
     Ci.nsIFolderListener.all
   );
 
-  folderTree.addEventListener("select", event => {
-    clearWebPage();
-    clearMessage();
-    clearMessages();
+  // Set up the initial state using information which may have been provided
+  // by mailTabs.js, or the saved state from the XUL store, or the defaults.
+  restoreState(window.openingState);
+  delete window.openingState;
 
-    let uri = folderTree.rows[folderTree.selectedIndex]?.uri;
-    if (!uri) {
-      return;
-    }
-
-    gFolder = MailServices.folderLookup.getFolderForURL(uri);
-
-    document.head.querySelector(
-      `link[rel="icon"]`
-    ).href = FolderUtils.getFolderIcon(gFolder);
-
-    // Clean up any existing view wrapper.
-    gViewWrapper?.close();
-    threadTree.invalidate();
-
-    if (gFolder.isServer) {
-      document.title = gFolder.server.prettyName;
-      gViewWrapper = gDBView = threadTree.view = null;
-
-      MailE10SUtils.loadURI(
-        accountCentralBrowser,
-        `chrome://messenger/content/msgAccountCentral.xhtml?folderURI=${encodeURIComponent(
-          gFolder.URI
-        )}`
-      );
-      document.body.classList.add("account-central");
-      accountCentralBrowser.hidden = false;
-    } else {
-      document.title = `${gFolder.name} - ${gFolder.server.prettyName}`;
-      document.body.classList.remove("account-central");
-      accountCentralBrowser.hidden = true;
-
-      threadPane.restoreColumns();
-
-      gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
-      gViewWrapper._viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
-      gViewWrapper.open(gFolder);
-      gDBView = gViewWrapper.dbView;
-
-      // Tell the view about the tree. nsITreeView.setTree can't be used because
-      // it needs a XULTreeElement and threadTree isn't one. Strictly speaking
-      // the shim passed here isn't a tree either (TreeViewListbox can't be made
-      // to QI to anything) but it does implement the required methods.
-      gViewWrapper.dbView?.setJSTree({
-        QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
-        _inBatch: false,
-        beginUpdateBatch() {
-          this._inBatch = true;
-        },
-        endUpdateBatch() {
-          this._inBatch = false;
-        },
-        ensureRowIsVisible(index) {
-          if (!this._inBatch) {
-            threadTree.scrollToIndex(index);
-          }
-        },
-        invalidate() {
-          if (!this._inBatch) {
-            threadTree.invalidate();
-          }
-        },
-        invalidateRange(startIndex, endIndex) {
-          if (this._inBatch) {
-            return;
-          }
-
-          for (let index = startIndex; index <= endIndex; index++) {
-            threadTree.invalidateRow(index);
-          }
-        },
-        rowCountChanged(index, count) {
-          if (!this._inBatch) {
-            threadTree.rowCountChanged(index, count);
-          }
-        },
-      });
-
-      threadPane.restoreSortIndicator();
-    }
-
-    window.dispatchEvent(
-      new CustomEvent("folderURIChanged", { bubbles: true, detail: uri })
-    );
-  });
-
-  folderTree.addEventListener("contextmenu", event => {
-    if (folderTree.selectedIndex == -1) {
-      return;
-    }
-
-    folderTree.selectedIndex = folderTree.rows.indexOf(
-      event.target.closest("li")
-    );
-
-    let popup = document.getElementById("folderPaneContext");
-    popup.openPopupAtScreen(event.screenX, event.screenY, true);
-    event.preventDefault();
-  });
-
-  folderTree.addEventListener("collapsed", ({ target }) => {
-    if (target.uri) {
-      let mode = target.closest("[data-mode]").dataset.mode;
-      FolderTreeProperties.setIsExpanded(target.uri, mode, false);
-    }
-  });
-
-  folderTree.addEventListener("expanded", ({ target }) => {
-    if (target.uri) {
-      let mode = target.closest("[data-mode]").dataset.mode;
-      FolderTreeProperties.setIsExpanded(target.uri, mode, true);
-    }
-  });
-
-  let folderPaneContext = document.getElementById("folderPaneContext");
-  folderPaneContext.addEventListener(
-    "popupshowing",
-    folderPaneContextMenu.onPopupShowing
-  );
-  folderPaneContext.addEventListener(
-    "command",
-    folderPaneContextMenu.onCommand
-  );
-
-  quickFilterBar.init();
-
-  threadTree.addEventListener("keypress", event => {
-    if (event.key != "Enter") {
-      return;
-    }
-
-    if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)) {
-      commandController.doCommand("cmd_editDraftMsg", event);
-    } else if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)) {
-      commandController.doCommand("cmd_newMsgFromTemplate", event);
-    } else {
-      commandController.doCommand("cmd_openMessage", event);
-    }
-  });
-
-  threadTree.addEventListener("select", async event => {
-    if (messagePaneSplitter.isCollapsed || !gDBView) {
-      return;
-    }
-    clearWebPage();
-    switch (gDBView.numSelected) {
-      case 0:
-        clearMessage();
-        clearMessages();
-        return;
-      case 1:
-        let uri = gDBView.getURIForViewIndex(threadTree.selectedIndex);
-        displayMessage(uri);
-        return;
-      default:
-        displayMessages(gDBView.getSelectedMsgHdrs());
-    }
-  });
-
-  // Now that the listeners are ready, fire a select event on the folder tree.
+  // Finally, add the folderTree listener and trigger it. Earlier events
+  // (triggered by `folderPane.init` and possibly `restoreState`) are ignored
+  // to avoid unnecessarily loading the thread tree or Account Central.
+  folderTree.addEventListener("select", folderPane);
   folderTree.dispatchEvent(new CustomEvent("select"));
 });
 
@@ -396,23 +102,95 @@ window.addEventListener("unload", () => {
   gViewWrapper?.close();
 });
 
-window.addEventListener("keypress", event => {
-  // These keypresses are implemented here to aid the development process.
-  // It's likely they won't remain here in future.
-  switch (event.key) {
-    case "F4":
-      Services.prefs.setIntPref(
-        "mail.pane_config.dynamic",
-        (Services.prefs.getIntPref("mail.pane_config.dynamic") + 1) % 3
-      );
-      break;
-    case "F5":
-      location.reload();
-      break;
-  }
-});
+const paneLayout = {
+  init() {
+    this.folderPaneSplitter = document.getElementById("folderPaneSplitter");
+    this.messagePaneSplitter = document.getElementById("messagePaneSplitter");
 
-var folderPaneContextMenu = {
+    for (let [splitter, properties, storeID] of [
+      [this.folderPaneSplitter, ["width"], "folderPaneBox"],
+      [this.messagePaneSplitter, ["height", "width"], "messagepaneboxwrapper"],
+    ]) {
+      for (let property of properties) {
+        let value = Services.xulStore.getValue(XULSTORE_URL, storeID, property);
+        if (value) {
+          splitter[property] = value;
+        }
+      }
+
+      splitter.storeAttr = function(attrName, attrValue) {
+        Services.xulStore.setValue(XULSTORE_URL, storeID, attrName, attrValue);
+      };
+
+      splitter.addEventListener("splitter-resized", () => {
+        if (splitter.resizeDirection == "vertical") {
+          splitter.storeAttr("height", splitter.height);
+        } else {
+          splitter.storeAttr("width", splitter.width);
+        }
+      });
+    }
+
+    this.messagePaneSplitter.addEventListener("splitter-collapsed", () => {
+      // Clear any loaded page or messages.
+      clearWebPage();
+      clearMessage();
+      clearMessages();
+      this.messagePaneSplitter.storeAttr("collapsed", true);
+    });
+
+    this.messagePaneSplitter.addEventListener("splitter-expanded", () => {
+      // Load the selected messages.
+      threadTree.dispatchEvent(new CustomEvent("select"));
+      this.messagePaneSplitter.storeAttr("collapsed", false);
+    });
+
+    XPCOMUtils.defineLazyPreferenceGetter(
+      this,
+      "layoutPreference",
+      "mail.pane_config.dynamic",
+      null,
+      (name, oldValue, newValue) => this.setLayout(newValue)
+    );
+    this.setLayout(this.layoutPreference);
+  },
+
+  setLayout(preference) {
+    document.body.classList.remove(
+      "layout-classic",
+      "layout-vertical",
+      "layout-wide"
+    );
+    switch (preference) {
+      case 1:
+        document.body.classList.add("layout-wide");
+        this.messagePaneSplitter.resizeDirection = "vertical";
+        break;
+      case 2:
+        document.body.classList.add("layout-vertical");
+        this.messagePaneSplitter.resizeDirection = "horizontal";
+        break;
+      default:
+        document.body.classList.add("layout-classic");
+        this.messagePaneSplitter.resizeDirection = "vertical";
+        break;
+    }
+  },
+};
+
+const folderPaneContextMenu = {
+  init() {
+    let folderPaneContext = document.getElementById("folderPaneContext");
+    folderPaneContext.addEventListener(
+      "popupshowing",
+      folderPaneContextMenu.onPopupShowing
+    );
+    folderPaneContext.addEventListener(
+      "command",
+      folderPaneContextMenu.onCommand
+    );
+  },
+
   onPopupShowing(event) {
     function showItem(id, show) {
       let item = document.getElementById(id);
@@ -580,8 +358,8 @@ var folderPaneContextMenu = {
       case "folderPaneContext-openNewTab":
         topChromeWindow.MsgOpenNewTabForFolders([gFolder], {
           event,
-          folderPaneVisible: !folderPaneSplitter.isCollapsed,
-          messagePaneVisible: !messagePaneSplitter.isCollapsed,
+          folderPaneVisible: !paneLayout.folderPaneSplitter.isCollapsed,
+          messagePaneVisible: !paneLayout.messagePaneSplitter.isCollapsed,
         });
         break;
       case "folderPaneContext-openNewWindow":
@@ -637,7 +415,7 @@ var folderPaneContextMenu = {
   },
 };
 
-var folderPane = {
+const folderPane = {
   _modes: {
     all: {
       active: false,
@@ -906,6 +684,8 @@ var folderPane = {
   },
 
   async init() {
+    folderTree = document.getElementById("folderTree");
+
     await FolderTreeProperties.ready;
 
     this._modeTemplate = document.getElementById("modeTemplate");
@@ -939,6 +719,27 @@ var folderPane = {
     );
     activeModes = activeModes.split(",");
     this.activeModes = activeModes;
+
+    folderTree.addEventListener("contextmenu", this);
+    folderTree.addEventListener("collapsed", this);
+    folderTree.addEventListener("expanded", this);
+  },
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "select":
+        this._onSelect(event);
+        break;
+      case "contextmenu":
+        this._onContextMenu(event);
+        break;
+      case "collapsed":
+        this._onCollapsed(event);
+        break;
+      case "expanded":
+        this._onExpanded(event);
+        break;
+    }
   },
 
   /**
@@ -1186,6 +987,129 @@ var folderPane = {
 
     if (this._modes.unread.active) {
       this._modes.unread.changeUnreadCount(folder, oldValue, newValue);
+    }
+  },
+
+  _onSelect(event) {
+    clearWebPage();
+    clearMessage();
+    clearMessages();
+
+    let uri = folderTree.rows[folderTree.selectedIndex]?.uri;
+    if (!uri) {
+      return;
+    }
+
+    gFolder = MailServices.folderLookup.getFolderForURL(uri);
+
+    document.head.querySelector(
+      `link[rel="icon"]`
+    ).href = FolderUtils.getFolderIcon(gFolder);
+
+    // Clean up any existing view wrapper.
+    gViewWrapper?.close();
+    threadTree.invalidate();
+
+    if (gFolder.isServer) {
+      document.title = gFolder.server.prettyName;
+      gViewWrapper = gDBView = threadTree.view = null;
+
+      clearWebPage();
+      clearMessage();
+      clearMessages();
+
+      MailE10SUtils.loadURI(
+        accountCentralBrowser,
+        `chrome://messenger/content/msgAccountCentral.xhtml?folderURI=${encodeURIComponent(
+          gFolder.URI
+        )}`
+      );
+      document.body.classList.add("account-central");
+      accountCentralBrowser.hidden = false;
+    } else {
+      document.title = `${gFolder.name} - ${gFolder.server.prettyName}`;
+      document.body.classList.remove("account-central");
+      accountCentralBrowser.hidden = true;
+
+      threadPane.restoreColumns();
+
+      gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
+      gViewWrapper._viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
+      gViewWrapper.open(gFolder);
+      gDBView = gViewWrapper.dbView;
+
+      // Tell the view about the tree. nsITreeView.setTree can't be used because
+      // it needs a XULTreeElement and threadTree isn't one. Strictly speaking
+      // the shim passed here isn't a tree either (TreeViewListbox can't be made
+      // to QI to anything) but it does implement the required methods.
+      gViewWrapper.dbView?.setJSTree({
+        QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
+        _inBatch: false,
+        beginUpdateBatch() {
+          this._inBatch = true;
+        },
+        endUpdateBatch() {
+          this._inBatch = false;
+        },
+        ensureRowIsVisible(index) {
+          if (!this._inBatch) {
+            threadTree.scrollToIndex(index);
+          }
+        },
+        invalidate() {
+          if (!this._inBatch) {
+            threadTree.invalidate();
+          }
+        },
+        invalidateRange(startIndex, endIndex) {
+          if (this._inBatch) {
+            return;
+          }
+
+          for (let index = startIndex; index <= endIndex; index++) {
+            threadTree.invalidateRow(index);
+          }
+        },
+        rowCountChanged(index, count) {
+          if (!this._inBatch) {
+            threadTree.rowCountChanged(index, count);
+          }
+        },
+      });
+
+      threadPane.restoreSortIndicator();
+    }
+
+    window.dispatchEvent(
+      new CustomEvent("folderURIChanged", { bubbles: true, detail: uri })
+    );
+  },
+
+  _onContextMenu(event) {
+    if (folderTree.selectedIndex == -1) {
+      return;
+    }
+
+    folderTree.selectedIndex = folderTree.rows.indexOf(
+      event.target.closest("li")
+    );
+
+    let popup = document.getElementById("folderPaneContext");
+    popup.openPopupAtScreen(event.screenX, event.screenY, true);
+    event.preventDefault();
+  },
+
+  _onCollapsed({ target }) {
+    if (target.uri) {
+      let mode = target.closest("[data-mode]").dataset.mode;
+      FolderTreeProperties.setIsExpanded(target.uri, mode, false);
+    }
+  },
+
+  _onExpanded({ target }) {
+    if (target.uri) {
+      let mode = target.closest("[data-mode]").dataset.mode;
+      FolderTreeProperties.setIsExpanded(target.uri, mode, true);
     }
   },
 
@@ -1776,7 +1700,7 @@ class FolderTreeRow extends HTMLLIElement {
 }
 customElements.define("folder-tree-row", FolderTreeRow, { extends: "li" });
 
-var threadPane = {
+const threadPane = {
   /**
    * The map holding the current selection of the thread tree.
    *
@@ -1785,6 +1709,113 @@ var threadPane = {
   _savedSelection: null,
 
   columns: DEFAULT_COLUMNS.map(column => ({ ...column })),
+
+  async init() {
+    // Ensure TreeViewListbox and its classes are properly defined.
+    await customElements.whenDefined("tree-view-listrow");
+
+    let tree = document.getElementById("messageThreadTree");
+    this.treeTable = tree.table;
+    this.treeTable.editable = true;
+    threadTree = this.treeTable.listbox;
+    this.treeTable.setPopupMenuTemplates([
+      "threadPaneApplyColumnMenu",
+      "threadPaneApplyViewMenu",
+    ]);
+    threadTree.id = "threadTree";
+    threadTree.setAttribute("rows", "thread-listrow");
+
+    quickFilterBar.init();
+
+    window.addEventListener("uidensitychange", () => {
+      this.densityChange();
+      threadTree.invalidate();
+    });
+    this.densityChange();
+
+    // No need to restore the columns state on first load since a folder hasn't
+    // been selected yet.
+    this.treeTable.setColumns(DEFAULT_COLUMNS);
+
+    // TODO: Switch this dynamically like in the address book.
+    document.body.classList.add("layout-table");
+
+    this.treeTable.addEventListener("column-resized", event => {
+      this.treeTable.setColumnsWidths(XULSTORE_URL, event);
+    });
+    this.treeTable.addEventListener("columns-changed", event => {
+      this.onColumnsVisibilityChanged(event.detail);
+    });
+    this.treeTable.addEventListener("sort-changed", event => {
+      this.onSortChanged(event.detail);
+    });
+    this.treeTable.addEventListener("toggle-flag", event => {
+      commandController.doCommand("cmd_markAsFlagged", event);
+    });
+    this.treeTable.addEventListener("toggle-unread", event => {
+      commandController.doCommand("cmd_toggleRead", event);
+    });
+    this.treeTable.addEventListener("toggle-spam", event => {
+      if (event.detail.isJunk) {
+        commandController.doCommand("cmd_markAsNotJunk", event);
+        return;
+      }
+      commandController.doCommand("cmd_markAsJunk", event);
+    });
+    this.treeTable.addEventListener("thread-changed", () => {
+      sortController.toggleThreaded();
+    });
+    this.treeTable.addEventListener("request-delete", event => {
+      commandController.doCommand("cmd_delete", event);
+    });
+
+    threadTree.addEventListener("keypress", this);
+    threadTree.addEventListener("select", this);
+  },
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "keypress":
+        this._onKeyPress(event);
+        break;
+      case "select":
+        this._onSelect(event);
+        break;
+    }
+  },
+
+  _onKeyPress(event) {
+    if (event.key != "Enter") {
+      return;
+    }
+
+    if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)) {
+      commandController.doCommand("cmd_editDraftMsg", event);
+    } else if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)) {
+      commandController.doCommand("cmd_newMsgFromTemplate", event);
+    } else {
+      commandController.doCommand("cmd_openMessage", event);
+    }
+  },
+
+  _onSelect(event) {
+    if (paneLayout.messagePaneSplitter.isCollapsed || !gDBView) {
+      return;
+    }
+    clearWebPage();
+    switch (gDBView.numSelected) {
+      case 0:
+        clearMessage();
+        clearMessages();
+        return;
+      case 1:
+        let uri = gDBView.getURIForViewIndex(threadTree.selectedIndex);
+        displayMessage(uri);
+        return;
+      default:
+        displayMessages(gDBView.getSelectedMsgHdrs());
+    }
+  },
 
   /**
    * Make the list rows density aware.
@@ -1804,53 +1835,6 @@ var threadPane = {
         rowClass.ROW_HEIGHT = 22;
         break;
     }
-  },
-
-  init() {
-    // No need to restore the columns state on first load since a folder hasn't
-    // been selected yet.
-    treeTable.setColumns(DEFAULT_COLUMNS);
-
-    window.addEventListener("uidensitychange", () => {
-      this.densityChange();
-      threadTree.invalidate();
-    });
-    this.densityChange();
-
-    // TODO: Switch this dynamically like in the address book.
-    document.body.classList.add("layout-table");
-
-    treeTable.addEventListener("column-resized", event => {
-      treeTable.setColumnsWidths(XULSTORE_URL, event);
-    });
-    treeTable.addEventListener("columns-changed", event => {
-      this.onColumnsVisibilityChanged(event.detail);
-    });
-    treeTable.addEventListener("sort-changed", event => {
-      this.onSortChanged(event.detail);
-    });
-    treeTable.addEventListener("restore-columns", () => {
-      this.restoreDefaultColumns();
-    });
-    treeTable.addEventListener("toggle-flag", event => {
-      commandController.doCommand("cmd_markAsFlagged", event);
-    });
-    treeTable.addEventListener("toggle-unread", event => {
-      commandController.doCommand("cmd_toggleRead", event);
-    });
-    treeTable.addEventListener("toggle-spam", event => {
-      if (event.detail.isJunk) {
-        commandController.doCommand("cmd_markAsNotJunk", event);
-        return;
-      }
-      commandController.doCommand("cmd_markAsJunk", event);
-    });
-    treeTable.addEventListener("thread-changed", () => {
-      sortController.toggleThreaded();
-    });
-    treeTable.addEventListener("request-delete", event => {
-      commandController.doCommand("cmd_delete", event);
-    });
   },
 
   /**
@@ -1957,13 +1941,13 @@ var threadPane = {
    */
   updateColumns(isSimple = false) {
     if (isSimple) {
-      treeTable.updateColumns(this.columns);
+      this.treeTable.updateColumns(this.columns);
     } else {
       // The order of the columns have changed, which warrants a rebuild of the
       // full table header.
-      treeTable.setColumns(this.columns);
+      this.treeTable.setColumns(this.columns);
     }
-    treeTable.restoreColumnsWidths(XULSTORE_URL);
+    this.treeTable.restoreColumnsWidths(XULSTORE_URL);
   },
 
   /**
@@ -2065,10 +2049,10 @@ var threadPane = {
    * @param {string} column - The ID of column affecting the sorting order.
    */
   updateSortIndicator(column) {
-    treeTable
+    this.treeTable
       .querySelector(".sorting")
       ?.classList.remove("sorting", "ascending", "descending");
-    treeTable
+    this.treeTable
       .querySelector(`#${column} button`)
       ?.classList.add(
         "sorting",
@@ -2264,7 +2248,7 @@ function restoreState({
   if (folderPaneVisible === undefined) {
     folderPaneVisible = folderURI || !syntheticView;
   }
-  folderPaneSplitter.isCollapsed = !folderPaneVisible;
+  paneLayout.folderPaneSplitter.isCollapsed = !folderPaneVisible;
 
   if (messagePaneVisible === undefined) {
     messagePaneVisible =
@@ -2274,7 +2258,7 @@ function restoreState({
         "collapsed"
       ) !== "true";
   }
-  messagePaneSplitter.isCollapsed = !messagePaneVisible;
+  paneLayout.messagePaneSplitter.isCollapsed = !messagePaneVisible;
 
   if (folderURI) {
     displayFolder(folderURI);
@@ -2401,7 +2385,7 @@ async function displayMessages(messages = []) {
   window.dispatchEvent(new CustomEvent("MsgsLoaded", { bubbles: true }));
 }
 
-var folderListener = {
+const folderListener = {
   QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
   onFolderAdded(parentFolder, childFolder) {
     folderPane.addFolder(parentFolder, childFolder);
@@ -2646,10 +2630,10 @@ commandController.registerCallback("cmd_viewVerticalMailLayout", () =>
   Services.prefs.setIntPref("mail.pane_config.dynamic", 2)
 );
 commandController.registerCallback("cmd_toggleFolderPane", () => {
-  folderPaneSplitter.isCollapsed = !folderPaneSplitter.isCollapsed;
+  paneLayout.folderPaneSplitter.toggleCollapsed();
 });
 commandController.registerCallback("cmd_toggleMessagePane", () => {
-  messagePaneSplitter.isCollapsed = !messagePaneSplitter.isCollapsed;
+  paneLayout.messagePaneSplitter.toggleCollapsed();
 });
 
 commandController.registerCallback(
@@ -2694,7 +2678,7 @@ commandController.registerCallback(
     gViewWrapper.dbView.selectedCount > 0
 );
 
-var sortController = {
+const sortController = {
   handleCommand(event) {
     switch (event.target.value) {
       case "ascending":
