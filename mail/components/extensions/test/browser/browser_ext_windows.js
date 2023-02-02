@@ -19,7 +19,9 @@ let mockExternalProtocolService = {
   },
   setProtocolHandlerDefaults(handlerInfo, osHandlerExists) {},
   urlLoaded(url) {
-    return this._loadedURLs.includes(url);
+    let found = this._loadedURLs.includes(url);
+    this._loadedURLs = this._loadedURLs.filter(e => e != url);
+    return found;
   },
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 };

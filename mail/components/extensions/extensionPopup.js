@@ -14,6 +14,15 @@ var { ExtensionParent } = ChromeUtils.import(
 var { MailE10SUtils } = ChromeUtils.import(
   "resource:///modules/MailE10SUtils.jsm"
 );
+var { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
+
+XPCOMUtils.defineLazyScriptGetter(
+  this,
+  "PrintUtils",
+  "chrome://messenger/content/printUtils.js"
+);
 
 ChromeUtils.defineESModuleGetters(this, {
   PromiseUtils: "resource://gre/modules/PromiseUtils.sys.mjs",
@@ -22,6 +31,141 @@ ChromeUtils.defineESModuleGetters(this, {
 var gContextMenu;
 
 /* globals reporterListener */
+
+/**
+ * @implements {nsIBrowserDOMWindow}
+ */
+class nsBrowserAccess {
+  QueryInterface = ChromeUtils.generateQI(["nsIBrowserDOMWindow"]);
+
+  _openURIInNewTab(
+    aURI,
+    aReferrerInfo,
+    aIsExternal,
+    aOpenWindowInfo = null,
+    aTriggeringPrincipal = null,
+    aCsp = null,
+    aSkipLoad = false,
+    aMessageManagerGroup = null
+  ) {
+    // This is a popup which must not have more than one tab, so open the new tab
+    // in the most recent mail window.
+    let win = Services.wm.getMostRecentWindow("mail:3pane", true);
+
+    if (!win) {
+      // We couldn't find a suitable window, a new one needs to be opened.
+      return null;
+    }
+
+    let loadInBackground = Services.prefs.getBoolPref(
+      "browser.tabs.loadDivertedInBackground"
+    );
+
+    let tabmail = win.document.getElementById("tabmail");
+    let newTab = tabmail.openTab("contentTab", {
+      background: loadInBackground,
+      csp: aCsp,
+      linkHandler: aMessageManagerGroup,
+      openWindowInfo: aOpenWindowInfo,
+      referrerInfo: aReferrerInfo,
+      skipLoad: aSkipLoad,
+      triggeringPrincipal: aTriggeringPrincipal,
+      url: aURI ? aURI.spec : "about:blank",
+    });
+
+    win.focus();
+
+    return newTab.browser;
+  }
+
+  createContentWindow(
+    aURI,
+    aOpenWindowInfo,
+    aWhere,
+    aFlags,
+    aTriggeringPrincipal,
+    aCsp
+  ) {
+    throw Components.Exception("Not implemented", Cr.NS_ERROR_NOT_IMPLEMENTED);
+  }
+
+  createContentWindowInFrame(aURI, aParams, aWhere, aFlags, aName) {
+    // Passing a null-URI to only create the content window,
+    // and pass true for aSkipLoad to prevent loading of
+    // about:blank
+    return this.getContentWindowOrOpenURIInFrame(
+      null,
+      aParams,
+      aWhere,
+      aFlags,
+      aName,
+      true
+    );
+  }
+
+  openURI(aURI, aOpenWindowInfo, aWhere, aFlags, aTriggeringPrincipal, aCsp) {
+    throw Components.Exception("Not implemented", Cr.NS_ERROR_NOT_IMPLEMENTED);
+  }
+
+  openURIInFrame(aURI, aParams, aWhere, aFlags, aName) {
+    throw Components.Exception("Not implemented", Cr.NS_ERROR_NOT_IMPLEMENTED);
+  }
+
+  getContentWindowOrOpenURI(
+    aURI,
+    aOpenWindowInfo,
+    aWhere,
+    aFlags,
+    aTriggeringPrincipal,
+    aCsp,
+    aSkipLoad
+  ) {
+    throw Components.Exception("Not implemented", Cr.NS_ERROR_NOT_IMPLEMENTED);
+  }
+
+  getContentWindowOrOpenURIInFrame(
+    aURI,
+    aParams,
+    aWhere,
+    aFlags,
+    aName,
+    aSkipLoad
+  ) {
+    if (aWhere == Ci.nsIBrowserDOMWindow.OPEN_PRINT_BROWSER) {
+      return PrintUtils.handleStaticCloneCreatedForPrint(
+        aParams.openWindowInfo
+      );
+    }
+
+    if (aWhere != Ci.nsIBrowserDOMWindow.OPEN_NEWTAB) {
+      Services.console.logStringMessage(
+        "Error: openURIInFrame can only open in new tabs or print"
+      );
+      return null;
+    }
+
+    let isExternal = !!(aFlags & Ci.nsIBrowserDOMWindow.OPEN_EXTERNAL);
+
+    return this._openURIInNewTab(
+      aURI,
+      aParams.referrerInfo,
+      isExternal,
+      aParams.openWindowInfo,
+      aParams.triggeringPrincipal,
+      aParams.csp,
+      aSkipLoad,
+      aParams.openerBrowser?.getAttribute("messagemanagergroup")
+    );
+  }
+
+  canClose() {
+    return true;
+  }
+
+  get tabCount() {
+    return 1;
+  }
+}
 
 function loadRequestedUrl() {
   let browser = document.getElementById("requestFrame");
@@ -126,10 +270,14 @@ var gBrowserInit = {
       return permitUnload;
     };
 
+    window.browserDOMWindow = new nsBrowserAccess();
+
     let initiallyFocusedElement = document.commandDispatcher.focusedElement;
     let promise = gBrowser.selectedBrowser.isRemoteBrowser
       ? PromiseUtils.defer().promise
       : Promise.resolve();
+
+    contentProgress.addProgressListenerToBrowser(gBrowser.selectedBrowser);
 
     promise.then(() => {
       // If focus didn't move while we were waiting, we're okay to move to
@@ -187,6 +335,103 @@ var XULBrowserWindow = {
   getTabCount() {
     // Popup windows have a single tab.
     return 1;
+  },
+};
+
+/**
+ * Combines all nsIWebProgress notifications from all content browsers in this
+ * window and reports them to the registered listeners.
+ *
+ * @see WindowTracker (ext-mail.js)
+ * @see StatusListener, WindowTrackerBase (ext-tabs-base.js)
+ */
+var contentProgress = {
+  _listeners: new Set(),
+
+  addListener(listener) {
+    this._listeners.add(listener);
+  },
+
+  removeListener(listener) {
+    this._listeners.delete(listener);
+  },
+
+  callListeners(method, args) {
+    for (let listener of this._listeners.values()) {
+      if (method in listener) {
+        try {
+          listener[method](...args);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  },
+
+  /**
+   * Ensure that `browser` has a ProgressListener attached to it.
+   *
+   * @param {Browser} browser
+   */
+  addProgressListenerToBrowser(browser) {
+    if (browser?.webProgress && !browser._progressListener) {
+      browser._progressListener = new contentProgress.ProgressListener(browser);
+      browser.webProgress.addProgressListener(
+        browser._progressListener,
+        Ci.nsIWebProgress.NOTIFY_ALL
+      );
+    }
+  },
+
+  // @implements {nsIWebProgressListener}
+  // @implements {nsIWebProgressListener2}
+  ProgressListener: class {
+    QueryInterface = ChromeUtils.generateQI([
+      "nsIWebProgressListener",
+      "nsIWebProgressListener2",
+      "nsISupportsWeakReference",
+    ]);
+
+    constructor(browser) {
+      this.browser = browser;
+    }
+
+    callListeners(method, args) {
+      args.unshift(this.browser);
+      contentProgress.callListeners(method, args);
+    }
+
+    onProgressChange(...args) {
+      this.callListeners("onProgressChange", args);
+    }
+
+    onProgressChange64(...args) {
+      this.callListeners("onProgressChange64", args);
+    }
+
+    onLocationChange(...args) {
+      this.callListeners("onLocationChange", args);
+    }
+
+    onStateChange(...args) {
+      this.callListeners("onStateChange", args);
+    }
+
+    onStatusChange(...args) {
+      this.callListeners("onStatusChange", args);
+    }
+
+    onSecurityChange(...args) {
+      this.callListeners("onSecurityChange", args);
+    }
+
+    onContentBlockingEvent(...args) {
+      this.callListeners("onContentBlockingEvent", args);
+    }
+
+    onRefreshAttempted(...args) {
+      return this.callListeners("onRefreshAttempted", args);
+    }
   },
 };
 
