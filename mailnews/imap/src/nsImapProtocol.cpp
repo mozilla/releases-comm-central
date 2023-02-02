@@ -1332,16 +1332,17 @@ void nsImapProtocol::TellThreadToDie() {
   if (m_currentServerCommandTagNumber > 0 && !urlWritingData) {
     bool isAlive = false;
     if (m_transport) {
-      auto GetIsAlive = [transport = nsCOMPtr{m_transport}, &rv, &isAlive]() mutable {
+      auto GetIsAlive = [transport = nsCOMPtr{m_transport}, &rv,
+                         &isAlive]() mutable {
         rv = transport->IsAlive(&isAlive);
       };
-      nsCOMPtr<nsIEventTarget> socketThread(do_GetService(
-        NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
+      nsCOMPtr<nsIEventTarget> socketThread(
+          do_GetService(NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
       if (socketThread) {
         mozilla::SyncRunnable::DispatchToThread(
-          socketThread,
-          NS_NewRunnableFunction("nsImapProtocol::TellThreadToDie->IsAlive",
-                                  GetIsAlive));
+            socketThread,
+            NS_NewRunnableFunction("nsImapProtocol::TellThreadToDie->IsAlive",
+                                   GetIsAlive));
       } else {
         rv = NS_ERROR_NOT_AVAILABLE;
       }
@@ -1488,16 +1489,17 @@ void nsImapProtocol::ImapThreadMainLoop() {
     if (urlReadyToRun && m_runningUrl) {
       if (m_currentServerCommandTagNumber && m_transport) {
         bool isAlive;
-        auto GetIsAlive = [transport = nsCOMPtr{m_transport}, &rv, &isAlive]() mutable {
+        auto GetIsAlive = [transport = nsCOMPtr{m_transport}, &rv,
+                           &isAlive]() mutable {
           rv = transport->IsAlive(&isAlive);
         };
-        nsCOMPtr<nsIEventTarget> socketThread(do_GetService(
-          NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
+        nsCOMPtr<nsIEventTarget> socketThread(
+            do_GetService(NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
         if (socketThread) {
           mozilla::SyncRunnable::DispatchToThread(
-            socketThread,
-            NS_NewRunnableFunction("nsImapProtocol::ImapThreadMainLoop->IsAlive",
-                                   GetIsAlive));
+              socketThread,
+              NS_NewRunnableFunction(
+                  "nsImapProtocol::ImapThreadMainLoop->IsAlive", GetIsAlive));
         } else {
           rv = NS_ERROR_NOT_AVAILABLE;
         }
@@ -1855,17 +1857,16 @@ bool nsImapProtocol::ProcessCurrentURL() {
               getter_AddRefs(tlsSocketControl));
 
           if (NS_SUCCEEDED(rv) && tlsSocketControl) {
-
-            auto CallStartTLS = [sockCon = nsCOMPtr{tlsSocketControl}, &rv]() mutable {
-              rv = sockCon->StartTLS();
-            };
-            nsCOMPtr<nsIEventTarget> socketThread(do_GetService(
-              NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
+            auto CallStartTLS = [sockCon = nsCOMPtr{tlsSocketControl},
+                                 &rv]() mutable { rv = sockCon->StartTLS(); };
+            nsCOMPtr<nsIEventTarget> socketThread(
+                do_GetService(NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
             if (socketThread) {
               mozilla::SyncRunnable::DispatchToThread(
-                socketThread,
-                NS_NewRunnableFunction("nsImapProtocol::ProcessCurrentURL->StartTLS",
-                                        CallStartTLS));
+                  socketThread,
+                  NS_NewRunnableFunction(
+                      "nsImapProtocol::ProcessCurrentURL->StartTLS",
+                      CallStartTLS));
             } else {
               rv = NS_ERROR_NOT_AVAILABLE;
             }
@@ -2410,13 +2411,14 @@ nsresult nsImapProtocol::LoadImapUrlInternal() {
       auto GetSecurityInfo = [&tlsSocketControl, &securityInfo]() mutable {
         tlsSocketControl->GetSecurityInfo(getter_AddRefs(securityInfo));
       };
-      nsCOMPtr<nsIEventTarget> socketThread(do_GetService(
-        NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
+      nsCOMPtr<nsIEventTarget> socketThread(
+          do_GetService(NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
       if (socketThread) {
         mozilla::SyncRunnable::DispatchToThread(
-          socketThread,
-          NS_NewRunnableFunction("nsImapProtocol::LoadImapUrlInternal->GetSecurityInfo",
-                                 GetSecurityInfo));
+            socketThread,
+            NS_NewRunnableFunction(
+                "nsImapProtocol::LoadImapUrlInternal->GetSecurityInfo",
+                GetSecurityInfo));
       }
     }
     if (securityInfo) {
