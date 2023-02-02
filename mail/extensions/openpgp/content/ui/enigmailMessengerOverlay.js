@@ -194,6 +194,7 @@ Enigmail.msg = {
       "decryptInlinePG",
       "brokenExchangeProgress",
       "hasNestedEncryptedParts",
+      "hasConflictingKeyOpenPGP",
     ]) {
       this.removeNotification(value);
     }
@@ -202,10 +203,6 @@ Enigmail.msg = {
     let element = document.getElementById("openpgpKeyBox");
     if (element) {
       element.hidden = true;
-    }
-    element = document.getElementById("hasConflictingKeyOpenPGP");
-    if (element) {
-      element.setAttribute("hidden", true);
     }
     element = document.getElementById("signatureKeyBox");
     if (element) {
@@ -2875,26 +2872,24 @@ Enigmail.msg = {
    */
   async unhideImportKeyBox() {
     Enigmail.hdrView.notifyHasKeyAttached();
+    document.getElementById("openpgpKeyBox").removeAttribute("hidden");
 
     // Check if the proposed key to import was previously accepted.
     let hasAreadyAcceptedOther = await PgpSqliteDb2.hasAnyPositivelyAcceptedKeyForEmail(
       Enigmail.msg.authorEmail
     );
     if (hasAreadyAcceptedOther) {
-      let conflictDescription = document.getElementById(
-        "hasConflictingKeyOpenPGP"
-      );
-      document.l10n.setAttributes(
-        conflictDescription,
-        "openpgp-be-careful-new-key",
+      Enigmail.msg.notificationBox.appendNotification(
+        "hasConflictingKeyOpenPGP",
         {
-          email: Enigmail.msg.authorEmail,
-        }
+          label: await document.l10n.formatValue("openpgp-be-careful-new-key", {
+            email: Enigmail.msg.authorEmail,
+          }),
+          priority: Enigmail.msg.notificationBox.PRIORITY_INFO_HIGH,
+        },
+        null
       );
-      conflictDescription.removeAttribute("hidden");
     }
-
-    document.getElementById("openpgpKeyBox").removeAttribute("hidden");
   },
 
   /*
