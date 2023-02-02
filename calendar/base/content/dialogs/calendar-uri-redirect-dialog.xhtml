@@ -6,21 +6,22 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<window id="calendar-uri-redirect-dialog"
-        windowtype="Calendar:URIRedirect"
-        onload="onLoad()"
-        lightweightthemes="true"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        data-l10n-id="calendar-uri-redirect-window">
-
+<html id="calendar-uri-redirect-dialog" xmlns="http://www.w3.org/1999/xhtml"
+      windowtype="Calendar:URIRedirect"
+      lightweightthemes="true"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      width="600"
+      style="min-width:600px"
+      scrolling="false">
+<head>
+  <title data-l10n-id="calendar-uri-redirect-window-title"></title>
+  <link rel="localization" href="calendar/calendar-uri-redirect-dialog.ftl" />
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-uri-redirect-dialog.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <dialog buttons="accept,cancel">
-
-    <html:link rel="localization" href="calendar/calendar-uri-redirect-dialog.ftl"/>
-
-    <script src="chrome://calendar/content/calendar-uri-redirect-dialog.js"/>
-    <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
     <vbox>
       <description id="calendar-uri-redirect-description"
                    data-l10n-id="calendar-uri-redirect-description"
@@ -33,6 +34,6 @@
       <label id="targetURI" />
       <separator />
     </vbox>
-
   </dialog>
-</window>
+</html:body>
+</html>
