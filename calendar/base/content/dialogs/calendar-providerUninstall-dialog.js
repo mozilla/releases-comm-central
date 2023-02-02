@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoad */
-
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
+window.addEventListener("DOMContentLoaded", onLoad);
 function onLoad() {
   let extension = window.arguments[0].extension;
   document.getElementById("provider-name-label").value = extension.name;

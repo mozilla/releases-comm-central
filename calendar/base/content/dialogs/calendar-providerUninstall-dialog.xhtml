@@ -7,28 +7,29 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/calendar-providerUninstall-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/widgets/calendar-widgets.css"?>
 
-<!DOCTYPE window SYSTEM "chrome://calendar/locale/provider-uninstall.dtd" >
-
-<window id="calendar-provider-uninstall-dialog"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&providerUninstall.title;"
-        windowtype="Calendar:ProviderUninstall"
-        height="320"
-        width="480"
-        onload="onLoad()">
-
+<!DOCTYPE html SYSTEM "chrome://calendar/locale/provider-uninstall.dtd" >
+<html id="calendar-provider-uninstall-dialog" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="Calendar:ProviderUninstall"
+      width="480" height="320"
+      style="min-width:480px;"
+      scrolling="false">
+<head>
+  <title>&providerUninstall.title;</title>
+  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-providerUninstall-dialog.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttonlabelaccept="&providerUninstall.accept.label;"
         buttonaccesskeyaccept="&providerUninstall.accept.accesskey;">
-
-  <script src="chrome://calendar/content/calendar-providerUninstall-dialog.js"/>
-  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
 
   <description id="pre-name-description">&providerUninstall.preName.label;</description>
   <label id="provider-name-label"/>
   <description id="post-name-description">&providerUninstall.postName.label;</description>
   <description id="reinstall-note-description">&providerUninstall.reinstallNote.label;</description>
 
-  <richlistbox id="calendar-list" flex="1"/>
+  <richlistbox id="calendar-list" flex="1" />
 </dialog>
-</window>
+</html:body>
+</html>
