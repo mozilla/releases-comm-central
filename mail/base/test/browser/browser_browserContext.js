@@ -73,12 +73,25 @@ async function checkABrowser(browser, doc = browser.ownerDocument) {
     browser
   );
   await shownPromise;
-  checkMenuitems(
-    browserContext,
-    "browserContext-reload",
-    "browserContext-stop",
-    "browserContext-selectall"
-  );
+  if (
+    browser.currentURI.schemeIs("http") ||
+    browser.currentURI.schemeIs("https")
+  ) {
+    checkMenuitems(
+      browserContext,
+      "browserContext-openInBrowser",
+      "browserContext-reload",
+      "browserContext-stop",
+      "browserContext-selectall"
+    );
+  } else {
+    checkMenuitems(
+      browserContext,
+      "browserContext-reload",
+      "browserContext-stop",
+      "browserContext-selectall"
+    );
+  }
   browserContext.hidePopup();
 
   // A link.
