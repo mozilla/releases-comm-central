@@ -74,6 +74,7 @@ typedef struct MimeMultCMSdata {
   nsCOMPtr<nsICMSMessage> content_info;
   char* sender_addr;
   bool decoding_failed;
+  bool silently_ignore;
   unsigned char* item_data;
   uint32_t item_len;
   MimeObject* self;
@@ -84,6 +85,7 @@ typedef struct MimeMultCMSdata {
       : hash_type(0),
         sender_addr(nullptr),
         decoding_failed(false),
+        silently_ignore(false),
         item_data(nullptr),
         self(nullptr) {}
 
@@ -175,18 +177,13 @@ static void* MimeMultCMS_init(MimeObject* obj) {
     // have integrity protection).
     // Also we don't want to support sign-then-sign, that's misleading,
     // which part would be shown as having a signature?
-    // TODO: should we show all contents, without any signature info?
+    // We skip signature verfication, and won't update status.
 
-    if (data->smimeHeaderSink) {
-      nsAutoCString partnum;
-      partnum.Adopt(mime_part_address(data->self));
-      data->smimeHeaderSink->SignedStatus(
-          MIMEGetRelativeCryptoNestLevel(data->self),
-          nsICMSMessageErrors::GENERAL_ERROR, nullptr, data->url, partnum);
-    }
-    delete data;
-    PR_SetError(-1, 0);
-    return 0;
+    // Note: We must return a valid pointer to ourselve's data,
+    // otherwise the parent will attempt to re-init us.
+
+    data->silently_ignore = true;
+    return data;
   }
 
   ct = MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false);
@@ -257,7 +254,15 @@ static void* MimeMultCMS_init(MimeObject* obj) {
 static int MimeMultCMS_data_hash(const char* buf, int32_t size,
                                  void* crypto_closure) {
   MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
-  if (!data || !data->data_hash_context) {
+  if (!data) {
+    return -1;
+  }
+
+  if (data->silently_ignore) {
+    return 0;
+  }
+
+  if (!data->data_hash_context) {
     return -1;
   }
 
@@ -270,7 +275,15 @@ static int MimeMultCMS_data_hash(const char* buf, int32_t size,
 
 static int MimeMultCMS_data_eof(void* crypto_closure, bool abort_p) {
   MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
-  if (!data || !data->data_hash_context) {
+  if (!data) {
+    return -1;
+  }
+
+  if (data->silently_ignore) {
+    return 0;
+  }
+
+  if (!data->data_hash_context) {
     return -1;
   }
 
@@ -301,6 +314,10 @@ static int MimeMultCMS_sig_init(void* crypto_closure,
   char* ct;
   int status = 0;
   nsresult rv;
+
+  if (data->silently_ignore) {
+    return 0;
+  }
 
   if (!signature_hdrs) {
     return -1;
@@ -333,7 +350,15 @@ static int MimeMultCMS_sig_hash(const char* buf, int32_t size,
   MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
   nsresult rv;
 
-  if (!data || !data->sig_decoder_context) {
+  if (!data) {
+    return -1;
+  }
+
+  if (data->silently_ignore) {
+    return 0;
+  }
+
+  if (!data->sig_decoder_context) {
     return -1;
   }
 
@@ -348,6 +373,10 @@ static int MimeMultCMS_sig_eof(void* crypto_closure, bool abort_p) {
 
   if (!data) {
     return -1;
+  }
+
+  if (data->silently_ignore) {
+    return 0;
   }
 
   /* Hand an EOF to the crypto library.
@@ -378,6 +407,10 @@ static void MimeMultCMS_suppressed_child(void* crypto_closure) {
   // was suppressed, then I want my signature to be shown as invalid.
   MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
   if (data && data->smimeHeaderSink) {
+    if (data->silently_ignore) {
+      return;
+    }
+
     nsAutoCString partnum;
     partnum.Adopt(mime_part_address(data->self));
     data->smimeHeaderSink->SignedStatus(
@@ -407,7 +440,7 @@ static char* MimeMultCMS_generate(void* crypto_closure) {
     // We were not given all parts of the message.
     // We are therefore unable to verify correctness of the signature.
 
-    if (data->smimeHeaderSink) {
+    if (data->smimeHeaderSink && !data->silently_ignore) {
       data->smimeHeaderSink->SignedStatus(
           aRelativeNestLevel, nsICMSMessageErrors::VERIFY_NOT_YET_ATTEMPTED,
           nullptr, data->url, partnum);
@@ -434,10 +467,13 @@ static char* MimeMultCMS_generate(void* crypto_closure) {
 
   nsTArray<uint8_t> digest;
   digest.AppendElements(data->item_data, data->item_len);
-  MimeCMSRequestAsyncSignatureVerification(
-      data->content_info, from_addr.get(), from_name.get(), sender_addr.get(),
-      sender_name.get(), data->smimeHeaderSink, aRelativeNestLevel, data->url,
-      partnum, digest, data->hash_type);
+
+  if (!data->silently_ignore) {
+    MimeCMSRequestAsyncSignatureVerification(
+        data->content_info, from_addr.get(), from_name.get(), sender_addr.get(),
+        sender_name.get(), data->smimeHeaderSink, aRelativeNestLevel, data->url,
+        partnum, digest, data->hash_type);
+  }
 
   if (data->content_info) {
 #if 0  // XXX Fix this. What do we do here? //
