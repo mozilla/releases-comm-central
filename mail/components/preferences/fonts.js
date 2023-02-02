@@ -193,5 +193,4 @@ var gFontsDialog = {
   },
 };
 
-document.addEventListener("dialogaccept", () => gFontsDialog.ondialogaccept());
 window.addEventListener("load", () => gFontsDialog.init());
