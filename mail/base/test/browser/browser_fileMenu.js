@@ -47,7 +47,7 @@ const fileMenuData = {
   menu_settingsOffline: { disabled: true },
   menu_downloadFlagged: { disabled: true },
   menu_downloadSelected: { disabled: true },
-  printMenuItem: {},
+  printMenuItem: { disabled: ["mail3PaneTab"] },
   menu_FileQuitItem: {},
 };
 let helper = new MenuTestHelper("menu_File", fileMenuData);
