@@ -4,6 +4,7 @@
 from fluent.migrate import COPY_PATTERN
 from fluent.migrate.helpers import transforms_from
 
+
 def migrate(ctx):
     """Bug 1703164 - convert calendar/base/content/dialogs/calendar-uri-redirect-dialog.xhtml to top level html"""
 
