@@ -1,0 +1,26 @@
+Message-ID: <sample.eml@mime.sample>
+Date: Fri, 20 May 2000 00:29:55 -0400
+To: Heinz <mueller@example.com>
+Cc: Robin <damian@wayne-enterprises.com>
+From: Batman <bruce@wayne-enterprises.com>
+Subject: Message with a link
+Mime-Version: 1.0
+Content-Type: multipart/mixed; 
+  boundary="------------49CVLb1N6p6Spdka4qq7Naeg"
+
+This is a multi-part message in MIME format.
+--------------49CVLb1N6p6Spdka4qq7Naeg
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  </head>
+  <body>
+    <p>This is an interesting <a id="link" href="https://www.example.de/messageLink.html">link</a></p>
+  </body>
+</html>
+
+--------------49CVLb1N6p6Spdka4qq7Naeg--

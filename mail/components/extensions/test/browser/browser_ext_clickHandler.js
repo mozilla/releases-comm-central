@@ -580,3 +580,39 @@ add_task(async function test_mail3pane() {
     () => document.getElementById("tabmail").currentTabInfo.browser
   );
 });
+
+// This is actually not an extension test, but everything we need is here already
+// and we only want to simulate a click on a link in a message.
+add_task(async function test_message() {
+  let gAccount = createAccount();
+  let gRootFolder = gAccount.incomingServer.rootFolder;
+  gRootFolder.createSubfolder("test0", null);
+
+  let subFolders = {};
+  for (let folder of gRootFolder.subFolders) {
+    subFolders[folder.name] = folder;
+  }
+  await createMessageFromFile(
+    subFolders.test0,
+    getTestFilePath("messages/messageWithLink.eml")
+  );
+
+  // Select the message which has a link.
+  let gFolder = subFolders.test0;
+  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  about3Pane.displayFolder(gFolder.URI);
+  about3Pane.threadTree.selectedIndex = 0;
+
+  // Click the link.
+  let messagePane = about3Pane.messageBrowser.contentDocument.getElementById(
+    "messagepane"
+  );
+  await BrowserTestUtils.browserLoaded(messagePane);
+  await BrowserTestUtils.synthesizeMouseAtCenter("#link", {}, messagePane);
+  Assert.ok(
+    mockExternalProtocolService.urlLoaded(
+      "https://www.example.de/messageLink.html"
+    ),
+    `Link should have correctly been opened in external browser.`
+  );
+});
