@@ -97,6 +97,10 @@ window.addEventListener("DOMContentLoaded", async event => {
   // to avoid unnecessarily loading the thread tree or Account Central.
   folderTree.addEventListener("select", folderPane);
   folderTree.dispatchEvent(new CustomEvent("select"));
+
+  // Attach the progress listener for the webBrowser. For the messageBrowser this
+  // happens in the "aboutMessageLoaded" event mailWindow.js.
+  top.contentProgress.addProgressListenerToBrowser(webBrowser);
 });
 
 window.addEventListener("unload", () => {
