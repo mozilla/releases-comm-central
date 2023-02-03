@@ -41,7 +41,7 @@
   --tab-min-height: 33px;
   --lwt-tabs-border-color: rgba(0, 0, 0, .3);
   --tabs-tabbar-border-size: 1px;
-  --toolbarbutton-border-radius: 3px;
+  --button-border-radius: 3px;
   --toolbarbutton-icon-fill-opacity: .85;
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
                                         rgba(0, 0, 0, .05));

@@ -58,7 +58,7 @@
 
 .today-pane-cycler {
   appearance: none;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   padding-left: 5px;
   padding-right: 5px;
   -moz-context-properties: stroke;
@@ -168,7 +168,7 @@
   appearance: none;
   -moz-user-focus: normal;
   border: 1px solid transparent;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
 }
 
 .miniday-nav-buttons:not([disabled="true"]):hover,
@@ -244,7 +244,7 @@
   appearance: none;
   -moz-user-focus: normal;
   border: 1px solid transparent;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   margin: 2px 3px 1px;
   list-style-image: var(--icon-new-event);
   -moz-context-properties: fill, stroke, fill-opacity;

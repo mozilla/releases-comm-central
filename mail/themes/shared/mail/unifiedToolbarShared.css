@@ -36,7 +36,7 @@
   gap: 3px;
   align-items: center;
   flex-wrap: nowrap;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   background: none;
   border: none;
   min-width: initial;

@@ -125,7 +125,7 @@ calendar-invitation-interval {
 }
 
 calendar-invitation-change-indicator:not([hidden]) {
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   margin-inline-end: 3px;
   margin-block: 2px;
   padding-inline: 7px;

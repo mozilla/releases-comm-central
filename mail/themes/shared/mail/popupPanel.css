@@ -46,7 +46,7 @@ html|input.editContactTextbox {
   color: var(--toolbar-field-focus-color);
   background-color: var(--toolbar-field-focus-background-color);
   border: 1px solid var(--toolbar-field-border-color);
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   padding: 3px 8px;
   width: 20em;
 }

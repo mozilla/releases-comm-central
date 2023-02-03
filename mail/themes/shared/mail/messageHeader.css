@@ -403,7 +403,7 @@ mail-tagfield[collapsed="true"] {
 .tag {
   padding: 1px 3px;
   margin-inline-start: 0;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   border: 1px solid transparent;
 }
 
@@ -664,7 +664,7 @@ button.email-action-flagged {
   fill: color-mix(in srgb, currentColor 10%, transparent);
   stroke: color-mix(in srgb, currentColor 30%, transparent);
   align-self: center;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
 }
 
 button.email-action-flagged.flagged {
@@ -788,7 +788,7 @@ button.email-action-flagged.flagged {
 .header-message-id {
   display: flow-root;
   padding: var(--message-header-field-offset);
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
 }
 
 .header-recipient {
@@ -837,7 +837,7 @@ button.email-action-flagged.flagged {
   margin-inline-start: 3px;
   margin-block-start: -2px;
   padding: 1px;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   cursor: pointer;
   vertical-align: middle;
   background-color: transparent;

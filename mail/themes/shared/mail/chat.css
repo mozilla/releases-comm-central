@@ -72,7 +72,7 @@
   min-height: 30px;
   color: inherit;
   border: 1px solid var(--button-border-color);
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   background-color: var(--button-bgcolor);
 }
 
@@ -731,7 +731,7 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   margin-inline-start: -1px;
   padding: 3px 5px 4px;
   border: 1px solid transparent;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   background-clip: padding-box;
 }
 
@@ -855,7 +855,7 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   padding: 1px !important;
   color: inherit !important;
   border: 1px solid hsla(0, 0%, 50%, 0.5);
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   background-color: hsla(0, 0%, 50%, 0.2) !important;
   box-shadow: none;
   transition-property: background-color, border-color, box-shadow;
@@ -939,7 +939,7 @@ toolbar[mode="text"] .badgeButton-badge {
   appearance: none !important;
   padding: 1px !important;
   border: 1px solid var(--toolbarbutton-hover-bordercolor);
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   background: var(--toolbarbutton-hover-background) !important;
   box-shadow: var(--toolbarbutton-hover-boxshadow);
   transition-property: background-color, border-color, box-shadow;

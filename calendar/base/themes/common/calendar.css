@@ -50,7 +50,7 @@
   min-height: 0;
   margin: 1px 0 0;
   appearance: none;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   border: 1px solid transparent;
 }
 
@@ -141,7 +141,7 @@
 }
 
 #imip-view-toolbar > .toolbarbutton-1[is="toolbarbutton-menu-button"] {
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
 }
 
 #imip-view-toolbar > .toolbarbutton-1.message-header-view-button {

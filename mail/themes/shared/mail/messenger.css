@@ -302,7 +302,7 @@ toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolb
 .toolbarbutton-1 > .toolbarbutton-menubutton-button,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
   border: 1px solid transparent;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   transition: background-color .15s, border-color .15s;
 }
 
@@ -492,7 +492,7 @@ menulist {
   min-height: 24px;
   margin-block: 4px;
   border: 1px solid var(--toolbarbutton-hover-bordercolor);
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   background-color: var(--toolbarbutton-hover-background);
   box-shadow: var(--toolbarbutton-hover-boxshadow);
   transition-property: background-color, border-color, box-shadow;
@@ -549,7 +549,7 @@ html|input[type="color"] {
   min-width: 5.5em;
   color: inherit;
   border: 1px solid var(--button-border-color);
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   background: var(--button-bgcolor);
   margin: 1px 5px;
   padding: 0 4px;
@@ -792,7 +792,7 @@ html|ul.addon-installed-list {
   stroke: currentColor;
   padding: 3px;
   line-height: 1em;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   transition: background-color 150ms;
 }
 

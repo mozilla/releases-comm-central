@@ -177,7 +177,7 @@
   appearance: none;
   -moz-user-focus: normal;
   border: 1px solid transparent;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   margin-inline-start: 5px;
   list-style-image: var(--icon-new-task);
   -moz-image-region: rect(0 16px 16px 0);

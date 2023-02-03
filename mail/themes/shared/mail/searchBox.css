@@ -21,7 +21,7 @@
   color: FieldText;
   background-color: Field;
   border: 1px solid;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   outline: none;
   min-height: 24px;

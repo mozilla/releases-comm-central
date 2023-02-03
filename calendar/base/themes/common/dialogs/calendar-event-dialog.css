@@ -398,7 +398,7 @@ label.label {
 .formatting-button {
   appearance: none;
   border: 1px solid transparent;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   color: inherit;
   -moz-context-properties: fill;
   fill: currentColor;
@@ -448,7 +448,7 @@ label.label {
   appearance: none;
   list-style-image: url(chrome://calendar/skin/shared/chain-unlock.svg);
   margin-bottom: -15px;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   position: relative;
   -moz-user-focus: normal;
   -moz-context-properties: fill;

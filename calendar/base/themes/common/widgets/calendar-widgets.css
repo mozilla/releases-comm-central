@@ -127,7 +127,7 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   min-width: 22px;
   margin-inline: 2px;
   border: 1px solid transparent;
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   display: flex;
   align-content: center;
   justify-content: center;

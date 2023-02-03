@@ -128,7 +128,7 @@ dialog.dialog-critical {
   margin-top: 0;
   background-color: var(--red-60);
   color: var(--color-white);
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   padding: 6px;
 }
 
