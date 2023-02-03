@@ -239,6 +239,22 @@
             el.closest(".calendar-invitation-row").hidden = false;
           }
         }
+
+        if (
+          this.mode == InvitationPanel.MODE_NEW ||
+          this.mode == InvitationPanel.MODE_UPDATE_MAJOR
+        ) {
+          for (let button of this.shadowRoot.querySelectorAll("#actionButtons > button")) {
+            button.addEventListener("click", e =>
+              this.dispatchEvent(
+                new CustomEvent("calendar-invitation-panel-action", {
+                  detail: { type: button.dataset.action },
+                })
+              )
+            );
+          }
+          this.shadowRoot.getElementById("footer").hidden = false;
+        }
       }
     }
   }
@@ -289,7 +305,16 @@
             callback: (notification, opts, button, event) =>
               this._showMoreMenu(event, [
                 {
-                  l10nId: "calendar-invitation-panel-menu-item-save",
+                  l10nId: "calendar-invitation-panel-menu-item-save-copy",
+                  name: "save",
+                  command: e =>
+                    this.dispatchEvent(
+                      new CustomEvent("calendar-invitation-panel-action", {
+                        details: { type: "x-savecopy" },
+                        bubbles: true,
+                        composed: true,
+                      })
+                    ),
                 },
               ]),
           },
@@ -300,6 +325,16 @@
         buttons: [
           {
             "l10n-id": "calendar-invitation-panel-view-button",
+            callback: () => {
+              this.dispatchEvent(
+                new CustomEvent("calendar-invitation-panel-action", {
+                  detail: { type: "x-showdetails" },
+                  bubbles: true,
+                  composed: true,
+                })
+              );
+              return true;
+            },
           },
         ],
       },
@@ -307,34 +342,24 @@
         label: "calendar-invitation-panel-status-updateminor",
         priority: this.notificationBox.PRIORITY_WARNING_LOW,
         buttons: [
-          { "l10n-id": "calendar-invitation-panel-update-button" },
           {
-            "l10n-id": "calendar-invitation-panel-more-button",
-            callback: (notification, opts, button, event) =>
-              this._showMoreMenu(event, [
-                {
-                  type: "checkbox",
-                  l10nId: "calendar-invitation-panel-menu-item-toggle-changes",
-                },
-              ]),
+            "l10n-id": "calendar-invitation-panel-update-button",
+            callback: () => {
+              this.dispatchEvent(
+                new CustomEvent("calendar-invitation-panel-action", {
+                  detail: { type: "update" },
+                  bubbles: true,
+                  composed: true,
+                })
+              );
+              return true;
+            },
           },
         ],
       },
       [InvitationPanel.MODE_UPDATE_MAJOR]: {
         label: "calendar-invitation-panel-status-updatemajor",
         priority: this.notificationBox.PRIORITY_WARNING_LOW,
-        buttons: [
-          {
-            "l10n-id": "calendar-invitation-panel-more-button",
-            callback: (notification, opts, button, event) =>
-              this._showMoreMenu(event, [
-                {
-                  type: "checkbox",
-                  l10nId: "calendar-invitation-panel-menu-item-toggle-changes",
-                },
-              ]),
-          },
-        ],
       },
       [InvitationPanel.MODE_CANCELLED]: {
         label: "calendar-invitation-panel-status-cancelled",
@@ -371,10 +396,13 @@
     _showMoreMenu(event, menuitems) {
       let menu = document.getElementById("calendarInvitationPanelMoreMenu");
       menu.replaceChildren();
-      for (let { type, l10nId, command } of menuitems) {
+      for (let { type, l10nId, name, command } of menuitems) {
         let menuitem = document.createXULElement("menuitem");
         if (type) {
           menuitem.type = type;
+        }
+        if (name) {
+          menuitem.name = name;
         }
         if (command) {
           menuitem.addEventListener("command", command);

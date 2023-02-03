@@ -36,8 +36,8 @@ calendar-invitation-panel-tentative-button = Maybe
 
 calendar-invitation-panel-more-button = More
 
-calendar-invitation-panel-menu-item-save =
-  .label = Save to calendar
+calendar-invitation-panel-menu-item-save-copy =
+  .label = Save a copy
 
 calendar-invitation-panel-menu-item-toggle-changes=
   .label = Show Changes

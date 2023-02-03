@@ -50,7 +50,7 @@
   font-size: .8em;
 }
 
-.calendar-invitation-panel-details-footer {
+.calendar-invitation-panel-details-footer:not([hidden]) {
   flex-grow: 2;
   display: flex;
   align-items: baseline;

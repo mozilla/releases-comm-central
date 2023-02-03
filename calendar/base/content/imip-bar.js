@@ -473,6 +473,13 @@ var calImipBar = {
 
             if (!Components.isSuccessCode(aStatus)) {
               cal.showError(label);
+              return;
+            }
+
+            if (Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
+              window.dispatchEvent(
+                new CustomEvent("onItipItemActionFinished", { detail: aItipItem })
+              );
             }
           },
           onGetResult(calendar, status, itemType, detail, items) {},

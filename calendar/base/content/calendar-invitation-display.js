@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals gMessageListeners */
+/* globals gMessageListeners, calImipBar */
 
 // Wrap in a block to prevent leaking to window scope.
 {
@@ -49,6 +49,7 @@
       this.body = document.getElementById("messagepane");
 
       window.addEventListener("onItipItemCreation", this);
+      window.addEventListener("onItipItemActionFinished", this);
       window.addEventListener("messagepane-unloaded", this);
       document.getElementById("msgHeaderView").addEventListener("message-header-pane-hidden", this);
       gMessageListeners.push(this);
@@ -66,11 +67,19 @@
           this.init();
           break;
         case "onItipItemCreation":
+        case "onItipItemActionFinished":
           this.show(evt.detail);
           break;
         case "messagepane-unloaded":
         case "message-header-pane-hidden":
           this.hide();
+          break;
+        case "calendar-invitation-panel-action":
+          if (evt.detail.type == "update") {
+            calImipBar.executeAction();
+          } else {
+            calImipBar.executeAction(evt.detail.type.toUpperCase());
+          }
           break;
         default:
           break;
@@ -114,6 +123,8 @@
       let [item] = itipItem.getItemList();
       let [foundItem] = foundItems;
       let panel = document.createElement("calendar-invitation-panel");
+      panel.addEventListener("calendar-invitation-panel-action", this);
+
       let method = actionFunc ? actionFunc.method : itipItem.receivedMethod;
       switch (method) {
         case "REQUEST:UPDATE":
