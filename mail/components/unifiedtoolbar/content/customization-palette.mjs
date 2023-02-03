@@ -36,9 +36,24 @@ class CustomizationPalette extends ListBoxSelection {
    */
   #allAvailableItems = [];
 
+  /**
+   * If this palette contains items that can be added to all spaces.
+   *
+   * @type {boolean}
+   */
+  #allSpaces = false;
+
   connectedCallback() {
     if (super.connectedCallback()) {
       return;
+    }
+
+    this.#allSpaces = this.getAttribute("space") === "all";
+
+    if (this.#allSpaces) {
+      document
+        .getElementById("customizationPaletteAddEverywhere")
+        .addEventListener("command", this.#handleMenuAddEverywhere);
     }
 
     this.initialize();
@@ -94,6 +109,10 @@ class CustomizationPalette extends ListBoxSelection {
     const targets = this.getRootNode().querySelectorAll(
       '[is="customization-target"]'
     );
+    const addEverywhereItem = document.getElementById(
+      "customizationPaletteAddEverywhere"
+    );
+    addEverywhereItem.setAttribute("hidden", (!this.#allSpaces).toString());
     const menuItems = Array.from(targets, target => {
       const menuItem = document.createXULElement("menuitem");
       document.l10n.setAttributes(menuItem, "customize-palette-add-to", {
@@ -105,8 +124,24 @@ class CustomizationPalette extends ListBoxSelection {
       );
       return menuItem;
     });
+    menuItems.push(addEverywhereItem);
     menu.replaceChildren(...menuItems);
     this.initializeContextMenu(event);
+  };
+
+  #handleMenuAddEverywhere = () => {
+    if (this.contextMenuFor) {
+      this.primaryAction(this.contextMenuFor);
+      this.dispatchEvent(
+        new CustomEvent("additem", {
+          detail: {
+            itemId: this.contextMenuFor.getAttribute("item-id"),
+          },
+          bubbles: true,
+          composed: true,
+        })
+      );
+    }
   };
 
   /**
@@ -194,6 +229,14 @@ class CustomizationPalette extends ListBoxSelection {
     for (const item of this.children) {
       item.hidden = !item.label.toLowerCase().includes(lowerFilterString);
     }
+  }
+
+  addItemById(itemId) {
+    const item = this.querySelector(`[item-id="${itemId}"]`);
+    if (!item) {
+      return;
+    }
+    this.primaryAction(item);
   }
 }
 customElements.define("customization-palette", CustomizationPalette, {

@@ -141,6 +141,15 @@ export default class CustomizableElement extends HTMLLIElement {
     }
     this.querySelector(".live-content button")?.onTabClosing?.(tab);
   }
+
+  /**
+   * If this item can be added to all spaces.
+   *
+   * @type {boolean}
+   */
+  get allSpaces() {
+    return !this.details.spaces?.length;
+  }
 }
 customElements.define("customizable-element", CustomizableElement, {
   extends: "li",

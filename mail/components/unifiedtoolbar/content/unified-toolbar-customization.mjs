@@ -70,6 +70,12 @@ class UnifiedToolbarCustomization extends HTMLElement {
     this.addEventListener("itemchange", this.#handleItemChange, {
       capture: true,
     });
+    this.addEventListener("additem", this.#handleAddItem, {
+      capture: true,
+    });
+    this.addEventListener("removeitem", this.#handleRemoveItem, {
+      capture: true,
+    });
     this.#tabList = template.querySelector("#customizationTabs");
     this.#tabList.addEventListener("tabswitch", this.#handleTabSwitch, {
       capture: true,
@@ -104,6 +110,26 @@ class UnifiedToolbarCustomization extends HTMLElement {
     event.preventDefault();
     openPreferencesTab("paneGeneral", "layoutGroup");
     this.toggle(false);
+  };
+
+  #handleAddItem = event => {
+    event.stopPropagation();
+    const tabPanes = Array.from(
+      this.querySelectorAll("unified-toolbar-customization-pane")
+    );
+    for (const pane of tabPanes) {
+      pane.addItem(event.detail.itemId);
+    }
+  };
+
+  #handleRemoveItem = event => {
+    event.stopPropagation();
+    const tabPanes = Array.from(
+      this.querySelectorAll("unified-toolbar-customization-pane")
+    );
+    for (const pane of tabPanes) {
+      pane.removeItem(event.detail.itemId);
+    }
   };
 
   /**
@@ -252,6 +278,34 @@ class UnifiedToolbarCustomization extends HTMLElement {
     document.documentElement.classList.toggle(
       "customizingUnifiedToolbar",
       visible
+    );
+  }
+
+  /**
+   * Check if an item is active in all spaces.
+   *
+   * @param {string} itemId - Item ID of the item to check for.
+   * @returns {boolean} If the given item is found active in all spaces.
+   */
+  activeInAllSpaces(itemId) {
+    return Array.from(
+      this.querySelectorAll("unified-toolbar-customization-pane"),
+      pane => pane.hasItem(itemId)
+    ).every(hasItem => hasItem);
+  }
+
+  /**
+   * Check if an item is active in two or more spaces.
+   *
+   * @param {string} itemId - Item ID of the item to check for.
+   * @returns {boolean} If the given item is active in at least two spaces.
+   */
+  activeInMultipleSpaces(itemId) {
+    return (
+      Array.from(
+        this.querySelectorAll("unified-toolbar-customization-pane"),
+        pane => pane.hasItem(itemId)
+      ).filter(Boolean).length > 1
     );
   }
 }

@@ -34,6 +34,12 @@ class CustomizationTarget extends ListBoxSelection {
     document
       .getElementById("customizationTargetRemove")
       .addEventListener("command", this.#handleMenuRemove);
+    document
+      .getElementById("customizationTargetRemoveEverywhere")
+      .addEventListener("command", this.#handleMenuRemoveEverywhere);
+    document
+      .getElementById("customizationTargetAddEverywhere")
+      .addEventListener("command", this.#handleMenuAddEverywhere);
 
     this.initialize();
   }
@@ -82,6 +88,27 @@ class CustomizationTarget extends ListBoxSelection {
 
   handleContextMenu = event => {
     this.initializeContextMenu(event);
+    const notForAllSpaces = !this.contextMenuFor.allSpaces;
+    const removeEverywhereItem = document.getElementById(
+      "customizationTargetRemoveEverywhere"
+    );
+    const addEverywhereItem = document.getElementById(
+      "customizationTargetAddEverywhere"
+    );
+    addEverywhereItem.setAttribute("hidden", notForAllSpaces.toString());
+    removeEverywhereItem.setAttribute("hidden", notForAllSpaces.toString());
+    if (!notForAllSpaces) {
+      const customization = this.getRootNode().host.closest(
+        "unified-toolbar-customization"
+      );
+      const itemId = this.contextMenuFor.getAttribute("item-id");
+      addEverywhereItem.disabled =
+        !this.contextMenuFor.allowMultiple &&
+        customization.activeInAllSpaces(itemId);
+      removeEverywhereItem.disabled =
+        this.contextMenuFor.allowMultiple ||
+        !customization.activeInMultipleSpaces(itemId);
+    }
     document.getElementById("customizationTargetBackward").disabled =
       this.contextMenuFor === this.firstElementChild;
     document.getElementById("customizationTargetForward").disabled =
@@ -114,6 +141,35 @@ class CustomizationTarget extends ListBoxSelection {
   #handleMenuRemove = () => {
     if (this.contextMenuFor) {
       this.primaryAction(this.contextMenuFor);
+    }
+  };
+
+  #handleMenuRemoveEverywhere = () => {
+    if (this.contextMenuFor) {
+      this.primaryAction(this.contextMenuFor);
+      this.dispatchEvent(
+        new CustomEvent("removeitem", {
+          detail: {
+            itemId: this.contextMenuFor.getAttribute("item-id"),
+          },
+          bubbles: true,
+          composed: true,
+        })
+      );
+    }
+  };
+
+  #handleMenuAddEverywhere = () => {
+    if (this.contextMenuFor) {
+      this.dispatchEvent(
+        new CustomEvent("additem", {
+          detail: {
+            itemId: this.contextMenuFor.getAttribute("item-id"),
+          },
+          bubbles: true,
+          composed: true,
+        })
+      );
     }
   };
 
@@ -187,6 +243,24 @@ class CustomizationTarget extends ListBoxSelection {
     this.#adoptItem(item);
     this.append(item);
     this.#onChange();
+  }
+
+  removeItemById(itemId) {
+    const item = this.querySelector(`[item-id="${itemId}"]`);
+    if (!item) {
+      return;
+    }
+    this.primaryAction(item);
+  }
+
+  /**
+   * Check if an item is currently used in this target.
+   *
+   * @param {string} itemId - Item ID of the item to check for.
+   * @returns {boolean} If the item is currently used in this target.
+   */
+  hasItem(itemId) {
+    return Boolean(this.querySelector(`[item-id="${itemId}"]`));
   }
 
   /**

@@ -104,6 +104,9 @@ customize-palette-settings-specific-title = Available for Settings Space only
 customize-palette-add-to =
   .label = Add to { $target }
 
+customize-palette-add-everywhere =
+  .label = Add to all toolbars
+
 ## Unified toolbar customization target context menu
 
 customize-target-forward =
@@ -114,3 +117,9 @@ customize-target-backward =
 
 customize-target-remove =
   .label = Remove
+
+customize-target-remove-everywhere =
+  .label = Remove from all toolbars
+
+customize-target-add-everywhere =
+  .label = Add to all toolbars

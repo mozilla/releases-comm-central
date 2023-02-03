@@ -200,6 +200,36 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
   }
 
   /**
+   * Add an item to the default target in this space. Can only add items that
+   * are available in all spaces.
+   *
+   * @param {string} itemId - Item ID of the item to add to the default target.
+   */
+  addItem(itemId) {
+    this.#genericPalette.addItemById(itemId);
+  }
+
+  /**
+   * Remove an item from all targets in this space.
+   *
+   * @param {string} itemId - Item ID of the item to remove from this pane's
+   *   targets.
+   */
+  removeItem(itemId) {
+    this.#toolbarTarget.removeItemById(itemId);
+  }
+
+  /**
+   * Check if an item is currently in a target in this pane.
+   *
+   * @param {string} itemId - Item ID of the item to check for.
+   * @returns {boolean} If the item is currently used in this pane.
+   */
+  hasItem(itemId) {
+    return Boolean(this.#toolbarTarget.hasItem(itemId));
+  }
+
+  /**
    * If the customization state of this space matches its default state.
    *
    * @type {boolean}
