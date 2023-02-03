@@ -82,7 +82,8 @@ unified-toolbar-customization {
 .customizingUnifiedToolbar unified-toolbar-customization {
   display: flex;
   height: 100%;
-  background: white;
+  background: var(--layout-background-0);
+  color: var(--layout-color-1);
   -moz-box-flex: 1;
 }
 
@@ -101,6 +102,7 @@ unified-toolbar-customization {
   flex-direction: row;
   justify-content: space-between;
   user-select: none;
+  background: var(--layout-background-2);
 }
 
 #customizationFooter div:last-child {
@@ -118,6 +120,7 @@ unified-toolbar-customization-pane:not([hidden]) {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: var(--layout-background-1);
 }
 
 unified-toolbar-tab {

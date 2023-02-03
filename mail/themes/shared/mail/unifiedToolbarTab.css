@@ -19,6 +19,7 @@ button {
 
 button[aria-selected="true"] {
   border-top: 2px solid var(--primary);
+  background: var(--layout-background-1);
 }
 
 span {
