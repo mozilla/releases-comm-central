@@ -40,6 +40,12 @@ class CustomizationTarget extends ListBoxSelection {
     document
       .getElementById("customizationTargetAddEverywhere")
       .addEventListener("command", this.#handleMenuAddEverywhere);
+    document
+      .getElementById("customizationTargetStart")
+      .addEventListener("command", this.#handleMenuStart);
+    document
+      .getElementById("customizationTargetEnd")
+      .addEventListener("command", this.#handleMenuEnd);
 
     this.initialize();
   }
@@ -109,10 +115,18 @@ class CustomizationTarget extends ListBoxSelection {
         this.contextMenuFor.allowMultiple ||
         !customization.activeInMultipleSpaces(itemId);
     }
-    document.getElementById("customizationTargetBackward").disabled =
-      this.contextMenuFor === this.firstElementChild;
-    document.getElementById("customizationTargetForward").disabled =
-      this.contextMenuFor === this.lastElementChild;
+    const isFirstElement = this.contextMenuFor === this.firstElementChild;
+    const isLastElement = this.contextMenuFor === this.lastElementChild;
+    document.getElementById(
+      "customizationTargetBackward"
+    ).disabled = isFirstElement;
+    document.getElementById(
+      "customizationTargetForward"
+    ).disabled = isLastElement;
+    document.getElementById(
+      "customizationTargetStart"
+    ).disabled = isFirstElement;
+    document.getElementById("customizationTargetEnd").disabled = isLastElement;
   };
 
   /**
@@ -173,6 +187,18 @@ class CustomizationTarget extends ListBoxSelection {
     }
   };
 
+  #handleMenuStart = () => {
+    if (this.contextMenuFor) {
+      this.moveItemToStart(this.contextMenuFor);
+    }
+  };
+
+  #handleMenuEnd = () => {
+    if (this.contextMenuFor) {
+      this.moveItemToEnd(this.contextMenuFor);
+    }
+  };
+
   /**
    * Emit a change event. Should be called whenever items are added, moved or
    * removed from the target.
@@ -202,6 +228,16 @@ class CustomizationTarget extends ListBoxSelection {
 
   moveItemBackward(...args) {
     super.moveItemBackward(...args);
+    this.#onChange();
+  }
+
+  moveItemToStart(...args) {
+    super.moveItemToStart(...args);
+    this.#onChange();
+  }
+
+  moveItemToEnd(...args) {
+    super.moveItemToEnd(...args);
     this.#onChange();
   }
 

@@ -123,3 +123,9 @@ customize-target-remove-everywhere =
 
 customize-target-add-everywhere =
   .label = Add to all toolbars
+
+customize-target-start =
+  .label = Move to the start
+
+customize-target-end =
+  .label = Move to the end

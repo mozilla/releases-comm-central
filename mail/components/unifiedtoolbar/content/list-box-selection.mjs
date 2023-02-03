@@ -74,6 +74,11 @@ export default class ListBoxSelection extends HTMLUListElement {
     return false;
   }
 
+  disconnectedCallback() {
+    this.contextMenuFor = null;
+    this.selectedItem = null;
+  }
+
   /**
    * Default context menu event handler. Simply forwards the call to
    * initializeContextMenu.
@@ -134,36 +139,48 @@ export default class ListBoxSelection extends HTMLUListElement {
         this.primaryAction(this.selectedItem);
         break;
       case "Home":
+        if (this.canMoveItems && event.altKey) {
+          this.moveItemToStart(this.selectedItem);
+          break;
+        }
         this.selectItem(this.firstElementChild);
         break;
       case "End":
+        if (this.canMoveItems && event.altKey) {
+          this.moveItemToEnd(this.selectedItem);
+          break;
+        }
         this.selectItem(this.lastElementChild);
         break;
       case "ArrowLeft":
         if (this.canMoveItems && event.altKey) {
           if (rightIsForward) {
             this.moveItemBackward(this.selectedItem);
-          } else {
-            this.moveItemForward(this.selectedItem);
+            break;
           }
-        } else if (rightIsForward) {
-          this.selectItem(this.selectedItem?.previousElementSibling);
-        } else {
-          this.selectItem(this.selectedItem?.nextElementSibling);
+          this.moveItemForward(this.selectedItem);
+          break;
         }
+        if (rightIsForward) {
+          this.selectItem(this.selectedItem?.previousElementSibling);
+          break;
+        }
+        this.selectItem(this.selectedItem?.nextElementSibling);
         break;
       case "ArrowRight":
         if (this.canMoveItems && event.altKey) {
           if (rightIsForward) {
             this.moveItemForward(this.selectedItem);
-          } else {
-            this.moveItemBackward(this.selectedItem);
+            break;
           }
-        } else if (rightIsForward) {
-          this.selectItem(this.selectedItem?.nextElementSibling);
-        } else {
-          this.selectItem(this.selectedItem?.previousElementSibling);
+          this.moveItemBackward(this.selectedItem);
+          break;
         }
+        if (rightIsForward) {
+          this.selectItem(this.selectedItem?.nextElementSibling);
+          break;
+        }
+        this.selectItem(this.selectedItem?.previousElementSibling);
         break;
       case "ContextMenu":
         this.contextMenuFor = this.selectedItem;
@@ -436,6 +453,31 @@ export default class ListBoxSelection extends HTMLUListElement {
       return;
     }
     item.previousElementSibling?.before(item);
+  }
+
+  /**
+   * Move the item to the start of the list. Only works if canMoveItems is
+   * true.
+   *
+   * @param {CustomizableElement} item - The item to move to the start.
+   */
+  moveItemToStart(item) {
+    if (!this.canMoveItems || item === this.firstElementChild) {
+      return;
+    }
+    this.prepend(item);
+  }
+
+  /**
+   * Move the item to the end of the list. Only works if canMoveItems is true.
+   *
+   * @param {CustomizableElement} item - The item to move to the end.
+   */
+  moveItemToEnd(item) {
+    if (!this.canMoveItems || item === this.lastElementChild) {
+      return;
+    }
+    this.appendChild(item);
   }
 
   /**
