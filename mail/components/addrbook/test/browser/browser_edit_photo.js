@@ -507,7 +507,7 @@ async function subtest_paste_url() {
     Ci.nsITransferable
   );
   transfer.init(null);
-  transfer.addDataFlavor("text/unicode");
+  transfer.addDataFlavor("text/plain");
   let wrapper = Cc["@mozilla.org/supports-string;1"].createInstance(
     Ci.nsISupportsString
   );
@@ -539,7 +539,7 @@ async function subtest_paste_url() {
 
   wrapper.data =
     "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/photo1.jpg";
-  transfer.setTransferData("text/unicode", wrapper);
+  transfer.setTransferData("text/plain", wrapper);
   Services.clipboard.setData(transfer, null, Ci.nsIClipboard.kGlobalClipboard);
   EventUtils.synthesizeKey("v", { accelKey: true }, abWindow);
 
@@ -570,7 +570,7 @@ async function subtest_paste_url() {
 
   wrapper.data =
     "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/photo2.jpg";
-  transfer.setTransferData("text/unicode", wrapper);
+  transfer.setTransferData("text/plain", wrapper);
   Services.clipboard.setData(transfer, null, Ci.nsIClipboard.kGlobalClipboard);
   EventUtils.synthesizeKey("v", { accelKey: true }, abWindow);
 
@@ -598,7 +598,7 @@ async function subtest_paste_url() {
 
   wrapper.data =
     "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/fake.jpg";
-  transfer.setTransferData("text/unicode", wrapper);
+  transfer.setTransferData("text/plain", wrapper);
   Services.clipboard.setData(transfer, null, Ci.nsIClipboard.kGlobalClipboard);
   EventUtils.synthesizeKey("v", { accelKey: true }, abWindow);
 
