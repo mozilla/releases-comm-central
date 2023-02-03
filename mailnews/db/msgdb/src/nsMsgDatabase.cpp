@@ -2170,7 +2170,7 @@ NS_IMETHODIMP nsMsgDatabase::SetStringPropertyByHdr(nsIMsgDBHdr* msgHdr,
 
     nsTObserverArray<nsCOMPtr<nsIDBChangeListener>>::ForwardIterator listeners(
         m_ChangeListeners);
-    for (uint32_t i = 0; listeners.HasMore(); i++) {
+    for (uint32_t i = 0; listeners.HasMore() && i < statusArray.Length(); i++) {
       listener = listeners.GetNext();
       uint32_t status = statusArray[i];
       (void)listener->OnHdrPropertyChanged(msgHdr, nsCString(aProperty), false,
