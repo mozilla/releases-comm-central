@@ -109,6 +109,22 @@ export default [
       "chrome://messenger/content/unifiedtoolbar/space-button.mjs",
     ],
   },
+  {
+    id: "new-event",
+    labelId: "toolbar-new-event",
+    templateId: "newEventTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
+    ],
+  },
+  {
+    id: "new-task",
+    labelId: "toolbar-new-task",
+    templateId: "newTaskTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
+    ],
+  },
   // Mail space
   {
     id: "move-to",
@@ -326,21 +342,58 @@ export default [
       "chrome://messenger/content/unifiedtoolbar/quick-filter-bar-toggle.mjs",
     ],
   },
-  // Calendar space
-  {
-    id: "unifinder",
-    labelId: "toolbar-unifinder",
-    spaces: ["calendar"],
-    templateId: "calendarUnifinderTemplate",
-    requiredModules: [
-      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
-    ],
-  },
+  // Calendar & Tasks space
   {
     id: "edit-event",
     labelId: "toolbar-edit-event",
     spaces: ["calendar", "tasks"],
     templateId: "editEventTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
+    ],
+  },
+  {
+    id: "synchronize",
+    labelId: "toolbar-synchronize",
+    spaces: ["calendar", "tasks"],
+    templateId: "synchronizeTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
+    ],
+  },
+  {
+    id: "delete-event",
+    labelId: "toolbar-delete-event",
+    spaces: ["calendar", "tasks"],
+    templateId: "deleteEventTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
+    ],
+  },
+  {
+    id: "print-event",
+    labelId: "toolbar-print-event",
+    spaces: ["calendar", "tasks"],
+    templateId: "printEventTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
+    ],
+  },
+  // Calendar space
+  {
+    id: "go-to-today",
+    labelId: "toolbar-go-to-today",
+    spaces: ["calendar"],
+    templateId: "goToTodayTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
+    ],
+  },
+  {
+    id: "unifinder",
+    labelId: "toolbar-unifinder",
+    spaces: ["calendar"],
+    templateId: "calendarUnifinderTemplate",
     requiredModules: [
       "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
     ],

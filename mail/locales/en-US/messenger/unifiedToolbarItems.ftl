@@ -177,3 +177,33 @@ toolbar-quick-filter-bar-label = Quick Filter
 
 toolbar-quick-filter-bar =
     .title = Filter messages
+
+toolbar-synchronize-label = Synchronize
+
+toolbar-synchronize =
+    .title = Reload calendars and synchronize changes
+
+toolbar-delete-event-label = Delete
+
+toolbar-delete-event =
+    .title = Delete selected events or tasks
+
+toolbar-go-to-today-label = Go to Today
+
+toolbar-go-to-today =
+    .title = Go to Today
+
+toolbar-print-event-label = Print
+
+toolbar-print-event =
+    .title = Print events or tasks
+
+toolbar-new-event-label = Event
+
+toolbar-new-event =
+    .title = Create a new event
+
+toolbar-new-task-label = Task
+
+toolbar-new-task =
+    .title = Create a new task

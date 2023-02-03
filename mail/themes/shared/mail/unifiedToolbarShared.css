@@ -321,3 +321,27 @@ kbd {
 .unified-toolbar .quick-filter-bar .button-icon {
   content: var(--icon-filter);
 }
+
+.unified-toolbar .synchronize .button-icon {
+  content: var(--icon-sync);
+}
+
+.unified-toolbar .new-event .button-icon {
+  content: var(--icon-new-event);
+}
+
+.unified-toolbar .new-task .button-icon {
+  content: var(--icon-new-task);
+}
+
+.unified-toolbar .delete-event .button-icon {
+  content: var(--icon-trash);
+}
+
+.unified-toolbar .print-event .button-icon {
+  content: var(--icon-print);
+}
+
+.unified-toolbar .go-to-today .button-icon {
+  content: var(--icon-calendar-today);
+}

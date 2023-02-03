@@ -154,3 +154,27 @@
 .quick-filter-bar .preview-icon {
   content: var(--icon-filter);
 }
+
+.synchronize .preview-icon {
+  content: var(--icon-sync);
+}
+
+.new-event .preview-icon {
+  content: var(--icon-new-event);
+}
+
+.new-task .preview-icon {
+  content: var(--icon-new-task);
+}
+
+.delete-event .preview-icon {
+  content: var(--icon-trash);
+}
+
+.print-event .preview-icon {
+  content: var(--icon-print);
+}
+
+.go-to-today .preview-icon {
+  content: var(--icon-calendar-today);
+}

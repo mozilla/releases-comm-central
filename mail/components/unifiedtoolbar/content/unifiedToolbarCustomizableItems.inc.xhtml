@@ -285,3 +285,52 @@
           label-id="toolbar-quick-filter-bar-label"
           data-l10n-id="toolbar-quick-filter-bar"></button>
 </html:template>
+
+<html:template id="synchronizeTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="calendar_reload_remote_calendars"
+          label-id="toolbar-synchronize-label"
+          data-l10n-id="toolbar-synchronize"></button>
+</html:template>
+
+<html:template id="newEventTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="calendar_new_event_command"
+          label-id="toolbar-new-event-label"
+          data-l10n-id="toolbar-new-event"></button>
+</html:template>
+
+<html:template id="newTaskTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="calendar_new_todo_command"
+          label-id="toolbar-new-task-label"
+          data-l10n-id="toolbar-new-task"></button>
+</html:template>
+
+<html:template id="goToTodayTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="calendar_go_to_today_command"
+          observes="calendar_mode_calendar"
+          label-id="toolbar-go-to-today-label"
+          data-l10n-id="toolbar-go-to-today"></button>
+</html:template>
+
+<html:template id="deleteEventTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="calendar_delete_focused_item_command"
+          label-id="toolbar-delete-event-label"
+          data-l10n-id="toolbar-delete-event"></button>
+</html:template>
+
+<html:template id="printEventTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="cmd_print"
+          label-id="toolbar-print-event-label"
+          data-l10n-id="toolbar-print-event"></button>
+</html:template>
