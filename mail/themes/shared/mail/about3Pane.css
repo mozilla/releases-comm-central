@@ -308,47 +308,47 @@ li:not(.selected) > .container:hover {
   background-image: var(--icon-rss);
 }
 
-#folderTree li[data-folder-type="archive"] .icon {
+#folderTree li[data-folder-type="archive"] > .container > .icon {
   background-image: var(--icon-archive);
   --icon-color: var(--folder-color-archive);
 }
 
-#folderTree li[data-folder-type="drafts"] .icon {
+#folderTree li[data-folder-type="drafts"] > .container > .icon {
   background-image: var(--icon-draft);
   --icon-color: var(--folder-color-draft);
 }
 
-#folderTree li[data-folder-type="inbox"] .icon {
+#folderTree li[data-folder-type="inbox"] > .container > .icon {
   background-image: var(--icon-inbox);
   --icon-color: var(--folder-color-inbox);
 }
 
-#folderTree li[data-folder-type="junk"] .icon {
+#folderTree li[data-folder-type="junk"] > .container > .icon {
   background-image: var(--icon-spam);
   --icon-color: var(--folder-color-spam);
 }
 
-#folderTree li[data-folder-type="outbox"] .icon {
+#folderTree li[data-folder-type="outbox"] > .container > .icon {
   background-image: var(--icon-outbox);
   --icon-color: var(--folder-color-outbox);
 }
 
-#folderTree li[data-folder-type="sent"] .icon {
+#folderTree li[data-folder-type="sent"] > .container > .icon {
   background-image: var(--icon-sent);
   --icon-color: var(--folder-color-sent);
 }
 
-#folderTree li[data-folder-type="templates"] .icon {
+#folderTree li[data-folder-type="templates"] > .container > .icon {
   background-image: var(--icon-template);
   --icon-color: var(--folder-color-template);
 }
 
-#folderTree li[data-folder-type="trash"] .icon {
+#folderTree li[data-folder-type="trash"] > .container > .icon {
   background-image: var(--icon-trash);
   --icon-color: var(--folder-color-trash);
 }
 
-#folderTree li[data-folder-type="virtual"] .icon {
+#folderTree li[data-folder-type="virtual"] > .container > .icon {
   background-image: var(--icon-folder-filter);
   --icon-color: var(--folder-color-folder-filter);
 }
