@@ -30,7 +30,7 @@
         <html:img class="toolbarbutton-icon" alt="" />
         <html:span class="badgeButton-badge" hidden="hidden"></html:span>
       </stack>
-      <label class="toolbarbutton-text" crop="right" flex="1"></label>
+      <label class="toolbarbutton-text" crop="end" flex="1"></label>
       `;
     }
 

@@ -7259,7 +7259,7 @@ function FillIdentityList(menulist) {
       let desc = document.createXULElement("label");
       desc.value = item.getAttribute("description");
       desc.classList.add("menu-description");
-      desc.setAttribute("crop", "right");
+      desc.setAttribute("crop", "end");
       item.querySelector("label:last-child").after(desc);
     }
   }

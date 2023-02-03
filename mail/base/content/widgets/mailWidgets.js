@@ -367,8 +367,8 @@
         <html:link rel="stylesheet" href="chrome://global/skin/menulist.css"/>
         <html:input part="text-input" type="text" allowevents="true"/>
         <hbox id="label-box" part="label-box" flex="1" role="none">
-          <label id="label" part="label" crop="right" flex="1" role="none"/>
-          <label id="highlightable-label" part="label" crop="right" flex="1" role="none"/>
+          <label id="label" part="label" crop="end" flex="1" role="none"/>
+          <label id="highlightable-label" part="label" crop="end" flex="1" role="none"/>
         </hbox>
         <dropmarker part="dropmarker" exportparts="icon: dropmarker-icon" type="menu" role="none"/>
         <html:slot/>
@@ -388,7 +388,7 @@
         if (this.getAttribute("type") == "description") {
           this._description = document.createXULElement("label");
           this._description.id = this._description.part = "description";
-          this._description.setAttribute("crop", "right");
+          this._description.setAttribute("crop", "end");
           this._description.setAttribute("role", "none");
           this.shadowRoot.getElementById("label").after(this._description);
         }

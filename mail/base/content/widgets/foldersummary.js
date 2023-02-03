@@ -60,7 +60,7 @@
 
       let sender = document.createXULElement("label");
       sender.setAttribute("class", "folderSummary-sender");
-      sender.setAttribute("crop", "right");
+      sender.setAttribute("crop", "end");
 
       hbox.appendChild(subject);
       hbox.appendChild(sender);
@@ -70,7 +70,7 @@
         "class",
         "folderSummary-message-row folderSummary-previewText"
       );
-      preview.setAttribute("crop", "right");
+      preview.setAttribute("crop", "end");
 
       vbox.appendChild(hbox);
       vbox.appendChild(preview);
