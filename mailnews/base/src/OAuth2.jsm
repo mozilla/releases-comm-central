@@ -297,9 +297,16 @@ OAuth2.prototype = {
         let resultStr = JSON.stringify(result, null, 2);
         if ("error" in result) {
           // RFC 6749 section 5.2. Error Response
-          this.log.info(
-            `The authorization server returned an error response: ${resultStr}`
-          );
+          let err = result.error;
+          if ("error_description" in result) {
+            err += "; " + result.error_description;
+          }
+          if ("error_uri" in result) {
+            err += "; " + result.error_uri;
+          }
+          this.log.warn(`Error response from the authorization server: ${err}`);
+          this.log.info(`Error response details: ${resultStr}`);
+
           // Typically in production this would be {"error": "invalid_grant"}.
           // That is, the token expired or was revoked (user changed password?).
           // Reset the tokens we have and call success so that the auth flow
