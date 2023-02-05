@@ -5,10 +5,6 @@
     See https://mots.readthedocs.io/en/latest/#quick-start for quick start
     documentation and how to modify this file.
 
-    WARNING: This file is manually adjusted post-export to remove Owners
-    from some Mail News Core submodules: Feeds, GloDa, Import, Localization,
-    Message Database, and MIME Parser.
-
 
 ==========
 Governance
@@ -32,14 +28,16 @@ Thunderbird Council module. Owners may add and remove peers from their modules
 as they wish, without reference to anyone else.
 
 
-
 -------
 Modules
 -------
 
 Thunderbird Council - 2023
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-The Thunderbird Council is the elected governing body for the Thunderbird Project, including the code modules that develop the code in Thunderbird product(s). It is the top-level module of the project, and Peers are members of the Council.
+The Thunderbird Council is the elected governing body for the Thunderbird
+Project, including the code modules that develop the code in Thunderbird
+product(s). It is the top-level module of the project, and Peers are members of
+the Council.
 
 
 .. list-table::
@@ -51,7 +49,6 @@ The Thunderbird Council is the elected governing body for the Thunderbird Projec
         | `Berna Alp (ba) <https://people.mozilla.org/s?query=ba>`__
     * - Peer(s)
       -
-        | `Andrei Hajdukewycz (sancus) <https://people.mozilla.org/s?query=sancus>`__
         | `micah (micah) <https://people.mozilla.org/s?query=micah>`__
         | `Danny Colin (sdk) <https://people.mozilla.org/s?query=sdk>`__
         | `John Bieling (TbSync) <https://people.mozilla.org/s?query=TbSync>`__
@@ -309,7 +306,12 @@ Mail and News Core
       -
         | mailnews/\*\*
     * - Bugzilla Components
-      - MailNews Core::Backend, Thunderbird::Account Manager, Thunderbird::Migration, MailNews Core::Account Manager, MailNews Core::Composition, MailNews Core::Filters, MailNews Core::Internationalization, MailNews Core::Movemail, MailNews Core::Networking, MailNews Core::Networking - POP, MailNews Core::Printing, MailNews Core::Profile Migration, MailNews Core::Search, MailNews Core::Security, MailNews Core::Simple MAPI
+      - MailNews Core::Backend, Thunderbird::Account Manager, Thunderbird::Migration,
+        MailNews Core::Account Manager, MailNews Core::Composition, MailNews
+        Core::Filters, MailNews Core::Internationalization, MailNews Core::Movemail,
+        MailNews Core::Networking, MailNews Core::Networking - POP, MailNews
+        Core::Printing, MailNews Core::Profile Migration, MailNews Core::Search,
+        MailNews Core::Security, MailNews Core::Simple MAPI
 
 Addressbook
 ===========
@@ -345,7 +347,7 @@ Feeds
 
     * - Owner(s)
       -
-        |
+        | `Nobody (nobody) <https://people.mozilla.org/s?query=nobody>`__
     * - Peer(s)
       -
         | `alta88 (alta88) <https://people.mozilla.org/s?query=alta88>`__
@@ -368,7 +370,7 @@ Global message database
 
     * - Owner(s)
       -
-        |
+        | `Nobody (nobody) <https://people.mozilla.org/s?query=nobody>`__
     * - Peer(s)
       -
         | `Ben Campbell (benc) <https://people.mozilla.org/s?query=benc>`__
@@ -418,7 +420,7 @@ Import
 
     * - Owner(s)
       -
-        |
+        | `Joshua Cranmer (jcranmer) <https://people.mozilla.org/s?query=jcranmer>`__
     * - Peer(s)
       -
         | `Magnus Melin (mkmelin) <https://people.mozilla.org/s?query=mkmelin>`__
@@ -441,7 +443,7 @@ Localization
 
     * - Owner(s)
       -
-        |
+        | `Nobody (nobody) <https://people.mozilla.org/s?query=nobody>`__
     * - Peer(s)
       -
         | `Philipp Kewisch (Fallen) <https://people.mozilla.org/s?query=Fallen>`__
@@ -456,33 +458,6 @@ Localization
       - MailNews Core::Localization
 
 
-Message Database
-================
-MSF files
-
-
-.. list-table::
-    :stub-columns: 1
-    :widths: 30 70
-
-    * - Owner(s)
-      -
-        |
-    * - Peer(s)
-      -
-        | `Aceman (aceman) <https://people.mozilla.org/s?query=aceman>`__
-        | `Joshua Cranmer (jcranmer) <https://people.mozilla.org/s?query=jcranmer>`__
-    * - Owner(s) Emeritus
-      - David Bienvenu (bienvenu)
-    * - Peer(s) Emeritus
-      - Kent James
-    * - Includes
-      -
-        | mailnews/db/\*\*
-    * - Bugzilla Components
-      - MailNews Core::Database
-
-
 MIME Parser
 ===========
 RFC822 MIME Parser
@@ -494,7 +469,7 @@ RFC822 MIME Parser
 
     * - Owner(s)
       -
-        |
+        | `Nobody (nobody) <https://people.mozilla.org/s?query=nobody>`__
     * - Peer(s)
       -
         | `Jim Porter (squib) <https://people.mozilla.org/s?query=squib>`__
@@ -509,6 +484,33 @@ RFC822 MIME Parser
         | mailnews/mime/\*\*
     * - Bugzilla Components
       - MailNews Core::MIME, MailNews Core::Attachments
+
+
+Message Database
+================
+MSF files
+
+
+.. list-table::
+    :stub-columns: 1
+    :widths: 30 70
+
+    * - Owner(s)
+      -
+        | `Nobody (nobody) <https://people.mozilla.org/s?query=nobody>`__
+    * - Peer(s)
+      -
+        | `Aceman (aceman) <https://people.mozilla.org/s?query=aceman>`__
+        | `Joshua Cranmer (jcranmer) <https://people.mozilla.org/s?query=jcranmer>`__
+    * - Owner(s) Emeritus
+      - David Bienvenu (bienvenu)
+    * - Peer(s) Emeritus
+      - Kent James
+    * - Includes
+      -
+        | mailnews/db/\*\*
+    * - Bugzilla Components
+      - MailNews Core::Database
 
 
 News

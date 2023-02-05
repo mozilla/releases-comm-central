@@ -6,16 +6,12 @@
 
 # See https://mots.readthedocs.io/en/latest/#quick-start for quick start
 # documentation and how to modify this file.
-
-# WARNING: Do not run mots clean on this file until bug 1803651 is resolved
-# to avoid data loss.
-
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2023-01-31T10:02:33.219664'
+updated_at: '2023-01-31T20:57:42.972682'
 hashes:
-  config: 75913c17784dfa3f71b2d498de5c7ad129768be0
-  export: e5ab52e84c4b6c9ec1721d319d301bca93917328
+  config: 5182890dff9295cb4edc0b6304cfd6165d685a3d
+  export: 720e58fc42b1ac17197b565b47f8ba72c2be437b
 export:
   path: ./docs/mots/index.rst
   format: rst
@@ -126,6 +122,10 @@ people:
     bmo_id: 14006
     name: Neil Rashbrook
     nick: neil
+  - &nobody
+    bmo_id: 1
+    name: Nobody
+    nick: nobody
   - &Paenglab
     bmo_id: 282357
     name: Richard Marti
@@ -150,10 +150,6 @@ people:
     bmo_id: 582219
     name: Ping Chen
     nick: rnons
-  - &sancus
-    bmo_id: 148348
-    name: Andrei Hajdukewycz
-    nick: sancus
   - &sdk
     bmo_id: 598568
     name: Danny Colin
@@ -176,17 +172,17 @@ people:
     nick: tomprince
 modules:
   - name: Thunderbird Council - 2023
-    machine_name: thunderbird_council
+    machine_name: 00-thunderbird_council
     description: The Thunderbird Council is the elected governing body for the Thunderbird
       Project, including the code modules that develop the code in Thunderbird product(s).
       It is the top-level module of the project, and Peers are members of the Council.
     owners: [*ba]
-    peers: [*sancus, *micah, *sdk, *TbSync, *BenB, *clokep, *Fallen]
+    peers: [*micah, *sdk, *TbSync, *BenB, *clokep, *Fallen]
     excludes:
       - suite/**
 
   - name: Thunderbird Desktop
-    machine_name: thunderbird_desktop
+    machine_name: 01-thunderbird_desktop
     description: Standalone Mail Application.
     includes:
       - mail/**
@@ -294,7 +290,7 @@ modules:
             - Thunderbird::General
 
   - name: Calendar
-    machine_name: calendar
+    machine_name: 02-calendar
     description: Calendaring components
     includes:
       - calendar/**
@@ -316,7 +312,7 @@ modules:
             - Calendar::Calendar Frontend
 
   - name: Mail and News Core
-    machine_name: mailnews_core
+    machine_name: 03-mailnews_core
     includes:
       - mailnews/**
     owners: [*jcranmer]
@@ -363,6 +359,7 @@ modules:
         machine_name: feeds
         includes:
           - mailnews/extensions/newsblog/**
+        owners: [*nobody]
         peers: [*alta88, *mkmelin]
         meta:
           components:
@@ -372,6 +369,7 @@ modules:
         description: Global message database
         includes:
           - mailnews/db/gloda/**
+        owners: [*nobody]
         meta:
           peers_emeritus:
             - *protz
@@ -407,27 +405,18 @@ modules:
           - calendar/locales/**
           - chat/locales/**
           - mail/locales/**
+        owners: [*nobody]
         peers: [*Fallen]
         meta:
           components:
             - MailNews Core::Localization
           peers_emeritus: [*standard8]
-      - name: Message Database
-        machine_name: message_database
-        description: MSF files
-        includes:
-          - mailnews/db/**
-        peers: [*aceman, *jcranmer]
-        meta:
-          components:
-            - MailNews Core::Database
-          owners_emeritus: [David Bienvenu (bienvenu)]
-          peers_emeritus: [*rkent]
       - name: MIME Parser
         machine_name: mime_parser
         description: RFC822 MIME Parser
         includes:
           - mailnews/mime/**
+        owners: [*nobody]
         peers: [*squib, *jcranmer, *mkmelin]
         meta:
           components:
@@ -435,6 +424,18 @@ modules:
             - MailNews Core::Attachments
           owners_emeritus: [David Bienvenu (bienvenu)]
           peers_emeritus: [*KaiE, Jorg K]
+      - name: Message Database
+        machine_name: message_database
+        description: MSF files
+        includes:
+          - mailnews/db/**
+        owners: [*nobody]
+        peers: [*aceman, *jcranmer]
+        meta:
+          components:
+            - MailNews Core::Database
+          owners_emeritus: [David Bienvenu (bienvenu)]
+          peers_emeritus: [*rkent]
       - name: News
         machine_name: news_protocol
         includes:
