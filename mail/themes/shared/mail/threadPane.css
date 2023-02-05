@@ -92,7 +92,7 @@ tr:not(.children) .tree-view-row-thread img {
   stroke: color-mix(in srgb, currentColor 30%, transparent);
 }
 
-tr[data-properties~="flagged"] .tree-view-row-flag img {
+tr[data-properties~="flagged"] .tree-view-row-flag > .tree-button-flag > img {
   fill: var(--thread-pane-flag-fill);
   stroke: var(--thread-pane-flag-stroke);
 }
@@ -153,9 +153,14 @@ tr:not([data-properties~="attach"]) .attachmentcol-column img {
   stroke: color-mix(in srgb, currentColor 30%, transparent);
 }
 
-tr[data-properties~="unread"] .tree-view-row-unread img {
+tr[data-properties~="unread"] .tree-view-row-unread > .tree-button-unread > img {
   fill: color-mix(in srgb, var(--thread-pane-unread-fill) 50%, transparent);
   stroke: var(--thread-pane-unread-stroke);
+}
+
+[is="tree-view-listbox"]:focus > .selected > .tree-view-row-unread > .tree-button-unread > img {
+  fill: currentColor;
+  stroke: currentColor;
 }
 
 tr[data-properties~="unread"].selected .tree-view-row-unread button {
@@ -316,7 +321,7 @@ tr[is="thread-listrow"] .twisty-icon {
   stroke: color-mix(in srgb, currentColor 30%, transparent);
 }
 
-tr[data-properties~="junk"] .tree-view-row-spam img {
+tr[data-properties~="junk"] .tree-view-row-spam > .tree-button-spam > img {
   fill: var(--thread-pane-spam-fill);
   stroke: var(--thread-pane-spam-stroke);
 }

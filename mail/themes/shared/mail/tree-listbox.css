@@ -123,8 +123,8 @@
 }
 
 [is="tree-view-listbox"]:focus > .selected img {
-  fill: color-mix(in srgb, currentColor 40%, transparent) !important;
-  stroke: currentColor !important;
+  fill: color-mix(in srgb, currentColor 40%, transparent);
+  stroke: currentColor;
 }
 
 [is="tree-view-listbox"]:focus > .current.selected {
@@ -225,6 +225,10 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
 
 :is(.all-selected, .selected) :is(.tree-view-header-select, .tree-view-row-select) img {
   fill-opacity: 1;
+}
+
+[is="tree-view-listbox"]:focus .selected > .tree-view-row-select img {
+  fill: currentColor;
 }
 
 /* Delete column */
