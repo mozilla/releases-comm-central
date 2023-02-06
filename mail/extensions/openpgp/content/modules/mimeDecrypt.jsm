@@ -200,7 +200,7 @@ MimeDecryptHandler.prototype = {
     this.pipe = null;
     this.closePipe = false;
     this.exitCode = null;
-    this.msgWindow = lazy.EnigmailVerify.lastMsgWindow;
+    this.msgWindow = lazy.EnigmailVerify.lastWindow;
     this.msgUriSpec = lazy.EnigmailVerify.lastMsgUri;
 
     this.statusDisplayed = false;
@@ -388,7 +388,7 @@ MimeDecryptHandler.prototype = {
       this.processBase64Message();
     }
 
-    this.msgWindow = lazy.EnigmailVerify.lastMsgWindow;
+    this.msgWindow = lazy.EnigmailVerify.lastWindow;
     this.msgUriSpec = lazy.EnigmailVerify.lastMsgUri;
 
     let href = Services.wm.getMostRecentWindow(null)?.document?.location.href;

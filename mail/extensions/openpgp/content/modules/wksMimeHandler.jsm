@@ -90,7 +90,7 @@ PgpWkdHandler.prototype = {
       this.mimePartNumber = "";
     }
     this.data = "";
-    this.msgWindow = lazy.EnigmailVerify.lastMsgWindow;
+    this.msgWindow = lazy.EnigmailVerify.lastWindow;
     this.backgroundJob = false;
 
     if (this.uri) {
