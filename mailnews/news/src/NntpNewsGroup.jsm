@@ -77,8 +77,14 @@ class NntpNewsGroup {
       let bundle = Services.strings.createBundle(
         "chrome://messenger/locale/news.properties"
       );
+      let messengerBundle = Services.strings.createBundle(
+        "chrome://messenger/locale/messenger.properties"
+      );
       msgWindow?.statusFeedback.showStatusString(
-        bundle.GetStringFromName("noNewMessages")
+        messengerBundle.formatStringFromName("statusMessage", [
+          this._server.prettyName,
+          bundle.GetStringFromName("noNewMessages"),
+        ])
       );
     }
 

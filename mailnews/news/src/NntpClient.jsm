@@ -8,6 +8,9 @@ var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { LineReader } = ChromeUtils.import("resource:///modules/LineReader.jsm");
 var { NntpNewsGroup } = ChromeUtils.import(
   "resource:///modules/NntpNewsGroup.jsm"
@@ -108,6 +111,7 @@ class NntpClient {
       });
       this._socket.onopen = this._onOpen;
       this._socket.onerror = this._onError;
+      this._showNetworkStatus(Ci.nsISocketTransport.STATUS_CONNECTING_TO);
     }
   }
 
@@ -128,6 +132,9 @@ class NntpClient {
       this.runningUri = Services.io
         .newURI(`news://${this._server.hostName}:${this._server.port}`)
         .QueryInterface(Ci.nsIMsgMailNewsUrl);
+    }
+    if (msgWindow) {
+      this.runningUri.msgWindow = msgWindow;
     }
     this.urlListener?.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
     this.runningUri.SetUrlState(true, Cr.NS_OK);
@@ -151,6 +158,7 @@ class NntpClient {
         this.quit(Cr.NS_ERROR_FAILURE);
       }
     };
+    this._showNetworkStatus(Ci.nsISocketTransport.STATUS_CONNECTED_TO);
   };
 
   /**
@@ -226,6 +234,37 @@ class NntpClient {
    */
   _onError = event => {
     this._logger.error(event, event.name, event.message, event.errorCode);
+    let errorName;
+    switch (event.errorCode) {
+      case Cr.NS_ERROR_UNKNOWN_HOST:
+      case Cr.NS_ERROR_UNKNOWN_PROXY_HOST:
+        errorName = "unknownHostError";
+        break;
+      case Cr.NS_ERROR_CONNECTION_REFUSED:
+      case Cr.NS_ERROR_PROXY_CONNECTION_REFUSED:
+        errorName = "connectionRefusedError";
+        break;
+      case Cr.NS_ERROR_NET_TIMEOUT:
+        errorName = "netTimeoutError";
+        break;
+      case Cr.NS_ERROR_NET_RESET:
+        errorName = "netResetError";
+        break;
+      case Cr.NS_ERROR_NET_INTERRUPT:
+        errorName = "netInterruptError";
+        break;
+    }
+    if (errorName) {
+      let bundle = Services.strings.createBundle(
+        "chrome://messenger/locale/messenger.properties"
+      );
+      let errorMessage = bundle.formatStringFromName(errorName, [
+        this._server.hostName,
+      ]);
+      MailServices.mailSession.alertUser(errorMessage, this.runningUri);
+    }
+
+    this._msgWindow?.statusFeedback?.showStatusString("");
     this.quit(event.errorCode);
   };
 
@@ -836,6 +875,19 @@ class NntpClient {
       return;
     }
     this._lineReader.read(data, this.onData, this._actionXPat);
+  }
+
+  /**
+   * Show network status in the status bar.
+   *
+   * @param {number} status - See NS_NET_STATUS_* in nsISocketTransport.idl.
+   */
+  _showNetworkStatus(status) {
+    let statusMessage = Services.strings.formatStatusMessage(
+      status,
+      this._server.hostName
+    );
+    this._msgWindow?.statusFeedback?.showStatusString(statusMessage);
   }
 
   /**
