@@ -501,7 +501,6 @@ nsresult nsCMSMessage::CommonVerifySignature(
 
   sigAlgTag = NSS_CMSSignerInfo_GetDigestAlgTag(si);
   switch (sigAlgTag) {
-    case SEC_OID_SHA1:
     case SEC_OID_SHA256:
     case SEC_OID_SHA384:
     case SEC_OID_SHA512:

@@ -186,7 +186,13 @@ let smimeHeaderSink = {
  */
 
 var gMessages = [
-  { filename: "alice.env.eml", enc: true, sig: false, sig_good: false },
+  {
+    filename: "alice.env.eml",
+    enc: true,
+    sig: false,
+    sig_good: false,
+    check_text: true,
+  },
   {
     filename: "alice.dsig.SHA1.multipart.bad.eml",
     enc: false,
@@ -197,13 +203,15 @@ var gMessages = [
     filename: "alice.dsig.SHA1.multipart.env.eml",
     enc: true,
     sig: true,
-    sig_good: true,
+    sig_good: false,
+    check_text: true,
   },
   {
     filename: "alice.dsig.SHA1.multipart.eml",
     enc: false,
     sig: true,
-    sig_good: true,
+    sig_good: false,
+    check_text: true,
   },
   {
     filename: "alice.dsig.SHA1.multipart.mismatch-econtent.eml",
@@ -287,13 +295,15 @@ var gMessages = [
     filename: "alice.sig.SHA1.opaque.eml",
     enc: false,
     sig: true,
-    sig_good: true,
+    sig_good: false,
+    check_text: true,
   },
   {
     filename: "alice.sig.SHA1.opaque.env.eml",
     enc: true,
     sig: true,
-    sig_good: true,
+    sig_good: false,
+    check_text: true,
   },
   {
     filename: "alice.sig.SHA256.opaque.eml",
@@ -345,7 +355,6 @@ var gMessages = [
     enc: false,
     sig: true,
     sig_good: false,
-    extra: 1,
   },
   {
     filename: "alice.env.sig.SHA256.opaque.eml",
@@ -528,7 +537,6 @@ var gMessages = [
     sig: true,
     sig_good: false,
     dave: 1,
-    extra: 1,
   },
   {
     filename: "alice.plain.dsig.SHA1.multipart.dave.dsig.SHA1.multipart.eml",
@@ -642,7 +650,7 @@ add_task(async function check_smime_message() {
     let contents = conversion._data;
     // dump("contents: " + contents + "\n");
 
-    if (!msg.sig || msg.sig_good) {
+    if (!msg.sig || msg.sig_good || "check_text" in msg) {
       let expected = "This is a test message from Alice to Bob.";
       Assert.ok(contents.includes(expected));
     }
