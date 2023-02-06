@@ -56,7 +56,7 @@ alertListener.prototype = {
   },
 };
 
-add_task(function setupTest() {
+add_setup(function() {
   setupIMAPPump();
 
   var listener1 = new alertListener();

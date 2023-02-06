@@ -31,7 +31,7 @@ function addMessagesToServer(messages, mailbox) {
   });
 }
 
-add_task(function setupTest() {
+add_setup(function() {
   localAccountUtils.loadLocalMailAccount();
 
   /*

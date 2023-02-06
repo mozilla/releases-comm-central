@@ -17,7 +17,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
 
 var gServer, gIMAPIncomingServer, gIMAPDaemon;
 
-add_task(function setupTest() {
+add_setup(function() {
   gIMAPDaemon = new ImapDaemon();
   // pref tuning: one connection only, turn off notifications
   Services.prefs.setIntPref("mail.server.server1.max_cached_connections", 1);

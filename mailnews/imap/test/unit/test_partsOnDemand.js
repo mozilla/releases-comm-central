@@ -20,7 +20,7 @@ var { MsgHdrToMimeMessage } = ChromeUtils.import(
 );
 
 // make sure we are in the optimal conditions!
-add_task(function setupTest() {
+add_setup(function() {
   setupIMAPPump();
   Services.prefs.setIntPref("mail.imap.mime_parts_on_demand_threshold", 20);
   Services.prefs.setBoolPref("mail.imap.mime_parts_on_demand", true);

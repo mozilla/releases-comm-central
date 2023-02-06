@@ -56,7 +56,7 @@ MsgsDeletedListener.prototype = {
 };
 var trackDeletionMessageListener = new MsgsDeletedListener();
 
-add_task(function setupTest() {
+add_setup(function() {
   setupIMAPPump();
 
   // Add folder listeners that will capture async events

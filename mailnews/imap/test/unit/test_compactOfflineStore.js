@@ -80,7 +80,7 @@ function checkOfflineStore(prevOfflineStoreSize) {
   Assert.ok(prevOfflineStoreSize > IMAPPump.inbox.filePath.fileSize + 100);
 }
 
-add_task(function setupTest() {
+add_setup(function() {
   setupIMAPPump();
 
   gRootFolder = IMAPPump.incomingServer.rootFolder;

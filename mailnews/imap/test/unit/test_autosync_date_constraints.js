@@ -24,7 +24,7 @@ function addMessagesToServer(messages, mailbox) {
   });
 }
 
-add_task(function setupTest() {
+add_setup(function() {
   Services.prefs.setIntPref("mail.server.server1.autosync_max_age_days", 4);
 
   setupIMAPPump();

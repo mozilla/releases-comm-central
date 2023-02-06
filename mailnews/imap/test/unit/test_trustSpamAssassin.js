@@ -23,7 +23,7 @@ var { MailServices } = ChromeUtils.import(
 var gMessage = "SpamAssassinYes"; // message file used as the test message
 var gJunkFolder;
 
-add_task(function setupTest() {
+add_setup(function() {
   setupIMAPPump();
   let server = IMAPPump.incomingServer;
   let spamSettings = server.spamSettings;

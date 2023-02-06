@@ -11,7 +11,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
 
 var gFolder1, gFolder2;
 
-add_task(function setupTest() {
+add_setup(function() {
   Services.prefs.setBoolPref("mail.check_all_imap_folders_for_new", true);
 
   setupIMAPPump();
