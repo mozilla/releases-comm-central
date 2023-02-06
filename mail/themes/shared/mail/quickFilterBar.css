@@ -5,7 +5,7 @@
 #quick-filter-bar {
   background-color: -moz-dialog;
   padding: 3px;
-  border-bottom: 1px solid var(--chrome-content-separator-color);
+  border-bottom: 1px solid var(--splitter-color);
 }
 
 #quick-filter-bar button[aria-pressed="true"] {

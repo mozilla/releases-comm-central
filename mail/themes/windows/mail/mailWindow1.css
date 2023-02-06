@@ -145,7 +145,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   @media (-moz-platform: windows-win10) {
     @media (-moz-windows-default-theme) {
       :root:not(:-moz-lwtheme) {
-        background-color: #d1d1d1;
+        background-color: var(--color-gray-10);
       }
 
       :root[tabsintitlebar]:-moz-lwtheme {
@@ -166,13 +166,13 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
       @media (-moz-windows-accent-color-in-titlebar: 0) {
         :root[sizemode=normal][tabsintitlebar] {
-          border-top: 1px solid rgba(0,0,0,.7);
+          border-top: 1px solid rgba(0, 0, 0, 0.7);
         }
         :root[sizemode=normal][tabsintitlebar][always-use-accent-color-for-window-border]:not(:-moz-window-inactive) {
           border-top-color: AccentColor;
         }
         :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme) {
-          background-color: #a8cbdb;
+          background-color: var(--color-gray-30);
         }
       }
 
@@ -190,7 +190,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
       }
 
       :root[sizemode=normal][tabsintitlebar]:-moz-window-inactive {
-        border-top-color: rgba(0,0,0,.3);
+        border-top-color: rgba(0, 0, 0, 0.3);
       }
     }
 
@@ -229,15 +229,15 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     }
 
     .titlebar-min {
-      list-style-image: url(chrome://messenger/skin/window-controls/minimize.svg);
+      list-style-image: url("chrome://messenger/skin/window-controls/minimize.svg");
     }
 
     .titlebar-max {
-      list-style-image: url(chrome://messenger/skin/window-controls/maximize.svg);
+      list-style-image: url("chrome://messenger/skin/window-controls/maximize.svg");
     }
 
     .titlebar-restore {
-      list-style-image: url(chrome://messenger/skin/window-controls/restore.svg);
+      list-style-image: url("chrome://messenger/skin/window-controls/restore.svg");
     }
 
     .titlebar-restore:-moz-locale-dir(rtl) {
@@ -245,23 +245,23 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     }
 
     .titlebar-close {
-      list-style-image: url(chrome://messenger/skin/window-controls/close.svg);
+      list-style-image: url("chrome://messenger/skin/window-controls/close.svg");
     }
 
     :root[lwtheme-image] .titlebar-button {
       -moz-context-properties: unset;
     }
     :root[lwtheme-image] .titlebar-min {
-      list-style-image: url(chrome://messenger/skin/window-controls/minimize-themes.svg);
+      list-style-image: url("chrome://messenger/skin/window-controls/minimize-themes.svg");
     }
     :root[lwtheme-image] .titlebar-max {
-      list-style-image: url(chrome://messenger/skin/window-controls/maximize-themes.svg);
+      list-style-image: url("chrome://messenger/skin/window-controls/maximize-themes.svg");
     }
     :root[lwtheme-image] .titlebar-restore {
-      list-style-image: url(chrome://messenger/skin/window-controls/restore-themes.svg);
+      list-style-image: url("chrome://messenger/skin/window-controls/restore-themes.svg");
     }
     :root[lwtheme-image] .titlebar-close {
-      list-style-image: url(chrome://messenger/skin/window-controls/close-themes.svg);
+      list-style-image: url("chrome://messenger/skin/window-controls/close-themes.svg");
     }
 
     /* the 12px image renders a 10px icon, and the 10px upscaled gets rounded to 12.5, which
@@ -325,11 +325,11 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
       .titlebar-close:hover {
         stroke: white;
-        background-color: hsl(355, 86%, 49%);
+        background-color: var(--color-red-60);
       }
 
       .titlebar-close:hover:active {
-        background-color: hsl(355, 82%, 69%);
+        background-color: var(--color-red-50);
       }
 
       @media (prefers-color-scheme: dark) {
@@ -339,6 +339,14 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
         .titlebar-button:hover:active {
           background-color: hsla(0, 0%, 100%, .22);
+        }
+
+        .titlebar-close:hover {
+          background-color: var(--color-red-70);
+        }
+
+        .titlebar-close:hover:active {
+          background-color: var(--color-red-60);
         }
       }
     }
@@ -353,19 +361,19 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
       }
 
       .titlebar-min {
-        list-style-image: url(chrome://messenger/skin/window-controls/minimize-highcontrast.svg);
+        list-style-image: url("chrome://messenger/skin/window-controls/minimize-highcontrast.svg");
       }
 
       .titlebar-max {
-        list-style-image: url(chrome://messenger/skin/window-controls/maximize-highcontrast.svg);
+        list-style-image: url("chrome://messenger/skin/window-controls/maximize-highcontrast.svg");
       }
 
       .titlebar-restore {
-        list-style-image: url(chrome://messenger/skin/window-controls/restore-highcontrast.svg);
+        list-style-image: url("chrome://messenger/skin/window-controls/restore-highcontrast.svg");
       }
 
       .titlebar-close {
-        list-style-image: url(chrome://messenger/skin/window-controls/close-highcontrast.svg);
+        list-style-image: url("chrome://messenger/skin/window-controls/close-highcontrast.svg");
       }
     }
   }
@@ -399,7 +407,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 @media (-moz-platform: windows-win7) and (-moz-windows-default-theme) {
   @media (-moz-windows-glass: 0) {
     #messengerWindow:not([tabsintitlebar]) #navigation-toolbox:not(:-moz-lwtheme) {
-      background-color: #d1d1d1;
+      background-color: var(--color-gray-30);
     }
   }
 }
@@ -442,7 +450,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
 @media (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
   #messengerWindow:not([tabsintitlebar]) #navigation-toolbox:not(:-moz-lwtheme) {
-    background-color: #d1d1d1;
+    background-color: var(--color-gray-30);
   }
 }
 
