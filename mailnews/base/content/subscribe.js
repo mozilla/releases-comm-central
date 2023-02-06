@@ -343,6 +343,8 @@ function SetSubscribeState(state) {
     if (inSearchMode) {
       // Force a repaint.
       InvalidateSearchTree();
+    } else {
+      gSubscribeTree.invalidate();
     }
   } catch (ex) {
     dump("SetSubscribedState failed:  " + ex + "\n");
