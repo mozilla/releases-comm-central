@@ -32,6 +32,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
 );
 XPCOMUtils.defineLazyGlobalGetters(this, ["IOUtils", "PathUtils"]);
 
+const POPUP_WINDOW_URI = "chrome://messenger/content/extensionPopup.xhtml";
 const COMPOSE_WINDOW_URI =
   "chrome://messenger/content/messengercompose/messengercompose.xhtml";
 const MESSAGE_WINDOW_URI = "chrome://messenger/content/messageWindow.xhtml";
@@ -854,6 +855,8 @@ class Tab extends TabBase {
         return "messageCompose";
       case MESSAGE_WINDOW_URI:
         return "messageDisplay";
+      case POPUP_WINDOW_URI:
+        return "content";
       default:
         return null;
     }

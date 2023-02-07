@@ -9,7 +9,7 @@ var testCommands = [
     shortcut: "Ctrl+A",
     key: "A",
     // Does not work in compose window on Linux.
-    skip: ["messageCompose"],
+    skip: ["messageCompose", "content"],
     modifiers: {
       accelKey: true,
     },
@@ -294,7 +294,7 @@ add_task(async function test_user_defined_commands() {
   // Some key combinations do not work if the TO field has focus.
   win3.document.querySelector("editor").focus();
 
-  // Confirm the keysets have been added to both windows.
+  // Confirm the keysets have been added to all windows.
   let keysetID = `ext-keyset-id-${makeWidgetId(extension.id)}`;
 
   let keyset = win1.document.getElementById(keysetID);
@@ -389,6 +389,16 @@ add_task(async function test_commands_MV3_event_page() {
     // first observed event is the one that woke up the background.
     let eventCounter = 0;
 
+    browser.test.onMessage.addListener(async message => {
+      if (message == "createPopup") {
+        let popup = await browser.windows.create({
+          type: "popup",
+          url: "example.html",
+        });
+        browser.test.sendMessage("popupCreated", popup);
+      }
+    });
+
     browser.commands.onCommand.addListener(async (commandName, activeTab) => {
       browser.test.sendMessage("oncommand event received", {
         eventCount: ++eventCounter,
@@ -402,11 +412,21 @@ add_task(async function test_commands_MV3_event_page() {
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
+      "example.html": `<!DOCTYPE HTML>
+      <html>
+      <head>
+        <title>EXAMPLE</title>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+      </head>
+      <body>
+        <p>This is an example page</p>
+      </body>
+      </html>`,
     },
     manifest: {
       manifest_version: 3,
       background: { scripts: ["utils.js", "background.js"] },
-      browser_specific_settings: { gecko: { id: "cloudfile@mochi.test" } },
+      browser_specific_settings: { gecko: { id: "commands@mochi.test" } },
       commands,
     },
   });
@@ -506,58 +526,51 @@ add_task(async function test_commands_MV3_event_page() {
   // Some key combinations do not work if the TO field has focus.
   win3.document.querySelector("editor").focus();
 
-  // Confirm the keysets have been added to both windows.
+  // Open a popup window.
+  let popupPromise = extension.awaitMessage("popupCreated");
+  extension.sendMessage("createPopup");
+  let popup = await popupPromise;
+
+  // Confirm the keysets have been added to all windows.
   let keysetID = `ext-keyset-id-${makeWidgetId(extension.id)}`;
 
-  let keyset = win1.document.getElementById(keysetID);
-  ok(keyset != null, "Expected keyset to exist");
-  is(
-    keyset.children.length,
-    expectedCommandsRegistered,
-    "Expected keyset of window #1 to have the correct number of children"
-  );
+  let windows = [
+    { window: win1, autoRemove: false, type: "mail" },
+    { window: win2, autoRemove: false, type: "mail" },
+    { window: win3, autoRemove: false, type: "messageCompose" },
+    {
+      window: Services.wm.getOuterWindowWithId(popup.id),
+      autoRemove: true,
+      type: "content",
+    },
+  ];
+  for (let i in windows) {
+    let keyset = windows[i].window.document.getElementById(keysetID);
+    ok(keyset != null, "Expected keyset to exist");
+    is(
+      keyset.children.length,
+      expectedCommandsRegistered,
+      `Expected keyset of window #${i} to have the correct number of children`
+    );
 
-  keyset = win2.document.getElementById(keysetID);
-  ok(keyset != null, "Expected keyset to exist");
-  is(
-    keyset.children.length,
-    expectedCommandsRegistered,
-    "Expected keyset of window #2 to have the correct number of children"
-  );
+    // Confirm that the commands are registered to all windows.
+    await focusWindow(windows[i].window);
+    await runTest(windows[i].window, windows[i].type);
+  }
 
-  keyset = win3.document.getElementById(keysetID);
-  ok(keyset != null, "Expected keyset to exist");
-  is(
-    keyset.children.length,
-    expectedCommandsRegistered,
-    "Expected keyset of window #3 to have the correct number of children"
-  );
-
-  // Confirm that the commands are registered to all windows.
-  await focusWindow(win1);
-  await runTest(win1, "mail");
-
-  await focusWindow(win2);
-  await runTest(win2, "mail");
-
-  await focusWindow(win3);
-  await runTest(win3, "messageCompose");
-
-  // Unload the extension and confirm that the keysets have been removed from all windows.
+  // Unload the extension and confirm that the keysets have been removed from
+  // all windows.
   await extension.unload();
-
-  keyset = win1.document.getElementById(keysetID);
-  is(keyset, null, "Expected keyset to be removed from the window #1");
-
-  keyset = win2.document.getElementById(keysetID);
-  is(keyset, null, "Expected keyset to be removed from the window #2");
-
-  keyset = win3.document.getElementById(keysetID);
-  is(keyset, null, "Expected keyset to be removed from the window #3");
-
-  await BrowserTestUtils.closeWindow(win1);
-  await BrowserTestUtils.closeWindow(win2);
-  await BrowserTestUtils.closeWindow(win3);
+  for (let i in windows) {
+    // Extension popup windows are removed/closed on extension unload, so they
+    // have to skip this part of the test.
+    if (windows[i].autoRemove) {
+      continue;
+    }
+    let keyset = windows[i].window.document.getElementById(keysetID);
+    is(keyset, null, `Expected keyset to be removed from the window #${i}`);
+    await BrowserTestUtils.closeWindow(windows[i].window);
+  }
 
   SimpleTest.endMonitorConsole();
   await waitForConsole;
