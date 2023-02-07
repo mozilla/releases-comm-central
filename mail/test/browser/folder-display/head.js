@@ -24,4 +24,8 @@ registerCleanupFunction(() => {
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
   tabmail.currentTabInfo.folderPaneVisible = true;
   tabmail.currentTabInfo.messagePaneVisible = true;
+
+  Services.xulStore.removeDocument(
+    "chrome://messenger/content/messenger.xhtml"
+  );
 });

@@ -861,12 +861,17 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         // Blur the currently focused element only if we're actually switching
         // to the newly opened tab.
         if (oldPanel && !background) {
-          // Remember what has focus for when we return to this tab.
-          if (
-            oldPanel.compareDocumentPosition(document.activeElement) &
-            Node.DOCUMENT_POSITION_CONTAINED_BY
-          ) {
-            oldTab.lastActiveElement = document.activeElement;
+          // Remember what has focus for when we return to this tab. Check for
+          // anything inside tabmail-container rather than the panel because
+          // focus could be in the Today Pane.
+          let activeElement = Services.focus.getFocusedElementForWindow(
+            window,
+            true,
+            {}
+          );
+          let container = document.getElementById("tabmail-container");
+          if (container.contains(document.activeElement)) {
+            oldTab.lastActiveElement = activeElement;
             document.activeElement.blur();
           } else {
             delete oldTab.lastActiveElement;
@@ -1594,12 +1599,14 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           // Remember what has focus for when we return to this tab. Check for
           // anything inside tabmail-container rather than the panel because
           // focus could be in the Today Pane.
+          let activeElement = Services.focus.getFocusedElementForWindow(
+            window,
+            true,
+            {}
+          );
           let container = document.getElementById("tabmail-container");
-          if (
-            container.compareDocumentPosition(document.activeElement) &
-            Node.DOCUMENT_POSITION_CONTAINED_BY
-          ) {
-            oldTab.lastActiveElement = document.activeElement;
+          if (container.contains(document.activeElement)) {
+            oldTab.lastActiveElement = activeElement;
             document.activeElement.blur();
           } else {
             delete oldTab.lastActiveElement;
