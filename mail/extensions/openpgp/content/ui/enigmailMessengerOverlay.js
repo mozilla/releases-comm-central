@@ -2815,9 +2815,7 @@ Enigmail.msg = {
             let candidate = {};
             candidate.skip = false;
             candidate.newKeyObj = newKey;
-            candidate.pubKey = isBinaryAutocrypt
-              ? RNP.enArmorString(newKey.pubKey, "public key")
-              : newKey.pubKey;
+            candidate.pubKey = newKey.pubKey;
             candidate.source = {
               uri: `mid:${gMessage.messageId}`,
               type: isBinaryAutocrypt ? "autocrypt" : "attachment",
