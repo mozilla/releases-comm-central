@@ -430,9 +430,7 @@ function abViewCard(card, directoryHint) {
   }
 }
 abViewCard.listFormatter = new Services.intl.ListFormat(
-  Services.appinfo.name == "xpcshell"
-    ? "en-US"
-    : Services.locale.appLocalesAsBCP47,
+  Services.appinfo.name == "xpcshell" ? "en-US" : undefined,
   { type: "unit" }
 );
 abViewCard.prototype = {

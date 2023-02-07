@@ -3165,43 +3165,31 @@ var detailsPane = {
         return "";
       }
       if (date.year && date.month && date.day) {
-        return new Services.intl.DateTimeFormat(
-          Services.locale.appLocalesAsBCP47,
-          {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }
-        ).format(new Date(date.year, date.month - 1, date.day));
+        return new Services.intl.DateTimeFormat(undefined, {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }).format(new Date(date.year, date.month - 1, date.day));
       }
       if (date.year && date.month) {
-        return new Services.intl.DateTimeFormat(
-          Services.locale.appLocalesAsBCP47,
-          {
-            year: "numeric",
-            month: "long",
-          }
-        ).format(new Date(date.year, date.month - 1, 1));
+        return new Services.intl.DateTimeFormat(undefined, {
+          year: "numeric",
+          month: "long",
+        }).format(new Date(date.year, date.month - 1, 1));
       }
       if (date.year) {
         return date.year;
       }
       if (date.month && date.day) {
-        return new Services.intl.DateTimeFormat(
-          Services.locale.appLocalesAsBCP47,
-          {
-            month: "long",
-            day: "numeric",
-          }
-        ).format(new Date(2024, date.month - 1, date.day));
+        return new Services.intl.DateTimeFormat(undefined, {
+          month: "long",
+          day: "numeric",
+        }).format(new Date(2024, date.month - 1, date.day));
       }
       if (date.month) {
-        return new Services.intl.DateTimeFormat(
-          Services.locale.appLocalesAsBCP47,
-          {
-            month: "long",
-          }
-        ).format(new Date(2024, date.month - 1, 1));
+        return new Services.intl.DateTimeFormat(undefined, {
+          month: "long",
+        }).format(new Date(2024, date.month - 1, 1));
       }
       if (date.day) {
         return date.day;
@@ -4393,15 +4381,12 @@ class ActiveTime extends HTMLSpanElement {
     this.setAttribute("is", "active-time");
 
     try {
-      this.formatter = new Services.intl.DateTimeFormat(
-        Services.locale.appLocalesAsBCP47,
-        {
-          timeZone: this.getAttribute("tz"),
-          weekday: "long",
-          hour: "numeric",
-          minute: "2-digit",
-        }
-      );
+      this.formatter = new Services.intl.DateTimeFormat(undefined, {
+        timeZone: this.getAttribute("tz"),
+        weekday: "long",
+        hour: "numeric",
+        minute: "2-digit",
+      });
     } catch {
       // DateTimeFormat will throw if the time zone is unknown.
       // If it does this will just be an empty span.
