@@ -168,7 +168,7 @@ var commandController = {
      * @param {nsIMsgFolder} destFolder - the destination folder
      */
     cmd_copyMessage(destFolder) {
-      if (window.gMessageURI.startsWith("file:")) {
+      if (window.gMessageURI?.startsWith("file:")) {
         let file = Services.io
           .newURI(window.gMessageURI)
           .QueryInterface(Ci.nsIFileURL).file;
