@@ -151,8 +151,11 @@ var gSpacesToolbar = {
         gSpacesToolbar.currentSpace?.button.classList.remove("current");
         gSpacesToolbar.currentSpace?.menuitem?.classList.remove("current");
         gSpacesToolbar.currentSpace = tabSpace;
-        gSpacesToolbar.currentSpace?.button.classList.add("current");
-        gSpacesToolbar.currentSpace?.menuitem?.classList.add("current");
+        if (gSpacesToolbar.currentSpace) {
+          gSpacesToolbar.currentSpace.button.classList.add("current");
+          gSpacesToolbar.currentSpace.menuitem?.classList.add("current");
+          gSpacesToolbar.setFocusButton(gSpacesToolbar.currentSpace.button);
+        }
 
         const spaceChangeEvent = new CustomEvent("spacechange", {
           detail: tabSpace,

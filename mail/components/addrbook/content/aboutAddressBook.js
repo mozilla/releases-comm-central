@@ -189,36 +189,6 @@ window.addEventListener("keypress", event => {
   ) {
     event.preventDefault();
   }
-  if (event.key != "F6" || event.altKey || event.ctrlKey || event.metaKey) {
-    return;
-  }
-  if (detailsPane.isEditing) {
-    return;
-  }
-
-  let targets = [booksList, cardsPane.searchInput, cardsPane.cardsList];
-  if (!detailsPane.node.hidden && !detailsPane.editButton.hidden) {
-    targets.push(detailsPane.editButton);
-  }
-
-  let focusedElementIndex = targets.findIndex(t => t.matches(":focus-within"));
-  if (focusedElementIndex == -1) {
-    focusedElementIndex = 0;
-  }
-
-  if (event.shiftKey) {
-    focusedElementIndex--;
-    if (focusedElementIndex == -1) {
-      focusedElementIndex = targets.length - 1;
-    }
-  } else {
-    focusedElementIndex++;
-    if (focusedElementIndex == targets.length) {
-      focusedElementIndex = 0;
-    }
-  }
-
-  targets[focusedElementIndex].focus();
 });
 
 /**

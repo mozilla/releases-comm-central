@@ -370,69 +370,122 @@ function IsSubscribeEnabled() {
  * @param {Event} event - The keypress DOMEvent.
  */
 function SwitchPaneFocus(event) {
-  // TODO: If we're going to keep this it should account for other tab types,
-  // and somehow get the tabs to do focus cycling themselves. (Address Book
-  // already does this.)
-
   // First, build an array of panes to cycle through based on our current state.
   // This will usually be something like [threadPane, messagePane, folderPane].
   let panes = [];
-  let focusedElement;
+  let focusedElement = document.activeElement;
+
   let spacesElement = !gSpacesToolbar.isHidden
     ? gSpacesToolbar.focusButton
     : document.getElementById("spacesPinnedButton");
+  panes.push(spacesElement);
 
-  let { currentTabInfo } = document.getElementById("tabmail");
-  if (currentTabInfo.mode.name == "mail3PaneTab") {
-    let { browser, folderPaneVisible, messagePaneVisible } = currentTabInfo;
-    let {
-      document: contentDocument,
-      folderTree,
-      threadTree,
-      webBrowser,
-      messageBrowser,
-      multiMessageBrowser,
-      accountCentralBrowser,
-    } = browser.contentWindow;
-
-    panes.push(spacesElement);
-
-    if (folderPaneVisible) {
-      panes.push(folderTree);
-    }
-
-    if (accountCentralBrowser.hidden) {
-      panes.push(threadTree);
-    } else {
-      panes.push(accountCentralBrowser);
-    }
-
-    if (messagePaneVisible) {
-      for (let browser of [webBrowser, messageBrowser, multiMessageBrowser]) {
-        if (!browser.hidden) {
-          panes.push(browser);
-        }
+  let toolbar = document.getElementById("unifiedToolbar");
+  if (!toolbar.hidden) {
+    // Prioritise the search bar, otherwise use the first available button.
+    let toolbarElement =
+      toolbar.querySelector("global-search-bar") ||
+      toolbar.querySelector("li:not([hidden]) button, #button-appmenu");
+    if (toolbarElement) {
+      panes.push(toolbarElement);
+      if (toolbar.matches(":focus-within") && focusedElement != spacesElement) {
+        focusedElement = toolbarElement;
       }
     }
-
-    focusedElement = contentDocument.activeElement;
-  } else {
-    return;
   }
 
-  // Find our focused element in the array. If focus is not on one of the main
-  // panes (it's probably on the toolbar), then act as if it's on the thread
-  // tree.
+  let { currentTabInfo } = document.getElementById("tabmail");
+  switch (currentTabInfo.mode.name) {
+    case "mail3PaneTab": {
+      let {
+        chromeBrowser,
+        folderPaneVisible,
+        messagePaneVisible,
+      } = currentTabInfo;
+      let { contentWindow, contentDocument } = chromeBrowser;
+      let {
+        folderTree,
+        threadTree,
+        webBrowser,
+        messageBrowser,
+        multiMessageBrowser,
+        accountCentralBrowser,
+      } = contentWindow;
+
+      if (folderPaneVisible) {
+        panes.push(folderTree);
+      }
+
+      if (accountCentralBrowser.hidden) {
+        panes.push(threadTree);
+      } else {
+        panes.push(accountCentralBrowser);
+      }
+
+      if (messagePaneVisible) {
+        if (!webBrowser.hidden) {
+          panes.push(webBrowser);
+        } else if (!messageBrowser.hidden) {
+          panes.push(messageBrowser.contentWindow.content);
+        } else if (!multiMessageBrowser.hidden) {
+          panes.push(multiMessageBrowser);
+        }
+      }
+
+      if (focusedElement == chromeBrowser) {
+        focusedElement = contentDocument.activeElement;
+        if (focusedElement == messageBrowser) {
+          focusedElement = messageBrowser.contentWindow.content;
+        }
+      }
+      break;
+    }
+    case "mailMessageTab": {
+      let { content } = currentTabInfo.chromeBrowser.contentWindow;
+      panes.push(content);
+      if (focusedElement == currentTabInfo.chromeBrowser) {
+        focusedElement = content;
+      }
+      break;
+    }
+    case "addressBookTab": {
+      let {
+        booksList,
+        cardsPane,
+        detailsPane,
+      } = currentTabInfo.browser.contentWindow;
+
+      if (detailsPane.isEditing) {
+        panes.push(currentTabInfo.browser);
+      } else {
+        let targets = [booksList, cardsPane.searchInput, cardsPane.cardsList];
+        if (!detailsPane.node.hidden && !detailsPane.editButton.hidden) {
+          targets.push(detailsPane.editButton);
+        }
+
+        if (focusedElement == currentTabInfo.browser) {
+          focusedElement = targets.find(t => t.matches(":focus-within"));
+        }
+        panes.push(...targets);
+      }
+      break;
+    }
+    default:
+      if (currentTabInfo.browser) {
+        panes.push(currentTabInfo.browser);
+      }
+      break;
+  }
+
+  // Find our focused element in the array.
   let focusedElementIndex = panes.indexOf(focusedElement);
-  if (focusedElementIndex == -1) {
-    focusedElementIndex = 0;
-  }
-
   if (event.shiftKey) {
     focusedElementIndex--;
-    if (focusedElementIndex == -1) {
+    if (focusedElementIndex < 0) {
       focusedElementIndex = panes.length - 1;
     }
+  } else if (focusedElementIndex == -1) {
+    focusedElementIndex = 0;
   } else {
     focusedElementIndex++;
     if (focusedElementIndex == panes.length) {
@@ -440,5 +493,20 @@ function SwitchPaneFocus(event) {
     }
   }
 
-  panes[focusedElementIndex].focus();
+  if (panes[focusedElementIndex]) {
+    panes[focusedElementIndex].focus();
+  }
 }
+
+// Override F6 handling for remote browsers, and use our own logic to
+// determine the element to focus.
+addEventListener(
+  "keypress",
+  function(event) {
+    if (event.key == "F6" && Services.focus.focusedElement?.isRemoteBrowser) {
+      event.preventDefault();
+      SwitchPaneFocus(event);
+    }
+  },
+  true
+);
