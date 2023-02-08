@@ -43,7 +43,7 @@ add_task(async function() {
     "chrome://calendar/content/calendar-creation.xhtml"
   );
   EventUtils.synthesizeMouseAtCenter(
-    document.querySelector("#calendar-list-pane .calendar-list-create"),
+    document.querySelector("#newCalendarSidebarButton"),
     {},
     window
   );
@@ -57,7 +57,7 @@ add_task(async function() {
 
   assertInteractionScalars({
     calendar: {
-      "calendar-new-calendar-command": 1,
+      newCalendarSidebarButton: 1,
     },
     toolbox: {
       calendarButton: 1,

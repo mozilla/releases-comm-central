@@ -15,7 +15,7 @@ async function openWizard(...args) {
     }
   );
   EventUtils.synthesizeMouseAtCenter(
-    document.querySelector("#calendar-list-pane .calendar-list-create"),
+    document.querySelector("#newCalendarSidebarButton"),
     {},
     window
   );
