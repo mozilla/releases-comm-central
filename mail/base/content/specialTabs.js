@@ -1053,6 +1053,15 @@ var specialTabs = {
         return null;
       }
 
+      // Extension pages of temporarily installed extensions cannot be restored.
+      if (
+        aTab.browser.currentURI.scheme == "moz-extension" &&
+        WebExtensionPolicy.getByHostname(aTab.browser.currentURI.host)
+          ?.temporarilyInstalled
+      ) {
+        return null;
+      }
+
       return {
         tabURI: aTab.browser.currentURI.spec,
         linkHandler: aTab.browser.getAttribute("messagemanagergroup"),
