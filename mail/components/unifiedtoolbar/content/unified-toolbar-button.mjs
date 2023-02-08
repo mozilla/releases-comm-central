@@ -126,15 +126,19 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
       event.preventDefault();
       event.stopPropagation();
       const popup = document.getElementById(this.getAttribute("popup"));
-      popup.openPopup(this, "after_start");
+      popup.openPopup(this, {
+        position: "after_start",
+        triggerEvent: event,
+      });
       this.setAttribute("aria-pressed", "true");
-      popup.addEventListener(
-        "popuphiding",
-        () => {
-          this.removeAttribute("aria-pressed");
-        },
-        { once: true }
-      );
+      const hideListener = () => {
+        if (popup.state === "open") {
+          return;
+        }
+        this.removeAttribute("aria-pressed");
+        popup.removeEventListener("popuphiding", hideListener);
+      };
+      popup.addEventListener("popuphiding", hideListener);
       return;
     }
     if (this.hasAttribute("aria-pressed")) {
