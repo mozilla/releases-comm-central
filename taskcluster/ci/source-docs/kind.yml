@@ -1,0 +1,44 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: gecko_taskgraph.loader.transform:loader
+
+kind-dependencies:
+    - toolchain
+    - fetch
+
+transforms:
+    - gecko_taskgraph.transforms.job:transforms
+    - gecko_taskgraph.transforms.task:transforms
+
+jobs:
+    rtd-webhook:
+        description: Triggers a build of the in-tree source documentation at source-docs.thunderbird.net
+        run-on-projects: ['trunk']
+        index:
+            product: thunderbird
+            job-name: source-docs
+        treeherder:
+            platform: doc/opt
+            kind: test
+            symbol: doc(RTD)
+            tier: 2
+        worker-type: t-linux-large
+        worker:
+            docker-image: {in-tree: "debian11-amd64-build"}
+            max-run-time: 1800
+            env:
+                TASK_ID: {"task-reference": "<self>"}
+                TASKCLUSTER_PROXY_URL: http://taskcluster
+        run:
+            using: run-task
+            comm-checkout: true
+            cwd: '{checkout}'
+            command: >
+                ./comm/taskcluster/scripts/build-source-docs.sh
+        scopes:
+            - secrets:get:project/comm/thunderbird/releng/build/level-{level}/rtd-webhook
+        when:
+            files-changed:
+                - comm/docs/**

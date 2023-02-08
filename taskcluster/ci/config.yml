@@ -59,6 +59,7 @@ treeherder:
         'M': 'Mochitests'
 
         'Searchfox': 'Searchfox builds'
+        'doc': 'Source docs'
 
 index:
     products:
