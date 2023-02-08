@@ -22,7 +22,7 @@
         ".tab-line": "selected=visuallyselected",
         ".tab-content": "pinned,selected,titlechanged,title=label",
         ".tab-throbber": "fadein,pinned,busy,progress,selected",
-        ".tab-icon-image": "validate,fadein,pinned,selected",
+        ".tab-icon-image": "fadein,pinned,selected",
         ".tab-label-container": "pinned,selected=visuallyselected",
         ".tab-text": "text=label,accesskey,fadein,pinned,selected",
         ".tab-close-button": "fadein,pinned,selected=visuallyselected",
@@ -44,7 +44,7 @@
             </vbox>
             <html:div class="tab-content">
               <hbox class="tab-throbber" role="presentation"></hbox>
-              <html:img class="tab-icon-image" alt="" />
+              <html:img class="tab-icon-image" alt="" role="presentation" />
               <hbox class="tab-label-container"
                     onoverflow="this.setAttribute('textoverflow', 'true');"
                     onunderflow="this.removeAttribute('textoverflow');"
