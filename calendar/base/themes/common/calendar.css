@@ -115,11 +115,11 @@
 
 @media (prefers-contrast) {
   .calendar-notification-bar:not(:-moz-lwtheme) {
-    background-color: SelectedItem;
+    background-color: var(--selected-item-color);
   }
 
   .calendar-notification-bar:not(:-moz-lwtheme) > *:not(#imip-view-toolbox) {
-    color: SelectedItemText;
+    color: var(--selected-item-text-color);
   }
 }
 
@@ -246,5 +246,5 @@
 }
 
 #calsidebar_splitter[state="collapsed"]:hover {
-  border-inline-start: 4px solid SelectedItem;
+  border-inline-start: 4px solid var(--selected-item-color);
 }

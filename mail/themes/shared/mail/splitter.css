@@ -62,7 +62,7 @@ hr[is="pane-splitter"].splitter-collapsed {
 hr[is="pane-splitter"]::after {
   /* We create a pseudo-element that occupies the splitter content. We will only
    * show this when the splitter is collapsed and being resized or hovered. */
-  background-color: SelectedItem;
+  background-color: var(--selected-item-color);
   content: "";
   display: block;
   width: 100%;

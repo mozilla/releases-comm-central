@@ -5,7 +5,7 @@
 @import url("chrome://messenger/skin/folderColors.css");
 
 :root {
-  --new-focused-folder-color: SelectedItemText;
+  --new-focused-folder-color: var(--selected-item-text-color);
 
   --primary-fill: color-mix(in srgb, var(--primary) 20%, transparent);
   --primary-stroke: var(--primary);
@@ -268,8 +268,8 @@ treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessage
 
 treechildren::-moz-tree-image(folderNameCol, newMessages-true),
 treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail) {
-  fill: color-mix(in srgb, -moz-hyperlinktext 20%, transparent) !important;
-  stroke: -moz-hyperlinktext !important;
+  fill: color-mix(in srgb, var(--new-folder-color) 20%, transparent) !important;
+  stroke: var(--new-folder-color) !important;
 }
 
 treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail, selected, focus),

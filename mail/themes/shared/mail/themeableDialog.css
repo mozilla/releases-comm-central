@@ -23,10 +23,10 @@
   --field-background-color: Field;
   --field-border-color: rgba(128, 128, 128, .6);
   --field-border-hover-color: rgba(128, 128, 128, .8);
-  --highlight-color: SelectedItem;
-  --primary-text-color: SelectedItemText;
-  --primary-background-hover: color-mix(in srgb, var(--highlight-color) 85%, black);
-  --primary-background-active: color-mix(in srgb, var(--highlight-color) 78%, black);
+  --selected-item-color: var(--color-blue-60);
+  --primary-text-color: var(--selected-item-text-color);
+  --primary-background-hover: color-mix(in srgb, var(--selected-item-color) 85%, black);
+  --primary-background-active: color-mix(in srgb, var(--selected-item-color) 78%, black);
   --primary-focus-border: -moz-Dialog;
   --richlist-button-background: -moz-Dialog;
   --tab-hover-background: hsla(0, 0%, 50%, 0.15);
@@ -34,11 +34,11 @@
 }
 
 :root:-moz-lwtheme {
-  --box-text-color: #0c0c0d;
-  --box-background-color: #fff;
-  --box-border-color: #adadae;
-  --field-text-color: #181920;
-  --field-background-color: #fff;
+  --box-text-color: var(--color-ink-90);
+  --box-background-color: var(--color-white);
+  --box-border-color: var(--color-gray-40);
+  --field-text-color: var(--color-gray-90);
+  --field-background-color: var(--color-white);
   --field-border-color: rgba(0, 0, 0, 0.3);
   --field-border-hover-color: rgba(0, 0, 0, 0.4);
   --primary-focus-border: var(--lwt-accent-color);
@@ -77,7 +77,7 @@
   --field-background-color: Field;
   --field-border-color: rgba(128, 128, 128, .6);
   --field-border-hover-color: rgba(128, 128, 128, .8);
-  --highlight-color: SelectedItem;
+  --selected-item-color: var(--color-blue-60);
   --lwt-accent-color: -moz-Dialog;
   --richlist-button-background: -moz-Dialog;
   --tab-hover-background: hsla(0, 0%, 50%, 0.15);
@@ -88,16 +88,16 @@
   :host,
   :root:-moz-lwtheme,
   :root:not([lwt-tree]):-moz-lwtheme dialog {
-    --box-text-color: rgb(249, 249, 250);
-    --box-background-color: #202023;
+    --box-text-color: var(--color-ink-10);
+    --box-background-color: var(--color-ink-80);
     --box-border-color: rgba(249, 249, 250, 0.3);
-    --field-text-color: #f9f9fa;
-    --field-background-color: #353537;
+    --field-text-color: var(--color-ink-10);
+    --field-background-color: var(--color-gray-70);
     --field-border-color: hsla(0, 0%, 70%, 0.4);
     --field-border-hover-color: hsla(0, 0%, 70%, 0.5);
-    --highlight-color: #0a84ff;
-    --highlight-background: #fff;
-    --primary-text-color: #f9f9fa;
+    --selected-item-color: var(--color-blue-50);
+    --highlight-background: var(--color-white);
+    --primary-text-color: var(--color-ink-10);
     --tab-hover-background: hsla(0, 0%, 50%, 0.3);
     --tab-selected-background: hsla(0, 0%, 50%, 0.5);
   }
@@ -113,6 +113,7 @@
     --button-border-color: ThreeDShadow;
     --field-border-color: ThreeDShadow;
     --field-border-hover-color: SelectedItemText;
+    --selected-item-color: SelectedItem;
     --tab-hover-background: SelectedItem;
     --tab-selected-background: SelectedItem;
   }
@@ -149,8 +150,8 @@ html|textarea:not(:focus):hover {
 
 html|input:focus,
 html|textarea:focus {
-  border-color: var(--highlight-color);
-  outline: 1px solid var(--highlight-color);
+  border-color: var(--selected-item-color);
+  outline: 1px solid var(--selected-item-color);
 }
 
 :root[lwt-tree-brighttext] html|input::selection,
@@ -158,7 +159,7 @@ html|textarea:focus {
 :root[lwt-default-theme-in-dark-mode] html|input::selection,
 :root[lwt-default-theme-in-dark-mode] html|textarea::selection {
   background-color: var(--highlight-background);
-  color: var(--highlight-color);
+  color: var(--selected-item-color);
 }
 
 html|input:is([type="email"],[type="tel"],[type="text"],[type="password"],
@@ -238,7 +239,7 @@ html|input[type="color"] {
 }
 
 button:-moz-focusring {
-  outline: 2px solid var(--highlight-color);
+  outline: 2px solid var(--selected-item-color);
   outline-offset: -1px;
 }
 
@@ -257,7 +258,7 @@ html|input[type="color"]:not([disabled="true"]):hover:active {
 }
 
 button[default] {
-  background-color: var(--highlight-color);
+  background-color: var(--selected-item-color);
   color: var(--primary-text-color) !important;
 }
 
@@ -336,8 +337,8 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
 }
 
 menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
-  border-color: var(--highlight-color);
-  outline: 1px solid var(--highlight-color);
+  border-color: var(--selected-item-color);
+  outline: 1px solid var(--selected-item-color);
 }
 
 .menu-iconic-left {
@@ -411,7 +412,7 @@ checkbox[disabled="true"] {
 
 radio:not([disabled="true"]):hover > .radio-check,
 checkbox:not([disabled="true"]):hover > .checkbox-check {
-  border-color: var(--highlight-color);
+  border-color: var(--selected-item-color);
 }
 
 .radio-check[selected] {
@@ -437,13 +438,27 @@ checkbox:not([disabled="true"]):hover > .checkbox-check {
 :root[lwt-tree] richlistbox:focus > richlistitem[selected="true"] {
   background-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 50%, 0.35));
   color: var(--sidebar-highlight-text-color, inherit);
-  outline: 1px solid var(--highlight-color) !important;
+  outline: 1px solid var(--selected-item-color) !important;
   outline-offset: -1px;
 }
 
 :root[lwt-tree] richlistbox:focus > richlistitem[selected="true"] button,
 :root[lwt-tree] richlistbox:focus > richlistitem[selected="true"] menulist {
   color: var(--sidebar-text-color) !important;
+}
+
+richlistitem[selected="true"] {
+  background-color: var(--tab-selected-background);
+  color: inherit;
+}
+
+richlistbox:where(:focus) > richlistitem[selected="true"] {
+  background-color: var(--selected-item-color);
+  color: var(--selected-item-text-color);
+}
+
+richlistbox[seltype="multiple"]:focus > richlistitem[current="true"] {
+  outline-color: var(--selected-item-color);
 }
 
 richlistbox > richlistitem {
@@ -514,7 +529,7 @@ tab:hover {
 tab[visuallyselected="true"] {
   margin-block: 0;
   background-color: var(--tab-selected-background);
-  border-bottom-color: var(--lwt-tab-line-color, var(--highlight-color));
+  border-bottom-color: var(--lwt-tab-line-color, var(--selected-item-color));
 }
 
 tabpanels {
@@ -552,7 +567,7 @@ separator.groove:not([orient="vertical"]) {
 }
 
 .text-link:focus-visible {
-  outline: 2px solid var(--highlight-color);
+  outline: 2px solid var(--selected-item-color);
   outline-offset: 1px;
   border-radius: 1px;
 }

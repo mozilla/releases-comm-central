@@ -58,7 +58,7 @@ treechildren::-moz-tree-row(modeHeader) {
 }
 
 #folderTree treechildren::-moz-tree-row(selected, focus) {
-  background-color: SelectedItem;
+  background-color: var(--selected-item-color);
 }
 
 #folderTree treechildren::-moz-tree-cell-text {

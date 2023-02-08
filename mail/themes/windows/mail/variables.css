@@ -6,9 +6,8 @@
 
 :root {
   --autocomplete-popup-url-color: -moz-nativehyperlinktext;
-  --tabline-color: SelectedItem;
+  --tabline-color: var(--selected-item-color);
   --glassShadowColor: hsla(240, 5%, 5%, 0.3);
-  --new-folder-color: -moz-hyperlinktext;
   --noselect-folder-color: GrayText;
   --toolbar-non-lwt-bgcolor: color-mix(in srgb, -moz-dialog 85%, white);
   --toolbar-non-lwt-textcolor: -moz-dialogText;
@@ -16,7 +15,7 @@
                                              rgba(255, 255, 255, 0.15));
   --chrome-content-separator-color: ThreeDShadow;
   --row-grouped-header-bg-color: -moz-dialog;
-  --row-grouped-header-bg-color-selected: SelectedItem;
+  --row-grouped-header-bg-color-selected: var(--selected-item-color);
   --panel-separator-color: ThreeDLightShadow;
   --splitter-color: var(--sidebar-border-color, ThreeDShadow);
 }

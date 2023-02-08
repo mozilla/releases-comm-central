@@ -7,11 +7,11 @@
 #body {
   --popupColor: Menu;
   --popupBorder: ThreeDShadow;
-  --popupHLColor: SelectedItem;
-  --popupHLTextColor: SelectedItemText;
-  --barColor: SelectedItem;
+  --popupHLColor: var(--selected-item-color);
+  --popupHLTextColor: var(--selected-item-text-color);
+  --barColor: var(--selected-item-color);
   --barHlColor: -moz-nativehyperlinktext;
-  --dateHLColor: SelectedItem;
+  --dateHLColor: var(--selected-item-color);
   --borderRadius: 3px;
   --buttonHoverColor: ButtonShadow;
   --buttonHoverTextColor: -moz-ButtonHoverText;
@@ -42,5 +42,5 @@
 
 .bar:hover > .bar-link,
 .bar:focus > .bar-link {
-  color: SelectedItemText;
+  color: var(--selected-item-text-color);
 }

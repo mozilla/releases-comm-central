@@ -47,8 +47,8 @@ html|input.textbox-addressingWidget:disabled {
 }
 
 .attendee-list .attendee-label:focus {
-  background-color: SelectedItem;
-  color: SelectedItemText;
+  background-color: var(--selected-item-color);
+  color: var(--selected-item-text-color);
 }
 
 .itip-icon {

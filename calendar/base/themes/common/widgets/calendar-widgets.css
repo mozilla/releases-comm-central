@@ -260,12 +260,12 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 }
 
 #calendar-list:focus-within > li.selected {
-  background-color: SelectedItem;
-  color: SelectedItemText;
+  background-color: var(--selected-item-color);
+  color: var(--selected-item-text-color);
 }
 
 #calendar-list > li:not(.selected):hover {
-  background-color: color-mix(in srgb, SelectedItem 10%, transparent);
+  background-color: color-mix(in srgb, var(--selected-item-color) 10%, transparent);
 }
 
 #calendar-list > li.dragging {

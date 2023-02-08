@@ -56,8 +56,8 @@
 }
 
 #threadTree > treechildren::-moz-tree-row(selected, focus) {
-  color: SelectedItemText;
-  background-color: SelectedItem;
+  color: var(--selected-item-text-color);
+  background-color: var(--selected-item-color);
 }
 
 /* ..... tabs ..... */

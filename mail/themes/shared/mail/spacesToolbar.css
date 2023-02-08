@@ -8,8 +8,8 @@
   --spaces-bg-color: #e8e8e8;
   --spaces-bg-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.05) 100%);
   --spaces-button-text-color: currentColor;
-  --spaces-button-active-text-color: SelectedItemText;
-  --spaces-button-active-bg-color: SelectedItem;
+  --spaces-button-active-text-color: var(--selected-item-text-color);
+  --spaces-button-active-bg-color: var(--selected-item-color);
   --spaces-button-badge-text-color: var(--color-white);
   --spaces-button-badge-bg-color: var(--color-red-70);
   --spaces-button-opacity: 1;
@@ -127,7 +127,7 @@
 }
 
 .spaces-toolbar-button:focus-visible:not(:hover) {
-  outline: 2px solid SelectedItem;
+  outline: 2px solid var(--selected-item-color);
 }
 
 .spaces-toolbar-button.current:focus-visible:not(:hover) {
@@ -222,7 +222,7 @@
 }
 
 #spacesPinnedButton:focus-visible {
-  outline: 2px solid SelectedItem;
+  outline: 2px solid var(--selected-item-color);
 }
 
 #spacesPinnedButton .toolbarbutton-text,

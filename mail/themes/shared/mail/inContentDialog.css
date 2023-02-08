@@ -15,8 +15,8 @@ dialog {
   --dialog-button-background-color: color-mix(in srgb, currentColor 13%, transparent);
   --dialog-button-background-color-hover: color-mix(in srgb, currentColor 17%, transparent);
   --dialog-button-background-color-active: color-mix(in srgb, currentColor 30%, transparent);
-  --dialog-highlight-color: var(--in-content-primary-button-background, SelectedItem);
-  --dialog-highlight-text-color: var(--in-content-primary-button-text-color, SelectedItemText);
+  --dialog-highlight-color: var(--in-content-primary-button-background, var(--selected-item-color));
+  --dialog-highlight-text-color: var(--in-content-primary-button-text-color, var(--selected-item-text-color));
   --dialog-primary-background-hover: color-mix(in srgb, var(--dialog-highlight-color) 85%, black);
   --dialog-primary-background-active: color-mix(in srgb, var(--dialog-highlight-color) 78%, black);
 }
@@ -314,7 +314,7 @@ span.loading-inline {
   overflow: hidden;
   height: 16px;
   width: 16px;
-  color: SelectedItem;
+  color: var(--selected-item-color);
   vertical-align: sub;
 }
 

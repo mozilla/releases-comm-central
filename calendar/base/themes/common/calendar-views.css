@@ -84,11 +84,11 @@
   --viewColor: WindowText;
   --viewBackground: Field;
   --viewBorderColor: ThreeDShadow;
-  --viewHighlightBorderColor: SelectedItem;
+  --viewHighlightBorderColor: var(--selected-item-color);
   --viewTodayColor: inherit;
   --viewTodayBackground: Field;
-  --viewTodayLabelColor: SelectedItemText;
-  --viewTodayLabelBackground: SelectedItem;
+  --viewTodayLabelColor: var(--selected-item-text-color);
+  --viewTodayLabelBackground: var(--selected-item-color);
   --viewTodayOffBackground: ButtonFace;
   --viewTodayDayLabelBackground: ButtonFace;
   --viewTodayWeekendBackground: ButtonFace;
@@ -98,17 +98,17 @@
   --viewDayBoxOffSelectedBackground: rgba(0, 0, 0, .2);
   --viewDayBoxOtherSelectedBackground: rgba(0, 0, 0, .2);
   --viewMonthOtherBackground: ButtonFace;
-  --viewMonthDayBoxSelectedColor: SelectedItem;
+  --viewMonthDayBoxSelectedColor: var(--selected-item-color);
   --viewMonthDayBoxLabelColor: WindowText;
   --viewMonthDayOtherBackground: ButtonFace;
   --viewMonthDayOffLabelBackground: rgba(0, 0, 0, .1);
   --viewOffTimeBackground: rgba(0, 0, 0, .1);
   --viewTimeBoxColor: GrayText;
-  --viewDayLabelSelectedColor: SelectedItemText;
-  --viewDayLabelSelectedBackground: SelectedItem;
+  --viewDayLabelSelectedColor: var(--selected-item-text-color);
+  --viewDayLabelSelectedBackground: var(--selected-item-color);
   --viewDragboxColor: GrayText;
-  --viewDragboxBackground: SelectedItem;
-  --viewDropshadowBackground: SelectedItem !important;
+  --viewDragboxBackground: var(--selected-item-color);
+  --viewDropshadowBackground: var(--selected-item-color) !important;
 }
 
 :root[lwt-tree] #calendar-nav-control {

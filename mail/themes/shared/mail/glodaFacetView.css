@@ -226,8 +226,8 @@ html[dir="rtl"] .facet-date-zoom-out {
 }
 
 .facetious[type="date"][zoomedout="false"] .facet-date-zoom-out:hover {
-  fill: SelectedItemText;
-  background-color: SelectedItem;
+  fill: var(--selected-item-text-color);
+  background-color: var(--selected-item-color);
   border-color: Field;
 }
 
@@ -278,8 +278,8 @@ facet-boolean:not([disabled]):hover > .facet-checkbox-bubble,
 facet-boolean-filtered:not([disabled]):hover > .facet-checkbox-bubble,
 facet-boolean[checked="true"]:not([disabled]) > .facet-checkbox-bubble,
 facet-boolean-filtered[checked="true"]:not([disabled]) > .facet-checkbox-bubble {
-  background-color: SelectedItem;
-  color: SelectedItemText;
+  background-color: var(--selected-item-color);
+  color: var(--selected-item-text-color);
 }
 
 .facet-checkbox-label,
@@ -347,13 +347,13 @@ html[dir="rtl"] .bar-count {
 }
 
 .bar[selected="true"] {
-  background-color: SelectedItem;
-  color: SelectedItemText;
+  background-color: var(--selected-item-color);
+  color: var(--selected-item-text-color);
 }
 
 .bar:hover,
 .bar:focus {
-  background-color: SelectedItem;
+  background-color: var(--selected-item-color);
   outline: none;
 }
 
@@ -389,14 +389,14 @@ html[dir="rtl"] .bar-link {
 .bar:hover > .bar-count,
 .bar:focus > .bar-link,
 .bar:focus > .bar-count {
-  color: SelectedItemText;
+  color: var(--selected-item-text-color);
 }
 
 .bar[selected="true"]> .bar-link {
-  color: SelectedItemText;
+  color: var(--selected-item-text-color);
 }
 .bar[selected="true"] > .bar-count {
-  color: SelectedItemText;
+  color: var(--selected-item-text-color);
 }
 
 /* ===== Results ===== */
@@ -439,8 +439,8 @@ html[dir="rtl"] .bar-link {
 
 .results-message-showall-button:hover,
 .results-message-showall-button:focus {
-  background-color: SelectedItem;
-  color: SelectedItemText;
+  background-color: var(--selected-item-color);
+  color: var(--selected-item-text-color);
 }
 
 .results-message-sort-bar {
@@ -502,13 +502,13 @@ html[dir="rtl"] .bar-link {
 }
 
 .message:hover .message-subject {
-  color: SelectedItem;
+  color: var(--selected-item-color);
 }
 
 .message .message-subject:hover,
 .message .message-subject:focus {
-  background-color: SelectedItem;
-  color: SelectedItemText;
+  background-color: var(--selected-item-color);
+  color: var(--selected-item-text-color);
 }
 
 .message:focus,
@@ -616,8 +616,8 @@ html[dir="rtl"] .message-attachment-icon {
 }
 
 .message-body-fulltext-match {
-  color: SelectedItemText;
-  background-color: SelectedItem;
+  color: var(--selected-item-text-color);
+  background-color: var(--selected-item-color);
   border-radius: var(--borderRadius);
 }
 

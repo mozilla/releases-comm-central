@@ -308,8 +308,8 @@
   list-style: none;
   background-color: field;
   border-top: 1px solid var(--splitter-color);
-  --selected-background: SelectedItem;
-  --selected-foreground: SelectedItemText;
+  --selected-background: var(--selected-item-color);
+  --selected-foreground: var(--selected-item-text-color);
 }
 
 :root[lwt-tree] #agenda {

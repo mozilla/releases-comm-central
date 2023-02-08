@@ -116,7 +116,7 @@ treechildren::-moz-tree-cell-text(dummy) {
 }
 
 #folderpane_splitter[state="collapsed"]:hover {
-  border-inline-start: 4px solid SelectedItem;
+  border-inline-start: 4px solid var(--selected-item-color);
 }
 
 #threadpane-splitter:not([orient="vertical"]) {
@@ -126,7 +126,7 @@ treechildren::-moz-tree-cell-text(dummy) {
 }
 
 #threadpane-splitter[state="collapsed"]:not([orient="vertical"]):hover {
-  border-inline-end: 4px solid SelectedItem;
+  border-inline-end: 4px solid var(--selected-item-color);
 }
 
 #threadpane-splitter {
@@ -147,7 +147,7 @@ treechildren::-moz-tree-cell-text(dummy) {
 }
 
 #threadpane-splitter[state="collapsed"]:hover {
-  border-bottom: 4px solid SelectedItem;
+  border-bottom: 4px solid var(--selected-item-color);
 }
 
 /* Quick-Filter-Bar */

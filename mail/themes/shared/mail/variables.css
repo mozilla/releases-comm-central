@@ -11,8 +11,8 @@
   --toolbar-bgcolor: var(--toolbar-non-lwt-bgcolor);
   --toolbar-color: var(--toolbar-non-lwt-textcolor);
   --panelui-subview-transition-duration: 150ms;
-  --autocomplete-popup-highlight-background: SelectedItem;
-  --autocomplete-popup-highlight-color: SelectedItemText;
+  --autocomplete-popup-highlight-background: var(--selected-item-color);
+  --autocomplete-popup-highlight-color: var(--selected-item-text-color);
   --button-bgcolor: color-mix(in srgb, currentColor 13%, transparent);
   --button-hover-bgcolor: color-mix(in srgb, currentColor 17%, transparent);
   --button-active-bgcolor: color-mix(in srgb, currentColor 30%, transparent);
@@ -29,14 +29,17 @@
   --checkbox-unchecked-active-bgcolor: var(--button-active-bgcolor);
   --checkbox-checked-border-color: transparent;
   --checkbox-checked-color: var(--button-primary-color);
-  --checkbox-checked-bgcolor: var(--highlight-color);
-  --checkbox-checked-hover-bgcolor: color-mix(in srgb, black 10%, var(--highlight-color));
-  --checkbox-checked-active-bgcolor: color-mix(in srgb, black 20%, var(--highlight-color));
+  --checkbox-checked-bgcolor: var(--selected-item-color);
+  --checkbox-checked-hover-bgcolor: color-mix(in srgb, black 10%, var(--selected-item-color));
+  --checkbox-checked-active-bgcolor: color-mix(in srgb, black 20%, var(--selected-item-color));
   --focus-outline-color: var(--toolbar-field-focus-border-color);
   --focus-outline-offset: 2px;
   --focus-outline: 2px solid var(--focus-outline-color);
   --input-border-color: color-mix(in srgb, currentColor 41%, transparent);
+  --new-folder-color: var(--color-blue-60);
   --lwt-header-image: none;
+  --selected-item-color: var(--color-blue-60);
+  --selected-item-text-color: var(--color-white);
 
   --tab-min-height: 33px;
   --lwt-tabs-border-color: rgba(0, 0, 0, .3);
@@ -62,13 +65,13 @@
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #0a84ff);
   --toolbarseparator-color: color-mix(in srgb, currentColor 20%, transparent);
   --toolbar-field-focus-border-color: AccentColor;
-  --toolbar-field-highlight: SelectedItem;
-  --toolbar-field-highlight-color: SelectedItemText;
+  --toolbar-field-highlight: var(--selected-item-color);
+  --toolbar-field-highlight-color: var(--selected-item-text-color);
   --item-focus-selected-border-color: #0060df;
   --default: #4f526d;
   --primary: #0a84ff;
-  --select-focus-text-color: SelectedItemText;
-  --select-focus-background-color: SelectedItem;
+  --select-focus-text-color: var(--selected-item-text-color);
+  --select-focus-background-color: var(--selected-item-color);
 }
 
 /* LW-themes enabled */
@@ -88,7 +91,7 @@
 }
 
 :root[lwt-tree] {
-  --select-focus-background-color: var(--sidebar-highlight-background-color, SelectedItem);
+  --select-focus-background-color: var(--sidebar-highlight-background-color, var(--selected-item-color));
   --select-focus-text-color: var(--sidebar-highlight-text-color,
                                  var(--sidebar-text-color));
   --new-focused-folder-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
@@ -121,8 +124,10 @@
     --button-primary-color: rgb(251, 251, 254) !important;
     --button-sidebar-bottom-hover-color: var(--color-blue-40);
     --lwt-accent-color: rgb(24, 24, 26) !important;
+    --new-folder-color: var(--color-blue-40);
     --sidebar-border-color: #606064 !important;
     --autocomplete-popup-highlight-background: #0060df;
+    --selected-item-color: var(--color-blue-50);
     --toolbar-field-border-color: #5f5f6d !important;
     --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
                                           rgba(255, 255, 255, .25));
@@ -157,6 +162,13 @@
 }
 
 /* Special High contrast setting */
+
+@media (prefers-contrast) {
+  :root:not(:-moz-lwtheme) {
+    --selected-item-color: SelectedItem;
+    --selected-item-text-color: SelectedItemText;
+  }
+}
 
 @media not (prefers-contrast) {
   :root:not(:-moz-lwtheme) {

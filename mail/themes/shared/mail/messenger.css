@@ -152,7 +152,7 @@ p {
 }
 
 treechildren::-moz-tree-row(selected, current, focus) {
-  outline: 1px solid color-mix(in srgb, SelectedItem, black 10%);
+  outline: 1px solid color-mix(in srgb, var(--selected-item-color), black 10%);
   outline-offset: -1px;
 }
 
@@ -165,7 +165,7 @@ tree > treechildren::-moz-tree-row(selected) {
 }
 
 tree > treechildren::-moz-tree-row(selected, focus) {
-  background-color: SelectedItem;
+  background-color: var(--selected-item-color);
 }
 
 treechildren::-moz-tree-twisty {
@@ -816,7 +816,7 @@ html|ul.addon-installed-list {
 }
 
 .button-flat:focus-visible:not(:hover) {
-  outline: 2px solid SelectedItem;
+  outline: 2px solid var(--selected-item-color);
 }
 
 :root[lwt-tree] tree,
@@ -869,17 +869,17 @@ tree:-moz-lwtheme:not(:focus)
 }
 
 tree > treechildren::-moz-tree-row(dropOn) {
-  border-color: SelectedItemText;
-  background-color: SelectedItem !important;
+  border-color: var(--selected-item-text-color);
+  background-color: var(--selected-item-color) !important;
 }
 
 tree > treechildren::-moz-tree-cell-text(primary, dropOn) {
-  color: SelectedItemText;
+  color: var(--selected-item-text-color);
 }
 
 tree > treechildren::-moz-tree-image(primary, dropOn) {
-  fill: color-mix(in srgb, SelectedItemText 20%, transparent);
-  stroke: SelectedItemText !important;
+  fill: color-mix(in srgb, var(--selected-item-text-color) 20%, transparent);
+  stroke: var(--selected-item-text-color) !important;
 }
 
 :root:-moz-lwtheme treecol:not([hideheader="true"]),

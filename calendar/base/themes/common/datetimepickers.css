@@ -18,8 +18,8 @@ timepicker-grids {
   --tpFiveminBackground: Window;
   --tpItemHoverColor: InactiveCaptionText;
   --tpItemHoverBackground: InactiveCaption;
-  --tbHighlightColor: SelectedItemText;
-  --tbHighlightBackground: SelectedItem;
+  --tbHighlightColor: var(--selected-item-text-color);
+  --tbHighlightBackground: var(--selected-item-color);
 }
 
 :root[lwt-tree] timepicker-grids {

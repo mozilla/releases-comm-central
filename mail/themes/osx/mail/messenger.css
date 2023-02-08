@@ -231,7 +231,7 @@ treechildren::-moz-tree-line {
 }
 
 treechildren::-moz-tree-line(selected, focus) {
-  border-color: SelectedItemText;
+  border-color: var(--selected-item-text-color);
 }
 
 /* message column icons */

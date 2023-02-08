@@ -56,5 +56,5 @@
 }
 
 .item-summary-splitter[state="collapsed"]:hover {
-  border-bottom: 4px solid SelectedItem;
+  border-bottom: 4px solid var(--selected-item-color);
 }

@@ -32,10 +32,3 @@
   margin-inline-start: 0;
   margin-inline-end: 4px;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root:not([lwt-tree]) #searchTermBox,
-  :root:not([lwt-tree]) #searchResults {
-    --highlight-color: var(--dark-lwt-highlight-color);
-  }
-}

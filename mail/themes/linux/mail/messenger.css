@@ -16,8 +16,8 @@
 }
 
 :root[lwt-tree-brighttext]:not([lwt-tree]) treechildren::-moz-tree-row(current, focus) {
-  --sidebar-highlight-background-color: SelectedItem;
-  --sidebar-highlight-text-color: SelectedItemText;
+  --sidebar-highlight-background-color: var(--selected-item-color);
+  --sidebar-highlight-text-color: var(--selected-item-text-color);
 }
 
 #tabs-toolbar {

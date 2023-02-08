@@ -25,8 +25,8 @@
   :root {
     --listbox-color: var(--color-gray-80);
     --listbox-selected-bg: var(--color-gray-20);
-    --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--color-blue-50));
-    --listbox-selected-color: var(--sidebar-highlight-text-color, var(--color-white));
+    --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--selected-item-color));
+    --listbox-selected-color: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
     --listbox-hover: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
     --tree-view-bg: var(--color-white);
     --tree-view-color: var(--color-ink-90);
@@ -184,7 +184,7 @@ thead[is="tree-view-table-header"] hr[is="pane-splitter"] {
 }
 
 thead[is="tree-view-table-header"] hr[is="pane-splitter"]:hover:not(:active) {
-  background-color: var(--color-blue-50);
+  background-color: var(--selected-item-color);
 }
 
 th[is="tree-view-table-header-cell"] {

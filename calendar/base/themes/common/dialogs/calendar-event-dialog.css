@@ -465,7 +465,7 @@ label.label {
 
 #keepduration-button[keep="true"] {
   list-style-image: url(chrome://calendar/skin/shared/chain-lock.svg);
-  fill: SelectedItem;
+  fill: var(--selected-item-color);
 }
 
 #keepduration-button[disabled="true"] {

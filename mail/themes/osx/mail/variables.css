@@ -16,7 +16,6 @@
   --splitter-color: var(--sidebar-border-color, #bdbdbd);
   --autocomplete-popup-url-color: hsl(210, 77%, 47%);
   --noselect-folder-color: gray;
-  --new-folder-color: blue;
 }
 
 :root:not(:-moz-lwtheme) {
@@ -28,10 +27,4 @@
   --toolbar-bgcolor: -moz-mac-chrome-inactive;
   --lwt-tabs-border-color: rgba(0, 0, 0, 0.05);
   --chrome-content-separator-color: hsl(0, 0%, 85%);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([lwt-tree]):-moz-lwtheme {
-    --new-folder-color: #45b1ff;
-  }
 }

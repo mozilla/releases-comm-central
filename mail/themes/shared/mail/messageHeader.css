@@ -298,8 +298,8 @@ mail-tagfield[collapsed="true"] {
 #attachmentName:hover,
 #attachmentName[selected="true"] {
   cursor: pointer;
-  color: SelectedItemText;
-  background-color: SelectedItem;
+  color: var(--selected-item-text-color);
+  background-color: var(--selected-item-color);
 }
 
 #attachmentSize {
@@ -357,7 +357,7 @@ mail-tagfield[collapsed="true"] {
 }
 
 #attachment-splitter[state="collapsed"]:hover {
-  border-bottom: 4px solid SelectedItem;
+  border-bottom: 4px solid var(--selected-item-color);
 }
 
 /* ::::: msg header captions ::::: */
@@ -797,8 +797,8 @@ button.email-action-flagged.flagged {
 
 .header-recipient:hover,
 .header-newsgroup:hover {
-  color: SelectedItemText;
-  background-color: SelectedItem;
+  color: var(--selected-item-text-color);
+  background-color: var(--selected-item-color);
   cursor: pointer;
 }
 
@@ -860,8 +860,8 @@ button.email-action-flagged.flagged {
 }
 
 .header-recipient:hover .recipient-address-book-button.in-address-book img {
-  fill: SelectedItemText;
-  stroke: SelectedItemText;
+  fill: var(--selected-item-text-color);
+  stroke: var(--selected-item-text-color);
 }
 
 .header-recipient:hover .recipient-address-book-button img {
@@ -880,8 +880,8 @@ button.email-action-flagged.flagged {
   line-height: 1;
   text-transform: uppercase;
   font-weight: 600;
-  background-color: SelectedItem;
-  color: SelectedItemText;
+  background-color: var(--selected-item-color);
+  color: var(--selected-item-text-color);
 }
 
 .show-more-recipients {
@@ -897,8 +897,8 @@ button.email-action-flagged.flagged {
 
 button.show-more-recipients:hover,
 button.show-more-ids:hover {
-  background-color: SelectedItemText;
-  color: SelectedItem;
+  background-color: var(--selected-item-text-color);
+  color: var(--selected-item-color);
 }
 
 .show-more-recipients:focus-visible,

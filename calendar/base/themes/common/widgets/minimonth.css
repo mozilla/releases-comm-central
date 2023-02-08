@@ -7,9 +7,9 @@ calendar-minimonth {
   --mmMainBackground: var(--color-gray-05);
   --mmMainBorderColor: var(--color-gray-20);
   --mmMainBorderRadius: 6px;
-  --mmHighlightColor: SelectedItemText;
-  --mmHighlightBackground: SelectedItem;
-  --mmHighlightBorderColor: SelectedItem;
+  --mmHighlightColor: var(--selected-item-text-color);
+  --mmHighlightBackground: var(--selected-item-color);
+  --mmHighlightBorderColor: var(--selected-item-color);
   --mmBoxBackground: hsla(0, 0%, 60%, 0.15);
   --mmBoxBorderColor: ThreeDShadow;
   --mmDayColor: var(--color-gray-70);
@@ -36,9 +36,9 @@ calendar-minimonth {
 :root[lwt-tree]:not([lwt-tree-brighttext]) calendar-minimonth {
   --mmMainColor: var(--sidebar-text-color, FieldText);
   --mmMainBackground: transparent;
-  --mmHighlightColor: var(--sidebar-highlight-text-color, SelectedItemText);
-  --mmHighlightBackground: var(--sidebar-highlight-background-color, SelectedItem);
-  --mmHighlightBorderColor: var(--sidebar-highlight-background-color, SelectedItem);
+  --mmHighlightColor: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
+  --mmHighlightBackground: var(--sidebar-highlight-background-color, var(--selected-item-color));
+  --mmHighlightBorderColor: var(--sidebar-highlight-background-color, var(--selected-item-color));
   --mmBoxBackground: var(--sidebar-background-color, Field);
   --mmBoxBorderColor: var(--sidebar-background-color, Field);
   --mmDayTodayColor: var(--color-gray-90);
@@ -55,9 +55,9 @@ calendar-minimonth {
     --mmMainColor: var(--sidebar-text-color, FieldText);
     --mmMainBackground: var(--color-gray-70);
     --mmMainBorderColor: var(--color-gray-50);
-    --mmHighlightColor: var(--sidebar-highlight-text-color, SelectedItemText);
-    --mmHighlightBackground: var(--sidebar-highlight-background-color, SelectedItem);
-    --mmHighlightBorderColor: var(--sidebar-highlight-background-color, SelectedItem);
+    --mmHighlightColor: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
+    --mmHighlightBackground: var(--sidebar-highlight-background-color, var(--selected-item-color));
+    --mmHighlightBorderColor: var(--sidebar-highlight-background-color, var(--selected-item-color));
     --mmBoxBackground: var(--sidebar-background-color, Field);
     --mmBoxBorderColor: transparent;
     --mmDayTodayColor: var(--color-ink-10);
@@ -85,11 +85,11 @@ calendar-minimonth {
   --mmDayOtherBackground: transparent;
   --mmDayTodayColor: -moz-DialogText;
   --mmDayTodayBackground: Field;
-  --mmDayTodayBorderColor: SelectedItem;
-  --mmDaySelectedColor: SelectedItemText;
-  --mmDaySelectedBackground: SelectedItem;
+  --mmDayTodayBorderColor: var(--selected-item-color);
+  --mmDaySelectedColor: var(--selected-item-text-color);
+  --mmDaySelectedBackground: var(--selected-item-color);
   --mmDaySelectedBorderColor: ButtonFace;
-  --mmDaySelectedTodayBackground: SelectedItem;
+  --mmDaySelectedTodayBackground: var(--selected-item-color);
   --mmDaySelectedTodayBorderColor: ButtonFace;
 }
 

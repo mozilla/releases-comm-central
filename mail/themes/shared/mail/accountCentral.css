@@ -427,7 +427,7 @@ aside.settings-btn-container {
 }
 
 .donation-link:focus:not(:hover) {
-  outline: 1px dotted SelectedItem;
+  outline: 1px dotted var(--selected-item-color);
 }
 
 .btn-link {
@@ -479,7 +479,7 @@ aside.settings-btn-container {
 }
 
 .resource-link:focus:not(:hover) {
-  outline: 1px dotted SelectedItem;
+  outline: 1px dotted var(--selected-item-color);
 }
 
 #featuresLink::before {

@@ -36,5 +36,5 @@
 
 .bar:hover > .bar-link,
 .bar:focus > .bar-link {
-  color: SelectedItemText;
+  color: var(--selected-item-text-color);
 }
