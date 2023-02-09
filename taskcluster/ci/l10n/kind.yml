@@ -42,7 +42,7 @@ job-template:
             win.*: 1800
     secrets: false
     dependencies:
-        l10n-pre: l10n-pre-l10n-pre
+        l10n-pre: l10n-pre-l10n-pre/opt
     fetches:
         toolchain:
             by-build-platform:

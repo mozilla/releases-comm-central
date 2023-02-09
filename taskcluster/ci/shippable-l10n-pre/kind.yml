@@ -2,47 +2,44 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
-loader: gecko_taskgraph.loader.single_dep:loader
+loader: gecko_taskgraph.loader.transform:loader
+
+kind-dependencies:
+    - toolchain
 
 transforms:
     - comm_taskgraph.transforms.l10n_pre:transforms
+    - gecko_taskgraph.transforms.build:transforms
+    - gecko_taskgraph.transforms.build_attrs:transforms
     - gecko_taskgraph.transforms.job:transforms
     - gecko_taskgraph.transforms.task:transforms
 
-kind-dependencies:
-    - build
-
-only-for-attributes:
-    - shippable
-
-only-for-build-platforms:
-    - linux64-shippable/opt
-
-job-template:
-    name: shippable-l10n-pre
-    description: Pre-Localization artifact build
-    run-on-projects: ['release']
-    build-platform: linux64-shippable
-    attributes:
-        shipping_phase: promote
-    run-time: 900
+job-defaults:
+    shipping-phase: promote
     treeherder:
-        symbol: L10n-pre
-        tier: 1
-        platform: linux64-shippable/opt
+        symbol: L10n-pre-S
     worker-type: b-linux-gcp
     worker:
-        docker-image: {in-tree: debian11-amd64-build}
+        max-run-time: 900
         env:
             MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE: system
+    attributes:
+        shippable: true
     locale-list:
         by-release-type:
             beta|release: comm/mail/locales/shipped-locales
             default: comm/mail/locales/all-locales
     comm-locales-file: comm/mail/locales/l10n-changesets.json
     browser-locales-file: browser/locales/l10n-changesets.json
-    mozharness:
+    run:
+        using: mozharness
         comm-checkout: true
+        actions:
+            - clone-gecko-locales
+            - clone-monorepo
+            - merge-repos
+            - pack-merged
+        script: comm/taskcluster/scripts/desktop_comm_l10n.py
         config-paths:
             - comm/testing/mozharness/configs
         config:
@@ -50,9 +47,13 @@ job-template:
             - single_locale/tc_common.py
             - single_locale/thunderbird_split_l10n.py
             - taskcluster_nightly.py
-        actions:
-            - clone-gecko-locales
-            - clone-monorepo
-            - merge-repos
-            - pack-merged
-        script: comm/taskcluster/scripts/desktop_comm_l10n.py
+        options: []
+    run-on-projects: []
+    optimization: null
+
+
+jobs:
+    shippable-l10n-pre/opt:
+        description: Pre-Localization artifact build
+        treeherder:
+            platform: thunderbird-release/opt
