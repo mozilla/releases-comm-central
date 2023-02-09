@@ -8,7 +8,6 @@ Transform the signing task into an actual task description.
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.taskcluster import get_artifact_path
 
-
 from gecko_taskgraph.transforms.build_signing import add_signed_routes
 from gecko_taskgraph.util.attributes import copy_attributes_from_dependent_job
 
@@ -27,7 +26,10 @@ def define_upstream_artifacts(config, jobs):
 
         artifacts_specifications = [
             {
-                "artifacts": [get_artifact_path(job, "strings_all.tar.zst")],
+                "artifacts": [
+                    get_artifact_path(job, "strings_all.tar.zst"),
+                    get_artifact_path(job, "l10n-changesets.json"),
+                ],
                 "formats": ["autograph_gpg"],
             }
         ]

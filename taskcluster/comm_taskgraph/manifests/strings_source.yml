@@ -44,3 +44,21 @@ mapping:
         checksums_path:
             by-platform:
                 shippable-l10n-pre: source/thunderbird-${version}.strings_all.tar.zst.asc
+    l10n-changesets.json:
+        <<: *default
+        description: "Source info used to build strings_all.tar.zst"
+        pretty_name:
+            by-platform:
+                shippable-l10n-pre: thunderbird-${version}.l10n-changesets.json
+        checksums_path:
+            by-platform:
+                shippable-l10n-pre: source/thunderbird-${version}.l10n-changesets.json
+    l10n-changesets.json.asc:
+        <<: *default
+        description: "Detached signature for changesets file"
+        pretty_name:
+            by-platform:
+                shippable-l10n-pre: thunderbird-${version}.l10n-changesets.json.asc
+        checksums_path:
+            by-platform:
+                shippable-l10n-pre: source/thunderbird-${version}.l10n-changesets.json.asc
