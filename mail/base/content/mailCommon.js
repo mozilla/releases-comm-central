@@ -593,14 +593,27 @@ var commandController = {
   },
 };
 
-/**
- * Dummy DBViewWrapperListener so that we can have a DBViewWrapper. Some of
- * this will no doubt need to be filled in later.
- */
 var dbViewWrapperListener = {
+  _nextViewIndexAfterDelete: null,
+
   messenger: null,
   msgWindow: top.msgWindow,
-  threadPaneCommandUpdater: null,
+  threadPaneCommandUpdater: {
+    QueryInterface: ChromeUtils.generateQI([
+      "nsIMsgDBViewCommandUpdater",
+      "nsISupportsWeakReference",
+    ]),
+    updateCommandStatus() {},
+    displayMessageChanged(folder, subject, keywords) {},
+    updateNextMessageAfterDelete() {
+      dbViewWrapperListener._nextViewIndexAfterDelete = gDBView
+        ? gDBView.msgToSelectAfterDelete
+        : null;
+    },
+    summarizeSelection() {
+      return true;
+    },
+  },
 
   get shouldUseMailViews() {
     return false;
@@ -615,7 +628,6 @@ var dbViewWrapperListener = {
   onSearching(isSearching) {},
   onCreatedView() {
     if (window.threadTree) {
-      // eslint-disable-next-line no-global-assign
       window.threadTree.view = gDBView = gViewWrapper.dbView;
     }
   },
@@ -637,6 +649,49 @@ var dbViewWrapperListener = {
   },
   onMessagesRemoved() {
     window.quickFilterBar?.onMessagesChanged();
+
+    if (!gDBView || !top) {
+      return;
+    }
+
+    let rowCount = gDBView.rowCount;
+
+    // There's no messages left.
+    if (rowCount == 0) {
+      if (location.href == "about:3pane") {
+        // In a 3-pane tab, clear the message pane and selection.
+        window.threadTree.selectedIndex = -1;
+      } else if (parent?.location != "about:3pane") {
+        // In a standalone message tab or window, close the tab or window.
+        let tabmail = top.document.getElementById("tabmail");
+        if (tabmail) {
+          tabmail.closeTab(window.tabOrWindow);
+        } else {
+          top.close();
+        }
+      }
+      this._nextViewIndexAfterDelete = null;
+      return;
+    }
+
+    if (this._nextViewIndexAfterDelete != null) {
+      // Select the next message in the view, based on what we were told in
+      // updateNextMessageAfterDelete.
+      if (this._nextViewIndexAfterDelete >= rowCount) {
+        this._nextViewIndexAfterDelete = rowCount - 1;
+      }
+      if (this._nextViewIndexAfterDelete > -1) {
+        if (location.href == "about:3pane") {
+          window.threadTree.selectedIndex = this._nextViewIndexAfterDelete;
+        } else if (parent?.location != "about:3pane") {
+          gDBView.selection.select(this._nextViewIndexAfterDelete);
+          displayMessage(
+            gDBView.getURIForViewIndex(this._nextViewIndexAfterDelete)
+          );
+        }
+      }
+      this._nextViewIndexAfterDelete = null;
+    }
   },
   onMessageRemovalFailed() {},
   onMessageCountsChanged() {

@@ -302,7 +302,6 @@ registerCleanupFunction(async function() {
   // Clear our drafts.
   await be_in_folder(gDrafts);
   while (gDrafts.getTotalMessages(false) > 0) {
-    select_click_row(-1); // TODO Remove this when selection-on-delete works.
     press_delete();
   }
 });

@@ -135,8 +135,13 @@ JSTreeSelection.prototype = {
       return;
     }
 
-    this._count = 1;
-    this._ranges = [[aViewIndex, aViewIndex]];
+    if (aViewIndex >= 0) {
+      this._count = 1;
+      this._ranges = [[aViewIndex, aViewIndex]];
+    } else {
+      this._count = 0;
+      this._ranges = [];
+    }
 
     this.invalidateSelection();
     this._fireSelectionChanged();

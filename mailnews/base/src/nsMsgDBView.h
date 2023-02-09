@@ -486,7 +486,7 @@ class nsMsgDBView : public nsIMsgDBView,
   nsWeakPtr mMessengerWeak;
   nsWeakPtr mMsgWindowWeak;
   // We push command update notifications to the UI from this.
-  nsCOMPtr<nsIMsgDBViewCommandUpdater> mCommandUpdater;
+  nsWeakPtr mCommandUpdater;
   static nsCOMPtr<nsIStringBundle> mMessengerStringBundle;
 
   // Used to determine when to start and end junk plugin batches.

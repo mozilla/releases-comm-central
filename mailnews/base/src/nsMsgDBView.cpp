@@ -1016,7 +1016,9 @@ nsMsgDBView::ReloadMessage() {
 }
 
 nsresult nsMsgDBView::UpdateDisplayMessage(nsMsgViewIndex viewPosition) {
-  if (!mCommandUpdater) return NS_OK;
+  nsCOMPtr<nsIMsgDBViewCommandUpdater> commandUpdater(
+      do_QueryReferent(mCommandUpdater));
+  if (!commandUpdater) return NS_OK;
 
   if (!IsValidIndex(viewPosition)) return NS_MSG_INVALID_DBVIEW_INDEX;
 
@@ -1038,7 +1040,7 @@ nsresult nsMsgDBView::UpdateDisplayMessage(nsMsgViewIndex viewPosition) {
 
   nsCOMPtr<nsIMsgFolder> folder = m_viewFolder ? m_viewFolder : m_folder;
 
-  mCommandUpdater->DisplayMessageChanged(folder, subject, keywords);
+  commandUpdater->DisplayMessageChanged(folder, subject, keywords);
 
   if (folder) {
     if (viewPosition >= (nsMsgViewIndex)m_keys.Length())
@@ -1117,8 +1119,10 @@ nsMsgDBView::SelectionChangedXPCOM() {
   mSummarizeFailed = false;
   // Let the front-end adjust the message pane appropriately with either
   // the message body, or a summary of the selection.
-  if (mCommandUpdater) {
-    mCommandUpdater->SummarizeSelection(&selectionSummarized);
+  nsCOMPtr<nsIMsgDBViewCommandUpdater> commandUpdater(
+      do_QueryReferent(mCommandUpdater));
+  if (commandUpdater) {
+    commandUpdater->SummarizeSelection(&selectionSummarized);
     // Check if the selection was not summarized, but we expected it to be,
     // and if so, remember it so GetHeadersFromSelection won't include
     // the messages in collapsed threads.
@@ -1191,9 +1195,9 @@ nsMsgDBView::SelectionChangedXPCOM() {
       enableGoForward == mGoForwardEnabled && enableGoBack == mGoBackEnabled) {
     // Don't update commands if we're suppressing them, or if we're removing
     // rows, unless it was the last row.
-  } else if (!mSuppressCommandUpdating && mCommandUpdater &&
+  } else if (!mSuppressCommandUpdating && commandUpdater &&
              (!mRemovingRow || GetSize() == 0)) {
-    mCommandUpdater->UpdateCommandStatus();
+    commandUpdater->UpdateCommandStatus();
   }
 
   mCommandsNeedDisablingBecauseOfSelection =
@@ -2334,7 +2338,7 @@ nsMsgDBView::Init(nsIMessenger* aMessengerInstance, nsIMsgWindow* aMsgWindow,
                   nsIMsgDBViewCommandUpdater* aCmdUpdater) {
   mMessengerWeak = do_GetWeakReference(aMessengerInstance);
   mMsgWindowWeak = do_GetWeakReference(aMsgWindow);
-  mCommandUpdater = aCmdUpdater;
+  mCommandUpdater = do_GetWeakReference(aCmdUpdater);
   return NS_OK;
 }
 
@@ -3434,9 +3438,13 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
 
     // If a junked msg is selected, tell the FE to call
     // SetNextMessageAfterDelete() because a delete is coming.
-    if (junkedMsgSelected && mCommandUpdater) {
-      rv = mCommandUpdater->UpdateNextMessageAfterDelete();
-      NS_ENSURE_SUCCESS(rv, rv);
+    if (junkedMsgSelected) {
+      nsCOMPtr<nsIMsgDBViewCommandUpdater> commandUpdater(
+          do_QueryReferent(mCommandUpdater));
+      if (commandUpdater) {
+        rv = commandUpdater->UpdateNextMessageAfterDelete();
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
     }
 
     nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(mMsgWindowWeak));
@@ -5856,10 +5864,12 @@ nsMsgDBView::OnHdrDeleted(nsIMsgDBHdr* aHdrChanged, nsMsgKey aParentKey,
   if (IsValidIndex(deletedIndex)) {
     // Check if this message is currently selected. If it is, tell the frontend
     // to be prepared for a delete.
-    if (mTreeSelection && mCommandUpdater) {
+    nsCOMPtr<nsIMsgDBViewCommandUpdater> commandUpdater(
+        do_QueryReferent(mCommandUpdater));
+    if (mTreeSelection && commandUpdater) {
       bool isMsgSelected = false;
       mTreeSelection->IsSelected(deletedIndex, &isMsgSelected);
-      if (isMsgSelected) mCommandUpdater->UpdateNextMessageAfterDelete();
+      if (isMsgSelected) commandUpdater->UpdateNextMessageAfterDelete();
     }
 
     RemoveByIndex(deletedIndex);
@@ -7354,7 +7364,7 @@ nsresult nsMsgDBView::CopyDBView(nsMsgDBView *aNewMsgDBView,
   }
 
   aNewMsgDBView->mMessengerWeak = do_GetWeakReference(aMessengerInstance);
-  aNewMsgDBView->mCommandUpdater = aCmdUpdater;
+  aNewMsgDBView->mCommandUpdater = do_GetWeakReference(aCmdUpdater);
   aNewMsgDBView->m_folder = m_folder;
   aNewMsgDBView->m_viewFlags = m_viewFlags;
   aNewMsgDBView->m_sortOrder = m_sortOrder;

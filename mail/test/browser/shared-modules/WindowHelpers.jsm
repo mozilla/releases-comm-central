@@ -1265,9 +1265,6 @@ var PerWindowTypeAugmentations = {
      * Custom getters whose |this| is the controller.
      */
     getters: {
-      dbView() {
-        return this.folderDisplay.view.dbView;
-      },
       contentPane() {
         return this.tabmail.getBrowserForSelectedTab();
       },
@@ -1283,11 +1280,7 @@ var PerWindowTypeAugmentations = {
     },
     // the load is deferred, so use a getter.
     globalsToExposeViaGetters: {},
-    getters: {
-      dbView() {
-        return this.folderDisplay.view.dbView;
-      },
-    },
+    getters: {},
   },
 
   /**

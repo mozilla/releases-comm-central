@@ -1445,6 +1445,7 @@ function select_click_folder(aFolder) {
   let win = get_about_3pane();
   let index = win.folderTree.rows.findIndex(row => row.uri == aFolder.URI);
   let row = win.folderTree.rows[index];
+  row.scrollIntoView();
   EventUtils.synthesizeMouseAtCenter(row.querySelector(".container"), {}, win);
 }
 

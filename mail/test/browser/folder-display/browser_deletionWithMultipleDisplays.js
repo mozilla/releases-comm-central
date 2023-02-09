@@ -19,6 +19,8 @@ var {
   close_message_window,
   close_tab,
   create_folder,
+  get_about_3pane,
+  get_about_message,
   make_message_sets_in_folders,
   mc,
   open_selected_message_in_new_tab,
@@ -143,6 +145,11 @@ var VERIFY_ALL = 0xf;
 async function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
   if (aFlags & VERIFY_FOLDER_TAB) {
     await switch_tab(tabFolder);
+    Assert.equal(
+      get_about_message().gMessage,
+      aMessage,
+      "folder tab shows the correct message"
+    );
     assert_selected_and_displayed(aMessage);
     if (aIndex !== undefined) {
       assert_selected_and_displayed(aIndex);
@@ -153,7 +160,16 @@ async function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
     assert_tab_titled_from(tabMessage, aMessage);
     await switch_tab(tabMessage);
     // Verify the title again, just in case
+    Assert.equal(
+      get_about_message().gMessageURI,
+      aMessage.folder.getUriForMsg(aMessage)
+    );
     assert_tab_titled_from(tabMessage, aMessage);
+    Assert.equal(
+      get_about_message().gMessage,
+      aMessage,
+      "message tab shows the correct message"
+    );
     assert_selected_and_displayed(aMessage);
     if (aIndex !== undefined) {
       assert_selected_and_displayed(aIndex);
@@ -164,6 +180,11 @@ async function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
     assert_tab_titled_from(tabMessageBackground, aMessage);
   }
   if (aFlags & VERIFY_MESSAGE_WINDOW) {
+    Assert.equal(
+      get_about_message(msgc.window).gMessage,
+      aMessage,
+      "message window shows the correct message"
+    );
     assert_selected_and_displayed(msgc, aMessage);
     if (aIndex !== undefined) {
       assert_selected_and_displayed(msgc, aIndex);
@@ -189,13 +210,13 @@ add_task(
  *  (advancing to the next message).
  */
 add_task(async function test_delete_in_folder_tab() {
+  let about3Pane = get_about_3pane();
   // - plan to end up on the guy who is currently at index 1
-  curMessage = mc.dbView.getMsgHdrAt(1);
+  curMessage = about3Pane.gDBView.getMsgHdrAt(1);
   // while we're at it, figure out who is at 2 for the next step
-  nextMessage = mc.dbView.getMsgHdrAt(2);
+  nextMessage = about3Pane.gDBView.getMsgHdrAt(2);
   // - delete the message
   press_delete();
-
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 });
@@ -214,7 +235,7 @@ add_task(async function test_delete_in_message_tab() {
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 
   // figure out the next guy...
-  nextMessage = mc.dbView.getMsgHdrAt(1);
+  nextMessage = get_about_message().gDBView.getMsgHdrAt(1);
   if (!nextMessage) {
     throw new Error("We ran out of messages early?");
   }
@@ -291,10 +312,11 @@ add_task(
  * (advancing to the next message).
  */
 add_task(async function test_delete_last_message_in_folder_tab() {
+  let about3Pane = get_about_3pane();
   // - plan to end up on the guy who is currently at index 2
-  curMessage = mc.dbView.getMsgHdrAt(2);
+  curMessage = about3Pane.gDBView.getMsgHdrAt(2);
   // while we're at it, figure out who is at 1 for the next step
-  nextMessage = mc.dbView.getMsgHdrAt(1);
+  nextMessage = about3Pane.gDBView.getMsgHdrAt(1);
   // - delete the message
   press_delete();
 
@@ -316,7 +338,7 @@ add_task(async function test_delete_last_message_in_message_tab() {
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 1);
   // figure out the next guy...
 
-  nextMessage = mc.dbView.getMsgHdrAt(0);
+  nextMessage = get_about_message().gDBView.getMsgHdrAt(0);
   if (!nextMessage) {
     throw new Error("We ran out of messages early?");
   }
@@ -355,7 +377,7 @@ add_task(async function test_delete_one_before_message_in_folder_tab() {
   // Open up message 4 in message tabs and a window (we'll delete message 3).
   await _open_message_in_all_four_display_mechanisms_helper(oneBeforeFolder, 4);
 
-  let expectedMessage = mc.dbView.getMsgHdrAt(4);
+  let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(4);
   select_click_row(3);
   press_delete();
 
@@ -442,7 +464,7 @@ add_task(async function test_delete_one_after_message_in_folder_tab() {
   // Open up message 4 in message tabs and a window (we'll delete message 5).
   await _open_message_in_all_four_display_mechanisms_helper(oneAfterFolder, 4);
 
-  let expectedMessage = mc.dbView.getMsgHdrAt(4);
+  let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(4);
   select_click_row(5);
   press_delete();
 
@@ -542,7 +564,7 @@ add_task(
     select_control_click_row(8);
     select_control_click_row(9);
     select_control_click_row(10);
-    let expectedMessage = mc.dbView.getMsgHdrAt(6);
+    let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(6);
 
     // Delete the selected messages
     press_delete();
@@ -577,7 +599,7 @@ add_task(
     select_control_click_row(8);
     select_control_click_row(9);
     select_control_click_row(10);
-    let expectedMessage = mc.dbView.getMsgHdrAt(11);
+    let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(11);
 
     // Delete the selected messages
     press_delete();
@@ -620,7 +642,7 @@ add_task(
     select_control_click_row(8);
     select_control_click_row(9);
     select_control_click_row(10);
-    let expectedMessage = mc.dbView.getMsgHdrAt(11);
+    let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(11);
 
     // Delete the selected messages
     press_delete();
@@ -661,7 +683,7 @@ add_task(
     select_control_click_row(7);
     select_control_click_row(8);
     select_control_click_row(9);
-    let expectedMessage = mc.dbView.getMsgHdrAt(5);
+    let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(5);
 
     // Delete the selected messages
     press_delete();
@@ -695,7 +717,7 @@ add_task(
     select_control_click_row(7);
     select_control_click_row(8);
     select_control_click_row(9);
-    let expectedMessage = mc.dbView.getMsgHdrAt(6);
+    let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(6);
 
     // Delete the selected messages
     press_delete();
@@ -737,7 +759,7 @@ add_task(
     select_control_click_row(7);
     select_control_click_row(8);
     select_control_click_row(9);
-    let expectedMessage = mc.dbView.getMsgHdrAt(6);
+    let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(6);
 
     // Delete the selected messages
     press_delete();
@@ -758,12 +780,5 @@ add_task(
     close_tab(tabMessage);
     close_tab(tabMessageBackground);
     await switch_tab(tabFolder);
-
-    Assert.report(
-      false,
-      undefined,
-      undefined,
-      "Test ran to completion successfully"
-    );
   }
 );

@@ -148,6 +148,35 @@ function displayMessage(uri, viewWrapper) {
     gViewWrapper.openSearchView();
   }
   gDBView = gViewWrapper.dbView;
+  gDBView?.setJSTree({
+    QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
+    _inBatch: false,
+    beginUpdateBatch() {
+      this._inBatch = true;
+    },
+    endUpdateBatch() {
+      this._inBatch = false;
+    },
+    ensureRowIsVisible(index) {},
+    invalidate() {},
+    invalidateRange(startIndex, endIndex) {},
+    rowCountChanged(index, count) {
+      // HACK ALERT: If we're here, and the calling function appears to be
+      // `DBViewWrapper._deleteCompleted` (actually `nsMsgDBView`), this is
+      // the second time we're notified about the row count changing. We don't
+      // want to adjust the selection twice, or it'll be wrong.
+      if (
+        !this._inBatch &&
+        parent?.location.href != "about:3pane" &&
+        gDBView.selection &&
+        Components.stack.caller.name != "_deleteCompleted"
+      ) {
+        gDBView.selection.selectEventsSuppressed = true;
+        gDBView.selection.adjustSelection(index, count);
+        gDBView.selection.selectEventsSuppressed = false;
+      }
+    },
+  });
 
   MailE10SUtils.changeRemoteness(content, null);
   content.docShell.allowAuth = false;

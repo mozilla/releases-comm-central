@@ -77,7 +77,6 @@ async function subtest_reply_format_flowed(aFlowed) {
 
   // Delete the outgoing message.
   press_delete();
-  select_none(); // TODO This should be unnecessary.
 }
 
 add_task(async function test_reply_format_flowed() {
