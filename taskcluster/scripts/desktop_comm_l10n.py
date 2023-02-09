@@ -70,6 +70,7 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
                 "clone-monorepo",
                 "merge-repos",
                 "pack-merged",
+                "gen-changesets",
             ],
             "config": {
                 "ignore_locales": ["en-US"],
@@ -77,6 +78,7 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
                 "hg_merged_dir": "l10n_merged",
                 "objdir": "obj-build",
                 "upload_file": "strings_all.tar.zst",
+                "changesets_file": "l10n-changesets.json",
             },
         }
 
@@ -89,6 +91,7 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
         )
         self.upload_env = None
         self.file_registry = None
+        self.comm_l10n_revision = None
 
     def query_abs_dirs(self):
         if self.abs_dirs:
@@ -165,14 +168,14 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
             with open(locales_file) as fh:
                 locales_data = json.load(fh)
         # would use en-US, but it's not in this file!
-        comm_l10n_revision = locales_data.get("en-GB", {}).get("revision")
+        self.comm_l10n_revision = locales_data.get("en-GB", {}).get("revision")
 
-        if comm_l10n_revision:
+        if self.comm_l10n_revision:
             self.mkdir_p(dirs["abs_checkout_dir"])
             self.vcs_checkout(
                 dest=dirs["abs_comm_l10n_dir"],
                 repo=c["hg_comm_l10n_repo"],
-                branch=comm_l10n_revision,
+                branch=self.comm_l10n_revision,
                 vcs="hg",
             )
         else:
@@ -209,6 +212,19 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
         with open(archive_path, "wb") as f:
             with ZstdCompressor().stream_writer(f) as z:
                 create_tar_from_files(z, dict(self.file_registry))
+
+    def gen_changesets(self):
+        changeset_data = {
+            "gecko_strings": self.gecko_locale_revisions,
+            "comm_strings": {
+                "repo": self.config["hg_comm_l10n_repo"],
+                "revision": self.comm_l10n_revision,
+            },
+        }
+        upload_path = self.config["upload_env"]["UPLOAD_PATH"]
+        changesets_file = os.path.join(upload_path, self.config["changesets_file"])
+        with open(changesets_file, "w") as f:
+            json.dump(changeset_data, f, sort_keys=True, indent=2)
 
 
 if __name__ == "__main__":
