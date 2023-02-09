@@ -5,13 +5,9 @@
 Create a strings build artifact to be consumed by shippable-l10n.
 """
 
-import json
-import os
 
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.schema import resolve_keyed_by
-
-from gecko_taskgraph import GECKO
 
 transforms = TransformSequence()
 
@@ -27,17 +23,6 @@ def handle_keyed_by(config, jobs):
             **{"release-type": config.params["release_type"]},
         )
         yield job
-
-
-def _read_revision_file(revision_file):
-    """Read revision information from JSON file."""
-    revision_file = os.path.abspath(os.path.join(GECKO, revision_file))
-    with open(revision_file, "r") as fp:
-        data = json.load(fp)
-        revision = data.get("revision", None)
-        if revision is None:
-            raise Exception(f"Unable to read revision from {revision_file}")
-        return revision
 
 
 @transforms.add
