@@ -35,6 +35,10 @@
   font-weight: bold;
 }
 
+#threadTree [data-properties~="imapdeleted"] :is(td, .subject-line) {
+  text-decoration: line-through;
+}
+
 #threadTree .children.collapsed[data-properties~="hasUnread"][data-properties~="read"]
   :where(td, .subject-line) {
   text-decoration: underline;
