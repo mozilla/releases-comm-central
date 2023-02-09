@@ -52,3 +52,14 @@ the `comm-l10n` monorepo.
 
 The mozharness script will clone the necessary repositories from `l10n-central`,
 and `comm-l10n`, merge them, and create a tar file.
+
+
+shippable-l10n-pre-signing
+--------------------------
+
+Signing job for shippable-l10n-pre artifacts
+
+beetmover-strings-source
+------------------------
+
+Upload strings source files to FTP.

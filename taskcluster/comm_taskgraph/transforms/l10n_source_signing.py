@@ -1,0 +1,50 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+"""
+Transform the signing task into an actual task description.
+"""
+
+from taskgraph.transforms.base import TransformSequence
+from taskgraph.util.taskcluster import get_artifact_path
+
+
+from gecko_taskgraph.transforms.build_signing import add_signed_routes
+from gecko_taskgraph.util.attributes import copy_attributes_from_dependent_job
+
+transforms = TransformSequence()
+
+transforms.add(add_signed_routes)
+
+
+@transforms.add
+def define_upstream_artifacts(config, jobs):
+    for job in jobs:
+        dep_job = job["primary-dependency"]
+        upstream_artifact_task = job.pop("upstream-artifact-task", dep_job)
+
+        job["attributes"] = copy_attributes_from_dependent_job(dep_job)
+
+        artifacts_specifications = [
+            {
+                "artifacts": [get_artifact_path(job, "strings_all.tar.zst")],
+                "formats": ["autograph_gpg"],
+            }
+        ]
+
+        task_ref = f"<{upstream_artifact_task.kind}>"
+        task_type = "build"
+        if "notarization" in upstream_artifact_task.kind:
+            task_type = "scriptworker"
+
+        job["upstream-artifacts"] = [
+            {
+                "taskId": {"task-reference": task_ref},
+                "taskType": task_type,
+                "paths": spec["artifacts"],
+                "formats": spec["formats"],
+            }
+            for spec in artifacts_specifications
+        ]
+
+        yield job
