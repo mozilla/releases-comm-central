@@ -573,7 +573,7 @@ function InitMessageMenu() {
 
   document.getElementById("menu_cancel").hidden = !isNews;
 
-  // Disable the move and copy menus if there are no messages selected or if
+  // Disable the move menu if there are no messages selected or if
   // the message is a dummy - e.g. opening a message in the standalone window.
   let messageStoredInternally = message && !isDummy;
   // Disable the move menu if we can't delete msgs from the folder.
@@ -582,9 +582,7 @@ function InitMessageMenu() {
 
   document.getElementById("moveMenu").disabled = !canMove;
 
-  // Also disable copy when no folder is loaded (like for .eml files).
-  let canCopy = message && (!isDummy || window.arguments[0].scheme == "file");
-  document.getElementById("copyMenu").disabled = !canCopy;
+  document.getElementById("copyMenu").disabled = !message;
 
   initMoveToFolderAgainMenu(document.getElementById("moveToFolderAgain"));
 
