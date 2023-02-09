@@ -1,0 +1,19 @@
+Directory ./asn1js contains a bundled version of asn1js, which has been obtained from:
+https://github.com/PeculiarVentures/asn1.js
+
+For licensing information, please refer to the included documentation.
+
+[tag v3.0.4]
+
+Updating:
+- cd $topsrcdir/comm
+- ../mach vendor -r <tag_name> third_party/asn1js/moz.yaml
+- Review the changes
+- Commit the changes
+- Run test_LDAPMessage.js
+
+
+The tag information in this file is automatically updated. The moz.yaml file
+is automatically updated. If upstream changes require updating moz.build, that
+must be done with a manual step.
+
