@@ -37,6 +37,7 @@ chat/chat-prefs.js
 # third-party code
 chat/protocols/matrix/lib/**
 chat/protocols/xmpp/lib/**
+third_party
 # preprocessed files
 chat/content/imtooltip.xml
 
