@@ -429,9 +429,12 @@ var commandController = {
       case "cmd_markAsNotJunk":
         return this._getViewCommandStatus(Ci.nsMsgViewCommandType.junk);
       case "cmd_archive":
-        return MessageArchiver.canArchive(
-          gDBView.getSelectedMsgHdrs(),
-          gViewWrapper.isSingleFolder
+        return (
+          !isDummyMessage &&
+          MessageArchiver.canArchive(
+            gDBView.getSelectedMsgHdrs(),
+            gViewWrapper.isSingleFolder
+          )
         );
       case "cmd_moveToFolderAgain": {
         // Disable "Move to <folder> Again" for news and other read only
@@ -457,6 +460,7 @@ var commandController = {
       case "cmd_createFilterFromMenu":
         return (
           numSelectedMessages == 1 &&
+          !isDummyMessage &&
           gDBView.hdrForFirstSelectedMessage?.folder?.server.canHaveFilters
         );
       case "cmd_watchThread": {
