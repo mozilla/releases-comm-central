@@ -139,13 +139,14 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
         dirs = self.query_abs_dirs()
         locale_list = os.path.join(dirs["abs_src_dir"], c["locale_list"])
         locales = self.parse_locales_file(locale_list)
+        locale_changesets_file = os.path.join(dirs["abs_src_dir"], c["locales_file"])
+        # parse_locales_file fills in self.l10n_revisions with changesets
+        self.parse_locales_file(locale_changesets_file)
 
         for locale in ignore_locales:
             if locale in locales:
                 self.debug("Ignoring locale %s." % locale)
                 locales.remove(locale)
-                if locale in self.l10n_revisions:
-                    del self.l10n_revisions[locale]
 
         self.locales = locales
 
