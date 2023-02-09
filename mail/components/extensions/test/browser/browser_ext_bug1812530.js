@@ -41,7 +41,7 @@ registerCleanupFunction(() => {
 });
 
 const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
-  async function contextClick(elementId, browser) {
+  async function contextClick(elementSelector, browser) {
     if (
       browser.webProgress?.isLoadingDocument ||
       !browser.currentURI ||
@@ -55,9 +55,9 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
     }
 
     let menuId = browser.getAttribute("context");
-    let menu = browser.ownerDocument.getElementById(menuId);
+    let menu = browser.ownerGlobal.top.document.getElementById(menuId);
     let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-    await rightClickOnContent(menu, elementId, browser);
+    await rightClickOnContent(menu, elementSelector, browser);
     Assert.ok(
       menu.querySelector("#browserContext-openInBrowser"),
       "menu item should exist"
@@ -70,10 +70,10 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
 
   // Wait for click on #description
   {
-    let { elementId, url } = await extension.awaitMessage("contextClick");
+    let { elementSelector, url } = await extension.awaitMessage("contextClick");
     Assert.equal(
       "#description",
-      elementId,
+      elementSelector,
       `Test should click on the correct element.`
     );
     Assert.equal(
@@ -81,7 +81,7 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
       url,
       `Test should open the correct page.`
     );
-    await contextClick(elementId, getBrowser());
+    await contextClick(elementSelector, getBrowser());
     Assert.ok(
       mockExternalProtocolService.urlLoaded(url),
       `Page should have correctly been opened in external browser.`
@@ -101,10 +101,10 @@ add_task(async function test_tabs() {
         // Open remote file and re-open it in the browser.
         const url =
           "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html";
-        const elementId = "#description";
+        const elementSelector = "#description";
 
         let testTab = await browser.tabs.create({ url });
-        await window.sendMessage("contextClick", { elementId, url });
+        await window.sendMessage("contextClick", { elementSelector, url });
         await browser.tabs.remove(testTab.id);
 
         browser.test.notifyPass();
@@ -132,10 +132,10 @@ add_task(async function test_windows() {
         // Open remote file and re-open it in the browser.
         const url =
           "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html";
-        const elementId = "#description";
+        const elementSelector = "#description";
 
         let testWindow = await browser.windows.create({ type: "popup", url });
-        await window.sendMessage("contextClick", { elementId, url });
+        await window.sendMessage("contextClick", { elementSelector, url });
         await browser.windows.remove(testWindow.id);
 
         browser.test.notifyPass();
@@ -152,5 +152,41 @@ add_task(async function test_windows() {
   await subtest_clickOpenInBrowserContextMenu(
     extension,
     () => Services.wm.getMostRecentWindow("mail:extensionPopup").browser
+  );
+});
+
+add_task(async function test_mail3pane() {
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "utils.js": await getUtilsJS(),
+      "background.js": async () => {
+        // Open remote file and re-open it in the browser.
+        const url =
+          "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html";
+        const elementSelector = "#description";
+
+        let mailTabs = await browser.tabs.query({ type: "mail" });
+        browser.test.assertEq(
+          1,
+          mailTabs.length,
+          "Should find a single mailTab"
+        );
+        await browser.tabs.update(mailTabs[0].id, { url });
+        await window.sendMessage("contextClick", { elementSelector, url });
+
+        browser.test.notifyPass();
+      },
+    },
+    manifest: {
+      background: {
+        scripts: ["utils.js", "background.js"],
+      },
+      permissions: ["tabs"],
+    },
+  });
+
+  await subtest_clickOpenInBrowserContextMenu(
+    extension,
+    () => document.getElementById("tabmail").currentTabInfo.browser
   );
 });
