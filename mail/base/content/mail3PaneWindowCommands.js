@@ -84,7 +84,7 @@ var DefaultController = {
       case "cmd_undoCloseTab":
         return document.getElementById("tabmail").recentlyClosedTabs.length > 0;
       case "cmd_stop":
-        return window.MsgStatusFeedback._meteorsSpinning;
+        return window.MsgStatusFeedback?._meteorsSpinning;
       case "cmd_undo":
       case "cmd_redo":
         return SetupUndoRedoCommand(command);
@@ -182,6 +182,9 @@ var DefaultController = {
     }
   },
 };
+// This is the highest priority controller. It's followed by
+// tabmail.tabController and calendarController, then whatever Gecko adds.
+window.controllers.insertControllerAt(0, DefaultController);
 
 /**
  * Show a notification in the message pane footer, allowing the user to learn

@@ -592,7 +592,10 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         QueryInterface: ChromeUtils.generateQI(["nsIController"]),
       };
 
-      window.controllers.insertControllerAt(0, this.tabController);
+      // This is the second-highest priority controller. It's preceded by
+      // DefaultController and followed by calendarController, then whatever
+      // Gecko adds.
+      window.controllers.insertControllerAt(1, this.tabController);
       this._restoringTabState = null;
     }
 

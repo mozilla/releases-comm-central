@@ -43,7 +43,7 @@ const fileMenuData = {
   menu_emptyTrash: { disabled: true },
   offlineMenuItem: {},
   goOfflineMenuItem: {},
-  menu_synchronizeOffline: { disabled: ["mailMessageTab", "contentTab"] },
+  menu_synchronizeOffline: {},
   menu_settingsOffline: { disabled: true },
   menu_downloadFlagged: { disabled: true },
   menu_downloadSelected: { disabled: true },

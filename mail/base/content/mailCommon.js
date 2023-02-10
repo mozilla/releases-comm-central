@@ -596,6 +596,9 @@ var commandController = {
     displayMessage(gViewWrapper.dbView.URIForFirstSelectedMessage);
   },
 };
+// Add the controller to this window's controllers, so that built-in commands
+// such as cmd_selectAll run our code instead of the default code.
+window.controllers.insertControllerAt(0, commandController);
 
 var dbViewWrapperListener = {
   _nextViewIndexAfterDelete: null,

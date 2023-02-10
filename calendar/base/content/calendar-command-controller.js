@@ -25,8 +25,6 @@ var CalendarNewTasksCommandEnabled = false;
  * @see nsICommandController
  */
 var calendarController = {
-  defaultController: null,
-
   commands: new Set([
     // Common commands
     "calendar_new_event_command",
@@ -112,9 +110,6 @@ var calendarController = {
   supportsCommand(aCommand) {
     if (this.commands.has(aCommand)) {
       return true;
-    }
-    if (this.defaultContoller) {
-      return this.defaultContoller.supportsCommand(aCommand);
     }
     return false;
   },
@@ -235,12 +230,7 @@ var calendarController = {
         return this.isInMode("task");
 
       case "cmd_selectAll":
-        if (this.todo_tasktree_focused || this.isInMode("calendar")) {
-          return true;
-        } else if (this.defaultController.supportsCommand(aCommand)) {
-          return this.defaultController.isCommandEnabled(aCommand);
-        }
-        break;
+        return this.todo_tasktree_focused || this.isInMode("calendar");
 
       // for events/tasks in a tab
       case "cmd_save":
@@ -251,24 +241,6 @@ var calendarController = {
       }
 
       default:
-        if (this.defaultController && !this.isCalendarInForeground()) {
-          // The delete-button demands a special handling in mail-mode
-          // as it is supposed to delete an element of the focused pane
-          if (aCommand == "cmd_delete" || aCommand == "button_delete") {
-            let focusedElement = document.commandDispatcher.focusedElement;
-            if (focusedElement) {
-              if (focusedElement == TodayPane.agenda) {
-                return TodayPane.agenda.selectedIndex > -1;
-              } else if (focusedElement.className == "calendar-task-tree") {
-                return this.writable && this.todo_items_selected && this.todo_items_writable;
-              }
-            }
-          }
-
-          if (this.defaultController.supportsCommand(aCommand)) {
-            return this.defaultController.isCommandEnabled(aCommand);
-          }
-        }
         if (this.commands.has(aCommand)) {
           // All other commands we support should be enabled by default
           return true;
@@ -306,9 +278,7 @@ var calendarController = {
         break;
       case "calendar_modify_focused_item_command": {
         let focusedElement = document.commandDispatcher.focusedElement;
-        if (!focusedElement && this.defaultController && !this.isCalendarInForeground()) {
-          this.defaultController.doCommand(aCommand);
-        } else if (focusedElement == TodayPane.agenda) {
+        if (focusedElement == TodayPane.agenda) {
           TodayPane.agenda.editSelectedItem();
         } else if (focusedElement && focusedElement.className == "calendar-task-tree") {
           modifyTaskFromContext();
@@ -322,9 +292,7 @@ var calendarController = {
         break;
       case "calendar_delete_focused_item_command": {
         let focusedElement = document.commandDispatcher.focusedElement;
-        if (!focusedElement && this.defaultController && !this.isCalendarInForeground()) {
-          this.defaultController.doCommand(aCommand);
-        } else if (focusedElement == TodayPane.agenda) {
+        if (focusedElement == TodayPane.agenda) {
           TodayPane.agenda.deleteSelectedItem(false);
         } else if (focusedElement && focusedElement.className == "calendar-task-tree") {
           deleteToDoCommand(false);
@@ -439,27 +407,12 @@ var calendarController = {
         break;
 
       case "cmd_selectAll":
-        if (
-          !this.todo_tasktree_focused &&
-          this.defaultController &&
-          !this.isCalendarInForeground()
-        ) {
-          // Unless a task tree is focused, make the default controller
-          // take care.
-          this.defaultController.doCommand(aCommand);
-        } else if (this.todo_tasktree_focused) {
+        if (this.todo_tasktree_focused) {
           getTaskTree().selectAll();
         } else if (this.isInMode("calendar")) {
           selectAllEvents();
         }
         break;
-
-      default:
-        if (this.defaultController && !this.isCalendarInForeground()) {
-          // If calendar is not in foreground, let the default controller take
-          // care. If we don't have a default controller, just continue.
-          this.defaultController.doCommand(aCommand);
-        }
     }
   },
 
@@ -683,8 +636,6 @@ var calendarController = {
  * superseded by a new command controller architecture.
  */
 var calendarController2 = {
-  defaultController: null,
-
   commands: new Set([
     "cmd_cut",
     "cmd_copy",
@@ -799,8 +750,10 @@ var calendarController2 = {
  * inserted before the conflicting Thunderbird command controller.
  */
 function injectCalendarCommandController() {
-  calendarController.defaultController = document.getElementById("tabmail").tabController;
-  top.controllers.insertControllerAt(0, calendarController);
+  // This is the third-highest priority controller. It's preceded by
+  // DefaultController and tabmail.tabController, and followed by
+  // calendarController, then whatever Gecko adds.
+  top.controllers.insertControllerAt(2, calendarController);
   document.commandDispatcher.updateCommands("calendar_commands");
 }
 

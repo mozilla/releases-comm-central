@@ -297,32 +297,16 @@ var newMailTabType = {
         );
       },
       supportsCommand(command, tab) {
-        if (DefaultController.supportsCommand(command)) {
-          return true;
-        }
         return tab.chromeBrowser?.contentWindow.commandController?.supportsCommand(
           command
         );
       },
       isCommandEnabled(command, tab) {
-        if (
-          DefaultController.supportsCommand(command) &&
-          DefaultController.isCommandEnabled(command)
-        ) {
-          return true;
-        }
         return tab.chromeBrowser?.contentWindow.commandController?.isCommandEnabled(
           command
         );
       },
       doCommand(command, tab) {
-        if (
-          DefaultController.supportsCommand(command) &&
-          DefaultController.isCommandEnabled(command)
-        ) {
-          DefaultController.doCommand(command, tab);
-          return;
-        }
         tab.chromeBrowser?.contentWindow.commandController?.doCommand(command);
       },
       getBrowser(tab) {
