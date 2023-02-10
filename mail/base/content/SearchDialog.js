@@ -38,6 +38,12 @@ var gSearchStopButton;
 // Should we try to search online?
 var gSearchOnline = false;
 
+window.addEventListener("DOMContentLoaded", searchOnLoad);
+window.addEventListener("unload", event => {
+  onSearchStop();
+  searchOnUnload();
+});
+
 // Controller object for search results thread pane
 var nsSearchResultsController = {
   supportsCommand(command) {

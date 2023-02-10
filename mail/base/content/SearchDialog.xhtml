@@ -14,7 +14,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/contextMenu.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
   %messengerDTD;
   <!ENTITY % SearchDialogDTD SYSTEM "chrome://messenger/locale/SearchDialog.dtd">
@@ -22,33 +22,32 @@
   <!ENTITY % searchTermDTD SYSTEM "chrome://messenger/locale/searchTermOverlay.dtd">
   %searchTermDTD;
 ]>
-
-<window id="searchMailWindow"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="searchOnLoad();"
-        onunload="onSearchStop(); searchOnUnload();"
-        windowtype="mailnews:search"
-        title="&searchDialogTitle.label;"
-        style="min-width: 52em; min-height: 34em;"
-        lightweightthemes="true"
-        persist="screenX screenY width height sizemode">
-
+<html id="searchMailWindow" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="mailnews:search"
+      scrolling="false"
+      style="min-width:52em; min-height:34em;"
+      lightweightthemes="true"
+      persist="screenX screenY width height sizemode">
+<head>
+  <title>&searchDialogTitle.label;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/commandglue.js"></script>
+  <script defer="defer" src="chrome://messenger/content/searchWidgets.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailWindow.js"></script>
+  <script defer="defer" src="chrome://messenger/content/folderDisplay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/threadPane.js"></script>
+  <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/searchTerm.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dateFormat.js"></script>
+  <script defer="defer" src="chrome://messenger/content/SearchDialog.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
-
-  <script src="chrome://messenger/content/commandglue.js"/>
-  <script src="chrome://messenger/content/searchWidgets.js"/>
-  <script src="chrome://messenger/content/mailWindow.js"/>
-  <script src="chrome://messenger/content/folderDisplay.js"/>
-  <script src="chrome://messenger/content/threadPane.js"/>
-  <script src="chrome://communicator/content/utilityOverlay.js"/>
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/SearchDialog.js"/>
-  <script src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
-  <script src="chrome://messenger/content/searchTerm.js"/>
-  <script src="chrome://messenger/content/dateFormat.js"/>
 
   <commands id="commands">
     <commandset id="mailSearchItems"
@@ -148,5 +147,5 @@
       <html:progress class="progressmeter-statusbar" id="statusbar-icon" value="0" max="100"/>
     </hbox>
   </hbox>
-
-</window>
+</html:body>
+</html>
