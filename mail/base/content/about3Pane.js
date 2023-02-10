@@ -784,6 +784,7 @@ var folderPane = {
     folderTree.addEventListener("contextmenu", this);
     folderTree.addEventListener("collapsed", this);
     folderTree.addEventListener("expanded", this);
+    folderTree.addEventListener("dragstart", this);
     folderTree.addEventListener("dragover", this);
     folderTree.addEventListener("dragleave", this);
     folderTree.addEventListener("drop", this);
@@ -802,6 +803,9 @@ var folderPane = {
         break;
       case "expanded":
         this._onExpanded(event);
+        break;
+      case "dragstart":
+        this._onDragStart(event);
         break;
       case "dragover":
         this._onDragOver(event);
@@ -1186,6 +1190,24 @@ var folderPane = {
     }
   },
 
+  _onDragStart(event) {
+    let row = event.target.closest(`li[is="folder-tree-row"]`);
+    if (!row) {
+      event.preventDefault();
+      return;
+    }
+
+    let folder = MailServices.folderLookup.getFolderForURL(row.uri);
+    if (!folder || folder.isServer || folder.server.type == "nntp") {
+      // TODO: Fix NNTP group reordering and enable.
+      event.preventDefault();
+      return;
+    }
+
+    event.dataTransfer.mozSetDataAt("text/x-moz-folder", folder, 0);
+    event.dataTransfer.effectAllowed = "copyMove";
+  },
+
   _onDragOver(event) {
     event.dataTransfer.dropEffect = "none";
     event.preventDefault();
@@ -1196,13 +1218,13 @@ var folderPane = {
     }
 
     let targetFolder = MailServices.folderLookup.getFolderForURL(row.uri);
-    if (!targetFolder || targetFolder.isServer) {
+    if (!targetFolder) {
       return;
     }
 
     let types = Array.from(event.dataTransfer.mozTypesAt(0));
     if (types.includes("text/x-moz-message")) {
-      if (!targetFolder.canFileMessages) {
+      if (targetFolder.isServer || !targetFolder.canFileMessages) {
         return;
       }
       for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
@@ -1213,6 +1235,51 @@ var folderPane = {
         if (msgHdr.folder == targetFolder) {
           return;
         }
+      }
+    } else if (types.includes("text/x-moz-folder")) {
+      // If cannot create subfolders then don't allow drop here.
+      if (!targetFolder.canCreateSubfolders) {
+        return;
+      }
+
+      let sourceFolder = event.dataTransfer
+        .mozGetDataAt("text/x-moz-folder", 0)
+        .QueryInterface(Ci.nsIMsgFolder);
+
+      // Don't allow to drop on itself.
+      if (targetFolder == sourceFolder) {
+        return;
+      }
+      // Don't copy within same server.
+      if (
+        sourceFolder.server == targetFolder.server &&
+        event.dataTransfer.dropEffect == "copy"
+      ) {
+        return;
+      }
+      // Don't allow immediate child to be dropped onto its parent.
+      if (targetFolder == sourceFolder.parent) {
+        return;
+      }
+      // Don't allow dragging of virtual folders across accounts.
+      if (
+        sourceFolder.getFlag(Ci.nsMsgFolderFlags.Virtual) &&
+        sourceFolder.server != targetFolder.server
+      ) {
+        return;
+      }
+      // Don't allow parent to be dropped on its ancestors.
+      if (sourceFolder.isAncestorOf(targetFolder)) {
+        return;
+      }
+      // If there is a folder that can't be renamed, don't allow it to be
+      // dropped if it is not to "Local Folders" or is to the same account.
+      if (
+        !sourceFolder.canRename &&
+        (targetFolder.server.type != "none" ||
+          sourceFolder.server == targetFolder.server)
+      ) {
+        return;
       }
     } else {
       return;
@@ -1240,7 +1307,7 @@ var folderPane = {
       return;
     }
 
-    let folder = MailServices.folderLookup.getFolderForURL(row.uri);
+    let targetFolder = MailServices.folderLookup.getFolderForURL(row.uri);
 
     let types = Array.from(event.dataTransfer.mozTypesAt(0));
     if (types.includes("text/x-moz-message")) {
@@ -1263,7 +1330,7 @@ var folderPane = {
 
       Services.prefs.setStringPref(
         "mail.last_msg_movecopy_target_uri",
-        folder.URI
+        targetFolder.URI
       );
       Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
       // ### ugh, so this won't work with cross-folder views. We would
@@ -1271,11 +1338,22 @@ var folderPane = {
       MailServices.copy.copyMessages(
         sourceFolder,
         array,
-        folder,
+        targetFolder,
         isMove,
         null,
         top.msgWindow,
         true
+      );
+    } else if (types.includes("text/x-moz-folder")) {
+      let sourceFolder = event.dataTransfer
+        .mozGetDataAt("text/x-moz-folder", 0)
+        .QueryInterface(Ci.nsIMsgFolder);
+      MailServices.copy.copyFolder(
+        sourceFolder,
+        targetFolder,
+        sourceFolder.server == targetFolder.server,
+        null,
+        top.msgWindow
       );
     }
 
@@ -1842,6 +1920,7 @@ class FolderTreeRow extends HTMLLIElement {
     this.name = useServerName ? folder.server.prettyName : folder.name;
     this.unreadCount = folder.getNumUnread(false);
     this.folderSortOrder = folder.sortOrder;
+    this.setAttribute("draggable", "true");
   }
 
   /**
