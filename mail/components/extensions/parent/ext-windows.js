@@ -294,8 +294,11 @@ this.windows = class extends ExtensionAPIPersistent {
             features.push("dialog=no", "all", "status", "toolbar");
           } else {
             // All other types create "popup"-type windows by default.
+            // Use dialog=no to get minimize and maximize buttons (as chrome
+            // does) and to allow the API to actually maximize the popup in
+            // Linux.
             features.push(
-              "dialog",
+              "dialog=no",
               "resizable",
               "minimizable",
               "titlebar",
@@ -354,9 +357,6 @@ this.windows = class extends ExtensionAPIPersistent {
             );
           });
 
-          // Updating the state fails if the window has not yet been drawn.
-          await new Promise(window.requestAnimationFrame);
-
           if (
             [
               "minimized",
@@ -376,17 +376,19 @@ this.windows = class extends ExtensionAPIPersistent {
         },
 
         async update(windowId, updateInfo) {
-          if (updateInfo.state !== null && updateInfo.state != "normal") {
-            if (
-              updateInfo.left !== null ||
-              updateInfo.top !== null ||
-              updateInfo.width !== null ||
-              updateInfo.height !== null
-            ) {
-              throw new ExtensionError(
-                `"state": "${updateInfo.state}" may not be combined with "left", "top", "width", or "height"`
-              );
-            }
+          let needResize =
+            updateInfo.left !== null ||
+            updateInfo.top !== null ||
+            updateInfo.width !== null ||
+            updateInfo.height !== null;
+          if (
+            updateInfo.state !== null &&
+            updateInfo.state != "normal" &&
+            needResize
+          ) {
+            throw new ExtensionError(
+              `"state": "${updateInfo.state}" may not be combined with "left", "top", "width", or "height"`
+            );
           }
 
           let win = windowManager.get(windowId, context);

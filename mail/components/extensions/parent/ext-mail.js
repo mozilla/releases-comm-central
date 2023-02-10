@@ -1178,6 +1178,8 @@ class Window extends WindowBase {
         return "messageCompose";
       case "mail:messageWindow":
         return "messageDisplay";
+      case "mail:extensionPopup":
+        return "popup";
       default:
         return super.type;
     }
@@ -1313,6 +1315,11 @@ class Window extends WindowBase {
    */
   async setState(state) {
     let { window } = this;
+    // If this is called right after the window has been created, there is still
+    // some code running, which "inits" the window to normal state. This will
+    // reset window.windowState to normal after this function has minimized the
+    // window. The window will remain minimized, but its state says otherwise.
+    await new Promise(r => window.setTimeout(r, 100));
 
     const expectedState = (function() {
       switch (state) {
@@ -1390,10 +1397,17 @@ class Window extends WindowBase {
 
       await Promise.any([
         promiseExpectedSizeMode,
-        new Promise(resolve => setTimeout(resolve, noWindowManagerTimeout)),
+        new Promise(resolve =>
+          window.setTimeout(resolve, noWindowManagerTimeout)
+        ),
       ]);
-
       window.removeEventListener("sizemodechange", onSizeModeChange);
+    }
+
+    if (window.windowState != expectedState) {
+      console.warn(
+        `Window manager refused to set window to state ${expectedState}.`
+      );
     }
   }
 
