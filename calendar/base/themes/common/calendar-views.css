@@ -238,7 +238,6 @@
 :is(calendar-day-view, calendar-week-view):not([hidden]) {
   display: grid;
   height: 0;
-  width: 0;
 }
 
 .multiday-grid {

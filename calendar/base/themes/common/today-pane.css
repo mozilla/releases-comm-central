@@ -21,6 +21,7 @@
 }
 
 #today-pane-panel {
+  -moz-box-layout: legacy;
   background-color: -moz-Dialog;
 }
 

@@ -229,10 +229,17 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
  * Please be careful when changing the following CSS.
  */
 
+#calendar-list-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+}
+
 #calendar-list-inner-pane {
   display: flex;
   flex-direction: column;
-  height: 0; /* Force overflow if necessary. */
+  flex: 1 1 0;
+  overflow-x: hidden;
 }
 
 #calendar-list-inner-pane > #calendar-list {
@@ -240,7 +247,8 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   list-style: none;
   margin: 0;
   padding: 0;
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 150px;
 }
 
 #calendar-list > li {
@@ -365,10 +373,14 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   height: var(--calendar-list-item-dot-size);
   border-radius: 5px;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 #calendar-list > li > .calendar-name {
   flex: 1;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 #calendar-list > li[calendar-disabled]:not(.selected) > .calendar-name {
@@ -389,10 +401,6 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 
 #calendar-list > richlistitem {
   -moz-box-align: center;
-}
-
-#calendarButtonsBottomSpacer {
-  -moz-box-flex: 1;
 }
 
 #sideButtonsBottom {
