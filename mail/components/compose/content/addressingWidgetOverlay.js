@@ -10,9 +10,6 @@ var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 var { DisplayNameUtils } = ChromeUtils.import(
   "resource:///modules/DisplayNameUtils.jsm"
 );
-var gDragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
-  Ci.nsIDragService
-);
 
 // Temporarily prevent repeated deletion key events in address rows or subject.
 // Prevent the keyboard shortcut for removing an empty address row (long
