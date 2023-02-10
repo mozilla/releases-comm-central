@@ -890,18 +890,12 @@ async function loadStartFolder(initialUri) {
       defaultServer.performBiff(msgWindow);
     }
     if (loadFolder) {
-      try {
-        // TODO: Do a better job of this.
-        let tab = document.getElementById("tabmail").currentTabInfo;
-        tab.chromeBrowser.addEventListener(
-          "load",
-          () => (tab.folder = startFolder),
-          true
-        );
-      } catch (ex) {
-        // This means we tried to select a folder that isn't in the current view.
-        console.error(ex);
-      }
+      let tab = document.getElementById("tabmail")?.tabInfo[0];
+      tab.chromeBrowser.addEventListener(
+        "load",
+        () => (tab.folder = startFolder),
+        true
+      );
     }
   } catch (ex) {
     // this is the case where we're trying to auto-subscribe to a folder.
