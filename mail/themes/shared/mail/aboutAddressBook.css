@@ -370,10 +370,10 @@ body.layout-table ~ menupopup#sortContext >
   display: none;
 }
 
-/* Show address book toggle in the list view if All Address Book is selected. */
-body:not(.layout-table).all-ab-selected ~ menupopup#sortContext >
-  :where(menuitem[value="addrbook"], menuseparator:last-of-type) {
-  display: initial;
+/* Hide address book toggle in the list view if All Address Book is not selected. */
+body:not(.layout-table):not(.all-ab-selected) ~ menupopup#sortContext >
+  menuitem[value="addrbook"] {
+  display: none;
 }
 
 .all-ab-selected .address-book-name {
