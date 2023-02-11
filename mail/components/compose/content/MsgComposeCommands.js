@@ -7109,7 +7109,7 @@ async function updateLanguageInStatusBar(dictionaries) {
   if (!dictionaries) {
     dictionaries = Array.from(gActiveDictionaries);
   }
-  let listFormat = new Intl.ListFormat(Services.locale.appLocaleAsBCP47, {
+  let listFormat = new Intl.ListFormat(undefined, {
     type: "conjunction",
     style: "short",
   });
