@@ -2782,6 +2782,9 @@ var folderListener = {
   onMessageAdded(parentFolder, msg) {},
   onFolderRemoved(parentFolder, childFolder) {
     folderPane.removeFolder(parentFolder, childFolder);
+    if (childFolder == gFolder) {
+      gFolder = null;
+    }
   },
   onMessageRemoved(parentFolder, msg) {
     if (parentFolder == gFolder) {
@@ -3112,21 +3115,21 @@ commandController.registerCallback(
   () => {
     gDBView.selection.selectAll();
   },
-  () => !!gViewWrapper
+  () => !!gViewWrapper?.dbView
 );
 commandController.registerCallback(
   "cmd_selectThread",
   () => {
     gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.selectThread);
   },
-  () => !!gViewWrapper
+  () => !!gViewWrapper?.dbView
 );
 commandController.registerCallback(
   "cmd_selectFlagged",
   () => {
     gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.selectFlagged);
   },
-  () => !!gViewWrapper
+  () => !!gViewWrapper?.dbView
 );
 commandController.registerCallback(
   "cmd_downloadFlagged",

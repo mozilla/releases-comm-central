@@ -321,9 +321,13 @@ var commandController = {
       return this._isCallbackEnabled[command];
     }
 
-    if (command == "cmd_newMessage") {
-      // TODO: This shouldn't be here, or should return false if there are no identities.
-      return true;
+    switch (command) {
+      case "cmd_newMessage":
+        // TODO: This shouldn't be here, or should return false if there are no identities.
+        return true;
+      case "cmd_searchMessages":
+        // TODO: This shouldn't be here, or should return false if there are no accounts.
+        return true;
     }
 
     if (!gViewWrapper) {
@@ -478,9 +482,6 @@ var commandController = {
       }
       case "cmd_applyFilters": {
         return this._getViewCommandStatus(Ci.nsMsgViewCommandType.applyFilters);
-      }
-      case "cmd_searchMessages": {
-        return true;
       }
     }
 
