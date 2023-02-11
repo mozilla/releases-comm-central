@@ -15,7 +15,7 @@ imply_option("MOZ_REQUIRE_SIGNING", False)
 imply_option("MOZ_SERVICES_SYNC", True)
 
 
-imply_option("--enable-mf-cdm", False)
+imply_option("--enable-wmf-cdm", False)
 
 
 @depends(target_is_windows, target_has_linux_kernel)
