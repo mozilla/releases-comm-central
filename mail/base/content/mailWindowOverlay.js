@@ -393,133 +393,101 @@ function InitViewLayoutStyleMenu(event, appmenu) {
   }
 }
 
-function setSortByMenuItemCheckState(id, value) {
-  var menuitem = document.getElementById(id);
-  if (menuitem) {
-    menuitem.setAttribute("checked", value);
-  }
-}
-
 /**
  * Called when showing the menu_viewSortPopup menupopup, so it should always
  * be up-to-date.
  */
 function InitViewSortByMenu() {
-  let sortType, sortOrder, grouped, threaded;
-
   let tab = document.getElementById("tabmail")?.currentTabInfo;
-  if (tab?.mode.name == "mail3PaneTab") {
-    ({ type: sortType, order: sortOrder, grouped, threaded } = tab.sort);
-  } else if (tab?.mode.tabType.name == "mail") {
-    ({
-      primarySortType: sortType,
-      primarySortOrder: sortOrder,
-      showGroupedBySort: grouped,
-      showThreaded: threaded,
-    } = tab.folderDisplay.view);
+  if (tab?.mode.name != "mail3PaneTab") {
+    return;
   }
 
-  setSortByMenuItemCheckState(
-    "sortByDateMenuitem",
-    sortType == Ci.nsMsgViewSortType.byDate
-  );
-  setSortByMenuItemCheckState(
-    "sortByReceivedMenuitem",
-    sortType == Ci.nsMsgViewSortType.byReceived
-  );
-  setSortByMenuItemCheckState(
-    "sortByFlagMenuitem",
-    sortType == Ci.nsMsgViewSortType.byFlagged
-  );
-  setSortByMenuItemCheckState(
-    "sortByOrderReceivedMenuitem",
-    sortType == Ci.nsMsgViewSortType.byId
-  );
-  setSortByMenuItemCheckState(
-    "sortByPriorityMenuitem",
-    sortType == Ci.nsMsgViewSortType.byPriority
-  );
-  setSortByMenuItemCheckState(
-    "sortBySizeMenuitem",
-    sortType == Ci.nsMsgViewSortType.bySize
-  );
-  setSortByMenuItemCheckState(
-    "sortByStatusMenuitem",
-    sortType == Ci.nsMsgViewSortType.byStatus
-  );
-  setSortByMenuItemCheckState(
-    "sortBySubjectMenuitem",
-    sortType == Ci.nsMsgViewSortType.bySubject
-  );
-  setSortByMenuItemCheckState(
-    "sortByUnreadMenuitem",
-    sortType == Ci.nsMsgViewSortType.byUnread
-  );
-  setSortByMenuItemCheckState(
-    "sortByTagsMenuitem",
-    sortType == Ci.nsMsgViewSortType.byTags
-  );
-  setSortByMenuItemCheckState(
-    "sortByJunkStatusMenuitem",
-    sortType == Ci.nsMsgViewSortType.byJunkStatus
-  );
-  setSortByMenuItemCheckState(
-    "sortByFromMenuitem",
-    sortType == Ci.nsMsgViewSortType.byAuthor
-  );
-  setSortByMenuItemCheckState(
-    "sortByRecipientMenuitem",
-    sortType == Ci.nsMsgViewSortType.byRecipient
-  );
-  setSortByMenuItemCheckState(
-    "sortByAttachmentsMenuitem",
-    sortType == Ci.nsMsgViewSortType.byAttachments
-  );
-  setSortByMenuItemCheckState(
-    "sortByCorrespondentMenuitem",
-    sortType == Ci.nsMsgViewSortType.byCorrespondent
-  );
+  let { gViewWrapper, threadPane } = tab.chromeBrowser.contentWindow;
+  if (!gViewWrapper?.dbView) {
+    return;
+  }
 
-  var sortTypeSupportsGrouping = isSortTypeValidForGrouping(sortType);
+  let {
+    primarySortType,
+    primarySortOrder,
+    showGroupedBySort,
+    showThreaded,
+  } = gViewWrapper;
+  let hiddenColumns = threadPane.columns
+    .filter(c => c.hidden)
+    .map(c => c.sortKey);
 
-  setSortByMenuItemCheckState(
-    "sortAscending",
-    sortOrder == Ci.nsMsgViewSortOrder.ascending
+  let isSortTypeValidForGrouping = [
+    Ci.nsMsgViewSortType.byAccount,
+    Ci.nsMsgViewSortType.byAttachments,
+    Ci.nsMsgViewSortType.byAuthor,
+    Ci.nsMsgViewSortType.byCorrespondent,
+    Ci.nsMsgViewSortType.byDate,
+    Ci.nsMsgViewSortType.byFlagged,
+    Ci.nsMsgViewSortType.byLocation,
+    Ci.nsMsgViewSortType.byPriority,
+    Ci.nsMsgViewSortType.byReceived,
+    Ci.nsMsgViewSortType.byRecipient,
+    Ci.nsMsgViewSortType.byStatus,
+    Ci.nsMsgViewSortType.bySubject,
+    Ci.nsMsgViewSortType.byTags,
+    Ci.nsMsgViewSortType.byCustom,
+  ].includes(primarySortType);
+
+  let setSortItemAttrs = function(id, sortKey) {
+    let menuItem = document.getElementById(id);
+    menuItem.setAttribute(
+      "checked",
+      primarySortType == Ci.nsMsgViewSortType[sortKey]
+    );
+    if (hiddenColumns.includes(sortKey)) {
+      menuItem.setAttribute("disabled", "true");
+    } else {
+      menuItem.removeAttribute("disabled");
+    }
+  };
+
+  setSortItemAttrs("sortByDateMenuitem", "byDate");
+  setSortItemAttrs("sortByReceivedMenuitem", "byReceived");
+  setSortItemAttrs("sortByFlagMenuitem", "byFlagged");
+  setSortItemAttrs("sortByOrderReceivedMenuitem", "byId");
+  setSortItemAttrs("sortByPriorityMenuitem", "byPriority");
+  setSortItemAttrs("sortBySizeMenuitem", "bySize");
+  setSortItemAttrs("sortByStatusMenuitem", "byStatus");
+  setSortItemAttrs("sortBySubjectMenuitem", "bySubject");
+  setSortItemAttrs("sortByUnreadMenuitem", "byUnread");
+  setSortItemAttrs("sortByTagsMenuitem", "byTags");
+  setSortItemAttrs("sortByJunkStatusMenuitem", "byJunkStatus");
+  setSortItemAttrs("sortByFromMenuitem", "byAuthor");
+  setSortItemAttrs("sortByRecipientMenuitem", "byRecipient");
+  setSortItemAttrs("sortByAttachmentsMenuitem", "byAttachments");
+  setSortItemAttrs("sortByCorrespondentMenuitem", "byCorrespondent");
+
+  document
+    .getElementById("sortAscending")
+    .setAttribute(
+      "checked",
+      primarySortOrder == Ci.nsMsgViewSortOrder.ascending
+    );
+  document
+    .getElementById("sortDescending")
+    .setAttribute(
+      "checked",
+      primarySortOrder == Ci.nsMsgViewSortOrder.descending
+    );
+
+  document.getElementById("sortThreaded").setAttribute("checked", showThreaded);
+  document
+    .getElementById("sortUnthreaded")
+    .setAttribute("checked", !showThreaded && !showGroupedBySort);
+
+  let groupBySortOrderMenuItem = document.getElementById("groupBySort");
+  groupBySortOrderMenuItem.setAttribute(
+    "disabled",
+    !isSortTypeValidForGrouping
   );
-  setSortByMenuItemCheckState(
-    "sortDescending",
-    sortOrder == Ci.nsMsgViewSortOrder.descending
-  );
-
-  var sortThreadedMenuItem = document.getElementById("sortThreaded");
-  var sortUnthreadedMenuItem = document.getElementById("sortUnthreaded");
-
-  sortThreadedMenuItem.setAttribute("checked", threaded);
-  sortUnthreadedMenuItem.setAttribute("checked", !threaded && !grouped);
-
-  var groupBySortOrderMenuItem = document.getElementById("groupBySort");
-
-  groupBySortOrderMenuItem.setAttribute("disabled", !sortTypeSupportsGrouping);
-  groupBySortOrderMenuItem.setAttribute("checked", grouped);
-}
-
-function isSortTypeValidForGrouping(sortType) {
-  return Boolean(
-    sortType == Ci.nsMsgViewSortType.byAccount ||
-      sortType == Ci.nsMsgViewSortType.byAttachments ||
-      sortType == Ci.nsMsgViewSortType.byAuthor ||
-      sortType == Ci.nsMsgViewSortType.byCorrespondent ||
-      sortType == Ci.nsMsgViewSortType.byDate ||
-      sortType == Ci.nsMsgViewSortType.byFlagged ||
-      sortType == Ci.nsMsgViewSortType.byLocation ||
-      sortType == Ci.nsMsgViewSortType.byPriority ||
-      sortType == Ci.nsMsgViewSortType.byReceived ||
-      sortType == Ci.nsMsgViewSortType.byRecipient ||
-      sortType == Ci.nsMsgViewSortType.byStatus ||
-      sortType == Ci.nsMsgViewSortType.bySubject ||
-      sortType == Ci.nsMsgViewSortType.byTags ||
-      sortType == Ci.nsMsgViewSortType.byCustom
-  );
+  groupBySortOrderMenuItem.setAttribute("checked", showGroupedBySort);
 }
 
 function InitViewMessagesMenu() {

@@ -493,29 +493,129 @@
 
     <menuseparator id="viewSortMenuSeparator"/>
     <menu id="viewSortMenu" accesskey="&sortMenu.accesskey;" label="&sortMenu.label;">
-      <menupopup id="menu_viewSortPopup" onpopupshowing="InitViewSortByMenu()">
-        <menuitem id="sortByDateMenuitem" type="radio" name="sortby" label="&sortByDateCmd.label;" accesskey="&sortByDateCmd.accesskey;" oncommand="MsgSortThreadPane('byDate')"/>
-        <menuitem id="sortByReceivedMenuitem" type="radio" name="sortby" label="&sortByReceivedCmd.label;" accesskey="&sortByReceivedCmd.accesskey;" oncommand="MsgSortThreadPane('byReceived')"/>
-        <menuitem id="sortByFlagMenuitem" type="radio" name="sortby" label="&sortByStarCmd.label;" accesskey="&sortByStarCmd.accesskey;" oncommand="MsgSortThreadPane('byFlagged')"/>
-        <menuitem id="sortByOrderReceivedMenuitem" type="radio" name="sortby" label="&sortByOrderReceivedCmd.label;"  accesskey="&sortByOrderReceivedCmd.accesskey;" oncommand="MsgSortThreadPane('byId')"/>
-        <menuitem id="sortByPriorityMenuitem" type="radio" name="sortby" label="&sortByPriorityCmd.label;" accesskey="&sortByPriorityCmd.accesskey;" oncommand="MsgSortThreadPane('byPriority')"/>
-        <menuitem id="sortByFromMenuitem" type="radio" name="sortby" label="&sortByFromCmd.label;" accesskey="&sortByFromCmd.accesskey;" oncommand="MsgSortThreadPane('byAuthor')"/>
-        <menuitem id="sortByRecipientMenuitem" type="radio" name="sortby" label="&sortByRecipientCmd.label;" accesskey="&sortByRecipientCmd.accesskey;" oncommand="MsgSortThreadPane('byRecipient')"/>
-        <menuitem id="sortByCorrespondentMenuitem" type="radio" name="sortby" label="&sortByCorrespondentCmd.label;" accesskey="&sortByCorrespondentCmd.accesskey;" oncommand="MsgSortThreadPane('byCorrespondent')"/>
-        <menuitem id="sortBySizeMenuitem" type="radio" name="sortby" label="&sortBySizeCmd.label;" accesskey="&sortBySizeCmd.accesskey;" oncommand="MsgSortThreadPane('bySize')"/>
-        <menuitem id="sortByStatusMenuitem" type="radio" name="sortby" label="&sortByStatusCmd.label;" accesskey="&sortByStatusCmd.accesskey;" oncommand="MsgSortThreadPane('byStatus')"/>
-        <menuitem id="sortBySubjectMenuitem" type="radio" name="sortby" label="&sortBySubjectCmd.label;" accesskey="&sortBySubjectCmd.accesskey;" oncommand="MsgSortThreadPane('bySubject')"/>
-        <menuitem id="sortByUnreadMenuitem" type="radio" name="sortby" label="&sortByUnreadCmd.label;"  accesskey="&sortByUnreadCmd.accesskey;" oncommand="MsgSortThreadPane('byUnread')"/>
-        <menuitem id="sortByTagsMenuitem" type="radio" name="sortby" label="&sortByTagsCmd.label;" accesskey="&sortByTagsCmd.accesskey;" oncommand="MsgSortThreadPane('byTags')"/>
-        <menuitem id="sortByJunkStatusMenuitem" type="radio" name="sortby" label="&sortByJunkStatusCmd.label;" accesskey="&sortByJunkStatusCmd.accesskey;" oncommand="MsgSortThreadPane('byJunkStatus')"/>
-        <menuitem id="sortByAttachmentsMenuitem" type="radio" name="sortby" label="&sortByAttachmentsCmd.label;" accesskey="&sortByAttachmentsCmd.accesskey;" oncommand="MsgSortThreadPane('byAttachments')"/>
+      <menupopup id="menu_viewSortPopup" oncommand="goDoCommand('cmd_sort', event);" onpopupshowing="InitViewSortByMenu()">
+        <menuitem id="sortByDateMenuitem"
+                  type="radio"
+                  name="sortby"
+                  value="byDate"
+                  label="&sortByDateCmd.label;"
+                  accesskey="&sortByDateCmd.accesskey;"/>
+        <menuitem id="sortByReceivedMenuitem"
+                  type="radio"
+                  name="sortby"
+                  value="byReceived"
+                  label="&sortByReceivedCmd.label;"
+                  accesskey="&sortByReceivedCmd.accesskey;"/>
+        <menuitem id="sortByFlagMenuitem"
+                  type="radio"
+                  name="sortby"
+                  value="byFlagged"
+                  label="&sortByStarCmd.label;"
+                  accesskey="&sortByStarCmd.accesskey;"/>
+        <menuitem id="sortByOrderReceivedMenuitem"
+                  type="radio"
+                  name="sortby"
+                  value="byId"
+                  label="&sortByOrderReceivedCmd.label;"
+                  accesskey="&sortByOrderReceivedCmd.accesskey;"/>
+        <menuitem id="sortByPriorityMenuitem"
+                  type="radio"
+                  name="sortby"
+                  value="byPriority"
+                  label="&sortByPriorityCmd.label;"
+                  accesskey="&sortByPriorityCmd.accesskey;"/>
+        <menuitem id="sortByFromMenuitem"
+                  type="radio"
+                  name="sortby"
+                  value="byAuthor"
+                  label="&sortByFromCmd.label;"
+                  accesskey="&sortByFromCmd.accesskey;"/>
+        <menuitem id="sortByRecipientMenuitem"
+                  type="radio"
+                  name="sortby"
+                  value="byRecipient"
+                  label="&sortByRecipientCmd.label;"
+                  accesskey="&sortByRecipientCmd.accesskey;"/>
+        <menuitem id="sortByCorrespondentMenuitem"
+                  type="radio"
+                  name="sortby"
+                  value="byCorrespondent"
+                  label="&sortByCorrespondentCmd.label;"
+                  accesskey="&sortByCorrespondentCmd.accesskey;"/>
+        <menuitem id="sortBySizeMenuitem"
+                  type="radio"
+                  name="sortby"
+                  value="bySize"
+                  label="&sortBySizeCmd.label;"
+                  accesskey="&sortBySizeCmd.accesskey;"/>
+        <menuitem id="sortByStatusMenuitem"
+                  type="radio"
+                  name="sortby"
+                  value="byStatus"
+                  label="&sortByStatusCmd.label;"
+                  accesskey="&sortByStatusCmd.accesskey;"/>
+        <menuitem id="sortBySubjectMenuitem"
+                  type="radio"
+                  name="sortby"
+                  value="bySubject"
+                  label="&sortBySubjectCmd.label;"
+                  accesskey="&sortBySubjectCmd.accesskey;"/>
+        <menuitem id="sortByUnreadMenuitem"
+                  type="radio"
+                  name="sortby"
+                  value="byUnread"
+                  label="&sortByUnreadCmd.label;"
+                  accesskey="&sortByUnreadCmd.accesskey;"/>
+        <menuitem id="sortByTagsMenuitem"
+                  type="radio"
+                  name="sortby"
+                  value="byTags"
+                  label="&sortByTagsCmd.label;"
+                  accesskey="&sortByTagsCmd.accesskey;"/>
+        <menuitem id="sortByJunkStatusMenuitem"
+                  type="radio"
+                  name="sortby"
+                  value="byJunkStatus"
+                  label="&sortByJunkStatusCmd.label;"
+                  accesskey="&sortByJunkStatusCmd.accesskey;"/>
+        <menuitem id="sortByAttachmentsMenuitem"
+                  type="radio"
+                  name="sortby"
+                  value="byAttachments"
+                  label="&sortByAttachmentsCmd.label;"
+                  accesskey="&sortByAttachmentsCmd.accesskey;"/>
         <menuseparator id="sortAfterAttachmentSeparator"/>
-        <menuitem id="sortAscending" type="radio" name="sortdirection" label="&sortAscending.label;" accesskey="&sortAscending.accesskey;" oncommand="MsgSortAscending()"/>
-        <menuitem id="sortDescending" type="radio" name="sortdirection" label="&sortDescending.label;" accesskey="&sortDescending.accesskey;" oncommand="MsgSortDescending()"/>
+        <menuitem id="sortAscending"
+                  type="radio"
+                  name="sortdirection"
+                  value="ascending"
+                  label="&sortAscending.label;"
+                  accesskey="&sortAscending.accesskey;"/>
+        <menuitem id="sortDescending"
+                  type="radio"
+                  name="sortdirection"
+                  value="descending"
+                  label="&sortDescending.label;"
+                  accesskey="&sortDescending.accesskey;"/>
         <menuseparator id="sortAfterDescendingSeparator"/>
-        <menuitem id="sortThreaded" type="radio" name="threaded" label="&sortThreaded.label;" accesskey="&sortThreaded.accesskey;" oncommand="MsgSortThreaded();"/>
-        <menuitem id="sortUnthreaded" type="radio" name="threaded" label="&sortUnthreaded.label;" accesskey="&sortUnthreaded.accesskey;" oncommand="MsgSortUnthreaded();"/>
-        <menuitem id="groupBySort" type="radio" name="group" label="&groupBySort.label;" accesskey="&groupBySort.accesskey;" oncommand="MsgGroupBySort();"/>
+        <menuitem id="sortThreaded"
+                  type="radio"
+                  name="threaded"
+                  value="threaded"
+                  label="&sortThreaded.label;"
+                  accesskey="&sortThreaded.accesskey;"/>
+        <menuitem id="sortUnthreaded"
+                  type="radio"
+                  name="threaded"
+                  value="unthreaded"
+                  label="&sortUnthreaded.label;"
+                  accesskey="&sortUnthreaded.accesskey;"/>
+        <menuitem id="groupBySort"
+                  type="checkbox"
+                  name="group"
+                  value="group"
+                  label="&groupBySort.label;"
+                  accesskey="&groupBySort.accesskey;"/>
       </menupopup>
     </menu>
     <menu id="viewMessageViewMenu" label="&msgsMenu.label;" accesskey="&msgsMenu.accesskey;"

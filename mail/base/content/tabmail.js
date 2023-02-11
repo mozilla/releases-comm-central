@@ -546,7 +546,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           return false;
         },
 
-        doCommand: aCommand => {
+        doCommand: (aCommand, ...args) => {
           let tab = this.currentTabInfo;
           // This can happen if we're starting up and haven't got a tab
           // loaded yet.
@@ -569,7 +569,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
           let doCommandFunc = tab.mode.doCommand || tab.mode.tabType.doCommand;
           if (doCommandFunc) {
-            doCommandFunc.call(tab.mode.tabType, aCommand, tab);
+            doCommandFunc.call(tab.mode.tabType, aCommand, tab, ...args);
           }
         },
 
