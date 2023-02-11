@@ -784,6 +784,9 @@ var folderPane = {
     folderTree.addEventListener("contextmenu", this);
     folderTree.addEventListener("collapsed", this);
     folderTree.addEventListener("expanded", this);
+    folderTree.addEventListener("dragover", this);
+    folderTree.addEventListener("dragleave", this);
+    folderTree.addEventListener("drop", this);
   },
 
   handleEvent(event) {
@@ -799,6 +802,15 @@ var folderPane = {
         break;
       case "expanded":
         this._onExpanded(event);
+        break;
+      case "dragover":
+        this._onDragOver(event);
+        break;
+      case "dragleave":
+        this._clearDropTarget(event);
+        break;
+      case "drop":
+        this._onDrop(event);
         break;
     }
   },
@@ -1172,6 +1184,102 @@ var folderPane = {
       let mode = target.closest("[data-mode]").dataset.mode;
       FolderTreeProperties.setIsExpanded(target.uri, mode, true);
     }
+  },
+
+  _onDragOver(event) {
+    event.dataTransfer.dropEffect = "none";
+    event.preventDefault();
+
+    let row = event.target.closest("li");
+    if (!row) {
+      return;
+    }
+
+    let targetFolder = MailServices.folderLookup.getFolderForURL(row.uri);
+    if (!targetFolder || targetFolder.isServer) {
+      return;
+    }
+
+    let types = Array.from(event.dataTransfer.mozTypesAt(0));
+    if (types.includes("text/x-moz-message")) {
+      if (!targetFolder.canFileMessages) {
+        return;
+      }
+      for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
+        let msgHdr = top.messenger.msgHdrFromURI(
+          event.dataTransfer.mozGetDataAt("text/x-moz-message", i)
+        );
+        // Don't allow drop onto original folder.
+        if (msgHdr.folder == targetFolder) {
+          return;
+        }
+      }
+    } else {
+      return;
+    }
+
+    event.dataTransfer.dropEffect = event.ctrlKey ? "copy" : "move";
+
+    this._clearDropTarget();
+    row.classList.add("drop-target");
+  },
+
+  _clearDropTarget() {
+    folderTree.querySelector(".drop-target")?.classList.remove("drop-target");
+  },
+
+  _onDrop(event) {
+    this._clearDropTarget();
+    if (event.dataTransfer.dropEffect == "none") {
+      // Somehow this is possible. It should not be possible.
+      return;
+    }
+
+    let row = event.target.closest("li");
+    if (!row) {
+      return;
+    }
+
+    let folder = MailServices.folderLookup.getFolderForURL(row.uri);
+
+    let types = Array.from(event.dataTransfer.mozTypesAt(0));
+    if (types.includes("text/x-moz-message")) {
+      let array = [];
+      let sourceFolder;
+      for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
+        let msgHdr = top.messenger.msgHdrFromURI(
+          event.dataTransfer.mozGetDataAt("text/x-moz-message", i)
+        );
+        if (!i) {
+          sourceFolder = msgHdr.folder;
+        }
+        array.push(msgHdr);
+      }
+      let isMove = event.dataTransfer.dropEffect == "move";
+      let isNews = sourceFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
+      if (!sourceFolder.canDeleteMessages || isNews) {
+        isMove = false;
+      }
+
+      Services.prefs.setStringPref(
+        "mail.last_msg_movecopy_target_uri",
+        folder.URI
+      );
+      Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
+      // ### ugh, so this won't work with cross-folder views. We would
+      // really need to partition the messages by folder.
+      MailServices.copy.copyMessages(
+        sourceFolder,
+        array,
+        folder,
+        isMove,
+        null,
+        top.msgWindow,
+        true
+      );
+    }
+
+    event.preventDefault();
   },
 
   /**

@@ -219,7 +219,8 @@ li:not(.selected) > .container:hover {
   }
 }
 
-#folderTree:focus-within li.selected > .container {
+#folderTree:focus-within li.selected > .container,
+#folderTree li.drop-target > .container {
   background-color: var(--treeitem-background-active);
   color: var(--treeitem-text-active);
 }
