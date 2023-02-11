@@ -21,7 +21,6 @@
 }
 
 #today-pane-panel {
-  -moz-box-layout: legacy;
   background-color: -moz-Dialog;
 }
 
@@ -298,6 +297,7 @@
   display: flex;
   flex-direction: column;
   min-height: 7em; /* Show at least the #agenda-toolbar and a part of the events. */
+  height: 0; /* Allow shrinking with flexbox emulation. */
 }
 
 #agenda {

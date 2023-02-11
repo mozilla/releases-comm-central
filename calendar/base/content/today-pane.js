@@ -467,17 +467,13 @@ var TodayPane = {
    * Handler function to update the today-pane when the current mode changes.
    */
   onModeModified() {
-    let todayPanePanel = document.getElementById("today-pane-panel");
-    // Store the previous mode panel's width.
-    todayPanePanel.setModeAttribute(
-      "modewidths",
-      todayPanePanel.getBoundingClientRect().width,
-      TodayPane.previousMode
-    );
-
     TodayPane.updateDisplay();
     TodayPane.updateSplitterState();
-    todayPanePanel.style.width = todayPanePanel.getModeAttribute("modewidths") + "px";
+    let todayPanePanel = document.getElementById("today-pane-panel");
+    const currentWidth = todayPanePanel.getModeAttribute("modewidths");
+    if (currentWidth != 0) {
+      todayPanePanel.style.width = `${currentWidth}px`;
+    }
     TodayPane.previousMode = gCurrentMode;
   },
 

@@ -15,6 +15,10 @@ html|input.textbox-addressingWidget:disabled {
   opacity: 0.5;
 }
 
+#outer {
+  -moz-box-layout: legacy;
+}
+
 .item-attendees-list-container {
   appearance: auto;
   -moz-default-appearance: listbox;
