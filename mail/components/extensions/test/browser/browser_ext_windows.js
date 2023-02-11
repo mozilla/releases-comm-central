@@ -327,7 +327,7 @@ add_task(async function test_popupLayoutProperties() {
         async function checkWindow(windowId, expected, retries = 0) {
           let win = await browser.windows.get(windowId);
 
-          while (
+          if (
             retries &&
             Object.keys(expected).some(key => expected[key] != win[key])
           ) {
@@ -338,7 +338,7 @@ add_task(async function test_popupLayoutProperties() {
             );
             // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
             await new Promise(resolve => setTimeout(resolve, 200));
-            retries--;
+            return checkWindow(windowId, expected, retries - 1);
           }
 
           for (let [key, value] of Object.entries(expected)) {
