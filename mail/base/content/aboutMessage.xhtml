@@ -91,10 +91,7 @@
     <!-- msg header view -->
     <!-- a convenience box for ease of extension overlaying -->
     <hbox id="messagepaneboxwrapper" flex="1">
-      <vbox id="messagepanebox"
-            ondragover="messagepaneObserver.onDragOver(event);"
-            ondrop="messagepaneObserver.onDrop(event);"
-            ondragleave="messagepaneObserver.onDragLeave(event);">
+      <vbox id="messagepanebox">
         <vbox id="singleMessage">
           <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
 #include msgHdrView.inc.xhtml

@@ -21,6 +21,9 @@
 // quickFilterBar.js
 /* globals quickFilterBar */
 
+// utilityOverlay.js
+/* globals validateFileName */
+
 var { DBViewWrapper } = ChromeUtils.import(
   "resource:///modules/DBViewWrapper.jsm"
 );
@@ -1829,6 +1832,7 @@ var threadPane = {
 
     threadTree.addEventListener("keypress", this);
     threadTree.addEventListener("select", this);
+    threadTree.addEventListener("dragstart", this);
   },
 
   handleEvent(event) {
@@ -1838,6 +1842,9 @@ var threadPane = {
         break;
       case "select":
         this._onSelect(event);
+        break;
+      case "dragstart":
+        this._onDragStart(event);
         break;
     }
   },
@@ -1873,6 +1880,143 @@ var threadPane = {
       default:
         displayMessages(gDBView.getSelectedMsgHdrs());
     }
+  },
+
+  _onDragStart(event) {
+    let row = event.target.closest(`tr[is="thread-listrow"]`);
+    if (!row) {
+      event.preventDefault();
+      return;
+    }
+
+    let messageURIs = gDBView.getURIsForSelection();
+    if (!threadTree.selectedIndices.includes(row.index)) {
+      messageURIs = [gDBView.getURIForViewIndex(row.index)];
+    }
+
+    let noSubjectString = messengerBundle.GetStringFromName(
+      "defaultSaveMessageAsFileName"
+    );
+    if (noSubjectString.endsWith(".eml")) {
+      noSubjectString = noSubjectString.slice(0, -4);
+    }
+    let longSubjectTruncator = messengerBundle.GetStringFromName(
+      "longMsgSubjectTruncator"
+    );
+    // Clip the subject string to 124 chars to avoid problems on Windows,
+    // see NS_MAX_FILEDESCRIPTOR in m-c/widget/windows/nsDataObj.cpp .
+    const maxUncutNameLength = 124;
+    let maxCutNameLength = maxUncutNameLength - longSubjectTruncator.length;
+    let messages = new Map();
+
+    for (let [index, uri] of Object.entries(messageURIs)) {
+      let msgService = MailServices.messageServiceFromURI(uri);
+      let msgHdr = msgService.messageURIToMsgHdr(uri);
+      let subject = msgHdr.mime2DecodedSubject || "";
+      if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe) {
+        subject = "Re: " + subject;
+      }
+
+      let uniqueFileName;
+      // If there is no subject, use a default name.
+      // If subject needs to be truncated, add a truncation character to indicate it.
+      if (!subject) {
+        uniqueFileName = noSubjectString;
+      } else {
+        uniqueFileName =
+          subject.length <= maxUncutNameLength
+            ? subject
+            : subject.substr(0, maxCutNameLength) + longSubjectTruncator;
+      }
+      let msgFileName = validateFileName(uniqueFileName);
+      let msgFileNameLowerCase = msgFileName.toLocaleLowerCase();
+
+      while (true) {
+        if (!messages.has(msgFileNameLowerCase)) {
+          messages.set(msgFileNameLowerCase, 1);
+          break;
+        } else {
+          let number = messages.get(msgFileNameLowerCase);
+          messages.set(msgFileNameLowerCase, number + 1);
+          let postfix = "-" + number;
+          msgFileName = msgFileName + postfix;
+          msgFileNameLowerCase = msgFileNameLowerCase + postfix;
+        }
+      }
+
+      msgFileName = msgFileName + ".eml";
+
+      // This type should be unnecessary, but getFlavorData can't get at
+      // text/x-moz-message for some reason.
+      event.dataTransfer.mozSetDataAt("text/plain", uri, index);
+      event.dataTransfer.mozSetDataAt("text/x-moz-message", uri, index);
+      event.dataTransfer.mozSetDataAt(
+        "text/x-moz-url",
+        msgService.getUrlForUri(uri).spec,
+        index
+      );
+      // When dragging messages to the filesystem:
+      // - Windows fetches this value and writes it to a file.
+      // - Linux does the same if there are multiple files, but for a single
+      //     file it uses the flavor data provider below.
+      // - MacOS always uses the flavor data provider.
+      event.dataTransfer.mozSetDataAt(
+        "application/x-moz-file-promise-url",
+        msgService.getUrlForUri(uri).spec,
+        index
+      );
+      event.dataTransfer.mozSetDataAt(
+        "application/x-moz-file-promise",
+        this._flavorDataProvider,
+        index
+      );
+      event.dataTransfer.mozSetDataAt(
+        "application/x-moz-file-promise-dest-filename",
+        msgFileName.replace(/(.{74}).*(.{10})$/u, "$1...$2"),
+        index
+      );
+    }
+
+    event.dataTransfer.effectAllowed = "copyMove";
+    let bcr = row.getBoundingClientRect();
+    event.dataTransfer.setDragImage(
+      row,
+      event.clientX - bcr.x,
+      event.clientY - bcr.y
+    );
+  },
+
+  _flavorDataProvider: {
+    QueryInterface: ChromeUtils.generateQI(["nsIFlavorDataProvider"]),
+
+    getFlavorData(transferable, flavor, data) {
+      if (flavor !== "application/x-moz-file-promise") {
+        return;
+      }
+
+      let fileName = {};
+      transferable.getTransferData(
+        "application/x-moz-file-promise-dest-filename",
+        fileName
+      );
+      fileName.value.QueryInterface(Ci.nsISupportsString);
+
+      let destDir = {};
+      transferable.getTransferData(
+        "application/x-moz-file-promise-dir",
+        destDir
+      );
+      destDir.value.QueryInterface(Ci.nsIFile);
+
+      let file = destDir.value.clone();
+      file.append(fileName.value.data);
+
+      let messageURI = {};
+      transferable.getTransferData("text/plain", messageURI);
+      messageURI.value.QueryInterface(Ci.nsISupportsString);
+
+      top.messenger.saveAs(messageURI.value.data, true, null, file.path, true);
+    },
   },
 
   /**
@@ -2499,6 +2643,8 @@ customElements.whenDefined("tree-view-listrow").then(() => {
       }
 
       super.connectedCallback();
+
+      this.setAttribute("draggable", "true");
 
       for (let column of threadPane.columns) {
         this.appendChild(document.createElement("td")).classList.add(
