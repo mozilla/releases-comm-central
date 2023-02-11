@@ -330,7 +330,7 @@ var commandController = {
         return true;
     }
 
-    if (!gViewWrapper) {
+    if (!gViewWrapper?.dbView) {
       return false;
     }
 
@@ -468,9 +468,6 @@ var commandController = {
           gDBView.hdrForFirstSelectedMessage?.folder?.server.canHaveFilters
         );
       case "cmd_watchThread": {
-        if (!gViewWrapper.dbView) {
-          return false;
-        }
         let enabledObj = {};
         let checkStatusObj = {};
         gViewWrapper.dbView.getCommandStatus(

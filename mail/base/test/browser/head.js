@@ -85,6 +85,19 @@ class MenuTestHelper {
         `${actual.id} disabled`
       );
     }
+    if (expected.checked) {
+      Assert.equal(
+        actual.getAttribute("checked"),
+        "true",
+        `${actual.id} checked`
+      );
+    } else if (["checkbox", "radio"].includes(actual.getAttribute("type"))) {
+      Assert.ok(
+        !actual.hasAttribute("checked") ||
+          actual.getAttribute("checked") == "false",
+        `${actual.id} not checked`
+      );
+    }
   }
 
   /**
@@ -110,8 +123,14 @@ class MenuTestHelper {
         delete data[item.id];
 
         if (item.localName == "menu") {
-          item.openMenu(true);
-          await iterate(item.menupopup, data);
+          if (BrowserTestUtils.is_visible(item) && !item.disabled) {
+            item.openMenu(true);
+            await iterate(item.menupopup, data);
+          } else {
+            for (let hiddenItem of item.querySelectorAll("menu, menuitem")) {
+              delete data[hiddenItem.id];
+            }
+          }
         }
       }
 
@@ -125,6 +144,7 @@ class MenuTestHelper {
         hidden: itemData.hidden === true || itemData.hidden?.includes(mode),
         disabled:
           itemData.disabled === true || itemData.disabled?.includes(mode),
+        checked: itemData.checked === true || itemData.checked?.includes(mode),
       };
     }
 

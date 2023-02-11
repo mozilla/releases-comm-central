@@ -212,15 +212,6 @@ function view_init() {
   } else if (tab?.mode.name == "mailMessageTab") {
     message = tab.message;
     messageDisplayVisible = true;
-  } else if (tab?.folderDisplay) {
-    ({
-      isAccountCentralDisplayed: accountCentralDisplayed,
-      folderPaneVisible: folderDisplayVisible,
-      selectedMessage: message,
-    } = tab.folderDisplay);
-    messageDisplayVisible = tab.messageDisplay.visible;
-  } else {
-    // TODO disable everything?
   }
 
   let isFeed = FeedUtils.isFeedMessage(message);
@@ -491,33 +482,38 @@ function InitViewSortByMenu() {
 }
 
 function InitViewMessagesMenu() {
-  let view;
   let tab = document.getElementById("tabmail")?.currentTabInfo;
-  if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
-    view = tab.browser.contentWindow.gViewWrapper;
-  } else if (tab?.mode.tabType.name == "mail") {
-    view = tab.folderDisplay.view;
+  if (!["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
+    return;
   }
+
+  let viewWrapper = tab.chromeBrowser.contentWindow.gViewWrapper;
 
   document
     .getElementById("viewAllMessagesMenuItem")
-    .setAttribute("checked", !view.showUnreadOnly && !view.specialView);
+    .setAttribute(
+      "checked",
+      !viewWrapper || (!viewWrapper.showUnreadOnly && !viewWrapper.specialView)
+    );
 
   document
     .getElementById("viewUnreadMessagesMenuItem")
-    .setAttribute("checked", view.showUnreadOnly);
+    .setAttribute("checked", !!viewWrapper?.showUnreadOnly);
 
   document
     .getElementById("viewThreadsWithUnreadMenuItem")
-    .setAttribute("checked", view.specialViewThreadsWithUnread);
+    .setAttribute("checked", !!viewWrapper?.specialViewThreadsWithUnread);
 
   document
     .getElementById("viewWatchedThreadsWithUnreadMenuItem")
-    .setAttribute("checked", view.specialViewWatchedThreadsWithUnread);
+    .setAttribute(
+      "checked",
+      !!viewWrapper?.specialViewWatchedThreadsWithUnread
+    );
 
   document
     .getElementById("viewIgnoredThreadsMenuItem")
-    .setAttribute("checked", view.showIgnored);
+    .setAttribute("checked", !!viewWrapper?.showIgnored);
 }
 
 function InitMessageMenu() {
