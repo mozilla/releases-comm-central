@@ -54,9 +54,14 @@ function checkMenuitems(menu, ...expectedItems) {
 async function checkABrowser(browser, doc = browser.ownerDocument) {
   if (
     browser.webProgress?.isLoadingDocument ||
+    !browser.currentURI ||
     browser.currentURI?.spec == "about:blank"
   ) {
-    await BrowserTestUtils.browserLoaded(browser);
+    await BrowserTestUtils.browserLoaded(
+      browser,
+      undefined,
+      url => url != "about:blank"
+    );
   }
 
   let browserContext = doc.getElementById("browserContext");
