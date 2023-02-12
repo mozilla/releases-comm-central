@@ -400,7 +400,6 @@ add_task(async function test_prompt_save_on_pill_editing() {
   // should be triggered.
   cwc.window.goDoCommand("cmd_close");
   await promptPromise;
-  await new Promise(resolve => cwc.window.setTimeout(resolve));
 
   close_compose_window(cwc);
 });

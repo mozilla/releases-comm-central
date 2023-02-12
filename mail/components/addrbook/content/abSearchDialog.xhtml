@@ -31,7 +31,7 @@
         persist="screenX screenY width height sizemode">
   <html:link rel="localization" href="messenger/addressbook/aboutAddressBook.ftl" />
 
-  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://messenger/content/globalOverlay.js"/>
   <script src="chrome://messenger/content/addressbook/abSearchDialog.js"/>
   <script src="chrome://messenger/content/addressbook/abResultsPane.js"/>
   <script src="chrome://messenger/content/addressbook/abCommon.js"/>
@@ -42,8 +42,8 @@
   <script src="chrome://messenger/content/addressbook/abView.js"/>
 
   <keyset id="mailKeys">
-    <key key="&closeCmd.key;" modifiers="accel" oncommand="onSearchStop(); closeWindow(true);"/>
-    <key keycode="VK_ESCAPE" oncommand="onSearchStop(); closeWindow(true);"/>
+    <key key="&closeCmd.key;" modifiers="accel" oncommand="onSearchStop(); window.close();"/>
+    <key keycode="VK_ESCAPE" oncommand="onSearchStop(); window.close();"/>
   </keyset>
 
   <commandset id="AbCommands">
