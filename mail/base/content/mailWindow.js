@@ -889,7 +889,7 @@ nsBrowserAccess.prototype = {
       aTriggeringPrincipal,
       aCsp,
       aSkipLoad,
-      aOpenWindowInfo.openerBrowser?.getAttribute("messagemanagergroup")
+      aOpenWindowInfo?.openerBrowser?.getAttribute("messagemanagergroup")
     );
 
     return browser ? browser.browsingContext : null;
