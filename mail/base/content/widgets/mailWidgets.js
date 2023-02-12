@@ -1376,6 +1376,8 @@
       this.classList.remove("editing");
       this.labelView.removeAttribute("hidden");
       this.emailInput.setAttribute("hidden", "hidden");
+      let textLength = this.emailInput.value.length;
+      this.emailInput.setSelectionRange(textLength, textLength);
       this.rowInput.focus();
     }
 
