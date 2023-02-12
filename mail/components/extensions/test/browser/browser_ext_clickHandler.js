@@ -138,8 +138,6 @@ const getCommonFiles = async () => {
         browser.runtime.getURL("example.html#self")
       );
 
-      // Disabled until Bug 1770105 is fully fixed.
-      /*
       // Open local file and click same site link ("_blank" target).
       await window.expectLinkOpenInNewTab(
         browser.runtime.getURL("test.html"),
@@ -153,7 +151,6 @@ const getCommonFiles = async () => {
         "#link5",
         browser.runtime.getURL("example.html#other")
       );
-      */
 
       // Open a remote page and click link on same site.
       if (expectedLinkHandler == "single-page") {
@@ -274,8 +271,6 @@ const subtest_clickInBrowser = async (
     await extension.sendMessage();
   }
 
-  // Disabled until Bug 1770105 is fully fixed.
-  /*
   // Wait for click on #link4 (new tab)
   {
     let { linkId } = await extension.awaitMessage("click");
@@ -299,7 +294,6 @@ const subtest_clickInBrowser = async (
     );
     await extension.sendMessage();
   }
-  */
 
   // Wait for click on #linkExt1
   if (expectedLinkHandler == "single-page") {
@@ -421,7 +415,7 @@ add_task(async function test_tabs() {
     "single-site",
     () => document.getElementById("tabmail").currentTabInfo.browser
   );
-});
+}).skip(AppConstants.DEBUG); // Disabled until Bug 1770105 is fully fixed.
 
 add_task(async function test_windows() {
   let extension = ExtensionTestUtils.loadExtension({
@@ -501,7 +495,7 @@ add_task(async function test_windows() {
     "single-site",
     () => Services.wm.getMostRecentWindow("mail:extensionPopup").browser
   );
-});
+}).skip(AppConstants.DEBUG); // Disabled until Bug 1770105 is fully fixed.
 
 add_task(async function test_mail3pane() {
   let extension = ExtensionTestUtils.loadExtension({
@@ -579,7 +573,7 @@ add_task(async function test_mail3pane() {
     "single-page",
     () => document.getElementById("tabmail").currentTabInfo.browser
   );
-});
+}).skip(AppConstants.DEBUG); // Disabled until Bug 1770105 is fully fixed.
 
 // This is actually not an extension test, but everything we need is here already
 // and we only want to simulate a click on a link in a message.
