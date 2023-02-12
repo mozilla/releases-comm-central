@@ -9,6 +9,7 @@
 
 #main-box {
   padding: 8px;
+  -moz-box-layout: legacy;
 }
 
 #instructions {
