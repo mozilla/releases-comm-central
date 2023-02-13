@@ -240,25 +240,53 @@ add_task(async function checkTitlePreface() {
 
         // Test titlePreface during window creation.
         {
-          let windowCreatePromise = window.waitForEvent("windows.onCreated");
           let titlePreface = "PREFACE1";
-          popup = await browser.windows.create({
+          let windowCreatePromise = window.waitForEvent("windows.onCreated");
+          // Do not await the create statement, but instead check if the onCreated
+          // event is delayed correctly to get the correct values.
+          browser.windows.create({
             titlePreface,
             url: "content.html",
             type: "popup",
             allowScriptsToClose: true,
           });
-          await windowCreatePromise;
-          await window.sendMessage("checkTitle", titlePreface);
+          popup = (await windowCreatePromise)[0];
+          let [expectedTitle] = await window.sendMessage(
+            "checkTitle",
+            titlePreface
+          );
+          browser.test.assertEq(
+            expectedTitle,
+            popup.title,
+            `Should find the correct title`
+          );
+          browser.test.assertEq(
+            true,
+            popup.focused,
+            `Should find the correct focus state`
+          );
         }
 
         // Test titlePreface during window update.
         {
           let titlePreface = "PREFACE2";
-          await browser.windows.update(popup.id, {
+          let updated = await browser.windows.update(popup.id, {
             titlePreface,
           });
-          await window.sendMessage("checkTitle", titlePreface);
+          let [expectedTitle] = await window.sendMessage(
+            "checkTitle",
+            titlePreface
+          );
+          browser.test.assertEq(
+            expectedTitle,
+            updated.title,
+            `Should find the correct title`
+          );
+          browser.test.assertEq(
+            true,
+            updated.focused,
+            `Should find the correct focus state`
+          );
         }
 
         // Finish
@@ -269,8 +297,29 @@ add_task(async function checkTitlePreface() {
           );
           await browser.runtime.sendMessage({ command: "close" });
           await windowRemovePromise;
-          browser.test.notifyPass("finished");
         }
+
+        // Test title after create without a preface.
+        {
+          let popup = await browser.windows.create({
+            url: "content.html",
+            type: "popup",
+            allowScriptsToClose: true,
+          });
+          let [expectedTitle] = await window.sendMessage("checkTitle", "");
+          browser.test.assertEq(
+            expectedTitle,
+            popup.title,
+            `Should find the correct title`
+          );
+          browser.test.assertEq(
+            true,
+            popup.focused,
+            `Should find the correct focus state`
+          );
+        }
+
+        browser.test.notifyPass("finished");
       },
     },
     manifest: {
@@ -290,19 +339,12 @@ add_task(async function checkTitlePreface() {
       expectedTitle += ` - ${defaultTitle}`;
     }
 
-    if (win.document.title != expectedTitle) {
-      await BrowserTestUtils.waitForEvent(
-        win.document,
-        "extension-window-title-changed"
-      );
-    }
-
     Assert.equal(
       win.document.title,
       expectedTitle,
       `Check if title is as expected.`
     );
-    extension.sendMessage();
+    extension.sendMessage(expectedTitle);
   });
 
   await extension.startup();

@@ -113,7 +113,15 @@ this.windows = class extends ExtensionAPIPersistent {
 
     onCreated: this.windowEventRegistrar({
       windowEvent: "domwindowopened",
-      listener: ({ context, fire, window }) => {
+      listener: async ({ context, fire, window }) => {
+        // Return the window only after it has been fully initialized.
+        if (window.webExtensionWindowCreatePending) {
+          await new Promise(resolve => {
+            window.addEventListener("webExtensionWindowCreateDone", resolve, {
+              once: true,
+            });
+          });
+        }
         fire.async(this.extension.windowManager.convert(window));
       },
     }),
@@ -342,20 +350,37 @@ this.windows = class extends ExtensionAPIPersistent {
             );
           }
 
+          window.webExtensionWindowCreatePending = true;
+
           let win = windowManager.getWrapper(window);
           win.updateGeometry(createData);
 
           // TODO: focused, type
 
-          await new Promise(resolve => {
-            window.addEventListener(
-              "load",
-              () => {
-                resolve();
-              },
-              { once: true }
-            );
+          // Wait till the newly created window is focused. On Linux the initial
+          // "normal" state has been set once the window has been fully focused.
+          // Setting a different state before the window is fully focused may cause
+          // the initial state to be eronously applied after the custom state has
+          // been set.
+          let focusPromise = new Promise(resolve => {
+            if (Services.focus.activeWindow == window) {
+              resolve();
+            } else {
+              window.addEventListener("focus", resolve, { once: true });
+            }
           });
+
+          let loadPromise = new Promise(resolve => {
+            window.addEventListener("load", resolve, { once: true });
+          });
+
+          let titlePromise = new Promise(resolve => {
+            window.addEventListener("pagetitlechanged", resolve, {
+              once: true,
+            });
+          });
+
+          await Promise.all([focusPromise, loadPromise, titlePromise]);
 
           if (
             [
@@ -372,6 +397,20 @@ this.windows = class extends ExtensionAPIPersistent {
           if (createData.titlePreface !== null) {
             win.setTitlePreface(createData.titlePreface);
           }
+
+          // Update the title independently of a createData.titlePreface, to get
+          // the title of the loaded document into the window title.
+          if (win instanceof TabmailWindow) {
+            win.window.document.getElementById("tabmail").setDocumentTitle();
+          } else if (win.window.gBrowser?.updateTitlebar) {
+            await win.window.gBrowser.updateTitlebar();
+          }
+
+          delete window.webExtensionWindowCreatePending;
+          window.dispatchEvent(
+            new window.CustomEvent("webExtensionWindowCreateDone")
+          );
+
           return win.convert({ populate: true });
         },
 
@@ -395,6 +434,18 @@ this.windows = class extends ExtensionAPIPersistent {
           if (!win) {
             throw new ExtensionError(`Invalid window ID: ${windowId}`);
           }
+
+          // Update the window only after it has been fully initialized.
+          if (win.window.webExtensionWindowCreatePending) {
+            await new Promise(resolve => {
+              win.window.addEventListener(
+                "webExtensionWindowCreateDone",
+                resolve,
+                { once: true }
+              );
+            });
+          }
+
           if (updateInfo.focused) {
             win.window.focus();
           }
@@ -415,7 +466,7 @@ this.windows = class extends ExtensionAPIPersistent {
             if (win instanceof TabmailWindow) {
               win.window.document.getElementById("tabmail").setDocumentTitle();
             } else if (win.window.gBrowser?.updateTitlebar) {
-              win.window.gBrowser.updateTitlebar();
+              await win.window.gBrowser.updateTitlebar();
             }
           }
 

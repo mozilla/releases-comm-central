@@ -1315,12 +1315,6 @@ class Window extends WindowBase {
    */
   async setState(state) {
     let { window } = this;
-    // If this is called right after the window has been created, there is still
-    // some code running, which "inits" the window to normal state. This will
-    // reset window.windowState to normal after this function has minimized the
-    // window. The window will remain minimized, but its state says otherwise.
-    await new Promise(r => window.setTimeout(r, 100));
-
     const expectedState = (function() {
       switch (state) {
         case "maximized":

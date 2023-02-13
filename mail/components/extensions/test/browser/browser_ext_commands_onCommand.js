@@ -230,6 +230,7 @@ add_task(async function test_user_defined_commands() {
     });
     browser.test.sendMessage("ready");
   }
+
   let extension = ExtensionTestUtils.loadExtension({
     manifest: {
       commands,
@@ -493,18 +494,18 @@ add_task(async function test_commands_MV3_event_page() {
 
         let message = await extension.awaitMessage("oncommand event received");
         is(
-          testCommand.name,
           message.commandName,
+          testCommand.name,
           `onCommand listener should fire with the correct command name`
         );
         is(
-          expectedTabType,
           message.activeTab.type,
+          expectedTabType,
           `onCommand listener should fire with the correct tab type`
         );
         is(
-          ++gEventCounter,
           message.eventCount,
+          ++gEventCounter,
           `Event counter should be correct`
         );
       }
@@ -530,6 +531,7 @@ add_task(async function test_commands_MV3_event_page() {
   let popupPromise = extension.awaitMessage("popupCreated");
   extension.sendMessage("createPopup");
   let popup = await popupPromise;
+  let win4 = Services.wm.getOuterWindowWithId(popup.id);
 
   // Confirm the keysets have been added to all windows.
   let keysetID = `ext-keyset-id-${makeWidgetId(extension.id)}`;
@@ -538,11 +540,7 @@ add_task(async function test_commands_MV3_event_page() {
     { window: win1, autoRemove: false, type: "mail" },
     { window: win2, autoRemove: false, type: "mail" },
     { window: win3, autoRemove: false, type: "messageCompose" },
-    {
-      window: Services.wm.getOuterWindowWithId(popup.id),
-      autoRemove: true,
-      type: "content",
-    },
+    { window: win4, autoRemove: true, type: "content" },
   ];
   for (let i in windows) {
     let keyset = windows[i].window.document.getElementById(keysetID);

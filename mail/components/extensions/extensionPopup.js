@@ -239,7 +239,6 @@ var gBrowser = {
     }
 
     document.title = docTitle;
-    document.dispatchEvent(new Event("extension-window-title-changed"));
   },
   getTabForBrowser(browser) {
     return null;
