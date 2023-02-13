@@ -374,86 +374,75 @@
                   orient="vertical"
                   onmouseup="setTimeout(refreshEventTree, 10);"/>
 
-        <!-- Calendar Views -->
-        <hbox id="calendar-nav-control">
-          <vbox flex="1">
-            <hbox flex="1" class="navigation-inner-box" align="center">
-              <!-- If you are extending a view, add attributes to these
-                   nodes for your view. i.e if your view has the id
-                   "foobar-view", then you need to add the attribute
-                   tooltiptext-foobar="..." -->
-              <html:div id="calendarControls"
-                        xmlns="http://www.w3.org/1999/xhtml">
-                <button id="previousViewButton"
-                        class="calendar-view-navigation-button"
-                        onclick="goDoCommand('calendar_view_prev_command')"
-                        type="button">
-                  <img class="calendar-controls-icon" alt=""
-                       src="chrome://messenger/skin/icons/new/compact/nav-left.svg"/>
-                </button>
-                <button id="todayViewButton"
-                        class="calendar-view-navigation-button"
-                        data-l10n-id="calendar-today-button-tooltip"
-                        onclick="currentView().moveView()"
-                        type="button">
-                  <img src="chrome://messenger/skin/icons/new/compact/calendar-today.svg"
-                       alt=""
-                       class="calendar-controls-icon"/>
-                </button>
-                <button id="nextViewButton"
-                        class="calendar-view-navigation-button"
-                        onclick="goDoCommand('calendar_view_next_command')"
-                        type="button">
-                  <img class="calendar-controls-icon" alt=""
-                       src="chrome://messenger/skin/icons/new/compact/nav-right.svg"/>
-                </button>
-              </html:div>
-              <label id="intervalDescription"
-                     class="view-header"
-                     crop="end"
-                     flex="1"
-                     pack="start"/>
-              <spacer flex="1"/>
-              <label id="calendarWeek"
-                     class="view-header"
-                     type="end"
-                     crop="start"/>
-            </hbox>
-          </vbox>
-          <html:div id="viewToggle"
-                    role="tablist"
-                    class="calview-toggle"
-                    xmlns="http://www.w3.org/1999/xhtml">
-            <button id="calTabDay"
-                    class="calview-toggle-item"
-                    onclick="goDoCommand('calendar_day-view_command')"
-                    role="tab"
-                    aria-controls="day-view"
-                    aria-selected="false"
-                    data-l10n-id="calendar-view-toggle-day"></button>
-            <button id="calTabWeek"
-                    class="calview-toggle-item"
-                    onclick="goDoCommand('calendar_week-view_command')"
-                    role="tab"
-                    aria-controls="week-view"
-                    aria-selected="false"
-                    data-l10n-id="calendar-view-toggle-week"></button>
-            <button id="calTabMultiweek"
-                    class="calview-toggle-item"
-                    onclick="goDoCommand('calendar_multiweek-view_command')"
-                    role="tab"
-                    aria-controls="multiweek-view"
-                    aria-selected="false"
-                    data-l10n-id="calendar-view-toggle-multiweek"></button>
-            <button id="calTabMonth"
-                    class="calview-toggle-item"
-                    onclick="goDoCommand('calendar_month-view_command')"
-                    role="tab"
-                    aria-controls="month-view"
-                    aria-selected="false"
-                    data-l10n-id="calendar-view-toggle-month"></button>
-          </html:div>
-        </hbox>
+        <!-- Calendar Navigation Control Bar -->
+        <html:div id="calendarViewHeader"
+                  xmlns="http://www.w3.org/1999/xhtml">
+          <div class="navigation-inner-box" >
+            <!-- If you are extending a view, add attributes to these
+                  nodes for your view. i.e if your view has the id
+                  "foobar-view", then you need to add the attribute
+                  tooltiptext-foobar="..." -->
+            <div id="calendarControls">
+              <button id="previousViewButton"
+                      class="calendar-view-navigation-button"
+                      onclick="goDoCommand('calendar_view_prev_command')"
+                      type="button">
+                <img class="calendar-controls-icon" alt=""
+                      src="chrome://messenger/skin/icons/new/compact/nav-left.svg"/>
+              </button>
+              <button id="todayViewButton"
+                      class="calendar-view-navigation-button"
+                      data-l10n-id="calendar-today-button-tooltip"
+                      onclick="currentView().moveView()"
+                      type="button">
+                <img src="chrome://messenger/skin/icons/new/compact/calendar-today.svg"
+                      alt=""
+                      class="calendar-controls-icon"/>
+              </button>
+              <button id="nextViewButton"
+                      class="calendar-view-navigation-button"
+                      onclick="goDoCommand('calendar_view_next_command')"
+                      type="button">
+                <img class="calendar-controls-icon" alt=""
+                      src="chrome://messenger/skin/icons/new/compact/nav-right.svg"/>
+              </button>
+            </div>
+            <span id="intervalDescription" class="view-header"/>
+          </div>
+          <div class="navigation-inner-box">
+            <span id="calendarWeek" class="view-header"/>
+            <div id="viewToggle" role="tablist" class="calview-toggle">
+              <button id="calTabDay"
+                      class="calview-toggle-item"
+                      onclick="goDoCommand('calendar_day-view_command')"
+                      role="tab"
+                      aria-controls="day-view"
+                      aria-selected="false"
+                      data-l10n-id="calendar-view-toggle-day"></button>
+              <button id="calTabWeek"
+                      class="calview-toggle-item"
+                      onclick="goDoCommand('calendar_week-view_command')"
+                      role="tab"
+                      aria-controls="week-view"
+                      aria-selected="false"
+                      data-l10n-id="calendar-view-toggle-week"></button>
+              <button id="calTabMultiweek"
+                      class="calview-toggle-item"
+                      onclick="goDoCommand('calendar_multiweek-view_command')"
+                      role="tab"
+                      aria-controls="multiweek-view"
+                      aria-selected="false"
+                      data-l10n-id="calendar-view-toggle-multiweek"></button>
+              <button id="calTabMonth"
+                      class="calview-toggle-item"
+                      onclick="goDoCommand('calendar_month-view_command')"
+                      role="tab"
+                      aria-controls="month-view"
+                      aria-selected="false"
+                      data-l10n-id="calendar-view-toggle-month"></button>
+            </div>
+          </div>
+        </html:div>
         <vbox flex="1"
               id="view-box"
               persist="selectedIndex">

@@ -560,16 +560,16 @@ var calendarNavigationBar = {
       let secondWeekNo = firstWeekNo;
       let weekLabel = document.getElementById("calendarWeek");
       if (startDate.nativeTime == endDate.nativeTime) {
-        intervalLabel.value = cal.dtz.formatter.formatDate(startDate);
+        intervalLabel.textContent = cal.dtz.formatter.formatDate(startDate);
       } else {
-        intervalLabel.value = currentView().getRangeDescription();
+        intervalLabel.textContent = currentView().getRangeDescription();
         secondWeekNo = cal.weekInfoService.getWeekTitle(endDate);
       }
       if (secondWeekNo == firstWeekNo) {
-        weekLabel.value = cal.l10n.getCalString("singleShortCalendarWeek", [firstWeekNo]);
+        weekLabel.textContent = cal.l10n.getCalString("singleShortCalendarWeek", [firstWeekNo]);
         weekLabel.tooltipText = cal.l10n.getCalString("singleLongCalendarWeek", [firstWeekNo]);
       } else {
-        weekLabel.value = cal.l10n.getCalString("severalShortCalendarWeeks", [
+        weekLabel.textContent = cal.l10n.getCalString("severalShortCalendarWeeks", [
           firstWeekNo,
           secondWeekNo,
         ]);
@@ -578,8 +578,9 @@ var calendarNavigationBar = {
           secondWeekNo,
         ]);
       }
-      docTitle = intervalLabel.value;
+      docTitle = intervalLabel.textContent;
     }
+
     if (gCurrentMode == "calendar") {
       document.title =
         (docTitle ? docTitle + " - " : "") +

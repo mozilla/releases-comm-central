@@ -9,12 +9,6 @@ calendar-event-column {
 }
 
 /* Navigation controls for the views */
-#calendar-nav-control {
-  background-color: #e8e8e8;
-  --calview-tabline-color: AccentColor;
-  --calview-border-color: #bdbdbd;
-  --calview-border-bottom-color: #d2d2d2;
-}
 
 #view-box {
   background-color: white;
@@ -33,11 +27,6 @@ radio.calview[selected="true"] {
   background-color: #fff;
 }
 
-.view-header {
-  margin-top: 3px;
-  margin-bottom: 1px;
-}
-
 .navigation-bottombox {
   background-color: white;
 }
@@ -47,10 +36,6 @@ radio.calview[selected="true"] {
 }
 
 @media (prefers-color-scheme: dark) {
-  #calendar-nav-control {
-    background-color: ButtonFace;
-  }
-
   #view-box {
     background-color: Field;
     border-color: Field;
@@ -59,16 +44,5 @@ radio.calview[selected="true"] {
   radio.calview[selected="true"],
   .navigation-bottombox {
     background-color: Field;
-  }
-}
-
-@media not (prefers-color-scheme: dark) {
-  #calendar-nav-control {
-    background-color: ButtonFace;
-  }
-
-  #calendar-nav-control:-moz-window-inactive {
-    background: -moz-mac-chrome-inactive;
-    --calview-border-bottom-color: hsl(0, 0%, 85%);
   }
 }

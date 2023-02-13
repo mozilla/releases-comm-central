@@ -5,21 +5,11 @@
 @import url(chrome://calendar/skin/shared/calendar-views.css);
 
 /* Navigation controls for the views */
-#calendar-nav-control {
-  background-color: ButtonFace;
-  --calview-tabline-color: #0a84ff;
-  --calview-border-color: ThreeDShadow;
-  --calview-border-bottom-color: ThreeDShadow;
-}
 
 #view-box {
   background-color: Field;
   border-width: 0;
   border-inline-start: 1px;
-}
-
-.view-header {
-  margin-bottom: 0;
 }
 
 radio.calview[selected="true"] {

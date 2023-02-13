@@ -5,7 +5,6 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root {
-  --calendar-view-nav-btn-padding: 6px;
   --calendar-list-header-padding: 9px 12px;
   --calendar-list-item-padding: 3px;
   --calendar-list-item-margin: 3px;
@@ -14,7 +13,6 @@
 }
 
 :root[uidensity="compact"] {
-  --calendar-view-nav-btn-padding: 0px;
   --calendar-list-header-padding: 6px 9px;
   --calendar-list-item-padding: 1px;
   --calendar-list-item-margin: 1px;
@@ -23,7 +21,6 @@
 }
 
 :root[uidensity="touch"] {
-  --calendar-view-nav-btn-padding: 6px;
   --calendar-list-header-padding: 9px 15px;
   --calendar-list-item-padding: 6px;
   --calendar-list-item-margin: 6px;
@@ -142,66 +139,6 @@ checkbox.treenode-checkbox:not([checked="true"]):-moz-locale-dir(rtl) > .checkbo
 checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > .checkbox-label {
   font-weight: bold;
   border-bottom: 1px solid -moz-Dialog;
-}
-
-#calendarControls {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.calendar-controls-icon {
-  -moz-context-properties: fill, stroke;
-  stroke: currentColor;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-}
-
-.calendar-view-navigation-button {
-  appearance: none;
-  min-width: 22px;
-  margin-inline: 2px;
-  border: 1px solid transparent;
-  border-radius: var(--button-border-radius);
-  display: flex;
-  align-content: center;
-  justify-content: center;
-  padding: var(--calendar-view-nav-btn-padding);
-  -moz-context-properties: stroke;
-}
-
-.calendar-view-navigation-button:focus-visible:not(:hover) {
-  outline: 2px solid var(--focus-outline-color);
-  outline-offset: -2px;
-}
-
-.calendar-view-navigation-button:not([disabled="true"]):hover {
-  background: var(--toolbarbutton-hover-background);
-  border-color: var(--toolbarbutton-hover-bordercolor);
-  box-shadow: var(--toolbarbutton-hover-boxshadow);
-  color: inherit;
-  outline: none;
-}
-
-:root[lwt-tree-brighttext] .calendar-view-navigation-button:not([disabled="true"]):hover {
-  background: rgba(255, 255, 255, .25);
-  border-color: rgba(255, 255, 255, .5);
-}
-
-.calendar-view-navigation-button:not([disabled="true"]):hover:active {
-  background: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-  box-shadow: var(--toolbarbutton-active-boxshadow);
-  transition-duration: 10ms;
-}
-
-:root[lwt-tree-brighttext] .calendar-view-navigation-button:not([disabled="true"]):hover:active {
-  background: rgba(255, 255, 255, .4);
-  border-color: rgba(255, 255, 255, .7);
-  box-shadow: 0 0 rgba(255, 255, 255, .4) inset;
-}
-
-.calendar-view-navigation-button[disabled="true"] {
-  opacity: .3;
 }
 
 .selected-text {

@@ -41,23 +41,30 @@
   --calendar-primary-button-padding: 6px;
   --calendar-nav-control-bg-color: var(--color-white);
   --calendar-nav-control-bg-color-hover: rgba(0, 0, 0, 0.1);
+  --calendar-view-nav-btn-padding: 4px;
+  --calendar-nav-control-padding: 6px;
   --calendar-view-toggle-background: var(--color-gray-20);
-  --calendar-view-toggle-margin: 6px 3px;
   --calendar-view-toggle-label-padding: 3px 15px;
+  --calendar-nav-control-bar-gap: 9px;
+  --button-border-radius: 3px;
 }
 
 :root[uidensity="compact"] {
   --calendar-primary-button-margin: 0px;
   --calendar-primary-button-padding: 3px 6px;
-  --calendar-view-toggle-margin: 3px;
+  --calendar-view-nav-btn-padding: 0px;
+  --calendar-nav-control-padding: 3px;
   --calendar-view-toggle-label-padding: 2px 12px;
+  --calendar-nav-control-bar-gap: 6px;
 }
 
 :root[uidensity="touch"] {
   --calendar-primary-button-margin: 9px;
   --calendar-primary-button-padding: 9px;
-  --calendar-view-toggle-margin: 6px 3px;
+  --calendar-view-nav-btn-padding: 6px;
+  --calendar-nav-control-padding: 6px;
   --calendar-view-toggle-label-padding: 6px 15px;
+  --calendar-nav-control-bar-gap: 12px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -109,15 +116,6 @@
   --viewDragboxColor: GrayText;
   --viewDragboxBackground: var(--selected-item-color);
   --viewDropshadowBackground: var(--selected-item-color) !important;
-}
-
-:root[lwt-tree] #calendar-nav-control {
-  background-color: var(--calendar-nav-control-bg-color);
-  background-image: var(--lwt-header-image);
-  color: var(--lwt-text-color);
-
-  --calview-tabline-color: var(--lwt-tab-line-color, --calview-tabline-color);
-  --calview-border-color: var(--sidebar-border-color);
 }
 
 /* Calendar Items */
@@ -1067,7 +1065,7 @@ calendar-editable-item[status="CANCELLED"],
   text-decoration: line-through;
 }
 
-/* Navigation controls for the views */
+/* Calendar body */
 #view-box {
   border: solid ThreeDShadow;
 }
@@ -1081,12 +1079,65 @@ calendar-editable-item[status="CANCELLED"],
   background-color: Field;
 }
 
-:root[lwt-tree] .navigation-bottombox {
-  background-color: var(--toolbar-bgcolor) !important;
+/* Calendar control bar: Cal navigation, Date interval, Week# and View toggle*/
+
+#calendarViewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--calendar-nav-control-padding);
+  gap: 6px;
 }
 
-.navigation-spacer-box {
-  min-width: 15px;
+ #calendarViewHeader > div > span {
+  -webkit-line-clamp: 2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  flex: 1;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.navigation-inner-box {
+  display: flex;
+  align-items: center;
+  gap: var(--calendar-nav-control-bar-gap);
+}
+
+#calendarControls {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.view-header {
+  font-weight: bold;
+  font-size: 1rem;
+  color: inherit;
+}
+
+.calendar-controls-icon {
+  -moz-context-properties: fill, stroke;
+  stroke: currentColor;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+}
+
+.calendar-view-navigation-button {
+  appearance: none;
+  min-width: 22px;
+  margin-inline: 2px;
+  border: 1px solid transparent;
+  border-radius: var(--button-border-radius);
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  padding: var(--calendar-view-nav-btn-padding);
+  -moz-context-properties: stroke;
+}
+
+.calendar-view-navigation-button[disabled="true"] {
+  opacity: 0.3;
 }
 
 .calview-toggle {
@@ -1094,7 +1145,6 @@ calendar-editable-item[status="CANCELLED"],
   background-color: var(--calendar-view-toggle-background);
   box-shadow: inset 0 0 2px var(--color-gray-40);
   display: flex;
-  margin: var(--calendar-view-toggle-margin);
 }
 
 button.calview-toggle-item {
@@ -1119,28 +1169,6 @@ button.calview-toggle-item[role="tab"][aria-selected="false"]:hover {
   color: var(--toolbar-color);
 }
 
-.view-header {
-  font-weight: normal;
-  font-size: 14px;
-  color: inherit;
-}
-
-.view-header[type="end"] {
-  text-align: right;
-  margin-inline-end: 6px;
-}
-
-.navigation-inner-box {
-  padding-inline-start: 6px;
-  padding-inline-end: 6px;
-  padding-bottom: 1px;
-}
-
-.navigation-bottombox {
-  min-height: 4px;
-  max-height: 4px;
-}
-
 .today-navigation-button:not([disabled="true"]):hover {
   background: var(--toolbarbutton-hover-background);
   border-color: var(--toolbarbutton-hover-bordercolor);
@@ -1161,7 +1189,7 @@ button.calview-toggle-item[role="tab"][aria-selected="false"]:hover {
   transition-duration: 10ms;
 }
 
-:root[lwt-tree-brighttext] .today-navigation-button:not([disabled="true"]):hover:active {
+ :root[lwt-tree-brighttext] .today-navigation-button:not([disabled="true"]):hover:active {
   background: rgba(255, 255, 255, .4);
   border-color: rgba(255, 255, 255, .7);
   box-shadow: inset 0 0 rgba(255, 255, 255, .4);
