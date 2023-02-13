@@ -15,16 +15,6 @@
   padding-top: 1px;
 }
 
-.calview-toggle button[role="tab"][aria-selected="true"] {
-  background-color: var(--calendar-nav-control-bg-color);
-}
-
-button.calview-toggle-item:is(:not([disabled])):hover:active,
-button.calview-toggle-item[role="tab"][aria-selected="false"]:hover {
-  background-color: var(--calendar-nav-control-bg-color-hover);
-  color: var(--toolbar-color);
-}
-
 .navigation-bottombox {
   background-color: Field;
 }

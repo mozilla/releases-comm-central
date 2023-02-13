@@ -27,6 +27,7 @@
   --layout-background-1: var(--color-gray-05);
   --layout-background-2: var(--color-gray-10);
   --layout-background-3: var(--color-gray-20);
+  --layout-background-4: var(--color-gray-30);
 
   --layout-color-0: var(--color-ink-80);
   --layout-color-1: var(--color-ink-70);
@@ -45,6 +46,7 @@
       --layout-background-1: var(--color-gray-80);
       --layout-background-2: var(--color-gray-70);
       --layout-background-3: var(--color-gray-60);
+      --layout-background-4: var(--color-gray-50);
 
       --layout-color-0: var(--color-white);
       --layout-color-1: var(--color-ink-10);
