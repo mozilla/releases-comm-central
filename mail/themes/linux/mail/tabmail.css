@@ -15,7 +15,7 @@
 
 #tabs-toolbar {
   -moz-window-dragging: drag;
-  padding: 0;
+  padding-block-end: 0;
 }
 
 #tabs-toolbar:not(:-moz-lwtheme) {

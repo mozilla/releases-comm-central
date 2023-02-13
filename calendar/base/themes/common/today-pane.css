@@ -34,18 +34,8 @@
 
 #today-pane-panel > .sidebar-header {
   appearance: none;
-  background-color: var(--toolbar-bgcolor);
+  background-color: -moz-Dialog;
   border-bottom: 1px solid var(--chrome-content-separator-color, ThreeDShadow);
-}
-
-#today-pane-panel:-moz-lwtheme > .sidebar-header {
-  color: inherit;
-  background-color: var(--lwt-accent-color);
-  background-image: linear-gradient(var(--lwt-selected-tab-background-color, transparent),
-                    var(--lwt-selected-tab-background-color, transparent)),
-                    linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)),
-                    var(--lwt-header-image, none);
-  background-position: right top, var(--lwt-background-alignment);
 }
 
 #mini-day-image {

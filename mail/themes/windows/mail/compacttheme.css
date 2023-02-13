@@ -83,12 +83,6 @@
     }
   }
 
-  /* Always show full-height tab separators on tabs with borders. */
-  .tabmail-tab::before,
-  .tabmail-tab::after {
-    border-image: none !important;
-  }
-
   /* Show border on tabs with background colors and
    * show the tabs toolbar background color inside tabs. */
   .tabmail-tab {

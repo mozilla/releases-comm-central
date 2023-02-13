@@ -2,6 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+:root {
+  --tabs-toolbar-background-color: rgba(0, 0, 0, 0.075);
+  --tabs-toolbar-box-shadow: inset 0 3px 9px -6px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tabs-toolbar-background-color: rgba(0, 0, 0, 0.15);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --tabs-toolbar-background-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
+@media (prefers-contrast) {
+  :root {
+    --tabs-toolbar-background-color: transparent;
+    --tabs-toolbar-box-shadow: none;
+  }
+}
+
 #tabmail {
   -moz-box-layout: legacy;
 }
@@ -9,6 +33,10 @@
 #tabmail-tabs .tabmail-tab:first-child .tab-close-button,
 #tabmail-tabs[closebuttons="activetab"] .tabmail-tab:not([selected="true"]) .tab-close-button {
   display: none;
+}
+
+.tabmail-tab[selected="true"] {
+  box-shadow: 0 2px 8px -5px var(--color-black);
 }
 
 .tab-drop-indicator {
@@ -22,7 +50,10 @@
 #tabs-toolbar {
   appearance: none;
   --tabs-top-border-width: 1px;
-  box-shadow: 0 calc(-1 * var(--tabs-tabbar-border-size)) 0 var(--lwt-tabs-border-color) inset;
+  background-color: var(--tabs-toolbar-background-color);
+  box-shadow: var(--tabs-toolbar-box-shadow);
+  padding-top: 3px;
+  padding-inline: 3px;
 }
 
 #tabs-toolbar:-moz-lwtheme {
@@ -50,7 +81,7 @@
   -moz-box-align: stretch;
   -moz-box-flex: 100;
   background-color: transparent;
-  border-radius: 0;
+  border-radius: 4px 4px 0 0;
   border-width: 0;
   margin: 0;
   margin-inline-end: 1px;
@@ -58,6 +89,7 @@
   max-width: var(--tab-max-width);
   min-width: var(--tab-min-width);
   width: 0;
+  overflow: hidden;
 }
 
 /* The selected tab should appear above adjacent tabs and the highlight
@@ -154,22 +186,18 @@ button.tab-close-button {
 
 .tab-line {
   height: 2px;
+  margin-top: 3px;
+  margin-inline: 3px;
+  border-radius: 3px;
 }
 
 /* Selected tab */
 
 .tab-background {
-  border: 1px none transparent;
   background-clip: padding-box;
 }
 
-.tab-background,
-#tabs-toolbar > #tabmail-tabs .tab-background {
-  border-top-style: solid;
-}
-
 .tab-background[selected=true] {
-  border-top-color: var(--lwt-tabs-border-color);
   background-color: var(--toolbar-bgcolor);
   background-repeat: repeat-x;
 }
@@ -276,51 +304,6 @@ button.tab-close-button {
     0% { transform: translateX(0); }
     100% { transform: translateX(100%); }
   }
-}
-
-/* Tab separators */
-.tabmail-tab::after,
-.tabmail-tab::before {
-  border-left: 1px solid var(--lwt-background-tab-separator-color, currentColor);
-  margin-top: 5px;
-  margin-bottom: 4px;
-  width: var(--tabs-tabbar-border-size);
-  opacity: 0.3;
-}
-
-/* Move the ::before pseudo-element on tabs 1px to the left
- * to avoid resizing the tab when the pseudo-element is removed again
- * (this currently happens when a tab is opened or closed).
- */
-.tabmail-tab::before {
-  margin-inline-start: -1px;
-}
-
-.tabmail-tab:last-child::after {
-  margin-inline-end: -1px;
-}
-
-/* Show full height tab separators on hover. */
-.tabmail-tab:not([selected=true]):last-child:hover::after,
-.tabmail-tab:not([selected]) + .tabmail-tab:not([selected]):hover::before,
-.tabmail-tab:not([selected]):hover + .tabmail-tab:not([selected])::before {
-  margin-top: var(--tabs-top-border-width);
-  margin-bottom: var(--tabs-tabbar-border-size);
-}
-
-/* Show full height tab separators on selected tabs. */
-.tabmail-tab[visuallyselected]::before,
-.tabmail-tab[visuallyselected]::after,
-.tabmail-tab[visuallyselected] + .tabmail-tab::before {
-  border-color: var(--lwt-tabs-border-color);
-  margin-block: 0;
-  opacity: 1;
-}
-
-.tabmail-tab:last-child::after,
-.tabmail-tab + .tabmail-tab::before {
-  content: '';
-  display: -moz-box;
 }
 
 /**

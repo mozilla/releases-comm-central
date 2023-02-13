@@ -6,6 +6,7 @@
 
 unified-toolbar {
   display: block;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
 }
 
 #unifiedToolbarContainer {
@@ -30,7 +31,7 @@ unified-toolbar {
 
 @media (-moz-platform: windows) {
   #unifiedToolbarContainer .titlebar-buttonbox-container {
-    align-self: start;
+    align-self: stretch;
   }
 }
 
