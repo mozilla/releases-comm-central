@@ -95,7 +95,7 @@ function promptDeleteCalendar(aCalendar) {
  *
  * @param {MozRichlistitem} item - The calendar item to update.
  */
-function updatedCalendarReadStatus(item) {
+function updateCalendarStatusIndicators(item) {
   let calendarName = item.querySelector(".calendar-name").textContent;
   let image = item.querySelector("img.calendar-readstatus");
   if (item.hasAttribute("calendar-readfailed")) {
@@ -160,9 +160,15 @@ async function loadCalendarManager() {
       !Components.isSuccessCode(calendar.getProperty("currentStatus")) || forceDisabled
     );
     item.toggleAttribute("calendar-readonly", calendar.readOnly);
+    item.toggleAttribute("calendar-muted", calendar.getProperty("suppressAlarms"));
+    document.l10n.setAttributes(
+      item.querySelector(".calendar-mute-status"),
+      "calendar-no-reminders-tooltip",
+      { calendarName: calendar.name }
+    );
     document.l10n.setAttributes(
       item.querySelector(".calendar-more-button"),
-      "calendar-list-item-tooltip",
+      "calendar-list-item-context-button",
       { calendarName: calendar.name }
     );
 
@@ -178,7 +184,7 @@ async function loadCalendarManager() {
     let label = item.querySelector(".calendar-name");
     label.textContent = calendar.name;
 
-    updatedCalendarReadStatus(item);
+    updateCalendarStatusIndicators(item);
 
     let enable = item.querySelector(".calendar-enable-button");
     if (calendar.getProperty("disabled")) {
@@ -361,11 +367,14 @@ async function loadCalendarManager() {
             "calendar-readfailed",
             name == "currentStatus" ? !Components.isSuccessCode(value) : value
           );
-          updatedCalendarReadStatus(item);
+          updateCalendarStatusIndicators(item);
           break;
         case "readOnly":
           item.toggleAttribute("calendar-readonly", value);
-          updatedCalendarReadStatus(item);
+          updateCalendarStatusIndicators(item);
+          break;
+        case "suppressAlarms":
+          item.toggleAttribute("calendar-muted", value);
           break;
       }
     },

@@ -328,7 +328,7 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   color: #808080;
 }
 
-#calendar-list > li > .calendar-readstatus {
+#calendar-list > li > .calendar-list-icon {
   width: 16px;
   height: 16px;
   -moz-context-properties: fill, stroke;
@@ -336,8 +336,12 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   stroke: currentColor;
 }
 
-#calendar-list > li > .calendar-readstatus:not([src]) {
+#calendar-list > li > .calendar-list-icon:not([src]) {
   visibility: hidden;
+}
+
+#calendar-list > li:not([calendar-muted]) > .calendar-mute-status {
+  display: none;
 }
 
 #calendar-list > richlistitem {
