@@ -2755,7 +2755,98 @@ customElements.whenDefined("tree-view-listrow").then(() => {
       this.setAttribute("draggable", "true");
 
       for (let column of threadPane.columns) {
-        this.appendChild(document.createElement("td")).classList.add(
+        const cell = document.createElement("td");
+
+        if (column.hidden) {
+          cell.hidden = true;
+        }
+
+        if (column.id == "subjectCol") {
+          cell.appendChild(
+            document
+              .getElementById("threadPaneSubjectCellTemplate")
+              .content.cloneNode(true)
+          );
+        }
+
+        // Handle the special case for the thread column.
+        if (column.thread) {
+          cell.classList.add("tree-view-row-thread");
+          const img = document.createElement("img");
+          img.src = "";
+          document.l10n.setAttributes(img, "tree-list-view-row-thread");
+          cell.appendChild(img);
+        }
+
+        if (column.id == "attachmentCol") {
+          const img = document.createElement("img");
+          img.src = "";
+          document.l10n.setAttributes(img, "tree-list-view-row-attach");
+          cell.appendChild(img);
+        }
+
+        // Handle the special case for the flagged star column.
+        if (column.star) {
+          cell.classList.add("tree-view-row-flag");
+          const button = document.createElement("button");
+          button.type = "button";
+          button.tabIndex = -1;
+          button.classList.add("button-flat", "tree-button-flag");
+
+          const img = button.appendChild(document.createElement("img"));
+          img.src = "";
+          img.alt = "";
+
+          cell.appendChild(button);
+        }
+
+        // Handle the special case for the unread column.
+        if (column.unread) {
+          cell.classList.add("tree-view-row-unread");
+          const button = document.createElement("button");
+          button.type = "button";
+          button.tabIndex = -1;
+          button.classList.add("button-flat", "tree-button-unread");
+
+          const img = button.appendChild(document.createElement("img"));
+          img.src = "";
+          img.alt = "";
+
+          cell.appendChild(button);
+        }
+
+        // Handle the special case for the spam column.
+        if (column.spam) {
+          cell.classList.add("tree-view-row-spam");
+          const button = document.createElement("button");
+          button.type = "button";
+          button.tabIndex = -1;
+          button.classList.add("button-flat", "tree-button-spam");
+
+          const img = button.appendChild(document.createElement("img"));
+          img.src = "";
+          img.alt = "";
+
+          cell.appendChild(button);
+        }
+
+        // Handle the special case of the delete column.
+        if (column.delete) {
+          cell.classList.add("tree-view-row-delete");
+          const button = document.createElement("button");
+          button.type = "button";
+          button.tabIndex = -1;
+          button.classList.add("button-flat", "tree-button-delete");
+          document.l10n.setAttributes(button, "tree-list-view-row-delete");
+
+          const img = button.appendChild(document.createElement("img"));
+          img.src = "";
+          img.alt = "";
+
+          cell.appendChild(button);
+        }
+
+        this.appendChild(cell).classList.add(
           `${column.id.toLowerCase()}-column`
         );
       }
@@ -2784,35 +2875,32 @@ customElements.whenDefined("tree-view-listrow").then(() => {
       this.setAttribute("aria-label", subjectLine);
 
       const properties = this.view.getRowProperties(index).trim();
+      const propertiesSet = new Set(properties.split(" "));
       this.dataset.properties = properties;
 
       for (let column of threadPane.columns) {
-        let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
         if (column.hidden) {
-          cell.hidden = true;
           continue;
         }
 
-        const propertiesSet = new Set(properties.split(" "));
+        let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
 
         // Special case for the subject column.
         if (column.id == "subjectCol") {
-          // This cell warrants a template replacement.
-          cell.replaceChildren(
-            document
-              .getElementById("threadPaneSubjectCellTemplate")
-              .content.cloneNode(true)
-          );
           const div = cell.querySelector(".subject-line");
-          const image = div.querySelector("img");
-          const span = div.querySelector("span");
-
           // Indent child message of this thread.
           div.style.setProperty("--thread-level", this.view.getLevel(index));
+
           let imageFluentID = this.#getMessageIndicatorString(propertiesSet);
+          const image = div.querySelector("img");
           if (imageFluentID) {
             document.l10n.setAttributes(image, imageFluentID);
+          } else {
+            image.removeAttribute("data-l10n-id");
+            image.alt = "";
           }
+
+          const span = div.querySelector("span");
           span.textContent = subjectLine;
           continue;
         }
@@ -2833,13 +2921,6 @@ customElements.whenDefined("tree-view-listrow").then(() => {
               ? "tree-list-view-row-spam"
               : "tree-list-view-row-not-spam"
           );
-        }
-
-        if (column.id == "attachmentCol") {
-          const img = document.createElement("img");
-          img.src = "";
-          document.l10n.setAttributes(img, "tree-list-view-row-attach");
-          cell.replaceChildren(img);
         }
 
         // No need to update the text of this cell if it's the selection or an
