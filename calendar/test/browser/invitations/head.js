@@ -152,8 +152,8 @@ async function clickMenuAction(win, buttonId, actionId) {
 const unpromotedProps = ["location", "description", "sequence", "x-moz-received-dtstamp"];
 
 /**
- * An object where the keys are paths and the values the values they lead to
- * in an object we want to test for correctness.
+ * An object where the keys are paths/selectors and the values are the values
+ * we expect to encounter.
  *
  * @typedef {object} Comparable
  */
@@ -181,6 +181,39 @@ function compareProperties(actual, expected, prefix = "") {
     let actualValue = unpromotedProps.includes(key) ? actual.getProperty(key) : actual[key];
     Assert.equal(actualValue, value, `property "${path}" is "${value}"`);
   }
+}
+
+/**
+ * Compares the text contents of the selectors specified on the inviatation panel
+ * to the expected value for each.
+ *
+ * @param {ShadowRoot} root The invitation panel's ShadowRoot instance.
+ * @param {Comparable} expected
+ */
+function compareShownPanelValues(root, expected) {
+  for (let [key, value] of Object.entries(expected)) {
+    value = Array.isArray(value) ? value.join("") : value;
+    Assert.equal(
+      root.querySelector(key).textContent.trim(),
+      value,
+      `property "${key}" is "${value}"`
+    );
+  }
+}
+
+/**
+ * Clicks on one of the invitation panel action buttons.
+ *
+ * @param {Window} panel
+ * @param {string} id
+ * @param {boolean} sendResponse
+ */
+async function clickPanelAction(panel, id, sendResponse = true) {
+  let promise = BrowserTestUtils.promiseAlertDialogOpen(sendResponse ? "accept" : "cancel");
+  let button = panel.shadowRoot.getElementById(id);
+  EventUtils.synthesizeMouseAtCenter(button, {}, panel.ownerGlobal);
+  await promise;
+  await BrowserTestUtils.waitForEvent(panel.ownerGlobal, "onItipItemActionFinished");
 }
 
 /**
@@ -233,6 +266,8 @@ async function doReplyTest(transport, identity, partStat) {
  * @property {string} partStat The participationStatus of the receiving user to
  *   expect.
  * @property {boolean} noReply If true, do not expect an attempt to send a reply.
+ * @property {boolean} noSend If true, expect the reply attempt to stop after the
+ *   user is prompted.
  * @property {boolean} isMajor For update tests indicates if the changes expected
  *  are major or minor.
  */
@@ -245,7 +280,7 @@ async function doReplyTest(transport, identity, partStat) {
  * @param {calIEvent|calIEvent[]} item
  */
 async function doImipBarActionTest(conf, event) {
-  let { calendar, transport, identity, partStat, isRecurring, noReply } = conf;
+  let { calendar, transport, identity, partStat, isRecurring, noReply, noSend } = conf;
   let events = [event];
   let startDates = ["20220316T110000Z"];
   let endDates = ["20220316T113000Z"];
@@ -303,10 +338,12 @@ async function doImipBarActionTest(conf, event) {
       0,
       "itip subsystem did not attempt to send a response"
     );
-    Assert.equal(transport.sentMsgs.length, 0, "no call was made into the mail subsystem");
-  } else {
-    await doReplyTest(transport, identity, partStat);
   }
+  if (noReply || noSend) {
+    Assert.equal(transport.sentMsgs.length, 0, "no call was made into the mail subsystem");
+    return;
+  }
+  await doReplyTest(transport, identity, partStat);
 }
 
 /**
