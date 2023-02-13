@@ -784,6 +784,17 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 
 #contextPaneFlexibleBox {
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#contextPaneFlexibleBox vbox.conv-chat {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+#previousConversations {
+  flex: 1 1 0;
 }
 
 :root[lwt-tree] #nicklist,
