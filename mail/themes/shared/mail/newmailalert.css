@@ -132,6 +132,7 @@ folder-summary {
 
 #closeButton {
   -moz-box-align: start;
+  width: auto;
 }
 
 #closeButton > .toolbarbutton-icon {
