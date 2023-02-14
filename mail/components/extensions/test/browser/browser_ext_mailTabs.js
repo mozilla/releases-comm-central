@@ -135,10 +135,13 @@ add_task(async function test_update() {
     },
   });
 
-  extension.onMessage("checkRealLayout", expected => {
+  extension.onMessage("checkRealLayout", async expected => {
     let intValue = ["standard", "wide", "vertical"].indexOf(expected.layout);
     is(Services.prefs.getIntPref("mail.pane_config.dynamic"), intValue);
-    check3PaneState(expected.folderPaneVisible, expected.messagePaneVisible);
+    await check3PaneState(
+      expected.folderPaneVisible,
+      expected.messagePaneVisible
+    );
     Assert.equal(
       "/" + (tabmail.currentTabInfo.folder.URI || "").split("/").pop(),
       expected.displayedFolder.path,
@@ -197,7 +200,7 @@ add_task(async function test_update() {
     extension.sendMessage();
   });
 
-  check3PaneState(true, true);
+  await check3PaneState(true, true);
 
   await extension.startup();
   extension.sendMessage(account.key);
@@ -464,7 +467,10 @@ add_task(async function test_background_tab() {
   });
 
   extension.onMessage("checkRealLayout", async expected => {
-    check3PaneState(expected.folderPaneVisible, expected.messagePaneVisible);
+    await check3PaneState(
+      expected.folderPaneVisible,
+      expected.messagePaneVisible
+    );
     Assert.equal(
       "/" + (tabmail.currentTabInfo.folder.URI || "").split("/").pop(),
       expected.displayedFolder,
@@ -851,7 +857,10 @@ add_task(async function test_setSelectedMessages() {
   });
 
   extension.onMessage("checkRealLayout", async expected => {
-    check3PaneState(expected.folderPaneVisible, expected.messagePaneVisible);
+    await check3PaneState(
+      expected.folderPaneVisible,
+      expected.messagePaneVisible
+    );
     Assert.equal(
       "/" + (tabmail.currentTabInfo.folder.URI || "").split("/").pop(),
       expected.displayedFolder,
