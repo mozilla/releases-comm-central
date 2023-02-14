@@ -36,7 +36,11 @@
 		<string>0</string>
 	</dict>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.9.0</string>
+	<string>10.12.0</string>
+	<key>NSSupportsAutomaticGraphicsSwitching</key>
+	<true/>
+	<key>NSRequiresAquaSystemAppearance</key>
+	<true/>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 			<dict>
@@ -259,8 +263,6 @@
 			</array>
 		</dict>
 	</array>
-	<key>NSSupportsAutomaticGraphicsSwitching</key>
-	<true/>
 	<key>NSPrincipalClass</key>
 	<string>GeckoNSApplication</string>
   <key>MozillaDeveloperRepoPath</key>
