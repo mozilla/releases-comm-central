@@ -53,6 +53,26 @@
 </head>
 <body class="layout-classic">
   <div id="folderPane" tabindex="-1">
+    <div id="folderPaneHeaderBar" hidden="hidden">
+      <button id="folderPaneGetMessages"
+              class="button-flat folder-pane-header-button"
+              data-l10n-id="folder-pane-get-messages-button"
+              type="button"
+              disabled="disabled">
+        <img src="" alt="" />
+      </button>
+      <button id="folderPaneWriteMessage"
+              class="button-flat button-primary"
+              data-l10n-id="folder-pane-write-message-button"
+              type="button"
+              disabled="disabled"></button>
+      <button id="folderPaneMoreButton"
+              class="button-flat folder-pane-header-button"
+              data-l10n-id="folder-pane-more-menu-button"
+              type="button">
+        <img src="" alt="" />
+      </button>
+    </div>
     <ul id="folderTree" is="tree-listbox" role="tree"></ul>
     <template id="modeTemplate">
       <li class="unselectable">
@@ -269,6 +289,13 @@
          data-l10n-id="quick-filter-bar-gloda-upsell-line1"></div>
     <div id="qfb-upsell-line-two"></div>
   </tooltip>
+  <menupopup id="folderPaneMoreContext"
+             class="no-icon-menupopup no-accel-menupopup"
+             position="bottomleft topleft">
+    <menuitem data-l10n-id="folder-pane-header-context-hide"
+              class="menuitem-iconic"
+              oncommand="folderPane.toggleHeader(false);"/>
+  </menupopup>
 #include mailContext.inc.xhtml
 </popupset>
 </html>

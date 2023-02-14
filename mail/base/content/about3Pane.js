@@ -752,24 +752,6 @@ var folderPane = {
     this._modeTemplate = document.getElementById("modeTemplate");
     this._folderTemplate = document.getElementById("folderTemplate");
 
-    let forwardFunction = functionName => {
-      this[functionName] = function(...args) {
-        for (let mode of Object.values(this._modes)) {
-          if (!mode.active || typeof mode[functionName] != "function") {
-            continue;
-          }
-          try {
-            mode[functionName](...args);
-          } catch (ex) {
-            console.error(ex);
-          }
-        }
-      };
-    };
-    forwardFunction("addFolder");
-    forwardFunction("removeFolder");
-    forwardFunction("changeFolderFlag");
-
     this._isCompact =
       Services.xulStore.getValue(XULSTORE_URL, "folderTree", "compact") ===
       "true";
@@ -788,6 +770,28 @@ var folderPane = {
     folderTree.addEventListener("dragover", this);
     folderTree.addEventListener("dragleave", this);
     folderTree.addEventListener("drop", this);
+
+    document.getElementById(
+      "folderPaneHeaderBar"
+    ).hidden = this.isFolderPaneHeaderHidden();
+    document
+      .getElementById("folderPaneGetMessages")
+      .addEventListener("click", () => {
+        top.MsgGetMessagesForAccount();
+      });
+    document
+      .getElementById("folderPaneWriteMessage")
+      .addEventListener("click", event => {
+        top.MsgNewMessage(event);
+      });
+    this.moreContext = document.getElementById("folderPaneMoreContext");
+    document
+      .getElementById("folderPaneMoreButton")
+      .addEventListener("click", event => {
+        this.moreContext.openPopup(event.target, { triggerEvent: event });
+      });
+
+    this.updateWidgets();
   },
 
   handleEvent(event) {
@@ -1017,6 +1021,66 @@ var folderPane = {
     return [...container.querySelectorAll("li")].find(
       row => row.uri == folderOrURI
     );
+  },
+
+  /**
+   * Loop through all currently active modes and call the required function if
+   * it exists.
+   *
+   * @param {string} functionName - The name of the function to call.
+   * @param  {...any} args - The list of arguments to pass to the function.
+   */
+  _forAllActiveModes(functionName, ...args) {
+    for (let mode of Object.values(this._modes)) {
+      if (!mode.active || typeof mode[functionName] != "function") {
+        continue;
+      }
+      try {
+        mode[functionName](...args);
+      } catch (ex) {
+        console.error(ex);
+      }
+    }
+  },
+
+  /**
+   * Update the folder pane UI and add rows for all newly created folders.
+   *
+   * @param {?nsIMsgFolder} parentFolder - The parent of the newly created
+   *   folder.
+   * @param {nsIMsgFolder} childFolder - The newly created folder.
+   */
+  addFolder(parentFolder, childFolder) {
+    if (!parentFolder) {
+      // A server folder was added, so check if we need to update actions.
+      this.updateWidgets();
+    }
+    this._forAllActiveModes("addFolder", parentFolder, childFolder);
+  },
+
+  /**
+   * Update the folder pane UI and remove rows for all removed folders.
+   *
+   * @param {?nsIMsgFolder} parentFolder - The parent of the removed folder.
+   * @param {nsIMsgFolder} childFolder - The removed folder.
+   */
+  removeFolder(parentFolder, childFolder) {
+    if (!parentFolder) {
+      // A server folder was removed, so check if we need to update actions.
+      this.updateWidgets();
+    }
+    this._forAllActiveModes("removeFolder", parentFolder, childFolder);
+  },
+
+  /**
+   * Update the list of folders if the current mode rely on specific flags.
+   *
+   * @param {nsIMsgFolder} item - The target folder.
+   * @param {nsMsgFolderFlags} oldValue - The old flag value.
+   * @param {nsMsgFolderFlags} newValue - The updated flag value.
+   */
+  changeFolderFlag(item, oldValue, newValue) {
+    this._forAllActiveModes("changeFolderFlag", item, oldValue, newValue);
   },
 
   /**
@@ -1780,6 +1844,48 @@ var folderPane = {
       }
     }
     return true;
+  },
+
+  /**
+   * Update those UI elements that rely on the presence of a server to function.
+   */
+  updateWidgets() {
+    this._updateGetMessagesWidgets();
+    this._updateWriteMessageWidgets();
+  },
+
+  _updateGetMessagesWidgets() {
+    const canGetMessages = MailServices.accounts.allServers.some(
+      s => s.type != "none"
+    );
+    document.getElementById("folderPaneGetMessages").disabled = !canGetMessages;
+  },
+
+  _updateWriteMessageWidgets() {
+    const canWriteMessages = MailServices.accounts.allIdentities.length;
+    document.getElementById(
+      "folderPaneWriteMessage"
+    ).disabled = !canWriteMessages;
+  },
+
+  isFolderPaneHeaderHidden() {
+    return (
+      Services.xulStore.getValue(
+        XULSTORE_URL,
+        "folderPaneHeaderBar",
+        "hidden"
+      ) == "true"
+    );
+  },
+
+  toggleHeader(show) {
+    document.getElementById("folderPaneHeaderBar").hidden = !show;
+    Services.xulStore.setValue(
+      XULSTORE_URL,
+      "folderPaneHeaderBar",
+      "hidden",
+      show ? "false" : "true"
+    );
   },
 };
 

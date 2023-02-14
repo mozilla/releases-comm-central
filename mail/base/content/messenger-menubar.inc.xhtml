@@ -375,6 +375,14 @@
     <menu id="menu_FolderViews" label="&folderView.label;" accesskey="&folderView.accesskey;">
       <menupopup id="menu_FolderViewsPopup"
                   onpopupshowing="PanelUI._onFoldersViewShow(event)">
+        <menuitem id="menu_toggleFolderHeader"
+                  name="paneheader"
+                  value="toggle-header"
+                  data-l10n-id="menu-view-folders-toggle-header"
+                  type="checkbox"
+                  closemenu="none"
+                  oncommand="PanelUI.folderViewMenuOnCommand(event);"/>
+        <menuseparator id="folderViewsHeaderSeparator"/>
         <menuitem id="menu_allFolders" value="all"
                   label="&allFolders.label;"
                   accesskey="&allFolders.accesskey;"

@@ -195,9 +195,6 @@ function CustomizeMailToolbar(toolboxId, customizePopupId) {
     ) {
       externalToolbars.push(document.getElementById("toolbar-menubar"));
     }
-    if (document.getElementById("folderPaneHeader")) {
-      externalToolbars.push(document.getElementById("folderPaneHeader"));
-    }
   }
 
   if (gCustomizeSheet) {
@@ -378,9 +375,6 @@ function onViewToolbarsPopupShowing(
           document.getElementById("toolbar-menubar")
         ) {
           toolbars.push(document.getElementById("toolbar-menubar"));
-        }
-        if (document.getElementById("folderPaneHeader")) {
-          toolbars.push(document.getElementById("folderPaneHeader"));
         }
       }
     }

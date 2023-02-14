@@ -14,16 +14,6 @@
 @import url("chrome://messenger/skin/messageIcons.css");
 @import url("chrome://messenger/skin/shared/mailWindow1.css");
 
-#folderPaneHeader {
-  border-bottom: 1px solid #bebebe;
-}
-
-@media not (prefers-color-scheme: dark) {
-  #folderPaneHeader:-moz-window-inactive {
-    background-color: -moz-mac-chrome-inactive;
-  }
-}
-
 :root:not([lwt-tree]) #folderTree {
   background-color: -moz-OddTreeRow;
 }

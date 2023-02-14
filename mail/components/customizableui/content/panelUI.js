@@ -620,6 +620,15 @@ const PanelUI = {
   _onFoldersViewShow(event) {
     let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
     if (about3Pane) {
+      const paneHeaderMenuitem = event.target.querySelector(
+        '[name="paneheader"]'
+      );
+      if (about3Pane.folderPane.isFolderPaneHeaderHidden()) {
+        paneHeaderMenuitem.removeAttribute("checked");
+      } else {
+        paneHeaderMenuitem.setAttribute("checked", "true");
+      }
+
       let { activeModes, canBeCompact, isCompact } = about3Pane.folderPane;
       if (isCompact) {
         activeModes.push("compact");
@@ -831,6 +840,11 @@ const PanelUI = {
     }
 
     let mode = event.target.getAttribute("value");
+    if (mode == "toggle-header") {
+      about3Pane.folderPane.toggleHeader(event.target.hasAttribute("checked"));
+      return;
+    }
+
     let activeModes = about3Pane.folderPane.activeModes;
     let index = activeModes.indexOf(mode);
     if (event.target.hasAttribute("checked")) {

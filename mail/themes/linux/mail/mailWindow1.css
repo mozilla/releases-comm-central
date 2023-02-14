@@ -28,13 +28,6 @@
   background-color: -moz-Dialog;
 }
 
-/* ..... folder pane adjustments ..... */
-
-#folderPaneHeader {
-  min-height: 24px;
-  border-bottom: 1px solid ThreeDShadow;
-}
-
 /* ..... status bar adjustments ..... */
 
 #threadTree > treechildren::-moz-tree-row(odd) {

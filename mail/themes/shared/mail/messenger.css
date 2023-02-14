@@ -776,16 +776,6 @@ html|ul.addon-installed-list {
   background-color: -moz-Dialog;
 }
 
-#folderPaneHeader {
-  padding: 3px 6px;
-  color: inherit;
-}
-
-#folderPaneHeader > label {
-  font-weight: bold;
-  margin-inline-start: 1px;
-}
-
 .button-more {
   list-style-image: var(--icon-more);
 }
@@ -823,18 +813,9 @@ html|ul.addon-installed-list {
   outline: 2px solid var(--selected-item-color);
 }
 
-:root[lwt-tree] tree,
-:root[lwt-tree] #folderPaneHeader {
+:root[lwt-tree] tree {
   background-color: var(--sidebar-background-color);
   color: var(--sidebar-text-color);
-}
-
-:root[lwt-tree] #folderPaneHeader {
-  border-bottom-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
-}
-
-:root[lwt-tree-brighttext] #folderPaneHeader {
-  border-bottom-color: var(--sidebar-border-color, rgba(249,249,250,.2));
 }
 
 :root[lwt-tree-brighttext] treechildren::-moz-tree-twisty {

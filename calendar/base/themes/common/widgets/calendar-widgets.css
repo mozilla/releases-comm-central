@@ -404,7 +404,7 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   border-color: var(--color-blue-60);
   color: var(--color-white);
   gap: 6px;
-  padding: var( --calendar-primary-button-padding);
+  padding: var(--calendar-primary-button-padding);
   margin: var(--calendar-primary-button-margin);
   display: inline-flex;
   align-items: center;

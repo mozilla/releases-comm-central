@@ -103,6 +103,12 @@ menu-view-repair-text-encoding =
     .label = Repair Text Encoding
     .accesskey = c
 
+## View / Folders
+
+menu-view-folders-toggle-header =
+    .label = Folder Pane Header
+    .accesskey = F
+
 ## View / Layout
 
 menu-font-size-label =

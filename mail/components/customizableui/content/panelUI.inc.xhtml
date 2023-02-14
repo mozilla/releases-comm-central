@@ -412,6 +412,15 @@
                title="&folderView.label;"
                class="PanelUI-subView">
       <vbox class="panel-subview-body">
+        <toolbarbutton id="appmenu_toggleFolderHeader"
+                       class="subviewbutton subviewbutton-iconic"
+                       name="paneheader"
+                       value="toggle-header"
+                       data-l10n-id="menu-view-folders-toggle-header"
+                       type="checkbox"
+                       closemenu="none"
+                       oncommand="PanelUI.folderViewMenuOnCommand(event);"/>
+        <toolbarseparator id="appmenu_folderModesSeparator"/>
         <toolbarbutton id="appmenu_allFolders"
                        class="subviewbutton subviewbutton-iconic"
                        value="all"
@@ -452,7 +461,7 @@
                        name="viewmessages"
                        closemenu="none"
                        oncommand="PanelUI.folderViewMenuOnCommand(event);"/>
-        <toolbarseparator id="appmenu_favoritePropertiesSeparator"/>
+        <toolbarseparator id="appmenu_compactPropertiesSeparator"/>
         <toolbarbutton id="appmenu_compactMode"
                        class="subviewbutton subviewbutton-iconic"
                        value="compact"

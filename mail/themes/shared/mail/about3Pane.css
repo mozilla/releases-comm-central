@@ -6,6 +6,10 @@
 
 :root {
   --treeitem-border-radius: 3px;
+  --folder-tree-header-gap: 9px;
+  --folder-tree-header-padding: 9px 6px;
+  --folder-tree-write-button-padding-block: 8px;
+  --folder-tree-write-button-padding-inline: 20px 6px;
 }
 
 @media not (prefers-contrast) {
@@ -57,6 +61,18 @@
   --treeitem-background-selected: color-mix(in srgb, transparent 70%, var(--sidebar-highlight-background-color));
   --treeitem-background-hover: color-mix(in srgb, transparent 80%, var(--sidebar-highlight-background-color));
 }
+
+:root[uidensity="compact"] {
+  --folder-tree-header-gap: 6px;
+  --folder-tree-header-padding: 4px 3px;
+  --folder-tree-write-button-padding-block: 4px;
+  --folder-tree-write-button-padding-inline: 20px 3px;
+}
+
+:root[uidensity="touch"] {
+  --folder-tree-header-gap: 12px;
+}
+
 
 html {
   height: 100%;
@@ -179,6 +195,94 @@ body:not(.account-central) #accountCentralBrowser {
 
 /* Folder tree pane. */
 
+#folderPaneHeaderBar:not([hidden]) {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: var(--folder-tree-header-gap);
+  position: sticky;
+  top: 0;
+  background-color: var(--sidebar-background-color, var(--foldertree-background));
+  padding: var(--folder-tree-header-padding);
+  z-index: 1;
+}
+
+.folder-pane-header-button {
+  margin: 0;
+  min-width: auto;
+  min-height: auto;
+  padding: 1px;
+  line-height: 0;
+  border-color: transparent;
+  background-color: transparent;
+}
+
+.folder-pane-header-button[disabled] {
+  opacity: 0.4;
+}
+
+.folder-pane-header-button:not([disabled]) {
+  opacity: 0.9;
+}
+
+.folder-pane-header-button:not([disabled]):hover {
+  border-color: var(--button-border-color);
+  background-color: var(--button-hover-bgcolor);
+  opacity: 1;
+}
+
+.folder-pane-header-button:not([disabled]):hover:active {
+  border-color: var(--button-border-color);
+  background-color: var(--button-active-bgcolor);
+}
+
+.folder-pane-header-button img {
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+  pointer-events: none;
+}
+
+#folderPaneGetMessages img {
+  content: var(--icon-download);
+  /* The download icon is not fully centred. */
+  padding-inline-start: 1px;
+}
+
+#folderPaneMoreButton img {
+  content: var(--icon-more);
+}
+
+#folderPaneWriteMessage {
+  padding-block: var(--folder-tree-write-button-padding-block);
+  padding-inline: var(--folder-tree-write-button-padding-inline);
+  margin-inline: 0;
+  color: var(--color-white);
+  background-color: var(--color-blue-50);
+  background-image: var(--icon-add);
+  background-position: 3px center;
+  background-repeat: no-repeat;
+  border-color: var(--color-blue-60);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#folderPaneWriteMessage:dir(rtl) {
+  background-position-x: right 3px;
+}
+
+#folderPaneWriteMessage:hover:enabled {
+  background-color: var(--color-blue-60);
+}
+
+#folderPaneWriteMessage:hover:active:enabled {
+  background-color: var(--color-blue-70);
+}
+
+#folderPaneWriteMessage:disabled {
+  opacity: 0.4;
+}
+
 #folderTree,
 #folderTree ul {
   margin: 0;
@@ -191,6 +295,10 @@ body:not(.account-central) #accountCentralBrowser {
 #folderTree ul {
   overflow: hidden;
   height: auto;
+}
+
+#folderTree:focus-visible {
+  outline: none;
 }
 
 .container {

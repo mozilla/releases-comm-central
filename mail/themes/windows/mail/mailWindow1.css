@@ -16,11 +16,6 @@
   background-color: -moz-Dialog;
 }
 
-#folderPaneHeader {
-  border-top-style: none;
-  border-bottom: 1px solid ThreeDShadow;
-}
-
 /* ::::: thread decoration ::::: */
 
 /* ::::: group rows ::::: */
@@ -441,13 +436,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 }
 
-@media (-moz-platform: windows-win8) and (-moz-windows-default-theme),
-       (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
-  #folderPaneHeader {
-    border-bottom-color: #c2c2c2;
-  }
-}
-
 @media (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
   #messengerWindow:not([tabsintitlebar]) #navigation-toolbox:not(:-moz-lwtheme) {
     background-color: var(--color-gray-30);
@@ -472,10 +460,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     padding-inline-end: 5px;
     background-color: rgba(255, 255, 255, .3);
     border-radius: 4px;
-  }
-
-  #folderPaneHeader {
-    border-bottom-color: #aabccf;
   }
 }
 
