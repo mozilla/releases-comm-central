@@ -406,6 +406,11 @@ MailDefaultHandler.prototype = {
       }
     }
     if (uri) {
+      if (/^file:/i.test(uri)) {
+        // Turn file URL into a file path so `resolveFile()` will work.
+        let fileURL = cmdLine.resolveURI(uri);
+        uri = fileURL.QueryInterface(Ci.nsIFileURL).file.path;
+      }
       // Check for protocols first then look at the file ending.
       // Protocols are able to contain file endings like '.ics'.
       if (/^https?:/i.test(uri)) {
