@@ -57,9 +57,8 @@ add_task(async function test_update() {
 
     await checkCurrent(expected);
     await window.sendMessage("checkRealLayout", expected);
-    // TODO: Restore sorting in about:3pane.
-    // await window.sendMessage("checkRealSort", expected);
-    // await window.sendMessage("checkRealView", expected);
+    await window.sendMessage("checkRealSort", expected);
+    await window.sendMessage("checkRealView", expected);
 
     expected.sortOrder = "descending";
     for (let value of ["date", "subject", "author"]) {
@@ -68,8 +67,8 @@ add_task(async function test_update() {
         sortOrder: "descending",
       });
       expected.sortType = value;
-      // await window.sendMessage("checkRealSort", expected);
-      // await window.sendMessage("checkRealView", expected);
+      await window.sendMessage("checkRealSort", expected);
+      await window.sendMessage("checkRealView", expected);
     }
     expected.sortOrder = "ascending";
     for (let value of ["author", "subject", "date"]) {
@@ -78,8 +77,8 @@ add_task(async function test_update() {
         sortOrder: "ascending",
       });
       expected.sortType = value;
-      // await window.sendMessage("checkRealSort", expected);
-      // await window.sendMessage("checkRealView", expected);
+      await window.sendMessage("checkRealSort", expected);
+      await window.sendMessage("checkRealView", expected);
     }
 
     for (let key of ["folderPaneVisible", "messagePaneVisible"]) {
@@ -88,7 +87,7 @@ add_task(async function test_update() {
         expected[key] = value;
         await checkCurrent(expected);
         await window.sendMessage("checkRealLayout", expected);
-        // await window.sendMessage("checkRealView", expected);
+        await window.sendMessage("checkRealView", expected);
       }
     }
     for (let value of ["wide", "vertical", "standard"]) {
@@ -96,7 +95,7 @@ add_task(async function test_update() {
       expected.layout = value;
       await checkCurrent(expected);
       await window.sendMessage("checkRealLayout", expected);
-      // await window.sendMessage("checkRealView", expected);
+      await window.sendMessage("checkRealView", expected);
     }
 
     // Test all possible switch combination.
@@ -113,8 +112,8 @@ add_task(async function test_update() {
       expected.viewType = viewType;
       await checkCurrent(expected);
       await window.sendMessage("checkRealLayout", expected);
-      // await window.sendMessage("checkRealSort", expected);
-      // await window.sendMessage("checkRealView", expected);
+      await window.sendMessage("checkRealSort", expected);
+      await window.sendMessage("checkRealView", expected);
     }
 
     let selectedMessages = await browser.mailTabs.getSelectedMessages();
@@ -151,16 +150,29 @@ add_task(async function test_update() {
   });
 
   extension.onMessage("checkRealSort", expected => {
-    for (let [columnId, sortType] of window.gFolderDisplay.COLUMNS_MAP) {
-      sortType = sortType[2].toLowerCase() + sortType.substring(3);
-      if (sortType == expected.sortType) {
-        let column = document.getElementById(columnId);
-        is(column.getAttribute("sortDirection"), expected.sortOrder);
-        extension.sendMessage();
-        return;
-      }
-    }
-    throw new Error("This test should never get here.");
+    const sortTypes = {
+      date: Ci.nsMsgViewSortType.byDate,
+      subject: Ci.nsMsgViewSortType.bySubject,
+      author: Ci.nsMsgViewSortType.byAuthor,
+    };
+
+    let {
+      primarySortType,
+      primarySortOrder,
+    } = tabmail.currentAbout3Pane.gViewWrapper;
+
+    Assert.equal(
+      primarySortOrder,
+      Ci.nsMsgViewSortOrder[expected.sortOrder],
+      `sort order should be ${expected.sortOrder}`
+    );
+    Assert.equal(
+      primarySortType,
+      sortTypes[expected.sortType],
+      `sort type should be ${expected.sortType}`
+    );
+
+    extension.sendMessage();
   });
 
   extension.onMessage("checkRealView", expected => {
@@ -181,19 +193,25 @@ add_task(async function test_update() {
         showUnthreaded: true,
       },
     };
-    let view = window.gFolderDisplay.view;
+
+    let {
+      showThreaded,
+      showUnthreaded,
+      showGroupedBySort,
+    } = tabmail.currentAbout3Pane.gViewWrapper;
+
     Assert.equal(
-      view.showThreaded,
+      showThreaded,
       viewTypes[expected.viewType].showThreaded,
       `Correct value for showThreaded for viewType <${expected.viewType}>`
     );
     Assert.equal(
-      view.showUnthreaded,
+      showUnthreaded,
       viewTypes[expected.viewType].showUnthreaded,
       `Correct value for showUnthreaded for viewType <${expected.viewType}>`
     );
     Assert.equal(
-      view.showGroupedBySort,
+      showGroupedBySort,
       viewTypes[expected.viewType].showGroupedBySort,
       `Correct value for showGroupedBySort for viewType <${expected.viewType}>`
     );
