@@ -72,6 +72,7 @@ add_task(async function testShowPanelData() {
     .contentDocument.querySelector("calendar-invitation-panel");
 
   await panel.ownerDocument.l10n.ready;
+  await new Promise(resolve => requestIdleCallback(resolve));
 
   let notification = panel.shadowRoot.querySelector("notification-message");
   compareShownPanelValues(notification.shadowRoot, {
