@@ -159,17 +159,17 @@
 			<string>Viewer</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
-			        <string>TEXT</string>
+				<string>TEXT</string>
 			</array>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-			        <string>svg</string>
+				<string>svg</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>document.icns</string>
 			<key>CFBundleTypeMIMETypes</key>
 			<array>
-			        <string>image/svg+xml</string>
+				<string>image/svg+xml</string>
 			</array>
 			<key>NSDocumentClass</key>
 			<string>BrowserDocument</string>
