@@ -455,7 +455,7 @@ nsresult nsMessenger::CompleteOpenURL() {
   mozilla::dom::LoadURIOptions loadURIOptions;
   loadURIOptions.mLoadFlags = nsIWebNavigation::LOAD_FLAGS_IS_LINK;
   loadURIOptions.mTriggeringPrincipal = nsContentUtils::GetSystemPrincipal();
-  return webNav->LoadURI(NS_ConvertASCIItoUTF16(mURLToLoad), loadURIOptions);
+  return webNav->FixupAndLoadURIString(NS_ConvertASCIItoUTF16(mURLToLoad), loadURIOptions);
 }
 
 NS_IMETHODIMP

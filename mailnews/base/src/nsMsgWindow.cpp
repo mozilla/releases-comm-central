@@ -424,7 +424,7 @@ nsMsgWindow::DisplayURIInMessagePane(const nsAString& uri, bool clearMsgHdr,
 
   mozilla::dom::LoadURIOptions loadURIOptions;
   loadURIOptions.mTriggeringPrincipal = principal;
-  return webNav->LoadURI(uri, loadURIOptions);
+  return webNav->FixupAndLoadURIString(uri, loadURIOptions);
 }
 
 NS_IMETHODIMP

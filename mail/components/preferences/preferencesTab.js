@@ -134,7 +134,7 @@ var preferencesTabType = {
       triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
       postData: aArgs.postData || null,
     };
-    aTab.browser.loadURI("about:preferences", params);
+    aTab.browser.loadURI(Services.io.newURI("about:preferences"), params);
 
     this.tab = aTab;
     this.lastBrowserId++;

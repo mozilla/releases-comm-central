@@ -117,7 +117,7 @@ function displayMessage(uri, viewWrapper) {
     HideMessageHeaderPane();
     // Don't use MailE10SUtils.loadURI here, it will try to change remoteness
     // and we don't want that.
-    content.loadURI("about:blank", {
+    content.loadURI(Services.io.newURI("about:blank"), {
       triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
     });
     window.dispatchEvent(

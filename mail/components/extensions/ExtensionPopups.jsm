@@ -358,7 +358,7 @@ class BasePopup {
 
     return readyPromise.then(() => {
       initBrowser();
-      browser.loadURI(popupURL, {
+      browser.fixupAndLoadURIString(popupURL, {
         triggeringPrincipal: this.extension.principal,
       });
     });

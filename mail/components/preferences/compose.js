@@ -619,7 +619,7 @@ var gCloudFile = {
       : {};
     browser.messageManager.sendAsyncMessage("Extension:InitBrowser", options);
 
-    browser.loadURI(url, {
+    browser.fixupAndLoadURIString(url, {
       triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
     });
   },

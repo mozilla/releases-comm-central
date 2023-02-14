@@ -1317,7 +1317,7 @@ function loadPage(pageId) {
   };
   document
     .getElementById("contentFrame")
-    .webNavigation.loadURI(pageURL(pageId), loadURIOptions);
+    .webNavigation.fixupAndLoadURIString(pageURL(pageId), loadURIOptions);
 }
 
 // save the values of the widgets to the given server

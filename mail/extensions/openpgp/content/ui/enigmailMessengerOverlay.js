@@ -2548,8 +2548,8 @@ Enigmail.msg = {
     }
 
     if (navWindow) {
-      if ("loadURI" in navWindow) {
-        navWindow.loadURI(url);
+      if ("fixupAndLoadURIString" in navWindow) {
+        navWindow.fixupAndLoadURIString(url);
       } else {
         navWindow._content.location.href = url;
       }

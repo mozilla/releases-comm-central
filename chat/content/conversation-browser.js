@@ -279,7 +279,7 @@
           capture: true,
         }
       );
-      this.loadURI("chrome://chat/content/conv.html", {
+      this.loadURI(Services.io.newURI("chrome://chat/content/conv.html"), {
         triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
       });
     }

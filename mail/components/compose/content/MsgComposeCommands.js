@@ -4716,7 +4716,10 @@ async function ComposeStartup() {
     let loadURIOptions = {
       triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
     };
-    editorElement.webNavigation.loadURI("about:blank?compose", loadURIOptions);
+    editorElement.webNavigation.loadURI(
+      Services.io.newURI("about:blank?compose"),
+      loadURIOptions
+    );
   } catch (e) {
     console.error(e);
   }

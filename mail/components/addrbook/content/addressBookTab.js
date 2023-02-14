@@ -144,7 +144,7 @@ var addressBookTabType = {
       triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
       postData: aArgs.postData || null,
     };
-    aTab.browser.loadURI("about:addressbook", params);
+    aTab.browser.loadURI(Services.io.newURI("about:addressbook"), params);
 
     this.tab = aTab;
     this.lastBrowserId++;

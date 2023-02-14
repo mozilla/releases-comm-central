@@ -20,7 +20,7 @@ var MailE10SUtils = {
    * @param {nsIBrowser} browser
    */
   loadAboutBlank(browser) {
-    browser.loadURI("about:blank", {
+    browser.loadURI(Services.io.newURI("about:blank"), {
       triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
     });
   },
@@ -57,7 +57,7 @@ var MailE10SUtils = {
     params.triggeringPrincipal =
       params.triggeringPrincipal ||
       Services.scriptSecurityManager.getSystemPrincipal();
-    browser.loadURI(uri, params);
+    browser.fixupAndLoadURIString(uri, params);
   },
 
   /**

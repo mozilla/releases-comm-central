@@ -239,7 +239,10 @@ function EditorLoadUrl(url) {
         loadFlags: Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE,
         triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
       };
-      GetCurrentEditorElement().webNavigation.loadURI(url, loadURIOptions);
+      GetCurrentEditorElement().webNavigation.fixupAndLoadURIString(
+        url,
+        loadURIOptions
+      );
     }
   } catch (e) {
     dump(" EditorLoadUrl failed: " + e + "\n");
