@@ -28,7 +28,7 @@ var {
   POP,
   SMTP,
   NONE,
-  TLS,
+  STARTTLS,
   SSL,
   getHostEntry,
   getIncomingTryOrder,
@@ -51,7 +51,7 @@ function assert_equal(aA, aB, aWhy) {
  */
 function assert_equal_host_entries(hostEntry, expected) {
   assert_equal(hostEntry.protocol, expected[0], "Protocols are different");
-  assert_equal(hostEntry.ssl, expected[1], "SSL values are different");
+  assert_equal(hostEntry.socketType, expected[1], "SSL values are different");
   assert_equal(hostEntry.port, expected[2], "Port values are different");
 }
 
@@ -76,22 +76,22 @@ function checkPop(host, protocol) {
   // SSL configs are separated until bug 1520283 is fixed.
 
   // port == UNKNOWN
-  // [POP, TLS, 110], [POP, SSL, 995], [POP, NONE, 110]
+  // [POP, STARTTLS, 110], [POP, SSL, 995], [POP, NONE, 110]
   // port != UNKNOWN
   // ssl == UNKNOWN
-  // [POP, TLS, port], [POP, SSL, port], [POP, NONE, port]
+  // [POP, STARTTLS, port], [POP, SSL, port], [POP, NONE, port]
   // ssl != UNKNOWN
   // [POP, ssl, port]
   let ssl = UNKNOWN;
   let port = UNKNOWN;
   let tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [POP, TLS, 110],
+    [POP, STARTTLS, 110],
     // [POP, SSL, 995],
     [POP, NONE, 110],
   ]);
 
-  ssl = TLS;
+  ssl = STARTTLS;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [[POP, ssl, 110]]);
 
@@ -107,12 +107,12 @@ function checkPop(host, protocol) {
   port = 31337;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [POP, TLS, port],
+    [POP, STARTTLS, port],
     // [POP, SSL, port],
     [POP, NONE, port],
   ]);
 
-  for (ssl in [TLS, SSL, NONE]) {
+  for (ssl in [STARTTLS, SSL, NONE]) {
     tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
     assert_equal_try_orders(tryOrder, [[POP, ssl, port]]);
   }
@@ -128,10 +128,10 @@ function checkImap(host, protocol) {
   // SSL configs are separated until bug 1520283 is fixed.
 
   // port == UNKNOWN
-  // [IMAP, TLS, 143], [IMAP, SSL, 993], [IMAP, NONE, 143]
+  // [IMAP, STARTTLS, 143], [IMAP, SSL, 993], [IMAP, NONE, 143]
   // port != UNKNOWN
   // ssl == UNKNOWN
-  // [IMAP, TLS, port], [IMAP, SSL, port], [IMAP, NONE, port]
+  // [IMAP, STARTTLS, port], [IMAP, SSL, port], [IMAP, NONE, port]
   // ssl != UNKNOWN
   // [IMAP, ssl, port];
 
@@ -139,12 +139,12 @@ function checkImap(host, protocol) {
   let port = UNKNOWN;
   let tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [IMAP, TLS, 143],
+    [IMAP, STARTTLS, 143],
     // [IMAP, SSL, 993],
     [IMAP, NONE, 143],
   ]);
 
-  ssl = TLS;
+  ssl = STARTTLS;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [[IMAP, ssl, 143]]);
 
@@ -160,12 +160,12 @@ function checkImap(host, protocol) {
   port = 31337;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [IMAP, TLS, port],
+    [IMAP, STARTTLS, port],
     // [IMAP, SSL, port],
     [IMAP, NONE, port],
   ]);
 
-  for (ssl in [TLS, SSL, NONE]) {
+  for (ssl in [STARTTLS, SSL, NONE]) {
     tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
     assert_equal_try_orders(tryOrder, [[IMAP, ssl, port]]);
   }
@@ -183,7 +183,11 @@ function checkImap(host, protocol) {
  */
 function test_getHostEntry() {
   // IMAP port numbers.
-  assert_equal_host_entries(getHostEntry(IMAP, TLS, UNKNOWN), [IMAP, TLS, 143]);
+  assert_equal_host_entries(getHostEntry(IMAP, STARTTLS, UNKNOWN), [
+    IMAP,
+    STARTTLS,
+    143,
+  ]);
   assert_equal_host_entries(getHostEntry(IMAP, SSL, UNKNOWN), [IMAP, SSL, 993]);
   assert_equal_host_entries(getHostEntry(IMAP, NONE, UNKNOWN), [
     IMAP,
@@ -192,12 +196,20 @@ function test_getHostEntry() {
   ]);
 
   // POP port numbers.
-  assert_equal_host_entries(getHostEntry(POP, TLS, UNKNOWN), [POP, TLS, 110]);
+  assert_equal_host_entries(getHostEntry(POP, STARTTLS, UNKNOWN), [
+    POP,
+    STARTTLS,
+    110,
+  ]);
   assert_equal_host_entries(getHostEntry(POP, SSL, UNKNOWN), [POP, SSL, 995]);
   assert_equal_host_entries(getHostEntry(POP, NONE, UNKNOWN), [POP, NONE, 110]);
 
   // SMTP port numbers.
-  assert_equal_host_entries(getHostEntry(SMTP, TLS, UNKNOWN), [SMTP, TLS, 587]);
+  assert_equal_host_entries(getHostEntry(SMTP, STARTTLS, UNKNOWN), [
+    SMTP,
+    STARTTLS,
+    587,
+  ]);
   assert_equal_host_entries(getHostEntry(SMTP, SSL, UNKNOWN), [SMTP, SSL, 465]);
   assert_equal_host_entries(getHostEntry(SMTP, NONE, UNKNOWN), [
     SMTP,
@@ -231,9 +243,9 @@ function test_getIncomingTryOrder() {
   let port = UNKNOWN;
   let tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [IMAP, TLS, 143],
+    [IMAP, STARTTLS, 143],
     // [IMAP, SSL, 993],
-    [POP, TLS, 110],
+    [POP, STARTTLS, 110],
     // [POP, SSL, 995],
     [IMAP, NONE, 143],
     [POP, NONE, 110],
@@ -250,9 +262,9 @@ function test_getIncomingTryOrder() {
   port = 31337;
   tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [IMAP, TLS, port],
+    [IMAP, STARTTLS, port],
     // [IMAP, SSL, port],
-    [POP, TLS, port],
+    [POP, STARTTLS, port],
     // [POP, SSL, port],
     [IMAP, NONE, port],
     [POP, NONE, port],
@@ -279,8 +291,8 @@ function test_getOutgoingTryOrder() {
   let port = UNKNOWN;
   let tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [SMTP, TLS, 587],
-    [SMTP, TLS, 25],
+    [SMTP, STARTTLS, 587],
+    [SMTP, STARTTLS, 25],
     // [SMTP, SSL, 465],
     [SMTP, NONE, 587],
     [SMTP, NONE, 25],
@@ -294,7 +306,7 @@ function test_getOutgoingTryOrder() {
   port = 31337;
   tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [SMTP, TLS, port],
+    [SMTP, STARTTLS, port],
     // [SMTP, SSL, port],
     [SMTP, NONE, port],
   ]);

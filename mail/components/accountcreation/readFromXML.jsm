@@ -107,16 +107,16 @@ function readFromXML(clientConfigXML, subSource) {
       for (let iXsocketType of array_or_undef(iX.$socketType)) {
         try {
           iO.socketType = lazy.Sanitizer.translate(iXsocketType, {
-            plain: 1,
-            SSL: 2,
-            STARTTLS: 3,
+            plain: Ci.nsMsgSocketType.plain,
+            SSL: Ci.nsMsgSocketType.SSL,
+            STARTTLS: Ci.nsMsgSocketType.alwaysSTARTTLS,
           });
           break; // take first that we support
         } catch (e) {
           exception = e;
         }
       }
-      if (!iO.socketType) {
+      if (iO.socketType == -1) {
         throw exception ? exception : "need proper <socketType> in XML";
       }
       exception = null;
@@ -240,16 +240,16 @@ function readFromXML(clientConfigXML, subSource) {
       for (let oXsocketType of array_or_undef(oX.$socketType)) {
         try {
           oO.socketType = lazy.Sanitizer.translate(oXsocketType, {
-            plain: 1,
-            SSL: 2,
-            STARTTLS: 3,
+            plain: Ci.nsMsgSocketType.plain,
+            SSL: Ci.nsMsgSocketType.SSL,
+            STARTTLS: Ci.nsMsgSocketType.alwaysSTARTTLS,
           });
           break; // take first that we support
         } catch (e) {
           exception = e;
         }
       }
-      if (!oO.socketType) {
+      if (oO.socketType == -1) {
         throw exception ? exception : "need proper <socketType> in XML";
       }
       exception = null;
