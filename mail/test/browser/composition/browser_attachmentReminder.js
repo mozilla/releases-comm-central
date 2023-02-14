@@ -142,9 +142,7 @@ function assert_manual_reminder_state(aCwc, aChecked) {
 function get_reminder_keywords(cwc) {
   assert_automatic_reminder_state(cwc, true);
   let box = get_notification(cwc.window, kBoxId, kNotificationId);
-  return box.messageText
-    .querySelector("#attachmentKeywords")
-    .getAttribute("value");
+  return box.messageText.querySelector("#attachmentKeywords").textContent;
 }
 
 /**

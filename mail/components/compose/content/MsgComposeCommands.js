@@ -3295,33 +3295,30 @@ function manageAttachmentNotification(aForce = false) {
     let msgContainer = notification.messageText.querySelector(
       "#attachmentReminderText"
     );
-    msgContainer.setAttribute("value", textValue);
+    msgContainer.textContent = textValue;
     let keywordsContainer = notification.messageText.querySelector(
       "#attachmentKeywords"
     );
-    keywordsContainer.setAttribute("value", keywords);
+    keywordsContainer.textContent = keywords;
     return;
   }
 
   // Construct the notification as we don't have one.
-  let msg = document.createXULElement("hbox");
+  let msg = document.createElement("div");
   msg.onclick = function(event) {
     openOptionsDialog("paneCompose", "compositionAttachmentsCategory", {
       subdialog: "attachment_reminder_button",
     });
   };
 
-  let msgText = document.createXULElement("label");
+  let msgText = document.createElement("span");
   msg.appendChild(msgText);
   msgText.id = "attachmentReminderText";
-  msgText.setAttribute("crop", "end");
-  msgText.setAttribute("flex", "1");
-  msgText.setAttribute("value", textValue);
-  let msgKeywords = document.createXULElement("label");
+  msgText.textContent = textValue;
+  let msgKeywords = document.createElement("span");
   msg.appendChild(msgKeywords);
   msgKeywords.id = "attachmentKeywords";
-  msgKeywords.setAttribute("crop", "end");
-  msgKeywords.setAttribute("value", keywords);
+  msgKeywords.textContent = keywords;
   let addButton = {
     "l10n-id": "add-attachment-notification-reminder2",
     callback(aNotificationBar, aButton) {
