@@ -144,7 +144,7 @@ add_task(async function testDayViewNavbar() {
 
   let intervalDescription = CalendarTestUtils.getNavBarIntervalDescription(window);
   Assert.equal(
-    intervalDescription.value,
+    intervalDescription.textContent,
     "Wednesday, April 13, 2022",
     "interval description should contain a description of the displayed date"
   );
@@ -154,7 +154,7 @@ add_task(async function testDayViewNavbar() {
   // Sunday or Monday as the starting day of the week, we would get 15 here.
   let calendarWeek = CalendarTestUtils.getNavBarCalendarWeekBox(window);
   Assert.equal(
-    calendarWeek.value,
+    calendarWeek.textContent,
     "CW: 14",
     "calendar week label should contain an indicator of which week contains displayed date"
   );
