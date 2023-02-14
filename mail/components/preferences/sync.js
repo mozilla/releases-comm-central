@@ -4,9 +4,9 @@
 
 /* import-globals-from preferences.js */
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  UIState: "resource://services-sync/UIState.jsm",
-  Weave: "resource://services-sync/main.js",
+ChromeUtils.defineESModuleGetters(this, {
+  UIState: "resource://services-sync/UIState.sys.mjs",
+  Weave: "resource://services-sync/main.sys.mjs",
 });
 
 var { FxAccounts, getFxAccountsSingleton } = ChromeUtils.import(

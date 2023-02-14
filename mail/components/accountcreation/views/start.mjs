@@ -10,7 +10,9 @@ const { AppConstants } = ChromeUtils.importESModule(
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { UIState } = ChromeUtils.import("resource://services-sync/UIState.jsm");
+const { UIState } = ChromeUtils.importESModule(
+  "resource://services-sync/UIState.sys.mjs"
+);
 
 class AccountHubStart extends HTMLElement {
   #accounts = [

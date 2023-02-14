@@ -5,10 +5,12 @@
 do_get_profile();
 
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-const { CalendarsEngine } = ChromeUtils.import(
-  "resource://services-sync/engines/calendars.js"
+const { CalendarsEngine } = ChromeUtils.importESModule(
+  "resource://services-sync/engines/calendars.sys.mjs"
 );
-const { Service } = ChromeUtils.import("resource://services-sync/service.js");
+const { Service } = ChromeUtils.importESModule(
+  "resource://services-sync/service.sys.mjs"
+);
 
 let engine, store, tracker;
 

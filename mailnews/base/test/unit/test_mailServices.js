@@ -11,14 +11,14 @@ var { MailServices } = ChromeUtils.import(
 );
 
 add_task(function test_services() {
-  function check_service(service, interface) {
+  function check_service(service, serviceInterface) {
     Assert.ok(
       service in MailServices,
       `${service} should be a member of MailServices`
     );
     Assert.ok(
-      MailServices[service] instanceof interface,
-      `MailServices.${service} should implement Ci.${interface.name}`
+      MailServices[service] instanceof serviceInterface,
+      `MailServices.${service} should implement Ci.${serviceInterface.name}`
     );
   }
 

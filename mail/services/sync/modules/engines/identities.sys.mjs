@@ -2,24 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["IdentitiesEngine", "IdentityRecord"];
+import { CryptoWrapper } from "resource://services-sync/record.sys.mjs";
+import {
+  Store,
+  SyncEngine,
+  Tracker,
+} from "resource://services-sync/engines.sys.mjs";
+import { Utils } from "resource://services-sync/util.sys.mjs";
 
-const { CryptoUtils } = ChromeUtils.import(
-  "resource://services-crypto/utils.js"
-);
-const { CryptoWrapper } = ChromeUtils.import(
-  "resource://services-sync/record.js"
+const { SCORE_INCREMENT_XLARGE } = ChromeUtils.import(
+  "resource://services-sync/constants.js"
 );
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { SCORE_INCREMENT_XLARGE } = ChromeUtils.import(
-  "resource://services-sync/constants.js"
-);
-const { Store, SyncEngine, Tracker } = ChromeUtils.import(
-  "resource://services-sync/engines.js"
-);
-const { Utils } = ChromeUtils.import("resource://services-sync/util.js");
 
 const SYNCED_IDENTITY_PROPERTIES = {
   attachSignature: "attach_signature",
@@ -56,18 +52,20 @@ const SYNCED_IDENTITY_PROPERTIES = {
  * The record contains the following fields:
  *
  */
-function IdentityRecord(collection, id) {
+export function IdentityRecord(collection, id) {
   CryptoWrapper.call(this, collection, id);
 }
+
 IdentityRecord.prototype = {
   __proto__: CryptoWrapper.prototype,
   _logName: "Record.Identity",
 };
 Utils.deferGetSet(IdentityRecord, "cleartext", ["accounts", "prefs", "smtpID"]);
 
-function IdentitiesEngine(service) {
+export function IdentitiesEngine(service) {
   SyncEngine.call(this, "Identities", service);
 }
+
 IdentitiesEngine.prototype = {
   __proto__: SyncEngine.prototype,
   _storeObj: IdentityStore,

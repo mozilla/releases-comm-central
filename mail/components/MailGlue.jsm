@@ -750,7 +750,7 @@ MailGlue.prototype = {
             ["identities", "IdentitiesEngine"],
           ]) {
             let ns = ChromeUtils.import(
-              `resource://services-sync/engines/${moduleName}.js`
+              `resource://services-sync/engines/${moduleName}.sys.mjs`
             );
             await Weave.Service.engineManager.register(ns[engineName]);
             Weave.Service.engineManager

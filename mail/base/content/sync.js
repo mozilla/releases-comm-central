@@ -18,16 +18,10 @@ ChromeUtils.defineModuleGetter(
   "EnsureFxAccountsWebChannel",
   "resource://gre/modules/FxAccountsWebChannel.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "UIState",
-  "resource://services-sync/UIState.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "Weave",
-  "resource://services-sync/main.js"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  UIState: "resource://services-sync/UIState.sys.mjs",
+  Weave: "resource://services-sync/main.sys.mjs",
+});
 
 var gSync = {
   handleEvent(event) {
@@ -153,8 +147,8 @@ var gSync = {
     ).getFxAccountsSingleton();
 
     if (disconnectAccount) {
-      const { SyncDisconnect } = ChromeUtils.import(
-        "resource://services-sync/SyncDisconnect.jsm"
+      const { SyncDisconnect } = ChromeUtils.importESModule(
+        "resource://services-sync/SyncDisconnect.sys.mjs"
       );
       await fxAccounts.telemetry.recordDisconnection(null, "ui");
       await SyncDisconnect.disconnect(false);

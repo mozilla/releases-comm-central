@@ -3,10 +3,10 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES["services-sync"].engines += [
-    "accounts.js",
-    "addressBooks.js",
-    "calendars.js",
-    "identities.js",
+    "modules/engines/accounts.sys.mjs",
+    "modules/engines/addressBooks.sys.mjs",
+    "modules/engines/calendars.sys.mjs",
+    "modules/engines/identities.sys.mjs",
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [

@@ -7,10 +7,12 @@ do_get_profile();
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { AccountsEngine } = ChromeUtils.import(
-  "resource://services-sync/engines/accounts.js"
+const { AccountsEngine } = ChromeUtils.importESModule(
+  "resource://services-sync/engines/accounts.sys.mjs"
 );
-const { Service } = ChromeUtils.import("resource://services-sync/service.js");
+const { Service } = ChromeUtils.importESModule(
+  "resource://services-sync/service.sys.mjs"
+);
 const { TestUtils } = ChromeUtils.import(
   "resource://testing-common/TestUtils.jsm"
 );
