@@ -5,7 +5,7 @@
 LOCALE_TOPDIR=$(commtopsrcdir)
 LOCALE_RELATIVEDIR=mail/locales
 
-include $(moztopsrcdir)/config/config.mk
+include $(topsrcdir)/config/config.mk
 
 SUBMAKEFILES += \
 	$(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/Makefile \
@@ -40,12 +40,12 @@ NON_OMNIJAR_FILES = defaults/messenger/mailViews.dat
 # be included in langpack xpis.
 DIST_SUBDIRS = $(DIST_SUBDIR)
 
-include $(moztopsrcdir)/config/rules.mk
+include $(topsrcdir)/config/rules.mk
 
-include $(moztopsrcdir)/toolkit/locales/l10n.mk
+include $(topsrcdir)/toolkit/locales/l10n.mk
 
 ifeq ($(VCS_CHECKOUT_TYPE),hg)
-L10N_CO = $(PYTHON3) $(moztopsrcdir)/comm/python/l10n/l10n_clone/l10n_clone.py $(AB_CD) $(L10NBASEDIR)
+L10N_CO = $(PYTHON3) $(topsrcdir)/comm/python/l10n/l10n_clone/l10n_clone.py $(AB_CD) $(L10NBASEDIR)
 else
 L10N_CO = $(error You need to use hg)
 endif
@@ -98,11 +98,11 @@ endif
 
 ident:
 	@printf 'comm_revision '
-	@$(PYTHON3) $(moztopsrcdir)/config/printconfigsetting.py \
+	@$(PYTHON3) $(topsrcdir)/config/printconfigsetting.py \
 	    '$(STAGEDIST)/application.ini' App SourceStamp
 	@printf 'moz_revision '
-	@$(PYTHON3) $(moztopsrcdir)/config/printconfigsetting.py \
+	@$(PYTHON3) $(topsrcdir)/config/printconfigsetting.py \
 	    '$(STAGEDIST)/platform.ini' Build SourceStamp
 	@printf 'buildid '
-	@$(PYTHON3) $(moztopsrcdir)/config/printconfigsetting.py \
+	@$(PYTHON3) $(topsrcdir)/config/printconfigsetting.py \
 	    '$(STAGEDIST)/application.ini' App BuildID

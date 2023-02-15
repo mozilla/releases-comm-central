@@ -5,4 +5,4 @@
 LOCALE_TOPDIR=$(commtopsrcdir)
 LOCALE_RELATIVEDIR=mail/branding/thunderbird/locales
 
-include $(moztopsrcdir)/config/config.mk
+include $(topsrcdir)/config/config.mk

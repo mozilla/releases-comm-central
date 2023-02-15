@@ -5,7 +5,7 @@
 STANDALONE_MAKEFILE := 1
 # DIST_SUBDIR := mail  # Not sure why TB is not using this
 
-include $(moztopsrcdir)/config/rules.mk
+include $(topsrcdir)/config/rules.mk
 
 MOZ_PKG_REMOVALS = $(srcdir)/removed-files.in
 
@@ -21,12 +21,12 @@ ifdef MOZ_ARTIFACT_BUILDS
 MOZ_PKG_FATAL_WARNINGS =
 endif
 
-DEFINES += -DPKG_LOCALE_MANIFEST=$(commtopobjdir)/mail/installer/locale-manifest.in
+DEFINES += -DPKG_LOCALE_MANIFEST=$(topobjdir)/comm/mail/installer/locale-manifest.in
 MOZ_CHROME_LOCALE_ENTRIES=@RESPATH@/chrome/
 
 MOZ_PKG_DUPEFLAGS = \
 	-f $(srcdir)/allowed-dupes.mn \
-	-f $(moztopsrcdir)/browser/installer/allowed-dupes.mn \
+	-f $(topsrcdir)/browser/installer/allowed-dupes.mn \
 	$(NULL)
 
 MOZ_NONLOCALIZED_PKG_LIST = \
@@ -135,7 +135,7 @@ MOZ_PACKAGER_MINIFY=1
 NON_OMNIJAR_FILES = defaults/messenger/mailViews.dat
 
 UPLOAD_EXTRA_FILES = $(MOZ_BUILT_FROM_FILE)
-include $(moztopsrcdir)/toolkit/mozapps/installer/packager.mk
+include $(topsrcdir)/toolkit/mozapps/installer/packager.mk
 
 ifeq (Darwin,$(OS_TARGET))
 BINPATH = $(_BINPATH)
@@ -184,7 +184,7 @@ DEFINES += -DTB_LIBOTR_PREBUILT
 endif
 
 libs::
-	$(MAKE) -C $(commtopobjdir)/mail/locales langpack
+	$(MAKE) -C $(DEPTH)/comm/mail/locales langpack
 
 ifeq (WINNT,$(OS_ARCH))
 PKGCOMP_FIND_OPTS =

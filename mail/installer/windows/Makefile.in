@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include $(moztopsrcdir)/toolkit/mozapps/installer/package-name.mk
+include $(topsrcdir)/toolkit/mozapps/installer/package-name.mk
 
 CONFIG_DIR = instgen
 SFX_MODULE = $(commtopsrcdir)/other-licenses/7zstub/thunderbird/7zSD.sfx
@@ -30,7 +30,7 @@ BRANDING_FILES = \
 LOCALE_TOPDIR=$(commtopsrcdir)
 LOCALE_RELATIVEDIR=mail/installer/windows
 
-include $(moztopsrcdir)/config/config.mk
+include $(topsrcdir)/config/config.mk
 
 ifdef IS_LANGUAGE_REPACK
 PPL_LOCALE_ARGS = \
@@ -49,11 +49,11 @@ $(CONFIG_DIR)/setup.exe::
 	$(INSTALL) $(addprefix $(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/,$(BRANDING_FILES)) $(CONFIG_DIR)
 	$(call py_action,preprocessor,-Fsubstitution $(DEFINES) $(ACDEFINES) \
 	  $(srcdir)/nsis/defines.nsi.in -o $(CONFIG_DIR)/defines.nsi)
-	$(PYTHON3) $(moztopsrcdir)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
-	  --preprocess-locale $(moztopsrcdir) \
+	$(PYTHON3) $(topsrcdir)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
+	  --preprocess-locale $(topsrcdir) \
 	  $(PPL_LOCALE_ARGS) $(AB_CD) $(CONFIG_DIR)
 
 GARBARGE_DIRS += instgen
 
-include $(moztopsrcdir)/config/rules.mk
-include $(moztopsrcdir)/toolkit/mozapps/installer/windows/nsis/makensis.mk
+include $(topsrcdir)/config/rules.mk
+include $(topsrcdir)/toolkit/mozapps/installer/windows/nsis/makensis.mk

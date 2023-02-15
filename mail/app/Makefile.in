@@ -6,8 +6,8 @@ dist_dest   = $(DIST)/$(MOZ_MACBUNDLE_NAME)
 
 AB_CD = $(MOZ_UI_LOCALE)
 
-GRE_MILESTONE = $(shell $(PYTHON3) $(moztopsrcdir)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build Milestone)
-MOZ_BUILDID = $(shell $(PYTHON3) $(moztopsrcdir)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build BuildID)
+GRE_MILESTONE = $(shell $(PYTHON3) $(topsrcdir)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build Milestone)
+MOZ_BUILDID = $(shell $(PYTHON3) $(topsrcdir)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build BuildID)
 
 # Build a binary bootstrapping with XRE_main
 
@@ -19,7 +19,7 @@ MOZ_WINCONSOLE = 0
 endif
 endif
 
-include $(moztopsrcdir)/config/config.mk
+include $(topsrcdir)/config/config.mk
 
 # If we are trying to show an error dialog about the lack of SSE2 support,
 # make sure that code itself doesn't use SSE2.
@@ -30,7 +30,7 @@ endif
 
 objdir = $(topobjdir)/comm/mail/app
 
-include $(moztopsrcdir)/config/rules.mk
+include $(topsrcdir)/config/rules.mk
 
 ifneq ($(OS_ARCH),WINNT)
 ifdef COMPILE_ENVIRONMENT
