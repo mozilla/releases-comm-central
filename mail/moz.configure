@@ -26,37 +26,14 @@ add_old_configure_assignment("MOZ_BUNDLED_FONTS", bundled_fonts)
 
 
 @depends(build_environment, "--help")
-def comm_paths(build_env, _):
+@imports(_from="os.path", _import="join")
+def commtopsrcdir(build_env, _):
     topsrcdir = build_env.topsrcdir
-    topobjdir = build_env.topobjdir
-
-    moztopsrcdir = topsrcdir
-    commtopsrcdir = "%s/comm" % topsrcdir
-    mozreltopsrcdir = "."
-    commreltopsrcdir = "comm"
-    commtopobjdir = "%s/comm" % topobjdir
-
-    return namespace(
-        moztopsrcdir=moztopsrcdir,
-        commtopsrcdir=commtopsrcdir,
-        mozreltopsrcdir=mozreltopsrcdir,
-        commreltopsrcdir=commreltopsrcdir,
-        commtopobjdir=commtopobjdir,
-    )
+    return join(topsrcdir, "comm")
 
 
-@template
-def set_defconf(k, v):
-    set_config(k, v)
-    set_define(k, v)
-    add_old_configure_assignment(k, v)
-
-
-set_defconf("moztopsrcdir", comm_paths.moztopsrcdir)
-set_defconf("commtopsrcdir", comm_paths.commtopsrcdir)
-set_defconf("mozreltopsrcdir", comm_paths.mozreltopsrcdir)
-set_defconf("commreltopsrcdir", comm_paths.commreltopsrcdir)
-set_defconf("commtopobjdir", comm_paths.commtopobjdir)
+add_old_configure_assignment("commtopsrcdir", commtopsrcdir)
+set_config("commtopsrcdir", commtopsrcdir)
 
 
 imply_option("MOZ_PLACES", True)

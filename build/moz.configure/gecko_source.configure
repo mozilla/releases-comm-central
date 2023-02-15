@@ -38,12 +38,12 @@ def read_sourcestamp(repository):
 
     line2read = {"COMM": 1, "GECKO": 2}[repository]
 
-    @depends(comm_paths)
+    @depends(build_environment)
     @imports(_from="os.path", _import="exists")
     @imports(_from="os.path", _import="join")
     @imports(_from="__builtin__", _import="open")
-    def get_sourcestamp(paths):
-        sourcestamp_file = join(paths.moztopsrcdir, "sourcestamp.txt")
+    def get_sourcestamp(build_env):
+        sourcestamp_file = join(build_env.topsrcdir, "sourcestamp.txt")
         if exists(sourcestamp_file):
             try:
                 lines = open(sourcestamp_file).readlines()
@@ -67,13 +67,13 @@ def read_gecko_rev_yml():
     def get_value(x):
         return x.split()[1]
 
-    @depends(comm_paths)
+    @depends(commtopsrcdir)
     @imports(_from="os.path", _import="exists")
     @imports(_from="os.path", _import="join")
     @imports(_from="__builtin__", _import="open")
-    def wrapped(paths):
+    def wrapped(commtopsrcdir):
         log.info("Determining GECKO source information from .gecko_rev.yml")
-        rev_file = join(paths.commtopsrcdir, ".gecko_rev.yml")
+        rev_file = join(commtopsrcdir, ".gecko_rev.yml")
         if not exists(rev_file):
             return
 
@@ -117,9 +117,9 @@ def comm_repo_from_environ(app):
 comm_sourcestamp = read_sourcestamp("COMM")
 
 
-@depends(comm_repo_from_environ, comm_paths, hg, comm_sourcestamp)
+@depends(comm_repo_from_environ, commtopsrcdir, hg, comm_sourcestamp)
 @imports(_from="os", _import="environ")
-def comm_repo_heuristics(comm_environ, paths, hg, sourcestamp):
+def comm_repo_heuristics(comm_environ, commtopsrcdir, hg, sourcestamp):
     """
     Determine the Thunderbird Mercurial repository and revision from Mercurial
     or sourcestamp.txt when COMM_HEAD_REPOSITORY and COMM_HEAD_REV are unset
@@ -129,8 +129,8 @@ def comm_repo_heuristics(comm_environ, paths, hg, sourcestamp):
         comm_repo = comm_rev = None
         if hg:
             log.info("Determining COMM source information from Mercurial...")
-            comm_rev = hg_cmd_output(hg, "-R", paths.commtopsrcdir, "parent", "--template={node}")
-            comm_repo = hg_cmd_output(hg, "-R", paths.commtopsrcdir, "path", "default")
+            comm_rev = hg_cmd_output(hg, "-R", commtopsrcdir, "parent", "--template={node}")
+            comm_repo = hg_cmd_output(hg, "-R", commtopsrcdir, "path", "default")
             if comm_repo:
                 comm_repo = comm_repo.strip()
                 if comm_repo.startswith("ssh://"):
@@ -193,10 +193,10 @@ gecko_sourcestamp = read_sourcestamp("GECKO")
 gecko_yml = read_gecko_rev_yml()
 
 
-@depends(gecko_repo_from_environ, comm_paths, hg, gecko_sourcestamp, gecko_yml)
+@depends(gecko_repo_from_environ, build_environment, hg, gecko_sourcestamp, gecko_yml)
 @imports(_from="os.path", _import="join")
 @imports(_from="os.path", _import="exists")
-def gecko_repo_heuristics(gecko_environ, paths, hg, sourcestamp, gecko_yml):
+def gecko_repo_heuristics(gecko_environ, build_env, hg, sourcestamp, gecko_yml):
     """
     Look for the source repository and changeset for the mozilla- repository
     when the Taskcluster environment variables are not set, checking
@@ -220,7 +220,7 @@ def gecko_repo_heuristics(gecko_environ, paths, hg, sourcestamp, gecko_yml):
                 if hg:
                     log.info("Determining GECKO source information from Mercurial...")
                     gecko_rev = hg_cmd_output(
-                        hg, "-R", paths.moztopsrcdir, "parent", "--template={node}"
+                        hg, "-R", build_env.topsrcdir, "parent", "--template={node}"
                     )
                 # TODO: git-cinnabar support?
 
