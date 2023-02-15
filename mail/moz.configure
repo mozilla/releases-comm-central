@@ -59,28 +59,6 @@ set_defconf("commreltopsrcdir", comm_paths.commreltopsrcdir)
 set_defconf("commtopobjdir", comm_paths.commtopobjdir)
 
 
-@depends(build_environment, build_project)
-@imports(_from="os.path", _import="exists")
-@imports(_from="__builtin__", _import="open")
-def thunderbird_version(build_env, app_path):
-    version_file = os.path.join(build_env.topsrcdir, app_path[0], "config", "version.txt")
-    version_file_display = os.path.join(
-        build_env.topsrcdir, app_path[0], "config", "version_display.txt"
-    )
-    rv = []
-    for f in [version_file, version_file_display]:
-        if exists(f):
-            f_value = open(f).read().strip()
-        else:
-            f_value = "unknown"
-        rv.append(f_value)
-
-    return namespace(version=rv[0], version_display=rv[1])
-
-
-set_defconf("THUNDERBIRD_VERSION", thunderbird_version.version)
-set_defconf("THUNDERBIRD_VERSION_DISPLAY", thunderbird_version.version_display)
-
 imply_option("MOZ_PLACES", True)
 imply_option("MOZ_SERVICES_HEALTHREPORT", True)
 imply_option("MOZ_DEDICATED_PROFILES", True)
