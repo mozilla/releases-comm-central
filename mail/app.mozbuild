@@ -9,13 +9,11 @@ GENERATED_FILES["source-repo.h"].script = "comm/build/source_repos.py:source_rep
 
 include("/toolkit/toolkit.mozbuild")
 
-include("/comm/mailnews/mailnews.mozbuild")
-
-DIRS += ["/comm/mail/components"]
-
 # Never add dirs after /comm/mail because they apparently won't get
 # packaged properly on Mac.
 DIRS += [
+    "/comm/mailnews",
+    "/comm/mail/components",
     "/%s" % CONFIG["MOZ_BRANDING_DIRECTORY"],
     "/comm/calendar",
     "/comm/chat",
