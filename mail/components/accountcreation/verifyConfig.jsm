@@ -91,16 +91,7 @@ function verifyConfig(
   );
   inServer.port = config.incoming.port;
   inServer.password = config.incoming.password;
-  if (config.incoming.socketType == 1) {
-    // plain
-    inServer.socketType = Ci.nsMsgSocketType.plain;
-  } else if (config.incoming.socketType == 2) {
-    // SSL
-    inServer.socketType = Ci.nsMsgSocketType.SSL;
-  } else if (config.incoming.socketType == 3) {
-    // STARTTLS
-    inServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
-  }
+  inServer.socketType = config.incoming.socketType;
 
   gAccountSetupLogger.info(
     "Setting incoming server authMethod to " + config.incoming.auth

@@ -50,13 +50,13 @@ const {
  * This function is async.
  *
  * @param domain {String} the domain part of the email address
- * @param progressCallback {function(type, hostname, port, ssl, done)}
+ * @param progressCallback {function(type, hostname, port, socketType, done)}
  *   Called when we try a new hostname/port.
  *   type {String-enum} @see AccountConfig type - "imap", "pop3", "smtp"
  *   hostname {String}
  *   port {Integer}
- *   socketType {Integer-enum} @see AccountConfig.incoming.socketType
- *      1 = plain, 2 = SSL, 3 = STARTTLS
+ *   socketType {nsMsgSocketType} @see MailNewsTypes2.idl
+ *      0 = plain, 2 = STARTTLS, 3 = SSL
  *   done {Boolean}   false, if we start probing this host/port, true if we're
  *       done and the host is good.  (there is no notification when a host is
  *       bad, we'll just tell about the next host tried)
@@ -124,10 +124,10 @@ function guessConfig(
     resultConfig.outgoing.username = resultConfig.identity.emailAddress;
     resultConfig.incoming.type = "imap";
     resultConfig.incoming.port = 143;
-    resultConfig.incoming.socketType = 3; // starttls
+    resultConfig.incoming.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
     resultConfig.incoming.auth = Ci.nsMsgAuthMethod.passwordCleartext;
     resultConfig.outgoing.hostname = "smtp." + domain;
-    resultConfig.outgoing.socketType = 1;
+    resultConfig.outgoing.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
     resultConfig.outgoing.port = 587;
     resultConfig.outgoing.auth = Ci.nsMsgAuthMethod.passwordCleartext;
     resultConfig.incomingAlternatives.push({
@@ -135,7 +135,7 @@ function guessConfig(
       username: resultConfig.identity.emailAddress,
       type: "pop3",
       port: 110,
-      socketType: 3,
+      socketType: Ci.nsMsgSocketType.alwaysSTARTTLS,
       auth: Ci.nsMsgAuthMethod.passwordCleartext,
     });
     successCallback(resultConfig);
@@ -146,7 +146,7 @@ function guessConfig(
       protocolToString(thisTry.protocol),
       thisTry.hostname,
       thisTry.port,
-      sslConvertToSocketType(thisTry.ssl),
+      thisTry.socketType,
       false,
       resultConfig
     );
@@ -197,7 +197,7 @@ function guessConfig(
     server.type = protocolToString(thisTry.protocol);
     server.hostname = thisTry.hostname;
     server.port = thisTry.port;
-    server.socketType = sslConvertToSocketType(thisTry.ssl);
+    server.socketType = thisTry.socketType;
     server.auth = chooseBestAuthMethod(thisTry.authMethods);
     server.authAlternatives = thisTry.authMethods;
     // TODO
@@ -217,7 +217,7 @@ function guessConfig(
         (server.authAlternatives.length
           ? " " + server.authAlternatives.join(",")
           : "") +
-        ", SSL " +
+        ", socketType " +
         server.socketType +
         (server.badCert ? " (bad cert!)" : "")
     );
@@ -357,9 +357,9 @@ var kSuccess = 3;
  * Internal object holding one server that we should try or did try.
  * Used as |thisTry|.
  *
- * Note: The consts it uses for protocol and ssl are defined towards the end
- * of this file and not the same as those used in AccountConfig (type,
- * socketType). (fix this)
+ * Note: The consts it uses for protocol is defined towards the end of this file
+ * and not the same as those used in AccountConfig (type). (fix
+ * this)
  */
 function HostTry() {}
 HostTry.prototype = {
@@ -369,8 +369,8 @@ HostTry.prototype = {
   hostname: undefined,
   // {Integer}
   port: undefined,
-  // NONE, SSL or TLS
-  ssl: UNKNOWN,
+  // {nsMsgSocketType}
+  socketType: UNKNOWN,
   // {String} what to send to server
   commands: null,
   // {Integer-enum} kNotTried, kOngoing, kFailed or kSuccess
@@ -474,7 +474,6 @@ HostDetector.prototype = {
     var ssl_only = Services.prefs.getBoolPref(
       "mailnews.auto_config.guess.sslOnly"
     );
-    var ssl = ConvertSocketTypeToSSL(socketType);
     this._cancel = false;
     this._log.info(
       "doing auto detect for protocol " +
@@ -485,8 +484,8 @@ HostDetector.prototype = {
         hostIsPrecise +
         "), port " +
         port +
-        ", ssl " +
-        ssl
+        ", socketType " +
+        socketType
     );
 
     // fill this._hostsToTry
@@ -502,10 +501,10 @@ HostDetector.prototype = {
 
     for (let i = 0; i < hostnamesToTry.length; i++) {
       let hostname = hostnamesToTry[i];
-      let hostEntries = this._portsToTry(hostname, protocol, ssl, port);
+      let hostEntries = this._portsToTry(hostname, protocol, socketType, port);
       for (let j = 0; j < hostEntries.length; j++) {
         let hostTry = hostEntries[j]; // from getHostEntry()
-        if (ssl_only && hostTry.ssl == NONE) {
+        if (ssl_only && hostTry.socketType == NONE) {
           continue;
         }
         hostTry.hostname = hostname;
@@ -514,8 +513,8 @@ HostDetector.prototype = {
           hostTry.hostname +
           ":" +
           hostTry.port +
-          " ssl=" +
-          hostTry.ssl +
+          " socketType=" +
+          hostTry.socketType +
           " " +
           protocolToString(hostTry.protocol);
         this._hostsToTry.push(hostTry);
@@ -558,7 +557,7 @@ HostDetector.prototype = {
         thisTry.abortable = SocketUtil(
           thisTry.hostname,
           thisTry.port,
-          thisTry.ssl,
+          thisTry.socketType,
           thisTry.commands,
           timeout,
           proxy,
@@ -627,7 +626,10 @@ HostDetector.prototype = {
       thisTry.protocol,
       wiredata
     );
-    if (thisTry.ssl == TLS && !this._hasTLS(thisTry, wiredata)) {
+    if (
+      thisTry.socketType == STARTTLS &&
+      !this._hasSTARTTLS(thisTry, wiredata)
+    ) {
       this._log.info(thisTry.desc + ": STARTTLS wanted, but not offered");
       thisTry.status = kFailed;
       return;
@@ -742,10 +744,10 @@ HostDetector.prototype = {
     return result;
   },
 
-  _hasTLS(thisTry, wiredata) {
+  _hasSTARTTLS(thisTry, wiredata) {
     var capa = thisTry.protocol == POP ? "STLS" : "STARTTLS";
     return (
-      thisTry.ssl == TLS &&
+      thisTry.socketType == STARTTLS &&
       wiredata
         .join("")
         .toUpperCase()
@@ -821,24 +823,23 @@ var IMAP = 0;
 var POP = 1;
 var SMTP = 2;
 // Security Types
-var NONE = 0; // no encryption
-// 1 would be "TLS if available"
-var TLS = 2; // STARTTLS
-var SSL = 3; // SSL / TLS
+var NONE = Ci.nsMsgSocketType.plain;
+var STARTTLS = Ci.nsMsgSocketType.alwaysSTARTTLS;
+var SSL = Ci.nsMsgSocketType.SSL;
 
 var IMAP_PORTS = {};
 IMAP_PORTS[NONE] = 143;
-IMAP_PORTS[TLS] = 143;
+IMAP_PORTS[STARTTLS] = 143;
 IMAP_PORTS[SSL] = 993;
 
 var POP_PORTS = {};
 POP_PORTS[NONE] = 110;
-POP_PORTS[TLS] = 110;
+POP_PORTS[STARTTLS] = 110;
 POP_PORTS[SSL] = 995;
 
 var SMTP_PORTS = {};
 SMTP_PORTS[NONE] = 587;
-SMTP_PORTS[TLS] = 587;
+SMTP_PORTS[STARTTLS] = 587;
 SMTP_PORTS[SSL] = 465;
 
 var CMDS = {};
@@ -855,11 +856,11 @@ CMDS[SMTP] = ["EHLO we-guess.mozilla.org\r\n", "QUIT\r\n"];
 function sortTriesByPreference(tries) {
   return tries.sort(function(a, b) {
     // -1 = a is better; 1 = b is better; 0 = equal
-    // Prefer SSL/TLS above all else
-    if (a.ssl != NONE && b.ssl == NONE) {
+    // Prefer SSL/STARTTLS above all else
+    if (a.socketType != NONE && b.socketType == NONE) {
       return -1;
     }
-    if (b.ssl != NONE && a.ssl == NONE) {
+    if (b.socketType != NONE && a.socketType == NONE) {
       return 1;
     }
     // Prefer IMAP over POP
@@ -881,7 +882,7 @@ function sortTriesByPreference(tries) {
 /**
  * @returns {Array of {HostTry}}
  */
-function getIncomingTryOrder(host, protocol, ssl, port) {
+function getIncomingTryOrder(host, protocol, socketType, port) {
   var lowerCaseHost = host.toLowerCase();
 
   if (
@@ -894,39 +895,42 @@ function getIncomingTryOrder(host, protocol, ssl, port) {
   }
 
   if (protocol != UNKNOWN) {
-    if (ssl == UNKNOWN) {
+    if (socketType == UNKNOWN) {
       return [
-        getHostEntry(protocol, TLS, port),
+        getHostEntry(protocol, STARTTLS, port),
         // getHostEntry(protocol, SSL, port),
         getHostEntry(protocol, NONE, port),
       ];
     }
-    return [getHostEntry(protocol, ssl, port)];
+    return [getHostEntry(protocol, socketType, port)];
   }
-  if (ssl == UNKNOWN) {
+  if (socketType == UNKNOWN) {
     return [
-      getHostEntry(IMAP, TLS, port),
+      getHostEntry(IMAP, STARTTLS, port),
       // getHostEntry(IMAP, SSL, port),
-      getHostEntry(POP, TLS, port),
+      getHostEntry(POP, STARTTLS, port),
       // getHostEntry(POP, SSL, port),
       getHostEntry(IMAP, NONE, port),
       getHostEntry(POP, NONE, port),
     ];
   }
-  return [getHostEntry(IMAP, ssl, port), getHostEntry(POP, ssl, port)];
+  return [
+    getHostEntry(IMAP, socketType, port),
+    getHostEntry(POP, socketType, port),
+  ];
 }
 
 /**
  * @returns {Array of {HostTry}}
  */
-function getOutgoingTryOrder(host, protocol, ssl, port) {
+function getOutgoingTryOrder(host, protocol, socketType, port) {
   assert(protocol == SMTP, "need SMTP as protocol for outgoing");
-  if (ssl == UNKNOWN) {
+  if (socketType == UNKNOWN) {
     if (port == UNKNOWN) {
       // neither SSL nor port known
       return [
-        getHostEntry(SMTP, TLS, UNKNOWN),
-        getHostEntry(SMTP, TLS, 25),
+        getHostEntry(SMTP, STARTTLS, UNKNOWN),
+        getHostEntry(SMTP, STARTTLS, 25),
         // getHostEntry(SMTP, SSL, UNKNOWN),
         getHostEntry(SMTP, NONE, UNKNOWN),
         getHostEntry(SMTP, NONE, 25),
@@ -934,37 +938,40 @@ function getOutgoingTryOrder(host, protocol, ssl, port) {
     }
     // port known, SSL not
     return [
-      getHostEntry(SMTP, TLS, port),
+      getHostEntry(SMTP, STARTTLS, port),
       // getHostEntry(SMTP, SSL, port),
       getHostEntry(SMTP, NONE, port),
     ];
   }
   // SSL known, port not
   if (port == UNKNOWN) {
-    if (ssl == SSL) {
+    if (socketType == SSL) {
       return [getHostEntry(SMTP, SSL, UNKNOWN)];
     }
-    return [getHostEntry(SMTP, ssl, UNKNOWN), getHostEntry(SMTP, ssl, 25)];
+    return [
+      getHostEntry(SMTP, socketType, UNKNOWN),
+      getHostEntry(SMTP, socketType, 25),
+    ];
   }
   // SSL and port known
-  return [getHostEntry(SMTP, ssl, port)];
+  return [getHostEntry(SMTP, socketType, port)];
 }
 
 /**
  * @returns {HostTry} with proper default port and commands,
  *     but without hostname.
  */
-function getHostEntry(protocol, ssl, port) {
+function getHostEntry(protocol, socketType, port) {
   if (!port || port == UNKNOWN) {
     switch (protocol) {
       case POP:
-        port = POP_PORTS[ssl];
+        port = POP_PORTS[socketType];
         break;
       case IMAP:
-        port = IMAP_PORTS[ssl];
+        port = IMAP_PORTS[socketType];
         break;
       case SMTP:
-        port = SMTP_PORTS[ssl];
+        port = SMTP_PORTS[socketType];
         break;
       default:
         throw new NotReached("unsupported protocol " + protocol);
@@ -973,41 +980,10 @@ function getHostEntry(protocol, ssl, port) {
 
   var r = new HostTry();
   r.protocol = protocol;
-  r.ssl = ssl;
+  r.socketType = socketType;
   r.port = port;
   r.commands = CMDS[protocol];
   return r;
-}
-
-// Convert consts from those used here to those from AccountConfig
-// TODO adjust consts to match AccountConfig
-
-// here -> AccountConfig
-function sslConvertToSocketType(ssl) {
-  if (ssl == NONE) {
-    return 1;
-  }
-  if (ssl == SSL) {
-    return 2;
-  }
-  if (ssl == TLS) {
-    return 3;
-  }
-  throw new NotReached("unexpected SSL type");
-}
-
-// AccountConfig -> here
-function ConvertSocketTypeToSSL(socketType) {
-  if (socketType == 1) {
-    return NONE;
-  }
-  if (socketType == 2) {
-    return SSL;
-  }
-  if (socketType == 3) {
-    return TLS;
-  }
-  return UNKNOWN;
 }
 
 // here -> AccountConfig
@@ -1119,7 +1095,7 @@ SSLErrorHandler.prototype = {
 /**
  * @param hostname {String} The DNS hostname to connect to.
  * @param port {Integer} The numeric port to connect to on the host.
- * @param ssl {Integer} SSL, TLS or NONE
+ * @param socketType {nsMsgSocketType} SSL, STARTTLS or NONE
  * @param commands {Array of String}: protocol commands
  *          to send to the server.
  * @param timeout {Integer} seconds to wait for a server response, then cancel.
@@ -1133,7 +1109,7 @@ SSLErrorHandler.prototype = {
 function SocketUtil(
   hostname,
   port,
-  ssl,
+  socketType,
   commands,
   timeout,
   proxy,
@@ -1176,9 +1152,9 @@ function SocketUtil(
 
   // @see NS_NETWORK_SOCKET_CONTRACTID_PREFIX
   var socketTypeName;
-  if (ssl == SSL) {
+  if (socketType == SSL) {
     socketTypeName = ["ssl"];
-  } else if (ssl == TLS) {
+  } else if (socketType == STARTTLS) {
     socketTypeName = ["starttls"];
   } else {
     socketTypeName = [];
@@ -1231,7 +1207,7 @@ function SocketUtil(
               isCertError = true;
             }
           } catch (e) {
-            // nsINSSErrorsService.getErrorClass throws if given a non-TLS,
+            // nsINSSErrorsService.getErrorClass throws if given a non-STARTTLS,
             // non-cert error, so ignore this.
           }
         }
@@ -1336,7 +1312,7 @@ var GuessConfig = {
   POP,
   SMTP,
   NONE,
-  TLS,
+  STARTTLS,
   SSL,
   getHostEntry,
   getIncomingTryOrder,

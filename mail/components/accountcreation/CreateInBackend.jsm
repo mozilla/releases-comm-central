@@ -92,16 +92,7 @@ function createAccountInBackend(config) {
   }
 
   // SSL
-  if (config.incoming.socketType == 1) {
-    // plain
-    inServer.socketType = Ci.nsMsgSocketType.plain;
-  } else if (config.incoming.socketType == 2) {
-    // SSL / TLS
-    inServer.socketType = Ci.nsMsgSocketType.SSL;
-  } else if (config.incoming.socketType == 3) {
-    // STARTTLS
-    inServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
-  }
+  inServer.socketType = config.incoming.socketType;
 
   // If we already have an account with an identical name, generate a unique
   // name for the new account to avoid duplicates.
@@ -192,17 +183,7 @@ function createAccountInBackend(config) {
       );
     }
 
-    if (config.outgoing.socketType == 1) {
-      // no SSL
-      outServer.socketType = Ci.nsMsgSocketType.plain;
-    } else if (config.outgoing.socketType == 2) {
-      // SSL / TLS
-      outServer.socketType = Ci.nsMsgSocketType.SSL;
-    } else if (config.outgoing.socketType == 3) {
-      // STARTTLS
-      outServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
-    }
-
+    outServer.socketType = config.outgoing.socketType;
     outServer.description = config.displayName;
 
     // If this is the first SMTP server, set it as default

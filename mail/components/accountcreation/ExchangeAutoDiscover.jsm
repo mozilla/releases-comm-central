@@ -329,7 +329,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
   var config = new lazy.AccountConfig();
   config.source = lazy.AccountConfig.kSourceExchange;
   config.incoming.username = username || "%EMAILADDRESS%";
-  config.incoming.socketType = 2; // only https supported
+  config.incoming.socketType = Ci.nsMsgSocketType.SSL; // only https supported
   config.incoming.port = 443;
   config.incoming.auth = Ci.nsMsgAuthMethod.passwordCleartext;
   config.incoming.authAlternatives = [Ci.nsMsgAuthMethod.OAuth2];
@@ -394,7 +394,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
         });
         server.hostname = lazy.Sanitizer.hostname(protocolX.Server);
         server.port = lazy.Sanitizer.integer(protocolX.Port);
-        server.socketType = 1; // plain
+        server.socketType = Ci.nsMsgSocketType.plain;
         if (
           "SSL" in protocolX &&
           protocolX.SSL.toLowerCase() == "on" // "On" or "Off"
@@ -406,14 +406,14 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
             case 110: // POP3 standard
             case 25: // SMTP standard
             case 587: // SMTP standard
-              server.socketType = 3; // STARTTLS
+              server.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
               break;
             case 993: // IMAP SSL
             case 995: // POP3 SSL
             case 465: // SMTP SSL
             default:
               // if non-standard port, assume normal TLS, not STARTTLS
-              server.socketType = 2; // normal TLS
+              server.socketType = Ci.nsMsgSocketType.SSL;
               break;
           }
         }

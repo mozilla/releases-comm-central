@@ -541,11 +541,11 @@
               <select id="incomingSsl"
                       class="security"
                       onchange="gAccountSetup.onChangedSSLIncoming();">
-                <!-- Values defined in AccountConfig.jsm#94. -->
-                <option data-l10n-id="ssl-autodetect-option" value="0"></option>
-                <option data-l10n-id="ssl-noencryption-option" value="1"></option>
-                <option value="3">STARTTLS</option>
-                <option value="2">SSL/TLS</option>
+                <!-- @see nsMsgSocketType -->
+                <option data-l10n-id="ssl-autodetect-option" value="-1"></option>
+                <option data-l10n-id="ssl-noencryption-option" value="0"></option>
+                <option value="2">STARTTLS</option>
+                <option value="3">SSL/TLS</option>
               </select>
             </div>
           </aside>
@@ -635,10 +635,10 @@
                       class="security"
                       onchange="gAccountSetup.onChangedSSLOutgoing();">
                 <!-- Values defined in nsMsgSocketType. -->
-                <option data-l10n-id="ssl-autodetect-option" value="0"></option>
-                <option data-l10n-id="ssl-noencryption-option" value="1"></option>
-                <option value="3">STARTTLS</option>
-                <option value="2">SSL/TLS</option>
+                <option data-l10n-id="ssl-autodetect-option" value="-1"></option>
+                <option data-l10n-id="ssl-noencryption-option" value="0"></option>
+                <option value="2">STARTTLS</option>
+                <option value="3">SSL/TLS</option>
               </select>
             </div>
           </aside>
