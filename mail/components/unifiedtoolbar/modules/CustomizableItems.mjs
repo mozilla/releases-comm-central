@@ -36,6 +36,11 @@ export function getDefaultItemIdsForSpace(space) {
   return DEFAULT_ITEMS.slice();
 }
 
+/**
+ * Set of item IDs that can occur more than once in the targets of a space.
+ *
+ * @type {Set<string>}
+ */
 export const MULTIPLE_ALLOWED_ITEM_IDS = new Set(
   CUSTOMIZABLE_ITEMS.filter(item => item.allowMultiple).map(item => item.id)
 );
