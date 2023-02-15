@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/colors.css");
+@import url("chrome://messenger/skin/widgets.css");
 @import url("chrome://global/skin/in-content/common.css");
 @import url("chrome://messenger/skin/inContentDialog.css");
 @import url("chrome://messenger/skin/accountHubForms.css");
@@ -10,8 +11,10 @@
 dialog {
   --hub-button-color: var(--color-gray-90);
   --hub-button-background: var(--color-white);
-  --hub-account-button-background: var(--color-gray-10);
-  --hub-account-button-background-hover: var(--color-gray-05);
+  --hub-account-button-background: transparent;
+  --hub-account-button-background-hover: var(--color-ink-10);
+  --hub-account-button-background-hover-active: var(--color-gray-10);
+  --hub-account-button-border-color: var(--color-gray-30);
 
   --hub-input-height: 33px;
   --hub-input-border-radius: 3px;
@@ -20,10 +23,12 @@ dialog {
 @media not (prefers-contrast) {
   @media (prefers-color-scheme: dark) {
     dialog {
-      --hub-button-color: var(--color-gray-20);
+      --hub-button-color: var(--color-gray-05);
       --hub-button-background: var(--color-gray-90);
-      --hub-account-button-background: var(--color-gray-90);
+      --hub-account-button-background: var(--color-gray-70);
       --hub-account-button-background-hover: var(--color-gray-80);
+      --hub-account-button-background-hover-active: var(--color-gray-90);
+      --hub-account-button-border-color: var(--color-gray-60);
     }
   }
 }
@@ -34,6 +39,8 @@ dialog {
     --hub-button-background: transparent;
     --hub-account-button-background: transparent;
     --hub-account-button-background-hover: transparent;
+    --hub-account-button-background-hover-active: transparent;
+    --hub-account-button-border-color: AccentColor;
   }
 }
 
@@ -42,8 +49,8 @@ dialog {
 .account-hub-dialog {
   display: grid;
   min-width: 660px;
-  min-height: 400px;
-  max-width: 900px;
+  min-height: 360px;
+  max-width: 680px;
   max-height: 70vh;
 }
 
@@ -88,7 +95,7 @@ dialog h1.sub-view-title {
   align-items: flex-start;
 }
 
-.icon-button:not([hidden]) {
+#closeButton:not([hidden]) {
   min-width: 0;
   display: inline-flex;
   align-items: center;
@@ -98,11 +105,11 @@ dialog h1.sub-view-title {
   --in-content-button-border-color: transparent;
 }
 
-.icon-button:hover {
+#closeButton:hover {
   background-color: var(--in-content-button-background);
 }
 
-.icon-button:hover:active {
+#closeButton:hover:active {
   background-color: var(--in-content-button-background-active);
 }
 
@@ -197,22 +204,22 @@ dialog h1.sub-view-title {
   gap: 3px;
   margin: 0;
   padding: 12px;
-  border: none;
   color: var(--hub-button-color);
   background-color: var(--hub-account-button-background);
-  box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--hub-account-button-border-color);
+  box-shadow: 0 4px 6px -6px rgba(0, 0, 0, 0.3), inset 0 0 0 transparent;
 }
 
 .button-account:hover {
   color: var(--hub-button-color) !important;
   background-color: var(--hub-account-button-background-hover) !important;
-  box-shadow: 0 12px 12px -6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 12px -8px rgba(0, 0, 0, 0.3), inset 0 0 0 transparent;
 }
 
 .button-account:hover:active {
   color: var(--hub-button-color) !important;
-  background-color: var(--hub-account-button-background-hover) !important;
-  box-shadow: 0 6px 6px -6px rgba(0, 0, 0, 0.3);
+  background-color: var(--hub-account-button-background-hover-active) !important;
+  box-shadow: 0 0 0 transparent, inset 0 4px 6px -2px rgba(0, 0, 0, 0.4);
 }
 
 .button-account::before {

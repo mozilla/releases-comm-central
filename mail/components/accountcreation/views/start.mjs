@@ -18,44 +18,41 @@ class AccountHubStart extends HTMLElement {
   #accounts = [
     {
       id: "email",
-      l10n: "account-hub-email-button",
+      l10n: "account-hub-email-setup-button",
       type: "MAIL",
     },
     {
-      id: "newEmail",
-      l10n: "account-hub-new-email-button",
-      type: "NEW_MAIL",
-    },
-    {
       id: "calendar",
-      l10n: "account-hub-calendar-button",
+      l10n: "account-hub-calendar-setup-button",
       type: "CALENDAR",
     },
     {
       id: "addressBook",
-      l10n: "account-hub-address-book-button",
+      l10n: "account-hub-address-book-setup-button",
       type: "ADDRESS_BOOK",
     },
     {
       id: "chat",
-      l10n: "account-hub-chat-button",
+      l10n: "account-hub-chat-setup-button",
       type: "CHAT",
     },
     {
       id: "feed",
-      l10n: "account-hub-feed-button",
+      l10n: "account-hub-feed-setup-button",
       type: "FEED",
     },
     {
       id: "newsgroup",
-      l10n: "account-hub-newsgroup-button",
+      l10n: "account-hub-newsgroup-setup-button",
       type: "NNTP",
     },
-    {
-      id: "import",
-      l10n: "account-hub-import-button",
-      type: "IMPORT",
-    },
+    // TODO: Import/Export of profiles is kinda broken so we don't want to
+    // expose it so much for now.
+    // {
+    //   id: "import",
+    //   l10n: "account-hub-import-setup-button",
+    //   type: "IMPORT",
+    // },
   ];
 
   connectedCallback() {
@@ -115,7 +112,7 @@ class AccountHubStart extends HTMLElement {
     for (const account of this.#accounts) {
       const button = document.createElement("button");
       button.id = `${account.id}Button`;
-      button.classList.add("button", "button-flat", "button-account");
+      button.classList.add("button", "button-account");
       document.l10n.setAttributes(button, account.l10n);
       button.addEventListener("click", () => {
         this.dispatchEvent(

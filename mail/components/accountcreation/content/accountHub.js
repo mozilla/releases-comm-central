@@ -44,7 +44,6 @@ class AccountHubControllerClass {
   #accounts = {
     START: () => this.#viewStart(),
     MAIL: () => this.#viewEmailSetup(),
-    NEW_MAIL: () => this.#viewNewEmailSetup(),
     CALENDAR: () => this.#viewCalendarSetup(),
     ADDRESS_BOOK: () => this.#viewAddressBookSetup(),
     CHAT: () => this.#viewChatSetup(),
@@ -218,13 +217,6 @@ class AccountHubControllerClass {
   async #viewEmailSetup() {
     await this.#loadScript("email");
     this.#loadView("account-hub-email");
-  }
-
-  /**
-   * TODO: Show the new email setup view.
-   */
-  #viewNewEmailSetup() {
-    console.log("New Email setup");
   }
 
   /**
