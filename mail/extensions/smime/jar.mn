@@ -5,10 +5,10 @@
 messenger.jar:
 % content messenger-smime %content/messenger-smime/
    content/messenger-smime/msgHdrViewSMIMEOverlay.js                (content/msgHdrViewSMIMEOverlay.js)
-   content/messenger/certpicker.js                                  (../../../mailnews/extensions/smime/certpicker.js)
-   content/messenger/certpicker.xhtml                               (../../../mailnews/extensions/smime/certpicker.xhtml)
-   content/messenger-smime/msgReadSMIMEOverlay.js                   (../../../mailnews/extensions/smime/msgReadSMIMEOverlay.js)
-   content/messenger-smime/msgCompSecurityInfo.js                   (../../../mailnews/extensions/smime/msgCompSecurityInfo.js)
-   content/messenger-smime/msgCompSecurityInfo.xhtml                (../../../mailnews/extensions/smime/msgCompSecurityInfo.xhtml)
-   content/messenger-smime/certFetchingStatus.xhtml                 (../../../mailnews/extensions/smime/certFetchingStatus.xhtml)
-   content/messenger-smime/certFetchingStatus.js                    (../../../mailnews/extensions/smime/certFetchingStatus.js)
+   content/messenger/certpicker.js                                  (/comm/mailnews/extensions/smime/certpicker.js)
+   content/messenger/certpicker.xhtml                               (/comm/mailnews/extensions/smime/certpicker.xhtml)
+   content/messenger-smime/msgReadSMIMEOverlay.js                   (/comm/mailnews/extensions/smime/msgReadSMIMEOverlay.js)
+   content/messenger-smime/msgCompSecurityInfo.js                   (/comm/mailnews/extensions/smime/msgCompSecurityInfo.js)
+   content/messenger-smime/msgCompSecurityInfo.xhtml                (/comm/mailnews/extensions/smime/msgCompSecurityInfo.xhtml)
+   content/messenger-smime/certFetchingStatus.xhtml                 (/comm/mailnews/extensions/smime/certFetchingStatus.xhtml)
+   content/messenger-smime/certFetchingStatus.js                    (/comm/mailnews/extensions/smime/certFetchingStatus.js)
