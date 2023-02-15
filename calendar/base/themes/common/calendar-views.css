@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/skin/layout.css");
-
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root {
@@ -37,8 +35,6 @@
   --viewDragboxColor: currentColor;
   --viewDragboxBackground: var(--color-blue-50);
   --viewDropshadowBackground: var(--color-blue-50);
-  --calendar-primary-button-margin: 6px;
-  --calendar-primary-button-padding: 6px;
   --calendar-nav-control-bg-color: var(--color-white);
   --calendar-nav-control-bg-color-hover: rgba(0, 0, 0, 0.1);
   --calendar-view-nav-btn-padding: 4px;
@@ -56,19 +52,13 @@
 }
 
 :root[uidensity="compact"] {
-  --calendar-primary-button-margin: 0px;
-  --calendar-primary-button-padding: 3px 6px;
-  --calendar-view-nav-btn-padding: 0px;
-  --calendar-nav-control-padding: 3px;
+  --calendar-view-toggle-margin: 3px;
   --calendar-view-toggle-label-padding: 2px 12px;
   --calendar-nav-control-bar-gap: 6px;
 }
 
 :root[uidensity="touch"] {
-  --calendar-primary-button-margin: 9px;
-  --calendar-primary-button-padding: 9px;
-  --calendar-view-nav-btn-padding: 6px;
-  --calendar-nav-control-padding: 6px;
+  --calendar-view-toggle-margin: 6px 3px;
   --calendar-view-toggle-label-padding: 6px 15px;
   --calendar-nav-control-bar-gap: 12px;
 }

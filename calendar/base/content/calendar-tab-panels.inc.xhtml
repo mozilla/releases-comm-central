@@ -130,14 +130,14 @@
                 xmlns="http://www.w3.org/1999/xhtml">
         <button id="sidePanelNewEvent"
                 data-l10n-id="calendar-new-event-primary-button"
-                class="primary-button-side-panel"
+                class="button button-primary icon-button"
                 onclick="goDoCommand('calendar_new_event_command')"
                 hidden="hidden"
                 type="button">
         </button>
         <button id="sidePanelNewTask"
                 data-l10n-id="calendar-new-task-primary-button"
-                class="primary-button-side-panel"
+                class="button button-primary icon-button"
                 onclick="goDoCommand('calendar_new_todo_command')"
                 hidden="hidden"
                 type="button">
@@ -210,7 +210,7 @@
                 <button class="calendar-enable-button"></button>
                 <input type="checkbox"
                        class="calendar-displayed" />
-                <button class="calendar-more-button"
+                <button class="calendar-more-button button icon-button icon-only"
                         onclick="openCalendarListItemContext(event);"
                         type="button">
                 </button>
@@ -219,13 +219,13 @@
           </calendar-modevbox>
           <html:div id="sideButtonsBottom" xmlns="http://www.w3.org/1999/xhtml">
             <button id="newCalendarSidebarButton"
-                    class="calendar-sidebar-bottom-button"
+                    class="button button-flat icon-button"
                     data-l10n-id="calendar-import-new-calendar"
                     onclick="goDoCommand('calendar_new_calendar_command')"
                     type="button">
             </button>
             <button id="refreshCalendar"
-                    class="calendar-sidebar-bottom-button"
+                    class="button button-flat icon-button icon-only"
                     data-l10n-id="calendar-refresh-calendars"
                     onclick="goDoCommand('calendar_reload_remote_calendars')"
                     type="button">

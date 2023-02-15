@@ -55,9 +55,9 @@
   "theme_experiment": {
     "stylesheet": "experiment.css",
     "colors": {
-      "button": "--button-bgcolor",
-      "button_hover": "--button-hover-bgcolor",
-      "button_active": "--button-active-bgcolor"
+      "button": "--button-background-color",
+      "button_hover": "--button-hover-background-color",
+      "button_active": "--button-active-background-color"
     },
     "properties": {
       "panel_hover": "--arrowpanel-dimmed",

@@ -8,8 +8,6 @@
   --treeitem-border-radius: 3px;
   --folder-tree-header-gap: 9px;
   --folder-tree-header-padding: 9px 6px;
-  --folder-tree-write-button-padding-block: 8px;
-  --folder-tree-write-button-padding-inline: 20px 6px;
 }
 
 @media not (prefers-contrast) {
@@ -65,8 +63,6 @@
 :root[uidensity="compact"] {
   --folder-tree-header-gap: 6px;
   --folder-tree-header-padding: 4px 3px;
-  --folder-tree-write-button-padding-block: 4px;
-  --folder-tree-write-button-padding-inline: 20px 3px;
 }
 
 :root[uidensity="touch"] {
@@ -253,34 +249,7 @@ body:not(.account-central) #accountCentralBrowser {
 }
 
 #folderPaneWriteMessage {
-  padding-block: var(--folder-tree-write-button-padding-block);
-  padding-inline: var(--folder-tree-write-button-padding-inline);
-  margin-inline: 0;
-  color: var(--color-white);
-  background-color: var(--color-blue-50);
   background-image: var(--icon-add);
-  background-position: 3px center;
-  background-repeat: no-repeat;
-  border-color: var(--color-blue-60);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-#folderPaneWriteMessage:dir(rtl) {
-  background-position-x: right 3px;
-}
-
-#folderPaneWriteMessage:hover:enabled {
-  background-color: var(--color-blue-60);
-}
-
-#folderPaneWriteMessage:hover:active:enabled {
-  background-color: var(--color-blue-70);
-}
-
-#folderPaneWriteMessage:disabled {
-  opacity: 0.4;
 }
 
 #folderTree,

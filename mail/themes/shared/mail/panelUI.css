@@ -756,17 +756,17 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   padding-block: calc(var(--appmenu-button-padding) + 3px);
   border-radius: var(--arrowpanel-menuitem-border-radius);
   color: var(--button-color);
-  background-color: var(--button-bgcolor);
+  background-color: var(--button-background-color);
   margin-bottom: 4px;
   font-weight: 600;
 }
 
 .panel-banner-item:not([disabled]):hover {
-  background-color: var(--button-hover-bgcolor);
+  background-color: var(--button-hover-background-color);
 }
 
 .panel-banner-item:not([disabled]):hover:active {
-  background-color: var(--button-active-bgcolor);
+  background-color: var(--button-active-background-color);
 }
 
 .panel-banner-item > .toolbarbutton-text {
@@ -839,12 +839,12 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 
 menulist {
   border: 1px solid var(--button-border-color);
-  background-color: var(--button-bgcolor);
+  background-color: var(--button-background-color);
 }
 
 menulist:not([disabled="true"],[open="true"]):hover,
 menulist[open="true"]:not([disabled="true"]) {
-  background-color: var(--button-hover-bgcolor);
+  background-color: var(--button-hover-background-color);
   border-color: var(--button-border-color);
 }
 
@@ -1047,7 +1047,7 @@ menulist[open="true"]:not([disabled="true"]) {
   width: var(--appmenu-fontsize-icon-size);
   height: var(--appmenu-fontsize-icon-size);
   -moz-context-properties: fill, stroke;
-  fill: var(--button-bgcolor, ButtonFace);
+  fill: var(--button-background-color, ButtonFace);
   stroke: var(--button-color);
   border-radius: 50%;
   margin-block-start: 1px;
@@ -1072,19 +1072,19 @@ menulist[open="true"]:not([disabled="true"]) {
 }
 
 #appMenu-fontSizeReset-button:hover > .toolbarbutton-text {
-  background-color: var(--button-hover-bgcolor);
+  background-color: var(--button-hover-background-color);
 }
 #appMenu-fontSizeReduce-button:hover > .toolbarbutton-icon,
 #appMenu-fontSizeEnlarge-button:hover > .toolbarbutton-icon {
-  fill: var(--button-hover-bgcolor);
+  fill: var(--button-hover-background-color);
 }
 
 #appMenu-fontSizeReset-button:active > .toolbarbutton-text {
-  background-color: var(--button-active-bgcolor);
+  background-color: var(--button-active-background-color);
 }
 #appMenu-fontSizeReduce-button:active > .toolbarbutton-icon,
 #appMenu-fontSizeEnlarge-button:active > .toolbarbutton-icon {
-  fill: var(--button-active-bgcolor);
+  fill: var(--button-active-background-color);
 }
 
 #appMenu-fontSizeReset-button:focus > .toolbarbutton-text,

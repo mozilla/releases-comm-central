@@ -329,7 +329,7 @@
   margin-block-start: 9px;
   margin-inline: -6px;
   padding-inline: 6px !important;
-  background-color: var(--button-bgcolor);
+  background-color: var(--button-background-color);
   font-weight: bold;
 }
 

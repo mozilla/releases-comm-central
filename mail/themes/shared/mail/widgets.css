@@ -1,0 +1,177 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* This file defines the various widgets used across the application. */
+
+/* Default Button Styles */
+
+.button {
+  appearance: none;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
+  border: var(--button-border-size) solid var(--button-border-color);
+  border-radius: var(--button-border-radius);
+  padding: var( --button-padding);
+  margin: var(--button-margin);
+  min-width: 6em;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.button:enabled:is(:hover, :focus-visible) {
+  background-color: var(--button-hover-background-color);
+  border-color: var(--button-border-color);
+}
+
+.button:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
+
+.button:enabled:hover:active {
+  background-color: var(--button-active-background-color);
+  border-color: var(--button-border-color);
+}
+
+.button[aria-pressed="true"] {
+  box-shadow: var(--button-pressed-shadow);
+}
+
+.button:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.button[hidden] {
+  display: none;
+}
+
+.button:dir(rtl),
+.button:-moz-locale-dir(rtl) {
+  background-position-x: right var(--button-padding);
+}
+
+.button > img {
+  pointer-events: none;
+}
+
+.button.icon-button {
+  background-image: none;
+  background-size: 16px;
+  background-position: var(--button-padding) center;
+  background-repeat: no-repeat;
+  padding-inline-start: calc(var(--button-padding) * 2 + 16px);
+  padding-inline-end: calc(var(--button-padding) * 2);
+  min-width: 0;
+}
+
+.button.icon-only {
+  background-position: calc(var(--button-padding) * 1.5) center;
+  padding-inline-start: calc(var(--button-padding) * 1.5 + 16px);
+  padding-inline-end: calc(var(--button-padding) * 1.75);
+}
+
+.button.icon-only:dir(rtl),
+.button.icon-only:-moz-locale-dir(rtl) {
+  background-position-x: right calc(var(--button-padding) * 1.5);
+}
+
+.button.unified-toolbar-button,
+.button.toolbar-button {
+  background-color: color-mix(in srgb, var(--color-gray-50) 10%, transparent);
+  color: currentColor;
+  border-color: color-mix(in srgb, var(--color-gray-50) 30%, transparent);
+  margin-block: 0;
+}
+
+.button.unified-toolbar-button {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.button.unified-toolbar-button:enabled:is([aria-pressed="true"], :hover),
+.button.toolbar-button:enabled:is([aria-pressed="true"], :hover) {
+  background-color: color-mix(in srgb, var(--color-gray-50) 30%, transparent);
+  border-color: color-mix(in srgb, var(--color-gray-50) 50%, transparent);
+}
+
+.button.unified-toolbar-button:enabled:is([aria-pressed="true"]),
+.button.toolbar-button:enabled:is([aria-pressed="true"]) {
+  box-shadow: var(--button-pressed-shadow);
+}
+
+.button.unified-toolbar-button:enabled:hover:is([aria-pressed="true"]),
+.button.toolbar-button:enabled:hover:is([aria-pressed="true"]) {
+   background-color: color-mix(in srgb, var(--color-gray-70) 10%, transparent);
+}
+
+/* Primary Button Styles */
+
+.button.button-primary {
+  background-color: var(--button-primary-background-color);
+  color: var(--button-primary-text-color);
+  border-color: var(--button-primary-border-color);
+}
+
+.button.button-primary:is(:hover, :focus-visible) {
+  background-color: var(--button-primary-hover-background-color);
+  border-color: var(--button-primary-border-color);
+}
+
+.button.button-primary:hover:active {
+  background-color: var(--button-primary-active-background-color);
+  border-color: var(--button-primary-border-color);
+}
+
+/* Destructive Button Styles */
+
+.button.button-destructive {
+  background-color: var(--button-destructive-background-color);
+  color: var(--button-destructive-text-color);
+  border-color: var(--button-destructive-border-color);
+}
+
+.button.button-destructive:is(:hover, :focus-visible) {
+  background-color: var(--button-destructive-hover-background-color);
+  border-color: var(--button-destructive-border-color);
+}
+
+.button.button-destructive:hover:active {
+  background-color: var(--button-destructive-active-background-color);
+  border-color: var(--button-destructive-border-color);
+}
+
+/* Flat Button Styles */
+
+.button.button-flat {
+  background-color: transparent;
+  color: currentColor;
+  border-color: transparent;
+}
+
+.button.button-flat:is(:hover, :focus-visible) {
+  background-color: transparent;
+  color: var(--button-flat-hover-text-color);
+  border-color: transparent;
+}
+
+.button.button-flat:focus-visible {
+  color: currentColor;
+}
+
+.button.button-flat:hover:active {
+  background-color: transparent;
+  color: var(--button-flat-active-text-color);
+  border-color: transparent;
+}
+
+@media (prefers-reduced-motion: no-preferences) {
+  .button {
+    transition: background-color .15s, border-color .15s;
+  }
+}

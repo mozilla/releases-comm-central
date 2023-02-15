@@ -115,7 +115,7 @@ class AccountHubStart extends HTMLElement {
     for (const account of this.#accounts) {
       const button = document.createElement("button");
       button.id = `${account.id}Button`;
-      button.classList.add("button-flat", "button-account");
+      button.classList.add("button", "button-flat", "button-account");
       document.l10n.setAttributes(button, account.l10n);
       button.addEventListener("click", () => {
         this.dispatchEvent(

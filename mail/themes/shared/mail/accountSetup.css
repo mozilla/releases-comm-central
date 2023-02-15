@@ -928,7 +928,7 @@ button.existing:dir(rtl) {
 .result-list-header {
   margin-block: 0 10px;
   text-transform: uppercase;
-  background-color: var(--button-bgcolor);
+  background-color: var(--button-background-color);
   color: var(--default);
   padding: 9px 6px;
   border-radius: var(--in-content-button-border-radius);

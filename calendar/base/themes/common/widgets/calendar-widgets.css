@@ -59,6 +59,10 @@ calendar-modebox {
   border-color: transparent !important;
 }
 
+#calendarListHeader:hover {
+  background-color: var(--layout-background-3);
+}
+
 #calendarListHeader[checked="false"] > img {
   transform: rotate(-90deg);
 }
@@ -286,10 +290,11 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   opacity: 0;
 }
 
-#calendar-list > li > .calendar-more-button::before {
-  content: var(--icon-more);
-  display: flex;
-  justify-content: center;
+#calendar-list > li > .calendar-more-button {
+  --button-padding: 0;
+  opacity: 0;
+  margin-block: 0;
+  background-image: var(--icon-more);
 }
 
 #calendar-list > li > .calendar-displayed:is(:hover, :focus),
@@ -300,13 +305,6 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 #calendar-list > li:hover > .calendar-displayed:checked,
 #calendar-list > li:hover > .calendar-more-button {
   opacity: 0.7;
-}
-
-#calendar-list > li > .calendar-more-button {
-  opacity: 0;
-  margin-block: 0;
-  min-width: 16px;
-  min-height: 16px;
 }
 
 #calendar-list > :is(li, richlistitem) > .calendar-color {
@@ -351,79 +349,23 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 #sideButtonsBottom {
   display: inline-flex;
   justify-content: space-between;
-  padding-inline: 9px;
 }
 
-#sideButtonsBottom > button {
-  background-color: transparent;
-  border: none;
-}
-
-#sideButtonsBottom > button:hover {
-  color: var(--button-sidebar-bottom-hover-color);
-}
-
-#newCalendarSidebarButton::before {
-  content: var(--icon-calendar);
-}
-
-#refreshCalendar::before {
-  content: var(--icon-sync);
+#newCalendarSidebarButton {
+  background-image: var(--icon-calendar);
 }
 
 #refreshCalendar {
-  min-width: inherit;
-}
-
-.calendar-sidebar-bottom-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.calendar-sidebar-bottom-button::before {
-  display: inline-flex;
-  content: "";
-  stroke: currentColor;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  width: 16px;
-  height: 16px;
-  -moz-context-properties: fill, stroke;
+  background-image: var(--icon-sync);
 }
 
 #primaryButtonSidePanel {
-  -moz-context-properties: fill, stroke;
-  margin-top: 3px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.primary-button-side-panel:not([hidden]) {
-  background-color: var(--color-blue-50);
-  border-color: var(--color-blue-60);
-  color: var(--color-white);
-  gap: 6px;
-  padding: var(--calendar-primary-button-padding);
-  margin: var(--calendar-primary-button-margin);
-  display: inline-flex;
-  align-items: center;
-}
-
-.primary-button-side-panel:hover:enabled {
-  background-color: var(--color-blue-60);
-}
-
-.primary-button-side-panel:hover:active:enabled {
-  background-color: var(--color-blue-70);
-}
-
-.primary-button-side-panel:disabled {
-  opacity: 0.4;
-}
-
-.primary-button-side-panel::before {
-  content: var(--icon-add);
-  stroke: currentColor;
-  display: inline-flex;
+#sidePanelNewEvent,
+#sidePanelNewTask {
+  background-image: var(--icon-add);
 }

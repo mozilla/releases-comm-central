@@ -7,6 +7,7 @@
 @import url("chrome://messenger/skin/autocomplete.css");
 @import url("chrome://messenger/skin/variables.css");
 @import url("chrome://messenger/skin/splitter.css");
+@import url("chrome://messenger/skin/widgets.css");
 
 @namespace xul url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 @namespace html url("http://www.w3.org/1999/xhtml");
@@ -555,7 +556,7 @@ html|input[type="color"] {
   color: inherit;
   border: 1px solid var(--button-border-color);
   border-radius: var(--button-border-radius);
-  background: var(--button-bgcolor);
+  background: var(--button-background-color);
   margin: 1px 5px;
   padding: 0 4px;
   box-shadow: none;
@@ -564,7 +565,7 @@ html|input[type="color"] {
 xul|button:is(:not([disabled="true"])):hover,
 html|button:is(:not([disabled])):hover {
   border-color: var(--button-border-color);
-  background-color: var(--button-hover-bgcolor);
+  background-color: var(--button-hover-background-color);
 }
 
 xul|button:is(:not([disabled="true"])):hover:active,
@@ -573,7 +574,7 @@ xul|button:is(:not([disabled="true"]))[open="true"],
 html|input[type="color"]:not([disabled="true"]):hover,
 html|input[type="color"]:not([disabled="true"]):hover:active {
   border-color: var(--button-border-color);
-  background-color: var(--button-active-bgcolor);
+  background-color: var(--button-active-background-color);
 }
 
 html|input[type="color"] {
@@ -781,40 +782,8 @@ html|ul.addon-installed-list {
   list-style-image: var(--icon-more);
 }
 
-.button-flat {
-  appearance: none;
-  -moz-context-properties: stroke, fill-opacity;
-  stroke: currentColor;
-  padding: 3px;
-  line-height: 1em;
-  border-radius: var(--button-border-radius);
-  transition: background-color 150ms;
-}
-
-.button-flat:hover {
-  background-color: hsla(0, 0%, 0%, .1);
-  color: inherit;
-}
-
-.button-flat:hover:active {
-  background-color: hsla(0, 0%, 0%, .2);
-}
-
-@media (prefers-color-scheme: dark) {
-  .button-flat:hover {
-    background-color: hsla(0, 0%, 100%, .2);
-  }
-
-  .button-flat:hover:active {
-    background-color: hsla(0, 0%, 100%, .3);
-  }
-}
-
-.button-flat:focus-visible:not(:hover) {
-  outline: 2px solid var(--selected-item-color);
-}
-
-:root[lwt-tree] tree {
+:root[lwt-tree] tree,
+:root[lwt-tree] #folderPaneHeader {
   background-color: var(--sidebar-background-color);
   color: var(--sidebar-text-color);
 }

@@ -231,12 +231,12 @@ button.tab-close-button {
 }
 
 /* Adjust button hover color relative to the darker background. */
-#tabs-toolbar:not([brighttext]) button.tab-close-button:not([selected=true]):hover {
-  background-color: color-mix(in srgb, black 10%, var(--button-hover-bgcolor));
+#tabs-toolbar:not([brighttext]) button.tab-close-button:hover {
+  background-color: color-mix(in srgb, transparent 80%, CurrentColor);
 }
 
-#tabs-toolbar:not([brighttext]) button.tab-close-button:not([selected=true]):hover:active {
-  background-color: color-mix(in srgb, black 10%, var(--button-active-bgcolor));
+#tabs-toolbar:not([brighttext]) button.tab-close-button:hover:active {
+  background-color: color-mix(in srgb, transparent 70%, CurrentColor);
 }
 
 #tabs-toolbar[brighttext] .tabmail-tab:hover .tab-background:not([selected=true]) {
