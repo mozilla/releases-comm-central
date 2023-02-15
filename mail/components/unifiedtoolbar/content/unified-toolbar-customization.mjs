@@ -244,6 +244,8 @@ class UnifiedToolbarCustomization extends HTMLElement {
       const space = tabPane.getAttribute("space");
       if (state.hasOwnProperty(space)) {
         tabPane.setAttribute("current-items", state[space].join(","));
+      } else {
+        tabPane.removeAttribute("current-items");
       }
       previousNode = tabPane;
       if (deep) {
