@@ -20,11 +20,7 @@ document.addEventListener("dialogcancel", onCancel);
 // all progress notifications are done through the nsIWebProgressListener implementation...
 var progressListener = {
   onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
-    if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
-      // Set no value to progress meter when undetermined.
-      dialog.progress.removeAttribute("value");
-    }
-
+    // Only need to handle STATE_STOP.
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
       // we are done sending/saving the message...
       // Indicate completion in status area.
@@ -73,6 +69,7 @@ var progressListener = {
     } else {
       // Progress meter should show no value in this case.
       dialog.progress.removeAttribute("value");
+      dialog.progressText.value = "";
     }
   },
 

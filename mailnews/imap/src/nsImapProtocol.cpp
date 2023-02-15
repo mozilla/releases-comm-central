@@ -5964,6 +5964,8 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
                                            imapMessageFlagsType flags,
                                            nsCString& keywords) {
   if (!file || !mailboxName) return;
+  // Zero the progress bar and text % after possible SMTP send of the file.
+  PercentProgressUpdateEvent(""_ns, u""_ns, 0, 100);
   IncrementCommandTagNumber();
 
   int64_t fileSize = 0;
@@ -5974,7 +5976,7 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
   nsCString escapedName;
   CreateEscapedMailboxName(mailboxName, escapedName);
   nsresult rv;
-  bool eof = false;
+  bool urlOk = false;
   nsCString flagString;
 
   nsCOMPtr<nsIInputStream> fileInputStream;
@@ -6057,7 +6059,8 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
 
     totalSize = fileSize;
     readCount = 0;
-    while (NS_SUCCEEDED(rv) && !eof && totalSize > 0) {
+    while (NS_SUCCEEDED(rv) && totalSize > 0) {
+      if (DeathSignalReceived()) goto done;
       rv = fileInputStream->Read(dataBuffer, COPY_BUFFER_SIZE, &readCount);
       if (NS_SUCCEEDED(rv) && !readCount) rv = NS_ERROR_FAILURE;
 
@@ -6070,7 +6073,8 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
         PercentProgressUpdateEvent(""_ns, u""_ns, fileSize - totalSize,
                                    fileSize);
       }
-    }
+    }  // end while appending chunks
+
     if (NS_SUCCEEDED(rv)) {  // complete the append
       if (m_allowUTF8Accept)
         rv = SendData(")" CRLF);
@@ -6079,13 +6083,18 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
       if (NS_FAILED(rv)) goto done;
 
       ParseIMAPandCheckForNewMail(command.get());
+      if (!GetServerStateParser().LastCommandSuccessful()) goto done;
+
+      // If reached, the append completed without error. No more goto's!
+      // May still find problems in imap responses below so urlOk may still
+      // become false.
+      urlOk = true;
 
       nsImapAction imapAction;
       m_runningUrl->GetImapAction(&imapAction);
 
-      if (GetServerStateParser().LastCommandSuccessful() &&
-          (imapAction == nsIImapUrl::nsImapAppendDraftFromFile ||
-           imapAction == nsIImapUrl::nsImapAppendMsgFromFile)) {
+      if (imapAction == nsIImapUrl::nsImapAppendDraftFromFile ||
+          imapAction == nsIImapUrl::nsImapAppendMsgFromFile) {
         if (GetServerStateParser().GetCapabilityFlag() & kUidplusCapability) {
           nsMsgKey newKey = GetServerStateParser().CurrentResponseUID();
           if (m_imapMailFolderSink)
@@ -6103,6 +6112,8 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
             Store(oldMsgId, "+FLAGS (\\Deleted)", idsAreUids);
             UidExpunge(oldMsgId);
           }
+          // Only checks the last imap command in sequence above.
+          if (!GetServerStateParser().LastCommandSuccessful()) urlOk = false;
         }
         // for non UIDPLUS servers this code used to check for
         // imapAction==nsIImapUrl::nsImapAppendMsgFromFile, which meant we'd get
@@ -6116,8 +6127,7 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
           // go to selected state
           nsCString messageId;
           rv = m_imapMailFolderSink->GetMessageId(m_runningUrl, messageId);
-          if (NS_SUCCEEDED(rv) && !messageId.IsEmpty() &&
-              GetServerStateParser().LastCommandSuccessful()) {
+          if (NS_SUCCEEDED(rv) && !messageId.IsEmpty()) {
             // if the appended to folder isn't selected in the connection,
             // select it.
             if (!FolderIsSelected(mailboxName))
@@ -6142,14 +6152,19 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
                 delete searchResult;
                 if (newkey != nsMsgKey_None)
                   m_imapMailFolderSink->SetAppendMsgUid(newkey, m_runningUrl);
-              }
-            }
+              } else
+                urlOk = false;
+            } else
+              urlOk = false;
           }
         }
       }
     }
   }
 done:
+  // If imap command fails or network goes down, make sure URL sees the failure.
+  if (!urlOk) GetServerStateParser().SetCommandFailed(true);
+
   PR_Free(dataBuffer);
   if (fileInputStream) fileInputStream->Close();
 }
