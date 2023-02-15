@@ -31,9 +31,9 @@ SOURCES += [
 FINAL_LIBRARY = "mail"
 
 LOCAL_INCLUDES += [
-    "/%s/security/certverifier" % CONFIG["mozreltopsrcdir"],
-    "/%s/security/manager/pki" % CONFIG["mozreltopsrcdir"],
-    "/%s/security/manager/ssl" % CONFIG["mozreltopsrcdir"],
+    "/security/certverifier",
+    "/security/manager/pki",
+    "/security/manager/ssl",
 ]
 
 XPCOM_MANIFESTS += ["components.conf"]

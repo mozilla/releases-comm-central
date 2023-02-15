@@ -12,8 +12,8 @@ UNIFIED_SOURCES += [
 ]
 
 LOCAL_INCLUDES += [
-    "/%s/netwerk/test" % CONFIG["mozreltopsrcdir"],
-    "/%s/xpcom/tests" % CONFIG["mozreltopsrcdir"],
+    "/netwerk/test",
+    "/xpcom/tests",
 ]
 
 TEST_DIRS += ["gtest"]

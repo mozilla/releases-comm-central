@@ -142,9 +142,9 @@ USE_LIBS += [
 ]
 
 LOCAL_INCLUDES += [
-    "/%s/dom/base" % CONFIG["mozreltopsrcdir"],
-    "/%s/netwerk/base" % CONFIG["mozreltopsrcdir"],
-    "/%s/toolkit/components/jsoncpp/include" % CONFIG["mozreltopsrcdir"],
+    "/dom/base",
+    "/netwerk/base",
+    "/toolkit/components/jsoncpp/include",
 ]
 
 include("/ipc/chromium/chromium-config.mozbuild")

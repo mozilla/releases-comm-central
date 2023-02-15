@@ -31,7 +31,7 @@ SOURCES += [
 ]
 
 LOCAL_INCLUDES += [
-    "/%s/dom/base" % CONFIG["mozreltopsrcdir"],
+    "/dom/base",
 ]
 
 include("/ipc/chromium/chromium-config.mozbuild")

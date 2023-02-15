@@ -75,11 +75,11 @@ else:
     test_harness_base = TEST_HARNESS_FILES.xpcshell
 
 test_harness_base.mailnews.data += [
-    "/%s/mailnews/test/data/**" % CONFIG["commreltopsrcdir"],
+    "/comm/mailnews/test/data/**",
 ]
 
 test_harness_base.mailnews.resources += [
-    "/%s/mailnews/test/resources/**" % CONFIG["commreltopsrcdir"],
+    "/comm/mailnews/test/resources/**",
 ]
 
 JS_PREFERENCE_PP_FILES += [
