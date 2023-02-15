@@ -146,7 +146,7 @@ function resizeDlg() {
   }
 
   txt.style["white-space"] = "pre-wrap";
-  window.outerWidth = newWidth;
+  window.resizeTo(newWidth, window.outerHeight);
 
   var textHeight = txt.scrollHeight;
   var boxHeight = box.clientHeight;
@@ -158,7 +158,7 @@ function resizeDlg() {
     newHeight = window.screen.height - 100;
   }
 
-  window.outerHeight = newHeight;
+  window.resizeTo(newWidth, newHeight);
 }
 
 function dlgClose(buttonNumber) {

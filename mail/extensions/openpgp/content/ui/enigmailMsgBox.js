@@ -101,7 +101,7 @@ function resizeDlg() {
       "height",
       boxHeight - btnHeight - (dlgHeight - availHeight)
     );
-    window.outerHeight = availHeight;
+    window.resizeTo(window.outerWidth, availHeight);
   }
 }
 

@@ -14,5 +14,8 @@ function toggleDetails() {
   let options = document.getElementById("details-box");
   options.collapsed = !options.collapsed;
   // Grow the window height if the details overflow.
-  window.innerHeight = document.body.scrollHeight;
+  window.resizeTo(
+    window.outerWidth,
+    document.body.scrollHeight + window.outerHeight - window.innerHeight
+  );
 }

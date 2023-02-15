@@ -397,20 +397,21 @@ function GetLocalFileURL(filterType) {
 function SetWindowLocation() {
   gLocation = document.getElementById("location");
   if (gLocation) {
-    window.screenX = Math.max(
+    const screenX = Math.max(
       0,
       Math.min(
         window.opener.screenX + Number(gLocation.getAttribute("offsetX")),
         screen.availWidth - window.outerWidth
       )
     );
-    window.screenY = Math.max(
+    const screenY = Math.max(
       0,
       Math.min(
         window.opener.screenY + Number(gLocation.getAttribute("offsetY")),
         screen.availHeight - window.outerHeight
       )
     );
+    window.moveTo(screenX, screenY);
   }
 }
 
