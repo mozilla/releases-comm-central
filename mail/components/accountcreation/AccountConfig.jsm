@@ -92,8 +92,9 @@ AccountConfig.prototype = {
       // May be a placeholder (starts and ends with %). { String }
       username: null,
       password: null,
-      // {nsMsgSocketType} @see MailNewsTypes2.idl. -1 means not inited
-      socketType: -1,
+      // { enum: 1 = plain, 2 = SSL/TLS, 3 = STARTTLS always, 0 = not inited }
+      // ('TLS when available' is insecure and not supported here)
+      socketType: 0,
       /**
        * true when the cert is invalid (and thus SSL useless), because it's
        * 1) not from an accepted CA (including self-signed certs)
@@ -151,7 +152,7 @@ AccountConfig.prototype = {
       port: null, // see incoming
       username: null, // see incoming. may be null, if auth is 0.
       password: null, // see incoming. may be null, if auth is 0.
-      socketType: -1, // see incoming
+      socketType: 0, // see incoming
       badCert: false, // see incoming
       auth: 0, // see incoming
       authAlternatives: null, // see incoming
@@ -233,14 +234,14 @@ AccountConfig.prototype = {
     return (
       !!this.incoming.hostname &&
       !!this.incoming.port &&
-      this.incoming.socketType != -1 &&
+      !!this.incoming.socketType &&
       !!this.incoming.auth &&
       !!this.incoming.username &&
       (!!this.outgoing.existingServerKey ||
         this.outgoing.useGlobalPreferredServer ||
         (!!this.outgoing.hostname &&
           !!this.outgoing.port &&
-          this.outgoing.socketType != -1 &&
+          !!this.outgoing.socketType &&
           !!this.outgoing.auth &&
           !!this.outgoing.username))
     );
@@ -250,11 +251,13 @@ AccountConfig.prototype = {
     function sslToString(socketType) {
       switch (socketType) {
         case 0:
-          return "plain";
+          return "undefined";
+        case 1:
+          return "no SSL";
         case 2:
-          return "alwaysSTARTTLS";
-        case 3:
           return "SSL";
+        case 3:
+          return "STARTTLS";
         default:
           return "invalid";
       }

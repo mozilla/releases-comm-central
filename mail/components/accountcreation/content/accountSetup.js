@@ -781,10 +781,10 @@ var gAccountSetup = {
     let self = this;
     self._abortable = GuessConfig.guessConfig(
       domain,
-      function(type, hostname, port, socketType, done, config) {
+      function(type, hostname, port, ssl, done, config) {
         // progress
         gAccountSetupLogger.debug(
-          `${hostname}:${port} socketType=${socketType} ${type}: progress callback`
+          `${hostname}:${port} ssl=${ssl} ${type}: progress callback`
         );
       },
       function(config) {
@@ -1337,9 +1337,9 @@ var gAccountSetup = {
      */
     function _socketTypeSpan(socket) {
       let ssl = Sanitizer.translate(socket, {
-        0: "no-encryption",
-        2: "starttls",
-        3: "ssl",
+        1: "no-encryption",
+        2: "ssl",
+        3: "starttls",
       });
       let span = _protocolTypeSpan();
       document.l10n.setAttributes(span, `account-setup-result-${ssl}`);
@@ -1732,15 +1732,17 @@ var gAccountSetup = {
       return;
     }
 
+    const TYPE_SSL = 2; // Ugh! see AccountConfig.jsm#94
+
     let input = document.getElementById("incomingPort");
 
     switch (incoming.type) {
       case "imap":
-        input.value = incoming.socketType == Ci.nsMsgSocketType.SSL ? 993 : 143;
+        input.value = incoming.socketType == TYPE_SSL ? 993 : 143;
         break;
 
       case "pop3":
-        input.value = incoming.socketType == Ci.nsMsgSocketType.SSL ? 995 : 110;
+        input.value = incoming.socketType == TYPE_SSL ? 995 : 110;
         break;
 
       case "exchange":
@@ -1764,17 +1766,17 @@ var gAccountSetup = {
       return;
     }
 
+    const TYPE_SSL = 2; // Ugh! see AccountConfig.jsm#94
+    const TYPE_STARTTLS = 3; // Ugh! see AccountConfig.jsm#94
+
     // Implicit TLS for SMTP is on port 465.
-    if (outgoing.socketType == Ci.nsMsgSocketType.SSL) {
+    if (outgoing.socketType == TYPE_SSL) {
       document.getElementById("outgoingPort").value = 465;
       return;
     }
 
     // Implicit TLS for SMTP is on port 465. STARTTLS won't work there.
-    if (
-      outgoing.port == 465 &&
-      outgoing.socketType == Ci.nsMsgSocketType.STARTTLS
-    ) {
+    if (outgoing.port == 465 && outgoing.socketType == TYPE_STARTTLS) {
       document.getElementById("outgoingPort").value = 587;
     }
   },
@@ -1791,40 +1793,29 @@ var gAccountSetup = {
       return;
     }
 
+    const TYPE_SSL = 2; // Ugh! see AccountConfig.jsm#94
+    const TYPE_STARTTLS = 3; // Ugh! see AccountConfig.jsm#94
+
     if (incoming.type == "imap") {
       // Implicit TLS for IMAP is on port 993.
-      if (
-        incoming.port == 993 &&
-        incoming.socketType != Ci.nsMsgSocketType.SSL
-      ) {
-        document.getElementById("incomingSsl").value = Ci.nsMsgSocketType.SSL;
+      if (incoming.port == 993 && incoming.socketType != TYPE_SSL) {
+        document.getElementById("incomingSsl").value = TYPE_SSL;
         return;
       }
-      if (
-        incoming.port == 143 &&
-        incoming.socketType == Ci.nsMsgSocketType.SSL
-      ) {
-        document.getElementById("incomingSsl").value =
-          Ci.nsMsgSocketType.STARTTLS;
+      if (incoming.port == 143 && incoming.socketType == TYPE_SSL) {
+        document.getElementById("incomingSsl").value = TYPE_STARTTLS;
         return;
       }
     }
 
     if (incoming.type == "pop3") {
       // Implicit TLS for POP3 is on port 995.
-      if (
-        incoming.port == 995 &&
-        incoming.socketType != Ci.nsMsgSocketType.SSL
-      ) {
-        document.getElementById("incomingSsl").value = Ci.nsMsgSocketType.SSL;
+      if (incoming.port == 995 && incoming.socketType != TYPE_SSL) {
+        document.getElementById("incomingSsl").value = TYPE_SSL;
         return;
       }
-      if (
-        incoming.port == 110 &&
-        incoming.socketType == Ci.nsMsgSocketType.SSL
-      ) {
-        document.getElementById("incomingSsl").value =
-          Ci.nsMsgSocketType.STARTTLS;
+      if (incoming.port == 110 && incoming.socketType == TYPE_SSL) {
+        document.getElementById("incomingSsl").value = TYPE_STARTTLS;
       }
     }
   },
@@ -1838,19 +1829,21 @@ var gAccountSetup = {
       return;
     }
 
+    const TYPE_SSL = 2; // Ugh! see AccountConfig.jsm#94
+    const TYPE_STARTTLS = 3; // Ugh! see AccountConfig.jsm#94
+
     // Implicit TLS for SMTP is on port 465.
-    if (outgoing.port == 465 && outgoing.socketType != Ci.nsMsgSocketType.SSL) {
-      document.getElementById("outgoingSsl").value = Ci.nsMsgSocketType.SSL;
+    if (outgoing.port == 465 && outgoing.socketType != TYPE_SSL) {
+      document.getElementById("outgoingSsl").value = TYPE_SSL;
       return;
     }
 
     // Port 587 and port 25 are for plain or STARTTLS. Not for Implicit TLS.
     if (
       (outgoing.port == 587 || outgoing.port == 25) &&
-      outgoing.socketType == Ci.nsMsgSocketType.SSL
+      outgoing.socketType == TYPE_SSL
     ) {
-      document.getElementById("outgoingSsl").value =
-        Ci.nsMsgSocketType.STARTTLS;
+      document.getElementById("outgoingSsl").value = TYPE_STARTTLS;
     }
   },
 

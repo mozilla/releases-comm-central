@@ -161,7 +161,7 @@ function test_readFromXML_config1() {
   let server = config.incoming;
   Assert.equal("imapmail.example.com", server.hostname);
   Assert.equal("imap", server.type);
-  Assert.equal(Ci.nsMsgSocketType.SSL, server.socketType);
+  Assert.equal(2, server.socketType); // SSL
   Assert.equal(3, server.auth); // cleartext password
   // only one more supported incoming server
   Assert.equal(1, config.incomingAlternatives.length);
@@ -170,14 +170,14 @@ function test_readFromXML_config1() {
   server = config.incomingAlternatives[0];
   Assert.equal("popmail.example.com", server.hostname);
   Assert.equal("pop3", server.type);
-  Assert.equal(Ci.nsMsgSocketType.plain, server.socketType);
+  Assert.equal(1, server.socketType); // no SSL
   Assert.equal(4, server.auth); // encrypted password
 
   // SMTP server, most preferred
   server = config.outgoing;
   Assert.equal("smtpout.example.com", server.hostname);
   Assert.equal("smtp", server.type);
-  Assert.equal(Ci.nsMsgSocketType.alwaysSTARTTLS, server.socketType);
+  Assert.equal(3, server.socketType); // STARTTLS
   Assert.equal(1, server.auth); // no auth
   // no other SMTP servers
   Assert.equal(0, config.outgoingAlternatives.length);
