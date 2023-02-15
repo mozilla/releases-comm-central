@@ -58,7 +58,9 @@ async function extract_eml_body_textcontent(eml, autodetect = true) {
 
     // Click on the "Repair Text Encoding" item.
     let hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
-    let reloadPromise = BrowserTestUtils.browserLoaded(aboutMessage.content);
+    let reloadPromise = BrowserTestUtils.browserLoaded(
+      aboutMessage.getMessagePaneBrowser()
+    );
     EventUtils.synthesizeMouseAtCenter(
       aboutMessage.document.getElementById("charsetRepairMenuitem"),
       {},
@@ -68,8 +70,8 @@ async function extract_eml_body_textcontent(eml, autodetect = true) {
     await reloadPromise;
   }
 
-  let textContent =
-    aboutMessage.content.contentDocument.documentElement.textContent;
+  let textContent = aboutMessage.getMessagePaneBrowser().contentDocument
+    .documentElement.textContent;
   let charset = aboutMessage.currentCharacterSet;
   close_window(msgc);
   return { textContent, charset };

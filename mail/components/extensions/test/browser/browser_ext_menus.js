@@ -263,7 +263,7 @@ async function subtest_message_panes(manifest) {
 
   info("Test the message pane in the 3-pane tab.");
 
-  let messagePane = about3Pane.messageBrowser.contentWindow.content;
+  let messagePane = about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
 
   await subtest_content(
     extension,
@@ -283,7 +283,7 @@ async function subtest_message_panes(manifest) {
   info("Test the message pane in a tab.");
 
   await openMessageInTab(gMessage);
-  messagePane = tabmail.currentAboutMessage.content;
+  messagePane = tabmail.currentAboutMessage.getMessagePaneBrowser();
 
   await subtest_content(
     extension,
@@ -304,8 +304,9 @@ async function subtest_message_panes(manifest) {
   let displayWindow = await openMessageInWindow(gMessage);
   let displayDocument = displayWindow.document;
   menu = displayDocument.getElementById("mailContext");
-  messagePane = displayDocument.getElementById("messageBrowser").contentWindow
-    .content;
+  messagePane = displayDocument
+    .getElementById("messageBrowser")
+    .contentWindow.getMessagePaneBrowser();
 
   await subtest_content(
     extension,

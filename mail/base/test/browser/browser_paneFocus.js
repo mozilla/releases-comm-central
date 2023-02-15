@@ -89,7 +89,7 @@ add_task(async function testMail3PaneTab() {
     globalSearch,
     folderTree,
     threadTree,
-    messageBrowser.contentWindow.content,
+    messageBrowser.contentWindow.getMessagePaneBrowser(),
     mailButton,
     globalSearch
   );
@@ -98,7 +98,7 @@ add_task(async function testMail3PaneTab() {
   about3Pane.restoreState({ folderPaneVisible: false });
   cycle(
     threadTree,
-    messageBrowser.contentWindow.content,
+    messageBrowser.contentWindow.getMessagePaneBrowser(),
     mailButton,
     globalSearch,
     threadTree

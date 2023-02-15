@@ -137,7 +137,8 @@ async function assert_ignore_works(aController) {
  * Helper function to click the first link in a message if one is available.
  */
 function click_link_if_available() {
-  let msgBody = get_about_message().content.contentDocument.body;
+  let msgBody = get_about_message().getMessagePaneBrowser().contentDocument
+    .body;
   if (msgBody.getElementsByTagName("a").length > 0) {
     msgBody.getElementsByTagName("a")[0].click();
   }

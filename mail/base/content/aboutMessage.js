@@ -36,10 +36,8 @@ const messengerBundle = Services.strings.createBundle(
 
 var gMessage, gMessageURI;
 
-var content;
-
 function getMessagePaneBrowser() {
-  return content;
+  return document.getElementById("messagepane");
 }
 
 function ReloadMessage() {
@@ -54,7 +52,7 @@ function MailSetCharacterSet() {
   gMessage = messageService.messageURIToMsgHdr(gMessageURI);
   messageService.DisplayMessage(
     gMessageURI,
-    content.docShell,
+    getMessagePaneBrowser().docShell,
     null,
     null,
     true,
@@ -67,7 +65,6 @@ window.addEventListener("DOMContentLoaded", event => {
     return;
   }
 
-  content = document.querySelector("browser");
   OnLoadMsgHeaderPane();
 
   Enigmail.msg.messengerStartup();
@@ -115,11 +112,7 @@ function displayMessage(uri, viewWrapper) {
     gViewWrapper = null;
     gDBView = null;
     HideMessageHeaderPane();
-    // Don't use MailE10SUtils.loadURI here, it will try to change remoteness
-    // and we don't want that.
-    content.loadURI(Services.io.newURI("about:blank"), {
-      triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
-    });
+    MailE10SUtils.loadAboutBlank(getMessagePaneBrowser());
     window.dispatchEvent(
       new CustomEvent("messageURIChanged", { bubbles: true, detail: uri })
     );
@@ -176,11 +169,12 @@ function displayMessage(uri, viewWrapper) {
     },
   });
 
-  MailE10SUtils.changeRemoteness(content, null);
-  content.docShell.allowAuth = false;
-  content.docShell.allowDNSPrefetch = false;
+  let browser = getMessagePaneBrowser();
+  MailE10SUtils.changeRemoteness(browser, null);
+  browser.docShell.allowAuth = false;
+  browser.docShell.allowDNSPrefetch = false;
 
-  messageService.DisplayMessage(uri, content.docShell, null, null, null, {});
+  messageService.DisplayMessage(uri, browser.docShell, null, null, null, {});
 
   if (gMessage.flags & Ci.nsMsgMessageFlags.HasRe) {
     document.title = `Re: ${gMessage.mime2DecodedSubject}`;
@@ -206,8 +200,7 @@ var folderListener = {
       let topWindow = window.browsingContext.topChromeWindow;
       let tabmail = topWindow.document.getElementById("tabmail");
       if (tabmail) {
-        let tab = tabmail.getTabForBrowser(content);
-        tabmail.closeTab(tab);
+        tabmail.closeTab(window.tabOrWindow);
       } else {
         topWindow.close();
       }
@@ -269,5 +262,5 @@ commandController.registerCallback("cmd_findPrevious", () =>
 );
 
 commandController.registerCallback("cmd_print", () => {
-  top.PrintUtils.startPrintWindow(content.browsingContext, {});
+  top.PrintUtils.startPrintWindow(getMessagePaneBrowser().browsingContext, {});
 });

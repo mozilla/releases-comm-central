@@ -13,7 +13,7 @@ const URL_BASE =
 
 var tabmail = document.getElementById("tabmail");
 var about3Pane = tabmail.currentAbout3Pane;
-var messagePane = about3Pane.messageBrowser.contentWindow.content;
+var messagePane = about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
 
 /**
  * Right-click on something and wait for the context menu to appear.

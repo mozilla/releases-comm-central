@@ -335,7 +335,7 @@ var smimeHeaderSink = {
         // TODO: This should be replaced with a real page, and made not ugly.
         HideMessageHeaderPane();
         MailE10SUtils.loadURI(
-          content,
+          getMessagePaneBrowser(),
           "data:text/html;base64," +
             btoa(
               `<html>

@@ -163,7 +163,7 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
         if (contexts.includes(menu.id) && node && node.contains(trigger)) {
           global.actionContextMenu({
             tab: window.tabOrWindow,
-            pageUrl: window.content.currentURI.spec,
+            pageUrl: window.getMessagePaneBrowser().currentURI.spec,
             extension: this.extension,
             onMessageDisplayAction: true,
             menu,

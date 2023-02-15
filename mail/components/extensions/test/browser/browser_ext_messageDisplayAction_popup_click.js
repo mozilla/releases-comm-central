@@ -21,7 +21,7 @@ add_setup(async () => {
   });
   about3Pane.threadTree.selectedIndex = 0;
   await BrowserTestUtils.browserLoaded(
-    about3Pane.messageBrowser.contentWindow.content
+    about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser()
   );
 });
 

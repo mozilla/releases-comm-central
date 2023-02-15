@@ -74,7 +74,8 @@ add_task(async function testNoMessages() {
   Assert.ok(BrowserTestUtils.is_hidden(about3Pane.messageBrowser));
   Assert.equal(about3Pane.messageBrowser.currentURI.spec, "about:message");
   Assert.equal(
-    about3Pane.messageBrowser.contentWindow.content.currentURI.spec,
+    about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser().currentURI
+      .spec,
     "about:blank"
   );
   EventUtils.synthesizeMouseAtCenter(

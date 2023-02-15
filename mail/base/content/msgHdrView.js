@@ -444,7 +444,7 @@ async function OnLoadMsgHeaderPane() {
     new Event("messagepane-loaded", { bubbles: false, cancelable: true })
   );
 
-  content.addProgressListener(
+  getMessagePaneBrowser().addProgressListener(
     messageHeaderSink2,
     Ci.nsIWebProgress.NOTIFY_STATE_ALL
   );
@@ -493,15 +493,15 @@ var MsgHdrViewObserver = {
         );
         ReloadMessage();
       }
-    } else if (
-      topic == "remote-content-blocked" &&
-      content.browsingContext.id == data
-    ) {
-      gMessageNotificationBar.setRemoteContentMsg(
-        null,
-        subject,
-        !gEncryptedSMIMEURIsService.isEncrypted(content.currentURI.spec)
-      );
+    } else if (topic == "remote-content-blocked") {
+      let browser = getMessagePaneBrowser();
+      if (browser.browsingContext.id == data) {
+        gMessageNotificationBar.setRemoteContentMsg(
+          null,
+          subject,
+          !gEncryptedSMIMEURIsService.isEncrypted(browser.currentURI.spec)
+        );
+      }
     }
   },
 };
@@ -4566,7 +4566,7 @@ function LoadMsgWithRemoteContent() {
   // then reload the message
 
   setMsgHdrPropertyAndReload("remoteContentPolicy", kAllowRemoteContent);
-  window.content.focus();
+  window.content?.focus();
 }
 
 /**

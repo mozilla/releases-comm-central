@@ -51,7 +51,7 @@ const MSG_TEXT = "Sundays are nothing without callaloo.";
 //const MSG_TEXT_SMIME = "This is a test message from Alice to Bob.";
 
 function getMsgBodyTxt(mc) {
-  let msgPane = get_about_message(mc.window).content;
+  let msgPane = get_about_message(mc.window).getMessagePaneBrowser();
   return msgPane.contentDocument.documentElement.textContent;
 }
 

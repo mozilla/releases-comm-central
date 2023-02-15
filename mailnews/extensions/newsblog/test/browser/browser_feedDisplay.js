@@ -64,7 +64,7 @@ add_task(async () => {
   let menuItem = about3Pane.document.getElementById(
     "folderPaneContext-subscribe"
   );
-  let messagePane = aboutMessage.content;
+  let messagePane = aboutMessage.getMessagePaneBrowser();
 
   let account = MailServices.accounts.getAccount("account1");
   let rootFolder = account.incomingServer.rootFolder;

@@ -105,7 +105,8 @@ async function subtest(row, expectedDisplayed, expectedSource) {
   select_click_row(row);
 
   let aboutMessage = get_about_message();
-  let displayContent = aboutMessage.content.contentDocument.body.textContent;
+  let displayContent = aboutMessage.getMessagePaneBrowser().contentDocument.body
+    .textContent;
   Assert.stringContains(
     displayContent,
     expectedDisplayed,

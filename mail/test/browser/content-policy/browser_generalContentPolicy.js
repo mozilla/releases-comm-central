@@ -272,7 +272,8 @@ function addMsgToFolderAndCheckContent(folder, test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been loaded
-  let messageDocument = get_about_message().content.contentDocument;
+  let messageDocument = get_about_message().getMessagePaneBrowser()
+    .contentDocument;
   if (test.shouldBeBlocked) {
     if (test.checkForAllowed(messageDocument.getElementById("testelement"))) {
       throw new Error(
@@ -343,7 +344,9 @@ async function checkStandaloneMessageWindow(test, loadAllowed) {
   wait_for_message_display_completion(msgc, true);
   if (
     test.checkForAllowed(
-      msgc.window.content.document.getElementById("testelement")
+      get_about_message(msgc.window)
+        .getMessagePaneBrowser()
+        .contentDocument.getElementById("testelement")
     ) != loadAllowed
   ) {
     let expected = loadAllowed ? "allowed" : "blocked";
@@ -437,7 +440,9 @@ async function allowRemoteContentAndCheck(test) {
 
   if (
     !test.checkForAllowed(
-      aboutMessage.content.contentDocument.getElementById("testelement")
+      aboutMessage
+        .getMessagePaneBrowser()
+        .contentDocument.getElementById("testelement")
     )
   ) {
     throw new Error(
@@ -493,7 +498,8 @@ function checkAllowFeedMsg(test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked
-  let messageDocument = get_about_message().content.contentDocument;
+  let messageDocument = get_about_message().getMessagePaneBrowser()
+    .contentDocument;
   if (!test.checkForAllowed(messageDocument.getElementById("testelement"))) {
     throw new Error(
       test.type + " has been unexpectedly blocked in feed message content."
@@ -530,7 +536,8 @@ function checkAllowForSenderWithPerms(test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked
-  let messageDocument = get_about_message().content.contentDocument;
+  let messageDocument = get_about_message().getMessagePaneBrowser()
+    .contentDocument;
   if (!test.checkForAllowed(messageDocument.getElementById("testelement"))) {
     throw new Error(
       `${test.type} has been unexpectedly blocked for sender=${authorEmailAddress}`
@@ -561,7 +568,7 @@ function checkAllowForHostsWithPerms(test) {
   assert_selected_and_displayed(gMsgNo);
 
   let aboutMessage = get_about_message();
-  let messageDocument = aboutMessage.content.contentDocument;
+  let messageDocument = aboutMessage.getMessagePaneBrowser().contentDocument;
   let src = messageDocument.getElementById("testelement").src;
 
   if (!src.startsWith("http")) {
@@ -581,7 +588,7 @@ function checkAllowForHostsWithPerms(test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked.
-  messageDocument = aboutMessage.content.contentDocument;
+  messageDocument = aboutMessage.getMessagePaneBrowser().contentDocument;
   if (!test.checkForAllowed(messageDocument.getElementById("testelement"))) {
     throw new Error(
       test.type + " has been unexpectedly blocked for url=" + uri.spec
@@ -615,7 +622,8 @@ add_task(async function test_generalContentPolicy() {
         // Only want to do this for the test case which has the remote image.
 
         // Add the site to the whitelist.
-        let messageDocument = get_about_message().content.contentDocument;
+        let messageDocument = get_about_message().getMessagePaneBrowser()
+          .contentDocument;
         let src = messageDocument.getElementById("testelement").src;
 
         let uri = Services.io.newURI(src);

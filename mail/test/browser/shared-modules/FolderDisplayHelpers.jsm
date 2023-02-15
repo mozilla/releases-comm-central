@@ -2277,14 +2277,10 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
       );
     }
     // make sure the content pane is pointed at about:blank
-    if (
-      messageWindow.content?.location &&
-      messageWindow.content.location.href != "about:blank"
-    ) {
+    let location = messageWindow.getMessagePaneBrowser()?.location;
+    if (location && location.href != "about:blank") {
       throw new Error(
-        "the content pane should be blank, but is showing: '" +
-          messageWindow.content.location.href +
-          "'"
+        `the content pane should be blank, but is showing: '${location.href}'`
       );
     }
   } else if (desiredIndices.length == 1) {
