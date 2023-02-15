@@ -305,8 +305,30 @@ var commandController = {
         );
       }
     },
-    cmd_space() {
-      // TODO: Implement
+    cmd_space(event) {
+      let messagePaneBrowser;
+      if (window.messageBrowser) {
+        messagePaneBrowser = window.messageBrowser.contentWindow.getMessagePaneBrowser();
+      } else {
+        messagePaneBrowser = window.getMessagePaneBrowser();
+      }
+      let contentWindow = messagePaneBrowser.contentWindow;
+
+      if (event?.shiftKey) {
+        // If at the start of the message, go to the previous one.
+        if (contentWindow?.scrollY > 0) {
+          contentWindow.scrollByPages(-1);
+        } else if (Services.prefs.getBoolPref("mail.advance_on_spacebar")) {
+          top.goDoCommand("cmd_previousUnreadMsg");
+        }
+      } else if (
+        Math.ceil(contentWindow?.scrollY) < contentWindow?.scrollMaxY
+      ) {
+        // If at the end of the message, go to the next one.
+        contentWindow.scrollByPages(1);
+      } else if (Services.prefs.getBoolPref("mail.advance_on_spacebar")) {
+        top.goDoCommand("cmd_nextUnreadMsg");
+      }
     },
     cmd_searchMessages() {
       // We always open a new search dialog for each search command.
@@ -347,6 +369,8 @@ var commandController = {
         return true;
       case "cmd_searchMessages":
         // TODO: This shouldn't be here, or should return false if there are no accounts.
+        return true;
+      case "cmd_space":
         return true;
     }
 

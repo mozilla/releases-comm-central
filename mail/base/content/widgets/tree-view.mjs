@@ -315,15 +315,14 @@ class TreeView extends HTMLElement {
         return;
       }
 
-      if (event.key == " ") {
-        if (this.currentIndex != -1 && !event.shiftKey) {
-          if (event[accelKeyName]) {
-            this._toggleSelected(this.currentIndex);
-          } else {
-            this._selectSingle(this.currentIndex);
-          }
+      if (event.key == " " && this.currentIndex != -1 && !event.shiftKey) {
+        if (event[accelKeyName]) {
+          this._toggleSelected(this.currentIndex);
+          event.preventDefault();
+        } else if (!this._selection.isSelected(this.currentIndex)) {
+          this._selectSingle(this.currentIndex);
+          event.preventDefault();
         }
-        event.preventDefault();
       }
     });
 
