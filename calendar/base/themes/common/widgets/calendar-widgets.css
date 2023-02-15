@@ -178,6 +178,7 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   display: flex;
   flex-direction: column;
   flex: 1 1 0;
+  justify-content: space-between;
 }
 
 #calendar-list-inner-pane {
