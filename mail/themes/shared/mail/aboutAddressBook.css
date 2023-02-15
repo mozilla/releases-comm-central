@@ -821,7 +821,6 @@ section#selectedCards ul {
 }
 
 #detailsFooter menulist:not([hidden]) {
-  display: inline;
   margin-inline: 4px;
   min-height: var(--in-content-button-height);
   -moz-context-properties: fill, stroke;

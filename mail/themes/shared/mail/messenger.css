@@ -343,6 +343,7 @@ toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolb
 
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
   height: auto;
+  width: auto;
   padding: 1px 5px;
 }
 

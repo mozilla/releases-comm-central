@@ -7,7 +7,7 @@
 #calendar-event-window,
 #calendar-task-window {
   min-width: 43em;
-  min-height: 46em;
+  min-height: 51em;
 }
 
 #calendar-event-dialog:-moz-lwtheme,
@@ -175,7 +175,8 @@ label.label {
 #event-grid-tab-box-row,
 #event-grid-tabbox,
 .event-grid-tabpanels {
-  height: 100%;
+  -moz-box-layout: legacy;
+  flex: 1;
 }
 
 .event-input-td > input {
@@ -293,10 +294,10 @@ label.label {
 }
 
 #event-grid-tab-vbox {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
   padding-bottom: 10px;
-  padding-inline-start: 8px;
-  padding-inline-end: 10px;
+  padding-inline: 8px 10px;
 }
 
 .separator td {

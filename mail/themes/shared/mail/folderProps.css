@@ -4,10 +4,7 @@
 
 #folderPropertiesDialog {
   min-height: 25em;
-}
-
-#folderPropTabBox {
-  max-width: 30em;
+  max-width: 50em;
 }
 
 #nameBox {
