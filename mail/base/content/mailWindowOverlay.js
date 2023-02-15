@@ -2087,20 +2087,3 @@ function openNewCardDialog() {
 function openNewABDialog(type = "JS") {
   toAddressBook({ action: `create_ab_${type}` });
 }
-
-function goPerformCommand(command, ...args) {
-  let chromeBrowser;
-  let tabmail = document.getElementById("tabmail");
-  if (tabmail) {
-    chromeBrowser = tabmail.currentTabInfo.chromeBrowser;
-  } else {
-    chromeBrowser = window.messageBrowser;
-  }
-
-  if (chromeBrowser) {
-    let { commandController } = chromeBrowser.contentWindow;
-    if (commandController?.isCommandEnabled(command)) {
-      commandController.doCommand(command, ...args);
-    }
-  }
-}
