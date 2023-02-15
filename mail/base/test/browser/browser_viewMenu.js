@@ -17,6 +17,7 @@ const viewMenuData = {
   menu_showFolderPaneCols: { disabled: true },
   menu_showMessage: { checked: true },
   menu_FolderViews: {},
+  menu_toggleFolderHeader: { checked: true },
   menu_allFolders: { disabled: true, checked: true },
   menu_smartFolders: {},
   menu_unreadFolders: {},
