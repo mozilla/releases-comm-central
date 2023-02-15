@@ -749,7 +749,7 @@ MailGlue.prototype = {
             ["calendars", "CalendarsEngine"],
             ["identities", "IdentitiesEngine"],
           ]) {
-            let ns = ChromeUtils.import(
+            let ns = ChromeUtils.importESModule(
               `resource://services-sync/engines/${moduleName}.sys.mjs`
             );
             await Weave.Service.engineManager.register(ns[engineName]);
