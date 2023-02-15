@@ -150,7 +150,7 @@ class HgUtils(VCSUtils):
                 continue
             jss.append(js)
 
-        cmd = ["hg", "files", f"set:glob:{path}/**/*.sys.mjs"]
+        cmd = ["hg", "files", f"set:glob:{path}/**/*.mjs"]
         for line in self.run(cmd):
             js = pathlib.Path(line)
             if is_excluded_from_imports(js) or is_excluded_from_convert(js):
