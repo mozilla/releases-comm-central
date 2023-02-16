@@ -166,7 +166,7 @@ class Pop3Client {
     this._msgWindow = msgWindow;
     this._sink.folder = folder;
     this._actionAfterAuth = this._actionStat;
-    this.urlListener?.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
+    this.urlListener.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
 
     await this._loadUidlState();
     this._actionCapa();
@@ -197,7 +197,7 @@ class Pop3Client {
     this._sink = sink;
     this._sink.buildMessageUri = true;
     this.urlListener = sink.folder.QueryInterface(Ci.nsIUrlListener);
-    this.urlListener?.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
+    this.urlListener.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
 
     await this._loadUidlState();
 
@@ -368,6 +368,10 @@ class Pop3Client {
     let secInfo = await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
     if (secInfo) {
       this.runningUri.failedSecInfo = secInfo;
+      // Notify about the error directly. Due to the await above, the _onClose
+      // event is likely to complete before we get here, which means _actionDone
+      // ran and won't run again.
+      this.urlListener.OnStopRunningUrl(this.runningUri, event.errorCode);
     }
     this._actionDone(event.errorCode);
   };
@@ -1497,7 +1501,7 @@ class Pop3Client {
   _cleanUp = status => {
     this._cleanedUp = true;
     this.close();
-    this.urlListener?.OnStopRunningUrl(this.runningUri, status);
+    this.urlListener.OnStopRunningUrl(this.runningUri, status);
     this.runningUri.SetUrlState(false, Cr.NS_OK);
     this.onDone?.(status);
     if (this._folderLocked) {
