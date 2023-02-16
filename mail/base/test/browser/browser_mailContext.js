@@ -203,12 +203,8 @@ add_task(async function testMultipleMessages() {
   checkMenuitems(mailContext);
 
   // Open the menu from the thread pane.
-
-  let treeRect = threadTree.getBoundingClientRect();
-  EventUtils.synthesizeMouse(
-    threadTree,
-    treeRect.x + treeRect.width / 2,
-    treeRect.y + 30,
+  EventUtils.synthesizeMouseAtCenter(
+    threadTree.getRowAtIndex(2),
     {
       type: "contextmenu",
     },
@@ -234,3 +230,5 @@ add_task(async function testMultipleMessages() {
   );
   mailContext.hidePopup();
 });
+
+// TODO: Run the message pane tests in a tab and window.

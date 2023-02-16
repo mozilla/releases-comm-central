@@ -52,7 +52,7 @@ function openContextMenu({ data, target }) {
     return false;
   }
 
-  mailContextMenu.fillMessageContextMenu(data, target.browsingContext);
+  mailContextMenu.setAsMessagePaneContextMenu(data, target.browsingContext);
   let screenX = data.context.screenXDevPx / window.devicePixelRatio;
   let screenY = data.context.screenYDevPx / window.devicePixelRatio;
   let popup = document.getElementById("mailContext");
@@ -118,10 +118,11 @@ var mailContextMenu = {
     );
   },
 
-  emptyMessageContextMenu() {
+  setAsThreadPaneContextMenu() {
     delete this.browsingContext;
     delete this.context;
     delete this.selectionInfo;
+    this.inThreadTree = true;
 
     for (let id of [
       "mailContext-openInBrowser",
@@ -142,7 +143,7 @@ var mailContextMenu = {
     }
   },
 
-  fillMessageContextMenu({ context, selectionInfo }, browsingContext) {
+  setAsMessagePaneContextMenu({ context, selectionInfo }, browsingContext) {
     function showItem(id, show) {
       let item = document.getElementById(id);
       if (item) {
@@ -150,6 +151,7 @@ var mailContextMenu = {
       }
     }
 
+    delete this.inThreadTree;
     this.browsingContext = browsingContext;
     this.context = context;
     this.selectionInfo = selectionInfo;
@@ -244,9 +246,7 @@ var mailContextMenu = {
     }
 
     let inAbout3Pane = !!window.threadTree;
-    let inThreadTree = window.threadTree?.contains(
-      event.explicitOriginalTarget
-    );
+    let inThreadTree = !!this.inThreadTree;
     let isDummyMessage = !gFolder;
     let message = isDummyMessage
       ? top.messenger.msgHdrFromURI(window.gMessageURI)

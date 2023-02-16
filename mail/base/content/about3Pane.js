@@ -3056,11 +3056,15 @@ customElements.whenDefined("tree-view-listrow").then(() => {
       }
 
       this.addEventListener("contextmenu", event => {
-        if (threadTree.selectedIndex == -1) {
+        let row = event.target.closest(`tr[is="thread-listrow"]`);
+        if (!row) {
           return;
         }
+        if (!gDBView.selection.isSelected(row.index)) {
+          threadTree.selectedIndex = row.index;
+        }
 
-        mailContextMenu.emptyMessageContextMenu();
+        mailContextMenu.setAsThreadPaneContextMenu();
         let popup = document.getElementById("mailContext");
         popup.openPopupAtScreen(event.screenX, event.screenY, true);
         event.preventDefault();
