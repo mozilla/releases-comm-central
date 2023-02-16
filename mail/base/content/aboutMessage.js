@@ -260,6 +260,16 @@ var preferenceObserver = {
   },
 };
 
+commandController.registerCallback("cmd_find", () =>
+  document.getElementById("FindToolbar").onFindCommand()
+);
+commandController.registerCallback("cmd_findAgain", () =>
+  document.getElementById("FindToolbar").onFindAgainCommand(false)
+);
+commandController.registerCallback("cmd_findPrevious", () =>
+  document.getElementById("FindToolbar").onFindAgainCommand(true)
+);
+
 commandController.registerCallback("cmd_print", () => {
   top.PrintUtils.startPrintWindow(content.browsingContext, {});
 });

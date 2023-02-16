@@ -3667,3 +3667,27 @@ commandController.registerCallback(
   () =>
     commandController._getViewCommandStatus(Ci.nsMsgViewCommandType.deleteJunk)
 );
+
+// Forward these commands directly to about:message.
+commandController.registerCallback(
+  "cmd_find",
+  () =>
+    this.messageBrowser.contentWindow.commandController.doCommand("cmd_find"),
+  () => !this.messageBrowser.hidden
+);
+commandController.registerCallback(
+  "cmd_findAgain",
+  () =>
+    this.messageBrowser.contentWindow.commandController.doCommand(
+      "cmd_findAgain"
+    ),
+  () => !this.messageBrowser.hidden
+);
+commandController.registerCallback(
+  "cmd_findPrevious",
+  () =>
+    this.messageBrowser.contentWindow.commandController.doCommand(
+      "cmd_findPrevious"
+    ),
+  () => !this.messageBrowser.hidden
+);
