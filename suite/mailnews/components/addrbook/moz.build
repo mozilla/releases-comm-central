@@ -5,4 +5,4 @@
 
 JAR_MANIFESTS += ["jar.mn"]
 
-DEFINES["TOOLKIT_DIR"] = "%s/toolkit" % (CONFIG["moztopsrcdir"],)
+DEFINES["TOOLKIT_DIR"] = "%s/toolkit" % (CONFIG["topsrcdir"],)

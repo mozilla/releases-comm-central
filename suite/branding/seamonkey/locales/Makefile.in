@@ -5,4 +5,4 @@
 LOCALE_TOPDIR=$(commtopsrcdir)
 LOCALE_RELATIVEDIR=suite/branding/seamonkey/locales
 
-include $(moztopsrcdir)/config/config.mk
+include $(topsrcdir)/config/config.mk
