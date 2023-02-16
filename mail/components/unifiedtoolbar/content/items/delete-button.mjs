@@ -4,6 +4,8 @@
 
 import { MailTabButton } from "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs";
 
+/* import-globals-from ../../../../base/content/globalOverlay.js */
+
 const lazy = {};
 ChromeUtils.defineModuleGetter(
   lazy,
@@ -32,14 +34,11 @@ function canDeleteFolder(folder) {
  */
 class DeleteButton extends MailTabButton {
   onCommandContextChange() {
-    const controller = document.commandDispatcher.getControllerForCommand(
-      "cmd_delete"
-    );
     const tabmail = document.getElementById("tabmail");
     try {
+      const controller = getEnabledControllerForCommand("cmd_delete");
       this.disabled =
-        !controller?.isCommandEnabled("cmd_delete") &&
-        !canDeleteFolder(tabmail.currentAbout3Pane?.gFolder);
+        !controller && !canDeleteFolder(tabmail.currentAbout3Pane?.gFolder);
     } catch {
       this.disabled = true;
     }
@@ -47,20 +46,12 @@ class DeleteButton extends MailTabButton {
 
   handleClick = event => {
     const command = "cmd_delete";
-    const controller = document.commandDispatcher.getControllerForCommand(
-      command
-    );
+    const controller = getEnabledControllerForCommand(command);
     if (controller) {
       event.preventDefault();
       event.stopPropagation();
-      if (controller.isCommandEnabled(command)) {
-        controller.doCommand(command);
-
-        event.preventDefault();
-        event.stopPropagation();
-
-        return;
-      }
+      controller.doCommand(command);
+      return;
     }
     const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
     if (!about3Pane || !canDeleteFolder(about3Pane.gFolder)) {

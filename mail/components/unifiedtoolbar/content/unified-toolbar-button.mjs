@@ -4,6 +4,8 @@
 
 //TODO keyboard handling, keyboard + commands
 
+/* import-globals-from ../../../base/content/globalOverlay.js */
+
 /**
  * Toolbar button implementation for the unified toolbar.
  * Template ID: unifiedToolbarButtonTemplate
@@ -77,13 +79,8 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
         });
       }
       // Update the disabled state to match the current state of the command.
-      const controller = document.commandDispatcher.getControllerForCommand(
-        this.observedCommand
-      );
       try {
-        this.disabled = !(
-          controller?.isCommandEnabled(this.observedCommand) ?? false
-        );
+        this.disabled = !getEnabledControllerForCommand(this.observedCommand);
       } catch {
         this.disabled = true;
       }
@@ -147,15 +144,11 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
     }
     if (this.hasAttribute("command")) {
       const command = this.getAttribute("command");
-      const controller = document.commandDispatcher.getControllerForCommand(
-        command
-      );
+      const controller = getEnabledControllerForCommand(command);
       if (controller) {
         event.preventDefault();
         event.stopPropagation();
-        if (controller.isCommandEnabled(command)) {
-          controller.doCommand(command);
-        }
+        controller.doCommand(command);
         return;
       }
       const commandElement = document.getElementById(command);

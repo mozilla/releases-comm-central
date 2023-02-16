@@ -4,6 +4,8 @@
 
 import { UnifiedToolbarButton } from "./unified-toolbar-button.mjs";
 
+/* import-globals-from ../../../base/content/globalOverlay.js */
+
 /**
  * Mail tab specific unified toolbar button. Instead of tracking a global
  * command, its state gets re-evaluated every time the state of about:3pane or
@@ -139,11 +141,8 @@ export class MailTabButton extends UnifiedToolbarButton {
     if (!this.observedCommand) {
       return;
     }
-    const controller = document.commandDispatcher.getControllerForCommand(
-      this.observedCommand
-    );
     try {
-      this.disabled = !controller?.isCommandEnabled(this.observedCommand);
+      this.disabled = !getEnabledControllerForCommand(this.observedCommand);
     } catch {
       this.disabled = true;
     }
