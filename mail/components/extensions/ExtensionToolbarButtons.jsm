@@ -438,8 +438,8 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
     if (button && enabled) {
       if (popupURL) {
         let popup =
-          lazy.ViewPopup.for(this.extension, window) ||
-          this.getPopup(window, popupURL);
+          lazy.ViewPopup.for(this.extension, window.top) ||
+          this.getPopup(window.top, popupURL);
         popup.viewNode.openPopup(button, "bottomleft topleft", 0, 0);
       } else {
         if (!this.lastClickInfo) {

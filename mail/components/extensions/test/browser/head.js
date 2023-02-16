@@ -243,7 +243,7 @@ var awaitExtensionPanel = async function(
 };
 
 function getBrowserActionPopup(extension, win = window) {
-  return win.document.getElementById("webextension-remote-preload-panel");
+  return win.top.document.getElementById("webextension-remote-preload-panel");
 }
 
 function closeBrowserAction(extension, win = window) {
