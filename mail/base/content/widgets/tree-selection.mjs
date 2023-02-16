@@ -16,6 +16,7 @@ export function TreeSelection(aTree) {
   this._shiftSelectPivot = null;
   this._ranges = [];
   this._count = 0;
+  this._invalidIndices = new Set();
 
   this._selectEventsSuppressed = false;
 }
@@ -54,6 +55,47 @@ TreeSelection.prototype = {
   // there's a view.
   _view: null,
 
+  /**
+   * A set of indices we think is invalid.
+   */
+  _invalidIndices: null,
+
+  /**
+   * Mark the currently selected rows as invalid.
+   */
+  _invalidateSelection() {
+    for (let [low, high] of this._ranges) {
+      for (let i = low; i <= high; i++) {
+        this._invalidIndices.add(i);
+      }
+    }
+  },
+
+  /**
+   * Call `invalidateRow` on the tree for each row we think is invalid.
+   */
+  _doInvalidateRows() {
+    if (this.selectEventsSuppressed) {
+      return;
+    }
+    if (this._tree) {
+      for (let i of this._invalidIndices) {
+        this._tree.invalidateRow(i);
+      }
+    }
+    this._invalidIndices.clear();
+  },
+
+  /**
+   * Call `invalidate` on the tree.
+   */
+  _doInvalidateAll() {
+    if (this._tree) {
+      this._tree.invalidate();
+    }
+    this._invalidIndices.clear();
+  },
+
   get tree() {
     return this._tree;
   },
@@ -61,6 +103,9 @@ TreeSelection.prototype = {
     this._tree = aTree;
   },
 
+  get view() {
+    return this._view;
+  },
   set view(aView) {
     this._view = aView;
   },
@@ -101,9 +146,10 @@ TreeSelection.prototype = {
    * Select the given row.  It does nothing if that row was already selected.
    */
   select(aViewIndex) {
+    this._invalidateSelection();
     // current index will provide our effective shift pivot
     this._shiftSelectPivot = null;
-    this.currentIndex = aViewIndex;
+    this._currentIndex = aViewIndex != -1 ? aViewIndex : null;
 
     if (this._count == 1 && this._ranges[0][0] == aViewIndex) {
       return;
@@ -112,12 +158,13 @@ TreeSelection.prototype = {
     if (aViewIndex >= 0) {
       this._count = 1;
       this._ranges = [[aViewIndex, aViewIndex]];
+      this._invalidIndices.add(aViewIndex);
     } else {
       this._count = 0;
       this._ranges = [];
     }
 
-    this.invalidateSelection();
+    this._doInvalidateRows();
     this._fireSelectionChanged();
   },
 
@@ -126,7 +173,7 @@ TreeSelection.prototype = {
   },
 
   toggleSelect(aIndex) {
-    this.currentIndex = aIndex;
+    this._currentIndex = aIndex;
     // If nothing's selected, select aIndex
     if (this._count == 0) {
       this._count = 1;
@@ -203,9 +250,8 @@ TreeSelection.prototype = {
       }
     }
 
-    if (this._tree) {
-      this._tree.invalidateRow(aIndex);
-    }
+    this._invalidIndices.add(aIndex);
+    this._doInvalidateRows();
     this._fireSelectionChanged();
   },
 
@@ -230,7 +276,7 @@ TreeSelection.prototype = {
     }
 
     this._shiftSelectPivot = aRangeStart;
-    this.currentIndex = aRangeEnd;
+    this._currentIndex = aRangeEnd;
 
     // enforce our ordering constraint for our ranges
     if (aRangeStart > aRangeEnd) {
@@ -239,9 +285,16 @@ TreeSelection.prototype = {
 
     // if we're not augmenting, then this is really easy.
     if (!aAugment) {
+      this._invalidateSelection();
+
       this._count = aRangeEnd - aRangeStart + 1;
       this._ranges = [[aRangeStart, aRangeEnd]];
-      this.invalidateSelection();
+
+      for (let i = aRangeStart; i <= aRangeEnd; i++) {
+        this._invalidIndices.add(i);
+      }
+
+      this._doInvalidateRows();
       this._fireSelectionChanged();
       return;
     }
@@ -300,9 +353,12 @@ TreeSelection.prototype = {
     } else {
       this._ranges.splice(insertionPoint, 0, [aRangeStart, aRangeEnd]);
     }
+    for (let i = aRangeStart; i <= aRangeEnd; i++) {
+      this._invalidIndices.add(i);
+    }
 
     this._updateCount();
-    this.invalidateSelection();
+    this._doInvalidateRows();
     this._fireSelectionChanged();
   },
 
@@ -365,8 +421,12 @@ TreeSelection.prototype = {
     }
     this._ranges.splice.apply(this._ranges, args);
 
+    for (let i = aRangeStart; i <= aRangeEnd; i++) {
+      this._invalidIndices.add(i);
+    }
+
     this._updateCount();
-    this.invalidateSelection();
+    this._doInvalidateRows();
     // note! nsTreeSelection doesn't fire a selection changed event, so neither
     //  do we, but it seems like we should
   },
@@ -376,10 +436,12 @@ TreeSelection.prototype = {
    *  cleared, even if there is no effective chance in selection.
    */
   clearSelection() {
+    this._invalidateSelection();
     this._shiftSelectPivot = null;
     this._count = 0;
     this._ranges = [];
-    this.invalidateSelection();
+
+    this._doInvalidateRows();
     this._fireSelectionChanged();
   },
 
@@ -402,7 +464,7 @@ TreeSelection.prototype = {
     this._count = rowCount;
     this._ranges = [[0, rowCount - 1]];
 
-    this.invalidateSelection();
+    this._doInvalidateAll();
     this._fireSelectionChanged();
   },
 
@@ -414,12 +476,6 @@ TreeSelection.prototype = {
       throw new Error("Try a real range index next time.");
     }
     [aMinObj.value, aMaxObj.value] = this._ranges[aRangeIndex];
-  },
-
-  invalidateSelection() {
-    if (this._tree) {
-      this._tree.invalidate();
-    }
   },
 
   /**
@@ -540,7 +596,7 @@ TreeSelection.prototype = {
         this._ranges[iTrans] = [low + aCount, high + aCount];
       }
       // invalidate and fire selection change notice
-      this.invalidateSelection();
+      this._doInvalidateAll();
       this._fireSelectionChanged();
       return;
     }
@@ -574,7 +630,7 @@ TreeSelection.prototype = {
       this._ranges.splice(iTrans, 1);
     }
 
-    this.invalidateSelection();
+    this._doInvalidateAll();
     this.selectEventsSuppressed = saveSuppress;
   },
 
@@ -625,10 +681,10 @@ TreeSelection.prototype = {
       return;
     }
 
+    this._invalidateSelection();
     this._currentIndex = aIndex != -1 ? aIndex : null;
-    if (this._tree) {
-      this._tree.invalidateRow(aIndex);
-    }
+    this._invalidIndices.add(aIndex);
+    this._doInvalidateRows();
   },
 
   currentColumn: null,
