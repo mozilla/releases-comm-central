@@ -15,5 +15,6 @@ kind-dependencies:
 
 job-template:
     shipping-phase: promote
+    shipping-product: thunderbird
     attributes:
         artifact_map: comm/taskcluster/comm_taskgraph/manifests/strings_source.yml

@@ -16,6 +16,7 @@ transforms:
 
 job-defaults:
     shipping-phase: promote
+    shipping-product: thunderbird
     treeherder:
         symbol: L10n-pre-S
     worker-type: b-linux-gcp
