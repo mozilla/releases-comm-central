@@ -49,6 +49,7 @@ button {
   inset-block: 0;
   border: none;
   background: none;
+  color: inherit;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -61,7 +62,7 @@ div {
   display: none;
   position: absolute;
   pointer-events: none;
-  color: color-mix(in srgb, FieldText 50%, transparent);
+  color: color-mix(in srgb, currentColor 50%, transparent);
   inset-block: var(--padding-block);
   inset-inline-start: 1ch;
   inset-inline-end: var(--search-icon-clearance);
