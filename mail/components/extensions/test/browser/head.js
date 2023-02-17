@@ -561,9 +561,6 @@ async function openContextMenuInPopup(extension, selector, win = window) {
   );
   let stack = getBrowserActionPopup(extension, win);
   let browser = stack.querySelector("browser");
-  // Ensure that the document layout has been flushed before triggering the mouse event
-  // (See Bug 1519808 for a rationale).
-  await browser.ownerGlobal.promiseDocumentFlushed(() => {});
   let popupShownPromise = BrowserTestUtils.waitForEvent(
     contentAreaContextMenu,
     "popupshown"
