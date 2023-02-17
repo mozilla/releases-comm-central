@@ -7967,7 +7967,9 @@ void nsImapProtocol::ProcessAfterAuthenticated() {
   bool utf8AcceptAllowed = m_allowUTF8Accept;
   m_allowUTF8Accept = false;
   if (utf8AcceptAllowed &&
-      (GetServerStateParser().GetCapabilityFlag() & kHasEnableCapability)) {
+      ((GetServerStateParser().GetCapabilityFlag() &
+        (kHasEnableCapability | kHasUTF8AcceptCapability)) ==
+       (kHasEnableCapability | kHasUTF8AcceptCapability))) {
     if (m_imapServerSink) {
       EnableUTF8Accept();
       m_allowUTF8Accept = GetServerStateParser().fUtf8AcceptEnabled;
@@ -7975,9 +7977,9 @@ void nsImapProtocol::ProcessAfterAuthenticated() {
       // UploadMessageFromFile().
       m_imapServerSink->SetServerUtf8AcceptEnabled(m_allowUTF8Accept);
       GetServerStateParser().fUtf8AcceptEnabled = false;
-    } else if (GetServerStateParser().GetCapabilityFlag() &
-               kHasUTF8AcceptCapability)
+    } else {
       NS_WARNING("UTF8=ACCEPT not enabled due to null m_imapServerSink");
+    }
   }
 }
 
