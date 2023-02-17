@@ -96,12 +96,12 @@
 }
 
 .spaces-toolbar:not([hidden]) ~ #messengerBody,
-.spaces-toolbar:not([hidden]) ~ #navigation-toolbox-background #titlebar {
+:root:not(.customizingUnifiedToolbar) .spaces-toolbar:not([hidden]) ~ #navigation-toolbox-background #titlebar {
   /* Move the window content in by the width of the spaces toolbar */
   margin-inline-start: var(--spaces-total-width);
 }
 
-.spaces-toolbar:not([hidden]) ~ #navigation-toolbox-background #unifiedToolbarContainer {
+:root:not(.customizingUnifiedToolbar) .spaces-toolbar:not([hidden]) ~ #navigation-toolbox-background #unifiedToolbarContainer {
   width: calc(100vw - var(--spaces-total-width));
 }
 
