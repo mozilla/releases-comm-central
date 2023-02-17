@@ -49,18 +49,27 @@
   --calendar-view-toggle-selected-hover-background: var(--layout-background-0);
   --calendar-view-toggle-border-color: transparent;
   --calendar-view-toggle-shadow-color: color-mix(in srgb, var(--color-black) 30%, transparent);
+  --calendar-month-day-box-padding: 2px;
+  --today-week-pill-padding-block: 3px;
+  --today-week-pill-padding-inline: 6px;
 }
 
 :root[uidensity="compact"] {
   --calendar-view-toggle-margin: 3px;
   --calendar-view-toggle-label-padding: 2px 12px;
   --calendar-nav-control-bar-gap: 6px;
+  --calendar-month-day-box-padding: 1px;
+  --today-week-pill-padding-block: 1px;
+  --today-week-pill-padding-inline: 3px;
 }
 
 :root[uidensity="touch"] {
   --calendar-view-toggle-margin: 6px 3px;
   --calendar-view-toggle-label-padding: 6px 15px;
   --calendar-nav-control-bar-gap: 12px;
+  --calendar-month-day-box-padding: 3px;
+  --today-week-pill-padding-block: 3px;
+  --today-week-pill-padding-inline: 9px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -75,7 +84,7 @@
     --viewOffTimeBackground: color-mix(in srgb, var(--viewBackground) 95%, var(--color-ink-30));
     --viewWeekendBackground: color-mix(in srgb, var(--viewBackground) 80%, var(--color-ink-40));
     --viewMonthOtherBackground: var(--layout-background-1);
-    --viewMonthWeekLabelBackground: var(--color-ink-90);
+    --viewMonthWeekLabelBackground: var(--color-ink-60);
     --viewMonthDayOtherBackground: color-mix(in srgb, var(--layout-background-1) 50%, var(--viewWeekendBackground));
     --calendar-nav-control-bg-color: var(--color-black);
     --calendar-nav-control-bg-color-hover: rgba(0, 0, 0, 0.3);
@@ -763,8 +772,9 @@ calendar-month-day-box {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-block-start: 2px;
-  padding-inline-end: 2px;
+  font-size: 1rem;
+  padding: var(--calendar-month-day-box-padding);
+  margin: 0;
 }
 
 .calendar-month-day-box-date-label[data-label="day"] {
@@ -808,21 +818,14 @@ calendar-month-day-box {
 }
 
 .calendar-month-day-box-date-label[relation="today"] {
-  padding: 0;
   color: var(--color-white);
   position: relative;
   font-weight: bold;
-}
-
-.calendar-month-day-box-date-label[relation="today"]::before {
   background-color: var(--viewTodayLabelColor);
   border-radius: 1000px;
   text-align: center;
-  line-height: 1.5;
-  height: 1.5rem;
-  width: fit-content;
-  min-width: 1.5rem;
-  padding-inline: .5rem;
+  padding-block: var(--today-week-pill-padding-block);
+  padding-inline: var(--today-week-pill-padding-inline);
 }
 
 .calendar-month-day-box-current-month[selected="true"],
@@ -853,30 +856,23 @@ calendar-month-day-box {
 
 .calendar-month-day-box-date-label {
   color: var(--viewMonthDayBoxLabelColor);
-  font-size: 0.9em;
+  font-size: 0.9rem;
+  font-weight: normal;
   text-align: right;
   margin: 0;
   padding: 2px;
 }
 
 .calendar-month-day-box-week-label {
-  color: var(--viewMonthDayBoxLabelColor);
-  font-size: 0.75em;
+  color: color-mix(in srgb, var(--viewMonthDayBoxLabelColor) 70%, transparent);
+  font-size: 0.75rem;
   font-weight: bold;
-  text-align: left;
   margin: 0;
-  opacity: 0.6;
-}
-
-.calendar-month-day-box-week-label::before {
   background-color: var(--viewMonthWeekLabelBackground);
   border-radius: 1000px;
   text-align: center;
-  line-height: 2;
-  height: 1.5rem;
-  width: fit-content;
-  min-width: 2.5rem;
-  padding-inline: .5rem;
+  padding-block: var(--today-week-pill-padding-block);
+  padding-inline: var(--today-week-pill-padding-inline);
 }
 
 .calendar-color-box {

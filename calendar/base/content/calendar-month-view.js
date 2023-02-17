@@ -21,7 +21,7 @@
     static get inheritedAttributes() {
       return {
         ".calendar-month-week-label": "relation,selected",
-        ".calendar-month-day-label": "relation,selected,value",
+        ".calendar-month-day-label": "relation,selected,text=value",
       };
     }
 
@@ -46,20 +46,17 @@
 
       this.setAttribute("orient", "vertical");
 
-      let monthDayLabels = document.createXULElement("hbox");
+      let monthDayLabels = document.createElement("h2");
       monthDayLabels.classList.add("calendar-month-day-box-dates");
 
-      let weekLabel = document.createXULElement("label");
+      let weekLabel = document.createElement("span");
       weekLabel.setAttribute("data-label", "week");
-      weekLabel.setAttribute("flex", "1");
-      weekLabel.setAttribute("crop", "end");
       weekLabel.setAttribute("hidden", "true");
       weekLabel.style.pointerEvents = "none";
       weekLabel.classList.add("calendar-month-day-box-week-label", "calendar-month-week-label");
 
-      let dayLabel = document.createXULElement("label");
+      let dayLabel = document.createElement("span");
       dayLabel.setAttribute("data-label", "day");
-      dayLabel.setAttribute("flex", "1");
       dayLabel.style.pointerEvents = "none";
       dayLabel.classList.add("calendar-month-day-box-date-label", "calendar-month-day-label");
 
@@ -919,7 +916,7 @@
               weekLabel.removeAttribute("hidden");
               const weekNumber = cal.weekInfoService.getWeekTitle(date);
               const weekString = cal.l10n.getCalString("multiweekViewWeek", [weekNumber]);
-              weekLabel.value = weekString;
+              weekLabel.textContent = weekString;
             } else {
               weekLabel.hidden = true;
             }
