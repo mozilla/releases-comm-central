@@ -146,6 +146,12 @@ global-search-bar {
   display: block;
 }
 
+@media (-moz-windows-accent-color-in-titlebar) {
+  global-search-bar {
+    color: -moz-dialogtext;
+  }
+}
+
 kbd {
   background-color: var(--color-gray-20);
   color: var(--color-ink-50);
