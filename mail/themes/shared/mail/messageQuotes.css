@@ -32,6 +32,7 @@ body {
 
 body blockquote[type=cite] {
   margin-block: 1ex;
+  margin-inline: 0;
   padding: 0.4ex 1ex;
   border-inline-start: 2px solid rgb(114, 159, 207); /* Sky Blue 1 */
 }
