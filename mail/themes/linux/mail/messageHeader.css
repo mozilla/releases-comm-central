@@ -8,12 +8,6 @@
 
 @import url("chrome://messenger/skin/shared/messageHeader.css");
 
-/* ::::: for the entire area ::::: */
-#singleMessage {
-  color: WindowText;
-  background-color: AppWorkspace;
-}
-
 /* ::::: expanded header pane ::::: */
 
 .inline-toolbox {

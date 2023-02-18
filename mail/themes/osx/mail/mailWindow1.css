@@ -63,14 +63,6 @@ treechildren::-moz-tree-row(dummy) {
   padding-inline-start: 0;
 }
 
-/* ..... message pane adjustments ..... */
-
-@media not (prefers-color-scheme: dark) {
-  #messagepanebox {
-    background-color: #fff;
-  }
-}
-
 .telemetry-text-link {
   color: #fff;
 }

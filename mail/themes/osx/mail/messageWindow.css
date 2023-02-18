@@ -44,11 +44,5 @@
 
 #messagepanebox {
   -moz-box-flex: 3;
-}
-
-/* ::::: message header borders ::::: */
-
-#messagepanebox:not(:-moz-lwtheme) {
   text-shadow: none;
-  background-color: var(--toolbar-bgcolor);
 }

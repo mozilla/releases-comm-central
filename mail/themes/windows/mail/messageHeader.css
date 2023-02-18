@@ -8,38 +8,8 @@
 
 @import url("chrome://messenger/skin/shared/messageHeader.css");
 
-/* ::::: for the entire area ::::: */
-#singleMessage {
-  color: WindowText;
-  background-color: ButtonFace;
-}
-
 .inline-toolbox {
   padding-inline-end: 2px;
-}
-
-/* ::::: msg header captions ::::: */
-
-@media not (prefers-color-scheme: dark) {
-  @media (-moz-windows-compositor) and (-moz-windows-default-theme) {
-    #singleMessage {
-      background-color: #f8f8f8;
-    }
-  }
-
-  @media (-moz-platform: windows-win7) and (-moz-windows-default-theme) {
-    #displayBox[collapsed="true"] + splitter + #messagepaneboxwrapper
-    #singleMessage {
-      background-image: none;
-      background-color: rgb(233, 239, 245);
-    }
-  }
-}
-
-@media (-moz-windows-default-theme) {
-  #attachment-splitter {
-    border-bottom-color: var(--color-gray-30);
-  }
 }
 
 /* Customization options */

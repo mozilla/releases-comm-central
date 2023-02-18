@@ -8,18 +8,10 @@
 
 @import url("chrome://messenger/skin/shared/messageHeader.css");
 
-#singleMessage {
-  background-color: -moz-Dialog;
-}
-
 /* ::::: msg header toolbars ::::: */
 
 .inline-toolbox {
   padding-inline-end: 3px;
-}
-
-#mail-notification-top > .notificationbox-stack {
-  background-color: transparent;
 }
 
 /* ::::: collapsed view styles ::::: */
@@ -36,10 +28,6 @@
 button.button-focusable:focus-visible:not(:hover) {
   outline: none;
   box-shadow: 0 0 0 3px -moz-mac-focusring;
-}
-
-#attachment-splitter {
-  border-bottom-color: #bdbdbd;
 }
 
 

@@ -39,6 +39,11 @@
   }
 }
 
+#messagepanebox {
+  color: var(--layout-color-1);
+  background-color: var(--layout-background-1);
+}
+
 .main-header-area {
   border-bottom-style: none;
   display: block;
@@ -98,6 +103,10 @@
 
 #mail-notification-top {
   border-bottom: 1px solid var(--splitter-color);
+}
+
+#mail-notification-top > .notificationbox-stack[notificationside="top"] {
+  background-color: var(--layout-background-1);
 }
 
 /* ::::: msg header toolbars ::::: */
@@ -337,7 +346,7 @@ mail-tagfield[collapsed="true"] {
   appearance: none;
   background-color: transparent;
   border-width: 0;
-  border-bottom: 1px solid ThreeDShadow;
+  border-bottom: 1px solid var(--color-gray-30);
   /* splitter grip area */
   height: 5px;
   /* make only the splitter border visible */

@@ -82,16 +82,7 @@ treechildren::-moz-tree-cell-text(dummy) {
 #messagepanebox {
   -moz-box-flex: 2;
   overflow: hidden;
-}
-
-#multimessage {
-  background-color: Field;
-}
-
-@media (prefers-color-scheme: dark) {
-  #messagepanewrapper {
-    background-color: #2a2a2e;
-  }
+  background-color: var(--layout-background-1);
 }
 
 /* splitter adjustments */
