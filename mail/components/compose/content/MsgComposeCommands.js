@@ -5641,21 +5641,12 @@ function SetComposeDetails(newValues) {
     editor.selectAll();
     // Remove \r from line endings, which cause extra newlines (bug 1672407).
     let mailEditor = editor.QueryInterface(Ci.nsIEditorMailSupport);
-    // If we are in read-only mode (for example in an onBeforeSend event), we need
-    // to remove the read-only flag for insertTextWithQuotations() to work properly.
-    const wasReadOnly = editor.flags & Ci.nsIEditor.eEditorReadonlyMask;
-    if (wasReadOnly) {
-      gMsgCompose.editor.flags &= ~Ci.nsIEditor.eEditorReadonlyMask;
-    }
     if (newValues.plainTextBody === "") {
       editor.deleteSelection(editor.eNone, editor.eStrip);
     } else {
       mailEditor.insertTextWithQuotations(
         newValues.plainTextBody.replaceAll("\r\n", "\n")
       );
-    }
-    if (wasReadOnly) {
-      gMsgCompose.editor.flags |= Ci.nsIEditor.eEditorReadonlyMask;
     }
     gMsgCompose.bodyModified = true;
   }
