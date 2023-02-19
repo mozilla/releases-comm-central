@@ -1095,10 +1095,28 @@ class TreeViewListbox extends HTMLTableSectionElement {
    * here is important.
    */
   _ensureVisibleRowsAreDisplayed() {
-    let hasRows = !this.view || this.view.rowCount == 0;
-    this.placeholder?.classList.toggle("show", hasRows);
+    let rowCount = this._view ? this._view.rowCount : 0;
+    this.placeholder?.classList.toggle("show", !rowCount);
 
-    if (hasRows) {
+    if (!rowCount) {
+      return;
+    }
+
+    if (
+      this.scrollable.scrollTop >
+      rowCount * this._rowElementClass.ROW_HEIGHT
+    ) {
+      // Beyond the end of the list. We're about to scroll anyway, so clear
+      // everything out and wait for to happen. Don't call `invalidate` here,
+      // or you'll end up in an infinite loop.
+      this.replaceChildren();
+      this._rows.clear();
+      this._firstRowIndex = 0;
+      this._lastRowIndex = 0;
+      this.parentNode.spacerTop.setHeight(0);
+      this.parentNode.spacerBottom.setHeight(
+        rowCount * this._rowElementClass.ROW_HEIGHT
+      );
       return;
     }
 
@@ -1108,7 +1126,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
         this.constructor.OVERFLOW_BUFFER
     );
     let last = Math.min(
-      this._view.rowCount - 1,
+      rowCount - 1,
       Math.floor(
         (this.scrollable.scrollTop + this.scrollable.clientHeight) /
           this._rowElementClass.ROW_HEIGHT
@@ -1132,7 +1150,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
     }
     for (
       let i = Math.max(this._lastRowIndex + 1, first),
-        iTo = Math.min(last + 1, this._view.rowCount);
+        iTo = Math.min(last + 1, rowCount);
       i < iTo;
       i++
     ) {
@@ -1149,7 +1167,7 @@ class TreeViewListbox extends HTMLTableSectionElement {
 
     let lastActualRow = this.getRowAtIndex(last);
     row = lastActualRow.nextElementSibling;
-    while (lastActualRow.nextElementSibling) {
+    while (row) {
       row.remove();
       this._rows.delete(row.index);
       row = lastActualRow.nextElementSibling;
@@ -1158,7 +1176,6 @@ class TreeViewListbox extends HTMLTableSectionElement {
     this._firstRowIndex = first;
     this._lastRowIndex = last;
 
-    let rowCount = this._view ? this._view.rowCount : 0;
     this.parentNode.spacerBottom.setHeight(
       (rowCount - last - 1) * this._rowElementClass.ROW_HEIGHT
     );
