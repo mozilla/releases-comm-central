@@ -385,6 +385,18 @@ class ImapIncomingServer extends MsgIncomingServer {
     return this.getIntValue("delete_model");
   }
 
+  set deleteModel(value) {
+    this.setIntValue("delete_model", value);
+    let trashFolder = this._getFolder(this.trashFolderName);
+    if (trashFolder) {
+      if (value == Ci.nsMsgImapDeleteModels.MoveToTrash) {
+        trashFolder.setFlag(Ci.nsMsgFolderFlags.Trash);
+      } else {
+        trashFolder.clearFlag(Ci.nsMsgFolderFlags.Trash);
+      }
+    }
+  }
+
   get usingSubscription() {
     return this.getBoolValue("using_subscription");
   }
