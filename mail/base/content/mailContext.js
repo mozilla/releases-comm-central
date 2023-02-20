@@ -84,7 +84,7 @@ var mailContextMenu = {
     "mailContext-markReadByDate": "cmd_markReadByDate",
     "mailContext-markFlagged": "cmd_markAsFlagged",
     "mailContext-archive": "cmd_archive",
-    "mailcontext-moveToFolderAgain": "cmd_moveToFolderAgain",
+    "mailContext-moveToFolderAgain": "cmd_moveToFolderAgain",
     "mailContext-delete": "cmd_delete",
     "mailContext-ignoreThread": "cmd_killThread",
     "mailContext-ignoreSubthread": "cmd_killSubthread",

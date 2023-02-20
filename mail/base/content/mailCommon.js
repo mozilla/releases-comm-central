@@ -203,9 +203,9 @@ var commandController = {
         Services.prefs.getStringPref("mail.last_msg_movecopy_target_uri")
       );
       if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")) {
-        mailContextMenu.moveMessage(folder);
+        commandController.doCommand("cmd_moveMessage", folder);
       } else {
-        mailContextMenu.copyMessage(folder);
+        commandController.doCommand("cmd_copyMessage", folder);
       }
     },
     cmd_delete() {
