@@ -495,7 +495,13 @@ var commandController = {
     }
 
     if (command in this._navigationCommands) {
-      this._navigate(this._navigationCommands[command]);
+      if (parent.location.href == "about:3pane") {
+        // If we're in about:message inside about:3pane, it's the parent
+        // window that needs to advance to the next message.
+        parent.commandController.doCommand(command, ...args);
+      } else {
+        this._navigate(this._navigationCommands[command]);
+      }
       return;
     }
 
@@ -577,8 +583,8 @@ var commandController = {
 
     if (resultIndex.value == nsMsgViewIndex_None) {
       // Not in about:message
-      if (window.displayFolder) {
-        CrossFolderNavigation(navigationType);
+      if (window.displayFolder && CrossFolderNavigation(navigationType)) {
+        this._navigate(navigationType);
       }
       return;
     }
@@ -586,10 +592,11 @@ var commandController = {
       return;
     }
 
-    gViewWrapper.dbView.selection.select(resultIndex.value);
     if (window.threadTree) {
-      window.threadTree.scrollToIndex(resultIndex.value);
+      window.threadTree.selectedIndex = resultIndex.value;
       window.threadTree.focus();
+    } else {
+      gViewWrapper.dbView.selection.select(resultIndex.value);
     }
     displayMessage(gViewWrapper.dbView.URIForFirstSelectedMessage);
   },

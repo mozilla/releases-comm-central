@@ -5,8 +5,7 @@
 
 /*  This file contains the js functions necessary to implement view navigation within the 3 pane. */
 
-/* import-globals-from commandglue.js */
-/* import-globals-from mailWindow.js */
+/* globals gDBView */ // mailCommon.js
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -138,7 +137,7 @@ function CrossFolderNavigation(type) {
     type != Ci.nsMsgNavigationType.forward &&
     type != Ci.nsMsgNavigationType.back
   ) {
-    return;
+    return false;
   }
 
   if (
@@ -152,7 +151,7 @@ function CrossFolderNavigation(type) {
 
     // not crossing folders, don't find next
     if (nextMode == 2) {
-      return;
+      return false;
     }
 
     var folder = FindNextFolder();
@@ -180,11 +179,12 @@ function CrossFolderNavigation(type) {
             {}
           )
         ) {
-          return;
+          return false;
         }
       }
-      // about:3pane
+
       window.displayFolder(folder.URI);
+      return true;
     }
   } else {
     // if no message is loaded, relPos should be 0, to
@@ -195,15 +195,14 @@ function CrossFolderNavigation(type) {
     } else {
       relPos = -1;
     }
-    var folderUri = messenger.getFolderUriAtNavigatePos(relPos);
-    var curPos = messenger.navigatePos;
+    var folderUri = top.messenger.getFolderUriAtNavigatePos(relPos);
+    var curPos = top.messenger.navigatePos;
     curPos += relPos;
-    messenger.navigatePos = curPos;
-    if (SelectFolder) {
-      SelectFolder(folderUri);
-    } else {
-      // about:3pane
-      window.displayFolder(folderUri);
-    }
+    top.messenger.navigatePos = curPos;
+
+    window.displayFolder(folderUri);
+    return true;
   }
+
+  return false;
 }
