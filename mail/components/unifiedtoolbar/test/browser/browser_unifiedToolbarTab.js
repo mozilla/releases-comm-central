@@ -15,6 +15,20 @@ const waitForRender = () => {
   });
 };
 const getTabButton = tab => tab.shadowRoot.querySelector("button");
+/**
+ * Get the relevant elements for the tab at the given index.
+ *
+ * @param {number} tabIndex
+ * @returns {{tab: UnifiedToolbarTab, button: HTMLButtonElement, pane: HTMLElement}}
+ */
+const getTabElements = tabIndex => {
+  const tab = testDocument.querySelector(
+    `unified-toolbar-tab:nth-child(${tabIndex})`
+  );
+  const button = getTabButton(tab);
+  const pane = tab.pane;
+  return { tab, button, pane };
+};
 
 add_setup(async function() {
   let tab = tabmail.openTab("contentTab", {
@@ -79,118 +93,194 @@ add_task(function test_tabElementInitialization() {
   );
 });
 
-add_task(async function test_switchingTabWithMouse() {
-  const tab1 = testDocument.querySelector("unified-toolbar-tab:nth-child(1)");
-  const tab1Button = getTabButton(tab1);
-  const tab2 = testDocument.querySelector("unified-toolbar-tab:nth-child(2)");
-  const tab2Button = getTabButton(tab2);
-  const tabPane1 = testDocument.getElementById("tabPane");
-  const tabPane2 = testDocument.getElementById("otherTabPane");
+add_task(async function test_paneGetter() {
+  const tab1 = getTabElements(1);
+  const tabPane = testDocument.getElementById("tabPane");
+  const tab2 = getTabElements(2);
+  const otherTabPane = testDocument.getElementById("otherTabPane");
 
-  tab2Button.click();
-  ok(tab2.hasAttribute("selected"), "Other tab is selected");
-  is(tab2Button.tabIndex, 0, "Other tab is in focus ring");
-  ok(!tab1.hasAttribute("selected"), "First tab is not selected");
-  is(tab1Button.tabIndex, -1, "First tab is not in focus ring");
+  is(
+    tab1.button.getAttribute("aria-controls"),
+    tabPane.id,
+    "Tab 1 controls tab 1 pane"
+  );
+  is(
+    tab2.button.getAttribute("aria-controls"),
+    otherTabPane.id,
+    "Tab 2 controls tab 2 pane"
+  );
+
+  Assert.strictEqual(
+    tab1.tab.pane,
+    tabPane,
+    "Tab 1 pane getter returns #tabPane"
+  );
+  Assert.strictEqual(
+    tab2.tab.pane,
+    otherTabPane,
+    "Tab 2 pane getter returns #otherTabPane"
+  );
+});
+
+add_task(async function test_unselect() {
+  const tab = getTabElements(1);
+
+  tab.tab.unselect();
+
+  ok(!tab.button.hasAttribute("aria-selected"), "Tab not marked as selected");
+  is(tab.button.tabIndex, -1, "Tab not in focus ring");
+  ok(!tab.tab.hasAttribute("selected"), "Tab not marked selected");
+  ok(tab.pane.hidden, "Tab pane hidden");
+});
+
+add_task(async function test_select() {
+  const tab1 = getTabElements(1);
+  const tab2 = getTabElements(2);
+
+  let tabswitchPromise = BrowserTestUtils.waitForEvent(
+    testDocument.body,
+    "tabswitch"
+  );
+  tab1.tab.select();
+
+  await tabswitchPromise;
+  ok(tab1.tab.hasAttribute("selected"), "Tab 1 selected");
+  is(
+    tab1.button.getAttribute("aria-selected"),
+    "true",
+    "Tab 1 marked as selected"
+  );
+  is(tab1.button.tabIndex, 0, "Tab 1 keyboard selectable");
+  ok(!tab1.pane.hidden, "Tab pane for tab 1 visible");
+
+  tabswitchPromise = BrowserTestUtils.waitForEvent(tab2.tab, "tabswitch");
+  tab2.tab.select();
+
+  await tabswitchPromise;
+  ok(tab2.tab.hasAttribute("selected"), "Tab 2 selected");
+  is(
+    tab2.button.getAttribute("aria-selected"),
+    "true",
+    "Tab 2 has a11y selection"
+  );
+  is(tab2.button.tabIndex, 0, "Tab 2 keyboard selectable");
+  ok(!tab2.pane.hidden, "Tab pane for tab 2 visible");
+
+  ok(!tab1.tab.hasAttribute("selected"), "Tab 1 unselected");
+  ok(!tab1.button.hasAttribute("aria-selected"), "Tab 1 marked as unselected");
+  is(tab1.button.tabIndex, -1, "Tab 1 not in focus ring");
+  ok(tab1.pane.hidden, "Tab pane for tab 1 hidden");
+});
+
+add_task(async function test_switchingTabWithMouse() {
+  const tab1 = getTabElements(1);
+  const tab2 = getTabElements(2);
+
+  tab2.button.click();
+  ok(tab2.tab.hasAttribute("selected"), "Other tab is selected");
+  is(tab2.button.tabIndex, 0, "Other tab is in focus ring");
+  ok(!tab1.tab.hasAttribute("selected"), "First tab is not selected");
+  is(tab1.button.tabIndex, -1, "First tab is not in focus ring");
   ok(
-    BrowserTestUtils.is_visible(tabPane2),
+    BrowserTestUtils.is_visible(tab2.pane),
     "Tab pane for selected tab is visible"
   );
-  ok(BrowserTestUtils.is_hidden(tabPane1), "Tab pane for first tab is hidden");
+  ok(BrowserTestUtils.is_hidden(tab1.pane), "Tab pane for first tab is hidden");
 
-  tab1Button.click();
-  ok(tab1.hasAttribute("selected"), "First tab is selected");
-  is(tab1Button.tabIndex, 0, "First tab is in focus ring");
-  ok(!tab2.hasAttribute("selected"), "Other tab is not selected");
-  is(tab2Button.tabIndex, -1, "Other tab is not in focus ring");
+  tab1.button.click();
+  ok(tab1.tab.hasAttribute("selected"), "First tab is selected");
+  is(tab1.button.tabIndex, 0, "First tab is in focus ring");
+  ok(!tab2.tab.hasAttribute("selected"), "Other tab is not selected");
+  is(tab2.button.tabIndex, -1, "Other tab is not in focus ring");
   ok(
-    BrowserTestUtils.is_visible(tabPane1),
+    BrowserTestUtils.is_visible(tab1.pane),
     "Tab pane for first tab is visible"
   );
-  ok(BrowserTestUtils.is_hidden(tabPane2), "Tab pane for other tab is hidden");
+  ok(BrowserTestUtils.is_hidden(tab2.pane), "Tab pane for other tab is hidden");
 });
 
 add_task(async function test_switchingTabWithKeyboard() {
-  const tab1 = testDocument.querySelector("unified-toolbar-tab:nth-child(1)");
-  const tab1Button = getTabButton(tab1);
-  const tab2 = testDocument.querySelector("unified-toolbar-tab:nth-child(2)");
-  const tab2Button = getTabButton(tab2);
-  const tabPane1 = testDocument.getElementById("tabPane");
-  const tabPane2 = testDocument.getElementById("otherTabPane");
+  const tab1 = getTabElements(1);
+  const tab2 = getTabElements(2);
 
-  tab1.focus();
-  is(testDocument.activeElement, tab1, "Initially first tab is active");
+  tab1.tab.focus();
+  is(testDocument.activeElement, tab1.tab, "Initially first tab is active");
 
   await BrowserTestUtils.synthesizeKey("KEY_ArrowRight", {}, browser);
-  is(testDocument.activeElement, tab2, "Second tab is focused");
-  is(tab2.shadowRoot.activeElement, tab2Button, "Button within tab is focused");
+  is(testDocument.activeElement, tab2.tab, "Second tab is focused");
+  is(
+    tab2.tab.shadowRoot.activeElement,
+    tab2.button,
+    "Button within tab is focused"
+  );
   await BrowserTestUtils.synthesizeKey(" ", {}, browser);
-  ok(tab2.hasAttribute("selected"), "Other tab is selected");
-  is(tab2Button.tabIndex, 0, "Other tab is in focus ring");
-  ok(!tab1.hasAttribute("selected"), "First tab is not selected");
-  is(tab1Button.tabIndex, -1, "First tab is not in focus ring");
+  ok(tab2.tab.hasAttribute("selected"), "Other tab is selected");
+  is(tab2.button.tabIndex, 0, "Other tab is in focus ring");
+  ok(!tab1.tab.hasAttribute("selected"), "First tab is not selected");
+  is(tab1.button.tabIndex, -1, "First tab is not in focus ring");
   ok(
-    BrowserTestUtils.is_visible(tabPane2),
+    BrowserTestUtils.is_visible(tab2.pane),
     "Tab pane for selected tab is visible"
   );
-  ok(BrowserTestUtils.is_hidden(tabPane1), "Tab pane for first tab is hidden");
+  ok(BrowserTestUtils.is_hidden(tab1.pane), "Tab pane for first tab is hidden");
 
   await BrowserTestUtils.synthesizeKey("KEY_ArrowLeft", {}, browser);
-  is(testDocument.activeElement, tab1, "Previous tab is selected");
+  is(testDocument.activeElement, tab1.tab, "Previous tab is selected");
   await BrowserTestUtils.synthesizeKey("KEY_End", {}, browser);
-  is(testDocument.activeElement, tab2, "Last tab is selected");
+  is(testDocument.activeElement, tab2.tab, "Last tab is selected");
   await BrowserTestUtils.synthesizeKey("KEY_Home", {}, browser);
-  is(testDocument.activeElement, tab1, "First tab is selected");
+  is(testDocument.activeElement, tab1.tab, "First tab is selected");
   await BrowserTestUtils.synthesizeKey("KEY_Enter", {}, browser);
-  ok(tab1.hasAttribute("selected"), "First tab is selected");
-  is(tab1Button.tabIndex, 0, "First tab is in focus ring");
-  ok(!tab2.hasAttribute("selected"), "Other tab is not selected");
-  is(tab2Button.tabIndex, -1, "Other tab is not in focus ring");
+  ok(tab1.tab.hasAttribute("selected"), "First tab is selected");
+  is(tab1.button.tabIndex, 0, "First tab is in focus ring");
+  ok(!tab2.tab.hasAttribute("selected"), "Other tab is not selected");
+  is(tab2.button.tabIndex, -1, "Other tab is not in focus ring");
   ok(
-    BrowserTestUtils.is_visible(tabPane1),
+    BrowserTestUtils.is_visible(tab1.pane),
     "Tab pane for first tab is visible"
   );
-  ok(BrowserTestUtils.is_hidden(tabPane2), "Tab pane for other tab is hidden");
+  ok(BrowserTestUtils.is_hidden(tab2.pane), "Tab pane for other tab is hidden");
 });
 
 add_task(async function test_switchingTabWithKeyboardRTL() {
   testDocument.dir = "rtl";
   await waitForRender();
-  const tab1 = testDocument.querySelector("unified-toolbar-tab:nth-child(1)");
-  const tab1Button = getTabButton(tab1);
-  const tab2 = testDocument.querySelector("unified-toolbar-tab:nth-child(2)");
-  const tab2Button = getTabButton(tab2);
-  const tabPane1 = testDocument.getElementById("tabPane");
-  const tabPane2 = testDocument.getElementById("otherTabPane");
-  tab1.focus();
-  is(testDocument.activeElement, tab1, "Initially first tab is active");
+  const tab1 = getTabElements(1);
+  const tab2 = getTabElements(2);
+
+  tab1.tab.focus();
+  is(testDocument.activeElement, tab1.tab, "Initially first tab is active");
 
   await BrowserTestUtils.synthesizeKey("KEY_ArrowLeft", {}, browser);
-  is(testDocument.activeElement, tab2, "Second tab is selected");
-  is(tab2.shadowRoot.activeElement, tab2Button, "Button within tab is focused");
+  is(testDocument.activeElement, tab2.tab, "Second tab is selected");
+  is(
+    tab2.tab.shadowRoot.activeElement,
+    tab2.button,
+    "Button within tab is focused"
+  );
   await BrowserTestUtils.synthesizeKey(" ", {}, browser);
-  ok(tab2.hasAttribute("selected"), "Other tab is selected");
-  is(tab2Button.tabIndex, 0, "Other tab is in focus ring");
-  ok(!tab1.hasAttribute("selected"), "First tab is not selected");
-  is(tab1Button.tabIndex, -1, "First tab is not in focus ring");
+  ok(tab2.tab.hasAttribute("selected"), "Other tab is selected");
+  is(tab2.button.tabIndex, 0, "Other tab is in focus ring");
+  ok(!tab1.tab.hasAttribute("selected"), "First tab is not selected");
+  is(tab1.button.tabIndex, -1, "First tab is not in focus ring");
   ok(
-    BrowserTestUtils.is_visible(tabPane2),
+    BrowserTestUtils.is_visible(tab2.pane),
     "Tab pane for selected tab is visible"
   );
-  ok(BrowserTestUtils.is_hidden(tabPane1), "Tab pane for first tab is hidden");
+  ok(BrowserTestUtils.is_hidden(tab1.pane), "Tab pane for first tab is hidden");
 
   await BrowserTestUtils.synthesizeKey("KEY_ArrowRight", {}, browser);
-  is(testDocument.activeElement, tab1, "Previous tab is selected");
+  is(testDocument.activeElement, tab1.tab, "Previous tab is selected");
   await BrowserTestUtils.synthesizeKey("KEY_Enter", {}, browser);
-  ok(tab1.hasAttribute("selected"), "First tab is selected");
-  is(tab1Button.tabIndex, 0, "First tab is in focus ring");
-  ok(!tab2.hasAttribute("selected"), "Other tab is not selected");
-  is(tab2Button.tabIndex, -1, "Other tab is not in focus ring");
+  ok(tab1.tab.hasAttribute("selected"), "First tab is selected");
+  is(tab1.button.tabIndex, 0, "First tab is in focus ring");
+  ok(!tab2.tab.hasAttribute("selected"), "Other tab is not selected");
+  is(tab2.button.tabIndex, -1, "Other tab is not in focus ring");
   ok(
-    BrowserTestUtils.is_visible(tabPane1),
+    BrowserTestUtils.is_visible(tab1.pane),
     "Tab pane for first tab is visible"
   );
-  ok(BrowserTestUtils.is_hidden(tabPane2), "Tab pane for other tab is hidden");
+  ok(BrowserTestUtils.is_hidden(tab2.pane), "Tab pane for other tab is hidden");
 
   testDocument.dir = "ltr";
 });
