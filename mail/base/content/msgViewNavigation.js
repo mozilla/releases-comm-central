@@ -182,7 +182,7 @@ function CrossFolderNavigation(type) {
           return false;
         }
       }
-
+      window.threadPane.forgetSelection(folder.URI);
       window.displayFolder(folder.URI);
       return true;
     }
@@ -200,6 +200,7 @@ function CrossFolderNavigation(type) {
     curPos += relPos;
     top.messenger.navigatePos = curPos;
 
+    window.threadPane.forgetSelection(folderUri);
     window.displayFolder(folderUri);
     return true;
   }

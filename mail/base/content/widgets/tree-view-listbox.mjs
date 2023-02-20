@@ -1197,12 +1197,16 @@ class TreeViewListbox extends HTMLTableSectionElement {
    *
    * @param {integer} index
    */
-  scrollToIndex(index) {
+  scrollToIndex(index, instant = false) {
     const topIndex = this._rowElementClass.ROW_HEIGHT * index;
     const { scrollTop, clientHeight } = this.scrollable;
 
     if (topIndex < scrollTop) {
-      this.scrollable.scrollTo(0, topIndex);
+      this.scrollable.scrollTo({
+        left: 0,
+        top: topIndex,
+        behavior: instant ? "instant" : "auto",
+      });
       return;
     }
 
@@ -1213,7 +1217,11 @@ class TreeViewListbox extends HTMLTableSectionElement {
       this._rowElementClass.ROW_HEIGHT +
       this.closest("table").header.clientHeight;
     if (bottomIndex > scrollTop + clientHeight) {
-      this.scrollable.scrollTo(0, bottomIndex - clientHeight);
+      this.scrollable.scrollTo({
+        left: 0,
+        top: bottomIndex - clientHeight,
+        behavior: instant ? "instant" : "auto",
+      });
     }
   }
 

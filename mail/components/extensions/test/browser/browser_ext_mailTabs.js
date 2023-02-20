@@ -710,20 +710,18 @@ add_task(async function test_setSelectedMessages() {
       "There should be more than 4 messages in /test2"
     );
 
-    browser.test.assertEq(2, allMailTabs.length);
-    browser.test.assertEq(4, allTabs.length);
-    browser.test.assertEq(2, queryTabs.length);
+    browser.test.assertEq(3, allMailTabs.length);
+    browser.test.assertEq(5, allTabs.length);
+    browser.test.assertEq(3, queryTabs.length);
 
-    browser.test.assertEq(accountId, allMailTabs[0].displayedFolder.accountId);
-    browser.test.assertEq("/", allMailTabs[0].displayedFolder.path);
-
-    // Set the second mailTab active.
+    let foregroundTab = allMailTabs[1].id;
     browser.test.assertEq(accountId, allMailTabs[1].displayedFolder.accountId);
     browser.test.assertEq("/test1", allMailTabs[1].displayedFolder.path);
     browser.test.assertTrue(allMailTabs[1].active);
 
-    let backgroundTab = allMailTabs[0].id;
-    let foregroundTab = allMailTabs[1].id;
+    let backgroundTab = allMailTabs[2].id;
+    browser.test.assertEq(accountId, allMailTabs[2].displayedFolder.accountId);
+    browser.test.assertEq("/", allMailTabs[2].displayedFolder.path);
 
     // Check the initial real state.
     await window.sendMessage("checkRealLayout", {
@@ -890,6 +888,10 @@ add_task(async function test_setSelectedMessages() {
   window.openContentTab("about:buildconfig");
   window.openContentTab("about:mozilla");
   tabmail.openTab("mail3PaneTab", { folderURI: subFolders.test1.URI });
+  tabmail.openTab("mail3PaneTab", {
+    folderURI: rootFolder.URI,
+    background: true,
+  });
   await BrowserTestUtils.waitForEvent(
     tabmail.currentTabInfo.chromeBrowser,
     "folderURIChanged",
