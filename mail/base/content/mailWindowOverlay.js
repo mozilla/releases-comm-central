@@ -1452,7 +1452,19 @@ function MsgOpenNewWindowForMessage(aMsgHdr, aView) {
  * @param aMsgHdr The message header to display.
  */
 function MsgDisplayMessageInFolderTab(aMsgHdr) {
-  // TODO: Reimplement or fix the callers.
+  const nsMsgViewIndex_None = 0xffffffff;
+
+  let tabmail = document.getElementById("tabmail");
+  if (tabmail.currentTabInfo.mode.name != "mail3PaneTab") {
+    tabmail.switchToTab(0);
+  }
+
+  let about3Pane = tabmail.currentAbout3Pane;
+  about3Pane.displayFolder(aMsgHdr.folder.URI);
+  let index = about3Pane.gDBView.findIndexOfMsgHdr(aMsgHdr, true);
+  if (index != nsMsgViewIndex_None) {
+    about3Pane.threadTree.selectedIndex = index;
+  }
 }
 
 function MsgMarkAllRead(folders) {
