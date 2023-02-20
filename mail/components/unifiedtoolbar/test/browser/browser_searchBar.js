@@ -85,7 +85,16 @@ add_setup(async function() {
   searchBar = tab.browser.contentWindow.document.querySelector("search-bar");
 });
 
-add_task(async function test_attributeUpdates() {
+add_task(async function test_initialState() {
+  const input = searchBar.shadowRoot.querySelector("input");
+  is(
+    input.getAttribute("aria-label"),
+    searchBar.getAttribute("label"),
+    "Label forwarded to aria-label on input"
+  );
+});
+
+add_task(async function test_labelUpdate() {
   const input = searchBar.shadowRoot.querySelector("input");
   searchBar.setAttribute("label", "foo");
   await waitForRender();
@@ -222,4 +231,34 @@ add_task(async function test_placeholderFallbackToLabel() {
 
   searchBar.prepend(placeholder);
   searchBar.setAttribute("label", label);
+});
+
+add_task(async function test_reset() {
+  const input = searchBar.shadowRoot.querySelector("input");
+  const placeholder = searchBar.shadowRoot.querySelector("div");
+  input.value = "Lorem ipsum";
+
+  searchBar.reset();
+
+  is(input.value, "", "Input empty after reset");
+  await waitForRender();
+  ok(is_visible(placeholder), "Placeholder visible");
+});
+
+add_task(async function test_disabled() {
+  const input = searchBar.shadowRoot.querySelector("input");
+  const button = searchBar.shadowRoot.querySelector("button");
+
+  ok(!input.disabled, "Input enabled");
+  ok(!button.disabled, "Button enabled");
+
+  searchBar.setAttribute("disabled", true);
+
+  ok(input.disabled, "Disabled propagated to input");
+  ok(button.disabled, "Disabled propagated to button");
+
+  searchBar.removeAttribute("disabled");
+
+  ok(!input.disabled, "Input enabled again");
+  ok(!button.disabled, "Button enabled again");
 });
