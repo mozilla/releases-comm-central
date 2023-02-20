@@ -399,6 +399,7 @@ class nsImapProtocol : public nsIImapProtocol,
 
   /** The socket connection to the IMAP server. */
   nsCOMPtr<nsISocketTransport> m_transport;
+  nsCOMPtr<nsITransportSecurityInfo> m_securityInfo;
 
   /** Stream to handle data coming in from the IMAP server. */
   nsCOMPtr<nsIInputStream> m_inputStream;
@@ -764,6 +765,10 @@ class nsImapProtocol : public nsIImapProtocol,
 
   RefPtr<mozilla::mailnews::OAuth2ThreadHelper> mOAuth2Support;
   bool m_capabilityResponseOccurred;
+
+  nsresult IsTransportAlive(bool* alive);
+  nsresult TransportStartTLS();
+  void GetTransportSecurityInfo(nsITransportSecurityInfo** aSecurityInfo);
 };
 
 // This small class is a "mock" channel because it is a mockery of the imap

@@ -86,6 +86,8 @@
 // TLS alerts
 #include "NSSErrorsService.h"
 
+#include "mozilla/SyncRunnable.h"
+
 using namespace mozilla;
 
 LazyLogModule IMAP("IMAP");
@@ -1293,6 +1295,79 @@ nsImapProtocol::TellThreadToDie(bool aIsSafeToClose) {
   return NS_OK;
 }
 
+/**
+ * Dispatch socket thread to to determine if connection is alive.
+ */
+nsresult nsImapProtocol::IsTransportAlive(bool* alive) {
+  nsresult rv;
+  auto GetIsAlive = [transport = nsCOMPtr{m_transport}, &rv, alive]() mutable {
+    rv = transport->IsAlive(alive);
+  };
+  nsCOMPtr<nsIEventTarget> socketThread(
+      do_GetService(NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
+  if (socketThread) {
+    mozilla::SyncRunnable::DispatchToThread(
+        socketThread,
+        NS_NewRunnableFunction("nsImapProtocol::IsTransportAlive", GetIsAlive));
+  } else {
+    rv = NS_ERROR_NOT_AVAILABLE;
+  }
+  return rv;
+}
+
+/**
+ * Dispatch socket thread to initiate STARTTLS handshakes.
+ */
+nsresult nsImapProtocol::TransportStartTLS() {
+  nsresult rv = NS_ERROR_NOT_AVAILABLE;
+  nsCOMPtr<nsITLSSocketControl> tlsSocketControl;
+  if (m_transport &&
+      NS_SUCCEEDED(
+          m_transport->GetTlsSocketControl(getter_AddRefs(tlsSocketControl))) &&
+      tlsSocketControl) {
+    auto CallStartTLS = [sockCon = nsCOMPtr{tlsSocketControl}, &rv]() mutable {
+      rv = sockCon->StartTLS();
+    };
+    nsCOMPtr<nsIEventTarget> socketThread(
+        do_GetService(NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
+    if (socketThread) {
+      mozilla::SyncRunnable::DispatchToThread(
+          socketThread, NS_NewRunnableFunction(
+                            "nsImapProtocol::TransportStartTLS", CallStartTLS));
+    } else {
+      rv = NS_ERROR_NOT_AVAILABLE;
+    }
+  }
+  return rv;
+}
+
+/**
+ * Dispatch socket thread to obtain transport security information.
+ */
+void nsImapProtocol::GetTransportSecurityInfo(
+    nsITransportSecurityInfo** aSecurityInfo) {
+  *aSecurityInfo = nullptr;
+  nsCOMPtr<nsIEventTarget> socketThread(
+      do_GetService(NS_SOCKETTRANSPORTSERVICE_CONTRACTID));
+  nsCOMPtr<nsITLSSocketControl> tlsSocketControl;
+  if (socketThread &&
+      NS_SUCCEEDED(
+          m_transport->GetTlsSocketControl(getter_AddRefs(tlsSocketControl))) &&
+      tlsSocketControl) {
+    if (socketThread) {
+      nsCOMPtr<nsITransportSecurityInfo> secInfo;
+      auto GetSecurityInfo = [&tlsSocketControl, &secInfo]() mutable {
+        tlsSocketControl->GetSecurityInfo(getter_AddRefs(secInfo));
+      };
+      mozilla::SyncRunnable::DispatchToThread(
+          socketThread,
+          NS_NewRunnableFunction("nsImapProtocol::GetTransportSecurityInfo",
+                                 GetSecurityInfo));
+      NS_IF_ADDREF(*aSecurityInfo = secInfo);
+    }
+  }
+}
+
 void nsImapProtocol::TellThreadToDie() {
   nsresult rv = NS_OK;
   MOZ_DIAGNOSTIC_ASSERT(
@@ -1329,7 +1404,7 @@ void nsImapProtocol::TellThreadToDie() {
   // going to close the connection as if the user pressed stop.
   if (m_currentServerCommandTagNumber > 0 && !urlWritingData) {
     bool isAlive = false;
-    if (m_transport) rv = m_transport->IsAlive(&isAlive);
+    if (m_transport) rv = IsTransportAlive(&isAlive);
 
     if (TestFlag(IMAP_CONNECTION_IS_OPEN) && m_idle && isAlive) EndIdle(false);
 
@@ -1472,7 +1547,7 @@ void nsImapProtocol::ImapThreadMainLoop() {
     if (urlReadyToRun && m_runningUrl) {
       if (m_currentServerCommandTagNumber && m_transport) {
         bool isAlive;
-        rv = m_transport->IsAlive(&isAlive);
+        rv = IsTransportAlive(&isAlive);
         // if the transport is not alive, and we've ever sent a command with
         // this connection, kill it. otherwise, we've probably just not finished
         // setting it so don't kill it!
@@ -1818,74 +1893,68 @@ bool nsImapProtocol::ProcessCurrentURL() {
             (GetServerStateParser().GetCapabilityFlag() &
              kHasStartTLSCapability))) ||
           m_socketType == nsMsgSocketType::alwaysSTARTTLS) {
-        StartTLS();
+        StartTLS();  // Send imap STARTTLS command
         if (GetServerStateParser().LastCommandSuccessful()) {
-          nsCOMPtr<nsITLSSocketControl> tlsSocketControl;
-
           NS_ENSURE_TRUE(m_transport, false);
-          rv = m_transport->GetTlsSocketControl(
-              getter_AddRefs(tlsSocketControl));
+          MOZ_ASSERT(!NS_IsMainThread());
+          rv = TransportStartTLS();  // Initiate STARTTLS handshakes
+          if (NS_SUCCEEDED(rv)) {
+            // Transition to secure state is now enabled but handshakes and
+            // negotiation has not yet occurred. Make sure that
+            // the stream input response buffer is drained to avoid false
+            // responses to subsequent commands (capability, login etc),
+            // i.e., due to possible MitM attack doing pre-TLS response
+            // injection. We are discarding any possible malicious data
+            // stored prior to TransportStartTLS().
+            // Note: If any non-TLS related data arrives while transitioning
+            // to secure state (after TransportStartTLS()), it will
+            // cause the TLS negotiation to fail so any injected data is never
+            // accessed since the transport connection will be dropped.
+            char discardBuf[80];
+            uint64_t numBytesInStream = 0;
+            uint32_t numBytesRead;
+            rv = m_inputStream->Available(&numBytesInStream);
+            nsCOMPtr<nsIInputStream> kungFuGrip = m_inputStream;
+            // Read and discard any data available in socket buffer.
+            while (numBytesInStream > 0 && NS_SUCCEEDED(rv)) {
+              rv = m_inputStream->Read(
+                  discardBuf,
+                  std::min(uint64_t(sizeof discardBuf), numBytesInStream),
+                  &numBytesRead);
+              numBytesInStream -= numBytesRead;
+            }
+            kungFuGrip = nullptr;
 
-          if (NS_SUCCEEDED(rv) && tlsSocketControl) {
-            rv = tlsSocketControl->StartTLS();
-            if (NS_SUCCEEDED(rv)) {
-              // Transition to secure state is now enabled but handshakes and
-              // negotiation has not yet occurred. Make sure that
-              // the stream input response buffer is drained to avoid false
-              // responses to subsequent commands (capability, login etc),
-              // i.e., due to possible MitM attack doing pre-TLS response
-              // injection. We are discarding any possible malicious data
-              // stored prior to tlsSocketControl->StartTLS().
-              // Note: If any non-TLS related data arrives while transitioning
-              // to secure state (after tlsSocketControl->StartTLS()), it will
-              // cause the TLS negotiation to fail so any injected data is never
-              // accessed since the transport connection will be dropped.
-              char discardBuf[80];
-              uint64_t numBytesInStream = 0;
-              uint32_t numBytesRead;
-              rv = m_inputStream->Available(&numBytesInStream);
-              nsCOMPtr<nsIInputStream> kungFuGrip = m_inputStream;
-              // Read and discard any data available in socket buffer.
-              while (numBytesInStream > 0 && NS_SUCCEEDED(rv)) {
-                rv = m_inputStream->Read(
-                    discardBuf,
-                    std::min(uint64_t(sizeof discardBuf), numBytesInStream),
-                    &numBytesRead);
-                numBytesInStream -= numBytesRead;
-              }
-              kungFuGrip = nullptr;
+            // Discard any data lines previously read from socket buffer.
+            m_inputStreamBuffer->ClearBuffer();
 
-              // Discard any data lines previously read from socket buffer.
-              m_inputStreamBuffer->ClearBuffer();
+            // Force re-issue of "capability", because servers may
+            // enable other auth features (e.g. remove LOGINDISABLED
+            // and add AUTH=PLAIN). Sending imap data here first triggers
+            // the TLS negotiation handshakes.
+            Capability();
 
-              // Force re-issue of "capability", because servers may
-              // enable other auth features (e.g. remove LOGINDISABLED
-              // and add AUTH=PLAIN). Sending imap data here first triggers
-              // the TLS negotiation handshakes.
-              Capability();
+            // If user has set pref mail.server.serverX.socketType to 1
+            // (trySTARTTLS, now deprecated in UI) and Capability()
+            // succeeds, indicating TLS handshakes succeeded, set and
+            // latch the socketType to 2 (alwaysSTARTTLS) for this server.
+            if ((m_socketType == nsMsgSocketType::trySTARTTLS) &&
+                GetServerStateParser().LastCommandSuccessful())
+              m_imapServerSink->UpdateTrySTARTTLSPref(true);
 
-              // If user has set pref mail.server.serverX.socketType to 1
-              // (trySTARTTLS, now deprecated in UI) and Capability()
-              // succeeds, indicating TLS handshakes succeeded, set and
-              // latch the socketType to 2 (alwaysSTARTTLS) for this server.
-              if ((m_socketType == nsMsgSocketType::trySTARTTLS) &&
-                  GetServerStateParser().LastCommandSuccessful())
-                m_imapServerSink->UpdateTrySTARTTLSPref(true);
-
-              // Courier imap doesn't return STARTTLS capability if we've done
-              // a STARTTLS! But we need to remember this capability so we'll
-              // try to use STARTTLS next time.
-              // Update: This may not be a problem since "next time" will be
-              // on a new connection that is not yet in secure state. So the
-              // capability greeting *will* contain STARTTLS. I observed and
-              // tested this on Courier imap server. But keep this to be sure.
-              eIMAPCapabilityFlags capabilityFlag =
-                  GetServerStateParser().GetCapabilityFlag();
-              if (!(capabilityFlag & kHasStartTLSCapability)) {
-                capabilityFlag |= kHasStartTLSCapability;
-                GetServerStateParser().SetCapabilityFlag(capabilityFlag);
-                CommitCapability();
-              }
+            // Courier imap doesn't return STARTTLS capability if we've done
+            // a STARTTLS! But we need to remember this capability so we'll
+            // try to use STARTTLS next time.
+            // Update: This may not be a problem since "next time" will be
+            // on a new connection that is not yet in secure state. So the
+            // capability greeting *will* contain STARTTLS. I observed and
+            // tested this on Courier imap server. But keep this to be sure.
+            eIMAPCapabilityFlags capabilityFlag =
+                GetServerStateParser().GetCapabilityFlag();
+            if (!(capabilityFlag & kHasStartTLSCapability)) {
+              capabilityFlag |= kHasStartTLSCapability;
+              GetServerStateParser().SetCapabilityFlag(capabilityFlag);
+              CommitCapability();
             }
           }
           if (NS_FAILED(rv)) {
@@ -1926,6 +1995,12 @@ bool nsImapProtocol::ProcessCurrentURL() {
       if (m_retryUrlOnError) return RetryUrl();
     }
   }  // if death signal not received
+
+  // We assume one IMAP thread is used for exactly one server, only.
+  if (m_transport && !m_securityInfo) {
+    MOZ_ASSERT(!NS_IsMainThread());
+    GetTransportSecurityInfo(getter_AddRefs(m_securityInfo));
+  }
 
   if (!DeathSignalReceived() && (NS_SUCCEEDED(GetConnectionStatus()))) {
     // if the server supports a language extension then we should
@@ -2358,16 +2433,11 @@ nsresult nsImapProtocol::LoadImapUrlInternal() {
     }
     m_transport->SetTimeout(nsISocketTransport::TIMEOUT_READ_WRITE,
                             readWriteTimeout);
-    // set the security info for the mock channel to be the security status for
+    // Set the security info for the mock channel to be the security info for
     // our underlying transport.
-    nsCOMPtr<nsITLSSocketControl> tlsSocketControl;
-    nsCOMPtr<nsITransportSecurityInfo> transportSecInfo;
-    if (NS_SUCCEEDED(m_transport->GetTlsSocketControl(
-            getter_AddRefs(tlsSocketControl))) &&
-        tlsSocketControl) {
-      tlsSocketControl->GetSecurityInfo(getter_AddRefs(transportSecInfo));
+    if (m_securityInfo) {
+      m_mockChannel->SetSecurityInfo(m_securityInfo);
     }
-    m_mockChannel->SetSecurityInfo(transportSecInfo);
 
     SetSecurityCallbacksFromChannel(m_transport, m_mockChannel);
 
@@ -2381,20 +2451,14 @@ nsresult nsImapProtocol::LoadImapUrlInternal() {
       m_transport->SetEventSink(sink, nullptr);
     }
 
-    // and if we have a cache entry that we are saving the message to, set the
-    // security info on it too. since imap only uses the memory cache, passing
-    // this on is the right thing to do.
+    // And if we have a cache2 entry that we are saving the message to, set the
+    // security info on it too.
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningUrl);
-    if (mailnewsUrl) {
+    if (mailnewsUrl && m_securityInfo) {
       nsCOMPtr<nsICacheEntry> cacheEntry;
       mailnewsUrl->GetMemCacheEntry(getter_AddRefs(cacheEntry));
-      if (cacheEntry && tlsSocketControl) {
-        nsCOMPtr<nsITransportSecurityInfo> tsi;
-        if (NS_SUCCEEDED(
-                tlsSocketControl->GetSecurityInfo(getter_AddRefs(tsi))) &&
-            tsi) {
-          cacheEntry->SetSecurityInfo(tsi);
-        }
+      if (cacheEntry) {
+        cacheEntry->SetSecurityInfo(m_securityInfo);
       }
     }
   }
@@ -4770,22 +4834,18 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
             }
           }
 
-          // Stash the socket transport's securityInfo on the URL so it will be
+          // Stash the socket transport securityInfo on the URL so it will be
           // available in nsIUrlListener OnStopRunningUrl() callbacks to trigger
           // the override dialog or a security related error message.
           // Currently this is only used to trigger the override dialog.
           if (m_runningUrl) {
+            MOZ_ASSERT(!NS_IsMainThread());
             nsCOMPtr<nsIMsgMailNewsUrl> mailNewsUrl =
                 do_QueryInterface(m_runningUrl);
-            nsCOMPtr<nsITLSSocketControl> tlsSocketControl;
-            if (mailNewsUrl && NS_SUCCEEDED(m_transport->GetTlsSocketControl(
-                                   getter_AddRefs(tlsSocketControl)))) {
-              nsCOMPtr<nsITransportSecurityInfo> transportSecInfo;
-              if (NS_SUCCEEDED(tlsSocketControl->GetSecurityInfo(
-                      getter_AddRefs(transportSecInfo))) &&
-                  transportSecInfo) {
-                mailNewsUrl->SetFailedSecInfo(transportSecInfo);
-              }
+            if (mailNewsUrl) {
+              nsCOMPtr<nsITransportSecurityInfo> securityInfo;
+              GetTransportSecurityInfo(getter_AddRefs(securityInfo));
+              if (securityInfo) mailNewsUrl->SetFailedSecInfo(securityInfo);
             }
           }
         }
