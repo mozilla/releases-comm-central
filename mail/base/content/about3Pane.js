@@ -44,6 +44,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MailUtils: "resource:///modules/MailUtils.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
   MailStringUtils: "resource:///modules/MailStringUtils.jsm",
+  TagUtils: "resource:///modules/TagUtils.jsm",
   VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.jsm",
 });
 
@@ -109,6 +110,7 @@ window.addEventListener("DOMContentLoaded", async event => {
 window.addEventListener("unload", () => {
   MailServices.mailSession.RemoveFolderListener(folderListener);
   gViewWrapper?.close();
+  threadPane.uninit();
 });
 
 var paneLayout = {
@@ -2070,6 +2072,11 @@ var threadPane = {
   columns: DEFAULT_COLUMNS.map(column => ({ ...column })),
 
   async init() {
+    quickFilterBar.init();
+
+    this.setUpTagStyles();
+    Services.prefs.addObserver("mailnews.tags.", this);
+
     // Ensure TreeViewListbox and its classes are properly defined.
     await customElements.whenDefined("tree-view-listrow");
 
@@ -2083,8 +2090,6 @@ var threadPane = {
     ]);
     threadTree.id = "threadTree";
     threadTree.setAttribute("rows", "thread-listrow");
-
-    quickFilterBar.init();
 
     window.addEventListener("uidensitychange", () => {
       this.densityChange();
@@ -2137,6 +2142,10 @@ var threadPane = {
     threadTree.addEventListener("dragstart", this);
   },
 
+  uninit() {
+    Services.prefs.removeObserver("mailnews.tags.", this);
+  },
+
   handleEvent(event) {
     switch (event.type) {
       case "dblclick":
@@ -2151,6 +2160,12 @@ var threadPane = {
       case "dragstart":
         this._onDragStart(event);
         break;
+    }
+  },
+
+  observe(subject, topic, data) {
+    if (topic == "nsPref:changed") {
+      this.setUpTagStyles();
     }
   },
 
@@ -2328,6 +2343,24 @@ var threadPane = {
 
       top.messenger.saveAs(messageURI.value.data, true, null, file.path, true);
     },
+  },
+
+  setUpTagStyles() {
+    if (this.tagStyle) {
+      this.tagStyle.remove();
+    }
+    this.tagStyle = document.head.appendChild(document.createElement("style"));
+
+    for (let { color, key } of MailServices.tags.getAllTags()) {
+      let selector = MailServices.tags.getSelectorForKey(key);
+      let contrast = TagUtils.isColorContrastEnough(color) ? "black" : "white";
+      this.tagStyle.sheet.insertRule(
+        `tr[data-properties~="${selector}"] {
+          --tag-color: ${color};
+          --tag-contrast-color: ${contrast};
+        }`
+      );
+    }
   },
 
   /**

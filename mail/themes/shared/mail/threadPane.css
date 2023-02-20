@@ -57,6 +57,15 @@
   border: none;
 }
 
+tr[is="thread-listrow"] {
+  color: var(--tag-color, currentColor);
+}
+
+[is="tree-view-listbox"]:focus tr[is="thread-listrow"].selected {
+  background-color: var(--tag-color, var(--listbox-focused-selected-bg));
+  color: var(--tag-contrast-color, var(--listbox-selected-color));
+}
+
 /* Thread column */
 
 .tree-view-header-thread img {
