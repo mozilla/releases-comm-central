@@ -1198,7 +1198,6 @@ DBViewWrapper.prototype = {
         this._prepareToLoadView(aFolder.msgDatabase, aFolder);
       }
       this._enterFolder();
-      this.listener.onMessagesLoaded(true);
     }
   },
 

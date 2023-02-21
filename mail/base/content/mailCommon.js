@@ -636,7 +636,11 @@ var dbViewWrapperListener = {
       window.threadTree.view = gDBView = gViewWrapper.dbView;
     }
   },
-  onDestroyingView(folderIsComingBack) {},
+  onDestroyingView(folderIsComingBack) {
+    if (!folderIsComingBack && window.threadTree) {
+      window.threadTree.view = gDBView = null;
+    }
+  },
   onLoadingFolder(dbFolderInfo) {
     window.quickFilterBar?.onFolderChanged();
   },
