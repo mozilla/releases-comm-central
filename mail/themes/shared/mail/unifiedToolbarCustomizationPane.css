@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* This is the main stylesheet in the unified-toolbar-customization-pane shadowRoot. */
+
+@import url("chrome://messenger/skin/widgets.css");
 @import url("chrome://messenger/skin/shared/unifiedToolbarCustomizableItems.css");
 @import url("chrome://messenger/skin/shared/unifiedToolbarShared.css");
 

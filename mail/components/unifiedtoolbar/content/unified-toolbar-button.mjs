@@ -89,7 +89,7 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
       return;
     }
     this.hasConnected = true;
-    this.classList.add("unified-toolbar-button");
+    this.classList.add("unified-toolbar-button", "button");
 
     const template = document
       .getElementById("unifiedToolbarButtonTemplate")

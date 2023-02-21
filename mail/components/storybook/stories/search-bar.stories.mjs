@@ -15,7 +15,9 @@ export const SearchBar = () => html`
     <form>
       <input type="search" placeholder="" required="required" />
       <div aria-hidden="true"><slot name="placeholder"></slot></div>
-      <button><slot name="button"></slot></button>
+      <button class="button button-flat icon-button">
+        <slot name="button"></slot>
+      </button>
     </form>
   </template>
   <search-bar

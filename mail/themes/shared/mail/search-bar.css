@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* Primary CSS file inside the search-bar shadowRoot */
+
+@import url("chrome://messenger/skin/widgets.css");
+
 form {
   --padding-block: 6px;
   --search-icon-clearance: 30px;
@@ -43,19 +47,18 @@ input:-moz-lwtheme:focus-visible {
   background-color: var(--toolbar-field-focus-background-color);
 }
 
-button {
+.button {
   position: absolute;
   inset-inline-end: 0;
   inset-block: 0;
-  border: none;
-  background: none;
   color: inherit;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
+}
+
+.button.button-flat.icon-button {
+  padding-inline: calc(var(--button-padding) * 2);
 }
 
 div {

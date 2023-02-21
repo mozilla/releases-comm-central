@@ -33,11 +33,6 @@
   outline-offset: var(--focus-outline-offset);
 }
 
-.button:enabled:hover:active {
-  background-color: var(--button-active-background-color);
-  border-color: var(--button-border-color);
-}
-
 .button[aria-pressed="true"] {
   box-shadow: var(--button-pressed-shadow);
 }
@@ -108,6 +103,11 @@
 .button.unified-toolbar-button:enabled:hover:is([aria-pressed="true"]),
 .button.toolbar-button:enabled:hover:is([aria-pressed="true"]) {
    background-color: color-mix(in srgb, var(--color-gray-70) 10%, transparent);
+}
+
+.button:enabled:hover:active {
+  background-color: var(--button-active-background-color);
+  border-color: var(--button-border-color);
 }
 
 /* Primary Button Styles */

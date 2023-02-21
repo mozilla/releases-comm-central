@@ -36,15 +36,7 @@
   gap: 3px;
   align-items: center;
   flex-wrap: nowrap;
-  border-radius: var(--button-border-radius);
-  background: none;
-  border: none;
   min-width: initial;
-  border: 1px solid transparent;
-  transition: background-color .15s, border-color .15s;
-  -moz-context-properties: fill, stroke, fill-opacity;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
@@ -58,25 +50,6 @@
 
 .text-only .unified-toolbar-button .button-icon {
   display: none;
-}
-
-.unified-toolbar-button:enabled:hover {
-  background-color: var(--toolbarbutton-hover-background);
-  border-color: var(--toolbarbutton-hover-bordercolor);
-}
-
-.unified-toolbar-button:enabled:is(:active, [aria-pressed="true"], :hover:active) {
-  background-color: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-  box-shadow: var(--toolbarbutton-active-boxshadow);
-}
-
-.unified-toolbar-button:enabled[aria-pressed="true"] {
-  background-color: var(--toolbarbutton-checked-background);
-}
-
-.unified-toolbar-button:disabled {
-  pointer-events: none;
 }
 
 .unified-toolbar-button[popup] {

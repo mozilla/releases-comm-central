@@ -9,7 +9,7 @@
   <form>
     <input type="search" placeholder="" required="required" />
     <div aria-hidden="true"><slot name="placeholder"></slot></div>
-    <button><slot name="button"></slot></button>
+    <button class="button button-flat icon-button"><slot name="button"></slot></button>
   </form>
 </html:template>
 
@@ -48,10 +48,12 @@
     <div role="tablist" id="customizationTabs" data-l10n-id="customize-spaces-tabs"></div>
     <div id="customizationFooter">
       <div>
-        <button type="reset" data-l10n-id="customize-restore-default"></button>
+        <button type="reset"
+                class="button"
+                data-l10n-id="customize-restore-default"></button>
         <button id="customizationToSettingsButton"
                 type="button"
-                class="link"
+                class="button button-flat"
                 data-l10n-id="customize-change-appearance"></button>
       </div>
       <div>
@@ -75,9 +77,10 @@
       <div>
         <button id="unifiedToolbarCustomizationCancel"
                 type="button"
+                class="button"
                 data-l10n-id="customize-cancel"></button>
         <button type="submit"
-                class="primary"
+                class="button button-primary"
                 data-l10n-id="customize-save"
                 disabled="disabled"></button>
       </div>
