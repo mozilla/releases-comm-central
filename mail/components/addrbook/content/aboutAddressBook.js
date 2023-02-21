@@ -1210,172 +1210,174 @@ customElements.define("ab-card-search-input", AbCardSearchInput, {
   extends: "input",
 });
 
-/**
- * A row in the list of cards.
- *
- * @augments {TreeViewListrow}
- */
-class AbCardListrow extends customElements.get("tree-view-listrow") {
-  static ROW_HEIGHT = 46;
-
-  connectedCallback() {
-    if (this.hasConnected) {
-      return;
-    }
-
-    super.connectedCallback();
-
-    this.setAttribute("draggable", "true");
-
-    this.cell = document.createElement("td");
-
-    let container = this.cell.appendChild(document.createElement("div"));
-    container.classList.add("card-container");
-
-    this.avatar = container.appendChild(document.createElement("div"));
-    this.avatar.classList.add("recipient-avatar");
-    let dataContainer = container.appendChild(document.createElement("div"));
-    dataContainer.classList.add("ab-card-listrow-data");
-
-    let firstLine = dataContainer.appendChild(document.createElement("p"));
-    firstLine.classList.add("ab-card-first-line");
-    this.name = firstLine.appendChild(document.createElement("span"));
-    this.name.classList.add("name");
-
-    let secondLine = dataContainer.appendChild(document.createElement("p"));
-    secondLine.classList.add("ab-card-second-line");
-    this.address = secondLine.appendChild(document.createElement("span"));
-    this.address.classList.add("address");
-
-    this.appendChild(this.cell);
-  }
-
-  get index() {
-    return super.index;
-  }
-
+customElements.whenDefined("tree-view-listrow").then(() => {
   /**
-   * Override the row setter to generate the layout.
+   * A row in the list of cards.
+   *
+   * @augments {TreeViewListrow}
    */
-  set index(index) {
-    if (this._index == index) {
-      return;
+  class AbCardListrow extends customElements.get("tree-view-listrow") {
+    static ROW_HEIGHT = 46;
+
+    connectedCallback() {
+      if (this.hasConnected) {
+        return;
+      }
+
+      super.connectedCallback();
+
+      this.setAttribute("draggable", "true");
+
+      this.cell = document.createElement("td");
+
+      let container = this.cell.appendChild(document.createElement("div"));
+      container.classList.add("card-container");
+
+      this.avatar = container.appendChild(document.createElement("div"));
+      this.avatar.classList.add("recipient-avatar");
+      let dataContainer = container.appendChild(document.createElement("div"));
+      dataContainer.classList.add("ab-card-listrow-data");
+
+      let firstLine = dataContainer.appendChild(document.createElement("p"));
+      firstLine.classList.add("ab-card-first-line");
+      this.name = firstLine.appendChild(document.createElement("span"));
+      this.name.classList.add("name");
+
+      let secondLine = dataContainer.appendChild(document.createElement("p"));
+      secondLine.classList.add("ab-card-second-line");
+      this.address = secondLine.appendChild(document.createElement("span"));
+      this.address.classList.add("address");
+
+      this.appendChild(this.cell);
     }
-    super.index = index;
 
-    let props = this.view.getRowProperties(index);
-    if (props) {
-      this.classList.add(props);
+    get index() {
+      return super.index;
     }
 
-    let card = this.view.getCardFromRow(index);
-    this.name.textContent = this.view.getCellText(index, {
-      id: "GeneratedName",
-    });
+    /**
+     * Override the row setter to generate the layout.
+     */
+    set index(index) {
+      if (this._index == index) {
+        return;
+      }
+      super.index = index;
 
-    // Add the address book name for All Address Books if in the sort Context
-    // Address Book is checked. This is done for the list view only.
-    if (
-      document.getElementById("books").selectedIndex == "0" &&
-      document
-        .getElementById("sortContext")
-        .querySelector(`menuitem[value="addrbook"]`)
-        .getAttribute("checked") === "true"
-    ) {
-      let addressBookName = document.createElement("span");
-      addressBookName.classList.add("address-book-name");
-      let firstLine = this.querySelector(".ab-card-first-line");
-      addressBookName.textContent = this.view.getCellText(index, {
-        id: "addrbook",
+      let props = this.view.getRowProperties(index);
+      if (props) {
+        this.classList.add(props);
+      }
+
+      let card = this.view.getCardFromRow(index);
+      this.name.textContent = this.view.getCellText(index, {
+        id: "GeneratedName",
       });
-      firstLine.appendChild(addressBookName);
-    }
 
-    // Don't try to fetch the avatar or show the parent AB if this is a list.
-    if (!card.isMailList) {
-      let photoURL = card.photoURL;
-      if (photoURL) {
-        let img = document.createElement("img");
-        img.alt = this.name.textContent;
-        img.src = photoURL;
-        this.avatar.appendChild(img);
-      } else {
-        let letter = document.createElement("span");
-        letter.textContent = Array.from(
-          this.name.textContent
-        )[0]?.toUpperCase();
-        letter.setAttribute("aria-hidden", "true");
-        this.avatar.appendChild(letter);
+      // Add the address book name for All Address Books if in the sort Context
+      // Address Book is checked. This is done for the list view only.
+      if (
+        document.getElementById("books").selectedIndex == "0" &&
+        document
+          .getElementById("sortContext")
+          .querySelector(`menuitem[value="addrbook"]`)
+          .getAttribute("checked") === "true"
+      ) {
+        let addressBookName = document.createElement("span");
+        addressBookName.classList.add("address-book-name");
+        let firstLine = this.querySelector(".ab-card-first-line");
+        addressBookName.textContent = this.view.getCellText(index, {
+          id: "addrbook",
+        });
+        firstLine.appendChild(addressBookName);
       }
-      this.address.textContent = card.primaryEmail;
-    } else {
-      let img = this.avatar.appendChild(document.createElement("img"));
-      img.alt = "";
-      img.src = "chrome://messenger/skin/icons/new/compact/user-list-alt.svg";
-      this.avatar.classList.add("is-mail-list");
-    }
 
-    this.cell.setAttribute("aria-label", this.name.textContent);
-  }
-}
-customElements.define("ab-card-listrow", AbCardListrow, { extends: "tr" });
+      // Don't try to fetch the avatar or show the parent AB if this is a list.
+      if (!card.isMailList) {
+        let photoURL = card.photoURL;
+        if (photoURL) {
+          let img = document.createElement("img");
+          img.alt = this.name.textContent;
+          img.src = photoURL;
+          this.avatar.appendChild(img);
+        } else {
+          let letter = document.createElement("span");
+          letter.textContent = Array.from(
+            this.name.textContent
+          )[0]?.toUpperCase();
+          letter.setAttribute("aria-hidden", "true");
+          this.avatar.appendChild(letter);
+        }
+        this.address.textContent = card.primaryEmail;
+      } else {
+        let img = this.avatar.appendChild(document.createElement("img"));
+        img.alt = "";
+        img.src = "chrome://messenger/skin/icons/new/compact/user-list-alt.svg";
+        this.avatar.classList.add("is-mail-list");
+      }
 
-/**
- * A row in the table list of cards.
- *
- * @augments {TreeViewListrow}
- */
-class AbTableCardListrow extends customElements.get("tree-view-listrow") {
-  static ROW_HEIGHT = 22;
-
-  connectedCallback() {
-    if (this.hasConnected) {
-      return;
-    }
-
-    super.connectedCallback();
-
-    this.setAttribute("draggable", "true");
-
-    for (let column of cardsPane.COLUMNS) {
-      this.appendChild(document.createElement("td")).classList.add(
-        `${column.id.toLowerCase()}-column`
-      );
+      this.cell.setAttribute("aria-label", this.name.textContent);
     }
   }
-
-  get index() {
-    return super.index;
-  }
+  customElements.define("ab-card-listrow", AbCardListrow, { extends: "tr" });
 
   /**
-   * Override the row setter to generate the layout.
+   * A row in the table list of cards.
+   *
+   * @augments {TreeViewListrow}
    */
-  set index(index) {
-    if (this._index == index) {
-      return;
-    }
-    super.index = index;
-    let props = this.view.getRowProperties(index);
-    if (props) {
-      this.classList.add(props);
-    }
+  class AbTableCardListrow extends customElements.get("tree-view-listrow") {
+    static ROW_HEIGHT = 22;
 
-    for (let column of cardsPane.COLUMNS) {
-      let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
-      if (!column.hidden) {
-        cell.textContent = this.view.getCellText(index, { id: column.id });
-        continue;
+    connectedCallback() {
+      if (this.hasConnected) {
+        return;
       }
 
-      cell.hidden = true;
+      super.connectedCallback();
+
+      this.setAttribute("draggable", "true");
+
+      for (let column of cardsPane.COLUMNS) {
+        this.appendChild(document.createElement("td")).classList.add(
+          `${column.id.toLowerCase()}-column`
+        );
+      }
     }
 
-    this.setAttribute("aria-label", this.firstElementChild.textContent);
+    get index() {
+      return super.index;
+    }
+
+    /**
+     * Override the row setter to generate the layout.
+     */
+    set index(index) {
+      if (this._index == index) {
+        return;
+      }
+      super.index = index;
+      let props = this.view.getRowProperties(index);
+      if (props) {
+        this.classList.add(props);
+      }
+
+      for (let column of cardsPane.COLUMNS) {
+        let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
+        if (!column.hidden) {
+          cell.textContent = this.view.getCellText(index, { id: column.id });
+          continue;
+        }
+
+        cell.hidden = true;
+      }
+
+      this.setAttribute("aria-label", this.firstElementChild.textContent);
+    }
   }
-}
-customElements.define("ab-table-card-listrow", AbTableCardListrow, {
-  extends: "tr",
+  customElements.define("ab-table-card-listrow", AbTableCardListrow, {
+    extends: "tr",
+  });
 });
 
 var cardsPane = {
@@ -1466,20 +1468,23 @@ var cardsPane = {
    * Make the list rows density aware.
    */
   densityChange() {
+    let listRowClass = customElements.get("ab-card-listrow");
+    let tableRowClass = customElements.get("ab-table-card-listrow");
     switch (UIDensity.prefValue) {
       case UIDensity.MODE_COMPACT:
-        AbCardListrow.ROW_HEIGHT = 36;
-        AbTableCardListrow.ROW_HEIGHT = 18;
+        listRowClass.ROW_HEIGHT = 36;
+        tableRowClass.ROW_HEIGHT = 18;
         break;
       case UIDensity.MODE_TOUCH:
-        AbCardListrow.ROW_HEIGHT = 60;
-        AbTableCardListrow.ROW_HEIGHT = 32;
+        listRowClass.ROW_HEIGHT = 60;
+        tableRowClass.ROW_HEIGHT = 32;
         break;
       default:
-        AbCardListrow.ROW_HEIGHT = 46;
-        AbTableCardListrow.ROW_HEIGHT = 22;
+        listRowClass.ROW_HEIGHT = 46;
+        tableRowClass.ROW_HEIGHT = 22;
         break;
     }
+    this.cardsList.invalidate();
   },
 
   searchInput: null,
@@ -1571,11 +1576,10 @@ var cardsPane = {
     );
     this.cardContext.addEventListener("command", this);
 
-    window.addEventListener("uidensitychange", () => {
-      cardsPane.densityChange();
-      cardsPane.cardsList.invalidate();
-    });
-    cardsPane.densityChange();
+    window.addEventListener("uidensitychange", () => cardsPane.densityChange());
+    customElements
+      .whenDefined("ab-table-card-listrow")
+      .then(() => cardsPane.densityChange());
 
     document
       .getElementById("placeholderCreateContact")
