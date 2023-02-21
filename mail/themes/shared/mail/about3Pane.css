@@ -13,7 +13,7 @@
 @media not (prefers-contrast) {
   :root {
     --foldertree-background: var(--sidebar-background-color, var(--color-gray-05));
-    --folderpane-unread-count-background: var(--color-gray-40);
+    --folderpane-unread-count-background: var(--color-gray-50);
     --folderpane-unread-count-text: var(--color-white);
     --folderpane-unread-new-count-background: var(--color-blue-60);
     --treeitem-background-selected: var(--color-gray-20);
@@ -26,8 +26,6 @@
   @media (prefers-color-scheme: dark) {
     :root {
       --foldertree-background: var(--sidebar-background-color, rgba(249, 249, 250, 0.1));
-      --folderpane-unread-count-background: var(--color-gray-50);
-      --folderpane-unread-count-text: var(--color-white);
       --folderpane-unread-new-count-background: var(--color-blue-50);
       --treeitem-background-selected: var(--color-gray-70);
       --treeitem-background-hover: var(--color-gray-60);
