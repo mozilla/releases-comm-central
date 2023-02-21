@@ -15,15 +15,19 @@ var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
 
-var folderDisplayHelper = ChromeUtils.import(
+var {
+  mc,
+  get_about_3pane,
+  plan_to_wait_for_folder_events,
+  wait_for_message_display_completion,
+  wait_for_folder_events,
+} = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
 var { Assert } = ChromeUtils.importESModule(
   "resource://testing-common/Assert.sys.mjs"
 );
-
-var mc = folderDisplayHelper.mc;
 
 /**
  * Mark the selected messages as junk. This is done by pressing the J key.
@@ -35,10 +39,11 @@ function mark_selected_messages_as_junk(aController) {
   if (aController === undefined) {
     aController = mc;
   }
+  let win = get_about_3pane(aController.window);
   if (aController == mc) {
-    mc.e("threadTree").focus();
+    win.document.getElementById("threadTree").focus();
   }
-  EventUtils.synthesizeKey("j", {}, aController.window);
+  EventUtils.synthesizeKey("j", {}, win);
 }
 
 /**
@@ -53,22 +58,24 @@ function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
   if (aController === undefined) {
     aController = mc;
   }
+  let win = get_about_3pane(aController.window);
+
   // Monkey patch and wrap around the deleteJunkInFolder function, mainly for
   // the case where deletes aren't expected. See the below comment for an
   // explanation of why this is done.
-  let realDeleteJunkInFolder = aController.window.deleteJunkInFolder;
+  let realDeleteJunkInFolder = win.deleteJunkInFolder;
   let numMessagesDeleted = null;
   let fakeDeleteJunkInFolder = function() {
     numMessagesDeleted = realDeleteJunkInFolder();
     return numMessagesDeleted;
   };
   try {
-    aController.window.deleteJunkInFolder = fakeDeleteJunkInFolder;
+    win.deleteJunkInFolder = fakeDeleteJunkInFolder;
 
-    // if something is loading, make sure it finishes loading...
-    folderDisplayHelper.wait_for_message_display_completion(aController);
+    // If something is loading, make sure it finishes loading...
+    wait_for_message_display_completion(aController);
     if (aNumDeletesExpected != 0) {
-      folderDisplayHelper.plan_to_wait_for_folder_events(
+      plan_to_wait_for_folder_events(
         "DeleteOrMoveMsgCompleted",
         "DeleteOrMoveMsgFailed"
       );
@@ -77,7 +84,7 @@ function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
     aController.click(aController.menus.tasksMenu.deleteJunk);
 
     if (aNumDeletesExpected != 0) {
-      folderDisplayHelper.wait_for_folder_events();
+      wait_for_folder_events();
     }
 
     // The case where no deletes are expected is somewhat more complicated,
@@ -144,6 +151,6 @@ function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
       `Expected ${aNumDeletesExpected} deletes`
     );
   } finally {
-    aController.window.deleteJunkInFolder = realDeleteJunkInFolder;
+    win.deleteJunkInFolder = realDeleteJunkInFolder;
   }
 }

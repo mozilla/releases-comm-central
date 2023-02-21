@@ -4323,7 +4323,7 @@ var gMessageNotificationBar = {
           accessKey: this.stringBundle.getString("junkBarButtonKey"),
           popup: null,
           callback(aNotification, aButton) {
-            // JunkSelectedMessages(false); TODO: This function vanished. Put it back I guess.
+            commandController.doCommand("cmd_markAsNotJunk");
             // Return true (=don't close) since changing junk status will fire a
             // JunkStatusChanged notification which will make the junk bar go away
             // for this message -> no notification to close anymore -> trying to

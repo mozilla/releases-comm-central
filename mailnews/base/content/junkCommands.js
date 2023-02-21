@@ -2,30 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* functions use for junk processing commands
- *
+/**
+ * Functions use for junk processing commands
+ */
+
+/*
  * TODO: These functions make the false assumption that a view only contains
  *       a single folder. This is not true for XF saved searches.
  *
  * globals prerequisites used:
  *
  *   window.MsgStatusFeedback
- *
- *   One of:
- *     GetSelectedIndices(view) (in suite)
- *
- *   messenger
- *   gDBView
- *   msgWindow
  */
 
-// TODO: Fix undefined things in this file.
-/* eslint-disable no-undef */
-
-/* globals gDBView, MarkSelectedMessagesRead, messenger, msgWindow */
+/* globals gDBView, gViewWrapper, commandController */
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
+);
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
 );
 ChromeUtils.defineModuleGetter(
   this,
@@ -112,7 +108,7 @@ function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
         actionParams.junkTargetFolder,
         true /* isMove */,
         null,
-        msgWindow,
+        top.msgWindow,
         true /* allow undo */
       );
     }
@@ -182,7 +178,7 @@ MessageClassifier.prototype = {
     this.mMessages[messageURI] = aMsgHdr;
     if (this.firstMessage) {
       this.firstMessage = false;
-      MailServices.junk.classifyMessage(messageURI, msgWindow, this);
+      MailServices.junk.classifyMessage(messageURI, top.msgWindow, this);
     } else {
       this.mMessageQueue.push(messageURI);
     }
@@ -247,7 +243,7 @@ MessageClassifier.prototype = {
         );
       }
 
-      MailServices.junk.classifyMessage(nextMsgURI, msgWindow, this);
+      MailServices.junk.classifyMessage(nextMsgURI, top.msgWindow, this);
     } else {
       window.MsgStatusFeedback.showStatusString(
         document
@@ -300,11 +296,10 @@ function processFolderForJunk(aAll) {
       return;
     }
   } else {
-    // suite uses GetSelectedIndices, mail uses gFolderDisplay.selectedMessages
     indices =
-      typeof window.GetSelectedIndices != "undefined"
+      AppConstants.MOZ_APP_NAME == "seamonkey"
         ? window.GetSelectedIndices(gDBView)
-        : gFolderDisplay.selectedIndices;
+        : window.threadTree?.selectedIndices;
     if (!indices || !indices.length) {
       return;
     }
@@ -357,34 +352,15 @@ function processFolderForJunk(aAll) {
   }
 }
 
-function JunkSelectedMessages(setAsJunk) {
-  // When the user explicitly marks a message as junk, we can mark it as read,
-  // too. This is independent of the "markAsReadOnSpam" pref, which applies
-  // only to automatically-classified messages.
-  // Note that this behaviour should match the one in the back end for marking
-  // as junk via clicking the 'junk' column.
-
-  if (
-    setAsJunk &&
-    Services.prefs.getBoolPref("mailnews.ui.junk.manualMarkAsJunkMarksRead")
-  ) {
-    MarkSelectedMessagesRead(true);
-  }
-
-  gDBView.doCommand(
-    setAsJunk ? Ci.nsMsgViewCommandType.junk : Ci.nsMsgViewCommandType.unjunk
-  );
-}
-
 /**
  * Delete junk messages in the current folder. This provides the guarantee that
  * the method will be synchronous if no messages are deleted.
  *
- * @returns The number of messages deleted.
+ * @returns {integer} The number of messages deleted.
  */
 function deleteJunkInFolder() {
   // use direct folder commands if possible so we don't mess with the selection
-  let selectedFolder = gFolderDisplay.displayedFolder;
+  let selectedFolder = gViewWrapper.displayedFolder;
   if (!selectedFolder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
     let junkMsgHdrs = [];
     for (let msgHdr of gDBView.msgFolder.messages) {
@@ -397,7 +373,7 @@ function deleteJunkInFolder() {
     if (junkMsgHdrs.length) {
       gDBView.msgFolder.deleteMessages(
         junkMsgHdrs,
-        msgWindow,
+        top.msgWindow,
         false,
         false,
         null,
@@ -466,6 +442,5 @@ function deleteJunkInFolder() {
   }
   gDBView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
   treeSelection.clearSelection();
-  ClearMessagePane();
   return numMessagesDeleted;
 }
