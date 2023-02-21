@@ -8,17 +8,10 @@
 
 /* import-globals-from utilityOverlay.js */
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "FxAccounts",
-  "resource://gre/modules/FxAccounts.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "EnsureFxAccountsWebChannel",
-  "resource://gre/modules/FxAccountsWebChannel.jsm"
-);
 ChromeUtils.defineESModuleGetters(this, {
+  EnsureFxAccountsWebChannel:
+    "resource://gre/modules/FxAccountsWebChannel.sys.mjs",
+  FxAccounts: "resource://gre/modules/FxAccounts.sys.mjs",
   UIState: "resource://services-sync/UIState.sys.mjs",
   Weave: "resource://services-sync/main.sys.mjs",
 });
@@ -142,8 +135,8 @@ var gSync = {
       }
     }
 
-    let fxAccounts = ChromeUtils.import(
-      "resource://gre/modules/FxAccounts.jsm"
+    let fxAccounts = ChromeUtils.importESModule(
+      "resource://gre/modules/FxAccounts.sys.mjs"
     ).getFxAccountsSingleton();
 
     if (disconnectAccount) {

@@ -6,8 +6,8 @@ const { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
-const { FxAccounts } = ChromeUtils.import(
-  "resource://gre/modules/FxAccounts.jsm"
+const { FxAccounts } = ChromeUtils.importESModule(
+  "resource://gre/modules/FxAccounts.sys.mjs"
 );
 FxAccounts.config.promiseConnectAccountURI = entryPoint =>
   `https://example.org/?page=connect&entryPoint=${entryPoint}`;
