@@ -92,6 +92,7 @@ unified-toolbar-customization {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  --customization-footer-padding: 12px;
 }
 
 #unifiedToolbarCustomizationContainer div[role="tabpanel"] {
@@ -102,12 +103,33 @@ unified-toolbar-customization {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
   user-select: none;
   background: var(--layout-background-2);
+  /* We need at least 1rem of padding to ensure the
+   * #unifiedToolbarCustomizationUnsavedChanges can be displayed in it */
+  padding-block: max(calc(var(--customization-footer-padding) * 2), 1rem);
+  padding-inline: var(--customization-footer-padding);
+}
+
+#buttonStyleLabel {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+#buttonStyle {
+  display: inline flex;
 }
 
 #customizationFooter div:last-child {
   text-align: end;
+}
+
+#unifiedToolbarCustomizationUnsavedChanges {
+  position: fixed;
+  inset-block-end: calc((var(--customization-footer-padding) * 2 - 1em) / 2);
+  inset-inline-end: var(--customization-footer-padding);
 }
 
 #customizationTabs {
