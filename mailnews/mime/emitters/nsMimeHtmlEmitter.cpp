@@ -114,13 +114,9 @@ nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTMLPostfix() {
 }
 
 nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(int32_t aHeaderMode) {
-  // two string enumerators to pass out to the header sink
-  RefPtr<nsMimeStringEnumerator> headerNameEnumerator =
-      new nsMimeStringEnumerator();
-  NS_ENSURE_TRUE(headerNameEnumerator, NS_ERROR_OUT_OF_MEMORY);
-  RefPtr<nsMimeStringEnumerator> headerValueEnumerator =
-      new nsMimeStringEnumerator();
-  NS_ENSURE_TRUE(headerValueEnumerator, NS_ERROR_OUT_OF_MEMORY);
+  nsresult rv;
+  nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(mChannel, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString extraExpandedHeaders;
   nsTArray<nsCString> extraExpandedHeadersArray;
@@ -134,7 +130,6 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(int32_t aHeaderMode) {
   nsTArray<nsCString> otherHeadersArray;
   bool checkOtherHeaders = false;
 
-  nsresult rv;
   nsCOMPtr<nsIPrefBranch> pPrefBranch(
       do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   if (pPrefBranch) {
@@ -170,8 +165,6 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(int32_t aHeaderMode) {
       checkOtherHeaders = true;
     }
   }
-
-  nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(mChannel);
 
   for (size_t i = 0; i < mHeaderArray->Length(); i++) {
     headerInfoType* headerInfo = mHeaderArray->ElementAt(i);
@@ -232,19 +225,14 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(int32_t aHeaderMode) {
     }
 
     const char* headerValue = headerInfo->value;
-    headerNameEnumerator->Append(headerInfo->name);
-    headerValueEnumerator->Append(headerValue);
-
-    if (mailChannel) {
-      mailChannel->AddHeaderFromMIME(nsCString(headerInfo->name),
-                                     nsCString(headerValue));
-    }
+    mailChannel->AddHeaderFromMIME(nsCString(headerInfo->name),
+                                   nsCString(headerValue));
 
     // Add a localized version of the date header if we encounter it.
     if (!PL_strcasecmp("Date", headerInfo->name)) {
-      headerNameEnumerator->Append("X-Mozilla-LocalizedDate");
       GenerateDateString(headerValue, convertedDateString, false);
-      headerValueEnumerator->Append(convertedDateString);
+      mailChannel->AddHeaderFromMIME("X-Mozilla-LocalizedDate"_ns,
+                                     convertedDateString);
     }
   }
 
