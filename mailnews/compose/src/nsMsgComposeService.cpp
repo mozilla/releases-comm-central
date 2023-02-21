@@ -373,17 +373,20 @@ nsMsgComposeService::OpenComposeWindow(
       type == nsIMsgCompType::ReplyWithTemplate ||
       type == nsIMsgCompType::Redirect || type == nsIMsgCompType::EditAsNew) {
     nsAutoCString uriToOpen(originalMsgURI);
-    uriToOpen += (uriToOpen.FindChar('?') == kNotFound) ? '?' : '&';
-    uriToOpen.AppendLiteral("fetchCompleteMessage=true");
+    char sep = (uriToOpen.FindChar('?') == kNotFound) ? '?' : '&';
 
     // The compose type that gets transmitted to a compose window open in mime
     // is communicated using url query parameters here.
-    if (type == nsIMsgCompType::Redirect)
-      uriToOpen.AppendLiteral("&redirect=true");
-    else if (type == nsIMsgCompType::EditAsNew)
-      uriToOpen.AppendLiteral("&editasnew=true");
-    else if (type == nsIMsgCompType::EditTemplate)
-      uriToOpen.AppendLiteral("&edittempl=true");
+    if (type == nsIMsgCompType::Redirect) {
+      uriToOpen += sep;
+      uriToOpen.AppendLiteral("redirect=true");
+    } else if (type == nsIMsgCompType::EditAsNew) {
+      uriToOpen += sep;
+      uriToOpen.AppendLiteral("editasnew=true");
+    } else if (type == nsIMsgCompType::EditTemplate) {
+      uriToOpen += sep;
+      uriToOpen.AppendLiteral("edittempl=true");
+    }
 
     return LoadDraftOrTemplate(
         uriToOpen,
@@ -965,8 +968,6 @@ nsMsgComposeService::ForwardMessage(const nsAString& forwardTo,
   folder->GetUriForMsg(aMsgHdr, msgUri);
 
   nsAutoCString uriToOpen(msgUri);
-  uriToOpen += (uriToOpen.FindChar('?') == kNotFound) ? '?' : '&';
-  uriToOpen.AppendLiteral("fetchCompleteMessage=true");
 
   // get the MsgIdentity for the above key using AccountManager
   nsCOMPtr<nsIMsgAccountManager> accountManager =

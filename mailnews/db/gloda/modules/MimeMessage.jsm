@@ -173,10 +173,6 @@ function stripEncryptedParts(aPart) {
  *     situations where we have erroneously multi-megabyte messages.  This
  *     also likely reduces the impact of legitimately ridiculously large
  *     messages.
- * @param [aOptions.partsOnDemand] If this is a message stored on an IMAP
- *     server, and for whatever reason, it isn't available locally, then setting
- *     this option to true will make sure that attachments aren't downloaded.
- *     This makes sure the message is available quickly.
  * @param [aOptions.examineEncryptedParts] By default, we won't reveal the
  *     contents of multipart/encrypted parts to the consumers, unless explicitly
  *     requested. In the case of MIME/PGP messages, for instance, the message
@@ -202,8 +198,6 @@ function MsgHdrToMimeMessage(
   let msgService = MailServices.messageServiceFromURI(msgURI);
 
   MsgHdrToMimeMessage.OPTION_TUNNEL = aOptions;
-  let partsOnDemandStr =
-    aOptions && aOptions.partsOnDemand ? "&fetchCompleteMessage=false" : "";
   // By default, Enigmail only decrypts a message streamed via libmime if it's
   // the one currently on display in the message reader. With this option, we're
   // letting Enigmail know that it should decrypt the message since the client
@@ -253,7 +247,7 @@ function MsgHdrToMimeMessage(
       dumbUrlListener, // nsIUrlListener
       true, // have them create the converter
       // additional uri payload, note that "header=" is prepended automatically
-      "filter&emitter=js" + partsOnDemandStr + encryptedStr,
+      "filter&emitter=js" + encryptedStr,
       requireOffline
     );
   } catch (ex) {

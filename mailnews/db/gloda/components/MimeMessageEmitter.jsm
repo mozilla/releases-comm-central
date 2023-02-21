@@ -392,7 +392,7 @@ MimeMessageEmitter.prototype = {
     // the specific flags that the jsmimeemitter understands (we abuse the URL
     // parameters to pass information all the way to here)
     aUrl = aUrl.replace(
-      /((header=filter|emitter=js|fetchCompleteMessage=(true|false)|examineEncryptedParts=(true|false)))&?/g,
+      /((header=filter|emitter=js|examineEncryptedParts=(true|false)))&?/g,
       ""
     );
     // the url should contain a part= piece that tells us the part name, which

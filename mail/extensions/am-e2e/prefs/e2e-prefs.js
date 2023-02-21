@@ -237,5 +237,3 @@ pref("mail.identity.default.mimePreferOpenPGP", 1);
 // disable flowed text by default
 // TODO: pref("mailnews.send_plaintext_flowed", false);
 
-// disable loading of IMAP parts on demand
-// TODO: pref("mail.server.default.mime_parts_on_demand", false);

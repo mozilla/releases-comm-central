@@ -51,11 +51,6 @@ add_setup(async function() {
     false
   );
   Services.prefs.setBoolPref("mail.server.server1.offline_download", true);
-  // Make small threshold for mpod so our test messages don't have to be big.
-  // XXX We can't set this pref until the fake server supports body structure.
-  // So for now, we'll leave it at the default value, which is larger than any of
-  //  our test messages.
-  // Services.prefs.setIntPref("mail.imap.mime_parts_on_demand_threshold", 3000);
 
   setupIMAPPump();
 

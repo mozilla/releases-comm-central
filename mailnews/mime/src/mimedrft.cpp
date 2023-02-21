@@ -1495,11 +1495,14 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
 
       MSG_ComposeType msgComposeType = 0;  // Keep compilers happy.
       if (mdd->format_out == nsMimeOutput::nsMimeMessageEditorTemplate) {
-        if (PL_strstr(mdd->url_name, "&redirect=true"))
+        if (PL_strstr(mdd->url_name, "?redirect=true") ||
+            PL_strstr(mdd->url_name, "&redirect=true"))
           msgComposeType = nsIMsgCompType::Redirect;
-        else if (PL_strstr(mdd->url_name, "&editasnew=true"))
+        else if (PL_strstr(mdd->url_name, "?editasnew=true") ||
+                 PL_strstr(mdd->url_name, "&editasnew=true"))
           msgComposeType = nsIMsgCompType::EditAsNew;
-        else if (PL_strstr(mdd->url_name, "&edittempl=true"))
+        else if (PL_strstr(mdd->url_name, "?edittempl=true") ||
+                 PL_strstr(mdd->url_name, "&edittempl=true"))
           msgComposeType = nsIMsgCompType::EditTemplate;
         else
           msgComposeType = nsIMsgCompType::Template;

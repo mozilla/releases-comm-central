@@ -411,7 +411,7 @@ async function getMimeMessage(msgHdr, partName = "") {
         resolve(mimeMsg);
       },
       true,
-      { examineEncryptedParts: true, partsOnDemand: true }
+      { examineEncryptedParts: true }
     );
   });
 

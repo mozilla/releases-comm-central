@@ -67,7 +67,6 @@ class ImapIncomingServer extends MsgIncomingServer {
       ["Bool", "fetchByChunks", "fetch_by_chunks"],
       ["Bool", "forceSelect", "force_select_imap"],
       ["Bool", "isGMailServer", "is_gmail"],
-      ["Bool", "mimePartsOnDemand", "mime_parts_on_demand"],
       ["Bool", "offlineDownload", "offline_download"],
       ["Bool", "sendID", "send_client_info"],
       ["Bool", "useCompressDeflate", "use_compress_deflate"],

@@ -989,8 +989,6 @@ nsMsgDBView::ReloadMessageWithAllParts() {
   if (m_currentlyDisplayedMsgUri.IsEmpty() || mSuppressMsgDisplay) return NS_OK;
 
   nsAutoCString forceAllParts(m_currentlyDisplayedMsgUri);
-  forceAllParts += (forceAllParts.FindChar('?') == kNotFound) ? '?' : '&';
-  forceAllParts.AppendLiteral("fetchCompleteMessage=true");
   nsCOMPtr<nsIMessenger> messenger(do_QueryReferent(mMessengerWeak));
   NS_ENSURE_TRUE(messenger, NS_ERROR_FAILURE);
 

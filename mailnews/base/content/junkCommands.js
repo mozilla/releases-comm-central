@@ -172,9 +172,7 @@ MessageClassifier.prototype = {
       return;
     }
 
-    var messageURI =
-      aMsgHdr.folder.generateMessageURI(aMsgHdr.messageKey) +
-      "?fetchCompleteMessage=true";
+    let messageURI = aMsgHdr.folder.generateMessageURI(aMsgHdr.messageKey);
     this.mMessages[messageURI] = aMsgHdr;
     if (this.firstMessage) {
       this.firstMessage = false;
