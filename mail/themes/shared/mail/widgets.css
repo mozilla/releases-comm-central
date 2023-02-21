@@ -66,9 +66,10 @@
 }
 
 .button.icon-only {
-  background-position: calc(var(--button-padding) * 1.5) center;
-  padding-inline-start: calc(var(--button-padding) * 1.5 + 16px);
-  padding-inline-end: calc(var(--button-padding) * 1.75);
+  background-position: var(--button-padding) center;
+  padding-inline-start: calc(var(--button-padding) + 16px);
+  padding-inline-end: var(--button-padding);
+  aspect-ratio: 1;
 }
 
 .button.icon-only:dir(rtl),

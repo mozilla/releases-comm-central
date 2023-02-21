@@ -31,10 +31,6 @@ radio.calview[selected="true"] {
   background-color: white;
 }
 
-.calendar-view-navigation-button {
-  margin-top: 2px;
-}
-
 @media (prefers-color-scheme: dark) {
   #view-box {
     background-color: Field;

@@ -389,27 +389,20 @@
                   tooltiptext-foobar="..." -->
             <div id="calendarControls">
               <button id="previousViewButton"
-                      class="calendar-view-navigation-button"
+                      class="button icon-button icon-only"
                       onclick="goDoCommand('calendar_view_prev_command')"
                       type="button">
-                <img class="calendar-controls-icon" alt=""
-                      src="chrome://messenger/skin/icons/new/compact/nav-left.svg"/>
               </button>
               <button id="todayViewButton"
-                      class="calendar-view-navigation-button"
+                      class="button icon-button icon-only"
                       data-l10n-id="calendar-today-button-tooltip"
                       onclick="currentView().moveView()"
                       type="button">
-                <img src="chrome://messenger/skin/icons/new/compact/calendar-today.svg"
-                      alt=""
-                      class="calendar-controls-icon"/>
               </button>
               <button id="nextViewButton"
-                      class="calendar-view-navigation-button"
+                      class="button icon-button icon-only"
                       onclick="goDoCommand('calendar_view_next_command')"
                       type="button">
-                <img class="calendar-controls-icon" alt=""
-                      src="chrome://messenger/skin/icons/new/compact/nav-right.svg"/>
               </button>
             </div>
             <span id="intervalDescription" class="view-header"/>

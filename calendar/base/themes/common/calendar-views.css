@@ -40,7 +40,7 @@
   --calendar-view-nav-btn-padding: 4px;
   --calendar-nav-control-padding: 6px;
   --calendar-view-toggle-label-padding: 3px 15px;
-  --calendar-nav-control-bar-gap: 9px;
+  --calendar-view-toolbar-gap: 9px;
   --button-border-radius: 3px;
   --calendar-view-toggle-background: var(--layout-background-3);
   --calendar-view-toggle-hover-background: var(--layout-background-2);
@@ -52,24 +52,27 @@
   --calendar-month-day-box-padding: 2px;
   --today-week-pill-padding-block: 3px;
   --today-week-pill-padding-inline: 6px;
+  --calendar-nav-gap: 3px;
 }
 
 :root[uidensity="compact"] {
   --calendar-view-toggle-margin: 3px;
   --calendar-view-toggle-label-padding: 2px 12px;
-  --calendar-nav-control-bar-gap: 6px;
+  --calendar-view-toolbar-gap: 6px;
   --calendar-month-day-box-padding: 1px;
   --today-week-pill-padding-block: 1px;
   --today-week-pill-padding-inline: 3px;
+  --calendar-nav-gap: 3px;
 }
 
 :root[uidensity="touch"] {
   --calendar-view-toggle-margin: 6px 3px;
   --calendar-view-toggle-label-padding: 6px 15px;
-  --calendar-nav-control-bar-gap: 12px;
+  --calendar-view-toolbar-gap: 12px;
   --calendar-month-day-box-padding: 3px;
   --today-week-pill-padding-block: 3px;
   --today-week-pill-padding-inline: 9px;
+  --calendar-nav-gap: 6px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -1115,13 +1118,15 @@ calendar-editable-item[status="CANCELLED"],
 .navigation-inner-box {
   display: flex;
   align-items: center;
-  gap: var(--calendar-nav-control-bar-gap);
+  gap: var(--calendar-view-toolbar-gap);
 }
 
 #calendarControls {
+  --button-margin: 0;
+  
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--calendar-nav-gap);
 }
 
 .view-header {
@@ -1130,27 +1135,16 @@ calendar-editable-item[status="CANCELLED"],
   color: inherit;
 }
 
-.calendar-controls-icon {
-  -moz-context-properties: fill, stroke;
-  stroke: currentColor;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
+#previousViewButton {
+  background-image: var(--icon-nav-left);
 }
 
-.calendar-view-navigation-button {
-  appearance: none;
-  min-width: 22px;
-  margin-inline: 2px;
-  border: 1px solid transparent;
-  border-radius: var(--button-border-radius);
-  display: flex;
-  align-content: center;
-  justify-content: center;
-  padding: var(--calendar-view-nav-btn-padding);
-  -moz-context-properties: stroke;
+#nextViewButton {
+  background-image: var(--icon-nav-right);
 }
 
-.calendar-view-navigation-button[disabled="true"] {
-  opacity: 0.3;
+#todayViewButton {
+  background-image: var(--icon-calendar-today);
 }
 
 .calview-toggle {
