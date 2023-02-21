@@ -24,10 +24,6 @@
   }
 }
 
-treechildren::-moz-tree-row(modeHeader) {
-  appearance: none !important;
-}
-
 #folderTree treechildren::-moz-tree-indentation {
  background-color: black !important;
 }

@@ -243,15 +243,6 @@ treechildren::-moz-tree-cell-text {
     background-color: transparent;
   }
 
-  #folderTree > treechildren::-moz-tree-row(modeHeader, hover) {
-    border-color: ThreeDShadow !important;
-    border-inline-style: none;
-  }
-
-  tree > treechildren::-moz-tree-row(modeHeader, firstHeader, hover) {
-    border-top-style: none;
-  }
-
   #threadTree > treechildren::-moz-tree-cell-text(untagged, selected),
   tree:not(#threadTree) > treechildren::-moz-tree-cell-text(selected) {
     color: WindowText;

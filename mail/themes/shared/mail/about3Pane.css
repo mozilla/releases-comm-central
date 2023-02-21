@@ -6,6 +6,7 @@
 
 :root {
   --treeitem-border-radius: 3px;
+  --folder-mode-name-padding: 6px;
   --folder-tree-header-gap: 9px;
   --folder-tree-header-padding: 9px 6px;
 }
@@ -59,11 +60,13 @@
 }
 
 :root[uidensity="compact"] {
+  --folder-mode-name-padding: 3px;
   --folder-tree-header-gap: 6px;
   --folder-tree-header-padding: 4px 3px;
 }
 
 :root[uidensity="touch"] {
+  --folder-mode-name-padding: 9px;
   --folder-tree-header-gap: 12px;
 }
 
@@ -266,6 +269,22 @@ body:not(.account-central) #accountCentralBrowser {
 
 #folderTree:focus-visible {
   outline: none;
+}
+
+#folderTree li[data-mode] {
+  margin-bottom: 3px;
+}
+
+.mode-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding-block: var(--folder-mode-name-padding);
+  padding-inline-start: 12px;
+  border-top: 1px solid var(--sidebar-border-color, var(--splitter-color));
+}
+
+#folderPaneHeaderBar[hidden] + #folderTree li.unselectable:first-of-type > .mode-name {
+  border-top-style: none;
 }
 
 .container {
