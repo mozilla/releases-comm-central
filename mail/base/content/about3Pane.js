@@ -2145,6 +2145,8 @@ var threadPane = {
     threadTree.addEventListener("keypress", this);
     threadTree.addEventListener("select", this);
     threadTree.addEventListener("dragstart", this);
+    threadTree.addEventListener("expanded", this);
+    threadTree.addEventListener("collapsed", this);
   },
 
   uninit() {
@@ -2164,6 +2166,14 @@ var threadPane = {
         break;
       case "dragstart":
         this._onDragStart(event);
+        break;
+      case "expanded":
+      case "collapsed":
+        if (event.detail == threadTree.selectedIndex) {
+          // The selected index hasn't changed, but a collapsed row represents
+          // multiple messages, so for our purposes the selection has changed.
+          threadTree.dispatchEvent(new CustomEvent("select"));
+        }
         break;
     }
   },
