@@ -5,7 +5,6 @@
 @import url(chrome://calendar/skin/shared/calendar.css);
 
 #calendarContent:-moz-lwtheme {
-  color: -moz-dialogText;
   text-shadow: none;
 }
 

@@ -21,7 +21,7 @@
 }
 
 #today-pane-panel {
-  background-color: -moz-Dialog;
+  background-color: var(--layout-background-0);
 }
 
 #today-pane-panel:-moz-lwtheme {
@@ -29,12 +29,12 @@
 }
 
 #today-pane-panel > * {
-  color: -moz-DialogText;
+  color: var(--layout-color-0);
 }
 
 #today-pane-panel > .sidebar-header {
   appearance: none;
-  background-color: -moz-Dialog;
+  background-color: var(--layout-background-0);
   border-bottom: 1px solid var(--chrome-content-separator-color, ThreeDShadow);
 }
 
@@ -87,7 +87,7 @@
 
 #today-pane-panel:-moz-lwtheme > vbox {
   text-shadow: none;
-  background-color: -moz-Dialog;
+  background-color: var(--layout-background-0);
 }
 
 :root[lwt-tree] #today-pane-panel > vbox {
@@ -111,7 +111,7 @@
 }
 
 #today-minimonth-box {
-  background-color: Field;
+  background-color: var(--layout-background-1);
 }
 
 :root[lwt-tree] #today-minimonth-box {
@@ -297,7 +297,7 @@
   margin: 0;
   padding: 3px 6px;
   list-style: none;
-  background-color: field;
+  background-color: var(--layout-background-1);
   border-top: 1px solid var(--splitter-color);
   --selected-background: var(--selected-item-color);
   --selected-foreground: var(--selected-item-text-color);
