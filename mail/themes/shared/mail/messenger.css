@@ -497,6 +497,7 @@ menubar {
 menulist {
   min-height: 24px;
   margin-block: 4px;
+  color: var(--button-text-color);
   border: 1px solid var(--toolbarbutton-hover-bordercolor);
   border-radius: var(--button-border-radius);
   background-color: var(--toolbarbutton-hover-background);
