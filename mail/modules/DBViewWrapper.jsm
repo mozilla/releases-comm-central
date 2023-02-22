@@ -1210,6 +1210,7 @@ DBViewWrapper.prototype = {
    */
   _enterFolder() {
     if (this._enteredFolder) {
+      this.listener.onMessagesLoaded(true);
       return;
     }
 
