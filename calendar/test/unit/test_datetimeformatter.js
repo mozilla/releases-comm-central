@@ -4,6 +4,9 @@
 
 var { formatter } = cal.dtz;
 
+const { CalTimezone } = ChromeUtils.import("resource:///modules/CalTimezone.jsm");
+const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
+
 function run_test() {
   do_calendar_startup(run_next_test);
 }
@@ -460,6 +463,35 @@ add_task(async function formatTime_test() {
   }
   // let's reset the preferences
   Services.prefs.setStringPref("calendar.timezone.local", tzlocal);
+});
+
+add_task(function formatTime_test_with_arbitrary_timezone() {
+  // Create a timezone with an arbitrary offset and a time zone ID we can be
+  // reasonably sure Gecko won't recognize so we can be sure that we aren't
+  // relying on the time zone ID to be valid.
+  const tzdef =
+    "BEGIN:VTIMEZONE\n" +
+    "TZID:Nowhere/Middle\n" +
+    "BEGIN:STANDARD\n" +
+    "DTSTART:16010101T000000\n" +
+    "TZOFFSETFROM:-0741\n" +
+    "TZOFFSETTO:-0741\n" +
+    "END:STANDARD\n" +
+    "END:VTIMEZONE";
+
+  const timezone = new CalTimezone(
+    ICAL.Timezone.fromData({
+      tzid: "Nowhere/Middle",
+      component: tzdef,
+    })
+  );
+
+  const expected = ["6:19 AM", "06:19"];
+
+  const dateTime = cal.createDateTime("20220916T140000Z").getInTimezone(timezone);
+  const formatted = formatter.formatTime(dateTime);
+
+  ok(expected.includes(formatted), `expected '${expected}', actual result ${formatted}`);
 });
 
 add_task(async function formatInterval_test() {

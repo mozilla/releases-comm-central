@@ -51,7 +51,7 @@ var formatter = {
    * @returns {string} A string representing the date part of the datetime.
    */
   formatDateShort(aDate) {
-    return inTimezone(aDate, { dateStyle: "short" });
+    return formatDateTimeWithOptions(aDate, { dateStyle: "short" });
   },
 
   /**
@@ -61,7 +61,7 @@ var formatter = {
    * @returns {string} A string representing the date part of the datetime.
    */
   formatDateLong(aDate) {
-    return inTimezone(aDate, { dateStyle: "full" });
+    return formatDateTimeWithOptions(aDate, { dateStyle: "full" });
   },
 
   /**
@@ -71,8 +71,7 @@ var formatter = {
    * @returns {string} A string representing the date part of the datetime.
    */
   formatDateWithoutYear(aDate) {
-    let dtOptions = { month: "short", day: "numeric" };
-    return inTimezone(aDate, dtOptions);
+    return formatDateTimeWithOptions(aDate, { month: "short", day: "numeric" });
   },
 
   /**
@@ -83,7 +82,7 @@ var formatter = {
    * @returns {string} A string representing the date part of the datetime.
    */
   formatDateLongWithoutYear(aDate) {
-    return inTimezone(aDate, { weekday: "long", month: "long", day: "numeric" });
+    return formatDateTimeWithOptions(aDate, { weekday: "long", month: "long", day: "numeric" });
   },
 
   /**
@@ -104,17 +103,15 @@ var formatter = {
       return lazy.gDateStringBundle.GetStringFromName("AllDay");
     }
 
-    let options = { timeStyle: "short" };
-    let formatter = getFormatterWithTimezone(options, time.timezone);
+    const options = { timeStyle: "short" };
     if (preferEndOfDay && time.hour == 0 && time.minute == 0) {
       // Midnight. Note that the timeStyle is short, so we don't test for
       // seconds.
       // Test what hourCycle the default formatter would use.
-      if (formatter.resolvedOptions().hourCycle == "h23") {
+      if (getFormatter(options).resolvedOptions().hourCycle == "h23") {
         // Midnight start-of-day is 00:00, so we can show midnight end-of-day
         // as 24:00.
         options.hourCycle = "h24";
-        formatter = getFormatterWithTimezone(options, time.timezone);
       }
       // NOTE: Regarding the other hourCycle values:
       // + "h24": This is not expected in any locale.
@@ -130,7 +127,7 @@ var formatter = {
       //   in this case as well.
     }
 
-    return formatter.format(lazy.cal.dtz.dateTimeToJsDate(time));
+    return formatDateTimeWithOptions(time, options);
   },
 
   /**
@@ -533,6 +530,63 @@ var formatter = {
 };
 
 /**
+ * Determine whether a datetime is specified relative to the user, i.e. a date
+ * or floating datetime, both of which should be displayed the same regardless
+ * of the user's time zone.
+ *
+ * @param {calIDateTime} dateTime The datetime object to check.
+ * @returns {boolean}
+ */
+function isDateTimeRelativeToUser(dateTime) {
+  return dateTime.isDate || dateTime.timezone.isFloating;
+}
+
+/**
+ * Format a datetime object as a string with a given set of formatting options.
+ *
+ * @param {calIDateTime} dateTime The datetime object to be formatted.
+ * @param {object} options
+ *  The set of Intl.DateTimeFormat options to use for formatting.
+ * @returns {string} A formatted string representing the given datetime.
+ */
+function formatDateTimeWithOptions(dateTime, options) {
+  const jsDate = getDateTimeAsAdjustedJsDate(dateTime);
+
+  // We want floating datetimes and dates to be formatted without regard to
+  // timezone; everything else has been adjusted so that "UTC" will produce the
+  // correct result because we cannot guarantee that the datetime's timezone is
+  // supported by Gecko.
+  const timezone = isDateTimeRelativeToUser(dateTime) ? undefined : "UTC";
+
+  return getFormatter({ ...options, timeZone: timezone }).format(jsDate);
+}
+
+/**
+ * Convert a calendar datetime object to a JavaScript standard Date adjusted
+ * for timezone offset.
+ *
+ * @param {calIDateTime} dateTime The datetime object to convert and adjust.
+ * @returns {Date} The standard JS equivalent of the given datetime, offset
+ *                 from UTC according to the datetime's timezone.
+ */
+function getDateTimeAsAdjustedJsDate(dateTime) {
+  const unadjustedJsDate = lazy.cal.dtz.dateTimeToJsDate(dateTime);
+
+  // If the datetime is date-only, it doesn't make sense to adjust for timezone.
+  // Floating datetimes likewise are not fixed in a single timezone.
+  if (isDateTimeRelativeToUser(dateTime)) {
+    return unadjustedJsDate;
+  }
+
+  // We abuse `Date` slightly here: its internal representation is intended to
+  // contain the date as seconds from the epoch, but `Intl` relies on adjusting
+  // timezone and we can't be sure we have a recognized timezone ID. Instead, we
+  // force the internal representation to compensate for timezone offset.
+  const offsetInMs = dateTime.timezoneOffset * 1000;
+  return new Date(unadjustedJsDate.valueOf() + offsetInMs);
+}
+
+/**
  * Get a formatter that can be used to format a date-time in a
  * locale-appropriate way.
  *
@@ -547,6 +601,7 @@ function getFormatter(formatOptions) {
   if (formatCache.has(cacheKey)) {
     return formatCache.get(cacheKey);
   }
+
   // Use en-US when running in a test to make the result independent of the test
   // machine.
   let locale = Services.appinfo.name == "xpcshell" ? "en-US" : undefined;
@@ -559,45 +614,7 @@ function getFormatter(formatOptions) {
   } else {
     formatter = new Services.intl.DateTimeFormat(locale, formatOptions);
   }
+
   formatCache.set(cacheKey, formatter);
   return formatter;
-}
-
-/**
- * Get a formatter that can be used to format a date-time within the given
- * timezone. NOTE: some timezones may be ignored if they are not properly
- * handled.
- *
- * @param {object} formatOptions - The basis Intl.DateTimeFormatter options.
- * @param {?calITimezone} timezone - The timezone to try and use.
- *
- * @returns {DateTimeFormatter} - The formatter.
- */
-function getFormatterWithTimezone(formatOptions, timezone) {
-  if (timezone && (timezone.isUTC || timezone.icalComponent)) {
-    let optionsWithTimezone = { ...formatOptions, timeZone: timezone.tzid };
-    try {
-      return getFormatter(optionsWithTimezone);
-    } catch (ex) {
-      // Non-IANA timezones throw a RangeError.
-      lazy.cal.WARN(ex);
-    }
-  }
-  return getFormatter(formatOptions);
-}
-
-/**
- * Format the given date or date-time. If a date-time object is given, it will
- * be shown in its timezone.
- *
- * @param {calIDateTime} date - The date or date-time to format.
- * @param {object} formatOptions - The Intl.DateTimeFormatter options
- *   describing how to format the date.
- *
- * @returns {string} - The date formatted as a string.
- */
-function inTimezone(date, formatOptions) {
-  return getFormatterWithTimezone(formatOptions, date.isDate ? null : date.timezone).format(
-    lazy.cal.dtz.dateTimeToJsDate(date)
-  );
 }
