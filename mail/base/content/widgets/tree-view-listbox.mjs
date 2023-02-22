@@ -246,6 +246,49 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
     this.classList.add("tree-table-header");
     this.row = document.createElement("tr");
     this.appendChild(this.row);
+
+    this.addEventListener("keypress", this);
+  }
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "keypress":
+        if (!event.altKey || !["ArrowRight", "ArrowLeft"].includes(event.key)) {
+          return;
+        }
+
+        let column = event.target.closest(
+          `th[is="tree-view-table-header-cell"]`
+        );
+        if (!column) {
+          return;
+        }
+
+        let visibleColumns = this.parentNode.columns.filter(c => !c.hidden);
+        let forward =
+          event.key == (document.dir === "rtl" ? "ArrowLeft" : "ArrowRight");
+
+        // Bail out if the user is trying to shift backward the first column,
+        // or shift forward the last column.
+        if (
+          (!forward && visibleColumns.at(0)?.id == column.id) ||
+          (forward && visibleColumns.at(-1)?.id == column.id)
+        ) {
+          return;
+        }
+
+        event.preventDefault();
+        this.dispatchEvent(
+          new CustomEvent("shift-column", {
+            bubbles: true,
+            detail: {
+              column: column.id,
+              forward,
+            },
+          })
+        );
+        break;
+    }
   }
 
   /**
@@ -318,7 +361,6 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
     );
 
     this.#button = document.createElement("button");
-    this.#button.classList.add("button-flat");
     this.#container.appendChild(this.#button);
     this.appendChild(this.#container);
   }

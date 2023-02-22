@@ -31,8 +31,9 @@
     --tree-view-bg: var(--color-white);
     --tree-view-color: var(--color-ink-90);
     --tree-view-header-bg: var(--color-gray-05);
-    --tree-view-header-hover-bg: color-mix(in srgb, var(--color-black) 10%, transparent);
-    --tree-view-header-border-color: color-mix(in srgb, var(--splitter-color) 50%, transparent);
+    --tree-view-header-hover-bg: var(--color-gray-20);
+    --tree-view-header-hover-active-bg: var(--color-gray-30);
+    --tree-view-header-border-color: var(--color-gray-30);
     --tree-row-delete-button-color: var(--color-red-60);
   }
 
@@ -44,7 +45,8 @@
       --tree-view-bg: var(--color-gray-80);
       --tree-view-color: var(--color-ink-10);
       --tree-view-header-bg: var(--color-gray-80);
-      --tree-view-header-hover-bg: color-mix(in srgb, var(--color-white) 20%, transparent);
+      --tree-view-header-hover-bg: var(--color-gray-70);
+      --tree-view-header-hover-active-bg: var(--color-gray-90);
       --tree-view-header-border-color: var(--splitter-color);
       --tree-row-delete-button-color: var(--color-red-40);
     }
@@ -306,6 +308,16 @@ th[data-resizable="false"] .tree-table-cell {
 
 .tree-table-cell-container button:hover {
   background-color: var(--tree-view-header-hover-bg);
+}
+
+.tree-table-cell-container button:hover:active {
+  background-color: var(--tree-view-header-hover-active-bg);
+}
+
+.tree-table-cell-container button:focus-visible {
+  outline: 2px solid var(--selected-item-color);
+  outline-offset: -2px;
+  border-radius: var(--button-border-radius);
 }
 
 .tree-table-cell-container button.sorting {

@@ -2109,6 +2109,9 @@ var threadPane = {
     // TODO: Switch this dynamically like in the address book.
     document.body.classList.add("layout-table");
 
+    this.treeTable.addEventListener("shift-column", event => {
+      this.onColumnShifted(event.detail);
+    });
     this.treeTable.addEventListener("column-resized", event => {
       this.treeTable.setColumnsWidths(XULSTORE_URL, event);
     });
@@ -2546,6 +2549,56 @@ var threadPane = {
     this.updateColumns();
     threadTree.invalidate();
     this.persistColumnStates();
+  },
+
+  /**
+   * Shift the ordinal of a column by one based on the visible columns.
+   *
+   * @param {object} data - The detail object of the bubbled event.
+   */
+  onColumnShifted(data) {
+    const column = data.column;
+    const forward = data.forward;
+
+    const columnToShift = this.columns.find(c => c.id == column);
+    const currentPosition = this.columns.indexOf(columnToShift);
+
+    let delta = forward ? 1 : -1;
+    let newPosition = currentPosition + delta;
+    // Account for hidden columns to find the correct new position.
+    while (this.columns.at(newPosition).hidden) {
+      newPosition += delta;
+    }
+
+    // Get the column in the current new position before shuffling the array.
+    const destinationTH = document.getElementById(
+      this.columns.at(newPosition).id
+    );
+
+    this.columns.splice(
+      newPosition,
+      0,
+      this.columns.splice(currentPosition, 1)[0]
+    );
+
+    // Update the ordinal of the columns to reflect the new positions.
+    this.columns.forEach((column, index) => {
+      column.ordinal = index;
+    });
+
+    this.persistColumnStates();
+    this.updateColumns(true);
+    threadTree.invalidate();
+
+    // Swap the DOM elements.
+    const originalTH = document.getElementById(column);
+    if (forward) {
+      destinationTH.after(originalTH);
+    } else {
+      destinationTH.before(originalTH);
+    }
+    // Restore the focus so we can continue shifting if needed.
+    document.getElementById(`${column}Button`).focus();
   },
 
   /**
