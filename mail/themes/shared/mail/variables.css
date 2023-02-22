@@ -86,6 +86,11 @@
   --primary: #0a84ff;
   --select-focus-text-color: var(--selected-item-text-color);
   --select-focus-background-color: var(--selected-item-color);
+  /* Wrapper for toolkit variables */
+  --button-primary-bgcolor: var(--button-primary-background-color);
+  --button-primary-hover-bgcolor: var(--button-primary-hover-background-color);
+  --button-primary-active-bgcolor: var(--button-primary-active-background-color);
+  --button-primary-color: var(--button-primary-text-color);
 }
 
 /* LW-themes enabled */
