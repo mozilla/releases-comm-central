@@ -58,7 +58,7 @@ input:-moz-lwtheme:focus-visible {
 }
 
 .button.button-flat.icon-button {
-  padding-inline: calc(var(--button-padding) * 2);
+  padding-inline: 0;
 }
 
 div {
