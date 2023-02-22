@@ -459,7 +459,7 @@
           row.classList.add("selected");
           row.setAttribute("aria-selected", "true");
           this.setAttribute("aria-activedescendant", row.id);
-          row.scrollIntoView({ block: "nearest" });
+          row.firstElementChild.scrollIntoView({ block: "nearest" });
         } else {
           this.removeAttribute("aria-activedescendant");
         }
