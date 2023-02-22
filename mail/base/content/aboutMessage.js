@@ -138,16 +138,14 @@ function displayMessage(uri, viewWrapper) {
       gViewWrapper._viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
       gViewWrapper.open(gFolder);
     }
-
-    gViewWrapper.dbView.selection = new TreeSelection();
-    gViewWrapper.dbView.selection.select(
-      gViewWrapper.dbView.findIndexOfMsgHdr(gMessage, true)
-    );
   } else {
     gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
     gViewWrapper.openSearchView();
   }
   gDBView = gViewWrapper.dbView;
+  let selection = (gDBView.selection = new TreeSelection());
+  selection.view = gDBView;
+  selection.select(gDBView.findIndexOfMsgHdr(gMessage, true));
   gDBView?.setJSTree({
     QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
     _inBatch: false,

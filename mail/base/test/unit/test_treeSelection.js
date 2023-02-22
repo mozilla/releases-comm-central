@@ -22,6 +22,11 @@ var tree = {
   invalidate() {
     this._invalidationCount++;
   },
+  invalidateRange(startIndex, endIndex) {
+    for (let index = startIndex; index <= endIndex; index++) {
+      this.invalidateRow(index);
+    }
+  },
   _invalidatedRows: [],
   invalidateRow(index) {
     this._invalidatedRows.push(index);
@@ -403,14 +408,14 @@ function run_test() {
   sel.select(5);
   tree.assertInvalidatedRows(createRangeArray(0, 100));
   sel.adjustSelection(5, 1);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(5, 100));
   assertSelectionRanges([[6, 6]]);
   assertCurrentIndex(6);
 
   sel.select(5);
   tree.assertInvalidatedRows([5, 6]);
   sel.adjustSelection(0, 1);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(0, 100));
   assertSelectionRanges([[6, 6]]);
   assertCurrentIndex(6);
 
@@ -418,7 +423,7 @@ function run_test() {
   sel.rangedSelect(5, 5, false);
   tree.assertInvalidatedRows([5, 6]);
   sel.adjustSelection(5, 1);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(5, 100));
   assertSelectionRanges([[6, 6]]);
   assertShiftPivot(6);
   assertCurrentIndex(6);
@@ -426,7 +431,7 @@ function run_test() {
   sel.rangedSelect(5, 5, false);
   tree.assertInvalidatedRows([5, 6]);
   sel.adjustSelection(0, 1);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(0, 100));
   assertSelectionRanges([[6, 6]]);
   assertShiftPivot(6);
   assertCurrentIndex(6);
@@ -435,7 +440,7 @@ function run_test() {
   sel.rangedSelect(5, 7, false);
   tree.assertInvalidatedRows([5, 6, 7]);
   sel.adjustSelection(5, 1);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(5, 100));
   assertSelectionRanges([[6, 8]]);
   assertShiftPivot(6);
   assertCurrentIndex(8);
@@ -444,7 +449,7 @@ function run_test() {
   sel.rangedSelect(0, 3, false);
   tree.assertInvalidatedRows([0, 1, 2, 3, 6, 7, 8]);
   sel.adjustSelection(10, 1);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(10, 100));
   assertSelectionRanges([[0, 3]]);
   assertShiftPivot(0);
   assertCurrentIndex(3);
@@ -453,7 +458,7 @@ function run_test() {
   sel.rangedSelect(5, 6, false);
   tree.assertInvalidatedRows([0, 1, 2, 3, 5, 6]);
   sel.adjustSelection(6, 1);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(6, 100));
   assertSelectionRanges([
     [5, 5],
     [7, 7],
@@ -465,7 +470,7 @@ function run_test() {
   sel.select(5);
   tree.assertInvalidatedRows([5, 7]);
   sel.adjustSelection(0, -1);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(0, 100));
   assertSelectionRanges([[4, 4]]);
   assertCurrentIndex(4);
 
@@ -473,7 +478,7 @@ function run_test() {
   sel.rangedSelect(5, 5, false);
   tree.assertInvalidatedRows([4, 5]);
   sel.adjustSelection(0, -1);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(0, 100));
   assertSelectionRanges([[4, 4]]);
   assertShiftPivot(4);
   assertCurrentIndex(4);
@@ -482,7 +487,7 @@ function run_test() {
   sel.select(5);
   tree.assertInvalidatedRows([4, 5]);
   sel.adjustSelection(5, -1);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(5, 100));
   assertSelectionRanges([]);
   assertCurrentIndex(-1);
 
@@ -490,7 +495,7 @@ function run_test() {
   sel.rangedSelect(5, 10, false);
   tree.assertInvalidatedRows([5, 6, 7, 8, 9, 10]);
   sel.adjustSelection(10, -1);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(10, 100));
   assertSelectionRanges([[5, 9]]);
   assertShiftPivot(5);
   assertCurrentIndex(-1);
@@ -499,7 +504,7 @@ function run_test() {
   sel.rangedSelect(5, 10, false);
   tree.assertInvalidatedRows([5, 6, 7, 8, 9, 10]);
   sel.adjustSelection(6, -10);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(6, 100));
   assertSelectionRanges([[5, 5]]);
   assertShiftPivot(5);
   assertCurrentIndex(-1);
@@ -508,7 +513,7 @@ function run_test() {
   sel.rangedSelect(5, 10, false);
   tree.assertInvalidatedRows([5, 6, 7, 8, 9, 10]);
   sel.adjustSelection(5, -1);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(5, 100));
   assertSelectionRanges([[5, 9]]);
   assertShiftPivot(-1);
   assertCurrentIndex(9);
@@ -517,7 +522,7 @@ function run_test() {
   sel.rangedSelect(5, 10, false);
   tree.assertInvalidatedRows([5, 6, 7, 8, 9, 10]);
   sel.adjustSelection(0, -10);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(0, 100));
   assertSelectionRanges([[0, 0]]);
   assertShiftPivot(-1);
   assertCurrentIndex(0);
@@ -526,7 +531,7 @@ function run_test() {
   sel.rangedSelect(5, 10, false);
   tree.assertInvalidatedRows([0, 5, 6, 7, 8, 9, 10]);
   sel.adjustSelection(5, -6);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(5, 100));
   assertSelectionRanges([]);
   assertShiftPivot(-1);
   assertCurrentIndex(-1);
@@ -535,7 +540,7 @@ function run_test() {
   sel.rangedSelect(5, 10, false);
   tree.assertInvalidatedRows([5, 6, 7, 8, 9, 10]);
   sel.adjustSelection(0, -20);
-  tree.assertInvalidated();
+  tree.assertInvalidatedRows(createRangeArray(0, 100));
   assertSelectionRanges([]);
   assertShiftPivot(-1);
   assertCurrentIndex(-1);

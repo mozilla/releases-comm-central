@@ -90,6 +90,32 @@ export class TreeSelection {
   }
 
   /**
+   * Call `invalidateRange` on the tree.
+   *
+   * @param {number} startIndex - The first index to invalidate.
+   * @param {number?} endIndex - The last index to invalidate. If not given,
+   *   defaults to the index of the last row.
+   */
+  _doInvalidateRange(startIndex, endIndex) {
+    let noEndIndex = endIndex === undefined;
+    if (noEndIndex) {
+      if (!this._view) {
+        this._doInvalidateAll();
+        return;
+      }
+      endIndex = this._view.rowCount - 1;
+    }
+    if (this._tree) {
+      this._tree.invalidateRange(startIndex, endIndex);
+    }
+    for (let i of this._invalidIndices) {
+      if (i >= startIndex && (noEndIndex || i <= endIndex)) {
+        this._invalidIndices.delete(i);
+      }
+    }
+  }
+
+  /**
    * Call `invalidate` on the tree.
    */
   _doInvalidateAll() {
@@ -594,7 +620,7 @@ export class TreeSelection {
         this._ranges[iTrans] = [low + count, high + count];
       }
       // invalidate and fire selection change notice
-      this._doInvalidateAll();
+      this._doInvalidateRange(index);
       this._fireSelectionChanged();
       return;
     }
@@ -625,7 +651,7 @@ export class TreeSelection {
       this._ranges.splice(iTrans, 1);
     }
 
-    this._doInvalidateAll();
+    this._doInvalidateRange(index);
     this.selectEventsSuppressed = saveSuppress;
   }
 

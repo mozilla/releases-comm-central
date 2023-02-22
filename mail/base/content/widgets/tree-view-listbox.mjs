@@ -1109,6 +1109,24 @@ class TreeViewListbox extends HTMLTableSectionElement {
   }
 
   /**
+   * Invalidate the rows between `startIndex` and `endIndex`.
+   *
+   * @param {integer} startIndex
+   * @param {integer} endIndex
+   */
+  invalidateRange(startIndex, endIndex) {
+    for (
+      let index = Math.max(startIndex, this._firstRowIndex),
+        last = Math.min(endIndex, this._lastRowIndex);
+      index <= last;
+      index++
+    ) {
+      this.invalidateRow(index);
+    }
+    this._ensureVisibleRowsAreDisplayed();
+  }
+
+  /**
    * Invalidate the row at `index` in place. If `index` refers to a row that
    * should exist but doesn't (because the row count increased), adds a row.
    * If `index` refers to a row that does exist but shouldn't (because the
