@@ -240,6 +240,47 @@ class ImapClient {
   }
 
   /**
+   * Discover all folders for the subscribe dialog.
+   *
+   * @param {nsIMsgFolder} folder - The associated folder.
+   */
+  discoverAllAndSubscribedFolders(folder) {
+    this._logger.debug("discoverAllAndSubscribedFolders", folder.URI);
+    let handleListResponse = res => {
+      for (let mailbox of res.mailboxes) {
+        this._serverSink.possibleImapMailbox(
+          mailbox.name,
+          mailbox.delimiter,
+          mailbox.flags
+        );
+      }
+    };
+
+    this._nextAction = res => {
+      handleListResponse(res);
+      this._server.doingLsub = false;
+      this._nextAction = res2 => {
+        // Per rfc3501#section-6.3.9, if LSUB returns different flags from LIST,
+        // use the LIST responses.
+        for (let mailbox of res2.mailboxes) {
+          let mailboxFromList = res.mailboxes.find(x => x.name == mailbox.name);
+          if (
+            mailboxFromList?.flags &&
+            mailboxFromList?.flags != mailbox.flags
+          ) {
+            mailbox.flags = mailboxFromList.flags;
+          }
+        }
+        handleListResponse(res2);
+        this._actionDone();
+      };
+      this._sendTagged('LIST "" "*"');
+    };
+    this._sendTagged('LSUB "" "*"');
+    this._server.doingLsub = true;
+  }
+
+  /**
    * Select a folder.
    *
    * @param {nsIMsgFolder} folder - The folder to select.
@@ -370,6 +411,30 @@ class ImapClient {
     this._actionCreateAndSubscribe(mailboxName, res => {
       this._actionList(mailboxName, () => this._actionDone());
     });
+  }
+
+  /**
+   * Subscribe a folder.
+   *
+   * @param {nsIMsgFolder} folder - The folder to subscribe.
+   * @param {string} folderName - The folder name.
+   */
+  subscribeFolder(folder, folderName) {
+    this._logger.debug("subscribeFolder", folder.URI, folderName);
+    this._nextAction = () => this._server.performExpand();
+    this._sendTagged(`SUBSCRIBE "${folderName}"`);
+  }
+
+  /**
+   * Unsubscribe a folder.
+   *
+   * @param {nsIMsgFolder} folder - The folder to unsubscribe.
+   * @param {string} folderName - The folder name.
+   */
+  unsubscribeFolder(folder, folderName) {
+    this._logger.debug("unsubscribeFolder", folder.URI, folderName);
+    this._nextAction = () => this._server.performExpand();
+    this._sendTagged(`UNSUBSCRIBE "${folderName}"`);
   }
 
   /**
@@ -1336,7 +1401,7 @@ class ImapClient {
    */
   _actionFinishFolderDiscovery = () => {
     if (!this._hasInbox && !this._listInboxSent) {
-      this._actionList("Inbox");
+      this._actionList("INBOX");
       this._listInboxSent = true;
       return;
     }

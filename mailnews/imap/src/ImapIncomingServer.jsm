@@ -29,6 +29,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
  * @implements {nsIMsgIncomingServer}
  * @implements {nsIUrlListener}
  * @implements {nsISupportsWeakReference}
+ * @implements {nsISubscribableServer}
  */
 class ImapIncomingServer extends MsgIncomingServer {
   QueryInterface = ChromeUtils.generateQI([
@@ -37,6 +38,7 @@ class ImapIncomingServer extends MsgIncomingServer {
     "nsIMsgIncomingServer",
     "nsIUrlListener",
     "nsISupportsWeakReference",
+    "nsISubscribableServer",
   ]);
 
   _logger = lazy.ImapUtils.logger;
@@ -50,6 +52,9 @@ class ImapIncomingServer extends MsgIncomingServer {
     this.localStoreType = "imap";
     this.localDatabaseType = "imap";
     this.canBeDefaultServer = true;
+
+    // nsISubscribableServer attributes.
+    this.supportsSubscribeSearch = false;
 
     // nsIImapIncomingServer attributes that map directly to pref values.
     this._mapAttrsToPrefs([
@@ -78,10 +83,123 @@ class ImapIncomingServer extends MsgIncomingServer {
     ]);
   }
 
+  /**
+   * Most of nsISubscribableServer interfaces are delegated to
+   * this._subscribable.
+   */
+  get _subscribable() {
+    if (!this._subscribableServer) {
+      this._subscribableServer = Cc[
+        "@mozilla.org/messenger/subscribableserver;1"
+      ].createInstance(Ci.nsISubscribableServer);
+      this._subscribableServer.setIncomingServer(this);
+    }
+    return this._subscribableServer;
+  }
+
+  /** @see nsISubscribableServer */
+  get folderView() {
+    return this._subscribable.folderView;
+  }
+
+  get subscribeListener() {
+    return this._subscribable.subscribeListener;
+  }
+
+  set subscribeListener(value) {
+    this._subscribable.subscribeListener = value;
+  }
+
+  set delimiter(value) {
+    this._subscribable.delimiter = value;
+  }
+
+  subscribeCleanup() {
+    this._subscribableServer = null;
+  }
+
+  startPopulating(msgWindow, forceToServer, getOnlyNew) {
+    this._loadingInSubscribeDialog = true;
+    this._subscribable.startPopulating(msgWindow, forceToServer, getOnlyNew);
+    this.delimiter = "/";
+    this.setShowFullName(false);
+    MailServices.imap.getListOfFoldersOnServer(this, msgWindow);
+  }
+
+  stopPopulating(msgWindow) {
+    this._loadingInSubscribeDialog = false;
+    this._subscribable.stopPopulating(msgWindow);
+  }
+
+  addTo(name, addAsSubscribed, subscribable, changeIfExists) {
+    this._subscribable.addTo(
+      name,
+      addAsSubscribed,
+      subscribable,
+      changeIfExists
+    );
+  }
+
+  subscribe(name) {
+    this.subscribeToFolder(name, true);
+  }
+
+  unsubscribe(name) {
+    this.subscribeToFolder(name, false);
+  }
+
+  commitSubscribeChanges() {
+    this.performExpand();
+  }
+
+  setAsSubscribed(path) {
+    this._subscribable.setAsSubscribed(path);
+  }
+
+  updateSubscribed() {}
+
+  setState(path, state) {
+    return this._subscribable.setState(path, state);
+  }
+
+  setShowFullName(showFullName) {
+    this._subscribable.setShowFullName(showFullName);
+  }
+
+  hasChildren(path) {
+    return this._subscribable.hasChildren(path);
+  }
+
+  isSubscribed(path) {
+    return this._subscribable.isSubscribed(path);
+  }
+
+  isSubscribable(path) {
+    return this._subscribable.isSubscribable(path);
+  }
+
+  getLeafName(path) {
+    return this._subscribable.getLeafName(path);
+  }
+
+  getFirstChildURI(path) {
+    return this._subscribable.getFirstChildURI(path);
+  }
+
+  getChildURIs(path) {
+    return this._subscribable.getChildURIs(path);
+  }
+
   /** @see nsIUrlListener */
   OnStartRunningUrl() {}
 
-  OnStopRunningUrl() {}
+  OnStopRunningUrl(url, exitCode) {
+    switch (url.QueryInterface(Ci.nsIImapUrl).imapAction) {
+      case Ci.nsIImapUrl.nsImapDiscoverAllAndSubscribedBoxesUrl:
+        this.stopPopulating();
+        break;
+    }
+  }
 
   /** @see nsIMsgIncomingServer */
   get serverRequiresPasswordForBiff() {
@@ -119,8 +237,28 @@ class ImapIncomingServer extends MsgIncomingServer {
   }
 
   performExpand(msgWindow) {
+    this._setFolderToUnverified();
     this.hasDiscoveredFolders = false;
     MailServices.imap.discoverAllFolders(this.rootFolder, this, msgWindow);
+  }
+
+  /**
+   * Recursively set a folder and its subFolders to unverified state.
+   *
+   * @param {nsIMsgFolder} folder - The folder to operate on.
+   */
+  _setFolderToUnverified(folder) {
+    if (!folder) {
+      this._setFolderToUnverified(this.rootFolder);
+      return;
+    }
+
+    folder.QueryInterface(
+      Ci.nsIMsgImapMailFolder
+    ).verifiedAsOnlineFolder = false;
+    for (let child of folder.subFolders) {
+      this._setFolderToUnverified(child);
+    }
   }
 
   closeCachedConnections() {
@@ -141,6 +279,14 @@ class ImapIncomingServer extends MsgIncomingServer {
       urlListener,
       msgWindow
     );
+  }
+
+  subscribeToFolder(name, subscribe) {
+    let folder = this.rootMsgFolder.findSubFolder(name);
+    if (subscribe) {
+      return MailServices.imap.subscribeFolder(folder, name, null);
+    }
+    return MailServices.imap.unsubscribeFolder(folder, name, null);
   }
 
   /** @see nsIImapServerSink */
@@ -169,6 +315,18 @@ class ImapIncomingServer extends MsgIncomingServer {
         );
       }
       explicitlyVerify = !(boxFlags & lazy.ImapUtils.FLAG_NAMESPACE);
+    }
+
+    if (this.hasDiscoveredFolders && this._loadingInSubscribeDialog) {
+      // Populate the subscribe dialog.
+      let noSelect = boxFlags & lazy.ImapUtils.FLAG_NO_SELECT;
+      this.addTo(
+        folderPath,
+        this.doingLsub && !noSelect,
+        !noSelect,
+        this.doingLsub
+      );
+      return false;
     }
 
     let slashIndex = folderPath.indexOf("/");

@@ -81,6 +81,43 @@ class ImapService {
     });
   }
 
+  discoverAllAndSubscribedFolders(folder, urlListener, msgWindow) {
+    this._withClient(folder, client => {
+      let runningUrl = client.startRunningUrl(urlListener, msgWindow);
+      runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
+        Ci.nsIImapUrl.nsImapDiscoverAllAndSubscribedBoxesUrl;
+      client.onReady = () => {
+        client.discoverAllAndSubscribedFolders(folder);
+      };
+    });
+  }
+
+  getListOfFoldersOnServer(server, msgWindow) {
+    this.discoverAllAndSubscribedFolders(
+      server.rootMsgFolder,
+      server.QueryInterface(Ci.nsIUrlListener),
+      msgWindow
+    );
+  }
+
+  subscribeFolder(folder, name, urlListener) {
+    return this._withClient(folder, client => {
+      client.startRunningUrl(urlListener);
+      client.onReady = () => {
+        client.subscribeFolder(folder, name);
+      };
+    });
+  }
+
+  unsubscribeFolder(folder, name, urlListener) {
+    return this._withClient(folder, client => {
+      client.startRunningUrl(urlListener);
+      client.onReady = () => {
+        client.unsubscribeFolder(folder, name);
+      };
+    });
+  }
+
   addMessageFlags(folder, urlListener, messageIds, flags, messageIdsAreUID) {
     this._updateMessageFlags("+", folder, urlListener, messageIds, flags);
   }
