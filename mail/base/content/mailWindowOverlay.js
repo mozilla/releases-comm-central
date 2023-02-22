@@ -1393,6 +1393,13 @@ function MsgOpenEMLFile(aFile, aURL) {
       headers.get("from"),
       msgWindow
     );
+  } else if (
+    Services.prefs.getIntPref("mail.openMessageBehavior") ==
+    MailConsts.OpenMessageBehavior.NEW_TAB
+  ) {
+    document
+      .getElementById("tabmail")
+      .openTab("mailMessageTab", { messageURI: url.spec });
   } else {
     window.openDialog(
       "chrome://messenger/content/messageWindow.xhtml",
