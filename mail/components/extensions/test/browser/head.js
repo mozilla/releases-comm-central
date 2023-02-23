@@ -1006,7 +1006,15 @@ async function run_popup_test(configData) {
             browser.test.assertEq(0, info.button);
             browser.test.assertTrue(Array.isArray(info.modifiers));
             browser.test.assertEq(0, info.modifiers.length);
-            browser.test.log(`Tab ID is ${tab.id}`);
+            let [currentTab] = await browser.tabs.query({
+              active: true,
+              currentWindow: true,
+            });
+            browser.test.assertEq(
+              currentTab.id,
+              tab.id,
+              "Should find the correct tab"
+            );
             await browser[window.apiName].setTitle({ title: "New title" });
             await new Promise(resolve => window.setTimeout(resolve));
             browser.test.sendMessage("actionButtonClicked", hasFiredBefore);

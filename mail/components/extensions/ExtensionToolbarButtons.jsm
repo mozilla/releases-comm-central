@@ -445,7 +445,7 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
         if (!this.lastClickInfo) {
           this.lastClickInfo = { button: 0, modifiers: [] };
         }
-        this.emit("click", window, this.lastClickInfo);
+        this.emit("click", window.top, this.lastClickInfo);
       }
     }
     delete this.lastClickInfo;
