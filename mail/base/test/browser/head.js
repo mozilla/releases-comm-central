@@ -192,6 +192,17 @@ class MenuTestHelper {
 // which will run last.
 registerCleanupFunction(function() {
   registerCleanupFunction(function() {
+    let tabmail = document.getElementById("tabmail");
+    if (tabmail.tabInfo.length > 1) {
+      Assert.report(
+        true,
+        undefined,
+        undefined,
+        "Unexpected tab(s) open at the end of the test run"
+      );
+      tabmail.closeOtherTabs(0);
+    }
+
     for (let server of MailServices.accounts.allServers) {
       Assert.report(
         true,

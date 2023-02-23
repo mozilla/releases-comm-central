@@ -179,4 +179,6 @@ add_task(async () => {
   is(menulists[2]._inputField.value, "foo");
   is(menulists[2].value, "foo");
   is(menulists[2].getAttribute("value"), "foo");
+
+  document.getElementById("tabmail").closeOtherTabs(0);
 });
