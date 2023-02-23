@@ -12,6 +12,7 @@ GECKO_STRINGS_PATTERNS = (
     "{lang}/browser/pdfviewer/**",
     "{lang}/devtools/**",
     "{lang}/dom/**",
+    "{lang}/extensions/spellcheck/**",
     "{lang}/netwerk/**",
     "{lang}/security/**",
     "{lang}/services/**",
