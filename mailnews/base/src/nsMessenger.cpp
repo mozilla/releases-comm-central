@@ -286,13 +286,15 @@ nsMessenger::nsFilePickerShownCallback::nsFilePickerShownCallback() {
 }
 
 NS_IMETHODIMP
-nsMessenger::nsFilePickerShownCallback::Done(int16_t aResult) {
+nsMessenger::nsFilePickerShownCallback::Done(
+    nsIFilePicker::ResultCode aResult) {
   mResult = aResult;
   mPickerDone = true;
   return NS_OK;
 }
 
-nsresult nsMessenger::ShowPicker(nsIFilePicker* aPicker, int16_t* aResult) {
+nsresult nsMessenger::ShowPicker(nsIFilePicker* aPicker,
+                                 nsIFilePicker::ResultCode* aResult) {
   nsCOMPtr<nsIFilePickerShownCallback> callback =
       new nsMessenger::nsFilePickerShownCallback();
   nsFilePickerShownCallback* cb =
@@ -368,7 +370,7 @@ nsresult nsMessenger::PromptIfFileExists(nsIFile* file) {
     filePicker->SetDisplayDirectory(lastSaveDir);
   }
 
-  int16_t dialogReturn;
+  nsIFilePicker::ResultCode dialogReturn;
   rv = ShowPicker(filePicker, &dialogReturn);
   if (NS_FAILED(rv) || dialogReturn == nsIFilePicker::returnCancel) {
     // XXX todo
@@ -864,7 +866,7 @@ nsresult nsMessenger::SaveOneAttachment(const nsACString& aContentType,
       do_CreateInstance("@mozilla.org/filepicker;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  int16_t dialogResult;
+  nsIFilePicker::ResultCode dialogResult;
   nsCOMPtr<nsIFile> localFile;
   nsCOMPtr<nsIFile> lastSaveDir;
   nsCString filePath;
@@ -959,7 +961,7 @@ nsresult nsMessenger::SaveAllAttachments(
       do_CreateInstance("@mozilla.org/filepicker;1", &rv);
   nsCOMPtr<nsIFile> localFile;
   nsCOMPtr<nsIFile> lastSaveDir;
-  int16_t dialogResult;
+  nsIFilePicker::ResultCode dialogResult;
   nsString saveAttachmentStr;
 
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1248,7 +1250,7 @@ nsresult nsMessenger::GetSaveAsFile(const nsAString& aMsgFilename,
   // no-op.
   filePicker->SetDefaultExtension(u"eml"_ns);
 
-  int16_t dialogResult;
+  nsIFilePicker::ResultCode dialogResult;
 
   nsCOMPtr<nsIFile> lastSaveDir;
   rv = GetLastSaveDirectory(getter_AddRefs(lastSaveDir));
@@ -1336,7 +1338,7 @@ nsresult nsMessenger::GetSaveToDir(nsIFile** aSaveDir) {
   if (NS_SUCCEEDED(rv) && lastSaveDir)
     filePicker->SetDisplayDirectory(lastSaveDir);
 
-  int16_t dialogResult;
+  nsIFilePicker::ResultCode dialogResult;
   rv = ShowPicker(filePicker, &dialogResult);
   if (NS_FAILED(rv) || dialogResult == nsIFilePicker::returnCancel) {
     // We'll indicate this by setting the outparam to null.

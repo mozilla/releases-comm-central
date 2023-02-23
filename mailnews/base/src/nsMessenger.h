@@ -81,7 +81,8 @@ class nsMessenger : public nsIMessenger,
                          int32_t* aSaveAsFileType, nsIFile** aSaveAsFile);
 
   nsresult GetSaveToDir(nsIFile** aSaveToDir);
-  nsresult ShowPicker(nsIFilePicker* aPicker, int16_t* aResult);
+  nsresult ShowPicker(nsIFilePicker* aPicker,
+                      nsIFilePicker::ResultCode* aResult);
 
   // The URL to load in CompleteOpenURL. An empty string to aborts loading.
   nsCString mURLToLoad;
@@ -94,11 +95,11 @@ class nsMessenger : public nsIMessenger,
     nsFilePickerShownCallback();
     NS_DECL_ISUPPORTS
 
-    NS_IMETHOD Done(int16_t aResult) override;
+    NS_IMETHOD Done(nsIFilePicker::ResultCode aResult) override;
 
    public:
     bool mPickerDone;
-    int16_t mResult;
+    nsIFilePicker::ResultCode mResult;
   };
 
   nsString mId;
