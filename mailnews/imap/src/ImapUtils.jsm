@@ -143,8 +143,8 @@ var ImapUtils = {
       ["\\Flagged", this.FLAG_FLAGGED],
       ["\\Deleted", this.FLAG_DELETED],
       ["\\Draft", this.FLAG_DRAFT],
-      ["\\Forwarded", this.FLAG_FORWARDED],
-      ["\\MDNSent", this.FLAG_MDN_SENT],
+      ["$Forwarded", this.FLAG_FORWARDED],
+      ["$MDNSent", this.FLAG_MDN_SENT],
     ];
     for (let [str, flag] of strFlags) {
       if (flags & flag && supportedFlags & flag) {
