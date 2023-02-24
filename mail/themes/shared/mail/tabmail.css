@@ -389,7 +389,6 @@ button.tab-close-button {
 
 .alltabs-item[busy] {
   list-style-image: url("chrome://global/skin/icons/loading.png") !important;
-  -moz-image-region: auto !important;
 }
 
 .alltabs-item > .menu-iconic-left {

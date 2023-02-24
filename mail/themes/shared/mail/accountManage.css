@@ -111,10 +111,6 @@ menulist.input-inline {
   margin-inline-end: 14px;
 }
 
-.folderMenuItem::part(dropmarker) {
-  -moz-image-region: auto;
-}
-
 menupopup[is="folder-menupopup"] {
   appearance: none;
 }
@@ -152,7 +148,6 @@ menulist > menupopup .menu-right {
   appearance: none;
   -moz-context-properties: fill;
   list-style-image: url("chrome://global/skin/icons/arrow-left-12.svg");
-  -moz-image-region: auto;
   fill: currentColor;
 }
 

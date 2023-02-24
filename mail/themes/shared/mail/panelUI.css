@@ -799,7 +799,6 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   margin: 0 8px 4px;
   padding-inline: 8px;
   padding-block: var(--appmenu-button-padding);
-  -moz-image-region: rect(0, 16px, 16px, 0);
   box-sizing: border-box;
   box-shadow: none;
   color: var(--appmenu-warning-color);
@@ -808,6 +807,9 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   border-inline: 1px solid var(--appmenu-warning-border-color);
   border-radius: var(--arrowpanel-menuitem-border-radius);
   transition: background-color;
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, var(--appmenu-warning-color) 20%, transparent);
+  stroke: var(--appmenu-warning-color);
 }
 
 .addon-banner-item::after {

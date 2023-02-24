@@ -12,12 +12,6 @@
   display: -moz-box;
 }
 
-/* Don't apply the here needless -moz-image-region to the dropmarker. */
-menulist::part(dropmarker) {
-  -moz-image-region: unset;
-}
-
 .menulist-menupopup[is="folder-menupopup"] {
   list-style-image: none;
-  -moz-image-region: unset;
 }

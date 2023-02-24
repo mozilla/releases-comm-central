@@ -201,22 +201,27 @@ calendar-day {
   background-color: rgba(240, 69, 165, 0.44);
 }
 
-.zoom-in-icon {
+.zoom-in-icon,
+.zoom-out-icon {
   margin: 3px;
-  list-style-image: url(chrome://calendar/skin/shared/calendar-event-dialog-attendees.png);
-  -moz-image-region: rect(0 97px 14px 84px);
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
-.zoom-in-icon[disabled="true"] {
-  -moz-image-region: rect(14px 97px 28px 84px);
+
+.zoom-in-icon[disabled="true"],
+.zoom-out-icon[disabled="true"] {
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 10%, transparent);
+  stroke: color-mix(in srgb, currentColor 40%, transparent);
+}
+
+.zoom-in-icon {
+  list-style-image: var(--font-size-increase);
 }
 
 .zoom-out-icon {
-  margin: 3px;
-  list-style-image: url(chrome://calendar/skin/shared/calendar-event-dialog-attendees.png);
-  -moz-image-region: rect(0 110px 14px 97px);
-}
-.zoom-out-icon[disabled="true"] {
-  -moz-image-region: rect(14px 110px 28px 97px);
+  list-style-image: var(--font-size-decrease);
 }
 
 .legend {

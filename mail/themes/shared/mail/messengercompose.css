@@ -497,7 +497,6 @@
 
 #button-contacts {
   list-style-image: var(--icon-address-book);
-  -moz-image-region: auto !important;
 }
 
 #spellingButton {

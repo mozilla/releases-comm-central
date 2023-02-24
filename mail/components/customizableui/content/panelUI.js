@@ -931,7 +931,7 @@ var gExtensionsNotifications = {
     button.setAttribute("label", text);
     button.setAttribute("tooltiptext", text);
     const DEFAULT_EXTENSION_ICON =
-      "chrome://mozapps/skin/extensions/extensionGeneric.svg";
+      "chrome://messenger/skin/icons/new/compact/extension.svg";
     button.setAttribute("image", icon || DEFAULT_EXTENSION_ICON);
     button.className = "addon-banner-item";
 

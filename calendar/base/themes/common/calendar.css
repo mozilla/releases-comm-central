@@ -11,13 +11,11 @@
 #calendar-tab-button,
 #newMsgButton-calendar-menuitem {
   list-style-image: var(--icon-calander);
-  -moz-image-region: auto;
 }
 
 #task-tab-button,
 #newMsgButton-task-menuitem {
   list-style-image: var(--icon-tasks);
-  -moz-image-region: auto;
 }
 
 :root[lwt-tree] #calSidebar {

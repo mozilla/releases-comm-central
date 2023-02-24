@@ -326,10 +326,6 @@ menulist::part(dropmarker-icon) {
   stroke: currentColor;
 }
 
-menulist.folderMenuItem::part(dropmarker) {
-  -moz-image-region: auto;
-}
-
 menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   background-color: var(--field-background-color);
   color: var(--field-text-color);

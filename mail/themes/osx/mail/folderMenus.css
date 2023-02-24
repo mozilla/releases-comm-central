@@ -18,5 +18,4 @@
 
 .menulist-menupopup[is="folder-menupopup"] {
   list-style-image: none;
-  -moz-image-region: unset;
 }

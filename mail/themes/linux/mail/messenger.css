@@ -310,7 +310,6 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
   appearance: auto;
   -moz-default-appearance: toolbarbutton-dropdown !important;
   list-style-image: none;
-  -moz-image-region: auto;
 }
 
 /* ::::: toolbarbutton ::::: */

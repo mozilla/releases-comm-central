@@ -73,7 +73,6 @@ menulist > menupopup:not([position]) {
 }
 
 .menu-right {
-  -moz-image-region: auto;
   margin-top: 3px;
 }
 

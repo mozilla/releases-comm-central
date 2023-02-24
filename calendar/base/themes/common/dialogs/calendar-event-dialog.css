@@ -81,7 +81,6 @@
 #button-delete.cal-event-toolbarbutton {
   /* !important to override the SM #button-delete states */
   list-style-image: var(--icon-trash) !important;
-  -moz-image-region: auto !important;
 }
 
 #button-priority {
