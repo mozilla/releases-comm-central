@@ -641,6 +641,15 @@ var dbViewWrapperListener = {
   onCreatedView() {
     if (window.threadTree) {
       window.threadTree.view = gDBView = gViewWrapper.dbView;
+
+      if (
+        gViewWrapper.sortImpliesTemporalOrdering &&
+        gViewWrapper.isSortedAscending
+      ) {
+        window.threadTree.scrollToIndex(gDBView.rowCount - 1, true);
+      } else {
+        window.threadTree.scrollToIndex(0, true);
+      }
     }
   },
   onDestroyingView(folderIsComingBack) {
