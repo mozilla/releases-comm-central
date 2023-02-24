@@ -43,7 +43,7 @@
       --listbox-selected-bg: var(--color-gray-70);
       --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--color-blue-60));
       --tree-view-bg: var(--color-gray-80);
-      --tree-view-color: var(--color-ink-10);
+      --tree-view-color: var(--color-gray-30);
       --tree-view-header-bg: var(--color-gray-80);
       --tree-view-header-hover-bg: var(--color-gray-70);
       --tree-view-header-hover-active-bg: var(--color-gray-90);
