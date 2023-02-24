@@ -4,7 +4,9 @@
 
 async function testExecuteBrowserActionWithOptions_mv2(options = {}) {
   // Make sure the mouse isn't hovering over the browserAction widget.
-  let folderTree = document.getElementById("folderTree");
+  let folderTree = document
+    .getElementById("tabmail")
+    .currentAbout3Pane.document.getElementById("folderTree");
   EventUtils.synthesizeMouseAtCenter(folderTree, { type: "mouseover" }, window);
 
   let extensionOptions = {};
@@ -111,7 +113,9 @@ add_task(async function test_execute_browser_action_without_popup_mv2() {
 
 async function testExecuteActionWithOptions_mv3(options = {}) {
   // Make sure the mouse isn't hovering over the action widget.
-  let folderTree = document.getElementById("folderTree");
+  let folderTree = document
+    .getElementById("tabmail")
+    .currentAbout3Pane.document.getElementById("folderTree");
   EventUtils.synthesizeMouseAtCenter(folderTree, { type: "mouseover" }, window);
 
   let extensionOptions = {};

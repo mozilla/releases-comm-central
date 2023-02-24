@@ -10,6 +10,13 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
+const { getState } = ChromeUtils.importESModule(
+  "resource:///modules/CustomizationState.mjs"
+);
+const {
+  getDefaultItemIdsForSpace,
+  getAvailableItemIdsForSpace,
+} = ChromeUtils.importESModule("resource:///modules/CustomizableItems.sys.mjs");
 
 var { ExtensionCommon } = ChromeUtils.import(
   "resource://gre/modules/ExtensionCommon.jsm"
@@ -38,7 +45,7 @@ PromiseTestUtils.allowMatchingRejectionsGlobally(
 add_setup(() => check3PaneState(true, true));
 registerCleanupFunction(() => {
   let tabmail = document.getElementById("tabmail");
-  is(tabmail.tabInfo.length, 1);
+  is(tabmail.tabInfo.length, 1, "Only one tab open at end of test");
 
   while (tabmail.tabInfo.length > 1) {
     tabmail.closeTab(tabmail.tabInfo[1]);
@@ -819,9 +826,10 @@ async function run_popup_test(configData) {
             break;
           case "action":
           case "browser_action":
-            toolbarId = "mail-bar3";
-            if (configData.default_area == "tabstoolbar") {
-              toolbarId = "tabbar-toolbar";
+            if (configData.default_windows?.join(",") === "messageDisplay") {
+              toolbarId = "mail-bar3";
+            } else {
+              toolbarId = "unified-toolbar";
             }
             break;
           case "message_display_action":
@@ -833,39 +841,76 @@ async function run_popup_test(configData) {
             );
         }
 
-        let toolbar = win.document.getElementById(toolbarId);
-        let button = win.document.getElementById(buttonId);
+        let toolbar, button;
+        if (toolbarId === "unified-toolbar") {
+          toolbar = win.document.querySelector("unified-toolbar");
+          button = win.document.querySelector(
+            `.unified-toolbar [extension="${configData.actionType}@mochi.test"]`
+          );
+        } else {
+          toolbar = win.document.getElementById(toolbarId);
+          button = win.document.getElementById(buttonId);
+        }
         ok(button, "Button created");
-        is(toolbar.id, button.parentNode.id, "Button added to toolbar");
-        if (toolbar.hasAttribute("customizable")) {
+        ok(toolbar.contains(button), "Button added to toolbar");
+        let label;
+        if (toolbarId === "unified-toolbar") {
+          const state = getState();
+          const itemId = `ext-${configData.actionType}@mochi.test`;
+          if (state.mail) {
+            ok(
+              state.mail.includes(itemId),
+              "Button should be in unified toolbar mail space"
+            );
+          }
           ok(
-            toolbar.currentSet.split(",").includes(buttonId),
-            `Button should have been added to currentSet property of toolbar ${toolbarId}`
+            getDefaultItemIdsForSpace("mail").includes(itemId),
+            "Button should be in default set for unified toolbar mail space"
           );
           ok(
-            toolbar
-              .getAttribute("currentset")
+            getAvailableItemIdsForSpace("mail").includes(itemId),
+            "Button should be available in unified toolbar mail space"
+          );
+
+          let icon = button.querySelector(".button-icon");
+          is(
+            getComputedStyle(icon).content,
+            `url("chrome://messenger/content/extension.svg")`,
+            "Default icon"
+          );
+          label = button.querySelector(".button-label");
+          is(label.textContent, "This is a test", "Correct label");
+        } else {
+          if (toolbar.hasAttribute("customizable")) {
+            ok(
+              toolbar.currentSet.split(",").includes(buttonId),
+              `Button should have been added to currentSet property of toolbar ${toolbarId}`
+            );
+            ok(
+              toolbar
+                .getAttribute("currentset")
+                .split(",")
+                .includes(buttonId),
+              `Button should have been added to currentset attribute of toolbar ${toolbarId}`
+            );
+          }
+          ok(
+            Services.xulStore
+              .getValue(win.location.href, toolbarId, "currentset")
               .split(",")
               .includes(buttonId),
-            `Button should have been added to currentset attribute of toolbar ${toolbarId}`
+            `Button should have been added to currentset xulStore of toolbar ${toolbarId}`
           );
-        }
-        ok(
-          Services.xulStore
-            .getValue(win.location.href, toolbarId, "currentset")
-            .split(",")
-            .includes(buttonId),
-          `Button should have been added to currentset xulStore of toolbar ${toolbarId}`
-        );
 
-        let icon = button.querySelector(".toolbarbutton-icon");
-        is(
-          getComputedStyle(icon).listStyleImage,
-          `url("chrome://messenger/content/extension.svg")`,
-          "Default icon"
-        );
-        let label = button.querySelector(".toolbarbutton-text");
-        is(label.value, "This is a test", "Correct label");
+          let icon = button.querySelector(".toolbarbutton-icon");
+          is(
+            getComputedStyle(icon).listStyleImage,
+            `url("chrome://messenger/content/extension.svg")`,
+            "Default icon"
+          );
+          label = button.querySelector(".toolbarbutton-text");
+          is(label.value, "This is a test", "Correct label");
+        }
 
         if (
           !configData.use_default_popup &&
@@ -928,9 +973,20 @@ async function run_popup_test(configData) {
           let hasFiredBefore = await clickedPromise;
           await promiseAnimationFrame(win);
           await new Promise(resolve => win.setTimeout(resolve));
-          is(win.document.getElementById(buttonId), button);
-          label = button.querySelector(".toolbarbutton-text");
-          is(label.value, "New title", "Correct label");
+          if (toolbarId === "unified-toolbar") {
+            is(
+              win.document.querySelector(
+                `.unified-toolbar [extension="${configData.actionType}@mochi.test"]`
+              ),
+              button
+            );
+            label = button.querySelector(".button-label");
+            is(label.textContent, "New title", "Correct label");
+          } else {
+            is(win.document.getElementById(buttonId), button);
+            label = button.querySelector(".toolbarbutton-text");
+            is(label.value, "New title", "Correct label");
+          }
 
           if (configData.terminateBackground) {
             // The onClicked event should have restarted the background script.
@@ -965,13 +1021,32 @@ async function run_popup_test(configData) {
 
         ok(!win.document.getElementById(buttonId), "Button destroyed");
 
-        ok(
-          !Services.xulStore
-            .getValue(win.top.location.href, toolbarId, "currentset")
-            .split(",")
-            .includes(buttonId),
-          `Button should have been removed from currentset xulStore of toolbar ${toolbarId}`
-        );
+        if (toolbarId === "unified-toolbar") {
+          const state = getState();
+          const itemId = `ext-${configData.actionType}@mochi.test`;
+          if (state.mail) {
+            ok(
+              !state.mail.includes(itemId),
+              "Button should have been removed from unified toolbar mail space"
+            );
+          }
+          ok(
+            !getDefaultItemIdsForSpace("mail").includes(itemId),
+            "Button should have been removed from default set for unified toolbar mail space"
+          );
+          ok(
+            !getAvailableItemIdsForSpace("mail").includes(itemId),
+            "Button should have no longer be available in unified toolbar mail space"
+          );
+        } else {
+          ok(
+            !Services.xulStore
+              .getValue(win.top.location.href, toolbarId, "currentset")
+              .split(",")
+              .includes(buttonId),
+            `Button should have been removed from currentset xulStore of toolbar ${toolbarId}`
+          );
+        }
       };
       if (configData.use_default_popup) {
         // With popup.
@@ -1217,23 +1292,31 @@ async function run_action_button_order_test(configs, window, actionType) {
 
   function test_buttons(configs, window, toolbars) {
     for (let toolbarId of toolbars) {
-      let expected = configs
-        .filter(e => e.toolbar == toolbarId)
-        .map(e => get_id(e.name));
-      let buttons = window.document.querySelectorAll(
-        `#${toolbarId} toolbarbutton[id$="${get_id("")}"]`
-      );
+      let expected = configs.filter(e => e.toolbar == toolbarId);
+      let selector =
+        toolbarId === "unified-toolbar"
+          ? `.unified-toolbar [extension$="@mochi.test"]`
+          : `#${toolbarId} toolbarbutton[id$="${get_id("")}"]`;
+      let buttons = window.document.querySelectorAll(selector);
       Assert.equal(
         expected.length,
         buttons.length,
         `Should find the correct number of buttons in ${toolbarId} toolbar`
       );
       for (let i = 0; i < buttons.length; i++) {
-        Assert.equal(
-          expected[i],
-          buttons[i].id,
-          `Should find the correct button at location #${i}`
-        );
+        if (toolbarId === "unified-toolbar") {
+          Assert.equal(
+            `${expected[i].name}@mochi.test`,
+            buttons[i].getAttribute("extension"),
+            `Should find the correct button at location #${i}`
+          );
+        } else {
+          Assert.equal(
+            get_id(expected[i].name),
+            buttons[i].id,
+            `Should find the correct button at location #${i}`
+          );
+        }
       }
     }
   }

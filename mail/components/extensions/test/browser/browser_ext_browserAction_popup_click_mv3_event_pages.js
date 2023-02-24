@@ -11,21 +11,6 @@ add_setup(async () => {
   let subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
   messages = subFolders[0].messages;
-
-  // This tests selects a folder, so make sure the folder pane is visible.
-  if (
-    document.getElementById("folderpane_splitter").getAttribute("state") ==
-    "collapsed"
-  ) {
-    window.MsgToggleFolderPane();
-  }
-  if (window.IsMessagePaneCollapsed()) {
-    window.MsgToggleMessagePane();
-  }
-
-  window.gFolderTreeView.selectFolder(subFolders[0]);
-  window.gFolderDisplay.selectViewIndex(0);
-  await BrowserTestUtils.browserLoaded(window.getMessagePaneBrowser());
 });
 
 async function subtest_popup_open_with_click_MV3_event_pages(

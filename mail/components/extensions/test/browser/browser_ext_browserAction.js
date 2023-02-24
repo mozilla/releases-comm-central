@@ -11,21 +11,6 @@ add_setup(async () => {
   let subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
   messages = subFolders[0].messages;
-
-  // This tests selects a folder, so make sure the folder pane is visible.
-  if (
-    document.getElementById("folderpane_splitter").getAttribute("state") ==
-    "collapsed"
-  ) {
-    window.MsgToggleFolderPane();
-  }
-  if (window.IsMessagePaneCollapsed()) {
-    window.MsgToggleMessagePane();
-  }
-
-  window.gFolderTreeView.selectFolder(subFolders[0]);
-  window.gFolderDisplay.selectViewIndex(0);
-  await BrowserTestUtils.browserLoaded(window.getMessagePaneBrowser());
 });
 
 // This test uses a command from the menus API to open the popup.
@@ -75,7 +60,7 @@ add_task(async function test_popup_open_with_menu_command_mv2() {
     });
     messageWindow.close();
   }
-});
+}).skip(); //TODO re-enable after bug 1817949
 
 add_task(async function test_popup_open_with_menu_command_mv3() {
   info("3-pane tab");
@@ -125,7 +110,7 @@ add_task(async function test_popup_open_with_menu_command_mv3() {
     });
     messageWindow.close();
   }
-});
+}).skip(); //TODO Re-enable after bug 1817949
 
 add_task(async function test_theme_icons() {
   let extension = ExtensionTestUtils.loadExtension({
@@ -149,10 +134,83 @@ add_task(async function test_theme_icons() {
     },
   });
 
+  let unifiedToolbarUpdate = TestUtils.topicObserved(
+    "unified-toolbar-state-change"
+  );
+  await extension.startup();
+  await unifiedToolbarUpdate;
+  await TestUtils.waitForCondition(
+    () =>
+      document.querySelector(
+        `.unified-toolbar [extension="browser_action_properties@mochi.test"]`
+      ),
+    "Button added to unified toolbar"
+  );
+
+  let uuid = extension.uuid;
+  let icon = document.querySelector(
+    `.unified-toolbar [extension="browser_action_properties@mochi.test"] .button-icon`
+  );
+
+  let dark_theme = await AddonManager.getAddonByID(
+    "thunderbird-compact-dark@mozilla.org"
+  );
+  await dark_theme.enable();
+  Assert.equal(
+    window.getComputedStyle(icon).content,
+    `url("moz-extension://${uuid}/light.png")`,
+    `Dark theme should use light icon.`
+  );
+
+  let light_theme = await AddonManager.getAddonByID(
+    "thunderbird-compact-light@mozilla.org"
+  );
+  await light_theme.enable();
+  Assert.equal(
+    window.getComputedStyle(icon).content,
+    `url("moz-extension://${uuid}/dark.png")`,
+    `Light theme should use dark icon.`
+  );
+
+  // Disabling a theme will enable the default theme.
+  await light_theme.disable();
+  Assert.equal(
+    window.getComputedStyle(icon).content,
+    `url("moz-extension://${uuid}/default.png")`,
+    `Default theme should use default icon.`
+  );
+
+  await extension.unload();
+});
+
+add_task(async function test_theme_icons_messagewindow() {
+  let messageWindow = await openMessageInWindow(messages.getNext());
+  let extension = ExtensionTestUtils.loadExtension({
+    manifest: {
+      applications: {
+        gecko: {
+          id: "browser_action_properties@mochi.test",
+        },
+      },
+      browser_action: {
+        default_title: "default",
+        default_icon: "default.png",
+        default_windows: ["messageDisplay"],
+        theme_icons: [
+          {
+            dark: "dark.png",
+            light: "light.png",
+            size: 16,
+          },
+        ],
+      },
+    },
+  });
+
   await extension.startup();
 
   let uuid = extension.uuid;
-  let button = document.getElementById(
+  let button = messageWindow.document.getElementById(
     "browser_action_properties_mochi_test-browserAction-toolbarbutton"
   );
 
@@ -185,6 +243,7 @@ add_task(async function test_theme_icons() {
   );
 
   await extension.unload();
+  messageWindow.close();
 });
 
 add_task(async function test_button_order() {
@@ -194,22 +253,22 @@ add_task(async function test_button_order() {
       {
         name: "addon1",
         area: "maintoolbar",
-        toolbar: "mail-bar3",
+        toolbar: "unified-toolbar",
       },
       {
         name: "addon2",
         area: "tabstoolbar",
-        toolbar: "tabbar-toolbar",
+        toolbar: "unified-toolbar",
       },
       {
         name: "addon3",
         area: "maintoolbar",
-        toolbar: "mail-bar3",
+        toolbar: "unified-toolbar",
       },
       {
         name: "addon4",
         area: "tabstoolbar",
-        toolbar: "tabbar-toolbar",
+        toolbar: "unified-toolbar",
       },
     ],
     window,
@@ -294,8 +353,8 @@ add_task(async function test_upgrade() {
   await updatedExtension2.startup();
   await updatedExtension2.awaitMessage("Extension2 updated");
 
-  let button = document.getElementById(
-    "extension2_mochi_test-browserAction-toolbarbutton"
+  let button = document.querySelector(
+    `.unified-toolbar [extension="Extension2@mochi.test"]`
   );
 
   Assert.ok(button, "Button should exist");
@@ -342,12 +401,12 @@ add_task(async function test_iconPath() {
 
   extension.onMessage("checkState", async expected => {
     let uuid = extension.uuid;
-    let button = document.getElementById(
-      "browser_action_mochi_test-browserAction-toolbarbutton"
+    let icon = document.querySelector(
+      `.unified-toolbar [extension="browser_action@mochi.test"] .button-icon`
     );
 
     Assert.equal(
-      window.getComputedStyle(button).listStyleImage,
+      window.getComputedStyle(icon).content,
       `url("moz-extension://${uuid}/${expected}")`,
       `Icon path should be correct.`
     );

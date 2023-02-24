@@ -155,13 +155,13 @@ add_task(async () => {
   });
 
   let mailTabs = tabmail.tabInfo;
-  is(mailTabs.length, 3);
+  is(mailTabs.length, 3, "Expect 3 tabs");
   tabmail.switchToTab(mailTabs[0]);
 
   await extension.startup();
 
-  let button = document.getElementById(
-    "browser_action_properties_mochi_test-browserAction-toolbarbutton"
+  let button = document.querySelector(
+    `.unified-toolbar [extension="browser_action_properties@mochi.test"]`
   );
 
   extension.onMessage("checkProperty", async (property, expected) => {

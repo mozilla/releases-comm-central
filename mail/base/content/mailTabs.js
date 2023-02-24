@@ -169,7 +169,7 @@ var newMailTabType = {
         Object.defineProperty(tab, "folderPaneVisible", {
           get() {
             return !tab.chromeBrowser.contentWindow.folderPaneSplitter
-              .isCollapsed;
+              ?.isCollapsed;
           },
           set(visible) {
             tab.chromeBrowser.contentWindow.folderPaneSplitter.isCollapsed = !visible;
@@ -178,7 +178,7 @@ var newMailTabType = {
         Object.defineProperty(tab, "messagePaneVisible", {
           get() {
             return !tab.chromeBrowser.contentWindow.messagePaneSplitter
-              .isCollapsed;
+              ?.isCollapsed;
           },
           set(visible) {
             tab.chromeBrowser.contentWindow.messagePaneSplitter.isCollapsed = !visible;
