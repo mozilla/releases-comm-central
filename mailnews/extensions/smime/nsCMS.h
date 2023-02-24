@@ -47,8 +47,6 @@ class nsCMSMessage : public nsICMSMessage {
                                       const nsTArray<uint8_t>& aDigestData,
                                       int16_t aDigestType);
   bool IsAllowedHash(const int16_t aCryptoHashInt);
-
-  void destructorSafeDestroyNSSReference();
 };
 
 // ===============================================
@@ -74,7 +72,6 @@ class nsCMSDecoder : public nsICMSDecoder {
   virtual ~nsCMSDecoder();
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSDecoderContext* m_dcx;
-  void destructorSafeDestroyNSSReference();
 };
 
 class nsCMSDecoderJS : public nsICMSDecoderJS {
@@ -89,7 +86,6 @@ class nsCMSDecoderJS : public nsICMSDecoderJS {
   virtual ~nsCMSDecoderJS();
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSDecoderContext* m_dcx;
-  void destructorSafeDestroyNSSReference();
 
   nsTArray<uint8_t> mDecryptedData;
   nsCOMPtr<nsICMSMessage> mCMSMessage;
@@ -120,7 +116,6 @@ class nsCMSEncoder : public nsICMSEncoder {
   virtual ~nsCMSEncoder();
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSEncoderContext* m_ecx;
-  void destructorSafeDestroyNSSReference();
 };
 
 #endif

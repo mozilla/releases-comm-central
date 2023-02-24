@@ -37,19 +37,17 @@ NS_IMPL_ISUPPORTS(nsCMSMessage, nsICMSMessage)
 nsCMSMessage::nsCMSMessage() { m_cmsMsg = nullptr; }
 nsCMSMessage::nsCMSMessage(NSSCMSMessage* aCMSMsg) { m_cmsMsg = aCMSMsg; }
 
-nsCMSMessage::~nsCMSMessage() { destructorSafeDestroyNSSReference(); }
+nsCMSMessage::~nsCMSMessage() {
+  if (m_cmsMsg) {
+    NSS_CMSMessage_Destroy(m_cmsMsg);
+  }
+}
 
 nsresult nsCMSMessage::Init() {
   nsresult rv;
   nsCOMPtr<nsISupports> nssInitialized =
       do_GetService("@mozilla.org/psm;1", &rv);
   return rv;
-}
-
-void nsCMSMessage::destructorSafeDestroyNSSReference() {
-  if (m_cmsMsg) {
-    NSS_CMSMessage_Destroy(m_cmsMsg);
-  }
 }
 
 NS_IMETHODIMP nsCMSMessage::VerifySignature() {
@@ -635,9 +633,7 @@ class nsZeroTerminatedCertArray {
  public:
   nsZeroTerminatedCertArray() : mCerts(nullptr), mPoolp(nullptr), mSize(0) {}
 
-  ~nsZeroTerminatedCertArray() { destructorSafeDestroyNSSReference(); }
-
-  void destructorSafeDestroyNSSReference() {
+  ~nsZeroTerminatedCertArray() {
     if (mCerts) {
       for (uint32_t i = 0; i < mSize; i++) {
         if (mCerts[i]) {
@@ -971,8 +967,19 @@ NS_IMPL_ISUPPORTS(nsCMSDecoderJS, nsICMSDecoderJS)
 nsCMSDecoder::nsCMSDecoder() : m_dcx(nullptr) {}
 nsCMSDecoderJS::nsCMSDecoderJS() : m_dcx(nullptr) {}
 
-nsCMSDecoder::~nsCMSDecoder() { destructorSafeDestroyNSSReference(); }
-nsCMSDecoderJS::~nsCMSDecoderJS() { destructorSafeDestroyNSSReference(); }
+nsCMSDecoder::~nsCMSDecoder() {
+  if (m_dcx) {
+    NSS_CMSDecoder_Cancel(m_dcx);
+    m_dcx = nullptr;
+  }
+}
+
+nsCMSDecoderJS::~nsCMSDecoderJS() {
+  if (m_dcx) {
+    NSS_CMSDecoder_Cancel(m_dcx);
+    m_dcx = nullptr;
+  }
+}
 
 nsresult nsCMSDecoder::Init() {
   nsresult rv;
@@ -986,20 +993,6 @@ nsresult nsCMSDecoderJS::Init() {
   nsCOMPtr<nsISupports> nssInitialized =
       do_GetService("@mozilla.org/psm;1", &rv);
   return rv;
-}
-
-void nsCMSDecoder::destructorSafeDestroyNSSReference() {
-  if (m_dcx) {
-    NSS_CMSDecoder_Cancel(m_dcx);
-    m_dcx = nullptr;
-  }
-}
-
-void nsCMSDecoderJS::destructorSafeDestroyNSSReference() {
-  if (m_dcx) {
-    NSS_CMSDecoder_Cancel(m_dcx);
-    m_dcx = nullptr;
-  }
 }
 
 /* void start (in NSSCMSContentCallback cb, in voidPtr arg); */
@@ -1083,17 +1076,15 @@ NS_IMPL_ISUPPORTS(nsCMSEncoder, nsICMSEncoder)
 
 nsCMSEncoder::nsCMSEncoder() : m_ecx(nullptr) {}
 
-nsCMSEncoder::~nsCMSEncoder() { destructorSafeDestroyNSSReference(); }
+nsCMSEncoder::~nsCMSEncoder() {
+  if (m_ecx) NSS_CMSEncoder_Cancel(m_ecx);
+}
 
 nsresult nsCMSEncoder::Init() {
   nsresult rv;
   nsCOMPtr<nsISupports> nssInitialized =
       do_GetService("@mozilla.org/psm;1", &rv);
   return rv;
-}
-
-void nsCMSEncoder::destructorSafeDestroyNSSReference() {
-  if (m_ecx) NSS_CMSEncoder_Cancel(m_ecx);
 }
 
 /* void start (); */
