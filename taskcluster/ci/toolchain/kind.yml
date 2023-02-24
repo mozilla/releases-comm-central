@@ -56,6 +56,7 @@ reference-jobs:
     - linux64-wine
     - linux64-x64-compiler-rt-15
     - linux64-x86-compiler-rt-15
+    - linux64-python
     - macosx64-aarch64-compiler-rt-15
     - macosx64-clang-15-raw
     - macosx64-clang-toolchain
@@ -91,6 +92,7 @@ reference-jobs:
     - win64-winchecksec
     - win64-vs2017
     - win64-vs2019
+    - win64-python
 
 transforms:
     - gecko_taskgraph.transforms.try_job:transforms
