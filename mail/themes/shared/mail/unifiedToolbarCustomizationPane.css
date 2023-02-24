@@ -106,8 +106,8 @@ h2 {
 }
 
 .preview-icon {
-  height: 2em;
-  width: 2em;
+  height: 16px;
+  width: 16px;
   object-fit: contain;
   pointer-events: none;
 }

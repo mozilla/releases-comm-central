@@ -14,6 +14,7 @@ messenger.jar:
     content/messenger/unifiedtoolbar/global-search-bar.mjs             (content/items/global-search-bar.mjs)
     content/messenger/unifiedtoolbar/quick-filter-bar-toggle.mjs       (content/items/quick-filter-bar-toggle.mjs)
     content/messenger/unifiedtoolbar/space-button.mjs                  (content/items/space-button.mjs)
+    content/messenger/unifiedtoolbar/extension-action-button.mjs       (content/extension-action-button.mjs)
     content/messenger/unifiedtoolbar/list-box-selection.mjs            (content/list-box-selection.mjs)
     content/messenger/unifiedtoolbar/mail-tab-button.mjs               (content/mail-tab-button.mjs)
     content/messenger/unifiedtoolbar/search-bar.mjs                    (content/search-bar.mjs)
@@ -22,3 +23,4 @@ messenger.jar:
     content/messenger/unifiedtoolbar/unified-toolbar-customization.mjs (content/unified-toolbar-customization.mjs)
     content/messenger/unifiedtoolbar/unified-toolbar-customization-pane.mjs (content/unified-toolbar-customization-pane.mjs)
     content/messenger/unifiedtoolbar/unified-toolbar-tab.mjs           (content/unified-toolbar-tab.mjs)
+    content/messenger/unifiedtoolbar/unifiedToolbarWebextensions.css   (content/unifiedToolbarWebextensions.css)

@@ -112,6 +112,13 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
   }
 
   /**
+   * If this action is available in the unified toolbar.
+   *
+   * @type {boolean}
+   */
+  inUnifiedToolbar = false;
+
+  /**
    * Called when the extension is enabled.
    *
    * @param {string} entryName
@@ -221,17 +228,6 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
   }
 
   /**
-   * Rectify the currentSet of a customizable toolbar (if needed). Called on each
-   * paint request of extension buttons in customizable toolbars.
-   *
-   * @param {string} currentSet - comma separated list of button ids
-   * @returns {string} the updated currentSet
-   */
-  rectifyCustomizableToolbarSet(currentSet) {
-    return currentSet;
-  }
-
-  /**
    * Adds a toolbar button to a customizable toolbar in this window.
    *
    * @param {Window} window
@@ -321,17 +317,6 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
       this.toolbarId,
       "currentset"
     );
-
-    let rectifiedCurrentSet = this.rectifyCustomizableToolbarSet(currentSet);
-    if (currentSet != rectifiedCurrentSet) {
-      currentSet = rectifiedCurrentSet;
-      Services.xulStore.setValue(
-        windowURL,
-        this.toolbarId,
-        "currentset",
-        currentSet
-      );
-    }
 
     toolbar.currentSet = currentSet;
     toolbar.setAttribute("currentset", toolbar.currentSet);
@@ -431,6 +416,14 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
   async triggerAction(window) {
     let { document } = window;
     let button = document.getElementById(this.id);
+    if (
+      this.inUnifiedToolbar &&
+      (!button || document.querySelector(".unified-toolbar"))
+    ) {
+      button = document.querySelector(
+        `.unified-toolbar [extension="${this.extension.id}"]`
+      );
+    }
     let { popup: popupURL, enabled } = this.getContextData(
       this.getTargetFromWindow(window)
     );
@@ -460,6 +453,7 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
     let window = event.target.ownerGlobal;
 
     switch (event.type) {
+      case "click":
       case "mousedown":
         if (event.button == 0) {
           this.lastClickInfo = {
@@ -547,13 +541,7 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
         node.removeAttribute("badgeStyle");
       }
 
-      let { style, legacy } = this.iconData.get(tabData.icon);
-      const LEGACY_CLASS = "toolbarbutton-legacy-addon";
-      if (legacy) {
-        node.classList.add(LEGACY_CLASS);
-      } else {
-        node.classList.remove(LEGACY_CLASS);
-      }
+      let { style } = this.iconData.get(tabData.icon);
 
       for (let [name, value] of style) {
         node.style.setProperty(name, value);
@@ -574,11 +562,17 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
    */
   async updateWindow(window) {
     let button = window.document.getElementById(this.id);
+    let tabData = this.getContextData(this.getTargetFromWindow(window));
     if (button) {
-      this.updateButton(
-        button,
-        this.getContextData(this.getTargetFromWindow(window))
+      this.updateButton(button, tabData);
+    }
+    if (this.inUnifiedToolbar) {
+      let unifiedToolbarButton = window.document.querySelector(
+        `.unified-toolbar [extension="${this.extension.id}"]`
       );
+      if (unifiedToolbarButton) {
+        unifiedToolbarButton.applyTabData(tabData);
+      }
     }
     await new Promise(window.requestAnimationFrame);
   }
@@ -606,7 +600,12 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
     } else {
       let promises = [];
       for (let window of lazy.ExtensionSupport.openWindows) {
-        if (this.windowURLs.includes(window.location.href)) {
+        if (
+          this.windowURLs.includes(window.location.href) ||
+          (this.inUnifiedToolbar &&
+            window.location.href ===
+              "chrome://messenger/content/messenger.xhtml")
+        ) {
           promises.push(this.updateWindow(window));
         }
       }

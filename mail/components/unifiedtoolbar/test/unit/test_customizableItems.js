@@ -6,7 +6,7 @@ const {
   getAvailableItemIdsForSpace,
   getDefaultItemIdsForSpace,
   MULTIPLE_ALLOWED_ITEM_IDS,
-} = ChromeUtils.importESModule("resource:///modules/CustomizableItems.mjs");
+} = ChromeUtils.importESModule("resource:///modules/CustomizableItems.sys.mjs");
 
 const { default: CUSTOMIZABLE_ITEMS } = ChromeUtils.importESModule(
   "resource:///modules/CustomizableItemsDetails.mjs"

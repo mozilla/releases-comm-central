@@ -11,6 +11,12 @@ ChromeUtils.defineModuleGetter(
   "ToolbarButtonAPI",
   "resource:///modules/ExtensionToolbarButtons.jsm"
 );
+ChromeUtils.defineESModuleGetters(this, {
+  storeState: "resource:///modules/CustomizationState.mjs",
+  getState: "resource:///modules/CustomizationState.mjs",
+  registerExtension: "resource:///modules/CustomizableItems.sys.mjs",
+  unregisterExtension: "resource:///modules/CustomizableItems.sys.mjs",
+});
 
 var { ExtensionCommon } = ChromeUtils.import(
   "resource://gre/modules/ExtensionCommon.jsm"
@@ -27,12 +33,30 @@ this.browserAction = class extends ToolbarButtonAPI {
   async onManifestEntry(entryName) {
     await super.onManifestEntry(entryName);
     browserActionMap.set(this.extension, this);
+    if (this.inUnifiedToolbar) {
+      await registerExtension(this.extension.id);
+      const currentToolbarState = getState();
+      const unifiedToolbarButtonId = `ext-${this.extension.id}`;
+      if (
+        currentToolbarState.mail &&
+        !currentToolbarState.mail.includes(unifiedToolbarButtonId)
+      ) {
+        currentToolbarState.mail.push(unifiedToolbarButtonId);
+        storeState(currentToolbarState);
+      } else {
+        Services.obs.notifyObservers(null, "unified-toolbar-state-change");
+      }
+    }
   }
 
   close() {
     super.close();
     browserActionMap.delete(this.extension);
-    windowTracker.removeListener("TabSelect", this);
+    if (this.inUnifiedToolbar) {
+      unregisterExtension(this.extension.id);
+      windowTracker.removeListener("TabSelect", this);
+      Services.obs.notifyObservers(null, "unified-toolbar-state-change");
+    }
   }
 
   constructor(extension) {
@@ -45,65 +69,55 @@ this.browserAction = class extends ToolbarButtonAPI {
 
     this.windowURLs = [];
     if (manifest.default_windows.includes("normal")) {
-      this.windowURLs.push("chrome://messenger/content/messenger.xhtml");
+      this.inUnifiedToolbar = true;
     }
     if (manifest.default_windows.includes("messageDisplay")) {
       this.windowURLs.push("chrome://messenger/content/messageWindow.xhtml");
     }
 
-    let isTabsToolbar = manifest.default_area == "tabstoolbar";
-    this.toolboxId = isTabsToolbar ? "navigation-toolbox" : "mail-toolbox";
-    this.toolbarId = isTabsToolbar ? "tabbar-toolbar" : "mail-bar3";
+    this.toolboxId = "mail-toolbox";
+    this.toolbarId = "mail-bar3";
 
     windowTracker.addListener("TabSelect", this);
-  }
-
-  /**
-   * Rectify the main toolbar: If the appmenu is shown, make sure it is
-   * located at the end of the toolbar.
-   *
-   * @param {string} currentSet - comma separated list of button ids
-   * @returns {string} the updated currentSet
-   */
-  rectifyCustomizableToolbarSet(currentSet) {
-    let set = currentSet.split(",").filter(e => e != "");
-    let idx = set.indexOf("button-appmenu");
-    if (idx != -1 && idx != set.length - 1) {
-      set.splice(idx, 1);
-      set.push("button-appmenu");
-    }
-    return set.join(",");
   }
 
   static onUninstall(extensionId) {
     let widgetId = makeWidgetId(extensionId);
     let id = `${widgetId}-browserAction-toolbarbutton`;
-    let windowURLs = [
-      "chrome://messenger/content/messenger.xhtml",
-      "chrome://messenger/content/messageWindow.xhtml",
-    ];
 
     // Check all possible toolbars and remove the toolbarbutton if found.
     // Sadly we have to hardcode these values here, as the add-on is already
     // shutdown when onUninstall is called.
-    let toolbars = ["mail-bar3", "tabbar-toolbar", "toolbar-menubar"];
-    for (let windowURL of windowURLs) {
-      for (let toolbar of toolbars) {
-        for (let setName of ["currentset", "extensionset"]) {
-          let set = Services.xulStore
-            .getValue(windowURL, toolbar, setName)
-            .split(",");
-          let newSet = set.filter(e => e != id);
-          if (newSet.length < set.length) {
-            Services.xulStore.setValue(
-              windowURL,
-              toolbar,
-              setName,
-              newSet.join(",")
-            );
-          }
+    let toolbars = ["mail-bar3", "toolbar-menubar"];
+    for (let toolbar of toolbars) {
+      for (let setName of ["currentset", "extensionset"]) {
+        let set = Services.xulStore
+          .getValue(
+            "chrome://messenger/content/messageWindow.xhtml",
+            toolbar,
+            setName
+          )
+          .split(",");
+        let newSet = set.filter(e => e != id);
+        if (newSet.length < set.length) {
+          Services.xulStore.setValue(
+            "chrome://messenger/content/messageWindow.xhtml",
+            toolbar,
+            setName,
+            newSet.join(",")
+          );
         }
       }
+    }
+
+    const currentToolbarState = getState();
+    const unifiedToolbarButtonId = `ext-${extensionId}`;
+    if (currentToolbarState.mail?.includes(unifiedToolbarButtonId)) {
+      currentToolbarState.mail.splice(
+        currentToolbarState.mail.indexOf(unifiedToolbarButtonId),
+        1
+      );
+      storeState(currentToolbarState);
     }
   }
 

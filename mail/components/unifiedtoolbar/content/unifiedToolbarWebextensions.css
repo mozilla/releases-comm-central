@@ -1,0 +1,52 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* This file needs to be in content so it can load the moz-extension:// images. */
+
+.unified-toolbar .extension-action .button-icon {
+  height: 16px;
+  width: 16px;
+  content: var(--webextension-toolbar-image, inherit);
+}
+
+:is(.icons-only, .icons-above-text, .icons-beside-text) .extension-action .prefer-icon-only .button-label {
+  display: none;
+}
+
+.unified-toolbar .extension-action .button-icon:-moz-lwtheme {
+  content: var(--webextension-toolbar-image-dark, inherit);
+}
+
+.extension-action .preview-icon {
+  content: var(--webextension-icon, inherit);
+}
+
+@media (prefers-color-scheme: dark) {
+  .unified-toolbar .extension-action .button-icon,
+  :root[lwt-tree-brighttext] .unified-toolbar .extension-action .button-icon {
+    content: var(--webextension-toolbar-image-light, inherit);
+  }
+}
+
+
+@media (min-resolution: 1.1dppx) {
+  .unified-toolbar .extension-action .button-icon {
+    content: var(--webextension-toolbar-image-2x, inherit);
+  }
+
+  .unified-toolbar .extension-action .button-icon:-moz-lwtheme {
+    content: var(--webextension-toolbar-image-dark-2x, inherit);
+  }
+
+  .extension-action .preview-icon {
+    content: var(--webextension-icon-2x, inherit);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .unified-toolbar .extension-action .button-icon,
+    :root[lwt-tree-brighttext] .unified-toolbar .extension-action .button-icon {
+      content: var(--webextension-toolbar-image-light-2x, inherit);
+    }
+  }
+}

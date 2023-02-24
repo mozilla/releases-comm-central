@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://messenger/content/unifiedtoolbar/unifiedToolbarWebextensions.css");
+
 /* Styles shared between the actual unfied toolbar and the replica in the
  * customization overlay */
 
@@ -42,6 +44,7 @@
 
 .icons-above-text .unified-toolbar-button {
   flex-direction: column;
+  justify-content: space-around;
 }
 
 .icons-only .unified-toolbar-button .button-label {

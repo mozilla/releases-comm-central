@@ -5,11 +5,14 @@
 import "./search-bar.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./customization-palette.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./customization-target.mjs"; // eslint-disable-line import/no-unassigned-import
-import { getDefaultItemIdsForSpace } from "resource:///modules/CustomizableItems.mjs";
 import {
   BUTTON_STYLE_MAP,
   BUTTON_STYLE_PREF,
 } from "resource:///modules/ButtonStyle.mjs";
+
+const { getDefaultItemIdsForSpace } = ChromeUtils.importESModule(
+  "resource:///modules/CustomizableItems.sys.mjs"
+);
 
 const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"

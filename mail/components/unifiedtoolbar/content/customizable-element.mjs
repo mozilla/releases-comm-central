@@ -4,6 +4,13 @@
 
 import CUSTOMIZABLE_ITEMS from "resource:///modules/CustomizableItemsDetails.mjs";
 
+const lazy = {};
+ChromeUtils.defineModuleGetter(
+  lazy,
+  "ExtensionParent",
+  "resource://gre/modules/ExtensionParent.jsm"
+);
+
 /**
  * Wrapper element for elements whose position can be customized.
  *
@@ -29,13 +36,18 @@ export default class CustomizableElement extends HTMLLIElement {
       .getElementById("unifiedToolbarCustomizableElementTemplate")
       .content.cloneNode(true);
 
-    const details = CUSTOMIZABLE_ITEMS.find(
-      item => item.id === this.getAttribute("item-id")
-    );
+    const itemId = this.getAttribute("item-id");
+
+    if (itemId.startsWith("ext-")) {
+      const extensionId = itemId.slice(4);
+      this.append(template);
+      this.#initializeForExtension(extensionId);
+      return;
+    }
+
+    const details = CUSTOMIZABLE_ITEMS.find(item => item.id === itemId);
     if (!details) {
-      throw new Error(
-        `Could not find definition for ${this.getAttribute("item-id")}`
-      );
+      throw new Error(`Could not find definition for ${itemId}`);
     }
     this.append(template);
     this.#initializeFromDetails(details).catch(console.error);
@@ -83,6 +95,60 @@ export default class CustomizableElement extends HTMLLIElement {
       this.querySelector(".preview-label"),
       `${itemDetails.labelId}-label`
     );
+  }
+
+  /**
+   * Initialize the contents of this customizable element for a button from an
+   * extension.
+   *
+   * @param {string} extensionId - ID of the extension the button is from.
+   */
+  async #initializeForExtension(extensionId) {
+    const extension = lazy.ExtensionParent.GlobalManager.getExtension(
+      extensionId
+    );
+    if (!extension) {
+      return;
+    }
+    if (!customElements.get("extension-action-button")) {
+      await import("./extension-action-button.mjs");
+    }
+    this.details = {
+      allowMultiple: false,
+      spaces: ["mail"],
+    };
+    this.classList.add("extension-action");
+    const extensionButton = document.createElement("button", {
+      is: "extension-action-button",
+    });
+    extensionButton.setAttribute("extension", extensionId);
+    this.querySelector(".live-content").append(extensionButton);
+    if (this.disabled) {
+      this.attributeChangedCallback("disabled");
+    }
+    this.querySelector(".preview-label").textContent =
+      extension.name || extensionId;
+    const { IconDetails } = lazy.ExtensionParent;
+    if (extension.manifest.icons) {
+      let { icon } = IconDetails.getPreferredIcon(
+        extension.manifest.icons,
+        extension,
+        16
+      );
+      let { icon: icon2x } = IconDetails.getPreferredIcon(
+        extension.manifest.icons,
+        extension,
+        32
+      );
+      this.style.setProperty(
+        "--webextension-icon",
+        `url("${lazy.ExtensionParent.IconDetails.escapeUrl(icon)}")`
+      );
+      this.style.setProperty(
+        "--webextension-icon-2x",
+        `url("${lazy.ExtensionParent.IconDetails.escapeUrl(icon2x)}")`
+      );
+    }
   }
 
   /**

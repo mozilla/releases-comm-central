@@ -4,7 +4,6 @@
 
 /* import-globals-from ../../../base/content/spacesToolbar.js */
 
-import { getDefaultItemIdsForSpace } from "resource:///modules/CustomizableItems.mjs";
 import { getState } from "resource:///modules/CustomizationState.mjs";
 import {
   BUTTON_STYLE_MAP,
@@ -15,6 +14,12 @@ import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned
 const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
+
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  getDefaultItemIdsForSpace: "resource:///modules/CustomizableItems.sys.mjs",
+  getAvailableItemIdsForSpace: "resource:///modules/CustomizableItems.sys.mjs",
+});
 
 /**
  * Unified toolbar container custom element. Used to contain the state
@@ -54,6 +59,13 @@ class UnifiedToolbar extends HTMLElement {
    * @type {?UnifiedToolbarCustomizationState}
    */
   #state = null;
+
+  /**
+   * Arrays of item IDs available in a given space.
+   *
+   * @type {object}
+   */
+  #itemsAvailableInSpace = {};
 
   /**
    * Observer triggered when the state for the unified toolbar is changed.
@@ -211,6 +223,38 @@ class UnifiedToolbar extends HTMLElement {
   }
 
   /**
+   * Get the items currently visible in a given space. Filters out items that
+   * are part of the state but not visible.
+   *
+   * @param {string} space - Name of the space to get the active items for. May
+   *   be "default" to indicate a generic default item set should be produced.
+   * @returns {string[]} Array of item IDs visible in the given space.
+   */
+  #getItemsForSpace(space) {
+    if (!this.#state[space]) {
+      this.#state[space] = lazy.getDefaultItemIdsForSpace(space);
+    }
+    if (!this.#itemsAvailableInSpace[space]) {
+      let nonDefaultSpace = space !== "default" ? space : undefined;
+      let availableItems = lazy.getAvailableItemIdsForSpace(nonDefaultSpace);
+      if (nonDefaultSpace) {
+        if (!this.#itemsAvailableInSpace.default) {
+          this.#itemsAvailableInSpace.default = new Set(
+            lazy.getAvailableItemIdsForSpace()
+          );
+        }
+        availableItems = availableItems.concat(
+          ...this.#itemsAvailableInSpace.default
+        );
+      }
+      this.#itemsAvailableInSpace[space] = new Set(availableItems);
+    }
+    return this.#state[space].filter(itemId =>
+      this.#itemsAvailableInSpace[space].has(itemId)
+    );
+  }
+
+  /**
    * Show the items for the specified space in the toolbar. Only creates
    * missing elements when not already created for another space.
    *
@@ -221,10 +265,7 @@ class UnifiedToolbar extends HTMLElement {
     if (!this.#state) {
       return;
     }
-    if (!this.#state[space]) {
-      this.#state[space] = getDefaultItemIdsForSpace(space);
-    }
-    const itemIds = this.#state[space];
+    const itemIds = this.#getItemsForSpace(space);
     // Handling elements which might occur more than once requires us to keep
     // track which existing elements we've already used.
     const elementTypeOffset = {};
@@ -232,7 +273,7 @@ class UnifiedToolbar extends HTMLElement {
       // We want to re-use existing elements to reduce flicker when switching
       // spaces and to preserve widget specific state, like a search string.
       const existingElements = this.#toolbarContent.querySelectorAll(
-        `.${itemId}`
+        `[item-id="${CSS.escape(itemId)}"]`
       );
       const nthChild = elementTypeOffset[itemId] ?? 0;
       if (existingElements.length > nthChild) {
@@ -260,13 +301,14 @@ class UnifiedToolbar extends HTMLElement {
    */
   initialize() {
     this.#state = getState();
+    this.#itemsAvailableInSpace = {};
     // Remove unused items from the toolbar.
     const currentElements = this.#toolbarContent.children;
     if (currentElements.length) {
       const filledOutState = Object.fromEntries(
         (gSpacesToolbar.spaces ?? Object.keys(this.#state)).map(space => [
           space.name,
-          this.#state[space.name] || getDefaultItemIdsForSpace(space.name),
+          this.#getItemsForSpace(space.name),
         ])
       );
       const allItems = new Set(Object.values(filledOutState).flat());

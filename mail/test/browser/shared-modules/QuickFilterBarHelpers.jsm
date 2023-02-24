@@ -42,7 +42,7 @@ const { getState, storeState } = ChromeUtils.importESModule(
 );
 
 const { getDefaultItemIdsForSpace } = ChromeUtils.importESModule(
-  "resource:///modules/CustomizableItems.mjs"
+  "resource:///modules/CustomizableItems.sys.mjs"
 );
 
 let about3Pane = get_about_3pane();
