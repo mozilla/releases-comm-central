@@ -45,7 +45,7 @@ pref("mailnews.headers.sendUserAgent", true);
 
 // If sending the user agent header is enabled, 
 // should only a minimal header be sent?
-pref("mailnews.headers.useMinimalUserAgent", false);
+pref("mailnews.headers.useMinimalUserAgent", true);
 
 // hidden pref for controlling if the user agent string
 // is displayed in the message pane or not...
