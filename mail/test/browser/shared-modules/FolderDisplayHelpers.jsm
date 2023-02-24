@@ -1024,14 +1024,9 @@ function click_tree_row(aTree, aRowIndex, aController) {
 function select_click_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
-  // Make scrolling happen instantly so that we don't have to wait for it.
-  // Fortunately all of these tests are so old none of them test anything
-  // that depends on this preference, so we can set it and forget it.
-  Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
-
   let win = get_about_3pane();
   let tree = win.document.getElementById("threadTree");
-  tree.scrollToIndex(aViewIndex);
+  tree.scrollToIndex(aViewIndex, true);
   let row = tree.getRowAtIndex(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row, {}, win);
   mc.sleep();

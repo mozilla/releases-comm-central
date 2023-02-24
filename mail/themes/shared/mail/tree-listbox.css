@@ -202,8 +202,9 @@ th[is="tree-view-table-header-cell"][data-type="icon"] {
   min-width: 30px;
 }
 
-th[is="tree-view-table-header-cell"][data-type="icon"] button {
-  text-align: center;
+th[is="tree-view-table-header-cell"][data-type="icon"] img {
+  display: block;
+  margin-inline: auto;
 }
 
 th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
@@ -219,6 +220,11 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
   fill: currentColor;
   fill-opacity: 0;
   stroke-opacity: 0;
+}
+
+.tree-view-row-select img {
+  display: block;
+  margin-inline: auto;
 }
 
 .some-selected .tree-view-header-select img {

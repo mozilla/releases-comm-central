@@ -57,6 +57,12 @@
   border: none;
 }
 
+#threadTree button:not(.twisty),
+#threadTree button img {
+  display: block;
+  margin-inline: auto;
+}
+
 tr[is="thread-listrow"] {
   color: var(--tag-color, currentColor);
 }

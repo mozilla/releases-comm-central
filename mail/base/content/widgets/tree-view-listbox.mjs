@@ -1240,28 +1240,26 @@ class TreeViewListbox extends HTMLTableSectionElement {
    * @param {integer} index
    */
   scrollToIndex(index, instant = false) {
-    const topIndex = this._rowElementClass.ROW_HEIGHT * index;
-    const { scrollTop, clientHeight } = this.scrollable;
+    const topOfRow = this._rowElementClass.ROW_HEIGHT * index;
+    let { scrollTop, clientHeight } = this.scrollable;
+    // Account for the table header height in a sticky position above the
+    // listbox. If the list is not in a table layout, the thead height is 0.
+    clientHeight -= this.closest("table").header.clientHeight;
 
-    if (topIndex < scrollTop) {
+    if (topOfRow < scrollTop) {
       this.scrollable.scrollTo({
         left: 0,
-        top: topIndex,
+        top: topOfRow,
         behavior: instant ? "instant" : "auto",
       });
       return;
     }
 
-    // Account for the table header height in a sticky position above the
-    // listbox. If the list is not in a table layout, the thead height is 0.
-    const bottomIndex =
-      topIndex +
-      this._rowElementClass.ROW_HEIGHT +
-      this.closest("table").header.clientHeight;
-    if (bottomIndex > scrollTop + clientHeight) {
+    const bottomOfRow = topOfRow + this._rowElementClass.ROW_HEIGHT;
+    if (bottomOfRow > scrollTop + clientHeight) {
       this.scrollable.scrollTo({
         left: 0,
-        top: bottomIndex - clientHeight,
+        top: bottomOfRow - clientHeight,
         behavior: instant ? "instant" : "auto",
       });
     }
