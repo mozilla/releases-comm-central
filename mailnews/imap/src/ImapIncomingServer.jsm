@@ -405,7 +405,7 @@ class ImapIncomingServer extends MsgIncomingServer {
       imapFolder.boxFlags = boxFlags;
       imapFolder.explicitlyVerify = explicitlyVerify;
       let onlineName = imapFolder.onlineName;
-      folderPath.replaceAll("/", delimiter);
+      folderPath = folderPath.replaceAll("/", delimiter);
       if (delimiter != "/") {
         folderPath = decodeURIComponent(folderPath);
       }

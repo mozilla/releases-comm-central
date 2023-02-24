@@ -204,7 +204,7 @@ class ImapClient {
       }
       for (let mailbox of res.mailboxes) {
         this._serverSink.possibleImapMailbox(
-          mailbox.name,
+          mailbox.name.replaceAll(mailbox.delimiter, "/"),
           mailbox.delimiter,
           mailbox.flags
         );
@@ -249,7 +249,7 @@ class ImapClient {
     let handleListResponse = res => {
       for (let mailbox of res.mailboxes) {
         this._serverSink.possibleImapMailbox(
-          mailbox.name,
+          mailbox.name.replaceAll(mailbox.delimiter, "/"),
           mailbox.delimiter,
           mailbox.flags
         );
@@ -1376,7 +1376,7 @@ class ImapClient {
     }
     for (let mailbox of res.mailboxes) {
       this._serverSink.possibleImapMailbox(
-        mailbox.name,
+        mailbox.name.replaceAll(mailbox.delimiter, "/"),
         mailbox.delimiter,
         mailbox.flags
       );
