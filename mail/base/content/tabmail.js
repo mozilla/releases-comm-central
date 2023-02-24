@@ -451,6 +451,13 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
    * @augments {MozXULElement}
    */
   class MozTabmail extends MozXULElement {
+    /**
+     * Flag indicating that the UI is currently covered by an overlay.
+     *
+     * @type {boolean}
+     */
+    globalOverlay = false;
+
     connectedCallback() {
       if (this.delayConnectedCallback()) {
         return;
@@ -520,7 +527,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           let tab = this.currentTabInfo;
           // This can happen if we're starting up and haven't got a tab
           // loaded yet.
-          if (!tab) {
+          if (!tab || this.globalOverlay) {
             return false;
           }
 
