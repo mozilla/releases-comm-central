@@ -78,7 +78,6 @@ html {
 body {
   height: 100%;
   margin: 0;
-  font: message-box;
   text-shadow: none;
 
   display: grid;

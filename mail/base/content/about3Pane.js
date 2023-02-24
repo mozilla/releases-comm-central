@@ -34,6 +34,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
+var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
@@ -71,6 +72,7 @@ window.addEventListener("DOMContentLoaded", async event => {
   }
 
   UIDensity.registerWindow(window);
+  UIFontSize.registerWindow(window);
 
   folderTree = document.getElementById("folderTree");
 
