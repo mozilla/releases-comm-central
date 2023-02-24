@@ -36,6 +36,24 @@ let mockExternalProtocolServiceCID = MockRegistrar.register(
   mockExternalProtocolService
 );
 
+add_setup(async () => {
+  let account = createAccount();
+  let rootFolder = account.incomingServer.rootFolder;
+  let subFolders = rootFolder.subFolders;
+  createMessages(subFolders[0], 10);
+
+  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  about3Pane.restoreState({
+    folderPaneVisible: true,
+    folderURI: subFolders[0],
+    messagePaneVisible: true,
+  });
+  about3Pane.threadTree.selectedIndex = 0;
+  await BrowserTestUtils.browserLoaded(
+    about3Pane.messageBrowser.contentWindow.content
+  );
+});
+
 registerCleanupFunction(() => {
   MockRegistrar.unregister(mockExternalProtocolServiceCID);
 });
