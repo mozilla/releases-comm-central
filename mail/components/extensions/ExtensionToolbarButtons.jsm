@@ -418,10 +418,10 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
     let button = document.getElementById(this.id);
     if (
       this.inUnifiedToolbar &&
-      (!button || document.querySelector(".unified-toolbar"))
+      (!button || document.getElementById("unifiedToolbar"))
     ) {
       button = document.querySelector(
-        `.unified-toolbar [extension="${this.extension.id}"]`
+        `#unifiedToolbarContent [extension="${this.extension.id}"]`
       );
     }
     let { popup: popupURL, enabled } = this.getContextData(
@@ -568,7 +568,7 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
     }
     if (this.inUnifiedToolbar) {
       let unifiedToolbarButton = window.document.querySelector(
-        `.unified-toolbar [extension="${this.extension.id}"]`
+        `#unifiedToolbarContent [extension="${this.extension.id}"]`
       );
       if (unifiedToolbarButton) {
         unifiedToolbarButton.applyTabData(tabData);

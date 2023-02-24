@@ -845,7 +845,7 @@ async function run_popup_test(configData) {
         if (toolbarId === "unified-toolbar") {
           toolbar = win.document.querySelector("unified-toolbar");
           button = win.document.querySelector(
-            `.unified-toolbar [extension="${configData.actionType}@mochi.test"]`
+            `#unifiedToolbarContent [extension="${configData.actionType}@mochi.test"]`
           );
         } else {
           toolbar = win.document.getElementById(toolbarId);
@@ -976,7 +976,7 @@ async function run_popup_test(configData) {
           if (toolbarId === "unified-toolbar") {
             is(
               win.document.querySelector(
-                `.unified-toolbar [extension="${configData.actionType}@mochi.test"]`
+                `#unifiedToolbarContent [extension="${configData.actionType}@mochi.test"]`
               ),
               button
             );
@@ -1106,6 +1106,7 @@ async function run_popup_test(configData) {
         let win = configData.window;
         let buttonId = `${configData.actionType}_mochi_test-${configData.moduleName}-toolbarbutton`;
         let menuId = "toolbar-context-menu";
+        let isUnifiedToolbar = false;
         if (
           configData.actionType == "compose_action" &&
           configData.default_area == "formattoolbar"
@@ -1115,9 +1116,25 @@ async function run_popup_test(configData) {
         if (configData.actionType == "message_display_action") {
           menuId = "header-toolbar-context-menu";
         }
+        if (
+          (configData.actionType == "browser_action" ||
+            configData.actionType == "action") &&
+          configData.default_windows?.join(",") !== "messageDisplay"
+        ) {
+          menuId = "unifiedToolbarMenu";
+          isUnifiedToolbar = true;
+        }
+        const getButton = windowContent => {
+          if (isUnifiedToolbar) {
+            return windowContent.document.querySelector(
+              `#unifiedToolbarContent [extension="${configData.actionType}@mochi.test"]`
+            );
+          }
+          return windowContent.document.getElementById(buttonId);
+        };
 
         extension.onMessage("triggerClick", async () => {
-          let button = win.document.getElementById(buttonId);
+          let button = getButton(win);
           let menu = win.document.getElementById(menuId);
           let onShownPromise = extension.awaitMessage("onShown");
           let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
@@ -1148,7 +1165,7 @@ async function run_popup_test(configData) {
         await extension.awaitFinish();
 
         // Check the open state of the action button.
-        let button = win.document.getElementById(buttonId);
+        let button = getButton(win);
         await TestUtils.waitForCondition(
           () => button.getAttribute("open") != "true",
           "Button should not have open state after the popup closed."
@@ -1295,7 +1312,7 @@ async function run_action_button_order_test(configs, window, actionType) {
       let expected = configs.filter(e => e.toolbar == toolbarId);
       let selector =
         toolbarId === "unified-toolbar"
-          ? `.unified-toolbar [extension$="@mochi.test"]`
+          ? `#unifiedToolbarContent [extension$="@mochi.test"]`
           : `#${toolbarId} toolbarbutton[id$="${get_id("")}"]`;
       let buttons = window.document.querySelectorAll(selector);
       Assert.equal(

@@ -130,7 +130,14 @@ var AutoHideMenubar = {
 var ToolbarContextMenu = {
   _getExtensionId(popup) {
     let node = popup.triggerNode;
-    return node && node.getAttribute("data-extensionid");
+    if (!node) {
+      return null;
+    }
+    if (node.hasAttribute("data-extensionid")) {
+      return node.getAttribute("data-extensionid");
+    }
+    const extensionButton = node.closest('[item-id^="ext-"]');
+    return extensionButton?.getAttribute("item-id").slice(4);
   },
 
   async updateExtension(popup) {

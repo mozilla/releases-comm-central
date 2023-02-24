@@ -129,22 +129,28 @@ this.browserAction = class extends ToolbarButtonAPI {
       case "popupshowing":
         const menu = event.target;
         const trigger = menu.triggerNode;
-        const node = window.document.getElementById(this.id);
+        const node =
+          window.document.getElementById(this.id) ||
+          (this.inUnifiedToolbar &&
+            window.document.querySelector(
+              `#unifiedToolbarContent [item-id="ext-${this.extension.id}"]`
+            ));
         const contexts = [
           "toolbar-context-menu",
           "customizationPanelItemContextMenu",
+          "unifiedToolbarMenu",
         ];
 
         if (contexts.includes(menu.id) && node && node.contains(trigger)) {
           // This needs to work in normal window and message window.
           let tab = tabTracker.activeTab;
-          let browser = tab.linkedBrowser || tab.getBrowser();
+          let browser = tab.linkedBrowser || tab.getBrowser?.();
           const action =
             this.extension.manifestVersion < 3 ? "onBrowserAction" : "onAction";
 
           global.actionContextMenu({
             tab,
-            pageUrl: browser.currentURI.spec,
+            pageUrl: browser?.currentURI?.spec,
             extension: this.extension,
             [action]: true,
             menu,

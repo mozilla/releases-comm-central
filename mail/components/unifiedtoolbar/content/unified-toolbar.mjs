@@ -3,6 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../base/content/spacesToolbar.js */
+/* import-globals-from ../../../base/content/messenger-customization.js */
 
 import { getState } from "resource:///modules/CustomizationState.mjs";
 import {
@@ -189,9 +190,9 @@ class UnifiedToolbar extends HTMLElement {
     }
     event.preventDefault();
     event.stopPropagation();
-    document
-      .getElementById("unifiedToolbarMenu")
-      .openPopupAtScreen(event.screenX, event.screenY, true);
+    const popup = document.getElementById("unifiedToolbarMenu");
+    popup.openPopupAtScreen(event.screenX, event.screenY, true, event);
+    ToolbarContextMenu.updateExtension(popup);
   };
 
   #handleCustomizeCommand = () => {

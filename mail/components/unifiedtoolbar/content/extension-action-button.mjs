@@ -41,6 +41,9 @@ class ExtensionActionButton extends UnifiedToolbarButton {
   connectedCallback() {
     if (this.hasConnected) {
       super.connectedCallback();
+      if (this.#action?.extension.hasPermission("menus")) {
+        document.addEventListener("popupshowing", this.#action);
+      }
       return;
     }
     super.connectedCallback();
@@ -52,6 +55,15 @@ class ExtensionActionButton extends UnifiedToolbarButton {
       this.#action.getTargetFromWindow(window)
     );
     this.applyTabData(contextData);
+    if (this.#action.extension.hasPermission("menus")) {
+      document.addEventListener("popupshowing", this.#action);
+    }
+  }
+
+  disconnectedCallback() {
+    if (this.#action?.extension.hasPermission("menus")) {
+      document.removeEventListener("popupshowing", this.#action);
+    }
   }
 
   attributeChangedCallback(attribute) {
@@ -94,6 +106,10 @@ class ExtensionActionButton extends UnifiedToolbarButton {
   handleClick = event => {
     this.#action?.handleEvent(event);
   };
+
+  handlePopupShowing(event) {
+    this.#action.handleEvent(event);
+  }
 }
 customElements.define("extension-action-button", ExtensionActionButton, {
   extends: "button",

@@ -3,6 +3,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 <menupopup id="unifiedToolbarMenu">
   <menuitem id="unifiedToolbarCustomize" data-l10n-id="customize-menu-customize" />
+  <menuseparator id="extensionsMailToolbarMenuSeparator"/>
+  <menuitem oncommand="ToolbarContextMenu.openAboutAddonsForContextAction(this.parentElement)"
+            data-l10n-id="toolbar-context-menu-manage-extension"
+            class="customize-context-manageExtension"/>
+  <menuitem oncommand="ToolbarContextMenu.removeExtensionForContextAction(this.parentElement)"
+            data-l10n-id="toolbar-context-menu-remove-extension"
+            class="customize-context-removeExtension"/>
 </menupopup>
 <menupopup id="customizationTargetMenu">
   <menuitem id="customizationTargetEnd" data-l10n-id="customize-target-end" />

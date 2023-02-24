@@ -60,7 +60,7 @@ add_task(async function test_popup_open_with_menu_command_mv2() {
     });
     messageWindow.close();
   }
-}).skip(); //TODO re-enable after bug 1817949
+});
 
 add_task(async function test_popup_open_with_menu_command_mv3() {
   info("3-pane tab");
@@ -110,7 +110,7 @@ add_task(async function test_popup_open_with_menu_command_mv3() {
     });
     messageWindow.close();
   }
-}).skip(); //TODO Re-enable after bug 1817949
+});
 
 add_task(async function test_theme_icons() {
   let extension = ExtensionTestUtils.loadExtension({
