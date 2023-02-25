@@ -187,7 +187,7 @@ class ImapClient {
    */
   discoverAllFolders(folder) {
     this._logger.debug("discoverAllFolders", folder.URI);
-    let supportsListExtended = this._capabilities.includes("LIST-EXTENDED");
+
     let handleListResponse = res => {
       this._hasTrash = res.mailboxes.some(
         mailbox => mailbox.flags & ImapUtils.FLAG_IMAP_TRASH
@@ -211,12 +211,20 @@ class ImapClient {
       }
     };
 
-    this._nextAction = res => {
-      if (supportsListExtended) {
+    if (this._capabilities.includes("LIST-EXTENDED")) {
+      this._nextAction = res => {
         handleListResponse(res);
         this._actionFinishFolderDiscovery();
-        return;
+      };
+      let command = 'LIST (SUBSCRIBED) "" "*"';
+      if (this._capabilities.includes("SPECIAL-USE")) {
+        command += " RETURN (SPECIAL-USE)"; // rfc6154
       }
+      this._sendTagged(command);
+      return;
+    }
+
+    this._nextAction = res => {
       this._nextAction = res2 => {
         // Per rfc3501#section-6.3.9, if LSUB returns different flags from LIST,
         // use the LIST responses.
@@ -234,9 +242,11 @@ class ImapClient {
       };
       this._sendTagged('LSUB "" "*"');
     };
-    this._sendTagged(
-      supportsListExtended ? 'LIST (SUBSCRIBED) "" "*"' : 'LIST "" "*"'
-    );
+    let command = 'LIST "" "*"';
+    if (this._capabilities.includes("SPECIAL-USE")) {
+      command += " RETURN (SPECIAL-USE)"; // rfc6154
+    }
+    this._sendTagged(command);
   }
 
   /**
