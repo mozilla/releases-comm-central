@@ -12,7 +12,7 @@
  */
 
 /* import-globals-from ../../../../toolkit/content/globalOverlay.js */
-/* import-globals-from ../../../../mail/base/content/utilityOverlay.js */
+/* import-globals-from ../../../mail/base/content/utilityOverlay.js */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { PluralForm } = ChromeUtils.importESModule("resource://gre/modules/PluralForm.sys.mjs");
