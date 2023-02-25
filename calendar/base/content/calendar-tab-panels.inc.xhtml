@@ -439,6 +439,12 @@
                       aria-selected="false"
                       data-l10n-id="calendar-view-toggle-month"></button>
             </div>
+            <button id="calendarControlBarMenu"
+                    class="button icon-button icon-only"
+                    onclick="showCalControlBarMenuPopup(event)"
+                    data-l10n-id="calendar-control-bar-menu-button"
+                    type="button">
+            </button>
           </div>
         </html:div>
         <vbox flex="1"
@@ -748,3 +754,12 @@
     </form>
   </template>
 </vbox>
+
+<!-- Menus -->
+
+<menupopup id="calControlBarMenuPopup" position="bottomleft topleft">
+  <menuitem id="findEventsButton"
+            data-l10n-id="calendar-find-events-menu-option"
+            type="checkbox"
+            command="calendar_show_unifinder_command"/>
+</menupopup>

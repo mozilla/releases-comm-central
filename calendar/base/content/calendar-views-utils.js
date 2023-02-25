@@ -444,6 +444,16 @@ function toggleShowCompletedInView() {
 }
 
 /**
+ * Open the calendar layout options menu popup.
+ *
+ * @param {Event} event - The click DOMEvent.
+ */
+function showCalControlBarMenuPopup(event) {
+  let moreContext = document.getElementById("calControlBarMenuPopup");
+  moreContext.openPopup(event.target, { triggerEvent: event });
+}
+
+/**
  * Provides a neutral way to go to the current day in the views and minimonth.
  *
  * @param date     The date to go.

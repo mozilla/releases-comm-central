@@ -90,3 +90,11 @@ calendar-view-toggle-multiweek = Multiweek
 
 calendar-view-toggle-month = Month
   .title = Switch to month view
+
+## Menu on calendar control bar
+
+calendar-control-bar-menu-button =
+  .title = Calendar layout options
+
+calendar-find-events-menu-option =
+  .label = Find Events Pane
