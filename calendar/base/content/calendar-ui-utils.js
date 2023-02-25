@@ -12,6 +12,7 @@
  */
 
 /* import-globals-from ../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../../mail/base/content/utilityOverlay.js */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { PluralForm } = ChromeUtils.importESModule("resource://gre/modules/PluralForm.sys.mjs");
@@ -585,4 +586,11 @@ function setupAttendanceMenu(aMenu, aItems) {
     hideItems(seriesMenuItems);
     hideItems(singleMenuItems);
   }
+}
+
+/**
+ * Open the calendar settings to define the weekdays.
+ */
+function showCalendarWeekPreferences() {
+  openPreferencesTab("paneCalendar", "calendarPaneCategory");
 }

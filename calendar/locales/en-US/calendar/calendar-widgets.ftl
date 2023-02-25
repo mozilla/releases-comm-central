@@ -98,3 +98,9 @@ calendar-control-bar-menu-button =
 
 calendar-find-events-menu-option =
   .label = Find Events Pane
+
+calendar-hide-weekends-option =
+  .label = Workweek days only
+
+calendar-define-workweek-option =
+  .label = Define workweek days
