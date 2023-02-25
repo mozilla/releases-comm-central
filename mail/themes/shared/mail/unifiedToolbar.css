@@ -181,3 +181,7 @@ unified-toolbar-tab::part(icon) {
 #unified-toolbar-customization-tab-settings::part(icon) {
   content: var(--icon-settings);
 }
+
+:is(.live-content, .button-appmenu):-moz-window-inactive {
+  opacity: 0.6;
+}
