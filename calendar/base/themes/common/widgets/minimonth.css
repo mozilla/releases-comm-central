@@ -10,8 +10,12 @@ calendar-minimonth {
   --mmHighlightColor: var(--selected-item-text-color);
   --mmHighlightBackground: var(--selected-item-color);
   --mmHighlightBorderColor: var(--selected-item-color);
-  --mmBoxBackground: hsla(0, 0%, 60%, 0.15);
-  --mmBoxBorderColor: ThreeDShadow;
+  --mmBoxBackground: var(--color-gray-20);
+  --mmBoxBorderColor: var(--color-gray-20);
+  --mmBoxPadding: 0;
+  --mmBoxItemColor: var(--color-gray-30);
+  --mmBoxItemBorderColor: transparent;
+  --mmBoxItemPadding: 2px;
   --mmDayColor: var(--color-gray-70);
   --mmDayBackground: transparent;
   --mmDayBorderColor: transparent;
@@ -33,14 +37,17 @@ calendar-minimonth {
   --mmDayBusyIndicatorSize: 4px;
 }
 
+/* This includes the light theme not inherited by the system */
 :root[lwt-tree]:not([lwt-tree-brighttext]) calendar-minimonth {
   --mmMainColor: var(--sidebar-text-color, FieldText);
   --mmMainBackground: transparent;
   --mmHighlightColor: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
   --mmHighlightBackground: var(--sidebar-highlight-background-color, var(--selected-item-color));
   --mmHighlightBorderColor: var(--sidebar-highlight-background-color, var(--selected-item-color));
-  --mmBoxBackground: var(--sidebar-background-color, Field);
-  --mmBoxBorderColor: var(--sidebar-background-color, Field);
+  --mmBoxBackground: var(--color-gray-20);
+  --mmBoxBorderColor: var(--color-gray-30);
+  --mmBoxItemColor: var(--color-gray-30);
+  --mmBoxItemBorderColor:  transparent;
   --mmDayTodayColor: var(--color-gray-90);
   --mmDayTodayBorderColor: transparent;
   --mmDayColor: var(--color-gray-70);
@@ -58,8 +65,10 @@ calendar-minimonth {
     --mmHighlightColor: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
     --mmHighlightBackground: var(--sidebar-highlight-background-color, var(--selected-item-color));
     --mmHighlightBorderColor: var(--sidebar-highlight-background-color, var(--selected-item-color));
-    --mmBoxBackground: var(--sidebar-background-color, Field);
-    --mmBoxBorderColor: transparent;
+    --mmBoxBackground: var(--color-gray-50);
+    --mmBoxBorderColor: var(--color-gray-40);
+    --mmBoxItemColor: var(--color-gray-40);
+    --mmBoxItemBorderColor:  transparent;
     --mmDayTodayColor: var(--color-ink-10);
     --mmDayTodayBorderColor: transparent;
     --mmDayColor: var(--color-gray-10);
@@ -80,6 +89,10 @@ calendar-minimonth {
 @media (prefers-contrast) {
   calendar-minimonth {
     --mmMainBackground: transparent;
+    --mmBoxBackground: ButtonFace;
+    --mmBoxBorderColor: var(--color-gray-30);
+    --mmBoxItemColor: var(--color-gray-40);
+    --mmBoxItemBorderColor: var(--mmBoxBorderColor);
     --mmDayColor: WindowText;
     --mmDayOtherColor: GrayText;
     --mmDayWeekColor: var(--selected-item-color);
@@ -101,6 +114,8 @@ calendar-minimonth {
 
 :root[uidensity="touch"] calendar-minimonth {
   --mmDayPadding: 8px;
+  --mmBoxPadding: 1px;
+  --mmBoxItemPadding: 4px;
 }
 
 .datepicker-menulist > menupopup::part(content) {
@@ -111,7 +126,7 @@ calendar-minimonth {
   background-color: var(--mmMainBackground);
   border-width: 0;
   color: var(--mmMainColor);
-  padding: 4px;
+  padding: 1px;
   min-width: 175px;
 }
 
@@ -124,79 +139,110 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 2px;
+  border-bottom: 1px solid var(--mmBoxBackground);
+  font-size: 1.1rem;
 }
 
 .minimonth-month-box {
-  background-color: var(--mmBoxBackground);
-  border: 1px dotted var(--mmBoxBorderColor);
   font-weight: bold;
+  margin-bottom: var(--mmBoxPadding);
+  padding: 0;
   text-align: center;
-  height: 22px;
 }
 
 .minimonth-month-name {
-  text-align: center;
+  display: inline-block;
   font-weight: bold;
-  padding: 0px;
-  -moz-user-focus: normal;
+  padding: var(--mmBoxPadding);
+  width: 7ch;
+  min-width: unset;
+  text-align: center;
 }
 
 .minimonth-year-name {
-  width: 5ch;
-  text-align: center;
+  display: inline-block;
   font-weight: bold;
-  padding: 0px;
-  -moz-user-focus: normal;
+  width: 6ch;
+  min-width: unset;
+  padding: var(--mmBoxPadding);
+  text-align: center;
 }
 
-.minimonth-nav-btns {
-  appearance: none;
-  padding: 4px;
+.minimonth-year-name[type="number"] {
+  text-align: center;
+}
+
+.minimonth-nav-section {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  background-color: var(--mmBoxBackground);
+  border: 1px solid var(--mmBoxItemBorderColor);
   border-radius: 2px;
-  list-style-image: var(--icon-nav-right-sm);
-  -moz-user-focus: normal;
-  -moz-context-properties: stroke;
-  stroke: currentColor;
+  margin: var(--mmBoxItemPadding);
 }
 
-.minimonth-nav-btns:hover {
-  background-color: hsla(0, 0%, 0%, 0.1);
+.minimonth-header button,
+.minimonth-header-btn {
+  background: inherit;
+  border-color: transparent;
+  border-radius: 2px;
+  stroke: var(--mmMainColor);
+  width: auto;
+  min-width: unset;
+  height: 100%;
+  min-height: 0;
+  margin: var(--mmBoxPadding);
+  padding: var(--mmBoxPadding);
+  vertical-align: middle;
+}
+
+.button.minimonth-nav-btn.today-button {
+  background-image: var(--icon-calendar-today);
+}
+
+.button.minimonth-nav-btn[dir="1"] {
+  background-image: var(--icon-nav-right);
+}
+
+.button.minimonth-nav-btn[dir="-1"] {
+  background-image: var(--icon-nav-left);
+}
+
+@media (prefers-contrast) {
+  .button.minimonth-nav-btn:active,
+  .button.minimonth-nav-btn:hover,
+  .button.minimonth-nav-btn:focus,
+  .button.minimonth-nav-btn:enabled:is(:hover, :focus-visible, :active) {
+    background-color: var(--mmDaySelectedBackground);
+    color: var(--mmDaySelectedColor);
+    stroke: var(--mmDaySelectedColor);
+    border-color: var(--mmDaySelectedColor);
+  }
+}
+
+.minimonth-nav-btn:dir(rtl)[dir="-1"] ,
+.minimonth-nav-btn:dir(rtl)[dir="1"] {
+  transform: scaleX(-1);
+}
+
+.minimonth-nav-item {
+  display: inline-block;
+  border-inline: 1px solid var(--mmBoxItemColor);
+  margin: 0;
+}
+
+.minimonth-nav-item input {
   color: inherit;
-  outline: none;
-}
-
-.minimonth-nav-btns:hover:active {
-  background-color: hsla(0, 0%, 0%, 0.2);
-  color: inherit;
-}
-
-:root[lwt-tree-brighttext] .minimonth-nav-btns:hover {
-  background-color: hsla(0, 0%, 100%, 0.1);
-}
-
-:root[lwt-tree-brighttext] .minimonth-nav-btns:hover:active {
-  background-color: hsla(0, 0%, 100%, 0.2);
-}
-
-.minimonth-nav-btns > .toolbarbutton-text  {
-  display: none;
-}
-
-.minimonth-nav-btns[disabled] {
-  opacity: .3;
-}
-
-.minimonth-nav-btns:-moz-locale-dir(ltr)[dir="-1"],
-.minimonth-nav-btns:-moz-locale-dir(rtl)[dir="1"] {
-  list-style-image: var(--icon-nav-left-sm);
-}
-
-.minimonth-nav-btns[dir="0"] {
-  list-style-image: var(--icon-nav-today);
+  background: inherit;
+  border: none;
+  margin: 0;
 }
 
 .minimonth-cal-box {
-  border-spacing: 0px;
+  border-spacing: 0;
+  padding: 4px;
 }
 
 .minimonth-cal-box th, .minimonth-cal-box td {

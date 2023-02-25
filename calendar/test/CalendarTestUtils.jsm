@@ -1006,7 +1006,7 @@ const CalendarTestUtils = {
   async goToDate(win, year, month, day) {
     let miniMonth = win.document.getElementById("calMinimonth");
 
-    let activeYear = miniMonth.querySelector(".minimonth-year-name").value;
+    let activeYear = miniMonth.querySelector(".minimonth-year-name").getAttribute("value");
 
     let activeMonth = miniMonth.querySelector(".minimonth-month-name").getAttribute("monthIndex");
 
@@ -1021,7 +1021,7 @@ const CalendarTestUtils = {
       );
 
       for (let i = 0; i < Math.abs(difference); i++) {
-        scrollArrow.doCommand();
+        EventUtils.synthesizeMouseAtCenter(scrollArrow, {}, win);
         await new Promise(resolve => win.setTimeout(resolve, sleepTime));
       }
     }

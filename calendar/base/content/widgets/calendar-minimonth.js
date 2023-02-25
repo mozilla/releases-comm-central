@@ -71,26 +71,46 @@
       }
 
       const minimonthHeader = `
-        <hbox class="minimonth-header minimonth-month-box" align="center">
-          <toolbarbutton class="months-back-button minimonth-nav-btns"
-                         dir="-1"
-                         tooltiptext="&onemonthbackward.tooltip;"></toolbarbutton>
-          <label class="minimonth-month-name" tabindex="-1"/>
-          <toolbarbutton class="months-forward-button minimonth-nav-btns"
-                         dir="1"
-                         tooltiptext="&onemonthforward.tooltip;"></toolbarbutton>
-          <toolbarbutton class="years-back-button minimonth-nav-btns"
-                         dir="-1"
-                         tooltiptext="&oneyearbackward.tooltip;"></toolbarbutton>
-          <label class="yearcell minimonth-year-name" tabindex="-1"></label>
-          <toolbarbutton class="years-forward-button minimonth-nav-btns"
-                         dir="1"
-                         tooltiptext="&oneyearforward.tooltip;"></toolbarbutton>
-          <spacer flex="1"></spacer>
-          <toolbarbutton class="today-button minimonth-nav-btns"
-                         dir="0"
-                         tooltiptext="&showToday.tooltip;"></toolbarbutton>
-        </hbox>
+        <html:div class="minimonth-header minimonth-month-box"
+                  xmlns="http://www.w3.org/1999/xhtml">
+          <div class="minimonth-nav-section">
+            <button class="button icon-button icon-only minimonth-nav-btn today-button"
+                    data-l10n-id="calendar-today-button-tooltip"
+                    type="button"
+                    dir="0">
+            </button>
+          </div>
+          <div class="minimonth-nav-section">
+            <button class="button icon-button icon-only minimonth-nav-btn months-back-button"
+                    data-l10n-id="calendar-nav-button-prev-tooltip-month"
+                    type="button"
+                    dir="-1">
+            </button>
+            <div class="minimonth-nav-item">
+              <input class="minimonth-month-name" tabindex="-1" readonly="true" disabled="disabled" />
+            </div>
+            <button class="button icon-button icon-only minimonth-nav-btn months-forward-button"
+                    data-l10n-id="calendar-nav-button-next-tooltip-month"
+                    type="button"
+                    dir="1">
+            </button>
+          </div>
+          <div class="minimonth-nav-section">
+            <button class="button icon-button icon-only minimonth-nav-btn years-back-button"
+                    data-l10n-id="calendar-nav-button-prev-tooltip-year"
+                    type="button"
+                    dir="-1">
+            </button>
+            <div class="minimonth-nav-item">
+              <input class="yearcell minimonth-year-name" tabindex="-1" readonly="true" disabled="disabled" />
+            </div>
+            <button class="button icon-button icon-only minimonth-nav-btn years-forward-button"
+                    data-l10n-id="calendar-nav-button-next-tooltip-year"
+                    type="button"
+                    dir="1">
+            </button>
+          </div>
+        </html:div>
       `;
 
       const minimonthWeekRow = `
@@ -137,19 +157,19 @@
       this.setAttribute("orient", "vertical");
 
       // Set up header buttons.
-      this.querySelector(".months-back-button").addEventListener("command", () =>
+      this.querySelector(".months-back-button").addEventListener("click", () =>
         this.advanceMonth(-1)
       );
-      this.querySelector(".months-forward-button").addEventListener("command", () =>
+      this.querySelector(".months-forward-button").addEventListener("click", () =>
         this.advanceMonth(1)
       );
-      this.querySelector(".years-back-button").addEventListener("command", () =>
+      this.querySelector(".years-back-button").addEventListener("click", () =>
         this.advanceYear(-1)
       );
-      this.querySelector(".years-forward-button").addEventListener("command", () =>
+      this.querySelector(".years-forward-button").addEventListener("click", () =>
         this.advanceYear(1)
       );
-      this.querySelector(".today-button").addEventListener("command", () => {
+      this.querySelector(".today-button").addEventListener("click", () => {
         this.value = new Date();
       });
 
