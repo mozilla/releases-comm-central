@@ -43,8 +43,8 @@ add_task(async function testLocal() {
  * and that local storage calendars with a different specified database file do not.
  */
 add_task(async function testLocalFile() {
-  let testFileA = new FileUtils.File(PathUtils.join(PathUtils.osTempDir, "file-a.sqlite"));
-  let testFileB = new FileUtils.File(PathUtils.join(PathUtils.osTempDir, "file-b.sqlite"));
+  let testFileA = new FileUtils.File(PathUtils.join(PathUtils.tempDir, "file-a.sqlite"));
+  let testFileB = new FileUtils.File(PathUtils.join(PathUtils.tempDir, "file-b.sqlite"));
 
   let fileCalendarA = cal.manager.createCalendar("storage", Services.io.newFileURI(testFileA));
   fileCalendarA.id = cal.getUUID();
