@@ -114,6 +114,15 @@ function createAccount(type = "none") {
 }
 
 function cleanUpAccount(account) {
+  // If the current displayed message/folder belongs to the account to be removed,
+  // select the root folder, otherwise the removal of this account will trigger
+  // a "shouldn't have any listeners left" assertion in nsMsgDatabase.cpp.
+  let [folder] = window.GetSelectedMsgFolders();
+  if (folder && folder.server && folder.server == account.incomingServer) {
+    let tabmail = document.getElementById("tabmail");
+    tabmail.currentAbout3Pane.displayFolder(folder.server.rootFolder.URI);
+  }
+
   let serverKey = account.incomingServer.key;
   let serverType = account.incomingServer.type;
   info(
