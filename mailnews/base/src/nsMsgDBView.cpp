@@ -1971,6 +1971,41 @@ nsMsgDBView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
 }
 
 NS_IMETHODIMP
+nsMsgDBView::CellDataForColumns(int32_t aRow,
+                                const nsTArray<nsString>& aColumnNames,
+                                nsAString& aProperties, int32_t* aThreadLevel,
+                                nsTArray<nsString>& _retval) {
+  nsresult rv;
+  _retval.Clear();
+
+  uint32_t count = aColumnNames.Length();
+  _retval.SetCapacity(count);
+  for (nsString column : aColumnNames) {
+    nsString text;
+    rv = CellTextForColumn(aRow, column, text);
+    if (NS_FAILED(rv)) {
+      _retval.Clear();
+      return rv;
+    }
+    _retval.AppendElement(text);
+  }
+
+  rv = GetRowProperties(aRow, aProperties);
+  if (NS_FAILED(rv)) {
+    _retval.Clear();
+    return rv;
+  }
+
+  rv = GetLevel(aRow, aThreadLevel);
+  if (NS_FAILED(rv)) {
+    _retval.Clear();
+    aProperties.Truncate();
+  }
+
+  return rv;
+}
+
+NS_IMETHODIMP
 nsMsgDBView::SetTree(mozilla::dom::XULTreeElement* tree) {
   mTree = tree;
   return NS_OK;

@@ -3464,27 +3464,48 @@ customElements.whenDefined("tree-view-table-row").then(() => {
     set index(index) {
       super.index = index;
 
-      // Always set the subject line as aria-label even if the column is hidden.
-      const subjectLine = this.view.cellTextForColumn(index, "subjectCol");
-      this.setAttribute("aria-label", subjectLine);
-
-      const properties = this.view.getRowProperties(index).trim();
-      const propertiesSet = new Set(properties.split(" "));
-      this.dataset.properties = properties;
-
+      let columns = ["subjectCol"];
       for (let column of threadPane.columns) {
         if (column.hidden) {
           continue;
         }
+        // No need to update the text of this cell if it's the selection or an
+        // icon column.
+        if (column.icon || column.select) {
+          continue;
+        }
 
-        let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
+        if (column.id != "subjectCol") {
+          columns.push(column.id);
+        }
+      }
+
+      // XPCOM calls here must be keep to a minimum. Collect all of the
+      // required data in one go.
+      let properties = {};
+      let threadLevel = {};
+      let cellTexts = this.view.cellDataForColumns(
+        index,
+        columns,
+        properties,
+        threadLevel
+      );
+
+      // Always set the subject line as aria-label even if the column is hidden.
+      this.setAttribute("aria-label", cellTexts[0]);
+
+      const propertiesSet = new Set(properties.value.split(" "));
+      this.dataset.properties = properties.value.trim();
+
+      for (let [index, column] of columns.entries()) {
+        let cell = this.querySelector(`.${column.toLowerCase()}-column`);
 
         // Special case for the subject column.
-        if (column.id == "subjectCol") {
-          cell.title = subjectLine;
+        if (column == "subjectCol") {
           const div = cell.querySelector(".subject-line");
+
           // Indent child message of this thread.
-          div.style.setProperty("--thread-level", this.view.getLevel(index));
+          div.style.setProperty("--thread-level", threadLevel.value);
 
           let imageFluentID = this.#getMessageIndicatorString(propertiesSet);
           const image = div.querySelector("img");
@@ -3496,11 +3517,11 @@ customElements.whenDefined("tree-view-table-row").then(() => {
           }
 
           const span = div.querySelector("span");
-          span.textContent = subjectLine;
+          cell.title = span.textContent = cellTexts[index];
           continue;
         }
 
-        if (column.id == "flaggedCol") {
+        if (column == "flaggedCol") {
           document.l10n.setAttributes(
             cell.querySelector("button"),
             propertiesSet.has("flagged")
@@ -3509,7 +3530,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
           );
         }
 
-        if (column.id == "junkStatusCol") {
+        if (column == "junkStatusCol") {
           document.l10n.setAttributes(
             cell.querySelector("button"),
             propertiesSet.has("junk")
@@ -3518,13 +3539,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
           );
         }
 
-        // No need to update the text of this cell if it's the selection or an
-        // icon column.
-        if (column.icon || column.select) {
-          continue;
-        }
-
-        cell.textContent = this.view.cellTextForColumn(index, column.id);
+        cell.textContent = cellTexts[index];
       }
     }
 
@@ -3623,23 +3638,28 @@ customElements.whenDefined("tree-view-table-row").then(() => {
     set index(index) {
       super.index = index;
 
-      const subjectText = this.view.cellTextForColumn(index, "subjectCol");
-      this.setAttribute("aria-label", subjectText);
-      this.subjectLine.textContent = subjectText;
-
-      let properties = this.view.getRowProperties(index).trim();
-      if (this.view.getLevel(index)) {
-        properties += " thread-children";
-      }
-      const propertiesSet = new Set(properties.split(" "));
-      this.dataset.properties = properties;
-
-      this.senderLine.textContent = this.view.cellTextForColumn(
+      // XPCOM calls here must be keep to a minimum. Collect all of the
+      // required data in one go.
+      let properties = {};
+      let threadLevel = {};
+      let cellTexts = this.view.cellDataForColumns(
         index,
-        "correspondentCol"
+        ["subjectCol", "correspondentCol", "dateCol"],
+        properties,
+        threadLevel
       );
 
-      this.dateLine.textContent = this.view.cellTextForColumn(index, "dateCol");
+      this.setAttribute("aria-label", cellTexts[0]);
+      this.subjectLine.textContent = cellTexts[0];
+
+      if (threadLevel.value) {
+        properties.value += " thread-children";
+      }
+      const propertiesSet = new Set(properties.value.split(" "));
+      this.dataset.properties = properties.value.trim();
+
+      this.senderLine.textContent = cellTexts[1];
+      this.dateLine.textContent = cellTexts[2];
 
       document.l10n.setAttributes(
         this.starButton,
