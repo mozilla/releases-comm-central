@@ -119,17 +119,6 @@
     border-top-right-radius: env(-moz-gtk-csd-titlebar-radius);
   }
 
-  /* Remove the border radius of the toolbox if the spaces toolbar is visible. */
-  :root[tabsintitlebar][sizemode="normal"][spacestoolbar]:not([gtktiledwindow="true"]) #navigation-toolbox:-moz-lwtheme {
-    border-start-start-radius: 0;
-  }
-
-  /* When temporarily showing the menu bar, make it at least as tall as the tab
-   * bar such that the window controls don't appear to move up. */
-  :root[tabsintitlebar] #toolbar-menubar[autohide="true"] {
-    height: var(--tab-min-height);
-  }
-
   /* Make #tabs-toolbar transparent as we style underlying #titlebar with
    * -moz-window-titlebar (Gtk+ theme). */
   :root[tabsintitlebar] #tabs-toolbar,
