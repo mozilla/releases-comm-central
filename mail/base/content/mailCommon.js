@@ -453,7 +453,7 @@ var commandController = {
           );
           canMoveAgain = targetURI && MailUtils.getExistingFolder(targetURI);
         }
-        return canMoveAgain;
+        return !!canMoveAgain;
       }
       case "cmd_delete":
         return isNewsgroup || canMove;

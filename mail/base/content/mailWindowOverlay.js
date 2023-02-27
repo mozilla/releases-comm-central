@@ -546,12 +546,12 @@ function InitMessageMenu() {
 
   document.getElementById("moveMenu").disabled = !canMove;
 
-  document.getElementById("copyMenu").disabled = !message;
+  document.getElementById("copyMenu").disabled = !(message || isDummy);
 
   initMoveToFolderAgainMenu(document.getElementById("moveToFolderAgain"));
 
   // Disable the Forward As menu item if no message is selected.
-  document.getElementById("forwardAsMenu").disabled = !message;
+  document.getElementById("forwardAsMenu").disabled = !(message || isDummy);
 
   // Disable the Tag menu item if no message is selected or when we're
   // not in a folder.
