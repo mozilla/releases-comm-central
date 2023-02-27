@@ -128,7 +128,8 @@
 }
 
 .actionsMenu {
-  display: block;
+  display: flex;
+  justify-content: space-between;
   width: 100%;
   border-radius: 0;
   margin: 0;
