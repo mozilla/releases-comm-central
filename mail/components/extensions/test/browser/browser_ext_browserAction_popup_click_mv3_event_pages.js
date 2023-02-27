@@ -3,15 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 let account;
-let messages;
+let subFolders;
 
 add_setup(async () => {
   account = createAccount();
   let rootFolder = account.incomingServer.rootFolder;
-  let subFolders = rootFolder.subFolders;
+  subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
-  messages = subFolders[0].messages;
+  await TestUtils.waitForCondition(
+    () => subFolders[0].messages.hasMoreElements(),
+    "Messages should be added to folder"
+  );
 });
+
+function getMessage() {
+  let messages = subFolders[0].messages;
+  ok(messages.hasMoreElements(), "Should have messages to iterate to");
+  return messages.getNext();
+}
 
 async function subtest_popup_open_with_click_MV3_event_pages(
   terminateBackground
@@ -42,7 +51,7 @@ async function subtest_popup_open_with_click_MV3_event_pages(
 
   info("Message window");
   {
-    let messageWindow = await openMessageInWindow(messages.getNext());
+    let messageWindow = await openMessageInWindow(getMessage());
     let testConfig = {
       actionType: "action",
       manifest_version: 3,
