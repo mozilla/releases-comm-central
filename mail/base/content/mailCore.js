@@ -459,7 +459,11 @@ function focusOnMail(tabNo, event) {
     if (topWindow != window) {
       topWindow.focus();
     } else {
-      document.getElementById("tabmail").selectTabByIndex(event, tabNo);
+      const tabmail = document.getElementById("tabmail");
+      if (tabmail.globalOverlay) {
+        return;
+      }
+      tabmail.selectTabByIndex(event, tabNo);
     }
   } else {
     window.open(
@@ -475,6 +479,8 @@ function focusOnMail(tabNo, event) {
  *
  * @param {?object} openArgs - Arguments to pass to the address book.
  *   See `externalAction` in aboutAddressBook.js for details.
+ * @returns {?Window} The address book's window global, if the address book was
+ *   opened.
  */
 async function toAddressBook(openArgs) {
   let messengerWindow = toMessengerWindow();
@@ -492,6 +498,10 @@ async function toAddressBook(openArgs) {
         "mail-tabs-session-restored"
       );
     });
+  }
+
+  if (messengerWindow.tabmail.globalOverlay) {
+    return null;
   }
 
   return new Promise(resolve => {
@@ -698,6 +708,9 @@ function openIMAccountWizard() {
 }
 
 function openSavedFilesWnd() {
+  if (window.tabmail?.globalOverlay) {
+    return Promise.resolve();
+  }
   return openContentTab("about:downloads");
 }
 

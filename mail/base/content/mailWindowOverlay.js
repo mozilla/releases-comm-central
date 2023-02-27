@@ -1901,8 +1901,8 @@ function QuickSearchFocus() {
   let newTab = false;
   let searchInput;
   let tabmail = document.getElementById("tabmail");
-  if (!tabmail) {
-    // This should never happen.
+  // Tabmail should never be undefined.
+  if (!tabmail || tabmail.globalOverlay) {
     return;
   }
 

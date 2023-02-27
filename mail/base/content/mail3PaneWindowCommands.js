@@ -75,6 +75,9 @@ var DefaultController = {
   },
 
   isCommandEnabled(command) {
+    if (document.getElementById("tabmail").globalOverlay) {
+      return false;
+    }
     switch (command) {
       case "cmd_newMessage":
         return CanComposeMessages();
@@ -291,6 +294,9 @@ function ShowIgnoredMessageNotification(aMsgs, aSubthreadOnly) {
 
 function CloseTabOrWindow() {
   let tabmail = document.getElementById("tabmail");
+  if (tabmail.globalOverlay) {
+    return;
+  }
   if (tabmail.tabInfo.length == 1) {
     if (Services.prefs.getBoolPref("mail.tabs.closeWindowWithLastTab")) {
       window.close();
@@ -373,6 +379,12 @@ function IsSubscribeEnabled() {
  * @param {Event} event - The keypress DOMEvent.
  */
 function SwitchPaneFocus(event) {
+  let tabmail = document.getElementById("tabmail");
+  // Should not move the focus around when the entire window is covered with
+  // something else.
+  if (tabmail.globalOverlay) {
+    return;
+  }
   // First, build an array of panes to cycle through based on our current state.
   // This will usually be something like [threadPane, messagePane, folderPane].
   let panes = [];
@@ -397,7 +409,7 @@ function SwitchPaneFocus(event) {
     }
   }
 
-  let { currentTabInfo } = document.getElementById("tabmail");
+  let { currentTabInfo } = tabmail;
   switch (currentTabInfo.mode.name) {
     case "mail3PaneTab": {
       let {
