@@ -1191,7 +1191,7 @@ var folderPane = {
 
       // Tell the view about the tree. nsITreeView.setTree can't be used because
       // it needs a XULTreeElement and threadTree isn't one. Strictly speaking
-      // the shim passed here isn't a tree either (TreeViewListbox can't be made
+      // the shim passed here isn't a tree either (TreeView can't be made
       // to QI to anything) but it does implement the required methods.
       gViewWrapper.dbView?.setJSTree({
         QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
@@ -2080,8 +2080,8 @@ var threadPane = {
     this.setUpTagStyles();
     Services.prefs.addObserver("mailnews.tags.", this);
 
-    // Ensure TreeViewListbox and its classes are properly defined.
-    await customElements.whenDefined("tree-view-listrow");
+    // Ensure TreeView and its classes are properly defined.
+    await customElements.whenDefined("tree-view-table-row");
 
     threadTree = document.getElementById("threadTree");
     this.treeTable = threadTree.table;
@@ -3072,8 +3072,8 @@ var folderListener = {
 /**
  * Custom element for rows in the thread tree.
  */
-customElements.whenDefined("tree-view-listrow").then(() => {
-  class ThreadListrow extends customElements.get("tree-view-listrow") {
+customElements.whenDefined("tree-view-table-row").then(() => {
+  class ThreadListrow extends customElements.get("tree-view-table-row") {
     static ROW_HEIGHT = 22;
 
     connectedCallback() {

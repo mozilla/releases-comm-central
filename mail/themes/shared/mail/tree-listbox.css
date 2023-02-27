@@ -107,29 +107,29 @@ tree-view > *:hover {
   }
 }
 
-tree-view [is="tree-view-listbox"] > .selected {
+tree-view [is="tree-view-table-body"] > .selected {
   background-color: var(--listbox-selected-bg);
   outline: var(--listbox-selected-outline);
   outline-offset: -2px;
 }
 
-tree-view:focus [is="tree-view-listbox"] > .current {
+tree-view:focus [is="tree-view-table-body"] > .current {
   outline: 2px dotted var(--listbox-selected-color);
   outline-offset: -2px;
   z-index: 1;
 }
 
-tree-view:focus [is="tree-view-listbox"] > .selected {
+tree-view:focus [is="tree-view-table-body"] > .selected {
   color: var(--listbox-selected-color);
   background-color: var(--listbox-focused-selected-bg);
 }
 
-tree-view:focus [is="tree-view-listbox"] > .selected img {
+tree-view:focus [is="tree-view-table-body"] > .selected img {
   fill: color-mix(in srgb, currentColor 40%, transparent);
   stroke: currentColor;
 }
 
-tree-view:focus [is="tree-view-listbox"] > .current.selected {
+tree-view:focus [is="tree-view-table-body"] > .current.selected {
   outline: 1px dashed var(--listbox-selected-color);
   outline-offset: -1px;
 }

@@ -1029,7 +1029,7 @@ function select_click_row(aViewIndex) {
   tree.scrollToIndex(aViewIndex, true);
   let row = tree.getRowAtIndex(aViewIndex);
   if (!row) {
-    // Wait longer than TreeViewListbox does on scroll, then try again.
+    // Wait longer than TreeView does on scroll, then try again.
     mc.sleep(120);
     row = tree.getRowAtIndex(aViewIndex);
   }

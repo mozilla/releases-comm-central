@@ -70,13 +70,12 @@ class TreeView extends HTMLElement {
     this.hasConnected = true;
 
     // Prevent this element from being part of the roving tab focus since we
-    // handle that independently for the TreeViewListbox and we don't want any
+    // handle that independently for the TreeViewTableBody and we don't want any
     // interference from this.
     this.tabIndex = -1;
     this.classList.add("tree-view-scrollable-container");
 
     this.table = document.createElement("table", { is: "tree-view-table" });
-
     this.appendChild(this.table);
 
     this.placeholder = this.querySelector(`slot[name="placeholders"]`);
@@ -374,7 +373,7 @@ class TreeView extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    this._rowElementName = newValue || "tree-view-listrow";
+    this._rowElementName = newValue || "tree-view-table-row";
     this._rowElementClass = customElements.get(this._rowElementName);
 
     if (this._view) {
@@ -446,7 +445,7 @@ class TreeView extends HTMLElement {
    * Clear all rows from the list and create them again.
    */
   invalidate() {
-    this.table.listbox.replaceChildren();
+    this.table.body.replaceChildren();
     this._rows.clear();
     this._firstRowIndex = 0;
     this._lastRowIndex = 0;
@@ -519,7 +518,7 @@ class TreeView extends HTMLElement {
       // Beyond the end of the list. We're about to scroll anyway, so clear
       // everything out and wait for to happen. Don't call `invalidate` here,
       // or you'll end up in an infinite loop.
-      this.table.listbox.replaceChildren();
+      this.table.body.replaceChildren();
       this._rows.clear();
       this._firstRowIndex = 0;
       this._lastRowIndex = 0;
@@ -549,9 +548,9 @@ class TreeView extends HTMLElement {
       i >= iTo;
       i--
     ) {
-      this._addRowAtIndex(i, this.table.listbox.firstElementChild);
+      this._addRowAtIndex(i, this.table.body.firstElementChild);
     }
-    if (this._lastRowIndex == 0 && this.table.listbox.childElementCount == 0) {
+    if (this._lastRowIndex == 0 && this.table.body.childElementCount == 0) {
       // Special case for first call.
       this._addRowAtIndex(0);
     }
@@ -606,7 +605,7 @@ class TreeView extends HTMLElement {
     const topOfRow = this._rowElementClass.ROW_HEIGHT * index;
     let { scrollTop, clientHeight } = this;
     // Account for the table header height in a sticky position above the
-    // listbox. If the list is not in a table layout, the thead height is 0.
+    // body. If the list is not in a table layout, the thead height is 0.
     clientHeight -= this.table.header.clientHeight;
 
     if (topOfRow < scrollTop) {
@@ -669,7 +668,7 @@ class TreeView extends HTMLElement {
   _addRowAtIndex(index, before = null) {
     let row = document.createElement("tr", { is: this._rowElementName });
     row.setAttribute("is", this._rowElementName);
-    this.table.listbox.insertBefore(row, before);
+    this.table.body.insertBefore(row, before);
     row.setAttribute("role", "option");
     row.setAttribute("aria-setsize", this._view.rowCount);
     row.style.height = `${this._rowElementClass.ROW_HEIGHT}px`;
@@ -863,7 +862,7 @@ class TreeView extends HTMLElement {
     } else {
       this._selection.clearSelection();
     }
-    // Make sure the listbox is focused when the selection is changed as
+    // Make sure the body is focused when the selection is changed as
     // clicking on the "select all" header button steals the focus.
     this.focus();
 
@@ -993,7 +992,7 @@ class TreeView extends HTMLElement {
 customElements.define("tree-view", TreeView);
 
 /**
- * The main <table> element containing the thead and the TreeViewListbox
+ * The main <table> element containing the thead and the TreeViewTableBody
  * tbody. This class is used to expose all those methods and custom events
  * needed at the implementation level.
  */
@@ -1035,10 +1034,10 @@ class TreeViewTable extends HTMLTableElement {
     });
     fragment.append(this.spacerTop);
 
-    this.listbox = document.createElement("tbody", {
-      is: "tree-view-listbox",
+    this.body = document.createElement("tbody", {
+      is: "tree-view-table-body",
     });
-    fragment.append(this.listbox);
+    fragment.append(this.body);
 
     this.spacerBottom = document.createElement("tbody", {
       is: "tree-view-table-spacer",
@@ -1063,13 +1062,13 @@ class TreeViewTable extends HTMLTableElement {
   }
 
   /**
-   * Set the id attribute of the TreeViewListbox for selection and styling
+   * Set the id attribute of the TreeViewTableBody for selection and styling
    * purpose.
    *
    * @param {string} id - The string ID to set.
    */
-  setListBoxID(id) {
-    this.listbox.id = id;
+  setBodyID(id) {
+    this.body.id = id;
   }
 
   setPopupMenuTemplates(array) {
@@ -1413,7 +1412,7 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
     if (column.select) {
       this.#button.classList.add("tree-view-header-select");
       this.#button.addEventListener("click", () => {
-        this.closest("table").listbox.toggleSelectAll();
+        this.closest("table").body.toggleSelectAll();
       });
     }
 
@@ -1609,12 +1608,12 @@ customElements.define(
  * `invalidate` are called as appropriate).
  *
  * Rows are provided by a custom element that inherits from
- * TreeViewListrow below. Set the name of the custom element as the "rows"
+ * TreeViewTableRow below. Set the name of the custom element as the "rows"
  * attribute.
  *
  * Include tree-listbox.css for appropriate styling.
  */
-class TreeViewListbox extends HTMLTableSectionElement {
+class TreeViewTableBody extends HTMLTableSectionElement {
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -1622,23 +1621,23 @@ class TreeViewListbox extends HTMLTableSectionElement {
     this.hasConnected = true;
 
     this.tabIndex = 0;
-    this.setAttribute("is", "tree-view-listbox");
+    this.setAttribute("is", "tree-view-table-body");
     this.setAttribute("aria-multiselectable", "true");
   }
 }
-customElements.define("tree-view-listbox", TreeViewListbox, {
+customElements.define("tree-view-table-body", TreeViewTableBody, {
   extends: "tbody",
 });
 
 /**
- * Base class for rows in a TreeViewListbox. Rows have a fixed height and
+ * Base class for rows in a TreeViewTableBody. Rows have a fixed height and
  * their position on screen is managed by the owning list.
  *
  * Sub-classes should override ROW_HEIGHT, styles, and fragment to suit the
  * intended layout. The index getter/setter should be overridden to fill the
  * layout with values.
  */
-class TreeViewListrow extends HTMLTableRowElement {
+class TreeViewTableRow extends HTMLTableRowElement {
   /**
    * Fixed height of this row. Rows in the list will be spaced this far
    * apart. This value must not change at runtime.
@@ -1744,12 +1743,12 @@ class TreeViewListrow extends HTMLTableRowElement {
     this.classList.toggle("selected", !!selected);
   }
 }
-customElements.define("tree-view-listrow", TreeViewListrow, {
+customElements.define("tree-view-table-row", TreeViewTableRow, {
   extends: "tr",
 });
 
 /**
- * Simple tbody spacer used above and below the main listbox tbody for space
+ * Simple tbody spacer used above and below the main tbody for space
  * allocation and ensuring the correct scrollable height.
  */
 class TreeViewTableSpacer extends HTMLTableSectionElement {

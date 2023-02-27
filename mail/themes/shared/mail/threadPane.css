@@ -67,7 +67,7 @@ tr[is="thread-listrow"] {
   color: var(--tag-color, currentColor);
 }
 
-[is="tree-view-listbox"]:focus tr[is="thread-listrow"].selected {
+[is="tree-view-table-body"]:focus tr[is="thread-listrow"].selected {
   background-color: var(--tag-color, var(--listbox-focused-selected-bg));
   color: var(--tag-contrast-color, var(--listbox-selected-color));
 }
@@ -128,7 +128,7 @@ tr[data-properties~="flagged"] .tree-view-row-flag > .tree-button-flag > img {
   color: currentColor;
 }
 
-[is="tree-view-listbox"]:focus .selected .tree-view-row-flag button:hover {
+[is="tree-view-table-body"]:focus .selected .tree-view-row-flag button:hover {
   background-color: transparent;
   color: currentColor;
 }
@@ -177,7 +177,7 @@ tr[data-properties~="unread"] .tree-view-row-unread > .tree-button-unread > img 
   stroke: var(--thread-pane-unread-stroke);
 }
 
-[is="tree-view-listbox"]:focus > .selected > .tree-view-row-unread > .tree-button-unread > img {
+[is="tree-view-table-body"]:focus > .selected > .tree-view-row-unread > .tree-button-unread > img {
   fill: currentColor;
   stroke: currentColor;
 }
@@ -198,7 +198,7 @@ tr[data-properties~="unread"].selected .tree-view-row-unread button {
   color: currentColor;
 }
 
-[is="tree-view-listbox"]:focus .selected .tree-view-row-unread button:hover {
+[is="tree-view-table-body"]:focus .selected .tree-view-row-unread button:hover {
   background-color: transparent;
   color: currentColor;
 }
@@ -299,7 +299,7 @@ tr[data-properties~="replied"][data-properties~="forwarded"][data-properties~="r
   stroke: var(--color-purple-50);
 }
 
-[is="tree-view-listbox"]:focus > .selected .subject-line img {
+[is="tree-view-table-body"]:focus > .selected .subject-line img {
   fill: currentColor !important;
   stroke: currentColor !important;
 }
@@ -357,7 +357,7 @@ tr[data-properties~="junk"] .tree-view-row-spam > .tree-button-spam > img {
   color: currentColor;
 }
 
-[is="tree-view-listbox"]:focus .selected .tree-view-row-spam button:hover {
+[is="tree-view-table-body"]:focus .selected .tree-view-row-spam button:hover {
   background-color: transparent;
   color: currentColor;
 }

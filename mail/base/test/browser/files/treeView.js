@@ -3,10 +3,10 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // FIXME: Wrap the whole method around the document load listener to prevent the
-// undefined state of the "tree-view-listrow" element. This is due to the .mjs
+// undefined state of the "tree-view-table-row" element. This is due to the .mjs
 // nature of the class file.
 window.addEventListener("load", () => {
-  class TestCardRow extends customElements.get("tree-view-listrow") {
+  class TestCardRow extends customElements.get("tree-view-table-row") {
     static ROW_HEIGHT = 50;
 
     static COLUMNS = [
@@ -52,7 +52,7 @@ window.addEventListener("load", () => {
   }
   customElements.define("test-listrow", TestCardRow, { extends: "tr" });
 
-  class AlternativeCardRow extends customElements.get("tree-view-listrow") {
+  class AlternativeCardRow extends customElements.get("tree-view-table-row") {
     static ROW_HEIGHT = 80;
 
     connectedCallback() {
@@ -111,7 +111,7 @@ window.addEventListener("load", () => {
   }
 
   let tree = document.getElementById("testTree");
-  tree.table.setListBoxID("testList");
+  tree.table.setBodyID("testBody");
   tree.setAttribute("rows", "test-listrow");
   tree.table.setColumns(TestCardRow.COLUMNS);
   tree.addEventListener("select", () => {

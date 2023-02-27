@@ -1210,13 +1210,13 @@ customElements.define("ab-card-search-input", AbCardSearchInput, {
   extends: "input",
 });
 
-customElements.whenDefined("tree-view-listrow").then(() => {
+customElements.whenDefined("tree-view-table-row").then(() => {
   /**
    * A row in the list of cards.
    *
-   * @augments {TreeViewListrow}
+   * @augments {TreeViewTableRow}
    */
-  class AbCardListrow extends customElements.get("tree-view-listrow") {
+  class AbCardListrow extends customElements.get("tree-view-table-row") {
     static ROW_HEIGHT = 46;
 
     connectedCallback() {
@@ -1324,9 +1324,9 @@ customElements.whenDefined("tree-view-listrow").then(() => {
   /**
    * A row in the table list of cards.
    *
-   * @augments {TreeViewListrow}
+   * @augments {TreeViewTableRow}
    */
-  class AbTableCardListrow extends customElements.get("tree-view-listrow") {
+  class AbTableCardListrow extends customElements.get("tree-view-table-row") {
     static ROW_HEIGHT = 22;
 
     connectedCallback() {
@@ -1500,7 +1500,7 @@ var cardsPane = {
     this.cardsList = document.getElementById("cards");
     this.table = this.cardsList.table;
     this.table.editable = true;
-    this.table.setListBoxID("cardsBody");
+    this.table.setBodyID("cardsBody");
     this.cardsList.setAttribute("rows", "ab-card-listrow");
 
     if (

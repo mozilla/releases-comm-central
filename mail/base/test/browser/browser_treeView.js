@@ -13,7 +13,7 @@ registerCleanupFunction(() => {
 add_task(async function testKeyboardAndMouse() {
   let tab = tabmail.openTab("contentTab", {
     url:
-      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeViewListbox.xhtml",
+      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeView.xhtml",
   });
 
   await BrowserTestUtils.browserLoaded(tab.browser);
@@ -34,7 +34,7 @@ async function subtestKeyboardAndMouse() {
 
   let rows = list.querySelectorAll(`tr[is="test-listrow"]`);
   // Count is calculated from the height of `list` divided by
-  // TestCardRow.ROW_HEIGHT, plus TreeViewListbox.OVERFLOW_BUFFER.
+  // TestCardRow.ROW_HEIGHT, plus TreeView.OVERFLOW_BUFFER.
   Assert.equal(rows.length, 23, "the list has the right number of rows");
 
   Assert.equal(doc.activeElement, doc.body);
@@ -47,7 +47,7 @@ async function subtestKeyboardAndMouse() {
   );
 
   EventUtils.synthesizeKey("VK_TAB", {}, content);
-  Assert.equal(doc.activeElement.id, "testList", "the list has focus");
+  Assert.equal(doc.activeElement.id, "testBody", "the list has focus");
 
   EventUtils.synthesizeKey("VK_TAB", {}, content);
   Assert.equal(
@@ -57,7 +57,7 @@ async function subtestKeyboardAndMouse() {
   );
 
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, content);
-  Assert.equal(doc.activeElement.id, "testList", "the list has focus");
+  Assert.equal(doc.activeElement.id, "testBody", "the list has focus");
 
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, content);
   Assert.equal(
@@ -541,7 +541,7 @@ async function subtestKeyboardAndMouse() {
 add_task(async function testRowCountChange() {
   let tab = tabmail.openTab("contentTab", {
     url:
-      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeViewListbox.xhtml",
+      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeView.xhtml",
   });
 
   await BrowserTestUtils.browserLoaded(tab.browser);
@@ -966,13 +966,13 @@ async function subtestRowCountChange() {
  * styled as coloured squares: red for collapsed, green for expanded.
  *
  * @note This is practically the same test as in browser_treeListbox.js, but
- * for TreeViewListbox instead of TreeListbox. If you make changes here you
+ * for TreeView instead of TreeListbox. If you make changes here you
  * may want to make changes there too.
  */
 add_task(async function testExpandCollapse() {
   let tab = tabmail.openTab("contentTab", {
     url:
-      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeViewListbox2.xhtml",
+      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeView2.xhtml",
   });
 
   await BrowserTestUtils.browserLoaded(tab.browser);
@@ -1041,7 +1041,7 @@ async function subtestExpandCollapse() {
   );
   Assert.equal(list.view.rowCount, 8, "row count");
   Assert.deepEqual(
-    Array.from(list.table.listbox.children, r => r.id),
+    Array.from(list.table.body.children, r => r.id),
     [
       "row-1",
       "row-2",
@@ -1146,7 +1146,7 @@ async function subtestExpandCollapse() {
 
     Assert.equal(list.view.rowCount, 8 - hiddenIds.length, "row count");
     Assert.deepEqual(
-      Array.from(list.table.listbox.children, r => r.id),
+      Array.from(list.table.body.children, r => r.id),
       remainingIds,
       "rows property"
     );
@@ -1498,7 +1498,7 @@ async function subtestExpandCollapse() {
 add_task(async function testRowClassChange() {
   let tab = tabmail.openTab("contentTab", {
     url:
-      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeViewListbox.xhtml",
+      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeView.xhtml",
   });
 
   await BrowserTestUtils.browserLoaded(tab.browser);
@@ -1515,7 +1515,7 @@ async function subtestRowClassChange() {
   let indices = (list.selectedIndices = [1, 2, 3, 5, 8, 13, 21, 34]);
   list.currentIndex = 5;
 
-  for (let row of list.table.listbox.children) {
+  for (let row of list.table.body.children) {
     Assert.equal(row.getAttribute("is"), "test-listrow");
     Assert.equal(row.clientHeight, 50);
     Assert.equal(
@@ -1530,7 +1530,7 @@ async function subtestRowClassChange() {
   Assert.deepEqual(list.selectedIndices, indices);
   Assert.equal(list.currentIndex, 5);
 
-  for (let row of list.table.listbox.children) {
+  for (let row of list.table.body.children) {
     Assert.equal(row.getAttribute("is"), "alternative-listrow");
     Assert.equal(row.clientHeight, 80);
     Assert.equal(
@@ -1549,7 +1549,7 @@ async function subtestRowClassChange() {
   Assert.deepEqual(list.selectedIndices, []);
   Assert.equal(list.currentIndex, -1);
 
-  for (let row of list.table.listbox.children) {
+  for (let row of list.table.body.children) {
     Assert.equal(row.getAttribute("is"), "test-listrow");
     Assert.equal(row.clientHeight, 50);
     Assert.ok(!row.classList.contains("selected"));
@@ -1563,7 +1563,7 @@ async function subtestRowClassChange() {
 add_task(async function testResize() {
   let tab = tabmail.openTab("contentTab", {
     url:
-      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeViewListbox.xhtml",
+      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeView.xhtml",
   });
 
   await BrowserTestUtils.browserLoaded(tab.browser);

@@ -5,10 +5,10 @@
 /* globals PROTO_TREE_VIEW */
 
 // FIXME: Wrap the whole method around the document load listener to prevent the
-// undefined state of the "tree-view-listrow" element. This is due to the .mjs
+// undefined state of the "tree-view-table-row" element. This is due to the .mjs
 // nature of the class file.
 window.addEventListener("load", () => {
-  class TestCardRow extends customElements.get("tree-view-listrow") {
+  class TestCardRow extends customElements.get("tree-view-table-row") {
     static ROW_HEIGHT = 30;
 
     static COLUMNS = [
@@ -103,7 +103,7 @@ window.addEventListener("load", () => {
   testView.toggleOpenState(5);
 
   let tree = document.getElementById("testTree");
-  tree.table.setListBoxID("testList");
+  tree.table.setBodyID("testBody");
   tree.setAttribute("rows", "test-listrow");
   tree.table.setColumns(TestCardRow.COLUMNS);
   tree.addEventListener("select", () => {
