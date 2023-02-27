@@ -230,18 +230,18 @@ function checkCardsListed(...expectedCards) {
 
 function checkNamesListed(...expectedNames) {
   let abWindow = getAddressBookWindow();
-  let resultsTree = abWindow.document.getElementById("cards");
+  let cardsList = abWindow.document.getElementById("cards");
   let expectedCount = expectedNames.length;
 
   Assert.equal(
-    resultsTree.view.rowCount,
+    cardsList.view.rowCount,
     expectedCount,
     "Tree view has the right number of rows"
   );
 
   for (let i = 0; i < expectedCount; i++) {
     Assert.equal(
-      resultsTree.view.getCellText(i, { id: "GeneratedName" }),
+      cardsList.view.getCellText(i, { id: "GeneratedName" }),
       expectedNames[i]
     );
   }

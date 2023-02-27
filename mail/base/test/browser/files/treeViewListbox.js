@@ -111,15 +111,11 @@ window.addEventListener("load", () => {
   }
 
   let tree = document.getElementById("testTree");
-  let table = tree.table;
-  table.setListBoxID("testList");
-  table.listbox.setAttribute("rows", "test-listrow");
-  table.setColumns(TestCardRow.COLUMNS);
-  table.listbox.addEventListener("select", () => {
-    console.log(
-      "select event, selected indices:",
-      table.listbox.selectedIndices
-    );
+  tree.table.setListBoxID("testList");
+  tree.setAttribute("rows", "test-listrow");
+  tree.table.setColumns(TestCardRow.COLUMNS);
+  tree.addEventListener("select", () => {
+    console.log("select event, selected indices:", tree.selectedIndices);
   });
-  table.listbox.view = new TestView(0, 50);
+  tree.view = new TestView(0, 50);
 });

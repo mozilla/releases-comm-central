@@ -27,10 +27,10 @@ add_task(async function testKeyboardAndMouse() {
 async function subtestKeyboardAndMouse() {
   let doc = content.document;
 
-  let list = doc.querySelector(`[is="tree-view-listbox"]`);
+  let list = doc.getElementById("testTree");
   Assert.ok(!!list, "the list exists");
 
-  let listRect = list.scrollable.getBoundingClientRect();
+  let listRect = list.getBoundingClientRect();
 
   let rows = list.querySelectorAll(`tr[is="test-listrow"]`);
   // Count is calculated from the height of `list` divided by
@@ -419,7 +419,7 @@ async function subtestKeyboardAndMouse() {
   // even if the row element itself disappears.
 
   selectHandler.reset();
-  list.scrollable.scrollTo(0, 125);
+  list.scrollTo(0, 125);
   await scrollingDelay();
   checkCurrent(0);
   checkSelected(0);
@@ -429,7 +429,7 @@ async function subtestKeyboardAndMouse() {
     "getFirstVisibleIndex is correct"
   );
 
-  list.scrollable.scrollTo(0, 1025);
+  list.scrollTo(0, 1025);
   await scrollingDelay();
   Assert.equal(list.currentIndex, 0, "currentIndex is still set");
   Assert.ok(
@@ -459,7 +459,7 @@ async function subtestKeyboardAndMouse() {
   Assert.equal(list.getFirstVisibleIndex(), 1, "scrolled to the correct place");
 
   selectHandler.reset();
-  list.scrollable.scrollTo(0, 0);
+  list.scrollTo(0, 0);
   await scrollingDelay();
   checkCurrent(1);
   checkSelected(1);
@@ -556,7 +556,7 @@ async function subtestRowCountChange() {
   let doc = content.document;
 
   let ROW_HEIGHT = 50;
-  let list = doc.querySelector(`[is="tree-view-listbox"]`);
+  let list = doc.getElementById("testTree");
   let view = list.view;
   let rows;
 
@@ -609,7 +609,7 @@ async function subtestRowCountChange() {
 
     list.rowCountChanged(index, values.length);
     Assert.equal(
-      list.scrollable.scrollHeight,
+      list.scrollHeight,
       expectedCount * ROW_HEIGHT,
       "space for all rows is allocated"
     );
@@ -631,7 +631,7 @@ async function subtestRowCountChange() {
 
     list.rowCountChanged(index, -count);
     Assert.equal(
-      list.scrollable.scrollHeight,
+      list.scrollHeight,
       expectedCount * ROW_HEIGHT,
       "space for all rows is allocated"
     );
@@ -642,9 +642,9 @@ async function subtestRowCountChange() {
     expectedCount,
     "the view has the right number of rows"
   );
-  Assert.equal(list.scrollable.scrollTop, 0, "the list is scrolled to the top");
+  Assert.equal(list.scrollTop, 0, "the list is scrolled to the top");
   Assert.equal(
-    list.scrollable.scrollHeight,
+    list.scrollHeight,
     expectedCount * ROW_HEIGHT,
     "space for all rows is allocated"
   );
@@ -714,11 +714,7 @@ async function subtestRowCountChange() {
   Assert.equal(rows[22].dataset.value, "17");
   checkSelected([7, 19, 32, 42, 54], [7, 19]);
 
-  Assert.equal(
-    list.scrollable.scrollTop,
-    0,
-    "the list is still scrolled to the top"
-  );
+  Assert.equal(list.scrollTop, 0, "the list is still scrolled to the top");
 
   // Remove values in the order we added them.
 
@@ -769,15 +765,11 @@ async function subtestRowCountChange() {
   Assert.equal(rows[22].dataset.value, "22");
   checkSelected([4, 14, 24, 34, 44], [4, 14]);
 
-  Assert.equal(
-    list.scrollable.scrollTop,
-    0,
-    "the list is still scrolled to the top"
-  );
+  Assert.equal(list.scrollTop, 0, "the list is still scrolled to the top");
 
   // Now scroll to the middle and repeat.
 
-  list.scrollable.scrollTo(0, 935);
+  list.scrollTo(0, 935);
   await new Promise(r => content.setTimeout(r, 100));
   checkRows(8, 41);
   Assert.equal(rows[0].dataset.value, "8");
@@ -823,11 +815,7 @@ async function subtestRowCountChange() {
   Assert.equal(rows[33].dataset.value, "37a");
   checkSelected([5, 16, 26, 37, 48], [16, 26, 37]);
 
-  Assert.equal(
-    list.scrollable.scrollTop,
-    935,
-    "the list is still scrolled to the middle"
-  );
+  Assert.equal(list.scrollTop, 935, "the list is still scrolled to the middle");
 
   removeValues(54, 1, [50]);
   checkRows(8, 41);
@@ -859,15 +847,11 @@ async function subtestRowCountChange() {
   Assert.equal(rows[33].dataset.value, "41");
   checkSelected([4, 14, 24, 34, 44], [14, 24, 34]);
 
-  Assert.equal(
-    list.scrollable.scrollTop,
-    935,
-    "the list is still scrolled to the middle"
-  );
+  Assert.equal(list.scrollTop, 935, "the list is still scrolled to the middle");
 
   // Now scroll to the bottom and repeat.
 
-  list.scrollable.scrollTo(0, 1870);
+  list.scrollTo(0, 1870);
   await new Promise(r => content.setTimeout(r, 100));
   checkRows(27, 49);
   Assert.equal(rows[0].dataset.value, "27");
@@ -906,7 +890,7 @@ async function subtestRowCountChange() {
   checkSelected([5, 15, 25, 36, 46], [36, 46]);
 
   Assert.equal(
-    list.scrollable.scrollTop,
+    list.scrollTop,
     1870,
     "the list is still scrolled to the bottom"
   );
@@ -939,14 +923,14 @@ async function subtestRowCountChange() {
   checkSelected([4, 14, 24, 34, 44], [34, 44]);
 
   Assert.equal(
-    list.scrollable.scrollTop,
+    list.scrollTop,
     1870,
     "the list is still scrolled to the bottom"
   );
 
   // Remove a selected row and check the selection changes.
 
-  list.scrollable.scrollTo(0, 0);
+  list.scrollTo(0, 0);
   await new Promise(r => content.setTimeout(r, 100));
 
   checkSelected([4, 14, 24, 34, 44], [4, 14]);
@@ -1001,7 +985,7 @@ add_task(async function testExpandCollapse() {
 
 async function subtestExpandCollapse() {
   let doc = content.document;
-  let list = doc.querySelector(`[is="tree-view-listbox"]`);
+  let list = doc.getElementById("testTree");
   let allIds = [
     "row-1",
     "row-2",
@@ -1057,7 +1041,7 @@ async function subtestExpandCollapse() {
   );
   Assert.equal(list.view.rowCount, 8, "row count");
   Assert.deepEqual(
-    Array.from(list.children, r => r.id),
+    Array.from(list.table.listbox.children, r => r.id),
     [
       "row-1",
       "row-2",
@@ -1162,7 +1146,7 @@ async function subtestExpandCollapse() {
 
     Assert.equal(list.view.rowCount, 8 - hiddenIds.length, "row count");
     Assert.deepEqual(
-      Array.from(list.children, r => r.id),
+      Array.from(list.table.listbox.children, r => r.id),
       remainingIds,
       "rows property"
     );
@@ -1527,11 +1511,11 @@ add_task(async function testRowClassChange() {
 
 async function subtestRowClassChange() {
   let doc = content.document;
-  let list = doc.querySelector(`[is="tree-view-listbox"]`);
+  let list = doc.getElementById("testTree");
   let indices = (list.selectedIndices = [1, 2, 3, 5, 8, 13, 21, 34]);
   list.currentIndex = 5;
 
-  for (let row of list.children) {
+  for (let row of list.table.listbox.children) {
     Assert.equal(row.getAttribute("is"), "test-listrow");
     Assert.equal(row.clientHeight, 50);
     Assert.equal(
@@ -1546,7 +1530,7 @@ async function subtestRowClassChange() {
   Assert.deepEqual(list.selectedIndices, indices);
   Assert.equal(list.currentIndex, 5);
 
-  for (let row of list.children) {
+  for (let row of list.table.listbox.children) {
     Assert.equal(row.getAttribute("is"), "alternative-listrow");
     Assert.equal(row.clientHeight, 80);
     Assert.equal(
@@ -1565,7 +1549,7 @@ async function subtestRowClassChange() {
   Assert.deepEqual(list.selectedIndices, []);
   Assert.equal(list.currentIndex, -1);
 
-  for (let row of list.children) {
+  for (let row of list.table.listbox.children) {
     Assert.equal(row.getAttribute("is"), "test-listrow");
     Assert.equal(row.clientHeight, 50);
     Assert.ok(!row.classList.contains("selected"));
@@ -1597,18 +1581,18 @@ async function subtestResize() {
 
   let doc = content.document;
 
-  let list = doc.querySelector(`[is="tree-view-listbox"]`);
+  let list = doc.getElementById("testTree");
   Assert.ok(!!list, "the list exists");
 
   let rowCount = function() {
     return list.querySelectorAll(`tr[is="test-listrow"]`).length;
   };
 
-  let originalHeight = list.scrollable.clientHeight;
+  let originalHeight = list.clientHeight;
 
   // Start by scrolling to somewhere in the middle of the list, so that we
   // don't have to think about buffer rows that don't exist at the ends.
-  list.scrollable.scrollBy(0, 650);
+  list.scrollBy(0, 650);
 
   // The list has enough space for 13 visible rows, and 10 buffer rows should
   // exist above and below.
@@ -1619,7 +1603,7 @@ async function subtestResize() {
 
   // Make the list shorter by 5 rows. This should not affect the number of rows,
   // but this is a bit flaky, so check we have at least the minimum required.
-  list.scrollable.style.height = `${originalHeight - 250}px`;
+  list.style.height = `${originalHeight - 250}px`;
   await new Promise(resolve => content.setTimeout(resolve, 500));
   Assert.greaterOrEqual(
     rowCount(),
@@ -1628,28 +1612,28 @@ async function subtestResize() {
   );
 
   // Scrolling the list by any amount should remove excess rows.
-  list.scrollable.scrollBy(0, 50);
+  list.scrollBy(0, 50);
   await TestUtils.waitForCondition(
     () => rowCount() == 28,
     "scrolling the list after resize should remove the excess rows"
   );
 
   // Return to the original height. More buffer rows should be added.
-  list.scrollable.style.height = `${originalHeight}px`;
+  list.style.height = `${originalHeight}px`;
   await TestUtils.waitForCondition(
     () => rowCount() == 33,
     "making the list taller should change the number of rows"
   );
 
   // Make the list taller by 5 rows.
-  list.scrollable.style.height = `${originalHeight + 250}px`;
+  list.style.height = `${originalHeight + 250}px`;
   await TestUtils.waitForCondition(
     () => rowCount() == 38,
     "making the list taller should change the number of rows"
   );
 
   // Scrolling the list should not affect the number of rows.
-  list.scrollable.scrollBy(0, 50);
+  list.scrollBy(0, 50);
   await new Promise(resolve => content.setTimeout(resolve, 1000));
   Assert.equal(
     rowCount(),

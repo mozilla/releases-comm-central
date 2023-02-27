@@ -31,24 +31,24 @@
   color: var(--tree-view-color);
 }
 
-#threadTree [data-properties~="unread"] {
+#threadTree tbody [data-properties~="unread"] {
   font-weight: bold;
 }
 
-#threadTree [data-properties~="imapdeleted"] :is(td, .subject-line) {
+#threadTree tbody [data-properties~="imapdeleted"] :is(td, .subject-line) {
   text-decoration: line-through;
 }
 
-#threadTree .children.collapsed[data-properties~="hasUnread"][data-properties~="read"]
+#threadTree tbody .children.collapsed[data-properties~="hasUnread"][data-properties~="read"]
   :where(td, .subject-line) {
   text-decoration: underline;
 }
 
-#messageThreadTree thead[is="tree-view-table-header"] th::before {
+#threadTree thead[is="tree-view-table-header"] th::before {
   display: none;
 }
 
-#threadTree button {
+#threadTree tbody button {
   min-height: auto;
   min-width: auto;
   padding: 0;

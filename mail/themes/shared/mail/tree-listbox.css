@@ -88,48 +88,48 @@
   stroke: currentColor;
 }
 
-[is="tree-view-listbox"]:focus {
+tree-view:focus {
   outline: none;
 }
 
-[is="tree-view-listbox"] > * {
+tree-view > * {
   cursor: default;
 }
 
-[is="tree-view-listbox"] > *:hover {
+tree-view > *:hover {
   background-color: var(--listbox-hover);
 }
 
 @media (prefers-contrast) {
-  [is="tree-view-listbox"] > *:hover {
+  tree-view > *:hover {
     outline: var(--listbox-selected-outline);
     outline-offset: -2px;
   }
 }
 
-[is="tree-view-listbox"] > .selected {
+tree-view [is="tree-view-listbox"] > .selected {
   background-color: var(--listbox-selected-bg);
   outline: var(--listbox-selected-outline);
   outline-offset: -2px;
 }
 
-[is="tree-view-listbox"]:focus > .current {
+tree-view:focus [is="tree-view-listbox"] > .current {
   outline: 2px dotted var(--listbox-selected-color);
   outline-offset: -2px;
   z-index: 1;
 }
 
-[is="tree-view-listbox"]:focus > .selected {
+tree-view:focus [is="tree-view-listbox"] > .selected {
   color: var(--listbox-selected-color);
   background-color: var(--listbox-focused-selected-bg);
 }
 
-[is="tree-view-listbox"]:focus > .selected img {
+tree-view:focus [is="tree-view-listbox"] > .selected img {
   fill: color-mix(in srgb, currentColor 40%, transparent);
   stroke: currentColor;
 }
 
-[is="tree-view-listbox"]:focus > .current.selected {
+tree-view:focus [is="tree-view-listbox"] > .current.selected {
   outline: 1px dashed var(--listbox-selected-color);
   outline-offset: -1px;
 }
@@ -235,7 +235,7 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
   fill-opacity: 1;
 }
 
-[is="tree-view-listbox"]:focus .selected > .tree-view-row-select img {
+tree-view:focus .selected > .tree-view-row-select img {
   fill: currentColor;
 }
 
@@ -267,7 +267,7 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
   color: var(--tree-row-delete-button-color);
 }
 
-[is="tree-view-listbox"]:focus .selected .tree-view-row-delete button:hover {
+tree-view:focus .selected .tree-view-row-delete button:hover {
   background-color: var(--tree-row-delete-button-color);
   color: currentColor;
 }

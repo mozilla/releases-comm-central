@@ -2083,15 +2083,13 @@ var threadPane = {
     // Ensure TreeViewListbox and its classes are properly defined.
     await customElements.whenDefined("tree-view-listrow");
 
-    let tree = document.getElementById("messageThreadTree");
-    this.treeTable = tree.table;
+    threadTree = document.getElementById("threadTree");
+    this.treeTable = threadTree.table;
     this.treeTable.editable = true;
-    threadTree = this.treeTable.listbox;
     this.treeTable.setPopupMenuTemplates([
       "threadPaneApplyColumnMenu",
       "threadPaneApplyViewMenu",
     ]);
-    threadTree.id = "threadTree";
     threadTree.setAttribute("rows", "thread-listrow");
 
     window.addEventListener("uidensitychange", () => {

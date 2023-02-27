@@ -1497,11 +1497,10 @@ var cardsPane = {
     this.sortContext = document.getElementById("sortContext");
     this.cardContext = document.getElementById("cardContext");
 
-    let tree = document.getElementById("addressBookTree");
-    this.table = tree.table;
+    this.cardsList = document.getElementById("cards");
+    this.table = this.cardsList.table;
     this.table.editable = true;
-    this.table.setListBoxID("cards");
-    this.cardsList = this.table.listbox;
+    this.table.setListBoxID("cardsBody");
     this.cardsList.setAttribute("rows", "ab-card-listrow");
 
     if (
@@ -2809,7 +2808,7 @@ var detailsPane = {
     }
 
     // Remove these elements from (or add them back to) the tab focus cycle.
-    for (let id of ["books", "searchInput", "displayButton", "cards"]) {
+    for (let id of ["books", "searchInput", "displayButton", "cardsBody"]) {
       document.getElementById(id).tabIndex = editing ? -1 : 0;
     }
 
