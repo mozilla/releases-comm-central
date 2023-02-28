@@ -7,7 +7,11 @@
  * message pane.
  */
 
+/* import-globals-from ../../../../toolkit/content/contentAreaUtils.js */
+/* import-globals-from ../../../../toolkit/content/globalOverlay.js */
 /* import-globals-from ../../../calendar/base/content/imip-bar.js */
+/* import-globals-from ../../../mailnews/extensions/newsblog/newsblogOverlay.js */
+/* import-globals-from ../../extensions/openpgp/content/ui/enigmailMsgHdrViewOverlay.js */
 /* import-globals-from ../../extensions/smime/content/msgHdrViewSMIMEOverlay.js */
 /* import-globals-from aboutMessage.js */
 /* import-globals-from editContactPanel.js */
@@ -1495,41 +1499,14 @@ AttachmentInfo.prototype = {
 
       // Just use the old method for handling messages, it works.
 
-      let { name, url } = this;
-
-      async function saveToFile(path) {
-        let buffer = await new Promise(function(resolve, reject) {
-          NetUtil.asyncFetch(
-            {
-              uri: Services.io.newURI(url),
-              loadUsingSystemPrincipal: true,
-            },
-            function(inputStream, status) {
-              if (Components.isSuccessCode(status)) {
-                resolve(NetUtil.readInputStream(inputStream));
-              } else {
-                reject(
-                  new Components.Exception("Failed to fetch attachment", status)
-                );
-              }
-            }
-          );
-        });
-        await IOUtils.write(path, new Uint8Array(buffer));
-      }
-
       if (this.contentType == "message/rfc822") {
-        let tempFile = AttachmentInfo._temporaryFiles.get(url);
-        if (!tempFile?.exists()) {
-          tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
-          tempFile.append("subPart.eml");
-          tempFile.createUnique(0, 0o600);
-          saveToFile(tempFile.path);
-
-          AttachmentInfo._temporaryFiles.set(url, tempFile);
-        }
-
-        top.MsgOpenEMLFile(tempFile, Services.io.newFileURI(tempFile));
+        top.messenger.openAttachment(
+          this.contentType,
+          this.url,
+          encodeURIComponent(this.name),
+          this.uri,
+          this.isExternalAttachment
+        );
         return;
       }
 
@@ -1558,7 +1535,29 @@ AttachmentInfo.prototype = {
 
       // If we know what to do, do it.
 
+      let { name, url } = this;
       name = DownloadPaths.sanitize(name);
+
+      async function saveToFile(path) {
+        let buffer = await new Promise(function(resolve, reject) {
+          NetUtil.asyncFetch(
+            {
+              uri: Services.io.newURI(url),
+              loadUsingSystemPrincipal: true,
+            },
+            function(inputStream, status) {
+              if (Components.isSuccessCode(status)) {
+                resolve(NetUtil.readInputStream(inputStream));
+              } else {
+                reject(
+                  new Components.Exception("Failed to fetch attachment", status)
+                );
+              }
+            }
+          );
+        });
+        await IOUtils.write(path, new Uint8Array(buffer));
+      }
 
       let createTemporaryFileAndOpen = async mimeInfo => {
         let tmpPath = PathUtils.join(
@@ -1896,14 +1895,6 @@ AttachmentInfo.prototype = {
     }
   },
 };
-
-/**
- * A cache of message/rfc822 attachments saved to temporary files for display.
- * Saving the same attachment again is avoided.
- *
- * @type {Map<string, nsIFile>}
- */
-AttachmentInfo._temporaryFiles = new Map();
 
 /**
  * Return true if possible attachments in the currently loaded message can be
