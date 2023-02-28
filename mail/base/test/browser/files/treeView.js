@@ -50,7 +50,7 @@ window.addEventListener("load", () => {
       this.dataset.value = this.view.values[index];
     }
   }
-  customElements.define("test-listrow", TestCardRow, { extends: "tr" });
+  customElements.define("test-row", TestCardRow, { extends: "tr" });
 
   class AlternativeCardRow extends customElements.get("tree-view-table-row") {
     static ROW_HEIGHT = 80;
@@ -76,7 +76,7 @@ window.addEventListener("load", () => {
       });
     }
   }
-  customElements.define("alternative-listrow", AlternativeCardRow, {
+  customElements.define("alternative-row", AlternativeCardRow, {
     extends: "tr",
   });
 
@@ -112,7 +112,7 @@ window.addEventListener("load", () => {
 
   let tree = document.getElementById("testTree");
   tree.table.setBodyID("testBody");
-  tree.setAttribute("rows", "test-listrow");
+  tree.setAttribute("rows", "test-row");
   tree.table.setColumns(TestCardRow.COLUMNS);
   tree.addEventListener("select", () => {
     console.log("select event, selected indices:", tree.selectedIndices);

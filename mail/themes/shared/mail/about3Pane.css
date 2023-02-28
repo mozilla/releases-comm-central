@@ -331,16 +331,16 @@ li:not(.selected) > .container:hover {
   margin: 5px;
 }
 
-:is(li, [is="thread-listrow"]).children.collapsed .twisty-icon {
+:is(li, [is="thread-row"]).children.collapsed .twisty-icon {
   transform: rotate(-90deg);
 }
 
-:is(li, [is="thread-listrow"]).children.collapsed:dir(rtl) .twisty-icon {
+:is(li, [is="thread-row"]).children.collapsed:dir(rtl) .twisty-icon {
   transform: rotate(90deg);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  :is(li, [is="thread-listrow"]) .twisty-icon {
+  :is(li, [is="thread-row"]) .twisty-icon {
     transition: transform 200ms ease;
   }
 }

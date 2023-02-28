@@ -32,7 +32,7 @@ async function subtestKeyboardAndMouse() {
 
   let listRect = list.getBoundingClientRect();
 
-  let rows = list.querySelectorAll(`tr[is="test-listrow"]`);
+  let rows = list.querySelectorAll(`tr[is="test-row"]`);
   // Count is calculated from the height of `list` divided by
   // TestCardRow.ROW_HEIGHT, plus TreeView.OVERFLOW_BUFFER.
   Assert.equal(rows.length, 23, "the list has the right number of rows");
@@ -481,7 +481,7 @@ async function subtestKeyboardAndMouse() {
   // Some literal edge cases. Clicking on a partially visible row should
   // scroll it into view.
 
-  rows = list.querySelectorAll(`tr[is="test-listrow"]`);
+  rows = list.querySelectorAll(`tr[is="test-row"]`);
   let bcr = rows[12].getBoundingClientRect();
   Assert.less(
     Math.round(bcr.top),
@@ -495,7 +495,7 @@ async function subtestKeyboardAndMouse() {
   );
   await clickOnRow(12);
   await scrollingDelay();
-  rows = list.querySelectorAll(`tr[is="test-listrow"]`);
+  rows = list.querySelectorAll(`tr[is="test-row"]`);
   bcr = rows[12].getBoundingClientRect();
   Assert.less(
     Math.round(bcr.top),
@@ -521,7 +521,7 @@ async function subtestKeyboardAndMouse() {
   );
   await clickOnRow(0);
   await scrollingDelay();
-  rows = list.querySelectorAll(`tr[is="test-listrow"]`);
+  rows = list.querySelectorAll(`tr[is="test-row"]`);
   bcr = rows[0].getBoundingClientRect();
   Assert.equal(
     Math.round(bcr.top),
@@ -567,7 +567,7 @@ async function subtestRowCountChange() {
     for (let i = first; i <= last; i++) {
       expectedIndices.push(i);
     }
-    rows = list.querySelectorAll(`tr[is="test-listrow"]`);
+    rows = list.querySelectorAll(`tr[is="test-row"]`);
     Assert.deepEqual(
       Array.from(rows, r => r.index),
       expectedIndices,
@@ -582,7 +582,7 @@ async function subtestRowCountChange() {
 
   function checkSelected(indices, existingIndices) {
     Assert.deepEqual(list.selectedIndices, indices);
-    let selectedRows = list.querySelectorAll(`tr[is="test-listrow"].selected`);
+    let selectedRows = list.querySelectorAll(`tr[is="test-row"].selected`);
     Assert.deepEqual(
       Array.from(selectedRows, r => r.index),
       existingIndices
@@ -1516,7 +1516,7 @@ async function subtestRowClassChange() {
   list.currentIndex = 5;
 
   for (let row of list.table.body.children) {
-    Assert.equal(row.getAttribute("is"), "test-listrow");
+    Assert.equal(row.getAttribute("is"), "test-row");
     Assert.equal(row.clientHeight, 50);
     Assert.equal(
       row.classList.contains("selected"),
@@ -1526,12 +1526,12 @@ async function subtestRowClassChange() {
   }
 
   info("switching row class to AlternativeCardRow");
-  list.setAttribute("rows", "alternative-listrow");
+  list.setAttribute("rows", "alternative-row");
   Assert.deepEqual(list.selectedIndices, indices);
   Assert.equal(list.currentIndex, 5);
 
   for (let row of list.table.body.children) {
-    Assert.equal(row.getAttribute("is"), "alternative-listrow");
+    Assert.equal(row.getAttribute("is"), "alternative-row");
     Assert.equal(row.clientHeight, 80);
     Assert.equal(
       row.classList.contains("selected"),
@@ -1545,12 +1545,12 @@ async function subtestRowClassChange() {
   Assert.equal(list.currentIndex, -1);
 
   info("switching row class to TestCardRow");
-  list.setAttribute("rows", "test-listrow");
+  list.setAttribute("rows", "test-row");
   Assert.deepEqual(list.selectedIndices, []);
   Assert.equal(list.currentIndex, -1);
 
   for (let row of list.table.body.children) {
-    Assert.equal(row.getAttribute("is"), "test-listrow");
+    Assert.equal(row.getAttribute("is"), "test-row");
     Assert.equal(row.clientHeight, 50);
     Assert.ok(!row.classList.contains("selected"));
     Assert.ok(!row.classList.contains("current"));
@@ -1585,7 +1585,7 @@ async function subtestResize() {
   Assert.ok(!!list, "the list exists");
 
   let rowCount = function() {
-    return list.querySelectorAll(`tr[is="test-listrow"]`).length;
+    return list.querySelectorAll(`tr[is="test-row"]`).length;
   };
 
   let originalHeight = list.clientHeight;

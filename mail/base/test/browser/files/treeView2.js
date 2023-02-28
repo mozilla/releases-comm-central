@@ -46,7 +46,7 @@ window.addEventListener("load", () => {
       this.d2.textContent = this.view.getCellText(index, { id: "text" });
     }
   }
-  customElements.define("test-listrow", TestCardRow, { extends: "tr" });
+  customElements.define("test-row", TestCardRow, { extends: "tr" });
 
   class TreeItem {
     _children = [];
@@ -104,7 +104,7 @@ window.addEventListener("load", () => {
 
   let tree = document.getElementById("testTree");
   tree.table.setBodyID("testBody");
-  tree.setAttribute("rows", "test-listrow");
+  tree.setAttribute("rows", "test-row");
   tree.table.setColumns(TestCardRow.COLUMNS);
   tree.addEventListener("select", () => {
     console.log("select event, selected indices:", tree.selectedIndices);

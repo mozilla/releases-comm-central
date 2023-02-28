@@ -884,7 +884,7 @@ add_task(async function test_layout() {
   );
   Assert.equal(
     cardsList.getAttribute("rows"),
-    "ab-card-listrow",
+    "ab-card-row",
     "list row implementation used"
   );
 
@@ -908,7 +908,7 @@ add_task(async function test_layout() {
   );
   Assert.equal(
     cardsList.getAttribute("rows"),
-    "ab-table-card-listrow",
+    "ab-table-card-row",
     "table row implementation used"
   );
 
@@ -1021,7 +1021,7 @@ add_task(async function test_layout() {
   );
   Assert.equal(
     cardsList.getAttribute("rows"),
-    "ab-table-card-listrow",
+    "ab-table-card-row",
     "table row implementation used"
   );
 
@@ -1058,7 +1058,7 @@ add_task(async function test_layout() {
   );
   Assert.equal(
     cardsList.getAttribute("rows"),
-    "ab-card-listrow",
+    "ab-card-row",
     "list row implementation used"
   );
 

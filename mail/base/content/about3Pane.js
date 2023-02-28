@@ -2090,7 +2090,7 @@ var threadPane = {
       "threadPaneApplyColumnMenu",
       "threadPaneApplyViewMenu",
     ]);
-    threadTree.setAttribute("rows", "thread-listrow");
+    threadTree.setAttribute("rows", "thread-row");
 
     window.addEventListener("uidensitychange", () => {
       this.densityChange();
@@ -2223,7 +2223,7 @@ var threadPane = {
   },
 
   _onDragStart(event) {
-    let row = event.target.closest(`tr[is="thread-listrow"]`);
+    let row = event.target.closest(`tr[is="thread-row"]`);
     if (!row) {
       event.preventDefault();
       return;
@@ -2381,9 +2381,9 @@ var threadPane = {
    * Make the list rows density aware.
    */
   densityChange() {
-    // The class ThreadListrow can't be referenced because it's declared in a
+    // The class ThreadRow can't be referenced because it's declared in a
     // different scope. But we can get it from customElements.
-    let rowClass = customElements.get("thread-listrow");
+    let rowClass = customElements.get("thread-row");
     switch (UIDensity.prefValue) {
       case UIDensity.MODE_COMPACT:
         rowClass.ROW_HEIGHT = 18;
@@ -3073,7 +3073,7 @@ var folderListener = {
  * Custom element for rows in the thread tree.
  */
 customElements.whenDefined("tree-view-table-row").then(() => {
-  class ThreadListrow extends customElements.get("tree-view-table-row") {
+  class ThreadRow extends customElements.get("tree-view-table-row") {
     static ROW_HEIGHT = 22;
 
     connectedCallback() {
@@ -3183,7 +3183,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       }
 
       this.addEventListener("contextmenu", event => {
-        let row = event.target.closest(`tr[is="thread-listrow"]`);
+        let row = event.target.closest(`tr[is="thread-row"]`);
         if (!row) {
           return;
         }
@@ -3315,7 +3315,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       return null;
     }
   }
-  customElements.define("thread-listrow", ThreadListrow, { extends: "tr" });
+  customElements.define("thread-row", ThreadRow, { extends: "tr" });
 });
 
 commandController.registerCallback(

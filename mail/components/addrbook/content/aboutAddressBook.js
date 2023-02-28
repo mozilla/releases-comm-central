@@ -1216,7 +1216,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
    *
    * @augments {TreeViewTableRow}
    */
-  class AbCardListrow extends customElements.get("tree-view-table-row") {
+  class AbCardRow extends customElements.get("tree-view-table-row") {
     static ROW_HEIGHT = 46;
 
     connectedCallback() {
@@ -1236,7 +1236,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.avatar = container.appendChild(document.createElement("div"));
       this.avatar.classList.add("recipient-avatar");
       let dataContainer = container.appendChild(document.createElement("div"));
-      dataContainer.classList.add("ab-card-listrow-data");
+      dataContainer.classList.add("ab-card-row-data");
 
       let firstLine = dataContainer.appendChild(document.createElement("p"));
       firstLine.classList.add("ab-card-first-line");
@@ -1319,14 +1319,14 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.cell.setAttribute("aria-label", this.name.textContent);
     }
   }
-  customElements.define("ab-card-listrow", AbCardListrow, { extends: "tr" });
+  customElements.define("ab-card-row", AbCardRow, { extends: "tr" });
 
   /**
    * A row in the table list of cards.
    *
    * @augments {TreeViewTableRow}
    */
-  class AbTableCardListrow extends customElements.get("tree-view-table-row") {
+  class AbTableCardRow extends customElements.get("tree-view-table-row") {
     static ROW_HEIGHT = 22;
 
     connectedCallback() {
@@ -1375,7 +1375,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.setAttribute("aria-label", this.firstElementChild.textContent);
     }
   }
-  customElements.define("ab-table-card-listrow", AbTableCardListrow, {
+  customElements.define("ab-table-card-row", AbTableCardRow, {
     extends: "tr",
   });
 });
@@ -1468,19 +1468,19 @@ var cardsPane = {
    * Make the list rows density aware.
    */
   densityChange() {
-    let listRowClass = customElements.get("ab-card-listrow");
-    let tableRowClass = customElements.get("ab-table-card-listrow");
+    let rowClass = customElements.get("ab-card-row");
+    let tableRowClass = customElements.get("ab-table-card-row");
     switch (UIDensity.prefValue) {
       case UIDensity.MODE_COMPACT:
-        listRowClass.ROW_HEIGHT = 36;
+        rowClass.ROW_HEIGHT = 36;
         tableRowClass.ROW_HEIGHT = 18;
         break;
       case UIDensity.MODE_TOUCH:
-        listRowClass.ROW_HEIGHT = 60;
+        rowClass.ROW_HEIGHT = 60;
         tableRowClass.ROW_HEIGHT = 32;
         break;
       default:
-        listRowClass.ROW_HEIGHT = 46;
+        rowClass.ROW_HEIGHT = 46;
         tableRowClass.ROW_HEIGHT = 22;
         break;
     }
@@ -1501,7 +1501,7 @@ var cardsPane = {
     this.table = this.cardsList.table;
     this.table.editable = true;
     this.table.setBodyID("cardsBody");
-    this.cardsList.setAttribute("rows", "ab-card-listrow");
+    this.cardsList.setAttribute("rows", "ab-card-row");
 
     if (
       Services.xulStore.getValue(cardsPane.URL, "cardsPane", "layout") ==
@@ -1577,7 +1577,7 @@ var cardsPane = {
 
     window.addEventListener("uidensitychange", () => cardsPane.densityChange());
     customElements
-      .whenDefined("ab-table-card-listrow")
+      .whenDefined("ab-table-card-row")
       .then(() => cardsPane.densityChange());
 
     document
@@ -1680,7 +1680,7 @@ var cardsPane = {
 
     this.cardsList.setAttribute(
       "rows",
-      isTableLayout ? "ab-table-card-listrow" : "ab-card-listrow"
+      isTableLayout ? "ab-table-card-row" : "ab-card-row"
     );
     this.cardsList.setSpacersColspan(
       isTableLayout ? cardsPane.COLUMNS.filter(c => !c.hidden).length : 0
@@ -2078,7 +2078,7 @@ var cardsPane = {
       row = this.cardsList.getRowAtIndex(this.cardsList.currentIndex);
     } else {
       row = event.target.closest(
-        `tr[is="ab-card-listrow"], tr[is="ab-table-card-listrow"]`
+        `tr[is="ab-card-row"], tr[is="ab-table-card-row"]`
       );
     }
     if (!row) {
@@ -2286,7 +2286,7 @@ var cardsPane = {
       return;
     }
     let row = event.target.closest(
-      `tr[is="ab-card-listrow"], tr[is="ab-table-card-listrow"]`
+      `tr[is="ab-card-row"], tr[is="ab-table-card-row"]`
     );
     if (row) {
       this._activateRow(row.index);
@@ -2330,7 +2330,7 @@ var cardsPane = {
     }
 
     let row = event.target.closest(
-      `tr[is="ab-card-listrow"], tr[is="ab-table-card-listrow"]`
+      `tr[is="ab-card-row"], tr[is="ab-table-card-row"]`
     );
     if (!row) {
       event.preventDefault();
