@@ -577,39 +577,6 @@ function SaveAsTemplate(uri) {
   }
 }
 
-function ViewPageSource(messages) {
-  var numMessages = messages.length;
-
-  if (numMessages == 0) {
-    dump("MsgViewPageSource(): No messages selected.\n");
-    return false;
-  }
-
-  try {
-    for (var i = 0; i < numMessages; i++) {
-      // Now, we need to get a URL from a URI
-      var url = MailServices.mailSession.ConvertMsgURIToMsgURL(
-        messages[i],
-        msgWindow
-      );
-
-      // Strip out the message-display parameter to ensure that attached emails
-      // display the message source, not the processed HTML.
-      url = url.replace(/type=application\/x-message-display&/, "");
-      window.openDialog(
-        "chrome://messenger/content/viewSource.xhtml",
-        "_blank",
-        "all,dialog=no",
-        { URL: url }
-      );
-    }
-    return true;
-  } catch (e) {
-    // Couldn't get mail session
-    return false;
-  }
-}
-
 function viewEncryptedPart(message) {
   let url;
   try {

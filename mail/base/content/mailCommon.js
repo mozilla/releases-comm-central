@@ -233,12 +233,32 @@ var commandController = {
       commandController._navigate(Ci.nsMsgNavigationType.toggleSubthreadKilled);
     },
     cmd_viewPageSource() {
-      window.browsingContext.topChromeWindow.ViewPageSource(
-        gDBView.getURIsForSelection()
-      );
+      let uris = window.gMessageURI
+        ? [window.gMessageURI]
+        : gDBView.getURIsForSelection();
+      for (let uri of uris) {
+        // Now, we need to get a URL from a URI
+        let url = MailServices.mailSession.ConvertMsgURIToMsgURL(
+          uri,
+          top.msgWindow
+        );
+
+        // Strip out the message-display parameter to ensure that attached emails
+        // display the message source, not the processed HTML.
+        url = url.replace(/type=application\/x-message-display&/, "");
+        window.openDialog(
+          "chrome://messenger/content/viewSource.xhtml",
+          "_blank",
+          "all,dialog=no",
+          { URL: url }
+        );
+      }
     },
     cmd_saveAsFile() {
-      top.SaveAsFile(gDBView.getURIsForSelection());
+      let uris = window.gMessageURI
+        ? [window.gMessageURI]
+        : gDBView.getURIsForSelection();
+      top.SaveAsFile(uris);
     },
     cmd_saveAsTemplate() {
       top.SaveAsTemplate(gDBView.getURIsForSelection()[0]);
