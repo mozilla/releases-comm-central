@@ -589,6 +589,9 @@ var messageHeaderSink2 = {
     ClearAttachmentList();
     gMessageNotificationBar.clearMsgNotifications();
 
+    // Reset the blocked hosts so we can populate it again for this message.
+    document.getElementById("remoteContentOptions").value = "";
+
     for (let listener of gMessageListeners) {
       listener.onStartHeaders();
     }
@@ -4864,9 +4867,6 @@ function OnMsgLoaded(aUrl) {
 
   // See if MDN was requested but has not been sent.
   HandleMDNResponse(aUrl);
-
-  // Reset the blocked hosts so we can populate it again for this message.
-  document.getElementById("remoteContentOptions").value = "";
 }
 
 /**
