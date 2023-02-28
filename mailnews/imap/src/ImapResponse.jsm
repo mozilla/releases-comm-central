@@ -246,16 +246,16 @@ class ImapResponse {
    * @returns {string[]}
    */
   _tokenize(line) {
+    const SEPARATORS = /[()\[\]" ]/;
     let tokens = [];
     while (line) {
       // Find the first separator.
-      let match = line.match(/[()\[\]" ]/);
-      if (!match) {
+      let index = line.search(SEPARATORS);
+      if (index == -1) {
         tokens.push(line);
         break;
       }
-      let sep = match[0];
-      let index = line.indexOf(sep);
+      let sep = line[index];
       let token = line.slice(0, index);
       if (token) {
         tokens.push(token);
