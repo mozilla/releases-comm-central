@@ -15,14 +15,12 @@
                   viewCacheId="appMenu-viewCache">
 
     <!-- Main Appmenu View -->
-    <panelview id="appMenu-mainView" class="PanelUI-subView"
-               descriptionheightworkaround="true">
+    <panelview id="appMenu-mainView" class="PanelUI-subView">
       <vbox id="appMenu-mainViewItems"
             class="panel-subview-body">
         <vbox id="appMenu-addon-banners"/>
         <toolbarbutton class="panel-banner-item"
                        oncommand="PanelUI._onBannerItemSelected(event)"
-                       wrap="true"
                        hidden="true"/>
 #ifdef NIGHTLY_BUILD
         <toolbarbutton id="appmenu_signin"
