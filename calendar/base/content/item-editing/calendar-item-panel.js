@@ -11,7 +11,7 @@
  *          openNewMessage
  */
 
-/* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../../mail/base/content/globalOverlay.js */
 /* import-globals-from ../dialogs/calendar-dialog-utils.js */
 /* import-globals-from ../calendar-ui-utils.js */
 

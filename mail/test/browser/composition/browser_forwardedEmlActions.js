@@ -17,6 +17,7 @@ var {
 var {
   assert_selected_and_displayed,
   be_in_folder,
+  close_tab,
   create_folder,
   get_about_message,
   mc,
@@ -108,19 +109,22 @@ async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
 
+  let tabSelectPromise = BrowserTestUtils.waitForEvent(
+    mc.tabmail.tabContainer,
+    "select"
+  );
   let aboutMessage = get_about_message();
-  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("attachmentName"),
     { clickCount: 1 },
     aboutMessage
   );
-  let msgWin = await newWindowPromise;
-  wait_for_message_display_completion(msgWin, false);
+  await tabSelectPromise;
+  wait_for_message_display_completion(mc, false);
 
-  newWindowPromise = async_plan_for_new_window("msgcompose");
-  EventUtils.synthesizeKey(hotkeyToHit, hotkeyModifiers, msgWin.window);
-  let compWin = await async_wait_for_compose_window(msgWin, newWindowPromise);
+  let newWindowPromise = async_plan_for_new_window("msgcompose");
+  EventUtils.synthesizeKey(hotkeyToHit, hotkeyModifiers, window);
+  let compWin = await async_wait_for_compose_window(window, newWindowPromise);
 
   let bodyText = get_compose_body(compWin).textContent;
   if (bodyText.includes("html")) {
@@ -148,7 +152,7 @@ async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   }
 
   close_compose_window(compWin, false);
-  close_window(msgWin);
+  close_tab(mc.tabmail.currentTabInfo);
 }
 
 /**

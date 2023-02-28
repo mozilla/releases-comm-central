@@ -8,7 +8,7 @@
  *          tasksToMail, tasksToEvents, toggleCompleted,
  */
 
-/* import-globals-from ../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../mail/base/content/globalOverlay.js */
 /* import-globals-from item-editing/calendar-item-editing.js */
 /* import-globals-from item-editing/calendar-item-panel.js */
 /* import-globals-from calendar-command-controller.js */

@@ -4,9 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../toolkit/content/contentAreaUtils.js */
-/* import-globals-from ../../../../toolkit/content/globalOverlay.js */
 /* import-globals-from ../../../../toolkit/content/viewZoomOverlay.js */
 /* import-globals-from commandglue.js */
+/* import-globals-from globalOverlay.js */
 /* import-globals-from mail-offline.js */
 /* import-globals-from mailCore.js */
 /* import-globals-from mailWindowOverlay.js */

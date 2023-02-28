@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../../toolkit/content/editMenuOverlay.js */
-/* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
 /* import-globals-from ../../../../mailnews/addrbook/content/abResultsPane.js */
+/* import-globals-from ../../../base/content/globalOverlay.js */
 /* import-globals-from abCommon.js */
 
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");

@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* global MozElements MozXULElement */
-/* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../base/content/globalOverlay.js */
 
 // This file is loaded in messenger.xhtml.
 /* globals MailToolboxCustomizeDone, openIMAccountMgr,

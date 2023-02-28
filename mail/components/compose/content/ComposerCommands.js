@@ -28,7 +28,7 @@
  */
 
 /* import-globals-from ../../../../../toolkit/components/printing/content/printUtils.js */
-/* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../base/content/globalOverlay.js */
 /* import-globals-from ../../../base/content/utilityOverlay.js */
 /* import-globals-from editor.js */
 /* import-globals-from editorUtilities.js */

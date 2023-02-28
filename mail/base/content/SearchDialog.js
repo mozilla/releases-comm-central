@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../../toolkit/content/globalOverlay.js */
 /* import-globals-from ../../../mailnews/extensions/newsblog/newsblogOverlay.js */
 /* import-globals-from ../../../mailnews/search/content/searchTerm.js */
 /* import-globals-from folderDisplay.js */
+/* import-globals-from globalOverlay.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from threadPane.js */
 

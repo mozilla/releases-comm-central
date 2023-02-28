@@ -11,7 +11,7 @@
  *          setupAttendanceMenu
  */
 
-/* import-globals-from ../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../mail/base/content/globalOverlay.js */
 /* import-globals-from ../../../mail/base/content/utilityOverlay.js */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
