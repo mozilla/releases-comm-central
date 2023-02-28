@@ -21,7 +21,6 @@
  * - label-id: A fluent ID for the label instead of the label attribute.
  *   Observed for changes.
  * - badge: When set, the value of the attribute is shown as badge.
- * - badge-color
  * - aria-pressed: set to "false" to make the button behave like a toggle.
  */
 export class UnifiedToolbarButton extends HTMLButtonElement {

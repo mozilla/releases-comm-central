@@ -21,6 +21,8 @@ XPCOMUtils.defineLazyGetter(lazy, "browserActionFor", () => {
     );
 });
 
+const BADGE_BACKGROUND_COLOR = "--toolbar-button-badge-bg-color";
+
 /**
  * Attributes:
  * - extension: ID of the extension this button is for.
@@ -96,6 +98,15 @@ class ExtensionActionButton extends UnifiedToolbarButton {
     const { style } = this.#action.iconData.get(tabData.icon);
     for (const [name, value] of style) {
       this.style.setProperty(name, value);
+    }
+    if (tabData.badgeText && tabData.badgeBackgroundColor) {
+      const bgColor = tabData.badgeBackgroundColor;
+      this.style.setProperty(
+        BADGE_BACKGROUND_COLOR,
+        `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, ${bgColor[3] / 255})`
+      );
+    } else {
+      this.style.removeProperty(BADGE_BACKGROUND_COLOR);
     }
     this.toggleAttribute("popup", tabData.popup);
     if (!tabData.popup) {
