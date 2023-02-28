@@ -2,10 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+
 /** @type MenuData */
 const viewMenuData = {
   menu_Toolbars: {},
-  view_toolbars_popup_quickFilterBar: {},
+  view_toolbars_popup_quickFilterBar: { checked: true },
   viewToolbarsPopupSpacesToolbar: { checked: true },
   menu_showTaskbar: { checked: true },
   customizeMailToolbars: {},
@@ -15,7 +19,7 @@ const viewMenuData = {
   messagePaneVertical: {},
   menu_showFolderPane: { checked: true },
   menu_showFolderPaneCols: { disabled: true },
-  menu_showMessage: { checked: true },
+  menu_showMessage: {},
   menu_FolderViews: {},
   menu_toggleFolderHeader: { checked: true },
   menu_allFolders: { disabled: true, checked: true },
@@ -66,7 +70,7 @@ const viewMenuData = {
   calTasksViewFilterCompleted: {},
   calTasksViewFilterOpen: {},
   calTasksViewFilterAll: {},
-  viewSortMenu: {},
+  viewSortMenu: { disabled: true },
   sortByDateMenuitem: {},
   sortByReceivedMenuitem: {},
   sortByFlagMenuitem: {},
@@ -95,7 +99,7 @@ const viewMenuData = {
   viewMessageCustomViews: {},
   viewMessageVirtualFolder: {},
   viewMessageCustomize: {},
-  viewMessagesMenu: {},
+  viewMessagesMenu: { disabled: true },
   viewAllMessagesMenuItem: { disabled: true, checked: true },
   viewUnreadMessagesMenuItem: { disabled: true },
   viewThreadsWithUnreadMenuItem: { disabled: true },
@@ -123,10 +127,82 @@ const viewMenuData = {
 };
 let helper = new MenuTestHelper("menu_View", viewMenuData);
 
+let tabmail = document.getElementById("tabmail");
+let inboxFolder, rootFolder, testMessages;
+
 add_setup(async function() {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
+
+  let generator = new MessageGenerator();
+
+  MailServices.accounts.createLocalMailAccount();
+  let account = MailServices.accounts.accounts[0];
+  account.addIdentity(MailServices.accounts.createIdentity());
+  rootFolder = account.incomingServer.rootFolder;
+
+  rootFolder.createSubfolder("inbox", null);
+  inboxFolder = rootFolder
+    .getChildNamed("inbox")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  inboxFolder.setFlag(Ci.nsMsgFolderFlags.Inbox);
+  inboxFolder.addMessageBatch(
+    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+  );
+  testMessages = [...inboxFolder.messages];
+
+  registerCleanupFunction(() => {
+    tabmail.closeOtherTabs(0);
+    MailServices.accounts.removeAccount(account, false);
+  });
 });
 
 add_task(async function test3PaneTab() {
+  tabmail.currentAbout3Pane.restoreState({
+    folderPaneVisible: true,
+    messagePaneVisible: true,
+    folderURI: rootFolder,
+  });
   await helper.testAllItems("mail3PaneTab");
+
+  tabmail.currentAbout3Pane.displayFolder(inboxFolder);
+  await helper.testItems({
+    menu_Toolbars: {},
+    view_toolbars_popup_quickFilterBar: { checked: true },
+    menu_MessagePaneLayout: {},
+    menu_showFolderPane: { checked: true },
+    menu_showMessage: { checked: true },
+    viewSortMenu: { disabled: false },
+    viewMessagesMenu: { disabled: false },
+  });
+
+  goDoCommand("cmd_toggleQuickFilterBar");
+  await helper.testItems({
+    menu_Toolbars: {},
+    view_toolbars_popup_quickFilterBar: { checked: false },
+  });
+
+  goDoCommand("cmd_toggleFolderPane");
+  await helper.testItems({
+    menu_MessagePaneLayout: {},
+    menu_showFolderPane: { checked: false },
+    menu_showMessage: { checked: true },
+  });
+
+  goDoCommand("cmd_toggleMessagePane");
+  await helper.testItems({
+    menu_MessagePaneLayout: {},
+    menu_showFolderPane: { checked: false },
+    menu_showMessage: { checked: false },
+  });
+
+  goDoCommand("cmd_toggleQuickFilterBar");
+  goDoCommand("cmd_toggleFolderPane");
+  goDoCommand("cmd_toggleMessagePane");
+  await helper.testItems({
+    menu_Toolbars: {},
+    view_toolbars_popup_quickFilterBar: { checked: true },
+    menu_MessagePaneLayout: {},
+    menu_showFolderPane: { checked: true },
+    menu_showMessage: { checked: true },
+  });
 });

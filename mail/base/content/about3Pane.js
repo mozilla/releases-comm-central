@@ -193,6 +193,22 @@ var paneLayout = {
         break;
     }
   },
+
+  get accountCentralVisible() {
+    return document.body.classList.contains("account-central");
+  },
+  get folderPaneVisible() {
+    return !this.folderPaneSplitter.isCollapsed;
+  },
+  set folderPaneVisible(visible) {
+    this.folderPaneSplitter.isCollapsed = !visible;
+  },
+  get messagePaneVisible() {
+    return !this.messagePaneSplitter?.isCollapsed;
+  },
+  set messagePaneVisible(visible) {
+    this.messagePaneSplitter.isCollapsed = !visible;
+  },
 };
 
 var folderPaneContextMenu = {

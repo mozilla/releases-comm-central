@@ -101,42 +101,56 @@ class MenuTestHelper {
   }
 
   /**
+   * Recurses through submenus performing checks on items.
+   *
+   * @param {XULPopupElement} popup - The current pop-up to check.
+   * @param {MenuData} data - The expected values to test against.
+   * @param {boolean} [itemsMustBeInData=false] - If true, all menu items and
+   *   menus within `popup` must be specified in `data`. If false, items not
+   *   in `data` will be ignored.
+   */
+  async iterate(popup, data, itemsMustBeInData = false) {
+    if (popup.state != "open") {
+      await BrowserTestUtils.waitForEvent(popup, "popupshown");
+    }
+
+    for (let item of popup.children) {
+      if (!item.id || item.localName == "menuseparator") {
+        continue;
+      }
+
+      if (!(item.id in data)) {
+        if (itemsMustBeInData) {
+          Assert.report(true, undefined, undefined, `${item.id} in data`);
+        }
+        continue;
+      }
+      let itemData = data[item.id];
+      this.checkItem(item, itemData);
+      delete data[item.id];
+
+      if (item.localName == "menu") {
+        if (BrowserTestUtils.is_visible(item) && !item.disabled) {
+          item.openMenu(true);
+          await this.iterate(item.menupopup, data, itemsMustBeInData);
+        } else {
+          for (let hiddenItem of item.querySelectorAll("menu, menuitem")) {
+            delete data[hiddenItem.id];
+          }
+        }
+      }
+    }
+
+    popup.hidePopup();
+  }
+
+  /**
    * Checks every item in the menu and submenus against the expected states.
    *
    * @param {string} mode - The current mode, used to select the right expected
    *   values from `baseData`.
    */
   async testAllItems(mode) {
-    let iterate = async popup => {
-      if (popup.state != "open") {
-        await BrowserTestUtils.waitForEvent(popup, "popupshown");
-      }
-
-      for (let item of popup.children) {
-        if (!item.id || item.localName == "menuseparator") {
-          continue;
-        }
-
-        Assert.ok(item.id in data, `${item.id} in data`);
-        let itemData = data[item.id];
-        this.checkItem(item, itemData);
-        delete data[item.id];
-
-        if (item.localName == "menu") {
-          if (BrowserTestUtils.is_visible(item) && !item.disabled) {
-            item.openMenu(true);
-            await iterate(item.menupopup, data);
-          } else {
-            for (let hiddenItem of item.querySelectorAll("menu, menuitem")) {
-              delete data[hiddenItem.id];
-            }
-          }
-        }
-      }
-
-      popup.hidePopup();
-    };
-
     // Get the data for just this mode.
     let data = {};
     for (let [id, itemData] of Object.entries(this.baseData)) {
@@ -150,7 +164,7 @@ class MenuTestHelper {
 
     // Open the menu and all submenus and check the items.
     EventUtils.synthesizeMouseAtCenter(this.menu, {});
-    await iterate(this.menu.menupopup, data);
+    await this.iterate(this.menu.menupopup, data, true);
 
     // Report any unexpected items.
     for (let id of Object.keys(data)) {
@@ -160,9 +174,8 @@ class MenuTestHelper {
 
   /**
    * Checks specific items in the menu.
-   * @note This function doesn't yet go into submenus.
    *
-   * @param {MenuData} - The expected values to test against.
+   * @param {MenuData} data - The expected values to test against.
    */
   async testItems(data) {
     let shownPromise = BrowserTestUtils.waitForEvent(
@@ -172,11 +185,7 @@ class MenuTestHelper {
     EventUtils.synthesizeMouseAtCenter(this.menu, {});
     await shownPromise;
 
-    for (let [id, itemData] of Object.entries(data)) {
-      let item = document.getElementById(id);
-      this.checkItem(item, itemData);
-      delete data[item.id];
-    }
+    await this.iterate(this.menu.menupopup, data);
 
     for (let id of Object.keys(data)) {
       Assert.report(true, undefined, undefined, `extra item ${id} in data`);

@@ -195,35 +195,59 @@ function InitGoMessagesMenu() {
  * bar or in the appmenu).  It is responsible for updating the menu items'
  * state to reflect reality.
  */
-function view_init() {
-  let accountCentralDisplayed;
-  let folderDisplayVisible;
+function view_init(event) {
+  if (event && event.target.id != "menu_View_Popup") {
+    return;
+  }
+
+  let accountCentralVisible;
+  let folderPaneVisible;
   let message;
-  let messageDisplayVisible;
+  let messagePaneVisible;
+  let quickFilterBarVisible;
 
   let tab = document.getElementById("tabmail")?.currentTabInfo;
   if (tab?.mode.name == "mail3PaneTab") {
+    let chromeBrowser;
+    ({ chromeBrowser, message } = tab);
+    let { paneLayout, quickFilterBar } = chromeBrowser.contentWindow;
     ({
-      accountCentralVisible: accountCentralDisplayed,
-      folderPaneVisible: folderDisplayVisible,
-      message,
-      messagePaneVisible: messageDisplayVisible,
-    } = tab);
+      accountCentralVisible,
+      folderPaneVisible,
+      messagePaneVisible,
+    } = paneLayout);
+    quickFilterBarVisible = quickFilterBar.filterer.visible;
   } else if (tab?.mode.name == "mailMessageTab") {
     message = tab.message;
-    messageDisplayVisible = true;
+    messagePaneVisible = true;
   }
 
   let isFeed = FeedUtils.isFeedMessage(message);
+
+  let qfbMenuItem = document.getElementById(
+    "view_toolbars_popup_quickFilterBar"
+  );
+  if (qfbMenuItem) {
+    qfbMenuItem.setAttribute("checked", quickFilterBarVisible);
+  }
+
+  let qfbAppMenuItem = document.getElementById("appmenu_quickFilterBar");
+  if (qfbAppMenuItem) {
+    if (quickFilterBarVisible) {
+      qfbAppMenuItem.setAttribute("checked", "true");
+    } else {
+      qfbAppMenuItem.removeAttribute("checked");
+    }
+  }
 
   let messagePaneMenuItem = document.getElementById("menu_showMessage");
   if (!messagePaneMenuItem.hidden) {
     // Hidden in the standalone msg window.
     messagePaneMenuItem.setAttribute(
       "checked",
-      accountCentralDisplayed ? false : messageDisplayVisible
+      accountCentralVisible ? false : messagePaneVisible
     );
-    messagePaneMenuItem.disabled = accountCentralDisplayed;
+    messagePaneMenuItem.disabled = accountCentralVisible;
   }
 
   let messagePaneAppMenuItem = document.getElementById("appmenu_showMessage");
@@ -231,21 +255,21 @@ function view_init() {
     // Hidden in the standalone msg window.
     messagePaneAppMenuItem.setAttribute(
       "checked",
-      accountCentralDisplayed ? false : messageDisplayVisible
+      accountCentralVisible ? false : messagePaneVisible
     );
-    messagePaneAppMenuItem.disabled = accountCentralDisplayed;
+    messagePaneAppMenuItem.disabled = accountCentralVisible;
   }
 
   let folderPaneMenuItem = document.getElementById("menu_showFolderPane");
   if (!folderPaneMenuItem.hidden) {
     // Hidden in the standalone msg window.
-    folderPaneMenuItem.setAttribute("checked", folderDisplayVisible);
+    folderPaneMenuItem.setAttribute("checked", folderPaneVisible);
   }
 
   let folderPaneAppMenuItem = document.getElementById("appmenu_showFolderPane");
   if (!folderPaneAppMenuItem.hidden) {
     // Hidden in the standalone msg window.
-    folderPaneAppMenuItem.setAttribute("checked", folderDisplayVisible);
+    folderPaneAppMenuItem.setAttribute("checked", folderPaneVisible);
   }
 
   let colsEnabled = Services.prefs.getBoolPref("mail.folderpane.showColumns");
@@ -266,15 +290,13 @@ function view_init() {
   }
 
   // Disable some menus if account manager is showing
-  document.getElementById("viewSortMenu").disabled = accountCentralDisplayed;
+  document.getElementById("viewSortMenu").disabled = accountCentralVisible;
 
   document.getElementById(
     "viewMessageViewMenu"
-  ).disabled = accountCentralDisplayed;
+  ).disabled = accountCentralVisible;
 
-  document.getElementById(
-    "viewMessagesMenu"
-  ).disabled = accountCentralDisplayed;
+  document.getElementById("viewMessagesMenu").disabled = accountCentralVisible;
 
   // Hide the "View > Messages" menu item if the user doesn't have the "Views"
   // (aka "Mail Views") toolbar button in the main toolbar. (See bug 1563789.)

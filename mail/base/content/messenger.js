@@ -16,7 +16,6 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from mailWindowOverlay.js */
 /* import-globals-from messenger-customization.js */
-/* import-globals-from quickFilterBar.js */
 /* import-globals-from searchBar.js */
 /* import-globals-from spacesToolbar.js */
 /* import-globals-from specialTabs.js */
