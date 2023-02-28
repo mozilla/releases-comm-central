@@ -2090,7 +2090,7 @@ var cardsPane = {
       row = this.cardsList.getRowAtIndex(this.cardsList.currentIndex);
     }
 
-    this.cardsList.focus();
+    this.cardsList.table.body.focus();
 
     let writeMenuItem = document.getElementById("cardContextWrite");
     let writeMenu = document.getElementById("cardContextWriteMenu");
@@ -2600,14 +2600,14 @@ var detailsPane = {
         let card = book.childCards.find(c => c.UID == this.currentCard.UID);
         this.displayContact(card);
         if (this._focusOnCardsList) {
-          cardsPane.cardsList.focus();
+          cardsPane.cardsList.table.body.focus();
         } else {
           this.editButton.focus();
         }
       } else {
         this.displayCards(cardsPane.selectedCards);
         if (this._focusOnCardsList) {
-          cardsPane.cardsList.focus();
+          cardsPane.cardsList.table.body.focus();
         } else {
           cardsPane.searchInput.focus();
         }
@@ -2726,11 +2726,14 @@ var detailsPane = {
           this.displayCards();
 
           if (hadFocus) {
-            if (cardsPane.cardsList.view.rowCount == 0) {
-              cardsPane.searchInput.focus();
-            } else {
-              cardsPane.cardsList.focus();
-            }
+            // Ensure this happens *after* the view handles this notification.
+            Services.tm.dispatchToMainThread(() => {
+              if (cardsPane.cardsList.view.rowCount == 0) {
+                cardsPane.searchInput.focus();
+              } else {
+                cardsPane.cardsList.table.body.focus();
+              }
+            });
           }
         } else if (!this.selectedCardsSection.hidden) {
           for (let li of this.selectedCardsSection.querySelectorAll("li")) {
@@ -2758,7 +2761,7 @@ var detailsPane = {
             if (cardsPane.cardsList.view.rowCount == 0) {
               cardsPane.searchInput.focus();
             } else {
-              cardsPane.cardsList.focus();
+              cardsPane.cardsList.table.body.focus();
             }
           }
         } else if (!this.selectedCardsSection.hidden) {
@@ -3425,7 +3428,8 @@ var detailsPane = {
     this.form.querySelector(".contact-details-scroll").scrollTo(0, 0);
     // If we enter editing directly from the cards list we want to return to it
     // once we are done.
-    this._focusOnCardsList = document.activeElement == cardsPane.cardsList;
+    this._focusOnCardsList =
+      document.activeElement == cardsPane.cardsList.table.body;
     this.vCardEdit.setFocus();
   },
 
@@ -3610,7 +3614,7 @@ var detailsPane = {
     }
 
     if (this._focusOnCardsList) {
-      cardsPane.cardsList.focus();
+      cardsPane.cardsList.table.body.focus();
     } else {
       this.editButton.focus();
     }

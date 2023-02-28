@@ -653,7 +653,7 @@ add_task(async function testReadOnlyActions() {
     "actions section should be hidden"
   );
   Assert.equal(
-    cardsList,
+    cardsList.table.body,
     abDocument.activeElement,
     "Cards list should be the active element"
   );

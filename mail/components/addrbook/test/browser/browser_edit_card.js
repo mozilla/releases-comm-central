@@ -41,6 +41,7 @@ async function notInEditingMode(expectedFocus) {
     () => !abWindow.detailsPane.isEditing,
     "leaving editing mode"
   );
+  await new Promise(resolve => abWindow.setTimeout(resolve));
 
   Assert.ok(
     BrowserTestUtils.is_hidden(
@@ -669,7 +670,7 @@ async function editContactAtIndex(index, options) {
   let editButton = abDocument.getElementById("editButton");
 
   if (!options.useMouse) {
-    cardsList.focus();
+    cardsList.table.body.focus();
     if (cardsList.currentIndex != index) {
       EventUtils.synthesizeKey("KEY_Home", { accelKey: true }, abWindow);
       for (let i = 0; i < index; i++) {
@@ -1537,7 +1538,7 @@ add_task(async function test_delete_button() {
   let listContact = createContact("delete", "me too");
   let list = personalBook.addMailList(createMailingList("a list"));
   list.addCard(listContact);
-  await new Promise(resolve => setTimeout(resolve));
+  await new Promise(resolve => abWindow.setTimeout(resolve));
 
   openDirectory(list);
   Assert.equal(cardsList.view.rowCount, 1);
@@ -1780,7 +1781,7 @@ add_task(async function test_name_fields() {
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   // If useActivate is called, expect the focus to return to the cards list.
-  await notInEditingMode(cardsList);
+  await notInEditingMode(cardsList.table.body);
 
   checkVCardValues(book.childCards[0], {
     n: [],
@@ -1806,7 +1807,7 @@ add_task(async function test_name_fields() {
   checkNFieldState({ prefix: false, middlename: false, suffix: true });
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
-  await notInEditingMode(cardsList);
+  await notInEditingMode(cardsList.table.body);
 
   checkVCardValues(book.childCards[0], {
     n: [],
@@ -1834,7 +1835,7 @@ add_task(async function test_name_fields() {
   checkNFieldState({ prefix: false, middlename: true, suffix: false });
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
-  await notInEditingMode(cardsList);
+  await notInEditingMode(cardsList.table.body);
 
   checkVCardValues(book.childCards[0], {
     n: [{ value: ["lastname1", "contact1", "middle name 1", "", ""] }],
@@ -1871,7 +1872,7 @@ add_task(async function test_name_fields() {
   let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
   await promptPromise;
-  await notInEditingMode(cardsList);
+  await notInEditingMode(cardsList.table.body);
 
   checkVCardValues(book.childCards[0], {
     n: [{ value: ["lastname1", "contact1", "middle name 1", "", ""] }],
@@ -1999,7 +2000,7 @@ add_task(async function test_email_fields() {
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   // Focus moves to cards list if we activate the edit directly from the list.
-  await notInEditingMode(cardsList);
+  await notInEditingMode(cardsList.table.body);
 
   checkVCardValues(book.childCards[0], {
     email: [{ value: "contact1.lastname1@invalid", pref: "1" }],
@@ -2015,7 +2016,7 @@ add_task(async function test_email_fields() {
   await checkDefaultEmailChoice(false, 0);
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
-  await notInEditingMode(cardsList);
+  await notInEditingMode(cardsList.table.body);
 
   checkVCardValues(book.childCards[0], {
     email: [{ value: "contact1.lastname1@invalid", type: "work", pref: "1" }],
@@ -2221,7 +2222,7 @@ add_task(async function test_email_fields() {
   await checkDefaultEmailChoice(true, 3);
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
-  await notInEditingMode(cardsList);
+  await notInEditingMode(cardsList.table.body);
 
   checkVCardValues(book.childCards[0], {
     email: [{ value: "another.contact1@invalid", type: "home", pref: "1" }],
@@ -2255,7 +2256,7 @@ add_task(async function test_email_fields() {
   let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
   await promptPromise;
-  await notInEditingMode(cardsList);
+  await notInEditingMode(cardsList.table.body);
 
   checkVCardValues(book.childCards[0], {
     email: [{ value: "another.contact1@invalid", type: "home", pref: "1" }],
@@ -2369,7 +2370,7 @@ add_task(async function test_vCard_fields() {
   });
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
-  await notInEditingMode(cardsList);
+  await notInEditingMode(cardsList.table.body);
 
   checkVCardValues(book.childCards[0], {
     impp: [{ value: "matrix:u/contact1:example.com" }],
@@ -2725,7 +2726,7 @@ add_task(async function test_vCard_fields() {
   let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
   await promptPromise;
-  await notInEditingMode(cardsList);
+  await notInEditingMode(cardsList.table.body);
 
   checkVCardValues(book.childCards[0], {
     impp: [],

@@ -432,7 +432,7 @@ function SwitchPaneFocus(event) {
       }
 
       if (accountCentralBrowser.hidden) {
-        panes.push(threadTree);
+        panes.push(threadTree.table.body);
       } else {
         panes.push(accountCentralBrowser);
       }
@@ -473,7 +473,11 @@ function SwitchPaneFocus(event) {
       if (detailsPane.isEditing) {
         panes.push(currentTabInfo.browser);
       } else {
-        let targets = [booksList, cardsPane.searchInput, cardsPane.cardsList];
+        let targets = [
+          booksList,
+          cardsPane.searchInput,
+          cardsPane.cardsList.table.body,
+        ];
         if (!detailsPane.node.hidden && !detailsPane.editButton.hidden) {
           targets.push(detailsPane.editButton);
         }

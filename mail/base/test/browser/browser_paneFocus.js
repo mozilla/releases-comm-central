@@ -88,7 +88,7 @@ add_task(async function testMail3PaneTab() {
   cycle(
     globalSearch,
     folderTree,
-    threadTree,
+    threadTree.table.body,
     messageBrowser.contentWindow.getMessagePaneBrowser(),
     mailButton,
     globalSearch
@@ -97,11 +97,11 @@ add_task(async function testMail3PaneTab() {
   info("Hiding the folder pane");
   about3Pane.restoreState({ folderPaneVisible: false });
   cycle(
-    threadTree,
+    threadTree.table.body,
     messageBrowser.contentWindow.getMessagePaneBrowser(),
     mailButton,
     globalSearch,
-    threadTree
+    threadTree.table.body
   );
 
   info("Showing the folder pane, hiding the message pane");
@@ -109,7 +109,13 @@ add_task(async function testMail3PaneTab() {
     folderPaneVisible: true,
     messagePaneVisible: false,
   });
-  cycle(mailButton, globalSearch, folderTree, threadTree, mailButton);
+  cycle(
+    mailButton,
+    globalSearch,
+    folderTree,
+    threadTree.table.body,
+    mailButton
+  );
 
   info("Showing the message pane, selecting multiple messages");
   about3Pane.restoreState({ messagePaneVisible: true });
@@ -117,7 +123,7 @@ add_task(async function testMail3PaneTab() {
   cycle(
     globalSearch,
     folderTree,
-    threadTree,
+    threadTree.table.body,
     multiMessageBrowser,
     mailButton,
     globalSearch
@@ -127,7 +133,7 @@ add_task(async function testMail3PaneTab() {
   about3Pane.displayWebPage("https://example.com/");
   cycle(
     folderTree,
-    threadTree,
+    threadTree.table.body,
     webBrowser,
     mailButton,
     globalSearch,
@@ -172,7 +178,7 @@ add_task(async function testAddressBookTab() {
   // first item, which causes the panel to be displayed.
   cycle(
     searchInput,
-    cardsList,
+    cardsList.table.body,
     editButton,
     addressBookButton,
     globalSearch,
@@ -187,14 +193,14 @@ add_task(async function testAddressBookTab() {
     { accelKey: true },
     abWindow
   );
-  Assert.equal(getActiveElement(), cardsList);
+  Assert.equal(getActiveElement(), cardsList.table.body);
   Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
   cycle(
     addressBookButton,
     globalSearch,
     booksList,
     searchInput,
-    cardsList,
+    cardsList.table.body,
     addressBookButton
   );
   // Still hidden.
@@ -202,7 +208,7 @@ add_task(async function testAddressBookTab() {
 
   // Check what happens while editing. It should be nothing.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
-  Assert.equal(getActiveElement(), cardsList);
+  Assert.equal(getActiveElement(), cardsList.table.body);
   Assert.ok(BrowserTestUtils.is_visible(detailsPane));
 
   editButton.scrollIntoView();

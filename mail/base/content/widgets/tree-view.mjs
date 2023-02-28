@@ -80,252 +80,6 @@ class TreeView extends HTMLElement {
 
     this.placeholder = this.querySelector(`slot[name="placeholders"]`);
 
-    this.addEventListener("keyup", event => {
-      if (
-        ["Tab", "F6"].includes(event.key) &&
-        this.currentIndex == -1 &&
-        this._view?.rowCount
-      ) {
-        let selectionChanged = false;
-        if (this.selectedIndex == -1) {
-          this._selection.select(0);
-          selectionChanged = true;
-        }
-        this.currentIndex = this.selectedIndex;
-        if (selectionChanged) {
-          this.onSelectionChanged();
-        }
-      }
-    });
-
-    this.addEventListener("click", event => {
-      if (event.button !== 0) {
-        return;
-      }
-
-      let row = event.target.closest(`tr[is="${this._rowElementName}"]`);
-      if (!row) {
-        return;
-      }
-
-      let index = row.index;
-
-      if (this._view.isContainer(index) && event.target.closest(".twisty")) {
-        if (this._view.isContainerOpen(index)) {
-          this.collapseRowAtIndex(index);
-        } else {
-          let addedRows = this.expandRowAtIndex(index);
-          this.scrollToIndex(
-            index +
-              Math.min(
-                addedRows,
-                this.clientHeight / this._rowElementClass.ROW_HEIGHT - 1
-              )
-          );
-        }
-        this.focus();
-        return;
-      }
-
-      if (event[accelKeyName] && event.shiftKey) {
-        return;
-      }
-
-      // Handle the click as a CTRL extension if it happens on the checkbox
-      // image inside the selection column.
-      if (event.target.classList.contains("tree-view-row-select-checkbox")) {
-        if (event.shiftKey) {
-          this._selectRange(index);
-        } else {
-          this._toggleSelected(index);
-        }
-        this.focus();
-        return;
-      }
-
-      if (event.target.classList.contains("tree-button-delete")) {
-        // Temporarily enforce the selection of only one row. We should extend
-        // this and allow interacting with this feature even if the specific
-        // row is not part of the selection.
-        // TODO: Implement a changeSelectionWithoutContentLoad method.
-        this._selectSingle(index);
-        this.dispatchEvent(
-          new CustomEvent("request-delete", {
-            bubbles: true,
-          })
-        );
-        this.focus();
-        return;
-      }
-
-      if (event.target.classList.contains("tree-button-flag")) {
-        // Temporarily enforce the selection of only one row. We should extend
-        // this and allow interacting with this feature even if the specific
-        // row is not part of the selection.
-        // TODO: Implement a changeSelectionWithoutContentLoad method.
-        this._selectSingle(index);
-        this.dispatchEvent(
-          new CustomEvent("toggle-flag", {
-            bubbles: true,
-          })
-        );
-        this.focus();
-        return;
-      }
-
-      if (event.target.classList.contains("tree-button-unread")) {
-        // Temporarily enforce the selection of only one row. We should extend
-        // this and allow interacting with this feature even if the specific
-        // row is not part of the selection.
-        // TODO: Implement a changeSelectionWithoutContentLoad method.
-        this._selectSingle(index);
-        this.dispatchEvent(
-          new CustomEvent("toggle-unread", {
-            bubbles: true,
-          })
-        );
-        this.focus();
-        return;
-      }
-
-      if (event.target.classList.contains("tree-button-spam")) {
-        // Temporarily enforce the selection of only one row. We should extend
-        // this and allow interacting with this feature even if the specific
-        // row is not part of the selection.
-        // TODO: Implement a changeSelectionWithoutContentLoad method.
-        this._selectSingle(index);
-        this.dispatchEvent(
-          new CustomEvent("toggle-spam", {
-            bubbles: true,
-            detail: {
-              isJunk: event.target
-                .closest(`tr[is="${this._rowElementName}"]`)
-                ?.dataset.properties.split(" ")
-                .find(p => p == "junk"),
-            },
-          })
-        );
-        this.focus();
-        return;
-      }
-
-      if (event[accelKeyName]) {
-        this._toggleSelected(index);
-      } else if (event.shiftKey) {
-        this._selectRange(index);
-      } else {
-        this._selectSingle(index);
-      }
-
-      this.focus();
-    });
-
-    this.addEventListener("keydown", event => {
-      if (event.altKey || event[otherKeyName]) {
-        return;
-      }
-
-      let currentIndex = this.currentIndex == -1 ? 0 : this.currentIndex;
-      let newIndex;
-      switch (event.key) {
-        case "ArrowUp":
-          newIndex = currentIndex - 1;
-          break;
-        case "ArrowDown":
-          newIndex = currentIndex + 1;
-          break;
-        case "ArrowLeft":
-        case "ArrowRight": {
-          event.preventDefault();
-          if (this.currentIndex == -1) {
-            return;
-          }
-          let isArrowRight = event.key == "ArrowRight";
-          let isRTL = this.matches(":dir(rtl)");
-          if (isArrowRight == isRTL) {
-            // Collapse action.
-            let currentLevel = this._view.getLevel(this.currentIndex);
-            if (this._view.isContainerOpen(this.currentIndex)) {
-              this.collapseRowAtIndex(this.currentIndex);
-              return;
-            } else if (currentLevel == 0) {
-              return;
-            }
-
-            let parentIndex = this._view.getParentIndex(this.currentIndex);
-            if (parentIndex != -1) {
-              newIndex = parentIndex;
-            }
-          } else if (this._view.isContainer(this.currentIndex)) {
-            // Expand action.
-            if (!this._view.isContainerOpen(this.currentIndex)) {
-              let addedRows = this.expandRowAtIndex(this.currentIndex);
-              this.scrollToIndex(
-                this.currentIndex +
-                  Math.min(
-                    addedRows,
-                    this.clientHeight / this._rowElementClass.ROW_HEIGHT - 1
-                  )
-              );
-            } else {
-              newIndex = this.currentIndex + 1;
-            }
-          }
-          if (newIndex != undefined) {
-            this._selectSingle(newIndex);
-          }
-          return;
-        }
-        case "Home":
-          newIndex = 0;
-          break;
-        case "End":
-          newIndex = this._view.rowCount - 1;
-          break;
-        case "PageUp":
-          newIndex = Math.max(
-            0,
-            currentIndex -
-              Math.floor(this.clientHeight / this._rowElementClass.ROW_HEIGHT)
-          );
-          break;
-        case "PageDown":
-          newIndex = Math.min(
-            this._view.rowCount - 1,
-            currentIndex +
-              Math.floor(this.clientHeight / this._rowElementClass.ROW_HEIGHT)
-          );
-          break;
-      }
-
-      if (newIndex != undefined) {
-        newIndex = this._clampIndex(newIndex);
-        if (newIndex != null && (!event[accelKeyName] || !event.shiftKey)) {
-          // Else, if both modifiers pressed, do nothing.
-          if (event.shiftKey) {
-            this._selectRange(newIndex);
-          } else if (event[accelKeyName]) {
-            // Change focus, but not selection.
-            this.currentIndex = newIndex;
-          } else {
-            this._selectSingle(newIndex);
-          }
-        }
-        event.preventDefault();
-        return;
-      }
-
-      if (event.key == " " && this.currentIndex != -1 && !event.shiftKey) {
-        if (event[accelKeyName]) {
-          this._toggleSelected(this.currentIndex);
-          event.preventDefault();
-        } else if (!this._selection.isSelected(this.currentIndex)) {
-          this._selectSingle(this.currentIndex);
-          event.preventDefault();
-        }
-      }
-    });
-
     // Ensure that there are enough rows for scrolling/resizing to appear
     // seamless, but don't do it more frequently than 10 times per second,
     // as it's expensive.
@@ -364,9 +118,7 @@ class TreeView extends HTMLElement {
     }
     this._rows.clear();
 
-    while (this.lastChild) {
-      this.lastChild.remove();
-    }
+    this.replaceChildren();
 
     this.resizeObserver.disconnect();
   }
@@ -377,6 +129,257 @@ class TreeView extends HTMLElement {
 
     if (this._view) {
       this.invalidate();
+    }
+  }
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "keyup": {
+        if (
+          ["Tab", "F6"].includes(event.key) &&
+          this.currentIndex == -1 &&
+          this._view?.rowCount
+        ) {
+          let selectionChanged = false;
+          if (this.selectedIndex == -1) {
+            this._selection.select(0);
+            selectionChanged = true;
+          }
+          this.currentIndex = this.selectedIndex;
+          if (selectionChanged) {
+            this.onSelectionChanged();
+          }
+        }
+        break;
+      }
+      case "click": {
+        if (event.button !== 0) {
+          return;
+        }
+
+        let row = event.target.closest(`tr[is="${this._rowElementName}"]`);
+        if (!row) {
+          return;
+        }
+
+        let index = row.index;
+
+        if (this._view.isContainer(index) && event.target.closest(".twisty")) {
+          if (this._view.isContainerOpen(index)) {
+            this.collapseRowAtIndex(index);
+          } else {
+            let addedRows = this.expandRowAtIndex(index);
+            this.scrollToIndex(
+              index +
+                Math.min(
+                  addedRows,
+                  this.clientHeight / this._rowElementClass.ROW_HEIGHT - 1
+                )
+            );
+          }
+          this.table.body.focus();
+          return;
+        }
+
+        if (event[accelKeyName] && event.shiftKey) {
+          return;
+        }
+
+        // Handle the click as a CTRL extension if it happens on the checkbox
+        // image inside the selection column.
+        if (event.target.classList.contains("tree-view-row-select-checkbox")) {
+          if (event.shiftKey) {
+            this._selectRange(index);
+          } else {
+            this._toggleSelected(index);
+          }
+          this.table.body.focus();
+          return;
+        }
+
+        if (event.target.classList.contains("tree-button-delete")) {
+          // Temporarily enforce the selection of only one row. We should extend
+          // this and allow interacting with this feature even if the specific
+          // row is not part of the selection.
+          // TODO: Implement a changeSelectionWithoutContentLoad method.
+          this._selectSingle(index);
+          this.table.body.dispatchEvent(
+            new CustomEvent("request-delete", {
+              bubbles: true,
+            })
+          );
+          this.table.body.focus();
+          return;
+        }
+
+        if (event.target.classList.contains("tree-button-flag")) {
+          // Temporarily enforce the selection of only one row. We should extend
+          // this and allow interacting with this feature even if the specific
+          // row is not part of the selection.
+          // TODO: Implement a changeSelectionWithoutContentLoad method.
+          this._selectSingle(index);
+          this.table.body.dispatchEvent(
+            new CustomEvent("toggle-flag", {
+              bubbles: true,
+            })
+          );
+          this.table.body.focus();
+          return;
+        }
+
+        if (event.target.classList.contains("tree-button-unread")) {
+          // Temporarily enforce the selection of only one row. We should extend
+          // this and allow interacting with this feature even if the specific
+          // row is not part of the selection.
+          // TODO: Implement a changeSelectionWithoutContentLoad method.
+          this._selectSingle(index);
+          this.table.body.dispatchEvent(
+            new CustomEvent("toggle-unread", {
+              bubbles: true,
+            })
+          );
+          this.table.body.focus();
+          return;
+        }
+
+        if (event.target.classList.contains("tree-button-spam")) {
+          // Temporarily enforce the selection of only one row. We should extend
+          // this and allow interacting with this feature even if the specific
+          // row is not part of the selection.
+          // TODO: Implement a changeSelectionWithoutContentLoad method.
+          this._selectSingle(index);
+          this.table.body.dispatchEvent(
+            new CustomEvent("toggle-spam", {
+              bubbles: true,
+              detail: {
+                isJunk: event.target
+                  .closest(`tr[is="${this._rowElementName}"]`)
+                  ?.dataset.properties.split(" ")
+                  .find(p => p == "junk"),
+              },
+            })
+          );
+          this.table.body.focus();
+          return;
+        }
+
+        if (event[accelKeyName]) {
+          this._toggleSelected(index);
+        } else if (event.shiftKey) {
+          this._selectRange(index);
+        } else {
+          this._selectSingle(index);
+        }
+
+        this.table.body.focus();
+        break;
+      }
+      case "keydown": {
+        if (event.altKey || event[otherKeyName]) {
+          return;
+        }
+
+        let currentIndex = this.currentIndex == -1 ? 0 : this.currentIndex;
+        let newIndex;
+        switch (event.key) {
+          case "ArrowUp":
+            newIndex = currentIndex - 1;
+            break;
+          case "ArrowDown":
+            newIndex = currentIndex + 1;
+            break;
+          case "ArrowLeft":
+          case "ArrowRight": {
+            event.preventDefault();
+            if (this.currentIndex == -1) {
+              return;
+            }
+            let isArrowRight = event.key == "ArrowRight";
+            let isRTL = this.matches(":dir(rtl)");
+            if (isArrowRight == isRTL) {
+              // Collapse action.
+              let currentLevel = this._view.getLevel(this.currentIndex);
+              if (this._view.isContainerOpen(this.currentIndex)) {
+                this.collapseRowAtIndex(this.currentIndex);
+                return;
+              } else if (currentLevel == 0) {
+                return;
+              }
+
+              let parentIndex = this._view.getParentIndex(this.currentIndex);
+              if (parentIndex != -1) {
+                newIndex = parentIndex;
+              }
+            } else if (this._view.isContainer(this.currentIndex)) {
+              // Expand action.
+              if (!this._view.isContainerOpen(this.currentIndex)) {
+                let addedRows = this.expandRowAtIndex(this.currentIndex);
+                this.scrollToIndex(
+                  this.currentIndex +
+                    Math.min(
+                      addedRows,
+                      this.clientHeight / this._rowElementClass.ROW_HEIGHT - 1
+                    )
+                );
+              } else {
+                newIndex = this.currentIndex + 1;
+              }
+            }
+            if (newIndex != undefined) {
+              this._selectSingle(newIndex);
+            }
+            return;
+          }
+          case "Home":
+            newIndex = 0;
+            break;
+          case "End":
+            newIndex = this._view.rowCount - 1;
+            break;
+          case "PageUp":
+            newIndex = Math.max(
+              0,
+              currentIndex -
+                Math.floor(this.clientHeight / this._rowElementClass.ROW_HEIGHT)
+            );
+            break;
+          case "PageDown":
+            newIndex = Math.min(
+              this._view.rowCount - 1,
+              currentIndex +
+                Math.floor(this.clientHeight / this._rowElementClass.ROW_HEIGHT)
+            );
+            break;
+        }
+
+        if (newIndex != undefined) {
+          newIndex = this._clampIndex(newIndex);
+          if (newIndex != null && (!event[accelKeyName] || !event.shiftKey)) {
+            // Else, if both modifiers pressed, do nothing.
+            if (event.shiftKey) {
+              this._selectRange(newIndex);
+            } else if (event[accelKeyName]) {
+              // Change focus, but not selection.
+              this.currentIndex = newIndex;
+            } else {
+              this._selectSingle(newIndex);
+            }
+          }
+          event.preventDefault();
+          return;
+        }
+
+        if (event.key == " " && this.currentIndex != -1 && !event.shiftKey) {
+          if (event[accelKeyName]) {
+            this._toggleSelected(this.currentIndex);
+            event.preventDefault();
+          } else if (!this._selection.isSelected(this.currentIndex)) {
+            this._selectSingle(this.currentIndex);
+            event.preventDefault();
+          }
+        }
+        break;
+      }
     }
   }
 
@@ -1622,6 +1625,11 @@ class TreeViewTableBody extends HTMLTableSectionElement {
     this.tabIndex = 0;
     this.setAttribute("is", "tree-view-table-body");
     this.setAttribute("aria-multiselectable", "true");
+
+    let treeView = this.closest("tree-view");
+    this.addEventListener("keyup", treeView);
+    this.addEventListener("click", treeView);
+    this.addEventListener("keydown", treeView);
   }
 }
 customElements.define("tree-view-table-body", TreeViewTableBody, {
