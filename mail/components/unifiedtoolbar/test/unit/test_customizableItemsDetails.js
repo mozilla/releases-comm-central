@@ -80,6 +80,11 @@ add_task(function test_format() {
         `requiredModules must not be set because there is no template for item ${item.id}`
       );
     }
+    Assert.ok(
+      item.hasContextMenu === undefined ||
+        typeof item.hasContextMenu === "boolean",
+      `hasContextMenu must be undefined or a boolean for ${item.id}`
+    );
   }
 });
 

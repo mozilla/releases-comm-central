@@ -188,6 +188,12 @@ class UnifiedToolbar extends HTMLElement {
     if (!event.target.closest("#unifiedToolbarContent")) {
       return;
     }
+    const customizableElement = event.target.closest(
+      '[is="customizable-element"]'
+    );
+    if (customizableElement?.hasContextMenu) {
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
     const popup = document.getElementById("unifiedToolbarMenu");

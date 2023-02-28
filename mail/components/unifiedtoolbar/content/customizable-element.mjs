@@ -216,6 +216,15 @@ export default class CustomizableElement extends HTMLLIElement {
   get allSpaces() {
     return !this.details.spaces?.length;
   }
+
+  /**
+   * If this item wants to provide its own context menu.
+   *
+   * @type {boolean}
+   */
+  get hasContextMenu() {
+    return Boolean(this.details?.hasContextMenu);
+  }
 }
 customElements.define("customizable-element", CustomizableElement, {
   extends: "li",

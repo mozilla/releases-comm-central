@@ -25,6 +25,8 @@
  * @property {string} [templateId] - ID of template defining the "live" markup.
  * @property {string[]} [requiredModules] - List of modules that must be loaded
  *   for the template of this item.
+ * @property {boolean} [hasContextMenu] - Indicates that this item has its own
+ *   context menu, and the global unified toolbar one shouldn't be shown.
  */
 
 /**
@@ -44,6 +46,7 @@ export default [
     requiredModules: [
       "chrome://messenger/content/unifiedtoolbar/global-search-bar.mjs",
     ],
+    hasContextMenu: true,
   },
   {
     id: "write-message",
