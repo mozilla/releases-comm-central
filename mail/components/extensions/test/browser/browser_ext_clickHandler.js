@@ -498,6 +498,21 @@ add_task(async function test_windows() {
 }).skip(AppConstants.DEBUG); // Disabled until Bug 1770105 is fully fixed.
 
 add_task(async function test_mail3pane() {
+  let account = createAccount();
+  let subFolders = account.incomingServer.rootFolder.subFolders;
+  createMessages(subFolders[0], 1);
+
+  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  Assert.ok(Boolean(about3Pane), "about:3pane should be the current tab");
+  about3Pane.restoreState({
+    folderPaneVisible: true,
+    folderURI: subFolders[0],
+    messagePaneVisible: true,
+  });
+  about3Pane.threadTree.selectedIndex = 0;
+  await BrowserTestUtils.browserLoaded(
+    about3Pane.messageBrowser.contentWindow.content
+  );
   let extension = ExtensionTestUtils.loadExtension({
     files: {
       "mail3paneFunctions.js": async () => {
