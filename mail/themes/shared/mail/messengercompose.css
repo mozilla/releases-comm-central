@@ -654,6 +654,7 @@ toolbarbutton.formatting-button:not([disabled="true"]):is([open="true"],:hover:a
   list-style-image: url("chrome://messenger/skin/messengercompose/format-dropmarker.svg");
   -moz-context-properties: fill;
   fill: currentColor;
+  display: inline-flex;
 }
 
 toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,

@@ -38,6 +38,7 @@ menulist {
 
 menulist::part(dropmarker) {
   display: -moz-box;
+  width: 20px;
 }
 
 html|input {

@@ -240,12 +240,10 @@ timepicker > menulist::part(text-input) {
 .time-picker-more-control-label {
   background-color: var(--tbHighlightBackground);
   color: var(--tbHighlightColor);
-  font-size: 12pt;
-  height: 12px;
-  min-width: 40px;
   margin: 0;
   border: 1px solid var(--tpSubBackground);
-  text-align: center;
+  padding-inline: 8px;
+  font-size: 1rem;
 }
 
 .time-picker-more-control-label:hover {

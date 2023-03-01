@@ -355,6 +355,7 @@ toolbarbutton.notification-button[is="toolbarbutton-menu-button"] > dropmarker {
   border-start-start-radius: 0;
   border-start-end-radius: 0;
   pointer-events: none;
+  display: inline-flex;
 }
 
 .close {

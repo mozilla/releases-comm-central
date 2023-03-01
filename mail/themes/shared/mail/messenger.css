@@ -535,6 +535,7 @@ menulist::part(label-box) {
 menulist::part(dropmarker-icon) {
   -moz-context-properties: stroke;
   stroke: currentColor;
+  width: 16px;
 }
 
 menupopup.no-accel-menupopup > :is(menu, menuitem) > .menu-accel-container {

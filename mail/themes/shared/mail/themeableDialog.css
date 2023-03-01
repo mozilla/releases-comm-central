@@ -324,6 +324,7 @@ menulist::part(dropmarker) {
 menulist::part(dropmarker-icon) {
   -moz-context-properties: stroke;
   stroke: currentColor;
+  width: 16px;
 }
 
 menulist[is="menulist-editable"][editable="true"]::part(text-input) {

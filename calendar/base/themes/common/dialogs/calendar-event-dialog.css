@@ -426,6 +426,7 @@ label.label {
   list-style-image: url("chrome://messenger/skin/messengercompose/format-dropmarker.svg");
   -moz-context-properties: fill;
   fill: currentColor;
+  display: inline-block;
 }
 
 .formatting-button[disabled="true"] > .toolbarbutton-icon,

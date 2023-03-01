@@ -121,4 +121,8 @@ toolbarbutton[is="toolbarbutton-menu-button"] > dropmarker {
   list-style-image: var(--icon-nav-down-sm);
   -moz-context-properties: stroke;
   stroke: currentColor;
+  display: inline-flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
 }
