@@ -136,7 +136,6 @@ body.layout-table {
 #books {
   flex: 1;
   font-size: 1.1rem;
-  line-height: 2.2em;
   scroll-behavior: smooth;
   -moz-user-select: none;
 }
@@ -199,8 +198,8 @@ body.layout-table {
 
 .bookRow .twisty {
   display: inline-flex;
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   -moz-context-properties: stroke;
   stroke: var(--address-book-icons-color);
 }
@@ -210,7 +209,7 @@ body.layout-table {
 }
 
 .bookRow .twisty-icon {
-  margin: 7px;
+  margin: 5px;
 }
 
 .bookRow.children.collapsed .twisty-icon {
@@ -295,8 +294,8 @@ body.layout-table {
   background-image: var(--icon-more);
   background-position: center center;
   background-repeat: no-repeat;
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   display: none;
 }
 

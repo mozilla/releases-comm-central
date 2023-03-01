@@ -7,18 +7,21 @@
   --tree-header-table-height: 30px;
   --tree-header-cell-padding: 6px;
   --tree-header-cell-indent: 0;
+  --list-item-min-height: 28px;
 }
 
 :root[uidensity="compact"] {
   --tree-header-table-height: 27px;
   --tree-header-cell-padding: 3px;
   --tree-header-cell-indent: 3px;
+  --list-item-min-height: 22px;
 }
 
 :root[uidensity="touch"] {
   --tree-header-table-height: 36px;
   --tree-header-cell-padding: 9px;
   --tree-header-cell-indent: -3px;
+  --list-item-min-height: 34px;
 }
 
 @media not (prefers-contrast) {
@@ -434,4 +437,9 @@ slot[name="placeholders"] div::before {
   table[is="tree-view-table"] tbody tr {
     transition: color 320ms ease, background-color 320ms ease, fill 320ms ease, stroke 320ms ease;
   }
+}
+
+:is(ul, ol):is([role="tree"],
+[role="group"]) li > div {
+  min-height: var(--list-item-min-height);
 }
