@@ -670,7 +670,7 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
 async function doTransaction(action, item, calendar, oldItem, observer, extResponse = null) {
   // This is usually a user-initiated transaction, so make sure the calendar
   // this transaction is happening on is visible.
-  ensureCalendarVisible(calendar);
+  top.ensureCalendarVisible(calendar);
 
   let manager = gCalBatchTransaction || gCalTransactionMgr;
   let trn;
