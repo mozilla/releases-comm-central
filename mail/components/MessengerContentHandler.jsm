@@ -345,6 +345,11 @@ MailDefaultHandler.prototype = {
       cmdLine.preventDefault = true;
     }
 
+    if (cmdLine.handleFlag("keymanager", false)) {
+      getOrOpen3PaneWindow().then(win => win.openKeyManager());
+      cmdLine.preventDefault = true;
+    }
+
     if (cmdLine.handleFlag("setDefaultMail", false)) {
       var shell = Cc["@mozilla.org/mail/shell-service;1"].getService(
         Ci.nsIShellService
@@ -673,11 +678,12 @@ MailDefaultHandler.prototype = {
   },
 
   helpInfo:
-    "  -options           Open the options dialog.\n" +
-    "  -addressbook       Open the address book at startup.\n" +
-    "  -calendar          Open the calendar at startup.\n" +
+    "  -options           Open the settings.\n" +
+    "  -addressbook       Open the address book.\n" +
+    "  -calendar          Open the calendar.\n" +
     "  -file              Open the specified email file or ICS calendar file.\n" +
-    "  -setDefaultMail    Set this app as the default mail client.\n",
+    "  -setDefaultMail    Set this app as the default mail client.\n" +
+    "  -keymanager        Open the OpenPGP Key Manager.\n",
 
   /* nsIFactory */
 
