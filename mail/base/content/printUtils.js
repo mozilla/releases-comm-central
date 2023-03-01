@@ -155,6 +155,12 @@ class TabDialogBox {
     this.dialogStack = template.content.cloneNode(true).firstElementChild;
     this.dialogStack.classList.add("tab-prompt-dialog");
 
+    while (browser.ownerDocument != document) {
+      // Find an ancestor <browser> in this document so that we can locate the
+      // print preview appropriately.
+      browser = browser.ownerGlobal.browsingContext.embedderElement;
+    }
+
     // This differs from Firefox by using a specific ancestor <stack> rather
     // than the parent of the <browser>, so that a larger area of the screen
     // is used for the preview.
