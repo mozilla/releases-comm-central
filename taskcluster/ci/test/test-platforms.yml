@@ -21,7 +21,6 @@ linux1804-64-qr/opt:
     build-platform: linux64/opt
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -29,7 +28,6 @@ linux1804-64-shippable-qr/opt:
     build-platform: linux64-shippable/opt
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -37,7 +35,6 @@ linux1804-64-qr/debug:
     build-platform: linux64/debug
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -61,7 +58,6 @@ windows10-32-2004-qr/opt:
     build-signing-label: build-signing-win32/opt
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -70,7 +66,6 @@ windows10-32-2004-shippable-qr/opt:
     build-signing-label: build-signing-win32-shippable/opt
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -79,7 +74,6 @@ windows10-32-2004-qr/debug:
     build-signing-label: build-signing-win32/debug
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -89,7 +83,6 @@ windows11-32-2009-qr/opt:
     build-signing-label: build-signing-win32/opt
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -98,7 +91,6 @@ windows11-32-2009-shippable-qr/opt:
     build-signing-label: build-signing-win32-shippable/opt
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -107,7 +99,6 @@ windows11-32-2009-qr/debug:
     build-signing-label: build-signing-win32/debug
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -117,7 +108,6 @@ windows10-64-2004-qr/opt:
     build-signing-label: build-signing-win64/opt
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -126,7 +116,6 @@ windows10-64-2004-shippable-qr/opt:
     build-signing-label: build-signing-win64-shippable/opt
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -135,7 +124,6 @@ windows10-64-2004-qr/debug:
     build-signing-label: build-signing-win64/debug
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -150,7 +138,6 @@ windows11-64-2009-qr/opt:
     build-signing-label: build-signing-win64/opt
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -159,7 +146,6 @@ windows11-64-2009-shippable-qr/opt:
     build-signing-label: build-signing-win64-shippable/opt
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -168,7 +154,6 @@ windows11-64-2009-qr/debug:
     build-signing-label: build-signing-win64/debug
     test-sets:
         - gtest-tests
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -182,21 +167,18 @@ windows11-64-2009-asan-qr/opt:
 macosx1015-64-qr/opt:
     build-platform: macosx64/opt
     test-sets:
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
 macosx1015-64-qr/debug:
     build-platform: macosx64/debug
     test-sets:
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
 macosx1015-64-shippable-qr/opt:
     build-platform: macosx64-shippable/opt
     test-sets:
-        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 

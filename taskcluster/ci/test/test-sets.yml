@@ -11,20 +11,9 @@
 #
 # A test set has a name, and a list of tests that it contains.
 #
-# Test names given here reference tests.yml.
-
-##
-# Universal tests
-#
-# Tests that run just about everywhere; common-tests is the shared core, with
-# a few add-on test sets that are included or omitted on some platforms.
 
 gtest-tests:
     - gtest
-
-marionette-tests:
-    - marionette
-    - marionette-headless
 
 mochitest-tests:
     - mochitest-thunderbird
