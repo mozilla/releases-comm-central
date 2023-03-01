@@ -55,7 +55,7 @@ linux1804-64-tsan-qr/opt:
 
 # Windows platforms (matching /windows.*/)
 
-# win32
+# windows 10 - 32bit
 windows10-32-2004-qr/opt:
     build-platform: win32/opt
     build-signing-label: build-signing-win32/opt
@@ -83,7 +83,35 @@ windows10-32-2004-qr/debug:
         - mochitest-tests
         - xpcshell-tests
 
-# win64
+# windows 11 - 32bit
+windows11-32-2009-qr/opt:
+    build-platform: win32/opt
+    build-signing-label: build-signing-win32/opt
+    test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+windows11-32-2009-shippable-qr/opt:
+    build-platform: win32-shippable/opt
+    build-signing-label: build-signing-win32-shippable/opt
+    test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+windows11-32-2009-qr/debug:
+    build-platform: win32/debug
+    build-signing-label: build-signing-win32/debug
+    test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+# windows 10 - 64bit
 windows10-64-2004-qr/opt:
     build-platform: win64/opt
     build-signing-label: build-signing-win64/opt
@@ -112,6 +140,39 @@ windows10-64-2004-qr/debug:
         - xpcshell-tests
 
 windows10-64-2004-asan-qr/opt:
+    build-platform: win64-asan/opt
+    test-sets:
+        - mochitest-tests
+
+# windows 11 - 64bit
+windows11-64-2009-qr/opt:
+    build-platform: win64/opt
+    build-signing-label: build-signing-win64/opt
+    test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+windows11-64-2009-shippable-qr/opt:
+    build-platform: win64-shippable/opt
+    build-signing-label: build-signing-win64-shippable/opt
+    test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+windows11-64-2009-qr/debug:
+    build-platform: win64/debug
+    build-signing-label: build-signing-win64/debug
+    test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
+        - xpcshell-tests
+
+windows11-64-2009-asan-qr/opt:
     build-platform: win64-asan/opt
     test-sets:
         - mochitest-tests
