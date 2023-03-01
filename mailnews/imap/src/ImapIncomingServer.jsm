@@ -52,6 +52,7 @@ class ImapIncomingServer extends MsgIncomingServer {
     this.localStoreType = "imap";
     this.localDatabaseType = "imap";
     this.canBeDefaultServer = true;
+    this.canSearchMessages = true;
 
     // nsISubscribableServer attributes.
     this.supportsSubscribeSearch = false;

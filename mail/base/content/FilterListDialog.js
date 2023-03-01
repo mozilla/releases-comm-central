@@ -248,9 +248,11 @@ function setFilterFolder(msgFolder) {
   runMenu._ensureInitialized();
 
   let canFilterAfterTheFact = CanRunFiltersAfterTheFact(msgFolder.server);
-  gRunFiltersFolder.hidden = !canFilterAfterTheFact;
-  gRunFiltersButton.hidden = !canFilterAfterTheFact;
-  document.getElementById("folderPickerPrefix").hidden = !canFilterAfterTheFact;
+  gRunFiltersFolder.disabled = !canFilterAfterTheFact;
+  gRunFiltersButton.disabled = !canFilterAfterTheFact;
+  document.getElementById(
+    "folderPickerPrefix"
+  ).disabled = !canFilterAfterTheFact;
 
   if (canFilterAfterTheFact) {
     let wantedFolder = null;
