@@ -537,6 +537,7 @@ interface nsIMsgJSTree : nsISupports
 {
   void beginUpdateBatch();
   void endUpdateBatch();
+  void ensureRowIsVisible(in long index);
   void invalidate();
   void invalidateRange(in long startIndex, in long endIndex);
   void rowCountChanged(in long index, in long count);
