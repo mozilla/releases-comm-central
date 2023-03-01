@@ -76,7 +76,6 @@
 #qfb-qs-textbox {
   flex: 1;
   height: unset;
-  min-height: unset;
   margin: 3px;
   padding-block: 3px;
 }
