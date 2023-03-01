@@ -1092,5 +1092,7 @@ var contentProgress = {
 // along. This often happens after the tab is opened so the usual mechanism
 // doesn't work. It also works for standalone message windows.
 window.addEventListener("aboutMessageLoaded", event =>
-  contentProgress.addProgressListenerToBrowser(event.target.content)
+  contentProgress.addProgressListenerToBrowser(
+    event.target.getMessagePaneBrowser()
+  )
 );

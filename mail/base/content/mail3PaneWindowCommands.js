@@ -441,7 +441,7 @@ function SwitchPaneFocus(event) {
         if (!webBrowser.hidden) {
           panes.push(webBrowser);
         } else if (!messageBrowser.hidden) {
-          panes.push(messageBrowser.contentWindow.content);
+          panes.push(messageBrowser.contentWindow.getMessagePaneBrowser());
         } else if (!multiMessageBrowser.hidden) {
           panes.push(multiMessageBrowser);
         }
@@ -450,7 +450,7 @@ function SwitchPaneFocus(event) {
       if (focusedElement == chromeBrowser) {
         focusedElement = contentDocument.activeElement;
         if (focusedElement == messageBrowser) {
-          focusedElement = messageBrowser.contentWindow.content;
+          focusedElement = messageBrowser.contentWindow.getMessagePaneBrowser();
         }
       }
       break;
