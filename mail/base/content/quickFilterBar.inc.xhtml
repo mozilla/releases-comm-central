@@ -48,16 +48,17 @@
       </div>
       <div id="quick-filter-bar-expando">
         <div id="quick-filter-bar-tab-bar" hidden="hidden">
-          <select id="qfb-boolean-mode"
-                  data-l10n-id="quick-filter-bar-boolean-mode"
-                  persist="value">
-            <option id="qfb-boolean-mode-or"
-                    value="OR"
-                    data-l10n-id="quick-filter-bar-boolean-mode-any"/>
-            <option id="qfb-boolean-mode-and"
-                    value="AND"
-                    data-l10n-id="quick-filter-bar-boolean-mode-all"/>
-          </select>
+          <xul:menulist id="qfb-boolean-mode" value="OR">
+            <xul:menupopup>
+              <xul:menuitem id="qfb-boolean-mode-or"
+                            value="OR"
+                            data-l10n-id="quick-filter-bar-boolean-mode-any"
+                            default="default"/>
+              <xul:menuitem id="qfb-boolean-mode-and"
+                            value="AND"
+                            data-l10n-id="quick-filter-bar-boolean-mode-all"/>
+            </xul:menupopup>
+          </xul:menulist>
         </div>
         <div style="flex: 1;"></div>
         <div id="quick-filter-bar-filter-text-bar" hidden="hidden">
