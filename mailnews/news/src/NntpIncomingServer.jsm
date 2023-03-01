@@ -20,12 +20,12 @@ var { MsgIncomingServer } = ChromeUtils.import(
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  CommonUtils: "resource://services-common/utils.sys.mjs",
   clearInterval: "resource://gre/modules/Timer.sys.mjs",
   setInterval: "resource://gre/modules/Timer.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  CommonUtils: "resource://services-common/utils.js",
   NntpClient: "resource:///modules/NntpClient.jsm",
 });
 

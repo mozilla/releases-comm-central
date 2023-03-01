@@ -6,7 +6,9 @@
  * Tests for LDAPMessage.jsm.
  */
 
-var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
+var { CommonUtils } = ChromeUtils.importESModule(
+  "resource://services-common/utils.sys.mjs"
+);
 var { LDAPResponse, SearchRequest } = ChromeUtils.import(
   "resource:///modules/LDAPMessage.jsm"
 );

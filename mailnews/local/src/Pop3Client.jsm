@@ -10,8 +10,12 @@ var { setTimeout } = ChromeUtils.importESModule(
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
-var { CryptoUtils } = ChromeUtils.import("resource://services-crypto/utils.js");
+var { CommonUtils } = ChromeUtils.importESModule(
+  "resource://services-common/utils.sys.mjs"
+);
+var { CryptoUtils } = ChromeUtils.importESModule(
+  "resource://services-crypto/utils.sys.mjs"
+);
 var { LineReader } = ChromeUtils.import("resource:///modules/LineReader.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

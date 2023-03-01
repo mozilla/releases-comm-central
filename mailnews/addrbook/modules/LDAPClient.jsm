@@ -4,7 +4,9 @@
 
 const EXPORTED_SYMBOLS = ["LDAPClient"];
 
-var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
+var { CommonUtils } = ChromeUtils.importESModule(
+  "resource://services-common/utils.sys.mjs"
+);
 var { setTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
 );

@@ -10,7 +10,9 @@
 
 "use strict";
 
-var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
+var { CommonUtils } = ChromeUtils.importESModule(
+  "resource://services-common/utils.sys.mjs"
+);
 var { EnigmailFuncs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
 );

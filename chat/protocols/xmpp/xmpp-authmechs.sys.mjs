@@ -29,12 +29,8 @@
 // As this is only used by XMPPSession, it may seem like an internal detail of
 // the XMPP implementation, but exporting it is valuable for testing purposes.
 
-const { CommonUtils } = ChromeUtils.import(
-  "resource://services-common/utils.js"
-);
-const { CryptoUtils } = ChromeUtils.import(
-  "resource://services-crypto/utils.js"
-);
+import { CommonUtils } from "resource://services-common/utils.sys.mjs";
+import { CryptoUtils } from "resource://services-crypto/utils.sys.mjs";
 import { Stanza } from "resource:///modules/xmpp-xml.sys.mjs";
 
 // Handle PLAIN authorization mechanism.

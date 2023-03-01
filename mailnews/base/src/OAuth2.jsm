@@ -9,7 +9,9 @@
  */
 var EXPORTED_SYMBOLS = ["OAuth2"];
 
-var { CryptoUtils } = ChromeUtils.import("resource://services-crypto/utils.js");
+var { CryptoUtils } = ChromeUtils.importESModule(
+  "resource://services-crypto/utils.sys.mjs"
+);
 
 // Only allow one connecting window per endpoint.
 var gConnecting = {};
