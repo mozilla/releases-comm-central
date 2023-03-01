@@ -63,6 +63,17 @@
   margin-inline: auto;
 }
 
+#threadTree[rows="thread-card"] button {
+  min-height: 16px;
+  min-width: 16px;
+  opacity: 0.7;
+}
+
+#threadTree[rows="thread-card"] button:hover {
+  opacity: 1;
+  color: currentColor;
+}
+
 tr[is="thread-row"] {
   color: var(--tag-color, currentColor);
 }
@@ -111,7 +122,20 @@ tr:not(.children) .tree-view-row-thread img {
   stroke: color-mix(in srgb, currentColor 30%, transparent);
 }
 
-tr[data-properties~="flagged"] .tree-view-row-flag > .tree-button-flag > img {
+.button-star {
+  -moz-context-properties: fill, stroke;
+  background-image: var(--icon-star);
+  fill: color-mix(in srgb, currentColor 10%, transparent);
+  stroke: color-mix(in srgb, currentColor 30%, transparent);
+}
+
+[is="tree-view-table-body"]:focus > .selected:not([data-properties~="flagged"]) .button-star {
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: color-mix(in srgb, currentColor 70%, transparent);
+}
+
+tr[data-properties~="flagged"] .tree-view-row-flag > .tree-button-flag > img,
+tr[data-properties~="flagged"] .button-star {
   fill: var(--thread-pane-flag-fill);
   stroke: var(--thread-pane-flag-stroke);
 }
@@ -304,18 +328,25 @@ tr[data-properties~="replied"][data-properties~="forwarded"][data-properties~="r
   stroke: currentColor !important;
 }
 
-tr[is="thread-row"] .twisty {
+tr:is([is="thread-row"], [is="thread-card"]) .twisty {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
   color: currentColor;
 }
 
-tr[is="thread-row"]:not(.children) .twisty {
+#threadTree tr[is="thread-card"] button.twisty {
+  width: 12px;
+  height: 13px;
+  min-width: 12px;
+  min-height: 13px;
+}
+
+tr:is([is="thread-row"], [is="thread-card"]):not(.children) .twisty {
   display: none;
 }
 
-tr[is="thread-row"] .twisty-icon {
+tr:is([is="thread-row"], [is="thread-card"]) .twisty-icon {
   width: 12px;
   height: 12px;
   content: var(--icon-nav-down-sm);
@@ -395,4 +426,96 @@ tr[data-properties~="outgoing"] .correspondentcol-column:dir(rtl) {
 
 tr[data-properties~="outgoing"].selected .correspondentcol-column {
   fill-opacity: 0.6;
+}
+
+/* Vertical layout cards */
+
+#threadTree[rows="thread-card"] {
+  background-color: var(--layout-background-1);
+}
+
+tr[is="thread-card"] td {
+  padding: 0;
+}
+
+tr[is="thread-card"][data-properties~="unread"]:not(.selected, :hover) {
+  background-color: var(--tree-view-bg);
+}
+
+tr[is="thread-card"][data-properties~="new"] {
+  position: relative;
+  box-shadow: 0 6px 5px -5px rgba(0, 0, 0, 0.1);
+}
+
+.thread-card-container {
+  display: flex;
+  flex-direction: column;
+  padding: 3px 9px;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--layout-background-3);
+}
+
+tr[data-properties~="thread-children"] .thread-card-container {
+  margin-inline-start: 24px;
+  border-bottom: none;
+}
+
+tr[data-properties~="thread-children"] + tr[data-properties~="thread-children"] .thread-card-container {
+  border-top: 1px solid var(--layout-background-3);
+}
+
+tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-children"]) .thread-card-container {
+  border-top: 1px solid var(--layout-background-3);
+}
+
+.thread-card-row {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.thread-card-row > :is(.sender, .subject) {
+  flex: 1 1 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.thread-card-subject-container .sender {
+  font-weight: 400;
+}
+
+.thread-card-subject-container {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: 1 1 0;
+}
+
+.thread-card-subject-container .subject {
+  font-size: 1.1rem;
+  font-weight: 500;
+  flex: 1 1 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.thread-card-container .date {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+#threadTree [data-properties~="unread"] .thread-card-container :is(.sender, .subject) {
+  font-weight: bold;
+}
+
+#threadTree [data-properties~="new"]:not(.selected) .thread-card-container :is(.subject, .date) {
+  color: var(--new-folder-color);
 }

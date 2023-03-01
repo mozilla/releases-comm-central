@@ -372,15 +372,18 @@ th[is="tree-view-table-column-picker"] {
 
 table[is="tree-view-table"] td {
   max-width: 0;
+  height: inherit;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 0 6px;
   position: relative;
   user-select: none;
+  box-sizing: border-box;
 }
 
-table[is="tree-view-table"] td div {
+table[is="tree-view-table"] td div:not(.recipient-avatar) {
+  height: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
 }

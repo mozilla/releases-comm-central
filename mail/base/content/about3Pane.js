@@ -172,20 +172,24 @@ var paneLayout = {
     document.body.classList.remove(
       "layout-classic",
       "layout-vertical",
-      "layout-wide"
+      "layout-wide",
+      "layout-table"
     );
     switch (preference) {
       case 1:
-        document.body.classList.add("layout-wide");
+        document.body.classList.add("layout-wide", "layout-table");
         this.messagePaneSplitter.resizeDirection = "vertical";
+        threadTree?.setAttribute("rows", "thread-row");
         break;
       case 2:
         document.body.classList.add("layout-vertical");
         this.messagePaneSplitter.resizeDirection = "horizontal";
+        threadTree?.setAttribute("rows", "thread-card");
         break;
       default:
-        document.body.classList.add("layout-classic");
+        document.body.classList.add("layout-classic", "layout-table");
         this.messagePaneSplitter.resizeDirection = "vertical";
+        threadTree?.setAttribute("rows", "thread-row");
         break;
     }
   },
@@ -2090,7 +2094,10 @@ var threadPane = {
       "threadPaneApplyColumnMenu",
       "threadPaneApplyViewMenu",
     ]);
-    threadTree.setAttribute("rows", "thread-row");
+    threadTree.setAttribute(
+      "rows",
+      paneLayout.layoutPreference == 2 ? "thread-card" : "thread-row"
+    );
 
     window.addEventListener("uidensitychange", () => {
       this.densityChange();
@@ -2101,9 +2108,6 @@ var threadPane = {
     // No need to restore the columns state on first load since a folder hasn't
     // been selected yet.
     this.treeTable.setColumns(DEFAULT_COLUMNS);
-
-    // TODO: Switch this dynamically like in the address book.
-    document.body.classList.add("layout-table");
 
     this.treeTable.addEventListener("shift-column", event => {
       this.onColumnShifted(event.detail);
@@ -3316,6 +3320,82 @@ customElements.whenDefined("tree-view-table-row").then(() => {
     }
   }
   customElements.define("thread-row", ThreadRow, { extends: "tr" });
+
+  class ThreadCard extends customElements.get("tree-view-table-row") {
+    static ROW_HEIGHT = 46;
+
+    connectedCallback() {
+      if (this.hasConnected) {
+        return;
+      }
+
+      super.connectedCallback();
+
+      this.setAttribute("draggable", "true");
+
+      this.appendChild(
+        document
+          .getElementById("threadPaneCardTemplate")
+          .content.cloneNode(true)
+      );
+
+      this.senderLine = this.querySelector(".sender");
+      this.subjectLine = this.querySelector(".subject");
+      this.dateLine = this.querySelector(".date");
+      this.starButton = this.querySelector(".button-star");
+
+      this.addEventListener("contextmenu", event => {
+        let row = event.target.closest(`tr[is="thread-card"]`);
+        if (!row) {
+          return;
+        }
+        if (!gDBView.selection.isSelected(row.index)) {
+          threadTree.selectedIndex = row.index;
+        }
+
+        mailContextMenu.setAsThreadPaneContextMenu();
+        let popup = document.getElementById("mailContext");
+        popup.openPopupAtScreen(event.screenX, event.screenY, true);
+        event.preventDefault();
+      });
+    }
+
+    get index() {
+      return super.index;
+    }
+
+    set index(index) {
+      super.index = index;
+
+      const subjectText = this.view.cellTextForColumn(index, "subjectCol");
+      this.setAttribute("aria-label", subjectText);
+      this.subjectLine.textContent = subjectText;
+
+      let properties = this.view.getRowProperties(index).trim();
+      if (this.view.getLevel(index)) {
+        properties += " thread-children";
+      }
+      const propertiesSet = new Set(properties.split(" "));
+      this.dataset.properties = properties;
+
+      this.senderLine.textContent = this.view.cellTextForColumn(
+        index,
+        "correspondentCol"
+      );
+
+      this.dateLine.textContent = this.view.cellTextForColumn(index, "dateCol");
+
+      document.l10n.setAttributes(
+        this.starButton,
+        propertiesSet.has("flagged")
+          ? "tree-list-view-row-flagged"
+          : "tree-list-view-row-flag"
+      );
+    }
+  }
+  customElements.define("thread-card", ThreadCard, {
+    extends: "tr",
+  });
 });
 
 commandController.registerCallback(

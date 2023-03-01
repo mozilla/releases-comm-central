@@ -165,6 +165,27 @@
         </div>
       </div>
     </template>
+    <template id="threadPaneCardTemplate">
+      <td>
+        <div class="thread-card-container">
+          <div class="thread-card-row">
+            <span class="sender"></span>
+            <span class="date"></span>
+          </div>
+          <div class="thread-card-row">
+            <div class="thread-card-subject-container">
+              <button type="button"
+                      class="button button-flat button-reset twisty"
+                      tabindex="-1">
+                <img src="" alt="" class="twisty-icon" />
+              </button>
+              <span class="subject"></span>
+            </div>
+            <button class="button-star tree-button-flag" tabindex="-1"></button>
+          </div>
+        </div>
+      </td>
+    </template>
   </div>
   <hr is="pane-splitter" id="messagePaneSplitter"
       resize-id="messagePane"
