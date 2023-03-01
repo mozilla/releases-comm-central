@@ -120,6 +120,7 @@ class ImapClient {
     } else {
       let hostname = this._server.hostName.toLowerCase();
       this._logger.debug(`Connecting to ${hostname}:${this._server.port}`);
+      this._greeted = false;
       this._capabilities = null;
       this._secureTransport = this._server.socketType == Ci.nsMsgSocketType.SSL;
       this._socket = new TCPSocket(hostname, this._server.port, {
@@ -858,7 +859,10 @@ class ImapClient {
     this._logger.debug("Connected");
     this._socket.ondata = this._onData;
     this._socket.onclose = this._onClose;
-    this._nextAction = this._actionCapabilityResponse;
+    this._nextAction = res => {
+      this._greeted = true;
+      this._actionCapabilityResponse(res);
+    };
 
     this._setSocketTimeout(this._prefs.tcpTimeout);
   };
@@ -893,7 +897,7 @@ class ImapClient {
       this._actionDone(ImapUtils.NS_MSG_ERROR_IMAP_COMMAND_FAILED);
       return;
     }
-    if (!this._capabilities || this._idling || this._response.done) {
+    if (!this._greeted || this._idling || this._response.done) {
       this._nextAction?.(this._response);
     }
   };
