@@ -70,6 +70,8 @@
         return;
       }
 
+      MozXULElement.insertFTLIfNeeded("calendar/calendar-widgets.ftl");
+
       const minimonthHeader = `
         <html:div class="minimonth-header minimonth-month-box"
                   xmlns="http://www.w3.org/1999/xhtml">

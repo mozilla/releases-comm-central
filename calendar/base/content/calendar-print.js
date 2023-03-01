@@ -18,9 +18,16 @@ const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
   let ownerWindow = window.browsingContext.topChromeWindow;
   let ownerDocument = ownerWindow.document;
 
-  let link = document.head.appendChild(document.createElement("link"));
-  link.rel = "stylesheet";
-  link.href = "chrome://messenger/skin/icons.css";
+  for (let href of [
+    "chrome://messenger/skin/icons.css",
+    "chrome://messenger/skin/variables.css",
+    "chrome://messenger/skin/widgets.css",
+    "chrome://calendar/skin/shared/widgets/minimonth.css",
+  ]) {
+    let link = document.head.appendChild(document.createElement("link"));
+    link.rel = "stylesheet";
+    link.href = href;
+  }
 
   let otherForm = document.querySelector("form");
   otherForm.hidden = true;
