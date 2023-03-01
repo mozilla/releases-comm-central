@@ -4,17 +4,6 @@
 
 @import url(chrome://calendar/skin/shared/calendar-views.css);
 
-/* Navigation controls for the views */
-
-#view-box {
-  background-color: Field;
-  border-width: 0 0 1px 1px;
-}
-
 .navigation-inner-box {
   padding-top: 1px;
-}
-
-.navigation-bottombox {
-  background-color: Field;
 }

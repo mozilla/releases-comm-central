@@ -169,12 +169,6 @@ prompt-delete-label =
     .label = Prompt before deleting events and tasks.
     .accesskey = V
 
-accessibility-legend = Accessibility
-
-accessibility-colors-label =
-    .label = Optimize colors for accessibility
-    .accesskey = c
-
 reminder-legend = When a Reminder is Due:
 
 reminder-play-checkbox =

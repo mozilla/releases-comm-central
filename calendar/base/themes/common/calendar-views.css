@@ -12,8 +12,8 @@
   --viewHighlightBorderColor: var(--color-blue-50);
   --viewTodayColor: inherit;
   --viewTodayBackground: var(--layout-background-1);
-  --viewTodayLabelColor: var(--color-blue-50);
-  --viewTodayLabelBackground: var(--color-blue-10);
+  --viewTodayLabelColor: var(--color-white);
+  --viewTodayLabelBackground: var(--color-blue-50);
   --viewTodayOffBackground: color-mix(in srgb, var(--viewTodayBackground) 95%, black);
   --viewTodayDayLabelBackground: var(--color-blue-10);
   --viewTodayWeekendBackground: color-mix(in srgb, var(--color-blue-10) 20%, var(--viewWeekendBackground));
@@ -77,7 +77,6 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --viewTodayLabelBackground: color-mix(in srgb, var(--color-blue-90) 30%, var(--viewBackground));
     --viewTodayDayLabelBackground: color-mix(in srgb, var(--color-blue-90) 30%, var(--viewBackground));
     --viewHeaderSelectedBackground: color-mix(in srgb, var(--color-blue-90) 20%, var(--viewBackground));
     --viewDayBoxSelectedBackground: color-mix(in srgb, var(--color-blue-90) 20%, var(--viewBackground));
@@ -106,6 +105,35 @@
     --calendar-view-toggle-selected-hover-background: SelectedItem;
     --calendar-view-toggle-border-color: WindowText;
     --calendar-view-toggle-shadow-color: transparent;
+    --viewColor: WindowText;
+    --viewBackground: Field;
+    --viewBorderColor: ThreeDShadow;
+    --viewHighlightBorderColor: var(--selected-item-color);
+    --viewTodayColor: inherit;
+    --viewTodayBackground: Field;
+    --viewTodayLabelColor: var(--selected-item-text-color);
+    --viewTodayLabelBackground: var(--selected-item-color);
+    --viewTodayOffBackground: ButtonFace;
+    --viewTodayDayLabelBackground: ButtonFace;
+    --viewTodayWeekendBackground: ButtonFace;
+    --viewWeekendBackground: hsla(0, 0%, 60%, 0.1);
+    --viewHeaderSelectedBackground: ButtonFace;
+    --viewDayBoxSelectedBackground: Field;
+    --viewDayBoxOffSelectedBackground: hsla(0, 0%, 60%, 0.05);
+    --viewDayBoxOtherSelectedBackground: hsla(0, 0%, 60%, 0.05);
+    --viewMonthOtherBackground: ButtonFace;
+    --viewMonthWeekLabelBackground: ButtonFace;
+    --viewMonthDayBoxSelectedColor: var(--selected-item-color);
+    --viewMonthDayBoxLabelColor: WindowText;
+    --viewMonthDayOtherBackground: hsla(0, 0%, 60%, 0.1);
+    --viewMonthDayOffLabelBackground: hsla(0, 0%, 60%, 0.1);
+    --viewOffTimeBackground: hsla(0, 0%, 60%, 0.1);
+    --viewTimeBoxColor: GrayText;
+    --viewDayLabelSelectedColor: var(--selected-item-text-color);
+    --viewDayLabelSelectedBackground: var(--selected-item-color);
+    --viewDragboxColor: GrayText;
+    --viewDragboxBackground: var(--selected-item-color);
+    --viewDropshadowBackground: var(--selected-item-color) !important;
   }
 
   button.calview-toggle-item:hover,
@@ -114,37 +142,6 @@
     --calendar-view-toggle-border-color: SelectedItem;
     color: SelectedItemText;
   }
-}
-
-:root[systemcolors] {
-  --viewColor: WindowText;
-  --viewBackground: Field;
-  --viewBorderColor: ThreeDShadow;
-  --viewHighlightBorderColor: var(--selected-item-color);
-  --viewTodayColor: inherit;
-  --viewTodayBackground: Field;
-  --viewTodayLabelColor: var(--selected-item-text-color);
-  --viewTodayLabelBackground: var(--selected-item-color);
-  --viewTodayOffBackground: ButtonFace;
-  --viewTodayDayLabelBackground: ButtonFace;
-  --viewTodayWeekendBackground: ButtonFace;
-  --viewWeekendBackground: rgba(0, 0, 0, .1);
-  --viewHeaderSelectedBackground: ButtonFace;
-  --viewDayBoxSelectedBackground: Field;
-  --viewDayBoxOffSelectedBackground: rgba(0, 0, 0, .2);
-  --viewDayBoxOtherSelectedBackground: rgba(0, 0, 0, .2);
-  --viewMonthOtherBackground: ButtonFace;
-  --viewMonthDayBoxSelectedColor: var(--selected-item-color);
-  --viewMonthDayBoxLabelColor: WindowText;
-  --viewMonthDayOtherBackground: ButtonFace;
-  --viewMonthDayOffLabelBackground: rgba(0, 0, 0, .1);
-  --viewOffTimeBackground: rgba(0, 0, 0, .1);
-  --viewTimeBoxColor: GrayText;
-  --viewDayLabelSelectedColor: var(--selected-item-text-color);
-  --viewDayLabelSelectedBackground: var(--selected-item-color);
-  --viewDragboxColor: GrayText;
-  --viewDragboxBackground: var(--selected-item-color);
-  --viewDropshadowBackground: var(--selected-item-color) !important;
 }
 
 /* Calendar Items */
@@ -560,7 +557,7 @@ calendar-event-column,
 }
 
 .day-column-today .day-column-heading {
-  color: var(--viewTodayLabelColor);
+  color: var(--viewTodayLabelBackground);
 }
 
 .day-column-today.day-column-weekend:not(.day-column-selected) :is(
@@ -807,7 +804,7 @@ calendar-month-day-box {
 }
 
 .calendar-month-day-box-other-month {
-  background-color: var(--viewMonthOtherBackground);
+  background-color: var(--viewMonthDayOtherBackground);
 }
 
 .calendar-month-day-box-other-month.calendar-month-day-box-day-off {
@@ -824,7 +821,7 @@ calendar-month-day-box {
   color: var(--color-white);
   position: relative;
   font-weight: bold;
-  background-color: var(--viewTodayLabelColor);
+  background-color: var(--viewTodayLabelBackground);
   border-radius: 1000px;
   text-align: center;
   padding-block: var(--today-week-pill-padding-block);
@@ -854,7 +851,7 @@ calendar-month-day-box {
 }
 
 .calendar-month-day-box-date-label[relation="today"][selected="true"] {
-  color: var(--color-white);
+  color: var(--viewTodayLabelColor);
 }
 
 .calendar-month-day-box-date-label {
@@ -1083,16 +1080,11 @@ calendar-editable-item[status="CANCELLED"],
 
 /* Calendar body */
 #view-box {
-  border: solid ThreeDShadow;
+  background-color: var(--layout-background-1);
 }
 
 :root[lwt-tree] #view-box {
   background-color: var(--sidebar-background-color);
-  border-color: var(--sidebar-border-color);
-}
-
-:root[systemcolors] #view-box {
-  background-color: Field;
 }
 
 /* Calendar control bar: Cal navigation, Date interval, Week# and View toggle*/

@@ -65,6 +65,11 @@
   min-width: 0;
 }
 
+.button.icon-button:dir(rtl),
+.button.icon-button:-moz-locale-dir(rtl) {
+  background-position-x: right var(--button-padding);
+}
+
 .button.icon-only {
   background-position: var(--button-padding) center;
   padding-inline-start: calc(var(--button-padding) + 16px);
@@ -122,6 +127,12 @@
 .button.button-primary:is(:hover, :focus-visible) {
   background-color: var(--button-primary-hover-background-color);
   border-color: var(--button-primary-border-color);
+}
+
+@media (prefers-contrast) {
+  .button.button-primary:hover {
+    border-color: var(--button-primary-hover-border-color);
+  }
 }
 
 .button.button-primary:hover:active {

@@ -151,9 +151,6 @@ pref("calendar.threading.latency ", 250);
 // will get multiple password dialogs (one for each calendar)
 pref("calendar.network.multirealm", false);
 
-// Disable use of system colors in minimonth and calendar views
-pref("calendar.view.useSystemColors", false);
-
 // Disable hiding the label on todayPane button
 pref("calendar.view.showTodayPaneStatusLabel", true);
 

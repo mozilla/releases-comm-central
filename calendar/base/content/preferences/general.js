@@ -20,7 +20,6 @@ Preferences.addAll([
   { id: "calendar.task.defaultdue", type: "string" },
   { id: "calendar.task.defaultdueoffset", type: "int" },
   { id: "calendar.task.defaultdueoffsetunits", type: "string" },
-  { id: "calendar.view.useSystemColors", type: "bool" },
   { id: "calendar.agenda.days", type: "int" },
   { id: "calendar.item.editInTab", type: "bool" },
   { id: "calendar.item.promptDelete", type: "bool" },

@@ -4,26 +4,6 @@
 
 @import url(chrome://calendar/skin/shared/calendar-views.css);
 
-/* Navigation controls for the views */
-
-#view-box {
-  background-color: Field;
-  border-width: 0;
-  border-inline-start: 1px;
-}
-
-radio.calview[selected="true"] {
-  background-color: Field;
-}
-
-.navigation-inner-box > hbox {
-  padding-top: 1px;
-}
-
-.navigation-bottombox {
-  background-color: Field;
-}
-
 #calendar-view-box #calendar-view-splitter {
   border: none;
   border-bottom: 1px solid var(--splitter-color);

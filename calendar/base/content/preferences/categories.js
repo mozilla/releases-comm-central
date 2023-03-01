@@ -88,7 +88,7 @@ var gCategoriesPane = {
       let categoryNameFix = cal.view.formatStringForCSSRule(gCategoryList[i]);
 
       let categoryColor = document.createXULElement("box");
-      categoryColor.setAttribute("width", "150");
+      categoryColor.style.width = "150px";
       let colorCode = categoryPrefBranch.getCharPref(categoryNameFix, "");
       if (colorCode) {
         categoryColor.style.backgroundColor = colorCode;

@@ -448,19 +448,6 @@ calview.colorTracker = {
 
       this.categoryBranch = Services.prefs.getBranch("calendar.category.color.");
       this.categoryBranch.addObserver("", this);
-
-      XPCOMUtils.defineLazyPreferenceGetter(
-        this,
-        "useSystemColors",
-        "calendar.view.useSystemColors",
-        false,
-        (name, oldValue, value) => {
-          for (let window of this.windows) {
-            window.document.documentElement.toggleAttribute("systemcolors", value);
-          }
-        }
-      );
-
       Services.obs.addObserver(this, "xpcom-shutdown");
     }
 
@@ -474,7 +461,6 @@ calview.colorTracker = {
       this._addCalendarToDocument(aDocument, calendar);
     }
     this._addAllCategoriesToDocument(aDocument);
-    aDocument.documentElement.toggleAttribute("systemcolors", this.useSystemColors);
   },
 
   _addCalendarToDocument(aDocument, aCalendar) {

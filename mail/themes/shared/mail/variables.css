@@ -192,6 +192,12 @@
 
 @media (prefers-contrast) {
   :root:not(:-moz-lwtheme) {
+    --button-primary-background-color: SelectedItem;
+    --button-primary-hover-background-color: SelectedItem;
+    --button-primary-active-background-color: SelectedItem;
+    --button-primary-text-color: SelectedItemText;
+    --button-primary-border-color: SelectedItem;
+    --button-primary-hover-border-color: -moz-DialogText;
     --selected-item-color: SelectedItem;
     --selected-item-text-color: SelectedItemText;
   }

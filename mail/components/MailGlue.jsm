@@ -1245,7 +1245,6 @@ function reportPreferences() {
     // Calendar general
     "calendar.item.editInTab",
     "calendar.item.promptDelete",
-    "calendar.view.useSystemColors",
 
     // Alarms
     "calendar.alarms.playsound",
