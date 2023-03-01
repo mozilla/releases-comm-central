@@ -89,10 +89,10 @@ with only_when("--enable-compile-environment"):
 
 with only_when(in_tree_librnp):
 
-    @depends(build_environment, c_compiler)
+    @depends(build_environment, configure_cache, c_compiler)
     @imports(_from="textwrap", _import="dedent")
     @imports(_from="os.path", _import="join")
-    def rnp_version_string(build_env, compiler):
+    def rnp_version_string(build_env, configure_cache, compiler):
         log.info("Determining librnp version from version.h.")
         include_path = join(build_env.topsrcdir, "comm", "third_party", "rnp", "src", "lib")
         check = dedent(
@@ -102,6 +102,7 @@ with only_when(in_tree_librnp):
         """
         )
         result = try_preprocess(
+            configure_cache,
             compiler.wrapper + [compiler.compiler] + compiler.flags + ["-I", include_path],
             "C",
             check,
@@ -267,10 +268,10 @@ with only_when(in_tree_librnp):
         set_config("MZLA_LIBRNP_OPENSSL_CFLAGS", openssl_flags.cflags)
         set_config("MZLA_LIBRNP_OPENSSL_LIBS", openssl_flags.ldflags)
 
-        @depends(c_compiler, openssl_flags)
+        @depends(configure_cache, c_compiler, openssl_flags)
         @imports(_from="textwrap", _import="dedent")
         @imports(_from="__builtin__", _import="chr")
-        def openssl_version(compiler, openssl_flags):
+        def openssl_version(configure_cache, compiler, openssl_flags):
             log.info("Checking for OpenSSL >= 1.1.1e")
             if openssl_flags is None:
                 die("OpenSSL not found. Must be locatable with pkg-config or use --with-openssl.")
@@ -302,6 +303,7 @@ with only_when(in_tree_librnp):
                 """
             )
             result = try_preprocess(
+                configure_cache,
                 compiler.wrapper
                 + [compiler.compiler]
                 + compiler.flags
