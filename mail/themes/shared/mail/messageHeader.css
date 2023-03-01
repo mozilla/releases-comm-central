@@ -259,8 +259,8 @@ mail-tagfield[collapsed="true"] {
 /* ::::: attachment view ::::: */
 
 #attachmentBar {
-  color: -moz-dialogtext;
-  background-color: -moz-Dialog;
+  color: var(--layout-color-1);
+  background-color: var(--layout-background-1);
   padding: 3px 0;
 }
 

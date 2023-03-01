@@ -7,8 +7,8 @@
   -moz-user-focus: normal;
   margin: 0;
   padding: 3px;
-  background-color: Field;
-  color: FieldText;
+  background-color: var(--layout-background-2);
+  color: var(--layout-color-2);
   display: flex;
   overflow-x: hidden;
   flex-wrap: wrap;
