@@ -196,7 +196,8 @@ OAuth2.prototype = {
           onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
             const wpl = Ci.nsIWebProgressListener;
             if (aStateFlags & (wpl.STATE_START | wpl.STATE_IS_NETWORK)) {
-              this._checkForRedirect(aRequest.name);
+              let channel = aRequest.QueryInterface(Ci.nsIChannel);
+              this._checkForRedirect(channel.URI.spec);
             }
           },
           onLocationChange(aWebProgress, aRequest, aLocation) {
