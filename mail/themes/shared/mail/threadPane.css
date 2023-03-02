@@ -450,6 +450,7 @@ tr[is="thread-card"][data-properties~="new"] {
 .thread-card-container {
   display: flex;
   flex-direction: column;
+  height: 100%;
   padding: 3px 9px;
   box-sizing: border-box;
   border-bottom: 1px solid var(--layout-background-3);

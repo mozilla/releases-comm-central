@@ -383,7 +383,6 @@ table[is="tree-view-table"] td {
 }
 
 table[is="tree-view-table"] td div:not(.recipient-avatar) {
-  height: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
 }
