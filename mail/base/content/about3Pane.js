@@ -2451,15 +2451,41 @@ var threadPane = {
     }
 
     let { currentKey, selectedKeys } = this._savedSelections.get(gFolder.URI);
-    threadTree.selectedIndices = selectedKeys
-      .map(gDBView.findIndexFromKey)
-      .filter(i => i != nsMsgViewIndex_None);
+    let currentIndex = nsMsgViewIndex_None;
+    let indices = new Set();
+    for (let key of selectedKeys) {
+      let index = gDBView.findIndexFromKey(key, false);
+      if (index != nsMsgViewIndex_None) {
+        indices.add(index);
+        if (key == currentKey) {
+          currentIndex = index;
+        }
+        continue;
+      }
 
-    let index = gDBView.findIndexFromKey(currentKey, false);
-    if (index != nsMsgViewIndex_None) {
+      // The message for this key can't be found. Perhaps the thread it's in
+      // has been collapsed? Select the root message in that case.
+      try {
+        let msgHdr = gFolder.GetMessageHeader(key);
+        let thread = gDBView.getThreadContainingMsgHdr(msgHdr);
+        let rootMsgHdr = thread.getRootHdr();
+        index = gDBView.findIndexOfMsgHdr(rootMsgHdr, false);
+        if (index != nsMsgViewIndex_None) {
+          indices.add(index);
+          if (key == currentKey) {
+            currentIndex = index;
+          }
+        }
+      } catch (ex) {
+        console.error(ex);
+      }
+    }
+    threadTree.selectedIndices = indices.values();
+
+    if (currentIndex != nsMsgViewIndex_None) {
       // Do an instant scroll before setting the index to avoid animation.
-      threadTree.scrollToIndex(index, true);
-      threadTree.currentIndex = index;
+      threadTree.scrollToIndex(currentIndex, true);
+      threadTree.currentIndex = currentIndex;
     }
     this._savedSelections.delete(gFolder.URI);
   },
@@ -3763,7 +3789,6 @@ commandController.registerCallback(
   () => {
     threadPane.saveSelection();
     gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
-    // TODO: this reopens threads containing a selected message.
     threadPane.restoreSelection();
   },
   () => !!gViewWrapper?.dbView
