@@ -172,14 +172,14 @@ class ImapClient {
   /**
    * Discover all folders if the current server hasn't already discovered.
    */
-  _discoverAllFoldersIfNecessary() {
+  _discoverAllFoldersIfNecessary = () => {
     if (this._server.hasDiscoveredFolders) {
       this.onReady();
       return;
     }
     this._actionAfterDiscoverAllFolders = this.onReady;
     this.discoverAllFolders(this._server.rootFolder);
-  }
+  };
 
   /**
    * Discover all folders.
@@ -319,9 +319,7 @@ class ImapClient {
       folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
     let names = this._getAncestorFolderNames(folder);
     let oldName = this._getServerFolderName(folder);
-    newName = this._charsetManager.unicodeToMutf7(
-      [...names, newName].join(delimiter)
-    );
+    newName = this._encodeMailboxName([...names, newName].join(delimiter));
 
     this._nextAction = this._actionRenameResponse(oldName, newName);
     this._sendTagged(`RENAME "${oldName}" "${newName}"`);
@@ -521,6 +519,15 @@ class ImapClient {
   }
 
   /**
+   * When UTF8 is enabled, use the name directly. Otherwise, encode to mUTF-7.
+   *
+   * @param {string} name - The mailbox name.
+   */
+  _encodeMailboxName(name) {
+    return this._utf8Enabled ? name : this._charsetManager.unicodeToMutf7(name);
+  }
+
+  /**
    * Get the server name of a msg folder.
    *
    * @param {nsIMsgFolder} folder - The input folder.
@@ -537,9 +544,9 @@ class ImapClient {
     let delimiter =
       folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
     let names = this._getAncestorFolderNames(folder);
-    return this._charsetManager
-      .unicodeToMutf7([...names, folder.name].join(delimiter))
-      .replaceAll('"', '\\"');
+    return this._encodeMailboxName(
+      [...names, folder.name].join(delimiter)
+    ).replaceAll('"', '\\"');
   }
 
   /**
@@ -551,7 +558,7 @@ class ImapClient {
    * @returns {string}
    */
   _getServerSubFolderName(parent, folderName) {
-    folderName = this._charsetManager.unicodeToMutf7(folderName);
+    folderName = this._encodeMailboxName(folderName);
     let mailboxName = this._getServerFolderName(parent);
     if (mailboxName) {
       let delimiter = parent.QueryInterface(Ci.nsIMsgImapMailFolder)
@@ -689,7 +696,7 @@ class ImapClient {
           this._logger.warn("copyNextStreamMessage failed", e);
         }
       };
-      this._send(content);
+      this._send(content + (this._utf8Enabled ? ")" : ""));
     };
     let outKeywords = {};
     let flags = dstFolder
@@ -702,9 +709,11 @@ class ImapClient {
     if (outKeywords.value) {
       flagString += " " + outKeywords.value;
     }
-    this._sendTagged(
-      `APPEND "${mailbox}" (${flagString.trim()}) {${content.length}}`
-    );
+    let open = this._utf8Enabled ? "UTF8 (~{" : "{";
+    let command = `APPEND "${mailbox}" (${flagString.trim()}) ${open}${
+      content.length
+    }}`;
+    this._sendTagged(command);
   }
 
   /**
@@ -878,9 +887,9 @@ class ImapClient {
     // on the same process. We also have this in Pop3Client.
     await new Promise(resolve => setTimeout(resolve));
 
-    let stringPayload = MailStringUtils.uint8ArrayToByteString(
-      new Uint8Array(event.data)
-    );
+    let stringPayload = this._utf8Enabled
+      ? new TextDecoder().decode(event.data)
+      : MailStringUtils.uint8ArrayToByteString(new Uint8Array(event.data));
     this._logger.debug(`S: ${stringPayload}`);
     if (!this._response || this._idling || this._response.done) {
       this._response = new ImapResponse();
@@ -956,9 +965,10 @@ class ImapClient {
       return;
     }
 
-    this._socket.send(
-      MailStringUtils.byteStringToUint8Array(str + "\r\n").buffer
-    );
+    let encode = this._utf8Enabled
+      ? x => new TextEncoder().encode(x)
+      : MailStringUtils.byteStringToUint8Array;
+    this._socket.send(encode(str + "\r\n").buffer);
   }
 
   /**
@@ -1173,28 +1183,15 @@ class ImapClient {
     }
     if (res.status == "OK") {
       this._serverSink.userAuthenticated = true;
-      let actionId = () => {
-        if (this._capabilities.includes("ID") && Services.appinfo.name) {
-          this._nextAction = res => {
-            this._server.serverIDPref = res.id;
-            this._discoverAllFoldersIfNecessary();
-          };
-          this._sendTagged(
-            `ID ("name" "${Services.appinfo.name}" "version" "${Services.appinfo.version}")`
-          );
-        } else {
-          this._discoverAllFoldersIfNecessary();
-        }
-      };
       if (res.capabilities) {
         this._capabilities = res.capabilities;
         this._server.wrappedJSObject.capabilities = res.capabilities;
-        actionId();
+        this._actionId();
       } else {
         this._nextAction = res => {
           this._capabilities = res.capabilities;
           this._server.wrappedJSObject.capabilities = res.capabilities;
-          actionId();
+          this._actionId();
         };
         this._sendTagged("CAPABILITY");
       }
@@ -1336,6 +1333,48 @@ class ImapClient {
       return;
     }
     this._send(token, true);
+  };
+
+  /**
+   * Send ID command to the server.
+   *
+   * @param {Function} [actionAfter] - A callback after processing ID command.
+   */
+  _actionId = (actionAfter = this._actionEnableUtf8) => {
+    if (this._capabilities.includes("ID") && Services.appinfo.name) {
+      this._nextAction = res => {
+        this._server.serverIDPref = res.id;
+        actionAfter();
+      };
+      this._sendTagged(
+        `ID ("name" "${Services.appinfo.name}" "version" "${Services.appinfo.version}")`
+      );
+    } else {
+      actionAfter();
+    }
+  };
+
+  /**
+   * Enable UTF8 if supported by the server.
+   *
+   * @param {Function} [actionAfter] - A callback after processing ENABLE UTF8.
+   */
+  _actionEnableUtf8 = (actionAfter = this._discoverAllFoldersIfNecessary) => {
+    if (
+      this._server.allowUTF8Accept &&
+      (this._capabilities.includes("UTF8=ACCEPT") ||
+        this._capabilities.includes("UTF8=ONLY"))
+    ) {
+      this._nextAction = res => {
+        this._utf8Enabled = res.status == "OK";
+        this._server.utf8AcceptEnabled = this._utf8Enabled;
+        actionAfter();
+      };
+      this._sendTagged("ENABLE UTF8=ACCEPT");
+    } else {
+      this._utf8Enabled = false;
+      actionAfter();
+    }
   };
 
   /**
