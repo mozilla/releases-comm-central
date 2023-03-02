@@ -179,7 +179,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
   color: inherit;
   background-color: var(--mmBoxBackground);
   border: 1px solid var(--mmBoxItemBorderColor);
-  border-radius: 2px;
+  border-radius: var(--button-border-radius);
   margin: var(--mmBoxItemPadding);
 }
 
@@ -210,6 +210,15 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
   background-image: var(--icon-nav-left);
 }
 
+@media (prefers-color-scheme: dark) {
+  .button.minimonth-nav-btn:active,
+  .button.minimonth-nav-btn:hover,
+  .button.minimonth-nav-btn:focus,
+  .button.minimonth-nav-btn:enabled:is(:hover, :focus-visible, :active) {
+    background-color: var(--color-gray-60);
+  }
+}
+
 @media (prefers-contrast) {
   .button.minimonth-nav-btn:active,
   .button.minimonth-nav-btn:hover,
@@ -218,7 +227,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
     background-color: var(--mmDaySelectedBackground);
     color: var(--mmDaySelectedColor);
     stroke: var(--mmDaySelectedColor);
-    border-color: var(--mmDaySelectedColor);
+    border-color: transparent;
   }
 }
 
