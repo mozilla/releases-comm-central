@@ -2386,6 +2386,9 @@ var threadPane = {
     this.tagStyle = document.head.appendChild(document.createElement("style"));
 
     for (let { color, key } of MailServices.tags.getAllTags()) {
+      if (!color) {
+        continue;
+      }
       let selector = MailServices.tags.getSelectorForKey(key);
       let contrast = TagUtils.isColorContrastEnough(color) ? "black" : "white";
       this.tagStyle.sheet.insertRule(
