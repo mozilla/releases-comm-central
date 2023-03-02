@@ -68,7 +68,6 @@
 
 .unified-toolbar-button[badge] {
   position: relative;
-  overflow-y: visible;
 }
 
 .unified-toolbar-button[badge]::after {
