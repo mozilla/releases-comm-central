@@ -1406,11 +1406,8 @@ pref("app.donation.eoy.version", 1);
 pref("app.donation.eoy.version.viewed", 0);
 pref("app.donation.eoy.url", "https://www.thunderbird.net/thunderbird/102.0/eoy/");
 
-#ifdef NIGHTLY_BUILD
-pref("mailnews.imap.jsmodule", true);
-#else
+// IMAP-JS disabled, Bug 1707547.
 pref("mailnews.imap.jsmodule", false);
-#endif
 
 // Unified toolbar
 
