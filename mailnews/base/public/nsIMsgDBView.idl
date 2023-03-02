@@ -290,7 +290,7 @@ interface nsIMsgDBView : nsISupports
   nsIMsgDBHdr getMsgHdrAt(in nsMsgViewIndex aIndex);
 
   nsIMsgFolder getFolderForViewIndex(in nsMsgViewIndex index); // mainly for search
-  ACString getURIForViewIndex(in nsMsgViewIndex index);
+  AUTF8String getURIForViewIndex(in nsMsgViewIndex index);
   nsIMsgDBView cloneDBView(in nsIMessenger aMessengerInstance, in nsIMsgWindow aMsgWindow, in nsIMsgDBViewCommandUpdater aCommandUpdater);
 
   /**
