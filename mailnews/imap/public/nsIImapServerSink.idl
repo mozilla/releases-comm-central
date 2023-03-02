@@ -27,18 +27,18 @@ interface nsIImapServerSink : nsISupports {
    * @param boxFlags IMAP folder flags (for subscription, namespaces etc.)
    * @return true if it's a new mailbox
    */
-  boolean possibleImapMailbox(in ACString folderPath,
+  boolean possibleImapMailbox(in AUTF8String folderPath,
                               in char hierarchyDelimiter, in long boxFlags);
-  boolean folderNeedsACLInitialized(in ACString folderPath);
-  void addFolderRights(in ACString folderPath, in ACString userName, in ACString rights);
-  void refreshFolderRights(in ACString folderPath);
+  boolean folderNeedsACLInitialized(in AUTF8String folderPath);
+  void addFolderRights(in AUTF8String folderPath, in ACString userName, in ACString rights);
+  void refreshFolderRights(in AUTF8String folderPath);
   void discoveryDone();
-  void onlineFolderDelete(in ACString folderName);
-  void onlineFolderCreateFailed(in ACString aFolderName);
-  void onlineFolderRename(in nsIMsgWindow msgWindow, in ACString oldName, in ACString newName);
-  boolean folderIsNoSelect(in ACString folderName);
-  void setFolderAdminURL(in ACString folderName, in ACString adminUrl);
-  boolean folderVerifiedOnline(in ACString folderName);
+  void onlineFolderDelete(in AUTF8String folderName);
+  void onlineFolderCreateFailed(in AUTF8String aFolderName);
+  void onlineFolderRename(in nsIMsgWindow msgWindow, in AUTF8String oldName, in AUTF8String newName);
+  boolean folderIsNoSelect(in AUTF8String folderName);
+  void setFolderAdminURL(in AUTF8String folderName, in AUTF8String adminUrl);
+  boolean folderVerifiedOnline(in AUTF8String folderName);
 
   void setCapability(in unsigned long long capability);
   /// RFC 2971 ID server response
@@ -143,7 +143,7 @@ interface nsIImapServerSink : nsISupports {
   void syncGetPassword(out AString aPassword);
 
   attribute boolean userAuthenticated;
-  void setMailServerUrls(in ACString manageMailAccount, in ACString manageLists, in ACString manageFilters);
+  void setMailServerUrls(in AUTF8String manageMailAccount, in AUTF8String manageLists, in AUTF8String manageFilters);
 
   /** Used by the imap thread when upgrading from the socketType
    * trySTARTTLS.
@@ -152,7 +152,7 @@ interface nsIImapServerSink : nsISupports {
    */
   void UpdateTrySTARTTLSPref(in boolean aSucceeded);
 
-  readonly attribute ACString arbitraryHeaders;
+  readonly attribute AUTF8String arbitraryHeaders;
   void forgetPassword();
 
   readonly attribute boolean showAttachmentsInline;
@@ -170,7 +170,7 @@ interface nsIImapServerSink : nsISupports {
   /// is the imap server shutting down?
   readonly attribute boolean serverShuttingDown;
   /// reset the connection for a particular folder
-  void resetServerConnection(in ACString aFolderName);
+  void resetServerConnection(in AUTF8String aFolderName);
   /// tell the server if listing using lsub command
   void setServerDoingLsub(in boolean aDoingLsub);
   /// set whether UTF8=ACCEPT enabled or not

@@ -27,10 +27,10 @@ interface nsIImapIncomingServer : nsISupports {
   attribute long maximumConnectionsNumber;
   attribute boolean forceSelect;
   attribute long timeOutLimits;
-  attribute ACString adminUrl;
+  attribute AUTF8String adminUrl;
   attribute ACString serverDirectory;
   /// RFC 2971 ID response stored as a pref
-  attribute ACString serverIDPref;
+  attribute AUTF8String serverIDPref;
   attribute boolean cleanupInboxOnExit;
   attribute nsMsgImapDeleteModel deleteModel;
   attribute boolean dualUseFolders;
@@ -40,7 +40,7 @@ interface nsIImapIncomingServer : nsISupports {
   attribute boolean offlineDownload;
   attribute boolean overrideNamespaces;
   attribute boolean usingSubscription;
-  attribute ACString manageMailAccountUrl;
+  attribute AUTF8String manageMailAccountUrl;
   attribute boolean fetchByChunks;
   attribute boolean sendID;
   attribute boolean isAOLServer;
@@ -84,7 +84,7 @@ interface nsIImapIncomingServer : nsISupports {
   void RemoveConnection(in nsIImapProtocol aImapConnection);
   void ResetNamespaceReferences();
   void pseudoInterruptMsgLoad(in nsIMsgFolder aImapFolder, in nsIMsgWindow aMsgWindow, out boolean interrupted);
-  void ResetConnection(in ACString folderName);
+  void ResetConnection(in AUTF8String folderName);
   void CloseConnectionForFolder(in nsIMsgFolder aMsgFolder);
   void reDiscoverAllFolders();
   nsIURI subscribeToFolder(in AString name, in boolean subscribe);

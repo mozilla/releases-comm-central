@@ -28,7 +28,7 @@ interface nsIMsgQuota : nsISupports {
    * "User Quota / MESSAGE" or with empty quota root name, just resource
    * name, e.g., "STORAGE".
    */
-  attribute ACString name;
+  attribute AUTF8String name;
 
   /**
    * Amount of resource in use for this quota root. E.g., number of messages
@@ -85,14 +85,14 @@ interface nsIMsgImapMailFolder : nsISupports {
    * which don't correspond to ones on the server).
    */
   void removeLocalSelf();
-  void createClientSubfolderInfo(in ACString folderName, in char hierarchyDelimiter,
+  void createClientSubfolderInfo(in AUTF8String folderName, in char hierarchyDelimiter,
                                  in long flags, in boolean suppressNotification);
   void list();
-  void renameLocal(in ACString newname, in nsIMsgFolder parent);
+  void renameLocal(in AUTF8String newname, in nsIMsgFolder parent);
   void prepareToRename();
   void performExpand(in nsIMsgWindow aMsgWindow);
   void recursiveCloseActiveConnections(in nsIImapIncomingServer aImapServer);
-  void renameClient(in nsIMsgWindow msgWindow, in nsIMsgFolder msgFolder, in ACString oldName, in ACString newName);
+  void renameClient(in nsIMsgWindow msgWindow, in nsIMsgFolder msgFolder, in AUTF8String oldName, in AUTF8String newName);
 
   // these are used for offline synchronization
   void storeImapFlags(in long aFlags, in boolean aAddFlags,
@@ -125,7 +125,7 @@ interface nsIMsgImapMailFolder : nsISupports {
   void fillInFolderProps(in nsIMsgImapFolderProps aFolderProps);
   void resetNamespaceReferences();
   void folderPrivileges(in nsIMsgWindow aWindow);
-  nsIMsgImapMailFolder findOnlineSubFolder(in ACString onlineName);
+  nsIMsgImapMailFolder findOnlineSubFolder(in AUTF8String onlineName);
   void addFolderRights(in ACString userName, in ACString rights);
   void refreshFolderRights();
 
@@ -174,10 +174,10 @@ interface nsIMsgImapMailFolder : nsISupports {
    * It's a path with components separated by hierarchyDelimiter.
    * For example, "INBOX/bar/wibble", "INBOX.bar.wibble", etc...
    */
-  attribute ACString onlineName;
+  attribute AUTF8String onlineName;
   attribute boolean isNamespace;
   readonly attribute boolean canOpenFolder;
-  attribute ACString adminUrl;
+  attribute AUTF8String adminUrl;
   readonly attribute boolean hasAdminUrl;
   attribute boolean performingBiff;
   readonly attribute nsIMsgParseMailMsgState hdrParser;
