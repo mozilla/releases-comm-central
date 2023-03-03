@@ -274,9 +274,10 @@ body:not(.account-central) #accountCentralBrowser {
   margin-bottom: 3px;
 }
 
-.mode-name {
+#folderTree > li > .mode-name {
   font-weight: 600;
   font-size: 1.1rem;
+  min-height: initial;
   padding-block: var(--folder-mode-name-padding);
   padding-inline-start: 12px;
   border-top: 1px solid var(--sidebar-border-color, var(--splitter-color));
