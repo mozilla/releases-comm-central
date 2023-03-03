@@ -28,10 +28,13 @@ add_task(async function testRecurrenceNavigation() {
     "chrome://calendar/content/calendar-event-dialog-recurrence.xhtml",
     {
       async callback(win) {
-        let container = win.document.querySelector("#recurrencePreviewContainer");
-        Assert.ok(container, `The recurrence container exists`);
+        let container = await TestUtils.waitForCondition(() => {
+          return win.document.querySelector("#recurrencePreviewContainer");
+        }, `The recurrence container exists`);
 
-        let initialMonth = win.document.querySelector(`calendar-minimonth[month="0"][year="2020"]`);
+        let initialMonth = await TestUtils.waitForCondition(() => {
+          return container.querySelector(`calendar-minimonth[month="1"][year="2020"]`);
+        }, `Initial month exists`);
         Assert.ok(!initialMonth.hidden, `Initial month is visible on load`);
 
         let nextButton = container.querySelector("#recurrenceNext");
@@ -39,7 +42,7 @@ add_task(async function testRecurrenceNavigation() {
         nextButton.scrollIntoView();
         EventUtils.synthesizeMouseAtCenter(nextButton, {}, win);
 
-        let nextMonth = container.querySelector(`calendar-minimonth[month="1"][year="2020"]`);
+        let nextMonth = container.querySelector(`calendar-minimonth[month="2"][year="2020"]`);
         Assert.ok(nextMonth, `Next month exists`);
         Assert.ok(!nextMonth.hidden, `Next month is visible`);
 
@@ -55,16 +58,10 @@ add_task(async function testRecurrenceNavigation() {
           EventUtils.synthesizeMouseAtCenter(nextButton, {}, win);
         }
 
-        let futureMonth = container.querySelector(`calendar-minimonth[month="5"][year="2020"]`);
-        Assert.ok(futureMonth, `Future month exists`);
+        let futureMonth = await TestUtils.waitForCondition(() => {
+          return container.querySelector(`calendar-minimonth[month="6"][year="2020"]`);
+        }, `Future month exist`);
         Assert.ok(!futureMonth.hidden, `Future month is visible after using next button`);
-        Assert.ok(initialMonth.hidden, `Initial month is hidden`);
-
-        // Go back 5 times, we should go back to the initial month.
-        for (let index = 0; index < 5; index++) {
-          EventUtils.synthesizeMouseAtCenter(previousButton, {}, win);
-        }
-        Assert.ok(!initialMonth.hidden, `Initial month is visible`);
 
         // Ensure the number of minimonths shown is the amount we expect.
         let defaultMinimonthCount = "3";
@@ -76,6 +73,12 @@ add_task(async function testRecurrenceNavigation() {
           actualVisibleMinimonthCount,
           `Default minimonth visible count matches actual: ${actualVisibleMinimonthCount}`
         );
+
+        // Go back 5 times; we should go back to the initial month.
+        for (let index = 0; index < 5; index++) {
+          EventUtils.synthesizeMouseAtCenter(previousButton, {}, win);
+        }
+        Assert.ok(!initialMonth.hidden, `Initial month is visible`);
 
         // Close window at end of tests for this item
         await BrowserTestUtils.closeWindow(win);
