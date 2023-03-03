@@ -2,12 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
+
+const lazy = {};
+XPCOMUtils.defineLazyPreferenceGetter(
+  lazy,
+  "USE_CORRESPONDENTS",
+  "mail.threadpane.use_correspondents",
+  true
+);
+XPCOMUtils.defineLazyModuleGetters(lazy, {
+  FeedUtils: "resource:///modules/FeedUtils.jsm",
+  DBViewWrapper: "resource:///modules/DBViewWrapper.jsm",
+});
+
 /**
  * The array of columns for the table layout.
  *
  * @type {Array}
  */
-export const DEFAULT_COLUMNS = [
+const DEFAULT_COLUMNS = [
   {
     id: "selectCol",
     l10n: {
@@ -32,7 +48,6 @@ export const DEFAULT_COLUMNS = [
     icon: true,
     resizable: false,
     sortable: false,
-    hidden: true,
   },
   {
     id: "flaggedCol",
@@ -56,7 +71,16 @@ export const DEFAULT_COLUMNS = [
     sortKey: "byAttachments",
     icon: true,
     resizable: false,
-    hidden: true,
+  },
+  {
+    id: "subjectCol",
+    l10n: {
+      header: "threadpane-column-header-subject",
+      menuitem: "threadpane-column-label-subject",
+    },
+    ordinal: 5,
+    picker: false,
+    sortKey: "bySubject",
   },
   {
     id: "unreadButtonColHeader",
@@ -64,7 +88,7 @@ export const DEFAULT_COLUMNS = [
       header: "threadpane-column-header-unread-button",
       menuitem: "threadpane-column-label-unread-button",
     },
-    ordinal: 5,
+    ordinal: 6,
     sortKey: "byUnread",
     icon: true,
     resizable: false,
@@ -76,8 +100,9 @@ export const DEFAULT_COLUMNS = [
       header: "threadpane-column-header-sender",
       menuitem: "threadpane-column-label-sender",
     },
-    ordinal: 6,
+    ordinal: 7,
     sortKey: "byAuthor",
+    hidden: true,
   },
   {
     id: "recipientCol",
@@ -85,7 +110,7 @@ export const DEFAULT_COLUMNS = [
       header: "threadpane-column-header-recipient",
       menuitem: "threadpane-column-label-recipient",
     },
-    ordinal: 7,
+    ordinal: 8,
     sortKey: "byRecipient",
     hidden: true,
   },
@@ -95,9 +120,8 @@ export const DEFAULT_COLUMNS = [
       header: "threadpane-column-header-correspondents",
       menuitem: "threadpane-column-label-correspondents",
     },
-    ordinal: 8,
+    ordinal: 9,
     sortKey: "byCorrespondent",
-    hidden: true,
   },
   {
     id: "junkStatusCol",
@@ -105,21 +129,11 @@ export const DEFAULT_COLUMNS = [
       header: "threadpane-column-header-spam",
       menuitem: "threadpane-column-label-spam",
     },
-    ordinal: 9,
+    ordinal: 10,
     sortKey: "byJunkStatus",
     spam: true,
     icon: true,
     resizable: false,
-  },
-  {
-    id: "subjectCol",
-    l10n: {
-      header: "threadpane-column-header-subject",
-      menuitem: "threadpane-column-label-subject",
-    },
-    ordinal: 10,
-    picker: false,
-    sortKey: "bySubject",
   },
   {
     id: "dateCol",
@@ -244,3 +258,70 @@ export const DEFAULT_COLUMNS = [
     hidden: true,
   },
 ];
+
+/**
+ * Check if the current folder is a special Outgoing folder.
+ *
+ * @param {nsIMsgFolder} folder - The message folder.
+ * @returns {boolean} True if the folder is Outgoing.
+ */
+const isOutgoing = folder => {
+  return folder.isSpecialFolder(
+    lazy.DBViewWrapper.prototype.OUTGOING_FOLDER_FLAGS,
+    true
+  );
+};
+
+/**
+ * Generate the correct default array of columns, accounting for different views
+ * and folder states.
+ *
+ * @param {nsIMsgFolder} folder - The currently viewed folder.
+ * @param {boolean} isSynthetic - If the current view is synthetic, meaning we
+ *   are not visualizing a real folder, such as the gloda results list.
+ * @returns {Array}
+ */
+export function getDefaultColumns(folder, isSynthetic) {
+  // Create a clone we can edit.
+  let updatedColumns = DEFAULT_COLUMNS.map(column => ({ ...column }));
+
+  if (!folder) {
+    return updatedColumns;
+  }
+
+  updatedColumns.forEach(c => {
+    switch (c.id) {
+      case "correspondentCol":
+        // Don't show the correspondent for news or RSS.
+        c.hidden = lazy.USE_CORRESPONDENTS
+          ? !folder.getFlag(Ci.nsMsgFolderFlags.Mail) ||
+            lazy.FeedUtils.isFeedFolder(folder)
+          : true;
+        break;
+      case "senderCol":
+        // Show the sender even if correspondent is enabled for news and feeds.
+        c.hidden = lazy.USE_CORRESPONDENTS
+          ? !folder.getFlag(Ci.nsMsgFolderFlags.Newsgroup) &&
+            !lazy.FeedUtils.isFeedFolder(folder)
+          : isOutgoing(folder);
+        break;
+      case "recipientCol":
+        // No recipient column if we use correspondent. Otherwise hide it if is
+        // not an outgoing folder.
+        c.hidden = lazy.USE_CORRESPONDENTS ? true : !isOutgoing(folder);
+        break;
+      case "locationCol":
+        // Show the location column for synthetic views such as gloda results.
+        c.hidden = !isSynthetic;
+        break;
+      case "junkStatusCol":
+        // No ability to mark newsgroup or feed messages as spam.
+        c.hidden =
+          folder.getFlag(Ci.nsMsgFolderFlags.Newsgroup) ||
+          lazy.FeedUtils.isFeedFolder(folder);
+        break;
+    }
+  });
+
+  return updatedColumns;
+}

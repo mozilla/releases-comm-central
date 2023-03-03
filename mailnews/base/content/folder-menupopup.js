@@ -472,9 +472,7 @@
           // folders belong. Since that sorting was already done, we don't need
           // to do anything for that case here.
         } else {
-          if (this.getAttribute("hideServer") != "true") {
-            this._maybeAddParentFolderMenuItem(mode);
-          }
+          this._maybeAddParentFolderMenuItem(mode);
 
           // Sort the list of folders. We give first priority to the sortKey
           // property if it is available, otherwise a case-insensitive
@@ -718,7 +716,6 @@
               "class",
               "type",
               "fileHereLabel",
-              "hideServer",
               "showFileHereLabel",
               "oncommand",
               "showAccountsFileHere",

@@ -71,25 +71,25 @@ function testSetViewSingle() {
 }
 
 async function invoke_column_picker_option(aActions) {
-  // The treecolpicker element itself doesn't have an id, so we have to walk
-  // down from the parent to find it.
-  //  treadCols
-  //   |- hbox                item 0
-  //   |- treecolpicker   <-- item 1 this is the one we want
-  let colPicker = window.document.querySelector("#threadCols treecolpicker");
-  let colPickerPopup = colPicker.querySelector("treecolpicker [anonid=popup]");
+  let tabmail = document.getElementById("tabmail");
+  let about3Pane = tabmail.currentAbout3Pane;
+
+  let colPicker = about3Pane.document.querySelector(
+    `th[is="tree-view-table-column-picker"] button`
+  );
+  let colPickerPopup = about3Pane.document.querySelector(
+    `th[is="tree-view-table-column-picker"] menupopup`
+  );
 
   let shownPromise = BrowserTestUtils.waitForEvent(
     colPickerPopup,
     "popupshown"
   );
-  EventUtils.synthesizeMouseAtCenter(colPicker, {}, window);
+  EventUtils.synthesizeMouseAtCenter(colPicker, {}, about3Pane);
   await shownPromise;
   let hiddenPromise = BrowserTestUtils.waitForEvent(
     colPickerPopup,
-    "popuphidden",
-    undefined,
-    event => event.originalTarget == colPickerPopup
+    "popuphidden"
   );
   await mc.click_menus_in_sequence(colPickerPopup, aActions);
   await hiddenPromise;
@@ -180,7 +180,7 @@ add_task(async function test_apply_to_folder_no_children() {
 
 /**
  * Change settings in a folder, apply them to another folder and its children.
- *  Make sure the folder and its children change.
+ * Make sure the folder and its children change.
  */
 add_task(async function test_apply_to_folder_and_children() {
   await be_in_folder(folderSource);

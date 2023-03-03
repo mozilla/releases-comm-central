@@ -231,7 +231,7 @@ tr[data-properties~="unread"].selected .tree-view-row-unread button {
 
 #subjectColButton {
   /* TODO: make this density aware. */
-  padding-inline-start: 44px;
+  padding-inline-start: 42px;
   text-indent: 0;
 }
 
@@ -265,7 +265,7 @@ tr[is="thread-row"] .subject-line img {
   width: 16px;
   height: 16px;
   vertical-align: sub;
-  margin-inline-end: 6px;
+  margin-inline-end: 3px;
 }
 
 /* Icons variations for message state in subject column */

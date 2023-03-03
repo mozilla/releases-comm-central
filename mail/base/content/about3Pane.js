@@ -55,7 +55,7 @@ const messengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties"
 );
 
-const { DEFAULT_COLUMNS } = ChromeUtils.importESModule(
+const { getDefaultColumns } = ChromeUtils.importESModule(
   "chrome://messenger/content/thread-pane-columns.mjs"
 );
 
@@ -2092,7 +2092,7 @@ var threadPane = {
    */
   _savedSelections: new Map(),
 
-  columns: DEFAULT_COLUMNS.map(column => ({ ...column })),
+  columns: getDefaultColumns(gFolder, gViewWrapper?.isSynthetic),
 
   async init() {
     quickFilterBar.init();
@@ -2123,7 +2123,9 @@ var threadPane = {
 
     // No need to restore the columns state on first load since a folder hasn't
     // been selected yet.
-    this.treeTable.setColumns(DEFAULT_COLUMNS);
+    this.treeTable.setColumns(
+      getDefaultColumns(gFolder, gViewWrapper?.isSynthetic)
+    );
 
     this.treeTable.addEventListener("shift-column", event => {
       this.onColumnShifted(event.detail);
@@ -2554,7 +2556,7 @@ var threadPane = {
       // default columns for the currently visible folder, otherwise the table
       // layout will maintain whatever state is currently set from the previous
       // folder, which it doesn't reflect reality.
-      this.columns = DEFAULT_COLUMNS.map(column => ({ ...column }));
+      this.columns = getDefaultColumns(gFolder, gViewWrapper?.isSynthetic);
       return;
     }
 
@@ -2590,7 +2592,7 @@ var threadPane = {
    * Restore the default columns visibility and order and save the change.
    */
   restoreDefaultColumns() {
-    this.columns = DEFAULT_COLUMNS.map(column => ({ ...column }));
+    this.columns = getDefaultColumns(gFolder, gViewWrapper?.isSynthetic);
     this.updateColumns();
     threadTree.invalidate();
     this.persistColumnStates();

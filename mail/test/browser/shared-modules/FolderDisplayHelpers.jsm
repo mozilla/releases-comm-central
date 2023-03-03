@@ -566,10 +566,13 @@ async function be_in_folder(aFolder) {
  *     tabs than the index, which will change as tabs open/close).
  */
 async function open_folder_in_new_tab(aFolder) {
-  // save the current tab as the 'other' tab
   otherTab = mc.tabmail.currentTabInfo;
 
-  let tab = mc.tabmail.openTab("mail3PaneTab", { folderURI: aFolder.URI });
+  let tab = mc.window.openTab(
+    "mail3PaneTab",
+    { folderURI: aFolder.URI },
+    "tab"
+  );
   if (
     tab.chromeBrowser.docShell.isLoadingDocument ||
     tab.chromeBrowser.currentURI.spec != "about:3pane"
