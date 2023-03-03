@@ -5,8 +5,7 @@
 # PLEASE DO NOT ADD MORE EXCEPTIONS TO THIS LIST
 #
 
-# browser (see bug 1451050, bug 1476934, 1818999)
-defaults/settings/main/anti-tracking-url-decoration.json
+# browser (see bug 1451050 and bug 1476934)
 defaults/settings/main/example.json
 defaults/settings/main/url-classifier-skip-urls.json
 defaults/settings/thunderbird/hijack-blocklists.json
