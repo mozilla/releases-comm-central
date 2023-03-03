@@ -238,6 +238,14 @@ function switchToView(viewType) {
     document.getElementById("nextViewButton"),
     `calendar-nav-button-next-tooltip-${viewType}`
   );
+  document.l10n.setAttributes(
+    document.getElementById("calendar-view-context-menu-previous"),
+    `calendar-context-menu-previous-${viewType}`
+  );
+  document.l10n.setAttributes(
+    document.getElementById("calendar-view-context-menu-next"),
+    `calendar-context-menu-next-${viewType}`
+  );
 
   // These are hidden until the calendar is loaded.
   for (let node of document.querySelectorAll(".hide-before-calendar-loaded")) {

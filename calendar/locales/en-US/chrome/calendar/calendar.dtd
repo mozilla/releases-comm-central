@@ -58,19 +58,6 @@
 <!ENTITY calendar.today.button.tooltip          "Go to Today" >
 <!ENTITY calendar.todaypane.button.tooltip      "Show Today Pane" >
 
-<!ENTITY calendar.nextday.label                 "Next Day" >
-<!ENTITY calendar.prevday.label                 "Previous Day" >
-<!ENTITY calendar.nextday.accesskey             "x" >
-<!ENTITY calendar.prevday.accesskey             "s" >
-<!ENTITY calendar.nextweek.label                "Next Week" >
-<!ENTITY calendar.prevweek.label                "Previous Week" >
-<!ENTITY calendar.nextweek.accesskey            "x" >
-<!ENTITY calendar.prevweek.accesskey            "s" >
-<!ENTITY calendar.nextmonth.label               "Next Month" >
-<!ENTITY calendar.prevmonth.label               "Previous Month" >
-<!ENTITY calendar.nextmonth.accesskey           "x" >
-<!ENTITY calendar.prevmonth.accesskey           "s" >
-
 <!ENTITY calendar.newevent.button.label         "New Event" >
 <!ENTITY calendar.newtask.button.label          "New Task" >
 
