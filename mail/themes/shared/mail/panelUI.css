@@ -746,6 +746,11 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   stroke: var(--color-amber-60);
 }
 
+.button-appmenu:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
+
 /* Main menu banner menuitems */
 
 .panel-banner-item {
