@@ -218,11 +218,17 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
 /* Select column */
 
 :is(.tree-view-header-select, .tree-view-row-select) img {
+  color: var(--tree-view-color);
   content: var(--icon-checkbox);
   -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
   fill: currentColor;
   fill-opacity: 0;
   stroke-opacity: 0;
+}
+
+[is="tree-view-table-body"]:focus >
+  .selected :is(.tree-view-header-select, .tree-view-row-select) img {
+  color: currentColor;
 }
 
 .tree-view-row-select img {
@@ -253,25 +259,16 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
      2 columns to account for the picker, therefore a center alignment would be
      wrong. */
   margin-inline-start: 2px;
-  color: inherit;
+  color: var(--tree-view-color);
   opacity: 0.8;
 }
 
 .tree-view-row-delete button:hover {
   opacity: 1;
-  background-color: transparent;
-  border-color: transparent;
   color: var(--tree-row-delete-button-color);
 }
 
-.tree-view-row-delete button:hover:active {
-  background-color: color-mix(in srgb, currentColor 20%, transparent);
-  border-color: transparent;
-  color: var(--tree-row-delete-button-color);
-}
-
-[is="tree-view-table-body"]:focus .selected .tree-view-row-delete button:hover {
-  background-color: var(--tree-row-delete-button-color);
+[is="tree-view-table-body"]:focus .selected .tree-view-row-delete button {
   color: currentColor;
 }
 

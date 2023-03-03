@@ -57,6 +57,10 @@
   border: none;
 }
 
+[is="tree-view-table-body"]:focus > .selected button {
+  color: currentColor;
+}
+
 #threadTree button:not(.twisty),
 #threadTree button img {
   display: block;
@@ -111,7 +115,7 @@ tr:not(.children) .tree-view-row-thread img {
 }
 
 .tree-view-row-flag button {
-  color: inherit;
+  color: var(--tree-view-color);
   opacity: 0.8;
 }
 
@@ -120,6 +124,12 @@ tr:not(.children) .tree-view-row-thread img {
   pointer-events: none;
   fill: color-mix(in srgb, currentColor 10%, transparent);
   stroke: color-mix(in srgb, currentColor 30%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  .tree-view-row-flag img {
+    stroke: color-mix(in srgb, currentColor 40%, transparent);
+  }
 }
 
 .button-star {
@@ -142,19 +152,6 @@ tr[data-properties~="flagged"] .button-star {
 
 .tree-view-row-flag button:hover {
   opacity: 1;
-  background-color: transparent;
-  border-color: transparent;
-}
-
-.tree-view-row-flag button:hover:active {
-  background-color: color-mix(in srgb, currentColor 20%, transparent);
-  border-color: transparent;
-  color: currentColor;
-}
-
-[is="tree-view-table-body"]:focus .selected .tree-view-row-flag button:hover {
-  background-color: transparent;
-  color: currentColor;
 }
 
 /* Attachment column variations */
@@ -165,13 +162,17 @@ tr[data-properties~="flagged"] .button-star {
 
 .attachmentcol-column img {
   content: var(--icon-attachment-sm);
-  color: inherit;
+  color: var(--tree-view-color);
   /* Don't center align this because it could be the last column, spanning for
      2 columns to account for the picker, therefore a center alignment would be
      wrong. */
   margin-inline-start: 3px;
   margin-top: 1px;
   opacity: 0.7;
+}
+
+[is="tree-view-table-body"]:focus > .selected .attachmentcol-column img {
+  color: currentColor;
 }
 
 tr:not([data-properties~="attach"]) .attachmentcol-column img {
@@ -185,7 +186,7 @@ tr:not([data-properties~="attach"]) .attachmentcol-column img {
 }
 
 .tree-view-row-unread button {
-  color: inherit;
+  color: var(--tree-view-color);
   opacity: 0.8;
 }
 
@@ -212,19 +213,6 @@ tr[data-properties~="unread"].selected .tree-view-row-unread button {
 
 .tree-view-row-unread button:hover {
   opacity: 1;
-  background-color: transparent;
-  border-color: transparent;
-}
-
-.tree-view-row-unread button:hover:active {
-  background-color: color-mix(in srgb, currentColor 20%, transparent);
-  border-color: transparent;
-  color: currentColor;
-}
-
-[is="tree-view-table-body"]:focus .selected .tree-view-row-unread button:hover {
-  background-color: transparent;
-  color: currentColor;
 }
 
 /* Subject column variations */
@@ -360,7 +348,7 @@ tr:is([is="thread-row"], [is="thread-card"]) .twisty-icon {
 }
 
 .tree-view-row-spam button {
-  color: inherit;
+  color: var(--tree-view-color);
   opacity: 0.8;
 }
 
@@ -371,6 +359,12 @@ tr:is([is="thread-row"], [is="thread-card"]) .twisty-icon {
   stroke: color-mix(in srgb, currentColor 30%, transparent);
 }
 
+@media (prefers-color-scheme: dark) {
+  .tree-view-row-spam img {
+    stroke: color-mix(in srgb, currentColor 40%, transparent);
+  }
+}
+
 tr[data-properties~="junk"] .tree-view-row-spam > .tree-button-spam > img {
   fill: var(--thread-pane-spam-fill);
   stroke: var(--thread-pane-spam-stroke);
@@ -378,19 +372,6 @@ tr[data-properties~="junk"] .tree-view-row-spam > .tree-button-spam > img {
 
 .tree-view-row-spam button:hover {
   opacity: 1;
-  background-color: transparent;
-  border-color: transparent;
-}
-
-.tree-view-row-spam button:hover:active {
-  background-color: color-mix(in srgb, currentColor 20%, transparent);
-  border-color: transparent;
-  color: currentColor;
-}
-
-[is="tree-view-table-body"]:focus .selected .tree-view-row-spam button:hover {
-  background-color: transparent;
-  color: currentColor;
 }
 
 /* Delete column variations */
