@@ -10,6 +10,7 @@
     --thread-pane-unread-stroke: var(--color-green-60);
     --thread-pane-spam-fill: var(--color-red-50);
     --thread-pane-spam-stroke: var(--color-red-70);
+    --thread-pane-unread-color: currentColor;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -20,7 +21,14 @@
       --thread-pane-unread-stroke: var(--color-green-50);
       --thread-pane-spam-fill: var(--color-red-40);
       --thread-pane-spam-stroke: var(--color-red-50);
+      --thread-pane-unread-color: var(--color-white);
     }
+  }
+}
+
+@media (prefers-contrast) {
+  :root {
+    --thread-pane-unread-color: currentColor;
   }
 }
 
@@ -76,6 +84,10 @@
 #threadTree[rows="thread-card"] button:hover {
   opacity: 1;
   color: currentColor;
+}
+
+tr[data-properties~="untagged"][data-properties~="unread"] {
+  color: var(--thread-pane-unread-color);
 }
 
 tr[is="thread-row"] {
