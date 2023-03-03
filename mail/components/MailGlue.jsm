@@ -36,9 +36,14 @@ if (AppConstants.NIGHTLY_BUILD) {
 ChromeUtils.defineESModuleGetters(lazy, {
   ActorManagerParent: "resource://gre/modules/ActorManagerParent.sys.mjs",
   ChatCore: "resource:///modules/chatHandler.sys.mjs",
+
   LightweightThemeConsumer:
     "resource://gre/modules/LightweightThemeConsumer.sys.mjs",
+
   OsEnvironment: "resource://gre/modules/OsEnvironment.sys.mjs",
+
+  RemoteSecuritySettings:
+    "resource://gre/modules/psm/RemoteSecuritySettings.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
@@ -50,8 +55,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   MailUsageTelemetry: "resource:///modules/MailUsageTelemetry.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
   PdfJs: "resource://pdf.js/PdfJs.jsm",
-  RemoteSecuritySettings:
-    "resource://gre/modules/psm/RemoteSecuritySettings.jsm",
   TBDistCustomizer: "resource:///modules/TBDistCustomizer.jsm",
 });
 
