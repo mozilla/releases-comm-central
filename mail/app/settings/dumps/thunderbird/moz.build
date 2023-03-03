@@ -8,6 +8,7 @@
 # jq '{"data": .changes, "timestamp": .timestamp}'
 
 FINAL_TARGET_FILES.defaults.settings.thunderbird += [
+    "anti-tracking-url-decoration.json",
     "hijack-blocklists.json",
     "search-config.json",
     "url-classifier-skip-urls.json",
