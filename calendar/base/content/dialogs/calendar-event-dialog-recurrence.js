@@ -203,7 +203,7 @@ const RecurrencePreview = {
     selectedMinimonth.setAttribute("readonly", "true");
     selectedMinimonth.setAttribute("month", month);
     selectedMinimonth.setAttribute("year", year);
-    selectedMinimonth.setAttribute("hidden", true);
+    selectedMinimonth.hidden = true;
 
     if (this.mRecurrenceInfo) {
       this.updatePreview(this.mRecurrenceInfo);
@@ -237,7 +237,7 @@ const RecurrencePreview = {
   resetDisplayOfMonths() {
     let calContainer = this.node;
     for (let minimonth of calContainer.children) {
-      minimonth.setAttribute("hidden", true);
+      minimonth.hidden = true;
       minimonth.setAttribute("active-month", false);
     }
   },
@@ -256,9 +256,9 @@ const RecurrencePreview = {
     let minimonth2 = this.selectMinimonth(month2Date.getFullYear(), month2Date.getMonth());
 
     activeMinimonth.setAttribute("active-month", true);
-    activeMinimonth.setAttribute("hidden", false);
-    minimonth1.setAttribute("hidden", false);
-    minimonth2.setAttribute("hidden", false);
+    activeMinimonth.removeAttribute("hidden");
+    minimonth1.removeAttribute("hidden");
+    minimonth2.removeAttribute("hidden");
   },
   /**
    * Disable previous month button when the active month is the first month of the event.
