@@ -183,12 +183,14 @@ static void* MimeMultCMS_init(MimeObject* obj) {
     // otherwise the parent will attempt to re-init us.
 
     data->reject_signature = true;
-    int aRelativeNestLevel = MIMEGetRelativeCryptoNestLevel(data->self);
-    nsAutoCString partnum;
-    partnum.Adopt(mime_part_address(data->self));
-    data->smimeHeaderSink->SignedStatus(aRelativeNestLevel,
-                                        nsICMSMessageErrors::GENERAL_ERROR,
-                                        nullptr, data->url, partnum);
+    if (data->smimeHeaderSink) {
+      int aRelativeNestLevel = MIMEGetRelativeCryptoNestLevel(data->self);
+      nsAutoCString partnum;
+      partnum.Adopt(mime_part_address(data->self));
+      data->smimeHeaderSink->SignedStatus(aRelativeNestLevel,
+                                          nsICMSMessageErrors::GENERAL_ERROR,
+                                          nullptr, data->url, partnum);
+    }
     return data;
   }
 
@@ -474,7 +476,7 @@ static char* MimeMultCMS_generate(void* crypto_closure) {
   nsTArray<uint8_t> digest;
   digest.AppendElements(data->item_data, data->item_len);
 
-  if (!data->reject_signature) {
+  if (!data->reject_signature && data->smimeHeaderSink) {
     MimeCMSRequestAsyncSignatureVerification(
         data->content_info, from_addr.get(), from_name.get(), sender_addr.get(),
         sender_name.get(), data->smimeHeaderSink, aRelativeNestLevel, data->url,
