@@ -1065,6 +1065,9 @@ pref("mailnews.auto_config.guess.enabled", true);
 // Not all mail servers support SSL so enabling this option might lock
 // you out from your ISP. This especially affect internal mail servers.
 pref("mailnews.auto_config.guess.sslOnly", false);
+// When connecting to a server for guessing, either require a good
+// certificate, or allow connecting anyway.
+pref("mailnews.auto_config.guess.requireGoodCert", true);
 // The timeout (in seconds) for each guess
 pref("mailnews.auto_config.guess.timeout", 10);
 // Work around bug 1454325 by disabling mimetype mungling in XmlHttpRequest

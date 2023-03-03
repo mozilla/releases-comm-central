@@ -73,7 +73,6 @@ function assert_equal_try_orders(aA, aB) {
 function checkPop(host, protocol) {
   // The list of protocol+ssl+port configurations should match
   // getIncomingTryOrder() in guessConfig.js.
-  // SSL configs are separated until bug 1520283 is fixed.
 
   // port == UNKNOWN
   // [POP, STARTTLS, 110], [POP, SSL, 995], [POP, NONE, 110]
@@ -87,7 +86,7 @@ function checkPop(host, protocol) {
   let tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
     [POP, STARTTLS, 110],
-    // [POP, SSL, 995],
+    [POP, SSL, 995],
     [POP, NONE, 110],
   ]);
 
@@ -108,7 +107,7 @@ function checkPop(host, protocol) {
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
     [POP, STARTTLS, port],
-    // [POP, SSL, port],
+    [POP, SSL, port],
     [POP, NONE, port],
   ]);
 
@@ -125,7 +124,6 @@ function checkPop(host, protocol) {
 function checkImap(host, protocol) {
   // The list of protocol+ssl+port configurations should match
   // getIncomingTryOrder() in guessConfig.js.
-  // SSL configs are separated until bug 1520283 is fixed.
 
   // port == UNKNOWN
   // [IMAP, STARTTLS, 143], [IMAP, SSL, 993], [IMAP, NONE, 143]
@@ -140,7 +138,7 @@ function checkImap(host, protocol) {
   let tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
     [IMAP, STARTTLS, 143],
-    // [IMAP, SSL, 993],
+    [IMAP, SSL, 993],
     [IMAP, NONE, 143],
   ]);
 
@@ -161,7 +159,7 @@ function checkImap(host, protocol) {
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
     [IMAP, STARTTLS, port],
-    // [IMAP, SSL, port],
+    [IMAP, SSL, port],
     [IMAP, NONE, port],
   ]);
 
@@ -224,7 +222,6 @@ function test_getHostEntry() {
 function test_getIncomingTryOrder() {
   // The list of protocol+ssl+port configurations should match
   // getIncomingTryOrder() in guessConfig.js.
-  // SSL configs are separated until bug 1520283 is fixed.
 
   // protocol == POP || host starts with pop. || host starts with pop3.
   checkPop("example.com", POP);
@@ -244,9 +241,9 @@ function test_getIncomingTryOrder() {
   let tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
     [IMAP, STARTTLS, 143],
-    // [IMAP, SSL, 993],
+    [IMAP, SSL, 993],
     [POP, STARTTLS, 110],
-    // [POP, SSL, 995],
+    [POP, SSL, 995],
     [IMAP, NONE, 143],
     [POP, NONE, 110],
   ]);
@@ -263,9 +260,9 @@ function test_getIncomingTryOrder() {
   tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
     [IMAP, STARTTLS, port],
-    // [IMAP, SSL, port],
+    [IMAP, SSL, port],
     [POP, STARTTLS, port],
-    // [POP, SSL, port],
+    [POP, SSL, port],
     [IMAP, NONE, port],
     [POP, NONE, port],
   ]);
@@ -284,7 +281,6 @@ function test_getIncomingTryOrder() {
 function test_getOutgoingTryOrder() {
   // The list of protocol+ssl+port configurations should match
   // getOutgoingTryOrder() in guessConfig.js.
-  // SSL configs are separated until bug 1520283 is fixed.
   let domain = "example.com";
   let protocol = SMTP;
   let ssl = UNKNOWN;
@@ -293,7 +289,7 @@ function test_getOutgoingTryOrder() {
   assert_equal_try_orders(tryOrder, [
     [SMTP, STARTTLS, 587],
     [SMTP, STARTTLS, 25],
-    // [SMTP, SSL, 465],
+    [SMTP, SSL, 465],
     [SMTP, NONE, 587],
     [SMTP, NONE, 25],
   ]);
@@ -307,7 +303,7 @@ function test_getOutgoingTryOrder() {
   tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
     [SMTP, STARTTLS, port],
-    // [SMTP, SSL, port],
+    [SMTP, SSL, port],
     [SMTP, NONE, port],
   ]);
 

@@ -870,14 +870,18 @@ function sortTriesByPreference(tries) {
     if (b.protocol == IMAP && a.protocol == POP) {
       return 1;
     }
+    // Prefer SSL/TLS over STARTTLS
+    if (a.socketType == SSL && b.socketType == STARTTLS) {
+      return -1;
+    }
+    if (a.socketType == STARTTLS && b.socketType == SSL) {
+      return 1;
+    }
     // For hostnames, leave existing sorting, as in _hostnamesToTry()
     // For ports, leave existing sorting, as in getOutgoingTryOrder()
     return 0;
   });
 }
-
-// TODO prefer SSL over STARTTLS,
-// either in sortTriesByPreference or in getIncomingTryOrder() (and outgoing)
 
 /**
  * @returns {Array of {HostTry}}
@@ -898,7 +902,7 @@ function getIncomingTryOrder(host, protocol, socketType, port) {
     if (socketType == UNKNOWN) {
       return [
         getHostEntry(protocol, STARTTLS, port),
-        // getHostEntry(protocol, SSL, port),
+        getHostEntry(protocol, SSL, port),
         getHostEntry(protocol, NONE, port),
       ];
     }
@@ -907,9 +911,9 @@ function getIncomingTryOrder(host, protocol, socketType, port) {
   if (socketType == UNKNOWN) {
     return [
       getHostEntry(IMAP, STARTTLS, port),
-      // getHostEntry(IMAP, SSL, port),
+      getHostEntry(IMAP, SSL, port),
       getHostEntry(POP, STARTTLS, port),
-      // getHostEntry(POP, SSL, port),
+      getHostEntry(POP, SSL, port),
       getHostEntry(IMAP, NONE, port),
       getHostEntry(POP, NONE, port),
     ];
@@ -931,7 +935,7 @@ function getOutgoingTryOrder(host, protocol, socketType, port) {
       return [
         getHostEntry(SMTP, STARTTLS, UNKNOWN),
         getHostEntry(SMTP, STARTTLS, 25),
-        // getHostEntry(SMTP, SSL, UNKNOWN),
+        getHostEntry(SMTP, SSL, UNKNOWN),
         getHostEntry(SMTP, NONE, UNKNOWN),
         getHostEntry(SMTP, NONE, 25),
       ];
@@ -939,7 +943,7 @@ function getOutgoingTryOrder(host, protocol, socketType, port) {
     // port known, SSL not
     return [
       getHostEntry(SMTP, STARTTLS, port),
-      // getHostEntry(SMTP, SSL, port),
+      getHostEntry(SMTP, SSL, port),
       getHostEntry(SMTP, NONE, port),
     ];
   }
@@ -1019,11 +1023,10 @@ SSLErrorHandler.prototype = {
     this._log.error("Got Cert error for " + targetSite);
 
     if (!secInfo) {
-      return true;
+      return;
     }
 
     let cert = secInfo.serverCert;
-    let flags = 0;
 
     let parts = targetSite.split(":");
     let host = parts[0];
@@ -1057,14 +1060,11 @@ SSLErrorHandler.prototype = {
 
     if (secInfo.isDomainMismatch) {
       this._try._gotCertError = Ci.nsICertOverrideService.ERROR_MISMATCH;
-      flags |= Ci.nsICertOverrideService.ERROR_MISMATCH;
     } else if (secInfo.isUntrusted) {
       // e.g. self-signed
       this._try._gotCertError = Ci.nsICertOverrideService.ERROR_UNTRUSTED;
-      flags |= Ci.nsICertOverrideService.ERROR_UNTRUSTED;
     } else if (secInfo.isNotValidAtThisTime) {
       this._try._gotCertError = Ci.nsICertOverrideService.ERROR_TIME;
-      flags |= Ci.nsICertOverrideService.ERROR_TIME;
     } else {
       this._try._gotCertError = -1; // other
     }
@@ -1083,9 +1083,8 @@ SSLErrorHandler.prototype = {
     this._try.targetSite = targetSite;
     Cc["@mozilla.org/security/certoverride;1"]
       .getService(Ci.nsICertOverrideService)
-      .rememberValidityOverride(host, port, {}, cert, flags, true); // temporary override
+      .rememberValidityOverride(host, port, {}, cert, true); // temporary override
     this._log.warn(`Added temporary override of bad cert for: ${host}:${port}`);
-    return true;
   },
 };
 
@@ -1212,11 +1211,22 @@ function SocketUtil(
           }
         }
         if (isCertError) {
-          let socket = transport.QueryInterface(Ci.nsISocketTransport);
-          let secInfo = socket.securityInfo.QueryInterface(
-            Ci.nsITransportSecurityInfo
-          );
-          sslErrorHandler.processCertError(secInfo, hostname + ":" + port);
+          if (
+            Services.prefs.getBoolPref(
+              "mailnews.auto_config.guess.requireGoodCert",
+              true
+            )
+          ) {
+            gAccountSetupLogger.info(
+              `Bad (overridable) certificate for ${hostname}:${port}. Set mailnews.auto_config.guess.requireGoodCert to false to allow it`
+            );
+          } else {
+            let socket = transport.QueryInterface(Ci.nsISocketTransport);
+            let secInfo = socket.tlsSocketControl.securityInfo.QueryInterface(
+              Ci.nsITransportSecurityInfo
+            );
+            sslErrorHandler.processCertError(secInfo, hostname + ":" + port);
+          }
         }
         resultCallback(this.data.length ? this.data : null);
       } catch (e) {
