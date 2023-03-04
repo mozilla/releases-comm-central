@@ -277,18 +277,17 @@ CalICSCalendar.prototype = {
     parser.parseString(str, listener);
   },
 
-  writeICS() {
+  async writeICS() {
     cal.LOG("[calICSCalendar] Commencing write of ICS Calendar " + this.name);
+    if (!this.mUri) {
+      throw Components.Exception("mUri must be set", Cr.NS_ERROR_FAILURE);
+    }
     this.lock();
     try {
-      if (!this.mUri) {
-        throw Components.Exception("", Cr.NS_ERROR_FAILURE);
-      }
-      // makeBackup will call doWriteICS
-      this.makeBackup(this.doWriteICS);
-    } catch (exc) {
+      await this.makeBackup();
+      await this.doWriteICS();
+    } catch (e) {
       this.unlock(calIErrors.MODIFICATION_FAILED);
-      throw exc;
     }
   },
 
@@ -563,7 +562,7 @@ CalICSCalendar.prototype = {
     );
   },
 
-  processQueue() {
+  async processQueue() {
     if (this.isLocked()) {
       return;
     }
@@ -575,25 +574,25 @@ CalICSCalendar.prototype = {
       switch (a.action) {
         case "add":
           this.lock();
-          this.mMemoryCalendar.addItem(a.item).then(item => {
+          this.mMemoryCalendar.addItem(a.item).then(async item => {
             a.item = item;
             this.mModificationActions.push(a);
-            this.writeICS();
+            await this.writeICS();
           });
           return;
         case "modify":
           this.lock();
-          this.mMemoryCalendar.modifyItem(a.newItem, a.oldItem).then(item => {
+          this.mMemoryCalendar.modifyItem(a.newItem, a.oldItem).then(async item => {
             a.item = item;
             this.mModificationActions.push(a);
-            this.writeICS();
+            await this.writeICS();
           });
           return;
         case "delete":
           this.lock();
-          this.mMemoryCalendar.deleteItem(a.item).then(() => {
+          this.mMemoryCalendar.deleteItem(a.item).then(async () => {
             this.mModificationActions.push(a);
-            this.writeICS();
+            await this.writeICS();
           });
           return;
         case "get_item":
@@ -619,7 +618,7 @@ CalICSCalendar.prototype = {
         // written, but we don't know if that write will succeed.
         this.queue.unshift(refreshAction);
       }
-      this.writeICS();
+      await this.writeICS();
     } else if (refreshAction) {
       cal.LOG(
         "[calICSCalendar] Refreshing " + this.name + (refreshAction.forceRefresh ? " (forced)" : "")
@@ -681,192 +680,191 @@ CalICSCalendar.prototype = {
    * file each day, for 3 days. That way, even if the user doesn't notice
    * the remote calendar has become corrupted, he will still loose max 1
    * day of work.
-   * After the back up is finished, will call aCallback.
    *
-   * @param aCallback
-   *           Function that will be called after the backup is finished.
-   *           will be called in the original context in which makeBackup
-   *           was called
+   * @returns {Promise} A promise that is settled once backup completed.
    */
   makeBackup(aCallback) {
-    // Uses |pseudoID|, an id of the calendar, defined below
-    function makeName(type) {
-      return "calBackupData_" + pseudoID + "_" + type + ".ics";
-    }
-
-    // This is a bit messy. createUnique creates an empty file,
-    // but we don't use that file. All we want is a filename, to be used
-    // in the call to copyTo later. So we create a file, get the filename,
-    // and never use the file again, but write over it.
-    // Using createUnique anyway, because I don't feel like
-    // re-implementing it
-    function makeDailyFileName() {
-      let dailyBackupFile = backupDir.clone();
-      dailyBackupFile.append(makeName("day"));
-      dailyBackupFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
-      dailyBackupFileName = dailyBackupFile.leafName;
-
-      // Remove the reference to the nsIFile, because we need to
-      // write over the file later, and you never know what happens
-      // if something still has a reference.
-      // Also makes it explicit that we don't need the file itself,
-      // just the name.
-      dailyBackupFile = null;
-
-      return dailyBackupFileName;
-    }
-
-    function purgeBackupsByType(files, type) {
-      // filter out backups of the type we care about.
-      let filteredFiles = files.filter(file =>
-        file.name.includes("calBackupData_" + pseudoID + "_" + type)
-      );
-      // Sort by lastmodifed
-      filteredFiles.sort((a, b) => a.lastmodified - b.lastmodified);
-      // And delete the oldest files, and keep the desired number of
-      // old backups
-      for (let i = 0; i < filteredFiles.length - numBackupFiles; ++i) {
-        let file = backupDir.clone();
-        file.append(filteredFiles[i].name);
-
-        try {
-          file.remove(false);
-        } catch (ex) {
-          // This can fail because of some crappy code in
-          // nsIFile.  That's not the end of the world.  We can
-          // try to remove the file the next time around.
-        }
+    return new Promise((resolve, reject) => {
+      // Uses |pseudoID|, an id of the calendar, defined below
+      function makeName(type) {
+        return "calBackupData_" + pseudoID + "_" + type + ".ics";
       }
-    }
 
-    function purgeOldBackups() {
-      // Enumerate files in the backupdir for expiry of old backups
-      let files = [];
-      for (let file of backupDir.directoryEntries) {
-        if (file.isFile()) {
-          files.push({ name: file.leafName, lastmodified: file.lastModifiedTime });
+      // This is a bit messy. createUnique creates an empty file,
+      // but we don't use that file. All we want is a filename, to be used
+      // in the call to copyTo later. So we create a file, get the filename,
+      // and never use the file again, but write over it.
+      // Using createUnique anyway, because I don't feel like
+      // re-implementing it
+      function makeDailyFileName() {
+        let dailyBackupFile = backupDir.clone();
+        dailyBackupFile.append(makeName("day"));
+        dailyBackupFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
+        dailyBackupFileName = dailyBackupFile.leafName;
+
+        // Remove the reference to the nsIFile, because we need to
+        // write over the file later, and you never know what happens
+        // if something still has a reference.
+        // Also makes it explicit that we don't need the file itself,
+        // just the name.
+        dailyBackupFile = null;
+
+        return dailyBackupFileName;
+      }
+
+      function purgeBackupsByType(files, type) {
+        // filter out backups of the type we care about.
+        let filteredFiles = files.filter(file =>
+          file.name.includes("calBackupData_" + pseudoID + "_" + type)
+        );
+        // Sort by lastmodifed
+        filteredFiles.sort((a, b) => a.lastmodified - b.lastmodified);
+        // And delete the oldest files, and keep the desired number of
+        // old backups
+        for (let i = 0; i < filteredFiles.length - numBackupFiles; ++i) {
+          let file = backupDir.clone();
+          file.append(filteredFiles[i].name);
+
+          try {
+            file.remove(false);
+          } catch (ex) {
+            // This can fail because of some crappy code in
+            // nsIFile.  That's not the end of the world.  We can
+            // try to remove the file the next time around.
+          }
         }
       }
 
-      if (doDailyBackup) {
-        purgeBackupsByType(files, "day");
-      } else {
-        purgeBackupsByType(files, "edit");
-      }
-    }
-
-    function copyToOverwriting(oldFile, newParentDir, newName) {
-      try {
-        let newFile = newParentDir.clone();
-        newFile.append(newName);
-
-        if (newFile.exists()) {
-          newFile.remove(false);
+      function purgeOldBackups() {
+        // Enumerate files in the backupdir for expiry of old backups
+        let files = [];
+        for (let file of backupDir.directoryEntries) {
+          if (file.isFile()) {
+            files.push({ name: file.leafName, lastmodified: file.lastModifiedTime });
+          }
         }
-        oldFile.copyTo(newParentDir, newName);
-      } catch (e) {
-        cal.ERROR("[calICSCalendar] Backup failed, no copy: " + e);
-        // Error in making a daily/initial backup.
-        // not fatal, so just continue
-      }
-    }
 
-    let backupDays = Services.prefs.getIntPref("calendar.backup.days", 1);
-    let numBackupFiles = Services.prefs.getIntPref("calendar.backup.filenum", 3);
-
-    let backupDir;
-    try {
-      backupDir = cal.provider.getCalendarDirectory();
-      backupDir.append("backup");
-      if (!backupDir.exists()) {
-        backupDir.create(Ci.nsIFile.DIRECTORY_TYPE, parseInt("0755", 8));
-      }
-    } catch (e) {
-      // Backup dir wasn't found. Likely because we are running in
-      // xpcshell. Don't die, but continue the upload.
-      cal.ERROR("[calICSCalendar] Backup failed, no backupdir:" + e);
-      aCallback.call(this);
-      return;
-    }
-
-    let pseudoID;
-    try {
-      pseudoID = this.getProperty("uniquenum2");
-      if (!pseudoID) {
-        pseudoID = new Date().getTime();
-        this.setProperty("uniquenum2", pseudoID);
-      }
-    } catch (e) {
-      // calendarmgr not found. Likely because we are running in
-      // xpcshell. Don't die, but continue the upload.
-      cal.ERROR("[calICSCalendar] Backup failed, no calendarmanager:" + e);
-      aCallback.call(this);
-      return;
-    }
-
-    let doInitialBackup = false;
-    let initialBackupFile = backupDir.clone();
-    initialBackupFile.append(makeName("initial"));
-    if (!initialBackupFile.exists()) {
-      doInitialBackup = true;
-    }
-
-    let doDailyBackup = false;
-    let backupTime = this.getProperty("backup-time2");
-    if (!backupTime || new Date().getTime() > backupTime + backupDays * 24 * 60 * 60 * 1000) {
-      // It's time do to a daily backup
-      doDailyBackup = true;
-      this.setProperty("backup-time2", new Date().getTime());
-    }
-
-    let dailyBackupFileName;
-    if (doDailyBackup) {
-      dailyBackupFileName = makeDailyFileName(backupDir);
-    }
-
-    let backupFile = backupDir.clone();
-    backupFile.append(makeName("edit"));
-    backupFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
-
-    purgeOldBackups();
-
-    // Now go download the remote file, and store it somewhere local.
-    let channel = Services.io.newChannelFromURI(
-      this.mUri,
-      null,
-      Services.scriptSecurityManager.getSystemPrincipal(),
-      null,
-      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-      Ci.nsIContentPolicy.TYPE_OTHER
-    );
-    channel.loadFlags |= Ci.nsIRequest.LOAD_BYPASS_CACHE;
-    channel.notificationCallbacks = this;
-
-    let downloader = Cc["@mozilla.org/network/downloader;1"].createInstance(Ci.nsIDownloader);
-
-    let self = this;
-    let listener = {
-      onDownloadComplete(opdownloader, request, ctxt, status, result) {
-        if (doInitialBackup) {
-          copyToOverwriting(result, backupDir, makeName("initial"));
-        }
         if (doDailyBackup) {
-          copyToOverwriting(result, backupDir, dailyBackupFileName);
+          purgeBackupsByType(files, "day");
+        } else {
+          purgeBackupsByType(files, "edit");
         }
+      }
 
-        aCallback.call(self);
-      },
-    };
+      function copyToOverwriting(oldFile, newParentDir, newName) {
+        try {
+          let newFile = newParentDir.clone();
+          newFile.append(newName);
 
-    downloader.init(listener, backupFile);
-    try {
-      channel.asyncOpen(downloader);
-    } catch (e) {
-      // For local files, asyncOpen throws on new (calendar) files
-      // No problem, go and upload something
-      cal.ERROR("[calICSCalendar] Backup failed in asyncOpen:" + e);
-      aCallback.call(this);
-    }
+          if (newFile.exists()) {
+            newFile.remove(false);
+          }
+          oldFile.copyTo(newParentDir, newName);
+        } catch (e) {
+          cal.ERROR("[calICSCalendar] Backup failed, no copy: " + e);
+          // Error in making a daily/initial backup.
+          // not fatal, so just continue
+        }
+      }
+
+      let backupDays = Services.prefs.getIntPref("calendar.backup.days", 1);
+      let numBackupFiles = Services.prefs.getIntPref("calendar.backup.filenum", 3);
+
+      let backupDir;
+      try {
+        backupDir = cal.provider.getCalendarDirectory();
+        backupDir.append("backup");
+        if (!backupDir.exists()) {
+          backupDir.create(Ci.nsIFile.DIRECTORY_TYPE, parseInt("0755", 8));
+        }
+      } catch (e) {
+        // Backup dir wasn't found. Likely because we are running in
+        // xpcshell. Don't die, but continue the upload.
+        cal.ERROR("[calICSCalendar] Backup failed, no backupdir:" + e);
+        resolve();
+        return;
+      }
+
+      let pseudoID;
+      try {
+        pseudoID = this.getProperty("uniquenum2");
+        if (!pseudoID) {
+          pseudoID = new Date().getTime();
+          this.setProperty("uniquenum2", pseudoID);
+        }
+      } catch (e) {
+        // calendarmgr not found. Likely because we are running in
+        // xpcshell. Don't die, but continue the upload.
+        cal.ERROR("[calICSCalendar] Backup failed, no calendarmanager:" + e);
+        resolve();
+        return;
+      }
+
+      let doInitialBackup = false;
+      let initialBackupFile = backupDir.clone();
+      initialBackupFile.append(makeName("initial"));
+      if (!initialBackupFile.exists()) {
+        doInitialBackup = true;
+      }
+
+      let doDailyBackup = false;
+      let backupTime = this.getProperty("backup-time2");
+      if (!backupTime || new Date().getTime() > backupTime + backupDays * 24 * 60 * 60 * 1000) {
+        // It's time do to a daily backup
+        doDailyBackup = true;
+        this.setProperty("backup-time2", new Date().getTime());
+      }
+
+      let dailyBackupFileName;
+      if (doDailyBackup) {
+        dailyBackupFileName = makeDailyFileName(backupDir);
+      }
+
+      let backupFile = backupDir.clone();
+      backupFile.append(makeName("edit"));
+      backupFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
+
+      purgeOldBackups();
+
+      // Now go download the remote file, and store it somewhere local.
+      let channel = Services.io.newChannelFromURI(
+        this.mUri,
+        null,
+        Services.scriptSecurityManager.getSystemPrincipal(),
+        null,
+        Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+        Ci.nsIContentPolicy.TYPE_OTHER
+      );
+      channel.loadFlags |= Ci.nsIRequest.LOAD_BYPASS_CACHE;
+      channel.notificationCallbacks = this;
+
+      let downloader = Cc["@mozilla.org/network/downloader;1"].createInstance(Ci.nsIDownloader);
+      let listener = {
+        onDownloadComplete(opdownloader, request, ctxt, status, result) {
+          if (!Components.isSuccessCode(status)) {
+            reject();
+            return;
+          }
+          if (doInitialBackup) {
+            copyToOverwriting(result, backupDir, makeName("initial"));
+          }
+          if (doDailyBackup) {
+            copyToOverwriting(result, backupDir, dailyBackupFileName);
+          }
+          resolve();
+        },
+      };
+
+      downloader.init(listener, backupFile);
+      try {
+        channel.asyncOpen(downloader);
+      } catch (e) {
+        // For local files, asyncOpen throws on new (calendar) files
+        // No problem, go and upload something
+        cal.ERROR("[calICSCalendar] Backup failed in asyncOpen:" + e);
+        resolve();
+      }
+    });
   },
 };
 
