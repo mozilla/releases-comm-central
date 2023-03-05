@@ -20,6 +20,10 @@
   text-shadow: none;
 }
 
+#messagepaneboxwrapper {
+  min-height: 0;
+}
+
 #mail-toolbox:-moz-lwtheme {
   text-shadow: none;
 }

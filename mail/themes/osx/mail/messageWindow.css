@@ -42,6 +42,10 @@
   box-shadow: none;
 }
 
+#messagepaneboxwrapper {
+  min-height: 0;
+}
+
 #messagepanebox {
   -moz-box-flex: 3;
   text-shadow: none;
