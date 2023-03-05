@@ -246,14 +246,11 @@ tr[is="thread-row"] td > .thread-container {
 }
 
 tr[is="thread-row"] .subject-line {
-  text-overflow: ellipsis;
-  overflow-y: visible;
-  white-space: nowrap;
-  overflow-x: hidden;
+  margin-inline-start: calc(16px * var(--thread-level));
+  pointer-events: none;
   /* Line height px exception to avoid vertical cut off of characters. This
      should follow and match the density variation height of the row. */
   line-height: 22px;
-  margin-inline-start: calc(16px * var(--thread-level));
 }
 
 tr[is="thread-row"]:not(.children) .subject-line {

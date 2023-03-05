@@ -972,6 +972,7 @@ class TreeView extends HTMLElement {
 
     this.table.classList.toggle("all-selected", allSelected);
     this.table.classList.toggle("some-selected", !allSelected && selectedCount);
+    this.table.classList.toggle("multi-selected", selectedCount > 1);
 
     const selectButton = this.table.querySelector(".tree-view-header-select");
     // Some implementations might not use a select header.

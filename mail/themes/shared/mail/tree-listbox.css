@@ -112,14 +112,11 @@
 
 [is="tree-view-table-body"] > .selected {
   background-color: var(--listbox-selected-bg);
-  outline: var(--listbox-selected-outline);
-  outline-offset: -2px;
 }
 
-[is="tree-view-table-body"]:focus > .current {
-  outline: 2px dotted var(--listbox-selected-color);
-  outline-offset: -2px;
-  z-index: 1;
+[is="tree-view-table-body"]:focus > .current:not(.selected) {
+  outline: 1px dashed var(--listbox-focused-selected-bg);
+  outline-offset: -1px;
 }
 
 [is="tree-view-table-body"]:focus > .selected {
@@ -127,14 +124,14 @@
   background-color: var(--listbox-focused-selected-bg);
 }
 
+.multi-selected [is="tree-view-table-body"]:focus > .selected.current {
+  outline: 1px dashed var(--listbox-selected-color);
+  outline-offset: -1px;
+}
+
 [is="tree-view-table-body"]:focus > .selected img {
   fill: color-mix(in srgb, currentColor 40%, transparent);
   stroke: currentColor;
-}
-
-[is="tree-view-table-body"]:focus > .current.selected {
-  outline: 1px dashed var(--listbox-selected-color);
-  outline-offset: -1px;
 }
 
 /* Resizable table columns */

@@ -3273,6 +3273,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
 
         // Special case for the subject column.
         if (column.id == "subjectCol") {
+          cell.title = subjectLine;
           const div = cell.querySelector(".subject-line");
           // Indent child message of this thread.
           div.style.setProperty("--thread-level", this.view.getLevel(index));
