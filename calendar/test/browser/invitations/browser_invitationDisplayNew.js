@@ -71,8 +71,9 @@ add_task(async function testShowPanelData() {
     .getElementById("messageBrowser")
     .contentDocument.querySelector("calendar-invitation-panel");
 
-  await panel.ownerDocument.l10n.ready;
-  await new Promise(resolve => requestIdleCallback(resolve));
+  if (panel.ownerDocument.hasPendingL10nMutations) {
+    await BrowserTestUtils.waitForEvent(panel.ownerDocument, "L10nMutationsFinished");
+  }
 
   let notification = panel.shadowRoot.querySelector("notification-message");
   compareShownPanelValues(notification.shadowRoot, {
