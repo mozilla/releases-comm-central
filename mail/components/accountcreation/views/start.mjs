@@ -79,7 +79,9 @@ class AccountHubStart extends HTMLElement {
     this.querySelector("#welcomeHeader").hidden = hasAccounts;
     this.querySelector("#defaultHeader").hidden = !hasAccounts;
 
-    this.updateFxAButton();
+    if (AppConstants.NIGHTLY_BUILD) {
+      this.updateFxAButton();
+    }
 
     // Hide the release notes link for nightly builds since we don't have any.
     if (AppConstants.NIGHTLY_BUILD) {
@@ -129,12 +131,14 @@ class AccountHubStart extends HTMLElement {
     }
     this.querySelector(".hub-body-grid").replaceChildren(fragment);
 
-    this.querySelector("#hubSyncButton").addEventListener("click", () => {
-      // FIXME: Open this in a dialog or browser inside the modal, or find a
-      // way to close the account hub without an account and open it again in
-      // case the FxA login fails to set up accounts.
-      gSync.initFxA();
-    });
+    if (AppConstants.NIGHTLY_BUILD) {
+      this.querySelector("#hubSyncButton").addEventListener("click", () => {
+        // FIXME: Open this in a dialog or browser inside the modal, or find a
+        // way to close the account hub without an account and open it again in
+        // case the FxA login fails to set up accounts.
+        gSync.initFxA();
+      });
+    }
   }
 
   /**
