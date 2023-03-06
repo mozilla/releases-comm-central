@@ -137,5 +137,7 @@
 			<string>Viewer</string>
 		</dict>
 	</array>
+	<key>NSContactsUsageDescription</key>
+	<string>Use your macOS contacts in @MAC_APP_NAME@.</string>
 </dict>
 </plist>
