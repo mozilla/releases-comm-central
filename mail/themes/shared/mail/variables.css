@@ -19,6 +19,7 @@
   --autocomplete-popup-highlight-background: var(--selected-item-color);
   --autocomplete-popup-highlight-color: var(--selected-item-text-color);
   --button-background-color: var(--layout-background-3);
+  --button-hover-text-color: inherit;
   --button-hover-background-color: var(--layout-background-2);
   --button-active-background-color: var(--layout-background-4);
   --button-border-color: var(--layout-border-1);
@@ -195,6 +196,10 @@
 
 @media (prefers-contrast) {
   :root:not(:-moz-lwtheme) {
+    --button-background-color: ButtonFace;
+    --button-hover-text-color: SelectedItemText;
+    --button-hover-background-color: SelectedItem;
+    --button-active-background-color: SelectedItem;
     --button-primary-background-color: SelectedItem;
     --button-primary-hover-background-color: SelectedItem;
     --button-primary-active-background-color: SelectedItem;

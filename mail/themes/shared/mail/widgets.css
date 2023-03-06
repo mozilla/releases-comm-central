@@ -25,6 +25,7 @@
 }
 
 .button:enabled:is(:hover, :focus-visible) {
+  color: var(--button-hover-text-color);
   background-color: var(--button-hover-background-color);
   border-color: var(--button-border-color);
 }
@@ -127,11 +128,12 @@
 
 .button.button-primary:is(:hover, :focus-visible) {
   background-color: var(--button-primary-hover-background-color);
+  color: var(--button-primary-text-color);
   border-color: var(--button-primary-border-color);
 }
 
 @media (prefers-contrast) {
-  .button.button-primary:hover {
+  .button.button-primary:not(:-moz-lwtheme):hover {
     border-color: var(--button-primary-hover-border-color);
   }
 }

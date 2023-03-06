@@ -87,7 +87,7 @@ calendar-minimonth {
 }
 
 @media (prefers-contrast) {
-  calendar-minimonth {
+  calendar-minimonth:not(:-moz-lwtheme) {
     --mmMainBackground: transparent;
     --mmBoxBackground: ButtonFace;
     --mmBoxBorderColor: var(--color-gray-30);
@@ -220,10 +220,10 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
 }
 
 @media (prefers-contrast) {
-  .button.minimonth-nav-btn:active,
-  .button.minimonth-nav-btn:hover,
-  .button.minimonth-nav-btn:focus,
-  .button.minimonth-nav-btn:enabled:is(:hover, :focus-visible, :active) {
+  .button.minimonth-nav-btn:not(:-moz-lwtheme):active,
+  .button.minimonth-nav-btn:not(:-moz-lwtheme):hover,
+  .button.minimonth-nav-btn:not(:-moz-lwtheme):focus,
+  .button.minimonth-nav-btn:not(:-moz-lwtheme):enabled:is(:hover, :focus-visible, :active) {
     background-color: var(--mmDaySelectedBackground);
     color: var(--mmDaySelectedColor);
     stroke: var(--mmDaySelectedColor);

@@ -56,7 +56,7 @@
 }
 
 @media (prefers-contrast) {
-  :root {
+  :root:not(:-moz-lwtheme) {
     --button-border-color: WindowText;
     --lwt-tabs-border-color: ThreeDShadow;
     --tabline-color: SelectedItem;
@@ -94,7 +94,7 @@
     color: SelectedItemText !important;
   }
 
-  menulist {
+  menulist:not(:-moz-lwtheme) {
     --toolbarbutton-hover-background: ButtonFace;
   }
 }
