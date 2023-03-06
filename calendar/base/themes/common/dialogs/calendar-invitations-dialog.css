@@ -4,6 +4,7 @@
 
 #dialog-box {
   overflow: auto;
+  height: 290px;
 }
 
 .calendar-invitations-updating-icon {
