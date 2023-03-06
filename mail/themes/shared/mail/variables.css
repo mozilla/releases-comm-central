@@ -9,7 +9,7 @@
 :root {
   --arrowpanel-background: var(--layout-background-1);
   --arrowpanel-color: var(--layout-color-1);
-  --arrowpanel-border-color: var(--layout-color-3);
+  --arrowpanel-border-color: var(--layout-border-1);
   --lwt-additional-images: none;
   --lwt-background-alignment: right top;
   --lwt-background-tiling: no-repeat;
