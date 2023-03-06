@@ -210,6 +210,10 @@ calCachedCalendar.prototype = {
           }
         }
         cachedCalendar.transientProperties = true;
+        // Forward the disabled property to the storage calendar so that it
+        // stops interacting with the file system. Other properties have no
+        // useful effect on the storage calendar, so don't forward them.
+        cachedCalendar.setProperty("disabled", this.getProperty("disabled"));
         cachedCalendar.setProperty("relaxedMode", true);
         cachedCalendar.superCalendar = this;
         if (!this.mCachedObserver) {
@@ -600,6 +604,15 @@ calCachedCalendar.prototype = {
 
     return this.mUncachedCalendar.getProperty(aName);
   },
+  setProperty(aName, aValue) {
+    if (aName == "disabled") {
+      // Forward the disabled property to the storage calendar so that it
+      // stops interacting with the file system. Other properties have no
+      // useful effect on the storage calendar, so don't forward them.
+      this.mCachedCalendar.setProperty(aName, aValue);
+    }
+    this.mUncachedCalendar.setProperty(aName, aValue);
+  },
   async refresh() {
     if (this.offline) {
       this.downstreamRefresh();
@@ -930,7 +943,7 @@ calCachedCalendar.prototype = {
   defineForwards(
     calCachedCalendar.prototype,
     "mUncachedCalendar",
-    ["setProperty", "deleteProperty", "isInvitation", "getInvitedAttendee", "canNotify"],
+    ["deleteProperty", "isInvitation", "getInvitedAttendee", "canNotify"],
     ["providerID", "type", "aclManager", "aclEntry"],
     ["id", "name", "uri", "readOnly"]
   );
