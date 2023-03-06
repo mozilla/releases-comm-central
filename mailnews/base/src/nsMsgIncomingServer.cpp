@@ -1524,29 +1524,6 @@ nsMsgIncomingServer::SetOfflineSupportLevel(int32_t aSupportLevel) {
   SetIntValue("offline_support_level", aSupportLevel);
   return NS_OK;
 }
-#define BASE_MSGS_URL "chrome://messenger/locale/messenger.properties"
-
-NS_IMETHODIMP nsMsgIncomingServer::DisplayOfflineMsg(nsIMsgWindow* aMsgWindow) {
-  NS_ENSURE_ARG_POINTER(aMsgWindow);
-
-  nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::components::StringBundle::Service();
-  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-
-  nsCOMPtr<nsIStringBundle> bundle;
-  nsresult rv =
-      bundleService->CreateBundle(BASE_MSGS_URL, getter_AddRefs(bundle));
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (bundle) {
-    nsString errorMsgTitle;
-    nsString errorMsgBody;
-    bundle->GetStringFromName("nocachedbodybody2", errorMsgBody);
-    bundle->GetStringFromName("nocachedbodytitle", errorMsgTitle);
-    aMsgWindow->DisplayHTMLInMessagePane(errorMsgTitle, errorMsgBody, true);
-  }
-
-  return NS_OK;
-}
 
 // Called only during the migration process. A unique name is generated for the
 // migrated account.

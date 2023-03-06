@@ -169,17 +169,47 @@ function displayMessage(uri, viewWrapper) {
     },
   });
 
+  if (gMessage.flags & Ci.nsMsgMessageFlags.HasRe) {
+    document.title = `Re: ${gMessage.mime2DecodedSubject || ""}`;
+  } else {
+    document.title = gMessage.mime2DecodedSubject;
+  }
+
   let browser = getMessagePaneBrowser();
   MailE10SUtils.changeRemoteness(browser, null);
   browser.docShell.allowAuth = false;
   browser.docShell.allowDNSPrefetch = false;
 
-  messageService.DisplayMessage(uri, browser.docShell, null, null, null, {});
+  try {
+    messageService.DisplayMessage(uri, browser.docShell, null, null, null, {});
+  } catch (ex) {
+    if (ex.result != Cr.NS_ERROR_OFFLINE) {
+      throw ex;
+    }
 
-  if (gMessage.flags & Ci.nsMsgMessageFlags.HasRe) {
-    document.title = `Re: ${gMessage.mime2DecodedSubject}`;
-  } else {
-    document.title = gMessage.mime2DecodedSubject;
+    // TODO: This should be replaced with a real page, and made not ugly.
+    let title = messengerBundle.GetStringFromName("nocachedbodytitle");
+    // This string includes some HTML! Get rid of it.
+    title = title.replace(/<\/?title>/gi, "");
+    let body = messengerBundle.GetStringFromName("nocachedbodybody2");
+    HideMessageHeaderPane();
+    MailE10SUtils.loadURI(
+      getMessagePaneBrowser(),
+      "data:text/html;base64," +
+        btoa(
+          `<!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8" />
+            <title>${title}</title>
+          </head>
+          <body>
+            <h1>${title}</h1>
+            <p>${body}</p>
+          </body>
+        </html>`
+        )
+    );
   }
 
   window.dispatchEvent(

@@ -911,11 +911,7 @@ NS_IMETHODIMP nsImapService::FetchMessage(
     // Display the "offline" message if we didn't find it in the memory cache
     // either
     if (!msgIsInCache) {
-      nsCOMPtr<nsIMsgIncomingServer> server;
-      rv = aImapMailFolder->GetServer(getter_AddRefs(server));
-      if (server && aDisplayConsumer)
-        rv = server->DisplayOfflineMsg(aMsgWindow);
-      return rv;
+      return NS_ERROR_OFFLINE;
     }
   }
 

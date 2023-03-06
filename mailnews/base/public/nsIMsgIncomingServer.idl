@@ -358,8 +358,6 @@ interface nsIMsgIncomingServer : nsISupports {
 
   AString toString();
 
-  void displayOfflineMsg(in nsIMsgWindow aWindow);
-
   /* used for comparing nsIMsgIncomingServers */
   boolean equals(in nsIMsgIncomingServer server);
 

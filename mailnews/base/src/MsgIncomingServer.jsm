@@ -1007,17 +1007,6 @@ class MsgIncomingServer {
     return false;
   }
 
-  displayOfflineMsg(msgWindow) {
-    let bundle = Services.strings.createBundle(
-      "chrome://messenger/locale/messenger.properties"
-    );
-    msgWindow.displayHTMLInMessagePane(
-      bundle.GetStringFromName("nocachedbodytitle"),
-      bundle.GetStringFromName("nocachedbodybody2"),
-      true
-    );
-  }
-
   equals(server) {
     return this.key == server.key;
   }

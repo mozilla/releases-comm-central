@@ -29,6 +29,7 @@ class ImapChannel extends MailChannel {
   ]);
 
   _logger = ImapUtils.logger;
+  _status = Cr.NS_OK;
 
   /**
    * @param {nsIURI} uri - The uri to construct the channel from.
@@ -56,7 +57,7 @@ class ImapChannel extends MailChannel {
    * @see nsIRequest
    */
   get status() {
-    return Cr.NS_OK;
+    return this._status;
   }
 
   /**
@@ -70,6 +71,10 @@ class ImapChannel extends MailChannel {
     }
 
     if (isNew) {
+      if (Services.io.offline) {
+        this._status = Cr.NS_ERROR_OFFLINE;
+        return;
+      }
       // It's a new entry, needs to read from the server.
       let tee = Cc["@mozilla.org/network/stream-listener-tee;1"].createInstance(
         Ci.nsIStreamListenerTee
@@ -165,6 +170,12 @@ class ImapChannel extends MailChannel {
     } catch (e) {
       this._logger.warn(e);
       this._readFromServer();
+    }
+    if (this._status == Cr.NS_ERROR_OFFLINE) {
+      throw new Components.Exception(
+        "The requested action could not be completed in the offline state",
+        Cr.NS_ERROR_OFFLINE
+      );
     }
   }
 
