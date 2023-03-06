@@ -162,6 +162,7 @@ add_task(async function test3PaneTab() {
     messagePaneVisible: true,
     folderURI: rootFolder,
   });
+  await new Promise(resolve => setTimeout(resolve));
   await helper.testAllItems("mail3PaneTab");
 
   tabmail.currentAbout3Pane.displayFolder(inboxFolder);
