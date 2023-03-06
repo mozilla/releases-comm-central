@@ -17,6 +17,8 @@ html|input.textbox-addressingWidget:disabled {
 
 #outer {
   -moz-box-layout: legacy;
+  height: 225px;
+  overflow-y: auto;
 }
 
 .item-attendees-list-container {
