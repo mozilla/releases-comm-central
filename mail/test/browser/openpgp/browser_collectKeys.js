@@ -123,6 +123,50 @@ add_task(async function testCollectKeyAttachment() {
 });
 
 /**
+ * Test that an Autocrypt header key is collected.
+ */
+add_task(async function testCollectAutocrypt() {
+  let keycollected = BrowserTestUtils.waitForEvent(window, "keycollected");
+  let opengpgprocessed = openpgpProcessed();
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath(
+        "data/eml/unsigned-unencrypted-0x3099ff1238852b9f-autocrypt.eml"
+      )
+    )
+  );
+  await opengpgprocessed;
+  let aboutMessage = get_about_message(mc.window);
+
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+    "signed icon is not displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
+    "encrypted icon is not displayed"
+  );
+  await keycollected;
+
+  let db = await CollectedKeysDB.getInstance();
+  let keys = await db.findKeysForEmail("carol@example.com");
+  Assert.equal(keys.length, 1, "should find one key");
+
+  let sources = keys[0].sources;
+  Assert.equal(sources.length, 1, "should have one source");
+  let source = sources[0];
+
+  Assert.equal(source.type, "autocrypt");
+  Assert.equal(
+    source.uri,
+    "mid:b3609461-36e8-0371-1b9d-7ce6864ec66d@example.com"
+  );
+  Assert.equal(source.description, undefined);
+
+  close_window(mc);
+});
+
+/**
  * Test that we don't collect keys that refer to an email address that
  * isn't one of the message participants, and that we don't collect keys
  * if we already have a personal key for an email address.
