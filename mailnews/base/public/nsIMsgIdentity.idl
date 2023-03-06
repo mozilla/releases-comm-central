@@ -245,6 +245,12 @@ interface nsIMsgIdentity : nsISupports {
   readonly attribute boolean requestDSN;
 
   /**
+   * If true, include supported Autocrypt headers whenever sending a
+   * plain text or OpenPGP message. (Ignored when sending S/MIME.)
+   */
+  attribute boolean sendAutocryptHeaders;
+
+  /**
    * If true, automatically attach the user's own public OpenPGP key
    * whenever adding an OpenPGP digital signature.
    */

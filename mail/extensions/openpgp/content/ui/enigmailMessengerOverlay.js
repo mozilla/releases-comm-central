@@ -2842,11 +2842,32 @@ Enigmail.msg = {
       // Charlie's revoked or extended key attached. It's useful for
       // me to learn that.
 
-      let newHasNewValidity =
-        oldKey.expiryTime < newKey.expiryTime ||
-        (oldKey.keyTrust != "r" && newKey.keyTrust == "r");
+      // User IDs are another reason. The key might contain a new
+      // additional user ID, or a revoked user ID.
+      // That's relevant for Autocrypt headers, which only have one user
+      // ID. If we had imported the key with just one user ID in the
+      // past, and now we're being sent the same key for a different
+      // user ID, we must not skip it, even if it the validity is the
+      // same.
+      // Let's update on all possible changes of the user ID list,
+      // additions, removals, differences.
 
-      if (!newHasNewValidity) {
+      let shouldUpdate = false;
+
+      // new validity?
+      if (
+        oldKey.expiryTime < newKey.expiryTime ||
+        (oldKey.keyTrust != "r" && newKey.keyTrust == "r")
+      ) {
+        shouldUpdate = true;
+      } else if (
+        oldKey.userIds.length != newKey.userIds.length ||
+        !oldKey.userIds.every((el, ix) => el === newKey.userIds[ix])
+      ) {
+        shouldUpdate = true;
+      }
+
+      if (!shouldUpdate) {
         continue;
       }
 
@@ -2918,26 +2939,6 @@ Enigmail.msg = {
     // to make final decisions on how to notify the user about
     // available or missing keys.
 
-    if (this.keyCollectCandidates && this.keyCollectCandidates.size) {
-      let db = await CollectedKeysDB.getInstance();
-
-      for (let candidate of this.keyCollectCandidates.values()) {
-        if (candidate.skip) {
-          continue;
-        }
-
-        // If key is known in the db: merge + update.
-        let key = await db.mergeExisting(
-          candidate.newKeyObj,
-          candidate.pubKey,
-          candidate.source
-        );
-
-        await db.storeKey(key);
-        Services.obs.notifyObservers(null, "openpgp-key-change");
-      }
-    }
-
     // If we already found a good key for the sender's email
     // in attachments, then don't look at the autocrypt header.
     if (Enigmail.msg.attachedSenderEmailKeysIndex.length) {
@@ -2962,6 +2963,25 @@ Enigmail.msg = {
         if (Enigmail.msg.attachedSenderEmailKeysIndex.length) {
           this.unhideImportKeyBox();
         }
+      }
+    }
+
+    if (this.keyCollectCandidates && this.keyCollectCandidates.size) {
+      let db = await CollectedKeysDB.getInstance();
+
+      for (let candidate of this.keyCollectCandidates.values()) {
+        if (candidate.skip) {
+          continue;
+        }
+        // If key is known in the db: merge + update.
+        let key = await db.mergeExisting(
+          candidate.newKeyObj,
+          candidate.pubKey,
+          candidate.source
+        );
+
+        await db.storeKey(key);
+        Services.obs.notifyObservers(null, "openpgp-key-change");
       }
     }
 

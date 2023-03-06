@@ -31,6 +31,11 @@ e2e-encrypt-drafts =
     .label = Store draft messages in encrypted format
     .accesskey = r
 
+# Do not translate "Autocrypt", it's the name of a standard.
+e2e-autocrypt-headers =
+    .label = Send OpenPGP public key(s) in the email headers for compatibility with Autocrypt
+    .accesskey = t
+
 openpgp-key-user-id-label = Account / User ID
 openpgp-keygen-title-label =
     .title = Generate OpenPGP Key

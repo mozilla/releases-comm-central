@@ -223,6 +223,7 @@ pref("temp.openpgp.enableExperiments", false);
 // Default pref values for the enigmail per-identity
 // settings
 
+pref("mail.identity.default.sendAutocryptHeaders", true);
 pref("mail.identity.default.attachPgpKey", true);
 pref("mail.identity.default.autoEncryptDrafts", true);
 pref("mail.identity.default.protectSubject", true);

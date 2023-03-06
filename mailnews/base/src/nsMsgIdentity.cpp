@@ -220,6 +220,7 @@ NS_IMPL_IDPREF_BOOL(DoCc, "doCc")
 NS_IMPL_IDPREF_STR(DoCcList, "doCcList")
 
 NS_IMPL_IDPREF_BOOL(AttachPgpKey, "attachPgpKey")
+NS_IMPL_IDPREF_BOOL(SendAutocryptHeaders, "sendAutocryptHeaders")
 NS_IMPL_IDPREF_BOOL(AutoEncryptDrafts, "autoEncryptDrafts")
 NS_IMPL_IDPREF_BOOL(ProtectSubject, "protectSubject")
 NS_IMPL_IDPREF_INT(EncryptionPolicy, "encryptionpolicy")
@@ -583,6 +584,8 @@ nsMsgIdentity::Copy(nsIMsgIdentity* identity) {
   COPY_IDENTITY_BOOL_VALUE(identity, GetSuppressSigSep, SetSuppressSigSep)
 
   COPY_IDENTITY_BOOL_VALUE(identity, GetAttachPgpKey, SetAttachPgpKey)
+  COPY_IDENTITY_BOOL_VALUE(identity, GetSendAutocryptHeaders,
+                           SetSendAutocryptHeaders)
   COPY_IDENTITY_BOOL_VALUE(identity, GetAutoEncryptDrafts, SetAutoEncryptDrafts)
   COPY_IDENTITY_BOOL_VALUE(identity, GetProtectSubject, SetProtectSubject)
   COPY_IDENTITY_INT_VALUE(identity, GetEncryptionPolicy, SetEncryptionPolicy)

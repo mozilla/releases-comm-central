@@ -36,6 +36,7 @@ var gSignMessages = null;
 var gRequireEncrypt = null;
 var gDoNotEncrypt = null;
 var gAttachKey = null;
+var gSendAutocryptHeaders = null;
 var gEncryptSubject = null;
 var gEncryptDrafts = null;
 
@@ -66,6 +67,7 @@ async function initE2EEncryption(identity) {
   gDisableEncryption = document.getElementById("disable_encryption");
   gEnableEncryption = document.getElementById("enable_encryption");
   gAttachKey = document.getElementById("identity_attach_key");
+  gSendAutocryptHeaders = document.getElementById("identity_autocrypt_headers");
   gEncryptSubject = document.getElementById("identity_encrypt_subject");
   gEncryptDrafts = document.getElementById("identity_encrypt_drafts");
 
@@ -97,6 +99,8 @@ async function initE2EEncryption(identity) {
     gSignMessages.disabled = true;
 
     gAttachKey.checked = gAccount.defaultIdentity.attachPgpKey;
+    gSendAutocryptHeaders.checked =
+      gAccount.defaultIdentity.sendAutocryptHeaders;
     gEncryptSubject.checked = gAccount.defaultIdentity.protectSubject;
     gEncryptDrafts.checked = gAccount.defaultIdentity.autoEncryptDrafts;
     gSignMessages.checked = gAccount.defaultIdentity.signMail;
@@ -115,6 +119,7 @@ async function initE2EEncryption(identity) {
 
     gSignMessages.checked = identity.signMail;
     gAttachKey.checked = identity.attachPgpKey;
+    gSendAutocryptHeaders.checked = identity.sendAutocryptHeaders;
     gEncryptSubject.checked = identity.protectSubject;
     gEncryptDrafts.checked = identity.autoEncryptDrafts;
 
@@ -255,6 +260,7 @@ function saveE2EEncryptionSettings(identity) {
   identity.setCharAttribute("signing_cert_dbkey", gSignCertName.dbKey);
 
   identity.attachPgpKey = gAttachKey.checked;
+  identity.sendAutocryptHeaders = gSendAutocryptHeaders.checked;
   identity.protectSubject = gEncryptSubject.checked;
   identity.autoEncryptDrafts = gEncryptDrafts.checked;
 }

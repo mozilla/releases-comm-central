@@ -17,9 +17,11 @@ const {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const { open_compose_new_mail, setup_msg_contents } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
-);
+const {
+  open_compose_new_mail,
+  get_msg_source,
+  setup_msg_contents,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
 );
@@ -81,6 +83,9 @@ add_setup(async function() {
  * Outbox.
  */
 add_task(async function testSignedMessageComposition() {
+  let autocryptPrefName = "mail.identity.default.sendAutocryptHeaders";
+  Services.prefs.setBoolPref(autocryptPrefName, true);
+
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
@@ -98,8 +103,17 @@ add_task(async function testSignedMessageComposition() {
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
-  select_click_row(0);
+  let msg = select_click_row(0);
   assert_selected_and_displayed(0);
+  let src = await get_msg_source(msg);
+  let lines = src.split("\n");
+
+  Assert.ok(
+    lines.some(
+      line => line.trim() == "Autocrypt: addr=bob@openpgp.example; keydata="
+    ),
+    "Correct Autocrypt header found"
+  );
 
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "ok"),
@@ -119,6 +133,8 @@ add_task(async function testSignedMessageComposition() {
 
   // Delete the message so other tests work.
   EventUtils.synthesizeKey("VK_DELETE");
+  // Restore pref to original value
+  Services.prefs.clearUserPref(autocryptPrefName);
 });
 
 /**

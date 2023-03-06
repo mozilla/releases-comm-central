@@ -1674,7 +1674,7 @@ var EnigmailKeyRing = {
     if (keyObj.subKeys.length == 0 || !keyObj.iSimpleOneSubkeySameExpiry()) {
       return null;
     }
-    if (keyObj.userIds.length != 1) {
+    if (!keyObj.userIds.length) {
       return null;
     }
     if (!keyObj.keyUseFor.includes("s")) {
@@ -1690,17 +1690,11 @@ var EnigmailKeyRing = {
         return null;
     }
 
-    if (
-      lazy.EnigmailFuncs.getEmailFromUserID(keyObj.userId).toLowerCase() !==
-      email
-    ) {
+    let uid = keyObj.getUserIdWithEmail(email);
+    if (!uid) {
       return null;
     }
-    return lazy.RNP.getAutocryptKeyB64(
-      keyId,
-      "0x" + subKey.keyId,
-      keyObj.userId
-    );
+    return lazy.RNP.getAutocryptKeyB64(keyId, "0x" + subKey.keyId, uid.userId);
   },
 
   alreadyCheckedGnuPG: new Set(),

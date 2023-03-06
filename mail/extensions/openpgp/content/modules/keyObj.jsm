@@ -653,4 +653,21 @@ class EnigmailKeyObj {
 
     return result;
   }
+
+  getUserIdWithEmail(email) {
+    for (let u of this.userIds) {
+      let e;
+      try {
+        e = lazy.EnigmailFuncs.stripEmail(u.userId.toLowerCase());
+      } catch (x) {
+        e = u.userId.toLowerCase();
+      }
+
+      if (email == e) {
+        return u;
+      }
+    }
+
+    return null;
+  }
 }

@@ -2249,9 +2249,18 @@ Enigmail.msg = {
   // called just before sending
   modifyCompFields() {
     try {
-      if (Enigmail.msg.isEnigmailEnabledForIdentity()) {
-        this.setAutocryptHeader();
+      if (
+        !Enigmail.msg.isEnigmailEnabledForIdentity() ||
+        !gCurrentIdentity.sendAutocryptHeaders
+      ) {
+        return;
       }
+      if ((gSendSigned || gSendEncrypted) && !gSelectedTechnologyIsPGP) {
+        // If we're sending an S/MIME message, we don't want to send
+        // the OpenPGP autocrypt header.
+        return;
+      }
+      this.setAutocryptHeader();
     } catch (ex) {
       EnigmailLog.writeException(
         "enigmailMsgComposeOverlay.js: Enigmail.msg.modifyCompFields",
@@ -2268,10 +2277,6 @@ Enigmail.msg = {
   },
 
   setAutocryptHeader() {
-    if (!gAttachMyPublicPGPKey) {
-      return;
-    }
-
     let senderKeyId = gCurrentIdentity.getUnicharAttribute("openpgp_key_id");
     if (!senderKeyId) {
       return;
@@ -2302,10 +2307,6 @@ Enigmail.msg = {
       "enigmailMsgComposeOverlay.js: Enigmail.msg.sendMessageListener\n"
     );
 
-    if (!gSelectedTechnologyIsPGP) {
-      return;
-    }
-
     let msgcomposeWindow = document.getElementById("msgcomposeWindow");
     let sendMsgType = Number(msgcomposeWindow.getAttribute("msgtype"));
 
@@ -2315,11 +2316,15 @@ Enigmail.msg = {
         sendMsgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft
       )
     ) {
+      this.modifyCompFields();
+      if (!gSelectedTechnologyIsPGP) {
+        return;
+      }
+
       this.sendProcess = true;
       //let bc = document.getElementById("enigmail-bc-sendprocess");
 
       try {
-        this.modifyCompFields();
         const cApi = EnigmailCryptoAPI();
         let encryptResult = cApi.sync(this.prepareSendMsg(sendMsgType));
         if (!encryptResult) {
