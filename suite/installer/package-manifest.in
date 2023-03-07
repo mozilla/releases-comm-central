@@ -164,7 +164,6 @@
 @RESPATH@/components/SuiteComponents.manifest
 @RESPATH@/components/SuiteFeeds.manifest
 @RESPATH@/components/SuiteSidebar.manifest
-@RESPATH@/components/toolkitsearch.manifest
 ; JavaScript components
 @RESPATH@/components/cryptoComponents.manifest
 @RESPATH@/components/FeedConverter.js
