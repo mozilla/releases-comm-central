@@ -203,49 +203,12 @@ body:not(.account-central) #accountCentralBrowser {
   z-index: 1;
 }
 
-.folder-pane-header-button {
-  margin: 0;
-  min-width: auto;
-  min-height: auto;
-  padding: 1px;
-  line-height: 0;
-  border-color: transparent;
-  background-color: transparent;
+#folderPaneGetMessages {
+  background-image: var(--icon-download);
 }
 
-.folder-pane-header-button[disabled] {
-  opacity: 0.4;
-}
-
-.folder-pane-header-button:not([disabled]) {
-  opacity: 0.9;
-}
-
-.folder-pane-header-button:not([disabled]):hover {
-  border-color: var(--button-border-color);
-  background-color: var(--button-hover-bgcolor);
-  opacity: 1;
-}
-
-.folder-pane-header-button:not([disabled]):hover:active {
-  border-color: var(--button-border-color);
-  background-color: var(--button-active-bgcolor);
-}
-
-.folder-pane-header-button img {
-  -moz-context-properties: stroke;
-  stroke: currentColor;
-  pointer-events: none;
-}
-
-#folderPaneGetMessages img {
-  content: var(--icon-download);
-  /* The download icon is not fully centred. */
-  padding-inline-start: 1px;
-}
-
-#folderPaneMoreButton img {
-  content: var(--icon-more);
+#folderPaneMoreButton {
+  background-image: var(--icon-more);
 }
 
 #folderPaneWriteMessage {
