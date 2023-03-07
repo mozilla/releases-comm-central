@@ -105,12 +105,19 @@ window.addEventListener("keypress", event => {
 });
 
 function displayMessage(uri, viewWrapper) {
+  // Clean up existing objects before starting again.
   ClearPendingReadTimer();
-  gMessageURI = uri;
-  if (!uri) {
-    gMessage = null;
+  gMessage = null;
+  if (gViewWrapper && viewWrapper != gViewWrapper) {
+    // Don't clean up gViewWrapper if we're going to reuse it.
+    gViewWrapper?.close();
     gViewWrapper = null;
-    gDBView = null;
+  }
+  gDBView = null;
+
+  gMessageURI = uri;
+
+  if (!uri) {
     HideMessageHeaderPane();
     MailE10SUtils.loadAboutBlank(getMessagePaneBrowser());
     window.dispatchEvent(
@@ -125,7 +132,9 @@ function displayMessage(uri, viewWrapper) {
 
   if (gFolder) {
     if (viewWrapper) {
-      gViewWrapper = viewWrapper.clone(dbViewWrapperListener);
+      if (viewWrapper != gViewWrapper) {
+        gViewWrapper = viewWrapper.clone(dbViewWrapperListener);
+      }
     } else {
       gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
       gViewWrapper._viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
