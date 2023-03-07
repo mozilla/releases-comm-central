@@ -182,10 +182,6 @@ function verifyOpenAccountHubTab() {
   openAccountSetupTab();
 }
 
-function initOpenPGPIfEnabled() {
-  BondOpenPGP.init();
-}
-
 var gMailInit = {
   onBeforeInitialXULLayout() {
     // Set a sane starting width/height for all resolutions on new profiles.
@@ -368,7 +364,7 @@ var gMailInit = {
 
     MailOfflineMgr.init();
 
-    initOpenPGPIfEnabled();
+    BondOpenPGP.init();
 
     PanelUI.init();
     gExtensionsNotifications.init();

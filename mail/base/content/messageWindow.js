@@ -25,6 +25,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
   UIDensity: "resource:///modules/UIDensity.jsm",
   UIFontSize: "resource:///modules/UIFontSize.jsm",
 });
@@ -78,6 +79,7 @@ function OnLoadMessageWindow() {
 
   updateTroubleshootMenuItem();
   ToolbarIconColor.init();
+  BondOpenPGP.init();
   PanelUI.init();
   gExtensionsNotifications.init();
 
