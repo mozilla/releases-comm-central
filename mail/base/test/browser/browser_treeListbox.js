@@ -38,6 +38,9 @@ add_task(async function testSelectOnRemoval2() {
 add_task(async function testSelectOnRemoval3() {
   await withTab(subtestSelectOnRemoval3);
 });
+add_task(async function testUnselectable() {
+  await withTab(subtestUnselectable);
+});
 
 /**
  * Tests keyboard navigation up and down the list.
@@ -105,9 +108,8 @@ async function subtestKeyboard() {
       );
     }
 
-    let selected = [...list.querySelectorAll(".selected")].map(row => row.id);
     Assert.deepEqual(
-      selected,
+      Array.from(list.querySelectorAll(".selected"), row => row.id),
       [expectedId],
       "correct rows have the 'selected' class"
     );
@@ -1214,4 +1216,81 @@ async function subtestSelectOnRemoval3() {
     4, // row-3-1-1
     "selection moved to the previous top-level row"
   );
+}
+
+/**
+ * Tests that rows marked as unselectable cannot be selected.
+ */
+async function subtestUnselectable() {
+  let doc = content.document;
+
+  let list = doc.querySelector(`ul#unselectableTree`);
+  Assert.ok(!!list, "the list exists");
+
+  let initialRowIds = [
+    "uRow-2-1",
+    "uRow-2-2",
+    "uRow-3-1",
+    "uRow-3-1-1",
+    "uRow-3-1-2",
+  ];
+  Assert.equal(list.rowCount, initialRowIds.length, "rowCount is correct");
+  Assert.deepEqual(
+    list.rows.map(r => r.id),
+    initialRowIds,
+    "initial rows are correct"
+  );
+
+  function checkSelected(expectedIndex, expectedId) {
+    Assert.equal(list.selectedIndex, expectedIndex, "selectedIndex is correct");
+    Assert.deepEqual(
+      Array.from(list.querySelectorAll(".selected"), row => row.id),
+      [expectedId],
+      "correct rows have the 'selected' class"
+    );
+  }
+
+  checkSelected(0, "uRow-2-1");
+
+  // Clicking unselectable rows should not change the selection.
+  EventUtils.synthesizeMouseAtCenter(
+    doc.querySelector("#uRow-1 > div"),
+    {},
+    content
+  );
+  checkSelected(0, "uRow-2-1");
+  EventUtils.synthesizeMouseAtCenter(
+    doc.querySelector("#uRow-2 > div"),
+    {},
+    content
+  );
+  checkSelected(0, "uRow-2-1");
+  EventUtils.synthesizeMouseAtCenter(
+    doc.querySelector("#uRow-3 > div"),
+    {},
+    content
+  );
+  checkSelected(0, "uRow-2-1");
+
+  // Unselectable rows should not be accessible by keyboard.
+  EventUtils.synthesizeKey("KEY_ArrowUp", {}, content);
+  checkSelected(0, "uRow-2-1");
+  EventUtils.synthesizeKey("KEY_ArrowDown", {}, content);
+  EventUtils.synthesizeKey("KEY_ArrowDown", {}, content);
+  checkSelected(2, "uRow-3-1");
+  EventUtils.synthesizeKey("KEY_Home", {}, content);
+  checkSelected(0, "uRow-2-1");
+  EventUtils.synthesizeKey("KEY_End", {}, content);
+  checkSelected(4, "uRow-3-1-2");
+  EventUtils.synthesizeKey("KEY_PageUp", {}, content);
+  checkSelected(0, "uRow-2-1");
+  EventUtils.synthesizeKey("KEY_PageDown", {}, content);
+  checkSelected(4, "uRow-3-1-2");
+
+  EventUtils.synthesizeKey("VK_LEFT", {}, content); // Move up to 3-1.
+  checkSelected(2, "uRow-3-1");
+  EventUtils.synthesizeKey("VK_LEFT", {}, content); // Collapse.
+  checkSelected(2, "uRow-3-1");
+  EventUtils.synthesizeKey("VK_LEFT", {}, content); // Try to move to 3.
+  checkSelected(2, "uRow-3-1");
 }

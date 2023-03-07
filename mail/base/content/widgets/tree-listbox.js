@@ -86,7 +86,7 @@
           return;
         }
 
-        let row = event.target.closest("li");
+        let row = event.target.closest("li:not(.unselectable)");
         if (!row) {
           return;
         }
@@ -175,7 +175,9 @@
             let isArrowRight = event.key == "ArrowRight";
             let isRTL = this.matches(":dir(rtl)");
             if (isArrowRight == isRTL) {
-              let parent = selected.parentNode.closest(".children");
+              let parent = selected.parentNode.closest(
+                ".children:not(.unselectable)"
+              );
               if (
                 parent &&
                 (!selected.classList.contains("children") ||

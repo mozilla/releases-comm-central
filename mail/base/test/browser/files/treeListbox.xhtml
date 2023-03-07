@@ -48,6 +48,9 @@
     li.children.collapsed > div > div.twisty {
       background-color: red;
     }
+    li.unselectable > div {
+      background-color: red;
+    }
   </style>
   <script defer="defer" src="chrome://messenger/content/tree-listbox.js"></script>
 </head>
@@ -334,6 +337,54 @@
       </ul>
     </li>
     <li>After</li>
+  </ul>
+  <!-- Tree with unselectable rows -->
+  <ul is="tree-listbox" id="unselectableTree" role="tree">
+    <li id="uRow-1" class="unselectable">
+      <div>Item with no children</div>
+    </li>
+    <li id="uRow-2" class="unselectable">
+      <div>Item with children</div>
+      <ul>
+        <li id="uRow-2-1">
+          <div>
+            <div class="twisty"></div>
+            First child
+          </div>
+        </li>
+        <li id="uRow-2-2">
+          <div>
+            <div class="twisty"></div>
+            Second child
+          </div>
+        </li>
+      </ul>
+    </li>
+    <li id="uRow-3" class="unselectable">
+      <div>Item with grandchildren</div>
+      <ul>
+        <li id="uRow-3-1">
+          <div>
+            <div class="twisty"></div>
+            First child
+          </div>
+          <ul>
+            <li id="uRow-3-1-1">
+              <div>
+                <div class="twisty"></div>
+                First grandchild
+              </div>
+            </li>
+            <li id="uRow-3-1-2">
+              <div>
+                <div class="twisty"></div>
+                Second grandchild
+              </div>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
   </ul>
 </body>
 </html>
