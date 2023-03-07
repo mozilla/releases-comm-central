@@ -20,7 +20,7 @@
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
       lightweightthemes="true"
-      width="500" height="380"
+      style="min-width: 500px; min-height: 380px;"
       scrolling="false">
 <head>
   <title>&wizard.title;</title>
@@ -33,7 +33,8 @@
   <script defer="defer" src="chrome://calendar/content/calendar-creation.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <dialog id="calendar-creation-dialog" buttons="accept,cancel">
+  <dialog id="calendar-creation-dialog" style="width: 100vw; height: 100vh;"
+          buttons="accept,cancel">
       <!-- Panel: Select Calendar Type -->
       <vbox id="panel-select-calendar-type"
             buttonlabelaccept="&nextButton.label;"

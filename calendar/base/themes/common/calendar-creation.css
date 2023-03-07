@@ -59,6 +59,8 @@ td {
   border-style: none;
   background-color: transparent;
   color: inherit;
+  height: 300px;
+  padding: 0 10px;
 }
 
 #network-calendar-list > richlistitem {
