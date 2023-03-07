@@ -726,7 +726,7 @@ var dbViewWrapperListener = {
   onMessagesRemoved() {
     window.quickFilterBar?.onMessagesChanged();
 
-    if (!gDBView) {
+    if (!gDBView || !top) {
       return;
     }
 
