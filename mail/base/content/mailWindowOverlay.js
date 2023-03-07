@@ -130,18 +130,24 @@ function updateCheckedStateForIgnoreAndWatchThreadCmds() {
 
   let folder = message?.folder;
 
-  document
-    .getElementById("cmd_killThread")
-    .setAttribute("checked", folder?.msgDatabase.isIgnored(message.messageKey));
-  document
-    .getElementById("cmd_killSubthread")
-    .setAttribute(
-      "checked",
-      folder && message.flags & Ci.nsMsgMessageFlags.Ignored
-    );
-  document
-    .getElementById("cmd_watchThread")
-    .setAttribute("checked", folder?.msgDatabase.isWatched(message.messageKey));
+  let killThreadItem = document.getElementById("cmd_killThread");
+  if (folder?.msgDatabase.isIgnored(message.messageKey)) {
+    killThreadItem.setAttribute("checked", "true");
+  } else {
+    killThreadItem.removeAttribute("checked");
+  }
+  let killSubthreadItem = document.getElementById("cmd_killSubthread");
+  if (folder && message.flags & Ci.nsMsgMessageFlags.Ignored) {
+    killSubthreadItem.setAttribute("checked", "true");
+  } else {
+    killSubthreadItem.removeAttribute("checked");
+  }
+  let watchThreadItem = document.getElementById("cmd_watchThread");
+  if (folder?.msgDatabase.isWatched(message.messageKey)) {
+    watchThreadItem.setAttribute("checked", "true");
+  } else {
+    watchThreadItem.removeAttribute("checked");
+  }
 }
 
 function file_init() {
@@ -539,16 +545,15 @@ function InitViewMessagesMenu() {
 }
 
 function InitMessageMenu() {
-  let message;
-
   let tab = document.getElementById("tabmail")?.currentTabInfo;
+  let message, folder;
   if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
-    message = tab.message;
+    ({ message, folder } = tab);
   }
 
   let isNews = message?.folder?.flags & Ci.nsMsgFolderFlags.Newsgroup;
   let isFeed = message && FeedUtils.isFeedMessage(message);
-  let isDummy = message?.folder == null;
+  let isDummy = message && !folder;
 
   // We show reply to Newsgroups only for news messages.
   document.getElementById("replyNewsgroupMainMenu").hidden = !isNews;
@@ -607,7 +612,7 @@ function InitMessageMenu() {
   }
 
   // Disable mark menu when we're not in a folder.
-  document.getElementById("markMenu").disabled = isDummy;
+  document.getElementById("markMenu").disabled = !folder || folder.isServer;
 
   document.commandDispatcher.updateCommands("create-menu-message");
 }
@@ -1103,10 +1108,13 @@ function forwardToolbarMenu_init(menuPopup) {
 }
 */
 function InitMessageMark() {
-  // TODO: Fix or remove this function.
-  // document
-  //   .getElementById("cmd_markAsFlagged")
-  //   .setAttribute("checked", SelectedMessagesAreFlagged());
+  let tab = document.getElementById("tabmail")?.currentTabInfo;
+  let flaggedItem = document.getElementById("markFlaggedMenuItem");
+  if (tab?.message?.isFlagged) {
+    flaggedItem.setAttribute("checked", "true");
+  } else {
+    flaggedItem.removeAttribute("checked");
+  }
 
   document.commandDispatcher.updateCommands("create-menu-mark");
 }

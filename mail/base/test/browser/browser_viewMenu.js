@@ -140,11 +140,10 @@ add_setup(async function() {
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder;
 
-  rootFolder.createSubfolder("inbox", null);
+  rootFolder.createSubfolder("view menu", null);
   inboxFolder = rootFolder
-    .getChildNamed("inbox")
+    .getChildNamed("view menu")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  inboxFolder.setFlag(Ci.nsMsgFolderFlags.Inbox);
   inboxFolder.addMessageBatch(
     generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
   );

@@ -364,18 +364,6 @@ function updateTodayPaneButtonDate() {
   todaypane.querySelector(".toolbarbutton-day-text").textContent = dayNumber;
 }
 
-// Overwrite the InitMessageMenu function, since we never know in which order
-// the popupshowing event will be processed. This function takes care of
-// disabling the message menu when in calendar or task mode.
-function calInitMessageMenu() {
-  calInitMessageMenu.origFunc();
-
-  document.getElementById("markMenu").disabled = gCurrentMode != "mail";
-}
-calInitMessageMenu.origFunc = InitMessageMenu;
-// eslint-disable-next-line no-global-assign
-InitMessageMenu = calInitMessageMenu;
-
 /**
  * Get the toolbox id for the current tab type.
  *

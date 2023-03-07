@@ -355,6 +355,7 @@ var commandController = {
       command in this._callbackCommands
     );
   },
+  // eslint-disable-next-line complexity
   isCommandEnabled(command) {
     let type = typeof this._isCallbackEnabled[command];
     if (type == "function") {
@@ -413,6 +414,12 @@ var commandController = {
       case "cmd_saveAsFile":
         return numSelectedMessages >= 1;
       case "cmd_openMessage":
+        return (
+          (location.href == "about:3pane" ||
+            parent.location.href == "about:3pane") &&
+          numSelectedMessages >= 1 &&
+          !isDummyMessage
+        );
       case "cmd_tag":
       case "cmd_tag1":
       case "cmd_tag2":

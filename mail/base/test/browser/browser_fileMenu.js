@@ -65,9 +65,9 @@ add_setup(async function() {
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder;
 
-  rootFolder.createSubfolder("inbox", null);
+  rootFolder.createSubfolder("file menu", null);
   inboxFolder = rootFolder
-    .getChildNamed("inbox")
+    .getChildNamed("file menu")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   inboxFolder.setFlag(Ci.nsMsgFolderFlags.Inbox);
   inboxFolder.addMessageBatch(

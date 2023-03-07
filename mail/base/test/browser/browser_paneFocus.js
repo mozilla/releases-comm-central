@@ -26,7 +26,6 @@ add_setup(async function() {
   testFolder = rootFolder
     .getChildNamed("paneFocus")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  testFolder.setFlag(Ci.nsMsgFolderFlags.Inbox);
   testFolder.addMessageBatch(
     generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
   );
