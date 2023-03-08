@@ -759,7 +759,21 @@ var dbViewWrapperListener = {
       }
       if (this._nextViewIndexAfterDelete > -1) {
         if (location.href == "about:3pane") {
+          // A "select" event should fire here, but setting the selected index
+          // might not fire it. OTOH, we want it to fire only once, so see if
+          // the event is fired, and if not, fire it.
+          let eventFired = false;
+          let onSelect = () => (eventFired = true);
+
+          window.threadTree.addEventListener("select", onSelect, {
+            once: true,
+          });
           window.threadTree.selectedIndex = this._nextViewIndexAfterDelete;
+          window.threadTree.removeEventListener("select", onSelect);
+
+          if (!eventFired) {
+            window.threadTree.dispatchEvent(new CustomEvent("select"));
+          }
         } else if (parent?.location != "about:3pane") {
           gDBView.selection.select(this._nextViewIndexAfterDelete);
           displayMessage(

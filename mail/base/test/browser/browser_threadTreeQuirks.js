@@ -65,12 +65,7 @@ add_task(async function testExpandCollapseUpdates() {
   // Clicking the twisty to collapse a row should update the message display.
   goDoCommand("cmd_expandAllThreads");
   threadTree.selectedIndex = 5;
-  await BrowserTestUtils.browserLoaded(messagePaneBrowser);
-  Assert.equal(
-    aboutMessage.gMessage.messageId,
-    sourceMessageIDs[10],
-    "correct message loaded"
-  );
+  await messageLoaded(10);
 
   let selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
   EventUtils.synthesizeMouseAtCenter(
@@ -108,12 +103,7 @@ add_task(async function testExpandCollapseUpdates() {
     BrowserTestUtils.is_visible(about3Pane.messageBrowser),
     "messageBrowser became visible"
   );
-  await BrowserTestUtils.browserLoaded(messagePaneBrowser);
-  Assert.equal(
-    aboutMessage.gMessage.messageId,
-    sourceMessageIDs[10],
-    "correct message loaded"
-  );
+  await messageLoaded(10);
 
   // Collapsing all rows while the first message in a thread is selected should
   // update the message display.
@@ -146,22 +136,12 @@ add_task(async function testExpandCollapseUpdates() {
     BrowserTestUtils.is_visible(about3Pane.messageBrowser),
     "messageBrowser became visible"
   );
-  await BrowserTestUtils.browserLoaded(messagePaneBrowser);
-  Assert.equal(
-    aboutMessage.gMessage.messageId,
-    sourceMessageIDs[10],
-    "correct message loaded"
-  );
+  await messageLoaded(10);
 
   // Collapsing all rows while a message inside a thread is selected should
   // select the first message in the thread and update the message display.
   threadTree.selectedIndex = 2;
-  await BrowserTestUtils.browserLoaded(messagePaneBrowser);
-  Assert.equal(
-    aboutMessage.gMessage.messageId,
-    sourceMessageIDs[7],
-    "correct message loaded"
-  );
+  await messageLoaded(7);
 
   selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
   goDoCommand("cmd_collapseAllThreads");
@@ -192,12 +172,7 @@ add_task(async function testExpandCollapseUpdates() {
     BrowserTestUtils.is_visible(about3Pane.messageBrowser),
     "messageBrowser became visible"
   );
-  await BrowserTestUtils.browserLoaded(messagePaneBrowser);
-  Assert.equal(
-    aboutMessage.gMessage.messageId,
-    sourceMessageIDs[5],
-    "correct message loaded"
-  );
+  await messageLoaded(5);
 
   // Select several things and collapse all.
   selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
@@ -238,21 +213,16 @@ add_task(async function testThreadUpdateKeepsSelection() {
   });
 
   // Put some messages from different threads in the folder and select one.
-  await move(0);
-  await move(5);
+  await move([sourceMessages[0]], folderA, folderB);
+  await move([sourceMessages[5]], folderA, folderB);
   threadTree.selectedIndex = 1;
-  await BrowserTestUtils.browserLoaded(messagePaneBrowser);
-  Assert.equal(
-    aboutMessage.gMessage.messageId,
-    sourceMessageIDs[5],
-    "correct message loaded"
-  );
+  await messageLoaded(5);
 
   // Move a "newer" message into the folder. This should switch the order of
   // the threads, but no selection change should occur.
   threadTree.addEventListener("select", reportBadSelectEvent);
   messagePaneBrowser.addEventListener("load", reportBadLoad, true);
-  await move(1);
+  await move([sourceMessages[1]], folderA, folderB);
   Assert.equal(threadTree.selectedIndex, 0, "selection should have moved");
   Assert.equal(
     aboutMessage.gMessage.messageId,
@@ -266,14 +236,88 @@ add_task(async function testThreadUpdateKeepsSelection() {
 
   threadTree.removeEventListener("select", reportBadSelectEvent);
   messagePaneBrowser.removeEventListener("load", reportBadLoad, true);
+
+  // Restore folder A.
+  await move([...folderB.messages], folderB, folderA);
+  sourceMessages = [...folderA.messages];
 });
 
-async function move(index) {
+add_task(async function testArchiveDeleteUpdates() {
+  about3Pane.restoreState({
+    messagePaneVisible: true,
+    folderURI: folderA.URI,
+  });
+  about3Pane.sortController.sortUnthreaded();
+
+  threadTree.focus();
+  threadTree.selectedIndex = 3;
+  await messageLoaded(7);
+
+  let selectCount = 0;
+  let onSelect = () => selectCount++;
+  threadTree.addEventListener("select", onSelect);
+
+  let selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
+  goDoCommand("cmd_delete");
+  await selectPromise;
+  Assert.equal(selectCount, 1, "'select' event should've happened only once");
+  Assert.equal(threadTree.selectedIndex, 3, "selection should have updated");
+  await messageLoaded(8);
+
+  selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
+  goDoCommand("cmd_delete");
+  await selectPromise;
+  Assert.equal(selectCount, 2, "'select' event should've happened only once");
+  Assert.equal(threadTree.selectedIndex, 3, "selection should have updated");
+  await messageLoaded(9);
+
+  selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
+  goDoCommand("cmd_archive");
+  await selectPromise;
+  Assert.equal(selectCount, 3, "'select' event should've happened only once");
+  Assert.equal(threadTree.selectedIndex, 3, "selection should have updated");
+  await messageLoaded(10);
+
+  selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
+  goDoCommand("cmd_archive");
+  await selectPromise;
+  Assert.equal(selectCount, 4, "'select' event should've happened only once");
+  Assert.equal(threadTree.selectedIndex, 3, "selection should have updated");
+  await messageLoaded(11);
+
+  selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
+  goDoCommand("cmd_delete");
+  await selectPromise;
+  Assert.equal(selectCount, 5, "'select' event should've happened only once");
+  Assert.equal(threadTree.selectedIndex, 3, "selection should have updated");
+  await messageLoaded(12);
+
+  threadTree.removeEventListener("select", onSelect);
+
+  // Restore folder A.
+  let trashFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
+  await move([...trashFolder.messages], trashFolder, folderA);
+  let archiveFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Archive)
+    .subFolders[0];
+  await move([...archiveFolder.messages], archiveFolder, folderA);
+  sourceMessages = [...folderA.messages];
+});
+
+async function messageLoaded(index) {
+  await BrowserTestUtils.browserLoaded(messagePaneBrowser);
+  Assert.equal(
+    aboutMessage.gMessage.messageId,
+    sourceMessageIDs[index],
+    "correct message loaded"
+  );
+}
+
+async function move(messages, source, dest) {
   let copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
-    folderA,
-    [sourceMessages[index]],
-    folderB,
+    source,
+    messages,
+    dest,
     true,
     copyListener,
     top.msgWindow,
