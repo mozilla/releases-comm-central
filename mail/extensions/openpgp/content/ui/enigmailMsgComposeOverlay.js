@@ -371,6 +371,7 @@ Enigmail.msg = {
           if (self.draftSubjectEncrypted) {
             self.setOriginalSubject(msgHdr.subject, msgHdr.flags, false);
           }
+          updateEncryptionDependencies();
         } else if (EnigmailURIs.isEncryptedUri(msgUri)) {
           self.setOriginalSubject(msgHdr.subject, msgHdr.flags, false);
         }
@@ -407,46 +408,97 @@ Enigmail.msg = {
 
     if (stat.substr(0, 1) == "N") {
       switch (Number(stat.substr(1, 1))) {
-        case EnigmailConstants.ENIG_UNDEF:
+        case 2:
+          // treat as "user decision to enable encryption, disable auto"
+          gUserTouchedSendEncrypted = true;
+          gSendEncrypted = true;
+          updateEncryptionDependencies();
           break;
-        case EnigmailConstants.ENIG_ALWAYS:
-          updateE2eeOptions(true);
+        case 0:
+          // treat as "user decision to disable encryption, disable auto"
+          gUserTouchedSendEncrypted = true;
+          gSendEncrypted = false;
+          updateEncryptionDependencies();
           break;
-        case EnigmailConstants.ENIG_NEVER:
+        case 1:
         default:
-          updateE2eeOptions(false);
+          // treat as "no user decision, automatic mode"
           break;
       }
-      gOptionalEncryption = false;
 
       switch (Number(stat.substr(2, 1))) {
-        case EnigmailConstants.ENIG_UNDEF:
-          break;
-        case EnigmailConstants.ENIG_ALWAYS:
+        case 2:
           gSendSigned = true;
+          gUserTouchedSendSigned = true;
           break;
-        case EnigmailConstants.ENIG_NEVER:
-        default:
+        case 0:
+          gUserTouchedSendSigned = true;
           gSendSigned = false;
+          break;
+        case 1:
+        default:
+          // treat as "no user decision, automatic mode, based on encryption or other prefs"
           break;
       }
 
       switch (Number(stat.substr(3, 1))) {
-        case EnigmailConstants.ENIG_UNDEF:
+        case 1:
           break;
         case EnigmailConstants.ENIG_FORCE_SMIME:
+          // 3
           gSelectedTechnologyIsPGP = false;
           break;
-        case EnigmailConstants.ENIG_ALWAYS: // pgp/mime
-        case EnigmailConstants.ENIG_NEVER: // inline
+        case 2: // pgp/mime
+        case 0: // inline
         default:
           gSelectedTechnologyIsPGP = true;
           break;
       }
 
-      gAttachMyPublicPGPKey = stat.substr(4, 1) == "1";
+      switch (Number(stat.substr(4, 1))) {
+        case 1:
+          gUserTouchedAttachMyPubKey = true;
+          gAttachMyPublicPGPKey = true;
+          break;
+        case 2:
+          gUserTouchedAttachMyPubKey = false;
+          break;
+        case 0:
+        default:
+          gUserTouchedAttachMyPubKey = true;
+          gAttachMyPublicPGPKey = false;
+          break;
+      }
 
-      Enigmail.msg.draftSubjectEncrypted = stat.substr(5, 1) == "1";
+      switch (Number(stat.substr(4, 1))) {
+        case 1:
+          gUserTouchedAttachMyPubKey = true;
+          gAttachMyPublicPGPKey = true;
+          break;
+        case 2:
+          gUserTouchedAttachMyPubKey = false;
+          break;
+        case 0:
+        default:
+          gUserTouchedAttachMyPubKey = true;
+          gAttachMyPublicPGPKey = false;
+          break;
+      }
+
+      switch (Number(stat.substr(5, 1))) {
+        case 1:
+          gUserTouchedEncryptSubject = true;
+          gEncryptSubject = true;
+          break;
+        case 2:
+          gUserTouchedEncryptSubject = false;
+          break;
+        case 0:
+        default:
+          gUserTouchedEncryptSubject = true;
+          gEncryptSubject = false;
+          break;
+      }
     }
     //Enigmail.msg.setOwnKeyStatus();
     return true;
@@ -619,7 +671,8 @@ Enigmail.msg = {
             EnigmailLog.DEBUG(
               "originalMsgURI=" + gMsgCompose.originalMsgURI + "\n"
             );
-            updateE2eeOptions(true);
+            gSendEncrypted = true;
+            updateEncryptionDependencies();
             gSelectedTechnologyIsPGP = true;
             useEncryptionUnlessWeHaveDraftInfo = false;
             usePGPUnlessWeKnowOtherwise = false;
@@ -630,7 +683,8 @@ Enigmail.msg = {
       }
 
       if (useEncryptionUnlessWeHaveDraftInfo) {
-        updateE2eeOptions(true);
+        gSendEncrypted = true;
+        updateEncryptionDependencies();
       }
       if (gSendEncrypted && !obtainedDraftFlagsObj.value) {
         gSendSigned = true;
@@ -1045,8 +1099,8 @@ Enigmail.msg = {
 
     if (inputObj.resetDefaults) {
       // reset everything to defaults
-      this.encryptForced = EnigmailConstants.ENIG_UNDEF;
-      this.signForced = EnigmailConstants.ENIG_UNDEF;
+      this.encryptForced = 1;
+      this.signForced = 1;
     }
     else {
       if (this.signForced != inputObj.sign) {
@@ -1089,20 +1143,32 @@ Enigmail.msg = {
     var draftStatus = "N";
 
     // Encryption:
-    // ENIG_ALWAYS == 2 -> required/enabled
-    // ENIG_NEVER == 0 -> disabled
-    // (gOptionalEncryption not yet handled)
-    draftStatus += gSendEncrypted ? "2" : "0";
+    // 2 -> required/enabled
+    // 0 -> disabled
 
-    // Signing:
-    // ENIG_ALWAYS == 2 -> enabled
-    // ENIG_NEVER == 0 -> disabled
-    draftStatus += gSendSigned ? "2" : "0";
+    if (!gUserTouchedSendEncrypted && !gIsRelatedToEncryptedOriginal) {
+      // After opening draft, it's allowed to use automatic decision.
+      draftStatus += "1";
+    } else {
+      // After opening draft, use the same state that is set now.
+      draftStatus += gSendEncrypted ? "2" : "0";
+    }
+
+    if (!gUserTouchedSendSigned) {
+      // After opening draft, it's allowed to use automatic decision.
+      draftStatus += "1";
+    } else {
+      // After opening draft, use the same state that is set now.
+      // Signing:
+      // 2 -> enabled
+      // 0 -> disabled
+      draftStatus += gSendSigned ? "2" : "0";
+    }
 
     // MIME/technology
     // ENIG_FORCE_SMIME == 3 -> S/MIME
     // ENIG_FORCE_ALWAYS == 2 -> PGP/MIME
-    // ENIG_NEVER == 0 -> PGP inline
+    // 0 -> PGP inline
     if (gSelectedTechnologyIsPGP) {
       // inline signing currently not implemented
       draftStatus += "2";
@@ -1110,9 +1176,17 @@ Enigmail.msg = {
       draftStatus += "3";
     }
 
-    draftStatus += gAttachMyPublicPGPKey ? "1" : "0";
+    if (!gUserTouchedAttachMyPubKey) {
+      draftStatus += "2";
+    } else {
+      draftStatus += gAttachMyPublicPGPKey ? "1" : "0";
+    }
 
-    draftStatus += gSendEncrypted && gEncryptSubject ? "1" : "0";
+    if (!gUserTouchedEncryptSubject) {
+      draftStatus += "2";
+    } else {
+      draftStatus += gSendEncrypted && gEncryptSubject ? "1" : "0";
+    }
 
     this.setAdditionalHeader("X-Enigmail-Draft-Status", draftStatus);
   },
@@ -2420,8 +2494,8 @@ Enigmail.msg = {
       // automatic enabling encryption currently depends on
       // adjustSignEncryptAfterIdentityChanged to be always reached
       gIsRelatedToEncryptedOriginal = true;
-      updateE2eeOptions(gSendEncrypted);
-      gSendSigned = true;
+      gSendEncrypted = true;
+      updateEncryptionDependencies();
     }
     //}
 

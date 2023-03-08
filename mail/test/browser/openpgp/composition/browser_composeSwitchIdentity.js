@@ -49,6 +49,13 @@ async function closeDialog(win) {
   await closed;
 }
 
+async function waitCheckEncryptionStateDone(win) {
+  return BrowserTestUtils.waitForEvent(
+    win.document,
+    "encryption-state-checked"
+  );
+}
+
 /**
  * Setup a mail account with a private key and import the public key for the
  * receiver.
@@ -129,12 +136,15 @@ async function testComposeFlags(
   let cwc = open_compose_new_mail();
   let composeWin = cwc.window;
 
+  // setup_msg_contents will trigger checkEncryptionState.
+  let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
   setup_msg_contents(
     cwc,
     "alice@openpgp.example",
     "Compose Message",
     "This is a message."
   );
+  await checkDonePromise;
 
   Assert.equal(composeWin.gSendEncrypted, expectSendEncrypted);
   Assert.equal(composeWin.gSendSigned, expectSendSigned);
@@ -143,7 +153,12 @@ async function testComposeFlags(
 
   if (testToggle) {
     if (testToggle == "encrypt") {
+      // This toggle will trigger checkEncryptionState(), request that
+      // an event will be sent after the next call to checkEncryptionState
+      // has completed.
+      checkDonePromise = waitCheckEncryptionStateDone(composeWin);
       await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
+      await checkDonePromise;
     } else if (testToggle == "sign") {
       await OpenPGPTestUtils.toggleMessageSigning(composeWin);
     } else if (testToggle == "encrypt-subject") {
@@ -164,10 +179,14 @@ async function testComposeFlags(
   }
 
   if (switchIdentity) {
+    checkDonePromise = waitCheckEncryptionStateDone(composeWin);
+
     cwc.click(cwc.e("msgIdentity"));
     await cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
       { identitykey: plainIdentity.key },
     ]);
+
+    await checkDonePromise;
 
     Assert.equal(
       composeWin.gSendEncrypted,
@@ -183,10 +202,14 @@ async function testComposeFlags(
       expectEncryptSubject3GoneToPlainIdentity
     );
 
+    checkDonePromise = waitCheckEncryptionStateDone(composeWin);
+
     cwc.click(cwc.e("msgIdentity"));
     await cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
       { identitykey: bobIdentity.key },
     ]);
+
+    await checkDonePromise;
 
     Assert.equal(
       composeWin.gSendEncrypted,
@@ -230,7 +253,7 @@ add_task(async function testMsgComp1() {
   let expectSendEncrypted = false;
   let expectSendSigned = false;
   let expectAttachMyPublicPGPKey = false;
-  let expectEncryptSubject = true;
+  let expectEncryptSubject = false;
   let testToggle = null;
   let expectSendEncrypted2AfterToggle = undefined;
   let expectSendSigned2AfterToggle = undefined;
@@ -240,11 +263,11 @@ add_task(async function testMsgComp1() {
   let expectSendEncrypted3GoneToPlainIdentity = false;
   let expectSendSigned3GoneToPlainIdentity = false;
   let expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
-  let expectEncryptSubject3GoneToPlainIdentity = true;
+  let expectEncryptSubject3GoneToPlainIdentity = false;
   let expectSendEncrypted4GoneToOrigIdentity = false;
   let expectSendSigned4GoneToOrigIdentity = false;
   let expectAttachMyPublicPGPKey4GoneToOrigIdentity = false;
-  let expectEncryptSubject4GoneToOrigIdentity = true;
+  let expectEncryptSubject4GoneToOrigIdentity = false;
 
   await testComposeFlags(
     prefEncryptionPolicy,
@@ -281,21 +304,21 @@ add_task(async function testMsgComp1b() {
   let expectSendEncrypted = false;
   let expectSendSigned = false;
   let expectAttachMyPublicPGPKey = false;
-  let expectEncryptSubject = true;
+  let expectEncryptSubject = false;
   let testToggle = "sign";
   let expectSendEncrypted2AfterToggle = false;
   let expectSendSigned2AfterToggle = true;
   let expectAttachMyPublicPGPKey2AfterToggle = true;
-  let expectEncryptSubject2AfterToggle = true;
+  let expectEncryptSubject2AfterToggle = false;
   let switchIdentity = true;
   let expectSendEncrypted3GoneToPlainIdentity = false;
   let expectSendSigned3GoneToPlainIdentity = false;
   let expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
-  let expectEncryptSubject3GoneToPlainIdentity = true;
+  let expectEncryptSubject3GoneToPlainIdentity = false;
   let expectSendEncrypted4GoneToOrigIdentity = false;
   let expectSendSigned4GoneToOrigIdentity = false;
   let expectAttachMyPublicPGPKey4GoneToOrigIdentity = false;
-  let expectEncryptSubject4GoneToOrigIdentity = true;
+  let expectEncryptSubject4GoneToOrigIdentity = false;
 
   await testComposeFlags(
     prefEncryptionPolicy,
@@ -332,7 +355,7 @@ add_task(async function testMsgComp2() {
   let expectSendEncrypted = false;
   let expectSendSigned = true;
   let expectAttachMyPublicPGPKey = true;
-  let expectEncryptSubject = true;
+  let expectEncryptSubject = false;
   let testToggle = null;
   let expectSendEncrypted2AfterToggle = undefined;
   let expectSendSigned2AfterToggle = undefined;
@@ -342,11 +365,11 @@ add_task(async function testMsgComp2() {
   let expectSendEncrypted3GoneToPlainIdentity = false;
   let expectSendSigned3GoneToPlainIdentity = false;
   let expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
-  let expectEncryptSubject3GoneToPlainIdentity = true;
+  let expectEncryptSubject3GoneToPlainIdentity = false;
   let expectSendEncrypted4GoneToOrigIdentity = false;
   let expectSendSigned4GoneToOrigIdentity = true;
   let expectAttachMyPublicPGPKey4GoneToOrigIdentity = true;
-  let expectEncryptSubject4GoneToOrigIdentity = true;
+  let expectEncryptSubject4GoneToOrigIdentity = false;
 
   await testComposeFlags(
     prefEncryptionPolicy,
@@ -383,21 +406,21 @@ add_task(async function testMsgComp2b() {
   let expectSendEncrypted = false;
   let expectSendSigned = true;
   let expectAttachMyPublicPGPKey = true;
-  let expectEncryptSubject = true;
+  let expectEncryptSubject = false;
   let testToggle = "attach-key";
   let expectSendEncrypted2AfterToggle = false;
   let expectSendSigned2AfterToggle = true;
   let expectAttachMyPublicPGPKey2AfterToggle = false;
-  let expectEncryptSubject2AfterToggle = true;
+  let expectEncryptSubject2AfterToggle = false;
   let switchIdentity = true;
   let expectSendEncrypted3GoneToPlainIdentity = false;
   let expectSendSigned3GoneToPlainIdentity = false;
   let expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
-  let expectEncryptSubject3GoneToPlainIdentity = true;
+  let expectEncryptSubject3GoneToPlainIdentity = false;
   let expectSendEncrypted4GoneToOrigIdentity = false;
   let expectSendSigned4GoneToOrigIdentity = true;
   let expectAttachMyPublicPGPKey4GoneToOrigIdentity = false;
-  let expectEncryptSubject4GoneToOrigIdentity = true;
+  let expectEncryptSubject4GoneToOrigIdentity = false;
 
   await testComposeFlags(
     prefEncryptionPolicy,
@@ -689,7 +712,7 @@ add_task(async function testMsgComp6() {
   let expectSendEncrypted = false;
   let expectSendSigned = false;
   let expectAttachMyPublicPGPKey = false;
-  let expectEncryptSubject = true;
+  let expectEncryptSubject = false;
   let testToggle = "encrypt";
   let expectSendEncrypted2AfterToggle = true;
   let expectSendSigned2AfterToggle = true;

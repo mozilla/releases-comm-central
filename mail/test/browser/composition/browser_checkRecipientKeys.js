@@ -29,9 +29,9 @@ registerCleanupFunction(() => {
 });
 
 /**
- * Test that checkRecipientKeys should not affect gMsgCompose.compFields.
+ * Test that checkEncryptionState should not affect gMsgCompose.compFields.
  */
-add_task(async function test_checkRecipientKeys() {
+add_task(async function test_checkEncryptionState() {
   let [id] = await OpenPGPTestUtils.importPrivateKey(
     window,
     new FileUtils.File(
@@ -42,7 +42,7 @@ add_task(async function test_checkRecipientKeys() {
   );
 
   // Set up the identity to cover the remindOpenPGP/remindSMime branches in
-  // checkRecipientKeys.
+  // checkEncryptionState.
   let identity = MailServices.accounts.createIdentity();
   identity.email = "test@local";
   identity.setUnicharAttribute("encryption_cert_name", "smime-cert");

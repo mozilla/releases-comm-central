@@ -43,6 +43,31 @@ pref("mail.openpgp.alias_rules_file", "");
 
 pref("mail.openpgp.key_assistant.enable", true);
 
+// Automatically enable encryption if S/MIME certificates or OpenPGP keys are
+// available for all recipients, and thus encryption is possible.
+// This pref is only about enabling, and doesn't control automatic disabling.
+pref("mail.e2ee.auto_enable", false);
+
+// If end-to-end encryption with S/MIME or OpenPGP is enabled,
+// and the user adds another recipient with unavailable certificate or key,
+// and this preference is true, then automatically disable encryption.
+// This pref is dangerous, and it is recommended to always keep it at false.
+// If you change the pref to true, the user might assume that encryption
+// is still enabled, and might not notice that encryption gets disabled.
+// There is an exception: If encryption was enabled, because the message
+// refers to an existing encrypted conversation (e.g. replying to an
+// encrypted message), this preference is ignored, encryption will
+// remain on. It isn't possible to override that behavior.
+// Note that encryption will never be disabled automatically on sending,
+// only when the list of recipients is changed.
+// If mail.e2ee.auto_enable is false, then mail.e2ee.auto_disable
+// will be ignored.
+pref("mail.e2ee.auto_disable", false);
+
+// If end-to-end encryption gets automatically disabled, inform the user
+// using a prompt.
+pref("mail.e2ee.notify_on_auto_disable", true);
+
 // If false, disable the reminder in composer, whether email could be
 // sent with OpenPGP encryption (without further user actions/decisions).
 pref("mail.openpgp.remind_encryption_possible", true);
@@ -228,8 +253,8 @@ pref("mail.identity.default.attachPgpKey", true);
 pref("mail.identity.default.autoEncryptDrafts", true);
 pref("mail.identity.default.protectSubject", true);
 
-// prefer S/MIME or PGP/MIME (0: S/MIME, 1: PGP/MIME)
-pref("mail.identity.default.mimePreferOpenPGP", 1);
+// 0 selected automatically, 1 prefer S/MIME, 2 prefer OpenPGP
+pref("mail.identity.default.e2etechpref", 0);
 
 //
 // Other settings (change Mozilla behaviour)

@@ -115,7 +115,17 @@ const OpenPGPTestUtils = {
    * @returns {boolean}
    */
   hasNoSignedIconState(doc) {
-    return doc.querySelector(`#signedHdrIcon[hidden]`);
+    return !!doc.querySelector(`#signedHdrIcon[hidden]`);
+  },
+
+  /**
+   * Checks that the encrypted icon is hidden.
+   *
+   * @param {HTMLDocument} doc - The document of the message window.
+   * @returns {boolean}
+   */
+  hasNoEncryptedIconState(doc) {
+    return !!doc.querySelector(`#encryptedHdrIcon[hidden]`);
   },
 
   /**

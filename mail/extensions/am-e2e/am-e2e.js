@@ -53,10 +53,44 @@ var gTechPrefSMIME = null;
 
 function onInit() {
   initE2EEncryption(gIdentity);
+  Services.prefs.addObserver("mail.e2ee.auto_enable", autoEncryptPrefObserver);
+  Services.prefs.addObserver("mail.e2ee.auto_disable", autoEncryptPrefObserver);
 }
+
+window.addEventListener("unload", function() {
+  Services.prefs.removeObserver(
+    "mail.e2ee.auto_enable",
+    autoEncryptPrefObserver
+  );
+  Services.prefs.removeObserver(
+    "mail.e2ee.auto_disable",
+    autoEncryptPrefObserver
+  );
+});
 
 let gDisableEncryption;
 let gEnableEncryption;
+
+var autoEncryptPrefObserver = {
+  observe(subject, topic, prefName) {
+    if (topic == "nsPref:changed") {
+      if (
+        prefName == "mail.e2ee.auto_enable" ||
+        prefName == "mail.e2ee.auto_disable"
+      ) {
+        updateAutoEncryptRelated();
+      }
+    }
+  },
+};
+
+function updateAutoEncryptRelated() {
+  if (Services.prefs.getBoolPref("mail.e2ee.auto_enable")) {
+    document.getElementById("encryptionChoices").hidden = true;
+  } else {
+    document.getElementById("encryptionChoices").hidden = false;
+  }
+}
 
 async function initE2EEncryption(identity) {
   // Initialize all of our elements based on the current identity values...
@@ -127,6 +161,8 @@ async function initE2EEncryption(identity) {
     enableSig = enableSig || !!gKeyId;
     enableSigningControls(enableSig);
   }
+
+  updateAutoEncryptRelated();
 
   // Always start with enabling select buttons.
   // This will keep the visibility of buttons in a sane state as user

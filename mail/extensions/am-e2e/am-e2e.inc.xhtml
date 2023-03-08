@@ -13,6 +13,7 @@
       </linkset>
 
       <vbox flex="1">
+        <html:p class="intro-paragraph">&e2eEnc.description;</html:p>
         <html:p class="intro-paragraph"
                 data-l10n-id="e2e-intro-description"></html:p>
         <html:span class="tail-with-learn-more"
@@ -174,16 +175,10 @@
       <html:legend>&sendingDefaults.label;</html:legend>
 
       <html:div>
-      <html:fieldset id="encryption_titlebox">
-        <description flex="1">&e2eEnc.description;</description>
-
-        <radiogroup id="encryptionChoices" class="indent">
+      <html:fieldset>
+        <radiogroup id="encryptionChoices" class="indent" hidden="true">
           <radio id="disable_encryption" wsm_persist="true" value="0"
                  data-l10n-id="e2e-disable-enc"/>
-          <!--
-          <radio id="encrypt_allow" wsm_persist="true" value="1"
-                 label=""/>
-          -->
           <radio id="enable_encryption" wsm_persist="true" value="2"
                  data-l10n-id="e2e-enable-enc"/>
           <hbox>
@@ -207,8 +202,7 @@
       <html:legend data-l10n-id="e2e-advanced-section"/>
 
       <html:div>
-      <html:fieldset id="encryption_titlebox">
-
+      <html:fieldset>
         <checkbox id="identity_attach_key" wsm_persist="true"
                   prefstring="mail.identity.%identitykey%.attachPgpKey"
                   data-l10n-id="e2e-attach-key"/>

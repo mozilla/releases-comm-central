@@ -37,6 +37,13 @@ let gOutbox;
 
 let aboutMessage = get_about_message();
 
+async function waitCheckEncryptionStateDone(win) {
+  return BrowserTestUtils.waitForEvent(
+    win.document,
+    "encryption-state-checked"
+  );
+}
+
 /**
  * Setup a mail account with a private key and import the public key for the
  * receiver.
@@ -200,14 +207,23 @@ add_task(async function testSignedEncryptedMessageComposition() {
   let cwc = open_compose_new_mail();
   let composeWin = cwc.window;
 
+  // setup_msg_contents will trigger checkEncryptionState.
+  let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
   setup_msg_contents(
     cwc,
     "alice@openpgp.example",
     "Compose Signed Encrypted Message",
     "This is a signed, encrypted message composition test."
   );
+  await checkDonePromise;
 
+  // This toggle will trigger checkEncryptionState(), request that
+  // an event will be sent after the next call to checkEncryptionState
+  // has completed.
+  checkDonePromise = waitCheckEncryptionStateDone(composeWin);
   await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
+  await checkDonePromise;
+
   await OpenPGPTestUtils.toggleMessageKeyAttachment(composeWin);
   await sendMessage(composeWin);
 
@@ -245,14 +261,23 @@ add_task(async function testSignedEncryptedMessageWithKeyComposition() {
   let cwc = open_compose_new_mail();
   let composeWin = cwc.window;
 
+  // setup_msg_contents will trigger checkEncryptionState.
+  let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
   setup_msg_contents(
     cwc,
     "alice@openpgp.example",
     "Compose Signed Encrypted Message With Key",
     "This is a signed, encrypted message with key composition test."
   );
+  await checkDonePromise;
 
+  // This toggle will trigger checkEncryptionState(), request that
+  // an event will be sent after the next call to checkEncryptionState
+  // has completed.
+  checkDonePromise = waitCheckEncryptionStateDone(composeWin);
   await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
+  await checkDonePromise;
+
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);

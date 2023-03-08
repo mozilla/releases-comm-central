@@ -77,7 +77,9 @@ var gKeyAssistant = {
     document
       .getElementById("disableEncryptionButton")
       .addEventListener("click", () => {
-        updateE2eeOptions(false);
+        gSendEncrypted = false;
+        gUserTouchedSendEncrypted = true;
+        checkEncryptionState();
         this.close();
       });
     document
@@ -98,7 +100,7 @@ var gKeyAssistant = {
   },
 
   async close() {
-    await checkRecipientKeys();
+    await checkEncryptionState();
     this.dialog.close();
   },
 
@@ -356,7 +358,7 @@ var gKeyAssistant = {
     // which could have changed the validity of the key.
     // In theory it would be sufficient to refresh the main view
     // for the single email address.
-    await checkRecipientKeys();
+    await checkEncryptionState("openpgp-key-assistant-refresh");
     this.buildMainView();
   },
 
@@ -774,7 +776,7 @@ var gKeyAssistant = {
     );
 
     // Trigger the UI refresh of the compose window.
-    await checkRecipientKeys();
+    await checkEncryptionState("openpgp-key-assistant-refresh");
 
     this.ignoreExternal = false;
     this.resetViews();
@@ -869,7 +871,7 @@ var gKeyAssistant = {
 
     if (keyMetas.some(k => k.readiness == "accepted")) {
       // Trigger the UI refresh of the compose window.
-      await checkRecipientKeys();
+      await checkEncryptionState("openpgp-key-assistant-refresh");
 
       // Wait a sec before closing the view, so the user has time to see what
       // happened.
@@ -937,7 +939,7 @@ var gKeyAssistant = {
   },
 
   onExternalKeyChange() {
-    if (!this.dialog.open) {
+    if (!this.dialog || !this.dialog.open) {
       return;
     }
 

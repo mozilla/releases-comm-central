@@ -160,7 +160,7 @@ var gDisableAttachmentReminder;
 var gComposeType;
 var gLanguageObserver;
 var gRecipientObserver;
-var gBccObserver;
+var gWantCannotEncryptBCCNotification = true;
 var gRecipientKeysObserver;
 var gCheckPublicRecipientsTimer;
 var gBodyFromArgs;
@@ -188,10 +188,6 @@ var gSendSigned = false;
 var gAttachMyPublicPGPKey = false;
 
 var gSendEncrypted = false;
-var gSendEncryptedInitial = false;
-
-var gOptionalEncryption = false; // Only encrypt if possible. Ignored if !gSendEncrypted.
-var gOptionalEncryptionInitial = false;
 
 // gEncryptSubject contains the preference for subject encryption,
 // considered only if encryption is enabled and the technology allows it.
@@ -206,7 +202,6 @@ var gUserTouchedAttachMyPubKey = false;
 var gUserTouchedEncryptSubject = false;
 
 var gIsRelatedToEncryptedOriginal = false;
-var gIsRelatedToSignedOriginal = false;
 
 var gOpened = Date.now();
 
@@ -326,7 +321,7 @@ const keyObserver = {
         EnigmailKeyRing.clearCache();
       // fall through
       case "openpgp-acceptance-change":
-        await checkRecipientKeys();
+        checkEncryptionState(topic);
         gKeyAssistant.onExternalKeyChange();
         break;
       default:
@@ -359,7 +354,6 @@ function InitializeGlobalVariables() {
   gDisableAttachmentReminder = false;
   gLanguageObserver = null;
   gRecipientObserver = null;
-  gBccObserver = null;
 
   gLastWindowToHaveFocus = null;
   gLastKnownComposeStates = {};
@@ -386,7 +380,6 @@ function ReleaseGlobalVariables() {
   gOriginalMsgURI = null;
   gMessenger = null;
   gRecipientObserver = null;
-  gBccObserver = null;
   gDisableAttachmentReminder = false;
   _gComposeBundle = null;
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
@@ -1715,22 +1708,10 @@ function updateAttachMyPubKey() {
 }
 
 function toggleEncryptMessage() {
-  let oldSendEnc = gSendEncrypted;
-  let oldOptEnc = gOptionalEncryption;
-
   gSendEncrypted = !gSendEncrypted;
 
-  updateE2eeOptions(gSendEncrypted);
-  gOptionalEncryption = gSendEncrypted;
-
-  if (oldSendEnc != gSendEncrypted || oldOptEnc != gOptionalEncryption) {
-    gUserTouchedSendEncrypted = true;
-  }
-
-  if (!gUserTouchedEncryptSubject) {
-    gEncryptSubject = gCurrentIdentity.protectSubject;
-  }
-  updateEncryptedSubject();
+  gUserTouchedSendEncrypted = true;
+  checkEncryptionState();
 }
 
 function toggleAttachMyPublicKey(target) {
@@ -1761,6 +1742,11 @@ function toggleEncryptedSubject() {
   updateEncryptedSubject();
 }
 
+/**
+ * Update user interface elements
+ *
+ * @param {string} menu_id - suffix of the menu ID of the menu to update
+ */
 function setSecuritySettings(menu_id) {
   let encItem = document.getElementById("menu_securityEncrypt" + menu_id);
   encItem.setAttribute("checked", gSendEncrypted);
@@ -1846,7 +1832,7 @@ function showMessageComposeSecurityStatus(isSending = false) {
           currentIdentity: gCurrentIdentity,
         }
       );
-      checkRecipientKeys();
+      checkEncryptionState();
     }
   } else {
     Recipients2CompFields(gMsgCompose.compFields);
@@ -3131,8 +3117,7 @@ function ComposeFieldsReady() {
 
   // Perform the initial checks.
   checkPublicRecipientsLimit();
-  checkRecipientKeysAndCerts();
-  checkEncryptedBccRecipients();
+  checkEncryptionState();
 }
 
 /**
@@ -3154,13 +3139,12 @@ function observeRecipientsChange() {
     childList: true,
   });
 
-  gBccObserver = new MutationObserver(checkEncryptedBccRecipients);
-  gBccObserver.observe(document.getElementById("bccAddrContainer"), {
-    childList: true,
-  });
-  window.addEventListener("sendencryptedchange", checkEncryptedBccRecipients);
+  function callCheckEncryptionState() {
+    // We must not pass the parameters that we get from observing.
+    checkEncryptionState();
+  }
 
-  gRecipientKeysObserver = new MutationObserver(checkRecipientKeysAndCerts);
+  gRecipientKeysObserver = new MutationObserver(callCheckEncryptionState);
   gRecipientKeysObserver.observe(document.getElementById("toAddrContainer"), {
     childList: true,
   });
@@ -3170,7 +3154,6 @@ function observeRecipientsChange() {
   gRecipientKeysObserver.observe(document.getElementById("bccAddrContainer"), {
     childList: true,
   });
-  window.addEventListener("sendencryptedchange", checkRecipientKeysAndCerts);
 }
 
 // checks if the passed in string is a mailto url, if it is, generates nsIMsgComposeParams
@@ -3377,12 +3360,15 @@ function manageAttachmentNotification(aForce = false) {
   notification.buttonContainer.appendChild(remindButton);
 }
 
-function clearRecipientsWithKeyIssues() {
+function clearRecipPillKeyIssues() {
   for (let pill of document.querySelectorAll("mail-address-pill.key-issue")) {
     pill.classList.remove("key-issue");
   }
 }
 
+/**
+ * @returns {string[]} - All current recipient email addresses, lowercase.
+ */
 function getEncryptionCompatibleRecipients() {
   let recipientPills = [
     ...document.querySelectorAll(
@@ -3398,134 +3384,251 @@ function getEncryptionCompatibleRecipients() {
 const PRErrorCodeSuccess = 0;
 const certificateUsageEmailRecipient = 0x0020;
 
+var gEmailsWithMissingKeys = null;
+var gEmailsWithMissingCerts = null;
+
 /**
- * Check if the given certificate is valid for S/MIME encryption.
- * Returns the same results as asyncVerifyCertAtTime.
+ * @returns {boolean} true if checking openpgp keys is necessary
  */
-async function verifyCertUsable(cert) {
-  let now = Date.now() / 1000;
-  let certdb = Cc["@mozilla.org/security/x509certdb;1"].getService(
-    Ci.nsIX509CertDB
-  );
-
-  return new Promise((resolve, reject) => {
-    certdb.asyncVerifyCertAtTime(
-      cert,
-      certificateUsageEmailRecipient,
-      0,
-      null,
-      now,
-      (aPRErrorCode, aVerifiedChain, aHasEVPolicy) => {
-        if (aPRErrorCode !== PRErrorCodeSuccess) {
-          reject(aPRErrorCode);
-        } else {
-          resolve(certificateUsageEmailRecipient);
-        }
-      }
-    );
-  });
-}
-
-async function checkRecipientKeysAndCerts() {
-  await checkRecipientKeys();
-  checkRecipientCerts();
-}
-
-async function checkRecipientKeys() {
+function mustCheckRecipientKeys() {
   let remindOpenPGP = Services.prefs.getBoolPref(
     "mail.openpgp.remind_encryption_possible"
   );
-  if (!remindOpenPGP) {
-    return;
-  }
 
-  let recipients = getEncryptionCompatibleRecipients();
-  // Calculate key notifications.
-  // 1 notification at most per email address that has no valid key.
-  // If an email address has several invalid keys, we notify only about the 1st
-  // undecided key, or the 1st expired key, or the 1st rejected key, in this
-  // order.
+  let autoEnablePref = Services.prefs.getBoolPref(
+    "mail.e2ee.auto_enable",
+    false
+  );
 
-  let emailsWithMissingKeys = [];
-  let haveAllKeys = false;
+  return isPgpConfigured() && (remindOpenPGP || autoEnablePref);
+}
 
-  if (remindOpenPGP && (gSendEncrypted || isPgpConfigured())) {
-    for (let addr of recipients) {
-      let keyMetas = await EnigmailKeyRing.getEncryptionKeyMeta(addr);
+/**
+ * Check available OpenPGP public encryption keys for the given email
+ * addresses. (This function assumes the caller has already called
+ * mustCheckRecipientKeys() and the result was true.)
+ *
+ * gEmailsWithMissingKeys will be set to an array of email addresses
+ * (a subset of the input) that do NOT have a usable
+ * (valid + accepted) key.
+ *
+ * @param {string[]} recipients - The addresses to lookup.
+ */
+async function checkRecipientKeys(recipients) {
+  gEmailsWithMissingKeys = [];
 
-      if (keyMetas.length == 1 && keyMetas[0].readiness == "alias") {
-        // Skip if this is an alias email.
-        continue;
-      }
+  for (let addr of recipients) {
+    let keyMetas = await EnigmailKeyRing.getEncryptionKeyMeta(addr);
 
-      if (!keyMetas.some(k => k.readiness == "accepted")) {
-        emailsWithMissingKeys.push(addr);
-        continue;
-      }
+    if (keyMetas.length == 1 && keyMetas[0].readiness == "alias") {
+      // Skip if this is an alias email.
+      continue;
     }
 
-    if (!emailsWithMissingKeys.length) {
-      haveAllKeys = true;
+    if (!keyMetas.some(k => k.readiness == "accepted")) {
+      gEmailsWithMissingKeys.push(addr);
+      continue;
     }
-  }
-
-  if (!gSendEncrypted) {
-    if (recipients.length && haveAllKeys) {
-      updateEncryptionTechReminder("OpenPGP");
-    } else {
-      updateEncryptionTechReminder(null);
-    }
-
-    updateKeyNotifications([]);
-    return;
-  }
-
-  if (gSelectedTechnologyIsPGP) {
-    updateEncryptionTechReminder(null);
-    updateKeyNotifications(emailsWithMissingKeys);
   }
 }
 
 /**
- * S/MIME. Callers cannot wait for this to complete. Cert verification
- * involves OCSP, which must run on a background thread.
- * Calling this function will result in a delayed UI update as soon
- * as necessary background activity has been completed. Calling this
- * function multiple times pending OCSP is safe, because we're tracking
- * pending requests. As soon as all are done, processing will continue
- * by calling continueCheckRecipientCerts().
+ * @returns {boolean} true if checking s/mime certificates is necessary
  */
-function checkRecipientCerts() {
-  async function continueCheckRecipientCerts() {
-    if (!Services.prefs.getBoolPref("mail.smime.remind_encryption_possible")) {
-      // No UI updates necessary, our processing did the necessary
-      // filling of the OCSP cache.
-      return;
+function mustCheckRecipientCerts() {
+  let remindSMime = Services.prefs.getBoolPref(
+    "mail.smime.remind_encryption_possible"
+  );
+
+  let autoEnablePref = Services.prefs.getBoolPref(
+    "mail.e2ee.auto_enable",
+    false
+  );
+
+  return isSmimeEncryptionConfigured() && (remindSMime || autoEnablePref);
+}
+
+/**
+ * Check available S/MIME encryption certificates for the given email
+ * addresses. (This function assumes the caller has already called
+ * mustCheckRecipientCerts() and the result was true.)
+ *
+ * gEmailsWithMissingCerts will be set to an array of email addresses
+ * (a subset of the input) that do NOT have a usable (valid) certificate.
+ *
+ * This function might take significant time to complete, because
+ * certificate verification involves OCSP, which runs on a background
+ * thread.
+ *
+ * @param {string[]} recipients - The addresses to lookup.
+ */
+function checkRecipientCerts(recipients) {
+  return new Promise((resolve, reject) => {
+    if (gSMPendingCertLookupSet.size) {
+      reject(
+        new Error(
+          "Must not be called while previous checks are still in progress"
+        )
+      );
     }
 
-    let recipients = getEncryptionCompatibleRecipients();
-    let emailsWithMissingCerts = recipients.filter(
-      email => !gSMFields.haveValidCertForEmail(email)
-    );
-    let haveAllCerts = !emailsWithMissingCerts.length;
+    gEmailsWithMissingCerts = [];
 
-    if (!gSendEncrypted) {
-      if (recipients.length && haveAllCerts) {
-        updateEncryptionTechReminder("SMIME");
-      } else {
-        updateEncryptionTechReminder(null);
+    function continueCheckRecipientCerts() {
+      gEmailsWithMissingCerts = recipients.filter(
+        email => !gSMFields.haveValidCertForEmail(email)
+      );
+      resolve();
+    }
+
+    /** @implements {nsIDoneFindCertForEmailCallback} */
+    let doneFindCertForEmailCallback = {
+      QueryInterface: ChromeUtils.generateQI([
+        "nsIDoneFindCertForEmailCallback",
+      ]),
+
+      findCertDone(email, cert) {
+        let isStaleResult = !gSMPendingCertLookupSet.has(email);
+        // isStaleResult true means, this recipient was removed by the
+        // user while we were looking for the cert in the background.
+        // Let's remember the result, but don't trigger any actions
+        // based on it.
+
+        if (cert) {
+          gSMFields.cacheValidCertForEmail(email, cert ? cert.dbKey : "");
+        }
+        if (isStaleResult) {
+          return;
+        }
+        gSMPendingCertLookupSet.delete(email);
+        if (!cert && !gSMCertsAlreadyLookedUpInLDAP.has(email)) {
+          let autocompleteLdap = Services.prefs.getBoolPref(
+            "ldap_2.autoComplete.useDirectory"
+          );
+
+          if (autocompleteLdap) {
+            gSMCertsAlreadyLookedUpInLDAP.add(email);
+
+            let autocompleteDirectory = null;
+            if (gCurrentIdentity.overrideGlobalPref) {
+              autocompleteDirectory = gCurrentIdentity.directoryServer;
+            } else {
+              autocompleteDirectory = Services.prefs.getCharPref(
+                "ldap_2.autoComplete.directoryServer"
+              );
+            }
+
+            if (autocompleteDirectory) {
+              window.openDialog(
+                "chrome://messenger-smime/content/certFetchingStatus.xhtml",
+                "",
+                "chrome,resizable=1,modal=1,dialog=1",
+                autocompleteDirectory,
+                [email]
+              );
+            }
+
+            gSMPendingCertLookupSet.add(email);
+            gSMFields.asyncFindCertByEmailAddr(
+              email,
+              doneFindCertForEmailCallback
+            );
+          }
+        }
+
+        if (gSMPendingCertLookupSet.size) {
+          // must continue to wait for more queued lookups to complete
+          return;
+        }
+
+        // No more lookups pending.
+        continueCheckRecipientCerts();
+      },
+    };
+
+    for (let email of recipients) {
+      if (gSMFields.haveValidCertForEmail(email)) {
+        continue;
       }
 
-      updateKeyNotifications([]);
-      return;
+      if (gSMPendingCertLookupSet.has(email)) {
+        throw new Error(`cert lookup still pending for ${email}`);
+      }
+
+      gSMPendingCertLookupSet.add(email);
+      gSMFields.asyncFindCertByEmailAddr(email, doneFindCertForEmailCallback);
     }
 
-    if (!gSelectedTechnologyIsPGP) {
-      updateEncryptionTechReminder(null);
-      updateKeyNotifications(emailsWithMissingCerts);
+    // If we haven't queued any lookups, we continue immediately
+    if (!gSMPendingCertLookupSet.size) {
+      continueCheckRecipientCerts();
     }
-  }
+  });
+}
 
+/**
+ * gCheckEncryptionStateCompletionIsPending means that async work
+ * started by checkEncryptionState() has not yet completed.
+ */
+var gCheckEncryptionStateCompletionIsPending = false;
+
+/**
+ * gCheckEncryptionStateNeedsRestart means that checkEncryptionState()
+ * was called, while its async operations were still running.
+ * The additional to checkEncryptionState() was treated as a no-op,
+ * but gCheckEncryptionStateNeedsRestart was set to true, to remember
+ * that checkEncryptionState() must be immediately restarted after its
+ * previous execution is done. This will the restarted
+ * checkEncryptionState() execution to detect and handle changes that
+ * could result in a different state.
+ */
+var gCheckEncryptionStateNeedsRestart = false;
+
+/**
+ * gWasCESTriggeredByComposerChange is used to track whether an
+ * encryption-state-checked event should be sent after an ongoing
+ * execution of checkEncryptionState() is done.
+ * The purpose of the encryption-state-checked event is to allow our
+ * automated tests to be notified as soon as an automatic call to
+ * checkEncryptionState() (and all related async calls) is complete,
+ * which means all automatic adjustments to the global encryption state
+ * are done, and the automated test code may proceed to compare the
+ * state to our exptectations.
+ * We want that event to be sent after modifications were made to the
+ * composer window itself, such as sender identity and recipients.
+ * However, we want to ignore calls to checkEncryptionState() that
+ * were triggered indirectly after OpenPGP keys were changed.
+ * If an event was originally triggered by a change to OpenPGP keys,
+ * and the async processing of checkEncryptionState() was still running,
+ * and another direct change to the composer window was made, which
+ * shall result in sending a encryption-state-checked after completion,
+ * then the flag gWasCESTriggeredByComposerChange will be set,
+ * which will cause the event to be sent after the restarted call
+ * to checkEncryptionState() is complete.
+ */
+var gWasCESTriggeredByComposerChange = false;
+
+/**
+ * Perform all checks that are necessary to update the state of
+ * email encryption, based on the current recipients. This should be
+ * done whenever the recipient list or the status of available keys/certs
+ * has changed. All automatic actions for encryption related settings
+ * will be triggered accordingly.
+ * This function will trigger async activity, and the resulting actions
+ * (e.g. update of UI elements) may happen after a delay.
+ * It's safe to call this while processing hasn't completed yet, in this
+ * scenario the processing will be restarted, once pending
+ * activity has completed.
+ *
+ * @param {string} [trigger] - A string that gives information about
+ *   the reason why this function is being called.
+ *   This parameter is intended to help with automated testing.
+ *   If the trigger string starts with "openpgp-" then no completition
+ *   event will be dispatched. This allows the automated test code to
+ *   wait for events that are directly related to properties of the
+ *   composer window, only.
+ */
+async function checkEncryptionState(trigger) {
   if (!gLoadingComplete) {
     // Let's not do this while we're still loading the composer window,
     // it can have side effects, see bug 1777683.
@@ -3535,98 +3638,187 @@ function checkRecipientCerts() {
     return;
   }
 
-  if (!isSmimeEncryptionConfigured()) {
+  if (!/^openpgp-/.test(trigger)) {
+    gWasCESTriggeredByComposerChange = true;
+  }
+
+  if (gCheckEncryptionStateCompletionIsPending) {
+    // avoid concurrency
+    gCheckEncryptionStateNeedsRestart = true;
+    return;
+  }
+
+  let remindSMime = Services.prefs.getBoolPref(
+    "mail.smime.remind_encryption_possible"
+  );
+  let remindOpenPGP = Services.prefs.getBoolPref(
+    "mail.openpgp.remind_encryption_possible"
+  );
+  let autoEnablePref = Services.prefs.getBoolPref(
+    "mail.e2ee.auto_enable",
+    false
+  );
+
+  if (!gSendEncrypted && !autoEnablePref && !remindSMime && !remindOpenPGP) {
+    // No need to check.
+    updateEncryptionDependencies();
+    updateKeyCertNotifications([]);
+    updateEncryptionTechReminder(null);
+    if (gWasCESTriggeredByComposerChange) {
+      document.dispatchEvent(new CustomEvent("encryption-state-checked"));
+      gWasCESTriggeredByComposerChange = false;
+    }
     return;
   }
 
   let recipients = getEncryptionCompatibleRecipients();
-  // Calculate key notifications.
-  // 1 notification at most per email address that has no valid key.
-  // If an email address has several invalid keys, we notify only about the 1st
-  // undecided key, or the 1st expired key, or the 1st rejected key, in this
-  // order.
+  let checkingCerts = mustCheckRecipientCerts();
+  let checkingKeys = mustCheckRecipientKeys();
 
-  /** @implements {nsIDoneFindCertForEmailCallback} */
-  let doneFindCertForEmailCallback = {
-    QueryInterface: ChromeUtils.generateQI(["nsIDoneFindCertForEmailCallback"]),
+  async function continueCheckEncryptionStateSub() {
+    let canEncryptSMIME =
+      recipients.length && checkingCerts && !gEmailsWithMissingCerts.length;
+    let canEncryptOpenPGP =
+      recipients.length && checkingKeys && !gEmailsWithMissingKeys.length;
 
-    findCertDone(email, cert) {
-      let isStaleResult = !gSMPendingCertLookupSet.has(email);
-      // isStaleResult true means, this recipient was removed by the
-      // user while we were looking for the cert in the background.
-      // Let's remember the result, but don't trigger any actions
-      // based on it.
+    let autoEnabledJustNow = false;
 
-      if (cert) {
-        gSMFields.cacheValidCertForEmail(email, cert ? cert.dbKey : "");
+    if (
+      gSendEncrypted &&
+      gUserTouchedSendEncrypted &&
+      !isPgpConfigured() &&
+      !isSmimeEncryptionConfigured()
+    ) {
+      notifyIdentityCannotEncrypt(true, gCurrentIdentity.email);
+    } else {
+      notifyIdentityCannotEncrypt(false, gCurrentIdentity.email);
+    }
+
+    if (
+      !gSendEncrypted &&
+      autoEnablePref &&
+      !gUserTouchedSendEncrypted &&
+      recipients.length &&
+      (canEncryptSMIME || canEncryptOpenPGP)
+    ) {
+      if (!canEncryptSMIME) {
+        gSelectedTechnologyIsPGP = true;
+      } else if (!canEncryptOpenPGP) {
+        gSelectedTechnologyIsPGP = false;
       }
-      if (isStaleResult) {
-        return;
-      }
-      gSMPendingCertLookupSet.delete(email);
-      if (!cert && !gSMCertsAlreadyLookedUpInLDAP.has(email)) {
-        let autocompleteLdap = Services.prefs.getBoolPref(
-          "ldap_2.autoComplete.useDirectory"
+      gSendEncrypted = true;
+      autoEnabledJustNow = true;
+    }
+
+    if (
+      !gIsRelatedToEncryptedOriginal &&
+      !autoEnabledJustNow &&
+      !gUserTouchedSendEncrypted &&
+      gSendEncrypted &&
+      !canEncryptSMIME &&
+      !canEncryptOpenPGP
+    ) {
+      let autoDisablePref = Services.prefs.getBoolPref(
+        "mail.e2ee.auto_disable",
+        false
+      );
+      if (autoDisablePref && !gUserTouchedSendEncrypted) {
+        gSendEncrypted = false;
+        let notifyPref = Services.prefs.getBoolPref(
+          "mail.e2ee.notify_on_auto_disable",
+          true
         );
-
-        if (autocompleteLdap) {
-          gSMCertsAlreadyLookedUpInLDAP.add(email);
-
-          let autocompleteDirectory = null;
-          if (gCurrentIdentity.overrideGlobalPref) {
-            autocompleteDirectory = gCurrentIdentity.directoryServer;
-          } else {
-            autocompleteDirectory = Services.prefs.getCharPref(
-              "ldap_2.autoComplete.directoryServer"
-            );
-          }
-
-          if (autocompleteDirectory) {
-            window.openDialog(
-              "chrome://messenger-smime/content/certFetchingStatus.xhtml",
-              "",
-              "chrome,resizable=1,modal=1,dialog=1",
-              autocompleteDirectory,
-              [email]
-            );
-          }
-
-          gSMPendingCertLookupSet.add(email);
-          gSMFields.asyncFindCertByEmailAddr(
-            email,
-            doneFindCertForEmailCallback
-          );
+        if (notifyPref) {
+          // TODO: Implement a notification that informs the user
+          //       that encryption was automatically disabled.
         }
       }
+    }
 
-      if (gSMPendingCertLookupSet.size) {
-        // must continue to wait for more calls to this function
-        return;
+    let techPref = gCurrentIdentity.getIntAttribute("e2etechpref");
+
+    if (gSendEncrypted && canEncryptSMIME && canEncryptOpenPGP) {
+      // No change if 0
+      if (techPref == 1) {
+        gSelectedTechnologyIsPGP = false;
+      } else if (techPref == 2) {
+        gSelectedTechnologyIsPGP = true;
       }
-
-      // No more lookups pending.
-      continueCheckRecipientCerts();
-    },
-  };
-
-  for (let email of recipients) {
-    if (gSMFields.haveValidCertForEmail(email)) {
-      continue;
     }
 
-    if (gSMPendingCertLookupSet.has(email)) {
-      // lookup already currently running for this email
-      continue;
+    if (
+      gSendEncrypted &&
+      canEncryptSMIME &&
+      !canEncryptOpenPGP &&
+      gSelectedTechnologyIsPGP
+    ) {
+      gSelectedTechnologyIsPGP = false;
     }
 
-    gSMPendingCertLookupSet.add(email);
-    gSMFields.asyncFindCertByEmailAddr(email, doneFindCertForEmailCallback);
+    if (
+      gSendEncrypted &&
+      !canEncryptSMIME &&
+      canEncryptOpenPGP &&
+      !gSelectedTechnologyIsPGP
+    ) {
+      gSelectedTechnologyIsPGP = true;
+    }
+
+    updateEncryptionDependencies();
+
+    if (!gSendEncrypted) {
+      updateKeyCertNotifications([]);
+      if (recipients.length && (canEncryptSMIME || canEncryptOpenPGP)) {
+        let useTech;
+        if (canEncryptSMIME && canEncryptOpenPGP) {
+          if (techPref == 1) {
+            useTech = "SMIME";
+          } else {
+            useTech = "OpenPGP";
+          }
+        } else {
+          useTech = canEncryptOpenPGP ? "OpenPGP" : "SMIME";
+        }
+        updateEncryptionTechReminder(useTech);
+      } else {
+        updateEncryptionTechReminder(null);
+      }
+    } else {
+      updateKeyCertNotifications(
+        gSelectedTechnologyIsPGP
+          ? gEmailsWithMissingKeys
+          : gEmailsWithMissingCerts
+      );
+      updateEncryptionTechReminder(null);
+    }
+
+    gCheckEncryptionStateCompletionIsPending = false;
+
+    if (gCheckEncryptionStateNeedsRestart) {
+      // Recursive call, which is acceptable (and not blocking),
+      // because necessary long actions will be triggered asynchronously.
+      gCheckEncryptionStateNeedsRestart = false;
+      await checkEncryptionState(trigger);
+    } else if (gWasCESTriggeredByComposerChange) {
+      document.dispatchEvent(new CustomEvent("encryption-state-checked"));
+      gWasCESTriggeredByComposerChange = false;
+    }
   }
 
-  if (!gSMPendingCertLookupSet.size) {
-    // immediately continue
-    continueCheckRecipientCerts();
+  let pendingPromises = [];
+
+  if (checkingCerts) {
+    pendingPromises.push(checkRecipientCerts(recipients));
   }
+
+  if (checkingKeys) {
+    pendingPromises.push(checkRecipientKeys(recipients));
+  }
+
+  gCheckEncryptionStateNeedsRestart = false;
+  gCheckEncryptionStateCompletionIsPending = true;
+
+  Promise.all(pendingPromises).then(continueCheckEncryptionStateSub);
 }
 
 /**
@@ -3664,13 +3856,9 @@ function updateEncryptionTechReminder(technology) {
         "l10n-id": "can-e2e-encrypt-button",
         callback() {
           gSelectedTechnologyIsPGP = technology == "OpenPGP";
-          updateE2eeOptions(true);
-          updateEncryptionOptions();
-          if (technology == "OpenPGP") {
-            checkRecipientKeys();
-          } else {
-            checkRecipientCerts();
-          }
+          gSendEncrypted = true;
+          gUserTouchedSendEncrypted = true;
+          checkEncryptionState();
           return true;
         },
       },
@@ -3678,26 +3866,74 @@ function updateEncryptionTechReminder(technology) {
   );
 }
 
-function updateKeyNotifications(emailsWithMissingKeys) {
+/**
+ * Display (or hide) the notification that informs the user that
+ * encryption isn't possible, because the currently selected Sender
+ * (From) identity isn't configured for end-to-end-encryption.
+ *
+ * @param {boolean} show - Show if true, hide if false.
+ * @param {string} addr - email address to show in notification
+ */
+async function notifyIdentityCannotEncrypt(show, addr) {
+  const NOTIFICATION_NAME = "IdentityCannotEncrypt";
+
   let notification = gComposeNotification.getNotificationWithValue(
-    "keyNotification"
+    NOTIFICATION_NAME
+  );
+
+  if (show) {
+    if (!notification) {
+      gComposeNotification.appendNotification(
+        NOTIFICATION_NAME,
+        {
+          label: await document.l10n.formatValue(
+            "openpgp-key-issue-notification-from",
+            {
+              addr,
+            }
+          ),
+          priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+        },
+        []
+      );
+    }
+  } else if (notification) {
+    gComposeNotification.removeNotification(notification);
+  }
+}
+
+/**
+ * Show an appropriate notification based on the given list of
+ * email addresses that cannot be used with email encryption
+ * (because of missing usable OpenPGP public keys or S/MIME certs).
+ * The list may be empty, which means no notification will be shown
+ * (or existing notifications will be removed).
+ *
+ * @param {string[]} emailsWithMissing - The email addresses that prevent
+ *   using encryption, because certs/keys are missing.
+ */
+function updateKeyCertNotifications(emailsWithMissing) {
+  const NOTIFICATION_NAME = "keyNotification";
+
+  let notification = gComposeNotification.getNotificationWithValue(
+    NOTIFICATION_NAME
   );
   if (notification) {
     gComposeNotification.removeNotification(notification);
   }
 
   // Always refresh the pills UI.
-  clearRecipientsWithKeyIssues();
+  clearRecipPillKeyIssues();
 
   // Interrupt if we don't have any issue.
-  if (!emailsWithMissingKeys.length) {
+  if (!emailsWithMissing.length) {
     return;
   }
 
   // Update recipient pills.
   for (let pill of document.querySelectorAll("mail-address-pill")) {
     if (
-      emailsWithMissingKeys.includes(pill.emailAddress.toLowerCase()) &&
+      emailsWithMissing.includes(pill.emailAddress.toLowerCase()) &&
       !pill.classList.contains("invalid-address")
     ) {
       pill.classList.add("key-issue");
@@ -3711,7 +3947,9 @@ function updateKeyNotifications(emailsWithMissingKeys) {
   buttons.push({
     "l10n-id": "key-notification-disable-encryption",
     callback() {
-      updateE2eeOptions(false);
+      gUserTouchedSendEncrypted = true;
+      gSendEncrypted = false;
+      checkEncryptionState();
       return true;
     },
   });
@@ -3728,13 +3966,13 @@ function updateKeyNotifications(emailsWithMissingKeys) {
 
   let label;
 
-  if (emailsWithMissingKeys.length == 1) {
+  if (emailsWithMissing.length == 1) {
     let id = gSelectedTechnologyIsPGP
       ? "openpgp-key-issue-notification-one"
       : "smime-cert-issue-notification-one";
     label = {
       "l10n-id": id,
-      "l10n-args": { addr: emailsWithMissingKeys[0] },
+      "l10n-args": { addr: emailsWithMissing[0] },
     };
   } else {
     let id = gSelectedTechnologyIsPGP
@@ -3743,12 +3981,12 @@ function updateKeyNotifications(emailsWithMissingKeys) {
 
     label = {
       "l10n-id": id,
-      "l10n-args": { count: emailsWithMissingKeys.length },
+      "l10n-args": { count: emailsWithMissing.length },
     };
   }
 
   gComposeNotification.appendNotification(
-    "keyNotification",
+    NOTIFICATION_NAME,
     {
       label,
       priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
@@ -4623,6 +4861,22 @@ async function ComposeStartup() {
     editorElement.docShell
   );
 
+  // If a message is a draft, we rely on draft status flags to decide
+  // about encryption setting. Don't set gIsRelatedToEncryptedOriginal
+  // simply because a message was saved as an encrypted draft, because
+  // we save draft messages encrypted as soon as the account is able
+  // to encrypt, regardless of the user's desire for encryption for
+  // this message.
+
+  if (
+    gComposeType != Ci.nsIMsgCompType.Draft &&
+    gComposeType != Ci.nsIMsgCompType.Template &&
+    gEncryptedURIService &&
+    gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI)
+  ) {
+    gIsRelatedToEncryptedOriginal = true;
+  }
+
   gMsgCompose.addMsgSendListener(gSendListener);
 
   document
@@ -4915,24 +5169,25 @@ var gMsgEditorCreationObserver = {
 };
 
 /**
- * Adjust sign/encrypt settings accordingly after the identity was switched.
+ * Adjust sign/encrypt settings after the identity was switched.
  *
- * @param {?nsIMsgIdentity} prevIdentity - Previous identity.
+ * @param {boolean} initialCall - If true, initial identity setup.
+ *   If false, we're switching to a different identity.
  */
-function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
-  let configuredSMIME =
+async function adjustEncryptAfterIdentityChange(initialCall) {
+  let identityHasConfiguredSMIME =
     isSmimeSigningConfigured() || isSmimeEncryptionConfigured();
 
-  let configuredOpenPGP = isPgpConfigured();
+  let identityHasConfiguredOpenPGP = isPgpConfigured();
 
   // Show widgets based on the technologies available across all identities.
   let allEmailIdentities = MailServices.accounts.allIdentities.filter(
     i => i.email
   );
-  let isOpenPGPAvailable = allEmailIdentities.some(i =>
+  let anyIdentityHasConfiguredOpenPGP = allEmailIdentities.some(i =>
     i.getUnicharAttribute("openpgp_key_id")
   );
-  let isSMIMEAvailable = allEmailIdentities.some(i =>
+  let anyIdentityHasConfiguredSMIMEEncryption = allEmailIdentities.some(i =>
     i.getUnicharAttribute("encryption_cert_name")
   );
 
@@ -4941,155 +5196,128 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
   // to allow the user to manually disable encryption (we don't disable
   // encryption automatically, as the user might have seen that it is
   // enabled and might rely on it).
-  let noEncryption = !configuredOpenPGP && !configuredSMIME;
+  let e2eeConfigured =
+    identityHasConfiguredOpenPGP || identityHasConfiguredSMIME;
 
-  // If we don't have either OpePGP or SMIME for any identity, hide the entire
-  // menu.
+  let autoEnablePref = Services.prefs.getBoolPref(
+    "mail.e2ee.auto_enable",
+    false
+  );
+
+  // If neither OpenPGP nor SMIME are configured for any identity,
+  // then hide the entire menu.
   let encOpt = document.getElementById("button-encryption-options");
   if (encOpt) {
-    encOpt.hidden = !isOpenPGPAvailable && !isSMIMEAvailable;
-    encOpt.disabled = noEncryption && !gSendEncrypted;
+    encOpt.hidden =
+      !anyIdentityHasConfiguredOpenPGP &&
+      !anyIdentityHasConfiguredSMIMEEncryption;
+    encOpt.disabled = !e2eeConfigured && !gSendEncrypted;
     document.getElementById(
       "encTech_OpenPGP_Toolbar"
-    ).disabled = !configuredOpenPGP;
+    ).disabled = !identityHasConfiguredOpenPGP;
     document.getElementById(
       "encTech_SMIME_Toolbar"
-    ).disabled = !configuredSMIME;
+    ).disabled = !identityHasConfiguredSMIME;
   }
   document.getElementById("encryptionMenu").hidden =
-    !isOpenPGPAvailable && !isSMIMEAvailable;
+    !anyIdentityHasConfiguredOpenPGP &&
+    !anyIdentityHasConfiguredSMIMEEncryption;
 
   // Show menu items only if both technologies are available.
   document.getElementById("encTech_OpenPGP_Menubar").hidden =
-    !isOpenPGPAvailable || !isSMIMEAvailable;
+    !anyIdentityHasConfiguredOpenPGP ||
+    !anyIdentityHasConfiguredSMIMEEncryption;
   document.getElementById("encTech_SMIME_Menubar").hidden =
-    !isOpenPGPAvailable || !isSMIMEAvailable;
+    !anyIdentityHasConfiguredOpenPGP ||
+    !anyIdentityHasConfiguredSMIMEEncryption;
   document.getElementById("encryptionOptionsSeparator_Menubar").hidden =
-    !isOpenPGPAvailable || !isSMIMEAvailable;
+    !anyIdentityHasConfiguredOpenPGP ||
+    !anyIdentityHasConfiguredSMIMEEncryption;
 
   let encToggle = document.getElementById("button-encryption");
   if (encToggle) {
-    encToggle.disabled = noEncryption && !gSendEncrypted;
+    encToggle.disabled = !e2eeConfigured && !gSendEncrypted;
   }
   let sigToggle = document.getElementById("button-signing");
   if (sigToggle) {
-    sigToggle.disabled = noEncryption;
+    sigToggle.disabled = !e2eeConfigured;
   }
 
   document.getElementById("encryptionMenu").disabled =
-    noEncryption && !gSendEncrypted;
+    !e2eeConfigured && !gSendEncrypted;
 
   // Enable the encryption menus of the technologies that are configured for
   // this identity.
   document.getElementById(
     "encTech_OpenPGP_Menubar"
-  ).disabled = !configuredOpenPGP;
+  ).disabled = !identityHasConfiguredOpenPGP;
 
-  document.getElementById("encTech_SMIME_Menubar").disabled = !configuredSMIME;
+  document.getElementById(
+    "encTech_SMIME_Menubar"
+  ).disabled = !identityHasConfiguredSMIME;
 
-  // Not yet implemented
-  gOptionalEncryption = false;
-  gOptionalEncryptionInitial = gOptionalEncryption;
-
-  if (!prevIdentity) {
+  if (initialCall) {
     // For identities without any e2ee setup, we want a good default
     // technology selection. Avoid a technology that isn't configured
     // anywhere.
 
-    if (configuredOpenPGP) {
+    if (identityHasConfiguredOpenPGP) {
       gSelectedTechnologyIsPGP = true;
-    } else if (configuredSMIME) {
+    } else if (identityHasConfiguredSMIME) {
       gSelectedTechnologyIsPGP = false;
     } else {
-      gSelectedTechnologyIsPGP = isOpenPGPAvailable;
+      gSelectedTechnologyIsPGP = anyIdentityHasConfiguredOpenPGP;
     }
 
-    if (configuredOpenPGP) {
-      if (!configuredSMIME) {
+    if (identityHasConfiguredOpenPGP) {
+      if (!identityHasConfiguredSMIME) {
         gSelectedTechnologyIsPGP = true;
       } else {
         // both are configured
         let techPref = gCurrentIdentity.getIntAttribute("e2etechpref");
         gSelectedTechnologyIsPGP = techPref != 1;
-
-        // TODO: if !techPref, we might set another flag, and
-        // decide dynamically which one to use, based on the
-        // availability of recipient keys etc.
       }
     }
-  } else if (
-    gSelectedTechnologyIsPGP &&
-    !configuredOpenPGP &&
-    configuredSMIME
-  ) {
-    // If the new identity has only one technology configured,
-    // which is different than the currently selected technology,
-    // then switch over to that other technology.
 
-    // However, if the new account doesn't have any technology
-    // configured, then it doesn't really matter, so let's keep what's
-    // currently selected for consistency (in case the user switches
-    // the identity again).
+    gSendSigned = false;
+
+    if (autoEnablePref) {
+      gSendEncrypted = gIsRelatedToEncryptedOriginal;
+    } else {
+      gSendEncrypted =
+        gIsRelatedToEncryptedOriginal ||
+        ((identityHasConfiguredOpenPGP || identityHasConfiguredSMIME) &&
+          gCurrentIdentity.encryptionPolicy > 0);
+    }
+
+    await checkEncryptionState();
+    return;
+  }
+
+  // Not initialCall (switching from, or changed recipients)
+
+  // If the new identity has only one technology configured,
+  // which is different than the currently selected technology,
+  // then switch over to that other technology.
+  // However, if the new account doesn't have any technology
+  // configured, then it doesn't really matter, so let's keep what's
+  // currently selected for consistency (in case the user switches
+  // the identity again).
+  if (
+    gSelectedTechnologyIsPGP &&
+    !identityHasConfiguredOpenPGP &&
+    identityHasConfiguredSMIME
+  ) {
     gSelectedTechnologyIsPGP = false;
   } else if (
     !gSelectedTechnologyIsPGP &&
-    !configuredSMIME &&
-    configuredOpenPGP
+    !identityHasConfiguredSMIME &&
+    identityHasConfiguredOpenPGP
   ) {
     gSelectedTechnologyIsPGP = true;
   }
 
-  if (configuredOpenPGP || configuredSMIME) {
-    if (gSendEncrypted) {
-      // Encryption was previously set (identity pref or manually).
-      // Don't automatically disable, to avoid a surprising downgrade.
-      updateE2eeOptions(true);
-    } else {
-      // Encrypt/sign if the new identity asks for it.
-      updateE2eeOptions(gCurrentIdentity.encryptionPolicy > 0);
-    }
-  } else {
-    gSendSigned = false;
-  }
-
-  if (!gUserTouchedEncryptSubject) {
-    gEncryptSubject = gCurrentIdentity.protectSubject;
-  }
-
-  if (gAttachMyPublicPGPKey && !configuredOpenPGP) {
-    gAttachMyPublicPGPKey = false;
-  }
-
-  // A draft/template message may be stored encrypted, even if the user hasn't
-  // requested encryption for sending. In that scenario, we'd see that
-  // the related URI is encrypted and do incorrect decisions.
-  // Therefore we skip this automatic processing, and rely on the code
-  // that restores draft flags - see continueComposeOpenWithMimeTree.
-
-  if (
-    gMsgCompose.type !== Ci.nsIMsgCompType.Draft &&
-    gMsgCompose.type !== Ci.nsIMsgCompType.Template
-  ) {
-    if (
-      gEncryptedURIService &&
-      gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI)
-    ) {
-      gIsRelatedToEncryptedOriginal = true;
-    }
-
-    if (gIsRelatedToEncryptedOriginal) {
-      updateE2eeOptions(true);
-    }
-  }
-
-  if (gSMFields && !gSelectedTechnologyIsPGP) {
-    gSMFields.requireEncryptMessage = gSendEncrypted;
-    gSMFields.signMessage = gSendSigned;
-  }
-
-  showSendEncryptedAndSigned();
-  updateEncryptedSubject();
-  updateEncryptionOptions();
+  await checkEncryptionState();
 }
 
 async function ComposeLoad() {
@@ -5237,7 +5465,8 @@ async function ComposeLoad() {
     gMsgCompose.compFields.composeSecure = gSMFields;
   }
 
-  adjustSignEncryptAfterIdentityChanged(null);
+  // Set initial encryption settings.
+  adjustEncryptAfterIdentityChange(true);
 
   ExtensionParent.apiManager.emit(
     "extension-browser-inserted",
@@ -5483,18 +5712,14 @@ function onEncryptionChoice(value) {
     case "OpenPGP":
       if (isPgpConfigured()) {
         gSelectedTechnologyIsPGP = true;
-        updateEncryptionOptions();
-        updateEncryptedSubject();
-        checkRecipientKeys();
+        checkEncryptionState();
       }
       break;
 
     case "SMIME":
       if (isSmimeEncryptionConfigured()) {
         gSelectedTechnologyIsPGP = false;
-        updateEncryptionOptions();
-        updateEncryptedSubject();
-        checkRecipientCerts();
+        checkEncryptionState();
       }
       break;
 
@@ -5544,7 +5769,7 @@ var SecurityController = {
   },
 };
 
-function updateEncryptionOptions() {
+function updateEncryptOptionsMenuElements() {
   let encOpt = document.getElementById("button-encryption-options");
   if (encOpt) {
     document.l10n.setAttributes(
@@ -6563,6 +6788,14 @@ async function checkEncryptedBccRecipients() {
   let notification = gComposeNotification.getNotificationWithValue(
     "warnEncryptedBccRecipients"
   );
+
+  if (!gWantCannotEncryptBCCNotification) {
+    if (notification) {
+      gComposeNotification.removeNotification(notification);
+    }
+    return;
+  }
+
   let bccRecipients = [
     ...document.querySelectorAll("#bccAddrContainer > mail-address-pill"),
   ];
@@ -6584,12 +6817,7 @@ async function checkEncryptedBccRecipients() {
   let ignoreButton = {
     "l10n-id": "encrypted-bcc-ignore-button",
     callback() {
-      gBccObserver.disconnect();
-      gBccObserver = null;
-      window.removeEventListener(
-        "sendencryptedchange",
-        checkEncryptedBccRecipients
-      );
+      gWantCannotEncryptBCCNotification = false;
       return false;
     },
   };
@@ -9237,7 +9465,8 @@ function LoadIdentity(startup) {
       addressRowSetVisibility(addressRowBcc, false);
     }
 
-    adjustSignEncryptAfterIdentityChanged(prevIdentity);
+    // Trigger async checking and updating of encryption UI.
+    adjustEncryptAfterIdentityChange(false);
 
     try {
       gMsgCompose.identity = gCurrentIdentity;
@@ -11247,6 +11476,9 @@ function loadBlockedImage(aURL, aReturnDataURL = false) {
   return null;
 }
 
+/**
+ * Update state of encrypted/signed toolbar buttons
+ */
 function showSendEncryptedAndSigned() {
   let encToggle = document.getElementById("button-encryption");
   if (encToggle) {
@@ -11268,56 +11500,72 @@ function showSendEncryptedAndSigned() {
 
   // Should button remain enabled? Identity might be unable to
   // encrypt, but we might have kept button enabled after identity change.
-  let configuredSMIME =
+  let identityHasConfiguredSMIME =
     isSmimeSigningConfigured() || isSmimeEncryptionConfigured();
-  let configuredOpenPGP = isPgpConfigured();
-  let noEncryption = !configuredOpenPGP && !configuredSMIME;
+  let identityHasConfiguredOpenPGP = isPgpConfigured();
+  let e2eeNotConfigured =
+    !identityHasConfiguredOpenPGP && !identityHasConfiguredSMIME;
 
   if (encToggle) {
-    encToggle.disabled = noEncryption && !gSendEncrypted;
+    encToggle.disabled = e2eeNotConfigured && !gSendEncrypted;
   }
   if (sigToggle) {
-    sigToggle.disabled = noEncryption;
+    sigToggle.disabled = e2eeNotConfigured;
   }
 }
 
 /**
- * Sets the gSendEncrypted global and dispatches an event that can be hooked
- * into.
- *
- * Adjusts gSendSigned if necessary.
- * Optionally adjusts gAttachMyPublicPGPKey.
- *
- * @param {boolean} encrypted - True when encryption is enabled, false otherwise.
+ * Look at the current encryption setting, and perform necessary
+ * automatic adjustments to related settings.
  */
-function updateE2eeOptions(encrypted) {
-  gSendEncrypted = encrypted;
-  if (encrypted) {
-    // Sign encrypted emails even if the user manually modified signing
-    gSendSigned = true;
+function updateEncryptionDependencies() {
+  let canSign = gSelectedTechnologyIsPGP
+    ? isPgpConfigured()
+    : isSmimeSigningConfigured();
+
+  if (!canSign) {
+    gSendSigned = false;
+    gUserTouchedSendSigned = false;
+  } else if (!gSendEncrypted) {
+    if (!gUserTouchedSendSigned) {
+      gSendSigned = gCurrentIdentity.signMail;
+    }
   } else if (!gUserTouchedSendSigned) {
-    // Sign unencrypted emails if the identify asks for it unless the user
-    // manually disabled signing.
-    gSendSigned = gCurrentIdentity.signMail;
+    gSendSigned = true;
+  }
+
+  // if (!gSendEncrypted) we don't need to change gEncryptSubject,
+  // it will be ignored anyway.
+  if (gSendEncrypted) {
+    if (!gUserTouchedEncryptSubject) {
+      gEncryptSubject = gCurrentIdentity.protectSubject;
+    }
+  }
+
+  if (!gSendSigned) {
+    if (!gUserTouchedAttachMyPubKey) {
+      gAttachMyPublicPGPKey = false;
+    }
+  } else if (!gUserTouchedAttachMyPubKey) {
+    gAttachMyPublicPGPKey = gCurrentIdentity.attachPgpKey;
   }
 
   if (!gSendEncrypted) {
-    clearRecipientsWithKeyIssues();
+    clearRecipPillKeyIssues();
+  }
+
+  if (gSMFields && !gSelectedTechnologyIsPGP) {
+    gSMFields.requireEncryptMessage = gSendEncrypted;
+    gSMFields.signMessage = gSendSigned;
   }
 
   updateAttachMyPubKey();
 
+  updateEncryptedSubject();
   showSendEncryptedAndSigned();
 
-  updateEncryptedSubject();
-
-  // Don't broadcast change events while we're still loading,
-  // this can have side effects like bug 1774991.
-  if (gLoadingComplete) {
-    window.dispatchEvent(
-      new CustomEvent("sendencryptedchange", { detail: { encrypted } })
-    );
-  }
+  updateEncryptOptionsMenuElements();
+  checkEncryptedBccRecipients();
 }
 
 /**

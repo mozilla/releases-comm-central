@@ -30,6 +30,13 @@ var { close_window } = ChromeUtils.import(
 
 let bobAcct;
 
+async function waitCheckEncryptionStateDone(win) {
+  return BrowserTestUtils.waitForEvent(
+    win.document,
+    "encryption-state-checked"
+  );
+}
+
 /**
  * Setup an account with OpenPGP for testing.
  */
@@ -70,8 +77,16 @@ add_task(async function testWarningShowsWhenEncryptionEnabled() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
+
   Assert.ok(!cwc.window.gSendEncrypted);
+
+  // This toggle will trigger checkEncryptionState(), request that
+  // an event will be sent after the next call to checkEncryptionState
+  // has completed.
+  let checkDonePromise = waitCheckEncryptionStateDone(cwc.window);
   await OpenPGPTestUtils.toggleMessageEncryption(cwc.window);
+  await checkDonePromise;
+
   Assert.ok(cwc.window.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(
     cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
@@ -79,6 +94,8 @@ add_task(async function testWarningShowsWhenEncryptionEnabled() {
     cwc.window
   );
 
+  // setup_msg_contents will trigger checkEncryptionState.
+  checkDonePromise = waitCheckEncryptionStateDone(cwc.window);
   setup_msg_contents(
     cwc,
     "test@example.org",
@@ -86,6 +103,7 @@ add_task(async function testWarningShowsWhenEncryptionEnabled() {
     "",
     "bccAddrInput"
   );
+  await checkDonePromise;
 
   // Warning should show when encryption enabled
   await BrowserTestUtils.waitForCondition(
@@ -106,8 +124,16 @@ add_task(async function testNotificationDismissal() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
+
   Assert.ok(!cwc.window.gSendEncrypted);
+
+  // This toggle will trigger checkEncryptionState(), request that
+  // an event will be sent after the next call to checkEncryptionState
+  // has completed.
+  let checkDonePromise = waitCheckEncryptionStateDone(cwc.window);
   await OpenPGPTestUtils.toggleMessageEncryption(cwc.window);
+  await checkDonePromise;
+
   Assert.ok(cwc.window.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(
     cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
@@ -115,6 +141,8 @@ add_task(async function testNotificationDismissal() {
     cwc.window
   );
 
+  // setup_msg_contents will trigger checkEncryptionState.
+  checkDonePromise = waitCheckEncryptionStateDone(cwc.window);
   setup_msg_contents(
     cwc,
     "test@example.org",
@@ -122,6 +150,7 @@ add_task(async function testNotificationDismissal() {
     "",
     "bccAddrInput"
   );
+  await checkDonePromise;
 
   // Warning should show when encryption enabled
   await BrowserTestUtils.waitForCondition(
@@ -157,7 +186,10 @@ add_task(async function testNotificationDismissal() {
     "notification should be removed"
   );
 
+  // setup_msg_contents will trigger checkEncryptionState.
+  checkDonePromise = waitCheckEncryptionStateDone(cwc.window);
   setup_msg_contents(cwc, "test2@example.org", "", "", "bccAddrInput");
+  await checkDonePromise;
 
   // Give the notification some time to incorrectly appear.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
@@ -180,6 +212,7 @@ add_task(async function testNoWarningWhenEncryptionDisabled() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
+
   Assert.ok(!window.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(
     cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
@@ -187,6 +220,8 @@ add_task(async function testNoWarningWhenEncryptionDisabled() {
     cwc.window
   );
 
+  // setup_msg_contents will trigger checkEncryptionState.
+  let checkDonePromise = waitCheckEncryptionStateDone(cwc.window);
   setup_msg_contents(
     cwc,
     "test@example.org",
@@ -194,6 +229,7 @@ add_task(async function testNoWarningWhenEncryptionDisabled() {
     "",
     "bccAddrInput"
   );
+  await checkDonePromise;
 
   // Give the notification some time to incorrectly appear.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
@@ -216,6 +252,7 @@ add_task(async function testNoWarningWhenBccRecipientIsSender() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
+
   Assert.ok(!window.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(
     cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
@@ -223,6 +260,8 @@ add_task(async function testNoWarningWhenBccRecipientIsSender() {
     cwc.window
   );
 
+  // setup_msg_contents will trigger checkEncryptionState.
+  let checkDonePromise = waitCheckEncryptionStateDone(cwc.window);
   setup_msg_contents(
     cwc,
     "bob@openpgp.example",
@@ -230,6 +269,7 @@ add_task(async function testNoWarningWhenBccRecipientIsSender() {
     "",
     "bccAddrInput"
   );
+  await checkDonePromise;
 
   // Give the notification some time to incorrectly appear.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
