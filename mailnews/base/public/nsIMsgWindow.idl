@@ -64,11 +64,6 @@ interface nsIMsgWindow : nsISupports {
   attribute ACString mailCharacterSet;
 
   /**
-    Remember the message's charaset was overridden, so it can be inherited (e.g for quoting).
-   */
-  attribute boolean charsetOverride;
-
-  /**
     Has a running url been stopped? If you care about checking
     this flag, you need to clear it before you start your operation since
     there's no convenient place to clear it.

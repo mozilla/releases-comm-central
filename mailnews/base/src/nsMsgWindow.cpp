@@ -232,17 +232,6 @@ NS_IMETHODIMP nsMsgWindow::SetMailCharacterSet(
                               mMailCharacterSet);
 }
 
-NS_IMETHODIMP nsMsgWindow::GetCharsetOverride(bool* aCharsetOverride) {
-  NS_ENSURE_ARG_POINTER(aCharsetOverride);
-  *aCharsetOverride = mCharsetOverride;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::SetCharsetOverride(bool aCharsetOverride) {
-  mCharsetOverride = aCharsetOverride;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgWindow::GetDomWindow(mozIDOMWindowProxy** aWindow) {
   NS_ENSURE_ARG_POINTER(aWindow);
   if (mDomWindow)

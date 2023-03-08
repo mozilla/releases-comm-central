@@ -1264,12 +1264,9 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
   // if we are forwarding a message and that message used a charset override
   // then forward that as auto-detect flag, too.
   bool autodetectCharset = false;
-  if (aMsgWindow) {
-    if (NS_SUCCEEDED(aMsgWindow->GetCharsetOverride(&autodetectCharset)) &&
-        autodetectCharset) {
-      nsCOMPtr<nsIMsgI18NUrl> i18nUrl(do_QueryInterface(url));
-      if (i18nUrl) (void)i18nUrl->SetAutodetectCharset(true);
-    }
+  if (autodetectCharset) {
+    nsCOMPtr<nsIMsgI18NUrl> i18nUrl(do_QueryInterface(url));
+    if (i18nUrl) (void)i18nUrl->SetAutodetectCharset(true);
   }
 
   nsCOMPtr<nsIPrincipal> nullPrincipal =

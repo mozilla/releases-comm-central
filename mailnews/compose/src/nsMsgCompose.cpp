@@ -157,7 +157,6 @@ static void GetTopmostMsgWindowCharacterSet(nsCString& charset,
     mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
     if (msgWindow) {
       msgWindow->GetMailCharacterSet(charset);
-      msgWindow->GetCharsetOverride(charsetOverride);
     }
   }
 }

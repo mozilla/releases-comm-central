@@ -146,7 +146,6 @@ nsresult bridge_new_new_uri(void* bridgeStream, nsIURI* aURI,
                 if (msgWindow) {
                   msgWindow->SetMailCharacterSet(
                       nsDependentCString(*default_charset));
-                  msgWindow->SetCharsetOverride(*override_charset);
                 }
               }
             }
