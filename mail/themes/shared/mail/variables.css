@@ -41,6 +41,10 @@
   --button-flat-hover-text-color: var(--color-blue-60);
   --button-flat-active-text-color: var(--color-blue-70);
   --button-pressed-shadow: inset 0 1px 3px color-mix(in srgb, var(--color-gray-90) 30%, transparent);
+  --button-pressed-indicator-background-color: var(--color-blue-50);
+  --button-pressed-indicator-border-color: var(--color-blue-60);
+  --button-pressed-indicator-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  --button-pressed-indicator-padding: 6px;
   --checkbox-border-color: var(--toolbar-field-border-color);
   --checkbox-unchecked-bgcolor: var(--toolbar-field-background-color);
   --checkbox-unchecked-hover-bgcolor: color-mix(in srgb, AccentColor 4%, var(--checkbox-unchecked-bgcolor));
@@ -148,6 +152,10 @@
     --button-destructive-border-color: var(--color-red-50);
     --button-flat-hover-text-color: var(--color-blue-40);
     --button-flat-active-text-color: var(--color-blue-50);
+    --button-pressed-shadow: inset 0 1px 3px color-mix(in srgb, var(--color-black) 50%, transparent);
+    --button-pressed-indicator-background-color: var(--color-blue-30);
+    --button-pressed-indicator-border-color: var(--color-blue-40);
+    --button-pressed-indicator-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
     --lwt-accent-color: rgb(24, 24, 26) !important;
     --new-folder-color: var(--color-blue-40);
     --sidebar-border-color: #606064 !important;
@@ -206,6 +214,8 @@
     --button-primary-text-color: SelectedItemText;
     --button-primary-border-color: SelectedItem;
     --button-primary-hover-border-color: -moz-DialogText;
+    --button-pressed-indicator-background-color: SelectedItem;
+    --button-pressed-indicator-border-color: SelectedItem;
     --selected-item-color: SelectedItem;
     --selected-item-text-color: SelectedItemText;
   }
@@ -246,10 +256,12 @@
   --tab-min-height: 30px;
   --button-margin: 3px;
   --button-padding: 3px;
+  --button-pressed-indicator-padding: 9px;
 }
 
 :root[uidensity="touch"] {
   --tab-min-height: 39px;
   --button-margin: 9px;
   --button-padding: 9px;
+  --button-pressed-indicator-padding: 3px;
 }

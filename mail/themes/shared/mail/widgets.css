@@ -7,6 +7,7 @@
 /* Default Button Styles */
 
 .button {
+  --icon-size: 16px;
   appearance: none;
   background-color: var(--button-background-color);
   color: var(--button-text-color);
@@ -39,6 +40,50 @@
   box-shadow: var(--button-pressed-shadow);
 }
 
+.button.check-button {
+  position: relative;
+  padding-inline-start: calc(var(--button-padding) + var(--button-pressed-indicator-padding));
+}
+
+.button.check-button.icon-button {
+  background-position: calc(var(--button-padding) + var(--button-pressed-indicator-padding)) center;
+  padding-inline-start: calc(var(--button-padding) * 2 + var(--icon-size) + var(--button-pressed-indicator-padding));
+}
+
+.button.check-button.icon-button:dir(rtl),
+.button.check-button.icon-button:-moz-locale-dir(rtl) {
+  background-position-x: right calc(var(--button-padding) + var(--button-pressed-indicator-padding));
+}
+
+.button.check-button.icon-only {
+  background-position: calc(var(--button-padding) + var(--button-pressed-indicator-padding)) center;
+  aspect-ratio: auto;
+}
+
+.button.check-button.icon-only:dir(rtl),
+.button.check-button.icon-only:-moz-locale-dir(rtl) {
+  background-position-x: right calc(var(--button-padding) + var(--button-pressed-indicator-padding));
+}
+
+.button.check-button::before {
+  content: '';
+  background-color: color-mix(in srgb, currentColor 20%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-radius: 4px;
+  width: 2px;
+  height: 12px;
+  margin: auto 3px;
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 2px;
+}
+
+.button.check-button[aria-pressed="true"]::before {
+  background-color: var(--button-pressed-indicator-background-color);
+  border-color: var(--button-pressed-indicator-border-color);
+  box-shadow: var(--button-pressed-indicator-shadow);
+}
+
 .button:disabled {
   opacity: 0.4;
   pointer-events: none;
@@ -59,29 +104,19 @@
 
 .button.icon-button {
   background-image: none;
-  background-size: 16px;
+  background-size: var(--icon-size);
   background-position: var(--button-padding) center;
   background-repeat: no-repeat;
-  padding-inline-start: calc(var(--button-padding) * 2 + 16px);
+  padding-inline-start: calc(var(--button-padding) * 2 + var(--icon-size));
   padding-inline-end: calc(var(--button-padding) * 2);
   min-width: 0;
 }
 
-.button.icon-button:dir(rtl),
-.button.icon-button:-moz-locale-dir(rtl) {
-  background-position-x: right var(--button-padding);
-}
-
 .button.icon-only {
-  background-position: var(--button-padding) center;
-  padding-inline-start: calc(var(--button-padding) + 16px);
-  padding-inline-end: var(--button-padding);
+  background-position: center;
+  height: calc(var(--button-padding) * 2 + var(--icon-size));
+  padding: 0;
   aspect-ratio: 1;
-}
-
-.button.icon-only:dir(rtl),
-.button.icon-only:-moz-locale-dir(rtl) {
-  background-position-x: right calc(var(--button-padding) * 1.5);
 }
 
 .button.unified-toolbar-button,
@@ -188,5 +223,17 @@
 @media (prefers-reduced-motion: no-preference) {
   .button {
     transition: background-color .15s, border-color .15s;
+  }
+}
+
+@container threadPane (max-width: 999px) {
+  .button.collapsible-button {
+    padding-inline-end: 0;
+  }
+
+  .button.collapsible-button span {
+    display: inline-block;
+    visibility: hidden;
+    width: 0;
   }
 }

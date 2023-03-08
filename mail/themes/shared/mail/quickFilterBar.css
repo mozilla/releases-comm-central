@@ -3,59 +3,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #quick-filter-bar {
+  --button-margin: 3px;
   background-color: var(--layout-background-1);
   padding: 3px;
   border-bottom: 1px solid var(--splitter-color);
 }
 
-#quick-filter-bar button[aria-pressed="true"] {
-  box-shadow: var(--toolbarbutton-active-boxshadow);
-  border-color: var(--toolbarbutton-active-bordercolor);
-  transition: all 150ms ease;
+#qfb-sticky {
+  background-image: var(--icon-pin);
+  height: auto;
 }
 
-#quick-filter-bar button[aria-pressed] {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  min-width: unset;
-  min-height: unset;
-  margin: 3px;
-  padding: 3px 6px;
-  font-weight: unset;
+#qfb-unread {
+  background-image: var(--icon-unread);
 }
 
-#quick-filter-bar button[aria-pressed] > img {
-  padding: 0px;
-  width: 16px;
-  height: 16px;
-  -moz-context-properties: fill, stroke, fill-opacity;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
+#qfb-starred {
+  background-image: var(--icon-star);
 }
 
-#qfb-sticky > img {
-  content: var(--icon-pin);
+#qfb-inaddrbook {
+  background-image: var(--icon-address-book);
 }
 
-#qfb-unread > img {
-  content: var(--icon-unread);
+#qfb-tags {
+  background-image: var(--icon-tag);
 }
 
-#qfb-starred > img {
-  content: var(--icon-star);
-}
-
-#qfb-inaddrbook > img {
-  content: var(--icon-address-book);
-}
-
-#qfb-tags > img {
-  content: var(--icon-tag);
-}
-
-#qfb-attachment > img {
-  content: var(--icon-attachment);
+#qfb-attachment {
+  background-image: var(--icon-attachment);
 }
 
 #qfb-results-label {
@@ -112,19 +88,12 @@
 
 #quick-filter-bar-main-bar {
   display: flex;
-  align-items: center;
   overflow: hidden;
 }
 
 #quick-filter-bar-expando {
   display: flex;
   align-items: center;
-}
-
-@container threadPane (max-width: 999px) {
-  .collapsible-button span {
-    display: none;
-  }
 }
 
 #quick-filter-bar-filter-text-bar:not([hidden]) {
