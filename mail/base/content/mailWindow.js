@@ -1050,6 +1050,11 @@ var contentProgress = {
     }
 
     callListeners(method, args) {
+      if (this.browser.hidden) {
+        // Ignore events from hidden browsers. This should avoid confusion in
+        // about:3pane, where multiple browsers could send events.
+        return;
+      }
       args.unshift(this.browser);
       contentProgress.callListeners(method, args);
     }

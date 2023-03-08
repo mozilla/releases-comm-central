@@ -2997,8 +2997,8 @@ function clearMessages() {
 
 function displayWebPage(url, params) {
   if (!url || url == "about:blank") {
-    MailE10SUtils.loadAboutBlank(webBrowser);
     webBrowser.hidden = true;
+    MailE10SUtils.loadAboutBlank(webBrowser);
     return;
   }
 
@@ -3017,9 +3017,11 @@ async function displayMessage(messageURI) {
       })
     );
   }
-  messageBrowser.contentWindow.displayMessage(messageURI, gViewWrapper);
   if (!messageURI) {
     messageBrowser.hidden = true;
+  }
+  messageBrowser.contentWindow.displayMessage(messageURI, gViewWrapper);
+  if (!messageURI) {
     return;
   }
 

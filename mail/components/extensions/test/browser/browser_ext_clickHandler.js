@@ -66,19 +66,19 @@ const getCommonFiles = async () => {
               let id = this.logWindowId ? tab.windowId : tabId;
               let log = updateLog.get(id) || {};
 
-              if (changes.url && changes.url == "about:blank") {
+              if (changes.url == "about:blank") {
                 // Reset whatever we have seen so far.
                 log = {};
               } else {
-                if (changes.url && changes.url != "about:blank") {
+                if (changes.url) {
                   log.url = changes.url;
                 }
-                if (changes?.status == "loading") {
+                if (changes.status == "loading") {
                   log.loading = true;
                 }
                 // The complete is only valid, if we seen a url (which was not
                 // "about:blank")
-                if (log.url && changes?.status == "complete") {
+                if (log.url && changes.status == "complete") {
                   log.complete = true;
                 }
               }
@@ -509,10 +509,11 @@ add_task(async function test_mail3pane() {
     folderURI: subFolders[0],
     messagePaneVisible: true,
   });
-  about3Pane.threadTree.selectedIndex = 0;
-  await BrowserTestUtils.browserLoaded(
-    about3Pane.messageBrowser.contentWindow.content
+  let loadedPromise = BrowserTestUtils.browserLoaded(
+    about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser()
   );
+  about3Pane.threadTree.selectedIndex = 0;
+  await loadedPromise;
   let extension = ExtensionTestUtils.loadExtension({
     files: {
       "mail3paneFunctions.js": async () => {
@@ -610,13 +611,12 @@ add_task(async function test_message() {
   let gFolder = subFolders.test0;
   let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.displayFolder(gFolder.URI);
+  let messagePane = about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
+  let loadedPromise = BrowserTestUtils.browserLoaded(messagePane);
   about3Pane.threadTree.selectedIndex = 0;
+  await loadedPromise;
 
   // Click the link.
-  let messagePane = about3Pane.messageBrowser.contentDocument.getElementById(
-    "messagepane"
-  );
-  await BrowserTestUtils.browserLoaded(messagePane);
   await BrowserTestUtils.synthesizeMouseAtCenter("#link", {}, messagePane);
   Assert.ok(
     mockExternalProtocolService.urlLoaded(
