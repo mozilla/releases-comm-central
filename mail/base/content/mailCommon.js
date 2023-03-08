@@ -604,10 +604,16 @@ var commandController = {
       : [window.gMessageURI];
 
     let messagePaneBrowser;
+    let autodetectCharset;
     if (window.messageBrowser) {
-      messagePaneBrowser = window.messageBrowser.contentWindow.getMessagePaneBrowser();
+      if (!window.messageBrowser.hidden) {
+        messagePaneBrowser = window.messageBrowser.contentWindow.getMessagePaneBrowser();
+        autodetectCharset =
+          window.messageBrowser.contentWindow.autodetectCharset;
+      }
     } else {
       messagePaneBrowser = window.getMessagePaneBrowser();
+      autodetectCharset = window.autodetectCharset;
     }
     let selection = messagePaneBrowser?.contentWindow?.getSelection();
 
@@ -617,7 +623,8 @@ var commandController = {
         Ci.nsIMsgCompFormat.OppositeOfDefault,
         msgFolder,
         msgUris,
-        selection
+        selection,
+        autodetectCharset
       );
     } else {
       window.browsingContext.topChromeWindow.ComposeMessage(
@@ -625,7 +632,8 @@ var commandController = {
         Ci.nsIMsgCompFormat.Default,
         msgFolder,
         msgUris,
-        selection
+        selection,
+        autodetectCharset
       );
     }
   },

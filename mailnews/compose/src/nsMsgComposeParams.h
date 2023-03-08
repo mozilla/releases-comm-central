@@ -25,5 +25,6 @@ class nsMsgComposeParams : public nsIMsgComposeParams {
   nsCOMPtr<nsIMsgSendListener> mSendListener;
   nsString mSMTPPassword;
   nsCOMPtr<nsIMsgDBHdr> mOrigMsgHdr;
+  bool mAutodetectCharset;
   nsCString mHtmlToQuote;
 };

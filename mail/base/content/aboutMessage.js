@@ -35,6 +35,7 @@ const messengerBundle = Services.strings.createBundle(
 );
 
 var gMessage, gMessageURI;
+var autodetectCharset;
 
 function getMessagePaneBrowser() {
   return document.getElementById("messagepane");
@@ -58,6 +59,7 @@ function MailSetCharacterSet() {
     true,
     {}
   );
+  autodetectCharset = true;
 }
 
 window.addEventListener("DOMContentLoaded", event => {
@@ -220,6 +222,7 @@ function displayMessage(uri, viewWrapper) {
         )
     );
   }
+  autodetectCharset = false;
 
   window.dispatchEvent(
     new CustomEvent("messageURIChanged", { bubbles: true, detail: uri })

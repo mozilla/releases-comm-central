@@ -46,7 +46,8 @@ interface nsIMsgComposeService : nsISupports {
                          in nsIMsgIdentity identity,
                          in AUTF8String from,
                          in nsIMsgWindow aMsgWindow,
-                         [optional] in Selection aSelection);
+                         [optional] in Selection aSelection,
+                         [optional] in boolean autodetectCharset);
 
   /**
    * Open a compose window given a mailto url and (optionally) an identity.

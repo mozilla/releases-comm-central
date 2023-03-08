@@ -32,7 +32,6 @@
 #include "nsIDocShellTreeOwner.h"
 #include "nsIWindowMediator.h"
 #include "nsIURL.h"
-#include "nsIMsgMailSession.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
 #include "nsIMsgComposeService.h"
 #include "nsIMsgComposeProgressParams.h"
@@ -151,8 +150,7 @@ nsMsgCompose::nsMsgCompose() {
   m_window = nullptr;
   m_editor = nullptr;
   mQuoteStreamListener = nullptr;
-  mCharsetOverride = false;
-  mAnswerDefaultCharset = false;
+  mAutodetectCharset = false;
   mDeleteDraft = false;
   m_compFields =
       nullptr;  // m_compFields will be set during nsMsgCompose::Initialize
@@ -842,6 +840,8 @@ nsMsgCompose::Initialize(nsIMsgComposeParams* aParams,
 
     m_baseWindow = do_QueryInterface(treeOwner);
   }
+
+  aParams->GetAutodetectCharset(&mAutodetectCharset);
 
   MSG_ComposeFormat format;
   aParams->GetFormat(&format);
@@ -1892,8 +1892,8 @@ QuotingOutputStreamListener::~QuotingOutputStreamListener() {}
 
 QuotingOutputStreamListener::QuotingOutputStreamListener(
     nsIMsgDBHdr* originalMsgHdr, bool quoteHeaders, bool headersOnly,
-    nsIMsgIdentity* identity, nsIMsgQuote* msgQuote, bool charsetFixed,
-    bool quoteOriginal, const nsACString& htmlToQuote) {
+    nsIMsgIdentity* identity, nsIMsgQuote* msgQuote, bool quoteOriginal,
+    const nsACString& htmlToQuote) {
   nsresult rv;
   mQuoteHeaders = quoteHeaders;
   mHeadersOnly = headersOnly;
@@ -1903,7 +1903,6 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(
   mQuoteOriginal = quoteOriginal;
   mHtmlToQuote = htmlToQuote;
   mQuote = msgQuote;
-  mCharsetFixed = charsetFixed;
 
   if (!mHeadersOnly || !mHtmlToQuote.IsEmpty()) {
     // Get header type, locale and strings from pref.
@@ -2704,14 +2703,14 @@ nsMsgCompose::QuoteMessage(const nsACString& msgURI) {
 
   // Create the consumer output stream.. this will receive all the HTML from
   // libmime
-  mQuoteStreamListener = new QuotingOutputStreamListener(
-      msgHdr, false, !mHtmlToQuote.IsEmpty(), m_identity, mQuote,
-      mCharsetOverride || mAnswerDefaultCharset, false, mHtmlToQuote);
+  mQuoteStreamListener =
+      new QuotingOutputStreamListener(msgHdr, false, !mHtmlToQuote.IsEmpty(),
+                                      m_identity, mQuote, false, mHtmlToQuote);
 
   mQuoteStreamListener->SetComposeObj(this);
 
   rv = mQuote->QuoteMessage(msgURI, false, mQuoteStreamListener,
-                            mCharsetOverride, false, msgHdr);
+                            mAutodetectCharset, false, msgHdr);
   return rv;
 }
 
@@ -2745,13 +2744,12 @@ nsresult nsMsgCompose::QuoteOriginalMessage()  // New template
   // libmime
   mQuoteStreamListener = new QuotingOutputStreamListener(
       originalMsgHdr, mWhatHolder != 1, !bAutoQuote || !mHtmlToQuote.IsEmpty(),
-      m_identity, mQuote, mCharsetOverride || mAnswerDefaultCharset, true,
-      mHtmlToQuote);
+      m_identity, mQuote, true, mHtmlToQuote);
 
   mQuoteStreamListener->SetComposeObj(this);
 
   rv = mQuote->QuoteMessage(msgUri, mWhatHolder != 1, mQuoteStreamListener,
-                            mCharsetOverride, !bAutoQuote, originalMsgHdr);
+                            mAutodetectCharset, !bAutoQuote, originalMsgHdr);
   return rv;
 }
 

@@ -129,8 +129,7 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
   nsCOMPtr<nsIMsgQuote> mQuote;
   bool mQuotingToFollow;  // Quoting indicator
   MSG_ComposeType mType;  // Message type
-  bool mCharsetOverride;
-  bool mAnswerDefaultCharset;
+  bool mAutodetectCharset;
   bool mDeleteDraft;
   nsMsgDispositionState mDraftDisposition;
   nsCOMPtr<nsIMsgDBHdr> mOrigMsgHdr;
@@ -161,8 +160,7 @@ class QuotingOutputStreamListener : public nsIMsgQuotingOutputStreamListener,
  public:
   QuotingOutputStreamListener(nsIMsgDBHdr* origMsgHdr, bool quoteHeaders,
                               bool headersOnly, nsIMsgIdentity* identity,
-                              nsIMsgQuote* msgQuote, bool charsetFixed,
-                              bool quoteOriginal,
+                              nsIMsgQuote* msgQuote, bool quoteOriginal,
                               const nsACString& htmlToQuote);
 
   NS_DECL_ISUPPORTS
@@ -185,7 +183,6 @@ class QuotingOutputStreamListener : public nsIMsgQuotingOutputStreamListener,
   nsString mSignature;
   bool mQuoteHeaders;
   bool mHeadersOnly;
-  bool mCharsetFixed;
   nsCOMPtr<nsIMsgQuote> mQuote;
   nsCOMPtr<nsIMimeHeaders> mHeaders;
   nsCOMPtr<nsIMsgIdentity> mIdentity;

@@ -56,17 +56,23 @@ function GetMsgKeyFromURI(uri) {
 /**
  * Compose a message.
  *
- * @param type   nsIMsgCompType    Type of composition (new message, reply, draft, etc.)
- * @param format nsIMsgCompFormat - Requested format (plain text, html, default)
- * @param folder nsIMsgFolder - Folder where the original message is stored
- * @param messageArray             Array of messages to process, often only holding one element.
+ * @param {nsIMsgCompType} type - Type of composition (new message, reply, draft, etc.)
+ * @param {nsIMsgCompFormat} format - Requested format (plain text, html, default)
+ * @param {nsIMsgFolder} folder - Folder where the original message is stored
+ * @param {string[]} messageArray - Array of message URIs to process, often only
+ *   holding one element.
+ * @param {Selection} [selection=null] - A DOM selection to be quoted, or null
+ *   to quote the whole message, if quoting is appropriate (e.g. in a reply).
+ * @param {boolean} [autodetectCharset=false] - If quoting the whole message,
+ *   whether automatic character set detection should be used.
  */
 async function ComposeMessage(
   type,
   format,
   folder,
   messageArray,
-  selection = null
+  selection = null,
+  autodetectCharset = false
 ) {
   function findDeliveredToIdentityEmail(hdr) {
     // This function reads from currentHeaderData, which is only useful if we're
@@ -398,7 +404,8 @@ async function ComposeMessage(
                   identity,
                   matchingHint.toString(),
                   msgWindow,
-                  selection
+                  selection,
+                  autodetectCharset
                 );
               },
               true,
@@ -420,7 +427,8 @@ async function ComposeMessage(
               hdrIdentity,
               null,
               msgWindow,
-              selection
+              selection,
+              autodetectCharset
             );
           }
         }

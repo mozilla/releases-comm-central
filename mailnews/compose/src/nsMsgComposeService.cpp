@@ -324,7 +324,8 @@ nsMsgComposeService::OpenComposeWindow(
     const nsACString& msgComposeWindowURL, nsIMsgDBHdr* origMsgHdr,
     const nsACString& originalMsgURI, MSG_ComposeType type,
     MSG_ComposeFormat format, nsIMsgIdentity* aIdentity, const nsACString& from,
-    nsIMsgWindow* aMsgWindow, mozilla::dom::Selection* selection) {
+    nsIMsgWindow* aMsgWindow, mozilla::dom::Selection* selection,
+    bool autodetectCharset) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgIdentity> identity = aIdentity;
@@ -362,7 +363,8 @@ nsMsgComposeService::OpenComposeWindow(
             : nsMimeOutput::nsMimeMessageEditorTemplate,
         identity, originalMsgURI, origMsgHdr,
         type == nsIMsgCompType::ForwardInline,
-        format == nsIMsgCompFormat::OppositeOfDefault, aMsgWindow);
+        format == nsIMsgCompFormat::OppositeOfDefault, aMsgWindow,
+        autodetectCharset);
   }
 
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams(
@@ -374,6 +376,7 @@ nsMsgComposeService::OpenComposeWindow(
       pMsgComposeParams->SetType(type);
       pMsgComposeParams->SetFormat(format);
       pMsgComposeParams->SetIdentity(identity);
+      pMsgComposeParams->SetAutodetectCharset(autodetectCharset);
 
       // When doing a reply (except with a template) see if there's a selection
       // that we should quote
@@ -956,7 +959,7 @@ nsMsgComposeService::ForwardMessage(const nsAString& forwardTo,
   if (aForwardType == nsIMsgComposeService::kForwardInline)
     return RunMessageThroughMimeDraft(
         uriToOpen, nsMimeOutput::nsMimeMessageDraftOrTemplate, identity,
-        uriToOpen, aMsgHdr, true, forwardTo, false, aMsgWindow);
+        uriToOpen, aMsgHdr, true, forwardTo, false, aMsgWindow, false);
 
   nsCOMPtr<mozIDOMWindowProxy> parentWindow;
   if (aMsgWindow) {
@@ -1174,10 +1177,11 @@ nsresult nsMsgComposeService::LoadDraftOrTemplate(
     const nsACString& aMsgURI, nsMimeOutputType aOutType,
     nsIMsgIdentity* aIdentity, const nsACString& aOriginalMsgURI,
     nsIMsgDBHdr* aOrigMsgHdr, bool aForwardInline, bool overrideComposeFormat,
-    nsIMsgWindow* aMsgWindow) {
+    nsIMsgWindow* aMsgWindow, bool autodetectCharset) {
   return RunMessageThroughMimeDraft(
       aMsgURI, aOutType, aIdentity, aOriginalMsgURI, aOrigMsgHdr,
-      aForwardInline, EmptyString(), overrideComposeFormat, aMsgWindow);
+      aForwardInline, EmptyString(), overrideComposeFormat, aMsgWindow,
+      autodetectCharset);
 }
 
 /**
@@ -1207,7 +1211,8 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
     const nsACString& aMsgURI, nsMimeOutputType aOutType,
     nsIMsgIdentity* aIdentity, const nsACString& aOriginalMsgURI,
     nsIMsgDBHdr* aOrigMsgHdr, bool aForwardInline, const nsAString& aForwardTo,
-    bool aOverrideComposeFormat, nsIMsgWindow* aMsgWindow) {
+    bool aOverrideComposeFormat, nsIMsgWindow* aMsgWindow,
+    bool autodetectCharset) {
   nsCOMPtr<nsIMsgMessageService> messageService;
   nsresult rv =
       GetMessageServiceFromURI(aMsgURI, getter_AddRefs(messageService));
@@ -1263,11 +1268,8 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
 
   // if we are forwarding a message and that message used a charset override
   // then forward that as auto-detect flag, too.
-  bool autodetectCharset = false;
-  if (autodetectCharset) {
-    nsCOMPtr<nsIMsgI18NUrl> i18nUrl(do_QueryInterface(url));
-    if (i18nUrl) (void)i18nUrl->SetAutodetectCharset(true);
-  }
+  nsCOMPtr<nsIMsgI18NUrl> i18nUrl(do_QueryInterface(url));
+  if (i18nUrl) (void)i18nUrl->SetAutodetectCharset(autodetectCharset);
 
   nsCOMPtr<nsIPrincipal> nullPrincipal =
       NullPrincipal::CreateWithoutOriginAttributes();
