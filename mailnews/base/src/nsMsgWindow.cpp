@@ -211,27 +211,6 @@ NS_IMETHODIMP nsMsgWindow::SetRootDocShell(nsIDocShell* aDocShell) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetMailCharacterSet(nsACString& aMailCharacterSet) {
-  aMailCharacterSet = mMailCharacterSet;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::SetMailCharacterSet(
-    const nsACString& aMailCharacterSet) {
-  mMailCharacterSet.Assign(aMailCharacterSet);
-
-  // Convert to a canonical charset name instead of using the charset name from
-  // the message header as is. This is needed for charset menu item to have a
-  // check mark correctly.
-  nsresult rv;
-  nsCOMPtr<nsICharsetConverterManager> ccm =
-      do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return ccm->GetCharsetAlias(PromiseFlatCString(aMailCharacterSet).get(),
-                              mMailCharacterSet);
-}
-
 NS_IMETHODIMP nsMsgWindow::GetDomWindow(mozIDOMWindowProxy** aWindow) {
   NS_ENSURE_ARG_POINTER(aWindow);
   if (mDomWindow)

@@ -144,23 +144,6 @@ static void TranslateLineEnding(nsString& data) {
   data.SetLength(wPtr - sPtr);
 }
 
-static void GetTopmostMsgWindowCharacterSet(nsCString& charset,
-                                            bool* charsetOverride) {
-  // HACK: if we are replying to a message and that message used a charset over
-  // ride (as specified in the top most window (assuming the reply originated
-  // from that window) then use that over ride charset instead of the charset
-  // specified in the message
-  nsCOMPtr<nsIMsgMailSession> mailSession(
-      do_GetService("@mozilla.org/messenger/services/session;1"));
-  if (mailSession) {
-    nsCOMPtr<nsIMsgWindow> msgWindow;
-    mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
-    if (msgWindow) {
-      msgWindow->GetMailCharacterSet(charset);
-    }
-  }
-}
-
 nsMsgCompose::nsMsgCompose() {
   mQuotingToFollow = false;
   mAllowRemoteContent = false;
@@ -1627,13 +1610,6 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
   }
 
   // All other processing.
-
-  // Check for the charset of the last displayed message, it
-  // will be used for quoting and as override.
-  nsCString windowCharset;
-  mCharsetOverride = false;
-  mAnswerDefaultCharset = false;
-  GetTopmostMsgWindowCharacterSet(windowCharset, &mCharsetOverride);
 
   // Note the following:
   // LoadDraftOrTemplate() is run in nsMsgComposeService::OpenComposeWindow()

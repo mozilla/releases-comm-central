@@ -128,28 +128,6 @@ nsresult bridge_new_new_uri(void* bridgeStream, nsIURI* aURI,
               *default_charset = strdup("UTF-8");
             }
           }
-
-          // If there is no override and a default charset exists,
-          // update the message window.
-          if (!(*override_charset) && *default_charset && **default_charset) {
-            // notify the default to msgWindow (for the menu check mark)
-            // do not set the default in case of nsMimeMessageDraftOrTemplate
-            // or nsMimeMessageEditorTemplate because it is already set
-            // when the message is displayed and doing it again may overwrite
-            // the correct MIME charset parsed from the message header
-            if (aOutputType != nsMimeOutput::nsMimeMessageDraftOrTemplate &&
-                aOutputType != nsMimeOutput::nsMimeMessageEditorTemplate) {
-              nsCOMPtr<nsIMsgMailNewsUrl> msgurl(do_QueryInterface(aURI));
-              if (msgurl) {
-                nsCOMPtr<nsIMsgWindow> msgWindow;
-                msgurl->GetMsgWindow(getter_AddRefs(msgWindow));
-                if (msgWindow) {
-                  msgWindow->SetMailCharacterSet(
-                      nsDependentCString(*default_charset));
-                }
-              }
-            }
-          }
         }
         nsAutoCString urlString;
         if (NS_SUCCEEDED(aURI->GetSpec(urlString))) {

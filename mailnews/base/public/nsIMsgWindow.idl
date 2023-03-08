@@ -61,7 +61,6 @@ interface nsIMsgWindow : nsISupports {
   void displayHTMLInMessagePane(in AString title, in AString body, in boolean clearMsgHdr);
 
   readonly attribute nsIPrompt promptDialog;
-  attribute ACString mailCharacterSet;
 
   /**
     Has a running url been stopped? If you care about checking
