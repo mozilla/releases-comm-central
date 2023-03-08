@@ -129,7 +129,7 @@ add_task(async function testMail3PaneTab() {
   );
 
   info("Showing a web page");
-  about3Pane.displayWebPage("https://example.com/");
+  about3Pane.messagePane.displayWebPage("https://example.com/");
   cycle(
     folderTree,
     threadTree.table.body,

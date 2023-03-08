@@ -59,12 +59,33 @@ const { getDefaultColumns } = ChromeUtils.importESModule(
   "chrome://messenger/content/thread-pane-columns.mjs"
 );
 
-var folderTree,
-  threadTree,
-  webBrowser,
-  messageBrowser,
-  multiMessageBrowser,
-  accountCentralBrowser;
+/**
+ * The TreeListbox widget that displays folders.
+ */
+var folderTree;
+/**
+ * The TreeView widget that displays the message list.
+ */
+var threadTree;
+/**
+ * A XUL browser that displays web pages when required.
+ */
+var webBrowser;
+/**
+ * A XUL browser that displays single messages. This browser always has
+ * about:message loaded.
+ */
+var messageBrowser;
+/**
+ * A XUL browser that displays summaries of multiple messages or threads.
+ * This browser always has multimessageview.xhtml loaded.
+ */
+var multiMessageBrowser;
+/**
+ * A XUL browser that displays Account Central when an account's root folder
+ * is selected.
+ */
+var accountCentralBrowser;
 
 window.addEventListener("DOMContentLoaded", async event => {
   if (event.target != document) {
@@ -80,14 +101,9 @@ window.addEventListener("DOMContentLoaded", async event => {
   folderPaneContextMenu.init();
   await folderPane.init();
   await threadPane.init();
+  await messagePane.init();
 
-  webBrowser = document.getElementById("webBrowser");
-  messageBrowser = document.getElementById("messageBrowser");
-  multiMessageBrowser = document.getElementById("multiMessageBrowser");
   accountCentralBrowser = document.getElementById("accountCentralBrowser");
-
-  messageBrowser.docShell.allowDNSPrefetch = false;
-  multiMessageBrowser.docShell.allowDNSPrefetch = false;
 
   MailServices.mailSession.AddFolderListener(
     folderListener,
@@ -104,10 +120,6 @@ window.addEventListener("DOMContentLoaded", async event => {
   // to avoid unnecessarily loading the thread tree or Account Central.
   folderTree.addEventListener("select", folderPane);
   folderTree.dispatchEvent(new CustomEvent("select"));
-
-  // Attach the progress listener for the webBrowser. For the messageBrowser this
-  // happens in the "aboutMessageLoaded" event mailWindow.js.
-  top.contentProgress.addProgressListenerToBrowser(webBrowser);
 });
 
 window.addEventListener("unload", () => {
@@ -147,9 +159,7 @@ var paneLayout = {
 
     this.messagePaneSplitter.addEventListener("splitter-collapsed", () => {
       // Clear any loaded page or messages.
-      clearWebPage();
-      clearMessage();
-      clearMessages();
+      messagePane.clearAll();
       this.messagePaneSplitter.storeAttr("collapsed", true);
     });
 
@@ -1164,9 +1174,7 @@ var folderPane = {
       return;
     }
 
-    clearWebPage();
-    clearMessage();
-    clearMessages();
+    messagePane.clearAll();
 
     let uri = folderTree.rows[folderTree.selectedIndex]?.uri;
     if (!uri) {
@@ -1185,10 +1193,6 @@ var folderPane = {
     if (gFolder.isServer) {
       document.title = gFolder.server.prettyName;
       gViewWrapper = gDBView = threadTree.view = null;
-
-      clearWebPage();
-      clearMessage();
-      clearMessages();
 
       MailE10SUtils.loadURI(
         accountCentralBrowser,
@@ -2230,18 +2234,18 @@ var threadPane = {
     if (paneLayout.messagePaneSplitter.isCollapsed || !gDBView) {
       return;
     }
-    clearWebPage();
+    messagePane.clearWebPage();
     switch (gDBView.numSelected) {
       case 0:
-        clearMessage();
-        clearMessages();
+        messagePane.clearMessage();
+        messagePane.clearMessages();
         return;
       case 1:
         let uri = gDBView.getURIForViewIndex(threadTree.selectedIndex);
-        displayMessage(uri);
+        messagePane.displayMessage(uri);
         return;
       default:
-        displayMessages(gDBView.getSelectedMsgHdrs());
+        messagePane.displayMessages(gDBView.getSelectedMsgHdrs());
     }
   },
 
@@ -2927,6 +2931,164 @@ var threadPane = {
   },
 };
 
+var messagePane = {
+  async init() {
+    webBrowser = document.getElementById("webBrowser");
+    // Attach the progress listener for the webBrowser. For the messageBrowser this
+    // happens in the "aboutMessageLoaded" event mailWindow.js.
+    top.contentProgress.addProgressListenerToBrowser(webBrowser);
+
+    messageBrowser = document.getElementById("messageBrowser");
+    messageBrowser.docShell.allowDNSPrefetch = false;
+
+    multiMessageBrowser = document.getElementById("multiMessageBrowser");
+    multiMessageBrowser.docShell.allowDNSPrefetch = false;
+
+    if (messageBrowser.contentDocument.readyState != "complete") {
+      await new Promise(resolve => {
+        messageBrowser.addEventListener("load", () => resolve(), {
+          capture: true,
+          once: true,
+        });
+      });
+    }
+
+    if (multiMessageBrowser.contentDocument.readyState != "complete") {
+      await new Promise(resolve => {
+        multiMessageBrowser.addEventListener("load", () => resolve(), {
+          capture: true,
+          once: true,
+        });
+      });
+    }
+  },
+
+  /**
+   * Ensure all message pane browsers are blank.
+   */
+  clearAll() {
+    this.clearWebPage();
+    this.clearMessage();
+    this.clearMessages();
+  },
+
+  /**
+   * Ensure the web page browser is blank.
+   */
+  clearWebPage() {
+    webBrowser.hidden = true;
+    MailE10SUtils.loadAboutBlank(webBrowser);
+  },
+
+  /**
+   * Display a web page in the web page browser. If `url` is not given, or is
+   * "about:blank", the web page browser is cleared and hidden.
+   *
+   * @param {string} url - The URL to load.
+   * @param {object} [params] - Any params to pass to MailE10SUtils.loadURI.
+   */
+  displayWebPage(url, params) {
+    if (!paneLayout.messagePaneVisible) {
+      return;
+    }
+    if (!url || url == "about:blank") {
+      this.clearWebPage();
+      return;
+    }
+
+    this.clearMessage();
+    this.clearMessages();
+
+    MailE10SUtils.loadURI(webBrowser, url, params);
+    webBrowser.hidden = false;
+  },
+
+  /**
+   * Ensure the message browser is not displaying a message.
+   */
+  clearMessage() {
+    messageBrowser.hidden = true;
+    messageBrowser.contentWindow.displayMessage();
+  },
+
+  /**
+   * Display a single message in the message browser. If `messageURI` is not
+   * given, the message browser is cleared and hidden.
+   *
+   * @param {string} messageURI
+   */
+  displayMessage(messageURI) {
+    if (!paneLayout.messagePaneVisible) {
+      return;
+    }
+    if (!messageURI) {
+      this.clearMessage();
+      return;
+    }
+
+    messagePane.clearWebPage();
+    messagePane.clearMessages();
+
+    messageBrowser.contentWindow.displayMessage(messageURI, gViewWrapper);
+    messageBrowser.hidden = false;
+  },
+
+  /**
+   * Ensure the multi-message browser is not displaying messages.
+   */
+  clearMessages() {
+    multiMessageBrowser.hidden = true;
+    multiMessageBrowser.contentWindow.gMessageSummary.clear();
+  },
+
+  /**
+   * Display messages in the multi-message browser. For a single message, use
+   * `displayMessage` instead. If `messages` is not given, or an empty array,
+   * the multi-message browser is cleared and hidden.
+   *
+   * @param {nsIMsgDBHdr[]} messages
+   */
+  displayMessages(messages = []) {
+    if (!paneLayout.messagePaneVisible) {
+      return;
+    }
+    if (messages.length == 0) {
+      this.clearMessages();
+      return;
+    }
+
+    messagePane.clearWebPage();
+    messagePane.clearMessage();
+
+    let getThreadId = function(message) {
+      return gDBView.getThreadContainingMsgHdr(message).getRootHdr().messageKey;
+    };
+
+    let oneThread = true;
+    let firstThreadId = getThreadId(messages[0]);
+    for (let i = 1; i < messages.length; i++) {
+      if (getThreadId(messages[i]) != firstThreadId) {
+        oneThread = false;
+        break;
+      }
+    }
+
+    multiMessageBrowser.contentWindow.gMessageSummary.summarize(
+      oneThread ? "thread" : "multipleselection",
+      messages,
+      gDBView,
+      function(messages) {
+        threadTree.selectedIndices = messages
+          .map(m => gDBView.findIndexOfMsgHdr(m, true))
+          .filter(i => i != nsMsgViewIndex_None);
+      }
+    );
+
+    multiMessageBrowser.hidden = false;
+    window.dispatchEvent(new CustomEvent("MsgsLoaded", { bubbles: true }));
+  },
+};
+
 function restoreState({
   folderPaneVisible,
   messagePaneVisible,
@@ -2982,98 +3144,6 @@ function displayFolder(folderURI) {
     );
   }
   folderTree.selectedRow = row;
-}
-
-function clearWebPage() {
-  displayWebPage();
-}
-
-function clearMessage() {
-  displayMessage();
-}
-
-function clearMessages() {
-  displayMessages();
-}
-
-function displayWebPage(url, params) {
-  if (!url || url == "about:blank") {
-    webBrowser.hidden = true;
-    MailE10SUtils.loadAboutBlank(webBrowser);
-    return;
-  }
-
-  clearMessage();
-  clearMessages();
-
-  MailE10SUtils.loadURI(webBrowser, url, params);
-  webBrowser.hidden = false;
-}
-
-async function displayMessage(messageURI) {
-  if (messageBrowser.contentDocument.readyState != "complete") {
-    await new Promise(resolve =>
-      messageBrowser.contentWindow.addEventListener("load", resolve, {
-        once: true,
-      })
-    );
-  }
-  if (!messageURI) {
-    messageBrowser.hidden = true;
-  }
-  messageBrowser.contentWindow.displayMessage(messageURI, gViewWrapper);
-  if (!messageURI) {
-    return;
-  }
-
-  clearWebPage();
-  clearMessages();
-
-  messageBrowser.hidden = false;
-}
-
-async function displayMessages(messages = []) {
-  if (multiMessageBrowser.contentDocument.readyState != "complete") {
-    await new Promise(r =>
-      multiMessageBrowser.contentWindow.addEventListener("load", r, {
-        once: true,
-      })
-    );
-  }
-  if (messages.length == 0) {
-    multiMessageBrowser.hidden = true;
-    multiMessageBrowser.contentWindow.gMessageSummary.clear();
-    return;
-  }
-
-  clearWebPage();
-  clearMessage();
-
-  let getThreadId = function(message) {
-    return gDBView.getThreadContainingMsgHdr(message).getRootHdr().messageKey;
-  };
-
-  let oneThread = true;
-  let firstThreadId = getThreadId(messages[0]);
-  for (let i = 1; i < messages.length; i++) {
-    if (getThreadId(messages[i]) != firstThreadId) {
-      oneThread = false;
-      break;
-    }
-  }
-
-  multiMessageBrowser.contentWindow.gMessageSummary.summarize(
-    oneThread ? "thread" : "multipleselection",
-    messages,
-    gDBView,
-    function(messages) {
-      threadTree.selectedIndices = messages
-        .map(m => gDBView.findIndexOfMsgHdr(m, true))
-        .filter(i => i != nsMsgViewIndex_None);
-    }
-  );
-  multiMessageBrowser.hidden = false;
-  window.dispatchEvent(new CustomEvent("MsgsLoaded", { bubbles: true }));
 }
 
 var folderListener = {
@@ -3859,7 +3929,9 @@ commandController.registerCallback(
 );
 
 commandController.registerCallback("cmd_goStartPage", () =>
-  displayWebPage(Services.urlFormatter.formatURLPref("mailnews.start_page.url"))
+  messagePane.displayWebPage(
+    Services.urlFormatter.formatURLPref("mailnews.start_page.url")
+  )
 );
 commandController.registerCallback(
   "cmd_print",

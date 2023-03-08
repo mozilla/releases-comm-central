@@ -169,7 +169,7 @@ add_task(async function testMessagePane() {
     messagePaneVisible: true,
   });
 
-  about3Pane.displayWebPage(TEST_DOCUMENT_URL);
+  about3Pane.messagePane.displayWebPage(TEST_DOCUMENT_URL);
   await checkABrowser(about3Pane.webBrowser);
 }).skip(); // TODO: Pickers not working in this browser.
 

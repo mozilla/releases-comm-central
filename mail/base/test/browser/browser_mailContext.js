@@ -67,7 +67,7 @@ add_setup(async function() {
  * messages are selected.
  */
 add_task(async function testNoMessages() {
-  about3Pane.displayMessages();
+  about3Pane.messagePane.clearAll();
 
   // The message pane browser isn't visible.
 

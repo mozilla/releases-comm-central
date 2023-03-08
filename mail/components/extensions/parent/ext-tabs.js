@@ -560,7 +560,7 @@ this.tabs = class extends ExtensionAPIPersistent {
               }
               MailE10SUtils.loadURI(browser, url, options);
             } else if (nativeTabInfo.mode.name == "mail3PaneTab") {
-              nativeTabInfo.chromeBrowser.contentWindow.displayWebPage(
+              nativeTabInfo.chromeBrowser.contentWindow.messagePane.displayWebPage(
                 url,
                 options
               );
