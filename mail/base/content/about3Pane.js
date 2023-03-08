@@ -3017,7 +3017,7 @@ async function displayMessage(messageURI) {
       })
     );
   }
-  messageBrowser.contentWindow.displayMessage(messageURI);
+  messageBrowser.contentWindow.displayMessage(messageURI, gViewWrapper);
   if (!messageURI) {
     messageBrowser.hidden = true;
     return;
