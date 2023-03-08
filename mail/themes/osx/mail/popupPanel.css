@@ -19,19 +19,6 @@
   opacity: .5;
 }
 
-#editContactAddressBookList::part(dropmarker) {
-  appearance: none;
-  display: -moz-box;
-}
-
-#editContactAddressBookList::part(dropmarker-icon) {
-  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-arrow.svg);
-  -moz-context-properties: fill;
-  fill: currentColor;
-  width: 7px;
-  height: 5px;
-}
-
 html|input.editContactTextbox {
   padding: 3px 8px;
 }
