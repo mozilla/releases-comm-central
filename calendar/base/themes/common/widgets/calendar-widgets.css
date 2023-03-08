@@ -10,6 +10,8 @@
   --calendar-list-item-margin: 3px;
   --calendar-list-item-dot-size: 9px;
   --calendar-list-item-dot-gap: 6px;
+  --calendar-panel-spacer: 3px;
+  --calendar-side-panel-minimonth-margin: 0 calc(2 * var(--calendar-panel-spacer));
 }
 
 :root[uidensity="compact"] {
@@ -18,6 +20,7 @@
   --calendar-list-item-margin: 1px;
   --calendar-list-item-dot-size: 6px;
   --calendar-list-item-dot-gap: 3px;
+  --calendar-side-panel-minimonth-margin: var(--calendar-panel-spacer);
 }
 
 :root[uidensity="touch"] {
@@ -26,6 +29,7 @@
   --calendar-list-item-margin: 6px;
   --calendar-list-item-dot-size: 9px;
   --calendar-list-item-dot-gap: 9px;
+  --calendar-side-panel-minimonth-margin: 0 calc(3 * var(--calendar-panel-spacer));
 }
 
 /* Calendar Items */
@@ -360,13 +364,23 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   background-image: var(--icon-sync);
 }
 
+#sidePanelNewEvent,
+#sidePanelNewTask {
+  background-image: var(--icon-add);
+}
+
+/* Calendar Side Panel */
+
 #primaryButtonSidePanel {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-#sidePanelNewEvent,
-#sidePanelNewTask {
-  background-image: var(--icon-add);
+:root[uidensity="compact"] #primaryButtonSidePanel {
+  margin-top: var(--calendar-panel-spacer);
+}
+
+#calMinimonthBox {
+  margin: var(--calendar-side-panel-minimonth-margin);
 }

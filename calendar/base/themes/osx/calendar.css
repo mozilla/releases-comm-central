@@ -50,10 +50,6 @@
   margin: 0 6px 1px !important;
 }
 
-#calMinimonthBox {
-  margin-top: 3px;
-}
-
 .calendar-splitter[orient="vertical"] {
   border-bottom: 1px solid var(--splitter-color);
   min-height: 0;
