@@ -15,6 +15,8 @@ interface nsIMsgIdentity;
 interface nsIMsgIncomingServer;
 interface nsIMsgDBHdr;
 
+webidl Selection;
+
 [scriptable, uuid(041782bf-e523-444b-a268-d90868fd2b50)]
 interface nsIMsgComposeService : nsISupports {
 
@@ -44,7 +46,7 @@ interface nsIMsgComposeService : nsISupports {
                          in nsIMsgIdentity identity,
                          in AUTF8String from,
                          in nsIMsgWindow aMsgWindow,
-                         [optional] in boolean suppressReplyQuote);
+                         [optional] in Selection aSelection);
 
   /**
    * Open a compose window given a mailto url and (optionally) an identity.

@@ -233,7 +233,7 @@ nsMsgComposeService::DetermineComposeHTML(nsIMsgIdentity* aIdentity,
 
 MOZ_CAN_RUN_SCRIPT_FOR_DEFINITION nsresult
 nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type,
-                                            nsIMsgWindow* aMsgWindow,
+                                            mozilla::dom::Selection* selection,
                                             nsACString& aSelHTML) {
   nsresult rv;
 
@@ -250,39 +250,15 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type,
   NS_ENSURE_SUCCESS(rv, rv);
   if (!replyQuotingSelection) return NS_ERROR_ABORT;
 
-  // Now delve down in to the message to get the HTML representation of the
-  // selection
-  nsCOMPtr<nsIDocShell> rootShell;
-  rv = aMsgWindow->GetRootDocShell(getter_AddRefs(rootShell));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIDocShell> messagePaneDocShell;
-  RefPtr<mozilla::dom::Element> el =
-      rootShell->GetDocument()->GetElementById(u"messagepane"_ns);
-  RefPtr<mozilla::dom::XULFrameElement> frame =
-      mozilla::dom::XULFrameElement::FromNodeOrNull(el);
-  NS_ENSURE_TRUE(frame, NS_ERROR_FAILURE);
-  RefPtr<mozilla::dom::Document> doc = frame->GetContentDocument();
-  NS_ENSURE_TRUE(doc, NS_ERROR_FAILURE);
-  messagePaneDocShell = doc->GetDocShell();
-  NS_ENSURE_TRUE(messagePaneDocShell, NS_ERROR_FAILURE);
-
-  nsCOMPtr<mozIDOMWindowProxy> domWindow(do_GetInterface(messagePaneDocShell));
-  NS_ENSURE_TRUE(domWindow, NS_ERROR_FAILURE);
-  nsCOMPtr<nsPIDOMWindowOuter> privateWindow =
-      nsPIDOMWindowOuter::From(domWindow);
-  RefPtr<mozilla::dom::Selection> sel = privateWindow->GetSelection();
-  NS_ENSURE_TRUE(sel, NS_ERROR_FAILURE);
-
   bool requireMultipleWords = true;
   nsAutoCString charsOnlyIf;
   prefs->GetBoolPref(PREF_MAILNEWS_REPLY_QUOTING_SELECTION_MULTI_WORD,
                      &requireMultipleWords);
   prefs->GetCharPref(PREF_MAILNEWS_REPLY_QUOTING_SELECTION_ONLY_IF,
                      charsOnlyIf);
-  if (sel && (requireMultipleWords || !charsOnlyIf.IsEmpty())) {
+  if (requireMultipleWords || !charsOnlyIf.IsEmpty()) {
     nsAutoString selPlain;
-    sel->Stringify(selPlain);
+    selection->Stringify(selPlain);
 
     // If "mailnews.reply_quoting_selection.multi_word" is on, then there must
     // be at least two words selected in order to quote just the selected text
@@ -316,23 +292,14 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type,
     }
   }
 
-  nsCOMPtr<nsIContentViewer> contentViewer;
-  rv = messagePaneDocShell->GetContentViewer(getter_AddRefs(contentViewer));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<mozilla::dom::Document> domDocument(contentViewer->GetDocument());
-
-  nsCOMPtr<nsIDocumentEncoder> docEncoder = do_createHTMLCopyEncoder();
-
-  rv = docEncoder->Init(domDocument, u"text/html"_ns, 0);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = docEncoder->SetSelection(sel);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsAutoString selHTML;
-  rv = docEncoder->EncodeToString(selHTML);
-  NS_ENSURE_SUCCESS(rv, rv);
+  IgnoredErrorResult rv2;
+  selection->ToStringWithFormat(u"text/html"_ns,
+                                nsIDocumentEncoder::SkipInvisibleContent, 0,
+                                selHTML, rv2);
+  if (rv2.Failed()) {
+    return NS_ERROR_FAILURE;
+  }
 
   // Now remove <span class="moz-txt-citetags">&gt; </span>.
   nsAutoCString html(NS_ConvertUTF16toUTF8(selHTML).get());
@@ -357,7 +324,7 @@ nsMsgComposeService::OpenComposeWindow(
     const nsACString& msgComposeWindowURL, nsIMsgDBHdr* origMsgHdr,
     const nsACString& originalMsgURI, MSG_ComposeType type,
     MSG_ComposeFormat format, nsIMsgIdentity* aIdentity, const nsACString& from,
-    nsIMsgWindow* aMsgWindow, bool suppressReplyQuote) {
+    nsIMsgWindow* aMsgWindow, mozilla::dom::Selection* selection) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgIdentity> identity = aIdentity;
@@ -410,14 +377,14 @@ nsMsgComposeService::OpenComposeWindow(
 
       // When doing a reply (except with a template) see if there's a selection
       // that we should quote
-      if (!suppressReplyQuote &&
+      if (selection &&
           (type == nsIMsgCompType::Reply || type == nsIMsgCompType::ReplyAll ||
            type == nsIMsgCompType::ReplyToSender ||
            type == nsIMsgCompType::ReplyToGroup ||
            type == nsIMsgCompType::ReplyToSenderAndGroup ||
            type == nsIMsgCompType::ReplyToList)) {
         nsAutoCString selHTML;
-        if (NS_SUCCEEDED(GetOrigWindowSelection(type, aMsgWindow, selHTML)))
+        if (NS_SUCCEEDED(GetOrigWindowSelection(type, selection, selHTML)))
           pMsgComposeParams->SetHtmlToQuote(selHTML);
       }
 

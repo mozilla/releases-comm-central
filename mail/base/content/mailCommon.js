@@ -603,19 +603,29 @@ var commandController = {
       ? gDBView?.getURIsForSelection()
       : [window.gMessageURI];
 
+    let messagePaneBrowser;
+    if (window.messageBrowser) {
+      messagePaneBrowser = window.messageBrowser.contentWindow.getMessagePaneBrowser();
+    } else {
+      messagePaneBrowser = window.getMessagePaneBrowser();
+    }
+    let selection = messagePaneBrowser?.contentWindow?.getSelection();
+
     if (event && event.shiftKey) {
       window.browsingContext.topChromeWindow.ComposeMessage(
         composeType,
         Ci.nsIMsgCompFormat.OppositeOfDefault,
         msgFolder,
-        msgUris
+        msgUris,
+        selection
       );
     } else {
       window.browsingContext.topChromeWindow.ComposeMessage(
         composeType,
         Ci.nsIMsgCompFormat.Default,
         msgFolder,
-        msgUris
+        msgUris,
+        selection
       );
     }
   },

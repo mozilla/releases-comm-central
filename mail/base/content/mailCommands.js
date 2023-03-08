@@ -61,7 +61,13 @@ function GetMsgKeyFromURI(uri) {
  * @param folder nsIMsgFolder - Folder where the original message is stored
  * @param messageArray             Array of messages to process, often only holding one element.
  */
-async function ComposeMessage(type, format, folder, messageArray) {
+async function ComposeMessage(
+  type,
+  format,
+  folder,
+  messageArray,
+  selection = null
+) {
   function findDeliveredToIdentityEmail(hdr) {
     // This function reads from currentHeaderData, which is only useful if we're
     // looking at the currently-displayed message. Otherwise, just return
@@ -100,28 +106,9 @@ async function ComposeMessage(type, format, folder, messageArray) {
     return "";
   }
 
-  let suppressReplyQuote = false;
   let msgKey;
   if (messageArray && messageArray.length == 1) {
     msgKey = GetMsgKeyFromURI(messageArray[0]);
-    if (msgKey != window.gMessageDisplay?.keyForCharsetOverride) {
-      msgWindow.charsetOverride = false;
-    }
-    if (
-      type == Ci.nsIMsgCompType.Reply ||
-      type == Ci.nsIMsgCompType.ReplyAll ||
-      type == Ci.nsIMsgCompType.ReplyToSender ||
-      type == Ci.nsIMsgCompType.ReplyToGroup ||
-      type == Ci.nsIMsgCompType.ReplyToSenderAndGroup ||
-      type == Ci.nsIMsgCompType.ReplyToList
-    ) {
-      let displayKey = null; // TODO
-      if (msgKey != displayKey) {
-        // Not replying to the displayed message, so remove the selection
-        // in order not to quote from the wrong message.
-        suppressReplyQuote = true;
-      }
-    }
   }
 
   // Check if the draft is already open in another window. If it is, just focus the window.
@@ -411,7 +398,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
                   identity,
                   matchingHint.toString(),
                   msgWindow,
-                  suppressReplyQuote
+                  selection
                 );
               },
               true,
@@ -433,7 +420,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
               hdrIdentity,
               null,
               msgWindow,
-              suppressReplyQuote
+              selection
             );
           }
         }

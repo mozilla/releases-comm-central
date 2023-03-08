@@ -59,7 +59,7 @@ class nsMsgComposeService : public nsIMsgComposeService,
   // selected text in the original message window so that it can be quoted
   // instead of the entire message.
   nsresult GetOrigWindowSelection(MSG_ComposeType type,
-                                  nsIMsgWindow* aMsgWindow,
+                                  mozilla::dom::Selection* selection,
                                   nsACString& aSelHTML);
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
