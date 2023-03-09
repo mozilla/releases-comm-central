@@ -171,7 +171,7 @@ function displayMessage(uri, viewWrapper) {
         !this._inBatch &&
         parent?.location.href != "about:3pane" &&
         gDBView.selection &&
-        Components.stack.caller.name != "_deleteCompleted"
+        Components.stack.caller?.name != "_deleteCompleted"
       ) {
         gDBView.selection.selectEventsSuppressed = true;
         gDBView.selection.adjustSelection(index, count);
