@@ -247,19 +247,26 @@ var newMailTabType = {
           return;
         }
 
-        // Send the state to the page so it can restore immediately.
+        // Send the state to the page so it can restore immediately. Don't
+        // overwrite any existing state properties from `openTab` (especially
+        // `first`), unless there is a newer value.
         let sawDOMContentLoaded = false;
         chromeBrowser.addEventListener(
           "DOMContentLoaded",
           event => {
             if (!closed && event.target == chromeBrowser.contentDocument) {
-              event.target.ownerGlobal.openingState = persistedState;
+              let about3Pane = event.target.ownerGlobal;
+              about3Pane.openingState = {
+                ...about3Pane.openingState,
+                ...persistedState,
+              };
               sawDOMContentLoaded = true;
             }
           },
           { capture: true, once: true }
         );
-        // Didn't see DOMContentLoaded? Restore the state on load.
+        // Didn't see DOMContentLoaded? Restore the state on load. The state
+        // from `openTab` has been used by now.
         chromeBrowser.addEventListener(
           "load",
           event => {
