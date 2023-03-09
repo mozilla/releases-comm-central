@@ -598,7 +598,7 @@ calendar-event-column,
 }
 
 .fgdragbox[dragging="true"] {
-  display: -moz-box;
+  display: flex;
   background: var(--viewDragboxBackground);
   border: 5px var(--viewBackground);
   opacity: 0.5;
@@ -612,7 +612,7 @@ calendar-event-column,
 }
 
 .fgdragcontainer[dragging="true"] {
-  display: -moz-box;
+  display: flex;
   /* This is a workaround for a stack bug and display: hidden in underlying
    * elements -- the display: hidden bits get misrendered as being on top.
    * Setting an opacity here forces a view to be created for this element, too.

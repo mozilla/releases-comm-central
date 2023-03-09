@@ -9,27 +9,27 @@
 }
 
 #subjectCol {
-  -moz-box-flex: 7;
+  flex: 7 7;
 }
 
 #senderCol {
-  -moz-box-flex: 4;
+  flex: 4 4;
 }
 
 #recipientCol {
-  -moz-box-flex: 4;
+  flex: 4 4;
 }
 
 #correspondentCol {
-  -moz-box-flex: 4;
+  flex: 4 4;
 }
 
 #receivedCol {
-  -moz-box-flex: 2;
+  flex: 2 2;
 }
 
 #dateCol {
-  -moz-box-flex: 2;
+  flex: 2 2;
 }
 
 /* ..... select column ..... */

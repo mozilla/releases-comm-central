@@ -130,7 +130,7 @@
 }
 
 dialog::part(content-box) {
-  -moz-box-flex: 1;
+  flex: 1;
 }
 
 html|input,

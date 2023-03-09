@@ -30,7 +30,7 @@ button > .button-box {
 }
 
 menulist::part(dropmarker) {
-  display: -moz-box;
+  display: flex;
 }
 
 html|input {

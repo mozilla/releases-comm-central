@@ -382,7 +382,7 @@
    * will properly resize this element to the available space.
    * TODO: Remove these rules when the body uses a standard CSS display. */
   min-height: 0;
-  -moz-box-flex: 1;
+  flex: 1;
   overflow: clip;
 }
 
@@ -552,7 +552,7 @@
 }
 
 .menu-description {
-  -moz-box-flex: 10000;
+  flex: 10000 10000;
 }
 
 .menu-description,
@@ -782,7 +782,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 
 #msgIdentity {
   appearance: none;
-  -moz-box-align: center;
+  align-items: center;
   font: inherit;
   margin-inline: 4px 10px;
   border: 1px solid transparent;

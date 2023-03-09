@@ -37,7 +37,7 @@ tabpanels {
 
 #tabmail-arrowscrollbox[overflow="true"] > .tabmail-tab:first-child::before {
   content: '';
-  display: -moz-box;
+  display: flex;
   margin-inline-start: 0;
 }
 
@@ -154,7 +154,7 @@ tabpanels {
        (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
   :root[sizemode=normal]:not([spacestoolbar]) .tabmail-tab[visuallyselected]:first-child::before {
     content: '';
-    display: -moz-box;
+    display: flex;
     --lwt-tabs-border-color: var(--glassShadowColor);
   }
 

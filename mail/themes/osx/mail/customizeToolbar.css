@@ -21,5 +21,5 @@ hbox button {
 }
 
 :root[toolboxId="mail-toolbox"] #titlebarSettings {
-  display: -moz-box;
+  display: flex;
 }

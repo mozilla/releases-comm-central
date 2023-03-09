@@ -278,7 +278,7 @@ button.ghost-button:not(.semi-transparent):enabled:hover:active {
 }
 
 .notification-message > hbox {
-  -moz-box-flex: 100;
+  flex: 100 100;
 }
 
 .notification-button {
@@ -309,7 +309,7 @@ button:-moz-locale-dir(rtl).button-menu-list {
 }
 
 toolbarbutton.notification-button[is="toolbarbutton-menu-button"] {
-  -moz-box-align: center;
+  align-items: center;
   margin: 4px 6px;
   padding-block: 0;
   padding-inline: 0 11px;

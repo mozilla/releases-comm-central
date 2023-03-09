@@ -9,7 +9,7 @@
 @import url("chrome://messenger/skin/shared/folderMenus.css");
 
 .folderMenuItem .menu-iconic-left {
-  display: -moz-box;
+  display: flex;
 }
 
 .menulist-menupopup[is="folder-menupopup"] {

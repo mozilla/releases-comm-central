@@ -78,8 +78,8 @@
 
 .tabmail-tab {
   appearance: none;
-  -moz-box-align: stretch;
-  -moz-box-flex: 100;
+  align-items: stretch;
+  flex: 100 100;
   background-color: transparent;
   border-radius: 4px 4px 0 0;
   border-width: 0;

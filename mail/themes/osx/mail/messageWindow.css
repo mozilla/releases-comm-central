@@ -31,7 +31,7 @@
 }
 
 #titlebar-title-label {
-  -moz-box-pack: center;
+  justify-content: center;
 }
 
 .mail-toolbox {
@@ -47,6 +47,6 @@
 }
 
 #messagepanebox {
-  -moz-box-flex: 3;
+  flex: 3 3;
   text-shadow: none;
 }

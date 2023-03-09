@@ -218,7 +218,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     }
 
     .titlebar-buttonbox > .titlebar-button > .toolbarbutton-icon {
-      display: -moz-inline-box;
+      display: inline-flex;
       width: 12px;
       height: 12px;
     }

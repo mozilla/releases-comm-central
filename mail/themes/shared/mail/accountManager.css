@@ -244,7 +244,7 @@ body {
 
 #accountActionsButton > .button-box > .button-menu-dropmarker {
   appearance: none;
-  display: -moz-box;
+  display: flex;
   list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
   -moz-context-properties: fill;
   fill: currentColor;
@@ -289,7 +289,7 @@ body {
 
 @media (max-width: 830px) {
   .sidebar-footer-list {
-    -moz-box-align: unset;
+    align-items: unset;
     margin-inline-start: unset;
   }
 

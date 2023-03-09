@@ -55,7 +55,7 @@
 }
 
 #reminder-actions-menulist > menupopup > menuitem > .menu-iconic-left {
-  display: -moz-box;
+  display: flex;
 }
 
 #reminder-notifications > notification[type="warning"] > hbox > .messageImage {

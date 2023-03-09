@@ -5,19 +5,19 @@
 @import url("chrome://messenger/skin/messenger.css");
 
 #recipientHeader {
-  -moz-box-flex: 3;
+  flex: 3;
 }
 
 #statusHeader {
-  -moz-box-flex: 1;
+  flex: 1;
 }
 
 #issuedDateHeader {
-  -moz-box-flex: 2;
+  flex: 2;
 }
 
 #expiresDateHeader {
-  -moz-box-flex: 2;
+  flex: 2;
 }
 
 treecolpicker {

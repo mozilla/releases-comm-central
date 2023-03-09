@@ -9,7 +9,7 @@
 .mail-toolbox::after,
 .contentTabToolbox::after {
   content: "";
-  display: -moz-box;
+  display: flex;
   height: 1px;
   border-bottom: 1px solid var(--chrome-content-separator-color);
 }

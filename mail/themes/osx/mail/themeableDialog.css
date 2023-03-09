@@ -29,7 +29,7 @@ button > .button-box {
 }
 
 .button-menu-dropmarker {
-  display: -moz-box;
+  display: flex;
 }
 
 menulist {
@@ -37,7 +37,7 @@ menulist {
 }
 
 menulist::part(dropmarker) {
-  display: -moz-box;
+  display: flex;
   width: 20px;
 }
 
@@ -61,7 +61,7 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
 }
 
 menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
-  display: -moz-box;
+  display: flex;
   width: initial;
   min-width: 0;
   margin-block: 0;

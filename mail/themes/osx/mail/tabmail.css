@@ -56,7 +56,7 @@
 }
 
 #tabmail-tabs {
-  -moz-box-align: stretch;
+  align-items: stretch;
   font-size: inherit;
   padding-left: 0;
   padding-right: 0;

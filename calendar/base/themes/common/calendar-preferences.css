@@ -57,7 +57,7 @@
 }
 
 .dayOffCheckbox {
-  -moz-box-direction: reverse;
+  flex-direction: row-reverse
   margin-top: -5px;
   margin-inline-end: -5px;
   padding-inline-start: 6px;

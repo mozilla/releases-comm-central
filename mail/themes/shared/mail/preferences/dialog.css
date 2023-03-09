@@ -43,7 +43,7 @@ body > dialog {
 
 .contentPane,
 dialog::part(content-box) {
-  -moz-box-flex: 1;
+  flex: 1;
 }
 
 .contentPane.doScroll,
@@ -133,19 +133,19 @@ textbox.tree-input {
 }
 
 #siteCol {
-  -moz-box-flex: 3;
+  flex: 3;
 }
 
 #statusCol {
-  -moz-box-flex: 1;
+  flex: 1;
 }
 
 #domainCol {
-  -moz-box-flex: 2;
+  flex: 2;
 }
 
 #nameCol {
-  -moz-box-flex: 1;
+  flex: 1;
 }
 
 /* Adjust the Lightning Edit Category dialog */

@@ -52,5 +52,5 @@ treechildren::-moz-tree-image(syncCol, isServer-true) {
 }
 
 #folderNameCol {
-  -moz-box-flex: 5;
+  flex: 5 5;
 }

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #messengerBody {
-  -moz-box-flex: 1;
+  flex: 1;
 }
 
 :root:not([tabsintitlebar]) .titlebar-buttonbox-container {
@@ -29,7 +29,7 @@
 }
 
 #folderNameCol {
-  -moz-box-flex: 5;
+  flex: 5 5;
 }
 
 /* ::::: thread decoration ::::: */
@@ -80,7 +80,7 @@ treechildren::-moz-tree-cell-text(dummy) {
    header content over the statusbar. */
 
 #messagepanebox {
-  -moz-box-flex: 2;
+  flex: 2 2;
   overflow: hidden;
   background-color: var(--layout-background-1);
 }

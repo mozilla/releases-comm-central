@@ -25,7 +25,7 @@
 }
 
 #calendar-ics-file-dialog-calendar-menu > menupopup > menuitem .menu-iconic-left {
-  display: -moz-box;
+  display: flex;
 }
 
 #calendar-ics-file-dialog-calendar-menu::part(icon) {
@@ -91,8 +91,8 @@
 
 #calendar-ics-file-dialog-progress-pane,
 #calendar-ics-file-dialog-result-pane {
-  -moz-box-align: center;
-  -moz-box-pack: center;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 

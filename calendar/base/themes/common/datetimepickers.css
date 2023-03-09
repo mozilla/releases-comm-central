@@ -97,13 +97,13 @@ timepicker > menulist::part(text-input) {
 
 .time-picker-hour-grid[format12hours="false"] .time-picker-hour-box-class {
   min-width: 28px;
-  -moz-box-align: center;
+  align-items: center;
   border-inline-start: 1px solid var(--tpBorderColor);
 }
 
 .time-picker-hour-grid[format12hours="true"] .time-picker-hour-box-class {
   min-width: 24px;
-  -moz-box-align: center;
+  align-items: center;
   border-inline-start: 1px solid var(--tpBorderColor);
 }
 
@@ -143,7 +143,7 @@ timepicker > menulist::part(text-input) {
 
 
 .time-picker-minute-box-class {
-  -moz-box-align: center;
+  align-items: center;
   border-inline-end: 1px solid var(--tpBorderColor);
   border-bottom: 1px solid var(--tpBorderColor);
 }
@@ -215,7 +215,7 @@ timepicker > menulist::part(text-input) {
 /* box in one-minute grid elements */
 
 .time-picker-one-minute-class {
-  -moz-box-align: center;
+  align-items: center;
 }
 
 .time-picker-one-minute-class:hover {

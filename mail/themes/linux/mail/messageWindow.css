@@ -19,6 +19,6 @@
 }
 
 #messagepanebox {
-  -moz-box-flex: 3;
+  flex: 3 3;
   text-shadow: none;
 }

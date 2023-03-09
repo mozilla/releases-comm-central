@@ -40,7 +40,7 @@ menulist::part(text-input) {
 }
 
 menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
-  display: -moz-box;
+  display: flex;
 }
 
 @media (-moz-windows-default-theme) {

@@ -52,7 +52,7 @@
         <box class="convUnreadTargetedCount">
           <label class="convUnreadTargetedCountLabel" crop="end"></label>
         </box>
-        <spacer style="-moz-box-flex: 1000000;"></spacer>
+        <spacer style="flex: 1000000 1000000;"></spacer>
       </hbox>
       `;
     }

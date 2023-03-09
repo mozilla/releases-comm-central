@@ -364,7 +364,7 @@ tab:focus-visible > .tab-middle > .tab-text {
 }
 
 #defaultWebSearchPopup > menuitem > .menu-iconic-left {
-  display: -moz-box;
+  display: flex;
 }
 
 /* Applications Pane Styles */
@@ -514,7 +514,7 @@ checkbox {
 }
 
 #submitHealthReportBox {
-  display: -moz-inline-box;
+  display: inline-flex;
 }
 
 /* Remove the start margin to align these elements */

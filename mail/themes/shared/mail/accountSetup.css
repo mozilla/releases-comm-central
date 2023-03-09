@@ -26,9 +26,9 @@ body {
 }
 
 body {
-  display: -moz-box;
-  -moz-box-orient: vertical;
-  -moz-box-flex: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.03);
 }

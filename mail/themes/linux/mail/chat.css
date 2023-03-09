@@ -81,7 +81,7 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
 }
 
 .conv-hbox {
-  -moz-box-align: center;
+  align-items: center;
 }
 
 #setStatusTypeMenupopup .menu-iconic-icon,

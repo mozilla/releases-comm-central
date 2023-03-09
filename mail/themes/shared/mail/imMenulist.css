@@ -5,7 +5,7 @@
 
 /* Fix the icons in the menulist by undoing things from menu.css */
 menulist > menupopup > .menuitem-iconic > .menu-iconic-left {
-  display: -moz-box !important;
+  display: flex !important;
 }
 
 menulist > menupopup > .menuitem-iconic > .menu-iconic-text {

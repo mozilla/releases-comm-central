@@ -85,7 +85,7 @@ unified-toolbar-customization {
   height: 100%;
   background: var(--layout-background-0);
   color: var(--layout-color-1);
-  -moz-box-flex: 1;
+  flex: 1;
 }
 
 #unifiedToolbarCustomizationContainer {

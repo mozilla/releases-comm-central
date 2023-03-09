@@ -33,7 +33,7 @@ richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-ti
 }
 
 richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-action-buttons {
-  display: -moz-box;
+  display: flex;
   color: var(--field-text-color);
 }
 
@@ -49,7 +49,7 @@ richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-re
 
 richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .additional-information-box,
 richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .action-buttons-box {
-  display: -moz-box;
+  display: flex;
 }
 
 .alarm-location-description {
@@ -98,8 +98,8 @@ richlistitem[is="calendar-alarm-widget-richlistitem"]:not([selected="true"]) .al
 .snooze-popup-button > .button-box {
   border: 0;
   padding: 0;
-  -moz-box-pack: center;
-  -moz-box-align: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .snooze-popup-button:focus > .button-box {

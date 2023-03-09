@@ -41,19 +41,19 @@ span.ac-emphasize-text {
 
 .autocomplete-richlistitem[type$="-abook"]:not([ac-comment=""]) > .ac-url,
 .autocomplete-richlistitem[type$="-abook"]:not([ac-comment=""]) > .ac-separator {
-  display: -moz-box;
+  display: flex;
 }
 
 .autocomplete-richlistitem[type$="-abook"]:not([ac-comment=""]) > .ac-url {
-  -moz-box-ordinal-group: 1;
+  order: 1;
 }
 
 .autocomplete-richlistitem[type$="-abook"]:not([ac-comment=""]) > .ac-separator {
-  -moz-box-ordinal-group: 2;
+  order: 2;
 }
 
 .autocomplete-richlistitem[type$="-abook"]:not([ac-comment=""]) > .ac-title {
-  -moz-box-ordinal-group: 3;
+  order: 3;
 }
 
 .ac-url-text {
@@ -90,8 +90,8 @@ span.ac-emphasize-text {
 
 calendar-day {
   border-inline-end: 1px solid var(--field-border-color);
-  -moz-box-orient: vertical;
-  -moz-box-pack: end;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .day-label {

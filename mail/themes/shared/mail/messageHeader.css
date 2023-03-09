@@ -134,7 +134,7 @@ mail-tagfield[collapsed="true"] {
 }
 
 .message-header-view-button {
-  -moz-box-orient: horizontal;
+  flex-direction: row;
   min-width: 1em;
   margin: 0;
   padding-inline: 3px !important;
@@ -147,7 +147,7 @@ mail-tagfield[collapsed="true"] {
 }
 
 .message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button {
-  -moz-box-orient: horizontal;
+  flex-direction: row;
   padding-inline: 3px !important;
 }
 
@@ -532,7 +532,7 @@ button.email-action-button:focus-visible {
 
 #messageSecurityPanel .security-panel-body {
   overflow-x: hidden;
-  -moz-box-flex: 1;
+  flex: 1;
   padding-inline: 6px;
 }
 
@@ -551,7 +551,7 @@ html|header.message-security-header html|h3 {
 
 .message-security-body {
   overflow-y: auto;
-  -moz-box-flex: 1;
+  flex: 1;
 }
 
 .message-security-body > description {

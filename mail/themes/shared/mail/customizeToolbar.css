@@ -41,11 +41,11 @@
 
 toolbarpaletteitem {
   -moz-window-dragging: no-drag;
-  -moz-box-pack: start;
+  justify-content: flex-start;
 }
 
 toolbarpaletteitem[place="palette"] {
-  -moz-box-orient: vertical;
+  flex-direction: column;
   width: 10em;
   max-width: 10em;
   /* icon (16) + margin (9 + 12) + 4 lines of text: */
@@ -53,7 +53,7 @@ toolbarpaletteitem[place="palette"] {
   margin-bottom: 5px;
   margin-inline-end: 24px;
   overflow: visible;
-  display: -moz-inline-box;
+  display: inline-flex;
   vertical-align: top;
 }
 
@@ -68,12 +68,12 @@ toolbarpaletteitem > toolbarseparator,
 toolbarpaletteitem > toolbaritem {
   /* Prevent children from getting events */
   pointer-events: none;
-  -moz-box-pack: center;
-  -moz-box-flex: 1;
+  justify-content: center;
+  flex: 1;
 }
 
 toolbarpaletteitem[type="separator"][place="palette"] {
-  -moz-box-align: center;
+  align-items: center;
 }
 
 toolbarpaletteitem[type="separator"][place="palette"] toolbarseparator {
@@ -81,7 +81,7 @@ toolbarpaletteitem[type="separator"][place="palette"] toolbarseparator {
 }
 
 toolbarpaletteitem[type="spacer"][place="palette"] toolbarspacer {
-  -moz-box-flex: 1000;
+  flex: 1000 1000;
 }
 
 #main-box > box {

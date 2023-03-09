@@ -213,7 +213,7 @@ richlistitem[default="true"],
 }
 
 #identitiesList richlistitem {
-  -moz-box-align: center;
+  align-items: center;
   padding-inline-start: 10px;
   height: 34px;
 }
@@ -252,7 +252,7 @@ richlistitem[default="true"],
 /* ::::: SMTP Server Panel :::::: */
 
 .smtpServerListItem {
-  -moz-box-align: center;
+  align-items: center;
   padding-inline-start: 10px;
   height: 34px;
 }

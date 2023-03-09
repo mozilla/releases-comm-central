@@ -63,7 +63,7 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
 
   menulist > menupopup > menuitem > .menu-iconic-left,
   menulist > menupopup > menu > .menu-iconic-left {
-    display: -moz-box;
+    display: flex;
   }
 }
 

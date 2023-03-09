@@ -9,7 +9,7 @@
 
 richlistitem {
   padding: 4px 8px;
-  -moz-box-align: center;
+  align-items: center;
 }
 
 richlistitem > box:first-child {

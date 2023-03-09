@@ -18,7 +18,7 @@
   appearance: auto;
   -moz-default-appearance: toolbox;
   content: "";
-  display: -moz-box;
+  display: flex;
   margin-top: -1px;
   height: 1px;
   /* use inset box-shadow instead of border because -moz-default-appearance hides the border */

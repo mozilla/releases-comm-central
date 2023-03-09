@@ -16,7 +16,7 @@
 }
 
 #folderNameCol {
-  -moz-box-flex: 2;
+  flex: 2 2;
 }
 
 #rssFeedInfoBox {

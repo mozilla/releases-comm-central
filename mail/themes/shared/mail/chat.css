@@ -128,7 +128,7 @@
 }
 
 richlistitem[is="chat-group-richlistitem"] {
-  -moz-box-align: center;
+  align-items: center;
   padding-inline-start: 4px;
   margin-inline-end: 1px;
 }
@@ -160,7 +160,7 @@ richlistitem[is="chat-imconv-richlistitem"],
 richlistitem[is="chat-contact-richlistitem"] {
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
-  -moz-box-align: stretch;
+  align-items: stretch;
 }
 
 .box-line {
@@ -291,7 +291,7 @@ richlistitem[is="chat-group-richlistitem"] > label {
 }
 
 richlistitem[is="chat-contact-richlistitem"][cansend]:hover .startChatBubble {
-  display: -moz-box;
+  display: flex;
 }
 
 .closeConversationButton > .button-box > .button-icon {
@@ -498,7 +498,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 
 .conv-status-container[hidden] {
   /* Override display:none to make the transition work. */
-  display: -moz-box;
+  display: flex;
   visibility: collapse;
   margin-top: -1em;
   opacity: 0;
@@ -711,7 +711,7 @@ richlistitem[is="chat-group-richlistitem"].closed:-moz-locale-dir(rtl) .twisty {
 
 /* show the status icon also in text mode */
 toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
-  display: -moz-box;
+  display: flex;
 }
 
 .status-container {
@@ -885,7 +885,7 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 
 /* Chat Toolbar button. */
 toolbar[mode="text"] #button-chat {
-  -moz-box-orient: horizontal;
+  flex-direction: row;
 }
 
 .badgeButton-badge {

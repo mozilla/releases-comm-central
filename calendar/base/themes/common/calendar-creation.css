@@ -38,13 +38,13 @@ td {
   display: none;
 }
 .network-status-row[status="loading"] .network-loading-label {
-  display: -moz-box;
+  display: flex;
 }
 .network-status-row[status="notfound"] .network-notfound-label {
-  display: -moz-box;
+  display: flex;
 }
 .network-status-row[status="authfail"] .network-authfail-label {
-  display: -moz-box;
+  display: flex;
 }
 
 .network-status-row:not([status="loading"]) .network-status-image {
@@ -64,7 +64,7 @@ td {
 }
 
 #network-calendar-list > richlistitem {
-  -moz-box-align: center;
+  align-items: center;
   background-color: transparent;
   border: 1px transparent solid;
 }
@@ -80,7 +80,7 @@ td {
 }
 
 #network-calendar-list > richlistitem .calendar-name {
-  -moz-box-flex: 1;
+  flex: 1;
 }
 
 #network-calendar-list > richlistitem .calendar-edit-button {

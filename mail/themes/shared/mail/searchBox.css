@@ -4,7 +4,7 @@
 
 .gloda-search {
   padding-inline-start: 21px !important;
-  -moz-box-flex: 1;
+  flex: 1;
 }
 
 .search-icon {
@@ -106,7 +106,7 @@
 }
 
 #PopupGlodaAutocomplete .ac-url {
-  display: -moz-box;
+  display: flex;
   margin-bottom: 2px;
 }
 

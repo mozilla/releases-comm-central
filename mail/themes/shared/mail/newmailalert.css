@@ -88,7 +88,7 @@
 }
 
 folder-summary {
-  -moz-box-orient: vertical;
+  flex-direction: column;
 }
 
 .folderSummary-message-row {
@@ -131,7 +131,7 @@ folder-summary {
 }
 
 #closeButton {
-  -moz-box-align: start;
+  align-items: flex-start;
   width: auto;
 }
 

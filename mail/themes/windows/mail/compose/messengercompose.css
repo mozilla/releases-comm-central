@@ -213,7 +213,7 @@ toolbar:not(:-moz-lwtheme) {
 /* ::::: autocomplete icons ::::: */
 
 .ac-site-icon {
-  display: -moz-box;
+  display: flex;
   margin: 1px 5px;
 }
 

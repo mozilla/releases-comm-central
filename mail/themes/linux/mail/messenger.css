@@ -138,7 +138,7 @@
   .titlebar-buttonbox {
     position: relative;
     z-index: 1;
-    -moz-box-align: center;
+    align-items: center;
   }
 
   /* Render titlebar command buttons according to system config.
@@ -173,7 +173,7 @@
     padding: 1px;
   }
   .titlebar-button > .toolbarbutton-icon:-moz-lwtheme {
-    display: -moz-inline-box;
+    display: inline-flex;
     padding: 3px;
     -moz-context-properties: stroke;
     stroke: currentColor;
@@ -274,7 +274,7 @@ menulist > menupopup >
 menulist > menupopup >
   menu:is(.menuitem-iconic,[type="radio"],[type="checkbox"]) >
   .menu-iconic-left {
-  display: -moz-box;
+  display: flex;
 }
 
 /* ::::: Toolbar customization ::::: */
@@ -286,10 +286,10 @@ toolbarpaletteitem[place="toolbar"] > toolbarspacer {
 /* ::::: toolbarbutton menu-button ::::: */
 
 toolbarbutton[is="toolbarbutton-menu-button"] {
-  -moz-box-align: stretch;
+  align-items: stretch;
   appearance: auto;
   -moz-default-appearance: dualbutton;
-  -moz-box-orient: horizontal !important;
+  flex-direction: row !important;
   padding: 0 !important;
 }
 

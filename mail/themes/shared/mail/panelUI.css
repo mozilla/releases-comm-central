@@ -83,7 +83,7 @@ panelview:not([visible]) {
 }
 
 panelview {
-  -moz-box-orient: vertical;
+  flex-direction: column;
   background: var(--arrowpanel-background);
   padding: 0;
 }
@@ -99,13 +99,13 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
 .panel-subview-body {
   overflow-y: auto;
   overflow-x: hidden;
-  -moz-box-flex: 1;
+  flex: 1;
   padding: var(--arrowpanel-padding);
 }
 
 .panel-view-body-unscrollable {
   overflow: hidden;
-  -moz-box-flex: 1;
+  flex: 1;
 }
 
 .subviewbutton.panel-subview-footer {
@@ -118,7 +118,7 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
 }
 
 .cui-widget-panelview .subviewbutton.panel-subview-footer > .menu-text {
-  -moz-box-flex: 1;
+  flex: 1;
 }
 
 #wrapper-edit-controls:is([place="palette"],[place="menu-panel"]) > #edit-controls {
@@ -142,7 +142,7 @@ panelview:not([mainview]) .toolbarbutton-text,
 .cui-widget-panel .toolbarbutton-text,
 #overflowMenu-customize-button > .toolbarbutton-text {
   text-align: start;
-  display: -moz-box;
+  display: flex;
 }
 
 #appMenu-popup panelview,
@@ -191,7 +191,7 @@ panelview:not([mainview]) .toolbarbutton-text,
 }
 
 toolbarpaletteitem[place="menu-panel"] > .toolbarbutton-1 {
-  -moz-box-flex: 1;
+  flex: 1;
 }
 
 /* Help webextension buttons fit in. */
@@ -205,7 +205,7 @@ toolbarbutton[constrain-size="true"][cui-areatype="menu-panel"] > .toolbarbutton
 
 #customization-palette .toolbarbutton-1 {
   appearance: none;
-  -moz-box-orient: vertical;
+  flex-direction: column;
   padding: 12px 0 9px;
   margin: 0;
 }
@@ -310,7 +310,7 @@ menu.subviewbutton,
   appearance: none;
   padding-inline-start: 0 !important; /* to override menu.css on Windows */
   padding-inline-end: 6px;
-  -moz-box-flex: 0;
+  flex: 0 0;
 }
 
 .subviewbutton.panel-subview-footer > .toolbarbutton-text {
@@ -348,8 +348,8 @@ menu.subviewbutton,
 }
 
 #appMenu-popup .toolbaritem-combined-buttons {
-  -moz-box-align: center;
-  -moz-box-orient: horizontal;
+  align-items: center;
+  flex-direction: row;
   border: 0;
   border-radius: 0;
   margin-inline-end: 6px;
@@ -357,7 +357,7 @@ menu.subviewbutton,
 }
 
 panelmultiview .toolbaritem-combined-buttons > label {
-  -moz-box-flex: 1;
+  flex: 1;
   margin: 0;
   padding-inline-start: 4px;
 }
@@ -367,12 +367,12 @@ panelmultiview .toolbaritem-combined-buttons > spacer.before-label {
 }
 
 panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
-  -moz-box-flex: 1;
+  flex: 1;
   width: 20px; /* a little bigger than the width of the scrollbar */
 }
 
 .PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton {
-  -moz-box-flex: 0;
+  flex: 0 0;
   height: auto;
   margin-inline-start: 18px;
   min-width: auto;
@@ -514,9 +514,9 @@ toolbarpaletteitem[place="palette"] > #search-container {
 .toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > toolbarbutton {
   border: 0;
   margin: 0;
-  -moz-box-flex: 1;
+  flex: 1;
   padding-block: 4px;
-  -moz-box-orient: horizontal;
+  flex-direction: row;
 }
 
 /* In customize mode, extend the buttons *only* in the panel, just to make them not look stupid */
@@ -533,7 +533,7 @@ toolbarpaletteitem[place="menu-panel"] > .toolbaritem-combined-buttons > toolbar
 
 .toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > separator {
   appearance: none;
-  -moz-box-align: stretch;
+  align-items: stretch;
   margin: .5em 0;
   width: 1px;
   height: auto;
@@ -572,8 +572,8 @@ toolbaritem[overflowedItem=true],
 }
 
 .widget-overflow-list .toolbarbutton-1 {
-  -moz-box-align: center;
-  -moz-box-orient: horizontal;
+  align-items: center;
+  flex-direction: row;
 }
 
 .widget-overflow-list .subviewbutton-nav::after {
@@ -600,7 +600,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 
 .subviewradio {
   appearance: none;
-  -moz-box-align: center;
+  align-items: center;
   padding: 1px;
   margin: 0 0 2px;
   background-color: transparent;
@@ -692,7 +692,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 }
 
 .subviewbutton.download {
-  -moz-box-align: start;
+  align-items: flex-start;
   min-height: 48px;
   padding-inline-start: 8px;
 }
@@ -713,7 +713,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 }
 
 .button-appmenu[badge-status] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
-  display: -moz-box;
+  display: flex;
   background: center no-repeat transparent;
   background-size: contain;
   border: none;
@@ -755,7 +755,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 
 .panel-banner-item {
   appearance: none;
-  -moz-box-align: start;
+  align-items: flex-start;
   margin: var(--appmenu-button-margin);
   padding-inline: 8px;
   padding-block: calc(var(--appmenu-button-padding) + 3px);
@@ -783,7 +783,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   width: 16px;
   height: 16px;
   /* Move the icon to appear after the text label. */
-  -moz-box-ordinal-group: 2;
+  order: 2;
 }
 
 .panel-banner-item[notificationid="update-available"] > .toolbarbutton-icon,
@@ -822,7 +822,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   width: 16px;
   height: 16px;
   margin-inline: 10px 0;
-  display: -moz-box;
+  display: flex;
   background: var(--icon-warning) no-repeat center;
 }
 
