@@ -93,12 +93,6 @@ var gFakeCommandUpdater = {
   updateNextMessageAfterDelete() {},
 };
 
-function punt() {
-  dump("  ******************************\n");
-  dump("  *** PUNTING! implement me! ***\n");
-  dump("  ******************************\n");
-}
-
 /**
  * Track our resources used by each test.  This is so we can keep our memory
  *  usage low by forcing things to be forgotten about (or even nuked) once

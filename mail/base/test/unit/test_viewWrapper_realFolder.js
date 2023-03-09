@@ -433,16 +433,16 @@ add_task(async function test_real_folder_mail_views_tags() {
   verify_empty_view(viewWrapper);
 });
 
+/*
 add_task(async function test_real_folder_mail_views_not_deleted() {
   // not sure how to test this in the absence of an IMAP account with the IMAP
   //  deletion model...
-  punt();
 });
 
 add_task(async function test_real_folder_mail_views_custom_people_i_know() {
   // blurg. address book.
-  punt();
 });
+*/
 
 // recent mail = less than 1 day
 add_task(async function test_real_folder_mail_views_custom_recent_mail() {
