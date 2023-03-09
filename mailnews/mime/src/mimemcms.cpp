@@ -207,14 +207,11 @@ static void* MimeMultCMS_init(MimeObject* obj) {
     return 0; /* #### bogus message?  out of memory? */
   }
 
-  if (!PL_strcasecmp(micalg, PARAM_MICALG_MD5) ||
-      !PL_strcasecmp(micalg, PARAM_MICALG_MD5_2))
-    hash_type = nsICryptoHash::MD5;
-  else if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA1) ||
-           !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_2) ||
-           !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_3) ||
-           !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_4) ||
-           !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_5))
+  if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA1) ||
+      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_2) ||
+      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_3) ||
+      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_4) ||
+      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_5))
     hash_type = nsICryptoHash::SHA1;
   else if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA256) ||
            !PL_strcasecmp(micalg, PARAM_MICALG_SHA256_2) ||
@@ -228,16 +225,20 @@ static void* MimeMultCMS_init(MimeObject* obj) {
            !PL_strcasecmp(micalg, PARAM_MICALG_SHA512_2) ||
            !PL_strcasecmp(micalg, PARAM_MICALG_SHA512_3))
     hash_type = nsICryptoHash::SHA512;
-  else
-    hash_type = -1;
+  else {
+    data->reject_signature = true;
+    int aRelativeNestLevel = MIMEGetRelativeCryptoNestLevel(data->self);
+    nsAutoCString partnum;
+    partnum.Adopt(mime_part_address(data->self));
+    data->smimeHeaderSink->SignedStatus(aRelativeNestLevel,
+                                        nsICMSMessageErrors::GENERAL_ERROR,
+                                        nullptr, data->url, partnum);
+    PR_Free(micalg);
+    return data;
+  }
 
   PR_Free(micalg);
   micalg = 0;
-
-  if (hash_type == -1) {
-    delete data;
-    return 0; /* #### bogus message? */
-  }
 
   data->hash_type = hash_type;
 

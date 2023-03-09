@@ -400,6 +400,7 @@ nsresult nsCMSMessage::CommonVerifySignature(
   NSSCMSSignerInfo* si;
   int32_t nsigners;
   nsresult rv = NS_ERROR_FAILURE;
+  SECOidTag sigAlgTag;
 
   if (!NSS_CMSMessage_IsSigned(m_cmsMsg)) {
     MOZ_LOG(gCMSLog, LogLevel::Debug,
@@ -497,6 +498,22 @@ nsresult nsCMSMessage::CommonVerifySignature(
     rv = NS_ERROR_CMS_VERIFY_UNTRUSTED;
     goto loser;
   }
+
+  sigAlgTag = NSS_CMSSignerInfo_GetDigestAlgTag(si);
+  switch (sigAlgTag) {
+    case SEC_OID_SHA1:
+    case SEC_OID_SHA256:
+    case SEC_OID_SHA384:
+    case SEC_OID_SHA512:
+      break;
+
+    default:
+      MOZ_LOG(
+          gCMSLog, LogLevel::Debug,
+          ("nsCMSMessage::CommonVerifySignature - unsupported digest algo"));
+      rv = NS_ERROR_CMS_VERIFY_UNSUPPORTED_ALGO;
+      goto loser;
+  };
 
   // We verify the first signer info,  only //
   // XXX: NSS_CMSSignedData_VerifySignerInfo calls CERT_VerifyCert, which
