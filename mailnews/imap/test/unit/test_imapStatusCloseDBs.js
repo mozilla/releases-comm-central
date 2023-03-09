@@ -13,6 +13,7 @@ var gFolder1, gFolder2;
 
 add_setup(function() {
   Services.prefs.setBoolPref("mail.check_all_imap_folders_for_new", true);
+  Services.prefs.setIntPref("mail.server.server1.max_cached_connections", 2);
 
   setupIMAPPump();
 

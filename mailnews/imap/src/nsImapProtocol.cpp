@@ -802,9 +802,10 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
   nsresult rv = NS_ERROR_FAILURE;
   NS_ASSERTION(aURL, "null URL passed into Imap Protocol");
   if (aURL) {
-    m_runningUrl = do_QueryInterface(aURL, &rv);
+    nsCOMPtr<nsIImapUrl> imapURL = do_QueryInterface(aURL, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    m_runningUrl = imapURL;
     m_runningUrlLatest = m_runningUrl;
-    if (NS_FAILED(rv)) return rv;
 
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningUrl);
     nsCOMPtr<nsIMsgIncomingServer> server = do_QueryReferent(m_server);
