@@ -1048,6 +1048,7 @@ function updateExpandedView() {
 
   UpdateJunkButton();
   UpdateReplyButtons();
+  updateComposeButtons();
   displayAttachmentsForExpandedView();
 
   try {
@@ -4045,6 +4046,25 @@ function UpdateReplyButtons() {
   goUpdateCommand("button_replyall");
   goUpdateCommand("button_replylist");
   goUpdateCommand("button_followup");
+}
+
+/**
+ * Update the enabled/disabled states of the Reply, Reply-All, Reply-List,
+ * Followup, and Forward buttons based on the number of identities.
+ * If there are no identities, all of these buttons should be disabled.
+ */
+function updateComposeButtons() {
+  const hasIdentities = MailServices.accounts.allIdentities.length;
+  for (let id of [
+    "hdrReplyButton",
+    "hdrReplyAllButton",
+    "hdrReplyListButton",
+    "hdrFollowupButton",
+    "hdrForwardButton",
+    "hdrReplyToSenderButton",
+  ]) {
+    document.getElementById(id).disabled = !hasIdentities;
+  }
 }
 
 function SelectedMessagesAreJunk() {

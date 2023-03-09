@@ -364,10 +364,10 @@ var commandController = {
       return this._isCallbackEnabled[command];
     }
 
+    const hasIdentities = MailServices.accounts.allIdentities.length;
     switch (command) {
       case "cmd_newMessage":
-        // TODO: This shouldn't be here, or should return false if there are no identities.
-        return true;
+        return hasIdentities;
       case "cmd_searchMessages":
         // TODO: This shouldn't be here, or should return false if there are no accounts.
         return true;
@@ -405,11 +405,19 @@ var commandController = {
       case "cmd_forward":
       case "cmd_redirect":
       case "cmd_editAsNew":
+        if (!hasIdentities) {
+          return false;
+        }
+      // Falls through.
       case "cmd_viewPageSource":
       case "cmd_saveAsTemplate":
         return numSelectedMessages == 1;
       case "cmd_forwardInline":
       case "cmd_forwardAttachment":
+        if (!hasIdentities) {
+          return false;
+        }
+      // Falls through.
       case "cmd_copyMessage":
       case "cmd_saveAsFile":
         return numSelectedMessages >= 1;
