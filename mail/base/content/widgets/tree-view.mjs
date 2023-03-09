@@ -671,7 +671,6 @@ class TreeView extends HTMLElement {
     let row = document.createElement("tr", { is: this._rowElementName });
     row.setAttribute("is", this._rowElementName);
     this.table.body.insertBefore(row, before);
-    row.setAttribute("role", "option");
     row.setAttribute("aria-setsize", this._view.rowCount);
     row.style.height = `${this._rowElementClass.ROW_HEIGHT}px`;
     if (this._selection?.isSelected(index)) {
@@ -800,13 +799,16 @@ class TreeView extends HTMLElement {
     this._selection.currentIndex = index;
 
     if (index < 0 || index > this._view.rowCount - 1) {
-      this.table.removeAttribute("aria-activedescendant");
+      this.table.body.removeAttribute("aria-activedescendant");
       return;
     }
 
     this.getRowAtIndex(index)?.classList.add("current");
     this.scrollToIndex(index);
-    this.table.setAttribute("aria-activedescendant", `${this.id}-row${index}`);
+    this.table.body.setAttribute(
+      "aria-activedescendant",
+      `${this.id}-row${index}`
+    );
   }
 
   /**
@@ -1626,6 +1628,7 @@ class TreeViewTableBody extends HTMLTableSectionElement {
 
     this.tabIndex = 0;
     this.setAttribute("is", "tree-view-table-body");
+    this.setAttribute("role", "listbox");
     this.setAttribute("aria-multiselectable", "true");
 
     let treeView = this.closest("tree-view");
@@ -1661,6 +1664,7 @@ class TreeViewTableRow extends HTMLTableRowElement {
     }
     this.hasConnected = true;
 
+    this.tabIndex = -1;
     this.list = this.closest("tree-view");
     this.view = this.list.view;
     this.setAttribute("aria-selected", !!this.selected);
@@ -1680,8 +1684,18 @@ class TreeViewTableRow extends HTMLTableRowElement {
   set index(index) {
     this.setAttribute("aria-posinset", index + 1);
     this.id = `${this.list.id}-row${index}`;
-    this.classList.toggle("children", this.view.isContainer(index));
-    this.classList.toggle("collapsed", !this.view.isContainerOpen(index));
+
+    const isGroup = this.view.isContainer(index);
+    this.setAttribute("role", isGroup ? "group" : "option");
+    this.classList.toggle("children", isGroup);
+
+    const isGroupOpen = this.view.isContainerOpen(index);
+    if (isGroup) {
+      this.setAttribute("aria-expanded", isGroupOpen);
+    } else {
+      this.removeAttribute("aria-expanded");
+    }
+    this.classList.toggle("collapsed", !isGroupOpen);
     this._index = index;
 
     let table = this.closest("table");
@@ -1708,6 +1722,7 @@ class TreeViewTableRow extends HTMLTableRowElement {
           cell.classList.add("tree-view-row-select");
           img = document.createElement("img");
           img.src = "";
+          img.tabIndex = -1;
           img.classList.add("tree-view-row-select-checkbox");
           cell.replaceChildren(img);
         }
