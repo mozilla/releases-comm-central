@@ -2236,7 +2236,11 @@ function assert_selected(...aArgs) {
 
   // - test selection equivalence
   // which is the same as string equivalence in this case. muah hah hah.
-  Assert.equal(selectedIndices.toString(), desiredIndices.toString());
+  Assert.equal(
+    selectedIndices.toString(),
+    desiredIndices.toString(),
+    "should have the right selected indices"
+  );
   return [troller, desiredIndices];
 }
 
