@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+fonts-dialog-title = Fonts
+
 fonts-window-close =
     .key = w
 
@@ -11,9 +13,6 @@ fonts-label-default =
     .label = Default ({ $name })
 fonts-label-default-unnamed =
     .label = Default
-
-fonts-encoding-dialog-title =
-    .title = Fonts & Encodings
 
 fonts-language-legend =
     .value = Fonts for:
