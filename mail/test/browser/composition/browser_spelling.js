@@ -5,8 +5,8 @@
 var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
-var { maybeOnSpellCheck } = ChromeUtils.import(
-  "resource://testing-common/AsyncSpellCheckTestHelper.jsm"
+var { maybeOnSpellCheck } = ChromeUtils.importESModule(
+  "resource://testing-common/AsyncSpellCheckTestHelper.sys.mjs"
 );
 
 async function checkMisspelledWords(editor, ...words) {
