@@ -254,12 +254,12 @@ add_task(async function testMessageWindow() {
 });
 
 async function ensureBrowserLoaded(browser) {
-  if (
-    browser.currentURI.spec == "about:blank" ||
-    browser.contentDocument.readyState != "complete"
-  ) {
-    await BrowserTestUtils.browserLoaded(browser);
-  }
+  await TestUtils.waitForCondition(
+    () =>
+      browser.currentURI.spec != "about:blank" &&
+      browser.contentDocument.readyState == "complete",
+    "waiting for browser to finish loading"
+  );
 }
 
 function messageToURL(message) {

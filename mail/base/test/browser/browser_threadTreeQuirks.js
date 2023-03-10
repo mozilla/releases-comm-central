@@ -49,8 +49,6 @@ add_setup(async function() {
   sourceMessages = [...folderA.messages];
   sourceMessageIDs = sourceMessages.map(m => m.messageId);
 
-  await BrowserTestUtils.browserLoaded(messagePaneBrowser);
-
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
   });

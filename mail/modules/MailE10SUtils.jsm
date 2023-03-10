@@ -20,8 +20,12 @@ var MailE10SUtils = {
    * @param {nsIBrowser} browser
    */
   loadAboutBlank(browser) {
+    if (!browser.currentURI || browser.currentURI.spec == "about:blank") {
+      return;
+    }
     browser.loadURI(Services.io.newURI("about:blank"), {
       triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+      remoteTypeOverride: browser.remoteType,
     });
   },
 

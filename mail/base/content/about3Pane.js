@@ -86,6 +86,7 @@ window.addEventListener("DOMContentLoaded", async event => {
   multiMessageBrowser = document.getElementById("multiMessageBrowser");
   accountCentralBrowser = document.getElementById("accountCentralBrowser");
 
+  messageBrowser.docShell.allowDNSPrefetch = false;
   multiMessageBrowser.docShell.allowDNSPrefetch = false;
 
   MailServices.mailSession.AddFolderListener(

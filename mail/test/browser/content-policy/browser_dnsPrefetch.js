@@ -142,14 +142,15 @@ add_task(async function test_dnsPrefetch_message() {
   // Now we have started up, simply check that DNS prefetch is disabled
   let aboutMessage = get_about_message();
   Assert.ok(
-    !aboutMessage.document.getElementById("messagepane").docShell,
-    "messagepane has no docShell at startup"
+    !aboutMessage.document.getElementById("messagepane").docShell
+      .allowDNSPrefetch,
+    "messagepane should have disabled DNS prefetch at startup"
   );
   let about3Pane = get_about_3pane();
   Assert.ok(
     !about3Pane.document.getElementById("multiMessageBrowser").docShell
-      .allowDNSPrefetch,
-    "multimessage has no docShell at startup"
+      .allowDNSPrefetch.allowDNSPrefetch,
+    "multimessagepane should have disabled DNS prefetch at startup"
   );
 
   await be_in_folder(folder);
