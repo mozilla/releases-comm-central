@@ -11,24 +11,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
-      width="540"
-      scrolling="false">
-<head>
-  <title><!-- addressBookTitleEdit --></title>
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/addressbook/abAddressBookNameDialog.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog>
-  <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
+      scrolling="false"
+      style="min-width: 540px; min-height: 210px;">
+  <head>
+    <title><!-- addressBookTitleEdit --></title>
+    <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
+    <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+    <script defer="defer" src="chrome://messenger/content/addressbook/abAddressBookNameDialog.js"></script>
+  </head>
+  <body>
+    <xul:dialog>
+      <xul:stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
-  <hbox align="center" class="input-container">
-    <label id="nameLabel" control="name" value="&name.label;"
-           accesskey="&name.accesskey;"/>
-    <html:input id="name" type="text" class="input-inline"
-                aria-labelledby="nameLabel" oninput="abNameDoOkEnabling();"/>
-  </hbox>
-</dialog>
-</html:body>
+      <div class="input-container">
+        <label id="nameLabel" for="name">&name.label;</label>
+        <input id="name" type="text" class="input-inline"
+               oninput="abNameDoOkEnabling();"/>
+      </div>
+    </xul:dialog>
+  </body>
 </html>

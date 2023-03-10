@@ -40,7 +40,7 @@ window.addEventListener(
   { once: true }
 );
 window.addEventListener(
-  "load",
+  "DOMContentLoaded",
   async () => {
     await document.l10n.translateRoots();
     fillLocationPlaceholder();
