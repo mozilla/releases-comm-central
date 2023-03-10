@@ -67,10 +67,6 @@
   align-items: center; /* Needed for when the encryption button is visible. */
 }
 
-#encryptionTechBtn {
-  flex: 0 0 auto;
-}
-
 .message-header-wrap {
   flex-wrap: wrap;
 }
@@ -503,26 +499,19 @@ button.email-action-button:focus-visible {
 }
 
 .crypto-button {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
+  display: inline-block;
   margin-block: 0;
   margin-inline-end: 3px;
   fill: currentColor;
   background-color: transparent;
-  gap: 4px;
 }
 
 .crypto-button[hidden] {
   display: none;
 }
 
-.crypto-button > auto {
-  flex: 1 0 auto;
-}
-
-.crypto-button > img {
-  flex: 0 0 auto;
+.crypto-button > * {
+  vertical-align: middle;
 }
 
 /* Encryption security pane */
