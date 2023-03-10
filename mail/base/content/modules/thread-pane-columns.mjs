@@ -19,7 +19,8 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 });
 
 /**
- * The array of columns for the table layout.
+ * The array of columns for the table layout. This must be kept in sync with
+ * the row template #threadPaneRowTemplate in about3Pane.xhtml.
  *
  * @type {Array}
  */

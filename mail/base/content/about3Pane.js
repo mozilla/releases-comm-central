@@ -2698,6 +2698,19 @@ var threadPane = {
    *   update and not a full reset of the entire table header.
    */
   updateColumns(isSimple = false) {
+    if (!this.rowTemplate) {
+      this.rowTemplate = document.getElementById("threadPaneRowTemplate");
+    }
+
+    // Update the row template to match the column properties.
+    for (let column of this.columns) {
+      let cell = this.rowTemplate.content.querySelector(
+        `.${column.id.toLowerCase()}-column`
+      );
+      cell.hidden = column.hidden;
+      this.rowTemplate.content.appendChild(cell);
+    }
+
     if (isSimple) {
       this.treeTable.updateColumns(this.columns);
     } else {
@@ -3342,104 +3355,14 @@ customElements.whenDefined("tree-view-table-row").then(() => {
 
       super.connectedCallback();
 
-      this.setAttribute("draggable", "true");
-
-      for (let column of threadPane.columns) {
-        const cell = document.createElement("td");
-
-        if (column.hidden) {
-          cell.hidden = true;
-        }
-
-        if (column.id == "subjectCol") {
-          cell.appendChild(
-            document
-              .getElementById("threadPaneSubjectCellTemplate")
-              .content.cloneNode(true)
-          );
-        }
-
-        // Handle the special case for the thread column.
-        if (column.thread) {
-          cell.classList.add("tree-view-row-thread");
-          const img = document.createElement("img");
-          img.src = "";
-          document.l10n.setAttributes(img, "tree-list-view-row-thread");
-          cell.appendChild(img);
-        }
-
-        if (column.id == "attachmentCol") {
-          const img = document.createElement("img");
-          img.src = "";
-          document.l10n.setAttributes(img, "tree-list-view-row-attach");
-          cell.appendChild(img);
-        }
-
-        // Handle the special case for the flagged star column.
-        if (column.star) {
-          cell.classList.add("tree-view-row-flag");
-          const button = document.createElement("button");
-          button.type = "button";
-          button.tabIndex = -1;
-          button.classList.add("button-flat", "tree-button-flag");
-
-          const img = button.appendChild(document.createElement("img"));
-          img.src = "";
-          img.alt = "";
-
-          cell.appendChild(button);
-        }
-
-        // Handle the special case for the unread column.
-        if (column.unread) {
-          cell.classList.add("tree-view-row-unread");
-          const button = document.createElement("button");
-          button.type = "button";
-          button.tabIndex = -1;
-          button.classList.add("button-flat", "tree-button-unread");
-
-          const img = button.appendChild(document.createElement("img"));
-          img.src = "";
-          img.alt = "";
-
-          cell.appendChild(button);
-        }
-
-        // Handle the special case for the spam column.
-        if (column.spam) {
-          cell.classList.add("tree-view-row-spam");
-          const button = document.createElement("button");
-          button.type = "button";
-          button.tabIndex = -1;
-          button.classList.add("button-flat", "tree-button-spam");
-
-          const img = button.appendChild(document.createElement("img"));
-          img.src = "";
-          img.alt = "";
-
-          cell.appendChild(button);
-        }
-
-        // Handle the special case of the delete column.
-        if (column.delete) {
-          cell.classList.add("tree-view-row-delete");
-          const button = document.createElement("button");
-          button.type = "button";
-          button.tabIndex = -1;
-          button.classList.add("button-flat", "tree-button-delete");
-          document.l10n.setAttributes(button, "tree-list-view-row-delete");
-
-          const img = button.appendChild(document.createElement("img"));
-          img.src = "";
-          img.alt = "";
-
-          cell.appendChild(button);
-        }
-
-        this.appendChild(cell).classList.add(
-          `${column.id.toLowerCase()}-column`
+      if (!threadPane.rowTemplate) {
+        threadPane.rowTemplate = document.getElementById(
+          "threadPaneRowTemplate"
         );
       }
+
+      this.setAttribute("draggable", "true");
+      this.appendChild(threadPane.rowTemplate.content.cloneNode(true));
 
       this.addEventListener("contextmenu", event => {
         let row = event.target.closest(`tr[is="thread-row"]`);
