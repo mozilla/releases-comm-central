@@ -86,6 +86,9 @@
                                                     rgba(200, 200, 200, .5));
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #0a84ff);
   --toolbarseparator-color: color-mix(in srgb, currentColor 20%, transparent);
+  --toolbar-field-color: var(--layout-color-1);
+  --toolbar-field-background-color: var(--layout-background-1);
+  --toolbar-field-border-color: var(--layout-border-1);
   --toolbar-field-focus-border-color: AccentColor;
   --toolbar-field-highlight: var(--selected-item-color);
   --toolbar-field-highlight-color: var(--selected-item-text-color);
@@ -113,8 +116,6 @@
   --toolbar-bgcolor: rgba(255, 255, 255, .4);
   --toolbarbutton-icon-fill-opacity: 1;
   --autocomplete-popup-url-color: hsl(210, 77%, 47%);
-  --toolbar-field-background-color: hsla(0, 0%, 100%, 0.8);
-  --toolbar-field-border-color: hsla(240, 5%, 5%, 0.25);
 }
 
 :root[lwt-tree] {
@@ -161,7 +162,6 @@
     --sidebar-border-color: #606064 !important;
     --autocomplete-popup-highlight-background: #0060df;
     --selected-item-color: var(--color-blue-50);
-    --toolbar-field-border-color: #5f5f6d !important;
     --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
                                           rgba(255, 255, 255, .25));
     --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background,
@@ -218,6 +218,9 @@
     --button-pressed-indicator-border-color: SelectedItem;
     --selected-item-color: SelectedItem;
     --selected-item-text-color: SelectedItemText;
+    --toolbar-field-background-color: Field;
+    --toolbar-field-color: FieldText;
+    --toolbar-field-border-color: ThreeDShadow;
   }
 }
 
@@ -231,8 +234,6 @@
     --arrowpanel-dimmed-further: color-mix(in srgb, currentColor 20%, transparent);
     --arrowpanel-dimmed-even-further: color-mix(in srgb, currentColor 27%, transparent);
     --error-text-color: #c50042;
-    --toolbar-field-background-color: rgb(250, 250, 254);
-    --toolbar-field-color: rgb(21, 20, 26);
   }
 }
 
