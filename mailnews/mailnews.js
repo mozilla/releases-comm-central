@@ -43,7 +43,7 @@ pref("mail.ui.display.dateformat.today", 0);
 // Is a user agent header sent in outgoing email messages?
 pref("mailnews.headers.sendUserAgent", true);
 
-// If sending the user agent header is enabled, 
+// If sending the user agent header is enabled,
 // should only a minimal header be sent?
 pref("mailnews.headers.useMinimalUserAgent", true);
 
@@ -1126,6 +1126,13 @@ pref("mail.mailstoreconverter.loglevel", "Warn");
 pref("mail.jsaccount.loglevel", "Warn");
 
 pref("mailnews.oauth.loglevel", "Warn");
+
+// Using a private browser for OAuth sign-in causes issues when the provider is
+// expecting a device identifier from the browser. However, not all providers
+// have been tested with non-private browsers and there is potential for
+// existing session information to cause interference when signing into multiple
+// accounts.
+pref("mailnews.oauth.usePrivateBrowser", false);
 
 pref("test.loghelper.loglevel", "Warn");
 

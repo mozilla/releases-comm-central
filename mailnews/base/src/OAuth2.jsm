@@ -58,7 +58,7 @@ OAuth2.prototype = {
   clientId: null,
   consumerSecret: null,
   requestWindowURI: "chrome://messenger/content/browserRequest.xhtml",
-  requestWindowFeatures: "chrome,private,centerscreen,width=980,height=750",
+  requestWindowFeatures: "chrome,centerscreen,width=980,height=750",
   requestWindowTitle: "",
   scope: null,
   usePKCE: false,
@@ -215,13 +215,21 @@ OAuth2.prototype = {
       },
     };
 
+    const windowPrivacy = Services.prefs.getBoolPref(
+      "mailnews.oauth.usePrivateBrowser",
+      false
+    )
+      ? "private"
+      : "non-private";
+    const windowFeatures = `${this.requestWindowFeatures},${windowPrivacy}`;
+
     this.wrappedJSObject = this._browserRequest;
     gConnecting[this.authorizationEndpoint] = true;
     Services.ww.openWindow(
       null,
       this.requestWindowURI,
       null,
-      this.requestWindowFeatures,
+      windowFeatures,
       this
     );
   },
