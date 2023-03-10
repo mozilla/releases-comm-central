@@ -65,9 +65,8 @@
   width: 16px;
   min-height: 16px;
   margin-inline-end: 3px;
-}
-
-img.update-throbber {
+  content: image-set(url("chrome://global/skin/icons/loading.png"),
+                     url("chrome://global/skin/icons/loading@2x.png") 2x);
   vertical-align: middle;
 }
 
