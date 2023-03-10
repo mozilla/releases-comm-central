@@ -58,8 +58,8 @@ input:-moz-lwtheme:focus-visible {
 }
 
 .button.button-flat.icon-button {
-  padding-inline: 0;
-  margin: 0 3px;
+  padding: 4px;
+  margin: 0;
 }
 
 div {

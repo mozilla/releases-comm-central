@@ -330,6 +330,7 @@ body.layout-table {
   display: flex;
   margin-block-end: 8px;
   margin-inline: 6px;
+  align-items: center;
 }
 
 #searchInput {
@@ -352,15 +353,8 @@ body.layout-table {
 }
 
 #displayButton {
-  display: inline-flex;
-  min-width: 0;
-  min-height: 0;
-  width: var(--in-content-button-height);
-  height: var(--in-content-button-height);
-  margin: 0;
-  padding: calc((var(--in-content-button-height) - 18px) / 2); /* 18px = icon size + border */
-  -moz-context-properties: stroke;
-  stroke: currentColor;
+  --button-margin: 0;
+  background-image: var(--icon-filter);
 }
 
 /* Hide list items for sorting in table view. */

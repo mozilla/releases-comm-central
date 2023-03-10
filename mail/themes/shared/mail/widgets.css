@@ -40,50 +40,6 @@
   box-shadow: var(--button-pressed-shadow);
 }
 
-.button.check-button {
-  position: relative;
-  padding-inline-start: calc(var(--button-padding) + var(--button-pressed-indicator-padding));
-}
-
-.button.check-button.icon-button {
-  background-position: calc(var(--button-padding) + var(--button-pressed-indicator-padding)) center;
-  padding-inline-start: calc(var(--button-padding) * 2 + var(--icon-size) + var(--button-pressed-indicator-padding));
-}
-
-.button.check-button.icon-button:dir(rtl),
-.button.check-button.icon-button:-moz-locale-dir(rtl) {
-  background-position-x: right calc(var(--button-padding) + var(--button-pressed-indicator-padding));
-}
-
-.button.check-button.icon-only {
-  background-position: calc(var(--button-padding) + var(--button-pressed-indicator-padding)) center;
-  aspect-ratio: auto;
-}
-
-.button.check-button.icon-only:dir(rtl),
-.button.check-button.icon-only:-moz-locale-dir(rtl) {
-  background-position-x: right calc(var(--button-padding) + var(--button-pressed-indicator-padding));
-}
-
-.button.check-button::before {
-  content: '';
-  background-color: color-mix(in srgb, currentColor 20%, transparent);
-  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
-  border-radius: 4px;
-  width: 2px;
-  height: 12px;
-  margin: auto 3px;
-  position: absolute;
-  inset-block: 0;
-  inset-inline-start: 2px;
-}
-
-.button.check-button[aria-pressed="true"]::before {
-  background-color: var(--button-pressed-indicator-background-color);
-  border-color: var(--button-pressed-indicator-border-color);
-  box-shadow: var(--button-pressed-indicator-shadow);
-}
-
 .button:disabled {
   opacity: 0.4;
   pointer-events: none;
@@ -205,8 +161,7 @@
 }
 
 .button.button-flat:is(:hover, :focus-visible) {
-  background-color: transparent;
-  color: var(--button-flat-hover-text-color);
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
   border-color: transparent;
 }
 
@@ -215,9 +170,75 @@
 }
 
 .button.button-flat:hover:active {
-  background-color: transparent;
-  color: var(--button-flat-active-text-color);
+  background-color: color-mix(in srgb, currentColor 30%, transparent);
   border-color: transparent;
+}
+
+/* Link Button Styles */
+
+.button.link-button {
+  background-color: transparent;
+  color: var(--button-link-text-color);
+  border-color: transparent;
+}
+
+.button.link-button:is(:hover, :focus-visible) {
+  background-color: transparent;
+  color: var(--button-link-text-color);
+  border-color: transparent;
+  text-decoration: underline;
+}
+
+.button.link-button:hover:active {
+  background-color: transparent;
+  color: var(--button-link-active-text-color);
+  border-color: transparent;
+}
+
+/* Check Button Styles */
+
+.button.check-button {
+  position: relative;
+  padding-inline-start: calc(var(--button-padding) + var(--button-pressed-indicator-padding));
+}
+
+.button.check-button.icon-button {
+  background-position: calc(var(--button-padding) + var(--button-pressed-indicator-padding)) center;
+  padding-inline-start: calc(var(--button-padding) * 2 + var(--icon-size) + var(--button-pressed-indicator-padding));
+}
+
+.button.check-button.icon-button:dir(rtl),
+.button.check-button.icon-button:-moz-locale-dir(rtl) {
+  background-position-x: right calc(var(--button-padding) + var(--button-pressed-indicator-padding));
+}
+
+.button.check-button.icon-only {
+  background-position: calc(var(--button-padding) + var(--button-pressed-indicator-padding)) center;
+  aspect-ratio: auto;
+}
+
+.button.check-button.icon-only:dir(rtl),
+.button.check-button.icon-only:-moz-locale-dir(rtl) {
+  background-position-x: right calc(var(--button-padding) + var(--button-pressed-indicator-padding));
+}
+
+.button.check-button::before {
+  content: '';
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  border-radius: 4px;
+  width: 2px;
+  height: 12px;
+  margin: auto 3px;
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 2px;
+}
+
+.button.check-button[aria-pressed="true"]::before {
+  background-color: var(--button-pressed-indicator-background-color);
+  border-color: var(--button-pressed-indicator-border-color);
+  box-shadow: var(--button-pressed-indicator-shadow);
 }
 
 @media (prefers-reduced-motion: no-preference) {
