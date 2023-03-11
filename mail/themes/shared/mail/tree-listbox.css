@@ -353,6 +353,12 @@ th[is="tree-view-table-column-picker"] {
   padding: 0;
 }
 
+@media (-moz-overlay-scrollbars) {
+  th[is="tree-view-table-column-picker"] {
+    padding-inline-end: env(scrollbar-inline-size);
+  }
+}
+
 .button-column-picker {
   position: absolute;
   inset: 0;
@@ -360,6 +366,7 @@ th[is="tree-view-table-column-picker"] {
 
 .button-column-picker img {
   content: var(--icon-column-menu);
+  margin-inline: 0;
 }
 
 /* Table body */

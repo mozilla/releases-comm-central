@@ -69,8 +69,8 @@
   color: currentColor;
 }
 
-#threadTree button:not(.twisty),
-#threadTree button img {
+#threadTree button:not(.twisty, .button-column-picker),
+#threadTree button:not(.button-column-picker) img {
   display: block;
   margin-inline: auto;
 }
