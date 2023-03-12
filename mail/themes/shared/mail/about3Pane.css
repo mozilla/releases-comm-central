@@ -92,7 +92,7 @@ body {
   grid-area: folders;
   box-sizing: border-box;
   /* Matches the collapse-width on the splitter. */
-  min-width: 200px;
+  min-width: 100px;
   overflow: hidden auto;
   background-color: var(--sidebar-background-color, var(--foldertree-background));
   color: var(--sidebar-text-color, inherit);
@@ -122,7 +122,7 @@ body {
   grid-area: message;
   box-sizing: border-box;
   /* Matches the collapse-height and collapse-width on the splitter. */
-  min-height: 200px;
+  min-height: 100px;
   min-width: 300px;
   overflow: auto;
   display: flex;
