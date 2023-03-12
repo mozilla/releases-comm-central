@@ -847,10 +847,7 @@ function fillGrid() {
 
   let oldEndTime = displayEndTime.clone();
 
-  while (
-    dayHeaderInner.childElementCount < numberDaysDisplayed ||
-    dayHeaderOuter.scrollWidth < dayHeaderOuter.clientWidth
-  ) {
+  while (dayHeaderOuter.scrollWidth <= dayHeaderOuter.clientWidth) {
     dayHeaderInner.appendChild(document.createXULElement("calendar-day")).date = displayEndTime;
     displayEndTime.addDuration(cal.createDuration("P1D"));
   }
@@ -1379,9 +1376,8 @@ function updateRange() {
       let columnContainer = this.appendChild(document.createXULElement("box"));
 
       // A half-column-wide spacer to align labels with the dividing grid lines.
-      columnContainer
-        .appendChild(document.createXULElement("box"))
-        .setAttribute("width", zoom.columnWidth / 2);
+      columnContainer.appendChild(document.createXULElement("box")).style.width =
+        zoom.columnWidth / 2 + "px";
 
       let column = displayEndTime.clone();
       column.isDate = false;
@@ -1389,7 +1385,7 @@ function updateRange() {
         column.addDuration(zoom.columnDuration);
 
         let columnBox = columnContainer.appendChild(document.createXULElement("box"));
-        columnBox.setAttribute("width", zoom.columnWidth);
+        columnBox.style.width = zoom.columnWidth + "px";
         columnBox.setAttribute("align", "center");
 
         let columnLabel = columnBox.appendChild(document.createXULElement("label"));
@@ -1399,9 +1395,8 @@ function updateRange() {
       }
 
       // A half-column-wide (minus 1px) spacer to align labels with the dividing grid lines.
-      columnContainer
-        .appendChild(document.createXULElement("box"))
-        .setAttribute("width", zoom.columnWidth / 2 - 1);
+      columnContainer.appendChild(document.createXULElement("box")).style.width =
+        zoom.columnWidth / 2 - 1 + "px";
     }
 
     disconnectedCallback() {

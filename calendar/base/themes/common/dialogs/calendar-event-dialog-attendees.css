@@ -16,6 +16,10 @@
   color: var(--field-text-color);
 }
 
+.attendees-grid-container {
+  overflow-y: auto;
+}
+
 event-attendee {
   height: 21px;
   padding: 0 4px 1px;

@@ -13,32 +13,30 @@
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/shared/input-fields.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd1;
   <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd" > %dtd2;
 ]>
-
-<window id="calendar-event-dialog-attendees-v2"
-        title="&invite.title.label;"
-        windowtype="Calendar:EventDialog:Attendees"
-        width="1000"
-        height="500"
-        persist="screenX screenY height width"
-        orient="vertical"
-        lightweightthemes="true"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<html id="calendar-event-dialog-attendees-v2" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="Calendar:EventDialog:Attendees"
+      orient="vertical"
+      lightweightthemes="true"
+      scrolling="false"
+      style="min-width: 800px; min-height: 500px;">
+<head>
+  <title>&invite.title.label;</title>
+  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/widgets/calendar-minimonth.js"></script>
+  <script defer="defer" src="chrome://calendar/content/widgets/datetimepickers.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-event-dialog-attendees.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog defaultButton="none">
-
-  <!-- Javascript includes -->
-  <script src="chrome://messenger/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://calendar/content/calendar-event-dialog-attendees.js"/>
-  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
-  <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
-  <script src="chrome://calendar/content/widgets/datetimepickers.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
   <hbox align="center" pack="end">
     <spacer flex="1"/>
     <label value="&event.freebusy.zoom;" control="zoom-menulist"/>
@@ -47,14 +45,13 @@
     <toolbarbutton id="zoom-in-button"
                    class="zoom-in-icon"/>
   </hbox>
-  <hbox id="outer"
-        flex="1">
-    <vbox width="250">
+  <hbox id="outer" flex="1">
+    <vbox class="attendee-list-container">
       <box id="spacer"></box>
       <vbox id="attendee-list" flex="1"></vbox>
     </vbox>
     <splitter/>
-    <vbox flex="1">
+    <vbox flex="1" class="attendees-grid-container">
       <box id="day-header-outer">
         <stack>
           <hbox id="day-header-inner"></hbox>
@@ -215,4 +212,5 @@
     </vbox>
   </hbox>
 </dialog>
-</window>
+</html:body>
+</html>

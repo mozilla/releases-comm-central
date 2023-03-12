@@ -16,9 +16,11 @@ html|input.textbox-addressingWidget:disabled {
 }
 
 #outer {
-  -moz-box-layout: legacy;
-  height: 225px;
-  overflow-y: auto;
+  max-height: calc(100vh - 210px);
+}
+
+.attendee-list-container {
+  width: 350px;
 }
 
 .item-attendees-list-container {
