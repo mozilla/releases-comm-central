@@ -60,14 +60,13 @@ function onAccept() {
   markInDatabase(prLower, prUpper);
 }
 
-/** marks all headers in the database, whose time is between the two
-  given times, as read.
+/**
+ * M arks all headers in the database, whose time is between the two given
+ * times, as read.
  *
-  @param lower
-    PRTime for the lower bound - this boundary is inclusive
-  @param upper
-    PRTime for the upper bound - this boundary is exclusive
-*/
+ * @param {integer} lower - PRTime for the lower bound (inclusive).
+ * @param {integer} upper - PRTime for the upper bound (exclusive).
+ */
 function markInDatabase(lower, upper) {
   let messageFolder;
   let messageDatabase;

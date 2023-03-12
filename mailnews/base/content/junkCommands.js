@@ -146,10 +146,9 @@ MessageClassifier.prototype = {
    * Starts the message classification process for a message. If the message
    * sender's address is whitelisted, the message is skipped.
    *
-   * @param aMsgHdr
-   *        The header (nsIMsgDBHdr) of the message to classify.
-   * @param aSpamSettings
-   *        nsISpamSettings object with information about whitelists
+   * @param {nsIMsgDBHdr} aMsgHdr - The header of the message to classify.
+   * @param {nsISpamSettings} aSpamSettings - The object with information about
+   *   whitelists
    */
   analyzeMessage(aMsgHdr, aSpamSettings) {
     var junkscoreorigin = aMsgHdr.getStringProperty("junkscoreorigin");

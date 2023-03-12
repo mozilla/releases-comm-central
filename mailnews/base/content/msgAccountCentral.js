@@ -175,7 +175,7 @@ function readMessages() {
 /**
  * Open the AccountManager to view the settings for a given account.
  *
- * @param selectPage - The xhtml file name for the viewing page,
+ * @param {string} selectPage - The xhtml file name for the viewing page,
  *   null for the account main page, other pages are 'am-server.xhtml',
  *   'am-copies.xhtml', 'am-offline.xhtml', 'am-addressing.xhtml',
  *   'am-smtp.xhtml'

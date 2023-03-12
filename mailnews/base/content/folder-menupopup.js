@@ -778,8 +778,8 @@
        * determines whether to show subfolders for a given account type, and an
        * object mapping account types to label names (may be null).
        *
-       * @returns {[Function, Object|null]} Array containing the shouldExpand
-       *                                    function and the labels object.
+       * @returns {any[]} - An array; [0] is the shouldExpand function, [1] is
+       *   the labels object.
        */
       _getShouldExpandAndLabels() {
         let shouldExpand;
@@ -900,10 +900,11 @@
        * TODO: This function does not work yet for the appmenu. However, as of
        * June 2019, this functionality is not used in the appmenu.
        *
-       * @param {nsIMsgFolder} inputFolder - The folder to select (if none, then Choose Folder).
+       * @param {nsIMsgFolder} inputFolder - The folder to select (if none,
+       *   then Choose Folder). If inputFolder is not in this popup, but is
+       *   instead a descendant of a member of the popup, that ancestor will be
+       *   selected.
        * @returns {boolean} Is true if any usable folder was found, otherwise false.
-       * @note  If inputFolder is not in this popup, but is instead a descendant of
-       *        a member of the popup, that ancestor will be selected.
        */
       selectFolder(inputFolder) {
         // Set the label of the menulist element as if folder had been selected.
