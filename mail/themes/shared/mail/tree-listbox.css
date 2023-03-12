@@ -119,7 +119,8 @@
   outline-offset: -1px;
 }
 
-[is="tree-view-table-body"]:focus > .selected {
+[is="tree-view-table-body"]:focus > .selected,
+[is="tree-view-table-body"] > .selected:focus-within {
   color: var(--listbox-selected-color);
   background-color: var(--listbox-focused-selected-bg);
 }
@@ -129,7 +130,8 @@
   outline-offset: -1px;
 }
 
-[is="tree-view-table-body"]:focus > .selected img {
+[is="tree-view-table-body"]:focus > .selected img,
+[is="tree-view-table-body"] > .selected:focus-within img {
   fill: color-mix(in srgb, currentColor 40%, transparent);
   stroke: currentColor;
 }
@@ -224,7 +226,9 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
 }
 
 [is="tree-view-table-body"]:focus >
-  .selected :is(.tree-view-header-select, .tree-view-row-select) img {
+  .selected :is(.tree-view-header-select, .tree-view-row-select) img,
+[is="tree-view-table-body"] > .selected:focus-within
+  :is(.tree-view-header-select, .tree-view-row-select) img {
   color: currentColor;
 }
 
@@ -241,7 +245,8 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
   fill-opacity: 1;
 }
 
-[is="tree-view-table-body"]:focus .selected > .tree-view-row-select img {
+[is="tree-view-table-body"]:focus .selected > .tree-view-row-select img,
+[is="tree-view-table-body"] .selected:focus-within > .tree-view-row-select img {
   fill: currentColor;
 }
 
@@ -265,7 +270,8 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
   color: var(--tree-row-delete-button-color);
 }
 
-[is="tree-view-table-body"]:focus .selected .tree-view-row-delete button {
+[is="tree-view-table-body"]:focus .selected .tree-view-row-delete button,
+[is="tree-view-table-body"] .selected:focus-within .tree-view-row-delete button {
   color: currentColor;
 }
 

@@ -65,7 +65,8 @@
   border: none;
 }
 
-[is="tree-view-table-body"]:focus > .selected button {
+[is="tree-view-table-body"]:focus > .selected button,
+[is="tree-view-table-body"] > .selected:focus-within button {
   color: currentColor;
 }
 
@@ -94,7 +95,8 @@ tr[is="thread-row"] {
   color: var(--tag-color, currentColor);
 }
 
-[is="tree-view-table-body"]:focus tr[is="thread-row"].selected {
+[is="tree-view-table-body"]:focus tr[is="thread-row"].selected,
+[is="tree-view-table-body"] tr[is="thread-row"].selected:focus-within {
   background-color: var(--tag-color, var(--listbox-focused-selected-bg));
   color: var(--tag-contrast-color, var(--listbox-selected-color));
 }
@@ -151,7 +153,8 @@ tr:not(.children) .tree-view-row-thread img {
   stroke: color-mix(in srgb, currentColor 30%, transparent);
 }
 
-[is="tree-view-table-body"]:focus > .selected:not([data-properties~="flagged"]) .button-star {
+[is="tree-view-table-body"]:focus > .selected:not([data-properties~="flagged"]) .button-star,
+[is="tree-view-table-body"] > .selected:focus-within:not([data-properties~="flagged"]) .button-star {
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: color-mix(in srgb, currentColor 70%, transparent);
 }
@@ -183,7 +186,8 @@ tr[data-properties~="flagged"] .button-star {
   opacity: 0.7;
 }
 
-[is="tree-view-table-body"]:focus > .selected .attachmentcol-column img {
+[is="tree-view-table-body"]:focus > .selected .attachmentcol-column img,
+[is="tree-view-table-body"] > .selected:focus-within .attachmentcol-column img {
   color: currentColor;
 }
 
@@ -214,7 +218,8 @@ tr[data-properties~="unread"] .tree-view-row-unread > .tree-button-unread > img 
   stroke: var(--thread-pane-unread-stroke);
 }
 
-[is="tree-view-table-body"]:focus > .selected > .tree-view-row-unread > .tree-button-unread > img {
+[is="tree-view-table-body"]:focus > .selected > .tree-view-row-unread > .tree-button-unread > img,
+[is="tree-view-table-body"] > .selected:focus-within > .tree-view-row-unread > .tree-button-unread > img {
   fill: currentColor;
   stroke: currentColor;
 }
@@ -320,7 +325,8 @@ tr[data-properties~="replied"][data-properties~="forwarded"][data-properties~="r
   stroke: var(--color-purple-50);
 }
 
-[is="tree-view-table-body"]:focus > .selected .subject-line img {
+[is="tree-view-table-body"]:focus > .selected .subject-line img,
+[is="tree-view-table-body"] > .selected:focus-within .subject-line img {
   fill: currentColor !important;
   stroke: currentColor !important;
 }
