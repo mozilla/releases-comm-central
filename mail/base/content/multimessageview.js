@@ -245,6 +245,7 @@ MultiMessageSummary.prototype = {
     }
 
     let row = document.createElement("li");
+    row.dataset.messageId = message.messageId;
     row.classList.toggle("thread", thread && thread.length > 1);
     row.classList.toggle("unread", numUnread > 0);
     row.classList.toggle("starred", isStarred);

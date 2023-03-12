@@ -6,13 +6,21 @@ const { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 
-let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+let {
+  currentAbout3Pane: about3Pane,
+  currentAboutMessage: aboutMessage,
+} = document.getElementById("tabmail");
+let { messageBrowser, multiMessageBrowser, threadTree } = about3Pane;
+let messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
+let mailboxService = MailServices.messageServiceFromURI("mailbox:");
 let folderA,
   folderAMessages,
   folderB,
   folderBMessages,
   folderC,
-  folderCMessages;
+  folderCMessages,
+  folderD,
+  folderDMessages;
 
 add_setup(async function() {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
@@ -51,6 +59,20 @@ add_setup(async function() {
   );
   folderCMessages = [...folderC.messages];
 
+  rootFolder.createSubfolder("Navigation D", null);
+  folderD = rootFolder
+    .getChildNamed("Navigation D")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folderD.addMessageBatch(
+    generator
+      .makeMessages({
+        count: 12,
+        msgsPerThread: 3,
+      })
+      .map(message => message.toMboxString())
+  );
+  folderDMessages = [...folderD.messages];
+
   for (let message of [
     folderAMessages[0],
     folderAMessages[2],
@@ -62,6 +84,11 @@ add_setup(async function() {
     folderBMessages[4],
     folderCMessages[2],
     folderCMessages[3],
+    folderDMessages[3],
+    folderDMessages[4],
+    folderDMessages[5],
+    folderDMessages[6],
+    folderDMessages[7],
   ]) {
     message.markRead(true);
   }
@@ -72,6 +99,236 @@ add_setup(async function() {
   });
 });
 
+/** Tests the next message/previous message commands. */
+add_task(async function testNextPreviousMessage() {
+  about3Pane.displayFolder(folderA.URI);
+  assertSelectedMessage();
+  await assertNoDisplayedMessage();
+
+  for (let i = 0; i < 5; i++) {
+    goDoCommand("cmd_nextMsg");
+    assertSelectedMessage(folderAMessages[i]);
+    await assertDisplayedMessage(folderAMessages[i]);
+  }
+
+  threadTree.addEventListener("select", reportBadSelectEvent);
+  messagePaneBrowser.addEventListener("load", reportBadLoad, true);
+  goDoCommand("cmd_nextMsg");
+  assertSelectedMessage(
+    folderAMessages[4],
+    "the selected message should not change"
+  );
+  await assertDisplayedMessage(folderAMessages[4]);
+
+  // Wait to prove bad things didn't happen.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(f => setTimeout(f, 500));
+  threadTree.removeEventListener("select", reportBadSelectEvent);
+  messagePaneBrowser.removeEventListener("load", reportBadLoad, true);
+
+  for (let i = 3; i >= 0; i--) {
+    goDoCommand("cmd_previousMsg");
+    assertSelectedMessage(folderAMessages[i]);
+    await assertDisplayedMessage(folderAMessages[i]);
+  }
+
+  threadTree.addEventListener("select", reportBadSelectEvent);
+  messagePaneBrowser.addEventListener("load", reportBadLoad, true);
+  goDoCommand("cmd_previousMsg");
+  assertSelectedMessage(
+    folderAMessages[0],
+    "the selected message should not change"
+  );
+  await assertDisplayedMessage(folderAMessages[0]);
+
+  // Wait to prove bad things didn't happen.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(f => setTimeout(f, 500));
+  threadTree.removeEventListener("select", reportBadSelectEvent);
+  messagePaneBrowser.removeEventListener("load", reportBadLoad, true);
+
+  threadTree.selectedIndex = -1;
+  await assertNoDisplayedMessage();
+});
+
+/** Tests the next unread message command. */
+add_task(async function testNextUnreadMessage() {
+  about3Pane.displayFolder(folderA.URI);
+  threadTree.selectedIndex = -1;
+  assertSelectedMessage();
+  await assertNoDisplayedMessage();
+
+  // Select the first unread message.
+  goDoCommand("cmd_nextUnreadMsg");
+  assertSelectedMessage(folderAMessages[1]);
+  await assertDisplayedMessage(folderAMessages[1]);
+
+  // Select the next unread message.
+  goDoCommand("cmd_nextUnreadMsg");
+  assertSelectedMessage(folderAMessages[3]);
+  await assertDisplayedMessage(folderAMessages[3]);
+
+  // Select the next unread message. Loops to start of folder.
+  goDoCommand("cmd_nextUnreadMsg");
+  assertSelectedMessage(folderAMessages[1]);
+  await assertDisplayedMessage(folderAMessages[1]);
+
+  // Mark the message as read.
+  goDoCommand("cmd_markAsRead");
+  assertSelectedMessage(folderAMessages[1]);
+  await assertDisplayedMessage(folderAMessages[1]);
+
+  // Select the next unread message.
+  goDoCommand("cmd_nextUnreadMsg");
+  assertSelectedMessage(folderAMessages[3]);
+  await assertDisplayedMessage(folderAMessages[3]);
+
+  // Select the next unread message. Changes to the next folder.
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  goDoCommand("cmd_nextUnreadMsg");
+  await dialogPromise;
+  assertSelectedFolder(folderC);
+  assertSelectedMessage(folderCMessages[0]);
+  await assertDisplayedMessage(folderCMessages[0]);
+
+  // Select the next unread message.
+  goDoCommand("cmd_nextUnreadMsg");
+  assertSelectedMessage(folderCMessages[1]);
+  await assertDisplayedMessage(folderCMessages[1]);
+
+  // Select the next unread message.
+  goDoCommand("cmd_nextUnreadMsg");
+  assertSelectedMessage(folderCMessages[4]);
+  await assertDisplayedMessage(folderCMessages[4]);
+
+  // Go back to the first folder. The previous selection should be restored.
+  about3Pane.displayFolder(folderA.URI);
+  assertSelectedMessage(folderAMessages[3]);
+  await assertDisplayedMessage(folderAMessages[3]);
+
+  // Select the next unread message. Changes to the next folder.
+  // The previous selection should NOT be restored.
+  dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  goDoCommand("cmd_nextUnreadMsg");
+  await dialogPromise;
+  assertSelectedFolder(folderC);
+  assertSelectedMessage(folderCMessages[0]);
+  await assertDisplayedMessage(folderCMessages[0]);
+
+  threadTree.selectedIndex = -1;
+  await assertNoDisplayedMessage();
+});
+
+/** Tests the previous unread message command. This doesn't cross folders. */
+add_task(async function testPreviousUnreadMessage() {
+  about3Pane.displayFolder(folderC.URI);
+  threadTree.selectedIndex = 4;
+  assertSelectedMessage(folderCMessages[4]);
+  await assertDisplayedMessage(folderCMessages[4]);
+
+  goDoCommand("cmd_previousUnreadMsg");
+  assertSelectedMessage(folderCMessages[1]);
+  await assertDisplayedMessage(folderCMessages[1]);
+
+  goDoCommand("cmd_previousUnreadMsg");
+  assertSelectedMessage(folderCMessages[0]);
+  await assertDisplayedMessage(folderCMessages[0]);
+
+  threadTree.addEventListener("select", reportBadSelectEvent);
+  messagePaneBrowser.addEventListener("load", reportBadLoad, true);
+  goDoCommand("cmd_previousUnreadMsg");
+  assertSelectedMessage(folderCMessages[0]);
+  await assertDisplayedMessage(folderCMessages[0]);
+
+  // Wait to prove bad things didn't happen.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(f => setTimeout(f, 500));
+  threadTree.removeEventListener("select", reportBadSelectEvent);
+  messagePaneBrowser.removeEventListener("load", reportBadLoad, true);
+
+  threadTree.selectedIndex = -1;
+  await assertNoDisplayedMessage();
+});
+
+/**
+ * Tests the next unread thread command. This command depends on marking the
+ * thread as read, despite mailnews.mark_message_read.auto being false in this
+ * test. Seems wrong, but it does make this test less complicated!
+ */
+add_task(async function testNextUnreadThread() {
+  // In folder C, there are no threads. Going to the next unread thread is the
+  // same as going to the next unread message. But as stated above, it does
+  // mark the current message as read.
+  about3Pane.displayFolder(folderC.URI);
+  threadTree.selectedIndex = 0;
+  assertSelectedMessage(folderCMessages[0]);
+  await assertDisplayedMessage(folderCMessages[0]);
+
+  goDoCommand("cmd_nextUnreadThread");
+  assertSelectedMessage(folderCMessages[1]);
+  await assertDisplayedMessage(folderCMessages[1]);
+
+  goDoCommand("cmd_nextUnreadThread");
+  assertSelectedMessage(folderCMessages[4]);
+  await assertDisplayedMessage(folderCMessages[4]);
+
+  // No more unread messages, we'll move to folder D.
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  goDoCommand("cmd_nextUnreadThread");
+  await dialogPromise;
+  assertSelectedFolder(folderD);
+  assertSelectedMessage(folderDMessages[0]);
+  // We've selected the root message in a collapsed thread, so the
+  // multi-message view should display the thread.
+  await assertDisplayedThread(folderDMessages[0]);
+
+  goDoCommand("cmd_nextUnreadThread");
+  // The root message is read, we're looking at a single message in the thread.
+  assertSelectedMessage(folderDMessages[8]);
+  await assertDisplayedMessage(folderDMessages[8]);
+
+  goDoCommand("cmd_nextUnreadThread");
+  // The root message is unread.
+  assertSelectedMessage(folderDMessages[9]);
+  await assertDisplayedThread(folderDMessages[9]);
+
+  // No more unread messages, prompt to move to the next folder.
+  // Cancel the prompt.
+  dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
+  goDoCommand("cmd_nextUnreadThread");
+  await dialogPromise;
+  assertSelectedMessage(folderDMessages[9]);
+
+  threadTree.selectedIndex = -1;
+  await assertNoDisplayedMessage();
+});
+
+/** Tests that navigation with a closed message pane does not load messages. */
+add_task(async function testHiddenMessagePane() {
+  about3Pane.paneLayout.messagePaneVisible = false;
+  about3Pane.displayFolder(folderA.URI);
+  threadTree.selectedIndex = 0;
+  assertSelectedMessage(folderAMessages[0]);
+  await assertNoDisplayedMessage();
+
+  messagePaneBrowser.addEventListener("load", reportBadLoad, true);
+  goDoCommand("cmd_nextMsg");
+  assertSelectedMessage(folderAMessages[1]);
+  await assertNoDisplayedMessage();
+
+  goDoCommand("cmd_previousMsg");
+  assertSelectedMessage(folderAMessages[0]);
+  await assertNoDisplayedMessage();
+
+  // Wait to prove bad things didn't happen.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(f => setTimeout(f, 500));
+  messagePaneBrowser.removeEventListener("load", reportBadLoad, true);
+
+  threadTree.selectedIndex = -1;
+  about3Pane.paneLayout.messagePaneVisible = true;
+});
+
 function assertSelectedFolder(expected) {
   Assert.equal(about3Pane.gFolder.URI, expected.URI, "selected folder");
 }
@@ -79,102 +336,94 @@ function assertSelectedFolder(expected) {
 function assertSelectedMessage(expected, comment) {
   if (expected) {
     Assert.notEqual(
-      about3Pane.threadTree.selectedIndex,
+      threadTree.selectedIndex,
       -1,
       "a message should be selected"
     );
     Assert.equal(
-      about3Pane.gDBView.getMsgHdrAt(about3Pane.threadTree.selectedIndex)
-        .subject,
-      expected.subject,
+      about3Pane.gDBView.getMsgHdrAt(threadTree.selectedIndex).messageId,
+      expected.messageId,
       comment ?? "selected message"
     );
   } else {
-    Assert.equal(
-      about3Pane.threadTree.selectedIndex,
-      -1,
-      "no message should be selected"
-    );
+    Assert.equal(threadTree.selectedIndex, -1, "no message should be selected");
   }
 }
 
-add_task(async function testNextPreviousMessage() {
-  about3Pane.displayFolder(folderA.URI);
-  assertSelectedMessage();
+async function assertDisplayedMessage(expected) {
+  let mailboxURL = expected.folder.getUriForMsg(expected);
+  let messageURI = mailboxService.getUrlForUri(mailboxURL);
 
-  for (let i = 0; i < 5; i++) {
-    EventUtils.synthesizeKey("f", {}, about3Pane);
-    assertSelectedMessage(folderAMessages[i]);
+  if (
+    messagePaneBrowser.webProgess?.isLoadingDocument ||
+    !messagePaneBrowser.currentURI.equals(messageURI)
+  ) {
+    await BrowserTestUtils.browserLoaded(
+      messagePaneBrowser,
+      undefined,
+      messageURI.spec
+    );
+  }
+  Assert.equal(
+    aboutMessage.gMessage.messageId,
+    expected.messageId,
+    "correct message loaded"
+  );
+  Assert.equal(
+    messagePaneBrowser.currentURI.spec,
+    messageURI.spec,
+    "correct message displayed"
+  );
+}
+
+async function assertDisplayedThread(firstMessage) {
+  let items = multiMessageBrowser.contentDocument.querySelectorAll("li");
+  Assert.equal(
+    items[0].dataset.messageId,
+    firstMessage.messageId,
+    "correct thread displayed"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_visible(multiMessageBrowser),
+    "multimessageview visible"
+  );
+}
+
+async function assertNoDisplayedMessage() {
+  if (
+    messagePaneBrowser.webProgess?.isLoadingDocument ||
+    messagePaneBrowser.currentURI.spec != "about:blank"
+  ) {
+    await BrowserTestUtils.browserLoaded(
+      messagePaneBrowser,
+      undefined,
+      "about:blank"
+    );
   }
 
-  EventUtils.synthesizeKey("f", {}, about3Pane);
-  assertSelectedMessage(
-    folderAMessages[4],
-    "the selected message should not change"
+  Assert.equal(aboutMessage.gMessage, null, "no message loaded");
+  Assert.equal(
+    messagePaneBrowser.currentURI.spec,
+    "about:blank",
+    "no message displayed"
   );
+  Assert.ok(BrowserTestUtils.is_hidden(messageBrowser), "about:message hidden");
+}
 
-  for (let i = 3; i >= 0; i--) {
-    EventUtils.synthesizeKey("b", {}, about3Pane);
-    assertSelectedMessage(folderAMessages[i]);
-  }
-
-  EventUtils.synthesizeKey("b", {}, about3Pane);
-  assertSelectedMessage(
-    folderAMessages[0],
-    "the selected message should not change"
+function reportBadSelectEvent() {
+  Assert.report(
+    true,
+    undefined,
+    undefined,
+    "should not have fired a select event"
   );
+}
 
-  about3Pane.threadTree.selectedIndex = -1;
-});
-
-add_task(async function testNextUnreadMessage() {
-  about3Pane.displayFolder(folderA.URI);
-  assertSelectedMessage();
-
-  // Select the first unread message.
-  EventUtils.synthesizeKey("n", {}, about3Pane);
-  assertSelectedMessage(folderAMessages[1]);
-
-  // Select the next unread message.
-  EventUtils.synthesizeKey("n", {}, about3Pane);
-  assertSelectedMessage(folderAMessages[3]);
-
-  // Select the next unread message. Loops to start of folder.
-  EventUtils.synthesizeKey("n", {}, about3Pane);
-  assertSelectedMessage(folderAMessages[1]);
-
-  // Mark the message as read.
-  EventUtils.synthesizeKey("m", {}, about3Pane);
-  assertSelectedMessage(folderAMessages[1]);
-
-  // Select the next unread message.
-  EventUtils.synthesizeKey("n", {}, about3Pane);
-  assertSelectedMessage(folderAMessages[3]);
-
-  // Select the next unread message. Changes to the next folder.
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  EventUtils.synthesizeKey("n", {}, about3Pane);
-  await dialogPromise;
-  assertSelectedFolder(folderC);
-  assertSelectedMessage(folderCMessages[0]);
-
-  // Select the next unread message.
-  EventUtils.synthesizeKey("n", {}, about3Pane);
-  assertSelectedMessage(folderCMessages[1]);
-
-  // Select the next unread message.
-  EventUtils.synthesizeKey("n", {}, about3Pane);
-  assertSelectedMessage(folderCMessages[4]);
-
-  // Go back to the first folder. The previous selection should be restored.
-  about3Pane.displayFolder(folderA.URI);
-  assertSelectedMessage(folderAMessages[3]);
-
-  // Select the next unread message. Changes to the next folder.
-  // The previous selection should NOT be restored.
-  dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  EventUtils.synthesizeKey("n", {}, about3Pane);
-  await dialogPromise;
-  assertSelectedFolder(folderC);
-  assertSelectedMessage(folderCMessages[0]);
-});
+function reportBadLoad() {
+  Assert.report(
+    true,
+    undefined,
+    undefined,
+    "should not have reloaded the message"
+  );
+}

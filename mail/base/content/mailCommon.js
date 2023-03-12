@@ -5,10 +5,8 @@
 // mailContext.js
 /* globals mailContextMenu */
 
-// about:3pane and about:message must BOTH provide these:
-
-/* globals CrossFolderNavigation */ // msgViewNavigation.js
-/* globals displayMessage */
+// msgViewNavigation.js
+/* globals CrossFolderNavigation */
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -674,8 +672,8 @@ var commandController = {
       window.threadTree.focus();
     } else {
       gViewWrapper.dbView.selection.select(resultIndex.value);
+      window.displayMessage(gViewWrapper.dbView.URIForFirstSelectedMessage);
     }
-    displayMessage(gViewWrapper.dbView.URIForFirstSelectedMessage);
   },
 };
 // Add the controller to this window's controllers, so that built-in commands
@@ -802,7 +800,7 @@ var dbViewWrapperListener = {
           }
         } else if (parent?.location != "about:3pane") {
           gDBView.selection.select(this._nextViewIndexAfterDelete);
-          displayMessage(
+          window.displayMessage(
             gDBView.getURIForViewIndex(this._nextViewIndexAfterDelete)
           );
         }
