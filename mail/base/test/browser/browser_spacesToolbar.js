@@ -188,24 +188,23 @@ add_task(async function testSpacesToolbarVisibility() {
   let pinnedButton = document.getElementById("spacesPinnedButton");
   Assert.ok(spacesToolbar, "The spaces toolbar exists");
 
-  let assertVisibility = async function(isVisible, msg) {
+  let assertVisibility = async function(isHidden, msg) {
     await TestUtils.waitForCondition(
-      () => BrowserTestUtils.is_visible(spacesToolbar) == isVisible,
-      `The spaces toolbar should be ${isVisible ? "visible" : "hidden"}: ${msg}`
+      () => spacesToolbar.hidden == !isHidden,
+      `The spaces toolbar should be ${!isHidden ? "visible" : "hidden"}: ${msg}`
     );
 
     await TestUtils.waitForCondition(
-      () => BrowserTestUtils.is_visible(toggleButton) == !isVisible,
-      `The toggle button should be ${isVisible ? "hidden" : "visible"}: ${msg}`
+      () => toggleButton.hidden == isHidden,
+      `The toggle button should be ${isHidden ? "hidden" : "visible"}: ${msg}`
     );
 
     await TestUtils.waitForCondition(
-      () => BrowserTestUtils.is_visible(pinnedButton) == !isVisible,
-      `The pinned button should be ${isVisible ? "hidden" : "visible"}: ${msg}`
+      () => pinnedButton.hidden == isHidden,
+      `The pinned button should be ${isHidden ? "hidden" : "visible"}: ${msg}`
     );
   };
-  // TODO: Restore this when there's a menu again.
-  /*
+
   async function toggleVisibilityWithAppMenu(expectChecked) {
     let appMenu = document.getElementById("appMenu-popup");
     let menuShownPromise = BrowserTestUtils.waitForEvent(appMenu, "popupshown");
@@ -254,7 +253,6 @@ add_task(async function testSpacesToolbarVisibility() {
       window
     );
   }
-  */
   await assertVisibility(true, "on initial load");
 
   // Collapse with a mouse click.
@@ -263,8 +261,7 @@ add_task(async function testSpacesToolbarVisibility() {
   EventUtils.synthesizeMouseAtCenter(collapseButton, {}, window);
   await assertVisibility(false, "after clicking collapse button");
 
-  // await toggleVisibilityWithAppMenu(false);
-  gSpacesToolbar.toggleToolbar(false);
+  await toggleVisibilityWithAppMenu(false);
   await assertVisibility(true, "after revealing with the app menu");
 
   // We already clicked the collapse button, so it should already be the
@@ -288,12 +285,7 @@ add_task(async function testSpacesToolbarVisibility() {
   let pinnedMenuShown = BrowserTestUtils.waitForEvent(pinnedMenu, "popupshown");
   EventUtils.synthesizeKey("KEY_Enter", {}, window);
   await pinnedMenuShown;
-  let pinnedMenuHidden = BrowserTestUtils.waitForEvent(
-    pinnedMenu,
-    "popuphidden"
-  );
   pinnedMenu.activateItem(document.getElementById("spacesPopupButtonReveal"));
-  await pinnedMenuHidden;
 
   await assertVisibility(true, "after opening with pinned menu");
   Assert.ok(
@@ -328,14 +320,19 @@ add_task(async function testSpacesToolbarVisibility() {
   );
 
   // Hide the spaces toolbar using the app menu.
-  // await toggleVisibilityWithAppMenu(true);
-  gSpacesToolbar.toggleToolbar(true);
+  await toggleVisibilityWithAppMenu(true);
   await assertVisibility(false, "after hiding with the app menu");
-  // Focus should have remained the same
-  Assert.equal(
+  Assert.notEqual(
     document.activeElement,
     activeElement,
-    "Active element should not have changed"
+    "The focus moved from the previous element"
+  );
+  // Focus should be on the main app menu since we used the mouse to toggle the
+  // spaces toolbar.
+  Assert.equal(
+    document.activeElement,
+    document.getElementById("button-appmenu"),
+    "Active element is on the app menu"
   );
 
   // Now click the status bar toggle button to reveal the toolbar again.
