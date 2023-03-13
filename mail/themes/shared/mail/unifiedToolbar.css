@@ -45,6 +45,11 @@ unified-toolbar {
   flex: 1 1 auto;
   margin: 0;
   padding: 0;
+  padding-inline-start: 30px;
+}
+
+:root[sizemode="fullscreen"] #unifiedToolbarContent {
+  padding-inline-start: 0;
 }
 
 #unifiedToolbarContent li {
