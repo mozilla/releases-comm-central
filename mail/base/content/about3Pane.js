@@ -864,9 +864,7 @@ var folderPane = {
    * @type {string[]}
    */
   get activeModes() {
-    return Object.entries(this._modes)
-      .filter(([name, mode]) => mode.active)
-      .map(([name, mode]) => name);
+    return Array.from(folderTree.children, li => li.dataset.mode);
   },
 
   set activeModes(modes) {
