@@ -815,7 +815,7 @@ var gSpacesToolbar = {
     let activeElement = document.activeElement;
 
     let pinnedButton = document.getElementById("spacesPinnedButton");
-    pinnedButton.collapsed = !state;
+    pinnedButton.hidden = !state;
     let revealButton = document.getElementById("spacesToolbarReveal");
     revealButton.hidden = !state;
     this.element.hidden = state;

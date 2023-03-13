@@ -135,14 +135,14 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
       let pinnedPopup = document.getElementById("spacesButtonMenuPopup");
 
       Assert.ok(revealButton.hidden, "The status bar toggle button is hidden");
-      Assert.ok(pinnedButton.collapsed, "The pinned titlebar button is hidden");
+      Assert.ok(pinnedButton.hidden, "The pinned titlebar button is hidden");
       collapseButton.click();
       Assert.ok(
         !revealButton.hidden,
         "The status bar toggle button is not hidden"
       );
       Assert.ok(
-        !pinnedButton.collapsed,
+        !pinnedButton.hidden,
         "The pinned titlebar button is not hidden"
       );
       pinnedPopup.openPopup();
@@ -169,7 +169,7 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
       pinnedPopup.hidePopup();
       revealButton.click();
       Assert.ok(revealButton.hidden, "The status bar toggle button is hidden");
-      Assert.ok(pinnedButton.collapsed, "The pinned titlebar button is hidden");
+      Assert.ok(pinnedButton.hidden, "The pinned titlebar button is hidden");
 
       //Check space and url.
       let space = window.gSpacesToolbar.spaces.find(
