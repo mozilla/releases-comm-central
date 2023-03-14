@@ -10,6 +10,14 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
+window.addEventListener("load", onLoad);
+window.addEventListener("unload", onFilterUnload);
+window.addEventListener("close", event => {
+  if (!onFilterClose()) {
+    event.preventDefault();
+  }
+});
+
 var gFilterListMsgWindow = null;
 var gCurrentFilterList;
 var gServerMenu = null;

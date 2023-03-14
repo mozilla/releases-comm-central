@@ -4,35 +4,33 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/filterDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/icons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/contextMenu.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/colors.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/filterDialog.css" type="text/css"?>
 
-<!DOCTYPE window [
-<!ENTITY % filtersDTD SYSTEM "chrome://messenger/locale/FilterListDialog.dtd">%filtersDTD;
+<!DOCTYPE html [
+  <!ENTITY % filtersDTD SYSTEM "chrome://messenger/locale/FilterListDialog.dtd">%filtersDTD;
 ]>
-
-<window id="filterListDialog"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  xmlns:html="http://www.w3.org/1999/xhtml"
-  windowtype="mailnews:filterlist"
-  style="min-width: 45em; height: 31em;"
-  onload="onLoad();"
-  onunload="onFilterUnload();"
-  onclose="return onFilterClose();"
-  persist="width height screenX screenY"
-  lightweightthemes="true"
-  title="&window.title;">
-
-  <script src="chrome://messenger/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/searchWidgets.js"/>
-  <script src="chrome://messenger/content/FilterListDialog.js"/>
-
+<html id="filterListDialog" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="mailnews:filterlist"
+      lightweightthemes="true"
+      persist="width height screenX screenY"
+      scrolling="false"
+      style="min-width: 800px; min-height: 500px;">
+<head>
+  <title>&window.title;</title>
+  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/searchWidgets.js"></script>
+  <script defer="defer" src="chrome://messenger/content/FilterListDialog.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <stringbundle id="bundle_filter" src="chrome://messenger/locale/filter.properties"/>
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 
@@ -167,4 +165,5 @@
     </hbox>
   </hbox>
 
-</window>
+</html:body>
+</html>
