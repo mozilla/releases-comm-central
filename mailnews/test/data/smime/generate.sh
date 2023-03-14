@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # This script creates updated data for automated S/MIME tests.
 # It will do a local build of NSS, execute parts of the NSS test suite,
 # and copy data created by it to the local source tree.
@@ -30,19 +32,22 @@ cp -v nssbuild/tests_results/security/localhost.1/sharedb/smime/tb/*.eml .
 cp -v nssbuild/tests_results/security/localhost.1/sharedb/smime/tb/*.p12 .
 cp -v nssbuild/tests_results/security/localhost.1/sharedb/smime/tb/*.pem .
 
-EXPIRATION_INFO_FILE="`pwd`/expiration.txt"
-ALICE_DIR="`pwd`/nssbuild/tests_results/security/localhost.1/sharedb/alicedir"
+CWD=$(pwd)
 
-export DIST="`pwd`/nssbuild/dist/"
+EXPIRATION_INFO_FILE="$CWD/expiration.txt"
+ALICE_DIR="$CWD/nssbuild/tests_results/security/localhost.1/sharedb/alicedir"
+
+export DIST="$CWD/nssbuild/dist/"
 
 pushd nssbuild/nss/tests/common
-export OBJDIR=`make objdir_name`
+OBJDIR=$(make objdir_name)
+export OBJDIR
 popd
 
 # PATH logic copied from nss/tests/common/init.sh
-if [ "${OS_ARCH}" = "WINNT" -a "$OS_NAME"  != "CYGWIN_NT" -a "$OS_NAME" != "MINGW32_NT" ]; then
+if [ "${OS_ARCH}" = "WINNT" ] && [ "$OS_NAME" != "CYGWIN_NT" ] && [ "$OS_NAME" != "MINGW32_NT" ]; then
     PATH=.\;${DIST}/${OBJDIR}/bin\;${DIST}/${OBJDIR}/lib\;$PATH
-    PATH=`perl ../path_uniq -d ';' "$PATH"`
+    PATH=$(perl ../path_uniq -d ';' "$PATH")
 elif [ "${OS_ARCH}" = "Android" ]; then
     # android doesn't have perl, skip the uniq step
     PATH=.:${DIST}/${OBJDIR}/bin:${DIST}/${OBJDIR}/lib:$PATH
@@ -50,7 +55,7 @@ else
     PATH=.:${DIST}/${OBJDIR}/bin:${DIST}/${OBJDIR}/lib:/bin:/usr/bin:$PATH
     # added /bin and /usr/bin in the beginning so a local perl will
     # be used
-    PATH=`perl nssbuild/nss/tests/path_uniq -d ':' "$PATH"`
+    PATH=$(perl nssbuild/nss/tests/path_uniq -d ':' "$PATH")
 fi
 
 export PATH
@@ -59,8 +64,8 @@ export SHLIB_PATH=${DIST}/${OBJDIR}/lib:$SHLIB_PATH
 export LIBPATH=${DIST}/${OBJDIR}/lib:$LIBPATH
 export DYLD_LIBRARY_PATH=${DIST}/${OBJDIR}/lib:$DYLD_LIBRARY_PATH
 
-certutil -d ${ALICE_DIR} -L -n Alice |grep -i "Not After" | \
-  sed 's/^.*: //' > ${EXPIRATION_INFO_FILE}
+certutil -d "${ALICE_DIR}" -L -n Alice |grep -i "Not After" | \
+  sed 's/^.*: //' > "${EXPIRATION_INFO_FILE}"
 
 # exporting DYLD_LIBRARY_PATH to a subprocess doesn't work on recent OSX
 export NSS_LIB_PATH=${DIST}/${OBJDIR}/lib

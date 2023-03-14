@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # This script creates additional S/MIME test files.
 # It's called automatically by generate.sh.
 # However, it can also be called directly, if the test data from NSS
@@ -26,12 +28,12 @@ then
   exit
 fi
 
-MILLDIR="`pwd`/../../../../mail/test/browser/smime/data"
+MILLDIR="$(pwd)/../../../../mail/test/browser/smime/data"
 
 # When executing mozmill in the CI environment, the files from this
 # directory aren't available. Copy all files that mozmill requires to
 # the mozmill directory.
-cp -rv Bob.p12 TestCA.pem $MILLDIR
+cp -rv Bob.p12 TestCA.pem "$MILLDIR"
 
 TMPDIR="./tmp-local"
 mkdir $TMPDIR
@@ -69,15 +71,17 @@ echo "$INPUT" | cmsutil -d $TMPDIR -E -r bob@example.com | btoa > $TMPDIR/bait.b
 
 MSG=$TMPDIR/msg.eml
 
-echo -n "$MSGHEADER" > $MSG
-echo "--$BOUNDARY" >> $MSG
-echo -n "$ENVHEADER" >> $MSG
-cat $TMPDIR/bait.b64 >> $MSG
-echo "--$BOUNDARY" >> $MSG
-echo -n "$ENVHEADER" >> $MSG
-cat $TMPDIR/prey.b64 >> $MSG
-echo "--$BOUNDARY" >> $MSG
+{
+  echo -n "$MSGHEADER"
+  echo "--$BOUNDARY"
+  echo -n "$ENVHEADER"
+  cat $TMPDIR/bait.b64
+  echo "--$BOUNDARY"
+  echo -n "$ENVHEADER"
+  cat $TMPDIR/prey.b64
+  echo "--$BOUNDARY"
+} > $MSG
 
-mv $MSG $MILLDIR/multipart-alternative.eml
+mv $MSG "$MILLDIR/multipart-alternative.eml"
 
 rm -rf $TMPDIR
