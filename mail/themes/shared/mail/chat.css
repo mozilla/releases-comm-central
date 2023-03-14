@@ -8,6 +8,7 @@
   --imbox-selected-text-color: FieldText;
   --imbox-selected-background-color: Field;
   --imgroup-selected-background-color: ThreeDLightShadow;
+  overflow: hidden;
 }
 
 :root[lwt-tree-brighttext] #chatTabPanel {
@@ -160,7 +161,16 @@ richlistitem[is="chat-imconv-richlistitem"],
 richlistitem[is="chat-contact-richlistitem"] {
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
-  align-items: stretch;
+  align-items: center;
+}
+
+.contact-hbox {
+  align-items: center;
+  overflow: hidden;
+}
+
+.conv-hbox {
+  overflow: hidden;
 }
 
 .box-line {
@@ -376,6 +386,10 @@ richlistitem[is="chat-contact-richlistitem"][cansend]:hover .startChatBubble {
 .smallStatusIcon {
   width: 10px;
   height: 10px;
+}
+
+#protolist richlistitem {
+  align-items: center;
 }
 
 .protoIcon {
