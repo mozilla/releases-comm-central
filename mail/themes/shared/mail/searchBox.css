@@ -9,6 +9,9 @@
 
 .search-icon {
   margin-inline-end: -21px;
+  height: 16px;
+  width: 16px;
+  z-index: 2;
 }
 
 .search-icon:-moz-locale-dir(rtl) {
@@ -131,4 +134,5 @@
 
 .remote-gloda-search-container {
   min-width: 10em;
+  align-items: center;
 }
