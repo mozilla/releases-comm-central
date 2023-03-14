@@ -209,12 +209,12 @@ export var Policies = {
 
       return true;
     },
-    // No additional implementation needed here. UpdateService.jsm will check
-    // for this policy directly when determining the update URL.
+    // No additional implementation needed here. UpdateService.sys.mjs will
+    // check for this policy directly when determining the update URL.
   },
 
   AppUpdateURL: {
-    // No implementation needed here. UpdateService.jsm will check for this
+    // No implementation needed here. UpdateService.sys.mjs will check for this
     // policy directly when determining the update URL.
   },
 

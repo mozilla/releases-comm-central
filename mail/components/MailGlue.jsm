@@ -59,8 +59,8 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 });
 
 if (AppConstants.MOZ_UPDATER) {
-  XPCOMUtils.defineLazyModuleGetters(lazy, {
-    UpdateListener: "resource://gre/modules/UpdateListener.jsm",
+  ChromeUtils.defineESModuleGetters(lazy, {
+    UpdateListener: "resource://gre/modules/UpdateListener.sys.mjs",
   });
 }
 
