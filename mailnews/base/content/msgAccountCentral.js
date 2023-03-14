@@ -166,7 +166,7 @@ function readMessages() {
   }
 
   try {
-    window.browsingContext.topChromeWindow.OpenInboxForServer(gSelectedServer);
+    parent.displayFolder(MailUtils.getInboxFolder(gSelectedServer));
   } catch (ex) {
     console.error("Error opening Inbox for server: " + ex + "\n");
   }
