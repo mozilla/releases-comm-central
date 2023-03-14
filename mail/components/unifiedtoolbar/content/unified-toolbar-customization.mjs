@@ -48,7 +48,6 @@ class UnifiedToolbarCustomization extends HTMLElement {
       event => {
         event.preventDefault();
         this.#save();
-        this.toggle(false);
       },
       {
         passive: false,
@@ -210,6 +209,9 @@ class UnifiedToolbarCustomization extends HTMLElement {
     }
   }
 
+  /**
+   * Save the current state of the toolbar and hide the customization.
+   */
   #save() {
     const tabPanes = Array.from(
       this.querySelectorAll("unified-toolbar-customization-pane")
@@ -219,6 +221,9 @@ class UnifiedToolbarCustomization extends HTMLElement {
         .filter(pane => !pane.matchesDefaultState)
         .map(pane => [pane.getAttribute("space"), pane.itemIds])
     );
+    // Toggle happens before saving, so the newly restored buttons don't have to
+    // be updated when the globalOverlay flag on tabmail goes away.
+    this.toggle(false);
     storeState(state);
   }
 
