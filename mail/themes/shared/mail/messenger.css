@@ -219,12 +219,6 @@ treechildren::-moz-tree-twisty(selected, focus) {
   border-color: var(--sidebar-highlight-border-color, var(--item-focus-selected-border-color));
 }
 
-/* Quick-Filter-Bar */
-:root[lwt-default-theme-in-dark-mode] #quick-filter-bar:-moz-lwtheme {
-  background-color: var(--lwt-accent-color);
-  color: var(--lwt-text-color);
-}
-
 /* toolbar */
 
 toolbar[type="menubar"][autohide="true"] {

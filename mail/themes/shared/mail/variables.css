@@ -157,9 +157,9 @@
     --button-pressed-indicator-background-color: var(--color-blue-30);
     --button-pressed-indicator-border-color: var(--color-blue-40);
     --button-pressed-indicator-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
-    --lwt-accent-color: rgb(24, 24, 26) !important;
+    --lwt-accent-color: rgb(24, 24, 26);
     --new-folder-color: var(--color-blue-40);
-    --sidebar-border-color: #606064 !important;
+    --sidebar-border-color: var(--color-gray-50);
     --autocomplete-popup-highlight-background: #0060df;
     --selected-item-color: var(--color-blue-50);
     --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
@@ -191,10 +191,13 @@
     --splitter-color: #606064;
   }
 
+  /* Overwrite the toolkit default theme. */
   :root[lwt-default-theme-in-dark-mode] {
-    --lwt-selected-tab-background-color: #2a2a2e !important;
-    --lwt-tab-line-color: #0a84ff !important;
-    --sidebar-highlight-background-color: #0a84ff;
+    --lwt-selected-tab-background-color: var(--color-gray-70) !important;
+    --lwt-tab-line-color: var(--color-blue-50) !important;
+    --sidebar-background-color: var(--layout-background-1) !important;
+    --sidebar-highlight-background-color: var(--color-blue-50);
+    --sidebar-border-color: var(--color-gray-50) !important;
     --button-link-text-color: var(--color-blue-40);
     --button-link-active-text-color: var(--color-blue-50);
   }
