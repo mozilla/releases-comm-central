@@ -17,9 +17,11 @@ const {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const { open_compose_new_mail, setup_msg_contents } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
-);
+const {
+  open_compose_new_mail,
+  save_compose_message,
+  setup_msg_contents,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 const { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -40,6 +42,17 @@ let aboutMessage = get_about_message();
 
 // Used in some of the tests to verify key status display.
 let l10n = new Localization(["messenger/openpgp/composeKeyStatus.ftl"]);
+
+function waitForComposeWindow() {
+  return BrowserTestUtils.domWindowOpened(null, async win => {
+    await BrowserTestUtils.waitForEvent(win, "load");
+    await BrowserTestUtils.waitForEvent(win, "focus", true);
+    return (
+      win.document.documentURI ===
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+    );
+  });
+}
 
 /**
  * Closes a window with a <dialog> element by calling the acceptDialog().
@@ -468,38 +481,27 @@ add_task(async function testEncryptedMessageReplyIsEncrypted() {
     )
   );
 
-  let replyWindowPromise = BrowserTestUtils.domWindowOpened(null, async win => {
-    await BrowserTestUtils.waitForEvent(win, "load");
-    return (
-      win.document.documentURI ===
-      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
-    );
-  });
-
+  let replyWindowPromise = waitForComposeWindow();
   get_about_message(mc.window)
     .document.querySelector("#hdrReplyButton")
     .click();
   close_window(mc);
 
   let replyWindow = await replyWindowPromise;
-  await Promise.all([
-    BrowserTestUtils.waitForEvent(replyWindow, "focus", true),
-    BrowserTestUtils.waitForEvent(replyWindow, "compose-editor-ready", true),
-  ]);
-  replyWindow.document.querySelector("#button-save").click();
+  await save_compose_message(replyWindow);
+  replyWindow.close();
 
   await TestUtils.waitForCondition(
     () => gDrafts.getTotalMessages(true) > 0,
     "message should be saved to drafts folder"
   );
-  replyWindow.close();
 
   await be_in_folder(gDrafts);
   select_click_row(0);
 
-  Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon should be displayed"
+  await TestUtils.waitForCondition(
+    () => OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
+    "message should have encrypted icon"
   );
 });
 
