@@ -188,6 +188,6 @@ unified-toolbar-tab::part(icon) {
   content: var(--icon-settings);
 }
 
-:is(.live-content, .button-appmenu):-moz-window-inactive {
+:is(.live-content, .button-appmenu, #spacesPinnedButton):-moz-window-inactive {
   opacity: 0.6;
 }
