@@ -52,31 +52,6 @@ linux1804-64-tsan-qr/opt:
 
 # Windows platforms (matching /windows.*/)
 
-# windows 10 - 32bit
-windows10-32-2004-qr/opt:
-    build-platform: win32/opt
-    build-signing-label: build-signing-win32/opt
-    test-sets:
-        - gtest-tests
-        - mochitest-tests
-        - xpcshell-tests
-
-windows10-32-2004-shippable-qr/opt:
-    build-platform: win32-shippable/opt
-    build-signing-label: build-signing-win32-shippable/opt
-    test-sets:
-        - gtest-tests
-        - mochitest-tests
-        - xpcshell-tests
-
-windows10-32-2004-qr/debug:
-    build-platform: win32/debug
-    build-signing-label: build-signing-win32/debug
-    test-sets:
-        - gtest-tests
-        - mochitest-tests
-        - xpcshell-tests
-
 # windows 11 - 32bit
 windows11-32-2009-qr/opt:
     build-platform: win32/opt
@@ -126,11 +101,6 @@ windows10-64-2004-qr/debug:
         - gtest-tests
         - mochitest-tests
         - xpcshell-tests
-
-windows10-64-2004-asan-qr/opt:
-    build-platform: win64-asan/opt
-    test-sets:
-        - mochitest-tests
 
 # windows 11 - 64bit
 windows11-64-2009-qr/opt:
