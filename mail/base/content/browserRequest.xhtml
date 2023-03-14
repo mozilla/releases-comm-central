@@ -49,7 +49,11 @@
                 readonly="readonly">
     </html:input>
   </html:div>
-  <browser type="content" src="about:blank" id="requestFrame" flex="1"
+  <browser id="requestFrame"
+           type="content"
+           nodefaultsrc="true"
+           maychangeremoteness="true"
+           flex="1"
            autocompletepopup="PopupAutoComplete"
            selectmenulist="ContentSelectDropdown"
            datetimepicker="DateTimePickerPanel"/>
