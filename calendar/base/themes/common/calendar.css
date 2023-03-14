@@ -36,6 +36,10 @@
   visibility: collapse;
 }
 
+#calendarDisplayBox {
+  overflow: auto;
+}
+
 /* Invitations link in status bar */
 #calendar-invitations-label {
   margin-block: 3px;

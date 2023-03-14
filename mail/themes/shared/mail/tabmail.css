@@ -28,6 +28,7 @@
 
 #tabmail {
   -moz-box-layout: legacy;
+  overflow: hidden;
 }
 
 #tabmail-tabs .tabmail-tab:first-child .tab-close-button,
