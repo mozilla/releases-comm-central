@@ -445,7 +445,9 @@ char* MimeHeaders_get_parameter(const char* header_value, const char* parm_name,
   if (NS_FAILED(rv)) return nullptr;
 
   nsCString result;
-  rv = mimehdrpar->GetParameterInternal(header_value, parm_name, charset,
+  nsCString headerValue;
+  headerValue.Assign(header_value);
+  rv = mimehdrpar->GetParameterInternal(headerValue, parm_name, charset,
                                         language, getter_Copies(result));
   return NS_SUCCEEDED(rv) ? PL_strdup(result.get()) : nullptr;
 }
