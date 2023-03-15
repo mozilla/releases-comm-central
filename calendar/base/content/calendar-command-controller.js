@@ -40,6 +40,7 @@ var calendarController = {
     "calendar_new_todo_command",
     "calendar_new_todo_context_command",
     "calendar_new_todo_todaypane_command",
+    "calendar_toggle_tasks_in_view_command",
     "calendar_modify_todo_command",
     "calendar_modify_todo_todaypane_command",
     "calendar_delete_todo_command",
@@ -134,6 +135,7 @@ var calendarController = {
       case "calendar_new_todo_command":
       case "calendar_new_todo_context_command":
       case "calendar_new_todo_todaypane_command":
+      case "calendar_toggle_tasks_in_view_command":
         return CalendarNewTasksCommandEnabled;
       case "calendar_modify_todo_command":
       case "calendar_modify_todo_todaypane_command":
@@ -861,6 +863,7 @@ function calendarUpdateNewItemsCommand() {
     "calendar_new_todo_command",
     "calendar_new_todo_context_command",
     "calendar_new_todo_todaypane_command",
+    "calendar_toggle_tasks_in_view_command",
   ].forEach(goUpdateCommand);
 
   document.getElementById("sidePanelNewEvent").disabled = !CalendarNewEventsCommandEnabled;

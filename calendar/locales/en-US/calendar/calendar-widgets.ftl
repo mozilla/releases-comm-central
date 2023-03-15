@@ -105,6 +105,9 @@ calendar-hide-weekends-option =
 calendar-define-workweek-option =
   .label = Define workweek days
 
+calendar-show-tasks-calendar-option =
+  .label = Show tasks in calendar
+
 ## Calendar Context Menu
 
 calendar-context-menu-previous-day =

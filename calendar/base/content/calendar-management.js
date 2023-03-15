@@ -617,7 +617,7 @@ var compositeObserver = {
   onError() {},
 
   onPropertyChanged(calendar, name, value, oldValue) {
-    if (name == "disabled") {
+    if (name == "disabled" || name == "readOnly") {
       // Update commands when a calendar has been enabled or disabled.
       calendarUpdateNewItemsCommand();
       document.commandDispatcher.updateCommands("calendar_commands");
@@ -628,13 +628,15 @@ var compositeObserver = {
 
   onCalendarAdded(aCalendar) {
     // Update the calendar commands for number of remote calendars and for
-    // more than one calendar
+    // more than one calendar.
+    calendarUpdateNewItemsCommand();
     document.commandDispatcher.updateCommands("calendar_commands");
   },
 
   onCalendarRemoved(aCalendar) {
     // Update commands to disallow deleting the last calendar and only
     // allowing reload remote calendars when there are remote calendars.
+    calendarUpdateNewItemsCommand();
     document.commandDispatcher.updateCommands("calendar_commands");
   },
 
