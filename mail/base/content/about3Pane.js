@@ -105,11 +105,6 @@ window.addEventListener("DOMContentLoaded", async event => {
 
   accountCentralBrowser = document.getElementById("accountCentralBrowser");
 
-  MailServices.mailSession.AddFolderListener(
-    folderListener,
-    Ci.nsIFolderListener.all
-  );
-
   // Set up the initial state using information which may have been provided
   // by mailTabs.js, or the saved state from the XUL store, or the defaults.
   restoreState(window.openingState);
@@ -855,6 +850,14 @@ var folderPane = {
     );
     activeModes = activeModes.split(",");
     this.activeModes = activeModes;
+
+    // Don't await anything between the active modes being initialised (the
+    // line above) and the listener being added. Otherwise folders may appear
+    // while we're not listening.
+    MailServices.mailSession.AddFolderListener(
+      folderListener,
+      Ci.nsIFolderListener.all
+    );
 
     folderTree.addEventListener("contextmenu", this);
     folderTree.addEventListener("collapsed", this);
