@@ -7,6 +7,8 @@ loader: gecko_taskgraph.loader.test:loader
 kind-dependencies:
     - build
     - build-signing
+    - repackage-signing-shippable-l10n-msix
+    - repackage-signing-msix
     - fetch
     - toolchain
 
@@ -33,7 +35,13 @@ job-defaults:
             default:
                 skip-suite-only: null
     mozharness:
-        requires-signed-builds: false
+        requires-signed-builds:
+            by-test-platform:
+                windows1.*-64.*-qr/opt:
+                    by-variant:
+                        msix: true
+                        default: false
+                default: false
     fetches:
         toolchain:
             by-test-platform:

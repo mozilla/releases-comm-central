@@ -56,7 +56,9 @@ treeherder:
 
         # Tests
         'X': 'Xpcshell tests'
+        'X-msix': 'Xpcshell tests on msix packages'
         'M': 'Mochitests'
+        'M-msix': 'Mochitests from MSIX builds'
 
         'Searchfox': 'Searchfox builds'
         'doc': 'Source docs'
