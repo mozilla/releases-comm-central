@@ -262,11 +262,6 @@ workers:
             implementation: generic-worker
             os: macosx
             worker-type: 'gecko-{alias}'
-        win10-(32|64)-2004:
-            provisioner: comm-t
-            implementation: generic-worker
-            os: windows
-            worker-type: '{alias}'
         win11-64-2009:
             provisioner: comm-t
             implementation: generic-worker
