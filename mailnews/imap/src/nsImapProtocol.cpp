@@ -6025,8 +6025,6 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
                                            imapMessageFlagsType flags,
                                            nsCString& keywords) {
   if (!file || !mailboxName) return;
-  // Zero the progress bar and text % after possible SMTP send of the file.
-  PercentProgressUpdateEvent(""_ns, u""_ns, 0, 100);
   IncrementCommandTagNumber();
 
   int64_t fileSize = 0;
@@ -6133,6 +6131,17 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
         totalSize -= readCount;
         PercentProgressUpdateEvent(""_ns, u""_ns, fileSize - totalSize,
                                    fileSize);
+        if (!totalSize) {
+          // The full message has been queued for sending, but the actual send
+          // is just now starting and can still potentially fail. From this
+          // point the progress cannot be determined, so just set the progress
+          // to "indeterminate" so that the user does not see an incorrect 100%
+          // complete on the progress bar while waiting for the retry dialog to
+          // appear if the send should fail.
+          m_lastProgressTime = 0;  // Force progress bar update
+          m_lastPercent = -1;      // Force progress bar update
+          PercentProgressUpdateEvent(""_ns, u""_ns, 0, -1);  // Indeterminate
+        }
       }
     }  // end while appending chunks
 
@@ -7753,7 +7762,13 @@ void nsImapProtocol::EndIdle(bool waitForResponse /* = true */) {
       m_imapMailFolderSinkSelected->OnNewIdleMessages();
     }
   }
-  m_imapMailFolderSink = nullptr;
+  // Set m_imapMailFolderSink null only if shutting down or if DONE succeeds.
+  // We need to keep m_imapMailFolderSink if DONE fails or times out when not
+  // shutting down so the URL that is attempting to run on this connection can
+  // retry or signal a failed status when SetUrlState is called in
+  // ProcessCurrentUrl to invoke nsIUrlListener.onStopRunningUrl.
+  if (!waitForResponse || GetServerStateParser().LastCommandSuccessful())
+    m_imapMailFolderSink = nullptr;
 }
 
 void nsImapProtocol::Search(const char* searchCriteria, bool useUID,

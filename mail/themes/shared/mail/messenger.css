@@ -1050,12 +1050,24 @@ label.statusbarpanel {
   /* Make a white reflecting animation.
      Create a gradient with 2 identical pattern, and enlarge the size to 200%.
      This allows us to animate background-position with percentage. */
-  background-image: linear-gradient(90deg, transparent 0%,
-                                           rgba(255, 255, 255, 0.5) 25%,
-                                           transparent 50%,
-                                           rgba(255, 255, 255, 0.5) 75%,
-                                           transparent 100%);
+  background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.8) 0%,
+                                           rgba(255, 255, 255, 0.2) 25%,
+                                           rgba(255, 255, 255, 0.8) 50%,
+                                           rgba(255, 255, 255, 0.2) 75%,
+                                           rgba(255, 255, 255, 0.8) 100%);
   background-size: 200% 100%;
+}
+
+@media (prefers-color-scheme: dark) {
+  #dialog\.progress:indeterminate::-moz-progress-bar,
+  #shutdown_progressmeter:indeterminate::-moz-progress-bar,
+  .progressmeter-statusbar:indeterminate::-moz-progress-bar {
+    background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.5) 0%,
+                                             rgba(0, 0, 0, 0.1) 25%,
+                                             rgba(0, 0, 0, 0.5) 50%,
+                                             rgba(0, 0, 0, 0.1) 75%,
+                                             rgba(0, 0, 0, 0.5) 100%);
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
