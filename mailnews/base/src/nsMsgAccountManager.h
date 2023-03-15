@@ -94,6 +94,7 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
   nsCOMArray<nsIIncomingServerListener> m_incomingServerListeners;
   nsTObserverArray<RefPtr<VirtualFolderChangeListener>>
       m_virtualFolderListeners;
+  nsTArray<nsCOMPtr<nsIMsgFolder>> m_virtualFolders;
   nsCOMPtr<nsIMsgFolder> m_folderDoingEmptyTrash;
   nsCOMPtr<nsIMsgFolder> m_folderDoingCleanupInbox;
   bool m_emptyTrashInProgress;

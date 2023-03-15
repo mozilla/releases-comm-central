@@ -584,7 +584,9 @@ var folderPane = {
           let account = MailServices.accounts.createAccount();
           account.incomingServer = smartServer;
         }
-        let smartRoot = smartServer.rootFolder;
+        let smartRoot = smartServer.rootFolder.QueryInterface(
+          Ci.nsIMsgLocalMailFolder
+        );
 
         for (let folderType of this._folderTypes) {
           let folder = smartRoot.getChildWithURI(
@@ -603,15 +605,26 @@ var folderPane = {
                 }
               }
 
-              let wrapper = VirtualFolderHelper.createNewVirtualFolder(
-                folderType.name,
-                smartRoot,
-                searchFolders,
-                "ALL",
-                true
+              folder = smartRoot.createLocalSubfolder(folderType.name);
+              folder.setFlag(Ci.nsMsgFolderFlags.Virtual | folderType.flag);
+
+              let msgDatabase = folder.msgDatabase;
+              let folderInfo = msgDatabase.dBFolderInfo;
+
+              folderInfo.setCharProperty("searchStr", "ALL");
+              folderInfo.setCharProperty(
+                "searchFolderUri",
+                searchFolders.map(f => f.URI).join("|")
               );
-              folder = wrapper.virtualFolder;
-              folder.setFlag(folderType.flag);
+              folderInfo.setUint32Property(
+                "searchFolderFlag",
+                folderType.flag
+              );
+              folderInfo.setBooleanProperty("searchOnline", true);
+              msgDatabase.summaryValid = true;
+              msgDatabase.close(true);
+
+              smartRoot.notifyFolderAdded(folder);
             } catch (ex) {
               console.error(ex);
               continue;
@@ -621,11 +634,22 @@ var folderPane = {
           this.containerList.appendChild(row);
           folderType.list = row.childList;
         }
+        MailServices.accounts.saveVirtualFolders();
       },
 
       initServer(server) {
         for (let folder of server.rootFolder.subFolders) {
           this.addFolder(server.rootFolder, folder);
+        }
+
+        let inbox = server.rootFolder.getFolderWithFlags(
+          Ci.nsMsgFolderFlags.Inbox
+        );
+        if (!inbox) {
+          return;
+        }
+        for (let subFolder of inbox.subFolders) {
+          this.addFolder(inbox, subFolder);
         }
       },
 
@@ -639,8 +663,42 @@ var folderPane = {
               true
             );
             folderType.list?.appendChild(folderRow);
-            break;
+            return;
           }
+        }
+
+        if (!childFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Inbox, true)) {
+          return;
+        }
+
+        let serverRow = folderPane.getRowForFolder(
+          childFolder.rootFolder,
+          "smart"
+        );
+        if (!serverRow) {
+          serverRow = this.containerList.appendChild(
+            folderPane._createServerRow("smart", childFolder.server)
+          );
+        }
+        let folderRow = serverRow.appendChildInOrder(
+          folderPane._createFolderRow("smart", childFolder)
+        );
+        folderPane._addSubFolders(childFolder, folderRow, "smart");
+      },
+
+      removeFolder(parentFolder, childFolder) {
+        let childRow = folderPane.getRowForFolder(childFolder, "smart");
+        if (!childRow) {
+          return;
+        }
+        let parentRow = childRow.parentNode.closest("li");
+        childRow.remove();
+        if (
+          parentRow.parentNode == this.containerList &&
+          parentRow.dataset.serverType &&
+          !parentRow.querySelector("li")
+        ) {
+          parentRow.remove();
         }
       },
     },
@@ -2063,23 +2121,22 @@ class FolderTreeRow extends HTMLLIElement {
    * Add a child row in the correct sort order.
    *
    * @param {FolderTreeRow} newChild
+   * @returns {FolderTreeRow}
    */
   appendChildInOrder(newChild) {
     let { folderSortOrder, name } = newChild;
     for (let child of this.childList.children) {
       if (folderSortOrder < child.folderSortOrder) {
-        this.childList.insertBefore(newChild, child);
-        return;
+        return this.childList.insertBefore(newChild, child);
       }
       if (
         folderSortOrder == child.folderSortOrder &&
         FolderTreeRow.nameCollator.compare(name, child.name) < 0
       ) {
-        this.childList.insertBefore(newChild, child);
-        return;
+        return this.childList.insertBefore(newChild, child);
       }
     }
-    this.childList.appendChild(newChild);
+    return this.childList.appendChild(newChild);
   }
 }
 customElements.define("folder-tree-row", FolderTreeRow, { extends: "li" });

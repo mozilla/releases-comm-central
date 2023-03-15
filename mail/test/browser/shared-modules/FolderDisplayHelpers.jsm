@@ -1414,12 +1414,8 @@ function expand_folder(aFolder) {
  */
 function assert_folder_collapsed(aFolder) {
   let folderIndex = assert_folder_visible(aFolder);
-  let folderFTVItem = mc.folderTreeView.getFTVItemForIndex(folderIndex);
-  if (folderFTVItem.open) {
-    throw new Error(
-      "Folder: " + aFolder.URI + " should be collapsed, but isn't"
-    );
-  }
+  let row = get_about_3pane().folderTree.getRowAtIndex(folderIndex);
+  Assert.ok(row.classList.contains("collapsed"));
 }
 
 /**
@@ -1428,12 +1424,8 @@ function assert_folder_collapsed(aFolder) {
  */
 function assert_folder_expanded(aFolder) {
   let folderIndex = assert_folder_visible(aFolder);
-  let folderFTVItem = mc.folderTreeView.getFTVItemForIndex(folderIndex);
-  if (!folderFTVItem.open) {
-    throw new Error(
-      "Folder: " + aFolder.URI + " should be expanded, but isn't"
-    );
-  }
+  let row = get_about_3pane().folderTree.getRowAtIndex(folderIndex);
+  Assert.ok(!row.classList.contains("collapsed"));
 }
 
 /**

@@ -180,6 +180,7 @@ nsresult nsMsgAccountManager::Shutdown() {
       msgDBService->UnregisterPendingListener(listener);
     }
   }
+  m_virtualFolders.Clear();
   if (m_msgFolderCache) WriteToFolderCache(m_msgFolderCache);
   (void)ShutdownServers();
   (void)UnloadAccounts();
@@ -2927,6 +2928,9 @@ nsresult nsMsgAccountManager::AddVFListenersForVF(
     m_virtualFolderListeners.AppendElement(dbListener);
     msgDBService->RegisterPendingListener(realFolder, dbListener);
   }
+  if (!m_virtualFolders.Contains(virtualFolder)) {
+    m_virtualFolders.AppendElement(virtualFolder);
+  }
   return NS_OK;
 }
 
@@ -3012,16 +3016,11 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
   // folders with this flag, and if so, add this folder to the scope.
   if (addToSmartFolders) {
     // quick way to enumerate the saved searches.
-    nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
-        m_virtualFolderListeners);
-    RefPtr<VirtualFolderChangeListener> listener;
-
-    while (iter.HasMore()) {
-      listener = iter.GetNext();
+    for (nsCOMPtr<nsIMsgFolder> virtualFolder : m_virtualFolders) {
       nsCOMPtr<nsIMsgDatabase> db;
       nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
-      listener->m_virtualFolder->GetDBFolderInfoAndDB(
-          getter_AddRefs(dbFolderInfo), getter_AddRefs(db));
+      virtualFolder->GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo),
+                                          getter_AddRefs(db));
       if (dbFolderInfo) {
         uint32_t vfFolderFlag;
         dbFolderInfo->GetUint32Property("searchFolderFlag", 0, &vfFolderFlag);
@@ -3179,6 +3178,10 @@ nsMsgAccountManager::OnFolderIntPropertyChanged(nsIMsgFolder* aFolder,
                                                 int64_t oldValue,
                                                 int64_t newValue) {
   if (aProperty.Equals(kFolderFlag)) {
+    if (newValue & nsMsgFolderFlags::Virtual) {
+      // This is a virtual folder, let's get out of here.
+      return NS_OK;
+    }
     uint32_t smartFlagsChanged =
         (oldValue ^ newValue) &
         (nsMsgFolderFlags::SpecialUse & ~nsMsgFolderFlags::Queue);
@@ -3217,16 +3220,11 @@ nsresult nsMsgAccountManager::RemoveFolderFromSmartFolder(
   NS_ASSERTION(!(flags & flagsChanged), "smart folder flag should not be set");
   // Flag was removed. Look for smart folder based on that flag,
   // and remove this folder from its scope.
-  nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
-      m_virtualFolderListeners);
-  RefPtr<VirtualFolderChangeListener> listener;
-
-  while (iter.HasMore()) {
-    listener = iter.GetNext();
+  for (nsCOMPtr<nsIMsgFolder> virtualFolder : m_virtualFolders) {
     nsCOMPtr<nsIMsgDatabase> db;
     nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
-    listener->m_virtualFolder->GetDBFolderInfoAndDB(
-        getter_AddRefs(dbFolderInfo), getter_AddRefs(db));
+    virtualFolder->GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo),
+                                        getter_AddRefs(db));
     if (dbFolderInfo) {
       uint32_t vfFolderFlag;
       dbFolderInfo->GetUint32Property("searchFolderFlag", 0, &vfFolderFlag);
@@ -3239,7 +3237,7 @@ nsresult nsMsgAccountManager::RemoveFolderFromSmartFolder(
         searchURI.Append('|');
         int32_t index = searchURI.Find(removedFolderURI);
         if (index != kNotFound) {
-          RemoveVFListenerForVF(listener->m_virtualFolder, aFolder);
+          RemoveVFListenerForVF(virtualFolder, aFolder);
 
           // remove |folderURI
           searchURI.Cut(index, removedFolderURI.Length() - 1);
