@@ -3566,11 +3566,6 @@ nsresult nsMsgCompose::ConvertTextToHTML(nsIFile* aSigFile,
 
 nsresult nsMsgCompose::LoadDataFromFile(nsIFile* file, nsString& sigData,
                                         bool aAllowUTF8, bool aAllowUTF16) {
-  int32_t readSize;
-  uint32_t nGot;
-  char* readBuf;
-  char* ptr;
-
   bool isDirectory = false;
   file->IsDirectory(&isDirectory);
   if (isDirectory) {
@@ -3578,30 +3573,12 @@ nsresult nsMsgCompose::LoadDataFromFile(nsIFile* file, nsString& sigData,
     return NS_MSG_ERROR_READING_FILE;
   }
 
-  nsCOMPtr<nsIInputStream> inputFile;
-  nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(inputFile), file);
-  if (NS_FAILED(rv)) return NS_MSG_ERROR_READING_FILE;
+  nsAutoCString data;
+  nsresult rv = nsMsgCompose::SlurpFileToString(file, data);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  int64_t fileSize;
-  file->GetFileSize(&fileSize);
-  readSize = (uint32_t)fileSize;
-
-  ptr = readBuf = (char*)PR_Malloc(readSize + 1);
-  if (!readBuf) return NS_ERROR_OUT_OF_MEMORY;
-  memset(readBuf, 0, readSize + 1);
-
-  while (readSize) {
-    inputFile->Read(ptr, readSize, &nGot);
-    if (nGot) {
-      readSize -= nGot;
-      ptr += nGot;
-    } else {
-      readSize = 0;
-    }
-  }
-  inputFile->Close();
-
-  readSize = (uint32_t)fileSize;
+  const char* readBuf = data.get();
+  int32_t readSize = data.Length();
 
   nsAutoCString sigEncoding(nsMsgI18NParseMetaCharset(file));
   bool removeSigCharset = !sigEncoding.IsEmpty() && m_composeHTML;
@@ -3623,13 +3600,8 @@ nsresult nsMsgCompose::LoadDataFromFile(nsIFile* file, nsString& sigData,
     }
   }
 
-  nsAutoCString readStr(readBuf, (int32_t)fileSize);
-  PR_FREEIF(readBuf);
-
-  // XXX: ^^^ could really use SlurpFileToString instead!
-
-  if (NS_FAILED(nsMsgI18NConvertToUnicode(sigEncoding, readStr, sigData)))
-    CopyASCIItoUTF16(readStr, sigData);
+  if (NS_FAILED(nsMsgI18NConvertToUnicode(sigEncoding, data, sigData)))
+    CopyASCIItoUTF16(data, sigData);
 
   // remove sig meta charset to allow user charset override during composition
   if (removeSigCharset) {
