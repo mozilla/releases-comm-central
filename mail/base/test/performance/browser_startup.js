@@ -121,7 +121,7 @@ const startupPhases = {
         "resource://gre/modules/BookmarkHTMLUtils.sys.mjs",
         "resource://gre/modules/Bookmarks.sys.mjs",
         "resource://gre/modules/ContextualIdentityService.sys.mjs",
-        "resource://gre/modules/CrashSubmit.jsm",
+        "resource://gre/modules/CrashSubmit.sys.mjs",
         "resource://gre/modules/FxAccounts.sys.mjs",
         "resource://gre/modules/FxAccountsStorage.sys.mjs",
         "resource://gre/modules/PlacesBackups.sys.mjs",
