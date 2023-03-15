@@ -611,10 +611,7 @@ var folderPane = {
                 "searchFolderUri",
                 searchFolders.map(f => f.URI).join("|")
               );
-              folderInfo.setUint32Property(
-                "searchFolderFlag",
-                folderType.flag
-              );
+              folderInfo.setUint32Property("searchFolderFlag", folderType.flag);
               folderInfo.setBooleanProperty("searchOnline", true);
               msgDatabase.summaryValid = true;
               msgDatabase.close(true);
