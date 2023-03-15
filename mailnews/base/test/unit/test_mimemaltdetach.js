@@ -119,7 +119,7 @@ add_task(async function testDetach() {
 /**
  * Get the full message content.
  *
- * @param aMsgHdr - nsIMsgDBHdr object whose text body will be read.
+ * @param {nsIMsgDBHdr} aMsgHdr - Message object whose text body will be read.
  * @returns {Promise<string>} full message contents.
  */
 function getContentFromMessage(aMsgHdr) {

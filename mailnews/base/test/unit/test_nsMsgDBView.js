@@ -243,11 +243,6 @@ var authorFirstLetterCustomColumn = {
 var gDBView;
 var gTreeView;
 
-var ViewType = Ci.nsMsgViewType;
-var SortType = Ci.nsMsgViewSortType;
-var SortOrder = Ci.nsMsgViewSortOrder;
-var ViewFlags = Ci.nsMsgViewFlagsType;
-
 var MSG_VIEW_FLAG_DUMMY = 0x20000000;
 
 var gFakeSelection = new TreeSelection(null);
@@ -260,15 +255,17 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
   }
 
   // always start out fully expanded
-  aViewFlags |= ViewFlags.kExpandAll;
+  aViewFlags |= Ci.nsMsgViewFlagsType.kExpandAll;
 
   gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
   gDBView.init(null, null, null);
   var outCount = {};
   gDBView.open(
     aViewType != "search" ? aTestFolder : null,
-    SortType.byDate,
-    aViewType != "search" ? SortOrder.ascending : SortOrder.descending,
+    Ci.nsMsgViewSortType.byDate,
+    aViewType != "search"
+      ? Ci.nsMsgViewSortOrder.ascending
+      : Ci.nsMsgViewSortOrder.descending,
     aViewFlags,
     outCount
   );
@@ -312,7 +309,9 @@ function setup_group_view(aSortType, aSortOrder, aTestFolder) {
 
   // grouped view uses these flags
   let viewFlags =
-    ViewFlags.kGroupBySort | ViewFlags.kExpandAll | ViewFlags.kThreadedDisplay;
+    Ci.nsMsgViewFlagsType.kGroupBySort |
+    Ci.nsMsgViewFlagsType.kExpandAll |
+    Ci.nsMsgViewFlagsType.kThreadedDisplay;
 
   gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
   gDBView.init(null, null, null);
@@ -356,14 +355,14 @@ function generalCmp(a, b) {
  *  values when changes in levels indicate closure of a level.  (Namely,
  *  if we see a node at level N, then all levels >N are no longer valid.)
  *
- * @param aSortBy The sort type.
- * @param aDirection The sort direction.
- * @param aKeyOrValueGetter A string naming the attribute on the message header
- *     to retrieve, or if that is not sufficient a function that takes a
- *     message header and returns the sort value for it.
- * @param aGetGroupValue An optional function that takes a message header and
- *     returns the grouping value for the header.  If omitted, it is assumed
- *     that the sort value is the grouping value.
+ * @param {nsMsgViewType} aSortBy - The sort type.
+ * @param {nsMsgViewSortOrder} aDirection - The sort direction.
+ * @param {string|Function} aKeyOrValueGetter - A string naming the attribute on
+ *   the message headerto retrieve, or if that is not sufficient a function that
+ *   takes a message header and returns the sort value for it.
+ * @param {Function} [aGetGroupValue] - An optional function that takes a
+ *   message header and  returns the grouping value for the header.
+ *   If omitted, it is assumed that the sort value is the grouping value.
  */
 function ensure_view_ordering(
   aSortBy,
@@ -389,8 +388,8 @@ function ensure_view_ordering(
   //  realize that it shouldn't do the right thing, so it can just change the
   //  sort.  (of course, under the hood, it is actually creating a new view...)
   if (
-    gDBView.viewFlags & ViewFlags.kGroupBySort &&
-    gDBView.viewType != ViewType.eShowSearch
+    gDBView.viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort &&
+    gDBView.viewType != Ci.nsMsgViewType.eShowSearch
   ) {
     // we must close to re-open (or we could just use a new view)
     let msgFolder = gDBView.msgFolder;
@@ -401,7 +400,8 @@ function ensure_view_ordering(
   }
 
   let comparisonValuesByLevel = [];
-  let expectedLevel0CmpResult = aDirection == SortOrder.ascending ? 1 : -1;
+  let expectedLevel0CmpResult =
+    aDirection == Ci.nsMsgViewSortOrder.ascending ? 1 : -1;
   let comparator = generalCmp;
 
   let dummyCount = 0,
@@ -514,8 +514,8 @@ function ensure_view_ordering(
  */
 function test_sort_columns() {
   ensure_view_ordering(
-    SortType.byDate,
-    SortOrder.descending,
+    Ci.nsMsgViewSortType.byDate,
+    Ci.nsMsgViewSortOrder.descending,
     "date",
     function getDateAgeBucket(msgHdr) {
       // so, this is a cop-out, but we know that the date age bucket for our
@@ -524,8 +524,8 @@ function test_sort_columns() {
     }
   );
   ensure_view_ordering(
-    SortType.byDate,
-    SortOrder.ascending,
+    Ci.nsMsgViewSortType.byDate,
+    Ci.nsMsgViewSortOrder.ascending,
     "date",
     function getDateAgeBucket(msgHdr) {
       // so, this is a cop-out, but we know that the date age bucket for our
@@ -535,13 +535,13 @@ function test_sort_columns() {
   );
   // (note, subject doesn't use dummy groups and so won't have grouping tested)
   ensure_view_ordering(
-    SortType.bySubject,
-    SortOrder.ascending,
+    Ci.nsMsgViewSortType.bySubject,
+    Ci.nsMsgViewSortOrder.ascending,
     "mime2DecodedSubject"
   );
   ensure_view_ordering(
-    SortType.byAuthor,
-    SortOrder.ascending,
+    Ci.nsMsgViewSortType.byAuthor,
+    Ci.nsMsgViewSortOrder.ascending,
     "mime2DecodedAuthor"
   );
   // Id
@@ -552,8 +552,8 @@ function test_sort_columns() {
   // Flagged
   // Unread
   ensure_view_ordering(
-    SortType.byRecipient,
-    SortOrder.ascending,
+    Ci.nsMsgViewSortType.byRecipient,
+    Ci.nsMsgViewSortOrder.ascending,
     "mime2DecodedRecipients"
   );
   // Location
@@ -562,11 +562,13 @@ function test_sort_columns() {
   // Attachments
   // Account
   // Custom
-  ensure_view_ordering(SortType.byCustom, SortOrder.ascending, function(
-    msgHdr
-  ) {
-    return authorFirstLetterCustomColumn.getSortStringForRow(msgHdr);
-  });
+  ensure_view_ordering(
+    Ci.nsMsgViewSortType.byCustom,
+    Ci.nsMsgViewSortOrder.ascending,
+    function(msgHdr) {
+      return authorFirstLetterCustomColumn.getSortStringForRow(msgHdr);
+    }
+  );
   // Received
 }
 
@@ -587,7 +589,7 @@ function test_number_of_messages() {
     gDBView.toggleOpenState(0);
   }
   let numMsgInTree = gTreeView.rowCount;
-  if (gDBView.viewFlags & ViewFlags.kGroupBySort) {
+  if (gDBView.viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort) {
     for (let iViewIndex = 0; iViewIndex < gTreeView.rowCount; iViewIndex++) {
       let flags = gDBView.getFlagsAt(iViewIndex);
       if (flags & MSG_VIEW_FLAG_DUMMY) {
@@ -681,8 +683,8 @@ function test_insert_remove_view_rows() {
   let level = 0;
   let folder = null;
   let xfview =
-    gDBView.viewType == ViewType.eShowSearch ||
-    gDBView.viewType == ViewType.eShowVirtualFolderResults;
+    gDBView.viewType == Ci.nsMsgViewType.eShowSearch ||
+    gDBView.viewType == Ci.nsMsgViewType.eShowVirtualFolderResults;
   if (xfview) {
     folder = gDBView.getFolderForViewIndex(index);
   }
@@ -721,8 +723,8 @@ function test_insert_remove_view_rows() {
 async function test_msg_added_to_search_view() {
   // if the view is a non-grouped search view, test adding a header to
   // the search results, and verify it gets put at top.
-  if (!(gDBView.viewFlags & ViewFlags.kGroupBySort)) {
-    gDBView.sort(SortType.byDate, SortOrder.descending);
+  if (!(gDBView.viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort)) {
+    gDBView.sort(Ci.nsMsgViewSortType.byDate, Ci.nsMsgViewSortOrder.descending);
     let [synMsg] = await make_and_add_message();
     let msgHdr = gTestFolder.msgDatabase.getMsgHdrForMessageID(
       synMsg.messageId
@@ -753,8 +755,8 @@ function test_threading_levels() {
   }
   // only look at threaded, non-grouped views.
   if (
-    gDBView.viewFlags & ViewFlags.kGroupBySort ||
-    !(gDBView.viewFlags & ViewFlags.kThreadedDisplay)
+    gDBView.viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort ||
+    !(gDBView.viewFlags & Ci.nsMsgViewFlagsType.kThreadedDisplay)
   ) {
     return;
   }
@@ -836,7 +838,11 @@ async function test_group_sort_collapseAll_expandAll_threading() {
   }
 
   // - create grouped view; open folder in byFlagged AZ sort
-  setup_group_view(SortType.byFlagged, SortOrder.ascending, gTestFolder);
+  setup_group_view(
+    Ci.nsMsgViewSortType.byFlagged,
+    Ci.nsMsgViewSortOrder.ascending,
+    gTestFolder
+  );
   // - make sure there are 5 rows; index 0 and 2 are dummy, 1 is flagged message,
   //   3-4 are messages
   assert_view_row_count(5);
@@ -863,7 +869,11 @@ async function test_group_sort_collapseAll_expandAll_threading() {
   assert_view_index_is_dummy(2);
 
   // - reverse sort; create grouped view; open folder in byFlagged ZA sort
-  setup_group_view(SortType.byFlagged, SortOrder.descending, gTestFolder);
+  setup_group_view(
+    Ci.nsMsgViewSortType.byFlagged,
+    Ci.nsMsgViewSortOrder.descending,
+    gTestFolder
+  );
   // - make sure there are 5 rows; index 0 and 3 are dummy, 1-2 are messages,
   //   4 is flagged message
   assert_view_row_count(5);
@@ -879,7 +889,11 @@ async function test_group_sort_collapseAll_expandAll_threading() {
 
   // - test grouped by custom column; the custCol is first letter of author
   // - create grouped view; open folder in byCustom ZA sort
-  setup_group_view(SortType.byCustom, SortOrder.descending, gTestFolder);
+  setup_group_view(
+    Ci.nsMsgViewSortType.byCustom,
+    Ci.nsMsgViewSortOrder.descending,
+    gTestFolder
+  );
 
   // - make sure there are 5 rows; index 0 and 2 are dummy, 1 is B value message,
   //   3-4 are messages with A value
@@ -913,8 +927,8 @@ async function test_group_dummies_under_mutation_by_date() {
   gTestFolder = await messageInjection.makeEmptyFolder();
 
   // - create the view
-  setup_view("group", ViewFlags.kGroupBySort);
-  gDBView.sort(SortType.byDate, SortOrder.ascending);
+  setup_view("group", Ci.nsMsgViewFlagsType.kGroupBySort);
+  gDBView.sort(Ci.nsMsgViewSortType.byDate, Ci.nsMsgViewSortOrder.ascending);
 
   // - ensure it's empty
   assert_view_empty();
@@ -1011,7 +1025,7 @@ async function test_xfvf_threading() {
 
   // - create the view
   await messageInjection.addSetsToFolders([gTestFolder], [msgSet]);
-  setup_view("xfvf", ViewFlags.kThreadedDisplay);
+  setup_view("xfvf", Ci.nsMsgViewFlagsType.kThreadedDisplay);
   assert_view_row_count(5);
   gDBView.toggleOpenState(0);
   gDBView.toggleOpenState(0);
@@ -1066,9 +1080,9 @@ async function test_thread_sorting() {
   Services.prefs.setBoolPref("mailnews.sort_threads_by_root", true);
   gDBView.open(
     gTestFolder,
-    SortType.byDate,
-    SortOrder.ascending,
-    ViewFlags.kThreadedDisplay,
+    Ci.nsMsgViewSortType.byDate,
+    Ci.nsMsgViewSortOrder.ascending,
+    Ci.nsMsgViewFlagsType.kThreadedDisplay,
     {}
   );
 
@@ -1077,7 +1091,7 @@ async function test_thread_sorting() {
   assert_view_message_at_indices(msg2, 1);
   assert_view_message_at_indices(msg3, 2);
 
-  gDBView.sort(SortType.byDate, SortOrder.descending);
+  gDBView.sort(Ci.nsMsgViewSortType.byDate, Ci.nsMsgViewSortOrder.descending);
   assert_view_message_at_indices(msg3, 0);
   assert_view_message_at_indices(msg2, 1);
   assert_view_message_at_indices(msg1, 2);
@@ -1085,9 +1099,9 @@ async function test_thread_sorting() {
   Services.prefs.clearUserPref("mailnews.sort_threads_by_root");
   gDBView.open(
     gTestFolder,
-    SortType.byDate,
-    SortOrder.ascending,
-    ViewFlags.kThreadedDisplay,
+    Ci.nsMsgViewSortType.byDate,
+    Ci.nsMsgViewSortOrder.ascending,
+    Ci.nsMsgViewFlagsType.kThreadedDisplay,
     {}
   );
 
@@ -1096,7 +1110,7 @@ async function test_thread_sorting() {
   assert_view_message_at_indices(msg1, 1);
   assert_view_message_at_indices(msg2, 2);
 
-  gDBView.sort(SortType.byDate, SortOrder.descending);
+  gDBView.sort(Ci.nsMsgViewSortType.byDate, Ci.nsMsgViewSortOrder.descending);
   assert_view_message_at_indices(msg2, 0);
   assert_view_message_at_indices(msg1, 1);
   assert_view_message_at_indices(msg3, 2);
@@ -1106,13 +1120,13 @@ async function test_thread_sorting() {
 }
 
 const VIEW_TYPES = [
-  ["threaded", ViewFlags.kThreadedDisplay],
-  ["quicksearch", ViewFlags.kThreadedDisplay],
-  ["search", ViewFlags.kThreadedDisplay],
-  ["search", ViewFlags.kGroupBySort],
-  ["xfvf", ViewFlags.kNone],
+  ["threaded", Ci.nsMsgViewFlagsType.kThreadedDisplay],
+  ["quicksearch", Ci.nsMsgViewFlagsType.kThreadedDisplay],
+  ["search", Ci.nsMsgViewFlagsType.kThreadedDisplay],
+  ["search", Ci.nsMsgViewFlagsType.kGroupBySort],
+  ["xfvf", Ci.nsMsgViewFlagsType.kNone],
   // group does unspeakable things to gTestFolder, so put it last.
-  ["group", ViewFlags.kGroupBySort],
+  ["group", Ci.nsMsgViewFlagsType.kGroupBySort],
 ];
 
 /**

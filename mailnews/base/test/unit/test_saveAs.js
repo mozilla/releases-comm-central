@@ -44,7 +44,9 @@ registerCleanupFunction(function() {
  * Creates a SyntheticMessage and prepares it for loading it
  * into a fake IMAP inbox.
  *
- * @returns {[ImapMessage, SyntheticMessage]}
+ * @returns {object[]}
+ *   [0] is an {ImapMessage}
+ *   [1] is an {SyntheticMessage}
  */
 async function createMessage() {
   let gMessageGenerator = new MessageGenerator();

@@ -76,8 +76,8 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate) {
 /**
  * Check that conversion worked for the given source.
  *
- * @param source - mbox source directory
- * @param target - maildir target directory
+ * @param {nsIFile} source - mbox source directory.
+ * @param {nsIFile} target - maildir target directory.
  */
 function checkConversion(source, target) {
   for (let sourceContent of source.directoryEntries) {
