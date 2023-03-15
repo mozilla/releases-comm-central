@@ -13,20 +13,19 @@ const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-const lazy = {};
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
+
 // XXX we need to know whether the gloda indexer is enabled for upsell reasons,
 // but this should really just be exposed on the main Gloda public interface.
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "GlodaIndexer",
-  "resource:///modules/gloda/GlodaIndexer.jsm"
-);
 // we need to be able to create gloda message searcher instances for upsells:
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "GlodaMsgSearcher",
-  "resource:///modules/gloda/GlodaMsgSearcher.jsm"
-);
+const lazy = {};
+XPCOMUtils.defineLazyModuleGetters(lazy, {
+  GlodaIndexer: "resource:///modules/gloda/GlodaIndexer.jsm",
+  GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.jsm",
+  TagUtils: "resource:///modules/TagUtils.jsm",
+});
 
 /**
  * Shallow object copy.
@@ -930,10 +929,16 @@ var TagFacetingFilter = {
         button.textContent = tag.tag;
         button.setAttribute("value", tag.key);
         let color = tag.color;
+        let contrast = lazy.TagUtils.isColorContrastEnough(color)
+          ? "black"
+          : "white";
         // everybody always gets to be an qfb-tag-button.
-        button.setAttribute("class", "qfb-tag-button");
+        button.setAttribute("class", "button qfb-tag-button");
         if (color) {
-          button.setAttribute("style", "color: " + color + " !important;");
+          button.setAttribute(
+            "style",
+            `--tag-color: ${color}; --tag-contrast-color: ${contrast};`
+          );
         }
         tagbar.appendChild(button);
       }

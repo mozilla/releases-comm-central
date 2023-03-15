@@ -82,8 +82,58 @@
   padding-block: 3px;
 }
 
+.qfb-tag-button {
+  --tag-color: currentColor;
+  --tag-contrast-color: currentColor;
+  --button-padding: 3px;
+  --button-margin: 3px;
+  background-color: transparent;
+  color: var(--tag-color);
+  border-color: var(--tag-color);
+  border-radius: 100px;
+  padding-inline: 9px;
+  min-height: 0;
+  min-width: 0;
+  line-height: 1;
+}
+
+.qfb-tag-button:enabled:hover:not([aria-pressed="true"]) {
+  color: var(--tag-color);
+  background-color: color-mix(in srgb, var(--tag-color) 20%, transparent);
+  border-color: var(--tag-color);
+}
+
+.qfb-tag-button[aria-pressed="true"]:enabled:hover {
+  color: var(--tag-contrast-color);
+  background-color: color-mix(in srgb, var(--tag-color) 70%, white);
+  border-color: color-mix(in srgb, var(--tag-color) 60%, black);
+}
+
+.qfb-tag-button[aria-pressed="true"] {
+  --tag-color: currentColor;
+  color: var(--tag-contrast-color);
+  background-color: var(--tag-color);
+  border-color: color-mix(in srgb, var(--tag-color) 60%, black);
+  border-radius: 100px;
+  box-shadow: none;
+}
+
+.qfb-tag-button:enabled:hover:active {
+  background-color: color-mix(in srgb, var(--tag-color) 80%, black);
+  border-color: color-mix(in srgb, var(--tag-color) 60%, black);
+}
+
 .qfb-tag-button[inverted] {
+  background-color: transparent;
+  color: var(--tag-color);
+  border-color: var(--tag-color);
   text-decoration: line-through;
+}
+
+.qfb-tag-button[inverted]:enabled:hover {
+  color: var(--tag-color);
+  background-color: color-mix(in srgb, var(--tag-color) 20%, transparent);
+  border-color: var(--tag-color);
 }
 
 #quick-filter-bar-main-bar {
