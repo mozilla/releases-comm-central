@@ -444,10 +444,15 @@ class ViewPopup extends BasePopup {
       return panel;
     };
 
-    // Create a temporary panel to hold the browser while it pre-loads its
-    // content. This panel will never be shown, but the browser's docShell will
-    // be swapped with the browser in the real panel when it's ready. For remote
-    // extensions, this popup is shared between all extensions.
+    // Firefox creates a temporary panel to hold the browser while it pre-loads
+    // its content (starting on mouseover already). This panel will never be shown,
+    // but the browser's docShell will be swapped with the browser in the real
+    // panel when it's ready (in ViewPopup.attach()).
+    // For remote extensions, Firefox shares this temporary panel between all
+    // extensions.
+
+    // NOTE: Thunderbird currently does not pre-load the popup and really uses
+    //       the "temporary" panel when displaying the popup to the user.
     let panel;
     if (extension.remote) {
       panel = document.getElementById(REMOTE_PANEL_ID);
@@ -474,6 +479,8 @@ class ViewPopup extends BasePopup {
   /**
    * Attaches the pre-loaded browser to the given view node, and reserves a
    * promise which resolves when the browser is ready.
+   *
+   * NOTE: Not used by Thunderbird.
    *
    * @param {Element} viewNode
    *        The node to attach the browser to.
@@ -605,9 +612,15 @@ class ViewPopup extends BasePopup {
 
   removeTempPanel() {
     if (this.tempPanel) {
-      if (this.tempPanel.id !== REMOTE_PANEL_ID) {
-        this.tempPanel.remove();
-      }
+      // NOTE: Thunderbird currently does not pre-load the popup into a temporary
+      //       panel as Firefox is doing it. We therefore do not have to "save"
+      //       the temporary panel for later re-use, but really have to remove it.
+      //       See Bug 1451058 for why Firefox uses the following conditional
+      //       remove().
+
+      // if (this.tempPanel.id !== REMOTE_PANEL_ID) {
+      this.tempPanel.remove();
+      // }
       this.tempPanel = null;
     }
     if (this.tempBrowser) {
