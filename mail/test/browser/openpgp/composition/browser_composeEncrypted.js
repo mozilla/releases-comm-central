@@ -13,12 +13,15 @@ const {
   be_in_folder,
   get_about_message,
   get_special_folder,
+  press_delete,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 const {
+  close_compose_window,
   open_compose_new_mail,
+  open_compose_with_reply,
   save_compose_message,
   setup_msg_contents,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
@@ -472,7 +475,7 @@ add_task(
  * Tests composing a reply to an encrypted message is encrypted by default.
  */
 add_task(async function testEncryptedMessageReplyIsEncrypted() {
-  await be_in_folder(bobAcct.incomingServer.rootFolder);
+  await be_in_folder(gDrafts);
   let mc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
@@ -481,15 +484,12 @@ add_task(async function testEncryptedMessageReplyIsEncrypted() {
     )
   );
 
-  let replyWindowPromise = waitForComposeWindow();
-  get_about_message(mc.window)
-    .document.querySelector("#hdrReplyButton")
-    .click();
+  let cwc = open_compose_with_reply(mc);
   close_window(mc);
 
-  let replyWindow = await replyWindowPromise;
+  let replyWindow = cwc.window;
   await save_compose_message(replyWindow);
-  replyWindow.close();
+  close_compose_window(cwc);
 
   await TestUtils.waitForCondition(
     () => gDrafts.getTotalMessages(true) > 0,
@@ -503,6 +503,9 @@ add_task(async function testEncryptedMessageReplyIsEncrypted() {
     () => OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "message should have encrypted icon"
   );
+
+  // Delete the outgoing message.
+  press_delete();
 });
 
 registerCleanupFunction(function tearDown() {
