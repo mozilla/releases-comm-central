@@ -14,6 +14,7 @@ var {
   assert_folder_visible,
   be_in_folder,
   delete_messages,
+  get_about_3pane,
   inboxFolder,
   make_message_sets_in_folders,
   mc,
@@ -21,6 +22,7 @@ var {
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
+var about3Pane;
 var rootFolder;
 var inboxSubfolder;
 var trashFolder;
@@ -28,6 +30,7 @@ var trashSubfolder;
 var inboxSet;
 
 add_setup(async function() {
+  about3Pane = get_about_3pane();
   rootFolder = inboxFolder.server.rootFolder;
 
   // Create a folder as a subfolder of the inbox
@@ -47,23 +50,22 @@ add_setup(async function() {
     [{ count: 1 }]
   );
   await make_message_sets_in_folders([inboxSubfolder], [{ count: 1 }]);
-});
 
-/**
- * Switch to the unread folder mode.
- */
-add_task(async function test_switch_to_unread_folders() {
+  // Switch to the unread folder mode.
   await be_in_folder(inboxFolder);
-  mc.folderTreeView.activeModes = "unread";
-  // Hide the all folder views.
-  mc.folderTreeView.activeModes = "all";
+  about3Pane.folderPane.activeModes = ["unread"];
 });
 
 /**
  * Test that inbox and inboxSubfolder are in view
  */
 add_task(function test_folder_population() {
+  about3Pane.folderTree.expandRowAtIndex(0);
+  mc.sleep();
   assert_folder_visible(inboxFolder);
+
+  about3Pane.folderTree.expandRowAtIndex(1);
+  mc.sleep();
   assert_folder_visible(inboxSubfolder);
 });
 
@@ -77,12 +79,7 @@ add_task(async function test_newly_added_folder() {
     [{ count: 1 }]
   );
   assert_folder_visible(trashFolder);
-  if (mc.folderTreeView.getSelectedFolders()[0] != inboxFolder) {
-    throw new Error(
-      "Inbox folder should be selected after new unread folder" +
-        " added to unread view"
-    );
-  }
+  Assert.equal(about3Pane.folderTree.selectedIndex, 0);
   await delete_messages(newSet);
 });
 
@@ -90,12 +87,5 @@ registerCleanupFunction(async function() {
   inboxFolder.propagateDelete(inboxSubfolder, true, null);
   await delete_messages(inboxSet);
   trashFolder.propagateDelete(trashSubfolder, true, null);
-  mc.folderTreeView.activeModes = "unread";
-
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
-  );
+  about3Pane.folderPane.activeModes = ["all"];
 });
