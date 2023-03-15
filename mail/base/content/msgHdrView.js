@@ -28,6 +28,10 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   Downloads: "resource://gre/modules/Downloads.jsm",
   FileUtils: "resource://gre/modules/FileUtils.jsm",
@@ -36,7 +40,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MailUtils: "resource:///modules/MailUtils.jsm",
   MessageArchiver: "resource:///modules/MessageArchiver.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
-  PluralForm: "resource://gre/modules/PluralForm.jsm",
 });
 
 XPCOMUtils.defineLazyServiceGetter(
