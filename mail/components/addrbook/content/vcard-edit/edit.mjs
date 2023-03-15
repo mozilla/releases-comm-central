@@ -183,16 +183,14 @@ class VCardEdit extends HTMLElement {
     }
 
     let customProperties = ["x-custom1", "x-custom2", "x-custom3", "x-custom4"];
-    if (
-      customProperties.some(name => this.vCardProperties.getFirstValue(name))
-    ) {
+    if (customProperties.some(key => this.vCardProperties.getFirstValue(key))) {
       // If one of these properties has a value, display all of them.
       let customFieldset = this.querySelector("#addr-book-edit-custom");
       let customEl =
         customFieldset.querySelector("vcard-custom") ||
         new VCardCustomComponent();
-      customEl.vCardPropertyEntries = customProperties.map(name =>
-        this._vCardProperties.getFirstEntry(name)
+      customEl.vCardPropertyEntries = customProperties.map(key =>
+        this._vCardProperties.getFirstEntry(key)
       );
       let addCustom = document.getElementById("vcard-add-custom");
       customFieldset.insertBefore(customEl, addCustom);
@@ -571,11 +569,11 @@ class VCardEdit extends HTMLElement {
    * Creates a VCardPropertyEntry with a matching
    * name to the vCard spec.
    *
-   * @param {string} name A name which should be a vCard spec property.
+   * @param {string} entryName - A name which should be a vCard spec property.
    * @returns {VCardPropertyEntry | undefined}
    */
-  static createVCardProperty(name) {
-    switch (name) {
+  static createVCardProperty(entryName) {
+    switch (entryName) {
       case "n":
         return VCardNComponent.newVCardPropertyEntry();
       case "fn":

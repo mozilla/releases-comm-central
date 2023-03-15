@@ -123,7 +123,7 @@ class TreeView extends HTMLElement {
     this.resizeObserver.disconnect();
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
+  attributeChangedCallback(attrName, oldValue, newValue) {
     this._rowElementName = newValue || "tree-view-table-row";
     this._rowElementClass = customElements.get(this._rowElementName);
 

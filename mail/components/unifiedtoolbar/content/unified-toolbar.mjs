@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../base/content/spacesToolbar.js */
-/* import-globals-from ../../../base/content/messenger-customization.js */
+/* global gSpacesToolbar, ToolbarContextMenu */
 
 import { getState } from "resource:///modules/CustomizationState.mjs";
 import {

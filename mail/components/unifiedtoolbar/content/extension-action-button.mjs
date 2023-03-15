@@ -96,8 +96,8 @@ class ExtensionActionButton extends UnifiedToolbarButton {
     this.badge = tabData.badgeText;
     this.disabled = !tabData.enabled;
     const { style } = this.#action.iconData.get(tabData.icon);
-    for (const [name, value] of style) {
-      this.style.setProperty(name, value);
+    for (const [propName, value] of style) {
+      this.style.setProperty(propName, value);
     }
     if (tabData.badgeText && tabData.badgeBackgroundColor) {
       const bgColor = tabData.badgeBackgroundColor;

@@ -172,13 +172,13 @@ export class VCardSpecialDateComponent extends HTMLElement {
   }
 
   /**
-   * @param {"bday" | "anniversary"} name
+   * @param {"bday" | "anniversary"} entryName
    * @returns {CustomEvent}
    */
-  static ChangeVCardPropertyEntryEvent(name) {
+  static ChangeVCardPropertyEntryEvent(entryName) {
     return new CustomEvent("vcard-bday-anniversary-change", {
       detail: {
-        name,
+        name: entryName,
       },
       bubbles: true,
     });
