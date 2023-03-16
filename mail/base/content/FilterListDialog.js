@@ -132,6 +132,10 @@ function onLoad() {
 
   processWindowArguments(window.arguments[0]);
 
+  // Don't change width after initial layout, so buttons stay within the dialog.
+  gRunFiltersFolder.style.maxWidth =
+    gRunFiltersFolder.getBoundingClientRect().width + "px";
+
   Services.obs.addObserver(
     filterEditorQuitObserver,
     "quit-application-requested"
