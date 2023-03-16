@@ -24,6 +24,8 @@ add_task(async function testExternalMessage() {
 
   let files = {
     "background.js": async () => {
+      let platformInfo = await browser.runtime.getPlatformInfo();
+
       const emlData = {
         openExternalFileMessage: {
           headerMessageId: "sample.eml@mime.sample",
@@ -45,7 +47,7 @@ add_task(async function testExternalMessage() {
           ccList: ["Jimmy <jimmy.Olsen@dailyplanet.com>"],
           subject: "Test message",
           attachments: 3,
-          size: 0,
+          size: platformInfo.os == "win" ? 6947 : 6825, // Line endings.
           external: true,
           read: null,
           recipients: ["Heinz Müller <mueller@examples.com>"],
@@ -242,6 +244,14 @@ add_task(async function testExternalMessage() {
         );
 
         foundMessages[action] = extMsgOpenByFile.id;
+
+        if (action == "openExternalFileMessage") {
+          let displayedPromise = window.waitForEvent(
+            "messageDisplay.onMessageDisplayed"
+          );
+          await browser.mailTabs.setSelectedMessages([messages[0].id]);
+          await displayedPromise;
+        }
       }
 
       // Delete the local eml file to trigger access errors.
@@ -301,7 +311,8 @@ add_task(async function testExternalMessage() {
     },
   });
 
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  let tabmail = document.getElementById("tabmail");
+  let about3Pane = tabmail.currentAbout3Pane;
   about3Pane.displayFolder(gFolder.URI);
   about3Pane.threadTree.selectedIndex = 0;
 
@@ -327,25 +338,13 @@ add_task(async function testExternalMessage() {
   });
 
   extension.onMessage("openExternalAttachedMessage", async () => {
-    let messagePath = PathUtils.join(
-      PathUtils.profileDir,
-      "attachedMessageSample.eml"
-    );
-    let messageFile = new FileUtils.File(messagePath);
-    let url = Services.io
-      .newFileURI(messageFile)
-      .mutate()
-      .setScheme("mailbox")
-      .setQuery(
-        "number=0&part=1.2&filename=sample02.eml&type=application/x-message-display&filename=sample02.eml"
-      )
-      .finalize();
-
-    window.openDialog(
-      "chrome://messenger/content/messageWindow.xhtml",
-      "_blank",
-      "all,chrome,dialog=no,status,toolbar",
-      url
+    // The message with attachment should be loaded in the 3-pane tab.
+    let aboutMessage = tabmail.currentAboutMessage;
+    aboutMessage.toggleAttachmentList(true);
+    EventUtils.synthesizeMouseAtCenter(
+      aboutMessage.document.querySelector(".attachmentItem"),
+      { clickCount: 2 },
+      aboutMessage
     );
     extension.sendMessage();
   });

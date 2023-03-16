@@ -10,6 +10,10 @@
 #include "nsIFileStreams.h"
 #include "nsIMimeConverter.h"
 
+static inline uint32_t PRTimeToSeconds(PRTime aTimeUsec) {
+  return uint32_t(aTimeUsec / PR_USEC_PER_SEC);
+}
+
 NS_IMPL_ISUPPORTS(nsMsgFileHdr, nsIMsgDBHdr)
 
 nsMsgFileHdr::nsMsgFileHdr(const nsACString& aUri) {
@@ -50,6 +54,15 @@ nsresult nsMsgFileHdr::ReadFile() {
     if (name.EqualsLiteral("From") && mAuthor.IsEmpty()) {
       mAuthor = hdr.Value(buffer);
     }
+    if (name.EqualsLiteral("To") && mRecipients.IsEmpty()) {
+      mRecipients = hdr.Value(buffer);
+    }
+    if (name.EqualsLiteral("Cc") && mCcList.IsEmpty()) {
+      mCcList = hdr.Value(buffer);
+    }
+    if (name.EqualsLiteral("Bcc") && mBccList.IsEmpty()) {
+      mBccList = hdr.Value(buffer);
+    }
     if (name.EqualsLiteral("Date") && mDate == 0) {
       PR_ParseTimeString(hdr.Value(buffer).get(), false, &mDate);
     }
@@ -68,6 +81,8 @@ nsresult nsMsgFileHdr::ReadFile() {
                                   mDecodedSubject);
   mimeConverter->DecodeMimeHeader(mAuthor.get(), "UTF-8", false, true,
                                   mDecodedAuthor);
+  mimeConverter->DecodeMimeHeader(mRecipients.get(), "UTF-8", false, true,
+                                  mDecodedRecipients);
 
   return rv;
 }
@@ -79,12 +94,24 @@ NS_IMETHODIMP nsMsgFileHdr::SetStringProperty(const char* propertyName,
 
 NS_IMETHODIMP nsMsgFileHdr::GetStringProperty(const char* propertyName,
                                               char** _retval) {
+  if (!strcmp(propertyName, "dummyMsgUrl")) {
+    *_retval = strdup(mUri.get());
+    return NS_OK;
+  }
   *_retval = strdup("");
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgFileHdr::GetUint32Property(const char* propertyName,
                                               uint32_t* _retval) {
+  if (!strcmp(propertyName, "dummyMsgLastModifiedTime")) {
+    nsresult rv = ReadFile();
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    PRTime modifiedTime;
+    mFile->GetLastModifiedTime(&modifiedTime);
+    *_retval = PRTimeToSeconds(modifiedTime);
+  }
   return NS_OK;
 }
 
@@ -148,6 +175,13 @@ NS_IMETHODIMP nsMsgFileHdr::SetThreadParent(nsMsgKey aThreadParent) {
 }
 
 NS_IMETHODIMP nsMsgFileHdr::GetMessageSize(uint32_t* aMessageSize) {
+  nsresult rv = ReadFile();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  int64_t fileSize;
+  mFile->GetFileSize(&fileSize);
+
+  *aMessageSize = uint32_t(fileSize);
   return NS_OK;
 }
 
@@ -203,11 +237,23 @@ NS_IMETHODIMP nsMsgFileHdr::SetMessageId(const char* aMessageId) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::GetCcList(char** aCcList) { return NS_OK; }
+NS_IMETHODIMP nsMsgFileHdr::GetCcList(char** aCcList) {
+  nsresult rv = ReadFile();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  *aCcList = strdup(mCcList.get());
+  return NS_OK;
+}
 
 NS_IMETHODIMP nsMsgFileHdr::SetCcList(const char* aCcList) { return NS_OK; }
 
-NS_IMETHODIMP nsMsgFileHdr::GetBccList(char** aBccList) { return NS_OK; }
+NS_IMETHODIMP nsMsgFileHdr::GetBccList(char** aBccList) {
+  nsresult rv = ReadFile();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  *aBccList = strdup(mBccList.get());
+  return NS_OK;
+}
 
 NS_IMETHODIMP nsMsgFileHdr::SetBccList(const char* aBccList) { return NS_OK; }
 
@@ -231,7 +277,13 @@ NS_IMETHODIMP nsMsgFileHdr::GetSubject(char** aSubject) {
 
 NS_IMETHODIMP nsMsgFileHdr::SetSubject(const char* aSubject) { return NS_OK; }
 
-NS_IMETHODIMP nsMsgFileHdr::GetRecipients(char** aRecipients) { return NS_OK; }
+NS_IMETHODIMP nsMsgFileHdr::GetRecipients(char** aRecipients) {
+  nsresult rv = ReadFile();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  *aRecipients = strdup(mRecipients.get());
+  return NS_OK;
+}
 
 NS_IMETHODIMP nsMsgFileHdr::SetRecipients(const char* aRecipients) {
   return NS_OK;
@@ -272,6 +324,11 @@ NS_IMETHODIMP nsMsgFileHdr::GetMime2DecodedSubject(
 
 NS_IMETHODIMP nsMsgFileHdr::GetMime2DecodedRecipients(
     nsAString& aMime2DecodedRecipients) {
+  nsresult rv = ReadFile();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  aMime2DecodedRecipients.Truncate();
+  aMime2DecodedRecipients.Assign(mDecodedRecipients);
   return NS_OK;
 }
 

@@ -316,16 +316,12 @@ class nsDummyMsgHeader {
     if (msgHdr) {
       for (let member of [
         "accountKey",
-        "author",
         "ccList",
         "date",
         "flags",
         "listPost",
         "messageId",
         "messageSize",
-        "mProperties",
-        "recipients",
-        "subject",
       ]) {
         // Members are either (associative) arrays or primitives.
         if (typeof msgHdr[member] == "object") {
@@ -337,6 +333,13 @@ class nsDummyMsgHeader {
           this[member] = msgHdr[member];
         }
       }
+      this.author = msgHdr.mime2DecodedAuthor;
+      this.recipients = msgHdr.mime2DecodedRecipients;
+      this.subject = msgHdr.mime2DecodedSubject;
+      this.mProperties.dummyMsgUrl = msgHdr.getStringProperty("dummyMsgUrl");
+      this.mProperties.dummyMsgLastModifiedTime = msgHdr.getUint32Property(
+        "dummyMsgLastModifiedTime"
+      );
     }
   }
   getProperty(aProperty) {
@@ -2107,7 +2110,8 @@ var messageTracker = new (class extends EventEmitter {
       }
       if (
         msgIdentifier.dummyMsgLastModifiedTime &&
-        !!(file.lastModifiedTime ^ msgIdentifier.dummyMsgLastModifiedTime)
+        Math.floor(file.lastModifiedTime / 1000000) !=
+          msgIdentifier.dummyMsgLastModifiedTime
       ) {
         throw new Error("File has been modified");
       }
