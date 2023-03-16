@@ -39,6 +39,7 @@
   margin: 3px;
   color: GrayText;
   text-align: end;
+  align-self: center;
 }
 
 #quick-filter-bar[filterActive="matches"] #qfb-results-label {
@@ -147,6 +148,7 @@
 }
 
 #quick-filter-bar-filter-text-bar:not([hidden]) {
+  --button-padding: 3px;
   display: flex;
   align-items: center;
 }
