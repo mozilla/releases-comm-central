@@ -203,6 +203,7 @@
     --sidebar-background-color: var(--layout-background-1) !important;
     --sidebar-highlight-background-color: var(--color-blue-50);
     --sidebar-border-color: var(--color-gray-50) !important;
+    --toolbar-field-border-color: var(--color-gray-50) !important;
     --button-link-text-color: var(--color-blue-40);
     --button-link-active-text-color: var(--color-blue-50);
   }

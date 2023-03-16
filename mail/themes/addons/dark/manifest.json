@@ -27,7 +27,7 @@
       "toolbar": "#3f3f46",
       "toolbar_bottom_separator": "#18181b",
       "toolbar_field": "#3f3f46",
-      "toolbar_field_border": "#9b9ec2",
+      "toolbar_field_border": "#71717a",
       "toolbar_field_border_focus": "#2493ef",
       "toolbar_field_text": "#f4f4f5",
       "toolbar_field_focus": "#52525b",
@@ -43,7 +43,7 @@
       "error_text_color": "#fca5a5",
       "input_background": "#3f3f46",
       "input_color": "#f4f4f5",
-      "input_border": "#9b9ec2"
+      "input_border": "#71717a"
     },
     "properties": {
       "color_scheme": "dark",
