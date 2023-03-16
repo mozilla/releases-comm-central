@@ -66,6 +66,12 @@
           this.mInput.mIgnoreFocus = false;
         }
       });
+
+      this.attachShadow({ mode: "open" });
+
+      let slot = document.createElement("slot");
+      slot.part = "content";
+      this.shadowRoot.appendChild(slot);
     }
 
     connectedCallback() {
@@ -231,7 +237,7 @@
     closePopup() {
       if (this.mPopupOpen) {
         this.hidePopup();
-        this.removeAttribute("width");
+        this.style.removeProperty("--panel-width");
       }
     }
 
@@ -292,7 +298,10 @@
         this.selectedIndex = -1;
 
         let width = aElement.getBoundingClientRect().width;
-        this.setAttribute("width", width > 100 ? width : 100);
+        this.style.setProperty(
+          "--panel-width",
+          (width > 100 ? width : 100) + "px"
+        );
         // invalidate() depends on the width attribute
         this._invalidate();
 
