@@ -322,18 +322,28 @@ add_task(async function testSpacesToolbarVisibility() {
   // Hide the spaces toolbar using the app menu.
   await toggleVisibilityWithAppMenu(true);
   await assertVisibility(false, "after hiding with the app menu");
-  Assert.notEqual(
-    document.activeElement,
-    activeElement,
-    "The focus moved from the previous element"
-  );
-  // Focus should be on the main app menu since we used the mouse to toggle the
-  // spaces toolbar.
-  Assert.equal(
-    document.activeElement,
-    document.getElementById("button-appmenu"),
-    "Active element is on the app menu"
-  );
+
+  // macOS by default doesn't move the focus when clicking on toolbar buttons.
+  if (AppConstants.platform != "macosx") {
+    Assert.notEqual(
+      document.activeElement,
+      activeElement,
+      "The focus moved from the previous element"
+    );
+    // Focus should be on the main app menu since we used the mouse to toggle the
+    // spaces toolbar.
+    Assert.equal(
+      document.activeElement,
+      document.getElementById("button-appmenu"),
+      "Active element is on the app menu"
+    );
+  } else {
+    Assert.equal(
+      document.activeElement,
+      activeElement,
+      "The focus didn't move from the previous element"
+    );
+  }
 
   // Now click the status bar toggle button to reveal the toolbar again.
   toggleButton.focus();
