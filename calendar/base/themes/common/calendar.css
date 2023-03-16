@@ -25,6 +25,9 @@
 
 #calSidebar {
   background-color: var(--layout-background-2);
+  overflow: hidden;
+  flex-shrink: 0;
+  min-width: 175px;
 }
 
 #calendarContent {

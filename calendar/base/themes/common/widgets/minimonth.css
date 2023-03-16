@@ -149,6 +149,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
   margin-bottom: var(--mmBoxPadding);
   padding: 0;
   text-align: center;
+  white-space: nowrap;
 }
 
 .minimonth-month-name {
