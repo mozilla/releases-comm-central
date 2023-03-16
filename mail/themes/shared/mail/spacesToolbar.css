@@ -43,7 +43,7 @@
   --spaces-gap: 15px;
   --spaces-container-gap: 15px;
   --spaces-button-padding: 5px;
-  --spaces-pinned-button-margin: 4px;
+  --spaces-pinned-button-margin: 5px;
   --spaces-button-badge-padding: 1px 6px;
   --spaces-button-badge-font: 0.9rem;
   --spaces-menuitem-current-indicator-size: 3px;
@@ -56,7 +56,7 @@
   --spaces-gap: 9px;
   --spaces-container-gap: 9px;
   --spaces-button-padding: 4px;
-  --spaces-pinned-button-margin: 3px;
+  --spaces-pinned-button-margin: 4px;
   --spaces-button-badge-padding: 1px 4px;
   --spaces-button-badge-font: 0.85rem;
   --spaces-menuitem-current-indicator-size: 3px;
@@ -213,16 +213,9 @@
 }
 
 #spacesPinnedButton {
-  margin: var(--spaces-pinned-button-margin) !important;
+  margin-inline-start: var(--spaces-pinned-button-margin);
   list-style-image: var(--icon-spaces-menu);
   min-width: auto;
-  -moz-context-properties: fill, stroke, stroke-opacity;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
-}
-
-#spacesPinnedButton:focus-visible {
-  outline: 2px solid var(--selected-item-color);
 }
 
 #spacesPinnedButton .toolbarbutton-text,

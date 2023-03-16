@@ -67,8 +67,8 @@
     --layout-background-3: transparent;
     --layout-background-4: transparent;
 
-    --layout-color-0: currentColor;
-    --layout-color-1: currentColor;
+    --layout-color-0: WindowText;
+    --layout-color-1: -moz-DialogText;
     --layout-color-2: currentColor;
     --layout-color-3: currentColor;
 

@@ -60,13 +60,18 @@
   --input-border-color: color-mix(in srgb, currentColor 41%, transparent);
   --new-folder-color: var(--color-blue-60);
   --lwt-header-image: none;
+  --search-field-placeholder: color-mix(in srgb, currentColor 50%, transparent);
   --selected-item-color: var(--color-blue-60);
   --selected-item-text-color: var(--color-white);
 
   --tab-min-height: 33px;
   --lwt-tabs-border-color: rgba(0, 0, 0, .3);
   --tabs-tabbar-border-size: 1px;
-  --button-border-radius: 3px;
+  --toolbar-button-hover-background-color: color-mix(in srgb, currentColor 10%, transparent);
+  --toolbar-button-hover-border-color: color-mix(in srgb, currentColor 30%, transparent);
+  --toolbar-button-hover-checked-color: color-mix(in srgb, currentColor 20%, transparent);
+  --toolbar-button-active-background-color: color-mix(in srgb, currentColor 20%, transparent);
+  --toolbar-button-active-border-color: color-mix(in srgb, currentColor 40%, transparent);
   --toolbarbutton-icon-fill-opacity: .85;
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
                                         rgba(0, 0, 0, .05));
@@ -219,10 +224,17 @@
     --button-primary-hover-border-color: -moz-DialogText;
     --button-link-text-color: LinkText;
     --button-link-active-text-color: ActiveText;
+    --button-pressed-shadow: none;
     --button-pressed-indicator-background-color: SelectedItem;
     --button-pressed-indicator-border-color: SelectedItem;
+    --search-field-placeholder: GrayText;
     --selected-item-color: SelectedItem;
     --selected-item-text-color: SelectedItemText;
+    --toolbar-button-hover-background-color: SelectedItem;
+    --toolbar-button-hover-border-color: SelectedItem;
+    --toolbar-button-hover-checked-color: SelectedItem;
+    --toolbar-button-active-background-color: SelectedItem;
+    --toolbar-button-active-border-color: SelectedItemText;
     --toolbar-field-background-color: Field;
     --toolbar-field-color: FieldText;
     --toolbar-field-border-color: ThreeDShadow;
