@@ -284,6 +284,7 @@
 }
 
 #agenda-container {
+  flex: 1 auto;
   display: flex;
   flex-direction: column;
   min-height: 7em; /* Show at least the #agenda-toolbar and a part of the events. */

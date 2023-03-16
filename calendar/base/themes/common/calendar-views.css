@@ -260,6 +260,7 @@
 /* Multiday view */
 
 :is(calendar-day-view, calendar-week-view):not([hidden]) {
+  flex: 1 auto;
   display: grid;
   height: 0;
 }
