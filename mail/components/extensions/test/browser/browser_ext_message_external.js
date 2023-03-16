@@ -56,16 +56,20 @@ add_task(async function testExternalMessage() {
         },
       };
 
-      let [{ displayedFolder }] = await browser.mailTabs.query({
+      let [
+        { displayedFolder, windowId: mainWindowId },
+      ] = await browser.mailTabs.query({
         active: true,
         currentWindow: true,
       });
 
-      let foundMessages = [];
-
       // Open an external file, either from file or via API.
-      async function openAndVerifyExternalMessage(actionOrMessageId, expected) {
-        let windowPromise = window.waitForEvent("windows.onCreated");
+      async function openAndVerifyExternalMessage(
+        actionOrMessageId,
+        location,
+        expected
+      ) {
+        let tabPromise = window.waitForEvent("tabs.onCreated");
         let messagePromise = window.waitForEvent(
           "messageDisplay.onMessageDisplayed"
         );
@@ -74,24 +78,45 @@ add_task(async function testExternalMessage() {
         if (Number.isInteger(actionOrMessageId)) {
           returnedMsgTab = await browser.messageDisplay.open({
             messageId: actionOrMessageId,
+            location,
           });
         } else {
-          await window.sendMessage(actionOrMessageId);
+          await window.sendMessage(actionOrMessageId, location);
         }
-        let [msgWindow] = await windowPromise;
+        let [msgTab] = await tabPromise;
         let [openedMsgTab, message] = await messagePromise;
 
+        if ("windowId" in expected) {
+          browser.test.assertEq(
+            expected.windowId,
+            msgTab.windowId,
+            "The opened tab should belong to the correct window"
+          );
+        } else {
+          browser.test.assertTrue(
+            msgTab.windowId != mainWindowId,
+            "The opened tab should not belong to the main window"
+          );
+        }
         browser.test.assertEq(
-          openedMsgTab.windowId,
-          msgWindow.id,
-          "The opened tab should belong to the correct window"
+          msgTab.id,
+          openedMsgTab.id,
+          "The opened tab should match the onMessageDisplayed event tab"
         );
 
         if (Number.isInteger(actionOrMessageId)) {
           browser.test.assertEq(
-            returnedMsgTab.windowId,
-            msgWindow.id,
-            "The returned tab should belong to the correct window"
+            msgTab.id,
+            returnedMsgTab.id,
+            "The returned tab should match the onMessageDisplayed event tab"
+          );
+        }
+
+        if ("messageId" in expected) {
+          browser.test.assertEq(
+            expected.messageId,
+            message.id,
+            "The message should have the same ID as it did previously"
           );
         }
 
@@ -166,41 +191,18 @@ add_task(async function testExternalMessage() {
           attachments.length,
           "Should find the correct number of attachments"
         );
-        browser.windows.remove(msgWindow.id);
+
+        await browser.tabs.remove(msgTab.id);
         return message;
       }
 
-      for (let action of [
-        "openExternalFileMessage",
-        "openExternalAttachedMessage",
-      ]) {
-        let expected = emlData[action];
-
-        // Open the external message file and check its details.
-        let extMsgOpenByFile = await openAndVerifyExternalMessage(
-          action,
-          expected
-        );
-
-        // Open the external message via API and check its details.
-        await openAndVerifyExternalMessage(extMsgOpenByFile.id, expected);
-
-        // Open the external message file again and check if it returns the same id.
-        let extMsgOpenByFileAgain = await openAndVerifyExternalMessage(
-          action,
-          expected
-        );
-        browser.test.assertEq(
-          extMsgOpenByFile.id,
-          extMsgOpenByFileAgain.id,
-          "Should return the same messageId when opened again"
-        );
-
+      // Check API operations on the given message.
+      async function testMessageOperations(message) {
         // Test copying a file message into Thunderbird.
         let { messages: messagesBeforeCopy } = await browser.messages.list(
           displayedFolder
         );
-        await browser.messages.copy([extMsgOpenByFile.id], displayedFolder);
+        await browser.messages.copy([message.id], displayedFolder);
         let { messages: messagesAfterCopy } = await browser.messages.list(
           displayedFolder
         );
@@ -211,7 +213,7 @@ add_task(async function testExternalMessage() {
         );
         let { messages } = await browser.messages.query({
           folder: displayedFolder,
-          headerMessageId: expected.headerMessageId,
+          headerMessageId: message.headerMessageId,
         });
         browser.test.assertTrue(
           messages.length == 1,
@@ -220,77 +222,130 @@ add_task(async function testExternalMessage() {
 
         // All other operations should fail.
         await browser.test.assertRejects(
-          browser.messages.update(extMsgOpenByFile.id, {}),
+          browser.messages.update(message.id, {}),
           `Error updating message: Operation not permitted for external messages`,
           "Updating external messages should throw."
         );
 
         await browser.test.assertRejects(
-          browser.messages.delete([extMsgOpenByFile.id]),
+          browser.messages.delete([message.id]),
           `Error deleting message: Operation not permitted for external messages`,
           "Deleting external messages should throw."
         );
 
         await browser.test.assertRejects(
-          browser.messages.archive([extMsgOpenByFile.id]),
+          browser.messages.archive([message.id]),
           `Error archiving message: Operation not permitted for external messages`,
           "Archiving external messages should throw."
         );
 
         await browser.test.assertRejects(
-          browser.messages.move([extMsgOpenByFile.id], displayedFolder),
+          browser.messages.move([message.id], displayedFolder),
           `Error moving message: Operation not permitted for external messages`,
           "Moving external messages should throw."
         );
 
-        foundMessages[action] = extMsgOpenByFile.id;
-
-        if (action == "openExternalFileMessage") {
-          let displayedPromise = window.waitForEvent(
-            "messageDisplay.onMessageDisplayed"
-          );
-          await browser.mailTabs.setSelectedMessages([messages[0].id]);
-          await displayedPromise;
-        }
+        return messages[0];
       }
 
+      // Open an external message in a tab and check its details.
+      let externalMessage = await openAndVerifyExternalMessage(
+        "openExternalFileMessage",
+        "tab",
+        { ...emlData.openExternalFileMessage, windowId: mainWindowId }
+      );
+      // Open and check the same message in a window.
+      await openAndVerifyExternalMessage("openExternalFileMessage", "window", {
+        ...emlData.openExternalFileMessage,
+        messageId: externalMessage.id,
+      });
+      // Open and check the same message in a tab, using the API.
+      await openAndVerifyExternalMessage(externalMessage.id, "tab", {
+        ...emlData.openExternalFileMessage,
+        messageId: externalMessage.id,
+        windowId: mainWindowId,
+      });
+      // Open and check the same message in a window, using the API.
+      await openAndVerifyExternalMessage(externalMessage.id, "window", {
+        ...emlData.openExternalFileMessage,
+        messageId: externalMessage.id,
+      });
+
+      // Test operations on the external message. This will put a copy in a
+      // folder that we can use for the next step.
+      let copiedMessage = await testMessageOperations(externalMessage);
+      let messagePromise = window.waitForEvent(
+        "messageDisplay.onMessageDisplayed"
+      );
+      await browser.mailTabs.setSelectedMessages([copiedMessage.id]);
+      await messagePromise;
+
+      // Open an attached message in a tab and check its details.
+      let attachedMessage = await openAndVerifyExternalMessage(
+        "openExternalAttachedMessage",
+        "tab",
+        { ...emlData.openExternalAttachedMessage, windowId: mainWindowId }
+      );
+      // Open and check the same message in a window.
+      await openAndVerifyExternalMessage(
+        "openExternalAttachedMessage",
+        "window",
+        {
+          ...emlData.openExternalAttachedMessage,
+          messageId: attachedMessage.id,
+        }
+      );
+      // Open and check the same message in a tab, using the API.
+      await openAndVerifyExternalMessage(attachedMessage.id, "tab", {
+        ...emlData.openExternalAttachedMessage,
+        messageId: attachedMessage.id,
+        windowId: mainWindowId,
+      });
+      // Open and check the same message in a window, using the API.
+      await openAndVerifyExternalMessage(attachedMessage.id, "window", {
+        ...emlData.openExternalAttachedMessage,
+        messageId: attachedMessage.id,
+      });
+
+      // Test operations on the attached message.
+      await testMessageOperations(attachedMessage);
+
       // Delete the local eml file to trigger access errors.
-      let messageId = foundMessages.openExternalFileMessage;
       await window.sendMessage(`deleteExternalMessage`);
 
       await browser.test.assertRejects(
-        browser.messages.update(messageId, {}),
-        `Error updating message: Message not found: ${messageId}.`,
+        browser.messages.update(externalMessage.id, {}),
+        `Error updating message: Message not found: ${externalMessage.id}.`,
         "Updating a missing message should throw."
       );
 
       await browser.test.assertRejects(
-        browser.messages.delete([messageId]),
-        `Error deleting message: Message not found: ${messageId}.`,
+        browser.messages.delete([externalMessage.id]),
+        `Error deleting message: Message not found: ${externalMessage.id}.`,
         "Deleting a missing message should throw."
       );
 
       await browser.test.assertRejects(
-        browser.messages.archive([messageId]),
-        `Error archiving message: Message not found: ${messageId}.`,
+        browser.messages.archive([externalMessage.id]),
+        `Error archiving message: Message not found: ${externalMessage.id}.`,
         "Archiving a missing message should throw."
       );
 
       await browser.test.assertRejects(
-        browser.messages.move([messageId], displayedFolder),
-        `Error moving message: Message not found: ${messageId}.`,
+        browser.messages.move([externalMessage.id], displayedFolder),
+        `Error moving message: Message not found: ${externalMessage.id}.`,
         "Moving a missing message should throw."
       );
 
       await browser.test.assertRejects(
-        browser.messages.copy([messageId], displayedFolder),
-        `Error copying message: Message not found: ${messageId}.`,
+        browser.messages.copy([externalMessage.id], displayedFolder),
+        `Error copying message: Message not found: ${externalMessage.id}.`,
         "Copying a missing message should throw."
       );
 
       await browser.test.assertRejects(
-        browser.messageDisplay.open({ messageId }),
-        `Unknown or invalid messageId: ${messageId}.`,
+        browser.messageDisplay.open({ messageId: externalMessage.id }),
+        `Unknown or invalid messageId: ${externalMessage.id}.`,
         "Opening a missing message should throw."
       );
 
@@ -316,7 +371,7 @@ add_task(async function testExternalMessage() {
   about3Pane.displayFolder(gFolder.URI);
   about3Pane.threadTree.selectedIndex = 0;
 
-  extension.onMessage("openExternalFileMessage", async () => {
+  extension.onMessage("openExternalFileMessage", async location => {
     let messagePath = PathUtils.join(
       PathUtils.profileDir,
       "attachedMessageSample.eml"
@@ -328,16 +383,25 @@ add_task(async function testExternalMessage() {
       .setQuery("type=application/x-message-display")
       .finalize();
 
-    window.openDialog(
-      "chrome://messenger/content/messageWindow.xhtml",
-      "_blank",
-      "all,chrome,dialog=no,status,toolbar",
-      url
+    Services.prefs.setIntPref(
+      "mail.openMessageBehavior",
+      MailConsts.OpenMessageBehavior[
+        location == "window" ? "NEW_WINDOW" : "NEW_TAB"
+      ]
     );
+
+    window.MsgOpenEMLFile(messageFile, url);
     extension.sendMessage();
   });
 
-  extension.onMessage("openExternalAttachedMessage", async () => {
+  extension.onMessage("openExternalAttachedMessage", async location => {
+    Services.prefs.setIntPref(
+      "mail.openMessageBehavior",
+      MailConsts.OpenMessageBehavior[
+        location == "window" ? "NEW_WINDOW" : "NEW_TAB"
+      ]
+    );
+
     // The message with attachment should be loaded in the 3-pane tab.
     let aboutMessage = tabmail.currentAboutMessage;
     aboutMessage.toggleAttachmentList(true);

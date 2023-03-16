@@ -125,7 +125,7 @@
                   "window"
                 ],
                 "optional": true,
-                "description": "Where to open the message. If not specified, the users preference is honoured. Ignored for external messages, which are always opened in a new window."
+                "description": "Where to open the message. If not specified, the users preference is honoured."
               },
               "active": {
                 "type": "boolean",

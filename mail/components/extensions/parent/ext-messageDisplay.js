@@ -169,39 +169,30 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
         },
         async open(properties) {
           let msgHdr = getMsgHdr(properties);
-          if (!msgHdr.folder) {
+          let messageURI;
+          if (msgHdr.folder) {
+            messageURI = msgHdr.folder.getUriForMsg(msgHdr);
+          } else {
             // Add the application/x-message-display type to the url, if missing.
             // The slash is escaped when setting the type via searchParams, but
             // core code needs it unescaped.
             let url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
             url.searchParams.delete("type");
-            let msgUrl = `${url.href}${
+            messageURI = `${url.href}${
               url.searchParams.toString() ? "&" : "?"
             }type=application/x-message-display`;
-
-            let window = await getNormalWindowReady(context);
-            let msgWindow = window.openDialog(
-              "chrome://messenger/content/messageWindow.xhtml",
-              "_blank",
-              "all,chrome,dialog=no,status,toolbar",
-              Services.io.newURI(msgUrl)
-            );
-            return tabManager.convert(msgWindow);
           }
 
+          let window = await getNormalWindowReady(context, properties.windowId);
           let tab;
           switch (properties.location || getDefaultMessageOpenLocation()) {
             case "tab":
               {
                 let active = properties.active ?? true;
-                let window = await getNormalWindowReady(
-                  context,
-                  properties.windowId
-                );
                 let tabmail = window.document.getElementById("tabmail");
                 let currentTab = tabmail.selectedTab;
                 let nativeTabInfo = tabmail.openTab("mailMessageTab", {
-                  messageURI: msgHdr.folder.getUriForMsg(msgHdr),
+                  messageURI,
                   background: !active,
                 });
                 await new Promise(resolve =>
@@ -218,7 +209,9 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
             case "window":
               {
                 // Handle window location.
-                let msgWindow = MailUtils.openMessageInNewWindow(msgHdr);
+                let msgWindow = window.MsgOpenNewWindowForMessage(
+                  Services.io.newURI(messageURI)
+                );
                 await new Promise(resolve =>
                   msgWindow.addEventListener("MsgLoaded", resolve, {
                     once: true,

@@ -1474,7 +1474,7 @@ function MsgOpenMessageFromString(data) {
 function MsgOpenNewWindowForMessage(aMsgHdr, aView) {
   // We need to tell the window about our current view so that it can clone it.
   // This enables advancing through the messages, etc.
-  window.openDialog(
+  return window.openDialog(
     "chrome://messenger/content/messageWindow.xhtml",
     "_blank",
     "all,chrome,dialog=no,status,toolbar",
