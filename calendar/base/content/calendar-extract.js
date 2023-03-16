@@ -82,12 +82,10 @@ var calendarExtract = {
   },
 
   async extractFromEmail(isEvent, fixedLang, fixedLocale) {
-    // TODO would be nice to handle multiple selected messages,
-    // though old conversion functionality didn't
-    let aboutMessage = document.getElementById("tabmail").currentAboutMessage;
-    if (!aboutMessage) {
-      return;
-    }
+    // Get the message from the 3pane, or from the standalone message window.
+    let aboutMessage =
+      document.getElementById("tabmail")?.currentAboutMessage ||
+      document.getElementById("messageBrowser").contentWindow;
     let message = aboutMessage.gMessage;
     let folder = message.folder;
     let title = message.mime2DecodedSubject;
@@ -131,7 +129,7 @@ var calendarExtract = {
     item.setProperty("URL", `mid:${message.messageId}`);
     cal.dtz.setDefaultStartEndHour(item);
     cal.alarms.setDefaultValues(item);
-    let sel = aboutMessage.content.contentWindow.getSelection();
+    let sel = aboutMessage.getMessagePaneBrowser().contentWindow.getSelection();
     // Thunderbird Conversations might be installed
     if (sel === null) {
       try {
