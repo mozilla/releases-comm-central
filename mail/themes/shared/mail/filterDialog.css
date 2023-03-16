@@ -29,6 +29,15 @@
   --richlist-button-background: -moz-Dialog;
 }
 
+#filterListBox {
+  min-width: 0;
+  min-height: 0;
+}
+
+#filterList {
+  height: 340px;
+}
+
 #searchBox {
   max-width: 30ch;
 }
@@ -45,6 +54,7 @@ richlistitem {
 
 richlistitem > checkbox {
   width: 100px;
+  min-width: 100px;
   margin: 0;
   -moz-user-focus: none;
 }

@@ -824,6 +824,7 @@ function rebuildFilterList() {
       listitem.setAttribute("role", "checkbox");
       nameCell = document.createXULElement("label");
       nameCell.setAttribute("flex", "1");
+      nameCell.setAttribute("crop", "end");
       enabledCell = document.createXULElement("checkbox");
       enabledCell.setAttribute("style", "padding-inline-start: 25px;");
       enabledCell.addEventListener("CheckboxStateChange", onFilterClick, true);

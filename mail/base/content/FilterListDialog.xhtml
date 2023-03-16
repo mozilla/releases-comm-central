@@ -61,23 +61,21 @@
   </hbox>
   <separator class="thin"/>
   <hbox id="filterListGrid" flex="1">
-    <vbox flex="1">
+    <vbox id="filterListBox" flex="1">
       <hbox>
         <label id="filterListLabel" control="filterList" flex="1">
           &filterHeader.label;
         </label>
         <label id="countBox"/>
       </hbox>
-      <box flex="1">
-        <richlistbox id="filterList" flex="1" onselect="updateButtons();"
-                     seltype="multiple"
-                     onkeypress="onFilterListKeyPress(event);">
-              <treecols>
-                <treecol id="nameColumn" label="&nameColumn.label;" flex="1"/>
-                <treecol id="activeColumn" label="&activeColumn.label;" width="100"/>
-              </treecols>
-        </richlistbox>
-      </box>
+      <richlistbox id="filterList" flex="1" onselect="updateButtons();"
+                   seltype="multiple"
+                   onkeypress="onFilterListKeyPress(event);">
+        <treecols>
+          <treecol id="nameColumn" label="&nameColumn.label;" flex="1"/>
+          <treecol id="activeColumn" label="&activeColumn.label;" style="width: 100px;"/>
+        </treecols>
+      </richlistbox>
       <vbox>
           <separator class="thin"/>
           <hbox align="center">
