@@ -300,10 +300,47 @@
     <div id="qfb-upsell-line-two"></div>
   </tooltip>
   <menupopup id="folderPaneMoreContext"
-             class="no-icon-menupopup no-accel-menupopup"
-             position="bottomleft topleft">
-    <menuitem data-l10n-id="folder-pane-header-context-hide"
-              class="menuitem-iconic"
+             class="no-accel-menupopup"
+             position="bottomleft topleft"
+             onpopupshowing="folderPane.updateContextCheckedFolderMode();">
+    <menuitem id="folderPaneMoreContextAllFolders"
+              class="folder-pane-mode"
+              value="all"
+              type="checkbox"
+              closemenu="none"
+              data-l10n-id="show-all-folders-label"
+              oncommand="folderPane.toggleFolderMode(event);"/>
+    <menuitem id="folderPaneMoreContextUnifiedFolders"
+              class="folder-pane-mode"
+              value="smart"
+              type="checkbox"
+              closemenu="none"
+              data-l10n-id="show-smart-folders-label"
+              oncommand="folderPane.toggleFolderMode(event);"/>
+    <menuitem id="folderPaneMoreContextUnreadFolders"
+              class="folder-pane-mode"
+              value="unread"
+              type="checkbox" name="viewmessages"
+              closemenu="none"
+              data-l10n-id="show-unread-folders-label"
+              oncommand="folderPane.toggleFolderMode(event);"/>
+    <menuitem id="folderPaneMoreContextFavoriteFolders"
+              class="folder-pane-mode"
+              value="favorite"
+              type="checkbox"
+              closemenu="none"
+              data-l10n-id="show-favorite-folders-label"
+              oncommand="folderPane.toggleFolderMode(event);"/>
+    <menuitem id="folderPaneMoreContextRecentFolders"
+              class="folder-pane-mode"
+              value="recent"
+              type="checkbox"
+              closemenu="none"
+              data-l10n-id="show-recent-folders-label"
+              oncommand="folderPane.toggleFolderMode(event);"/>
+    <menuseparator id="separatorAfterFolderViewOptions"/>
+    <menuitem id="folderPaneHeaderHideMenuItem"
+              data-l10n-id="folder-pane-header-context-hide"
               oncommand="folderPane.toggleHeader(false);"/>
   </menupopup>
 #include mailContext.inc.xhtml

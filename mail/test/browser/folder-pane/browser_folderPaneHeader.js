@@ -45,8 +45,11 @@ add_task(async function testHideFolderPaneHeader() {
     () => folderPaneHeader.hidden,
     "The folder pane header is hidden"
   );
-  EventUtils.synthesizeKey("KEY_ArrowDown", {}, about3Pane);
-  EventUtils.synthesizeKey("KEY_Enter", {}, about3Pane);
+  EventUtils.synthesizeMouseAtCenter(
+    moreContext.querySelector("#folderPaneHeaderHideMenuItem"),
+    {},
+    about3Pane
+  );
   await hiddenPromise;
 
   await BrowserTestUtils.waitForCondition(
@@ -108,6 +111,13 @@ add_task(async function testHideFolderPaneHeader() {
     () => toggleFolderHeader.getAttribute("checked") == "true",
     "The toggle header menu item is checked"
   );
+
+  let folderViewHiddenPromise = BrowserTestUtils.waitForEvent(
+    document.getElementById("menu_FolderViewsPopup"),
+    "popuphidden"
+  );
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await folderViewHiddenPromise;
 
   let viewHiddenPromise = BrowserTestUtils.waitForEvent(
     viewMenuPopup,
@@ -178,17 +188,163 @@ add_task(async function testTogglePaneHeaderFromAppMenu() {
 
     EventUtils.synthesizeMouseAtCenter(appMenuButton, {}, window);
 
+    let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+      appMenu,
+      "popuphidden"
+    );
     // Close the appmenu.
     EventUtils.synthesizeMouseAtCenter(
       document.getElementById("button-appmenu"),
       {},
       window
     );
+    await menuHiddenPromise;
   }
 
   await toggleFolderPaneHeader(true);
   await toggleFolderPaneHeader(false);
-  await toggleFolderPaneHeader(true);
+});
+
+/**
+ * Test the default state of the context menu in the about3Pane.
+ */
+add_task(async function testInitialActiveModes() {
+  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
+
+  await shownPromise;
+  Assert.equal(
+    about3Pane.folderPane.activeModes.length,
+    1,
+    "Only one active mode"
+  );
+  Assert.equal(
+    about3Pane.folderPane.activeModes.at(0),
+    "all",
+    "The first item is 'all' value"
+  );
+  Assert.ok(
+    moreContext
+      .querySelector("#folderPaneMoreContextAllFolders")
+      .getAttribute("checked"),
+    "'All' toggle is checked"
+  );
+  Assert.equal(moreContext.state, "open", "The context menu remains open");
+});
+
+/**
+ * Tests that the menu items are correctly checked corresponding to the current
+ * active modes.
+ */
+add_task(async function testFolderModesActivation() {
+  let folderModesArray = [
+    { menuID: "#folderPaneMoreContextUnifiedFolders", modeID: "smart" },
+    { menuID: "#folderPaneMoreContextUnreadFolders", modeID: "unread" },
+    { menuID: "#folderPaneMoreContextFavoriteFolders", modeID: "favorite" },
+    { menuID: "#folderPaneMoreContextRecentFolders", modeID: "recent" },
+  ];
+  let checkedModesCount = 2;
+  for (let mode of folderModesArray) {
+    Assert.ok(
+      !moreContext.querySelector(mode.menuID).hasAttribute("checked"),
+      `"${mode.modeID}" option is not checked`
+    );
+
+    let checkedPromise = TestUtils.waitForCondition(
+      () => moreContext.querySelector(mode.menuID).hasAttribute("checked"),
+      `"${mode.modeID}" option has been checked`
+    );
+    EventUtils.synthesizeMouseAtCenter(
+      moreContext.querySelector(mode.menuID),
+      {},
+      about3Pane
+    );
+    await checkedPromise;
+
+    Assert.equal(
+      about3Pane.folderPane.activeModes.length,
+      checkedModesCount,
+      `Correct amount of active modes after enabling the "${mode.modeID}" mode`
+    );
+    Assert.ok(
+      about3Pane.folderPane.activeModes.includes(mode.modeID),
+      `"${mode.modeID}" mode is included in the active modes array`
+    );
+    checkedModesCount++;
+  }
+  Assert.equal(moreContext.state, "open", "The context menu remains open");
+});
+
+/**
+ * Tests that the menu items are correctly unchecked corresponding to the
+ * current active modes. It verifies that the if every item is unchecked, it
+ * returns to the default active mode value and the corresponding menu item is
+ * checked.
+ */
+add_task(async function testFolderModesDeactivation() {
+  let folderActiveModesArray = [
+    { menuID: "#folderPaneMoreContextAllFolders", modeID: "all" },
+    { menuID: "#folderPaneMoreContextUnifiedFolders", modeID: "smart" },
+    { menuID: "#folderPaneMoreContextUnreadFolders", modeID: "unread" },
+    { menuID: "#folderPaneMoreContextFavoriteFolders", modeID: "favorite" },
+    { menuID: "#folderPaneMoreContextRecentFolders", modeID: "recent" },
+  ];
+  let checkedModesCount = 4;
+  for (let mode of folderActiveModesArray) {
+    Assert.ok(
+      moreContext.querySelector(mode.menuID).hasAttribute("checked"),
+      `"${mode.modeID}" option is checked`
+    );
+
+    let uncheckedPromise = TestUtils.waitForCondition(
+      () => !moreContext.querySelector(mode.menuID).hasAttribute("checked"),
+      `"${mode.modeID}" option has been unchecked`
+    );
+    EventUtils.synthesizeMouseAtCenter(
+      moreContext.querySelector(mode.menuID),
+      {},
+      about3Pane
+    );
+    await uncheckedPromise;
+
+    Assert.ok(
+      !about3Pane.folderPane.activeModes.includes(mode.modeID),
+      `"${mode.modeID}" mode is not included in the active modes array`
+    );
+    if (checkedModesCount > 0) {
+      Assert.equal(
+        about3Pane.folderPane.activeModes.length,
+        checkedModesCount,
+        `Correct amount of active modes after disabling the "${mode.modeID}" mode`
+      );
+    } else {
+      //checks if it automatically checks "all" mode if every other mode was unchecked
+      Assert.equal(
+        about3Pane.folderPane.activeModes.length,
+        1,
+        `Correct amount of active modes after disabling the "${mode.modeID}" mode`
+      );
+      Assert.equal(
+        about3Pane.folderPane.activeModes.at(0),
+        "all",
+        "The first item is 'all' value"
+      );
+      Assert.ok(
+        moreContext
+          .querySelector("#folderPaneMoreContextAllFolders")
+          .getAttribute("checked"),
+        "'All' toggle is checked"
+      );
+    }
+    checkedModesCount--;
+  }
+  Assert.equal(moreContext.state, "open", "The context menu remains open");
+  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+    moreContext,
+    "popuphidden"
+  );
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await menuHiddenPromise;
 });
 
 add_task(async function testActionButtonsState() {

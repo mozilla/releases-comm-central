@@ -917,6 +917,42 @@ var folderPane = {
   },
 
   /**
+   * Toggle the folder modes requested by the user.
+   *
+   * @param {Event} event - The DOMEvent.
+   */
+  toggleFolderMode(event) {
+    let currentModes = this.activeModes;
+    let mode = event.target.getAttribute("value");
+    let index = this.activeModes.indexOf(mode);
+    if (event.target.hasAttribute("checked")) {
+      if (index == -1) {
+        currentModes.push(mode);
+      }
+    } else if (index >= 0) {
+      currentModes.splice(index, 1);
+    }
+    this.activeModes = currentModes;
+    if (this.activeModes.length == 1 && this.activeModes.at(0) == "all") {
+      this.updateContextCheckedFolderMode();
+    }
+  },
+
+  /**
+   * Ensure all the folder modes menuitems in the pane header context menu are
+   * checked to reflect the currently active modes.
+   */
+  updateContextCheckedFolderMode() {
+    for (let item of document.querySelectorAll(".folder-pane-mode")) {
+      if (this.activeModes.includes(item.value)) {
+        item.setAttribute("checked", true);
+        continue;
+      }
+      item.removeAttribute("checked");
+    }
+  },
+
+  /**
    * The names of all active modes.
    *
    * @type {string[]}
