@@ -847,7 +847,10 @@ function fillGrid() {
 
   let oldEndTime = displayEndTime.clone();
 
-  while (dayHeaderOuter.scrollWidth <= dayHeaderOuter.clientWidth) {
+  while (
+    dayHeaderInner.childElementCount < numberDaysDisplayed ||
+    dayHeaderOuter.scrollWidth < dayHeaderOuter.clientWidth
+  ) {
     dayHeaderInner.appendChild(document.createXULElement("calendar-day")).date = displayEndTime;
     displayEndTime.addDuration(cal.createDuration("P1D"));
   }
