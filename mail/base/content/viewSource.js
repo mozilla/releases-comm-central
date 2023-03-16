@@ -22,6 +22,9 @@ window.browserDOMWindow = window.opener.browserDOMWindow;
 var gBrowser;
 addEventListener("load", () => {
   gBrowser = document.getElementById("content");
+  gBrowser.getTabForBrowser = () => {
+    return null;
+  };
   gBrowser.addEventListener("pagetitlechanged", () => {
     document.title =
       document.documentElement.getAttribute("titlepreface") +
