@@ -1314,8 +1314,8 @@ function copyRawDataToClipboard(button) {
         "@mozilla.org/widget/transferable;1"
       ].createInstance(Ci.nsITransferable);
       transferable.init(getLoadContext());
-      transferable.addDataFlavor("text/unicode");
-      transferable.setTransferData("text/unicode", str);
+      transferable.addDataFlavor("text/plain");
+      transferable.setTransferData("text/plain", str);
       Services.clipboard.setData(
         transferable,
         null,
@@ -1359,9 +1359,9 @@ async function copyContentsToClipboard() {
   transferable.setTransferData("text/html", ssHtml);
 
   // Add the plain text flavor.
-  transferable.addDataFlavor("text/unicode");
+  transferable.addDataFlavor("text/plain");
   ssText.data = dataText;
-  transferable.setTransferData("text/unicode", ssText);
+  transferable.setTransferData("text/plain", ssText);
 
   // Store the data into the clipboard.
   Services.clipboard.setData(

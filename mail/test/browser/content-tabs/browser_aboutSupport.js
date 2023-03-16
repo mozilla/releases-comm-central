@@ -44,7 +44,7 @@ add_setup(function() {
       bundle.GetStringFromName("warningText")
   );
   // In plain text the warning label may end up on a separate line so do not match it.
-  warningText.set("text/unicode", bundle.GetStringFromName("warningText"));
+  warningText.set("text/plain", bundle.GetStringFromName("warningText"));
 });
 
 // After every test we want to close the about:support tab so that failures
@@ -73,7 +73,7 @@ const ABOUT_SUPPORT_STRINGS = [
  */
 const ABOUT_SUPPORT_ERROR_STRINGS = new Map([
   ["text/html", ["undefined", "null"]],
-  ["text/unicode", ["undefined"]],
+  ["text/plain", ["undefined"]],
 ]);
 
 /*
@@ -342,7 +342,7 @@ add_task(function test_copy_to_clipboard_public() {
   // To avoid destroying the current contents of the clipboard, instead of
   // actually copying to it, we just retrieve what would have been copied to it
   let transferable = tab.browser.contentWindow.getClipboardTransferable();
-  for (let flavor of ["text/html", "text/unicode"]) {
+  for (let flavor of ["text/html", "text/plain"]) {
     let data = {};
     transferable.getTransferData(flavor, data);
     let text = data.value.QueryInterface(Ci.nsISupportsString).data;
@@ -404,7 +404,7 @@ add_task(function test_copy_to_clipboard_private() {
   // To avoid destroying the current contents of the clipboard, instead of
   // actually copying to it, we just retrieve what would have been copied to it
   let transferable = tab.browser.contentWindow.getClipboardTransferable();
-  for (let flavor of ["text/html", "text/unicode"]) {
+  for (let flavor of ["text/html", "text/plain"]) {
     let data = {};
     transferable.getTransferData(flavor, data);
     let text = data.value.QueryInterface(Ci.nsISupportsString).data;

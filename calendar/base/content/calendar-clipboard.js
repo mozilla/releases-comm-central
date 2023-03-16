@@ -13,7 +13,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 /**
  * Test if a writable calendar is selected, and if the clipboard has items that
  * can be pasted into Calendar. The data must be of type "text/calendar" or
- * "text/unicode".
+ * "text/plain".
  *
  * @returns If true, pasting is currently possible.
  */
@@ -37,7 +37,7 @@ function canPaste() {
     }
   }
 
-  const flavors = ["text/calendar", "text/unicode"];
+  const flavors = ["text/calendar", "text/plain"];
   return Services.clipboard.hasDataMatchingFlavors(flavors, Ci.nsIClipboard.kGlobalClipboard);
 }
 
@@ -103,7 +103,7 @@ function copyToClipboard(aCalendarItemArray = null, aCutMode = false) {
     // Register supported data flavors
     trans.init(null);
     trans.addDataFlavor("text/calendar");
-    trans.addDataFlavor("text/unicode");
+    trans.addDataFlavor("text/plain");
 
     // Create the data objects
     let icsWrapper = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
@@ -113,7 +113,7 @@ function copyToClipboard(aCalendarItemArray = null, aCutMode = false) {
     // Both Outlook 2000 client and Lotus Organizer use text/unicode
     // when pasting iCalendar data.
     trans.setTransferData("text/calendar", icsWrapper);
-    trans.setTransferData("text/unicode", icsWrapper);
+    trans.setTransferData("text/plain", icsWrapper);
 
     clipboard.setData(trans, null, Ci.nsIClipboard.kGlobalClipboard);
     if (aCutMode) {
@@ -143,7 +143,7 @@ function pasteFromClipboard() {
   // Register the wanted data flavors (highest fidelity first!)
   trans.init(null);
   trans.addDataFlavor("text/calendar");
-  trans.addDataFlavor("text/unicode");
+  trans.addDataFlavor("text/plain");
 
   // Get transferable from clipboard
   clipboard.getData(trans, Ci.nsIClipboard.kGlobalClipboard);
@@ -155,7 +155,7 @@ function pasteFromClipboard() {
   data = data.value.QueryInterface(Ci.nsISupportsString).data;
   switch (flavor.value) {
     case "text/calendar":
-    case "text/unicode": {
+    case "text/plain": {
       let icsParser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
       try {
         icsParser.parseString(data);

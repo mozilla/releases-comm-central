@@ -99,7 +99,7 @@ customElements.whenDefined("autocomplete-input").then(() => {
         onDrop: event => {
           if (event.dataTransfer.types.includes("text/x-moz-address")) {
             this.focus();
-            this.value = event.dataTransfer.getData("text/unicode");
+            this.value = event.dataTransfer.getData("text/plain");
             // XXX for some reason the input field is _cleared_ even though
             // the search works.
             this.doSearch();

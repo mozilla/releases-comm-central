@@ -111,7 +111,7 @@ add_task(async function testMozAddressDrop() {
   let dataTransfer = new DataTransfer();
   dataTransfer.setData("moz/abcard", "0");
   dataTransfer.setData("text/x-moz-address", address);
-  dataTransfer.setData("text/unicode", address);
+  dataTransfer.setData("text/plain", address);
   dataTransfer.setData("text/vcard", decodeURIComponent(vcard));
   dataTransfer.setData("application/x-moz-file-promise-dest-filename", "person.vcf");
   dataTransfer.setData("application/x-moz-file-promise-url", "data:text/vcard," + vcard);

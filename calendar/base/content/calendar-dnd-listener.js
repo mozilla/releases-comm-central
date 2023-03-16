@@ -441,7 +441,7 @@ var calendarTaskButtonDNDObserver;
    * from internally dropped text.
    */
   class CalDNDPlainTextTransferHandler extends CalDNDDirectTransferHandler {
-    mimeTypes = ["text/plain", "text/unicode"];
+    mimeTypes = ["text/plain"];
 
     _keyWords = ["VEVENT", "VTODO", "VCALENDAR"];
 
@@ -906,7 +906,7 @@ function invokeEventDragSession(aItem, aXULBox) {
   let supportsString = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
   supportsString.data = serializer.serializeToString();
   transfer.setTransferData("text/calendar", supportsString);
-  transfer.setTransferData("text/unicode", supportsString);
+  transfer.setTransferData("text/plain", supportsString);
 
   let action = Ci.nsIDragService.DRAGDROP_ACTION_MOVE;
   let mutArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);

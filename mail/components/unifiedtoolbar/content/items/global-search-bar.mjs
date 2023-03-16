@@ -194,7 +194,7 @@ class GlobalSearchBar extends SearchBar {
 
   #handleDrop = event => {
     if (event.dataTransfer.types.includes("text/x-moz-address")) {
-      const searchTerm = event.dataTransfer.getData("text/unicode");
+      const searchTerm = event.dataTransfer.getData("text/plain");
       this.#handleSearch({ detail: searchTerm });
     }
     event.stopPropagation();

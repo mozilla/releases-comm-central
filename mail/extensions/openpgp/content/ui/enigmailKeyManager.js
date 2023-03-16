@@ -284,7 +284,7 @@ function enigmailKeyMenu() {
   document.getElementById(
     "importFromClipbrd"
   ).disabled = !Services.clipboard.hasDataMatchingFlavors(
-    ["text/unicode"],
+    ["text/plain"],
     Ci.nsIClipboard.kGlobalClipboard
   );
 

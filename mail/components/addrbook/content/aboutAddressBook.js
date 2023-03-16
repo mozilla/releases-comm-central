@@ -2346,7 +2346,7 @@ var cardsPane = {
     let addresses = cards.map(makeMimeAddressFromCard);
     event.dataTransfer.mozSetDataAt("moz/abcard-array", cards, 0);
     event.dataTransfer.setData("text/x-moz-address", addresses);
-    event.dataTransfer.setData("text/unicode", addresses);
+    event.dataTransfer.setData("text/plain", addresses);
 
     let card = this.cardsList.view.getCardFromRow(row.index);
     if (card && card.displayName && !card.isMailList) {
@@ -4224,9 +4224,7 @@ var photoDialog = {
    * @returns {string|null}
    */
   _getUseableURL(dataTransfer) {
-    let data =
-      dataTransfer.getData("text/plain") ||
-      dataTransfer.getData("text/unicode");
+    let data = dataTransfer.getData("text/plain");
 
     return /^https?:\/\//.test(data) ? data : null;
   },

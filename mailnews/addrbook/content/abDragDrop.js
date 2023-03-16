@@ -58,7 +58,7 @@ let abResultsPaneObserver = {
     event.dataTransfer.setData("moz/abcard", selectedRows);
     event.dataTransfer.setData("moz/abcard", selectedRows);
     event.dataTransfer.setData("text/x-moz-address", selectedAddresses);
-    event.dataTransfer.setData("text/unicode", selectedAddresses);
+    event.dataTransfer.setData("text/plain", selectedAddresses);
 
     let card = GetSelectedCard();
     if (card && card.displayName && !card.isMailList) {

@@ -147,7 +147,7 @@ add_task(async function test_drag() {
   Assert.equal(transferCards.length, 1);
   Assert.ok(transferCards[0].equals(contact1));
 
-  let transferUnicode = dataTransfer.getData("text/unicode");
+  let transferUnicode = dataTransfer.getData("text/plain");
   Assert.equal(transferUnicode, "contact 1 <contact.1@invalid>");
 
   let transferVCard = dataTransfer.getData("text/vcard");
@@ -165,7 +165,7 @@ add_task(async function test_drag() {
   Assert.equal(transferCards.length, 1);
   Assert.ok(transferCards[0].equals(contact2));
 
-  transferUnicode = dataTransfer.getData("text/unicode");
+  transferUnicode = dataTransfer.getData("text/plain");
   Assert.equal(transferUnicode, "contact 2 <contact.2@invalid>");
 
   transferVCard = dataTransfer.getData("text/vcard");
@@ -190,7 +190,7 @@ add_task(async function test_drag() {
   Assert.ok(transferCards[1].equals(contact2));
   Assert.ok(transferCards[2].equals(contact3));
 
-  transferUnicode = dataTransfer.getData("text/unicode");
+  transferUnicode = dataTransfer.getData("text/plain");
   Assert.equal(
     transferUnicode,
     "contact 1 <contact.1@invalid>,contact 2 <contact.2@invalid>,contact 3 <contact.3@invalid>"
