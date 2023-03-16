@@ -1785,7 +1785,7 @@ nsMsgAccountManager::FindServerByURI(nsIURI* aURI,
   if (NS_SUCCEEDED(rv) && !type.IsEmpty()) {
     // Remove "-message" from the scheme in case we get called with
     // "imap-message", "mailbox-message", or friends.
-    if (StringEndsWith(type, nsDependentCString("-message")))
+    if (StringEndsWith(type, "-message"_ns))
       type.SetLength(type.Length() - 8);
     // now modify type if pop or news
     if (type.EqualsLiteral("pop")) type.AssignLiteral("pop3");
@@ -2662,7 +2662,7 @@ nsresult nsMsgAccountManager::GetVirtualFoldersFile(nsCOMPtr<nsIFile>& aFile) {
                                        getter_AddRefs(profileDir));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = profileDir->AppendNative(nsDependentCString("virtualFolders.dat"));
+  rv = profileDir->AppendNative("virtualFolders.dat"_ns);
   if (NS_SUCCEEDED(rv)) aFile = profileDir;
   return rv;
 }

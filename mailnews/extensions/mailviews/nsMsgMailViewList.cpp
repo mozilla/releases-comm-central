@@ -203,7 +203,7 @@ nsresult nsMsgMailViewList::LoadMailViews() {
       NS_GetSpecialDirectory(NS_APP_USER_PROFILE_50_DIR, getter_AddRefs(file));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = file->AppendNative(nsDependentCString("mailViews.dat"));
+  rv = file->AppendNative("mailViews.dat"_ns);
 
   // if the file doesn't exist, we should try to get it from the defaults
   // directory and copy it over
@@ -217,7 +217,7 @@ nsresult nsMsgMailViewList::LoadMailViews() {
     nsCOMPtr<nsIFile> profileDir;
     rv = mailSession->GetDataFilesDir("messenger",
                                       getter_AddRefs(defaultMessagesFile));
-    rv = defaultMessagesFile->AppendNative(nsDependentCString("mailViews.dat"));
+    rv = defaultMessagesFile->AppendNative("mailViews.dat"_ns);
 
     // get the profile directory
     rv = NS_GetSpecialDirectory(NS_APP_USER_PROFILE_50_DIR,

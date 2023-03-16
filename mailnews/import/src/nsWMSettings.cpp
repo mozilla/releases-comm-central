@@ -460,7 +460,7 @@ bool WMSettings::DoNNTPServer(nsIMsgAccountManager* pMgr,
                        "nntp"_ns, 0, getter_AddRefs(in));
   if (NS_FAILED(rv) || (in == nullptr)) {
     // Create the incoming server and an account for it?
-    rv = pMgr->CreateIncomingServer(nsDependentCString(""),
+    rv = pMgr->CreateIncomingServer(EmptyCString(),
                                     NS_ConvertUTF16toUTF8(serverName),
                                     "nntp"_ns, getter_AddRefs(in));
     if (NS_SUCCEEDED(rv) && in) {
