@@ -54,6 +54,7 @@ vcard-special-date select:not([size], [multiple]) {
   color: inherit;
   margin-block-end: 3px;
   margin-inline-end: 3px;
+  font-weight: normal;
 }
 
 vcard-edit input[type="text"],
