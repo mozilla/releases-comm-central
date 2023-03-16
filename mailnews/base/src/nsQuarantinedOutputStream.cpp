@@ -228,3 +228,7 @@ NS_IMETHODIMP nsQuarantinedOutputStream::IsNonBlocking(bool* nonBlocking) {
   *nonBlocking = false;
   return NS_OK;
 }
+
+NS_IMETHODIMP nsQuarantinedOutputStream::StreamStatus() {
+  return mState == eOpen ? NS_OK : NS_BASE_STREAM_CLOSED;
+}

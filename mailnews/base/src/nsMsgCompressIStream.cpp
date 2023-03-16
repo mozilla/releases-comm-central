@@ -197,3 +197,7 @@ NS_IMETHODIMP nsMsgCompressIStream::IsNonBlocking(bool* aNonBlocking) {
   *aNonBlocking = false;
   return NS_OK;
 }
+
+NS_IMETHODIMP nsMsgCompressIStream::StreamStatus() {
+  return m_iStream->StreamStatus();
+}

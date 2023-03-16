@@ -184,3 +184,7 @@ nsMsgFileStream::WriteSegments(nsReadSegmentFun reader, void* closure,
   // If you need something like this, then you should wrap
   // the file stream using nsIBufferedOutputStream
 }
+
+NS_IMETHODIMP nsMsgFileStream::StreamStatus() {
+  return mFileDesc ? NS_OK : NS_BASE_STREAM_CLOSED;
+}
