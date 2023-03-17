@@ -10,6 +10,10 @@ ChromeUtils.defineModuleGetter(
   "ExtensionParent",
   "resource://gre/modules/ExtensionParent.jsm"
 );
+const browserActionFor = extensionId =>
+  lazy.ExtensionParent.apiManager.global.browserActionFor(
+    lazy.ExtensionParent.GlobalManager.getExtension(extensionId)
+  );
 
 /**
  * Wrapper element for elements whose position can be customized.
@@ -104,10 +108,8 @@ export default class CustomizableElement extends HTMLLIElement {
    * @param {string} extensionId - ID of the extension the button is from.
    */
   async #initializeForExtension(extensionId) {
-    const extension = lazy.ExtensionParent.GlobalManager.getExtension(
-      extensionId
-    );
-    if (!extension) {
+    const extensionAction = browserActionFor(extensionId);
+    if (!extensionAction?.extension) {
       return;
     }
     if (!customElements.get("extension-action-button")) {
@@ -115,8 +117,9 @@ export default class CustomizableElement extends HTMLLIElement {
     }
     this.details = {
       allowMultiple: false,
-      spaces: ["mail"],
+      spaces: extensionAction.allowedSpaces ?? ["mail"],
     };
+    const { extension } = extensionAction;
     this.classList.add("extension-action");
     const extensionButton = document.createElement("button", {
       is: "extension-action-button",

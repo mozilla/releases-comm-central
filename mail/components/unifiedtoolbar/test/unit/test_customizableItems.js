@@ -26,6 +26,22 @@ add_task(function test_getAvailableItemIdsForSpace_emptySpace() {
   Assert.deepEqual(itemsForEmptySpace, [], "Empty array for empty space");
 });
 
+add_task(function test_getAvailableItemIdsForSpace_includingAgnostic() {
+  const items = getAvailableItemIdsForSpace("mail", true);
+  const itemsForAnySpace = getAvailableItemIdsForSpace();
+  const itemsForMailSpace = getAvailableItemIdsForSpace("mail");
+
+  Assert.ok(
+    itemsForAnySpace.every(itemId => items.includes(itemId)),
+    "All space agnostic items are included"
+  );
+
+  Assert.ok(
+    itemsForMailSpace.every(itemId => items.includes(itemId)),
+    "All mail space items are included"
+  );
+});
+
 add_task(function test_getDefaultItemIdsForSpace_default() {
   const items = getDefaultItemIdsForSpace("default");
 

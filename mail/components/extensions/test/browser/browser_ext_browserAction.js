@@ -142,14 +142,14 @@ add_task(async function test_theme_icons() {
   await TestUtils.waitForCondition(
     () =>
       document.querySelector(
-        `.unified-toolbar [extension="browser_action_properties@mochi.test"]`
+        `#unifiedToolbarContent [extension="browser_action_properties@mochi.test"]`
       ),
     "Button added to unified toolbar"
   );
 
   let uuid = extension.uuid;
   let icon = document.querySelector(
-    `.unified-toolbar [extension="browser_action_properties@mochi.test"] .button-icon`
+    `#unifiedToolbarContent [extension="browser_action_properties@mochi.test"] .button-icon`
   );
 
   let dark_theme = await AddonManager.getAddonByID(
@@ -415,5 +415,269 @@ add_task(async function test_iconPath() {
 
   await extension.startup();
   await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+add_task(async function test_allowedSpaces() {
+  let tabmail = document.getElementById("tabmail");
+  let unifiedToolbar = document.querySelector("unified-toolbar");
+
+  function buttonInUnifiedToolbar() {
+    let button = unifiedToolbar.querySelector(
+      '[item-id="ext-browser_action_spaces@mochi.test"]'
+    );
+    if (!button) {
+      return false;
+    }
+    return BrowserTestUtils.is_visible(button);
+  }
+
+  let extension = ExtensionTestUtils.loadExtension({
+    manifest: {
+      applications: {
+        gecko: {
+          id: "browser_action_spaces@mochi.test",
+        },
+      },
+      browser_action: {
+        allowed_spaces: ["calendar", "default"],
+      },
+    },
+  });
+
+  let mailSpace = window.gSpacesToolbar.spaces.find(
+    space => space.name == "mail"
+  );
+  window.gSpacesToolbar.openSpace(tabmail, mailSpace);
+
+  let unifiedToolbarUpdate = TestUtils.topicObserved(
+    "unified-toolbar-state-change"
+  );
+
+  await extension.startup();
+  await unifiedToolbarUpdate;
+
+  ok(
+    !buttonInUnifiedToolbar(),
+    "Button shouldn't be in the mail space toolbar"
+  );
+
+  let toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+    unifiedToolbar,
+    { childList: true },
+    () => true
+  );
+  window.gSpacesToolbar.openSpace(
+    tabmail,
+    window.gSpacesToolbar.spaces.find(space => space.name == "calendar")
+  );
+  // await new Promise(resolve => window.requestAnimationFrame(resolve));
+  await toolbarMutation;
+
+  ok(
+    buttonInUnifiedToolbar(),
+    "Button should be in the calendar space toolbar"
+  );
+
+  tabmail.closeTab();
+  toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+    unifiedToolbar,
+    { childList: true },
+    () => true
+  );
+  tabmail.openTab("contentTab", { url: "about:blank" });
+  await toolbarMutation;
+
+  ok(buttonInUnifiedToolbar(), "Button should be in the default space toolbar");
+
+  tabmail.closeTab();
+  toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+    unifiedToolbar,
+    { childList: true },
+    () => true
+  );
+  window.gSpacesToolbar.openSpace(tabmail, mailSpace);
+  await toolbarMutation;
+
+  ok(
+    !buttonInUnifiedToolbar(),
+    "Button should be hidden again in the mail space toolbar"
+  );
+
+  await extension.unload();
+});
+
+add_task(async function test_allowedInAllSpaces() {
+  let tabmail = document.getElementById("tabmail");
+  let unifiedToolbar = document.querySelector("unified-toolbar");
+
+  function buttonInUnifiedToolbar() {
+    let button = unifiedToolbar.querySelector(
+      '[item-id="ext-browser_action_all_spaces@mochi.test"]'
+    );
+    if (!button) {
+      return false;
+    }
+    return BrowserTestUtils.is_visible(button);
+  }
+
+  let extension = ExtensionTestUtils.loadExtension({
+    manifest: {
+      applications: {
+        gecko: {
+          id: "browser_action_all_spaces@mochi.test",
+        },
+      },
+      browser_action: {
+        allowed_spaces: [],
+      },
+    },
+  });
+
+  let mailSpace = window.gSpacesToolbar.spaces.find(
+    space => space.name == "mail"
+  );
+  window.gSpacesToolbar.openSpace(tabmail, mailSpace);
+
+  let unifiedToolbarUpdate = TestUtils.topicObserved(
+    "unified-toolbar-state-change"
+  );
+
+  await extension.startup();
+  await unifiedToolbarUpdate;
+
+  ok(buttonInUnifiedToolbar(), "Button should be in the mail space toolbar");
+
+  let toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+    unifiedToolbar,
+    { childList: true },
+    () => true
+  );
+  window.gSpacesToolbar.openSpace(
+    tabmail,
+    window.gSpacesToolbar.spaces.find(space => space.name == "calendar")
+  );
+  // await new Promise(resolve => window.requestAnimationFrame(resolve));
+  await toolbarMutation;
+
+  ok(
+    buttonInUnifiedToolbar(),
+    "Button should be in the calendar space toolbar"
+  );
+
+  tabmail.closeTab();
+  toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+    unifiedToolbar,
+    { childList: true },
+    () => true
+  );
+  tabmail.openTab("contentTab", { url: "about:blank" });
+  await toolbarMutation;
+
+  ok(buttonInUnifiedToolbar(), "Button should be in the default space toolbar");
+
+  tabmail.closeTab();
+  toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+    unifiedToolbar,
+    { childList: true },
+    () => true
+  );
+  window.gSpacesToolbar.openSpace(tabmail, mailSpace);
+  await toolbarMutation;
+
+  ok(
+    buttonInUnifiedToolbar(),
+    "Button should still be in the mail space toolbar"
+  );
+
+  await extension.unload();
+});
+
+add_task(async function test_allowedSpacesDefault() {
+  let tabmail = document.getElementById("tabmail");
+  let unifiedToolbar = document.querySelector("unified-toolbar");
+
+  function buttonInUnifiedToolbar() {
+    let button = unifiedToolbar.querySelector(
+      '[item-id="ext-browser_action_default_spaces@mochi.test"]'
+    );
+    if (!button) {
+      return false;
+    }
+    return BrowserTestUtils.is_visible(button);
+  }
+
+  let extension = ExtensionTestUtils.loadExtension({
+    manifest: {
+      applications: {
+        gecko: {
+          id: "browser_action_default_spaces@mochi.test",
+        },
+      },
+      browser_action: {
+        default_title: "Test Action",
+      },
+    },
+  });
+
+  let mailSpace = window.gSpacesToolbar.spaces.find(
+    space => space.name == "mail"
+  );
+  window.gSpacesToolbar.openSpace(tabmail, mailSpace);
+
+  let unifiedToolbarUpdate = TestUtils.topicObserved(
+    "unified-toolbar-state-change"
+  );
+
+  await extension.startup();
+  await unifiedToolbarUpdate;
+
+  ok(buttonInUnifiedToolbar(), "Button should be in the mail space toolbar");
+
+  let toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+    unifiedToolbar,
+    { childList: true },
+    () => true
+  );
+  window.gSpacesToolbar.openSpace(
+    tabmail,
+    window.gSpacesToolbar.spaces.find(space => space.name == "calendar")
+  );
+  // await new Promise(resolve => window.requestAnimationFrame(resolve));
+  await toolbarMutation;
+
+  ok(
+    !buttonInUnifiedToolbar(),
+    "Button should not be in the calendar space toolbar"
+  );
+
+  tabmail.closeTab();
+  toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+    unifiedToolbar,
+    { childList: true },
+    () => true
+  );
+  tabmail.openTab("contentTab", { url: "about:blank" });
+  await toolbarMutation;
+
+  ok(
+    !buttonInUnifiedToolbar(),
+    "Button should not be in the default space toolbar"
+  );
+
+  tabmail.closeTab();
+  toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+    unifiedToolbar,
+    { childList: true },
+    () => true
+  );
+  window.gSpacesToolbar.openSpace(tabmail, mailSpace);
+  await toolbarMutation;
+
+  ok(
+    buttonInUnifiedToolbar(),
+    "Button should still be in the mail space toolbar again"
+  );
+
   await extension.unload();
 });

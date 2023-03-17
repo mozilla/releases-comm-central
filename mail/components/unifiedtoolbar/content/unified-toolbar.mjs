@@ -241,19 +241,9 @@ class UnifiedToolbar extends HTMLElement {
       this.#state[space] = lazy.getDefaultItemIdsForSpace(space);
     }
     if (!this.#itemsAvailableInSpace[space]) {
-      let nonDefaultSpace = space !== "default" ? space : undefined;
-      let availableItems = lazy.getAvailableItemIdsForSpace(nonDefaultSpace);
-      if (nonDefaultSpace) {
-        if (!this.#itemsAvailableInSpace.default) {
-          this.#itemsAvailableInSpace.default = new Set(
-            lazy.getAvailableItemIdsForSpace()
-          );
-        }
-        availableItems = availableItems.concat(
-          ...this.#itemsAvailableInSpace.default
-        );
-      }
-      this.#itemsAvailableInSpace[space] = new Set(availableItems);
+      this.#itemsAvailableInSpace[space] = new Set(
+        lazy.getAvailableItemIdsForSpace(space, true)
+      );
     }
     return this.#state[space].filter(itemId =>
       this.#itemsAvailableInSpace[space].has(itemId)

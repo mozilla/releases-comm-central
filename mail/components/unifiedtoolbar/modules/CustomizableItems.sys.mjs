@@ -56,16 +56,19 @@ export function unregisterExtension(id) {
  * Get the IDs for the extension buttons available in a given space.
  *
  * @param {string} [space] - Space name, "default" or falsy value to specify the
- *   space the extension items should be returned for. For default or a falsy
- *   value only extensions that can appear in all spaces are returned.
+ *   space the extension items should be returned for. For default, extensions
+ *   explicitly available in the default space are returned. With a falsy value,
+ *   extensions available in all spaces are returned.
+ * @param {boolean} [includeSpaceAgnostic=false] - When set, extensions that are
+ *   available for all spaces and the provided space are returned. Only has an
+ *   effect if space is not falsy.
  * @returns {string[]} Array of item IDs for extensions in the given space.
  */
-function getExtensionsForSpace(space) {
-  if (space === "default") {
-    space = false;
-  }
-  return EXTENSIONS.filter(extension =>
-    space ? extension.spaces?.includes(space) : !extension.spaces?.length
+function getExtensionsForSpace(space, includeSpaceAgnostic = false) {
+  return EXTENSIONS.filter(
+    extension =>
+      (space && extension.spaces?.includes(space)) ||
+      ((!space || includeSpaceAgnostic) && !extension.spaces?.length)
   ).map(extension => `ext-${extension.id}`);
 }
 
@@ -74,16 +77,23 @@ function getExtensionsForSpace(space) {
  *
  * @param {string} [space] - ID of the space to get the available exclusive
  *   items of. When omitted only items allowed in all spaces are returned.
+ * @param {boolean} [includeSpaceAgnostic=false] - When set, extensions that are
+ *   available for all spaces and the provided space are returned. Only has an
+ *   effect if space is not falsy.
  * @returns {string[]} Array of item IDs available in the space.
  */
-export function getAvailableItemIdsForSpace(space) {
-  return CUSTOMIZABLE_ITEMS.filter(item =>
-    space
-      ? item.spaces?.includes(space)
-      : !item.spaces || item.spaces.length === 0
+export function getAvailableItemIdsForSpace(
+  space,
+  includeSpaceAgnostic = false
+) {
+  return CUSTOMIZABLE_ITEMS.filter(
+    item =>
+      (space && item.spaces?.includes(space)) ||
+      ((!space || includeSpaceAgnostic) &&
+        (!item.spaces || item.spaces.length === 0))
   )
     .map(item => item.id)
-    .concat(getExtensionsForSpace(space));
+    .concat(getExtensionsForSpace(space, includeSpaceAgnostic));
 }
 
 /**
@@ -95,7 +105,7 @@ export function getAvailableItemIdsForSpace(space) {
  * @returns {string[]} Array of item IDs to show by default in the space.
  */
 export function getDefaultItemIdsForSpace(space) {
-  return DEFAULT_ITEMS.concat(getExtensionsForSpace(space));
+  return DEFAULT_ITEMS.concat(getExtensionsForSpace(space, true));
 }
 
 /**

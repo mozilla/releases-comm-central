@@ -24,6 +24,10 @@ add_task(async function test_extensionRegisterUnregisterDefault() {
     getDefaultItemIdsForSpace("mail").includes(itemId),
     "Extension item in mail space by default"
   );
+  ok(
+    !getAvailableItemIdsForSpace().includes(itemId),
+    "Extension item not available in all spaces"
+  );
 
   unregisterExtension(extensionId);
 
@@ -55,8 +59,8 @@ add_task(async function test_extensionRegisterAllSpaces() {
     "Extension item not available in mail space"
   );
   ok(
-    !getDefaultItemIdsForSpace("mail").includes(itemId),
-    "Extension item not in mail space only by default"
+    getDefaultItemIdsForSpace("mail").includes(itemId),
+    "Extension item in mail space by default"
   );
 
   unregisterExtension(extensionId);
@@ -73,7 +77,7 @@ add_task(async function test_extensionRegisterAllSpaces() {
 
 add_task(async function test_extensionRegisterMultipleSpaces() {
   const extensionId = "thunderbird-compact-light@mozilla.org";
-  await registerExtension(extensionId, ["mail", "calendar"]);
+  await registerExtension(extensionId, ["mail", "calendar", "default"]);
 
   const itemId = `ext-${extensionId}`;
   ok(
@@ -91,6 +95,18 @@ add_task(async function test_extensionRegisterMultipleSpaces() {
   ok(
     getDefaultItemIdsForSpace("mail").includes(itemId),
     "Extension item in mail space by default"
+  );
+  ok(
+    !getAvailableItemIdsForSpace().includes(itemId),
+    "Extension item not available in all spaces"
+  );
+  ok(
+    getAvailableItemIdsForSpace("default").includes(itemId),
+    "Extension item available in default space"
+  );
+  ok(
+    getDefaultItemIdsForSpace("default").includes(itemId),
+    "Extension item in default space"
   );
 
   unregisterExtension(extensionId);
@@ -110,6 +126,18 @@ add_task(async function test_extensionRegisterMultipleSpaces() {
   ok(
     !getDefaultItemIdsForSpace("calendar").includes(itemId),
     "Extension item not in calendar space by default"
+  );
+  ok(
+    !getAvailableItemIdsForSpace().includes(itemId),
+    "Extension item not available in all spaces"
+  );
+  ok(
+    !getAvailableItemIdsForSpace("default").includes(itemId),
+    "Extension item not available in default space"
+  );
+  ok(
+    !getDefaultItemIdsForSpace("default").includes(itemId),
+    "Extension item not in default space"
   );
 });
 

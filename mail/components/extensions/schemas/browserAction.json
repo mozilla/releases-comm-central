@@ -49,7 +49,7 @@
             "default": false
           },
           "default_area": {
-            "description": "Defines the location the action button will appear. The default location is <value>maintoolbar</value>.",
+            "description": "Defines the location the action button will appear. This will always behave like <value>maintoolbar</value>. The <value>tabstoolbar</value> area should no longer be used.",
             "type": "string",
             "enum": [
               "maintoolbar",
@@ -69,6 +69,26 @@
             },
             "default": [
               "normal"
+            ],
+            "optional": true
+          },
+          "allowed_spaces": {
+            "description": "Defines the spaces, in which the action button can appear in the toolbar of the normal Thunderbird window. The action button will be added to the toolbar of all the defined spaces by default. Defaults to only allowing the action in the <value>mail</value> space. The <value>default</value> space is for tabs that don't belong to any space. If this is an empty array, the action button is shown in all spaces.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "mail",
+                "addressbook",
+                "calendar",
+                "tasks",
+                "chat",
+                "settings",
+                "default"
+              ]
+            },
+            "default": [
+              "mail"
             ],
             "optional": true
           }
