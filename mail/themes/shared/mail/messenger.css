@@ -949,8 +949,8 @@ panelmultiview[transitioning] {
 statuspanel {
   position: fixed;
   display: block;
-  margin-top: -3em;
   left: 0;
+  bottom: 0;
   z-index: 20;
   max-width: 50%;
   transition: opacity 120ms ease-out, visibility 120ms;
