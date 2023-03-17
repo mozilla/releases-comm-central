@@ -48,7 +48,7 @@ struct nsMapiInterfaceWrapper {
 static void assignEntryID(LPENTRYID& aTarget, LPENTRYID aSource,
                           ULONG aByteCount) {
   if (aTarget != NULL) {
-    delete[](reinterpret_cast<LPBYTE>(aTarget));
+    delete[] (reinterpret_cast<LPBYTE>(aTarget));
     aTarget = NULL;
   }
   if (aSource != NULL) {

@@ -71,7 +71,7 @@ void mork_fileflush(FILE* file);
 
 #define MORK_ENABLE_ZONE_ARENAS 1 /* using morkZone for pooling */
 
-//#define MORK_ENABLE_PROBE_MAPS 1 /* use smaller hash tables */
+// #define MORK_ENABLE_PROBE_MAPS 1 /* use smaller hash tables */
 
 #define MORK_BEAD_OVER_NODE_MAPS 1 /* use bead not node maps */
 
@@ -115,8 +115,8 @@ extern void mork_assertion_signal(const char* inMessage);
   if (!(X)) MORK_ASSERTION_SIGNAL(#X)
 // } %%%%% end assertion macro %%%%%
 
-#define MORK_LIB(return ) return      /*API return declaration*/
-#define MORK_LIB_IMPL(return ) return /*implementation return declaration*/
+#define MORK_LIB(return) return      /*API return declaration*/
+#define MORK_LIB_IMPL(return) return /*implementation return declaration*/
 
 // { %%%%% begin standard c utility methods %%%%%
 

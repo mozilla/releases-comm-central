@@ -1785,8 +1785,7 @@ nsMsgAccountManager::FindServerByURI(nsIURI* aURI,
   if (NS_SUCCEEDED(rv) && !type.IsEmpty()) {
     // Remove "-message" from the scheme in case we get called with
     // "imap-message", "mailbox-message", or friends.
-    if (StringEndsWith(type, "-message"_ns))
-      type.SetLength(type.Length() - 8);
+    if (StringEndsWith(type, "-message"_ns)) type.SetLength(type.Length() - 8);
     // now modify type if pop or news
     if (type.EqualsLiteral("pop")) type.AssignLiteral("pop3");
     // we use "nntp" in the server list so translate it here.

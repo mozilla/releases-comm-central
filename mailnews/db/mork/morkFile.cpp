@@ -404,9 +404,9 @@ morkStdioFile::AcquireBud(nsIMdbEnv* mdbev, nsIMdbHeap* ioHeap,
   if (this->IsOpenAndActiveFile()) {
     FILE* file = (FILE*)mStdioFile_File;
     if (file) {
-      //#ifdef MORK_WIN
-      //      truncate(file, /*eof*/ 0);
-      //#else /*MORK_WIN*/
+      // #ifdef MORK_WIN
+      //       truncate(file, /*eof*/ 0);
+      // #else /*MORK_WIN*/
       PathChar* name = mFile_Name;
       if (name) {
         if (MORK_FILECLOSE(file) >= 0) {
@@ -428,7 +428,7 @@ morkStdioFile::AcquireBud(nsIMdbEnv* mdbev, nsIMdbHeap* ioHeap,
       } else
         this->NilFileNameError(ev);
 
-      //#endif /*MORK_WIN*/
+      // #endif /*MORK_WIN*/
 
       if (ev->Good() && this->AddStrongRef(ev->AsMdbEnv())) {
         outFile = this;
