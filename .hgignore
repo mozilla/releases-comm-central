@@ -7,13 +7,6 @@
 (^|/)\.DS_Store$
 
 # User files that may appear at the root
-^\.mozconfig$
-^mozconfig$
-^\.mozconfig\.mk$
-^\.mozconfig\.out$
-^configure$
-^config\.cache$
-^config\.log$
 ^ID$
 
 #treestate
@@ -22,11 +15,6 @@
 # Build directories
 ^obj-
 ^objdir-
-
-# directories we check out from other repositories
-^directory/c-sdk$
-# ^mozilla$ <--- causes regex perf issues when present with fsmonitor. See Bug 1293993.
-mozilla
 
 ^.mozilla-trunk$
 
