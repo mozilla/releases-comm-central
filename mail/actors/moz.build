@@ -9,13 +9,13 @@ EXTRA_JS_MODULES += [
 
 FINAL_TARGET_FILES.actors += [
     "../../../browser/actors/ContextMenuChild.sys.mjs",
-    "../../../browser/actors/LinkHandlerChild.jsm",
+    "../../../browser/actors/LinkHandlerChild.sys.mjs",
     "ChatActionChild.sys.mjs",
     "ChatActionParent.sys.mjs",
     "ContextMenuParent.sys.mjs",
     "LinkClickHandlerChild.jsm",
     "LinkClickHandlerParent.jsm",
-    "LinkHandlerParent.jsm",
+    "LinkHandlerParent.sys.mjs",
     "MailLinkChild.jsm",
     "MailLinkParent.jsm",
     "PromptParent.jsm",
