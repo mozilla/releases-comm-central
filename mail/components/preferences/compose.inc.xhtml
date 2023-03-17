@@ -302,7 +302,7 @@
                     edit-keyword-label"/>
         </hbox>
       </hbox>
-      <vbox id="cloudFileBox" flex="1">
+      <vbox id="cloudFileBox">
         <hbox id="cloudFileToggleAndThreshold" align="center">
           <checkbox id="enableThreshold"
                     data-l10n-id="enable-cloud-share"
@@ -311,9 +311,9 @@
                       preference="mail.compose.big_attachments.threshold_kb"/>
           <label control="cloudFileThreshold" data-l10n-id="cloud-share-size"/>
         </hbox>
-        <hbox flex="1" style="height: 480px;">
+        <hbox style="height: 480px; flex: 1 auto;">
           <vbox id="provider-listing">
-            <richlistbox id="cloudFileView" orient="vertical" flex="1"
+            <richlistbox id="cloudFileView" orient="vertical"
                          seltype="single"
                          onoverflow="gCloudFile.onListOverflow();"
                          onselect="gCloudFile.onSelectionChanged(event);">

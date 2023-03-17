@@ -203,6 +203,11 @@
   padding: 4px;
 }
 
+#cloudFileView,
+#cloudFileBox {
+  flex: 1 auto;
+}
+
 #cloudFileView > richlistitem {
   min-height: 35px;
 }
