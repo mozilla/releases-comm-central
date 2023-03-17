@@ -24,4 +24,4 @@ async function installTrigger(filename) {
   );
 }
 
-add_task(() => testInstallMethod(installTrigger, "installAmo"));
+add_task(() => testInstallMethod(installTrigger));

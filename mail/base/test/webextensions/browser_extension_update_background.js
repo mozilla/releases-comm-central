@@ -7,6 +7,7 @@ const { AddonTestUtils } = ChromeUtils.import(
 );
 
 AddonTestUtils.initMochitest(this);
+AddonTestUtils.hookAMTelemetryEvents();
 
 const ID = "update2@tests.mozilla.org";
 const ID_ICON = "update_icon2@tests.mozilla.org";
@@ -61,9 +62,6 @@ add_setup(async function() {
     ],
   });
 });
-
-hookExtensionsTelemetry();
-AddonTestUtils.hookAMTelemetryEvents();
 
 // Helper function to test background updates.
 async function backgroundUpdateTest(url, id, checkIconFn) {
@@ -166,9 +164,6 @@ async function backgroundUpdateTest(url, id, checkIconFn) {
   is(addon.version, "2.0", "Should have upgraded to the new version");
 
   is(getBadgeStatus(), "", "Addon alert badge should be gone");
-
-  // Should have recorded 1 canceled followed by 1 accepted update.
-  expectTelemetry(["updateRejected", "updateAccepted"]);
 
   await addon.uninstall();
   await SpecialPowers.popPrefEnv();

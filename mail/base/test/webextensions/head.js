@@ -313,13 +313,10 @@ function checkNotification(
  *        Callable that takes the name of an xpi file to install and
  *        starts to install it.  Should return a Promise that resolves
  *        when the install is finished or rejects if the install is canceled.
- * @param {string} telemetryBase
- *        If supplied, the base type for telemetry events that should be
- *        recorded for this install method.
  *
  * @returns {Promise}
  */
-async function testInstallMethod(installFn, telemetryBase) {
+async function testInstallMethod(installFn) {
   const PERMS_XPI = "browser_webext_permissions.xpi";
   const NO_PERMS_XPI = "browser_webext_nopermissions.xpi";
   const ID = "permissions@test.mozilla.org";
@@ -330,10 +327,6 @@ async function testInstallMethod(installFn, telemetryBase) {
       ["extensions.install.requireBuiltInCerts", false],
     ],
   });
-
-  if (telemetryBase !== undefined) {
-    hookExtensionsTelemetry();
-  }
 
   let testURI = makeURI("https://example.com/");
   PermissionTestUtils.add(testURI, "install", Services.perms.ALLOW_ACTION);
@@ -439,16 +432,6 @@ async function testInstallMethod(installFn, telemetryBase) {
   //    accept the permissions to install the extension.  (Then uninstall
   //    the extension to clean up.)
   await runOnce(PERMS_XPI, false);
-
-  if (telemetryBase !== undefined) {
-    // Should see 2 canceled installs followed by 1 successful install
-    // for this method.
-    expectTelemetry([
-      `${telemetryBase}Rejected`,
-      `${telemetryBase}Rejected`,
-      `${telemetryBase}Accepted`,
-    ]);
-  }
 
   await SpecialPowers.popPrefEnv();
 }
