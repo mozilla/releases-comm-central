@@ -8,31 +8,33 @@
                 class="button icon-button icon-only check-button"
                 data-l10n-id="quick-filter-bar-sticky">
         </button>
-        <button is="toggle-button" id="qfb-unread"
-                class="button collapsible-button icon-button check-button"
-                data-l10n-id="quick-filter-bar-unread">
-          <span data-l10n-id="quick-filter-bar-unread-label"></span>
-        </button>
-        <button is="toggle-button" id="qfb-starred"
-                class="button collapsible-button icon-button check-button"
-                data-l10n-id="quick-filter-bar-starred">
-          <span data-l10n-id="quick-filter-bar-starred-label"></span>
-        </button>
-        <button is="toggle-button" id="qfb-inaddrbook"
-                class="button collapsible-button icon-button check-button"
-                data-l10n-id="quick-filter-bar-inaddrbook">
-          <span data-l10n-id="quick-filter-bar-inaddrbook-label"></span>
-        </button>
-        <button is="toggle-button" id="qfb-tags"
-                class="button collapsible-button icon-button check-button"
-                data-l10n-id="quick-filter-bar-tags">
-          <span data-l10n-id="quick-filter-bar-tags-label"></span>
-        </button>
-        <button is="toggle-button" id="qfb-attachment"
-                class="button collapsible-button icon-button check-button"
-                data-l10n-id="quick-filter-bar-attachment">
-          <span data-l10n-id="quick-filter-bar-attachment-label"></span>
-        </button>
+        <div class="button-group">
+          <button is="toggle-button" id="qfb-unread"
+                  class="button collapsible-button icon-button check-button"
+                  data-l10n-id="quick-filter-bar-unread">
+            <span data-l10n-id="quick-filter-bar-unread-label"></span>
+          </button>
+          <button is="toggle-button" id="qfb-starred"
+                  class="button collapsible-button icon-button check-button"
+                  data-l10n-id="quick-filter-bar-starred">
+            <span data-l10n-id="quick-filter-bar-starred-label"></span>
+          </button>
+          <button is="toggle-button" id="qfb-inaddrbook"
+                  class="button collapsible-button icon-button check-button"
+                  data-l10n-id="quick-filter-bar-inaddrbook">
+            <span data-l10n-id="quick-filter-bar-inaddrbook-label"></span>
+          </button>
+          <button is="toggle-button" id="qfb-tags"
+                  class="button collapsible-button icon-button check-button"
+                  data-l10n-id="quick-filter-bar-tags">
+            <span data-l10n-id="quick-filter-bar-tags-label"></span>
+          </button>
+          <button is="toggle-button" id="qfb-attachment"
+                  class="button collapsible-button icon-button check-button"
+                  data-l10n-id="quick-filter-bar-attachment">
+            <span data-l10n-id="quick-filter-bar-attachment-label"></span>
+          </button>
+        </div>
         <span id="qfb-results-label"></span>
         <xul:search-textbox id="qfb-qs-textbox"
                             class="themeableSearchBox"
@@ -59,18 +61,20 @@
         <div id="quick-filter-bar-filter-text-bar" hidden="hidden">
           <span id="qfb-qs-label"
                 data-l10n-id="quick-filter-bar-text-filter-explanation"></span>
-          <button is="toggle-button" id="qfb-qs-sender"
-                  class="button check-button"
-                  data-l10n-id="quick-filter-bar-text-filter-sender"></button>
-          <button is="toggle-button" id="qfb-qs-recipients"
-                  class="button check-button"
-                  data-l10n-id="quick-filter-bar-text-filter-recipients"></button>
-          <button is="toggle-button" id="qfb-qs-subject"
-                  class="button check-button"
-                  data-l10n-id="quick-filter-bar-text-filter-subject"></button>
-          <button is="toggle-button" id="qfb-qs-body"
-                  class="button check-button"
-                  data-l10n-id="quick-filter-bar-text-filter-body"></button>
+          <div class="button-group">
+            <button is="toggle-button" id="qfb-qs-sender"
+                    class="button check-button"
+                    data-l10n-id="quick-filter-bar-text-filter-sender"></button>
+            <button is="toggle-button" id="qfb-qs-recipients"
+                    class="button check-button"
+                    data-l10n-id="quick-filter-bar-text-filter-recipients"></button>
+            <button is="toggle-button" id="qfb-qs-subject"
+                    class="button check-button"
+                    data-l10n-id="quick-filter-bar-text-filter-subject"></button>
+            <button is="toggle-button" id="qfb-qs-body"
+                    class="button check-button"
+                    data-l10n-id="quick-filter-bar-text-filter-body"></button>
+          </div>
         </div>
       </div>
     </div>

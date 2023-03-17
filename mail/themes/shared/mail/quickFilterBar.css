@@ -63,13 +63,6 @@
   }
 }
 
-@media (-moz-platform: windows-win8),
-       (-moz-platform: windows-win10) {
-  #qfb-qs-textbox {
-    margin-block: 5px;
-  }
-}
-
 #quick-filter-bar-tab-bar:not([hidden]) {
   flex: 2;
   display: flex;

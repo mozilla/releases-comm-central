@@ -259,6 +259,55 @@
   }
 }
 
+/* Button Group Styles */
+
+.button-group {
+  display: inline-flex;
+  color: var(--button-text-color);
+  border: var(--button-border-size) solid var(--button-border-color);
+  border-radius: var(--button-border-radius);
+  margin: var(--button-margin);
+  position: relative;
+  isolation: isolate;
+  z-index: 1;
+}
+
+.button-group .button + .button:not(:last-child) {
+  border-inline-end: var(--button-border-size) solid var(--button-border-color);
+}
+
+.button-group :is(.button, input) {
+  --button-margin: 0;
+  border: none;
+  border-radius: 0;
+  z-index: 2;
+}
+
+.button-group :is(.button, input):hover {
+  border: none;
+}
+
+.button-group :is(.button, input):hover:active {
+  border: none;
+}
+
+.button-group .button:focus-visible {
+  border: none;
+  outline-offset: 0;
+  z-index: 3;
+}
+
+.button-group .button:first-child {
+  border-inline-end: var(--button-border-size) solid var(--button-border-color);
+  border-start-start-radius: calc(var(--button-border-radius) - 1px);
+  border-end-start-radius: calc(var(--button-border-radius) - 1px);
+}
+
+.button-group .button:last-child {
+  border-start-end-radius: calc(var(--button-border-radius) - 1px);
+  border-end-end-radius: calc(var(--button-border-radius) - 1px);
+}
+
 @container threadPane (max-width: 999px) {
   .button.collapsible-button {
     padding-inline-end: 0;

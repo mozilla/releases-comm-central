@@ -153,6 +153,7 @@
   :root {
     --button-background-color: var(--layout-background-3);
     --button-hover-background-color: var(--layout-background-4);
+    --button-border-color: var(--layout-border-2);
     --button-active-background-color: var(--layout-background-2);
     --button-primary-border-color: var(--color-blue-50);
     --button-destructive-border-color: var(--color-red-50);

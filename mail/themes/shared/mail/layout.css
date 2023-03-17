@@ -37,6 +37,7 @@
 
   --layout-border-0: var(--color-gray-30);
   --layout-border-1: var(--color-gray-40);
+  --layout-border-2: var(--color-gray-50);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -55,6 +56,7 @@
 
     --layout-border-0: var(--color-gray-50);
     --layout-border-1: var(--color-gray-60);
+    --layout-border-2: var(--color-gray-70);
   }
 }
 

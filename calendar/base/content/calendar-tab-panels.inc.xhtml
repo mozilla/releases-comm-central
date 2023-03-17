@@ -388,22 +388,24 @@
                   "foobar-view", then you need to add the attribute
                   tooltiptext-foobar="..." -->
             <div id="calendarControls">
-              <button id="previousViewButton"
-                      class="button icon-button icon-only"
-                      onclick="goDoCommand('calendar_view_prev_command')"
-                      type="button">
-              </button>
-              <button id="todayViewButton"
-                      class="button icon-button icon-only"
-                      data-l10n-id="calendar-today-button-tooltip"
-                      onclick="currentView().moveView()"
-                      type="button">
-              </button>
-              <button id="nextViewButton"
-                      class="button icon-button icon-only"
-                      onclick="goDoCommand('calendar_view_next_command')"
-                      type="button">
-              </button>
+              <div class="button-group">
+                <button id="previousViewButton"
+                        class="button icon-button icon-only"
+                        onclick="goDoCommand('calendar_view_prev_command')"
+                        type="button">
+                </button>
+                <button id="todayViewButton"
+                        class="button icon-button icon-only"
+                        data-l10n-id="calendar-today-button-tooltip"
+                        onclick="currentView().moveView()"
+                        type="button">
+                </button>
+                <button id="nextViewButton"
+                        class="button icon-button icon-only"
+                        onclick="goDoCommand('calendar_view_next_command')"
+                        type="button">
+                </button>
+              </div>
             </div>
             <span id="intervalDescription" class="view-header"/>
           </div>
