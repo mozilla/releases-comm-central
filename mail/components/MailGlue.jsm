@@ -125,10 +125,10 @@ let JSWINDOWACTORS = {
   // message manager groups added.
   FindBar: {
     parent: {
-      moduleURI: "resource://gre/actors/FindBarParent.jsm",
+      esModuleURI: "resource://gre/actors/FindBarParent.sys.mjs",
     },
     child: {
-      moduleURI: "resource://gre/actors/FindBarChild.jsm",
+      esModuleURI: "resource://gre/actors/FindBarChild.sys.mjs",
       events: {
         keypress: { mozSystemGroup: true },
       },
@@ -713,7 +713,9 @@ MailGlue.prototype = {
           // FormAutoComplete:GetSelectedIndex messages and respond
           // appropriately, otherwise we get error messages like the one
           // reported in bug 1635422.
-          ChromeUtils.import("resource://gre/actors/AutoCompleteParent.jsm");
+          ChromeUtils.importESModule(
+            "resource://gre/actors/AutoCompleteParent.sys.mjs"
+          );
         },
       },
       {
