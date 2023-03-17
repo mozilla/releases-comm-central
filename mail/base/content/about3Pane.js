@@ -746,7 +746,7 @@ var folderPane = {
             return;
           }
           while (folder) {
-            let parentFolder = folder.parent;
+            let parentFolder = folderPane._getNonGmailParent(folder);
             if (!parentFolder || this._unreadFilter(parentFolder)) {
               // If this folder's parent has messages, remove this folder, which doesn't.
               folderPane.getRowForFolder(folder, this.name)?.remove();
@@ -766,7 +766,7 @@ var folderPane = {
           }
 
           while (folder) {
-            let parentFolder = folder.parent;
+            let parentFolder = folderPane._getNonGmailParent(folder);
             let parentRow = folderPane.getRowForFolder(parentFolder, this.name);
             if (parentRow) {
               let folderRow = folderPane._createFolderRow(this.name, folder);
@@ -1130,6 +1130,13 @@ var folderPane = {
       return;
     }
 
+    for (let i = 0; i < subFolders.length; i++) {
+      let folder = subFolders[i];
+      if (this._isGmailFolder(folder)) {
+        subFolders.splice(i, 1, ...folder.subFolders);
+      }
+    }
+
     subFolders.sort((a, b) => a.compareSortKeys(b));
 
     for (let folder of subFolders) {
@@ -1181,6 +1188,44 @@ var folderPane = {
   },
 
   /**
+   * We deliberately hide the [Gmail] (or [Google Mail] in some cases) folder
+   * from the folder tree. This function determines if a folder is that folder.
+   *
+   * @param {nsIMsgFolder} folder
+   * @returns {boolean}
+   */
+  _isGmailFolder(folder) {
+    return (
+      folder?.parent?.isServer &&
+      folder.server instanceof Ci.nsIImapIncomingServer &&
+      folder.server.isGMailServer &&
+      folder.noSelect
+    );
+  },
+
+  /**
+   * If a folder is the [Gmail] folder, returns the parent folder, otherwise
+   * returns the given folder.
+   *
+   * @param {nsIMsgFolder} folder
+   * @returns {nsIMsgFolder}
+   */
+  _getNonGmailFolder(folder) {
+    return this._isGmailFolder(folder) ? folder.parent : folder;
+  },
+
+  /**
+   * Returns the parent folder of a given folder, or if that is the [Gmail]
+   * folder returns the grandparent of the given folder.
+   *
+   * @param {nsIMsgFolder} folder
+   * @returns {nsIMsgFolder}
+   */
+  _getNonGmailParent(folder) {
+    return this._getNonGmailFolder(folder.parent);
+  },
+
+  /**
    * Update the folder pane UI and add rows for all newly created folders.
    *
    * @param {?nsIMsgFolder} parentFolder - The parent of the newly created
@@ -1192,6 +1237,12 @@ var folderPane = {
       // A server folder was added, so check if we need to update actions.
       this.updateWidgets();
     }
+
+    if (this._isGmailFolder(childFolder)) {
+      return;
+    }
+
+    parentFolder = this._getNonGmailFolder(parentFolder);
     this._forAllActiveModes("addFolder", parentFolder, childFolder);
   },
 
@@ -1206,6 +1257,8 @@ var folderPane = {
       // A server folder was removed, so check if we need to update actions.
       this.updateWidgets();
     }
+
+    parentFolder = this._getNonGmailFolder(parentFolder);
     this._forAllActiveModes("removeFolder", parentFolder, childFolder);
   },
 

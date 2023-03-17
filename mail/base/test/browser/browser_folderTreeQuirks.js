@@ -11,7 +11,11 @@ const { MessageInjection } = ChromeUtils.import(
 
 let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
 let { displayFolder, folderPane, folderTree, threadTree } = about3Pane;
-let rootFolder,
+let account,
+  rootFolder,
+  inboxFolder,
+  trashFolder,
+  outboxFolder,
   folderA,
   folderAMessages,
   folderB,
@@ -28,8 +32,11 @@ add_setup(async function() {
     generator
   );
 
-  let account = MailServices.accounts.accounts[0];
+  account = MailServices.accounts.accounts[0];
   rootFolder = account.incomingServer.rootFolder;
+  inboxFolder = rootFolder.getChildNamed("Inbox");
+  trashFolder = rootFolder.getChildNamed("Trash");
+  outboxFolder = rootFolder.getChildNamed("Outbox");
 
   rootFolder.createSubfolder("folder a", null);
   folderA = rootFolder
@@ -236,10 +243,10 @@ add_task(async function testSearchFolderAddedOnlyOnce() {
 
   checkModeListItems("all", [
     rootFolder,
-    rootFolder.getChildNamed("Inbox"),
-    rootFolder.getChildNamed("Trash"),
+    inboxFolder,
+    trashFolder,
     virtualFolder,
-    rootFolder.getChildNamed("Outbox"),
+    outboxFolder,
     folderA,
     folderB,
     folderC,
@@ -264,14 +271,162 @@ add_task(async function testSearchFolderAddedOnlyOnce() {
 
   checkModeListItems("all", [
     rootFolder,
-    rootFolder.getChildNamed("Inbox"),
-    rootFolder.getChildNamed("Trash"),
-    rootFolder.getChildNamed("Outbox"),
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
     folderA,
     folderB,
     folderC,
   ]);
 });
+
+/**
+ * We deliberately hide the special [Gmail] folder from the folder tree.
+ * Check that it doesn't appear when for a new or existing account.
+ */
+add_task(async function testGmailFolders() {
+  IMAPServer.open();
+  // Set up a fake Gmail account.
+  let gmailAccount = MailServices.accounts.createAccount();
+  let gmailServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "localhost",
+    "imap"
+  );
+  gmailServer.port = IMAPServer.port;
+  gmailServer.password = "password";
+  gmailAccount.incomingServer = gmailServer;
+
+  let gmailIdentity = MailServices.accounts.createIdentity();
+  gmailIdentity.email = "imap@invalid";
+  gmailAccount.addIdentity(gmailIdentity);
+  gmailAccount.defaultIdentity = gmailIdentity;
+
+  let gmailRootFolder = gmailServer.rootFolder;
+
+  // Fetch the folders from the server. We haven't added the [Gmail] folder to
+  // the server yet, because for some reason we can't set the `isGMailServer`
+  // flag until after calling this function, but it must be set before the
+  // folder appears or the folder tree misbehaves.
+  // In reality there's going to be some lag between setting the flag and the
+  // folders appearing, so this hack seems justified.
+  gmailServer.performBiff(window.msgWindow);
+  await TestUtils.waitForCondition(
+    () => gmailRootFolder.subFolders.length == 2
+  );
+
+  // All of the above needs to happen before the `isGMailServer` flag sticks.
+  // This flag helps the front end behave correctly.
+  gmailServer.QueryInterface(Ci.nsIImapIncomingServer);
+  gmailServer.isGMailServer = true;
+
+  let gmailInboxFolder = gmailRootFolder.getChildNamed("INBOX");
+  let gmailTrashFolder = gmailRootFolder.getChildNamed("Trash");
+
+  checkModeListItems("all", [
+    rootFolder,
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
+    folderA,
+    folderB,
+    folderC,
+    // These rows need to be moved to the top when bug 1819963 is fixed:
+    gmailRootFolder,
+    gmailInboxFolder,
+    gmailTrashFolder,
+  ]);
+
+  // Now add the [Gmail] folder to the server and go looking for it.
+  IMAPServer.createGmailMailboxes();
+  gmailServer.performExpand(window.msgWindow);
+  await TestUtils.waitForCondition(() => gmailRootFolder.subFolders.length > 2);
+
+  // Get the folder and test the utility functions with it.
+  let gmailGmailFolder = gmailRootFolder.getChildNamed("[Gmail]");
+  let gmailAllMailFolder = gmailGmailFolder.getChildNamed("All Mail");
+
+  Assert.ok(
+    !folderPane._isGmailFolder(gmailRootFolder),
+    "_isGmailFolder should be false for the root folder"
+  );
+  Assert.ok(
+    folderPane._isGmailFolder(gmailGmailFolder),
+    "_isGmailFolder should be true for the [Gmail] folder"
+  );
+  Assert.ok(
+    !folderPane._isGmailFolder(gmailAllMailFolder),
+    "_isGmailFolder should be false for the All Mail folder"
+  );
+
+  Assert.equal(
+    folderPane._getNonGmailFolder(gmailRootFolder),
+    gmailRootFolder,
+    "_getNonGmailFolder should return the same folder for the root folder"
+  );
+  Assert.equal(
+    folderPane._getNonGmailFolder(gmailGmailFolder),
+    gmailRootFolder,
+    "_getNonGmailFolder should return the root folder for the [Gmail] folder"
+  );
+  Assert.equal(
+    folderPane._getNonGmailFolder(gmailAllMailFolder),
+    gmailAllMailFolder,
+    "_getNonGmailFolder should return the same folder for the All Mail folder"
+  );
+
+  Assert.equal(
+    folderPane._getNonGmailParent(gmailRootFolder),
+    null,
+    "_getNonGmailParent should return null for the root folder"
+  );
+  Assert.equal(
+    folderPane._getNonGmailParent(gmailGmailFolder),
+    gmailRootFolder,
+    "_getNonGmailParent should return the root folder for the [Gmail] folder"
+  );
+  Assert.equal(
+    folderPane._getNonGmailParent(gmailAllMailFolder),
+    gmailRootFolder,
+    "_getNonGmailParent should return the root folder for the All Mail folder"
+  );
+
+  checkModeListItems("all", [
+    rootFolder,
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
+    folderA,
+    folderB,
+    folderC,
+    // These rows need to be moved to the top when bug 1819963 is fixed:
+    gmailRootFolder,
+    gmailInboxFolder,
+    gmailAllMailFolder,
+    gmailTrashFolder,
+  ]);
+
+  // The accounts didn't exist when about:3pane loaded, but we can simulate
+  // that by removing the mode and then re-adding it.
+  folderPane.activeModes = ["favorite"];
+  folderPane.activeModes = ["all"];
+
+  checkModeListItems("all", [
+    gmailRootFolder,
+    gmailInboxFolder,
+    gmailAllMailFolder,
+    gmailTrashFolder,
+    rootFolder,
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
+    folderA,
+    folderB,
+    folderC,
+  ]);
+
+  MailServices.accounts.removeAccount(gmailAccount, false);
+}).__skipMe = AppConstants.DEBUG; // Too unreliable.
 
 function checkModeListItems(modeName, folders) {
   Assert.deepEqual(
@@ -290,3 +445,50 @@ function expandAll(modeName) {
     folderTree.expandRow(folderTreeRow);
   }
 }
+
+var IMAPServer = {
+  open() {
+    const {
+      ImapDaemon,
+      ImapMessage,
+      IMAP_RFC3501_handler,
+    } = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
+    const { nsMailServer } = ChromeUtils.import(
+      "resource://testing-common/mailnews/Maild.jsm"
+    );
+    IMAPServer.ImapMessage = ImapMessage;
+
+    this.daemon = new ImapDaemon();
+    this.daemon.getMailbox("INBOX").specialUseFlag = "\\Inbox";
+    this.daemon.getMailbox("INBOX").subscribed = true;
+    this.daemon.createMailbox("Trash", {
+      flags: ["\\Trash"],
+      subscribed: true,
+    });
+    this.server = new nsMailServer(
+      daemon => new IMAP_RFC3501_handler(daemon),
+      this.daemon
+    );
+    this.server.start();
+
+    registerCleanupFunction(() => this.close());
+  },
+  close() {
+    this.server.stop();
+  },
+  get port() {
+    return this.server.port;
+  },
+
+  createGmailMailboxes() {
+    this.daemon.createMailbox("[Gmail]", {
+      flags: ["\\NoSelect"],
+      subscribed: true,
+    });
+    this.daemon.createMailbox("[Gmail]/All Mail", {
+      flags: ["\\Archive"],
+      subscribed: true,
+      specialUseFlag: "\\AllMail",
+    });
+  },
+};
