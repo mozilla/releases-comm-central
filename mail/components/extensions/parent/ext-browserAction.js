@@ -35,26 +35,31 @@ this.browserAction = class extends ToolbarButtonAPI {
     browserActionMap.set(this.extension, this);
     if (this.inUnifiedToolbar) {
       await registerExtension(this.extension.id);
-      const currentToolbarState = getState();
-      const unifiedToolbarButtonId = `ext-${this.extension.id}`;
-      if (
-        currentToolbarState.mail &&
-        !currentToolbarState.mail.includes(unifiedToolbarButtonId)
-      ) {
-        currentToolbarState.mail.push(unifiedToolbarButtonId);
-        storeState(currentToolbarState);
-      } else {
-        Services.obs.notifyObservers(null, "unified-toolbar-state-change");
+      // This won't add the button to a customized state if the button is added
+      // in an update or when restarting after the button was explicitly
+      // removed from the toolbar by the user.
+      if (this.extension.startupReason === "ADDON_INSTALL") {
+        const currentToolbarState = getState();
+        const unifiedToolbarButtonId = `ext-${this.extension.id}`;
+        if (
+          currentToolbarState.mail &&
+          !currentToolbarState.mail.includes(unifiedToolbarButtonId)
+        ) {
+          currentToolbarState.mail.push(unifiedToolbarButtonId);
+          storeState(currentToolbarState);
+          return;
+        }
       }
+      Services.obs.notifyObservers(null, "unified-toolbar-state-change");
     }
   }
 
   close() {
     super.close();
     browserActionMap.delete(this.extension);
+    windowTracker.removeListener("TabSelect", this);
     if (this.inUnifiedToolbar) {
       unregisterExtension(this.extension.id);
-      windowTracker.removeListener("TabSelect", this);
       Services.obs.notifyObservers(null, "unified-toolbar-state-change");
     }
   }
@@ -79,6 +84,12 @@ this.browserAction = class extends ToolbarButtonAPI {
     this.toolbarId = "mail-bar3";
 
     windowTracker.addListener("TabSelect", this);
+  }
+
+  static onUpdate(id, manifest) {
+    if (!("browser_action" in manifest || "action" in manifest)) {
+      this.#removeFromUnifiedToolbar(id);
+    }
   }
 
   static onUninstall(extensionId) {
@@ -110,6 +121,10 @@ this.browserAction = class extends ToolbarButtonAPI {
       }
     }
 
+    this.#removeFromUnifiedToolbar(extensionId);
+  }
+
+  static #removeFromUnifiedToolbar(extensionId) {
     const currentToolbarState = getState();
     const unifiedToolbarButtonId = `ext-${extensionId}`;
     if (currentToolbarState.mail?.includes(unifiedToolbarButtonId)) {

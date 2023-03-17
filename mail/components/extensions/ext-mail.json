@@ -40,6 +40,7 @@
       "browser_action"
     ],
     "events": [
+      "update",
       "uninstall"
     ],
     "paths": [

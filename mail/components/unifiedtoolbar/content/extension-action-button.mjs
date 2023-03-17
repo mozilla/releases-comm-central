@@ -4,22 +4,21 @@
 
 import { UnifiedToolbarButton } from "./unified-toolbar-button.mjs";
 
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
 const lazy = {};
 ChromeUtils.defineModuleGetter(
   lazy,
   "ExtensionParent",
   "resource://gre/modules/ExtensionParent.jsm"
 );
-XPCOMUtils.defineLazyGetter(lazy, "browserActionFor", () => {
-  return extensionId =>
-    lazy.ExtensionParent.apiManager.global.browserActionFor(
-      lazy.ExtensionParent.GlobalManager.getExtension(extensionId)
-    );
-});
+let browserActionFor = extensionId => {
+  const extension = lazy.ExtensionParent.GlobalManager.getExtension(
+    extensionId
+  );
+  if (!extension) {
+    return null;
+  }
+  return lazy.ExtensionParent.apiManager.global.browserActionFor(extension);
+};
 
 const BADGE_BACKGROUND_COLOR = "--toolbar-button-badge-bg-color";
 
@@ -43,13 +42,13 @@ class ExtensionActionButton extends UnifiedToolbarButton {
   connectedCallback() {
     if (this.hasConnected) {
       super.connectedCallback();
-      if (this.#action?.extension.hasPermission("menus")) {
+      if (this.#action?.extension?.hasPermission("menus")) {
         document.addEventListener("popupshowing", this.#action);
       }
       return;
     }
     super.connectedCallback();
-    this.#action = lazy.browserActionFor(this.getAttribute("extension"));
+    this.#action = browserActionFor(this.getAttribute("extension"));
     if (!this.#action) {
       return;
     }
@@ -63,7 +62,7 @@ class ExtensionActionButton extends UnifiedToolbarButton {
   }
 
   disconnectedCallback() {
-    if (this.#action?.extension.hasPermission("menus")) {
+    if (this.#action?.extension?.hasPermission("menus")) {
       document.removeEventListener("popupshowing", this.#action);
     }
   }
@@ -88,7 +87,7 @@ class ExtensionActionButton extends UnifiedToolbarButton {
    */
   applyTabData(tabData) {
     if (!this.#action) {
-      this.#action = lazy.browserActionFor(this.getAttribute("extension"));
+      this.#action = browserActionFor(this.getAttribute("extension"));
     }
     this.title = tabData.title || this.#action.extension.name;
     this.setAttribute("label", tabData.label || this.title);
