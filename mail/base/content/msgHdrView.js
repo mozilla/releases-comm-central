@@ -29,12 +29,12 @@ var { MailServices } = ChromeUtils.import(
 );
 
 ChromeUtils.defineESModuleGetters(this, {
+  Downloads: "resource://gre/modules/Downloads.sys.mjs",
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
   PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  Downloads: "resource://gre/modules/Downloads.jsm",
   Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
   GlodaUtils: "resource:///modules/gloda/GlodaUtils.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
