@@ -44,6 +44,7 @@ xpcshell:
                     .*-asan.*: 2
                     .*-tsan.*: 2
                     macosx1100.*: 2
+                    windows11.*: 1
                     default: default
     chunks:
         by-test-platform:
@@ -141,6 +142,7 @@ mochitest-thunderbird:
                     .*-asan.*: 2
                     .*-tsan.*: 2
                     macosx1100.*: 2
+                    windows11.*: 1
                     default: default
     chunks:
         by-test-platform:
