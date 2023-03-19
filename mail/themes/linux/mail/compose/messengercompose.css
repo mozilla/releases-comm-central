@@ -132,26 +132,6 @@ toolbarbutton.formatting-button {
   margin-inline-start: 3px;
 }
 
-/* ..... fg/bg color picker ..... */
-
-.color-button {
-  border: 1px inset ThreeDFace;
-  padding: 0;
-  width: 14px;
-  height: 12px;
-  margin: 2px;
-}
-
-.color-button:hover {
-  border: 1px solid ThreeDDarkShadow;
-}
-
-.color-button[disabled="true"],
-.color-button[disabled="true"]:hover {
-  border: 1px inset ThreeDFace;
-  opacity: 0.5;
-}
-
 /* ::::: address book sidebar ::::: */
 
 #contactsBrowser {

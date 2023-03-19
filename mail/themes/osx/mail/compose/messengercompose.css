@@ -179,27 +179,6 @@ toolbarbutton.formatting-button {
    max-width: 15em;
 }
 
-#ColorButtons {
-  margin-block: 0;
-  margin-inline: 3px 5px;
-}
-
-/* ..... fg/bg color picker ..... */
-
-.color-button {
-  border: 1px solid #a0a0a0;
-  padding: 0;
-  width: 20px;
-  height: 13px;
-  margin: 2px;
-}
-
-.color-button[disabled="true"],
-.color-button[disabled="true"]:hover {
-  border: 1px inset #a0a0a0;
-  opacity: 0.5;
-}
-
 /* ::::: address book sidebar ::::: */
 
 #contactsBrowserTitle {

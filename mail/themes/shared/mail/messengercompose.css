@@ -668,6 +668,22 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 
 /* ..... fg/bg color picker ..... */
 
+#ColorButtons {
+  margin-inline: 3px 4px;
+}
+
+.color-button {
+  border: 1px solid var(--toolbarbutton-active-bordercolor);
+  padding: 0;
+  width: 18px;
+  height: 15px;
+  margin: 2px;
+}
+
+.color-button[disabled="true"] {
+  opacity: 0.5;
+}
+
 .ColorPickerLabel {
   border: 1px inset ThreeDFace;
   margin: 0;
