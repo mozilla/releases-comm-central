@@ -503,15 +503,6 @@ async function subtest_paste_url() {
   let editPhoto = photoButton.querySelector(".contact-photo");
   let dropTarget = abDocument.getElementById("photoDropTarget");
 
-  let transfer = Cc["@mozilla.org/widget/transferable;1"].createInstance(
-    Ci.nsITransferable
-  );
-  transfer.init(null);
-  transfer.addDataFlavor("text/plain");
-  let wrapper = Cc["@mozilla.org/supports-string;1"].createInstance(
-    Ci.nsISupportsString
-  );
-
   // Start a new contact and focus on the photo button.
 
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
@@ -537,10 +528,18 @@ async function subtest_paste_url() {
 
   let previewChangePromise = waitForPreviewChange();
 
-  wrapper.data =
+  let wrapper1 = Cc["@mozilla.org/supports-string;1"].createInstance(
+    Ci.nsISupportsString
+  );
+  wrapper1.data =
     "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/photo1.jpg";
-  transfer.setTransferData("text/plain", wrapper);
-  Services.clipboard.setData(transfer, null, Ci.nsIClipboard.kGlobalClipboard);
+  let transfer1 = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+    Ci.nsITransferable
+  );
+  transfer1.init(null);
+  transfer1.addDataFlavor("text/plain");
+  transfer1.setTransferData("text/plain", wrapper1);
+  Services.clipboard.setData(transfer1, null, Ci.nsIClipboard.kGlobalClipboard);
   EventUtils.synthesizeKey("v", { accelKey: true }, abWindow);
 
   await waitForDialogOpenState(true);
@@ -568,10 +567,18 @@ async function subtest_paste_url() {
 
   previewChangePromise = waitForPreviewChange();
 
-  wrapper.data =
+  let wrapper2 = Cc["@mozilla.org/supports-string;1"].createInstance(
+    Ci.nsISupportsString
+  );
+  wrapper2.data =
     "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/photo2.jpg";
-  transfer.setTransferData("text/plain", wrapper);
-  Services.clipboard.setData(transfer, null, Ci.nsIClipboard.kGlobalClipboard);
+  let transfer2 = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+    Ci.nsITransferable
+  );
+  transfer2.init(null);
+  transfer2.addDataFlavor("text/plain");
+  transfer2.setTransferData("text/plain", wrapper2);
+  Services.clipboard.setData(transfer2, null, Ci.nsIClipboard.kGlobalClipboard);
   EventUtils.synthesizeKey("v", { accelKey: true }, abWindow);
 
   await previewChangePromise;
@@ -596,10 +603,18 @@ async function subtest_paste_url() {
 
   // Paste an invalid URL.
 
-  wrapper.data =
+  let wrapper3 = Cc["@mozilla.org/supports-string;1"].createInstance(
+    Ci.nsISupportsString
+  );
+  wrapper3.data =
     "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/fake.jpg";
-  transfer.setTransferData("text/plain", wrapper);
-  Services.clipboard.setData(transfer, null, Ci.nsIClipboard.kGlobalClipboard);
+  let transfer3 = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+    Ci.nsITransferable
+  );
+  transfer3.init(null);
+  transfer3.addDataFlavor("text/plain");
+  transfer3.setTransferData("text/plain", wrapper3);
+  Services.clipboard.setData(transfer3, null, Ci.nsIClipboard.kGlobalClipboard);
   EventUtils.synthesizeKey("v", { accelKey: true }, abWindow);
 
   await TestUtils.waitForCondition(() =>
