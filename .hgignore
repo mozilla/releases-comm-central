@@ -39,3 +39,6 @@
 
 # Ignore third_party npm files
 third_party/asn1js/node_modules/
+
+# Ruff
+\.ruff_cache/
