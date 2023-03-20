@@ -1104,22 +1104,6 @@ var folderPane = {
       return;
     }
 
-    if (parentFolder.isServer) {
-      try {
-        parentFolder.server.QueryInterface(Ci.nsIImapIncomingServer);
-      } catch {
-        // Doesn't QI? No big deal.
-      }
-      if (parentFolder.server.isGMailServer) {
-        for (let i = 0; i < subFolders.length; i++) {
-          let folder = subFolders[i];
-          if (folder.name == "[Gmail]") {
-            subFolders.splice(i, 1, ...folder.subFolders);
-          }
-        }
-      }
-    }
-
     subFolders.sort((a, b) => a.compareSortKeys(b));
 
     for (let folder of subFolders) {
@@ -2150,7 +2134,11 @@ class FolderTreeRow extends HTMLLIElement {
     this.name = useServerName ? folder.server.prettyName : folder.name;
     this.unreadCount = folder.getNumUnread(false);
     this.folderSortOrder = folder.sortOrder;
-    this.setAttribute("draggable", "true");
+    if (folder.noSelect) {
+      this.classList.add("noselect-folder");
+    } else {
+      this.setAttribute("draggable", "true");
+    }
   }
 
   /**

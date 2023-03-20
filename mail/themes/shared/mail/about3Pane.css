@@ -296,11 +296,11 @@ li:not(.selected) > .container:hover {
   margin: 5px;
 }
 
-:is(li, [is="thread-row"], [is="thread-card"]).children.collapsed .twisty-icon {
+:is(li, [is="thread-row"], [is="thread-card"]).children.collapsed > .container .twisty-icon {
   transform: rotate(-90deg);
 }
 
-:is(li, [is="thread-row"], [is="thread-card"]).children.collapsed:dir(rtl) .twisty-icon {
+:is(li, [is="thread-row"], [is="thread-card"]).children.collapsed:dir(rtl) > .container .twisty-icon {
   transform: rotate(90deg);
 }
 
@@ -427,6 +427,15 @@ li:not(.selected) > .container:hover {
 
 #folderTree li[data-server-type] > .container > .name {
   font-weight: bold;
+}
+
+.noselect-folder > .container > .name {
+  font-style: italic;
+  opacity: 0.6;
+}
+
+#folderTree:focus-within li.noselect-folder.selected > .container > .name {
+  opacity: 0.8;
 }
 
 .unread > .container > .name,

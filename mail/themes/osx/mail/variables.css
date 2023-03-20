@@ -15,7 +15,6 @@
   --panel-separator-color: hsla(210, 4%, 10%, 0.14);
   --splitter-color: var(--sidebar-border-color, #bdbdbd);
   --autocomplete-popup-url-color: hsl(210, 77%, 47%);
-  --noselect-folder-color: gray;
 }
 
 :root:not(:-moz-lwtheme) {
