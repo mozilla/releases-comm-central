@@ -2,8 +2,6 @@
 ruff:
     description: An extremely fast Python linter, written in Rust
     include: ["."]
-    # Excludes should be added to topsrcdir/comm/pyproject.toml
-    exclude: []
     extensions: ["py"]
     support-files:
         - "comm/**/.ruff.toml"
@@ -11,7 +9,7 @@ ruff:
         - "comm/**/pyproject.toml"
         - "tools/lint/python/ruff.py"
     # Rules that should result in warnings rather than errors.
-    warning-rules: []
+    warning-rules: [PLR, PLW]
     commroot: true
     type: external
     payload: commlint:lint_wrapper

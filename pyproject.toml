@@ -4,6 +4,7 @@ line-length = 99
 select = [
   "E", "W",    # pycodestyle
   "F",         # pyflakes
+  "I",         # isort
 ]
 ignore = [
   # These should be triaged and either fixed or moved to the list below.
@@ -21,3 +22,27 @@ exclude = [
 builtins = ["gdb"]
 
 [tool.ruff.per-file-ignores]
+
+[tool.ruff.isort]
+known-first-party = [
+  "mach",
+  "mozboot",
+  "mozbuild",
+  "mozpack",
+  "mozharness",
+  "mozlint",
+  "mozperftest",
+  "mozrelease",
+  "mozterm",
+  "mozversioncontrol",
+  "mozxchannel",
+  "tbxchannel",
+  "gecko_taskgraph",
+  "buildconfig",
+]
+known-local-folder = [
+  "rocboot",
+  "rocbuild",
+  "thirdroc",
+  "comm_taskgraph",
+]

@@ -206,20 +206,6 @@ py-black:
             root-path: comm
             mozlint-config: black.yml
 
-py-isort:
-    description: isort run over the gecko codebase
-    treeherder:
-        symbol: py(isort)
-    run:
-        mach: >
-            commlint -v -l isort -f treeherder
-            -f json:/builds/worker/mozlint.json
-            comm/*
-    optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: flake8.yml
-
 py-ruff:
     description: Run ruff over the codebase
     treeherder:
