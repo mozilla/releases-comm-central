@@ -1492,9 +1492,7 @@ function MsgDisplayMessageInFolderTab(aMsgHdr) {
   const nsMsgViewIndex_None = 0xffffffff;
 
   let tabmail = document.getElementById("tabmail");
-  if (tabmail.currentTabInfo.mode.name != "mail3PaneTab") {
-    tabmail.switchToTab(0);
-  }
+  tabmail.switchToTab(0);
 
   let about3Pane = tabmail.currentAbout3Pane;
   about3Pane.displayFolder(aMsgHdr.folder.URI);

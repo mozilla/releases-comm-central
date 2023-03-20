@@ -231,7 +231,6 @@ var mailContextMenu = {
       "mailContext-openInBrowser",
       "mailContext-savelink",
       "mailContext-recalculateJunkScore",
-      "mailContext-copyMessageUrl",
       "mailContext-calendar-convert-menu",
     ]) {
       showItem(id, false);
@@ -247,22 +246,29 @@ var mailContextMenu = {
 
     let inAbout3Pane = !!window.threadTree;
     let inThreadTree = !!this.inThreadTree;
-    let isDummyMessage = !gFolder;
-    let message = isDummyMessage
-      ? top.messenger.msgHdrFromURI(window.gMessageURI)
-      : gDBView.hdrForFirstSelectedMessage;
+
+    let message =
+      gFolder || gViewWrapper.isSynthetic
+        ? gDBView?.hdrForFirstSelectedMessage
+        : top.messenger.msgHdrFromURI(window.gMessageURI);
+    let folder = message?.folder;
+    let isDummyMessage = !gViewWrapper.isSynthetic && !folder;
+
     let numSelectedMessages = isDummyMessage ? 1 : gDBView.numSelected;
-    let isNewsgroup = gFolder?.isSpecialFolder(
+    let isNewsgroup = folder?.isSpecialFolder(
       Ci.nsMsgFolderFlags.Newsgroup,
       true
     );
     let canMove =
-      numSelectedMessages >= 1 && !isNewsgroup && gFolder?.canDeleteMessages;
+      numSelectedMessages >= 1 && !isNewsgroup && folder?.canDeleteMessages;
     let canCopy = numSelectedMessages >= 1;
 
     setSingleSelection("mailContext-openNewTab", inThreadTree);
     setSingleSelection("mailContext-openNewWindow", inThreadTree);
-    setSingleSelection("mailContext-openContainingFolder", !inAbout3Pane);
+    setSingleSelection(
+      "mailContext-openContainingFolder",
+      (!isDummyMessage && !inAbout3Pane) || gViewWrapper.isSynthetic
+    );
     setSingleSelection("mailContext-forwardAsMenu");
     showItem(
       "mailContext-multiForwardAsAttachment",
@@ -278,7 +284,7 @@ var mailContextMenu = {
     }
     checkItem("mailContext-markFlagged", message?.isFlagged);
 
-    setSingleSelection("mailContext-copyMessageUrl", isNewsgroup);
+    setSingleSelection("mailContext-copyMessageUrl", !!isNewsgroup);
     // Disable move if we can't delete message(s) from this folder.
     showItem("mailContext-moveMenu", canMove);
     showItem("mailContext-copyMenu", canCopy);
@@ -298,15 +304,15 @@ var mailContextMenu = {
 
     checkItem(
       "mailContext-ignoreThread",
-      gFolder?.msgDatabase.isIgnored(message?.messageKey)
+      folder?.msgDatabase.isIgnored(message?.messageKey)
     );
     checkItem(
       "mailContext-ignoreSubthread",
-      gFolder && message.flags & Ci.nsMsgMessageFlags.Ignored
+      folder && message.flags & Ci.nsMsgMessageFlags.Ignored
     );
     checkItem(
       "mailContext-watchThread",
-      gFolder?.msgDatabase.isWatched(message?.messageKey)
+      folder?.msgDatabase.isWatched(message?.messageKey)
     );
 
     showItem(
@@ -354,7 +360,7 @@ var mailContextMenu = {
     };
 
     if (inThreadTree) {
-      subject.displayedFolder = gFolder;
+      subject.displayedFolder = folder;
       subject.selectedMessages = gDBView.getSelectedMsgHdrs();
     }
 

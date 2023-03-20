@@ -377,7 +377,7 @@ var commandController = {
       return false;
     }
 
-    let isDummyMessage = !gFolder;
+    let isDummyMessage = !gViewWrapper.isSynthetic && !gFolder;
 
     if (command in this._navigationCommands) {
       return !isDummyMessage;
@@ -389,7 +389,9 @@ var commandController = {
       true
     );
     let canMove =
-      numSelectedMessages >= 1 && !isNewsgroup && gFolder?.canDeleteMessages;
+      numSelectedMessages >= 1 &&
+      !isNewsgroup &&
+      (gFolder?.canDeleteMessages || gViewWrapper.isSynthetic);
 
     switch (command) {
       case "cmd_openConversation":
@@ -605,9 +607,10 @@ var commandController = {
     // If we're the hidden window, then we're not going to have a gFolderDisplay
     // to work out existing folders, so just use null.
     let msgFolder = gFolder;
-    let msgUris = gFolder
-      ? gDBView?.getURIsForSelection()
-      : [window.gMessageURI];
+    let msgUris =
+      gFolder || gViewWrapper.isSynthetic
+        ? gDBView?.getURIsForSelection()
+        : [window.gMessageURI];
 
     let messagePaneBrowser;
     let autodetectCharset;
