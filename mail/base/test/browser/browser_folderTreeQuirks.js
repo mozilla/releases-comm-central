@@ -157,6 +157,122 @@ add_task(async function testUnreadFolders() {
   checkModeListItems("unread", []);
 });
 
+/**
+ * The creation of a virtual folder involves two "folderAdded" notifications.
+ * Check that only one entry in the folder tree is created.
+ */
+add_task(async function testSearchFolderAddedOnlyOnce() {
+  let context = about3Pane.document.getElementById("folderPaneContext");
+  let searchMessagesItem = about3Pane.document.getElementById(
+    "folderPaneContext-searchMessages"
+  );
+  let removeItem = about3Pane.document.getElementById(
+    "folderPaneContext-remove"
+  );
+
+  // Start searching for messages.
+
+  let shownPromise = BrowserTestUtils.waitForEvent(context, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    folderPane.getRowForFolder(rootFolder).querySelector(".name"),
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await shownPromise;
+
+  let searchWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    w =>
+      w.document.documentURI == "chrome://messenger/content/SearchDialog.xhtml"
+  );
+  context.activateItem(searchMessagesItem);
+  let searchWindow = await searchWindowPromise;
+
+  EventUtils.synthesizeMouseAtCenter(
+    searchWindow.document.getElementById("searchVal0"),
+    {},
+    searchWindow
+  );
+  EventUtils.sendString("hovercraft", searchWindow);
+
+  // Create a virtual folder for the search.
+
+  let vfWindowPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    null,
+    "chrome://messenger/content/virtualFolderProperties.xhtml",
+    {
+      async callback(vfWindow) {
+        EventUtils.synthesizeMouseAtCenter(
+          vfWindow.document.getElementById("name"),
+          {},
+          vfWindow
+        );
+        EventUtils.sendString("virtual folder", vfWindow);
+        EventUtils.synthesizeMouseAtCenter(
+          vfWindow.document.querySelector("dialog").getButton("accept"),
+          {},
+          vfWindow
+        );
+      },
+    }
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    searchWindow.document.getElementById("saveAsVFButton"),
+    {},
+    searchWindow
+  );
+  await vfWindowPromise;
+
+  await BrowserTestUtils.closeWindow(searchWindow);
+
+  // Find the folder and the row for it in the tree.
+
+  let virtualFolder = rootFolder.getChildNamed("virtual folder");
+  let row = await TestUtils.waitForCondition(() =>
+    folderPane.getRowForFolder(virtualFolder)
+  );
+
+  // Check it exists only once.
+
+  checkModeListItems("all", [
+    rootFolder,
+    rootFolder.getChildNamed("Inbox"),
+    rootFolder.getChildNamed("Trash"),
+    virtualFolder,
+    rootFolder.getChildNamed("Outbox"),
+    folderA,
+    folderB,
+    folderC,
+  ]);
+
+  // Delete the virtual folder.
+
+  shownPromise = BrowserTestUtils.waitForEvent(context, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    row.querySelector(".name"),
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await shownPromise;
+
+  let dialogPromise = BrowserTestUtils.promiseAlertDialogOpen("accept");
+  context.activateItem(removeItem);
+  await dialogPromise;
+  await new Promise(resolve => setTimeout(resolve));
+
+  // Check it went away.
+
+  checkModeListItems("all", [
+    rootFolder,
+    rootFolder.getChildNamed("Inbox"),
+    rootFolder.getChildNamed("Trash"),
+    rootFolder.getChildNamed("Outbox"),
+    folderA,
+    folderB,
+    folderC,
+  ]);
+});
+
 function checkModeListItems(modeName, folders) {
   Assert.deepEqual(
     Array.from(

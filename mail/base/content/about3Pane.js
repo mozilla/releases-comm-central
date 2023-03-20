@@ -523,7 +523,12 @@ var folderPane = {
 
       addFolder(parentFolder, childFolder) {
         FolderTreeProperties.setIsExpanded(childFolder.URI, this.name, true);
-        if (childFolder.server.hidden) {
+        if (
+          childFolder.server.hidden ||
+          folderPane.getRowForFolder(childFolder, this.name)
+        ) {
+          // We're not displaying this server, or the folder already exists in
+          // the folder tree. Was `addFolder` called twice?
           return;
         }
         if (!parentFolder) {
@@ -1213,6 +1218,7 @@ var folderPane = {
    */
   changeFolderFlag(item, oldValue, newValue) {
     this._forAllActiveModes("changeFolderFlag", item, oldValue, newValue);
+    this._changeRows(item, row => row.setFolderTypeFromFolder(item));
   },
 
   /**
@@ -2148,10 +2154,7 @@ class FolderTreeRow extends HTMLLIElement {
    */
   setFolder(folder, useServerName) {
     this._setURI(folder.URI);
-    let folderType = FolderUtils.getSpecialFolderString(folder);
-    if (folderType != "none") {
-      this.dataset.folderType = folderType.toLowerCase();
-    }
+    this.setFolderTypeFromFolder(folder);
     this.name = useServerName ? folder.server.prettyName : folder.name;
     this.unreadCount = folder.getNumUnread(false);
     this.folderSortOrder = folder.sortOrder;
@@ -2159,6 +2162,18 @@ class FolderTreeRow extends HTMLLIElement {
       this.classList.add("noselect-folder");
     } else {
       this.setAttribute("draggable", "true");
+    }
+  }
+
+  /**
+   * Sets the folder type property based on the folder for the row.
+   *
+   * @param {nsIMsgFolder} folder
+   */
+  setFolderTypeFromFolder(folder) {
+    let folderType = FolderUtils.getSpecialFolderString(folder);
+    if (folderType != "none") {
+      this.dataset.folderType = folderType.toLowerCase();
     }
   }
 
