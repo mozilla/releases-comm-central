@@ -511,42 +511,44 @@ var folderPaneContextMenu = {
 var folderPane = {
   _modes: {
     all: {
+      name: "all",
       active: false,
       canBeCompact: false,
 
       initServer(server) {
-        let accountRow = folderPane._createServerRow("all", server);
-        this.containerList.appendChild(accountRow);
-        folderPane._addSubFolders(server.rootFolder, accountRow, "all");
+        let serverRow = folderPane._createServerRow(this.name, server);
+        this.containerList.appendChild(serverRow);
+        folderPane._addSubFolders(server.rootFolder, serverRow, this.name);
       },
 
       addFolder(parentFolder, childFolder) {
-        FolderTreeProperties.setIsExpanded(childFolder.URI, "all", true);
+        FolderTreeProperties.setIsExpanded(childFolder.URI, this.name, true);
         if (childFolder.server.hidden) {
           return;
         }
         if (!parentFolder) {
           // TODO: have to find the right position?
           this.containerList.appendChild(
-            folderPane._createServerRow("all", childFolder.server)
+            folderPane._createServerRow(this.name, childFolder.server)
           );
           return;
         }
 
-        let parentRow = folderPane.getRowForFolder(parentFolder, "all");
+        let parentRow = folderPane.getRowForFolder(parentFolder, this.name);
         if (!parentRow) {
           console.error("no parentRow for ", parentFolder.URI, childFolder.URI);
         }
         folderTree.expandRow(parentRow);
-        let childRow = folderPane._createFolderRow("all", childFolder);
+        let childRow = folderPane._createFolderRow(this.name, childFolder);
         parentRow.appendChildInOrder(childRow);
       },
 
       removeFolder(parentFolder, childFolder) {
-        folderPane.getRowForFolder(childFolder, "all")?.remove();
+        folderPane.getRowForFolder(childFolder, this.name)?.remove();
       },
     },
     smart: {
+      name: "smart",
       active: false,
       canBeCompact: false,
 
@@ -622,7 +624,7 @@ var folderPane = {
               continue;
             }
           }
-          let row = folderPane._createFolderRow("smart", folder);
+          let row = folderPane._createFolderRow(this.name, folder);
           this.containerList.appendChild(row);
           folderType.list = row.childList;
         }
@@ -650,7 +652,7 @@ var folderPane = {
         for (let folderType of this._folderTypes) {
           if (flags & folderType.flag) {
             let folderRow = folderPane._createFolderRow(
-              "smart",
+              this.name,
               childFolder,
               true
             );
@@ -665,21 +667,21 @@ var folderPane = {
 
         let serverRow = folderPane.getRowForFolder(
           childFolder.rootFolder,
-          "smart"
+          this.name
         );
         if (!serverRow) {
           serverRow = this.containerList.appendChild(
-            folderPane._createServerRow("smart", childFolder.server)
+            folderPane._createServerRow(this.name, childFolder.server)
           );
         }
         let folderRow = serverRow.appendChildInOrder(
-          folderPane._createFolderRow("smart", childFolder)
+          folderPane._createFolderRow(this.name, childFolder)
         );
-        folderPane._addSubFolders(childFolder, folderRow, "smart");
+        folderPane._addSubFolders(childFolder, folderRow, this.name);
       },
 
       removeFolder(parentFolder, childFolder) {
-        let childRow = folderPane.getRowForFolder(childFolder, "smart");
+        let childRow = folderPane.getRowForFolder(childFolder, this.name);
         if (!childRow) {
           return;
         }
@@ -695,6 +697,7 @@ var folderPane = {
       },
     },
     unread: {
+      name: "unread",
       active: false,
       canBeCompact: true,
 
@@ -704,12 +707,12 @@ var folderPane = {
 
       initServer(server) {
         if (this._unreadFilter(server.rootFolder)) {
-          let accountRow = folderPane._createServerRow("unread", server);
-          this.containerList.appendChild(accountRow);
+          let serverRow = folderPane._createServerRow(this.name, server);
+          this.containerList.appendChild(serverRow);
           folderPane._addSubFolders(
             server.rootFolder,
-            accountRow,
-            "unread",
+            serverRow,
+            this.name,
             this._unreadFilter
           );
         }
@@ -718,13 +721,13 @@ var folderPane = {
       removeFolder(parentFolder, childFolder) {
         if (!parentFolder || this._unreadFilter(parentFolder)) {
           // If parentFolder has messages, remove childFolder, which doesn't.
-          folderPane.getRowForFolder(childFolder, "unread")?.remove();
+          folderPane.getRowForFolder(childFolder, this.name)?.remove();
           return;
         }
         while (parentFolder) {
           if (!parentFolder.parent || this._unreadFilter(parentFolder.parent)) {
             // If parentFolder's parent has messages, remove parentFolder, which doesn't.
-            folderPane.getRowForFolder(parentFolder, "unread")?.remove();
+            folderPane.getRowForFolder(parentFolder, this.name)?.remove();
             break;
           }
           parentFolder = parentFolder.parent;
@@ -741,31 +744,31 @@ var folderPane = {
             let parentFolder = folder.parent;
             if (!parentFolder || this._unreadFilter(parentFolder)) {
               // If this folder's parent has messages, remove this folder, which doesn't.
-              folderPane.getRowForFolder(folder, "unread")?.remove();
+              folderPane.getRowForFolder(folder, this.name)?.remove();
               break;
             }
             folder = parentFolder;
           }
         } else {
-          if (folderPane.getRowForFolder(folder, "unread")) {
+          if (folderPane.getRowForFolder(folder, this.name)) {
             // Don't do anything. `folderPane.changeUnreadCount` already did it.
             return;
           }
 
-          if (!folderPane.getRowForFolder(folder.rootFolder, "unread")) {
+          if (!folderPane.getRowForFolder(folder.rootFolder, this.name)) {
             this.initServer(folder.server);
             return;
           }
 
           while (folder) {
             let parentFolder = folder.parent;
-            let parentRow = folderPane.getRowForFolder(parentFolder, "unread");
+            let parentRow = folderPane.getRowForFolder(parentFolder, this.name);
             if (parentRow) {
-              let folderRow = folderPane._createFolderRow("unread", folder);
+              let folderRow = folderPane._createFolderRow(this.name, folder);
               folderPane._addSubFolders(
                 folder,
                 folderRow,
-                "unread",
+                this.name,
                 this._unreadFilter
               );
               parentRow.appendChildInOrder(folderRow);
@@ -777,28 +780,24 @@ var folderPane = {
       },
     },
     favorite: {
+      name: "favorite",
       active: false,
       canBeCompact: true,
 
       initServer(server) {
-        let recurse = parent => {
-          for (let folder of parent.subFolders) {
-            this.addFolder(parent, folder);
-            recurse(folder);
-          }
-        };
-        recurse(server.rootFolder);
-      },
-
-      addFolder(parentFolder, childFolder) {
-        if (childFolder.flags & Ci.nsMsgFolderFlags.Favorite) {
-          let folderRow = folderPane._createFolderRow(
-            "favorite",
-            childFolder,
-            false
+        let folders = server.rootFolder.getFoldersWithFlags(
+          Ci.nsMsgFolderFlags.Favorite
+        );
+        if (!folders.length) {
+          return;
+        }
+        let serverRow = this.containerList.appendChild(
+          folderPane._createServerRow(this.name, server)
+        );
+        for (let folder of folders) {
+          serverRow.appendChildInOrder(
+            folderPane._createFolderRow(this.name, folder)
           );
-          // TODO: In order?
-          this.containerList.appendChild(folderRow);
         }
       },
 
@@ -810,21 +809,32 @@ var folderPane = {
           return;
         }
 
+        let serverRow = folderPane.getRowForFolder(
+          folder.rootFolder,
+          this.name
+        );
         if (oldValue) {
-          folderPane.getRowForFolder(folder, "favorite")?.remove();
+          folderPane.getRowForFolder(folder, this.name)?.remove();
+          if (
+            !folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Favorite)
+          ) {
+            serverRow?.remove();
+          }
+          return;
         }
-        if (newValue) {
-          let folderRow = folderPane._createFolderRow(
-            "favorite",
-            folder,
-            false
+
+        if (!serverRow) {
+          serverRow = this.containerList.appendChild(
+            folderPane._createServerRow(this.name, folder.server)
           );
-          // TODO: In order?
-          this.containerList.appendChild(folderRow);
         }
+        serverRow.appendChildInOrder(
+          folderPane._createFolderRow(this.name, folder)
+        );
       },
     },
     recent: {
+      name: "recent",
       active: false,
       canBeCompact: false,
 
@@ -835,7 +845,7 @@ var folderPane = {
           "MRUTime"
         );
         for (let folder of folders) {
-          let folderRow = folderPane._createFolderRow("recent", folder, false);
+          let folderRow = folderPane._createFolderRow(this.name, folder);
           this.containerList.appendChild(folderRow);
         }
       },

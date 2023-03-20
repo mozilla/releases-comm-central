@@ -69,9 +69,35 @@ add_setup(async function() {
   });
 });
 
+add_task(async function testFavoriteFolders() {
+  folderPane.activeModes = ["all", "favorite"];
+  checkModeListItems("favorite", []);
+
+  folderA.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", [rootFolder, folderA]);
+
+  folderA.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", []);
+
+  folderB.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", [rootFolder, folderB]);
+
+  folderB.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", []);
+
+  folderC.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  folderA.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", [rootFolder, folderA, folderC]);
+
+  folderA.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", [rootFolder, folderC]);
+
+  folderC.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", []);
+});
+
 add_task(async function testUnreadFolders() {
   folderPane.activeModes = ["all", "unread"];
-
   checkModeListItems("unread", []);
 
   folderAMessages[0].markRead(false);
