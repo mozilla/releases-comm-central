@@ -296,16 +296,16 @@ li:not(.selected) > .container:hover {
   margin: 5px;
 }
 
-:is(li, [is="thread-row"], [is="thread-card"]).children.collapsed > .container .twisty-icon {
+#folderTree li.children.collapsed > .container .twisty-icon {
   transform: rotate(-90deg);
 }
 
-:is(li, [is="thread-row"], [is="thread-card"]).children.collapsed:dir(rtl) > .container .twisty-icon {
+#folderTree li.children.collapsed:dir(rtl) > .container .twisty-icon {
   transform: rotate(90deg);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  :is(li, [is="thread-row"], [is="thread-card"]) .twisty-icon {
+  #folderTree .twisty-icon {
     transition: transform 200ms ease;
   }
 }

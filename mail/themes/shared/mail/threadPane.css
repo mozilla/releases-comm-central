@@ -361,6 +361,20 @@ tr:is([is="thread-row"], [is="thread-card"]) .twisty-icon {
   margin: 1px;
 }
 
+tr:is([is="thread-row"], [is="thread-card"]).children.collapsed .twisty-icon {
+  transform: rotate(-90deg);
+}
+
+tr:is([is="thread-row"], [is="thread-card"]).children.collapsed:dir(rtl) .twisty-icon {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  tr:is([is="thread-row"], [is="thread-card"]) .twisty-icon {
+    transition: transform 200ms ease;
+  }
+}
+
 /* Spam column variations */
 
 #junkStatusCol img {
