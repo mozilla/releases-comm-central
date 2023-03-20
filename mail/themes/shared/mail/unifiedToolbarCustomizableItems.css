@@ -178,3 +178,15 @@
 .go-to-today .preview-icon {
   content: var(--icon-calendar-today);
 }
+
+.go-back .preview-icon {
+  content: var(--icon-nav-back);
+}
+
+.go-forward .preview-icon {
+  content: var(--icon-nav-forward);
+}
+
+.stop .preview-icon {
+  content: var(--icon-close);
+}

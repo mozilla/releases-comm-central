@@ -327,3 +327,15 @@ kbd {
 .unified-toolbar .go-to-today .button-icon {
   content: var(--icon-calendar-today);
 }
+
+.unified-toolbar .go-back .button-icon {
+  content: var(--icon-nav-back);
+}
+
+.unified-toolbar .go-forward .button-icon {
+  content: var(--icon-nav-forward);
+}
+
+.unified-toolbar .stop .button-icon {
+  content: var(--icon-close);
+}

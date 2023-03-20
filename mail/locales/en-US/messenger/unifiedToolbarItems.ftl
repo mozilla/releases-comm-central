@@ -207,3 +207,18 @@ toolbar-new-task-label = Task
 
 toolbar-new-task =
     .title = Create a new task
+
+toolbar-go-back-label = Back
+
+toolbar-go-back =
+    .title = Go back one message
+
+toolbar-go-forward-label = Forward
+
+toolbar-go-forward =
+    .title = Go forward one message
+
+toolbar-stop-label = Stop
+
+toolbar-stop =
+    .title = Stop the current transfer

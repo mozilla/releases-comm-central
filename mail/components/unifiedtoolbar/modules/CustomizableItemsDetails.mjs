@@ -345,6 +345,35 @@ export default [
       "chrome://messenger/content/unifiedtoolbar/quick-filter-bar-toggle.mjs",
     ],
   },
+  {
+    id: "go-back",
+    labelId: "toolbar-go-back",
+    spaces: ["mail"],
+    templateId: "goBackTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-go-button.mjs",
+    ],
+    hasContextMenu: true,
+  },
+  {
+    id: "go-forward",
+    labelId: "toolbar-go-forward",
+    spaces: ["mail"],
+    templateId: "goForwardTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-go-button.mjs",
+    ],
+    hasContextMenu: true,
+  },
+  {
+    id: "stop",
+    labelId: "toolbar-stop",
+    spaces: ["mail"],
+    templateId: "stopTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
   // Calendar & Tasks space
   {
     id: "edit-event",
