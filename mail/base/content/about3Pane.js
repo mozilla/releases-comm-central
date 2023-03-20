@@ -716,7 +716,7 @@ var folderPane = {
       },
 
       removeFolder(parentFolder, childFolder) {
-        if (this._unreadFilter(parentFolder)) {
+        if (!parentFolder || this._unreadFilter(parentFolder)) {
           // If parentFolder has messages, remove childFolder, which doesn't.
           folderPane.getRowForFolder(childFolder, "unread")?.remove();
           return;
@@ -733,22 +733,33 @@ var folderPane = {
 
       changeUnreadCount(folder, oldValue, newValue) {
         if (newValue === 0) {
+          if (this._unreadFilter(folder)) {
+            // A subfolder must have messages, do nothing.
+            return;
+          }
           while (folder) {
-            if (!folder.parent || this._unreadFilter(folder.parent)) {
+            let parentFolder = folder.parent;
+            if (!parentFolder || this._unreadFilter(parentFolder)) {
               // If this folder's parent has messages, remove this folder, which doesn't.
               folderPane.getRowForFolder(folder, "unread")?.remove();
               break;
             }
-            folder = folder.parent;
+            folder = parentFolder;
           }
         } else {
+          if (folderPane.getRowForFolder(folder, "unread")) {
+            // Don't do anything. `folderPane.changeUnreadCount` already did it.
+            return;
+          }
+
           if (!folderPane.getRowForFolder(folder.rootFolder, "unread")) {
             this.initServer(folder.server);
             return;
           }
 
           while (folder) {
-            let parentRow = folderPane.getRowForFolder(folder.parent, "unread");
+            let parentFolder = folder.parent;
+            let parentRow = folderPane.getRowForFolder(parentFolder, "unread");
             if (parentRow) {
               let folderRow = folderPane._createFolderRow("unread", folder);
               folderPane._addSubFolders(
@@ -760,7 +771,7 @@ var folderPane = {
               parentRow.appendChildInOrder(folderRow);
               break;
             }
-            folder = folder.parent;
+            folder = parentFolder;
           }
         }
       },
