@@ -5,6 +5,9 @@
 const { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 let {
   currentAbout3Pane: about3Pane,
@@ -329,6 +332,184 @@ add_task(async function testHiddenMessagePane() {
   about3Pane.paneLayout.messagePaneVisible = true;
 });
 
+add_task(async function testMessageHistory() {
+  const { messageHistory } = aboutMessage;
+  messageHistory.clear();
+  about3Pane.displayFolder(folderA.URI);
+  threadTree.selectedIndex = 0;
+  assertSelectedMessage(folderAMessages[0]);
+  await assertDisplayedMessage(folderAMessages[0]);
+
+  goDoCommand("cmd_nextMsg");
+  assertSelectedMessage(folderAMessages[1]);
+  await assertDisplayedMessage(folderAMessages[1]);
+
+  Assert.ok(messageHistory.canPop(-1), "Going back should be available");
+  Assert.ok(
+    !messageHistory.canPop(0),
+    "Should not be able to go back to the current message"
+  );
+  Assert.ok(
+    !messageHistory.canPop(1),
+    "Should not have any message to go forward to"
+  );
+  Assert.ok(
+    !window.getEnabledControllerForCommand("cmd_goForward"),
+    "Go forward should be disabled"
+  );
+
+  goDoCommand("cmd_goBack");
+  assertSelectedMessage(folderAMessages[0]);
+  await assertDisplayedMessage(folderAMessages[0]);
+
+  Assert.ok(!messageHistory.canPop(-1), "Should have no message to go back to");
+  Assert.ok(messageHistory.canPop(1), "Should have a message to go forward to");
+  Assert.ok(
+    !window.getEnabledControllerForCommand("cmd_goBack"),
+    "Go back should be disabled"
+  );
+
+  goDoCommand("cmd_goForward");
+  assertSelectedMessage(folderAMessages[1]);
+  await assertDisplayedMessage(folderAMessages[1]);
+
+  Assert.ok(messageHistory.canPop(-1), "Should have a message to go back to");
+  Assert.ok(
+    !messageHistory.canPop(1),
+    "Should have no message to go forward to"
+  );
+  Assert.ok(
+    window.getEnabledControllerForCommand("cmd_goBack"),
+    "Go back should be enabled"
+  );
+
+  // Switching folder to test going back/forward between folders.
+  about3Pane.displayFolder(folderB.URI);
+  threadTree.selectedIndex = 0;
+  assertSelectedMessage(folderBMessages[0]);
+  await assertDisplayedMessage(folderBMessages[0]);
+
+  Assert.ok(messageHistory.canPop(-1), "Should have a message to go back to");
+  Assert.ok(
+    !messageHistory.canPop(1),
+    "Should have no message to go forward to"
+  );
+  Assert.ok(
+    !window.getEnabledControllerForCommand("cmd_goForward"),
+    "Go forward should be disabled"
+  );
+
+  goDoCommand("cmd_goBack");
+
+  assertSelectedFolder(folderA);
+  assertSelectedMessage(folderAMessages[1]);
+  await assertDisplayedMessage(folderAMessages[1]);
+
+  Assert.ok(messageHistory.canPop(-1), "Should have a message to go back to");
+  Assert.ok(messageHistory.canPop(1), "Should have a message to go forward to");
+  Assert.ok(
+    window.getEnabledControllerForCommand("cmd_goBack"),
+    "Go back should be enabled"
+  );
+
+  goDoCommand("cmd_goForward");
+
+  assertSelectedFolder(folderB);
+  assertSelectedMessage(folderBMessages[0]);
+  await assertDisplayedMessage(folderBMessages[0]);
+
+  Assert.ok(messageHistory.canPop(-1), "Should have a message to go back to");
+  Assert.ok(
+    !messageHistory.canPop(1),
+    "Should have no message to go forward to"
+  );
+  Assert.ok(
+    !window.getEnabledControllerForCommand("cmd_goForward"),
+    "Go forward should be disabled"
+  );
+
+  goDoCommand("cmd_goBack");
+
+  assertSelectedFolder(folderA);
+  assertSelectedMessage(folderAMessages[1]);
+  await assertDisplayedMessage(folderAMessages[1]);
+
+  Assert.ok(messageHistory.canPop(-1), "Should have a message to go back to");
+  Assert.ok(messageHistory.canPop(1), "Should have a message to go forward to");
+  Assert.ok(
+    window.getEnabledControllerForCommand("cmd_goBack"),
+    "Go back should be enabled"
+  );
+
+  // Select a different message while going forward is possible, clearing the
+  // previous forward history.
+
+  goDoCommand("cmd_nextMsg");
+
+  assertSelectedMessage(folderAMessages[2]);
+  await assertDisplayedMessage(folderAMessages[2]);
+
+  Assert.ok(messageHistory.canPop(-1), "Should have a message to go back to");
+  Assert.ok(
+    !messageHistory.canPop(1),
+    "Should have no message to go forward to"
+  );
+  Assert.ok(
+    !window.getEnabledControllerForCommand("cmd_goForward"),
+    "Go forward should be disabled"
+  );
+
+  goDoCommand("cmd_goBack");
+
+  assertSelectedMessage(folderAMessages[1]);
+  await assertDisplayedMessage(folderAMessages[1]);
+
+  Assert.ok(messageHistory.canPop(-1), "Should have a message to go back to");
+  Assert.ok(messageHistory.canPop(1), "Should have a message to go forward to");
+  Assert.ok(
+    window.getEnabledControllerForCommand("cmd_goBack"),
+    "Go back should be enabled"
+  );
+
+  // Remove the previous message in the history from the folder it was
+  // displayed in.
+
+  let movedMessage = folderAMessages[0];
+  await moveMessage(folderA, movedMessage, folderB);
+
+  Assert.ok(!messageHistory.canPop(-1), "Should have no message to go back to");
+  Assert.ok(
+    !window.getEnabledControllerForCommand("cmd_goBack"),
+    "Go back should be disabled"
+  );
+
+  // Display no message, so going back goes to the previously displayed message,
+  // which is also the current history entry.
+  threadTree.selectedIndex = -1;
+  await assertNoDisplayedMessage();
+
+  Assert.ok(
+    messageHistory.canPop(0),
+    "Can go back to current history entry without selected message"
+  );
+  Assert.ok(
+    window.getEnabledControllerForCommand("cmd_goForward"),
+    "Go forward should be enabled"
+  );
+
+  goDoCommand("cmd_goBack");
+
+  assertSelectedMessage(folderAMessages[1]);
+  await assertDisplayedMessage(folderAMessages[1]);
+
+  threadTree.selectedIndex = -1;
+  let currentFolderBMessages = [...folderB.messages];
+  movedMessage = currentFolderBMessages.find(
+    message => !folderBMessages.includes(message)
+  );
+  await moveMessage(folderB, movedMessage, folderA);
+});
+
 function assertSelectedFolder(expected) {
   Assert.equal(about3Pane.gFolder.URI, expected.URI, "selected folder");
 }
@@ -426,4 +607,18 @@ function reportBadLoad() {
     undefined,
     "should not have reloaded the message"
   );
+}
+
+function moveMessage(sourceFolder, message, targetFolder) {
+  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  MailServices.copy.copyMessages(
+    sourceFolder,
+    [message],
+    targetFolder,
+    true,
+    copyListener,
+    window.msgWindow,
+    true
+  );
+  return copyListener.promise;
 }

@@ -1,4 +1,4 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+/* -*- Mode: Javascript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -129,6 +129,13 @@ function GetRootFoldersInFolderPaneOrder() {
   return serversMsgFolders;
 }
 
+/**
+ * Handle switching the folder if required for the given kind of navigation.
+ * Only used in about:3pane.
+ *
+ * @param {nsMsgNavigationType} type - The type of navigation.
+ * @returns {boolean} If the folder was changed for the navigation.
+ */
 function CrossFolderNavigation(type) {
   // do cross folder navigation for next unread message/thread and message history
   if (
@@ -187,21 +194,20 @@ function CrossFolderNavigation(type) {
       return true;
     }
   } else {
-    // if no message is loaded, relPos should be 0, to
-    // go back to the previously loaded message
-    var relPos = 0;
+    let { messageHistory } = window.messageBrowser.contentWindow;
+    let relPos = -1;
     if (type == Ci.nsMsgNavigationType.forward) {
       relPos = 1;
-    } else {
-      relPos = -1;
+    } else if (messageHistory.canPop(0)) {
+      relPos = 0;
     }
-    var folderUri = top.messenger.getFolderUriAtNavigatePos(relPos);
-    var curPos = top.messenger.navigatePos;
-    curPos += relPos;
-    top.messenger.navigatePos = curPos;
+    let folderURI = messageHistory.getMessageAt(relPos)?.folderURI;
+    if (!folderURI || window.gFolder?.URI === folderURI) {
+      return false;
+    }
 
-    window.threadPane.forgetSelection(folderUri);
-    window.displayFolder(folderUri);
+    window.threadPane.forgetSelection(folderURI);
+    window.displayFolder(folderURI);
     return true;
   }
 

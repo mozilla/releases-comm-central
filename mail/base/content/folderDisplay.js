@@ -1948,17 +1948,6 @@ FolderDisplayWidget.prototype = {
   pushNavigation(aNavType, aSelect) {
     this._pendingNavigation = [aNavType, aSelect];
   },
-
-  /**
-   * @returns true if we are able to navigate using the given navigation type at
-   *  this time.
-   */
-  navigateStatus(aNavType) {
-    if (!this.view.dbView) {
-      return false;
-    }
-    return this.view.dbView.navigateStatus(aNavType);
-  },
   // @}
 
   /**

@@ -152,8 +152,6 @@ class nsMsgDBView : public nsIMsgDBView,
   bool mRemovingRow;
   bool mCommandsNeedDisablingBecauseOfSelection;
   bool mSuppressChangeNotification;
-  bool mGoForwardEnabled;
-  bool mGoBackEnabled;
 
   virtual const char* GetViewName(void) { return "MsgDBView"; }
   nsresult FetchAuthor(nsIMsgDBHdr* aHdr, nsAString& aAuthorString);

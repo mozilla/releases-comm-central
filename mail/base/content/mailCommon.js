@@ -42,7 +42,6 @@ var commandController = {
     cmd_editAsNew: Ci.nsIMsgCompType.EditAsNew,
   },
   _navigationCommands: {
-    // TODO: Back and forward are broken because they rely on nsIMessenger.
     cmd_goForward: Ci.nsMsgNavigationType.forward,
     cmd_goBack: Ci.nsMsgNavigationType.back,
     cmd_nextUnreadMsg: Ci.nsMsgNavigationType.nextUnreadMessage,
@@ -379,6 +378,17 @@ var commandController = {
 
     let isDummyMessage = !gViewWrapper.isSynthetic && !gFolder;
 
+    if (["cmd_goBack", "cmd_goForward"].includes(command)) {
+      let activeMessageHistory = (
+        window.messageBrowser?.contentWindow ?? window
+      ).messageHistory;
+      let relPos = command === "cmd_goBack" ? -1 : 1;
+      if (relPos === -1 && activeMessageHistory.canPop(0)) {
+        return !isDummyMessage;
+      }
+      return !isDummyMessage && activeMessageHistory.canPop(relPos);
+    }
+
     if (command in this._navigationCommands) {
       return !isDummyMessage;
     }
@@ -648,24 +658,51 @@ var commandController = {
   },
 
   _navigate(navigationType) {
-    let resultKey = {};
-    let resultIndex = {};
+    let resultKey = { value: nsMsgKey_None };
+    let resultIndex = { value: nsMsgViewIndex_None };
     let threadIndex = {};
-    gViewWrapper.dbView.viewNavigate(
-      navigationType,
-      resultKey,
-      resultIndex,
-      threadIndex,
-      true
-    );
-
-    if (resultIndex.value == nsMsgViewIndex_None) {
-      // Not in about:message
-      if (window.displayFolder && CrossFolderNavigation(navigationType)) {
-        this._navigate(navigationType);
+    if (
+      [Ci.nsMsgNavigationType.back, Ci.nsMsgNavigationType.forward].includes(
+        navigationType
+      )
+    ) {
+      const { messageHistory } = window.messageBrowser?.contentWindow ?? window;
+      const noCurrentMessage = messageHistory.canPop(0);
+      if (window.displayFolder) {
+        CrossFolderNavigation(navigationType);
       }
-      return;
+      let relativePosition = -1;
+      if (navigationType === Ci.nsMsgNavigationType.forward) {
+        relativePosition = 1;
+      } else if (noCurrentMessage) {
+        relativePosition = 0;
+      }
+      let newMessageURI = messageHistory.pop(relativePosition)?.messageURI;
+      if (!newMessageURI) {
+        return;
+      }
+      let msgHdr = MailServices.messageServiceFromURI(
+        newMessageURI
+      ).messageURIToMsgHdr(newMessageURI);
+      resultIndex.value = gDBView.findIndexOfMsgHdr(msgHdr, true);
+      resultKey.value = msgHdr.messageKey;
+    } else {
+      gViewWrapper.dbView.viewNavigate(
+        navigationType,
+        resultKey,
+        resultIndex,
+        threadIndex,
+        true
+      );
+      if (resultIndex.value == nsMsgViewIndex_None) {
+        // Not in about:message
+        if (window.displayFolder && CrossFolderNavigation(navigationType)) {
+          this._navigate(navigationType);
+        }
+        return;
+      }
     }
+
     if (resultKey.value == nsMsgKey_None) {
       return;
     }

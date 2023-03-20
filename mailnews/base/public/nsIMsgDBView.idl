@@ -260,11 +260,6 @@ interface nsIMsgDBView : nsISupports
    */
   void viewNavigate(in nsMsgNavigationTypeValue motion, out nsMsgKey resultId, out nsMsgViewIndex resultIndex, out nsMsgViewIndex threadIndex, in boolean wrap);
 
-  /**
-   * Indicates if navigation of the passed motion type is valid.
-   */
-  boolean navigateStatus(in nsMsgNavigationTypeValue motion);
-
   readonly attribute nsIMsgFolder msgFolder;
   attribute nsIMsgFolder viewFolder; // in the case of virtual folders, the VF db.
 
