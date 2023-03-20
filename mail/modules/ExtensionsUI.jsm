@@ -667,38 +667,6 @@ var gXPInstallObserver = {
         showNotification();
         break;
       }
-      case "addon-install-complete": {
-        let secondaryActions = null;
-        let numAddons = installInfo.installs.length;
-
-        if (numAddons == 1) {
-          messageString = lazy.addonsBundle.formatStringFromName(
-            "addonInstalled",
-            [installInfo.installs[0].name]
-          );
-        } else {
-          messageString = lazy.addonsBundle.GetStringFromName(
-            "addonsGenericInstalled"
-          );
-          messageString = lazy.PluralForm.get(numAddons, messageString);
-          messageString = messageString.replace("#1", numAddons);
-        }
-        action = null;
-
-        options.removeOnDismissal = true;
-        options.persistent = false;
-
-        showNotification(
-          browser,
-          notificationID,
-          messageString,
-          anchorID,
-          action,
-          secondaryActions,
-          options
-        );
-        break;
-      }
     }
   },
 
@@ -718,7 +686,6 @@ Services.obs.addObserver(gXPInstallObserver, "addon-install-blocked");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-started");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-failed");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-confirmation");
-Services.obs.addObserver(gXPInstallObserver, "addon-install-complete");
 
 /**
  * This object is Thunderbird's version of the same object in
