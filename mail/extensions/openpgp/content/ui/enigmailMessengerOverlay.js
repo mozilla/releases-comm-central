@@ -2515,7 +2515,9 @@ Enigmail.msg = {
   },
 
   loadExternalURL(url) {
-    top.messenger.launchExternalURL(url);
+    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+      .getService(Ci.nsIExternalProtocolService)
+      .loadURI(Services.io.newURI(url));
   },
 
   // retrieves the most recent navigator window (opens one if need be)

@@ -475,10 +475,10 @@ var gMailInit = {
    */
   showEOYDonationAppeal() {
     let url = Services.prefs.getStringPref("app.donation.eoy.url");
-    let messenger =
-      window.messenger ||
-      Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-    messenger.launchExternalURL(url);
+    let protocolSvc = Cc[
+      "@mozilla.org/uriloader/external-protocol-service;1"
+    ].getService(Ci.nsIExternalProtocolService);
+    protocolSvc.loadURI(Services.io.newURI(url));
 
     let currentEOY = Services.prefs.getIntPref("app.donation.eoy.version", 1);
     Services.prefs.setIntPref("app.donation.eoy.version.viewed", currentEOY);
@@ -893,12 +893,6 @@ async function loadStartFolder(initialUri) {
       );
     }
   } catch (ex) {
-    // this is the case where we're trying to auto-subscribe to a folder.
-    if (initialUri && !startFolder.parent) {
-      messenger.loadURL(window, initialUri);
-      return;
-    }
-
     console.error(ex);
   }
 

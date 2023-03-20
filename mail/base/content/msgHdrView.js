@@ -3842,7 +3842,9 @@ function OpenBrowserWithMessageId(messageId) {
   ).data;
   browserURL = browserURL.replace(/%mid/, messageId);
   try {
-    top.messenger.launchExternalURL(browserURL);
+    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+      .getService(Ci.nsIExternalProtocolService)
+      .loadURI(Services.io.newURI(browserURL));
   } catch (ex) {
     console.error(
       "Failed to open message-id in browser; browserURL=" + browserURL

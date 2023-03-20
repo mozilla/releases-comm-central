@@ -301,13 +301,13 @@ appUpdater.prototype = {
 };
 
 window.addEventListener("load", () => {
+  let protocolSvc = Cc[
+    "@mozilla.org/uriloader/external-protocol-service;1"
+  ].getService(Ci.nsIExternalProtocolService);
   for (let link of document.querySelectorAll(".download-link")) {
     link.addEventListener("click", event => {
       event.preventDefault();
-      let messenger =
-        window.messenger ||
-        Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-      messenger.launchExternalURL(event.target.href);
+      protocolSvc.loadURI(Services.io.newURI(event.target.href));
     });
   }
 });

@@ -28,8 +28,6 @@ interface nsIMessenger : nsISupports {
 
     void setWindow(in mozIDOMWindowProxy ptr, in nsIMsgWindow msgWindow);
 
-    void launchExternalURL(in AUTF8String aURL);
-
     boolean canUndo();
     boolean canRedo();
     unsigned long getUndoTransactionType();

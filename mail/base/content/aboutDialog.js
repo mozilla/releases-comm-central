@@ -139,9 +139,7 @@ function openAboutTab(url) {
 }
 
 function openLink(url) {
-  let m =
-    "messenger" in window
-      ? window.messenger
-      : Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-  m.launchExternalURL(url);
+  Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+    .getService(Ci.nsIExternalProtocolService)
+    .loadURI(Services.io.newURI(url));
 }

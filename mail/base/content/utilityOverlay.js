@@ -194,9 +194,9 @@ function openUILink(url, event) {
         ],
       })
       .catch(console.error);
-    let messenger = Cc["@mozilla.org/messenger;1"].createInstance();
-    messenger = messenger.QueryInterface(Ci.nsIMessenger);
-    messenger.launchExternalURL(url);
+    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+      .getService(Ci.nsIExternalProtocolService)
+      .loadURI(Services.io.newURI(url));
   }
 }
 
