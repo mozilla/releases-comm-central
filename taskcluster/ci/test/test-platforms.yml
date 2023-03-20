@@ -80,10 +80,7 @@ windows11-32-2009-qr/debug:
 # windows 11 - 64bit
 windows11-64-2009-qr/opt:
     build-platform: win64/opt
-    build-signing-label:
-        by-variant:
-            msix: repackage-signing-msix-win64/opt
-            default: build-signing-win64/opt
+    build-signing-label: build-signing-win64/opt
     test-sets:
         - gtest-tests
         - mochitest-tests
