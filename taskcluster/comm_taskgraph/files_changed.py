@@ -14,10 +14,9 @@ from taskgraph.util.memoize import memoize
 from taskgraph.util.path import join as join_path
 from taskgraph.util.path import match as match_path
 
-from mozversioncontrol import InvalidRepoPath, get_repository_object
-
 from gecko_taskgraph import GECKO
 from gecko_taskgraph.util.hg import get_json_automationrelevance
+from mozversioncontrol import InvalidRepoPath, get_repository_object
 
 logger = logging.getLogger(__name__)
 

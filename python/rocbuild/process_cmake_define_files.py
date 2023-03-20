@@ -7,9 +7,8 @@ import os
 import re
 import sys
 
-from mozbuild.backend.configenvironment import PartialConfigEnvironment
-
 from buildconfig import topobjdir
+from mozbuild.backend.configenvironment import PartialConfigEnvironment
 
 
 def define_type(string):

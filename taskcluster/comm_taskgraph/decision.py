@@ -23,9 +23,8 @@ from gecko_taskgraph.util.taskgraph import (
     find_existing_tasks_from_previous_kinds,
 )
 
-from comm_taskgraph.parameters import get_defaults
-
 from . import COMM
+from comm_taskgraph.parameters import get_defaults
 
 logger = logging.getLogger(__name__)
 

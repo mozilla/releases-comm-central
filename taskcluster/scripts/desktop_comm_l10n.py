@@ -22,7 +22,6 @@ from mozharness.mozilla.l10n.locales import LocalesMixin
 from mozpack.archive import create_tar_from_files
 from mozpack.copier import FileRegistry
 from mozpack.files import FileFinder
-
 from tbxchannel.l10n_merge import COMM_STRINGS_PATTERNS, GECKO_STRINGS_PATTERNS
 
 

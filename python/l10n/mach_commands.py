@@ -103,9 +103,10 @@ def tb_cross_channel(
     **kwargs,
 ):
     """Run Thunderbird's l10n cross-channel content generation."""
-    from rocbuild.notify import email_notification
     from tbxchannel import TB_XC_NOTIFICATION_TMPL, get_thunderbird_xc_config
     from tbxchannel.l10n_merge import COMM_STRINGS_QUARANTINE
+
+    from rocbuild.notify import email_notification
 
     kwargs.update(
         {

@@ -14,10 +14,9 @@ from taskgraph.util.path import match as match_path
 from taskgraph.util.yaml import load_yaml
 from voluptuous import Optional, Required
 
-from mozlint.pathutils import filterpaths
-
 from gecko_taskgraph import GECKO
 from gecko_taskgraph.optimize.schema import default_optimizations
+from mozlint.pathutils import filterpaths
 
 from comm_taskgraph import files_changed
 
