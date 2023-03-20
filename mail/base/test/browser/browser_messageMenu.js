@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { GlodaIndexer } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaIndexer.jsm"
+);
 const { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
@@ -29,7 +32,9 @@ const messageMenuData = {
   openMessageWindowMenuitem: {
     disabled: [...nothingSelected, "message", "externalMessage"],
   },
-  openConversationMenuitem: { disabled: true },
+  openConversationMenuitem: {
+    disabled: [...nothingSelected, "externalMessage"],
+  },
   openFeedMessage: { hidden: true },
   menu_openFeedWebPage: { disabled: nothingSelected },
   menu_openFeedSummary: { disabled: nothingSelected },
@@ -119,6 +124,12 @@ add_setup(async function() {
     url: "https://example.com/",
     background: true,
   });
+
+  await TestUtils.waitForCondition(
+    () => !GlodaIndexer.indexing,
+    "waiting for Gloda to finish indexing",
+    500
+  );
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(0);

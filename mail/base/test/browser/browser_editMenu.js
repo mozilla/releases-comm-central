@@ -18,7 +18,7 @@ const editMenuData = {
   menu_findCmd: { disabled: true },
   menu_findAgainCmd: { disabled: true },
   searchMailCmd: {},
-  glodaSearchCmd: { hidden: true },
+  glodaSearchCmd: {},
   searchAddressesCmd: {},
   menu_favoriteFolder: {},
   menu_properties: { disabled: true },

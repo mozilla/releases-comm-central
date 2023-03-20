@@ -4,6 +4,13 @@
 
 /* eslint-env webextensions */
 
+var { ConversationOpener } = ChromeUtils.import(
+  "resource:///modules/ConversationOpener.jsm"
+);
+var { GlodaIndexer } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaIndexer.jsm"
+);
+var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -14,7 +21,8 @@ var { MessageGenerator } = ChromeUtils.import(
 const TEST_MESSAGE_URL =
   "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.eml";
 
-let about3Pane, mailContext, testFolder, threadTree;
+let tabmail = document.getElementById("tabmail");
+let testFolder, testMessages;
 
 function checkMenuitems(menu, ...expectedItems) {
   if (expectedItems.length == 0) {
@@ -35,6 +43,8 @@ function checkMenuitems(menu, ...expectedItems) {
 }
 
 add_setup(async function() {
+  let generator = new MessageGenerator();
+
   MailServices.accounts.createLocalMailAccount();
   let account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
@@ -45,20 +55,22 @@ add_setup(async function() {
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   let message = await fetch(TEST_MESSAGE_URL).then(r => r.text());
   testFolder.addMessageBatch([message]);
-  let messages = new MessageGenerator().makeMessages({ count: 5 });
+  let messages = [
+    ...generator.makeMessages({ count: 5 }),
+    ...generator.makeMessages({ count: 5, msgsPerThread: 5 }),
+  ];
   let messageStrings = messages.map(message => message.toMboxString());
   testFolder.addMessageBatch(messageStrings);
+  testMessages = [...testFolder.messages];
 
-  about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-  about3Pane.restoreState({
+  tabmail.currentAbout3Pane.restoreState({
     folderURI: testFolder.URI,
     messagePaneVisible: true,
   });
-  mailContext = about3Pane.document.getElementById("mailContext");
-  threadTree = about3Pane.threadTree;
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
+    Services.prefs.clearUserPref("mail.openMessageBehavior");
   });
 });
 
@@ -67,6 +79,9 @@ add_setup(async function() {
  * messages are selected.
  */
 add_task(async function testNoMessages() {
+  let about3Pane = tabmail.currentAbout3Pane;
+  let mailContext = about3Pane.document.getElementById("mailContext");
+  let threadTree = about3Pane.threadTree;
   about3Pane.messagePane.clearAll();
 
   // The message pane browser isn't visible.
@@ -104,6 +119,9 @@ add_task(async function testNoMessages() {
  * message is selected.
  */
 add_task(async function testSingleMessage() {
+  let about3Pane = tabmail.currentAbout3Pane;
+  let mailContext = about3Pane.document.getElementById("mailContext");
+  let threadTree = about3Pane.threadTree;
   let loadedPromise = BrowserTestUtils.browserLoaded(about3Pane.messageBrowser);
   about3Pane.threadTree.selectedIndex = 0;
   await loadedPromise;
@@ -146,11 +164,8 @@ add_task(async function testSingleMessage() {
   // Open the menu from the thread pane.
 
   shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
-  let treeRect = threadTree.getBoundingClientRect();
-  EventUtils.synthesizeMouse(
-    threadTree,
-    treeRect.x + treeRect.width / 2,
-    treeRect.y + 10,
+  EventUtils.synthesizeMouseAtCenter(
+    threadTree.getRowAtIndex(0),
     {
       type: "contextmenu",
     },
@@ -189,6 +204,9 @@ add_task(async function testSingleMessage() {
  * than one message is selected.
  */
 add_task(async function testMultipleMessages() {
+  let about3Pane = tabmail.currentAbout3Pane;
+  let mailContext = about3Pane.document.getElementById("mailContext");
+  let threadTree = about3Pane.threadTree;
   threadTree.selectedIndices = [1, 2, 3];
 
   // The message pane browser isn't visible.
@@ -229,4 +247,304 @@ add_task(async function testMultipleMessages() {
   mailContext.hidePopup();
 });
 
-// TODO: Run the message pane tests in a tab and window.
+/**
+ * Tests the mailContext menu on the thread tree and message pane of a Gloda
+ * synthetic view (in this case a conversation, but a list of search results
+ * should be the same).
+ */
+add_task(async function testSyntheticFolder() {
+  await TestUtils.waitForCondition(
+    () => !GlodaIndexer.indexing,
+    "waiting for Gloda to finish indexing",
+    500
+  );
+
+  let tabPromise = BrowserTestUtils.waitForEvent(window, "aboutMessageLoaded");
+  new ConversationOpener(window).openConversationForMessages(
+    testMessages.slice(6)
+  );
+  await tabPromise;
+  await new Promise(resolve => setTimeout(resolve));
+
+  let about3Pane = tabmail.currentAbout3Pane;
+  let mailContext = about3Pane.document.getElementById("mailContext");
+  let threadTree = about3Pane.threadTree;
+
+  let loadedPromise = BrowserTestUtils.browserLoaded(about3Pane.messageBrowser);
+  about3Pane.threadTree.selectedIndex = 0;
+  await loadedPromise;
+
+  // Open the menu from the message pane.
+
+  Assert.ok(BrowserTestUtils.is_visible(about3Pane.messageBrowser));
+  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    ":root",
+    { type: "contextmenu" },
+    about3Pane.messageBrowser
+  );
+  await shownPromise;
+  let messageItems = [
+    "mailContext-selectall",
+    "mailContext-openConversation",
+    "mailContext-openContainingFolder",
+    "mailContext-replySender",
+    "mailContext-replyAll",
+    "mailContext-replyList",
+    "mailContext-forward",
+    "mailContext-forwardAsMenu",
+    "mailContext-redirect",
+    "mailContext-editAsNew",
+    "mailContext-tags",
+    "mailContext-mark",
+    "mailContext-archive",
+    "mailContext-moveMenu",
+    "mailContext-copyMenu",
+    // "mailContext-calendar-convert-menu",
+    "mailContext-delete",
+    "mailContext-ignoreThread",
+    "mailContext-ignoreSubthread",
+    "mailContext-watchThread",
+    "mailContext-saveAs",
+    "mailContext-print",
+  ];
+  checkMenuitems(mailContext, ...messageItems);
+  mailContext.hidePopup();
+
+  // Open the menu from the thread pane.
+
+  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    threadTree.getRowAtIndex(0),
+    {
+      type: "contextmenu",
+    },
+    about3Pane
+  );
+  await shownPromise;
+  let treeItems = [
+    "mailContext-openNewTab",
+    "mailContext-openNewWindow",
+    "mailContext-openConversation",
+    "mailContext-openContainingFolder",
+    "mailContext-replySender",
+    "mailContext-replyAll",
+    "mailContext-replyList",
+    "mailContext-forward",
+    "mailContext-forwardAsMenu",
+    "mailContext-redirect",
+    "mailContext-editAsNew",
+    "mailContext-tags",
+    "mailContext-mark",
+    "mailContext-archive",
+    "mailContext-moveMenu",
+    "mailContext-copyMenu",
+    // "mailContext-calendar-convert-menu",
+    "mailContext-delete",
+    "mailContext-ignoreThread",
+    "mailContext-ignoreSubthread",
+    "mailContext-watchThread",
+    "mailContext-saveAs",
+    "mailContext-print",
+  ];
+  checkMenuitems(mailContext, ...treeItems);
+  mailContext.hidePopup();
+
+  tabmail.closeOtherTabs(0);
+});
+
+/**
+ * Tests the mailContext menu on the message pane of a message in a tab.
+ */
+add_task(async function testMessageTab() {
+  let tabPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+  window.OpenMessageInNewTab(testMessages[0], { background: false });
+  await tabPromise;
+  await new Promise(resolve => setTimeout(resolve));
+
+  let aboutMessage = tabmail.currentAboutMessage;
+  let mailContext = aboutMessage.document.getElementById("mailContext");
+
+  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    ":root",
+    { type: "contextmenu" },
+    aboutMessage.getMessagePaneBrowser()
+  );
+  await shownPromise;
+  let messageItems = [
+    "mailContext-selectall",
+    "mailContext-openConversation",
+    "mailContext-openContainingFolder",
+    "mailContext-replySender",
+    "mailContext-replyAll",
+    "mailContext-replyList",
+    "mailContext-forward",
+    "mailContext-forwardAsMenu",
+    "mailContext-redirect",
+    "mailContext-editAsNew",
+    "mailContext-tags",
+    "mailContext-mark",
+    "mailContext-archive",
+    "mailContext-moveMenu",
+    "mailContext-copyMenu",
+    // "mailContext-calendar-convert-menu",
+    "mailContext-delete",
+    "mailContext-ignoreThread",
+    "mailContext-ignoreSubthread",
+    "mailContext-watchThread",
+    "mailContext-saveAs",
+    "mailContext-print",
+  ];
+  checkMenuitems(mailContext, ...messageItems);
+  mailContext.hidePopup();
+
+  tabmail.closeOtherTabs(0);
+});
+
+/**
+ * Tests the mailContext menu on the message pane of a file message in a tab.
+ */
+add_task(async function testExternalMessageTab() {
+  let tabPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+  let messageFile = new FileUtils.File(
+    getTestFilePath("files/sampleContent.eml")
+  );
+  Services.prefs.setIntPref(
+    "mail.openMessageBehavior",
+    MailConsts.OpenMessageBehavior.NEW_TAB
+  );
+  window.MsgOpenEMLFile(messageFile, Services.io.newFileURI(messageFile));
+  await tabPromise;
+  await new Promise(resolve => setTimeout(resolve));
+
+  let aboutMessage = tabmail.currentAboutMessage;
+  let mailContext = aboutMessage.document.getElementById("mailContext");
+
+  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    ":root",
+    { type: "contextmenu" },
+    aboutMessage.getMessagePaneBrowser()
+  );
+  await shownPromise;
+  let messageItems = [
+    "mailContext-selectall",
+    "mailContext-replySender",
+    "mailContext-replyAll",
+    "mailContext-replyList",
+    "mailContext-forward",
+    "mailContext-forwardAsMenu",
+    "mailContext-redirect",
+    "mailContext-editAsNew",
+    "mailContext-tags",
+    "mailContext-mark",
+    "mailContext-copyMenu",
+    // "mailContext-calendar-convert-menu",
+    "mailContext-saveAs",
+    "mailContext-print",
+  ];
+  checkMenuitems(mailContext, ...messageItems);
+  mailContext.hidePopup();
+
+  tabmail.closeOtherTabs(0);
+});
+
+/**
+ * Tests the mailContext menu on the message pane of a message in a window.
+ */
+add_task(async function testMessageWindow() {
+  let winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  window.MsgOpenNewWindowForMessage(testMessages[0]);
+  let win = await winPromise;
+  await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
+  await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
+
+  let aboutMessage = win.messageBrowser.contentWindow;
+  let mailContext = aboutMessage.document.getElementById("mailContext");
+
+  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    ":root",
+    { type: "contextmenu" },
+    aboutMessage.getMessagePaneBrowser()
+  );
+  await shownPromise;
+  let messageItems = [
+    "mailContext-selectall",
+    "mailContext-openConversation",
+    "mailContext-openContainingFolder",
+    "mailContext-replySender",
+    "mailContext-replyAll",
+    "mailContext-replyList",
+    "mailContext-forward",
+    "mailContext-forwardAsMenu",
+    "mailContext-redirect",
+    "mailContext-editAsNew",
+    "mailContext-tags",
+    "mailContext-mark",
+    "mailContext-archive",
+    "mailContext-moveMenu",
+    "mailContext-copyMenu",
+    // "mailContext-calendar-convert-menu",
+    "mailContext-delete",
+    "mailContext-ignoreThread",
+    "mailContext-ignoreSubthread",
+    "mailContext-watchThread",
+    "mailContext-saveAs",
+    "mailContext-print",
+  ];
+  checkMenuitems(mailContext, ...messageItems);
+  mailContext.hidePopup();
+
+  await BrowserTestUtils.closeWindow(win);
+});
+
+/**
+ * Tests the mailContext menu on the message pane of a file message in a window.
+ */
+add_task(async function testExternalMessageWindow() {
+  let winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  let messageFile = new FileUtils.File(
+    getTestFilePath("files/sampleContent.eml")
+  );
+  Services.prefs.setIntPref(
+    "mail.openMessageBehavior",
+    MailConsts.OpenMessageBehavior.NEW_WINDOW
+  );
+  window.MsgOpenEMLFile(messageFile, Services.io.newFileURI(messageFile));
+  let win = await winPromise;
+  await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
+  await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
+
+  let aboutMessage = win.messageBrowser.contentWindow;
+  let mailContext = aboutMessage.document.getElementById("mailContext");
+
+  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    ":root",
+    { type: "contextmenu" },
+    aboutMessage.getMessagePaneBrowser()
+  );
+  await shownPromise;
+  let messageItems = [
+    "mailContext-selectall",
+    "mailContext-replySender",
+    "mailContext-replyAll",
+    "mailContext-replyList",
+    "mailContext-forward",
+    "mailContext-forwardAsMenu",
+    "mailContext-redirect",
+    "mailContext-editAsNew",
+    "mailContext-tags",
+    "mailContext-mark",
+    "mailContext-copyMenu",
+    // "mailContext-calendar-convert-menu",
+    "mailContext-saveAs",
+    "mailContext-print",
+  ];
+  checkMenuitems(mailContext, ...messageItems);
+  mailContext.hidePopup();
+
+  await BrowserTestUtils.closeWindow(win);
+});
