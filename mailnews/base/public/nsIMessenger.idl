@@ -28,8 +28,6 @@ interface nsIMessenger : nsISupports {
 
     void setWindow(in mozIDOMWindowProxy ptr, in nsIMsgWindow msgWindow);
 
-    void addMsgUrlToNavigateHistory(in AUTF8String aURL);
-
     /**
      * Prevent any pending message load from occurring.
      */
@@ -148,23 +146,6 @@ interface nsIMessenger : nsISupports {
     readonly attribute AUTF8String lastDisplayedMessageUri;
 
     nsIMsgDBHdr msgHdrFromURI(in AUTF8String aUri);
-    // For back forward history, we need a list of visited messages,
-    // and where we are in the list.
 
-    // aPos is relative to the current history cursor - 1 is forward, -1 is back.
-    // Unfortunately, you must call this before navigating to this position,
-    // because calling this has the side effect of making us adjust our current
-    // history pos, and *not* adding the loaded message to the history queue.
-    AUTF8String getMsgUriAtNavigatePos(in long aPos);
-    AUTF8String getFolderUriAtNavigatePos(in long aPos);
-    attribute long navigatePos;
-    /**
-     * Fetch the message navigation history.
-     *
-     * @returns An array containing two URIs for each history position.
-     *          First msgURI, then folderURI. So the array will be
-     *          twice as long as the number of history positions.
-     */
-    Array<AUTF8String> getNavigateHistory();
     AString formatFileSize(in unsigned long long aPos, [optional] in boolean aUseKB);
 };

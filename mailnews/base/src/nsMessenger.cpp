@@ -215,15 +215,11 @@ class nsSaveAllAttachmentsState {
 //
 // nsMessenger
 //
-nsMessenger::nsMessenger() {
-  mCurHistoryPos = -2;  // first message selected goes at position 0.
-  //  InitializeFolderRoot();
-}
+nsMessenger::nsMessenger() {}
 
 nsMessenger::~nsMessenger() {}
 
-NS_IMPL_ISUPPORTS(nsMessenger, nsIMessenger, nsISupportsWeakReference,
-                  nsIFolderListener)
+NS_IMPL_ISUPPORTS(nsMessenger, nsIMessenger, nsISupportsWeakReference)
 
 NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy* aWin,
                                      nsIMsgWindow* aMsgWindow) {
@@ -233,18 +229,9 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy* aWin,
       do_GetService("@mozilla.org/messenger/services/session;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Remove the folder listener if we added it, i.e. if mWindow is non-null.
-  if (mWindow) {
-    rv = mailSession->RemoveFolderListener(this);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
   if (aWin) {
     mMsgWindow = aMsgWindow;
     mWindow = aWin;
-
-    rv = mailSession->AddFolderListener(this, nsIFolderListener::removed);
-    NS_ENSURE_SUCCESS(rv, rv);
 
     NS_ENSURE_TRUE(aWin, NS_ERROR_FAILURE);
     nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(aWin);
@@ -393,32 +380,6 @@ nsresult nsMessenger::PromptIfFileExists(nsIFile* file) {
 }
 
 NS_IMETHODIMP
-nsMessenger::AddMsgUrlToNavigateHistory(const nsACString& aURL) {
-  // mNavigatingToUri is set to a url if we're already doing a back/forward,
-  // in which case we don't want to add the url to the history list.
-  // Or if the entry at the cur history pos is the same as what we're loading,
-  // don't add it to the list.
-  if (!mNavigatingToUri.Equals(aURL) &&
-      (mCurHistoryPos < 0 || !mLoadedMsgHistory[mCurHistoryPos].Equals(aURL))) {
-    mNavigatingToUri = aURL;
-    nsCString curLoadedFolderUri;
-    nsCOMPtr<nsIMsgFolder> curLoadedFolder;
-
-    mMsgWindow->GetOpenFolder(getter_AddRefs(curLoadedFolder));
-    // for virtual folders, we want to select the right folder,
-    // which isn't the same as the folder specified in the msg uri.
-    // So add the uri for the currently loaded folder to the history list.
-    if (curLoadedFolder) curLoadedFolder->GetURI(curLoadedFolderUri);
-
-    mLoadedMsgHistory.InsertElementAt(mCurHistoryPos++ + 2, mNavigatingToUri);
-    mLoadedMsgHistory.InsertElementAt(mCurHistoryPos++ + 2, curLoadedFolderUri);
-    // we may want to prune this history if it gets large, but I think it's
-    // more interesting to prune the back and forward menu.
-  }
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMessenger::AbortPendingOpenURL() {
   mURLToLoad.Truncate();
   return NS_OK;
@@ -447,7 +408,6 @@ nsresult nsMessenger::CompleteOpenURL() {
     nsCOMPtr<nsIURI> dummyNull;
     messageService->DisplayMessage(mURLToLoad, mDocShell, mMsgWindow, nullptr,
                                    false, getter_AddRefs(dummyNull));
-    AddMsgUrlToNavigateHistory(mURLToLoad);
     mLastDisplayURI = mURLToLoad;  // remember the last uri we displayed....
     return NS_OK;
   }
@@ -594,8 +554,6 @@ nsMessenger::LoadURL(mozIDOMWindowProxy* aWin, const nsACString& aURL) {
     }
   }
 
-  AddMsgUrlToNavigateHistory(aURL);
-  mNavigatingToUri.Truncate();
   mLastDisplayURI = aURL;  // Remember the last uri we displayed.
   RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState(uri);
   loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_NONE);
@@ -2000,132 +1958,10 @@ nsresult nsMessenger::SetLastSaveDirectory(nsIFile* aLocalFile) {
   return NS_OK;
 }
 
-/* void getUrisAtNavigatePos (in long aPos, out ACString aFolderUri, out
- * ACString aMsgUri); */
-// aPos is relative to the current history cursor - 1 is forward, -1 is back.
-NS_IMETHODIMP nsMessenger::GetMsgUriAtNavigatePos(int32_t aPos,
-                                                  nsACString& aMsgUri) {
-  int32_t desiredArrayIndex = (mCurHistoryPos + (aPos << 1));
-  if (desiredArrayIndex >= 0 &&
-      desiredArrayIndex < (int32_t)mLoadedMsgHistory.Length()) {
-    mNavigatingToUri = mLoadedMsgHistory[desiredArrayIndex];
-    aMsgUri = mNavigatingToUri;
-    return NS_OK;
-  }
-  return NS_ERROR_FAILURE;
-}
-
-NS_IMETHODIMP nsMessenger::SetNavigatePos(int32_t aPos) {
-  if ((aPos << 1) < (int32_t)mLoadedMsgHistory.Length()) {
-    mCurHistoryPos = aPos << 1;
-    return NS_OK;
-  } else
-    return NS_ERROR_INVALID_ARG;
-}
-
-NS_IMETHODIMP nsMessenger::GetNavigatePos(int32_t* aPos) {
-  NS_ENSURE_ARG_POINTER(aPos);
-  *aPos = mCurHistoryPos >> 1;
-  return NS_OK;
-}
-
-// aPos is relative to the current history cursor - 1 is forward, -1 is back.
-NS_IMETHODIMP nsMessenger::GetFolderUriAtNavigatePos(int32_t aPos,
-                                                     nsACString& aFolderUri) {
-  int32_t desiredArrayIndex = (mCurHistoryPos + (aPos << 1));
-  if (desiredArrayIndex >= 0 &&
-      desiredArrayIndex < (int32_t)mLoadedMsgHistory.Length()) {
-    mNavigatingToUri = mLoadedMsgHistory[desiredArrayIndex + 1];
-    aFolderUri = mNavigatingToUri;
-    return NS_OK;
-  }
-  return NS_ERROR_FAILURE;
-}
-
-NS_IMETHODIMP nsMessenger::GetNavigateHistory(
-    nsTArray<nsCString>& aHistoryUris) {
-  aHistoryUris = mLoadedMsgHistory.Clone();
-  return NS_OK;
-}
-
 NS_IMETHODIMP
 nsMessenger::FormatFileSize(uint64_t aSize, bool aUseKB,
                             nsAString& aFormattedSize) {
   return ::FormatFileSize(aSize, aUseKB, aFormattedSize);
-}
-
-NS_IMETHODIMP nsMessenger::OnFolderAdded(nsIMsgFolder* parent,
-                                         nsIMsgFolder* child) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMessenger::OnMessageAdded(nsIMsgFolder* parent,
-                                          nsIMsgDBHdr* msg) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMessenger::OnFolderRemoved(nsIMsgFolder* parent,
-                                           nsIMsgFolder* child) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMessenger::OnMessageRemoved(nsIMsgFolder* parent,
-                                            nsIMsgDBHdr* msgHdr) {
-  // check if this item is a message header that's in our history list. If so,
-  // remove it from the history list.
-  nsCOMPtr<nsIMsgFolder> folder;
-  msgHdr->GetFolder(getter_AddRefs(folder));
-  if (folder) {
-    nsCString msgUri;
-    nsMsgKey msgKey;
-    msgHdr->GetMessageKey(&msgKey);
-    folder->GenerateMessageURI(msgKey, msgUri);
-    // need to remove the corresponding folder entry, and
-    // adjust the current history pos.
-    size_t uriPos = mLoadedMsgHistory.IndexOf(msgUri);
-    if (uriPos != mLoadedMsgHistory.NoIndex) {
-      mLoadedMsgHistory.RemoveElementAt(uriPos);
-      mLoadedMsgHistory.RemoveElementAt(uriPos);  // and the folder uri entry
-      if (mCurHistoryPos >= (int32_t)uriPos) mCurHistoryPos -= 2;
-    }
-  }
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMessenger::OnFolderPropertyChanged(nsIMsgFolder* folder,
-                                                   const nsACString& property,
-                                                   const nsACString& oldValue,
-                                                   const nsACString& newValue) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMessenger::OnFolderIntPropertyChanged(
-    nsIMsgFolder* folder, const nsACString& property, int64_t oldValue,
-    int64_t newValue) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMessenger::OnFolderBoolPropertyChanged(
-    nsIMsgFolder* folder, const nsACString& property, bool oldValue,
-    bool newValue) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMessenger::OnFolderUnicharPropertyChanged(
-    nsIMsgFolder* folder, const nsACString& property, const nsAString& oldValue,
-    const nsAString& newValue) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMessenger::OnFolderPropertyFlagChanged(
-    nsIMsgDBHdr* msg, const nsACString& property, uint32_t oldFlag,
-    uint32_t newFlag) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMessenger::OnFolderEvent(nsIMsgFolder* folder,
-                                         const nsACString& event) {
-  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

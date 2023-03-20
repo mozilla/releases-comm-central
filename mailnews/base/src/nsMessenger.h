@@ -19,14 +19,11 @@
 #include "nsWeakReference.h"
 #include "mozIDOMWindow.h"
 #include "nsTArray.h"
-#include "nsIFolderListener.h"
 #include "nsIMsgStatusFeedback.h"
 
 class nsSaveAllAttachmentsState;
 
-class nsMessenger : public nsIMessenger,
-                    public nsSupportsWeakReference,
-                    public nsIFolderListener {
+class nsMessenger : public nsIMessenger, public nsSupportsWeakReference {
   using PathString = mozilla::PathString;
 
  public:
@@ -34,7 +31,6 @@ class nsMessenger : public nsIMessenger,
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMESSENGER
-  NS_DECL_NSIFOLDERLISTENER
 
   nsresult Alert(const char* stringName);
 
@@ -119,9 +115,6 @@ class nsMessenger : public nsIMessenger,
   // this used when the user attempts to force a charset reload of a message...
   // we need to get the last displayed uri so we can re-display it.
   nsCString mLastDisplayURI;
-  nsCString mNavigatingToUri;
-  nsTArray<nsCString> mLoadedMsgHistory;
-  int32_t mCurHistoryPos;
 };
 
 #define NS_MESSENGER_CID                             \
