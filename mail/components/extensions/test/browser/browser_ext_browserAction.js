@@ -471,7 +471,6 @@ add_task(async function test_allowedSpaces() {
     tabmail,
     window.gSpacesToolbar.spaces.find(space => space.name == "calendar")
   );
-  // await new Promise(resolve => window.requestAnimationFrame(resolve));
   await toolbarMutation;
 
   ok(
@@ -557,7 +556,6 @@ add_task(async function test_allowedInAllSpaces() {
     tabmail,
     window.gSpacesToolbar.spaces.find(space => space.name == "calendar")
   );
-  // await new Promise(resolve => window.requestAnimationFrame(resolve));
   await toolbarMutation;
 
   ok(
@@ -643,7 +641,6 @@ add_task(async function test_allowedSpacesDefault() {
     tabmail,
     window.gSpacesToolbar.spaces.find(space => space.name == "calendar")
   );
-  // await new Promise(resolve => window.requestAnimationFrame(resolve));
   await toolbarMutation;
 
   ok(
@@ -680,4 +677,158 @@ add_task(async function test_allowedSpacesDefault() {
   );
 
   await extension.unload();
+});
+
+add_task(async function test_removal_from_allowedSpaces() {
+  let tabmail = document.getElementById("tabmail");
+  let unifiedToolbar = document.querySelector("unified-toolbar");
+
+  function buttonInUnifiedToolbar() {
+    let button = unifiedToolbar.querySelector(
+      '[item-id="ext-browser_action_spaces@mochi.test"]'
+    );
+    if (!button) {
+      return false;
+    }
+    return BrowserTestUtils.is_visible(button);
+  }
+
+  async function closeSpaceTab() {
+    let toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+      unifiedToolbar,
+      { childList: true },
+      () => true
+    );
+    tabmail.closeTab();
+    await toolbarMutation;
+  }
+
+  async function ensureActiveMailSpace() {
+    let mailSpace = window.gSpacesToolbar.spaces.find(
+      space => space.name == "mail"
+    );
+    if (window.gSpacesToolbar.currentSpace != mailSpace) {
+      let toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+        unifiedToolbar,
+        { childList: true },
+        () => true
+      );
+      window.gSpacesToolbar.openSpace(tabmail, mailSpace);
+      await toolbarMutation;
+    }
+  }
+
+  async function checkUnifiedToolbar(extension, expectedSpaces) {
+    // Make sure the mail space is open.
+    await ensureActiveMailSpace();
+
+    let unifiedToolbarUpdate = TestUtils.topicObserved(
+      "unified-toolbar-state-change"
+    );
+    await extension.startup();
+    await unifiedToolbarUpdate;
+
+    // Test mail space.
+    {
+      let expected = expectedSpaces.includes("mail");
+      Assert.equal(
+        buttonInUnifiedToolbar(),
+        expected,
+        `Button should${expected ? " " : " not "}be in the mail space toolbar`
+      );
+    }
+
+    // Test calendar space.
+    {
+      let toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+        unifiedToolbar,
+        { childList: true },
+        () => true
+      );
+      window.gSpacesToolbar.openSpace(
+        tabmail,
+        window.gSpacesToolbar.spaces.find(space => space.name == "calendar")
+      );
+      await toolbarMutation;
+
+      let expected = expectedSpaces.includes("calendar");
+      Assert.equal(
+        buttonInUnifiedToolbar(),
+        expected,
+        `Button should${
+          expected ? " " : " not "
+        }be in the calendar space toolbar`
+      );
+      await closeSpaceTab();
+    }
+
+    // Test default space.
+    {
+      let toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+        unifiedToolbar,
+        { childList: true },
+        () => true
+      );
+      tabmail.openTab("contentTab", { url: "about:blank" });
+      await toolbarMutation;
+
+      let expected = expectedSpaces.includes("default");
+      Assert.equal(
+        buttonInUnifiedToolbar(),
+        expected,
+        `Button should${
+          expected ? " " : " not "
+        }be in the default space toolbar`
+      );
+      await closeSpaceTab();
+    }
+
+    // Test mail space again.
+    {
+      await ensureActiveMailSpace();
+      let expected = expectedSpaces.includes("mail");
+      Assert.equal(
+        buttonInUnifiedToolbar(),
+        expected,
+        `Button should${expected ? " " : " not "}be in the mail space toolbar`
+      );
+    }
+  }
+
+  // Install extension and test that the button is shown in the default space and
+  // in the calendar space.
+  let extension1 = ExtensionTestUtils.loadExtension({
+    useAddonManager: "permanent",
+    manifest: {
+      applications: {
+        gecko: {
+          id: "browser_action_spaces@mochi.test",
+        },
+      },
+      browser_action: {
+        allowed_spaces: ["calendar", "default"],
+      },
+    },
+  });
+  await checkUnifiedToolbar(extension1, ["calendar", "default"]);
+
+  // Update extension by installing a newer version on top. Verify that it is now
+  // only shown in the default space.
+  let extension2 = ExtensionTestUtils.loadExtension({
+    useAddonManager: "permanent",
+    manifest: {
+      applications: {
+        gecko: {
+          id: "browser_action_spaces@mochi.test",
+        },
+      },
+      browser_action: {
+        allowed_spaces: ["default"],
+      },
+    },
+  });
+  await checkUnifiedToolbar(extension2, ["default"]);
+
+  await extension1.unload();
+  await extension2.unload();
 });
