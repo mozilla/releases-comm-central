@@ -641,3 +641,124 @@ function UnloadCommandUpdateHandlers() {
     messageBrowser.contentWindow.commandController
   );
 }
+
+/**
+ * Message history popup implementation from mail-go-button ported for the old
+ * mail toolbar.
+ *
+ * @param {XULPopupElement} popup
+ */
+function messageHistoryMenu_init(popup) {
+  const { messageHistory } = messageBrowser.contentWindow;
+  const { entries, currentIndex } = messageHistory.getHistory();
+
+  // For populating the back menu, we want the most recently visited
+  // messages first in the menu. So we go backward from curPos to 0.
+  // For the forward menu, we want to go forward from curPos to the end.
+  const items = [];
+  const relativePositionBase = entries.length - 1 - currentIndex;
+  for (const [index, entry] of entries.reverse().entries()) {
+    const folder = MailServices.folderLookup.getFolderForURL(entry.folderURI);
+    if (!folder) {
+      // Where did the folder go?
+      continue;
+    }
+
+    let menuText = "";
+    let msgHdr;
+    try {
+      msgHdr = MailServices.messageServiceFromURI(
+        entry.messageURI
+      ).messageURIToMsgHdr(entry.messageURI);
+    } catch (ex) {
+      // Let's just ignore this history entry.
+      continue;
+    }
+    const messageSubject = msgHdr.mime2DecodedSubject;
+    const messageAuthor = msgHdr.mime2DecodedAuthor;
+
+    if (!messageAuthor && !messageSubject) {
+      // Avoid empty entries in the menu. The message was most likely (re)moved.
+      continue;
+    }
+
+    // If the message was not being displayed via the current folder, prepend
+    // the folder name.  We do not need to check underlying folders for
+    // virtual folders because 'folder' is the display folder, not the
+    // underlying one.
+    if (folder != messageBrowser.contentWindow.gFolder) {
+      menuText = folder.prettyName + " - ";
+    }
+
+    let subject = "";
+    if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe) {
+      subject = "Re: ";
+    }
+    if (messageSubject) {
+      subject += messageSubject;
+    }
+    if (subject) {
+      menuText += subject + " - ";
+    }
+
+    menuText += messageAuthor;
+    const newMenuItem = document.createXULElement("menuitem");
+    newMenuItem.setAttribute("label", menuText);
+    const relativePosition = relativePositionBase - index;
+    newMenuItem.setAttribute("value", relativePosition);
+    newMenuItem.addEventListener("command", commandEvent => {
+      navigateToUri(commandEvent.target);
+      commandEvent.stopPropagation();
+    });
+    if (relativePosition === 0 && !messageHistory.canPop(0)) {
+      newMenuItem.setAttribute("checked", true);
+      newMenuItem.setAttribute("type", "radio");
+    }
+    items.push(newMenuItem);
+  }
+  popup.replaceChildren(...items);
+}
+
+/**
+ * Select the message in the appropriate folder for the history popup entry.
+ * Finds the message based on the value of the item, which is the relative
+ * index of the item in the message history.
+ *
+ * @param {Element} target
+ */
+function navigateToUri(target) {
+  const nsMsgViewIndex_None = 0xffffffff;
+  const historyIndex = Number.parseInt(target.getAttribute("value"), 10);
+  const currentWindow = messageBrowser.contentWindow;
+  const { messageHistory } = currentWindow;
+  if (!messageHistory || !messageHistory.canPop(historyIndex)) {
+    return;
+  }
+  const item = messageHistory.pop(historyIndex);
+
+  if (
+    currentWindow.displayFolder &&
+    currentWindow.gFolder?.URI !== item.folderURI
+  ) {
+    const folder = MailServices.folderLookup.getFolderForURL(item.folderURI);
+    currentWindow.displayFolder(folder);
+  }
+  const msgHdr = MailServices.messageServiceFromURI(
+    item.messageURI
+  ).messageURIToMsgHdr(item.messageURI);
+  const index = currentWindow.gDBView.findIndexOfMsgHdr(msgHdr, true);
+  if (index != nsMsgViewIndex_None) {
+    currentWindow.gViewWrapper.dbView.selection.select(index);
+    currentWindow.displayMessage(
+      currentWindow.gViewWrapper.dbView.URIForFirstSelectedMessage
+    );
+  }
+}
+
+function backToolbarMenu_init(popup) {
+  messageHistoryMenu_init(popup);
+}
+
+function forwardToolbarMenu_init(popup) {
+  messageHistoryMenu_init(popup);
+}
