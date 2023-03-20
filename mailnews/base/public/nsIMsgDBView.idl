@@ -314,11 +314,6 @@ interface nsIMsgDBView : nsISupports
 
   readonly attribute AUTF8String URIForFirstSelectedMessage;
   readonly attribute nsIMsgDBHdr hdrForFirstSelectedMessage;
-  void loadMessageByMsgKey(in nsMsgKey aMsgKey);
-  void loadMessageByViewIndex(in nsMsgViewIndex aIndex);
-  void loadMessageByUrl(in string aUrl);
-  void reloadMessage();
-  void reloadMessageWithAllParts();
 
   /**
    * The number of selected messages.  If the

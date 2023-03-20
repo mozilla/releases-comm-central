@@ -28,21 +28,6 @@ interface nsIMessenger : nsISupports {
 
     void setWindow(in mozIDOMWindowProxy ptr, in nsIMsgWindow msgWindow);
 
-    /**
-     * Prevent any pending message load from occurring.
-     */
-    void abortPendingOpenURL();
-    /**
-     * Changes the message pane to the parent process if necessary, and loads
-     * a message (aURL) in it. This may not happen synchronously.
-     */
-    void openURL(in AUTF8String aURL);
-
-    /**
-     * Load a custom message by url, e.g load a attachment as a email
-     */
-    void loadURL(in mozIDOMWindowProxy ptr, in AUTF8String aURL);
-
     void launchExternalURL(in AUTF8String aURL);
 
     boolean canUndo();
@@ -51,7 +36,7 @@ interface nsIMessenger : nsISupports {
     unsigned long getRedoTransactionType();
     void undo(in nsIMsgWindow msgWindow);
     void redo(in nsIMsgWindow msgWindow);
-    void forceDetectDocumentCharset();
+
     /**
      * Saves a given message to a file or template.
      *
@@ -81,11 +66,6 @@ interface nsIMessenger : nsISupports {
     void saveMessages(in Array<AString> filenameArray,
                       in Array<AUTF8String> messageUriArray);
 
-    void openAttachment(in AUTF8String contentType,
-                        in AUTF8String url,
-                        in AUTF8String displayName,
-                        in AUTF8String messageUri,
-                        in boolean isExternalAttachment);
     void saveAttachment(in AUTF8String contentType,
                         in AUTF8String url,
                         in AUTF8String displayName,
@@ -142,8 +122,6 @@ interface nsIMessenger : nsISupports {
                                    in AUTF8String displayName,
                                    in AUTF8String messageUri,
                                    in nsIFile aDestFolder);
-
-    readonly attribute AUTF8String lastDisplayedMessageUri;
 
     nsIMsgDBHdr msgHdrFromURI(in AUTF8String aUri);
 

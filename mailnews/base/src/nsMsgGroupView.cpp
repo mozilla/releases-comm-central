@@ -890,31 +890,6 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
 }
 
 NS_IMETHODIMP
-nsMsgGroupView::LoadMessageByViewIndex(nsMsgViewIndex aViewIndex) {
-  if (!IsValidIndex(aViewIndex)) return NS_MSG_INVALID_DBVIEW_INDEX;
-
-  if (m_flags[aViewIndex] & MSG_VIEW_FLAG_DUMMY) {
-    // If we used to have one item selected, and now we have more than one,
-    // we should clear the message pane.
-    nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(mMsgWindowWeak));
-    nsCOMPtr<nsIMsgWindowCommands> windowCommands;
-    if (msgWindow &&
-        NS_SUCCEEDED(
-            msgWindow->GetWindowCommands(getter_AddRefs(windowCommands))) &&
-        windowCommands) {
-      windowCommands->ClearMsgPane();
-    }
-
-    // Since we are selecting a dummy row, we should also clear out
-    // m_currentlyDisplayedMsgUri.
-    m_currentlyDisplayedMsgUri.Truncate();
-    return NS_OK;
-  } else {
-    return nsMsgDBView::LoadMessageByViewIndex(aViewIndex);
-  }
-}
-
-NS_IMETHODIMP
 nsMsgGroupView::GetThreadContainingMsgHdr(nsIMsgDBHdr* msgHdr,
                                           nsIMsgThread** pThread) {
   if (!(m_viewFlags & nsMsgViewFlagsType::kGroupBySort))

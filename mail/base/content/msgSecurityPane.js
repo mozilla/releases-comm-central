@@ -128,7 +128,7 @@ async function viewSignatureKey() {
 
   // If the signature acceptance was edited, reload the current message.
   if (await EnigmailWindows.openKeyDetails(window, gSigKeyId, false)) {
-    gDBView.reloadMessageWithAllParts();
+    ReloadMessage();
   }
 }
 

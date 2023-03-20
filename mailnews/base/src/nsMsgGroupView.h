@@ -42,7 +42,6 @@ class nsMsgGroupView : public nsMsgDBView {
                                uint32_t aNewFlags,
                                nsIDBChangeListener* aInstigator) override;
 
-  NS_IMETHOD LoadMessageByViewIndex(nsMsgViewIndex aViewIndex) override;
   NS_IMETHOD GetCellProperties(int32_t aRow, nsTreeColumn* aCol,
                                nsAString& aProperties) override;
   NS_IMETHOD GetRowProperties(int32_t aRow, nsAString& aProperties) override;

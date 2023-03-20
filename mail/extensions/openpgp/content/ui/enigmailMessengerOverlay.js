@@ -174,7 +174,7 @@ Enigmail.msg = {
 
   reloadCompleteMsg() {
     this.clearLastMessage();
-    gDBView.reloadMessageWithAllParts();
+    ReloadMessage();
   },
 
   setAttachmentReveal(attachmentList) {

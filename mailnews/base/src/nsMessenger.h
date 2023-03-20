@@ -80,10 +80,6 @@ class nsMessenger : public nsIMessenger, public nsSupportsWeakReference {
   nsresult ShowPicker(nsIFilePicker* aPicker,
                       nsIFilePicker::ResultCode* aResult);
 
-  // The URL to load in CompleteOpenURL. An empty string to aborts loading.
-  nsCString mURLToLoad;
-  nsresult CompleteOpenURL();
-
   class nsFilePickerShownCallback : public nsIFilePickerShownCallback {
     virtual ~nsFilePickerShownCallback() {}
 
@@ -109,12 +105,7 @@ class nsMessenger : public nsIMessenger, public nsSupportsWeakReference {
   // String bundles...
   nsCOMPtr<nsIStringBundle> mStringBundle;
 
-  nsCString mCurrentDisplayCharset;
-
   nsCOMPtr<nsISupports> mSearchContext;
-  // this used when the user attempts to force a charset reload of a message...
-  // we need to get the last displayed uri so we can re-display it.
-  nsCString mLastDisplayURI;
 };
 
 #define NS_MESSENGER_CID                             \

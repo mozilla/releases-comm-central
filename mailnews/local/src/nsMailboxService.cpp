@@ -296,40 +296,6 @@ NS_IMETHODIMP nsMailboxService::IsMsgInMemCache(nsIURI* aUrl,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMailboxService::OpenAttachment(const nsACString& aContentType,
-                                               const nsACString& aFileName,
-                                               const nsACString& aUrl,
-                                               const nsACString& aMessageUri,
-                                               nsISupports* aDisplayConsumer,
-                                               nsIMsgWindow* aMsgWindow,
-                                               nsIUrlListener* aUrlListener) {
-  nsCOMPtr<nsIURI> URL;
-  nsAutoCString urlString(aUrl);
-  urlString += "&type=";
-  urlString += aContentType;
-  urlString += "&filename=";
-  urlString += aFileName;
-  nsresult rv = NS_NewURI(getter_AddRefs(URL), urlString);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // try to run the url in the docshell...
-  nsCOMPtr<nsIDocShell> docShell(do_QueryInterface(aDisplayConsumer, &rv));
-  // if we were given a docShell, run the url in the docshell..otherwise just
-  // run it normally.
-  if (NS_SUCCEEDED(rv) && docShell) {
-    // DIRTY LITTLE HACK --> since we are opening an attachment we want the
-    // docshell to treat this load as if it were a user click event. Then the
-    // dispatching stuff will be much happier.
-    RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState(URL);
-    loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_IS_LINK);
-    loadState->SetLoadType(LOAD_LINK);
-    loadState->SetFirstParty(false);
-    loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
-    return docShell->LoadURI(loadState, false);
-  }
-  return RunMailboxUrl(URL, aDisplayConsumer);
-}
-
 NS_IMETHODIMP
 nsMailboxService::SaveMessageToDisk(const nsACString& aMessageURI,
                                     nsIFile* aFile, bool aAddDummyEnvelope,

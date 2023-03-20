@@ -74,36 +74,6 @@ class BaseMessageService {
     return folder?.GetMessageHeader(key);
   }
 
-  openAttachment(
-    contentType,
-    fileName,
-    url,
-    messageUri,
-    displayConsumer,
-    msgWindow,
-    urlListener
-  ) {
-    let newsUrl = `${url}&type=${contentType}&filename=${fileName}`;
-    let uri = Services.io
-      .newURI(newsUrl.toString())
-      .QueryInterface(Ci.nsIMsgMailNewsUrl);
-    uri.msgWindow = msgWindow;
-    if (urlListener) {
-      uri.RegisterListener(urlListener);
-    }
-    if (displayConsumer instanceof Ci.nsIDocShell) {
-      uri.loadURI(
-        displayConsumer.QueryInterface(Ci.nsIDocShell),
-        Ci.nsIWebNavigation.LOAD_FLAGS_IS_LINK
-      );
-    } else {
-      throw Components.Exception(
-        "displayConsumer should be instance of nsIDocShell",
-        Cr.NS_ERROR_ILLEGAL_VALUE
-      );
-    }
-  }
-
   CopyMessage(
     messageUri,
     copyListener,

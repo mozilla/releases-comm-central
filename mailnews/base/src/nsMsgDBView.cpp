@@ -987,35 +987,6 @@ nsMsgDBView::SetSelection(nsITreeSelection* aSelection) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMsgDBView::ReloadMessageWithAllParts() {
-  if (m_currentlyDisplayedMsgUri.IsEmpty() || mSuppressMsgDisplay) return NS_OK;
-
-  nsAutoCString forceAllParts(m_currentlyDisplayedMsgUri);
-  nsCOMPtr<nsIMessenger> messenger(do_QueryReferent(mMessengerWeak));
-  NS_ENSURE_TRUE(messenger, NS_ERROR_FAILURE);
-
-  nsresult rv = messenger->OpenURL(forceAllParts);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  UpdateDisplayMessage(m_currentlyDisplayedViewIndex);
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgDBView::ReloadMessage() {
-  if (m_currentlyDisplayedMsgUri.IsEmpty() || mSuppressMsgDisplay) return NS_OK;
-
-  nsCOMPtr<nsIMessenger> messenger(do_QueryReferent(mMessengerWeak));
-  NS_ENSURE_TRUE(messenger, NS_ERROR_FAILURE);
-
-  nsresult rv = messenger->OpenURL(m_currentlyDisplayedMsgUri);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  UpdateDisplayMessage(m_currentlyDisplayedViewIndex);
-  return NS_OK;
-}
-
 nsresult nsMsgDBView::UpdateDisplayMessage(nsMsgViewIndex viewPosition) {
   nsCOMPtr<nsIMsgDBViewCommandUpdater> commandUpdater(
       do_QueryReferent(mCommandUpdater));
@@ -1048,50 +1019,6 @@ nsresult nsMsgDBView::UpdateDisplayMessage(nsMsgViewIndex viewPosition) {
       return NS_MSG_INVALID_DBVIEW_INDEX;
     rv = folder->SetLastMessageLoaded(m_keys[viewPosition]);
     NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  return NS_OK;
-}
-
-// Given a msg key, we will load the message for it.
-NS_IMETHODIMP
-nsMsgDBView::LoadMessageByMsgKey(nsMsgKey aMsgKey) {
-  return LoadMessageByViewIndex(FindKey(aMsgKey, false));
-}
-
-NS_IMETHODIMP
-nsMsgDBView::LoadMessageByViewIndex(nsMsgViewIndex aViewIndex) {
-  if (!IsValidIndex(aViewIndex)) return NS_MSG_INVALID_DBVIEW_INDEX;
-
-  nsCString uri;
-  nsresult rv = GetURIForViewIndex(aViewIndex, uri);
-  if (!mSuppressMsgDisplay && !m_currentlyDisplayedMsgUri.Equals(uri)) {
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIMessenger> messenger(do_QueryReferent(mMessengerWeak));
-    NS_ENSURE_TRUE(messenger, NS_ERROR_FAILURE);
-    messenger->OpenURL(uri);
-    if (aViewIndex >= (nsMsgViewIndex)m_keys.Length())
-      return NS_MSG_INVALID_DBVIEW_INDEX;
-    m_currentlyDisplayedMsgKey = m_keys[aViewIndex];
-    m_currentlyDisplayedMsgUri = uri;
-    m_currentlyDisplayedViewIndex = aViewIndex;
-    UpdateDisplayMessage(m_currentlyDisplayedViewIndex);
-  }
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgDBView::LoadMessageByUrl(const char* aUrl) {
-  NS_ASSERTION(aUrl, "trying to load a null url");
-  if (!mSuppressMsgDisplay) {
-    nsresult rv;
-    nsCOMPtr<nsIMessenger> messenger(do_QueryReferent(mMessengerWeak, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    messenger->LoadURL(NULL, nsDependentCString(aUrl));
-    m_currentlyDisplayedMsgKey = nsMsgKey_None;
-    m_currentlyDisplayedMsgUri = aUrl;
-    m_currentlyDisplayedViewIndex = nsMsgViewIndex_None;
   }
 
   return NS_OK;
@@ -1139,27 +1066,7 @@ nsMsgDBView::SelectionChangedXPCOM() {
   bool summaryStateChanged = selectionSummarized != mSelectionSummarized;
   mSelectionSummarized = selectionSummarized;
 
-  // If only one item is selected then we want to display a message.
-  if (mTreeSelection && selection.Length() == 1 && !selectionSummarized) {
-    int32_t startRange;
-    int32_t endRange;
-    nsresult rv = mTreeSelection->GetRangeAt(0, &startRange, &endRange);
-    // Tree doesn't care if we failed.
-    NS_ENSURE_SUCCESS(rv, NS_OK);
-
-    if (startRange >= 0 && startRange == endRange &&
-        uint32_t(startRange) < GetSize()) {
-      if (!mRemovingRow) {
-        if (!mSuppressMsgDisplay)
-          LoadMessageByViewIndex(startRange);
-        else
-          UpdateDisplayMessage(startRange);
-      }
-    } else {
-      // Selection seems bogus, so set to 0.
-      selection.Clear();
-    }
-  } else {
+  if (!mTreeSelection || selection.Length() != 1 || selectionSummarized) {
     // If we have zero or multiple items selected, we shouldn't be displaying
     // any message.
     m_currentlyDisplayedMsgKey = nsMsgKey_None;
@@ -2349,21 +2256,7 @@ nsMsgDBView::GetSuppressCommandUpdating(bool* aSuppressCommandUpdating) {
 
 NS_IMETHODIMP
 nsMsgDBView::SetSuppressMsgDisplay(bool aSuppressDisplay) {
-  uint32_t numSelected = 0;
-  GetNumSelected(&numSelected);
-
-  bool forceDisplay = false;
-  if (mSuppressMsgDisplay && !aSuppressDisplay && numSelected == 1)
-    forceDisplay = true;
-
   mSuppressMsgDisplay = aSuppressDisplay;
-  if (forceDisplay) {
-    // Get the view indexfor the currently selected message.
-    nsMsgViewIndex viewIndex;
-    nsresult rv = GetViewIndexForFirstSelectedMsg(&viewIndex);
-    if (NS_SUCCEEDED(rv)) LoadMessageByViewIndex(viewIndex);
-  }
-
   return NS_OK;
 }
 

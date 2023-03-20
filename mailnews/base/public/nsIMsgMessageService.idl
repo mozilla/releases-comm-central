@@ -90,25 +90,6 @@ interface nsIMsgMessageService : nsISupports {
             out nsIURI aURL);
 
   /**
-   * When you want an attachment downloaded
-   *
-   * @param aContentType We need to know the content type of the attachment
-   * @param aFileName The name of the attachment.
-   * @param aUrl String representation of the original url associated with the msg.
-   * @param aMessageUri RDF resource that describes the message
-   * @param aDisplayConsumer
-   * @param aMsgWindow Message window
-   * @param aUrlListener
-   */
-  void openAttachment(in AUTF8String aContentType,
-            in AUTF8String aFileName,
-            in AUTF8String aUrl,
-            in AUTF8String aMessageUri,
-            in nsISupports aDisplayConsumer,
-            in nsIMsgWindow aMsgWindow,
-            in nsIUrlListener aUrlListener);
-
-  /**
    * When you want to spool a message out to a file on disk.
    * This is an asynch operation of course. You must pass in a
    * url listener in order to figure out when the operation is done.

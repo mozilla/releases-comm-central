@@ -235,31 +235,10 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy* aWin,
 
     NS_ENSURE_TRUE(aWin, NS_ERROR_FAILURE);
     nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(aWin);
-    nsIDocShell* rootShell = win->GetDocShell();
-    NS_ENSURE_STATE(rootShell);
-    RefPtr<mozilla::dom::Element> el =
-        rootShell->GetDocument()->GetElementById(u"messagepane"_ns);
-    RefPtr<mozilla::dom::XULFrameElement> frame =
-        mozilla::dom::XULFrameElement::FromNodeOrNull(el);
-    mDocShell = nullptr;
-    RefPtr<mozilla::dom::Document> doc;
-    if (frame) doc = frame->GetContentDocument();
-    if (doc) mDocShell = doc->GetDocShell();
-    if (mDocShell) {
-      // Important! Clear out mCurrentDisplayCharset so we reset a default
-      // charset on mDocShell the next time we try to load something into it.
-      mCurrentDisplayCharset = "";
-
-      if (aMsgWindow)
-        aMsgWindow->GetTransactionManager(getter_AddRefs(mTxnMgr));
-    }
-
-    // We don't always have a message pane, like in the addressbook
-    // so if we don't have a docshell, use the one for the app window.
-    // we do this so OpenURL() will work.
-    if (!mDocShell) mDocShell = rootShell;
+    mDocShell = win->GetDocShell();
   } else {
     mWindow = nullptr;
+    mDocShell = nullptr;
   }
 
   return NS_OK;
@@ -379,105 +358,6 @@ nsresult nsMessenger::PromptIfFileExists(nsIFile* file) {
   return file->InitWithFile(localFile);
 }
 
-NS_IMETHODIMP
-nsMessenger::AbortPendingOpenURL() {
-  mURLToLoad.Truncate();
-  return NS_OK;
-}
-
-nsresult nsMessenger::CompleteOpenURL() {
-  if (mURLToLoad.IsEmpty() || !mDocShell) {
-    return NS_OK;
-  }
-
-  if (mMsgWindow) {
-    mMsgWindow->GetTransactionManager(getter_AddRefs(mTxnMgr));
-  }
-
-  mCurrentDisplayCharset = "";
-
-  // Disable auth and DNS prefetch in all mail docShells.
-  mDocShell->SetAllowAuth(false);
-  mDocShell->SetAllowDNSPrefetch(false);
-
-  nsCOMPtr<nsIMsgMessageService> messageService;
-  nsresult rv =
-      GetMessageServiceFromURI(mURLToLoad, getter_AddRefs(messageService));
-
-  if (NS_SUCCEEDED(rv) && messageService) {
-    nsCOMPtr<nsIURI> dummyNull;
-    messageService->DisplayMessage(mURLToLoad, mDocShell, mMsgWindow, nullptr,
-                                   false, getter_AddRefs(dummyNull));
-    mLastDisplayURI = mURLToLoad;  // remember the last uri we displayed....
-    return NS_OK;
-  }
-
-  nsCOMPtr<nsIWebNavigation> webNav(do_QueryInterface(mDocShell));
-  if (!webNav) return NS_ERROR_FAILURE;
-  mozilla::dom::LoadURIOptions loadURIOptions;
-  loadURIOptions.mLoadFlags = nsIWebNavigation::LOAD_FLAGS_IS_LINK;
-  loadURIOptions.mTriggeringPrincipal = nsContentUtils::GetSystemPrincipal();
-  return webNav->FixupAndLoadURIString(NS_ConvertASCIItoUTF16(mURLToLoad),
-                                       loadURIOptions);
-}
-
-NS_IMETHODIMP
-nsMessenger::OpenURL(const nsACString& aURL) {
-  mURLToLoad = aURL;
-
-  nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(mWindow);
-  nsIDocShell* rootShell = win->GetDocShell();
-  NS_ENSURE_STATE(rootShell);
-  RefPtr<mozilla::dom::Element> el =
-      rootShell->GetDocument()->GetElementById(u"messagepane"_ns);
-
-  RefPtr<nsFrameLoaderOwner> flo = do_QueryObject(el);
-  RefPtr<CanonicalBrowsingContext> canonicalBrowsingContext =
-      flo->GetBrowsingContext()->Canonical();
-
-  nsCString remoteType;
-  ErrorResult er;
-  canonicalBrowsingContext->GetCurrentRemoteType(remoteType, er);
-  if (remoteType.Equals(NOT_REMOTE_TYPE)) {
-    // This browsing context is in the parent process. Load the message.
-    mDocShell = canonicalBrowsingContext->GetDocShell();
-    return CompleteOpenURL();
-  }
-
-  // This browsing context is in a child process. Change it to the parent
-  // process, then load the message.
-  NavigationIsolationOptions changeState;
-  changeState.mRemoteType = NOT_REMOTE_TYPE;
-  canonicalBrowsingContext
-      ->ChangeRemoteness(changeState, nsContentUtils::GenerateLoadIdentifier())
-      ->Then(
-          GetMainThreadSerialEventTarget(), __func__,
-          [flo, self = RefPtr{this}](
-              BrowserParent* aBrowserParent /* always null */) {
-            RefPtr<BrowsingContext> browsingContext = flo->GetBrowsingContext();
-            if (!browsingContext) {
-              return NS_ERROR_FAILURE;
-            }
-
-            self->mDocShell = browsingContext->GetDocShell();
-
-            nsCOMPtr<nsIWebProgress> webProgress =
-                browsingContext->Canonical()->GetWebProgress();
-            nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
-            self->mMsgWindow->GetStatusFeedback(getter_AddRefs(statusFeedback));
-            nsCOMPtr<nsIWebProgressListener> webProgressListener =
-                do_QueryInterface(statusFeedback);
-
-            webProgress->AddProgressListener(webProgressListener,
-                                             nsIWebProgress::NOTIFY_ALL);
-
-            return self->CompleteOpenURL();
-          },
-          [self = RefPtr{this}](nsresult aStatusCode) {});
-
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMessenger::LaunchExternalURL(const nsACString& aURL) {
   nsresult rv;
 
@@ -489,77 +369,6 @@ NS_IMETHODIMP nsMessenger::LaunchExternalURL(const nsACString& aURL) {
       do_GetService(NS_EXTERNALPROTOCOLSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return extProtService->LoadURI(uri, nullptr, nullptr, nullptr, false, false);
-}
-
-NS_IMETHODIMP
-nsMessenger::LoadURL(mozIDOMWindowProxy* aWin, const nsACString& aURL) {
-  nsresult rv;
-
-  NS_ConvertASCIItoUTF16 uriString(aURL);
-  // Cleanup the empty spaces that might be on each end.
-  uriString.Trim(" ");
-  // Eliminate embedded newlines, which single-line text fields now allow:
-  uriString.StripChars(u"\r\n");
-  NS_ENSURE_TRUE(!uriString.IsEmpty(), NS_ERROR_FAILURE);
-
-  bool loadingFromFile = false;
-  int64_t fileSize;
-  int64_t lastModifiedTime = 0;
-
-  if (StringBeginsWith(uriString, u"file:"_ns)) {
-    nsCOMPtr<nsIURI> fileUri;
-    rv = NS_NewURI(getter_AddRefs(fileUri), uriString);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIFileURL> fileUrl = do_QueryInterface(fileUri, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIFile> file;
-    rv = fileUrl->GetFile(getter_AddRefs(file));
-    NS_ENSURE_SUCCESS(rv, rv);
-    file->GetFileSize(&fileSize);
-    file->GetLastModifiedTime(&lastModifiedTime);
-    uriString.Replace(0, 5, u"mailbox:"_ns);
-    uriString.AppendLiteral(u"&number=0");
-    loadingFromFile = true;
-  } else if (StringBeginsWith(uriString, u"mailbox:"_ns) &&
-             (CaseInsensitiveFindInReadable(u".eml?"_ns, uriString))) {
-    // if we have a mailbox:// url that points to an .eml file, we have to read
-    // the file size as well
-    uriString.Replace(0, 8, u"file:"_ns);
-    nsCOMPtr<nsIURI> fileUri;
-    rv = NS_NewURI(getter_AddRefs(fileUri), uriString);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIFileURL> fileUrl = do_QueryInterface(fileUri, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIFile> file;
-    rv = fileUrl->GetFile(getter_AddRefs(file));
-    NS_ENSURE_SUCCESS(rv, rv);
-    file->GetFileSize(&fileSize);
-    uriString.Replace(0, 5, u"mailbox:"_ns);
-    loadingFromFile = true;
-  } else if (uriString.Find(u"type=application/x-message-display") !=
-             kNotFound) {
-  }
-
-  nsCOMPtr<nsIURI> uri;
-  rv = NS_NewURI(getter_AddRefs(uri), uriString);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  NS_ENSURE_TRUE(mDocShell, NS_ERROR_FAILURE);
-  nsCOMPtr<nsIMsgMailNewsUrl> msgurl = do_QueryInterface(uri);
-  if (msgurl) {
-    msgurl->SetMsgWindow(mMsgWindow);
-    if (loadingFromFile) {
-      nsCOMPtr<nsIMailboxUrl> mailboxUrl = do_QueryInterface(msgurl, &rv);
-      mailboxUrl->SetMessageSize((uint32_t)fileSize);
-    }
-  }
-
-  mLastDisplayURI = aURL;  // Remember the last uri we displayed.
-  RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState(uri);
-  loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_NONE);
-  loadState->SetFirstParty(true);
-  loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
-  return mDocShell->LoadURI(loadState, false);
 }
 
 NS_IMETHODIMP nsMessenger::SaveAttachmentToFile(nsIFile* aFile,
@@ -749,30 +558,6 @@ nsresult nsMessenger::SaveAttachment(nsIFile* aFile, const nsACString& aURL,
 }
 
 NS_IMETHODIMP
-nsMessenger::OpenAttachment(const nsACString& aContentType,
-                            const nsACString& aURL,
-                            const nsACString& aDisplayName,
-                            const nsACString& aMessageUri,
-                            bool aIsExternalAttachment) {
-  nsresult rv = NS_OK;
-
-  // open external attachments inside our message pane which in turn should
-  // trigger the helper app dialog...
-  if (aIsExternalAttachment)
-    rv = OpenURL(aURL);
-  else {
-    nsCOMPtr<nsIMsgMessageService> messageService;
-    rv = GetMessageServiceFromURI(aMessageUri, getter_AddRefs(messageService));
-    if (messageService)
-      rv = messageService->OpenAttachment(aContentType, aDisplayName, aURL,
-                                          aMessageUri, mDocShell, mMsgWindow,
-                                          nullptr);
-  }
-
-  return rv;
-}
-
-NS_IMETHODIMP
 nsMessenger::SaveAttachmentToFolder(const nsACString& contentType,
                                     const nsACString& url,
                                     const nsACString& displayName,
@@ -807,9 +592,6 @@ nsMessenger::SaveAttachment(const nsACString& aContentType,
                             const nsACString& aDisplayName,
                             const nsACString& aMessageUri,
                             bool aIsExternalAttachment) {
-  // open external attachments inside our message pane which in turn should
-  // trigger the helper app dialog...
-  if (aIsExternalAttachment) return OpenURL(aURL);
   return SaveOneAttachment(aContentType, aURL, aDisplayName, aMessageUri,
                            false);
 }
@@ -1503,30 +1285,6 @@ nsMessenger::GetTransactionManager(nsITransactionManager** aTxnMgr) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMessenger::ForceDetectDocumentCharset() {
-  // We want to redisplay the currently selected message (if any) but forcing
-  // the redisplay with an autodetected charset
-  if (!mLastDisplayURI.IsEmpty()) {
-    nsCOMPtr<nsIMsgMessageService> messageService;
-    nsresult rv = GetMessageServiceFromURI(mLastDisplayURI,
-                                           getter_AddRefs(messageService));
-
-    if (NS_SUCCEEDED(rv) && messageService) {
-      nsCOMPtr<nsIURI> dummyNull;
-      messageService->DisplayMessage(mLastDisplayURI, mDocShell, mMsgWindow,
-                                     nullptr, true, getter_AddRefs(dummyNull));
-    }
-  }
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMessenger::GetLastDisplayedMessageUri(nsACString& aLastDisplayedMessageUri) {
-  aLastDisplayedMessageUri = mLastDisplayURI;
-  return NS_OK;
-}
-
 nsSaveMsgListener::nsSaveMsgListener(nsIFile* aFile, nsMessenger* aMessenger,
                                      nsIUrlListener* aListener) {
   m_file = aFile;
@@ -2194,7 +1952,6 @@ class AttachmentDeleter : public nsIStreamListener,
                                    nsIMsgWindow* aMsgWindow,
                                    nsAttachmentState* aAttach, bool aSaveFirst);
   nsresult DeleteOriginalMessage();
-  void SelectNewMessage();
   virtual ~AttachmentDeleter();
 };
 
@@ -2293,22 +2050,6 @@ nsresult AttachmentDeleter::DeleteOriginalMessage() {
                                         false);               // allowUndo
 }
 
-void AttachmentDeleter::SelectNewMessage() {
-  nsCString displayUri;
-  // all attachments refer to the same message
-  const nsCString& messageUri(mAttach->mAttachmentArray[0].mMessageUri);
-  mMessenger->GetLastDisplayedMessageUri(displayUri);
-  if (displayUri.Equals(messageUri)) {
-    mMessageFolder->GenerateMessageURI(mNewMessageKey, displayUri);
-    if (!displayUri.IsEmpty() && mMsgWindow) {
-      nsCOMPtr<nsIMsgWindowCommands> windowCommands;
-      mMsgWindow->GetWindowCommands(getter_AddRefs(windowCommands));
-      if (windowCommands) windowCommands->SelectMessage(displayUri);
-    }
-  }
-  mNewMessageKey = nsMsgKey_None;
-}
-
 // This is called (potentially) multiple times.
 // Firstly, as a result of StreamMessage() (when the message is being passed
 // through a streamconverter to strip the attachments).
@@ -2377,7 +2118,6 @@ AttachmentDeleter::OnStopCopy(nsresult aStatus) {
   // `m_state` tells us which callback it is.
   if (m_state == eDeletingOldMessage) {
     m_state = eSelectingNewMessage;
-    if (mMsgWindow) SelectNewMessage();
 
     // OK... that's it. The entire operation is now done.
     // (there may still be another call to OnStopRunningUrl(), but that'll be

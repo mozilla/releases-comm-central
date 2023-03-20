@@ -536,7 +536,7 @@ Enigmail.hdrView = {
       [Enigmail.msg.securityInfo.userId],
       [Enigmail.msg.securityInfo.keyId]
     );
-    gDBView.reloadMessageWithAllParts();
+    ReloadMessage();
   },
 
   editKeyTrust() {
@@ -547,7 +547,7 @@ Enigmail.hdrView = {
       [Enigmail.msg.securityInfo.userId],
       [key.keyId]
     );
-    gDBView.reloadMessageWithAllParts();
+    ReloadMessage();
   },
 
   signKey() {
@@ -559,7 +559,7 @@ Enigmail.hdrView = {
       key.keyId,
       null
     );
-    gDBView.reloadMessageWithAllParts();
+    ReloadMessage();
   },
 
   msgHdrViewLoad() {
