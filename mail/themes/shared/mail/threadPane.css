@@ -279,6 +279,10 @@ tr[is="thread-row"] .subject-line img {
   margin-inline-end: 3px;
 }
 
+tr[is="thread-card"] .state {
+  display: none;
+}
+
 /* Icons variations for message state in subject column */
 
 tr[data-properties~="new"] .subject-line img {
@@ -288,20 +292,23 @@ tr[data-properties~="new"] .subject-line img {
   stroke: var(--color-orange-50) !important; /* override the selected, focus rule */
 }
 
-tr[data-properties~="replied"] .subject-line img {
+tr[data-properties~="replied"] :is(.subject-line img, .replied) {
   visibility: initial;
+  display: initial;
   content: var(--icon-reply-col);
   fill: var(--color-purple-50);
 }
 
-tr[data-properties~="redirected"] .subject-line img {
+tr[data-properties~="redirected"] :is(.subject-line img, .redirected) {
   visibility: initial;
+  display: initial;
   content: var(--icon-redirect-col);
   fill: var(--color-orange-50);
 }
 
-tr[data-properties~="forwarded"] .subject-line img {
+tr[data-properties~="forwarded"] :is(.subject-line img, .forwarded) {
   visibility: initial;
+  display: initial;
   content: var(--icon-forward-col);
   fill: var(--color-blue-50);
 }
@@ -327,15 +334,16 @@ tr[data-properties~="forwarded"][data-properties~="redirected"] .subject-line im
   stroke: var(--color-orange-50);
 }
 
-tr[data-properties~="replied"][data-properties~="forwarded"][data-properties~="redirected"] .subject-line img {
+tr[data-properties~="replied"][data-properties~="forwarded"][data-properties~="redirected"]
+  .subject-line img {
   visibility: initial;
   content: var(--icon-reply-forward-redirect-col);
   fill: var(--color-blue-50);
   stroke: var(--color-purple-50);
 }
 
-[is="tree-view-table-body"]:focus > .selected .subject-line img,
-[is="tree-view-table-body"] > .selected:focus-within .subject-line img {
+[is="tree-view-table-body"]:focus > .selected :is(.subject-line img, .state),
+[is="tree-view-table-body"] > .selected:focus-within :is(.subject-line img, .state) {
   fill: currentColor !important;
   stroke: currentColor !important;
 }
