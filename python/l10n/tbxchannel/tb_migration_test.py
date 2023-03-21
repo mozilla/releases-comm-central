@@ -14,19 +14,13 @@ import hglib
 from compare_locales.merge import merge_channels
 from compare_locales.paths.configparser import TOMLParser
 from compare_locales.paths.files import ProjectFiles
-from fluent.migratetb import validator
 from test_fluent_migrations.fmt import diff_resources
 
 import mozpack.path as mozpath
 from mach.util import get_state_dir
 from mozversioncontrol.repoupdate import update_mercurial_repo
 
-from .l10n_merge import COMM_L10N
-
-
-def inspect_migration(path):
-    """Validate recipe and extract some metadata."""
-    return validator.Validator.validate(path)
+from .l10n_merge import COMM_STRINGS_QUARANTINE
 
 
 def prepare_object_dir(cmd):
@@ -38,7 +32,7 @@ def prepare_object_dir(cmd):
     if not os.path.exists(obj_dir):
         os.makedirs(obj_dir)
     state_dir = get_state_dir()
-    update_mercurial_repo("hg", COMM_L10N, mozpath.join(state_dir, "comm-strings"))
+    update_mercurial_repo("hg", COMM_STRINGS_QUARANTINE, mozpath.join(state_dir, "comm-strings"))
     return obj_dir
 
 
@@ -98,20 +92,20 @@ def test_migration(cmd, obj_dir, to_test, references):
         open(full_ref, "wb").write(merge_channels(ref, resources))
     client = hglib.clone(
         source=mozpath.join(get_state_dir(), "comm-strings"),
-        dest=mozpath.join(work_dir, "comm-strings"),
+        dest=mozpath.join(work_dir, "en-US"),
     )
     client.open()
     old_tip = client.tip().node
     run_migration = [
         cmd._virtualenv_manager.python_path,
         "-m",
-        "fluent.migratetb.tool",
-        "--locale",
+        "fluent.migrate.tool",
+        "--lang",
         "en-US",
         "--reference-dir",
         mozpath.join(work_dir, "reference"),
         "--localization-dir",
-        mozpath.join(work_dir, "comm-strings"),
+        mozpath.join(work_dir, "en-US"),
         "--dry-run",
         migration_module,
     ]
@@ -144,7 +138,7 @@ def test_migration(cmd, obj_dir, to_test, references):
     for ref in references:
         diff_resources(
             mozpath.join(work_dir, "reference", ref),
-            mozpath.join(work_dir, "comm-strings", "en-US", ref),
+            mozpath.join(work_dir, "en-US", ref),
         )
     messages = [l.desc.decode("utf-8") for l in client.log(b"::%s - ::%s" % (tip, old_tip))]
     bug = re.search("[0-9]{5,}", migration_name)

@@ -4,4 +4,3 @@ pth:comm/python/rocbuild
 pth:comm/python/thirdroc
 pth:comm/taskcluster
 pth:comm/testing/marionette
-vendored:comm/third_party/python/fluent.migratetb
