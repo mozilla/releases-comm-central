@@ -181,15 +181,11 @@ class TreeView extends HTMLElement {
           return;
         }
 
-        if (event[accelKeyName] && event.shiftKey) {
-          return;
-        }
-
         // Handle the click as a CTRL extension if it happens on the checkbox
         // image inside the selection column.
         if (event.target.classList.contains("tree-view-row-select-checkbox")) {
           if (event.shiftKey) {
-            this._selectRange(index);
+            this._selectRange(index, event[accelKeyName]);
           } else {
             this._toggleSelected(index);
           }
@@ -263,10 +259,10 @@ class TreeView extends HTMLElement {
           return;
         }
 
-        if (event[accelKeyName]) {
+        if (event[accelKeyName] && !event.shiftKey) {
           this._toggleSelected(index);
         } else if (event.shiftKey) {
-          this._selectRange(index);
+          this._selectRange(index, event[accelKeyName]);
         } else {
           this._selectSingle(index);
         }
@@ -354,13 +350,12 @@ class TreeView extends HTMLElement {
 
         if (newIndex != undefined) {
           newIndex = this._clampIndex(newIndex);
-          if (newIndex != null && (!event[accelKeyName] || !event.shiftKey)) {
-            // Else, if both modifiers pressed, do nothing.
-            if (event.shiftKey) {
-              this._selectRange(newIndex);
-            } else if (event[accelKeyName]) {
+          if (newIndex != null) {
+            if (event[accelKeyName] && !event.shiftKey) {
               // Change focus, but not selection.
               this.currentIndex = newIndex;
+            } else if (event.shiftKey) {
+              this._selectRange(newIndex, event[accelKeyName]);
             } else {
               this._selectSingle(newIndex);
             }
@@ -369,11 +364,24 @@ class TreeView extends HTMLElement {
           return;
         }
 
-        if (event.key == " " && this.currentIndex != -1 && !event.shiftKey) {
-          if (event[accelKeyName]) {
+        // Space bar keystroke selection toggling.
+        if (event.key == " " && this.currentIndex != -1) {
+          // Don't do anything if we're on macOS and the target row is already
+          // selected.
+          if (
+            AppConstants.platform == "macosx" &&
+            this._selection.isSelected(this.currentIndex)
+          ) {
+            return;
+          }
+
+          // Handle the macOS exception of toggling the selection with only
+          // the space bar since CMD+Space is captured by the OS.
+          if (event[accelKeyName] || AppConstants.platform == "macosx") {
             this._toggleSelected(this.currentIndex);
             event.preventDefault();
           } else if (!this._selection.isSelected(this.currentIndex)) {
+            // The target row is not currently selected.
             this._selectSingle(this.currentIndex);
             event.preventDefault();
           }
@@ -833,9 +841,11 @@ class TreeView extends HTMLElement {
    * Start or extend a range selection to the given index and focus it.
    *
    * @param {number} index - The index to select.
+   * @param {boolean} extend[false] - If the new selection range should extend
+   *   the current selection.
    */
-  _selectRange(index) {
-    this._selection.rangedSelect(-1, index, false);
+  _selectRange(index, extend = false) {
+    this._selection.rangedSelect(-1, index, extend);
     this.currentIndex = index;
     this.onSelectionChanged();
   }

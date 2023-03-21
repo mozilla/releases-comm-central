@@ -159,6 +159,9 @@ async function subtestKeyboardAndMouse() {
   const { TestUtils } = ChromeUtils.importESModule(
     "resource://testing-common/TestUtils.sys.mjs"
   );
+  const { AppConstants } = ChromeUtils.importESModule(
+    "resource://gre/modules/AppConstants.sys.mjs"
+  );
 
   async function clickOnRow(index, modifiers = {}, expectEvent = true) {
     if (modifiers.shiftKey) {
@@ -199,7 +202,8 @@ async function subtestKeyboardAndMouse() {
   checkCurrent(4);
   checkSelected(2, 3, 4);
 
-  await clickOnRow(6, { shiftKey: true });
+  // Holding ctrl and shift should always produce a range selection.
+  await clickOnRow(6, { accelKey: true, shiftKey: true });
   checkCurrent(6);
   checkSelected(2, 3, 4, 5, 6);
 
@@ -283,8 +287,14 @@ async function subtestKeyboardAndMouse() {
   checkCurrent(2);
   checkSelected(0);
 
-  // Multi select with Ctrl+Space.
-  await pressKey(" ", { accelKey: true });
+  // Multi select with only Space on macOS on a focused row, since Cmd+Space is
+  // captured by the OS.
+  if (AppConstants.platform == "macosx") {
+    await pressKey(" ");
+  } else {
+    // Multi select with Ctrl+Space for Windows and Linux.
+    await pressKey(" ", { accelKey: true });
+  }
   checkCurrent(2);
   checkSelected(0, 2);
 
@@ -296,7 +306,11 @@ async function subtestKeyboardAndMouse() {
   checkCurrent(4);
   checkSelected(0, 2);
 
-  await pressKey(" ", { accelKey: true });
+  if (AppConstants.platform == "macosx") {
+    await pressKey(" ");
+  } else {
+    await pressKey(" ", { accelKey: true });
+  }
   checkCurrent(4);
   checkSelected(0, 2, 4);
 
@@ -305,10 +319,14 @@ async function subtestKeyboardAndMouse() {
   checkCurrent(3);
   checkSelected(3);
 
-  // Can select none using Ctrl+Space.
-  await pressKey(" ", { accelKey: true });
-  checkCurrent(3);
-  checkSelected();
+  // We don't allow unselecting a selected row with Space on macOS due to
+  // conflict with the `mail.advance_on_spacebar` pref.
+  if (AppConstants.platform != "macosx") {
+    // Can select none using Ctrl+Space.
+    await pressKey(" ", { accelKey: true });
+    checkCurrent(3);
+    checkSelected();
+  }
 
   await pressKey("VK_DOWN");
   checkCurrent(4);
@@ -318,8 +336,14 @@ async function subtestKeyboardAndMouse() {
   checkCurrent(0);
   checkSelected(4);
 
-  // Select only the current item with Space (no modifier).
-  await pressKey(" ");
+  if (AppConstants.platform == "macosx") {
+    // We can't clear the selection with only Space on macOS, simulate a Arrow
+    // Up to force clear selection and only select the top most row.
+    await pressKey("VK_UP");
+  } else {
+    // Select only the current item with Space (no modifier).
+    await pressKey(" ");
+  }
   checkCurrent(0);
   checkSelected(0);
 
@@ -350,8 +374,15 @@ async function subtestKeyboardAndMouse() {
   checkCurrent(3);
   checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 
-  // Break the shift sequence by Ctrl+Space.
-  await pressKey(" ", { accelKey: true });
+  if (AppConstants.platform == "macosx") {
+    // We don't allow unselecting a selected row with Space on macOS due to
+    // conflict with the `mail.advance_on_spacebar` pref, so simulate a
+    // CMD+click to unselect it.
+    await clickOnRow(3, { accelKey: true });
+  } else {
+    // Break the shift sequence by Ctrl+Space.
+    await pressKey(" ", { accelKey: true });
+  }
   checkCurrent(3);
   checkSelected(1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 

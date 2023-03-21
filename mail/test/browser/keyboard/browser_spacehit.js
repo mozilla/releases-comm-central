@@ -21,19 +21,19 @@ var {
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
-// Get original preference value
+// Get original preference value.
 var prefName = "mail.advance_on_spacebar";
 var prefValue = Services.prefs.getBoolPref(prefName);
 
 add_setup(async function() {
-  // Create four unread messages in a sample folder
+  // Create four unread messages in a sample folder.
   let folder = await create_folder("Sample");
   await make_message_sets_in_folders([folder], [{ count: 4 }]);
   await be_in_folder(folder);
 });
 
 registerCleanupFunction(function() {
-  // Restore original preference value
+  // Restore original preference value.
   Services.prefs.setBoolPref(prefName, prefValue);
 });
 
@@ -41,22 +41,26 @@ registerCleanupFunction(function() {
  * The second of four simple messages is selected and [Shift-]Space is
  * pressed to determine if focus changes to a new message.
  *
- * @param aAdvance whether to advance
- * @param aShift whether to press Shift key
+ * @param {boolean} shouldAdvance - Whether the selection should advance.
+ * @param {boolean} isShiftPressed - Whether to press Shift key.
  */
-function subtest_advance_on_spacebar(aAdvance, aShift) {
-  // Set preference
-  Services.prefs.setBoolPref(prefName, aAdvance);
-  // Select the second message
-  let oldmessage = select_click_row(1);
+function subtest_advance_on_spacebar(shouldAdvance, isShiftPressed) {
+  // Set preference.
+  Services.prefs.setBoolPref(prefName, shouldAdvance);
+  // Select the second message.
+  let oldMessage = select_click_row(1);
   wait_for_message_display_completion(mc);
-  // Press [Shift-]Space
-  EventUtils.synthesizeKey(" ", { shiftKey: aShift }, get_about_message());
-  // Check that message focus changes iff aAdvance is true
-  let newmessage = get_about_message().gMessage;
-  aAdvance
-    ? Assert.notEqual(oldmessage, newmessage)
-    : Assert.equal(oldmessage, newmessage);
+  // Press [Shift-]Space.
+  EventUtils.synthesizeKey(
+    " ",
+    { shiftKey: isShiftPressed },
+    get_about_message()
+  );
+  // Check that message focus changes if `shouldAdvance` is true.
+  let newMessage = get_about_message().gMessage;
+  shouldAdvance
+    ? Assert.notEqual(oldMessage, newMessage)
+    : Assert.equal(oldMessage, newMessage);
 }
 
 /**
