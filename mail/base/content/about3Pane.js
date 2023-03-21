@@ -1366,12 +1366,20 @@ var folderPane = {
       return;
     }
 
-    folderTree.selectedIndex = folderTree.rows.indexOf(
-      event.target.closest("li")
-    );
-
     let popup = document.getElementById("folderPaneContext");
-    popup.openPopupAtScreen(event.screenX, event.screenY, true);
+
+    if (event.button == 2) {
+      // Mouse
+      folderTree.selectedIndex = folderTree.rows.indexOf(
+        event.target.closest("li")
+      );
+      popup.openPopupAtScreen(event.screenX, event.screenY, true);
+    } else {
+      // Keyboard
+      let row = folderTree.getRowAtIndex(folderTree.selectedIndex);
+      popup.openPopup(row, "after_end", 0, 0, true);
+    }
+
     event.preventDefault();
   },
 
