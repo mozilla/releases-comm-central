@@ -120,6 +120,7 @@ window.addEventListener("DOMContentLoaded", async event => {
 window.addEventListener("unload", () => {
   MailServices.mailSession.RemoveFolderListener(folderListener);
   gViewWrapper?.close();
+  folderPane.uninit();
   threadPane.uninit();
 });
 
@@ -517,7 +518,7 @@ var folderPane = {
 
       initServer(server) {
         let serverRow = folderPane._createServerRow(this.name, server);
-        folderPane._insertServerInOrder(this.containerList, serverRow);
+        folderPane._insertInServerOrder(this.containerList, serverRow);
         folderPane._addSubFolders(server.rootFolder, serverRow, this.name);
       },
 
@@ -532,7 +533,7 @@ var folderPane = {
           return;
         }
         if (!parentFolder) {
-          folderPane._insertServerInOrder(
+          folderPane._insertInServerOrder(
             this.containerList,
             folderPane._createServerRow(this.name, childFolder.server)
           );
@@ -550,6 +551,10 @@ var folderPane = {
 
       removeFolder(parentFolder, childFolder) {
         folderPane.getRowForFolder(childFolder, this.name)?.remove();
+      },
+
+      changeAccountOrder() {
+        folderPane._reapplyServerOrder(this.containerList);
       },
     },
     smart: {
@@ -569,24 +574,24 @@ var folderPane = {
       ],
 
       init() {
-        let smartServer = MailServices.accounts.findServer(
+        this._smartServer = MailServices.accounts.findServer(
           "nobody",
           "smart mailboxes",
           "none"
         );
-        if (!smartServer) {
-          smartServer = MailServices.accounts.createIncomingServer(
+        if (!this._smartServer) {
+          this._smartServer = MailServices.accounts.createIncomingServer(
             "nobody",
             "smart mailboxes",
             "none"
           );
           // We don't want the "smart" server/account leaking out into the ui in
           // other places, so set it as hidden.
-          smartServer.hidden = true;
+          this._smartServer.hidden = true;
           let account = MailServices.accounts.createAccount();
-          account.incomingServer = smartServer;
+          account.incomingServer = this._smartServer;
         }
-        let smartRoot = smartServer.rootFolder.QueryInterface(
+        let smartRoot = this._smartServer.rootFolder.QueryInterface(
           Ci.nsIMsgLocalMailFolder
         );
 
@@ -655,15 +660,17 @@ var folderPane = {
       addFolder(parentFolder, childFolder) {
         let flags = childFolder.flags;
         for (let folderType of this._folderTypes) {
-          if (flags & folderType.flag) {
-            let folderRow = folderPane._createFolderRow(
-              this.name,
-              childFolder,
-              true
-            );
-            folderType.list?.appendChild(folderRow);
-            return;
+          if (!(flags & folderType.flag) || !folderType.list) {
+            continue;
           }
+          let folderRow = folderPane._createFolderRow(
+            this.name,
+            childFolder,
+            true
+          );
+          folderRow.dataset.serverKey = childFolder.server.key;
+          folderPane._insertInServerOrder(folderType.list, folderRow);
+          return;
         }
 
         if (!childFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Inbox, true)) {
@@ -675,7 +682,7 @@ var folderPane = {
           this.name
         );
         if (!serverRow) {
-          serverRow = folderPane._insertServerInOrder(
+          serverRow = folderPane._insertInServerOrder(
             this.containerList,
             folderPane._createServerRow(this.name, childFolder.server)
           );
@@ -701,6 +708,16 @@ var folderPane = {
           parentRow.remove();
         }
       },
+
+      changeAccountOrder() {
+        folderPane._reapplyServerOrder(this.containerList);
+
+        for (let smartFolderRow of this.containerList.children) {
+          if (smartFolderRow.dataset.serverKey == this._smartServer.key) {
+            folderPane._reapplyServerOrder(smartFolderRow.childList);
+          }
+        }
+      },
     },
     unread: {
       name: "unread",
@@ -713,7 +730,7 @@ var folderPane = {
 
       initServer(server) {
         if (this._unreadFilter(server.rootFolder)) {
-          let serverRow = folderPane._insertServerInOrder(
+          let serverRow = folderPane._insertInServerOrder(
             this.containerList,
             folderPane._createServerRow(this.name, server)
           );
@@ -786,6 +803,10 @@ var folderPane = {
           }
         }
       },
+
+      changeAccountOrder() {
+        folderPane._reapplyServerOrder(this.containerList);
+      },
     },
     favorite: {
       name: "favorite",
@@ -799,7 +820,7 @@ var folderPane = {
         if (!folders.length) {
           return;
         }
-        let serverRow = folderPane._insertServerInOrder(
+        let serverRow = folderPane._insertInServerOrder(
           this.containerList,
           folderPane._createServerRow(this.name, server)
         );
@@ -807,6 +828,15 @@ var folderPane = {
           serverRow.insertChildInOrder(
             folderPane._createFolderRow(this.name, folder)
           );
+        }
+      },
+
+      removeFolder(parentFolder, childFolder) {
+        let row = folderPane.getRowForFolder(childFolder);
+        while (row) {
+          row.remove();
+          childFolder = folderPane._getNonGmailParent(childFolder);
+          row = childFolder && folderPane.getRowForFolder(childFolder);
         }
       },
 
@@ -833,7 +863,7 @@ var folderPane = {
         }
 
         if (!serverRow) {
-          serverRow = folderPane._insertServerInOrder(
+          serverRow = folderPane._insertInServerOrder(
             this.containerList,
             folderPane._createServerRow(this.name, folder.server)
           );
@@ -841,6 +871,10 @@ var folderPane = {
         serverRow.insertChildInOrder(
           folderPane._createFolderRow(this.name, folder)
         );
+      },
+
+      changeAccountOrder() {
+        folderPane._reapplyServerOrder(this.containerList);
       },
     },
     recent: {
@@ -858,6 +892,10 @@ var folderPane = {
           let folderRow = folderPane._createFolderRow(this.name, folder);
           this.containerList.appendChild(folderRow);
         }
+      },
+
+      removeFolder(parentFolder, childFolder) {
+        folderPane.getRowForFolder(childFolder)?.remove();
       },
     },
   },
@@ -886,6 +924,8 @@ var folderPane = {
       folderListener,
       Ci.nsIFolderListener.all
     );
+
+    Services.prefs.addObserver("mail.accountmanager.accounts", this);
 
     folderTree.addEventListener("contextmenu", this);
     folderTree.addEventListener("collapsed", this);
@@ -918,6 +958,10 @@ var folderPane = {
     this.updateWidgets();
   },
 
+  uninit() {
+    Services.prefs.removeObserver("mail.accountmanager.accounts", this);
+  },
+
   handleEvent(event) {
     switch (event.type) {
       case "select":
@@ -944,6 +988,12 @@ var folderPane = {
       case "drop":
         this._onDrop(event);
         break;
+    }
+  },
+
+  observe(subject, topic, data) {
+    if (topic == "nsPref:changed") {
+      this._forAllActiveModes("changeAccountOrder");
     }
   },
 
@@ -1121,7 +1171,7 @@ var folderPane = {
    * @param {FolderTreeRow} serverRow
    * @returns {FolderTreeRow}
    */
-  _insertServerInOrder(list, serverRow) {
+  _insertInServerOrder(list, serverRow) {
     let serverKeys = MailServices.accounts.accounts.map(
       a => a.incomingServer.key
     );
@@ -1132,6 +1182,23 @@ var folderPane = {
       }
     }
     return list.appendChild(serverRow);
+  },
+
+  _reapplyServerOrder(list) {
+    let selected = list.querySelector("li.selected");
+    let serverKeys = MailServices.accounts.accounts.map(
+      a => a.incomingServer.key
+    );
+    let serverRows = [...list.children];
+    serverRows.sort(
+      (a, b) =>
+        serverKeys.indexOf(a.dataset.serverKey) -
+        serverKeys.indexOf(b.dataset.serverKey)
+    );
+    list.replaceChildren(...serverRows);
+    if (selected) {
+      setTimeout(() => selected.classList.add("selected"));
+    }
   },
 
   /**
@@ -2241,6 +2308,7 @@ class FolderTreeRow extends HTMLLIElement {
    */
   setFolder(folder, useServerName) {
     this._setURI(folder.URI);
+    this.dataset.serverKey = folder.server.key;
     this.setFolderTypeFromFolder(folder);
     this.name = useServerName ? folder.server.prettyName : folder.name;
     this.unreadCount = folder.getNumUnread(false);

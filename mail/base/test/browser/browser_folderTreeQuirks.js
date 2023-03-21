@@ -426,6 +426,247 @@ add_task(async function testGmailFolders() {
   MailServices.accounts.removeAccount(gmailAccount, false);
 }).__skipMe = AppConstants.DEBUG; // Too unreliable.
 
+add_task(async function testAccountOrder() {
+  // Make some changes to the main account so that it appears in all modes.
+
+  inboxFolder.createSubfolder("sub-inbox", null);
+  let subInboxFolder = inboxFolder.getChildNamed("sub-inbox");
+  folderAMessages[0].markRead(false);
+  folderA.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  folderPane.activeModes = ["all", "smart", "unread", "favorite"];
+
+  let localFolders = [
+    rootFolder,
+    inboxFolder,
+    subInboxFolder,
+    trashFolder,
+    outboxFolder,
+    folderA,
+    folderB,
+    folderC,
+  ];
+  let smartServer = MailServices.accounts.findServer(
+    "nobody",
+    "smart mailboxes",
+    "none"
+  );
+  let smartFolders = [
+    smartServer.rootFolder.getChildNamed("Inbox"),
+    inboxFolder,
+    smartServer.rootFolder.getChildNamed("Drafts"),
+    smartServer.rootFolder.getChildNamed("Templates"),
+    smartServer.rootFolder.getChildNamed("Sent"),
+    smartServer.rootFolder.getChildNamed("Archives"),
+    smartServer.rootFolder.getChildNamed("Junk"),
+    smartServer.rootFolder.getChildNamed("Trash"),
+    // There are trash folders in each account, they go here.
+  ];
+
+  // Check the initial items in the folder tree.
+
+  checkModeListItems("all", localFolders);
+  checkModeListItems("smart", [
+    ...smartFolders,
+    trashFolder,
+    rootFolder,
+    subInboxFolder,
+  ]);
+  checkModeListItems("unread", [rootFolder, folderA]);
+  checkModeListItems("favorite", [rootFolder, folderA]);
+
+  // Create two new "none" accounts, foo and bar.
+
+  let foo = MailServices.accounts.createAccount();
+  foo.incomingServer = MailServices.accounts.createIncomingServer(
+    `${foo.key}user`,
+    "localhost",
+    "none"
+  );
+  let fooRootFolder = foo.incomingServer.rootFolder;
+  let fooTrashFolder = fooRootFolder.getChildNamed("Trash");
+  let fooOutboxFolder = fooRootFolder.getChildNamed("Outbox");
+  let fooFolders = [fooRootFolder, fooTrashFolder, fooOutboxFolder];
+
+  let bar = MailServices.accounts.createAccount();
+  bar.incomingServer = MailServices.accounts.createIncomingServer(
+    `${bar.key}user`,
+    "localhost",
+    "none"
+  );
+  let barRootFolder = bar.incomingServer.rootFolder;
+  let barTrashFolder = barRootFolder.getChildNamed("Trash");
+  let barOutboxFolder = barRootFolder.getChildNamed("Outbox");
+  let barFolders = [barRootFolder, barTrashFolder, barOutboxFolder];
+
+  let generator = new MessageGenerator();
+  fooTrashFolder
+    .QueryInterface(Ci.nsIMsgLocalMailFolder)
+    .addMessage(generator.makeMessage({}).toMboxString());
+  fooTrashFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  barTrashFolder
+    .QueryInterface(Ci.nsIMsgLocalMailFolder)
+    .addMessage(generator.makeMessage({}).toMboxString());
+  barTrashFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
+
+  // Check the addition of accounts has put them in the right order.
+
+  Assert.deepEqual(
+    MailServices.accounts.accounts.map(a => a.key),
+    [foo.key, bar.key, account.key]
+  );
+  checkModeListItems("all", [...fooFolders, ...barFolders, ...localFolders]);
+  checkModeListItems("smart", [
+    ...smartFolders,
+    fooTrashFolder,
+    barTrashFolder,
+    trashFolder,
+    rootFolder,
+    subInboxFolder,
+  ]);
+  checkModeListItems("unread", [
+    fooRootFolder,
+    fooTrashFolder,
+    barRootFolder,
+    barTrashFolder,
+    rootFolder,
+    folderA,
+  ]);
+  checkModeListItems("favorite", [
+    fooRootFolder,
+    fooTrashFolder,
+    barRootFolder,
+    barTrashFolder,
+    rootFolder,
+    folderA,
+  ]);
+
+  // Remove and add the modes again. This should reinitialise them.
+
+  folderPane.activeModes = ["recent"];
+  folderPane.activeModes = ["all", "smart", "unread", "favorite"];
+  checkModeListItems("all", [...fooFolders, ...barFolders, ...localFolders]);
+  checkModeListItems("smart", [
+    ...smartFolders,
+    fooTrashFolder,
+    barTrashFolder,
+    trashFolder,
+    rootFolder,
+    subInboxFolder,
+  ]);
+  checkModeListItems("unread", [
+    fooRootFolder,
+    fooTrashFolder,
+    barRootFolder,
+    barTrashFolder,
+    rootFolder,
+    folderA,
+  ]);
+  checkModeListItems("favorite", [
+    fooRootFolder,
+    fooTrashFolder,
+    barRootFolder,
+    barTrashFolder,
+    rootFolder,
+    folderA,
+  ]);
+
+  // Reorder the accounts.
+
+  MailServices.accounts.reorderAccounts([bar.key, account.key, foo.key]);
+  checkModeListItems("all", [...barFolders, ...localFolders, ...fooFolders]);
+  checkModeListItems("smart", [
+    ...smartFolders,
+    barTrashFolder,
+    trashFolder,
+    fooTrashFolder,
+    rootFolder,
+    subInboxFolder,
+  ]);
+  checkModeListItems("unread", [
+    barRootFolder,
+    barTrashFolder,
+    rootFolder,
+    folderA,
+    fooRootFolder,
+    fooTrashFolder,
+  ]);
+  checkModeListItems("favorite", [
+    barRootFolder,
+    barTrashFolder,
+    rootFolder,
+    folderA,
+    fooRootFolder,
+    fooTrashFolder,
+  ]);
+
+  // Reorder the accounts again.
+
+  MailServices.accounts.reorderAccounts([foo.key, account.key, bar.key]);
+  checkModeListItems("all", [...fooFolders, ...localFolders, ...barFolders]);
+  checkModeListItems("smart", [
+    ...smartFolders,
+    fooTrashFolder,
+    trashFolder,
+    barTrashFolder,
+    rootFolder,
+    subInboxFolder,
+  ]);
+  checkModeListItems("unread", [
+    fooRootFolder,
+    fooTrashFolder,
+    rootFolder,
+    folderA,
+    barRootFolder,
+    barTrashFolder,
+  ]);
+  checkModeListItems("favorite", [
+    fooRootFolder,
+    fooTrashFolder,
+    rootFolder,
+    folderA,
+    barRootFolder,
+    barTrashFolder,
+  ]);
+
+  // Remove one of the added accounts.
+
+  MailServices.accounts.removeAccount(foo, false);
+  checkModeListItems("all", [...localFolders, ...barFolders]);
+  checkModeListItems("smart", [
+    ...smartFolders,
+    trashFolder,
+    barTrashFolder,
+    rootFolder,
+    subInboxFolder,
+  ]);
+  checkModeListItems("unread", [
+    rootFolder,
+    folderA,
+    barRootFolder,
+    barTrashFolder,
+  ]);
+  checkModeListItems("favorite", [
+    rootFolder,
+    folderA,
+    barRootFolder,
+    barTrashFolder,
+  ]);
+
+  // Remove the other added account, folder flags, and the added folder.
+
+  MailServices.accounts.removeAccount(bar, false);
+  folderA.markAllMessagesRead(null);
+  folderA.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  subInboxFolder.deleteSelf(null);
+  rootFolder.emptyTrash(null, null);
+
+  localFolders.splice(2, 1);
+  checkModeListItems("all", localFolders);
+  checkModeListItems("smart", [...smartFolders, trashFolder]);
+  checkModeListItems("unread", []);
+  checkModeListItems("favorite", []);
+});
+
 function checkModeListItems(modeName, folders) {
   Assert.deepEqual(
     Array.from(
