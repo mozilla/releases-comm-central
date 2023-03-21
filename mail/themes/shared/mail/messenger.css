@@ -1170,6 +1170,13 @@ findbar {
   min-width: 100px;
 }
 
+/* menupopup/panel */
+:is(panel, menupopup)::part(content) {
+  --panel-color: var(--layout-color-1);
+  --panel-background: var(--layout-background-1);
+  --panel-border-color: var(--layout-border-1);
+}
+
 /* Panel toolbarbuttons */
 
 .panelTitle {
