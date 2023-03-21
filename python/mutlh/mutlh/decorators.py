@@ -126,3 +126,72 @@ class CommandArgumentGroup(object):
         func._mach_command.argument_group_names.insert(0, self._group_name)
 
         return func
+
+
+def mach2MutlhCommand(cmd: str, new_func=None, **replacekws):
+    """
+    Change a registered _MachCommand to a _MutlhCommand
+
+    :param str cmd: The name of the existing command
+    :param function new_func: New implementation function
+    :param dict replacekws: keyword arguments to replace
+    :return _MutlhCommand: replacement
+    """
+    from mach.registrar import Registrar
+
+    def get_mach_command(cmd_name):
+        mach_cmd = Registrar.command_handlers.get(cmd_name)
+        if mach_cmd:
+            del Registrar.command_handlers[cmd_name]
+            return mach_cmd
+        raise Exception(f"{cmd_name} unknown!")
+
+    mach_cmd = get_mach_command(cmd)
+
+    if mach_cmd.subcommand_handlers:
+        raise Exception("Commands with SubCommands not implemented!")
+
+    if "parser" in replacekws:
+        replacekws["_parser"] = replacekws["parser"]
+        del replacekws["parser"]
+
+    arg_names = (
+        "name",
+        "subcommand",
+        "category",
+        "description",
+        "conditions",
+        "_parser",
+        "virtualenv_name",
+        "ok_if_tests_disabled",
+        "order",
+        "no_auto_log",
+    )
+    kwargs = dict([(k, getattr(cmd, k)) for k in arg_names])
+    kwargs.update(dict([(k, v) for k, v in replacekws.items() if k in arg_names]))
+    if "_parser" in kwargs:
+        kwargs["parser"] = kwargs["_parser"]
+        del kwargs["_parser"]
+
+    mutlh_cmd = _MutlhCommand(**kwargs)
+    post_args = (
+        "arguments",
+        "argument_group_names",
+        "metrics_path",
+        "subcommand_handlers",
+        "decl_order",
+    )
+    for arg in post_args:
+        value = replacekws.get(arg, getattr(mach_cmd, arg))
+        setattr(mutlh_cmd, arg, value)
+
+    if new_func is None:
+        new_func = mach_cmd.func
+        delattr(new_func, "_mach_command")
+    if not hasattr(new_func, "_mach_command"):
+        new_func._mach_command = _MutlhCommand()
+
+    new_func._mach_command |= mutlh_cmd
+    mutlh_cmd.register(new_func)
+
+    return mutlh_cmd
