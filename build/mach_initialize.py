@@ -38,7 +38,7 @@ def mach_sys_path(mozilla_dir):
         mozilla_dir,
         True,  # is_thunderbird
         False,
-        os.path.join(mozilla_dir, "comm/build/mach_virtualenv_packages.txt"),
+        os.path.join(mozilla_dir, "comm/python/sites/tb_common.txt"),
     )
     return sorted(
         [

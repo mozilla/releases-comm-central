@@ -7,7 +7,7 @@ import logging
 import os.path
 from pathlib import Path
 
-from mach.decorators import Command, CommandArgument
+from mutlh.decorators import Command, CommandArgument
 
 
 # https://stackoverflow.com/a/14117511

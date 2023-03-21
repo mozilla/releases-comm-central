@@ -1,6 +1,6 @@
-pth:comm/testing/marionette
 pth:comm/python/l10n
-pth:comm/python/mach
-pth:comm/taskcluster
+pth:comm/python/mutlh
 pth:comm/python/rocbuild
 pth:comm/python/thirdroc
+pth:comm/taskcluster
+pth:comm/testing/marionette
