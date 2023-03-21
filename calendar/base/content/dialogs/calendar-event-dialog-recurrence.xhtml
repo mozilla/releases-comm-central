@@ -14,34 +14,30 @@
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY % dialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
   %dialogDTD;
 ]>
-
-<window id="calendar-event-dialog-recurrence"
-        title="&recurrence.title.label;"
-        windowtype="Calendar:EventDialog:Recurrence"
-        onload="onLoad()"
-        persist="screenX screenY width height"
-        lightweightthemes="true"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml">
-
+<html id="calendar-event-dialog-recurrence" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="Calendar:EventDialog:Recurrence"
+      persist="screenX screenY width height"
+      lightweightthemes="true"
+      scrolling="false">
+<head>
+  <title>&recurrence.title.label;</title>
+  <link rel="localization" href="calendar/calendar-recurrence-dialog.ftl" />
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-dialog-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-statusbar.js"></script>
+  <script defer="defer" src="chrome://calendar/content/widgets/calendar-minimonth.js"></script>
+  <script defer="defer" src="chrome://calendar/content/widgets/datetimepickers.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-event-dialog-recurrence.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog>
-  <!-- Localization -->
-  <html:link rel="localization" href="calendar/calendar-recurrence-dialog.ftl"/>
-
-  <!-- Javascript includes -->
-  <script src="chrome://calendar/content/calendar-event-dialog-recurrence.js"/>
-  <script src="chrome://calendar/content/calendar-dialog-utils.js"/>
-  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
-  <script src="chrome://calendar/content/calendar-statusbar.js"/>
-
-  <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
-  <script src="chrome://calendar/content/widgets/datetimepickers.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
   <!-- recurrence pattern -->
   <html:fieldset id="recurrence-pattern-groupbox">
     <html:legend id="recurrence-pattern-caption">&event.recurrence.pattern.label;</html:legend>
@@ -799,4 +795,5 @@
     </html:div>
   </html:fieldset>
 </dialog>
-</window>
+</html:body>
+</html>

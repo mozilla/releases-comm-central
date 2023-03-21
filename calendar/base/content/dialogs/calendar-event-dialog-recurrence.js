@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoad */
-
-/* import-globals-from ../calendar-ui-utils.js */
-
 var { splitRecurrenceRules } = ChromeUtils.import(
   "resource:///modules/calendar/calRecurrenceUtils.jsm"
 );
@@ -20,6 +16,8 @@ var gIsReadOnly = false;
 var gStartTime = null;
 var gEndTime = null;
 var gUntilDate = null;
+
+window.addEventListener("load", onLoad);
 
 /**
  * Object wrapping the methods and properties of recurrencePreview binding.
@@ -928,7 +926,6 @@ function updateRecurrenceBox() {
     periodBox.children[i].hidden = i != periodNumber;
   }
   updateRecurrenceControls();
-  window.sizeToContent();
 }
 
 /**
@@ -1092,6 +1089,7 @@ function updateRecurrenceControls() {
   updateRecurrencePattern();
   updateRecurrenceRange();
   updatePreview();
+  window.sizeToContent();
 }
 
 /**
