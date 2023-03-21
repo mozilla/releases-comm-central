@@ -7,3 +7,7 @@
 # Default extra components to build config
 with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "Build Config")
+
+PYTHON_UNITTEST_MANIFESTS += [
+    "mutlh/mutlh/test/python.ini",
+]

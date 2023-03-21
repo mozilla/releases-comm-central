@@ -26,6 +26,7 @@ if CONFIG["NIGHTLY_BUILD"]:
     DIRS += ["services/sync"]
 
 DIRS += [
+    "../python",
     "../taskcluster",
     "../third_party",
 ]
