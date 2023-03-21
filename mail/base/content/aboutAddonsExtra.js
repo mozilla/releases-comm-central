@@ -216,14 +216,5 @@ XPCOMUtils.defineLazyPreferenceGetter(
         {}
       ),
     });
-
-    AMTelemetry.recordLinkEvent({
-      object: "aboutAddons",
-      value: "search",
-      extra: {
-        type: this.closest("addon-page-header").getAttribute("type"),
-        view: getTelemetryViewName(this),
-      },
-    });
   };
 })();
