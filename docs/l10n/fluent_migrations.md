@@ -71,8 +71,8 @@ attribute.
 # Any copyright is dedicated to the Public Domain.
 # http://creativecommons.org/publicdomain/zero/1.0/
 
-from fluent.migrate.helpers import transforms_from
-from fluent.migrate import COPY
+from fluent.migratetb.helpers import transforms_from
+from fluent.migratetb import COPY
 
 def migrate(ctx):
     """Bug 1805746 - Update Calendar View selection part {index}."""
@@ -145,3 +145,46 @@ of each message with a `COPY` Transform that copies values from the DTD file at
 There are other Transforms like `COPY`. See
 [Migrating Legacy Formats](https://firefox-source-docs.mozilla.org/l10n/migrations/legacy.html)
 for usage information.
+
+### Thunderbird migration helpers
+
+The `REPLACE` works with `transforms_from` if provided the extra context that
+it needs.
+
+Starting with `aboutDialog.dtd` containing:
+
+```xml
+<!ENTITY update.updateButton.label3               "Restart to update &brandShorterName;">
+```
+
+```python
+from fluent.migratetb.helpers import TERM_REFERENCE, transforms_from
+
+# This can't just be a straight up literal dict (eg: {"a":"b"}) because the
+# validator fails... so make it a function call that returns a dict.. it works
+about_replacements = dict({
+    "&brandShorterName;": TERM_REFERENCE("brand-shorter-name"),
+})
+
+
+def migrate(ctx):
+    """Bug 1816532 - Migrate aboutDialog.dtd strings to Fluent, part {index}"""
+    target = reference = "mail/messenger/aboutDialog.ftl"
+    source = "mail/chrome/messenger/aboutDialog.dtd"
+
+    ctx.add_transforms(
+        target,
+        reference,
+        transforms_from(
+          """
+update-update-button = { REPLACE(source, "update.updateButton.label3", about_replacements) }
+    .accesskey = { COPY(source, "update.updateButton.accesskey") }
+""", source=source, about_replacements=about_replacements))
+```
+
+The resulting `aboutDialog.ftl` will get:
+
+```ftl
+update-update-button = Restart to update { -brand-shorter-name }
+    .accesskey = R
+```
