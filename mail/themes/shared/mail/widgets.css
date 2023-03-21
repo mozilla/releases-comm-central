@@ -236,10 +236,11 @@
 
 .button.check-button::before {
   content: '';
+  box-sizing: border-box;
   background-color: color-mix(in srgb, currentColor 10%, transparent);
   border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
   border-radius: 4px;
-  width: 2px;
+  width: 4px;
   height: 12px;
   margin: auto 3px;
   position: absolute;
