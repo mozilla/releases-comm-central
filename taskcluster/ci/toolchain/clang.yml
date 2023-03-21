@@ -1,0 +1,80 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+job-defaults:
+    treeherder:
+        kind: build
+        platform: toolchains/opt
+        tier: 1
+    run-on-projects: []
+    run:
+        using: toolchain-script
+        resources:
+            - 'build/build-clang/build-clang.py'
+    worker-type: b-linux-xlarge-gcp
+    worker:
+        max-run-time: 7200
+
+
+# The clang compilers defined below are the same as what's defined in
+# mozilla-central for Firefox builds, except that the Android compiler-rt
+# pieces have been left out.
+
+linux64-clang-15:
+    description: "Clang 15 toolchain build"
+    attributes:
+        local-toolchain: true
+    treeherder:
+        symbol: TL(clang-15)
+    worker-type: b-linux-gcp
+    worker:
+        max-run-time: 600
+    run:
+        script: repack-clang.sh
+        toolchain-alias:
+            by-project:
+                toolchains: null
+                default: linux64-clang
+        toolchain-artifact: public/build/clang.tar.zst
+    fetches:
+        toolchain:
+            - linux64-cctools-port
+            - linux64-clang-15-raw
+            - linux64-aarch64-compiler-rt-15
+            - linux64-x64-compiler-rt-15
+            - linux64-x86-compiler-rt-15
+            - macosx64-aarch64-compiler-rt-15
+            - macosx64-x64-compiler-rt-15
+            - wasm32-wasi-compiler-rt-15
+            - win32-compiler-rt-15
+            - win64-compiler-rt-15
+
+win64-clang-15:
+    description: "Clang-cl 15 toolchain build"
+    attributes:
+        local-toolchain: true
+    treeherder:
+        symbol: TW64(clang-15)
+    worker-type: b-linux-gcp
+    worker:
+        max-run-time: 600
+    run:
+        script: repack-clang.sh
+        toolchain-alias:
+            by-project:
+                toolchains: null
+                default: win64-clang
+        toolchain-artifact: public/build/clang.tar.zst
+    fetches:
+        toolchain:
+            - linux64-cctools-port
+            - win64-clang-15-raw
+            - linux64-aarch64-compiler-rt-15
+            - linux64-x64-compiler-rt-15
+            - linux64-x86-compiler-rt-15
+            - macosx64-aarch64-compiler-rt-15
+            - macosx64-x64-compiler-rt-15
+            - wasm32-wasi-compiler-rt-15
+            - win32-compiler-rt-15
+            - win64-compiler-rt-15

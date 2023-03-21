@@ -10,22 +10,16 @@ kind-dependencies:
     - packages
 
 reference-jobs:
-    - android-aarch64-compiler-rt-15
-    - android-arm-compiler-rt-15
-    - android-x64-compiler-rt-15
-    - android-x86-compiler-rt-15
     - linux64-aarch64-compiler-rt-15
-    - linux64-android-ndk-linux-repack
     - linux64-binutils
     - linux64-cbindgen
     - linux64-cctools-port
-    - linux64-clang
     - linux64-clang-15-profile
     - linux64-clang-15-raw
     - linux64-clang-mingw-x64
     - linux64-clang-mingw-x86
+    - linux64-clang-15-stage1
     - linux64-clang-tidy
-    - linux64-clang-toolchain
     - linux64-dump_syms
     - linux64-fix-stacks
     - linux64-hfsplus
@@ -59,7 +53,6 @@ reference-jobs:
     - linux64-python
     - macosx64-aarch64-compiler-rt-15
     - macosx64-clang-15-raw
-    - macosx64-clang-toolchain
     - macosx64-fix-stacks
     - macosx64-minidump-stackwalk
     - macosx64-node
@@ -77,9 +70,8 @@ reference-jobs:
     - win32-minidump-stackwalk
     - win32-node
     - win64-cbindgen
-    - win64-clang
     - win64-clang-15-raw
-    - win64-clang-toolchain
+    - win64-clang-15-stage1
     - win64-compiler-rt-15
     - win64-dump_syms
     - win64-llvm-symbolizer
@@ -101,4 +93,5 @@ transforms:
     - gecko_taskgraph.transforms.task:transforms
 
 jobs-from:
+    - clang.yml
     - libotr.yml
