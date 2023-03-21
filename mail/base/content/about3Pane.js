@@ -517,7 +517,7 @@ var folderPane = {
 
       initServer(server) {
         let serverRow = folderPane._createServerRow(this.name, server);
-        this.containerList.appendChild(serverRow);
+        folderPane._insertServerInOrder(this.containerList, serverRow);
         folderPane._addSubFolders(server.rootFolder, serverRow, this.name);
       },
 
@@ -532,8 +532,8 @@ var folderPane = {
           return;
         }
         if (!parentFolder) {
-          // TODO: have to find the right position?
-          this.containerList.appendChild(
+          folderPane._insertServerInOrder(
+            this.containerList,
             folderPane._createServerRow(this.name, childFolder.server)
           );
           return;
@@ -545,7 +545,7 @@ var folderPane = {
         }
         folderTree.expandRow(parentRow);
         let childRow = folderPane._createFolderRow(this.name, childFolder);
-        parentRow.appendChildInOrder(childRow);
+        parentRow.insertChildInOrder(childRow);
       },
 
       removeFolder(parentFolder, childFolder) {
@@ -675,11 +675,12 @@ var folderPane = {
           this.name
         );
         if (!serverRow) {
-          serverRow = this.containerList.appendChild(
+          serverRow = folderPane._insertServerInOrder(
+            this.containerList,
             folderPane._createServerRow(this.name, childFolder.server)
           );
         }
-        let folderRow = serverRow.appendChildInOrder(
+        let folderRow = serverRow.insertChildInOrder(
           folderPane._createFolderRow(this.name, childFolder)
         );
         folderPane._addSubFolders(childFolder, folderRow, this.name);
@@ -712,8 +713,10 @@ var folderPane = {
 
       initServer(server) {
         if (this._unreadFilter(server.rootFolder)) {
-          let serverRow = folderPane._createServerRow(this.name, server);
-          this.containerList.appendChild(serverRow);
+          let serverRow = folderPane._insertServerInOrder(
+            this.containerList,
+            folderPane._createServerRow(this.name, server)
+          );
           folderPane._addSubFolders(
             server.rootFolder,
             serverRow,
@@ -776,7 +779,7 @@ var folderPane = {
                 this.name,
                 this._unreadFilter
               );
-              parentRow.appendChildInOrder(folderRow);
+              parentRow.insertChildInOrder(folderRow);
               break;
             }
             folder = parentFolder;
@@ -796,11 +799,12 @@ var folderPane = {
         if (!folders.length) {
           return;
         }
-        let serverRow = this.containerList.appendChild(
+        let serverRow = folderPane._insertServerInOrder(
+          this.containerList,
           folderPane._createServerRow(this.name, server)
         );
         for (let folder of folders) {
-          serverRow.appendChildInOrder(
+          serverRow.insertChildInOrder(
             folderPane._createFolderRow(this.name, folder)
           );
         }
@@ -829,11 +833,12 @@ var folderPane = {
         }
 
         if (!serverRow) {
-          serverRow = this.containerList.appendChild(
+          serverRow = folderPane._insertServerInOrder(
+            this.containerList,
             folderPane._createServerRow(this.name, folder.server)
           );
         }
-        serverRow.appendChildInOrder(
+        serverRow.insertChildInOrder(
           folderPane._createFolderRow(this.name, folder)
         );
       },
@@ -1107,6 +1112,26 @@ var folderPane = {
     row.modeName = modeName;
     row.setFolder(folder, useServerName);
     return row;
+  },
+
+  /**
+   * Add a server row to the given list in the correct sort order.
+   *
+   * @param {HTMLUListElement} list
+   * @param {FolderTreeRow} serverRow
+   * @returns {FolderTreeRow}
+   */
+  _insertServerInOrder(list, serverRow) {
+    let serverKeys = MailServices.accounts.accounts.map(
+      a => a.incomingServer.key
+    );
+    let index = serverKeys.indexOf(serverRow.dataset.serverKey);
+    for (let row of list.children) {
+      if (serverKeys.indexOf(row.dataset.serverKey) > index) {
+        return list.insertBefore(serverRow, row);
+      }
+    }
+    return list.appendChild(serverRow);
   },
 
   /**
@@ -2201,6 +2226,7 @@ class FolderTreeRow extends HTMLLIElement {
    */
   setServer(server) {
     this._setURI(server.rootFolder.URI);
+    this.dataset.serverKey = server.key;
     this.dataset.serverType = server.type;
     this.dataset.serverSecure = server.isSecure;
     this.name = server.prettyName;
@@ -2244,7 +2270,7 @@ class FolderTreeRow extends HTMLLIElement {
    * @param {FolderTreeRow} newChild
    * @returns {FolderTreeRow}
    */
-  appendChildInOrder(newChild) {
+  insertChildInOrder(newChild) {
     let { folderSortOrder, name } = newChild;
     for (let child of this.childList.children) {
       if (folderSortOrder < child.folderSortOrder) {

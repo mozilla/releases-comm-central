@@ -324,6 +324,9 @@ add_task(async function testGmailFolders() {
   let gmailTrashFolder = gmailRootFolder.getChildNamed("Trash");
 
   checkModeListItems("all", [
+    gmailRootFolder,
+    gmailInboxFolder,
+    gmailTrashFolder,
     rootFolder,
     inboxFolder,
     trashFolder,
@@ -331,10 +334,6 @@ add_task(async function testGmailFolders() {
     folderA,
     folderB,
     folderC,
-    // These rows need to be moved to the top when bug 1819963 is fixed:
-    gmailRootFolder,
-    gmailInboxFolder,
-    gmailTrashFolder,
   ]);
 
   // Now add the [Gmail] folder to the server and go looking for it.
@@ -392,6 +391,10 @@ add_task(async function testGmailFolders() {
   );
 
   checkModeListItems("all", [
+    gmailRootFolder,
+    gmailInboxFolder,
+    gmailAllMailFolder,
+    gmailTrashFolder,
     rootFolder,
     inboxFolder,
     trashFolder,
@@ -399,11 +402,6 @@ add_task(async function testGmailFolders() {
     folderA,
     folderB,
     folderC,
-    // These rows need to be moved to the top when bug 1819963 is fixed:
-    gmailRootFolder,
-    gmailInboxFolder,
-    gmailAllMailFolder,
-    gmailTrashFolder,
   ]);
 
   // The accounts didn't exist when about:3pane loaded, but we can simulate
