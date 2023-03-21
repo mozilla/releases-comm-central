@@ -6,7 +6,6 @@
 
 "use strict";
 
-// Services = object with smart getters for common XPCOM services
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
@@ -17,8 +16,18 @@ if (AppConstants.MOZ_UPDATER) {
   );
 }
 
-async function init(aEvent) {
-  if (aEvent.target != document) {
+window.addEventListener("load", async event => {
+  await onLoad(event);
+});
+if (AppConstants.MOZ_UPDATER) {
+  window.addEventListener("unload", event => {
+    // This method is in the aboutDialog-appUpdater.js file.
+    onUnload(event);
+  });
+}
+
+async function onLoad(event) {
+  if (event.target !== document) {
     return;
   }
 
@@ -91,14 +100,15 @@ async function init(aEvent) {
   if (AppConstants.MOZ_UPDATER) {
     gAppUpdater = new appUpdater({ buttonAutoFocus: true });
 
-    let channelLabel = document.getElementById("currentChannel");
-    let currentChannelText = document.getElementById("currentChannelText");
-    channelLabel.value = UpdateUtils.UpdateChannel;
+    let channelLabel = document.getElementById("currentChannelText");
+    let channelAttrs = document.l10n.getAttributes(channelLabel);
+    let channel = UpdateUtils.UpdateChannel;
+    document.l10n.setAttributes(channelLabel, channelAttrs.id, { channel });
     if (
-      /^release($|\-)/.test(channelLabel.value) ||
+      /^release($|\-)/.test(channel) ||
       Services.sysinfo.getProperty("isPackagedApp")
     ) {
-      currentChannelText.hidden = true;
+      channelLabel.hidden = true;
     }
   }
 
@@ -109,6 +119,19 @@ async function init(aEvent) {
       screen.availWidth / 2 - window.outerWidth / 2,
       screen.availHeight / 5
     );
+  }
+
+  // Open external links in browser
+  for (const link of document.getElementsByClassName("browser-link")) {
+    link.onclick = event => {
+      openLink(event.target.href);
+    };
+  }
+  // Open internal (about:) links open in Thunderbird tab
+  for (const link of document.getElementsByClassName("tab-link")) {
+    link.onclick = event => {
+      openAboutTab(event.target.href);
+    };
   }
 }
 

@@ -756,7 +756,7 @@
         <vbox>
           <description>
             <label id="version"/>
-            <label is="text-link" id="releasenotes" hidden="true">&releaseNotes.link;</label>
+            <label is="text-link" id="releasenotes" hidden="true" data-l10n-id="release-notes-link"></label>
           </description>
           <description id="distribution" class="text-blurb" hidden="true"/>
           <description id="distributionId" class="text-blurb" hidden="true"/>
@@ -785,9 +785,8 @@
         <deck id="updateDeck" orient="vertical" flex="1">
           <html:div id="checkForUpdates" class="update-deck-container">
             <html:button id="checkForUpdatesButton"
-                         accesskey="&update.checkForUpdatesButton.accesskey;"
+                         data-l10n-id="update-check-for-updates-button"
                          onclick="gAppUpdater.checkForUpdates();">
-              &update.checkForUpdatesButton.label;
             </html:button>
           </html:div>
           <html:div id="downloadAndInstall" class="update-deck-container">
@@ -797,97 +796,80 @@
           </html:div>
           <html:div id="apply" class="update-deck-container">
             <html:button id="updateButton"
-                         accesskey="&update.updateButton.accesskey;"
+                         data-l10n-id="update-update-button"
                          onclick="gAppUpdater.buttonRestartAfterDownload();">
-              &update.updateButton.label3;
             </html:button>
           </html:div>
           <html:div id="checkingForUpdates" class="update-deck-container">
             <html:img class="update-throbber" alt="" />
-            <html:span>&update.checkingForUpdates;</html:span>
+            <html:span data-l10n-id="update-checking-for-updates"></html:span>
             <!-- Button is only used for presentation in reference to the actual
                - button that triggered this action, which would now be
                - invisible -->
-            <html:button accesskey="&update.checkForUpdatesButton.accesskey;"
+            <html:button data-l10n-id="update-check-for-updates-button"
                          disabled="true">
-              &update.checkForUpdatesButton.label;
             </html:button>
           </html:div>
-          <html:div id="downloading" class="update-deck-container">
-            <html:img class="update-throbber" alt="" />
+          <html:div id="downloading" class="update-deck-container"
+                    data-l10n-id="update-downloading">
+            <html:img class="update-throbber" data-l10n-name="icon"></html:img>
             <!-- Group within a single span to center align with icon. -->
-            <html:span>
-              <html:span>&update.downloading.start;</html:span>
-              <html:span id="downloadStatus"></html:span>
-              <html:span>&update.downloading.end;</html:span>
-            </html:span>
+            <html:span id="downloadStatus" data-l10n-name="download-status"></html:span>
           </html:div>
           <html:div id="applying" class="update-deck-container">
-            <html:img class="update-throbber" alt="" />
-            <html:span>&update.applying;</html:span>
+            <html:img class="update-throbber"/>
+            <html:span data-l10n-id="update-applying"></html:span>
           </html:div>
-          <html:div id="downloadFailed" class="update-deck-container">
-            <!-- Outer span ensures whitespace between the plain text and
-               - the link. Otherwise, this would be suppressed by the
-               - update-deck-container's display: flex. -->
-            <html:span>
-              <html:span>&update.failed.start;</html:span>
-              <html:a id="failedLink" class="text-link download-link">
-                &update.failed.linkText;
-              </html:a>
-              <html:span>&update.failed.end;</html:span>
-            </html:span>
-            <html:button accesskey="&update.checkForUpdatesButton.accesskey;"
+          <html:div id="downloadFailed" class="update-deck-container"
+                    data-l10n-id="update-failed">
+            <html:a id="failedLink" class="text-link download-link"
+                    data-l10n-name="failed-link"></html:a>
+            <html:button data-l10n-id="update-check-for-updates-button"
                          onclick="gAppUpdater.checkForUpdates();">
-              &update.checkForUpdatesButton.label;
             </html:button>
           </html:div>
           <html:div id="policyDisabled" class="update-deck-container">
-            <html:span>&update.adminDisabled;</html:span>
+            <html:span data-l10n-id="update-admin-disabled"></html:span>
           </html:div>
           <html:div id="noUpdatesFound" class="update-deck-container">
-            <html:span>&update.noUpdatesFound;</html:span>
-            <html:button accesskey="&update.checkForUpdatesButton.accesskey;"
+            <html:span data-l10n-id="update-no-updates-found"></html:span>
+            <html:button data-l10n-id="update-check-for-updates-button"
                          onclick="gAppUpdater.checkForUpdates();">
-              &update.checkForUpdatesButton.label;
             </html:button>
           </html:div>
           <html:div id="checkingFailed" class="update-deck-container">
             <html:span data-l10n-id="aboutdialog-update-checking-failed"></html:span>
-            <html:button accesskey="&update.checkForUpdatesButton.accesskey;"
+            <html:button data-l10n-id="update-check-for-updates-button"
                          onclick="gAppUpdater.checkForUpdates();">
-              &update.checkForUpdatesButton.label;
             </html:button>
           </html:div>
           <html:div id="otherInstanceHandlingUpdates"
                     class="update-deck-container">
-            <html:span>&update.otherInstanceHandlingUpdates;</html:span>
+            <html:span data-l10n-id="update-other-instance-handling-updates"></html:span>
           </html:div>
-          <html:div id="manualUpdate" class="update-deck-container">
-            <html:span>
-              <html:span>&update.manual.start;</html:span>
-              <html:a id="manualLink" class="text-link download-link">
-                &update.manual.linkText;
-              </html:a>
-              <html:span>&update.manual.end;</html:span>
-            </html:span>
-            <html:button accesskey="&update.checkForUpdatesButton.accesskey;"
+          <html:div id="manualUpdate" class="update-deck-container"
+                    data-l10n-id="update-manual">
+            <html:a id="manualLink" class="manualLink text-link download-link"
+                    data-l10n-name="manual-link"></html:a>
+            <html:button data-l10n-id="update-check-for-updates-button"
                          onclick="gAppUpdater.checkForUpdates();">
-              &update.checkForUpdatesButton.label;
             </html:button>
           </html:div>
-          <html:div id="unsupportedSystem" class="update-deck-container">
-            <html:span>
-              <html:span>&update.unsupported.start;</html:span>
-              <html:a id="unsupportedLink" class="text-link download-link">
-                &update.unsupported.linkText;
-              </html:a>
-              <html:span>&update.unsupported.end;</html:span>
-            </html:span>
+          <html:div id="unsupportedSystem" class="update-deck-container" data-l10n-id="update-unsupported">
+            <html:a id="unsupportedLink" class="text-link download-link"
+                    data-l10n-name="unsupported-link"></html:a>
           </html:div>
           <html:div id="restarting" class="update-deck-container">
-            <html:img class="update-throbber" alt="" />
-            <html:span>&update.restarting;</html:span>
+            <html:span class="update-throbber"></html:span>
+            <html:span data-l10n-id="update-restarting"></html:span>
+          </html:div>
+          <html:div id="internalError" class="update-deck-container"
+                    data-l10n-id="update-internal-error">
+            <html:a id="internalErrorLink" class="manualLink text-link download-link"
+                    data-l10n-name="manual-link"></html:a>
+            <html:button data-l10n-id="update-check-for-updates-button"
+                         onclick="gAppUpdater.checkForUpdates();">
+            </html:button>
           </html:div>
         </deck>
       </hbox>

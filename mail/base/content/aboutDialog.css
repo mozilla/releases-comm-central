@@ -30,6 +30,11 @@
   }
 }
 
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
 #aboutDialog {
   /* Set an explicit line-height to avoid discrepancies in 'auto' spacing
      across screens with different device DPI, which may cause font metrics
@@ -41,8 +46,6 @@
   width: 670px;
   color: var(--dialog-box-color);
   background-color: var(--dialog-background);
-  /* Needed to hide a 1px line on macOS. */
-  margin-bottom: -1px;
 }
 
 #rightBox {
@@ -54,6 +57,10 @@
   margin-inline: 30px;
   -moz-context-properties: fill;
   fill: currentColor;
+}
+
+#detailsBox {
+  padding-top: 10px;
 }
 
 #updateDeck {
@@ -102,10 +109,11 @@
 .update-deck-container {
   display: flex;
   align-items: center;
+  position: fixed;
 }
 
 .update-deck-container > * {
-  flex: 0 0 auto;
+  flex: 0 0 fit-content;
 }
 
 .update-deck-container.deck-selected {
