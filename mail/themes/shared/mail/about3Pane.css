@@ -330,7 +330,7 @@ li:not(.selected) > .container:hover {
 }
 
 #folderTree:focus-within li.selected > .container > .icon {
-  --icon-color: currentColor;
+  --icon-color: currentColor !important; /* Override the user customized folder color. */
 }
 
 #folderTree li[data-server-type] > .container > .icon {
