@@ -10,5 +10,6 @@ comm/third_party/libgcrypt
 comm/third_party/libgpg-error
 comm/third_party/libotr
 comm/third_party/niwcompat
+comm/third_party/python
 comm/third_party/rnp
 comm/third_party/zlib
