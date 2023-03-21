@@ -4995,7 +4995,14 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
     // For identities without any e2ee setup, we want a good default
     // technology selection. Avoid a technology that isn't configured
     // anywhere.
-    gSelectedTechnologyIsPGP = isOpenPGPAvailable;
+
+    if (configuredOpenPGP) {
+      gSelectedTechnologyIsPGP = true;
+    } else if (configuredSMIME) {
+      gSelectedTechnologyIsPGP = false;
+    } else {
+      gSelectedTechnologyIsPGP = isOpenPGPAvailable;
+    }
 
     if (configuredOpenPGP) {
       if (!configuredSMIME) {
