@@ -3258,7 +3258,9 @@ function restoreState({
   if (folderURI) {
     displayFolder(folderURI);
   } else if (syntheticView) {
-    // TODO: Move this.
+    // TODO: Move this block.
+    threadPane.restoreColumns();
+
     gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
     gViewWrapper._viewFlags = 1;
     gViewWrapper.openSynthetic(syntheticView);
@@ -3266,7 +3268,6 @@ function restoreState({
 
     document.body.classList.remove("account-central");
     accountCentralBrowser.hidden = true;
-    threadPane.restoreColumns();
   }
 
   if (
@@ -3354,12 +3355,6 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       }
 
       super.connectedCallback();
-
-      if (!threadPane.rowTemplate) {
-        threadPane.rowTemplate = document.getElementById(
-          "threadPaneRowTemplate"
-        );
-      }
 
       this.setAttribute("draggable", "true");
       this.appendChild(threadPane.rowTemplate.content.cloneNode(true));
