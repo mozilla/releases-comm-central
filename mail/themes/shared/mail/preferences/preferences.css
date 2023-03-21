@@ -256,7 +256,8 @@ tabpanel > hbox > description {
 /* Category List */
 
 #categories {
-  overflow: visible !important; /* Cancel scrollbar and do not clip overflow content when window size goes very small */
+  overflow: visible;
+  min-height: auto;
 }
 
 .sidebar-footer-link {
