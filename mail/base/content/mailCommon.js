@@ -708,8 +708,16 @@ var commandController = {
     }
 
     if (window.threadTree) {
+      window.threadTree.expandRowAtIndex(resultIndex.value);
       window.threadTree.selectedIndex = resultIndex.value;
-      window.threadTree.focus();
+      // Focus the thread tree, unless the message pane has focus.
+      if (
+        Services.focus.focusedWindow !=
+        window.messageBrowser.contentWindow?.getMessagePaneBrowser()
+          .contentWindow
+      ) {
+        window.threadTree.table.body.focus();
+      }
     } else {
       gViewWrapper.dbView.selection.select(resultIndex.value);
       window.displayMessage(gViewWrapper.dbView.URIForFirstSelectedMessage);

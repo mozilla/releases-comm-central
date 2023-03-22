@@ -281,9 +281,7 @@ add_task(async function testNextUnreadThread() {
   await dialogPromise;
   assertSelectedFolder(folderD);
   assertSelectedMessage(folderDMessages[0]);
-  // We've selected the root message in a collapsed thread, so the
-  // multi-message view should display the thread.
-  await assertDisplayedThread(folderDMessages[0]);
+  await assertDisplayedMessage(folderDMessages[0]);
 
   goDoCommand("cmd_nextUnreadThread");
   // The root message is read, we're looking at a single message in the thread.
@@ -293,7 +291,7 @@ add_task(async function testNextUnreadThread() {
   goDoCommand("cmd_nextUnreadThread");
   // The root message is unread.
   assertSelectedMessage(folderDMessages[9]);
-  await assertDisplayedThread(folderDMessages[9]);
+  await assertDisplayedMessage(folderDMessages[9]);
 
   // No more unread messages, prompt to move to the next folder.
   // Cancel the prompt.
