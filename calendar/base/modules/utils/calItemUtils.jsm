@@ -19,8 +19,8 @@ var calitem = {
      * Given two sets of items, find out which items were added, changed or
      * removed.
      *
-     * The general flow is to first use load/load1 methods to load the engine with
-     * the first set of items, then use difference/difference1 to load the set of
+     * The general flow is to first use load method to load the engine with
+     * the first set of items, then use difference to load the set of
      * items to diff against. Afterwards, call the complete method to tell the
      * engine that no more items are coming.
      *
@@ -60,15 +60,6 @@ var calitem = {
       },
 
       /**
-       * Load the difference engine with one item, see load.
-       *
-       * @param item      The item to load
-       */
-      load1(item) {
-        this.load([item]);
-      },
-
-      /**
        * Loads an array of items. This step cannot be executed
        * after calling the difference methods.
        *
@@ -82,15 +73,6 @@ var calitem = {
         }
 
         this.state = this.STATE_LOADING;
-      },
-
-      /**
-       * Calculates the difference for the passed item, see difference.
-       *
-       * @param item      The item to calculate difference with
-       */
-      difference1(item) {
-        this.difference([item]);
       },
 
       /**

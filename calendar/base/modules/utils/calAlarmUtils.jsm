@@ -103,34 +103,6 @@ var calalarms = {
   },
 
   /**
-   * Calculate the alarm offset for a calIAlarm. The resulting offset is
-   * related to either start or end of the event, depending on the aRelated
-   * parameter.
-   *
-   * @param aItem     The item to calculate the offset for.
-   * @param aAlarm    The alarm to calculate the offset for.
-   * @param aRelated  (optional) A relation constant from calIAlarm. If not
-   *                    passed, ALARM_RELATED_START will be assumed.
-   * @returns The alarm offset.
-   */
-  calculateAlarmOffset(aItem, aAlarm, aRelated) {
-    let offset = aAlarm.offset;
-    if (aAlarm.related == Ci.calIAlarm.ALARM_RELATED_ABSOLUTE) {
-      let returnDate;
-      if (aRelated === undefined || aRelated == Ci.calIAlarm.ALARM_RELATED_START) {
-        returnDate = aItem[lazy.cal.dtz.startDateProp(aItem)];
-      } else if (aRelated == Ci.calIAlarm.ALARM_RELATED_END) {
-        returnDate = aItem[lazy.cal.dtz.endDateProp(aItem)];
-      }
-
-      if (returnDate && aAlarm.alarmDate) {
-        offset = aAlarm.alarmDate.subtractDate(returnDate);
-      }
-    }
-    return offset;
-  },
-
-  /**
    * Removes previous children and adds reminder images to a given container,
    * making sure only one icon per alarm action is added.
    *

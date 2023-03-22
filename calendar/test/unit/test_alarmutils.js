@@ -169,28 +169,3 @@ add_task(async function test_calculateAlarmDate() {
   alarm.related = Ci.calIAlarm.ALARM_RELATED_END;
   equal(calculateAlarmDate(alarm), null);
 });
-
-add_task(async function test_calculateAlarmOffset() {
-  let item = new CalEvent();
-  item.startDate = cal.createDateTime("20150815T120000");
-  item.endDate = cal.createDateTime("20150815T130000");
-
-  let calculateAlarmOffset = cal.alarms.calculateAlarmOffset.bind(cal.alarms, item);
-
-  let alarm = new CalAlarm();
-  alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
-  alarm.alarmDate = cal.createDateTime("20150815T110000");
-  equal(calculateAlarmOffset(alarm).icalString, "-PT1H");
-  equal(calculateAlarmOffset(alarm, Ci.calIAlarm.ALARM_RELATED_START).icalString, "-PT1H");
-  equal(calculateAlarmOffset(alarm, Ci.calIAlarm.ALARM_RELATED_END).icalString, "-PT2H");
-
-  alarm = new CalAlarm();
-  alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
-  alarm.offset = cal.createDuration("-PT1H");
-  equal(calculateAlarmOffset(alarm).icalString, "-PT1H");
-
-  alarm = new CalAlarm();
-  alarm.related = Ci.calIAlarm.ALARM_RELATED_END;
-  alarm.offset = cal.createDuration("-PT1H");
-  equal(calculateAlarmOffset(alarm).icalString, "-PT1H");
-});

@@ -195,17 +195,6 @@ var cal = {
   },
 
   /**
-   * Schedules execution of the passed function to the current thread's queue.
-   */
-  postPone(func) {
-    if (this.threadingEnabled) {
-      Services.tm.currentThread.dispatch({ run: func }, Ci.nsIEventTarget.DISPATCH_NORMAL);
-    } else {
-      func();
-    }
-  },
-
-  /**
    * Create an adapter for the given interface. If passed, methods will be
    * added to the template object, otherwise a new object will be returned.
    *

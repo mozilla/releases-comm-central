@@ -38,50 +38,6 @@ XPCOMUtils.defineLazyPreferenceGetter(
 
 var calview = {
   /**
-   * Checks if the mousepointer of an event resides over a XULBox during an event
-   *
-   * @param aMouseEvent   The event eg. a 'mouseout' or 'mousedown' event
-   * @param aXULBox       The xul element
-   * @returns true or false depending on whether the mouse pointer
-   *                      resides over the xulelement
-   */
-  isMouseOverBox(aMouseEvent, aXULElement) {
-    let boundingRect = aXULElement.getBoundingClientRect();
-    let boxWidth = boundingRect.width;
-    let boxHeight = boundingRect.height;
-    let boxScreenX = aXULElement.screenX;
-    let boxScreenY = aXULElement.screenY;
-    let mouseX = aMouseEvent.screenX;
-    let mouseY = aMouseEvent.screenY;
-    let xIsWithin = mouseX >= boxScreenX && mouseX <= boxScreenX + boxWidth;
-    let yIsWithin = mouseY >= boxScreenY && mouseY <= boxScreenY + boxHeight;
-    return xIsWithin && yIsWithin;
-  },
-
-  /**
-   * Returns a parentnode - or the passed node - with the given localName, by
-   * traversing up the DOM hierarchy.
-   *
-   * @param aChildNode  The childnode.
-   * @param aLocalName  The localName of the to-be-returned parent
-   *                      that is looked for.
-   * @returns The parent with the given localName or the
-   *                      given childNode 'aChildNode'. If no appropriate
-   *                      parent node with aLocalName could be
-   *                      retrieved it is returned 'null'.
-   */
-  getParentNodeOrThis(aChildNode, aLocalName) {
-    let node = aChildNode;
-    while (node && node.localName != aLocalName) {
-      node = node.parentNode;
-      if (node.tagName == undefined) {
-        return null;
-      }
-    }
-    return node;
-  },
-
-  /**
    * Returns a parentnode  - or the passed node -  with the given attribute
    * value for the given attributename by traversing up the DOM hierarchy.
    *

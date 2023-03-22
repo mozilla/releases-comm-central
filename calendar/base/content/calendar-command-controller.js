@@ -4,14 +4,14 @@
 
 /* globals goUpdateCommand, currentView, TodayPane, createEventWithDialog,
    getSelectedCalendar, editSelectedEvents, viewSelectedEvents,
-   modifyTaskFromContext, deleteSelectedEvents, deleteToDoCommand,
+   modifyTaskFromContext, deleteSelectedEvents, setupAttendanceMenu,
    createTodoWithDialog, deleteToDoCommand, promptDeleteCalendar,
    toImport, loadEventsFromFile, exportEntireCalendar, saveEventsToFile,
    publishEntireCalendar, publishCalendarData, toggleUnifinder, toggleOrientation
    toggleWorkdaysOnly, switchCalendarView, getTaskTree, selectAllEvents,
    gCurrentMode, getSelectedTasks, canPaste, goSetMenuValue, canUndo, canRedo,
    cutToClipboard, copyToClipboard, pasteFromClipboard, undo, redo,
-   setupAttendanceMenu, goUpdateCommand, PrintUtils */
+   PrintUtils */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
@@ -511,13 +511,6 @@ var calendarController = {
   },
 
   /**
-   * Returns a boolean indicating if all calendars are readonly.
-   */
-  get all_readonly() {
-    return cal.manager.readOnlyCalendarCount == cal.manager.calendarCount;
-  },
-
-  /**
    * Returns a boolean indicating whether there is at least one enabled
    * calendar that can be reloaded. Note: ICS calendars can have a network URL
    * or a file URL, but both are reloadable.
@@ -533,48 +526,10 @@ var calendarController = {
   },
 
   /**
-   * Returns a boolean indicating if there are calendars that don't require
-   * network access.
-   */
-  get has_local_calendars() {
-    return cal.manager.networkCalendarCount < cal.manager.calendarCount;
-  },
-
-  /**
-   * Returns a boolean indicating if there are cached calendars and thus that don't require
-   * network access.
-   */
-  get has_cached_calendars() {
-    let calendars = cal.manager.getCalendars();
-    for (let calendar of calendars) {
-      if (calendar.getProperty("cache.enabled") || calendar.getProperty("cache.always")) {
-        return true;
-      }
-    }
-    return false;
-  },
-
-  /**
    * Returns a boolean indicating that there is only one calendar left.
    */
   get last_calendar() {
     return cal.manager.calendarCount < 2;
-  },
-
-  /**
-   * Returns a boolean indicating that all local calendars are readonly
-   */
-  get all_local_calendars_readonly() {
-    // We might want to speed this part up by keeping track of this in the
-    // calendar manager.
-    let calendars = cal.manager.getCalendars();
-    let count = calendars.length;
-    for (let calendar of calendars) {
-      if (!cal.acl.isCalendarWritable(calendar)) {
-        count--;
-      }
-    }
-    return count == 0;
   },
 
   /**
