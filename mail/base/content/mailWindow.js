@@ -175,6 +175,11 @@ function onCopyOrDragStart(e) {
 }
 
 function CreateMailWindowGlobals() {
+  // Create message window object
+  // eslint-disable-next-line no-global-assign
+  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+    Ci.nsIMsgWindow
+  );
   // get the messenger instance
   // eslint-disable-next-line no-global-assign
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
@@ -204,12 +209,6 @@ function CreateMailWindowGlobals() {
   Cc["@mozilla.org/activity-manager;1"]
     .getService(Ci.nsIActivityManager)
     .addListener(window.MsgStatusFeedback);
-
-  // Create message window object
-  // eslint-disable-next-line no-global-assign
-  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-    Ci.nsIMsgWindow
-  );
 }
 
 function toggleCaretBrowsing() {

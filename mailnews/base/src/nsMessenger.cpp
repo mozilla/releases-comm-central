@@ -230,6 +230,7 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy* aWin,
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (aWin) {
+    aMsgWindow->GetTransactionManager(getter_AddRefs(mTxnMgr));
     mMsgWindow = aMsgWindow;
     mWindow = aWin;
 

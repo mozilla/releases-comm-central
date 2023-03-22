@@ -1788,7 +1788,40 @@ function CommandUpdate_UndoRedo() {
 }
 
 function SetupUndoRedoCommand(command) {
-  return false;
+  let folder = document.getElementById("tabmail")?.currentTabInfo.folder;
+  if (!folder?.server.canUndoDeleteOnServer) {
+    return false;
+  }
+
+  let canUndoOrRedo = false;
+  let txnType;
+  try {
+    if (command == "cmd_undo") {
+      canUndoOrRedo = messenger.canUndo();
+      txnType = messenger.getUndoTransactionType();
+    } else {
+      canUndoOrRedo = messenger.canRedo();
+      txnType = messenger.getRedoTransactionType();
+    }
+  } catch (ex) {
+    // If this fails, assume we can't undo or redo.
+    console.error(ex);
+  }
+
+  if (canUndoOrRedo) {
+    let commands = {
+      [Ci.nsIMessenger.eUnknown]: "valueDefault",
+      [Ci.nsIMessenger.eDeleteMsg]: "valueDeleteMsg",
+      [Ci.nsIMessenger.eMoveMsg]: "valueMoveMsg",
+      [Ci.nsIMessenger.eCopyMsg]: "valueCopyMsg",
+      [Ci.nsIMessenger.eMarkAllMsg]: "valueUnmarkAllMsgs",
+    };
+    goSetMenuValue(command, commands[txnType]);
+  } else {
+    goSetMenuValue(command, "valueDefault");
+  }
+
+  return canUndoOrRedo;
 }
 
 /**
