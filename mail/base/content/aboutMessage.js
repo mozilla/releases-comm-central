@@ -26,6 +26,8 @@ ChromeUtils.defineESModuleGetters(this, {
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  UIDensity: "resource:///modules/UIDensity.jsm",
+  UIFontSize: "resource:///modules/UIFontSize.jsm",
   DBViewWrapper: "resource:///modules/DBViewWrapper.jsm",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
 });
@@ -66,6 +68,9 @@ window.addEventListener("DOMContentLoaded", event => {
   if (event.target != document) {
     return;
   }
+
+  UIDensity.registerWindow(window);
+  UIFontSize.registerWindow(window);
 
   OnLoadMsgHeaderPane();
 
