@@ -17,6 +17,7 @@
 }
 
 .attendees-grid-container {
+  width: 540px;
   overflow-y: auto;
 }
 

@@ -532,8 +532,18 @@ async function addAttendees(dialogWindow, iframeWindow, attendeesString) {
 
             let attendeesDocument = attendeesWindow.document;
             Assert.equal(attendeesDocument.activeElement.localName, "input");
-            Assert.equal(attendeesDocument.activeElement.value, "");
+            Assert.equal(
+              attendeesDocument.activeElement.value,
+              "",
+              "active input value should be empty"
+            );
             sendString(attendee, attendeesWindow);
+            Assert.report(false, undefined, undefined, `Sent attendee ${attendee}`);
+            // Windows needs the focus() call here.
+            attendeesDocument
+              .querySelector("dialog")
+              .getButton("accept")
+              .focus();
             synthesizeMouseAtCenter(
               attendeesDocument.querySelector("dialog").getButton("accept"),
               {},
