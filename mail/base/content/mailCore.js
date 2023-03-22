@@ -740,13 +740,13 @@ function openAboutDialog() {
     return;
   }
 
-  let features;
+  let features = "chrome,centerscreen,";
   if (AppConstants.platform == "win") {
-    features = "chrome,centerscreen,dependent";
+    features += "dependent";
   } else if (AppConstants.platform == "macosx") {
-    features = "chrome,resizable=no,minimizable=no";
+    features += "resizable=no,minimizable=no";
   } else {
-    features = "chrome,centerscreen,dependent,dialog=no";
+    features += "dependent,dialog=no";
   }
 
   window.openDialog(

@@ -16,17 +16,13 @@ if (AppConstants.MOZ_UPDATER) {
   );
 }
 
-window.addEventListener("load", async event => {
-  await onLoad(event);
-});
+window.addEventListener("DOMContentLoaded", onLoad);
 if (AppConstants.MOZ_UPDATER) {
-  window.addEventListener("unload", event => {
-    // This method is in the aboutDialog-appUpdater.js file.
-    onUnload(event);
-  });
+  // This method is in the aboutDialog-appUpdater.js file.
+  window.addEventListener("unload", onUnload);
 }
 
-async function onLoad(event) {
+function onLoad(event) {
   if (event.target !== document) {
     return;
   }
@@ -80,8 +76,6 @@ async function onLoad(event) {
 
   document.l10n.setAttributes(versionField, versionId, versionAttributes);
 
-  await document.l10n.translateElements([versionField]);
-
   if (!AppConstants.NIGHTLY_BUILD) {
     // Show a release notes link if we have a URL.
     let relNotesLink = document.getElementById("releasenotes");
@@ -110,15 +104,6 @@ async function onLoad(event) {
     ) {
       channelLabel.hidden = true;
     }
-  }
-
-  window.sizeToContent();
-
-  if (AppConstants.platform == "macosx") {
-    window.moveTo(
-      screen.availWidth / 2 - window.outerWidth / 2,
-      screen.availHeight / 5
-    );
   }
 
   // Open external links in browser
