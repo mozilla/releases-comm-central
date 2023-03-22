@@ -591,6 +591,7 @@
         let link = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
         link.setAttribute("class", "item-location-link text-link");
         link.setAttribute("href", url);
+        link.title = url;
         link.setAttribute("onclick", "launchBrowser(this.getAttribute('href'), event)");
         link.setAttribute("oncommand", "launchBrowser(this.getAttribute('href'), event)");
 

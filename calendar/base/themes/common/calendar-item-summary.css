@@ -20,10 +20,19 @@
   padding-top: 0;
   vertical-align: baseline;
   width: 100%;
+  max-width: 0;
+}
+
+.calendar-summary-table td.item-location {
+  vertical-align: top;
 }
 
 .calendar-summary-table .item-location-link > label {
   margin-inline: 0;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
 }
 
 .calendar-summary-table .item-organizer-cell {

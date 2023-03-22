@@ -621,7 +621,7 @@ label.label {
 }
 
 #calendar-item-summary {
-  width: 0;
+  max-width: 100vw;
 }
 
 #calendar-summary-dialog .item-location,
