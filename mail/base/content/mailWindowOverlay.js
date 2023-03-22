@@ -615,6 +615,16 @@ function InitMessageMenu() {
   document.getElementById("markMenu").disabled = !folder || folder.isServer;
 
   document.commandDispatcher.updateCommands("create-menu-message");
+
+  for (let id of ["killThread", "killSubthread", "watchThread"]) {
+    let item = document.getElementById(id);
+    let command = document.getElementById(item.getAttribute("command"));
+    if (command.hasAttribute("checked")) {
+      item.setAttribute("checked", command.getAttribute("checked"));
+    } else {
+      item.removeAttribute("checked");
+    }
+  }
 }
 
 /**

@@ -221,14 +221,6 @@ var commandController = {
         top.MsgFilters(emailAddress, msgHdr.folder);
       }
     },
-    cmd_killThread() {
-      // TODO: show notification (ShowIgnoredMessageNotification)
-      commandController._navigate(Ci.nsMsgNavigationType.toggleThreadKilled);
-    },
-    cmd_killSubthread() {
-      // TODO: show notification (ShowIgnoredMessageNotification)
-      commandController._navigate(Ci.nsMsgNavigationType.toggleSubthreadKilled);
-    },
     cmd_viewPageSource() {
       let uris = window.gMessageURI
         ? [window.gMessageURI]
@@ -456,8 +448,6 @@ var commandController = {
       case "cmd_markReadByDate":
       case "cmd_markAsFlagged":
       case "cmd_moveMessage":
-      case "cmd_killThread":
-      case "cmd_killSubthread":
       case "cmd_applyFiltersToSelection":
         return numSelectedMessages >= 1 && !isDummyMessage;
       case "cmd_editDraftMsg":

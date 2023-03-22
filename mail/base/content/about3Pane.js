@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals MozElements */
+
 // mailCommon.js
 /* globals commandController, dbViewWrapperListener, nsMsgViewIndex_None */
 /* globals gDBView: true, gFolder: true, gViewWrapper: true */
@@ -1531,6 +1533,7 @@ var folderPane = {
 
   _onSelect(event) {
     threadPane.saveSelection();
+    threadPane.hideIgnoredMessageNotification();
 
     // Bail out if this is synthetic view, such as a gloda search.
     if (gViewWrapper?.isSynthetic) {
@@ -2530,6 +2533,13 @@ var threadPane = {
       getDefaultColumns(gFolder, gViewWrapper?.isSynthetic)
     );
 
+    XPCOMUtils.defineLazyGetter(this, "notificationBox", () => {
+      let container = document.getElementById("threadPaneNotificationBox");
+      return new MozElements.NotificationBox(element =>
+        container.append(element)
+      );
+    });
+
     this.treeTable.addEventListener("shift-column", event => {
       this.onColumnShifted(event.detail);
     });
@@ -3438,6 +3448,121 @@ var threadPane = {
         "msg-folder-views-propagated"
       );
     });
+  },
+
+  /**
+   * Hide any notifications about ignored threads.
+   */
+  hideIgnoredMessageNotification() {
+    this.notificationBox.removeTransientNotifications();
+  },
+
+  /**
+   * Show a notification in the thread pane footer, allowing the user to learn
+   * more about the ignore thread feature, and also allowing undo ignore thread.
+   *
+   * @param {nsIMsgDBHdr[]} messages - The messages being ignored.
+   * @param {boolean} subthreadOnly - If true, ignoring only `messages` and
+   *   their subthreads, otherwise ignoring the whole thread.
+   */
+  showIgnoredMessageNotification(messages, subthreadOnly) {
+    let threadIds = new Set();
+    messages.forEach(function(msg) {
+      if (!threadIds.has(msg.threadId)) {
+        threadIds.add(msg.threadId);
+      }
+    });
+
+    let buttons = [
+      {
+        label: messengerBundle.GetStringFromName("learnMoreAboutIgnoreThread"),
+        accessKey: messengerBundle.GetStringFromName(
+          "learnMoreAboutIgnoreThreadAccessKey"
+        ),
+        popup: null,
+        callback(aNotificationBar, aButton) {
+          let url = Services.prefs.getCharPref(
+            "mail.ignore_thread.learn_more_url"
+          );
+          top.openContentTab(url);
+          return true; // Keep notification open.
+        },
+      },
+      {
+        label: messengerBundle.GetStringFromName(
+          !subthreadOnly ? "undoIgnoreThread" : "undoIgnoreSubthread"
+        ),
+        accessKey: messengerBundle.GetStringFromName(
+          !subthreadOnly
+            ? "undoIgnoreThreadAccessKey"
+            : "undoIgnoreSubthreadAccessKey"
+        ),
+        isDefault: true,
+        popup: null,
+        callback(aNotificationBar, aButton) {
+          messages.forEach(function(msg) {
+            let msgDb = msg.folder.msgDatabase;
+            if (subthreadOnly) {
+              msgDb.markHeaderKilled(msg, false, null);
+            } else if (threadIds.has(msg.threadId)) {
+              let thread = msgDb.getThreadContainingMsgHdr(msg);
+              msgDb.markThreadIgnored(
+                thread,
+                thread.getChildKeyAt(0),
+                false,
+                null
+              );
+              threadIds.delete(msg.threadId);
+            }
+          });
+          // Invalidation should be unnecessary but the back end doesn't
+          // notify us properly and resists attempts to fix this.
+          threadTree.invalidate();
+          threadTree.table.body.focus();
+          return false; // Close notification.
+        },
+      },
+    ];
+
+    if (threadIds.size == 1) {
+      let ignoredThreadText = messengerBundle.GetStringFromName(
+        !subthreadOnly ? "ignoredThreadFeedback" : "ignoredSubthreadFeedback"
+      );
+      let subj = messages[0].mime2DecodedSubject || "";
+      if (subj.length > 45) {
+        subj = subj.substring(0, 45) + "…";
+      }
+      let text = ignoredThreadText.replace("#1", subj);
+
+      this.notificationBox.appendNotification(
+        "ignoreThreadInfo",
+        {
+          label: text,
+          priority: this.notificationBox.PRIORITY_INFO_MEDIUM,
+        },
+        buttons
+      );
+    } else {
+      let ignoredThreadText = messengerBundle.GetStringFromName(
+        !subthreadOnly ? "ignoredThreadsFeedback" : "ignoredSubthreadsFeedback"
+      );
+
+      const { PluralForm } = ChromeUtils.importESModule(
+        "resource://gre/modules/PluralForm.sys.mjs"
+      );
+      let text = PluralForm.get(threadIds.size, ignoredThreadText).replace(
+        "#1",
+        threadIds.size
+      );
+      this.notificationBox.appendNotification(
+        "ignoreThreadsInfo",
+        {
+          label: text,
+          priority: this.notificationBox.PRIORITY_INFO_MEDIUM,
+        },
+        buttons
+      );
+    }
   },
 };
 
@@ -4551,6 +4676,41 @@ commandController.registerCallback(
   () => deleteJunkInFolder(gFolder),
   () =>
     commandController._getViewCommandStatus(Ci.nsMsgViewCommandType.deleteJunk)
+);
+
+commandController.registerCallback(
+  "cmd_killThread",
+  () => {
+    threadPane.hideIgnoredMessageNotification();
+    if (!gFolder.msgDatabase.isIgnored(gDBView.keyForFirstSelectedMessage)) {
+      threadPane.showIgnoredMessageNotification(
+        gDBView.getSelectedMsgHdrs(),
+        false
+      );
+    }
+    commandController._navigate(Ci.nsMsgNavigationType.toggleThreadKilled);
+    // Invalidation should be unnecessary but the back end doesn't notify us
+    // properly and resists attempts to fix this.
+    threadTree.invalidate();
+  },
+  () => gDBView?.numSelected >= 1 && (gFolder || gViewWrapper.isSynthetic)
+);
+commandController.registerCallback(
+  "cmd_killSubthread",
+  () => {
+    threadPane.hideIgnoredMessageNotification();
+    if (!gDBView.hdrForFirstSelectedMessage.isKilled) {
+      threadPane.showIgnoredMessageNotification(
+        gDBView.getSelectedMsgHdrs(),
+        true
+      );
+    }
+    commandController._navigate(Ci.nsMsgNavigationType.toggleSubthreadKilled);
+    // Invalidation should be unnecessary but the back end doesn't notify us
+    // properly and resists attempts to fix this.
+    threadTree.invalidate();
+  },
+  () => gDBView?.numSelected >= 1 && (gFolder || gViewWrapper.isSynthetic)
 );
 
 // Forward these commands directly to about:message.

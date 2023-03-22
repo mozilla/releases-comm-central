@@ -6656,8 +6656,9 @@ nsresult nsMsgDBView::SetThreadWatched(nsIMsgThread* thread,
                                        nsMsgViewIndex index, bool watched) {
   if (!IsValidIndex(index)) return NS_MSG_INVALID_DBVIEW_INDEX;
 
+  nsresult rv = m_db->MarkThreadWatched(thread, m_keys[index], watched, this);
   NoteChange(index, 1, nsMsgViewNotificationCode::changed);
-  return m_db->MarkThreadWatched(thread, m_keys[index], watched, this);
+  return rv;
 }
 
 NS_IMETHODIMP

@@ -64,8 +64,10 @@ const messageMenuData = {
   copyMenu: { disabled: nothingSelected },
   moveToFolderAgain: { disabled: true },
   createFilter: { disabled: [...nothingOrMultiSelected, "externalMessage"] },
-  killThread: { disabled: [...nothingSelected, "externalMessage"] },
-  killSubthread: { disabled: [...nothingSelected, "externalMessage"] },
+  killThread: { disabled: [...nothingSelected, "message", "externalMessage"] },
+  killSubthread: {
+    disabled: [...nothingSelected, "message", "externalMessage"],
+  },
   watchThread: { disabled: [...nothingSelected, "externalMessage"] },
 };
 let helper = new MenuTestHelper("messageMenu", messageMenuData);

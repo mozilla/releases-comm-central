@@ -27,21 +27,6 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/MailUtils.jsm"
 );
 
-// Controller object for folder pane.
-var FolderPaneController = {
-  get notificationBox() {
-    if (!this._notificationBox) {
-      this._notificationBox = new MozElements.NotificationBox(element => {
-        element.setAttribute("notificationside", "bottom");
-        document
-          .getElementById("messenger-notification-footer")
-          .append(element);
-      });
-    }
-    return this._notificationBox;
-  },
-};
-
 // DefaultController object (handles commands when one of the trees does not have focus)
 var DefaultController = {
   supportsCommand(command) {
@@ -188,109 +173,6 @@ var DefaultController = {
 // This is the highest priority controller. It's followed by
 // tabmail.tabController and calendarController, then whatever Gecko adds.
 window.controllers.insertControllerAt(0, DefaultController);
-
-/**
- * Show a notification in the message pane footer, allowing the user to learn
- * more about the ignore thread feature, and also allowing undo ignore thread.
- *
- * @param aMsgs the messages that were ignore
- * @param aSubThread only boolean indicating if it was ignore subthread or
- *                   ignore thread
- */
-function ShowIgnoredMessageNotification(aMsgs, aSubthreadOnly) {
-  let notifyBox = FolderPaneController.notificationBox;
-  notifyBox.removeTransientNotifications(); // don't want to pile these up
-
-  let bundle = Services.strings.createBundle(
-    "chrome://messenger/locale/messenger.properties"
-  );
-
-  let buttons = [
-    {
-      label: bundle.GetStringFromName("learnMoreAboutIgnoreThread"),
-      accessKey: bundle.GetStringFromName(
-        "learnMoreAboutIgnoreThreadAccessKey"
-      ),
-      popup: null,
-      callback(aNotificationBar, aButton) {
-        let url = Services.prefs.getCharPref(
-          "mail.ignore_thread.learn_more_url"
-        );
-        openContentTab(url);
-        return true; // keep notification open
-      },
-    },
-    {
-      label: bundle.GetStringFromName(
-        !aSubthreadOnly ? "undoIgnoreThread" : "undoIgnoreSubthread"
-      ),
-      accessKey: bundle.GetStringFromName(
-        !aSubthreadOnly
-          ? "undoIgnoreThreadAccessKey"
-          : "undoIgnoreSubthreadAccessKey"
-      ),
-      isDefault: true,
-      popup: null,
-      callback(aNotificationBar, aButton) {
-        aMsgs.forEach(function(msg) {
-          let msgDb = msg.folder.msgDatabase;
-          if (aSubthreadOnly) {
-            msgDb.markHeaderKilled(msg, false, gDBView);
-          } else {
-            let thread = msgDb.getThreadContainingMsgHdr(msg);
-            msgDb.markThreadIgnored(thread, thread.threadKey, false, gDBView);
-          }
-        });
-        return false; // close notification
-      },
-    },
-  ];
-
-  let threadIds = new Set();
-  aMsgs.forEach(function(msg) {
-    if (!threadIds.has(msg.threadId)) {
-      threadIds.add(msg.threadId);
-    }
-  });
-  let nbrOfThreads = threadIds.size;
-
-  if (nbrOfThreads == 1) {
-    let ignoredThreadText = bundle.GetStringFromName(
-      !aSubthreadOnly ? "ignoredThreadFeedback" : "ignoredSubthreadFeedback"
-    );
-    let subj = aMsgs[0].mime2DecodedSubject || "";
-    if (subj.length > 45) {
-      subj = subj.substring(0, 45) + "…";
-    }
-    let text = ignoredThreadText.replace("#1", subj);
-
-    notifyBox.appendNotification(
-      "ignoreThreadInfo",
-      {
-        label: text,
-        priority: notifyBox.PRIORITY_INFO_MEDIUM,
-      },
-      null,
-      buttons
-    );
-  } else {
-    let ignoredThreadText = bundle.GetStringFromName(
-      !aSubthreadOnly ? "ignoredThreadsFeedback" : "ignoredSubthreadsFeedback"
-    );
-    let text = PluralForm.get(nbrOfThreads, ignoredThreadText).replace(
-      "#1",
-      nbrOfThreads
-    );
-    notifyBox.appendNotification(
-      "ignoreThreadsInfo",
-      {
-        label: text,
-        priority: notifyBox.PRIORITY_INFO_MEDIUM,
-      },
-      buttons
-    );
-  }
-}
 
 function CloseTabOrWindow() {
   let tabmail = document.getElementById("tabmail");
