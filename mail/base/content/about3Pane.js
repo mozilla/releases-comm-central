@@ -3648,22 +3648,19 @@ commandController.registerCallback("cmd_toggleMessagePane", () => {
 commandController.registerCallback(
   "cmd_selectAll",
   () => {
-    gDBView.selection.selectAll();
+    threadTree.selectAll();
+    threadTree.table.body.focus();
   },
   () => !!gViewWrapper?.dbView
 );
 commandController.registerCallback(
   "cmd_selectThread",
-  () => {
-    gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.selectThread);
-  },
+  () => gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.selectThread),
   () => !!gViewWrapper?.dbView
 );
 commandController.registerCallback(
   "cmd_selectFlagged",
-  () => {
-    gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.selectFlagged);
-  },
+  () => gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.selectFlagged),
   () => !!gViewWrapper?.dbView
 );
 commandController.registerCallback(

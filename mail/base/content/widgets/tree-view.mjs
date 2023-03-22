@@ -865,13 +865,21 @@ class TreeView extends HTMLElement {
   }
 
   /**
+   * Select all rows.
+   */
+  selectAll() {
+    this._selection.selectAll();
+    this.onSelectionChanged();
+  }
+
+  /**
    * Toggle between selecting all rows or none, depending on the current
    * selection state.
    */
   toggleSelectAll() {
     if (!this.selectedIndices.length) {
       const index = this._view.rowCount - 1;
-      this._selection.rangedSelect(0, index, true);
+      this._selection.selectAll();
       this.currentIndex = index;
     } else {
       this._selection.clearSelection();
@@ -1427,7 +1435,7 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
     if (column.select) {
       this.#button.classList.add("tree-view-header-select");
       this.#button.addEventListener("click", () => {
-        this.closest("table").body.toggleSelectAll();
+        this.closest("tree-view").toggleSelectAll();
       });
     }
 
