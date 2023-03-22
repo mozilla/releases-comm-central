@@ -118,12 +118,24 @@ tr[is="thread-row"] {
   opacity: 0.7;
 }
 
+#threadTree tbody [data-properties~="ignore"] .tree-view-row-thread img {
+  content: var(--icon-thread-ignored);
+}
+
+#threadTree tbody [data-properties~="ignoreSubthread"] .tree-view-row-thread img {
+  content: var(--icon-subthread-ignored);
+}
+
+#threadTree tbody [data-properties~="watch"] .tree-view-row-thread img {
+  content: var(--icon-eye);
+}
+
 [is="tree-view-table-body"]:focus > .selected .tree-view-row-thread img,
 [is="tree-view-table-body"] > .selected:focus-within .tree-view-row-thread img {
   color: currentColor;
 }
 
-tr:not(.children) .tree-view-row-thread img {
+tr:not(.children, [data-properties~="ignoreSubthread"]) .tree-view-row-thread img {
   display: none;
 }
 

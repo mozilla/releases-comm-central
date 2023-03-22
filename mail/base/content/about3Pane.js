@@ -3753,21 +3753,14 @@ customElements.whenDefined("tree-view-table-row").then(() => {
     set index(index) {
       super.index = index;
 
-      let columns = [];
+      let textColumns = [];
       for (let column of threadPane.columns) {
         // No need to update the text of this cell if it's hidden, the selection
         // column, or an icon column that doesn't match a specific flag.
-        if (
-          column.hidden ||
-          (column.icon &&
-            !["flaggedCol", "junkStatusCol", "attachmentCol"].includes(
-              column.id
-            )) ||
-          column.select
-        ) {
+        if (column.hidden || column.icon || column.select) {
           continue;
         }
-        columns.push(column.id);
+        textColumns.push(column.id);
       }
 
       // XPCOM calls here must be keep to a minimum. Collect all of the
@@ -3776,7 +3769,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       let threadLevel = {};
       let cellTexts = this.view.cellDataForColumns(
         index,
-        columns,
+        textColumns,
         properties,
         threadLevel
       );
@@ -3788,11 +3781,12 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       const propertiesSet = new Set(properties.value.split(" "));
       this.dataset.properties = properties.value.trim();
 
-      for (let [index, column] of columns.entries()) {
-        let cell = this.querySelector(`.${column.toLowerCase()}-column`);
+      for (let column of threadPane.columns) {
+        let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
+        let textIndex = textColumns.indexOf(column.id);
 
         // Special case for the subject column.
-        if (column == "subjectCol") {
+        if (column.id == "subjectCol") {
           const div = cell.querySelector(".subject-line");
 
           // Indent child message of this thread.
@@ -3808,12 +3802,41 @@ customElements.whenDefined("tree-view-table-row").then(() => {
           }
 
           const span = div.querySelector("span");
-          cell.title = span.textContent = cellTexts[index];
-          ariaLabelPromises.push(cellTexts[index]);
+          cell.title = span.textContent = cellTexts[textIndex];
+          ariaLabelPromises.push(cellTexts[textIndex]);
           continue;
         }
 
-        if (column == "flaggedCol") {
+        if (column.id == "threadCol") {
+          let iconString, labelString;
+          if (propertiesSet.has("ignore")) {
+            iconString = "tree-list-view-row-ignored-thread-icon";
+            labelString = "tree-list-view-row-ignored-thread";
+          } else if (propertiesSet.has("ignoreSubthread")) {
+            iconString = "tree-list-view-row-ignored-subthread-icon";
+            labelString = "tree-list-view-row-ignored-subthread";
+          } else if (propertiesSet.has("watch")) {
+            iconString = "tree-list-view-row-watched-thread-icon";
+            labelString = "tree-list-view-row-watched-thread";
+          } else if (this.classList.contains("children")) {
+            iconString = "tree-list-view-row-thread-icon";
+          }
+
+          let icon = cell.querySelector("img");
+          if (iconString) {
+            document.l10n.setAttributes(icon, iconString);
+          } else {
+            icon.removeAttribute("data-l10n-id");
+            icon.setAttribute("alt", "");
+            icon.removeAttribute("title");
+          }
+          if (labelString) {
+            ariaLabelPromises.push(document.l10n.formatValue(labelString));
+          }
+          continue;
+        }
+
+        if (column.id == "flaggedCol") {
           let button = cell.querySelector("button");
           if (propertiesSet.has("flagged")) {
             document.l10n.setAttributes(button, "tree-list-view-row-flagged");
@@ -3826,7 +3849,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
           continue;
         }
 
-        if (column == "junkStatusCol") {
+        if (column.id == "junkStatusCol") {
           let button = cell.querySelector("button");
           if (propertiesSet.has("junk")) {
             document.l10n.setAttributes(button, "tree-list-view-row-spam");
@@ -3839,15 +3862,17 @@ customElements.whenDefined("tree-view-table-row").then(() => {
           continue;
         }
 
-        if (column == "attachmentCol" && propertiesSet.has("attach")) {
+        if (column.id == "attachmentCol" && propertiesSet.has("attach")) {
           ariaLabelPromises.push(
             document.l10n.formatValue("threadpane-attachments-cell-label")
           );
           continue;
         }
 
-        cell.textContent = cellTexts[index];
-        ariaLabelPromises.push(cellTexts[index]);
+        if (textIndex >= 0) {
+          cell.textContent = cellTexts[textIndex];
+          ariaLabelPromises.push(cellTexts[textIndex]);
+        }
       }
 
       Promise.allSettled(ariaLabelPromises).then(results => {

@@ -21,9 +21,27 @@ tree-list-view-column-picker =
 tree-list-view-column-picker-restore =
   .label = Restore column order
 
-tree-list-view-row-thread =
+tree-list-view-row-thread-icon =
   .alt = Thread message indicator
   .title = This is a threaded message
+
+tree-list-view-row-ignored-thread = Thread ignored
+
+tree-list-view-row-ignored-thread-icon =
+  .alt = Thread message indicator
+  .title = This threaded message is ignored
+
+tree-list-view-row-ignored-subthread = Subthread ignored
+
+tree-list-view-row-ignored-subthread-icon =
+  .alt = Thread message indicator
+  .title = This subthread is ignored
+
+tree-list-view-row-watched-thread = Thread watched
+
+tree-list-view-row-watched-thread-icon =
+  .alt = Thread message indicator
+  .title = This threaded message is watched
 
 tree-list-view-row-flagged =
   .alt = Starred message indicator
