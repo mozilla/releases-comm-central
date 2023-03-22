@@ -16,15 +16,19 @@ add_task(async () => {
 
         browser.test.assertEq(
           expectedDefault,
-          await browser.browserAction[property]({})
+          await browser.browserAction[property]({}),
+          `Default value for ${property} should be correct`
         );
         for (let i = 0; i < 3; i++) {
           browser.test.assertEq(
             expected[i],
-            await browser.browserAction[property]({ tabId: tabIDs[i] })
+            await browser.browserAction[property]({ tabId: tabIDs[i] }),
+            `Specific value for ${property} of tab #${i} should be correct`
           );
         }
+      }
 
+      async function checkRealState(property, ...expected) {
         await window.sendMessage(whichTest, property, expected);
       }
 
@@ -34,20 +38,30 @@ add_task(async () => {
 
       let whichTest = "checkProperty";
 
+      // Test enable property.
       await checkProperty("isEnabled", true, true, true, true);
+      await checkRealState("enabled", true, true, true);
       await browser.browserAction.disable();
       await checkProperty("isEnabled", false, false, false, false);
+      await checkRealState("enabled", false, false, false);
       await browser.browserAction.enable(tabIDs[0]);
       await checkProperty("isEnabled", false, true, false, false);
+      await checkRealState("enabled", true, false, false);
       await browser.browserAction.enable();
       await checkProperty("isEnabled", true, true, true, true);
+      await checkRealState("enabled", true, true, true);
       await browser.browserAction.disable();
       await checkProperty("isEnabled", false, true, false, false);
+      await checkRealState("enabled", true, false, false);
       await browser.browserAction.disable(tabIDs[0]);
       await checkProperty("isEnabled", false, false, false, false);
+      await checkRealState("enabled", false, false, false);
       await browser.browserAction.enable();
       await checkProperty("isEnabled", true, false, true, true);
+      await checkRealState("enabled", false, true, true);
 
+      // Test title property (since a label has not been set, this sets the
+      // tooltip and the actual label of the button).
       await checkProperty(
         "getTitle",
         "default",
@@ -55,16 +69,28 @@ add_task(async () => {
         "default",
         "default"
       );
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "default", "default", "default");
       await browser.browserAction.setTitle({ tabId: tabIDs[2], title: "tab2" });
       await checkProperty("getTitle", "default", "default", "default", "tab2");
+      await checkRealState("tooltip", "default", "default", "tab2");
+      await checkRealState("label", "default", "default", "tab2");
       await browser.browserAction.setTitle({ title: "new" });
       await checkProperty("getTitle", "new", "new", "new", "tab2");
+      await checkRealState("tooltip", "new", "new", "tab2");
+      await checkRealState("label", "new", "new", "tab2");
       await browser.browserAction.setTitle({ tabId: tabIDs[1], title: "tab1" });
       await checkProperty("getTitle", "new", "new", "tab1", "tab2");
+      await checkRealState("tooltip", "new", "tab1", "tab2");
+      await checkRealState("label", "new", "tab1", "tab2");
       await browser.browserAction.setTitle({ tabId: tabIDs[2], title: null });
       await checkProperty("getTitle", "new", "new", "tab1", "new");
+      await checkRealState("tooltip", "new", "tab1", "new");
+      await checkRealState("label", "new", "tab1", "new");
       await browser.browserAction.setTitle({ title: null });
       await checkProperty("getTitle", "default", "default", "tab1", "default");
+      await checkRealState("tooltip", "default", "tab1", "default");
+      await checkRealState("label", "default", "tab1", "default");
       await browser.browserAction.setTitle({ tabId: tabIDs[1], title: null });
       await checkProperty(
         "getTitle",
@@ -73,6 +99,41 @@ add_task(async () => {
         "default",
         "default"
       );
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "default", "default", "default");
+
+      // Test label property (tooltip should not change).
+      await checkProperty("getLabel", null, null, null, null);
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "default", "default", "default");
+      await browser.browserAction.setLabel({ tabId: tabIDs[2], label: "" });
+      await checkProperty("getLabel", null, null, null, "");
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "default", "default", "");
+      await browser.browserAction.setLabel({ tabId: tabIDs[2], label: "tab2" });
+      await checkProperty("getLabel", null, null, null, "tab2");
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "default", "default", "tab2");
+      await browser.browserAction.setLabel({ label: "new" });
+      await checkProperty("getLabel", "new", "new", "new", "tab2");
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "new", "new", "tab2");
+      await browser.browserAction.setLabel({ tabId: tabIDs[1], label: "tab1" });
+      await checkProperty("getLabel", "new", "new", "tab1", "tab2");
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "new", "tab1", "tab2");
+      await browser.browserAction.setLabel({ tabId: tabIDs[2], label: null });
+      await checkProperty("getLabel", "new", "new", "tab1", "new");
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "new", "tab1", "new");
+      await browser.browserAction.setLabel({ label: null });
+      await checkProperty("getLabel", null, null, "tab1", null);
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "default", "tab1", "default");
+      await browser.browserAction.setLabel({ tabId: tabIDs[1], label: null });
+      await checkProperty("getLabel", null, null, null, null);
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "default", "default", "default");
 
       // Check that properties are updated without switching tabs. We might be
       // relying on the tab switch to update the properties.
@@ -83,20 +144,30 @@ add_task(async () => {
       browser.test.log("checkPropertyCurrent");
       whichTest = "checkPropertyCurrent";
 
+      // Test enable property.
       await checkProperty("isEnabled", true, false, true, true);
+      await checkRealState("enabled", false, true, true);
       await browser.browserAction.disable();
       await checkProperty("isEnabled", false, false, false, false);
+      await checkRealState("enabled", false, false, false);
       await browser.browserAction.enable(tabIDs[0]);
       await checkProperty("isEnabled", false, true, false, false);
+      await checkRealState("enabled", true, false, false);
       await browser.browserAction.enable();
       await checkProperty("isEnabled", true, true, true, true);
+      await checkRealState("enabled", true, true, true);
       await browser.browserAction.disable();
       await checkProperty("isEnabled", false, true, false, false);
+      await checkRealState("enabled", true, false, false);
       await browser.browserAction.disable(tabIDs[0]);
       await checkProperty("isEnabled", false, false, false, false);
+      await checkRealState("enabled", false, false, false);
       await browser.browserAction.enable();
       await checkProperty("isEnabled", true, false, true, true);
+      await checkRealState("enabled", false, true, true);
 
+      // Test title property (since a label has not been set, this sets the
+      // tooltip and the actual label of the button).
       await checkProperty(
         "getTitle",
         "default",
@@ -104,16 +175,28 @@ add_task(async () => {
         "default",
         "default"
       );
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "default", "default", "default");
       await browser.browserAction.setTitle({ tabId: tabIDs[0], title: "tab0" });
       await checkProperty("getTitle", "default", "tab0", "default", "default");
+      await checkRealState("tooltip", "tab0", "default", "default");
+      await checkRealState("label", "tab0", "default", "default");
       await browser.browserAction.setTitle({ title: "new" });
       await checkProperty("getTitle", "new", "tab0", "new", "new");
+      await checkRealState("tooltip", "tab0", "new", "new");
+      await checkRealState("label", "tab0", "new", "new");
       await browser.browserAction.setTitle({ tabId: tabIDs[1], title: "tab1" });
       await checkProperty("getTitle", "new", "tab0", "tab1", "new");
+      await checkRealState("tooltip", "tab0", "tab1", "new");
+      await checkRealState("label", "tab0", "tab1", "new");
       await browser.browserAction.setTitle({ tabId: tabIDs[0], title: null });
       await checkProperty("getTitle", "new", "new", "tab1", "new");
+      await checkRealState("tooltip", "new", "tab1", "new");
+      await checkRealState("label", "new", "tab1", "new");
       await browser.browserAction.setTitle({ title: null });
       await checkProperty("getTitle", "default", "default", "tab1", "default");
+      await checkRealState("tooltip", "default", "tab1", "default");
+      await checkRealState("label", "default", "tab1", "default");
       await browser.browserAction.setTitle({ tabId: tabIDs[1], title: null });
       await checkProperty(
         "getTitle",
@@ -122,6 +205,41 @@ add_task(async () => {
         "default",
         "default"
       );
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "default", "default", "default");
+
+      // Test label property (tooltip should not change).
+      await checkProperty("getLabel", null, null, null, null);
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "default", "default", "default");
+      await browser.browserAction.setLabel({ tabId: tabIDs[0], label: "" });
+      await checkProperty("getLabel", null, "", null, null);
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "", "default", "default");
+      await browser.browserAction.setLabel({ tabId: tabIDs[0], label: "tab0" });
+      await checkProperty("getLabel", null, "tab0", null, null);
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "tab0", "default", "default");
+      await browser.browserAction.setLabel({ label: "new" });
+      await checkProperty("getLabel", "new", "tab0", "new", "new");
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "tab0", "new", "new");
+      await browser.browserAction.setLabel({ tabId: tabIDs[1], label: "tab1" });
+      await checkProperty("getLabel", "new", "tab0", "tab1", "new");
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "tab0", "tab1", "new");
+      await browser.browserAction.setLabel({ tabId: tabIDs[0], label: null });
+      await checkProperty("getLabel", "new", "new", "tab1", "new");
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "new", "tab1", "new");
+      await browser.browserAction.setLabel({ label: null });
+      await checkProperty("getLabel", null, null, "tab1", null);
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "default", "tab1", "default");
+      await browser.browserAction.setLabel({ tabId: tabIDs[1], label: null });
+      await checkProperty("getLabel", null, null, null, null);
+      await checkRealState("tooltip", "default", "default", "default");
+      await checkRealState("label", "default", "default", "default");
 
       await browser.tabs.remove(tabIDs[1]);
       await browser.tabs.remove(tabIDs[2]);
@@ -169,11 +287,25 @@ add_task(async () => {
       tabmail.switchToTab(mailTabs[i]);
       await new Promise(resolve => requestAnimationFrame(resolve));
       switch (property) {
-        case "isEnabled":
+        case "enabled":
           is(button.disabled, !expected[i], `button ${i} enabled state`);
           break;
-        case "getTitle":
-          is(button.getAttribute("label"), expected[i], `button ${i} label`);
+        case "tooltip":
+          is(
+            button.getAttribute("title"),
+            expected[i],
+            `button ${i} tooltip title`
+          );
+          break;
+        case "label":
+          if (expected[i] == "") {
+            ok(
+              button.classList.contains("prefer-icon-only"),
+              `button ${i} has hidden label`
+            );
+          } else {
+            is(button.getAttribute("label"), expected[i], `button ${i} label`);
+          }
           break;
       }
     }
@@ -185,11 +317,21 @@ add_task(async () => {
   extension.onMessage("checkPropertyCurrent", async (property, expected) => {
     await new Promise(resolve => requestAnimationFrame(resolve));
     switch (property) {
-      case "isEnabled":
+      case "enabled":
         is(button.disabled, !expected[0], `button 0 enabled state`);
         break;
-      case "getTitle":
-        is(button.getAttribute("label"), expected[0], `button 0 label`);
+      case "tooltip":
+        is(button.getAttribute("title"), expected[0], `button 0 tooltip title`);
+        break;
+      case "label":
+        if (expected[0] == "") {
+          ok(
+            button.classList.contains("prefer-icon-only"),
+            `button 0 has hidden label`
+          );
+        } else {
+          is(button.getAttribute("label"), expected[0], `button 0 label`);
+        }
         break;
     }
 

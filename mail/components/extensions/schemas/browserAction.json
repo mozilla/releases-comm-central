@@ -646,7 +646,7 @@
       {
         "name": "enable",
         "type": "function",
-        "description": "Enables the action button for a tab. By default, an action button is enabled.",
+        "description": "Enables the action button for a specific tab (if a ``tabId`` is provided), or for all tabs which do not have a custom enable state. Once the enable state of a tab has been updated individually, all further changes to its state have to be done individually as well. By default, an action button is enabled.",
         "async": "callback",
         "parameters": [
           {
@@ -667,7 +667,7 @@
       {
         "name": "disable",
         "type": "function",
-        "description": "Disables the action button for a tab.",
+        "description": "Disables the action button for a specific tab (if a ``tabId`` is provided), or for all tabs which do not have a custom enable state. Once the enable state of a tab has been updated individually, all further changes to its state have to be done individually as well.",
         "async": "callback",
         "parameters": [
           {

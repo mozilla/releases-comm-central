@@ -91,7 +91,7 @@ class ExtensionActionButton extends UnifiedToolbarButton {
     }
     this.title = tabData.title || this.#action.extension.name;
     this.setAttribute("label", tabData.label || this.title);
-    this.classList.toggle("prefer-icon-only", !tabData.label);
+    this.classList.toggle("prefer-icon-only", tabData.label == "");
     this.badge = tabData.badgeText;
     this.disabled = !tabData.enabled;
     const { style } = this.#action.iconData.get(tabData.icon);
