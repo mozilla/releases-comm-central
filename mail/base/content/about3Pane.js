@@ -4115,3 +4115,37 @@ commandController.registerCallback(
     ),
   () => !this.messageBrowser.hidden
 );
+
+/* Message zoom commands */
+commandController.registerCallback(
+  "cmd_fullZoomReduce",
+  () =>
+    this.messageBrowser.contentWindow.commandController.doCommand(
+      "cmd_fullZoomReduce"
+    ),
+  () => !this.messageBrowser.hidden
+);
+commandController.registerCallback(
+  "cmd_fullZoomEnlarge",
+  () =>
+    this.messageBrowser.contentWindow.commandController.doCommand(
+      "cmd_fullZoomEnlarge"
+    ),
+  () => !this.messageBrowser.hidden
+);
+commandController.registerCallback(
+  "cmd_fullZoomReset",
+  () =>
+    this.messageBrowser.contentWindow.commandController.doCommand(
+      "cmd_fullZoomReset"
+    ),
+  () => !this.messageBrowser.hidden
+);
+commandController.registerCallback(
+  "cmd_fullZoomToggle",
+  () =>
+    this.messageBrowser.contentWindow.commandController.doCommand(
+      "cmd_fullZoomToggle"
+    ),
+  () => !this.messageBrowser.hidden
+);

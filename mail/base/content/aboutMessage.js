@@ -499,7 +499,18 @@ commandController.registerCallback("cmd_findAgain", () =>
 commandController.registerCallback("cmd_findPrevious", () =>
   document.getElementById("FindToolbar").onFindAgainCommand(true)
 );
-
 commandController.registerCallback("cmd_print", () => {
   top.PrintUtils.startPrintWindow(getMessagePaneBrowser().browsingContext, {});
+});
+commandController.registerCallback("cmd_fullZoomReduce", () => {
+  top.ZoomManager.reduce();
+});
+commandController.registerCallback("cmd_fullZoomEnlarge", () => {
+  top.ZoomManager.enlarge();
+});
+commandController.registerCallback("cmd_fullZoomReset", () => {
+  top.ZoomManager.reset();
+});
+commandController.registerCallback("cmd_fullZoomToggle", () => {
+  top.ZoomManager.toggleZoom();
 });
