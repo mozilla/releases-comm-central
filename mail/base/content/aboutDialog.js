@@ -109,12 +109,14 @@ function onLoad(event) {
   // Open external links in browser
   for (const link of document.getElementsByClassName("browser-link")) {
     link.onclick = event => {
+      event.preventDefault();
       openLink(event.target.href);
     };
   }
   // Open internal (about:) links open in Thunderbird tab
   for (const link of document.getElementsByClassName("tab-link")) {
     link.onclick = event => {
+      event.preventDefault();
       openAboutTab(event.target.href);
     };
   }
