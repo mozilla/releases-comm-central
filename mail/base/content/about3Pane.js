@@ -3541,20 +3541,21 @@ customElements.whenDefined("tree-view-table-row").then(() => {
     set index(index) {
       super.index = index;
 
-      let columns = ["subjectCol"];
+      let columns = [];
       for (let column of threadPane.columns) {
-        if (column.hidden) {
+        // No need to update the text of this cell if it's hidden, the selection
+        // column, or an icon column that doesn't match a specific flag.
+        if (
+          column.hidden ||
+          (column.icon &&
+            !["flaggedCol", "junkStatusCol", "attachmentCol"].includes(
+              column.id
+            )) ||
+          column.select
+        ) {
           continue;
         }
-        // No need to update the text of this cell if it's the selection or an
-        // icon column.
-        if (column.icon || column.select) {
-          continue;
-        }
-
-        if (column.id != "subjectCol") {
-          columns.push(column.id);
-        }
+        columns.push(column.id);
       }
 
       // XPCOM calls here must be keep to a minimum. Collect all of the
@@ -3568,8 +3569,9 @@ customElements.whenDefined("tree-view-table-row").then(() => {
         threadLevel
       );
 
-      // Always set the subject line as aria-label even if the column is hidden.
-      this.setAttribute("aria-label", cellTexts[0]);
+      // Collect the various strings and fluent IDs to build the full string for
+      // the message row aria-label.
+      let ariaLabelPromises = [];
 
       const propertiesSet = new Set(properties.value.split(" "));
       this.dataset.properties = properties.value.trim();
@@ -3595,29 +3597,56 @@ customElements.whenDefined("tree-view-table-row").then(() => {
 
           const span = div.querySelector("span");
           cell.title = span.textContent = cellTexts[index];
+          ariaLabelPromises.push(cellTexts[index]);
           continue;
         }
 
         if (column == "flaggedCol") {
-          document.l10n.setAttributes(
-            cell.querySelector("button"),
-            propertiesSet.has("flagged")
-              ? "tree-list-view-row-flagged"
-              : "tree-list-view-row-flag"
-          );
+          let button = cell.querySelector("button");
+          if (propertiesSet.has("flagged")) {
+            document.l10n.setAttributes(button, "tree-list-view-row-flagged");
+            ariaLabelPromises.push(
+              document.l10n.formatValue("threadpane-flagged-cell-label")
+            );
+          } else {
+            document.l10n.setAttributes(button, "tree-list-view-row-flag");
+          }
+          continue;
         }
 
         if (column == "junkStatusCol") {
-          document.l10n.setAttributes(
-            cell.querySelector("button"),
-            propertiesSet.has("junk")
-              ? "tree-list-view-row-spam"
-              : "tree-list-view-row-not-spam"
+          let button = cell.querySelector("button");
+          if (propertiesSet.has("junk")) {
+            document.l10n.setAttributes(button, "tree-list-view-row-spam");
+            ariaLabelPromises.push(
+              document.l10n.formatValue("threadpane-spam-cell-label")
+            );
+          } else {
+            document.l10n.setAttributes(button, "tree-list-view-row-not-spam");
+          }
+          continue;
+        }
+
+        if (column == "attachmentCol" && propertiesSet.has("attach")) {
+          ariaLabelPromises.push(
+            document.l10n.formatValue("threadpane-attachments-cell-label")
           );
+          continue;
         }
 
         cell.textContent = cellTexts[index];
+        ariaLabelPromises.push(cellTexts[index]);
       }
+
+      Promise.allSettled(ariaLabelPromises).then(results => {
+        this.setAttribute(
+          "aria-label",
+          results
+            .map(settledPromise => settledPromise.value ?? "")
+            .filter(value => value.trim() != "")
+            .join(", ")
+        );
+      });
     }
 
     /**
@@ -3719,6 +3748,8 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       // required data in one go.
       let properties = {};
       let threadLevel = {};
+      // TODO: Make also these columns dynamic based on what the users want to
+      // see.
       let cellTexts = this.view.cellDataForColumns(
         index,
         ["subjectCol", "correspondentCol", "dateCol"],
@@ -3726,8 +3757,9 @@ customElements.whenDefined("tree-view-table-row").then(() => {
         threadLevel
       );
 
-      this.setAttribute("aria-label", cellTexts[0]);
-      this.subjectLine.textContent = cellTexts[0];
+      // Collect the various strings and fluent IDs to build the full string for
+      // the message row aria-label.
+      let ariaLabelPromises = [];
 
       if (threadLevel.value) {
         properties.value += " thread-children";
@@ -3735,15 +3767,48 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       const propertiesSet = new Set(properties.value.split(" "));
       this.dataset.properties = properties.value.trim();
 
+      this.subjectLine.textContent = cellTexts[0];
       this.senderLine.textContent = cellTexts[1];
       this.dateLine.textContent = cellTexts[2];
 
-      document.l10n.setAttributes(
-        this.starButton,
-        propertiesSet.has("flagged")
-          ? "tree-list-view-row-flagged"
-          : "tree-list-view-row-flag"
-      );
+      // Follow the layout order.
+      ariaLabelPromises.push(cellTexts[1]);
+      ariaLabelPromises.push(cellTexts[2]);
+      ariaLabelPromises.push(cellTexts[0]);
+
+      if (propertiesSet.has("flagged")) {
+        document.l10n.setAttributes(
+          this.starButton,
+          "tree-list-view-row-flagged"
+        );
+        ariaLabelPromises.push(
+          document.l10n.formatValue("threadpane-flagged-cell-label")
+        );
+      } else {
+        document.l10n.setAttributes(this.starButton, "tree-list-view-row-flag");
+      }
+
+      if (propertiesSet.has("junk")) {
+        ariaLabelPromises.push(
+          document.l10n.formatValue("threadpane-spam-cell-label")
+        );
+      }
+
+      if (propertiesSet.has("attach")) {
+        ariaLabelPromises.push(
+          document.l10n.formatValue("threadpane-attachments-cell-label")
+        );
+      }
+
+      Promise.allSettled(ariaLabelPromises).then(results => {
+        this.setAttribute(
+          "aria-label",
+          results
+            .map(settledPromise => settledPromise.value ?? "")
+            .filter(value => value.trim() != "")
+            .join(", ")
+        );
+      });
     }
   }
   customElements.define("thread-card", ThreadCard, {

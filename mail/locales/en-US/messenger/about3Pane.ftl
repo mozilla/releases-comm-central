@@ -159,15 +159,21 @@ threadpane-column-header-flagged =
 threadpane-column-label-flagged =
   .label = Starred
 
+threadpane-flagged-cell-label = Starred
+
 threadpane-column-header-attachments =
   .title = Sort by attachments
 threadpane-column-label-attachments =
   .label = Attachments
 
+threadpane-attachments-cell-label = Attachments
+
 threadpane-column-header-spam =
   .title = Sort by spam status
 threadpane-column-label-spam =
   .label = Spam
+
+threadpane-spam-cell-label = Spam
 
 threadpane-column-header-unread-button =
   .title = Sort by read status
