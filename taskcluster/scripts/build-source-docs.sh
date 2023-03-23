@@ -29,6 +29,6 @@ if [ -n "${TOKEN}" ]; then
     -X POST \
     -d "branches=latest" \
     -d "token=${TOKEN}" \
-    https://readthedocs.org/api/v2/webhook/thunderbird-source-docs/222864/
+    https://readthedocs.com/api/v2/webhook/thunderbird-thunderbird-source-docs/9778/
 fi
 
