@@ -6,7 +6,12 @@
 
 "use strict";
 
-const EXPORTED_SYMBOLS = ["ToolbarButtonAPI", "getIconData"];
+const EXPORTED_SYMBOLS = [
+  "ToolbarButtonAPI",
+  "getIconData",
+  "getCachedAllowedSpaces",
+  "setCachedAllowedSpaces",
+];
 
 const lazy = {};
 
@@ -37,6 +42,34 @@ var { IconDetails, StartupCache } = ExtensionParent;
 var { DefaultWeakMap, ExtensionError } = ExtensionUtils;
 
 var DEFAULT_ICON = "chrome://messenger/content/extension.svg";
+
+function getCachedAllowedSpaces() {
+  let cache = {};
+  if (
+    Services.xulStore.hasValue(
+      "chrome://messenger/content/messenger.xhtml",
+      "unifiedToolbar",
+      "allowedExtSpaces"
+    )
+  ) {
+    let rawCache = Services.xulStore.getValue(
+      "chrome://messenger/content/messenger.xhtml",
+      "unifiedToolbar",
+      "allowedExtSpaces"
+    );
+    cache = JSON.parse(rawCache);
+  }
+  return new Map(Object.entries(cache));
+}
+
+function setCachedAllowedSpaces(allowedSpacesMap) {
+  Services.xulStore.setValue(
+    "chrome://messenger/content/messenger.xhtml",
+    "unifiedToolbar",
+    "allowedExtSpaces",
+    JSON.stringify(Object.fromEntries(allowedSpacesMap))
+  );
+}
 
 /**
  * Get icon properties for updating the UI.

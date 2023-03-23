@@ -10,7 +10,10 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-const { getState } = ChromeUtils.importESModule(
+var { getCachedAllowedSpaces, setCachedAllowedSpaces } = ChromeUtils.import(
+  "resource:///modules/ExtensionToolbarButtons.jsm"
+);
+const { storeState, getState } = ChromeUtils.importESModule(
   "resource:///modules/CustomizationState.mjs"
 );
 const {
@@ -62,6 +65,20 @@ registerCleanupFunction(() => {
 
   MailServices.accounts.accounts.forEach(cleanUpAccount);
   check3PaneState(true, true);
+
+  // The unified toolbar must have been cleaned up. If this fails, check if a
+  // test loaded an extension with a browser_action without setting "useAddonManager"
+  // to either "temporary" or "permanent", which triggers onUninstalled to be
+  // called on extension unload.
+  let cachedAllowedSpaces = getCachedAllowedSpaces();
+  is(
+    cachedAllowedSpaces.size,
+    0,
+    `Stored known extension spaces should be cleared: ${JSON.stringify(
+      Object.fromEntries(cachedAllowedSpaces)
+    )}`
+  );
+  setCachedAllowedSpaces(new Map());
 });
 
 async function check3PaneState(folderPaneOpen = null, messagePaneOpen = null) {

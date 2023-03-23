@@ -9,7 +9,9 @@ async function testExecuteBrowserActionWithOptions_mv2(options = {}) {
     .currentAbout3Pane.document.getElementById("folderTree");
   EventUtils.synthesizeMouseAtCenter(folderTree, { type: "mouseover" }, window);
 
-  let extensionOptions = {};
+  let extensionOptions = {
+    useAddonManager: "temporary",
+  };
 
   extensionOptions.manifest = {
     commands: {
@@ -118,7 +120,9 @@ async function testExecuteActionWithOptions_mv3(options = {}) {
     .currentAbout3Pane.document.getElementById("folderTree");
   EventUtils.synthesizeMouseAtCenter(folderTree, { type: "mouseover" }, window);
 
-  let extensionOptions = {};
+  let extensionOptions = {
+    useAddonManager: "temporary",
+  };
 
   extensionOptions.manifest = {
     manifest_version: 3,

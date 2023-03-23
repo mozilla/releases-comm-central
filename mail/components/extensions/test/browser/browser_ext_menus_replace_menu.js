@@ -334,6 +334,7 @@ async function run_overrideContext_test_in_popup(testWindow, buttonId) {
   }
 
   let extension = ExtensionTestUtils.loadExtension({
+    useAddonManager: "temporary",
     manifest: {
       applications: {
         gecko: {

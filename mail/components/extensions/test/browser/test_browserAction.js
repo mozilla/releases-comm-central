@@ -114,6 +114,7 @@ add_task(async function test_popup_open_with_menu_command_mv3() {
 
 add_task(async function test_theme_icons() {
   let extension = ExtensionTestUtils.loadExtension({
+    useAddonManager: "temporary",
     manifest: {
       applications: {
         gecko: {
@@ -179,13 +180,13 @@ add_task(async function test_theme_icons() {
     `url("moz-extension://${uuid}/default.png")`,
     `Default theme should use default icon.`
   );
-
   await extension.unload();
 });
 
 add_task(async function test_theme_icons_messagewindow() {
   let messageWindow = await openMessageInWindow(messages.getNext());
   let extension = ExtensionTestUtils.loadExtension({
+    useAddonManager: "temporary",
     manifest: {
       applications: {
         gecko: {
@@ -385,6 +386,7 @@ add_task(async function test_iconPath() {
 
   let extension = ExtensionTestUtils.loadExtension({
     files,
+    useAddonManager: "temporary",
     manifest: {
       applications: {
         gecko: {
@@ -433,6 +435,7 @@ add_task(async function test_allowedSpaces() {
   }
 
   let extension = ExtensionTestUtils.loadExtension({
+    useAddonManager: "temporary",
     manifest: {
       applications: {
         gecko: {
@@ -521,6 +524,7 @@ add_task(async function test_allowedInAllSpaces() {
   }
 
   let extension = ExtensionTestUtils.loadExtension({
+    useAddonManager: "temporary",
     manifest: {
       applications: {
         gecko: {
@@ -606,6 +610,7 @@ add_task(async function test_allowedSpacesDefault() {
   }
 
   let extension = ExtensionTestUtils.loadExtension({
+    useAddonManager: "temporary",
     manifest: {
       applications: {
         gecko: {
@@ -679,7 +684,7 @@ add_task(async function test_allowedSpacesDefault() {
   await extension.unload();
 });
 
-add_task(async function test_removal_from_allowedSpaces() {
+add_task(async function test_update_allowedSpaces() {
   let tabmail = document.getElementById("tabmail");
   let unifiedToolbar = document.querySelector("unified-toolbar");
 
@@ -813,7 +818,7 @@ add_task(async function test_removal_from_allowedSpaces() {
   await checkUnifiedToolbar(extension1, ["calendar", "default"]);
 
   // Update extension by installing a newer version on top. Verify that it is now
-  // only shown in the default space.
+  // also shown in the mail space.
   let extension2 = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     manifest: {
@@ -823,12 +828,30 @@ add_task(async function test_removal_from_allowedSpaces() {
         },
       },
       browser_action: {
-        allowed_spaces: ["default"],
+        allowed_spaces: ["mail", "calendar", "default"],
       },
     },
   });
-  await checkUnifiedToolbar(extension2, ["default"]);
+  await checkUnifiedToolbar(extension2, ["mail", "calendar", "default"]);
+
+  // Update extension by installing a newer version on top. Verify that it is now
+  // no longer shown in the calendar space.
+  let extension3 = ExtensionTestUtils.loadExtension({
+    useAddonManager: "permanent",
+    manifest: {
+      applications: {
+        gecko: {
+          id: "browser_action_spaces@mochi.test",
+        },
+      },
+      browser_action: {
+        allowed_spaces: ["mail", "default"],
+      },
+    },
+  });
+  await checkUnifiedToolbar(extension3, ["mail", "default"]);
 
   await extension1.unload();
   await extension2.unload();
+  await extension3.unload();
 });

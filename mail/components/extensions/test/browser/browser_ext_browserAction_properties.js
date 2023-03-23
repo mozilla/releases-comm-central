@@ -249,6 +249,7 @@ add_task(async () => {
   };
   let extension = ExtensionTestUtils.loadExtension({
     files,
+    useAddonManager: "temporary",
     manifest: {
       applications: {
         gecko: {

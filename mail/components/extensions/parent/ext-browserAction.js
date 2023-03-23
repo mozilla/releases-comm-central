@@ -6,21 +6,24 @@
 
 "use strict";
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "ToolbarButtonAPI",
-  "resource:///modules/ExtensionToolbarButtons.jsm"
-);
 ChromeUtils.defineESModuleGetters(this, {
   storeState: "resource:///modules/CustomizationState.mjs",
   getState: "resource:///modules/CustomizationState.mjs",
   registerExtension: "resource:///modules/CustomizableItems.sys.mjs",
   unregisterExtension: "resource:///modules/CustomizableItems.sys.mjs",
 });
-
 var { ExtensionCommon } = ChromeUtils.import(
   "resource://gre/modules/ExtensionCommon.jsm"
 );
+var { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  ToolbarButtonAPI: "resource:///modules/ExtensionToolbarButtons.jsm",
+  getCachedAllowedSpaces: "resource:///modules/ExtensionToolbarButtons.jsm",
+  setCachedAllowedSpaces: "resource:///modules/ExtensionToolbarButtons.jsm",
+});
+
 var { makeWidgetId } = ExtensionCommon;
 
 const browserActionMap = new WeakMap();
@@ -33,33 +36,78 @@ this.browserAction = class extends ToolbarButtonAPI {
   async onManifestEntry(entryName) {
     await super.onManifestEntry(entryName);
     browserActionMap.set(this.extension, this);
+
     if (this.inUnifiedToolbar) {
       await registerExtension(this.extension.id, this.allowedSpaces);
-      // This won't add the button to a customized state if the button is added
-      // in an update or when restarting after the button was explicitly
-      // removed from the toolbar by the user.
-      if (this.extension.startupReason === "ADDON_INSTALL") {
-        const currentToolbarState = getState();
-        const unifiedToolbarButtonId = `ext-${this.extension.id}`;
-        const spacesInState = this.allowedSpaces.filter(
+      const currentToolbarState = getState();
+      const unifiedToolbarButtonId = `ext-${this.extension.id}`;
+
+      // Load the cached allowed spaces. Make sure there are no awaited promises
+      // before storing the updated allowed spaces, as it could have been changed
+      // elsewhere.
+      let cachedAllowedSpaces = getCachedAllowedSpaces();
+      let priorAllowedSpaces = cachedAllowedSpaces.get(this.extension.id);
+
+      // If the extension has set allowedSpaces to an empty array, the button needs
+      // to be added to all available spaces.
+      let allowedSpaces =
+        this.allowedSpaces.length == 0
+          ? [
+              "mail",
+              "addressbook",
+              "calendar",
+              "tasks",
+              "chat",
+              "settings",
+              "default",
+            ]
+          : this.allowedSpaces;
+
+      // Manually add the button to all customized spaces, where it has not been
+      // allowed in the prior version of this add-on (if any). This automatically
+      // covers the install and the update case, including staged updates.
+      // Spaces which have not been customized will receive the button from
+      // getDefaultItemIdsForSpace() in CustomizableItems.sys.mjs.
+      let missingSpacesInState = allowedSpaces.filter(
+        space =>
+          (!priorAllowedSpaces || !priorAllowedSpaces.includes(space)) &&
+          space !== "default" &&
+          currentToolbarState.hasOwnProperty(space) &&
+          !currentToolbarState[space].includes(unifiedToolbarButtonId)
+      );
+      for (const space of missingSpacesInState) {
+        currentToolbarState[space].push(unifiedToolbarButtonId);
+      }
+
+      // Manually remove button from all customized spaces, if it is no longer
+      // allowed. This will remove its stored customized positioning information.
+      // If a space becomes allowed again later, the button will be added to the
+      // end of the space and not at its former customized location.
+      let invalidSpacesInState = [];
+      if (priorAllowedSpaces) {
+        invalidSpacesInState = priorAllowedSpaces.filter(
           space =>
-            space !== "default" && currentToolbarState.hasOwnProperty(space)
+            space !== "default" &&
+            !allowedSpaces.includes(space) &&
+            currentToolbarState.hasOwnProperty(space) &&
+            currentToolbarState[space].includes(unifiedToolbarButtonId)
         );
-        if (spacesInState.length) {
-          let modifiedState = false;
-          for (const space of spacesInState) {
-            if (!currentToolbarState[space].includes(unifiedToolbarButtonId)) {
-              currentToolbarState[space].push(unifiedToolbarButtonId);
-              modifiedState = true;
-            }
-          }
-          if (modifiedState) {
-            storeState(currentToolbarState);
-            return;
-          }
+        for (const space of invalidSpacesInState) {
+          currentToolbarState[space] = currentToolbarState[space].filter(
+            id => id != unifiedToolbarButtonId
+          );
         }
       }
-      Services.obs.notifyObservers(null, "unified-toolbar-state-change");
+
+      // Update the cached values for the allowed spaces.
+      cachedAllowedSpaces.set(this.extension.id, allowedSpaces);
+      setCachedAllowedSpaces(cachedAllowedSpaces);
+
+      if (missingSpacesInState.length || invalidSpacesInState.length) {
+        storeState(currentToolbarState);
+      } else {
+        Services.obs.notifyObservers(null, "unified-toolbar-state-change");
+      }
     }
   }
 
@@ -99,9 +147,10 @@ this.browserAction = class extends ToolbarButtonAPI {
     windowTracker.addListener("TabSelect", this);
   }
 
-  static onUpdate(id, manifest) {
-    if (!("browser_action" in manifest || "action" in manifest)) {
-      this.#removeFromUnifiedToolbar(id);
+  static onUpdate(extensionId, manifest) {
+    // These manifest entries can exist and be null.
+    if (!manifest.browser_action && !manifest.action) {
+      this.#removeFromUnifiedToolbar(extensionId);
     }
   }
 
@@ -109,7 +158,7 @@ this.browserAction = class extends ToolbarButtonAPI {
     let widgetId = makeWidgetId(extensionId);
     let id = `${widgetId}-browserAction-toolbarbutton`;
 
-    // Check all possible toolbars and remove the toolbarbutton if found.
+    // Check all possible XUL toolbars and remove the toolbarbutton if found.
     // Sadly we have to hardcode these values here, as the add-on is already
     // shutdown when onUninstall is called.
     let toolbars = ["mail-bar3", "toolbar-menubar"];
@@ -152,6 +201,13 @@ this.browserAction = class extends ToolbarButtonAPI {
     }
     if (modifiedState) {
       storeState(currentToolbarState);
+    }
+
+    // Update cachedAllowedSpaces for the unified toolbar.
+    let cachedAllowedSpaces = getCachedAllowedSpaces();
+    if (cachedAllowedSpaces.has(extensionId)) {
+      cachedAllowedSpaces.delete(extensionId);
+      setCachedAllowedSpaces(cachedAllowedSpaces);
     }
   }
 
