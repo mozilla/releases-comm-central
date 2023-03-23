@@ -2684,15 +2684,19 @@ var threadPane = {
     // The class ThreadRow can't be referenced because it's declared in a
     // different scope. But we can get it from customElements.
     let rowClass = customElements.get("thread-row");
+    let cardClass = customElements.get("thread-card");
     switch (UIDensity.prefValue) {
       case UIDensity.MODE_COMPACT:
         rowClass.ROW_HEIGHT = 18;
+        cardClass.ROW_HEIGHT = 38;
         break;
       case UIDensity.MODE_TOUCH:
         rowClass.ROW_HEIGHT = 32;
+        cardClass.ROW_HEIGHT = 52;
         break;
       default:
         rowClass.ROW_HEIGHT = 22;
+        cardClass.ROW_HEIGHT = 46;
         break;
     }
   },
