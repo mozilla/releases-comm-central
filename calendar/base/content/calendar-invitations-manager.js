@@ -8,7 +8,7 @@ var { CalReadableStreamFactory } = ChromeUtils.import(
   "resource:///modules/CalReadableStreamFactory.jsm"
 );
 
-/* exported getInvitationsManager, openInvitationsDialog, setUpInvitationsManager,
+/* exported openInvitationsDialog, setUpInvitationsManager,
  *          tearDownInvitationsManager
  */
 
@@ -17,7 +17,7 @@ var gInvitationsManager = null;
 /**
  * Return a cached instance of the invitations manager
  *
- * @returns The invitations manager instance.
+ * @returns {InvitationsManager} The invitations manager instance.
  */
 function getInvitationsManager() {
   if (!gInvitationsManager) {

@@ -434,7 +434,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    *
    * @param {OnItemRowCallback} [callback] - If provided, will be called on each row
    *                                         fetched.
-   * @returns {[Map<string, calIEvent>, Map<string, number>]}
+   * @returns {Promise<[Map<string, calIEvent>, Map<string, number>]>}
    */
   async getRecurringEventAndFlagMaps(callback) {
     await startupPromise;
@@ -457,7 +457,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * Provides all recurring events with additional data populated along with
    * offline flags values for each event.
    *
-   * @returns {[Map<string, calIEvent>, Map<string, number>]}
+   * @returns {Promise<[Map<string, calIEvent>, Map<string, number>]>}
    */
   async getFullRecurringEventAndFlagMaps() {
     let [events, flags] = await this.getRecurringEventAndFlagMaps();
@@ -470,7 +470,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @param {OnItemRowCallback} [callback] - If provided, will be called on each row
    *                                         fetched.
    *
-   * @returns {[Map<string, calITodo>, Map<string, number>]}
+   * @returns {Promise<[Map<string, calITodo>, Map<string, number>]>}
    */
   async getRecurringTodoAndFlagMaps(callback) {
     await startupPromise;
@@ -493,7 +493,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * Provides all recurring todos with additional data populated along with
    * offline flags values for each todo.
    *
-   * @returns {[Map<string, calITodo>, Map<string, number>]}
+   * @returns {Promise<[Map<string, calITodo>, Map<string, number>]>}
    */
   async getFullRecurringTodoAndFlagMaps() {
     let [todos, flags] = await this.getRecurringTodoAndFlagMaps();
@@ -518,7 +518,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    *
    * @param {Map<string, calIItem>} itemMap
    *
-   * @returns {Map<string, calIItem>} The original Map with items modified.
+   * @returns {Promise<Map<string, calIItem>>} The original Map with items modified.
    */
   async getAdditionalDataForItemMap(itemsMap) {
     await startupPromise;

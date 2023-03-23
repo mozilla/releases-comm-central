@@ -69,7 +69,7 @@ class CalBoundedReadableStreamController {
   /**
    * @param {number} maxTotalItems
    * @param {number} maxQueuedItems
-   * @param {CalReadableStreamUnderlyingSource} src
+   * @param {CalBoundedReadableStreamUnderlyingSource} src
    */
   constructor(maxTotalItems, maxQueuedItems, src) {
     this._maxTotalItems = maxTotalItems;

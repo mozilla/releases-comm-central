@@ -199,7 +199,7 @@ function getItemIntervalString(aItem, aBoxDate) {
  * @param {calIDateTime} endDate
  * @param {integer} filter - calICalendar ITEM_FILTER flags
  * @param {boolean} notDueTasks - if true, include tasks with no due date
- * @returns {calIItemBase[]}
+ * @returns {Promise<calIItemBase[]>}
  */
 async function getItems(startDate, endDate, filter, notDueTasks) {
   let window = Services.wm.getMostRecentWindow("mail:3pane");
