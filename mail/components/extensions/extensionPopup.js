@@ -33,6 +33,68 @@ var gContextMenu;
 /* globals reporterListener */
 
 /**
+ * @implements {nsICommandController}
+ */
+var contentController = {
+  commands: {
+    cmd_reload: {
+      isEnabled() {
+        return !contentProgress.busy;
+      },
+      doCommand() {
+        document.getElementById("requestFrame").reload();
+      },
+    },
+    cmd_stop: {
+      isEnabled() {
+        return contentProgress.busy;
+      },
+      doCommand() {
+        document.getElementById("requestFrame").stop();
+      },
+    },
+    "Browser:Back": {
+      isEnabled() {
+        return gBrowser.canGoBack;
+      },
+      doCommand() {
+        gBrowser.goBack();
+      },
+    },
+    "Browser:Forward": {
+      isEnabled() {
+        return gBrowser.canGoForward;
+      },
+      doCommand() {
+        gBrowser.goForward();
+      },
+    },
+  },
+
+  supportsCommand(command) {
+    return command in this.commands;
+  },
+  isCommandEnabled(command) {
+    if (!this.supportsCommand(command)) {
+      return false;
+    }
+    let cmd = this.commands[command];
+    return cmd.isEnabled();
+  },
+  doCommand(command) {
+    if (!this.supportsCommand(command)) {
+      return;
+    }
+    let cmd = this.commands[command];
+    if (!cmd.isEnabled()) {
+      return;
+    }
+    cmd.doCommand();
+  },
+  onEvent(event) {},
+};
+
+/**
  * @implements {nsIBrowserDOMWindow}
  */
 class nsBrowserAccess {
@@ -208,6 +270,22 @@ function loadRequestedUrl() {
 
 // Fake it 'til you make it.
 var gBrowser = {
+  get canGoBack() {
+    return this.selectedBrowser.canGoBack;
+  },
+
+  get canGoForward() {
+    return this.selectedBrowser.canGoForward;
+  },
+
+  goForward(requireUserInteraction) {
+    return this.selectedBrowser.goForward(requireUserInteraction);
+  },
+
+  goBack(requireUserInteraction) {
+    return this.selectedBrowser.goBack(requireUserInteraction);
+  },
+
   get selectedBrowser() {
     return document.getElementById("requestFrame");
   },
@@ -276,7 +354,32 @@ var gBrowserInit = {
       ? PromiseUtils.defer().promise
       : Promise.resolve();
 
+    contentProgress.addListener({
+      onStateChange(browser, webProgress, request, stateFlags, statusCode) {
+        if (!webProgress.isTopLevel) {
+          return;
+        }
+
+        let status;
+        if (stateFlags & Ci.nsIWebProgressListener.STATE_IS_WINDOW) {
+          if (stateFlags & Ci.nsIWebProgressListener.STATE_START) {
+            status = "loading";
+          } else if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+            status = "complete";
+          }
+        } else if (
+          stateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+          statusCode == Cr.NS_BINDING_ABORTED
+        ) {
+          status = "complete";
+        }
+
+        contentProgress.busy = status == "loading";
+      },
+    });
     contentProgress.addProgressListenerToBrowser(gBrowser.selectedBrowser);
+
+    top.controllers.appendController(contentController);
 
     promise.then(() => {
       // If focus didn't move while we were waiting, we're okay to move to
@@ -346,6 +449,7 @@ var XULBrowserWindow = {
  */
 var contentProgress = {
   _listeners: new Set(),
+  busy: false,
 
   addListener(listener) {
     this._listeners.add(listener);

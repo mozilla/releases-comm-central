@@ -10,6 +10,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/browserRequest.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/extensionPopup.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/contextMenu.css" type="text/css"?>
 
 <!DOCTYPE html [
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
@@ -47,17 +48,29 @@
   </popupset>
 
   <commandset>
-    <command id="cmd_reload" oncommand="document.getElementById('requestFrame').reload()"/>
-    <command id="cmd_stop" oncommand="document.getElementById('requestFrame').stop()"/>
     <command id="cmd_copyLink" oncommand="goDoCommand('cmd_copyLink')" disabled="false"/>
     <command id="cmd_copyImage" oncommand="goCopyImage()" disabled="false"/>
     <command id="cmd_close" oncommand="window.tryToClose()"/>
+    <command id="cmd_reload" oncommand="goDoCommand('cmd_reload');"/>
+    <command id="cmd_stop" oncommand="goDoCommand('cmd_stop');"/>
+    <command id="Browser:Back" oncommand="goDoCommand('Browser:Back');"/>
+    <command id="Browser:Forward" oncommand="goDoCommand('Browser:Forward');"/>
   </commandset>
 
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
   <keyset id="popupKeys">
     <key id="key_close" data-l10n-id="close-shortcut" command="cmd_close" modifiers="accel" reserved="true"/>
+  </keyset>
+
+  <keyset id="browserKeys">
+    #ifdef XP_MACOSX
+      <key id="key_goBackKb" keycode="VK_LEFT" oncommand="gBrowser.goBack()" modifiers="accel"/>
+      <key id="key_goForwardKb" keycode="VK_RIGHT" oncommand="gBrowser.goForward()" modifiers="accel"/>
+    #else
+      <key id="key_goBackKb" keycode="VK_LEFT" oncommand="gBrowser.goBack()" modifiers="alt" />
+      <key id="key_goForwardKb" keycode="VK_RIGHT" oncommand="gBrowser.goForward()" modifiers="alt" />
+    #endif
   </keyset>
 
   <!-- Use the same styling and semantics as content tabs. -->

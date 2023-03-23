@@ -198,6 +198,33 @@ add_task(async function test_tabs() {
   );
 });
 
+add_task(async function test_windows() {
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const url = "test.html";
+        let testWindow = await browser.windows.create({ type: "popup", url });
+        await window.sendMessage("contextClick");
+        await browser.windows.remove(testWindow.id);
+
+        browser.test.notifyPass();
+      },
+      ...(await getCommonFiles()),
+    },
+    manifest: {
+      background: {
+        scripts: ["utils.js", "background.js"],
+      },
+      permissions: ["tabs"],
+    },
+  });
+
+  await subtest_clickOpenInBrowserContextMenu(
+    extension,
+    () => Services.wm.getMostRecentWindow("mail:extensionPopup").browser
+  );
+});
+
 add_task(async function test_mail3pane() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
