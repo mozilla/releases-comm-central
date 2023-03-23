@@ -341,7 +341,8 @@
             "parameters": [
               {
                 "name": "result",
-                "type": "string"
+                "type": "string",
+                "optional": true
               }
             ]
           }
