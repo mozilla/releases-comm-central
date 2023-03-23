@@ -375,6 +375,12 @@ export default [
       "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
     ],
   },
+  {
+    id: "throbber",
+    labelId: "toolbar-throbber",
+    spaces: ["mail"],
+    templateId: "throbberTemplate",
+  },
   // Calendar & Tasks space
   {
     id: "edit-event",

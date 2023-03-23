@@ -469,6 +469,8 @@ nsMsgStatusFeedback.prototype = {
       this._throbber.setAttribute("busy", true);
     }
 
+    document.querySelector(".throbber")?.classList.add("busy");
+
     // Update the stop button
     goUpdateCommand("cmd_stop");
   },
@@ -503,6 +505,8 @@ nsMsgStatusFeedback.prototype = {
     if (this._throbber) {
       this._throbber.setAttribute("busy", false);
     }
+
+    document.querySelector(".throbber")?.classList.remove("busy");
 
     this._meteorsSpinning = false;
     this._stopTimeoutID = null;

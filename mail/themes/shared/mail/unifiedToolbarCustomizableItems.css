@@ -190,3 +190,8 @@
 .stop .preview-icon {
   content: var(--icon-close);
 }
+
+.throbber .preview-icon {
+  content: var(--icon-loading);
+  object-fit: cover;
+}

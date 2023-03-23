@@ -339,3 +339,30 @@ kbd {
 .unified-toolbar .stop .button-icon {
   content: var(--icon-close);
 }
+
+.unified-toolbar .throbber .throbber-icon {
+  stroke: var(--button-primary-background-color);
+  -moz-context-properties: stroke, fill;
+  width: 16px;
+  height: 16px;
+  visibility: hidden;
+  margin: var(--button-margin);
+  vertical-align: middle;
+  content: var(--icon-loading);
+  object-fit: cover;
+}
+
+.unified-toolbar .throbber.busy .throbber-icon {
+  visibility: visible;
+  object-position: 0px 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .unified-toolbar .throbber.busy .throbber-icon {
+    animation: activity-indicator-throbber 1.05s steps(30) infinite;
+  }
+
+  @keyframes activity-indicator-throbber {
+    100% { object-position: -480px 0; }
+  }
+}

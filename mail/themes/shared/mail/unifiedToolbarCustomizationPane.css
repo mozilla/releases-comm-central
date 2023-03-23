@@ -46,6 +46,10 @@
   background: green;
 }
 
+.toolbar-target .throbber .throbber-icon {
+  visibility: visible;
+}
+
 /* buttons are disabled in the preview, but we want them to look active. */
 .toolbar-target .unified-toolbar-button[disabled] {
   color: inherit;
