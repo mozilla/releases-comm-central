@@ -40,6 +40,7 @@ export default [
     allowMultiple: true,
   },
   {
+    // This item gets filtered out when gloda is disabled.
     id: "search-bar",
     labelId: "search-bar",
     templateId: "searchBarItemTemplate",

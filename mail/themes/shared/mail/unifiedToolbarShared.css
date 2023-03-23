@@ -118,7 +118,7 @@
   max-width: 50ch;
 }
 
-global-search-bar {
+global-search-bar:not([hidden]) {
   display: block;
 }
 

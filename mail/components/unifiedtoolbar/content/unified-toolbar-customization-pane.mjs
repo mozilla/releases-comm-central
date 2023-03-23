@@ -108,6 +108,7 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
 
     this.#toolbarTarget = template.querySelector(".toolbar-target");
     this.#toolbarTarget.classList.add(this.buttonStyle);
+    this.#toolbarTarget.setAttribute("space", space);
 
     this.#spaceSpecificTitle = template.querySelector(".space-specific-title");
     document.l10n.setAttributes(

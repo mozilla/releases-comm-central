@@ -59,6 +59,10 @@
   display: none;
 }
 
+[is="customization-target"] .collapsed {
+  display: none;
+}
+
 .customization-palettes {
   overflow: auto;
 }

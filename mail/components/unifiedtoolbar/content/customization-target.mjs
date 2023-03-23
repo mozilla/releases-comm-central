@@ -5,6 +5,10 @@
 import ListBoxSelection from "./list-box-selection.mjs";
 import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned-import
 
+const { getAvailableItemIdsForSpace } = ChromeUtils.importESModule(
+  "resource:///modules/CustomizableItems.sys.mjs"
+);
+
 /**
  * Customization target where items can be placed, rearranged and removed.
  * Attributes:
@@ -14,6 +18,7 @@ import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned
  * Events:
  * - itemchange: Fired whenever the items inside the toolbar are added, moved or
  *   removed.
+ * - space: The space this target is in.
  */
 class CustomizationTarget extends ListBoxSelection {
   contextMenuId = "customizationTargetMenu";
@@ -67,6 +72,10 @@ class CustomizationTarget extends ListBoxSelection {
    */
   setItems(itemIds) {
     const childCount = this.children.length;
+    const availableItems = getAvailableItemIdsForSpace(
+      this.getAttribute("space"),
+      true
+    );
     this.replaceChildren(
       ...itemIds.map(itemId => {
         const element = document.createElement("li", {
@@ -74,6 +83,7 @@ class CustomizationTarget extends ListBoxSelection {
         });
         element.setAttribute("item-id", itemId);
         element.setAttribute("disabled", "disabled");
+        element.classList.toggle("collapsed", !availableItems.includes(itemId));
         element.draggable = true;
         return element;
       })

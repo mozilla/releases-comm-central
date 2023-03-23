@@ -90,6 +90,14 @@ class GlobalSearchBar extends SearchBar {
     if (this.shadowRoot) {
       return;
     }
+    if (
+      !Services.prefs.getBoolPref(
+        "mailnews.database.global.indexer.enabled",
+        true
+      )
+    ) {
+      return;
+    }
     // Need to call this after the shadow root test, since this will always set
     // up a shadow root.
     super.connectedCallback();
