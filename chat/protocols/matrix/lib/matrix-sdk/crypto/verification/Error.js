@@ -27,8 +27,6 @@ limitations under the License.
 
 /**
  * Error messages.
- *
- * @module crypto/verification/Error
  */
 
 function newVerificationError(code, reason, extraData) {

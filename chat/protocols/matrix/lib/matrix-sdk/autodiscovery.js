@@ -6,14 +6,12 @@ Object.defineProperty(exports, "__esModule", {
 exports.AutoDiscoveryAction = exports.AutoDiscovery = void 0;
 var _logger = require("./logger");
 var _httpApi = require("./http-api");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 // Dev note: Auto discovery is part of the spec.
 // See: https://matrix.org/docs/spec/client_server/r0.4.0.html#server-discovery
 let AutoDiscoveryAction;
-/**
- * Utilities for automatically discovery resources, such as homeservers
- * for users to log in to.
- */
 exports.AutoDiscoveryAction = AutoDiscoveryAction;
 (function (AutoDiscoveryAction) {
   AutoDiscoveryAction["SUCCESS"] = "SUCCESS";
@@ -22,19 +20,31 @@ exports.AutoDiscoveryAction = AutoDiscoveryAction;
   AutoDiscoveryAction["FAIL_PROMPT"] = "FAIL_PROMPT";
   AutoDiscoveryAction["FAIL_ERROR"] = "FAIL_ERROR";
 })(AutoDiscoveryAction || (exports.AutoDiscoveryAction = AutoDiscoveryAction = {}));
+var AutoDiscoveryError;
+(function (AutoDiscoveryError) {
+  AutoDiscoveryError["Invalid"] = "Invalid homeserver discovery response";
+  AutoDiscoveryError["GenericFailure"] = "Failed to get autodiscovery configuration from server";
+  AutoDiscoveryError["InvalidHsBaseUrl"] = "Invalid base_url for m.homeserver";
+  AutoDiscoveryError["InvalidHomeserver"] = "Homeserver URL does not appear to be a valid Matrix homeserver";
+  AutoDiscoveryError["InvalidIsBaseUrl"] = "Invalid base_url for m.identity_server";
+  AutoDiscoveryError["InvalidIdentityServer"] = "Identity server URL does not appear to be a valid identity server";
+  AutoDiscoveryError["InvalidIs"] = "Invalid identity server discovery response";
+  AutoDiscoveryError["MissingWellknown"] = "No .well-known JSON file found";
+  AutoDiscoveryError["InvalidJson"] = "Invalid JSON";
+})(AutoDiscoveryError || (AutoDiscoveryError = {}));
+/**
+ * Utilities for automatically discovery resources, such as homeservers
+ * for users to log in to.
+ */
 class AutoDiscovery {
   // Dev note: the constants defined here are related to but not
   // exactly the same as those in the spec. This is to hopefully
   // translate the meaning of the states in the spec, but also
   // support our own if needed.
 
-  // eslint-disable-next-line
-
   /**
    * The auto discovery failed. The client is expected to communicate
    * the error to the user and refuse logging in.
-   * @return {string}
-   * @constructor
    */
 
   /**
@@ -43,22 +53,16 @@ class AutoDiscovery {
    * action it would for PROMPT while also warning the user about
    * what went wrong. The client may also treat this the same as
    * a FAIL_ERROR state.
-   * @return {string}
-   * @constructor
    */
 
   /**
    * The auto discovery didn't fail but did not find anything of
    * interest. The client is expected to prompt the user for more
    * information, or fail if it prefers.
-   * @return {string}
-   * @constructor
    */
 
   /**
    * The auto discovery was successful.
-   * @return {string}
-   * @constructor
    */
 
   /**
@@ -67,9 +71,9 @@ class AutoDiscovery {
    * and identity server URL the client would want. Additional details
    * may also be included, and will be transparently brought into the
    * response object unaltered.
-   * @param {object} wellknown The configuration object itself, as returned
+   * @param wellknown - The configuration object itself, as returned
    * by the .well-known auto-discovery endpoint.
-   * @return {Promise<DiscoveredClientConfig>} Resolves to the verified
+   * @returns Promise which resolves to the verified
    * configuration, which may include error states. Rejects on unexpected
    * failure, not when verification fails.
    */
@@ -117,7 +121,7 @@ class AutoDiscovery {
 
     // Step 3: Make sure the homeserver URL points to a homeserver.
     const hsVersions = await this.fetchWellKnownObject(`${hsUrl}/_matrix/client/versions`);
-    if (!hsVersions || !hsVersions.raw["versions"]) {
+    if (!hsVersions || !hsVersions.raw?.["versions"]) {
       _logger.logger.error("Invalid /versions response");
       clientConfig["m.homeserver"].error = AutoDiscovery.ERROR_INVALID_HOMESERVER;
 
@@ -159,9 +163,9 @@ class AutoDiscovery {
 
       // Step 5b: Verify there is an identity server listening on the provided
       // URL.
-      const isResponse = await this.fetchWellKnownObject(`${isUrl}/_matrix/identity/api/v1`);
-      if (!isResponse || !isResponse.raw || isResponse.action !== AutoDiscoveryAction.SUCCESS) {
-        _logger.logger.error("Invalid /api/v1 response");
+      const isResponse = await this.fetchWellKnownObject(`${isUrl}/_matrix/identity/v2`);
+      if (!isResponse?.raw || isResponse.action !== AutoDiscoveryAction.SUCCESS) {
+        _logger.logger.error("Invalid /v2 response");
         failingClientConfig["m.identity_server"].error = AutoDiscovery.ERROR_INVALID_IDENTITY_SERVER;
 
         // Supply the base_url to the caller because they may be ignoring
@@ -190,6 +194,7 @@ class AutoDiscovery {
         const notProps = ["error", "state", "base_url"];
         for (const prop of Object.keys(wellknown[k])) {
           if (notProps.includes(prop)) continue;
+          // @ts-ignore - ts gets unhappy as we're mixing types here
           clientConfig[k][prop] = wellknown[k][prop];
         }
       } else {
@@ -208,9 +213,9 @@ class AutoDiscovery {
    * and identity server URL the client would want. Additional details
    * may also be discovered, and will be transparently included in the
    * response object unaltered.
-   * @param {string} domain The homeserver domain to perform discovery
+   * @param domain - The homeserver domain to perform discovery
    * on. For example, "matrix.org".
-   * @return {Promise<DiscoveredClientConfig>} Resolves to the discovered
+   * @returns Promise which resolves to the discovered
    * configuration, which may include error states. Rejects on unexpected
    * failure, not when discovery fails.
    */
@@ -276,8 +281,8 @@ class AutoDiscovery {
    * Gets the raw discovery client configuration for the given domain name.
    * Should only be used if there's no validation to be done on the resulting
    * object, otherwise use findClientConfig().
-   * @param {string} domain The domain to get the client config for.
-   * @returns {Promise<object>} Resolves to the domain's client config. Can
+   * @param domain - The domain to get the client config for.
+   * @returns Promise which resolves to the domain's client config. Can
    * be an empty object.
    */
   static async getRawClientConfig(domain) {
@@ -293,20 +298,20 @@ class AutoDiscovery {
    * Sanitizes a given URL to ensure it is either an HTTP or HTTP URL and
    * is suitable for the requirements laid out by .well-known auto discovery.
    * If valid, the URL will also be stripped of any trailing slashes.
-   * @param {string} url The potentially invalid URL to sanitize.
-   * @return {string|boolean} The sanitized URL or a falsey value if the URL is invalid.
-   * @private
+   * @param url - The potentially invalid URL to sanitize.
+   * @returns The sanitized URL or a falsey value if the URL is invalid.
+   * @internal
    */
   static sanitizeWellKnownUrl(url) {
     if (!url) return false;
     try {
-      let parsed = null;
+      let parsed;
       try {
         parsed = new URL(url);
       } catch (e) {
         _logger.logger.error("Could not parse url", e);
       }
-      if (!parsed || !parsed.hostname) return false;
+      if (!parsed?.hostname) return false;
       if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
       const port = parsed.port ? `:${parsed.port}` : "";
       const path = parsed.pathname ? parsed.pathname : "";
@@ -342,9 +347,9 @@ class AutoDiscovery {
    *   action: One of SUCCESS, IGNORE, or FAIL_PROMPT.
    *   reason: Relatively human-readable description of what went wrong.
    *   error: The actual Error, if one exists.
-   * @param {string} url The URL to fetch a JSON object from.
-   * @return {Promise<object>} Resolves to the returned state.
-   * @private
+   * @param url - The URL to fetch a JSON object from.
+   * @returns Promise which resolves to the returned state.
+   * @internal
    */
   static async fetchWellKnownObject(url) {
     let response;
@@ -369,11 +374,15 @@ class AutoDiscovery {
       }
     } catch (err) {
       const error = err;
+      let reason = "";
+      if (typeof error === "object") {
+        reason = error?.message;
+      }
       return {
         error,
         raw: {},
         action: AutoDiscoveryAction.FAIL_PROMPT,
-        reason: error?.message || "General failure"
+        reason: reason || "General failure"
       };
     }
     try {
@@ -393,16 +402,16 @@ class AutoDiscovery {
   }
 }
 exports.AutoDiscovery = AutoDiscovery;
-_defineProperty(AutoDiscovery, "ERROR_INVALID", "Invalid homeserver discovery response");
-_defineProperty(AutoDiscovery, "ERROR_GENERIC_FAILURE", "Failed to get autodiscovery configuration from server");
-_defineProperty(AutoDiscovery, "ERROR_INVALID_HS_BASE_URL", "Invalid base_url for m.homeserver");
-_defineProperty(AutoDiscovery, "ERROR_INVALID_HOMESERVER", "Homeserver URL does not appear to be a valid Matrix homeserver");
-_defineProperty(AutoDiscovery, "ERROR_INVALID_IS_BASE_URL", "Invalid base_url for m.identity_server");
-_defineProperty(AutoDiscovery, "ERROR_INVALID_IDENTITY_SERVER", "Identity server URL does not appear to be a valid identity server");
-_defineProperty(AutoDiscovery, "ERROR_INVALID_IS", "Invalid identity server discovery response");
-_defineProperty(AutoDiscovery, "ERROR_MISSING_WELLKNOWN", "No .well-known JSON file found");
-_defineProperty(AutoDiscovery, "ERROR_INVALID_JSON", "Invalid JSON");
-_defineProperty(AutoDiscovery, "ALL_ERRORS", [AutoDiscovery.ERROR_INVALID, AutoDiscovery.ERROR_GENERIC_FAILURE, AutoDiscovery.ERROR_INVALID_HS_BASE_URL, AutoDiscovery.ERROR_INVALID_HOMESERVER, AutoDiscovery.ERROR_INVALID_IS_BASE_URL, AutoDiscovery.ERROR_INVALID_IDENTITY_SERVER, AutoDiscovery.ERROR_INVALID_IS, AutoDiscovery.ERROR_MISSING_WELLKNOWN, AutoDiscovery.ERROR_INVALID_JSON]);
+_defineProperty(AutoDiscovery, "ERROR_INVALID", AutoDiscoveryError.Invalid);
+_defineProperty(AutoDiscovery, "ERROR_GENERIC_FAILURE", AutoDiscoveryError.GenericFailure);
+_defineProperty(AutoDiscovery, "ERROR_INVALID_HS_BASE_URL", AutoDiscoveryError.InvalidHsBaseUrl);
+_defineProperty(AutoDiscovery, "ERROR_INVALID_HOMESERVER", AutoDiscoveryError.InvalidHomeserver);
+_defineProperty(AutoDiscovery, "ERROR_INVALID_IS_BASE_URL", AutoDiscoveryError.InvalidIsBaseUrl);
+_defineProperty(AutoDiscovery, "ERROR_INVALID_IDENTITY_SERVER", AutoDiscoveryError.InvalidIdentityServer);
+_defineProperty(AutoDiscovery, "ERROR_INVALID_IS", AutoDiscoveryError.InvalidIs);
+_defineProperty(AutoDiscovery, "ERROR_MISSING_WELLKNOWN", AutoDiscoveryError.MissingWellknown);
+_defineProperty(AutoDiscovery, "ERROR_INVALID_JSON", AutoDiscoveryError.InvalidJson);
+_defineProperty(AutoDiscovery, "ALL_ERRORS", Object.keys(AutoDiscoveryError));
 _defineProperty(AutoDiscovery, "FAIL_ERROR", AutoDiscoveryAction.FAIL_ERROR);
 _defineProperty(AutoDiscovery, "FAIL_PROMPT", AutoDiscoveryAction.FAIL_PROMPT);
 _defineProperty(AutoDiscovery, "PROMPT", AutoDiscoveryAction.PROMPT);

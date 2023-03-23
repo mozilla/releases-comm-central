@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ReceiptType = void 0;
+exports.ReceiptType = exports.MAIN_ROOM_TIMELINE = void 0;
 /*
 Copyright 2022 Šimon Brandner <simon.bra.ag@gmail.com>
 
@@ -26,3 +26,5 @@ exports.ReceiptType = ReceiptType;
   ReceiptType["FullyRead"] = "m.fully_read";
   ReceiptType["ReadPrivate"] = "m.read.private";
 })(ReceiptType || (exports.ReceiptType = ReceiptType = {}));
+const MAIN_ROOM_TIMELINE = "main";
+exports.MAIN_ROOM_TIMELINE = MAIN_ROOM_TIMELINE;

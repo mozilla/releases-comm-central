@@ -13,7 +13,9 @@ var _megolm = require("../crypto/algorithms/megolm");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /**
  * The recommended defaults for a tree space's power levels. Note that this
  * is UNSTABLE and subject to breaking changes without notice.
@@ -48,7 +50,7 @@ const DEFAULT_TREE_POWER_LEVELS_TEMPLATE = {
  * Note that this is UNSTABLE and subject to breaking changes without notice.
  */
 exports.DEFAULT_TREE_POWER_LEVELS_TEMPLATE = DEFAULT_TREE_POWER_LEVELS_TEMPLATE;
-let TreePermissions;
+let TreePermissions; // "Admin" or PL100
 /**
  * Represents a [MSC3089](https://github.com/matrix-org/matrix-doc/pull/3089)
  * file tree Space. Note that this is UNSTABLE and subject to breaking changes
@@ -84,13 +86,13 @@ class MSC3089TreeSpace {
     // but is safe for a managed usecase like we offer in the SDK.
     const parentEvents = this.room.currentState.getStateEvents(_event.EventType.SpaceParent);
     if (!parentEvents?.length) return true;
-    return parentEvents.every(e => !e.getContent()?.['via']);
+    return parentEvents.every(e => !e.getContent()?.["via"]);
   }
 
   /**
    * Sets the name of the tree space.
-   * @param {string} name The new name for the space.
-   * @returns {Promise<void>} Resolves when complete.
+   * @param name - The new name for the space.
+   * @returns Promise which resolves when complete.
    */
   async setName(name) {
     await this.client.sendStateEvent(this.roomId, _event.EventType.RoomName, {
@@ -101,15 +103,15 @@ class MSC3089TreeSpace {
   /**
    * Invites a user to the tree space. They will be given the default Viewer
    * permission level unless specified elsewhere.
-   * @param {string} userId The user ID to invite.
-   * @param {boolean} andSubspaces True (default) to invite the user to all
+   * @param userId - The user ID to invite.
+   * @param andSubspaces - True (default) to invite the user to all
    * directories/subspaces too, recursively.
-   * @param {boolean} shareHistoryKeys True (default) to share encryption keys
+   * @param shareHistoryKeys - True (default) to share encryption keys
    * with the invited user. This will allow them to decrypt the events (files)
    * in the tree. Keys will not be shared if the room is lacking appropriate
    * history visibility (by default, history visibility is "shared" in trees,
    * which is an appropriate visibility for these purposes).
-   * @returns {Promise<void>} Resolves when complete.
+   * @returns Promise which resolves when complete.
    */
   async invite(userId, andSubspaces = true, shareHistoryKeys = true) {
     const promises = [this.retryInvite(userId)];
@@ -143,18 +145,18 @@ class MSC3089TreeSpace {
    * Sets the permissions of a user to the given role. Note that if setting a user
    * to Owner then they will NOT be able to be demoted. If the user does not have
    * permission to change the power level of the target, an error will be thrown.
-   * @param {string} userId The user ID to change the role of.
-   * @param {TreePermissions} role The role to assign.
-   * @returns {Promise<void>} Resolves when complete.
+   * @param userId - The user ID to change the role of.
+   * @param role - The role to assign.
+   * @returns Promise which resolves when complete.
    */
   async setPermissions(userId, role) {
     const currentPls = this.room.currentState.getStateEvents(_event.EventType.RoomPowerLevels, "");
     if (Array.isArray(currentPls)) throw new Error("Unexpected return type for power levels");
-    const pls = currentPls.getContent() || {};
-    const viewLevel = pls['users_default'] || 0;
-    const editLevel = pls['events_default'] || 50;
-    const adminLevel = pls['events']?.[_event.EventType.RoomPowerLevels] || 100;
-    const users = pls['users'] || {};
+    const pls = currentPls?.getContent() || {};
+    const viewLevel = pls["users_default"] || 0;
+    const editLevel = pls["events_default"] || 50;
+    const adminLevel = pls["events"]?.[_event.EventType.RoomPowerLevels] || 100;
+    const users = pls["users"] || {};
     switch (role) {
       case TreePermissions.Viewer:
         users[userId] = viewLevel;
@@ -168,7 +170,7 @@ class MSC3089TreeSpace {
       default:
         throw new Error("Invalid role: " + role);
     }
-    pls['users'] = users;
+    pls["users"] = users;
     await this.client.sendStateEvent(this.roomId, _event.EventType.RoomPowerLevels, pls, "");
   }
 
@@ -176,17 +178,17 @@ class MSC3089TreeSpace {
    * Gets the current permissions of a user. Note that any users missing explicit permissions (or not
    * in the space) will be considered Viewers. Appropriate membership checks need to be performed
    * elsewhere.
-   * @param {string} userId The user ID to check permissions of.
-   * @returns {TreePermissions} The permissions for the user, defaulting to Viewer.
+   * @param userId - The user ID to check permissions of.
+   * @returns The permissions for the user, defaulting to Viewer.
    */
   getPermissions(userId) {
     const currentPls = this.room.currentState.getStateEvents(_event.EventType.RoomPowerLevels, "");
     if (Array.isArray(currentPls)) throw new Error("Unexpected return type for power levels");
-    const pls = currentPls.getContent() || {};
-    const viewLevel = pls['users_default'] || 0;
-    const editLevel = pls['events_default'] || 50;
-    const adminLevel = pls['events']?.[_event.EventType.RoomPowerLevels] || 100;
-    const userLevel = pls['users']?.[userId] || viewLevel;
+    const pls = currentPls?.getContent() || {};
+    const viewLevel = pls["users_default"] || 0;
+    const editLevel = pls["events_default"] || 50;
+    const adminLevel = pls["events"]?.[_event.EventType.RoomPowerLevels] || 100;
+    const userLevel = pls["users"]?.[userId] || viewLevel;
     if (userLevel >= adminLevel) return TreePermissions.Owner;
     if (userLevel >= editLevel) return TreePermissions.Editor;
     return TreePermissions.Viewer;
@@ -194,8 +196,8 @@ class MSC3089TreeSpace {
 
   /**
    * Creates a directory under this tree space, represented as another tree space.
-   * @param {string} name The name for the directory.
-   * @returns {Promise<MSC3089TreeSpace>} Resolves to the created directory.
+   * @param name - The name for the directory.
+   * @returns Promise which resolves to the created directory.
    */
   async createDirectory(name) {
     const directory = await this.client.unstableCreateFileTree(name);
@@ -210,7 +212,7 @@ class MSC3089TreeSpace {
 
   /**
    * Gets a list of all known immediate subdirectories to this tree space.
-   * @returns {MSC3089TreeSpace[]} The tree spaces (directories). May be empty, but not null.
+   * @returns The tree spaces (directories). May be empty, but not null.
    */
   getDirectories() {
     const trees = [];
@@ -232,8 +234,8 @@ class MSC3089TreeSpace {
   /**
    * Gets a subdirectory of a given ID under this tree space. Note that this will not recurse
    * into children and instead only look one level deep.
-   * @param {string} roomId The room ID (directory ID) to find.
-   * @returns {MSC3089TreeSpace | undefined} The directory, or undefined if not found.
+   * @param roomId - The room ID (directory ID) to find.
+   * @returns The directory, or undefined if not found.
    */
   getDirectory(roomId) {
     return this.getDirectories().find(r => r.roomId === roomId);
@@ -241,7 +243,7 @@ class MSC3089TreeSpace {
 
   /**
    * Deletes the tree, kicking all members and deleting **all subdirectories**.
-   * @returns {Promise<void>} Resolves when complete.
+   * @returns Promise which resolves when complete.
    */
   async delete() {
     const subdirectories = this.getDirectories();
@@ -265,7 +267,7 @@ class MSC3089TreeSpace {
   getOrderedChildren(children) {
     const ordered = children.map(c => ({
       roomId: c.getStateKey(),
-      order: c.getContent()['order']
+      order: c.getContent()["order"]
     })).filter(c => c.roomId);
     ordered.sort((a, b) => {
       if (a.order && !b.order) {
@@ -309,7 +311,7 @@ class MSC3089TreeSpace {
   /**
    * Gets the current order index for this directory. Note that if this is the top level space
    * then -1 will be returned.
-   * @returns {number} The order index of this space.
+   * @returns The order index of this space.
    */
   getOrder() {
     if (this.isTopLevel) return -1;
@@ -323,8 +325,8 @@ class MSC3089TreeSpace {
    * Sets the order index for this directory within its parent. Note that if this is a top level
    * space then an error will be thrown. -1 can be used to move the child to the start, and numbers
    * larger than the number of children can be used to move the child to the end.
-   * @param {number} index The new order index for this space.
-   * @returns {Promise<void>} Resolves when complete.
+   * @param index - The new order index for this space.
+   * @returns Promise which resolves when complete.
    * @throws Throws if this is a top level space.
    */
   async setOrder(index) {
@@ -426,11 +428,11 @@ class MSC3089TreeSpace {
   /**
    * Creates (uploads) a new file to this tree. The file must have already been encrypted for the room.
    * The file contents are in a type that is compatible with MatrixClient.uploadContent().
-   * @param {string} name The name of the file.
-   * @param {File | String | Buffer | ReadStream | Blob} encryptedContents The encrypted contents.
-   * @param {Partial<IEncryptedFile>} info The encrypted file information.
-   * @param {IContent} additionalContent Optional event content fields to include in the message.
-   * @returns {Promise<ISendEventResponse>} Resolves to the file event's sent response.
+   * @param name - The name of the file.
+   * @param encryptedContents - The encrypted contents.
+   * @param info - The encrypted file information.
+   * @param additionalContent - Optional event content fields to include in the message.
+   * @returns Promise which resolves to the file event's sent response.
    */
   async createFile(name, encryptedContents, info, additionalContent) {
     const {
@@ -458,14 +460,14 @@ class MSC3089TreeSpace {
     await this.client.sendStateEvent(this.roomId, _event.UNSTABLE_MSC3089_BRANCH.name, {
       active: true,
       name: name
-    }, res['event_id']);
+    }, res["event_id"]);
     return res;
   }
 
   /**
    * Retrieves a file from the tree.
-   * @param {string} fileEventId The event ID of the file.
-   * @returns {MSC3089Branch | null} The file, or null if not found.
+   * @param fileEventId - The event ID of the file.
+   * @returns The file, or null if not found.
    */
   getFile(fileEventId) {
     const branch = this.room.currentState.getStateEvents(_event.UNSTABLE_MSC3089_BRANCH.name, fileEventId);
@@ -474,7 +476,7 @@ class MSC3089TreeSpace {
 
   /**
    * Gets an array of all known files for the tree.
-   * @returns {MSC3089Branch[]} The known files. May be empty, but not null.
+   * @returns The known files. May be empty, but not null.
    */
   listFiles() {
     return this.listAllFiles().filter(b => b.isActive);
@@ -482,7 +484,7 @@ class MSC3089TreeSpace {
 
   /**
    * Gets an array of all known files for the tree, including inactive/invalid ones.
-   * @returns {MSC3089Branch[]} The known files. May be empty, but not null.
+   * @returns The known files. May be empty, but not null.
    */
   listAllFiles() {
     const branches = this.room.currentState.getStateEvents(_event.UNSTABLE_MSC3089_BRANCH.name) ?? [];

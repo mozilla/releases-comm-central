@@ -11,10 +11,11 @@ var _user = require("../models/user");
 var _event = require("../models/event");
 var _logger = require("../logger");
 var _typedEventEmitter = require("../models/typed-event-emitter");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /**
  * This is an internal module. See {@link IndexedDBStore} for the public class.
- * @module store/indexeddb
  */
 
 // If this value is too small we'll be writing very often which will cause
@@ -28,6 +29,12 @@ class IndexedDBStore extends _memory.MemoryStore {
   static exists(indexedDB, dbName) {
     return _indexeddbLocalBackend.LocalIndexedDBStoreBackend.exists(indexedDB, dbName);
   }
+
+  /**
+   * The backend instance.
+   * Call through to this API if you need to perform specific indexeddb actions like deleting the database.
+   */
+
   /**
    * Construct a new Indexed Database store, which extends MemoryStore.
    *
@@ -35,10 +42,10 @@ class IndexedDBStore extends _memory.MemoryStore {
    * the contents of the store to an IndexedDB backend.
    *
    * All data is still kept in-memory but can be loaded from disk by calling
-   * <code>startup()</code>. This can make startup times quicker as a complete
+   * `startup()`. This can make startup times quicker as a complete
    * sync from the server is not required. This does not reduce memory usage as all
-   * the data is eagerly fetched when <code>startup()</code> is called.
-   * <pre>
+   * the data is eagerly fetched when `startup()` is called.
+   * ```
    * let opts = { indexedDB: window.indexedDB, localStorage: window.localStorage };
    * let store = new IndexedDBStore(opts);
    * await store.startup(); // load from indexed db
@@ -51,24 +58,9 @@ class IndexedDBStore extends _memory.MemoryStore {
    *         console.log("Started up, now with go faster stripes!");
    *     }
    * });
-   * </pre>
+   * ```
    *
-   * @constructor
-   * @extends MemoryStore
-   * @param {Object} opts Options object.
-   * @param {Object} opts.indexedDB The Indexed DB interface e.g.
-   * <code>window.indexedDB</code>
-   * @param {string=} opts.dbName Optional database name. The same name must be used
-   * to open the same database.
-   * @param {string=} opts.workerScript Optional URL to a script to invoke a web
-   * worker with to run IndexedDB queries on the web worker. The IndexedDbStoreWorker
-   * class is provided for this purpose and requires the application to provide a
-   * trivial wrapper script around it.
-   * @param {Object=} opts.workerApi The webWorker API object. If omitted, the global Worker
-   * object will be used if it exists.
-   * @prop {IndexedDBStoreBackend} backend The backend instance. Call through to
-   * this API if you need to perform specific indexeddb actions like deleting the
-   * database.
+   * @param opts - Options object.
    */
   constructor(opts) {
     super(opts);
@@ -134,7 +126,7 @@ class IndexedDBStore extends _memory.MemoryStore {
       return this.backend.storeClientOptions(options);
     }, "storeClientOptions"));
     if (!opts.indexedDB) {
-      throw new Error('Missing required option: indexedDB');
+      throw new Error("Missing required option: indexedDB");
     }
     if (opts.workerFactory) {
       this.backend = new _indexeddbRemoteBackend.RemoteIndexedDBStoreBackend(opts.workerFactory, opts.dbName);
@@ -143,7 +135,7 @@ class IndexedDBStore extends _memory.MemoryStore {
     }
   }
   /**
-   * @return {Promise} Resolved when loaded from indexed db.
+   * @returns Resolved when loaded from indexed db.
    */
   startup() {
     if (this.startedUp) {
@@ -168,7 +160,7 @@ class IndexedDBStore extends _memory.MemoryStore {
   }
 
   /**
-   * @return {Promise} Resolves with a sync response to restore the
+   * @returns Promise which resolves with a sync response to restore the
    * client state to where it was at the last save, or null if there
    * is no saved sync data.
    */
@@ -179,7 +171,7 @@ class IndexedDBStore extends _memory.MemoryStore {
    * not could change between calling this function and calling
    * save().
    *
-   * @return {boolean} True if calling save() will actually save
+   * @returns True if calling save() will actually save
    *     (at the time this function is called).
    */
   wantsSave() {
@@ -190,8 +182,8 @@ class IndexedDBStore extends _memory.MemoryStore {
   /**
    * Possibly write data to the database.
    *
-   * @param {boolean} force True to force a save to happen
-   * @return {Promise} Promise resolves after the write completes
+   * @param force - True to force a save to happen
+   * @returns Promise resolves after the write completes
    *     (or immediately if no write is performed)
    */
   save(force = false) {
@@ -208,9 +200,9 @@ class IndexedDBStore extends _memory.MemoryStore {
    * When IndexedDB fails via any of these paths, we degrade this back to a `MemoryStore`
    * in place so that the current operation and all future ones are in-memory only.
    *
-   * @param {Function} func The degradable work to do.
-   * @param {String} fallback The method name for fallback.
-   * @returns {Function} A wrapped member function.
+   * @param func - The degradable work to do.
+   * @param fallback - The method name for fallback.
+   * @returns A wrapped member function.
    */
   degradable(func, fallback) {
     const fallbackFn = fallback ? super[fallback] : null;
@@ -279,8 +271,8 @@ class IndexedDBStore extends _memory.MemoryStore {
 }
 
 /**
- * @param {string} roomId ID of the current room
- * @returns {string} Storage key to retrieve pending events
+ * @param roomId - ID of the current room
+ * @returns Storage key to retrieve pending events
  */
 exports.IndexedDBStore = IndexedDBStore;
 function pendingEventsKey(roomId) {

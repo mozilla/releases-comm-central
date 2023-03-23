@@ -37,7 +37,8 @@ limitations under the License.
  * To achieve an arbitrary number of only owner-writable state events
  * we introduce a variable suffix to the event type
  *
- * Eg
+ * @example
+ * ```
  * {
  *      "type": "m.beacon_info.@matthew:matrix.org.1",
  *      "state_key": "@matthew:matrix.org",
@@ -60,6 +61,7 @@ limitations under the License.
  *          // more content as described below
  *      }
  * }
+ * ```
  */
 
 /**

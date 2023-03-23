@@ -40,8 +40,7 @@ if (global.__js_sdk_entrypoint) {
 }
 global.__js_sdk_entrypoint = true;
 
-// just *accessing* indexedDB throws an exception in firefox with
-// indexeddb disabled.
+// just *accessing* indexedDB throws an exception in firefox with indexeddb disabled.
 let indexedDB;
 try {
   indexedDB = global.indexedDB;
@@ -49,9 +48,7 @@ try {
 
 // if our browser (appears to) support indexeddb, use an indexeddb crypto store.
 if (indexedDB) {
-  matrixcs.setCryptoStoreFactory(function () {
-    return new matrixcs.IndexedDBCryptoStore(indexedDB, "matrix-js-sdk:crypto");
-  });
+  matrixcs.setCryptoStoreFactory(() => new matrixcs.IndexedDBCryptoStore(indexedDB, "matrix-js-sdk:crypto"));
 }
 
 // We export 3 things to make browserify happy as well as downstream projects.

@@ -1,0 +1,126 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PollResponseEvent = void 0;
+var _ExtensibleEvent = require("./ExtensibleEvent");
+var _polls = require("../@types/polls");
+var _extensible_events = require("../@types/extensible_events");
+var _InvalidEventError = require("./InvalidEventError");
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+/**
+ * Represents a poll response event.
+ */
+class PollResponseEvent extends _ExtensibleEvent.ExtensibleEvent {
+  /**
+   * The provided answers for the poll. Note that this may be falsy/unpredictable if
+   * the `spoiled` property is true.
+   */
+  get answerIds() {
+    return this.internalAnswerIds;
+  }
+
+  /**
+   * The poll start event ID referenced by the response.
+   */
+
+  /**
+   * Whether the vote is spoiled.
+   */
+  get spoiled() {
+    return this.internalSpoiled;
+  }
+
+  /**
+   * Creates a new PollResponseEvent from a pure format. Note that the event is *not*
+   * parsed here: it will be treated as a literal m.poll.response primary typed event.
+   *
+   * To validate the response against a poll, call `validateAgainst` after creation.
+   * @param wireFormat - The event.
+   */
+  constructor(wireFormat) {
+    super(wireFormat);
+    _defineProperty(this, "internalAnswerIds", []);
+    _defineProperty(this, "internalSpoiled", false);
+    _defineProperty(this, "pollEventId", void 0);
+    const rel = this.wireContent["m.relates_to"];
+    if (!_extensible_events.REFERENCE_RELATION.matches(rel?.rel_type) || typeof rel?.event_id !== "string") {
+      throw new _InvalidEventError.InvalidEventError("Relationship must be a reference to an event");
+    }
+    this.pollEventId = rel.event_id;
+    this.validateAgainst(null);
+  }
+
+  /**
+   * Validates the poll response using the poll start event as a frame of reference. This
+   * is used to determine if the vote is spoiled, whether the answers are valid, etc.
+   * @param poll - The poll start event.
+   */
+  validateAgainst(poll) {
+    const response = _polls.M_POLL_RESPONSE.findIn(this.wireContent);
+    if (!Array.isArray(response?.answers)) {
+      this.internalSpoiled = true;
+      this.internalAnswerIds = [];
+      return;
+    }
+    let answers = response?.answers ?? [];
+    if (answers.some(a => typeof a !== "string") || answers.length === 0) {
+      this.internalSpoiled = true;
+      this.internalAnswerIds = [];
+      return;
+    }
+    if (poll) {
+      if (answers.some(a => !poll.answers.some(pa => pa.id === a))) {
+        this.internalSpoiled = true;
+        this.internalAnswerIds = [];
+        return;
+      }
+      answers = answers.slice(0, poll.maxSelections);
+    }
+    this.internalAnswerIds = answers;
+    this.internalSpoiled = false;
+  }
+  isEquivalentTo(primaryEventType) {
+    return (0, _extensible_events.isEventTypeSame)(primaryEventType, _polls.M_POLL_RESPONSE);
+  }
+  serialize() {
+    return {
+      type: _polls.M_POLL_RESPONSE.name,
+      content: {
+        "m.relates_to": {
+          rel_type: _extensible_events.REFERENCE_RELATION.name,
+          event_id: this.pollEventId
+        },
+        [_polls.M_POLL_RESPONSE.name]: {
+          answers: this.spoiled ? undefined : this.answerIds
+        }
+      }
+    };
+  }
+
+  /**
+   * Creates a new PollResponseEvent from a set of answers. To spoil the vote, pass an empty
+   * answers array.
+   * @param answers - The user's answers. Should be valid from a poll's answer IDs.
+   * @param pollEventId - The poll start event ID.
+   * @returns The representative poll response event.
+   */
+  static from(answers, pollEventId) {
+    return new PollResponseEvent({
+      type: _polls.M_POLL_RESPONSE.name,
+      content: {
+        "m.relates_to": {
+          rel_type: _extensible_events.REFERENCE_RELATION.name,
+          event_id: pollEventId
+        },
+        [_polls.M_POLL_RESPONSE.name]: {
+          answers: answers
+        }
+      }
+    });
+  }
+}
+exports.PollResponseEvent = PollResponseEvent;

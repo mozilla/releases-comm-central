@@ -22,7 +22,6 @@ limitations under the License.
 /**
  * Enum for event statuses.
  * @readonly
- * @enum {string}
  */
 let EventStatus;
 exports.EventStatus = EventStatus;

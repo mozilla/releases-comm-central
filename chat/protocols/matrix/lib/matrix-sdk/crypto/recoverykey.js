@@ -26,7 +26,7 @@ limitations under the License.
 
 // picked arbitrarily but to try & avoid clashing with any bitcoin ones
 // (which are also base58 encoded, but bitcoin's involve a lot more hashing)
-const OLM_RECOVERY_KEY_PREFIX = [0x8B, 0x01];
+const OLM_RECOVERY_KEY_PREFIX = [0x8b, 0x01];
 function encodeRecoveryKey(key) {
   const buf = Buffer.alloc(OLM_RECOVERY_KEY_PREFIX.length + key.length + 1);
   buf.set(OLM_RECOVERY_KEY_PREFIX, 0);
@@ -40,7 +40,7 @@ function encodeRecoveryKey(key) {
   return base58key.match(/.{1,4}/g)?.join(" ");
 }
 function decodeRecoveryKey(recoveryKey) {
-  const result = bs58.decode(recoveryKey.replace(/ /g, ''));
+  const result = bs58.decode(recoveryKey.replace(/ /g, ""));
   let parity = 0;
   for (const b of result) {
     parity ^= b;

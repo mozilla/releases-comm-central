@@ -4,7 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.MatrixError = exports.HTTPError = exports.ConnectionError = void 0;
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /*
 Copyright 2022 The Matrix.org Foundation C.I.C.
 
@@ -24,9 +26,8 @@ limitations under the License.
 /**
  * Construct a generic HTTP error. This is a JavaScript Error with additional information
  * specific to HTTP responses.
- * @constructor
- * @param {string} msg The error message to include.
- * @param {number} httpStatus The HTTP response status code.
+ * @param msg - The error message to include.
+ * @param httpStatus - The HTTP response status code.
  */
 class HTTPError extends Error {
   constructor(msg, httpStatus) {
@@ -34,20 +35,18 @@ class HTTPError extends Error {
     this.httpStatus = httpStatus;
   }
 }
-
-/**
- * Construct a Matrix error. This is a JavaScript Error with additional
- * information specific to the standard Matrix error response.
- * @constructor
- * @param {Object} errorJson The Matrix error JSON returned from the homeserver.
- * @prop {string} errcode The Matrix 'errcode' value, e.g. "M_FORBIDDEN".
- * @prop {string} name Same as MatrixError.errcode but with a default unknown string.
- * @prop {string} message The Matrix 'error' value, e.g. "Missing token."
- * @prop {Object} data The raw Matrix error JSON used to construct this object.
- * @prop {number} httpStatus The numeric HTTP status code given
- */
 exports.HTTPError = HTTPError;
 class MatrixError extends HTTPError {
+  // The Matrix 'errcode' value, e.g. "M_FORBIDDEN".
+
+  // The raw Matrix error JSON used to construct this object.
+
+  /**
+   * Construct a Matrix error. This is a JavaScript Error with additional
+   * information specific to the standard Matrix error response.
+   * @param errorJson - The Matrix error JSON returned from the homeserver.
+   * @param httpStatus - The numeric HTTP status code given
+   */
   constructor(errorJson = {}, httpStatus, url, event) {
     let message = errorJson.error || "Unknown message";
     if (httpStatus) {
@@ -73,7 +72,6 @@ class MatrixError extends HTTPError {
  * that a request failed because of some error with the connection, either
  * CORS was not correctly configured on the server, the server didn't response,
  * the request timed out, or the internet connection on the client side went down.
- * @constructor
  */
 exports.MatrixError = MatrixError;
 class ConnectionError extends Error {

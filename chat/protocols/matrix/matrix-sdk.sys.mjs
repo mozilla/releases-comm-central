@@ -26,6 +26,7 @@ const KNOWN_INDEX_JS = new Set([
   "matrix_events_sdk",
   "p_retry",
   "retry",
+  "sdp_transform",
   "unhomoglyph",
   "matrix_sdk/crypto",
   "matrix_sdk/crypto/algorithms",
@@ -33,6 +34,7 @@ const KNOWN_INDEX_JS = new Set([
   "matrix_sdk/rendezvous",
   "matrix_sdk/rendezvous/channels",
   "matrix_sdk/rendezvous/transports",
+  "matrix_widget_api",
 ]);
 
 // Set-up loading so require works properly in CommonJS modules.
@@ -78,13 +80,13 @@ let loader = Loader({
     "matrix-sdk/@types": matrixPath + "matrix_sdk/types",
     "matrix-sdk/@types/requests": matrixPath + "empty.js",
     "matrix-sdk/http-api": matrixPath + "matrix_sdk/http_api",
+    "matrix-sdk/rust-crypto": matrixPath + "matrix_sdk/rust_crypto",
 
     // Simple (one-file) dependencies.
     "another-json": matrixPath + "another-json.js",
     "base-x": matrixPath + "base_x/index.js",
     bs58: matrixPath + "bs58/index.js",
     "content-type": matrixPath + "content_type/index.js",
-    qs: matrixPath + "qs.js",
 
     // unhomoglyph
     unhomoglyph: matrixPath + "unhomoglyph",
@@ -97,10 +99,47 @@ let loader = Loader({
     "matrix-events-sdk": matrixPath + "matrix_events_sdk",
     "matrix-events-sdk/IPartialEvent": matrixPath + "empty.js",
 
+    // matrix-widget-api
+    "matrix-widget-api": matrixPath + "matrix_widget_api",
+    "matrix-widget-api/interfaces/CapabilitiesAction": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/ContentLoadedAction": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/ICustomWidgetData": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/IJitsiWidgetData": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/IRoomEvent": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/IStickerpickerWidgetData":
+      matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/IWidget": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/IWidgetApiRequest": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/IWidgetApiResponse": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/NavigateAction": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/OpenIDCredentialsAction":
+      matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/ReadEventAction": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/ReadRelationsAction": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/ScreenshotAction": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/SetModalButtonEnabledAction":
+      matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/SendAction": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/SendEventAction": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/SendToDeviceAction": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/StickerAction": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/StickyAction": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/SupportedVersionsAction":
+      matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/TurnServerActions": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/VisibilityAction": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/WidgetAction": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/WidgetConfigAction": matrixPath + "empty.js",
+    "matrix-widget-api/transport/ITransport": matrixPath + "empty.js",
+
+    // sdp-transform
+    "sdp-transform": matrixPath + "sdp_transform",
+
     // Packages that are not included, but an alternate implementation is given.
     events: matrixPath + "events.js",
     loglevel: matrixPath + "loglevel.js",
     "safe-buffer": matrixPath + "safe-buffer.js",
+    uuid: matrixPath + "uuid.js",
   },
   globals: loaderGlobal,
   sandboxName: "Matrix SDK",

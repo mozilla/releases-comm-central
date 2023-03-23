@@ -29,10 +29,10 @@ const zeroSalt = new Uint8Array(8);
 /**
  * encrypt a string
  *
- * @param {string} data the plaintext to encrypt
- * @param {Uint8Array} key the encryption key to use
- * @param {string} name the name of the secret
- * @param {string} ivStr the initialization vector to use
+ * @param data - the plaintext to encrypt
+ * @param key - the encryption key to use
+ * @param name - the name of the secret
+ * @param ivStr - the initialization vector to use
  */
 async function encryptAES(data, key, name, ivStr) {
   let iv;
@@ -55,7 +55,7 @@ async function encryptAES(data, key, name, ivStr) {
     length: 64
   }, aesKey, encodedData);
   const hmac = await _crypto.subtleCrypto.sign({
-    name: 'HMAC'
+    name: "HMAC"
   }, hmacKey, ciphertext);
   return {
     iv: (0, _olmlib.encodeBase64)(iv),
@@ -67,12 +67,9 @@ async function encryptAES(data, key, name, ivStr) {
 /**
  * decrypt a string
  *
- * @param {object} data the encrypted data
- * @param {string} data.ciphertext the ciphertext in base64
- * @param {string} data.iv the initialization vector in base64
- * @param {string} data.mac the HMAC in base64
- * @param {Uint8Array} key the encryption key to use
- * @param {string} name the name of the secret
+ * @param data - the encrypted data
+ * @param key - the encryption key to use
+ * @param name - the name of the secret
  */
 async function decryptAES(data, key, name) {
   const [aesKey, hmacKey] = await deriveKeys(key, name);
@@ -90,7 +87,7 @@ async function decryptAES(data, key, name) {
   return new TextDecoder().decode(new Uint8Array(plaintext));
 }
 async function deriveKeys(key, name) {
-  const hkdfkey = await _crypto.subtleCrypto.importKey('raw', key, {
+  const hkdfkey = await _crypto.subtleCrypto.importKey("raw", key, {
     name: "HKDF"
   }, false, ["deriveBits"]);
   const keybits = await _crypto.subtleCrypto.deriveBits({
@@ -103,15 +100,15 @@ async function deriveKeys(key, name) {
   }, hkdfkey, 512);
   const aesKey = keybits.slice(0, 32);
   const hmacKey = keybits.slice(32);
-  const aesProm = _crypto.subtleCrypto.importKey('raw', aesKey, {
-    name: 'AES-CTR'
-  }, false, ['encrypt', 'decrypt']);
-  const hmacProm = _crypto.subtleCrypto.importKey('raw', hmacKey, {
-    name: 'HMAC',
+  const aesProm = _crypto.subtleCrypto.importKey("raw", aesKey, {
+    name: "AES-CTR"
+  }, false, ["encrypt", "decrypt"]);
+  const hmacProm = _crypto.subtleCrypto.importKey("raw", hmacKey, {
+    name: "HMAC",
     hash: {
-      name: 'SHA-256'
+      name: "SHA-256"
     }
-  }, false, ['sign', 'verify']);
+  }, false, ["sign", "verify"]);
   return Promise.all([aesProm, hmacProm]);
 }
 
@@ -120,10 +117,10 @@ const ZERO_STR = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0
 
 /** Calculate the MAC for checking the key.
  *
- * @param {Uint8Array} key the key to use
- * @param {string} [iv] The initialization vector as a base64-encoded string.
+ * @param key - the key to use
+ * @param iv - The initialization vector as a base64-encoded string.
  *     If omitted, a random initialization vector will be created.
- * @return {Promise<object>} An object that contains, `mac` and `iv` properties.
+ * @returns An object that contains, `mac` and `iv` properties.
  */
 function calculateKeyCheck(key, iv) {
   return encryptAES(ZERO_STR, key, "", iv);

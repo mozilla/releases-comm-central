@@ -3,45 +3,85 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.MediaHandler = void 0;
+exports.MediaHandlerEvent = exports.MediaHandler = void 0;
+var _typedEventEmitter = require("../models/typed-event-emitter");
+var _groupCall = require("../webrtc/groupCall");
 var _logger = require("../logger");
-var _call = require("./call");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-class MediaHandler {
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+let MediaHandlerEvent;
+exports.MediaHandlerEvent = MediaHandlerEvent;
+(function (MediaHandlerEvent) {
+  MediaHandlerEvent["LocalStreamsChanged"] = "local_streams_changed";
+})(MediaHandlerEvent || (exports.MediaHandlerEvent = MediaHandlerEvent = {}));
+class MediaHandler extends _typedEventEmitter.TypedEventEmitter {
+  // Promise chain to serialise calls to getMediaStream
+
   constructor(client) {
+    super();
     this.client = client;
     _defineProperty(this, "audioInput", void 0);
+    _defineProperty(this, "audioSettings", void 0);
     _defineProperty(this, "videoInput", void 0);
     _defineProperty(this, "localUserMediaStream", void 0);
     _defineProperty(this, "userMediaStreams", []);
     _defineProperty(this, "screensharingStreams", []);
+    _defineProperty(this, "getMediaStreamPromise", void 0);
+  }
+  restoreMediaSettings(audioInput, videoInput) {
+    this.audioInput = audioInput;
+    this.videoInput = videoInput;
   }
 
   /**
    * Set an audio input device to use for MatrixCalls
-   * @param {string} deviceId the identifier for the device
+   * @param deviceId - the identifier for the device
    * undefined treated as unset
    */
   async setAudioInput(deviceId) {
-    _logger.logger.info("LOG setting audio input to", deviceId);
+    _logger.logger.info(`MediaHandler setAudioInput() running (deviceId=${deviceId})`);
     if (this.audioInput === deviceId) return;
     this.audioInput = deviceId;
     await this.updateLocalUsermediaStreams();
   }
 
   /**
+   * Set audio settings for MatrixCalls
+   * @param opts - audio options to set
+   */
+  async setAudioSettings(opts) {
+    _logger.logger.info(`MediaHandler setAudioSettings() running (opts=${JSON.stringify(opts)})`);
+    this.audioSettings = Object.assign({}, opts);
+    await this.updateLocalUsermediaStreams();
+  }
+
+  /**
    * Set a video input device to use for MatrixCalls
-   * @param {string} deviceId the identifier for the device
+   * @param deviceId - the identifier for the device
    * undefined treated as unset
    */
   async setVideoInput(deviceId) {
-    _logger.logger.info("LOG setting video input to", deviceId);
+    _logger.logger.info(`MediaHandler setVideoInput() running (deviceId=${deviceId})`);
     if (this.videoInput === deviceId) return;
     this.videoInput = deviceId;
     await this.updateLocalUsermediaStreams();
   }
 
   /**
+   * Set media input devices to use for MatrixCalls
+   * @param audioInput - the identifier for the audio device
+   * @param videoInput - the identifier for the video device
+   * undefined treated as unset
+   */
+  async setMediaInputs(audioInput, videoInput) {
+    _logger.logger.log(`MediaHandler setMediaInputs() running (audioInput: ${audioInput} videoInput: ${videoInput})`);
+    this.audioInput = audioInput;
+    this.videoInput = videoInput;
+    await this.updateLocalUsermediaStreams();
+  }
+
+  /*
    * Requests new usermedia streams and replace the old ones
    */
   async updateLocalUsermediaStreams() {
@@ -53,41 +93,110 @@ class MediaHandler {
         video: call.hasLocalUserMediaVideoTrack
       });
     }
+    for (const stream of this.userMediaStreams) {
+      _logger.logger.log(`MediaHandler updateLocalUsermediaStreams() stopping all tracks (streamId=${stream.id})`);
+      for (const track of stream.getTracks()) {
+        track.stop();
+      }
+    }
+    this.userMediaStreams = [];
+    this.localUserMediaStream = undefined;
     for (const call of this.client.callEventHandler.calls.values()) {
-      if (call.state === _call.CallState.Ended || !callMediaStreamParams.has(call.callId)) continue;
+      if (call.callHasEnded() || !callMediaStreamParams.has(call.callId)) {
+        continue;
+      }
       const {
         audio,
         video
       } = callMediaStreamParams.get(call.callId);
-
-      // This stream won't be reusable as we will replace the tracks of the old stream
-      const stream = await this.getUserMediaStream(audio, video, false);
+      _logger.logger.log(`MediaHandler updateLocalUsermediaStreams() calling getUserMediaStream() (callId=${call.callId})`);
+      const stream = await this.getUserMediaStream(audio, video);
+      if (call.callHasEnded()) {
+        continue;
+      }
       await call.updateLocalUsermediaStream(stream);
     }
+    for (const groupCall of this.client.groupCallEventHandler.groupCalls.values()) {
+      if (!groupCall.localCallFeed) {
+        continue;
+      }
+      _logger.logger.log(`MediaHandler updateLocalUsermediaStreams() calling getUserMediaStream() (groupCallId=${groupCall.groupCallId})`);
+      const stream = await this.getUserMediaStream(true, groupCall.type === _groupCall.GroupCallType.Video);
+      if (groupCall.state === _groupCall.GroupCallState.Ended) {
+        continue;
+      }
+      await groupCall.updateLocalUsermediaStream(stream);
+    }
+    this.emit(MediaHandlerEvent.LocalStreamsChanged);
   }
   async hasAudioDevice() {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    return devices.filter(device => device.kind === "audioinput").length > 0;
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      return devices.filter(device => device.kind === "audioinput").length > 0;
+    } catch (err) {
+      _logger.logger.log(`MediaHandler hasAudioDevice() calling navigator.mediaDevices.enumerateDevices with error`, err);
+      return false;
+    }
   }
   async hasVideoDevice() {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    return devices.filter(device => device.kind === "videoinput").length > 0;
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      return devices.filter(device => device.kind === "videoinput").length > 0;
+    } catch (err) {
+      _logger.logger.log(`MediaHandler hasVideoDevice() calling navigator.mediaDevices.enumerateDevices with error`, err);
+      return false;
+    }
   }
 
   /**
-   * @param audio should have an audio track
-   * @param video should have a video track
-   * @param reusable is allowed to be reused by the MediaHandler
-   * @returns {MediaStream} based on passed parameters
+   * @param audio - should have an audio track
+   * @param video - should have a video track
+   * @param reusable - is allowed to be reused by the MediaHandler
+   * @returns based on passed parameters
    */
   async getUserMediaStream(audio, video, reusable = true) {
+    // Serialise calls, othertwise we can't sensibly re-use the stream
+    if (this.getMediaStreamPromise) {
+      this.getMediaStreamPromise = this.getMediaStreamPromise.then(() => {
+        return this.getUserMediaStreamInternal(audio, video, reusable);
+      });
+    } else {
+      this.getMediaStreamPromise = this.getUserMediaStreamInternal(audio, video, reusable);
+    }
+    return this.getMediaStreamPromise;
+  }
+  async getUserMediaStreamInternal(audio, video, reusable) {
     const shouldRequestAudio = audio && (await this.hasAudioDevice());
     const shouldRequestVideo = video && (await this.hasVideoDevice());
     let stream;
-    if (!this.localUserMediaStream || this.localUserMediaStream.getAudioTracks().length === 0 && shouldRequestAudio || this.localUserMediaStream.getVideoTracks().length === 0 && shouldRequestVideo || this.localUserMediaStream.getAudioTracks()[0]?.getSettings()?.deviceId !== this.audioInput || this.localUserMediaStream.getVideoTracks()[0]?.getSettings()?.deviceId !== this.videoInput) {
+    let canReuseStream = true;
+    if (this.localUserMediaStream) {
+      // This figures out if we can reuse the current localUsermediaStream
+      // based on whether or not the "mute state" (presence of tracks of a
+      // given kind) matches what is being requested
+      if (shouldRequestAudio !== this.localUserMediaStream.getAudioTracks().length > 0) {
+        canReuseStream = false;
+      }
+      if (shouldRequestVideo !== this.localUserMediaStream.getVideoTracks().length > 0) {
+        canReuseStream = false;
+      }
+
+      // This code checks that the device ID is the same as the localUserMediaStream stream, but we update
+      // the localUserMediaStream whenever the device ID changes (apart from when restoring) so it's not
+      // clear why this would ever be different, unless there's a race.
+      if (shouldRequestAudio && this.localUserMediaStream.getAudioTracks()[0]?.getSettings()?.deviceId !== this.audioInput) {
+        canReuseStream = false;
+      }
+      if (shouldRequestVideo && this.localUserMediaStream.getVideoTracks()[0]?.getSettings()?.deviceId !== this.videoInput) {
+        canReuseStream = false;
+      }
+    } else {
+      canReuseStream = false;
+    }
+    if (!canReuseStream) {
       const constraints = this.getUserMediaContraints(shouldRequestAudio, shouldRequestVideo);
-      _logger.logger.log("Getting user media with constraints", constraints);
       stream = await navigator.mediaDevices.getUserMedia(constraints);
+      _logger.logger.log(`MediaHandler getUserMediaStreamInternal() calling getUserMediaStream (streamId=${stream.id}, shouldRequestAudio=${shouldRequestAudio}, shouldRequestVideo=${shouldRequestVideo}, constraints=${JSON.stringify(constraints)})`);
       for (const track of stream.getTracks()) {
         const settings = track.getSettings();
         if (track.kind === "audio") {
@@ -101,6 +210,7 @@ class MediaHandler {
       }
     } else {
       stream = this.localUserMediaStream.clone();
+      _logger.logger.log(`MediaHandler getUserMediaStreamInternal() cloning (oldStreamId=${this.localUserMediaStream?.id} newStreamId=${stream.id} shouldRequestAudio=${shouldRequestAudio} shouldRequestVideo=${shouldRequestVideo})`);
       if (!shouldRequestAudio) {
         for (const track of stream.getAudioTracks()) {
           stream.removeTrack(track);
@@ -115,6 +225,7 @@ class MediaHandler {
     if (reusable) {
       this.userMediaStreams.push(stream);
     }
+    this.emit(MediaHandlerEvent.LocalStreamsChanged);
     return stream;
   }
 
@@ -122,47 +233,48 @@ class MediaHandler {
    * Stops all tracks on the provided usermedia stream
    */
   stopUserMediaStream(mediaStream) {
-    _logger.logger.debug("Stopping usermedia stream", mediaStream.id);
+    _logger.logger.log(`MediaHandler stopUserMediaStream() stopping (streamId=${mediaStream.id})`);
     for (const track of mediaStream.getTracks()) {
       track.stop();
     }
     const index = this.userMediaStreams.indexOf(mediaStream);
     if (index !== -1) {
-      _logger.logger.debug("Splicing usermedia stream out stream array", mediaStream.id);
+      _logger.logger.debug(`MediaHandler stopUserMediaStream() splicing usermedia stream out stream array (streamId=${mediaStream.id})`, mediaStream.id);
       this.userMediaStreams.splice(index, 1);
     }
+    this.emit(MediaHandlerEvent.LocalStreamsChanged);
     if (this.localUserMediaStream === mediaStream) {
       this.localUserMediaStream = undefined;
     }
   }
 
   /**
-   * @param desktopCapturerSourceId sourceId for Electron DesktopCapturer
-   * @param reusable is allowed to be reused by the MediaHandler
-   * @returns {MediaStream} based on passed parameters
+   * @param desktopCapturerSourceId - sourceId for Electron DesktopCapturer
+   * @param reusable - is allowed to be reused by the MediaHandler
+   * @returns based on passed parameters
    */
-  async getScreensharingStream(desktopCapturerSourceId, reusable = true) {
+  async getScreensharingStream(opts = {}, reusable = true) {
     let stream;
     if (this.screensharingStreams.length === 0) {
-      const screenshareConstraints = this.getScreenshareContraints(desktopCapturerSourceId);
-      if (!screenshareConstraints) return null;
-      if (desktopCapturerSourceId) {
+      const screenshareConstraints = this.getScreenshareContraints(opts);
+      if (opts.desktopCapturerSourceId) {
         // We are using Electron
-        _logger.logger.debug("Getting screensharing stream using getUserMedia()", desktopCapturerSourceId);
+        _logger.logger.debug(`MediaHandler getScreensharingStream() calling getUserMedia() (opts=${JSON.stringify(opts)})`);
         stream = await navigator.mediaDevices.getUserMedia(screenshareConstraints);
       } else {
         // We are not using Electron
-        _logger.logger.debug("Getting screensharing stream using getDisplayMedia()");
+        _logger.logger.debug(`MediaHandler getScreensharingStream() calling getDisplayMedia() (opts=${JSON.stringify(opts)})`);
         stream = await navigator.mediaDevices.getDisplayMedia(screenshareConstraints);
       }
     } else {
       const matchingStream = this.screensharingStreams[this.screensharingStreams.length - 1];
-      _logger.logger.log("Cloning screensharing stream", matchingStream.id);
+      _logger.logger.log(`MediaHandler getScreensharingStream() cloning (streamId=${matchingStream.id})`);
       stream = matchingStream.clone();
     }
     if (reusable) {
       this.screensharingStreams.push(stream);
     }
+    this.emit(MediaHandlerEvent.LocalStreamsChanged);
     return stream;
   }
 
@@ -170,15 +282,16 @@ class MediaHandler {
    * Stops all tracks on the provided screensharing stream
    */
   stopScreensharingStream(mediaStream) {
-    _logger.logger.debug("Stopping screensharing stream", mediaStream.id);
+    _logger.logger.debug(`MediaHandler stopScreensharingStream() stopping stream (streamId=${mediaStream.id})`);
     for (const track of mediaStream.getTracks()) {
       track.stop();
     }
     const index = this.screensharingStreams.indexOf(mediaStream);
     if (index !== -1) {
-      _logger.logger.debug("Splicing screensharing stream out stream array", mediaStream.id);
+      _logger.logger.debug(`MediaHandler stopScreensharingStream() splicing stream out (streamId=${mediaStream.id})`);
       this.screensharingStreams.splice(index, 1);
     }
+    this.emit(MediaHandlerEvent.LocalStreamsChanged);
   }
 
   /**
@@ -186,6 +299,7 @@ class MediaHandler {
    */
   stopAllStreams() {
     for (const stream of this.userMediaStreams) {
+      _logger.logger.log(`MediaHandler stopAllStreams() stopping (streamId=${stream.id})`);
       for (const track of stream.getTracks()) {
         track.stop();
       }
@@ -198,6 +312,7 @@ class MediaHandler {
     this.userMediaStreams = [];
     this.screensharingStreams = [];
     this.localUserMediaStream = undefined;
+    this.emit(MediaHandlerEvent.LocalStreamsChanged);
   }
   getUserMediaContraints(audio, video) {
     const isWebkit = !!navigator.webkitGetUserMedia;
@@ -205,6 +320,15 @@ class MediaHandler {
       audio: audio ? {
         deviceId: this.audioInput ? {
           ideal: this.audioInput
+        } : undefined,
+        autoGainControl: this.audioSettings ? {
+          ideal: this.audioSettings.autoGainControl
+        } : undefined,
+        echoCancellation: this.audioSettings ? {
+          ideal: this.audioSettings.echoCancellation
+        } : undefined,
+        noiseSuppression: this.audioSettings ? {
+          ideal: this.audioSettings.noiseSuppression
         } : undefined
       } : false,
       video: video ? {
@@ -229,11 +353,14 @@ class MediaHandler {
       } : false
     };
   }
-  getScreenshareContraints(desktopCapturerSourceId) {
+  getScreenshareContraints(opts) {
+    const {
+      desktopCapturerSourceId,
+      audio
+    } = opts;
     if (desktopCapturerSourceId) {
-      _logger.logger.debug("Using desktop capturer source", desktopCapturerSourceId);
       return {
-        audio: false,
+        audio: audio ?? false,
         video: {
           mandatory: {
             chromeMediaSource: "desktop",
@@ -242,9 +369,8 @@ class MediaHandler {
         }
       };
     } else {
-      _logger.logger.debug("Not using desktop capturer source");
       return {
-        audio: false,
+        audio: audio ?? false,
         video: true
       };
     }

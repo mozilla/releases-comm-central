@@ -7,8 +7,13 @@ exports.SyncAccumulator = exports.Category = void 0;
 var _logger = require("./logger");
 var _utils = require("./utils");
 var _event = require("./@types/event");
+var _read_receipts = require("./@types/read_receipts");
 var _sync = require("./@types/sync");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /* eslint-enable camelcase */
 let Category;
 exports.Category = Category;
@@ -17,6 +22,10 @@ exports.Category = Category;
   Category["Leave"] = "leave";
   Category["Join"] = "join";
 })(Category || (exports.Category = Category = {}));
+function isTaggedEvent(event) {
+  return "_localTs" in event && event["_localTs"] !== undefined;
+}
+
 /**
  * The purpose of this class is to accumulate /sync responses such that a
  * complete "initial" JSON response can be returned which accurately represents
@@ -36,15 +45,6 @@ class SyncAccumulator {
   // coherent /sync response and know at what point they should be
   // streaming from without losing events.
 
-  /**
-   * @param {Object} opts
-   * @param {Number=} opts.maxTimelineEntries The ideal maximum number of
-   * timeline entries to keep in the sync response. This is best-effort, as
-   * clients do not always have a back-pagination token for each event, so
-   * it's possible there may be slightly *less* than this value. There will
-   * never be more. This cannot be 0 or else it makes it impossible to scroll
-   * back in a room. Default: 50.
-   */
   constructor(opts = {}) {
     this.opts = opts;
     _defineProperty(this, "accountData", {});
@@ -70,8 +70,8 @@ class SyncAccumulator {
 
   /**
    * Accumulate incremental /sync room data.
-   * @param {Object} syncResponse the complete /sync JSON
-   * @param {boolean} fromDatabase True if the sync response is one saved to the database
+   * @param syncResponse - the complete /sync JSON
+   * @param fromDatabase - True if the sync response is one saved to the database
    */
   accumulateRooms(syncResponse, fromDatabase = false) {
     if (!syncResponse.rooms) {
@@ -211,7 +211,8 @@ class SyncAccumulator {
         _unreadNotifications: {},
         _unreadThreadNotifications: {},
         _summary: {},
-        _readReceipts: {}
+        _readReceipts: {},
+        _threadReadReceipts: {}
       };
     }
     const currentData = this.joinRooms[roomId];
@@ -237,46 +238,53 @@ class SyncAccumulator {
       acc[JOINED_COUNT_KEY] = sum[JOINED_COUNT_KEY] || acc[JOINED_COUNT_KEY];
       acc[INVITED_COUNT_KEY] = sum[INVITED_COUNT_KEY] || acc[INVITED_COUNT_KEY];
     }
-    if (data.ephemeral && data.ephemeral.events) {
-      data.ephemeral.events.forEach(e => {
-        // We purposefully do not persist m.typing events.
-        // Technically you could refresh a browser before the timer on a
-        // typing event is up, so it'll look like you aren't typing when
-        // you really still are. However, the alternative is worse. If
-        // we do persist typing events, it will look like people are
-        // typing forever until someone really does start typing (which
-        // will prompt Synapse to send down an actual m.typing event to
-        // clobber the one we persisted).
-        if (e.type !== _event.EventType.Receipt || !e.content) {
-          // This means we'll drop unknown ephemeral events but that
-          // seems okay.
-          return;
-        }
-        // Handle m.receipt events. They clobber based on:
-        //   (user_id, receipt_type)
-        // but they are keyed in the event as:
-        //   content:{ $event_id: { $receipt_type: { $user_id: {json} }}}
-        // so store them in the former so we can accumulate receipt deltas
-        // quickly and efficiently (we expect a lot of them). Fold the
-        // receipt type into the key name since we only have 1 at the
-        // moment (m.read) and nested JSON objects are slower and more
-        // of a hassle to work with. We'll inflate this back out when
-        // getJSON() is called.
-        Object.keys(e.content).forEach(eventId => {
-          Object.entries(e.content[eventId]).forEach(([key, value]) => {
-            if (!(0, _utils.isSupportedReceiptType)(key)) return;
-            Object.keys(value).forEach(userId => {
-              // clobber on user ID
-              currentData._readReceipts[userId] = {
-                data: e.content[eventId][key][userId],
-                type: key,
-                eventId: eventId
-              };
-            });
-          });
+    data.ephemeral?.events?.forEach(e => {
+      // We purposefully do not persist m.typing events.
+      // Technically you could refresh a browser before the timer on a
+      // typing event is up, so it'll look like you aren't typing when
+      // you really still are. However, the alternative is worse. If
+      // we do persist typing events, it will look like people are
+      // typing forever until someone really does start typing (which
+      // will prompt Synapse to send down an actual m.typing event to
+      // clobber the one we persisted).
+      if (e.type !== _event.EventType.Receipt || !e.content) {
+        // This means we'll drop unknown ephemeral events but that
+        // seems okay.
+        return;
+      }
+      // Handle m.receipt events. They clobber based on:
+      //   (user_id, receipt_type)
+      // but they are keyed in the event as:
+      //   content:{ $event_id: { $receipt_type: { $user_id: {json} }}}
+      // so store them in the former so we can accumulate receipt deltas
+      // quickly and efficiently (we expect a lot of them). Fold the
+      // receipt type into the key name since we only have 1 at the
+      // moment (m.read) and nested JSON objects are slower and more
+      // of a hassle to work with. We'll inflate this back out when
+      // getJSON() is called.
+      Object.keys(e.content).forEach(eventId => {
+        Object.entries(e.content[eventId]).forEach(([key, value]) => {
+          if (!(0, _utils.isSupportedReceiptType)(key)) return;
+          for (const userId of Object.keys(value)) {
+            const data = e.content[eventId][key][userId];
+            const receipt = {
+              data: e.content[eventId][key][userId],
+              type: key,
+              eventId: eventId
+            };
+            if (!data.thread_id || data.thread_id === _read_receipts.MAIN_ROOM_TIMELINE) {
+              currentData._readReceipts[userId] = receipt;
+            } else {
+              currentData._threadReadReceipts = _objectSpread(_objectSpread({}, currentData._threadReadReceipts), {}, {
+                [data.thread_id]: _objectSpread(_objectSpread({}, currentData._threadReadReceipts[data.thread_id] ?? {}), {}, {
+                  [userId]: receipt
+                })
+              });
+            }
+          }
         });
       });
-    }
+    });
 
     // if we got a limited sync, we need to remove all timeline entries or else
     // we will have gaps in the timeline.
@@ -288,34 +296,30 @@ class SyncAccumulator {
     // - existing state which didn't come down /sync.
     // - State events under the 'state' key.
     // - State events in the 'timeline'.
-    if (data.state && data.state.events) {
-      data.state.events.forEach(e => {
-        setState(currentData._currentState, e);
-      });
-    }
-    if (data.timeline && data.timeline.events) {
-      data.timeline.events.forEach((e, index) => {
-        // this nops if 'e' isn't a state event
-        setState(currentData._currentState, e);
-        // append the event to the timeline. The back-pagination token
-        // corresponds to the first event in the timeline
-        let transformedEvent;
-        if (!fromDatabase) {
-          transformedEvent = Object.assign({}, e);
-          if (transformedEvent.unsigned !== undefined) {
-            transformedEvent.unsigned = Object.assign({}, transformedEvent.unsigned);
-          }
-          const age = e.unsigned ? e.unsigned.age : e.age;
-          if (age !== undefined) transformedEvent._localTs = Date.now() - age;
-        } else {
-          transformedEvent = e;
+    data.state?.events?.forEach(e => {
+      setState(currentData._currentState, e);
+    });
+    data.timeline?.events?.forEach((e, index) => {
+      // this nops if 'e' isn't a state event
+      setState(currentData._currentState, e);
+      // append the event to the timeline. The back-pagination token
+      // corresponds to the first event in the timeline
+      let transformedEvent;
+      if (!fromDatabase) {
+        transformedEvent = Object.assign({}, e);
+        if (transformedEvent.unsigned !== undefined) {
+          transformedEvent.unsigned = Object.assign({}, transformedEvent.unsigned);
         }
-        currentData._timeline.push({
-          event: transformedEvent,
-          token: index === 0 ? data.timeline.prev_batch ?? null : null
-        });
+        const age = e.unsigned ? e.unsigned.age : e.age;
+        if (age !== undefined) transformedEvent._localTs = Date.now() - age;
+      } else {
+        transformedEvent = e;
+      }
+      currentData._timeline.push({
+        event: transformedEvent,
+        token: index === 0 ? data.timeline.prev_batch ?? null : null
       });
-    }
+    });
 
     // attempt to prune the timeline by jumping between events which have
     // pagination tokens.
@@ -336,8 +340,8 @@ class SyncAccumulator {
    * represents all room data that should be stored. This should be paired
    * with the sync token which represents the most recent /sync response
    * provided to accumulate().
-   * @param {boolean} forDatabase True to generate a sync to be saved to storage
-   * @return {Object} An object with a "nextBatch", "roomsData" and "accountData"
+   * @param forDatabase - True to generate a sync to be saved to storage
+   * @returns An object with a "nextBatch", "roomsData" and "accountData"
    * keys.
    * The "nextBatch" key is a string which represents at what point in the
    * /sync stream the accumulator reached. This token should be used when
@@ -399,8 +403,7 @@ class SyncAccumulator {
           // $event_id: { "m.read": { $user_id: $json } }
         }
       };
-      Object.keys(roomData._readReceipts).forEach(userId => {
-        const receiptData = roomData._readReceipts[userId];
+      for (const [userId, receiptData] of Object.entries(roomData._readReceipts)) {
         if (!receiptEvent.content[receiptData.eventId]) {
           receiptEvent.content[receiptData.eventId] = {};
         }
@@ -408,7 +411,18 @@ class SyncAccumulator {
           receiptEvent.content[receiptData.eventId][receiptData.type] = {};
         }
         receiptEvent.content[receiptData.eventId][receiptData.type][userId] = receiptData.data;
-      });
+      }
+      for (const threadReceipts of Object.values(roomData._threadReadReceipts)) {
+        for (const [userId, receiptData] of Object.entries(threadReceipts)) {
+          if (!receiptEvent.content[receiptData.eventId]) {
+            receiptEvent.content[receiptData.eventId] = {};
+          }
+          if (!receiptEvent.content[receiptData.eventId][receiptData.type]) {
+            receiptEvent.content[receiptData.eventId][receiptData.type] = {};
+          }
+          receiptEvent.content[receiptData.eventId][receiptData.type][userId] = receiptData.data;
+        }
+      }
       // add only if we have some receipt data
       if (Object.keys(receiptEvent.content).length > 0) {
         roomJson.ephemeral.events.push(receiptEvent);
@@ -426,8 +440,8 @@ class SyncAccumulator {
           roomJson.timeline.prev_batch = msgData.token;
         }
         let transformedEvent;
-        if (!forDatabase && msgData.event["_localTs"]) {
-          // This means we have to copy each event so we can fix it up to
+        if (!forDatabase && isTaggedEvent(msgData.event)) {
+          // This means we have to copy each event, so we can fix it up to
           // set a correct 'age' parameter whilst keeping the local timestamp
           // on our stored event. If this turns out to be a bottleneck, it could
           // be optimised either by doing this in the main process after the data
@@ -441,7 +455,7 @@ class SyncAccumulator {
           }
           delete transformedEvent._localTs;
           transformedEvent.unsigned = transformedEvent.unsigned || {};
-          transformedEvent.unsigned.age = Date.now() - msgData.event["_localTs"];
+          transformedEvent.unsigned.age = Date.now() - msgData.event._localTs;
         } else {
           transformedEvent = msgData.event;
         }

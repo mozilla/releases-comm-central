@@ -10,7 +10,9 @@ var _olmlib = require("./olmlib");
 var _logger = require("../logger");
 var _indexeddbCryptoStore = require("../crypto/store/indexeddb-crypto-store");
 var _aes = require("./aes");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 const KEY_REQUEST_TIMEOUT_MS = 1000 * 60;
 function publicKeyFromKeyInfo(keyInfo) {
   // `keys` is an object with { [`ed25519:${pubKey}`]: pubKey }
@@ -28,12 +30,10 @@ class CrossSigningInfo {
   /**
    * Information about a user's cross-signing keys
    *
-   * @class
-   *
-   * @param {string} userId the user that the information is about
-   * @param {object} callbacks Callbacks used to interact with the app
+   * @param userId - the user that the information is about
+   * @param callbacks - Callbacks used to interact with the app
    *     Requires getCrossSigningKey and saveCrossSigningKeys
-   * @param {object} cacheCallbacks Callbacks used to interact with the cache
+   * @param cacheCallbacks - Callbacks used to interact with the cache
    */
   constructor(userId, callbacks = {}, cacheCallbacks = {}) {
     this.userId = userId;
@@ -47,6 +47,7 @@ class CrossSigningInfo {
     const res = new CrossSigningInfo(userId);
     for (const prop in obj) {
       if (obj.hasOwnProperty(prop)) {
+        // @ts-ignore - ts doesn't like this and nor should we
         res[prop] = obj[prop];
       }
     }
@@ -63,10 +64,10 @@ class CrossSigningInfo {
   /**
    * Calls the app callback to ask for a private key
    *
-   * @param {string} type The key type ("master", "self_signing", or "user_signing")
-   * @param {string} expectedPubkey The matching public key or undefined to use
+   * @param type - The key type ("master", "self_signing", or "user_signing")
+   * @param expectedPubkey - The matching public key or undefined to use
    *     the stored public key for the given key type.
-   * @returns {Array} An array with [ public key, Olm.PkSigning ]
+   * @returns An array with [ public key, Olm.PkSigning ]
    */
   async getCrossSigningKey(type, expectedPubkey) {
     const shouldCache = ["master", "self_signing", "user_signing"].indexOf(type) >= 0;
@@ -116,8 +117,8 @@ class CrossSigningInfo {
    * XXX: This could be static, be we often seem to have an instance when we
    * want to know this anyway...
    *
-   * @param {SecretStorage} secretStorage The secret store using account data
-   * @returns {object} map of key name to key info the secret is encrypted
+   * @param secretStorage - The secret store using account data
+   * @returns map of key name to key info the secret is encrypted
    *     with, or null if it is not present or not encrypted with a trusted
    *     key
    */
@@ -143,8 +144,8 @@ class CrossSigningInfo {
    * typically called in conjunction with the creation of new cross-signing
    * keys.
    *
-   * @param {Map} keys The keys to store
-   * @param {SecretStorage} secretStorage The secret store using account data
+   * @param keys - The keys to store
+   * @param secretStorage - The secret store using account data
    */
   static async storeInSecretStorage(keys, secretStorage) {
     for (const [type, privateKey] of keys) {
@@ -157,10 +158,10 @@ class CrossSigningInfo {
    * Get private keys from secret storage created by some other device. This
    * also passes the private keys to the app-specific callback.
    *
-   * @param {string} type The type of key to get.  One of "master",
+   * @param type - The type of key to get.  One of "master",
    * "self_signing", or "user_signing".
-   * @param {SecretStorage} secretStorage The secret store using account data
-   * @return {Uint8Array} The private key
+   * @param secretStorage - The secret store using account data
+   * @returns The private key
    */
   static async getFromSecretStorage(type, secretStorage) {
     const encodedKey = await secretStorage.get(`m.cross_signing.${type}`);
@@ -173,9 +174,9 @@ class CrossSigningInfo {
   /**
    * Check whether the private keys exist in the local key cache.
    *
-   * @param {string} [type] The type of key to get. One of "master",
+   * @param type - The type of key to get. One of "master",
    * "self_signing", or "user_signing". Optional, will check all by default.
-   * @returns {boolean} True if all keys are stored in the local cache.
+   * @returns True if all keys are stored in the local cache.
    */
   async isStoredInKeyCache(type) {
     const cacheCallbacks = this.cacheCallbacks;
@@ -192,7 +193,7 @@ class CrossSigningInfo {
   /**
    * Get cross-signing private keys from the local cache.
    *
-   * @returns {Map} A map from key type (string) to private key (Uint8Array)
+   * @returns A map from key type (string) to private key (Uint8Array)
    */
   async getCrossSigningKeysFromCache() {
     const keys = new Map();
@@ -212,10 +213,10 @@ class CrossSigningInfo {
    * Get the ID used to identify the user. This can also be used to test for
    * the existence of a given key type.
    *
-   * @param {string} type The type of key to get the ID of.  One of "master",
+   * @param type - The type of key to get the ID of.  One of "master",
    * "self_signing", or "user_signing".  Defaults to "master".
    *
-   * @return {string} the ID
+   * @returns the ID
    */
   getId(type = "master") {
     if (!this.keys[type]) return null;
@@ -228,7 +229,7 @@ class CrossSigningInfo {
    * will be held in this class, while the private keys are passed off to the
    * `saveCrossSigningKeys` application callback.
    *
-   * @param {CrossSigningLevel} level The key types to reset
+   * @param level - The key types to reset
    */
   async resetKeys(level) {
     if (!this.callbacks.saveCrossSigningKeys) {
@@ -252,9 +253,9 @@ class CrossSigningInfo {
         masterPub = masterSigning.init_with_seed(privateKeys.master);
         keys.master = {
           user_id: this.userId,
-          usage: ['master'],
+          usage: ["master"],
           keys: {
-            ['ed25519:' + masterPub]: masterPub
+            ["ed25519:" + masterPub]: masterPub
           }
         };
       } else {
@@ -267,9 +268,9 @@ class CrossSigningInfo {
           const sskPub = sskSigning.init_with_seed(privateKeys.self_signing);
           keys.self_signing = {
             user_id: this.userId,
-            usage: ['self_signing'],
+            usage: ["self_signing"],
             keys: {
-              ['ed25519:' + sskPub]: sskPub
+              ["ed25519:" + sskPub]: sskPub
             }
           };
           (0, _olmlib.pkSign)(keys.self_signing, masterSigning, this.userId, masterPub);
@@ -284,9 +285,9 @@ class CrossSigningInfo {
           const uskPub = uskSigning.init_with_seed(privateKeys.user_signing);
           keys.user_signing = {
             user_id: this.userId,
-            usage: ['user_signing'],
+            usage: ["user_signing"],
             keys: {
-              ['ed25519:' + uskPub]: uskPub
+              ["ed25519:" + uskPub]: uskPub
             }
           };
           (0, _olmlib.pkSign)(keys.user_signing, masterSigning, this.userId, masterPub);
@@ -421,9 +422,9 @@ class CrossSigningInfo {
   /**
    * Check whether a given user is trusted.
    *
-   * @param {CrossSigningInfo} userCrossSigning Cross signing info for user
+   * @param userCrossSigning - Cross signing info for user
    *
-   * @returns {UserTrustLevel}
+   * @returns
    */
   checkUserTrust(userCrossSigning) {
     // if we're checking our own key, then it's trusted if the master key
@@ -438,7 +439,7 @@ class CrossSigningInfo {
     }
     let userTrusted;
     const userMaster = userCrossSigning.keys.master;
-    const uskId = this.getId('user_signing');
+    const uskId = this.getId("user_signing");
     try {
       (0, _olmlib.pkVerify)(userMaster, uskId, this.userId);
       userTrusted = true;
@@ -451,12 +452,12 @@ class CrossSigningInfo {
   /**
    * Check whether a given device is trusted.
    *
-   * @param {CrossSigningInfo} userCrossSigning Cross signing info for user
-   * @param {module:crypto/deviceinfo} device The device to check
-   * @param {boolean} localTrust Whether the device is trusted locally
-   * @param {boolean} trustCrossSignedDevices Whether we trust cross signed devices
+   * @param userCrossSigning - Cross signing info for user
+   * @param device - The device to check
+   * @param localTrust - Whether the device is trusted locally
+   * @param trustCrossSignedDevices - Whether we trust cross signed devices
    *
-   * @returns {DeviceTrustLevel}
+   * @returns
    */
   checkDeviceTrust(userCrossSigning, device, localTrust, trustCrossSignedDevices) {
     const userTrust = this.checkUserTrust(userCrossSigning);
@@ -480,7 +481,7 @@ class CrossSigningInfo {
   }
 
   /**
-   * @returns {object} Cache callbacks
+   * @returns Cache callbacks
    */
   getCacheCallbacks() {
     return this.cacheCallbacks;
@@ -514,21 +515,21 @@ class UserTrustLevel {
   }
 
   /**
-   * @returns {boolean} true if this user is verified via any means
+   * @returns true if this user is verified via any means
    */
   isVerified() {
     return this.isCrossSigningVerified();
   }
 
   /**
-   * @returns {boolean} true if this user is verified via cross signing
+   * @returns true if this user is verified via cross signing
    */
   isCrossSigningVerified() {
     return this.crossSigningVerified;
   }
 
   /**
-   * @returns {boolean} true if we ever verified this user before (at least for
+   * @returns true if we ever verified this user before (at least for
    * the history of verifications observed by this device).
    */
   wasCrossSigningVerified() {
@@ -536,7 +537,7 @@ class UserTrustLevel {
   }
 
   /**
-   * @returns {boolean} true if this user's key is trusted on first use
+   * @returns true if this user's key is trusted on first use
    */
   isTofu() {
     return this.tofu;
@@ -559,28 +560,28 @@ class DeviceTrustLevel {
   }
 
   /**
-   * @returns {boolean} true if this device is verified via any means
+   * @returns true if this device is verified via any means
    */
   isVerified() {
     return Boolean(this.isLocallyVerified() || this.trustCrossSignedDevices && this.isCrossSigningVerified());
   }
 
   /**
-   * @returns {boolean} true if this device is verified via cross signing
+   * @returns true if this device is verified via cross signing
    */
   isCrossSigningVerified() {
     return this.crossSigningVerified;
   }
 
   /**
-   * @returns {boolean} true if this device is verified locally
+   * @returns true if this device is verified locally
    */
   isLocallyVerified() {
     return this.localVerified;
   }
 
   /**
-   * @returns {boolean} true if this device is trusted from a user's key
+   * @returns true if this device is trusted from a user's key
    * that is trusted on first use
    */
   isTofu() {
@@ -592,7 +593,7 @@ function createCryptoStoreCacheCallbacks(store, olmDevice) {
   return {
     getCrossSigningKeyCache: async function (type, _expectedPublicKey) {
       const key = await new Promise(resolve => {
-        return store.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+        return store.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
           store.getSecretStorePrivateKey(txn, resolve, type);
         });
       });
@@ -610,7 +611,7 @@ function createCryptoStoreCacheCallbacks(store, olmDevice) {
       }
       const pickleKey = Buffer.from(olmDevice.pickleKey);
       const encryptedKey = await (0, _aes.encryptAES)((0, _olmlib.encodeBase64)(key), pickleKey, type);
-      return store.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+      return store.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
         store.storeSecretStorePrivateKey(txn, type, encryptedKey);
       });
     }
@@ -619,9 +620,9 @@ function createCryptoStoreCacheCallbacks(store, olmDevice) {
 /**
  * Request cross-signing keys from another device during verification.
  *
- * @param {MatrixClient} baseApis base Matrix API interface
- * @param {string} userId The user ID being verified
- * @param {string} deviceId The device ID being verified
+ * @param baseApis - base Matrix API interface
+ * @param userId - The user ID being verified
+ * @param deviceId - The device ID being verified
  */
 async function requestKeysDuringVerification(baseApis, userId, deviceId) {
   // If this is a self-verification, ask the other party for keys
@@ -665,7 +666,7 @@ async function requestKeysDuringVerification(baseApis, userId, deviceId) {
       const cachedKey = await client.crypto.getSessionBackupPrivateKey();
       if (!cachedKey) {
         _logger.logger.info("No cached backup key found. Requesting...");
-        const secretReq = client.requestSecret('m.megolm_backup.v1', [deviceId]);
+        const secretReq = client.requestSecret("m.megolm_backup.v1", [deviceId]);
         const base64Key = await secretReq.promise;
         _logger.logger.info("Got key backup key, decoding...");
         const decodedKey = (0, _olmlib.decodeBase64)(base64Key);

@@ -10,6 +10,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk += [
     "matrix-sdk/client.js",
     "matrix-sdk/content-helpers.js",
     "matrix-sdk/content-repo.js",
+    "matrix-sdk/embedded.js",
     "matrix-sdk/errors.js",
     "matrix-sdk/event-mapper.js",
     "matrix-sdk/feature.js",
@@ -86,6 +87,16 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.verification.request += [
     "matrix-sdk/crypto/verification/request/VerificationRequest.js",
 ]
 
+EXTRA_JS_MODULES.matrix.matrix_sdk.extensible_events_v1 += [
+     "matrix-sdk/extensible_events_v1/ExtensibleEvent.js",
+     "matrix-sdk/extensible_events_v1/InvalidEventError.js",
+     "matrix-sdk/extensible_events_v1/MessageEvent.js",
+     "matrix-sdk/extensible_events_v1/PollEndEvent.js",
+     "matrix-sdk/extensible_events_v1/PollResponseEvent.js",
+     "matrix-sdk/extensible_events_v1/PollStartEvent.js",
+     "matrix-sdk/extensible_events_v1/utilities.js",
+]
+
 EXTRA_JS_MODULES.matrix.matrix_sdk.http_api += [
     "matrix-sdk/http-api/errors.js",
     "matrix-sdk/http-api/fetch.js",
@@ -106,6 +117,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
     "matrix-sdk/models/invites-ignorer.js",
     "matrix-sdk/models/MSC3089Branch.js",
     "matrix-sdk/models/MSC3089TreeSpace.js",
+    "matrix-sdk/models/poll.js",
     "matrix-sdk/models/read-receipt.js",
     "matrix-sdk/models/related-relations.js",
     "matrix-sdk/models/relations-container.js",
@@ -130,12 +142,22 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous += [
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous.channels += [
     "matrix-sdk/rendezvous/channels/index.js",
-    "matrix-sdk/rendezvous/channels/MSC3903ECDHv1RendezvousChannel.js",
+    "matrix-sdk/rendezvous/channels/MSC3903ECDHv2RendezvousChannel.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous.transports += [
     "matrix-sdk/rendezvous/transports/index.js",
     "matrix-sdk/rendezvous/transports/MSC3886SimpleHttpRendezvousTransport.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.rust_crypto += [
+    "matrix-sdk/rust-crypto/browserify-index.js",
+    "matrix-sdk/rust-crypto/constants.js",
+    "matrix-sdk/rust-crypto/index.js",
+    "matrix-sdk/rust-crypto/KeyClaimManager.js",
+    "matrix-sdk/rust-crypto/OutgoingRequestProcessor.js",
+    "matrix-sdk/rust-crypto/RoomEncryptor.js",
+    "matrix-sdk/rust-crypto/rust-crypto.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.store += [
@@ -155,6 +177,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.types += [
     "matrix-sdk/@types/extensible_events.js",
     "matrix-sdk/@types/location.js",
     "matrix-sdk/@types/partials.js",
+    "matrix-sdk/@types/polls.js",
     "matrix-sdk/@types/PushRules.js",
     "matrix-sdk/@types/read_receipts.js",
     "matrix-sdk/@types/search.js",
@@ -164,10 +187,13 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.types += [
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc += [
+    "matrix-sdk/webrtc/audioContext.js",
     "matrix-sdk/webrtc/call.js",
     "matrix-sdk/webrtc/callEventHandler.js",
     "matrix-sdk/webrtc/callEventTypes.js",
     "matrix-sdk/webrtc/callFeed.js",
+    "matrix-sdk/webrtc/groupCall.js",
+    "matrix-sdk/webrtc/groupCallEventHandler.js",
     "matrix-sdk/webrtc/mediaHandler.js",
 ]
 
@@ -178,7 +204,6 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc += [
 EXTRA_JS_MODULES.matrix += [
     "another-json/another-json.js",
     "events/events.js",
-    "qs/dist/qs.js",
 ]
 
 EXTRA_JS_MODULES.matrix.base_x += [
@@ -250,4 +275,58 @@ EXTRA_JS_MODULES.matrix.matrix_events_sdk.interpreters.modern += [
 EXTRA_JS_MODULES.matrix.matrix_events_sdk.utility += [
     "matrix-events-sdk/utility/events.js",
     "matrix-events-sdk/utility/MessageMatchers.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_widget_api += [
+    "matrix-widget-api/ClientWidgetApi.js",
+    "matrix-widget-api/index.js",
+    "matrix-widget-api/Symbols.js",
+    "matrix-widget-api/WidgetApi.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_widget_api.driver += [
+    "matrix-widget-api/driver/WidgetDriver.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_widget_api.interfaces += [
+    "matrix-widget-api/interfaces/ApiVersion.js",
+    "matrix-widget-api/interfaces/Capabilities.js",
+    "matrix-widget-api/interfaces/GetOpenIDAction.js",
+    "matrix-widget-api/interfaces/IWidgetApiErrorResponse.js",
+    "matrix-widget-api/interfaces/ModalButtonKind.js",
+    "matrix-widget-api/interfaces/ModalWidgetActions.js",
+    "matrix-widget-api/interfaces/WidgetApiAction.js",
+    "matrix-widget-api/interfaces/WidgetApiDirection.js",
+    "matrix-widget-api/interfaces/WidgetKind.js",
+    "matrix-widget-api/interfaces/WidgetType.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_widget_api.models += [
+    "matrix-widget-api/models/Widget.js",
+    "matrix-widget-api/models/WidgetEventCapability.js",
+    "matrix-widget-api/models/WidgetParser.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_widget_api.models.validation += [
+    "matrix-widget-api/models/validation/url.js",
+    "matrix-widget-api/models/validation/utils.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_widget_api.templating += [
+    "matrix-widget-api/templating/url-template.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_widget_api.transport += [
+    "matrix-widget-api/transport/PostmessageTransport.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_widget_api.util += [
+    "matrix-widget-api/util/SimpleObservable.js",
+]
+
+EXTRA_JS_MODULES.matrix.sdp_transform += [
+    "sdp-transform/grammar.js",
+    "sdp-transform/index.js",
+    "sdp-transform/parser.js",
+    "sdp-transform/writer.js",
 ]

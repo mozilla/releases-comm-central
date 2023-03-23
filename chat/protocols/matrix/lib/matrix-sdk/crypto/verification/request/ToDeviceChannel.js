@@ -9,7 +9,9 @@ var _logger = require("../../../logger");
 var _VerificationRequest = require("./VerificationRequest");
 var _Error = require("../Error");
 var _event = require("../../../models/event");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /**
  * A key verification channel that sends verification events over to_device messages.
  * Generates its own transaction ids.
@@ -42,8 +44,8 @@ class ToDeviceChannel {
 
   /**
    * Extract the transaction id used by a given key verification event, if any
-   * @param {MatrixEvent} event the event
-   * @returns {string} the transaction id
+   * @param event - the event
+   * @returns the transaction id
    */
   static getTransactionId(event) {
     const content = event.getContent();
@@ -52,8 +54,8 @@ class ToDeviceChannel {
 
   /**
    * Checks whether the given event type should be allowed to initiate a new VerificationRequest over this channel
-   * @param {string} type the event type to check
-   * @returns {boolean} boolean flag
+   * @param type - the event type to check
+   * @returns boolean flag
    */
   static canCreateRequest(type) {
     return type === _VerificationRequest.REQUEST_TYPE || type === _VerificationRequest.START_TYPE;
@@ -67,9 +69,9 @@ class ToDeviceChannel {
    * This only does checks that don't rely on the current state of a potentially already channel
    * so we can prevent channels being created by invalid events.
    * `handleEvent` can do more checks and choose to ignore invalid events.
-   * @param {MatrixEvent} event the event to validate
-   * @param {MatrixClient} client the client to get the current user and device id from
-   * @returns {boolean} whether the event is valid and should be passed to handleEvent
+   * @param event - the event to validate
+   * @param client - the client to get the current user and device id from
+   * @returns whether the event is valid and should be passed to handleEvent
    */
   static validateEvent(event, client) {
     if (event.isCancelled()) {
@@ -102,8 +104,8 @@ class ToDeviceChannel {
   }
 
   /**
-   * @param {MatrixEvent} event the event to get the timestamp of
-   * @return {number} the timestamp when the event was sent
+   * @param event - the event to get the timestamp of
+   * @returns the timestamp when the event was sent
    */
   getTimestamp(event) {
     const content = event.getContent();
@@ -112,10 +114,10 @@ class ToDeviceChannel {
 
   /**
    * Changes the state of the channel, request, and verifier in response to a key verification event.
-   * @param {MatrixEvent} event to handle
-   * @param {VerificationRequest} request the request to forward handling to
-   * @param {boolean} isLiveEvent whether this is an even received through sync or not
-   * @returns {Promise} a promise that resolves when any requests as an answer to the passed-in event are sent.
+   * @param event - to handle
+   * @param request - the request to forward handling to
+   * @param isLiveEvent - whether this is an even received through sync or not
+   * @returns a promise that resolves when any requests as an answer to the passed-in event are sent.
    */
   async handleEvent(event, request, isLiveEvent = false) {
     const type = event.getType();
@@ -156,9 +158,9 @@ class ToDeviceChannel {
   }
 
   /**
-   * See {InRoomChannel.completedContentFromEvent} why this is needed.
-   * @param {MatrixEvent} event the received event
-   * @returns {Object} the content object
+   * See {@link InRoomChannel#completedContentFromEvent} for why this is needed.
+   * @param event - the received event
+   * @returns the content object
    */
   completedContentFromEvent(event) {
     return event.getContent();
@@ -169,9 +171,9 @@ class ToDeviceChannel {
    * This is public so verification methods (SAS uses this) can get the exact
    * content that will be sent independent of the used channel,
    * as they need to calculate the hash of it.
-   * @param {string} type the event type
-   * @param {object} content the (incomplete) content
-   * @returns {object} the complete content, as it will be sent.
+   * @param type - the event type
+   * @param content - the (incomplete) content
+   * @returns the complete content, as it will be sent.
    */
   completeContent(type, content) {
     // make a copy
@@ -190,9 +192,9 @@ class ToDeviceChannel {
 
   /**
    * Send an event over the channel with the content not having gone through `completeContent`.
-   * @param {string} type the event type
-   * @param {object} uncompletedContent the (incomplete) content
-   * @returns {Promise} the promise of the request
+   * @param type - the event type
+   * @param uncompletedContent - the (incomplete) content
+   * @returns the promise of the request
    */
   send(type, uncompletedContent = {}) {
     // create transaction id when sending request
@@ -205,9 +207,8 @@ class ToDeviceChannel {
 
   /**
    * Send an event over the channel with the content having gone through `completeContent` already.
-   * @param {string} type the event type
-   * @param {object} content
-   * @returns {Promise} the promise of the request
+   * @param type - the event type
+   * @returns the promise of the request
    */
   async sendCompleted(type, content) {
     let result;
@@ -240,7 +241,7 @@ class ToDeviceChannel {
 
   /**
    * Allow Crypto module to create and know the transaction id before the .start event gets sent.
-   * @returns {string} the transaction id
+   * @returns the transaction id
    */
   static makeTransactionId() {
     return (0, _randomstring.randomString)(32);

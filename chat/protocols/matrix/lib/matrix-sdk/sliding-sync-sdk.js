@@ -12,11 +12,14 @@ var _client = require("./client");
 var _sync = require("./sync");
 var _httpApi = require("./http-api");
 var _slidingSync = require("./sliding-sync");
-var _matrix = require("./matrix");
-var _pushprocessor = require("./pushprocessor");
+var _event = require("./@types/event");
+var _roomState = require("./models/room-state");
+var _roomMember = require("./models/room-member");
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 // Number of consecutive failed syncs that will lead to a syncState of ERROR as opposed
 // to RECONNECTING. This is needed to inform the client of server issues when the
 // keepAlive is successful but the server /sync fails.
@@ -60,11 +63,13 @@ class ExtensionE2EE {
       const unusedFallbackKeys = data["device_unused_fallback_key_types"] || data["org.matrix.msc2732.device_unused_fallback_key_types"];
       this.crypto.setNeedsNewFallback(Array.isArray(unusedFallbackKeys) && !unusedFallbackKeys.includes("signed_curve25519"));
     }
+    this.crypto.onSyncCompleted({});
   }
 }
 class ExtensionToDevice {
-  constructor(client) {
+  constructor(client, cryptoCallbacks) {
     this.client = client;
+    this.cryptoCallbacks = cryptoCallbacks;
     _defineProperty(this, "nextBatch", null);
   }
   name() {
@@ -85,8 +90,11 @@ class ExtensionToDevice {
   }
   async onResponse(data) {
     const cancelledKeyVerificationTxns = [];
-    data["events"] = data["events"] || [];
-    data["events"].map(this.client.getEventMapper()).map(toDeviceEvent => {
+    let events = data["events"] || [];
+    if (events.length > 0 && this.cryptoCallbacks) {
+      events = await this.cryptoCallbacks.preprocessToDeviceMessages(events);
+    }
+    events.map(this.client.getEventMapper()).map(toDeviceEvent => {
       // map is a cheap inline forEach
       // We want to flag m.key.verification.start events as cancelled
       // if there's an accompanying m.key.verification.cancel event, so
@@ -94,7 +102,7 @@ class ExtensionToDevice {
       // so we can flag the verification events as cancelled in the loop
       // below.
       if (toDeviceEvent.getType() === "m.key.verification.cancel") {
-        const txnId = toDeviceEvent.getContent()['transaction_id'];
+        const txnId = toDeviceEvent.getContent()["transaction_id"];
         if (txnId) {
           cancelledKeyVerificationTxns.push(txnId);
         }
@@ -107,18 +115,18 @@ class ExtensionToDevice {
       const content = toDeviceEvent.getContent();
       if (toDeviceEvent.getType() == "m.room.message" && content.msgtype == "m.bad.encrypted") {
         // the mapper already logged a warning.
-        _logger.logger.log('Ignoring undecryptable to-device event from ' + toDeviceEvent.getSender());
+        _logger.logger.log("Ignoring undecryptable to-device event from " + toDeviceEvent.getSender());
         return;
       }
       if (toDeviceEvent.getType() === "m.key.verification.start" || toDeviceEvent.getType() === "m.key.verification.request") {
-        const txnId = content['transaction_id'];
+        const txnId = content["transaction_id"];
         if (cancelledKeyVerificationTxns.includes(txnId)) {
           toDeviceEvent.flagCancelled();
         }
       }
       this.client.emit(_client.ClientEvent.ToDeviceEvent, toDeviceEvent);
     });
-    this.nextBatch = data["next_batch"];
+    this.nextBatch = data.next_batch;
   }
 }
 class ExtensionAccountData {
@@ -168,14 +176,70 @@ class ExtensionAccountData {
       // honour push rules that were previously cached. Base rules
       // will be updated when we receive push rules via getPushRules
       // (see sync) before syncing over the network.
-      if (accountDataEvent.getType() === _matrix.EventType.PushRules) {
+      if (accountDataEvent.getType() === _event.EventType.PushRules) {
         const rules = accountDataEvent.getContent();
-        this.client.pushRules = _pushprocessor.PushProcessor.rewriteDefaultRules(rules);
+        this.client.setPushRules(rules);
       }
       const prevEvent = prevEventsMap[accountDataEvent.getType()];
       this.client.emit(_client.ClientEvent.AccountData, accountDataEvent, prevEvent);
       return accountDataEvent;
     });
+  }
+}
+class ExtensionTyping {
+  constructor(client) {
+    this.client = client;
+  }
+  name() {
+    return "typing";
+  }
+  when() {
+    return _slidingSync.ExtensionState.PostProcess;
+  }
+  onRequest(isInitial) {
+    if (!isInitial) {
+      return undefined; // don't send a JSON object for subsequent requests, we don't need to.
+    }
+
+    return {
+      enabled: true
+    };
+  }
+  onResponse(data) {
+    if (!data?.rooms) {
+      return;
+    }
+    for (const roomId in data.rooms) {
+      processEphemeralEvents(this.client, roomId, [data.rooms[roomId]]);
+    }
+  }
+}
+class ExtensionReceipts {
+  constructor(client) {
+    this.client = client;
+  }
+  name() {
+    return "receipts";
+  }
+  when() {
+    return _slidingSync.ExtensionState.PostProcess;
+  }
+  onRequest(isInitial) {
+    if (isInitial) {
+      return {
+        enabled: true
+      };
+    }
+    return undefined; // don't send a JSON object for subsequent requests, we don't need to.
+  }
+
+  onResponse(data) {
+    if (!data?.rooms) {
+      return;
+    }
+    for (const roomId in data.rooms) {
+      processEphemeralEvents(this.client, roomId, [data.rooms[roomId]]);
+    }
   }
 }
 
@@ -186,33 +250,26 @@ class ExtensionAccountData {
 class SlidingSyncSdk {
   // accumulator of sync events in the current sync response
 
-  constructor(slidingSync, client, opts = {}) {
+  constructor(slidingSync, client, opts, syncOpts) {
     this.slidingSync = slidingSync;
     this.client = client;
-    this.opts = opts;
+    _defineProperty(this, "opts", void 0);
+    _defineProperty(this, "syncOpts", void 0);
     _defineProperty(this, "syncState", null);
     _defineProperty(this, "syncStateData", void 0);
     _defineProperty(this, "lastPos", null);
     _defineProperty(this, "failCount", 0);
     _defineProperty(this, "notifEvents", []);
-    this.opts.initialSyncLimit = this.opts.initialSyncLimit ?? 8;
-    this.opts.resolveInvitesToProfiles = this.opts.resolveInvitesToProfiles || false;
-    this.opts.pollTimeout = this.opts.pollTimeout || 30 * 1000;
-    this.opts.pendingEventOrdering = this.opts.pendingEventOrdering || _client.PendingEventOrdering.Chronological;
-    this.opts.experimentalThreadSupport = this.opts.experimentalThreadSupport === true;
-    if (!opts.canResetEntireTimeline) {
-      opts.canResetEntireTimeline = _roomId => {
-        return false;
-      };
-    }
+    this.opts = (0, _sync.defaultClientOpts)(opts);
+    this.syncOpts = (0, _sync.defaultSyncApiOpts)(syncOpts);
     if (client.getNotifTimelineSet()) {
       client.reEmitter.reEmit(client.getNotifTimelineSet(), [_room.RoomEvent.Timeline, _room.RoomEvent.TimelineReset]);
     }
     this.slidingSync.on(_slidingSync.SlidingSyncEvent.Lifecycle, this.onLifecycle.bind(this));
     this.slidingSync.on(_slidingSync.SlidingSyncEvent.RoomData, this.onRoomData.bind(this));
-    const extensions = [new ExtensionToDevice(this.client), new ExtensionAccountData(this.client)];
-    if (this.opts.crypto) {
-      extensions.push(new ExtensionE2EE(this.opts.crypto));
+    const extensions = [new ExtensionToDevice(this.client, this.syncOpts.cryptoCallbacks), new ExtensionAccountData(this.client), new ExtensionTyping(this.client), new ExtensionReceipts(this.client)];
+    if (this.syncOpts.crypto) {
+      extensions.push(new ExtensionE2EE(this.syncOpts.crypto));
     }
     extensions.forEach(ext => {
       this.slidingSync.registerExtension(ext);
@@ -276,7 +333,7 @@ class SlidingSyncSdk {
 
   /**
    * Sync rooms the user has left.
-   * @return {Promise} Resolved when they've been added to the store.
+   * @returns Resolved when they've been added to the store.
    */
   async syncLeftRooms() {
     return []; // TODO
@@ -285,8 +342,8 @@ class SlidingSyncSdk {
   /**
    * Peek into a room. This will result in the room in question being synced so it
    * is accessible via getRooms(). Live updates for the room will be provided.
-   * @param {string} roomId The room ID to peek into.
-   * @return {Promise} A promise which resolves once the room has been added to the
+   * @param roomId - The room ID to peek into.
+   * @returns A promise which resolves once the room has been added to the
    * store.
    */
   async peek(_roomId) {
@@ -303,8 +360,7 @@ class SlidingSyncSdk {
 
   /**
    * Returns the current state of this sync object
-   * @see module:client~MatrixClient#event:"sync"
-   * @return {?String}
+   * @see MatrixClient#event:"sync"
    */
   getSyncState() {
     return this.syncState;
@@ -316,11 +372,47 @@ class SlidingSyncSdk {
    * such data.
    * Sync errors, if available, are put in the 'error' key of
    * this object.
-   * @return {?Object}
    */
   getSyncStateData() {
     return this.syncStateData ?? null;
   }
+
+  // Helper functions which set up JS SDK structs are below and are identical to the sync v2 counterparts
+
+  createRoom(roomId) {
+    // XXX cargoculted from sync.ts
+    const {
+      timelineSupport
+    } = this.client;
+    const room = new _room.Room(roomId, this.client, this.client.getUserId(), {
+      lazyLoadMembers: this.opts.lazyLoadMembers,
+      pendingEventOrdering: this.opts.pendingEventOrdering,
+      timelineSupport
+    });
+    this.client.reEmitter.reEmit(room, [_room.RoomEvent.Name, _room.RoomEvent.Redaction, _room.RoomEvent.RedactionCancelled, _room.RoomEvent.Receipt, _room.RoomEvent.Tags, _room.RoomEvent.LocalEchoUpdated, _room.RoomEvent.AccountData, _room.RoomEvent.MyMembership, _room.RoomEvent.Timeline, _room.RoomEvent.TimelineReset]);
+    this.registerStateListeners(room);
+    return room;
+  }
+  registerStateListeners(room) {
+    // XXX cargoculted from sync.ts
+    // we need to also re-emit room state and room member events, so hook it up
+    // to the client now. We need to add a listener for RoomState.members in
+    // order to hook them correctly.
+    this.client.reEmitter.reEmit(room.currentState, [_roomState.RoomStateEvent.Events, _roomState.RoomStateEvent.Members, _roomState.RoomStateEvent.NewMember, _roomState.RoomStateEvent.Update]);
+    room.currentState.on(_roomState.RoomStateEvent.NewMember, (event, state, member) => {
+      member.user = this.client.getUser(member.userId) ?? undefined;
+      this.client.reEmitter.reEmit(member, [_roomMember.RoomMemberEvent.Name, _roomMember.RoomMemberEvent.Typing, _roomMember.RoomMemberEvent.PowerLevel, _roomMember.RoomMemberEvent.Membership]);
+    });
+  }
+
+  /*
+  private deregisterStateListeners(room: Room): void { // XXX cargoculted from sync.ts
+      // could do with a better way of achieving this.
+      room.currentState.removeAllListeners(RoomStateEvent.Events);
+      room.currentState.removeAllListeners(RoomStateEvent.Members);
+      room.currentState.removeAllListeners(RoomStateEvent.NewMember);
+  } */
+
   shouldAbortSync(error) {
     if (error.errcode === "M_UNKNOWN_TOKEN") {
       // The logout already happened, we just need to stop.
@@ -407,7 +499,7 @@ class SlidingSyncSdk {
     }
     if (roomData.invite_state) {
       const inviteStateEvents = mapEvents(this.client, room.roomId, roomData.invite_state);
-      this.processRoomEvents(room, inviteStateEvents);
+      this.injectRoomEvents(room, inviteStateEvents);
       if (roomData.initial) {
         room.recalculate();
         this.client.store.storeRoom(room);
@@ -462,16 +554,17 @@ class SlidingSyncSdk {
          if (limited) {
             room.resetLiveTimeline(
                 roomData.prev_batch,
-                null, // TODO this.opts.canResetEntireTimeline(room.roomId) ? null : syncEventData.oldSyncToken,
+                null, // TODO this.syncOpts.canResetEntireTimeline(room.roomId) ? null : syncEventData.oldSyncToken,
             );
              // We have to assume any gap in any timeline is
             // reason to stop incrementally tracking notifications and
             // reset the timeline.
             this.client.resetNotifTimelineSet();
+            this.registerStateListeners(room);
         }
     } */
 
-    this.processRoomEvents(room, stateEvents, timelineEvents, false);
+    this.injectRoomEvents(room, stateEvents, timelineEvents, roomData.num_live);
 
     // we deliberately don't add ephemeral events to the timeline
     room.addEphemeralEvents(ephemeralEvents);
@@ -490,8 +583,8 @@ class SlidingSyncSdk {
     this.addNotifications(timelineEvents);
     const processRoomEvent = async e => {
       client.emit(_client.ClientEvent.Event, e);
-      if (e.isState() && e.getType() == _matrix.EventType.RoomEncryption && this.opts.crypto) {
-        await this.opts.crypto.onCryptoEvent(e);
+      if (e.isState() && e.getType() == _event.EventType.RoomEncryption && this.syncOpts.cryptoCallbacks) {
+        await this.syncOpts.cryptoCallbacks.onCryptoEvent(room, e);
       }
     };
     await utils.promiseMapSeries(stateEvents, processRoomEvent);
@@ -507,16 +600,18 @@ class SlidingSyncSdk {
   }
 
   /**
-   * @param {Room} room
-   * @param {MatrixEvent[]} stateEventList A list of state events. This is the state
+   * Injects events into a room's model.
+   * @param stateEventList - A list of state events. This is the state
    * at the *START* of the timeline list if it is supplied.
-   * @param {MatrixEvent[]} [timelineEventList] A list of timeline events. Lower index
-   * @param {boolean} fromCache whether the sync response came from cache
+   * @param timelineEventList - A list of timeline events. Lower index
    * is earlier in time. Higher index is later.
+   * @param numLive - the number of events in timelineEventList which just happened,
+   * supplied from the server.
    */
-  processRoomEvents(room, stateEventList, timelineEventList, fromCache = false) {
+  injectRoomEvents(room, stateEventList, timelineEventList, numLive) {
     timelineEventList = timelineEventList || [];
     stateEventList = stateEventList || [];
+    numLive = numLive || 0;
 
     // If there are no events in the timeline yet, initialise it with
     // the given state events
@@ -555,13 +650,31 @@ class SlidingSyncSdk {
       room.currentState.setStateEvents(stateEventList);
     }
 
+    // the timeline is broken into 'live' events which just happened and normal timeline events
+    // which are still to be appended to the end of the live timeline but happened a while ago.
+    // The live events are marked as fromCache=false to ensure that downstream components know
+    // this is a live event, not historical (from a remote server cache).
+
+    let liveTimelineEvents = [];
+    if (numLive > 0) {
+      // last numLive events are live
+      liveTimelineEvents = timelineEventList.slice(-1 * numLive);
+      // everything else is not live
+      timelineEventList = timelineEventList.slice(0, -1 * liveTimelineEvents.length);
+    }
+
     // execute the timeline events. This will continue to diverge the current state
     // if the timeline has any state events in it.
     // This also needs to be done before running push rules on the events as they need
     // to be decorated with sender etc.
     room.addLiveEvents(timelineEventList, {
-      fromCache: fromCache
+      fromCache: true
     });
+    if (liveTimelineEvents.length > 0) {
+      room.addLiveEvents(liveTimelineEvents, {
+        fromCache: false
+      });
+    }
     room.recalculate();
 
     // resolve invites now we have set the latest state
@@ -647,8 +760,8 @@ class SlidingSyncSdk {
 
   /**
    * Sets the sync state and emits an event to say so
-   * @param {String} newState The new state string
-   * @param {Object} data Object of additional data to emit in the event
+   * @param newState - The new state string
+   * @param data - Object of additional data to emit in the event
    */
   updateSyncState(newState, data) {
     const old = this.syncState;
@@ -662,7 +775,7 @@ class SlidingSyncSdk {
    * as appropriate.
    * This must be called after the room the events belong to has been stored.
    *
-   * @param {MatrixEvent[]} [timelineEventList] A list of timeline events. Lower index
+   * @param timelineEventList - A list of timeline events. Lower index
    * is earlier in time. Higher index is later.
    */
   addNotifications(timelineEventList) {
@@ -704,7 +817,7 @@ function ensureNameEvent(client, roomId, roomData) {
     return roomData;
   }
   for (const stateEvent of roomData.required_state) {
-    if (stateEvent.type === _matrix.EventType.RoomName && stateEvent.state_key === "") {
+    if (stateEvent.type === _event.EventType.RoomName && stateEvent.state_key === "") {
       stateEvent.content = {
         name: roomData.name
       };
@@ -714,7 +827,7 @@ function ensureNameEvent(client, roomId, roomData) {
   roomData.required_state.push({
     event_id: "$fake-sliding-sync-name-event-" + roomId,
     state_key: "",
-    type: _matrix.EventType.RoomName,
+    type: _event.EventType.RoomName,
     content: {
       name: roomData.name
     },
@@ -723,16 +836,26 @@ function ensureNameEvent(client, roomId, roomData) {
   });
   return roomData;
 }
-
 // Helper functions which set up JS SDK structs are below and are identical to the sync v2 counterparts,
 // just outside the class.
-
 function mapEvents(client, roomId, events, decrypt = true) {
   const mapper = client.getEventMapper({
     decrypt
   });
   return events.map(function (e) {
-    e["room_id"] = roomId;
+    e.room_id = roomId;
     return mapper(e);
+  });
+}
+function processEphemeralEvents(client, roomId, ephEvents) {
+  const ephemeralEvents = mapEvents(client, roomId, ephEvents);
+  const room = client.getRoom(roomId);
+  if (!room) {
+    _logger.logger.warn("got ephemeral events for room but room doesn't exist on client:", roomId);
+    return;
+  }
+  room.addEphemeralEvents(ephemeralEvents);
+  ephemeralEvents.forEach(e => {
+    client.emit(_client.ClientEvent.Event, e);
   });
 }

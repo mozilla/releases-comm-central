@@ -11,7 +11,9 @@ var _aes = require("./aes");
 var _logger = require("../logger");
 var _httpApi = require("../http-api");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 const DEHYDRATION_ALGORITHM = "org.matrix.msc2697.v1.olm.libolm_pickle";
 exports.DEHYDRATION_ALGORITHM = DEHYDRATION_ALGORITHM;
 const oneweek = 7 * 24 * 60 * 60 * 1000;
@@ -26,7 +28,7 @@ class DehydrationManager {
     this.getDehydrationKeyFromCache();
   }
   getDehydrationKeyFromCache() {
-    return this.crypto.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+    return this.crypto.cryptoStore.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
       this.crypto.cryptoStore.getSecretStorePrivateKey(txn, async result => {
         if (result) {
           const {
@@ -64,7 +66,7 @@ class DehydrationManager {
         this.timeoutId = undefined;
       }
       // clear storage
-      await this.crypto.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+      await this.crypto.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
         this.crypto.cryptoStore.storeSecretStorePrivateKey(txn, "dehydration", null);
       });
       this.key = undefined;
@@ -106,7 +108,7 @@ class DehydrationManager {
 
       // update the crypto store with the timestamp
       const key = await (0, _aes.encryptAES)((0, _olmlib.encodeBase64)(this.key), pickleKey, DEHYDRATION_ALGORITHM);
-      await this.crypto.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+      await this.crypto.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
         this.crypto.cryptoStore.storeSecretStorePrivateKey(txn, "dehydration", {
           keyInfo: this.keyInfo,
           key,

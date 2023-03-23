@@ -5,10 +5,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.EventContext = void 0;
 var _eventTimeline = require("./event-timeline");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-/**
- * @module models/event-context
- */
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 class EventContext {
   /**
    * Construct a new EventContext
@@ -20,9 +19,7 @@ class EventContext {
    * It also stores pagination tokens for going backwards and forwards in the
    * timeline.
    *
-   * @param {MatrixEvent} ourEvent  the event at the centre of this context
-   *
-   * @constructor
+   * @param ourEvent - the event at the centre of this context
    */
   constructor(ourEvent) {
     this.ourEvent = ourEvent;
@@ -40,7 +37,7 @@ class EventContext {
    *
    * This is a convenience function for getTimeline()[getOurEventIndex()].
    *
-   * @return {MatrixEvent} The event at the centre of this context.
+   * @returns The event at the centre of this context.
    */
   getEvent() {
     return this.timeline[this.ourEventIndex];
@@ -49,7 +46,7 @@ class EventContext {
   /**
    * Get the list of events in this context
    *
-   * @return {Array} An array of MatrixEvents
+   * @returns An array of MatrixEvents
    */
   getTimeline() {
     return this.timeline;
@@ -57,8 +54,6 @@ class EventContext {
 
   /**
    * Get the index in the timeline of our event
-   *
-   * @return {Number}
    */
   getOurEventIndex() {
     return this.ourEventIndex;
@@ -67,9 +62,7 @@ class EventContext {
   /**
    * Get a pagination token.
    *
-   * @param {boolean} backwards   true to get the pagination token for going
-   *                                  backwards in time
-   * @return {string}
+   * @param backwards -   true to get the pagination token for going
    */
   getPaginateToken(backwards = false) {
     return this.paginateTokens[backwards ? _eventTimeline.Direction.Backward : _eventTimeline.Direction.Forward];
@@ -80,8 +73,8 @@ class EventContext {
    *
    * Generally this will be used only by the matrix js sdk.
    *
-   * @param {string} token        pagination token
-   * @param {boolean} backwards   true to set the pagination token for going
+   * @param token -        pagination token
+   * @param backwards -   true to set the pagination token for going
    *                                   backwards in time
    */
   setPaginateToken(token, backwards = false) {
@@ -91,8 +84,8 @@ class EventContext {
   /**
    * Add more events to the timeline
    *
-   * @param {Array} events      new events, in timeline order
-   * @param {boolean} atStart   true to insert new events at the start
+   * @param events -      new events, in timeline order
+   * @param atStart -   true to insert new events at the start
    */
   addEvents(events, atStart = false) {
     // TODO: should we share logic with Room.addEventsToTimeline?

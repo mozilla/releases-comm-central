@@ -6,20 +6,15 @@ Object.defineProperty(exports, "__esModule", {
 exports.MemoryStore = void 0;
 var _user = require("../models/user");
 var _roomState = require("../models/room-state");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 function isValidFilterId(filterId) {
   const isValidStr = typeof filterId === "string" && !!filterId && filterId !== "undefined" &&
   // exclude these as we've serialized undefined in localStorage before
   filterId !== "null";
   return isValidStr || typeof filterId === "number";
 }
-/**
- * Construct a new in-memory data store for the Matrix Client.
- * @constructor
- * @param {Object=} opts Config options
- * @param {Storage} opts.localStorage The local storage instance to persist
- * some forms of data such as tokens. Rooms will NOT be stored.
- */
 class MemoryStore {
   // roomId: Room
   // userId: User
@@ -32,6 +27,10 @@ class MemoryStore {
 
   // roomId: [member events]
 
+  /**
+   * Construct a new in-memory data store for the Matrix Client.
+   * @param opts - Config options
+   */
   constructor(opts = {}) {
     _defineProperty(this, "rooms", {});
     _defineProperty(this, "users", {});
@@ -67,20 +66,20 @@ class MemoryStore {
 
   /**
    * Retrieve the token to stream from.
-   * @return {string} The token or null.
+   * @returns The token or null.
    */
   getSyncToken() {
     return this.syncToken;
   }
 
-  /** @return {Promise<boolean>} whether or not the database was newly created in this session. */
+  /** @returns whether or not the database was newly created in this session. */
   isNewlyCreated() {
     return Promise.resolve(true);
   }
 
   /**
    * Set the token to stream from.
-   * @param {string} token The token to stream from.
+   * @param token - The token to stream from.
    */
   setSyncToken(token) {
     this.syncToken = token;
@@ -88,7 +87,7 @@ class MemoryStore {
 
   /**
    * Store the given room.
-   * @param {Room} room The room to be stored. All properties must be stored.
+   * @param room - The room to be stored. All properties must be stored.
    */
   storeRoom(room) {
     this.rooms[room.roomId] = room;
@@ -104,15 +103,12 @@ class MemoryStore {
   /**
    * Called when a room member in a room being tracked by this store has been
    * updated.
-   * @param {MatrixEvent} event
-   * @param {RoomState} state
-   * @param {RoomMember} member
    */
 
   /**
    * Retrieve a room by its' room ID.
-   * @param {string} roomId The room ID.
-   * @return {Room} The room or null.
+   * @param roomId - The room ID.
+   * @returns The room or null.
    */
   getRoom(roomId) {
     return this.rooms[roomId] || null;
@@ -120,7 +116,7 @@ class MemoryStore {
 
   /**
    * Retrieve all known rooms.
-   * @return {Room[]} A list of rooms, which may be empty.
+   * @returns A list of rooms, which may be empty.
    */
   getRooms() {
     return Object.values(this.rooms);
@@ -128,7 +124,6 @@ class MemoryStore {
 
   /**
    * Permanently delete a room.
-   * @param {string} roomId
    */
   removeRoom(roomId) {
     if (this.rooms[roomId]) {
@@ -139,7 +134,7 @@ class MemoryStore {
 
   /**
    * Retrieve a summary of all the rooms.
-   * @return {RoomSummary[]} A summary of each room.
+   * @returns A summary of each room.
    */
   getRoomSummaries() {
     return Object.values(this.rooms).map(function (room) {
@@ -149,7 +144,7 @@ class MemoryStore {
 
   /**
    * Store a User.
-   * @param {User} user The user to store.
+   * @param user - The user to store.
    */
   storeUser(user) {
     this.users[user.userId] = user;
@@ -157,8 +152,8 @@ class MemoryStore {
 
   /**
    * Retrieve a User by its' user ID.
-   * @param {string} userId The user ID.
-   * @return {User} The user or null.
+   * @param userId - The user ID.
+   * @returns The user or null.
    */
   getUser(userId) {
     return this.users[userId] || null;
@@ -166,7 +161,7 @@ class MemoryStore {
 
   /**
    * Retrieve all known users.
-   * @return {User[]} A list of users, which may be empty.
+   * @returns A list of users, which may be empty.
    */
   getUsers() {
     return Object.values(this.users);
@@ -174,9 +169,9 @@ class MemoryStore {
 
   /**
    * Retrieve scrollback for this room.
-   * @param {Room} room The matrix room
-   * @param {number} limit The max number of old events to retrieve.
-   * @return {Array<Object>} An array of objects which will be at most 'limit'
+   * @param room - The matrix room
+   * @param limit - The max number of old events to retrieve.
+   * @returns An array of objects which will be at most 'limit'
    * length and at least 0. The objects are the raw event JSON.
    */
   scrollback(room, limit) {
@@ -185,10 +180,10 @@ class MemoryStore {
 
   /**
    * Store events for a room. The events have already been added to the timeline
-   * @param {Room} room The room to store events for.
-   * @param {Array<MatrixEvent>} events The events to store.
-   * @param {string} token The token associated with these events.
-   * @param {boolean} toStart True if these are paginated results.
+   * @param room - The room to store events for.
+   * @param events - The events to store.
+   * @param token - The token associated with these events.
+   * @param toStart - True if these are paginated results.
    */
   storeEvents(room, events, token, toStart) {
     // no-op because they've already been added to the room instance.
@@ -196,7 +191,6 @@ class MemoryStore {
 
   /**
    * Store a filter.
-   * @param {Filter} filter
    */
   storeFilter(filter) {
     if (!filter?.userId || !filter?.filterId) return;
@@ -208,9 +202,7 @@ class MemoryStore {
 
   /**
    * Retrieve a filter.
-   * @param {string} userId
-   * @param {string} filterId
-   * @return {?Filter} A filter or null.
+   * @returns A filter or null.
    */
   getFilter(userId, filterId) {
     if (!this.filters[userId] || !this.filters[userId][filterId]) {
@@ -221,8 +213,8 @@ class MemoryStore {
 
   /**
    * Retrieve a filter ID with the given name.
-   * @param {string} filterName The filter name.
-   * @return {?string} The filter ID or null.
+   * @param filterName - The filter name.
+   * @returns The filter ID or null.
    */
   getFilterIdByName(filterName) {
     if (!this.localStorage) {
@@ -245,8 +237,6 @@ class MemoryStore {
 
   /**
    * Set a filter name to ID mapping.
-   * @param {string} filterName
-   * @param {string} filterId
    */
   setFilterIdByName(filterName, filterId) {
     if (!this.localStorage) {
@@ -266,18 +256,24 @@ class MemoryStore {
    * Store user-scoped account data events.
    * N.B. that account data only allows a single event per type, so multiple
    * events with the same type will replace each other.
-   * @param {Array<MatrixEvent>} events The events to store.
+   * @param events - The events to store.
    */
   storeAccountDataEvents(events) {
     events.forEach(event => {
-      this.accountData[event.getType()] = event;
+      // MSC3391: an event with content of {} should be interpreted as deleted
+      const isDeleted = !Object.keys(event.getContent()).length;
+      if (isDeleted) {
+        delete this.accountData[event.getType()];
+      } else {
+        this.accountData[event.getType()] = event;
+      }
     });
   }
 
   /**
    * Get account data event by event type
-   * @param {string} eventType The event type being queried
-   * @return {?MatrixEvent} the user account_data event of given type, if any
+   * @param eventType - The event type being queried
+   * @returns the user account_data event of given type, if any
    */
   getAccountData(eventType) {
     return this.accountData[eventType];
@@ -286,8 +282,8 @@ class MemoryStore {
   /**
    * setSyncData does nothing as there is no backing data store.
    *
-   * @param {Object} syncData The sync data
-   * @return {Promise} An immediately resolved promise.
+   * @param syncData - The sync data
+   * @returns An immediately resolved promise.
    */
   setSyncData(syncData) {
     return Promise.resolve();
@@ -296,7 +292,7 @@ class MemoryStore {
   /**
    * We never want to save becase we have nothing to save to.
    *
-   * @return {boolean} If the store wants to save
+   * @returns If the store wants to save
    */
   wantsSave() {
     return false;
@@ -304,21 +300,21 @@ class MemoryStore {
 
   /**
    * Save does nothing as there is no backing data store.
-   * @param {bool} force True to force a save (but the memory
+   * @param force - True to force a save (but the memory
    *     store still can't save anything)
    */
   save(force) {}
 
   /**
    * Startup does nothing as this store doesn't require starting up.
-   * @return {Promise} An immediately resolved promise.
+   * @returns An immediately resolved promise.
    */
   startup() {
     return Promise.resolve();
   }
 
   /**
-   * @return {Promise} Resolves with a sync response to restore the
+   * @returns Promise which resolves with a sync response to restore the
    * client state to where it was at the last save, or null if there
    * is no saved sync data.
    */
@@ -327,7 +323,7 @@ class MemoryStore {
   }
 
   /**
-   * @return {Promise} If there is a saved sync, the nextBatch token
+   * @returns If there is a saved sync, the nextBatch token
    * for this sync, otherwise null.
    */
   getSavedSyncToken() {
@@ -336,7 +332,7 @@ class MemoryStore {
 
   /**
    * Delete all data from this store.
-   * @return {Promise} An immediately resolved promise.
+   * @returns An immediately resolved promise.
    */
   deleteAllData() {
     this.rooms = {
@@ -360,9 +356,8 @@ class MemoryStore {
   /**
    * Returns the out-of-band membership events for this room that
    * were previously loaded.
-   * @param {string} roomId
-   * @returns {event[]} the events, potentially an empty array if OOB loading didn't yield any new members
-   * @returns {null} in case the members for this room haven't been stored yet
+   * @returns the events, potentially an empty array if OOB loading didn't yield any new members
+   * @returns in case the members for this room haven't been stored yet
    */
   getOutOfBandMembers(roomId) {
     return Promise.resolve(this.oobMembers[roomId] || null);
@@ -372,9 +367,8 @@ class MemoryStore {
    * Stores the out-of-band membership events for this room. Note that
    * it still makes sense to store an empty array as the OOB status for the room is
    * marked as fetched, and getOutOfBandMembers will return an empty array instead of null
-   * @param {string} roomId
-   * @param {event[]} membershipEvents the membership events to store
-   * @returns {Promise} when all members have been stored
+   * @param membershipEvents - the membership events to store
+   * @returns when all members have been stored
    */
   setOutOfBandMembers(roomId, membershipEvents) {
     this.oobMembers[roomId] = membershipEvents;

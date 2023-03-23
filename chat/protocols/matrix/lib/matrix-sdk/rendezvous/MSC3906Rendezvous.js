@@ -5,11 +5,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.MSC3906Rendezvous = void 0;
 var _matrixEventsSdk = require("matrix-events-sdk");
+var _ = require(".");
 var _feature = require("../feature");
 var _logger = require("../logger");
 var _utils = require("../utils");
-var _ = require(".");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 var PayloadType;
 (function (PayloadType) {
   PayloadType["Start"] = "m.login.start";
@@ -33,9 +35,9 @@ const LOGIN_TOKEN_PROTOCOL = new _matrixEventsSdk.UnstableValue("login_token", "
  */
 class MSC3906Rendezvous {
   /**
-   * @param channel The secure channel used for communication
-   * @param client The Matrix client in used on the device already logged in
-   * @param onFailure Callback for when the rendezvous fails
+   * @param channel - The secure channel used for communication
+   * @param client - The Matrix client in used on the device already logged in
+   * @param onFailure - Callback for when the rendezvous fails
    */
   constructor(channel, client, onFailure) {
     this.channel = channel;
@@ -81,7 +83,7 @@ class MSC3906Rendezvous {
       type: PayloadType.Progress,
       protocols: [LOGIN_TOKEN_PROTOCOL.name]
     });
-    _logger.logger.info('Waiting for other device to chose protocol');
+    _logger.logger.info("Waiting for other device to chose protocol");
     const {
       type,
       protocol,
@@ -89,8 +91,8 @@ class MSC3906Rendezvous {
     } = await this.receive();
     if (type === PayloadType.Finish) {
       // new device decided not to complete
-      switch (outcome ?? '') {
-        case 'unsupported':
+      switch (outcome ?? "") {
+        case "unsupported":
           await this.cancel(_.RendezvousFailureReason.UnsupportedAlgorithm);
           break;
         default:
@@ -115,7 +117,7 @@ class MSC3906Rendezvous {
     await this.channel.send(payload);
   }
   async declineLoginOnExistingDevice() {
-    _logger.logger.info('User declined sign in');
+    _logger.logger.info("User declined sign in");
     await this.send({
       type: PayloadType.Finish,
       outcome: Outcome.Declined
@@ -128,7 +130,7 @@ class MSC3906Rendezvous {
       login_token: loginToken,
       homeserver: this.client.baseUrl
     });
-    _logger.logger.info('Waiting for outcome');
+    _logger.logger.info("Waiting for outcome");
     const res = await this.receive();
     if (!res) {
       return undefined;
@@ -138,8 +140,8 @@ class MSC3906Rendezvous {
       device_id: deviceId,
       device_key: deviceKey
     } = res;
-    if (outcome !== 'success') {
-      throw new Error('Linking failed');
+    if (outcome !== "success") {
+      throw new Error("Linking failed");
     }
     this.newDeviceId = deviceId;
     this.newDeviceKey = deviceKey;
@@ -147,10 +149,10 @@ class MSC3906Rendezvous {
   }
   async verifyAndCrossSignDevice(deviceInfo) {
     if (!this.client.crypto) {
-      throw new Error('Crypto not available on client');
+      throw new Error("Crypto not available on client");
     }
     if (!this.newDeviceId) {
-      throw new Error('No new device ID set');
+      throw new Error("No new device ID set");
     }
 
     // check that keys received from the server for the new device match those received from the device itself
@@ -159,12 +161,12 @@ class MSC3906Rendezvous {
     }
     const userId = this.client.getUserId();
     if (!userId) {
-      throw new Error('No user ID set');
+      throw new Error("No user ID set");
     }
     // mark the device as verified locally + cross sign
     _logger.logger.info(`Marking device ${this.newDeviceId} as verified`);
     const info = await this.client.crypto.setDeviceVerification(userId, this.newDeviceId, true, false, true);
-    const masterPublicKey = this.client.crypto.crossSigningInfo.getId('master');
+    const masterPublicKey = this.client.crypto.crossSigningInfo.getId("master");
     await this.send({
       type: PayloadType.Finish,
       outcome: Outcome.Verified,
@@ -177,23 +179,23 @@ class MSC3906Rendezvous {
 
   /**
    * Verify the device and cross-sign it.
-   * @param timeout time in milliseconds to wait for device to come online
+   * @param timeout - time in milliseconds to wait for device to come online
    * @returns the new device info if the device was verified
    */
   async verifyNewDeviceOnExistingDevice(timeout = 10 * 1000) {
     if (!this.newDeviceId) {
-      throw new Error('No new device to sign');
+      throw new Error("No new device to sign");
     }
     if (!this.newDeviceKey) {
       _logger.logger.info("No new device key to sign");
       return undefined;
     }
     if (!this.client.crypto) {
-      throw new Error('Crypto not available on client');
+      throw new Error("Crypto not available on client");
     }
     const userId = this.client.getUserId();
     if (!userId) {
-      throw new Error('No user ID set');
+      throw new Error("No user ID set");
     }
     let deviceInfo = this.client.crypto.getStoredDevice(userId, this.newDeviceId);
     if (!deviceInfo) {
@@ -204,7 +206,7 @@ class MSC3906Rendezvous {
     if (deviceInfo) {
       return await this.verifyAndCrossSignDevice(deviceInfo);
     }
-    throw new Error('Device not online within timeout');
+    throw new Error("Device not online within timeout");
   }
   async cancel(reason) {
     this.onFailure?.(reason);

@@ -20,12 +20,14 @@ exports.encodeUri = encodeUri;
 exports.ensureNoTrailingSlash = ensureNoTrailingSlash;
 exports.escapeRegExp = escapeRegExp;
 exports.globToRegexp = globToRegexp;
+exports.immediate = immediate;
 exports.internaliseString = internaliseString;
 exports.isFunction = isFunction;
 exports.isNullOrUndefined = isNullOrUndefined;
 exports.isNumber = isNumber;
 exports.isSupportedReceiptType = isSupportedReceiptType;
 exports.lexicographicCompare = lexicographicCompare;
+exports.mapsEqual = mapsEqual;
 exports.nextString = nextString;
 exports.normalize = normalize;
 exports.prevString = prevString;
@@ -47,13 +49,15 @@ var _read_receipts = require("./@types/read_receipts");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 const interns = new Map();
 
 /**
  * Internalises a string, reusing a known pointer or storing the pointer
  * if needed for future strings.
- * @param str The string to internalise.
+ * @param str - The string to internalise.
  * @returns The internalised string.
  */
 function internaliseString(str) {
@@ -75,9 +79,9 @@ function internaliseString(str) {
 /**
  * Encode a dictionary of query parameters.
  * Omits any undefined/null values.
- * @param {Object} params A dict of key/values to encode e.g.
- * {"foo": "bar", "baz": "taz"}
- * @return {string} The encoded string e.g. foo=bar&baz=taz
+ * @param params - A dict of key/values to encode e.g.
+ * `{"foo": "bar", "baz": "taz"}`
+ * @returns The encoded string e.g. foo=bar&baz=taz
  */
 function encodeParams(params, urlSearchParams) {
   const searchParams = urlSearchParams ?? new URLSearchParams();
@@ -96,9 +100,6 @@ function encodeParams(params, urlSearchParams) {
 }
 /**
  * Replace a stable parameter with the unstable naming for params
- * @param stable
- * @param unstable
- * @param dict
  */
 function replaceParam(stable, unstable, dict) {
   const result = _objectSpread(_objectSpread({}, dict), {}, {
@@ -110,9 +111,9 @@ function replaceParam(stable, unstable, dict) {
 
 /**
  * Decode a query string in `application/x-www-form-urlencoded` format.
- * @param {string} query A query string to decode e.g.
+ * @param query - A query string to decode e.g.
  * foo=bar&via=server1&server2
- * @return {Object} The decoded object, if any keys occurred multiple times
+ * @returns The decoded object, if any keys occurred multiple times
  * then the value will be an array of strings, else it will be an array.
  * This behaviour matches Node's qs.parse but is built on URLSearchParams
  * for native web compatibility
@@ -130,10 +131,10 @@ function decodeParams(query) {
 /**
  * Encodes a URI according to a set of template variables. Variables will be
  * passed through encodeURIComponent.
- * @param {string} pathTemplate The path with template variables e.g. '/foo/$bar'.
- * @param {Object} variables The key/value pairs to replace the template
- * variables with. E.g. { "$bar": "baz" }.
- * @return {string} The result of replacing all template variables e.g. '/foo/baz'.
+ * @param pathTemplate - The path with template variables e.g. '/foo/$bar'.
+ * @param variables - The key/value pairs to replace the template
+ * variables with. E.g. `{ "$bar": "baz" }`.
+ * @returns The result of replacing all template variables e.g. '/foo/baz'.
  */
 function encodeUri(pathTemplate, variables) {
   for (const key in variables) {
@@ -152,12 +153,12 @@ function encodeUri(pathTemplate, variables) {
 /**
  * The removeElement() method removes the first element in the array that
  * satisfies (returns true) the provided testing function.
- * @param {Array} array The array.
- * @param {Function} fn Function to execute on each value in the array, with the
- * function signature <code>fn(element, index, array)</code>. Return true to
+ * @param array - The array.
+ * @param fn - Function to execute on each value in the array, with the
+ * function signature `fn(element, index, array)`. Return true to
  * remove this element and break.
- * @param {boolean} reverse True to search in reverse order.
- * @return {boolean} True if an element was removed.
+ * @param reverse - True to search in reverse order.
+ * @returns True if an element was removed.
  */
 function removeElement(array, fn, reverse) {
   let i;
@@ -181,8 +182,8 @@ function removeElement(array, fn, reverse) {
 
 /**
  * Checks if the given thing is a function.
- * @param {*} value The thing to check.
- * @return {boolean} True if it is a function.
+ * @param value - The thing to check.
+ * @returns True if it is a function.
  */
 function isFunction(value) {
   return Object.prototype.toString.call(value) === "[object Function]";
@@ -190,15 +191,15 @@ function isFunction(value) {
 
 /**
  * Checks that the given object has the specified keys.
- * @param {Object} obj The object to check.
- * @param {string[]} keys The list of keys that 'obj' must have.
+ * @param obj - The object to check.
+ * @param keys - The list of keys that 'obj' must have.
  * @throws If the object is missing keys.
  */
 // note using 'keys' here would shadow the 'keys' function defined above
 function checkObjectHasKeys(obj, keys) {
-  for (let i = 0; i < keys.length; i++) {
-    if (!obj.hasOwnProperty(keys[i])) {
-      throw new Error("Missing required key: " + keys[i]);
+  for (const key of keys) {
+    if (!obj.hasOwnProperty(key)) {
+      throw new Error("Missing required key: " + key);
     }
   }
 }
@@ -206,8 +207,8 @@ function checkObjectHasKeys(obj, keys) {
 /**
  * Deep copy the given object. The object MUST NOT have circular references and
  * MUST NOT have functions.
- * @param {Object} obj The object to deep copy.
- * @return {Object} A copy of the object without any references to the original.
+ * @param obj - The object to deep copy.
+ * @returns A copy of the object without any references to the original.
  */
 function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
@@ -216,10 +217,10 @@ function deepCopy(obj) {
 /**
  * Compare two objects for equality. The objects MUST NOT have circular references.
  *
- * @param {Object} x The first object to compare.
- * @param {Object} y The second object to compare.
+ * @param x - The first object to compare.
+ * @param y - The second object to compare.
  *
- * @return {boolean} true if the two objects are equal
+ * @returns true if the two objects are equal
  */
 function deepCompare(x, y) {
   // Inspired by
@@ -235,7 +236,7 @@ function deepCompare(x, y) {
   }
 
   // special-case NaN (since NaN !== NaN)
-  if (typeof x === 'number' && isNaN(x) && isNaN(y)) {
+  if (typeof x === "number" && isNaN(x) && isNaN(y)) {
     return true;
   }
 
@@ -294,8 +295,8 @@ function deepCompare(x, y) {
  * sorts the result by key, recursively. The input object must
  * ensure it does not have loops. If the input is not an object
  * then it will be returned as-is.
- * @param {*} obj The object to get entries of
- * @returns {Array} The entries, sorted by key.
+ * @param obj - The object to get entries of
+ * @returns The entries, sorted by key.
  */
 function deepSortedObjectEntries(obj) {
   if (typeof obj !== "object") return obj;
@@ -315,34 +316,33 @@ function deepSortedObjectEntries(obj) {
 /**
  * Returns whether the given value is a finite number without type-coercion
  *
- * @param {*} value the value to test
- * @return {boolean} whether or not value is a finite number without type-coercion
+ * @param value - the value to test
+ * @returns whether or not value is a finite number without type-coercion
  */
 function isNumber(value) {
-  return typeof value === 'number' && isFinite(value);
+  return typeof value === "number" && isFinite(value);
 }
 
 /**
  * Removes zero width chars, diacritics and whitespace from the string
  * Also applies an unhomoglyph on the string, to prevent similar looking chars
- * @param {string} str the string to remove hidden characters from
- * @return {string} a string with the hidden characters removed
+ * @param str - the string to remove hidden characters from
+ * @returns a string with the hidden characters removed
  */
 function removeHiddenChars(str) {
   if (typeof str === "string") {
-    return (0, _unhomoglyph.default)(str.normalize('NFD').replace(removeHiddenCharsRegex, ''));
+    return (0, _unhomoglyph.default)(str.normalize("NFD").replace(removeHiddenCharsRegex, ""));
   }
   return "";
 }
 
 /**
  * Removes the direction override characters from a string
- * @param {string} input
  * @returns string with chars removed
  */
 function removeDirectionOverrideChars(str) {
   if (typeof str === "string") {
-    return str.replace(/[\u202d-\u202e]/g, '');
+    return str.replace(/[\u202d-\u202e]/g, "");
   }
   return "";
 }
@@ -375,9 +375,9 @@ function globToRegexp(glob, extended = false) {
   // https://github.com/matrix-org/synapse/blob/abbee6b29be80a77e05730707602f3bbfc3f38cb/synapse/push/__init__.py#L132
   // Because micromatch is about 130KB with dependencies,
   // and minimatch is not much better.
-  const replacements = [[/\\\*/g, '.*'], [/\?/g, '.']];
+  const replacements = [[/\\\*/g, ".*"], [/\?/g, "."]];
   if (!extended) {
-    replacements.push([/\\\[(!|)(.*)\\]/g, (_match, neg, pat) => ['[', neg ? '^' : '', pat.replace(/\\-/, '-'), ']'].join('')]);
+    replacements.push([/\\\[(!|)(.*)\\]/g, (_match, neg, pat) => ["[", neg ? "^" : "", pat.replace(/\\-/, "-"), "]"].join("")]);
   }
   return replacements.reduce(
   // https://github.com/microsoft/TypeScript/issues/30134
@@ -391,11 +391,20 @@ function ensureNoTrailingSlash(url) {
   }
 }
 
-// Returns a promise which resolves with a given value after the given number of ms
+/**
+ * Returns a promise which resolves with a given value after the given number of ms
+ */
 function sleep(ms, value) {
   return new Promise(resolve => {
     setTimeout(resolve, ms, value);
   });
+}
+
+/**
+ * Promise/async version of {@link setImmediate}.
+ */
+function immediate() {
+  return new Promise(setImmediate);
 }
 function isNullOrUndefined(val) {
   return val === null || val === undefined;
@@ -438,9 +447,9 @@ async function chunkPromises(fns, chunkSize) {
  * a promise which throws/rejects on error, otherwise the retry will assume the request
  * succeeded. The promise chain returned will contain the successful promise. The given function
  * should always return a new promise.
- * @param {Function} promiseFn The function to call to get a fresh promise instance. Takes an
+ * @param promiseFn - The function to call to get a fresh promise instance. Takes an
  * attempt count as an argument, for logging/debugging purposes.
- * @returns {Promise<T>} The promise for the retried operation.
+ * @returns The promise for the retried operation.
  */
 function simpleRetryOperation(promiseFn) {
   return (0, _pRetry.default)(attempt => {
@@ -465,7 +474,7 @@ function simpleRetryOperation(promiseFn) {
  */
 const DEFAULT_ALPHABET = (() => {
   let str = "";
-  for (let c = 0x20; c <= 0x7E; c++) {
+  for (let c = 0x20; c <= 0x7e; c++) {
     str += String.fromCharCode(c);
   }
   return str;
@@ -476,10 +485,10 @@ const DEFAULT_ALPHABET = (() => {
  * padded at the end with the first character in the alphabet.
  *
  * This is intended for use with string averaging.
- * @param {string} s The string to pad.
- * @param {number} n The length to pad to.
- * @param {string} alphabet The alphabet to use as a single string.
- * @returns {string} The padded string.
+ * @param s - The string to pad.
+ * @param n - The length to pad to.
+ * @param alphabet - The alphabet to use as a single string.
+ * @returns The padded string.
  */
 exports.DEFAULT_ALPHABET = DEFAULT_ALPHABET;
 function alphabetPad(s, n, alphabet = DEFAULT_ALPHABET) {
@@ -490,9 +499,9 @@ function alphabetPad(s, n, alphabet = DEFAULT_ALPHABET) {
  * Converts a baseN number to a string, where N is the alphabet's length.
  *
  * This is intended for use with string averaging.
- * @param {bigint} n The baseN number.
- * @param {string} alphabet The alphabet to use as a single string.
- * @returns {string} The baseN number encoded as a string from the alphabet.
+ * @param n - The baseN number.
+ * @param alphabet - The alphabet to use as a single string.
+ * @returns The baseN number encoded as a string from the alphabet.
  */
 function baseToString(n, alphabet = DEFAULT_ALPHABET) {
   // Developer note: the stringToBase() function offsets the character set by 1 so that repeated
@@ -522,9 +531,9 @@ function baseToString(n, alphabet = DEFAULT_ALPHABET) {
  * Converts a string to a baseN number, where N is the alphabet's length.
  *
  * This is intended for use with string averaging.
- * @param {string} s The string to convert to a number.
- * @param {string} alphabet The alphabet to use as a single string.
- * @returns {bigint} The baseN number.
+ * @param s - The string to convert to a number.
+ * @param alphabet - The alphabet to use as a single string.
+ * @returns The baseN number.
  */
 function stringToBase(s, alphabet = DEFAULT_ALPHABET) {
   const len = BigInt(alphabet.length);
@@ -556,10 +565,10 @@ function stringToBase(s, alphabet = DEFAULT_ALPHABET) {
  * Averages two strings, returning the midpoint between them. This is accomplished by
  * converting both to baseN numbers (where N is the alphabet's length) then averaging
  * those before re-encoding as a string.
- * @param {string} a The first string.
- * @param {string} b The second string.
- * @param {string} alphabet The alphabet to use as a single string.
- * @returns {string} The midpoint between the strings, as a string.
+ * @param a - The first string.
+ * @param b - The second string.
+ * @param alphabet - The alphabet to use as a single string.
+ * @returns The midpoint between the strings, as a string.
  */
 function averageBetweenStrings(a, b, alphabet = DEFAULT_ALPHABET) {
   const padN = Math.max(a.length, b.length);
@@ -579,9 +588,9 @@ function averageBetweenStrings(a, b, alphabet = DEFAULT_ALPHABET) {
  * Finds the next string using the alphabet provided. This is done by converting the
  * string to a baseN number, where N is the alphabet's length, then adding 1 before
  * converting back to a string.
- * @param {string} s The string to start at.
- * @param {string} alphabet The alphabet to use as a single string.
- * @returns {string} The string which follows the input string.
+ * @param s - The string to start at.
+ * @param alphabet - The alphabet to use as a single string.
+ * @returns The string which follows the input string.
  */
 function nextString(s, alphabet = DEFAULT_ALPHABET) {
   return baseToString(stringToBase(s, alphabet) + BigInt(1), alphabet);
@@ -591,9 +600,9 @@ function nextString(s, alphabet = DEFAULT_ALPHABET) {
  * Finds the previous string using the alphabet provided. This is done by converting the
  * string to a baseN number, where N is the alphabet's length, then subtracting 1 before
  * converting back to a string.
- * @param {string} s The string to start at.
- * @param {string} alphabet The alphabet to use as a single string.
- * @returns {string} The string which precedes the input string.
+ * @param s - The string to start at.
+ * @param alphabet - The alphabet to use as a single string.
+ * @returns The string which precedes the input string.
  */
 function prevString(s, alphabet = DEFAULT_ALPHABET) {
   return baseToString(stringToBase(s, alphabet) - BigInt(1), alphabet);
@@ -601,9 +610,9 @@ function prevString(s, alphabet = DEFAULT_ALPHABET) {
 
 /**
  * Compares strings lexicographically as a sort-safe function.
- * @param {string} a The first (reference) string.
- * @param {string} b The second (compare) string.
- * @returns {number} Negative if the reference string is before the compare string;
+ * @param a - The first (reference) string.
+ * @param b - The second (compare) string.
+ * @returns Negative if the reference string is before the compare string;
  * positive if the reference string is after; and zero if equal.
  */
 function lexicographicCompare(a, b) {
@@ -620,8 +629,8 @@ function lexicographicCompare(a, b) {
 const collator = new Intl.Collator();
 /**
  * Performant language-sensitive string comparison
- * @param a the first string to compare
- * @param b the second string to compare
+ * @param a - the first string to compare
+ * @param b - the second string to compare
  */
 function compare(a, b) {
   return collator.compare(a, b);
@@ -631,8 +640,6 @@ function compare(a, b) {
  * This function is similar to Object.assign() but it assigns recursively and
  * allows you to ignore nullish values from the source
  *
- * @param {Object} target
- * @param {Object} source
  * @returns the target object
  */
 function recursivelyAssign(target, source, ignoreNullish = false) {
@@ -661,4 +668,17 @@ function sortEventsByLatestContentTimestamp(left, right) {
 }
 function isSupportedReceiptType(receiptType) {
   return [_read_receipts.ReceiptType.Read, _read_receipts.ReceiptType.ReadPrivate].includes(receiptType);
+}
+
+/**
+ * Determines whether two maps are equal.
+ * @param eq - The equivalence relation to compare values by. Defaults to strict equality.
+ */
+function mapsEqual(x, y, eq = (v1, v2) => v1 === v2) {
+  if (x.size !== y.size) return false;
+  for (const [k, v1] of x) {
+    const v2 = y.get(k);
+    if (v2 === undefined || !eq(v1, v2)) return false;
+  }
+  return true;
 }

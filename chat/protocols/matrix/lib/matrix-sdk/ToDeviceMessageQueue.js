@@ -4,9 +4,14 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.ToDeviceMessageQueue = void 0;
+var _event = require("./@types/event");
 var _logger = require("./logger");
+var _client = require("./client");
 var _scheduler = require("./scheduler");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+var _sync = require("./sync");
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 const MAX_BATCH_SIZE = 20;
 
 /**
@@ -61,15 +66,23 @@ class ToDeviceMessageQueue {
         this.sending = false;
       }
     });
+    _defineProperty(this, "onResumedSync", (state, oldState) => {
+      if (state === _sync.SyncState.Syncing && oldState !== _sync.SyncState.Syncing) {
+        _logger.logger.info(`Resuming queue after resumed sync`);
+        this.sendQueue();
+      }
+    });
   }
   start() {
     this.running = true;
     this.sendQueue();
+    this.client.on(_client.ClientEvent.Sync, this.onResumedSync);
   }
   stop() {
     this.running = false;
     if (this.retryTimeout !== null) clearTimeout(this.retryTimeout);
     this.retryTimeout = null;
+    this.client.removeListener(_client.ClientEvent.Sync, this.onResumedSync);
   }
   async queueBatch(batch) {
     const batches = [];
@@ -80,11 +93,10 @@ class ToDeviceMessageQueue {
         txnId: this.client.makeTxnId()
       };
       batches.push(batchWithTxnId);
-      const recips = batchWithTxnId.batch.map(msg => `${msg.userId}:${msg.deviceId}`);
-      _logger.logger.info(`Created batch of to-device messages with txn id ${batchWithTxnId.txnId} for ${recips}`);
+      const msgmap = batchWithTxnId.batch.map(msg => `${msg.userId}/${msg.deviceId} (msgid ${msg.payload[_event.ToDeviceMessageId]})`);
+      _logger.logger.info(`Enqueuing batch of to-device messages. type=${batch.eventType} txnid=${batchWithTxnId.txnId}`, msgmap);
     }
     await this.client.store.saveToDeviceBatches(batches);
-    _logger.logger.info(`Enqueued to-device messages with txn ids ${batches.map(batch => batch.txnId)}`);
     this.sendQueue();
   }
   /**
@@ -101,5 +113,10 @@ class ToDeviceMessageQueue {
     _logger.logger.info(`Sending batch of ${batch.batch.length} to-device messages with ID ${batch.id} and txnId ${batch.txnId}`);
     await this.client.sendToDevice(batch.eventType, contentMap, batch.txnId);
   }
+
+  /**
+   * Listen to sync state changes and automatically resend any pending events
+   * once syncing is resumed
+   */
 }
 exports.ToDeviceMessageQueue = ToDeviceMessageQueue;

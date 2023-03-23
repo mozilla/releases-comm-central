@@ -7,7 +7,9 @@ exports.isTimestampInDuration = exports.getBeaconInfoIdentifier = exports.Beacon
 var _contentHelpers = require("../content-helpers");
 var _utils = require("../utils");
 var _typedEventEmitter = require("./typed-event-emitter");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 let BeaconEvent;
 exports.BeaconEvent = BeaconEvent;
 (function (BeaconEvent) {
@@ -68,7 +70,7 @@ class Beacon extends _typedEventEmitter.TypedEventEmitter {
   }
   update(beaconInfoEvent) {
     if (getBeaconInfoIdentifier(beaconInfoEvent) !== this.identifier) {
-      throw new Error('Invalid updating event');
+      throw new Error("Invalid updating event");
     }
     // don't update beacon with an older event
     if (beaconInfoEvent.getTs() < this.rootEvent.getTs()) {
@@ -129,12 +131,11 @@ class Beacon extends _typedEventEmitter.TypedEventEmitter {
       const {
         timestamp
       } = parsed;
-      return (
-        // only include positions that were taken inside the beacon's live period
-        isTimestampInDuration(this._beaconInfo.timestamp, this._beaconInfo.timeout, timestamp) && (
-        // ignore positions older than our current latest location
-        !this.latestLocationState || timestamp > this.latestLocationState.timestamp)
-      );
+      return this._beaconInfo.timestamp &&
+      // only include positions that were taken inside the beacon's live period
+      isTimestampInDuration(this._beaconInfo.timestamp, this._beaconInfo.timeout, timestamp) && (
+      // ignore positions older than our current latest location
+      !this.latestLocationState || timestamp > this.latestLocationState.timestamp);
     });
     const latestLocationEvent = validLocationEvents.sort(_utils.sortEventsByLatestContentTimestamp)?.[0];
     if (latestLocationEvent) {
@@ -155,7 +156,7 @@ class Beacon extends _typedEventEmitter.TypedEventEmitter {
     // handle this by adding 6min of leniency to the start timestamp when it is in the future
     if (!this.beaconInfo) return;
     const startTimestamp = this.beaconInfo.timestamp > Date.now() ? this.beaconInfo.timestamp - 360000 /* 6min */ : this.beaconInfo.timestamp;
-    this._isLive = !!this._beaconInfo?.live && isTimestampInDuration(startTimestamp, this._beaconInfo?.timeout, Date.now());
+    this._isLive = !!this._beaconInfo?.live && !!startTimestamp && isTimestampInDuration(startTimestamp, this._beaconInfo?.timeout, Date.now());
     if (prevLiveness !== this.isLive) {
       this.emit(BeaconEvent.LivenessChange, this.isLive, this);
     }

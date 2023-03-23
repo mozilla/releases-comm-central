@@ -1632,7 +1632,7 @@ function getRoomName(roomId, state) {
       return lazy.l10n.formatValueSync("room-name-empty");
   }
   // Else fall through to default SDK room naming logic.
-  return undefined;
+  return null;
 }
 
 /*

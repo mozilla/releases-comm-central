@@ -7,7 +7,9 @@ exports.EventTimeline = exports.Direction = void 0;
 var _logger = require("../logger");
 var _roomState = require("./room-state");
 var _event = require("../@types/event");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 let Direction;
 exports.Direction = Direction;
 (function (Direction) {
@@ -28,9 +30,9 @@ class EventTimeline {
   /**
    * Static helper method to set sender and target properties
    *
-   * @param {MatrixEvent} event   the event whose metadata is to be set
-   * @param {RoomState} stateContext  the room state to be queried
-   * @param {boolean} toStartOfTimeline  if true the event's forwardLooking flag is set false
+   * @param event -   the event whose metadata is to be set
+   * @param stateContext -  the room state to be queried
+   * @param toStartOfTimeline -  if true the event's forwardLooking flag is set false
    */
   static setEventMetadata(event, stateContext, toStartOfTimeline) {
     // When we try to generate a sentinel member before we have that member
@@ -71,8 +73,7 @@ class EventTimeline {
    * <p>Once a timeline joins up with its neighbour, they are linked together into a
    * doubly-linked list.
    *
-   * @param {EventTimelineSet} eventTimelineSet the set of timelines this is part of
-   * @constructor
+   * @param eventTimelineSet - the set of timelines this is part of
    */
   constructor(eventTimelineSet) {
     this.eventTimelineSet = eventTimelineSet;
@@ -82,6 +83,8 @@ class EventTimeline {
     _defineProperty(this, "baseIndex", 0);
     _defineProperty(this, "startState", void 0);
     _defineProperty(this, "endState", void 0);
+    _defineProperty(this, "startToken", null);
+    _defineProperty(this, "endToken", null);
     _defineProperty(this, "prevTimeline", null);
     _defineProperty(this, "nextTimeline", null);
     _defineProperty(this, "paginationRequests", {
@@ -89,15 +92,15 @@ class EventTimeline {
       [Direction.Forward]: null
     });
     this.roomId = eventTimelineSet.room?.roomId ?? null;
-    this.startState = new _roomState.RoomState(this.roomId);
-    this.startState.paginationToken = null;
-    this.endState = new _roomState.RoomState(this.roomId);
-    this.endState.paginationToken = null;
+    if (this.roomId) {
+      this.startState = new _roomState.RoomState(this.roomId);
+      this.endState = new _roomState.RoomState(this.roomId);
+    }
 
     // this is used by client.js
     this.paginationRequests = {
-      'b': null,
-      'f': null
+      b: null,
+      f: null
     };
     this.name = this.roomId + ":" + new Date().toISOString();
   }
@@ -107,9 +110,9 @@ class EventTimeline {
    *
    * <p>This can only be called before any events are added.
    *
-   * @param {MatrixEvent[]} stateEvents list of state events to initialise the
+   * @param stateEvents - list of state events to initialise the
    * state with.
-   * @throws {Error} if an attempt is made to call this after addEvent is called.
+   * @throws Error if an attempt is made to call this after addEvent is called.
    */
   initialiseState(stateEvents, {
     timelineWasEmpty
@@ -117,26 +120,10 @@ class EventTimeline {
     if (this.events.length > 0) {
       throw new Error("Cannot initialise state after events are added");
     }
-
-    // We previously deep copied events here and used different copies in
-    // the oldState and state events: this decision seems to date back
-    // quite a way and was apparently made to fix a bug where modifications
-    // made to the start state leaked through to the end state.
-    // This really shouldn't be possible though: the events themselves should
-    // not change. Duplicating the events uses a lot of extra memory,
-    // so we now no longer do it. To assert that they really do never change,
-    // freeze them! Note that we can't do this for events in general:
-    // although it looks like the only things preventing us are the
-    // 'status' flag, forwardLooking (which is only set once when adding to the
-    // timeline) and possibly the sender (which seems like it should never be
-    // reset but in practice causes a lot of the tests to break).
-    for (const e of stateEvents) {
-      Object.freeze(e);
-    }
-    this.startState.setStateEvents(stateEvents, {
+    this.startState?.setStateEvents(stateEvents, {
       timelineWasEmpty
     });
-    this.endState.setStateEvents(stateEvents, {
+    this.endState?.setStateEvents(stateEvents, {
       timelineWasEmpty
     });
   }
@@ -146,16 +133,16 @@ class EventTimeline {
    * All attached listeners will keep receiving state updates from the new live timeline state.
    * The end state of this timeline gets replaced with an independent copy of the current RoomState,
    * and will need a new pagination token if it ever needs to paginate forwards.
-    * @param {string} direction   EventTimeline.BACKWARDS to get the state at the
+    * @param direction -   EventTimeline.BACKWARDS to get the state at the
    *   start of the timeline; EventTimeline.FORWARDS to get the state at the end
    *   of the timeline.
    *
-   * @return {EventTimeline} the new timeline
+   * @returns the new timeline
    */
   forkLive(direction) {
     const forkState = this.getState(direction);
     const timeline = new EventTimeline(this.eventTimelineSet);
-    timeline.startState = forkState.clone();
+    timeline.startState = forkState?.clone();
     // Now clobber the end state of the new live timeline with that from the
     // previous live timeline. It will be identical except that we'll keep
     // using the same RoomMember objects for the 'live' set of members with any
@@ -163,30 +150,30 @@ class EventTimeline {
     timeline.endState = forkState;
     // Firstly, we just stole the current timeline's end state, so it needs a new one.
     // Make an immutable copy of the state so back pagination will get the correct sentinels.
-    this.endState = forkState.clone();
+    this.endState = forkState?.clone();
     return timeline;
   }
 
   /**
    * Creates an independent timeline, inheriting the directional state from this timeline.
    *
-   * @param {string} direction   EventTimeline.BACKWARDS to get the state at the
+   * @param direction -   EventTimeline.BACKWARDS to get the state at the
    *   start of the timeline; EventTimeline.FORWARDS to get the state at the end
    *   of the timeline.
    *
-   * @return {EventTimeline} the new timeline
+   * @returns the new timeline
    */
   fork(direction) {
     const forkState = this.getState(direction);
     const timeline = new EventTimeline(this.eventTimelineSet);
-    timeline.startState = forkState.clone();
-    timeline.endState = forkState.clone();
+    timeline.startState = forkState?.clone();
+    timeline.endState = forkState?.clone();
     return timeline;
   }
 
   /**
    * Get the ID of the room for this timeline
-   * @return {string} room ID
+   * @returns room ID
    */
   getRoomId() {
     return this.roomId;
@@ -194,7 +181,7 @@ class EventTimeline {
 
   /**
    * Get the filter for this timeline's timelineSet (if any)
-   * @return {Filter} filter
+   * @returns filter
    */
   getFilter() {
     return this.eventTimelineSet.getFilter();
@@ -202,7 +189,7 @@ class EventTimeline {
 
   /**
    * Get the timelineSet for this timeline
-   * @return {EventTimelineSet} timelineSet
+   * @returns timelineSet
    */
   getTimelineSet() {
     return this.eventTimelineSet;
@@ -216,8 +203,6 @@ class EventTimeline {
    * relative to the base index (although note that a given event's index may
    * well be less than the base index, thus giving that event a negative relative
    * index).
-   *
-   * @return {number}
    */
   getBaseIndex() {
     return this.baseIndex;
@@ -226,7 +211,7 @@ class EventTimeline {
   /**
    * Get the list of events in this context
    *
-   * @return {MatrixEvent[]} An array of MatrixEvents
+   * @returns An array of MatrixEvents
    */
   getEvents() {
     return this.events;
@@ -235,11 +220,11 @@ class EventTimeline {
   /**
    * Get the room state at the start/end of the timeline
    *
-   * @param {string} direction   EventTimeline.BACKWARDS to get the state at the
+   * @param direction -   EventTimeline.BACKWARDS to get the state at the
    *   start of the timeline; EventTimeline.FORWARDS to get the state at the end
    *   of the timeline.
    *
-   * @return {RoomState} state at the start/end of the timeline
+   * @returns state at the start/end of the timeline
    */
   getState(direction) {
     if (direction == EventTimeline.BACKWARDS) {
@@ -254,36 +239,48 @@ class EventTimeline {
   /**
    * Get a pagination token
    *
-   * @param {string} direction   EventTimeline.BACKWARDS to get the pagination
+   * @param direction -   EventTimeline.BACKWARDS to get the pagination
    *   token for going backwards in time; EventTimeline.FORWARDS to get the
    *   pagination token for going forwards in time.
    *
-   * @return {?string} pagination token
+   * @returns pagination token
    */
   getPaginationToken(direction) {
-    return this.getState(direction).paginationToken;
+    if (this.roomId) {
+      return this.getState(direction).paginationToken;
+    } else if (direction === Direction.Backward) {
+      return this.startToken;
+    } else {
+      return this.endToken;
+    }
   }
 
   /**
    * Set a pagination token
    *
-   * @param {?string} token       pagination token
+   * @param token -       pagination token
    *
-   * @param {string} direction    EventTimeline.BACKWARDS to set the paginatio
+   * @param direction -    EventTimeline.BACKWARDS to set the pagination
    *   token for going backwards in time; EventTimeline.FORWARDS to set the
    *   pagination token for going forwards in time.
    */
   setPaginationToken(token, direction) {
-    this.getState(direction).paginationToken = token;
+    if (this.roomId) {
+      this.getState(direction).paginationToken = token;
+    } else if (direction === Direction.Backward) {
+      this.startToken = token;
+    } else {
+      this.endToken = token;
+    }
   }
 
   /**
    * Get the next timeline in the series
    *
-   * @param {string} direction EventTimeline.BACKWARDS to get the previous
+   * @param direction - EventTimeline.BACKWARDS to get the previous
    *   timeline; EventTimeline.FORWARDS to get the next timeline.
    *
-   * @return {?EventTimeline} previous or following timeline, if they have been
+   * @returns previous or following timeline, if they have been
    * joined up.
    */
   getNeighbouringTimeline(direction) {
@@ -299,12 +296,12 @@ class EventTimeline {
   /**
    * Set the next timeline in the series
    *
-   * @param {EventTimeline} neighbour previous/following timeline
+   * @param neighbour - previous/following timeline
    *
-   * @param {string} direction EventTimeline.BACKWARDS to set the previous
+   * @param direction - EventTimeline.BACKWARDS to set the previous
    *   timeline; EventTimeline.FORWARDS to set the next timeline.
    *
-   * @throws {Error} if an attempt is made to set the neighbouring timeline when
+   * @throws Error if an attempt is made to set the neighbouring timeline when
    * it is already set.
    */
   setNeighbouringTimeline(neighbour, direction) {
@@ -326,14 +323,14 @@ class EventTimeline {
   /**
    * Add a new event to the timeline, and update the state
    *
-   * @param {MatrixEvent} event   new event
-   * @param {IAddEventOptions} options addEvent options
+   * @param event - new event
+   * @param options - addEvent options
    */
 
   addEvent(event, toStartOfTimelineOrOpts, roomState) {
     let toStartOfTimeline = !!toStartOfTimelineOrOpts;
     let timelineWasEmpty;
-    if (typeof toStartOfTimelineOrOpts === 'object') {
+    if (typeof toStartOfTimelineOrOpts === "object") {
       ({
         toStartOfTimeline,
         roomState,
@@ -342,7 +339,7 @@ class EventTimeline {
     } else if (toStartOfTimelineOrOpts !== undefined) {
       // Deprecation warning
       // FIXME: Remove after 2023-06-01 (technical debt)
-      _logger.logger.warn('Overload deprecated: ' + '`EventTimeline.addEvent(event, toStartOfTimeline, roomState?)` ' + 'is deprecated in favor of the overload with `EventTimeline.addEvent(event, IAddEventOptions)`');
+      _logger.logger.warn("Overload deprecated: " + "`EventTimeline.addEvent(event, toStartOfTimeline, roomState?)` " + "is deprecated in favor of the overload with `EventTimeline.addEvent(event, IAddEventOptions)`");
     }
     if (!roomState) {
       roomState = toStartOfTimeline ? this.startState : this.endState;
@@ -353,7 +350,7 @@ class EventTimeline {
 
       // modify state but only on unfiltered timelineSets
       if (event.isState() && timelineSet.room.getUnfilteredTimelineSet() === timelineSet) {
-        roomState.setStateEvents([event], {
+        roomState?.setStateEvents([event], {
           timelineWasEmpty
         });
         // it is possible that the act of setting the state event means we
@@ -366,7 +363,7 @@ class EventTimeline {
         // back in time, else we'll set the .sender value for BEFORE the given
         // member event, whereas we want to set the .sender value for the ACTUAL
         // member event itself.
-        if (!event.sender || event.getType() === "m.room.member" && !toStartOfTimeline) {
+        if (!event.sender || event.getType() === _event.EventType.RoomMember && !toStartOfTimeline) {
           EventTimeline.setEventMetadata(event, roomState, toStartOfTimeline);
         }
       }
@@ -386,8 +383,8 @@ class EventTimeline {
   /**
    * Remove an event from the timeline
    *
-   * @param {string} eventId  ID of event to be removed
-   * @return {?MatrixEvent} removed event, or null if not found
+   * @param eventId -  ID of event to be removed
+   * @returns removed event, or null if not found
    */
   removeEvent(eventId) {
     for (let i = this.events.length - 1; i >= 0; i--) {
@@ -406,7 +403,7 @@ class EventTimeline {
   /**
    * Return a string to identify this timeline, for debugging
    *
-   * @return {string} name for this timeline
+   * @returns name for this timeline
    */
   toString() {
     return this.name;

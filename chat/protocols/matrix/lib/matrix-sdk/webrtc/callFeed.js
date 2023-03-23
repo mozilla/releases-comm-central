@@ -4,8 +4,14 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.SPEAKING_THRESHOLD = exports.CallFeedEvent = exports.CallFeed = void 0;
+var _callEventTypes = require("./callEventTypes");
+var _audioContext = require("./audioContext");
+var _logger = require("../logger");
 var _typedEventEmitter = require("../models/typed-event-emitter");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+var _call = require("./call");
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 const POLLING_INTERVAL = 200; // ms
 const SPEAKING_THRESHOLD = -60; // dB
 exports.SPEAKING_THRESHOLD = SPEAKING_THRESHOLD;
@@ -15,20 +21,27 @@ exports.CallFeedEvent = CallFeedEvent;
 (function (CallFeedEvent) {
   CallFeedEvent["NewStream"] = "new_stream";
   CallFeedEvent["MuteStateChanged"] = "mute_state_changed";
+  CallFeedEvent["LocalVolumeChanged"] = "local_volume_changed";
   CallFeedEvent["VolumeChanged"] = "volume_changed";
+  CallFeedEvent["ConnectedChanged"] = "connected_changed";
   CallFeedEvent["Speaking"] = "speaking";
+  CallFeedEvent["Disposed"] = "disposed";
 })(CallFeedEvent || (exports.CallFeedEvent = CallFeedEvent = {}));
 class CallFeed extends _typedEventEmitter.TypedEventEmitter {
   constructor(opts) {
     super();
     _defineProperty(this, "stream", void 0);
+    _defineProperty(this, "sdpMetadataStreamId", void 0);
     _defineProperty(this, "userId", void 0);
+    _defineProperty(this, "deviceId", void 0);
     _defineProperty(this, "purpose", void 0);
     _defineProperty(this, "speakingVolumeSamples", void 0);
     _defineProperty(this, "client", void 0);
+    _defineProperty(this, "call", void 0);
     _defineProperty(this, "roomId", void 0);
     _defineProperty(this, "audioMuted", void 0);
     _defineProperty(this, "videoMuted", void 0);
+    _defineProperty(this, "localVolume", 1);
     _defineProperty(this, "measuringVolumeActivity", false);
     _defineProperty(this, "audioContext", void 0);
     _defineProperty(this, "analyser", void 0);
@@ -36,25 +49,33 @@ class CallFeed extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "speakingThreshold", SPEAKING_THRESHOLD);
     _defineProperty(this, "speaking", false);
     _defineProperty(this, "volumeLooperTimeout", void 0);
+    _defineProperty(this, "_disposed", false);
+    _defineProperty(this, "_connected", false);
     _defineProperty(this, "onAddTrack", () => {
       this.emit(CallFeedEvent.NewStream, this.stream);
+    });
+    _defineProperty(this, "onCallState", state => {
+      if (state === _call.CallState.Connected) {
+        this.connected = true;
+      } else if (state === _call.CallState.Connecting) {
+        this.connected = false;
+      }
     });
     _defineProperty(this, "volumeLooper", () => {
       if (!this.analyser) return;
       if (!this.measuringVolumeActivity) return;
       this.analyser.getFloatFrequencyData(this.frequencyBinCount);
       let maxVolume = -Infinity;
-      for (let i = 0; i < this.frequencyBinCount.length; i++) {
-        if (this.frequencyBinCount[i] > maxVolume) {
-          maxVolume = this.frequencyBinCount[i];
+      for (const volume of this.frequencyBinCount) {
+        if (volume > maxVolume) {
+          maxVolume = volume;
         }
       }
       this.speakingVolumeSamples.shift();
       this.speakingVolumeSamples.push(maxVolume);
       this.emit(CallFeedEvent.VolumeChanged, maxVolume);
       let newSpeaking = false;
-      for (let i = 0; i < this.speakingVolumeSamples.length; i++) {
-        const volume = this.speakingVolumeSamples[i];
+      for (const volume of this.speakingVolumeSamples) {
         if (volume > this.speakingThreshold) {
           newSpeaking = true;
           break;
@@ -67,18 +88,33 @@ class CallFeed extends _typedEventEmitter.TypedEventEmitter {
       this.volumeLooperTimeout = setTimeout(this.volumeLooper, POLLING_INTERVAL);
     });
     this.client = opts.client;
+    this.call = opts.call;
     this.roomId = opts.roomId;
     this.userId = opts.userId;
+    this.deviceId = opts.deviceId;
     this.purpose = opts.purpose;
     this.audioMuted = opts.audioMuted;
     this.videoMuted = opts.videoMuted;
     this.speakingVolumeSamples = new Array(SPEAKING_SAMPLE_COUNT).fill(-Infinity);
+    this.sdpMetadataStreamId = opts.stream.id;
     this.updateStream(null, opts.stream);
     this.stream = opts.stream; // updateStream does this, but this makes TS happier
 
     if (this.hasAudioTrack) {
       this.initVolumeMeasuring();
     }
+    if (opts.call) {
+      opts.call.addListener(_call.CallEvent.State, this.onCallState);
+      this.onCallState(opts.call.state);
+    }
+  }
+  get connected() {
+    // Local feeds are always considered connected
+    return this.isLocal() || this._connected;
+  }
+  set connected(connected) {
+    this._connected = connected;
+    this.emit(CallFeedEvent.ConnectedChanged, this.connected);
   }
   get hasAudioTrack() {
     return this.stream.getAudioTracks().length > 0;
@@ -99,9 +135,8 @@ class CallFeed extends _typedEventEmitter.TypedEventEmitter {
     this.emit(CallFeedEvent.NewStream, this.stream);
   }
   initVolumeMeasuring() {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!this.hasAudioTrack || !AudioContext) return;
-    this.audioContext = new AudioContext();
+    if (!this.hasAudioTrack) return;
+    if (!this.audioContext) this.audioContext = (0, _audioContext.acquireContext)();
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.fftSize = 512;
     this.analyser.smoothingTimeConstant = 0.1;
@@ -120,16 +155,16 @@ class CallFeed extends _typedEventEmitter.TypedEventEmitter {
 
   /**
    * Returns true if CallFeed is local, otherwise returns false
-   * @returns {boolean} is local?
+   * @returns is local?
    */
   isLocal() {
-    return this.userId === this.client.getUserId();
+    return this.userId === this.client.getUserId() && (this.deviceId === undefined || this.deviceId === this.client.getDeviceId());
   }
 
   /**
    * Returns true if audio is muted or if there are no audio
    * tracks, otherwise returns false
-   * @returns {boolean} is audio muted?
+   * @returns is audio muted?
    */
   isAudioMuted() {
     return this.stream.getAudioTracks().length === 0 || this.audioMuted;
@@ -138,7 +173,7 @@ class CallFeed extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Returns true video is muted or if there are no video
    * tracks, otherwise returns false
-   * @returns {boolean} is video muted?
+   * @returns is video muted?
    */
   isVideoMuted() {
     // We assume only one video track
@@ -149,10 +184,21 @@ class CallFeed extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
+   * Replaces the current MediaStream with a new one.
+   * The stream will be different and new stream as remote parties are
+   * concerned, but this can be used for convenience locally to set up
+   * volume listeners automatically on the new stream etc.
+   * @param newStream - new stream with which to replace the current one
+   */
+  setNewStream(newStream) {
+    this.updateStream(this.stream, newStream);
+  }
+
+  /**
    * Set one or both of feed's internal audio and video video mute state
    * Either value may be null to leave it as-is
-   * @param audioMuted is the feed's audio muted?
-   * @param videoMuted is the feed's video muted?
+   * @param audioMuted - is the feed's audio muted?
+   * @param videoMuted - is the feed's video muted?
    */
   setAudioVideoMuted(audioMuted, videoMuted) {
     if (audioMuted !== null) {
@@ -167,11 +213,11 @@ class CallFeed extends _typedEventEmitter.TypedEventEmitter {
 
   /**
    * Starts emitting volume_changed events where the emitter value is in decibels
-   * @param enabled emit volume changes
+   * @param enabled - emit volume changes
    */
   measureVolumeActivity(enabled) {
     if (enabled) {
-      if (!this.audioContext || !this.analyser || !this.frequencyBinCount || !this.hasAudioTrack) return;
+      if (!this.analyser || !this.frequencyBinCount || !this.hasAudioTrack) return;
       this.measuringVolumeActivity = true;
       this.volumeLooper();
     } else {
@@ -183,8 +229,50 @@ class CallFeed extends _typedEventEmitter.TypedEventEmitter {
   setSpeakingThreshold(threshold) {
     this.speakingThreshold = threshold;
   }
+  clone() {
+    const mediaHandler = this.client.getMediaHandler();
+    const stream = this.stream.clone();
+    _logger.logger.log(`CallFeed clone() cloning stream (originalStreamId=${this.stream.id}, newStreamId${stream.id})`);
+    if (this.purpose === _callEventTypes.SDPStreamMetadataPurpose.Usermedia) {
+      mediaHandler.userMediaStreams.push(stream);
+    } else {
+      mediaHandler.screensharingStreams.push(stream);
+    }
+    return new CallFeed({
+      client: this.client,
+      roomId: this.roomId,
+      userId: this.userId,
+      deviceId: this.deviceId,
+      stream,
+      purpose: this.purpose,
+      audioMuted: this.audioMuted,
+      videoMuted: this.videoMuted
+    });
+  }
   dispose() {
     clearTimeout(this.volumeLooperTimeout);
+    this.stream?.removeEventListener("addtrack", this.onAddTrack);
+    this.call?.removeListener(_call.CallEvent.State, this.onCallState);
+    if (this.audioContext) {
+      this.audioContext = undefined;
+      this.analyser = undefined;
+      (0, _audioContext.releaseContext)();
+    }
+    this._disposed = true;
+    this.emit(CallFeedEvent.Disposed);
+  }
+  get disposed() {
+    return this._disposed;
+  }
+  set disposed(value) {
+    this._disposed = value;
+  }
+  getLocalVolume() {
+    return this.localVolume;
+  }
+  setLocalVolume(localVolume) {
+    this.localVolume = localVolume;
+    this.emit(CallFeedEvent.LocalVolumeChanged, localVolume);
   }
 }
 exports.CallFeed = CallFeed;

@@ -6,10 +6,39 @@ Object.defineProperty(exports, "__esModule", {
 var _exportNames = {
   setCryptoStoreFactory: true,
   createClient: true,
+  createRoomWidgetClient: true,
   ContentHelpers: true,
-  createNewMatrixCall: true
+  createNewMatrixCall: true,
+  GroupCallEvent: true,
+  GroupCallIntent: true,
+  GroupCallState: true,
+  GroupCallType: true
 };
 exports.ContentHelpers = void 0;
+Object.defineProperty(exports, "GroupCallEvent", {
+  enumerable: true,
+  get: function () {
+    return _groupCall.GroupCallEvent;
+  }
+});
+Object.defineProperty(exports, "GroupCallIntent", {
+  enumerable: true,
+  get: function () {
+    return _groupCall.GroupCallIntent;
+  }
+});
+Object.defineProperty(exports, "GroupCallState", {
+  enumerable: true,
+  get: function () {
+    return _groupCall.GroupCallState;
+  }
+});
+Object.defineProperty(exports, "GroupCallType", {
+  enumerable: true,
+  get: function () {
+    return _groupCall.GroupCallType;
+  }
+});
 exports.createClient = createClient;
 Object.defineProperty(exports, "createNewMatrixCall", {
   enumerable: true,
@@ -17,6 +46,7 @@ Object.defineProperty(exports, "createNewMatrixCall", {
     return _call.createNewMatrixCall;
   }
 });
+exports.createRoomWidgetClient = createRoomWidgetClient;
 exports.setCryptoStoreFactory = setCryptoStoreFactory;
 var _memoryCryptoStore = require("./crypto/store/memory-crypto-store");
 Object.keys(_memoryCryptoStore).forEach(function (key) {
@@ -63,6 +93,18 @@ Object.keys(_client).forEach(function (key) {
     enumerable: true,
     get: function () {
       return _client[key];
+    }
+  });
+});
+var _embedded = require("./embedded");
+Object.keys(_embedded).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _embedded[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _embedded[key];
     }
   });
 });
@@ -171,6 +213,18 @@ Object.keys(_eventTimelineSet).forEach(function (key) {
     enumerable: true,
     get: function () {
       return _eventTimelineSet[key];
+    }
+  });
+});
+var _poll = require("./models/poll");
+Object.keys(_poll).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _poll[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _poll[key];
     }
   });
 });
@@ -369,10 +423,11 @@ Object.keys(_roomSummary).forEach(function (key) {
 var _ContentHelpers = _interopRequireWildcard(require("./content-helpers"));
 exports.ContentHelpers = _ContentHelpers;
 var _call = require("./webrtc/call");
+var _groupCall = require("./webrtc/groupCall");
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 /*
-Copyright 2015-2021 The Matrix.org Foundation C.I.C.
+Copyright 2015-2022 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -387,65 +442,40 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// used to be located here
+
 let cryptoStoreFactory = () => new _memoryCryptoStore.MemoryCryptoStore();
 
 /**
  * Configure a different factory to be used for creating crypto stores
  *
- * @param {Function} fac  a function which will return a new
- *    {@link module:crypto.store.base~CryptoStore}.
+ * @param fac - a function which will return a new {@link CryptoStore}
  */
 function setCryptoStoreFactory(fac) {
   cryptoStoreFactory = fac;
 }
-/**
- * Construct a Matrix Client. Similar to {@link module:client.MatrixClient}
- * except that the 'request', 'store' and 'scheduler' dependencies are satisfied.
- * @param {(Object)} opts The configuration options for this client. If
- * this is a string, it is assumed to be the base URL. These configuration
- * options will be passed directly to {@link module:client.MatrixClient}.
- * @param {Object} opts.store If not set, defaults to
- * {@link module:store/memory.MemoryStore}.
- * @param {Object} opts.scheduler If not set, defaults to
- * {@link module:scheduler~MatrixScheduler}.
- *
- * @param {module:crypto.store.base~CryptoStore=} opts.cryptoStore
- *    crypto store implementation. Calls the factory supplied to
- *    {@link setCryptoStoreFactory} if unspecified; or if no factory has been
- *    specified, uses a default implementation (indexeddb in the browser,
- *    in-memory otherwise).
- *
- * @return {MatrixClient} A new matrix client.
- * @see {@link module:client.MatrixClient} for the full list of options for
- * <code>opts</code>.
- */
-function createClient(opts) {
-  opts.store = opts.store || new _memory.MemoryStore({
+function amendClientOpts(opts) {
+  opts.store = opts.store ?? new _memory.MemoryStore({
     localStorage: global.localStorage
   });
-  opts.scheduler = opts.scheduler || new _scheduler.MatrixScheduler();
-  opts.cryptoStore = opts.cryptoStore || cryptoStoreFactory();
-  return new _client.MatrixClient(opts);
+  opts.scheduler = opts.scheduler ?? new _scheduler.MatrixScheduler();
+  opts.cryptoStore = opts.cryptoStore ?? cryptoStoreFactory();
+  return opts;
 }
 
 /**
- * A wrapper for the request function interface.
- * @callback requestWrapperFunction
- * @param {requestFunction} origRequest The underlying request function being
- * wrapped
- * @param {Object} opts The options for this HTTP request, given in the same
- * form as {@link requestFunction}.
- * @param {requestCallback} callback The request callback.
+ * Construct a Matrix Client. Similar to {@link MatrixClient}
+ * except that the 'request', 'store' and 'scheduler' dependencies are satisfied.
+ * @param opts - The configuration options for this client. These configuration
+ * options will be passed directly to {@link MatrixClient}.
+ *
+ * @returns A new matrix client.
+ * @see {@link MatrixClient} for the full list of options for
+ * `opts`.
  */
-
-/**
-  * The request callback interface for performing HTTP requests. This matches the
-  * API for the {@link https://github.com/request/request#requestoptions-callback|
-  * request NPM module}. The SDK will implement a callback which meets this
-  * interface in order to handle the HTTP response.
-  * @callback requestCallback
-  * @param {Error} err The error if one occurred, else falsey.
-  * @param {Object} response The HTTP response which consists of
-  * <code>{statusCode: {Number}, headers: {Object}}</code>
-  * @param {Object} body The parsed HTTP response body.
-  */
+function createClient(opts) {
+  return new _client.MatrixClient(amendClientOpts(opts));
+}
+function createRoomWidgetClient(widgetApi, capabilities, roomId, opts) {
+  return new _embedded.RoomWidgetClient(widgetApi, capabilities, roomId, amendClientOpts(opts));
+}

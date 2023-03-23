@@ -46,16 +46,17 @@ let realCallbackKey;
 const callbackList = [];
 
 // var debuglog = logger.log.bind(logger);
+/* istanbul ignore next */
 const debuglog = function (...params) {};
 
 /**
  * reimplementation of window.setTimeout, which will call the callback if
  * the wallclock time goes past the deadline.
  *
- * @param {function} func   callback to be called after a delay
- * @param {Number} delayMs  number of milliseconds to delay by
+ * @param func -   callback to be called after a delay
+ * @param delayMs -  number of milliseconds to delay by
  *
- * @return {Number} an identifier for this callback, which may be passed into
+ * @returns an identifier for this callback, which may be passed into
  *                   clearTimeout later.
  */
 function setTimeout(func, delayMs, ...params) {
@@ -85,7 +86,7 @@ function setTimeout(func, delayMs, ...params) {
 /**
  * reimplementation of window.clearTimeout, which mirrors setTimeout
  *
- * @param {Number} key   result from an earlier setTimeout call
+ * @param key -   result from an earlier setTimeout call
  */
 function clearTimeout(key) {
   if (callbackList.length === 0) {
@@ -124,7 +125,6 @@ function scheduleRealCallback() {
   realCallbackKey = global.setTimeout(runCallbacks, delayMs);
 }
 function runCallbacks() {
-  let cb;
   const timestamp = Date.now();
   debuglog("runCallbacks: now:", timestamp);
 
@@ -136,7 +136,7 @@ function runCallbacks() {
     if (!first || first.runAt > timestamp) {
       break;
     }
-    cb = callbackList.shift();
+    const cb = callbackList.shift();
     debuglog("runCallbacks: popping", cb.key);
     callbacksToRun.push(cb);
   }
@@ -145,8 +145,7 @@ function runCallbacks() {
   // keep the codepaths the same whether or not our functions
   // register their own setTimeouts.
   scheduleRealCallback();
-  for (let i = 0; i < callbacksToRun.length; i++) {
-    cb = callbacksToRun[i];
+  for (const cb of callbacksToRun) {
     try {
       cb.func.apply(global, cb.params);
     } catch (e) {

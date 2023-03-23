@@ -4,7 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.StubStore = void 0;
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /*
 Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -23,26 +25,23 @@ limitations under the License.
 
 /**
  * This is an internal module.
- * @module store/stub
  */
 
 /**
  * Construct a stub store. This does no-ops on most store methods.
- * @constructor
  */
 class StubStore {
   constructor() {
     _defineProperty(this, "accountData", {});
     _defineProperty(this, "fromToken", null);
   }
-  /** @return {Promise<boolean>} whether or not the database was newly created in this session. */
+  /** @returns whether or not the database was newly created in this session. */
   isNewlyCreated() {
     return Promise.resolve(true);
   }
 
   /**
    * Get the sync token.
-   * @return {string}
    */
   getSyncToken() {
     return this.fromToken;
@@ -50,7 +49,6 @@ class StubStore {
 
   /**
    * Set the sync token.
-   * @param {string} token
    */
   setSyncToken(token) {
     this.fromToken = token;
@@ -58,14 +56,11 @@ class StubStore {
 
   /**
    * No-op.
-   * @param {Room} room
    */
   storeRoom(room) {}
 
   /**
    * No-op.
-   * @param {string} roomId
-   * @return {null}
    */
   getRoom(roomId) {
     return null;
@@ -73,7 +68,7 @@ class StubStore {
 
   /**
    * No-op.
-   * @return {Array} An empty array.
+   * @returns An empty array.
    */
   getRooms() {
     return [];
@@ -81,7 +76,6 @@ class StubStore {
 
   /**
    * Permanently delete a room.
-   * @param {string} roomId
    */
   removeRoom(roomId) {
     return;
@@ -89,7 +83,7 @@ class StubStore {
 
   /**
    * No-op.
-   * @return {Array} An empty array.
+   * @returns An empty array.
    */
   getRoomSummaries() {
     return [];
@@ -97,14 +91,11 @@ class StubStore {
 
   /**
    * No-op.
-   * @param {User} user
    */
   storeUser(user) {}
 
   /**
    * No-op.
-   * @param {string} userId
-   * @return {null}
    */
   getUser(userId) {
     return null;
@@ -112,7 +103,6 @@ class StubStore {
 
   /**
    * No-op.
-   * @return {User[]}
    */
   getUsers() {
     return [];
@@ -120,9 +110,6 @@ class StubStore {
 
   /**
    * No-op.
-   * @param {Room} room
-   * @param {number} limit
-   * @return {Array}
    */
   scrollback(room, limit) {
     return [];
@@ -130,24 +117,21 @@ class StubStore {
 
   /**
    * Store events for a room.
-   * @param {Room} room The room to store events for.
-   * @param {Array<MatrixEvent>} events The events to store.
-   * @param {string} token The token associated with these events.
-   * @param {boolean} toStart True if these are paginated results.
+   * @param room - The room to store events for.
+   * @param events - The events to store.
+   * @param token - The token associated with these events.
+   * @param toStart - True if these are paginated results.
    */
   storeEvents(room, events, token, toStart) {}
 
   /**
    * Store a filter.
-   * @param {Filter} filter
    */
   storeFilter(filter) {}
 
   /**
    * Retrieve a filter.
-   * @param {string} userId
-   * @param {string} filterId
-   * @return {?Filter} A filter or null.
+   * @returns A filter or null.
    */
   getFilter(userId, filterId) {
     return null;
@@ -155,8 +139,8 @@ class StubStore {
 
   /**
    * Retrieve a filter ID with the given name.
-   * @param {string} filterName The filter name.
-   * @return {?string} The filter ID or null.
+   * @param filterName - The filter name.
+   * @returns The filter ID or null.
    */
   getFilterIdByName(filterName) {
     return null;
@@ -164,20 +148,18 @@ class StubStore {
 
   /**
    * Set a filter name to ID mapping.
-   * @param {string} filterName
-   * @param {string} filterId
    */
   setFilterIdByName(filterName, filterId) {}
 
   /**
    * Store user-scoped account data events
-   * @param {Array<MatrixEvent>} events The events to store.
+   * @param events - The events to store.
    */
   storeAccountDataEvents(events) {}
 
   /**
    * Get account data event by event type
-   * @param {string} eventType The event type being queried
+   * @param eventType - The event type being queried
    */
   getAccountData(eventType) {
     return undefined;
@@ -186,8 +168,8 @@ class StubStore {
   /**
    * setSyncData does nothing as there is no backing data store.
    *
-   * @param {Object} syncData The sync data
-   * @return {Promise} An immediately resolved promise.
+   * @param syncData - The sync data
+   * @returns An immediately resolved promise.
    */
   setSyncData(syncData) {
     return Promise.resolve();
@@ -196,7 +178,7 @@ class StubStore {
   /**
    * We never want to save because we have nothing to save to.
    *
-   * @return {boolean} If the store wants to save
+   * @returns If the store wants to save
    */
   wantsSave() {
     return false;
@@ -209,14 +191,14 @@ class StubStore {
 
   /**
    * Startup does nothing.
-   * @return {Promise} An immediately resolved promise.
+   * @returns An immediately resolved promise.
    */
   startup() {
     return Promise.resolve();
   }
 
   /**
-   * @return {Promise} Resolves with a sync response to restore the
+   * @returns Promise which resolves with a sync response to restore the
    * client state to where it was at the last save, or null if there
    * is no saved sync data.
    */
@@ -225,7 +207,7 @@ class StubStore {
   }
 
   /**
-   * @return {Promise} If there is a saved sync, the nextBatch token
+   * @returns If there is a saved sync, the nextBatch token
    * for this sync, otherwise null.
    */
   getSavedSyncToken() {
@@ -235,7 +217,7 @@ class StubStore {
   /**
    * Delete all data from this store. Does nothing since this store
    * doesn't store anything.
-   * @return {Promise} An immediately resolved promise.
+   * @returns An immediately resolved promise.
    */
   deleteAllData() {
     return Promise.resolve();

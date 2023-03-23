@@ -72,7 +72,9 @@ Object.keys(_interface).forEach(function (key) {
 });
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 class MatrixHttpApi extends _fetch.FetchHttpApi {
   constructor(...args) {
     super(...args);
@@ -81,27 +83,13 @@ class MatrixHttpApi extends _fetch.FetchHttpApi {
   /**
    * Upload content to the homeserver
    *
-   * @param {object} file The object to upload. On a browser, something that
+   * @param file - The object to upload. On a browser, something that
    *   can be sent to XMLHttpRequest.send (typically a File).  Under node.js,
    *   a Buffer, String or ReadStream.
    *
-   * @param {object} opts  options object
+   * @param opts - options object
    *
-   * @param {string=} opts.name   Name to give the file on the server. Defaults
-   *   to <tt>file.name</tt>.
-   *
-   * @param {boolean=} opts.includeFilename if false will not send the filename,
-   *   e.g for encrypted file uploads where filename leaks are undesirable.
-   *   Defaults to true.
-   *
-   * @param {string=} opts.type   Content-type for the upload. Defaults to
-   *   <tt>file.type</tt>, or <tt>application/octet-stream</tt>.
-   *
-   * @param {Function=} opts.progressHandler Optional. Called when a chunk of
-   *    data has been uploaded, with an object containing the fields `loaded`
-   *    (number of bytes transferred) and `total` (total size, if known).
-   *
-   * @return {Promise} Resolves to response object, as
+   * @returns Promise which resolves to response object, as
    *    determined by this.opts.onlyData, opts.rawResponse, and
    *    opts.onlyContentUri.  Rejects with an error (usually a MatrixError).
    */
@@ -110,7 +98,7 @@ class MatrixHttpApi extends _fetch.FetchHttpApi {
     const abortController = opts.abortController ?? new AbortController();
 
     // If the file doesn't have a mime type, use a default since the HS errors if we don't supply one.
-    const contentType = opts.type ?? file.type ?? 'application/octet-stream';
+    const contentType = opts.type ?? file.type ?? "application/octet-stream";
     const fileName = opts.name ?? file.name;
     const upload = {
       loaded: 0,
@@ -137,7 +125,7 @@ class MatrixHttpApi extends _fetch.FetchHttpApi {
               }
 
               if (!xhr.responseText) {
-                throw new Error('No response body.');
+                throw new Error("No response body.");
               }
               if (xhr.status >= 400) {
                 defer.reject((0, _utils2.parseErrorResponse)(xhr, xhr.responseText));
@@ -222,7 +210,7 @@ class MatrixHttpApi extends _fetch.FetchHttpApi {
 
   /**
    * Get the content repository url with query parameters.
-   * @return {Object} An object with a 'base', 'path' and 'params' for base URL,
+   * @returns An object with a 'base', 'path' and 'params' for base URL,
    *          path and query parameters respectively.
    */
   getContentUri() {

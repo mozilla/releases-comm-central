@@ -4,14 +4,15 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.CallEventHandlerEvent = exports.CallEventHandler = void 0;
-var _event = require("../models/event");
 var _logger = require("../logger");
 var _call = require("./call");
-var _event2 = require("../@types/event");
+var _event = require("../@types/event");
 var _client = require("../client");
-var _sync = require("../sync");
+var _groupCall = require("./groupCall");
 var _room = require("../models/room");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 // Don't ring unless we'd be ringing for at least 3 seconds: the user needs some
 // time to press the 'accept' button
 const RING_GRACE_PERIOD = 3000;
@@ -21,64 +22,67 @@ exports.CallEventHandlerEvent = CallEventHandlerEvent;
   CallEventHandlerEvent["Incoming"] = "Call.incoming";
 })(CallEventHandlerEvent || (exports.CallEventHandlerEvent = CallEventHandlerEvent = {}));
 class CallEventHandler {
+  // XXX: Most of these are only public because of the tests
+
   constructor(client) {
-    _defineProperty(this, "client", void 0);
     _defineProperty(this, "calls", void 0);
     _defineProperty(this, "callEventBuffer", void 0);
+    _defineProperty(this, "nextSeqByCall", new Map());
+    _defineProperty(this, "toDeviceEventBuffers", new Map());
+    _defineProperty(this, "client", void 0);
     _defineProperty(this, "candidateEventsByCall", void 0);
-    _defineProperty(this, "evaluateEventBuffer", async () => {
-      if (this.client.getSyncState() === _sync.SyncState.Syncing) {
-        await Promise.all(this.callEventBuffer.map(event => {
-          this.client.decryptEventIfNeeded(event);
-        }));
-        const ignoreCallIds = new Set();
-        // inspect the buffer and mark all calls which have been answered
-        // or hung up before passing them to the call event handler.
-        for (const ev of this.callEventBuffer) {
-          if (ev.getType() === _event2.EventType.CallAnswer || ev.getType() === _event2.EventType.CallHangup) {
-            ignoreCallIds.add(ev.getContent().call_id);
-          }
-        }
-        // now loop through the buffer chronologically and inject them
-        for (const e of this.callEventBuffer) {
-          if (e.getType() === _event2.EventType.CallInvite && ignoreCallIds.has(e.getContent().call_id)) {
-            // This call has previously been answered or hung up: ignore it
-            continue;
-          }
-          try {
-            await this.handleCallEvent(e);
-          } catch (e) {
-            _logger.logger.error("Caught exception handling call event", e);
-          }
-        }
-        this.callEventBuffer = [];
+    _defineProperty(this, "eventBufferPromiseChain", void 0);
+    _defineProperty(this, "onSync", () => {
+      // Process the current event buffer and start queuing into a new one.
+      const currentEventBuffer = this.callEventBuffer;
+      this.callEventBuffer = [];
+
+      // Ensure correct ordering by only processing this queue after the previous one has finished processing
+      if (this.eventBufferPromiseChain) {
+        this.eventBufferPromiseChain = this.eventBufferPromiseChain.then(() => this.evaluateEventBuffer(currentEventBuffer));
+      } else {
+        this.eventBufferPromiseChain = this.evaluateEventBuffer(currentEventBuffer);
       }
     });
     _defineProperty(this, "onRoomTimeline", event => {
-      this.client.decryptEventIfNeeded(event);
-      // any call events or ones that might be once they're decrypted
-      if (this.eventIsACall(event) || event.isBeingDecrypted()) {
-        // queue up for processing once all events from this sync have been
-        // processed (see above).
+      this.callEventBuffer.push(event);
+    });
+    _defineProperty(this, "onToDeviceEvent", event => {
+      const content = event.getContent();
+      if (!content.call_id) {
         this.callEventBuffer.push(event);
+        return;
       }
-      if (event.isBeingDecrypted() || event.isDecryptionFailure()) {
-        // add an event listener for once the event is decrypted.
-        event.once(_event.MatrixEventEvent.Decrypted, async () => {
-          if (!this.eventIsACall(event)) return;
-          if (this.callEventBuffer.includes(event)) {
-            // we were waiting for that event to decrypt, so recheck the buffer
-            this.evaluateEventBuffer();
-          } else {
-            // This one wasn't buffered so just run the event handler for it
-            // straight away
-            try {
-              await this.handleCallEvent(event);
-            } catch (e) {
-              _logger.logger.error("Caught exception handling call event", e);
-            }
-          }
-        });
+      if (!this.nextSeqByCall.has(content.call_id)) {
+        this.nextSeqByCall.set(content.call_id, 0);
+      }
+      if (content.seq === undefined) {
+        this.callEventBuffer.push(event);
+        return;
+      }
+      const nextSeq = this.nextSeqByCall.get(content.call_id) || 0;
+      if (content.seq !== nextSeq) {
+        if (!this.toDeviceEventBuffers.has(content.call_id)) {
+          this.toDeviceEventBuffers.set(content.call_id, []);
+        }
+        const buffer = this.toDeviceEventBuffers.get(content.call_id);
+        const index = buffer.findIndex(e => e.getContent().seq > content.seq);
+        if (index === -1) {
+          buffer.push(event);
+        } else {
+          buffer.splice(index, 0, event);
+        }
+      } else {
+        const callId = content.call_id;
+        this.callEventBuffer.push(event);
+        this.nextSeqByCall.set(callId, content.seq + 1);
+        const buffer = this.toDeviceEventBuffers.get(callId);
+        let nextEvent = buffer && buffer.shift();
+        while (nextEvent && nextEvent.getContent().seq === this.nextSeqByCall.get(callId)) {
+          this.callEventBuffer.push(nextEvent);
+          this.nextSeqByCall.set(callId, nextEvent.getContent().seq + 1);
+          nextEvent = buffer.shift();
+        }
       }
     });
     this.client = client;
@@ -95,29 +99,77 @@ class CallEventHandler {
     this.candidateEventsByCall = new Map();
   }
   start() {
-    this.client.on(_client.ClientEvent.Sync, this.evaluateEventBuffer);
+    this.client.on(_client.ClientEvent.Sync, this.onSync);
     this.client.on(_room.RoomEvent.Timeline, this.onRoomTimeline);
+    this.client.on(_client.ClientEvent.ToDeviceEvent, this.onToDeviceEvent);
   }
   stop() {
-    this.client.removeListener(_client.ClientEvent.Sync, this.evaluateEventBuffer);
+    this.client.removeListener(_client.ClientEvent.Sync, this.onSync);
     this.client.removeListener(_room.RoomEvent.Timeline, this.onRoomTimeline);
+    this.client.removeListener(_client.ClientEvent.ToDeviceEvent, this.onToDeviceEvent);
   }
-  eventIsACall(event) {
-    const type = event.getType();
-    /**
-     * Unstable prefixes:
-     *   - org.matrix.call. : MSC3086 https://github.com/matrix-org/matrix-doc/pull/3086
-     */
-    return type.startsWith("m.call.") || type.startsWith("org.matrix.call.");
+  async evaluateEventBuffer(eventBuffer) {
+    await Promise.all(eventBuffer.map(event => this.client.decryptEventIfNeeded(event)));
+    const callEvents = eventBuffer.filter(event => {
+      const eventType = event.getType();
+      return eventType.startsWith("m.call.") || eventType.startsWith("org.matrix.call.");
+    });
+    const ignoreCallIds = new Set();
+
+    // inspect the buffer and mark all calls which have been answered
+    // or hung up before passing them to the call event handler.
+    for (const event of callEvents) {
+      const eventType = event.getType();
+      if (eventType === _event.EventType.CallAnswer || eventType === _event.EventType.CallHangup) {
+        ignoreCallIds.add(event.getContent().call_id);
+      }
+    }
+
+    // Process call events in the order that they were received
+    for (const event of callEvents) {
+      const eventType = event.getType();
+      const callId = event.getContent().call_id;
+      if (eventType === _event.EventType.CallInvite && ignoreCallIds.has(callId)) {
+        // This call has previously been answered or hung up: ignore it
+        continue;
+      }
+      try {
+        await this.handleCallEvent(event);
+      } catch (e) {
+        _logger.logger.error("CallEventHandler evaluateEventBuffer() caught exception handling call event", e);
+      }
+    }
   }
   async handleCallEvent(event) {
+    this.client.emit(_client.ClientEvent.ReceivedVoipEvent, event);
     const content = event.getContent();
+    const callRoomId = event.getRoomId() || this.client.groupCallEventHandler.getGroupCallById(content.conf_id)?.room?.roomId;
+    const groupCallId = content.conf_id;
     const type = event.getType();
-    const weSentTheEvent = event.getSender() === this.client.credentials.userId;
+    const senderId = event.getSender();
     let call = content.call_id ? this.calls.get(content.call_id) : undefined;
-    //console.info("RECV %s content=%s", type, JSON.stringify(content));
-
-    if (type === _event2.EventType.CallInvite) {
+    let opponentDeviceId;
+    let groupCall;
+    if (groupCallId) {
+      groupCall = this.client.groupCallEventHandler.getGroupCallById(groupCallId);
+      if (!groupCall) {
+        _logger.logger.warn(`CallEventHandler handleCallEvent() could not find a group call - ignoring event (groupCallId=${groupCallId}, type=${type})`);
+        return;
+      }
+      opponentDeviceId = content.device_id;
+      if (!opponentDeviceId) {
+        _logger.logger.warn(`CallEventHandler handleCallEvent() could not find a device id - ignoring event (senderId=${senderId})`);
+        groupCall.emit(_groupCall.GroupCallEvent.Error, new _groupCall.GroupCallUnknownDeviceError(senderId));
+        return;
+      }
+      if (content.dest_session_id !== this.client.getSessionId()) {
+        _logger.logger.warn("CallEventHandler handleCallEvent() call event does not match current session id - ignoring");
+        return;
+      }
+    }
+    const weSentTheEvent = senderId === this.client.credentials.userId && (opponentDeviceId === undefined || opponentDeviceId === this.client.getDeviceId());
+    if (!callRoomId) return;
+    if (type === _event.EventType.CallInvite) {
       // ignore invites you send
       if (weSentTheEvent) return;
       // expired call
@@ -125,22 +177,39 @@ class CallEventHandler {
       // stale/old invite event
       if (call && call.state === _call.CallState.Ended) return;
       if (call) {
-        _logger.logger.log(`WARN: Already have a MatrixCall with id ${content.call_id} but got an ` + `invite. Clobbering.`);
+        _logger.logger.warn(`CallEventHandler handleCallEvent() already has a call but got an invite - clobbering (callId=${content.call_id})`);
       }
-      const timeUntilTurnCresExpire = this.client.getTurnServersExpiry() - Date.now();
-      _logger.logger.info("Current turn creds expire in " + timeUntilTurnCresExpire + " ms");
-      call = (0, _call.createNewMatrixCall)(this.client, event.getRoomId(), {
-        forceTURN: this.client.forceTURN
+      if (content.invitee && content.invitee !== this.client.getUserId()) {
+        return; // This invite was meant for another user in the room
+      }
+
+      const timeUntilTurnCresExpire = (this.client.getTurnServersExpiry() ?? 0) - Date.now();
+      _logger.logger.info("CallEventHandler handleCallEvent() current turn creds expire in " + timeUntilTurnCresExpire + " ms");
+      call = (0, _call.createNewMatrixCall)(this.client, callRoomId, {
+        forceTURN: this.client.forceTURN,
+        opponentDeviceId,
+        groupCallId,
+        opponentSessionId: content.sender_session_id
       }) ?? undefined;
       if (!call) {
-        _logger.logger.log("Incoming call ID " + content.call_id + " but this client " + "doesn't support WebRTC");
+        _logger.logger.log(`CallEventHandler handleCallEvent() this client does not support WebRTC (callId=${content.call_id})`);
         // don't hang up the call: there could be other clients
         // connected that do support WebRTC and declining the
         // the call on their behalf would be really annoying.
         return;
       }
       call.callId = content.call_id;
-      await call.initWithInvite(event);
+      try {
+        await call.initWithInvite(event);
+      } catch (e) {
+        if (e instanceof _call.CallError) {
+          if (e.code === _groupCall.GroupCallErrorCode.UnknownDevice) {
+            groupCall?.emit(_groupCall.GroupCallEvent.Error, e);
+          } else {
+            _logger.logger.error(e);
+          }
+        }
+      }
       this.calls.set(call.callId, call);
 
       // if we stashed candidate events for that call ID, play them back now
@@ -154,29 +223,24 @@ class CallEventHandler {
       let existingCall;
       for (const thisCall of this.calls.values()) {
         const isCalling = [_call.CallState.WaitLocalMedia, _call.CallState.CreateOffer, _call.CallState.InviteSent].includes(thisCall.state);
-        if (call.roomId === thisCall.roomId && thisCall.direction === _call.CallDirection.Outbound && isCalling) {
+        if (call.roomId === thisCall.roomId && thisCall.direction === _call.CallDirection.Outbound && call.getOpponentMember()?.userId === thisCall.invitee && isCalling) {
           existingCall = thisCall;
           break;
         }
       }
       if (existingCall) {
-        // If we've only got to wait_local_media or create_offer and
-        // we've got an invite, pick the incoming call because we know
-        // we haven't sent our invite yet otherwise, pick whichever
-        // call has the lowest call ID (by string comparison)
-        if (existingCall.state === _call.CallState.WaitLocalMedia || existingCall.state === _call.CallState.CreateOffer || existingCall.callId > call.callId) {
-          _logger.logger.log("Glare detected: answering incoming call " + call.callId + " and canceling outgoing call " + existingCall.callId);
+        if (existingCall.callId > call.callId) {
+          _logger.logger.log(`CallEventHandler handleCallEvent() detected glare - answering incoming call and canceling outgoing call (incomingId=${call.callId}, outgoingId=${existingCall.callId})`);
           existingCall.replacedBy(call);
-          call.answer();
         } else {
-          _logger.logger.log("Glare detected: rejecting incoming call " + call.callId + " and keeping outgoing call " + existingCall.callId);
+          _logger.logger.log(`CallEventHandler handleCallEvent() detected glare - hanging up incoming call (incomingId=${call.callId}, outgoingId=${existingCall.callId})`);
           call.hangup(_call.CallErrorCode.Replaced, true);
         }
       } else {
         this.client.emit(CallEventHandlerEvent.Incoming, call);
       }
       return;
-    } else if (type === _event2.EventType.CallCandidates) {
+    } else if (type === _event.EventType.CallCandidates) {
       if (weSentTheEvent) return;
       if (!call) {
         // store the candidates; we may get a call eventually.
@@ -188,14 +252,17 @@ class CallEventHandler {
         call.onRemoteIceCandidatesReceived(event);
       }
       return;
-    } else if ([_event2.EventType.CallHangup, _event2.EventType.CallReject].includes(type)) {
+    } else if ([_event.EventType.CallHangup, _event.EventType.CallReject].includes(type)) {
       // Note that we also observe our own hangups here so we can see
       // if we've already rejected a call that would otherwise be valid
       if (!call) {
         // if not live, store the fact that the call has ended because
         // we're probably getting events backwards so
         // the hangup will come before the invite
-        call = (0, _call.createNewMatrixCall)(this.client, event.getRoomId()) ?? undefined;
+        call = (0, _call.createNewMatrixCall)(this.client, callRoomId, {
+          opponentDeviceId,
+          opponentSessionId: content.sender_session_id
+        }) ?? undefined;
         if (call) {
           call.callId = content.call_id;
           call.initWithHangup(event);
@@ -203,7 +270,7 @@ class CallEventHandler {
         }
       } else {
         if (call.state !== _call.CallState.Ended) {
-          if (type === _event2.EventType.CallHangup) {
+          if (type === _event.EventType.CallHangup) {
             call.onHangupReceived(content);
           } else {
             call.onRejectReceived(content);
@@ -220,13 +287,13 @@ class CallEventHandler {
 
     // The following events need a call and a peer connection
     if (!call || !call.hasPeerConnection) {
-      _logger.logger.info(`Discarding possible call event ${event.getId()} as we don't have a call/peerConn`, type);
+      _logger.logger.info(`CallEventHandler handleCallEvent() discarding possible call event as we don't have a call (type=${type})`);
       return;
     }
     // Ignore remote echo
     if (event.getContent().party_id === call.ourPartyId) return;
     switch (type) {
-      case _event2.EventType.CallAnswer:
+      case _event.EventType.CallAnswer:
         if (weSentTheEvent) {
           if (call.state === _call.CallState.Ringing) {
             call.onAnsweredElsewhere(content);
@@ -235,18 +302,18 @@ class CallEventHandler {
           call.onAnswerReceived(event);
         }
         break;
-      case _event2.EventType.CallSelectAnswer:
+      case _event.EventType.CallSelectAnswer:
         call.onSelectAnswerReceived(event);
         break;
-      case _event2.EventType.CallNegotiate:
+      case _event.EventType.CallNegotiate:
         call.onNegotiateReceived(event);
         break;
-      case _event2.EventType.CallAssertedIdentity:
-      case _event2.EventType.CallAssertedIdentityPrefix:
+      case _event.EventType.CallAssertedIdentity:
+      case _event.EventType.CallAssertedIdentityPrefix:
         call.onAssertedIdentityReceived(event);
         break;
-      case _event2.EventType.CallSDPStreamMetadataChanged:
-      case _event2.EventType.CallSDPStreamMetadataChangedPrefix:
+      case _event.EventType.CallSDPStreamMetadataChanged:
+      case _event.EventType.CallSDPStreamMetadataChangedPrefix:
         call.onSDPStreamMetadataChangedReceived(event);
         break;
     }

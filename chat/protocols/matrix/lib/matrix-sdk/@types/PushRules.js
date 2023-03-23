@@ -53,6 +53,7 @@ let ConditionKind;
 exports.ConditionKind = ConditionKind;
 (function (ConditionKind) {
   ConditionKind["EventMatch"] = "event_match";
+  ConditionKind["EventPropertyIs"] = "event_property_is";
   ConditionKind["ContainsDisplayName"] = "contains_display_name";
   ConditionKind["RoomMemberCount"] = "room_member_count";
   ConditionKind["SenderNotificationPermission"] = "sender_notification_permission";
@@ -84,5 +85,13 @@ exports.RuleId = RuleId;
   RuleId["IncomingCall"] = ".m.rule.call";
   RuleId["SuppressNotices"] = ".m.rule.suppress_notices";
   RuleId["Tombstone"] = ".m.rule.tombstone";
+  RuleId["PollStart"] = ".m.rule.poll_start";
+  RuleId["PollStartUnstable"] = ".org.matrix.msc3930.rule.poll_start";
+  RuleId["PollEnd"] = ".m.rule.poll_end";
+  RuleId["PollEndUnstable"] = ".org.matrix.msc3930.rule.poll_end";
+  RuleId["PollStartOneToOne"] = ".m.rule.poll_start_one_to_one";
+  RuleId["PollStartOneToOneUnstable"] = ".org.matrix.msc3930.rule.poll_start_one_to_one";
+  RuleId["PollEndOneToOne"] = ".m.rule.poll_end_one_to_one";
+  RuleId["PollEndOneToOneUnstable"] = ".org.matrix.msc3930.rule.poll_end_one_to_one";
 })(RuleId || (exports.RuleId = RuleId = {}));
 /* eslint-enable camelcase */

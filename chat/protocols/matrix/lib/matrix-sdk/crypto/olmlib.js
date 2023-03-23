@@ -18,26 +18,11 @@ var _anotherJson = _interopRequireDefault(require("another-json"));
 var _logger = require("../logger");
 var _event = require("../@types/event");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-/*
-Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-/**
- * @module olmlib
- *
- * Utilities common to olm encryption algorithms
- */
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 var Algorithm;
 /**
  * matrix algorithm tag for olm
@@ -64,15 +49,11 @@ exports.MEGOLM_BACKUP_ALGORITHM = MEGOLM_BACKUP_ALGORITHM;
 /**
  * Encrypt an event payload for an Olm device
  *
- * @param {Object<string, string>} resultsObject  The `ciphertext` property
+ * @param resultsObject -  The `ciphertext` property
  *   of the m.room.encrypted event to which to add our result
  *
- * @param {string} ourUserId
- * @param {string} ourDeviceId
- * @param {module:crypto/OlmDevice} olmDevice olm.js wrapper
- * @param {string} recipientUserId
- * @param {module:crypto/deviceinfo} recipientDevice
- * @param {object} payloadFields fields to include in the encrypted payload
+ * @param olmDevice - olm.js wrapper
+ * @param payloadFields - fields to include in the encrypted payload
  *
  * Returns a promise which resolves (to undefined) when the payload
  *    has been encrypted into `resultsObject`
@@ -83,10 +64,11 @@ async function encryptMessageForDevice(resultsObject, ourUserId, ourDeviceId, ol
   if (sessionId === null) {
     // If we don't have a session for a device then
     // we can't encrypt a message for it.
+    _logger.logger.log(`[olmlib.encryptMessageForDevice] Unable to find Olm session for device ` + `${recipientUserId}:${recipientDevice.deviceId}`);
     return;
   }
-  _logger.logger.log("Using sessionid " + sessionId + " for device " + recipientUserId + ":" + recipientDevice.deviceId);
-  const payload = {
+  _logger.logger.log(`[olmlib.encryptMessageForDevice] Using Olm session ${sessionId} for device ` + `${recipientUserId}:${recipientDevice.deviceId}`);
+  const payload = _objectSpread({
     sender: ourUserId,
     // TODO this appears to no longer be used whatsoever
     sender_device: ourDeviceId,
@@ -99,40 +81,36 @@ async function encryptMessageForDevice(resultsObject, ourUserId, ourDeviceId, ol
     // the curve25519 key and the ed25519 key are owned by
     // the same device.
     keys: {
-      "ed25519": olmDevice.deviceEd25519Key
+      ed25519: olmDevice.deviceEd25519Key
     },
     // include the recipient device details in the payload,
     // to avoid unknown key attacks, per
     // https://github.com/vector-im/vector-web/issues/2483
     recipient: recipientUserId,
     recipient_keys: {
-      "ed25519": recipientDevice.getFingerprint()
+      ed25519: recipientDevice.getFingerprint()
     }
-  };
+  }, payloadFields);
 
   // TODO: technically, a bunch of that stuff only needs to be included for
   // pre-key messages: after that, both sides know exactly which devices are
   // involved in the session. If we're looking to reduce data transfer in the
   // future, we could elide them for subsequent messages.
 
-  Object.assign(payload, payloadFields);
   resultsObject[deviceKey] = await olmDevice.encryptMessage(deviceKey, sessionId, JSON.stringify(payload));
 }
 /**
  * Get the existing olm sessions for the given devices, and the devices that
  * don't have olm sessions.
  *
- * @param {module:crypto/OlmDevice} olmDevice
  *
- * @param {MatrixClient} baseApis
  *
- * @param {object<string, module:crypto/deviceinfo[]>} devicesByUser
- *    map from userid to list of devices to ensure sessions for
+ * @param devicesByUser - map from userid to list of devices to ensure sessions for
  *
- * @return {Promise} resolves to an array.  The first element of the array is a
+ * @returns resolves to an array.  The first element of the array is a
  *    a map of user IDs to arrays of deviceInfo, representing the devices that
  *    don't have established olm sessions.  The second element of the array is
- *    a map from userId to deviceId to {@link module:crypto~OlmSessionResult}
+ *    a map from userId to deviceId to {@link OlmSessionResult}
  */
 async function getExistingOlmSessions(olmDevice, baseApis, devicesByUser) {
   const devicesWithoutSession = {};
@@ -164,27 +142,22 @@ async function getExistingOlmSessions(olmDevice, baseApis, devicesByUser) {
 /**
  * Try to make sure we have established olm sessions for the given devices.
  *
- * @param {module:crypto/OlmDevice} olmDevice
+ * @param devicesByUser - map from userid to list of devices to ensure sessions for
  *
- * @param {MatrixClient} baseApis
- *
- * @param {object<string, module:crypto/deviceinfo[]>} devicesByUser
- *    map from userid to list of devices to ensure sessions for
- *
- * @param {boolean} [force=false] If true, establish a new session even if one
+ * @param force - If true, establish a new session even if one
  *     already exists.
  *
- * @param {Number} [otkTimeout] The timeout in milliseconds when requesting
+ * @param otkTimeout - The timeout in milliseconds when requesting
  *     one-time keys for establishing new olm sessions.
  *
- * @param {Array} [failedServers] An array to fill with remote servers that
+ * @param failedServers - An array to fill with remote servers that
  *     failed to respond to one-time-key requests.
  *
- * @param {Logger} [log] A possibly customised log
+ * @param log - A possibly customised log
  *
- * @return {Promise} resolves once the sessions are complete, to
+ * @returns resolves once the sessions are complete, to
  *    an Object mapping from userId to deviceId to
- *    {@link module:crypto~OlmSessionResult}
+ *    {@link OlmSessionResult}
  */
 async function ensureOlmSessionsForDevices(olmDevice, baseApis, devicesByUser, force = false, otkTimeout, failedServers, log = _logger.logger) {
   const devicesWithoutSession = [
@@ -287,8 +260,7 @@ async function ensureOlmSessionsForDevices(olmDevice, baseApis, devicesByUser, f
   const promises = [];
   for (const [userId, devices] of Object.entries(devicesByUser)) {
     const userRes = otkResult[userId] || {};
-    for (let j = 0; j < devices.length; j++) {
-      const deviceInfo = devices[j];
+    for (const deviceInfo of devices) {
       const deviceId = deviceInfo.deviceId;
       const key = deviceInfo.getIdentityKey();
       if (key === olmDevice.deviceCurve25519Key) {
@@ -356,15 +328,15 @@ async function _verifyKeyAndStartSession(olmDevice, oneTimeKey, userId, deviceIn
 /**
  * Verify the signature on an object
  *
- * @param {module:crypto/OlmDevice} olmDevice olm wrapper to use for verify op
+ * @param olmDevice - olm wrapper to use for verify op
  *
- * @param {Object} obj object to check signature on.
+ * @param obj - object to check signature on.
  *
- * @param {string} signingUserId  ID of the user whose signature should be checked
+ * @param signingUserId -  ID of the user whose signature should be checked
  *
- * @param {string} signingDeviceId  ID of the device whose signature should be checked
+ * @param signingDeviceId -  ID of the device whose signature should be checked
  *
- * @param {string} signingKey   base64-ed ed25519 public key
+ * @param signingKey -   base64-ed ed25519 public key
  *
  * Returns a promise which resolves (to undefined) if the the signature is good,
  * or rejects with an Error if it is bad.
@@ -390,13 +362,13 @@ async function verifySignature(olmDevice, obj, signingUserId, signingDeviceId, s
 
 /**
  * Sign a JSON object using public key cryptography
- * @param {Object} obj Object to sign.  The object will be modified to include
+ * @param obj - Object to sign.  The object will be modified to include
  *     the new signature
- * @param {Olm.PkSigning|Uint8Array} key the signing object or the private key
+ * @param key - the signing object or the private key
  * seed
- * @param {string} userId The user ID who owns the signing key
- * @param {string} pubKey The public key (ignored if key is a seed)
- * @returns {string} the signature for the object
+ * @param userId - The user ID who owns the signing key
+ * @param pubKey - The public key (ignored if key is a seed)
+ * @returns the signature for the object
  */
 function pkSign(obj, key, userId, pubKey) {
   let createdKey = false;
@@ -413,7 +385,7 @@ function pkSign(obj, key, userId, pubKey) {
   try {
     const mysigs = sigs[userId] || {};
     sigs[userId] = mysigs;
-    return mysigs['ed25519:' + pubKey] = key.sign(_anotherJson.default.stringify(obj));
+    return mysigs["ed25519:" + pubKey] = key.sign(_anotherJson.default.stringify(obj));
   } finally {
     obj.signatures = sigs;
     if (unsigned) obj.unsigned = unsigned;
@@ -425,9 +397,9 @@ function pkSign(obj, key, userId, pubKey) {
 
 /**
  * Verify a signed JSON object
- * @param {Object} obj Object to verify
- * @param {string} pubKey The public key to use to verify
- * @param {string} userId The user ID who signed the object
+ * @param obj - Object to verify
+ * @param pubKey - The public key to use to verify
+ * @param userId - The user ID who signed the object
  */
 function pkVerify(obj, pubKey, userId) {
   const keyId = "ed25519:" + pubKey;
@@ -466,8 +438,8 @@ function isOlmEncrypted(event) {
 
 /**
  * Encode a typed array of uint8 as base64.
- * @param {Uint8Array} uint8Array The data to encode.
- * @return {string} The base64.
+ * @param uint8Array - The data to encode.
+ * @returns The base64.
  */
 function encodeBase64(uint8Array) {
   return Buffer.from(uint8Array).toString("base64");
@@ -475,17 +447,17 @@ function encodeBase64(uint8Array) {
 
 /**
  * Encode a typed array of uint8 as unpadded base64.
- * @param {Uint8Array} uint8Array The data to encode.
- * @return {string} The unpadded base64.
+ * @param uint8Array - The data to encode.
+ * @returns The unpadded base64.
  */
 function encodeUnpaddedBase64(uint8Array) {
-  return encodeBase64(uint8Array).replace(/=+$/g, '');
+  return encodeBase64(uint8Array).replace(/=+$/g, "");
 }
 
 /**
  * Decode a base64 string to a typed array of uint8.
- * @param {string} base64 The base64 to decode.
- * @return {Uint8Array} The decoded data.
+ * @param base64 - The base64 to decode.
+ * @returns The decoded data.
  */
 function decodeBase64(base64) {
   return Buffer.from(base64, "base64");

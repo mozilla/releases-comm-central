@@ -8,7 +8,9 @@ var _event = require("../@types/event");
 var _eventTimeline = require("./event-timeline");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /**
  * Represents a [MSC3089](https://github.com/matrix-org/matrix-doc/pull/3089) branch - a reference
  * to a file (leaf) in the tree. Note that this is UNSTABLE and subject to breaking changes
@@ -16,11 +18,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  */
 class MSC3089Branch {
   constructor(client, indexEvent, directory) {
-    // Nothing to do
     this.client = client;
     this.indexEvent = indexEvent;
     this.directory = directory;
-  }
+  } // Nothing to do
 
   /**
    * The file ID.
@@ -52,7 +53,7 @@ class MSC3089Branch {
 
   /**
    * Deletes the file from the tree, including all prior edits/versions.
-   * @returns {Promise<void>} Resolves when complete.
+   * @returns Promise which resolves when complete.
    */
   async delete() {
     await this.client.sendStateEvent(this.roomId, _event.UNSTABLE_MSC3089_BRANCH.name, {}, this.id);
@@ -63,16 +64,16 @@ class MSC3089Branch {
 
   /**
    * Gets the name for this file.
-   * @returns {string} The name, or "Unnamed File" if unknown.
+   * @returns The name, or "Unnamed File" if unknown.
    */
   getName() {
-    return this.indexEvent.getContent()['name'] || "Unnamed File";
+    return this.indexEvent.getContent()["name"] || "Unnamed File";
   }
 
   /**
    * Sets the name for this file.
-   * @param {string} name The new name for this file.
-   * @returns {Promise<void>} Resolves when complete.
+   * @param name - The new name for this file.
+   * @returns Promise which resolves when complete.
    */
   async setName(name) {
     await this.client.sendStateEvent(this.roomId, _event.UNSTABLE_MSC3089_BRANCH.name, _objectSpread(_objectSpread({}, this.indexEvent.getContent()), {}, {
@@ -82,16 +83,16 @@ class MSC3089Branch {
 
   /**
    * Gets whether or not a file is locked.
-   * @returns {boolean} True if locked, false otherwise.
+   * @returns True if locked, false otherwise.
    */
   isLocked() {
-    return this.indexEvent.getContent()['locked'] || false;
+    return this.indexEvent.getContent()["locked"] || false;
   }
 
   /**
    * Sets a file as locked or unlocked.
-   * @param {boolean} locked True to lock the file, false otherwise.
-   * @returns {Promise<void>} Resolves when complete.
+   * @param locked - True to lock the file, false otherwise.
+   * @returns Promise which resolves when complete.
    */
   async setLocked(locked) {
     await this.client.sendStateEvent(this.roomId, _event.UNSTABLE_MSC3089_BRANCH.name, _objectSpread(_objectSpread({}, this.indexEvent.getContent()), {}, {
@@ -101,14 +102,14 @@ class MSC3089Branch {
 
   /**
    * Gets information about the file needed to download it.
-   * @returns {Promise<{info: IEncryptedFile, httpUrl: string}>} Information about the file.
+   * @returns Information about the file.
    */
   async getFileInfo() {
     const event = await this.getFileEvent();
-    const file = event.getOriginalContent()['file'];
-    const httpUrl = this.client.mxcUrlToHttp(file['url']);
+    const file = event.getOriginalContent()["file"];
+    const httpUrl = this.client.mxcUrlToHttp(file["url"]);
     if (!httpUrl) {
-      throw new Error(`No HTTP URL available for ${file['url']}`);
+      throw new Error(`No HTTP URL available for ${file["url"]}`);
     }
     return {
       info: file,
@@ -118,7 +119,7 @@ class MSC3089Branch {
 
   /**
    * Gets the event the file points to.
-   * @returns {Promise<MatrixEvent>} Resolves to the file's event.
+   * @returns Promise which resolves to the file's event.
    */
   async getFileEvent() {
     const room = this.client.getRoom(this.roomId);
@@ -143,18 +144,18 @@ class MSC3089Branch {
 
   /**
    * Creates a new version of this file with contents in a type that is compatible with MatrixClient.uploadContent().
-   * @param {string} name The name of the file.
-   * @param {File | String | Buffer | ReadStream | Blob} encryptedContents The encrypted contents.
-   * @param {Partial<IEncryptedFile>} info The encrypted file information.
-   * @param {IContent} additionalContent Optional event content fields to include in the message.
-   * @returns {Promise<ISendEventResponse>} Resolves to the file event's sent response.
+   * @param name - The name of the file.
+   * @param encryptedContents - The encrypted contents.
+   * @param info - The encrypted file information.
+   * @param additionalContent - Optional event content fields to include in the message.
+   * @returns Promise which resolves to the file event's sent response.
    */
   async createNewVersion(name, encryptedContents, info, additionalContent) {
     const fileEventResponse = await this.directory.createFile(name, encryptedContents, info, _objectSpread(_objectSpread({}, additionalContent ?? {}), {}, {
       "m.new_content": true,
       "m.relates_to": {
-        "rel_type": _event.RelationType.Replace,
-        "event_id": this.id
+        rel_type: _event.RelationType.Replace,
+        event_id: this.id
       }
     }));
 
@@ -163,7 +164,7 @@ class MSC3089Branch {
       active: true,
       name: name,
       version: this.version + 1
-    }, fileEventResponse['event_id']);
+    }, fileEventResponse["event_id"]);
 
     // Deprecate ourselves
     await this.client.sendStateEvent(this.roomId, _event.UNSTABLE_MSC3089_BRANCH.name, _objectSpread(_objectSpread({}, this.indexEvent.getContent()), {}, {
@@ -174,7 +175,7 @@ class MSC3089Branch {
 
   /**
    * Gets the file's version history, starting at this file.
-   * @returns {Promise<MSC3089Branch[]>} Resolves to the file's version history, with the
+   * @returns Promise which resolves to the file's version history, with the
    * first element being the current version and the last element being the first version.
    */
   async getVersionHistory() {

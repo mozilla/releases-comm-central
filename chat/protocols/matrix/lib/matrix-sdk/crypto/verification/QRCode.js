@@ -8,7 +8,9 @@ var _Base = require("./Base");
 var _Error = require("./Error");
 var _olmlib = require("../olmlib");
 var _logger = require("../../logger");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 const SHOW_QR_CODE_METHOD = "m.qr_code.show.v1";
 exports.SHOW_QR_CODE_METHOD = SHOW_QR_CODE_METHOD;
 const SCAN_QR_CODE_METHOD = "m.qr_code.scan.v1";
@@ -18,10 +20,6 @@ exports.QrCodeEvent = QrCodeEvent;
 (function (QrCodeEvent) {
   QrCodeEvent["ShowReciprocateQr"] = "show_reciprocate_qr";
 })(QrCodeEvent || (exports.QrCodeEvent = QrCodeEvent = {}));
-/**
- * @class crypto/verification/QRCode/ReciprocateQRCode
- * @extends {module:crypto/verification/Base}
- */
 class ReciprocateQRCode extends _Base.VerificationBase {
   constructor(...args) {
     super(...args);
@@ -35,7 +33,7 @@ class ReciprocateQRCode extends _Base.VerificationBase {
         qrCodeData
       } = this.request;
       // 1. check the secret
-      if (this.startEvent.getContent()['secret'] !== qrCodeData?.encodedSharedSecret) {
+      if (this.startEvent.getContent()["secret"] !== qrCodeData?.encodedSharedSecret) {
         throw (0, _Error.newKeyMismatchError)();
       }
 
@@ -105,7 +103,7 @@ class ReciprocateQRCode extends _Base.VerificationBase {
 exports.ReciprocateQRCode = ReciprocateQRCode;
 const CODE_VERSION = 0x02; // the version of binary QR codes we support
 const BINARY_PREFIX = "MATRIX"; // ASCII, used to prefix the binary format
-var Mode;
+var Mode; // We do not trust the master key
 (function (Mode) {
   Mode[Mode["VerifyOtherUser"] = 0] = "VerifyOtherUser";
   Mode[Mode["VerifySelfTrusted"] = 1] = "VerifySelfTrusted";
@@ -193,9 +191,9 @@ class QRCodeData {
       version: CODE_VERSION,
       mode,
       transactionId,
-      firstKeyB64: '',
+      firstKeyB64: "",
       // worked out shortly
-      secondKeyB64: '',
+      secondKeyB64: "",
       // worked out shortly
       secretB64: encodedSharedSecret
     };

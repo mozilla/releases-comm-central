@@ -4,25 +4,30 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.RoomKeyRequestState = exports.OutgoingRoomKeyRequestManager = void 0;
+var _uuid = require("uuid");
 var _logger = require("../logger");
 var _event = require("../@types/event");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /**
  * Internal module. Management of outgoing room key requests.
  *
  * See https://docs.google.com/document/d/1m4gQkcnJkxNuBmb5NoFCIadIY-DyqqNAS3lloE73BlQ
  * for draft documentation on what we're supposed to be implementing here.
- *
- * @module
  */
 
 // delay between deciding we want some keys, and sending out the request, to
 // allow for (a) it turning up anyway, (b) grouping requests together
 const SEND_KEY_REQUESTS_DELAY_MS = 500;
 
-/** possible states for a room key request
+/**
+ *  possible states for a room key request
  *
  * The state machine looks like:
+ * ```
  *
  *     |         (cancellation sent)
  *     | .-------------------------------------------------.
@@ -45,8 +50,7 @@ const SEND_KEY_REQUESTS_DELAY_MS = 500;
  *     | (cancellation sent)              |
  *     V                                  |
  * (deleted)  <---------------------------+
- *
- * @enum {number}
+ * ```
  */
 let RoomKeyRequestState;
 exports.RoomKeyRequestState = RoomKeyRequestState;
@@ -69,21 +73,14 @@ class OutgoingRoomKeyRequestManager {
     this.cryptoStore = cryptoStore;
     _defineProperty(this, "sendOutgoingRoomKeyRequestsTimer", void 0);
     _defineProperty(this, "sendOutgoingRoomKeyRequestsRunning", false);
-    _defineProperty(this, "clientRunning", false);
-  }
-
-  /**
-   * Called when the client is started. Sets background processes running.
-   */
-  start() {
-    this.clientRunning = true;
+    _defineProperty(this, "clientRunning", true);
   }
 
   /**
    * Called when the client is stopped. Stops any running background processes.
    */
   stop() {
-    _logger.logger.log('stopping OutgoingRoomKeyRequestManager');
+    _logger.logger.log("stopping OutgoingRoomKeyRequestManager");
     // stop the timer on the next run
     this.clientRunning = false;
   }
@@ -103,12 +100,10 @@ class OutgoingRoomKeyRequestManager {
    * Otherwise, a request is added to the pending list, and a job is started
    * in the background to send it.
    *
-   * @param {module:crypto~RoomKeyRequestBody} requestBody
-   * @param {Array<{userId: string, deviceId: string}>} recipients
-   * @param {boolean} resend whether to resend the key request if there is
+   * @param resend - whether to resend the key request if there is
    *    already one
    *
-   * @returns {Promise} resolves when the request has been added to the
+   * @returns resolves when the request has been added to the
    *    pending list (or we have established that a similar request already
    *    exists)
    */
@@ -184,7 +179,7 @@ class OutgoingRoomKeyRequestManager {
             break;
           }
         default:
-          throw new Error('unhandled state: ' + req.state);
+          throw new Error("unhandled state: " + req.state);
       }
     }
   }
@@ -192,9 +187,8 @@ class OutgoingRoomKeyRequestManager {
   /**
    * Cancel room key requests, if any match the given requestBody
    *
-   * @param {module:crypto~RoomKeyRequestBody} requestBody
    *
-   * @returns {Promise} resolves when the request has been updated in our
+   * @returns resolves when the request has been updated in our
    *    pending list.
    */
   cancelRoomKeyRequest(requestBody) {
@@ -216,7 +210,7 @@ class OutgoingRoomKeyRequestManager {
           // may have seen it, so we still need to send a cancellation
           // in that case :/
 
-          _logger.logger.log('deleting unnecessary room key request for ' + stringifyRequestBody(requestBody));
+          _logger.logger.log("deleting unnecessary room key request for " + stringifyRequestBody(requestBody));
           return this.cryptoStore.deleteOutgoingRoomKeyRequest(req.requestId, RoomKeyRequestState.Unsent);
         case RoomKeyRequestState.Sent:
           {
@@ -232,7 +226,7 @@ class OutgoingRoomKeyRequestManager {
                 // the request cancelled. There is no point in
                 // sending another cancellation since the other tab
                 // will do it.
-                _logger.logger.log('Tried to cancel room key request for ' + stringifyRequestBody(requestBody) + ' but it was already cancelled in another tab');
+                _logger.logger.log("Tried to cancel room key request for " + stringifyRequestBody(requestBody) + " but it was already cancelled in another tab");
                 return;
               }
 
@@ -252,7 +246,7 @@ class OutgoingRoomKeyRequestManager {
             });
           }
         default:
-          throw new Error('unhandled state: ' + req.state);
+          throw new Error("unhandled state: " + req.state);
       }
     });
   }
@@ -260,11 +254,10 @@ class OutgoingRoomKeyRequestManager {
   /**
    * Look for room key requests by target device and state
    *
-   * @param {string} userId Target user ID
-   * @param {string} deviceId Target device ID
+   * @param userId - Target user ID
+   * @param deviceId - Target device ID
    *
-   * @return {Promise} resolves to a list of all the
-   *    {@link module:crypto/store/base~OutgoingRoomKeyRequest}
+   * @returns resolves to a list of all the {@link OutgoingRoomKeyRequest}
    */
   getOutgoingSentRoomKeyRequest(userId, deviceId) {
     return this.cryptoStore.getOutgoingRoomKeyRequestsByTarget(userId, deviceId, [RoomKeyRequestState.Sent]);
@@ -275,7 +268,7 @@ class OutgoingRoomKeyRequestManager {
    * This is intended for situations where something substantial has changed, and we
    * don't really expect the other end to even care about the cancellation.
    * For example, after initialization or self-verification.
-   * @return {Promise} An array of `queueRoomKeyRequest` outputs.
+   * @returns An array of `queueRoomKeyRequest` outputs.
    */
   async cancelAndResendAllOutgoingRequests() {
     const outgoings = await this.cryptoStore.getAllOutgoingRoomKeyRequestsByState(RoomKeyRequestState.Sent);
@@ -384,7 +377,9 @@ class OutgoingRoomKeyRequestManager {
       if (!contentMap[recip.userId]) {
         contentMap[recip.userId] = {};
       }
-      contentMap[recip.userId][recip.deviceId] = message;
+      contentMap[recip.userId][recip.deviceId] = _objectSpread(_objectSpread({}, message), {}, {
+        [_event.ToDeviceMessageId]: (0, _uuid.v4)()
+      });
     }
     return this.baseApis.sendToDevice(_event.EventType.RoomKeyRequest, contentMap, txnId);
   }

@@ -9,19 +9,18 @@ var _logger = require("../../logger");
 var utils = _interopRequireWildcard(require("../../utils"));
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 const PROFILE_TRANSACTIONS = false;
 
 /**
  * Implementation of a CryptoStore which is backed by an existing
  * IndexedDB connection. Generally you want IndexedDBCryptoStore
  * which connects to the database and defers to one of these.
- *
- * @implements {module:crypto/store/base~CryptoStore}
  */
 class Backend {
   /**
-   * @param {IDBDatabase} db
    */
   constructor(db) {
     this.db = db;
@@ -47,10 +46,9 @@ class Backend {
    * Look for an existing outgoing room key request, and if none is found,
    * add a new one
    *
-   * @param {module:crypto/store/base~OutgoingRoomKeyRequest} request
    *
-   * @returns {Promise} resolves to
-   *    {@link module:crypto/store/base~OutgoingRoomKeyRequest}: either the
+   * @returns resolves to
+   *    {@link OutgoingRoomKeyRequest}: either the
    *    same instance as passed in, or the existing one.
    */
   getOrAddOutgoingRoomKeyRequest(request) {
@@ -83,11 +81,10 @@ class Backend {
   /**
    * Look for an existing room key request
    *
-   * @param {module:crypto~RoomKeyRequestBody} requestBody
-   *    existing request to look for
+   * @param requestBody - existing request to look for
    *
-   * @return {Promise} resolves to the matching
-   *    {@link module:crypto/store/base~OutgoingRoomKeyRequest}, or null if
+   * @returns resolves to the matching
+   *    {@link OutgoingRoomKeyRequest}, or null if
    *    not found
    */
   getOutgoingRoomKeyRequest(requestBody) {
@@ -103,13 +100,12 @@ class Backend {
   /**
    * look for an existing room key request in the db
    *
-   * @private
-   * @param {IDBTransaction} txn  database transaction
-   * @param {module:crypto~RoomKeyRequestBody} requestBody
-   *    existing request to look for
-   * @param {Function} callback  function to call with the results of the
+   * @internal
+   * @param txn -  database transaction
+   * @param requestBody - existing request to look for
+   * @param callback -  function to call with the results of the
    *    search. Either passed a matching
-   *    {@link module:crypto/store/base~OutgoingRoomKeyRequest}, or null if
+   *    {@link OutgoingRoomKeyRequest}, or null if
    *    not found.
    */
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -139,10 +135,10 @@ class Backend {
   /**
    * Look for room key requests by state
    *
-   * @param {Array<Number>} wantedStates list of acceptable states
+   * @param wantedStates - list of acceptable states
    *
-   * @return {Promise} resolves to the a
-   *    {@link module:crypto/store/base~OutgoingRoomKeyRequest}, or null if
+   * @returns resolves to the a
+   *    {@link OutgoingRoomKeyRequest}, or null if
    *    there are no pending requests in those states. If there are multiple
    *    requests in those states, an arbitrary one is chosen.
    */
@@ -186,8 +182,7 @@ class Backend {
 
   /**
    *
-   * @param {Number} wantedState
-   * @return {Promise<Array<*>>} All elements in a given state
+   * @returns All elements in a given state
    */
   getAllOutgoingRoomKeyRequestsByState(wantedState) {
     return new Promise((resolve, reject) => {
@@ -234,12 +229,12 @@ class Backend {
    * Look for an existing room key request by id and state, and update it if
    * found
    *
-   * @param {string} requestId      ID of request to update
-   * @param {number} expectedState  state we expect to find the request in
-   * @param {Object} updates        name/value map of updates to apply
+   * @param requestId -      ID of request to update
+   * @param expectedState -  state we expect to find the request in
+   * @param updates -        name/value map of updates to apply
    *
-   * @returns {Promise} resolves to
-   *    {@link module:crypto/store/base~OutgoingRoomKeyRequest}
+   * @returns resolves to
+   *    {@link OutgoingRoomKeyRequest}
    *    updated request, or null if no matching row was found
    */
   updateOutgoingRoomKeyRequest(requestId, expectedState, updates) {
@@ -268,10 +263,10 @@ class Backend {
    * Look for an existing room key request by id and state, and delete it if
    * found
    *
-   * @param {string} requestId      ID of request to update
-   * @param {number} expectedState  state we expect to find the request in
+   * @param requestId -      ID of request to update
+   * @param expectedState -  state we expect to find the request in
    *
-   * @returns {Promise} resolves once the operation is completed
+   * @returns resolves once the operation is completed
    */
   deleteOutgoingRoomKeyRequest(requestId, expectedState) {
     const txn = this.db.transaction("outgoingRoomKeyRequests", "readwrite");
@@ -561,7 +556,7 @@ class Backend {
       session: sessionData
     });
     addReq.onerror = ev => {
-      if (addReq.error?.name === 'ConstraintError') {
+      if (addReq.error?.name === "ConstraintError") {
         // This stops the error from triggering the txn's onerror
         ev.stopPropagation();
         // ...and this stops it from aborting the transaction

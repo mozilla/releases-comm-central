@@ -33,6 +33,8 @@ exports.Feature = Feature;
   Feature["Thread"] = "Thread";
   Feature["ThreadUnreadNotifications"] = "ThreadUnreadNotifications";
   Feature["LoginTokenRequest"] = "LoginTokenRequest";
+  Feature["RelationBasedRedactions"] = "RelationBasedRedactions";
+  Feature["AccountDataDeletion"] = "AccountDataDeletion";
 })(Feature || (exports.Feature = Feature = {}));
 const featureSupportResolver = {
   [Feature.Thread]: {
@@ -45,6 +47,12 @@ const featureSupportResolver = {
   },
   [Feature.LoginTokenRequest]: {
     unstablePrefixes: ["org.matrix.msc3882"]
+  },
+  [Feature.RelationBasedRedactions]: {
+    unstablePrefixes: ["org.matrix.msc3912"]
+  },
+  [Feature.AccountDataDeletion]: {
+    unstablePrefixes: ["org.matrix.msc3391"]
   }
 };
 async function buildFeatureSupportMap(versions) {

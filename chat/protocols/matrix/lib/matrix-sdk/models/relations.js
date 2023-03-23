@@ -9,7 +9,9 @@ var _logger = require("../logger");
 var _event2 = require("../@types/event");
 var _typedEventEmitter = require("./typed-event-emitter");
 var _room = require("./room");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 let RelationsEvent;
 exports.RelationsEvent = RelationsEvent;
 (function (RelationsEvent) {
@@ -17,6 +19,8 @@ exports.RelationsEvent = RelationsEvent;
   RelationsEvent["Remove"] = "Relations.remove";
   RelationsEvent["Redaction"] = "Relations.redaction";
 })(RelationsEvent || (exports.RelationsEvent = RelationsEvent = {}));
+const matchesEventType = (eventType, targetEventType, altTargetEventTypes = []) => [targetEventType, ...altTargetEventTypes].includes(eventType);
+
 /**
  * A container for relation events that supports easy access to common ways of
  * aggregating such events. Each instance holds events that of a single relation
@@ -27,18 +31,16 @@ exports.RelationsEvent = RelationsEvent;
  */
 class Relations extends _typedEventEmitter.TypedEventEmitter {
   /**
-   * @param {RelationType} relationType
-   * The type of relation involved, such as "m.annotation", "m.reference",
-   * "m.replace", etc.
-   * @param {String} eventType
-   * The relation event's type, such as "m.reaction", etc.
-   * @param {MatrixClient|Room} client
-   * The client which created this instance. For backwards compatibility also accepts a Room.
+   * @param relationType - The type of relation involved, such as "m.annotation", "m.reference", "m.replace", etc.
+   * @param eventType - The relation event's type, such as "m.reaction", etc.
+   * @param client - The client which created this instance. For backwards compatibility also accepts a Room.
+   * @param altEventTypes - alt event types for relation events, for example to support unstable prefixed event types
    */
-  constructor(relationType, eventType, client) {
+  constructor(relationType, eventType, client, altEventTypes) {
     super();
     this.relationType = relationType;
     this.eventType = eventType;
+    this.altEventTypes = altEventTypes;
     _defineProperty(this, "relationEventIds", new Set());
     _defineProperty(this, "relations", new Set());
     _defineProperty(this, "annotationsByKey", {});
@@ -81,8 +83,7 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Add relation events to this collection.
    *
-   * @param {MatrixEvent} event
-   * The new relation event to be added.
+   * @param event - The new relation event to be added.
    */
   async addEvent(event) {
     if (this.relationEventIds.has(event.getId())) {
@@ -95,7 +96,7 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
     }
     const relationType = relation.rel_type;
     const eventType = event.getType();
-    if (this.relationType !== relationType || this.eventType !== eventType) {
+    if (this.relationType !== relationType || !matchesEventType(eventType, this.eventType, this.altEventTypes)) {
       _logger.logger.error("Event relation info doesn't match this container");
       return;
     }
@@ -121,22 +122,10 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Remove relation event from this collection.
    *
-   * @param {MatrixEvent} event
-   * The relation event to remove.
+   * @param event - The relation event to remove.
    */
   async removeEvent(event) {
     if (!this.relations.has(event)) {
-      return;
-    }
-    const relation = event.getRelation();
-    if (!relation) {
-      _logger.logger.error("Event must have relation info");
-      return;
-    }
-    const relationType = relation.rel_type;
-    const eventType = event.getType();
-    if (this.relationType !== relationType || this.eventType !== eventType) {
-      _logger.logger.error("Event relation info doesn't match this container");
       return;
     }
     this.relations.delete(event);
@@ -152,8 +141,8 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Listens for event status changes to remove cancelled events.
    *
-   * @param {MatrixEvent} event The event whose status has changed
-   * @param {EventStatus} status The new status
+   * @param event - The event whose status has changed
+   * @param status - The new status
    */
 
   /**
@@ -163,7 +152,6 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
    * won't match timeline order in the case of scrollback.
    * TODO: Tweak `addEvent` to insert correctly for scrollback.
    *
-   * @return {Array}
    * Relation events in insertion order.
    */
   getRelations() {
@@ -226,8 +214,7 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
    *   - after the server accepted the redaction and remote echoed back to us
    *   - before the original event has been marked redacted in the client
    *
-   * @param {MatrixEvent} redactedEvent
-   * The original relation event that is about to be redacted.
+   * @param redactedEvent - The original relation event that is about to be redacted.
    */
 
   /**
@@ -236,7 +223,6 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
    *
    * This is currently only supported for the annotation relation type.
    *
-   * @return {Array}
    * An array of [key, events] pairs sorted by descending event count.
    * The events are stored in a Set (which preserves insertion order).
    */
@@ -253,7 +239,6 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
    *
    * This is currently only supported for the annotation relation type.
    *
-   * @return {Object}
    * An object with each relation sender as a key and the matching Set of
    * events for that sender as a value.
    */
@@ -270,8 +255,6 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
    *
    * This is currently only supported for the m.replace relation type,
    * once the target event is known, see `addEvent`.
-   *
-   * @return {MatrixEvent?}
    */
   async getLastReplacement() {
     if (this.relationType !== _event2.RelationType.Replace) {
@@ -310,7 +293,7 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /*
-   * @param {MatrixEvent} targetEvent the event the relations are related to.
+   * @param targetEvent - the event the relations are related to.
    */
   async setTargetEvent(event) {
     if (this.targetEvent) {

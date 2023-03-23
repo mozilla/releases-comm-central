@@ -11,7 +11,9 @@ var _logger = require("../../logger");
 var _SASDecimal = require("./SASDecimal");
 var _event = require("../../@types/event");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 const START_TYPE = _event.EventType.KeyVerificationStart;
 const EVENTS = [_event.EventType.KeyVerificationAccept, _event.EventType.KeyVerificationKey, _event.EventType.KeyVerificationMac];
 let olmutil;
@@ -160,7 +162,8 @@ function generateSas(sasBytes, methods) {
   const sas = {};
   for (const method of methods) {
     if (method in sasGenerators) {
-      sas[method] = sasGenerators[method](sasBytes);
+      // @ts-ignore - ts doesn't like us mixing types like this
+      sas[method] = sasGenerators[method](Array.from(sasBytes));
     }
   }
   return sas;
@@ -168,13 +171,13 @@ function generateSas(sasBytes, methods) {
 const macMethods = {
   "hkdf-hmac-sha256": "calculate_mac",
   "org.matrix.msc3783.hkdf-hmac-sha256": "calculate_mac_fixed_base64",
+  "hkdf-hmac-sha256.v2": "calculate_mac_fixed_base64",
   "hmac-sha256": "calculate_mac_long_kdf"
 };
 function calculateMAC(olmSAS, method) {
-  return function (...args) {
-    const macFunction = olmSAS[macMethods[method]];
-    const mac = macFunction.apply(olmSAS, args);
-    _logger.logger.log("SAS calculateMAC:", method, args, mac);
+  return function (input, info) {
+    const mac = olmSAS[macMethods[method]](input, info);
+    _logger.logger.log("SAS calculateMAC:", method, [input, info], mac);
     return mac;
   };
 }
@@ -193,14 +196,13 @@ const calculateKeyAgreement = {
     return olmSAS.generate_bytes(sasInfo, bytes);
   }
 };
-
 /* lists of algorithms/methods that are supported.  The key agreement, hashes,
  * and MAC lists should be sorted in order of preference (most preferred
  * first).
  */
 const KEY_AGREEMENT_LIST = ["curve25519-hkdf-sha256", "curve25519"];
 const HASHES_LIST = ["sha256"];
-const MAC_LIST = ["org.matrix.msc3783.hkdf-hmac-sha256", "hkdf-hmac-sha256", "hmac-sha256"];
+const MAC_LIST = ["hkdf-hmac-sha256.v2", "org.matrix.msc3783.hkdf-hmac-sha256", "hkdf-hmac-sha256", "hmac-sha256"];
 const SAS_LIST = Object.keys(sasGenerators);
 const KEY_AGREEMENT_SET = new Set(KEY_AGREEMENT_LIST);
 const HASHES_SET = new Set(HASHES_LIST);
@@ -214,10 +216,6 @@ exports.SasEvent = SasEvent;
 (function (SasEvent) {
   SasEvent["ShowSas"] = "show_sas";
 })(SasEvent || (exports.SasEvent = SasEvent = {}));
-/**
- * @alias module:crypto/verification/SAS
- * @extends {module:crypto/verification/Base}
- */
 class SAS extends _Base.VerificationBase {
   constructor(...args) {
     super(...args);

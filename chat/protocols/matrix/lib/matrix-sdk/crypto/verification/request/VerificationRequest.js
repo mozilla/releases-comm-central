@@ -9,7 +9,9 @@ var _Error = require("../Error");
 var _QRCode = require("../QRCode");
 var _event = require("../../../@types/event");
 var _typedEventEmitter = require("../../../models/typed-event-emitter");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 // How long after the event's timestamp that the request times out
 const TIMEOUT_FROM_EVENT_TS = 10 * 60 * 1000; // 10 minutes
 
@@ -65,7 +67,6 @@ exports.VerificationRequestEvent = VerificationRequestEvent;
  * State machine for verification requests.
  * Things that differ based on what channel is used to
  * send and receive verification events are put in `InRoomChannel` or `ToDeviceChannel`.
- * @event "change" whenever the state of the request object has changed.
  */
 class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
   // we keep a copy of the QR Code data (including other user master key) around
@@ -121,10 +122,10 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Stateless validation logic not specific to the channel.
    * Invoked by the same static method in either channel.
-   * @param {string} type the "symbolic" event type, as returned by the `getEventType` function on the channel.
-   * @param {MatrixEvent} event the event to validate. Don't call getType() on it but use the `type` parameter instead.
-   * @param {MatrixClient} client the client to get the current user and device id from
-   * @returns {boolean} whether the event is valid and should be passed to handleEvent
+   * @param type - the "symbolic" event type, as returned by the `getEventType` function on the channel.
+   * @param event - the event to validate. Don't call getType() on it but use the `type` parameter instead.
+   * @param client - the client to get the current user and device id from
+   * @returns whether the event is valid and should be passed to handleEvent
    */
   static validateEvent(type, event, client) {
     const content = event.getContent();
@@ -210,7 +211,7 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
 
   /**
    * The key verification request event.
-   * @returns {MatrixEvent} The request event, or falsey if not found.
+   * @returns The request event, or falsey if not found.
    */
   get requestEvent() {
     return this.getEventByEither(REQUEST_TYPE);
@@ -249,9 +250,9 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
    *  This is useful when setting up the QR code UI, as it is somewhat asymmetrical:
    *  if the other party supports SCAN_QR, we should show a QR code in the UI, and vice versa.
    *  For methods that need to be supported by both ends, use the `methods` property.
-   *  @param {string} method the method to check
-   *  @param {boolean} force to check even if the phase is not ready or started yet, internal usage
-   *  @return {boolean} whether or not the other party said the supported the method */
+   *  @param method - the method to check
+   *  @param force - to check even if the phase is not ready or started yet, internal usage
+   *  @returns whether or not the other party said the supported the method */
   otherPartySupportsMethod(method, force = false) {
     if (!force && !this.ready && !this.started) {
       return false;
@@ -366,7 +367,7 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
    * given the events sent so far in the verification. This is the
    * same algorithm used to determine which device to send the
    * verification to when no specific device is specified.
-   * @returns {{userId: *, deviceId: *}} The device information
+   * @returns The device information
    */
   get targetDevice() {
     const theirFirstEvent = this.eventsByThem.get(REQUEST_TYPE) || this.eventsByThem.get(READY_TYPE) || this.eventsByThem.get(START_TYPE);
@@ -380,10 +381,10 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
 
   /* Start the key verification, creating a verifier and sending a .start event.
    * If no previous events have been sent, pass in `targetDevice` to set who to direct this request to.
-   * @param {string} method the name of the verification method to use.
-   * @param {string?} targetDevice.userId the id of the user to direct this request to
-   * @param {string?} targetDevice.deviceId the id of the device to direct this request to
-   * @returns {VerifierBase} the verifier of the given method
+   * @param method - the name of the verification method to use.
+   * @param targetDevice.userId the id of the user to direct this request to
+   * @param targetDevice.deviceId the id of the device to direct this request to
+   * @returns the verifier of the given method
    */
   beginKeyVerification(method, targetDevice = null) {
     // need to allow also when unsent in case of to_device
@@ -407,7 +408,7 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
 
   /**
    * sends the initial .request event.
-   * @returns {Promise} resolves when the event has been sent.
+   * @returns resolves when the event has been sent.
    */
   async sendRequest() {
     if (!this.observeOnly && this._phase === PHASE_UNSENT) {
@@ -420,9 +421,9 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
 
   /**
    * Cancels the request, sending a cancellation to the other party
-   * @param {string?} error.reason the error reason to send the cancellation with
-   * @param {string?} error.code the error code to send the cancellation with
-   * @returns {Promise} resolves when the event has been sent.
+   * @param reason - the error reason to send the cancellation with
+   * @param code - the error code to send the cancellation with
+   * @returns resolves when the event has been sent.
    */
   async cancel({
     reason = "User declined",
@@ -445,7 +446,7 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
 
   /**
    * Accepts the request, sending a .ready event to the other party
-   * @returns {Promise} resolves when the event has been sent.
+   * @returns resolves when the event has been sent.
    */
   async accept() {
     if (!this.observeOnly && this.phase === PHASE_REQUESTED && !this.initiatedByMe) {
@@ -460,10 +461,10 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
 
   /**
    * Can be used to listen for state changes until the callback returns true.
-   * @param {Function} fn callback to evaluate whether the request is in the desired state.
+   * @param fn - callback to evaluate whether the request is in the desired state.
    *                      Takes the request as an argument.
-   * @returns {Promise} that resolves once the callback returns true
-   * @throws {Error} when the request is cancelled
+   * @returns that resolves once the callback returns true
+   * @throws Error when the request is cancelled
    */
   waitFor(fn) {
     return new Promise((resolve, reject) => {
@@ -662,13 +663,13 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
 
   /**
    * Changes the state of the request and verifier in response to a key verification event.
-   * @param {string} type the "symbolic" event type, as returned by the `getEventType` function on the channel.
-   * @param {MatrixEvent} event the event to handle. Don't call getType() on it but use the `type` parameter instead.
-   * @param {boolean} isLiveEvent whether this is an even received through sync or not
-   * @param {boolean} isRemoteEcho whether this is the remote echo of an event sent by the same device
-   * @param {boolean} isSentByUs whether this event is sent by a party that can accept and/or observe the request like one of our peers.
+   * @param type - the "symbolic" event type, as returned by the `getEventType` function on the channel.
+   * @param event - the event to handle. Don't call getType() on it but use the `type` parameter instead.
+   * @param isLiveEvent - whether this is an even received through sync or not
+   * @param isRemoteEcho - whether this is the remote echo of an event sent by the same device
+   * @param isSentByUs - whether this event is sent by a party that can accept and/or observe the request like one of our peers.
    *   For InRoomChannel this means any device for the syncing user. For ToDeviceChannel, just the syncing device.
-   * @returns {Promise} a promise that resolves when any requests as an answer to the passed-in event are sent.
+   * @returns a promise that resolves when any requests as an answer to the passed-in event are sent.
    */
   async handleEvent(type, event, isLiveEvent, isRemoteEcho, isSentByUs) {
     // if reached phase cancelled or done, ignore anything else that comes

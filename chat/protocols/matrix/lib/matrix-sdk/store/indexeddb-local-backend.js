@@ -10,7 +10,9 @@ var IndexedDBHelpers = _interopRequireWildcard(require("../indexeddb-helpers"));
 var _logger = require("../logger");
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 const DB_MIGRATIONS = [db => {
   // Make user store, clobber based on user ID. (userId property of User objects)
   db.createObjectStore("users", {
@@ -48,12 +50,12 @@ const VERSION = DB_MIGRATIONS.length;
 
 /**
  * Helper method to collect results from a Cursor and promiseify it.
- * @param {ObjectStore|Index} store The store to perform openCursor on.
- * @param {IDBKeyRange=} keyRange Optional key range to apply on the cursor.
- * @param {Function} resultMapper A function which is repeatedly called with a
+ * @param store - The store to perform openCursor on.
+ * @param keyRange - Optional key range to apply on the cursor.
+ * @param resultMapper - A function which is repeatedly called with a
  * Cursor.
  * Return the data you want to keep.
- * @return {Promise<T[]>} Resolves to an array of whatever you returned from
+ * @returns Promise which resolves to an array of whatever you returned from
  * resultMapper.
  */
 function selectQuery(store, keyRange, resultMapper) {
@@ -114,11 +116,10 @@ class LocalIndexedDBStoreBackend {
    * Does the actual reading from and writing to the indexeddb
    *
    * Construct a new Indexed Database store backend. This requires a call to
-   * <code>connect()</code> before this store can be used.
-   * @constructor
-   * @param {Object} indexedDB The Indexed DB interface e.g
-   * <code>window.indexedDB</code>
-   * @param {string=} dbName Optional database name. The same name must be used
+   * `connect()` before this store can be used.
+   * @param indexedDB - The Indexed DB interface e.g
+   * `window.indexedDB`
+   * @param dbName - Optional database name. The same name must be used
    * to open the same database.
    */
   constructor(indexedDB, dbName = "default") {
@@ -137,7 +138,7 @@ class LocalIndexedDBStoreBackend {
   /**
    * Attempt to connect to the database. This can fail if the user does not
    * grant permission.
-   * @return {Promise} Resolves if successfully connected.
+   * @returns Promise which resolves if successfully connected.
    */
   connect() {
     if (!this.disconnected) {
@@ -163,7 +164,7 @@ class LocalIndexedDBStoreBackend {
       _logger.logger.log(`can't yet open LocalIndexedDBStoreBackend because it is open elsewhere`);
     };
     _logger.logger.log(`LocalIndexedDBStoreBackend.connect: awaiting connection...`);
-    return reqAsEventPromise(req).then(() => {
+    return reqAsEventPromise(req).then(async () => {
       _logger.logger.log(`LocalIndexedDBStoreBackend.connect: connected`);
       this.db = req.result;
 
@@ -172,18 +173,18 @@ class LocalIndexedDBStoreBackend {
       this.db.onversionchange = () => {
         this.db?.close();
       };
-      return this.init();
+      await this.init();
     });
   }
 
-  /** @return {boolean} whether or not the database was newly created in this session. */
+  /** @returns whether or not the database was newly created in this session. */
   isNewlyCreated() {
     return Promise.resolve(this._isNewlyCreated);
   }
 
   /**
    * Having connected, load initial data from the database and prepare for use
-   * @return {Promise} Resolves on success
+   * @returns Promise which resolves on success
    */
   init() {
     return Promise.all([this.loadAccountData(), this.loadSyncData()]).then(([accountData, syncData]) => {
@@ -201,9 +202,8 @@ class LocalIndexedDBStoreBackend {
   /**
    * Returns the out-of-band membership events for this room that
    * were previously loaded.
-   * @param {string} roomId
-   * @returns {Promise<event[]>} the events, potentially an empty array if OOB loading didn't yield any new members
-   * @returns {null} in case the members for this room haven't been stored yet
+   * @returns the events, potentially an empty array if OOB loading didn't yield any new members
+   * @returns in case the members for this room haven't been stored yet
    */
   getOutOfBandMembers(roomId) {
     return new Promise((resolve, reject) => {
@@ -249,8 +249,7 @@ class LocalIndexedDBStoreBackend {
    * Stores the out-of-band membership events for this room. Note that
    * it still makes sense to store an empty array as the OOB status for the room is
    * marked as fetched, and getOutOfBandMembers will return an empty array instead of null
-   * @param {string} roomId
-   * @param {event[]} membershipEvents the membership events to store
+   * @param membershipEvents - the membership events to store
    */
   async setOutOfBandMembers(roomId, membershipEvents) {
     _logger.logger.log(`LL: backend about to store ${membershipEvents.length}` + ` members for ${roomId}`);
@@ -284,8 +283,8 @@ class LocalIndexedDBStoreBackend {
     const store = readTx.objectStore("oob_membership_events");
     const roomIndex = store.index("room");
     const roomRange = IDBKeyRange.only(roomId);
-    const minStateKeyProm = reqAsCursorPromise(roomIndex.openKeyCursor(roomRange, "next")).then(cursor => cursor && cursor.primaryKey[1]);
-    const maxStateKeyProm = reqAsCursorPromise(roomIndex.openKeyCursor(roomRange, "prev")).then(cursor => cursor && cursor.primaryKey[1]);
+    const minStateKeyProm = reqAsCursorPromise(roomIndex.openKeyCursor(roomRange, "next")).then(cursor => (cursor?.primaryKey)[1]);
+    const maxStateKeyProm = reqAsCursorPromise(roomIndex.openKeyCursor(roomRange, "prev")).then(cursor => (cursor?.primaryKey)[1]);
     const [minStateKey, maxStateKey] = await Promise.all([minStateKeyProm, maxStateKeyProm]);
     const writeTx = this.db.transaction(["oob_membership_events"], "readwrite");
     const writeStore = writeTx.objectStore("oob_membership_events");
@@ -297,7 +296,7 @@ class LocalIndexedDBStoreBackend {
   /**
    * Clear the entire database. This should be used when logging out of a client
    * to prevent mixing data between accounts.
-   * @return {Promise} Resolved when the database is cleared.
+   * @returns Resolved when the database is cleared.
    */
   clearDatabase() {
     return new Promise(resolve => {
@@ -321,11 +320,11 @@ class LocalIndexedDBStoreBackend {
   }
 
   /**
-   * @param {boolean=} copy If false, the data returned is from internal
+   * @param copy - If false, the data returned is from internal
    * buffers and must not be mutated. Otherwise, a copy is made before
    * returning such that the data can be safely mutated. Default: true.
    *
-   * @return {Promise} Resolves with a sync response to restore the
+   * @returns Promise which resolves with a sync response to restore the
    * client state to where it was at the last save, or null if there
    * is no saved sync data.
    */
@@ -367,9 +366,9 @@ class LocalIndexedDBStoreBackend {
 
   /**
    * Persist rooms /sync data along with the next batch token.
-   * @param {string} nextBatch The next_batch /sync value.
-   * @param {Object} roomsData The 'rooms' /sync data from a SyncAccumulator
-   * @return {Promise} Resolves if the data was persisted.
+   * @param nextBatch - The next_batch /sync value.
+   * @param roomsData - The 'rooms' /sync data from a SyncAccumulator
+   * @returns Promise which resolves if the data was persisted.
    */
   persistSyncData(nextBatch, roomsData) {
     _logger.logger.log("Persisting sync data up to", nextBatch);
@@ -391,15 +390,15 @@ class LocalIndexedDBStoreBackend {
   /**
    * Persist a list of account data events. Events with the same 'type' will
    * be replaced.
-   * @param {Object[]} accountData An array of raw user-scoped account data events
-   * @return {Promise} Resolves if the events were persisted.
+   * @param accountData - An array of raw user-scoped account data events
+   * @returns Promise which resolves if the events were persisted.
    */
   persistAccountData(accountData) {
     return utils.promiseTry(() => {
       const txn = this.db.transaction(["accountData"], "readwrite");
       const store = txn.objectStore("accountData");
-      for (let i = 0; i < accountData.length; i++) {
-        store.put(accountData[i]); // put == UPSERT
+      for (const event of accountData) {
+        store.put(event); // put == UPSERT
       }
 
       return txnAsPromise(txn).then();
@@ -411,8 +410,8 @@ class LocalIndexedDBStoreBackend {
    * Users with the same 'userId' will be replaced.
    * Presence events should be the event in its raw form (not the Event
    * object)
-   * @param {Object[]} tuples An array of [userid, event] tuples
-   * @return {Promise} Resolves if the users were persisted.
+   * @param tuples - An array of [userid, event] tuples
+   * @returns Promise which resolves if the users were persisted.
    */
   persistUserPresenceEvents(tuples) {
     return utils.promiseTry(() => {
@@ -433,7 +432,7 @@ class LocalIndexedDBStoreBackend {
    * Load all user presence events from the database. This is not cached.
    * FIXME: It would probably be more sensible to store the events in the
    * sync.
-   * @return {Promise<Object[]>} A list of presence events in their raw form.
+   * @returns A list of presence events in their raw form.
    */
   getUserPresenceEvents() {
     return utils.promiseTry(() => {
@@ -447,7 +446,7 @@ class LocalIndexedDBStoreBackend {
 
   /**
    * Load all the account data events from the database. This is not cached.
-   * @return {Promise<Object[]>} A list of raw global account events.
+   * @returns A list of raw global account events.
    */
   loadAccountData() {
     _logger.logger.log(`LocalIndexedDBStoreBackend: loading account data...`);
@@ -465,7 +464,7 @@ class LocalIndexedDBStoreBackend {
 
   /**
    * Load the sync data from the database.
-   * @return {Promise<Object>} An object with "roomsData" and "nextBatch" keys.
+   * @returns An object with "roomsData" and "nextBatch" keys.
    */
   loadSyncData() {
     _logger.logger.log(`LocalIndexedDBStoreBackend: loading sync data...`);

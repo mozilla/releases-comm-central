@@ -69,10 +69,10 @@ class IgnoredInvites {
   /**
    * Add a new rule.
    *
-   * @param scope The scope for this rule.
-   * @param entity The entity covered by this rule. Globs are supported.
-   * @param reason A human-readable reason for introducing this new rule.
-   * @return The event id for the new rule.
+   * @param scope - The scope for this rule.
+   * @param entity - The entity covered by this rule. Globs are supported.
+   * @param reason - A human-readable reason for introducing this new rule.
+   * @returns The event id for the new rule.
    */
   async addRule(scope, entity, reason) {
     const target = await this.getOrCreateTargetRoom();
@@ -95,9 +95,9 @@ class IgnoredInvites {
    * Add a new room to the list of sources. If the user isn't a member of the
    * room, attempt to join it.
    *
-   * @param roomId A valid room id. If this room is already in the list
+   * @param roomId - A valid room id. If this room is already in the list
    * of sources, it will not be duplicated.
-   * @return `true` if the source was added, `false` if it was already present.
+   * @returns `true` if the source was added, `false` if it was already present.
    * @throws If `roomId` isn't the id of a room that the current user is already
    * member of or can join.
    *
@@ -129,8 +129,8 @@ class IgnoredInvites {
   /**
    * Find out whether an invite should be ignored.
    *
-   * @param sender The user id for the user who issued the invite.
-   * @param roomId The room to which the user is invited.
+   * @param sender - The user id for the user who issued the invite.
+   * @param roomId - The room to which the user is invited.
    * @returns A rule matching the entity, if any was found, `null` otherwise.
    */
   async getRuleForInvite({

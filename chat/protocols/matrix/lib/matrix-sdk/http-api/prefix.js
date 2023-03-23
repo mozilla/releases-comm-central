@@ -30,7 +30,6 @@ exports.ClientPrefix = ClientPrefix;
 let IdentityPrefix;
 exports.IdentityPrefix = IdentityPrefix;
 (function (IdentityPrefix) {
-  IdentityPrefix["V1"] = "/_matrix/identity/api/v1";
   IdentityPrefix["V2"] = "/_matrix/identity/v2";
 })(IdentityPrefix || (exports.IdentityPrefix = IdentityPrefix = {}));
 let MediaPrefix;

@@ -8,11 +8,10 @@ var _sync = require("./@types/sync");
 var _filterComponent = require("./filter-component");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /**
- * @param {Object} obj
- * @param {string} keyNesting
- * @param {*} val
  */
 function setProp(obj, keyNesting, val) {
   const nestedKeys = keyNesting.split(".");
@@ -30,28 +29,20 @@ function setProp(obj, keyNesting, val) {
 
 /* eslint-enable camelcase */
 
-/**
- * Construct a new Filter.
- * @constructor
- * @param {string} userId The user ID for this filter.
- * @param {string=} filterId The filter ID if known.
- * @prop {string} userId The user ID of the filter
- * @prop {?string} filterId The filter ID
- */
 class Filter {
   /**
    * Create a filter from existing data.
-   * @static
-   * @param {string} userId
-   * @param {string} filterId
-   * @param {Object} jsonObj
-   * @return {Filter}
    */
   static fromJson(userId, filterId, jsonObj) {
     const filter = new Filter(userId, filterId);
     filter.setDefinition(jsonObj);
     return filter;
   }
+  /**
+   * Construct a new Filter.
+   * @param userId - The user ID for this filter.
+   * @param filterId - The filter ID if known.
+   */
   constructor(userId, filterId) {
     this.userId = userId;
     this.filterId = filterId;
@@ -62,7 +53,7 @@ class Filter {
 
   /**
    * Get the ID of this filter on your homeserver (if known)
-   * @return {?string} The filter ID
+   * @returns The filter ID
    */
   getFilterId() {
     return this.filterId;
@@ -70,7 +61,7 @@ class Filter {
 
   /**
    * Get the JSON body of the filter.
-   * @return {Object} The filter definition
+   * @returns The filter definition
    */
   getDefinition() {
     return this.definition;
@@ -78,7 +69,7 @@ class Filter {
 
   /**
    * Set the JSON body of the filter
-   * @param {Object} definition The filter definition
+   * @param definition - The filter definition
    */
   setDefinition(definition) {
     this.definition = definition;
@@ -146,7 +137,7 @@ class Filter {
 
   /**
    * Get the room.timeline filter component of the filter
-   * @return {FilterComponent} room timeline filter component
+   * @returns room timeline filter component
    */
   getRoomTimelineFilterComponent() {
     return this.roomTimelineFilter;
@@ -155,8 +146,8 @@ class Filter {
   /**
    * Filter the list of events based on whether they are allowed in a timeline
    * based on this filter
-   * @param {MatrixEvent[]} events  the list of events being filtered
-   * @return {MatrixEvent[]} the list of events which match the filter
+   * @param events -  the list of events being filtered
+   * @returns the list of events which match the filter
    */
   filterRoomTimeline(events) {
     if (this.roomFilter) {
@@ -170,7 +161,7 @@ class Filter {
 
   /**
    * Set the max number of events to return for each room's timeline.
-   * @param {Number} limit The max number of events to return for each room.
+   * @param limit - The max number of events to return for each room.
    */
   setTimelineLimit(limit) {
     setProp(this.definition, "room.timeline.limit", limit);
@@ -178,7 +169,6 @@ class Filter {
 
   /**
    * Enable threads unread notification
-   * @param {boolean} enabled
    */
   setUnreadThreadNotifications(enabled) {
     this.definition = _objectSpread(_objectSpread({}, this.definition), {}, {
@@ -195,7 +185,7 @@ class Filter {
 
   /**
    * Control whether left rooms should be included in responses.
-   * @param {boolean} includeLeave True to make rooms the user has left appear
+   * @param includeLeave - True to make rooms the user has left appear
    * in responses.
    */
   setIncludeLeaveRooms(includeLeave) {

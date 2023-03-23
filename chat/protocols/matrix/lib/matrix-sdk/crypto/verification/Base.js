@@ -11,7 +11,9 @@ var _deviceinfo = require("../deviceinfo");
 var _Error = require("./Error");
 var _CrossSigning = require("../CrossSigning");
 var _typedEventEmitter = require("../../models/typed-event-emitter");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 const timeoutException = new Error("Verification timed out");
 class SwitchStartEventError extends Error {
   constructor(startEvent) {
@@ -36,21 +38,19 @@ class VerificationBase extends _typedEventEmitter.TypedEventEmitter {
    *
    * <p>Subclasses must have a NAME class property.</p>
    *
-   * @class
-   *
-   * @param {Object} channel the verification channel to send verification messages over.
+   * @param channel - the verification channel to send verification messages over.
    * TODO: Channel types
    *
-   * @param {MatrixClient} baseApis base matrix api interface
+   * @param baseApis - base matrix api interface
    *
-   * @param {string} userId the user ID that is being verified
+   * @param userId - the user ID that is being verified
    *
-   * @param {string} deviceId the device ID that is being verified
+   * @param deviceId - the device ID that is being verified
    *
-   * @param {object} [startEvent] the m.key.verification.start event that
+   * @param startEvent - the m.key.verification.start event that
    * initiated this verification, if any
    *
-   * @param {object} [request] the key verification request object related to
+   * @param request - the key verification request object related to
    * this verification, if any
    */
   constructor(channel, baseApis, userId, deviceId, startEvent, request) {
@@ -238,7 +238,7 @@ class VerificationBase extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Begin the key verification
    *
-   * @returns {Promise} Promise which resolves when the verification has
+   * @returns Promise which resolves when the verification has
    *     completed.
    */
   verify() {
@@ -274,7 +274,7 @@ class VerificationBase extends _typedEventEmitter.TypedEventEmitter {
     // about, and ignore the rest
     const verifiedDevices = [];
     for (const [keyId, keyInfo] of Object.entries(keys)) {
-      const deviceId = keyId.split(':', 2)[1];
+      const deviceId = keyId.split(":", 2)[1];
       const device = this.baseApis.getStoredDevice(userId, deviceId);
       if (device) {
         verifier(keyId, device, keyInfo);

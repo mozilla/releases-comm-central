@@ -54,14 +54,14 @@ async function deriveKey(password, salt, iterations, numBits = DEFAULT_BITSIZE) 
   if (!_crypto.subtleCrypto || !_crypto.TextEncoder) {
     throw new Error("Password-based backup is not available on this platform");
   }
-  const key = await _crypto.subtleCrypto.importKey('raw', new _crypto.TextEncoder().encode(password), {
-    name: 'PBKDF2'
-  }, false, ['deriveBits']);
+  const key = await _crypto.subtleCrypto.importKey("raw", new _crypto.TextEncoder().encode(password), {
+    name: "PBKDF2"
+  }, false, ["deriveBits"]);
   const keybits = await _crypto.subtleCrypto.deriveBits({
-    name: 'PBKDF2',
+    name: "PBKDF2",
     salt: new _crypto.TextEncoder().encode(salt),
     iterations: iterations,
-    hash: 'SHA-512'
+    hash: "SHA-512"
   }, key, numBits);
   return new Uint8Array(keybits);
 }

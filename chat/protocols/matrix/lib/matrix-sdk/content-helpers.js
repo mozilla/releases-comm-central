@@ -12,19 +12,21 @@ exports.makeLocationContent = void 0;
 exports.makeNotice = makeNotice;
 exports.makeTextMessage = makeTextMessage;
 exports.parseTopicContent = exports.parseLocationEvent = exports.parseBeaconInfoContent = exports.parseBeaconContent = exports.makeTopicContent = void 0;
-var _matrixEventsSdk = require("matrix-events-sdk");
 var _event = require("./@types/event");
 var _extensible_events = require("./@types/extensible_events");
+var _utilities = require("./extensible_events_v1/utilities");
 var _location = require("./@types/location");
 var _topic = require("./@types/topic");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /**
  * Generates the content for a HTML Message event
- * @param {string} body the plaintext body of the message
- * @param {string} htmlBody the HTML representation of the message
- * @returns {{msgtype: string, format: string, body: string, formatted_body: string}}
+ * @param body - the plaintext body of the message
+ * @param htmlBody - the HTML representation of the message
+ * @returns
  */
 function makeHtmlMessage(body, htmlBody) {
   return {
@@ -37,9 +39,9 @@ function makeHtmlMessage(body, htmlBody) {
 
 /**
  * Generates the content for a HTML Notice event
- * @param {string} body the plaintext body of the notice
- * @param {string} htmlBody the HTML representation of the notice
- * @returns {{msgtype: string, format: string, body: string, formatted_body: string}}
+ * @param body - the plaintext body of the notice
+ * @param htmlBody - the HTML representation of the notice
+ * @returns
  */
 function makeHtmlNotice(body, htmlBody) {
   return {
@@ -52,9 +54,9 @@ function makeHtmlNotice(body, htmlBody) {
 
 /**
  * Generates the content for a HTML Emote event
- * @param {string} body the plaintext body of the emote
- * @param {string} htmlBody the HTML representation of the emote
- * @returns {{msgtype: string, format: string, body: string, formatted_body: string}}
+ * @param body - the plaintext body of the emote
+ * @param htmlBody - the HTML representation of the emote
+ * @returns
  */
 function makeHtmlEmote(body, htmlBody) {
   return {
@@ -67,8 +69,8 @@ function makeHtmlEmote(body, htmlBody) {
 
 /**
  * Generates the content for a Plaintext Message event
- * @param {string} body the plaintext body of the emote
- * @returns {{msgtype: string, body: string}}
+ * @param body - the plaintext body of the emote
+ * @returns
  */
 function makeTextMessage(body) {
   return {
@@ -79,8 +81,8 @@ function makeTextMessage(body) {
 
 /**
  * Generates the content for a Plaintext Notice event
- * @param {string} body the plaintext body of the notice
- * @returns {{msgtype: string, body: string}}
+ * @param body - the plaintext body of the notice
+ * @returns
  */
 function makeNotice(body) {
   return {
@@ -91,8 +93,8 @@ function makeNotice(body) {
 
 /**
  * Generates the content for a Plaintext Emote event
- * @param {string} body the plaintext body of the emote
- * @returns {{msgtype: string, body: string}}
+ * @param body - the plaintext body of the emote
+ * @returns
  */
 function makeEmoteMessage(body) {
   return {
@@ -105,18 +107,18 @@ function makeEmoteMessage(body) {
 
 const getTextForLocationEvent = (uri, assetType, timestamp, description) => {
   const date = `at ${new Date(timestamp).toISOString()}`;
-  const assetName = assetType === _location.LocationAssetType.Self ? 'User' : undefined;
+  const assetName = assetType === _location.LocationAssetType.Self ? "User" : undefined;
   const quotedDescription = description ? `"${description}"` : undefined;
-  return [assetName, 'Location', quotedDescription, uri, date].filter(Boolean).join(' ');
+  return [assetName, "Location", quotedDescription, uri, date].filter(Boolean).join(" ");
 };
 
 /**
  * Generates the content for a Location event
- * @param uri a geo:// uri for the location
- * @param timestamp the timestamp when the location was correct (milliseconds since the UNIX epoch)
- * @param description the (optional) label for this location on the map
- * @param assetType the (optional) asset type of this location e.g. "m.self"
- * @param text optional. A text for the location
+ * @param uri - a geo:// uri for the location
+ * @param timestamp - the timestamp when the location was correct (milliseconds since the UNIX epoch)
+ * @param description - the (optional) label for this location on the map
+ * @param assetType - the (optional) asset type of this location e.g. "m.self"
+ * @param text - optional. A text for the location
  */
 exports.getTextForLocationEvent = getTextForLocationEvent;
 const makeLocationContent = (text, uri, timestamp, description, assetType) => {
@@ -135,7 +137,7 @@ const makeLocationContent = (text, uri, timestamp, description, assetType) => {
     [_location.M_ASSET.name]: {
       type: assetType || _location.LocationAssetType.Self
     },
-    [_extensible_events.TEXT_NODE_TYPE.name]: defaultedText
+    [_extensible_events.M_TEXT.name]: defaultedText
   }, timestampEvent);
 };
 
@@ -148,12 +150,12 @@ const parseLocationEvent = wireEventContent => {
   const location = _location.M_LOCATION.findIn(wireEventContent);
   const asset = _location.M_ASSET.findIn(wireEventContent);
   const timestamp = _location.M_TIMESTAMP.findIn(wireEventContent);
-  const text = _extensible_events.TEXT_NODE_TYPE.findIn(wireEventContent);
+  const text = _extensible_events.M_TEXT.findIn(wireEventContent);
   const geoUri = location?.uri ?? wireEventContent?.geo_uri;
   const description = location?.description;
   const assetType = asset?.type ?? _location.LocationAssetType.Self;
   const fallbackText = text ?? wireEventContent.body;
-  return makeLocationContent(fallbackText, geoUri, timestamp, description, assetType);
+  return makeLocationContent(fallbackText, geoUri, timestamp ?? undefined, description, assetType);
 };
 
 /**
@@ -165,7 +167,7 @@ const makeTopicContent = (topic, htmlTopic) => {
     body: topic,
     mimetype: "text/plain"
   }];
-  if ((0, _matrixEventsSdk.isProvided)(htmlTopic)) {
+  if ((0, _utilities.isProvided)(htmlTopic)) {
     renderings.push({
       body: htmlTopic,
       mimetype: "text/html"
@@ -179,7 +181,12 @@ const makeTopicContent = (topic, htmlTopic) => {
 exports.makeTopicContent = makeTopicContent;
 const parseTopicContent = content => {
   const mtopic = _topic.M_TOPIC.findIn(content);
-  const text = mtopic?.find(r => !(0, _matrixEventsSdk.isProvided)(r.mimetype) || r.mimetype === "text/plain")?.body ?? content.topic;
+  if (!Array.isArray(mtopic)) {
+    return {
+      text: content.topic
+    };
+  }
+  const text = mtopic?.find(r => !(0, _utilities.isProvided)(r.mimetype) || r.mimetype === "text/plain")?.body ?? content.topic;
   const html = mtopic?.find(r => r.mimetype === "text/html")?.body;
   return {
     text,
@@ -210,7 +217,7 @@ const parseBeaconInfoContent = content => {
     timeout,
     live
   } = content;
-  const timestamp = _location.M_TIMESTAMP.findIn(content);
+  const timestamp = _location.M_TIMESTAMP.findIn(content) ?? undefined;
   const asset = _location.M_ASSET.findIn(content);
   return {
     description,
@@ -228,14 +235,14 @@ const makeBeaconContent = (uri, timestamp, beaconInfoEventId, description) => ({
   },
   [_location.M_TIMESTAMP.name]: timestamp,
   "m.relates_to": {
-    rel_type: _matrixEventsSdk.REFERENCE_RELATION.name,
+    rel_type: _extensible_events.REFERENCE_RELATION.name,
     event_id: beaconInfoEventId
   }
 });
 exports.makeBeaconContent = makeBeaconContent;
 const parseBeaconContent = content => {
   const location = _location.M_LOCATION.findIn(content);
-  const timestamp = _location.M_TIMESTAMP.findIn(content);
+  const timestamp = _location.M_TIMESTAMP.findIn(content) ?? undefined;
   return {
     description: location?.description,
     uri: location?.uri,

@@ -9,7 +9,9 @@ var _logger = require("../../logger");
 var _utils = require("../../utils");
 var _ = require("..");
 var _httpApi = require("../../http-api");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 const TYPE = new _matrixEventsSdk.UnstableValue("http.v1", "org.matrix.msc3886.http.v1");
 /**
  * Implementation of the unstable [MSC3886](https://github.com/matrix-org/matrix-spec-proposals/pull/3886)
@@ -42,7 +44,7 @@ class MSC3886SimpleHttpRendezvousTransport {
   }
   async details() {
     if (!this.uri) {
-      throw new Error('Rendezvous not set up');
+      throw new Error("Rendezvous not set up");
     }
     return {
       type: TYPE.name,
@@ -57,11 +59,11 @@ class MSC3886SimpleHttpRendezvousTransport {
   }
   async getPostEndpoint() {
     try {
-      if (await this.client.doesServerSupportUnstableFeature('org.matrix.msc3886')) {
+      if (await this.client.doesServerSupportUnstableFeature("org.matrix.msc3886")) {
         return `${this.client.baseUrl}${_httpApi.ClientPrefix.Unstable}/org.matrix.msc3886/rendezvous`;
       }
     } catch (err) {
-      _logger.logger.warn('Failed to get unstable features', err);
+      _logger.logger.warn("Failed to get unstable features", err);
     }
     return this.fallbackRzServer;
   }
@@ -72,13 +74,13 @@ class MSC3886SimpleHttpRendezvousTransport {
     const method = this.uri ? "PUT" : "POST";
     const uri = this.uri ?? (await this.getPostEndpoint());
     if (!uri) {
-      throw new Error('Invalid rendezvous URI');
+      throw new Error("Invalid rendezvous URI");
     }
     const headers = {
-      'content-type': 'application/json'
+      "content-type": "application/json"
     };
     if (this.etag) {
-      headers['if-match'] = this.etag;
+      headers["if-match"] = this.etag;
     }
     const res = await this.fetch(uri, {
       method,
@@ -89,12 +91,12 @@ class MSC3886SimpleHttpRendezvousTransport {
       return this.cancel(_.RendezvousFailureReason.Unknown);
     }
     this.etag = res.headers.get("etag") ?? undefined;
-    if (method === 'POST') {
-      const location = res.headers.get('location');
+    if (method === "POST") {
+      const location = res.headers.get("location");
       if (!location) {
-        throw new Error('No rendezvous URI given');
+        throw new Error("No rendezvous URI given");
       }
-      const expires = res.headers.get('expires');
+      const expires = res.headers.get("expires");
       if (expires) {
         this.expiresAt = new Date(expires);
       }
@@ -102,13 +104,13 @@ class MSC3886SimpleHttpRendezvousTransport {
       // however, if a polyfill based on XHR is used it won't be set, we we use existing URI as fallback
       const baseUrl = res.url ?? uri;
       // resolve location header which could be relative or absolute
-      this.uri = new URL(location, `${baseUrl}${baseUrl.endsWith('/') ? '' : '/'}`).href;
+      this.uri = new URL(location, `${baseUrl}${baseUrl.endsWith("/") ? "" : "/"}`).href;
       this._ready = true;
     }
   }
   async receive() {
     if (!this.uri) {
-      throw new Error('Rendezvous not set up');
+      throw new Error("Rendezvous not set up");
     }
     // eslint-disable-next-line no-constant-condition
     while (true) {
@@ -117,7 +119,7 @@ class MSC3886SimpleHttpRendezvousTransport {
       }
       const headers = {};
       if (this.etag) {
-        headers['if-none-match'] = this.etag;
+        headers["if-none-match"] = this.etag;
       }
       const poll = await this.fetch(this.uri, {
         method: "GET",
@@ -130,7 +132,7 @@ class MSC3886SimpleHttpRendezvousTransport {
 
       // rely on server expiring the channel rather than checking ourselves
 
-      if (poll.headers.get('content-type') !== 'application/json') {
+      if (poll.headers.get("content-type") !== "application/json") {
         this.etag = poll.headers.get("etag") ?? undefined;
       } else if (poll.status === 200) {
         this.etag = poll.headers.get("etag") ?? undefined;

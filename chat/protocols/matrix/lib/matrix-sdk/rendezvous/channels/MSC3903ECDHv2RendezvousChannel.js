@@ -3,21 +3,23 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.MSC3903ECDHv1RendezvousChannel = void 0;
+exports.MSC3903ECDHv2RendezvousChannel = void 0;
 var _ = require("..");
 var _olmlib = require("../../crypto/olmlib");
 var _crypto = require("../../crypto/crypto");
 var _SASDecimal = require("../../crypto/verification/SASDecimal");
 var _NamespacedValue = require("../../NamespacedValue");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-const ECDH_V1 = new _NamespacedValue.UnstableValue("m.rendezvous.v1.curve25519-aes-sha256", "org.matrix.msc3903.rendezvous.v1.curve25519-aes-sha256");
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+const ECDH_V2 = new _NamespacedValue.UnstableValue("m.rendezvous.v2.curve25519-aes-sha256", "org.matrix.msc3903.rendezvous.v2.curve25519-aes-sha256");
 async function importKey(key) {
   if (!_crypto.subtleCrypto) {
-    throw new Error('Web Crypto is not available');
+    throw new Error("Web Crypto is not available");
   }
-  const imported = _crypto.subtleCrypto.importKey('raw', key, {
-    name: 'AES-GCM'
-  }, false, ['encrypt', 'decrypt']);
+  const imported = _crypto.subtleCrypto.importKey("raw", key, {
+    name: "AES-GCM"
+  }, false, ["encrypt", "decrypt"]);
   return imported;
 }
 
@@ -26,7 +28,7 @@ async function importKey(key) {
  * X25519/ECDH key agreement based secure rendezvous channel.
  * Note that this is UNSTABLE and may have breaking changes without notice.
  */
-class MSC3903ECDHv1RendezvousChannel {
+class MSC3903ECDHv2RendezvousChannel {
   constructor(transport, theirPublicKey, onFailure) {
     this.transport = transport;
     this.theirPublicKey = theirPublicKey;
@@ -40,15 +42,15 @@ class MSC3903ECDHv1RendezvousChannel {
   }
   async generateCode(intent) {
     if (this.transport.ready) {
-      throw new Error('Code already generated');
+      throw new Error("Code already generated");
     }
     await this.transport.send({
-      algorithm: ECDH_V1.name
+      algorithm: ECDH_V2.name
     });
     const rendezvous = {
-      "rendezvous": {
-        algorithm: ECDH_V1.name,
-        key: (0, _olmlib.encodeBase64)(this.ourPublicKey),
+      rendezvous: {
+        algorithm: ECDH_V2.name,
+        key: (0, _olmlib.encodeUnpaddedBase64)(this.ourPublicKey),
         transport: await this.transport.details()
       },
       intent
@@ -57,52 +59,52 @@ class MSC3903ECDHv1RendezvousChannel {
   }
   async connect() {
     if (this.connected) {
-      throw new Error('Channel already connected');
+      throw new Error("Channel already connected");
     }
     if (!this.olmSAS) {
-      throw new Error('Channel closed');
+      throw new Error("Channel closed");
     }
     const isInitiator = !this.theirPublicKey;
     if (isInitiator) {
       // wait for the other side to send us their public key
       const rawRes = await this.transport.receive();
       if (!rawRes) {
-        throw new Error('No response from other device');
+        throw new Error("No response from other device");
       }
       const res = rawRes;
       const {
         key,
         algorithm
       } = res;
-      if (!algorithm || !ECDH_V1.matches(algorithm) || !key) {
-        throw new _.RendezvousError('Unsupported algorithm: ' + algorithm, _.RendezvousFailureReason.UnsupportedAlgorithm);
+      if (!algorithm || !ECDH_V2.matches(algorithm) || !key) {
+        throw new _.RendezvousError("Unsupported algorithm: " + algorithm, _.RendezvousFailureReason.UnsupportedAlgorithm);
       }
       this.theirPublicKey = (0, _olmlib.decodeBase64)(key);
     } else {
       // send our public key unencrypted
       await this.transport.send({
-        algorithm: ECDH_V1.name,
-        key: (0, _olmlib.encodeBase64)(this.ourPublicKey)
+        algorithm: ECDH_V2.name,
+        key: (0, _olmlib.encodeUnpaddedBase64)(this.ourPublicKey)
       });
     }
     this.connected = true;
-    this.olmSAS.set_their_key((0, _olmlib.encodeBase64)(this.theirPublicKey));
+    this.olmSAS.set_their_key((0, _olmlib.encodeUnpaddedBase64)(this.theirPublicKey));
     const initiatorKey = isInitiator ? this.ourPublicKey : this.theirPublicKey;
     const recipientKey = isInitiator ? this.theirPublicKey : this.ourPublicKey;
-    let aesInfo = ECDH_V1.name;
-    aesInfo += `|${(0, _olmlib.encodeBase64)(initiatorKey)}`;
-    aesInfo += `|${(0, _olmlib.encodeBase64)(recipientKey)}`;
+    let aesInfo = ECDH_V2.name;
+    aesInfo += `|${(0, _olmlib.encodeUnpaddedBase64)(initiatorKey)}`;
+    aesInfo += `|${(0, _olmlib.encodeUnpaddedBase64)(recipientKey)}`;
     const aesKeyBytes = this.olmSAS.generate_bytes(aesInfo, 32);
     this.aesKey = await importKey(aesKeyBytes);
 
     // blank the bytes out to make sure not kept in memory
     aesKeyBytes.fill(0);
     const rawChecksum = this.olmSAS.generate_bytes(aesInfo, 5);
-    return (0, _SASDecimal.generateDecimalSas)(Array.from(rawChecksum)).join('-');
+    return (0, _SASDecimal.generateDecimalSas)(Array.from(rawChecksum)).join("-");
   }
   async encrypt(data) {
     if (!_crypto.subtleCrypto) {
-      throw new Error('Web Crypto is not available');
+      throw new Error("Web Crypto is not available");
     }
     const iv = new Uint8Array(32);
     _crypto.crypto.getRandomValues(iv);
@@ -113,16 +115,16 @@ class MSC3903ECDHv1RendezvousChannel {
       tagLength: 128
     }, this.aesKey, encodedData);
     return {
-      iv: (0, _olmlib.encodeBase64)(iv),
-      ciphertext: (0, _olmlib.encodeBase64)(ciphertext)
+      iv: (0, _olmlib.encodeUnpaddedBase64)(iv),
+      ciphertext: (0, _olmlib.encodeUnpaddedBase64)(ciphertext)
     };
   }
   async send(payload) {
     if (!this.olmSAS) {
-      throw new Error('Channel closed');
+      throw new Error("Channel closed");
     }
     if (!this.aesKey) {
-      throw new Error('Shared secret not set up');
+      throw new Error("Shared secret not set up");
     }
     return this.transport.send(await this.encrypt(payload));
   }
@@ -131,11 +133,11 @@ class MSC3903ECDHv1RendezvousChannel {
     ciphertext
   }) {
     if (!ciphertext || !iv) {
-      throw new Error('Missing ciphertext and/or iv');
+      throw new Error("Missing ciphertext and/or iv");
     }
     const ciphertextBytes = (0, _olmlib.decodeBase64)(ciphertext);
     if (!_crypto.subtleCrypto) {
-      throw new Error('Web Crypto is not available');
+      throw new Error("Web Crypto is not available");
     }
     const plaintext = await _crypto.subtleCrypto.decrypt({
       name: "AES-GCM",
@@ -146,10 +148,10 @@ class MSC3903ECDHv1RendezvousChannel {
   }
   async receive() {
     if (!this.olmSAS) {
-      throw new Error('Channel closed');
+      throw new Error("Channel closed");
     }
     if (!this.aesKey) {
-      throw new Error('Shared secret not set up');
+      throw new Error("Shared secret not set up");
     }
     const rawData = await this.transport.receive();
     if (!rawData) {
@@ -159,7 +161,7 @@ class MSC3903ECDHv1RendezvousChannel {
     if (data.ciphertext && data.iv) {
       return this.decrypt(data);
     }
-    throw new Error('Data received but no ciphertext');
+    throw new Error("Data received but no ciphertext");
   }
   async close() {
     if (this.olmSAS) {
@@ -175,4 +177,4 @@ class MSC3903ECDHv1RendezvousChannel {
     }
   }
 }
-exports.MSC3903ECDHv1RendezvousChannel = MSC3903ECDHv1RendezvousChannel;
+exports.MSC3903ECDHv2RendezvousChannel = MSC3903ECDHv2RendezvousChannel;

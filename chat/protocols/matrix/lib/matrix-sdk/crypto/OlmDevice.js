@@ -3,16 +3,28 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.WITHHELD_MESSAGES = exports.OlmDevice = void 0;
+exports.WITHHELD_MESSAGES = exports.PayloadTooLargeError = exports.OlmDevice = void 0;
 var _logger = require("../logger");
 var _indexeddbCryptoStore = require("./store/indexeddb-crypto-store");
 var algorithms = _interopRequireWildcard(require("./algorithms"));
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 // The maximum size of an event is 65K, and we base64 the content, so this is a
 // reasonable approximation to the biggest plaintext we can encrypt.
 const MAX_PLAINTEXT_LENGTH = 65536 * 3 / 4;
+class PayloadTooLargeError extends Error {
+  constructor(...args) {
+    super(...args);
+    _defineProperty(this, "data", {
+      errcode: "M_TOO_LARGE",
+      error: "Payload too large for encrypted message"
+    });
+  }
+}
+exports.PayloadTooLargeError = PayloadTooLargeError;
 function checkPayloadLength(payloadString) {
   if (payloadString === undefined) {
     throw new Error("payloadString undefined");
@@ -24,49 +36,21 @@ function checkPayloadLength(payloadString) {
     // Note that even if we manage to do the encryption, the message send may fail,
     // because by the time we've wrapped the ciphertext in the event object, it may
     // exceed 65K. But at least we won't just fail with "abort()" in that case.
-    const err = new Error("Message too long (" + payloadString.length + " bytes). " + "The maximum for an encrypted message is " + MAX_PLAINTEXT_LENGTH + " bytes.");
-    // TODO: [TypeScript] We should have our own error types
-    err["data"] = {
-      errcode: "M_TOO_LARGE",
-      error: "Payload too large for encrypted message"
-    };
-    throw err;
+    throw new PayloadTooLargeError(`Message too long (${payloadString.length} bytes). ` + `The maximum for an encrypted message is ${MAX_PLAINTEXT_LENGTH} bytes.`);
   }
 }
-
-/**
- * The type of object we use for importing and exporting megolm session data.
- *
- * @typedef {Object} module:crypto/OlmDevice.MegolmSessionData
- * @property {String} sender_key  Sender's Curve25519 device key
- * @property {String[]} forwarding_curve25519_key_chain Devices which forwarded
- *     this session to us (normally empty).
- * @property {Object<string, string>} sender_claimed_keys Other keys the sender claims.
- * @property {String} room_id     Room this session is used in
- * @property {String} session_id  Unique id for the session
- * @property {String} session_key Base64'ed key data
- */
-
-/* eslint-enable camelcase */
-
 /**
  * Manages the olm cryptography functions. Each OlmDevice has a single
  * OlmAccount and a number of OlmSessions.
  *
  * Accounts and sessions are kept pickled in the cryptoStore.
- *
- * @constructor
- * @alias module:crypto/OlmDevice
- *
- * @param {Object} cryptoStore A store for crypto data
- *
- * @property {string} deviceCurve25519Key   Curve25519 key for the account
- * @property {string} deviceEd25519Key      Ed25519 key for the account
  */
 class OlmDevice {
   // set by consumers
 
-  // don't know these until we load the account from storage in init()
+  /** Curve25519 key for the account, unknown until we load the account from storage in init() */
+
+  /** Ed25519 key for the account, unknown until we load the account from storage in init() */
 
   // we don't bother stashing outboundgroupsessions in the cryptoStore -
   // instead we keep them here.
@@ -108,7 +92,7 @@ class OlmDevice {
   }
 
   /**
-   * @return {array} The version of Olm.
+   * @returns The version of Olm.
    */
   static getOlmVersion() {
     return global.Olm.get_library_version();
@@ -126,12 +110,11 @@ class OlmDevice {
    *
    * Reads the device keys from the OlmAccount object.
    *
-   * @param {object} opts
-   * @param {object} opts.fromExportedDevice (Optional) data from exported device
+   * @param fromExportedDevice - (Optional) data from exported device
    *     that must be re-created.
    *     If present, opts.pickleKey is ignored
    *     (exported data already provides a pickle key)
-   * @param {object} opts.pickleKey (Optional) pickle key to set instead of default one
+   * @param pickleKey - (Optional) pickle key to set instead of default one
    */
   async init({
     pickleKey,
@@ -142,7 +125,7 @@ class OlmDevice {
     try {
       if (fromExportedDevice) {
         if (pickleKey) {
-          _logger.logger.warn('ignoring opts.pickleKey' + ' because opts.fromExportedDevice is present.');
+          _logger.logger.warn("ignoring opts.pickleKey" + " because opts.fromExportedDevice is present.");
         }
         this.pickleKey = fromExportedDevice.pickleKey;
         await this.initialiseFromExportedDevice(fromExportedDevice, account);
@@ -166,12 +149,12 @@ class OlmDevice {
    * Note that for now only the “account” and “sessions” stores are populated;
    * Other stores will be as with a new device.
    *
-   * @param {IExportedDevice} exportedData Data exported from another device
+   * @param exportedData - Data exported from another device
    *     through the “export” method.
-   * @param {Olm.Account} account an olm account to initialize
+   * @param account - an olm account to initialize
    */
   async initialiseFromExportedDevice(exportedData, account) {
-    await this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
+    await this.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
       this.cryptoStore.storeAccount(txn, exportedData.pickledAccount);
       exportedData.sessions.forEach(session => {
         const {
@@ -188,7 +171,7 @@ class OlmDevice {
     account.unpickle(this.pickleKey, exportedData.pickledAccount);
   }
   async initialiseAccount(account) {
-    await this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+    await this.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
       this.cryptoStore.getAccount(txn, pickledAccount => {
         if (pickledAccount !== null) {
           account.unpickle(this.pickleKey, pickledAccount);
@@ -210,9 +193,8 @@ class OlmDevice {
    * This function requires a live transaction object from cryptoStore.doTxn()
    * and therefore may only be called in a doTxn() callback.
    *
-   * @param {*} txn Opaque transaction object from cryptoStore.doTxn()
-   * @param {function} func
-   * @private
+   * @param txn - Opaque transaction object from cryptoStore.doTxn()
+   * @internal
    */
   getAccount(txn, func) {
     this.cryptoStore.getAccount(txn, pickledAccount => {
@@ -231,9 +213,9 @@ class OlmDevice {
    * This function requires a live transaction object from cryptoStore.doTxn()
    * and therefore may only be called in a doTxn() callback.
    *
-   * @param {*} txn Opaque transaction object from cryptoStore.doTxn()
-   * @param {object} Olm.Account object
-   * @private
+   * @param txn - Opaque transaction object from cryptoStore.doTxn()
+   * @param Olm.Account object
+   * @internal
    */
   storeAccount(txn, account) {
     this.cryptoStore.storeAccount(txn, account.pickle(this.pickleKey));
@@ -243,13 +225,13 @@ class OlmDevice {
    * Export data for re-creating the Olm device later.
    * TODO export data other than just account and (P2P) sessions.
    *
-   * @return {Promise<object>} The exported data
+   * @returns The exported data
    */
   async export() {
     const result = {
       pickleKey: this.pickleKey
     };
-    await this.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
+    await this.cryptoStore.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
       this.cryptoStore.getAccount(txn, pickledAccount => {
         result.pickledAccount = pickledAccount;
       });
@@ -270,11 +252,8 @@ class OlmDevice {
    * function and will be freed as soon the callback returns. It is *not*
    * usable for the rest of the lifetime of the transaction.
    *
-   * @param {string} deviceKey
-   * @param {string} sessionId
-   * @param {*} txn Opaque transaction object from cryptoStore.doTxn()
-   * @param {function} func
-   * @private
+   * @param txn - Opaque transaction object from cryptoStore.doTxn()
+   * @internal
    */
   getSession(deviceKey, sessionId, txn, func) {
     this.cryptoStore.getEndToEndSession(deviceKey, sessionId, txn, sessionInfo => {
@@ -287,9 +266,7 @@ class OlmDevice {
    * function with it. The session object is destroyed once the function
    * returns.
    *
-   * @param {object} sessionInfo
-   * @param {function} func
-   * @private
+   * @internal
    */
   unpickleSession(sessionInfo, func) {
     const session = new global.Olm.Session();
@@ -307,13 +284,17 @@ class OlmDevice {
   /**
    * store our OlmSession in the session store
    *
-   * @param {string} deviceKey
-   * @param {object} sessionInfo {session: OlmSession, lastReceivedMessageTs: int}
-   * @param {*} txn Opaque transaction object from cryptoStore.doTxn()
-   * @private
+   * @param sessionInfo - `{session: OlmSession, lastReceivedMessageTs: int}`
+   * @param txn - Opaque transaction object from cryptoStore.doTxn()
+   * @internal
    */
   saveSession(deviceKey, sessionInfo, txn) {
     const sessionId = sessionInfo.session.session_id();
+    _logger.logger.debug(`Saving Olm session ${sessionId} with device ${deviceKey}: ${sessionInfo.session.describe()}`);
+
+    // Why do we re-use the input object for this, overwriting the same key with a different
+    // type? Is it because we want to erase the unpickled session to enforce that it's no longer
+    // used? A comment would be great.
     const pickledSessionInfo = Object.assign(sessionInfo, {
       session: sessionInfo.session.pickle(this.pickleKey)
     });
@@ -323,9 +304,8 @@ class OlmDevice {
   /**
    * get an OlmUtility and call the given function
    *
-   * @param {function} func
-   * @return {object} result of func
-   * @private
+   * @returns result of func
+   * @internal
    */
   getUtility(func) {
     const utility = new global.Olm.Utility();
@@ -339,12 +319,12 @@ class OlmDevice {
   /**
    * Signs a message with the ed25519 key for this account.
    *
-   * @param {string} message  message to be signed
-   * @return {Promise<string>} base64-encoded signature
+   * @param message -  message to be signed
+   * @returns base64-encoded signature
    */
   async sign(message) {
     let result;
-    await this.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+    await this.cryptoStore.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
       this.getAccount(txn, account => {
         result = account.sign(message);
       });
@@ -355,13 +335,13 @@ class OlmDevice {
   /**
    * Get the current (unused, unpublished) one-time keys for this account.
    *
-   * @return {object} one time keys; an object with the single property
+   * @returns one time keys; an object with the single property
    * <tt>curve25519</tt>, which is itself an object mapping key id to Curve25519
    * key.
    */
   async getOneTimeKeys() {
     let result;
-    await this.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+    await this.cryptoStore.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
       this.getAccount(txn, account => {
         result = JSON.parse(account.one_time_keys());
       });
@@ -372,7 +352,7 @@ class OlmDevice {
   /**
    * Get the maximum number of one-time keys we can store.
    *
-   * @return {number} number of keys
+   * @returns number of keys
    */
   maxNumberOfOneTimeKeys() {
     return this.maxOneTimeKeys ?? -1;
@@ -382,7 +362,7 @@ class OlmDevice {
    * Marks all of the one-time keys as published.
    */
   async markKeysAsPublished() {
-    await this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+    await this.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
       this.getAccount(txn, account => {
         account.mark_keys_as_published();
         this.storeAccount(txn, account);
@@ -393,11 +373,11 @@ class OlmDevice {
   /**
    * Generate some new one-time keys
    *
-   * @param {number} numKeys number of keys to generate
-   * @return {Promise} Resolved once the account is saved back having generated the keys
+   * @param numKeys - number of keys to generate
+   * @returns Resolved once the account is saved back having generated the keys
    */
   generateOneTimeKeys(numKeys) {
-    return this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+    return this.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
       this.getAccount(txn, account => {
         account.generate_one_time_keys(numKeys);
         this.storeAccount(txn, account);
@@ -408,10 +388,10 @@ class OlmDevice {
   /**
    * Generate a new fallback keys
    *
-   * @return {Promise} Resolved once the account is saved back having generated the key
+   * @returns Resolved once the account is saved back having generated the key
    */
   async generateFallbackKey() {
-    await this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+    await this.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
       this.getAccount(txn, account => {
         account.generate_fallback_key();
         this.storeAccount(txn, account);
@@ -420,7 +400,7 @@ class OlmDevice {
   }
   async getFallbackKey() {
     let result;
-    await this.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+    await this.cryptoStore.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
       this.getAccount(txn, account => {
         result = JSON.parse(account.unpublished_fallback_key());
       });
@@ -428,7 +408,7 @@ class OlmDevice {
     return result;
   }
   async forgetOldFallbackKey() {
-    await this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+    await this.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
       this.getAccount(txn, account => {
         account.forget_old_fallback_key();
         this.storeAccount(txn, account);
@@ -441,13 +421,13 @@ class OlmDevice {
    *
    * The new session will be stored in the cryptoStore.
    *
-   * @param {string} theirIdentityKey remote user's Curve25519 identity key
-   * @param {string} theirOneTimeKey  remote user's one-time Curve25519 key
-   * @return {string} sessionId for the outbound session.
+   * @param theirIdentityKey - remote user's Curve25519 identity key
+   * @param theirOneTimeKey -  remote user's one-time Curve25519 key
+   * @returns sessionId for the outbound session.
    */
   async createOutboundSession(theirIdentityKey, theirOneTimeKey) {
     let newSessionId;
-    await this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
+    await this.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
       this.getAccount(txn, account => {
         const session = new global.Olm.Session();
         try {
@@ -473,22 +453,21 @@ class OlmDevice {
   /**
    * Generate a new inbound session, given an incoming message
    *
-   * @param {string} theirDeviceIdentityKey remote user's Curve25519 identity key
-   * @param {number} messageType  messageType field from the received message (must be 0)
-   * @param {string} ciphertext base64-encoded body from the received message
+   * @param theirDeviceIdentityKey - remote user's Curve25519 identity key
+   * @param messageType -  messageType field from the received message (must be 0)
+   * @param ciphertext - base64-encoded body from the received message
    *
-   * @return {{payload: string, session_id: string}} decrypted payload, and
+   * @returns decrypted payload, and
    *     session id of new session
    *
-   * @raises {Error} if the received message was not valid (for instance, it
-   *     didn't use a valid one-time key).
+   * @throws Error if the received message was not valid (for instance, it didn't use a valid one-time key).
    */
   async createInboundSession(theirDeviceIdentityKey, messageType, ciphertext) {
     if (messageType !== 0) {
       throw new Error("Need messageType == 0 to create inbound session");
     }
     let result; // eslint-disable-line camelcase
-    await this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
+    await this.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
       this.getAccount(txn, account => {
         const session = new global.Olm.Session();
         try {
@@ -518,9 +497,9 @@ class OlmDevice {
   /**
    * Get a list of known session IDs for the given device
    *
-   * @param {string} theirDeviceIdentityKey Curve25519 identity key for the
+   * @param theirDeviceIdentityKey - Curve25519 identity key for the
    *     remote device
-   * @return {Promise<string[]>}  a list of known session ids for the device
+   * @returns  a list of known session ids for the device
    */
   async getSessionIdsForDevice(theirDeviceIdentityKey) {
     const log = _logger.logger.withPrefix("[getSessionIdsForDevice]");
@@ -534,7 +513,7 @@ class OlmDevice {
       }
     }
     let sessionIds;
-    await this.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
+    await this.cryptoStore.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
       this.cryptoStore.getEndToEndSessions(theirDeviceIdentityKey, txn, sessions => {
         sessionIds = Object.keys(sessions);
       });
@@ -545,13 +524,13 @@ class OlmDevice {
   /**
    * Get the right olm session id for encrypting messages to the given identity key
    *
-   * @param {string} theirDeviceIdentityKey Curve25519 identity key for the
+   * @param theirDeviceIdentityKey - Curve25519 identity key for the
    *     remote device
-   * @param {boolean} nowait Don't wait for an in-progress session to complete.
+   * @param nowait - Don't wait for an in-progress session to complete.
    *     This should only be set to true of the calling function is the function
    *     that marked the session as being in-progress.
-   * @param {PrefixedLogger} [log] A possibly customised log
-   * @return {Promise<?string>}  session id, or null if no established session
+   * @param log - A possibly customised log
+   * @returns  session id, or null if no established session
    */
   async getSessionIdForDevice(theirDeviceIdentityKey, nowait = false, log) {
     const sessionInfos = await this.getSessionInfoForDevice(theirDeviceIdentityKey, nowait, log);
@@ -580,12 +559,11 @@ class OlmDevice {
    * the keys 'hasReceivedMessage' (true if the session has received an incoming
    * message and is therefore past the pre-key stage), and 'sessionId'.
    *
-   * @param {string} deviceIdentityKey Curve25519 identity key for the device
-   * @param {boolean} nowait Don't wait for an in-progress session to complete.
+   * @param deviceIdentityKey - Curve25519 identity key for the device
+   * @param nowait - Don't wait for an in-progress session to complete.
    *     This should only be set to true of the calling function is the function
    *     that marked the session as being in-progress.
-   * @param {Logger} [log] A possibly customised log
-   * @return {Array.<{sessionId: string, hasReceivedMessage: boolean}>}
+   * @param log - A possibly customised log
    */
   async getSessionInfoForDevice(deviceIdentityKey, nowait = false, log = _logger.logger) {
     log = log.withPrefix("[getSessionInfoForDevice]");
@@ -599,7 +577,7 @@ class OlmDevice {
       }
     }
     const info = [];
-    await this.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
+    await this.cryptoStore.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
       this.cryptoStore.getEndToEndSessions(deviceIdentityKey, txn, sessions => {
         const sessionIds = Object.keys(sessions).sort();
         for (const sessionId of sessionIds) {
@@ -619,17 +597,17 @@ class OlmDevice {
   /**
    * Encrypt an outgoing message using an existing session
    *
-   * @param {string} theirDeviceIdentityKey Curve25519 identity key for the
+   * @param theirDeviceIdentityKey - Curve25519 identity key for the
    *     remote device
-   * @param {string} sessionId  the id of the active session
-   * @param {string} payloadString  payload to be encrypted and sent
+   * @param sessionId -  the id of the active session
+   * @param payloadString -  payload to be encrypted and sent
    *
-   * @return {Promise<string>} ciphertext
+   * @returns ciphertext
    */
   async encryptMessage(theirDeviceIdentityKey, sessionId, payloadString) {
     checkPayloadLength(payloadString);
     let res;
-    await this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
+    await this.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
       this.getSession(theirDeviceIdentityKey, sessionId, txn, sessionInfo => {
         const sessionDesc = sessionInfo.session.describe();
         _logger.logger.log("encryptMessage: Olm Session ID " + sessionId + " to " + theirDeviceIdentityKey + ": " + sessionDesc);
@@ -643,17 +621,17 @@ class OlmDevice {
   /**
    * Decrypt an incoming message using an existing session
    *
-   * @param {string} theirDeviceIdentityKey Curve25519 identity key for the
+   * @param theirDeviceIdentityKey - Curve25519 identity key for the
    *     remote device
-   * @param {string} sessionId  the id of the active session
-   * @param {number} messageType  messageType field from the received message
-   * @param {string} ciphertext base64-encoded body from the received message
+   * @param sessionId -  the id of the active session
+   * @param messageType -  messageType field from the received message
+   * @param ciphertext - base64-encoded body from the received message
    *
-   * @return {Promise<string>} decrypted payload.
+   * @returns decrypted payload.
    */
   async decryptMessage(theirDeviceIdentityKey, sessionId, messageType, ciphertext) {
     let payloadString;
-    await this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
+    await this.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
       this.getSession(theirDeviceIdentityKey, sessionId, txn, sessionInfo => {
         const sessionDesc = sessionInfo.session.describe();
         _logger.logger.log("decryptMessage: Olm Session ID " + sessionId + " from " + theirDeviceIdentityKey + ": " + sessionDesc);
@@ -668,13 +646,13 @@ class OlmDevice {
   /**
    * Determine if an incoming messages is a prekey message matching an existing session
    *
-   * @param {string} theirDeviceIdentityKey Curve25519 identity key for the
+   * @param theirDeviceIdentityKey - Curve25519 identity key for the
    *     remote device
-   * @param {string} sessionId  the id of the active session
-   * @param {number} messageType  messageType field from the received message
-   * @param {string} ciphertext base64-encoded body from the received message
+   * @param sessionId -  the id of the active session
+   * @param messageType -  messageType field from the received message
+   * @param ciphertext - base64-encoded body from the received message
    *
-   * @return {Promise<boolean>} true if the received message is a prekey message which matches
+   * @returns true if the received message is a prekey message which matches
    *    the given session.
    */
   async matchesSession(theirDeviceIdentityKey, sessionId, messageType, ciphertext) {
@@ -682,7 +660,7 @@ class OlmDevice {
       return false;
     }
     let matches;
-    await this.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
+    await this.cryptoStore.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SESSIONS], txn => {
       this.getSession(theirDeviceIdentityKey, sessionId, txn, sessionInfo => {
         matches = sessionInfo.session.matches_inbound(ciphertext);
       });
@@ -690,6 +668,7 @@ class OlmDevice {
     return matches;
   }
   async recordSessionProblem(deviceKey, type, fixed) {
+    _logger.logger.info(`Recording problem on olm session with ${deviceKey} of type ${type}. Recreating: ${fixed}`);
     await this.cryptoStore.storeEndToEndSessionProblem(deviceKey, type, fixed);
   }
   sessionMayHaveProblems(deviceKey, timestamp) {
@@ -705,8 +684,7 @@ class OlmDevice {
   /**
    * store an OutboundGroupSession in outboundGroupSessionStore
    *
-   * @param {Olm.OutboundGroupSession} session
-   * @private
+   * @internal
    */
   saveOutboundGroupSession(session) {
     this.outboundGroupSessionStore[session.session_id()] = session.pickle(this.pickleKey);
@@ -716,10 +694,8 @@ class OlmDevice {
    * extract an OutboundGroupSession from outboundGroupSessionStore and call the
    * given function
    *
-   * @param {string} sessionId
-   * @param {function} func
-   * @return {object} result of func
-   * @private
+   * @returns result of func
+   * @internal
    */
   getOutboundGroupSession(sessionId, func) {
     const pickled = this.outboundGroupSessionStore[sessionId];
@@ -738,7 +714,7 @@ class OlmDevice {
   /**
    * Generate a new outbound group session
    *
-   * @return {string} sessionId for the outbound session.
+   * @returns sessionId for the outbound session.
    */
   createOutboundGroupSession() {
     const session = new global.Olm.OutboundGroupSession();
@@ -754,10 +730,10 @@ class OlmDevice {
   /**
    * Encrypt an outgoing message with an outbound group session
    *
-   * @param {string} sessionId  the id of the outboundgroupsession
-   * @param {string} payloadString  payload to be encrypted and sent
+   * @param sessionId -  the id of the outboundgroupsession
+   * @param payloadString -  payload to be encrypted and sent
    *
-   * @return {string} ciphertext
+   * @returns ciphertext
    */
   encryptGroupMessage(sessionId, payloadString) {
     _logger.logger.log(`encrypting msg with megolm session ${sessionId}`);
@@ -772,9 +748,9 @@ class OlmDevice {
   /**
    * Get the session keys for an outbound group session
    *
-   * @param {string} sessionId  the id of the outbound group session
+   * @param sessionId -  the id of the outbound group session
    *
-   * @return {{chain_index: number, key: string}} current chain index, and
+   * @returns current chain index, and
    *     base64-encoded secret key.
    */
   getOutboundGroupSessionKey(sessionId) {
@@ -793,9 +769,9 @@ class OlmDevice {
    * Unpickle a session from a sessionData object and invoke the given function.
    * The session is valid only until func returns.
    *
-   * @param {Object} sessionData Object describing the session.
-   * @param {function(Olm.InboundGroupSession)} func Invoked with the unpickled session
-   * @return {*} result of func
+   * @param sessionData - Object describing the session.
+   * @param func - Invoked with the unpickled session
+   * @returns result of func
    */
   unpickleInboundGroupSession(sessionData, func) {
     const session = new global.Olm.InboundGroupSession();
@@ -810,15 +786,12 @@ class OlmDevice {
   /**
    * extract an InboundGroupSession from the crypto store and call the given function
    *
-   * @param {string} roomId The room ID to extract the session for, or null to fetch
+   * @param roomId - The room ID to extract the session for, or null to fetch
    *     sessions for any room.
-   * @param {string} senderKey
-   * @param {string} sessionId
-   * @param {*} txn Opaque transaction object from cryptoStore.doTxn()
-   * @param {function(Olm.InboundGroupSession, InboundGroupSessionData)} func
-   *   function to call.
+   * @param txn - Opaque transaction object from cryptoStore.doTxn()
+   * @param func - function to call.
    *
-   * @private
+   * @internal
    */
   getInboundGroupSession(roomId, senderKey, sessionId, txn, func) {
     this.cryptoStore.getEndToEndInboundGroupSession(senderKey, sessionId, txn, (sessionData, withheld) => {
@@ -841,19 +814,19 @@ class OlmDevice {
   /**
    * Add an inbound group session to the session store
    *
-   * @param {string} roomId     room in which this session will be used
-   * @param {string} senderKey  base64-encoded curve25519 key of the sender
-   * @param {Array<string>} forwardingCurve25519KeyChain  Devices involved in forwarding
+   * @param roomId -     room in which this session will be used
+   * @param senderKey -  base64-encoded curve25519 key of the sender
+   * @param forwardingCurve25519KeyChain -  Devices involved in forwarding
    *     this session to us.
-   * @param {string} sessionId  session identifier
-   * @param {string} sessionKey base64-encoded secret key
-   * @param {Object<string, string>} keysClaimed Other keys the sender claims.
-   * @param {boolean} exportFormat true if the megolm keys are in export format
+   * @param sessionId -  session identifier
+   * @param sessionKey - base64-encoded secret key
+   * @param keysClaimed - Other keys the sender claims.
+   * @param exportFormat - true if the megolm keys are in export format
    *    (ie, they lack an ed25519 signature)
-   * @param {Object} [extraSessionData={}] any other data to be include with the session
+   * @param extraSessionData - any other data to be include with the session
    */
   async addInboundGroupSession(roomId, senderKey, forwardingCurve25519KeyChain, sessionId, sessionKey, keysClaimed, exportFormat, extraSessionData = {}) {
-    await this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS_WITHHELD, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SHARED_HISTORY_INBOUND_GROUP_SESSIONS], txn => {
+    await this.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS_WITHHELD, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SHARED_HISTORY_INBOUND_GROUP_SESSIONS], txn => {
       /* if we already have this session, consider updating it */
       this.getInboundGroupSession(roomId, senderKey, sessionId, txn, (existingSession, existingSessionData) => {
         // new session.
@@ -868,14 +841,14 @@ class OlmDevice {
             throw new Error("Mismatched group session ID from senderKey: " + senderKey);
           }
           if (existingSession) {
-            _logger.logger.log("Update for megolm session " + senderKey + "/" + sessionId);
+            _logger.logger.log(`Update for megolm session ${senderKey}|${sessionId}`);
             if (existingSession.first_known_index() <= session.first_known_index()) {
               if (!existingSessionData.untrusted || extraSessionData.untrusted) {
                 // existing session has less-than-or-equal index
                 // (i.e. can decrypt at least as much), and the
                 // new session's trust does not win over the old
                 // session's trust, so keep it
-                _logger.logger.log(`Keeping existing megolm session ${sessionId}`);
+                _logger.logger.log(`Keeping existing megolm session ${senderKey}|${sessionId}`);
                 return;
               }
               if (existingSession.first_known_index() < session.first_known_index()) {
@@ -885,11 +858,11 @@ class OlmDevice {
                 // properly, and then manually set the existing session
                 // as trusted.
                 if (existingSession.export_session(session.first_known_index()) === session.export_session(session.first_known_index())) {
-                  _logger.logger.info("Upgrading trust of existing megolm session " + sessionId + " based on newly-received trusted session");
+                  _logger.logger.info("Upgrading trust of existing megolm session " + `${senderKey}|${sessionId} based on newly-received trusted session`);
                   existingSessionData.untrusted = false;
                   this.cryptoStore.storeEndToEndInboundGroupSession(senderKey, sessionId, existingSessionData, txn);
                 } else {
-                  _logger.logger.warn("Newly-received megolm session " + sessionId + " does not match existing session! Keeping existing session");
+                  _logger.logger.warn(`Newly-received megolm session ${senderKey}|$sessionId}` + " does not match existing session! Keeping existing session");
                 }
                 return;
               }
@@ -897,7 +870,7 @@ class OlmDevice {
             }
           }
 
-          _logger.logger.info("Storing megolm session " + senderKey + "/" + sessionId + " with first index " + session.first_known_index());
+          _logger.logger.info(`Storing megolm session ${senderKey}|${sessionId} with first index ` + session.first_known_index());
           const sessionData = Object.assign({}, extraSessionData, {
             room_id: roomId,
             session: session.pickle(this.pickleKey),
@@ -918,14 +891,14 @@ class OlmDevice {
   /**
    * Record in the data store why an inbound group session was withheld.
    *
-   * @param {string} roomId     room that the session belongs to
-   * @param {string} senderKey  base64-encoded curve25519 key of the sender
-   * @param {string} sessionId  session identifier
-   * @param {string} code       reason code
-   * @param {string} reason     human-readable version of `code`
+   * @param roomId -     room that the session belongs to
+   * @param senderKey -  base64-encoded curve25519 key of the sender
+   * @param sessionId -  session identifier
+   * @param code -       reason code
+   * @param reason -     human-readable version of `code`
    */
   async addInboundGroupSessionWithheld(roomId, senderKey, sessionId, code, reason) {
-    await this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS_WITHHELD], txn => {
+    await this.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS_WITHHELD], txn => {
       this.cryptoStore.storeEndToEndInboundGroupSessionWithheld(senderKey, sessionId, {
         room_id: roomId,
         code: code,
@@ -937,18 +910,14 @@ class OlmDevice {
   /**
    * Decrypt a received message with an inbound group session
    *
-   * @param {string} roomId    room in which the message was received
-   * @param {string} senderKey base64-encoded curve25519 key of the sender
-   * @param {string} sessionId session identifier
-   * @param {string} body      base64-encoded body of the encrypted message
-   * @param {string} eventId   ID of the event being decrypted
-   * @param {Number} timestamp timestamp of the event being decrypted
+   * @param roomId -    room in which the message was received
+   * @param senderKey - base64-encoded curve25519 key of the sender
+   * @param sessionId - session identifier
+   * @param body -      base64-encoded body of the encrypted message
+   * @param eventId -   ID of the event being decrypted
+   * @param timestamp - timestamp of the event being decrypted
    *
-   * @return {null} the sessionId is unknown
-   *
-   * @return {Promise<{result: string, senderKey: string,
-   *    forwardingCurve25519KeyChain: Array<string>,
-   *    keysClaimed: Object<string, string>}>}
+   * @returns null if the sessionId is unknown
    */
   async decryptGroupMessage(roomId, senderKey, sessionId, body, eventId, timestamp) {
     let result = null;
@@ -957,12 +926,12 @@ class OlmDevice {
     // to the top level, so we store exceptions in a variable and raise them at
     // the end
     let error;
-    await this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS_WITHHELD], txn => {
+    await this.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS_WITHHELD], txn => {
       this.getInboundGroupSession(roomId, senderKey, sessionId, txn, (session, sessionData, withheld) => {
         if (session === null || sessionData === null) {
           if (withheld) {
             error = new algorithms.DecryptionError("MEGOLM_UNKNOWN_INBOUND_SESSION_ID", calculateWithheldMessage(withheld), {
-              session: senderKey + '|' + sessionId
+              session: senderKey + "|" + sessionId
             });
           }
           result = null;
@@ -972,9 +941,9 @@ class OlmDevice {
         try {
           res = session.decrypt(body);
         } catch (e) {
-          if (e?.message === 'OLM.UNKNOWN_MESSAGE_INDEX' && withheld) {
+          if (e?.message === "OLM.UNKNOWN_MESSAGE_INDEX" && withheld) {
             error = new algorithms.DecryptionError("MEGOLM_UNKNOWN_INBOUND_SESSION_ID", calculateWithheldMessage(withheld), {
-              session: senderKey + '|' + sessionId
+              session: senderKey + "|" + sessionId
             });
           } else {
             error = e;
@@ -983,7 +952,7 @@ class OlmDevice {
         }
         let plaintext = res.plaintext;
         if (plaintext === undefined) {
-          // Compatibility for older olm versions.
+          // @ts-ignore - Compatibility for older olm versions.
           plaintext = res;
         } else {
           // Check if we have seen this message index before to detect replay attacks.
@@ -1023,15 +992,15 @@ class OlmDevice {
   /**
    * Determine if we have the keys for a given megolm session
    *
-   * @param {string} roomId    room in which the message was received
-   * @param {string} senderKey base64-encoded curve25519 key of the sender
-   * @param {string} sessionId session identifier
+   * @param roomId -    room in which the message was received
+   * @param senderKey - base64-encoded curve25519 key of the sender
+   * @param sessionId - session identifier
    *
-   * @returns {Promise<boolean>} true if we have the keys to this session
+   * @returns true if we have the keys to this session
    */
   async hasInboundSessionKeys(roomId, senderKey, sessionId) {
     let result;
-    await this.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS_WITHHELD], txn => {
+    await this.cryptoStore.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS_WITHHELD], txn => {
       this.cryptoStore.getEndToEndInboundGroupSession(senderKey, sessionId, txn, sessionData => {
         if (sessionData === null) {
           result = false;
@@ -1051,16 +1020,13 @@ class OlmDevice {
   /**
    * Extract the keys to a given megolm session, for sharing
    *
-   * @param {string} roomId    room in which the message was received
-   * @param {string} senderKey base64-encoded curve25519 key of the sender
-   * @param {string} sessionId session identifier
-   * @param {number} chainIndex The chain index at which to export the session.
+   * @param roomId -    room in which the message was received
+   * @param senderKey - base64-encoded curve25519 key of the sender
+   * @param sessionId - session identifier
+   * @param chainIndex - The chain index at which to export the session.
    *     If omitted, export at the first index we know about.
    *
-   * @returns {Promise<{chain_index: number, key: string,
-   *        forwarding_curve25519_key_chain: Array<string>,
-   *        sender_claimed_ed25519_key: string
-   *    }>}
+   * @returns
    *    details of the session key. The key is a base64-encoded megolm key in
    *    export format.
    *
@@ -1069,7 +1035,7 @@ class OlmDevice {
    */
   async getInboundGroupSessionKey(roomId, senderKey, sessionId, chainIndex) {
     let result = null;
-    await this.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS_WITHHELD], txn => {
+    await this.cryptoStore.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS_WITHHELD], txn => {
       this.getInboundGroupSession(roomId, senderKey, sessionId, txn, (session, sessionData) => {
         if (session === null || sessionData === null) {
           result = null;
@@ -1089,12 +1055,12 @@ class OlmDevice {
         // can be trusted
         const untrusted = "untrusted" in sessionData ? sessionData.untrusted : forwardingKeyChain.length > 0;
         result = {
-          "chain_index": chainIndex,
-          "key": exportedSession,
-          "forwarding_curve25519_key_chain": forwardingKeyChain,
-          "sender_claimed_ed25519_key": senderEd25519Key,
-          "shared_history": sessionData.sharedHistory || false,
-          "untrusted": untrusted
+          chain_index: chainIndex,
+          key: exportedSession,
+          forwarding_curve25519_key_chain: forwardingKeyChain,
+          sender_claimed_ed25519_key: senderEd25519Key,
+          shared_history: sessionData.sharedHistory || false,
+          untrusted: untrusted
         };
       });
     }, _logger.logger.withPrefix("[getInboundGroupSessionKey]"));
@@ -1104,10 +1070,10 @@ class OlmDevice {
   /**
    * Export an inbound group session
    *
-   * @param {string} senderKey base64-encoded curve25519 key of the sender
-   * @param {string} sessionId session identifier
-   * @param {ISessionInfo} sessionData The session object from the store
-   * @return {module:crypto/OlmDevice.MegolmSessionData} exported session data
+   * @param senderKey - base64-encoded curve25519 key of the sender
+   * @param sessionId - session identifier
+   * @param sessionData - The session object from the store
+   * @returns exported session data
    */
   exportInboundGroupSession(senderKey, sessionId, sessionData) {
     return this.unpickleInboundGroupSession(sessionData, session => {
@@ -1126,7 +1092,7 @@ class OlmDevice {
   }
   async getSharedHistoryInboundGroupSessions(roomId) {
     let result;
-    await this.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SHARED_HISTORY_INBOUND_GROUP_SESSIONS], txn => {
+    await this.cryptoStore.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SHARED_HISTORY_INBOUND_GROUP_SESSIONS], txn => {
       result = this.cryptoStore.getSharedHistoryInboundGroupSessions(roomId, txn);
     }, _logger.logger.withPrefix("[getSharedHistoryInboundGroupSessionsForRoom]"));
     return result;
@@ -1138,11 +1104,11 @@ class OlmDevice {
   /**
    * Verify an ed25519 signature.
    *
-   * @param {string} key ed25519 key
-   * @param {string} message message which was signed
-   * @param {string} signature base64-encoded signature to be checked
+   * @param key - ed25519 key
+   * @param message - message which was signed
+   * @param signature - base64-encoded signature to be checked
    *
-   * @raises {Error} if there is a problem with the verification. If the key was
+   * @throws Error if there is a problem with the verification. If the key was
    * too small then the message will be "OLM.INVALID_BASE64". If the signature
    * was invalid then the message will be "OLM.BAD_MESSAGE_MAC".
    */
@@ -1163,11 +1129,11 @@ const WITHHELD_MESSAGES = {
 /**
  * Calculate the message to use for the exception when a session key is withheld.
  *
- * @param {object} withheld  An object that describes why the key was withheld.
+ * @param withheld -  An object that describes why the key was withheld.
  *
- * @return {string} the message
+ * @returns the message
  *
- * @private
+ * @internal
  */
 exports.WITHHELD_MESSAGES = WITHHELD_MESSAGES;
 function calculateWithheldMessage(withheld) {

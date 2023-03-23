@@ -4,22 +4,25 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.SecretStorage = exports.SECRET_STORAGE_ALGORITHM_V1_AES = void 0;
+var _uuid = require("uuid");
 var _logger = require("../logger");
 var olmlib = _interopRequireWildcard(require("./olmlib"));
 var _randomstring = require("../randomstring");
 var _aes = require("./aes");
-var _matrix = require("../matrix");
+var _client = require("../client");
 var _utils = require("../utils");
+var _event = require("../@types/event");
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 const SECRET_STORAGE_ALGORITHM_V1_AES = "m.secret_storage.v1.aes-hmac-sha2";
 
 // Some of the key functions use a tuple and some use an object...
 exports.SECRET_STORAGE_ALGORITHM_V1_AES = SECRET_STORAGE_ALGORITHM_V1_AES;
 /**
  * Implements Secure Secret Storage and Sharing (MSC1946)
- * @module crypto/SecretStorage
  */
 class SecretStorage {
   // In it's pure javascript days, this was relying on some proper Javascript-style
@@ -37,23 +40,23 @@ class SecretStorage {
     _defineProperty(this, "requests", new Map());
   }
   async getDefaultKeyId() {
-    const defaultKey = await this.accountDataAdapter.getAccountDataFromServer('m.secret_storage.default_key');
+    const defaultKey = await this.accountDataAdapter.getAccountDataFromServer("m.secret_storage.default_key");
     if (!defaultKey) return null;
     return defaultKey.key;
   }
   setDefaultKeyId(keyId) {
     return new Promise((resolve, reject) => {
       const listener = ev => {
-        if (ev.getType() === 'm.secret_storage.default_key' && ev.getContent().key === keyId) {
-          this.accountDataAdapter.removeListener(_matrix.ClientEvent.AccountData, listener);
+        if (ev.getType() === "m.secret_storage.default_key" && ev.getContent().key === keyId) {
+          this.accountDataAdapter.removeListener(_client.ClientEvent.AccountData, listener);
           resolve();
         }
       };
-      this.accountDataAdapter.on(_matrix.ClientEvent.AccountData, listener);
-      this.accountDataAdapter.setAccountData('m.secret_storage.default_key', {
+      this.accountDataAdapter.on(_client.ClientEvent.AccountData, listener);
+      this.accountDataAdapter.setAccountData("m.secret_storage.default_key", {
         key: keyId
       }).catch(e => {
-        this.accountDataAdapter.removeListener(_matrix.ClientEvent.AccountData, listener);
+        this.accountDataAdapter.removeListener(_client.ClientEvent.AccountData, listener);
         reject(e);
       });
     });
@@ -62,15 +65,15 @@ class SecretStorage {
   /**
    * Add a key for encrypting secrets.
    *
-   * @param {string} algorithm the algorithm used by the key.
-   * @param {object} opts the options for the algorithm.  The properties used
+   * @param algorithm - the algorithm used by the key.
+   * @param opts - the options for the algorithm.  The properties used
    *     depend on the algorithm given.
-   * @param {string} [keyId] the ID of the key.  If not given, a random
+   * @param keyId - the ID of the key.  If not given, a random
    *     ID will be generated.
    *
-   * @return {object} An object with:
-   *     keyId: {string} the ID of the key
-   *     keyInfo: {object} details about the key (iv, mac, passphrase)
+   * @returns An object with:
+   *     keyId: the ID of the key
+   *     keyInfo: details about the key (iv, mac, passphrase)
    */
   async addKey(algorithm, opts = {}, keyId) {
     const keyInfo = {
@@ -109,9 +112,9 @@ class SecretStorage {
   /**
    * Get the key information for a given ID.
    *
-   * @param {string} [keyId = default key's ID] The ID of the key to check
+   * @param keyId - The ID of the key to check
    *     for. Defaults to the default key ID if not provided.
-   * @returns {Array?} If the key was found, the return value is an array of
+   * @returns If the key was found, the return value is an array of
    *     the form [keyId, keyInfo].  Otherwise, null is returned.
    *     XXX: why is this an array when addKey returns an object?
    */
@@ -129,9 +132,9 @@ class SecretStorage {
   /**
    * Check whether we have a key with a given ID.
    *
-   * @param {string} [keyId = default key's ID] The ID of the key to check
+   * @param keyId - The ID of the key to check
    *     for. Defaults to the default key ID if not provided.
-   * @return {boolean} Whether we have the key.
+   * @returns Whether we have the key.
    */
   async hasKey(keyId) {
     return Boolean(await this.getKey(keyId));
@@ -140,10 +143,10 @@ class SecretStorage {
   /**
    * Check whether a key matches what we expect based on the key info
    *
-   * @param {Uint8Array} key the key to check
-   * @param {object} info the key info
+   * @param key - the key to check
+   * @param info - the key info
    *
-   * @return {boolean} whether or not the key matches
+   * @returns whether or not the key matches
    */
   async checkKey(key, info) {
     if (info.algorithm === SECRET_STORAGE_ALGORITHM_V1_AES) {
@@ -151,7 +154,7 @@ class SecretStorage {
         const {
           mac
         } = await (0, _aes.calculateKeyCheck)(key, info.iv);
-        return info.mac.replace(/=+$/g, '') === mac.replace(/=+$/g, '');
+        return info.mac.replace(/=+$/g, "") === mac.replace(/=+$/g, "");
       } else {
         // if we have no information, we have to assume the key is right
         return true;
@@ -164,9 +167,9 @@ class SecretStorage {
   /**
    * Store an encrypted secret on the server
    *
-   * @param {string} name The name of the secret
-   * @param {string} secret The secret contents.
-   * @param {Array} keys The IDs of the keys to use to encrypt the secret
+   * @param name - The name of the secret
+   * @param secret - The secret contents.
+   * @param keys - The IDs of the keys to use to encrypt the secret
    *     or null/undefined to use the default key.
    */
   async store(name, secret, keys) {
@@ -210,9 +213,9 @@ class SecretStorage {
   /**
    * Get a secret from storage.
    *
-   * @param {string} name the name of the secret
+   * @param name - the name of the secret
    *
-   * @return {string} the contents of the secret
+   * @returns the contents of the secret
    */
   async get(name) {
     const secretInfo = await this.accountDataAdapter.getAccountDataFromServer(name);
@@ -239,29 +242,19 @@ class SecretStorage {
     if (Object.keys(keys).length === 0) {
       throw new Error(`Could not decrypt ${name} because none of ` + `the keys it is encrypted with are for a supported algorithm`);
     }
-    let keyId;
-    let decryption;
-    try {
-      // fetch private key from app
-      [keyId, decryption] = await this.getSecretStorageKey(keys, name);
-      const encInfo = secretInfo.encrypted[keyId];
 
-      // We don't actually need the decryption object if it's a passthrough
-      // since we just want to return the key itself. It must be base64
-      // encoded, since this is how a key would normally be stored.
-      if (encInfo.passthrough) return (0, olmlib.encodeBase64)(decryption.get_private_key());
-      return decryption.decrypt(encInfo);
-    } finally {
-      if (decryption && decryption.free) decryption.free();
-    }
+    // fetch private key from app
+    const [keyId, decryption] = await this.getSecretStorageKey(keys, name);
+    const encInfo = secretInfo.encrypted[keyId];
+    return decryption.decrypt(encInfo);
   }
 
   /**
    * Check if a secret is stored on the server.
    *
-   * @param {string} name the name of the secret
+   * @param name - the name of the secret
    *
-   * @return {object?} map of key name to key info the secret is encrypted
+   * @returns map of key name to key info the secret is encrypted
    *     with, or null if it is not present or not encrypted with a trusted
    *     key
    */
@@ -291,8 +284,8 @@ class SecretStorage {
   /**
    * Request a secret from another device
    *
-   * @param {string} name the name of the secret to request
-   * @param {string[]} devices the devices to request the secret from
+   * @param name - the name of the secret to request
+   * @param devices - the devices to request the secret from
    */
   request(name, devices) {
     const requestId = this.baseApis.makeTxnId();
@@ -327,7 +320,8 @@ class SecretStorage {
       name,
       action: "request",
       requesting_device_id: this.baseApis.deviceId,
-      request_id: requestId
+      request_id: requestId,
+      [_event.ToDeviceMessageId]: (0, _uuid.v4)()
     };
     const toDevice = {};
     for (const device of devices) {
@@ -396,7 +390,8 @@ class SecretStorage {
         const encryptedContent = {
           algorithm: olmlib.OLM_ALGORITHM,
           sender_key: this.baseApis.crypto.olmDevice.deviceCurve25519Key,
-          ciphertext: {}
+          ciphertext: {},
+          [_event.ToDeviceMessageId]: (0, _uuid.v4)()
         };
         await olmlib.ensureOlmSessionsForDevices(this.baseApis.crypto.olmDevice, this.baseApis, {
           [sender]: [this.baseApis.getStoredDevice(sender, deviceId)]

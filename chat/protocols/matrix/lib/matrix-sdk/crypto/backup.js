@@ -15,7 +15,10 @@ var _aes = require("./aes");
 var _NamespacedValue = require("../NamespacedValue");
 var _index = require("./index");
 var _crypto = require("./crypto");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+var _httpApi = require("../http-api");
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 const KEY_BACKUP_KEYS_PER_REQUEST = 200;
 const KEY_BACKUP_CHECK_RATE_LIMIT = 5000; // ms
 
@@ -48,7 +51,7 @@ class BackupManager {
    *
    * Throws an error if a problem is detected.
    *
-   * @param {IKeyBackupInfo} info the key backup info
+   * @param info - the key backup info
    */
   static checkBackupVersion(info) {
     const Algorithm = algorithmsByName[info.algorithm];
@@ -176,7 +179,7 @@ class BackupManager {
    * Forces a re-check of the key backup and enables/disables it
    * as appropriate.
    *
-   * @return {Object} Object with backup info (as returned by
+   * @returns Object with backup info (as returned by
    *     getKeyBackupVersion) in backupInfo and
    *     trust information (as returned by isKeyBackupTrusted)
    *     in trustInfo.
@@ -204,15 +207,7 @@ class BackupManager {
   /**
    * Check if the given backup info is trusted.
    *
-   * @param {IKeyBackupInfo} backupInfo key backup info dict from /room_keys/version
-   * @return {object} {
-   *     usable: [bool], // is the backup trusted, true iff there is a sig that is valid & from a trusted device
-   *     sigs: [
-   *         valid: [bool || null], // true: valid, false: invalid, null: cannot attempt validation
-   *         deviceId: [string],
-   *         device: [DeviceInfo || null],
-   *     ]
-   * }
+   * @param backupInfo - key backup info dict from /room_keys/version
    */
   async isKeyBackupTrusted(backupInfo) {
     const ret = {
@@ -243,8 +238,8 @@ class BackupManager {
     }
     const mySigs = backupInfo.auth_data.signatures[userId] || {};
     for (const keyId of Object.keys(mySigs)) {
-      const keyIdParts = keyId.split(':');
-      if (keyIdParts[0] !== 'ed25519') {
+      const keyIdParts = keyId.split(":");
+      if (keyIdParts[0] !== "ed25519") {
         _logger.logger.log("Ignoring unknown signature type: " + keyIdParts[0]);
         continue;
       }
@@ -299,7 +294,7 @@ class BackupManager {
    * Schedules sending all keys waiting to be sent to the backup, if not already
    * scheduled. Retries if necessary.
    *
-   * @param maxDelay Maximum delay to wait in ms. 0 means no delay.
+   * @param maxDelay - Maximum delay to wait in ms. 0 means no delay.
    */
   async scheduleKeyBackupSend(maxDelay = 10000) {
     if (this.sendingBackups) return;
@@ -326,7 +321,7 @@ class BackupManager {
           numFailures++;
           _logger.logger.log("Key backup request failed", err);
           if (err.data) {
-            if (err.data.errcode == 'M_NOT_FOUND' || err.data.errcode == 'M_WRONG_ROOM_KEYS_VERSION') {
+            if (err.data.errcode == "M_NOT_FOUND" || err.data.errcode == "M_WRONG_ROOM_KEYS_VERSION") {
               // Re-check key backup status on error, so we can be
               // sure to present the current situation when asked.
               await this.checkKeyBackup();
@@ -351,8 +346,8 @@ class BackupManager {
    * Take some e2e keys waiting to be backed up and send them
    * to the backup.
    *
-   * @param {number} limit Maximum number of keys to back up
-   * @returns {number} Number of sessions backed up
+   * @param limit - Maximum number of keys to back up
+   * @returns Number of sessions backed up
    */
   async backupPendingKeys(limit) {
     const sessions = await this.baseApis.crypto.cryptoStore.getSessionsNeedingBackup(limit);
@@ -375,7 +370,7 @@ class BackupManager {
       const userId = this.baseApis.crypto.deviceList.getUserByIdentityKey(_olmlib.MEGOLM_ALGORITHM, session.senderKey);
       const device = this.baseApis.crypto.deviceList.getDeviceByIdentityKey(_olmlib.MEGOLM_ALGORITHM, session.senderKey) ?? undefined;
       const verified = this.baseApis.crypto.checkDeviceInfoTrust(userId, device).isVerified();
-      rooms[roomId]['sessions'][session.sessionId] = {
+      rooms[roomId]["sessions"][session.sessionId] = {
         first_message_index: sessionData.first_known_index,
         forwarded_count: forwardedCount,
         is_verified: verified,
@@ -418,11 +413,11 @@ class BackupManager {
   /**
    * Marks all group sessions as needing to be backed up without scheduling
    * them to upload in the background.
-   * @returns {Promise<int>} Resolves to the number of sessions now requiring a backup
+   * @returns Promise which resolves to the number of sessions now requiring a backup
    *     (which will be equal to the number of sessions in the store).
    */
   async flagAllGroupSessionsForBackup() {
-    await this.baseApis.crypto.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_BACKUP], txn => {
+    await this.baseApis.crypto.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_BACKUP], txn => {
       this.baseApis.crypto.cryptoStore.getAllEndToEndInboundGroupSessions(txn, session => {
         if (session !== null) {
           this.baseApis.crypto.cryptoStore.markSessionsNeedingBackup([session], txn);
@@ -436,7 +431,7 @@ class BackupManager {
 
   /**
    * Counts the number of end to end session keys that are waiting to be backed up
-   * @returns {Promise<int>} Resolves to the number of sessions requiring backup
+   * @returns Promise which resolves to the number of sessions requiring backup
    */
   countSessionsNeedingBackup() {
     return this.baseApis.crypto.cryptoStore.countSessionsNeedingBackup();
@@ -501,10 +496,9 @@ class Curve25519 {
     try {
       const backupPubKey = decryption.init_with_private_key(privKey);
       if (backupPubKey !== this.authData.public_key) {
-        // eslint-disable-next-line no-throw-literal
-        throw {
+        throw new _httpApi.MatrixError({
           errcode: _client.MatrixClient.RESTORE_BACKUP_ERROR_BAD_KEY
-        };
+        });
       }
       const keys = [];
       for (const [sessionId, sessionData] of Object.entries(sessions)) {
@@ -557,7 +551,7 @@ class Aes256 {
       const {
         mac
       } = await (0, _aes.calculateKeyCheck)(key, authData.iv);
-      if (authData.mac.replace(/=+$/g, '') !== mac.replace(/=+/g, '')) {
+      if (authData.mac.replace(/=+$/g, "") !== mac.replace(/=+/g, "")) {
         throw new Error("Key does not match");
       }
     }
@@ -617,7 +611,7 @@ class Aes256 {
       const {
         mac
       } = await (0, _aes.calculateKeyCheck)(key, this.authData.iv);
-      return this.authData.mac.replace(/=+$/g, '') === mac.replace(/=+/g, '');
+      return this.authData.mac.replace(/=+$/g, "") === mac.replace(/=+/g, "");
     } else {
       // if we have no information, we have to assume the key is right
       return true;

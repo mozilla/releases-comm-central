@@ -6,16 +6,14 @@ var _deviceinfo = require("../deviceinfo");
 var _base = require("./base");
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 const DeviceVerification = _deviceinfo.DeviceInfo.DeviceVerification;
 /**
  * Olm encryption implementation
  *
- * @constructor
- * @extends {module:crypto/algorithms/EncryptionAlgorithm}
- *
- * @param {object} params parameters, as per
- *     {@link module:crypto/algorithms/EncryptionAlgorithm}
+ * @param params - parameters, as per {@link EncryptionAlgorithm}
  */
 class OlmEncryption extends _base.EncryptionAlgorithm {
   constructor(...args) {
@@ -24,9 +22,9 @@ class OlmEncryption extends _base.EncryptionAlgorithm {
     _defineProperty(this, "prepPromise", null);
   }
   /**
-   * @private
-    * @param {string[]} roomMembers list of currently-joined users in the room
-   * @return {Promise} Promise which resolves when setup is complete
+   * @internal
+    * @param roomMembers - list of currently-joined users in the room
+   * @returns Promise which resolves when setup is complete
    */
   ensureSession(roomMembers) {
     if (this.prepPromise) {
@@ -48,13 +46,9 @@ class OlmEncryption extends _base.EncryptionAlgorithm {
   }
 
   /**
-   * @inheritdoc
+   * @param content - plaintext event content
    *
-   * @param {module:models/room} room
-   * @param {string} eventType
-   * @param {object} content plaintext event content
-   *
-   * @return {Promise} Promise which resolves to the new event body
+   * @returns Promise which resolves to the new event body
    */
   async encryptMessage(room, eventType, content) {
     // pick the list of recipients based on the membership list.
@@ -78,11 +72,9 @@ class OlmEncryption extends _base.EncryptionAlgorithm {
       ciphertext: {}
     };
     const promises = [];
-    for (let i = 0; i < users.length; ++i) {
-      const userId = users[i];
+    for (const userId of users) {
       const devices = this.crypto.getStoredDevicesForUser(userId) || [];
-      for (let j = 0; j < devices.length; ++j) {
-        const deviceInfo = devices[j];
+      for (const deviceInfo of devices) {
         const key = deviceInfo.getIdentityKey();
         if (key == this.olmDevice.deviceCurve25519Key) {
           // don't bother sending to ourself
@@ -102,19 +94,12 @@ class OlmEncryption extends _base.EncryptionAlgorithm {
 /**
  * Olm decryption implementation
  *
- * @constructor
- * @extends {module:crypto/algorithms/DecryptionAlgorithm}
- * @param {object} params parameters, as per
- *     {@link module:crypto/algorithms/DecryptionAlgorithm}
+ * @param params - parameters, as per {@link DecryptionAlgorithm}
  */
 class OlmDecryption extends _base.DecryptionAlgorithm {
   /**
-   * @inheritdoc
-   *
-   * @param {MatrixEvent} event
-   *
    * returns a promise which resolves to a
-   * {@link module:crypto~EventDecryptionResult} once we have finished
+   * {@link EventDecryptionResult} once we have finished
    * decrypting. Rejects with an `algorithms.DecryptionError` if there is a
    * problem decrypting the event.
    */
@@ -193,10 +178,10 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
   /**
    * Attempt to decrypt an Olm message
    *
-   * @param {string} theirDeviceIdentityKey  Curve25519 identity key of the sender
-   * @param {object} message  message object, with 'type' and 'body' fields
+   * @param theirDeviceIdentityKey -  Curve25519 identity key of the sender
+   * @param message -  message object, with 'type' and 'body' fields
    *
-   * @return {string} payload, if decrypted successfully.
+   * @returns payload, if decrypted successfully.
    */
   decryptMessage(theirDeviceIdentityKey, message) {
     // This is a wrapper that serialises decryptions of prekey messages, because
@@ -219,8 +204,7 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
 
     // try each session in turn.
     const decryptionErrors = {};
-    for (let i = 0; i < sessionIds.length; i++) {
-      const sessionId = sessionIds[i];
+    for (const sessionId of sessionIds) {
       try {
         const payload = await this.olmDevice.decryptMessage(theirDeviceIdentityKey, sessionId, message.type, message.body);
         _logger.logger.log("Decrypted Olm message from " + theirDeviceIdentityKey + " with session " + sessionId);

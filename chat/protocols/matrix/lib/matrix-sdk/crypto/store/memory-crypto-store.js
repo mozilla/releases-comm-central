@@ -10,16 +10,13 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /**
  * Internal module. in-memory storage for e2e.
- *
- * @module
  */
 
-/**
- * @implements {module:crypto/store/base~CryptoStore}
- */
 class MemoryCryptoStore {
   constructor() {
     _defineProperty(this, "outgoingRoomKeyRequests", []);
@@ -44,7 +41,7 @@ class MemoryCryptoStore {
    *
    * This must be called before the store can be used.
    *
-   * @return {Promise} resolves to the store.
+   * @returns resolves to the store.
    */
   async startup() {
     // No startup work to do for the memory store.
@@ -54,7 +51,7 @@ class MemoryCryptoStore {
   /**
    * Delete all data from this store.
    *
-   * @returns {Promise} Promise which resolves when the store has been cleared.
+   * @returns Promise which resolves when the store has been cleared.
    */
   deleteAllData() {
     return Promise.resolve();
@@ -64,10 +61,9 @@ class MemoryCryptoStore {
    * Look for an existing outgoing room key request, and if none is found,
    * add a new one
    *
-   * @param {module:crypto/store/base~OutgoingRoomKeyRequest} request
    *
-   * @returns {Promise} resolves to
-   *    {@link module:crypto/store/base~OutgoingRoomKeyRequest}: either the
+   * @returns resolves to
+   *    {@link OutgoingRoomKeyRequest}: either the
    *    same instance as passed in, or the existing one.
    */
   getOrAddOutgoingRoomKeyRequest(request) {
@@ -92,11 +88,10 @@ class MemoryCryptoStore {
   /**
    * Look for an existing room key request
    *
-   * @param {module:crypto~RoomKeyRequestBody} requestBody
-   *    existing request to look for
+   * @param requestBody - existing request to look for
    *
-   * @return {Promise} resolves to the matching
-   *    {@link module:crypto/store/base~OutgoingRoomKeyRequest}, or null if
+   * @returns resolves to the matching
+   *    {@link OutgoingRoomKeyRequest}, or null if
    *    not found
    */
   getOutgoingRoomKeyRequest(requestBody) {
@@ -108,10 +103,9 @@ class MemoryCryptoStore {
    *
    * @internal
    *
-   * @param {module:crypto~RoomKeyRequestBody} requestBody
-   *    existing request to look for
+   * @param requestBody - existing request to look for
    *
-   * @return {module:crypto/store/base~OutgoingRoomKeyRequest?}
+   * @returns
    *    the matching request, or null if not found
    */
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -127,10 +121,10 @@ class MemoryCryptoStore {
   /**
    * Look for room key requests by state
    *
-   * @param {Array<Number>} wantedStates list of acceptable states
+   * @param wantedStates - list of acceptable states
    *
-   * @return {Promise} resolves to the a
-   *    {@link module:crypto/store/base~OutgoingRoomKeyRequest}, or null if
+   * @returns resolves to the a
+   *    {@link OutgoingRoomKeyRequest}, or null if
    *    there are no pending requests in those states
    */
   getOutgoingRoomKeyRequestByState(wantedStates) {
@@ -146,8 +140,7 @@ class MemoryCryptoStore {
 
   /**
    *
-   * @param {Number} wantedState
-   * @return {Promise<Array<*>>} All OutgoingRoomKeyRequests in state
+   * @returns All OutgoingRoomKeyRequests in state
    */
   getAllOutgoingRoomKeyRequestsByState(wantedState) {
     return Promise.resolve(this.outgoingRoomKeyRequests.filter(r => r.state == wantedState));
@@ -168,12 +161,12 @@ class MemoryCryptoStore {
    * Look for an existing room key request by id and state, and update it if
    * found
    *
-   * @param {string} requestId      ID of request to update
-   * @param {number} expectedState  state we expect to find the request in
-   * @param {Object} updates        name/value map of updates to apply
+   * @param requestId -      ID of request to update
+   * @param expectedState -  state we expect to find the request in
+   * @param updates -        name/value map of updates to apply
    *
-   * @returns {Promise} resolves to
-   *    {@link module:crypto/store/base~OutgoingRoomKeyRequest}
+   * @returns resolves to
+   *    {@link OutgoingRoomKeyRequest}
    *    updated request, or null if no matching row was found
    */
   updateOutgoingRoomKeyRequest(requestId, expectedState, updates) {
@@ -195,10 +188,10 @@ class MemoryCryptoStore {
    * Look for an existing room key request by id and state, and delete it if
    * found
    *
-   * @param {string} requestId      ID of request to update
-   * @param {number} expectedState  state we expect to find the request in
+   * @param requestId -      ID of request to update
+   * @param expectedState -  state we expect to find the request in
    *
-   * @returns {Promise} resolves once the operation is completed
+   * @returns resolves once the operation is completed
    */
   deleteOutgoingRoomKeyRequest(requestId, expectedState) {
     for (let i = 0; i < this.outgoingRoomKeyRequests.length; i++) {
@@ -324,7 +317,7 @@ class MemoryCryptoStore {
   // Inbound Group Sessions
 
   getEndToEndInboundGroupSession(senderCurve25519Key, sessionId, txn, func) {
-    const k = senderCurve25519Key + '/' + sessionId;
+    const k = senderCurve25519Key + "/" + sessionId;
     func(this.inboundGroupSessions[k] || null, this.inboundGroupSessionsWithheld[k] || null);
   }
   getAllEndToEndInboundGroupSessions(txn, func) {
@@ -343,16 +336,16 @@ class MemoryCryptoStore {
     func(null);
   }
   addEndToEndInboundGroupSession(senderCurve25519Key, sessionId, sessionData, txn) {
-    const k = senderCurve25519Key + '/' + sessionId;
+    const k = senderCurve25519Key + "/" + sessionId;
     if (this.inboundGroupSessions[k] === undefined) {
       this.inboundGroupSessions[k] = sessionData;
     }
   }
   storeEndToEndInboundGroupSession(senderCurve25519Key, sessionId, sessionData, txn) {
-    this.inboundGroupSessions[senderCurve25519Key + '/' + sessionId] = sessionData;
+    this.inboundGroupSessions[senderCurve25519Key + "/" + sessionId] = sessionData;
   }
   storeEndToEndInboundGroupSessionWithheld(senderCurve25519Key, sessionId, sessionData, txn) {
-    const k = senderCurve25519Key + '/' + sessionId;
+    const k = senderCurve25519Key + "/" + sessionId;
     this.inboundGroupSessionsWithheld[k] = sessionData;
   }
 
@@ -394,14 +387,14 @@ class MemoryCryptoStore {
   }
   unmarkSessionsNeedingBackup(sessions) {
     for (const session of sessions) {
-      const sessionKey = session.senderKey + '/' + session.sessionId;
+      const sessionKey = session.senderKey + "/" + session.sessionId;
       delete this.sessionsNeedingBackup[sessionKey];
     }
     return Promise.resolve();
   }
   markSessionsNeedingBackup(sessions) {
     for (const session of sessions) {
-      const sessionKey = session.senderKey + '/' + session.sessionId;
+      const sessionKey = session.senderKey + "/" + session.sessionId;
       this.sessionsNeedingBackup[sessionKey] = true;
     }
     return Promise.resolve();

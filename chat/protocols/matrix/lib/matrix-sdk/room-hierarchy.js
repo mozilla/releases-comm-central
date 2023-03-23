@@ -5,7 +5,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.RoomHierarchy = void 0;
 var _event = require("./@types/event");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 class RoomHierarchy {
   // Map from room id to list of servers which are listed as a via somewhere in the loaded hierarchy
 
@@ -18,11 +20,10 @@ class RoomHierarchy {
    *
    * A RoomHierarchy instance allows you to easily make use of the /hierarchy API and paginate it.
    *
-   * @param {Room} root the root of this hierarchy
-   * @param {number} pageSize the maximum number of rooms to return per page, can be overridden per load request.
-   * @param {number} maxDepth the maximum depth to traverse the hierarchy to
-   * @param {boolean} suggestedOnly whether to only return rooms with suggested=true.
-   * @constructor
+   * @param root - the root of this hierarchy
+   * @param pageSize - the maximum number of rooms to return per page, can be overridden per load request.
+   * @param maxDepth - the maximum depth to traverse the hierarchy to
+   * @param suggestedOnly - whether to only return rooms with suggested=true.
    */
   constructor(root, pageSize, maxDepth, suggestedOnly = false) {
     this.root = root;

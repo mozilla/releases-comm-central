@@ -3,37 +3,37 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ReadReceipt = exports.MAIN_ROOM_TIMELINE = void 0;
+exports.ReadReceipt = void 0;
 exports.synthesizeReceipt = synthesizeReceipt;
 var _read_receipts = require("../@types/read_receipts");
-var _matrix = require("../matrix");
 var _typedEventEmitter = require("./typed-event-emitter");
 var utils = _interopRequireWildcard(require("../utils"));
+var _event = require("./event");
+var _event2 = require("../@types/event");
+var _room = require("./room");
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-const MAIN_ROOM_TIMELINE = "main";
-exports.MAIN_ROOM_TIMELINE = MAIN_ROOM_TIMELINE;
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 function synthesizeReceipt(userId, event, receiptType) {
-  return new _matrix.MatrixEvent({
+  return new _event.MatrixEvent({
     content: {
       [event.getId()]: {
         [receiptType]: {
           [userId]: {
             ts: event.getTs(),
-            threadId: event.threadRootId ?? MAIN_ROOM_TIMELINE
+            thread_id: event.threadRootId ?? _read_receipts.MAIN_ROOM_TIMELINE
           }
         }
       }
     },
-    type: _matrix.EventType.Receipt,
+    type: _event2.EventType.Receipt,
     room_id: event.getRoomId()
   });
 }
 const ReceiptPairRealIndex = 0;
 const ReceiptPairSyntheticIndex = 1;
-// We will only hold a synthetic receipt if we do not have a real receipt or the synthetic is newer.
-
 class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
   constructor(...args) {
     super(...args);
@@ -43,9 +43,9 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
   }
   /**
    * Gets the latest receipt for a given user in the room
-   * @param userId The id of the user for which we want the receipt
-   * @param ignoreSynthesized Whether to ignore synthesized receipts or not
-   * @param receiptType Optional. The type of the receipt we want to get
+   * @param userId - The id of the user for which we want the receipt
+   * @param ignoreSynthesized - Whether to ignore synthesized receipts or not
+   * @param receiptType - Optional. The type of the receipt we want to get
    * @returns the latest receipts of the chosen type for the chosen user
    */
   getReadReceiptForUserId(userId, ignoreSynthesized = false, receiptType = _read_receipts.ReceiptType.Read) {
@@ -59,11 +59,11 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Get the ID of the event that a given user has read up to, or null if we
    * have received no read receipts from them.
-   * @param {String} userId The user ID to get read receipt event ID for
-   * @param {Boolean} ignoreSynthesized If true, return only receipts that have been
+   * @param userId - The user ID to get read receipt event ID for
+   * @param ignoreSynthesized - If true, return only receipts that have been
    *                                    sent by the server, not implicit ones generated
    *                                    by the JS SDK.
-   * @return {String} ID of the latest event that the given user has read, or null.
+   * @returns ID of the latest event that the given user has read, or null.
    */
   getEventReadUpTo(userId, ignoreSynthesized = false) {
     // XXX: This is very very ugly and I hope I won't have to ever add a new
@@ -163,19 +163,39 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
 
   /**
    * Get a list of receipts for the given event.
-   * @param {MatrixEvent} event the event to get receipts for
-   * @return {Object[]} A list of receipts with a userId, type and data keys or
+   * @param event - the event to get receipts for
+   * @returns A list of receipts with a userId, type and data keys or
    * an empty list.
    */
   getReceiptsForEvent(event) {
     return this.receiptCacheByEventId[event.getId()] || [];
   }
   /**
+   * This issue should also be addressed on synapse's side and is tracked as part
+   * of https://github.com/matrix-org/synapse/issues/14837
+   *
+   * Retrieves the read receipt for the logged in user and checks if it matches
+   * the last event in the room and whether that event originated from the logged
+   * in user.
+   * Under those conditions we can consider the context as read. This is useful
+   * because we never send read receipts against our own events
+   * @param userId - the logged in user
+   */
+  fixupNotifications(userId) {
+    const receipt = this.getReadReceiptForUserId(userId, false);
+    const lastEvent = this.timeline[this.timeline.length - 1];
+    if (lastEvent && receipt?.eventId === lastEvent.getId() && userId === lastEvent.getSender()) {
+      this.setUnread(_room.NotificationCountType.Total, 0);
+      this.setUnread(_room.NotificationCountType.Highlight, 0);
+    }
+  }
+
+  /**
    * Add a temporary local-echo receipt to the room to reflect in the
    * client the fact that we've sent one.
-   * @param {string} userId The user ID if the receipt sender
-   * @param {MatrixEvent} e The event that is to be acknowledged
-   * @param {ReceiptType} receiptType The type of receipt
+   * @param userId - The user ID if the receipt sender
+   * @param e - The event that is to be acknowledged
+   * @param receiptType - The type of receipt
    */
   addLocalEchoReceipt(userId, e, receiptType) {
     this.addReceipt(synthesizeReceipt(userId, e, receiptType), true);
@@ -183,8 +203,8 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
 
   /**
    * Get a list of user IDs who have <b>read up to</b> the given event.
-   * @param {MatrixEvent} event the event to get read receipts for.
-   * @return {String[]} A list of user IDs.
+   * @param event - the event to get read receipts for.
+   * @returns A list of user IDs.
    */
   getUsersReadUpTo(event) {
     return this.getReceiptsForEvent(event).filter(function (receipt) {
@@ -198,9 +218,9 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
    * Determines if the given user has read a particular event ID with the known
    * history of the room. This is not a definitive check as it relies only on
    * what is available to the room at the time of execution.
-   * @param {String} userId The user ID to check the read state of.
-   * @param {String} eventId The event ID to check if the user read.
-   * @returns {Boolean} True if the user has read the event, false otherwise.
+   * @param userId - The user ID to check the read state of.
+   * @param eventId - The event ID to check if the user read.
+   * @returns True if the user has read the event, false otherwise.
    */
   hasUserReadEvent(userId, eventId) {
     const readUpToId = this.getEventReadUpTo(userId, false);

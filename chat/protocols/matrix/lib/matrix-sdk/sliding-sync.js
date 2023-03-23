@@ -3,26 +3,34 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.SlidingSyncState = exports.SlidingSyncEvent = exports.SlidingSync = exports.ExtensionState = void 0;
+exports.SlidingSyncState = exports.SlidingSyncEvent = exports.SlidingSync = exports.MSC3575_WILDCARD = exports.MSC3575_STATE_KEY_ME = exports.MSC3575_STATE_KEY_LAZY = exports.ExtensionState = void 0;
 var _logger = require("./logger");
 var _typedEventEmitter = require("./models/typed-event-emitter");
 var _utils = require("./utils");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 // /sync requests allow you to set a timeout= but the request may continue
 // beyond that and wedge forever, so we need to track how long we are willing
 // to keep open the connection. This constant is *ADDED* to the timeout= value
 // to determine the max time we're willing to wait.
 const BUFFER_PERIOD_MS = 10 * 1000;
+const MSC3575_WILDCARD = "*";
+exports.MSC3575_WILDCARD = MSC3575_WILDCARD;
+const MSC3575_STATE_KEY_ME = "$ME";
+exports.MSC3575_STATE_KEY_ME = MSC3575_STATE_KEY_ME;
+const MSC3575_STATE_KEY_LAZY = "$LAZY";
 
 /**
  * Represents a subscription to a room or set of rooms. Controls which events are returned.
  */
+exports.MSC3575_STATE_KEY_LAZY = MSC3575_STATE_KEY_LAZY;
 let SlidingSyncState;
 /**
  * Internal Class. SlidingList represents a single list in sliding sync. The list can have filters,
- * multiple sliding windows, and maintains the index->room_id mapping.
+ * multiple sliding windows, and maintains the index-\>room_id mapping.
  */
 exports.SlidingSyncState = SlidingSyncState;
 (function (SlidingSyncState) {
@@ -34,7 +42,7 @@ class SlidingList {
 
   /**
    * Construct a new sliding list.
-   * @param {MSC3575List} list The range, sort and filter values to use for this list.
+   * @param list - The range, sort and filter values to use for this list.
    */
   constructor(list) {
     _defineProperty(this, "list", void 0);
@@ -47,7 +55,7 @@ class SlidingList {
   /**
    * Mark this list as modified or not. Modified lists will return sticky params with calls to getList.
    * This is useful for the first time the list is sent, or if the list has changed in some way.
-   * @param modified True to mark this list as modified so all sticky parameters will be re-sent.
+   * @param modified - True to mark this list as modified so all sticky parameters will be re-sent.
    */
   setModified(modified) {
     this.isModified = modified;
@@ -55,7 +63,7 @@ class SlidingList {
 
   /**
    * Update the list range for this list. Does not affect modified status as list ranges are non-sticky.
-   * @param newRanges The new ranges for the list
+   * @param newRanges - The new ranges for the list
    */
   updateListRange(newRanges) {
     this.list.ranges = JSON.parse(JSON.stringify(newRanges));
@@ -63,7 +71,7 @@ class SlidingList {
 
   /**
    * Replace list parameters. All fields will be replaced with the new list parameters.
-   * @param list The new list parameters
+   * @param list - The new list parameters
    */
   replaceList(list) {
     list.filters = list.filters || {};
@@ -83,7 +91,7 @@ class SlidingList {
 
   /**
    * Return a copy of the list suitable for a request body.
-   * @param {boolean} forceIncludeAllParams True to forcibly include all params even if the list
+   * @param forceIncludeAllParams - True to forcibly include all params even if the list
    * hasn't been modified. Callers may want to do this if they are modifying the list prior to calling
    * updateList.
    */
@@ -105,7 +113,7 @@ class SlidingList {
    *   a b c       d _ f   COMMAND: DELETE 7;
    *   e a b c       d f   COMMAND: INSERT 0 e;
    *   c=3 is wrong as we are not tracking it, ergo we need to see if `i` is in range else drop it
-   * @param i The index to check
+   * @param i - The index to check
    * @returns True if the index is within a sliding window
    */
   isIndexInRange(i) {
@@ -167,13 +175,17 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
 
   // the *desired* room subscriptions
 
+  // map of custom subscription name to the subscription
+
+  // map of room ID to custom subscription name
+
   /**
    * Create a new sliding sync instance
-   * @param {string} proxyBaseUrl The base URL of the sliding sync proxy
-   * @param {MSC3575List[]} lists The lists to use for sliding sync.
-   * @param {MSC3575RoomSubscription} roomSubscriptionInfo The params to use for room subscriptions.
-   * @param {MatrixClient} client The client to use for /sync calls.
-   * @param {number} timeoutMS The number of milliseconds to wait for a response.
+   * @param proxyBaseUrl - The base URL of the sliding sync proxy
+   * @param lists - The lists to use for sliding sync.
+   * @param roomSubscriptionInfo - The params to use for room subscriptions.
+   * @param client - The client to use for /sync calls.
+   * @param timeoutMS - The number of milliseconds to wait for a response.
    */
   constructor(proxyBaseUrl, lists, roomSubscriptionInfo, client, timeoutMS) {
     super();
@@ -190,76 +202,114 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "extensions", {});
     _defineProperty(this, "desiredRoomSubscriptions", new Set());
     _defineProperty(this, "confirmedRoomSubscriptions", new Set());
+    _defineProperty(this, "customSubscriptions", new Map());
+    _defineProperty(this, "roomIdToCustomSubscription", new Map());
     _defineProperty(this, "pendingReq", void 0);
     _defineProperty(this, "abortController", void 0);
-    this.lists = lists.map(l => new SlidingList(l));
+    this.lists = new Map();
+    lists.forEach((list, key) => {
+      this.lists.set(key, new SlidingList(list));
+    });
   }
 
   /**
-   * Get the length of the sliding lists.
-   * @returns The number of lists in the sync request
+   * Add a custom room subscription, referred to by an arbitrary name. If a subscription with this
+   * name already exists, it is replaced. No requests are sent by calling this method.
+   * @param name - The name of the subscription. Only used to reference this subscription in
+   * useCustomSubscription.
+   * @param sub - The subscription information.
    */
-  listLength() {
-    return this.lists.length;
+  addCustomSubscription(name, sub) {
+    if (this.customSubscriptions.has(name)) {
+      _logger.logger.warn(`addCustomSubscription: ${name} already exists as a custom subscription, ignoring.`);
+      return;
+    }
+    this.customSubscriptions.set(name, sub);
   }
 
   /**
-   * Get the room data for a list.
-   * @param index The list index
+   * Use a custom subscription previously added via addCustomSubscription. No requests are sent
+   * by calling this method. Use modifyRoomSubscriptions to resend subscription information.
+   * @param roomId - The room to use the subscription in.
+   * @param name - The name of the subscription. If this name is unknown, the default subscription
+   * will be used.
+   */
+  useCustomSubscription(roomId, name) {
+    // We already know about this custom subscription, as it is immutable,
+    // we don't need to unconfirm the subscription.
+    if (this.roomIdToCustomSubscription.get(roomId) === name) {
+      return;
+    }
+    this.roomIdToCustomSubscription.set(roomId, name);
+    // unconfirm this subscription so a resend() will send it up afresh.
+    this.confirmedRoomSubscriptions.delete(roomId);
+  }
+
+  /**
+   * Get the room index data for a list.
+   * @param key - The list key
    * @returns The list data which contains the rooms in this list
    */
-  getListData(index) {
-    if (!this.lists[index]) {
+  getListData(key) {
+    const data = this.lists.get(key);
+    if (!data) {
       return null;
     }
     return {
-      joinedCount: this.lists[index].joinedCount,
-      roomIndexToRoomId: Object.assign({}, this.lists[index].roomIndexToRoomId)
+      joinedCount: data.joinedCount,
+      roomIndexToRoomId: Object.assign({}, data.roomIndexToRoomId)
     };
   }
 
   /**
-   * Get the full list parameters for a list index. This function is provided for callers to use
+   * Get the full request list parameters for a list index. This function is provided for callers to use
    * in conjunction with setList to update fields on an existing list.
-   * @param index The list index to get the list for.
-   * @returns A copy of the list or undefined.
+   * @param key - The list key to get the params for.
+   * @returns A copy of the list params or undefined.
    */
-  getList(index) {
-    if (!this.lists[index]) {
+  getListParams(key) {
+    const params = this.lists.get(key);
+    if (!params) {
       return null;
     }
-    return this.lists[index].getList(true);
+    return params.getList(true);
   }
 
   /**
    * Set new ranges for an existing list. Calling this function when _only_ the ranges have changed
    * is more efficient than calling setList(index,list) as this function won't resend sticky params,
    * whereas setList always will.
-   * @param index The list index to modify
-   * @param ranges The new ranges to apply.
-   * @return A promise which resolves to the transaction ID when it has been received down sync
+   * @param key - The list key to modify
+   * @param ranges - The new ranges to apply.
+   * @returns A promise which resolves to the transaction ID when it has been received down sync
    * (or rejects with the transaction ID if the action was not applied e.g the request was cancelled
    * immediately after sending, in which case the action will be applied in the subsequent request)
    */
-  setListRanges(index, ranges) {
-    this.lists[index].updateListRange(ranges);
+  setListRanges(key, ranges) {
+    const list = this.lists.get(key);
+    if (!list) {
+      return Promise.reject(new Error("no list with key " + key));
+    }
+    list.updateListRange(ranges);
     return this.resend();
   }
 
   /**
    * Add or replace a list. Calling this function will interrupt the /sync request to resend new
    * lists.
-   * @param index The index to modify
-   * @param list The new list parameters.
-   * @return A promise which resolves to the transaction ID when it has been received down sync
+   * @param key - The key to modify
+   * @param list - The new list parameters.
+   * @returns A promise which resolves to the transaction ID when it has been received down sync
    * (or rejects with the transaction ID if the action was not applied e.g the request was cancelled
    * immediately after sending, in which case the action will be applied in the subsequent request)
    */
-  setList(index, list) {
-    if (this.lists[index]) {
-      this.lists[index].replaceList(list);
+  setList(key, list) {
+    const existingList = this.lists.get(key);
+    if (existingList) {
+      existingList.replaceList(list);
+      this.lists.set(key, existingList);
     } else {
-      this.lists[index] = new SlidingList(list);
+      this.lists.set(key, new SlidingList(list));
     }
     this.listModifiedCount += 1;
     return this.resend();
@@ -277,8 +327,8 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
    * Modify the room subscriptions for the sync API. Calling this function will interrupt the
    * /sync request to resend new subscriptions. If the /sync stream has not started, this will
    * prepare the room subscriptions for when start() is called.
-   * @param s The new desired room subscriptions.
-   * @return A promise which resolves to the transaction ID when it has been received down sync
+   * @param s - The new desired room subscriptions.
+   * @returns A promise which resolves to the transaction ID when it has been received down sync
    * (or rejects with the transaction ID if the action was not applied e.g the request was cancelled
    * immediately after sending, in which case the action will be applied in the subsequent request)
    */
@@ -290,8 +340,8 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Modify which events to retrieve for room subscriptions. Invalidates all room subscriptions
    * such that they will be sent up afresh.
-   * @param rs The new room subscription fields to fetch.
-   * @return A promise which resolves to the transaction ID when it has been received down sync
+   * @param rs - The new room subscription fields to fetch.
+   * @returns A promise which resolves to the transaction ID when it has been received down sync
    * (or rejects with the transaction ID if the action was not applied e.g the request was cancelled
    * immediately after sending, in which case the action will be applied in the subsequent request)
    */
@@ -303,7 +353,7 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
 
   /**
    * Register an extension to send with the /sync request.
-   * @param ext The extension to register.
+   * @param ext - The extension to register.
    */
   registerExtension(ext) {
     if (this.extensions[ext.name()]) {
@@ -335,8 +385,8 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
 
   /**
    * Invoke all attached room data listeners.
-   * @param {string} roomId The room which received some data.
-   * @param {object} roomData The raw sliding sync response JSON.
+   * @param roomId - The room which received some data.
+   * @param roomData - The raw sliding sync response JSON.
    */
   invokeRoomDataListeners(roomId, roomData) {
     if (!roomData.required_state) {
@@ -350,37 +400,49 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
 
   /**
    * Invoke all attached lifecycle listeners.
-   * @param {SlidingSyncState} state The Lifecycle state
-   * @param {object} resp The raw sync response JSON
-   * @param {Error?} err Any error that occurred when making the request e.g. network errors.
+   * @param state - The Lifecycle state
+   * @param resp - The raw sync response JSON
+   * @param err - Any error that occurred when making the request e.g. network errors.
    */
   invokeLifecycleListeners(state, resp, err) {
     this.emit(SlidingSyncEvent.Lifecycle, state, resp, err);
   }
-  shiftRight(listIndex, hi, low) {
+  shiftRight(listKey, hi, low) {
+    const list = this.lists.get(listKey);
+    if (!list) {
+      return;
+    }
     //     l   h
     // 0,1,2,3,4 <- before
     // 0,1,2,2,3 <- after, hi is deleted and low is duplicated
     for (let i = hi; i > low; i--) {
-      if (this.lists[listIndex].isIndexInRange(i)) {
-        this.lists[listIndex].roomIndexToRoomId[i] = this.lists[listIndex].roomIndexToRoomId[i - 1];
+      if (list.isIndexInRange(i)) {
+        list.roomIndexToRoomId[i] = list.roomIndexToRoomId[i - 1];
       }
     }
   }
-  shiftLeft(listIndex, hi, low) {
+  shiftLeft(listKey, hi, low) {
+    const list = this.lists.get(listKey);
+    if (!list) {
+      return;
+    }
     //     l   h
     // 0,1,2,3,4 <- before
     // 0,1,3,4,4 <- after, low is deleted and hi is duplicated
     for (let i = low; i < hi; i++) {
-      if (this.lists[listIndex].isIndexInRange(i)) {
-        this.lists[listIndex].roomIndexToRoomId[i] = this.lists[listIndex].roomIndexToRoomId[i + 1];
+      if (list.isIndexInRange(i)) {
+        list.roomIndexToRoomId[i] = list.roomIndexToRoomId[i + 1];
       }
     }
   }
-  removeEntry(listIndex, index) {
+  removeEntry(listKey, index) {
+    const list = this.lists.get(listKey);
+    if (!list) {
+      return;
+    }
     // work out the max index
     let max = -1;
-    for (const n in this.lists[listIndex].roomIndexToRoomId) {
+    for (const n in list.roomIndexToRoomId) {
       if (Number(n) > max) {
         max = Number(n);
       }
@@ -389,13 +451,17 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
       return;
     }
     // Everything higher than the gap needs to be shifted left.
-    this.shiftLeft(listIndex, max, index);
-    delete this.lists[listIndex].roomIndexToRoomId[max];
+    this.shiftLeft(listKey, max, index);
+    delete list.roomIndexToRoomId[max];
   }
-  addEntry(listIndex, index) {
+  addEntry(listKey, index) {
+    const list = this.lists.get(listKey);
+    if (!list) {
+      return;
+    }
     // work out the max index
     let max = -1;
-    for (const n in this.lists[listIndex].roomIndexToRoomId) {
+    for (const n in list.roomIndexToRoomId) {
       if (Number(n) > max) {
         max = Number(n);
       }
@@ -404,31 +470,38 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
       return;
     }
     // Everything higher than the gap needs to be shifted right, +1 so we don't delete the highest element
-    this.shiftRight(listIndex, max + 1, index);
+    this.shiftRight(listKey, max + 1, index);
   }
-  processListOps(list, listIndex) {
+  processListOps(list, listKey) {
     let gapIndex = -1;
+    const listData = this.lists.get(listKey);
+    if (!listData) {
+      return;
+    }
     list.ops.forEach(op => {
+      if (!listData) {
+        return;
+      }
       switch (op.op) {
         case "DELETE":
           {
-            _logger.logger.debug("DELETE", listIndex, op.index, ";");
-            delete this.lists[listIndex].roomIndexToRoomId[op.index];
+            _logger.logger.debug("DELETE", listKey, op.index, ";");
+            delete listData.roomIndexToRoomId[op.index];
             if (gapIndex !== -1) {
               // we already have a DELETE operation to process, so process it.
-              this.removeEntry(listIndex, gapIndex);
+              this.removeEntry(listKey, gapIndex);
             }
             gapIndex = op.index;
             break;
           }
         case "INSERT":
           {
-            _logger.logger.debug("INSERT", listIndex, op.index, op.room_id, ";");
-            if (this.lists[listIndex].roomIndexToRoomId[op.index]) {
+            _logger.logger.debug("INSERT", listKey, op.index, op.room_id, ";");
+            if (listData.roomIndexToRoomId[op.index]) {
               // something is in this space, shift items out of the way
               if (gapIndex < 0) {
                 // we haven't been told where to shift from, so make way for a new room entry.
-                this.addEntry(listIndex, op.index);
+                this.addEntry(listKey, op.index);
               } else if (gapIndex > op.index) {
                 // the gap is further down the list, shift every element to the right
                 // starting at the gap so we can just shift each element in turn:
@@ -437,11 +510,11 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
                 // [A,B,B,C] i=2
                 // [A,A,B,C] i=1
                 // Terminate. We'll assign into op.index next.
-                this.shiftRight(listIndex, gapIndex, op.index);
+                this.shiftRight(listKey, gapIndex, op.index);
               } else if (gapIndex < op.index) {
                 // the gap is further up the list, shift every element to the left
                 // starting at the gap so we can just shift each element in turn
-                this.shiftLeft(listIndex, op.index, gapIndex);
+                this.shiftLeft(listKey, op.index, gapIndex);
               }
             }
             // forget the gap, we don't need it anymore. This is outside the check for
@@ -449,16 +522,16 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
             // forget the gap, not conditionally based on the presence of a room in the INSERT
             // position. Without this, DELETE 0; INSERT 0; would do the wrong thing.
             gapIndex = -1;
-            this.lists[listIndex].roomIndexToRoomId[op.index] = op.room_id;
+            listData.roomIndexToRoomId[op.index] = op.room_id;
             break;
           }
         case "INVALIDATE":
           {
             const startIndex = op.range[0];
             for (let i = startIndex; i <= op.range[1]; i++) {
-              delete this.lists[listIndex].roomIndexToRoomId[i];
+              delete listData.roomIndexToRoomId[i];
             }
-            _logger.logger.debug("INVALIDATE", listIndex, op.range[0], op.range[1], ";");
+            _logger.logger.debug("INVALIDATE", listKey, op.range[0], op.range[1], ";");
             break;
           }
         case "SYNC":
@@ -470,9 +543,9 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
                 break; // we are at the end of list
               }
 
-              this.lists[listIndex].roomIndexToRoomId[i] = roomId;
+              listData.roomIndexToRoomId[i] = roomId;
             }
-            _logger.logger.debug("SYNC", listIndex, op.range[0], op.range[1], (op.room_ids || []).join(" "), ";");
+            _logger.logger.debug("SYNC", listKey, op.range[0], op.range[1], (op.room_ids || []).join(" "), ";");
             break;
           }
       }
@@ -480,7 +553,7 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
     if (gapIndex !== -1) {
       // we already have a DELETE operation to process, so process it
       // Everything higher than the gap needs to be shifted left.
-      this.removeEntry(listIndex, gapIndex);
+      this.removeEntry(listKey, gapIndex);
     }
   }
 
@@ -577,10 +650,12 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
       let resp;
       try {
         const listModifiedCount = this.listModifiedCount;
+        const reqLists = {};
+        this.lists.forEach((l, key) => {
+          reqLists[key] = l.getList(false);
+        });
         const reqBody = {
-          lists: this.lists.map(l => {
-            return l.getList(false);
-          }),
+          lists: reqLists,
           pos: currentPos,
           timeout: this.timeoutMS,
           clientTimeout: this.timeoutMS + BUFFER_PERIOD_MS,
@@ -595,7 +670,12 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
         if (newSubscriptions.size > 0) {
           reqBody.room_subscriptions = {};
           for (const roomId of newSubscriptions) {
-            reqBody.room_subscriptions[roomId] = this.roomSubscriptionInfo;
+            const customSubName = this.roomIdToCustomSubscription.get(roomId);
+            let sub = this.roomSubscriptionInfo;
+            if (customSubName && this.customSubscriptions.has(customSubName)) {
+              sub = this.customSubscriptions.get(customSubName);
+            }
+            reqBody.room_subscriptions[roomId] = sub;
           }
         }
         if (this.txnId) {
@@ -624,11 +704,15 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
           l.setModified(false);
         });
         // set default empty values so we don't need to null check
-        resp.lists = resp.lists || [];
+        resp.lists = resp.lists || {};
         resp.rooms = resp.rooms || {};
         resp.extensions = resp.extensions || {};
-        resp.lists.forEach((val, i) => {
-          this.lists[i].joinedCount = val.count;
+        Object.keys(resp.lists).forEach(key => {
+          const list = this.lists.get(key);
+          if (!list || !resp) {
+            return;
+          }
+          list.joinedCount = resp.lists[key].count;
         });
         this.invokeLifecycleListeners(SlidingSyncState.RequestFinished, resp);
       } catch (err) {
@@ -656,20 +740,24 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
       Object.keys(resp.rooms).forEach(roomId => {
         this.invokeRoomDataListeners(roomId, resp.rooms[roomId]);
       });
-      const listIndexesWithUpdates = new Set();
+      const listKeysWithUpdates = new Set();
       if (!doNotUpdateList) {
-        resp.lists.forEach((list, listIndex) => {
+        for (const [key, list] of Object.entries(resp.lists)) {
           list.ops = list.ops || [];
           if (list.ops.length > 0) {
-            listIndexesWithUpdates.add(listIndex);
+            listKeysWithUpdates.add(key);
           }
-          this.processListOps(list, listIndex);
-        });
+          this.processListOps(list, key);
+        }
       }
       this.invokeLifecycleListeners(SlidingSyncState.Complete, resp);
       this.onPostExtensionsResponse(resp.extensions);
-      listIndexesWithUpdates.forEach(i => {
-        this.emit(SlidingSyncEvent.List, i, this.lists[i].joinedCount, Object.assign({}, this.lists[i].roomIndexToRoomId));
+      listKeysWithUpdates.forEach(listKey => {
+        const list = this.lists.get(listKey);
+        if (!list) {
+          return;
+        }
+        this.emit(SlidingSyncEvent.List, listKey, list.joinedCount, Object.assign({}, list.roomIndexToRoomId));
       });
       this.resolveTransactionDefers(resp.txn_id);
     }

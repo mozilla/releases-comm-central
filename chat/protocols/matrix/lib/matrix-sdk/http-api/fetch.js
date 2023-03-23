@@ -11,7 +11,9 @@ var _interface = require("./interface");
 var _utils2 = require("./utils");
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 class FetchHttpApi {
   constructor(eventEmitter, opts) {
     this.eventEmitter = eventEmitter;
@@ -34,7 +36,7 @@ class FetchHttpApi {
 
   /**
    * Sets the base URL for the identity server
-   * @param {string} url The new base url
+   * @param url - The new base url
    */
   setIdBaseUrl(url) {
     this.opts.idBaseUrl = url;
@@ -63,35 +65,29 @@ class FetchHttpApi {
 
   /**
    * Perform an authorised request to the homeserver.
-   * @param {string} method The HTTP method e.g. "GET".
-   * @param {string} path The HTTP path <b>after</b> the supplied prefix e.g.
+   * @param method - The HTTP method e.g. "GET".
+   * @param path - The HTTP path <b>after</b> the supplied prefix e.g.
    * "/createRoom".
    *
-   * @param {Object=} queryParams A dict of query params (these will NOT be
+   * @param queryParams - A dict of query params (these will NOT be
    * urlencoded). If unspecified, there will be no query params.
    *
-   * @param {Object} [body] The HTTP JSON body.
+   * @param body - The HTTP JSON body.
    *
-   * @param {Object|Number=} opts additional options. If a number is specified,
+   * @param opts - additional options. If a number is specified,
    * this is treated as `opts.localTimeoutMs`.
    *
-   * @param {Number=} opts.localTimeoutMs The maximum amount of time to wait before
-   * timing out the request. If not specified, there is no timeout.
-   *
-   * @param {string=} opts.prefix The full prefix to use e.g.
-   * "/_matrix/client/v2_alpha". If not specified, uses this.opts.prefix.
-   *
-   * @param {string=} opts.baseUrl The alternative base url to use.
-   * If not specified, uses this.opts.baseUrl
-   *
-   * @param {Object=} opts.headers map of additional request headers
-   *
-   * @return {Promise} Resolves to <code>{data: {Object},
-   * headers: {Object}, code: {Number}}</code>.
-   * If <code>onlyData</code> is set, this will resolve to the <code>data</code>
-   * object only.
-   * @return {module:http-api.MatrixError} Rejects with an error if a problem
-   * occurred. This includes network problems and Matrix-specific error JSON.
+   * @returns Promise which resolves to
+   * ```
+   * {
+   *     data: {Object},
+   *     headers: {Object},
+   *     code: {Number},
+   * }
+   * ```
+   * If `onlyData` is set, this will resolve to the `data` object only.
+   * @returns Rejects with an error if a problem occurred.
+   * This includes network problems and Matrix-specific error JSON.
    */
   authedRequest(method, path, queryParams, body, opts = {}) {
     if (!queryParams) queryParams = {};
@@ -112,9 +108,9 @@ class FetchHttpApi {
     }
     const requestPromise = this.request(method, path, queryParams, body, opts);
     requestPromise.catch(err => {
-      if (err.errcode == 'M_UNKNOWN_TOKEN' && !opts?.inhibitLogoutEmit) {
+      if (err.errcode == "M_UNKNOWN_TOKEN" && !opts?.inhibitLogoutEmit) {
         this.eventEmitter.emit(_interface.HttpApiEvent.SessionLoggedOut, err);
-      } else if (err.errcode == 'M_CONSENT_NOT_GIVEN') {
+      } else if (err.errcode == "M_CONSENT_NOT_GIVEN") {
         this.eventEmitter.emit(_interface.HttpApiEvent.NoConsent, err.message, err.data.consent_uri);
       }
     });
@@ -126,30 +122,28 @@ class FetchHttpApi {
 
   /**
    * Perform a request to the homeserver without any credentials.
-   * @param {string} method The HTTP method e.g. "GET".
-   * @param {string} path The HTTP path <b>after</b> the supplied prefix e.g.
+   * @param method - The HTTP method e.g. "GET".
+   * @param path - The HTTP path <b>after</b> the supplied prefix e.g.
    * "/createRoom".
    *
-   * @param {Object=} queryParams A dict of query params (these will NOT be
+   * @param queryParams - A dict of query params (these will NOT be
    * urlencoded). If unspecified, there will be no query params.
    *
-   * @param {Object} [body] The HTTP JSON body.
+   * @param body - The HTTP JSON body.
    *
-   * @param {Object=} opts additional options
+   * @param opts - additional options
    *
-   * @param {Number=} opts.localTimeoutMs The maximum amount of time to wait before
-   * timing out the request. If not specified, there is no timeout.
-   *
-   * @param {string=} opts.prefix The full prefix to use e.g.
-   * "/_matrix/client/v2_alpha". If not specified, uses this.opts.prefix.
-   *
-   * @param {Object=} opts.headers map of additional request headers
-   *
-   * @return {Promise} Resolves to <code>{data: {Object},
-   * headers: {Object}, code: {Number}}</code>.
-   * If <code>onlyData</code> is set, this will resolve to the <code>data</code>
+   * @returns Promise which resolves to
+   * ```
+   * {
+   *  data: {Object},
+   *  headers: {Object},
+   *  code: {Number},
+   * }
+   * ```
+   * If `onlyData</code> is set, this will resolve to the <code>data`
    * object only.
-   * @return {module:http-api.MatrixError} Rejects with an error if a problem
+   * @returns Rejects with an error if a problem
    * occurred. This includes network problems and Matrix-specific error JSON.
    */
   request(method, path, queryParams, body, opts) {
@@ -159,21 +153,16 @@ class FetchHttpApi {
 
   /**
    * Perform a request to an arbitrary URL.
-   * @param {string} method The HTTP method e.g. "GET".
-   * @param {string} url The HTTP URL object.
+   * @param method - The HTTP method e.g. "GET".
+   * @param url - The HTTP URL object.
    *
-   * @param {Object} [body] The HTTP JSON body.
+   * @param body - The HTTP JSON body.
    *
-   * @param {Object=} opts additional options
+   * @param opts - additional options
    *
-   * @param {Number=} opts.localTimeoutMs The maximum amount of time to wait before
-   * timing out the request. If not specified, there is no timeout.
-   *
-   * @param {Object=} opts.headers map of additional request headers
-   *
-   * @return {Promise} Resolves to data unless `onlyData` is specified as false,
+   * @returns Promise which resolves to data unless `onlyData` is specified as false,
    * where the resolved value will be a fetch Response object.
-   * @return {module:http-api.MatrixError} Rejects with an error if a problem
+   * @returns Rejects with an error if a problem
    * occurred. This includes network problems and Matrix-specific error JSON.
    */
   async requestOtherUrl(method, url, body, opts = {}) {
@@ -190,6 +179,7 @@ class FetchHttpApi {
       }
     }
     const timeout = opts.localTimeoutMs ?? this.opts.localTimeoutMs;
+    const keepAlive = opts.keepAlive ?? false;
     const signals = [this.abortController.signal];
     if (timeout !== undefined) {
       signals.push((0, _utils2.timeoutSignal)(timeout));
@@ -219,7 +209,9 @@ class FetchHttpApi {
         referrer: "",
         referrerPolicy: "no-referrer",
         cache: "no-cache",
-        credentials: "omit" // we send credentials via headers
+        credentials: "omit",
+        // we send credentials via headers
+        keepalive: keepAlive
       });
     } catch (e) {
       if (e.name === "AbortError") {
@@ -240,11 +232,11 @@ class FetchHttpApi {
 
   /**
    * Form and return a homeserver request URL based on the given path params and prefix.
-   * @param {string} path The HTTP path <b>after</b> the supplied prefix e.g. "/createRoom".
-   * @param {Object} queryParams A dict of query params (these will NOT be urlencoded).
-   * @param {string} prefix The full prefix to use e.g. "/_matrix/client/v2_alpha", defaulting to this.opts.prefix.
-   * @param {string} baseUrl The baseUrl to use e.g. "https://matrix.org/", defaulting to this.opts.baseUrl.
-   * @return {string} URL
+   * @param path - The HTTP path <b>after</b> the supplied prefix e.g. "/createRoom".
+   * @param queryParams - A dict of query params (these will NOT be urlencoded).
+   * @param prefix - The full prefix to use e.g. "/_matrix/client/v2_alpha", defaulting to this.opts.prefix.
+   * @param baseUrl - The baseUrl to use e.g. "https://matrix.org/", defaulting to this.opts.baseUrl.
+   * @returns URL
    */
   getUrl(path, queryParams, prefix, baseUrl) {
     const url = new URL((baseUrl ?? this.opts.baseUrl) + (prefix ?? this.opts.prefix) + path);

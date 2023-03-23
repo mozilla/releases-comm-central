@@ -24,10 +24,9 @@ limitations under the License.
 /**
  * Extensible topic event type based on MSC3765
  * https://github.com/matrix-org/matrix-spec-proposals/pull/3765
- */
-
-/**
- * Eg
+ *
+ * @example
+ * ```
  * {
  *      "type": "m.room.topic,
  *      "state_key": "",
@@ -42,6 +41,7 @@ limitations under the License.
  *          }],
  *      }
  * }
+ * ```
  */
 
 /**

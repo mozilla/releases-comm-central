@@ -9,9 +9,11 @@ var _event = require("../models/event");
 var _CrossSigning = require("./CrossSigning");
 var _indexeddbCryptoStore = require("./store/indexeddb-crypto-store");
 var _httpApi = require("../http-api");
-var _matrix = require("../matrix");
+var _client = require("../client");
 var _typedEventEmitter = require("../models/typed-event-emitter");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /**
  * Builds an EncryptionSetupOperation by calling any of the add.. methods.
  * Once done, `buildOperation()` can be called which allows to apply to operation.
@@ -23,8 +25,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  */
 class EncryptionSetupBuilder {
   /**
-   * @param {Object.<String, MatrixEvent>} accountData pre-existing account data, will only be read, not written.
-   * @param {CryptoCallbacks} delegateCryptoCallbacks crypto callbacks to delegate to if the key isn't in cache yet
+   * @param accountData - pre-existing account data, will only be read, not written.
+   * @param delegateCryptoCallbacks - crypto callbacks to delegate to if the key isn't in cache yet
    */
   constructor(accountData, delegateCryptoCallbacks) {
     _defineProperty(this, "accountDataClientAdapter", void 0);
@@ -42,13 +44,13 @@ class EncryptionSetupBuilder {
   /**
    * Adds new cross-signing public keys
    *
-   * @param {function} authUpload Function called to await an interactive auth
+   * @param authUpload - Function called to await an interactive auth
    * flow when uploading device signing keys.
    * Args:
-   *     {function} A function that makes the request requiring auth. Receives
+   *     A function that makes the request requiring auth. Receives
    *     the auth data as an object. Can be called multiple times, first with
    *     an empty authDict, to obtain the flows.
-   * @param {Object} keys the new keys
+   * @param keys - the new keys
    */
   addCrossSigningKeys(authUpload, keys) {
     this.crossSigningKeys = {
@@ -63,7 +65,7 @@ class EncryptionSetupBuilder {
    * Used either to create a new key backup, or add signatures
    * from the new MSK.
    *
-   * @param {Object} keyBackupInfo as received from/sent to the server
+   * @param keyBackupInfo - as received from/sent to the server
    */
   addSessionBackup(keyBackupInfo) {
     this.keyBackupInfo = keyBackupInfo;
@@ -74,7 +76,6 @@ class EncryptionSetupBuilder {
    *
    * Used after fixing the format of the key
    *
-   * @param {Uint8Array} privateKey
    */
   addSessionBackupPrivateKeyToCache(privateKey) {
     this.sessionBackupPrivateKey = privateKey;
@@ -84,9 +85,6 @@ class EncryptionSetupBuilder {
    * Add signatures from a given user and device/x-sign key
    * Used to sign the new cross-signing key with the device key
    *
-   * @param {String} userId
-   * @param {String} deviceId
-   * @param {Object} signature
    */
   addKeySignature(userId, deviceId, signature) {
     if (!this.keySignatures) {
@@ -96,19 +94,12 @@ class EncryptionSetupBuilder {
     this.keySignatures[userId] = userSignatures;
     userSignatures[deviceId] = signature;
   }
-
-  /**
-   * @param {String} type
-   * @param {Object} content
-   * @return {Promise}
-   */
   async setAccountData(type, content) {
     await this.accountDataClientAdapter.setAccountData(type, content);
   }
 
   /**
    * builds the operation containing all the parts that have been added to the builder
-   * @return {EncryptionSetupOperation}
    */
   buildOperation() {
     const accountData = this.accountDataClientAdapter.values;
@@ -120,9 +111,6 @@ class EncryptionSetupBuilder {
    *
    * This does not yet store the operation in a way that it can be restored,
    * but that is the idea in the future.
-   *
-   * @param  {Crypto} crypto
-   * @return {Promise}
    */
   async persist(crypto) {
     // store private keys in cache
@@ -134,7 +122,7 @@ class EncryptionSetupBuilder {
         await cacheCallbacks.storeCrossSigningKeyCache?.(type, privateKey);
       }
       // store own cross-sign pubkeys as trusted
-      await crypto.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+      await crypto.cryptoStore.doTxn("readwrite", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
         crypto.cryptoStore.storeCrossSigningKeys(txn, this.crossSigningKeys.keys);
       });
     }
@@ -154,10 +142,6 @@ class EncryptionSetupBuilder {
 exports.EncryptionSetupBuilder = EncryptionSetupBuilder;
 class EncryptionSetupOperation {
   /**
-   * @param  {Map<String, Object>} accountData
-   * @param  {Object} crossSigningKeys
-   * @param  {Object} keyBackupInfo
-   * @param  {Object} keySignatures
    */
   constructor(accountData, crossSigningKeys, keyBackupInfo, keySignatures) {
     this.accountData = accountData;
@@ -168,7 +152,6 @@ class EncryptionSetupOperation {
 
   /**
    * Runs the (remaining part of, in the future) operation by sending requests to the server.
-   * @param {Crypto} crypto
    */
   async apply(crypto) {
     const baseApis = crypto.baseApis;
@@ -231,7 +214,7 @@ class AccountDataClientAdapter extends _typedEventEmitter.TypedEventEmitter {
   //
 
   /**
-   * @param  {Object.<String, MatrixEvent>} existingValues existing account data
+   * @param existingValues - existing account data
    */
   constructor(existingValues) {
     super();
@@ -240,16 +223,14 @@ class AccountDataClientAdapter extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
-   * @param  {String} type
-   * @return {Promise<Object>} the content of the account data
+   * @returns the content of the account data
    */
   getAccountDataFromServer(type) {
     return Promise.resolve(this.getAccountData(type));
   }
 
   /**
-   * @param  {String} type
-   * @return {Object} the content of the account data
+   * @returns the content of the account data
    */
   getAccountData(type) {
     const modifiedValue = this.values.get(type);
@@ -262,12 +243,6 @@ class AccountDataClientAdapter extends _typedEventEmitter.TypedEventEmitter {
     }
     return null;
   }
-
-  /**
-   * @param {String} type
-   * @param {Object} content
-   * @return {Promise}
-   */
   setAccountData(type, content) {
     const lastEvent = this.values.get(type);
     this.values.set(type, content);
@@ -279,7 +254,7 @@ class AccountDataClientAdapter extends _typedEventEmitter.TypedEventEmitter {
         type,
         content
       });
-      this.emit(_matrix.ClientEvent.AccountData, event, lastEvent);
+      this.emit(_client.ClientEvent.AccountData, event, lastEvent);
       return {};
     });
   }
