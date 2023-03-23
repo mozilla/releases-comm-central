@@ -42,7 +42,6 @@
       <hbox flex="1" class="contact-hbox">
         <stack>
           <label crop="end"
-                 flex="1"
                  class="contactDisplayName blistDisplayName">
           </label>
           <html:input type="text"

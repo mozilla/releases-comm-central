@@ -235,6 +235,10 @@ richlistitem[is="chat-group-richlistitem"] > label {
   display: inline-block;
 }
 
+.blistDisplayName {
+  flex: 1 auto;
+}
+
 .convUnreadCount,
 .contactDisplayName,
 .convDisplayName,

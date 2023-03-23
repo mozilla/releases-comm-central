@@ -46,7 +46,7 @@
         <html:img class="smallStatusIcon" />
       </stack>
       <hbox flex="1" class="conv-hbox">
-        <label crop="end" flex="1" class="convDisplayName blistDisplayName">
+        <label crop="end" class="convDisplayName blistDisplayName">
         </label>
         <label class="convUnreadCount" crop="end"></label>
         <box class="convUnreadTargetedCount">
