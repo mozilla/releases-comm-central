@@ -14,6 +14,15 @@
   }
 }
 
+#support-buttons {
+  display: flex;
+}
+
+#support-buttons > div {
+  display: inherit;
+  align-items: center;
+}
+
 #contents.show-private-data .data-public {
   display: none;
 }
@@ -27,7 +36,6 @@
 }
 
 #check-show-private-data {
-  margin-inline-start: 10px;
   margin-inline-end: 3px;
   vertical-align: text-bottom;
 }

@@ -43,46 +43,50 @@
   </head>
 
   <body class="wide-container">
+    <h1 data-l10n-id="page-title"/>
+    <div class="header-flex">
+      <div class="content-flex">
+        <div class="page-subtitle" data-l10n-id="page-subtitle">
+          <a id="supportLink" data-l10n-name="support-link"></a>
+        </div>
+        <div id="support-buttons">
+          <!-- Not used on TB
+          <button id="copy-raw-data-to-clipboard" data-l10n-id="copy-raw-data-to-clipboard-label"/>
+          -->
+          <button id="copy-to-clipboard" data-l10n-id="copy-text-to-clipboard-label"/>
+          <!-- Added for TB -->
+          <button id="send-via-email" data-l10n-id="send-via-email"/>
+          <div>
+            <input type="checkbox"
+                   id="check-show-private-data"
+                   class="data-uionly"
+                   role="checkbox"/>
+            <span>
+              <label for="check-show-private-data" data-l10n-id="show-private-data-main-text"/>
+              <span class="gray-text" data-l10n-id="show-private-data-explanation-text"></span>
+            </span>
+          </div>
+          <!-- End of TB addition -->
+        </div>
+      </div>
 
 #ifndef ANDROID
-    <div class="action-box">
-      <div id="reset-box">
-        <h3 data-l10n-id="refresh-profile"/>
-        <button id="reset-box-button" data-l10n-id="refresh-profile-button"/>
+      <div class="action-box">
+        <div id="reset-box">
+          <h3 data-l10n-id="refresh-profile"/>
+          <button id="reset-box-button" data-l10n-id="refresh-profile-button"/>
+        </div>
+        <div id="safe-mode-box">
+          <h3 data-l10n-id="troubleshoot-mode-title"/>
+          <button id="restart-in-safe-mode-button" data-l10n-id="restart-in-troubleshoot-mode-label"/>
+        </div>
+        <div id="clear-startup-cache-box">
+          <h3 data-l10n-id="clear-startup-cache-title"/>
+          <button id="clear-startup-cache-button" data-l10n-id="clear-startup-cache-label"/>
+        </div>
       </div>
-      <div id="safe-mode-box">
-        <h3 data-l10n-id="troubleshoot-mode-title"/>
-        <button id="restart-in-safe-mode-button" data-l10n-id="restart-in-troubleshoot-mode-label"/>
-      </div>
-      <div id="clear-startup-cache-box">
-        <h3 data-l10n-id="clear-startup-cache-title"/>
-        <button id="clear-startup-cache-button" data-l10n-id="clear-startup-cache-label"/>
-      </div>
-    </div>
 #endif
-
-    <h1 data-l10n-id="page-title"/>
-
-    <div class="page-subtitle" data-l10n-id="page-subtitle">
-      <a id="supportLink" data-l10n-name="support-link"></a>
     </div>
-
-    <div>
-<!-- Not used on TB
-      <button id="copy-raw-data-to-clipboard" data-l10n-id="copy-raw-data-to-clipboard-label"/>
- -->
-      <button id="copy-to-clipboard" data-l10n-id="copy-text-to-clipboard-label"/>
-<!-- Added for TB -->
-      <button id="send-via-email" data-l10n-id="send-via-email"/>
-      <input type="checkbox"
-             id="check-show-private-data"
-             class="data-uionly"
-             role="checkbox"/>
-      <label for="check-show-private-data" data-l10n-id="show-private-data-main-text"/>
-      <label class="gray-text" data-l10n-id="show-private-data-explanation-text"/>
-<!-- End of TB addition -->
-    </div>
-
     <div id="contents">
 
       <!-- - - - - - - - - - - - - - - - - - - - - -->
