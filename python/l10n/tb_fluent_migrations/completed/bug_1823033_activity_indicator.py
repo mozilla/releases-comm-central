@@ -1,8 +1,8 @@
 # Any copyright is dedicated to the Public Domain.
 # http://creativecommons.org/publicdomain/zero/1.0/
 
-from fluent.migrate import COPY
-from fluent.migrate.helpers import transforms_from
+from fluent.migratetb import COPY
+from fluent.migratetb.helpers import transforms_from
 
 
 def migrate(ctx):
