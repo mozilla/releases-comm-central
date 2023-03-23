@@ -32,6 +32,60 @@ content-tab-security-high-icon =
 content-tab-security-broken-icon =
     .alt = The connection is not secure
 
+# Back
+
+# Variables
+#   $shortcut (String) - A keyboard shortcut for the Go Back command.
+content-tab-menu-back =
+    .tooltiptext = Go back one page ({ $shortcut })
+    .aria-label = Back
+    .accesskey = B
+
+# This menuitem is only visible on macOS
+content-tab-menu-back-mac =
+    .label = Back
+    .accesskey = B
+
+# Forward
+
+# Variables
+#   $shortcut (String) - A keyboard shortcut for the Go Forward command.
+content-tab-menu-forward =
+    .tooltiptext = Go forward one page ({ $shortcut })
+    .aria-label = Forward
+    .accesskey = F
+
+# This menuitem is only visible on macOS
+content-tab-menu-forward-mac =
+    .label = Forward
+    .accesskey = F
+
+# Reload
+
+content-tab-menu-reload =
+    .tooltiptext = Reload page
+    .aria-label = Reload
+    .accesskey = R
+
+# This menuitem is only visible on macOS
+content-tab-menu-reload-mac =
+    .tooltiptext = Reload page
+    .label = Reload
+    .accesskey = R
+
+# Stop
+
+content-tab-menu-stop =
+    .tooltiptext = Stop page loading
+    .aria-label = Stop
+    .accesskey = S
+
+# This menuitem is only visible on macOS
+content-tab-menu-stop-mac =
+    .tooltiptext = Stop page loading
+    .label = Stop
+    .accesskey = S
+
 ## Toolbar
 
 addons-and-themes-toolbarbutton =

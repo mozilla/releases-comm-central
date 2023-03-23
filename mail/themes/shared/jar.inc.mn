@@ -169,6 +169,8 @@
   skin/classic/messenger/icons/attachment-deleted.svg         (../shared/mail/icons/attachment-deleted.svg)
   skin/classic/messenger/icons/attachment-deleted-large.svg   (../shared/mail/icons/attachment-deleted-large.svg)
   skin/classic/messenger/icons/bold.svg                       (../shared/mail/icons/bold.svg)
+  skin/classic/messenger/icons/browser-back.svg               (../shared/mail/icons/browser-back.svg)
+  skin/classic/messenger/icons/browser-forward.svg            (../shared/mail/icons/browser-forward.svg)
   skin/classic/messenger/icons/bullet-list.svg                (../shared/mail/icons/bullet-list.svg)
   skin/classic/messenger/icons/cancel.svg                     (../shared/mail/icons/cancel.svg)
   skin/classic/messenger/icons/cert-error.svg                 (../shared/mail/icons/cert-error.svg)

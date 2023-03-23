@@ -267,11 +267,11 @@
               oncommandupdate="goUpdatePasteMenuItems()"/>
   <commandset id="webSearchItems"/>
   <commandset id="browserCommands">
-    <!-- Browsing back and forth inside the add-on manager and on ATN -->
+    <!-- Browsing back and forth inside the add-on manager and on content tabs -->
     <command id="Browser:Back"
-             oncommand="specialTabs.browserBack();"/>
+             oncommand="goDoCommand('Browser:Back');"/>
     <command id="Browser:Forward"
-             oncommand="specialTabs.browserForward();"/>
+             oncommand="goDoCommand('Browser:Forward');"/>
   </commandset>
   <commandset id="attachmentCommands">
     <command id="cmd_openAllAttachments"
@@ -300,11 +300,11 @@
 
 <keyset id="browserKeys">
 #ifdef XP_MACOSX
-  <key id="key_goBackKb" keycode="VK_LEFT" command="Browser:Back" modifiers="accel"/>
-  <key id="key_goForwardKb" keycode="VK_RIGHT" command="Browser:Forward" modifiers="accel"/>
+  <key id="key_goBackKb" keycode="VK_LEFT" oncommand="goDoCommand('Browser:Back');" modifiers="accel"/>
+  <key id="key_goForwardKb" keycode="VK_RIGHT" oncommand="goDoCommand('Browser:Forward');" modifiers="accel"/>
 #else
-  <key id="key_goBackKb" keycode="VK_LEFT" command="Browser:Back" modifiers="alt" />
-  <key id="key_goForwardKb" keycode="VK_RIGHT" command="Browser:Forward" modifiers="alt" />
+  <key id="key_goBackKb" keycode="VK_LEFT" oncommand="goDoCommand('Browser:Back');" modifiers="alt" />
+  <key id="key_goForwardKb" keycode="VK_RIGHT" oncommand="goDoCommand('Browser:Forward');" modifiers="alt" />
 #endif
 </keyset>
 <keyset id="mailKeys">

@@ -534,6 +534,8 @@ var contentTabBaseType = {
       case "button_print":
       case "cmd_stop":
       case "cmd_reload":
+      case "Browser:Back":
+      case "Browser:Forward":
         return true;
       default:
         return false;
@@ -571,6 +573,10 @@ var contentTabBaseType = {
         return aTab.reloadEnabled;
       case "cmd_stop":
         return aTab.busy;
+      case "Browser:Back":
+        return aTab.browser?.canGoBack;
+      case "Browser:Forward":
+        return aTab.browser?.canGoForward;
       default:
         return false;
     }
@@ -607,6 +613,12 @@ var contentTabBaseType = {
         break;
       case "cmd_reload":
         aTab.browser.reload();
+        break;
+      case "Browser:Back":
+        specialTabs.browserBack();
+        break;
+      case "Browser:Forward":
+        specialTabs.browserForward();
         break;
     }
   },
@@ -1378,8 +1390,11 @@ var specialTabs = {
 
   browserForward() {
     let tabmail = document.getElementById("tabmail");
-    let type = tabmail?.currentTabInfo.mode.type;
-    if (type != "contentTab") {
+    if (
+      !["contentTab", "mail3PaneTab"].includes(
+        tabmail?.currentTabInfo.mode.name
+      )
+    ) {
       return;
     }
     let browser = tabmail.getBrowserForSelectedTab();
@@ -1393,8 +1408,11 @@ var specialTabs = {
 
   browserBack() {
     let tabmail = document.getElementById("tabmail");
-    let type = tabmail?.currentTabInfo.mode.type;
-    if (type != "contentTab") {
+    if (
+      !["contentTab", "mail3PaneTab"].includes(
+        tabmail?.currentTabInfo.mode.name
+      )
+    ) {
       return;
     }
     let browser = tabmail.getBrowserForSelectedTab();

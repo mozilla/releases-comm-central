@@ -5,14 +5,17 @@
 /* import-globals-from ../utilityOverlay.js */
 /* import-globals-from ../mailWindow.js */
 
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
+);
 var { InlineSpellChecker, SpellCheckHelper } = ChromeUtils.importESModule(
   "resource://gre/modules/InlineSpellChecker.sys.mjs"
 );
 var { PlacesUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/PlacesUtils.sys.mjs"
 );
-var { AppConstants } = ChromeUtils.importESModule(
-  "resource://gre/modules/AppConstants.sys.mjs"
+var { ShortcutUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/ShortcutUtils.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
@@ -505,27 +508,69 @@ class nsContextMenu {
       this.setItemAttr("browserContext-media-unmute", "disabled", hasError);
     }
   }
+  initBackForwardMenuItemTooltip(menuItemId, l10nId, shortcutId) {
+    // On macOS regular menuitems are used and the shortcut isn't added.
+    if (AppConstants.platform == "macosx") {
+      return;
+    }
+
+    let shortcut = document.getElementById(shortcutId);
+    if (shortcut) {
+      shortcut = ShortcutUtils.prettifyShortcut(shortcut);
+    } else {
+      // Sidebar doesn't have navigation buttons or shortcuts, but we still
+      // want to format the menu item tooltip to remove "$shortcut" string.
+      shortcut = "";
+    }
+    let menuItem = document.getElementById(menuItemId);
+    document.l10n.setAttributes(menuItem, l10nId, { shortcut });
+  }
   initBrowserItems() {
     // Work out if we are a context menu on a special item e.g. an image, link
     // etc.
-    let notOnSpecialItem = !(
+    let onSpecialItem =
       this.isContentSelected ||
       this.onCanvas ||
       this.onLink ||
       this.onImage ||
       this.onAudio ||
       this.onVideo ||
-      this.onTextInput
-    );
+      this.onTextInput;
+
+    // Internal about:* pages should not show nav items.
+    let shouldShowNavItems =
+      !onSpecialItem && this.browser.currentURI.scheme != "about";
+
     // Ensure these commands are updated with their current status.
-    if (notOnSpecialItem) {
+    if (shouldShowNavItems) {
+      goUpdateCommand("Browser:Back");
+      goUpdateCommand("Browser:Forward");
       goUpdateCommand("cmd_stop");
       goUpdateCommand("cmd_reload");
     }
 
-    // These only needs showing if we're not on something special.
-    this.showItem("browserContext-stop", notOnSpecialItem);
-    this.showItem("browserContext-reload", notOnSpecialItem);
+    let stopped = document.getElementById("cmd_stop").hasAttribute("disabled");
+    this.showItem("browserContext-reload", shouldShowNavItems && stopped);
+    this.showItem("browserContext-stop", shouldShowNavItems && !stopped);
+    this.showItem("browserContext-sep-navigation", shouldShowNavItems);
+
+    if (AppConstants.platform == "macosx") {
+      this.showItem("browserContext-back", shouldShowNavItems);
+      this.showItem("browserContext-forward", shouldShowNavItems);
+    } else {
+      this.showItem("context-navigation", shouldShowNavItems);
+
+      this.initBackForwardMenuItemTooltip(
+        "browserContext-back",
+        "content-tab-menu-back",
+        "key_goBackKb"
+      );
+      this.initBackForwardMenuItemTooltip(
+        "browserContext-forward",
+        "content-tab-menu-forward",
+        "key_goForwardKb"
+      );
+    }
 
     // Only show open in browser if we're not on a special item and we're not
     // on an about: or chrome: protocol - for these protocols the browser is
@@ -533,7 +578,7 @@ class nsContextMenu {
     // offer the option.
     this.showItem(
       "browserContext-openInBrowser",
-      notOnSpecialItem &&
+      !onSpecialItem &&
         ["http", "https"].includes(this.contentData?.documentURIObject?.scheme)
     );
 

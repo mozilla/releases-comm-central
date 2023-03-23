@@ -154,3 +154,57 @@ menupopup > menuseparator {
 .menu-iconic-accel {
   margin-inline-end: 3px !important;
 }
+
+/* browser navigation context menu in content pages */
+#context-navigation > .menuitem-iconic {
+  -moz-box-flex: 1;
+  -moz-box-pack: center;
+  -moz-box-align: center;
+  flex: 1 0 auto;
+  margin: var(--menu-item-margin);
+  border-radius: 3px;
+}
+
+#context-navigation > .menuitem-iconic > .menu-iconic-left {
+  appearance: none;
+}
+
+#context-navigation > .menuitem-iconic > .menu-iconic-text,
+#context-navigation > .menuitem-iconic > .menu-accel-container {
+  display: none;
+}
+
+#context-navigation > .menuitem-iconic > .menu-iconic-left {
+  margin: 0;
+  padding: 0;
+}
+
+#context-navigation > .menuitem-iconic > .menu-iconic-left > .menu-iconic-icon {
+  width: 1.25em;
+  height: auto;
+  margin: 7px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#browserContext-back {
+  list-style-image: url("chrome://messenger/skin/icons/browser-back.svg");
+}
+
+#browserContext-forward {
+  list-style-image: url("chrome://messenger/skin/icons/browser-forward.svg");
+}
+
+#browserContext-reload {
+  list-style-image: url("chrome://global/skin/icons/reload.svg");
+}
+
+#browserContext-stop {
+  list-style-image: url("chrome://global/skin/icons/close.svg");
+}
+
+#browserContext-back:-moz-locale-dir(rtl),
+#browserContext-forward:-moz-locale-dir(rtl),
+#browserContext-reload:-moz-locale-dir(rtl) {
+  transform: scaleX(-1);
+}

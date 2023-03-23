@@ -44,7 +44,10 @@ function checkMenuitems(menu, ...expectedItems) {
 
   let actualItems = [];
   for (let item of menu.children) {
-    if (["menu", "menuitem"].includes(item.localName) && !item.hidden) {
+    if (
+      ["menu", "menuitem", "menugroup"].includes(item.localName) &&
+      !item.hidden
+    ) {
       actualItems.push(item.id);
     }
   }
@@ -65,6 +68,10 @@ async function checkABrowser(browser, doc = browser.ownerDocument) {
   }
 
   let browserContext = doc.getElementById("browserContext");
+  let isMac = AppConstants.platform == "macosx";
+  let isWebPage =
+    browser.currentURI.schemeIs("http") || browser.currentURI.schemeIs("https");
+  let isExtensionPage = browser.currentURI.schemeIs("moz-extension");
 
   // Just some text.
 
@@ -78,25 +85,32 @@ async function checkABrowser(browser, doc = browser.ownerDocument) {
     browser
   );
   await shownPromise;
-  if (
-    browser.currentURI.schemeIs("http") ||
-    browser.currentURI.schemeIs("https")
-  ) {
-    checkMenuitems(
-      browserContext,
-      "browserContext-openInBrowser",
-      "browserContext-reload",
-      "browserContext-stop",
-      "browserContext-selectall"
-    );
-  } else {
-    checkMenuitems(
-      browserContext,
-      "browserContext-reload",
-      "browserContext-stop",
-      "browserContext-selectall"
-    );
+
+  let expectedContextItems = [];
+  if (isWebPage || isExtensionPage) {
+    if (isMac) {
+      // Mac has the nav items directly in the context menu and not in the horizontal
+      // context-navigation menugroup.
+      expectedContextItems.push(
+        "browserContext-back",
+        "browserContext-forward",
+        "browserContext-reload"
+      );
+    } else {
+      expectedContextItems.push("context-navigation");
+      checkMenuitems(
+        doc.getElementById("context-navigation"),
+        "browserContext-back",
+        "browserContext-forward",
+        "browserContext-reload"
+      );
+    }
   }
+  if (isWebPage) {
+    expectedContextItems.push("browserContext-openInBrowser");
+  }
+  expectedContextItems.push("browserContext-selectall");
+  checkMenuitems(browserContext, ...expectedContextItems);
   browserContext.hidePopup();
 
   // A link.

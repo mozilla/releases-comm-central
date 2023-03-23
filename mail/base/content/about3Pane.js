@@ -115,6 +115,11 @@ window.addEventListener("DOMContentLoaded", async event => {
   // to avoid unnecessarily loading the thread tree or Account Central.
   folderTree.addEventListener("select", folderPane);
   folderTree.dispatchEvent(new CustomEvent("select"));
+
+  // Attach the progress listener for the webBrowser. For the messageBrowser this
+  // happens in the "aboutMessageLoaded" event mailWindow.js. For the webBrowser,
+  // we can do it here directly.
+  top.contentProgress.addProgressListenerToBrowser(webBrowser);
 });
 
 window.addEventListener("unload", () => {
@@ -4361,4 +4366,26 @@ commandController.registerCallback(
       "cmd_fullZoomToggle"
     ),
   () => !this.messageBrowser.hidden
+);
+
+// Browser commands.
+commandController.registerCallback(
+  "Browser:Back",
+  () => webBrowser.goBack(),
+  () => webBrowser?.canGoBack
+);
+commandController.registerCallback(
+  "Browser:Forward",
+  () => webBrowser.goForward(),
+  () => webBrowser?.canGoForward
+);
+commandController.registerCallback(
+  "cmd_reload",
+  () => webBrowser.reload(),
+  () => !webBrowser.busy
+);
+commandController.registerCallback(
+  "cmd_stop",
+  () => webBrowser.stop(),
+  () => webBrowser.busy
 );

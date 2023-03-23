@@ -1104,3 +1104,28 @@ window.addEventListener("aboutMessageLoaded", event =>
     event.target.getMessagePaneBrowser()
   )
 );
+
+// Listener to correctly set the busy flag on the webBrowser in about:3pane. All
+// other content tabs are handled by tabmail.js.
+contentProgress.addListener({
+  onStateChange(browser, webProgress, request, stateFlags, statusCode) {
+    // Skip if this is not the webBrowser in about:3pane.
+    if (browser.id != "webBrowser") {
+      return;
+    }
+    let status;
+    if (stateFlags & Ci.nsIWebProgressListener.STATE_IS_WINDOW) {
+      if (stateFlags & Ci.nsIWebProgressListener.STATE_START) {
+        status = "loading";
+      } else if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+        status = "complete";
+      }
+    } else if (
+      stateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+      statusCode == Cr.NS_BINDING_ABORTED
+    ) {
+      status = "complete";
+    }
+    browser.busy = status == "loading";
+  },
+});
