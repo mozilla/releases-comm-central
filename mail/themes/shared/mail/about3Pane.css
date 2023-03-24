@@ -5,6 +5,7 @@
 @import url("chrome://messenger/skin/shared/threadPane.css");
 
 :root {
+  --foldertree-background: -moz-Dialog;
   --treeitem-border-radius: 3px;
   --folder-mode-name-padding: 6px;
   --folder-tree-header-gap: 9px;
@@ -26,7 +27,7 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --foldertree-background: var(--sidebar-background-color, rgba(249, 249, 250, 0.1));
+      --foldertree-background: var(--sidebar-background-color, var(--color-gray-70));
       --folderpane-unread-new-count-background: var(--color-blue-50);
       --treeitem-background-selected: var(--color-gray-70);
       --treeitem-background-hover: var(--color-gray-60);
@@ -41,8 +42,7 @@
 }
 
 @media (prefers-contrast) {
-  :root {
-    --foldertree-background: transparent;
+  :root:not(:-moz-lwtheme) {
     --folderpane-unread-count-background: var(--selected-item-color);
     --folderpane-unread-count-text: var(--selected-item-text-color);
     --folderpane-unread-new-count-background: ButtonShadow;

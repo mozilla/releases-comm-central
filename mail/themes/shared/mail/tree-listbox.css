@@ -57,7 +57,7 @@
 }
 
 @media (prefers-contrast) {
-  :root {
+  :root:not(:-moz-lwtheme) {
     --listbox-color: currentColor;
     --listbox-selected-bg: transparent;
     --listbox-selected-color: SelectedItemText;
