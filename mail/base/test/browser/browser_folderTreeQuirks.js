@@ -76,6 +76,9 @@ add_setup(async function() {
   });
 });
 
+/**
+ * Tests the Favorite Folders mode.
+ */
 add_task(async function testFavoriteFolders() {
   folderPane.activeModes = ["all", "favorite"];
   checkModeListItems("favorite", []);
@@ -103,65 +106,200 @@ add_task(async function testFavoriteFolders() {
   checkModeListItems("favorite", []);
 });
 
+/**
+ * Tests the compact Favorite Folders mode.
+ */
+add_task(async function testCompactFavoriteFolders() {
+  folderPane.activeModes = ["all", "favorite"];
+  folderPane.isCompact = true;
+  checkModeListItems("favorite", []);
+
+  folderA.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", [folderA]);
+
+  folderA.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", []);
+
+  folderB.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", [folderB]);
+
+  folderB.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", []);
+
+  folderC.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  folderA.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", [folderA, folderC]); // c, a
+
+  folderA.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", [folderC]);
+
+  folderC.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", []);
+
+  // Test with multiple accounts.
+
+  let foo = MailServices.accounts.createAccount();
+  foo.incomingServer = MailServices.accounts.createIncomingServer(
+    `${foo.key}user`,
+    "localhost",
+    "none"
+  );
+  let fooRootFolder = foo.incomingServer.rootFolder;
+  let fooTrashFolder = fooRootFolder.getChildNamed("Trash");
+
+  fooTrashFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", [fooTrashFolder]);
+
+  folderC.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", [fooTrashFolder, folderC]);
+
+  MailServices.accounts.reorderAccounts([account.key, foo.key]);
+  checkModeListItems("favorite", [folderC, fooTrashFolder]);
+
+  fooTrashFolder.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", [folderC]);
+
+  fooTrashFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", [folderC, fooTrashFolder]);
+
+  folderC.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  checkModeListItems("favorite", [fooTrashFolder]);
+
+  // Clean up.
+
+  MailServices.accounts.removeAccount(foo, false);
+  checkModeListItems("favorite", []);
+  folderPane.isCompact = false;
+});
+
+/**
+ * Tests the Unread Folders mode.
+ */
 add_task(async function testUnreadFolders() {
   folderPane.activeModes = ["all", "unread"];
   checkModeListItems("unread", []);
 
   folderAMessages[0].markRead(false);
-  await new Promise(resolve => setTimeout(resolve));
-  expandAll("unread");
   checkModeListItems("unread", [rootFolder, folderA]);
 
   folderAMessages[1].markRead(false);
   folderAMessages[2].markRead(false);
-  await new Promise(resolve => setTimeout(resolve));
-  expandAll("unread");
   checkModeListItems("unread", [rootFolder, folderA]);
 
   window.MsgMarkAllRead([folderA]);
-  await new Promise(resolve => setTimeout(resolve));
   checkModeListItems("unread", []);
 
   folderAMessages[0].markRead(false);
   folderBMessages[0].markRead(false);
-  await new Promise(resolve => setTimeout(resolve));
-  expandAll("unread");
   checkModeListItems("unread", [rootFolder, folderA, folderB]);
 
   folderCMessages[0].markRead(false);
-  await new Promise(resolve => setTimeout(resolve));
-  expandAll("unread");
   checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   folderBMessages[0].markRead(true);
-  await new Promise(resolve => setTimeout(resolve));
-  expandAll("unread");
   checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   folderAMessages[0].markRead(true);
-  await new Promise(resolve => setTimeout(resolve));
-  expandAll("unread");
   checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   folderCMessages[0].markRead(true);
-  await new Promise(resolve => setTimeout(resolve));
-  expandAll("unread");
   checkModeListItems("unread", []);
 
   folderCMessages[0].markRead(false);
-  await new Promise(resolve => setTimeout(resolve));
-  expandAll("unread");
   checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   folderCMessages[1].markRead(false);
   folderCMessages[2].markRead(false);
-  await new Promise(resolve => setTimeout(resolve));
-  expandAll("unread");
   checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   window.MsgMarkAllRead([folderC]);
-  await new Promise(resolve => setTimeout(resolve));
   checkModeListItems("unread", []);
+});
+
+/**
+ * Tests the compact Unread Folders mode.
+ */
+add_task(async function testCompactUnreadFolders() {
+  folderPane.activeModes = ["all", "unread"];
+  folderPane.isCompact = true;
+  checkModeListItems("unread", []);
+
+  folderAMessages[0].markRead(false);
+  checkModeListItems("unread", [folderA]);
+
+  folderAMessages[1].markRead(false);
+  folderAMessages[2].markRead(false);
+  checkModeListItems("unread", [folderA]);
+
+  window.MsgMarkAllRead([folderA]);
+  checkModeListItems("unread", []);
+
+  folderAMessages[0].markRead(false);
+  folderBMessages[0].markRead(false);
+  checkModeListItems("unread", [folderA, folderB]);
+
+  folderCMessages[0].markRead(false);
+  checkModeListItems("unread", [folderA, folderB, folderC]);
+
+  folderBMessages[0].markRead(true);
+  checkModeListItems("unread", [folderA, folderC]);
+
+  folderAMessages[0].markRead(true);
+  checkModeListItems("unread", [folderC]);
+
+  folderCMessages[0].markRead(true);
+  checkModeListItems("unread", []);
+
+  folderCMessages[0].markRead(false);
+  checkModeListItems("unread", [folderC]);
+
+  folderCMessages[1].markRead(false);
+  folderCMessages[2].markRead(false);
+  checkModeListItems("unread", [folderC]);
+
+  window.MsgMarkAllRead([folderC]);
+  checkModeListItems("unread", []);
+
+  // Test with multiple accounts.
+
+  let foo = MailServices.accounts.createAccount();
+  foo.incomingServer = MailServices.accounts.createIncomingServer(
+    `${foo.key}user`,
+    "localhost",
+    "none"
+  );
+  let fooRootFolder = foo.incomingServer.rootFolder;
+  let fooTrashFolder = fooRootFolder.getChildNamed("Trash");
+
+  let generator = new MessageGenerator();
+  fooTrashFolder
+    .QueryInterface(Ci.nsIMsgLocalMailFolder)
+    .addMessage(generator.makeMessages({}).map(m => m.toMboxString()));
+  let fooMessages = [...fooTrashFolder.messages];
+
+  fooMessages[0].markRead(false);
+  checkModeListItems("unread", [fooTrashFolder]);
+
+  folderCMessages[0].markRead(false);
+  checkModeListItems("unread", [fooTrashFolder, folderC]);
+
+  MailServices.accounts.reorderAccounts([account.key, foo.key]);
+  checkModeListItems("unread", [folderC, fooTrashFolder]);
+
+  fooMessages[0].markRead(true);
+  checkModeListItems("unread", [folderC]);
+
+  fooMessages[0].markRead(false);
+  checkModeListItems("unread", [folderC, fooTrashFolder]);
+
+  folderCMessages[0].markRead(true);
+  checkModeListItems("unread", [fooTrashFolder]);
+
+  // Clean up.
+
+  MailServices.accounts.removeAccount(foo, false);
+  checkModeListItems("unread", []);
+  folderPane.isCompact = false;
 });
 
 /**
@@ -668,6 +806,7 @@ add_task(async function testAccountOrder() {
 });
 
 function checkModeListItems(modeName, folders) {
+  expandAll(modeName);
   Assert.deepEqual(
     Array.from(
       folderPane._modes[modeName].containerList.querySelectorAll("li"),

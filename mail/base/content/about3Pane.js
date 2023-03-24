@@ -671,7 +671,7 @@ var folderPane = {
           let folderRow = folderPane._createFolderRow(
             this.name,
             childFolder,
-            true
+            "server"
           );
           folderRow.dataset.serverKey = childFolder.server.key;
           folderPane._insertInServerOrder(folderType.list, folderRow);
@@ -729,83 +729,131 @@ var folderPane = {
       active: false,
       canBeCompact: true,
 
-      _unreadFilter(folder) {
-        return folder.getNumUnread(true) > 0;
+      _unreadFilter(folder, includeSubFolders = true) {
+        return folder.getNumUnread(includeSubFolders) > 0;
       },
 
       initServer(server) {
-        if (this._unreadFilter(server.rootFolder)) {
-          let serverRow = folderPane._insertInServerOrder(
-            this.containerList,
-            folderPane._createServerRow(this.name, server)
-          );
-          folderPane._addSubFolders(
-            server.rootFolder,
-            serverRow,
-            this.name,
-            this._unreadFilter
-          );
+        if (!this._unreadFilter(server.rootFolder)) {
+          return;
+        }
+        if (folderPane._isCompact) {
+          this._recurseSubFolders(server.rootFolder);
+          return;
+        }
+        let serverRow = folderPane._insertInServerOrder(
+          this.containerList,
+          folderPane._createServerRow(this.name, server)
+        );
+        folderPane._addSubFolders(
+          server.rootFolder,
+          serverRow,
+          this.name,
+          this._unreadFilter
+        );
+      },
+
+      _recurseSubFolders(parentFolder) {
+        let subFolders = parentFolder.subFolders;
+        if (!subFolders.length) {
+          return;
+        }
+
+        for (let i = 0; i < subFolders.length; i++) {
+          let folder = subFolders[i];
+          if (folderPane._isGmailFolder(folder)) {
+            subFolders.splice(i, 1, ...folder.subFolders);
+          }
+        }
+
+        subFolders.sort((a, b) => a.compareSortKeys(b));
+
+        for (let folder of subFolders) {
+          if (!this._unreadFilter(folder)) {
+            continue;
+          }
+          if (this._unreadFilter(folder, true)) {
+            let folderRow = folderPane._createFolderRow(
+              this.name,
+              folder,
+              "both"
+            );
+            this.containerList.appendChild(folderRow);
+          }
+          this._recurseSubFolders(folder);
         }
       },
 
-      removeFolder(parentFolder, childFolder) {
-        if (!parentFolder || this._unreadFilter(parentFolder)) {
-          // If parentFolder has messages, remove childFolder, which doesn't.
-          folderPane.getRowForFolder(childFolder, this.name)?.remove();
+      addFolder(unused, folder) {
+        if (folderPane.getRowForFolder(folder, this.name)) {
+          // Don't do anything. `folderPane.changeUnreadCount` already did it.
           return;
         }
-        while (parentFolder) {
-          if (!parentFolder.parent || this._unreadFilter(parentFolder.parent)) {
-            // If parentFolder's parent has messages, remove parentFolder, which doesn't.
-            folderPane.getRowForFolder(parentFolder, this.name)?.remove();
+
+        if (!this._unreadFilter(folder, !folderPane._isCompact)) {
+          return;
+        }
+
+        if (folderPane._isCompact) {
+          let folderRow = folderPane._createFolderRow(
+            this.name,
+            folder,
+            "both"
+          );
+          folderPane._insertInServerOrder(this.containerList, folderRow);
+          return;
+        }
+
+        if (!folderPane.getRowForFolder(folder.rootFolder, this.name)) {
+          this.initServer(folder.server);
+          return;
+        }
+
+        while (folder) {
+          let parentFolder = folderPane._getNonGmailParent(folder);
+          let parentRow = folderPane.getRowForFolder(parentFolder, this.name);
+          if (parentRow) {
+            let folderRow = folderPane._createFolderRow(this.name, folder);
+            folderPane._addSubFolders(
+              folder,
+              folderRow,
+              this.name,
+              this._unreadFilter
+            );
+            parentRow.insertChildInOrder(folderRow);
             break;
           }
-          parentFolder = parentFolder.parent;
+          folder = parentFolder;
+        }
+      },
+
+      removeFolder(unused, folder) {
+        while (folder) {
+          let parentFolder = folderPane._getNonGmailParent(folder);
+          if (
+            !parentFolder ||
+            this._unreadFilter(parentFolder) ||
+            folderPane._isCompact
+          ) {
+            // This is the highest folder which has no unread messages or
+            // descendents with unread messages (or we're in compact mode and
+            // don't care about descendents). Remove it from the tree.
+            folderPane.getRowForFolder(folder, this.name)?.remove();
+            break;
+          }
+          folder = parentFolder;
         }
       },
 
       changeUnreadCount(folder, oldValue, newValue) {
         if (newValue === 0) {
-          if (this._unreadFilter(folder)) {
+          if (!folderPane._isCompact && this._unreadFilter(folder)) {
             // A subfolder must have messages, do nothing.
             return;
           }
-          while (folder) {
-            let parentFolder = folderPane._getNonGmailParent(folder);
-            if (!parentFolder || this._unreadFilter(parentFolder)) {
-              // If this folder's parent has messages, remove this folder, which doesn't.
-              folderPane.getRowForFolder(folder, this.name)?.remove();
-              break;
-            }
-            folder = parentFolder;
-          }
+          this.removeFolder(null, folder);
         } else {
-          if (folderPane.getRowForFolder(folder, this.name)) {
-            // Don't do anything. `folderPane.changeUnreadCount` already did it.
-            return;
-          }
-
-          if (!folderPane.getRowForFolder(folder.rootFolder, this.name)) {
-            this.initServer(folder.server);
-            return;
-          }
-
-          while (folder) {
-            let parentFolder = folderPane._getNonGmailParent(folder);
-            let parentRow = folderPane.getRowForFolder(parentFolder, this.name);
-            if (parentRow) {
-              let folderRow = folderPane._createFolderRow(this.name, folder);
-              folderPane._addSubFolders(
-                folder,
-                folderRow,
-                this.name,
-                this._unreadFilter
-              );
-              parentRow.insertChildInOrder(folderRow);
-              break;
-            }
-            folder = parentFolder;
-          }
+          this.addFolder(null, folder);
         }
       },
 
@@ -825,6 +873,14 @@ var folderPane = {
         if (!folders.length) {
           return;
         }
+        if (folderPane._isCompact) {
+          for (let folder of folders) {
+            this.containerList.appendChild(
+              folderPane._createFolderRow(this.name, folder, "both")
+            );
+          }
+          return;
+        }
         let serverRow = folderPane._insertInServerOrder(
           this.containerList,
           folderPane._createServerRow(this.name, server)
@@ -836,12 +892,17 @@ var folderPane = {
         }
       },
 
-      removeFolder(parentFolder, childFolder) {
-        let row = folderPane.getRowForFolder(childFolder);
-        while (row) {
-          row.remove();
-          childFolder = folderPane._getNonGmailParent(childFolder);
-          row = childFolder && folderPane.getRowForFolder(childFolder);
+      removeFolder(unused, folder) {
+        folderPane.getRowForFolder(folder, this.name)?.remove();
+        let serverRow = folderPane.getRowForFolder(
+          folder.rootFolder,
+          this.name
+        );
+        if (
+          serverRow &&
+          !folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Favorite)
+        ) {
+          serverRow.remove();
         }
       },
 
@@ -853,20 +914,25 @@ var folderPane = {
           return;
         }
 
+        if (oldValue) {
+          this.removeFolder(null, folder);
+          return;
+        }
+
+        if (folderPane._isCompact) {
+          let folderRow = folderPane._createFolderRow(
+            this.name,
+            folder,
+            "both"
+          );
+          folderPane._insertInServerOrder(this.containerList, folderRow);
+          return;
+        }
+
         let serverRow = folderPane.getRowForFolder(
           folder.rootFolder,
           this.name
         );
-        if (oldValue) {
-          folderPane.getRowForFolder(folder, this.name)?.remove();
-          if (
-            !folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Favorite)
-          ) {
-            serverRow?.remove();
-          }
-          return;
-        }
-
         if (!serverRow) {
           serverRow = folderPane._insertInServerOrder(
             this.containerList,
@@ -874,7 +940,11 @@ var folderPane = {
           );
         }
         serverRow.insertChildInOrder(
-          folderPane._createFolderRow(this.name, folder)
+          folderPane._createFolderRow(
+            this.name,
+            folder,
+            folderPane._isCompact ? "both" : "folder"
+          )
         );
       },
 
@@ -894,7 +964,11 @@ var folderPane = {
           "MRUTime"
         );
         for (let folder of folders) {
-          let folderRow = folderPane._createFolderRow(this.name, folder);
+          let folderRow = folderPane._createFolderRow(
+            this.name,
+            folder,
+            "both"
+          );
           this.containerList.appendChild(folderRow);
         }
       },
@@ -1089,7 +1163,28 @@ var folderPane = {
   },
 
   set isCompact(value) {
+    if (this._isCompact == value) {
+      return;
+    }
     this._isCompact = value;
+    for (let mode of Object.values(this._modes)) {
+      if (!mode.active || !mode.canBeCompact) {
+        continue;
+      }
+
+      mode.containerList.replaceChildren();
+
+      if (typeof mode.init == "function") {
+        mode.init();
+      }
+      if (typeof mode.initServer == "function") {
+        for (let account of MailServices.accounts.accounts) {
+          if (account.incomingServer.type != "im") {
+            mode.initServer(account.incomingServer);
+          }
+        }
+      }
+    }
     Services.xulStore.setValue(XULSTORE_URL, "folderTree", "compact", value);
   },
 
@@ -1158,14 +1253,13 @@ var folderPane = {
    *
    * @param {string} modeName - The name of the mode this row belongs to.
    * @param {nsIMsgFolder} folder - The folder the row represents.
-   * @param {boolean} useServerName - If true, use the server's name instead
-   *   of the folder's name for the label of this row.
+   * @param {"folder"|"server"|"both"} nameStyle
    * @returns {FolderTreeRow}
    */
-  _createFolderRow(modeName, folder, useServerName) {
+  _createFolderRow(modeName, folder, nameStyle) {
     let row = document.createElement("li", { is: "folder-tree-row" });
     row.modeName = modeName;
-    row.setFolder(folder, useServerName);
+    row.setFolder(folder, nameStyle);
     return row;
   },
 
@@ -1182,7 +1276,23 @@ var folderPane = {
     );
     let index = serverKeys.indexOf(serverRow.dataset.serverKey);
     for (let row of list.children) {
-      if (serverKeys.indexOf(row.dataset.serverKey) > index) {
+      let i = serverKeys.indexOf(row.dataset.serverKey);
+
+      if (i > index) {
+        return list.insertBefore(serverRow, row);
+      }
+      if (i < index) {
+        continue;
+      }
+
+      if (row.folderSortOrder > serverRow.folderSortOrder) {
+        return list.insertBefore(serverRow, row);
+      }
+      if (row.folderSortOrder < serverRow.folderSortOrder) {
+        continue;
+      }
+
+      if (FolderTreeRow.nameCollator.compare(row.name, serverRow.name) > 0) {
         return list.insertBefore(serverRow, row);
       }
     }
@@ -1414,7 +1524,7 @@ var folderPane = {
   changeUnreadCount(folder, oldValue, newValue) {
     this._changeRows(folder, row => (row.unreadCount = newValue));
 
-    if (this._modes.unread.active) {
+    if (this._modes.unread.active && !folder.server.hidden) {
       this._modes.unread.changeUnreadCount(folder, oldValue, newValue);
     }
   },
@@ -2308,14 +2418,23 @@ class FolderTreeRow extends HTMLLIElement {
    * Set some properties based on the folder for this row.
    *
    * @param {nsIMsgFolder} folder
-   * @param {boolean} useServerName - If true, use the server's name instead
-   *   of the folder's name for the label of this row.
+   * @param {"folder"|"server"|"both"} nameStyle
    */
-  setFolder(folder, useServerName) {
+  setFolder(folder, nameStyle = "folder") {
     this._setURI(folder.URI);
     this.dataset.serverKey = folder.server.key;
     this.setFolderTypeFromFolder(folder);
-    this.name = useServerName ? folder.server.prettyName : folder.name;
+    switch (nameStyle) {
+      case "server":
+        this.name = folder.server.prettyName;
+        break;
+      case "folder":
+        this.name = folder.name;
+        break;
+      case "both":
+        this.name = `${folder.name} - ${folder.server.prettyName}`;
+        break;
+    }
     this.unreadCount = folder.getNumUnread(false);
     this.folderSortOrder = folder.sortOrder;
     if (folder.noSelect) {
