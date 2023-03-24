@@ -324,7 +324,7 @@ li:not(.selected) > .container:hover {
 
 .new-messages:not([data-server-type]) > .container > .icon::after {
   position: absolute;
-  content: url("chrome://messenger/skin/icons/folder-new-indicator.svg");
+  content: var(--icon-new-indicator);
   inset-inline-start: -2px;
   inset-block-start: -2px;
 }

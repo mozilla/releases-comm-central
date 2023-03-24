@@ -478,9 +478,22 @@ tr[is="thread-card"][data-properties~="new"] {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 3px 9px;
+  padding: 6px 12px;
   box-sizing: border-box;
   border-bottom: 1px solid var(--layout-background-3);
+}
+
+@media (-moz-overlay-scrollbars) {
+  .thread-card-container {
+    padding-inline-end: env(scrollbar-inline-size);
+  }
+}
+
+tr[data-properties~="new"] .thread-card-container:after {
+  position: absolute;
+  content: var(--icon-new-indicator);
+  inset-inline-start: 3px;
+  inset-block-start: 3px;
 }
 
 tr[data-properties~="thread-children"] .thread-card-container {

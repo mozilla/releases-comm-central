@@ -157,6 +157,7 @@
   --icon-trash-sm: url("chrome://messenger/skin/icons/new/trash-sm.svg");
   --icon-unread-dot: url("chrome://messenger/skin/icons/new/unread-dot.svg");
   --icon-unread-sm: url("chrome://messenger/skin/icons/new/unread-sm.svg");
+  --icon-new-indicator: url("chrome://messenger/skin/icons/folder-new-indicator.svg");
   --icon-notify: url("chrome://messenger/skin/icons/new/notify.svg");
   --icon-calendar-imip: url("chrome://messenger/skin/icons/new/normal/calendar-invite.svg");
   --icon-event-start: url("chrome://messenger/skin/icons/new/event-start.svg");
