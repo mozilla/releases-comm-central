@@ -1444,10 +1444,6 @@ Enigmail.msg = {
   getEncryptionFlags() {
     let f = 0;
 
-    console.debug(
-      `in getEncryptionFlags, gSendEncrypted=${gSendEncrypted}, gSendSigned=${gSendSigned}`
-    );
-
     if (gSendEncrypted) {
       f |= EnigmailConstants.SEND_ENCRYPTED;
     } else {
