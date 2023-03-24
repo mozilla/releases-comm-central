@@ -551,15 +551,11 @@
   list-style-image: var(--icon-print);
 }
 
-.menu-description {
-  flex: 10000 10000;
-}
-
 .menu-description,
 menulist::part(description) {
   font-style: italic;
   opacity: 0.55;
-  margin-inline-start: 1ex !important;
+  margin-inline: 1ex !important;
 }
 
 .aw-firstColBox {
