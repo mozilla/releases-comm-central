@@ -392,6 +392,11 @@ var gBrowserInit = {
       loadRequestedUrl();
     });
   },
+
+  isAdoptingTab() {
+    // Required for compatibility with toolkit's ext-webNavigation.js
+    return false;
+  },
 };
 
 /**
