@@ -9,6 +9,7 @@
   padding: 3px;
   background-color: var(--layout-background-2);
   color: var(--layout-color-2);
+  border: none;
   display: flex;
   overflow-x: hidden;
   flex-wrap: wrap;
