@@ -112,6 +112,10 @@
   box-shadow: none;
 }
 
+#msgIdentity[editable="true"]::part(dropmarker) {
+  width: 16px;
+}
+
 #msgIdentity:-moz-focusring:not([open="true"])::part(label-box) {
   outline: none;
 }

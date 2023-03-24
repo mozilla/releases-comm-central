@@ -792,7 +792,13 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   text-align: right;
 }
 
+#top-gradient-box.address-identity-recipient {
+  overflow: hidden;
+}
+
 #msgIdentity {
+  flex: 0 1 auto;
+  overflow: hidden;
   appearance: none;
   align-items: center;
   font: inherit;
