@@ -1,0 +1,3 @@
+[console_scripts]
+migrate-l10n-tb = fluent.migratetb.tool:cli
+validate-l10n-tb-recipe = fluent.migratetb.validator:cli
