@@ -132,6 +132,10 @@ tasks:
                             - "index.${trustDomain}.v2.${repository.project}.pushlog-id.${push.pushlog_id}.decision"
                             - "notify.email.${ownerEmail}.on-failed"
                             - "notify.email.${ownerEmail}.on-exception"
+                            # Send a notification email if the push comes from try
+                            - $if: 'repository.project == "try-comm-central"'
+                              then:
+                                  "notify.email.${ownerEmail}.on-completed"
                         else:
                             $if: 'tasks_for == "action"'
                             then:
@@ -317,3 +321,8 @@ tasks:
                                         - link:
                                               text: "Treeherder Jobs"
                                               href: "https://treeherder.mozilla.org/#/jobs?repo=${repository.project}&revision=${push.revision}"
+                                        # Email for try pushes should thank you for your revision
+                                        - $if: 'repository.project == "try-comm-central"'
+                                          then:
+                                              subject: "try-comm-central submission - ${push.revision}"
+                                              content: "Your try-comm-central push has been submitted. It's the best! Use the link to view the status of your jobs."
