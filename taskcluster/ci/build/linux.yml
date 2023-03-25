@@ -252,6 +252,73 @@ linux64-aarch64/opt:
             - sysroot-aarch64-linux-gnu
             - sysroot-x86_64-linux-gnu
 
+linux64-ccov/opt:
+    description: "Linux64-CCov Opt"
+    index:
+        product: thunderbird
+        job-name: linux64-ccov-opt
+    treeherder:
+        platform: linux64-ccov/opt
+        symbol: B
+        tier: 2
+    run-on-projects: ['comm-central']
+    worker:
+        artifacts:
+            - name: public/code-coverage-grcov.zip
+              path: /builds/worker/workspace/obj-build/code-coverage-grcov.zip
+              type: file
+        max-run-time: 7200
+        env:
+            RUSTC_BOOTSTRAP: '1'
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    run:
+        using: mozharness
+        comm-checkout: true
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+        custom-build-variant-cfg: code-coverage-opt
+        mozconfig-variant: code-coverage-opt
+    use-sccache: false
+    optimization:
+        skip-suite-only: null
+    fetches:
+        toolchain:
+            - linux64-libotr
+            - linux64-grcov
+            - linux64-rust
+            - sysroot-x86_64-linux-gnu
+
+linux64-ccov/debug:
+    description: "Linux64-CCov Debug"
+    index:
+        product: thunderbird
+        job-name: linux64-ccov-debug
+    treeherder:
+        platform: linux64-ccov/debug
+        symbol: B
+        tier: 2
+    run-on-projects: []
+    worker:
+        max-run-time: 7200
+        env:
+            RUSTC_BOOTSTRAP: '1'
+    run:
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+        custom-build-variant-cfg: code-coverage-debug
+        mozconfig-variant: code-coverage-debug
+    use-sccache: false
+    optimization:
+        skip-suite-only: null
+    fetches:
+        toolchain:
+            - linux64-libotr
+            - linux64-grcov
+            - linux64-rust
+            - sysroot-x86_64-linux-gnu
+
 linux/opt:
     description: "Linux32 Opt"
     index:

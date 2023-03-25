@@ -22,6 +22,7 @@ reference-jobs:
     - linux64-clang-tidy
     - linux64-dump_syms
     - linux64-fix-stacks
+    - linux64-grcov
     - linux64-hfsplus
     - linux64-libdmg
     - linux64-llvm-symbolizer
