@@ -50,6 +50,12 @@ linux1804-64-tsan-qr/opt:
         - mochitest-tests
         - xpcshell-tests
 
+linux1804-64-ccov-qr/opt:
+    build-platform: linux64-ccov/opt
+    test-sets:
+        - mochitest-tests
+        - xpcshell-tests
+
 # Windows platforms (matching /windows.*/)
 
 # windows 11 - 32bit

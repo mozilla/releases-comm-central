@@ -48,6 +48,7 @@ xpcshell:
                     default: default
     chunks:
         by-test-platform:
+            .*-ccov.*/.*: 8
             .*-tsan.*/opt: 8
             default: 4
     instance-size: default
@@ -57,6 +58,7 @@ xpcshell:
             default:
                 by-test-platform:
                     windows.*/opt: 5400
+                    .*-ccov(-qr)?/.*: 7200
                     .*-tsan.*/opt: 7200
                     default: 2700
     allow-software-gl-layers: false
@@ -123,6 +125,7 @@ mochitest-thunderbird:
             msix: 5400
             default:
                 by-test-platform:
+                    linux.*64-ccov.*/.*: 9000
                     linux.*64-tsan.*/opt: 9000
                     default: 3600
     variants:
