@@ -251,6 +251,15 @@ async function subtestKeyboardAndMouse() {
     selectHandler.reset();
     list.addEventListener("select", selectHandler, { once: true });
     EventUtils.synthesizeKey(key, modifiers, content);
+    // We don't enforce any delay on multiselection.
+    if (!modifiers.shiftKey) {
+      content.setTimeout(() => {
+        Assert.ok(
+          !selectHandler.seenEvent,
+          "'select' event didn't fire before the delay"
+        );
+      }, 240);
+    }
     await TestUtils.waitForCondition(
       () => !!selectHandler.seenEvent == expectEvent,
       `'select' event should ${expectEvent ? "" : "not "}get fired`

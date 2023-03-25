@@ -2514,6 +2514,15 @@ var threadPane = {
       paneLayout.layoutPreference == 2 ? "thread-card" : "thread-row"
     );
 
+    XPCOMUtils.defineLazyPreferenceGetter(
+      this,
+      "selectDelay",
+      "mailnews.threadpane_select_delay",
+      null,
+      (name, oldValue, newValue) => (threadTree.dataset.selectDelay = newValue)
+    );
+    threadTree.dataset.selectDelay = this.selectDelay;
+
     window.addEventListener("uidensitychange", () => {
       this.densityChange();
       threadTree.invalidate();
