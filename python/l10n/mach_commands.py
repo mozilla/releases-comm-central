@@ -175,15 +175,14 @@ def run_migration_tests(command_context, test_paths=None, **kwargs):
     if not test_paths:
         test_paths = []
     command_context.activate_virtualenv()
-    from test_fluent_migrations import fmt
 
-    from tbxchannel.tb_migration_test import prepare_object_dir, test_migration
+    from tbxchannel.tb_migration_test import inspect_migration, prepare_object_dir, test_migration
 
     rv = 0
     with_context = []
     for to_test in test_paths:
         try:
-            context = fmt.inspect_migration(to_test)
+            context = inspect_migration(to_test)
             for issue in context["issues"]:
                 command_context.log(
                     logging.ERROR,
