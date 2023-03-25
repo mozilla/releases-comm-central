@@ -2,6 +2,28 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
+job-defaults:
+    worker-type: b-linux-gcp
+    run:
+        using: mozharness
+        comm-checkout: true
+        actions: [build]
+        config-paths:
+            - comm/testing/mozharness/configs
+        script: "mozharness/scripts/fx_desktop_build.py"
+    fetches:
+        toolchain:
+            - linux64-binutils
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-dump_syms
+            - linux64-nasm
+            - linux64-node
+            - linux64-pkgconf
+            - linux64-rust-size
+            - sysroot-wasm32-wasi
+
+
 linux64/opt:
     description: "Linux64 Opt"
     index:
@@ -10,38 +32,22 @@ linux64/opt:
     treeherder:
         platform: linux64/opt
         symbol: B
-    worker-type: b-linux-gcp
     worker:
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
-        using: mozharness
-        comm-checkout: true
-        actions: [build]
-        config-paths:
-            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
-        script: "mozharness/scripts/fx_desktop_build.py"
     use-sccache: true
     optimization:
         skip-suite-only: null
     fetches:
         toolchain:
-            - linux64-binutils
-            - linux64-cbindgen
-            - linux64-clang
-            - linux64-dump_syms
             - linux64-libotr
-            - linux64-nasm
-            - linux64-node
-            - linux64-pkgconf
             - linux64-rust
-            - linux64-rust-size
             - linux64-sccache
-            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux64-shippable/opt:
@@ -58,38 +64,22 @@ linux64-shippable/opt:
     treeherder:
         platform: linux64-shippable/opt
         symbol: B
-    worker-type: b-linux-gcp
     worker:
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
-        using: mozharness
-        comm-checkout: true
-        actions: [build]
-        config-paths:
-            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
             - taskcluster_nightly.py
-        script: "mozharness/scripts/fx_desktop_build.py"
     run-on-projects: ['release']
     optimization:
         skip-suite-only: null
     fetches:
         toolchain:
-            - linux64-binutils
-            - linux64-cbindgen
-            - linux64-clang
-            - linux64-dump_syms
             - linux64-libotr
-            - linux64-nasm
-            - linux64-node
-            - linux64-pkgconf
             - linux64-rust
-            - linux64-rust-size
-            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux64/debug:
@@ -100,21 +90,14 @@ linux64/debug:
     treeherder:
         platform: linux64/debug
         symbol: B
-    worker-type: b-linux-gcp
     worker:
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
-        using: mozharness
-        comm-checkout: true
-        actions: [build]
-        config-paths:
-            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
-        script: "mozharness/scripts/fx_desktop_build.py"
         custom-build-variant-cfg: debug
         mozconfig-variant: debug
     use-sccache: true
@@ -122,18 +105,9 @@ linux64/debug:
         skip-suite-only: null
     fetches:
         toolchain:
-            - linux64-binutils
-            - linux64-cbindgen
-            - linux64-clang
-            - linux64-dump_syms
             - linux64-libotr
-            - linux64-nasm
-            - linux64-node
-            - linux64-pkgconf
             - linux64-rust
-            - linux64-rust-size
             - linux64-sccache
-            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux64-asan/opt:
@@ -144,7 +118,6 @@ linux64-asan/opt:
     treeherder:
         platform: linux64/asan
         symbol: Bo
-    worker-type: b-linux-gcp
     worker:
         env:
             PERFHERDER_EXTRA_OPTIONS: "opt asan"
@@ -152,15 +125,9 @@ linux64-asan/opt:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
         max-run-time: 5400
     run:
-        using: mozharness
-        comm-checkout: true
-        actions: [build]
-        config-paths:
-            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
-        script: "mozharness/scripts/fx_desktop_build.py"
         custom-build-variant-cfg: asan-tc
         mozconfig-variant: nightly-asan
         tooltool-downloads: public
@@ -170,19 +137,10 @@ linux64-asan/opt:
         skip-unless-backstop-no-suite: null
     fetches:
         toolchain:
-            - linux64-binutils
-            - linux64-cbindgen
-            - linux64-clang
-            - linux64-dump_syms
-            - linux64-llvm-symbolizer
             - linux64-libotr
-            - linux64-nasm
-            - linux64-node
-            - linux64-pkgconf
+            - linux64-llvm-symbolizer
             - linux64-rust-dev
-            - linux64-rust-size
             - linux64-sccache
-            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux64-asan-reporter-shippable/opt:
@@ -201,23 +159,16 @@ linux64-asan-reporter-shippable/opt:
         platform: linux64-asan-reporter/opt
         symbol: BoR
     run-on-projects: ['comm-central']
-    worker-type: b-linux-gcp
     worker:
         env:
             PERFHERDER_EXTRA_OPTIONS: asan-reporter
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
         max-run-time: 3600
     run:
-        using: mozharness
-        comm-checkout: true
-        actions: [build]
-        config-paths:
-            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
             - taskcluster_nightly.py
-        script: "mozharness/scripts/fx_desktop_build.py"
         custom-build-variant-cfg: asan-reporter-tc
         mozconfig-variant: nightly-asan-reporter
         mar-channel-id:
@@ -228,18 +179,10 @@ linux64-asan-reporter-shippable/opt:
         skip-unless-backstop-no-suite: null
     fetches:
         toolchain:
-            - linux64-binutils
-            - linux64-cbindgen
-            - linux64-clang
-            - linux64-dump_syms
-            - linux64-llvm-symbolizer
             - linux64-libotr
-            - linux64-nasm
-            - linux64-node
-            - linux64-pkgconf
+            - linux64-llvm-symbolizer
             - linux64-rust
-            - linux64-rust-size
-            - sysroot-wasm32-wasi
+            - linux64-sccache
             - sysroot-x86_64-linux-gnu
 
 linux64-tsan/opt:
@@ -250,7 +193,6 @@ linux64-tsan/opt:
     treeherder:
         platform: linux64/tsan
         symbol: Bo
-    worker-type: b-linux-gcp
     worker:
         env:
             PERFHERDER_EXTRA_OPTIONS: "opt tsan"
@@ -258,15 +200,9 @@ linux64-tsan/opt:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
         max-run-time: 5400
     run:
-        using: mozharness
-        comm-checkout: true
-        actions: [build]
-        config-paths:
-            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
-        script: "mozharness/scripts/fx_desktop_build.py"
         custom-build-variant-cfg: tsan-tc
         mozconfig-variant: tsan
         tooltool-downloads: public
@@ -276,19 +212,10 @@ linux64-tsan/opt:
         skip-unless-backstop-no-suite: null
     fetches:
         toolchain:
-            - linux64-binutils
-            - linux64-cbindgen
-            - linux64-clang
-            - linux64-dump_syms
-            - linux64-llvm-symbolizer
             - linux64-libotr
-            - linux64-nasm
-            - linux64-node
-            - linux64-pkgconf
+            - linux64-llvm-symbolizer
             - linux64-rust-dev
-            - linux64-rust-size
             - linux64-sccache
-            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux64-aarch64/opt:
@@ -302,21 +229,14 @@ linux64-aarch64/opt:
         platform: linux64-aarch64/opt
         symbol: B
         tier: 2
-    worker-type: b-linux-gcp
     worker:
         max-run-time: 7200
     run:
-        using: mozharness
-        comm-checkout: true
-        actions: [build]
-        config-paths:
-            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
         extra-config:
             mozconfig_platform: linux64-aarch64
-        script: "mozharness/scripts/fx_desktop_build.py"
         mozconfig-variant: opt
         tooltool-downloads: public
     run-on-projects: ['comm-central']
@@ -326,17 +246,10 @@ linux64-aarch64/opt:
     fetches:
         toolchain:
             - linux-aarch64-libotr
-            - linux64-binutils
-            - linux64-cbindgen
-            - linux64-clang
-            - linux64-dump_syms
-            - linux64-node
-            - linux64-pkgconf
-            - linux64-rust
-            - linux64-rust-size
+            - linux64-llvm-symbolizer
+            - linux64-rust-dev
             - linux64-sccache
             - sysroot-aarch64-linux-gnu
-            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux/opt:
@@ -347,37 +260,21 @@ linux/opt:
     treeherder:
         platform: linux32/opt
         symbol: B
-    worker-type: b-linux-gcp
     worker:
         max-run-time: 7200
     run:
-        using: mozharness
-        comm-checkout: true
-        actions: [build]
-        config-paths:
-            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_32_builds.py
-        script: "mozharness/scripts/fx_desktop_build.py"
     use-sccache: true
     optimization:
         skip-suite-only: null
     fetches:
         toolchain:
-            - linux64-binutils
-            - linux64-cbindgen
-            - linux64-clang
-            - linux64-dump_syms
             - linux32-libotr
-            - linux64-nasm
-            - linux64-node
-            - linux64-pkgconf
             - linux64-rust
-            - linux64-rust-size
             - linux64-sccache
             - sysroot-i686-linux-gnu
-            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux-shippable/opt:
@@ -394,39 +291,23 @@ linux-shippable/opt:
     treeherder:
         platform: linux32-shippable/opt
         symbol: B
-    worker-type: b-linux-gcp
     worker:
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
-        using: mozharness
-        comm-checkout: true
-        actions: [build]
-        config-paths:
-            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_32_builds.py
             - taskcluster_nightly.py
-        script: "mozharness/scripts/fx_desktop_build.py"
     run-on-projects: ['release']
     optimization:
         skip-suite-only: null
     fetches:
         toolchain:
-            - linux64-binutils
-            - linux64-cbindgen
-            - linux64-clang
-            - linux64-dump_syms
             - linux32-libotr
-            - linux64-nasm
-            - linux64-node
-            - linux64-pkgconf
             - linux64-rust
-            - linux64-rust-size
             - sysroot-i686-linux-gnu
-            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux/debug:
@@ -437,19 +318,12 @@ linux/debug:
     treeherder:
         platform: linux32/debug
         symbol: B
-    worker-type: b-linux-gcp
     worker:
         max-run-time: 7200
     run:
-        using: mozharness
-        comm-checkout: true
-        actions: [build]
-        config-paths:
-            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_32_builds.py
-        script: "mozharness/scripts/fx_desktop_build.py"
         custom-build-variant-cfg: debug
         mozconfig-variant: debug
     use-sccache: true
@@ -457,17 +331,8 @@ linux/debug:
         skip-suite-only: null
     fetches:
         toolchain:
-            - linux64-binutils
-            - linux64-cbindgen
-            - linux64-clang
-            - linux64-dump_syms
             - linux32-libotr
-            - linux64-nasm
-            - linux64-node
-            - linux64-pkgconf
             - linux64-rust
-            - linux64-rust-size
             - linux64-sccache
             - sysroot-i686-linux-gnu
-            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
