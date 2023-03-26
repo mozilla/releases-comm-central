@@ -63,14 +63,6 @@ class TreeView extends HTMLElement {
    */
   _selection = null;
 
-  /**
-   * The function storing the timeout callback for the delayed select feature in
-   * order to clear it when not needed.
-   *
-   * @type {integer}
-   */
-  _selectTimeout = null;
-
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -365,7 +357,7 @@ class TreeView extends HTMLElement {
             } else if (event.shiftKey) {
               this._selectRange(newIndex, event[accelKeyName]);
             } else {
-              this._selectSingle(newIndex, true);
+              this._selectSingle(newIndex);
             }
           }
           event.preventDefault();
@@ -390,7 +382,7 @@ class TreeView extends HTMLElement {
             event.preventDefault();
           } else if (!this._selection.isSelected(this.currentIndex)) {
             // The target row is not currently selected.
-            this._selectSingle(this.currentIndex, true);
+            this._selectSingle(this.currentIndex);
             event.preventDefault();
           }
         }
@@ -831,9 +823,8 @@ class TreeView extends HTMLElement {
    * Select and focus the given index.
    *
    * @param {number} index - The index to select.
-   * @param {boolean} [delaySelect=false] - If the selection should be delayed.
    */
-  _selectSingle(index, delaySelect = false) {
+  _selectSingle(index) {
     let changeSelection =
       this._selection.count != 1 || !this._selection.isSelected(index);
     // Update the TreeSelection selection to trigger a tree invalidate().
@@ -842,7 +833,7 @@ class TreeView extends HTMLElement {
     }
     this.currentIndex = index;
     if (changeSelection) {
-      this.onSelectionChanged(delaySelect);
+      this.onSelectionChanged();
     }
   }
 
@@ -994,10 +985,8 @@ class TreeView extends HTMLElement {
    * Update the classes on the table element to reflect the current selection
    * state, and dispatch an event to allow implementations to handle the
    * change in the selection state.
-   *
-   * @param {boolean} [delaySelect=false] - If the selection should be delayed.
    */
-  onSelectionChanged(delaySelect = false) {
+  onSelectionChanged() {
     const selectedCount = this.selectedIndices.length;
     const allSelected = selectedCount == this._view.rowCount;
 
@@ -1020,26 +1009,7 @@ class TreeView extends HTMLElement {
       );
     }
 
-    // No need to handle a delayed select if not required.
-    if (!delaySelect) {
-      // Clear the timeout in case something was still running.
-      if (this._selectTimeout) {
-        window.clearTimeout(this._selectTimeout);
-      }
-      this.dispatchEvent(new CustomEvent("select"));
-      return;
-    }
-
-    let delay = this.dataset.selectDelay || 50;
-    if (delay != -1) {
-      if (this._selectTimeout) {
-        window.clearTimeout(this._selectTimeout);
-      }
-      this._selectTimeout = window.setTimeout(() => {
-        this.dispatchEvent(new CustomEvent("select"));
-        this._selectTimeout = null;
-      }, delay);
-    }
+    this.dispatchEvent(new CustomEvent("select"));
   }
 }
 customElements.define("tree-view", TreeView);
