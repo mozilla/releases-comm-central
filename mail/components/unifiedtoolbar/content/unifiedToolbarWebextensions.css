@@ -36,7 +36,7 @@
   }
 
   .unified-toolbar .extension-action .button-icon:-moz-lwtheme {
-    content: var(--webextension-toolbar-image-dark-2x, inherit);
+    content: var(--webextension-toolbar-image-2x-dark, inherit);
   }
 
   .extension-action .preview-icon {
@@ -46,7 +46,7 @@
   @media (prefers-color-scheme: dark) {
     .unified-toolbar .extension-action .button-icon,
     :root[lwt-tree-brighttext] .unified-toolbar .extension-action .button-icon {
-      content: var(--webextension-toolbar-image-light-2x, inherit);
+      content: var(--webextension-toolbar-image-2x-light, inherit);
     }
   }
 }
