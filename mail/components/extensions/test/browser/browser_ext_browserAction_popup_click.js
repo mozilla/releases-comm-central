@@ -75,3 +75,49 @@ add_task(async function test_popup_open_with_click() {
     messageWindow.close();
   }
 });
+
+// This test uses openPopup to open the popup.
+add_task(async function test_popup_open_with_openPopup() {
+  let files = {
+    "background.js": async () => {
+      browser.runtime.onMessage.addListener(msg => {
+        if (msg == "from-browser-action-popup") {
+          browser.test.notifyPass("finished");
+        }
+      });
+      browser.browserAction.openPopup();
+    },
+    "popup.html": `<!DOCTYPE html>
+      <html>
+        <head>
+          <title>Popup</title>
+        </head>
+        <body>
+          <p>Hello</p>
+          <script src="popup.js"></script>
+        </body>
+      </html>`,
+    "popup.js": function() {
+      browser.runtime.sendMessage("from-browser-action-popup");
+    },
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    useAddonManager: "temporary",
+    manifest: {
+      applications: {
+        gecko: {
+          id: "browser_action_openPopup@mochi.test",
+        },
+      },
+      background: { scripts: ["background.js"] },
+      browser_action: {
+        default_title: "default",
+        default_popup: "popup.html",
+      },
+    },
+  });
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});

@@ -32,6 +32,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
 );
 XPCOMUtils.defineLazyGlobalGetters(this, ["IOUtils", "PathUtils"]);
 
+const MAIN_WINDOW_URI = "chrome://messenger/content/messenger.xhtml";
 const POPUP_WINDOW_URI = "chrome://messenger/content/extensionPopup.xhtml";
 const COMPOSE_WINDOW_URI =
   "chrome://messenger/content/messengercompose/messengercompose.xhtml";

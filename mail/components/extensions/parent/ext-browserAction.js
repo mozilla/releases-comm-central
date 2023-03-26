@@ -33,11 +33,52 @@ this.browserAction = class extends ToolbarButtonAPI {
     return browserActionMap.get(extension);
   }
 
+  /**
+   * A browser_action can be placed in the unified toolbar of the main window and
+   * in the XUL toolbar of the message window. We conditionally bypass XUL toolbar
+   * behavior by using the following custom method implementations.
+   */
+
+  paint(window) {
+    // Ignore XUL toolbar paint requests for the main window.
+    if (window.location.href != MAIN_WINDOW_URI) {
+      super.paint(window);
+    }
+  }
+
+  unpaint(window) {
+    // Ignore XUL toolbar unpaint requests for the main window.
+    if (window.location.href != MAIN_WINDOW_URI) {
+      super.unpaint(window);
+    }
+  }
+
+  getToolbarButton(window) {
+    // Return the button from the unified toolbar, if this is the main window.
+    if (window.location.href == MAIN_WINDOW_URI) {
+      return window.document.querySelector(
+        `#unifiedToolbarContent [extension="${this.extension.id}"]`
+      );
+    }
+    return super.getToolbarButton(window);
+  }
+
+  updateButton(button, tabData) {
+    if (button.applyTabData) {
+      // This is an extension-action-button customElement and therefore a button
+      // in the unified toolbar and needs special handling.
+      button.applyTabData(tabData);
+    } else {
+      super.updateButton(button, tabData);
+    }
+  }
+
   async onManifestEntry(entryName) {
     await super.onManifestEntry(entryName);
     browserActionMap.set(this.extension, this);
 
-    if (this.inUnifiedToolbar) {
+    // Check if a browser_action was added to the unified toolbar.
+    if (this.windowURLs.includes(MAIN_WINDOW_URI)) {
       await registerExtension(this.extension.id, this.allowedSpaces);
       const currentToolbarState = getState();
       const unifiedToolbarButtonId = `ext-${this.extension.id}`;
@@ -115,7 +156,8 @@ this.browserAction = class extends ToolbarButtonAPI {
     super.close();
     browserActionMap.delete(this.extension);
     windowTracker.removeListener("TabSelect", this);
-    if (this.inUnifiedToolbar) {
+    // Unregister the extension from the unified toolbar.
+    if (this.windowURLs.includes(MAIN_WINDOW_URI)) {
       unregisterExtension(this.extension.id);
       Services.obs.notifyObservers(null, "unified-toolbar-state-change");
     }
@@ -131,10 +173,10 @@ this.browserAction = class extends ToolbarButtonAPI {
 
     this.windowURLs = [];
     if (manifest.default_windows.includes("normal")) {
-      this.inUnifiedToolbar = true;
+      this.windowURLs.push(MAIN_WINDOW_URI);
     }
     if (manifest.default_windows.includes("messageDisplay")) {
-      this.windowURLs.push("chrome://messenger/content/messageWindow.xhtml");
+      this.windowURLs.push(MESSAGE_WINDOW_URI);
     }
 
     this.toolboxId = "mail-toolbox";
@@ -165,16 +207,12 @@ this.browserAction = class extends ToolbarButtonAPI {
     for (let toolbar of toolbars) {
       for (let setName of ["currentset", "extensionset"]) {
         let set = Services.xulStore
-          .getValue(
-            "chrome://messenger/content/messageWindow.xhtml",
-            toolbar,
-            setName
-          )
+          .getValue(MESSAGE_WINDOW_URI, toolbar, setName)
           .split(",");
         let newSet = set.filter(e => e != id);
         if (newSet.length < set.length) {
           Services.xulStore.setValue(
-            "chrome://messenger/content/messageWindow.xhtml",
+            MESSAGE_WINDOW_URI,
             toolbar,
             setName,
             newSet.join(",")
@@ -221,7 +259,7 @@ this.browserAction = class extends ToolbarButtonAPI {
         const trigger = menu.triggerNode;
         const node =
           window.document.getElementById(this.id) ||
-          (this.inUnifiedToolbar &&
+          (this.windowURLs.includes(MAIN_WINDOW_URI) &&
             window.document.querySelector(
               `#unifiedToolbarContent [item-id="ext-${this.extension.id}"]`
             ));

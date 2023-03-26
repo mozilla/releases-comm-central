@@ -36,6 +36,7 @@ module.exports = {
     // These are defined in ext-mail.js.
     ADDRESS_BOOK_WINDOW_URI: true,
     COMPOSE_WINDOW_URI: true,
+    MAIN_WINDOW_URI: true,
     MESSAGE_WINDOW_URI: true,
     MESSAGE_PROTOCOLS: true,
     NOTIFICATION_COLLAPSE_TIME: true,

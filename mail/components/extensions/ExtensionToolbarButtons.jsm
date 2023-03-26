@@ -437,6 +437,10 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
     }
   }
 
+  getToolbarButton(window) {
+    return window.document.getElementById(this.id);
+  }
+
   /**
    * Triggers this browser action for the given window, with the same effects as
    * if it were clicked by a user.
@@ -447,16 +451,7 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
    * @param {Window} window
    */
   async triggerAction(window) {
-    let { document } = window;
-    let button = document.getElementById(this.id);
-    if (
-      this.inUnifiedToolbar &&
-      (!button || document.getElementById("unifiedToolbar"))
-    ) {
-      button = document.querySelector(
-        `#unifiedToolbarContent [extension="${this.extension.id}"]`
-      );
-    }
+    let button = this.getToolbarButton(window);
     let { popup: popupURL, enabled } = this.getContextData(
       this.getTargetFromWindow(window)
     );
@@ -594,18 +589,10 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
    *        Browser chrome window.
    */
   async updateWindow(window) {
-    let button = window.document.getElementById(this.id);
-    let tabData = this.getContextData(this.getTargetFromWindow(window));
+    let button = this.getToolbarButton(window);
     if (button) {
+      let tabData = this.getContextData(this.getTargetFromWindow(window));
       this.updateButton(button, tabData);
-    }
-    if (this.inUnifiedToolbar) {
-      let unifiedToolbarButton = window.document.querySelector(
-        `#unifiedToolbarContent [extension="${this.extension.id}"]`
-      );
-      if (unifiedToolbarButton) {
-        unifiedToolbarButton.applyTabData(tabData);
-      }
     }
     await new Promise(window.requestAnimationFrame);
   }
@@ -633,12 +620,7 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
     } else {
       let promises = [];
       for (let window of lazy.ExtensionSupport.openWindows) {
-        if (
-          this.windowURLs.includes(window.location.href) ||
-          (this.inUnifiedToolbar &&
-            window.location.href ===
-              "chrome://messenger/content/messenger.xhtml")
-        ) {
+        if (this.windowURLs.includes(window.location.href)) {
           promises.push(this.updateWindow(window));
         }
       }

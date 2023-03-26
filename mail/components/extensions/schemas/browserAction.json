@@ -726,7 +726,6 @@
       {
         "name": "openPopup",
         "type": "function",
-        "requireUserInput": true,
         "description": "Opens the action's popup window in the active window.",
         "async": true,
         "parameters": []
