@@ -669,13 +669,33 @@ async function editContactAtIndex(index, options) {
   let detailsPane = abDocument.getElementById("detailsPane");
   let editButton = abDocument.getElementById("editButton");
 
+  let selectHandler = {
+    seenEvent: null,
+    selectedAtEvent: null,
+
+    reset() {
+      this.seenEvent = null;
+      this.selectedAtEvent = null;
+    },
+    handleEvent(event) {
+      this.seenEvent = event;
+      this.selectedAtEvent = cardsList.selectedIndex;
+    },
+  };
+
   if (!options.useMouse) {
     cardsList.table.body.focus();
     if (cardsList.currentIndex != index) {
-      EventUtils.synthesizeKey("KEY_Home", { accelKey: true }, abWindow);
+      selectHandler.reset();
+      cardsList.addEventListener("select", selectHandler, { once: true });
+      EventUtils.synthesizeKey("KEY_Home", {}, abWindow);
       for (let i = 0; i < index; i++) {
-        EventUtils.synthesizeKey("KEY_ArrowDown", { accelKey: true }, abWindow);
+        EventUtils.synthesizeKey("KEY_ArrowDown", {}, abWindow);
       }
+      await TestUtils.waitForCondition(
+        () => selectHandler.seenEvent,
+        `'select' event should get fired`
+      );
     }
   }
 
@@ -701,8 +721,6 @@ async function editContactAtIndex(index, options) {
         {},
         abWindow
       );
-    } else {
-      EventUtils.synthesizeKey(" ", {}, abWindow);
     }
 
     await TestUtils.waitForCondition(() =>
