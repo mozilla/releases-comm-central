@@ -68,6 +68,36 @@ function sanitizePositionParams(params, window = null, positionOffset = 0) {
   );
 }
 
+/**
+ * Update the geometry of the mail window.
+ *
+ * @param {object} options
+ *        An object containing new values for the window's geometry.
+ * @param {integer} [options.left]
+ *        The new pixel distance of the left side of the mail window from
+ *        the left of the screen.
+ * @param {integer} [options.top]
+ *        The new pixel distance of the top side of the mail window from
+ *        the top of the screen.
+ * @param {integer} [options.width]
+ *        The new pixel width of the window.
+ * @param {integer} [options.height]
+ *        The new pixel height of the window.
+ */
+function updateGeometry(window, options) {
+  if (options.left !== null || options.top !== null) {
+    let left = options.left === null ? window.screenX : options.left;
+    let top = options.top === null ? window.screenY : options.top;
+    window.moveTo(left, top);
+  }
+
+  if (options.width !== null || options.height !== null) {
+    let width = options.width === null ? window.outerWidth : options.width;
+    let height = options.height === null ? window.outerHeight : options.height;
+    window.resizeTo(width, height);
+  }
+}
+
 this.windows = class extends ExtensionAPIPersistent {
   onShutdown(isAppShutdown) {
     if (isAppShutdown) {
@@ -352,15 +382,14 @@ this.windows = class extends ExtensionAPIPersistent {
 
           window.webExtensionWindowCreatePending = true;
 
-          let win = windowManager.getWrapper(window);
-          win.updateGeometry(createData);
+          updateGeometry(window, createData);
 
           // TODO: focused, type
 
           // Wait till the newly created window is focused. On Linux the initial
           // "normal" state has been set once the window has been fully focused.
           // Setting a different state before the window is fully focused may cause
-          // the initial state to be eronously applied after the custom state has
+          // the initial state to be erroneously applied after the custom state has
           // been set.
           let focusPromise = new Promise(resolve => {
             if (Services.focus.activeWindow == window) {
@@ -381,6 +410,8 @@ this.windows = class extends ExtensionAPIPersistent {
           });
 
           await Promise.all([focusPromise, loadPromise, titlePromise]);
+
+          let win = windowManager.getWrapper(window);
 
           if (
             [
@@ -410,7 +441,6 @@ this.windows = class extends ExtensionAPIPersistent {
           window.dispatchEvent(
             new window.CustomEvent("webExtensionWindowCreateDone")
           );
-
           return win.convert({ populate: true });
         },
 
@@ -459,7 +489,7 @@ this.windows = class extends ExtensionAPIPersistent {
             win.window.getAttention();
           }
 
-          win.updateGeometry(updateInfo);
+          updateGeometry(win.window, updateInfo);
 
           if (updateInfo.titlePreface !== null) {
             win.setTitlePreface(updateInfo.titlePreface);

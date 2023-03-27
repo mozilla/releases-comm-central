@@ -1189,39 +1189,6 @@ class Window extends WindowBase {
     }
   }
 
-  /**
-   * Update the geometry of the mail window.
-   *
-   * @param {object} options
-   *        An object containing new values for the window's geometry.
-   * @param {integer} [options.left]
-   *        The new pixel distance of the left side of the mail window from
-   *        the left of the screen.
-   * @param {integer} [options.top]
-   *        The new pixel distance of the top side of the mail window from
-   *        the top of the screen.
-   * @param {integer} [options.width]
-   *        The new pixel width of the window.
-   * @param {integer} [options.height]
-   *        The new pixel height of the window.
-   */
-  updateGeometry(options) {
-    let { window } = this;
-
-    if (options.left !== null || options.top !== null) {
-      let left = options.left === null ? window.screenX : options.left;
-      let top = options.top === null ? window.screenY : options.top;
-      window.moveTo(left, top);
-    }
-
-    if (options.width !== null || options.height !== null) {
-      let width = options.width === null ? window.outerWidth : options.width;
-      let height =
-        options.height === null ? window.outerHeight : options.height;
-      window.resizeTo(width, height);
-    }
-  }
-
   /** Returns the title of the tab, without permission checks. */
   get _title() {
     return this.window.document.title;
