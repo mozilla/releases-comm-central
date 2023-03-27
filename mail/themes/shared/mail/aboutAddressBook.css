@@ -497,6 +497,7 @@ body:not(.layout-table) #sharedSplitter {
 #detailsPane {
   grid-area: details;
   min-height: var(--address-book-card-min-height);
+  user-select: text;
 }
 
 #detailsPane:not([hidden]) {
