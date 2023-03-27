@@ -7,7 +7,7 @@
   --tree-header-table-height: 30px;
   --tree-header-cell-padding: 6px;
   --tree-header-cell-indent: 0;
-  --list-item-min-height: 28px;
+  --list-item-min-height: 26px;
 }
 
 :root[uidensity="compact"] {
@@ -21,7 +21,7 @@
   --tree-header-table-height: 36px;
   --tree-header-cell-padding: 9px;
   --tree-header-cell-indent: -3px;
-  --list-item-min-height: 34px;
+  --list-item-min-height: 32px;
 }
 
 @media not (prefers-contrast) {

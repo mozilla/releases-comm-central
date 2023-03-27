@@ -2899,7 +2899,7 @@ var threadPane = {
     let cardClass = customElements.get("thread-card");
     switch (UIDensity.prefValue) {
       case UIDensity.MODE_COMPACT:
-        rowClass.ROW_HEIGHT = 18;
+        rowClass.ROW_HEIGHT = 22;
         cardClass.ROW_HEIGHT = 38;
         break;
       case UIDensity.MODE_TOUCH:
@@ -2907,7 +2907,7 @@ var threadPane = {
         cardClass.ROW_HEIGHT = 52;
         break;
       default:
-        rowClass.ROW_HEIGHT = 22;
+        rowClass.ROW_HEIGHT = 26;
         cardClass.ROW_HEIGHT = 46;
         break;
     }
