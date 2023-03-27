@@ -604,6 +604,20 @@ add_task(async function testReadOnlyActions() {
   let editButton = abDocument.getElementById("editButton");
   let editForm = abDocument.getElementById("editContactForm");
 
+  let selectHandler = {
+    seenEvent: null,
+    selectedAtEvent: null,
+
+    reset() {
+      this.seenEvent = null;
+      this.selectedAtEvent = null;
+    },
+    handleEvent(event) {
+      this.seenEvent = event;
+      this.selectedAtEvent = cardsList.selectedIndex;
+    },
+  };
+
   // Check contacts with the book displayed.
 
   openDirectory(readOnlyBook);
@@ -658,8 +672,14 @@ add_task(async function testReadOnlyActions() {
     "Cards list should be the active element"
   );
 
+  selectHandler.reset();
+  cardsList.addEventListener("select", selectHandler, { once: true });
   // Same with Enter on the second item.
   EventUtils.synthesizeKey("KEY_ArrowDown", {}, abWindow);
+  await TestUtils.waitForCondition(
+    () => selectHandler.seenEvent,
+    `'select' event should get fired`
+  );
   Assert.ok(
     BrowserTestUtils.is_visible(contactView),
     "contact view should be shown"
