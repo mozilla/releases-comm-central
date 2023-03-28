@@ -30,47 +30,47 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
    *
    * @type {Map<string, calIEvent>}
    */
-  recurringEventsCache = new Map();
+  #recurringEventsCache = new Map();
 
   /**
    * Cache for recurring events offline flags.
    *
    * @type {Map<string, number>}
    */
-  recurringEventsOfflineFlagCache = new Map();
+  #recurringEventsOfflineFlagCache = new Map();
 
   /**
    * Cache for recurring todos.
    *
    * @type {Map<string, calITodo>}
    */
-  recurringTodosCache = new Map();
+  #recurringTodosCache = new Map();
 
   /**
    * Cache for recurring todo offline flags.
    *
    * @type {Map<string, number>}
    */
-  recurringTodosOfflineCache = new Map();
+  #recurringTodosOfflineCache = new Map();
 
   /**
    * Promise that resolves when the caches have been built up.
    *
    * @type {Promise<void>}
    */
-  recurringCachePromise = null;
+  #recurringCachePromise = null;
 
   /**
    * Build up recurring event and todo cache with its offline flags.
    */
-  async assureRecurringItemCaches() {
-    if (!this.recurringCachePromise) {
-      this.recurringCachePromise = this._assureRecurringItemCaches();
+  async #ensureRecurringItemCaches() {
+    if (!this.#recurringCachePromise) {
+      this.#recurringCachePromise = this.#buildRecurringItemCaches();
     }
-    return this.recurringCachePromise;
+    return this.#recurringCachePromise;
   }
 
-  async _assureRecurringItemCaches() {
+  async #buildRecurringItemCaches() {
     // Retrieve items and flags for recurring events and todos before combining
     // storing them in the item cache. Items need to be expunged from the
     // existing item cache to avoid get(Event|Todo)FromRow providing stale
@@ -81,13 +81,13 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
     let itemsMap = await this.getAdditionalDataForItemMap(new Map([...events, ...todos]));
 
     this.itemCache = new Map([...this.itemCache, ...itemsMap]);
-    this.recurringEventsCache = new Map([...this.recurringEventsCache, ...events]);
-    this.recurringEventsOfflineFlagCache = new Map([
-      ...this.recurringEventsOfflineFlagCache,
+    this.#recurringEventsCache = new Map([...this.#recurringEventsCache, ...events]);
+    this.#recurringEventsOfflineFlagCache = new Map([
+      ...this.#recurringEventsOfflineFlagCache,
       ...eventFlags,
     ]);
-    this.recurringTodosCache = new Map([...this.recurringTodosCache, ...todos]);
-    this.recurringTodosOfflineCache = new Map([...this.recurringTodosOfflineCache, ...todoFlags]);
+    this.#recurringTodosCache = new Map([...this.#recurringTodosCache, ...todos]);
+    this.#recurringTodosOfflineCache = new Map([...this.#recurringTodosOfflineCache, ...todoFlags]);
   }
 
   /**
@@ -122,7 +122,7 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
             self.mRecItemCachePromise = null;
           }
         }
-        await self.assureRecurringItemCaches();
+        await self.#ensureRecurringItemCaches();
 
         for await (let value of cal.iterate.streamValues(getStream())) {
           controller.enqueue(value);
@@ -138,7 +138,7 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
    * @returns {[Map<string, calIEvent>, Map<string, number>]}
    */
   async getFullRecurringEventAndFlagMaps() {
-    return [this.recurringEventsCache, this.recurringEventsOfflineFlagCache];
+    return [this.#recurringEventsCache, this.#recurringEventsOfflineFlagCache];
   }
 
   /**
@@ -147,7 +147,7 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
    * @returns {[Map<string, calITodo>, Map<string, number>]}
    */
   async getFullRecurringTodoAndFlagMaps() {
-    return [this.recurringTodosCache, this.recurringTodosOfflineCache];
+    return [this.#recurringTodosCache, this.#recurringTodosOfflineCache];
   }
 
   async getEventFromRow(row, getAdditionalData = true) {
@@ -158,7 +158,7 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
 
     item = await super.getEventFromRow(row, getAdditionalData);
     if (getAdditionalData) {
-      this.cacheItem(item);
+      this.#cacheItem(item);
     }
     return item;
   }
@@ -171,18 +171,18 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
 
     item = await super.getTodoFromRow(row, getAdditionalData);
     if (getAdditionalData) {
-      this.cacheItem(item);
+      this.#cacheItem(item);
     }
     return item;
   }
 
   async addItem(item) {
     await super.addItem(item);
-    this.cacheItem(item);
+    this.#cacheItem(item);
   }
 
   async getItemById(id) {
-    await this.assureRecurringItemCaches();
+    await this.#ensureRecurringItemCaches();
     let item = this.itemCache.get(id);
     if (item) {
       return item;
@@ -193,8 +193,8 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
   async deleteItemById(id, keepMeta) {
     await super.deleteItemById(id, keepMeta);
     this.itemCache.delete(id);
-    this.recurringEventsCache.delete(id);
-    this.recurringTodosCache.delete(id);
+    this.#recurringEventsCache.delete(id);
+    this.#recurringTodosCache.delete(id);
   }
 
   /**
@@ -202,7 +202,7 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
    *
    * @param {calIItemBase} item
    */
-  cacheItem(item) {
+  #cacheItem(item) {
     if (item.recurrenceId) {
       // Do not cache recurring item instances. See bug 1686466.
       return;
@@ -210,9 +210,9 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
     this.itemCache.set(item.id, item);
     if (item.recurrenceInfo) {
       if (item.isEvent()) {
-        this.recurringEventsCache.set(item.id, item);
+        this.#recurringEventsCache.set(item.id, item);
       } else {
-        this.recurringTodosCache.set(item.id, item);
+        this.#recurringTodosCache.set(item.id, item);
       }
     }
   }

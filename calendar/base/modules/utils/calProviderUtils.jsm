@@ -195,7 +195,7 @@ var calprovider = {
       this.timer = null;
     }
 
-    notifyCertProblem(socketInfo, secInfo, targetSite) {
+    notifyCertProblem(secInfo, targetSite) {
       // Unfortunately we can't pass js objects using the window watcher, so
       // we'll just take the first available calendar window. We also need to
       // do this on a timer so that the modal window doesn't block the
@@ -253,7 +253,7 @@ var calprovider = {
     if (isCertError && request.securityInfo) {
       let secInfo = request.securityInfo.QueryInterface(Ci.nsITransportSecurityInfo);
       let badCertHandler = new calprovider.BadCertHandler(calendar);
-      badCertHandler.notifyCertProblem(null, secInfo, request.originalURI.displayHostPort);
+      badCertHandler.notifyCertProblem(secInfo, request.originalURI.displayHostPort);
     }
   },
 

@@ -58,7 +58,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    *
    * @type {calISchedulingSupport}
    */
-  get schedulingSupport() {
+  get #schedulingSupport() {
     return (
       (this.calendar.superCalendar.supportsScheduling &&
         this.calendar.superCalendar.getSchedulingSupport()) ||
@@ -121,7 +121,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         async start(controller) {
           if (filters) {
             if (filters.wantEvents) {
-              for await (let value of cal.iterate.streamValues(self.getEvents(query))) {
+              for await (let value of cal.iterate.streamValues(self.#getEvents(query))) {
                 controller.enqueue(value);
               }
             }
@@ -129,7 +129,7 @@ class CalStorageItemModel extends CalStorageModelBase {
             count = count && count - controller.count;
             if (filters.wantTodos && (!count || count > 0)) {
               for await (let value of cal.iterate.streamValues(
-                self.getTodos({ ...query, count })
+                self.#getTodos({ ...query, count })
               )) {
                 controller.enqueue(value);
               }
@@ -149,7 +149,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    *
    * @returns {ReadableStream<calIEvent>}
    */
-  getEvents(query) {
+  #getEvents(query) {
     let { filters, rangeStart, rangeEnd } = query;
     let startTime = DEFAULT_START_TIME;
     let endTime = DEFAULT_END_TIME;
@@ -191,7 +191,7 @@ class CalStorageItemModel extends CalStorageModelBase {
             await self.db.executeAsync(
               self.statements.mSelectNonRecurringEventsByRange,
               async row => {
-                let event = self._expandOccurrences(
+                let event = self.#expandOccurrences(
                   await self.getEventFromRow(row),
                   startTime,
                   rangeStart,
@@ -218,7 +218,7 @@ class CalStorageItemModel extends CalStorageModelBase {
                 (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)
               ) {
                 controller.enqueue(
-                  self._expandOccurrences(evitem, startTime, rangeStart, rangeEnd, filters)
+                  self.#expandOccurrences(evitem, startTime, rangeStart, rangeEnd, filters)
                 );
                 if (controller.maxTotalItemsReached) {
                   break;
@@ -240,7 +240,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    *
    * @returns {ReadableStream<calITodo>}
    */
-  getTodos(query) {
+  #getTodos(query) {
     let { filters, rangeStart, rangeEnd } = query;
     let startTime = DEFAULT_START_TIME;
     let endTime = DEFAULT_END_TIME;
@@ -286,7 +286,7 @@ class CalStorageItemModel extends CalStorageModelBase {
             await self.db.executeAsync(
               self.statements.mSelectNonRecurringTodosByRange,
               async row => {
-                let todo = self._expandOccurrences(
+                let todo = self.#expandOccurrences(
                   await self.getTodoFromRow(row),
                   startTime,
                   rangeStart,
@@ -318,7 +318,7 @@ class CalStorageItemModel extends CalStorageModelBase {
                 (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)
               ) {
                 controller.enqueue(
-                  self._expandOccurrences(
+                  self.#expandOccurrences(
                     todoitem,
                     startTime,
                     rangeStart,
@@ -339,12 +339,12 @@ class CalStorageItemModel extends CalStorageModelBase {
     );
   }
 
-  _checkUnrespondedInvitation(item) {
-    let att = this.schedulingSupport.getInvitedAttendee(item);
+  #checkUnrespondedInvitation(item) {
+    let att = this.#schedulingSupport.getInvitedAttendee(item);
     return att && att.participationStatus == "NEEDS-ACTION";
   }
 
-  _expandOccurrences(item, startTime, rangeStart, rangeEnd, filters, optionalFilterFunc) {
+  #expandOccurrences(item, startTime, rangeStart, rangeEnd, filters, optionalFilterFunc) {
     if (item.recurrenceInfo && item.recurrenceInfo.recurrenceEndDate < startTime) {
       return [];
     }
@@ -356,10 +356,10 @@ class CalStorageItemModel extends CalStorageModelBase {
       // this expands to 0 items.
       expandedItems = item.recurrenceInfo.getOccurrences(rangeStart, rangeEnd, 0);
       if (filters.wantUnrespondedInvitations) {
-        expandedItems = expandedItems.filter(item => this._checkUnrespondedInvitation(item));
+        expandedItems = expandedItems.filter(item => this.#checkUnrespondedInvitation(item));
       }
     } else if (
-      (!filters.wantUnrespondedInvitations || this._checkUnrespondedInvitation(item)) &&
+      (!filters.wantUnrespondedInvitations || this.#checkUnrespondedInvitation(item)) &&
       cal.item.checkIfInRange(item, rangeStart, rangeEnd)
     ) {
       // If no occurrences are wanted, check only the parent item.
@@ -382,7 +382,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @param {mozIStorageRow} row
    * @param {calIItemBase} item
    */
-  getItemBaseFromRow(row, item) {
+  #getItemBaseFromRow(row, item) {
     item.calendar = this.calendar.superCalendar;
     item.id = row.getResultByName("id");
     if (row.getResultByName("title")) {
@@ -508,7 +508,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @param {mozIStorageRow} row
    * @returns {string}
    */
-  _unfoldIcalString(row) {
+  #unfoldIcalString(row) {
     return row.getResultByName("icalString").replaceAll("\r\n ", "");
   }
 
@@ -533,7 +533,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         return;
       }
 
-      let attendee = new lazy.CalAttendee(this._unfoldIcalString(row));
+      let attendee = new lazy.CalAttendee(this.#unfoldIcalString(row));
       if (attendee && attendee.id) {
         if (attendee.isOrganizer) {
           item.organizer = attendee;
@@ -601,7 +601,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         item.recurrenceInfo = recInfo;
       }
 
-      let ritem = this.getRecurrenceItemFromRow(row);
+      let ritem = this.#getRecurrenceItemFromRow(row);
       recInfo.appendRecurrenceItem(ritem);
     });
 
@@ -633,7 +633,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     await this.db.executeAsync(this.statements.mSelectAllAttachments, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
-        item.addAttachment(new lazy.CalAttachment(this._unfoldIcalString(row)));
+        item.addAttachment(new lazy.CalAttachment(this.#unfoldIcalString(row)));
       }
     });
 
@@ -641,7 +641,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     await this.db.executeAsync(this.statements.mSelectAllRelations, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
-        item.addRelation(new lazy.CalRelation(this._unfoldIcalString(row)));
+        item.addRelation(new lazy.CalRelation(this.#unfoldIcalString(row)));
       }
     });
 
@@ -649,12 +649,12 @@ class CalStorageItemModel extends CalStorageModelBase {
     await this.db.executeAsync(this.statements.mSelectAllAlarms, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
-        item.addAlarm(new lazy.CalAlarm(this._unfoldIcalString(row)));
+        item.addAlarm(new lazy.CalAlarm(this.#unfoldIcalString(row)));
       }
     });
 
     for (let item of itemsMap.values()) {
-      this.fixGoogleCalendarDescriptionIfNeeded(item);
+      this.#fixGoogleCalendarDescriptionIfNeeded(item);
       item.makeImmutable();
     }
     return itemsMap;
@@ -666,7 +666,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    *
    * @param {calIItemBase} item
    */
-  fixGoogleCalendarDescriptionIfNeeded(item) {
+  #fixGoogleCalendarDescriptionIfNeeded(item) {
     if (item.id && item.id.endsWith("@google.com")) {
       let description = item.getProperty("DESCRIPTION");
       if (description) {
@@ -707,9 +707,9 @@ class CalStorageItemModel extends CalStorageModelBase {
     }
 
     // This must be done last to keep the modification time intact.
-    this.getItemBaseFromRow(row, item);
+    this.#getItemBaseFromRow(row, item);
     if (getAdditionalData) {
-      await this.getAdditionalDataForItem(item, row.getResultByName("flags"));
+      await this.#getAdditionalDataForItem(item, row.getResultByName("flags"));
       item.makeImmutable();
     }
     return item;
@@ -748,9 +748,9 @@ class CalStorageItemModel extends CalStorageModelBase {
     }
 
     // This must be done last to keep the modification time intact.
-    this.getItemBaseFromRow(row, item);
+    this.#getItemBaseFromRow(row, item);
     if (getAdditionalData) {
-      await this.getAdditionalDataForItem(item, row.getResultByName("flags"));
+      await this.#getAdditionalDataForItem(item, row.getResultByName("flags"));
       item.makeImmutable();
     }
     return item;
@@ -760,7 +760,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * After we get the base item, we need to check if we need to pull in
    * any extra data from other tables. We do that here.
    */
-  async getAdditionalDataForItem(item, flags) {
+  async #getAdditionalDataForItem(item, flags) {
     // This is needed to keep the modification time intact.
     let savedLastModifiedTime = item.lastModifiedTime;
 
@@ -770,14 +770,14 @@ class CalStorageItemModel extends CalStorageModelBase {
         selectItem = this.statements.mSelectAttendeesForItem;
       } else {
         selectItem = this.statements.mSelectAttendeesForItemWithRecurrenceId;
-        this.setDateParamHelper(selectItem, "recurrence_id", item.recurrenceId);
+        this.#setDateParamHelper(selectItem, "recurrence_id", item.recurrenceId);
       }
 
       try {
         this.db.prepareStatement(selectItem);
         selectItem.params.item_id = item.id;
         await this.db.executeAsync(selectItem, row => {
-          let attendee = new lazy.CalAttendee(this._unfoldIcalString(row));
+          let attendee = new lazy.CalAttendee(this.#unfoldIcalString(row));
           if (attendee && attendee.id) {
             if (attendee.isOrganizer) {
               item.organizer = attendee;
@@ -803,9 +803,9 @@ class CalStorageItemModel extends CalStorageModelBase {
         selectParam = this.statements.mSelectParametersForItem;
       } else {
         selectItem = this.statements.mSelectPropertiesForItemWithRecurrenceId;
-        this.setDateParamHelper(selectItem, "recurrence_id", item.recurrenceId);
+        this.#setDateParamHelper(selectItem, "recurrence_id", item.recurrenceId);
         selectParam = this.statements.mSelectParametersForItemWithRecurrenceId;
-        this.setDateParamHelper(selectParam, "recurrence_id", item.recurrenceId);
+        this.#setDateParamHelper(selectParam, "recurrence_id", item.recurrenceId);
       }
 
       try {
@@ -857,7 +857,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         this.db.prepareStatement(this.statements.mSelectRecurrenceForItem);
         this.statements.mSelectRecurrenceForItem.params.item_id = item.id;
         await this.db.executeAsync(this.statements.mSelectRecurrenceForItem, row => {
-          let ritem = this.getRecurrenceItemFromRow(row);
+          let ritem = this.#getRecurrenceItemFromRow(row);
           recInfo.appendRecurrenceItem(ritem);
         });
       } catch (e) {
@@ -915,13 +915,13 @@ class CalStorageItemModel extends CalStorageModelBase {
       let selectAttachment = this.statements.mSelectAttachmentsForItem;
       if (item.recurrenceId != null) {
         selectAttachment = this.statements.mSelectAttachmentsForItemWithRecurrenceId;
-        this.setDateParamHelper(selectAttachment, "recurrence_id", item.recurrenceId);
+        this.#setDateParamHelper(selectAttachment, "recurrence_id", item.recurrenceId);
       }
       try {
         this.db.prepareStatement(selectAttachment);
         selectAttachment.params.item_id = item.id;
         await this.db.executeAsync(selectAttachment, row => {
-          item.addAttachment(new lazy.CalAttachment(this._unfoldIcalString(row)));
+          item.addAttachment(new lazy.CalAttachment(this.#unfoldIcalString(row)));
         });
       } catch (e) {
         this.db.logError(
@@ -935,13 +935,13 @@ class CalStorageItemModel extends CalStorageModelBase {
       let selectRelation = this.statements.mSelectRelationsForItem;
       if (item.recurrenceId != null) {
         selectRelation = this.statements.mSelectRelationsForItemWithRecurrenceId;
-        this.setDateParamHelper(selectRelation, "recurrence_id", item.recurrenceId);
+        this.#setDateParamHelper(selectRelation, "recurrence_id", item.recurrenceId);
       }
       try {
         this.db.prepareStatement(selectRelation);
         selectRelation.params.item_id = item.id;
         await this.db.executeAsync(selectRelation, row => {
-          item.addRelation(new lazy.CalRelation(this._unfoldIcalString(row)));
+          item.addRelation(new lazy.CalRelation(this.#unfoldIcalString(row)));
         });
       } catch (e) {
         this.db.logError(
@@ -955,13 +955,13 @@ class CalStorageItemModel extends CalStorageModelBase {
       let selectAlarm = this.statements.mSelectAlarmsForItem;
       if (item.recurrenceId != null) {
         selectAlarm = this.statements.mSelectAlarmsForItemWithRecurrenceId;
-        this.setDateParamHelper(selectAlarm, "recurrence_id", item.recurrenceId);
+        this.#setDateParamHelper(selectAlarm, "recurrence_id", item.recurrenceId);
       }
       try {
         selectAlarm.params.item_id = item.id;
         this.db.prepareStatement(selectAlarm);
         await this.db.executeAsync(selectAlarm, row => {
-          item.addAlarm(new lazy.CalAlarm(this._unfoldIcalString(row)));
+          item.addAlarm(new lazy.CalAlarm(this.#unfoldIcalString(row)));
         });
       } catch (e) {
         this.db.logError(
@@ -971,14 +971,14 @@ class CalStorageItemModel extends CalStorageModelBase {
       }
     }
 
-    this.fixGoogleCalendarDescriptionIfNeeded(item);
+    this.#fixGoogleCalendarDescriptionIfNeeded(item);
     // Restore the saved modification time
     item.setProperty("LAST-MODIFIED", savedLastModifiedTime);
   }
 
-  getRecurrenceItemFromRow(row, item) {
+  #getRecurrenceItemFromRow(row) {
     let ritem;
-    let prop = cal.icsService.createIcalPropertyFromString(this._unfoldIcalString(row));
+    let prop = cal.icsService.createIcalPropertyFromString(this.#unfoldIcalString(row));
     switch (prop.propertyName) {
       case "RDATE":
       case "EXDATE":
@@ -1029,7 +1029,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     return item;
   }
 
-  setDateParamHelper(params, entryname, cdt) {
+  #setDateParamHelper(params, entryname, cdt) {
     if (cdt) {
       params.bindByName(entryname, cdt.nativeTime);
       let timezone = cdt.timezone;
@@ -1058,7 +1058,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    */
   async addItem(item) {
     let stmts = new Map();
-    this.prepareItem(stmts, item);
+    this.#prepareItem(stmts, item);
     for (let [stmt, array] of stmts) {
       stmt.bindParameters(array);
     }
@@ -1068,35 +1068,35 @@ class CalStorageItemModel extends CalStorageModelBase {
   // The prepare* functions prepare the database bits
   // to write the given item type. They're to return
   // any bits they want or'd into flags, which will be
-  // prepared for writing by prepareEvent/prepareTodo.
+  // prepared for writing by #prepareEvent/#prepareTodo.
   //
-  prepareItem(stmts, item, olditem) {
+  #prepareItem(stmts, item) {
     let flags = 0;
 
-    flags |= this.prepareAttendees(stmts, item, olditem);
-    flags |= this.prepareRecurrence(stmts, item, olditem);
-    flags |= this.prepareProperties(stmts, item, olditem);
-    flags |= this.prepareAttachments(stmts, item, olditem);
-    flags |= this.prepareRelations(stmts, item, olditem);
-    flags |= this.prepareAlarms(stmts, item, olditem);
+    flags |= this.#prepareAttendees(stmts, item);
+    flags |= this.#prepareRecurrence(stmts, item);
+    flags |= this.#prepareProperties(stmts, item);
+    flags |= this.#prepareAttachments(stmts, item);
+    flags |= this.#prepareRelations(stmts, item);
+    flags |= this.#prepareAlarms(stmts, item);
 
     if (item.isEvent()) {
-      this.prepareEvent(stmts, item, olditem, flags);
+      this.#prepareEvent(stmts, item, flags);
     } else if (item.isTodo()) {
-      this.prepareTodo(stmts, item, olditem, flags);
+      this.#prepareTodo(stmts, item, flags);
     } else {
       throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
   }
 
-  prepareEvent(stmts, item, olditem, flags) {
+  #prepareEvent(stmts, item, flags) {
     let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertEvent);
     let params = this.db.prepareAsyncParams(array);
 
-    this.setupItemBaseParams(item, olditem, params);
+    this.#setupItemBaseParams(item, params);
 
-    this.setDateParamHelper(params, "event_start", item.startDate);
-    this.setDateParamHelper(params, "event_end", item.endDate);
+    this.#setDateParamHelper(params, "event_start", item.startDate);
+    this.#setDateParamHelper(params, "event_end", item.endDate);
     let dtstamp = item.stampTime;
     params.bindByName("event_stamp", dtstamp && dtstamp.nativeTime);
 
@@ -1109,17 +1109,17 @@ class CalStorageItemModel extends CalStorageModelBase {
     array.addParams(params);
   }
 
-  prepareTodo(stmts, item, olditem, flags) {
+  #prepareTodo(stmts, item, flags) {
     let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertTodo);
     let params = this.db.prepareAsyncParams(array);
 
-    this.setupItemBaseParams(item, olditem, params);
+    this.#setupItemBaseParams(item, params);
 
-    this.setDateParamHelper(params, "todo_entry", item.entryDate);
-    this.setDateParamHelper(params, "todo_due", item.dueDate);
+    this.#setDateParamHelper(params, "todo_entry", item.entryDate);
+    this.#setDateParamHelper(params, "todo_due", item.dueDate);
     let dtstamp = item.stampTime;
     params.bindByName("todo_stamp", dtstamp && dtstamp.nativeTime);
-    this.setDateParamHelper(params, "todo_completed", item.getProperty("COMPLETED"));
+    this.#setDateParamHelper(params, "todo_completed", item.getProperty("COMPLETED"));
 
     params.bindByName("todo_complete", item.getProperty("PERCENT-COMPLETED"));
 
@@ -1133,10 +1133,10 @@ class CalStorageItemModel extends CalStorageModelBase {
     array.addParams(params);
   }
 
-  setupItemBaseParams(item, olditem, params) {
+  #setupItemBaseParams(item, params) {
     params.bindByName("id", item.id);
 
-    this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+    this.#setDateParamHelper(params, "recurrence_id", item.recurrenceId);
 
     let tmp = item.getProperty("CREATED");
     params.bindByName("time_created", tmp && tmp.nativeTime);
@@ -1152,7 +1152,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     params.bindByName("alarm_last_ack", item.alarmLastAck && item.alarmLastAck.nativeTime);
   }
 
-  prepareAttendees(stmts, item, olditem) {
+  #prepareAttendees(stmts, item) {
     let attendees = item.getAttendees();
     if (item.organizer) {
       attendees = attendees.concat([]);
@@ -1163,7 +1163,7 @@ class CalStorageItemModel extends CalStorageModelBase {
       for (let att of attendees) {
         let params = this.db.prepareAsyncParams(array);
         params.bindByName("item_id", item.id);
-        this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+        this.#setDateParamHelper(params, "recurrence_id", item.recurrenceId);
         params.bindByName("icalString", att.icalString);
         array.addParams(params);
       }
@@ -1174,7 +1174,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     return 0;
   }
 
-  prepareProperty(stmts, item, propName, propValue) {
+  #prepareProperty(stmts, item, propName, propValue) {
     let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertProperty);
     let params = this.db.prepareAsyncParams(array);
     params.bindByName("key", propName);
@@ -1195,11 +1195,11 @@ class CalStorageItemModel extends CalStorageModelBase {
       }
     }
     params.bindByName("item_id", item.id);
-    this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+    this.#setDateParamHelper(params, "recurrence_id", item.recurrenceId);
     array.addParams(params);
   }
 
-  prepareParameter(stmts, item, propName, paramName, propValue) {
+  #prepareParameter(stmts, item, propName, paramName, propValue) {
     let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertParameter);
     let params = this.db.prepareAsyncParams(array);
     params.bindByName("key1", propName);
@@ -1221,23 +1221,23 @@ class CalStorageItemModel extends CalStorageModelBase {
       }
     }
     params.bindByName("item_id", item.id);
-    this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+    this.#setDateParamHelper(params, "recurrence_id", item.recurrenceId);
     array.addParams(params);
   }
 
-  prepareProperties(stmts, item, olditem) {
+  #prepareProperties(stmts, item) {
     let ret = 0;
     for (let [name, value] of item.properties) {
       ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
       if (item.isPropertyPromoted(name)) {
         continue;
       }
-      this.prepareProperty(stmts, item, name, value);
+      this.#prepareProperty(stmts, item, name, value);
       // Overridden parameters still enumerate even if their value is now empty.
       if (item.hasProperty(name)) {
         for (let param of item.getParameterNames(name)) {
           value = item.getPropertyParameter(name, param);
-          this.prepareParameter(stmts, item, name, param, value);
+          this.#prepareParameter(stmts, item, name, param, value);
         }
       }
     }
@@ -1245,13 +1245,13 @@ class CalStorageItemModel extends CalStorageModelBase {
     let cats = item.getCategories();
     if (cats.length > 0) {
       ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
-      this.prepareProperty(stmts, item, "CATEGORIES", cal.category.arrayToString(cats));
+      this.#prepareProperty(stmts, item, "CATEGORIES", cal.category.arrayToString(cats));
     }
 
     return ret;
   }
 
-  prepareRecurrence(stmts, item, olditem) {
+  #prepareRecurrence(stmts, item) {
     let flags = 0;
 
     let rec = item.recurrenceInfo;
@@ -1278,7 +1278,7 @@ class CalStorageItemModel extends CalStorageModelBase {
           if (!ex) {
             throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
           }
-          this.prepareItem(stmts, ex, null);
+          this.#prepareItem(stmts, ex);
         }
       }
     } else if (item.recurrenceId && item.recurrenceId.isDate) {
@@ -1288,13 +1288,13 @@ class CalStorageItemModel extends CalStorageModelBase {
     return flags;
   }
 
-  prepareAttachments(stmts, item, olditem) {
+  #prepareAttachments(stmts, item) {
     let attachments = item.getAttachments();
     if (attachments && attachments.length > 0) {
       let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertAttachment);
       for (let att of attachments) {
         let params = this.db.prepareAsyncParams(array);
-        this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+        this.#setDateParamHelper(params, "recurrence_id", item.recurrenceId);
         params.bindByName("item_id", item.id);
         params.bindByName("icalString", att.icalString);
 
@@ -1305,13 +1305,13 @@ class CalStorageItemModel extends CalStorageModelBase {
     return 0;
   }
 
-  prepareRelations(stmts, item, olditem) {
+  #prepareRelations(stmts, item) {
     let relations = item.getRelations();
     if (relations && relations.length > 0) {
       let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertRelation);
       for (let rel of relations) {
         let params = this.db.prepareAsyncParams(array);
-        this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+        this.#setDateParamHelper(params, "recurrence_id", item.recurrenceId);
         params.bindByName("item_id", item.id);
         params.bindByName("icalString", rel.icalString);
 
@@ -1322,7 +1322,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     return 0;
   }
 
-  prepareAlarms(stmts, item, olditem) {
+  #prepareAlarms(stmts, item) {
     let alarms = item.getAlarms();
     if (alarms.length < 1) {
       return 0;
@@ -1331,7 +1331,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertAlarm);
     for (let alarm of alarms) {
       let params = this.db.prepareAsyncParams(array);
-      this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+      this.#setDateParamHelper(params, "recurrence_id", item.recurrenceId);
       params.bindByName("item_id", item.id);
       params.bindByName("icalString", alarm.icalString);
 
