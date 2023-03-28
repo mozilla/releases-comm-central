@@ -37,8 +37,8 @@ const ReceiptPairSyntheticIndex = 1;
 class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
   constructor(...args) {
     super(...args);
-    _defineProperty(this, "receipts", {});
-    _defineProperty(this, "receiptCacheByEventId", {});
+    _defineProperty(this, "receipts", new utils.MapWithDefault(() => new Map()));
+    _defineProperty(this, "receiptCacheByEventId", new Map());
     _defineProperty(this, "timeline", void 0);
   }
   /**
@@ -49,7 +49,7 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
    * @returns the latest receipts of the chosen type for the chosen user
    */
   getReadReceiptForUserId(userId, ignoreSynthesized = false, receiptType = _read_receipts.ReceiptType.Read) {
-    const [realReceipt, syntheticReceipt] = this.receipts[receiptType]?.[userId] ?? [];
+    const [realReceipt, syntheticReceipt] = this.receipts.get(receiptType)?.get(userId) ?? [null, null];
     if (ignoreSynthesized) {
       return realReceipt;
     }
@@ -93,13 +93,12 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
     return (comparison < 0 ? privateReadReceipt?.eventId : publicReadReceipt?.eventId) ?? null;
   }
   addReceiptToStructure(eventId, receiptType, userId, receipt, synthetic) {
-    if (!this.receipts[receiptType]) {
-      this.receipts[receiptType] = {};
+    const receiptTypesMap = this.receipts.getOrCreate(receiptType);
+    let pair = receiptTypesMap.get(userId);
+    if (!pair) {
+      pair = [null, null];
+      receiptTypesMap.set(userId, pair);
     }
-    if (!this.receipts[receiptType][userId]) {
-      this.receipts[receiptType][userId] = [null, null];
-    }
-    const pair = this.receipts[receiptType][userId];
     let existingReceipt = pair[ReceiptPairRealIndex];
     if (synthetic) {
       existingReceipt = pair[ReceiptPairSyntheticIndex] ?? pair[ReceiptPairRealIndex];
@@ -139,22 +138,22 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
     if (cachedReceipt === newCachedReceipt) return;
 
     // clean up any previous cache entry
-    if (cachedReceipt && this.receiptCacheByEventId[cachedReceipt.eventId]) {
+    if (cachedReceipt && this.receiptCacheByEventId.get(cachedReceipt.eventId)) {
       const previousEventId = cachedReceipt.eventId;
       // Remove the receipt we're about to clobber out of existence from the cache
-      this.receiptCacheByEventId[previousEventId] = this.receiptCacheByEventId[previousEventId].filter(r => {
+      this.receiptCacheByEventId.set(previousEventId, this.receiptCacheByEventId.get(previousEventId).filter(r => {
         return r.type !== receiptType || r.userId !== userId;
-      });
-      if (this.receiptCacheByEventId[previousEventId].length < 1) {
-        delete this.receiptCacheByEventId[previousEventId]; // clean up the cache keys
+      }));
+      if (this.receiptCacheByEventId.get(previousEventId).length < 1) {
+        this.receiptCacheByEventId.delete(previousEventId); // clean up the cache keys
       }
     }
 
     // cache the new one
-    if (!this.receiptCacheByEventId[eventId]) {
-      this.receiptCacheByEventId[eventId] = [];
+    if (!this.receiptCacheByEventId.get(eventId)) {
+      this.receiptCacheByEventId.set(eventId, []);
     }
-    this.receiptCacheByEventId[eventId].push({
+    this.receiptCacheByEventId.get(eventId).push({
       userId: userId,
       type: receiptType,
       data: receipt
@@ -168,7 +167,7 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
    * an empty list.
    */
   getReceiptsForEvent(event) {
-    return this.receiptCacheByEventId[event.getId()] || [];
+    return this.receiptCacheByEventId.get(event.getId()) || [];
   }
   /**
    * This issue should also be addressed on synapse's side and is tracked as part

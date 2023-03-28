@@ -941,7 +941,7 @@ class SyncApi {
 
     // handle presence events (User objects)
     if (Array.isArray(data.presence?.events)) {
-      data.presence.events.map(client.getEventMapper()).forEach(function (presenceEvent) {
+      data.presence.events.filter(utils.noUnsafeEventProps).map(client.getEventMapper()).forEach(function (presenceEvent) {
         let user = client.store.getUser(presenceEvent.getSender());
         if (user) {
           user.setPresenceEvent(presenceEvent);
@@ -956,7 +956,7 @@ class SyncApi {
 
     // handle non-room account_data
     if (Array.isArray(data.account_data?.events)) {
-      const events = data.account_data.events.map(client.getEventMapper());
+      const events = data.account_data.events.filter(utils.noUnsafeEventProps).map(client.getEventMapper());
       const prevEventsMap = events.reduce((m, c) => {
         m[c.getType()] = client.store.getAccountData(c.getType());
         return m;
@@ -979,7 +979,7 @@ class SyncApi {
 
     // handle to-device events
     if (data.to_device && Array.isArray(data.to_device.events) && data.to_device.events.length > 0) {
-      let toDeviceMessages = data.to_device.events;
+      let toDeviceMessages = data.to_device.events.filter(utils.noUnsafeEventProps);
       if (this.syncOpts.cryptoCallbacks) {
         toDeviceMessages = await this.syncOpts.cryptoCallbacks.preprocessToDeviceMessages(toDeviceMessages);
       }
@@ -1370,7 +1370,7 @@ class SyncApi {
     // to
     // [{stuff+Room+isBrandNewRoom}, {stuff+Room+isBrandNewRoom}]
     const client = this.client;
-    return Object.keys(obj).map(roomId => {
+    return Object.keys(obj).filter(k => !(0, utils.unsafeProp)(k)).map(roomId => {
       const arrObj = obj[roomId];
       let room = client.store.getRoom(roomId);
       let isBrandNewRoom = false;
@@ -1390,7 +1390,7 @@ class SyncApi {
     const mapper = this.client.getEventMapper({
       decrypt
     });
-    return obj.events.map(function (e) {
+    return obj.events.filter(utils.noUnsafeEventProps).map(function (e) {
       if (room) {
         e.room_id = room.roomId;
       }

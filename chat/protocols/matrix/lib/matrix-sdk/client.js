@@ -2419,9 +2419,9 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       return;
     }
     const deviceInfos = await this.crypto.downloadKeys(userIds);
-    const devicesByUser = {};
-    for (const [userId, devices] of Object.entries(deviceInfos)) {
-      devicesByUser[userId] = Object.values(devices);
+    const devicesByUser = new Map();
+    for (const [userId, devices] of deviceInfos) {
+      devicesByUser.set(userId, Array.from(devices.values()));
     }
 
     // XXX: Private member access
@@ -4246,6 +4246,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       promise = this.http.authedRequest(_httpApi.Method.Get, path, params).then(async res => {
         const token = res.next_token;
         const matrixEvents = [];
+        res.notifications = res.notifications.filter(utils.noUnsafeEventProps);
         for (let i = 0; i < res.notifications.length; i++) {
           const notification = res.notifications[i];
           const event = this.getEventMapper()(notification.event);
@@ -4281,11 +4282,11 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       promise = this.createThreadListMessagesRequest(eventTimeline.getRoomId(), token, opts.limit, dir, threadListType, eventTimeline.getFilter()).then(res => {
         if (res.state) {
           const roomState = eventTimeline.getState(dir);
-          const stateEvents = res.state.map(this.getEventMapper());
+          const stateEvents = res.state.filter(utils.noUnsafeEventProps).map(this.getEventMapper());
           roomState.setUnknownStateEvents(stateEvents);
         }
         const token = res.end;
-        const matrixEvents = res.chunk.map(this.getEventMapper());
+        const matrixEvents = res.chunk.filter(utils.noUnsafeEventProps).map(this.getEventMapper());
         const timelineSet = eventTimeline.getTimelineSet();
         timelineSet.addEventsToTimeline(matrixEvents, backwards, eventTimeline, token);
         this.processAggregatedTimelineEvents(room, matrixEvents);
@@ -4313,7 +4314,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
         from: token ?? undefined
       }).then(async res => {
         const mapper = this.getEventMapper();
-        const matrixEvents = res.chunk.map(mapper);
+        const matrixEvents = res.chunk.filter(utils.noUnsafeEventProps).map(mapper);
 
         // Process latest events first
         for (const event of matrixEvents.slice().reverse()) {
@@ -4350,11 +4351,11 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       promise = this.createMessagesRequest(eventTimeline.getRoomId(), token, opts.limit, dir, eventTimeline.getFilter()).then(res => {
         if (res.state) {
           const roomState = eventTimeline.getState(dir);
-          const stateEvents = res.state.map(this.getEventMapper());
+          const stateEvents = res.state.filter(utils.noUnsafeEventProps).map(this.getEventMapper());
           roomState.setUnknownStateEvents(stateEvents);
         }
         const token = res.end;
-        const matrixEvents = res.chunk.map(this.getEventMapper());
+        const matrixEvents = res.chunk.filter(utils.noUnsafeEventProps).map(this.getEventMapper());
         const timelineSet = eventTimeline.getTimelineSet();
         const [timelineEvents] = room.partitionThreadedEvents(matrixEvents);
         timelineSet.addEventsToTimeline(timelineEvents, backwards, eventTimeline, token);
@@ -7079,12 +7080,12 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       $txnId: txnId ? txnId : this.makeTxnId()
     });
     const body = {
-      messages: contentMap
+      messages: utils.recursiveMapToObject(contentMap)
     };
-    const targets = Object.keys(contentMap).reduce((obj, key) => {
-      obj[key] = Object.keys(contentMap[key]);
-      return obj;
-    }, {});
+    const targets = new Map();
+    for (const [userId, deviceMessages] of contentMap) {
+      targets.set(userId, Array.from(deviceMessages.keys()));
+    }
     _logger.logger.log(`PUT ${path}`, targets);
     return this.http.authedRequest(_httpApi.Method.Put, path, undefined, body);
   }

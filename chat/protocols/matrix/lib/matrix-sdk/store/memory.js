@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.MemoryStore = void 0;
 var _user = require("../models/user");
 var _roomState = require("../models/room-state");
+var _utils = require("../utils");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
 function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
@@ -23,7 +24,7 @@ class MemoryStore {
   //    filterId: Filter
   // }
 
-  // type : content
+  // type: content
 
   // roomId: [member events]
 
@@ -35,10 +36,10 @@ class MemoryStore {
     _defineProperty(this, "rooms", {});
     _defineProperty(this, "users", {});
     _defineProperty(this, "syncToken", null);
-    _defineProperty(this, "filters", {});
-    _defineProperty(this, "accountData", {});
+    _defineProperty(this, "filters", new _utils.MapWithDefault(() => new Map()));
+    _defineProperty(this, "accountData", new Map());
     _defineProperty(this, "localStorage", void 0);
-    _defineProperty(this, "oobMembers", {});
+    _defineProperty(this, "oobMembers", new Map());
     _defineProperty(this, "pendingEvents", {});
     _defineProperty(this, "clientOptions", void 0);
     _defineProperty(this, "pendingToDeviceBatches", []);
@@ -194,10 +195,7 @@ class MemoryStore {
    */
   storeFilter(filter) {
     if (!filter?.userId || !filter?.filterId) return;
-    if (!this.filters[filter.userId]) {
-      this.filters[filter.userId] = {};
-    }
-    this.filters[filter.userId][filter.filterId] = filter;
+    this.filters.getOrCreate(filter.userId).set(filter.filterId, filter);
   }
 
   /**
@@ -205,10 +203,7 @@ class MemoryStore {
    * @returns A filter or null.
    */
   getFilter(userId, filterId) {
-    if (!this.filters[userId] || !this.filters[userId][filterId]) {
-      return null;
-    }
-    return this.filters[userId][filterId];
+    return this.filters.get(userId)?.get(filterId) || null;
   }
 
   /**
@@ -263,9 +258,9 @@ class MemoryStore {
       // MSC3391: an event with content of {} should be interpreted as deleted
       const isDeleted = !Object.keys(event.getContent()).length;
       if (isDeleted) {
-        delete this.accountData[event.getType()];
+        this.accountData.delete(event.getType());
       } else {
-        this.accountData[event.getType()] = event;
+        this.accountData.set(event.getType(), event);
       }
     });
   }
@@ -276,7 +271,7 @@ class MemoryStore {
    * @returns the user account_data event of given type, if any
    */
   getAccountData(eventType) {
-    return this.accountData[eventType];
+    return this.accountData.get(eventType);
   }
 
   /**
@@ -342,14 +337,8 @@ class MemoryStore {
       // userId: User
     };
     this.syncToken = null;
-    this.filters = {
-      // userId: {
-      //    filterId: Filter
-      // }
-    };
-    this.accountData = {
-      // type : content
-    };
+    this.filters = new _utils.MapWithDefault(() => new Map());
+    this.accountData = new Map(); // type : content
     return Promise.resolve();
   }
 
@@ -360,7 +349,7 @@ class MemoryStore {
    * @returns in case the members for this room haven't been stored yet
    */
   getOutOfBandMembers(roomId) {
-    return Promise.resolve(this.oobMembers[roomId] || null);
+    return Promise.resolve(this.oobMembers.get(roomId) || null);
   }
 
   /**
@@ -371,11 +360,11 @@ class MemoryStore {
    * @returns when all members have been stored
    */
   setOutOfBandMembers(roomId, membershipEvents) {
-    this.oobMembers[roomId] = membershipEvents;
+    this.oobMembers.set(roomId, membershipEvents);
     return Promise.resolve();
   }
   clearOutOfBandMembers(roomId) {
-    this.oobMembers = {};
+    this.oobMembers.delete(roomId);
     return Promise.resolve();
   }
   getClientOptions() {

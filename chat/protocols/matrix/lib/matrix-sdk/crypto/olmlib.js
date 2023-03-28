@@ -17,6 +17,7 @@ exports.verifySignature = verifySignature;
 var _anotherJson = _interopRequireDefault(require("another-json"));
 var _logger = require("../logger");
 var _event = require("../@types/event");
+var _utils = require("../utils");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
@@ -113,8 +114,10 @@ async function encryptMessageForDevice(resultsObject, ourUserId, ourDeviceId, ol
  *    a map from userId to deviceId to {@link OlmSessionResult}
  */
 async function getExistingOlmSessions(olmDevice, baseApis, devicesByUser) {
-  const devicesWithoutSession = {};
-  const sessions = {};
+  // map user Id → DeviceInfo[]
+  const devicesWithoutSession = new _utils.MapWithDefault(() => []);
+  // map user Id → device Id → IExistingOlmSession
+  const sessions = new _utils.MapWithDefault(() => new Map());
   const promises = [];
   for (const [userId, devices] of Object.entries(devicesByUser)) {
     for (const deviceInfo of devices) {
@@ -123,14 +126,12 @@ async function getExistingOlmSessions(olmDevice, baseApis, devicesByUser) {
       promises.push((async () => {
         const sessionId = await olmDevice.getSessionIdForDevice(key, true);
         if (sessionId === null) {
-          devicesWithoutSession[userId] = devicesWithoutSession[userId] || [];
-          devicesWithoutSession[userId].push(deviceInfo);
+          devicesWithoutSession.getOrCreate(userId).push(deviceInfo);
         } else {
-          sessions[userId] = sessions[userId] || {};
-          sessions[userId][deviceId] = {
+          sessions.getOrCreate(userId).set(deviceId, {
             device: deviceInfo,
             sessionId: sessionId
-          };
+          });
         }
       })());
     }
@@ -163,15 +164,17 @@ async function ensureOlmSessionsForDevices(olmDevice, baseApis, devicesByUser, f
   const devicesWithoutSession = [
     // [userId, deviceId], ...
   ];
-  const result = {};
-  const resolveSession = {};
+  // map user Id → device Id → IExistingOlmSession
+  const result = new Map();
+  // map device key → resolve session fn
+  const resolveSession = new Map();
 
   // Mark all sessions this task intends to update as in progress. It is
   // important to do this for all devices this task cares about in a single
   // synchronous operation, as otherwise it is possible to have deadlocks
   // where multiple tasks wait indefinitely on another task to update some set
   // of common devices.
-  for (const [, devices] of Object.entries(devicesByUser)) {
+  for (const devices of devicesByUser.values()) {
     for (const deviceInfo of devices) {
       const key = deviceInfo.getIdentityKey();
       if (key === olmDevice.deviceCurve25519Key) {
@@ -184,16 +187,17 @@ async function ensureOlmSessionsForDevices(olmDevice, baseApis, devicesByUser, f
         // conditions.  If we find that we already have a session, then
         // we'll resolve
         olmDevice.sessionsInProgress[key] = new Promise(resolve => {
-          resolveSession[key] = v => {
+          resolveSession.set(key, v => {
             delete olmDevice.sessionsInProgress[key];
             resolve(v);
-          };
+          });
         });
       }
     }
   }
-  for (const [userId, devices] of Object.entries(devicesByUser)) {
-    result[userId] = {};
+  for (const [userId, devices] of devicesByUser) {
+    const resultDevices = new Map();
+    result.set(userId, resultDevices);
     for (const deviceInfo of devices) {
       const deviceId = deviceInfo.deviceId;
       const key = deviceInfo.getIdentityKey();
@@ -208,19 +212,20 @@ async function ensureOlmSessionsForDevices(olmDevice, baseApis, devicesByUser, f
         log.info("Attempted to start session with ourself! Ignoring");
         // We must fill in the section in the return value though, as callers
         // expect it to be there.
-        result[userId][deviceId] = {
+        resultDevices.set(deviceId, {
           device: deviceInfo,
           sessionId: null
-        };
+        });
         continue;
       }
       const forWhom = `for ${key} (${userId}:${deviceId})`;
-      const sessionId = await olmDevice.getSessionIdForDevice(key, !!resolveSession[key], log);
-      if (sessionId !== null && resolveSession[key]) {
+      const sessionId = await olmDevice.getSessionIdForDevice(key, !!resolveSession.get(key), log);
+      const resolveSessionFn = resolveSession.get(key);
+      if (sessionId !== null && resolveSessionFn) {
         // we found a session, but we had marked the session as
         // in-progress, so resolve it now, which will unmark it and
         // unblock anything that was waiting
-        resolveSession[key]();
+        resolveSessionFn();
       }
       if (sessionId === null || force) {
         if (force) {
@@ -230,10 +235,10 @@ async function ensureOlmSessionsForDevices(olmDevice, baseApis, devicesByUser, f
         }
         devicesWithoutSession.push([userId, deviceId]);
       }
-      result[userId][deviceId] = {
+      resultDevices.set(deviceId, {
         device: deviceInfo,
         sessionId: sessionId
-      };
+      });
     }
   }
   if (devicesWithoutSession.length === 0) {
@@ -247,7 +252,7 @@ async function ensureOlmSessionsForDevices(olmDevice, baseApis, devicesByUser, f
     res = await baseApis.claimOneTimeKeys(devicesWithoutSession, oneTimeKeyAlgorithm, otkTimeout);
     log.debug(`Claimed ${taskDetail}`);
   } catch (e) {
-    for (const resolver of Object.values(resolveSession)) {
+    for (const resolver of resolveSession.values()) {
       resolver();
     }
     log.log(`Failed to claim ${taskDetail}`, e, devicesWithoutSession);
@@ -258,7 +263,7 @@ async function ensureOlmSessionsForDevices(olmDevice, baseApis, devicesByUser, f
   }
   const otkResult = res.one_time_keys || {};
   const promises = [];
-  for (const [userId, devices] of Object.entries(devicesByUser)) {
+  for (const [userId, devices] of devicesByUser) {
     const userRes = otkResult[userId] || {};
     for (const deviceInfo of devices) {
       const deviceId = deviceInfo.deviceId;
@@ -269,7 +274,7 @@ async function ensureOlmSessionsForDevices(olmDevice, baseApis, devicesByUser, f
         // which will be confusing.
         continue;
       }
-      if (result[userId][deviceId].sessionId && !force) {
+      if (result.get(userId)?.get(deviceId)?.sessionId && !force) {
         // we already have a result for this device
         continue;
       }
@@ -282,20 +287,15 @@ async function ensureOlmSessionsForDevices(olmDevice, baseApis, devicesByUser, f
       }
       if (!oneTimeKey) {
         log.warn(`No one-time keys (alg=${oneTimeKeyAlgorithm}) ` + `for device ${userId}:${deviceId}`);
-        if (resolveSession[key]) {
-          resolveSession[key]();
-        }
+        resolveSession.get(key)?.();
         continue;
       }
       promises.push(_verifyKeyAndStartSession(olmDevice, oneTimeKey, userId, deviceInfo).then(sid => {
-        if (resolveSession[key]) {
-          resolveSession[key](sid ?? undefined);
-        }
-        result[userId][deviceId].sessionId = sid;
+        resolveSession.get(key)?.(sid ?? undefined);
+        const deviceInfo = result.get(userId)?.get(deviceId);
+        if (deviceInfo) deviceInfo.sessionId = sid;
       }, e => {
-        if (resolveSession[key]) {
-          resolveSession[key]();
-        }
+        resolveSession.get(key)?.();
         throw e;
       }));
     }

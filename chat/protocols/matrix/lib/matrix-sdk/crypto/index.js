@@ -40,6 +40,7 @@ var _event2 = require("../models/event");
 var _client = require("../client");
 var _typedEventEmitter = require("../models/typed-event-emitter");
 var _roomState = require("../models/room-state");
+var _utils = require("../utils");
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -153,7 +154,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "processingRoomKeyRequests", false);
     _defineProperty(this, "lazyLoadMembers", false);
     _defineProperty(this, "roomDeviceTrackingState", {});
-    _defineProperty(this, "lastNewSessionForced", {});
+    _defineProperty(this, "lastNewSessionForced", new _utils.MapWithDefault(() => new _utils.MapWithDefault(() => 0)));
     _defineProperty(this, "sendKeyRequestsImmediately", false);
     _defineProperty(this, "oneTimeKeyCount", void 0);
     _defineProperty(this, "needsNewFallback", void 0);
@@ -2251,9 +2252,11 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    *    {@link OlmSessionResult}
    */
   ensureOlmSessionsForUsers(users, force) {
-    const devicesByUser = {};
+    // map user Id → DeviceInfo[]
+    const devicesByUser = new Map();
     for (const userId of users) {
-      devicesByUser[userId] = [];
+      const userDevices = [];
+      devicesByUser.set(userId, userDevices);
       const devices = this.getStoredDevicesForUser(userId) || [];
       for (const deviceInfo of devices) {
         const key = deviceInfo.getIdentityKey();
@@ -2265,7 +2268,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
           // don't bother setting up sessions with blocked users
           continue;
         }
-        devicesByUser[userId].push(deviceInfo);
+        userDevices.push(deviceInfo);
       }
     }
     return olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, devicesByUser, force);
@@ -2662,9 +2665,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
           deviceId,
           payload: encryptedContent
         });
-        await olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, {
-          [userId]: [deviceInfo]
-        });
+        await olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, new Map([[userId, [deviceInfo]]]));
         await olmlib.encryptMessageForDevice(encryptedContent.ciphertext, this.userId, this.deviceId, this.olmDevice, userId, deviceInfo, payload);
       }));
 
@@ -2866,8 +2867,8 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
 
     // check when we last forced a new session with this device: if we've already done so
     // recently, don't do it again.
-    this.lastNewSessionForced[sender] = this.lastNewSessionForced[sender] || {};
-    const lastNewSessionForced = this.lastNewSessionForced[sender][deviceKey] || 0;
+    const lastNewSessionDevices = this.lastNewSessionForced.getOrCreate(sender);
+    const lastNewSessionForced = lastNewSessionDevices.getOrCreate(deviceKey);
     if (lastNewSessionForced + MIN_FORCE_SESSION_INTERVAL_MS > Date.now()) {
       _logger.logger.debug("New session already forced with device " + sender + ":" + deviceKey + " at " + lastNewSessionForced + ": not forcing another");
       await this.olmDevice.recordSessionProblem(deviceKey, "wedged", true);
@@ -2892,10 +2893,9 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
         return;
       }
     }
-    const devicesByUser = {};
-    devicesByUser[sender] = [device];
+    const devicesByUser = new Map([[sender, [device]]]);
     await olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, devicesByUser, true);
-    this.lastNewSessionForced[sender][deviceKey] = Date.now();
+    lastNewSessionDevices.set(deviceKey, Date.now());
 
     // Now send a blank message on that session so the other side knows about it.
     // (The keyshare request is sent in the clear so that won't do)
@@ -2914,11 +2914,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     });
     await this.olmDevice.recordSessionProblem(deviceKey, "wedged", true);
     retryDecryption();
-    await this.baseApis.sendToDevice("m.room.encrypted", {
-      [sender]: {
-        [device.deviceId]: encryptedContent
-      }
-    });
+    await this.baseApis.sendToDevice("m.room.encrypted", new Map([[sender, new Map([[device.deviceId, encryptedContent]])]]));
 
     // Most of the time this probably won't be necessary since we'll have queued up a key request when
     // we failed to decrypt the message and will be waiting a bit for the key to arrive before sending
@@ -3182,13 +3178,14 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    * @param obj -  Object to which we will add a 'signatures' property
    */
   async signObject(obj) {
-    const sigs = obj.signatures || {};
+    const sigs = new Map(Object.entries(obj.signatures || {}));
     const unsigned = obj.unsigned;
     delete obj.signatures;
     delete obj.unsigned;
-    sigs[this.userId] = sigs[this.userId] || {};
-    sigs[this.userId]["ed25519:" + this.deviceId] = await this.olmDevice.sign(_anotherJson.default.stringify(obj));
-    obj.signatures = sigs;
+    const userSignatures = sigs.get(this.userId) || {};
+    sigs.set(this.userId, userSignatures);
+    userSignatures["ed25519:" + this.deviceId] = await this.olmDevice.sign(_anotherJson.default.stringify(obj));
+    obj.signatures = (0, _utils.recursiveMapToObject)(sigs);
     if (unsigned !== undefined) obj.unsigned = unsigned;
   }
 }

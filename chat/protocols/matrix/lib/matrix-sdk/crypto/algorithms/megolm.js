@@ -32,6 +32,19 @@ function isRoomSharedHistory(room) {
   return ["world_readable", "shared"].includes(visibility);
 }
 /**
+ * Tests whether an encrypted content has a ciphertext.
+ * Ciphertext can be a string or object depending on the content type {@link IEncryptedContent}.
+ *
+ * @param content - Encrypted content
+ * @returns true: has ciphertext, else false
+ */
+const hasCiphertext = content => {
+  return typeof content.ciphertext === "string" ? !!content.ciphertext.length : !!Object.keys(content.ciphertext).length;
+};
+
+/** The result of parsing the an `m.room_key` or `m.forwarded_room_key` to-device event */
+
+/**
  * @internal
  */
 class OutboundSessionInfo {
@@ -50,8 +63,8 @@ class OutboundSessionInfo {
     this.sharedHistory = sharedHistory;
     _defineProperty(this, "useCount", 0);
     _defineProperty(this, "creationTime", void 0);
-    _defineProperty(this, "sharedWithDevices", {});
-    _defineProperty(this, "blockedDevicesNotified", {});
+    _defineProperty(this, "sharedWithDevices", new _utils.MapWithDefault(() => new Map()));
+    _defineProperty(this, "blockedDevicesNotified", new _utils.MapWithDefault(() => new Map()));
     this.creationTime = new Date().getTime();
   }
 
@@ -67,19 +80,13 @@ class OutboundSessionInfo {
     return false;
   }
   markSharedWithDevice(userId, deviceId, deviceKey, chainIndex) {
-    if (!this.sharedWithDevices[userId]) {
-      this.sharedWithDevices[userId] = {};
-    }
-    this.sharedWithDevices[userId][deviceId] = {
+    this.sharedWithDevices.getOrCreate(userId).set(deviceId, {
       deviceKey,
       messageIndex: chainIndex
-    };
+    });
   }
   markNotifiedBlockedDevice(userId, deviceId) {
-    if (!this.blockedDevicesNotified[userId]) {
-      this.blockedDevicesNotified[userId] = {};
-    }
-    this.blockedDevicesNotified[userId][deviceId] = true;
+    this.blockedDevicesNotified.getOrCreate(userId).set(deviceId, true);
   }
 
   /**
@@ -93,19 +100,13 @@ class OutboundSessionInfo {
    * in devicesInRoom.
    */
   sharedWithTooManyDevices(devicesInRoom) {
-    for (const userId in this.sharedWithDevices) {
-      if (!this.sharedWithDevices.hasOwnProperty(userId)) {
-        continue;
-      }
-      if (!devicesInRoom.hasOwnProperty(userId)) {
+    for (const [userId, devices] of this.sharedWithDevices) {
+      if (!devicesInRoom.has(userId)) {
         _logger.logger.log("Starting new megolm session because we shared with " + userId);
         return true;
       }
-      for (const deviceId in this.sharedWithDevices[userId]) {
-        if (!this.sharedWithDevices[userId].hasOwnProperty(deviceId)) {
-          continue;
-        }
-        if (!devicesInRoom[userId].hasOwnProperty(deviceId)) {
+      for (const [deviceId] of devices) {
+        if (!devicesInRoom.get(userId)?.get(deviceId)) {
           _logger.logger.log("Starting new megolm session because we shared with " + userId + ":" + deviceId);
           return true;
         }
@@ -229,14 +230,14 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
   async shareSession(devicesInRoom, sharedHistory, singleOlmCreationPhase, blocked, session) {
     // now check if we need to share with any devices
     const shareMap = {};
-    for (const [userId, userDevices] of Object.entries(devicesInRoom)) {
-      for (const [deviceId, deviceInfo] of Object.entries(userDevices)) {
+    for (const [userId, userDevices] of devicesInRoom) {
+      for (const [deviceId, deviceInfo] of userDevices) {
         const key = deviceInfo.getIdentityKey();
         if (key == this.olmDevice.deviceCurve25519Key) {
           // don't bother sending to ourself
           continue;
         }
-        if (!session.sharedWithDevices[userId] || session.sharedWithDevices[userId][deviceId] === undefined) {
+        if (!session.sharedWithDevices.get(userId)?.get(deviceId)) {
           shareMap[userId] = shareMap[userId] || [];
           shareMap[userId].push(deviceInfo);
         }
@@ -257,12 +258,12 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
     const [devicesWithoutSession, olmSessions] = await olmlib.getExistingOlmSessions(this.olmDevice, this.baseApis, shareMap);
     await Promise.all([(async () => {
       // share keys with devices that we already have a session for
-      const olmSessionList = Object.entries(olmSessions).map(([userId, sessionsByUser]) => Object.entries(sessionsByUser).map(([deviceId, session]) => `${userId}/${deviceId}: ${session.sessionId}`)).flat(1);
+      const olmSessionList = Array.from(olmSessions.entries()).map(([userId, sessionsByUser]) => Array.from(sessionsByUser.entries()).map(([deviceId, session]) => `${userId}/${deviceId}: ${session.sessionId}`)).flat(1);
       this.prefixedLogger.debug("Sharing keys with devices with existing Olm sessions:", olmSessionList);
       await this.shareKeyWithOlmSessions(session, key, payload, olmSessions);
       this.prefixedLogger.debug("Shared keys with existing Olm sessions");
     })(), (async () => {
-      const deviceList = Object.entries(devicesWithoutSession).map(([userId, devicesByUser]) => devicesByUser.map(device => `${userId}/${device.deviceId}`)).flat(1);
+      const deviceList = Array.from(devicesWithoutSession.entries()).map(([userId, devicesByUser]) => devicesByUser.map(device => `${userId}/${device.deviceId}`)).flat(1);
       this.prefixedLogger.debug("Sharing keys (start phase 1) with devices without existing Olm sessions:", deviceList);
       const errorDevices = [];
 
@@ -284,7 +285,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
           // do this in the background and don't block anything else while we
           // do this.  We only need to retry users from servers that didn't
           // respond the first time.
-          const retryDevices = {};
+          const retryDevices = new _utils.MapWithDefault(() => []);
           const failedServerMap = new Set();
           for (const server of failedServers) {
             failedServerMap.add(server);
@@ -296,8 +297,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
           } of errorDevices) {
             const userHS = userId.slice(userId.indexOf(":") + 1);
             if (failedServerMap.has(userHS)) {
-              retryDevices[userId] = retryDevices[userId] || [];
-              retryDevices[userId].push(deviceInfo);
+              retryDevices.getOrCreate(userId).push(deviceInfo);
             } else {
               // if we aren't going to retry, then handle it
               // as a failed device
@@ -307,7 +307,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
               });
             }
           }
-          const retryDeviceList = Object.entries(retryDevices).map(([userId, devicesByUser]) => devicesByUser.map(device => `${userId}/${device.deviceId}`)).flat(1);
+          const retryDeviceList = Array.from(retryDevices.entries()).map(([userId, devicesByUser]) => devicesByUser.map(device => `${userId}/${device.deviceId}`)).flat(1);
           if (retryDeviceList.length > 0) {
             this.prefixedLogger.debug("Sharing keys (start phase 2) with devices without existing Olm sessions:", retryDeviceList);
             await this.shareKeyWithDevices(session, key, payload, retryDevices, failedDevices, 30000);
@@ -319,24 +319,23 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
         await this.notifyFailedOlmDevices(session, key, errorDevices);
       }
     })(), (async () => {
-      this.prefixedLogger.debug(`There are ${Object.entries(blocked).length} blocked devices:`, Object.entries(blocked).map(([userId, blockedByUser]) => Object.entries(blockedByUser).map(([deviceId, _deviceInfo]) => `${userId}/${deviceId}`)).flat(1));
+      this.prefixedLogger.debug(`There are ${blocked.size} blocked devices:`, Array.from(blocked.entries()).map(([userId, blockedByUser]) => Array.from(blockedByUser.entries()).map(([deviceId, _deviceInfo]) => `${userId}/${deviceId}`)).flat(1));
 
       // also, notify newly blocked devices that they're blocked
-      const blockedMap = {};
+      const blockedMap = new _utils.MapWithDefault(() => new Map());
       let blockedCount = 0;
-      for (const [userId, userBlockedDevices] of Object.entries(blocked)) {
-        for (const [deviceId, device] of Object.entries(userBlockedDevices)) {
-          if (!session.blockedDevicesNotified[userId] || session.blockedDevicesNotified[userId][deviceId] === undefined) {
-            blockedMap[userId] = blockedMap[userId] || {};
-            blockedMap[userId][deviceId] = {
+      for (const [userId, userBlockedDevices] of blocked) {
+        for (const [deviceId, device] of userBlockedDevices) {
+          if (session.blockedDevicesNotified.get(userId)?.get(deviceId) === undefined) {
+            blockedMap.getOrCreate(userId).set(deviceId, {
               device
-            };
+            });
             blockedCount++;
           }
         }
       }
       if (blockedCount) {
-        this.prefixedLogger.debug(`Notifying ${blockedCount} newly blocked devices:`, Object.entries(blockedMap).map(([userId, blockedByUser]) => Object.entries(blockedByUser).map(([deviceId, _deviceInfo]) => `${userId}/${deviceId}`)).flat(1));
+        this.prefixedLogger.debug(`Notifying ${blockedCount} newly blocked devices:`, Array.from(blockedMap.entries()).map(([userId, blockedByUser]) => Object.entries(blockedByUser).map(([deviceId, _deviceInfo]) => `${userId}/${deviceId}`)).flat(1));
         await this.notifyBlockedDevices(session, blockedMap);
         this.prefixedLogger.debug(`Notified ${blockedCount} newly blocked devices`);
       }
@@ -369,7 +368,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
    *
    * @internal
    *
-   * @param devicemap - the devices that have olm sessions, as returned by
+   * @param deviceMap - the devices that have olm sessions, as returned by
    *     olmlib.ensureOlmSessionsForDevices.
    * @param devicesByUser - a map of user IDs to array of deviceInfo
    * @param noOlmDevices - an array to fill with devices that don't have
@@ -378,13 +377,13 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
    * @returns an array of devices that don't have olm sessions.  If
    *     noOlmDevices is specified, then noOlmDevices will be returned.
    */
-  getDevicesWithoutSessions(devicemap, devicesByUser, noOlmDevices = []) {
-    for (const [userId, devicesToShareWith] of Object.entries(devicesByUser)) {
-      const sessionResults = devicemap[userId];
+  getDevicesWithoutSessions(deviceMap, devicesByUser, noOlmDevices = []) {
+    for (const [userId, devicesToShareWith] of devicesByUser) {
+      const sessionResults = deviceMap.get(userId);
       for (const deviceInfo of devicesToShareWith) {
         const deviceId = deviceInfo.deviceId;
-        const sessionResult = sessionResults[deviceId];
-        if (!sessionResult.sessionId) {
+        const sessionResult = sessionResults?.get(deviceId);
+        if (!sessionResult?.sessionId) {
           // no session with this device, probably because there
           // were no one-time keys.
 
@@ -392,7 +391,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
             userId,
             deviceInfo
           });
-          delete sessionResults[deviceId];
+          sessionResults?.delete(deviceId);
 
           // ensureOlmSessionsForUsers has already done the logging,
           // so just skip it.
@@ -419,8 +418,8 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
     // use an array where the slices of a content map gets stored
     let currentSlice = [];
     const mapSlices = [currentSlice];
-    for (const [userId, userDevices] of Object.entries(devicesByUser)) {
-      for (const deviceInfo of Object.values(userDevices)) {
+    for (const [userId, userDevices] of devicesByUser) {
+      for (const deviceInfo of userDevices.values()) {
         currentSlice.push({
           userId: userId,
           deviceInfo: deviceInfo.device
@@ -481,7 +480,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
    *     for the given userDeviceMap is generated and has been sent.
    */
   async sendBlockedNotificationsToDevices(session, userDeviceMap, payload) {
-    const contentMap = {};
+    const contentMap = new _utils.MapWithDefault(() => new Map());
     for (const val of userDeviceMap) {
       const userId = val.userId;
       const blockedInfo = val.deviceInfo;
@@ -496,16 +495,13 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
         delete message.room_id;
         delete message.session_id;
       }
-      if (!contentMap[userId]) {
-        contentMap[userId] = {};
-      }
-      contentMap[userId][deviceId] = message;
+      contentMap.getOrCreate(userId).set(deviceId, message);
     }
     await this.baseApis.sendToDevice("m.room_key.withheld", contentMap);
 
     // record the fact that we notified these blocked devices
-    for (const userId of Object.keys(contentMap)) {
-      for (const deviceId of Object.keys(contentMap[userId])) {
+    for (const [userId, userDeviceMap] of contentMap) {
+      for (const deviceId of userDeviceMap.keys()) {
         session.markNotifiedBlockedDevice(userId, deviceId);
       }
     }
@@ -528,11 +524,11 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
     }
 
     // The chain index of the key we previously sent this device
-    if (obSessionInfo.sharedWithDevices[userId] === undefined) {
+    if (!obSessionInfo.sharedWithDevices.has(userId)) {
       this.prefixedLogger.debug(`megolm session ${senderKey}|${sessionId} never shared with user ${userId}`);
       return;
     }
-    const sessionSharedData = obSessionInfo.sharedWithDevices[userId][device.deviceId];
+    const sessionSharedData = obSessionInfo.sharedWithDevices.get(userId)?.get(device.deviceId);
     if (sessionSharedData === undefined) {
       this.prefixedLogger.debug(`megolm session ${senderKey}|${sessionId} never shared with device ${userId}:${device.deviceId}`);
       return;
@@ -549,9 +545,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
       this.prefixedLogger.warn(`No inbound session key found for megolm session ${senderKey}|${sessionId}: not re-sharing keys`);
       return;
     }
-    await olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, {
-      [userId]: [device]
-    });
+    await olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, new Map([[userId, [device]]]));
     const payload = {
       type: "m.forwarded_room_key",
       content: {
@@ -573,11 +567,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
       [_event.ToDeviceMessageId]: (0, _uuid.v4)()
     };
     await olmlib.encryptMessageForDevice(encryptedContent.ciphertext, this.userId, this.deviceId, this.olmDevice, userId, device, payload);
-    await this.baseApis.sendToDevice("m.room.encrypted", {
-      [userId]: {
-        [device.deviceId]: encryptedContent
-      }
-    });
+    await this.baseApis.sendToDevice("m.room.encrypted", new Map([[userId, new Map([[device.deviceId, encryptedContent]])]]));
     this.prefixedLogger.debug(`Re-shared key for megolm session ${senderKey}|${sessionId} with ${userId}:${device.deviceId}`);
   }
 
@@ -606,8 +596,8 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
     this.getDevicesWithoutSessions(devicemap, devicesByUser, errorDevices);
     await this.shareKeyWithOlmSessions(session, key, payload, devicemap);
   }
-  async shareKeyWithOlmSessions(session, key, payload, devicemap) {
-    const userDeviceMaps = this.splitDevices(devicemap);
+  async shareKeyWithOlmSessions(session, key, payload, deviceMap) {
+    const userDeviceMaps = this.splitDevices(deviceMap);
     for (let i = 0; i < userDeviceMaps.length; i++) {
       const taskDetail = `megolm keys for ${session.sessionId} (slice ${i + 1}/${userDeviceMaps.length})`;
       try {
@@ -643,22 +633,21 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
     }
     const unnotifiedFailedDevices = await this.olmDevice.filterOutNotifiedErrorDevices(failedDevices);
     this.prefixedLogger.debug(`Need to notify ${unnotifiedFailedDevices.length} failed devices which haven't been notified before`);
-    const blockedMap = {};
+    const blockedMap = new _utils.MapWithDefault(() => new Map());
     for (const {
       userId,
       deviceInfo
     } of unnotifiedFailedDevices) {
-      blockedMap[userId] = blockedMap[userId] || {};
       // we use a similar format to what
       // olmlib.ensureOlmSessionsForDevices returns, so that
       // we can use the same function to split
-      blockedMap[userId][deviceInfo.deviceId] = {
+      blockedMap.getOrCreate(userId).set(deviceInfo.deviceId, {
         device: {
           code: "m.no_olm",
           reason: _OlmDevice.WITHHELD_MESSAGES["m.no_olm"],
           deviceInfo
         }
-      };
+      });
     }
 
     // send the notifications
@@ -839,19 +828,15 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
    *   devices we should shared the session with.
    */
   checkForUnknownDevices(devicesInRoom) {
-    const unknownDevices = {};
-    Object.keys(devicesInRoom).forEach(userId => {
-      Object.keys(devicesInRoom[userId]).forEach(deviceId => {
-        const device = devicesInRoom[userId][deviceId];
+    const unknownDevices = new _utils.MapWithDefault(() => new Map());
+    for (const [userId, userDevices] of devicesInRoom) {
+      for (const [deviceId, device] of userDevices) {
         if (device.isUnverified() && !device.isKnown()) {
-          if (!unknownDevices[userId]) {
-            unknownDevices[userId] = {};
-          }
-          unknownDevices[userId][deviceId] = device;
+          unknownDevices.getOrCreate(userId).set(deviceId, device);
         }
-      });
-    });
-    if (Object.keys(unknownDevices).length) {
+      }
+    }
+    if (unknownDevices.size) {
       // it'd be kind to pass unknownDevices up to the user in this error
       throw new _base.UnknownDeviceError("This room contains unknown devices which have not been verified. " + "We strongly recommend you verify them before continuing.", unknownDevices);
     }
@@ -865,14 +850,14 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
    *   devices we should shared the session with.
    */
   removeUnknownDevices(devicesInRoom) {
-    for (const [userId, userDevices] of Object.entries(devicesInRoom)) {
-      for (const [deviceId, device] of Object.entries(userDevices)) {
+    for (const [userId, userDevices] of devicesInRoom) {
+      for (const [deviceId, device] of userDevices) {
         if (device.isUnverified() && !device.isKnown()) {
-          delete userDevices[deviceId];
+          userDevices.delete(deviceId);
         }
       }
-      if (Object.keys(userDevices).length === 0) {
-        delete devicesInRoom[userId];
+      if (userDevices.size === 0) {
+        devicesInRoom.delete(userId);
       }
     }
   }
@@ -916,39 +901,28 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
     // using all the device_lists changes and left fields.
     // See https://github.com/vector-im/element-web/issues/2305 for details.
     const devices = await this.crypto.downloadKeys(roomMembers, false);
-    const blocked = {};
     if (isCancelled?.() === true) {
       return null;
     }
-
+    const blocked = new _utils.MapWithDefault(() => new Map());
     // remove any blocked devices
-    for (const userId in devices) {
-      if (!devices.hasOwnProperty(userId)) {
-        continue;
-      }
-      const userDevices = devices[userId];
-      for (const deviceId in userDevices) {
-        if (!userDevices.hasOwnProperty(deviceId)) {
-          continue;
-        }
-
+    for (const [userId, userDevices] of devices) {
+      for (const [deviceId, userDevice] of userDevices) {
         // Yield prior to checking each device so that we don't block
         // updating/rendering for too long.
         // See https://github.com/vector-im/element-web/issues/21612
         if (isCancelled !== undefined) await (0, _utils.immediate)();
         if (isCancelled?.() === true) return null;
         const deviceTrust = this.crypto.checkDeviceTrust(userId, deviceId);
-        if (userDevices[deviceId].isBlocked() || !deviceTrust.isVerified() && isBlacklisting && !forceDistributeToUnverified) {
-          if (!blocked[userId]) {
-            blocked[userId] = {};
-          }
-          const isBlocked = userDevices[deviceId].isBlocked();
-          blocked[userId][deviceId] = {
+        if (userDevice.isBlocked() || !deviceTrust.isVerified() && isBlacklisting && !forceDistributeToUnverified) {
+          const blockedDevices = blocked.getOrCreate(userId);
+          const isBlocked = userDevice.isBlocked();
+          blockedDevices.set(deviceId, {
             code: isBlocked ? "m.blacklisted" : "m.unverified",
             reason: _OlmDevice.WITHHELD_MESSAGES[isBlocked ? "m.blacklisted" : "m.unverified"],
-            deviceInfo: userDevices[deviceId]
-          };
-          delete userDevices[deviceId];
+            deviceInfo: userDevice
+          });
+          userDevices.delete(deviceId);
         }
       }
     }
@@ -1481,9 +1455,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
 
     // XXX: switch this to use encryptAndSendToDevices() rather than duplicating it?
 
-    await olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, {
-      [sender]: [device]
-    }, false);
+    await olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, new Map([[sender, [device]]]), false);
     const encryptedContent = {
       algorithm: olmlib.OLM_ALGORITHM,
       sender_key: this.olmDevice.deviceCurve25519Key,
@@ -1494,11 +1466,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
       type: "m.dummy"
     });
     await this.olmDevice.recordSessionProblem(senderKey, "no_olm", true);
-    await this.baseApis.sendToDevice("m.room.encrypted", {
-      [sender]: {
-        [device.deviceId]: encryptedContent
-      }
-    });
+    await this.baseApis.sendToDevice("m.room.encrypted", new Map([[sender, new Map([[device.deviceId, encryptedContent]])]]));
   }
   hasKeysForKeyRequest(keyRequest) {
     const body = keyRequest.requestBody;
@@ -1515,11 +1483,9 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
 
     // XXX: switch this to use encryptAndSendToDevices()?
 
-    this.olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, {
-      [userId]: [deviceInfo]
-    }).then(devicemap => {
-      const olmSessionResult = devicemap[userId][deviceId];
-      if (!olmSessionResult.sessionId) {
+    this.olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, new Map([[userId, [deviceInfo]]])).then(devicemap => {
+      const olmSessionResult = devicemap.get(userId)?.get(deviceId);
+      if (!olmSessionResult?.sessionId) {
         // no session with this device, probably because there
         // were no one-time keys.
         //
@@ -1537,14 +1503,8 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
         [_event.ToDeviceMessageId]: (0, _uuid.v4)()
       };
       return this.olmlib.encryptMessageForDevice(encryptedContent.ciphertext, this.userId, undefined, this.olmDevice, userId, deviceInfo, payload).then(() => {
-        const contentMap = {
-          [userId]: {
-            [deviceId]: encryptedContent
-          }
-        };
-
         // TODO: retries
-        return this.baseApis.sendToDevice("m.room.encrypted", contentMap);
+        return this.baseApis.sendToDevice("m.room.encrypted", new Map([[userId, new Map([[deviceId, encryptedContent]])]]));
       });
     });
   }
@@ -1652,15 +1612,16 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
   async sendSharedHistoryInboundSessions(devicesByUser) {
     await olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, devicesByUser);
     const sharedHistorySessions = await this.olmDevice.getSharedHistoryInboundGroupSessions(this.roomId);
-    this.prefixedLogger.log(`Sharing history in with users ${Object.keys(devicesByUser)}`, sharedHistorySessions.map(([senderKey, sessionId]) => `${senderKey}|${sessionId}`));
+    this.prefixedLogger.log(`Sharing history in with users ${Array.from(devicesByUser.keys())}`, sharedHistorySessions.map(([senderKey, sessionId]) => `${senderKey}|${sessionId}`));
     for (const [senderKey, sessionId] of sharedHistorySessions) {
       const payload = await this.buildKeyForwardingMessage(this.roomId, senderKey, sessionId);
 
       // FIXME: use encryptAndSendToDevices() rather than duplicating it here.
       const promises = [];
-      const contentMap = {};
-      for (const [userId, devices] of Object.entries(devicesByUser)) {
-        contentMap[userId] = {};
+      const contentMap = new Map();
+      for (const [userId, devices] of devicesByUser) {
+        const deviceMessages = new Map();
+        contentMap.set(userId, deviceMessages);
         for (const deviceInfo of devices) {
           const encryptedContent = {
             algorithm: olmlib.OLM_ALGORITHM,
@@ -1668,7 +1629,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
             ciphertext: {},
             [_event.ToDeviceMessageId]: (0, _uuid.v4)()
           };
-          contentMap[userId][deviceInfo.deviceId] = encryptedContent;
+          deviceMessages.set(deviceInfo.deviceId, encryptedContent);
           promises.push(olmlib.encryptMessageForDevice(encryptedContent.ciphertext, this.userId, undefined, this.olmDevice, userId, deviceInfo, payload));
         }
       }
@@ -1678,22 +1639,22 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
       // in which case it will have just not added anything to the ciphertext object.
       // There's no point sending messages to devices if we couldn't encrypt to them,
       // since that's effectively a blank message.
-      for (const userId of Object.keys(contentMap)) {
-        for (const deviceId of Object.keys(contentMap[userId])) {
-          if (Object.keys(contentMap[userId][deviceId].ciphertext).length === 0) {
+      for (const [userId, deviceMessages] of contentMap) {
+        for (const [deviceId, content] of deviceMessages) {
+          if (!hasCiphertext(content)) {
             this.prefixedLogger.log("No ciphertext for device " + userId + ":" + deviceId + ": pruning");
-            delete contentMap[userId][deviceId];
+            deviceMessages.delete(deviceId);
           }
         }
         // No devices left for that user? Strip that too.
-        if (Object.keys(contentMap[userId]).length === 0) {
+        if (deviceMessages.size === 0) {
           this.prefixedLogger.log("Pruned all devices for user " + userId);
-          delete contentMap[userId];
+          contentMap.delete(userId);
         }
       }
 
       // Is there anything left?
-      if (Object.keys(contentMap).length === 0) {
+      if (contentMap.size === 0) {
         this.prefixedLogger.log("No users left to send to: aborting");
         return;
       }

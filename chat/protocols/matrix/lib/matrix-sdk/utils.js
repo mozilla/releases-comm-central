@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.DEFAULT_ALPHABET = void 0;
+exports.MapWithDefault = exports.DEFAULT_ALPHABET = void 0;
 exports.alphabetPad = alphabetPad;
 exports.averageBetweenStrings = averageBetweenStrings;
 exports.baseToString = baseToString;
@@ -29,19 +29,23 @@ exports.isSupportedReceiptType = isSupportedReceiptType;
 exports.lexicographicCompare = lexicographicCompare;
 exports.mapsEqual = mapsEqual;
 exports.nextString = nextString;
+exports.noUnsafeEventProps = noUnsafeEventProps;
 exports.normalize = normalize;
 exports.prevString = prevString;
 exports.promiseMapSeries = promiseMapSeries;
 exports.promiseTry = promiseTry;
+exports.recursiveMapToObject = recursiveMapToObject;
 exports.recursivelyAssign = recursivelyAssign;
 exports.removeDirectionOverrideChars = removeDirectionOverrideChars;
 exports.removeElement = removeElement;
 exports.removeHiddenChars = removeHiddenChars;
 exports.replaceParam = replaceParam;
+exports.safeSet = safeSet;
 exports.simpleRetryOperation = simpleRetryOperation;
 exports.sleep = sleep;
 exports.sortEventsByLatestContentTimestamp = sortEventsByLatestContentTimestamp;
 exports.stringToBase = stringToBase;
+exports.unsafeProp = unsafeProp;
 var _unhomoglyph = _interopRequireDefault(require("unhomoglyph"));
 var _pRetry = _interopRequireDefault(require("p-retry"));
 var _location = require("./@types/location");
@@ -682,3 +686,56 @@ function mapsEqual(x, y, eq = (v1, v2) => v1 === v2) {
   }
   return true;
 }
+function processMapToObjectValue(value) {
+  if (value instanceof Map) {
+    // Value is a Map. Recursively map it to an object.
+    return recursiveMapToObject(value);
+  } else if (Array.isArray(value)) {
+    // Value is an Array. Recursively map the value (e.g. to cover Array of Arrays).
+    return value.map(v => processMapToObjectValue(v));
+  } else {
+    return value;
+  }
+}
+
+/**
+ * Recursively converts Maps to plain objects.
+ * Also supports sub-lists of Maps.
+ */
+function recursiveMapToObject(map) {
+  const targetMap = new Map();
+  for (const [key, value] of map) {
+    targetMap.set(key, processMapToObjectValue(value));
+  }
+  return Object.fromEntries(targetMap.entries());
+}
+function unsafeProp(prop) {
+  return prop === "__proto__" || prop === "prototype" || prop === "constructor";
+}
+function safeSet(obj, prop, value) {
+  if (unsafeProp(prop)) {
+    throw new Error("Trying to modify prototype or constructor");
+  }
+  obj[prop] = value;
+}
+function noUnsafeEventProps(event) {
+  return !(unsafeProp(event.room_id) || unsafeProp(event.sender) || unsafeProp(event.user_id) || unsafeProp(event.event_id));
+}
+class MapWithDefault extends Map {
+  constructor(createDefault) {
+    super();
+    this.createDefault = createDefault;
+  }
+
+  /**
+   * Returns the value if the key already exists.
+   * If not, it creates a new value under that key using the ctor callback and returns it.
+   */
+  getOrCreate(key) {
+    if (!this.has(key)) {
+      this.set(key, this.createDefault());
+    }
+    return this.get(key);
+  }
+}
+exports.MapWithDefault = MapWithDefault;

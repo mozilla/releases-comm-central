@@ -237,7 +237,7 @@ class AccountDataClientAdapter extends _typedEventEmitter.TypedEventEmitter {
     if (modifiedValue) {
       return modifiedValue;
     }
-    const existingValue = this.existingValues[type];
+    const existingValue = this.existingValues.get(type);
     if (existingValue) {
       return existingValue.getContent();
     }

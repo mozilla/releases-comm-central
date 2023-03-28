@@ -37,7 +37,7 @@ function _toPrimitive(input, hint) { if (typeof input !== "object" || input === 
  *   +----------------------- UP_TO_DATE ------------------------+
  */
 // constants for DeviceList.deviceTrackingStatus
-let TrackingStatus;
+let TrackingStatus; // user-Id → device-Id → DeviceInfo
 exports.TrackingStatus = TrackingStatus;
 (function (TrackingStatus) {
   TrackingStatus[TrackingStatus["NotTracked"] = 0] = "NotTracked";
@@ -265,13 +265,13 @@ class DeviceList extends _typedEventEmitter.TypedEventEmitter {
    * @returns userId-\>deviceId-\>{@link DeviceInfo}.
    */
   getDevicesFromStore(userIds) {
-    const stored = {};
-    userIds.forEach(u => {
-      stored[u] = {};
-      const devices = this.getStoredDevicesForUser(u) || [];
-      devices.forEach(function (dev) {
-        stored[u][dev.deviceId] = dev;
+    const stored = new Map();
+    userIds.forEach(userId => {
+      const deviceMap = new Map();
+      this.getStoredDevicesForUser(userId)?.forEach(function (device) {
+        deviceMap.set(device.deviceId, device);
       });
+      stored.set(userId, deviceMap);
     });
     return stored;
   }

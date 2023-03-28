@@ -229,13 +229,11 @@ class ToDeviceChannel {
   }
   async sendToDevices(type, content, devices) {
     if (devices.length) {
-      const msgMap = {};
+      const deviceMessages = new Map();
       for (const deviceId of devices) {
-        msgMap[deviceId] = content;
+        deviceMessages.set(deviceId, content);
       }
-      await this.client.sendToDevice(type, {
-        [this.userId]: msgMap
-      });
+      await this.client.sendToDevice(type, new Map([[this.userId, deviceMessages]]));
     }
   }
 

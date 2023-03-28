@@ -193,7 +193,7 @@ class Room extends _readReceipt.ReadReceipt {
     this.myUserId = myUserId;
     this.opts = opts;
     _defineProperty(this, "reEmitter", void 0);
-    _defineProperty(this, "txnToEvent", {});
+    _defineProperty(this, "txnToEvent", new Map());
     _defineProperty(this, "notificationCounts", {});
     _defineProperty(this, "threadNotifications", new Map());
     _defineProperty(this, "cachedThreadReadReceipts", new Map());
@@ -214,7 +214,7 @@ class Room extends _readReceipt.ReadReceipt {
     _defineProperty(this, "name", void 0);
     _defineProperty(this, "normalizedName", void 0);
     _defineProperty(this, "tags", {});
-    _defineProperty(this, "accountData", {});
+    _defineProperty(this, "accountData", new Map());
     _defineProperty(this, "summary", null);
     _defineProperty(this, "timeline", void 0);
     _defineProperty(this, "oldState", void 0);
@@ -712,7 +712,7 @@ class Room extends _readReceipt.ReadReceipt {
       rawMembersEvents = await this.loadMembersFromServer();
       _logger.logger.log(`LL: got ${rawMembersEvents.length} ` + `members from server for room ${this.roomId}`);
     }
-    const memberEvents = rawMembersEvents.map(this.client.getEventMapper());
+    const memberEvents = rawMembersEvents.filter(utils.noUnsafeEventProps).map(this.client.getEventMapper());
     return {
       memberEvents,
       fromServer
@@ -1820,8 +1820,7 @@ class Room extends _readReceipt.ReadReceipt {
     const txnId = event.getUnsigned().transaction_id;
     if (!txnId && event.getSender() === this.myUserId) {
       // check the txn map for a matching event ID
-      for (const tid in this.txnToEvent) {
-        const localEvent = this.txnToEvent[tid];
+      for (const [tid, localEvent] of this.txnToEvent) {
         if (localEvent.getId() === event.getId()) {
           _logger.logger.debug("processLiveEvent: found sent event without txn ID: ", tid, event.getId());
           // update the unsigned field so we can re-use the same codepaths
@@ -1899,7 +1898,7 @@ class Room extends _readReceipt.ReadReceipt {
     if (event.status !== _eventStatus.EventStatus.SENDING && event.status !== _eventStatus.EventStatus.NOT_SENT) {
       throw new Error("addPendingEvent called on an event with status " + event.status);
     }
-    if (this.txnToEvent[txnId]) {
+    if (this.txnToEvent.get(txnId)) {
       throw new Error("addPendingEvent called on an event with known txnId " + txnId);
     }
 
@@ -1907,7 +1906,7 @@ class Room extends _readReceipt.ReadReceipt {
     // as event is shared over all timelineSets, we set up its metadata based
     // on the unfiltered timelineSet.
     _eventTimeline.EventTimeline.setEventMetadata(event, this.getLiveTimeline().getState(_eventTimeline.EventTimeline.FORWARDS), false);
-    this.txnToEvent[txnId] = event;
+    this.txnToEvent.set(txnId, event);
     if (this.pendingEventList) {
       if (this.pendingEventList.some(e => e.status === _eventStatus.EventStatus.NOT_SENT)) {
         _logger.logger.warn("Setting event as NOT_SENT due to messages in the same state");
@@ -1993,7 +1992,7 @@ class Room extends _readReceipt.ReadReceipt {
     this.relations.aggregateChildEvent(event);
   }
   getEventForTxnId(txnId) {
-    return this.txnToEvent[txnId];
+    return this.txnToEvent.get(txnId);
   }
 
   /**
@@ -2019,7 +2018,7 @@ class Room extends _readReceipt.ReadReceipt {
     _logger.logger.debug(`Got remote echo for event ${oldEventId} -> ${newEventId} old status ${oldStatus}`);
 
     // no longer pending
-    delete this.txnToEvent[remoteEvent.getUnsigned().transaction_id];
+    this.txnToEvent.delete(remoteEvent.getUnsigned().transaction_id);
 
     // if it's in the pending list, remove it
     if (this.pendingEventList) {
@@ -2199,7 +2198,7 @@ class Room extends _readReceipt.ReadReceipt {
       // TODO: We should have a filter to say "only add state event types X Y Z to the timeline".
       this.processLiveEvent(event);
       if (event.getUnsigned().transaction_id) {
-        const existingEvent = this.txnToEvent[event.getUnsigned().transaction_id];
+        const existingEvent = this.txnToEvent.get(event.getUnsigned().transaction_id);
         if (existingEvent) {
           // remote echo of an event we sent earlier
           this.handleRemoteEcho(event, existingEvent);
@@ -2445,8 +2444,9 @@ class Room extends _readReceipt.ReadReceipt {
       if (event.getType() === "m.tag") {
         this.addTags(event);
       }
-      const lastEvent = this.accountData[event.getType()];
-      this.accountData[event.getType()] = event;
+      const eventType = event.getType();
+      const lastEvent = this.accountData.get(eventType);
+      this.accountData.set(eventType, event);
       this.emit(RoomEvent.AccountData, event, this, lastEvent);
     }
   }
@@ -2457,7 +2457,7 @@ class Room extends _readReceipt.ReadReceipt {
    * @returns the account_data event in question
    */
   getAccountData(type) {
-    return this.accountData[type];
+    return this.accountData.get(type);
   }
 
   /**

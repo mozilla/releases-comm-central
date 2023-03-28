@@ -9,6 +9,7 @@ var _logger = require("./logger");
 var _client = require("./client");
 var _scheduler = require("./scheduler");
 var _sync = require("./sync");
+var _utils = require("./utils");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
 function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
@@ -103,12 +104,9 @@ class ToDeviceMessageQueue {
    * Attempts to send a batch of to-device messages.
    */
   async sendBatch(batch) {
-    const contentMap = {};
+    const contentMap = new _utils.MapWithDefault(() => new Map());
     for (const item of batch.batch) {
-      if (!contentMap[item.userId]) {
-        contentMap[item.userId] = {};
-      }
-      contentMap[item.userId][item.deviceId] = item.payload;
+      contentMap.getOrCreate(item.userId).set(item.deviceId, item.payload);
     }
     _logger.logger.info(`Sending batch of ${batch.batch.length} to-device messages with ID ${batch.id} and txnId ${batch.txnId}`);
     await this.client.sendToDevice(batch.eventType, contentMap, batch.txnId);

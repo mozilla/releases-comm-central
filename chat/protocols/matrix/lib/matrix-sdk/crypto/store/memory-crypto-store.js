@@ -302,13 +302,13 @@ class MemoryCryptoStore {
       if (userId in notifiedErrorDevices) {
         if (!(deviceInfo.deviceId in notifiedErrorDevices[userId])) {
           ret.push(device);
-          notifiedErrorDevices[userId][deviceInfo.deviceId] = true;
+          (0, utils.safeSet)(notifiedErrorDevices[userId], deviceInfo.deviceId, true);
         }
       } else {
         ret.push(device);
-        notifiedErrorDevices[userId] = {
+        (0, utils.safeSet)(notifiedErrorDevices, userId, {
           [deviceInfo.deviceId]: true
-        };
+        });
       }
     }
     return ret;

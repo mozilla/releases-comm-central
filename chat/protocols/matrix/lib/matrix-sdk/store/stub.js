@@ -32,7 +32,7 @@ limitations under the License.
  */
 class StubStore {
   constructor() {
-    _defineProperty(this, "accountData", {});
+    _defineProperty(this, "accountData", new Map());
     _defineProperty(this, "fromToken", null);
   }
   /** @returns whether or not the database was newly created in this session. */

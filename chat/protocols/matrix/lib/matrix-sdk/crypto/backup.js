@@ -359,23 +359,21 @@ class BackupManager {
     const rooms = {};
     for (const session of sessions) {
       const roomId = session.sessionData.room_id;
-      if (rooms[roomId] === undefined) {
-        rooms[roomId] = {
-          sessions: {}
-        };
-      }
+      (0, _utils.safeSet)(rooms, roomId, rooms[roomId] || {
+        sessions: {}
+      });
       const sessionData = this.baseApis.crypto.olmDevice.exportInboundGroupSession(session.senderKey, session.sessionId, session.sessionData);
       sessionData.algorithm = _olmlib.MEGOLM_ALGORITHM;
       const forwardedCount = (sessionData.forwarding_curve25519_key_chain || []).length;
       const userId = this.baseApis.crypto.deviceList.getUserByIdentityKey(_olmlib.MEGOLM_ALGORITHM, session.senderKey);
       const device = this.baseApis.crypto.deviceList.getDeviceByIdentityKey(_olmlib.MEGOLM_ALGORITHM, session.senderKey) ?? undefined;
       const verified = this.baseApis.crypto.checkDeviceInfoTrust(userId, device).isVerified();
-      rooms[roomId]["sessions"][session.sessionId] = {
+      (0, _utils.safeSet)(rooms[roomId]["sessions"], session.sessionId, {
         first_message_index: sessionData.first_known_index,
         forwarded_count: forwardedCount,
         is_verified: verified,
         session_data: await this.algorithm.encryptSession(sessionData)
-      };
+      });
     }
     await this.baseApis.sendKeyBackup(undefined, undefined, this.backupInfo.version, {
       rooms

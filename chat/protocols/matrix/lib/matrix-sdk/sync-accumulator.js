@@ -403,28 +403,19 @@ class SyncAccumulator {
           // $event_id: { "m.read": { $user_id: $json } }
         }
       };
+      const receiptEventContent = new _utils.MapWithDefault(() => new _utils.MapWithDefault(() => new Map()));
       for (const [userId, receiptData] of Object.entries(roomData._readReceipts)) {
-        if (!receiptEvent.content[receiptData.eventId]) {
-          receiptEvent.content[receiptData.eventId] = {};
-        }
-        if (!receiptEvent.content[receiptData.eventId][receiptData.type]) {
-          receiptEvent.content[receiptData.eventId][receiptData.type] = {};
-        }
-        receiptEvent.content[receiptData.eventId][receiptData.type][userId] = receiptData.data;
+        receiptEventContent.getOrCreate(receiptData.eventId).getOrCreate(receiptData.type).set(userId, receiptData.data);
       }
       for (const threadReceipts of Object.values(roomData._threadReadReceipts)) {
         for (const [userId, receiptData] of Object.entries(threadReceipts)) {
-          if (!receiptEvent.content[receiptData.eventId]) {
-            receiptEvent.content[receiptData.eventId] = {};
-          }
-          if (!receiptEvent.content[receiptData.eventId][receiptData.type]) {
-            receiptEvent.content[receiptData.eventId][receiptData.type] = {};
-          }
-          receiptEvent.content[receiptData.eventId][receiptData.type][userId] = receiptData.data;
+          receiptEventContent.getOrCreate(receiptData.eventId).getOrCreate(receiptData.type).set(userId, receiptData.data);
         }
       }
+      receiptEvent.content = (0, _utils.recursiveMapToObject)(receiptEventContent);
+
       // add only if we have some receipt data
-      if (Object.keys(receiptEvent.content).length > 0) {
+      if (receiptEventContent.size > 0) {
         roomJson.ephemeral.events.push(receiptEvent);
       }
 

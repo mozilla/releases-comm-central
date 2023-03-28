@@ -302,13 +302,11 @@ class SecretStorage {
         requesting_device_id: this.baseApis.deviceId,
         request_id: requestId
       };
-      const toDevice = {};
+      const toDevice = new Map();
       for (const device of devices) {
-        toDevice[device] = cancelData;
+        toDevice.set(device, cancelData);
       }
-      this.baseApis.sendToDevice("m.secret.request", {
-        [this.baseApis.getUserId()]: toDevice
-      });
+      this.baseApis.sendToDevice("m.secret.request", new Map([[this.baseApis.getUserId(), toDevice]]));
 
       // and reject the promise so that anyone waiting on it will be
       // notified
@@ -323,14 +321,12 @@ class SecretStorage {
       request_id: requestId,
       [_event.ToDeviceMessageId]: (0, _uuid.v4)()
     };
-    const toDevice = {};
+    const toDevice = new Map();
     for (const device of devices) {
-      toDevice[device] = requestData;
+      toDevice.set(device, requestData);
     }
     _logger.logger.info(`Request secret ${name} from ${devices}, id ${requestId}`);
-    this.baseApis.sendToDevice("m.secret.request", {
-      [this.baseApis.getUserId()]: toDevice
-    });
+    this.baseApis.sendToDevice("m.secret.request", new Map([[this.baseApis.getUserId(), toDevice]]));
     return {
       requestId,
       promise: deferred.promise,
@@ -393,15 +389,9 @@ class SecretStorage {
           ciphertext: {},
           [_event.ToDeviceMessageId]: (0, _uuid.v4)()
         };
-        await olmlib.ensureOlmSessionsForDevices(this.baseApis.crypto.olmDevice, this.baseApis, {
-          [sender]: [this.baseApis.getStoredDevice(sender, deviceId)]
-        });
+        await olmlib.ensureOlmSessionsForDevices(this.baseApis.crypto.olmDevice, this.baseApis, new Map([[sender, [this.baseApis.getStoredDevice(sender, deviceId)]]]));
         await olmlib.encryptMessageForDevice(encryptedContent.ciphertext, this.baseApis.getUserId(), this.baseApis.deviceId, this.baseApis.crypto.olmDevice, sender, this.baseApis.getStoredDevice(sender, deviceId), payload);
-        const contentMap = {
-          [sender]: {
-            [deviceId]: encryptedContent
-          }
-        };
+        const contentMap = new Map([[sender, new Map([[deviceId, encryptedContent]])]]);
         _logger.logger.info(`Sending ${content.name} secret for ${deviceId}`);
         this.baseApis.sendToDevice("m.room.encrypted", contentMap);
       } else {

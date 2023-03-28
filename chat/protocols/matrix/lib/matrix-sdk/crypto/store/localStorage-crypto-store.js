@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.LocalStorageCryptoStore = void 0;
 var _logger = require("../../logger");
 var _memoryCryptoStore = require("./memory-crypto-store");
+var _utils = require("../../utils");
 /*
 Copyright 2017 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -162,13 +163,13 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
       if (userId in notifiedErrorDevices) {
         if (!(deviceInfo.deviceId in notifiedErrorDevices[userId])) {
           ret.push(device);
-          notifiedErrorDevices[userId][deviceInfo.deviceId] = true;
+          (0, _utils.safeSet)(notifiedErrorDevices[userId], deviceInfo.deviceId, true);
         }
       } else {
         ret.push(device);
-        notifiedErrorDevices[userId] = {
+        (0, _utils.safeSet)(notifiedErrorDevices, userId, {
           [deviceInfo.deviceId]: true
-        };
+        });
       }
     }
     setJsonItem(this.store, KEY_NOTIFIED_ERROR_DEVICES, notifiedErrorDevices);

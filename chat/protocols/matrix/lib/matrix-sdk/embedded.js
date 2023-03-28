@@ -12,6 +12,7 @@ var _client = require("./client");
 var _sync = require("./sync");
 var _slidingSyncSdk = require("./sliding-sync-sdk");
 var _user = require("./models/user");
+var _utils = require("./utils");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
 function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
@@ -170,36 +171,36 @@ class RoomWidgetClient extends _client.MatrixClient {
     return await this.widgetApi.sendStateEvent(eventType, stateKey, content, roomId);
   }
   async sendToDevice(eventType, contentMap) {
-    await this.widgetApi.sendToDevice(eventType, false, contentMap);
+    await this.widgetApi.sendToDevice(eventType, false, (0, _utils.recursiveMapToObject)(contentMap));
     return {};
   }
   async queueToDevice({
     eventType,
     batch
   }) {
-    const contentMap = {};
+    // map: user Id → device Id → payload
+    const contentMap = new _utils.MapWithDefault(() => new Map());
     for (const {
       userId,
       deviceId,
       payload
     } of batch) {
-      if (!contentMap[userId]) contentMap[userId] = {};
-      contentMap[userId][deviceId] = payload;
+      contentMap.getOrCreate(userId).set(deviceId, payload);
     }
-    await this.widgetApi.sendToDevice(eventType, false, contentMap);
+    await this.widgetApi.sendToDevice(eventType, false, (0, _utils.recursiveMapToObject)(contentMap));
   }
   async encryptAndSendToDevices(userDeviceInfoArr, payload) {
-    const contentMap = {};
+    // map: user Id → device Id → payload
+    const contentMap = new _utils.MapWithDefault(() => new Map());
     for (const {
       userId,
       deviceInfo: {
         deviceId
       }
     } of userDeviceInfoArr) {
-      if (!contentMap[userId]) contentMap[userId] = {};
-      contentMap[userId][deviceId] = payload;
+      contentMap.getOrCreate(userId).set(deviceId, payload);
     }
-    await this.widgetApi.sendToDevice(payload.type, true, contentMap);
+    await this.widgetApi.sendToDevice(payload.type, true, (0, _utils.recursiveMapToObject)(contentMap));
   }
 
   // Overridden since we get TURN servers automatically over the widget API,
