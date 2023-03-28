@@ -481,6 +481,10 @@ tr[is="ab-card-row"].selected .recipient-avatar.is-mail-list {
   grid-area: sharedSplitter;
 }
 
+body.is-editing #sharedSplitter {
+  z-index: 2;
+}
+
 body.layout-table #sharedSplitter {
   width: auto !important;
 }
