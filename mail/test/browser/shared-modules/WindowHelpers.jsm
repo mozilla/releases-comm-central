@@ -196,6 +196,22 @@ var WindowWatcher = {
     //  polling anyways.
     Services.wm.addListener(this);
 
+    // Clean up any references to windows at the end of each test, and clean
+    // up the listeners/observers as the end of the session.
+    let observer = {
+      observe(subject, topic) {
+        WindowWatcher.monitoringList.length = 0;
+        WindowWatcher.waitingList.clear();
+        if (topic == "quit-application-granted") {
+          Services.wm.removeListener(this);
+          Services.obs.removeObserver(this, "test-complete");
+          Services.obs.removeObserver(this, "quit-application-granted");
+        }
+      },
+    };
+    Services.obs.addObserver(observer, "test-complete");
+    Services.obs.addObserver(observer, "quit-application-granted");
+
     this._inited = true;
   },
 
