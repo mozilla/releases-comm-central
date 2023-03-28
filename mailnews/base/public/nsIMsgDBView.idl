@@ -229,6 +229,8 @@ interface nsIMsgDBView : nsISupports
   void doCommandWithFolder(in nsMsgViewCommandTypeValue command, in nsIMsgFolder destFolder);
   void getCommandStatus(in nsMsgViewCommandTypeValue command, out boolean selectable_p,
                         out nsMsgViewCommandCheckStateValue selected_p);
+  void applyCommandToIndices(in nsMsgViewCommandTypeValue command,
+                             in Array<nsMsgViewIndex> selection);
 
   readonly attribute nsMsgViewTypeValue viewType;
   attribute nsMsgViewFlagsTypeValue viewFlags;

@@ -306,9 +306,6 @@ class nsMsgDBView : public nsIMsgDBView,
   uint32_t GetSize(void) { return (m_keys.Length()); }
 
   // For commands.
-  virtual nsresult ApplyCommandToIndices(
-      nsMsgViewCommandTypeValue command,
-      nsTArray<nsMsgViewIndex> const& selection);
   virtual nsresult ApplyCommandToIndicesWithFolder(
       nsMsgViewCommandTypeValue command,
       nsTArray<nsMsgViewIndex> const& selection, nsIMsgFolder* destFolder);

@@ -2775,9 +2775,9 @@ nsresult nsMsgDBView::ApplyCommandToIndicesWithFolder(
   return rv;
 }
 
-nsresult nsMsgDBView::ApplyCommandToIndices(
-    nsMsgViewCommandTypeValue command,
-    nsTArray<nsMsgViewIndex> const& selection) {
+NS_IMETHODIMP
+nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
+                                   nsTArray<nsMsgViewIndex> const& selection) {
   if (selection.IsEmpty()) {
     // Return quietly, just in case/
     return NS_OK;
