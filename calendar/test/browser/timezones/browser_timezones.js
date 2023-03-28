@@ -40,11 +40,12 @@ var TIMEZONES = [
 
 const calendarViewsInitialState = CalendarTestUtils.saveCalendarViewsState(window);
 
-registerCleanupFunction(async () => {
-  await CalendarTestUtils.restoreCalendarViewsState(window, calendarViewsInitialState);
-});
+add_setup(async () => {
+  registerCleanupFunction(async () => {
+    await CalendarTestUtils.restoreCalendarViewsState(window, calendarViewsInitialState);
+    Services.prefs.setStringPref("calendar.timezone.local", "UTC");
+  });
 
-add_task(async function testTimezones2_CreateEvents() {
   let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
@@ -79,6 +80,7 @@ add_task(async function testTimezones2_CreateEvents() {
       starttime: time,
       timezone: TIMEZONES[i],
     });
+
     await saveAndCloseItemDialog(dialogWindow);
   }
 });
@@ -831,15 +833,15 @@ async function verify(dates, timezones, times) {
           `in timezone "${timezones[tzIdx]}"`
       );
 
-      let hourRect = CalendarTestUtils.dayView.getHourBoxAt(window, hour).getBoundingClientRect();
-      let timeY = hourRect.y + hourRect.height * (minutes / 60);
-
       // following day
       if (day == 1) {
         await CalendarTestUtils.calendarViewForward(window, 1);
       } else if (day == -1) {
         await CalendarTestUtils.calendarViewBackward(window, 1);
       }
+
+      let hourRect = CalendarTestUtils.dayView.getHourBoxAt(window, hour).getBoundingClientRect();
+      let timeY = hourRect.y + hourRect.height * (minutes / 60);
 
       // Wait for at least one event box to exist.
       await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
