@@ -47,6 +47,26 @@
   text-decoration: line-through;
 }
 
+.tree-button-delete img {
+  content: var(--icon-trash-sm);
+}
+
+.tree-button-restore img {
+  content: var(--icon-restore);
+}
+
+#threadTree tbody button.tree-button-restore {
+  display: none;
+}
+
+#threadTree tbody [data-properties~="imapdeleted"] .tree-button-delete {
+  display: none;
+}
+
+#threadTree tbody [data-properties~="imapdeleted"] .tree-button-restore {
+  display: block;
+}
+
 #threadTree tbody .children.collapsed[data-properties~="hasUnread"][data-properties~="read"]
   :where(td, .subject-line) {
   text-decoration: underline;

@@ -201,7 +201,7 @@ class TreeView extends HTMLElement {
           return;
         }
 
-        if (event.target.classList.contains("tree-button-delete")) {
+        if (event.target.classList.contains("tree-button-request-delete")) {
           // Temporarily enforce the selection of only one row. We should extend
           // this and allow interacting with this feature even if the specific
           // row is not part of the selection.

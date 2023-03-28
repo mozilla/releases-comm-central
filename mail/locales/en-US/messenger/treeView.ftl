@@ -15,6 +15,9 @@ tree-list-view-row-deselect =
 tree-list-view-row-delete =
   .title = Delete the current row
 
+tree-list-view-row-restore =
+  .title = Restore the current row
+
 tree-list-view-column-picker =
   .title = Select columns to display
 
