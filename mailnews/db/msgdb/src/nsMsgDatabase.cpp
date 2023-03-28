@@ -2060,7 +2060,14 @@ nsMsgDatabase::MarkThreadIgnored(nsIMsgThread* thread, nsMsgKey threadKey,
   nsCOMPtr<nsIMsgDBHdr> msg;
   nsresult rv = GetMsgHdrForKey(threadKey, getter_AddRefs(msg));
   NS_ENSURE_SUCCESS(rv, rv);
-  return NotifyHdrChangeAll(msg, oldThreadFlags, threadFlags, instigator);
+
+  // We'll add the message flags to the thread flags when notifying, since
+  // notifications are supposed to be about messages, not threads.
+  uint32_t msgFlags;
+  msg->GetFlags(&msgFlags);
+
+  return NotifyHdrChangeAll(msg, oldThreadFlags | msgFlags,
+                            threadFlags | msgFlags, instigator);
 }
 
 NS_IMETHODIMP
@@ -2092,14 +2099,18 @@ nsMsgDatabase::MarkThreadWatched(nsIMsgThread* thread, nsMsgKey threadKey,
     threadFlags &= ~nsMsgMessageFlags::Ignored;  // watch is implicit un-ignore
   } else
     threadFlags &= ~nsMsgMessageFlags::Watched;
+  thread->SetFlags(threadFlags);
 
   nsCOMPtr<nsIMsgDBHdr> msg;
   GetMsgHdrForKey(threadKey, getter_AddRefs(msg));
 
-  nsresult rv =
-      NotifyHdrChangeAll(msg, oldThreadFlags, threadFlags, instigator);
-  thread->SetFlags(threadFlags);
-  return rv;
+  // We'll add the message flags to the thread flags when notifying, since
+  // notifications are supposed to be about messages, not threads.
+  uint32_t msgFlags;
+  msg->GetFlags(&msgFlags);
+
+  return NotifyHdrChangeAll(msg, oldThreadFlags | msgFlags,
+                            threadFlags | msgFlags, instigator);
 }
 
 NS_IMETHODIMP nsMsgDatabase::MarkMarked(nsMsgKey key, bool mark,
