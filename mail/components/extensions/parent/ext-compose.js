@@ -299,6 +299,15 @@ function trimContent(content) {
   return data.join("\n");
 }
 
+/**
+ * Get the compose details of the requested compose window.
+ *
+ * @param {DOMWindow} composeWindow
+ * @param {ExtensionData} extension
+ * @returns {ComposeDetails}
+ *
+ * @see mail/components/extensions/schemas/compose.json
+ */
 async function getComposeDetails(composeWindow, extension) {
   await composeWindowIsReady(composeWindow);
 
@@ -473,6 +482,16 @@ async function setFromField(composeWindow, details, extension) {
   }
 }
 
+/**
+ * Updates the compose details of the specified compose window, overwriting any
+ * property given in the details object.
+ *
+ * @param {DOMWindow} composeWindow
+ * @param {ComposeDetails} details - compose details to update the composer with
+ * @param {ExtensionData} extension
+ *
+ * @see mail/components/extensions/schemas/compose.json
+ */
 async function setComposeDetails(composeWindow, details, extension) {
   await composeWindowIsReady(composeWindow);
   let activeElement = composeWindow.document.activeElement;
@@ -591,7 +610,10 @@ async function setComposeDetails(composeWindow, details, extension) {
     let newHeaderNames = details.customHeaders.map(h => h.name.toUpperCase());
     let obsoleteHeaderNames = [
       ...composeWindow.gMsgCompose.compFields.headerNames,
-    ].filter(h => !newHeaderNames.hasOwnProperty(h.toUpperCase()));
+    ]
+      .map(h => h.toUpperCase())
+      .filter(h => h.startsWith("X-") && !newHeaderNames.hasOwnProperty(h));
+
     for (let headerName of obsoleteHeaderNames) {
       composeWindow.gMsgCompose.compFields.deleteHeader(headerName);
     }

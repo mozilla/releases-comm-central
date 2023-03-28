@@ -603,7 +603,14 @@ add_task(async function test_onIdentityChanged_MV3_event_pages() {
 add_task(async function testCustomHeaders() {
   let files = {
     "background.js": async () => {
-      async function testCustomHeaders(tab, expectedCustomHeaders) {
+      async function checkCustomHeaders(tab, expectedCustomHeaders) {
+        let [testHeader] = await window.sendMessage("getTestHeader");
+        browser.test.assertEq(
+          "CannotTouchThis",
+          testHeader,
+          "Should include the test header."
+        );
+
         let details = await browser.compose.getComposeDetails(tab.id);
 
         browser.test.assertEq(
@@ -628,12 +635,17 @@ add_task(async function testCustomHeaders() {
       // Start a new message with custom headers.
       let customHeaders = [{ name: "X-TEST1", value: "some header" }];
       let tab = await browser.compose.beginNew(null, { customHeaders });
+
+      // Add a header which does not start with X- and should not be touched by
+      // the API.
+      await window.sendMessage("addTestHeader");
+
       let expectedHeaders = [{ name: "X-Test1", value: "some header" }];
-      testCustomHeaders(tab, expectedHeaders);
+      await checkCustomHeaders(tab, expectedHeaders);
 
       // Update details without changing headers.
       await browser.compose.setComposeDetails(tab.id, {});
-      testCustomHeaders(tab, expectedHeaders);
+      await checkCustomHeaders(tab, expectedHeaders);
 
       // Update existing header and add a new one.
       customHeaders = [
@@ -649,7 +661,7 @@ add_task(async function testCustomHeaders() {
         { name: "X-Test3", value: "this is header #3" },
         { name: "X-Test4", value: "this is header #4" },
       ];
-      testCustomHeaders(tab, expectedHeaders);
+      await checkCustomHeaders(tab, expectedHeaders);
 
       // Update existing header and remove some of the others. Test support for
       // empty headers.
@@ -662,12 +674,12 @@ add_task(async function testCustomHeaders() {
         { name: "X-Test2", value: "this is a header" },
         { name: "X-Test3", value: "" },
       ];
-      testCustomHeaders(tab, expectedHeaders);
+      await checkCustomHeaders(tab, expectedHeaders);
 
       // Clear headers.
       customHeaders = [];
       await browser.compose.setComposeDetails(tab.id, { customHeaders });
-      testCustomHeaders(tab, []);
+      await checkCustomHeaders(tab, []);
 
       // Should throw for invalid custom headers.
       customHeaders = [
@@ -694,6 +706,21 @@ add_task(async function testCustomHeaders() {
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "addressBooks", "compose", "messagesRead"],
     },
+  });
+
+  extension.onMessage("addTestHeader", () => {
+    let composeWindow = Services.wm.getMostRecentWindow("msgcompose");
+    composeWindow.gMsgCompose.compFields.setHeader(
+      "ATestHeader",
+      "CannotTouchThis"
+    );
+    extension.sendMessage();
+  });
+
+  extension.onMessage("getTestHeader", () => {
+    let composeWindow = Services.wm.getMostRecentWindow("msgcompose");
+    let value = composeWindow.gMsgCompose.compFields.getHeader("ATestHeader");
+    extension.sendMessage(value);
   });
 
   await extension.startup();
