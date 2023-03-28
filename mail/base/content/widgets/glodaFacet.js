@@ -117,6 +117,7 @@
       sortDiv.classList.add("results-message-sort-bar");
 
       this.sortSelect = document.createElement("select");
+      this.sortSelect.setAttribute("id", "sortby");
       let sortByPref = Services.prefs.getIntPref("gloda.facetview.sortby");
 
       let relevanceItem = document.createElement("option");
@@ -627,11 +628,10 @@
       this.excludeList = document.createElement("ul");
       this.excludeList.classList.add("facet-excluded", "barry");
 
-      this.moreButton = document.createElement("div");
+      this.moreButton = document.createElement("button");
       this.moreButton.classList.add("facet-more");
       this.moreButton.setAttribute("needed", "false");
       this.moreButton.setAttribute("tabindex", "0");
-      this.moreButton.setAttribute("role", "button");
 
       this.contentBox.appendChild(this.includeLabel);
       this.contentBox.appendChild(this.includeList);

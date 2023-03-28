@@ -79,10 +79,11 @@
             &glodaFacetView.empty.label;
           </span>
           </div>
-        <div class="show-more" id="showMore" tabindex="0" role="button"
-             onclick="FacetContext.showMore()"
-             onkeypress="if (event.charCode == KeyEvent.DOM_VK_SPACE) { FacetContext.showMore(); event.preventDefault() }"
-             >&glodaFacetView.pageMore.label;</div>
+        <button id="showMore" class="show-more" tabindex="0"
+                onclick="FacetContext.showMore()"
+                onkeypress="if (event.charCode == KeyEvent.DOM_VK_SPACE) { FacetContext.showMore(); event.preventDefault() }"
+                >&glodaFacetView.pageMore.label;
+        </button>
       </div>
     </div>
   </div>

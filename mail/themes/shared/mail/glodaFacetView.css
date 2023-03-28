@@ -4,6 +4,8 @@
 
 @import url("chrome://messenger/skin/messenger.css");
 @import url("chrome://messenger/skin/colors.css");
+@import url("chrome://messenger/skin/layout.css");
+@import url("chrome://messenger/skin/widgets.css");
 
 html,
 body {
@@ -19,20 +21,32 @@ body {
 #body {
   --dateColor: var(--color-gray-20);
   --dateTextColor: var(--color-gray-90);
+  --barColor: var(--selected-item-color);
+  --barHlColor: var(--linkColor);
+  --dateHLColor: var(--selected-item-color);
+  --panelHoverColor: inherit;
+  --linkColor: var(--color-blue-70);
 }
 
 @media (prefers-color-scheme: dark) {
   #body {
     --dateColor: var(--color-gray-60);
     --dateTextColor: var(--color-white);
+    --linkColor: var(--color-blue-30);
+  }
+}
+
+@media (prefers-contrast) {
+  #body {
+    --panelHoverColor: SelectedItemText;
+    --linkColor: -moz-NativehyperlinkText;
   }
 }
 
 #gloda-facet-view {
   display: flex;
-  background-color: Field;
-  color: FieldText;
-  min-height: 100%;
+  background-color: var(--layout-background-0);
+  color: var(--layout-color-0);
   align-items: stretch;
 }
 
@@ -41,6 +55,8 @@ body {
   max-width: 20em;
   padding: 4px;
   padding-inline-start: 1em;
+  background-color: var(--layout-background-1);
+  color: var(--layout-color-1);
 }
 
 #main-column {
@@ -70,20 +86,23 @@ body {
   display: block;
   z-index: 100;
   overflow: hidden;
-  border: 1px solid var(--popupBorder);
-  background-color: var(--popupColor);
+  padding: 3px;
+  border: 1px solid var(--arrowpanel-border-color);
+  border-radius: 8px;
+  background-color: var(--arrowpanel-background);
   box-shadow: 0 0 4px hsla(210, 4%, 10%, .2);
 }
 
 .popup-menuitem {
   font: menu;
   padding: 4px 10px;
+  border-radius: 3px;
 }
 
 .popup-menuitem:hover,
 .popup-menuitem:focus {
-  background-color: var(--popupHLColor);
-  color: var(--popupHLTextColor);
+  background-color: var(--arrowpanel-dimmed);
+  color: var(--panelHoverColor);
 }
 
 .popup-menu[variety="remainder"] .undo {
@@ -129,7 +148,7 @@ body {
 }
 
 .explanation-fulltext-criteria {
-  color: GrayText;
+  color: var(--layout-color-3);
   margin: 0 0.1em;
 }
 
@@ -210,7 +229,7 @@ h1, h2, h3 {
   background-position: center center;
   background-repeat: no-repeat;
   border: 1px solid transparent;
-  border-radius: var(--borderRadius);
+  border-radius: var(--button-border-radius);
 }
 
 html[dir="rtl"] .facet-date-zoom-out {
@@ -257,7 +276,7 @@ html[dir="rtl"] .date-vis-frame {
   display: inline-flex;
   padding: 2px;
   padding-inline-end: 6px;
-  border-radius: var(--borderRadius);
+  border-radius: var(--button-border-radius);
   cursor: pointer;
 }
 
@@ -288,7 +307,7 @@ facet-boolean-filtered[checked="true"]:not([disabled]) > .facet-checkbox-bubble 
 }
 
 .facetious:not(:hover) > .facet-checkbox-count {
-  color: GrayText;
+  color: var(--layout-color-3);
 }
 .facet-checkbox-count:empty {
   display: none;
@@ -319,11 +338,8 @@ facet-boolean-filtered:not([checked]) > .facet-filter-list {
 
 .facet-more {
   display: none;
-  appearance: auto;
-  -moz-default-appearance: button;
   margin: 1px;
   margin-top: 0.5em;
-  padding: 0.2em 1em;
   cursor: pointer;
 }
 
@@ -339,11 +355,13 @@ html[dir="rtl"] .bar-count {
 .barry {
   margin: 0;
   padding: 0;
+  border-top: 1px solid var(--layout-color-3);
 }
 
 .bar {
   position: relative;
   cursor: pointer;
+  border-bottom: 1px solid var(--layout-color-3);
 }
 
 .bar[selected="true"] {
@@ -361,6 +379,7 @@ html[dir="rtl"] .bar-count {
   display: inline-block;
   text-decoration: none;
   display: block;
+  color: var(--linkColor);
   padding-top: 0.3em;
   padding-bottom: 0.3em;
   padding-inline-start: 0.5em;
@@ -378,7 +397,7 @@ html[dir="rtl"] .bar-count {
   right: 0;
   margin-inline-end: 8px;
   line-height: 1.6em;
-  color: GrayText;
+  color: var(--layout-color-3);
 }
 
 html[dir="rtl"] .bar-link {
@@ -403,7 +422,7 @@ html[dir="rtl"] .bar-link {
 
 .results-message-header {
   display: none; /* $('.results-message-header').show() is run if there are results */
-  border-bottom: 2px solid rgba(0,0,0,0.1);
+  border-bottom: 2px solid hsla(0, 0%, 60%, 0.25);
   padding: 4px 2px;
   padding-inline-end: 0;
   margin-bottom: 0.5em;
@@ -422,10 +441,10 @@ html[dir="rtl"] .bar-link {
 
 .results-message-showall-button {
   appearance: none !important;
-  color: -moz-NativehyperlinkText;
+  color: var(--linkColor);
   cursor: pointer;
   padding: 4px;
-  border-radius: var(--borderRadius);
+  border-radius: var(--button-border-radius);
   padding-inline-end: 20px;
   margin-inline-end: 2px;
   -moz-context-properties: fill;
@@ -449,31 +468,32 @@ html[dir="rtl"] .bar-link {
   justify-content: end;
 }
 
-.results-message-sort-label {
-  color: grey;
-}
-
-.results-message-sort-value {
-  border-radius: var(--borderRadius);
-  padding: 0.2em;
-}
-
-.results-message-sort-value:hover,
-.results-message-sort-value:focus {
-  background-color: var(--buttonHoverColor);
-  color: var(--buttonHoverTextColor);
-  cursor: pointer;
-}
-
-.results-message-sort-value[selected="true"] {
-  font-weight: bold;
-}
-
-.results-message-sort-value[selected="true"]:hover,
-.results-message-sort-value[selected="true"]:focus {
-  cursor: default;
-  background-color: transparent;
+#sortby {
+  appearance: none;
+  min-height: 24px;
   color: inherit;
+  margin: 1px 5px;
+  padding-block: 0;
+  padding-inline: 4px 20px;
+  border: 1px solid var(--button-border-color);
+  border-radius: var(--button-border-radius);
+  background-color: var(--button-background-color);
+  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  background-position: right 4px center;
+  background-repeat: no-repeat;
+  background-size: auto 12px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#sortby:dir(rtl) {
+  background-position-x: left 4px;
+}
+
+#sortby:hover,
+#sortby:focus {
+  background-color: var(--button-hover-background-color);
+  cursor: pointer;
 }
 
 /* ===== Messages ===== */
@@ -485,8 +505,8 @@ html[dir="rtl"] .bar-link {
   padding: 3px 5px;
   border: 1px solid transparent;
   border-bottom-color: lightgrey;
-  border-radius: var(--borderRadius);
-  color: -moz-DialogText;
+  border-radius: var(--button-border-radius);
+  color: var(--layout-color-1);
   overflow: hidden;
 }
 .message:not(:first-child) {
@@ -527,7 +547,7 @@ html[dir="rtl"] .bar-link {
   max-width: 20em;
   max-height: 10em;
   overflow: hidden;
-  color: GrayText;
+  color: var(--layout-color-3);
 }
 
 .message-attachments {
@@ -595,11 +615,11 @@ html[dir="rtl"] .message-attachment-icon {
 .message-author, .message-recipients {
   text-align: end;
   display: inline;
-  color: -moz-DialogText;
+  color: var(--layout-color-1);
 }
 
 .message-subject {
-  color: -moz-NativehyperlinkText;
+  color: var(--linkColor);
   font-size: medium;
 }
 
@@ -608,7 +628,7 @@ html[dir="rtl"] .message-attachment-icon {
 }
 
 .message-body {
-  color: -moz-DialogText;
+  color: var(--layout-color-1);
   margin-inline-start: 1em;
   font-family: monospace;
   font-size: medium;
@@ -618,7 +638,7 @@ html[dir="rtl"] .message-attachment-icon {
 .message-body-fulltext-match {
   color: var(--selected-item-text-color);
   background-color: var(--selected-item-color);
-  border-radius: var(--borderRadius);
+  border-radius: var(--button-border-radius);
 }
 
 .message-recipients-group {
@@ -636,14 +656,9 @@ html[dir="rtl"] .message-attachment-icon {
 
 .show-more {
   display: none; /* $('.show-more').show() is run if there are results */
-  appearance: auto;
-  -moz-default-appearance: button;
   float: inline-end;
-  padding: 0.2em 1em;
-  font-size: small;
-  margin-top: 5px;
+  margin-block: 5px 2em;
   margin-inline-end: 1em;
-  margin-bottom: 2em;
   cursor: pointer;
   align-self: flex-end;
 }
@@ -656,10 +671,10 @@ div.empty {
 
 span.loading,
 span.empty {
-  color: ButtonText;
-  background-color: ButtonFace;
-  border: 1px outset ThreeDShadow;
-  border-radius: var(--borderRadius);
+  color: var(--layout-color-2);
+  background-color: var(--layout-background-2);
+  border: 1px outset var(--layout-border-2);
+  border-radius: var(--button-border-radius);
 }
 
 img.loading,
@@ -682,7 +697,7 @@ span.empty {
   background-color: inherit;
   border: none;
   font-size: large;
-  color: #729fcf;
+  color: var(--color-blue-70);
   -moz-context-properties: fill;
   fill: currentColor;
 }

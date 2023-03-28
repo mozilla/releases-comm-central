@@ -4,43 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/glodaFacetView.css");
 
-#body {
-  --popupColor: Menu;
-  --popupBorder: ThreeDShadow;
-  --popupHLColor: var(--selected-item-color);
-  --popupHLTextColor: var(--selected-item-text-color);
-  --barColor: var(--selected-item-color);
-  --barHlColor: -moz-nativehyperlinktext;
-  --dateHLColor: var(--selected-item-color);
-  --borderRadius: 3px;
-  --buttonHoverColor: ButtonShadow;
-  --buttonHoverTextColor: -moz-ButtonHoverText;
-}
-
 .facets-sidebar {
-  background-color: -moz-Dialog;
-  color: -moz-DialogText;
-  font-size: 0.95em;
-}
-
-.facet-more,
-.show-more {
-  padding: 0;
-}
-
-.barry {
-  border-top: 1px solid GrayText;
-}
-
-.bar {
-  border-bottom: 1px solid GrayText;
-}
-
-.bar-link {
-  color: -moz-NativehyperlinkText;
-}
-
-.bar:hover > .bar-link,
-.bar:focus > .bar-link {
-  color: var(--selected-item-text-color);
+  font-size: 0.95rem;
 }
