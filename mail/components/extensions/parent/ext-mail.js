@@ -1921,7 +1921,7 @@ var messageTracker = new (class extends EventEmitter {
     this._dummyMessageHeaders = new Map();
 
     // nsIObserver
-    Services.obs.addObserver(this, "xpcom-shutdown");
+    Services.obs.addObserver(this, "quit-application-granted");
     Services.obs.addObserver(this, "attachment-delete-msgkey-changed");
     // nsIFolderListener
     MailServices.mailSession.AddFolderListener(
@@ -1967,7 +1967,7 @@ var messageTracker = new (class extends EventEmitter {
 
   cleanup() {
     // nsIObserver
-    Services.obs.removeObserver(this, "xpcom-shutdown");
+    Services.obs.removeObserver(this, "quit-application-granted");
     Services.obs.removeObserver(this, "attachment-delete-msgkey-changed");
     // nsIFolderListener
     MailServices.mailSession.RemoveFolderListener(this);
@@ -2289,7 +2289,7 @@ var messageTracker = new (class extends EventEmitter {
           });
         }
       }
-    } else if (topic == "xpcom-shutdown") {
+    } else if (topic == "quit-application-granted") {
       this.cleanup();
     }
   }

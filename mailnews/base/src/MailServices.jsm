@@ -153,3 +153,17 @@ XPCOMUtils.defineLazyServiceGetter(
   "@mozilla.org/mail/folder-lookup;1",
   "nsIFolderLookupService"
 );
+
+// Clean up all of these references at shutdown, so that they don't appear as
+// a memory leak in test logs.
+Services.obs.addObserver(
+  {
+    observe() {
+      for (let key of Object.keys(MailServices)) {
+        delete MailServices[key];
+      }
+      Services.obs.removeObserver(this, "xpcom-shutdown");
+    },
+  },
+  "xpcom-shutdown"
+);
