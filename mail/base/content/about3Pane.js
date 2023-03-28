@@ -1575,42 +1575,9 @@ var folderPane = {
       gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
       gViewWrapper._viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
       gViewWrapper.open(gFolder);
-      gDBView = gViewWrapper.dbView;
 
-      // Tell the view about the tree. nsITreeView.setTree can't be used because
-      // it needs a XULTreeElement and threadTree isn't one. Strictly speaking
-      // the shim passed here isn't a tree either (TreeView can't be made
-      // to QI to anything) but it does implement the required methods.
-      gViewWrapper.dbView?.setJSTree({
-        QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
-        _inBatch: false,
-        beginUpdateBatch() {
-          this._inBatch = true;
-        },
-        endUpdateBatch() {
-          this._inBatch = false;
-        },
-        ensureRowIsVisible(index) {
-          if (!this._inBatch) {
-            threadTree.scrollToIndex(index);
-          }
-        },
-        invalidate() {
-          if (!this._inBatch) {
-            threadTree.invalidate();
-          }
-        },
-        invalidateRange(startIndex, endIndex) {
-          if (!this._inBatch) {
-            threadTree.invalidateRange(startIndex, endIndex);
-          }
-        },
-        rowCountChanged(index, count) {
-          if (!this._inBatch) {
-            threadTree.rowCountChanged(index, count);
-          }
-        },
-      });
+      // At this point `dbViewWrapperListener.onCreatedView` gets called,
+      // setting up gDBView and scrolling threadTree to the right end.
 
       threadPane.restoreSortIndicator();
       threadPane.restoreSelection();
@@ -2866,6 +2833,50 @@ var threadPane = {
 
       top.messenger.saveAs(messageURI.value.data, true, null, file.path, true);
     },
+  },
+
+  _jsTree: {
+    QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
+    _inBatch: false,
+    beginUpdateBatch() {
+      this._inBatch = true;
+    },
+    endUpdateBatch() {
+      this._inBatch = false;
+    },
+    ensureRowIsVisible(index) {
+      if (!this._inBatch) {
+        threadTree.scrollToIndex(index);
+      }
+    },
+    invalidate() {
+      if (!this._inBatch) {
+        threadTree.invalidate();
+      }
+    },
+    invalidateRange(startIndex, endIndex) {
+      if (!this._inBatch) {
+        threadTree.invalidateRange(startIndex, endIndex);
+      }
+    },
+    rowCountChanged(index, count) {
+      if (!this._inBatch) {
+        threadTree.rowCountChanged(index, count);
+      }
+    },
+  },
+
+  /**
+   * Tell the tree and the view about each other. `nsITreeView.setTree` can't
+   * be used because it needs a XULTreeElement and threadTree isn't one.
+   * (Strictly speaking the shim passed here isn't a tree either but it does
+   * implement the required methods.)
+   *
+   * @param {nsIMsgDBView} view
+   */
+  setTreeView(view) {
+    threadTree.view = gDBView = view;
+    view.setJSTree(this._jsTree);
   },
 
   setUpTagStyles() {

@@ -763,7 +763,7 @@ var dbViewWrapperListener = {
   onSearching(isSearching) {},
   onCreatedView() {
     if (window.threadTree) {
-      window.threadTree.view = gDBView = gViewWrapper.dbView;
+      window.threadPane.setTreeView(gViewWrapper.dbView);
 
       if (
         gViewWrapper.sortImpliesTemporalOrdering &&
@@ -777,6 +777,9 @@ var dbViewWrapperListener = {
   },
   onDestroyingView(folderIsComingBack) {
     if (!folderIsComingBack && window.threadTree) {
+      if (gDBView) {
+        gDBView.setJSTree(null);
+      }
       window.threadTree.view = gDBView = null;
     }
   },
