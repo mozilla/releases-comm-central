@@ -4458,7 +4458,7 @@ commandController.registerCallback(
         );
       } else {
         PrintUtils.startPrintWindow(
-          messageBrowser.contentWindow.content.browsingContext,
+          messageBrowser.contentWindow.getMessagePaneBrowser().browsingContext,
           {}
         );
       }
