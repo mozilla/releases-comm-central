@@ -1218,7 +1218,9 @@ class TreeViewTable extends HTMLTableElement {
    * Update the visibility of the currently available columns.
    */
   #updateView() {
-    let visibleColumns = this.columns.filter(c => !c.hidden);
+    let lastResizableColumn = this.columns.findLast(
+      c => !c.hidden && (c.resizable ?? true)
+    );
 
     for (let column of this.columns) {
       document.getElementById(column.id).hidden = column.hidden;
@@ -1229,10 +1231,8 @@ class TreeViewTable extends HTMLTableElement {
         continue;
       }
 
-      document.getElementById(`${column.id}Splitter`).hidden =
-        visibleColumns[visibleColumns.length - 1] == column
-          ? true
-          : column.hidden;
+      document.getElementById(column.id).resizable =
+        column != lastResizableColumn;
     }
   }
 }
@@ -1405,32 +1405,7 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
       this.#button.appendChild(img);
     }
 
-    this.#resizable = column.resizable ?? true;
-    this.dataset.resizable = this.#resizable;
-    // Add a splitter if this is a resizable column.
-    if (this.#resizable) {
-      let splitter = document.createElement("hr", { is: "pane-splitter" });
-      splitter.setAttribute("is", "pane-splitter");
-      this.appendChild(splitter);
-      splitter.resizeDirection = "horizontal";
-      splitter.resizeElement = this;
-      splitter.id = `${column.id}Splitter`;
-      this.style.setProperty("width", `var(--${splitter.id}-width)`);
-      // Emit a custom event after a resize action. Methods at implementation
-      // level should listen to this event if the edited column size needs to
-      // be stored or used.
-      splitter.addEventListener("splitter-resized", () => {
-        this.dispatchEvent(
-          new CustomEvent("column-resized", {
-            bubbles: true,
-            detail: {
-              splitter,
-              column: column.id,
-            },
-          })
-        );
-      });
-    }
+    this.resizable = column.resizable ?? true;
 
     this.hidden = column.hidden;
 
@@ -1492,6 +1467,38 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
    */
   set resizable(val) {
     this.#resizable = val;
+    this.dataset.resizable = val;
+
+    let splitter = this.querySelector("hr");
+
+    // Add a splitter if this is a resizable column.
+    if (val && !splitter) {
+      splitter = document.createElement("hr", { is: "pane-splitter" });
+      splitter.setAttribute("is", "pane-splitter");
+      this.appendChild(splitter);
+      splitter.resizeDirection = "horizontal";
+      splitter.resizeElement = this;
+      splitter.id = `${this.id}Splitter`;
+      // Emit a custom event after a resize action. Methods at implementation
+      // level should listen to this event if the edited column size needs to
+      // be stored or used.
+      splitter.addEventListener("splitter-resized", () => {
+        this.dispatchEvent(
+          new CustomEvent("column-resized", {
+            bubbles: true,
+            detail: {
+              splitter,
+              column: this.id,
+            },
+          })
+        );
+      });
+    }
+
+    this.style.setProperty("width", val ? `var(--${splitter.id}-width)` : null);
+    if (splitter) {
+      splitter.hidden = !val;
+    }
   }
 
   get resizable() {
