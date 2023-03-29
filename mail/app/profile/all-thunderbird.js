@@ -1000,6 +1000,10 @@ pref("devtools.gridinspector.showGridLineNumbers", false);
 pref("devtools.gridinspector.showInfiniteLines", false);
 // Max number of grid highlighters that can be displayed
 pref("devtools.gridinspector.maxHighlighters", 3);
+ 
+// Whether or not simplified highlighters should be used when
+// prefers-reduced-motion is enabled.
+pref("devtools.inspector.simple-highlighters-reduced-motion", false);
 
 // Whether or not the box model panel is opened in the layout view
 pref("devtools.layout.boxmodel.opened", true);
