@@ -1122,19 +1122,11 @@ class FindSMimeCertTask final : public CryptoTask {
       : mEmail(email), mListener(listener) {
     MOZ_ASSERT(NS_IsMainThread());
   }
+  ~FindSMimeCertTask();
 
  private:
   virtual nsresult CalculateResult() override;
-
-  virtual void CallCallback(nsresult rv) override {
-    MOZ_ASSERT(NS_IsMainThread());
-    nsCOMPtr<nsIX509Cert> resultCert;
-    {
-      mozilla::StaticMutexAutoLock lock(sMutex);
-      resultCert = mCert;
-    }
-    mListener->FindCertDone(mEmail, resultCert);
-  }
+  virtual void CallCallback(nsresult rv) override;
 
   const nsCString mEmail;
   nsCOMPtr<nsIX509Cert> mCert;
@@ -1144,6 +1136,25 @@ class FindSMimeCertTask final : public CryptoTask {
 };
 
 mozilla::StaticMutex FindSMimeCertTask::sMutex;
+
+void FindSMimeCertTask::CallCallback(nsresult rv) {
+  MOZ_ASSERT(NS_IsMainThread());
+  nsCOMPtr<nsIX509Cert> cert;
+  nsCOMPtr<nsIDoneFindCertForEmailCallback> listener;
+  {
+    mozilla::StaticMutexAutoLock lock(sMutex);
+    if (!mListener) {
+      return;
+    }
+    // We won't need these objects after leaving this function, so let's
+    // destroy them early. Also has the benefit that we're already
+    // on the main thread. By destroying the listener here, we avoid
+    // dispatching in the destructor.
+    mCert.swap(cert);
+    mListener.swap(listener);
+  }
+  listener->FindCertDone(mEmail, cert);
+}
 
 /*
 called by:
@@ -1192,6 +1203,38 @@ nsresult FindSMimeCertTask::CalculateResult() {
   }
 
   return NS_OK;
+}
+
+/*
+ * We need to ensure that the callback is destroyed on the main thread.
+ */
+class ProxyListenerDestructor final : public mozilla::Runnable {
+ public:
+  explicit ProxyListenerDestructor(
+      nsCOMPtr<nsIDoneFindCertForEmailCallback>&& aListener)
+      : mozilla::Runnable("ProxyListenerDestructor"),
+        mListener(std::move(aListener)) {}
+
+  NS_IMETHODIMP
+  Run() override {
+    MOZ_ASSERT(NS_IsMainThread());
+    // Release the object referenced by mListener.
+    mListener = nullptr;
+    return NS_OK;
+  }
+
+ private:
+  nsCOMPtr<nsIDoneFindCertForEmailCallback> mListener;
+};
+
+FindSMimeCertTask::~FindSMimeCertTask() {
+  // Unless we already cleaned up inside CallCallback, we must release
+  // the listener on the main thread.
+  if (mListener && !NS_IsMainThread()) {
+    RefPtr<ProxyListenerDestructor> runnable =
+        new ProxyListenerDestructor(std::move(mListener));
+    MOZ_ALWAYS_SUCCEEDS(NS_DispatchToMainThread(runnable));
+  }
 }
 
 NS_IMETHODIMP
