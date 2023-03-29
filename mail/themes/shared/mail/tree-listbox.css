@@ -356,6 +356,7 @@ th[data-type="icon"] .tree-table-cell-container button.sorting {
 th[is="tree-view-table-column-picker"] {
   position: relative;
   width: 25px;
+  min-width: 25px;
   padding: 0;
 }
 
