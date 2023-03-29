@@ -99,7 +99,7 @@ export class TreeSelection {
   _doInvalidateRange(startIndex, endIndex) {
     let noEndIndex = endIndex === undefined;
     if (noEndIndex) {
-      if (!this._view) {
+      if (!this._view || this.view.rowCount == 0) {
         this._doInvalidateAll();
         return;
       }
