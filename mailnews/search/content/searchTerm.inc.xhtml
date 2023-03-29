@@ -12,14 +12,13 @@
                    accesskey="&matchAllMsgs.accesskey;" flex="1"/>
           </radiogroup>
 
-          <hbox id="searchTermBox" flex="1"
-                style="min-height:100px; max-height:100vh;">
+          <hbox id="searchTermBox" flex="1">
             <hbox id="searchterms" class="themeable-brighttext"/>
-            <richlistbox flex="1" id="searchTermList">
+            <richlistbox id="searchTermList" flex="1">
               <treecols hidden="true">
-                <treecol style="-moz-box-flex: &searchTermListAttributesFlexValue;"/>
-                <treecol style="-moz-box-flex: &searchTermListOperatorsFlexValue;"/>
-                <treecol style="-moz-box-flex: &searchTermListValueFlexValue;"/>
+                <treecol style="flex: &searchTermListAttributesFlexValue;"/>
+                <treecol style="flex: &searchTermListOperatorsFlexValue;"/>
+                <treecol style="flex: &searchTermListValueFlexValue;"/>
                 <treecol class="filler"/>
               </treecols>
             </richlistbox>

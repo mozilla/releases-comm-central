@@ -10,7 +10,7 @@
 }
 
 #searchTerms {
-  flex: 3 3;
+  flex: 1 1 auto;
   margin-top: 8px;
 }
 
@@ -22,12 +22,13 @@
 }
 
 #searchTermBox {
+  min-height: 0;
   padding-top: 2px;
   padding-bottom: 2px;
 }
 
 #searchResults {
-  flex: 4 4;
+  flex: 1 1 0;
   padding: 0 6px 6px;
   text-shadow: none;
 }
@@ -38,7 +39,7 @@
 
 #searchResultListBox {
   margin: 4px;
-  height: 100px;
+  min-height: 50px;
 }
 
 .search-value-menulist {
@@ -59,13 +60,22 @@ radio[value="and"] {
 
 /* ::::: box sizes ::::: */
 
-#searchTermTree {
-  min-height: 50px;
+#virtualFolderSearchTerms {
+  flex: 1 1 240px;
+  overflow: hidden;
 }
 
-#searchTermListBox,
+#virtualFolderSearchTermListBoxWrapper {
+  flex: 1;
+  min-height: 0;
+}
+
 #virtualFolderSearchTermListBox {
-  height: 100px;
+  flex: 1;
+}
+
+#searchTermTree {
+  min-height: 50px;
 }
 
 /* ::::: thread decoration ::::: */
