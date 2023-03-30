@@ -17,6 +17,11 @@ unified-toolbar {
   width: 100vw;
 }
 
+/* minheight for the macOS titlebar */
+.customizingUnifiedToolbar #unifiedToolbarContainer {
+  min-height: 22px;
+}
+
 #unifiedToolbar {
   flex: 1 1 auto;
   display: flex;
@@ -88,10 +93,14 @@ unified-toolbar-customization {
 .customizingUnifiedToolbar unified-toolbar-customization {
   display: flex;
   height: 100%;
-  background: var(--layout-background-0);
+  background: var(--layout-background-3);
   color: var(--layout-color-1);
   flex: 1;
   overflow: hidden;
+}
+
+#customizationHeading {
+  align-self: center;
 }
 
 #unifiedToolbarCustomizationContainer {
@@ -142,6 +151,10 @@ unified-toolbar-customization {
   display: flex;
   flex-wrap: nowrap;
   max-width: 100vw;
+  background-color: var(--tabs-toolbar-background-color);
+  box-shadow: var(--tabs-toolbar-box-shadow);
+  padding-top: 3px;
+  padding-inline: 6px;
 }
 
 unified-toolbar-customization-pane:not([hidden]) {

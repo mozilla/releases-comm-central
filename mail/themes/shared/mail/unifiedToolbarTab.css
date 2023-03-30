@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 button {
-  padding: 6px;
+  padding: 9px;
   box-sizing: border-box;
-  border-radius: 2px;
+  border-radius: 4px 4px 0 0;
   cursor: default;
   user-select: none;
   appearance: none;
@@ -19,6 +19,7 @@ button {
 }
 
 button[aria-selected="true"] {
+  padding-top: 7px;
   border-top: 2px solid var(--primary);
   background: var(--layout-background-1);
 }

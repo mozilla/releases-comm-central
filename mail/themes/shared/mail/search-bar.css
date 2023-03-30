@@ -23,6 +23,7 @@ input {
   border: 1px solid var(--color-gray-40);
   border-radius: var(--button-border-radius);
   padding-inline: var(--padding-block) var(--search-icon-clearance);
+  background-color: var(--layout-background-0);
 }
 
 input:-moz-lwtheme {
