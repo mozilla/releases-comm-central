@@ -1499,6 +1499,22 @@ var folderPane = {
   },
 
   /**
+   * Get the folder from the URI by looping through the list of folders and
+   * finding a matching URI.
+   *
+   * @param {string} uri
+   * @returns {?FolderTreeRow}
+   */
+  getFolderFromUri(uri) {
+    for (let folder of folderTree.querySelectorAll("li")) {
+      if (folder.uri == uri) {
+        return folder;
+      }
+    }
+    return [...folderTree.querySelectorAll("li")]?.find(f => f.uri == uri);
+  },
+
+  /**
    * Called when a folder's new messages state changes.
    *
    * @param {nsIMsgFolder} folder
@@ -1893,6 +1909,7 @@ var folderPane = {
       if (aNewName != aOldName) {
         folder.rename(aNewName, top.msgWindow);
       }
+      folderPane.getFolderFromUri(aUri)?.setIconColor();
     }
 
     async function rebuildSummary() {
@@ -1942,7 +1959,6 @@ var folderPane = {
         previewSelectedColorCallback() {},
         clearFolderSelectionCallback() {},
         selectFolderCallback() {},
-        updateColorCallback() {},
       }
     );
   },
@@ -2171,8 +2187,9 @@ var folderPane = {
     let folder = aFolder;
 
     // xxx should pass the folder object
-    function editVirtualCallback(aURI) {
+    function editVirtualCallback(aUri) {
       // TODO: we need to reload the folder if it is the currently loaded folder...
+      folderPane.getFolderFromUri(aUri)?.setIconColor();
     }
     window.openDialog(
       "chrome://messenger/content/virtualFolderProperties.xhtml",
@@ -2186,7 +2203,6 @@ var folderPane = {
         previewSelectedColorCallback() {},
         clearFolderSelectionCallback() {},
         selectFolderCallback() {},
-        updateColorCallback() {},
       }
     );
   },
@@ -2387,10 +2403,18 @@ class FolderTreeRow extends HTMLLIElement {
     if (!FolderTreeProperties.getIsExpanded(uri, this.modeName)) {
       this.classList.add("collapsed");
     }
-    let iconColor = FolderTreeProperties.getColor(uri);
-    if (iconColor) {
-      this.icon.style.setProperty("--icon-color", iconColor);
+    this.setIconColor();
+  }
+
+  /**
+   * Set the icon color if one is availible from the FolderTreeProperties.
+   */
+  setIconColor() {
+    let iconColor = FolderTreeProperties.getColor(this.uri);
+    if (!iconColor) {
+      return;
     }
+    this.icon.style.setProperty("--icon-color", iconColor);
   }
 
   /**
