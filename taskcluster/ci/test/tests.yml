@@ -14,11 +14,12 @@
 
 xpcshell:
     description: "xpcshell test run"
-    suite: xpcshell
-    name:
-        by-variant:
-            msix: xpcshell-msix
-            default: xpcshell
+    suite:
+        category: xpcshell
+        name:
+            by-variant:
+                msix: xpcshell-msix
+                default: xpcshell
     target:
         by-test-platform:
             windows1.*-shippable-qr/opt:
@@ -77,7 +78,10 @@ xpcshell:
                     - remove_executables.py
                     - unittests/thunderbird_extra.py
         extra-options:
-            - "--xpcshell-suite=xpcshell"
+            by-test-platform:
+                windows1.*:
+                    - --threads=2
+                default: []
         requires-signed-builds:
             by-test-platform:
                 windows1.-64-asan-qr/opt: false
