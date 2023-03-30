@@ -247,7 +247,7 @@ linux64-aarch64/opt:
         toolchain:
             - linux-aarch64-libotr
             - linux64-llvm-symbolizer
-            - linux64-rust-dev
+            - linux64-rust
             - linux64-sccache
             - sysroot-aarch64-linux-gnu
             - sysroot-x86_64-linux-gnu
