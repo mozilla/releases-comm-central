@@ -12,10 +12,11 @@
   border: none;
   display: flex;
   overflow-x: hidden;
-  flex-wrap: wrap;
   align-items: start;
   align-content: start;
   flex: 1;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .attachmentList[collapsed] {
