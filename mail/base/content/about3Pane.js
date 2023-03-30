@@ -620,7 +620,7 @@ var folderPane = {
               }
 
               folder = smartRoot.createLocalSubfolder(folderType.name);
-              folder.setFlag(Ci.nsMsgFolderFlags.Virtual | folderType.flag);
+              folder.flags |= Ci.nsMsgFolderFlags.Virtual | folderType.flag;
 
               let msgDatabase = folder.msgDatabase;
               let folderInfo = msgDatabase.dBFolderInfo;
