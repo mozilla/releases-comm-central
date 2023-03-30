@@ -1963,6 +1963,15 @@ nsMsgDBView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
       }
       break;
     }
+    case 'l': {
+      if (aColumnName.EqualsLiteral("locationCol")) {
+        nsCOMPtr<nsIMsgFolder> folder;
+        nsresult rv = GetFolderForViewIndex(aRow, getter_AddRefs(folder));
+        NS_ENSURE_SUCCESS(rv, rv);
+        folder->GetPrettyName(aValue);
+      }
+      break;
+    }
     default:
       break;
   }
