@@ -268,9 +268,16 @@ function SwitchPaneFocus(event) {
     return;
   }
   // First, build an array of panes to cycle through based on our current state.
-  // This will usually be something like [threadPane, messagePane, folderPane].
+  // This will usually be something like [folderTree, threadTree, messageBrowser].
   let panes = [];
+  // The logically focused element. If the actually focused element is not one
+  // of the panes, the code below can change this variable to point to one of
+  // the panes.
   let focusedElement = document.activeElement;
+  // If the actually focused element is between two of the panes, set this to
+  // -1, 0, or 1 (depending on the direction and where the focus is relative to
+  // `focusedElement`) so that the element to focus is correctly chosen.
+  let adjustment = 0;
 
   let spacesElement = !gSpacesToolbar.isHidden
     ? gSpacesToolbar.focusButton
@@ -331,7 +338,26 @@ function SwitchPaneFocus(event) {
 
       if (focusedElement == chromeBrowser) {
         focusedElement = contentDocument.activeElement;
-        if (focusedElement == messageBrowser) {
+        if (
+          focusedElement != folderTree &&
+          contentDocument.getElementById("folderPane").contains(focusedElement)
+        ) {
+          focusedElement = folderTree;
+          adjustment = event.shiftKey ? 0 : -1;
+        } else if (
+          contentDocument
+            .getElementById("threadPaneNotificationBox")
+            .contains(focusedElement)
+        ) {
+          focusedElement = threadTree.table.body;
+          adjustment = event.shiftKey ? 1 : 0;
+        } else if (
+          focusedElement != threadTree.table.body &&
+          contentDocument.getElementById("threadPane").contains(focusedElement)
+        ) {
+          focusedElement = threadTree.table.body;
+          adjustment = event.shiftKey ? 0 : -1;
+        } else if (focusedElement == messageBrowser) {
           focusedElement = messageBrowser.contentWindow.getMessagePaneBrowser();
         }
       }
@@ -379,7 +405,7 @@ function SwitchPaneFocus(event) {
   }
 
   // Find our focused element in the array.
-  let focusedElementIndex = panes.indexOf(focusedElement);
+  let focusedElementIndex = panes.indexOf(focusedElement) + adjustment;
   if (event.shiftKey) {
     focusedElementIndex--;
     if (focusedElementIndex < 0) {

@@ -138,6 +138,39 @@ add_task(async function testMail3PaneTab() {
     globalSearch,
     folderTree
   );
+
+  info("Testing focus from secondary focus targets");
+  about3Pane.document.getElementById("folderPaneMoreButton").focus();
+  EventUtils.synthesizeKey("KEY_F6", {}, about3Pane);
+  Assert.equal(
+    getActiveElement(),
+    folderTree,
+    "F6 moved the focus to the folder tree"
+  );
+
+  about3Pane.document.getElementById("folderPaneMoreButton").focus();
+  EventUtils.synthesizeKey("KEY_F6", { shiftKey: true }, about3Pane);
+  Assert.equal(
+    getActiveElement().id,
+    globalSearch.id,
+    "Shift+F6 moved the focus to the toolbar"
+  );
+
+  about3Pane.document.getElementById("qfb-qs-textbox").focus();
+  EventUtils.synthesizeKey("KEY_F6", {}, about3Pane);
+  Assert.equal(
+    getActiveElement(),
+    threadTree.table.body,
+    "F6 moved the focus to the threadTree"
+  );
+
+  about3Pane.document.getElementById("qfb-qs-textbox").focus();
+  EventUtils.synthesizeKey("KEY_F6", { shiftKey: true }, about3Pane);
+  Assert.equal(
+    getActiveElement(),
+    folderTree,
+    "Shift+F6 moved the focus to the folder tree"
+  );
 });
 
 add_task(async function testMailMessageTab() {
