@@ -360,6 +360,8 @@ encrypted-bcc-warning = When sending an encrypted message, recipients in Bcc are
 
 encrypted-bcc-ignore-button = Understood
 
+auto-disable-e2ee-warning = End-to-end encryption for this message was automatically disabled.
+
 ## Editing
 
 # Tools

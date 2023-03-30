@@ -1707,8 +1707,21 @@ function updateAttachMyPubKey() {
   }
 }
 
+function removeAutoDisableNotification() {
+  let notification = gComposeNotification.getNotificationWithValue(
+    "e2eeDisableNotification"
+  );
+  if (notification) {
+    gComposeNotification.removeNotification(notification);
+  }
+}
+
 function toggleEncryptMessage() {
   gSendEncrypted = !gSendEncrypted;
+
+  if (gSendEncrypted) {
+    removeAutoDisableNotification();
+  }
 
   gUserTouchedSendEncrypted = true;
   checkEncryptionState();
@@ -3708,6 +3721,7 @@ async function checkEncryptionState(trigger) {
       }
       gSendEncrypted = true;
       autoEnabledJustNow = true;
+      removeAutoDisableNotification();
     }
 
     if (
@@ -3729,8 +3743,24 @@ async function checkEncryptionState(trigger) {
           true
         );
         if (notifyPref) {
-          // TODO: Implement a notification that informs the user
-          //       that encryption was automatically disabled.
+          // Most likely the notification is not showing yet, and we
+          // must append it. (We should have removed an existing
+          // notification at the time encryption was enabled.)
+          // However, double check to avoid that we'll show it twice.
+          const NOTIFICATION_NAME = "e2eeDisableNotification";
+          let notification = gComposeNotification.getNotificationWithValue(
+            NOTIFICATION_NAME
+          );
+          if (!notification) {
+            gComposeNotification.appendNotification(
+              NOTIFICATION_NAME,
+              {
+                label: { "l10n-id": "auto-disable-e2ee-warning" },
+                priority: gComposeNotification.PRIORITY_WARNING_LOW,
+              },
+              []
+            );
+          }
         }
       }
     }
