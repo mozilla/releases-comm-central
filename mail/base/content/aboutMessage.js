@@ -84,6 +84,11 @@ window.addEventListener("DOMContentLoaded", event => {
 
   preferenceObserver.init();
 
+  if (parent == top) {
+    // Standalone message display? Focus the message pane.
+    getMessagePaneBrowser().focus();
+  }
+
   window.dispatchEvent(
     new CustomEvent("aboutMessageLoaded", { bubbles: true })
   );
@@ -95,16 +100,6 @@ window.addEventListener("unload", () => {
   MailServices.mailSession.RemoveFolderListener(folderListener);
   preferenceObserver.cleanUp();
   gViewWrapper?.close();
-});
-
-window.addEventListener("keypress", event => {
-  // These keypresses are implemented here to aid the development process.
-  // It's likely they won't remain here in future.
-  switch (event.key) {
-    case "F5":
-      location.reload();
-      break;
-  }
 });
 
 function displayMessage(uri, viewWrapper) {
