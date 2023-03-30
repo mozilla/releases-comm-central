@@ -206,6 +206,7 @@ var commandController = {
       }
     },
     cmd_delete() {
+      dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.markMessagesRead);
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
     },
@@ -849,7 +850,9 @@ var dbViewWrapperListener = {
       this._nextViewIndexAfterDelete = null;
     }
   },
-  onMessageRemovalFailed() {},
+  onMessageRemovalFailed() {
+    this._nextViewIndexAfterDelete = null;
+  },
   onMessageCountsChanged() {
     window.quickFilterBar?.onMessagesChanged();
   },
