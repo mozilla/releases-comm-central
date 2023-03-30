@@ -27,7 +27,6 @@
 }
 
 #tabmail {
-  -moz-box-layout: legacy;
   overflow: hidden;
 }
 

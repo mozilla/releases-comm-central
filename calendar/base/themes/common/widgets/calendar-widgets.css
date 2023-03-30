@@ -34,10 +34,6 @@
 
 /* Calendar Items */
 
-calendar-modebox {
-  -moz-box-layout: legacy;
-}
-
 .calendar-list-header {
   display: flex;
   justify-content: space-between;

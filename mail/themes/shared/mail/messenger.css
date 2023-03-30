@@ -522,7 +522,6 @@ menulist[disabled="true"] {
 }
 
 menulist::part(label-box) {
-  -moz-box-layout: flex;
   font-weight: inherit;
 }
 

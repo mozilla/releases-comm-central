@@ -174,7 +174,6 @@ label.label {
 #event-grid-tab-box-row,
 #event-grid-tabbox,
 .event-grid-tabpanels {
-  -moz-box-layout: legacy;
   flex: 1;
 }
 
