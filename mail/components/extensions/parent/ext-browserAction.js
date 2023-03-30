@@ -53,11 +53,24 @@ this.browserAction = class extends ToolbarButtonAPI {
     }
   }
 
+  /**
+   * Return the toolbar button if it is currently visible in the given window.
+   *
+   * @param window
+   * @returns {DOMElement} the toolbar button element, or null
+   */
   getToolbarButton(window) {
-    // Return the button from the unified toolbar, if this is the main window.
+    // Return the visible button from the unified toolbar, if this is the main window.
     if (window.location.href == MAIN_WINDOW_URI) {
-      return window.document.querySelector(
-        `#unifiedToolbarContent [extension="${this.extension.id}"]`
+      let buttonItem = window.document.querySelector(
+        `#unifiedToolbarContent [item-id="ext-${this.extension.id}"]`
+      );
+      return (
+        buttonItem &&
+        !buttonItem.hidden &&
+        window.document.querySelector(
+          `#unifiedToolbarContent [extension="${this.extension.id}"]`
+        )
       );
     }
     return super.getToolbarButton(window);

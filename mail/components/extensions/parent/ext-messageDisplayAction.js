@@ -176,18 +176,34 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
   /**
    * Overrides the super class to trigger the action in the current about:message.
    */
-  async triggerAction(window) {
-    if (window.location.href == "about:message") {
-      await super.triggerAction(window);
-      return;
+  async triggerAction(window, options) {
+    // Supported message browsers:
+    // - in mail tab (browser could be hidden)
+    // - in message tab
+    // - in message window
+
+    // The passed in window could be the window of one of the supported message
+    // browsers already. To know if the browser is hidden, always re-search the
+    // message window and start at the top.
+    let tabmail = window.top.document.getElementById("tabmail");
+    if (tabmail) {
+      // A mail tab or a message tab.
+      let isHidden =
+        tabmail.currentAbout3Pane &&
+        tabmail.currentAbout3Pane.messageBrowser.hidden;
+
+      if (tabmail.currentAboutMessage && !isHidden) {
+        return super.triggerAction(tabmail.currentAboutMessage, options);
+      }
+    } else if (window.top.messageBrowser) {
+      // A message window.
+      return super.triggerAction(
+        window.top.messageBrowser.contentWindow,
+        options
+      );
     }
 
-    let tabmail = window.document.getElementById("tabmail");
-    if (tabmail?.currentAboutMessage) {
-      await super.triggerAction(tabmail.currentAboutMessage);
-    } else if (window.messageBrowser) {
-      await super.triggerAction(window.messageBrowser.contentWindow);
-    }
+    return false;
   }
 
   /**

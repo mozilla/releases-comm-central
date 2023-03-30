@@ -726,9 +726,34 @@
       {
         "name": "openPopup",
         "type": "function",
-        "description": "Opens the action's popup window in the active window.",
-        "async": true,
-        "parameters": []
+        "description": "Opens the action's popup window in the specified window. Defaults to the current window. Returns false if the popup could not be opened because the action is disabled or has been removed from the toolbar.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "options",
+            "optional": true,
+            "type": "object",
+            "description": "An object with information about the popup to open.",
+            "properties": {
+              "windowId": {
+                "type": "integer",
+                "minimum": -2,
+                "optional": true,
+                "description": "Defaults to the current window."
+              }
+            }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "boolean"
+              }
+            ]
+          }
+        ]
       }
     ],
     "events": [

@@ -437,8 +437,16 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
     }
   }
 
+  /**
+   * Return the toolbar button if it is currently visible in the given window.
+   *
+   * @param window
+   * @returns {DOMElement} the toolbar button element, or null
+   */
   getToolbarButton(window) {
-    return window.document.getElementById(this.id);
+    let button = window.document.getElementById(this.id);
+    let toolbar = button?.closest("toolbar");
+    return button && !toolbar?.collapsed ? button : null;
   }
 
   /**
@@ -449,27 +457,40 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
    * present in, the given window.
    *
    * @param {Window} window
+   * @param {object} options
+   * @param {boolean} options.requirePopupUrl - do not fall back to emitting an
+   *                                            onClickedEvent, if no popupURL is
+   *                                            set and consider this action fail
+   *
+   * @returns {boolean} status if action could be successfully triggered
    */
-  async triggerAction(window) {
+  async triggerAction(window, options = {}) {
     let button = this.getToolbarButton(window);
     let { popup: popupURL, enabled } = this.getContextData(
       this.getTargetFromWindow(window)
     );
 
+    let success = false;
     if (button && enabled) {
+      window.focus();
+
       if (popupURL) {
+        success = true;
         let popup =
           lazy.ViewPopup.for(this.extension, window.top) ||
           this.getPopup(window.top, popupURL);
         popup.viewNode.openPopup(button, "bottomleft topleft", 0, 0);
-      } else {
+      } else if (!options.requirePopupUrl) {
         if (!this.lastClickInfo) {
           this.lastClickInfo = { button: 0, modifiers: [] };
         }
         this.emit("click", window.top, this.lastClickInfo);
+        success = true;
       }
     }
+
     delete this.lastClickInfo;
+    return success;
   }
 
   /**
@@ -861,11 +882,25 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
           return color || [0xd9, 0, 0, 255];
         },
 
-        openPopup() {
-          let window = Services.wm.getMostRecentWindow("");
-          if (action.windowURLs.includes(window.location.href)) {
-            action.triggerAction(window);
+        openPopup(options) {
+          let window;
+          if (options?.windowId) {
+            window = action.global.windowTracker.getWindow(
+              options.windowId,
+              context
+            );
+            if (!window) {
+              return Promise.reject({
+                message: `Invalid window ID: ${options.windowId}`,
+              });
+            }
+          } else {
+            window = Services.wm.getMostRecentWindow("");
           }
+
+          // When triggering the action here, we consider a missing popupUrl as a failure and will not
+          // cause an onClickedEvent.
+          return action.triggerAction(window, { requirePopupUrl: true });
         },
       },
     };
