@@ -198,18 +198,16 @@ body.layout-table {
 
 .bookRow .twisty {
   display: inline-flex;
-  width: 22px;
-  height: 22px;
+  align-items: center;
+  justify-content: center;
+  width: var(--list-item-buttons-size);
+  height: var(--list-item-buttons-size);
   -moz-context-properties: stroke;
   stroke: var(--address-book-icons-color);
 }
 
 .bookRow:not(.children) .twisty-icon {
   display: none;
-}
-
-.bookRow .twisty-icon {
-  margin: 5px;
 }
 
 .bookRow.children.collapsed .twisty-icon {
@@ -294,8 +292,8 @@ body.layout-table {
   background-image: var(--icon-more);
   background-position: center center;
   background-repeat: no-repeat;
-  width: 22px;
-  height: 22px;
+  width: var(--list-item-buttons-size);
+  height: var(--list-item-buttons-size);
   display: none;
 }
 

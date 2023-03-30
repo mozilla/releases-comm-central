@@ -284,16 +284,15 @@ li:not(.selected) > .container:hover {
 }
 
 #folderTree li .twisty {
-  width: 22px;
-  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--list-item-buttons-size);
+  height: var(--list-item-buttons-size);
 }
 
 #folderTree li:not(.children) .twisty-icon {
   display: none;
-}
-
-#folderTree li .twisty-icon {
-  margin: 5px;
 }
 
 #folderTree li.children.collapsed > .container .twisty-icon {

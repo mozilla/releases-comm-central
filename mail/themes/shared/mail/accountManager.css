@@ -87,18 +87,17 @@ body {
 }
 
 #accounttree li .twisty {
-  width: 22px;
-  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--list-item-buttons-size);
+  height: var(--list-item-buttons-size);
   -moz-context-properties: stroke;
   stroke: currentColor;
 }
 
 #accounttree li:not(.children) .twisty-icon {
   display: none;
-}
-
-#accounttree li .twisty-icon {
-  margin: 5px;
 }
 
 #accounttree li.children.collapsed .twisty-icon {
