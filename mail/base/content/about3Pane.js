@@ -774,13 +774,13 @@ var folderPane = {
           if (!this._unreadFilter(folder)) {
             continue;
           }
-          if (this._unreadFilter(folder, true)) {
+          if (this._unreadFilter(folder, false)) {
             let folderRow = folderPane._createFolderRow(
               this.name,
               folder,
               "both"
             );
-            this.containerList.appendChild(folderRow);
+            folderPane._insertInServerOrder(this.containerList, folderRow);
           }
           this._recurseSubFolders(folder);
         }
@@ -847,14 +847,8 @@ var folderPane = {
         }
       },
 
-      changeUnreadCount(folder, oldValue, newValue) {
-        if (newValue === 0) {
-          if (!folderPane._isCompact && this._unreadFilter(folder)) {
-            // A subfolder must have messages, do nothing.
-            return;
-          }
-          this.removeFolder(null, folder);
-        } else {
+      changeUnreadCount(folder, unused, newValue) {
+        if (newValue > 0) {
           this.addFolder(null, folder);
         }
       },

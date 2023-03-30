@@ -187,7 +187,7 @@ add_task(async function testUnreadFolders() {
   checkModeListItems("unread", [rootFolder, folderA]);
 
   window.MsgMarkAllRead([folderA]);
-  checkModeListItems("unread", []);
+  checkModeListItems("unread", [rootFolder, folderA]);
 
   folderAMessages[0].markRead(false);
   folderBMessages[0].markRead(false);
@@ -203,7 +203,7 @@ add_task(async function testUnreadFolders() {
   checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   folderCMessages[0].markRead(true);
-  checkModeListItems("unread", []);
+  checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   folderCMessages[0].markRead(false);
   checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
@@ -213,7 +213,7 @@ add_task(async function testUnreadFolders() {
   checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   window.MsgMarkAllRead([folderC]);
-  checkModeListItems("unread", []);
+  checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 });
 
 /**
@@ -232,7 +232,7 @@ add_task(async function testCompactUnreadFolders() {
   checkModeListItems("unread", [folderA]);
 
   window.MsgMarkAllRead([folderA]);
-  checkModeListItems("unread", []);
+  checkModeListItems("unread", [folderA]);
 
   folderAMessages[0].markRead(false);
   folderBMessages[0].markRead(false);
@@ -242,23 +242,23 @@ add_task(async function testCompactUnreadFolders() {
   checkModeListItems("unread", [folderA, folderB, folderC]);
 
   folderBMessages[0].markRead(true);
-  checkModeListItems("unread", [folderA, folderC]);
+  checkModeListItems("unread", [folderA, folderB, folderC]);
 
   folderAMessages[0].markRead(true);
-  checkModeListItems("unread", [folderC]);
+  checkModeListItems("unread", [folderA, folderB, folderC]);
 
   folderCMessages[0].markRead(true);
-  checkModeListItems("unread", []);
+  checkModeListItems("unread", [folderA, folderB, folderC]);
 
   folderCMessages[0].markRead(false);
-  checkModeListItems("unread", [folderC]);
+  checkModeListItems("unread", [folderA, folderB, folderC]);
 
   folderCMessages[1].markRead(false);
   folderCMessages[2].markRead(false);
-  checkModeListItems("unread", [folderC]);
+  checkModeListItems("unread", [folderA, folderB, folderC]);
 
   window.MsgMarkAllRead([folderC]);
-  checkModeListItems("unread", []);
+  checkModeListItems("unread", [folderA, folderB, folderC]);
 
   // Test with multiple accounts.
 
@@ -278,27 +278,27 @@ add_task(async function testCompactUnreadFolders() {
   let fooMessages = [...fooTrashFolder.messages];
 
   fooMessages[0].markRead(false);
-  checkModeListItems("unread", [fooTrashFolder]);
+  checkModeListItems("unread", [fooTrashFolder, folderA, folderB, folderC]);
 
   folderCMessages[0].markRead(false);
-  checkModeListItems("unread", [fooTrashFolder, folderC]);
+  checkModeListItems("unread", [fooTrashFolder, folderA, folderB, folderC]);
 
   MailServices.accounts.reorderAccounts([account.key, foo.key]);
-  checkModeListItems("unread", [folderC, fooTrashFolder]);
+  checkModeListItems("unread", [folderA, folderB, folderC, fooTrashFolder]);
 
   fooMessages[0].markRead(true);
-  checkModeListItems("unread", [folderC]);
+  checkModeListItems("unread", [folderA, folderB, folderC, fooTrashFolder]);
 
   fooMessages[0].markRead(false);
-  checkModeListItems("unread", [folderC, fooTrashFolder]);
+  checkModeListItems("unread", [folderA, folderB, folderC, fooTrashFolder]);
 
   folderCMessages[0].markRead(true);
-  checkModeListItems("unread", [fooTrashFolder]);
+  checkModeListItems("unread", [folderA, folderB, folderC, fooTrashFolder]);
 
   // Clean up.
 
   MailServices.accounts.removeAccount(foo, false);
-  checkModeListItems("unread", []);
+  checkModeListItems("unread", [folderA, folderB, folderC]);
   folderPane.isCompact = false;
 });
 
@@ -801,7 +801,7 @@ add_task(async function testAccountOrder() {
   localFolders.splice(2, 1);
   checkModeListItems("all", localFolders);
   checkModeListItems("smart", [...smartFolders, trashFolder]);
-  checkModeListItems("unread", []);
+  checkModeListItems("unread", [rootFolder, folderA]);
   checkModeListItems("favorite", []);
 });
 
