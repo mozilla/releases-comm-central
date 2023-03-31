@@ -221,12 +221,14 @@ static void* MimeMultCMS_init(MimeObject* obj) {
     hash_type = nsICryptoHash::SHA512;
   else {
     data->reject_signature = true;
-    int aRelativeNestLevel = MIMEGetRelativeCryptoNestLevel(data->self);
-    nsAutoCString partnum;
-    partnum.Adopt(mime_part_address(data->self));
-    data->smimeHeaderSink->SignedStatus(aRelativeNestLevel,
-                                        nsICMSMessageErrors::GENERAL_ERROR,
-                                        nullptr, data->url, partnum);
+    if (data->smimeHeaderSink) {
+      int aRelativeNestLevel = MIMEGetRelativeCryptoNestLevel(data->self);
+      nsAutoCString partnum;
+      partnum.Adopt(mime_part_address(data->self));
+      data->smimeHeaderSink->SignedStatus(aRelativeNestLevel,
+                                          nsICMSMessageErrors::GENERAL_ERROR,
+                                          nullptr, data->url, partnum);
+    }
     PR_Free(micalg);
     return data;
   }
