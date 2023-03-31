@@ -499,7 +499,9 @@ static nsresult ProxyImportMessage(nsIFile* aMessageFile,
                                    nsIMsgFolder* aFolder) {
   RefPtr<ImportMessageRunnable> importMessage =
       new ImportMessageRunnable(aMessageFile, aFolder);
-  nsresult rv = NS_DispatchToMainThread(importMessage, NS_DISPATCH_SYNC);
+  nsresult rv = NS_DispatchAndSpinEventLoopUntilComplete(
+      "ProxyImportMessage"_ns, mozilla::GetMainThreadSerialEventTarget(),
+      importMessage.forget());
   NS_ENSURE_SUCCESS(rv, rv);
   return importMessage->mResult;
 }

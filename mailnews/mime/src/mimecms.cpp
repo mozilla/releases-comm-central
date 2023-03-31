@@ -311,7 +311,9 @@ nsresult ProxySignedStatus(
   RefPtr<SignedStatusRunnable> signedStatus = new SignedStatusRunnable(
       aSink, aNestingLevel, aSignatureStatus, aSignerCert, aMsgNeckoURL,
       aOriginMimePartNumber);
-  nsresult rv = NS_DispatchToMainThread(signedStatus, NS_DISPATCH_SYNC);
+  nsresult rv = NS_DispatchAndSpinEventLoopUntilComplete(
+      "ProxySignedStatus"_ns, mozilla::GetMainThreadSerialEventTarget(),
+      signedStatus.forget());
   NS_ENSURE_SUCCESS(rv, rv);
   return signedStatus->mResult;
 }

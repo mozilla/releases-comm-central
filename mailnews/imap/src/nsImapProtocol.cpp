@@ -1166,7 +1166,7 @@ bool nsImapProtocol::RunImapThreadMainLoop() {
     // Cancel proxy on main thread.
     RefPtr<nsImapCancelProxy> cancelProxy =
         new nsImapCancelProxy(m_proxyRequest);
-    NS_DispatchToMainThread(cancelProxy, NS_DISPATCH_SYNC);
+    NS_DispatchAndSpinEventLoopUntilComplete("nsImapProtocol::RunImapThreadMainLoop"_ns, GetMainThreadSerialEventTarget(), cancelProxy.forget());
     m_proxyRequest = nullptr;
   }
 
