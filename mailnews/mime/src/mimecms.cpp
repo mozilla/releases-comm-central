@@ -313,7 +313,7 @@ nsresult ProxySignedStatus(
       aOriginMimePartNumber);
   nsresult rv = NS_DispatchAndSpinEventLoopUntilComplete(
       "ProxySignedStatus"_ns, mozilla::GetMainThreadSerialEventTarget(),
-      signedStatus.forget());
+      do_AddRef(signedStatus));
   NS_ENSURE_SUCCESS(rv, rv);
   return signedStatus->mResult;
 }

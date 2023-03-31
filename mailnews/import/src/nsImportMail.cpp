@@ -781,7 +781,7 @@ nsresult ProxyGetSubFolders(nsIMsgFolder* aFolder) {
       new GetSubFoldersRunnable(aFolder);
   nsresult rv = NS_DispatchAndSpinEventLoopUntilComplete(
       "ProxyGetSubFolders"_ns, mozilla::GetMainThreadSerialEventTarget(),
-      getSubFolders.forget());
+      do_AddRef(getSubFolders));
   NS_ENSURE_SUCCESS(rv, rv);
   return getSubFolders->mResult;
 }
@@ -819,7 +819,7 @@ nsresult ProxyGetChildNamed(nsIMsgFolder* aFolder, const nsAString& aName,
       new GetChildNamedRunnable(aFolder, aName, aChild);
   nsresult rv = NS_DispatchAndSpinEventLoopUntilComplete(
       "ProxyGetChildNamed"_ns, mozilla::GetMainThreadSerialEventTarget(),
-      getChildNamed.forget());
+      do_AddRef(getChildNamed));
   NS_ENSURE_SUCCESS(rv, rv);
   return getChildNamed->mResult;
 }
@@ -851,7 +851,7 @@ nsresult ProxyGetParent(nsIMsgFolder* aFolder, nsIMsgFolder** aParent) {
   RefPtr<GetParentRunnable> getParent = new GetParentRunnable(aFolder, aParent);
   nsresult rv = NS_DispatchAndSpinEventLoopUntilComplete(
       "ProxyGetParent"_ns, mozilla::GetMainThreadSerialEventTarget(),
-      getParent.forget());
+      do_AddRef(getParent));
   NS_ENSURE_SUCCESS(rv, rv);
   return getParent->mResult;
 }
@@ -890,7 +890,7 @@ nsresult ProxyContainsChildNamed(nsIMsgFolder* aFolder, const nsAString& aName,
       new ContainsChildNamedRunnable(aFolder, aName, aResult);
   nsresult rv = NS_DispatchAndSpinEventLoopUntilComplete(
       "ProxyContainsChildNamed"_ns, mozilla::GetMainThreadSerialEventTarget(),
-      containsChildNamed.forget());
+      do_AddRef(containsChildNamed));
   NS_ENSURE_SUCCESS(rv, rv);
   return containsChildNamed->mResult;
 }
@@ -939,7 +939,7 @@ nsresult ProxyGenerateUniqueSubfolderName(nsIMsgFolder* aFolder,
   nsresult rv = NS_DispatchAndSpinEventLoopUntilComplete(
       "ProxyGenerateUniqueSubfolderName"_ns,
       mozilla::GetMainThreadSerialEventTarget(),
-      generateUniqueSubfolderName.forget());
+      do_AddRef(generateUniqueSubfolderName));
   NS_ENSURE_SUCCESS(rv, rv);
   return generateUniqueSubfolderName->mResult;
 }
@@ -973,7 +973,7 @@ nsresult ProxyCreateSubfolder(nsIMsgFolder* aFolder, const nsAString& aName) {
       new CreateSubfolderRunnable(aFolder, aName);
   nsresult rv = NS_DispatchAndSpinEventLoopUntilComplete(
       "ProxyCreateSubfolder"_ns, mozilla::GetMainThreadSerialEventTarget(),
-      createSubfolder.forget());
+      do_AddRef(createSubfolder));
   NS_ENSURE_SUCCESS(rv, rv);
   return createSubfolder->mResult;
 }
@@ -1001,7 +1001,7 @@ nsresult ProxyForceDBClosed(nsIMsgFolder* aFolder) {
       new ForceDBClosedRunnable(aFolder);
   nsresult rv = NS_DispatchAndSpinEventLoopUntilComplete(
       "ProxyForceDBClosed"_ns, mozilla::GetMainThreadSerialEventTarget(),
-      forceDBClosed.forget());
+      do_AddRef(forceDBClosed));
   NS_ENSURE_SUCCESS(rv, rv);
   return forceDBClosed->mResult;
 }

@@ -425,7 +425,7 @@ nsresult ProxyImportMailbox(uint32_t* pDoneSoFar, bool* pAbort, int32_t index,
       pDoneSoFar, pAbort, index, pName, dstFolder, pMsgCount, aCaller);
   nsresult rv = NS_DispatchAndSpinEventLoopUntilComplete(
       "ProxyImportMailbox"_ns, mozilla::GetMainThreadSerialEventTarget(),
-      importMailbox.forget());
+      do_AddRef(importMailbox));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return importMailbox->mResult;
