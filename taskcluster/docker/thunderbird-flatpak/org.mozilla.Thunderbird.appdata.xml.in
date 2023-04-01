@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.mozilla.Thunderbird</id>
+  <launchable type="desktop-id">org.mozilla.Thunderbird.desktop</launchable>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>Thunderbird</name>
+  <summary>Thunderbird is a free and open source email, newsfeed, chat, and calendaring client</summary>
+
+  <description>
+    <!-- From https://www.thunderbird.net/en-US/about/  -->
+    <p>
+      Thunderbird is a free and open source email, newsfeed, chat, and
+      calendaring client, that’s easy to set up and customize. One of the core
+      principles of Thunderbird is the use and promotion of open standards -
+      this focus is a rejection of our world of closed platforms and services
+      that can’t communicate with each other. We want our users to have freedom
+      and choice in how they communicate.
+    </p>
+    <p>
+      Thunderbird is an open source project, which means anyone can contribute
+      ideas, designs, code, and time helping fellow users.
+    </p>
+  </description>
+
+  <releases>
+	<release version="$VERSION" date="$DATE"/>
+  </releases>
+
+  <keywords>
+    <keyword>mozilla</keyword>
+    <keyword>mail</keyword>
+    <keyword>email</keyword>
+    <keyword>calendar</keyword>
+  </keywords>
+
+  <categories>
+    <category>Calendar</category>
+    <category>Chat</category>
+    <category>ContactManagement</category>
+    <category>Email</category>
+    <category>Feed</category>
+    <category>InstantMessaging</category>
+    <category>IRCClient</category>
+    <category>Network</category>
+    <category>News</category>
+    <category>Office</category>
+  </categories>
+
+  <content_rating type="oars-1.1" />
+  <url type="homepage">https://www.thunderbird.net/</url>
+  <url type="bugtracker">https://bugzilla.mozilla.org/</url>
+  <url type="faq">https://support.mozilla.org/kb/thunderbird-faq/</url>
+  <url type="help">https://support.mozilla.org/products/thunderbird/</url>
+  <url type="donation">https://give.thunderbird.net/</url>
+  <url type="translate">https://www.thunderbird.net/en-US/get-involved/#translation</url>
+  <url type="contact">https://www.thunderbird.net/contact/</url>
+
+  <project_group>Mozilla</project_group>
+  <project_license>MPL-2.0</project_license>
+  <developer_name>MZLA Technologies, part of the Mozilla Foundation</developer_name>
+</component>
