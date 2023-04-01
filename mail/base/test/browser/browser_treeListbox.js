@@ -451,6 +451,13 @@ async function subtestExpandCollapse() {
     );
   }
 
+  function doubleClick(id, expectedChange) {
+    info(`double clicking on ${id}`);
+    performChange(id, expectedChange, row =>
+      EventUtils.synthesizeMouseAtCenter(row, { clickCount: 2 }, content)
+    );
+  }
+
   for (let id of idsWithoutChildren) {
     clickTwisty(id, null);
     Assert.equal(list.querySelector(".selected").id, id);
@@ -498,13 +505,13 @@ async function subtestExpandCollapse() {
 
   // Expand row 2.
 
-  clickTwisty("row-2", "expanded");
+  doubleClick("row-2", "expanded");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelected(4, "row-3");
 
   // Expand row 3.
 
-  clickTwisty("row-3", "expanded");
+  doubleClick("row-3", "expanded");
   checkRowsAreHidden();
   checkSelected(4, "row-3");
 

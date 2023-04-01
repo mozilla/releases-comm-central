@@ -93,7 +93,7 @@
 
         if (
           row.classList.contains("children") &&
-          event.target.closest(".twisty")
+          (event.target.closest(".twisty") || event.detail == 2)
         ) {
           if (row.classList.contains("collapsed")) {
             this.expandRow(row);
