@@ -6,7 +6,7 @@
   --button-margin: 3px;
   background-color: var(--layout-background-1);
   padding: 3px;
-  border-bottom: 1px solid var(--splitter-color);
+  border-bottom: 1px solid var(--sidebar-border-color, var(--tree-view-header-border-color));
 }
 
 #qfb-sticky {

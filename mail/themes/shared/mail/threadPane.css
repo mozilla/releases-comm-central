@@ -491,6 +491,7 @@ tr[data-properties~="outgoing"].selected .correspondentcol-column {
 
 #threadTree[rows="thread-card"] {
   background-color: var(--layout-background-1);
+  border-top: 1px solid var(--splitter-color);
 }
 
 tr[is="thread-card"] td {

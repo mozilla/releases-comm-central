@@ -379,6 +379,10 @@ body:not(.layout-table):not(.all-ab-selected) ~ menupopup#sortContext >
   fill: currentColor;
 }
 
+#cards[rows="ab-card-row"] {
+  border-top: 1px solid var(--splitter-color);
+}
+
 #placeholderEmptyBook::before,
 #placeholderSearchOnly::before {
   background-image: var(--addressbook-tree-list);

@@ -159,27 +159,15 @@ thead[is="tree-view-table-header"] {
   position: sticky;
   inset-inline: 0;
   inset-block-start: 0;
-  background-color: var(--sidebar-background-color, var(--tree-view-header-bg));
   z-index: 1;
 }
 
-/*
- * Use pseudo elements to show top and bottom border due to a rendering issues
- * with regular CSS borders and sticky table headers.
- */
-thead[is="tree-view-table-header"] th:after,
-thead[is="tree-view-table-header"] th:before {
+thead[is="tree-view-table-header"]::after {
   content: '';
   position: absolute;
-  inset: 0;
-  z-index: -1;
-}
-
-thead[is="tree-view-table-header"] th:before {
-  border-top: 1px solid var(--sidebar-border-color, var(--tree-view-header-border-color));
-}
-
-thead[is="tree-view-table-header"] th:after {
+  inset-inline: 0;
+  height: 0;
+  z-index: 1;
   border-bottom: 1px solid var(--sidebar-border-color, var(--tree-view-header-border-color));
 }
 
@@ -199,6 +187,7 @@ th[is="tree-view-table-header-cell"] {
   padding: 0;
   position: relative;
   overflow: hidden;
+  background-color: var(--sidebar-background-color, var(--tree-view-header-bg));
 }
 
 th[is="tree-view-table-header-cell"][data-type="icon"] {
@@ -285,7 +274,7 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
 
 .tree-table-cell {
   position: absolute;
-  inset-block: 0 1px;
+  inset-block: 0;
   inset-inline: 0 1px;
 }
 
@@ -360,6 +349,7 @@ th[is="tree-view-table-column-picker"] {
   width: 25px;
   min-width: 25px;
   padding: 0;
+  background-color: var(--sidebar-background-color, var(--tree-view-header-bg));
 }
 
 @media (-moz-overlay-scrollbars) {
@@ -454,4 +444,11 @@ slot[name="placeholders"] div::before {
 :is(ul, ol):is([role="tree"],
 [role="group"]) li > div {
   min-height: var(--list-item-min-height);
+}
+
+/* Drag and Drop */
+
+th.column-dragging {
+  opacity: 0.7;
+  z-index: 2;
 }
