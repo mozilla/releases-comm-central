@@ -433,11 +433,15 @@ slot[name="placeholders"] div::before {
   }
 
   thead[is="tree-view-table-header"] hr[is="pane-splitter"] {
-    transition: background-color 300ms ease;
+    transition: background-color var(--transition-duration) var(--transition-timing);
   }
 
   table[is="tree-view-table"] tbody tr {
-    transition: color 320ms ease, background-color 320ms ease, fill 320ms ease, stroke 320ms ease;
+    transition:
+      color var(--transition-duration) var(--transition-timing),
+      background-color var(--transition-duration) var(--transition-timing),
+      fill var(--transition-duration) var(--transition-timing),
+      stroke var(--transition-duration) var(--transition-timing);
   }
 }
 

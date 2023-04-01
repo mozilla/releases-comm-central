@@ -218,12 +218,6 @@ body.layout-table {
   transform: rotate(90deg);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .bookRow .twisty-icon {
-    transition: transform 200ms ease;
-  }
-}
-
 .bookRow-icon,
 .listRow-icon {
   width: 16px;
@@ -921,7 +915,15 @@ input[type="number"]::-moz-number-spin-down {
   .bookRow-container,
   .listRow-container,
   .twisty {
-    transition: color 320ms ease, background-color 320ms ease, fill 320ms ease, stroke 320ms ease;
+    transition:
+      color var(--transition-duration) var(--transition-timing),
+      background-color var(--transition-duration) var(--transition-timing),
+      fill var(--transition-duration) var(--transition-timing),
+      stroke var(--transition-duration) var(--transition-timing);
+  }
+
+  .bookRow .twisty-icon {
+    transition: transform var(--transition-duration) var(--transition-timing);
   }
 
   #photoDropTarget.drop-loading .icon {

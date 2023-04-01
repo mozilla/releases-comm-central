@@ -305,7 +305,7 @@ li:not(.selected) > .container:hover {
 
 @media (prefers-reduced-motion: no-preference) {
   #folderTree .twisty-icon {
-    transition: transform 200ms ease;
+    transition: transform var(--transition-duration) var(--transition-timing);
   }
 }
 
