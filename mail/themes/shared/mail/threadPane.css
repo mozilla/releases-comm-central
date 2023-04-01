@@ -425,7 +425,7 @@ tr:is([is="thread-row"], [is="thread-card"]).children.collapsed:dir(rtl) .twisty
   content: var(--icon-spam-sm);
 }
 
-.tree-view-row-spam button {
+:is(.tree-view-row-spam button, .button-spam) {
   color: var(--tree-view-color);
   opacity: 0.8;
 }
@@ -433,23 +433,58 @@ tr:is([is="thread-row"], [is="thread-card"]).children.collapsed:dir(rtl) .twisty
 .tree-view-row-spam img {
   content: var(--icon-spam);
   pointer-events: none;
+}
+
+.button-spam {
+  background-image: var(--icon-spam);
+  -moz-context-properties: fill, stroke;
+}
+
+#threadTree tr:is(:not([data-properties~="junk"]), [data-properties~="notjunk"]) .button-spam {
+  display: none;
+}
+
+:is(.tree-view-row-spam img, .button-spam) {
   fill: color-mix(in srgb, currentColor 10%, transparent);
   stroke: color-mix(in srgb, currentColor 30%, transparent);
 }
 
 @media (prefers-color-scheme: dark) {
-  .tree-view-row-spam img {
+  :is(.tree-view-row-spam img, .button-spam) {
     stroke: color-mix(in srgb, currentColor 40%, transparent);
   }
 }
 
-tr[data-properties~="junk"] .tree-view-row-spam > .tree-button-spam > img {
+tr[data-properties~="junk"] :is(.tree-view-row-spam > .tree-button-spam > img, .button-spam) {
   fill: var(--thread-pane-spam-fill);
   stroke: var(--thread-pane-spam-stroke);
 }
 
-.tree-view-row-spam button:hover {
+:is(.tree-view-row-spam button, .button-spam):hover {
   opacity: 1;
+}
+
+/* Vertical view variations */
+#threadTree tr[data-properties~="junk"] :is(.state, .attachment-icon, .button-star) {
+  display: none;
+}
+
+#threadTree tr[data-properties~="junk"] :is(.date, .subject) {
+  color: var(--color-red-60);
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  #threadTree tr[data-properties~="junk"] :is(.date, .subject) {
+    color: var(--color-red-40);
+  }
+}
+
+#threadTree [is="tree-view-table-body"]:focus >
+  .selected[data-properties~="junk"] :is(.date, .subject),
+#threadTree [is="tree-view-table-body"] >
+  .selected[data-properties~="junk"]:focus-within :is(.date, .subject) {
+  color: inherit;
 }
 
 /* Delete column variations */

@@ -2972,7 +2972,7 @@ var threadPane = {
     switch (UIDensity.prefValue) {
       case UIDensity.MODE_COMPACT:
         rowClass.ROW_HEIGHT = 18;
-        cardClass.ROW_HEIGHT = 38;
+        cardClass.ROW_HEIGHT = 40;
         break;
       case UIDensity.MODE_TOUCH:
         rowClass.ROW_HEIGHT = 32;
