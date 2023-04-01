@@ -2596,6 +2596,7 @@ var threadPane = {
       commandController.doCommand("cmd_delete", event);
     });
 
+    threadTree.addEventListener("contextmenu", this);
     threadTree.addEventListener("dblclick", this);
     threadTree.addEventListener("keypress", this);
     threadTree.addEventListener("select", this);
@@ -2612,6 +2613,9 @@ var threadPane = {
 
   handleEvent(event) {
     switch (event.type) {
+      case "contextmenu":
+        this._onContextMenu(event);
+        break;
       case "dblclick":
         this._onDoubleClick(event);
         break;
@@ -2831,6 +2835,32 @@ var threadPane = {
         );
       }
     }
+  },
+
+  _onContextMenu(event) {
+    let row =
+      event.target.closest(`tr[is^="thread-"]`) ||
+      threadTree.getRowAtIndex(threadTree.selectedIndex);
+    if (!row) {
+      return;
+    }
+
+    if (!gDBView.selection.isSelected(row.index)) {
+      threadTree.selectedIndex = row.index;
+    }
+
+    mailContextMenu.setAsThreadPaneContextMenu();
+    let popup = document.getElementById("mailContext");
+
+    if (event.button == 2) {
+      // Mouse
+      popup.openPopupAtScreen(event.screenX, event.screenY, true);
+    } else {
+      // Keyboard
+      popup.openPopup(row, "after_end", 0, 0, true);
+    }
+
+    event.preventDefault();
   },
 
   _flavorDataProvider: {
@@ -3894,21 +3924,6 @@ customElements.whenDefined("tree-view-table-row").then(() => {
 
       this.setAttribute("draggable", "true");
       this.appendChild(threadPane.rowTemplate.content.cloneNode(true));
-
-      this.addEventListener("contextmenu", event => {
-        let row = event.target.closest(`tr[is="thread-row"]`);
-        if (!row) {
-          return;
-        }
-        if (!gDBView.selection.isSelected(row.index)) {
-          threadTree.selectedIndex = row.index;
-        }
-
-        mailContextMenu.setAsThreadPaneContextMenu();
-        let popup = document.getElementById("mailContext");
-        popup.openPopupAtScreen(event.screenX, event.screenY, true);
-        event.preventDefault();
-      });
     }
 
     get index() {
@@ -4122,21 +4137,6 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.subjectLine = this.querySelector(".subject");
       this.dateLine = this.querySelector(".date");
       this.starButton = this.querySelector(".button-star");
-
-      this.addEventListener("contextmenu", event => {
-        let row = event.target.closest(`tr[is="thread-card"]`);
-        if (!row) {
-          return;
-        }
-        if (!gDBView.selection.isSelected(row.index)) {
-          threadTree.selectedIndex = row.index;
-        }
-
-        mailContextMenu.setAsThreadPaneContextMenu();
-        let popup = document.getElementById("mailContext");
-        popup.openPopupAtScreen(event.screenX, event.screenY, true);
-        event.preventDefault();
-      });
     }
 
     get index() {
