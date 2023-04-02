@@ -11,13 +11,11 @@
  * which of multiple servers or identities. This function
  * takes a string and a xul element.
  *
- * @param aStr  The string is a prefstring with a token %tokenname%.
- * @param aElement  The xul element has an attribute of name |tokenname|
- *                  whose value is substituted into the string and returned
- *                  by the function.
- *
- * Any tokens which do not have associated attribute value
- * are not substituted, and left in the string as-is.
+ * @param {string} aStr - The string is a prefstring with a token %tokenname%.
+ * @param {Element} aElement - The element has an attribute of name |tokenname|
+ *   whose value is substituted into the string and returned by the function.
+ *   Any tokens which do not have associated attribute value are not
+ *   substituted, and left in the string as-is.
  */
 function substPrefTokens(aStr, aElement) {
   let tokenpat = /%(\w+)%/;
@@ -58,11 +56,11 @@ function substPrefTokens(aStr, aElement) {
 /**
  * A simple function to check if a pref in an element is locked.
  *
- * @param aElement  a xul element with the pref related attributes
- *                 (pref, preftype, prefstring)
- * @returns whether the prefstring specified in that element is
- *          locked (true/false).
- *          If it does not have a valid prefstring, a false is returned.
+ * @param {Element} aElement - An element with the pref related attributes
+ *   (pref, preftype, prefstring)
+ * @returns {boolean} whether the prefstring specified in that element is
+ *   locked (true/false). If it does not have a valid prefstring, a false is
+ *   returned.
  */
 function getAccountValueIsLocked(aElement) {
   let prefstring = aElement.getAttribute("prefstring");
@@ -117,7 +115,7 @@ function onCheckItem(aChangeElementId, aCheckElementIds) {
 /**
  * Hides and shows elements relevant for the given server type.
  *
- * @param aServerType  Name of the server type for which to show/hide elements
+ * @param {string} serverType - Name of the server type for which to show/hide elements.
  */
 function hideShowControls(serverType) {
   let controls = document.querySelectorAll("[hidefor]");

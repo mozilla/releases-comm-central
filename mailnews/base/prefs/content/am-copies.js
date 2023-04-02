@@ -200,10 +200,11 @@ function InitFolderDisplay(folder, folderPicker) {
 /**
  * Capture any menulist changes and update the folder property.
  *
- * @param aGroup the prefix for the menulist we're handling (e.g. "drafts")
- * @param aType "Account" for the account picker or "Folder" for the folder
- *        picker
- * @param aEvent the event that we're responding to
+ * @param {string} aGroup - The prefix for the menulist we're handling
+ *   (e.g. "drafts")
+ * @param {"Account"|"Folder"} aType - "Account" for the account picker or
+ *   "Folder" for the folder picker.
+ * @param {Event} aEvent - The event that we're responding to.
  */
 function noteSelectionChange(aGroup, aType, aEvent) {
   var checkedElem = document.getElementById(aGroup + "_select" + aType);
@@ -481,7 +482,8 @@ function SetRadioButtons(selectPickerId, unselectPickerId) {
  * currently selected (Gmail IMAP folders should have the button disabled, since
  * changing the archive hierarchy does nothing there.
  *
- * @param archiveFolder the currently-selected folder to store archives in
+ * @param {nsIMsgFolder} archiveFolder - The currently-selected folder to store
+ *   archives in
  */
 function updateArchiveHierarchyButton(archiveFolder) {
   let isGmailImap =

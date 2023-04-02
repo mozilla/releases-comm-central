@@ -73,7 +73,7 @@ function refreshIdentityList(aSelectIndex) {
 /**
  * Opens the identity editor dialog.
  *
- * @param identity  the identity (if any) to load in the dialog
+ * @param {nsIMsgIdentity} identity - The identity (if any) to load in the dialog.
  */
 function openIdentityEditor(identity) {
   let args = { identity, account: gAccount, result: false };

@@ -134,11 +134,11 @@ function showCalendarWizard() {
  * Opens the account settings window on the specified account
  * and page of settings. If the window is already open it is only focused.
  *
- * @param selectPage  The xul file name for the viewing page or
- *                    null for the account main page. Other pages are
- *                    'am-server.xhtml', 'am-copies.xhtml', 'am-offline.xhtml',
- *                    'am-addressing.xhtml', 'am-smtp.xhtml'
- * @param server      The server of the account to select. Optional.
+ * @param {?string} selectPage - The file name for the viewing page, or null for
+ *   the account main page. Other pages are 'am-server.xhtml',
+ *   'am-copies.xhtml', 'am-offline.xhtml', 'am-addressing.xhtml',
+ *   'am-smtp.xhtml'
+ * @param {nsIMsgIncomingServer} [server] - The server of the account to select.
  */
 async function MsgAccountManager(selectPage, server) {
   let win = Services.wm.getMostRecentWindow("mail:3pane");

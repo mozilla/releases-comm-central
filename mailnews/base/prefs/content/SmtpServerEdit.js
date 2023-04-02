@@ -158,16 +158,17 @@ function onLockPreference() {
 }
 
 /**
- * Does the work of disabling an element given the array which contains xul id/prefstring pairs.
+ * Does the work of disabling an element given the array which contains
+ * id/prefstring pairs.
  *
- * @param prefstrArray  array of XUL elements to check
+ * @param {Element[]} prefstrArray - Elements to check.
  *
  * TODO: try to merge this with disableIfLocked function in am-offline.js (bug 755885)
  */
 function disableIfLocked(prefstrArray) {
-  let finalPrefString =
-    "mail.smtpserver." + MailServices.smtp.defaultServer.key + ".";
-  let smtpPrefBranch = Services.prefs.getBranch(finalPrefString);
+  let smtpPrefBranch = Services.prefs.getBranch(
+    "mail.smtpserver." + MailServices.smtp.defaultServer.key + "."
+  );
 
   for (let prefstring in prefstrArray) {
     if (smtpPrefBranch.prefIsLocked(prefstring)) {
@@ -177,7 +178,6 @@ function disableIfLocked(prefstrArray) {
 }
 
 function saveSmtpSettings(server) {
-  // dump("Saving to " + server + "\n");
   if (server) {
     server.hostname = cleanUpHostName(gSmtpHostname.value);
     server.description = gSmtpDescription.value;
@@ -199,8 +199,8 @@ function authMethodChanged(userAction) {
  * the |gSmtpSocketType| value, and sets the port to use to this default,
  * if that's appropriate.
  *
- * @param userAction  false for dialog initialization,
- *                    true for user action.
+ * @param {boolean} userAction - false for dialog initialization,
+ *   true for user action.
  */
 function sslChanged(userAction) {
   const DEFAULT_SMTP_PORT = "587";

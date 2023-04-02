@@ -280,9 +280,8 @@ function replaceWithDefaultSmtpServer(deletedSmtpServerKey) {
 /**
  * Called when OK is clicked on the dialog.
  *
- * @param aDoChecks  If true, execute checks on data, otherwise hope they
- *                   were already done elsewhere and proceed directly to saving
- *                   the data.
+ * @param {boolean} aDoChecks - If true, execute checks on data, otherwise hope
+ *   they were already done elsewhere and proceed directly to saving the data.
  */
 function onAccept(aDoChecks) {
   if (aDoChecks) {
@@ -391,20 +390,20 @@ function checkDirectoryIsAllowed(aLocalPath) {
    * Check if the local path (aLocalPath) is 'safe' i.e. NOT a parent
    * or subdirectory of the given special system/app directory (aDirToCheck).
    *
-   * @param aDirToCheck  An object describing the special directory.
-   *        The object has the following members:
-   *        dirsvc      : A path keyword to retrieve from the Directory service.
-   *        dir         : An absolute filesystem path.
-   *                      Only one of 'dirsvc' or 'dir' can be specified.
-   *        OS          : A string of comma separated values defining on which
-   *                      Operating systems the folder is unusable:
-   *                       null   = all
-   *                       WINNT  = Windows
-   *                       Darwin = OS X
-   *                       Linux  = Linux
-   *        safeSubdirs : An array of directory names that are allowed to be used
-   *                      under the tested directory.
-   * @param aLocalPath  An nsIFile of the directory to check, intended for message storage.
+   * @param {object} aDirToCheck - An object describing the special directory.
+   * @param {string} aDirToCheck.dirsvc - A path keyword to retrieve from the
+   *   Directory service.
+   * @param {string} aDirToCheck.dir - An absolute filesystem path.
+   * @param {string} aDirToCheck.OS - A string of comma separated values defining on which.
+   *   Operating systems the folder is unusable:
+   *     - null   = all
+   *     - WINNT  = Windows
+   *     - Darwin = OS X
+   *     - Linux  = Linux
+   * @param {string} aDirToCheck.safeSubdirs - An array of directory names that
+   *   are allowed to be used under the tested directory.
+   * @param {nsIFile} aLocalPath - An nsIFile of the directory to check,
+   *   intended for message storage.
    */
   function checkLocalDirectoryIsSafe(aDirToCheck, aLocalPath) {
     if (aDirToCheck.OS) {
@@ -573,7 +572,8 @@ function checkDirectoryIsUsable(aLocalPath) {
  * if the new names already exists for an account or are empty.
  * Also check if the Local Directory path was changed.
  *
- * @param showAlert  show and alert if a problem with the host / user name is found
+ * @param {boolean} showAlert - Show and alert if a problem with the host / user
+ *   name is found.
  */
 function checkUserServerChanges(showAlert) {
   const prefBundle = document.getElementById("bundle_prefs");
@@ -828,10 +828,10 @@ function onSave() {
  * Highlight the default account row in the account tree,
  * optionally un-highlight the previous one.
  *
- * @param newDefault  The account that has become the new default.
- *                    Can be given as null if there is none.
- * @param oldDefault  The account that has stopped being the default.
- *                    Can be given as null if there was none.
+ * @param {?nsIMsgAccount} newDefault - The account that has become the new
+ *   default. Can be given as null if there is none.
+ * @param {?nsIMsgAccount} oldDefault - The account that has stopped being the
+ *   default. Can be given as null if there was none.
  */
 function markDefaultServer(newDefault, oldDefault) {
   if (oldDefault == newDefault) {
@@ -1143,9 +1143,9 @@ function updateItems(
 /**
  * Disable buttons/menu items if their control preference is locked.
  *
- * @param aItems       an array or NodeList of elements to be checked
- * @param aMustBeTrue  if true then the pref must be boolean and set to true
- *                     to trigger the disabling (TB requires this, SM not)
+ * @param {Node[]|NodeList} aItems - Elements to be checked.
+ * @param {boolean} aMustBeTrue - If true then the pref must be boolean and set
+ *   to true to trigger the disabling.
  */
 function updateBlockedItems(aItems, aMustBeTrue) {
   for (let item of aItems) {
@@ -1536,7 +1536,7 @@ function restorePage(pageId, account) {
  * Gets the value of a widget in current the account settings page,
  * automatically setting the right property of it depending on element type.
  *
- * @param formElement  A XUL input element.
+ * @param {HTMLInputElement} formElement - An input element.
  */
 function getFormElementValue(formElement) {
   try {
@@ -1572,8 +1572,8 @@ function getFormElementValue(formElement) {
  * Sets the value of a widget in current the account settings page,
  * automatically setting the right property of it depending on element type.
  *
- * @param formElement  A XUL input element.
- * @param value        The value to store in the element.
+ * @param {HTMLInputElement} formElement - An input element.
+ * @param {string|nsIFile} value - The value to store in the element.
  */
 function setFormElementValue(formElement, value) {
   var type = formElement.localName;
@@ -1651,7 +1651,7 @@ function getPageFormElements() {
 /**
  * Get a single persisted form element in the current page.
  *
- * @param aId  ID of the element requested.
+ * @param {srtring} aId - ID of the element requested.
  */
 function getPageFormElement(aId) {
   let elem = top.frames.contentFrame.document.getElementById(aId);
@@ -1677,8 +1677,8 @@ function getValueArrayFor(account) {
 /**
  * Sets the name of the account rowitem in the tree pane.
  *
- * @param aAccountKey   the key of the account to change
- * @param aLabel        the value of the label to set
+ * @param {string} aAccountKey - The key of the account to change.
+ * @param {string} aLabel - The value of the label to set.
  */
 function setAccountLabel(aAccountKey, aLabel) {
   let row = document.getElementById(aAccountKey);
@@ -1749,7 +1749,7 @@ var gAccountTree = {
    * Retrieve from XULStore.json whether the account should be expanded (open)
    * in the account tree.
    *
-   * @param aAccountKey  key of the account to check
+   * @param {string} aAccountKey - Key of the account to check.
    */
   _getAccountOpenState(aAccountKey) {
     if (!this._dataStore.hasValue(document.documentURI, aAccountKey, "open")) {

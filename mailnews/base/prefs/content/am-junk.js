@@ -157,7 +157,7 @@ function onPreInit(account, accountValues) {
  * Called when someone checks or unchecks the adaptive junk mail checkbox.
  * set the value of the hidden element accordingly
  *
- * @param aValue  the boolean value of the checkbox
+ * @param {boolean} aValue - The boolean value of the checkbox.
  */
 function updateSpamLevel(aValue) {
   document.getElementById("server.spamLevel").value = aValue ? 100 : 0;
@@ -305,8 +305,8 @@ function buildServerFilterMenuList() {
  * passed in directory looking for .sfd files. For each entry found, it gets
  * appended to the menu list.
  *
- * @param aDir              directory to look for .sfd files
- * @param aExistingEntries  Filter names already found.
+ * @param {nsIFile} aDir - Directory to look for .sfd files
+ * @param {string[]} aExistingEntries - Filter names already found.
  */
 function buildServerFilterListFromDir(aDir, aExistingEntries) {
   let newEntries = [];

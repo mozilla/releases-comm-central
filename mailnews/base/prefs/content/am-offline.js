@@ -418,7 +418,7 @@ function restoreOfflineFolders(offlineFolderMap) {
  * Checks if the user selected a permanent removal of messages from a server
  * listed in the confirmfor attribute and warns about it.
  *
- * @param aRadio  The radiogroup element containing the retention options.
+ * @param {Element} aRadio - The radiogroup element containing the retention options.
  */
 function warnServerRemove(aRadio) {
   let confirmFor = aRadio.getAttribute("confirmfor");
