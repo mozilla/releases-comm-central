@@ -71,12 +71,12 @@ function getSearchTokens(aSearchString) {
  * For AB quicksearch or recipient autocomplete, get the normal or phonetic model
  * query URL part from prefs, allowing users to customize these searches.
  *
- * @param aBasePrefName  the full pref name of default, non-phonetic model query,
- *                       e.g. mail.addr_book.quicksearchquery.format
- *                       If phonetic search is used, corresponding pref must exist:
- *                       e.g. mail.addr_book.quicksearchquery.format.phonetic
- * @returns depending on mail.addr_book.show_phonetic_fields pref,
- *                       the value of aBasePrefName or aBasePrefName + ".phonetic"
+ * @param {string} aBasePrefName - The full pref name of default, non-phonetic
+ *   model query, e.g. mail.addr_book.quicksearchquery.format. If phonetic
+ *   search is used, corresponding pref must exist:
+ *   e.g. mail.addr_book.quicksearchquery.format.phonetic
+ * @returns {boolean} depending on mail.addr_book.show_phonetic_fields pref,
+ *   the value of aBasePrefName or aBasePrefName + ".phonetic"
  */
 function getModelQuery(aBasePrefName) {
   let modelQuery = "";
@@ -101,11 +101,11 @@ function getModelQuery(aBasePrefName) {
 /**
  * Check if the currently used pref with the model query was customized by user.
  *
- * @param aBasePrefName  the full pref name of default, non-phonetic model query,
- *                       e.g. mail.addr_book.quicksearchquery.format
- *                       If phonetic search is used, corresponding pref must exist:
- *                       e.g. mail.addr_book.quicksearchquery.format.phonetic
- * @returns true or false
+ * @param {string} aBasePrefName - The full pref name of default, non-phonetic
+ *   model query, e.g. mail.addr_book.quicksearchquery.format
+ *   If phonetic search is used, corresponding pref must exist:
+ *   e.g. mail.addr_book.quicksearchquery.format.phonetic
+ * @returns {boolean} true or false
  */
 function modelQueryHasUserValue(aBasePrefName) {
   if (
