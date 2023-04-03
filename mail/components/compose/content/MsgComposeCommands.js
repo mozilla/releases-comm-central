@@ -3732,11 +3732,12 @@ async function checkEncryptionState(trigger) {
       !canEncryptSMIME &&
       !canEncryptOpenPGP
     ) {
+      // The auto_disable pref is ignored if auto_enable is false
       let autoDisablePref = Services.prefs.getBoolPref(
         "mail.e2ee.auto_disable",
         false
       );
-      if (autoDisablePref && !gUserTouchedSendEncrypted) {
+      if (autoEnablePref && autoDisablePref && !gUserTouchedSendEncrypted) {
         gSendEncrypted = false;
         let notifyPref = Services.prefs.getBoolPref(
           "mail.e2ee.notify_on_auto_disable",
