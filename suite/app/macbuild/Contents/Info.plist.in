@@ -265,9 +265,11 @@
 	</array>
 	<key>NSPrincipalClass</key>
 	<string>GeckoNSApplication</string>
-  <key>MozillaDeveloperRepoPath</key>
-  <string>@MOZ_DEVELOPER_REPO_PATH@</string>
-  <key>MozillaDeveloperObjPath</key>
-  <string>@MOZ_DEVELOPER_OBJ_PATH@</string>
+	<key>MozillaDeveloperRepoPath</key>
+	<string>@MOZ_DEVELOPER_REPO_PATH@</string>
+	<key>MozillaDeveloperObjPath</key>
+	<string>@MOZ_DEVELOPER_OBJ_PATH@</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Use your macOS contacts in @MAC_APP_NAME@.</string>
 </dict>
 </plist>
