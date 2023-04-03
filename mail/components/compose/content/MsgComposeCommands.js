@@ -5202,10 +5202,11 @@ var gMsgEditorCreationObserver = {
 /**
  * Adjust sign/encrypt settings after the identity was switched.
  *
- * @param {boolean} initialCall - If true, initial identity setup.
- *   If false, we're switching to a different identity.
+ * @param {?nsIMsgIdentity} prevIdentity - The previously selected
+ *   identity, when switching to a different identity.
+ *   Null on initial identity setup.
  */
-async function adjustEncryptAfterIdentityChange(initialCall) {
+async function adjustEncryptAfterIdentityChange(prevIdentity) {
   let identityHasConfiguredSMIME =
     isSmimeSigningConfigured() || isSmimeEncryptionConfigured();
 
@@ -5287,7 +5288,7 @@ async function adjustEncryptAfterIdentityChange(initialCall) {
     "encTech_SMIME_Menubar"
   ).disabled = !identityHasConfiguredSMIME;
 
-  if (initialCall) {
+  if (!prevIdentity) {
     // For identities without any e2ee setup, we want a good default
     // technology selection. Avoid a technology that isn't configured
     // anywhere.
@@ -5346,6 +5347,16 @@ async function adjustEncryptAfterIdentityChange(initialCall) {
     identityHasConfiguredOpenPGP
   ) {
     gSelectedTechnologyIsPGP = true;
+  }
+
+  if (
+    !autoEnablePref &&
+    !gSendEncrypted &&
+    !gUserTouchedEncryptSubject &&
+    prevIdentity.encryptionPolicy == 0 &&
+    gCurrentIdentity.encryptionPolicy > 0
+  ) {
+    gSendEncrypted = true;
   }
 
   await checkEncryptionState();
@@ -5497,7 +5508,7 @@ async function ComposeLoad() {
   }
 
   // Set initial encryption settings.
-  adjustEncryptAfterIdentityChange(true);
+  adjustEncryptAfterIdentityChange(null);
 
   ExtensionParent.apiManager.emit(
     "extension-browser-inserted",
@@ -9497,7 +9508,7 @@ function LoadIdentity(startup) {
     }
 
     // Trigger async checking and updating of encryption UI.
-    adjustEncryptAfterIdentityChange(false);
+    adjustEncryptAfterIdentityChange(prevIdentity);
 
     try {
       gMsgCompose.identity = gCurrentIdentity;
