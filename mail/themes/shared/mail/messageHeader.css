@@ -225,6 +225,11 @@ mail-tagfield[collapsed="true"] {
   list-style-image: var(--icon-trash);
 }
 
+.header-buttons-container *:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
+
 #attachmentSaveAllSingle,
 #attachmentSaveAllMultiple {
   list-style-image: var(--icon-download);

@@ -425,6 +425,8 @@ async function OnLoadMsgHeaderPane() {
     }
   });
 
+  headerToolbarNavigation.init();
+
   // Set up event listeners for the encryption technology button and panel.
   document
     .getElementById("encryptionTechBtn")
@@ -4051,6 +4053,9 @@ function UpdateReplyButtons() {
   goUpdateCommand("button_replyall");
   goUpdateCommand("button_replylist");
   goUpdateCommand("button_followup");
+  // Run this method only after all the header toolbar buttons have been updated
+  // so we deal with the actual state.
+  headerToolbarNavigation.updateRovingTab();
 }
 
 /**
@@ -5014,3 +5019,80 @@ function reportMsgRead({ isNewRead = false, key = null }) {
 window.addEventListener("secureMsgLoaded", event => {
   reportMsgRead({ key: event.detail.key });
 });
+
+/**
+ * Roving tab navigation for the header buttons.
+ */
+var headerToolbarNavigation = {
+  /**
+   * Get all currently visible buttons of the message header toolbar.
+   *
+   * @returns {Array} An array of buttons.
+   */
+  get headerButtons() {
+    return this.headerToolbar.querySelectorAll(
+      `toolbarbutton:not([hidden="true"],[is="toolbarbutton-menu-button"]), button:not([hidden])`
+    );
+  },
+
+  init() {
+    this.headerToolbar = document.getElementById("header-view-toolbar");
+    this.headerToolbar.addEventListener("keypress", event => {
+      this.triggerMessageHeaderRovingTab(event);
+    });
+  },
+
+  /**
+   * Update the `tabindex` attribute of the currently visible buttons.
+   */
+  updateRovingTab() {
+    for (let button of this.headerButtons) {
+      button.tabIndex = -1;
+    }
+    // Allow focus on the first available button.
+    // We use `setAttribute` to guarantee compatibility with XUL toolbarbuttons.
+    this.headerButtons[0].setAttribute("tabindex", "0");
+  },
+
+  /**
+   * Handles the keypress event on the message header toolbar.
+   *
+   * @param {Event} event - The keypress DOMEvent.
+   */
+  triggerMessageHeaderRovingTab(event) {
+    if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) {
+      return;
+    }
+
+    const headerButtons = [...this.headerButtons];
+    let focusableButton = headerButtons.find(b => b.tabIndex != -1);
+    let elementIndex = headerButtons.indexOf(focusableButton);
+
+    // Find the adjacent focusable element based on the pressed key.
+    if (
+      (document.dir == "rtl" && event.key == "ArrowLeft") ||
+      (document.dir == "ltr" && event.key == "ArrowRight")
+    ) {
+      elementIndex++;
+      if (elementIndex > headerButtons.length - 1) {
+        elementIndex = 0;
+      }
+    } else if (
+      (document.dir == "ltr" && event.key == "ArrowLeft") ||
+      (document.dir == "rtl" && event.key == "ArrowRight")
+    ) {
+      elementIndex--;
+      if (elementIndex == -1) {
+        elementIndex = headerButtons.length - 1;
+      }
+    }
+
+    // Move the focus to a new toolbar button and update the tabindex attribute.
+    let newFocusableButton = headerButtons[elementIndex];
+    if (newFocusableButton) {
+      focusableButton.tabIndex = -1;
+      newFocusableButton.setAttribute("tabindex", "0");
+      newFocusableButton.focus();
+    }
+  },
+};
