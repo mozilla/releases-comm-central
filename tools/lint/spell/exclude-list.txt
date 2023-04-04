@@ -15,7 +15,6 @@ incrementall
 keyserver
 keyservers
 msdos
-nome
 nd
 Nd
 optin

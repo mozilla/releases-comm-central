@@ -13,6 +13,8 @@ codespell:
         - comm/third_party/
         - comm/README.md
     exclude:
+        # Timezones have oddly spelled words that tend to confuse codespell
+        - comm/calendar/locales/en-US/chrome/calendar/timezones.properties
         - comm/mailnews/extensions/fts3/fts3_porter.c
     # List of extensions coming from:
     # tools/lint/{flake8,eslint}.yml
