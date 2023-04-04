@@ -721,6 +721,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    */
   async getTodoFromRow(row, getAdditionalData = true) {
     let item = new lazy.CalTodo();
+    let flags = row.getResultByName("flags");
 
     if (row.getResultByName("todo_entry")) {
       item.entryDate = newDateTime(
@@ -745,6 +746,14 @@ class CalStorageItemModel extends CalStorageModelBase {
     }
     if (row.getResultByName("todo_complete")) {
       item.percentComplete = row.getResultByName("todo_complete");
+    }
+    if (flags & CAL_ITEM_FLAG.EVENT_ALLDAY) {
+      if (item.entryDate) {
+        item.entryDate.isDate = true;
+      }
+      if (item.dueDate) {
+        item.dueDate.isDate = true;
+      }
     }
 
     // This must be done last to keep the modification time intact.
