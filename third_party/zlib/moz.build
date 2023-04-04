@@ -30,3 +30,7 @@ else:
         "uncompr.c",
         "zutil.c",
     ]
+
+    # Remove once https://github.com/madler/zlib/issues/633 is fixed
+    if CONFIG['CC_TYPE'] in ('clang', 'clang-cl'):
+        CFLAGS += ["-Wno-deprecated-non-prototype"]
