@@ -205,14 +205,12 @@ class TreeView extends HTMLElement {
         }
 
         if (event.target.classList.contains("tree-button-request-delete")) {
-          // Temporarily enforce the selection of only one row. We should extend
-          // this and allow interacting with this feature even if the specific
-          // row is not part of the selection.
-          // TODO: Implement a changeSelectionWithoutContentLoad method.
-          this._selectSingle(index);
           this.table.body.dispatchEvent(
             new CustomEvent("request-delete", {
               bubbles: true,
+              detail: {
+                index,
+              },
             })
           );
           this.table.body.focus();
@@ -220,14 +218,13 @@ class TreeView extends HTMLElement {
         }
 
         if (event.target.classList.contains("tree-button-flag")) {
-          // Temporarily enforce the selection of only one row. We should extend
-          // this and allow interacting with this feature even if the specific
-          // row is not part of the selection.
-          // TODO: Implement a changeSelectionWithoutContentLoad method.
-          this._selectSingle(index);
           this.table.body.dispatchEvent(
             new CustomEvent("toggle-flag", {
               bubbles: true,
+              detail: {
+                isFlagged: row.dataset.properties.includes("flagged"),
+                index,
+              },
             })
           );
           this.table.body.focus();
@@ -235,14 +232,13 @@ class TreeView extends HTMLElement {
         }
 
         if (event.target.classList.contains("tree-button-unread")) {
-          // Temporarily enforce the selection of only one row. We should extend
-          // this and allow interacting with this feature even if the specific
-          // row is not part of the selection.
-          // TODO: Implement a changeSelectionWithoutContentLoad method.
-          this._selectSingle(index);
           this.table.body.dispatchEvent(
             new CustomEvent("toggle-unread", {
               bubbles: true,
+              detail: {
+                isUnread: row.dataset.properties.includes("unread"),
+                index,
+              },
             })
           );
           this.table.body.focus();
@@ -250,19 +246,12 @@ class TreeView extends HTMLElement {
         }
 
         if (event.target.classList.contains("tree-button-spam")) {
-          // Temporarily enforce the selection of only one row. We should extend
-          // this and allow interacting with this feature even if the specific
-          // row is not part of the selection.
-          // TODO: Implement a changeSelectionWithoutContentLoad method.
-          this._selectSingle(index);
           this.table.body.dispatchEvent(
             new CustomEvent("toggle-spam", {
               bubbles: true,
               detail: {
-                isJunk: event.target
-                  .closest(`tr[is="${this._rowElementName}"]`)
-                  ?.dataset.properties.split(" ")
-                  .find(p => p == "junk"),
+                isJunk: row.dataset.properties.includes("notjunk"),
+                index,
               },
             })
           );

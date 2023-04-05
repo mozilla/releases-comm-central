@@ -2577,23 +2577,36 @@ var threadPane = {
       this.restoreDefaultColumns();
     });
     this.treeTable.addEventListener("toggle-flag", event => {
-      commandController.doCommand("cmd_markAsFlagged", event);
+      gDBView.applyCommandToIndices(
+        event.detail.isFlagged
+          ? Ci.nsMsgViewCommandType.unflagMessages
+          : Ci.nsMsgViewCommandType.flagMessages,
+        [event.detail.index]
+      );
     });
     this.treeTable.addEventListener("toggle-unread", event => {
-      commandController.doCommand("cmd_toggleRead", event);
+      gDBView.applyCommandToIndices(
+        event.detail.isUnread
+          ? Ci.nsMsgViewCommandType.markMessagesRead
+          : Ci.nsMsgViewCommandType.markMessagesUnread,
+        [event.detail.index]
+      );
     });
     this.treeTable.addEventListener("toggle-spam", event => {
-      if (event.detail.isJunk) {
-        commandController.doCommand("cmd_markAsNotJunk", event);
-        return;
-      }
-      commandController.doCommand("cmd_markAsJunk", event);
+      gDBView.applyCommandToIndices(
+        event.detail.isJunk
+          ? Ci.nsMsgViewCommandType.junk
+          : Ci.nsMsgViewCommandType.unjunk,
+        [event.detail.index]
+      );
     });
     this.treeTable.addEventListener("thread-changed", () => {
       sortController.toggleThreaded();
     });
     this.treeTable.addEventListener("request-delete", event => {
-      commandController.doCommand("cmd_delete", event);
+      gDBView.applyCommandToIndices(Ci.nsMsgViewCommandType.deleteMsg, [
+        event.detail.index,
+      ]);
     });
 
     threadTree.addEventListener("contextmenu", this);
