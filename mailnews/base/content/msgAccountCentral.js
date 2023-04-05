@@ -191,7 +191,9 @@ function viewSettings(selectPage) {
  * Bring up the search interface for selected account.
  */
 function searchMessages() {
-  window.browsingContext.topChromeWindow.MsgSearchMessages(gSelectedFolder);
+  top.document
+    .getElementById("tabmail")
+    .currentAbout3Pane.commandController.doCommand("cmd_searchMessages");
 }
 
 /**
