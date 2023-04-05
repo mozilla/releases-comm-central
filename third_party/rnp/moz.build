@@ -115,10 +115,10 @@ if CONFIG["CC_TYPE"] == "clang-cl":
         "../niwcompat",
     ]
 
-    OS_LIBS += [
-        "-LIBPATH:{}".format(CONFIG["COMPILER_RT_BUILTIN_PATH"]),
-        CONFIG["COMPILER_RT_BUILTIN_LIB"],
-    ]
+    if CONFIG["CPU_ARCH"] == "x86":
+        LDFLAGS += ["clang_rt.builtins-i386.lib"]
+    elif CONFIG["CPU_ARCH"] == "x86_64":
+        LDFLAGS += ["clang_rt.builtins-x86_64.lib"]
 
 SYMBOLS_FILE = "rnp.symbols"
 

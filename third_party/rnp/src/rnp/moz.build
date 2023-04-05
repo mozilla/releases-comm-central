@@ -46,11 +46,13 @@ if CONFIG["CC_TYPE"] == "clang-cl":
         "/comm/third_party/niwcompat",
     ]
 
-    OS_LIBS += [
-        "shell32",
-        "-LIBPATH:{}".format(CONFIG["COMPILER_RT_BUILTIN_PATH"]),
-        CONFIG["COMPILER_RT_BUILTIN_LIB"],
-    ]
+    OS_LIBS += ["shell32"]
+
+    if CONFIG["CPU_ARCH"] == "x86":
+        LDFLAGS += ["clang_rt.builtins-i386.lib"]
+    elif CONFIG["CPU_ARCH"] == "x86_64":
+        LDFLAGS += ["clang_rt.builtins-x86_64.lib"]
+
     SOURCES += [
         "/comm/third_party/niwcompat/getopt.c",
     ]
