@@ -152,3 +152,7 @@ flatpak build-update-repo --generate-static-deltas repo
 tar cvfJ flatpak.tar.xz repo
 
 mv -- flatpak.tar.xz "$TARGET_TAR_XZ_FULL_PATH"
+
+flatpak build-bundle "$WORKSPACE"/repo org.mozilla.Thunderbird.flatpak org.mozilla.Thunderbird "$FLATPAK_BRANCH"
+
+mv org.mozilla.Thunderbird.flatpak "$ARTIFACTS_DIR/"
