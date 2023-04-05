@@ -9778,16 +9778,6 @@ NS_IMETHODIMP nsImapMockChannel::Cancel(nsresult status) {
             ("%s: Doom cache entry only if writing=%d(bool), url=%s", __func__,
              mWritingToCache, m_url->GetSpecOrDefault().get()));
     if (mWritingToCache) DoomCacheEntry(mailnewsUrl);
-
-    // "Pseudo interrupt" to stop the original chunk fetches so some faster.
-    // Probably a no-op if not writing to cache.
-    if (imapProtocol) {
-      imapProtocol->PseudoInterrupt(true);
-    } else {
-      // This sometimes seems to happen
-      MOZ_LOG(IMAPCache, LogLevel::Debug,
-              ("nsImapMockChannel::%s: has no assocated protocol", __func__));
-    }
   }
 
   // The associated ImapProtocol thread must be unblocked before being killed.

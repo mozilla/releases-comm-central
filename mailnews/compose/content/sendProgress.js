@@ -27,23 +27,28 @@ var progressListener = {
     }
 
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
-      // we are done sending/saving the message...
-      // Indicate completion in status area.
-      var msg;
-      if (itsASaveOperation) {
-        msg = gBundle.GetStringFromName("messageSaved");
-      } else {
-        msg = gBundle.GetStringFromName("messageSent");
+      if (Components.isSuccessCode(aStatus)) {
+        // we are done sending/saving the message...
+        // Indicate completion in status area.
+        let msg;
+        if (itsASaveOperation) {
+          msg = gBundle.GetStringFromName("messageSaved");
+        } else {
+          msg = gBundle.GetStringFromName("messageSent");
+        }
+        dialog.status.setAttribute("value", msg);
+
+        // Put progress meter at 100%.
+        dialog.progress.setAttribute("value", 100);
+        dialog.progressText.setAttribute(
+          "value",
+          gBundle.formatStringFromName("percentMsg", [100])
+        );
       }
-      dialog.status.setAttribute("value", msg);
 
-      // Put progress meter at 100%.
-      dialog.progress.setAttribute("value", 100);
-      dialog.progressText.setAttribute(
-        "value",
-        gBundle.formatStringFromName("percentMsg", [100])
-      );
-
+      // Note: Without some delay closing the window the "msg" string above may
+      // never be visible. Example: setTimeout(() => window.close(), 1000);
+      // Windows requires other delays. The delays also cause test failures.
       window.close();
     }
   },

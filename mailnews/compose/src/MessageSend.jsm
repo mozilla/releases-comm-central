@@ -35,7 +35,10 @@ const nsMsgKey_None = 0xffffffff;
 function MessageSend() {}
 
 MessageSend.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIMsgSend"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIMsgSend",
+    "nsIWebProgressListener",
+  ]),
   classID: Components.ID("{028b9c1e-8d0a-4518-80c2-842e07846eaa}"),
 
   async createAndSendMessage(
@@ -280,6 +283,30 @@ MessageSend.prototype = {
       .then(messageFile => this._deliverMessage(messageFile));
   },
 
+  // nsIWebProgressListener.
+  onLocationChange(webProgress, request, location, flags) {},
+  onProgressChange(
+    webProgress,
+    request,
+    curSelfProgress,
+    maxSelfProgress,
+    curTotalProgress,
+    maxTotalProgress
+  ) {},
+  onStatusChange(webProgress, request, status, message) {},
+  onSecurityChange(webProgress, request, state) {},
+  onContentBlockingEvent(webProgress, request, event) {},
+  onStateChange(webProgress, request, stateFlags, status) {
+    if (
+      stateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+      !Components.isSuccessCode(status)
+    ) {
+      lazy.MsgUtils.sendLogger.debug("onStateChange with failure. Aborting.");
+      this._isRetry = false;
+      this.abort();
+    }
+  },
+
   abort() {
     if (this._aborting) {
       return;
@@ -402,12 +429,20 @@ MessageSend.prototype = {
     );
     this._msgCopy = null;
 
-    let statusMsgEntry = Components.isSuccessCode(status)
-      ? "copyMessageComplete"
-      : "copyMessageFailed";
-    this._setStatusMessage(
-      this._composeBundle.GetStringFromName(statusMsgEntry)
-    );
+    if (!this._isRetry) {
+      let statusMsgEntry = Components.isSuccessCode(status)
+        ? "copyMessageComplete"
+        : "copyMessageFailed";
+      this._setStatusMessage(
+        this._composeBundle.GetStringFromName(statusMsgEntry)
+      );
+    } else if (Components.isSuccessCode(status)) {
+      // We got here via retry and the save to sent, drafts or template
+      // succeeded so take down our progress dialog. We don't need it any more.
+      this._sendProgress.unregisterListener(this);
+      this._sendProgress.closeProgressDialog(false);
+      this._isRetry = false;
+    }
 
     if (!Components.isSuccessCode(status)) {
       let localFoldersAccountName =
@@ -467,6 +502,45 @@ MessageSend.prototype = {
         );
         if (buttonPressed == 0) {
           // retry button clicked
+          // Check we have a progress dialog.
+          if (
+            this._sendProgress.processCanceledByUser &&
+            Services.prefs.getBoolPref("mailnews.show_send_progress")
+          ) {
+            let progress = Cc[
+              "@mozilla.org/messenger/progress;1"
+            ].createInstance(Ci.nsIMsgProgress);
+
+            let params = Cc[
+              "@mozilla.org/messengercompose/composeprogressparameters;1"
+            ].createInstance(Ci.nsIMsgComposeProgressParams);
+            params.subject = this._parentWindow.gMsgCompose.compFields.subject;
+            params.deliveryMode = this._deliverMode;
+
+            progress.openProgressDialog(
+              this._parentWindow,
+              this._sendProgress.msgWindow,
+              "chrome://messenger/content/messengercompose/sendProgress.xhtml",
+              false,
+              params
+            );
+
+            progress.onStateChange(
+              null,
+              null,
+              Ci.nsIWebProgressListener.STATE_START,
+              Cr.NS_OK
+            );
+
+            // We want to hear when this is cancelled.
+            progress.registerListener(this);
+
+            this._sendProgress = progress;
+            this._isRetry = true;
+          }
+          // Ensure statusFeedback is set so progress percent bargraph occurs.
+          this._sendProgress.msgWindow.statusFeedback = this._sendProgress;
+
           this._mimeDoFcc();
           return;
         } else if (buttonPressed == 2) {
