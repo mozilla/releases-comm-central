@@ -20,6 +20,7 @@ job-defaults:
             - linux64-nasm
             - linux64-node
             - linux64-pkgconf
+            - linux64-python
             - linux64-rust-size
             - sysroot-wasm32-wasi
 
