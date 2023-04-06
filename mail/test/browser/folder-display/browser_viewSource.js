@@ -119,14 +119,17 @@ async function subtest(row, expectedDisplayed, expectedSource) {
 
   plan_for_new_window("navigator:view-source");
   EventUtils.synthesizeKey("U", { shiftKey: false, accelKey: true });
-  let vsc = wait_for_new_window("navigator:view-source");
+  let viewSourceController = wait_for_new_window("navigator:view-source");
 
-  vsc.waitFor(
-    () => vsc.e("content").contentDocument.querySelector("pre") != null,
+  viewSourceController.waitFor(
+    () =>
+      viewSourceController.e("content").contentDocument.querySelector("pre") !=
+      null,
     "Timeout waiting for the latin1 view-source document to load."
   );
 
-  let source = vsc.e("content").contentDocument.body.textContent;
+  let source = viewSourceController.e("content").contentDocument.body
+    .textContent;
   Assert.stringContains(
     source,
     expectedSource,
@@ -138,35 +141,41 @@ async function subtest(row, expectedDisplayed, expectedSource) {
   // We can't use the menu on macOS.
   if (AppConstants.platform != "macosx") {
     // Keep a reference to the originally loaded document.
-    let doc = vsc.e("content").contentDocument;
+    let doc = viewSourceController.e("content").contentDocument;
 
     // Click the new window to make it receive further events properly.
-    vsc.click(vsc.e("content"));
+    viewSourceController.click(viewSourceController.e("content"));
     await new Promise(resolve => setTimeout(resolve));
 
     popupshown = BrowserTestUtils.waitForEvent(
-      vsc.e("viewmenu-popup"),
+      viewSourceController.e("viewmenu-popup"),
       "popupshown"
     );
-    vsc.click(vsc.e("menu_view"));
+    viewSourceController.click(viewSourceController.e("menu_view"));
     await popupshown;
+
     Assert.equal(
-      vsc.e("repair-text-encoding").disabled,
+      viewSourceController.e("repair-text-encoding").disabled,
       expectedSource == contentReadable
     );
-    await vsc.click_menus_in_sequence(vsc.e("viewmenu-popup"), [
-      { id: "repair-text-encoding" },
-    ]);
+
+    await viewSourceController.click_menus_in_sequence(
+      viewSourceController.e("viewmenu-popup"),
+      [{ id: "repair-text-encoding" }]
+    );
 
     if (expectedSource != contentReadable) {
-      vsc.waitFor(
+      viewSourceController.waitFor(
         () =>
-          vsc.e("content").contentDocument != doc &&
-          vsc.e("content").contentDocument.querySelector("pre") != null,
+          viewSourceController.e("content").contentDocument != doc &&
+          viewSourceController
+            .e("content")
+            .contentDocument.querySelector("pre") != null,
         "Timeout waiting utf-8 encoded view-source document to load."
       );
 
-      source = vsc.e("content").contentDocument.body.textContent;
+      source = viewSourceController.e("content").contentDocument.body
+        .textContent;
       Assert.stringContains(
         source,
         contentReadable,
@@ -176,11 +185,13 @@ async function subtest(row, expectedDisplayed, expectedSource) {
   }
 
   // Check the context menu while were here.
-  let browser = vsc.e("content");
-  let contextMenu = vsc.window.document.getElementById("viewSourceContextMenu");
+  let browser = viewSourceController.e("content");
+  let contextMenu = viewSourceController.window.document.getElementById(
+    "viewSourceContextMenu"
+  );
   popupshown = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
-    browser.contentDocument.body,
+    "body",
     { type: "contextmenu" },
     browser
   );
@@ -200,5 +211,5 @@ async function subtest(row, expectedDisplayed, expectedSource) {
   ]);
   contextMenu.hidePopup();
 
-  close_window(vsc);
+  close_window(viewSourceController);
 }
