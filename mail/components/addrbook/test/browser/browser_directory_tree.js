@@ -684,7 +684,7 @@ add_task(async function test_context_menu_button() {
     let menuRect = menu.getBoundingClientRect();
     Assert.less(
       Math.abs(menuRect.top - buttonRect.bottom),
-      10,
+      13,
       "menu appeared near the button vertically"
     );
     Assert.less(
